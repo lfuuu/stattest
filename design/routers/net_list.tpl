@@ -1,0 +1,1 @@
+<br><a href="{$LINK_START}module=routers&action=n_report" target=_blank>Отчёт по сетям</a><br>

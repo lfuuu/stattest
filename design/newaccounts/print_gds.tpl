@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Счёт &#8470;{$bill.bill_no}</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<LINK title=default href="{$PATH_TO_ROOT}bill.css" type="text/css" rel="stylesheet">
+</HEAD>
+<body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
+	<center><h2>Товарный чек &#8470;{$bill.bill_no}</h2></center>
+	<center><h4>{if !isset($without_date) || !$without_date}{$bill.ts|mdate:"от d.m.Y г."}{else}{$without_date_date}{/if}</h4></center>
+
+	<table border="1" align="center" width="100%">
+		<tr style="text-align: center">
+			<td>&#8470;</td>
+			<td>Артикул</td>
+			<td>Наименование</td>
+			<td>Количество</td>
+			<td>Цена за шт. с НДС</td>
+			<td>Сумма с НДС</td>
+		</tr>
+		{foreach from=$bill_lines item='l' key='k'}{assign var='k' value=$k+1}
+		<tr>
+			<td align="center">{$k}</td>
+			<td align="left">{if isset($1c_lines[$k])}{$1c_lines[$k].articul}{/if}&nbsp;</td>
+			<td align="left">{$l.item}&nbsp;</td>
+			<td align="center">{$l.amount|round:0} шт.</td>
+			<td align="center">{$l.price*1.18|round:2} руб.</td>
+			<td align="center">{if $l.line_nds == 18}{$l.sum*1.18|round:2}{else}{$l.sum|round:2}{/if} руб.</td>
+		</tr>
+		{/foreach}
+	</table>
+	<br />
+	<p>Сумма: {$bill.tsum|round:2} руб. (сумма прописью: {$bill.tsum|wordify:'RUR'})</p>
+	<p>Подпись продавца ____________________</p>
+	<br /><br />
+	<p>Товар получил.<br />Претензий по количеству и качеству не имею.<br />
+	Информация о порядке и сроках возврата товара надлежащего качества предоставлена
+	мне в письменной форме в момент доставки товара в Гарантийном талоне &#8470; {$bill.bill_no}<br /><br />
+	Подпись: ____________________</p>
+</body>
+</html>

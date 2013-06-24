@@ -1,0 +1,3 @@
+{foreach from=$tt_types item='t'}
+	<a href="index.php?module=tt&action=view_type&type_pk={$t.pk}">{$t.name}</a> ({$t.cnt})<br /><br />
+{/foreach}

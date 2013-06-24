@@ -1,0 +1,23 @@
+<p style="font-weight: bold">Пересчет звонков</p>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+  <tr>
+    <td class=header style="min-width: 100px;" colspan="2">Регион</td><td class=header style="min-width: 100px;">Задания</td>
+  </tr>
+  {foreach from=$regions item='r'}
+  <tr class={cycle values='even,odd'}>
+  <td nowrap>{$r.id}</td>
+  <td nowrap>{$r.name}</td>
+  <td nowrap>
+    {if $tasks[$r.id].id}
+      Task: <b>{$tasks[$r.id].task}</b><br/>
+      Created: <b>{$tasks[$r.id].created}</b><br/>
+      Status: <b>{$tasks[$r.id].status}</b><br/>
+    {else}
+      <a href="index.php?module=voipnew&action=calls_recalc&region_id={$r.id}&t=current">Пересчитать текущий месяц</a>
+      <a href="index.php?module=voipnew&action=calls_recalc&region_id={$r.id}&t=last">Пересчитать прошлый месяц</a>
+    {/if}
+  </td>
+  </tr>
+  {/foreach}
+</table>

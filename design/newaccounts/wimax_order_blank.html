@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=koi8-r">
+	<!--LINK href="http://all4net.ru/style.css" type="text/css" rel="stylesheet"-->
+	<!--link media="print" href="http://all4net.ru/main_print.css" type="text/css" rel="stylesheet"-->
+	{literal}<style>
+		input, div{
+			position:absolute;
+			padding:0px;
+			margin:0px;
+		}
+		.head{
+			font-size:10pt;
+			letter-spacing:1pt;
+			width:379pt;
+			height:14pt;
+			text-align:center;
+			vertical-align:bottom;
+			background-color:#B5AE9F;
+			color:white;
+		}
+		.field{
+			border:none;
+			background-color:#FFFFFF;
+			font-size:8pt;
+			width:267pt;
+		}
+	</style>{/literal}
+  </head>
+  <body>
+	<div style="background:url('./images/offerta.gif') no-repeat;width:1061px;height:750px;font-size:13pt;font-weight:bold;top:-20px;">
+		<div style="left:154pt;top:49pt;width:240pt;height:28pt;font-size:8pt;background-color:#FFFFFF;text-align:center;font-weight:bold;">
+			Бланк-заявка<br>
+			на предоставление услуги &laquo;Беспроводной доступ в Интернет по<br>
+			технологии WiMax&raquo; ОАО "КОМСТАР-ОТС"
+		</div>
+		<div class="head" style="left:15pt;top:103pt;">Данные об абоненте</div>
+
+		<input type="text" class="field" style="left:125pt;top:130pt;" value="{$cli_fio[0]}">
+		<input type="text" class="field" style="left:125pt;top:154pt;" value="{$cli_fio[1]}">
+		<input type="text" class="field" style="left:125pt;top:178pt;" value="{$cli_fio[2]}">
+
+		<input type="text" class="field" style="left:125pt;top:214pt;width:21pt;" value="{$cli_bd[0]}">
+		<input type="text" class="field" style="left:159pt;top:214pt;width:23pt;" value="{$cli_bd[1]}">
+		<input type="text" class="field" style="left:195pt;top:214pt;width:66pt;" value="{$cli_bd[2]}">
+		<div class="head" style="left:15pt;top:237pt;">Паспортные данные</div>
+		<input type="text" class="field" style="left:125pt;top:263pt;" value="{$cli.passp_series}">
+		<input type="text" class="field" style="left:125pt;top:287pt;" value="{$cli.passp_num}">
+		<input type="text" class="field" style="left:125pt;top:311pt;" value="{$cli.passp_whos_given|escape}">
+		<input type="text" class="field" style="left:125pt;top:335pt;" value="">
+
+		<input type="text" class="field" style="left:125pt;top:359pt;width:21pt;" value="{$cli_passp_when_given[2]}">
+		<input type="text" class="field" style="left:159pt;top:359pt;width:23pt;" value="{$cli_passp_when_given[1]}">
+		<input type="text" class="field" style="left:195pt;top:359pt;width:66pt;" value="{$cli_passp_when_given[0]}">
+		<div class="head" style="left:394pt;top:248pt;width:381pt;">Контактная информация</div>
+		<div class="head" style="left:15pt;top:383pt;">Адрес регистрации</div>
+		<input type="text" class="field" style="left:125pt;top:409pt;" value="{$cli.reg_city}">
+		<input type="text" class="field" style="left:125pt;top:434pt;" value="{$cli.reg_street}">
+		<input type="text" class="field" style="left:125pt;top:460pt;width:44pt;" value="{$cli.reg_house}">
+		<input type="text" class="field" style="left:262pt;top:460pt;width:32pt;" value="{$cli.reg_housing}">
+		<input type="text" class="field" style="left:362pt;top:460pt;width:31pt;" value="{$cli.reg_build}">
+		<input type="text" class="field" style="left:125pt;top:484pt;" value="{$cli.reg_flat}">
+		<div class="head" style="left:15pt;top:507pt;">Данные по договору</div>
+		<input type="text" class="field" style="left:124pt;top:533pt;width:215pt;" value="">
+		<input type="text" class="field" style="left:352pt;top:533pt;width:41pt;" value="">
+
+		<div style="left:661pt;top:16pt;width:115pt;height:21pt;font-size:8pt;background-color:#FFFFFF;text-align:right;font-weight:bold;">
+			Приложение &#8470; 1<br>
+			к Порядку акцепта Оферты
+		</div>
+
+		<input type="text" class="field" style="left:506pt;top:62pt;width:214pt;" value="{$cli_acc_no[0]}">
+		<input type="text" class="field" style="left:732pt;top:62pt;width:42pt;" value="{$cli_acc_no[1]}">
+
+		<input type="text" class="field" style="left:506pt;top:89pt;" value="{$wimax_tarif}">
+
+		<input type="text" class="field" style="left:506pt;top:130pt;" value="">
+		<input type="text" class="field" style="left:506pt;top:157pt;" value='ООО "Маркомнет"'>
+		<input type="text" class="field" style="left:506pt;top:183pt;" value="117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97">
+
+		<input type="text" class="field" style="left:506pt;top:203pt;" value="Юдицкая Н.С.">
+		<input type="text" class="field" style="left:506pt;top:212pt; font-size:6pt;" value="Действующая на основании Доверенности &#8470;1897 п/д-10 от 06.09.2010г.">
+
+		<input type="text" class="field" style="left:440pt;top:290pt;width:54pt;" value="">
+		<input type="text" class="field" style="left:565pt;top:290pt;width:210pt;" value="{$cli.connum}">
+		<input type="text" class="field" style="left:506pt;top:317pt;" value="{$cli.email}">
+		<input type="text" class="field" style="left:507pt;top:424pt;width:21pt;" value="">
+		<input type="text" class="field" style="left:541pt;top:424pt;width:23pt;" value="">
+		<input type="text" class="field" style="left:577pt;top:424pt;width:66pt;" value="">
+		<input type="text" class="field" style="left:506pt;top:452pt;" value="{$cli.fio}">
+	</div>
+  </body>
+</html>

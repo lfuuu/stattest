@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8" />
+</head>
+<body>
+<table border=1>
+<tr><td colspan=3>&nbsp;</td>
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align=center><b>{$pricelists[$p.pricelist_id].name}</b></td>
+		{else}
+		<td align=center colspan=3><b>{$pricelists[$p.pricelist_id].name}</b></td>
+		{/if}
+	{/foreach}
+  {if $volume.calc_date}<td align=center><b>Объем</b></td>{/if}
+	{if $f_showdefs != ''}
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align=center>{$pricelists[$p.pricelist_id].name}</td>
+		{else}
+		<td align=center colspan=2>{$pricelists[$p.pricelist_id].name}</td>
+		{/if}
+	{/foreach}
+	{/if}
+	{foreach from=$ext_params item='p'}
+		<td class=header align=center rowspan=2>{$p.name}</td>
+	{/foreach}		
+</tr>
+<tr><td><b>Префикс номера</b></td><td><b>Зона</b></td><td><b>Назначение</b></td>
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align=center>{$p.date1}</td>
+		{else}
+		<td align=center>{$p.date1}</td>
+		<td align=center>&gt; %</td>
+		<td align=center>{$p.date2}</td>
+		{/if}
+	{/foreach}
+  {if $volume.calc_date}<td align=center>(мин)</td>{/if}
+	{if $f_showdefs != ''}
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align=center>{$p.date1}</td>
+		{else}
+		<td align=center>{$p.date1}</td>
+		<td align=center>{$p.date2}</td>
+		{/if}
+	{/foreach}
+	{/if}		
+</tr>
+{foreach from=$report item='rd'}
+
+{assign var=diff value=0}
+{foreach from=$params item='p'}
+{if $p.date2 != '' and $rd.parts[$p.position].d2.price != $rd.parts[$p.position].d1.price}
+	{assign var=diff value=1}
+{/if}
+{/foreach}
+{if $f_onlydiff=='' or $diff=='1'}
+<tr>
+	<td>{$rd.defcode}</td>
+	<td>{$rd.zone}</td>
+	<td>{$rd.destination}</td>
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td>
+			{$rd.parts[$p.position].d1.price|number_format:3:",":""}</td>
+		{else}
+		<td>
+			{$rd.parts[$p.position].d1.price|number_format:3:",":""}</td>
+		<td>
+		{if $rd.parts[$p.position].d2.price == $rd.parts[$p.position].d1.price}&nbsp;
+		{else}
+		{if $rd.parts[$p.position].d2.price > $rd.parts[$p.position].d1.price}+{/if}{math equation="(d2 * 100 / d1) - 100" d1=$rd.parts[$p.position].d1.price d2=$rd.parts[$p.position].d2.price format="%.0f"}</td>
+		{/if}
+		<td>
+			{$rd.parts[$p.position].d2.price|number_format:3:",":""}</td>
+		{/if}
+	{/foreach}
+  {if $volume.calc_date}<td>{$rd.volume}</td>{/if}
+	{if $f_showdefs != ''}
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align="right">{if $rd.parts[$p.position].d1.effndef != $rd.defcode}{$rd.parts[$p.position].d1.effndef}{else}&nbsp;{/if}</td>
+		{else}
+		<td align="right">{if $rd.parts[$p.position].d1.effndef != $rd.defcode}{$rd.parts[$p.position].d1.effndef}{else}&nbsp;{/if}</td>
+		<td align="right">{if $rd.parts[$p.position].d2.effndef != $rd.defcode}{$rd.parts[$p.position].d2.effndef}{else}&nbsp;{/if}</td>
+		{/if}
+	{/foreach}
+	{/if}
+	{foreach from=$ext_params key='k' item='p'}
+		<td align="right">{$rd.ext[$k]}</td>
+	{/foreach}		
+</tr>
+{/if}
+{/foreach}
+</table>
+</body>

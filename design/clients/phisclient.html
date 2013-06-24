@@ -1,0 +1,53 @@
+<H2>Клиент физлицо</H2>
+<H3>{if isset($mode_new)}Новый клиент{else}Редактирование клиента pid={$cli.pk}{/if}</H3>
+<form action="" method="post">
+	<input type="hidden" name="module" value="clients" />
+	<input type="hidden" name="action" value="p_edit" />
+	{if !isset($mode_new)}
+	<input type="hidden" name="pid" value="{$cli.pk}" />
+	{/if}
+
+	<table class='mform' cellSpacing='4' cellPadding='2' width='100%' border='0'>
+		<tr>
+			<td class='left' width='30%'>Валюта: </td>
+			<td>
+				<select name="currency">
+					<option value="RUR"{if $cli.currency=='RUR'} selected='selected'{/if}>RUR</option>
+					<option value="USD"{if $cli.currency=='USD'} selected='selected'{/if}>USD</option>
+				</select>
+			</td>
+		</tr>
+		<tr><td class='left' width='30%'>ФИО: </td><td><input style='width:100%' name='fio' class='text' value='{$cli.fio}' /></td></tr>
+		<tr><td class='left' width='30%'>Телефон: </td><td><input style='width:100%' name='phone' class='text' value='{$cli.phone}' /></td></tr>
+		<tr><td class='left' width='30%'>email: </td><td><input style='width:100%' name='email' class='text' value='{$cli.email}' /></td></tr>
+		<tr><td class='left' width='30%'>Телефон подключения: </td><td><input style='width:100%' name='phone_connect' class='text' value='{$cli.phone_connect}' /></td></tr>
+		<tr><td class='left' width='30%'>Контактные данные: </td><td><input style='width:100%' name='contact_info' class='text' value='{$cli.contact_info}' /></td></tr>
+		<tr><td class='left' width='30%'>Владелец телефона: </td><td><input style='width:100%' name='phone_owner' class='text' value='{$cli.phone_owner}' /></td></tr>
+		<tr><td class='left' width='30%'>Адрес одной строкой: </td><td><input style='width:100%' name='address_single_string' class='text' value='{$cli.address_single_string}' /></td></tr>
+		<tr><td colspan="2" align="center"><b>Адрес</b></td></tr>
+		<tr><td class='left' width='30%'>Город: </td><td><input style='width:100%' name='addr_city' class='text' value='{$cli.addr_city}' /></td></tr>
+		<tr><td class='left' width='30%'>Улица: </td><td><input style='width:100%' name='addr_street' class='text' value='{$cli.addr_street}' /></td></tr>
+		<tr><td class='left' width='30%'>Дом: </td><td><input style='width:100%' name='addr_house' class='text' value='{$cli.addr_house}' /></td></tr>
+		<tr><td class='left' width='30%'>Корпус: </td><td><input style='width:100%' name='addr_housing' class='text' value='{$cli.addr_housing}' /></td></tr>
+		<tr><td class='left' width='30%'>Строение: </td><td><input style='width:100%' name='addr_build' class='text' value='{$cli.addr_build}' /></td></tr>
+		<tr><td class='left' width='30%'>Квартира: </td><td><input style='width:100%' name='addr_flat' class='text' value='{$cli.addr_flat}' /></td></tr>
+		<tr><td class='left' width='30%'>Подъезд: </td><td><input style='width:100%' name='addr_porch' class='text' value='{$cli.addr_porch}' /></td></tr>
+		<tr><td class='left' width='30%'>Этаж: </td><td><input style='width:100%' name='addr_floor' class='text' value='{$cli.addr_floor}' /></td></tr>
+		<tr><td class='left' width='30%'>Домофон: </td><td><input style='width:100%' name='addr_intercom' class='text' value='{$cli.addr_intercom}' /></td></tr>
+		<tr><td colspan="2" align="center"><b>Паспорт</b></td></tr>
+		<tr><td class='left' width='30%'>Серия: </td><td><input style='width:100%' name='passp_series' class='text' value='{$cli.passp_series}' /></td></tr>
+		<tr><td class='left' width='30%'>Номер: </td><td><input style='width:100%' name='passp_num' class='text' value='{$cli.passp_num}' /></td></tr>
+		<tr><td class='left' width='30%'>Кем выдан: </td><td><input style='width:100%' name='passp_whos_given' class='text' value='{$cli.passp_whos_given}' /></td></tr>
+		<tr><td class='left' width='30%'>Когда выдан: </td><td><input style='width:100%' name='passp_when_given' class='text' value='{$cli.passp_when_given}' /></td></tr>
+		<tr><td class='left' width='30%'>Код кодразделения: </td><td><input style='width:100%' name='passp_code' class='text' value='{$cli.passp_code}' /></td></tr>
+		<tr><td class='left' width='30%'>Дата рождения: </td><td><input style='width:100%' name='passp_birthday' class='text' value='{$cli.passp_birthday}' /></td></tr>
+		<tr><td colspan="2" align="center"><b>Регистрация</b></td></tr>
+		<tr><td class='left' width='30%'>Город: </td><td><input style='width:100%' name='reg_city' class='text' value='{$cli.reg_city}' /></td></tr>
+		<tr><td class='left' width='30%'>Улица: </td><td><input style='width:100%' name='reg_street' class='text' value='{$cli.reg_street}' /></td></tr>
+		<tr><td class='left' width='30%'>Дом: </td><td><input style='width:100%' name='reg_house' class='text' value='{$cli.reg_house}' /></td></tr>
+		<tr><td class='left' width='30%'>Корпус: </td><td><input style='width:100%' name='reg_housing' class='text' value='{$cli.reg_housing}' /></td></tr>
+		<tr><td class='left' width='30%'>Строение: </td><td><input style='width:100%' name='reg_build' class='text' value='{$cli.reg_build}' /></td></tr>
+		<tr><td class='left' width='30%'>Квартира: </td><td><input style='width:100%' name='reg_flat' class='text' value='{$cli.reg_flat}' /></td></tr>
+		<tr><td colspan="2" align="center"><input id='submit' class='button' type='submit' name="gone" value="{if isset($mode_new)}Создать{else}Изменить{/if}" /></td></tr>
+	</table>
+</form>

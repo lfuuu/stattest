@@ -1,0 +1,212 @@
+#!/usr/bin/perl
+use DBI();
+use Socket;
+use Digest::MD5 qw(md5);
+
+socket(SERVER, PF_INET, SOCK_STREAM, getprotobyname('tcp')) or die "socket: $!";
+setsockopt(SERVER, SOL_SOCKET, SO_REUSEADDR, 1) or die "setsockopt: $!";
+bind(SERVER, sockaddr_in(12000, INADDR_ANY)) or die "bind: $!";
+listen(SERVER, SOMAXCONN) or die "listen: $!";
+
+
+my $db=DBI->connect("DBI:mysql:database=nispd;host=localhost","voipregd","1e724bd0b888a97",{'RaiseError'=>1});
+#minho: my $db=DBI->connect("DBI:mysql:database=nispd;host=localhost","stat_operator","3616758a",{'RaiseError'=>1});
+
+
+%month_rev=("Jan" => "01",
+            "Feb" => "02",
+            "Mar" => "03",
+            "Apr" => "04",
+            "May" => "05",
+            "Jun" => "06",
+            "Jul" => "07",
+            "Aug" => "08",
+            "Sep" => "09",
+            "Oct" => "10",
+            "Nov" => "11",
+            "Dec" => "12");
+
+my $client_addr;
+while ($client_addr = accept(CLIENT, SERVER)) {
+    if (!fork()){
+	$done=0;
+	select CLIENT;
+	$| = 1;
+	my ($client_port, $client_ip) = sockaddr_in($client_addr);
+	my $client_ipnum = inet_ntoa($client_ip);
+	my $client_host = gethostbyaddr($client_ip, AF_INET);
+#	print CLIENT "105 Password, Please\n";
+#	$x=<CLIENT>;
+#	if ($x =~ /^(.+?)[\r\n]+/){ $x=$1; }
+	$x='21bcc2a2e126663bbd53c422c136483d';
+	if ($x ne '21bcc2a2e126663bbd53c422c136483d'){
+	    print CLIENT "403 Authentication error\n";
+	}else{
+	    print CLIENT "100 Ready\n";
+	    while($x=<CLIENT>){
+		if ($x =~ /^quit/i){
+		    print CLIENT "210 Bye\n";
+		    last;
+		}elsif ($x =~ /^([a-z]+)\s+(.+)/){
+		    if (length($error_text=do_action($1,$2,$client_ipnum))==0){
+			print CLIENT "200 OK\n";
+		    }else{
+			print CLIENT "501 $error_text\n";
+		    }
+		}else{
+		    print CLIENT "401 Illegal command: '$x'\n";
+		}
+#print STDERR "1";
+	    }
+	}
+	shutdown(CLIENT, 2);
+    }
+}
+
+exit;
+
+################################################
+
+sub do_action{
+my ($action,$options,$remote_ipnum)=@_;
+    if ($action eq 'cdr'){
+        if ($options =~ /^gnugk\s+(.+)$/){
+# 	old code removed
+
+        }elsif ($options =~ /^asterisk\s+(.+)$/){
+	    $d=$1;
+#	    $d=~ s/([\"0-9]),([\"0-9])/$1%%\,%%$2/g;
+#	    $d=~ s/\"%%,%%\"/%%,%%/g;
+#	    my @ds=split(/%%,%%/,$d);
+	    my @ds=split(/,/,$d);
+	    for($i=0;$i<20;$i++){
+			$ds[$i]=~ s/\"\"/\"/g;
+			$ds[$i]=~ s/\"$//g;
+			$ds[$i]=~ s/^\"([^\"])/$1/g;
+			if (0){print STDERR "ds[$i]='".$ds[$i]."'\n"};	###%DEBUG%
+	    }
+	    my %fields;
+	    $fields{'usage_id'}=0;
+	    $fields{'phone_id'}=0;
+	    $fields{'lengthResult'}=0;
+	    $fields{'ts_month'}=0;
+	    $fields{'ts_delta'}=0;
+	    $fields{'tarif_id'}=0;
+	    $fields{'tarif_sum'}=0;
+	    $fields{'flag'}=0;
+	    
+	    $phone_from = $ds[1];
+	    $phone_to = $ds[2];
+		$time_start = $ds[9];
+		$time_len = $ds[13];
+		$terminate = $ds[14];
+
+#	    $fields{'AcctStartTime'}=$ds[10];
+#	    $fields{'AcctStopTime'}=$ds[11];
+#	    $fields{'AcctPBXTime'}=$ds[12];
+#	    $fields{'AcctSessionTime'}=$ds[13];
+#	    $fields{'CallDirection'}='';
+#	    $fields{'CalledChanelId'}=$ds[6];
+#	    $fields{'CallingChanelId'}=$ds[5];
+#	    $fields{'AcctTerminateCause'}=$ds[14];
+#	    $fields{'ast_LastApp'}=$ds[7];
+#	    $fields{'ast_LastAppParam'}=$ds[8];
+#	    $fields{'ast_LastContext'}=$ds[3];
+#	    $fields{'AcctBillingRate'}=0;
+#	    $fields{'AcctBillingSum'}=0;
+	    if ($time_len>3600*10){
+			if (0){print "x";};	###%DEBUG%
+			return;
+	    }
+
+	    if ($ds[4]=~ /\"(\d{4})\"+\ \<7[04]959505680\>/){
+			$phone_from=$1;
+	    }elsif ($ds[4]=~ /\+(\d{4})E?\"+\ \<7[04]959505680\>/){
+			$phone_from=$1;
+	    }elsif ($ds[4]=~ /\"?7[04]959505680\+(\d{4})E?\"?/){
+			$phone_from=$1;
+	    }elsif ($ds[4]=~ /\"?7[04]959505680\*(\d{4})E?\"?/){
+			$phone_from=$1;
+	    }
+	    my $req = "SELECT nvoip_get_phone(".$db->quote($phone_from).") as A,nvoip_get_phone(".$db->quote($phone_to).") as B,nvoip_get_result(".$db->quote($terminate).",".$db->quote($time_len).") as C,nvoip_get_ts_month(".$db->quote($time_start).") as D,nvoip_get_ts_delta(".$db->quote($time_start).") as E";
+	    my $t = $db->prepare($req); $t->execute();
+	    if ($res=$t->fetchrow_hashref()){
+	    	$phone_from_id = $res->{'A'};
+	    	$phone_to_id = $res->{'B'};
+	    	$fields{'lengthResult'} = $res->{'C'};
+   	        $fields{'ts_month'}=$res->{'D'};
+	        $fields{'ts_delta'}=$res->{'E'};
+	    }
+	    $t->finish;
+		
+	    my $req = "SELECT id FROM usage_voip WHERE E164=".$db->quote($phone_from)." and actual_from<=".$db->quote($time_start)." and actual_to>=".$db->quote($time_start);
+	    my $t = $db->prepare($req); $t->execute();
+	    if ($res=$t->fetchrow_hashref()){
+			$fields{'usage_id'}=$res->{'id'};
+			$fields{'flag'}='16';
+			$fields{'phone_id'}=$phone_to_id;
+			if (!(sql_checkexisnence($fields{'usage_id'},$fields{'ts_month'},$fields{'ts_delta'},$fields{'phone_id'},$fields{'lengthResult'}))){
+			    sql_do_insert($db,'usage_nvoip_sess',%fields);
+			}
+	    }
+	    $t->finish;
+
+	    my $req = "SELECT id FROM usage_voip WHERE E164=".$db->quote($phone_to)." and actual_from<=".$db->quote($time_start)." and actual_to>=".$db->quote($time_start);
+	    my $t = $db->prepare($req); $t->execute();
+	    if ($res=$t->fetchrow_hashref()){
+			$fields{'usage_id'}=$res->{'id'};
+			$fields{'flag'}='32';
+			$fields{'phone_id'}=$phone_from_id;
+			if (!(sql_checkexisnence($fields{'usage_id'},$fields{'ts_month'},$fields{'ts_delta'},$fields{'phone_id'},$fields{'lengthResult'}))){
+			    sql_do_insert($db,'usage_nvoip_sess',%fields);
+			}
+	    }
+	    $t->finish;
+	}else{
+	    return "cdr: illegal options: $options";
+	}
+    }else{
+	return "Unknown action: $action";
+    }
+    return;
+}
+
+#######
+sub sql_checkexisnence{
+    my ($UsageId,$TsMonth,$TsDelta,$PhoneId,$LenRes)=@_;
+    my $req = "SELECT id from usage_nvoip_sess where ".
+	    "usage_id ='$UsageId'  AND ".
+	    "ts_month ='$TsMonth' AND ".
+	    "phone_id ='$PhoneId' AND ".
+	    "lengthResult ='$LenRes' AND ".
+	    "ts_delta>=('$TsDelta'-1) AND ".
+	    "ts_delta<=('$TsDelta'+1)";
+    if (0){print STDERR "$req\n\n";};	###%DEBUG%
+    my $t = $db->prepare($req); $t->execute();
+    if (my $res=$t->fetchrow_hashref()){
+	if (($res->{'id'})>0){
+            $t->finish;
+	    return 1;
+	}
+    }
+    $t->finish;
+    return 0;
+}
+
+sub sql_do_insert{
+    my ($db,$table,%fields)=@_;
+    my ($f1,$f2)=('','');
+    while (($key,$val) = each %fields) {
+	$f1.=",$key";
+	$f2.=",".$db->quote($val);
+    }
+    $f1=~s/^,//g;
+    $f2=~s/^,//g;
+    my $req = "INSERT INTO $table ($f1) VALUES ($f2);";
+    if (0){print STDERR $req."\n";}
+    #if (1){print STDERR $req."\n-+++-\n";}	###%DEBUG%
+    my $t = $db->prepare($req);
+    $t->execute();
+    $t->finish;
+    if (0){print STDERR "\n-+++-\n";}
+}

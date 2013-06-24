@@ -1,0 +1,47 @@
+<form action="" method="post">
+<input type="hidden" name="module" value="voip" />
+<input type="hidden" name="action" value="upload" />
+<input type="hidden" name="step" value="upprice" />
+<input type="hidden" name="operator_id" value="{$operator_id}" />
+<table border="1">
+	<tr>
+		<td>DEF код</td>
+		<td>Пункт назначения</td>
+		<td>Направление, группа</td>
+		<td>Направление, подгруппа</td>
+		<td>Стац./Моб.</td>
+		<td>Цена</td>
+		<td>Валюта</td>
+		<td>Дата активации</td>
+		<td>доб./удал.</td>
+	</tr>
+	{foreach from=$defs item='d'}
+	<tr>
+		<td>{$d.def}</td>
+		<td><input type="text" name="{$d.def}[dest]" value="{$d.dest}" /></td>
+		<td>
+			<select name="{$d.def}[dgroup]">
+				<option value="-1"{if $d.dgroup==-1} selected='selected'{/if}>Не определено</option>
+				<option value="0"{if $d.dgroup==0} selected='selected'{/if}>Москва</option>
+				<option value="1"{if $d.dgroup==1} selected='selected'{/if}>Россия</option>
+				<option value="2"{if $d.dgroup==2} selected='selected'{/if}>Зарубежное</option>
+				<option value="3"{if $d.dgroup==3} selected='selected'{/if}>СНГ</option>
+			</select>
+		</td>
+		<td>
+			<select name="{$d.def}[dsubgroup]">
+				{foreach from=$subgroups item='sg' key='sgpk'}
+				<option value="{$sgpk}"{if $d.dsubgroup==$sgpk} selected='selected'{/if}>{$sg.name}</option>
+				{/foreach}
+			</select>
+		</td>
+		<td><input type="hidden" name="{$d.def}[fixormob]" value="{$d.fixormob}" />{if $d.fixormob == 'mob'}Мобильные{else}Стационарные{/if}</td>
+		<td><input type="hidden" name="{$d.def}[price]" value="{$d.price}" />{$d.price}</td>
+		<td><input type="hidden" name="{$d.def}[currency]" value="{$d.currency}" />{$d.currency}</td>
+		<td><input type="hidden" name="{$d.def}[activation]" value="{$d.activation}" />{$d.activation}</td>
+		<td><input type="hidden" name="{$d.def}[active]" value="{$d.active}" />{if $d.active=='Y'}Доб.{else}Удал.{/if}</td>
+	</tr>
+	{/foreach}
+</table>
+<input type="submit" name="submit" value="Загрузить" />
+</form>

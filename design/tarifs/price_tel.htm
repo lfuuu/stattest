@@ -1,0 +1,17 @@
+<h1>Прайс листы, в договора</h1>
+<table cellpadding=2 border=1 style="border-collapse: collapse;">
+<tr>
+<th>Код</th>
+<th>Город</th>
+<th>Дата генерации</th>
+<th>&nbsp;</th>
+</tr>
+{foreach from=$data key=region item=i}
+<tr>
+<td>{$region}</td>
+<td>{$i.city}</td>
+<td>{if $i.time}{$i.time}{else}----{/if}</td>
+<td><a href="./?module=tarifs&action=price_tel&gen=true&region={$region}" target=_blank>сформировать</a></td>
+</tr>
+{/foreach}
+</table>

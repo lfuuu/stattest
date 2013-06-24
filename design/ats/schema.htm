@@ -1,0 +1,949 @@
+<html>
+<head>
+    <link rel="stylesheet" href="css/schema/action.css">
+    <link rel="stylesheet" href="css/schema/items.css">
+	<link rel="stylesheet" href="css/schema/schedule.css"  media="screen" type="text/css" ></link>
+    <link rel="stylesheet" href="css/themes/smoothness/jquery-ui-1.8.14.custom.css">
+
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.9.2.custom.min.js"></script>
+    <script type="text/javascript" src="js/ui/minified/jquery.effects.blind.min.js"></script>
+
+	<script src="js/ui/jquery.ui.core.js"></script>
+	<script src="js/ui/jquery.ui.widget.js"></script>
+	<script src="js/ui/jquery.ui.mouse.js"></script>
+	<script src="js/ui/jquery.ui.sortable.js"></script>
+	<script src="js/ui/jquery.ui.tabs.js"></script>
+	<script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
+	<script src="js/ui/jquery.ui.datepicker.js"></script>
+
+	<script src="js/ui/jquery.ui.dialog.js"></script>
+	<script src="js/ui/jquery.effects.core.js"></script>
+	<script src="js/ui/jquery.maskedinput-1.3.js"></script>
+</head>
+<style>
+{literal}
+ul11 {
+border: 1px solid red;
+}
+li11{
+border: 1px solid green;
+}
+div111 {
+    border: 1px solid green;
+    padding: 2px 2px 2px 2px;
+}
+.template {
+    display: none;
+    width: 36em;
+    border: 1px solid #aaa;
+    padding: 1px 3px 2px 3px;
+    margin: 5px 5px 5px 5px;
+    background-color: #fafafa;
+}
+
+.template-items { 
+    border: 1px solid #ccc;
+    clear:left;
+    background-color: white;
+    padding-top: 10px;
+}
+.template-time {
+    background-color: #aaa;
+    padding: 3px 3px 3px 3px;
+width: 85%
+}
+.dropdown-over {
+    background-color: #32cff0;
+}
+
+.dropdown-container {
+    background-color: #FFFFFF;
+    border: 1px solid #000000;
+    display: none;
+    position: absolute;
+    width: 100px;
+}
+.dropdown-container ul {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+.dropdown-container li {
+    cursor: pointer;
+    padding: 0.25em 0.5em;
+    margin: 0 0 0 0;
+    position: relative;
+    white-space: nowrap;
+    list-style: none outside none;
+}
+.b-dialog-container {
+    display: none;
+}
+.ui-state-highlight2 {
+    background: url("images/ui-bg_glass_55_fbf9ee_1x400.png") repeat-x scroll 50% 50% #FBF9EE;
+    border: 1px solid #FCEFA1;
+    color: #363636;
+    list-style-type: none;
+    height: 5em;
+}
+.clr{
+    clear:both;
+    font-size:0;
+    line-height:0px;
+    display:block;
+    overflow:hidden;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.fg-button { outline: 0; margin:0 4px 0 0; padding: .4em 1em; text-decoration:none !important; cursor:pointer; position: relative; text-align: center; zoom: 1; }
+.fg-button .ui-icon { position: absolute; top: 50%; margin-top: -8px; left: 50%; margin-left: -8px; }
+
+a.fg-button { float:left; }
+
+/* remove extra button width in IE */
+button.fg-button { width:auto; overflow:visible; }
+
+.fg-button-icon-left { padding-left: 2.1em; }
+.fg-button-icon-right { padding-right: 2.1em; }
+.fg-button-icon-left .ui-icon { right: auto; left: .7em; margin-left: 0; }
+.fg-button-icon-right .ui-icon { left: auto; right: .7em; margin-left: 0; }
+
+.fg-button-icon-solo { display:block; width:8px; text-indent: -9999px; }         /* solo icon buttons must have block properties for the text-indent to work */ 
+
+.fg-buttonset { float:left; }
+.fg-buttonset .fg-button { float: left; }
+.fg-buttonset-single .fg-button, 
+.fg-buttonset-multi .fg-button { margin-right: -1px;}
+
+.fg-toolbar { padding: .5em; margin: 0;  }
+.fg-toolbar .fg-buttonset { margin-right:1.5em; padding-left: 1px; }
+.fg-toolbar .fg-button { font-size: 1em;  }
+
+
+
+{/literal}
+</style>
+
+	<script>
+    var schemaId = {$schemaId};
+    var rData = {$rData};
+    var rNullTimeBlock = {$nullTimeBlock};
+{literal}
+
+    var DAY_TYPES = {
+       8 : "��� ���",
+       1 : "�����������",
+       2 : "�������",
+       3 : "�����",
+       4 : "�������",
+       5 : "�������",
+       6 : "�������",
+       7 : "�����������",
+       9 : "������� ���",
+       10 : "��������"
+    };
+    var rNullItem = {
+        action: "redirect",
+        timeout: 0,
+        sound_id: 0,
+        sound_name: "",
+        nums: []
+    };
+
+	$(function() {
+
+$("#b-action-tabs").tabs();
+
+$.extend($.mask.definitions, {
+  "1" : "[0-1]",
+  "2" : "[0-2]",
+  "3" : "[0-3]",
+  "5" : "[0-5]"
+});
+
+//$.datepicker.regional["ru"];
+/*
+      $.each(["from","until"], function() {
+            var $date = $("#schedule-valid-"+this+"-date").mask("39.19.2999").datepicker({
+                            showOn: "button",
+                            buttonImage: "calendar.gif",
+                            buttonImageOnly: true
+                            });
+            
+            var $time = $("#schedule-valid-"+this+"-time").mask("29:59");
+
+
+        var handler = function() {
+          // if the field is completely filled (using regex to ignore mask underscores)
+          // skip closing $ as far as $.mask appends underscores to value
+          if (!$date.val().match(/^\d{2}\.\d{2}\.\d{4}/)) {
+            $time.val("").attr("disabled", "disabled");
+          }
+          else {
+            $time.removeAttr("disabled");
+          }
+        };
+        $date.change(handler).keydown(function() {
+          setTimeout(handler);
+        }).change();
+      });
+*/
+
+
+
+var rId = -1;
+
+        function addTimeBlock(r)
+        {
+            var inputs = "";
+            
+            inputs += "<input type=hidden name=time_"+r.id+"[time][is_alltime] value="+r.is_alltime+">\n";
+
+            for(var i = 0; i < r.times.length; i++)
+            {
+                inputs += "<input type=hidden name=time_"+r.id+"["+i+"][day_id] value="+r.times[i].day_id+">\n";
+                inputs += "<input type=hidden name=time_"+r.id+"["+i+"][from] value="+r.times[i].from+">\n";
+                inputs += "<input type=hidden name=time_"+r.id+"["+i+"][until] value="+r.times[i].until+">\n";
+            }
+
+            var newTemplate = $($("#template").get(0)).clone(true);
+            $(newTemplate).css("display","block").attr("id", "section_"+r.id+"_alltime")
+                .find("#_time").html(r.title+inputs).attr("id", "time_"+r.id).end()
+                .find("#_editblock").attr("id", "edit_"+r.id).css('cursor','pointer').end()
+                .find("#_delblock").attr("id", "delblock_"+r.id).css('cursor','pointer').click(removeBlock).end()
+                .find("#sortable").attr("id", "sortable_"+r.id).sortable().disableSelection().end()
+                .find("#create-redir").attr("id","create-redir_"+r.id).click(function()
+                        {
+                        blockId = $(this).attr("id").replace("create-redir_","");
+                        addElement = null;
+                        dialogRedir(rNullItem);
+                        });
+
+            if(r.is_alltime){
+                $(newTemplate).find("#delblock_"+r.id).remove();
+                $(newTemplate).find("#edit_"+r.id).remove();
+                $(newTemplate).addClass("unsortable");
+            }
+
+                $(newTemplate).find("#edit_"+r.id).click(function(){
+                        rId = $(this).attr("id").replace("edit_","");
+                        openTimeDialog(rId);
+
+                        });
+
+            $(newTemplate).prependTo("#main ul.timeblock");
+
+            $("#main ul.timeblock").sortable(
+                    {
+                        items: "li.sortable-timeblock:not(.unsortable)",
+                        placeholder: "ui-state-highlight2"
+                    }
+                    ).disableSelection();
+
+        }
+
+
+        function addStatusBlock(r)
+        {
+            var inputs = "";
+            
+            var newTemplate = $($("#template").get(0)).clone(true);
+            $(newTemplate).css("display","block").attr("id", "section_"+r.id+"_"+r.status)
+                .find("#_time").html("������: "+r.title+inputs).attr("id", "time_"+r.id).end()
+                .find("#_editblock").attr("id", "edit_"+r.id).css('cursor','pointer').end()
+                .find("#_delblock").attr("id", "delblock_"+r.id).css('cursor','pointer').click(removeBlock).end()
+                .find("#sortable").attr("id", "sortable_"+r.id).sortable().disableSelection().end()
+                .find("#create-redir").attr("id","create-redir_"+r.id).click(function()
+                        {
+                        blockId = $(this).attr("id").replace("create-redir_","");
+                        addElement = null;
+                        dialogRedir(rNullItem);
+                        });
+
+            $(newTemplate).find("#delblock_"+r.id).remove();
+            $(newTemplate).find("#edit_"+r.id).remove();
+            $(newTemplate).addClass("unsortable");
+            $(newTemplate).css("float", "left").css("width", "250");
+
+            $(newTemplate).find("#edit_"+r.id).click(function(){
+                    rId = $(this).attr("id").replace("edit_","");
+                    openTimeDialog(rId);
+
+                    });
+
+            $(newTemplate).prependTo("#main ul.statusblock");
+
+            /*
+            $("#main ul.timeblock").sortable(
+                    {
+                        items: "li.sortable-timeblock:not(.unsortable)",
+                        placeholder: "ui-state-highlight2"
+                    }
+                    ).disableSelection();
+                    */
+
+        }
+
+function openTimeDialog(rId)
+{
+    var times = loadTime(rId);
+
+    // ������� ������
+    $("#dialog-container-schedule ul.items").html(""); 
+    //��������� ������ �������
+    for(var i = 0 ; i < times.length; i++)
+    {
+        addScheduleDialogTime(times[i]);
+    }
+
+    // ���������� ������
+    $("#dialog-container-schedule").dialog(
+            {
+            width: 400, height: 500, modal: true, buttons:{
+                "OK": function() {
+                    var xml_doc = "<"+"?xml version='1.0'?>";
+                    xml_doc += "<timecond>";
+                    $(this).find("input").each(function(i, o){
+                        xml_doc += "<"+o.name+">"+o.value+"</"+o.name+">";
+                    });
+                    xml_doc += "</timecond>";
+                    $.ajax({
+                        type: "POST",
+                        url: "./?module=ats&action=schema&make=schedule",
+                        data: {data: xml_doc},
+                        success: function(t){
+                            if(rId == 0)
+                            {
+                                rr = rNullTimeBlock;
+                                rr.is_alltime = false;
+                                rId = rr.id = Math.round(Math.random()*99999);
+                                addTimeBlock(rr);
+                                addElement = null;
+                                for(var j=0; j < rr.redirs.length ; j++)
+                                {
+                                    var htmlItem = HTMLizeActionItem(rr.redirs[j]);
+                                    addRedir(htmlItem, rr.id);
+                                }
+                            }
+                            $("#time_"+rId).html(t);
+                            $("#dialog-container-schedule").dialog("close");
+                        }
+                    
+                    });
+                    $("#dropdown-container").css("display", "")
+                },
+                Cancel: function(){
+                    $("#dropdown-container").css("display", "")
+                    $(this).dialog("close");
+                }
+            }
+        });
+}
+        function loadTime(id)
+{
+    var data = {is_alltime: false};
+    var vals = new Array();
+
+    if(id == 0) return vals;
+
+    var o = $("#time_"+id);
+    var lastCount = -1;
+
+    o.closest("li").find("input[type=hidden]").each(function(i, k){
+            var count = "";
+            var sec1 = "";
+            var sec2 = "";
+
+            $($(k).attr("name").split(/time_([0-9]+)\[([^\]]+)\]\[([^\]]+)\]/gi)).each(function(j,l)
+                {
+                if(j == 2){
+                    count = l ;
+                }else if(j == 3){
+                    sec1 = l;
+                }
+                });
+
+            if(count == "time")
+            {
+                if(sec1 == "is_alltime"){
+                    data.is_alltime = $(k).val();
+                }else{
+                    var s = sec1.split("_");
+                    data[s[0]][s[1]] = $(k).val();
+                }
+            }else{
+                if(lastCount != count) {
+                    if(lastCount != -1){
+                        vals.push(val);
+                    }
+
+                    val = {day_id: 0, from: "", until: ""};
+                }
+                    lastCount = count;
+                    val[sec1] = $(k).val();
+            }
+
+                
+            });
+            if(lastCount != -1 && lastCount != ""){
+                vals.push(val);
+            }
+
+        return vals;
+}
+
+$("#add-timeblock").button().click(function(){
+        openTimeDialog(0);
+        }
+        );
+
+        var blockId = 0;
+        var addElement = null;
+        dcaItem = rNullItem;
+        function dialogRedir(item)
+        {
+            dcaItem = item;
+            //$( "#dialog-redir" ).dialog( "open" );
+            $( "#dialog-container-action" ).dialog( "open" );
+        }
+        function addRedir(html, id)
+        {
+            if(addElement == null)
+            {
+                $( "#sortable_"+id ).append(html);
+            }else{
+                html.replaceAll(addElement);
+            }
+        }
+
+        for(var i=0; i < rData.length; i++)
+        {
+            var r = rData[i];
+            if(r.status == "alltime")
+            {
+                addTimeBlock(r);
+            }else{
+                addStatusBlock(r);
+            }
+
+                var s = "";
+                for(var j=0; j < r.redirs.length ; j++)
+                {
+                    var htmlItem = HTMLizeActionItem(r.redirs[j]);
+                    addRedir(htmlItem, r.id);
+                }
+        }
+
+
+        var xml = "";
+    $( "#do_save" )
+        .button()
+        .click(function() {
+                $("#processinfo").html("����������...").css("color", "black").show();
+                xml = "<"+"?xml version='1.0'?"+"><sections>";
+                $(".template").not("#template").each(function(i,o){
+
+                    r = new RegExp(/section_([0-9]+)_(.+)$/);
+                    t = r.exec(o.id);
+
+                    xml += "<section><id>"+t[1]+"</id><status>"+t[2]+"</status><collection>";
+                    $(o).find("input[type=hidden]").each(function(j,p){
+                        xml += "<item>"+p.name+"="+p.value+"</item>";
+                        });
+                    xml += "</collection></section>";
+                    });
+                xml += "</sections>";
+			$.ajax({
+				type:'post',
+				url:'./',
+				data:{'data':xml,schema_id: schemaId,schema_name: $("#schema-name").val(),'module':'ats','action':'schema', 'do':'save','id':schemaId},
+				success:function(msg){
+					var res = eval(msg);
+
+                    var pi = $("#processinfo");
+                    pi.html("���������").css("color", "green").queue(function(){
+                        setTimeout(function(){
+                            pi.dequeue();
+                            }, 3000);
+                        }).hide(500);
+
+				}
+			});
+        });
+
+
+		$( "#dialog-container-action" ).dialog({
+			autoOpen: false,
+			height: 450,
+			width: 550,
+			modal: true,
+            open: function(){
+                //clear
+
+                var select = 0 ;//redirect
+                if(dcaItem.action == "hangup")
+                    select = 2;
+
+                    /*
+                if(dcaItem.action == "selfnumber")
+                    select = 2;
+                    */
+
+                if(dcaItem.action == "sound")
+                    select = 1;
+
+                actionTabs.tabs("select", select);
+
+                $("#dialog-container-action input[type=text]").each(function(i,o){
+                        var id = $(o).attr("id");
+
+                        o.value = "";
+
+                        if(id == "action-"+dcaItem.action+"-timeout")
+                            o.value = dcaItem.timeout;
+                        });
+
+                $("#dialog-container-action select").each(function(i,o){
+                        var obj = $(o);
+                        var id = obj.attr("id");
+
+                        o.selectedIndex = 0;
+
+                        if(dcaItem.action == "sound" && id == "action-sound-sound")
+                            obj.val(dcaItem.sound_id);
+
+                        if(dcaItem.action == "redirect" && id == "action-redirect-strategy")
+                            obj.val(dcaItem.strategy);
+                        });
+
+                $("#dialog-container-action ul.items").html("");
+                $(dcaItem.nums).each(function(i,num){
+                    addRedirectNumber(num);
+                        });
+            },
+
+			buttons: {
+				"���������": function(a,b) {
+                    var actionItem = parseActionItem_dialog(this);
+                    var htmlItem = HTMLizeActionItem(actionItem);
+
+                        addRedir(htmlItem, blockId); // only add
+						$( this ).dialog( "close" );
+                },
+                "�������": function() {
+						$( this ).dialog( "close" );
+                }
+            }
+            
+	});
+/*
+            $("#main ul.timeblock").sortable(
+                    {
+items: "li.sortable-timeblock:not(.unsortable)",
+                        aacancel: ".unsortable"
+                    }
+                    ).disableSelection();
+                    */
+
+            $("#dialog-container-action ul.items").sortable().disableSelection();
+            var actionTabs = $("#b-action-tabs").tabs();
+            $("#action-redirect-addnumber div").click(function(event){
+                var num = $($("#action-redirect-addnumber input").get(0)).val();
+                if(num == "")
+                {
+                    alert("����� ������������� �� �����!");
+                }else{
+                    $("#action-redirect-addnumber input").val("");
+                    addRedirectNumber(num);
+                }
+                    event.stopPropagation();
+
+                }).css("cursor","pointer");
+
+
+function addRedirectNumber(num)
+{
+    var html = $('<li>\
+        <div class="cell type">\
+               <input type=hidden value="'+num+'" name="values-redirec">'+num+' \
+        <div class="delete"><!-- --></div>\
+        <div class="clr"><!-- --></div>\
+        </div>\
+      </li>');
+
+      html.find(".delete").click(function(){
+              $(this).closest("li").remove();
+              });
+        $("#b-container-redirect-numbers ul.items").append(html);
+}
+
+function parseActionItem_dialog(obj)
+{
+    var activeTab = actionTabs.find("#b-action-tabs-head li.ui-tabs-selected a").attr("href").replace("#action-tab-","");
+    var item = {
+        action: activeTab,
+        timeout: 0,
+        sound_id: 0,
+        sound_name: "",
+        strategy: "ringall",
+        nums: []
+    };
+
+    if(activeTab == "redirect" || activeTab == "selfnumber")
+    {
+            item.timeout = actionTabs.find("#action-"+activeTab+"-timeout").val();
+    }
+
+    if(activeTab == "redirect")
+    {
+        item.strategy = actionTabs.find("#action-redirect-strategy").val();
+    }
+
+    if(activeTab == "sound")
+    {
+        item.sound_id = actionTabs.find("#action-"+activeTab+"-sound").val();
+        item.sound_name = actionTabs.find("#action-"+activeTab+"-sound :selected").text();
+    }
+
+    if(activeTab == "redirect")
+    {
+        actionTabs.find("input[type=hidden]").each(function(i,o){
+                item.nums.push($(o).val());
+                });
+        var v = actionTabs.find("#action-redirect-add").val();
+        if(v != "")
+            item.nums.push(v);
+    }
+    return item;
+
+}
+function HTMLizeActionItem(ai)
+{
+    s = "";
+
+    for(var i in ai)
+    {
+        if(i == "nums")
+        {
+            $(ai.nums).each(function(i,o){
+                s += "<input type=hidden name='nums' value='"+o+"'>";
+                    });
+            
+        }else
+            s += "<input type=hidden name="+i+" value='"+ai[i]+"'>";
+    }
+
+
+
+    if (ai.action == "redirect")
+    {
+        s += "�������������, "+(ai.strategy=="ringall" ?  "������������" : "��-�������")+(ai.timeout != 0 ? ", Timeout: "+ai.timeout:"")/*+(ai.status != "" ? ", ������: "+ai.status_text:"")*/;
+        if(ai.nums.length > 0)
+        {
+            s += ",<br> ������: ";
+            ns = "";
+            $(ai.nums).each(function(i,o){
+                    ns+=(ns == "" ? "" :", ")+o;
+                    });
+            s += ns;
+        }
+    }
+    /*
+    if (ai.action == "selfnumber")
+    {
+        s += "���� �����"+(ai.timeout != 0 ? ", Timeout: "+ai.timeout:"")+(ai.status != "" ? ", ������: "+ai.status_text:"");
+    }
+    */
+    if (ai.action == "hangup")
+    {
+        s += "�������� ������";
+    }
+    if (ai.action == "sound")
+    {
+        s += "�������� �����������: "+ai.sound_name;
+    }
+
+    s += '<div class="edit ui-icon ui-icon-pencil">[e]</div>\
+            <div class="delete"></div>\
+            <div class="clr"></div>';
+
+    var html = $("<li><div class='type'>"+s+"</div></li>");
+
+    html.click(function(){
+            html.find(".delete").click(function(event){
+                if(confirm("�������?"))
+                {
+                $(this).closest("li").remove();
+                }
+                event.stopPropagation();
+                }).end()
+            .find(".edit").click(function(event){
+                var oLi = $(event.target).closest("li");
+                addElement = oLi;
+                var item = parseActionItem_item(oLi);
+                event.stopPropagation();
+
+                blockId = oLi.closest("ul").attr("id").replace("sortable_","");
+                dialogRedir(item);
+                });
+            });
+    return html;
+}
+
+function parseActionItem_item(obj)
+{
+    var aInputs = obj.find("input");
+    var item = {
+        action: "",
+        timeout: 0,
+        sound_id: 0,
+        sound_name: "",
+        nums: []
+    };
+    aInputs.each(function(i,o){
+            var val=o.value;
+            var name = o.name;
+
+            if(name == "nums")
+            {
+                item.nums.push(val);
+            }else{
+                item[name] = val;
+            }
+            });
+
+    return item;
+
+}
+
+    });
+
+function removeBlock()
+{
+    if(confirm("������� ����?"))
+    {
+        var blockId = $(this).attr("id").replace("delblock_","");
+        $("li#section_"+blockId).remove();
+    }
+}
+
+{/literal}
+    
+	</script>
+<input type=button value="���������" id="do_save">
+
+<input type=text id="schema-name" value="{$schemaName|escape}">
+<span class="processinfo" id="processinfo"></span>
+
+<!-- ������ -->
+<div>
+    <ul>
+        <li id=template class="template sortable-timeblock ui-corner-all">
+            <div>
+                <div>
+                    <div style="float: left;" id="_time" class="ui-dialog-titlebar ui-widget-header template-time ui-corner-all">[�����]</div>
+                    <div style="float: right;" id="_delblock" class="ui-icon ui-icon-closethick">[x]</div>
+                    <div style="float: right;" id="_editblock" class="ui-icon ui-icon-pencil">[e]</div>
+                </div>
+                <div style="" class="ui-corner-all template-items">
+
+                    <ul id=sortable class="sortable">
+                    </ul>
+
+                        <div style="float: right; cursor: pointer;" id="create-redir" class="fg-button ui-state-default fg-button-icon-left ui-corner-all"><span class="ui-icon ui-icon-circle-plus"></span>��������</div>
+
+                    <div style="float: clear;padding-bottom: 3px;">&nbsp;</div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div id="main" style="width: 100%;">
+    <div id="add-timeblock" style="margin-left: 50px;font: normal 8pt sans-serif;" class="fg-button ui-state-default fg-button-icon-left ui-corner-all" title="�������� ����"><span class="ui-icon ui-icon-circle-plus" style="margin-right: 10px;"></span>�������� ���� ������</div>
+
+    <ul class="timeblock">
+    </ul>
+
+    <ul style="padding-left: 50px;">
+        <li>���� �����</li>
+    </ul>
+    <hr>
+    ������������� �� �������:
+    <ul class="statusblock">
+    </ul>
+</div>
+
+
+
+<div class="b-dialog-container" id="dialog-container-schedule" title="����������">
+    <div class="b-dialog b-dialog-schedule">
+        <form class="b-form" action="">
+            <table class="grid">
+                <tr>
+                    <td class="label">�����:</td>
+                </tr>
+                <tr>
+                    <td class="element">
+                        <ul class="items ui-corner-all"><!-- --></ul>
+                        <div class="b-dropdown">
+                            <button type="button">�������� <small>&#x25BC;</small></button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<div id="dropdown-container" class="dropdown-container">
+<ul>
+</ul>
+</div>
+
+<script>
+{literal}
+var cDropDown = $("#dropdown-container ul");
+$.each(DAY_TYPES, function(k,v){
+            cDropDown.append(
+                    "<li id='dd_"+k+"'>" + v + "</li>"
+                    ); 
+        }
+        );
+cDropDown.find("li").each(function(k,v){
+        $(this).mouseenter(function(){
+            $(this).addClass("dropdown-over");
+        }).mouseleave(function(){
+                $(this).removeClass("dropdown-over");
+                }).css("cursor", "pointer").click(function(){
+                    var day_id = $(this).attr("id").replace("dd_","");
+                    addScheduleDialogTime({from: "00:00", until: "23:59", day_id:day_id});
+                    $("#dropdown-container").css("display", "")
+                    });
+        });
+function addScheduleDialogTime(item) {
+
+      var $html = $('<li>\
+        <div class="cell type">\
+          <span class="g-link"><input type=hidden name=day_id value='+item.day_id+'>' + DAY_TYPES[item.day_id] + '</span>\
+        </div>\
+        <div class="cell from">� <input class="time" name="from" value="' + item.from + '"/></div>\
+        <div class="cell until">�� <input class="time" name="until" value="' + item.until + '"/></div>\
+        <div class="delete"><!-- --></div>\
+        <div class="clr"><!-- --></div>\
+      </li>');
+
+      $html.find("input.time").mask("29:59").end().find(".delete").click(function(){
+              $(this).closest("li").remove();
+              });
+      
+      $("#dialog-container-schedule ul.items").append($html);
+}
+$("#dialog-container-schedule .b-dropdown button").button().click(function(){
+        var offset = $(this).offset();
+        $("#dropdown-container").css("display", "block").css("top", offset.top).css("left", offset.left).css("z-index", 1033);
+        }
+        );
+
+
+
+
+{/literal}
+</script>
+
+<div class="b-dialog-container" id="dialog-container-action" title="������� ��������">
+    <div class="b-dialog b-dialog-action">
+        <form class="b-form" action="">
+            <div id="b-action-tabs">
+                <ul id="b-action-tabs-head">
+                    <li><a href="#action-tab-redirect">�������������</a></li>
+                    <li><a href="#action-tab-sound">�������� �����������</a></li>
+                    <!--li><a href="#action-tab-selfnumber">���� �����</a></li-->
+                    <li><a href="#action-tab-hangup">�������� ������</a></li>
+                </ul>
+                <div id="action-tab-hangup">
+                    �������� ������
+                </div>
+                <div id="action-tab-sound">
+                    <select id="action-sound-sound">
+                    {foreach from=$soundFiles item=sound}
+                        <option value="{$sound.id}">{$sound.name}</option>
+                    {/foreach}
+                    </select>
+                </div>
+                <!--div id="action-tab-selfnumber">
+                    Timeout: <input type=text id="action-selfnumber-timeout" value="0"><br>
+                    ������:<select id="action-selfnumber-status">
+                        <option value=""></option>
+                        <option value="busy">�����</option>
+                        <option value="noanswer">�� �������</option>
+                        <option value="unavail">����������</option>
+                    </select>
+                </div-->
+                <div id="action-tab-redirect">
+                    <table border=0 style="width:99%">
+                    <tr>
+                        <td>���������:</td>
+                        <td><select id="action-redirect-strategy">
+                            <option value="ringall">������������</option>
+                            <option value="linear">��-�������</option>
+                            </select></td>
+                        <td>Timeout: </td>
+                        <td><input type=text id="action-redirect-timeout" value="0"></td>
+                    </tr>
+                    <!--tr>
+                        <td>������:</td>
+                        <td><select id="action-redirect-status">
+                            <option value=""></option>
+                            <option value="busy">�����</option>
+                            <option value="noanswer">�� �������</option>
+                            <option value="unavail">����������</option>
+                            </select></td>
+                    <tr-->
+                    </table>
+                    <div id="b-container-redirect-numbers" class="ui-corner-all" style="border: 1px solid gray;padding: 15px 5px 5px 5px;">
+                    ������:
+                        <ul class="items">
+                        </ul>
+                    </div>
+                    <div id="action-redirect-addnumber">
+                        <table style="font-size: 1em;">
+                            <tr> 
+                                <td>�������� �����:</td>
+                                <td><input id="action-redirect-add" type=text></td>
+                                <td>
+
+                        <div style="float: right; cursor: pointer;" class="fg-button ui-state-default fg-button-icon-left ui-corner-all"><span class="ui-icon ui-icon-circle-plus"></span>��������</div>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+</html>

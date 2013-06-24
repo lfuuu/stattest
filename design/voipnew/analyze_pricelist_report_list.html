@@ -1,0 +1,27 @@
+<a href="index.php?module=voipnew&action=analyze_pricelist_report_edit">Создать новый отчет</a><br/><br/>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+	<tr>
+		<td class=header>Дата</td><td class=header>Настройки</td><td class=header>Операции</td>
+	</tr>
+	{foreach from=$reports item='r'}
+	<tr class={cycle values='even,odd'}>
+		<td nowrap><a href="index.php?module=voipnew&action=analyze_pricelist_report_show&id={$r.id}">{$r.generated}</a></td>
+		<td nowrap>
+			<table class=price cellSpacing=1 cellPadding=1 border=0>
+			{foreach from=$r.params item='param'}
+				<tr>
+				<td>{$pricelists[$param.pricelist_id].operator} / {$pricelists[$param.pricelist_id].pricelist} / {$pricelists[$param.pricelist_id].group} / {$pricelists[$param.pricelist_id].currency}</td>
+				<td class=header>{$param.date1}</td>
+				{if $param.date2 != ''}
+				<td class=header>{$param.date2}</td>
+				{else}
+				<td>&nbsp;</td>
+				{/if}
+				</tr>
+			{/foreach}
+			</table>
+		</td>
+		<td nowrap><a href="index.php?module=voipnew&action=analyze_pricelist_report_edit&id={$r.id}">Настроить</a> <a href="index.php?module=voipnew&action=analyze_pricelist_report_delete&id={$r.id}" onclick="return confirm('Удалить отчет?');">Удалить</a></td>
+	</tr>
+	{/foreach}
+</table>

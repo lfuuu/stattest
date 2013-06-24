@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+use IO::Socket;
+
+$|=1;
+
+    $socket = IO::Socket::INET->new(PeerAddr => "127.0.0.1",
+                                PeerPort => "12000",
+                                Proto    => "tcp",
+                                Type     => SOCK_STREAM)
+	or die "Couldn't connect to $remote_host:$remote_port : $@\n";
+
+
+    sysopen(HANDLE, "../voip/Master.csv", O_READ) or die "sysopen $path: $!";
+#    sysopen(HANDLE, "/home/chroot/ast69/var/log/asterisk/cdr-csv/z", O_READ) or die "sysopen $path: $!";
+
+    seek(HANDLE,$pos,SEEK_SET);
+    my $pos2=$pos;
+    my $cnt;
+    while(1){
+        $pos = tell(HANDLE);
+        if ((($line=<HANDLE>) eq '')||($cnt>=500)){
+            $cnt=0;
+#            open(Ftmp,">/tmp/qlog2sql-pos");
+#            print Ftmp $pos2;
+#            close(Ftmp);
+            sleep 1;
+        }else{
+            chomp $line;
+            send_log_line($line);
+            $pos2=$pos;
+            $cnt++;
+        }
+    }
+    close($socket);
+
+exit;
+
+sub send_log_line
+{
+    my ($line)=@_;
+
+
+    print $socket "cdr asterisk $line\n";
+    $x= <$socket>;
+}

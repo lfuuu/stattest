@@ -1,0 +1,18 @@
+
+<a href="./?module=ats&action=schema&id=0"><img src="./images/icons/add.gif"> Добавить схему</a><br>
+
+<table border=0 width=200>
+<tr>
+    <td><b>#</b></td>
+    <td><b>Название</b></td>
+    <td colspan=2><b>&nbsp;</b></td>
+</tr>
+{foreach from=$list item=m name=list}
+    <tr>
+        <td>{$smarty.foreach.list.iteration}.</td>
+        <td>{$m.name}</td>
+        <td><a href="./?module=ats&action=schema&id={$m.id}"><img src="./images/icons/edit.gif"></a></td>
+        <td><a href="./?module=ats&action=schema&del={$m.id}"><img src="./images/icons/disable.gif"></a></td>
+    </tr>
+{/foreach}
+</table>

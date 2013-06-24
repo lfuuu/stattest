@@ -1,0 +1,44 @@
+{*#saas_akt#*}
+<p class="MsoNormal" align="center" style="text-align: center;"><b><span style="font-size: 9.5pt;">АКТ &#8470;1<br />приема-передачи
+неисключительных прав на использование
+SaaS &ndash; версии ПО</span></b><br /><br /></p>
+<table cellpadding="0" cellspacing="0" border="0" height="52" width="95%">
+<tbody>
+<tr>
+<td>
+<p class="MsoNormal"><span style="font-size: 9.5pt;">г. Москва</span></p>
+</td>
+<td>
+<p class="MsoNormal" align="right" style="text-align: right; font-size: 9.5pt;">{$contract.contract_dop_date|mdate:'"d" месяца Y'} г.</p>
+</td></tr></tbody></table>
+<p class="MsoNormal"><span><br />ЛИЦЕНЗИАТ {$client.company_full} в лице {$client.signer_positionV} {$client.signer_nameV}, и ЛИЦЕНЗИАР
+ООО &laquo;МСН Телеком&raquo;, в лице Генерального
+директора Мельникова А. К., составили и
+подписали настоящий Акт о том, что
+ЛИЦЕНЗИАР  передал, а ЛИЦЕНЗИАТ принял
+неисключительные права на использование
+SaaS &ndash; версии ПО.<br /><br /></span></p>
+<p>Объем
+переданных прав ограничен условиями
+Договора&nbsp; {$contract.contract_no} &nbsp;от&nbsp; {$contract.contract_date|mdate:'"d" месяца Y'} </p>
+<p>Доступ
+к SaaS &ndash; версии ПО осуществляется
+посредством Личного кабинета на сайте
+http://welltime.ru</p>
+<p>Логин:
+{$login}<br />Пароль: {$pass}</p>
+<br />
+<table cellpadding="0" border="0" width="104%">
+<tbody>
+<tr>
+<td valign="top" width="45%">
+<p class="MsoNormal"><b><span style="font-size: 9.5pt;">ЛИЦЕНЗИАР:</span>&nbsp;</b><span style="font-size: 10pt;">{$firm.name}</span></p>
+</td>
+<td valign="top" width="43%">
+<p class="MsoNormal"><b><span style="font-size: 9.5pt;">ЛИЦЕНЗИАТ:</span>&nbsp;</b><span style="font-size: 10pt;">{$client.company_full}<br /></span></p>
+</td></tr>
+<tr>
+<td valign="top"><span style="font-size: 9.5pt;"><br />Генеральный директор<br /><br />______________ Мельников А. К.</span></td>
+<td valign="top">
+<p><span style="font-size: 9.5pt;">{$client.signer_position}</span><br /><span style="font-size: 9.5pt;"><br />______________ {$client.signer_name}</span></p>
+</td></tr></tbody></table>
