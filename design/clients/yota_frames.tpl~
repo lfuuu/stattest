@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<title>Печать договора Yota</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	</head>
+	<frameset cols="15%,*">
+		<frame src='?module=clients&action=print_yota_contract&print_page=1100' name='printFrame' />
+		<frameset rows='*,*,*,*,*,*,*,*'>
+			<frame src='?module=clients&action=print_yota_contract&print_page=1' name='one' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=2' name='two' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=3' name='three' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=4' name='four' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=5' name='five' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=6' name='six' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=7' name='seven' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=8' name='eight' />
+
+			<!--frame src='?module=clients&action=print_yota_contract&print_page=0' name='one' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='two' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='three' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='four' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='five' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='six' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='seven' />
+			<frame src='?module=clients&action=print_yota_contract&print_page=0' name='eight' /-->
+		</frameset>
+	</frameset>
+</html>

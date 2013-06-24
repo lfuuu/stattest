@@ -1,0 +1,58 @@
+<h2>Отчет по ТехПоддержке{if $date} {$date}{/if}</h2>
+<style>
+{literal}
+#repart_table td {
+padding: 2px 2px 2px 2px;
+}
+#tr_head td {
+font-weight: bold;
+text-align: center;
+{/literal}
+</style>
+<form action="" method=get>
+	<input type="hidden" name="module" value="stats" />
+	<input type="hidden" name="action" value="support_efficiency" />
+	<table>
+		<tr>
+			<td>С</td>
+			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$d_from_y}</select></td>
+			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$d_from_m}</select></td>
+			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$d_from_d}</select></td>
+			<td>&nbsp;</td>
+			<td>по</td>
+			<td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$d_to_y}</select></td>
+			<td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$d_to_m}</select></td>
+			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$d_to_d}</select></td>
+            <td><input type=submit value="OK" name="make_report"></td>
+		</tr>
+    </table>
+    
+    </form>
+
+<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+<tr id="tr_head">
+<td>#</td>
+<td>ФИО</td>
+<td>Консультаций</td>
+<td>Мониторинг</td>
+<td>Траблы</td>
+<td>Всего</td>
+</tr>
+{foreach from=$d item=i key=idx}
+<tr>
+<td>{$i.count+1}.</td>
+<td>{$i.name} <sup>({$idx})</sup></td>
+<td>{$i.data.consultation.count}</td>
+<td>{$i.data.monitoring.count}</td>
+<td>{$i.data.trouble.count}{if $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}</td>
+<td><i>{$i.data.trouble.count+$i.data.monitoring.count+$i.data.consultation.count}</i></td>
+</tr>
+{/foreach}
+<td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+<td><b>{$total.consultation}</b></td>
+<td><b>{$total.monitoring}</b></td>
+<td><b>{$total.trouble}</b></td>
+<td><b><i>{$total.trouble+$total.monitoring+$total.consultation}</i></b></td>
+</tr>
+</table>
+

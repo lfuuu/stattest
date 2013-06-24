@@ -1,0 +1,30 @@
+<div style="text-align: center;">АКТ <br /></div>
+<div style="text-align: center;">Приема-передачи прав к лицензионному Договору &nbsp;<br /></div>
+<div style="text-align: center;">&#8470; {$contract.contract_no} </div><br /><br />
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr>
+<td align="left">г. Москва</td>
+<td align="right">{$contract.contract_date|mdate:'"d"
+месяца Y'}</td></tr></tbody></table><br />{$firm.name}, в дальнейшем именуемое &laquo;ЛИЦЕНЗИАР&raquo;, в лице {$firm.director_post_} {$firm.director_}, действующего на основании Устава, с одной стороны и {$client.company_full}  в лице {$client.signer_positionV} {$client.signer_nameV}, действующего на основании Устава, с другой стороны,&nbsp; в дальнейшем именуемый &laquo;ЛИЦЕНЗИАТ&raquo;,&nbsp; составили&nbsp; настоящий акт&nbsp; о нижеследующем:<br /><br />1. Лицензиар&nbsp;&nbsp;&nbsp; предоставил&nbsp;&nbsp; Лицензиату&nbsp;&nbsp;&nbsp; право на&nbsp; бессрочное использование (Лицензию) на программное обеспечение согласно&nbsp; перечню (приложение &#8470;&nbsp; 1 к&nbsp; Лицензионному договору &#8470; {$contract.contract_no} от {$contract.contract_date|mdate:'"d"
+месяца Y'})&nbsp; а также сам&nbsp; экземпляр программы, включающий в себя программный код на оптическом носителе (компакт диске), инструкцию по установке и эксплуатации, техническое средство защиты ( электронный ключ). &nbsp;<br />2. Лицензиат принял у&nbsp; Лицензиара&nbsp; право на бессрочное использование программного обеспечения согласно перечню&nbsp; и материальные носители программного обеспечения.<br />3. Вознаграждение Лицензиара&nbsp; за передачу Лицензиату&nbsp; вышеуказанных прав и&nbsp; материальных носителей программного обеспечения составляет 29999 рублей. Вознаграждение выплачено Лицензиару в полном объеме.<br />4. Стороны финансовых, имущественных и иных претензий друг к другу не имеют.<br />5.Настоящий акт составлен в двух экземплярах, имеющих одинаковую юридическую силу, по одному для каждой из сторон.<br />6. Настоящий акт вступает в силу с момента его подписания Сторонами.<br />7. Реквизиты и подписи сторон.<br /><br />
+<table>
+<tbody>
+<tr>
+<td valign="top" width="48%"><span style="font-weight: bold;">ЛИЦЕНЗИАР:</span><br />{$firm_detail}</td>
+<td valign="top" width="2%">&nbsp;</td>
+<td valign="top" width="50%"><span style="font-weight: bold;">ЛИЦЕНЗИАТ:</span><br />
+
+{$client.company_full}<br />
+Юридический адрес: {$client.address_jur}<br />
+Почтовый адрес: {$client.address_post_real}<br />
+ИНН {$client.inn}, КПП {$client.kpp}<br />
+Банковские реквизиты: <br />{$client.bank_properties}, БИК {$client.bik}<br />
+{if $contact.phone}<br />Телефон: {foreach from=$contact.phone item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}{/if}
+{if $contact.fax}<br />Факс: {foreach from=$contact.fax item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}{/if}
+{if $contact.email}<br />e-mail: {foreach from=$contact.email item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}{/if}
+</td></tr>
+<tr></tr>
+<tr>
+<td>{$firm.director_post}<br /><br />______________ {$firm.director}</td>
+<td>{$client.signer_position}<br /><br />______________{$client.signer_name}</td></tr></tbody></table><br />

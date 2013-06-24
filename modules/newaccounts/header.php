@@ -1,0 +1,90 @@
+<?
+class m_newaccounts_head extends IModuleHead{
+	public $module_name = 'newaccounts';
+	public $module_title = 'Бухгалтерия';
+
+	public $rights=array(
+					'newaccounts_bills'			=>array("Счета",'read,edit,delete,admin','просмотр,изменение,удаление,изменение счета в любое время'),
+					'newaccounts_payments'		=>array("Платежи",'read,edit,delete','просмотр,редактирование,удаление'),
+					'newaccounts_mass'			=>array("Массовые операции",'access','доступ'),
+					'newaccounts_balance'		=>array("Баланс",'read','просмотр'),
+					'newaccounts_usd'			=>array("Курс доллара",'access','доступ'),
+				);
+	public $actions=array(
+					'bill_list'			=> array('newaccounts_bills','read'),
+					'bill_create'		=> array('newaccounts_bills','edit'),
+					'bill_view'			=> array('newaccounts_bills','read'),
+					'bill_edit'			=> array('newaccounts_bills','edit'),
+					'bill_add'			=> array('newaccounts_bills','edit'),	//добавление чего-нибудь в счета, типа там "всех подключений" или "абонплата" или "залог"
+					'bill_apply'		=> array('newaccounts_bills','edit'),
+					'bill_comment'		=> array('newaccounts_bills','edit'),
+					'bill_delete'		=> array('newaccounts_bills','delete'),
+					'bill_print'		=> array('newaccounts_bills','read'),
+					'bill_mprint'		=> array('newaccounts_bills','read'),
+					'bill_email'		=> array('newaccounts_bills','read'),
+					'bill_postreg'		=> array('newaccounts_bills','edit'),
+					'bill_generate'		=> array('newaccounts_bills','read'),
+					'line_delete'		=> array('newaccounts_bills','edit'),
+					'bill_clear'		=> array('newaccounts_bills','edit'),
+					'bill_cleared'		=> array('newaccounts_bills','edit'),
+					'bill_courier_comment'		=> array('newaccounts_bills','edit'),
+
+					'search'			=> array('newaccounts_bills','read'),
+
+					'bill_balance'		=> array('newaccounts_bills','read'),
+					'saldo'				=> array('newaccounts_bills','edit'),
+
+					'bill_balance_mass'	=> array('newaccounts_mass','access'),
+
+					'bill_mass'			=> array('newaccounts_mass','access'),
+
+					'pi_list'			=> array('newaccounts_payments','read'),
+					'pi_upload'			=> array('newaccounts_payments','edit'),
+					'pi_process'		=> array('newaccounts_payments','read'),
+					'pi_apply'			=> array('newaccounts_payments','edit'),
+
+					'pay_add'			=> array('newaccounts_payments','edit'),
+					'pay_apply'			=> array('newaccounts_payments','edit'),
+					'pay_delete'		=> array('newaccounts_payments','delete'),
+					'pay_rate'			=> array('newaccounts_payments','edit'),
+					'pay_rebill'		=> array('newaccounts_payments','edit'),
+
+					'balance_client'	=> array('newaccounts_balance','read'),
+					'balance_bill'		=> array('newaccounts_balance','read'),
+					'balance_bill_new'		=> array('newaccounts_balance','read'),
+					'balance_check'		=> array('newaccounts_balance','read'),
+					'balance_sell'		=> array('newaccounts_balance','read'),
+					'first_pay'			=> array('newaccounts_balance','read'),
+
+					'pay_report'		=> array('newaccounts_payments','read'),
+					'debt_report'		=> array('newaccounts_payments','read'),
+					'usd'				=> array('newaccounts_usd','access'),
+					'postreg_report'	=> array('newaccounts_bills','read'),
+					'postreg_report_do'	=> array('newaccounts_bills','read'),
+
+					'bill_data'			=> array('newaccounts_bills','read'),
+					'make_1c_bill' 		=> array('clients', 'all4net'),
+					'rpc_findProduct' 	=> array('clients', 'all4net'),
+
+					'pay_ym'			=> array('newaccounts_bills','edit'),
+
+				);
+	public $menu=array(
+					array('Счета',				'bill_list'),
+					array('Акт сверки',			'balance_check'),
+					array('Внести платёж',		'pay_add'),
+					array('',					'balance_client'),
+					array('Баланс по клиентам',	'balance_client'),
+					array('Баланс по счетам',	'balance_bill'),
+					array('Первые платежи',		'first_pay'),
+					array('Курс доллара',		'usd'),
+					array('',					'pi_list'),
+					array('Импорт платежей',	'pi_list'),
+					array('Массовые счета',		'bill_mass'),
+					array('Книга продаж',		'balance_sell'),
+					array('Отчёт по платежам',	'pay_report'),
+					array('Отчёт по долгам',	'debt_report'),
+					array('Почтовый реестр',	'postreg_report'),
+				);
+}
+?>

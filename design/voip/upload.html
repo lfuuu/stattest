@@ -1,0 +1,20 @@
+<form action="" method="post" enctype='multipart/form-data'>
+	<input type="hidden" name="module" value="voip" />
+	<input type="hidden" name="action" value="upload" />
+	<input type="hidden" name="step" value="upfile" />
+	<select name="ftype">
+		<option value="null">Выберите тип файла</option>
+		<option value="null">-------------------</option>
+		<option value="xls_beeline">Вымпелком прайс Exel</option>
+		<option value="xls_beeline_changes">Вымпелком изменения Exel</option>
+		<option value="null">-------------------</option>
+		<option value="csv_arktel_russia">Арктел прайс CSV, Россия</option>
+		<option value="csv_arktel_mosobl">Арктел прайс CSV, Московская Область</option>
+		<option value="csv_arktel_sng">Арктел прайс CSV, СНГ</option>
+		<option value="csv_arktel_world">Арктел прайс CSV, Международное</option>
+		<option value="csv_arktel_usa">Арктел прайс CSV, США</option>
+		<option value="xls_arktel_changes">Арктел изменения Exel</option>
+	</select>
+	<input type="file" name="upfile" />
+	<input type="submit" name="up" value="Загрузить" />
+</form>

@@ -1,0 +1,38 @@
+<h2>{$client_name}. {if $a.bill_no}Редактирование заявки #{$a.bill_no}{else}Создание заявки{/if}.</h2>
+<div style="text-align: right; padding-right: 100px;">
+<a href="./?{if $viewLink}module=stats&action={$report}{/if}">к списку заявок</a>
+</div>
+
+<div style="font: bold 9pt sans-serif; color:#c40000;">{if $error}{$error}{else}&nbsp;{/if}</div>
+<div style="font: bold 9pt sans-serif; color:#009300;">{if $info}Создана заявка #{$info}{else}&nbsp;{/if}</div>
+{literal}
+<style>
+#nbn_add_t input {
+    font-size: 8pt;
+    width: 250px;
+}
+#nbn_add_t td {
+    text-align: left;
+}
+</style>
+{/literal}
+
+<form action="./?{if $viewLink}module=stats&action={$report}{/if}&do=add" method=post>
+<input type=hidden name="bill_no" value="{$a.bill_no}">
+<div style="float:left;">
+<table border=0 style="border-collapse: collapse;text-align:center;" id="nbn_add_t">
+<tr><td>Номер заявки</td><td><input type=text name="req" value="{$a.req}"></td></tr>
+<tr><td>ФИО</td><td><input type=text name=fio value="{$a.fio}"></td></tr>
+<tr><td>Адрес</td><td><input type=text name=address value="{$a.address}"></td></tr>
+<tr><td>Контактный номер</td><td><input type=text name=phone value="{$a.phone}"></td></tr>
+<tr><td>Комментарий</td><td><textarea name=comment style="width:250px;height: 60px;">{$a.comment}</textarea></td></tr>
+<tr><td colspan=2 style="text-align: right"><hr noshade></td></tr>
+</table>
+<table border=0 style="border-collapse: collapse;text-align:center;width: 100%;" id="nbn_add_t">
+<tr><td>Huawei Модем, USB-3G-E173 <br>+ тариф "МегаФон-Логин"</td><td></td><td>{html_options name="qty" options=$qtys selected=$a.qty}</td></tr>
+<tr><td>Услуга доставки</td><td>{html_options name="deliv_type" options=$deliv_type selected=$a.deliv_type}</td><td><select disabled readonly>{html_options options=$qtys selected=1}</select></td></tr>
+<tr><td colspan=2 style="text-align: right"><hr noshade></td></tr>
+<tr><td colspan=2 style="text-align: right"><input type=submit name="form" value="Сохранить"></td></tr>
+</table>
+</div>
+</form>

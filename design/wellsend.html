@@ -1,0 +1,21 @@
+<html>
+	<head><title>Отправление письма в Welltime</title></head>
+	<body>
+<form action="http://thiamis.mcn.ru/welltime/" method=post id="wellform">
+<input type='hidden' name='module' value="com_agent_panel" />
+<input type='hidden' name='type' value="mail" />
+<input type='hidden' name='content-encoding' value="{$content_encode}" />
+<input type='hidden' name='folder_type' value="out" />
+<input type='hidden' name='folder' value="5" />
+<input type='hidden' name='set_action' value="new_msg" />
+<input type='hidden' name='to' value="{$emails|escape:input_value_quotes}" />
+<input type='hidden' name='subject' value="{$subject|escape:input_value_quotes}" />
+<input type='hidden' name='cc' value="" />
+<input type='hidden' name='new_msg' value="{$message|escape:input_value_quotes}" />
+<input type='submit' value="Отправить" />
+</form>
+<script type="text/javascript" language="javascript">
+	document.getElementById('wellform').submit()
+</script>
+	</body>
+</html>

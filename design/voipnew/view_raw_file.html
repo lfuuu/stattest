@@ -1,0 +1,100 @@
+<p>
+Содержимое файла:
+<div style="position:relative;left:50;">
+<table><tr>
+<td>
+прайс лист: {$file.pricelist} ({$file.operator})<br>
+файл: {$file.filename}<br>
+дата загрузки: {$file.date}<br>
+количество строк: {$file.rows}<br>
+начало действия: <b>{$file.startdate}</b><br>
+валюта: <b>{$file.currency}</b>
+</td>
+<td>
+<form action="./index.php" method="post" style="margin-left:30px">
+	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="action" value="activatedeactivate" />
+	<input type="hidden" name="id" value="{$file.id}" />
+{if $file.active eq 't'}
+	<b>Активирован</b><br>
+	<input type="submit" name="deactivate" value="Деактивировать" />
+{else}
+	<input type="submit" name="activate" value="Активировать" />
+{/if}
+</form>
+</td>
+<td>
+<form action="./index.php" method="get" style="margin-left:10px">
+	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="action" value="compare_raw_file" />
+	<input type="hidden" name="id" value="{$file.id}" />
+{if $file.active eq 't'}
+	<input type="submit" value="Просмотреть примененные изменения" />
+{else}
+	<input type="submit" value="Сравнить с Текущими ценами" />
+{/if}
+</form>
+</td>
+<td>
+<form action="./index.php" method="post" style="margin-left:10px">
+	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="action" value="delete_raw_file" />
+	<input type="hidden" name="id" value="{$file.id}" />
+{if $file.active neq 't'}
+	<input type="submit" value="Удалить" />
+{else}
+	<input type="submit" value="Удалить" />
+{/if}
+</form>
+</td>
+</tr></table>
+</div>
+</p>
+<form action="./index.php" method="get">
+	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="action" value="view_raw_file" />
+	<input type="hidden" name="id" value="{$file.id}" />
+
+	<select name="f_dest_group">
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
+	<option value="0" {if $f_dest_group eq '0'} selected{/if}>Москва</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	</select>
+	<select name="f_country_id">
+	<option value="0">-- Все страны --</option>
+	{foreach from=$countries item='g'}
+	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
+	{/foreach}
+	</select>
+	<select name="f_region_id">
+	<option value="0">-- Все регионы --</option>
+	{foreach from=$regions item='g'}
+	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
+	{/foreach}
+	</select>
+	
+	<input type=hidden name="make" value="1"/>
+	<input type=submit value="Сформировать"/>
+<br>найдено {$pager_all} кодов
+</form>
+	
+{if count($pager_pages)>1}
+Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+{/if}
+	
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<tr><td class=header>Префикс номера</td><td class=header>Цена</td>	
+<td class=header>Направление</td>
+<td class=header>Назначение</td>
+<td class=header>Fix/Mob</td>
+</tr>
+{foreach from=$defs_list item='o'}
+<tr class={cycle values='even,odd'} {if $o.deleting eq 't'}style="text-decoration:line-through"{/if}><td>{$o.defcode}</td><td>{$o.price}</td>
+<td>{$o.dgroup}</td>
+<td>{$o.destination}</td>
+<td>{if $o.mob eq 't'}mob{/if}</td>
+</tr>
+{/foreach}
+</table>

@@ -1,0 +1,22 @@
+<form action="" method="post" enctype='multipart/form-data'>
+	<input type="hidden" name="module" value="voip" />
+	<input type="hidden" name="action" value="upload" />
+	<input type="hidden" name="step" value="upfile" />
+	<select name="ftype">
+		<option value="null">Выберите тип файла</option>
+		<option value="null">-------------------</option>
+		<option value="xls_beeline_full1">Билайн (Полный 1)</option>
+		<option value="xls_beeline_full2">Билайн (Полный 2)</option>
+		<option value="xls_beeline_changes">Билайн (Изменения)</option>
+		<option value="null">-------------------</option>
+		<option value="xls_arktel_full">Арктел (Полный)</option>
+		<option value="xls_arktel_changes">Арктел (Изменения)</option>
+		<option value="null">-------------------</option>
+		<option value="xls_orange_full">Orange (Полный)</option>
+		<option value="null">-------------------</option>
+		<option value="xls_mcn_prime_full">ЭмСиЭн Прайм (Полный)</option>
+		<option value="xls_mcn_prime_changes">ЭмСиЭн Прайм  (Изменения)</option>
+	</select>
+	<input type="file" name="upfile" />
+	<input type="submit" name="up" value="Загрузить" />
+</form>

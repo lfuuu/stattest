@@ -1,0 +1,80 @@
+<h1>{if $data.id == 0}Добавление{else}Редактирование 
+{if $data.atype == "link"}привязки к {$data.link_type}'у{/if} 
+{if $data.atype == "number"}{if $data.type=="line"}линии{elseif $data.type == "trunk"}транка{/if}{/if} 
+{if $data.atype == "line"}линии{/if} 
+
+{$data.number}{/if}
+
+</h1>
+
+<style>
+{literal}
+.hint {
+display: none;
+color:green;
+}
+{/literal}
+</style>
+<a id="number_open_form" style="cursor: pointer;text-decoration: underline;{if $is_form_open} display: none;{/if}" onclick="$('#number_edit_form').toggle();$('#number_open_form').toggle();">Открыть редактирование группы</a><br>
+<div id="number_edit_form" {if !$is_form_open}style=" display: none;"{/if}>
+{if $show_hide_key}
+<a id="number_key_hide" style="cursor: pointer;text-decoration: underline;" onclick="$('#number_edit_form').toggle();$('#number_open_form').toggle();">Скрыть</a><br>
+{/if}
+{if $error}
+<span style="color: #c40000; font-weight: bold;font-size: 8pt; border-bottom: 1px solid red;">{$error}</span>
+{else}
+<br>
+{/if}
+{if $isSaved}
+<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">Данные сохранены</span>
+{else}
+<br>
+{/if}
+<form method="post" action="./?module=ats&action=sip_add" id="sip_save_form">
+    <input type=hidden name="do" value=1>
+    <input type=hidden name="id" value={$data.id}>
+    <table>
+        <tr>
+            <td valign=top>
+                <table>
+                    {include file="formconstructor.tpl"}
+                </table>
+            </td>
+        </tr>
+    </table>
+{if $data.id == 0}
+        <script> _nl_check(getE("number_lines_number"),"number");</script>
+{/if}
+    <hr>
+    <div align=right>
+    <table border=0 width=30%>
+    <tr>
+    <td align=left>
+
+{if ($data.id == 0 || $data.type != "link") && $data.atype != "link"}
+
+
+    <input type=button value="Сохранить" name="apply" onclick="{literal}
+        if(
+                ($('#send_members_codec').length == 0 || ($('#send_members_codec').length && prepareData('codec'))) 
+             && ($('#permit_net_true').length == 0 || ($('#permit_net_true').length && prepareIpNet('permit'))){/literal}{if $data.id ==0} && prepareMTN(){/if}{literal}) {getE('sip_save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+{else}
+    <input type=button value="Сохранить" name="apply" onclick="{literal}if(prepareMTN()) {getE('sip_save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+{/if}
+
+
+{if $data.id > 0 && $data.atype == "number" && ($data.type == "cpe" || $data.type == "line")}<select name=type_save style="font-size:11pt;"><option value="changes">Изменения</option><option value="all">Все</option></select>{/if}
+
+
+    </td><td>
+    <input type=submit value="Отмена" name="cancel"></td>
+    </tr>
+    </table>
+    </div>
+
+</form>
+</div>
+
+<script language="JavaScript" src="./js/hint.js"></script>
+
+</br>

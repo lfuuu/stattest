@@ -1,0 +1,130 @@
+<title> 79 @Dop_Fonera_Stone_2204A </title>
+	<style>
+{literal}
+		.body2{
+			font-family:Arial;
+			font-size:8pt;
+			width:650px;//width:710px;
+			padding:25px 0px 25px 15px;
+			padding-left:50px 50px 50px 75px !ie;
+		}
+		.header{
+			margin-bottom:0px;
+			font-size:20px;
+			font-family:Time New Roman;
+			text-align:center;
+		}
+		.postheader{
+			margin-top:0px;
+			font-size:18px;
+			font-family:Time New Roman;
+			text-align:center;
+		}
+		.clear{
+			clear:both;
+		}
+		.left{
+			float:left;
+		}
+		.right{
+			float:right;
+		}
+		.body{
+			line-height:120%;
+			text-align:justify;
+		}
+		table td{
+			font-family:Arial;
+			font-size:9pt;
+		}
+		.mp{
+			text-align:center;
+		}
+		div{
+			margin-top:5px;
+			margin-bottom:5px;
+		}
+		img{
+			width:114px;
+			height:55px;
+			float:left;
+			margin-right:50px;
+		}
+		p{
+			margin:0px;
+			padding-left:10px;
+		}
+		p.h2{
+			margin:0px;
+			padding-left:20px;
+		}
+		p.tit{
+			margin:0px;
+			text-align:left;
+			color:#CCCCCC;
+			padding-top:5px;
+		}
+		.mp{
+			color:#000000;
+			font-size:8pt;
+			border: none;
+			border-bottom: 1px solid black;
+			line-height:180%;
+		}
+		ol.ol{
+			margin:0px;
+			margin-left:15px;
+			padding:0px;
+		}
+		body{
+			padding:0px;
+			margin:0px;
+		}
+{/literal}
+	</style>
+	<div class="body2">
+		<div class="header">ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ</div>
+		<div class="postheader">к Договору об оказании Услуг связи на условиях предварительной оплаты</div>
+		<div class="left"><b>Лицевой счет No</b> <u>{$cli.acc_no|default:"____________________________"}</u> <span>&nbsp;</span></div> <div class="right"><b>Телефон <span><u>{$cli.connum|default:"(49_) ____________________"}</u></span></b></div>
+		<div class="clear"></div>
+		<div class="right">&laquo;___&raquo;___________{$smarty.now|date_format:"%Y"}г.</div>
+		<div class="left">г. Москва</div>
+		<div class="clear"></div>
+		<div class="body">
+		Закрытое акционерное общество "КОМСТАР-Директ", именуемое в дальнейшем "Оператор", в лице ООО &laquo;Маркомнет&raquo; в лице Генерального директора Мазур Татьяны Васильевны, действующего на основании Доверенности No 99 НП 7291766 от &laquo;01&raquo; марта 2010 года, с одной стороны, и <b> {$cli.fio|default:"__________________"}</b> (паспорт серия <u>{$cli.passp_series|upper|default:"__________"}</u> No <u>{$cli.passp_num|upper|default:"____________________"}</u>, выдан: <u>{$cli.passp_whos_given|upper|default:"_________________________________________________________________________"}</u>, код подразделения <u>{$cli.passp_code|upper|default:"_________________"}</u>, дата рождения <u>{$cli.passp_birthday|upper|default:"_______________"}</u>), именуемый (-ая) в дальнейшем "Абонент", с другой стороны, заключили настоящее Дополнительное соглашение к вышеуказанному договору (далее - "Договор") о нижеследующем:
+		<ol class="ol">
+			<li>Принимая во внимание, что Абонент заключил Договор на оказание услуг связи, Оператор, с даты подписания Соглашения, для организации доступа Абонента к Услуге &laquo;СТРИМ ИНТЕРНЕТ&raquo;, в соответствии с условиями Договора и Правил  оказания услуг СТРИМ, передает Абоненту в субаренду, а Абонент принимает, по акту, абонентское оборудование:
+			<br>Роутер  &laquo;FONERA Stone (FON 2204A)&raquo;, состоящий из указанного роутера, 1 (одного) сетевого провода RJ-45, 1 (одного) блока питания от сети 220V, упаковочной коробки<br>
+			S/N <u>{$serial.fonera|default:"_______________________"}</u></li>
+			<li>Условия передачи Оборудования Абоненту, регулируются условиями Договора,  Приложений к нему и Правил оказания услуг Стрим.</li>
+			<li>Настоящее Дополнительное соглашение составлено в двух подлинных экземплярах и вступает в силу с момента его подписания обеими сторонами.</li>
+		</ol>
+		<p style="text-align:center;">
+			<b>
+				Акт сдачи-приемки Оборудования<br>
+				к Дополнительному соглашению от ___________ {$smarty.now|date_format:"%Y"} г.
+			</b>
+		</p>
+		<p>
+			Настоящий Акт составлен между Оператором и Абонентом о нижеследующем:<br>
+			<ol class="ol">
+				<li>Оператор передал  в субаренду Абоненту следующее Оборудование:<br>
+					Роутер  &laquo;FONERA Stone (FON 2204A)&raquo;, состоящий из указанного роутера, 1 (одного) сетевого провода RJ-45, 1 (одного) блока питания от сети 220V, упаковочной коробки S/N <u>{$serial.fonera|default:"________________________________"}</u></li>
+				<li>Оборудование, переданное по настоящему Акту, находится в полной комплектации, в нормальном рабочем состоянии.</li>
+				<li>Стороны подтверждают, что не имеют друг к другу взаимных претензий, связанных с подписанием настоящего Акта.</li>
+			</ol>
+		</p>
+		<br>
+        <table width=100%><tr><td>
+			<p style="text-align:center;"><b>ОТ ОПЕРАТОРА</b></p>
+			по доверенности No <u>99 НП 7291766</u> <br>от &laquo; <u>01</u> &raquo; <u>марта</u> 2010 года<br>
+			<br>
+			Подпись: ______________________
+			<div style="padding-left:120px;">М.П.</div>
+            </td><td>
+			<center><b>ОТ АБОНЕНТА</b></center>
+			ФИО: <u>{$cli.fio|default:"___________________________________"}</u><br><br>
+			Подпись: ______________________
+		</tr></table>
+	</div>
+	

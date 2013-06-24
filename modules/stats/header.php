@@ -1,0 +1,68 @@
+<?
+class m_stats_head extends IModuleHead{
+	public $module_name = 'stats';
+	public $module_title = 'Статистика';
+	var $rights=array(
+		'stats'=>array("Статистика", 'r,report,vip_report,voip_recognition','просмотр,отчет,vip report,телефония-нераспознаные'),
+	);
+	var $actions=array(
+		'default'			=> array('stats','r'),
+		'internet'			=> array('stats','r'),
+		'ppp'				=> array('stats','r'),
+		'voip'				=> array('stats','r'),
+		'callback'			=> array('stats','r'),
+		'vpn'				=> array('stats','r'),
+		'send_view'			=> array('stats','report'),
+		'send_process'		=> array('stats','report'),
+		'send_add'			=> array('stats','report'),
+		'report'			=> array('stats','report'),
+		'report_traff_less'	=> array('stats','report'),
+		'report_sms_gate'	=> array('stats','report'),
+		'report_voip_e164_free' => array('stats','report'),
+		'voip_sell'			=> array('stats','test'),
+		'report_services'	=> array('stats','report'),
+		'report_wimax'		=> array('stats','report'),
+		'report_netbynet'	=> array('stats','report'),
+		'report_onlime'	    => array('stats','report'),
+		'report_onlime2'	    => array('stats','report'),
+		'report_onlime_all'	    => array('stats','report'),
+        'report_inn'	    => array('stats','report'),
+		//'report_wimax_test'		=> array('stats','report'),
+		'courier_sms'		=> array('stats','report'),
+		'report_voip_operators_traf' => array('stats','vip_report'),
+		'voip_recognition' => array('stats','r'),
+//		'recalcalls'		=> array('stats','modify'),
+		'support_efficiency'	=>  array('stats','report'),
+    'report_phone_sales'  =>  array('stats','report')
+	);
+	var $menu=array(
+		array('Интернет',		'internet'),
+		array('Collocation',	'internet','&is_coll=1'),
+		array('PPP',			'ppp'),
+		array('Телефония',		'voip'),
+		array('Телефония-нераспознанное',		'voip_recognition'),
+//		array('Пересчитать звонки','recalcalls'),
+		array('Телефония прод.','voip_sell'),
+		array('Callback',		'callback'),
+		array('VPN',			'vpn'),
+		array('Рассылка',		'send_view'),
+		array('Отчёт',			'report'),
+		array('Отчёт по мин. трафику',	'report_traff_less'),
+		array('Свободные номера', 'report_voip_e164_free'),
+		array('SMS Gate',		'report_sms_gate'),
+		array('Отчет по услугам', 'report_services'),
+		array('Отчет по операторскому трафику voip', 'report_voip_operators_traf'),
+		array('Отчет по WiMax', 'report_wimax'),
+		//array('Отчет по WiMax (test)', 'report_wimax_test'),
+		array('Отчет по Курьерам(SMS)', 'courier_sms'),
+		array('Отчет по ТехПоддержке', 'support_efficiency'),
+		array('Отчет по NetByNet', 'report_netbynet'),
+		array('Отчет по OnLime', 'report_onlime'),
+		array('Отчет по OnLime2', 'report_onlime2'),
+		array('Отчет по OnLime 1+2', 'report_onlime_all'),
+        array('Отчет: Продажи номеров', 'report_phone_sales'),
+
+        array('Отчет: ИНН', 'report_inn'),
+	);
+}
+?>

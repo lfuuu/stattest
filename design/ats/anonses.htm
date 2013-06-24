@@ -1,0 +1,16 @@
+<h2>{$title}</h2>
+<form method="POST" action="./?module=ats&action=anonses" id="edit_form" enctype="multipart/form-data">
+<INPUT type="hidden" name="id" id="id" value="{$data.id}">
+<INPUT type="hidden" name="do" value="set">
+<INPUT type="hidden" name="module" id="module" value="{$module}">
+<table id="edit_table">
+	<TR><TD colspan=2 align=center>&nbsp;<b><font style="color: #c40000;">{$msg}</font></b></td></TR>
+	<TR><TD class="td_r">Название:</TD><TD><INPUT type="text" name="name" value="{$data.name}"></td></TR>
+	<TR><TD class="td_r">Файл<div class=hint>Можно загружать на сервер файлы в формате WAV размером не более 2Мб</div>:</TD><TD><INPUT type="file" name="upfile" style="height: 23px;">&nbsp;&nbsp;{$uplink}</td></TR>
+</table>
+
+<hr>
+<input type=submit value="Сохранить">
+</form>
+<script language="JavaScript" src="js/hint.js"></script>
+<!--{$smarty.template}-->

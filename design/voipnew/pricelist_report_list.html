@@ -1,0 +1,23 @@
+<p style="font-weight: bold">Отчеты по прайслистам</p>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+	<tr>
+		<td class=header style="min-width: 100px;">Регион</td><td class=header style="min-width: 100px;">Прайслист</td><td class=header style="min-width: 100px;">Операторы</td>
+	</tr>
+	{foreach from=$reports item='r'}
+	<tr class={cycle values='even,odd'}>
+		<td nowrap><a href="index.php?module=voipnew&action=pricelist_report_show&id={$r.id}">
+      {$regions[$r.region_id].name}
+    </a></td>
+    <td nowrap><a href="index.php?module=voipnew&action=pricelist_report_show&id={$r.id}">
+      {$pricelists[$r.pricelist_id].pricelist}
+    </a></td>
+		<td nowrap><a href="index.php?module=voipnew&action=pricelist_report_show&id={$r.id}">
+			{foreach from=$r.pricelists key='i' item='pl'}
+        {if $i > 0},{/if}
+				{$pricelists[$pl].operator}
+			{/foreach}
+    </a></td>
+	</tr>
+	{/foreach}
+</table>

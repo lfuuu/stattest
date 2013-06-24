@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<title>Печать договора Yota</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script type="text/javascript" src="js/jquery.js"></script>
+		<script type="text/javascript" src="js/optools.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var frameList = ['one','two','three','four','five','six','seven','eight'];
+		</script>
+		<div style="display:block;" id="wait">Ожидайте загрузки страниц</div>
+		<div style="display:none;" id="all">
+			<input type="button" value="Указать параметры заново" onclick="assign_vals(true)" /><br />
+			<input type="button" value="Печать всех страниц" onclick="print_page('all')" /><br />
+		</div>
+		<div style="display:none;" id="one"><input type="button" value="Страница 1" onclick="print_page('one')" /></div>
+		<div style="display:none;" id="two"><input type="button" value="Страница 2" onclick="print_page('two')" /></div>
+		<div style="display:none;" id="three"><input type="button" value="Страница 3" onclick="print_page('three')" /></div>
+		<div style="display:none;" id="four"><input type="button" value="Страница 4" onclick="print_page('four')" /></div>
+		<div style="display:none;" id="five"><input type="button" value="Страница 5" onclick="print_page('five')" /></div>
+		<div style="display:none;" id="six"><input type="button" value="Страница 6" onclick="print_page('six')" /></div>
+		<div style="display:none;" id="seven"><input type="button" value="Страница 7" onclick="print_page('seven')" /></div>
+		<div style="display:none;" id="eight"><input type="button" value="Страница 8" onclick="print_page('eight')" /></div>
+		<script type="text/javascript">
+			var butlist = new Array(8)
+				butlist[0] = document.getElementById('one')
+				butlist[1] = document.getElementById('two')
+				butlist[2] = document.getElementById('three')
+				butlist[3] = document.getElementById('four')
+				butlist[4] = document.getElementById('five')
+				butlist[5] = document.getElementById('six')
+				butlist[6] = document.getElementById('seven')
+				butlist[7] = document.getElementById('eight')
+			var interval
+			function check_full_load(){
+				for(i in butlist){
+					if(butlist[i].style.display == 'none')
+						return;
+				}
+				document.getElementById('wait').style.display= 'none'
+				self.assign_vals()
+				document.getElementById('all').style.display = 'block'
+				clearInterval(interval)
+			}
+			interval = setInterval(check_full_load, 700)
+
+			function print_page(page){
+				if(page == 'all'){
+					for(var f in frameList){
+						print_page(frameList[f])
+					}
+					return
+				}else
+					return top[page].print()
+			}
+
+			var yota_vals = [
+				{page:'one',id:'with_base',desc:'Укажите, пожалуйста, на каком основании действует клиент',def:'устава',rel:[{page:'seven',id:'with_base'}]},
+				{page:'six',id:'phone_fax',desc:'Укажите, пожалуйста, телефон и факс для страницы №6',def:'',rel:null},
+				{page:'six',id:'email6',desc:'Укажите, пожалуйста, email для 6 страницы',def:'',rel:null},
+				{page:'seven',id:'email7',desc:'Укажите, пожалуйста, email для 7 страницы',def:'',rel:null},
+				{page:'seven',id:'registration_certificate',desc:"Укажите, пожалуйста, поле \"Свидетельство о регистрации\" для страницы №7",def:'',rel:null},
+				{page:'seven',id:'okpo',desc:"Укажите, пожалуйста, поле \"ОКПО\" для страницы №7",def:'',rel:null},
+				{page:'seven',id:'bank_name',desc:'Укажите, пожалуйста, поле "Наименование банка" для абзаца "Банковские реквизиты" страницы №7',def:'',rel:null},
+				{page:'seven',id:'joining_device',desc:'Укажите, пожалуйста, наименование подключаемого устройства, для страницы №7',def:'Mobile WiMAX/Wi-Fi Center',rel:null},
+				{page:'seven',id:'joining_devices_count',desc:'Укажите, пожалуйста, количество подключаемых устройств, для страницы №7',def:'1',rel:[{page:'seven',id:'joining_devices_total_count'}]},
+				{page:'eight',id:'activation_date_d',desc:'Укажите, пожалуйста, число даты активации для страницы №8',def:'',rel:null},
+				{page:'eight',id:'activation_date_m',desc:'Укажите, пожалуйста, месяц даты активации для страницы №8',def:'',rel:null},
+				{page:'eight',id:'activation_date_y',desc:'Укажите, пожалуйста, год даты активации для страницы №8',def:'',rel:null},
+				{page:'eight',id:'address_floor',desc:'Укажите, пожалуйста, этаж для поля "Курьером по адресу" на странице №8',def:'',rel:null},
+				{page:'eight',id:'address_office',desc:'Укажите, пожалуйста, офис для поля "Курьером по адресу" на странице №8',def:'',rel:null},
+				{page:'eight',id:'address_code',desc:'Укажите, пожалуйста, код для поля "Курьером по адресу" на странице №8',def:'',rel:null},
+				{page:'eight',id:'general_buhgalter',desc:'Укажите, пожалуйста, ФИО главного бухгалтера/финансового директора для страницы №8',def:'',rel:null},
+			];
+			function assign_vals(){
+				var txt,exists,db
+
+				if(arguments[0]!==true)
+					$.ajax({
+						type:'GET',
+						url:'index_lite.php',
+						data:"module=clients&action=print_yota_contract&get_vals=1",
+						cache:false,
+						async:false,
+						success:function(data){
+							eval('db='+data)
+						}
+					})
+
+				for(var i in yota_vals){
+					if(!db){
+						exists = top[yota_vals[i]['page']].document.getElementById(yota_vals[i]['id']).textContent
+						txt = prompt(yota_vals[i]['desc'], (!exists)?yota_vals[i]['def']:exists)
+					}else
+						txt = db[yota_vals[i]['id']]
+					top[yota_vals[i]['page']].document.getElementById(yota_vals[i]['id']).text = txt
+					top[yota_vals[i]['page']].document.getElementById(yota_vals[i]['id']).textContent = txt
+					// text - Opera, textContent - Mozilla Firefox
+					for(var j in yota_vals[i]['rel']){
+						top[yota_vals[i]['rel'][j]['page']].document.getElementById(yota_vals[i]['rel'][j]['id']).text = txt
+						top[yota_vals[i]['rel'][j]['page']].document.getElementById(yota_vals[i]['rel'][j]['id']).textContent = txt
+					}
+				}
+				if(!db)
+					save_vals()
+			}
+			function save_vals(){
+				var vals = {module:'clients',action:'print_yota_contract',save_vals:'1'}
+				for(var i in yota_vals){
+					val = top[yota_vals[i]['page']].document.getElementById(yota_vals[i]['id']).textContent
+					if(!val)
+						val = top[yota_vals[i]['page']].document.getElementById(yota_vals[i]['id']).text
+					vals[yota_vals[i]['id']] = val
+				}
+				$.post('index_lite.php',vals,function(data){
+					if(data == 'ok')
+						alert('Успешно сохранено!')
+					else
+						alert('Ошибка! Попробуйте еще раз, или обратитесь к программисту.')
+				})
+			}
+		</script>
+	</body>
+</html>

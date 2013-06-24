@@ -1,0 +1,180 @@
+<p style="font-weight: bold">Отчет по маршрутизации: {$regions[$rep.region].name}
+(  {foreach from=$rep.pricelists key='i' item='pl'}
+    {if $i > 0},{/if}
+    {$pricelists[$pl].operator}
+  {/foreach})
+
+  <a href="./?module=voipnew&action=routing_report_list">Назад</a>
+</p>
+
+<p>
+  {if $volume.calc_date}
+  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  {if $volume.need_recalc == 't'}
+  <b>(требуется пересчет)</b>
+  {/if}
+  {else}
+  Объемы не рассчитаны
+  {/if}
+  {if $volume.calc_running == 't'}
+  <b>(идет расчет)</b>
+  {else}
+  <a href="./?module=voipnew&action=calc_volume&report_type=routing&report_id={$rep.id}" target="_blank">Рассчитать</a>
+  {/if}
+</p>
+
+{if $rep.generated}
+<p>
+  Отчет расчитан {$rep.generated}
+</p>
+{/if}
+
+
+<style type="text/css">
+{literal}
+td.best {
+  background-color:rgb(153, 247, 153);
+}
+tr.lock td {
+  background-color: #ff8888;
+}
+td.lock_lock {
+  background-color: #ff0000 ! important;
+  cursor: pointer;
+}
+td.lock_unlock {
+  background-color: #00ff00 ! important;
+  cursor: pointer;
+}
+td.lock_default {
+  background-color: silver ! important;
+  cursor: pointer;
+}
+{/literal}
+</style>
+<script type="text/javascript">
+{literal}
+  function lock_click(td)
+  {
+    var prefix = $(td).attr('prefix');
+    var td_value = $(td).attr('value');
+
+    if (td_value == 't')
+    {
+      td_value = 'f';
+    }
+    else if (td_value == 'f')
+    {
+      td_value = '';
+    }
+    else if (td_value == '')
+    {
+      td_value = 't';
+    }
+
+    $.post('./index.php?module=voipnew&action=set_lock_prefix', {report_id:{/literal}{$report_id}{literal},prefix:prefix,value:td_value}, function(){
+      if (td_value == '')
+      {
+        td.className = 'lock_default';
+        td.innerHTML = 'Поумолчанию';
+      }
+      else if (td_value == 't')
+      {
+        td.className = 'lock_lock';
+        td.innerHTML = 'Заблокирован';
+      }
+      else if (td_value == 'f')
+      {
+        td.className = 'lock_unlock';
+        td.innerHTML = 'Разблокирован';
+      }
+      $(td).attr('value',td_value);
+    });
+  }
+
+  function lock_by_price()
+  {
+    var price=parseInt(prompt("Заблокировать все что дороже",'10'));
+    if (price > 0)
+    {
+      $.post('./index.php?module=voipnew&action=lock_by_price', {report_id:{/literal}{$report_id}{literal},price:price},function(){
+        $('#make_report').click();
+      });
+    }
+  }
+{/literal}
+</script>
+<form action="./index.php" method="get" style="display:inline">
+	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="action" value="routing_report_show" />
+	<input type="hidden" name="id" value="{$report_id}" />
+	<select name="f_dest_group">
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	</select>
+	<select name="f_country_id">
+	<option value="0">-- Все страны --</option>
+	{foreach from=$geo_countries item='g'}
+	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
+	{/foreach}
+	</select>
+	<select name="f_region_id">
+	<option value="0">-- Все регионы --</option>
+	{foreach from=$geo_regions item='g'}
+	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
+	{/foreach}
+	</select>
+
+  <input type="checkbox" name="f_locks" {if $f_locks != ''} checked{/if}>Блокировки
+  <br/>
+  <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
+  <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+	<input type=submit name="make" id="make_report" value="Сформировать"/>
+  <input type=submit name="calc" value="Пересчитать"/>
+  <input type=submit name="export" value="Экспорт CSV"/>
+  <input type=button value="Заблокировать дорогие коды" onclick="lock_by_price()"/>
+</form>
+
+<div id='popup_price' style="position:absolute;display:none;background-color:#FFFFFF;border:1px #BBBBBB solid;padding: 3px;"></div>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<tr>
+  <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
+  <td class=header style="min-width: 100px;">Назначение</td>
+  <td nowrap class=header style="min-width: 100px;text-align: center">Лучшая цена</td>
+  {foreach from=$rep.pricelists item='p'}
+    <td nowrap class=header align=center style="min-width: 100px;text-align: center">{$pricelists[$p].operator}</td>
+	{/foreach}
+  {if $volume.calc_date}<td nowrap class=header style="text-align: center">Объем<br/>(мин)</td>{/if}
+  <td nowrap class=header style="min-width: 100px;text-align: center">Порядок</td>
+  <td nowrap class=header style="min-width: 100px;text-align: center">Блокировка</td>
+</tr>
+{foreach from=$report item='rd'}
+
+<tr class="{cycle values='even,odd'} {if $rd.locked=='t'}lock{/if} " value="{$rd.locked}">
+	<td>{$rd.prefix}</td>
+	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+  <td nowrap align=center style="font-weight: bold">{$rd.prices[0]}</td>
+  {foreach from=$rep.pricelists item='p'}
+		<td nowrap align=center class="{if $rd.pricelists[0]==$p}best{/if}">{$rd.parts[$p].price}</td>
+	{/foreach}
+  {if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
+  <td nowrap align=center>
+  {foreach from=$rd.pricelists key='i' item='pl'}
+    {if $i > 0}->{/if}
+    {$pricelists[$pl].operator}
+  {/foreach}
+  </td>
+  <td nowrap align=center prefix="{$rd.prefix}" value="{$rd.locked_raw}" onclick="lock_click(this);"
+    {if $rd.locked_raw == 't'} class="lock_lock">Заблокирован
+    {elseif $rd.locked_raw == 'f'} class="lock_unlock">Разблокирован
+    {else} class="lock_default">Поумолчанию
+    {/if}
+  </td>
+</tr>
+
+{/foreach}
+</table>

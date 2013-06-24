@@ -1,0 +1,83 @@
+<FORM action="?" method=get>
+<input type='hidden' name='module' value='voip'>
+<input type='hidden' name='action' value='tdiffs'>
+<table class='mform' cellSpacing='4' cellPadding='2' width="100%" border='0'>
+<tbody>
+<tr>
+	<td class='left'>Дата начала отчёта</td>
+	<td>
+		<select name='from_d'>
+		{generate_sequence_options_select start=1 end=31 mode='d' selected=$from_d}
+		</select>
+		<select name='from_m'>
+			{generate_sequence_options_select start=1 end=12 mode='m' selected=$from_m}
+		</select>
+		<select name='from_y'>
+			{generate_sequence_options_select start=2003 selected=$from_y}
+		</select>
+	</td>
+</tr>
+<tr>
+  <td class='left'>По какую дату</td>
+  <td>
+		<select name='to_d'>
+			{generate_sequence_options_select start=1 end=31 mode='d' selected=$to_d}
+		</select>
+		<select name='to_m'>
+			{generate_sequence_options_select start=1 end=12 mode='m' selected=$to_m}
+		</select>
+		<select name='to_y'>
+			{generate_sequence_options_select start=2003 selected=$to_y}
+		</select>
+  </td>
+</tr>
+</tbody>
+</table>
+<HR>
+
+<DIV align=center><INPUT class=button type=submit name="go_report" value="Сформировать отчёт"></DIV></FORM>
+
+{if $report}
+<table class='price' cellSpacing='4' cellPadding='2' width='100%' border='0'>
+	<tr>
+		<td rowspan="2" class='header' valign='bottom'>Клиент\Тариф</td>
+		{foreach from=$tarifs item='t'}
+		<td colspan="6" class='header' valign='bottom'>{$t}</td>
+		{/foreach}
+	</tr>
+	<tr>
+		{foreach from=$tarifs item='t'}
+		<td title="Москва стационарные" class='header' valign='bottom'>МСК/fix</td>
+		<td title="Москва мобильные" class='header' valign='bottom'>МСК/mob</td>
+		<td title="Россия" class='header' valign='bottom'>Р</td>
+		<td title="СНГ" class='header' valign='bottom'>СНГ</td>
+		<td title="Международные" class='header' valign='bottom'>МН</td>
+		<td title="Общая сумма" class='header' valign='bottom'>СУМ</td>
+		{/foreach}
+	</tr>
+	{foreach from=$report item='ts' key='cl'}
+	<tr class='{cycle values="even,odd"}'>
+		<td>{$cl}</td>
+		{foreach from=$tarifs item='t'}
+		<td title="Москва стационарные '{$t}'" align="right">{$ts[$t].0fix}</td>
+		<td title="Москва мобильные '{$t}'" align="right">{$ts[$t].0mob}</td>
+		<td title="Россия '{$t}'" align="right">{$ts[$t][1]}</td>
+		<td title="СНГ '{$t}'" align="right">{$ts[$t][3]}</td>
+		<td title="Международные '{$t}'" align="right">{$ts[$t][2]}</td>
+		<td title="Общая сумма '{$t}'" align="right" style="font-weight: bold">{$ts[$t].sum}</td>
+		{/foreach}
+	</tr>
+	{/foreach}
+	<tr style="font-weight: bold">
+		<td>Итого:</td>
+		{foreach from=$tarifs item='t'}
+		<td title="Москва стационарные '{$t}'" align="right">{$tsum[$t].0fix}</td>
+		<td title="Москва мобильные '{$t}'" align="right">{$tsum[$t].0mob}</td>
+		<td title="Россия '{$t}'" align="right">{$tsum[$t][1]}</td>
+		<td title="СНГ '{$t}'" align="right">{$tsum[$t][3]}</td>
+		<td title="Международные '{$t}'" align="right">{$tsum[$t][2]}</td>
+		<td title="Общая сумма '{$t}'" align="right">{$tsum[$t].sum}</td>
+		{/foreach}
+	</tr>
+</table>
+{/if}

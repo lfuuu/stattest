@@ -1,0 +1,24 @@
+      <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD class=header vAlign=bottom>Id</TD>
+          <TD class=header vAlign=bottom>Дата/время</TD>
+          <TD class=header vAlign=bottom>Номер абонента</TD>
+          <TD class=header vAlign=bottom>Направление</TD>
+          <TD class=header vAlign=bottom>Внешний номер</TD>
+          <TD class=header vAlign=bottom>Время разговора</TD>
+          <TD class=header vAlign=bottom>Назначение</TD>
+        </TR>
+
+{foreach from=$stats item=item key=key name=outer}
+	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
+    <TD style="color:gray;">{$item.id}</TD>
+		<TD>{$item.time}</TD>
+		<TD><a href="./?module=clients&action=all&smode=7&search={$item.usage_num}" target=_blank>{$item.usage_num}</a></TD>
+    <TD style="color: {if $item.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $item.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
+    <TD>{$item.phone_num}</TD>
+		<TD>{$item.length}</TD>
+    <TD>{$item.geo}</TD>
+	</TR>
+{/foreach}
+</TBODY></TABLE>

@@ -1,0 +1,147 @@
+<p style="font-weight: bold">Отчет Анализ прайслистов: {$rep.id}
+  <a href="./?module=voipnew&action=analyze_pricelist_report_list">Назад</a>
+</p>
+
+<p>
+  {if $volume.calc_date}
+  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  {if $volume.need_recalc == 't'}
+  <b>(требуется пересчет)</b>
+  {/if}
+  {else}
+  Объемы не рассчитаны
+  {/if}
+  {if $volume.calc_running == 't'}
+  <b>(идет расчет)</b>
+  {else}
+  <a href="./?module=voipnew&action=calc_volume&report_type=analyze_pricelist&report_id={$rep.id}" target="_blank">Рассчитать</a>
+  {/if}
+</p>
+
+<form action="./index.php" method="get" style="display:inline">
+	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="action" value="analyze_pricelist_report_show" />
+	<input type="hidden" name="id" value="{$report_id}" />
+	<select name="f_dest_group">
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	</select>
+	<select name="f_country_id">
+	<option value="0">-- Все страны --</option>
+	{foreach from=$countries item='g'}
+	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
+	{/foreach}
+	</select>
+	<select name="f_region_id">
+	<option value="0">-- Все регионы --</option>
+	{foreach from=$regions item='g'}
+	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
+	{/foreach}
+	</select>
+
+	<input type="checkbox" name="f_onlydiff" {if $f_onlydiff != ''} checked{/if}>Только&nbsp;измененные&nbsp;&nbsp;
+	<input type="checkbox" name="f_showdefs" {if $f_showdefs != ''} checked{/if}>Показать&nbsp;коды&nbsp;&nbsp;
+    <input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить&nbsp;&nbsp;
+	<input type=submit name="make" value="Сформировать"/>
+	<input type=submit name="export" value="Выгрузить"/>
+</form>
+
+<div id='popup_price' style="position:absolute;display:none;background-color:#FFFFFF;border:1px #BBBBBB solid;padding: 3px;"></div>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<tr><td class=header colspan=3>&nbsp;</td>
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td class=header align=center>{$pricelists[$p.pricelist_id].name}</td>
+		{else}
+		<td class=header align=center colspan=3>{$pricelists[$p.pricelist_id].name}</td>
+		{/if}
+	{/foreach}
+	{if $volume.calc_date}<td class=header align=center>Объем</td>{/if}
+	{if $f_showdefs != ''}
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td class=header align=center>{$pricelists[$p.pricelist_id].name}</td>
+		{else}
+		<td class=header align=center colspan=2>{$pricelists[$p.pricelist_id].name}</td>
+		{/if}
+	{/foreach}
+	{/if}	
+	{foreach from=$ext_params item='p'}
+		<td class=header align=center rowspan=2>{$p.name}</td>
+	{/foreach}			
+</tr>
+<tr><td class=header>Префикс номера</td><td class=header>Зона</td><td class=header>Назначение</td>
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td class=header align=center>{$p.date1}</td>
+		{else}
+		<td class=header align=center>{$p.date1}</td>
+		<td class=header align=center>&gt; %</td>
+		<td class=header align=center>{$p.date2}</td>
+		{/if}
+	{/foreach}
+	{if $volume.calc_date}<td class=header align=center>(мин)</td>{/if}
+	{if $f_showdefs != ''}
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td class=header align=center>{$p.date1}</td>
+		{else}
+		<td class=header align=center>{$p.date1}</td>
+		<td class=header align=center>{$p.date2}</td>
+		{/if}
+	{/foreach}
+	{/if}
+</tr>
+{foreach from=$report item='rd'}
+
+{assign var=diff value=0}
+{foreach from=$params item='p'}
+{if $p.date2 != '' and $rd.parts[$p.position].d2.price != $rd.parts[$p.position].d1.price}
+	{assign var=diff value=1}
+{/if}
+{/foreach}
+{if $f_onlydiff=='' or $diff=='1'}
+<tr class={cycle values='even,odd'}>
+	<td>{$rd.defcode}</td>
+	<td>{$rd.zone}</td>
+	<td>{$rd.destination}</td>
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align=right 
+			onmousemove="statlib.modules.voip.show_price(event, '{$rd.parts[$p.position].d1.defcode}', '{$rd.parts[$p.position].d1.effndef}', '{$rd.parts[$p.position].d1.date_from}');" onmouseout="statlib.modules.voip.hide_price(event);">
+			{$rd.parts[$p.position].d1.price}</td>
+		{else}
+		<td align=right
+			onmousemove="statlib.modules.voip.show_price(event, '{$rd.parts[$p.position].d1.defcode}', '{$rd.parts[$p.position].d1.effndef}', '{$rd.parts[$p.position].d1.date_from}');" onmouseout="statlib.modules.voip.hide_price(event);">
+			{$rd.parts[$p.position].d1.price}</td>
+		<td align=right style="color:gray;font-size:10px;">
+		{if $rd.parts[$p.position].d2.price == $rd.parts[$p.position].d1.price}&nbsp;
+		{else}
+		{if $rd.parts[$p.position].d2.price > $rd.parts[$p.position].d1.price}+{/if}{math equation="(d2 * 100 / d1) - 100" d1=$rd.parts[$p.position].d1.price d2=$rd.parts[$p.position].d2.price format="%.0f"}</td>
+		{/if}
+		<td align=right
+			onmousemove="statlib.modules.voip.show_price(event, '{$rd.parts[$p.position].d1.defcode}', '{$rd.parts[$p.position].d2.effndef}', '{$rd.parts[$p.position].d2.date_from}');" onmouseout="statlib.modules.voip.hide_price(event);">
+			{$rd.parts[$p.position].d2.price}</td>
+		{/if}
+	{/foreach}
+	{if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
+	{if $f_showdefs != ''}
+	{foreach from=$params item='p'}
+		{if $p.date2 == ''}
+		<td align="right">{if $rd.parts[$p.position].d1.effndef != $rd.defcode}{$rd.parts[$p.position].d1.effndef}{else}&nbsp;{/if}</td>
+		{else}
+		<td align="right">{if $rd.parts[$p.position].d1.effndef != $rd.defcode}{$rd.parts[$p.position].d1.effndef}{else}&nbsp;{/if}</td>
+		<td align="right">{if $rd.parts[$p.position].d2.effndef != $rd.defcode}{$rd.parts[$p.position].d2.effndef}{else}&nbsp;{/if}</td>
+		{/if}
+	{/foreach}
+	{/if}
+	{foreach from=$ext_params key='k' item='p'}
+		<td align="right">{$rd.ext[$k]}</td>
+	{/foreach}			
+</tr>
+{/if}
+{/foreach}
+</table>

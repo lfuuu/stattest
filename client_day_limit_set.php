@@ -1,0 +1,74 @@
+<?php
+
+define('NO_WEB',1);
+define('NUM',20);
+define('PATH_TO_ROOT','./');
+include PATH_TO_ROOT."conf.php";
+
+for($i=1,$work_days=0,$time = time();$i<=30;$i++)
+{
+  $time = $time - 86400;
+  if (date('w',$time) >= 1 && date('w',$time) <= 5) $work_days++;
+}
+
+$counters = $pg_db->AllRecords("
+                select c.usage_id, sum(amount) amount
+                from billing.calls c
+                where
+                  c.time >= cast(now() as DATE) - '1 month'::interval and
+                  c.time <  cast(now() as DATE)
+                group by c.usage_id
+                ",'usage_id');
+
+$clients = array();
+$res = $db->AllRecords('  select distinct u.id as usage_id, c.id as client_id, c.client, c.currency, c.voip_is_day_calc, c.voip_credit_limit_day
+                          from usage_voip u
+                          left join clients c on c.client=u.client
+                          where u.actual_from < CAST(now() as DATE) and u.actual_to > CAST(now() as DATE) and voip_is_day_calc > 0 ');
+foreach($res as $r)
+{
+  if (!isset($clients[$r['client_id']]))
+  {
+    $clients[$r['client_id']] =
+      array(
+        'id'=>$r['client_id'],
+        'client'=>$r['client'],
+        'currency'=>$r['currency'],
+        'voip_is_day_calc'=>$r['voip_is_day_calc'],
+        'voip_credit_limit_day'=>$r['voip_credit_limit_day'],
+        'sum'=>0
+      );
+  }
+
+  if (!isset($counters[$r['usage_id']])) continue;
+
+  $clients[$r['client_id']]['sum'] += $counters[$r['usage_id']]['amount'];
+}
+foreach($clients as $k=>$c)
+{
+  $clients[$k]['sum'] = $c['sum']*1.18/100;
+  $clients[$k]['new_limit'] = intval($clients[$k]['sum']/$work_days*3);
+
+  if ($c['currency'] == 'USD')
+  {
+    $clients[$k]['new_limit'] = ($clients[$k]['new_limit'] > 35 ? $clients[$k]['new_limit'] : 35);
+  }else{
+    $clients[$k]['new_limit'] = ($clients[$k]['new_limit'] > 1000 ? $clients[$k]['new_limit'] : 1000);
+  }
+}
+
+$updated = 0;
+foreach($clients as $c)
+{
+  if ($c['new_limit'] != $c['voip_credit_limit_day'])
+  {
+    //echo "{$c['id']} {$c['voip_credit_limit_day']} - {$c['new_limit']} \n";
+    $db->Query('  update clients set voip_credit_limit_day='.$c['new_limit'].' where id='.$c['id']);
+    $updated++;
+  }
+}
+//echo "<pre>";
+echo date('Y-m-d H:i:s', time())." updated: $updated\n";
+//print_r($clients);
+
+

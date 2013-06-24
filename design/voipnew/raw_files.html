@@ -1,0 +1,31 @@
+<form action="./index.php?module=voipnew&action=upload" method="post" enctype='multipart/form-data'>
+	<input type="hidden" name="step" value="upfile" />
+	<input type="hidden" name="pricelist_id" value="{$pricelist.id}" />
+	<select name="ftype">
+		{if $pricelist.operator_id == '2'}
+		<option value="xls_beeline_full1">Билайн (Полный 1)</option>
+		<option value="xls_beeline_full2">Билайн (Полный 2)</option>
+		<option value="xls_beeline_changes">Билайн (Изменения)</option>
+		{elseif $pricelist.operator_id == '8'}
+		<option value="xls_mtt_full">МТТ (Полный)</option>
+		{elseif $pricelist.operator_id == '7'}
+		<option value="xls_orange_full">Orange (Полный)</option>
+		{elseif $pricelist.operator_id == '999'}
+		<option value="xls_mcn_prime_full">ЭмСиЭн Прайм (Полный)</option>
+		<option value="xls_mcn_prime_changes">ЭмСиЭн Прайм  (Изменения)</option>
+		{/if}
+	</select>
+	<input type="file" name="upfile" />
+	<input type="submit" name="up" value="Загрузить" />
+</form>
+<p>Загруженные файлы:</p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<tr><td class=header>Начало действия</td><td class=header>Оператор</td><td class=header>Тип</td><td class=header>Формат</td><td class=header>Имя файла</td><td class=header>Дата загрузки</td><td class=header>Количество строк</td></tr>
+{foreach from=$files_list item='o'}
+{if $o.active eq 't'}
+	<tr class="{cycle values='even_g,odd_g'}"><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.startdate}</a></td><td>{$o.operator}</td><td>{if $o.full eq 't'}Полный{else}Изменения{/if}</td><td>{$o.format}</td><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.filename}</a></td><td align=center>{$o.date}</td><td align=center>{$o.rows}</td></tr>
+{else}
+	<tr class="{cycle values='even,odd'}"><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.startdate}</a></td><td>{$o.operator}</td><td>{if $o.full eq 't'}Полный{else}Изменения{/if}</td><td>{$o.format}</td><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.filename}</a></td><td align=center>{$o.date}</td><td align=center>{$o.rows}</td></tr>
+{/if}
+{/foreach}
+</table>

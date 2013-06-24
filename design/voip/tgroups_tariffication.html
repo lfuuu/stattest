@@ -1,0 +1,315 @@
+<div id="tgrt_pane" style="display:none;position:absolute;background-color: #ffffff"></div>
+{literal}
+<script type="text/javascript">
+	var tgr = {pane:document.getElementById('tgrt_pane')}
+
+	tgr.ev_lsnr = function(evt,tObj,show){
+		var e = window.event || evt
+		if(!e.srcElement)
+			e.srcElement = e.target
+		eval('tObj = '+tObj)
+		var t = tgr.mkTable(tObj,e.srcElement)
+		t.setAttribute('width',e.srcElement.parentNode.offsetWidth)
+		var ofs = optools.getFullOffset(e.srcElement.parentNode)
+		tgr.mvPane(ofs.x,ofs.y+e.srcElement.offsetHeight)
+		tgr.showPane(show)
+	}
+
+	tgr.mvPane = function(x,y){
+		tgr.pane.style.left = x+'px'
+		tgr.pane.style.top = y+'px'
+	}
+
+	tgr.showPane = function(flag){
+		if(flag === null)
+			flag = tgr.pane.style.display == 'none'
+		if(flag)
+			tgr.pane.style.display = 'block'
+		else
+			tgr.pane.style.display = 'none'
+	}
+
+	tgr.mkTable = function(tObj,parent_obj){ // сгенерировать таблицу детализации
+		if(tgr.pane.childNodes[0])
+			tgr.pane.removeChild(tgr.pane.childNodes[0])
+
+		var tbl = document.createElement('table')
+		tbl.setAttribute('border',1)
+		tbl.setAttribute('cellpadding',0)
+		tbl.setAttribute('cellspacing',0)
+		tbl.className = 'price'
+
+		tgr.pane.appendChild(tbl)
+		var tbody = document.createElement('tbody')
+		tbl.appendChild(tbody)
+		var tr, td, tt, i
+
+		tr = document.createElement('tr')
+		tr.className = 'even'
+		tbody.appendChild(tr)
+		td = document.createElement('td')
+		tr.appendChild(td)
+		td.setAttribute('colspan',4)
+		td.style.textAlign = 'right'
+		i = document.createElement('a')
+		td.appendChild(i)
+		i.setAttribute('href','#')
+		i.onclick = function(){tgr.showPane(false);return false}
+		i.appendChild(document.createTextNode('X'))
+
+		tr = document.createElement('tr')
+		tr.className = "even"
+		tbody.appendChild(tr)
+		td = document.createElement('td')
+		tr.appendChild(td)
+		td.appendChild(document.createTextNode('Префикс'))
+		td = document.createElement('td')
+		tr.appendChild(td)
+		td.appendChild(document.createTextNode('Минут'))
+		td = document.createElement('td')
+		tr.appendChild(td)
+		td.appendChild(document.createTextNode('Цена за минуту'))
+		td = document.createElement('td')
+		tr.appendChild(td)
+		td.appendChild(document.createTextNode('Сумма'))
+
+		for(i=0;i<tObj['b'].length;i++){
+			tr = document.createElement('tr')
+			tbody.appendChild(tr)
+			tr.className = "even"
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			td.appendChild(document.createTextNode('Билайн'))
+			td.setAttribute('colspan', 4)
+			td.style.textAlign = 'center'
+
+			tr = document.createElement('tr')
+			tbody.appendChild(tr)
+			tr.style.textAlign = "right"
+			tr.className = 'even'
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['b'][i]['d'])
+			td.appendChild(tt)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['b'][i]['l'])
+			td.appendChild(tt)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['b'][i]['p'])
+			td.appendChild(tt)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['b'][i]['t'])
+			td.appendChild(tt)
+		}
+
+		for(i=0;i<tObj['a'].length;i++){
+			tr = document.createElement('tr')
+			tr.className = 'even'
+			tbody.appendChild(tr)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			td.appendChild(document.createTextNode('Арктел'))
+			td.setAttribute('colspan', 4)
+			td.style.textAlign = 'center'
+
+			tr = document.createElement('tr')
+			tbody.appendChild(tr)
+			tr.style.textAlign = "right"
+			tr.className = 'even'
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['a'][i]['d'])
+			td.appendChild(tt)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['a'][i]['l'])
+			td.appendChild(tt)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['a'][i]['p'])
+			td.appendChild(tt)
+
+			td = document.createElement('td')
+			tr.appendChild(td)
+			tt = document.createTextNode(tObj['a'][i]['t'])
+			td.appendChild(tt)
+		}
+		return tbl
+	}
+</script>
+{/literal}
+<form action="">
+	<input type="hidden" name="module" value="voip" />
+	<input type="hidden" name="action" value="tgroups_tariffication">
+	<table>
+		<tr>
+			<td>С</td>
+			<td>
+				<select name='from_d'>
+					{generate_sequence_options_select start=1 end=31 mode='d' selected=$from_d}
+				</select>
+					<select name='from_m'>
+				{generate_sequence_options_select start=1 end=12 mode='m' selected=$from_m}
+				</select>
+				<select name='from_y'>
+					{generate_sequence_options_select start=2010 selected=$from_y}
+				</select>
+			</td>
+			<td>По</td>
+			<td>
+				<select name='to_d'>
+					{generate_sequence_options_select start=1 end=31 mode='d' selected=$to_d}
+				</select>
+				<select name='to_m'>
+					{generate_sequence_options_select start=1 end=12 mode='m' selected=$to_m}
+				</select>
+				<select name='to_y'>
+					{generate_sequence_options_select start=2010 selected=$to_y}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Направление</td>
+			<td colspan="3">
+				<select name="dgroup">
+					<option value="all">Все</option>
+					{foreach from=$dests item='d'}
+					<option value="{$d.pk}"{if $dgroup==$d.pk} selected='selected'{/if}>{$d.name}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Округ</td>
+			<td colspan="3">
+				<select name="dsubgroup">
+					<option value="all">Все</option>
+					{foreach from=$dest_fo item='d'}
+					<option value="{$d.pk}"{if $dsubgroup==$d.pk} selected='selected'{/if}>{$d.name}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Мобильные/Стационарные</td>
+			<td colspan="3">
+				<select name="fixormob">
+					<option value="both">Все</option>
+					<option value="fix"{if $fixormob=='fix'} selected='selected'{/if}>Стационарные</option>
+					<option value="mob"{if $fixormob=='mob'} selected='selected'{/if}>Мобильные</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Сортировать по полю</td>
+			<td colspan="3">
+				<select name="sort_by">
+					<option value="dgroup"{if $sort_by=='dgroup'} selected='selected'{/if}>Направление</option>
+					<option value="dsubgroup"{if $sort_by=='dsubgroup'} selected='selected'{/if}>Округ</option>
+					<option value="dest"{if $sort_by=='dest'} selected='selected'{/if}>Destination</option>
+					<option value="fixormob"{if $sort_by=='fixormob'} selected='selected'{/if}>Стац./Моб.</option>
+					<option value="def"{if $sort_by=='def'} selected='selected'{/if}>Префикс</option>
+					<option value="tmin"{if $sort_by=='tmin'} selected='selected'{/if}>Всего минут</option>
+					<option value="bmin"{if $sort_by=='bmin'} selected='selected'{/if}>Минут билайн</option>
+					<option value="amin"{if $sort_by=='amin'} selected='selected'{/if}>Минут арктел</option>
+					<!--option value="omin"{if $sort_by=='omin'} selected='selected'{/if}>Минут др.</option-->
+					<option value="mprice"{if $sort_by=='mprice'} selected='selected'{/if}>Ц/м MCN</option>
+					<option value="bprice"{if $sort_by=='bprice'} selected='selected'{/if}>Ц/м билайн</option>
+					<option value="aprice"{if $sort_by=='aprice'} selected='selected'{/if}>Ц/м арктел</option>
+					<!--option value="oprice"{if $sort_by=='oprice'} selected='selected'{/if}>Ц(ср)/м др.</option-->
+					<option value="msum"{if $sort_by=='msum'} selected='selected'{/if}>Сум MCN</option>
+					<option value="bsum"{if $sort_by=='bsum'} selected='selected'{/if}>Сум билайн</option>
+					<option value="asum"{if $sort_by=='asum'} selected='selected'{/if}>Сум арктел</option>
+					<!--option value="osum"{if $sort_by=='osum'} selected='selected'{/if}>Сум др.</option-->
+					<option value="mrealsum"{if $sort_by=='mrealsum'} selected='selected'{/if}>Реал. сум. MCN</option>
+					<option value="diff"{if $sort_by=='diff'} selected='selected'{/if}>Прибыль</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Метод сортировки</td>
+			<td colspan="3">
+				<select name="sort_type">
+					<option value="asc"{if $sort_type=='asc'} selected='selected'{/if}>По возрастанию</option>
+					<option value="desc"{if $sort_type=='desc'} selected='selected'{/if}>По убыванию</option>
+				</select>
+			</td>
+		</tr>
+		<tr><td colspan="4"><input type="submit" name="ok" value="ok"></td></tr>
+	</table>
+</form>
+{if $report}
+	<table class='price' cellSpacing='4' cellPadding='2' width='100%' border='0'>
+		<tr>
+			<td class='header' valign='bottom'>Destination</td>
+			<td class='header' valign='bottom'>Направление</td>
+			<td class='header' valign='bottom'>Округ</td>
+			<td class='header' valign='bottom'>Стац./ Моб.</td>
+			<td class='header' valign='bottom'>Префикс МCN</td>
+			<td class='header' valign='bottom'>Всего минут</td>
+			<td class='header' valign='bottom'>Минут билайн</td>
+			<td class='header' valign='bottom'>Минут арктел</td>
+			<!--td class='header' valign='bottom'>Минут др.</td-->
+			<td class='header' valign='bottom'>Ц/м MCN</td>
+			<!--td class='header' valign='bottom'>Ц(ср)/м др.</td-->
+			<td class='header' valign='bottom'>Сум MCN</td>
+			<td class='header' valign='bottom'>Сум билайн</td>
+			<td class='header' valign='bottom'>Сум арктел</td>
+			<!--td class='header' valign='bottom'>Сум др.</td-->
+			<td class='header' valign='bottom'>Реал. сум. MCN</td>
+			<td class='header' valign='bottom'>Прибыль</td>
+		</tr>
+		{foreach from=$report item='d' key='def'}
+		<tr onclick="tgr.ev_lsnr(event,'{$d.detailed_json|replace:"'":"\'"}',true)" class='{cycle values="even,odd"}'{if $d.diff_orig<0} style='background-color:pink'{/if}>
+			<td title="Destination">{$d.dest}</td>
+			<td title="Направление">{$d.dgroup}</td>
+			<td title="Округ">{$d.dsubgroup}</td>
+			<td title="Стационарные/Мобильные">{$d.fixormob}</td>
+			<td title="Префикс МCN">{$def}</td>
+			<td align="right" title="Всего минут">{$d.tmin}</td>
+			<td align="right" title="Минут Билайн">{$d.bmin}</td>
+			<td align="right" title="Минут Арктел">{$d.amin}</td>
+			<!--td align="right">{$d.omin}</td-->
+			<td align="right" title="Цена/минуту MCN">{$d.mprice}</td>
+			<!--td align="right">{$d.oprice}</td-->
+			<td align="right" title="Сумма MCN">{$d.msum}</td>
+			<td align="right" title="Сумма Билайн">{$d.bsum}</td>
+			<td align="right" title="Сумма Арктел">{$d.asum}</td>
+			<!--td align="right">{$d.osum}</td-->
+			<td align="right" title="Реальная сумма MCN">{$d.mrealsum}</td>
+			<td align="right" title="Прибыль">{$d.diff}</td>
+		</tr>
+		{/foreach}
+		<tr style="font-weight: bold;">
+			<td>Итого:</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td align="right" title="Всего минут">{$tts.tmin}</td>
+			<td align="right" title="Минут Билайн">{$tts.bmin}</td>
+			<td align="right" title="Минут Арктел">{$tts.amin}</td>
+			<!--td align="right">{$d.omin}</td-->
+			<td>&nbsp;</td>
+			<!--td align="right">{$d.oprice}</td-->
+			<td align="right" title="Сумма MCN">{$tts.msum}</td>
+			<td align="right" title="Сумма Билайн">{$tts.bsum}</td>
+			<td align="right" title="Сумма Арктел">{$tts.asum}</td>
+			<!--td align="right">{$d.osum}</td-->
+			<td align="right" title="Реальная сумма MCN">{$tts.mrealsum}</td>
+			<td align="right" title="Прибыль">{$tts.diff}</td>
+		</tr>
+	</table>
+{/if}

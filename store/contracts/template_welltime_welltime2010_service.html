@@ -1,0 +1,1339 @@
+<style type="text/css">
+	<!--
+		@page { size: 21cm 29.7cm; margin-right: 1.5cm; margin-top: 1.27cm; margin-bottom: 2cm }
+		@page:first { margin-top: 2cm; margin-bottom: 2cm }
+		P { margin-bottom: 0.21cm; direction: ltr; color: #000000; widows: 2; orphans: 2 }
+		P.western { font-family: "Times New Roman", serif; font-size: 12pt; so-language: ru-RU }
+		P.cjk { font-family: "Times New Roman", serif; font-size: 12pt }
+		P.ctl { font-family: "Times New Roman", serif; font-size: 12pt; so-language: ar-SA }
+		A:link { color: #0000ff; text-decoration: underline }
+	-->
+	</style>
+
+<div type="HEADER">
+
+<p style="margin-bottom: 0cm;"><br />
+	</p>
+</div>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2"><b>Договор
+</b></font><font style="font-size: 11pt;" size="2"><span lang="en-US"><b>N</b></span></font><font style="font-size: 11pt;" size="2"><b>
+{$contract.contract_no}</b></font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2"><b>Сервисного
+обслуживания программного обеспечения
+</b></font><font style="font-size: 11pt;" size="2"><span lang="en-US"><b>WellTime</b></span></font><font style="font-size: 11pt;" size="2"><b>
+</b></font><font style="font-size: 11pt;" size="2"><span lang="en-US"><b>IP</b></span></font><font style="font-size: 11pt;" size="2"><b> </b></font><font style="font-size: 11pt;" size="2"><span lang="en-US"><b>АТС</b></span></font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">г.
+Москва {$contract.contract_date|mdate:'"d" месяца Y'} г.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY">
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p style="text-indent: 0.95cm; margin-bottom: 0cm; widows: 2; orphans: 2;" align="JUSTIFY">
+<font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">{$firm.name}, именуемое в дальнейшем
+&laquo;Исполнитель&raquo;, в лице {$firm.director_post_} {$firm.director_}, действующего на
+основании Устава с одной стороны, и
+{$client.company_full}, в лице {$client.signer_positionV} </font></font></font></font><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">{$client.signer_name}, действующего на основании Устава, </font></font><font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">именуемое в дальнейшем
+&laquo;Заказчик&raquo;, с другой стороны, при
+совместном упоминании Стороны, заключили
+настоящий Договор (далее &mdash;  Договор) о
+нижеследующем:</font></font></font></font></p>
+<p style="text-indent: 0.95cm; margin-bottom: 0cm; widows: 2; orphans: 2;" align="JUSTIFY">
+<br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">1.
+Предмет Соглашения</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">1.1.
+Исполнитель принимает на себя обязанности
+по сервисному обслуживанию программного
+обеспечения </font><font style="font-size: 11pt;" size="2"><span lang="en-US">WellTime</span></font><font style="font-size: 11pt;" size="2">
+</font><font style="font-size: 11pt;" size="2"><span lang="en-US">IP</span></font><font style="font-size: 11pt;" size="2">
+</font><font style="font-size: 11pt;" size="2"><span lang="en-US">АТС </span></font><font style="font-size: 11pt;" size="2">Заказчика &mdash; далее именуемое ПО.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">1.2.
+Сервисное обслуживание ПО &mdash; это
+выполнение следующих работ техническими
+специалистами Исполнителя, после
+завершения инсталляционных работ по
+Техническому заданию Заказчика:</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">-
+предоставление справочных материалов;</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">-
+устранение неисправностей;</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">-
+осуществление мониторинга, диагностики
+работы&nbsp; и сохранение
+конфигурационных файлов ПО;</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">-
+изменение настроек, обновление ПО.</font></p>
+
+
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">2.
+Обязанности Сторон</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.1.
+Обязанности Исполнителя:</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.1.1.
+Оказывать Заказчику качественное и
+своевременное сервисное обслуживание
+ПО в соответствии с его запросами,
+направленными по факсу, по электронной
+почте, указанным в п. 5.1. Договора.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.2.
+Права Исполнителя:</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.2.1.
+Не предоставлять Заказчику услуги по
+Договору  при условии их неполной оплаты.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.2.2.
+В случае выдачи Заказчику </font><font style="font-size: 11pt;" size="2"><span lang="en-US">Root</span></font><font style="font-size: 11pt;" size="2">
+пароля к </font><font style="font-size: 11pt;" size="2"><span lang="en-US">WellTime</span></font><font style="font-size: 11pt;" size="2">
+</font><font style="font-size: 11pt;" size="2"><span lang="en-US">IP</span></font><font style="font-size: 11pt;" size="2">
+</font><font style="font-size: 11pt;" size="2"><span lang="en-US">PBX Исполнитель не несет ответственность за работоспособность </span></font><font style="font-size: 11pt;" size="2">ПО.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.
+Обязанности Заказчика:</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.1.
+Оплачивать счета в течение 10 (десяти)
+календарных дней с даты их выставления
+Исполнителем.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.2.
+Обеспечивать оперативный удаленный
+доступ специалистов Исполнителя к
+обслуживаемому ПО.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.3.
+Обеспечить возможность удаленного
+администрирования и диагностики работы
+ПО.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.4.
+Создавать для специалистов Исполнителя
+условия работы на территории Заказчика, соответствующие
+требованиям санитарии и техники
+безопасности.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.5.
+Назначить лицо, ответственное за принятие
+работ Исполнителя.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.3.6.
+Использовать ПО и услуги Исполнителя
+только легальным образом и не переносить
+на Исполнителя ответственность за ущерб
+любого рода, понесенный Заказчиком или
+третьей стороной в ходе использования
+ПО и услуг Исполнителя.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.4.
+Права Заказчика:</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">2.4.1.
+В любое время контролировать ход и
+качество работ, выполняемых специалистами
+ Исполнителя, непосредственно не
+вмешиваясь в их деятельность.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">3.
+Расчеты Сторон</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.1.
+Все расчеты Сторон производятся путем
+перечисления денежных средств с
+расчетного счета одной Стороны на
+расчетный счет другой Стороны.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.2.
+Абонентская плата сервисного обслуживания
+ПО составляет:</font></p>
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:View>Normal</w:View>
+  <w:Zoom>0</w:Zoom>
+  <w:TrackMoves/>
+  <w:TrackFormatting/>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:DoNotPromoteQF/>
+  <w:LidThemeOther>RU</w:LidThemeOther>
+  <w:LidThemeAsian>X-NONE</w:LidThemeAsian>
+  <w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+   <w:SplitPgBreakAndParaMark/>
+   <w:DontVertAlignCellWithSp/>
+   <w:DontBreakConstrainedForcedTables/>
+   <w:DontVertAlignInTxbx/>
+   <w:Word11KerningPairs/>
+   <w:CachedColBalance/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+  <m:mathPr>
+   <m:mathFont m:val="Cambria Math"/>
+   <m:brkBin m:val="before"/>
+   <m:brkBinSub m:val="--"/>
+   <m:smallFrac m:val="off"/>
+   <m:dispDef/>
+   <m:lMargin m:val="0"/>
+   <m:rMargin m:val="0"/>
+   <m:defJc m:val="centerGroup"/>
+   <m:wrapIndent m:val="1440"/>
+   <m:intLim m:val="subSup"/>
+   <m:naryLim m:val="undOvr"/>
+  </m:mathPr></w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" DefUnhideWhenUsed="true"
+  DefSemiHidden="true" DefQFormat="false" DefPriority="99"
+  LatentStyleCount="267">
+  <w:LsdException Locked="false" Priority="0" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Normal"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="heading 1"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 2"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 3"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 4"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 5"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 6"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 7"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 8"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 9"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 1"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 2"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 3"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 4"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 5"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 6"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 7"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 8"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 9"/>
+  <w:LsdException Locked="false" Priority="35" QFormat="true" Name="caption"/>
+  <w:LsdException Locked="false" Priority="10" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Title"/>
+  <w:LsdException Locked="false" Priority="1" Name="Default Paragraph Font"/>
+  <w:LsdException Locked="false" Priority="11" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtitle"/>
+  <w:LsdException Locked="false" Priority="22" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Strong"/>
+  <w:LsdException Locked="false" Priority="20" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Emphasis"/>
+  <w:LsdException Locked="false" Priority="59" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Table Grid"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Placeholder Text"/>
+  <w:LsdException Locked="false" Priority="1" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="No Spacing"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 1"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 1"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Revision"/>
+  <w:LsdException Locked="false" Priority="34" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="List Paragraph"/>
+  <w:LsdException Locked="false" Priority="29" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Quote"/>
+  <w:LsdException Locked="false" Priority="30" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Quote"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 1"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 1"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 2"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 2"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 2"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 3"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 3"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 3"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 4"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 4"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 4"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 5"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 5"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 5"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 6"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 6"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 6"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="19" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Emphasis"/>
+  <w:LsdException Locked="false" Priority="21" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Emphasis"/>
+  <w:LsdException Locked="false" Priority="31" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Reference"/>
+  <w:LsdException Locked="false" Priority="32" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Reference"/>
+  <w:LsdException Locked="false" Priority="33" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Book Title"/>
+  <w:LsdException Locked="false" Priority="37" Name="Bibliography"/>
+  <w:LsdException Locked="false" Priority="39" QFormat="true" Name="TOC Heading"/>
+ </w:LatentStyles>
+</xml><![endif]--><!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Обычная таблица";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0cm 5.4pt 0cm 5.4pt;
+	mso-para-margin-top:0cm;
+	mso-para-margin-right:0cm;
+	mso-para-margin-bottom:10.0pt;
+	mso-para-margin-left:0cm;
+	line-height:115%;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;}
+</style>
+<![endif]-->
+
+<table class="MsoNormalTable" style="width:474.75pt;mso-cellspacing:0cm;border:outset black 1.0pt;
+ mso-border-alt:outset black .75pt;mso-yfti-tbllook:1184;mso-padding-alt:5.25pt 5.25pt 5.25pt 5.25pt" width="633" border="1" cellpadding="0" cellspacing="0">
+
+<tbody>
+<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.8pt">
+
+<td rowspan="2" style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:13.8pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  line-height:normal"><span style="font-size:10.0pt;font-family:" arial="" cyr?,?sans-serif?;="" mso-fareast-font-family:?times="" new="" roman?;mso-fareast-language:ru?="">Продукт</span><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:="" "times="" roman?;mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:13.8pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  line-height:normal"><span style="font-size:10.0pt;font-family:" arial="" cyr?,?sans-serif?;="" mso-fareast-font-family:?times="" new="" roman?;mso-fareast-language:ru?="">Тех.
+  Поддержка на 3 месяца Внедрение</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td rowspan="2" style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:13.8pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  line-height:normal"><span style="font-size:10.0pt;font-family:" arial="" cyr?,?sans-serif?;="" mso-fareast-font-family:?times="" new="" roman?;mso-fareast-language:ru?="">Тех.
+  Поддержка на 3 месяца</span><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;="" mso-fareast-font-family:?times="" roman?;mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td rowspan="2" style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:13.8pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  line-height:normal"><span style="font-size:10.0pt;font-family:" arial="" cyr?,?sans-serif?;="" mso-fareast-font-family:?times="" new="" roman?;mso-fareast-language:ru?="">Тех.
+  Поддержка на 6 месяцев</span><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;="" mso-fareast-font-family:?times="" roman?;mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td rowspan="2" style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:13.8pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  line-height:normal"><span style="font-size:10.0pt;font-family:" arial="" cyr?,?sans-serif?;="" mso-fareast-font-family:?times="" new="" roman?;mso-fareast-language:ru?="">Тех.
+  Поддержка на 12 месяцев</span><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;="" mso-fareast-font-family:?times="" roman?;mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:1;height:13.8pt">
+
+<td style="border:inset black 1.0pt;mso-border-alt:inset black .75pt;
+  padding:5.25pt 5.25pt 5.25pt 5.25pt;height:13.8pt">
+
+<p class="MsoNormal" style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:
+  normal"><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;="" mso-fareast-font-family:?times="" roman?;mso-fareast-language:ru?="">&nbsp;</span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:2;height:3.0pt">
+
+<td style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">Welltime IP PBX (Базово)</span><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:="" "times="" roman?;mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">10 000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">12&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">18&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">24&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:3;height:3.0pt">
+
+<td style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">Потоки E1-4E1</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?="">&nbsp;</span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">18&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">27&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">36&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:4;height:3.0pt">
+
+<td style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">Потоки 4E1-8E1</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?="">&nbsp;</span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">15&nbsp;600 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">23&nbsp;400 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">31&nbsp;200 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:5;height:3.0pt">
+
+<td style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">Модуль Contact Center</span><span style="font-size:
+  12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">10 000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">15&nbsp;600 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">23&nbsp;400 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">31&nbsp;200 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:6;height:3.0pt">
+
+<td style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">Модуль Автоинформатор (IVR)</span><span style="font-size:12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:="" "times="" roman?;mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">10 000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">18&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">27&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:3.0pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:3.0pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">36&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+
+<tr style="mso-yfti-irow:7;mso-yfti-lastrow:yes;height:2.25pt">
+
+<td style="width:107.6pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:2.25pt" valign="bottom" width="143">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:2.25pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">Модуль Телемаркетинг</span><span style="font-size:
+  12.0pt;font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:2.25pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:2.25pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">10 000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:90.95pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:2.25pt" valign="bottom" width="121">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:2.25pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">18&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:96.0pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:2.25pt" valign="bottom" width="128">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:2.25pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">27&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+
+<td style="width:89.25pt;border:inset black 1.0pt;
+  mso-border-alt:inset black .75pt;padding:5.25pt 5.25pt 5.25pt 5.25pt;
+  height:2.25pt" valign="bottom" width="119">
+
+<p class="MsoNormal" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+  auto;text-align:center;mso-line-height-alt:2.25pt" align="center"><span style="font-size:
+  10.0pt;font-family:" arial="" cyr?,?sans-serif?;mso-fareast-font-family:?times="" new="" roman?;="" mso-fareast-language:ru?="">36&nbsp;000 руб.</span><span style="font-size:12.0pt;
+  font-family:" times="" new="" roman?,?serif?;mso-fareast-font-family:?times="" roman?;="" mso-fareast-language:ru?=""></span></p>
+  </td>
+ </tr>
+</tbody></table>
+
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">*Все
+цены указаны с учетом НДС 18%</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.3.
+Заказчик оплачивает стоимость сервисного
+обслуживания ПО в порядке предоплаты
+на основании выставленных Исполнителем
+счетов.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.4.
+Исполнитель выставляет счета на
+абонентскую плату за сервисное
+обслуживание  ПО в течение 5 (пяти) рабочих
+дней с начала оплачиваемого периода.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.5.
+Стоимость работ Исполнителя, указанных
+в п. 4.1. Договора , составляет 1484 (одна
+тысяча четыреста восемьдесят четыре)
+рубля 00 копеек в час, в том числе НДС (18
+%) &mdash; 226 (двести двадцать шесть) рублей 37
+копеек и оплачивается Заказчиком сверх
+абонентской платы на основании
+выставленного Исполнителем счета.  </font>
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.6.Стоимость
+услуги, указанной в п. 4.2. Договора
+составляет 1 484 (одна тысяча четыреста
+восемьдесят четыре) рубля 00 копеек, в
+том числе НДС (18 %) - %) &mdash; 226 (двести двадцать
+шесть) рублей 37 копеек ежемесячно и
+оплачивается Заказчиком сверх абонентской
+платы на основании выставленного
+Исполнителем счета.  </font>
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">3.7.
+Стоимость услуги, указанной в п. 4.3.
+Договора, составляет 2 999 (две тысячи
+девятьсот девяносто девять) рублей 00
+копеек, в том числе НДС (18 %) &mdash; 457 (четыреста
+пятьдесят семь) рублей 47 копеек ежемесячно
+и оплачивается Заказчиком сверх
+абонентской платы на основании
+выставленного Исполнителем счета.  </font>
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">4.
+Дополнительные услуги</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">4.1. Изменение базовой конфигурации ПО указанной в Спецификации на ПО или проведение каких либо усовершенствований ПО оплачивается поверх Сервисного обслуживания ,стоимость таких работ
+определяется в соответствии с п. 3.5.
+Договора. </font>
+</p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2"><b>Примечание:</b></font><font style="font-size: 11pt;" size="2">
+Услуга предоставляется только Заказчикам,
+находящимся в Москве. возможность и
+стоимость выезда за пределы г. Москвы
+оговариваются отдельно.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">4.2.
+Для предотвращения возможного простоя
+в работе </font><font style="font-size: 11pt;" size="2"><span lang="en-US">ПО</span></font><font style="font-size: 11pt;" size="2">
+в случае возникновения аварии по
+обстоятельствам, не зависящим от
+Исполнителя и непопадающие под гарантийный
+случай для </font><font style="font-size: 11pt;" size="2"><span lang="en-US">ПО</span></font><font style="font-size: 11pt;" size="2"><span lang="en-US"></span></font><font style="font-size: 11pt;" size="2">,
+Заказчик может забронировать у Исполнителя
+оборудование аналогичное имеющемуся
+у него. В данном случае Исполнитель в
+течение 3 (трех) часов с момента определения
+аварийного случая, направляет технического
+специалиста с исправным оборудованием
+аналогичной конфигурации (если Заказчик
+находится в Москве), либо высылает такое
+оборудование (если Заказчик находится
+за пределами Москвы) в этом случае
+доставка производится за счет Заказчика.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2"><b>Примечание:</b></font><font style="font-size: 11pt;" size="2">
+Под аварией Стороны понимают &mdash; сбои
+</font><font style="font-size: 11pt;" size="2"><span lang="en-US">ПО</span></font><font style="font-size: 11pt;" size="2">,
+которые по прогнозам специалистов
+Исполнителя невозможно устранить в
+течение 4 (четырех) часов ни путем
+удаленного доступа, ни с выездом на
+место.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">4.3.
+В случае необходимости в срочном
+устранении сбоя или восстановления
+работоспособности системы ПО, Исполнитель
+предоставляет услугу по ускоренному
+реагированию на заявку Заказчика:</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">Время
+реагирования &mdash; 1 (один) час при обращении
+с 10.00 до 18.00 (г. Москва);</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">Время
+реагирования &mdash; 2 (два) часа при обращении
+с 9.00 до 10.00 и с 18.00 до 24.00(г. Москва).</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">4.4.
+Транспортные расходы по выезду специалиста
+Исполнителя к Заказчику (в случае
+нахождения Заказчика за пределами г.
+Москвы и Московской области), а также
+комплектующие, необходимые для ремонта
+(в случае негарантийного ремонта) и
+модернизация оборудования, не входят
+в стоимость Договора и оплачиваются
+сверх абонентской платы на основании
+выставленного Исполнителем счета.  </font>
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">5.
+Режим сервисного обслуживания</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">5.1.
+Сервисное обслуживание осуществляется с 09 до 21&nbsp; по телефону (495)950-56-79 и с 10 до 19 по телефону (495) 638-5115;  по электронной почте support@welltime.ru
+</font> .</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">5.2.
+Время реагирования с момента поступления
+заявки на сервисное обслуживание
+составляет: </font><font style="font-size: 11pt;" size="2"><b>обслуживание
+без выезда на объект</b></font><font style="font-size: 11pt;" size="2">
+(с 10.00 до 18.00 часов по<br /></font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">г.Москве) в рабочее
+время, время реагирования составляет
+3 (три) часа.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">	</font><font style="font-size: 11pt;" size="2"><b>Обслуживание
+с выездом на объект</b></font><font style="font-size: 11pt;" size="2">
+(с 10.00 до 18.00 часов по г. Москве) в г. Москве
+в пределах МКАД в рабочее время, время
+прибытия  на объект составляет 4 (четыре)
+часа с момента выявления инженерами
+Исполнителя необходимости обслуживания
+на объекте, если решение о выезде принято
+до 13.00 часов дня. При поступлении заявки
+позднее 13.00 часов дня, выезд осуществляется
+на следующий рабочий день.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><font style="font-size: 11pt;" size="2">Примечание:
+Услуга предоставляется  только Заказчикам,
+находящимся в г.Москве. Возможность и
+стоимость выезда за пределы г. Москвы
+оговариваются отдельно.</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">6.Форс-мажор</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">6.1.
+Если какая-либо из Сторон не в состоянии
+выполнить полностью или частично свои
+обязательства по Договору из-за пожара,
+стихийных бедствий, забастовок, войны,
+военных операций любого характера,
+блокады, запрещения экспорта или импорта
+(эмбарго), решений Правительства или
+решений государственных таможенных
+органов, срок исполнения обязательств
+Сторонами будет продлен на срок, равный
+тому, в течение которого будут действовать
+эти обстоятельства. </font></font>
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">6.2.
+Сторона, которая не может исполнить
+своего обязательства, должна известить
+другую Сторону о препятствии и его
+влиянии на исполнение обязательств по
+настоящему Договору в течение 7 (семи)
+рабочих дней с момента возникновения
+этих обстоятельств.</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">6.3.
+Дальнейшая судьба Договора в таких
+случаях должна быть определена соглашением
+Сторон. При не достижении согласия
+Стороны вправе обратиться в суд для
+решения этого вопроса.</font></font></p>
+<p class="western" style="margin-bottom: 0cm;"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">7.
+Ответственность Сторон</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">7.1.
+Ответственность Сторон наступает в
+соответствии с действующим законодательством
+РФ.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">7.2.
+В случае несогласия с объемом
+предоставленного сервисного обслуживания,
+указанного в счетах и Актах выполненных
+работ  Исполнителя, Заказчик в течение
+3 (трех) рабочих дней с момента получения
+счета должен предоставить Исполнителю
+мотивированный отказ в письменной
+форме,  в противном случае услуга
+считается выполненной, а Акт выполненных
+работ принятым.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">7.3.
+Если невозможность качественного
+оказания сервисного обслуживания ПО
+вызвана неполадками в оборудовании
+третьих лиц, предоставляющих  Заказчику
+иные услуги связи, в частности, неполадками
+в телефонных сетях, Исполнитель не несет
+ответственности перед Заказчиком по
+Договору и размер абонентской платы
+уменьшению не подлежит. </font>
+</p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">7.4.
+В случае сбоя в ПО Заказчика или в случае
+сбоя в оборудовании Исполнителя
+вследствие ненадлежащей эксплуатации
+его Заказчиком, неисправности исправляются
+Исполнителем за счет Заказчика.
+Исполнитель не несет ответственность
+перед Заказчиком по Договору и размер
+абонентской платы уменьшению не подлежит.</font></p>
+<p class="western" style="margin-bottom: 0cm;"><font style="font-size: 11pt;" size="2">7.5.
+Исполнитель не отвечает за содержание
+информации получаемой Заказчиком, за
+исключением информации предоставляемой
+Исполнителем.</font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">7.6.
+В случае нарушения Заказчиком обязанности,
+указанной в п. 2.3.1. Договора, за каждый
+день просрочки перечисления соответствующей
+суммы начисляется пеня в размере 0,03 %
+от суммы задолженности и/или Исполнитель
+вправе приостановить предоставление
+услуг по Договору до погашения Заказчиком
+образовавшейся задолженности.</font></font></font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">7.7.
+В случае если Заказчик периодически
+нарушает свои обязанности по оплате в
+установленный п. 2.3.1. Договора срок, а
+именно: более 2 (двух) раз подряд,
+Исполнитель вправе в одностороннем
+порядке расторгнуть Договор. Такое
+расторжение не освобождает Заказчика
+от оплаты фактически оказанных услуг
+по сервисному обслуживанию ПО и суммы
+задолженности, при ее наличии. Уведомление
+об одностороннем досрочном расторжении
+Договора по инициативе Исполнителя,
+последний должен предоставить Заказчику
+в письменной форме за 14 (четырнадцать)
+календарных дней.</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">7.8.
+В случае нарушения своих обязанностей
+по Договору Исполнителем, Заказчик
+вправе расторгнуть Договор в одностороннем
+порядке.  Такое расторжение не освобождает
+Заказчика от оплаты фактически оказанных
+услуг по сервисному обслуживанию ПО и
+суммы задолженности, при ее наличии.
+Уведомление об одностороннем досрочном
+расторжении Договора по инициативе
+Заказчика, последний должен предоставить
+Исполнителю в письменной форме за 14
+(четырнадцать) календарных дней.</font></font></font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;" align="JUSTIFY"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;" align="CENTER"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">8.
+Порядок разрешения споров</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;" align="JUSTIFY"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">8.1.
+Все споры или разногласия, возникающие
+между Сторонами по настоящему Договору
+или в связи с ним, разрешаются путем
+переговоров между Сторонами.</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">8.2.
+В случае невозможности разрешения
+разногласий путем переговоров они
+подлежат рассмотрению в Арбитражном
+суде г. Москвы</font></font><font face="Times New Roman, serif">.</font></font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;" align="CENTER"><font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">9.
+Заключительные положения.</font></font></font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;" align="CENTER"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">9.1.
+Во всем остальном, не предусмотренном
+настоящим Договором, Стороны будут
+руководствоваться действующем
+законодательством РФ.</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">9.2.
+Все Изменения, Приложения, Дополнительные
+Соглашения к Договору являются его
+неотъемлемой частью. </font></font>
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">9.3.
+Настоящий договор автоматически
+пролонгируется на новый срок, если ни
+одна из Сторон за 14 (четырнадцать)
+календарных дней до окончания Договора
+не уведомит другую о своем отказе
+пролонгировать Договор в письменной
+форме.</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Arial, sans-serif"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">9.4
+Настоящий Договор составлен в двух
+экземплярах, имеющих одинаковую
+юридическую силу, по одному экземпляру
+для каждой из Сторон. </font></font></font></font>
+</p>
+<p class="western" style="margin-bottom: 0cm;"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="JUSTIFY"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><font style="font-size: 11pt;" size="2">10.
+Адреса и платежные реквизиты</font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p style="text-indent: 0.95cm; margin-bottom: 0cm; widows: 2; orphans: 2;" align="JUSTIFY">
+<font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">Исполнитель:
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+                                                                   &nbsp;
+Заказчик:</font></font></p>
+<p style="text-indent: 0.95cm; margin-bottom: 0cm; widows: 2; orphans: 2;" align="JUSTIFY">
+<br />
+</p>
+<table width="639" border="1" bordercolor="#000000" cellpadding="7" cellspacing="0">
+	<colgroup><col width="304">
+	<col width="305">
+
+</colgroup>
+<tbody>
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">
+{$firm.name}</font></font></p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;">{$client.company_full}</p>
+		</td>
+	</tr>
+
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">Юридический
+			адрес: {$firm.address}</font></font></p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">Юридический
+			адрес: {$client.address_jur}</font></font></p>
+		</td>
+	</tr>
+
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">ИНН
+			{$firm.inn} КПП {$firm.kpp}</font></font></p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">ИНН
+			{$client.inn} КПП {$client.kpp}</font></font></p>
+		</td>
+	</tr>
+
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">
+р/с:&nbsp;{$firm.acc} в {$firm.bank}
+</font></font></p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">{$client.bank_properties}</font></font></p>
+		</td>
+	</tr>
+
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">
+к/с:&nbsp;{$firm.kor_acc}, БИК:&nbsp;{$firm.bik}
+</font></font></p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">БИК {$client.bik}</font></font></p>
+		</td>
+	</tr>
+
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">Тел.:
+			{$firm.phone} </font></font></p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">Тел.:
+			{foreach from=$contact.phone item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}</font></font></p>
+		</td>
+	</tr>
+
+<tr valign="TOP">
+
+<td width="304">
+
+<p style="widows: 2; orphans: 2;" lang="en-US"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">e-mail:
+			{$firm.email} </font></font>
+			</p>
+		</td>
+
+<td width="305">
+
+<p style="widows: 2; orphans: 2;" lang="en-US"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">e-mail:
+			{foreach from=$contact.fax item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}</font></font></p>
+		</td>
+	</tr>
+</tbody></table>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;" lang="en-US"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">{$firm.director_post}
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+ {$client.signer_position}</font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Courier New, monospace"><font size="2"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">
+{$firm.name}
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;        {$client.company_full}</font></font></font></font></p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><br />
+</p>
+<p style="margin-bottom: 0cm; widows: 2; orphans: 2;"><font face="Times New Roman, serif"><font style="font-size: 11pt;" size="2">_________________ /{$firm.director}/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _______________/{$client.signer_name}/</font></font></p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<p class="western" style="margin-bottom: 0cm;" align="CENTER"><br />
+</p>
+<div type="FOOTER">
+
+<p style="margin-bottom: 0cm;"><br />
+	</p>
+</div>
+<style type="text/css">
+body {
+	background: #FFF;
+}
+</style>

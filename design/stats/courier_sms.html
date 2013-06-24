@@ -1,0 +1,52 @@
+<h2>Отчет по отправленным SMS курьерами {$date}</h2>
+<style>
+{literal}
+#repart_table td {
+padding: 2px 2px 2px 2px;
+}
+#tr_head td {
+font-weight: bold;
+text-align: center;
+{/literal}
+</style>
+{if $showSelects}
+<form action="" method=get>
+	<input type="hidden" name="module" value="stats" />
+	<input type="hidden" name="action" value="courier_sms" />
+	<table>
+		<tr>
+			<td>С</td>
+			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_y}</select></td>
+			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_m}</select></td>
+			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_d}</select></td>
+			<td>&nbsp;</td>
+			<td>по</td>
+			<td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_y}</select></td>
+			<td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_m}</select></td>
+			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_d}</select></td>
+            <td><input type=submit value="OK"></td>
+		</tr>
+    </table>
+    
+    </form>
+
+{/if}
+<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+<tr id="tr_head">
+<td>#</td>
+<td>Курьер</td>
+<td>Номер</td>
+<td>Количество</td>
+<td>Заявки</td>
+</tr>
+{foreach from=$d item=i key=idx}
+<tr>
+<td>{$idx+1}.</td>
+<td>{$i.name}</td>
+<td>{$i.phone}</td>
+<td>{$i.count}</td>
+<td>{foreach from=$i.bills item=o name=bills}{if $smarty.foreach.bills.iteration != 1}, {if $smarty.foreach.bills.iteration % 7 == 0}<br>{/if}{/if}<a href="./?module=newaccounts&action=bill_view&bill={$o|escape}">{$o}</a>{/foreach}</td>
+</tr>
+{/foreach}
+</table>
+

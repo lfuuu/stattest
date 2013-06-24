@@ -1,0 +1,157 @@
+<form action="" method="get">
+<input type="hidden" name="module" value="stats" />
+<input type="hidden" name="action" value="report_services" />
+<input type="hidden" name="fix" value="yes" />
+<table border="1" align="center">
+	<tr>
+		<td>Услуга</td>
+		<td>Фильтр</td>
+	</tr>
+	<tr>
+		<td>Интернет</td>
+		<td>
+			<table>
+				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_i" value="on"{if isset($s_i) && $s_i} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_i" value="off"{if isset($s_i) && !$s_i} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_i" value="unset"{if !isset($s_i)} checked{/if} /></td></tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>Телефония</td>
+		<td>
+			<table>
+				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_p" value="on"{if isset($s_p) && $s_p} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_p" value="off"{if isset($s_p) && !$s_p} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_p" value="unset"{if !isset($s_p)} checked{/if} /></td></tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>VPN</td>
+		<td>
+			<table>
+				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_v" value="on"{if isset($s_v) && $s_v} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_v" value="off"{if isset($s_v) && !$s_v} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_v" value="unset"{if !isset($s_v)} checked{/if} /></td></tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>Collocation</td>
+		<td>
+			<table>
+				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_c" value="on"{if isset($s_c) && $s_c} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_c" value="off"{if isset($s_c) && !$s_c} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_c" value="unset"{if !isset($s_c)} checked{/if} /></td></tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>Дополнительные услуги</td>
+		<td>
+			<table>
+				<tr><td>Присутствуют</td><td>-</td><td><input type="radio" name="s_e" value="on"{if isset($s_e) && $s_e} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_e" value="off"{if isset($s_e) && !$s_e} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_e" value="unset"{if !isset($s_e)} checked{/if} /></td></tr>
+			</table>
+		</td>
+	</tr>
+	<tr align="center"><td colspan="2"><input type="submit" value="Ok" /></td></tr>
+</table>
+</form>
+{if $fix}
+{assign var='total_title' value='#bcbcbc'}
+{assign var='section_title' value='#bcbcbc'}
+{assign var='cycvals' value='#dfdfdf,white'}
+<table align="center" cellpadding="0" cellspacing="2">
+	<tr align="center" style="background-color:{$total_title}"><td colspan="3">Всего клиентов: {$scount}</td></tr>
+	<tr align="center" style="background-color:{$total_title}">
+		<td colspan="2">Тариф</td>
+		<td>Клиент</td>
+	</tr>
+	{if $icount}
+	<tr align="center" style="background-color:{$section_title}">
+		<td colspan="2">Интернет</td>
+		<td>Общее число: {$icount}</td>
+	</tr>
+	{assign var='cnt' value='0'}
+	{foreach from=$tarifs_map.I item='t' key='k'}
+	{assign var='cnt' value=$cnt+1}
+	<tr style="background-color:{cycle values=$cycvals}">
+		<td>{$cnt}</td>
+		<td><a href="/operator/index.php?module=tarifs&action=edit&m=internet&id={$tarifs.I[$k].id}" target="_blank">{$t}</a></td>
+		<td><a href="/operator/index.php?module=clients&id={$tarifs.I[$k].client.id}" target="_blank">{$tarifs.I[$k].client.client}</a></td></tr>
+	{/foreach}
+	{/if}
+	{if $pcount}
+	<tr align="center" style="background-color:{$section_title}">
+		<td colspan="2">Телефония</td>
+		<td>Общее число: {$pcount}</td>
+	</tr>
+	{assign var='cnt' value='0'}
+	{foreach from=$tarifs_map.P item='t' key='k'}
+	{assign var='cnt' value=$cnt+1}
+	<tr style="background-color:{cycle values=$cycvals}">
+		<td>{$cnt}</td>
+		<td><a href="/operator/index.php?module=tarifs&action=edit&m=voip&id={$tarifs.P[$k].id}" target="_blank">{$t}</a></td>
+		<td><a href="/operator/index.php?module=clients&id={$tarifs.P[$k].client.id}" target="_blank">{$tarifs.P[$k].client.client}</a></td></tr>
+	{/foreach}
+	{/if}
+	{if $vcount}
+	<tr align="center" style="background-color:{$section_title}">
+		<td colspan="2">VPN</td>
+		<td>Общее число: {$vcount}</td>
+	</tr>
+	{assign var='cnt' value='0'}
+	{foreach from=$tarifs_map.V item='t' key='k'}
+	{assign var='cnt' value=$cnt+1}
+	<tr style="background-color:{cycle values=$cycvals}">
+		<td>{$cnt}</td>
+		<td><a href="/operator/index.php?module=tarifs&action=edit&m=vpn&id={$tarifs.V[$k].id}" target="_blank">{$t}</a></td>
+		<td><a href="/operator/index.php?module=clients&id={$tarifs.V[$k].client.id}" target="_blank">{$tarifs.V[$k].client.client}</a></td></tr>
+	{/foreach}
+	{/if}
+	{if $ccount>0}
+	<tr align="center" style="background-color:{$section_title}">
+		<td colspan="2">Collocation</td>
+		<td>Общее число: {$ccount}</td>
+	</tr>
+	{assign var='cnt' value='0'}
+	{foreach from=$tarifs_map.C item='t' key='k'}
+	{assign var='cnt' value=$cnt+1}
+	<tr style="background-color:{cycle values=$cycvals}">
+		<td>{$cnt}</td>
+		<td><a href="/operator/index.php?module=tarifs&action=edit&m=collocation&id={$tarifs.C[$k].id}" target="_blank">{$t}</a></td>
+		<td><a href="/operator/index.php?module=clients&id={$tarifs.C[$k].client.id}" target="_blank">{$tarifs.C[$k].client.client}</a></td></tr>
+	{/foreach}
+	{/if}
+	{if $ecount}
+	<tr align="center" style="background-color:{$section_title}">
+		<td colspan="2">Дополнительные услуги</td>
+		<td>Общее число: {$ecount}</td>
+	</tr>
+	{assign var='cnt' value='0'}
+	{foreach from=$tarifs_map.E item='t' key='k'}
+	{assign var='cnt' value=$cnt+1}
+	<tr style="background-color:{cycle values=$cycvals}">
+		<td>{$cnt}</td>
+		<td><a href="/operator/index.php?module=tarifs&action=edit&m=extra&id={$tarifs.E[$k].id}" target="_blank">{$t}</a></td>
+		<td><a href="/operator/index.php?module=clients&id={$tarifs.E[$k].client.id}" target="_blank">{$tarifs.E[$k].client.client}</a></td></tr>
+	{/foreach}
+	{/if}
+	{if $scount}
+	<tr align="center" style="background-color:{$section_title}">
+		<td colspan="2">Все</td>
+		<td>Общее число: {$scount}</td>
+	</tr>
+	{assign var='cnt' value='0'}
+	{foreach from=$show item='t' key='k'}
+	{assign var='cnt' value=$cnt+1}
+	<tr style="background-color:{cycle values=$cycvals}">
+		<td>{$cnt}</td>
+		<td colspan="2"><a href="/operator/index.php?module=clients&id={$t.id}" target="_blank">{$t.client}</a></td></tr>
+	{/foreach}
+	{/if}
+</table>
+{/if}

@@ -1,0 +1,66 @@
+<H2>Письма клиентам</H2>
+<H3>Редактирование письма</H3>
+<TABLE cellspacing=5 cellpadding=2 border=0 width=100%><FORM action="?" method=post id=form name=form><TR><TD width=85%>
+	<input type=hidden name=module value=mail>
+	<input type=hidden name=action value=edit>
+	<input type=hidden name=id value='{$template.job_id}'>
+	<input type=text name=subject style='width:100%' value='{$template.template_subject}'><br>
+	<textarea name=body id=body style='width:100%;height:250px'>{$template.template_body}</textarea><br>
+	<DIV align=center ><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+</TD><TD valign=top>
+<a href='#' onclick='form.body.value+="\n%CLIENT%";return false;'>логин клиента</a><br><br>
+<a href='#' onclick='form.body.value+="\n%CLIENT_NAME%";return false;'>полное название компании</a><br><br>
+<a href='#' onclick='form.body.value+="\n%ABILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>счета клиента за месяц</a><br><br>
+<a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные</a><br><br>
+<a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью</a><br><br>
+<a href='#' onclick='form.body.value+="\n%SOGL_TELEKOM"+prompt("месяц","{$smarty.now|date_format:"%m"}")+"%";return false;'>Соглашение о передаче прав (Телеком)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
+</TD></TR></FORM></TABLE>
+
+{if $template.job_id}
+<H3>Отправка письма</H3>
+{if $template.job_state=='PM'}
+Это - сообщение.<br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>Сделать письмом</a><br>
+{elseif $template.job_state=='stop'}
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=test'>Тестовая отправка писем</a><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=ready'>Реальная отправка писем</a><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=PM'>Сделать сообщением</a><br><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=news'>Отправка новостей</a><br>
+{else}
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>Запретить отправку</a><br>
+{/if}
+
+<br><br><br>
+<a href='{$LINK_START}module=mail&action=client&id={$template.job_id}'>Добавить клиентов</a>
+<TABLE class=price cellSpacing=4 cellPadding=2 border=0>
+<TBODY>
+<TR>
+  <TD class=header vAlign=bottom>&nbsp;</TD>
+  <TD class=header vAlign=bottom>&nbsp;</TD>
+  <TD class=header vAlign=bottom>Клиент</TD>
+  <TD class=header vAlign=bottom>Объекты</TD>
+  <TD class=header vAlign=bottom>Состояние</TD>
+  <TD class=header vAlign=bottom>Дата отправки</TD>
+  <TD class=header valign=bottom>Сообщение об ошибке, если есть</TD>
+</TR>
+{foreach from=$mail_letter item=r name=outer}
+<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}{if $r.letter_state=='sent'} style='color:gray'{/if}>
+	<TD>{$smarty.foreach.outer.iteration}</TD>
+	<TD><a href='{$LINK_START}module=mail&action=preview&id={$template.job_id}&client={$r.client}'>pre</a></TD>
+	<TD><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></TD>
+	<TD>{if count($r.objects)}
+		<table cellspacing=2 cellpadding=1 border=0 class=mform>
+		{foreach from=$r.objects item=obj name=inner}
+			<tr><td>{$obj.object_type}</td><td>{$obj.object_param}</td><td>{if ($obj.view_count)}{$obj.view_ts}{else}&nbsp;&nbsp;&nbsp;&nbsp;{/if}</td></tr>
+		{/foreach}
+		</table>
+	{/if}</TD>
+	<TD>{$r.letter_state}</TD>
+	<TD>{if $r.send_date!="0000-00-00 00:00:00"}{$r.send_date}{/if}</TD>
+	<TD style='font-size:80%'>{$r.send_message}</TD>
+</TR>
+{/foreach}
+</TBODY></TABLE>
+{/if}

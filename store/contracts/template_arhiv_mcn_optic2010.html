@@ -1,0 +1,661 @@
+
+<style>
+
+div.text p{margin: 0em 0em 0em 0em}
+table.price td{padding: 3px; border-bottom: 1px solid #dedede; /*font-size: 11*/}
+table.price td.header{text-align: left; /*font-size: 14;*/ background: #f1f1f1; padding: 3px; border-bottom: 1px solid black}
+table.price {font-family: Arial}
+table td{/*font-size: 13*/}
+body {/*font-size: 13;*/ font-family: Arial; /*line-height: 0.9em*/}
+h2 {/*font-size: 16*/}
+h3 {/*font-size: 14;*/ margin-bottom: 0.1em}
+
+</style>
+
+<center>
+<h2>ДОГОВОР НА ПРЕДОСТАВЛЕНИЕ ИНФОРМАЦИОННЫХ УСЛУГ &#8470; {$contract.contract_no}</h2></center>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr>
+<td align="left"><b>г. Москва</b></td>
+<td align="right"><b>{$contract.contract_date|mdate:'"d" месяца Y'}</b></td></tr></tbody></table><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$client.company_full}, именуемое в дальнейшем ЗАКАЗЧИК, в лице {$client.signer_positionV} {$client.signer_nameV}, действующего на основании 
+Устава с одной стороны, и {if $client.firma == "mcn"} OOO "Эм Си Эн" {else} ООО &laquo;МАРКОМНЕТ&raquo;{/if}, именуемое в дальнейшем ИСПОЛНИТЕЛЬ, в лице {if $client.firma == 'mcn'}Генерального {/if}директора Мельникова А.К., действующего на основании Устава, с другой стороны, именуемые в дальнейшем Стороны, заключили настоящий Договор о нижеследующем:<br />
+
+
+<p>1.	ПРЕДМЕТ ДОГОВОРА</p>
+
+<p>1.1.	ИСПОЛНИТЕЛЬ предоставляет ЗАКАЗЧИКУ информационные услуги в&nbsp;соответствии с&nbsp;перечнем услуг и&nbsp;ценами (Приложение &#8470;&nbsp;1).</p>
+
+<p>1.2.	ЗАКАЗЧИК оплачивает ИСПОЛНИТЕЛЮ услуги согласно действующему Прайс-листу на&nbsp;основании <nobr>вы-ставляемого</nobr> ИСПОЛНИТЕЛЕМ счета.</p>
+
+<p>2.	ПРАВА И&nbsp;ОБЯЗАННОСТИ СТОРОН</p>
+
+<p>ИСПОЛНИТЕЛЬ обязуется:<br />
+2.1.	Обеспечивать предоставление информационных услуг согласно перечню услуг, запрошенному ЗАКАЗЧИКОМ.</p>
+
+<p>2.2.	Вести учет потребления и&nbsp;оплаты услуг ЗАКАЗЧИКОМ.</p>
+
+<p>2.3.	Обеспечивать техническую и&nbsp;информационную поддержку предоставляемых услуг по&nbsp;электронной почте support@mcn.ru круглосуточно и&nbsp;по&nbsp;телефону <nobr>950&mdash;56</nobr>-79&nbsp;с&nbsp;<nobr>9&mdash;00</nobr>&nbsp;до <nobr>21&mdash;00</nobr>&nbsp;по&nbsp;рабочим дням, с&nbsp;<nobr>10&mdash;00</nobr>&nbsp;до&nbsp;<nobr>18&mdash;00</nobr> по&nbsp;выход-ным дням</p>
+
+<p>ЗАКАЗЧИК обязуется:</p>
+
+<p>2.4.	Оплачивать выставленные за&nbsp;услуги счета в&nbsp;течение 5&nbsp;дней с&nbsp;момента их&nbsp;получения.</p>
+
+<p>2.5.	Соблюдать правила пользования информационными услугами в&nbsp;сети Интернет (Приложению &#8470;&nbsp;2).</p>
+
+<p>2.6.	Своевременно информировать ИСПОЛНИТЕЛЯ об&nbsp;изменениях реквизитов, адреса, эл.почты, факса.</p>
+
+<p>ИСПОЛНИТЕЛЬ имеет право:</p>
+
+<p>2.7.	Ограничить ЗАКАЗЧИКУ предоставление услуг в&nbsp;сети Интернет в&nbsp;случае несвоевременной оплаты счетов или в&nbsp;случае нарушения ЗАКАЗЧИКОМ Правил пользования информационными услугами в&nbsp;сети Интернет. При <nobr>на-рушении</nobr> п.6&nbsp;Правил пользования информационными услугами в&nbsp;сети Интернет действие договора немедленно пре-кращается.</p>
+
+<p>2.8.	Изменять расценки, указанные в&nbsp;Прайс-листе.</p>
+
+<p>ЗАКАЗЧИК имеет право:</p>
+
+<p>2.9.	Изменять перечень получаемых услуг и&nbsp;тарифные планы.</p>
+
+<p>3.	ПОРЯДОК ПРЕДОСТАВЛЕНИЯ УСЛУГ И&nbsp;ВЗАИМОРАСЧЕТОВ</p>
+
+<p>3.1.	ЗАКАЗЧИК в&nbsp;произвольной форме запрашивает у&nbsp;ИСПОЛНИТЕЛЯ необходимые услуги из&nbsp;Прайс-листа.</p>
+
+<p>3.2.	В случае необходимости по&nbsp;запросу ЗАКАЗЧИКА ИСПОЛНИТЕЛЬ составляет Техническое задание на&nbsp;необходимые услуги, а&nbsp;также Акт сдачи приемки выполненных работ.</p>
+
+<p>3.3.	ИСПОЛНИТЕЛЬ выставляет счета на&nbsp;абонентскую плату и&nbsp;разовые услуги перед предоставлением услуги, а&nbsp;счета за&nbsp;превышение трафика и&nbsp;прочих ресурсов после окончания отчетного периода.</p>
+
+<p>3.4.	Исполнитель выставляет счета в&nbsp;рублях.</p>
+
+<p>3.5.	Все расчеты производятся в&nbsp;рублях .</p>
+
+<p>4.	ОТВЕТСТВЕННОСТЬ СТОРОН</p>
+
+<p>4.1. За&nbsp;неисполнение или ненадлежащее исполнение условий настоящего Договора Стороны несут ответственность в&nbsp;соответствии с&nbsp;действующим законодательством Российской Федерации.</p>
+
+<p>4.2.	ИСПОЛНИТЕЛЬ не&nbsp;несет ответственности за&nbsp;содержание информации, распространяемой ЗАКАЗЧИКОМ через сеть Интернет.</p>
+
+<p>4.3.	В случае отсутствия доступа в&nbsp;Интернет более 1&nbsp;часа ИСПОЛНИТЕЛЬ обязуется уменьшить абонентскую плату на&nbsp;1/720&nbsp;от&nbsp;ее величины за&nbsp;каждый час непредоставления доступа.</p>
+
+<p>5.	ОБСТОЯТЕЛЬСТВА НЕПРЕОДОЛИМОЙ СИЛЫ (ФОРС-МАЖОР)</p>
+
+<p>5.1. Стороны могут быть освобождены от&nbsp;ответственности за&nbsp;частичное или полное невыполнение своих обяза-тельств по&nbsp;настоящему Договору, если такое невыполнение было обусловлено обстоятельствами непреодолимой силы, а&nbsp;именно: действиями других операторов, пожаром, стихийными бедствиями, войной или другими обстоятельствами, находящимися вне разумного контроля сторон.</p>
+
+<p>5.2. Сторона, пострадавшая от&nbsp;действия обстоятельств непреодолимой силы, должна немедленно известить другую Сторону о&nbsp;типе и&nbsp;возможной продолжительности таких обстоятельств.</p>
+
+<p>5.3. В&nbsp;период действия обстоятельств непреодолимой силы, освобождающих от&nbsp;ответственности, исполнение обя-зательств ИСПОЛНИТЕЛЯ и&nbsp;ЗАКАЗЧИКА приостанавливается.</p>
+
+<p>6.	СРОК ДЕЙСТВИЯ ДОГОВОРА И&nbsp;ПОРЯДОК ПРЕКРАЩЕНИЯ ЕГО ДЕЙСТВИЯ</p>
+
+<p>6.1. Настоящий Договор вступает в&nbsp;силу с&nbsp;момента его подписания обеими Сторонами и&nbsp;действует в&nbsp;течение года. Если ни&nbsp;одна из&nbsp;сторон письменно не&nbsp;заявит о&nbsp;желании расторгнуть договор, то&nbsp;он&nbsp;считается пролонгированным на&nbsp;год.</p>
+
+<p>6.2. Условия настоящего договора могут быть изменены только по&nbsp;дополнительному письменному соглашению сто-рон.</p>
+
+<p>6.3. Настоящий Договор может быть расторгнут в&nbsp;месячный срок после предоставления одной из&nbsp;сторон письмен-ного извещения, или в&nbsp;случае неисполнения сторонами своих обязательств по&nbsp;договору.</p>
+
+<p>7.	ДОПОЛНИТЕЛЬНЫЕ УСЛОВИЯ</p>
+
+<p>7.1. Стороны обязуются принять все меры к&nbsp;разрешению споров и&nbsp;разногласий, которые могут возникнуть из&nbsp;<nobr>на-стоящего</nobr> Договора или в&nbsp;связи с&nbsp;ним, путем переговоров. В&nbsp;случае, если Стороны не&nbsp;смогут прийти к&nbsp;соглашению, все споры и&nbsp;разногласия подлежат разрешению в&nbsp;соответствии с&nbsp;действующим законодательством Российской Федерации в&nbsp;арбитражном суде г.&nbsp;Москвы.</p>
+
+<p>7.2.	 Во&nbsp;всем остальном, что не&nbsp;предусмотрено настоящим Договором, Стороны руководствуются действующим законодательством Российской Федерации.</p>
+
+<p>7.3.	 Настоящий Договор составлен в&nbsp;двух экземплярах на&nbsp;русском языке, имеющих одинаковую юридическую силу, по&nbsp;одному для каждой Стороны.</p>
+
+
+
+
+<br /><b>8.	АДРЕСА И РЕКВИЗИТЫ СТОРОН</b>
+<table class="price" cellspacing="20" width="100%">
+<tbody>
+<tr>
+<td width="50%">
+Оператор: ООО &laquo;Эм Си Эн&raquo;<br />
+Адрес: 113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130<br />
+ИНН 7727508671, КПП 772701001<br />
+Банковские реквизиты:<br />
+р/с:&nbsp;40702810600301422002 в ЗАО КБ &laquo;Ситибанк&raquo;<br>
+к/с:&nbsp;30101810300000000202<br>
+БИК:&nbsp;044525202<br>
+телефон: (495) 950-56-78<br />
+факс: (495) 638-50-17<br />
+е-mail: info@mcn.ru<br />
+</td>
+<td>
+Абонент: {$client.company_full}<br />
+Адрес: {$client.address_jur}<br />
+Банковские реквизиты: {$client.bank_properties}, БИК {$client.bik}<br />
+ИНН {$client.inn}, КПП {$client.kpp}<br />
+Почтовый адрес: {$client.address_post_real}<br />
+Адрес электронной почты: {foreach from=$contact.email item=item 
+name=inner}{if $smarty.foreach.inner.iteration!=1}; 
+{/if}{$item.data}{/foreach} <br />
+Телефон: {foreach from=$contact.phone item=item name=inner}{if 
+$smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}<br />
+Факс: {foreach from=$contact.fax item=item name=inner}{if 
+$smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}<br />
+</td></tr></tbody></table>
+<br /><b>7.	ПОДПИСИ СТОРОН:</b><br />
+<br />
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr>
+<td align="left" valign="top" width="50%">ИСПОЛНИТЕЛЬ<br />
+
+<br /><br /><br />__________________________<br />
+Генеральный директор Мельников А.К.<br />
+
+<br />
+<br />
+</td>
+<td align="left" valign="top" width="50%">ЗАКАЗЧИК<br />
+<br /><br /><br />________________________<br />
+{$client.signer_position} {$client.signer_name}<br />
+<br />
+</td></tr></tbody></table>
+
+<br style="page-break-after: always" />
+<p class="Normal"><b style=""><span style="font-size: 12pt;">Приложение 
+&#8470;1 к договору &#8470;<span style="">&nbsp;&nbsp; {$contract.contract_no} &nbsp;&nbsp;&nbsp;&nbsp;
+</span>от {$contract.contract_date|mdate:'"d" месяца Y'}г.</span></b></p>
+
+<p class="Normal">&nbsp;</p>
+
+<p class="Normal" style="margin: 12pt 0cm 0.0001pt 108pt; text-indent: 36pt; text-align: left;"><b style=""><span style="font-size: 12pt;"><span style="">&nbsp; </span>1. </span>Подключение к
+Интернету. </b></p>
+
+<p class="Normal" style="margin: 12pt 0cm 0.0001pt 20.25pt;">Подключение:<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+ 0 руб.</p>
+
+<p class="Normal" style="margin-left: 20.25pt;">&nbsp;</p>
+
+<table class="MsoNormalTable" style="border-collapse: collapse; border: medium none; margin-left: 6.75pt; margin-right: 6.75pt;" align="left" border="1" cellpadding="0" cellspacing="0">
+ 
+<tbody>
+<tr style="page-break-inside: avoid;">
+  
+<td style="width: 148.85pt; border: 1pt solid windowtext; padding: 0cm 2.25pt;" valign="top" width="198">
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  
+<p class="Normal" style="text-align: center;" align="center">Абонентская
+ плата</p>
+  
+<p class="Normal" style="text-align: center;" align="center">(включенный
+ в абонентскую </p>
+  
+<p class="Normal" style="text-align: center;" align="center">плату 
+трафик)</p>
+  </td>
+  
+<td style="width: 51.4pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="69">
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  
+<p class="Normal" style="text-align: center;" align="center">799 руб.</p>
+  
+<p class="Normal" style="text-align: center;" align="center"><span style="" lang="EN-US">(</span>512 Мб)</p>
+  </td>
+  
+<td style="width: 54pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">999 руб.</p>
+  
+<p class="Normal" style="text-align: center;" align="center">(1 Гб)</p>
+  </td>
+  
+<td style="width: 54pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  
+<p class="Normal" style="text-align: center;" align="center">1800 руб.</p>
+  
+<p class="Normal" style="text-align: center;" align="center">(3 Гб)</p>
+  </td>
+  
+<td style="width: 54pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  
+<p class="Normal" style="text-align: center;" align="center">2299 руб.</p>
+  
+<p class="Normal" style="text-align: center;" align="center">(5 Гб)</p>
+  </td>
+  
+<td style="width: 54pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  
+<p class="Normal" style="text-align: center;" align="center">2799 руб.</p>
+  
+<p class="Normal" style="text-align: center;" align="center">(10 Гб)</p>
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  </td>
+  
+<td style="width: 45pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="60">
+  
+<p class="Normal" style="text-align: center;" align="center">3799 руб.<span style="" lang="EN-US"></span></p>
+  
+<p class="Normal" style="text-align: center;" align="center"><span style="" lang="EN-US">(</span>25 Гб)</p>
+  </td>
+  
+<td style="width: 54pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">4799 руб.<span style="" lang="EN-US"></span></p>
+  
+<p class="Normal" style="text-align: center;" align="center"><span style="" lang="EN-US">(</span>50 Гб)</p>
+  </td>
+  <td style="width: 54pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+
+<p class="Normal" style="text-align: center;" align="center">8100 руб.<span style="" lang="EN-US"></span></p>
+
+<p class="Normal" style="text-align: center;" align="center"><span style="" lang="EN-US">(</span>100 Гб)</p>
+  </td>
+ </tr>
+ 
+<tr style="page-break-inside: avoid;">
+  
+<td style="width: 148.85pt; border-width: medium 1pt 1pt; border-style: none solid solid; border-color: -moz-use-text-color windowtext windowtext; padding: 0cm 2.25pt;" valign="top" width="198">
+  
+<p class="Normal" style="text-align: center;" align="center">Превышение</p>
+  </td>
+  
+<td style="width: 51.4pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="69">
+  
+<p class="Normal" style="text-align: center;" align="center">1,50 руб</p>
+  </td>
+  
+<td style="width: 54pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">1,00 руб.</p>
+  </td>
+  
+<td style="width: 54pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">0,55 руб.</p>
+  </td>
+  
+<td style="width: 54pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">0,45 руб.</p>
+  </td>
+  
+<td style="width: 54pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">0,35 руб.</p>
+  </td>
+  
+<td style="width: 45pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="60">
+  
+<p class="Normal" style="text-align: center;" align="center">0,25 руб.<span style="" lang="EN-US"></span></p>
+  </td>
+  
+<td style="width: 54pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+  
+<p class="Normal" style="text-align: center;" align="center">0,15 руб.<span style="" lang="EN-US"></span></p>
+  </td>
+  <td style="width: 54pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+
+<p class="Normal" style="text-align: center;" align="center">0,10 руб.<span style="" lang="EN-US"></span></p>
+  </td>
+ </tr>
+</tbody></table>
+
+<p class="MsoNormal"><b style=""><span style="font-size: 10pt;"><span style="">&nbsp;</span></span></b><span style="font-size: 10pt; font-family: Arial;"></span></p>
+<p class="Normal" style="margin-left: 20.25pt;"><b style="">&nbsp;</b></p>
+<h3 style="margin: 0cm 0cm 0.0001pt; page-break-after: auto; text-align: left;"><span style="font-size: 10pt;"><span style="">&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span style="font-size: 10pt;" times="" new="" roman="" ;=""></span></h3>
+<h3 style="margin: 0cm 0cm 0.0001pt; page-break-after: auto; text-align: left;"><br /><span style="font-size: 10pt;"></span></h3>
+<h3 style="margin: 0cm 0cm 0.0001pt; page-break-after: auto; text-align: left;"><span style="font-size: 10pt;"></span></h3>
+<div style="text-align: left;">
+
+</div>
+<div style="text-align: left;">
+
+</div>
+
+<table class="MsoNormalTable" style="border-collapse: collapse; border: medium none; margin-left: 6.75pt; margin-right: 6.75pt;" align="left" border="1" cellpadding="0" cellspacing="0">
+
+<tbody>
+<tr style="page-break-inside: avoid;">
+
+<td style="width: 148.85pt; border: 1pt solid windowtext; padding: 0cm 2.25pt;" valign="top" width="198">
+
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+
+<p class="Normal" style="text-align: center;" align="center">Безлимитные тарифы</p>
+
+<p class="Normal" style="text-align: center;" align="center">(скорость down/up </p>
+
+<p class="Normal" style="text-align: center;" align="center">Кбит в сек)</p>
+  </td>
+
+<td style="width: 54.4pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="69">
+
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+
+<p class="Normal" style="text-align: center;" align="center">2999 руб.</p>
+
+<p class="Normal" style="text-align: center;" align="center"><span style="" lang="EN-US">(</span>512 Кбит/с)</p>
+  </td>
+
+<td style="width: 57pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="72">
+
+<p class="Normal" style="text-align: center;" align="center">3999 руб.</p>
+
+<p class="Normal" style="text-align: center;" align="center">(1024 Кбит/с)</p>
+  </td>
+
+<td style="width: 57pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+
+<p class="Normal" style="text-align: center;" align="center">4999 руб.</p>
+
+<p class="Normal" style="text-align: center;" align="center">(2048 Кбит/с)</p>
+  </td>
+
+<td style="width: 57pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+
+<p class="Normal" style="text-align: center;" align="center">5999 руб.</p>
+
+<p class="Normal" style="text-align: center;" align="center">(3072 Кбит/с)</p>
+  </td>
+
+<td style="width: 57pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="72">
+
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+
+<p class="Normal" style="text-align: center;" align="center">7999 руб.</p>
+
+<p class="Normal" style="text-align: center;" align="center">(5120 Кбит/с)</p>
+
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  </td>
+
+<td style="width: 61pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="60">
+
+<p class="Normal" style="text-align: center;" align="center">9999 руб.<span style="" lang="EN-US"></span></p>
+
+<p class="Normal" style="text-align: center;" align="center"><span style="" lang="EN-US">(</span>10240 Кбит/с)</p>
+  </td>
+
+ </tr>
+
+</tbody></table>
+
+<p class="MsoNormal"><b style=""><span style="font-size: 10pt;"><span style="">&nbsp;</span></span></b><span style="font-size: 10pt; font-family: Arial;"></span></p>
+
+<p class="Normal" style="margin-left: 20.25pt;"><b style="">&nbsp;</b></p>
+
+<h3 style="margin: 0cm 0cm 0.0001pt; text-indent: 20.25pt; page-break-after: auto;"><span style="font-size: 10pt;"><span style="">&nbsp;</span><span style="">&nbsp;&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ </span></span><span style="font-size: 10pt;"></span></h3>
+
+<h3 style="margin: 0cm 0cm 0.0001pt; page-break-after: auto; text-align: left;"><span style="font-size: 10pt;"><span style="">&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span><span style="font-size: 10pt;" times="" new="" roman="" ;=""></span></h3>
+<h3 style="margin: 0cm 0cm 0.0001pt; page-break-after: auto; text-align: left;"><br /><span style="font-size: 10pt;"></span></h3>
+<h3 style="margin: 0cm 0cm 0.0001pt; page-break-after: auto; text-align: left;"><span style="font-size: 10pt;">2.Электронная почта</span></h3>
+<div style="text-align: left;">
+
+</div>
+<div style="text-align: left;">
+
+</div>
+<p>
+
+</p>
+<table class="MsoNormalTable" style="border-collapse: collapse; border: medium none; text-align: left; margin-left: 0px; margin-right: auto;" border="1" cellpadding="0" cellspacing="0">
+ 
+<tbody>
+<tr style="page-break-inside: avoid;">
+  
+<td style="width: 178.5pt; border: 1pt solid windowtext; padding: 0cm 2.25pt;" valign="top" width="238">
+  
+<p class="heading4" style=""><span style="font-weight: normal;">&nbsp;</span></p>
+  </td>
+  
+<td style="width: 178.5pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="238">
+  
+<p class="Normal" style="text-align: center;" align="center">Регистрация</p>
+  </td>
+  
+<td style="width: 120.5pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="161">
+  
+<p class="heading4" style=""><span style="font-weight: normal;">Поддержка
+
+  за 1 месяц</span></p>
+  </td>
+ </tr>
+ 
+<tr style="page-break-inside: avoid;">
+  
+<td style="width: 178.5pt; border-width: medium 1pt 1pt; border-style: none solid solid; border-color: -moz-use-text-color windowtext windowtext; padding: 0cm 2.25pt;" width="238">
+  
+<p class="Normal">Почтовый ящик<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+  </td>
+  
+<td style="width: 178.5pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="238">
+  
+<p class="Normal" style="text-align: center;" align="center">0 руб.</p>
+  </td>
+  
+<td style="width: 120.5pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="161">
+  
+<p class="Normal" style="text-align: center;" align="center">27 руб.</p>
+  </td>
+ </tr>
+</tbody></table>
+
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<h3 style="margin-bottom: 0.0001pt; page-break-after: auto; text-align: left;"><span style="font-size: 10pt;" times="" new="" roman="" ;="">3.Регистрация и поддержка доменных имен</span></h3>
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p style="text-align: left;" class="Normal"><b style="">&nbsp;</b></p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+
+</p>
+<table class="MsoNormalTable" style="border-collapse: collapse; border: medium none; text-align: left; margin-left: 0px; margin-right: auto;" border="1" cellpadding="0" cellspacing="0">
+ 
+<tbody>
+<tr style="page-break-inside: avoid; height: 34.9pt;">
+  
+<td style="width: 178.5pt; border: 1pt solid windowtext; padding: 0cm 2.25pt; height: 34.9pt;" valign="top" width="238">
+  
+<p class="heading4" style=""><span style="font-weight: normal;">В
+  зоне</span></p>
+  </td>
+  
+<td style="width: 166.6pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt; height: 34.9pt;" valign="top" width="222">
+  
+<p class="Normal" style="text-align: center;" align="center">Регистрация
+ на 1 год</p>
+  </td>
+  
+<td style="width: 132.4pt; border-width: 1pt 1pt 1pt medium; border-style: solid solid solid none; border-color: windowtext windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt; height: 34.9pt;" valign="top" width="177">
+  
+<p class="heading4" style=""><span style="font-weight: normal;">Перерегистрация
+
+  на </span></p>
+  
+<p class="heading4" style=""><span style="font-weight: normal;">1
+  год</span></p>
+  </td>
+ </tr>
+ 
+<tr style="page-break-inside: avoid;">
+  
+<td style="width: 178.5pt; border-width: medium 1pt 1pt; border-style: none solid solid; border-color: -moz-use-text-color windowtext windowtext; padding: 0cm 2.25pt;" valign="top" width="238">
+  
+<p class="Normal">.<span style="" lang="EN-US">ru</span>, <span style="" lang="EN-US">.com</span>, <span style="" lang="EN-US">.net</span></p>
+  </td>
+  
+<td style="width: 166.6pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" valign="top" width="222">
+  
+<p class="Normal" style="text-align: center;" align="center">540 руб.</p>
+  </td>
+  
+<td style="width: 132.4pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="177">
+  
+<p class="Normal" style="text-align: center;" align="center">405 руб.</p>
+  </td>
+ </tr>
+ 
+<tr style="page-break-inside: avoid;">
+  
+<td style="width: 178.5pt; border-width: medium 1pt 1pt; border-style: none solid solid; border-color: -moz-use-text-color windowtext windowtext; padding: 0cm 2.25pt;" width="238">
+  
+<p class="Normal"><span style="">&nbsp;</span><span style="" lang="EN-US">.info</span>,
+ .<span style="" lang="EN-US">org</span>, <span style="" lang="EN-US">.biz</span></p>
+  </td>
+  
+<td style="width: 166.6pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="222">
+  
+<p class="Normal" style="text-align: center;" align="center">675 руб.</p>
+  </td>
+  
+<td style="width: 132.4pt; border-width: medium 1pt 1pt medium; border-style: none solid solid none; border-color: -moz-use-text-color windowtext windowtext -moz-use-text-color; padding: 0cm 2.25pt;" width="177">
+  
+<p class="Normal" style="text-align: center;" align="center">&nbsp;</p>
+  
+<p class="Normal" style="text-align: center;" align="center">675 руб.</p>
+  </td>
+ </tr>
+</tbody></table>
+
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p style="text-align: left;" class="Normal"><b style="">&nbsp;</b></p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 30.75pt; text-indent: -18pt; text-align: left;"><span style="">1.<span style="" times="" new="" roman="" ;="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Все цены приведены без учета НДС. </p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 30.75pt; text-indent: -18pt; text-align: left;"><span style="">2.<span style="" times="" new="" roman="" ;="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Подсчет трафика ведется без разделения на 
+российский и
+зарубежный трафик. </p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 30.75pt; text-indent: -18pt; text-align: left;"><span style="">3.<span style="" times="" new="" roman="" ;="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Тарифицируется<span style="">&nbsp;
+</span>наибольший<span style="">&nbsp; </span>трафик из входящего и
+исходящего. </p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 30.75pt; text-indent: -18pt; text-align: left;"><span style="">4.<span style="" times="" new="" roman="" ;="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Вместе с подключением к Интернету 
+предоставляется 1
+почтовый ящик &hellip;@<span style="" lang="EN-US">mcn</span>.<span style="" lang="EN-US">ru</span></p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;"><span style="">5.<span style="" times="" new="" roman="" ;="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Бесплатный выезд инженера, по запросу, 2 
+раза в месяц.<span style="">&nbsp;&nbsp; </span></p>
+
+<div style="text-align: left;">
+
+</div>
+<div style="text-align: left;">
+
+</div>
+<div style="text-align: left;">
+
+</div>
+<div style="text-align: left;">
+
+</div>
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;">Исполнитель:<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; </span>Заказчик:
+</p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;">Генеральный
+директор<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Генеральный
+директор<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;">&nbsp;</p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;">&nbsp;</p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;">&nbsp;</p>
+
+<div style="text-align: left;">
+
+</div>
+<p>
+</p>
+<p class="Normal" style="margin-left: 12.75pt; text-align: left;"><span style="">&nbsp;</span>_____________ Мельников А.К.<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ </span>________________{$client.signer_position} {$client.signer_name}</p>
+
+
+<style type="text/css">
+body {
+	background: #FFF;
+}
+</style>
+
+<style type="text/css">
+body {
+	background: #FFF;
+}
+</style>
