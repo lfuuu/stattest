@@ -12,21 +12,13 @@ if(isset($_GET["savesql"]))
 	define('SERVER_DEFAULT',	'stat.mcn.ru');	//необходим для тех скриптов, которые не могут прочитать переменные Apache. например, autoping.php
 	$SERVERS=array();
 
-	$SERVERS['stattest']=array(
-/*	
-			'SERVER'			=>	'stat.mcn.ru',
-			'SQL_HOST'			=>	'stat.mcn.ru',
-			'SQL_USER'			=>	'ivanov',
-			'SQL_PASS'			=>	'0b4c6b692bdb',
-			'SQL_DB'			=>	'test_nispd',
-			'SQL_ATS_DB'		=>	'ats',
-		*/
-			'SERVER'			=>	'127.0.0.1',
-			'SQL_HOST'			=>	'127.0.0.1',
+	$SERVERS['teststat.mcn.ru']=array(
+			'SERVER'			=>	'teststat',
+			'SQL_HOST'			=>	'localhost',
 			'SQL_USER'			=>	'root',
 			'SQL_PASS'			=>	'',
-			'SQL_DB'			=>	'nispd',
-			'SQL_ATS_DB'		=>	'ats',
+			'SQL_DB'			=>	'nispd_test',
+			'SQL_ATS_DB'		=>	'ats_test',
 			'PGSQL_HOST'		=>	'eridanus.mcn.ru',
 			'PGSQL_USER'		=>	'eivanov',
 			'PGSQL_PASS'		=>	'terem0k@@',
@@ -34,56 +26,20 @@ if(isset($_GET["savesql"]))
 			'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
 			'R_CALLS_USER'		=>	'stat',
 			'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
-			'R_CALLS_DB'		=>	'nispd[region]_dev',
+			'R_CALLS_DB'		=>	'nispd[region]',
 			'EXT_SQL_HOST'		=>  '',
 			'EXT_SQL_USER'		=>  '',
 			'EXT_SQL_PASS'		=>  '',
 			'EXT_SQL_DB'		=>  '',
+			'EXT_GROUP_ID'		=>  6,
 			'PLATFORM'			=>	'unix',
 			'DEBUG_LEVEL'		=>	1,
 			'WEB_PATH'			=>	'/',
 			'DB_SETUP_COLLATES'	=>	1,
 			'SMTP_SERVER'		=> 	'smtp.mcn.ru',
-			'MAIL_TEST_ONLY'	=>	1,
-			'WEB_ADDRESS'		=> 'http://stattest',
-
-			'DEBUG_TABLE'		=> 'DEBUG',
+			'MAIL_TEST_ONLY'	=>	0,
+			'WEB_ADDRESS'		=> 'http://teststat.mcn.ru',
 		);
-
-  $SERVERS['stat']=array(
-    'SERVER'			=>	'10.210.12.81',
-    'SQL_HOST'			=>	'10.210.12.81',
-    'SQL_USER'			=>	'root',
-    'SQL_PASS'			=>	'',
-    'SQL_DB'			=>	'nispd',
-    'SQL_ATS_DB'		=>	'ats',
-    'PGSQL_HOST'		=>	'eridanus.mcn.ru',
-    'PGSQL_USER'		=>	'eivanov',
-    'PGSQL_PASS'		=>	'terem0k@@',
-    'PGSQL_DB'			=>	'nispd_dev',
-    'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
-    'R_CALLS_USER'		=>	'stat',
-    'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
-    'R_CALLS_DB'		=>	'nispd[region]_dev',
-    'EXT_SQL_HOST'		=>  '',
-    'EXT_SQL_USER'		=>  '',
-    'EXT_SQL_PASS'		=>  '',
-    'EXT_SQL_DB'		=>  '',
-    'PLATFORM'			=>	'unix',
-    'DEBUG_LEVEL'		=>	1,
-    'WEB_PATH'			=>	'/',
-    'DB_SETUP_COLLATES'	=>	1,
-    'SMTP_SERVER'		=> 	'smtp.mcn.ru',
-    'MAIL_TEST_ONLY'	=>	1,
-    'WEB_ADDRESS'		=> 'http://stattest',
-
-    'DEBUG_TABLE'		=> 'DEBUG',
-
-    'MONGO_HOST' => 'lk.mcn.ru',
-    'MONGO_USER' => 'lkmcn',
-    'MONGO_PASS' => 'Ummhsn3iqCWA',
-    'MONGO_DB' => 'lkmcn',
-  );
 
 	$SERVERS['stat.mcn.ru']=array(
 			'SERVER'			=>	'tiberis',
@@ -100,7 +56,7 @@ if(isset($_GET["savesql"]))
 			'R_CALLS_USER'		=>	'stat',
 			'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
 			'R_CALLS_DB'		=>	'nispd[region]',
-			'EXT_SQL_HOST'		=>  'thiamis.mcn.ru',#'85.94.33.250',
+			'EXT_SQL_HOST'		=>  'thiamis.mcn.ru',
 			'EXT_SQL_USER'		=>  'stat',
 			'EXT_SQL_PASS'		=>  'passwtmcnru',
 			'EXT_SQL_DB'		=>  'welltone_new3',
@@ -119,56 +75,6 @@ if(isset($_GET["savesql"]))
       'MONGO_DB' => 'lkmcn',
 		);
 
-	$SERVERS['stat.local']=array(
-			'SERVER'			=>	'localhost',
-			'SQL_HOST'			=>	'localhost',
-			'SQL_USER'			=>	'root',
-			'SQL_PASS'			=>	'',
-			'SQL_DB'			=>	'test_operator',
-			'EXT_SQL_HOST'		=>  '',#'85.94.33.250',
-			'EXT_SQL_USER'		=>  '',
-			'EXT_SQL_PASS'		=>  '',
-			'EXT_SQL_DB'		=>  '',
-			'EXT_GROUP_ID'		=>  6,
-    'PGSQL_HOST'		=>	'eridanus.mcn.ru',
-    'PGSQL_USER'		=>	'eivanov',
-    'PGSQL_PASS'		=>	'terem0k@@',
-    'PGSQL_DB'			=>	'nispd',
-    'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
-    'R_CALLS_USER'		=>	'stat',
-    'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
-    'R_CALLS_DB'		=>	'nispd[region]',
-
-    'PLATFORM'			=>	'unix',
-			'DEBUG_LEVEL'		=>	1,
-			'WEB_PATH'			=>	'/',
-			'DB_SETUP_COLLATES'	=>	1,
-			'SMTP_SERVER'		=> 	'smtp.mcn.ru',
-			'MAIL_TEST_ONLY'	=>	0,
-			'WEB_ADDRESS'		=> 'http://localhost',
-		);
-
-	$SERVERS['89.235.136.20']=array(
-			'SERVER'			=>	'localhost',
-			'SQL_HOST'			=>	'localhost',
-			'SQL_USER'			=>	'root',
-			'SQL_PASS'			=>	'',
-			'SQL_DB'			=>	'operator',
-			'SQL_ATS_DB'			=>	'ats',
-			'EXT_SQL_HOST'		=>  '',#'85.94.33.250',
-			'EXT_SQL_USER'		=>  '',
-			'EXT_SQL_PASS'		=>  '',
-			'EXT_SQL_DB'		=>  '',
-			'EXT_GROUP_ID'		=>  6,
-			'PLATFORM'			=>	'unix',
-			'DEBUG_LEVEL'		=>	1,
-			'WEB_PATH'			=>	'/stat/pub/',
-			'DB_SETUP_COLLATES'	=>	1,
-			'SMTP_SERVER'		=> 	'smtp.mcn.ru',
-			'MAIL_TEST_ONLY'	=>	0,
-			'WEB_ADDRESS'		=> 'http://localhost',
-		);
-	
 $sPath = strtolower($_SERVER["SCRIPT_FILENAME"]);
 if(strpos($sPath, "tst") !== false || (isset($_SERVER["PWD"]) &&  strpos($_SERVER["PWD"], "test") !== false) )
 {
