@@ -71,43 +71,6 @@ class Sync1C
         $server->setObject(new Sync1CServer());
         $server->handle();
     }
-
-
-    protected function translate($data)
-    {
-        if (is_string($data)) {
-            return iconv('koi8r', 'utf8', $data);
-        } elseif (is_array($data)) {
-            $translated = array();
-            foreach ($data as $k => $v) {
-                if (is_string($k)) {
-                    $k = iconv('koi8r', 'utf8', $k);
-                }
-                $translated[$k] = $this->translate($v);
-            }
-            return $translated;
-        } else {
-            return $data;
-        }
-    }
-
-    protected function translateResult($data)
-    {
-        if (is_string($data)) {
-            return iconv('utf8', 'koi8-r//ignore', $data);
-        } elseif (is_array($data)) {
-            $translated = array();
-            foreach ($data as $k => $v) {
-                if (is_string($k)) {
-                    $k = iconv('utf8', 'koi8-r//ignore', $k);
-                }
-                $translated[$k] = $this->translate($v);
-            }
-            return $translated;
-        } else {
-            return $data;
-        }
-    }
  }
 
 
