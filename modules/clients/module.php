@@ -1,5 +1,4 @@
 <?php
-define('_1cIntTest',true);
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $rights=array(
@@ -1311,17 +1310,11 @@ class m_clients {
 				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
 			if($C->Apply()){
 				clCards\SyncAdditionCards($db, $cl_main_card);
-				if(_1cIntTest){
-					require_once INCLUDE_PATH.'1c_integration.php';
-					$clS = new _1c\clientSyncer($db);
-					$flag = $clS->syncClientCards($cl_main_card);
-					if($flag)
-						clCards\setSync1c($db, $cl_main_card, true);
-					else{
-						clCards\setSync1c($db, $cl_main_card, false);
-						trigger_error("Не удалось синхронизировать клиента с 1С");
-					}
-				}
+
+                if (!Sync1C::getClient()->saveClientCards($cl_main_card))
+                {
+                    trigger_error("Не удалось синхронизировать клиента с 1С");
+                }
 
 				if($pop){
 					$design->display('pop_header.tpl');
@@ -1335,7 +1328,7 @@ class m_clients {
 				trigger_error("Клиент с таким кодом уже есть.");
 			}
 		}
-		$design->assign('client',$Client->F);
+		$design->assign('client',$C->F);
 		if($pop){
 			$design->assign('form_action','apply_pop');
 			$design->display('pop_header.tpl');
@@ -1518,15 +1511,11 @@ class m_clients {
 		$db->Query($q);
 		$db->Query('commit');
 
-		require_once INCLUDE_PATH.'1c_integration.php';
-		$clS = new _1c\clientSyncer($db);
-		$flag = $clS->syncClientCard($nc);
-		if($flag)
-			clCards\setSync1c($db, $nc, true);
-		else{
-			clCards\setSync1c($db, $nc, false);
-			trigger_error("Не удалось синхронизировать клиента с 1С");
-		}
+        if (!Sync1C::getClient()->saveClientCard($id))
+        {
+            trigger_error("Не удалось синхронизировать клиента с 1С");
+        }
+
 		Header("Location: ?module=clients&id=".$id);
 		exit();
 	}
@@ -1811,12 +1800,12 @@ class m_clients {
 				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Имейте в виду');
 
             if ($C->Create()){
-                if(_1cIntTest){
-                    require_once INCLUDE_PATH.'1c_integration.php';
-                    $clS = new \_1c\clientSyncer($db);
-                    if(!$clS->pushClientCard($C->F['client']))
-                        trigger_error("Не удалось синхронизировать клиента с 1С!");
+
+                if (!Sync1C::getClient()->saveClientCard($C->F['id']))
+                {
+                    trigger_error("Не удалось синхронизировать клиента с 1С");
                 }
+
                 $this->client_view($C->id,1);
                 return ;
             }else{

@@ -3,23 +3,6 @@ define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
 #}
 
-
-function __autoload($class)
-{
-  $filePath = PATH_TO_ROOT."classes/".$class.".php";
-  if(file_exists($filePath))
-  {
-    return include $filePath;
-  }
-  $filePath = PATH_TO_ROOT."classes/".strtolower($class).".php";
-  if(file_exists($filePath))
-  {
-    return include $filePath;
-  }
-
-  throw new Exception("Невозможно загрузить класс ".$class);
-}
-
 function get_payment_rate_by_bill($payment_date,$payment_sum = null,$bill_no = null) {
 	global $db;
 	if ($bill_no) {
@@ -1282,14 +1265,6 @@ class ClientCS {
 		$db->Query("insert into client_statuses (ts,id_client,user,status,comment) values (NOW(),'".$this->id."','".$user->Get('user')."','{$status}','{$comment}')");
 		if($status){
 			$db->Query("update clients set status='{$status}' where id=".$this->id);
-			if(!in_array($status,array('closed','tech_deny','income','deny','trash','double'))){
-				if(include_once(INCLUDE_PATH.'1c_integration.php')){
-					include_once INCLUDE_PATH.'clCards.php';
-					$cl = $db->GetRow($q='select client from clients where id='.$this->F['id']);
-					$clS = new \_1c\clientSyncer($db);
-					$clS->pushClientCard($cl['client']);
-				}
-			}
 		}
 	}
 	function GetLastComment() {

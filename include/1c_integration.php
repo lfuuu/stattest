@@ -2,301 +2,195 @@
 namespace _1c;
 $sPath = (@$_SERVER["PWD"] ? $_SERVER["PWD"] :  $_SERVER["SCRIPT_FILENAME"]);
 $isTest = strpos($sPath, "tst") !== false || strpos($sPath, "test") !== false;
-if($isTest)
-{
-    // TEST
-    class __state{
-        private static $data = array(
-                'DBG'=>false,
-                'wsdl'=>'http://stattest.ws.dionis.mcn.ru/ws/ws/stat?wsdl',
-                'login'=>'web_service',
-                'password'=>'sdfg94w758ht23g4r78394g'
-                );
-        public static function set($k,$v){
-            self::$data[$k] = $v;
-        }
-        public static function get($k){
-            return self::$data[$k];
-        }
-    }
-}else{
 
-    // REAL
-    class __state{
-        private static $data = array(
-                'DBG'=>false,
-                'wsdl'=>'http://stat.ws.dionis.mcn.ru/ws/ws/stat?wsdl',
-                'login'=>'web_service',
-                'password'=>'sdfg94w758ht23g4r78394g'
-                );
-        public static function set($k,$v){
-            self::$data[$k] = $v;
-        }
-        public static function get($k){
-            return self::$data[$k];
-        }
-    }
+function trr($var){
+
+    if(!is_string($var)) return $var;
+
+    $tr_anslation = array(
+        'org'=>'ЮрЛицо',
+        'priv'=>'ФизЛицо'
+    );
+
+    $var = @iconv('UTF-8','KOI8-R//TRANSLIT',$var);
+
+    if($k=array_search($var, $tr_anslation))
+        return $k;
+    return $var;
 }
-
-	function trr($var){
-
-        if(!is_string($var)) return $var;
-
-		$tr_anslation = array(
-			'org'=>'ЮрЛицо',
-			'priv'=>'ФизЛицо'
-		);
-
-		$var = @iconv('utf8','koi8r//translit',$var);
-
-		if($k=array_search($var, $tr_anslation))
-			return $k;
-		return $var;
-	}
 
 function tr($var){
     $tr_anslation = array(
-            'org'=>'ЮрЛицо',
-            'priv'=>'ФизЛицо'
-            );
+        'org'=>'ЮрЛицо',
+        'priv'=>'ФизЛицо'
+    );
     if(isset($tr_anslation[$var]))
         $var = $tr_anslation[$var];
-    return iconv('koi8r','utf8',$var);
+    return iconv('KOI8-R','UTF-8',$var);
 }
 
-	function getFaultMessage(\SoapFault &$f){
-		if(!$f)
-			return null;
-		$msg = explode('|||',trr($f->getMessage()),3);
-		return \nl2br($msg[1]);
-	}
+function getFaultMessage(\SoapFault &$f){
+    if(!$f)
+        return null;
+    $msg = explode('|||',trr($f->getMessage()),3);
+    return \nl2br($msg[1]);
+}
 
-	class clientSyncer{
-		private $soap;
-		private $db;
-		public function __construct($db)
-        {
-			$this->db = $db;
-			$wsdl = __state::get('wsdl');
-			$login = __state::get('login');
-			$pass = __state::get('password');
-			$params = array('encoding'=>'UTF-8','trace'=>1);
-			if($login && $pass){
-				$params['login'] = $login;
-				$params['password'] = $pass;
-			}
+class clientSyncer{
+    private $soap;
+    private $db;
+    public function __construct($db)
+    {
+        $this->db = $db;
+        $wsdl = \Sync1C::me()->utWsdlUrl;
+        $login = \Sync1C::me()->utLogin;
+        $pass = \Sync1C::me()->utPassword;
+        $params = array('encoding'=>'UTF-8','trace'=>1);
+        if($login && $pass){
+            $params['login'] = $login;
+            $params['password'] = $pass;
+        }
 
-			$this->soap = new \SoapClient($wsdl,$params);
-		}
+        $this->soap = new \SoapClient($wsdl,$params);
+    }
 
-		public function syncClientCards($cl_main_card,$fault=null)
-        {
-			$cls = $this->db->AllRecords("select client from clients where client ='".addcslashes($cl_main_card, "\\'")."' or client like '".addcslashes($cl_main_card, "\\'")."/_'",null,\MYSQL_ASSOC);
-			foreach($cls as $cl){
-				$f=null;
-				if(!$this->syncClientCard($cl['client'], $f)){
-					$fault =& $f;
-					return false;
-				}
-			}
-			return true;
-		}
+    public function delete($uidCli,$uidCon)
+    {
+        return $this->soap->utDelete(
+            array('param'=>array(
+                tr('ИдКонтрагента')=>$uidCli,
+                tr('ИдСоглашения1С')=>$uidCon
+            ))
+        );
+    }
 
-		public function syncClientCard($client,&$fault=null)
-        {
-			$cc = \clCards\getCard($this->db, $client);
-			$cli = $cc->getDetailsArr();
+    public function pushClientCard($client,&$fault=null)
+    {
+        $cc = \clCards\getCard($this->db, $client);
+        $cli = $cc->getDetailsArr();
 
+        global $user;
 
-			if($cli['type'] == 'office')
-				return true;
-
-            global $user;
-
-
-			try{
-                $a =
-                    array(
-                            'contract'=>array(
-                                tr('ИдКлиентаСтат')=>tr($cli['client']),
-                                tr('ИдКарточкиКлиентаСтат')=>tr($cli['card_id']),
-                                tr('ИдКонтрагента')=>tr($cli['cli_1c']),
-                                tr('ИдСоглашения1С')=>tr($cli['con_1c']),
-                                tr('НаименованиеКомпании')=>tr($cli['company']),
-                                tr('ПолноеНаименованиеКомпании')=>tr($cli['company_full']),
-                                tr('ИНН')=>tr($cli['inn']),
-                                tr('КПП')=>tr($cli['kpp']),
-                                tr('БИК')=>tr($cli['bik']),
-                                tr('РC')=>tr($cli['pay_acc']),
-                                tr('КС')=>tr($cli['corr_acc']),
-                                tr('НазваниеБанка')=>tr($cli['bank_name']),
-                                tr('ГородБанка')=>tr($cli['bank_city']),
-                                tr('ЮридическийАдрес')=>tr($cli['address_jur']),
-                                tr('ЭлектроннаяПочта')=>"",
-                                tr('ТелефонОрганизации')=>"",
-                                tr('ПравоваяФорма')=>tr($cli['type']),
-                                tr('Организация')=>tr($cli['firma']),
-                                tr('ВалютаРасчетов')=>tr($cli['currency']),
-                                tr('ВидЦен')=>tr($cli["price_type"] ? $cli["price_type"]: "739a53ba-8389-11df-9af5-001517456eb1")
-                                ),
+        try{
+            $a =
+                array('contract'=>array(
+                    tr('ИдКлиентаСтат')=>tr($cli['client']),
+                    tr('ИдКарточкиКлиентаСтат')=>tr($cli['card_id']),
+                    tr('ИдКонтрагента')=>tr($cli['cli_1c']),
+                    tr('ИдСоглашения1С')=>tr($cli['con_1c']),
+                    tr('НаименованиеКомпании')=>tr($cli['company']),
+                    tr('ПолноеНаименованиеКомпании')=>tr($cli['company_full']),
+                    tr('ИНН')=>tr($cli['inn']),
+                    tr('КПП')=>tr($cli['kpp']),
+                    tr('БИК')=>tr($cli['bik']),
+                    tr('РC')=>tr($cli['pay_acc']),
+                    tr('КС')=>tr($cli['corr_acc']),
+                    tr('НазваниеБанка')=>tr($cli['bank_name']),
+                    tr('ГородБанка')=>tr($cli['bank_city']),
+                    tr('ЮридическийАдрес')=>tr($cli['address_jur']),
+                    tr('ПравоваяФорма')=>tr($cli['type']),
+                    tr('Организация')=>tr($cli['firma']),
+                    tr('ВалютаРасчетов')=>tr($cli['currency']),
+                    tr('ВидЦен')=>tr($cli["price_type"])
+                ),
                     tr('Пользователь')=>$user->Get("user")
-                        );
+                );
 
-                file_put_contents("/tmp/utSaveClientContract", var_export($a,true));
+            //file_put_contents("/tmp/pushClientCard", var_export($a,true));
+            file_put_contents("/tmp/utSaveClientContract", var_export($a,true));
+            $oneC_ids = $this->soap->utSaveClientContract($a);
+            file_put_contents("/tmp/utSaveClientContract_answer", var_export($oneC_ids,true));
+        }catch(\SoapFault $e){
+            $fault = $e;
 
-				$oneC_ids = $this->soap->utSaveClientContract($a);
-                file_put_contents("/tmp/utSaveClientContract_answer", var_export($oneC_ids,true));
-			}catch(\SoapFault $e){
-				$fault = $e;
-                echo iconv("utf-8", "koi8",$e->getMessage());
-				return false;
-			}
+            print1Cerror($e);
+            return false;
+        }
 
-			$f = $oneC_ids->return;
-			if($f)
-				\clCards\setSync1c($this->db, $cc->getAtMask(\clCards\struct_cardDetails::card), true);
-			else
-				\clCards\setSync1c($this->db, $cc->getAtMask(\clCards\struct_cardDetails::card), false);
-			return $f;
-		}
+        $f = $oneC_ids->return;
 
-		public function delete($uidCli,$uidCon)
-        {
-			return $this->soap->utDelete(
-				array('param'=>array(
-					tr('ИдКонтрагента')=>$uidCli,
-					tr('ИдСоглашения1С')=>$uidCon
-				))
-			);
-		}
+        if($f)
+            \clCards\setSync1c($this->db, $cc->getAtMask(\clCards\struct_cardDetails::card), true);
+        return $f;
+    }
 
-		public function pushClientCard($client,&$fault=null)
-        {
-			$cc = \clCards\getCard($this->db, $client);
-			$cli = $cc->getDetailsArr();
+    public function setClientBank($client)
+    {
+        $cc = \clCards\getCard($this->db,$client);
+        $cli = $cc->getDetailsArr();
 
-            global $user;
+        try{
+            $resp = $this->soap->utGetBank(array('bik'=>tr($cli['bik'])));
+        }catch(\SoapFault $e){
+            return false;
+        }
 
-			try{
-                $a =
-                        array('contract'=>array(
-                                tr('ИдКлиентаСтат')=>tr($cli['client']),
-                                tr('ИдКарточкиКлиентаСтат')=>tr($cli['card_id']),
-                                tr('ИдКонтрагента')=>tr($cli['cli_1c']),
-                                tr('ИдСоглашения1С')=>tr($cli['con_1c']),
-                                tr('НаименованиеКомпании')=>tr($cli['company']),
-                                tr('ПолноеНаименованиеКомпании')=>tr($cli['company_full']),
-                                tr('ИНН')=>tr($cli['inn']),
-                                tr('КПП')=>tr($cli['kpp']),
-                                tr('БИК')=>tr($cli['bik']),
-                                tr('РC')=>tr($cli['pay_acc']),
-                                tr('КС')=>tr($cli['corr_acc']),
-                                tr('НазваниеБанка')=>tr($cli['bank_name']),
-                                tr('ГородБанка')=>tr($cli['bank_city']),
-                                tr('ЮридическийАдрес')=>tr($cli['address_jur']),
-                                tr('ПравоваяФорма')=>tr($cli['type']),
-                                tr('Организация')=>tr($cli['firma']),
-                                tr('ВалютаРасчетов')=>tr($cli['currency']),
-                                tr('ВидЦен')=>tr($cli["price_type"])
-                                ),
-                            tr('Пользователь')=>$user->Get("user")
-                            );
+        $cg = new \clCards\struct_cardDetails();
+        $cg->setCorrAcc(trr($resp->return->{tr('КС')}));
+        $cg->setBankName(trr($resp->return->{tr('НазваниеБанка')}));
+        $cg->setBankCity(trr($resp->return->{tr('ГородБанка')}));
 
-                //file_put_contents("/tmp/pushClientCard", var_export($a,true));
-                file_put_contents("/tmp/utSaveClientContract", var_export($a,true));
-                $oneC_ids = $this->soap->utSaveClientContract($a);
-                file_put_contents("/tmp/utSaveClientContract_answer", var_export($oneC_ids,true));
-			}catch(\SoapFault $e){
-				$fault = $e;
+        if($cc->hasAnotherFields($cg) && $cc->merge($cg))
+            return \clCards\saveCard($this->db, $cc);
+        return false;
+    }
 
-                print1Cerror($e);
-				return false;
-			}
+    public function findBank($bik)
+    {
+        if(!$bik)
+            return false;
 
-			$f = $oneC_ids->return;
+        try{
+            $ret = $this->soap->utGetBank(array('bik'=>tr($bik)))->return;
+        }catch(\SoapFault $e){
+            return false;
+        }
 
-			if($f)
-				\clCards\setSync1c($this->db, $cc->getAtMask(\clCards\struct_cardDetails::card), true);
-			return $f;
-		}
+        $cc = new \clCards\struct_cardDetails();
+        $cc->setBankCity(trr($ret->{tr('ГородБанка')}));
+        $cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
+        $cc->setBik(trr($ret->{tr('БИК')}));
+        $cc->setCorrAcc(trr($ret->{tr('КС')}));
 
-		public function setClientBank($client)
-        {
-			$cc = \clCards\getCard($this->db,$client);
-			$cli = $cc->getDetailsArr();
+        return $cc;
+    }
 
-			try{
-				$resp = $this->soap->utGetBank(array('bik'=>tr($cli['bik'])));
-			}catch(\SoapFault $e){
-				return false;
-			}
+    public function findClient($card_tid=null,$cli_main_tid=null,$inn=null)
+    {
+        if(is_null($card_tid) && is_null($cli_main_tid) && is_null($inn))
+            return false;
 
-			$cg = new \clCards\struct_cardDetails();
-			$cg->setCorrAcc(trr($resp->return->{tr('КС')}));
-			$cg->setBankName(trr($resp->return->{tr('НазваниеБанка')}));
-			$cg->setBankCity(trr($resp->return->{tr('ГородБанка')}));
+        try{
+            $ret = $this->soap->utGetClient(array(
+                tr('ИдКарточкиКлиентаСтат')=>tr($con_1c),
+                tr('ИдКлиентаСтат')=>tr($cli_1c),
+                tr('ИНН')=>tr($inn)
+            ))->return;
+        }catch(\SoapFault $e){
+            return false;
+        }
 
-			if($cc->hasAnotherFields($cg) && $cc->merge($cg))
-				return \clCards\saveCard($this->db, $cc);
-			return false;
-		}
+        $cc = new \clCards\struct_cardDetails();
+        $cc->setAddressJur(trr($ret->{tr('ЮридическийАдрес')}));
+        $cc->setBankCity(trr($ret->{tr('ГородБанка')}));
+        $cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
+        $cc->setBik(trr($ret->{tr('БИК')}));
+        $cc->setCompany(trr($ret->{tr('НаименованиеКомпании')}));
+        $cc->setCompanyFull(trr($ret->{tr('ПолноеНаименованиеКомпании')}));
+        $cc->setCorrAcc(trr($ret->{tr('КС')}));
+        $cc->setCurrency(trr($ret->{tr('ВалютаРасчетов')}));
+        $cc->setFirma(trr($ret->{tr('Организация')}));
+        $cc->setInn(trr($ret->{tr('ИНН')}));
+        $cc->setKpp(trr($ret->{tr('КПП')}));
+        $cc->setPayAcc(trr($ret->{tr('РC')}));
+        $cc->setType(trr($ret->{tr('ПравоваяФорма')}));
 
-		public function findBank($bik)
-        {
-			if(!$bik)
-				return false;
+        return $cc;
+    }
 
-			try{
-				$ret = $this->soap->utGetBank(array('bik'=>tr($bik)))->return;
-			}catch(\SoapFault $e){
-				return false;
-			}
-
-			$cc = new \clCards\struct_cardDetails();
-			$cc->setBankCity(trr($ret->{tr('ГородБанка')}));
-			$cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
-			$cc->setBik(trr($ret->{tr('БИК')}));
-			$cc->setCorrAcc(trr($ret->{tr('КС')}));
-
-			return $cc;
-		}
-
-		public function findClient($card_tid=null,$cli_main_tid=null,$inn=null)
-        {
-			if(is_null($card_tid) && is_null($cli_main_tid) && is_null($inn))
-				return false;
-
-			try{
-				$ret = $this->soap->utGetClient(array(
-					tr('ИдКарточкиКлиентаСтат')=>tr($con_1c),
-					tr('ИдКлиентаСтат')=>tr($cli_1c),
-					tr('ИНН')=>tr($inn)
-				))->return;
-			}catch(\SoapFault $e){
-				return false;
-			}
-
-			$cc = new \clCards\struct_cardDetails();
-			$cc->setAddressJur(trr($ret->{tr('ЮридическийАдрес')}));
-			$cc->setBankCity(trr($ret->{tr('ГородБанка')}));
-			$cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
-			$cc->setBik(trr($ret->{tr('БИК')}));
-			$cc->setCompany(trr($ret->{tr('НаименованиеКомпании')}));
-			$cc->setCompanyFull(trr($ret->{tr('ПолноеНаименованиеКомпании')}));
-			$cc->setCorrAcc(trr($ret->{tr('КС')}));
-			$cc->setCurrency(trr($ret->{tr('ВалютаРасчетов')}));
-			$cc->setFirma(trr($ret->{tr('Организация')}));
-			$cc->setInn(trr($ret->{tr('ИНН')}));
-			$cc->setKpp(trr($ret->{tr('КПП')}));
-			$cc->setPayAcc(trr($ret->{tr('РC')}));
-			$cc->setType(trr($ret->{tr('ПравоваяФорма')}));
-
-			return $cc;
-		}
-
-		public function pushClientBillService($bill_no,&$fault=null)
-        {
-			$bill = $this->db->GetRow("
+    public function pushClientBillService($bill_no,&$fault=null)
+    {
+        $bill = $this->db->GetRow("
 				select
 					cl.sync_1c,
 					nb.bill_no,
@@ -330,46 +224,46 @@ function tr($var){
 				where
 					nb.bill_no = '".addcslashes($bill_no, "\\'")."'
 			");
-			if($bill['sync_1c'] == 'no')
-				return false;
-			$cl = \clCards\getClientByBillNo($this->db, $bill_no);
+        if($bill['sync_1c'] == 'no')
+            return false;
+        $cl = \clCards\getClientByBillNo($this->db, $bill_no);
 
-			if(!$cl)
-				return false;
+        if(!$cl)
+            return false;
 
-			if(!$cl->getAtMask(\clCards\struct_cardDetails::card))
-				return false;
+        if(!$cl->getAtMask(\clCards\struct_cardDetails::card))
+            return false;
 
-            global $user;
+        global $user;
 
-			try{
-				$ret = $this->soap->utSaveOrderService(array(
-                            tr('ЗаказУслуги')=>array(
-					tr('ИдКарточкиКлиентаСтат')=>tr($cl->getAtMask(\clCards\struct_cardDetails::card)),
-					tr('Номер')=>tr($bill['bill_no']),
-					tr('Дата')=>tr($bill['bill_date']),
-					tr('ИдСоглашения1С')=>tr($cl->getAtMask(\clCards\struct_cardDetails::con_1c)),
-					tr('Валюта')=>tr($bill['currency']),
-					tr('СуммаВРублях')=>($bill['sum_rur']),
-					tr('Сумма')=>tr($bill['sum']),
-					tr('Комментарий')=>tr($bill['comment']),
-					tr('Закрыт')=>((int)$bill['is_payed'])>0
-				),
-                    tr('Пользователь')=>$user->Get("user")
-                            ))->return;
-			}catch(\SoapFault $e){
-				$fault = $e;
-				return false;
-			}
+        try{
+            $ret = $this->soap->utSaveOrderService(array(
+                tr('ЗаказУслуги')=>array(
+                    tr('ИдКарточкиКлиентаСтат')=>tr($cl->getAtMask(\clCards\struct_cardDetails::card)),
+                    tr('Номер')=>tr($bill['bill_no']),
+                    tr('Дата')=>tr($bill['bill_date']),
+                    tr('ИдСоглашения1С')=>tr($cl->getAtMask(\clCards\struct_cardDetails::con_1c)),
+                    tr('Валюта')=>tr($bill['currency']),
+                    tr('СуммаВРублях')=>($bill['sum_rur']),
+                    tr('Сумма')=>tr($bill['sum']),
+                    tr('Комментарий')=>tr($bill['comment']),
+                    tr('Закрыт')=>((int)$bill['is_payed'])>0
+                ),
+                tr('Пользователь')=>$user->Get("user")
+            ))->return;
+        }catch(\SoapFault $e){
+            $fault = $e;
+            return false;
+        }
 
-			if($ret)
-				$this->db->Query("update newbills set sync_1c='yes' where bill_no='".$bill_no."'");
-			return $ret;
-		}
+        if($ret)
+            $this->db->Query("update newbills set sync_1c='yes' where bill_no='".$bill_no."'");
+        return $ret;
+    }
 
-		public function pushClientPayment($payment_id,&$fault=null)
-        {
-			$pay = $this->db->GetRow($q="
+    public function pushClientPayment($payment_id,&$fault=null)
+    {
+        $pay = $this->db->GetRow($q="
 				select
 					cl.sync_1c,
 					if(np.payment_date>0,np.payment_date,if(np.oper_date>0,np.oper_date,np.add_date)) pdate,
@@ -390,92 +284,91 @@ function tr($var){
 				on
 					cl.id = nb.client_id
 				where np.id=".(int)$payment_id
-			);
+        );
 
-			if(!$pay)
-				return false;
+        if(!$pay)
+            return false;
 
-			if($pay['push_1c'] == 'no')
-				return false;
+        if($pay['push_1c'] == 'no')
+            return false;
 
-            global $user;
+        global $user;
 
-			try{
-				$ret = $this->soap->utSavePayment(array(
-                            tr('ОплатаУслуги')=>array(
-					tr('ИдПлатежаСтат')=>$pay['id'],
-					tr('НомерСчетаСтат')=>tr($pay['bill_no']),
-					tr('НомерСчетаПривязкиСтат')=>tr($pay['bill_vis_no']),
-					tr('ИдПлатежа')=>'',
-					tr('ИдЗаказа')=>'',
-					tr('ИдЗаказаПривязка')=>'',
-					tr('ДатаДокумента')=>tr($pay['pdate']),
-					tr('НомерДокумента')=>tr($pay['payment_no']),
-					tr('ДатаОперации')=>tr($pay['odate']),
-					tr('Тип')=>tr($pay['type']),
-					tr('СуммаВРублях')=>tr($pay['sum_rub']),
-					tr('Валюта')=>tr($pay['currency']),
-					tr('Курс')=>tr($pay['payment_rate']),
-					tr('Комментарий')=>tr($pay['comment'])
-				),
-                    tr('Пользователь')=>$user->Get("user"),
-                            ))->return;
-			}catch(\SoapFault $e){
-				$fault = $e;
-				return false;
-			}
+        try{
+            $ret = $this->soap->utSavePayment(array(
+                tr('ОплатаУслуги')=>array(
+                    tr('ИдПлатежаСтат')=>$pay['id'],
+                    tr('НомерСчетаСтат')=>tr($pay['bill_no']),
+                    tr('НомерСчетаПривязкиСтат')=>tr($pay['bill_vis_no']),
+                    tr('ИдПлатежа')=>'',
+                    tr('ИдЗаказа')=>'',
+                    tr('ИдЗаказаПривязка')=>'',
+                    tr('ДатаДокумента')=>tr($pay['pdate']),
+                    tr('НомерДокумента')=>tr($pay['payment_no']),
+                    tr('ДатаОперации')=>tr($pay['odate']),
+                    tr('Тип')=>tr($pay['type']),
+                    tr('СуммаВРублях')=>tr($pay['sum_rub']),
+                    tr('Валюта')=>tr($pay['currency']),
+                    tr('Курс')=>tr($pay['payment_rate']),
+                    tr('Комментарий')=>tr($pay['comment'])
+                ),
+                tr('Пользователь')=>$user->Get("user"),
+            ))->return;
+        }catch(\SoapFault $e){
+            $fault = $e;
+            return false;
+        }
 
-			if($ret)
-				$this->db->Query('update newpayments set sync_1c = "yes" where id='.(int)$payment_id);
-			return $ret;
-		}
+        if($ret)
+            $this->db->Query('update newpayments set sync_1c = "yes" where id='.(int)$payment_id);
+        return $ret;
+    }
 
-		public function checkBillExists($bill_no)
-        {
-			$resp = $this->soap->utOrderExists(array('number'=>$bill_no))->return;
-			return $resp;
-		}
+    public function checkBillExists($bill_no)
+    {
+        $resp = $this->soap->utOrderExists(array('number'=>$bill_no))->return;
+        return $resp;
+    }
 
-		public function deleteBill($bill_no,&$fault=null)
-        {
-			$bill = $this->db->GetRow("select is_rollback from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
-            global $user;
-			try{
-				$resp = $this->soap->utDeleteOrder(array(
-					'number'=>$bill_no,
-                    tr('Пользователь')=>$user->Get("user"),
-					'isRollback'=>(bool)$bill['is_rollback']
-				))->return;
-			}catch(\SoapFault $e){
+    public function deleteBill($bill_no,&$fault=null)
+    {
+        $bill = $this->db->GetRow("select is_rollback from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
+        global $user;
+        try{
+            $resp = $this->soap->utDeleteOrder(array(
+                'number'=>$bill_no,
+                tr('Пользователь')=>$user->Get("user"),
+                'isRollback'=>(bool)$bill['is_rollback']
+            ))->return;
+        }catch(\SoapFault $e){
 
-				$fault = $e;
-				return false;
-			}
+            $fault = $e;
+            return false;
+        }
 
-			return $resp;
-		}
+        return $resp;
+    }
 
-		public function deletePayment($payment_no)
-        {
-            global $user;
-			$resp = $this->soap->utDeletePayment(array(
-				tr('ИдПлатежаСтат')=>$payment_no,
-                tr('Пользователь')=>$user->Get("user")
-			))->return;
-			return $resp;
-		}
-	}
+    public function deletePayment($payment_no)
+    {
+        global $user;
+        $resp = $this->soap->utDeletePayment(array(
+            tr('ИдПлатежаСтат')=>$payment_no,
+            tr('Пользователь')=>$user->Get("user")
+        ))->return;
+        return $resp;
+    }
+}
 
 class reports{
     private $soap;
     private $db;
     public function __construct($db)
     {
-        ini_set('soap.wsdl_cache_enabled', '0');
         $this->db = $db;
-        $wsdl = __state::get('wsdl');
-        $login = __state::get('login');
-        $pass = __state::get('password');
+        $wsdl = \Sync1C::me()->utWsdlUrl;
+        $login = \Sync1C::me()->utLogin;
+        $pass = \Sync1C::me()->utPassword;
         $params = array('encoding'=>'UTF-8','trace'=>1);
         if($login && $pass){
             $params['login'] = $login;
@@ -488,10 +381,10 @@ class reports{
     {
         try{
             $q = array(
-                    tr('КодТовара')=>$goodNum,
-                    tr('НачалоПериода')=>tr($from),
-                    tr('КонецПериода')=>tr($to)
-                    );
+                tr('КодТовара')=>$goodNum,
+                tr('НачалоПериода')=>tr($from),
+                tr('КонецПериода')=>tr($to)
+            );
 
             $resp = $this->soap->utGetStoreAmount($q)->return;
 
@@ -514,12 +407,12 @@ class reports{
                 if(!isset($data[$p]))
                 {
                     $data[$p] = array(
-                            "start" => $r->{tr("ОстатокНаНачало")},
-                            "income" => 0,
-                            "outlay" => 0,
-                            "end" => 0,
-                            "orders" => array()
-                            );
+                        "start" => $r->{tr("ОстатокНаНачало")},
+                        "income" => 0,
+                        "outlay" => 0,
+                        "end" => 0,
+                        "orders" => array()
+                    );
                 }
                 $data[$p]["income"] += $r->{tr("Приход")};
                 $data[$p]["outlay"] += $r->{tr("Расход")};
@@ -535,282 +428,281 @@ class reports{
         return $data;
     }
 }
-	class billMaker{
-		private $soap;
-		private $db;
-		public function __construct($db)
-        {
-			ini_set('soap.wsdl_cache_enabled', '0');
-			$this->db = $db;
-			$wsdl = __state::get('wsdl');
-			$login = __state::get('login');
-			$pass = __state::get('password');
-			$params = array('encoding'=>'UTF-8','trace'=>1);
-			if($login && $pass){
-				$params['login'] = $login;
-				$params['password'] = $pass;
-			}
-			$this->soap = new \SoapClient($wsdl,$params);
-		}
+class billMaker{
+    private $soap;
+    private $db;
+    public function __construct($db)
+    {
+        $this->db = $db;
+        $wsdl = \Sync1C::me()->utWsdlUrl;
+        $login = \Sync1C::me()->utLogin;
+        $pass = \Sync1C::me()->utPassword;
+        $params = array('encoding'=>'UTF-8','trace'=>1);
+        if($login && $pass){
+            $params['login'] = $login;
+            $params['password'] = $pass;
+        }
+        $this->soap = new \SoapClient($wsdl,$params);
+    }
 
-		public function getPriceTypes($client_tid)
-        {
-			try{
-				$resp = $this->soap->utGetPriceTypes(array(
-					tr('ИдКарточкиКлиентаСтат')=>$client_tid
-				))->return;
-			}catch(\SoapFault $e){
-				return false;
-			}
-
-			$ret = array();
-			$ret['default'] = trr($resp->{tr('ИдВидаЦенПоумолчанию')});
-			$ret['list'] = array();
-
-			foreach($resp->{tr('СписокВидовЦен')} as $p){
-				$ret['list'][trr($p->{tr('ИдВидаЦен')})] = trr($p->{tr('Наименвоание')});
-			}
-			asort($ret['list']);
-			return $ret;
-		}
-
-		public function findProduct($find_string,$id_pice_type,&$fault=null)
-        {
-			try{
-				$resp = $this->soap->utFindProduct(array(
-					tr('Поиск')=>tr($find_string),
-					tr('ИдВидаЦен')=>tr($id_price_type)
-				))->return;
-			}catch(\SoapFault $e){
-				$fault = $e;
-				return false;
-			}
-
-			$ret = array();
-
-			if(is_array($resp->{tr('Список')}))
-				foreach($resp->{tr('Список')} as $pos){
-					$ret[] = array(
-						'id'=>trr($pos->{tr('ИдТовара1С')}),
-						'name'=>trr($pos->{tr('Наименование')}),
-						'price'=>trr($pos->{tr('Цена')}),
-						'quantity'=>trr($pos->{tr('КоличествоНаСкладе')}),
-						'is_service'=>$pos->{tr('ЭтоУслуга')}
-					);
-				}
-			else
-				$ret[] = array(
-					'id'=>trr($resp->{tr('Список')}->{tr('ИдТовара1С')}),
-					'name'=>trr($resp->{tr('Список')}->{tr('Наименование')}),
-					'price'=>trr($resp->{tr('Список')}->{tr('Цена')}),
-					'quantity'=>trr($resp->{tr('Список')}->{tr('КоличествоНаСкладе')}),
-					'is_service'=>$resp->{tr('Список')}->{tr('ЭтоУслуга')}
-				);
-
-			return $ret;
-		}
-
-        public function calcGetedOrder(&$positions, $isRollback = false)
-        {
-            global $db;
-            $positions["sum"] = 0;
-            foreach($positions["list"] as &$p) {
-                if($isRollback) $p["sum"] = $p["price"]*$p["quantity"];
-                $positions["sum"] += @$p["sum"];//-$p["discount_set"]-$p["discount_auto"]);
-                foreach(array("price", "discount_auto", "discount_set", "sum") as $f)
-                    if(isset($p[$f])) $p[$f] = round($p[$f],2);
-            }
+    public function getPriceTypes($client_tid)
+    {
+        try{
+            $resp = $this->soap->utGetPriceTypes(array(
+                tr('ИдКарточкиКлиентаСтат')=>$client_tid
+            ))->return;
+        }catch(\SoapFault $e){
+            return false;
         }
 
-        public function calcOrder($client_card_tid,$structFull,&$fault=null)
-        {
-            $s = array();
+        $ret = array();
+        $ret['default'] = trr($resp->{tr('ИдВидаЦенПоумолчанию')});
+        $ret['list'] = array();
 
-            $struct = $structFull["list"];
+        foreach($resp->{tr('СписокВидовЦен')} as $p){
+            $ret['list'][trr($p->{tr('ИдВидаЦен')})] = trr($p->{tr('Наименвоание')});
+        }
+        asort($ret['list']);
+        return $ret;
+    }
 
-            foreach($struct as $p){
-                list($p["id"], $p["descr_id"]) = explode(":", $p["id"]);
-                if(!$p["descr_id"])
-                    $p["descr_id"] = "00000000-0000-0000-0000-000000000000";
-                $s[] = array(
-                        tr('КодНоменклатура1С')=>$p['id'],
-                        tr('КодХарактеристика1С')=>$p["descr_id"],
-                        tr('Количество')=>$p['quantity'],
-                        tr('КодСтроки')=>$p['code_1c'],
-                        tr('Цена')=>$p["price"],
-                        tr('СуммаРучнойСкидки') => 0,
-                        tr('СуммаАвтоматическойСкидки') => 0,
+    public function findProduct($find_string,$id_pice_type,&$fault=null)
+    {
+        try{
+            $resp = $this->soap->utFindProduct(array(
+                tr('Поиск')=>tr($find_string),
+                tr('ИдВидаЦен')=>tr($id_price_type)
+            ))->return;
+        }catch(\SoapFault $e){
+            $fault = $e;
+            return false;
+        }
 
-                        );
+        $ret = array();
+
+        if(is_array($resp->{tr('Список')}))
+            foreach($resp->{tr('Список')} as $pos){
+                $ret[] = array(
+                    'id'=>trr($pos->{tr('ИдТовара1С')}),
+                    'name'=>trr($pos->{tr('Наименование')}),
+                    'price'=>trr($pos->{tr('Цена')}),
+                    'quantity'=>trr($pos->{tr('КоличествоНаСкладе')}),
+                    'is_service'=>$pos->{tr('ЭтоУслуга')}
+                );
             }
+        else
+            $ret[] = array(
+                'id'=>trr($resp->{tr('Список')}->{tr('ИдТовара1С')}),
+                'name'=>trr($resp->{tr('Список')}->{tr('Наименование')}),
+                'price'=>trr($resp->{tr('Список')}->{tr('Цена')}),
+                'quantity'=>trr($resp->{tr('Список')}->{tr('КоличествоНаСкладе')}),
+                'is_service'=>$resp->{tr('Список')}->{tr('ЭтоУслуга')}
+            );
 
-            try{
-                $a = array(
-                        tr('ИдКарточкиКлиентаСтат')=>tr($client_card_tid),
-                        tr('НомерЗаказа') => tr($structFull["bill_no"]),
-                        tr('СуммаИтого')=>$structFull["sum"],
-                        tr('СписокПозиций')=>array(
-                            tr('Список')=>$s
-                            )
-                        );
+        return $ret;
+    }
+
+    public function calcGetedOrder(&$positions, $isRollback = false)
+    {
+        global $db;
+        $positions["sum"] = 0;
+        foreach($positions["list"] as &$p) {
+            if($isRollback) $p["sum"] = $p["price"]*$p["quantity"];
+            $positions["sum"] += @$p["sum"];//-$p["discount_set"]-$p["discount_auto"]);
+            foreach(array("price", "discount_auto", "discount_set", "sum") as $f)
+                if(isset($p[$f])) $p[$f] = round($p[$f],2);
+        }
+    }
+
+    public function calcOrder($client_card_tid,$structFull,&$fault=null)
+    {
+        $s = array();
+
+        $struct = $structFull["list"];
+
+        foreach($struct as $p){
+            list($p["id"], $p["descr_id"]) = explode(":", $p["id"]);
+            if(!$p["descr_id"])
+                $p["descr_id"] = "00000000-0000-0000-0000-000000000000";
+            $s[] = array(
+                tr('КодНоменклатура1С')=>$p['id'],
+                tr('КодХарактеристика1С')=>$p["descr_id"],
+                tr('Количество')=>$p['quantity'],
+                tr('КодСтроки')=>$p['code_1c'],
+                tr('Цена')=>$p["price"],
+                tr('СуммаРучнойСкидки') => 0,
+                tr('СуммаАвтоматическойСкидки') => 0,
+
+            );
+        }
+
+        try{
+            $a = array(
+                tr('ИдКарточкиКлиентаСтат')=>tr($client_card_tid),
+                tr('НомерЗаказа') => tr($structFull["bill_no"]),
+                tr('СуммаИтого')=>$structFull["sum"],
+                tr('СписокПозиций')=>array(
+                    tr('Список')=>$s
+                )
+            );
 
             //file_put_contents("/tmp/calcOrder", var_export($a, true));
-                $resp = $this->soap->utCalcOrder($a)->return;
-            }catch(\SoapFault $e){
-                \MyDBG::fout(trr(print_r($e,true)),true);
-                $fault = $e;
-                return false;
-            }
-
-            //file_put_contents("/tmp/calcOrder1", var_export($resp, true));
-            $ret = array(
-                    'list'=>array(),
-                    'sum'=>$resp->{tr('СуммаИтого')}
-                    );
-
-            if(!is_array($resp->{tr('Список')})){
-                $resp->{tr('Список')} = array($resp->{tr('Список')});
-            }
-
-            foreach($resp->{tr('Список')} as $pos){
-                $id = trr($pos->{tr('КодНоменклатура1С')});
-                $descrId = trr($pos->{tr('КодХарактеристика1С')});
-                if($descrId == "00000000-0000-0000-0000-000000000000")
-                    $descrId = "";
-
-                $id = $id.":".$descrId;
-
-                $ret['list'][] = array(
-                        'id'=>$id,
-                        'name'=>\Good::GetName($id),
-                        'quantity'=>trr($pos->{tr('Количество')}),
-                        'price'=>trr($pos->{tr('Цена')}),
-                        'discount_set' => trr($pos->{tr('СуммаРучнойСкидки')}),
-                        'discount_auto' => trr($pos->{tr('СуммаАвтоматическойСкидки')}),
-                        'sum'=>trr($pos->{tr('Сумма')}),
-                        'code_1c'=>trr($pos->{tr('КодСтроки')})
-                        );
-            }
-
-            return $ret;
+            $resp = $this->soap->utCalcOrder($a)->return;
+        }catch(\SoapFault $e){
+            \MyDBG::fout(trr(print_r($e,true)),true);
+            $fault = $e;
+            return false;
         }
 
-		public function saveOrder($data,&$fault=null, $isToTransilte = true)
-        {
-            //file_put_contents("/tmp/saveOrder.".date("H:i:s")."_".rand(1,1000), var_export($data,true));
-			$client_tid = $data['client_tid'];
-			$order_number = $data['order_number'];
-			$items_list = $data['items_list'];
-			$order_comment = $data['order_comment'];
-			$is_rollback = $data['is_rollback'];
-			$add_info = $data['add_info'];
-            $storeId = $data["store_id"];
+        //file_put_contents("/tmp/calcOrder1", var_export($resp, true));
+        $ret = array(
+            'list'=>array(),
+            'sum'=>$resp->{tr('СуммаИтого')}
+        );
 
-            if($isToTransilte)
-                if(!is_null($add_info)){
-                    $buf = array();
-                    foreach($add_info as $k=>$v){
-                        $buf[tr($k)] = tr($v);
-                    }
-                    $add_info = $buf;
+        if(!is_array($resp->{tr('Список')})){
+            $resp->{tr('Список')} = array($resp->{tr('Список')});
+        }
+
+        foreach($resp->{tr('Список')} as $pos){
+            $id = trr($pos->{tr('КодНоменклатура1С')});
+            $descrId = trr($pos->{tr('КодХарактеристика1С')});
+            if($descrId == "00000000-0000-0000-0000-000000000000")
+                $descrId = "";
+
+            $id = $id.":".$descrId;
+
+            $ret['list'][] = array(
+                'id'=>$id,
+                'name'=>\Good::GetName($id),
+                'quantity'=>trr($pos->{tr('Количество')}),
+                'price'=>trr($pos->{tr('Цена')}),
+                'discount_set' => trr($pos->{tr('СуммаРучнойСкидки')}),
+                'discount_auto' => trr($pos->{tr('СуммаАвтоматическойСкидки')}),
+                'sum'=>trr($pos->{tr('Сумма')}),
+                'code_1c'=>trr($pos->{tr('КодСтроки')})
+            );
+        }
+
+        return $ret;
+    }
+
+    public function saveOrder($data,&$fault=null, $isToTransilte = true)
+    {
+        //file_put_contents("/tmp/saveOrder.".date("H:i:s")."_".rand(1,1000), var_export($data,true));
+        $client_tid = $data['client_tid'];
+        $order_number = $data['order_number'];
+        $items_list = $data['items_list'];
+        $order_comment = $data['order_comment'];
+        $is_rollback = $data['is_rollback'];
+        $add_info = $data['add_info'];
+        $storeId = $data["store_id"];
+
+        if($isToTransilte)
+            if(!is_null($add_info)){
+                $buf = array();
+                foreach($add_info as $k=>$v){
+                    $buf[tr($k)] = tr($v);
                 }
+                $add_info = $buf;
+            }
 
 
-			$il = array();
+        $il = array();
+        if($items_list !== false)
+        {
+            foreach($items_list as $i){
+                @list($i["id"], $i["descr_id"]) = explode(":", $i["id"]);
+                if(!$i["descr_id"])
+                    $i["descr_id"] = "00000000-0000-0000-0000-000000000000";
+                $buf = array(
+                    tr('КодНоменклатура1С')=>$i['id'],
+                    tr('КодХарактеристика1С')=>$i['descr_id'],
+                    tr('Количество')=>$i['quantity'],
+                    tr('КодСтроки')=>(int)$i['code_1c'],
+                );
+                //if($is_rollback)
+                $buf[tr('Цена')]=$i['price'];
+                $il[] = $buf;
+            }
+        }
+
+        global $user;
+        try{
+            $q=array(
+                tr('НомерЗаказа')=>tr($order_number),
+                tr('ИдКарточкиКлиентаСтат')=>tr($client_tid),
+                tr('Комментарий')=>tr($order_comment),
+                tr('ЭтоВозврат')=>(bool)$is_rollback,
+                tr('Пользователь')=>($user ? $user->Get("user") : "system"),
+                tr('ДопИнформацияЗаказа')=>$add_info,
+                tr('КодСклад1С') => $storeId
+            );
+
             if($items_list !== false)
-            {
-                foreach($items_list as $i){
-                    @list($i["id"], $i["descr_id"]) = explode(":", $i["id"]);
-                    if(!$i["descr_id"])
-                        $i["descr_id"] = "00000000-0000-0000-0000-000000000000";
-                    $buf = array(
-                            tr('КодНоменклатура1С')=>$i['id'],
-                            tr('КодХарактеристика1С')=>$i['descr_id'],
-                            tr('Количество')=>$i['quantity'],
-                            tr('КодСтроки')=>(int)$i['code_1c'],
-                            );
-                    //if($is_rollback)
-                    $buf[tr('Цена')]=$i['price'];
-                    $il[] = $buf;
-                }
-            }
+                $q[tr('СписокПозиций')]= array(tr('Список')=>$il);
 
-            global $user;
-            try{
-                $q=array(
-                        tr('НомерЗаказа')=>tr($order_number),
-                        tr('ИдКарточкиКлиентаСтат')=>tr($client_tid),
-                        tr('Комментарий')=>tr($order_comment),
-                        tr('ЭтоВозврат')=>(bool)$is_rollback,
-                        tr('Пользователь')=>($user ? $user->Get("user") : "system"),
-                        tr('ДопИнформацияЗаказа')=>$add_info,
-                        tr('КодСклад1С') => $storeId
-                        );
+            //printdbgu($q);
 
-                if($items_list !== false)
-                    $q[tr('СписокПозиций')]= array(tr('Список')=>$il);
+            $resp = $this->soap->utSaveOrder($q);
 
-                //printdbgu($q);
-
-                $resp = $this->soap->utSaveOrder($q);
-
-                $result = $resp->return;
-                if(!$result) {throw new \Exception(trr($resp->{tr("СообщениеОбОшибке")}), 1000);}
-                $resp = $resp->{tr("ЗаказТовара")};
+            $result = $resp->return;
+            if(!$result) {throw new \Exception(trr($resp->{tr("СообщениеОбОшибке")}), 1000);}
+            $resp = $resp->{tr("ЗаказТовара")};
 
 
-            }catch(\Exception $e){
+        }catch(\Exception $e){
 
-                echo "Ошибка 1с: ".str_replace("|||", "", $e->getMessage());
-                exit();
-				\MyDBG::fout(trr(print_r($e,true)),true);
-				$fault = $e;
-				return false;
-			}
+            echo "Ошибка 1с: ".str_replace("|||", "", $e->getMessage());
+            exit();
+            \MyDBG::fout(trr(print_r($e,true)),true);
+            $fault = $e;
+            return false;
+        }
 
-			if(!isset($resp->{tr('ДопИнформацияЗаказа')}))
-				$resp->{tr('ДопИнформацияЗаказа')} = null;
+        if(!isset($resp->{tr('ДопИнформацияЗаказа')}))
+            $resp->{tr('ДопИнформацияЗаказа')} = null;
 
-			return $resp;
-		}
+        return $resp;
+    }
 
-		public function getStatOrder($bill_no,&$fault=null)
+    public function getStatOrder($bill_no,&$fault=null)
+    {
+
+        global $db;
+        $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
+        if(!$bill)
         {
-
-			global $db;
-			$bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
-			if(!$bill)
-            {
-                trigger_error("getStatOrder: счет не найден:". $bill_no);
-                return false;
-            }
+            trigger_error("getStatOrder: счет не найден:". $bill_no);
+            return false;
+        }
 
 
 
-            /*
-			try{
-				$q = array(
-					tr('НомерЗаказа')=>$bill_no,
-					tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
-				);
-				$resp = $this->soap->utGetOrder($q)->return;
-			}catch(\SoapFault $e){
-                trigger_error(trr($e->getMessage()));
-				return false;
-			}
-             */
+        /*
+        try{
+            $q = array(
+                tr('НомерЗаказа')=>$bill_no,
+                tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
+            );
+            $resp = $this->soap->utGetOrder($q)->return;
+        }catch(\SoapFault $e){
+            trigger_error(trr($e->getMessage()));
+            return false;
+        }
+         */
 
-			$ret = array(
-				'bill_no'=>$bill_no,
-                'client_id' => $bill["client_id"],
-				'comment'=>$bill["comment"],
-				'sum'=>$bill["sum"],
-				'state_1c'=>$bill["state_1c"],
-				'is_rollback'=>(bool)$bill['is_rollback'],
-				'list'=>array()
-			);
+        $ret = array(
+            'bill_no'=>$bill_no,
+            'client_id' => $bill["client_id"],
+            'comment'=>$bill["comment"],
+            'sum'=>$bill["sum"],
+            'state_1c'=>$bill["state_1c"],
+            'is_rollback'=>(bool)$bill['is_rollback'],
+            'list'=>array()
+        );
 
-            $ret["list"] = $db->AllRecords("
+        $ret["list"] = $db->AllRecords("
                     SELECT concat(item_id,':',descr_id) as id, code_1c, item as name,
                     CAST(amount AS SIGNED) AS quantity,
                     round(price*1.18,4) as price,
@@ -819,337 +711,337 @@ class reports{
                     FROM newbill_lines
                     WHERE bill_no = '".mysql_escape_string($bill_no)."'");
 
-            /*
-			foreach($bLines as $p){
-				$ret['list'][] = array(
-					'id'=>trr($p->{tr('ИдТовара1С')}),
-					'name'=>trr($p->{tr('НаименованиеТовара')}),
-					'quantity'=>trr($p->{tr('Количество')}),
-					'price'=>trr($p->{tr('Цена')}),
-					'discount'=>trr($p->{tr('Скидка')}),
-					'sum'=>trr($p->{tr('СуммаИтого')}),
-					'strCode'=>trr($p->{tr('КодСтроки')}),
-					'articul'=>trr($p->{tr('АртикулТовара')})
-				);
-			}
-            */
+        /*
+        foreach($bLines as $p){
+            $ret['list'][] = array(
+                'id'=>trr($p->{tr('ИдТовара1С')}),
+                'name'=>trr($p->{tr('НаименованиеТовара')}),
+                'quantity'=>trr($p->{tr('Количество')}),
+                'price'=>trr($p->{tr('Цена')}),
+                'discount'=>trr($p->{tr('Скидка')}),
+                'sum'=>trr($p->{tr('СуммаИтого')}),
+                'strCode'=>trr($p->{tr('КодСтроки')}),
+                'articul'=>trr($p->{tr('АртикулТовара')})
+            );
+        }
+        */
 
-			return $ret;
-		}
+        return $ret;
+    }
 
-        public function getOrder($bill_no,&$fault=null)
+    public function getOrder($bill_no,&$fault=null)
+    {
+        global $db;
+        $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
+        if(!$bill)
+            $bill = array('is_rollback'=>0);
+        try{
+            $q = array(
+                tr('НомерЗаказа')=>$bill_no,
+                tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
+            );
+            $resp = $this->soap->utGetOrder($q)->return;
+        }catch(\SoapFault $e){
+            $fault = $e;
+            return false;
+        }
+
+        $ret = array(
+            'bill_no'=>$bill_no,
+            'number'=>trr($resp->{tr('ИдЗаказа1С')}),
+            'comment'=>trr($resp->{tr('Комментарий')}),
+            'sum'=>trr($resp->{tr('СуммаИтого')}),
+            'state_1c'=>trr($resp->{tr('СтатусЗаказа')}),
+            'is_rollback'=>(bool)$bill['is_rollback'],
+            'list'=>array()
+        );
+
+        $l = $resp->{tr('Список')};
+        if(!is_array($l))
+            $l = array($l);
+
+        foreach($l as $p){
+            $ret['list'][] = array(
+                'id'=>trr($p->{tr('ИдТовара1С')}),
+                'name'=>trr($p->{tr('НаименованиеТовара')}),
+                'quantity'=>trr($p->{tr('Количество')}),
+                'price'=>trr($p->{tr('Цена')}),
+                'discount'=>trr($p->{tr('Скидка')}),
+                'sum'=>trr($p->{tr('СуммаИтого')}),
+                'strCode'=>trr($p->{tr('КодСтроки')}),
+                'articul'=>trr($p->{tr('АртикулТовара')})
+            );
+        }
+        return $ret;
+    }
+
+    public function setOrderStatus($bill_no,$state,&$fault=null)
+    {
+        global $db, $user;
+        $bill = $db->GetRow("select is_rollback from newbills where bill_no='".addcslashes($bill_no,"\\'")."'");
+        try{
+            $resp = $this->soap->utSetOrderStatus(array(
+                tr('НомерЗаказа')=>tr($bill_no),
+                tr('Статус')=>tr($state),
+                tr('Пользователь')=>$user->Get("user"),
+                tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
+            ))->return;
+        }catch(\SoapFault $e){
+            $fault = $e;
+            return false;
+        }
+
+        return $resp;
+    }
+}
+
+class SoapHandler{
+    public function statAuth($data){
+        return array('return'=>true);
+    }
+
+    public function statSaveClientContract($data)
+    {
+        global $db;
+        $cc = $data->contract;
+
+        $str = "";
+        $str .= serialize($data);
+        //file_put_contents("/tmp/statSaveClientContract.".date("Y-m-d_H:i:s").".".rand(1,1000), serialize($data));
+
+        $cname = $cc->{tr('ИдКарточкиКлиентаСтат')}?$cc->{tr('ИдКарточкиКлиентаСтат')}:$cc->{tr('ИдКлиентаСтат')};
+
+        $isIdCard = isset($cc->{tr('ИдКарточкиКлиентаСтат')});
+
+        $str .= " cname: ".$cname;
+        $str .= " isIdCard: ".$isIdCard;
+
+        //$cname = "";
+
+        $cg = new \clCards\struct_cardDetails();
+
+        $cg->setCard($cname);
+
+        if(!$isIdCard)
         {
-			global $db;
-			$bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
-			if(!$bill)
-				$bill = array('is_rollback'=>0);
-			try{
-				$q = array(
-					tr('НомерЗаказа')=>$bill_no,
-					tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
-				);
-				$resp = $this->soap->utGetOrder($q)->return;
-			}catch(\SoapFault $e){
-				$fault = $e;
-				return false;
-			}
+            $cg->setCon1c(trr($cc->{tr('ИдСоглашения1С')}));
+            $cg->setCompany(trr($cc->{tr('НаименованиеКомпании')}));
+            $cg->setCompanyFull(trr($cc->{tr('ПолноеНаименованиеКомпании')}));
+            $cg->setInn(trr($cc->{tr('ИНН')}));
+            $cg->setKpp(trr($cc->{tr('КПП')}));
+            $cg->setBik(trr($cc->{tr('БИК')}));
+            $cg->setPayAcc(trr($cc->{tr('РC')}));
+            $cg->setCorrAcc(trr($cc->{tr('КС')}));
+            $cg->setBankName(trr($cc->{tr('НазваниеБанка')}));
+            $cg->setBankCity(trr($cc->{tr('ГородБанка')}));
+            $cg->setAddressJur(trr($cc->{tr('ЮридическийАдрес')}));
+            $cg->setType(trr($cc->{tr('ПравоваяФорма')}));
+        }else{
+            $cg->setCurrency(trr($cc->{tr('ВалютаРасчетов')}));
+            $cg->setPriceType(trr($cc->{tr('ВидЦен')}));
+            $cg->setFirma(trim(trr($cc->{tr('Организация')})));
+        }
 
-			$ret = array(
-				'bill_no'=>$bill_no,
-				'number'=>trr($resp->{tr('ИдЗаказа1С')}),
-				'comment'=>trr($resp->{tr('Комментарий')}),
-				'sum'=>trr($resp->{tr('СуммаИтого')}),
-				'state_1c'=>trr($resp->{tr('СтатусЗаказа')}),
-				'is_rollback'=>(bool)$bill['is_rollback'],
-				'list'=>array()
-			);
+        $str .= " cg: ".serialize($cg);
 
-			$l = $resp->{tr('Список')};
-			if(!is_array($l))
-				$l = array($l);
+        $c = \clCards\getCard($db, $cg->getAtMask(\clCards\struct_cardDetails::card));
+        $str .= "\n\n c: ".serialize($c);
+        //file_put_contents("/tmp/statSaveClientContract.".date("Y-m-d_H:i:s").".".rand(1,1000), $str);
 
-			foreach($l as $p){
-				$ret['list'][] = array(
-					'id'=>trr($p->{tr('ИдТовара1С')}),
-					'name'=>trr($p->{tr('НаименованиеТовара')}),
-					'quantity'=>trr($p->{tr('Количество')}),
-					'price'=>trr($p->{tr('Цена')}),
-					'discount'=>trr($p->{tr('Скидка')}),
-					'sum'=>trr($p->{tr('СуммаИтого')}),
-					'strCode'=>trr($p->{tr('КодСтроки')}),
-					'articul'=>trr($p->{tr('АртикулТовара')})
-				);
-			}
-			return $ret;
-		}
+        if($cname){
+            if(!$c)
+                return new \SoapFault('client',tr('Контрагент не найден в стате'));
 
-		public function setOrderStatus($bill_no,$state,&$fault=null)
-        {
-			global $db, $user;
-			$bill = $db->GetRow("select is_rollback from newbills where bill_no='".addcslashes($bill_no,"\\'")."'");
-			try{
-				$resp = $this->soap->utSetOrderStatus(array(
-					tr('НомерЗаказа')=>tr($bill_no),
-					tr('Статус')=>tr($state),
-                    tr('Пользователь')=>$user->Get("user"),
-					tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
-				))->return;
-			}catch(\SoapFault $e){
-				$fault = $e;
-				return false;
-			}
-
-			return $resp;
-		}
-	}
-
-	class SoapHandler{
-		public function statAuth($data){
-			return array('return'=>true);
-		}
-
-		public function statSaveClientContract($data)
-        {
-			global $db;
-			$cc = $data->contract;
-
-            $str = ""; 
-            $str .= serialize($data);
-            //file_put_contents("/tmp/statSaveClientContract.".date("Y-m-d_H:i:s").".".rand(1,1000), serialize($data));
-
-			$cname = $cc->{tr('ИдКарточкиКлиентаСтат')}?$cc->{tr('ИдКарточкиКлиентаСтат')}:$cc->{tr('ИдКлиентаСтат')};
-
-            $isIdCard = isset($cc->{tr('ИдКарточкиКлиентаСтат')});
-
-            $str .= " cname: ".$cname;
-            $str .= " isIdCard: ".$isIdCard;
-
-            //$cname = "";
-
-            $cg = new \clCards\struct_cardDetails();
-
-            $cg->setCard($cname);
-
-            if(!$isIdCard)
+            if($c->eq($cg, true))
             {
-                $cg->setCon1c(trr($cc->{tr('ИдСоглашения1С')}));
-                $cg->setCompany(trr($cc->{tr('НаименованиеКомпании')}));
-                $cg->setCompanyFull(trr($cc->{tr('ПолноеНаименованиеКомпании')}));
-                $cg->setInn(trr($cc->{tr('ИНН')}));
-                $cg->setKpp(trr($cc->{tr('КПП')}));
-                $cg->setBik(trr($cc->{tr('БИК')}));
-                $cg->setPayAcc(trr($cc->{tr('РC')}));
-                $cg->setCorrAcc(trr($cc->{tr('КС')}));
-                $cg->setBankName(trr($cc->{tr('НазваниеБанка')}));
-                $cg->setBankCity(trr($cc->{tr('ГородБанка')}));
-                $cg->setAddressJur(trr($cc->{tr('ЮридическийАдрес')}));
-                $cg->setType(trr($cc->{tr('ПравоваяФорма')}));
-            }else{
-                $cg->setCurrency(trr($cc->{tr('ВалютаРасчетов')}));
-                $cg->setPriceType(trr($cc->{tr('ВидЦен')}));
-                $cg->setFirma(trim(trr($cc->{tr('Организация')})));
+                return array('return'=>true, tr('ИдКарточкиКлиентаСтат') => $cname);
             }
 
-            $str .= " cg: ".serialize($cg);
+            //$c->set($cg);
 
-            $c = \clCards\getCard($db, $cg->getAtMask(\clCards\struct_cardDetails::card));
-            $str .= "\n\n c: ".serialize($c);
-            //file_put_contents("/tmp/statSaveClientContract.".date("Y-m-d_H:i:s").".".rand(1,1000), $str);
+            $f = \clCards\saveCard($db, $cg);
+            $cId = $cname;
+        }else{
+            list($f, $cId) = \clCards\saveCard($db, $cg);
+            $cId = "id".$cId;
+        }
 
-            if($cname){
-                if(!$c)
-                    return new \SoapFault('client',tr('Контрагент не найден в стате'));
+        if(isset($cc->{tr("ЭлектроннаяПочта")}))
+            $this->addClientContact($cId, "email", trr($cc->{tr("ЭлектроннаяПочта")}));
 
-                if($c->eq($cg, true))
-                {
-                    return array('return'=>true, tr('ИдКарточкиКлиентаСтат') => $cname);
-                }
+        if(isset($cc->{tr("ТелефонОрганизации")}))
+            $this->addClientContact($cId, "phone", trr($cc->{tr("ТелефонОрганизации")}));
 
-                //$c->set($cg);
+        if(!$f)
+            return new \SoapFault('client',tr('Не удалось сохранить изменения'));
 
-                $f = \clCards\saveCard($db, $cg);
-                $cId = $cname;
-            }else{
-                list($f, $cId) = \clCards\saveCard($db, $cg);
-                $cId = "id".$cId;
-            }
+        //file_put_contents("/tmp/clCards", var_export($cg->getAtMask(\clCards\struct_cardDetails::client),true));
 
-            if(isset($cc->{tr("ЭлектроннаяПочта")}))
-                $this->addClientContact($cId, "email", trr($cc->{tr("ЭлектроннаяПочта")}));
+        return array('return'=>$f, tr('ИдКарточкиКлиентаСтат') => $cId);
+    }
 
-            if(isset($cc->{tr("ТелефонОрганизации")}))
-                $this->addClientContact($cId, "phone", trr($cc->{tr("ТелефонОрганизации")}));
+    private function addClientContact($client, $type, $value)
+    {
+        global $db;
 
-			if(!$f)
-				return new \SoapFault('client',tr('Не удалось сохранить изменения'));
+        if(!$value) return;
 
-            //file_put_contents("/tmp/clCards", var_export($cg->getAtMask(\clCards\struct_cardDetails::client),true));
+        $cl = $db->GetRow("select id from clients where client = '".$client."'");
+        if($cl) {
+            $cl = $cl["id"];
 
-			return array('return'=>$f, tr('ИдКарточкиКлиентаСтат') => $cId);
-		}
+            $clData = array(
+                "client_id" => $cl,
+                "type" => $type,
+                "data" => $value,
+                "comment" => "vitrina",
+                "is_active" => 1,
+                "is_official" => 1
+            );
 
-        private function addClientContact($client, $type, $value)
-        {
-            global $db;
-
-            if(!$value) return;
-
-            $cl = $db->GetRow("select id from clients where client = '".$client."'");
-            if($cl) {
-                $cl = $cl["id"];
-
-                $clData = array(
-                        "client_id" => $cl,
-                        "type" => $type,
-                        "data" => $value,
-                        "comment" => "vitrina",
-                        "is_active" => 1,
-                        "is_official" => 1
-                        );
-
-                if($c = $db->GetRow("
+            if($c = $db->GetRow("
                             SELECT c.id
                             FROM client_contacts
                             where cc.type = '".$type."'
                                 and data = '".mysql_escape_string($value)."'
                                 and cc.client_id = '".$cl."'")){
-                    $clData["id"] = $c["id"];
-                    $db->QueryUpdate("client_contacts", "id", $clData);
-                }else{
-                    $db->QueryInsert("client_contacts", $clData);
-                }
+                $clData["id"] = $c["id"];
+                $db->QueryUpdate("client_contacts", "id", $clData);
+            }else{
+                $db->QueryInsert("client_contacts", $clData);
             }
         }
+    }
 
-	public function statSaveOrder($data,&$bill_no=null,&$error=null, $saveIds = array(), $addLines = true)
-        {
-            /*
-            if(!defined("save_sql"))
-                define("save_sql", 1);
-                */
+    public function statSaveOrder($data,&$bill_no=null,&$error=null, $saveIds = array(), $addLines = true)
+    {
+        /*
+        if(!defined("save_sql"))
+            define("save_sql", 1);
+            */
 
-            global $db;
+        global $db;
 
-            //file_put_contents("/tmp/statSaveOrder_".date("Y-m-d_H_i_s"), serialize($data));
+        //file_put_contents("/tmp/statSaveOrder_".date("Y-m-d_H_i_s"), serialize($data));
 
-            $o = $data->order;
-            $is_rollback = $data->isRollback;
+        $o = $data->order;
+        $is_rollback = $data->isRollback;
 
-            $bill_no = trr($o->{tr('Номер')});
-            $bill_date = trr($o->{tr('Дата')});
-            $client = trr($o->{tr('ИдКарточкиКлиентаСтат')});
-            $currency = trr($o->{tr('Валюта')});
-            $sum = trr($o->{tr('СуммаИтого')});
-            $comment = trr($o->{tr('Комментарий')});
-            $state_1c = trr($o->{tr('СтатусЗаказа')});
-            $add_info = $o->{tr('ДопИнформацияЗаказа')};
-            $storeId = $o->{tr('КодСклад1С')};
+        $bill_no = trr($o->{tr('Номер')});
+        $bill_date = trr($o->{tr('Дата')});
+        $client = trr($o->{tr('ИдКарточкиКлиентаСтат')});
+        $currency = trr($o->{tr('Валюта')});
+        $sum = trr($o->{tr('СуммаИтого')});
+        $comment = trr($o->{tr('Комментарий')});
+        $state_1c = trr($o->{tr('СтатусЗаказа')});
+        $add_info = $o->{tr('ДопИнформацияЗаказа')};
+        $storeId = $o->{tr('КодСклад1С')};
 
-		if (strcmp($state_1c, 'Отказ')==0) {
-			$sum = 0;
-		}
-
-
-            if($is_rollback && $sum > 0){$sum =-$sum;}
+        if (strcmp($state_1c, 'Отказ')==0) {
+            $sum = 0;
+        }
 
 
+        if($is_rollback && $sum > 0){$sum =-$sum;}
 
-            if(strpos($bill_no,'-'))
-                return array('return'=>true);
 
-            $curbill = $db->GetRow("select newbills.*,(select count(*) from newbill_lines where bill_no=newbills.bill_no and `type`='good') good_count from newbills where bill_no = '".addcslashes($bill_no, "\\'")."'");
-            $billLines = array();
-            if($curbill){
-                $billLines = $db->AllRecords("select * from newbill_lines where bill_no = '".mysql_escape_string($bill_no)."'");
-                $curtt = $db->GetRow("select * from tt_troubles where bill_no='".addcslashes($bill_no, "\\'")."'");
-                if($curtt){
-                    $curts = $db->GetRow("select * from tt_stages where stage_id=".$curtt['cur_stage_id']);
-                }
-                else
-                    $curts = null;
-            }else{
-                $curbill = array(
-                        'postreg'=>'0000-00-00',
-                        'courier_id'=>'null',
-                        'nal'=>'',
-                        'cleared_flag'=>false
-                        );
-                $curtt = null;
+
+        if(strpos($bill_no,'-'))
+            return array('return'=>true);
+
+        $curbill = $db->GetRow("select newbills.*,(select count(*) from newbill_lines where bill_no=newbills.bill_no and `type`='good') good_count from newbills where bill_no = '".addcslashes($bill_no, "\\'")."'");
+        $billLines = array();
+        if($curbill){
+            $billLines = $db->AllRecords("select * from newbill_lines where bill_no = '".mysql_escape_string($bill_no)."'");
+            $curtt = $db->GetRow("select * from tt_troubles where bill_no='".addcslashes($bill_no, "\\'")."'");
+            if($curtt){
+                $curts = $db->GetRow("select * from tt_stages where stage_id=".$curtt['cur_stage_id']);
+            }
+            else
                 $curts = null;
-            }
+        }else{
+            $curbill = array(
+                'postreg'=>'0000-00-00',
+                'courier_id'=>'null',
+                'nal'=>'',
+                'cleared_flag'=>false
+            );
+            $curtt = null;
+            $curts = null;
+        }
 
-            if($curtt && $curtt["client"] != $client)
-                $db->Query("update tt_troubles set client='".$client."' where id=".$curtt['id']);
+        if($curtt && $curtt["client"] != $client)
+            $db->Query("update tt_troubles set client='".$client."' where id=".$curtt['id']);
 
-            $l = $o->{tr('Список')};
-            $list = array();
-            if(!is_array($l))
-                $l = array($l);
-/*
-s:20:"Количество";s:2:"20";
-s:8:"Цена";s:2:"30";
-s:16:"СуммаНДС";s:5:"91.53";
-s:34:"СуммаРучнойСкидки";s:1:"0";
-s:50:"СуммаАвтоматическойСкидки";s:1:"0";
-s:10:"Сумма";s:3:"600";
-s:18:"ЭтоУслуга";b:0;
-  */
-/*
-  +---------+--------+
-      | amount  | price  |
-      +---------+--------+
-      | 20.0000 | 3.8784 |
-      +---------+--------+
-      */
+        $l = $o->{tr('Список')};
+        $list = array();
+        if(!is_array($l))
+            $l = array($l);
+        /*
+        s:20:"Количество";s:2:"20";
+        s:8:"Цена";s:2:"30";
+        s:16:"СуммаНДС";s:5:"91.53";
+        s:34:"СуммаРучнойСкидки";s:1:"0";
+        s:50:"СуммаАвтоматическойСкидки";s:1:"0";
+        s:10:"Сумма";s:3:"600";
+        s:18:"ЭтоУслуга";b:0;
+          */
+        /*
+          +---------+--------+
+              | amount  | price  |
+              +---------+--------+
+              | 20.0000 | 3.8784 |
+              +---------+--------+
+              */
 
-            foreach($l as $p){
-                $list[] = array(
-                        'item_id'=>trr($p->{tr('КодНоменклатура1С')}),
-                        'descr_id'=>trr($p->{tr('КодХарактеристика1С')}),
-                        'item' => \Good::GetName(trr($p->{tr('КодНоменклатура1С')}).":".trr($p->{tr('КодХарактеристика1С')})),
-                        'amount'=>$p->{tr('Количество')},
-                        'dispatch' => $p->{tr('КоличествоОтгружено')},
-                        'discount_set' => $p->{tr('СуммаРучнойСкидки')},
-                        'discount_auto' => $p->{tr('СуммаАвтоматическойСкидки')},
-                        //'price'=>round(($p->{tr('СуммаИтогоБезНДС')}+$p->{tr('СуммаНДС')})/$p->{tr('Количество')}/1.18,4),
-                        'price'=>round($p->{tr('Цена')}/1.18,4),
-                        'sum'=>$p->{tr('Сумма')},
-                        'type'=>$p->{tr('ЭтоУслуга')}?'service':'good',
-                        'code_1c'=>$p->{tr('КодСтроки')},
-                        "serial" => (isset($p->{tr('СерийныеНомера')}) ? $p->{tr('СерийныеНомера')}: false),
-                        "gtd" => trr($p->{tr('НомерГТД')}),
-                        "country_id" => trr($p->{tr('СтранаПроизводитель')}),
-                        );
-            }
+        foreach($l as $p){
+            $list[] = array(
+                'item_id'=>trr($p->{tr('КодНоменклатура1С')}),
+                'descr_id'=>trr($p->{tr('КодХарактеристика1С')}),
+                'item' => \Good::GetName(trr($p->{tr('КодНоменклатура1С')}).":".trr($p->{tr('КодХарактеристика1С')})),
+                'amount'=>$p->{tr('Количество')},
+                'dispatch' => $p->{tr('КоличествоОтгружено')},
+                'discount_set' => $p->{tr('СуммаРучнойСкидки')},
+                'discount_auto' => $p->{tr('СуммаАвтоматическойСкидки')},
+                //'price'=>round(($p->{tr('СуммаИтогоБезНДС')}+$p->{tr('СуммаНДС')})/$p->{tr('Количество')}/1.18,4),
+                'price'=>round($p->{tr('Цена')}/1.18,4),
+                'sum'=>$p->{tr('Сумма')},
+                'type'=>$p->{tr('ЭтоУслуга')}?'service':'good',
+                'code_1c'=>$p->{tr('КодСтроки')},
+                "serial" => (isset($p->{tr('СерийныеНомера')}) ? $p->{tr('СерийныеНомера')}: false),
+                "gtd" => trr($p->{tr('НомерГТД')}),
+                "country_id" => trr($p->{tr('СтранаПроизводитель')}),
+            );
+        }
 
-            checkLogisticItems($list, $add_info);
-
-
-            $diff = getListDiff($billLines, $list);
-            if($diff)
-                saveListDiff($bill_no, $curtt["cur_stage_id"], $diff);
-
-
-            $err = 0;
-            $err_msg = '';
-            $db->Query('start transaction');
-
-            $db->Query("delete from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
-            if($err |= mysql_errno())
-                $err_msg = mysql_error();
-
-            $db->Query("delete from g_serials where bill_no='".addcslashes($bill_no, "\\'")."'");
-            if($err |= mysql_errno())
-                $err_msg = mysql_error();
-
-            if(!$err)
-                $db->Query("delete from newbill_lines where bill_no='".addcslashes($bill_no, "\\'")."'");
-            if(!$err && $err |= mysql_errno())
-                $err_msg = mysql_error();
+        checkLogisticItems($list, $add_info);
 
 
-            if(!$err)
-                $db->Query("
+        $diff = getListDiff($billLines, $list);
+        if($diff)
+            saveListDiff($bill_no, $curtt["cur_stage_id"], $diff);
+
+
+        $err = 0;
+        $err_msg = '';
+        $db->Query('start transaction');
+
+        $db->Query("delete from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
+        if($err |= mysql_errno())
+            $err_msg = mysql_error();
+
+        $db->Query("delete from g_serials where bill_no='".addcslashes($bill_no, "\\'")."'");
+        if($err |= mysql_errno())
+            $err_msg = mysql_error();
+
+        if(!$err)
+            $db->Query("delete from newbill_lines where bill_no='".addcslashes($bill_no, "\\'")."'");
+        if(!$err && $err |= mysql_errno())
+            $err_msg = mysql_error();
+
+
+        if(!$err)
+            $db->Query("
                         insert into
                         newbills
                         set
@@ -1166,100 +1058,100 @@ s:18:"ЭтоУслуга";b:0;
                         courier_id = '".$curbill['courier_id']."',
                         nal = '".$curbill['nal']."'
                         ");
-            if(!$err && $err |= mysql_errno())
-                $err_msg = mysql_error();
+        if(!$err && $err |= mysql_errno())
+            $err_msg = mysql_error();
 
 
-            $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id) values";
+        $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id) values";
 
-            $qSerials = "";
+        $qSerials = "";
 
 
 
-            foreach($list as $sort=>$item){
-                $q .= "('".
-                    addcslashes($bill_no, "\\'")."',".
-                    ($sort+1).",'".
-                    addcslashes($item['item'], "\\'")."',".
-                    "'".$item['item_id']."',".
-                    (float)$item['amount'].",".
-                    (float)$item['price'].",".
-                    "'1C','".$item['type']."',".
-                    "'".$item["code_1c"]."',".
-                    "'".$item["descr_id"]."',".
-                    "'".$item["discount_set"]."',".
-                    "'".$item["discount_auto"]."',".
-                    "'".$item["sum"]."',".
-                    "'".$item["dispatch"]."',".
-                    "'".$item["gtd"]."',".
-                    "'".$item["country_id"]."'".
-                    "),";
+        foreach($list as $sort=>$item){
+            $q .= "('".
+                addcslashes($bill_no, "\\'")."',".
+                ($sort+1).",'".
+                addcslashes($item['item'], "\\'")."',".
+                "'".$item['item_id']."',".
+                (float)$item['amount'].",".
+                (float)$item['price'].",".
+                "'1C','".$item['type']."',".
+                "'".$item["code_1c"]."',".
+                "'".$item["descr_id"]."',".
+                "'".$item["discount_set"]."',".
+                "'".$item["discount_auto"]."',".
+                "'".$item["sum"]."',".
+                "'".$item["dispatch"]."',".
+                "'".$item["gtd"]."',".
+                "'".$item["country_id"]."'".
+                "),";
 
-                if($item["serial"]) {
-                    $serials = (is_array($item["serial"]) ? $item["serial"] : array($item["serial"]));
-                    foreach($serials as $serial)
-                    {
-                        $qSerials[] = "('".$bill_no."','".$item["code_1c"]."', '".trim($serial)."')";
-                    }
+            if($item["serial"]) {
+                $serials = (is_array($item["serial"]) ? $item["serial"] : array($item["serial"]));
+                foreach($serials as $serial)
+                {
+                    $qSerials[] = "('".$bill_no."','".$item["code_1c"]."', '".trim($serial)."')";
                 }
             }
+        }
 
-            if($qSerials)
-                $db->Query("insert into g_serials (bill_no, code_1c, serial) values ".implode(',',$qSerials));
+        if($qSerials)
+            $db->Query("insert into g_serials (bill_no, code_1c, serial) values ".implode(',',$qSerials));
 
-            if(!$err && $err |= mysql_errno()) {
+        if(!$err && $err |= mysql_errno()) {
+            $err_msg = mysql_error();
+            trigger_error($err_msg);
+        }
+
+        if(count($list) && $addLines){
+            if(!$err)
+                $db->Query(substr($q,0,-1));
+            if(!$err && $err |= mysql_errno())
                 $err_msg = mysql_error();
-                trigger_error($err_msg);
-            }
+        }
 
-            if(count($list) && $addLines){
-                if(!$err)
-                    $db->Query(substr($q,0,-1));
-                if(!$err && $err |= mysql_errno())
-                    $err_msg = mysql_error();
-            }
+        if(!$err && !is_null($add_info)){
+            //if($_SESSION["_mcn_user_login_stat.mcn.ru"] == "adima")
 
-            if(!$err && !is_null($add_info)){
-        //if($_SESSION["_mcn_user_login_stat.mcn.ru"] == "adima")
+            $idMetro = \ClientCS::GetIdByName("metro",trr($add_info->{tr('Метро')}), 0);
+            $idLogistic = \ClientCS::GetIdByName("logistic",trr($add_info->{tr('Логистика')}), "none");
 
-        $idMetro = \ClientCS::GetIdByName("metro",trr($add_info->{tr('Метро')}), 0);
-        $idLogistic = \ClientCS::GetIdByName("logistic",trr($add_info->{tr('Логистика')}), "none");
+            $db->QueryDelete("newbills_add_info", array("bill_no" => $bill_no));
+            $db->QueryInsert('newbills_add_info',$add_info_koi8r = array(
+                'bill_no'=>trr($bill_no),
+                'fio'=>trr($add_info->{tr('ФИО')}),
+                'address'=>trr($add_info->{tr('Адрес')}),
+                'req_no'=>trr($add_info->{tr('НомерЗаявки')}),
+                'acc_no'=>trr($add_info->{tr('ЛицевойСчет')}),
+                'connum'=>trr($add_info->{tr('НомерПодключения')}),
+                'phone'=>trr($add_info->{tr('КонтактныйТелефон')}),
+                'comment1'=>trr($add_info->{tr('Комментарий1')}),
+                'comment2'=>trr($add_info->{tr('Комментарий2')}),
+                'passp_series'=>trr($add_info->{tr('ПаспортСерия')}),
+                'passp_num'=>trr($add_info->{tr('ПаспортНомер')}),
+                'passp_whos_given'=>trr($add_info->{tr('ПаспортКемВыдан')}),
+                'passp_when_given'=>trr($add_info->{tr('ПаспортКогдаВыдан')}),
+                'passp_code'=>trr($add_info->{tr('ПаспортКодПодразделения')}),
+                'passp_birthday'=>trr($add_info->{tr('ПаспортДатаРождения')}),
+                'reg_city'=>trr($add_info->{tr('ПаспортГород')}),
+                'reg_street'=>trr($add_info->{tr('ПаспортУлица')}),
+                'reg_house'=>trr($add_info->{tr('ПаспортДом')}),
+                'reg_housing'=>trr($add_info->{tr('ПаспортКорпус')}),
+                'reg_build'=>trr($add_info->{tr('ПаспортСтроение')}),
+                'reg_flat'=>trr($add_info->{tr('ПаспортКвартира')}),
+                'email'=>trr($add_info->{tr('Email')}),
+                'order_given'=>trr($add_info->{tr('ПроисхождениеЗаказа')}),
+                'line_owner'=>trr($add_info->{tr('ВладелецЛинии')}),
+                'metro_id'=>$idMetro,
+                'logistic'=>$idLogistic,
+                "store_id" => $storeId
+            ));
+        }
 
-                $db->QueryDelete("newbills_add_info", array("bill_no" => $bill_no));
-                $db->QueryInsert('newbills_add_info',$add_info_koi8r = array(
-                            'bill_no'=>trr($bill_no),
-                            'fio'=>trr($add_info->{tr('ФИО')}),
-                            'address'=>trr($add_info->{tr('Адрес')}),
-                            'req_no'=>trr($add_info->{tr('НомерЗаявки')}),
-                            'acc_no'=>trr($add_info->{tr('ЛицевойСчет')}),
-                            'connum'=>trr($add_info->{tr('НомерПодключения')}),
-                            'phone'=>trr($add_info->{tr('КонтактныйТелефон')}),
-                            'comment1'=>trr($add_info->{tr('Комментарий1')}),
-                            'comment2'=>trr($add_info->{tr('Комментарий2')}),
-                            'passp_series'=>trr($add_info->{tr('ПаспортСерия')}),
-                            'passp_num'=>trr($add_info->{tr('ПаспортНомер')}),
-                            'passp_whos_given'=>trr($add_info->{tr('ПаспортКемВыдан')}),
-                            'passp_when_given'=>trr($add_info->{tr('ПаспортКогдаВыдан')}),
-                            'passp_code'=>trr($add_info->{tr('ПаспортКодПодразделения')}),
-                            'passp_birthday'=>trr($add_info->{tr('ПаспортДатаРождения')}),
-                            'reg_city'=>trr($add_info->{tr('ПаспортГород')}),
-                            'reg_street'=>trr($add_info->{tr('ПаспортУлица')}),
-                            'reg_house'=>trr($add_info->{tr('ПаспортДом')}),
-                            'reg_housing'=>trr($add_info->{tr('ПаспортКорпус')}),
-                            'reg_build'=>trr($add_info->{tr('ПаспортСтроение')}),
-                            'reg_flat'=>trr($add_info->{tr('ПаспортКвартира')}),
-                            'email'=>trr($add_info->{tr('Email')}),
-                            'order_given'=>trr($add_info->{tr('ПроисхождениеЗаказа')}),
-                            'line_owner'=>trr($add_info->{tr('ВладелецЛинии')}),
-                            'metro_id'=>$idMetro,
-                            'logistic'=>$idLogistic,
-                            "store_id" => $storeId
-                                ));
-            }
+        if(!$err && $curtt && $curts && $curbill['state_1c']<>$state_1c){
 
-            if(!$err && $curtt && $curts && $curbill['state_1c']<>$state_1c){
-
-                $newstate = $db->GetRow($q="
+            $newstate = $db->GetRow($q="
                         select
                         *
                         from
@@ -1276,48 +1168,153 @@ s:18:"ЭтоУслуга";b:0;
                         and
                         state_1c='".addcslashes($state_1c,"\\'")."'
                         ".
-/*($client == "DostavkaMTS" ? " and name = 'MTS'" :*/
-    ($state_1c == "Новый" ?
-    ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
-    	($client == "nbn" ? " and name = 'NetByNet'" :
-    		($client == "onlime" ? " and name = 'OnLime'" :
-                ($client == "onlime2" ? " and name = 'OnLime'" :
-    			 "")))) : "")/*)*/."
+                /*($client == "DostavkaMTS" ? " and name = 'MTS'" :*/
+                ($state_1c == "Новый" ?
+                    ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
+                        ($client == "nbn" ? " and name = 'NetByNet'" :
+                            ($client == "onlime" ? " and name = 'OnLime'" :
+                                ($client == "onlime2" ? " and name = 'OnLime'" :
+                                    "")))) : "")/*)*/."
 
                         order by
                         ".(($curtt['trouble_type']=='shop_orders')?'`oso`':($curtt['trouble_type']=='mounting_orders'?'`omo`':'`order`'))."
                         limit 1
                         ");
 
-                if(!$newstate){
-                    $err = 1;
-                    $err_msg = "Unknown state!";
-                    $db->Query("select 'error: ".$err_msg."'");
-                }else{
-                    if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
-                        $q = "update tt_stages set comment='".mysql_escape_string(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
+            if(!$newstate){
+                $err = 1;
+                $err_msg = "Unknown state!";
+                $db->Query("select 'error: ".$err_msg."'");
+            }else{
+                if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
+                    $q = "update tt_stages set comment='".mysql_escape_string(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
 
-                    if($state_1c == 'Отгружен')
-                        $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
-                    elseif($state_1c == 'КОтгрузке')
-                        $q = "update tt_stages set comment='Возврат товара: ".nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
-                    else{
-                        $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : "";
-                        $q = "update tt_stages set comment='".$comment."', date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                if($state_1c == 'Отгружен')
+                    $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                elseif($state_1c == 'КОтгрузке')
+                    $q = "update tt_stages set comment='Возврат товара: ".nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                else{
+                    $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : "";
+                    $q = "update tt_stages set comment='".$comment."', date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                }
+
+                if($curtt['trouble_type'] == 'mounting_orders'){
+                    $out = $db->GetRow("select * from tt_doers where stage_id=".$curtt['cur_stage_id']);
+                    if($out)
+                        $newstate['id'] = 4;
+                }
+
+                $db->Query($q);
+                if(!$err && $err |= mysql_errno())
+                    $err_msg = mysql_error();
+
+                if(!$err){
+                    unset($curts['stage_id'],$curts['date_edit']);
+
+                    // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
+                    include_once INCLUDE_PATH.'bill.php';
+                    $oBill = new \Bill($bill_no);
+                    if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
+                        $oBill->SetCleared();
+                    }else{
+                        $oBill->SetUnCleared();
                     }
 
-                    if($curtt['trouble_type'] == 'mounting_orders'){
-                        $out = $db->GetRow("select * from tt_doers where stage_id=".$curtt['cur_stage_id']);
-                        if($out)
-                            $newstate['id'] = 4;
-                    }
+                    $newts_id = $db->QueryInsert(
+                        'tt_stages',
+                        array(
+                            'user_main'=>$curts['user_main'],
+                            'state_id'=>$newstate['id'],
+                            'trouble_id'=>$curtt['id'],
+                            'date_start'=>array('now()'),
+                            'date_edit'=>array('now()'),
+                            'date_finish_desired'=>array('now()')
+                        )
+                    );
+                }
+                if(!$err && $err |= mysql_errno())
+                    $err_msg = mysql_error();
 
-                    $db->Query($q);
+                /*
+                   if(!$err)
+                   $db->Query("update tt_doers set stage_id=".$newts_id." where stage_id=".$curtt['cur_stage_id']);
+                   if(!$err && $err |= mysql_errno())
+                   $err_msg = mysql_error();
+                 */
+
+                if(!$err)
+                    $db->Query("update tt_troubles set cur_stage_id=".$newts_id.",folder=".$newstate['folder']." where id=".$curtt['id']);
+                if(!$err && $err |= mysql_errno())
+                    $err_msg = mysql_error();
+            }
+
+        }elseif(
+            !$err && !$curtt && (
+                in_array($client,array('all4net','All4Net_new', 'wellconnect','WiMaxComstar','ComPapa','Compapa','nbn','onlime','onlime2', 'DostavkaMTS'))
+                ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "welltime"
+                ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "all4net"
+            )){
+
+            $from = strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')}));
+
+#1c-vitrina
+
+            if(!$err)
+                $newstate = $db->GetRow("select * from tt_states where pk & (select states from tt_types where code='shop_orders')
+                        ".
+                ($client == "DostavkaMTS" ? " and name = 'MTS'" :
+                    ($state_1c == "Новый" ?
+                        ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
+                            ($client == "nbn" ? " and name = 'NetByNet'" :
+                                ($client == "onlime" ? " and name = 'OnLime'" :
+                                    ($client == "onlime2" ? " and name = 'OnLime'" :
+                                        "")))):""))."
+                            order by oso limit 1");
+            if(!$err && $err |= mysql_errno())
+                $err_msg = mysql_error();
+
+            if(isset($add_info_koi8r) && !$comment){
+                $comment = "
+                        %s<br />
+                        Телефон: %s<br />
+                        Адрес доставки: %s<br />
+                        Комментарий1: %s<br />
+                        Комментарий2: %s
+                        ";
+                $comment = sprintf(
+                    $comment,
+                    $add_info_koi8r['order_given'],
+                    $add_info_koi8r['phone'],
+                    $add_info_koi8r['address'],
+                    $add_info_koi8r['comment1'],
+                    $add_info_koi8r['comment2']
+                );
+            }
+
+            if(in_array($client,array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
+                $comment = trim($_POST["comment"]);
+
+            if(!$err){
+                $_curttId = $db->GetValue("select id from tt_troubles where bill_no = '".$bill_no."'");
+                if(!$_curttId)
+                {
+                    $ttid = $db->QueryInsert('tt_troubles',array(
+                        'trouble_type'=>'shop_orders',
+                        'trouble_subtype' => "shop",
+                        'client'=>$client,
+                        'user_author'=>'1c-vitrina',
+                        'date_creation'=>array('now()'),
+                        'problem'=>$comment,
+                        'bill_no'=>$bill_no,
+                        'folder'=>$newstate['folder']
+                    ));
                     if(!$err && $err |= mysql_errno())
                         $err_msg = mysql_error();
 
+                    if(!$err)
+                        $db->Query("insert into z_sync_admin set bill_no = '".$bill_no."'");
+
                     if(!$err){
-                        unset($curts['stage_id'],$curts['date_edit']);
 
                         // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
                         include_once INCLUDE_PATH.'bill.php';
@@ -1327,564 +1324,458 @@ s:18:"ЭтоУслуга";b:0;
                         }else{
                             $oBill->SetUnCleared();
                         }
+                        $comment = "";
+                        if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
+                            $comment = trim($_POST["comment"]);
 
-                        $newts_id = $db->QueryInsert(
-                                'tt_stages',
-                                array(
-                                    'user_main'=>$curts['user_main'],
-                                    'state_id'=>$newstate['id'],
-                                    'trouble_id'=>$curtt['id'],
-                                    'date_start'=>array('now()'),
-                                    'date_edit'=>array('now()'),
-                                    'date_finish_desired'=>array('now()')
-                                    )
-                                );
+                        $tsid = $db->QueryInsert('tt_stages',array(
+                            'trouble_id'=>$ttid,
+                            'state_id'=>$newstate['id'],
+                            'user_main'=>'1c-vitrina',
+                            'date_start'=>array('now()'),
+                            'date_finish_desired'=>array('now()'),
+                            'comment' => $comment
+                        ));
                     }
                     if(!$err && $err |= mysql_errno())
                         $err_msg = mysql_error();
-
-                    /*
-                       if(!$err)
-                       $db->Query("update tt_doers set stage_id=".$newts_id." where stage_id=".$curtt['cur_stage_id']);
-                       if(!$err && $err |= mysql_errno())
-                       $err_msg = mysql_error();
-                     */
 
                     if(!$err)
-                        $db->Query("update tt_troubles set cur_stage_id=".$newts_id.",folder=".$newstate['folder']." where id=".$curtt['id']);
+                        $db->Query("update tt_troubles set cur_stage_id=".$tsid." where id=".$ttid);
                     if(!$err && $err |= mysql_errno())
                         $err_msg = mysql_error();
                 }
-
-            }elseif(
-                    !$err && !$curtt && (
-                        in_array($client,array('all4net','All4Net_new', 'wellconnect','WiMaxComstar','ComPapa','Compapa','nbn','onlime','onlime2', 'DostavkaMTS'))
-                        ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "welltime"
-                        ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "all4net"
-                        )){
-
-                $from = strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')}));
-
-#1c-vitrina
-
-                if(!$err)
-                    $newstate = $db->GetRow("select * from tt_states where pk & (select states from tt_types where code='shop_orders')
-                        ".
-($client == "DostavkaMTS" ? " and name = 'MTS'" :
-    ($state_1c == "Новый" ?
-    	($client == "WiMaxComstar" ? " and name = 'WiMax'" :
-    		($client == "nbn" ? " and name = 'NetByNet'" :
-    			($client == "onlime" ? " and name = 'OnLime'" :
-                    ($client == "onlime2" ? " and name = 'OnLime'" :
-    				 "")))):""))."
-                            order by oso limit 1");
-                if(!$err && $err |= mysql_errno())
-                    $err_msg = mysql_error();
-
-                if(isset($add_info_koi8r) && !$comment){
-                    $comment = "
-                        %s<br />
-                        Телефон: %s<br />
-                        Адрес доставки: %s<br />
-                        Комментарий1: %s<br />
-                        Комментарий2: %s
-                        ";
-                    $comment = sprintf(
-                            $comment,
-                            $add_info_koi8r['order_given'],
-                            $add_info_koi8r['phone'],
-                            $add_info_koi8r['address'],
-                            $add_info_koi8r['comment1'],
-                            $add_info_koi8r['comment2']
-                            );
-                }
-
-                if(in_array($client,array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
-                    $comment = trim($_POST["comment"]);
-
-                if(!$err){
-                    $_curttId = $db->GetValue("select id from tt_troubles where bill_no = '".$bill_no."'");
-                    if(!$_curttId)
-                    {
-                        $ttid = $db->QueryInsert('tt_troubles',array(
-                                    'trouble_type'=>'shop_orders',
-                                    'trouble_subtype' => "shop",
-                                    'client'=>$client,
-                                    'user_author'=>'1c-vitrina',
-                                    'date_creation'=>array('now()'),
-                                    'problem'=>$comment,
-                                    'bill_no'=>$bill_no,
-                                    'folder'=>$newstate['folder']
-                                    ));
-                        if(!$err && $err |= mysql_errno())
-                            $err_msg = mysql_error();
-
-                        if(!$err)
-                            $db->Query("insert into z_sync_admin set bill_no = '".$bill_no."'");
-
-                        if(!$err){
-
-                            // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
-                            include_once INCLUDE_PATH.'bill.php';
-                            $oBill = new \Bill($bill_no);
-                            if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                                $oBill->SetCleared();
-                            }else{
-                                $oBill->SetUnCleared();
-                            }
-                            $comment = "";
-                            if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
-                                $comment = trim($_POST["comment"]);
-
-                            $tsid = $db->QueryInsert('tt_stages',array(
-                                        'trouble_id'=>$ttid,
-                                        'state_id'=>$newstate['id'],
-                                        'user_main'=>'1c-vitrina',
-                                        'date_start'=>array('now()'),
-                                        'date_finish_desired'=>array('now()'),
-                                        'comment' => $comment
-                                        ));
-                        }
-                        if(!$err && $err |= mysql_errno())
-                            $err_msg = mysql_error();
-
-                        if(!$err)
-                            $db->Query("update tt_troubles set cur_stage_id=".$tsid." where id=".$ttid);
-                        if(!$err && $err |= mysql_errno())
-                            $err_msg = mysql_error();
-                    }
-                }
             }
-
-            if($err){
-
-                $db->Query('rollback');
-                $error = $err_msg;
-                return new \SoapFault('olol',$error);
-            }else{
-                $db->Query('commit');
-                if(!$curbill || !$curbill['cleared_flag'])
-                    $db->Query('call switch_bill_cleared("'.addcslashes($bill_no, "\\\"").'")');
-            }
-            return array('return'=>!$err);
         }
 
+        if($err){
 
-	public function statSetOrderStatus($data)
+            $db->Query('rollback');
+            $error = $err_msg;
+            return new \SoapFault('olol',$error);
+        }else{
+            $db->Query('commit');
+            if(!$curbill || !$curbill['cleared_flag'])
+                $db->Query('call switch_bill_cleared("'.addcslashes($bill_no, "\\\"").'")');
+        }
+        return array('return'=>!$err);
+    }
+
+
+    public function statSetOrderStatus($data)
+    {
+        global $db;
+        $bill_no = $data->{tr('НомерЗаказа')};
+        $state = trr($data->{tr('Статус')});
+
+        $db->Query("update newbills set state_1c='".addcslashes($state,"\\'")."' where bill_no='".addcslashes($bill_no, "\\'")."'");
+        return array('return'=>!mysql_errno());
+    }
+
+    public function statSaveBrend($data)
+    {
+        global $db;
+        $code = $data->{tr('Производитель')}->{tr('Код')};
+        $name = trr($data->{tr('Производитель')}->{tr('Наименование')});
+        $isDel = $data->{tr('Производитель')}->{tr('Удален')};
+
+        if($isDel)
         {
-			global $db;
-			$bill_no = $data->{tr('НомерЗаказа')};
-			$state = trr($data->{tr('Статус')});
-
-			$db->Query("update newbills set state_1c='".addcslashes($state,"\\'")."' where bill_no='".addcslashes($bill_no, "\\'")."'");
-			return array('return'=>!mysql_errno());
-	}
-
-        public function statSaveBrend($data)
-        {
-            global $db;
-            $code = $data->{tr('Производитель')}->{tr('Код')};
-            $name = trr($data->{tr('Производитель')}->{tr('Наименование')});
-            $isDel = $data->{tr('Производитель')}->{tr('Удален')};
-
-            if($isDel)
-            {
-                $db->Query("delete from g_producers where id = '".$code."'");
-            }else{
-                $db->Query("insert into g_producers set id='".$code."', name='".mysql_escape_string($name)."'
+            $db->Query("delete from g_producers where id = '".$code."'");
+        }else{
+            $db->Query("insert into g_producers set id='".$code."', name='".mysql_escape_string($name)."'
                         on duplicate key update name='".mysql_escape_string($name)."'");
-            }
-			return array('return'=>!mysql_errno());
         }
+        return array('return'=>!mysql_errno());
+    }
 
-        public function statSavePriceType($data)
+    public function statSavePriceType($data)
+    {
+        global $db;
+
+        $code = $data->{tr('ВидЦен')}->{tr('Код1С')};
+        $name = trr($data->{tr('ВидЦен')}->{tr('Наименование')});
+        $isDel = $data->{tr('ВидЦен')}->{tr('Удален')};
+
+        $db->QueryDelete("g_price_type", array("id" => $code));
+        if(!$isDel)
         {
-            global $db;
-
-            $code = $data->{tr('ВидЦен')}->{tr('Код1С')};
-            $name = trr($data->{tr('ВидЦен')}->{tr('Наименование')});
-            $isDel = $data->{tr('ВидЦен')}->{tr('Удален')};
-
-            $db->QueryDelete("g_price_type", array("id" => $code));
-            if(!$isDel)
-            {
-                $db->QueryInsert("g_price_type", array(
-                            "id"=>$code,
-                            "name"=>$name)
-                        );
-            }
-            $err = mysql_errno();
-            if($err) {
-                return new \SoapFault('statSavePriceType',tr('ошибка создания типа цены: '.mysql_error()));
-            }
-			return array('return'=>true);
+            $db->QueryInsert("g_price_type", array(
+                    "id"=>$code,
+                    "name"=>$name)
+            );
         }
+        $err = mysql_errno();
+        if($err) {
+            return new \SoapFault('statSavePriceType',tr('ошибка создания типа цены: '.mysql_error()));
+        }
+        return array('return'=>true);
+    }
 
-        public function statSavePriceList($data)
-        {
-            global $db;
+    public function statSavePriceList($data)
+    {
+        global $db;
 
-            //return new \SoapFault('statSavePriceList', "test error");
-            //file_put_contents("/tmp/statSavePriceList_test", var_export($data,true));
+        //return new \SoapFault('statSavePriceList', "test error");
+        //file_put_contents("/tmp/statSavePriceList_test", var_export($data,true));
 
-            if(!isset($data->{\_1c\tr('ЦеныТовара')}))
-                return new \SoapFault('statSavePriceList',\_1c\tr('неожидаемые данные'));
-            if(!isset($data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')}))
-                return array('return'=>true);
+        if(!isset($data->{\_1c\tr('ЦеныТовара')}))
+            return new \SoapFault('statSavePriceList',\_1c\tr('неожидаемые данные'));
+        if(!isset($data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')}))
+            return array('return'=>true);
 
 
-            $l = $data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')};
-            if(!is_array($l))
-                $l = array($l);
+        $l = $data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')};
+        if(!is_array($l))
+            $l = array($l);
 
-            $d = array();
-            foreach($l as $i){
-                $goodId = $i->{tr('КодНоменклатура1С')};
-                $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
-                $priceId = $i->{\_1c\tr('КодВидЦен1С')};
-                $cost = $i->{\_1c\tr('Цена')};
-                $isDel  = $i->{\_1c\tr('Удален')};
+        $d = array();
+        foreach($l as $i){
+            $goodId = $i->{tr('КодНоменклатура1С')};
+            $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
+            $priceId = $i->{\_1c\tr('КодВидЦен1С')};
+            $cost = $i->{\_1c\tr('Цена')};
+            $isDel  = $i->{\_1c\tr('Удален')};
 
-                if(!isset($d[$goodId])) $d[$goodId] = array();
-                if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
-                if(!isset($d[$goodId][$descrId][$priceId])) $d[$goodId][$descrId][$priceId] = array();
+            if(!isset($d[$goodId])) $d[$goodId] = array();
+            if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
+            if(!isset($d[$goodId][$descrId][$priceId])) $d[$goodId][$descrId][$priceId] = array();
 
-                $d[$goodId][$descrId][$priceId] = $isDel ? false : $cost;
-            }
-            unset($i);
+            $d[$goodId][$descrId][$priceId] = $isDel ? false : $cost;
+        }
+        unset($i);
 
-            $s = array();
-            foreach($d as $goodId => &$goods) {
-                foreach($goods as $descrId => &$descrs) {
-                    foreach($descrs as $priceId => $cost) {
-                        $db->QueryDelete("g_good_price", array("good_id" => $goodId, "descr_id" => $descrId, "price_type_id" => $priceId));
-                        if($cost !== false){
-                            $s[] = "('".$goodId."', '".$descrId."', '".$priceId."','".$cost."')";
+        $s = array();
+        foreach($d as $goodId => &$goods) {
+            foreach($goods as $descrId => &$descrs) {
+                foreach($descrs as $priceId => $cost) {
+                    $db->QueryDelete("g_good_price", array("good_id" => $goodId, "descr_id" => $descrId, "price_type_id" => $priceId));
+                    if($cost !== false){
+                        $s[] = "('".$goodId."', '".$descrId."', '".$priceId."','".$cost."')";
 
-                            if(count($s) >= 1000){
-                                $db->Query("insert into g_good_price value ".implode(",", $s));
-                                if(mysql_errno()) return new \SoapFault('statSavePriceList', mysql_error());
-                                $s = array();
-                            }
+                        if(count($s) >= 1000){
+                            $db->Query("insert into g_good_price value ".implode(",", $s));
+                            if(mysql_errno()) return new \SoapFault('statSavePriceList', mysql_error());
+                            $s = array();
                         }
                     }
                 }
             }
-            if($s)
-                $db->Query("insert into g_good_price value ".implode(",", $s));
-            if(mysql_errno()) {
-                return new \SoapFault('statSavePriceList', mysql_error());
-            }
-
-            return array('return'=>true);
+        }
+        if($s)
+            $db->Query("insert into g_good_price value ".implode(",", $s));
+        if(mysql_errno()) {
+            return new \SoapFault('statSavePriceList', mysql_error());
         }
 
+        return array('return'=>true);
+    }
 
-        public function statSaveStoreBalance($data)
-        {
-            global $db;
 
-            /*
-            if(!defined("save_sql"))
-                define("save_sql",1);
-                */
+    public function statSaveStoreBalance($data)
+    {
+        global $db;
 
-            file_put_contents("/tmp/statSaveStoreBalance", var_export($data, true));
+        /*
+        if(!defined("save_sql"))
+            define("save_sql",1);
+            */
 
-            //return array('return'=>true);
+        file_put_contents("/tmp/statSaveStoreBalance", var_export($data, true));
 
-            if(!(
-                        isset($data->{tr('ОстаткиТовара')}) &&
-                        isset($data->{tr('ОстаткиТовара')}->{tr('Список')})))
-                return new \SoapFault('statSaveStoreBalance',tr('неожидаемые данные'));
+        //return array('return'=>true);
 
-            $l = $data->{tr('ОстаткиТовара')}->{tr('Список')};
-            if(!is_array($l)) {
-                $l = array($l);
-            }
+        if(!(
+            isset($data->{tr('ОстаткиТовара')}) &&
+            isset($data->{tr('ОстаткиТовара')}->{tr('Список')})))
+            return new \SoapFault('statSaveStoreBalance',tr('неожидаемые данные'));
 
-            $d = array();
-            foreach($l as $i){
-                $goodId = $i->{tr('КодНоменклатура1С')};
-                $storeId = $i->{tr('КодСклад1С')};
-                $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
-                $qty = array($i->{\_1c\tr('КоличествоДоступно')},
-                        $i->{\_1c\tr('КоличествоНаСкладе')},
-                        $i->{\_1c\tr('КоличествоОжидается')});
-                $isDel  = $i->{\_1c\tr('Удален')};
+        $l = $data->{tr('ОстаткиТовара')}->{tr('Список')};
+        if(!is_array($l)) {
+            $l = array($l);
+        }
 
-                if(!isset($d[$goodId])) $d[$goodId] = array();
-                if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
-                if(!isset($d[$goodId][$descrId][$storeId])) $d[$goodId][$descrId][$storeId] = array();
+        $d = array();
+        foreach($l as $i){
+            $goodId = $i->{tr('КодНоменклатура1С')};
+            $storeId = $i->{tr('КодСклад1С')};
+            $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
+            $qty = array($i->{\_1c\tr('КоличествоДоступно')},
+                $i->{\_1c\tr('КоличествоНаСкладе')},
+                $i->{\_1c\tr('КоличествоОжидается')});
+            $isDel  = $i->{\_1c\tr('Удален')};
 
-                $d[$goodId][$descrId][$storeId] = array("qty" => $qty, "is_del" => $isDel);
-            }
+            if(!isset($d[$goodId])) $d[$goodId] = array();
+            if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
+            if(!isset($d[$goodId][$descrId][$storeId])) $d[$goodId][$descrId][$storeId] = array();
 
-            $s = array();
-            foreach($d as $goodId => &$goods) {
-                foreach($goods as $descrId => &$ss) {
-                    foreach($ss as $storeId => $q){
-/*
-                    $db->QueryDelete("g_good_store", 
-                            array(
-                                "good_id" => $goodId, 
-                                "descr_id" => $descrId, 
-                                "store_id" => $storeId
-                                )
-                            );
-                    */
+            $d[$goodId][$descrId][$storeId] = array("qty" => $qty, "is_del" => $isDel);
+        }
+
+        $s = array();
+        foreach($d as $goodId => &$goods) {
+            foreach($goods as $descrId => &$ss) {
+                foreach($ss as $storeId => $q){
+                    /*
+                                        $db->QueryDelete("g_good_store",
+                                                array(
+                                                    "good_id" => $goodId,
+                                                    "descr_id" => $descrId,
+                                                    "store_id" => $storeId
+                                                    )
+                                                );
+                                        */
 
                     if(!$q["id_del"])
                         $s[] = "('".$goodId."', '".$descrId."', '".$q["qty"][0]."', '".$q["qty"][1]."', '".$q["qty"][2]."','".$storeId."')";
-                    }
                 }
             }
-
-
-            if($s)
-            {
-                $db->Query("delete from g_good_store where good_id in ('".implode("','", array_keys($d))."')");
-                $db->Query("insert into g_good_store values ".implode(",", $s));
-            }
-
-            if(mysql_errno()) {
-                return new \SoapFault('statSaveStoreBalance', mysql_error());
-            }
-
-            return array('return'=>true);
-
-        }
-
-        public function statSaveGood($data)
-        {
-            file_put_contents("/tmp/statSaveGood", var_export($data, true));
-
-            global $db;
-
-            $f= array(
-                    "id" => "Код1С",
-                    "num_id" => "Код",
-                    "name" => "Наименование",
-                    "name_full" => "НаименованиеПолное",
-                    "art" => "Артикул",
-                    "price" => "Цена",
-                    "quantity" => "Количество",
-                    "quantity_store" => "КоличествоНаСкладе",
-                    "producer_id" =>  "Производитель",
-                    "description" => "Описание",
-                    "is_service" => "ЭтоУслуга",
-                    "group_id" => "КодГруппы",
-                    "is_allowpricezero" => "РазрешитьПродажуПоНулевойЦене",
-                    "is_allowpricechange" => "РазрешитьПроизвольныеЦены",
-                    "division_id" => "ОтвПодразделение",
-                    "store" => "ТипЗапаса",
-                    "nds" => "СтавкаНДС"
-                    );
-            $d = array();
-            foreach($f as $field => $_1cname) {
-                $d[$field] = trr($data->{tr("Товар")}->{tr($_1cname)});
-            }
-
-            switch($d["store"])
-            {
-                case "Наш склад": $v = "yes";break;
-                case "Дальний склад": $v = "remote"; break;
-                case "Под заказ": $v = "no"; break;
-                default: $v= "";
-            }
-            $d["store"] = $v;
-
-            $this->GetDivisionId($d["division_id"]);
-
-            $db->QueryDelete("g_goods", array("id" => $d["id"]));
-            $db->QueryDelete("g_good_description", array("good_id" => $d["id"]));
-            $db->QueryDelete("g_bonus", array("good_id" => $d["id"]));
-            $db->QueryInsert("g_goods", $d);
-
-            $err = mysql_errno();
-            if($err)
-            {
-                return new \SoapFault('goods',tr('ошибка создания товара: '.$err));
-            }
-
-            if(isset($data->{tr("Товар")}->{tr("СписокХарактеристик")})) {
-                $hs = &$data->{tr("Товар")}->{tr("СписокХарактеристик")};
-                if(!is_array($hs)) {
-                    $hs = array($hs);
-                }
-
-                foreach($hs as $h){
-                    $dscr = array(
-                            "id" => $h->{tr("Код1С")},
-                            "good_id" => $h->{tr("КодНоменклатура1С")},
-                            "name" => \_1c\trr($h->{tr("Наименование")})
-                            );
-
-                    $db->QueryInsert("g_good_description", $dscr);
-                    $err = mysql_errno();
-                    if($err)
-                    {
-                        return new \SoapFault('goods',tr('ошибка создания характеристики товара: '.mysql_error()));
-                    }
-                }
-            }
-
-            if(isset($data->{tr("Товар")}->{tr("СписокБонусов")})) {
-                $bs = &$data->{tr("Товар")}->{tr("СписокБонусов")};
-                if(!is_array($bs)) {
-                    $bs = array($bs);
-                }
-
-
-                foreach($bs as $b){
-
-                    /*
-                    stdClass::__set_state(array(
-                                'ГруппаПользователей' => 'Менеджер',
-                                'ТипВознаграждения' => 'Фиксированное',
-                                'Вознаграждение' => '10',
-                                )),
-                                stdClass::__set_state(array(
-                                'ГруппаПользователей' => 'Маркетинг',
-                                'ТипВознаграждения' => 'Процент',
-                                'Вознаграждение' => '20',
-                                )),
-                                                                 */
-
-                    $group = "";
-                    switch(trr($b->{tr("ГруппаПользователей")})){
-                        case 'Менеджер': $group = "manager"; break;
-                        case 'Маркетинг': $group = "marketing"; break;
-                    }
-                    if(!$group) continue;
-
-                    $type = trr($b->{tr("ТипВознаграждения")}) == "Фиксированное" ? "fix" : "%";
-
-                    $db->QueryInsert("g_bonus", array(
-                                "good_id" => $d["id"],
-                                "group" => $group,
-                                "type" => $type,
-                                "value" => $b->{tr("Вознаграждение")}
-                                )
-                            );
-                }
-
-            }
-
-            return array('return'=>true);
         }
 
 
-        public function statSaveStore($data)
+        if($s)
         {
-            file_put_contents("/tmp/statSaveStore", var_export($data, true));
-            //return array('return'=>true);
+            $db->Query("delete from g_good_store where good_id in ('".implode("','", array_keys($d))."')");
+            $db->Query("insert into g_good_store values ".implode(",", $s));
+        }
 
-            global $db;
-            /*
+        if(mysql_errno()) {
+            return new \SoapFault('statSaveStoreBalance', mysql_error());
+        }
+
+        return array('return'=>true);
+
+    }
+
+    public function statSaveGood($data)
+    {
+        file_put_contents("/tmp/statSaveGood", var_export($data, true));
+
+        global $db;
+
+        $f= array(
+            "id" => "Код1С",
+            "num_id" => "Код",
+            "name" => "Наименование",
+            "name_full" => "НаименованиеПолное",
+            "art" => "Артикул",
+            "price" => "Цена",
+            "quantity" => "Количество",
+            "quantity_store" => "КоличествоНаСкладе",
+            "producer_id" =>  "Производитель",
+            "description" => "Описание",
+            "is_service" => "ЭтоУслуга",
+            "group_id" => "КодГруппы",
+            "is_allowpricezero" => "РазрешитьПродажуПоНулевойЦене",
+            "is_allowpricechange" => "РазрешитьПроизвольныеЦены",
+            "division_id" => "ОтвПодразделение",
+            "store" => "ТипЗапаса",
+            "nds" => "СтавкаНДС"
+        );
+        $d = array();
+        foreach($f as $field => $_1cname) {
+            $d[$field] = trr($data->{tr("Товар")}->{tr($_1cname)});
+        }
+
+        switch($d["store"])
+        {
+            case "Наш склад": $v = "yes";break;
+            case "Дальний склад": $v = "remote"; break;
+            case "Под заказ": $v = "no"; break;
+            default: $v= "";
+        }
+        $d["store"] = $v;
+
+        $this->GetDivisionId($d["division_id"]);
+
+        $db->QueryDelete("g_goods", array("id" => $d["id"]));
+        $db->QueryDelete("g_good_description", array("good_id" => $d["id"]));
+        $db->QueryDelete("g_bonus", array("good_id" => $d["id"]));
+        $db->QueryInsert("g_goods", $d);
+
+        $err = mysql_errno();
+        if($err)
+        {
+            return new \SoapFault('goods',tr('ошибка создания товара: '.$err));
+        }
+
+        if(isset($data->{tr("Товар")}->{tr("СписокХарактеристик")})) {
+            $hs = &$data->{tr("Товар")}->{tr("СписокХарактеристик")};
+            if(!is_array($hs)) {
+                $hs = array($hs);
+            }
+
+            foreach($hs as $h){
+                $dscr = array(
+                    "id" => $h->{tr("Код1С")},
+                    "good_id" => $h->{tr("КодНоменклатура1С")},
+                    "name" => \_1c\trr($h->{tr("Наименование")})
+                );
+
+                $db->QueryInsert("g_good_description", $dscr);
+                $err = mysql_errno();
+                if($err)
+                {
+                    return new \SoapFault('goods',tr('ошибка создания характеристики товара: '.mysql_error()));
+                }
+            }
+        }
+
+        if(isset($data->{tr("Товар")}->{tr("СписокБонусов")})) {
+            $bs = &$data->{tr("Товар")}->{tr("СписокБонусов")};
+            if(!is_array($bs)) {
+                $bs = array($bs);
+            }
+
+
+            foreach($bs as $b){
+
+                /*
                 stdClass::__set_state(array(
-                   'Склад' => 
-                  stdClass::__set_state(array(
-                     'Код1С' => '8e5c7b22-8385-11df-9af5-001517456eb1',
-                     'Наименование' => 'Основной склад',
-                     'Удален' => false,
-                  )),
-                ))
-            */
+                            'ГруппаПользователей' => 'Менеджер',
+                            'ТипВознаграждения' => 'Фиксированное',
+                            'Вознаграждение' => '10',
+                            )),
+                            stdClass::__set_state(array(
+                            'ГруппаПользователей' => 'Маркетинг',
+                            'ТипВознаграждения' => 'Процент',
+                            'Вознаграждение' => '20',
+                            )),
+                                                             */
 
-            $code = $data->{tr('Склад')}->{tr('Код1С')};
-            $name = trr($data->{tr('Склад')}->{tr('Наименование')});
-            $isDel = $data->{tr('Склад')}->{tr('Удален')};
+                $group = "";
+                switch(trr($b->{tr("ГруппаПользователей")})){
+                    case 'Менеджер': $group = "manager"; break;
+                    case 'Маркетинг': $group = "marketing"; break;
+                }
+                if(!$group) continue;
 
-            $db->QueryDelete("g_store", array("id" => $code));
-            if(!$isDel)
-            {
-                $db->QueryInsert("g_store", array(
-                            "id"=>$code,
-                            "name"=>$name)
-                        );
+                $type = trr($b->{tr("ТипВознаграждения")}) == "Фиксированное" ? "fix" : "%";
+
+                $db->QueryInsert("g_bonus", array(
+                        "good_id" => $d["id"],
+                        "group" => $group,
+                        "type" => $type,
+                        "value" => $b->{tr("Вознаграждение")}
+                    )
+                );
             }
-            $err = mysql_errno();
-            if($err) {
-                return new \SoapFault('statSaveStore',tr('ошибка создания склада: '.mysql_error()));
-            }
-			return array('return'=>true);
+
         }
 
-        private function GetDivisionId(&$d)
+        return array('return'=>true);
+    }
+
+
+    public function statSaveStore($data)
+    {
+        file_put_contents("/tmp/statSaveStore", var_export($data, true));
+        //return array('return'=>true);
+
+        global $db;
+        /*
+            stdClass::__set_state(array(
+               'Склад' =>
+              stdClass::__set_state(array(
+                 'Код1С' => '8e5c7b22-8385-11df-9af5-001517456eb1',
+                 'Наименование' => 'Основной склад',
+                 'Удален' => false,
+              )),
+            ))
+        */
+
+        $code = $data->{tr('Склад')}->{tr('Код1С')};
+        $name = trr($data->{tr('Склад')}->{tr('Наименование')});
+        $isDel = $data->{tr('Склад')}->{tr('Удален')};
+
+        $db->QueryDelete("g_store", array("id" => $code));
+        if(!$isDel)
         {
-            global $db;
+            $db->QueryInsert("g_store", array(
+                    "id"=>$code,
+                    "name"=>$name)
+            );
+        }
+        $err = mysql_errno();
+        if($err) {
+            return new \SoapFault('statSaveStore',tr('ошибка создания склада: '.mysql_error()));
+        }
+        return array('return'=>true);
+    }
 
-            if(!$d) {$d = 0; return;}
+    private function GetDivisionId(&$d)
+    {
+        global $db;
 
-            $r = $db->GetRow("select id from g_division where name = '".$d."'");
-            if($r)
-            {
-                $d = $r["id"];
-                return;
-            }
-            $db->Query("insert into g_division set name = '".mysql_escape_string($d)."'");
-            $d = $db->GetInsertId();
+        if(!$d) {$d = 0; return;}
+
+        $r = $db->GetRow("select id from g_division where name = '".$d."'");
+        if($r)
+        {
+            $d = $r["id"];
             return;
         }
+        $db->Query("insert into g_division set name = '".mysql_escape_string($d)."'");
+        $d = $db->GetInsertId();
+        return;
+    }
 
-        public function statSaveGoodGroup($data)
-        {
-            global $db;
+    public function statSaveGoodGroup($data)
+    {
+        global $db;
 
-            $code = $data->{tr('ГруппаТовара')}->{tr('Код')};
-            $name = trr($data->{tr('ГруппаТовара')}->{tr('Наименование')});
-            $parentCode = $data->{tr('ГруппаТовара')}->{tr('КодГруппы')};
+        $code = $data->{tr('ГруппаТовара')}->{tr('Код')};
+        $name = trr($data->{tr('ГруппаТовара')}->{tr('Наименование')});
+        $parentCode = $data->{tr('ГруппаТовара')}->{tr('КодГруппы')};
 
 
-            $db->Query("insert into g_groups set id='".$code."', name='".mysql_escape_string($name)."', parent_id = '".$parentCode."'
+        $db->Query("insert into g_groups set id='".$code."', name='".mysql_escape_string($name)."', parent_id = '".$parentCode."'
                     on duplicate key update name='".mysql_escape_string($name)."', parent_id = '".$parentCode."'");
 
-			return array('return'=>!mysql_errno());
-        }
-	}
+        return array('return'=>!mysql_errno());
+    }
+}
 
-	class server{
-		public function __construct($wsdl,$login=null,$pass=null){
-			#ini_set('soap.wsdl_cache_enabled', '0');
-			$this->soap = new \SoapServer($wsdl,array('encoding'=>'UTF-8'));
-			$sH = new SoapHandler();
-			$this->soap->setObject($sH);
-		}
+class server{
+    public function __construct($wsdl,$login=null,$pass=null){
+        $this->soap = new \SoapServer($wsdl,array('encoding'=>'UTF-8'));
+        $sH = new SoapHandler();
+        $this->soap->setObject($sH);
+    }
 
-		public function __call($method,$args){
-			return call_user_func_array(array($this->soap,$method), $args);
-		}
-	}
+    public function __call($method,$args){
+        return call_user_func_array(array($this->soap,$method), $args);
+    }
+}
 
-        function checkLogisticItems(&$items_list, &$add_info, $from1cInt = true)
+function checkLogisticItems(&$items_list, &$add_info, $from1cInt = true)
+{
+    $key = $from1cInt ? "item_id" : "id";
+
+    $aLogisticType =
+        array(
+            "6b6709aa-8a8b-11df-866d-001517456eb1" => array("Доставка авто", "auto"),
+            "132c7b5d-8a6c-11df-866d-001517456eb1" => array("Доставка ТК", "tk"),
+            "132c7b5b-8a6c-11df-866d-001517456eb1" => array("Доставка курьером", "courier")
+        );
+
+    $logistic = $from1cInt ? $add_info->{tr('Логистика')} : $add_info["logistic"];
+
+    foreach($items_list as $i)
+    {
+        list($id, ) = explode(":", $i[$key]);
+        if(in_array($id , array_keys($aLogisticType)))
         {
-            $key = $from1cInt ? "item_id" : "id";
-
-            $aLogisticType =
-                array(
-                        "6b6709aa-8a8b-11df-866d-001517456eb1" => array("Доставка авто", "auto"),
-                        "132c7b5d-8a6c-11df-866d-001517456eb1" => array("Доставка ТК", "tk"),
-                        "132c7b5b-8a6c-11df-866d-001517456eb1" => array("Доставка курьером", "courier")
-                     );
-
-            $logistic = $from1cInt ? $add_info->{tr('Логистика')} : $add_info["logistic"];
-
-            foreach($items_list as $i)
-            {
-                list($id, ) = explode(":", $i[$key]);
-                if(in_array($id , array_keys($aLogisticType)))
-                {
-                    if($from1cInt){
-                        $add_info->{tr('Логистика')} = tr($aLogisticType[$id][0]);
-                    }else{
-                        $add_info["logistic"] = $aLogisticType[$id][1];
-                    }
-                    return true;
-                }
+            if($from1cInt){
+                $add_info->{tr('Логистика')} = tr($aLogisticType[$id][0]);
+            }else{
+                $add_info["logistic"] = $aLogisticType[$id][1];
             }
-            return false;
+            return true;
         }
+    }
+    return false;
+}
 function getListDiff($billLines, $list)
 {
     $diff = array();
@@ -1930,26 +1821,26 @@ function saveListDiff($bill_no, $stage_id, &$diff)
     global $db;
     foreach($diff as $d){
         $insId = $db->QueryInsert("newbill_change_log",
-                array(
-                    "bill_no" => $bill_no,
-                    "stage_id" => $stage_id,
-                    "action" => $d["action"],
-                    "code_1c" => $d["code_1c"],
-                    "item" => $d["item"],
-                    "date" => date("Y-m-d H:i:s")
-                    )
-                );
+            array(
+                "bill_no" => $bill_no,
+                "stage_id" => $stage_id,
+                "action" => $d["action"],
+                "code_1c" => $d["code_1c"],
+                "item" => $d["item"],
+                "date" => date("Y-m-d H:i:s")
+            )
+        );
 
         if($d["action"] == "change"){
             foreach($d["fields"] as $f){
                 $db->QueryInsert("newbill_change_log_fields",
-                        array(
-                            "change_id" => $insId,
-                            "field" => $f["field"],
-                            "from" => $f["from"],
-                            "to" => $f["to"]
-                            )
-                        );
+                    array(
+                        "change_id" => $insId,
+                        "field" => $f["field"],
+                        "from" => $f["from"],
+                        "to" => $f["to"]
+                    )
+                );
             }
         }
     }

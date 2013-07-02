@@ -12,7 +12,7 @@ if(isset($_GET["savesql"]))
 	define('SERVER_DEFAULT',	'stat.mcn.ru');	//необходим для тех скриптов, которые не могут прочитать переменные Apache. например, autoping.php
 	$SERVERS=array();
 
-	$SERVERS['stattest']=array(
+	$SERVERS['89.235.136.22']=array(
 /*	
 			'SERVER'			=>	'stat.mcn.ru',
 			'SQL_HOST'			=>	'stat.mcn.ru',
@@ -45,9 +45,14 @@ if(isset($_GET["savesql"]))
 			'DB_SETUP_COLLATES'	=>	1,
 			'SMTP_SERVER'		=> 	'smtp.mcn.ru',
 			'MAIL_TEST_ONLY'	=>	1,
-			'WEB_ADDRESS'		=> 'http://stattest',
+			'WEB_ADDRESS'		=> 'http://89.235.136.22',
 
 			'DEBUG_TABLE'		=> 'DEBUG',
+
+            'SYNC1C_UT_SOAP_URL'  => 'http://stattest.ws.dionis.mcn.ru/ws/ws/stat',
+            'SYNC1C_UT_LOGIN'     => 'web_service',
+            'SYNC1C_UT_PASSWORD'  => 'sdfg94w758ht23g4r78394g',
+            'SYNC1C_STAT_TOKEN'   => '',
 		);
 
   $SERVERS['stat']=array(
@@ -117,7 +122,12 @@ if(isset($_GET["savesql"]))
       'MONGO_USER' => 'lkmcn',
       'MONGO_PASS' => 'Ummhsn3iqCWA',
       'MONGO_DB' => 'lkmcn',
-		);
+
+        'SYNC1C_UT_SOAP_URL'  => 'http://stat.ws.dionis.mcn.ru/ws/ws/stat',
+        'SYNC1C_UT_LOGIN'     => 'web_service',
+        'SYNC1C_UT_PASSWORD'  => 'sdfg94w758ht23g4r78394g',
+        'SYNC1C_STAT_TOKEN'   => '43fb37aba737439f2ae2fa5da242d310ed3939d087c7926765e9e13e593b5772a706248935d573312fa3061cf6a71b4477c2e851c28284e8df346bc19de19ddf',
+    );
 
 	$SERVERS['stat.local']=array(
 			'SERVER'			=>	'localhost',
@@ -243,7 +253,9 @@ if(strpos($sPath, "tst") !== false || (isset($_SERVER["PWD"]) &&  strpos($_SERVE
 	define('SUM_PHONE_ADVANCE',79.67);
 		
 	if (DEBUG_LEVEL!=0) ini_set ("display_errors", "On");
-	
+
+    require_once(CLASSES_PATH . 'Autoload.php');
+
 	if (!defined('NO_INCLUDE')){
 		if (defined('NO_WEB') || defined('ERROR_NO_WEB')){
 			require_once(INCLUDE_PATH.'error_noweb.php');
@@ -273,4 +285,13 @@ if(strpos($sPath, "tst") !== false || (isset($_SERVER["PWD"]) &&  strpos($_SERVE
 		}
 		require_once(INCLUDE_PATH.'writeoff.php');
 	}
+
+    ActiveRecord\Config::initialize(function($cfg) {
+        $connections = array(
+            'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . '/' . SQL_DB . ';charset=koi8r',
+        );
+
+        $cfg->set_model_directory(MODELS_PATH);
+        $cfg->set_connections($connections, 'db');
+    });
 ?>
