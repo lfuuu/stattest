@@ -1,7 +1,5 @@
 <?php
 namespace _1c;
-$sPath = (@$_SERVER["PWD"] ? $_SERVER["PWD"] :  $_SERVER["SCRIPT_FILENAME"]);
-$isTest = strpos($sPath, "tst") !== false || strpos($sPath, "test") !== false;
 
 function trr($var){
 
@@ -1663,43 +1661,6 @@ class SoapHandler{
 
         }
 
-        return array('return'=>true);
-    }
-
-
-    public function statSaveStore($data)
-    {
-        file_put_contents("/tmp/statSaveStore", var_export($data, true));
-        //return array('return'=>true);
-
-        global $db;
-        /*
-            stdClass::__set_state(array(
-               'Склад' =>
-              stdClass::__set_state(array(
-                 'Код1С' => '8e5c7b22-8385-11df-9af5-001517456eb1',
-                 'Наименование' => 'Основной склад',
-                 'Удален' => false,
-              )),
-            ))
-        */
-
-        $code = $data->{tr('Склад')}->{tr('Код1С')};
-        $name = trr($data->{tr('Склад')}->{tr('Наименование')});
-        $isDel = $data->{tr('Склад')}->{tr('Удален')};
-
-        $db->QueryDelete("g_store", array("id" => $code));
-        if(!$isDel)
-        {
-            $db->QueryInsert("g_store", array(
-                    "id"=>$code,
-                    "name"=>$name)
-            );
-        }
-        $err = mysql_errno();
-        if($err) {
-            return new \SoapFault('statSaveStore',tr('ошибка создания склада: '.mysql_error()));
-        }
         return array('return'=>true);
     }
 
