@@ -5855,6 +5855,8 @@ $sql .= "	order by client, bill_no";
 				$to = date("Y-m-d", $to);
 			}
 			
+		}else{
+			$this->_qrDocs_check();
 		}
 
 		foreach($R as &$r)
@@ -5873,6 +5875,146 @@ $sql .= "	order by client, bill_no";
 		$design->assign("to", $to);
 		$design->AddMain("newaccounts/docs.html");
 		
+	}
+
+	function _qrDocs_check()
+	{
+		global $db;
+
+		$dir = "/var/log/skanpdf/";
+
+		$d = dir($dir);
+
+		$c = 0;
+		while($e = $d->read())
+		{
+			if($e == ".." || $e == ".") continue;
+			if(stripos($e, ".pdf") === false) continue;
+
+			$qrcode = QRCode::decodeFile($dir.$e);
+
+			if($qrcode)
+			{
+				$id = $db->QueryInsert("qr_code", array(
+							"file" => $e,
+							"code" => $qrcode
+							));
+
+				exec("mv ".$dir.$e." ../store/documents/".$id.".pdf");
+			}else{
+				exec("mv ".$dir.$e." ../store/documents/unrecognized/".$e);
+			}
+
+		}
+		$d->close();
+	}
+
+	function newaccounts_docs_unrec($fixclient)
+	{
+		global $design;
+
+		$dirPath = STORE_PATH."documents/unrecognized/";
+
+		if(($delFile = get_param_raw("del", "")) !== "")
+		{
+			if(file_exists($dirPath.$delFile))
+			{
+				exec("rm ".$dirPath.$delFile);
+			}
+		}
+
+		if(get_param_raw("recognize", "") == "true")
+		{
+			$this->docs_unrec__recognize();
+		}
+
+		$d = dir($dirPath);
+
+		$c = 0;
+		$R = array();
+		while($e = $d->read())
+		{
+			if($e == ".." || $e == ".") continue;
+			if(stripos($e, ".pdf") === false) continue;
+
+			$R[] = $e;
+		}
+		$d->close();
+
+		$docType = array();
+		foreach(QRCode::$codes as $code => $c)
+		{
+			$docType[$code] = $c["name"];
+		}
+
+		$design->assign("docs", $R);
+		$design->assign("doc_type", $docType);
+		$design->AddMain("newaccounts/docs_unrec.html");
+	}
+
+	function docs_unrec__recognize()
+	{
+		$dirDoc = STORE_PATH."documents/";
+		$dirUnrec = $dirDoc."unrecognized/";
+
+		$file = get_param_raw("file", "");
+		if(!file_exists($dirUnrec.$file)) {trigger_error("Файл не найден!"); return;}
+
+		$type = get_param_raw("type", "");
+		if(!isset(QRCode::$codes[$type])) {trigger_error("Ошибка в типе!"); return;}
+
+		$number = get_param_raw("number", "");
+		if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error("Ошибка в номере!"); return;}
+
+		global $db;
+
+		$id = $db->QueryInsert("qr_code", array(
+					"file" => $file,
+					"code" => QRCode::encode($type, $number)
+					));
+
+
+
+		exec("mv ".$dirUnrec.$file." ".$dirDoc.$id.".pdf");
+	}
+
+	function newaccounts_doc_file($fixclient)
+	{
+		$dirPath = STORE_PATH."documents/";
+
+		if(get_param_raw("unrecognized", "") == "true")
+		{
+			$file = get_param_raw("file", "");
+			$fPath = $dirPath."unrecognized/".$file;
+
+			$this->docs_echoFile($fPath, $file);
+		}elseif(($id = get_param_integer("id", 0)) !== 0)
+		{
+			global $db;
+
+			$r = $db->GetValue("select file from qr_code where id = '".$id."'");
+
+			if($r)
+			{
+				$this->docs_echoFile($dirPath.$id.".pdf", $r);
+			}
+		}
+	}
+
+	function docs_echoFile($fPath, $fileName)
+	{
+		if(file_exists($fPath))
+		{
+			header("Content-Type:application/pdf");
+			header('Content-Transfer-Encoding: binary');
+			header('Content-Disposition: attachment; filename="'.iconv("KOI8-R","CP1251",$fileName).'"');
+			header("Content-Length: " . filesize($fPath));
+			echo file_get_contents($fPath);
+			exit();
+		}else{
+			trigger_error("Файл не найден!");
+		}
+		//
 	}
 }
 ?>

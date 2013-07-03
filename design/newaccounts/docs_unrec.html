@@ -1,0 +1,88 @@
+  <script src="js/ui/jquery-ui.custom.js"></script>
+  <link rel="stylesheet" href="css/themes/base/jquery-ui.css">
+
+      <H2>Отсканированные документы</H2>
+      <H3>Нераспознанное</H3>
+
+      <TABLE class=price cellSpacing=4 cellPadding=2 width="30%" border=0>
+        <TBODY>
+        <TR>
+          <TD class=header colspan=3 vAlign=bottom>Документ</TD>
+        </TR>
+
+		<style>
+{literal}
+.del_img{
+	cursor: pointer;
+}
+.edit_img{
+	cursor: pointer;
+}
+{/literal}
+		</style>
+{foreach from=$docs item=i key=key name=outer}
+	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
+    <TD><a href="./?module=newaccounts&action=doc_file&file={$i|escape}&unrecognized=true" target=_blank>{$i}</a></TD>
+	<td><img src="images/icons/edit.gif" title="Установить документ" border=0 class="edit_img"></td>
+	<td><img src="images/del2.gif" title="Удалить" border=0 class="del_img"></td>
+	</TR>
+{/foreach}
+</TBODY></TABLE>
+
+<div id="dlg_edit" style="display: none" title="Ручное распознование документа">
+<p> Файл: <span id="dlg_edit__file_name"></span></p>
+Тип документа: <br>
+<div style="padding-left: 20px;" id="dlg_edit__doc_type_form">
+{html_radios name="dlg_edit__type" options=$doc_type separator='<br />' selected='bill'}
+</div>
+<br>
+Номер документа: <input type=text name="number" value="" id="dlg_edit__number">
+</div>
+
+<script>
+{literal}
+$(function(){
+		$("img.del_img").click(function(e){
+			var file = $(e.currentTarget).parent().parent().find("td:first").text();
+
+			if(confirm("Удалить файл \""+file+"\""))
+			{
+				location.href= "./?module=newaccounts&action=docs_unrec&del="+escape(file);
+			}
+
+			});
+		});
+
+		$("img.edit_img").click(function(e){
+			var file = $(e.currentTarget).parent().parent().find("td:first").text();
+			$("#dlg_edit__file_name").text(file);
+			$("#dlg_edit").dialog({width: 500, height: 300, buttons: {"Отмена": function(){$(this).dialog("close");}, OK: function(){
+
+				var docType = $("#dlg_edit__doc_type_form input:radio:checked").val();
+				var docNum = $("#dlg_edit__number").val();
+				var e = /[^0-9-\/]+/g
+				docNum = docNum.replace(e, "");
+				$("#dlg_edit__number").val(docNum);
+
+				var isOK = false
+				if(docNum.length == 11)
+				{
+					if(docNum.substr(0,3) == "201")
+					{
+						isOK = true
+					}
+				}
+
+				if(isOK)
+				{
+					location.href="./?module=newaccounts&action=docs_unrec&file="+escape(file)+"&type="+docType+"&number="+escape(docNum)+"&recognize=true";
+				}else{
+					alert("Проверте введеный номер!");
+				}
+
+				
+				}}});
+
+				});
+{/literal}
+</script>

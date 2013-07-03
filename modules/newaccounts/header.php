@@ -70,6 +70,7 @@ class m_newaccounts_head extends IModuleHead{
 					'pay_ym'			=> array('newaccounts_bills','edit'),
 					'docs'			=> array('newaccounts_bills','read'),
 					'docs_unrec'			=> array('newaccounts_bills','read'),
+					'doc_file'			=> array('newaccounts_bills','read'),
 
 				);
 	public $menu=array(

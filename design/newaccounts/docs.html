@@ -1,3 +1,7 @@
+  <script src="js/ui/jquery-ui.custom.js"></script>
+  <script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
+  <link rel="stylesheet" href="css/themes/base/jquery-ui.css">
+
       <H2>Отсканированные документы</H2>
       <H3>История</H3>
 
@@ -5,8 +9,8 @@
 	  <input type=hidden name=action value="docs">
 	  <input type=hidden name=module value="newaccounts">
 	  <table>
-	  <tr><td>C:</td><td><input type=text name=from value="{$from}"></td></tr>
-	  <tr><td>По:</td><td><input type=text name=to value="{$to}"></td></tr>
+	  <tr><td>C:</td><td><input type=text name=from value="{$from}" id="from"></td></tr>
+	  <tr><td>По:</td><td><input type=text name=to value="{$to}" id="to"></td></tr>
 	  <tr><td></td><td><input type=submit name=do value="Посмотреть"></td></tr>
 	  </table>
 	  </form>
@@ -23,7 +27,13 @@
 	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
     <TD>{$i.ts}</TD>
     <TD>{$i.type}</TD>
-    <TD><b>{$i.number}</b></TD>
+    <TD><b><a href="./?module=newaccounts&action=doc_file&id={$i.id}" target=_blank>{$i.number}</a></b></TD>
 	</TR>
 {/foreach}
 </TBODY></TABLE>
+<script>
+{literal}
+        $("#from" ).datepicker();
+        $("#to" ).datepicker();
+{/literal}
+</script>
