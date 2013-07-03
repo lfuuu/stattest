@@ -65,7 +65,7 @@
 {elseif $bill_client.firma == "mcn_telekom"}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
     Адрес: <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>
-    Телефон: <strong>950-56-78</strong><br>
+    Телефон: <strong>(495) 950-56-78</strong><br>
     ИНН/КПП продавца: <strong>7727752084&nbsp;/&nbsp;772401001</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
     <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>{/if}

@@ -25,9 +25,9 @@
 {if $isAdmin}<td><a href="./?module=clients&id={$l.client_id}&action=view_history&del_value={$f.id}">x</a></td>{/if}
 <td style="border-top: 1px solid #ddd;">{if $isAdmin}<input type="checkbox" name="ff[]" value="{$f.id}">{/if}{$f.name}:</td>
 <td style="border-top: 1px solid #ddd;" ><i>{$f.value_from}</i></td>
-{if $f.value_to}
+{if $f.value_to || $isAdmin}
 <td style="border-top: 1px solid #ddd;"> =&gt; </td>
-<td style="border-top: 1px solid #ddd;"><i>{$f.value_to}</i></td>
+<td style="border-top: 1px solid #ddd;"><i>{if $isAdmin && $f.value_to != $c[$f.field]}<a href="./?module=clients&id={$l.client_id}&action=view_history&apply_value={$f.id}">{$f.value_to}&nbsp;</a>{else}{$f.value_to}{/if}</i></td>
 {/if}
 </tr>
 {/foreach}
