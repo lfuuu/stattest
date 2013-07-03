@@ -1340,6 +1340,8 @@ class m_newaccounts extends IModule{
 			')
 		);
 
+        $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
+
 		$design->AddMain('newaccounts/bill_view.tpl');
 
 		$tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
@@ -1637,9 +1639,9 @@ class m_newaccounts extends IModule{
 			$i=0;
 
 			$res = mysql_query('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") /*and id=2363*/ order by client');
-			//foreach($R as $c){
 			while($c=mysql_fetch_assoc($res)){
-				$bill = new Bill(null,$c,time());
+
+				$bill = new Bill(null,$c,time(), 1, null, false);
 				$bill2 = null;
 				$services = get_all_services($c['client'],$c['id']);
 				foreach($services as $service){
@@ -1648,7 +1650,7 @@ class m_newaccounts extends IModule{
 					$R=$s->GetLinesMonth();
 					if(!$bill->AddLines($R)){	//1 - не все строки добавлены из-за расхождения валют
 						if(!$bill2)
-							$bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUR'?'USD':'RUR'));
+							$bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUR'?'USD':'RUR'), false);
 						$bill2->AddLines($R);
 					}
 				}
@@ -1744,6 +1746,18 @@ class m_newaccounts extends IModule{
 			$design->AddMain('newaccounts/bill_mass.tpl');
 		}
 	}
+
+
+    function newaccounts_bill_publish($fixclient)
+    {
+        global $db;
+
+        $r = $db->Query("update newbills set is_lk_show =1 where bill_no like '".date("Ym")."-%' and !is_lk_show");
+
+        trigger_error("<font style=\"color: green;\">Опубликованно счетов: ".mysql_affected_rows()."</font>");
+
+        return;
+    }
 
 	function newaccounts_bill_email($fixclient) {
 		global $design,$db,$_GET;
@@ -2894,7 +2908,7 @@ class m_newaccounts extends IModule{
 
                         if($l["amount"])
                         {
-                            $l["sum"] = $l["tsum"]/$l["amount"]/1.18;
+                            $l["sum"] = $l["tsum"]/1.18;
                             $l["outprice"] = $l["sum"]/$l["amount"];
                         }
 
@@ -2902,7 +2916,6 @@ class m_newaccounts extends IModule{
                     }
                 }
             }
-
 		}
 
 		if($is_four_order){
@@ -4388,7 +4401,9 @@ $sql .= "	order by client, bill_no";
             $design->assign('bills_total_USD',$s_USD);
             $design->assign('bills_total_RUR',$s_RUR);
         }
-		$m=array();$GLOBALS['module_users']->d_users_get($m,'manager');
+		$m=array();
+		$GLOBALS['module_users']->d_users_get($m,'manager');
+
 		$R=array("all" =>array("name" => "Все", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
 		if (isset($R[$manager])) $R[$manager]['selected']=' selected';
@@ -4731,6 +4746,8 @@ $sql .= "	order by client, bill_no";
 
 		//$P = $db->AllRecords($q = '
 		$res = mysql_query($q ='
+
+          select * from (
 			select
 				B.*,
 				C.company_full,
@@ -4738,7 +4755,8 @@ $sql .= "	order by client, bill_no";
 				C.kpp,
                 C.type,
 				max(P.payment_date) as payment_date,
-				sum(P.sum_rub) as sum_rub
+				sum(P.sum_rub) as sum_rub,
+				(SELECT min(nds) FROM `newbill_lines` nl, g_goods g where nl.item_id != "" and nl.bill_no = B.bill_no and item_id = g.id) min_nds
 			FROM
 				newbills B
 			LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
@@ -4750,9 +4768,8 @@ $sql .= "	order by client, bill_no";
 				B.bill_no
 			order by
 				B.bill_no
-
+            )a where min_nds is null or min_nds > 0
 		');
-
 
         $t = time();
 
@@ -5810,6 +5827,194 @@ $sql .= "	order by client, bill_no";
 		header('Content-Type: text/plain; charset="koi8-r"');
 		echo $ret;
 		exit();
+	}
+
+	function newaccounts_docs($fixclient)
+	{
+		global $db, $design;
+
+		$R = array();
+
+		$from = get_param_raw("from", date("Y-m-d"));
+		$to = get_param_raw("to", date("Y-m-d"));
+
+		if(get_param_raw("do", "") != "")
+		{
+
+			$from = @strtotime($from." 00:00:00");
+			$to = @strtotime($to." 23:59:59");
+
+			if(!$from || !$to || ($from > $to))
+			{
+				$from = date("Y-m-d");
+				$to = date("Y-m-d");
+				// nothing
+			}else{
+				$R = $db->Allrecords("select * from qr_code where date between '".date("Y-m-d H:i:s", $from)."' and '".date("Y-m-d H:i:s", $to)."'");
+				$from = date("Y-m-d", $from);
+				$to = date("Y-m-d", $to);
+			}
+			
+		}else{
+			$this->_qrDocs_check();
+		}
+
+		foreach($R as &$r)
+		{
+			$r["ts"] = $r["date"];
+
+			$qNo = qrcode::decodeNo($r["code"]);
+
+			$r["type"] = $qNo ? $qNo["type"]["name"] : "????";
+			$r["number"] = $qNo ? $qNo["number"] : "????";
+
+		}
+
+		$design->assign("data", $R);
+		$design->assign("from", $from);
+		$design->assign("to", $to);
+		$design->AddMain("newaccounts/docs.html");
+		
+	}
+
+	function _qrDocs_check()
+	{
+		global $db;
+
+		$dir = "/var/log/skanpdf/";
+
+		$d = dir($dir);
+
+		$c = 0;
+		while($e = $d->read())
+		{
+			if($e == ".." || $e == ".") continue;
+			if(stripos($e, ".pdf") === false) continue;
+
+			$qrcode = QRCode::decodeFile($dir.$e);
+
+			if($qrcode)
+			{
+				$id = $db->QueryInsert("qr_code", array(
+							"file" => $e,
+							"code" => $qrcode
+							));
+
+				exec("mv ".$dir.$e." ../store/documents/".$id.".pdf");
+			}else{
+				exec("mv ".$dir.$e." ../store/documents/unrecognized/".$e);
+			}
+
+		}
+		$d->close();
+	}
+
+	function newaccounts_docs_unrec($fixclient)
+	{
+		global $design;
+
+		$dirPath = STORE_PATH."documents/unrecognized/";
+
+		if(($delFile = get_param_raw("del", "")) !== "")
+		{
+			if(file_exists($dirPath.$delFile))
+			{
+				exec("rm ".$dirPath.$delFile);
+			}
+		}
+
+		if(get_param_raw("recognize", "") == "true")
+		{
+			$this->docs_unrec__recognize();
+		}
+
+		$d = dir($dirPath);
+
+		$c = 0;
+		$R = array();
+		while($e = $d->read())
+		{
+			if($e == ".." || $e == ".") continue;
+			if(stripos($e, ".pdf") === false) continue;
+
+			$R[] = $e;
+		}
+		$d->close();
+
+		$docType = array();
+		foreach(QRCode::$codes as $code => $c)
+		{
+			$docType[$code] = $c["name"];
+		}
+
+		$design->assign("docs", $R);
+		$design->assign("doc_type", $docType);
+		$design->AddMain("newaccounts/docs_unrec.html");
+	}
+
+	function docs_unrec__recognize()
+	{
+		$dirDoc = STORE_PATH."documents/";
+		$dirUnrec = $dirDoc."unrecognized/";
+
+		$file = get_param_raw("file", "");
+		if(!file_exists($dirUnrec.$file)) {trigger_error("Файл не найден!"); return;}
+
+		$type = get_param_raw("type", "");
+		if(!isset(QRCode::$codes[$type])) {trigger_error("Ошибка в типе!"); return;}
+
+		$number = get_param_raw("number", "");
+		if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error("Ошибка в номере!"); return;}
+
+		global $db;
+
+		$id = $db->QueryInsert("qr_code", array(
+					"file" => $file,
+					"code" => QRCode::encode($type, $number)
+					));
+
+
+
+		exec("mv ".$dirUnrec.$file." ".$dirDoc.$id.".pdf");
+	}
+
+	function newaccounts_doc_file($fixclient)
+	{
+		$dirPath = STORE_PATH."documents/";
+
+		if(get_param_raw("unrecognized", "") == "true")
+		{
+			$file = get_param_raw("file", "");
+			$fPath = $dirPath."unrecognized/".$file;
+
+			$this->docs_echoFile($fPath, $file);
+		}elseif(($id = get_param_integer("id", 0)) !== 0)
+		{
+			global $db;
+
+			$r = $db->GetValue("select file from qr_code where id = '".$id."'");
+
+			if($r)
+			{
+				$this->docs_echoFile($dirPath.$id.".pdf", $r);
+			}
+		}
+	}
+
+	function docs_echoFile($fPath, $fileName)
+	{
+		if(file_exists($fPath))
+		{
+			header("Content-Type:application/pdf");
+			header('Content-Transfer-Encoding: binary');
+			header('Content-Disposition: attachment; filename="'.iconv("KOI8-R","CP1251",$fileName).'"');
+			header("Content-Length: " . filesize($fPath));
+			echo file_get_contents($fPath);
+			exit();
+		}else{
+			trigger_error("Файл не найден!");
+		}
+		//
 	}
 }
 ?>

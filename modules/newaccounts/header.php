@@ -37,6 +37,7 @@ class m_newaccounts_head extends IModuleHead{
 					'bill_balance_mass'	=> array('newaccounts_mass','access'),
 
 					'bill_mass'			=> array('newaccounts_mass','access'),
+					'bill_publish'		=> array('newaccounts_mass','access'),
 
 					'pi_list'			=> array('newaccounts_payments','read'),
 					'pi_upload'			=> array('newaccounts_payments','edit'),
@@ -67,6 +68,9 @@ class m_newaccounts_head extends IModuleHead{
 					'rpc_findProduct' 	=> array('clients', 'all4net'),
 
 					'pay_ym'			=> array('newaccounts_bills','edit'),
+					'docs'			=> array('newaccounts_bills','read'),
+					'docs_unrec'			=> array('newaccounts_bills','read'),
+					'doc_file'			=> array('newaccounts_bills','read'),
 
 				);
 	public $menu=array(
@@ -85,6 +89,9 @@ class m_newaccounts_head extends IModuleHead{
 					array('Отчёт по платежам',	'pay_report'),
 					array('Отчёт по долгам',	'debt_report'),
 					array('Почтовый реестр',	'postreg_report'),
+					array('',					'pi_list'),
+					array('Документы: история',	'docs'),
+					array('Документы: Нераспознанное',	'docs_unrec'),
 				);
 }
 ?>

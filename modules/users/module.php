@@ -357,7 +357,13 @@ class m_users {
             $group = array($group);
         }
 
-		$d_users=array();
+        if(!is_array($d_users))
+            $d_users = array();
+
+        if(in_array("manager", $group))
+            $group[] = "account_managers";
+
+		//$d_users=array();
 		$db->Query('select u.*, d.name as depart_name from user_users u left join user_departs d on (d.id = u.depart_id)'.($group?' where usergroup in ("'.implode("\",\"",$group).'")':'').' and enabled = "yes" order by u.name');
 		while ($r=$db->NextRecord()) $d_users[$r['user']]=$r;
 

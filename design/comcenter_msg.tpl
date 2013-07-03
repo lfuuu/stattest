@@ -3,7 +3,7 @@
 <input type=hidden name=frame value="new_msg">
 <input type=hidden name=nav value="mail.none.none">
 <input type=hidden name=message value="none">
-<input type=hidden name=trunk value="5">
+<input type=hidden name=trunk value="{if $user == "istomina"}191{else}5{/if}">
 <input type=hidden name=to value="{$to|escape}">
 <input type=hidden name=subject value="{$subject|escape}">
 <input type=hidden name=new_msg value="{$new_msg|escape}">

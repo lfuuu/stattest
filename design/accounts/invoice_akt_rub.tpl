@@ -15,7 +15,7 @@
 <br>
 Адрес: <strong>{if $client.firma eq "mcn"}113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130{else}123458, г. Москва, Таллинская ул., д.2/282{/if}</strong>
 <br>
-Телефон: <strong>950-5678</strong>
+Телефон: <strong>(495) 950-5678</strong>
 <br>
 <br>
 Заказчик: <strong>{$client.company_full}</strong>

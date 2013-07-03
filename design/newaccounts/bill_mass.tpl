@@ -13,7 +13,9 @@
 
 <a href='?module=newaccounts&action=bill_mass&obj=create' target=_blank onclick='javascript:return confirm("Точно?")'>Выставить счета всем клиентам за текущий месяц</a><br>
 <br>
-<a href='?module=newaccounts&action=bill_mass&obj=print'>Печать всех счетов за текущий месяц</a><br>
+<a href='./?module=newaccounts&action=bill_mass&obj=print'>Печать всех счетов за текущий месяц</a><br>
 <br>
-<a href='?module=newaccounts&action=bill_balance_mass' target=_blank onclick='javascript:return confirm("Точно?")'>Обновить баланс всем клиентам</a><br>
+<a href='./?module=newaccounts&action=bill_balance_mass' target=_blank onclick='javascript:return confirm("Точно?")'>Обновить баланс всем клиентам</a><br>
+<br>
+<a href='./?module=newaccounts&action=bill_publish'>Опубликовать счета выставленные в этом месяце</a><br>
 

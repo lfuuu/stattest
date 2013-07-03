@@ -66,8 +66,8 @@ cellPadding=0 width="100%" border=0>
       height=16 
       alt="MCN: Internet Service Provider. ISP. ADSL. Hosting. Colocation. IP-телефония" 
       src="{$IMAGES_PATH}logo_msn_s.gif" width=58 border=0></A> <BR><FONT 
-class=z10 color=#666666>&#0169;2005 MCN. тел. 950&#8211;5678 
-(отдел продаж), 950&#8211;5679 (техподдержка)<BR></FONT></TD>
+class=z10 color=#666666>&#0169;2013 MCN. тел. (495) 950&#8211;5678 
+(отдел продаж), (495) 950&#8211;5679 (техподдержка)<BR></FONT></TD>
     <TD vAlign=top width="25%">&nbsp;</TD>
     <TD class=z10 vAlign=top align=right width="25%"><A 
       onclick="scrollTo(0,0); return false;" 

@@ -64,17 +64,17 @@
 {if $bill_client.firma eq 'all4geo'}
     <br>
 {elseif $bill_client.firma eq 'all4net'}
-Телефон: <strong>638-77-77</strong><br>
+Телефон: <strong>(495) 638-77-77</strong><br>
 {elseif $bill_client.firma eq 'markomnet_new'}
-Телефон: <strong>638-638-4</strong><br>
+Телефон: <strong>(495) 638-638-4</strong><br>
 {elseif $bill_client.firma eq 'mcn_telekom'}
-Телефон: <strong>950-56-78</strong><br>
+Телефон: <strong>(495) 950-56-78</strong><br>
 {elseif $bill_client.firma eq 'markomnet_service'}
 Телефон: <strong>(495) 638-63-84</strong><br>
 {elseif $bill_client.firma eq 'mcm'}
 Телефон: <strong>(495) 950-58-41</strong><br>
 {else}
-Телефон: <strong>950-56-78</strong><br>
+Телефон: <strong>(495) 950-56-78</strong><br>
 {/if}
 <br>
 Заказчик: <strong style="font-size: 10pt;">{if $bill_client.head_company}{$bill_client.head_company}, {/if}{$bill_client.company_full}</strong>
