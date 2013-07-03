@@ -4401,7 +4401,10 @@ $sql .= "	order by client, bill_no";
             $design->assign('bills_total_USD',$s_USD);
             $design->assign('bills_total_RUR',$s_RUR);
         }
-		$m=array();$GLOBALS['module_users']->d_users_get($m,'manager');
+		$m=array();
+        $GLOBALS['module_users']->d_users_get($m,'account_managers');
+		$GLOBALS['module_users']->d_users_get($m,'manager');
+
 		$R=array("all" =>array("name" => "Все", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
 		if (isset($R[$manager])) $R[$manager]['selected']=' selected';
