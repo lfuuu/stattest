@@ -1081,7 +1081,6 @@ class m_clients {
 			$design->assign('users_telemarketing',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'account_managers');
 			$module_users->d_users_get($R,'manager');
 			if(isset($R[$r['manager']]))
 				$R[$r['manager']]['selected']=' selected';
