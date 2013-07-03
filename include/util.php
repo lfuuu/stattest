@@ -1750,6 +1750,21 @@ class qrcode
     "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "·À‘ 2"),
   );
 
+  function encode($docType, $billNo)
+  {
+	  self::_prepareBillNo($billNo);
+
+	  if(!isset(self::$codes[$docType])) return false;
+
+	  return self::$codes[$docType]["code"].$billNo;
+  }
+
+  function _prepareBillNo(&$billNo)
+  {
+    $billNo = str_replace("-", "1", $billNo);
+    $billNo = str_replace("/", "2", $billNo);
+  }
+
   function getNo($billNo)
   {
     $billNo = str_replace("-", "1", $billNo);
@@ -1805,6 +1820,23 @@ class qrcode
 
 	  return $no;
   }
+	function decodeFile($file)
+	{
+		exec("zbarimg -q ".$file, $o);
+
+		if(!$o) 
+			return false;
+
+		foreach($o as $l)
+		{
+			list($code, $number) = explode(":", $l);
+
+			if($code == "QR-Code")
+				return $number;
+		}
+
+		return false;
+	}
 }
 
 #################################################
