@@ -120,6 +120,9 @@
 Автор: {$bill_comment.user}<br>
 Текст: {$bill_comment.comment}
 {/if}
+{if $store}
+<br>Склад:  <b>{$store}</b>
+{/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <tr class=even style='font-weight:bold'><td>&#8470;</td><td width="1%">артикул</td><td>что</td><td>период</td><td>сколько{if $cur_state && $cur_state == 17}/отгружено{/if}</td><td>цена</td><td>сумма</td>{if $bill_bonus}<td>бонус</td>{/if}<td>тип</td></tr>
 {assign var="bonus_sum" value=0}

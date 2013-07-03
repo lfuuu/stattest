@@ -1,0 +1,29 @@
+      <H2>Отсканированные документы</H2>
+      <H3>История</H3>
+
+	  <form method=post>
+	  <input type=hidden name=action value="docs">
+	  <input type=hidden name=module value="newaccounts">
+	  <table>
+	  <tr><td>C:</td><td><input type=text name=from value="{$from}"></td></tr>
+	  <tr><td>По:</td><td><input type=text name=to value="{$to}"></td></tr>
+	  <tr><td></td><td><input type=submit name=do value="Посмотреть"></td></tr>
+	  </table>
+	  </form>
+
+      <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD class=header vAlign=bottom>Дата/время</TD>
+          <TD class=header vAlign=bottom>Тип документа</TD>
+          <TD class=header vAlign=bottom>Номер</TD>
+        </TR>
+
+{foreach from=$data item=i key=key name=outer}
+	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
+    <TD>{$i.ts}</TD>
+    <TD>{$i.type}</TD>
+    <TD><b>{$i.number}</b></TD>
+	</TR>
+{/foreach}
+</TBODY></TABLE>

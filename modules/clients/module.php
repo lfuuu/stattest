@@ -1081,6 +1081,7 @@ class m_clients {
 			$design->assign('users_telemarketing',$R);
 
 			$R=array();
+			$module_users->d_users_get($R,'account_managers');
 			$module_users->d_users_get($R,'manager');
 			if(isset($R[$r['manager']]))
 				$R[$r['manager']]['selected']=' selected';
@@ -2335,43 +2336,56 @@ DBG::sql_out($select_client_data);
 	{
 		global $db, $design, $user;
 
-        $design->assign("isAdmin", access("clients", "history_edit"));
+        
+        $design->assign("isAdmin", ($isAdmin = access("clients", "history_edit")));
         $design->assign("user_id", $user->Get("id"));
 
 		$clientId = get_param_raw("id", "-1");
 
-        if($verId = get_param_integer("del_section", "0"))
+        if($isAdmin)
         {
-            $db->Query("delete from log_client where id = '".$verId."'");
-            $db->Query("delete from log_client_fields where ver_id = '".$verId."'");
-            header("Location: ./?module=clients&id=".$clientId."&action=view_history");
-            exit();
-        }
+            if($verId = get_param_integer("del_section", "0"))
+            {
+                $db->Query("delete from log_client where id = '".$verId."'");
+                $db->Query("delete from log_client_fields where ver_id = '".$verId."'");
+                header("Location: ./?module=clients&id=".$clientId."&action=view_history");
+                exit();
+            }
 
-        if($fId = get_param_integer("del_value", "0"))
-        {
-            historyView::delValue($fId);
-            header("Location: ./?module=clients&id=".$clientId."&action=view_history");
-            exit();
-        }
+            if($fId = get_param_integer("del_value", "0"))
+            {
+                historyView::delValue($fId);
+                header("Location: ./?module=clients&id=".$clientId."&action=view_history");
+                exit();
+            }
 
-        if($verId = get_param_integer("del_apply", 0))
-        {
-            $db->Query("update log_client set apply_ts = '0000-00-00' where id = '".$verId."'");
-        }
+            if($verId = get_param_integer("del_apply", 0))
+            {
+                $db->Query("update log_client set apply_ts = '0000-00-00' where id = '".$verId."'");
+            }
 
-        if($verId = get_param_integer("add_apply", 0))
-        {
-            list($year,$month,$day) = explode("-", get_param_raw("date")."--");
-            $db->Query("update log_client set apply_ts = '".$year."-".$month."-".$day."' where id = '".$verId."'");
-        }
+            if($verId = get_param_integer("add_apply", 0))
+            {
+                list($year,$month,$day) = explode("-", get_param_raw("date")."--");
+                $db->Query("update log_client set apply_ts = '".$year."-".$month."-".$day."' where id = '".$verId."'");
+            }
 
-        if(
-                ($fs = get_param_integer("fs", 0))
-                && ($ff = get_param_raw("ff", array()))
-                )
-        {
-            $db->Query("update log_client_fields set ver_id = '".$fs."' where id in ('".implode("','", $ff)."')");
+            if(
+                    ($fs = get_param_integer("fs", 0))
+                    && ($ff = get_param_raw("ff", array()))
+              )
+            {
+                $db->Query("update log_client_fields set ver_id = '".$fs."' where id in ('".implode("','", $ff)."')");
+            }
+
+            if($applyValue = get_param_integer("apply_value", 0))
+            {
+                $v = $db->GetRow("select field,value_to from log_client_fields where id = '".$applyValue."'");
+
+                $db->QueryUpdate("clients", "id", array("id" => $clientId, $v["field"] => $v["value_to"]));
+            }
+
+            $design->assign("c",ClientCS::getOnDate($clientId, date("Y-m-d")));
         }
 
 

@@ -577,6 +577,7 @@ class Wordifier {
 	private static $sections = array(array(' ',' ',' '),array('тысяча','тысячи','тысяч'),array("миллион","миллиона","миллионов"),array("миллиард","миллиарда","миллиардов"));
 
 	private static function MakeSections($num,$sect){
+
 		if($num>=1000){
 			$s = Wordifier::MakeSections(floor($num/1000),$sect+1).' ';
 			$num=$num%1000;
@@ -604,12 +605,27 @@ class Wordifier {
 
 	public static function Make($num,$currency){
 		$num = round($num,2);
+
+        $isMinus = false;
+
+        if($num < 0) {
+            $num = abs($num); 
+            $isMinus = true;
+        }
+
+
 		if(floor($num)==0)
 			$v = array('ноль ',0);
 		else
 			$v = Wordifier::MakeSections(floor($num),0);
 		$s=$v[0];
-		$s=strtr(substr($s,0,1),"нодтчпшсв","НОДТЧПШСВ").substr($s,1);
+
+        if($isMinus)
+        {
+            $s = "минус ".$s;
+        }
+
+		$s=strtr(substr($s,0,1),"мнодтчпшсв","МНОДТЧПШСВ").substr($s,1);
 		$s.=rus_fin($v[1],Wordifier::$curBig[$currency][0],Wordifier::$curBig[$currency][1],Wordifier::$curBig[$currency][2]);
 		$c=round(($num-floor($num))*100);
 		$s.=' '.sprintf("%02d", $c).' '.rus_fin($c,Wordifier::$curSmall[$currency][0],Wordifier::$curSmall[$currency][1],Wordifier::$curSmall[$currency][2]);
@@ -1729,9 +1745,9 @@ class IPList{
 class qrcode
 {
   public static $codes = array(
-    "bill" => array("code" => "01", "c" => "bill"),
-    "akt-1" => array("code" => "11", "c" => "akt", "s" => 1),
-    "akt-2" => array("code" => "12", "c" => "akt", "s" => 2),
+    "bill" => array("code" => "01", "c" => "bill", "name" => "Счет"),
+    "akt-1" => array("code" => "11", "c" => "akt", "s" => 1, "name" => "Акт 1"),
+    "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "Акт 2"),
   );
 
   function getNo($billNo)
@@ -1751,6 +1767,43 @@ class qrcode
     }
 
     return $r;
+  }
+
+  function decodeNo($no)
+  {
+	  if(strlen($no) == 13)
+	  {
+		  $type = self::_getType(substr($no, 0, 2));
+		  $number = self::_getNumber(substr($no, 2));
+
+		  if($type)
+		  {
+			  return array("type" => $type, "number" => $number);
+		  }
+	  }
+	  return false;
+  }
+
+  function _getType($t)
+  {
+	  foreach(self::$codes as $c)
+	  {
+		  if($c["code"] == $t) return $c;
+	  }
+
+	  return false;
+  }
+
+  function _getNumber($no)
+  {
+	  switch($no[6])
+	  {
+		  case '1' : $no[6] = "-"; break;
+		  case '2' : $no[6] = "/"; break;
+		  default: return false;
+	  }
+
+	  return $no;
   }
 }
 

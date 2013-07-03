@@ -1340,6 +1340,8 @@ class m_newaccounts extends IModule{
 			')
 		);
 
+        $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
+
 		$design->AddMain('newaccounts/bill_view.tpl');
 
 		$tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
@@ -1637,9 +1639,9 @@ class m_newaccounts extends IModule{
 			$i=0;
 
 			$res = mysql_query('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") /*and id=2363*/ order by client');
-			//foreach($R as $c){
 			while($c=mysql_fetch_assoc($res)){
-				$bill = new Bill(null,$c,time());
+
+				$bill = new Bill(null,$c,time(), 1, null, false);
 				$bill2 = null;
 				$services = get_all_services($c['client'],$c['id']);
 				foreach($services as $service){
@@ -1648,7 +1650,7 @@ class m_newaccounts extends IModule{
 					$R=$s->GetLinesMonth();
 					if(!$bill->AddLines($R)){	//1 - не все строки добавлены из-за расхождения валют
 						if(!$bill2)
-							$bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUR'?'USD':'RUR'));
+							$bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUR'?'USD':'RUR'), false);
 						$bill2->AddLines($R);
 					}
 				}
@@ -1744,6 +1746,18 @@ class m_newaccounts extends IModule{
 			$design->AddMain('newaccounts/bill_mass.tpl');
 		}
 	}
+
+
+    function newaccounts_bill_publish($fixclient)
+    {
+        global $db;
+
+        $r = $db->Query("update newbills set is_lk_show =1 where bill_no like '".date("Ym")."-%' and !is_lk_show");
+
+        trigger_error("<font style=\"color: green;\">Опубликованно счетов: ".mysql_affected_rows()."</font>");
+
+        return;
+    }
 
 	function newaccounts_bill_email($fixclient) {
 		global $design,$db,$_GET;
@@ -2894,7 +2908,7 @@ class m_newaccounts extends IModule{
 
                         if($l["amount"])
                         {
-                            $l["sum"] = $l["tsum"]/$l["amount"]/1.18;
+                            $l["sum"] = $l["tsum"]/1.18;
                             $l["outprice"] = $l["sum"]/$l["amount"];
                         }
 
@@ -2902,7 +2916,6 @@ class m_newaccounts extends IModule{
                     }
                 }
             }
-
 		}
 
 		if($is_four_order){
@@ -4731,6 +4744,8 @@ $sql .= "	order by client, bill_no";
 
 		//$P = $db->AllRecords($q = '
 		$res = mysql_query($q ='
+
+          select * from (
 			select
 				B.*,
 				C.company_full,
@@ -4738,7 +4753,8 @@ $sql .= "	order by client, bill_no";
 				C.kpp,
                 C.type,
 				max(P.payment_date) as payment_date,
-				sum(P.sum_rub) as sum_rub
+				sum(P.sum_rub) as sum_rub,
+				(SELECT min(nds) FROM `newbill_lines` nl, g_goods g where nl.item_id != "" and nl.bill_no = B.bill_no and item_id = g.id) min_nds
 			FROM
 				newbills B
 			LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
@@ -4750,9 +4766,8 @@ $sql .= "	order by client, bill_no";
 				B.bill_no
 			order by
 				B.bill_no
-
+            )a where min_nds is null or min_nds > 0
 		');
-
 
         $t = time();
 
@@ -5810,6 +5825,52 @@ $sql .= "	order by client, bill_no";
 		header('Content-Type: text/plain; charset="koi8-r"');
 		echo $ret;
 		exit();
+	}
+
+	function newaccounts_docs($fixclient)
+	{
+		global $db, $design;
+
+		$R = array();
+
+		$from = get_param_raw("from", date("Y-m-d"));
+		$to = get_param_raw("to", date("Y-m-d"));
+
+		if(get_param_raw("do", "") != "")
+		{
+
+			$from = @strtotime($from." 00:00:00");
+			$to = @strtotime($to." 23:59:59");
+
+			if(!$from || !$to || ($from > $to))
+			{
+				$from = date("Y-m-d");
+				$to = date("Y-m-d");
+				// nothing
+			}else{
+				$R = $db->Allrecords("select * from qr_code where date between '".date("Y-m-d H:i:s", $from)."' and '".date("Y-m-d H:i:s", $to)."'");
+				$from = date("Y-m-d", $from);
+				$to = date("Y-m-d", $to);
+			}
+			
+		}
+
+		foreach($R as &$r)
+		{
+			$r["ts"] = $r["date"];
+
+			$qNo = qrcode::decodeNo($r["code"]);
+
+			$r["type"] = $qNo ? $qNo["type"]["name"] : "????";
+			$r["number"] = $qNo ? $qNo["number"] : "????";
+
+		}
+
+		$design->assign("data", $R);
+		$design->assign("from", $from);
+		$design->assign("to", $to);
+		$design->AddMain("newaccounts/docs.html");
+		
 	}
 }
 ?>

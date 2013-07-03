@@ -508,7 +508,7 @@ style='font-size:10.0pt;font-family:"Times New Roman","serif";mso-fareast-font-f
 
 <p class=MsoNormal style='margin-right:-2.0pt;text-align:justify;line-height:
 normal'><span style='font-size:10.0pt;font-family:"Times New Roman","serif";
-mso-fareast-font-family:"Times New Roman"'>Телефон: 950-56-78, Факс: 638-50-17<span
+mso-fareast-font-family:"Times New Roman"'>Телефон: (495) 950-56-78, Факс: (495) 638-50-17<span
 style='mso-spacerun:yes'>  </span><o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-right:-2.0pt;text-align:justify;line-height:
@@ -567,7 +567,7 @@ font-family:"Times New Roman","serif";mso-fareast-font-family:"Times New Roman"'
 
 <p class=MsoNormal style='margin-right:-2.0pt;text-align:justify;line-height:
 normal'><span style='font-size:10.0pt;font-family:"Times New Roman","serif";
-mso-fareast-font-family:"Times New Roman"'>Телефон: 950-56-78, Факс: 638-50-17<span
+mso-fareast-font-family:"Times New Roman"'>Телефон: (495) 950-56-78, Факс: (495) 638-50-17<span
 style='mso-spacerun:yes'>  </span><o:p></o:p></span></p>
 
 <p class=MsoNormal style='margin-right:-2.0pt;text-align:justify;line-height:
