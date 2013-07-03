@@ -32,7 +32,7 @@ class Bill{
            $this->client_data = ClientCS::getOnDate($this->client_id, $date);
     }
 
-	public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$debug=false) {
+	public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true) {
 		global $db;
 		if ($bill_no){
 			$this->bill_no=$bill_no;
@@ -85,7 +85,8 @@ class Bill{
 					"currency"=>$currency,
 					"bill_no"=>$this->bill_no,
 					"bill_date"=>date('Y-m-'.($is_auto?'01':'d'),$bill_date),
-					"nal" => $this->client_data["nal"]
+					"nal" => $this->client_data["nal"],
+                    "is_lk_show" => $isLkShow ? 1 : 0
 				)
 			);
 		}
