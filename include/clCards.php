@@ -1,7 +1,7 @@
 <?php
 namespace clCards;
 	class __state{
-		private static $data = array('DBG'=>false);
+		private static $data = array();
 		public static function set($k,$v){
 			self::$data[$k] = $v;
 		}
@@ -27,9 +27,9 @@ namespace clCards;
 
 		$up_query = "
 			update
-				clients".(__state::get('DBG')?'_test':'')." cl
+				clients cl
 			left join
-				clients".(__state::get('DBG')?'_test':'')." clf
+				clients clf
 			on
 				clf.client = '".addcslashes($from_tid, "\\'")."'
 			set
@@ -488,7 +488,7 @@ namespace clCards;
 	function getCard($db,$client_tid){
 		if(!$client_tid)
 			return false;
-		$cl = $db->GetRow("select * from clients".(__state::get('DBG')?'_test':'')." where client='".$client_tid."'");
+		$cl = $db->GetRow("select * from clients where client='".$client_tid."'");
 		if(!$cl)
 			return false;
 		$d = new struct_cardDetails();
@@ -519,7 +519,7 @@ namespace clCards;
 	 * @return struct_cardDetails структура клиентских реквизитов
 	 */
 	function getCli1c($db,$cli_1c){
-		$cl = $db->GetRow("select * from clients".(__state::get('DBG')?'_test':'')." where cli_1c='".addcslashes($cli_1c,"\\'")."' order by client limit 1");
+		$cl = $db->GetRow("select * from clients where cli_1c='".addcslashes($cli_1c,"\\'")."' order by client limit 1");
 		if(!$cl)
 			return false;
 		$d = new struct_cardDetails();
@@ -550,7 +550,7 @@ namespace clCards;
 	 * @return struct_cardDetails структура клиентских реквизитов
 	 */
 	function getCard1c($db,$con_1c){
-		$cl = $db->GetRow("select * from clients".(__state::get('DBG')?'_test':'')." where con_1c='".addcslashes($con_1c,"\\'")."'");
+		$cl = $db->GetRow("select * from clients where con_1c='".addcslashes($con_1c,"\\'")."'");
 		if(!$cl)
 			return false;
 		$d = new struct_cardDetails();
@@ -590,7 +590,7 @@ namespace clCards;
 
 		if(!$curcard){ // create new
 			$r = $cli->getDetailsArr("\\'");
-			$query = "insert into clients".(__state::get('DBG')?'_test':'')." set ";
+			$query = "insert into clients set ";
 			foreach($r as $f=>$v)
                 if(!in_array($f, array("card_id", "con_1c", "cli_1c")))
                     $query .= $f."='".$v."',";
@@ -611,7 +611,7 @@ namespace clCards;
 
 			if(!count($diff))
 				return true;
-			$query = "update clients".(__state::get('DBG')?'_test':'')." set ";
+			$query = "update clients set ";
 			foreach($diff as $f=>$v)
 				$query .= $f."='".$v."',";
 			$query = substr($query, 0, -1);
@@ -633,7 +633,7 @@ namespace clCards;
 	 * @return mixed false если не удалось найти, либо string со значением счета
 	 */
 	function findPayAcc($db, $client,$update=false){
-		$c = $db->GetRow("select bank_properties,corr_acc from clients".(__state::get('DBG')?'_test':'')." where client='".addcslashes($client, "\\'")."'");
+		$c = $db->GetRow("select bank_properties,corr_acc from clients where client='".addcslashes($client, "\\'")."'");
 		preg_match_all('/\d{20}/', $c['bank_properties'], $m);
 		$pay_acc = false;
 		if(count($m[0])>2)
@@ -646,7 +646,7 @@ namespace clCards;
 		if(!$update)
 			return $pay_acc;
 		elseif($pay_acc){
-			$db->Query("update clients".(__state::get('DBG')?'_test':'')." set pay_acc='".$pay_acc."' where client='".addcslashes($client, "\\'")."'");
+			$db->Query("update clients set pay_acc='".$pay_acc."' where client='".addcslashes($client, "\\'")."'");
 			return $pay_acc;
 		}else
 			return false;
@@ -654,12 +654,12 @@ namespace clCards;
 
 	function setSync1c($db, $client_tid, $val){
 		$val = ($val)?'yes':'no';
-		$db->Query("update clients".(__state::get('DBG')?'_test':'')." set sync_1c='".$val."' where client='".addcslashes($client_tid, "\\'")."'");
+		$db->Query("update clients set sync_1c='".$val."' where client='".addcslashes($client_tid, "\\'")."'");
 		SyncAdditionCards($db, $client_tid, false);
 	}
 
 	function getClientByBillNo($db, $bill_no){
-		$cl = $db->GetRow("select cl.* from clients".(__state::get('DBG')?'_test':'')." cl inner join newbills nb on nb.bill_no='".addcslashes($bill_no, "\\'")."' and cl.id=nb.client_id");
+		$cl = $db->GetRow("select cl.* from clients cl inner join newbills nb on nb.bill_no='".addcslashes($bill_no, "\\'")."' and cl.id=nb.client_id");
 		if(!$cl)
 			return false;
 		$d = new struct_cardDetails();

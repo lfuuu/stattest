@@ -13,67 +13,108 @@ if(isset($_GET["savesql"]))
 	$SERVERS=array();
 
 	$SERVERS['teststat.mcn.ru']=array(
-			'SERVER'			=>	'teststat',
-			'SQL_HOST'			=>	'localhost',
-			'SQL_USER'			=>	'root',
-			'SQL_PASS'			=>	'',
-			'SQL_DB'			=>	'nispd_test',
-			'SQL_ATS_DB'		=>	'ats_test',
-			'PGSQL_HOST'		=>	'eridanus.mcn.ru',
-			'PGSQL_USER'		=>	'eivanov',
-			'PGSQL_PASS'		=>	'terem0k@@',
-			'PGSQL_DB'			=>	'nispd',
-			'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
-			'R_CALLS_USER'		=>	'stat',
-			'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
-			'R_CALLS_DB'		=>	'nispd[region]',
-			'EXT_SQL_HOST'		=>  '',
-			'EXT_SQL_USER'		=>  '',
-			'EXT_SQL_PASS'		=>  '',
-			'EXT_SQL_DB'		=>  '',
-			'EXT_GROUP_ID'		=>  6,
-			'PLATFORM'			=>	'unix',
-			'DEBUG_LEVEL'		=>	1,
-			'WEB_PATH'			=>	'/',
-			'DB_SETUP_COLLATES'	=>	1,
-			'SMTP_SERVER'		=> 	'smtp.mcn.ru',
-			'MAIL_TEST_ONLY'	=>	0,
-			'WEB_ADDRESS'		=> 'http://teststat.mcn.ru',
-		);
+		'SERVER'			=>	'teststat',
+		'SQL_HOST'			=>	'localhost',
+		'SQL_USER'			=>	'root',
+		'SQL_PASS'			=>	'',
+		'SQL_DB'			=>	'nispd_test',
+		'SQL_ATS_DB'		=>	'ats_test',
+		'PGSQL_HOST'		=>	'eridanus.mcn.ru',
+		'PGSQL_USER'		=>	'eivanov',
+		'PGSQL_PASS'		=>	'terem0k@@',
+		'PGSQL_DB'			=>	'nispd',
+		'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
+		'R_CALLS_USER'		=>	'stat',
+		'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
+		'R_CALLS_DB'		=>	'nispd[region]',
+		'EXT_SQL_HOST'		=>  '',
+		'EXT_SQL_USER'		=>  '',
+		'EXT_SQL_PASS'		=>  '',
+		'EXT_SQL_DB'		=>  '',
+		'EXT_GROUP_ID'		=>  6,
+		'PLATFORM'			=>	'unix',
+		'DEBUG_LEVEL'		=>	1,
+		'WEB_PATH'			=>	'/',
+		'DB_SETUP_COLLATES'	=>	1,
+		'SMTP_SERVER'		=> 	'smtp.mcn.ru',
+		'MAIL_TEST_ONLY'	=>	0,
+		'WEB_ADDRESS'		=> 'http://teststat.mcn.ru',
+	);
+
+	$SERVERS['89.235.136.22']=array(
+		'SERVER'			=>	'127.0.0.1',
+		'SQL_HOST'			=>	'127.0.0.1',
+		'SQL_USER'			=>	'root',
+		'SQL_PASS'			=>	'',
+		'SQL_DB'			=>	'nispd',
+		'SQL_ATS_DB'		=>	'ats',
+		'PGSQL_HOST'		=>	'eridanus.mcn.ru',
+		'PGSQL_USER'		=>	'eivanov',
+		'PGSQL_PASS'		=>	'terem0k@@',
+		'PGSQL_DB'			=>	'nispd',
+		'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
+		'R_CALLS_USER'		=>	'stat',
+		'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
+		'R_CALLS_DB'		=>	'nispd[region]_dev',
+		'EXT_SQL_HOST'		=>  '',
+		'EXT_SQL_USER'		=>  '',
+		'EXT_SQL_PASS'		=>  '',
+		'EXT_SQL_DB'		=>  '',
+		'EXT_GROUP_ID'		=>  6,
+		'PLATFORM'			=>	'unix',
+		'DEBUG_LEVEL'		=>	1,
+		'WEB_PATH'			=>	'/',
+		'DB_SETUP_COLLATES'	=>	1,
+		'SMTP_SERVER'		=> 	'smtp.mcn.ru',
+		'MAIL_TEST_ONLY'	=>	1,
+		'WEB_ADDRESS'		=> 'http://89.235.136.22',
+
+		'DEBUG_TABLE'		=> 'DEBUG',
+
+		'SYNC1C_UT_SOAP_URL'  => 'http://stattest.ws.dionis.mcn.ru/ws/ws/stat',
+		'SYNC1C_UT_LOGIN'     => 'web_service',
+		'SYNC1C_UT_PASSWORD'  => 'sdfg94w758ht23g4r78394g',
+		'SYNC1C_STAT_TOKEN'   => '',
+	);
 
 	$SERVERS['stat.mcn.ru']=array(
-			'SERVER'			=>	'tiberis',
-			'SQL_HOST'			=>	'localhost',
-			'SQL_USER'			=>	'stat_operator',
-			'SQL_PASS'			=>	'3616758a',
-			'SQL_DB'			=>	'nispd',
-			'SQL_ATS_DB'		=>	'ats',
-			'PGSQL_HOST'		=>	'eridanus.mcn.ru',
-			'PGSQL_USER'		=>	'eivanov',
-			'PGSQL_PASS'		=>	'terem0k@@',
-			'PGSQL_DB'			=>	'nispd',
-			'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
-			'R_CALLS_USER'		=>	'stat',
-			'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
-			'R_CALLS_DB'		=>	'nispd[region]',
-			'EXT_SQL_HOST'		=>  'thiamis.mcn.ru',
-			'EXT_SQL_USER'		=>  'stat',
-			'EXT_SQL_PASS'		=>  'passwtmcnru',
-			'EXT_SQL_DB'		=>  'welltone_new3',
-			'EXT_GROUP_ID'		=>  6,
-			'PLATFORM'			=>	'unix',
-			'DEBUG_LEVEL'		=>	1,
-			'WEB_PATH'			=>	'/operator/',
-			'DB_SETUP_COLLATES'	=>	1,
-			'SMTP_SERVER'		=> 	'smtp.mcn.ru',
-			'MAIL_TEST_ONLY'	=>	0,
-			'WEB_ADDRESS'		=> 'https://stat.mcn.ru',
+		'SERVER'			=>	'tiberis',
+		'SQL_HOST'			=>	'localhost',
+		'SQL_USER'			=>	'stat_operator',
+		'SQL_PASS'			=>	'3616758a',
+		'SQL_DB'			=>	'nispd',
+		'SQL_ATS_DB'		=>	'ats',
+		'PGSQL_HOST'		=>	'eridanus.mcn.ru',
+		'PGSQL_USER'		=>	'eivanov',
+		'PGSQL_PASS'		=>	'terem0k@@',
+		'PGSQL_DB'			=>	'nispd',
+		'R_CALLS_HOST'		=>	'reg[region].mcntelecom.ru',
+		'R_CALLS_USER'		=>	'stat',
+		'R_CALLS_PASS'		=>	'BLS21hnoRDtA3Id4ueWSg5IPMC5B19fl',
+		'R_CALLS_DB'		=>	'nispd[region]',
+		'EXT_SQL_HOST'		=>  'thiamis.mcn.ru',
+		'EXT_SQL_USER'		=>  'stat',
+		'EXT_SQL_PASS'		=>  'passwtmcnru',
+		'EXT_SQL_DB'		=>  'welltone_new3',
+		'EXT_GROUP_ID'		=>  6,
+		'PLATFORM'			=>	'unix',
+		'DEBUG_LEVEL'		=>	1,
+		'WEB_PATH'			=>	'/operator/',
+		'DB_SETUP_COLLATES'	=>	1,
+		'SMTP_SERVER'		=> 	'smtp.mcn.ru',
+		'MAIL_TEST_ONLY'	=>	0,
+		'WEB_ADDRESS'		=> 'https://stat.mcn.ru',
 
-      'MONGO_HOST' => 'lk.mcn.ru',
-      'MONGO_USER' => 'lkmcn',
-      'MONGO_PASS' => 'Ummhsn3iqCWA',
-      'MONGO_DB' => 'lkmcn',
-		);
+		'MONGO_HOST' => 'lk.mcn.ru',
+		'MONGO_USER' => 'lkmcn',
+		'MONGO_PASS' => 'Ummhsn3iqCWA',
+		'MONGO_DB' => 'lkmcn',
+
+		'SYNC1C_UT_SOAP_URL'  => 'http://stat.ws.dionis.mcn.ru/ws/ws/stat',
+		'SYNC1C_UT_LOGIN'     => 'web_service',
+		'SYNC1C_UT_PASSWORD'  => 'sdfg94w758ht23g4r78394g',
+		'SYNC1C_STAT_TOKEN'   => '43fb37aba737439f2ae2fa5da242d310ed3939d087c7926765e9e13e593b5772a706248935d573312fa3061cf6a71b4477c2e851c28284e8df346bc19de19ddf',
+	);
 
 $sPath = strtolower($_SERVER["SCRIPT_FILENAME"]);
 if(strpos($sPath, "tst") !== false || (isset($_SERVER["PWD"]) &&  strpos($_SERVER["PWD"], "test") !== false) )
@@ -149,7 +190,9 @@ if(strpos($sPath, "tst") !== false || (isset($_SERVER["PWD"]) &&  strpos($_SERVE
 	define('SUM_PHONE_ADVANCE',79.67);
 		
 	if (DEBUG_LEVEL!=0) ini_set ("display_errors", "On");
-	
+
+    require_once(CLASSES_PATH . 'Autoload.php');
+
 	if (!defined('NO_INCLUDE')){
 		if (defined('NO_WEB') || defined('ERROR_NO_WEB')){
 			require_once(INCLUDE_PATH.'error_noweb.php');
@@ -179,4 +222,13 @@ if(strpos($sPath, "tst") !== false || (isset($_SERVER["PWD"]) &&  strpos($_SERVE
 		}
 		require_once(INCLUDE_PATH.'writeoff.php');
 	}
+
+    ActiveRecord\Config::initialize(function($cfg) {
+        $connections = array(
+            'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . '/' . SQL_DB . ';charset=koi8r',
+        );
+
+        $cfg->set_model_directory(MODELS_PATH);
+        $cfg->set_connections($connections, 'db');
+    });
 ?>
