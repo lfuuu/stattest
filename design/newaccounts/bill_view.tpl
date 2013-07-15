@@ -223,8 +223,8 @@
 <input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3)</label><br>
 <input type=checkbox value=1 name="lading" id=cbb><label for=cbb{if !$bill_invoices[4]} style='color:#C0C0C0'{/if}>Накладная</label><br>
 <input type="checkbox" value="1" name="gds" id="cbc" /><label for=cbc{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек</label><br>
-<input type="checkbox" value="1" name="gds-2" id="cbd" /><label for=cbd style='color:#808080'>Товарный чек (все позиции)</label><br>
-<input type='text' value='от {$smarty.now|date_format:"%d.%m.%Y"} г.' name='without_date_date' size='12'> <input type='checkbox' name='without_date' value='1' id='wd' /><label for=wd>Своя дата?</label><br>
+<input type="checkbox" value="1" name="gds-2" id="cbd" /><label for=cbd style='color:#808080'>Товарный чек (все позиции)</label><hr>
+<input type='text' value='{if $bill.doc_ts}{$bill.doc_ts|date_format:"%d.%m.%Y"}{else}{$smarty.now|date_format:"%d.%m.%Y"}{/if}' name='without_date_date' size='10'{if $bill.doc_ts} style="color: #c40000; font-weight: bold;"{/if}> <br><input type='checkbox' name='without_date' value='1' id='wd' /><label for=wd>Установить дату документа</label><br>
 <hr />
 {if $bill_client.client_orig == "nbn"}
 <input type=checkbox value=1 name="nbn_deliv" id=wm9><label for='wm9'>NetByNet: акт доставка</label><br>

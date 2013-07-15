@@ -270,7 +270,12 @@ bgColor="#FFFFFF">
 <tr>
 <td colspan=3 rowspan=2 align=right style="font-size: 12pt; font-weight: bold">ôï÷áòîáñ îáëìáäîáñ </td> <td rowspan=2 align="center"
 style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
-<td rowspan=2 align="center" colspan="2" style="font-size: 10pt; font-weight: bold">{if !isset($without_date) || !$without_date}{$bill.bill_date|mdate:"d.m.Y Ç."}{else}{$without_date_date}{/if}</td>
+<td rowspan=2 align="center" colspan="2" style="font-size: 10pt; font-weight: bold">
+    {if !$without_date_date}
+        {$bill.bill_date|mdate:"d.m.Y Ç."}
+    {else}
+        {$without_date_date|mdate:"d.m.Y Ç."}
+    {/if}</td>
 <td valign=top align=right>÷ÉÄ ÏĞÅÒÁÃÉÉ</td>
 <td valign=top align=right>&nbsp;</td>
 <!--/tr>

@@ -188,7 +188,7 @@ www.mcntelecom.ru
 
 
 
-<p align=right>Дата: <b>{if !isset($without_date) || !$without_date}{$bill.ts|mdate:"d.m.Y г."}{else}{$without_date_date}{/if}</b></p>
+<p align=right>Дата: <b> {$bill.ts|mdate:"d.m.Y г."} </b></p>
 
 <hr>
 <br>
