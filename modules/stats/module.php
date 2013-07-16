@@ -3560,28 +3560,16 @@ function stats_support_efficiency($fixclient){
         $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
 
 
+
         $r = $db->AllRecords(
-                "
-                    select *, 
-                        count(1) as c, 
-                        sum(rating) rating, 
-                        sum(rating_count) as rating_count 
-                    from (
-                        SELECT 
-                            uu.name,
-                            user_author, 
-                            trouble_subtype,
-                            (select sum(rating) from tt_stages  where trouble_id =tt.id) as rating,
-                            (select sum(if(rating=0,0,1)) from tt_stages where trouble_id =tt.id) as rating_count
-                        FROM `tt_troubles` tt ,user_users uu 
-                    where 
-                            usergroup ='support' 
-                        and uu.user =    tt.user_author 
-                        and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' 
-                        and trouble_type = 'trouble'
-                        order by uu.name
-                      ) a 
-                    group by user_author, trouble_subtype
+                "select *, count(1) as c, sum(rating) rating, sum(rating_count) as rating_count from (
+            SELECT uu.name,user_author, trouble_subtype
+            ,(select sum(rating) from tt_stages  where trouble_id =tt.id) as rating
+            ,(select sum(if(rating=0,0,1)) from tt_stages  where trouble_id =tt.id) as rating_count
+              FROM `tt_troubles` tt ,user_users uu where usergroup ='support' and uu.user =    tt.user_author and
+              date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' and trouble_type = 'trouble'
+              order by uu.name
+              ) a group by user_author, trouble_subtype
                 ");
 
         $count = 0;

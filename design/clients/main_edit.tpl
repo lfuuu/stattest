@@ -264,13 +264,6 @@ $(function(){
 			</TD></TR>
 	<TR><TD class=left>Печатать штамп:</TD><TD><select name=stamp class=text><option value=0{if $client.stamp==0} selected{/if}>нет</option><option value=1{if $client.stamp==1} selected{/if}>да</option></select></td></tr>
 	<TR><TD class=left>НДС 0%:</TD><TD><input type=checkbox name=nds_zero value=1{if $client.nds_zero} checked{/if}></td></tr>
-	<TR><TD class=left>Метор расчета НДС:</TD><TD>
-    <select name="nds_calc_method">
-        <option value=1{if $client.nds_calc_method == 1} selected{/if}>Основной</option>
-        <option value=2{if $client.nds_calc_method == 2} selected{/if}>Эксперементальный 1 (ндс=Сум_с_ндс - Сум_без_ндс)</option>
-    </select>
-        
-        </td></tr>
 	<TR><TD style='visibility:hidden' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Нал:</TD><TD><select name=nal class=text><option value='beznal'{if $client.nal=='beznal'} selected{/if}>безнал</option><option value='nal'{if $client.nal=='nal'} selected{/if}>нал</option><option value='prov'{if $client.nal=='prov'} selected{/if}>пров</option></select></td></tr>
 	<TR><TD class=left>Валюта:</TD><TD>

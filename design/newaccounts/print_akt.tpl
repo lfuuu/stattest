@@ -88,7 +88,7 @@
 
 <div align="center">
 <h2>
-Акт &#8470;{$bill.bill_no}{$inv_no}{if !$without_date_date} от {$inv_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}
+Акт &#8470;{$bill.bill_no}{$inv_no}{if !isset($without_date) || !$without_date} от {$inv_date|mdate:"d.m.Y г."}{else} {$without_date_date}{/if}
 </h2>
 
 <br>

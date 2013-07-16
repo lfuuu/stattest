@@ -7,7 +7,7 @@
 </HEAD>
 <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
 	<center><h2>Товарный чек &#8470;{$bill.bill_no}</h2></center>
-	<center><h4>{if !$without_date_date}{$bill.ts|mdate:"от d.m.Y г."}{else}{$without_date_date|mdate:"от d.m.Y г."}{/if}</h4></center>
+	<center><h4>{if !isset($without_date) || !$without_date}{$bill.ts|mdate:"от d.m.Y г."}{else}{$without_date_date}{/if}</h4></center>
 
 	<table border="1" align="center" width="100%">
 		<tr style="text-align: center">

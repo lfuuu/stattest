@@ -58,7 +58,7 @@ h3 {
 Счета: <select name=payfilter><option value='1'{if $payfilter=='1'} selected{/if}>полностью оплаченные</option>
 <option value='3'{if $payfilter=='3'} selected{/if}>полностью или частично оплаченные</option>
 <option value='0'{if $payfilter=='0'} selected{/if}>все</option></select>
-<input type=submit value='Показать' class=button name="do">
+<input type=submit value='Показать' class=button>
 </form>
 <h2>Книга продаж</h2>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>

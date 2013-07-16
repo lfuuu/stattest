@@ -19,7 +19,9 @@ class Bill{
 		global $db;
 		if (!$this->client_data)
         {
+
             $this->client_data = ClientCS::getOnDate($this->client_id, $this->bill["bill_date"]);
+
         }
 
 		return ($v?($this->client_data[$v]):($this->client_data));
@@ -92,8 +94,7 @@ class Bill{
 		$this->bill = $db->GetRow("
 			select
 				*,
-				UNIX_TIMESTAMP(bill_date) as ts,
-				UNIX_TIMESTAMP(doc_date) as doc_ts
+				UNIX_TIMESTAMP(bill_date) as ts
 			from
 				newbills
 			where
@@ -661,65 +662,6 @@ class Bill{
     	}
 
     	return $cach[$id] ? $cach[$id] : "";
-    }
-
-    public function SetDocDate($utDate)
-    {
-        global $db;
-
-        if($utDate)
-        {
-            $wDate = date("Y-m-d", $utDate);
-        }else{
-            $wDate = "0000-00-00";
-        }
-
-        $db->QueryUpdate("newbills", "bill_no", array(
-                    "bill_no" => $this->bill_no,
-                    "doc_date" => $wDate));
-
-        $this->addLog($utDate ? "Дата документ установлена: ".mdate("d месяца Y г.", $utDate) : "Дата документа убрана");
-
-        $this->bill["doc_date"] = $wDate;
-        $this->bill["doc_ts"] = $utDate;
-    }
-
-    public function addLog($comment)
-    {
-        global $db, $user;
-
-        $db->QueryInsert("log_newbills",array(
-                    'bill_no'=>$this->bill_no,
-                    'ts'=>array('NOW()'),
-                    'user_id'=>$user->Get('id'),
-                    'comment'=> $comment
-                    )
-                );
-    }
-
-    public function is1CBill()
-    {
-        return (bool)preg_match("/20\d{4}\/\d{4}/", $this->bill_no);
-    }
-
-    public function getShipmentDate()
-    {
-        global $db;
-
-        if(!$this->is1CBill()) return false;
-
-        if($this->bill["doc_ts"]) return $this->bill["doc_ts"];
-
-        return $db->GetValue("
-                     SELECT 
-                        unix_timestamp(min(cast(date_start as date)))
-                     FROM 
-                        tt_troubles t , `tt_stages` s  
-                     WHERE 
-                            t.bill_no = '".$this->bill_no."'
-                        and t.id = s.trouble_id 
-                        and state_id in (select id from tt_states where state_1c = 'Отгружен')
-                     ");
     }
 }
 ?>

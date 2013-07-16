@@ -8,7 +8,7 @@
 <BODY text="#404040" vLink="#000099" aLink="#000000" link="#000099" bgColor="#EFEFEF">
 
 <h2 align=center>АКТ ПРИЕМА ПЕРЕДАЧИ {*<br>N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}*}</h2>
-<h3 align=center>по&nbsp;договору &#8470; {$contract.contract_no}{if !$without_date_date} от {$contract.contract_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}</h3>
+<h3 align=center>по&nbsp;договору &#8470; {$contract.contract_no}{if !isset($without_date) || !$without_date} от {$contract.contract_date|mdate:"d.m.Y г."}{else} {$without_date_date}{/if}</h3>
 <table align=center width=90%><tr><td align=left>г. Москва </td><td align=right><b>{if isset($cpe[0])}{$cpe[0].actual_from|mdate:"d.m.Y г."}{else}{php} echo date("d.m.Y г.");{/php}{/if}</b></td></tr></table>
 <br>
 <br>
