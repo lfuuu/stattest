@@ -718,21 +718,20 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "бонентская плата за") !== false)
             {
-                global $db; 
-                $clientId = $this->service["client_id"];
-                if($clientId)
+                $contractStr = BillContract::getString($this->service["client_id"]);
+                if($contractStr)
                 {
-                    $contract =  $db->GetRow("select contract_no as no, unix_timestamp(contract_date) as date from client_contracts where client_id = ".$clientId." and is_active order by id desc limit 1");
-                    if($contract)
-                    {
-                        $l[1] = "Оказанные услуги за ".substr($l[1],strpos($l[1], "за ")+3);
-                        $l[1] .= ", согласно Договора ".$contract["no"]." от ".mdate("d месяца Y г.",$contract["date"]);
-                    }
+                    $l[1] = "Оказанные услуги за ".substr($l[1],strpos($l[1], "за ")+3).$contractStr;
                 }
 
             }
 
             if(strpos($l[1], "Плата за звонки по номеру") !== false)
+            {
+                $l[1] .= BillContract::getString($this->service["client_id"]);
+            }
+
+            if(strpos($l[1], "Услуга местного завершения вызо") !== false)
             {
                 $l[1] .= BillContract::getString($this->service["client_id"]);
             }

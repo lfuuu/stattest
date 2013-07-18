@@ -1,5 +1,4 @@
 <?php
-define('_1cIntTest',true);
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $rights=array(
@@ -1311,17 +1310,11 @@ class m_clients {
 				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
 			if($C->Apply()){
 				clCards\SyncAdditionCards($db, $cl_main_card);
-				if(_1cIntTest){
-					require_once INCLUDE_PATH.'1c_integration.php';
-					$clS = new _1c\clientSyncer($db);
-					$flag = $clS->syncClientCards($cl_main_card);
-					if($flag)
-						clCards\setSync1c($db, $cl_main_card, true);
-					else{
-						clCards\setSync1c($db, $cl_main_card, false);
-						trigger_error("Не удалось синхронизировать клиента с 1С");
-					}
-				}
+
+                if (!Sync1C::getClient()->saveClientCards($cl_main_card))
+                {
+                    trigger_error("Не удалось синхронизировать клиента с 1С");
+                }
 
 				if($pop){
 					$design->display('pop_header.tpl');
@@ -1335,7 +1328,7 @@ class m_clients {
 				trigger_error("Клиент с таким кодом уже есть.");
 			}
 		}
-		$design->assign('client',$Client->F);
+		$design->assign('client',$C->F);
 		if($pop){
 			$design->assign('form_action','apply_pop');
 			$design->display('pop_header.tpl');
@@ -1518,15 +1511,11 @@ class m_clients {
 		$db->Query($q);
 		$db->Query('commit');
 
-		require_once INCLUDE_PATH.'1c_integration.php';
-		$clS = new _1c\clientSyncer($db);
-		$flag = $clS->syncClientCard($nc);
-		if($flag)
-			clCards\setSync1c($db, $nc, true);
-		else{
-			clCards\setSync1c($db, $nc, false);
-			trigger_error("Не удалось синхронизировать клиента с 1С");
-		}
+        if (!Sync1C::getClient()->saveClientCard($id))
+        {
+            trigger_error("Не удалось синхронизировать клиента с 1С");
+        }
+
 		Header("Location: ?module=clients&id=".$id);
 		exit();
 	}
@@ -1811,12 +1800,12 @@ class m_clients {
 				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Имейте в виду');
 
             if ($C->Create()){
-                if(_1cIntTest){
-                    require_once INCLUDE_PATH.'1c_integration.php';
-                    $clS = new \_1c\clientSyncer($db);
-                    if(!$clS->pushClientCard($C->F['client']))
-                        trigger_error("Не удалось синхронизировать клиента с 1С!");
+
+                if (!Sync1C::getClient()->saveClientCard($C->F['id']))
+                {
+                    trigger_error("Не удалось синхронизировать клиента с 1С");
                 }
+
                 $this->client_view($C->id,1);
                 return ;
             }else{
@@ -2343,50 +2332,9 @@ DBG::sql_out($select_client_data);
 
         if($isAdmin)
         {
-            if($verId = get_param_integer("del_section", "0"))
-            {
-                $db->Query("delete from log_client where id = '".$verId."'");
-                $db->Query("delete from log_client_fields where ver_id = '".$verId."'");
-                header("Location: ./?module=clients&id=".$clientId."&action=view_history");
-                exit();
-            }
-
-            if($fId = get_param_integer("del_value", "0"))
-            {
-                historyView::delValue($fId);
-                header("Location: ./?module=clients&id=".$clientId."&action=view_history");
-                exit();
-            }
-
-            if($verId = get_param_integer("del_apply", 0))
-            {
-                $db->Query("update log_client set apply_ts = '0000-00-00' where id = '".$verId."'");
-            }
-
-            if($verId = get_param_integer("add_apply", 0))
-            {
-                list($year,$month,$day) = explode("-", get_param_raw("date")."--");
-                $db->Query("update log_client set apply_ts = '".$year."-".$month."-".$day."' where id = '".$verId."'");
-            }
-
-            if(
-                    ($fs = get_param_integer("fs", 0))
-                    && ($ff = get_param_raw("ff", array()))
-              )
-            {
-                $db->Query("update log_client_fields set ver_id = '".$fs."' where id in ('".implode("','", $ff)."')");
-            }
-
-            if($applyValue = get_param_integer("apply_value", 0))
-            {
-                $v = $db->GetRow("select field,value_to from log_client_fields where id = '".$applyValue."'");
-
-                $db->QueryUpdate("clients", "id", array("id" => $clientId, $v["field"] => $v["value_to"]));
-            }
-
-            $design->assign("c",ClientCS::getOnDate($clientId, date("Y-m-d")));
+            historyViewAction::check($clientId);
+            $design->assign("c", ClientCS::getOnDate($clientId, date("Y-m-d")));
         }
-
 
 
 		$log = $db->AllRecords(
@@ -2410,7 +2358,7 @@ DBG::sql_out($select_client_data);
 				{
 					// skip
 				}else{
-					$f["name"] = $this->f($f["field"]);
+					$f["name"] = $this->_view_history__getFieldName($f["field"]);
 					$log[$idx]["fields"][] = $f;
 				}
 			}
@@ -2428,7 +2376,7 @@ DBG::sql_out($select_client_data);
 
 
 
-	function f($l)
+	function _view_history__getFieldName($l)
 	{
 		$f = array(
 			"company" => "Компания",
@@ -2477,7 +2425,8 @@ DBG::sql_out($select_client_data);
 	        "mail_print" => "Печать писем",
 			"mail_who" => "Кому письмо",
 			"head_company" => "Головная компания",
-			"head_company_address_jur" => "Юр. адрес головной компании"
+			"head_company_address_jur" => "Юр. адрес головной компании",
+            "nds_calc_method" => "Метод расчета НДС"
 
 		);
 		return isset($f[$l]) ? $f[$l] : $l;
@@ -2586,18 +2535,3 @@ DBG::sql_out($select_client_data);
 	}
 }
 
-class historyView
-{
-    public function delValue($fId)
-    {
-        global $db;
-
-        //$cur = $db->GetRow(" select client_id,field,value_from, value_to, if(apply_ts='0000-00-00',ts, concat(apply_ts,' 0000-00-00')) tts from log_client l, log_client_fields f where f.ver_id =l.id and f.id= '".$fId."'");
-        //printdbg($cur);
-
-        //echo strtotime($t);
-
-        //exit();
-        $db->Query("delete from log_client_fields where id = '".$fId."'");
-    }
-}

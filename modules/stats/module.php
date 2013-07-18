@@ -3560,16 +3560,28 @@ function stats_support_efficiency($fixclient){
         $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
 
 
-
         $r = $db->AllRecords(
-                "select *, count(1) as c, sum(rating) rating, sum(rating_count) as rating_count from (
-            SELECT uu.name,user_author, trouble_subtype
-            ,(select sum(rating) from tt_stages  where trouble_id =tt.id) as rating
-            ,(select sum(if(rating=0,0,1)) from tt_stages  where trouble_id =tt.id) as rating_count
-              FROM `tt_troubles` tt ,user_users uu where usergroup ='support' and uu.user =    tt.user_author and
-              date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' and trouble_type = 'trouble'
-              order by uu.name
-              ) a group by user_author, trouble_subtype
+                "
+                    select *, 
+                        count(1) as c, 
+                        sum(rating) rating, 
+                        sum(rating_count) as rating_count 
+                    from (
+                        SELECT 
+                            uu.name,
+                            user_author, 
+                            trouble_subtype,
+                            (select sum(rating) from tt_stages  where trouble_id =tt.id) as rating,
+                            (select sum(if(rating=0,0,1)) from tt_stages where trouble_id =tt.id) as rating_count
+                        FROM `tt_troubles` tt ,user_users uu 
+                    where 
+                            usergroup ='support' 
+                        and uu.user =    tt.user_author 
+                        and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' 
+                        and trouble_type = 'trouble'
+                        order by uu.name
+                      ) a 
+                    group by user_author, trouble_subtype
                 ");
 
         $count = 0;
@@ -4253,56 +4265,99 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
   public function stats_report_phone_sales()
   {
     global $db, $design;
-    $curr_phones = $db->AllRecords('select region, count(*) as count from voip_numbers where usage_id is not null group by region', 'region');
+
+    $curr_phones = $db->AllRecords('
+        select 
+          u.region, 
+          count(*) as count_num, 
+          sum(no_of_lines) as count_lines 
+        from 
+          voip_numbers v, usage_voip u 
+        where 
+          usage_id = u.id 
+        group by 
+          u.region', 'region');
+
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $reports = array();
     for($mm = 0; $mm < 3; $mm++)
     {
-
       $date = date("Y-m-01");
 
-      $res = $db->AllRecords(" select u.region, u.E164 as phone, c.id as client_id, ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new, s.name as sale_channel
-                        from usage_voip u
-                        left join clients c on c.client=u.client
-                        left join sale_channels s on s.id=c.sale_channel
-                        where u.actual_from>=date_add('$date',interval -$mm month) and u.actual_from<date_add('$date',interval -$mm+1 month)
-                        group by u.region, u.E164, c.id, c.created, s.name  ");
-      $sale_phones = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
+      $res = $db->AllRecords("
+          select 
+            u.region, 
+            u.E164 as phone, 
+            u.no_of_lines,
+            c.id as client_id, 
+            ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new, 
+            s.name as sale_channel
+          from usage_voip u
+          left join clients c on c.client=u.client
+          left join sale_channels s on s.id=c.sale_channel
+          where 
+              u.actual_from>=date_add('$date',interval -$mm month) 
+            and u.actual_from<date_add('$date',interval -$mm+1 month)
+          group by 
+            u.region, u.E164, c.id, c.created, s.name  ");
+
+      $sale_nums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
+      $sale_nonums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_lines = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_channels = array();
+      $sale_channels = array('all' => array('nums' => 0, 'lines' => 0), "managers" => array());
       $clients = array();
       foreach($res as $r)
       {
-        if (strlen($r['phone']) > 4)
+        if (strlen($r['phone']) > 4) //номера
         {
-          if (!isset($sale_phones[$r['region']])) $sale_phones[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+          if (!isset($sale_nums[$r['region']])) 
+              $sale_nums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+
           if ($r['is_new'] > 0){
-            $sale_phones[$r['region']]['new'] += 1;
-            $sale_phones['all']['new'] += 1;
+            $sale_nums[$r['region']]['new'] += 1;
+            $sale_nums['all']['new'] += 1;
           }else{
-            $sale_phones[$r['region']]['old'] += 1;
-            $sale_phones['all']['old'] += 1;
+            $sale_nums[$r['region']]['old'] += 1;
+            $sale_nums['all']['old'] += 1;
           }
-          $sale_phones[$r['region']]['all'] += 1;
-          $sale_phones['all']['all'] += 1;
-        }else{
-          if (!isset($sale_lines[$r['region']])) $sale_lines[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+          $sale_nums[$r['region']]['all'] += 1;
+          $sale_nums['all']['all'] += 1;
+
+        }else{ //линия без номера
+
+          if (!isset($sale_nonums[$r['region']])) 
+              $sale_nonums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+
           if ($r['is_new'] > 0){
-            $sale_lines[$r['region']]['new'] += 1;
-            $sale_lines['all']['new'] += 1;
+            $sale_nonums[$r['region']]['new'] += 1;
+            $sale_nonums['all']['new'] += 1;
           }else{
-            $sale_lines[$r['region']]['old'] += 1;
-            $sale_lines['all']['old'] += 1;
+            $sale_nonums[$r['region']]['old'] += 1;
+            $sale_nonums['all']['old'] += 1;
           }
-          $sale_lines[$r['region']]['all'] += 1;
-          $sale_lines['all']['all'] += 1;
+          $sale_nonums[$r['region']]['all'] += 1;
+          $sale_nonums['all']['all'] += 1;
         }
+
+        //линии
+        if (!isset($sale_lines[$r['region']]))
+          $sale_lines[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+
+        $sale_lines[$r['region']][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+        $sale_lines['all'][$r['is_new'] ? 'new' : 'old'] += $r["no_of_lines"];
+
+        $sale_lines[$r['region']]['all'] += $r["no_of_lines"];
+        $sale_lines['all']['all'] += $r["no_of_lines"];
+
+
         if (!isset($clients[$r['client_id']]))
         {
           $clients[$r['client_id']] = $r['client_id'];
 
-          if (!isset($sale_clients[$r['region']])) $sale_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+          if (!isset($sale_clients[$r['region']])) 
+              $sale_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+
           if ($r['is_new'] > 0){
             $sale_clients[$r['region']]['new'] += 1;
             $sale_clients['all']['new'] += 1;
@@ -4314,34 +4369,64 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           $sale_clients['all']['all'] += 1;
         }
 
-        if ($r['is_new'] > 0){
-          if (!isset($sale_channels[$r['sale_channel']])) $sale_channels[$r['sale_channel']] = 0;
-          $sale_channels[$r['sale_channel']] += 1;
+        if ($r['is_new']){
+          if (!isset($sale_channels['managers'][$r['sale_channel']])) 
+            $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0);
+
+          $sale_channels['managers'][$r['sale_channel']]['nums'] += 1;
+          $sale_channels['all']['nums'] += 1;
+
+          $sale_channels['managers'][$r['sale_channel']]['lines'] += $r['no_of_lines'];
+          $sale_channels['all']['lines'] += $r['no_of_lines'];
         }
       }
 
-      $del_phones = array('all'=>0);
+      foreach($sale_channels["managers"] as $mamager => &$d)
+      {
+        $d["nums_perc"] = round( $d["nums"] / $sale_channels["all"]["nums"] * 100);
+        $d["lines_perc"] = round( $d["lines"] / $sale_channels["all"]["lines"] * 100);
+      }
+
+      $del_nums = array('all'=>0);
+      $del_nonums = array('all'=>0);
       $del_lines = array('all'=>0);
-      $res = $db->AllRecords(" select u.region, u.E164 as phone, c.id as client_id
-                        from usage_voip u
-                        left join clients c on c.client=u.client
-                        where u.actual_to>=date_add('$date',interval -$mm month) and u.actual_to<date_add('$date',interval -$mm+1 month)
-                        group by u.region, u.E164, c.id  ");
+      $res = $db->AllRecords("
+          select 
+            u.region, 
+            u.E164 as phone, 
+            u.no_of_lines,
+            c.id as client_id
+          from usage_voip u
+          left join clients c on c.client=u.client
+          where 
+                u.actual_to>=date_add('$date',interval -$mm month) 
+            and u.actual_to<date_add('$date',interval -$mm+1 month)
+          group by u.region, u.E164, c.id  ");
+
       foreach($res as $r)
       {
         if (strlen($r['phone']) > 4)
         {
-          if (!isset($del_phones[$r['region']])) $del_phones[$r['region']] = 0;
+          if (!isset($del_nums[$r['region']])) 
+            $del_nums[$r['region']] = 0;
 
-          $del_phones[$r['region']] += 1;
-          $del_phones['all'] += 1;
+          $del_nums[$r['region']] += 1;
+          $del_nums['all'] += 1;
         }else{
-          if (!isset($del_lines[$r['region']])) $del_lines[$r['region']] = 0;
+          if (!isset($del_nonums[$r['region']])) 
+            $del_nonums[$r['region']] = 0;
 
-          $del_lines[$r['region']] += 1;
-          $del_lines['all'] += 1;
+          $del_nonums[$r['region']] += 1;
+          $del_nonums['all'] += 1;
         }
+
+        if (!isset($del_lines[$r['region']])) 
+          $del_lines[$r['region']] = 0;
+
+        $del_lines[$r['region']] += $r['no_of_lines'];
+        $del_lines['all'] += $r['no_of_lines'];
       }
+
 
       $m = date("m") - $mm;
       if ($m < 1) $m = 12;
@@ -4349,11 +4434,13 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
       $reports[] = array(
         'date' => $date,
-        'sale_phones'=>$sale_phones,
+        'sale_nums'=>$sale_nums,
+        'sale_nonums'=>$sale_nonums,
         'sale_lines'=>$sale_lines,
         'sale_clients'=>$sale_clients,
         'sale_channels'=>$sale_channels,
-        'del_phones'=>$del_phones,
+        'del_nums'=>$del_nums,
+        'del_nonums'=>$del_nonums,
         'del_lines'=>$del_lines
       );
     }

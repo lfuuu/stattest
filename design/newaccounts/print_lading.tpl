@@ -149,8 +149,8 @@ bgColor="#FFFFFF">
 	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Си Эм Си" (ООО "Си Эм Си"){else}ООО "Си Эм Си"{/if}, 117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97<br />
 р/с 40702810800540001507 в ОАО "УРАЛСИБ", Корр/с 30101810100000000787<br />ИНН/КПП продавца: 7727701308/772701001 БИК 044525787
 {elseif $bill_client.firma=='mcn_telekom'}
-	ООО &quot;МСН Телеком&quot;, 117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97<br />
-р/с 40702810038110015462 в Московский банк Сбербанка России ОАО, г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7727752084/772701001 БИК 044525225
+	ООО &quot;МСН Телеком&quot;, 115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8   <br />
+р/с 40702810038110015462 в Московский банк Сбербанка России ОАО, г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7727752084/772401001 БИК 044525225
 {elseif $bill_client.firma=='markomnet_service'}
 	ООО &quot;Маркомнет сервис&quot;, 117574, Москва, Одоевского проезд, д.3, к.7<br />
 р/с 40702810538110016699 в ОАО &laquo;Сбербанк России&raquo; г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7728802130/772801001 БИК 044525225
@@ -270,7 +270,12 @@ bgColor="#FFFFFF">
 <tr>
 <td colspan=3 rowspan=2 align=right style="font-size: 12pt; font-weight: bold">ТОВАРНАЯ НАКЛАДНАЯ </td> <td rowspan=2 align="center"
 style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
-<td rowspan=2 align="center" colspan="2" style="font-size: 10pt; font-weight: bold">{if !isset($without_date) || !$without_date}{$bill.bill_date|mdate:"d.m.Y г."}{else}{$without_date_date}{/if}</td>
+<td rowspan=2 align="center" colspan="2" style="font-size: 10pt; font-weight: bold">
+    {if !$without_date_date}
+        {$bill.bill_date|mdate:"d.m.Y г."}
+    {else}
+        {$without_date_date|mdate:"d.m.Y г."}
+    {/if}</td>
 <td valign=top align=right>Вид операции</td>
 <td valign=top align=right>&nbsp;</td>
 <!--/tr>

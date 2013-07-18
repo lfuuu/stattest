@@ -227,9 +227,12 @@ class m_mail{
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
 
+		$m=array();
+		$GLOBALS['module_users']->d_users_get($m,'manager');
+
 		$design->assign(
 			'f_manager',
-			$db->AllRecords('select * from user_users where usergroup = "manager" order by name')
+			$m
 		);
 
 		$design->assign('f_status',$GLOBALS['module_clients']->statuses);

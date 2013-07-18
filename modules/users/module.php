@@ -360,7 +360,7 @@ class m_users {
         if(!is_array($d_users))
             $d_users = array();
 
-        if(in_array("manager", $group))
+        if($group && in_array("manager", $group))
             $group[] = "account_managers";
 
 		//$d_users=array();
