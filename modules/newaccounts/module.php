@@ -1809,11 +1809,42 @@ class m_newaccounts extends IModule{
 
 		$cs=new ClientCS($bill->Client('id'));
 		$contact = $cs->GetContact();
-		ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
-		ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
+		$this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
+		$this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
 		echo $template[0];
 		$design->ProcessEx('errors.tpl');
 	}
+
+    function _bill_email_ShowMessageForm($submit,$to,$subject,$msg) {
+        global $design,$user;
+
+        // Исключения для пользователей, у которые отправляет почту из стата не с ящика по умолчанию
+        $_SPECIAL_USERS = array(
+                "istomina" => 191 /* help@mcn.ru */
+                );
+        $_DEFAULT_MAIL_TRUNK_ID = 5; /* info@mcn.ru */
+               
+
+
+        $design->assign('subject',iconv("KOI8-R","UTF-8",$subject));
+        $design->assign('new_msg',iconv("KOI8-R","UTF-8",$msg));
+        if (is_array($to)) {
+            $s = "";
+            foreach ($to as $r) {
+                if (is_array($r)) $r = $r['data'];
+                $s.= ($s?',':'').$r;
+            }
+        } else $s = $to;
+
+        $userLogin = $user->Get('user');
+
+        $design->assign('mail_trunk_id', isset($_SPECIAL_USERS[$userLogin]) ? $_SPECIAL_USERS[$userLogin] : $_DEFAULT_MAIL_TRUNK_ID);
+        $design->assign('user',$userLogin);
+        $design->assign('to',iconv("KOI8-R","UTF-8",$s));
+        $design->assign('submit',$submit);
+        $design->ProcessEx('comcenter_msg.tpl');
+    }
+
 
 	function newaccounts_bill_mprint($fixclient) {
 		global $design,$db,$user;

@@ -694,27 +694,6 @@ function debug_table($str) {
 	$db->Query('insert into '.DEBUG_TABLE.' (ts,text) VALUES (NOW(),"'.addslashes($str).'")',0);
 }
 
-function ShowMessageForm($submit,$to,$subject,$msg) {
-	global $design,$user;
-	$design->assign('subject',iconv("KOI8-R","UTF-8",$subject));
-	$design->assign('new_msg',iconv("KOI8-R","UTF-8",$msg));
-	if (is_array($to)) {
-		$s = "";
-		foreach ($to as $r) {
-			if (is_array($r)) $r = $r['data'];
-			$s.= ($s?',':'').$r;
-		}
-	} else $s = $to;
-
-    $userLogin = $user->Get('user');
-
-	$design->assign('mail_trunk_id', $userLogin == "istomina" ? "191" /* help@mcn.ru */: "5" /* info@mcn.ru */);
-	$design->assign('user',$userLogin);
-	$design->assign('to',iconv("KOI8-R","UTF-8",$s));
-	$design->assign('submit',$submit);
-	$design->ProcessEx('comcenter_msg.tpl');
-}
-
 class Percenter {
 	public $Total;
 	public $Value;
