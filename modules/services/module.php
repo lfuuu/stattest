@@ -1789,6 +1789,109 @@ class m_services extends IModule{
 	}
 
 // =========================================================================================================================================
+	function services_saas_view($fixclient){
+		global $db,$design;
+		if(!$this->fetch_client($fixclient)){
+
+            $db->Query($q='
+			select
+				T.*,
+				S.*,
+				c.status as client_status,
+				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+			from
+				usage_welltime as S
+			left join clients c on (c.client = S.client)
+
+			inner join
+				tarifs_sass as T
+			on
+				T.id=S.tarif_id
+
+			having actual
+                order by client,actual_from'
+
+            );
+
+            $R = array();
+            $statuses = ClientCS::$statuses;
+            while($r=$db->NextRecord()){
+                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
+                if($r['period']=='month')
+                    $r['period_rus']='ежемесячно';
+                elseif($r['period']=='year')
+                    $r['period_rus']='ежегодно';
+                $R[]=$r;
+            }
+
+            $design->assign('services_saas',$R);
+            $design->AddMain('services/saas_all.tpl');
+
+			//trigger_error('Не выбран клиент');
+			return;
+		}
+
+
+		$R=array();
+		$db->Query($q='
+			select
+				T.*,
+				S.*,
+				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+			from
+				usage_welltime as S
+			inner join
+				tarifs_saas as T
+			on
+				T.id=S.tarif_id
+			where
+				S.client="'.$fixclient.'"'
+		);
+
+        $isViewAkt = false;
+		while($r=$db->NextRecord()){
+			if($r['period']=='month')
+				$r['period_rus']='ежемесячно';
+			$R[]=$r;
+
+            if($r["actual"] && strpos($r["description"], "Виртуальная АТС пакет") !== false)
+            {
+                $isViewAkt = $r;
+            }
+		}
+
+		$design->assign('welltime_akt',$isViewAkt);
+		$design->assign('services_saas',$R);
+		$design->AddMain('services/saas.tpl');
+	}
+	function services_saas_add($fixclient){
+		global $design,$db;
+		if(!$this->fetch_client($fixclient)){
+			trigger_error('Не выбран клиент');
+			return;
+		}
+		$db->Query('select * from clients where client="'.$fixclient.'"');
+		$r=$db->NextRecord();
+		$dbf = new DbFormUsageSaas();
+		$dbf->SetDefault('client',$fixclient);
+		$dbf->Display(array('module'=>'services','action'=>'saas_apply'),'Услуги','Новая услуга SaaS');
+	}
+	function services_saas_apply($fixclient){
+		global $design,$db;
+		if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+		$dbf = new DbFormUsageSaas();
+		$id=get_param_integer('id','');
+		if ($id) $dbf->Load($id);
+		$result=$dbf->Process();
+		if ($result=='delete') {
+			header('Location: ?module=services&action=saas_view');
+			$design->ProcessX('empty.tpl');
+		}
+		$dbf->Display(array('module'=>'services','action'=>'saas_apply'),'Услуги','Редактировать дополнительную услугу');
+	}
+// =========================================================================================================================================
 	function services_welltime_view($fixclient){
 		global $db,$design;
 		if(!$this->fetch_client($fixclient)){

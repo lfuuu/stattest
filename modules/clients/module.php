@@ -1060,6 +1060,7 @@ class m_clients {
 				$GLOBALS['module_services']->services_ex_view($r['client']);
 				$GLOBALS['module_services']->services_it_view($r['client']);
 				$GLOBALS['module_services']->services_welltime_view($r['client']);
+				$GLOBALS['module_services']->services_saas_view($r['client']);
 				$GLOBALS['module_services']->services_wellsystem_view($r['client']);
 				$GLOBALS['module_services']->services_ad_view($r['client']);
 				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
