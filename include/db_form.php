@@ -1542,6 +1542,10 @@ $GLOBALS['translate_arr']=array(
 	'price_voip.operator' => 'Оператор',
 	'price_voip.dgroup' => 'Направление',
 	'price_voip.dsubgroup' => 'Подгруппа',
-	'tarifs_voip.tarif_group' => 'Тарифная группа'
+	'tarifs_voip.tarif_group' => 'Тарифная группа',
+    '*.num_ports' => 'Количество портов',
+    '*.overrun_per_port' => 'Превышение за порт',
+    '*.space' => 'Пространство Мб',
+    '*.overrun_per_mb' => 'Превышение за Мб'
 	);
 ?>
