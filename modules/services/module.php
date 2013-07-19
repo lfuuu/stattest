@@ -682,13 +682,16 @@ class m_services extends IModule{
         {
             $conn = pg_connect("host=85.94.32.237 dbname=nispd user=www password=dD99zmHRs2hR7PPGEMsg");
         }else{
-            $conn = pg_connect($q="host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=voipdb user=".R_CALLS_USER." password=".R_CALLS_PASS);
+
+            // Соловьев не переключил старую базу на новую, перед уходом в отпуск
+            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $conn = pg_connect($q="host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
         }
 
         if(!$conn) return;
 
 
-        if($region != "99" && $region != "97")
+        if($region != "99")
         {
             $result = pg_query($q = "
                     SELECT 
