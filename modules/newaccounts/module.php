@@ -1228,10 +1228,6 @@ class m_newaccounts extends IModule{
 			$this->do_generate($bill,'bill','cbrf',array(),false),
 		));
 		if(preg_match('/^\d{6}-\d{4}-(\d+)$/',trim($bill->getNo()),$match)){
-			if($match[1] == '494213')
-				$match[1] = 505512;
-
-			//printdbg($match[1]);
 			$design->assign('all4net_order_number',$match[1]);
 		}else{
 			$design->assign('all4net_order_number',false);
@@ -1339,6 +1335,8 @@ class m_newaccounts extends IModule{
 				ORDER BY `depart` DESC, `name`
 			')
 		);
+
+        $design->assign("is_set_date", $bill->is1CBill() || $bill->isOneTimeService()); //дату документа можно установить в 1Сных счетах и счетах, с разовыми услугами
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
@@ -1811,11 +1809,42 @@ class m_newaccounts extends IModule{
 
 		$cs=new ClientCS($bill->Client('id'));
 		$contact = $cs->GetContact();
-		ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
-		ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
+		$this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
+		$this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
 		echo $template[0];
 		$design->ProcessEx('errors.tpl');
 	}
+
+    function _bill_email_ShowMessageForm($submit,$to,$subject,$msg) {
+        global $design,$user;
+
+        // Исключения для пользователей, у которые отправляет почту из стата не с ящика по умолчанию
+        $_SPECIAL_USERS = array(
+                "istomina" => 191 /* help@mcn.ru */
+                );
+        $_DEFAULT_MAIL_TRUNK_ID = 5; /* info@mcn.ru */
+               
+
+
+        $design->assign('subject',iconv("KOI8-R","UTF-8",$subject));
+        $design->assign('new_msg',iconv("KOI8-R","UTF-8",$msg));
+        if (is_array($to)) {
+            $s = "";
+            foreach ($to as $r) {
+                if (is_array($r)) $r = $r['data'];
+                $s.= ($s?',':'').$r;
+            }
+        } else $s = $to;
+
+        $userLogin = $user->Get('user');
+
+        $design->assign('mail_trunk_id', isset($_SPECIAL_USERS[$userLogin]) ? $_SPECIAL_USERS[$userLogin] : $_DEFAULT_MAIL_TRUNK_ID);
+        $design->assign('user',$userLogin);
+        $design->assign('to',iconv("KOI8-R","UTF-8",$s));
+        $design->assign('submit',$submit);
+        $design->ProcessEx('comcenter_msg.tpl');
+    }
+
 
 	function newaccounts_bill_mprint($fixclient) {
 		global $design,$db,$user;
@@ -1859,94 +1888,136 @@ class m_newaccounts extends IModule{
 		//$bills = array("201204-0465");
 
             $idxs = array();
+
+
 		foreach($bills as $bill_no)
-		{
-			$bill = new Bill($bill_no);
+        {
+            $bill = new Bill($bill_no);
 
-	        $bb = $bill->GetBill();
-	        if($isFromImport)
-	        {
-	        	$isSF = get_param_raw("invoice-1", "") == "1";
-	        	$c = $bill->Client();
-	        	if($c["mail_print"] == "no") continue;
-
-	        	$d = $this->get_bill_docs($bill);
-
-	        	$isAkt1 = $d[1][1];
-	        	$isAkt2 = $d[1][2];
-
-	        }
-			//$design->assign('bill',$bb);
-
-	        $h = array();
-			foreach($L as $r) {
-
-				$reCode = false;
-
-				if($r == "invoice-2" && $isFromImport && $isAkt2 && $isSF)
-					$reCode = $r;
-
-				if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF)
-					$reCode = $r;
-
-				$toPass = false;
-				if($isFromImport && !$isSF && $r == "assignment-4" && isset($clientsToSend[$c["id"]]))
-					$toPass = true;
-
-				$isDeny = false;
-				if($r == "akt-1" && $isFromImport && !$isAkt1 && !$isSF)
-					$isDeny = true;
-
-				if($r == "invoice-1" && $isFromImport && !$isAkt1 && $isSF)
-					$isDeny = true;
+            $bb = $bill->GetBill();
 
 
-				if ((get_param_protected($r) || $reCode || $toPass) && !$isDeny) {
+            // установка/удаление даты документа
+            if (isset($_REQUEST['without_date']) && ($bill->is1CBill() || $bill->isOneTimeService()))
+            {
+                $wDate = get_param_raw("without_date_date", "");
 
-					if($reCode)
-						$r = $reCode;
+                $toDelDate = false;
 
-					// при импорте клиентов с долларами, печатать долларовые счета
-					if($isFromImport && $c["currency"] == "USD" && $r == "bill-2-RUR") $r = "bill-2-USD";
-					if($isFromImport && $r == "assignment-4") $r = "assignment-4&emailed=1";
+                if($wDate)
+                {
+                    list($d, $m, $y) = explode(".", $wDate."...");
 
-					if($r == "assignment_stamp")
-					{
-						$r = "assignment-".get_param_raw("assignment_select", "4")."&emailed=1";
-					}elseif($r == "assignment_wo_stamp")
-					{
-						$r = "assignment-".get_param_raw("assignment_select", "4");
-					}
+                    $utDate = @mktime(0,0,0, $m, $d, $y);
+
+                    // дата корректная
+                    if($utDate)
+                    {
+                        if($bb["doc_ts"] != $utDate)
+                        {
+                            $bill->SetDocDate($utDate);
+                            $bb = $bill->GetBill(); // обновляем счет
+                        }
+                    }else{
+                        $toDelDate = true;
+                    }
+                }else{
+                    $toDelDate = true;
+                }
+
+                // удалить дату
+                if($toDelDate)
+                {
+                    $bill->SetDocDate(0);
+                    $bb = $bill->GetBill(); 
+                }
+            }
+
+            if($isFromImport)
+            {
+                $isSF = get_param_raw("invoice-1", "") == "1";
+                $c = $bill->Client();
+                if($c["mail_print"] == "no") continue;
+
+                $d = $this->get_bill_docs($bill);
+
+                $isAkt1 = $d[1][1];
+                $isAkt2 = $d[1][2];
+
+            }
+            //$design->assign('bill',$bb);
+
+            $h = array();
+            foreach($L as $r) {
+
+                $reCode = false;
+
+                if($r == "invoice-2" && $isFromImport && $isAkt2 && $isSF)
+                    $reCode = $r;
+
+                if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF)
+                    $reCode = $r;
+
+                $toPass = false;
+                if($isFromImport && !$isSF && $r == "assignment-4" && isset($clientsToSend[$c["id"]]))
+                    $toPass = true;
+
+                $isDeny = false;
+                if($r == "akt-1" && $isFromImport && !$isAkt1 && !$isSF)
+                    $isDeny = true;
+
+                if($r == "invoice-1" && $isFromImport && !$isAkt1 && $isSF)
+                    $isDeny = true;
+
+
+                if ((get_param_protected($r) || $reCode || $toPass) && !$isDeny) {
+
+                    if($reCode)
+                        $r = $reCode;
+
+                    // при импорте клиентов с долларами, печатать долларовые счета
+                    if($isFromImport && $c["currency"] == "USD" && $r == "bill-2-RUR") $r = "bill-2-USD";
+                    if($isFromImport && $r == "assignment-4") $r = "assignment-4&emailed=1";
+
+                    if($r == "assignment_stamp")
+                    {
+                        $r = "assignment-".get_param_raw("assignment_select", "4")."&emailed=1";
+                    }elseif($r == "assignment_wo_stamp")
+                    {
+                        $r = "assignment-".get_param_raw("assignment_select", "4");
+                    }
                     if (isset($h[$r]))
-	                {
+                    {
                         $idxs[$bill_no."==".$r."-2"] = count($R);
-	                    $r .= "&to_client=true";
-	                }else{
+                        $r .= "&to_client=true";
+                    }else{
                         $idxs[$bill_no."==".$r] = count($R);
-	                    $h[$r] = count($R);
-	                }
-					if(isset($_REQUEST['without_date'])){
-						$r.= '&without_date=1&without_date_date='.$_REQUEST['without_date_date'];
-					}
+                        $h[$r] = count($R);
+                    }
+                    /*
+                    if($withoutDate){
+                        $r.= '&without_date=1&without_date_date='.$withoutDate;
+                    }
+                    */
 
                     if($stamp)
                         $r.="&stamp=".$stamp;
 
-					$ll = array(
+                    $ll = array(
                             "bill_no" => $bill_no, 
                             "obj" => $r, 
                             "bill_client" => $bill->Get("client_id"), 
                             "g" => get_param_protected($r), 
                             "r"  => $reCode, 
                             "p" => $toPass
-                        );
+                            );
 
-					$R[] = $ll;
-					$P.=($P?',':'').'1';
-				}
-			}
-			unset($bill);
-		}
+                    $R[] = $ll;
+                    $P.=($P?',':'').'1';
+                }
+            }
+            unset($bill);
+        }
 
 
         $_R = $R;
@@ -2021,9 +2092,10 @@ class m_newaccounts extends IModule{
 
 
 		$bill = new Bill($bill_no);
-		$design->assign('without_date',(isset($_REQUEST['without_date']) || isset($_GET['without_date']))?true:false);
-		if(isset($_REQUEST['without_date']) || isset($_GET['without_date']))
-			$design->assign('without_date_date',(isset($_REQUEST['without_date_date'])?$_REQUEST['without_date_date']:$_GET['without_date_date']));
+        $bb = $bill->GetBill();
+
+        $design->assign('without_date_date', $bill->getShipmentDate());
+
         $design->assign("to_client", get_param_raw("to_client", "false"));
         $design->assign("stamp", $this->get_import1_name($bill, get_param_raw("stamp", "false")));
 
@@ -2212,7 +2284,7 @@ class m_newaccounts extends IModule{
 				}
 			}
 		}else{
-			trigger_error('Счёт не готов');
+			trigger_error('Документ не готов');
 		}
 		$design->ProcessEx('errors.tpl');
 	}
@@ -2722,7 +2794,44 @@ class m_newaccounts extends IModule{
 		if(!$usd_rate && !$sum_rur && $source<>5)
 			return false;
 
-		list($inv_date,$period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+		$bdata=$bill->GetBill();
+
+
+        // Если счет 1С, на товар, 
+        if($bill->is1CBill())
+        {
+            //то доступны только счета (в RUR || USD)
+            if($obj == "bill" && ($source == "1" || $source == "2"))
+            {
+                $inv_date = $bill->GetTs();
+            }else{
+                // остальные документы после отггрузки
+
+                if($bdata["doc_ts"])
+                {
+                    $inv_date = $bdata["doc_ts"];
+                }else{
+                    if($shipDate = $bill->getShipmentDate())
+                    {
+                        $inv_date = $shipDate;
+                    }else{
+                        return ; //Документ не готов
+                    }
+                }
+            }
+            $period_date = get_inv_period($inv_date);;
+        }elseif($bill->isOneTimeService())// или разовая услуга
+        {
+            if($bdata["doc_ts"])
+            {
+                $inv_date = $bill->GetTs();
+                $period_date = get_inv_period($inv_date);
+            }else{
+                list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+            }
+        }else{ // статовские переодичекские счета
+    		list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+        }
 
 
         if($obj == "invoice" || $obj == "akt")
@@ -2744,7 +2853,6 @@ class m_newaccounts extends IModule{
             unset($da,$row);
         }
 
-		$bdata=$bill->GetBill();
 
 
 
@@ -3006,6 +3114,15 @@ class m_newaccounts extends IModule{
 
 		//$bdata['sum'] = $bdata['tsum']-$bdata['tax'];
 
+        $r = $bill->Client();
+        $b = $bill->GetBill();
+
+        if($r["nds_calc_method"] == 2 && !$isNdsZero)
+        {
+            $bdata["tax"] = $bdata["tsum"] - $bdata["sum"];
+        }
+
+
 		if ($do_assign){
 			$design->assign('cpe',$cpe);
 			$design->assign('curr',$curr);
@@ -3026,8 +3143,6 @@ class m_newaccounts extends IModule{
 				$total_amount += round($line['amount'],2);
 			}
 			$design->assign('total_amount',$total_amount);
-			$r = $bill->Client();
-            $b = $bill->GetBill();
 
             $this->do_firm_residents($r["firma"], $b);
 
@@ -3614,7 +3729,7 @@ class m_newaccounts extends IModule{
             {
                 $bill = new Bill($p["bill_no"]);
 
-                if(substr($bill->Get("bill_date"), 7,3) == "-01" && $bill->Get("postreg") == "0000-00-00")
+                if(/*substr($bill->Get("bill_date"), 7,3) == "-01" && */$bill->Get("postreg") == "0000-00-00")
                 {
                     $c = $bill->Client();
                     if($c["mail_print"] == "yes")
@@ -4730,12 +4845,13 @@ $sql .= "	order by client, bill_no";
 			'tax'=>0
 		);
 
+        if(get_param_raw("do", ""))
+        {
+
 		$W = array('AND');//,'C.status="work"');
 		$W[] = 'B.sum!=0';
 		$W[] = 'P.currency="RUR" OR P.currency IS NULL';
 
-		if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
-		if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
 		if($payfilter=='1')     $W[] = 'B.is_payed=1';
 		elseif($payfilter=='2') $W[] = 'B.is_payed IN (1,3)';
 
@@ -4744,41 +4860,118 @@ $sql .= "	order by client, bill_no";
 
         $W[] = "C.type in ('org', 'priv')";
 
-		//$P = $db->AllRecords($q = '
-		$res = mysql_query($q ='
+        $W_gds = $W;
 
-          select * from (
-			select
-				B.*,
-				C.company_full,
-				C.inn,
-				C.kpp,
-                C.type,
-				max(P.payment_date) as payment_date,
-				sum(P.sum_rub) as sum_rub,
-				(SELECT min(nds) FROM `newbill_lines` nl, g_goods g where nl.item_id != "" and nl.bill_no = B.bill_no and item_id = g.id) min_nds
-			FROM
-				newbills B
-			LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
-			INNER JOIN clients as C ON (C.id = B.client_id)
-			where
+		if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
+		if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
+
+
+        $q_service = '
+            select * from (
+                select
+                    B.*,
+                    C.company_full,
+                    C.inn,
+                    C.kpp,
+                    C.type,
+                    max(P.payment_date) as payment_date,
+                    sum(P.sum_rub) as sum_rub,
+                    bill_date as shipment_date,
+                    unix_timestamp(bill_date) as shipment_ts,
+                    18 as min_nds
+                FROM
+                    newbills B
+                LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
+                INNER JOIN clients as C ON (C.id = B.client_id)
+        WHERE
                 '.MySQLDatabase::Generate($W).'
-#and B.sum < 0
-			GROUP BY
-				B.bill_no
-			order by
-				B.bill_no
-            )a where min_nds is null or min_nds > 0
-		');
+        and B.bill_no like "20____-____"
+        GROUP BY
+            B.bill_no
+        order by
+            B.bill_no
+
+        ) f';
+
+        $q_gds = "  
+            select *, unix_timestamp(shipment_date) as shipment_ts from (
+                    select
+                        B.*,
+                        C.company_full,
+                        C.inn,
+                        if(doc_date != '0000-00-00', 
+                            doc_date, 
+                            (
+                                SELECT min(cast(date_start as date)) 
+                                FROM tt_troubles t , `tt_stages` s  
+                                WHERE t.bill_no = B.bill_no 
+                                    and t.id = s.trouble_id 
+                                    and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
+                        C.kpp,
+                        C.type,
+                        max(P.payment_date) as payment_date,
+                        sum(P.sum_rub) as sum_rub,
+                        (
+                            SELECT min(nds) 
+                            FROM `newbill_lines` nl, g_goods g 
+                            WHERE 
+                                    nl.item_id != '' 
+                                and nl.bill_no = B.bill_no 
+                                and item_id = g.id
+                                ) as min_nds
+                    FROM
+                    (
+                        SELECT DISTINCT bill_no 
+                        FROM newbills 
+                        WHERE doc_date BETWEEN '".$date_from."' and '".$date_to."'  #выбор счетов-фактур с утановленной датой документа
+                        
+                        UNION 
+                        
+                        SELECT DISTINCT bill_no 
+                        FROM tt_stages s, tt_troubles t 
+                        WHERE s.trouble_id = t.id 
+                            and date_start between '".$date_from."' and '".$date_to."' 
+                            and state_id in (select id from tt_states where state_1c = 'Отгружен') #выбор счетов-фактур по дате отгрузки
+                            and t.bill_no is not NULL
+                    )t, 
+                        newbills B
+                    LEFT JOIN newpayments P ON (P.bill_no = B.bill_no AND P.client_id = B.client_id)
+                    INNER JOIN clients as C ON (C.id = B.client_id)
+                    where
+                        t.bill_no = B.bill_no and
+                        B.bill_no like '20____/____' and  #только счета с товарами (выставленные через 1С)
+
+                        ".MySQLDatabase::Generate($W_gds)."
+
+                        GROUP BY
+                            B.bill_no
+                        order by
+                            B.bill_no
+
+                        )a 
+                        where 
+                            (min_nds is null or  min_nds > 0)  ###исключить счета, с товарами без НДС 
+                            and shipment_date between '".$date_from."' and '".$date_to."'";
+
+
+        $AA = array();
+
+        foreach($db->AllRecords($q_service) as $l)
+            $AA[] = $l;
+
+        foreach($db->AllRecords($q_gds) as $l)
+            $AA[] = $l;
+
+
+		//$res = mysql_query($q = "select * from (".$q_service." union ".$q_gds.") a order by a.bill_no") or die(mysql_error());
 
         $t = time();
 
         $this->bb_cache__init();
 
-		//foreach ($P as &$p) {
-		while(($p = mysql_fetch_assoc($res))!==false){
-
-            //if($p["bill_no"] != "201301-2642") continue;
+        foreach($AA as $p)
+        {
+		//while(($p = mysql_fetch_assoc($res))!==false){
 
 			$bill=new Bill($p['bill_no']);
 			for ($I=1;$I<=3;$I++) {
@@ -4793,7 +4986,16 @@ $sql .= "	order by client, bill_no";
 
 
 				if (is_array($A) && $A['bill']['tsum']) {
+
+                    $A['bill']['shipment_ts'] = $p['shipment_ts'];
+
+
+                    $invDate = $A['bill']['shipment_ts'] ? date("d.m.Y", $A['bill']['shipment_ts']) : $A['inv_date'];
+
+					$A['bill']['inv_date'] = $invDate;
+
 					$k=date('Y-m-d',$A['inv_date']);
+
 					if ((!$date_from || $k>=$date_from) && (!$date_to || $k<=$date_to)) {
 						$A['bill']['company_full'] = $p['company_full'];
                         if($p["type"] == "priv")
@@ -4812,7 +5014,8 @@ $sql .= "	order by client, bill_no";
 						$A['bill']['sum_rub'] = $p['sum_rub'];
 
 						$A['bill']['inv_no'] = $A['inv_no'];
-						$A['bill']['inv_date'] = $A['inv_date'];
+
+
 
                         if($p["is_rollback"])
                         {
@@ -4824,6 +5027,7 @@ $sql .= "	order by client, bill_no";
 						foreach ($S as $sk=>$sv) {
                             $S[$sk]+=$A['bill'][$sk];
                         }
+
 
 						$R[$A['inv_date'].'-'.($Rc++)] = $A['bill'];
 					}
@@ -4838,6 +5042,7 @@ $sql .= "	order by client, bill_no";
         $this->bb_cache__finish();
 
         //usort($R, array("self", "bb_sort_sum"));
+        }
 
 		$design->assign('data',$R);
 		$design->assign('sum',$S);
@@ -5889,7 +6094,10 @@ $sql .= "	order by client, bill_no";
 		while($e = $d->read())
 		{
 			if($e == ".." || $e == ".") continue;
-			if(stripos($e, ".pdf") === false) continue;
+			if(stripos($e, ".pdf") === false) {
+				exec("rm ".$dir.$e);
+				continue;
+			}
 
 			$qrcode = QRCode::decodeFile($dir.$e);
 

@@ -22,7 +22,16 @@
 <table border="0" cellpadding="0" cellspacing="15">
 {if $inv_is_new3}
 <tr><td colspan="2"><p align="center">
-<strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{if !isset($without_date) || !$without_date} от {if $is_four_order && isset($inv_pays)}{$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}{else}{$inv_date|mdate:"d.m.Y г."}{/if}{else} {$without_date_date}{/if}<br>
+<strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
+        {if !$without_date_date} 
+            от {if $is_four_order && isset($inv_pays)}
+                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
+               {else}
+                    {$inv_date|mdate:"d.m.Y г."}
+                {/if}
+        {else} 
+            {$without_date_date|mdate:"от d.m.Y г."}
+        {/if}<br>
 ИСПРАВЛЕНИЕ N ----- от -----</strong></p></tr>
 {/if}
   <tr>
@@ -120,7 +129,16 @@
   <tr>
 
     <td colspan="2">
-    {if !$inv_is_new3}<p align="center"><strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}{if !isset($without_date) || !$without_date} от {if $is_four_order && isset($inv_pays)}{$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}{else}{$inv_date|mdate:"d.m.Y г."}{/if}{else} {$without_date_date}{/if}</strong></p>{/if}
+    {if !$inv_is_new3}<p align="center"><strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
+        {if !$without_date_date}
+            от  {if $is_four_order && isset($inv_pays)}
+                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
+                {else}
+                    {$inv_date|mdate:"d.m.Y г."}
+                {/if}
+        {else} 
+            {$without_date_date|mdate:"от d.m.Y г."}
+        {/if}</strong></p>{/if}
 {if !$bill.tax}Для официальных нужд международной организации.<br>{/if}
 {if !$inv_is_new3}Валюта: руб.{/if}
 {*if !$inv_is_new3}Наименование и код валюты: руб. (643){/if*}
@@ -286,7 +304,7 @@
      	{else}
         <td colspan={if $inv_is_new3}8{else}7{/if}><b>Всего к оплате<b></td>
         {/if}
-        <td align="center">{if $bill.tax == 0 && $bill.sum}-{else}{$bill.tsum/1.18*0.18|round:2}{/if}</td>
+        <td align="center">{if $bill_client.nds_calc_method != 1}{$bill.tax}{else}{if $bill.tax == 0 && $bill.sum}-{else}{$bill.tsum/1.18*0.18|round:2}{/if}{/if}</td>
         <td align="center">{$bill.tsum|round:2}</td>
         <td colspan={if $inv_is_new3}3{else}2{/if}>&nbsp;</td>
       </tr>

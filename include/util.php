@@ -636,6 +636,12 @@ function get_inv_date($date,$source) {
 	return array($tm,$v);
 }
 
+function get_inv_period($date)
+{
+	$d=getdate($date);
+	return mktime(0,0,0,$d['mon'],1,$d['year']);
+}
+
 function debug_arr($V) {
 	$R=array();
 	foreach ($V as $vk=>$v) {
@@ -686,24 +692,6 @@ function debug_table($str) {
 	global $db;
 	if (!defined('DEBUG_TABLE') || DEBUG_TABLE=="") return;
 	$db->Query('insert into '.DEBUG_TABLE.' (ts,text) VALUES (NOW(),"'.addslashes($str).'")',0);
-}
-
-function ShowMessageForm($submit,$to,$subject,$msg) {
-	global $design,$user;
-	$design->assign('subject',iconv("KOI8-R","UTF-8",$subject));
-	$design->assign('new_msg',iconv("KOI8-R","UTF-8",$msg));
-	if (is_array($to)) {
-		$s = "";
-		foreach ($to as $r) {
-			if (is_array($r)) $r = $r['data'];
-			$s.= ($s?',':'').$r;
-		}
-	} else $s = $to;
-
-	$design->assign('user',$user->Get('user'));
-	$design->assign('to',iconv("KOI8-R","UTF-8",$s));
-	$design->assign('submit',$submit);
-	$design->ProcessEx('comcenter_msg.tpl');
 }
 
 class Percenter {
@@ -823,7 +811,7 @@ class ClientCS {
 						"usd_rate_percent,company_full,type,login,inn,kpp,form_type,stamp,nal,signer_nameV,signer_positionV,id_all4net,".
 						"user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
 						"price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
-                        "head_company,head_company_address_jur,region,okpo,bill_rename1";
+                        "head_company,head_company_address_jur,region,okpo,bill_rename1,nds_calc_method";
 				$t=explode(",",$L);
 				$this->P = array();
 				foreach ($t as $v) $this->P[$v] = $v;

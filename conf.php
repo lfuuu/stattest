@@ -49,6 +49,8 @@ $config = array(
 	'DB_SETUP_COLLATES'	=>	1,
 	'SMTP_SERVER'		=> 	'smtp.mcn.ru',
 	'MAIL_TEST_ONLY'	=>	0,
+    
+    'PATH_TO_ROOT'      => dirname(__FILE__)."/"
 );
 
 $config = array_merge($config, require(dirname(__FILE__).'/local.conf.php'));
@@ -68,6 +70,13 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=="on") {
 	define('PROTOCOL_STRING','http://');
 }
 
+
+foreach ($config as $config_key=>$config_value) {
+	if (!defined($config_key)) 
+        define($config_key,$config_value);
+}
+unset($config_key); unset($config_value);
+
 if (PLATFORM=="windows") {
 	setlocale(LC_CTYPE,'Russian_Russia.866');
 } else {
@@ -75,18 +84,11 @@ if (PLATFORM=="windows") {
 }
 date_default_timezone_set("Asia/Dubai");
 
-foreach ($config as $config_key=>$config_value) {
-	if (!defined($config_key)) define($config_key,$config_value);
-}
-unset($config_key); unset($config_value);
-
 ini_set('SMTP',SMTP_SERVER);
-//ini_set('memory_limit','24M');
-ini_set('upload_max_filesize','32M');
-
 
 define('PAGE_OBJ_COUNT',	50);
 define('USE_MD5',			0);
+
 define('INCLUDE_PATH',		PATH_TO_ROOT.'include/');
 define('MODELS_PATH',		PATH_TO_ROOT.'models/');
 define('CLASSES_PATH',		PATH_TO_ROOT.'classes/');
@@ -138,7 +140,7 @@ if (!defined('NO_INCLUDE')){
 		require_once(INCLUDE_PATH.'user.php');
 		$user	= new User();
 
-		$modules= new Modules();//array('users','clients','tt','routers','monitoring'));
+		$modules= new Modules();
 	}
 	require_once(INCLUDE_PATH.'writeoff.php');
 }
