@@ -3534,7 +3534,11 @@ function stats_support_efficiency($fixclient){
     global $db,$design;
 
     $m = array();
-    $total = array("monitoring" => 0, "trouble" => 0, "consultation" => 0);
+    $total = array(
+        "monitoring" => 0, 
+        "trouble" => 0, 
+        "consultation" => 0,
+        "task" => 0);
     $date = "";
 
     if(get_param_raw("make_report", "") == "OK")
@@ -3578,7 +3582,7 @@ function stats_support_efficiency($fixclient){
                             usergroup ='support' 
                         and uu.user =    tt.user_author 
                         and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' 
-                        and trouble_type = 'trouble'
+                        and trouble_type in ('trouble', 'task')
                         order by uu.name
                       ) a 
                     group by user_author, trouble_subtype
