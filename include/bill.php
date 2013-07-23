@@ -579,7 +579,10 @@ class Bill{
             // если услуга, прописанная через 1с, услуга с датой. Для выписки документов (акт1)
             if($r["service"] == "1C" && $r["type"] == "service")
             {
-                $billDate = strtotime($this->bill["bill_date"]);
+                $billDate = $this->getShipmentDate();
+                if(!$billDate)
+                    $billDate = strtotime($this->bill["bill_date"]);
+
                 $r["ts_from"] = strtotime("- ".(date("d", $billDate)-1)." days", $billDate);
                 $r["ts_to"] = strtotime("+1 month -1 day", $r["ts_from"]);
             }
