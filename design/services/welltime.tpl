@@ -6,10 +6,6 @@
 {else}
 <H3><a href='?module=services&action=welltime_view'>WellTime</a></H3>
 {/if}
-{if $welltime_akt}
-<a href='{$LINK_START}module=services&action=welltime_act&id={$welltime_akt.id}' target="_blank">
-    <img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a><br>
-{/if}
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>

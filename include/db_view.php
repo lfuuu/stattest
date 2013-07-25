@@ -536,6 +536,8 @@ class DbFormTarifsSaas extends DbFormSimpleLog {
         $this->fields['overrun_per_port']=array('default'=>1);
         $this->fields['space']=array('default'=>100);
         $this->fields['overrun_per_mb']=array('default'=>1);
+        $this->fields['is_record']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
+        $this->fields['is_fax']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
 	}
 }
 

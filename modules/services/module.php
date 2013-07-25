@@ -1600,7 +1600,9 @@ class m_services extends IModule{
 		$JsHttpRequest =& new Subsys_JsHttpRequest_Php();
 		$JsHttpRequest->setEncoding("koi8-r");
 		$id=get_param_integer('id');
-		$R=array(); $db->Query('select * from tarifs_extra where id='.$id);
+        $tarif_table = get_param_protected('tarif_table', 'extra');
+
+		$R=array(); $db->Query('select * from tarifs_'.$tarif_table.' where id='.$id);
 		$r=$db->NextRecord();
 		$_RESULT=array(
 					'async_price'		=> $r['price'].' '.$r['currency'],
@@ -1794,23 +1796,17 @@ class m_services extends IModule{
 		if(!$this->fetch_client($fixclient)){
 
             $db->Query($q='
-			select
+			SELECT
 				T.*,
 				S.*,
 				c.status as client_status,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-			from
-				usage_welltime as S
-			left join clients c on (c.client = S.client)
-
-			inner join
-				tarifs_sass as T
-			on
-				T.id=S.tarif_id
-
-			having actual
-                order by client,actual_from'
+			FROM usage_saas as S
+			LEFT JOIN clients c ON (c.client = S.client)
+			INNER JOIN tarifs_sass as T ON T.id=S.tarif_id
+			HAVING actual
+            ORDER BY client,actual_from'
 
             );
 
@@ -1835,19 +1831,14 @@ class m_services extends IModule{
 
 		$R=array();
 		$db->Query($q='
-			select
+			SELECT
 				T.*,
 				S.*,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-			from
-				usage_welltime as S
-			inner join
-				tarifs_saas as T
-			on
-				T.id=S.tarif_id
-			where
-				S.client="'.$fixclient.'"'
+			FROM usage_saas as S
+			INNER JOIN tarifs_saas as T ON T.id=S.tarif_id
+			WHERE S.client="'.$fixclient.'"'
 		);
 
         $isViewAkt = false;
@@ -1862,7 +1853,7 @@ class m_services extends IModule{
             }
 		}
 
-		$design->assign('welltime_akt',$isViewAkt);
+		$design->assign('saas_akt',$isViewAkt);
 		$design->assign('services_saas',$R);
 		$design->AddMain('services/saas.tpl');
 	}
@@ -1984,13 +1975,8 @@ class m_services extends IModule{
 				$r['period_rus']='ежегодно';
 			$R[]=$r;
 
-            if($r["actual"] && strpos($r["description"], "Виртуальная АТС пакет") !== false)
-            {
-                $isViewAkt = $r;
-            }
 		}
 
-		$design->assign('welltime_akt',$isViewAkt);
 		$design->assign('services_welltime',$R);
 		$design->AddMain('services/welltime.tpl');
 	}
