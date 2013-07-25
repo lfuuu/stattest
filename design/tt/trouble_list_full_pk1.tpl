@@ -6,7 +6,7 @@
 {/if}
 Найдено {$pager_all} заявок<br>
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true{if $isNewView}&isnew=true{/if}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 <TABLE class={if $tt_design=='service'}insblock{else}{/if} cellSpacing=4 cellPadding=2 width="{if $tt_design=='service'}700px{else}100%{/if}" border=0>
 {foreach from=$tt_troubles item=r name=outer}
@@ -90,7 +90,7 @@
 </TBODY></TABLE>
 
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true{if $isNewView}&isnew=true{/if}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 
 

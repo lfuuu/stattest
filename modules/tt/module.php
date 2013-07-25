@@ -357,7 +357,6 @@ class m_tt extends IModule{
 
 		$design->assign('tt_wo_explain',true); # убрать заголовок
 		$design->assign('tt_type',$type);
-		$design->assign('isNewView',get_param_raw("isnew", "false") == "true");
 		$design->assign('tt_folder',$folder);
 		$design->assign('tt_folders',$folders);
 		$design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
@@ -1163,8 +1162,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 			if (count($R)) $v=1;
 		}
 
-        $isNewView = get_param_raw("isnew", "false") == "true";
-
         $design->assign("trouble_subtypes", $this->getTroubleSubTypes());
         $design->assign("trouble_subtypes_list", $this->getTroubleSubTypes(true));
 
@@ -1192,7 +1189,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 			if ($tt_design=='top') {
 				$design->AddPreMain('tt/trouble_list.tpl');
 			} else {
-				$design->AddMain('tt/trouble_list'.($isNewView ? '_new'.(get_param_raw("type_pk","0") == 1 ? "1" : "") : '').'.tpl');
+				$design->AddMain('tt/trouble_list_full'.(get_param_raw("type_pk","0") == 1 ? "_pk1" : "").'.tpl');
 			}
 		}
 
