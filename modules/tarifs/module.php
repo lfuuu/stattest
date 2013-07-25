@@ -14,6 +14,7 @@ class m_tarifs{
             'voip'				=> array('tarifs','read'),
             'voip_edit'			=> array('tarifs','edit'),
             'price_tel'			=> array('tarifs','edit'),
+            'saas'  			=> array('tarifs','edit'),
 		);
 	var $menu=array(
 			array('Интернет',				'view','&m=internet'),
@@ -26,6 +27,7 @@ class m_tarifs{
 			//array('IT Park',				'view','&m=itpark'),
 			array('IT Park',				'itpark',''),
 			array('Welltime',				'welltime',''),
+			array('Виртуальная АТС (SaaS)',	'saas',''),
 			array('WellSystem',				'wellsystem',''),
 //			array('Старые доп.услуги',		'view','&m=add'),
             array('IP-телефония',			'voip'),
@@ -77,6 +79,7 @@ class m_tarifs{
 		elseif ($m=='extra') {$p='extra'; $q='z';}
 		elseif ($m=='itpark') {$p='itpark'; $q='z';}
 		elseif ($m=='welltime') {$p='welltime'; $q='z';}
+		elseif ($m=='saas') {$p='saas'; $q='z';}
 		elseif ($m=='wellsystem') {$p='wellsystem'; $q='z';}
 		elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
 		elseif ($m=='voip') {$p='voip'; $q='z';}
@@ -126,6 +129,7 @@ class m_tarifs{
 
 		if(!$v)
 			return;
+
 		include INCLUDE_PATH.'db_view.php';
 		$view=DbViewFactory::Get($v[0]);
 		$view->SetFilters(get_param_raw('filter'));
@@ -651,6 +655,12 @@ class m_tarifs{
             return PriceTel::save();
 
         PriceTel::view();
+    }
+
+    function tarifs_saas()
+    {
+		Header('Location: ?module=tarifs&action=view&m=saas');
+		exit();
     }
 }
 
