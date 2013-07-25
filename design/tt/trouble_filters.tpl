@@ -10,7 +10,6 @@
 	<input type='hidden' name='type_pk' value='{$tt_type.pk}' />
 	<input type='hidden' name='filters_flag' value='true'/>
 	<input type='hidden' name='filter_set' value='true'/>
-	<input type='hidden' name='isnew' value='{if $isNewView}true{else}false{/if}'/>
 
 	<table>
 		<tr align='center'><td></td><td></td><td rowspan='7'><input type='submit' value='Выбрать' /><input type='submit' name="cancel" value='Снять фильтр' /></td></tr>
