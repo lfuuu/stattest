@@ -1,6 +1,6 @@
 <?
 //,"domains","","usage_phone_callback");
-$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd","usage_extra","emails", "usage_welltime");
+$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_saas", "usage_extra","usage_welltime", "emails");
 
 function Underscore2Caps($s) {
 	return preg_replace_callback("/_(.)/",create_function('$a','return strtoupper($a[1]);'),$s);
@@ -1031,6 +1031,41 @@ class ServiceUsageWelltime extends ServicePrototype {
 		} elseif ($this->tarif_current['period']=='year') {
 			$v[1].=' Ó '.mdate('d ÍÅÓÑÃÁ Y',$this->date_from).' ĞÏ '.mdate('d ÍÅÓÑÃÁ Y',$this->date_to);
 		}
+		$R[]=$v;
+		return $R;
+	}
+}
+
+class ServiceUsageSaas extends ServicePrototype {
+	var $tarif_std = 0;
+	public function LoadTarif() {
+		global $db;
+		$this->tarif_current=$db->GetRow('select * from tarifs_saas where id='.$this->service['tarif_id']);
+	}
+
+    public function SetMonth($month) {
+        return parent::SetMonth($month);
+    }
+
+	public function GetLinesMonth(){
+		if(!$this->date_from || !$this->date_to)
+			return array();
+		$R=ServicePrototype::GetLinesMonth();
+		$v=array(
+			$this->tarif_current['currency'],
+			$this->tarif_current['description'],
+			$this->service['amount']*$this->GetDatePercent(),
+			$this->tarif_current['price'],
+			'service',
+			$this->service['service'],
+			$this->service['id'],
+			date('Y-m-d',$this->date_from),
+			date('Y-m-d',$this->date_to)
+		);
+
+        //by month
+        $v[1].=' Ó '.mdate('d',$this->date_from).' ĞÏ '.mdate('d ÍÅÓÑÃÁ',$this->date_to);
+
 		$R[]=$v;
 		return $R;
 	}
