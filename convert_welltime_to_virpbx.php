@@ -26,7 +26,7 @@ include "../conf.php";
 
 if($a == "clean")
 {
-    $db->Query("truncate usage_saas");
+    $db->Query("truncate usage_virtpbx");
 
     echo "\nClean complete \n";
     exit();
@@ -36,7 +36,7 @@ if($a == "clean")
 
 $tarifIds = $db->GetValue("SELECT group_concat(id) FROM `tarifs_extra` WHERE `code` = 'welltime' AND `description` LIKE '%Виртуальная АТС пакет%'");
 
-if(!$tarifIds) die("SAAS tarifs  not found");
+if(!$tarifIds) die("VirtPBX tarifs not found");
 
 $ll = $db->AllRecords("select * from usage_welltime where tarif_id in (".$tarifIds.")");
 
@@ -114,7 +114,7 @@ if($a == "copy")
 
     foreach($ll as $l)
     {
-        $db->QueryInsert("usage_saas", $l);
+        $db->QueryInsert("usage_virtpbx", $l);
     }
 
     echo "Copied ".count($ll)." records";

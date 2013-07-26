@@ -277,9 +277,9 @@ function createOption(oSel, id,value){
     oSel.appendChild(opt);
 }
 
-function form_usage_saas_get(id)
+function form_usage_virtpbx_get(id)
 {
-    __form_get(id, 'saas');
+    __form_get(id, 'virtpbx');
 
 }
 

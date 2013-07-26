@@ -437,10 +437,10 @@ class DbViewTarifsWelltime extends DbView{
 	}
 }
 
-class DbViewTarifsSaas extends DbView{
+class DbViewTarifsVirtpbx extends DbView{
 	public function __construct(){
-		$this->table = 'tarifs_saas';
-		$this->Headers['z'] = 'Тарифы Виртуальная АТС (Welltime SaaS) ';
+		$this->table = 'tarifs_virtpbx';
+		$this->Headers['z'] = 'Тарифы Виртуальная АТС';
 		$this->FieldSets['z']=array(
 			'description'=>'Описание',
 			'price'=>'Стоимость',
@@ -458,7 +458,7 @@ class DbViewTarifsSaas extends DbView{
 
 
 
-		$this->filters = array('saas','public');
+		$this->filters = array('virtpbx','public');
 	}
 }
 class DbViewTarifsWellSystem extends DbView{
@@ -524,9 +524,9 @@ class DbFormTarifsWelltime extends DbFormSimpleLog {
 	}
 }
 
-class DbFormTarifsSaas extends DbFormSimpleLog {
+class DbFormTarifsVirtpbx extends DbFormSimpleLog {
 	public function constructChild() {
-		DbForm::__construct('tarifs_saas');
+		DbForm::__construct('tarifs_virtpbx');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','archive'=>'архивный'));
 		$this->fields['description']=array();
@@ -654,7 +654,7 @@ class DbViewFactory {
 		if ($v=='extra') return new DbViewTarifsExtra();
 		if ($v=='itpark') return new DbViewTarifsITPark();
 		if ($v=='welltime') return new DbViewTarifsWelltime();
-		if ($v=='saas') return new DbViewTarifsSaas();
+		if ($v=='virtpbx') return new DbViewTarifsVirtpbx();
 		if ($v=='wellsystem') return new DbViewTarifsWellSystem();
 		return false;
 	}
@@ -667,7 +667,7 @@ class DbViewFactory {
 		if ($v=='extra') return new DbFormTarifsExtra();
 		if ($v=='itpark') return new DbFormTarifsITPark();
 		if ($v=='welltime') return new DbFormTarifsWelltime();
-		if ($v=='saas') return new DbFormTarifsSaas();
+		if ($v=='virtpbx') return new DbFormTarifsVirtpbx();
 		if ($v=='wellsystem') return new DbFormTarifsWellSystem();
 		return false;
 	}

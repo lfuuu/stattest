@@ -16,13 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `tarifs_saas`
+-- Table structure for table `tarifs_virtpbx`
 --
 
-DROP TABLE IF EXISTS `tarifs_saas`;
+DROP TABLE IF EXISTS `tarifs_virtpbx`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tarifs_saas` (
+CREATE TABLE `tarifs_virtpbx` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` enum('public','archive') NOT NULL DEFAULT 'public',
   `description` varchar(100) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL DEFAULT '',
@@ -42,13 +42,13 @@ CREATE TABLE `tarifs_saas` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `tarifs_saas`
+-- Dumping data for table `tarifs_virtpbx`
 --
 
-LOCK TABLES `tarifs_saas` WRITE;
-/*!40000 ALTER TABLE `tarifs_saas` DISABLE KEYS */;
-INSERT INTO `tarifs_saas` VALUES (1,'public','Виртуальная АТС пакет Лайт','month','RUR','507.6271',10,'100.0000',250,'1.0000',0,0,48,'2013-07-25 15:44:15'),(2,'public','Виртуальная АТС пакет Бизнес','month','RUR','1694.0678',50,'50.0000',500,'1.0000',1,1,48,'2013-07-25 15:34:10'),(3,'public','Виртуальная АТС пакет Бизнес Про','month','RUR','2541.5254',100,'10.0000',1000,'1.0000',1,1,48,'2013-07-25 15:34:34');
-/*!40000 ALTER TABLE `tarifs_saas` ENABLE KEYS */;
+LOCK TABLES `tarifs_virtpbx` WRITE;
+/*!40000 ALTER TABLE `tarifs_virtpbx` DISABLE KEYS */;
+INSERT INTO `tarifs_virtpbx` VALUES (1,'public','Виртуальная АТС пакет Лайт','month','RUR','507.6271',10,'100.0000',250,'1.0000',0,0,48,'2013-07-25 15:44:15'),(2,'public','Виртуальная АТС пакет Бизнес','month','RUR','1694.0678',50,'50.0000',500,'1.0000',1,1,48,'2013-07-25 15:34:10'),(3,'public','Виртуальная АТС пакет Бизнес Про','month','RUR','2541.5254',100,'10.0000',1000,'1.0000',1,1,48,'2013-07-25 15:34:34');
+/*!40000 ALTER TABLE `tarifs_virtpbx` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

@@ -92,10 +92,10 @@ class m_services_head extends IModuleHead {
 					'welltime_view'			=> array('services_welltime','full'),
 					'welltime_add'			=> array('services_welltime','full'),
 					'welltime_apply'			=> array('services_welltime','full'),
-//SaaS
-					'saas_view'			=> array('services_welltime','full'),
-					'saas_add'			=> array('services_welltime','full'),
-					'saas_apply'			=> array('services_welltime','full'),
+//Виртуальная АТС
+					'virtpbx_view'			=> array('services_welltime','full'),
+					'virtpbx_add'			=> array('services_welltime','full'),
+					'virtpbx_apply'			=> array('services_welltime','full'),
 
 //WellSystem
 					'wellsystem_view'			=> array('services_wellsystem','full'),
@@ -127,7 +127,7 @@ class m_services_head extends IModuleHead {
 		array('Доп. услуги',			'ex_view'),
 		array('IT Park',				'it_view'),
 		array('Welltime',				'welltime_view'),
-        array('SaaS',		     		'saas_view'),
+        array('Виртуальная АТС',		'virtpbx_view'),
 		array('WellSystem',				'wellsystem_view'),
 		array('PPP-логины',				'ppp_view'),
 		array('Номерные ёмкости',	'e164')

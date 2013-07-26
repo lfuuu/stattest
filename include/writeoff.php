@@ -1,6 +1,6 @@
 <?
 //,"domains","","usage_phone_callback");
-$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_saas", "usage_extra","usage_welltime", "emails");
+$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails");
 
 function Underscore2Caps($s) {
 	return preg_replace_callback("/_(.)/",create_function('$a','return strtoupper($a[1]);'),$s);
@@ -1036,11 +1036,11 @@ class ServiceUsageWelltime extends ServicePrototype {
 	}
 }
 
-class ServiceUsageSaas extends ServicePrototype {
+class ServiceUsageVirtpbx extends ServicePrototype {
 	var $tarif_std = 0;
 	public function LoadTarif() {
 		global $db;
-		$this->tarif_current=$db->GetRow('select * from tarifs_saas where id='.$this->service['tarif_id']);
+		$this->tarif_current=$db->GetRow('select * from tarifs_virtpbx where id='.$this->service['tarif_id']);
 	}
 
     public function SetMonth($month) {

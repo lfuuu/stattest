@@ -990,9 +990,9 @@ class DbFormUsageWelltime extends DbForm{
 	}
 }
 
-class DbFormUsageSAAS extends DbForm{
+class DbFormUsageVirtpbx extends DbForm{
 	public function __construct() {
-		DbForm::__construct('usage_saas');
+		DbForm::__construct('usage_virtpbx');
 		$this->fields['client']=array('type'=>'label');
 		$this->fields['actual_from']=array('default'=>'2029-01-01');
 		$this->fields['actual_to']=array('default'=>'2029-01-01');
@@ -1020,8 +1020,8 @@ class DbFormUsageSAAS extends DbForm{
 		if(!isset($fixclient_data))
 			$fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
 		if ($this->isData('id')) {
-			HelpDbForm::assign_block('usage_saas',$this->data['id']);
-			HelpDbForm::assign_tt('usage_saas',$this->data['id'],$this->data['client']);
+			HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
+			HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);
 
 			$db->Query('
 				select
@@ -1030,7 +1030,7 @@ class DbFormUsageSAAS extends DbForm{
 					price,
 					currency
 				from
-					tarifs_saas
+					tarifs_virtpbx
 				where
 					id='.$this->data['tarif_id']
 			);
@@ -1047,14 +1047,14 @@ class DbFormUsageSAAS extends DbForm{
 				price,
 				currency
 			from
-				tarifs_saas
+				tarifs_virtpbx
             order by price'
 			);
 			$R=array('');
 			while($r=$db->NextRecord())
 				$R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
 			$this->fields['tarif_id']['type']='select';
-			$this->fields['tarif_id']['add']=' onchange=form_usage_saas_get()';
+			$this->fields['tarif_id']['add']=' onchange=form_usage_virtpbx_get()';
 			$this->fields['tarif_id']['assoc_enum']=$R;
 			$this->fields['tarif_str']['type']='no';
 		}
@@ -1460,8 +1460,8 @@ class DbFormFactory {
 			return new DbFormUsageExtra();
 		}elseif ($table=='usage_welltime') {
 			return new DbFormUsageWelltime();
-		}elseif ($table=='usage_saas') {
-			return new DbFormUsageSAAS();
+		}elseif ($table=='usage_virtpbx') {
+			return new DbFormUsageVirtpbx();
 		}elseif ($table=='emails') {
 			return new DbFormEmails();
 		}

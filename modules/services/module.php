@@ -1794,7 +1794,7 @@ class m_services extends IModule{
 	}
 
 // =========================================================================================================================================
-	function services_saas_view($fixclient){
+	function services_virtpbx_view($fixclient){
 		global $db,$design;
 		if(!$this->fetch_client($fixclient)){
 
@@ -1805,7 +1805,7 @@ class m_services extends IModule{
 				c.status as client_status,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-			FROM usage_saas as S
+			FROM usage_virtpbx as S
 			LEFT JOIN clients c ON (c.client = S.client)
 			INNER JOIN tarifs_sass as T ON T.id=S.tarif_id
 			HAVING actual
@@ -1824,8 +1824,8 @@ class m_services extends IModule{
                 $R[]=$r;
             }
 
-            $design->assign('services_saas',$R);
-            $design->AddMain('services/saas_all.tpl');
+            $design->assign('services_virtpbx',$R);
+            $design->AddMain('services/virtpbx_all.tpl');
 
 			//trigger_error('Не выбран клиент');
 			return;
@@ -1839,8 +1839,8 @@ class m_services extends IModule{
 				S.*,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-			FROM usage_saas as S
-			INNER JOIN tarifs_saas as T ON T.id=S.tarif_id
+			FROM usage_virtpbx as S
+			INNER JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
 			WHERE S.client="'.$fixclient.'"'
 		);
 
@@ -1856,11 +1856,11 @@ class m_services extends IModule{
             }
 		}
 
-		$design->assign('saas_akt',$isViewAkt);
-		$design->assign('services_saas',$R);
-		$design->AddMain('services/saas.tpl');
+		$design->assign('virtpbx_akt',$isViewAkt);
+		$design->assign('services_virtpbx',$R);
+		$design->AddMain('services/virtpbx.tpl');
 	}
-	function services_saas_add($fixclient){
+	function services_virtpbx_add($fixclient){
 		global $design,$db;
 		if(!$this->fetch_client($fixclient)){
 			trigger_error('Не выбран клиент');
@@ -1868,22 +1868,22 @@ class m_services extends IModule{
 		}
 		$db->Query('select * from clients where client="'.$fixclient.'"');
 		$r=$db->NextRecord();
-		$dbf = new DbFormUsageSaas();
+		$dbf = new DbFormUsageVirtpbx();
 		$dbf->SetDefault('client',$fixclient);
-		$dbf->Display(array('module'=>'services','action'=>'saas_apply'),'Услуги','Новая услуга SaaS');
+		$dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Новая услуга Виртальная АТС');
 	}
-	function services_saas_apply($fixclient){
+	function services_virtpbx_apply($fixclient){
 		global $design,$db;
 		if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
-		$dbf = new DbFormUsageSaas();
+		$dbf = new DbFormUsageVirtpbx();
 		$id=get_param_integer('id','');
 		if ($id) $dbf->Load($id);
 		$result=$dbf->Process();
 		if ($result=='delete') {
-			header('Location: ?module=services&action=saas_view');
+			header('Location: ?module=services&action=virtpbx_view');
 			$design->ProcessX('empty.tpl');
 		}
-		$dbf->Display(array('module'=>'services','action'=>'saas_apply'),'Услуги','Редактировать дополнительную услугу');
+		$dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Редактировать дополнительную услугу');
 	}
 // =========================================================================================================================================
 	function services_welltime_view($fixclient){

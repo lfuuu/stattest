@@ -14,7 +14,7 @@ class m_tarifs{
             'voip'				=> array('tarifs','read'),
             'voip_edit'			=> array('tarifs','edit'),
             'price_tel'			=> array('tarifs','edit'),
-            'saas'  			=> array('tarifs','edit'),
+            'virtpbx'  			=> array('tarifs','edit'),
 		);
 	var $menu=array(
 			array('Интернет',				'view','&m=internet'),
@@ -27,7 +27,7 @@ class m_tarifs{
 			//array('IT Park',				'view','&m=itpark'),
 			array('IT Park',				'itpark',''),
 			array('Welltime',				'welltime',''),
-			array('Виртуальная АТС (SaaS)',	'saas',''),
+			array('Виртуальная АТС',        'virtpbx',''),
 			array('WellSystem',				'wellsystem',''),
 //			array('Старые доп.услуги',		'view','&m=add'),
             array('IP-телефония',			'voip'),
@@ -79,7 +79,7 @@ class m_tarifs{
 		elseif ($m=='extra') {$p='extra'; $q='z';}
 		elseif ($m=='itpark') {$p='itpark'; $q='z';}
 		elseif ($m=='welltime') {$p='welltime'; $q='z';}
-		elseif ($m=='saas') {$p='saas'; $q='z';}
+		elseif ($m=='virtpbx') {$p='virtpbx'; $q='z';}
 		elseif ($m=='wellsystem') {$p='wellsystem'; $q='z';}
 		elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
 		elseif ($m=='voip') {$p='voip'; $q='z';}
@@ -657,9 +657,9 @@ class m_tarifs{
         PriceTel::view();
     }
 
-    function tarifs_saas()
+    function tarifs_virtpbx()
     {
-		Header('Location: ?module=tarifs&action=view&m=saas');
+		Header('Location: ?module=tarifs&action=view&m=virtpbx');
 		exit();
     }
 }

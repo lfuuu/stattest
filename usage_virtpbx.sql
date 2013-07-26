@@ -16,13 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `usage_saas`
+-- Table structure for table `usage_virtpbx`
 --
 
-DROP TABLE IF EXISTS `usage_saas`;
+DROP TABLE IF EXISTS `usage_virtpbx`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `usage_saas` (
+CREATE TABLE `usage_virtpbx` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(100) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL DEFAULT '',
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
@@ -41,12 +41,12 @@ CREATE TABLE `usage_saas` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `usage_saas`
+-- Dumping data for table `usage_virtpbx`
 --
 
-LOCK TABLES `usage_saas` WRITE;
-/*!40000 ALTER TABLE `usage_saas` DISABLE KEYS */;
-/*!40000 ALTER TABLE `usage_saas` ENABLE KEYS */;
+LOCK TABLES `usage_virtpbx` WRITE;
+/*!40000 ALTER TABLE `usage_virtpbx` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usage_virtpbx` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
