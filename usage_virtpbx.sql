@@ -29,12 +29,9 @@ CREATE TABLE `usage_virtpbx` (
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `amount` decimal(16,5) NOT NULL DEFAULT '1.00000',
   `status` enum('connecting','working') NOT NULL DEFAULT 'working',
-  `login` varchar(255) NOT NULL DEFAULT '',
-  `pass` varchar(255) NOT NULL DEFAULT '',
   `comment` varbinary(255) NOT NULL DEFAULT '',
   `tarif_id` int(11) NOT NULL DEFAULT '0',
-  `router` varchar(255) NOT NULL DEFAULT '',
-  `ip` varchar(100) NOT NULL DEFAULT '',
+  `ats_router` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2839 DEFAULT CHARSET=koi8r;

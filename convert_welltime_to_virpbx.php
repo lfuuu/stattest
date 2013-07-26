@@ -20,9 +20,13 @@ if(!$a)
 
 
 
-define("PATH_TO_ROOT", "../");
+define("PATH_TO_ROOT", "./");
+//define("print_sql", 1);
+define("exception_sql",1);
 
-include "../conf.php";
+include "./conf.php";
+
+try{
 
 if($a == "clean")
 {
@@ -57,39 +61,9 @@ foreach($ll as &$l)
     }else
         $l["tarif_id"] = $tts[$l["tarif_id"]];
 
+    $l["ats_router"] = $l["router"];
+    unset($l["router"], $l["ip"]);
 
-    // pass parse
-    if(!$l["comment"]) continue;
-
-    $c = trim($l["comment"]);
-
-    $login = "";
-    $pass = "";
-
-    $c = str_replace("\\", "/", $c);
-
-    if($l["client"] == "id28006")
-        $c = str_replace("/", " / ", $c);
-
-    if(preg_match("/ìÏÇÉÎ ?:\s*([^\s]+)\s+ğÁÒÏÌØ ?:\s*([^\s]+)/", $c, $o))
-    {
-        $login = $o[1];
-        $pass = $o[2];
-        $l["comment"] = "";
-    }else
-    if(preg_match("@([^\s]+)\s*([/\ ]?)\s*([^\s]+)@", $c, $o))
-    {
-        $login = $o[1];
-        $pass = $o[3];
-        $l["comment"] = "";
-    }else{
-        $notResp[] = $r;
-        //printdbg($c);
-    }
-
-
-    $l["login"] = $login;
-    $l["pass"] = $pass;
 }
 unset($l);
 
@@ -130,6 +104,11 @@ if($a == "del")
     }
 
     echo "Delete ".$cc." records";
+}
+
+}catch(Exception $e)
+{
+    die("ERROR: ".$e->GetMessage());
 }
 
 

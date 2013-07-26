@@ -998,10 +998,7 @@ class DbFormUsageVirtpbx extends DbForm{
 		$this->fields['actual_to']=array('default'=>'2029-01-01');
 		$this->fields['tarif_id']=array('type'=>'hidden');
 		$this->fields['tarif_str']=array('db_ignore'=>1);
-		$this->fields['ip']=array();
-		$this->fields['router']=array("enum" => array());
-		$this->fields['login']=array();
-		$this->fields['pass']=array();
+		$this->fields['ats_router']=array("enum" => array());
 		$this->fields['amount']=array();
 		$this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
 		$this->fields['comment']=array();
