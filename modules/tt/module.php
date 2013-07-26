@@ -1189,7 +1189,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 			if ($tt_design=='top') {
 				$design->AddPreMain('tt/trouble_list.tpl');
 			} else {
-				$design->AddMain('tt/trouble_list_full'.(get_param_raw("type_pk","0") == 1 ? "_pk1" : "").'.tpl');
+				$design->AddMain('tt/trouble_list_full'.(get_param_raw("type_pk","0") == 4 ? "_pk4" : "").'.tpl');
 			}
 		}
 
