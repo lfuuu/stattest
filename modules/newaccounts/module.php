@@ -4189,6 +4189,9 @@ class m_newaccounts extends IModule{
 
 	$managerInfo = $db->QuerySelectRow("user_users", array("user" => $manager));
 
+    if($managerInfo["usergroup"] == "account_managers")
+        $managerInfo["usergroup"] = "manager";
+
 	$newpayments_join = '';
 
 	if($manager && ($b_pay0 || $b_pay1 || $nedopay)){
