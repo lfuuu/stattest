@@ -31,6 +31,19 @@ class m_routers {
 		'n_apply'				=> array('routers_nets','r'),
 		'n_report'				=> array('routers_nets','r'),
 		'n_acquire_as'			=> array('',''),
+
+		'datacenter_list'		=> array('routers_routers','r'),
+		'datacenterr_view'		=> array('routers_routers','r'),
+		'datacenterr_edit'		=> array('routers_routers','r'),
+		'datacenterr_add'		=> array('routers_routers','add'),
+		'datacenterr_apply'		=> array('routers_routers','edit'),
+
+		'server_pbx_list'		=> array('routers_routers','r'),
+		'server_pbxr_view'		=> array('routers_routers','r'),
+		'server_pbxr_edit'		=> array('routers_routers','r'),
+		'server_pbxr_add'		=> array('routers_routers','add'),
+		'server_pbxr_apply'		=> array('routers_routers','edit'),
+
 /*		'ports'					=>array('routers_devices','add'),
 		'ports'					=>array('routers_devices','delete'),
 		'ports_nodes'			=>array('routers_devices','add'),
@@ -39,6 +52,8 @@ class m_routers {
 		'ports_names'			=>array('routers_devices','delete')
 */	);
 	var $menu=array(
+		array('Тех. площадка',			'datacenter_list'),
+		array('Сервера АТС',			'server_pbx_list'),
 		array('Роутеры',				'r_list'),
 		array('Клиентские устройства',	'd_list'),
 		array('SNMP устройства',		'd_snmp'),
@@ -616,6 +631,32 @@ class m_routers {
 		);
 
 		$design->ProcessEx('errors.tpl');
+	}
+
+	function routers_datacenter_list($fixclient){
+		global $db,$design;
+		$search=get_param_protected('search' , '');
+		$design->assign('search',$search);
+		$design->assign('models',$db->AllRecords('select * from datacenter'));
+		$design->AddMain('routers/main_datacenters.tpl');
+	}
+	function routers_datacenter_add($fixclient){
+		global $design,$db;
+		$db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
+		$dbf = new DbFormDataCenter();
+		$dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'),'Технические площадки','Новая площадка');
+	}
+	function routers_datacenter_apply($fixclient){
+		global $design,$db;
+		$dbf = new DbFormTechCPEModels();
+		$id=get_param_integer('id','');
+		if ($id) $dbf->Load($id);
+		$result=$dbf->Process();
+		if ($result=='delete') {
+			header('Location: ?module=devices&action=m_list');
+			$design->ProcessEx('empty.tpl');
+		}
+		$dbf->Display(array('module'=>'routers','action'=>'m_apply'),'Модели клиентских устройств','Редактирование');
 	}
 }
 ?>
