@@ -3247,6 +3247,11 @@ class m_newaccounts extends IModule{
             	$d = "mak";
             	$b = "ant";
             }
+
+            if($billDate >= strtotime("2013-07-31"))
+            {
+                $d = "nat";
+            }
         }elseif ($firma == "markomnet_new")
         {
             $d = "maz";
