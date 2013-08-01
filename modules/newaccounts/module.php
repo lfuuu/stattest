@@ -2164,7 +2164,7 @@ class m_newaccounts extends IModule{
             $design->assign("assignment_month", mdate('месяца', $assignmentDate));
         }
 
-		if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar')))
+		if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
 			$obj='bill';
 		if ($source!=1 && $source!=2 && $source!=4 && $source!=5) //имхо глупость..
 			$source = 3;
@@ -2238,6 +2238,15 @@ class m_newaccounts extends IModule{
 				exit();
 			}*/
 		}
+
+        if($obj == "new_director_info")
+        {
+            $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
+            exit();
+        }
+			
+
+
 
 		if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice", "assignment"))){
 

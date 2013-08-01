@@ -442,11 +442,15 @@ class MailJob {
        	}elseif($match[1] == "NOTICE"){
         	$T = "Уведомление о назначении: ".
         	$this->get_object_link('notice', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
-       	}
+       	}elseif($match[1] == "DIRECTOR")
+        {
+        	$T = "Информационное письмо о смене генерального директора: ".
+        	$this->get_object_link('new_director_info', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
+        }
 
-            return $T;
-
+        return $T;
     }
+
 	public function _get_bills($match){
 		global $db;
 
@@ -542,6 +546,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(SOGL)_TELEKOM(\d{0,2})%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(NOTICE)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(ORDER)_TELEKOM%/',array($this,'_get_assignments'),$text);
+		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars($text));
