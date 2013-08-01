@@ -3316,7 +3316,7 @@ class m_newaccounts extends IModule{
                     "name_" => "Надтачеевой Н. А.",
                     "position" => "Генеральный директор",
                     "position_" => "Генерального директора",
-                    "sign" => false),
+                    "sign" => array("src" => "sign_nat.png", "width" => 152, "height" => 94)),
                 "udi" => array(
                     "name" => "Юдицкая Н. С.",
                     "name_" => "Юдицкая Н. С.",
