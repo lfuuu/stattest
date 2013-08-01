@@ -992,24 +992,21 @@ class DbFormUsageWelltime extends DbForm{
 
 class DbFormUsageVirtpbx extends DbForm{
 	public function __construct() {
+        global $db;
+
 		DbForm::__construct('usage_virtpbx');
 		$this->fields['client']=array('type'=>'label');
 		$this->fields['actual_from']=array('default'=>'2029-01-01');
 		$this->fields['actual_to']=array('default'=>'2029-01-01');
 		$this->fields['tarif_id']=array('type'=>'hidden');
 		$this->fields['tarif_str']=array('db_ignore'=>1);
-		$this->fields['ats_router']=array("enum" => array());
-		$this->fields['amount']=array();
+		$this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"));
+		$this->fields['amount']=array("default" => 1);
 		$this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
 		$this->fields['comment']=array();
 		$this->includesPre=array('dbform_block.tpl');
 		$this->includesPre2=array('dbform_tt.tpl');
 		$this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
-
-        global $db;
-        $this->fields['router']['enum']=array(""=>"");
-        $db->Query('select router from tech_routers order by router');
-        while ($r=$db->NextRecord()) $this->fields['router']['enum'][]=$r['router'];
 	}
 	public function Display($form_params = array(),$h2='',$h3='') {
  		global $db,$design;
@@ -1434,6 +1431,31 @@ class DbFormUsagePhoneRedirConditions extends DbForm {
 	}	
 }
 
+class DbFormDataCenter extends DbForm{
+	public function __construct() {
+		DbForm::__construct('datacenter');
+
+        $this->fields['name'] = array();
+        $this->fields['address'] = array();
+        $this->fields['comment'] = array();
+
+	}
+}
+
+class DbFormServerPbx extends DbForm{
+	public function __construct() {
+        global $db;
+
+		DbForm::__construct('server_pbx');
+
+        $this->fields['name'] = array();
+        $this->fields['ip'] = array();
+
+        $this->fields['datacenter_id'] = array("assoc_enum" => $db->AllRecordsAssoc("select name,id from datacenter order by name desc", "id", "name"));
+
+	}
+}
+
 class DbFormFactory {
 	public static function Create($table) {
 
@@ -1632,6 +1654,7 @@ $GLOBALS['translate_arr']=array(
     '*.space' => 'Пространство Мб',
     '*.overrun_per_mb' => 'Превышение за Мб',
     '*.is_record' => 'Запись звонков',
-    '*.is_fax' => 'Факс'
+    '*.is_fax' => 'Факс',
+    '*.datacenter_id' => 'Тех. площадка'
 	);
 ?>

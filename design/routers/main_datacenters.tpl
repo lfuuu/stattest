@@ -5,21 +5,17 @@
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="15%">Роутер</TD>
-          <TD class=header vAlign=bottom width="15%">Телефон</TD>
-          <TD class=header vAlign=bottom width="25%">Адрес</TD>
-          <TD class=header vAlign=bottom width="20%">IP сети</TD>
-          <TD class=header vAlign=bottom width="15%">Номер модема</TD>
-          <TD class=header vAlign=bottom width="10%">&nbsp;</TD>
+          <TD class=header vAlign=bottom width="15%">Название</TD>
+          <TD class=header vAlign=bottom width="15%">Адрес</TD>
+          <TD class=header vAlign=bottom width="15%">Комментарий</TD>
+          <TD class=header vAlign=bottom width="15%">&nbsp;</TD>
 		</TR>
-{foreach from=$datacenters item=item name=outer}
+{foreach from=$ds item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-          <TD><a href='{$LINK_START}module=routers&action=datacenter_view&id={$item.router}'>{$item.router}</a></TD>
-          <TD>{$item.phone}</TD>
-          <TD>{$item.location}</TD>
-          <TD>{ipstat net=$item.net}</TD>
-          <TD>{$item.adsl_modem_serial}</TD>
-          <TD><a href='{$LINK_START}module=routers&action=datacenter_apply&dbaction=delete&keys[id]={$item.id}'>удалить</a></TD>
+          <TD><a href='{$LINK_START}module=routers&action=datacenter_apply&id={$item.id}'>{$item.name}</a></TD>
+          <TD>{$item.address}</TD>
+          <TD>{$item.comment}</TD>
+          <TD>{if $item.count == 0}<a href='{$LINK_START}module=routers&action=datacenter_apply&dbform_action=delete&dbform[id]={$item.id}'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>удалить</a>{else}&nbsp;{/if}</TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>

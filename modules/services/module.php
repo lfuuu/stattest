@@ -12,6 +12,7 @@ class m_services extends IModule{
 		call_user_func(array($this,'services_'.$action),$fixclient);		
 	}
 	function services_default($fixclient){
+		if (access_action('services','vo_view')) {$this->services_vo_view($fixclient); return;}
 		if (access_action('services','in_view')) {$this->services_in_view($fixclient); return;}
 		if (access_action('services','co_view')) {$this->services_co_view($fixclient); return;}
 	}
@@ -1835,12 +1836,13 @@ class m_services extends IModule{
 		$R=array();
 		$db->Query($q='
 			SELECT
-				T.*,
 				S.*,
+				T.*,
+                S.id as id,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
 			FROM usage_virtpbx as S
-			INNER JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+			left JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
 			WHERE S.client="'.$fixclient.'"'
 		);
 
