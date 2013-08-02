@@ -8,7 +8,6 @@
 {if count($pager_pages)>1}
 Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
-
 <style>
 {literal}
 #trouble_table td {
@@ -56,7 +55,7 @@
         <table style="border-collapse:collapse" cellPadding=0 cellSpacing=0 border=0 id="tt_stable">
             {foreach from=$r.stages item=t}
             <tr style="border-bottom: 1px solid #EDEDED;">
-<td nowrap style="font-size: 8pt;">{$t.date_finish_desired}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment}
+<td nowrap style="font-size: 8pt;">{$t.date_start}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment}
         {if $t.doers} {foreach from=$t.doers item=d}----><b>{$d.depart} {$d.name} ({$r.date_start}){if $r.sms} <br><span style="color: #c40000;">{$r.sms.sms_send} // {$r.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}
         </td></tr>
             {/foreach}
