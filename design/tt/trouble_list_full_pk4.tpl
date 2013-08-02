@@ -61,7 +61,7 @@
     <tr>
         <td>
             {foreach from=$r.stages item=t}
-{$t.date_finish_desired} <a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a> {$t.user_main}/{$t.user_edit}: {$t.comment}
+{$t.date_start} <a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a> {$t.user_main}/{$t.user_edit}: {$t.comment}
         {if $t.doers} {foreach from=$t.doers item=d}----><b>{$d.depart} {$d.name} ({$r.date_start}){if $r.sms} <br><span style="color: #c40000;">{$r.sms.sms_send} // {$r.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}<br>
             {/foreach}
         </td>
