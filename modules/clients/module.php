@@ -2142,8 +2142,10 @@ DBG::sql_out($select_client_data);
                     "phone" => "(495) 950-56-78",
                     "fax" => "(495) 638-50-17",
                     "email" => "info@mcn.ru",
-                    "director" => "Мельников А. К.",
-                    "director_" => "Мельникова А. К.",
+                    //"director" => "Мельников А. К.",
+                    //"director_" => "Мельникова А. К.",
+                    "director" => "Надточеева Н. А.",
+                    "director_" => "Надточееву Н. А. ",
                     "director_post" => "Генеральный директор",
                     "director_post_" => "Генерального директора"
 
