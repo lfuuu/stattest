@@ -12,6 +12,7 @@ class m_services extends IModule{
 		call_user_func(array($this,'services_'.$action),$fixclient);		
 	}
 	function services_default($fixclient){
+		if (access_action('services','vo_view')) {$this->services_vo_view($fixclient); return;}
 		if (access_action('services','in_view')) {$this->services_in_view($fixclient); return;}
 		if (access_action('services','co_view')) {$this->services_co_view($fixclient); return;}
 	}
@@ -1603,7 +1604,9 @@ class m_services extends IModule{
 		$JsHttpRequest =& new Subsys_JsHttpRequest_Php();
 		$JsHttpRequest->setEncoding("koi8-r");
 		$id=get_param_integer('id');
-		$R=array(); $db->Query('select * from tarifs_extra where id='.$id);
+        $tarif_table = get_param_protected('tarif_table', 'extra');
+
+		$R=array(); $db->Query('select * from tarifs_'.$tarif_table.' where id='.$id);
 		$r=$db->NextRecord();
 		$_RESULT=array(
 					'async_price'		=> $r['price'].' '.$r['currency'],
@@ -1792,6 +1795,99 @@ class m_services extends IModule{
 	}
 
 // =========================================================================================================================================
+	function services_virtpbx_view($fixclient){
+		global $db,$design;
+		if(!$this->fetch_client($fixclient)){
+
+            $db->Query($q='
+			SELECT
+				T.*,
+				S.*,
+				c.status as client_status,
+				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+			FROM usage_virtpbx as S
+			LEFT JOIN clients c ON (c.client = S.client)
+			INNER JOIN tarifs_sass as T ON T.id=S.tarif_id
+			HAVING actual
+            ORDER BY client,actual_from'
+
+            );
+
+            $R = array();
+            $statuses = ClientCS::$statuses;
+            while($r=$db->NextRecord()){
+                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
+                if($r['period']=='month')
+                    $r['period_rus']='ежемесячно';
+                elseif($r['period']=='year')
+                    $r['period_rus']='ежегодно';
+                $R[]=$r;
+            }
+
+            $design->assign('services_virtpbx',$R);
+            $design->AddMain('services/virtpbx_all.tpl');
+
+			//trigger_error('Не выбран клиент');
+			return;
+		}
+
+
+		$R=array();
+		$db->Query($q='
+			SELECT
+				S.*,
+				T.*,
+                S.id as id,
+				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+			FROM usage_virtpbx as S
+			left JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+			WHERE S.client="'.$fixclient.'"'
+		);
+
+        $isViewAkt = false;
+		while($r=$db->NextRecord()){
+			if($r['period']=='month')
+				$r['period_rus']='ежемесячно';
+			$R[]=$r;
+
+            if($r["actual"] && strpos($r["description"], "Виртуальная АТС пакет") !== false)
+            {
+                $isViewAkt = $r;
+            }
+		}
+
+		$design->assign('virtpbx_akt',$isViewAkt);
+		$design->assign('services_virtpbx',$R);
+		$design->AddMain('services/virtpbx.tpl');
+	}
+	function services_virtpbx_add($fixclient){
+		global $design,$db;
+		if(!$this->fetch_client($fixclient)){
+			trigger_error('Не выбран клиент');
+			return;
+		}
+		$db->Query('select * from clients where client="'.$fixclient.'"');
+		$r=$db->NextRecord();
+		$dbf = new DbFormUsageVirtpbx();
+		$dbf->SetDefault('client',$fixclient);
+		$dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Новая услуга Виртальная АТС');
+	}
+	function services_virtpbx_apply($fixclient){
+		global $design,$db;
+		if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+		$dbf = new DbFormUsageVirtpbx();
+		$id=get_param_integer('id','');
+		if ($id) $dbf->Load($id);
+		$result=$dbf->Process();
+		if ($result=='delete') {
+			header('Location: ?module=services&action=virtpbx_view');
+			$design->ProcessX('empty.tpl');
+		}
+		$dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Редактировать дополнительную услугу');
+	}
+// =========================================================================================================================================
 	function services_welltime_view($fixclient){
 		global $db,$design;
 		if(!$this->fetch_client($fixclient)){
@@ -1884,13 +1980,8 @@ class m_services extends IModule{
 				$r['period_rus']='ежегодно';
 			$R[]=$r;
 
-            if($r["actual"] && strpos($r["description"], "Виртуальная АТС пакет") !== false)
-            {
-                $isViewAkt = $r;
-            }
 		}
 
-		$design->assign('welltime_akt',$isViewAkt);
 		$design->assign('services_welltime',$R);
 		$design->AddMain('services/welltime.tpl');
 	}

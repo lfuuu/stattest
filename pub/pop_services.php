@@ -35,8 +35,12 @@
         case 'usage_welltime': 
             if (!access('services_welltime','full')) return;
             break;
+        case 'usage_virtpbx': 
+            if (!access('services_welltime','full')) return;
+            break;
         default: return;
     }
+
 
 	$design->assign('hl',$hl);	
 	$dbf = DbFormFactory::Create($table);

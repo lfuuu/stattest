@@ -277,7 +277,17 @@ function createOption(oSel, id,value){
     oSel.appendChild(opt);
 }
 
+function form_usage_virtpbx_get(id)
+{
+    __form_get(id, 'virtpbx');
+
+}
+
 function form_usage_extra_get(id) {
+    __form_get(id, 'extra');
+}
+
+function __form_get(id, tarif_table) {
 	if (!id) {
 		if (loading) return;
 		var id=document.getElementById('tarif_id').value;
@@ -304,7 +314,7 @@ function form_usage_extra_get(id) {
 		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
 	}
 	req.caching = false; 
-	req.open('GET', PATH_TO_ROOT+'index_lite.php?module=services&action=ex_async&id='+id, true);
+	req.open('GET', PATH_TO_ROOT+'index_lite.php?module=services&action=ex_async&tarif_table='+tarif_table+'&id='+id, true);
 	req.send();
 } 
 

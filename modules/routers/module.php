@@ -31,6 +31,19 @@ class m_routers {
 		'n_apply'				=> array('routers_nets','r'),
 		'n_report'				=> array('routers_nets','r'),
 		'n_acquire_as'			=> array('',''),
+
+		'datacenter_list'		=> array('routers_routers','r'),
+		'datacenter_view'		=> array('routers_routers','r'),
+		'datacenter_edit'		=> array('routers_routers','r'),
+		'datacenter_add'		=> array('routers_routers','add'),
+		'datacenter_apply'		=> array('routers_routers','edit'),
+
+		'server_pbx_list'		=> array('routers_routers','r'),
+		'server_pbx_view'		=> array('routers_routers','r'),
+		'server_pbx_edit'		=> array('routers_routers','r'),
+		'server_pbx_add'		=> array('routers_routers','add'),
+		'server_pbx_apply'		=> array('routers_routers','edit'),
+
 /*		'ports'					=>array('routers_devices','add'),
 		'ports'					=>array('routers_devices','delete'),
 		'ports_nodes'			=>array('routers_devices','add'),
@@ -39,6 +52,8 @@ class m_routers {
 		'ports_names'			=>array('routers_devices','delete')
 */	);
 	var $menu=array(
+		array('Тех. площадка',			'datacenter_list'),
+		array('Сервера АТС',			'server_pbx_list'),
 		array('Роутеры',				'r_list'),
 		array('Клиентские устройства',	'd_list'),
 		array('SNMP устройства',		'd_snmp'),
@@ -616,6 +631,75 @@ class m_routers {
 		);
 
 		$design->ProcessEx('errors.tpl');
+	}
+
+	function routers_datacenter_list($fixclient){
+		global $db ,$design;
+		$design->assign('ds', $db->AllRecords('
+                        select 
+                            d.*, 
+                            (select count(*) from server_pbx s where s.datacenter_id = d.id) as count 
+                        from datacenter d'));
+		$design->AddMain('routers/main_datacenters.tpl');
+	}
+
+	function routers_datacenter_add($fixclient){
+		global $design, $db;
+		$dbf = new DbFormDataCenter();
+		$dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'), 'Техническая площадка', 'Новая площадка');
+	}
+
+	function routers_datacenter_apply($fixclient){
+		global $design, $db;
+		$dbf = new DbFormDataCenter();
+		$id=get_param_integer('id','');
+		if ($id) $dbf->Load($id);
+		$result=$dbf->Process();
+        if($result == "delete")
+        {
+            header("Location: ./?module=routers&action=datacenter_list");
+            exit();
+        }
+		$dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'), 'Технические площадки', 'Редактировние');
+	}
+
+	function routers_server_pbx_list($fixclient){
+		global $db, $design;
+
+		$search=get_param_protected('search' , '');
+		$design->assign('search',$search);
+		$design->assign('ds',$q = $db->AllRecords('
+                    select 
+                        s.*, 
+                        d.name as datacenter, 
+                        (select count(*) from usage_virtpbx u where u.server_pbx_id = s.id) as count 
+                    from 
+                        server_pbx s, datacenter d 
+                    where 
+                        s.datacenter_id = d.id'));
+
+		$design->AddMain('routers/main_server_pbxs.tpl');
+	}
+	function routers_server_pbx_add($fixclient){
+		global $design, $db;
+
+		$db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
+		$dbf = new DbFormServerPbx();
+		$dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Сервера АТС','Добавление');
+	}
+	function routers_server_pbx_apply($fixclient){
+		global $design, $db;
+
+		$dbf = new DbFormserverPbx();
+		$id=get_param_integer('id','');
+		if ($id) $dbf->Load($id);
+		$result=$dbf->Process();
+        if($result == "delete")
+        {
+            header("Location: ./?module=routers&action=server_pbx_list");
+            exit();
+        }
+		$dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Сервера АТС','Редактирование');
 	}
 }
 ?>

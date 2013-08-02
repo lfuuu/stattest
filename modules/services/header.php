@@ -92,6 +92,10 @@ class m_services_head extends IModuleHead {
 					'welltime_view'			=> array('services_welltime','full'),
 					'welltime_add'			=> array('services_welltime','full'),
 					'welltime_apply'			=> array('services_welltime','full'),
+//Виртуальная АТС
+					'virtpbx_view'			=> array('services_welltime','full'),
+					'virtpbx_add'			=> array('services_welltime','full'),
+					'virtpbx_apply'			=> array('services_welltime','full'),
 
 //WellSystem
 					'wellsystem_view'			=> array('services_wellsystem','full'),
@@ -115,17 +119,18 @@ class m_services_head extends IModuleHead {
 					'ad_close'			=> array('services_additional','close'),
 				);
 	public $menu=array(
+		array('IP Телефония',			'vo_view'),
+		array('Welltime',				'welltime_view'),
+        array('Виртуальная АТС',		'virtpbx_view'),
 		array('Интернет',				'in_view'),
 		array('Collocation',			'co_view'),
-		array('IP Телефония',			'vo_view'),
+		array('WellSystem',				'wellsystem_view'),
+		array('Номерные ёмкости',	    'e164'),
 		array('Доменные имена',			'dn_view'),
 		array('E-Mail',					'em_view'),
+		array('PPP-логины',				'ppp_view'),
 		array('Доп. услуги',			'ex_view'),
 		array('IT Park',				'it_view'),
-		array('Welltime',				'welltime_view'),
-		array('WellSystem',				'wellsystem_view'),
-		array('PPP-логины',				'ppp_view'),
-		array('Номерные ёмкости',	'e164')
 	);
 }
 ?>
