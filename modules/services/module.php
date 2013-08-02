@@ -1801,14 +1801,17 @@ class m_services extends IModule{
 
             $db->Query($q='
 			SELECT
-				T.*,
 				S.*,
+				T.*,
+                S.id as id,
+                sp.name as server_pbx,
 				c.status as client_status,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
 			FROM usage_virtpbx as S
+            LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
 			LEFT JOIN clients c ON (c.client = S.client)
-			INNER JOIN tarifs_sass as T ON T.id=S.tarif_id
+			LEFT JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
 			HAVING actual
             ORDER BY client,actual_from'
 
@@ -1839,10 +1842,12 @@ class m_services extends IModule{
 				S.*,
 				T.*,
                 S.id as id,
+                sp.name as server_pbx,
 				IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
 				IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
 			FROM usage_virtpbx as S
-			left JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+            LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
+			LEFT JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
 			WHERE S.client="'.$fixclient.'"'
 		);
 

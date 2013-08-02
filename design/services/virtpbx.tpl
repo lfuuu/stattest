@@ -16,10 +16,8 @@
 <TR>
 	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">дата</TD>
 	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="35%">Описание</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">Количество</TD>
 	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">Стоимость</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="10%">IP</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="15%">Роутер</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="15%">Сервер АТС</TD>
 </TR>
 {foreach from=$services_virtpbx item=item name=outer}
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
@@ -28,11 +26,8 @@
     
     </td>
 	<td>{$item.description}</td>
-	<td>{$item.amount}</td>
-	<td>{$item.price}</td>
-	<td>{ipstat net=$item.ip data=$item}</td>
-	<td>{$item.router}</td>
-	{*if $item.actual}<a href="{$LINK_START}module=services&action=virtpbx_close&id={$item.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Отключить"></a>{/if*}
+	<td>{$item.price*1.18|round:2} ({$item.price*1})</td>
+	<td>{$item.server_pbx}</td>
 </tr>	
 {/foreach}
 </tbody>
