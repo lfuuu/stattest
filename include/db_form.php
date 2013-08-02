@@ -1655,6 +1655,7 @@ $GLOBALS['translate_arr']=array(
     '*.overrun_per_mb' => 'Превышение за Мб',
     '*.is_record' => 'Запись звонков',
     '*.is_fax' => 'Факс',
-    '*.datacenter_id' => 'Тех. площадка'
+    '*.datacenter_id' => 'Тех. площадка',
+    '*.server_pbx_id' => 'Сервер АТС'
 	);
 ?>
