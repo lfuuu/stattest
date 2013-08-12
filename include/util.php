@@ -714,54 +714,6 @@ class Percenter {
 	}
 }
 
-class Good {
-    private static $goods = array();
-
-    public function GetPrice($goodId, $priceTypeId)
-    {
-        global $db;
-
-        list($goodId, $descrId) = explode(":", $goodId);
-
-        if(!$descrId)
-            $descrId = "00000000-0000-0000-0000-000000000000";
-
-        $r = $db->GetRow("
-                select * from g_good_price where good_id = '".$goodId."'
-                and descr_id = '".$descrId."'
-                and price_type_id ='".$priceTypeId."'");
-
-        return $r["price"];
-    }
-
-    public function GetName($goodId){
-        global $db;
-
-        list($goodId, $descrId) = explode(":", $goodId);
-
-        if(!$descrId)
-            $descrId = "00000000-0000-0000-0000-000000000000";
-
-        $r = $db->GetRow("select concat(g.name,if(d.name is not null,concat(' **',d.name) ,'')) name from g_goods g
-                left join g_good_description d on (g.id = d.good_id and d.id = '".$descrId."')
-                where g.id='".$goodId."'");
-        return $r["name"];
-    }
-
-    private function _GetParam($goodId, $param){
-        $g = self::_GetGood($goodId);
-        return $g ? $g[$param] : false;
-    }
-
-    private function _GetGood($id) {
-        global $db;
-
-        if(!isset(self::$goods[$id])) {
-            self::$goods[$id] = $db->GetRow("select * from g_goods where id = '".$id."'");
-        }
-        return self::$goods[$id];
-    }
-}
     function GetUserName($id)
     {
         global $db;

@@ -3,7 +3,7 @@ define('NO_WEB',1);
 define("PATH_TO_ROOT",'../');
 header("Content-Type: text/html; charset=UTF-8");
 include PATH_TO_ROOT."conf.php";
-class User
+class UserService
 {
 	function Get($field)
 	{
@@ -11,7 +11,7 @@ class User
 	}
 }
 //require_once(INCLUDE_PATH.'user.php');
-$user	= new User();
+$user	= new UserService();
 //$user->DoAction("");
 //if (!$user->IsAuthorized()) die('error:authorization failed');
 

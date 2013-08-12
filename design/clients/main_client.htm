@@ -73,7 +73,13 @@
 				<br>
 				{/if}
 
-				<a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
+			{if access('incomegoods','admin')}
+				<br/>
+				<a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>Создать заказ Поставщику</a>
+				<br/><br/><br/>
+			{/if}
+
+			<a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
 				<br>
 				<a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
 

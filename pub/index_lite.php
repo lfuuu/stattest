@@ -4,7 +4,7 @@
 	define('NO_WEB',1);
 	include PATH_TO_ROOT."conf.php";
 	require_once(INCLUDE_PATH.'user.php');
-	$user	= new User();
+	$user	= new AuthUser();
 
 	$module=get_param_raw('module','');
 	$action=get_param_raw('action','');

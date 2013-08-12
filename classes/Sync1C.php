@@ -52,9 +52,8 @@ class Sync1C
                 $params['password'] = $pass;
             }
             $soapClient = new SoapClient(self::me()->utWsdlUrl, $params);
-            $helper = new Sync1CHelper();
-            $soapHandler = new Sync1CClientSoapHandler($soapClient, $helper);
-            self::$client = new Sync1CClient($soapHandler, $helper);
+            $soapHandler = new Sync1CClientSoapHandler($soapClient);
+            self::$client = new Sync1CClient($soapHandler);
         }
         return self::$client;
     }
@@ -77,19 +76,17 @@ class Sync1C
 class Sync1CClientSoapHandler
 {
     protected $soap;
-    protected $helper;
 
-    public function __construct($soapClient, $helper)
+    public function __construct($soapClient)
     {
         $this->soap = $soapClient;
-        $this->helper = $helper;
     }
 
     public function __call($method, $args){
-        $translated_args = $this->helper->translateToUtf8($args);
+        $translated_args = Encoding::toUtf8($args);
 
         $result = call_user_func_array(array($this->soap, $method), $translated_args);
 
-        return $this->helper->translateToKoi8r($result);
+        return Encoding::toKoi8r($result);
     }
 }

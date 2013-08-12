@@ -13,7 +13,7 @@
 
 
 
-class user 
+class UserNetByNet
 {
     function Get($n)
     {
@@ -23,7 +23,7 @@ class user
     }
 }
 
-$user = new user();
+$user = new UserNetByNet();
 
 
     $db2= new MySQLDatabase("85.94.32.194", "b_wificomstar", "90516ac423d", "welltone_new3");
