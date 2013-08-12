@@ -283,12 +283,12 @@ var price_includes_nds = {if $document->price_includes_nds}true{else}false{/if};
 				modal.$gtd_id.val(data.id);
 				modal.$gtd_code.val(data.code);
 				modal.$gtd_country.text(data.country);
-				$('#addGtdModal').modal('hide');
 			}
 		}).fail(function(data) {
 			showErrorModal('Не удалось создать ГТД');
 		}).always(function(data) {
 			$('#add_gtd_button').removeAttr('disabled');
+			$('#addGtdModal').modal('hide');
 		});
 	});
 
