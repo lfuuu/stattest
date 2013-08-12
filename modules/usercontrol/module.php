@@ -127,7 +127,7 @@ class m_usercontrol {
 		} else {
 			if ($c=$user->GetAsClient()){
 				$db->Query('select count(*) from clients where (client="'.$c.'") and (password="'.$password.'")');
-			} else $db->Query('select count(*) from user_users where (user="'.$user->Get('user').'") and (pass="'.password_hash($password).'")');
+			} else $db->Query('select count(*) from user_users where (user="'.$user->Get('user').'") and (pass="'.password::hash($password).'")');
 
 
 			$r=$db->NextRecord();
@@ -161,7 +161,7 @@ class m_usercontrol {
 				if ($c=$user->GetAsClient()){
 					$db->Query('update clients set password="'.$pass.'" where client="'.$c.'"');
 				} else {
-					$db->Query('update user_users set pass="'.password_hash($pass).'" where user="'.$user->Get('user').'"');
+					$db->Query('update user_users set pass="'.password::hash($pass).'" where user="'.$user->Get('user').'"');
 				}
 				$this->usercontrol_default();
 			} else {

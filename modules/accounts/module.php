@@ -376,7 +376,7 @@ class m_accounts{
         if ($todo=="show_payments") {
             if ($client!=''){
                 $_GLOBAL['fixclient']=$client;
-                session_set('clients_client',$client);
+                $_SESSION['clients_client'] = $client;
             };
             header("Location: index.php?module=accounts&action=accounts_payments");
             return;
