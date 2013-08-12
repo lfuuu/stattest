@@ -2146,7 +2146,7 @@ DBG::sql_out($select_client_data);
                     //"director" => "Мельников А. К.",
                     //"director_" => "Мельникова А. К.",
                     "director" => "Надточеева Н. А.",
-                    "director_" => "Надточееву Н. А. ",
+                    "director_" => "Надточеевой Н. А. ",
                     "director_post" => "Генеральный директор",
                     "director_post_" => "Генерального директора"
 
