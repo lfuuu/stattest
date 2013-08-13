@@ -138,7 +138,7 @@ if (!defined('NO_INCLUDE')){
 		$design = new MySmarty();
 
 		require_once(INCLUDE_PATH.'user.php');
-		$user	= new User();
+		$user	= new AuthUser();
 
 		$modules= new Modules();
 	}

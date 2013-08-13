@@ -32,61 +32,11 @@ class Sync1CHelper
 
 
 
-    public function translateToUtf8($data)
-    {
-        if (is_string($data)) {
-            return iconv('koi8-r', 'utf-8', $data);
-        } elseif (is_array($data)) {
-            $translated = array();
-            foreach ($data as $k => $v) {
-                if (is_string($k)) {
-                    $k = iconv('koi8-r', 'utf-8', $k);
-                }
-                $translated[$k] = $this->translateToUtf8($v);
-            }
-            return $translated;
-        } elseif ($data instanceof stdClass) {
-            $translated = array();
-            foreach ((array)$data as $k => $v) {
-                $k = iconv('koi8-r', 'utf-8', $k);
-                $translated[$k] = $this->translateToUtf8($v);
-            }
-            return (object)$translated;
-        } else {
-            return $data;
-        }
-    }
 
-    public function translateToKoi8r($data)
-    {
-        if (is_string($data)) {
-            return iconv('utf-8', 'koi8-r//ignore', $data);
-        } elseif (is_array($data)) {
-            $translated = array();
-            foreach ($data as $k => $v) {
-                if (is_string($k)) {
-                    $k = iconv('utf-8', 'koi8-r//ignore', $k);
-                }
-                $translated[$k] = $this->translateToKoi8r($v);
-            }
-            return $translated;
-        } elseif ($data instanceof stdClass) {
-            $translated = array();
-            foreach ((array)$data as $k => $v) {
-                $k = iconv('utf-8', 'koi8-r//ignore', $k);
-                $translated[$k] = $this->translateToKoi8r($v);
-            }
-            return (object)$translated;
-        } else {
-            return $data;
-        }
-    }
-
-    public function printSoapFault($e)
-    {
-        $a = explode("|||",$e->getMessage());
-        trigger_error("<br><font style='color: black;'>1C: <font style='font-weight: normal;'>".iconv("utf-8", "koi8-r//ignore", $a[0])."</font></font>");
-        trigger_error("<font style='color: black; font-weight: normal;font-size: 8pt;'>".iconv("utf-8", "koi8-r//ignore", $a[1])."</font>");
-    }
+	public function throw1CException($e)
+	{
+		$messages = explode("|||",Encoding::toKoi8r($e->getMessage()));
+		throw new Sync1CException(count($messages) > 1 ? $messages[1] : $messages[0]);
+	}
 
 }

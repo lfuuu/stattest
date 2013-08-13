@@ -1311,10 +1311,11 @@ class m_clients {
 			if($C->Apply()){
 				clCards\SyncAdditionCards($db, $cl_main_card);
 
-                if (!Sync1C::getClient()->saveClientCards($cl_main_card))
-                {
-                    trigger_error("Не удалось синхронизировать клиента с 1С");
-                }
+				try {
+					Sync1C::getClient()->saveClientCards($cl_main_card);
+				} catch (Sync1CException $e) {
+					$e->triggerError();
+				}
 
 				if($pop){
 					$design->display('pop_header.tpl');
@@ -1511,10 +1512,11 @@ class m_clients {
 		$db->Query($q);
 		$db->Query('commit');
 
-        if (!Sync1C::getClient()->saveClientCard($id))
-        {
-            trigger_error("Не удалось синхронизировать клиента с 1С");
-        }
+		try {
+			Sync1C::getClient()->saveClientCard($id);
+		} catch (Sync1CException $e) {
+			$e->triggerError();
+		}
 
 		Header("Location: ?module=clients&id=".$id);
 		exit();
@@ -1801,10 +1803,11 @@ class m_clients {
 
             if ($C->Create()){
 
-                if (!Sync1C::getClient()->saveClientCard($C->F['id']))
-                {
-                    trigger_error("Не удалось синхронизировать клиента с 1С");
-                }
+				try {
+					Sync1C::getClient()->saveClientCard($C->F['id']);
+				} catch (Sync1CException $e) {
+					$e->triggerError();
+				}
 
                 $this->client_view($C->id,1);
                 return ;
