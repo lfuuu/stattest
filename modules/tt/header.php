@@ -36,11 +36,9 @@ class m_tt_head extends IModuleHead{
 				);
 	var $menu=array(
 		array('Тех поддержка MCN','view_type', '&type_pk=1'),
-		array('Тех поддержка MCN (new)','view_type', '&type_pk=1&isnew=true'),
 		array('Задания MCN','view_type','&type_pk=2'),
 		array('Тех поддержка WellTime', 'view_type', '&type_pk=3'),
 		array('Заказы Магазина', 'view_type', '&type_pk=4'),
-		array('Заказы Магазина (new)', 'view_type', '&type_pk=4&isnew=true'),
 		array('Установка и Монтаж', 'view_type', '&type_pk=5'),
 		array('Заказы Welltime', 'view_type', '&type_pk=6'),
 		array('','view_type'),

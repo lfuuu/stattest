@@ -1,11 +1,11 @@
 {*foreach from=$tt_folders item='f'}
-	{if $f.pk & $tt_folder}<b><font size="+1">{/if}<a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}{if $isNewView}&isnew=true{/if}&filtred=true">{$f.name} ({$f.cnt})</a>{if $f.pk & $tt_folder}</font></b>{/if}
+	{if $f.pk & $tt_folder}<b><font size="+1">{/if}<a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}&filtred=true">{$f.name} ({$f.cnt})</a>{if $f.pk & $tt_folder}</font></b>{/if}
 {/foreach*}
 {assign var='tt_folders_curcnt' value=0}
 <table border="0" cellpadding="0" cellspacing="10">
 	{foreach from=$tt_folders item='f'}
 	{if $tt_folders_curcnt==0}<tr align="center">{elseif $tt_folders_curcnt%8==0}</tr><tr align="center">{/if}
-		<td>{if $f.pk & $tt_folder}<b><font size="+1">{/if}<a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}{if $isNewView}&isnew=true{/if}&filtred=true">{$f.name} ({$f.cnt})</a>{if $f.pk & $tt_folder}</font></b>{/if}</td>
+		<td>{if $f.pk & $tt_folder}<b><font size="+1">{/if}<a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}&filtred=true">{$f.name} ({$f.cnt})</a>{if $f.pk & $tt_folder}</font></b>{/if}</td>
 		{assign var='tt_folders_curcnt' value=$tt_folders_curcnt+1}
 	{/foreach}
 	{section name='last_cols' loop=(8-$tt_folders_curcnt%8)}<td>&nbsp;</td>{/section}

@@ -357,7 +357,6 @@ class m_tt extends IModule{
 
 		$design->assign('tt_wo_explain',true); # убрать заголовок
 		$design->assign('tt_type',$type);
-		$design->assign('isNewView',get_param_raw("isnew", "false") == "true");
 		$design->assign('tt_folder',$folder);
 		$design->assign('tt_folders',$folders);
 		$design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
@@ -496,12 +495,7 @@ class m_tt extends IModule{
 		$stage = $trouble['stages'][count($trouble['stages'])-1];
 
         $design->assign("cur_state", $stage["state_id"]);
-        /*
-		if($trouble['trouble_original_client'] <> $fixclient){
-			session_set('clients_client',$trouble['trouble_original_client']);
-			header('Location: index.php?module=tt&action=view&id='.$id);
-			exit();
-		}*/
+
 		$allow_state = 0;
 		if($trouble['bill_no'] && strpos($trouble['bill_no'], '/')){
 			$bill = $db->GetRow("
@@ -663,7 +657,6 @@ class m_tt extends IModule{
         if(get_param_raw("cancel", "") != "")
         {
             unset($_POST["filter_set"]);
-            session_set("trouble_filter", false);
             unset($_SESSION["trouble_filter"]);
         }
 
@@ -672,7 +665,6 @@ class m_tt extends IModule{
         if(get_param_raw("filter_set", "") !== "" || get_param_raw("date_from", "") == "prev_mon")
         {
             //clear
-            session_set("trouble_filter", false);
             unset($_SESSION["trouble_filter"]);
 
             $execFilter = true;
@@ -734,7 +726,7 @@ class m_tt extends IModule{
             $filter = array("owner" => $owner, "resp" => $resp, "edit" => $editor, "subtype" => $subtype);
             $ons = $dates["on"];
 
-            session_set("trouble_filter", array("time_set" => time(), "date" => $dates, "filter" => $filter,"type_pk" => get_param_raw("type_pk")));
+            $_SESSION["trouble_filter"] = array("time_set" => time(), "date" => $dates, "filter" => $filter,"type_pk" => get_param_raw("type_pk"));
 
         }else{
 
@@ -742,7 +734,7 @@ class m_tt extends IModule{
             if(isset($_SESSION["trouble_filter"]) && $_SESSION["trouble_filter"])
             {
                 if($_SESSION["trouble_filter"]["time_set"] + 600 < time() || @$_SESSION["trouble_filter"]["type_pk"] != get_param_raw("type_pk"))
-                    session_set("trouble_filter", false);
+                    unset($_SESSION["trouble_filter"]);
             }
 
             if(isset($_SESSION["trouble_filter"]) && $_SESSION["trouble_filter"] && get_param_raw("module", "") == "tt" && get_param_raw("filtred","false")=="true")
@@ -780,8 +772,6 @@ class m_tt extends IModule{
                 }
 
                 $_SESSION["trouble_filter"]["time_set"] = time();
-
-                session_set("trouble_filter", $_SESSION["trouble_filter"]);
 
             }else{
                 $filter = array("owner" => false, "resp" => false, "edit" => false, "subtype" => false);
@@ -1163,8 +1153,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 			if (count($R)) $v=1;
 		}
 
-        $isNewView = get_param_raw("isnew", "false") == "true";
-
         $design->assign("trouble_subtypes", $this->getTroubleSubTypes());
         $design->assign("trouble_subtypes_list", $this->getTroubleSubTypes(true));
 
@@ -1192,7 +1180,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 			if ($tt_design=='top') {
 				$design->AddPreMain('tt/trouble_list.tpl');
 			} else {
-				$design->AddMain('tt/trouble_list'.($isNewView ? '_new'.(get_param_raw("type_pk","0") == 1 ? "1" : "") : '').'.tpl');
+				$design->AddMain('tt/trouble_list'.(get_param_raw("type_pk","0") == 4 ? "_full_pk4" : "").'.tpl');
 			}
 		}
 

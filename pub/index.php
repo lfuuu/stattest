@@ -23,7 +23,7 @@
 		$unfix=get_param_protected('unfix',0);
 		if ($unfix) {
 			if (get_param_protected('clients_client','',false)) {
-				session_set('clients_client',$fixclient);
+				$_SESSION['clients_client'] = $fixclient;
 			} else{
 				$module_clients->client_unfix();
 				$fixclient='';

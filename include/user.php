@@ -23,22 +23,29 @@ function _acc2dec($v){
     if ($v=='a') return 3;
     return 0;
 }
-function password_hash($pass){
-    if (defined('USE_MD5') && USE_MD5==1){
-		return md5($pass);
-	} else {
-		return $pass;
+
+class password
+{
+    function hash($pass)
+    {
+        if (defined('USE_MD5') && USE_MD5==1)
+        {
+            return md5($pass);
+        } else {
+            return $pass;
+        }
     }
 }
+
 function access($option,$acc){
-	global $user;
-	return $user->HasPrivelege($option,$acc);
+    global $user;
+    return $user->HasPrivelege($option,$acc);
 }
 function access_action($module,$action){
-	$m="module_".$module;	
-	global $$m;
-	$act=$$m->actions[$action];
-	return access($act[0],$act[1]);
+    $m="module_".$module;    
+    global $$m;
+    $act=$$m->actions[$action];
+    return access($act[0],$act[1]);
 }
 
 class AuthUser {
@@ -58,11 +65,11 @@ class AuthUser {
     }
     function Authorize(){
         global $db;
-        if (isset($_SESSION[USER_VAR_AUTHORIZED]) && isset($_SESSION[USER_VAR_LOGIN]) && session_get(USER_VAR_AUTHORIZED)){
-            if (!($this->_Login=session_get(USER_VAR_LOGIN))) return 0;
+        if (isset($_SESSION[USER_VAR_AUTHORIZED]) && isset($_SESSION[USER_VAR_LOGIN]) && $_SESSION[USER_VAR_AUTHORIZED]){
+            if (!($this->_Login=$_SESSION[USER_VAR_LOGIN])) return 0;
             $db->Query('select * from '.USER_TABLE.' where '.USER_FIELD_LOGIN.'="' . $this->_Login . '" and enabled="yes"');
             if (!($this->_Data=$db->NextRecord())){
-            	$r = $db->GetRow('select user_impersonate as A from clients where client="'.$this->_Login.'"');
+                $r = $db->GetRow('select user_impersonate as A from clients where client="'.$this->_Login.'"');
                 $db->Query('select * from '.USER_TABLE.' where '.USER_FIELD_LOGIN.'="'.$r['A'].'" and enabled="yes"');
                 $this->_Data=$db->NextRecord();
                 $this->_Client=$this->_Login;
@@ -94,7 +101,7 @@ class AuthUser {
     function Login(){
         global $db,$_SERVER;
         $user=get_param_protected('login');
-		if (!$user) return 0;
+        if (!$user) return 0;
         $pass=get_param_raw('password');
         $data = $db->GetRow($q = 'select * from '.USER_TABLE.' where '.USER_FIELD_LOGIN.'="' . $user . '" and enabled="yes"');
         if (!$data){
@@ -109,13 +116,13 @@ class AuthUser {
             $db->Query('select * from '.USER_TABLE.' where '.USER_FIELD_LOGIN.'="'.$data2['user_impersonate'].'" and enabled="yes"');
             $data=$db->NextRecord();
             if (!$data) {
-            	sleep(1);
-            	trigger_error('Вы не прошли валидацию');
-            	return 0;
+                sleep(1);
+                trigger_error('Вы не прошли валидацию');
+                return 0;
             }
-            $pass=''; $data[USER_FIELD_PASSWORD]=password_hash('');
+            $pass=''; $data[USER_FIELD_PASSWORD]=password::hash('');
         }
-        if ($data && ($data[USER_FIELD_PASSWORD] == password_hash($pass))) {
+        if ($data && ($data[USER_FIELD_PASSWORD] == password::hash($pass))) {
             $this->_Login = $user;
             $this->_IsAuthorized = 1;
             $this->_Data = $data;
@@ -144,9 +151,9 @@ class AuthUser {
     }
     function Logout(){
         $this->_IsAuthorized = 0;
-        session_unregister(USER_VAR_AUTHORIZED);
-        session_unregister(USER_VAR_LOGIN);
-        session_unregister("save_position");
+    unset($_SESSION[USER_VAR_AUTHORIZED]);
+    unset($_SESSION[USER_VAR_LOGIN]);
+    unset($_SESSION["save_position"]);
         $this->DenyInauthorized();
     }
     function DenyInauthorized(){
@@ -154,11 +161,10 @@ class AuthUser {
         if (!($this->IsAuthorized())){
 
             if(get_param_raw("action", "")!= "login"){
-                session_set("save_position", array(
+                $_SESSION["save_position"] = array(
                             "get" => $_GET,
                             "post" => $_POST
-                            )
-                        );
+                            );
             }
             $design->AddTop('empty.tpl');
             $design->AddMain('errors.tpl');
@@ -183,7 +189,7 @@ class AuthUser {
     function _LoadPriveleges(){
         global $db;
         if (!$this->IsAuthorized())
-			return false;
+            return false;
 
         $this->_Priveleges=array();
 
@@ -194,47 +200,47 @@ class AuthUser {
 
         $db->Query('select * from user_grant_users where (name="'. $this->Get('user'). '")');
         while ($r=$db->NextRecord()) {
-			$ac = $this->_ParsePriveleges($r['access']);
+            $ac = $this->_ParsePriveleges($r['access']);
             $this->_Priveleges[$r['resource']] = array();
-			foreach($ac as $key=>$val)
-				$this->_Priveleges[$r['resource']][$key]=$val;
+            foreach($ac as $key=>$val)
+                $this->_Priveleges[$r['resource']][$key]=$val;
         }
     }
 
     function HasPrivelege($resource,$desired_access){
         global $db;
         if(!$this->IsAuthorized())
-			return false;
+            return false;
         if(!$resource)
-			return true;
-		if(in_array($desired_access, array('test','vip','gen_mans'))){
-			$u = $this->Get('user');
-			if($desired_access=='test' && in_array($u,array('dns','mak'))){
-				return true;
-			}elseif($desired_access=='vip' && in_array($u,array('dns'))){
-				return true;
-			}elseif($desired_access=='gen_mans' && in_array($u,array('dns','mak','bnv','pma'))){
-				return true;
-			}else
-				return false;
-		}
+            return true;
+        if(in_array($desired_access, array('test','vip','gen_mans'))){
+            $u = $this->Get('user');
+            if($desired_access=='test' && in_array($u,array('dns','mak'))){
+                return true;
+            }elseif($desired_access=='vip' && in_array($u,array('dns'))){
+                return true;
+            }elseif($desired_access=='gen_mans' && in_array($u,array('dns','mak','bnv','pma'))){
+                return true;
+            }else
+                return false;
+        }
         if(!isset($this->_Priveleges) || !is_array($this->_Priveleges))
-			$this->_LoadPriveleges();
+            $this->_LoadPriveleges();
         if(isset($this->_Priveleges[$resource][$desired_access]))
-			return true;
+            return true;
         return false;
     }
     function Flag($flag) {
-    	if (isset ($this->_Data['data_flags'][$flag])) return $this->_Data['data_flags'][$flag];
-    	return 0;
+        if (isset ($this->_Data['data_flags'][$flag])) return $this->_Data['data_flags'][$flag];
+        return 0;
     }
     function SetFlag($flag,$value) {
-		global $db;
-		if (!is_array($this->_Data['data_flags'])) $this->_Data['data_flags']=array();
-		if (!isset($this->_Data['data_flags'][$flag]) || $this->_Data['data_flags'][$flag]!=$value) {
-			$this->_Data['data_flags'][$flag]=$value;
-			$db->Query('update user_users set data_flags="'.AddSlashes(serialize($this->_Data['data_flags'])).'" where id='.$this->_Data['id']);
-		}
+        global $db;
+        if (!is_array($this->_Data['data_flags'])) $this->_Data['data_flags']=array();
+        if (!isset($this->_Data['data_flags'][$flag]) || $this->_Data['data_flags'][$flag]!=$value) {
+            $this->_Data['data_flags'][$flag]=$value;
+            $db->Query('update user_users set data_flags="'.AddSlashes(serialize($this->_Data['data_flags'])).'" where id='.$this->_Data['id']);
+        }
     }
 
 };

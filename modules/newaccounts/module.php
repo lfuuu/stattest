@@ -520,7 +520,7 @@ class m_newaccounts extends IModule{
 
 		set_time_limit(0);
 
-		session_set('clients_client',$fixclient);
+		$_SESSION['clients_client'] = $fixclient;
 
 		$t = get_param_raw('simple',null);
 		if($t!==null)
@@ -1439,7 +1439,7 @@ class m_newaccounts extends IModule{
             header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
             exit();
         }
-        session_set('clients_client', $bill->Get("client_id"));
+        $_SESSION['clients_client'] = $bill->Get("client_id");
         $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
 		if(!$bill->CheckForAdmin())
 			return;
@@ -1485,7 +1485,7 @@ class m_newaccounts extends IModule{
 	function newaccounts_bill_apply($fixclient) {
 		global $design,$db,$user,$fixclient_data;
 
-		session_set('clients_client', get_param_integer("client_id",0));
+		$_SESSION['clients_client'] = get_param_integer("client_id",0);
 
 		$bill_no = get_param_protected("bill");
 		if(!$bill_no)
@@ -2164,7 +2164,7 @@ class m_newaccounts extends IModule{
             $design->assign("assignment_month", mdate('месяца', $assignmentDate));
         }
 
-		if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar')))
+		if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
 			$obj='bill';
 		if ($source!=1 && $source!=2 && $source!=4 && $source!=5) //имхо глупость..
 			$source = 3;
@@ -2238,6 +2238,15 @@ class m_newaccounts extends IModule{
 				exit();
 			}*/
 		}
+
+        if($obj == "new_director_info")
+        {
+            $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
+            exit();
+        }
+			
+
+
 
 		if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice", "assignment"))){
 
@@ -3247,6 +3256,11 @@ class m_newaccounts extends IModule{
             	$d = "mak";
             	$b = "ant";
             }
+
+            if($billDate >= strtotime("2013-07-31"))
+            {
+                $d = "nat";
+            }
         }elseif ($firma == "markomnet_new")
         {
             $d = "maz";
@@ -3311,7 +3325,7 @@ class m_newaccounts extends IModule{
                     "name_" => "Надтачеевой Н. А.",
                     "position" => "Генеральный директор",
                     "position_" => "Генерального директора",
-                    "sign" => false),
+                    "sign" => array("src" => "sign_nat.png", "width" => 152, "height" => 94)),
                 "udi" => array(
                     "name" => "Юдицкая Н. С.",
                     "name_" => "Юдицкая Н. С.",
@@ -4188,6 +4202,9 @@ class m_newaccounts extends IModule{
 	$design->assign('cl_status',$cl_status=get_param_protected('cl_status', array()));
 
 	$managerInfo = $db->QuerySelectRow("user_users", array("user" => $manager));
+
+    if($managerInfo["usergroup"] == "account_managers")
+        $managerInfo["usergroup"] = "manager";
 
 	$newpayments_join = '';
 
@@ -5139,7 +5156,7 @@ $sql .= "	order by client, bill_no";
         $oBill = null;
         if ($bill_no=get_param_protected('bill_no')) {
             $oBill = new Bill($bill_no);
-            session_set('clients_client', $oBill->Get("client_id"));
+            $_SESSION['clients_client'] = $oBill->Get("client_id");
             $fixclient_data = ClientCS::FetchClient($oBill->Get("client_id"));
         }elseif (!$fixclient) {
             trigger_error('Зафиксируйте клиента'); return;
@@ -5575,7 +5592,7 @@ $sql .= "	order by client, bill_no";
         }
 
         ClientCS::getClientClient($client_id);
-        session_set('clients_client', $client_id);
+        $_SESSION['clients_client'] = $client_id;
 
         // инициализация
         $lMetro = ClientCS::GetList("metro","std");

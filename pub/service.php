@@ -119,6 +119,7 @@ if ($action=='add_client') {
 
               )a
           having date_to is null or date_to < now()
+          order by if(beauty_level=0, 10, beauty_level) desc, number
 	                        ");
 	foreach($res as $r)
 	{

@@ -146,7 +146,7 @@ class m_clients {
 	function clients_my($fixclient) {
 		global $design,$user;
 		// запоминаем что дальше всех клиентов надо фильтровать по менеджеру
-		session_set('clients_my',$user->_Login);
+		$_SESSION['clients_my'] = $user->_Login;
 		$this->clients_headers('my');
 		$this->clients_list(true);
 		$design->assign('name_of_action', 'Мои клиенты');
@@ -156,9 +156,9 @@ class m_clients {
 	function client_unfix(){
 		// фильтр по менеджеру обнуляем
 		// Фильтр по типу клиента обнуляем
-		session_set('clients_filter','');
-		session_set('clients_my','');
-		session_set('clients_client','');
+		$_SESSION['clients_filter'] = '';
+		$_SESSION['clients_my'] = '';
+		$_SESSION['clients_client'] = '';
 
 		$GLOBALS['fixclient']="";
         if(get_param_raw("unfix",0)){
@@ -274,8 +274,8 @@ class m_clients {
 		global $design,$user;
 		$subj=get_param_protected("subj");
 		if (!$subj) return;
-		session_set('clients_filter',$subj);
-		$this->clients_headers('show',$subj);
+		$_SESSION['clients_filter'] = $subj;
+		$this->clients_headers('show', $subj);
 
 		switch($subj) {
 			case 'telemarketing': $design->assign('name_of_action','Телемаркетинг'); break;
@@ -1060,6 +1060,7 @@ class m_clients {
 				$GLOBALS['module_services']->services_ex_view($r['client']);
 				$GLOBALS['module_services']->services_it_view($r['client']);
 				$GLOBALS['module_services']->services_welltime_view($r['client']);
+				$GLOBALS['module_services']->services_virtpbx_view($r['client']);
 				$GLOBALS['module_services']->services_wellsystem_view($r['client']);
 				$GLOBALS['module_services']->services_ad_view($r['client']);
 				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
@@ -1138,7 +1139,7 @@ class m_clients {
 
 		$design->assign('client',$r);
         $design->assign('region_name', $db->GetValue('select `name` from regions where id='.intval($r['region'])) );
-		session_set('clients_client',$r['client']);
+		$_SESSION['clients_client'] = $r['client'];
 	}
 	function clients_new() {
 		global $design, $db,$user;
@@ -2145,8 +2146,10 @@ DBG::sql_out($select_client_data);
                     "phone" => "(495) 950-56-78",
                     "fax" => "(495) 638-50-17",
                     "email" => "info@mcn.ru",
-                    "director" => "Мельников А. К.",
-                    "director_" => "Мельникова А. К.",
+                    //"director" => "Мельников А. К.",
+                    //"director_" => "Мельникова А. К.",
+                    "director" => "Надточеева Н. А.",
+                    "director_" => "Надточеевой Н. А. ",
                     "director_post" => "Генеральный директор",
                     "director_post_" => "Генерального директора"
 

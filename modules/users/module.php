@@ -92,7 +92,7 @@ class m_users {
 				'name'			=> get_param_protected('name'),
 				'pass_text'		=> password_gen(),
 				);
-			$f['pass']=password_hash($f['pass_text']);
+			$f['pass']=password::hash($f['pass_text']);
 			$id=$f['user'];
 			if (!$id) {
 				trigger_error('Оператор должен иметь имя');
@@ -112,8 +112,8 @@ class m_users {
 				'name'				=> get_param_protected('name'),
 				'rights'			=> get_param_raw('rights',array()),
 				'rights_radio'		=> get_param_raw('rights_radio',array()),
-				'pass1'				=> password_hash(get_param_raw('pass1')),
-				'pass2'				=> password_hash(get_param_raw('pass2')),
+				'pass1'				=> password::hash(get_param_raw('pass1')),
+				'pass2'				=> password::hash(get_param_raw('pass2')),
 				'trouble_redirect'	=> get_param_protected('trouble_redirect'),
 				'pass'				=> (get_param_raw('pass1').get_param_raw('pass2')),
 				'email'				=> get_param_protected('email'),

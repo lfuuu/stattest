@@ -3534,7 +3534,11 @@ function stats_support_efficiency($fixclient){
     global $db,$design;
 
     $m = array();
-    $total = array("monitoring" => 0, "trouble" => 0, "consultation" => 0);
+    $total = array(
+        "monitoring" => 0, 
+        "trouble" => 0, 
+        "consultation" => 0,
+        "task" => 0);
     $date = "";
 
     if(get_param_raw("make_report", "") == "OK")
@@ -3578,7 +3582,7 @@ function stats_support_efficiency($fixclient){
                             usergroup ='support' 
                         and uu.user =    tt.user_author 
                         and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' 
-                        and trouble_type = 'trouble'
+                        and trouble_type in ('trouble', 'task')
                         order by uu.name
                       ) a 
                     group by user_author, trouble_subtype
@@ -4280,7 +4284,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $reports = array();
-    for($mm = 0; $mm < 3; $mm++)
+    for($mm = 0; $mm < 4; $mm++)
     {
       $date = date("Y-m-01");
 

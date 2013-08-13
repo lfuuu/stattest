@@ -27,7 +27,7 @@ class m_clientaccounts extends IModule{
 
 		set_time_limit(0);
 		
-		session_set('clients_client',$fixclient);
+		$_SESSION['clients_client'] = $fixclient;
 
 		$design->assign('client',$db->GetRow("select * from clients where id='{$fixclient_data['id']}'"));
 

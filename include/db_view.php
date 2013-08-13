@@ -436,6 +436,31 @@ class DbViewTarifsWelltime extends DbView{
 		$this->filters = array('welltime','public', 'once');
 	}
 }
+
+class DbViewTarifsVirtpbx extends DbView{
+	public function __construct(){
+		$this->table = 'tarifs_virtpbx';
+		$this->Headers['z'] = 'Тарифы Виртуальная АТС';
+		$this->FieldSets['z']=array(
+			'description'=>'Описание',
+			'price'=>'Стоимость',
+			'period' => 'Период',
+		);
+		$this->fieldset = 'z';
+
+		$this->SQLFilterGroups['Состояние'] = array('public', 'archive');
+
+
+		$this->SQLFilters['public']='status="public"';
+		$this->SQLFilters['archive']='status="archive"';
+		$this->SQLFilterNames['public']='публичный';
+		$this->SQLFilterNames['archive']='архивный';
+
+
+
+		$this->filters = array('virtpbx','public');
+	}
+}
 class DbViewTarifsWellSystem extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
@@ -496,6 +521,23 @@ class DbFormTarifsWelltime extends DbFormSimpleLog {
 		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'любое', 0=>'всегда один'));
 		$this->fields['price']=array();
 		$this->fields['period']=array('assoc_enum'=>array('month'=>'ежемесячно', 'year'=>'ежегодно','once'=>'разово', '3mon'=>'раз в 3 месяца','6mon'=>'раз в 6 месяцев'));
+	}
+}
+
+class DbFormTarifsVirtpbx extends DbFormSimpleLog {
+	public function constructChild() {
+		DbForm::__construct('tarifs_virtpbx');
+		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','archive'=>'архивный'));
+		$this->fields['description']=array();
+		$this->fields['price']=array('default'=>0);
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ежемесячно'));
+        $this->fields['num_ports']=array('default'=>50);
+        $this->fields['overrun_per_port']=array('default'=>1);
+        $this->fields['space']=array('default'=>100);
+        $this->fields['overrun_per_mb']=array('default'=>1);
+        $this->fields['is_record']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
+        $this->fields['is_fax']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
 	}
 }
 
@@ -612,6 +654,7 @@ class DbViewFactory {
 		if ($v=='extra') return new DbViewTarifsExtra();
 		if ($v=='itpark') return new DbViewTarifsITPark();
 		if ($v=='welltime') return new DbViewTarifsWelltime();
+		if ($v=='virtpbx') return new DbViewTarifsVirtpbx();
 		if ($v=='wellsystem') return new DbViewTarifsWellSystem();
 		return false;
 	}
@@ -624,6 +667,7 @@ class DbViewFactory {
 		if ($v=='extra') return new DbFormTarifsExtra();
 		if ($v=='itpark') return new DbFormTarifsITPark();
 		if ($v=='welltime') return new DbFormTarifsWelltime();
+		if ($v=='virtpbx') return new DbFormTarifsVirtpbx();
 		if ($v=='wellsystem') return new DbFormTarifsWellSystem();
 		return false;
 	}

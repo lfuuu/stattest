@@ -514,10 +514,10 @@ class Bill{
 
         $r = array();
         $q = $db->AllRecords("
-                SELECT code_1c as code, round(if(b.type = '%',bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2) as bonus
+                SELECT code_1c as code, round(if(b.type = '%', bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2) as bonus
                 FROM newbill_lines bl
                 inner join g_bonus b on b.good_id = bl.item_id
-                    and `group` = (select usergroup from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='".$this->bill_no."'");
+                    and `group` = (select if(usergroup='account_managers', 'manager', usergroup) from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='".$this->bill_no."'");
         if($q)
             foreach($q as $l)
                 $r[$l["code"]] = $l["bonus"];
@@ -579,7 +579,10 @@ class Bill{
             // если услуга, прописанная через 1с, услуга с датой. Для выписки документов (акт1)
             if($r["service"] == "1C" && $r["type"] == "service")
             {
-                $billDate = strtotime($this->bill["bill_date"]);
+                $billDate = $this->getShipmentDate();
+                if(!$billDate)
+                    $billDate = strtotime($this->bill["bill_date"]);
+
                 $r["ts_from"] = strtotime("- ".(date("d", $billDate)-1)." days", $billDate);
                 $r["ts_to"] = strtotime("+1 month -1 day", $r["ts_from"]);
             }

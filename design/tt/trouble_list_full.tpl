@@ -6,18 +6,30 @@
 {/if}
 Найдено {$pager_all} заявок<br>
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true{if $isNewView}&isnew=true{/if}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
+<style>
+{literal}
+#trouble_table td {
+    font-size: 8pt;
+}
+#tt_stable td{
+    padding: 0px 2px 0px 2px;
+    vertical-align:top;
+}
+{/literal}
+</style>
+
 <TABLE class={if $tt_design=='service'}insblock{else}{/if} cellSpacing=4 cellPadding=2 width="{if $tt_design=='service'}700px{else}100%{/if}" border=0>
 {foreach from=$tt_troubles item=r name=outer}
 <tr>
-<td colspan=7 style="background-color:{cycle values="#E5E5E5,#F5F5F5"};">
+<td colspan=7 style="background-color:{cycle values="#E5E5E5,#F5F5F5"};{if $r.is_important}background-color: #f4c0c0;{/if}">
 
-<table border=0 width=99%>
+<table border=0 width=99% id="trouble_table">
     <tr>
         <td rowspan=2 width=20% valign=top align=center nowrap>
 {mformat param=$r.date_creation format='Y.m.d H:i'} / {$r.user_author}<br><br>
- <a href="?module=tt&action=view&id={$r.id}" style="font-size:11pt;font-weight: bold">{$r.id}</a> / {$trouble_subtypes_list[$r.trouble_subtype]} / {$r.user_main}<br>
+ <a href="?module=tt&action=view&id={$r.id}" style="font-size:10pt;font-weight: bold">{$r.id}</a> / {$trouble_subtypes_list[$r.trouble_subtype]} / {$r.user_main}<br>
         <br>
         
         <br><br>
@@ -37,15 +49,13 @@
         <style>
 {literal}
  td{
-            padding: 0px 2px 0px 2px;
-            vertical-align:top;
         }
 {/literal}
         </style>
         <table style="border-collapse:collapse" cellPadding=0 cellSpacing=0 border=0 id="tt_stable">
             {foreach from=$r.stages item=t}
             <tr style="border-bottom: 1px solid #EDEDED;">
-<td nowrap style="font-size: 8pt;">{$t.date_finish_desired}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment}
+<td nowrap style="font-size: 8pt;">{$t.date_start}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment}
         {if $t.doers} {foreach from=$t.doers item=d}----><b>{$d.depart} {$d.name} ({$r.date_start}){if $r.sms} <br><span style="color: #c40000;">{$r.sms.sms_send} // {$r.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}
         </td></tr>
             {/foreach}
@@ -90,7 +100,7 @@
 </TBODY></TABLE>
 
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true{if $isNewView}&isnew=true{/if}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 
 
