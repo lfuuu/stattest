@@ -160,7 +160,7 @@ class m_ats extends IModule
 
         if(($client = get_param_raw("client", "")) != "")
         {
-            session_set('clients_client',$client);
+            $_SESSION["clients_client" = $client;
             header("Location: ./?module=ats&action=sip_users");
             exit();
         }

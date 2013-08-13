@@ -4284,7 +4284,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $reports = array();
-    for($mm = 0; $mm < 3; $mm++)
+    for($mm = 0; $mm < 4; $mm++)
     {
       $date = date("Y-m-01");
 

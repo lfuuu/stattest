@@ -520,7 +520,7 @@ class m_newaccounts extends IModule{
 
 		set_time_limit(0);
 
-		session_set('clients_client',$fixclient);
+		$_SESSION['clients_client'] = $fixclient;
 
 		$t = get_param_raw('simple',null);
 		if($t!==null)
@@ -1439,7 +1439,7 @@ class m_newaccounts extends IModule{
             header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
             exit();
         }
-        session_set('clients_client', $bill->Get("client_id"));
+        $_SESSION['clients_client'] = $bill->Get("client_id");
         $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
 		if(!$bill->CheckForAdmin())
 			return;
@@ -1485,7 +1485,7 @@ class m_newaccounts extends IModule{
 	function newaccounts_bill_apply($fixclient) {
 		global $design,$db,$user,$fixclient_data;
 
-		session_set('clients_client', get_param_integer("client_id",0));
+		$_SESSION['clients_client'] = get_param_integer("client_id",0);
 
 		$bill_no = get_param_protected("bill");
 		if(!$bill_no)
@@ -5156,7 +5156,7 @@ $sql .= "	order by client, bill_no";
         $oBill = null;
         if ($bill_no=get_param_protected('bill_no')) {
             $oBill = new Bill($bill_no);
-            session_set('clients_client', $oBill->Get("client_id"));
+            $_SESSION['clients_client'] = $oBill->Get("client_id");
             $fixclient_data = ClientCS::FetchClient($oBill->Get("client_id"));
         }elseif (!$fixclient) {
             trigger_error('Зафиксируйте клиента'); return;
@@ -5592,7 +5592,7 @@ $sql .= "	order by client, bill_no";
         }
 
         ClientCS::getClientClient($client_id);
-        session_set('clients_client', $client_id);
+        $_SESSION['clients_client'] = $client_id;
 
         // инициализация
         $lMetro = ClientCS::GetList("metro","std");

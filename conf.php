@@ -121,7 +121,6 @@ if (!defined('NO_INCLUDE')){
 		require_once(INCLUDE_PATH.'error.php');
 	}
 	require_once(INCLUDE_PATH.'util.php');
-	require_once(INCLUDE_PATH.'util_session.php');
 	require_once(INCLUDE_PATH.'clCards.php');
 
 	require_once(INCLUDE_PATH.'sql.php');

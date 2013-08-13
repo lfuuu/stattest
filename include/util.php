@@ -119,8 +119,8 @@ function get_param_integer($name,$default = 0,$allowSession = true) {
 		$t=$_POST[$name];
 	} else if (isset($_COOKIES[$name])){
 		$t=$_COOKIES[$name];
-	} else if ($allowSession && session_is_set($name)){
-		$t=session_get($name);
+	} else if ($allowSession && isset($_SESSION[$name])){
+		$t=$_SESSION[$name];
 	} else {
 		return $default;
 	}
@@ -133,8 +133,8 @@ function get_param_raw($name,$default = '',$allowSession = true) {
 		$t=$_POST[$name];
 	} else if (isset($_COOKIES[$name])){
 		$t=$_COOKIES[$name];
-	} else if ($allowSession && session_is_set($name)){
-		$t=session_get($name);
+	} else if ($allowSession && isset($_SESSION[$name])){
+		$t=$_SESSION[$name];
 	} else {
 		return $default;
 	}
@@ -147,8 +147,8 @@ function get_param_protected($name,$default = '',$allowSession = true) {
 		$t=$_POST[$name];
 	} else if (isset($_COOKIES[$name])){
 		$t=$_COOKIES[$name];
-	} else if ($allowSession && session_is_set($name)){
-		$t=session_get($name);
+	} else if ($allowSession && isset($_SESSION[$name])){
+		$t=$_SESSION[$name];
 	} else {
 		return $default;
 	}

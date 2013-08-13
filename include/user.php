@@ -23,13 +23,20 @@ function _acc2dec($v){
     if ($v=='a') return 3;
     return 0;
 }
-function password_hash($pass){
-    if (defined('USE_MD5') && USE_MD5==1){
-		return md5($pass);
-	} else {
-		return $pass;
-    }
+
+class password
+{
+	function hash($pass)
+	{
+		if (defined('USE_MD5') && USE_MD5==1)
+		{
+			return md5($pass);
+		} else {
+			return $pass;
+		}
+	}
 }
+
 function access($option,$acc){
 	global $user;
 	return $user->HasPrivelege($option,$acc);
@@ -60,8 +67,8 @@ class User {
     }
     function Authorize(){
         global $db;
-        if (isset($_SESSION[USER_VAR_AUTHORIZED]) && isset($_SESSION[USER_VAR_LOGIN]) && session_get(USER_VAR_AUTHORIZED)){
-            if (!($this->_Login=session_get(USER_VAR_LOGIN))) return 0;
+        if (isset($_SESSION[USER_VAR_AUTHORIZED]) && isset($_SESSION[USER_VAR_LOGIN]) && $_SESSION[USER_VAR_AUTHORIZED]){
+            if (!($this->_Login=$_SESSION[USER_VAR_LOGIN])) return 0;
             $db->Query('select * from '.USER_TABLE.' where '.USER_FIELD_LOGIN.'="' . $this->_Login . '" and enabled="yes"');
             if (!($this->_Data=$db->NextRecord())){
             	$r = $db->GetRow('select user_impersonate as A from clients where client="'.$this->_Login.'"');
@@ -115,9 +122,9 @@ class User {
             	trigger_error('Вы не прошли валидацию');
             	return 0;
             }
-            $pass=''; $data[USER_FIELD_PASSWORD]=password_hash('');
+            $pass=''; $data[USER_FIELD_PASSWORD]=password::hash('');
         }
-        if ($data && ($data[USER_FIELD_PASSWORD] == password_hash($pass))) {
+        if ($data && ($data[USER_FIELD_PASSWORD] == password::hash($pass))) {
             $this->_Login = $user;
             $this->_IsAuthorized = 1;
             $this->_Data = $data;
@@ -146,9 +153,9 @@ class User {
     }
     function Logout(){
         $this->_IsAuthorized = 0;
-        session_unregister(USER_VAR_AUTHORIZED);
-        session_unregister(USER_VAR_LOGIN);
-        session_unregister("save_position");
+	unset($_SESSION[USER_VAR_AUTHORIZED]);
+	unset($_SESSION[USER_VAR_LOGIN]);
+	unset($_SESSION["save_position"]);
         $this->DenyInauthorized();
     }
     function DenyInauthorized(){
@@ -156,11 +163,10 @@ class User {
         if (!($this->IsAuthorized())){
 
             if(get_param_raw("action", "")!= "login"){
-                session_set("save_position", array(
+                $_SESSION["save_position"] = array(
                             "get" => $_GET,
                             "post" => $_POST
-                            )
-                        );
+                            );
             }
             $design->AddTop('empty.tpl');
             $design->AddMain('errors.tpl');

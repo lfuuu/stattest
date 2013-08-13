@@ -3,6 +3,7 @@
 return array(
 	'WEB_PATH'			=>	'/',
 	'WEB_ADDRESS'		=> 'http://stat',
+	'USE_MD5'		=> 0, //использование md5-хеширование для паролей
 
 // stat mysql
 	'SQL_HOST'			=>	'',
