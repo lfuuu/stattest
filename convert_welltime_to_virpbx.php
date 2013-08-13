@@ -44,12 +44,12 @@ if(!$tarifIds) die("VirtPBX tarifs not found");
 
 $ll = $db->AllRecords("select * from usage_welltime where tarif_id in (".$tarifIds.")");
 
-
-    $tts = array(
-            "339" => "1",
-            "340" => "2",
-            "341" => "3"
-            );
+//соответствие одного тарифа в изначальной услуге, к тарифу в переносимой
+$tts = array(
+        "339" => "1",
+        "340" => "2",
+        "341" => "3"
+        );
 
 $notResp = array();
 
