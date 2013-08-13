@@ -1009,8 +1009,8 @@ class DbFormUsageVirtpbx extends DbForm{
 		$this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
 	}
 	public function Display($form_params = array(),$h2='',$h3='') {
- 		global $db,$design;
-		global $fixclient_data;
+ 		global $db,$design, $fixclient_data;
+
 		if(!isset($fixclient_data))
 			$fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
 		if ($this->isData('id')) {
