@@ -687,12 +687,17 @@ class m_routers {
 		$dbf = new DbFormServerPbx();
 		$dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Сервера АТС','Добавление');
 	}
-	function routers_server_pbx_apply($fixclient){
+
+	function routers_server_pbx_apply($fixclient)
+    {
 		global $design, $db;
 
 		$dbf = new DbFormserverPbx();
 		$id=get_param_integer('id','');
-		if ($id) $dbf->Load($id);
+
+		if ($id) 
+            $dbf->Load($id);
+
 		$result=$dbf->Process();
         if($result == "delete")
         {
