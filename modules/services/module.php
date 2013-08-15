@@ -2649,7 +2649,7 @@ class voipRegion
 
         $result = pg_query(
                 $q = "SELECT distinct callerid, name
-                FROM ".($region == 99 || $region == 97? "sip_users" : "sipdevices")." WHERE client='".$client."'
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."'
                 ORDER BY callerid");
 
         $e164s = array();
@@ -2788,7 +2788,8 @@ class voipRegion
         {
             $conn = pg_connect($q = "host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS);
         }else{
-            $conn = pg_connect($q = "host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=voipdb user=".R_CALLS_USER." password=".R_CALLS_PASS);
+            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $conn = pg_connect($q = "host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
         }
     }
 }
