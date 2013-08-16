@@ -60,7 +60,13 @@
     <strong>117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97</strong><br>{/if}
 {elseif $bill_client.firma=='all4net'}
 	<td valign="top" width="55%" class="ht">Продавец: {if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Олфонет"{if $bill.bill_date < '2012-01-24'} (ООО "Олфонет"){/if}{else}ООО "Олфонет"{/if}</strong><br>
+    
+    
+{if $bill.ts >= strtotime("2013-08-13")}
+    Адрес: <strong>117452, г. Москва, Балаклавский проспект, д.20, к.4 кв.130</strong><br>
+{else}
     Адрес: <strong>117218, Москва г, Черемушкинская Б. ул, дом 25, строение 97</strong><br>
+{/if}
     ИНН/КПП продавца: <strong>7727731060 / 772701001</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Олфонет"</strong><br>
     <strong>117218, Москва г, Черемушкинская Б. ул, дом 25, строение 97</strong><br>{/if}
