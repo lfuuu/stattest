@@ -554,6 +554,7 @@ class ServiceUsageVoip extends ServicePrototype {
     private function get_traffic_categories_list(){
         return array();
     }
+
     private function calc($num = ''){
     global $pg_db;
         $d = getdate($this->date_from_prev);
@@ -563,7 +564,7 @@ class ServiceUsageVoip extends ServicePrototype {
         $W .= " and (time < '".$d['year']."-".$d['mon']."-01'::date+interval '1 month')";
         $W .= " and (amount > 0)";
 
-        $res = $pg_db->AllRecords('
+        $res = $pg_db->AllRecords($q='
             select
                 case dest <= 0 when true then
                     case mob when true then 5 else 4 end
@@ -577,7 +578,38 @@ class ServiceUsageVoip extends ServicePrototype {
 
 
         $groups = $this->tarif_previous['dest_group'];
+        
+        /*
+           [dest_group] => 0
+           [minpayment_group] => 0      // 100
+
+           [minpayment_local_mob] => 0  // 5
+           [minpayment_russia] => 1500  // 1
+           [minpayment_intern] => 0     // 2
+           [minpayment_sng] => 0        // 3
+
+           // other 900
+         */
+
+        //default value 
         $lines = array();
+        if($this->tarif_previous["dest_group"] > 0)
+        {
+            $lines["100"] = array('price' => 0);
+        }else{
+            if($this->tarif_previous["minpayment_local_mob"])
+                $lines["5"] = array('price' => 0);
+
+            if($this->tarif_previous["minpayment_russia"])
+                $lines["1"] = array('price' => 0);
+
+            if($this->tarif_previous["minpayment_intern"])
+                $lines["2"] = array('price' => 0);
+
+            if($this->tarif_previous["minpayment_sng"])
+                $lines["3"] = array('price' => 0);
+        }
+
         foreach ($res as $r) {
             $dest = $r['rdest'];
             if (strpos($groups, $dest) !== FALSE) $dest = '100';
@@ -595,6 +627,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
         return $lines;
     }
+
     public function GetLinesMonth(){
         $R=ServicePrototype::GetLinesMonth();
         if($this->date_from && $this->date_to){
@@ -629,6 +662,7 @@ class ServiceUsageVoip extends ServicePrototype {
         if($this->date_from_prev && $this->date_to_prev){
             $O = array();
             $lines=$this->calc();
+
             foreach ($lines as $dest => $r){
                 $price = $r['price'];
                 $name = '';
@@ -1222,6 +1256,7 @@ function get_tarif_history($service,$param,$date_quoted = 'NOW()'){
         $add1 = '';
         $add2 = '';
     }
+
     $R=$db->AllRecords($q='
         select
             '.$add1.'log_tarif.id_user,
@@ -1356,6 +1391,7 @@ function get_tarif_current($service,$param){
             ts desc,
             id desc
         limit 1');
+
     
     if(!$r)
         return null;
