@@ -30,7 +30,7 @@ try{
 
 if($a == "clean")
 {
-    $db->Query("truncate usage_virtpbx");
+    $db->Query("delete from  usage_virtpbx where client not in ('id28493', 'id28506', 'id19245', 'id28488', 'id28497', 'id28379')");
 
     echo "\nClean complete \n";
     exit();
@@ -58,10 +58,11 @@ foreach($ll as &$l)
     if(!isset($tts[$l["tarif_id"]]))
     {
         die("Tarif id=".$l["tarif_id"]." not found");
-    }else
+    }else{
         $l["tarif_id"] = $tts[$l["tarif_id"]];
+    }
 
-    $l["ats_router"] = $l["router"];
+    $l["server_pbx_id"] = 1;
     unset($l["router"], $l["ip"]);
 
 }
