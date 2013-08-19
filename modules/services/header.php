@@ -96,6 +96,7 @@ class m_services_head extends IModuleHead {
 					'virtpbx_view'			=> array('services_welltime','full'),
 					'virtpbx_add'			=> array('services_welltime','full'),
 					'virtpbx_apply'			=> array('services_welltime','full'),
+					'virtpbx_act'			=> array('services_welltime','docs'),
 
 //WellSystem
 					'wellsystem_view'			=> array('services_wellsystem','full'),

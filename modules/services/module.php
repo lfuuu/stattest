@@ -920,34 +920,6 @@ class m_services extends IModule{
         $design->ProcessEx('../store/acts/voip_act.tpl'); 
     }
 
-    function services_welltime_act($fixclient){
-        global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
-
-        $id=get_param_integer('id',0);
-
-        if(!$id) {trigger_error('Ощибка в данных'); return;}
-
-        $r = $db->GetRow('select * from usage_welltime where (client="'.$fixclient.'") and id ="'.$id.'"');
-
-        $r["login"] = "______________";
-        $r["password"] = "______________";
-
-        //parse login / pass
-        $v = $r["comment"];
-        $v = trim($v);
-
-        if(preg_match_all('/(\S+)/', $v, $o) && count($o[0]) >= 2)
-        { 
-            $r["login"] = $o[0][0];
-            $r["password"] = $o[0][count($o[0])-1];
-        }
-
-
-        $design->assign('d',$r);
-                
-        $design->ProcessEx('services/welltime_act.tpl'); 
-    }
 
     function services_in_dev_act($fixclient){
         global $design,$db;
@@ -1892,6 +1864,35 @@ class m_services extends IModule{
         }
         $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Редактировать дополнительную услугу');
     }
+
+    function services_virtpbx_act($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+
+        $id=get_param_integer('id',0);
+
+        if(!$id) {trigger_error('Ошибка в данных'); return;}
+
+        $r = $db->GetRow('select * from usage_virtpbx where (client="'.$fixclient.'") and id ="'.$id.'"');
+
+        $r["login"] = "______________";
+        $r["password"] = "______________";
+
+        //parse login / pass
+        $v = $r["comment"];
+        $v = trim($v);
+
+        if(preg_match_all('/(\S+)/', $v, $o) && count($o[0]) >= 2)
+        { 
+            $r["login"] = $o[0][0];
+            $r["password"] = $o[0][count($o[0])-1];
+        }
+
+
+        $design->assign('d',$r);
+                
+        $design->ProcessEx('services/virtpbx_act.tpl'); 
+    }
 // =========================================================================================================================================
     function services_welltime_view($fixclient){
         global $db,$design;
@@ -2731,7 +2732,7 @@ class voipRegion
         $result = pg_query(
                 $q = "SELECT *,name, callerid, permit, deny, secret, 
                 ".($region == 99  ? "":"'reg".$region."' as ")." ippbx
-                FROM ".($region == 99 || $region == 97? "sip_users" : "sipdevices")." 
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." 
                 WHERE client = '".$client."' 
                 and (
                     ".($callerids ? "callerid in ('".implode("','", $callerids)."')" : "").
