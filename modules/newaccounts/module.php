@@ -3322,7 +3322,7 @@ class m_newaccounts extends IModule{
                   "sign" => false),
                 "nat" => array(
                     "name" => "Надточеева Н. А.",
-                    "name_" => "Надтачеевой Н. А.",
+                    "name_" => "Надточеевой Н. А.",
                     "position" => "Генеральный директор",
                     "position_" => "Генерального директора",
                     "sign" => array("src" => "sign_nat.png", "width" => 152, "height" => 94)),
