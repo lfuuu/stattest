@@ -1811,8 +1811,8 @@ class m_services extends IModule{
         $R=array();
         $db->Query($q='
             SELECT
-                S.*,
                 T.*,
+                S.*,
                 S.id as id,
                 sp.name as server_pbx,
                 IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
