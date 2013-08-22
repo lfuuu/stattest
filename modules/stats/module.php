@@ -2655,18 +2655,20 @@ class m_stats extends IModule{
 					cast(sum(amount)/100.0 as NUMERIC(10,2)) as price_mcn,
 					operator_id as operator_id,
 					case direction_out when true then
-						case dest=0 when true then
-							case mob when true then
-								11
-							else
-								10
-							end
+						case phone_num::varchar like '7800%' when true then
+							100
 						else
-						  case dest=-1 when true then
-						    9
-						  else
-						    100+dest
-						  end
+							case dest when 0 then
+								case mob when true then
+									11
+								else
+									10
+								end
+							when -1 then
+								9
+							else
+								100+dest
+							end
 						end
 					else 900 end as dest2
 					".$sod."
