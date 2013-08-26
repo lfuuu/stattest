@@ -268,6 +268,7 @@ $(function(){
     <select name="nds_calc_method">
         <option value=1{if $client.nds_calc_method == 1} selected{/if}>Основной</option>
         <option value=2{if $client.nds_calc_method == 2} selected{/if}>Эксперементальный 1 (ндс=Сум_с_ндс - Сум_без_ндс)</option>
+        <option value=3{if $client.nds_calc_method == 3} selected{/if}>Эксперементальный 2 (Сум_без_ндс = Сум_c_ндс - ндс)</option>
     </select>
         
         </td></tr>

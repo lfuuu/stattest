@@ -3085,29 +3085,37 @@ class m_newaccounts extends IModule{
 		$bdata['tax']=0; $bdata['tsum']=0; $bdata["sum"] = 0;
 
 
+        $r = $bill->Client();
 
-		foreach ($L as &$li) {
-			$bdata['tax']+=round($li['tax'],2);
-			$bdata['tsum']+=$li['tsum'];
-			$bdata['sum']+=round($li['sum'],2);
+        foreach ($L as &$li) {
 
-			if ($obj=='akt' && $source==3 && $do_assign) {			//связь строчка>устройство или строчка>подключение>устройство
-				$id = null;
-				if ($li['service']=='tech_cpe') {
-					$id = $li['id_service'];
-				} elseif ($li['service']=='usage_ip_ports') {
-					$r = $db->GetRow('select id_service from tech_cpe where id_service='.$li['id_service'].' AND actual_from<"'.$inv_date.'" AND actual_to>"'.$inv_date.'" order by id desc limit 1');
-					if ($r) $id = $r['id_service'];
-				}
-				if ($id) {
-					$r=$db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
-					$r['amount'] = floatval($li['amount']);
-					$cpe[]=$r;
-				} else {
-					$cpe[]=array('type'=>'','vendor'=>'','model'=>$li['item'],'serial'=>'','amount'=>floatval($li['amount']), "actual_from" => $li["date_from"]);
-				}
-			}
-		}
+            if($r["nds_calc_method"] == 3 && !$isNdsZero)
+            {
+                $li["tax"] = round($li["tsum"]/1.18*0.18,2);
+                $li["sum"] = $li["tsum"] - $li["tax"];
+            }
+
+            $bdata['tax']+=round($li['tax'],2);
+            $bdata['tsum']+=$li['tsum'];
+            $bdata['sum']+=round($li['sum'],2);
+
+            if ($obj=='akt' && $source==3 && $do_assign) {			//связь строчка>устройство или строчка>подключение>устройство
+                $id = null;
+                if ($li['service']=='tech_cpe') {
+                    $id = $li['id_service'];
+                } elseif ($li['service']=='usage_ip_ports') {
+                    $r = $db->GetRow('select id_service from tech_cpe where id_service='.$li['id_service'].' AND actual_from<"'.$inv_date.'" AND actual_to>"'.$inv_date.'" order by id desc limit 1');
+                    if ($r) $id = $r['id_service'];
+                }
+                if ($id) {
+                    $r=$db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
+                    $r['amount'] = floatval($li['amount']);
+                    $cpe[]=$r;
+                } else {
+                    $cpe[]=array('type'=>'','vendor'=>'','model'=>$li['item'],'serial'=>'','amount'=>floatval($li['amount']), "actual_from" => $li["date_from"]);
+                }
+            }
+        }
 		unset($li);
 
         if($bdata["currency"] == "USD")
@@ -3123,7 +3131,6 @@ class m_newaccounts extends IModule{
 
 		//$bdata['sum'] = $bdata['tsum']-$bdata['tax'];
 
-        $r = $bill->Client();
         $b = $bill->GetBill();
 
         if($r["nds_calc_method"] == 2 && !$isNdsZero)
@@ -3131,6 +3138,11 @@ class m_newaccounts extends IModule{
             $bdata["tax"] = $bdata["tsum"] - $bdata["sum"];
         }
 
+        if($r["nds_calc_method"] == 3 && !$isNdsZero)
+        {
+            $bdata["tax"] = round($bdata["tsum"]/1.18*0.18,2);
+            $bdata["sum"] = $bdata["tsum"] - $bdata["tax"];
+        }
 
 		if ($do_assign){
 			$design->assign('cpe',$cpe);
