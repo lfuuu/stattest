@@ -97,6 +97,7 @@ class Sync1CClient
 		global $user;
 
 		try {
+
 			$params = array(
 				'order' => $data,
 				'user' => $user->Get("user")

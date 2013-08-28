@@ -18,7 +18,7 @@
 
 
 	<table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
-		<tr>
+		<!--tr>
 			<th>Проведение</th>
 			<td>
 				<select name="active" class="form-control input-sm">
@@ -36,7 +36,7 @@
 				{/foreach}
 				</select>
 			</td>
-		</tr>
+		</tr-->
 		{if !$order->is_new_record()}
 		<tr>
 			<th>Номер, Дата</th>

@@ -11,81 +11,81 @@
 */
 
 class m_tt extends IModule{
-	var $is_active = 0;
-	var $curtype = null;
-	var $curfolder = null;
-	var $page_num = 0;
-	var $found_pages = 0;
-	var $curclient = null;
-	var $dont_again = null;
-	var $dont_filters = null;
-	var $cur_trouble_id = 0;
+    var $is_active = 0;
+    var $curtype = null;
+    var $curfolder = null;
+    var $page_num = 0;
+    var $found_pages = 0;
+    var $curclient = null;
+    var $dont_again = null;
+    var $dont_filters = null;
+    var $cur_trouble_id = 0;
 
-	//список прав.
+    //список прав.
 
-	function InitDbMap(){
-		if (isset($this->dbmap)) return;
-		require_once INCLUDE_PATH.'db_map.php';
-		$this->dbmap=new Db_map_nispd();
-		$this->dbmap->SetErrorMode(2,0);
-	}
+    function InitDbMap(){
+        if (isset($this->dbmap)) return;
+        require_once INCLUDE_PATH.'db_map.php';
+        $this->dbmap=new Db_map_nispd();
+        $this->dbmap->SetErrorMode(2,0);
+    }
 
 
-	function GetMain($action,$fixclient){
-		global $design,$db,$user;
-		if (!isset($this->actions[$action])) return;
-		$act=$this->actions[$action];
-		if (!access($act[0],$act[1])) return;
-		$this->is_active=1;
-		call_user_func(array($this,'tt_'.$action),$fixclient);
-	}
-	function tt_default($fixclient){
-		return $this->tt_list($fixclient);
-	}
-	function tt_list2($fixclient) { return $this->tt_list($fixclient); }
-	function tt_list_cl($fixclient) { return $this->tt_list($fixclient); }
+    function GetMain($action,$fixclient){
+        global $design,$db,$user;
+        if (!isset($this->actions[$action])) return;
+        $act=$this->actions[$action];
+        if (!access($act[0],$act[1])) return;
+        $this->is_active=1;
+        call_user_func(array($this,'tt_'.$action),$fixclient);
+    }
+    function tt_default($fixclient){
+        return $this->tt_list($fixclient);
+    }
+    function tt_list2($fixclient) { return $this->tt_list($fixclient); }
+    function tt_list_cl($fixclient) { return $this->tt_list($fixclient); }
 
-	function tt_list($fixclient){
-		global $db,$design,$user;
-		$this->curclient = $fixclient;
-		$f = $user->Flag('tt_tasks');
+    function tt_list($fixclient){
+        global $db,$design,$user;
+        $this->curclient = $fixclient;
+        $f = $user->Flag('tt_tasks');
 
-		if($f<2 || $f>4)
-			$f = 2;
-		$mode = get_param_integer('mode',$f);
-		if($mode>=2)
-			$user->SetFlag('tt_tasks',$mode);
-		$service = get_param_protected('service',null);
-		$service_id = get_param_integer('service_id',null);
-		$this->showTroubleList($mode,'full',$fixclient,$service,$service_id);
-	}
-	function tt_add($fixclient){
-		global $db,$design,$user;
-		$R = array();
-		$R['trouble_type'] = get_param_protected('type' , 'trouble');
-		$R['trouble_subtype'] = get_param_protected('trouble_subtype' , '');
-		#if (!in_array($R['trouble_type'],array('task', 'out', 'trouble'))) $R['trouble_type'] = 'trouble';
-		$R['client'] = get_param_protected('client' , null);
-		if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error('Такого клиента не существует'); return;}
-		$R['time']=get_param_integer('time',null);
-		$R['date_start'] = get_param_protected('date_start',null);
-		$R['date_finish_desired']=get_param_protected('date_finish_desired',null);
-		$R['problem']=get_param_raw('problem','');
-		$user_main=get_param_protected('user','');
-		$R['service']=get_param_protected('service','');
-		$R['is_important']=get_param_protected('is_important','0');
-		$R['bill_no'] = get_param_protected('bill_no','null');
-		$R['service_id']=get_param_integer('service_id');
-		$id = $this->createTrouble($R,$user_main);
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$id);
-	}
-	function tt_time($fixclient) {
-		global $db,$design,$user;
-		$id = get_param_integer('id',0);
-		$R = $this->makeTroubleList(0,null,5,null,null,null,$id);
-		if (!count($R)) {trigger_error('Такой заявки у клиента '.$fixclient.' не существует'); return;}
-		$trouble = $R[0];
-		if (!$this->checkTroubleAccess($trouble)) return;
+        if($f<2 || $f>4)
+            $f = 2;
+        $mode = get_param_integer('mode',$f);
+        if($mode>=2)
+            $user->SetFlag('tt_tasks',$mode);
+        $service = get_param_protected('service',null);
+        $service_id = get_param_integer('service_id',null);
+        $this->showTroubleList($mode,'full',$fixclient,$service,$service_id);
+    }
+    function tt_add($fixclient){
+        global $db,$design,$user;
+        $R = array();
+        $R['trouble_type'] = get_param_protected('type' , 'trouble');
+        $R['trouble_subtype'] = get_param_protected('trouble_subtype' , '');
+        #if (!in_array($R['trouble_type'],array('task', 'out', 'trouble'))) $R['trouble_type'] = 'trouble';
+        $R['client'] = get_param_protected('client' , null);
+        if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error('Такого клиента не существует'); return;}
+        $R['time']=get_param_integer('time',null);
+        $R['date_start'] = get_param_protected('date_start',null);
+        $R['date_finish_desired']=get_param_protected('date_finish_desired',null);
+        $R['problem']=get_param_raw('problem','');
+        $user_main=get_param_protected('user','');
+        $R['service']=get_param_protected('service','');
+        $R['is_important']=get_param_protected('is_important','0');
+        $R['bill_no'] = get_param_protected('bill_no','null');
+        $R['service_id']=get_param_integer('service_id');
+        $id = $this->createTrouble($R,$user_main);
+        if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$id);
+    }
+    function tt_time($fixclient) {
+        global $db,$design,$user;
+        $id = get_param_integer('id',0);
+        $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
+        if (!count($R)) {trigger_error('Такой заявки у клиента '.$fixclient.' не существует'); return;}
+        $trouble = $R[0];
+        if (!$this->checkTroubleAccess($trouble)) return;
 
         if(($time =get_param_raw("time", "none")) !== "none")
         {
@@ -99,24 +99,24 @@ class m_tt extends IModule{
             }
 
         }
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$trouble['id']);
-	}
-	function tt_move($fixclient){
+        if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$trouble['id']);
+    }
+    function tt_move($fixclient){
 
 
-		global $db,$design,$user;
-		$id = get_param_integer('id',0);
-		$R = $this->makeTroubleList(0,null,5,null,null,null,$id);
-		if(!count($R)){
-			trigger_error('Такой заявки у клиента '.$fixclient.' не существует');
-			return;
-		}
-		$trouble = $R[0];
-		if($this->checkTroubleAccess($trouble) || access('tt','comment'))
+        global $db,$design,$user;
+        $id = get_param_integer('id',0);
+        $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
+        if(!count($R)){
+            trigger_error('Такой заявки у клиента '.$fixclient.' не существует');
+            return;
+        }
+        $trouble = $R[0];
+        if($this->checkTroubleAccess($trouble) || access('tt','comment'))
         {
             //
         }else
-			return;
+            return;
 
         $R = array();
 
@@ -128,7 +128,7 @@ class m_tt extends IModule{
 
 
         $comment=get_param_raw('comment','');
-		if(!$this->checkTroubleAccess($trouble) && access('tt','comment'))
+        if(!$this->checkTroubleAccess($trouble) && access('tt','comment'))
         {
             $lastStage = $trouble["stages"][count($trouble["stages"])-1];
 
@@ -155,15 +155,15 @@ class m_tt extends IModule{
         }
         if($trouble['bill_no'] && preg_match("/^(\d{6,7})$/", $trouble['bill_no']) && get_param_raw("to_admin", "") != "")
         {
-        	$db->QueryInsert("z_sync_admin",
-        		array(
-        			"bill_no" => $trouble['bill_no'],
-        			"event"   => 'to_admin',
-        			"comment" => $comment
-        		)
-        	);
-        	$db->Query("update newbills set editor='admin' where bill_no = '".$trouble['bill_no']."'");
-        	$comment .= "\n<hr>Завака передана в admin.markomnet";
+            $db->QueryInsert("z_sync_admin",
+                array(
+                    "bill_no" => $trouble['bill_no'],
+                    "event"   => 'to_admin',
+                    "comment" => $comment
+                )
+            );
+            $db->Query("update newbills set editor='admin' where bill_no = '".$trouble['bill_no']."'");
+            $comment .= "\n<hr>Завака передана в admin.markomnet";
         }
 
         // to edit
@@ -176,47 +176,82 @@ class m_tt extends IModule{
         }
         */
 
-		if($trouble['bill_no'] && !strpos($trouble['bill_no'], '-')){
-			$bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($trouble['bill_no'],"\\'")."'");
-			$newstate = $db->GetRow("select * from tt_states where id=".(int)$R['state_id']);
-			if($newstate['state_1c']<>$bill['state_1c']){
-				require_once(INCLUDE_PATH.'1c_integration.php');
-				$bs = new \_1c\billMaker($db);
-				$fault = null;
-				$f = $bs->setOrderStatus($bill['bill_no'], $newstate['state_1c'], $fault);
-				if(!$f){
-					echo "Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />";
-					echo "<br /><br />";
-					echo "<a href='index.php?module=tt&action=view&id=".$trouble['id']."'>Вернуться к заявке</a>";
-					exit();
-				}
-				if($f){
-					if (strcmp($newstate['state_1c'],'Отказ') == 0){
-						$db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
+        // all4net bills && 1c bills (843434 | 201307/0123)
+        if($trouble['bill_no'] && !strpos($trouble['bill_no'], '-') && $trouble["trouble_type"] == "shop_orders"){
+            $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($trouble['bill_no'],"\\'")."'");
+            $newstate = $db->GetRow("select * from tt_states where id=".(int)$R['state_id']);
+            if($newstate['state_1c']<>$bill['state_1c']){
+                require_once(INCLUDE_PATH.'1c_integration.php');
+                $bs = new \_1c\billMaker($db);
+                $fault = null;
+                $f = $bs->setOrderStatus($bill['bill_no'], $newstate['state_1c'], $fault);
+                if(!$f){
+                    echo "Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />";
+                    echo "<br /><br />";
+                    echo "<a href='index.php?module=tt&action=view&id=".$trouble['id']."'>Вернуться к заявке</a>";
+                    exit();
+                }
+                if($f){
+                    if (strcmp($newstate['state_1c'],'Отказ') == 0){
+                        $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
                         event::setReject($bill, $newstate);
-					}else{
-						$db->Query($q="update newbills set state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
-					}
-				}
-			}
-		}
+                    }else{
+                        $db->Query($q="update newbills set state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
+                    }
+                }
+            }
+        }
+
+        if($trouble["bill_no"] && $trouble["trouble_type"] == "incomegoods")
+        {
+            // find last income order. Number mast by repeat.
+            $gio = GoodsIncomeOrder::find("first", array(
+                        "conditions" => array(
+                            "number = ?", $trouble["bill_no"]
+                            ), 
+                        "order" => "date desc", 
+                        "limit" => 1)
+                    );
+
+            $gio_trouble = Trouble::find_by_bill_no($trouble["bill_no"]);
+            $cur_state = $gio_trouble->current_stage->state;
+
+            $new_state = TroubleState::find($R["state_id"]);
 
 
-		$this->createStage(
-			$trouble['id'],
-			$R,
-			array(
-				'comment'=>$comment,
-				'stage_id'=>$trouble['stage_id']
-			)
-		);
+            /*
+            printdbg($s);
+            exit();
+            */
+
+            if($new_state->name == "Отказ")
+            {
+                $gio->setStatusAndSave($cur_state->state_1c, false);
+            }else
+            if($new_state->state_1c != $cur_state->state_1c)
+            {
+                $gio->setStatusAndSave($new_state->state_1c);
+            }
+
+        }
+
+
+        $this->createStage(
+            $trouble['id'],
+            $R,
+            array(
+                'comment'=>$comment,
+                'stage_id'=>$trouble['stage_id']
+            )
+        );
 
         // новый - 15
 
         // если заявка уходит со стадии "новый", кто уводит - тот и менеджер счета (получает бонусы)
         // даже если переход с новой на новую
 
-        if($trouble["bill_no"]){
+        if($trouble["bill_no"] && $trouble["trouble_type"] == "shop_orders")
+        {
             include_once INCLUDE_PATH.'bill.php';
             $oBill = new \Bill($trouble["bill_no"]);
 
@@ -233,112 +268,122 @@ class m_tt extends IModule{
             }
         }
 
-		if($trouble['bill_no']){
+        if($trouble['bill_no'] && $trouble["trouble_type"] == "shop_orders")
+        {
+            header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
+            exit();
+        }
 
-			header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
-			exit();
-		}
-		if($design->ProcessEx('errors.tpl'))
-			header('Location: ?module=tt&action=view&id='.$trouble['id']);
-	}
+        if($trouble['bill_no'] && $trouble["trouble_type"] == "incomegoods")
+        {
+            header('Location: ?module=incomegoods&action=order_view&id='.$gio->id);
+            exit();
+        }
 
-	function tt_list_types($fixclient){
-		global $db,$design;
+        if($design->ProcessEx('errors.tpl'))
+        {
+            header('Location: ?module=tt&action=view&id='.$trouble['id']);
+        }
+    }
 
-		if(!$fixclient)
-			$fixclient="\0";
 
-		$types = $db->AllRecords("
-			select
-				tty.pk,
-				tty.code,
-				tty.name,
-				tty.folders,
-				(select count(*) from tt_troubles where trouble_type=tty.code) cnt
-			from
-				tt_types tty
-			",null,MYSQL_ASSOC);
+    function tt_list_types($fixclient){
+        global $db,$design;
 
-		$design->assign_by_ref('tt_types',$types);
-		$design->AddMain('tt/types_list.html');
-	}
-	function tt_view_type($fixclient){
-		global $db, $design, $user;
+        if(!$fixclient)
+            $fixclient="\0";
 
-		if(isset($_REQUEST['type_pk'])){
-			$type = $db->GetRow('select * from tt_types where pk='.(int)$_REQUEST['type_pk']);
-		}elseif(isset($_REQUEST['type'])){
-			$type = $db->GetRow('select * from tt_types where code="'.addcslashes($_REQUEST['type'], "\\\"").'"');
-		}else
-			$type = null;
+        $types = $db->AllRecords("
+            select
+                tty.pk,
+                tty.code,
+                tty.name,
+                tty.folders,
+                (select count(*) from tt_troubles where trouble_type=tty.code) cnt
+            from
+                tt_types tty
+            ",null,MYSQL_ASSOC);
 
-		if(!$type){
-			header('Location: ./?module=tt&action=list_types');
-			exit();
-		}
+        $design->assign_by_ref('tt_types',$types);
+        $design->AddMain('tt/types_list.html');
+    }
+    function tt_view_type($fixclient){
+        global $db, $design, $user;
 
-		if($fixclient)
-			$folders = $db->AllRecords($q="
-				select
-					tf.pk,
-					tf.name,
-					(
-						select
-							count(*)
-						from
-							tt_troubles
-						where
-							trouble_type='".$type['code']."'
-						and
-							client='".addcslashes($fixclient, "\\'")."'
-						and
-							folder & tf.pk
-					) cnt
-				from
-					tt_folders tf
-				where
-					tf.pk & ".$type['folders']."
-				order by
-					`tf`.`order`",
-				'pk',
-				MYSQL_ASSOC
-			);
-		else
-			$folders = $db->AllRecords($q="
-				select
-					tf.pk,
-					tf.name,
-					(
-						select
-							count(*)
-						from
-							tt_troubles
-						where
-							trouble_type='".$type['code']."'
-						and
-							folder & tf.pk
-					) cnt
-				from
-					tt_folders tf
-				where
-					tf.pk & ".$type['folders']."
-				order by
-					`tf`.`order`",
-				'pk',
-				MYSQL_ASSOC
-			);
+        if(isset($_REQUEST['type_pk'])){
+            $type = $db->GetRow('select * from tt_types where pk='.(int)$_REQUEST['type_pk']);
+        }elseif(isset($_REQUEST['type'])){
+            $type = $db->GetRow('select * from tt_types where code="'.addcslashes($_REQUEST['type'], "\\\"").'"');
+        }else
+            $type = null;
 
-		$folder = 0;
+        if(!$type){
+            header('Location: ./?module=tt&action=list_types');
+            exit();
+        }
 
-		if(isset($_REQUEST['folder']))
-			$folder = (int)$_REQUEST['folder'];
+        if($fixclient)
+            $folders = $db->AllRecords($q="
+                select
+                    tf.pk,
+                    tf.name,
+                    (
+                        select
+                            count(*)
+                        from
+                            tt_troubles
+                        where
+                            trouble_type='".$type['code']."'
+                        and
+                            client='".addcslashes($fixclient, "\\'")."'
+                        and
+                            folder & tf.pk
+                    ) cnt
+                from
+                    tt_folders tf
+                where
+                    tf.pk & ".$type['folders']."
+                order by
+                    `tf`.`order`",
+                'pk',
+                MYSQL_ASSOC
+            );
+        else
+            $folders = $db->AllRecords($q="
+                select
+                    tf.pk,
+                    tf.name,
+                    (
+                        select
+                            count(*)
+                        from
+                            tt_troubles
+                        where
+                            trouble_type='".$type['code']."'
+                        and
+                            folder & tf.pk
+                    ) cnt
+                from
+                    tt_folders tf
+                where
+                    tf.pk & ".$type['folders']."
+                order by
+                    `tf`.`order`",
+                'pk',
+                MYSQL_ASSOC
+            );
 
-		if(!$folder && !$user->Flag('tt_'.$type['code'].'_folder')){
-			$folder = array_shift(array_keys($folders));
-			$user->SetFlag('tt_'.$type['code'].'_folder',$folder);
-		}elseif(!$folder){
-			$folder = $user->Flag('tt_'.$type['code'].'_folder');
-		}elseif($folder){
+        $folder = 0;
+
+        if(isset($_REQUEST['folder']))
+            $folder = (int)$_REQUEST['folder'];
+
+        if(!$folder && !$user->Flag('tt_'.$type['code'].'_folder')){
+            $folder = array_shift(array_keys($folders));
+            $user->SetFlag('tt_'.$type['code'].'_folder',$folder);
+        }elseif(!$folder){
+            $folder = $user->Flag('tt_'.$type['code'].'_folder');
+        }elseif($folder){
             $firstFolder = array(
                     "trouble" => 256,
                     "task" => 256,
@@ -353,130 +398,136 @@ class m_tt extends IModule{
             }else{
                 $user->SetFlag('tt_'.$type['code'].'_folder',$folder);
             }
-		}
+        }
 
-		$design->assign('tt_wo_explain',true); # убрать заголовок
-		$design->assign('tt_type',$type);
-		$design->assign('tt_folder',$folder);
-		$design->assign('tt_folders',$folders);
-		$design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
+        $design->assign('tt_wo_explain',true); # убрать заголовок
+        $design->assign('tt_type',$type);
+        $design->assign('tt_folder',$folder);
+        $design->assign('tt_folders',$folders);
+        $design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
 
-		$this->curtype = $type;
-		$this->curfolder = $folder;
-		$this->curclient = $fixclient;
-		$_GET['mode'] = 0;
+        $this->curtype = $type;
+        $this->curfolder = $folder;
+        $this->curclient = $fixclient;
+        $_GET['mode'] = 0;
 
-		return $this->tt_list($fixclient);
-	}
+        return $this->tt_list($fixclient);
+    }
 
-	function tt_report($fixclient){
-		global $db,$design,$user;
-		$this->curclient = $fixclient;
-		$from=getdate();
-		$from['mday']=1;
-		$to=$from; $to['mday']=31;
-		$from=param_load_date("from_",$from,true);
-		$to=param_load_date("to_",$to,true);
-		$design->assign('tt_from',$from);
-		$design->assign('tt_to',$to);
-		$design->assign('open',$open=get_param_integer('open',0));
-		$W=array('AND',array('OR'));
+    function tt_report($fixclient){
+        global $db,$design,$user;
+        $this->curclient = $fixclient;
+        $from=getdate();
+        $from['mday']=1;
+        $to=$from; $to['mday']=31;
+        $from=param_load_date("from_",$from,true);
+        $to=param_load_date("to_",$to,true);
+        $design->assign('tt_from',$from);
+        $design->assign('tt_to',$to);
+        $design->assign('open',$open=get_param_integer('open',0));
+        $W=array('AND',array('OR'));
 
-		if ($open) $W[1][]='S.state_id!=2';
-		$W[1][]='S.date_edit>="'.$from.'" AND S.date_edit<"'.$to.'"';
+        if ($open) $W[1][]='S.state_id!=2';
+        $W[1][]='S.date_edit>="'.$from.'" AND S.date_edit<"'.$to.'"';
 
-//		$date_desired = 'IF(trouble_type="out",DATE(date_finish_desired)+INTERVAL 36 HOUR,date_finish_desired)';
-		$date_finish = 'IF(V.date_edit!=0,V.date_edit,NOW())';
-		$P = array(
-				'time_limit'		=>array(	'UNIX_TIMESTAMP(V.date_finish_desired)-UNIX_TIMESTAMP(V.date_start)'	),
-				'time_total'		=>array(	'UNIX_TIMESTAMP('.$date_finish.')-UNIX_TIMESTAMP(V.date_start)'	),
-				'time_over'			=>array(	'GREATEST(UNIX_TIMESTAMP('.$date_finish.')-UNIX_TIMESTAMP(V.date_finish_desired),0)'),
+//        $date_desired = 'IF(trouble_type="out",DATE(date_finish_desired)+INTERVAL 36 HOUR,date_finish_desired)';
+        $date_finish = 'IF(V.date_edit!=0,V.date_edit,NOW())';
+        $P = array(
+                'time_limit'        =>array(    'UNIX_TIMESTAMP(V.date_finish_desired)-UNIX_TIMESTAMP(V.date_start)'    ),
+                'time_total'        =>array(    'UNIX_TIMESTAMP('.$date_finish.')-UNIX_TIMESTAMP(V.date_start)'    ),
+                'time_over'            =>array(    'GREATEST(UNIX_TIMESTAMP('.$date_finish.')-UNIX_TIMESTAMP(V.date_finish_desired),0)'),
 
-				'n_over'			=>array(	'IF('.$date_finish.'>V.date_finish_desired,1,0)'),
-				'n_over_close'		=>array(	'IF((V.date_edit!=0) AND ('.$date_finish.'>V.date_finish_desired),1,0)'		),
-				'n_open'			=>array(	'IF(V.date_edit=0,1,0)'	),
-				'n_all'				=>array(	'1'		),
-			);
-		$S = '';
-		foreach ($P as $k=>$v) if (count($v)==1) {
-			$S.=',SUM('.$v[0].') as '.$k;
-		} else {
-			$S.=',SUM('; $S2 = '';
-			foreach ($v as $vk=>$vv) if ($vk===true) {
-				$S.=$vv;
-			} else {
-				$S.='IF('.$vk.','.$vv.',';
-				$S2.=')';
-			}
-			$S.=$S2.' as '.$k;
-		}
-		$R = $db->AllRecords('select V.user_main as user '.
-						$S.' FROM tt_troubles as T '.
-						'INNER JOIN tt_stages as S ON S.stage_id = T.cur_stage_id '.
-						'INNER JOIN tt_stages as V ON V.trouble_id = T.id '.			//все этапы
-						'WHERE '.MySQLDatabase::Generate($W).' GROUP BY V.user_main HAVING V.user_main!=""');
+                'n_over'            =>array(    'IF('.$date_finish.'>V.date_finish_desired,1,0)'),
+                'n_over_close'        =>array(    'IF((V.date_edit!=0) AND ('.$date_finish.'>V.date_finish_desired),1,0)'        ),
+                'n_open'            =>array(    'IF(V.date_edit=0,1,0)'    ),
+                'n_all'                =>array(    '1'        ),
+            );
+        $S = '';
+        foreach ($P as $k=>$v) if (count($v)==1) {
+            $S.=',SUM('.$v[0].') as '.$k;
+        } else {
+            $S.=',SUM('; $S2 = '';
+            foreach ($v as $vk=>$vv) if ($vk===true) {
+                $S.=$vv;
+            } else {
+                $S.='IF('.$vk.','.$vv.',';
+                $S2.=')';
+            }
+            $S.=$S2.' as '.$k;
+        }
+        $R = $db->AllRecords('select V.user_main as user '.
+                        $S.' FROM tt_troubles as T '.
+                        'INNER JOIN tt_stages as S ON S.stage_id = T.cur_stage_id '.
+                        'INNER JOIN tt_stages as V ON V.trouble_id = T.id '.            //все этапы
+                        'WHERE '.MySQLDatabase::Generate($W).' GROUP BY V.user_main HAVING V.user_main!=""');
 
-		/*
-		if ($open) $W[1][]='state_id!=2';
-		$W[1][]='date_finish_fact>="'.$from.'" AND date_finish_fact<"'.$to.'"';
-		//$W[]= 'trouble_type != "task"';
+        /*
+        if ($open) $W[1][]='state_id!=2';
+        $W[1][]='date_finish_fact>="'.$from.'" AND date_finish_fact<"'.$to.'"';
+        //$W[]= 'trouble_type != "task"';
 
-		//$date_desired = 'IF(trouble_type="out",DATE(date_finish_desired)+INTERVAL 36 HOUR,date_finish_desired)';
-		$date_desired = 'date_finish_desired';
-		$date_finish = 'UNIX_TIMESTAMP(IF(state_id=2,date_edit,NOW()))';
-		$P = array(
-				'time_limit'		=>array(	'UNIX_TIMESTAMP('.$date_desired.')-UNIX_TIMESTAMP(date_start)'	),
-				'time_total'		=>array(	$date_finish.'-UNIX_TIMESTAMP(date_start)'	),
-				'time_over'			=>array(	'GREATEST('.$date_finish.'-UNIX_TIMESTAMP('.$date_desired.'),0)'),
-				'count_over'		=>array(	'IF(IF(state_id=2,date_edit,NOW())>'.$date_desired.',1,0)'	),
-				'count_over_closed'	=>array(	'IF((state_id=2) AND (date_edit>date_finish_desired),1,0)'	),
-				'count_total_open'	=>array(	'IF(state_id!=2,1,0)'	),
-				'count_total'		=>array(	'1'		),
-			);
-		$S = '';
-		foreach ($P as $k=>$v) if (count($v)==1) {
-			$S.=',SUM('.$v[0].') as '.$k;
-		} else {
-			$S.=',SUM('; $S2 = '';
-			foreach ($v as $vk=>$vv) if ($vk===true) {
-				$S.=$vv;
-			} else {
-				$S.='IF('.$vk.','.$vv.',';
-				$S2.=')';
-			}
-			$S.=$S2.' as '.$k;
-		}
-		$R = $db->AllRecords('select '.
-						'(SELECT SU.user_main FROM tt_stages as SU WHERE SU.user_main!=T.user_author AND SU.trouble_id=T.id ORDER BY SU.stage_id DESC LIMIT 1) as user '.
-						$S.' FROM tt_troubles as T '.
-						'INNER JOIN tt_stages as S ON (S.trouble_id = T.id AND S.user_main!=T.user_author) '.
-						'WHERE '.MySQLDatabase::Generate($W).' GROUP BY user HAVING user IS NOT NULL');
-				*/
-		$design->assign('tt_report',$R);
-		$design->AddMain('tt/report.tpl');
-		$design->AddMain('tt/report_form.tpl');
-	}
+        //$date_desired = 'IF(trouble_type="out",DATE(date_finish_desired)+INTERVAL 36 HOUR,date_finish_desired)';
+        $date_desired = 'date_finish_desired';
+        $date_finish = 'UNIX_TIMESTAMP(IF(state_id=2,date_edit,NOW()))';
+        $P = array(
+                'time_limit'        =>array(    'UNIX_TIMESTAMP('.$date_desired.')-UNIX_TIMESTAMP(date_start)'    ),
+                'time_total'        =>array(    $date_finish.'-UNIX_TIMESTAMP(date_start)'    ),
+                'time_over'            =>array(    'GREATEST('.$date_finish.'-UNIX_TIMESTAMP('.$date_desired.'),0)'),
+                'count_over'        =>array(    'IF(IF(state_id=2,date_edit,NOW())>'.$date_desired.',1,0)'    ),
+                'count_over_closed'    =>array(    'IF((state_id=2) AND (date_edit>date_finish_desired),1,0)'    ),
+                'count_total_open'    =>array(    'IF(state_id!=2,1,0)'    ),
+                'count_total'        =>array(    '1'        ),
+            );
+        $S = '';
+        foreach ($P as $k=>$v) if (count($v)==1) {
+            $S.=',SUM('.$v[0].') as '.$k;
+        } else {
+            $S.=',SUM('; $S2 = '';
+            foreach ($v as $vk=>$vv) if ($vk===true) {
+                $S.=$vv;
+            } else {
+                $S.='IF('.$vk.','.$vv.',';
+                $S2.=')';
+            }
+            $S.=$S2.' as '.$k;
+        }
+        $R = $db->AllRecords('select '.
+                        '(SELECT SU.user_main FROM tt_stages as SU WHERE SU.user_main!=T.user_author AND SU.trouble_id=T.id ORDER BY SU.stage_id DESC LIMIT 1) as user '.
+                        $S.' FROM tt_troubles as T '.
+                        'INNER JOIN tt_stages as S ON (S.trouble_id = T.id AND S.user_main!=T.user_author) '.
+                        'WHERE '.MySQLDatabase::Generate($W).' GROUP BY user HAVING user IS NOT NULL');
+                */
+        $design->assign('tt_report',$R);
+        $design->AddMain('tt/report.tpl');
+        $design->AddMain('tt/report_form.tpl');
+    }
 
-	//всякие функции
-	function tt_view($fixclient){
-		global $db,$design,$user;
-		$this->curclient = $fixclient;
-		$id = get_param_integer('id',$this->cur_trouble_id);
-		$R = $this->makeTroubleList(0,null,5,null,null,null,$id);
-		if(!count($R)){
-			trigger_error('Такой заявки не существует');
-			return;
-		}
-		$trouble = $R[0];
+    //всякие функции
+    function tt_view($fixclient){
+        global $db,$design,$user;
+        $this->curclient = $fixclient;
 
-		$r = $db->GetRow('
-			select
-				*
-			from
-				user_users
-			where user="'.$trouble['user_author'].'"'
-		);
-		$trouble['user_author_name'] = $r['name'];
+        if(!$this->cur_trouble_id){
+            $id = get_param_integer('id',$this->cur_trouble_id);
+        }else{
+            $id = $this->cur_trouble_id;
+        }
+
+        $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
+        if(!count($R)){
+            trigger_error('Такой заявки не существует');
+            return;
+        }
+        $trouble = $R[0];
+
+        $r = $db->GetRow('
+            select
+                *
+            from
+                user_users
+            where user="'.$trouble['user_author'].'"'
+        );
+        $trouble['user_author_name'] = $r['name'];
         $tst = $this->getTroubleSubTypes(true);
         $trouble["trouble_subtype"] = $tst[$trouble["trouble_subtype"]];
 
@@ -486,66 +537,66 @@ class m_tt extends IModule{
                 order by d.id desc limit 1");
         $trouble["doer_id"] = $d ? $d["doer_id"] : false;
 
-		$design->assign(
-			'tt_client',
-			$db->GetRow('select * from clients where client="'.$trouble['client_orig'].'"')
-		);
-		$design->assign('tt_write',$this->checkTroubleAccess($trouble));
-		$design->assign('tt_doComment',access('tt','comment'));
-		$stage = $trouble['stages'][count($trouble['stages'])-1];
+        $design->assign(
+            'tt_client',
+            $db->GetRow('select * from clients where client="'.$trouble['client_orig'].'"')
+        );
+        $design->assign('tt_write',$this->checkTroubleAccess($trouble));
+        $design->assign('tt_doComment',access('tt','comment'));
+        $stage = $trouble['stages'][count($trouble['stages'])-1];
 
         $design->assign("cur_state", $stage["state_id"]);
 
-		$allow_state = 0;
-		if($trouble['bill_no'] && strpos($trouble['bill_no'], '/')){
-			$bill = $db->GetRow("
-				select
-					newbills.*,
-					(
-						select
-							count(*)
-						from
-							newbill_lines
-						where
-							bill_no=newbills.bill_no
-						and
-							`type`='good'
-					) good_count
-				from
-					newbills
-				where
-					bill_no = '".addcslashes($trouble['bill_no'], "\\'")."'
-			");
-			if(!$bill['good_count'])
-				$allow_state = 16384 | 8388608;
-		}
+        $allow_state = 0;
+        if($trouble['bill_no'] && strpos($trouble['bill_no'], '/')){
+            $bill = $db->GetRow("
+                select
+                    newbills.*,
+                    (
+                        select
+                            count(*)
+                        from
+                            newbill_lines
+                        where
+                            bill_no=newbills.bill_no
+                        and
+                            `type`='good'
+                    ) good_count
+                from
+                    newbills
+                where
+                    bill_no = '".addcslashes($trouble['bill_no'], "\\'")."'
+            ");
+            if(!$bill['good_count'])
+                $allow_state = 16384 | 8388608;
+        }
 
         $isRollback = (isset($bill) && $bill && $bill["is_rollback"]);
-		$R = $db->AllRecords($q='
-			select
-				*
-			from
-				tt_states'.($isRollback ? "_rb" : "").'
-			where
-				pk & (
-					select
-						states
-					from
-						tt_types
-					where
-						code="'.addcslashes($trouble['trouble_type'], "\\\"").'"
-				)'.($this->checkTroubleAccess($trouble)?'':' and id!=2')."
-			and
-				not (pk & (select deny & ~".$allow_state." from tt_states where id=".$stage['state_id']."))
-			order by
-				".(($trouble['trouble_type']=='shop_orders')?'`oso`':($trouble['trouble_type']=='mounting_orders'?'`omo`':'`order`'))
-		);
+        $R = $db->AllRecords($q='
+            select
+                *
+            from
+                tt_states'.($isRollback ? "_rb" : "").'
+            where
+                pk & (
+                    select
+                        states
+                    from
+                        tt_types
+                    where
+                        code="'.addcslashes($trouble['trouble_type'], "\\\"").'"
+                )'.($this->checkTroubleAccess($trouble)?'':' and id!=2')."
+            and
+                not (pk & (select deny & ~".$allow_state." from tt_states where id=".$stage['state_id']."))
+            order by
+                ".(($trouble['trouble_type']=='shop_orders')?'`oso`':($trouble['trouble_type']=='mounting_orders'?'`omo`':'`order`'))
+        );
 
         if($trouble["bill_no"]){
             $l = $this->loadOrderLog($trouble["bill_no"]);
             $this->addLogToStages($trouble["stages"], $l);
         }else{
-        	$design->assign("admin_order", false);
+            $design->assign("admin_order", false);
         }
 
         if(isset($trouble["all4geo_id"]) && $trouble["all4geo_id"])
@@ -567,19 +618,25 @@ class m_tt extends IModule{
 
         $trouble["problem"] = html_entity_decode($trouble["problem"]);
 
-		$design->assign('tt_trouble',$trouble);
-		$design->assign('tt_states',$R);
+        $design->assign('tt_trouble',$trouble);
+        $design->assign('tt_states',$R);
 
-		$bill = false;
+        $bill = false;
 
-		if($trouble['bill_no'] && !isset($_GET['bill'])){
-			header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
-			exit();
-		}
 
-		$design->AddMain('tt/trouble.tpl');
-		$this->showTimetable();
-	}
+// Пока этот блок отключаем, во избежании редиректа. Потом надо добавить филтьр по номеру
+/*
+        if($trouble['bill_no'] && !isset($_GET['bill'])){
+            echo 111;
+            exit();
+            header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
+            exit();
+        }
+        */
+
+        $design->AddMain('tt/trouble.tpl');
+        $this->showTimetable();
+    }
 
     function loadOrderLog($billNo){
         global $db;
@@ -619,11 +676,11 @@ class m_tt extends IModule{
             if(isset($l[$r["stage_id"]])) $r["comment"] .= (!$r["comment"] ? "" : "<hr>")."<font style=\"font-size: 7pt;\">".$l[$r["stage_id"]]."</font>";
 
     }
-	function tt_timetable($fixclient) {
-		global $db,$design,$user;
-		$this->curclient = $fixclient;
-		$this->showTimetable(true);
-	}
+    function tt_timetable($fixclient) {
+        global $db,$design,$user;
+        $this->curclient = $fixclient;
+        $this->showTimetable(true);
+    }
 
     function assignDate($prefix, $date)
     {
@@ -636,20 +693,20 @@ class m_tt extends IModule{
         $design->assign($prefix."_y", $y);
     }
 
-	// если передан клиент, то добавляется фильтр по клиенту; если передана услуга, то и по услуге.
-	//flags:
-	//	1 = присваивать design:service=..,service_id=..,tt_client=client
-	//	2 = присваивать design:troubles
-	//  4 = возвращать список
-	//	8 = был ли я ответственным
+    // если передан клиент, то добавляется фильтр по клиенту; если передана услуга, то и по услуге.
+    //flags:
+    //    1 = присваивать design:service=..,service_id=..,tt_client=client
+    //    2 = присваивать design:troubles
+    //  4 = возвращать список
+    //    8 = был ли я ответственным
 
-	function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null)
+    function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null)
     {
-		global $db,$user,$design;
+        global $db,$user,$design;
         /*
-		if(isset($_REQUEST['client']) && $_REQUEST['client']!=='---'){ //
-			$client = $_REQUEST['client'];
-		}
+        if(isset($_REQUEST['client']) && $_REQUEST['client']!=='---'){ //
+            $client = $_REQUEST['client'];
+        }
         */
                 $state = false;
 
@@ -838,79 +895,79 @@ class m_tt extends IModule{
         $design->assign("is_active", $ons["active"]);
         $design->assign("is_close", $ons["close"]);
 
-		$W = array('AND');
-		$join = '';
-		$select = '';
+        $W = array('AND');
+        $join = '';
+        $select = '';
 
 
-		//if($mode == 0){
-			if($state !== false)
-				$W[] = 'S.state_id = '.((int)$state);
-			if($editor !== false)
-				$W[] = "S.user_edit = '".addcslashes($editor,"\\\\'")."'";
-			if($resp !== false){
-				if($resp == 'SUPPORT')
-					$W[] = "`S`.`user_main` in (select `user` from `user_users` where `usergroup`='support')";
-				else
-					$W[] = "S.user_main = '".addcslashes($resp, "\\\\'")."'";
-			}
+        //if($mode == 0){
+            if($state !== false)
+                $W[] = 'S.state_id = '.((int)$state);
+            if($editor !== false)
+                $W[] = "S.user_edit = '".addcslashes($editor,"\\\\'")."'";
+            if($resp !== false){
+                if($resp == 'SUPPORT')
+                    $W[] = "`S`.`user_main` in (select `user` from `user_users` where `usergroup`='support')";
+                else
+                    $W[] = "S.user_main = '".addcslashes($resp, "\\\\'")."'";
+            }
 
-			if($owner !== false)
-				$W[] = "T.user_author = '".addcslashes($owner,"\\\\'")."'";
+            if($owner !== false)
+                $W[] = "T.user_author = '".addcslashes($owner,"\\\\'")."'";
 
             if($subtype !== false)
                 $W[] = "T.trouble_subtype = '".$subtype."'";
 
-			if($date_from !== false && $ons["create"])
-				$W[] = "T.date_creation >= '".$date_from."'";
-			if($date_to !== false && $ons["create"])
-				$W[] = "T.date_creation <= '".$date_to."'";
+            if($date_from !== false && $ons["create"])
+                $W[] = "T.date_creation >= '".$date_from."'";
+            if($date_to !== false && $ons["create"])
+                $W[] = "T.date_creation <= '".$date_to."'";
 
-			if($date_active_from !== false && $ons["active"])
-				$W[] = "S.date_start >= '".$date_active_from."'";
-			if($date_active_to !== false && $ons["active"])
-				$W[] = "S.date_start <= '".$date_active_to."'";
+            if($date_active_from !== false && $ons["active"])
+                $W[] = "S.date_start >= '".$date_active_from."'";
+            if($date_active_to !== false && $ons["active"])
+                $W[] = "S.date_start <= '".$date_active_to."'";
 
-			if($date_close_from !== false && $ons["close"])
-				$W[] = "T.date_close >= '".$date_close_from."'";
-			if($date_close_to !== false && $ons["close"])
-				$W[] = "T.date_close <= '".$date_close_to."'";
-		//}
+            if($date_close_from !== false && $ons["close"])
+                $W[] = "T.date_close >= '".$date_close_from."'";
+            if($date_close_to !== false && $ons["close"])
+                $W[] = "T.date_close <= '".$date_close_to."'";
+        //}
 
-		if($client)
-			$W[]='T.client="'.addslashes($client).'"';
-		if($service)
-			$W[]='service="'.addslashes($service).'"';
-		if($service_id)
-			$W[]='service_id="'.addslashes($service_id).'"';
-		if($t_id)
-			$W[]='T.id='.intval($t_id);
+        if($client)
+            $W[]='T.client="'.addslashes($client).'"';
+        if($service)
+            $W[]='service="'.addslashes($service).'"';
+        if($service_id)
+            $W[]='service_id="'.addslashes($service_id).'"';
+        if($t_id)
+            $W[]='T.id='.intval($t_id);
 
-		$showStages = ($mode>=1 || $client || $service || $service_id || $t_id);
+        $showStages = ($mode>=1 || $client || $service || $service_id || $t_id);
 
-		if($mode>=1)
-			$W[]='S.state_id not in (2,20,21)';
-		if($mode==2 || $mode==3)
-			$W[]='S.date_start<=NOW()';
-		if($mode==2)
-			$W[] = 'S.user_main="'.addslashes($user->Get('user')).'"';
-		if($mode==3)
-			$W[] = 'user_author="'.addslashes($user->Get('user')).'"';
-		if($mode==4){
-			$W[] = 'clients.manager="'.addslashes($user->Get('user')).'"';
-			$join.= 'INNER JOIN clients ON (clients.client=T.client) ';
-		}if($mode==5){
-			$W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
-		}
-		if (($flags&8)!=8) {
-			$join.='LEFT JOIN tt_stages as S2 ON S2.trouble_id = T.id AND S2.user_main = "'.addslashes($user->Get('user')).'" ';
-			$select = 'IF(S2.stage_id IS NULL,0,1) AS is_editableByMe,';
-		}
+        if($mode>=1)
+            $W[]='S.state_id not in (2,20,21)';
+        if($mode==2 || $mode==3)
+            $W[]='S.date_start<=NOW()';
+        if($mode==2)
+            $W[] = 'S.user_main="'.addslashes($user->Get('user')).'"';
+        if($mode==3)
+            $W[] = 'user_author="'.addslashes($user->Get('user')).'"';
+        if($mode==4){
+            $W[] = 'clients.manager="'.addslashes($user->Get('user')).'"';
+            $join.= 'INNER JOIN clients ON (clients.client=T.client) ';
+        }if($mode==5){
+            $W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
+        }
+        if (($flags&8)!=8) {
+            $join.='LEFT JOIN tt_stages as S2 ON S2.trouble_id = T.id AND S2.user_main = "'.addslashes($user->Get('user')).'" ';
+            $select = 'IF(S2.stage_id IS NULL,0,1) AS is_editableByMe,';
+        }
 
-		if($this->curtype)
-			$W[] = "T.trouble_type = '".$this->curtype['code']."'";
-		if($this->curfolder)
-			$W[] = "T.folder&".$this->curfolder;
+        if($this->curtype)
+            $W[] = "T.trouble_type = '".$this->curtype['code']."'";
+        if($this->curfolder)
+            $W[] = "T.folder&".$this->curfolder;
 
         $page = get_param_integer("page", 1);
         if(!$page) $page = 1;
@@ -921,49 +978,48 @@ class m_tt extends IModule{
 
         //printdbg($W);
 
-		$R = $db->AllRecords($q='
-			SELECT sql_calc_found_rows
-				T.*,
-				S.*,
+        $R = $db->AllRecords($q='
+            SELECT sql_calc_found_rows
+                T.*,
+                S.*,
                 T.client as client_orig,
                 (select count(1) from  newbill_sms bs where  T.bill_no = bs.bill_no) is_sms_send,
-				T.client as trouble_original_client,
+                T.client as trouble_original_client,
 if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, ttsrb.name) as state_name,
-				tts.order as state_order,
-				'.$select.'
-				IF(S.date_start<=NOW(),1,0) as is_active,
-				UNIX_TIMESTAMP(S.date_finish_desired)-UNIX_TIMESTAMP(S.date_start) as time_limit,
-				IF(S.date_start<=NOW(),UNIX_TIMESTAMP(IF(S.state_id=2,S.date_edit,NOW()))-UNIX_TIMESTAMP(S.date_start),0) as time_pass,
+                tts.order as state_order,
+                '.$select.'
+                IF(S.date_start<=NOW(),1,0) as is_active,
+                UNIX_TIMESTAMP(S.date_finish_desired)-UNIX_TIMESTAMP(S.date_start) as time_limit,
+                IF(S.date_start<=NOW(),UNIX_TIMESTAMP(IF(S.state_id=2,S.date_edit,NOW()))-UNIX_TIMESTAMP(S.date_start),0) as time_pass,
                 (UNIX_TIMESTAMP(IF(S.state_id=2,S.date_edit,NOW())) - UNIX_TIMESTAMP(T.date_creation)) as time_start,
-				if(T.bill_no,(
-					SELECT if(cl.`type`="multi",nai.fio,cl.company) FROM newbills nb
-					LEFT JOIN clients cl ON cl.id = nb.client_id
-					LEFT JOIN newbills_add_info nai ON nai.bill_no = nb.bill_no
-					WHERE nb.bill_no = T.bill_no
-				),
-				T.client) as client,
+                if(T.bill_no,(
+                    SELECT if(cl.`type`="multi",nai.fio,cl.company) FROM newbills nb
+                    LEFT JOIN clients cl ON cl.id = nb.client_id
+                    LEFT JOIN newbills_add_info nai ON nai.bill_no = nb.bill_no
+                    WHERE nb.bill_no = T.bill_no
+                ),
+                T.client) as client,
                 is_payed,
                 is_rollback,
                 tt.name as trouble_name,
                 cl.manager, cl.company
-			FROM
-				tt_troubles as T
-			'.$join.'
-			INNER JOIN tt_stages as S  ON S.stage_id = T.cur_stage_id AND S.trouble_id = T.id
-			LEFT JOIN tt_states as tts ON tts.id = S.state_id
-			LEFT JOIN tt_states_rb as ttsrb ON ttsrb.id = S.state_id
+            FROM
+                tt_troubles as T
+            '.$join.'
+            INNER JOIN tt_stages as S  ON S.stage_id = T.cur_stage_id AND S.trouble_id = T.id
+            LEFT JOIN tt_states as tts ON tts.id = S.state_id
+            LEFT JOIN tt_states_rb as ttsrb ON ttsrb.id = S.state_id
             LEFT JOIN newbills_add_info nba ON nba.bill_no = T.bill_no
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
-			WHERE '.MySQLDatabase::Generate($W).'
-			GROUP BY T.id
-			ORDER BY T.id
-			DESC limit '.(($page-1)*$recInPage).','.$recInPage.'
-		');
+            WHERE '.MySQLDatabase::Generate($W).'
+            GROUP BY T.id
+            ORDER BY T.id
+            DESC limit '.(($page-1)*$recInPage).','.$recInPage.'
+        ');
 
-//printdbg($q);
-		$resultCount = $db->GetValue('select found_rows() as count');
+        $resultCount = $db->GetValue('select found_rows() as count');
         util::pager_pg($resultCount, $recInPage);
 
         $url = "./?module=tt&action=".get_param_raw("action","")."&mode=".get_param_raw("mode", 0);
@@ -978,31 +1034,31 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $lMetro = ClientCS::GetList("metro");
         $lLogistic = ClientCS::GetList("logistic");
 
-		foreach($R as $k=>$r){
+        foreach($R as $k=>$r){
             $R[$k]["trouble_name"] = str_replace(array("заказы"), array("Заказ"), mb_strtoupper($r["trouble_name"]));
-			if($r['time_pass'])
-				$R[$k]['time_pass'] = time_period($r['time_pass']);
-			if($r['time_start'])
-				$R[$k]['time_start'] = time_period($r['time_start']);
+            if($r['time_pass'])
+                $R[$k]['time_pass'] = time_period($r['time_pass']);
+            if($r['time_start'])
+                $R[$k]['time_start'] = time_period($r['time_start']);
 
-			if($r['time_limit'])
-				$R[$k]['time_limit']=time_period($r['time_limit']);
-				$R[$k]['stages'] = $db->AllRecords('
-					SELECT
-						S.*,
-						IF(S.date_edit=0,NULL,date_edit) as date_edit,
-						tts.name as state_name
-					FROM
-						tt_stages as S
-					INNER JOIN
-						tt_states'.($r["is_rollback"] ? "_rb" : "").' tts
-					ON
-						tts.id = state_id
-					WHERE
-						trouble_id='.$r['trouble_id'].'
-					ORDER BY
-						stage_id ASC
-				');
+            if($r['time_limit'])
+                $R[$k]['time_limit']=time_period($r['time_limit']);
+                $R[$k]['stages'] = $db->AllRecords('
+                    SELECT
+                        S.*,
+                        IF(S.date_edit=0,NULL,date_edit) as date_edit,
+                        tts.name as state_name
+                    FROM
+                        tt_stages as S
+                    INNER JOIN
+                        tt_states'.($r["is_rollback"] ? "_rb" : "").' tts
+                    ON
+                        tts.id = state_id
+                    WHERE
+                        trouble_id='.$r['trouble_id'].'
+                    ORDER BY
+                        stage_id ASC
+                ');
 
                 $R[$k]['last_comment'] = $R[$k]['stages'] && isset($R[$k]['stages'][count($R[$k]['stages'])-2]) ? $R[$k]['stages'][count($R[$k]['stages'])-2]["comment"] : "";
                 $R[$k]['add_info'] = $db->GetRow("select * from newbills_add_info where bill_no = '".$r["bill_no"]."'");
@@ -1015,177 +1071,177 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     if($R[$k]['add_info']["logistic"] == "")$R[$k]['add_info']["logistic"] = "none";
                     $R[$k]['add_info']["logistic_name"] = $lLogistic[$R[$k]['add_info']["logistic"]];
                 }
-		}
+        }
 
-		if(($flags&1)!=0){
-			$design->assign('showStages',$showStages);
-			if(!$client){
-				$subj=0;
-			}elseif($tt_design=='service' && $service){
-				$subj=2;
-			}else
-				$subj=1;
+        if(($flags&1)!=0){
+            $design->assign('showStages',$showStages);
+            if(!$client){
+                $subj=0;
+            }elseif($tt_design=='service' && $service){
+                $subj=2;
+            }else
+                $subj=1;
 
-			$design->assign('tt_subject',$subj);
-			if($tt_design)
-				$design->assign('tt_design',$tt_design);
-			$design->assign('tt_client',$client);
-			$design->assign('tt_service',$service);
-			$design->assign('tt_service_id',$service_id);
-			$db->Query('select u.usergroup, user, name,g.comment as ugroup from user_users u , user_groups  g
+            $design->assign('tt_subject',$subj);
+            if($tt_design)
+                $design->assign('tt_design',$tt_design);
+            $design->assign('tt_client',$client);
+            $design->assign('tt_service',$service);
+            $design->assign('tt_service_id',$service_id);
+            $db->Query('select u.usergroup, user, name,g.comment as ugroup from user_users u , user_groups  g
                     where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,convert(name using koi8r)');
-			$U=array();
-			while($r=$db->NextRecord()){
-				if(!isset($usergroup) || $usergroup!=$r['usergroup']){
-					$usergroup=$r['usergroup'];
-					$U[]=array('name'=>$r["ugroup"],'user'=>'');
-				}
-				if(strlen($r['user'])<15){
-					$r['user_pad'] = str_repeat("&nbsp;",15-strlen($r['user'])).$r['user'];
-				}else
-					$r['user_pad']=$r['user'];
-				$U[]=$r;
-			}
-			$design->assign('tt_users',$U);
-		}
+            $U=array();
+            while($r=$db->NextRecord()){
+                if(!isset($usergroup) || $usergroup!=$r['usergroup']){
+                    $usergroup=$r['usergroup'];
+                    $U[]=array('name'=>$r["ugroup"],'user'=>'');
+                }
+                if(strlen($r['user'])<15){
+                    $r['user_pad'] = str_repeat("&nbsp;",15-strlen($r['user'])).$r['user'];
+                }else
+                    $r['user_pad']=$r['user'];
+                $U[]=$r;
+            }
+            $design->assign('tt_users',$U);
+        }
 
-		foreach($R as $trouble_id=>$trouble){
-			if(isset($trouble['stages']))
-			foreach($trouble['stages'] as $stage_id=>$stage){
-				/*if($stage['state_id']<>4)
-					continue;*/
-				$query = "
-					SELECT
-						`td`.`doer_id`,
-						`cr`.`name`,
-						`cr`.`depart`
-					FROM
-						`tt_doers` `td`
-					LEFT JOIN
-						`courier` `cr`
-					ON
-						`cr`.`id` = `td`.`doer_id`
-					WHERE
-						`td`.`stage_id` = ".$stage['stage_id']."
-					ORDER BY
-						`cr`.`depart`,
-						`cr`.`name`
-				";
-				$R[$trouble_id]['stages'][$stage_id]['doers']=$db->AllRecords($query,null,MYSQL_ASSOC);
-			}
-		}
+        foreach($R as $trouble_id=>$trouble){
+            if(isset($trouble['stages']))
+            foreach($trouble['stages'] as $stage_id=>$stage){
+                /*if($stage['state_id']<>4)
+                    continue;*/
+                $query = "
+                    SELECT
+                        `td`.`doer_id`,
+                        `cr`.`name`,
+                        `cr`.`depart`
+                    FROM
+                        `tt_doers` `td`
+                    LEFT JOIN
+                        `courier` `cr`
+                    ON
+                        `cr`.`id` = `td`.`doer_id`
+                    WHERE
+                        `td`.`stage_id` = ".$stage['stage_id']."
+                    ORDER BY
+                        `cr`.`depart`,
+                        `cr`.`name`
+                ";
+                $R[$trouble_id]['stages'][$stage_id]['doers']=$db->AllRecords($query,null,MYSQL_ASSOC);
+            }
+        }
 
-		if(($flags&2)!=0){
-			$design->assign('tt_troubles',$R);
-		}
-		if(($flags&4)!=0)
-			return $R;
-		return count($R);
-	}
+        if(($flags&2)!=0){
+            $design->assign('tt_troubles',$R);
+        }
+        if(($flags&4)!=0)
+            return $R;
+        return count($R);
+    }
 
-	//tt_design:
-	//	full - при просмотре траблов
-	//	client - из клиента
-	//	service - из услуги
-	//	top - сверху
+    //tt_design:
+    //    full - при просмотре траблов
+    //    client - из клиента
+    //    service - из услуги
+    //    top - сверху
 
-	//mode:
-	// 0 = все запросы, в т.ч. закрытые. состояние не открывать
-	// 1 = все открытые
-	// 2 = открытые, активные, ответственный - я.
-	// 3 = открытые, активные, автор - я.
-	// 4 = открытые, менеджер клиента - я.
+    //mode:
+    // 0 = все запросы, в т.ч. закрытые. состояние не открывать
+    // 1 = все открытые
+    // 2 = открытые, активные, ответственный - я.
+    // 3 = открытые, активные, автор - я.
+    // 4 = открытые, менеджер клиента - я.
 
-	function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null){
-
-
-		if($this->dont_again)
-			return 0;
-		global $db,$design,$user;
-
-		if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
-			$R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
-		else{
-			$R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
-
-			// фильтр по этапам
-			//$sql_select_states = " select * from `tt_states` order by `order` ";
-			$sql_select_clients = " select tt_troubles.client from tt_troubles inner join clients on clients.client = tt_troubles.client and status='work' group by tt_troubles.client order by client ";
-			$sql_select_responsibles = " select user_main resp from tt_stages group by user_main having user_main<>'' order by user_main ";
-			$sql_select_editors = " select user_edit edit from tt_stages group by user_edit having user_edit<>'' order by user_edit ";
-			$sql_select_owners = " select user_author owner from tt_troubles group by user_author having user_author<>'' order by user_author ";
+    function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null){
 
 
-			$design->assign('owners',$db->AllRecordsAssoc($sql_select_owners, 'owner', 'owner'));
-			$design->assign('editors',$db->AllRecordsAssoc($sql_select_editors,'edit','edit'));
-			$design->assign('resps',$db->AllRecordsAssoc($sql_select_responsibles,'resp','resp'));
-			$design->assign('clients',$db->AllRecordsAssoc($sql_select_clients,'client','client'));
-			//$design->assign('states',$db->AllRecords($sql_select_states,''));
+        if($this->dont_again)
+            return 0;
+        global $db,$design,$user;
 
-		}
+        if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
+            $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
+        else{
+            $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
+
+            // фильтр по этапам
+            //$sql_select_states = " select * from `tt_states` order by `order` ";
+            $sql_select_clients = " select tt_troubles.client from tt_troubles inner join clients on clients.client = tt_troubles.client and status='work' group by tt_troubles.client order by client ";
+            $sql_select_responsibles = " select user_main resp from tt_stages group by user_main having user_main<>'' order by user_main ";
+            $sql_select_editors = " select user_edit edit from tt_stages group by user_edit having user_edit<>'' order by user_edit ";
+            $sql_select_owners = " select user_author owner from tt_troubles group by user_author having user_author<>'' order by user_author ";
 
 
-			$design->assign('tt_show_filter',$tt_design == "full");
+            $design->assign('owners',$db->AllRecordsAssoc($sql_select_owners, 'owner', 'owner'));
+            $design->assign('editors',$db->AllRecordsAssoc($sql_select_editors,'edit','edit'));
+            $design->assign('resps',$db->AllRecordsAssoc($sql_select_responsibles,'resp','resp'));
+            $design->assign('clients',$db->AllRecordsAssoc($sql_select_clients,'client','client'));
+            //$design->assign('states',$db->AllRecords($sql_select_states,''));
+
+        }
 
 
-		switch ($mode){
-			case 0: $t='Все заявки'; break;
-			case 1: $t='Открытые заявки'; break;
-			case 2: $t='Активные заявки, порученные мне'; break;
-			case 3: $t='Активные заявки, созданные мной'; break;
-			case 4: $t='Запросы моих клиентов'; break;
-			case 5: $t='Заявки с закрытым мною этапом, но не закрытые полностью'; break;
-			default: trigger_error("mode = ".$mode);
-		}
-		$design->assign('tt_header',$t);
+            $design->assign('tt_show_filter',$tt_design == "full");
 
-		$design->assign('so',$so=get_param_integer ('so', 0));
-		$design->assign('sort',$sort=get_param_integer('sort',1));
-		$order = $so ? 'desc' : 'asc';
-		provide_sort($R,$sort,$so,array(1=>'trouble_id', 2=> 'client', 3=> 'state_order', 4 => 'user_main'),'trouble_id');
-		$design->assign('tt_troubles',$R);
-		$design->assign('CUR','?module=tt&action=list&mode='.$mode);
 
-		$v = 0;
-		if ($tt_design == 'full') {
-			$v = 2;
-		} elseif ($tt_design) {
-			if (count($R)) $v=1;
-		}
+        switch ($mode){
+            case 0: $t='Все заявки'; break;
+            case 1: $t='Открытые заявки'; break;
+            case 2: $t='Активные заявки, порученные мне'; break;
+            case 3: $t='Активные заявки, созданные мной'; break;
+            case 4: $t='Запросы моих клиентов'; break;
+            case 5: $t='Заявки с закрытым мною этапом, но не закрытые полностью'; break;
+            default: trigger_error("mode = ".$mode);
+        }
+        $design->assign('tt_header',$t);
+
+        $design->assign('so',$so=get_param_integer ('so', 0));
+        $design->assign('sort',$sort=get_param_integer('sort',1));
+        $order = $so ? 'desc' : 'asc';
+        provide_sort($R,$sort,$so,array(1=>'trouble_id', 2=> 'client', 3=> 'state_order', 4 => 'user_main'),'trouble_id');
+        $design->assign('tt_troubles',$R);
+        $design->assign('CUR','?module=tt&action=list&mode='.$mode);
+
+        $v = 0;
+        if ($tt_design == 'full') {
+            $v = 2;
+        } elseif ($tt_design) {
+            if (count($R)) $v=1;
+        }
 
         $design->assign("trouble_subtypes", $this->getTroubleSubTypes());
         $design->assign("trouble_subtypes_list", $this->getTroubleSubTypes(true));
 
-		if($v>=2){
-			if($this->curclient)
-				$design->assign('bills',$db->AllRecords('select bill_no from newbills where is_payed=0 and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") order by bill_date desc','bill_no',MYSQL_ASSOC));
-			$design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
-			$design->assign('curtype',$this->curtype);
-			if(in_array($this->curtype['code'],array('trouble','task','support_welltime'))){
-				$design->AddMain('tt/trouble_form.tpl');
+        if($v>=2){
+            if($this->curclient)
+                $design->assign('bills',$db->AllRecords('select bill_no from newbills where is_payed=0 and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") order by bill_date desc','bill_no',MYSQL_ASSOC));
+            $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
+            $design->assign('curtype',$this->curtype);
+            if(in_array($this->curtype['code'],array('trouble','task','support_welltime'))){
+                $design->AddMain('tt/trouble_form.tpl');
             }
-			$this->showTimetable();
-		}
+            $this->showTimetable();
+        }
 
 
         /*
-		if(!($mode>0 || isset($_REQUEST['filters_flag']))){
-			$design->AddMain('tt/trouble_filters.tpl');
-		}
+        if(!($mode>0 || isset($_REQUEST['filters_flag']))){
+            $design->AddMain('tt/trouble_filters.tpl');
+        }
         */
 
         $design->AddMain('tt/trouble_filters.tpl');
 
-		if ($v>=1) {
-			if ($tt_design=='top') {
-				$design->AddPreMain('tt/trouble_list.tpl');
-			} else {
-				$design->AddMain('tt/trouble_list'.(get_param_raw("type_pk","0") == 4 ? "_full_pk4" : "").'.tpl');
-			}
-		}
+        if ($v>=1) {
+            if ($tt_design=='top') {
+                $design->AddPreMain('tt/trouble_list.tpl');
+            } else {
+                $design->AddMain('tt/trouble_list'.(get_param_raw("type_pk","0") == 4 ? "_full_pk4" : "").'.tpl');
+            }
+        }
 
-		return count($R);
-	}
+        return count($R);
+    }
 
     private function getTroubleSubTypes($isAll = false)
     {
@@ -1213,84 +1269,85 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($isAll){
             $a["shop"] = "Заказ";
+            $a["incomegoods"] = "Заказ поставщику";
             $a[""] = "";
         }
 
         return $a;
     }
 
-	function createStage($trouble_id, $data_to_open,$data_to_close = null,$user_edit=null)
+    function createStage($trouble_id, $data_to_open,$data_to_close = null,$user_edit=null)
     {
-		global $db,$user;
-		//state, user_main, comment, uspd,
-		//date_start, date_finish
+        global $db,$user;
+        //state, user_main, comment, uspd,
+        //date_start, date_finish
 
-		if(is_array($data_to_close)){
-			$R = array(
-				'stage_id'=>$data_to_close['stage_id'],
-				'comment'=>$data_to_close['comment'],
-				'date_edit'=>array('NOW()'),
-				'user_edit'=>$user_edit?$user_edit:$user->Get('user')
-			);
+        if(is_array($data_to_close)){
+            $R = array(
+                'stage_id'=>$data_to_close['stage_id'],
+                'comment'=>$data_to_close['comment'],
+                'date_edit'=>array('NOW()'),
+                'user_edit'=>$user_edit?$user_edit:$user->Get('user')
+            );
 
-			$db->QueryUpdate('tt_stages','stage_id',$R);
-			$r = $db->GetRow('
-				select
-					*
-				from
-					tt_states
-				where
-					id='.$data_to_open['state_id']);
-			$T = $r['time_delta'];
-			if(isset($data_to_open['date_start'])){
-				if(!isset($data_to_open['date_finish_desired']))
-					$data_to_open['date_finish_desired'] = array(
-						'"'.$data_to_open['date_start'].'" + INTERVAL '.$T.' HOUR'
-					);
-			}elseif(isset($_POST['doer_fix'])){
-				$date = array_keys($_POST['doer_fix']);
-				$date = $date[0];
-				$time = array_keys($_POST['doer_fix'][$date]);
-				$time = $time[0];
-				$data_to_open['date_start'] = $date." ".$time.":00:00";
-			}else{
-				$r1 = $db->GetRow('
-					select
-						GREATEST(date_start,NOW()) as date_start
-					from
-						tt_stages
-					where
-						stage_id='.$data_to_close['stage_id']
-				);
+            $db->QueryUpdate('tt_stages','stage_id',$R);
+            $r = $db->GetRow('
+                select
+                    *
+                from
+                    tt_states
+                where
+                    id='.$data_to_open['state_id']);
+            $T = $r['time_delta'];
+            if(isset($data_to_open['date_start'])){
+                if(!isset($data_to_open['date_finish_desired']))
+                    $data_to_open['date_finish_desired'] = array(
+                        '"'.$data_to_open['date_start'].'" + INTERVAL '.$T.' HOUR'
+                    );
+            }elseif(isset($_POST['doer_fix'])){
+                $date = array_keys($_POST['doer_fix']);
+                $date = $date[0];
+                $time = array_keys($_POST['doer_fix'][$date]);
+                $time = $time[0];
+                $data_to_open['date_start'] = $date." ".$time.":00:00";
+            }else{
+                $r1 = $db->GetRow('
+                    select
+                        GREATEST(date_start,NOW()) as date_start
+                    from
+                        tt_stages
+                    where
+                        stage_id='.$data_to_close['stage_id']
+                );
 
-				$r2 = $db->GetRow('
-					select
-						GREATEST(date_finish_desired,NOW()+INTERVAL '.$T.' HOUR) as date_finish_desired
-					from
-						tt_stages
-					where
-						trouble_id='.$trouble_id.'
-					and
-						state_id!=4
-					order by
-						stage_id DESC
-					LIMIT 1
-				');
-				$data_to_open['date_start'] = $r1['date_start'];
-				if(!isset($data_to_open['date_finish_desired']))
-					$data_to_open['date_finish_desired'] = $r2['date_finish_desired'];
-			}
-		}
-		if(in_array($data_to_open['state_id'],array(2,20,21))){
-			$data_to_open['date_finish_desired'] = array('NOW()');
-			$data_to_open['date_edit'] = array('NOW()');
-			$data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
-		}
-		$data_to_open['trouble_id']=$trouble_id;
+                $r2 = $db->GetRow('
+                    select
+                        GREATEST(date_finish_desired,NOW()+INTERVAL '.$T.' HOUR) as date_finish_desired
+                    from
+                        tt_stages
+                    where
+                        trouble_id='.$trouble_id.'
+                    and
+                        state_id!=4
+                    order by
+                        stage_id DESC
+                    LIMIT 1
+                ');
+                $data_to_open['date_start'] = $r1['date_start'];
+                if(!isset($data_to_open['date_finish_desired']))
+                    $data_to_open['date_finish_desired'] = $r2['date_finish_desired'];
+            }
+        }
+        if(in_array($data_to_open['state_id'],array(2,20,21))){
+            $data_to_open['date_finish_desired'] = array('NOW()');
+            $data_to_open['date_edit'] = array('NOW()');
+            $data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
+        }
+        $data_to_open['trouble_id']=$trouble_id;
 
-		$id = $db->QueryInsert('tt_stages',$data_to_open);
+        $id = $db->QueryInsert('tt_stages',$data_to_open);
 
-		$db->Query('update tt_troubles set cur_stage_id = '.$id.', folder=(select folder from tt_states where id='.(int)$data_to_open['state_id'].') where id='.$trouble_id);
+        $db->Query('update tt_troubles set cur_stage_id = '.$id.', folder=(select folder from tt_states where id='.(int)$data_to_open['state_id'].') where id='.$trouble_id);
 
         if(in_array($data_to_open["state_id"], array(2,20,7,8))){
             // to close
@@ -1303,289 +1360,289 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $this->checkTroubleToSendToAll4geo($trouble_id);
         $this->checkTroubleToSend($trouble_id);
 
-		return $id;
-	}
+        return $id;
+    }
 
-	function createTrouble($R = array(), $user_main = null) {
-		global $db,$user;
-		if (!isset($R['user_author'])) $R['user_author']=$user->Get('user');
-		if (!$user_main) {
-			$user_main = $R['user_author'];
-		} elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
-			if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
-		} else {trigger_error('неверный пользователь'); return;}
+    function createTrouble($R = array(), $user_main = null) {
+        global $db,$user;
+        if (!isset($R['user_author'])) $R['user_author']=$user->Get('user');
+        if (!$user_main) {
+            $user_main = $R['user_author'];
+        } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
+            if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
+        } else {trigger_error('неверный пользователь'); return;}
 
         if(isset($R['date_finish_desired']))
             $R2['date_finish_desired']=$R['date_finish_desired'];
         else
             $R2['time']=$R['time'];
 
-		if($R['trouble_type']=='trouble'){
-			$R2['date_start'] = array('NOW()');
-			$R2['state_id']=1;
-		}else{
-			$R['folder'] = array('(select pk from tt_folders where pk & (select folders from tt_types where code="'.addcslashes($R['trouble_type'],"\\\"").'") order by pk limit 1)');
-			$R2['date_start'] = isset($R['date_start'])?$R['date_start']:array('NOW()');
+        if($R['trouble_type']=='trouble'){
+            $R2['date_start'] = array('NOW()');
+            $R2['state_id']=1;
+        }else{
+            $R['folder'] = array('(select pk from tt_folders where pk & (select folders from tt_types where code="'.addcslashes($R['trouble_type'],"\\\"").'") order by pk limit 1)');
+            $R2['date_start'] = isset($R['date_start'])?$R['date_start']:array('NOW()');
 
-			$r = $db->GetRow("select id from tt_states where pk & (select states from tt_types where code='".addcslashes($R['trouble_type'], "\\'")."') order by ".(($R['trouble_type']=='shop_orders')?'`oso`':($R['trouble_type']=='mounting_orders'?'`omo`':'`order`'))." limit 1");
-			$R2['state_id'] = $r['id'];
-		}
-		#unset($R['trouble_type']);
-		unset($R['date_start']);
-		unset($R['date_finish_desired']);
-		unset($R['time']);
+            $r = $db->GetRow("select id from tt_states where pk & (select states from tt_types where code='".addcslashes($R['trouble_type'], "\\'")."') order by ".(($R['trouble_type']=='shop_orders')?'`oso`':($R['trouble_type']=='mounting_orders'?'`omo`':'`order`'))." limit 1");
+            $R2['state_id'] = $r['id'];
+        }
+        #unset($R['trouble_type']);
+        unset($R['date_start']);
+        unset($R['date_finish_desired']);
+        unset($R['time']);
 
-		$R['date_creation'] = array('NOW()');
-		if(isset($R2['time'])){
-			$R2['date_finish_desired'] = array((is_array($R2['date_start'])?'NOW()':'"'.$R2['date_start'].'"').' + INTERVAL '.$R2['time'].' HOUR');
-			unset($R2['time']);
-		}
-		if(isset($R['bill_no']) && $R['bill_no']=='null')
-			unset($R['bill_no']);
-		$id = $db->QueryInsert('tt_troubles',$R);
-		$R2['user_main'] = $user_main;
+        $R['date_creation'] = array('NOW()');
+        if(isset($R2['time'])){
+            $R2['date_finish_desired'] = array((is_array($R2['date_start'])?'NOW()':'"'.$R2['date_start'].'"').' + INTERVAL '.$R2['time'].' HOUR');
+            unset($R2['time']);
+        }
+        if(isset($R['bill_no']) && $R['bill_no']=='null')
+            unset($R['bill_no']);
+        $id = $db->QueryInsert('tt_troubles',$R);
+        $R2['user_main'] = $user_main;
 /*
     insert into tt_stages (date_start,state_id,date_finish_desired,user_main,trouble_id) values (NOW(),"1",NOW() + INTERVAL 1 HOUR,"nick","49583")
 */
 
-		$this->createStage($id,$R2);
-		return $id;
-	}
+        $this->createStage($id,$R2);
+        return $id;
+    }
 
-	function checkTroubleAccess($trouble = null) {
-		global $db,$design,$user;
-		if (access('tt','admin')) return true;
-		if (!access('tt','use')) return false;
-		$u = $user->Get('user');
-		if ($trouble['state_id']==2) return false;
-		if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
-		if ($trouble['is_editableByMe']) return true;
-		if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;
-		if(in_array($trouble['client'],array('all4net','wellconnect')) && access('tt','shop_orders')) return true;
+    function checkTroubleAccess($trouble = null) {
+        global $db,$design,$user;
+        if (access('tt','admin')) return true;
+        if (!access('tt','use')) return false;
+        $u = $user->Get('user');
+        if ($trouble['state_id']==2) return false;
+        if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
+        if ($trouble['is_editableByMe']) return true;
+        if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;
+        if(in_array($trouble['client'],array('all4net','wellconnect')) && access('tt','shop_orders')) return true;
         if($trouble["user_author"] == "1c-vitrina") return true;
-		return false;
-	}
+        return false;
+    }
 
-	function get_counters($client){		//сколько траблов всего / сколько открытых
-		global $db,$design,$user;
-		$r = $db->GetRow('select sum(1) as A,sum(IF(S.state_id!=2,1,0)) as B FROM tt_troubles as T INNER JOIN tt_stages as S ON S.stage_id = cur_stage_id '.
-						'WHERE client="'.addslashes($client).'"');
-		$design->assign('troubles_total', $r['A']);
-		$design->assign('troubles_opened', $r['B']);
-	}
+    function get_counters($client){        //сколько траблов всего / сколько открытых
+        global $db,$design,$user;
+        $r = $db->GetRow('select sum(1) as A,sum(IF(S.state_id!=2,1,0)) as B FROM tt_troubles as T INNER JOIN tt_stages as S ON S.stage_id = cur_stage_id '.
+                        'WHERE client="'.addslashes($client).'"');
+        $design->assign('troubles_total', $r['A']);
+        $design->assign('troubles_opened', $r['B']);
+    }
 
-	function tt_slist($fixclient){
-		global $design,$db;
-		$db->Query('select * from tt_states order by id');
-		$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
-		$design->assign('tt_states',$R);
-		$design->AddMain('tt/states_list.tpl');
-	}
-	function tt_sadd($fixclient){
-		global $design,$db;
-		$this->InitDbMap();
-		$this->dbmap->ShowEditForm('tt_states','',array(),1);
-		$design->AddMain('tt/states_add.tpl');
-	}
-	function tt_sedit($fixclient){
-		global $design,$db;
-		$this->InitDbMap();
-		$id = get_param_protected('id' , '');
-		$this->dbmap->ApplyChanges('tt_states');
-		$this->dbmap->ShowEditForm('tt_states','tt_states.id="'.$id.'"',array(),1);
-		$design->assign('id',$id);
-		$design->AddMain('tt/states_edit.tpl');
+    function tt_slist($fixclient){
+        global $design,$db;
+        $db->Query('select * from tt_states order by id');
+        $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
+        $design->assign('tt_states',$R);
+        $design->AddMain('tt/states_list.tpl');
+    }
+    function tt_sadd($fixclient){
+        global $design,$db;
+        $this->InitDbMap();
+        $this->dbmap->ShowEditForm('tt_states','',array(),1);
+        $design->AddMain('tt/states_add.tpl');
+    }
+    function tt_sedit($fixclient){
+        global $design,$db;
+        $this->InitDbMap();
+        $id = get_param_protected('id' , '');
+        $this->dbmap->ApplyChanges('tt_states');
+        $this->dbmap->ShowEditForm('tt_states','tt_states.id="'.$id.'"',array(),1);
+        $design->assign('id',$id);
+        $design->AddMain('tt/states_edit.tpl');
 
-	}
-	function tt_sapply($fixclient){
-		global $design,$db;
-		$this->InitDbMap();
-		$row=get_param_raw('row',array());
-		if (($this->dbmap->ApplyChanges('tt_states')!="ok") && (get_param_protected('dbaction','')!='delete')) {
-			$row=get_param_raw('row',array());
-			$this->dbmap->ShowEditForm('tt_states','',$row);
-			$design->AddMain('tt/states_add.tpl');
-		} else {
-			$this->tt_slist($fixclient);
-		}
-	}
+    }
+    function tt_sapply($fixclient){
+        global $design,$db;
+        $this->InitDbMap();
+        $row=get_param_raw('row',array());
+        if (($this->dbmap->ApplyChanges('tt_states')!="ok") && (get_param_protected('dbaction','')!='delete')) {
+            $row=get_param_raw('row',array());
+            $this->dbmap->ShowEditForm('tt_states','',$row);
+            $design->AddMain('tt/states_add.tpl');
+        } else {
+            $this->tt_slist($fixclient);
+        }
+    }
 
-	function showTimeTable($someone=null,$cast=false){
-		global $db,$design;
-		$tr_id = get_param_integer('id',$this->cur_trouble_id);
-		if(is_null($someone) && $tr_id){
-			$query = "
-				SELECT
-					`ts`.`state_id`
-				FROM
-					`tt_troubles` `tt`
-				LEFT JOIN
-					`tt_stages` `ts`
-				ON
-					`ts`.`stage_id` = `tt`.`cur_stage_id`
-				WHERE
-					`tt`.`id` = ".$tr_id."
-			";
+    function showTimeTable($someone=null,$cast=false){
+        global $db,$design;
+        $tr_id = get_param_integer('id',$this->cur_trouble_id);
+        if(is_null($someone) && $tr_id){
+            $query = "
+                SELECT
+                    `ts`.`state_id`
+                FROM
+                    `tt_troubles` `tt`
+                LEFT JOIN
+                    `tt_stages` `ts`
+                ON
+                    `ts`.`stage_id` = `tt`.`cur_stage_id`
+                WHERE
+                    `tt`.`id` = ".$tr_id."
+            ";
 
-			$row = $db->GetRow($query);
-			if($row['state_id'] == '4'){
-				$someone = true;
-			}
-		}
+            $row = $db->GetRow($query);
+            if($row['state_id'] == '4'){
+                $someone = true;
+            }
+        }
 
-		$time = param_load_date(
-			'ttt_',
-			array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')),
-			false
-		);
-		$date = date('Y-m-d',$time);
+        $time = param_load_date(
+            'ttt_',
+            array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')),
+            false
+        );
+        $date = date('Y-m-d',$time);
 
-		$db->Query($query = "
-			SELECT
-				`cr`.`id`,
-				`cr`.`name`,
-				`tt`.bill_no,
-				/*`cl`.`company` `client`,*/
-				`ts_last`.`state_id` `state`,
+        $db->Query($query = "
+            SELECT
+                `cr`.`id`,
+                `cr`.`name`,
+                `tt`.bill_no,
+                /*`cl`.`company` `client`,*/
+                `ts_last`.`state_id` `state`,
                 `st`.name state_name,
-				`ts`.`trouble_id`,
-				`cr`.`depart`,
-				DATE(`ts`.`date_start`) `t_date`,
-				`ts`.`date_start` `tf_date`,
-				".(($tr_id)?"IF(`ts`.`trouble_id`=".($tr_id).",'Y','N')":"'N'")." `its_here`,
-				IF(`ts`.`stage_id`=`tt`.`cur_stage_id`,'Y','N') `its_this`,
-				if(tt.bill_no,(
-					select if(cl.`type`='multi',nai.fio,cl.company) from
-						newbills nb
-					left join
-						newbills_add_info nai
-					on
-						nai.bill_no = nb.bill_no
-					where
-						nb.bill_no = tt.bill_no
-				),
-				cl.company) as client
-			FROM
-				`courier` `cr`
-			LEFT JOIN
-				`tt_doers` `td`
-			ON
-				`td`.`doer_id` = `cr`.`id`
-			LEFT JOIN
-				`tt_stages` `ts`
-			ON
-				`ts`.`stage_id` = `td`.`stage_id`
-			AND
-				`ts`.`date_start` BETWEEN DATE_ADD('".$date."',INTERVAL -1 DAY)
-						  AND	  DATE_ADD('".$date."',INTERVAL 2 DAY)
-			LEFT JOIN
-				`tt_troubles` `tt`
-			ON
-				`tt`.`id` = `ts`.`trouble_id`
-			LEFT JOIN
-				`clients` `cl`
-			ON
-				`cl`.`client` = CAST(`tt`.`client` AS CHAR)
-			LEFT JOIN
-				`tt_stages` `ts_last`
-			ON
-				`ts_last`.`stage_id` = `tt`.`cur_stage_id`
+                `ts`.`trouble_id`,
+                `cr`.`depart`,
+                DATE(`ts`.`date_start`) `t_date`,
+                `ts`.`date_start` `tf_date`,
+                ".(($tr_id)?"IF(`ts`.`trouble_id`=".($tr_id).",'Y','N')":"'N'")." `its_here`,
+                IF(`ts`.`stage_id`=`tt`.`cur_stage_id`,'Y','N') `its_this`,
+                if(tt.bill_no,(
+                    select if(cl.`type`='multi',nai.fio,cl.company) from
+                        newbills nb
+                    left join
+                        newbills_add_info nai
+                    on
+                        nai.bill_no = nb.bill_no
+                    where
+                        nb.bill_no = tt.bill_no
+                ),
+                cl.company) as client
+            FROM
+                `courier` `cr`
+            LEFT JOIN
+                `tt_doers` `td`
+            ON
+                `td`.`doer_id` = `cr`.`id`
+            LEFT JOIN
+                `tt_stages` `ts`
+            ON
+                `ts`.`stage_id` = `td`.`stage_id`
+            AND
+                `ts`.`date_start` BETWEEN DATE_ADD('".$date."',INTERVAL -1 DAY)
+                          AND      DATE_ADD('".$date."',INTERVAL 2 DAY)
+            LEFT JOIN
+                `tt_troubles` `tt`
+            ON
+                `tt`.`id` = `ts`.`trouble_id`
+            LEFT JOIN
+                `clients` `cl`
+            ON
+                `cl`.`client` = CAST(`tt`.`client` AS CHAR)
+            LEFT JOIN
+                `tt_stages` `ts_last`
+            ON
+                `ts_last`.`stage_id` = `tt`.`cur_stage_id`
             LEFT JOIN
                 `tt_states` st
             ON
                 `st`.id = `ts_last`.state_id
 
-			WHERE
-				`cr`.`enabled` = 'yes'
-			GROUP BY
-				`cr`.`id`,
-				`cr`.`name`,
-				`cr`.`depart`,
-				`ts`.`date_start`
-			ORDER BY
-				`cr`.`depart`,
-				`cr`.`name`
-		");
+            WHERE
+                `cr`.`enabled` = 'yes'
+            GROUP BY
+                `cr`.`id`,
+                `cr`.`name`,
+                `cr`.`depart`,
+                `ts`.`date_start`
+            ORDER BY
+                `cr`.`depart`,
+                `cr`.`name`
+        ");
 
 
-		$flag_chck = false;
-		$hours_tpl = array();
-		for($i=0;$i<24;$i++){
-			$hours_tpl[$i]=false;
-		}
-		$doers = array();
-		while($row=$db->NextRecord()){
-			if(!isset($doers[$row['depart']])){
-				$doers[$row['depart']] = array();
-			}
-			if(!isset($doers[$row['depart']][$row['id']])){
-				$doers[$row['depart']][$row['id']] = array(
-					'name'=>$row['name'],
-					'depart'=>$row['depart'],
-					'time'=>array()
-				);
-			}
-			if(
-				!is_null($row['t_date'])
-			&&
-				!isset($doers[$row['depart']][$row['id']]['time'][$row['t_date']])
-			){
-				$doers[$row['depart']][$row['id']]['time'][$row['t_date']] = $hours_tpl;
-			}
+        $flag_chck = false;
+        $hours_tpl = array();
+        for($i=0;$i<24;$i++){
+            $hours_tpl[$i]=false;
+        }
+        $doers = array();
+        while($row=$db->NextRecord()){
+            if(!isset($doers[$row['depart']])){
+                $doers[$row['depart']] = array();
+            }
+            if(!isset($doers[$row['depart']][$row['id']])){
+                $doers[$row['depart']][$row['id']] = array(
+                    'name'=>$row['name'],
+                    'depart'=>$row['depart'],
+                    'time'=>array()
+                );
+            }
+            if(
+                !is_null($row['t_date'])
+            &&
+                !isset($doers[$row['depart']][$row['id']]['time'][$row['t_date']])
+            ){
+                $doers[$row['depart']][$row['id']]['time'][$row['t_date']] = $hours_tpl;
+            }
 
-			if(!is_null($row['tf_date'])){
-				$pod = explode(" ",$row['tf_date']);
-				$pot = explode(":",$pod[1]);
+            if(!is_null($row['tf_date'])){
+                $pod = explode(" ",$row['tf_date']);
+                $pot = explode(":",$pod[1]);
                 if(!isset($doers[$row['depart']][$row['id']]['time'][$row['t_date']][(int)$pot[0]]))
                 {
                     $doers[$row['depart']][$row['id']]['time'][$row['t_date']][(int)$pot[0]] = array();
                 }
 
-				$doers[$row['depart']][$row['id']]['time'][$row['t_date']][(int)$pot[0]][] = array(
-					'state'=>$row['state'],
-					'client'=>$row['client'],
-					'bill_no' => $row["bill_no"],
-					'state_name' => $row["state_name"],
-					'trouble'=>$row['trouble_id'],
+                $doers[$row['depart']][$row['id']]['time'][$row['t_date']][(int)$pot[0]][] = array(
+                    'state'=>$row['state'],
+                    'client'=>$row['client'],
+                    'bill_no' => $row["bill_no"],
+                    'state_name' => $row["state_name"],
+                    'trouble'=>$row['trouble_id'],
                     'is_wrong' => (int)$pot[1] != 0 ? $pot[0].":".$pot[1].":".$pot[2] : false,
-				);
+                );
 
-				if($row['its_here']=='Y'){
-					if($row['its_this']=='Y'){
-						$flag_chck = true;
-						$doers[$row['depart']][$row['id']]['time'][$row['t_date']]['here'] = (int)$pot[0];
-					}
-				}elseif(!isset($doers[$row['depart']][$row['id']]['time'][$row['t_date']]['here']))
-					$doers[$row['depart']][$row['id']]['time'][$row['t_date']]['here'] = 'none';
-			}
-		}
+                if($row['its_here']=='Y'){
+                    if($row['its_this']=='Y'){
+                        $flag_chck = true;
+                        $doers[$row['depart']][$row['id']]['time'][$row['t_date']]['here'] = (int)$pot[0];
+                    }
+                }elseif(!isset($doers[$row['depart']][$row['id']]['time'][$row['t_date']]['here']))
+                    $doers[$row['depart']][$row['id']]['time'][$row['t_date']]['here'] = 'none';
+            }
+        }
 
-		if($cast && $cast=='refix'){
-			$design->assign('refix_flag',true);
-		}else
-			$design->assign('refix_flag',false);
-		if($tr_id)
-			$design->assign('tt_id',$tr_id);
+        if($cast && $cast=='refix'){
+            $design->assign('refix_flag',true);
+        }else
+            $design->assign('refix_flag',false);
+        if($tr_id)
+            $design->assign('tt_id',$tr_id);
 
-		$design->assign('flag_chck',$flag_chck);
-		$design->assign('tt_doers',$doers);
-		$design->assign('dates',array(
-			'yesterday'=>date('d-m-Y',$time - 60*60*24),
-			'today'=>date('d-m-Y',$time),
-			'tomorrow'=>date('d-m-Y',$time + 60*60*24),
-			'key'=>array(
-				'yesterday'=>date('Y-m-d',$time - 60*60*24),
-				'today'=>date('Y-m-d',$time),
-				'tomorrow'=>date('Y-m-d',$time + 60*60*24),
-			)
-		));
-		$design->assign('timetableShow',$someone);
-		$design->AddMain('tt/timetable.tpl');
-	}
+        $design->assign('flag_chck',$flag_chck);
+        $design->assign('tt_doers',$doers);
+        $design->assign('dates',array(
+            'yesterday'=>date('d-m-Y',$time - 60*60*24),
+            'today'=>date('d-m-Y',$time),
+            'tomorrow'=>date('d-m-Y',$time + 60*60*24),
+            'key'=>array(
+                'yesterday'=>date('Y-m-d',$time - 60*60*24),
+                'today'=>date('Y-m-d',$time),
+                'tomorrow'=>date('Y-m-d',$time + 60*60*24),
+            )
+        ));
+        $design->assign('timetableShow',$someone);
+        $design->AddMain('tt/timetable.tpl');
+    }
 
     function tt_courier_report()
     {
-		global $db,$design;
+        global $db,$design;
 
         $design->assign("date_y", $y = get_param_integer("date_y", date("Y")));
         $design->assign("date_m", $m = get_param_integer("date_m", date("m")));
@@ -1609,7 +1666,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function tt_courier_report2()
     {
-		global $db,$design;
+        global $db,$design;
 
         $design->assign("date_y", $y = get_param_integer("date_y", date("Y")));
         $design->assign("date_m", $m = get_param_integer("date_m", date("m")));
@@ -1667,51 +1724,51 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $design->assign("total", $total);
         $design->AddMain("tt/courier_report2.tpl");
     }
-	function tt_doers_list($fixclient){
-		global $db,$design;
+    function tt_doers_list($fixclient){
+        global $db,$design;
 
-		$date_begin = param_load_date(
-			'date_begin_',
-			array(
-				'mday'=>date('d'),
-				'mon' =>date('m'),
-				'year'=>date('Y')
-			),
-			true
-		)." 00:00:00";
+        $date_begin = param_load_date(
+            'date_begin_',
+            array(
+                'mday'=>date('d'),
+                'mon' =>date('m'),
+                'year'=>date('Y')
+            ),
+            true
+        )." 00:00:00";
 
-		$date_end = param_load_date(
-			'date_end_',
-			array(
-				'mday'=>date('d'),
-				'mon' =>date('m'),
-				'year'=>date('Y')
-			),
-			true
-		)." 23:59:59";
+        $date_end = param_load_date(
+            'date_end_',
+            array(
+                'mday'=>date('d'),
+                'mon' =>date('m'),
+                'year'=>date('Y')
+            ),
+            true
+        )." 23:59:59";
 
-		$ttype_filter = $ttype_filter_ = get_param_protected('ttype_filter','all');
-		$design->assign('ttype_filter_selected',$ttype_filter);
+        $ttype_filter = $ttype_filter_ = get_param_protected('ttype_filter','all');
+        $design->assign('ttype_filter_selected',$ttype_filter);
 
-		$doer_filter = $doer_filter_ = get_param_protected('doer_filter','null');
-		$design->assign('doer_filter_selected',$doer_filter);
+        $doer_filter = $doer_filter_ = get_param_protected('doer_filter','null');
+        $design->assign('doer_filter_selected',$doer_filter);
 
         // view bills without task
         $view_bwt = get_param_raw("do", "") ? get_param_raw("view_bwt", 0) : 1;
-		$design->assign('view_bwt',$view_bwt);
+        $design->assign('view_bwt',$view_bwt);
 
         $view_calc = get_param_raw("view_calc", 0);
-		$design->assign('view_calc',$view_calc);
+        $design->assign('view_calc',$view_calc);
 
         $doerId = 0;
-		if($doer_filter == 'null'){
-			$doer_filter = '';
-		}else{
+        if($doer_filter == 'null'){
+            $doer_filter = '';
+        }else{
             $doerId = (int)$doer_filter;
-			$doer_filter = '
-					AND
-						`cr`.`id` = '.((int)$doer_filter);
-		}
+            $doer_filter = '
+                    AND
+                        `cr`.`id` = '.((int)$doer_filter);
+        }
 
         $state_filter = $state_filter_ = get_param_protected('state_filter', 'null');
 
@@ -1726,249 +1783,249 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $state_filter = ' = "'.$state_filter.'"';
         }
 
-		if($ttype_filter == 'all')
-			$query = "
-				SELECT
-					DATE(`date`) `date`,
-					`courier_name`,
-					`company`,
-					`task`,
-					`cur_state`,
-					`tt_id`,
-					`client_id`,
-					`type`,
-					`trouble_cur_state`,
+        if($ttype_filter == 'all')
+            $query = "
+                SELECT
+                    DATE(`date`) `date`,
+                    `courier_name`,
+                    `company`,
+                    `task`,
+                    `cur_state`,
+                    `tt_id`,
+                    `client_id`,
+                    `type`,
+                    `trouble_cur_state`,
                     `bill_no`
-				FROM
-					(
-						SELECT
-							`ln`.`ts` `date`,
-							`cr`.`name` `courier_name`,
-							`cl`.`company` `company`,
-							IF(`nb`.`bill_no` like '%-%-%',
+                FROM
+                    (
+                        SELECT
+                            `ln`.`ts` `date`,
+                            `cr`.`name` `courier_name`,
+                            `cl`.`company` `company`,
+                            IF(`nb`.`bill_no` like '%-%-%',
                                 (select round(sum(`all4net_price`*`amount`),2) from `newbill_lines` where `bill_no`=`nb`.`bill_no`),
                                 ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`price`,0)*IFNULL(`nbl`.`amount`,0)*1.18),2)) `task`,
-							0 `cur_state`,
-							0 `tt_id`,
-							`cl`.`id` `client_id`,
-							`nb`.`currency` `type`,
-							0 `trouble_cur_state`,
+                            0 `cur_state`,
+                            0 `tt_id`,
+                            `cl`.`id` `client_id`,
+                            `nb`.`currency` `type`,
+                            0 `trouble_cur_state`,
                             `nb`.`bill_no`
-						FROM
-							`newbills` `nb`
-						INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-						INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
+                        FROM
+                            `newbills` `nb`
+                        INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
+                        INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
                             AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-						LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
+                        LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
-						LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
-						WHERE `nb`.`courier_id` > 0
+                        LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
+                        WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
-						AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
-						AND
-							`ln`.`id` = (
-								select `id`
-								from `log_newbills`
-								where `bill_no` = `nb`.`bill_no`
+                        AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
+                        AND
+                            `ln`.`id` = (
+                                select `id`
+                                from `log_newbills`
+                                where `bill_no` = `nb`.`bill_no`
                                     AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-								order by id desc
-								limit 1
-							)
-						GROUP BY
-							`ln`.`ts`,
-							`cr`.`name`,
-							`cl`.`company`,
-							`nb`.`currency`
-					UNION
-						SELECT distinct
-							`ts`.`date_start` `date`,
-							`cr`.`name` `courier_name`,
-							`cl`.`company` `company`,
-							`tt`.`problem` `task`,
-							`ts`.`state_id` `cur_state`,
-							`tt`.`id` `tt_id`,
-							`cl`.`id` `client_id`,
-							'ticket' `type`,
-							cts.state_id `trouble_cur_state`,
+                                order by id desc
+                                limit 1
+                            )
+                        GROUP BY
+                            `ln`.`ts`,
+                            `cr`.`name`,
+                            `cl`.`company`,
+                            `nb`.`currency`
+                    UNION
+                        SELECT distinct
+                            `ts`.`date_start` `date`,
+                            `cr`.`name` `courier_name`,
+                            `cl`.`company` `company`,
+                            `tt`.`problem` `task`,
+                            `ts`.`state_id` `cur_state`,
+                            `tt`.`id` `tt_id`,
+                            `cl`.`id` `client_id`,
+                            'ticket' `type`,
+                            cts.state_id `trouble_cur_state`,
                             `tt`.`bill_no`
-						FROM
-							`tt_stages` `ts`
-						INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `ts`.`stage_id`
-						INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id`".$doer_filter."
-						LEFT JOIN  `tt_troubles` `tt` ON `tt`.`id` = `ts`.`trouble_id`
-						left join   tt_stages cts on cts.stage_id = tt.cur_stage_id
-						LEFT JOIN  `clients` `cl` ON `cl`.`client` = `tt`.`client`
-						WHERE
-							/*`ts`.`state_id` = 4
-						AND */
-							cts.state_id ".$state_filter."
-						and
-							`ts`.`date_start` BETWEEN '".$date_begin."' AND '".$date_end."'
-					) `tbl`
-				ORDER BY
-					`date`,
-					`company`,
-					`courier_name`
-			";
-		elseif($ttype_filter == 'bills')
-			$query = "
-				SELECT
-					DATE(`date`) `date`,
-					`courier_name`,
-					`company`,
-					`task`,
-					0 `cur_state`,
-					0 `tt_id`,
-					`client_id`,
-					`type`,
-					0 trouble_cur_state,
+                        FROM
+                            `tt_stages` `ts`
+                        INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `ts`.`stage_id`
+                        INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id`".$doer_filter."
+                        LEFT JOIN  `tt_troubles` `tt` ON `tt`.`id` = `ts`.`trouble_id`
+                        left join   tt_stages cts on cts.stage_id = tt.cur_stage_id
+                        LEFT JOIN  `clients` `cl` ON `cl`.`client` = `tt`.`client`
+                        WHERE
+                            /*`ts`.`state_id` = 4
+                        AND */
+                            cts.state_id ".$state_filter."
+                        and
+                            `ts`.`date_start` BETWEEN '".$date_begin."' AND '".$date_end."'
+                    ) `tbl`
+                ORDER BY
+                    `date`,
+                    `company`,
+                    `courier_name`
+            ";
+        elseif($ttype_filter == 'bills')
+            $query = "
+                SELECT
+                    DATE(`date`) `date`,
+                    `courier_name`,
+                    `company`,
+                    `task`,
+                    0 `cur_state`,
+                    0 `tt_id`,
+                    `client_id`,
+                    `type`,
+                    0 trouble_cur_state,
                     bill_no
-				FROM
-					(
-						SELECT
-							`ln`.`ts` `date`,
-							`cr`.`name` `courier_name`,
-							`cl`.`company` `company`,
-							IF(`nb`.`bill_no` like '%-%-%',
+                FROM
+                    (
+                        SELECT
+                            `ln`.`ts` `date`,
+                            `cr`.`name` `courier_name`,
+                            `cl`.`company` `company`,
+                            IF(`nb`.`bill_no` like '%-%-%',
                                 (select round(sum(`all4net_price`*`amount`),2) from `newbill_lines` where `bill_no`=`nb`.`bill_no`),
                                 ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`price`,0)*IFNULL(`nbl`.`amount`,0)*1.18),2)) `task`,
-							`cl`.`id` `client_id`,
-							`nb`.`currency` `type`,
+                            `cl`.`id` `client_id`,
+                            `nb`.`currency` `type`,
                             `nb`.`bill_no` bill_no
-						FROM `newbills` `nb`
-						INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-						INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
+                        FROM `newbills` `nb`
+                        INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
+                        INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
                                     AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-						LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
+                        LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                                     AND `nbl`.`type` = 'zadatok'
-						LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
-						WHERE `nb`.`courier_id` > 0
+                        LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
+                        WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
-						AND
-							`ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
-						AND
-							`ln`.`id` = (
-								select `id`
-								from `log_newbills`
-								where `bill_no` = `nb`.`bill_no`
-								AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-								order by id desc
-								limit 1
-							)
-						GROUP BY
-							`ln`.`ts`,
-							`cr`.`name`,
-							`cl`.`company`,
-							`nb`.`currency`
-					) `tbl`
-				ORDER BY
-					`date`,
-					`company`,
-					`courier_name`
-			";
-		elseif($ttype_filter == "troubles")
-			$query = "
-				SELECT distinct
-					DATE(`date`) `date`,
-					`courier_name`,
-					`company`,
-					`task`,
-					`cur_state`,
-					`client_id`,
-					`tt_id`,
-					`type`,
-					trouble_cur_state,
+                        AND
+                            `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
+                        AND
+                            `ln`.`id` = (
+                                select `id`
+                                from `log_newbills`
+                                where `bill_no` = `nb`.`bill_no`
+                                AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                                order by id desc
+                                limit 1
+                            )
+                        GROUP BY
+                            `ln`.`ts`,
+                            `cr`.`name`,
+                            `cl`.`company`,
+                            `nb`.`currency`
+                    ) `tbl`
+                ORDER BY
+                    `date`,
+                    `company`,
+                    `courier_name`
+            ";
+        elseif($ttype_filter == "troubles")
+            $query = "
+                SELECT distinct
+                    DATE(`date`) `date`,
+                    `courier_name`,
+                    `company`,
+                    `task`,
+                    `cur_state`,
+                    `client_id`,
+                    `tt_id`,
+                    `type`,
+                    trouble_cur_state,
                     `bill_no`
-				FROM
-					(
-						SELECT distinct
-							`ts`.`date_start` `date`,
-							`cr`.`name` `courier_name`,
-							`cl`.`company` `company`,
-							`tt`.`problem` `task`,
-							`ts`.`state_id` `cur_state`,
-							`tt`.`id` `tt_id`,
-							`cl`.`id` `client_id`,
-							'ticket' `type`,
-							cts.state_id `trouble_cur_state`,
+                FROM
+                    (
+                        SELECT distinct
+                            `ts`.`date_start` `date`,
+                            `cr`.`name` `courier_name`,
+                            `cl`.`company` `company`,
+                            `tt`.`problem` `task`,
+                            `ts`.`state_id` `cur_state`,
+                            `tt`.`id` `tt_id`,
+                            `cl`.`id` `client_id`,
+                            'ticket' `type`,
+                            cts.state_id `trouble_cur_state`,
                             `tt`.`bill_no`
-						FROM `tt_stages` `ts`
+                        FROM `tt_stages` `ts`
 
-						INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `ts`.`stage_id`
-						INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id`".$doer_filter."
+                        INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `ts`.`stage_id`
+                        INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id`".$doer_filter."
 
-						LEFT JOIN `tt_troubles` `tt`  ON `tt`.`id` = `ts`.`trouble_id`
+                        LEFT JOIN `tt_troubles` `tt`  ON `tt`.`id` = `ts`.`trouble_id`
 
-						LEFT JOIN `tt_stages`   `cts` ON cts.stage_id = tt.cur_stage_id
-						LEFT JOIN `clients`     `cl`  ON `cl`.`client` = `tt`.`client`
+                        LEFT JOIN `tt_stages`   `cts` ON cts.stage_id = tt.cur_stage_id
+                        LEFT JOIN `clients`     `cl`  ON `cl`.`client` = `tt`.`client`
 
-						WHERE
+                        WHERE
                             ".($view_bwt ? "" : "tt.id > 0 and ")."
-							/*`ts`.`state_id` = 4
-						AND */
-							cts.state_id ".$state_filter."
-						and
-							`ts`.`date_start` BETWEEN '".$date_begin."' AND '".$date_end."'
-					) `tbl`
-				ORDER BY
-					`date`,
-					`company`,
-					`courier_name`
-			";
+                            /*`ts`.`state_id` = 4
+                        AND */
+                            cts.state_id ".$state_filter."
+                        and
+                            `ts`.`date_start` BETWEEN '".$date_begin."' AND '".$date_end."'
+                    ) `tbl`
+                ORDER BY
+                    `date`,
+                    `company`,
+                    `courier_name`
+            ";
         else
-			$query = "
-				SELECT
-					DATE(`date`) `date`,
-					`courier_name`,
-					`company`,
-					`task`,
-					`cur_state`,
-					`tt_id`,
-					`client_id`,
-					`type`,
-					`trouble_cur_state`,
+            $query = "
+                SELECT
+                    DATE(`date`) `date`,
+                    `courier_name`,
+                    `company`,
+                    `task`,
+                    `cur_state`,
+                    `tt_id`,
+                    `client_id`,
+                    `type`,
+                    `trouble_cur_state`,
                     `bill_no`
-				FROM
-					(
-						SELECT
-							`ln`.`ts` `date`,
-							`cr`.`name` `courier_name`,
-							`cl`.`company` `company`,
-							IF(`nb`.`bill_no` like '%-%-%',
+                FROM
+                    (
+                        SELECT
+                            `ln`.`ts` `date`,
+                            `cr`.`name` `courier_name`,
+                            `cl`.`company` `company`,
+                            IF(`nb`.`bill_no` like '%-%-%',
                                 (select round(sum(`all4net_price`*`amount`),2) from `newbill_lines` where `bill_no`=`nb`.`bill_no`),
                                 ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`price`,0)*IFNULL(`nbl`.`amount`,0)*1.18),2)) `task`,
-							0 `cur_state`,
-							0 `tt_id`,
-							`cl`.`id` `client_id`,
-							`nb`.`currency` `type`,
-							0 `trouble_cur_state`,
+                            0 `cur_state`,
+                            0 `tt_id`,
+                            `cl`.`id` `client_id`,
+                            `nb`.`currency` `type`,
+                            0 `trouble_cur_state`,
                             `nb`.`bill_no`
-						FROM
-							`newbills` `nb`
-						INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-						INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
+                        FROM
+                            `newbills` `nb`
+                        INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
+                        INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
                             AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-						LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
+                        LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
-						LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
-						WHERE `nb`.`courier_id` > 0
+                        LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
+                        WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
-						AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
-						AND
-							`ln`.`id` = (
-								select `id`
-								from `log_newbills`
-								where `bill_no` = `nb`.`bill_no`
+                        AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
+                        AND
+                            `ln`.`id` = (
+                                select `id`
+                                from `log_newbills`
+                                where `bill_no` = `nb`.`bill_no`
                                     AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-								order by id desc
-								limit 1
-							)
-						GROUP BY
-							`ln`.`ts`,
-							`cr`.`name`,
-							`cl`.`company`,
-							`nb`.`currency`
-					UNION
+                                order by id desc
+                                limit 1
+                            )
+                        GROUP BY
+                            `ln`.`ts`,
+                            `cr`.`name`,
+                            `cl`.`company`,
+                            `nb`.`currency`
+                    UNION
                     SELECT distinct
                             `s`.`date_start` `date`,
                             `cr`.`name` `courier_name`,
@@ -1992,12 +2049,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `s`.`stage_id`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id`
                         where s.stage_id = a.stage_id
-					) `tbl`
-				ORDER BY
-					`date`,
-					`company`,
-					`courier_name`
-			";
+                    ) `tbl`
+                ORDER BY
+                    `date`,
+                    `company`,
+                    `courier_name`
+            ";
 
         if($view_calc)
         {
@@ -2023,17 +2080,17 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         //printdbg($query);
 
-		$ret = array();
+        $ret = array();
 
-		$db->Query($query);
+        $db->Query($query);
         $sumBonus = 0;
         $count = 0;
-		while($row=$db->NextRecord(MYSQL_ASSOC)){
-			if(!isset($ret[$row['date']])){
-				$ret[$row['date']] = array('rowspan'=>0,'doers'=>array());
-			}
+        while($row=$db->NextRecord(MYSQL_ASSOC)){
+            if(!isset($ret[$row['date']])){
+                $ret[$row['date']] = array('rowspan'=>0,'doers'=>array());
+            }
 
-			$ret[$row['date']]['rowspan']++;
+            $ret[$row['date']]['rowspan']++;
 
             $bonus = 0;
             if($view_calc){
@@ -2043,15 +2100,15 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 $row["bill_sum"] = $row["sum_good"] = $row["sum_service"] = $row["count_service"] = $row["count_good"] = 0;
             }
 
-			$ret[$row['date']]['doers'][] = array(
-				'name'=>$row['courier_name'],
-				'company'=>$row['company'],
-				'task'=>stripslashes($row['task']),
-				'cur_state'=>$row['cur_state'],
-				'tt_id'=>$row['tt_id'],
-				'client_id'=>$row['client_id'],
-				'type'=>$row['type'],
-				'trouble_cur_state'=>$row['trouble_cur_state'],
+            $ret[$row['date']]['doers'][] = array(
+                'name'=>$row['courier_name'],
+                'company'=>$row['company'],
+                'task'=>stripslashes($row['task']),
+                'cur_state'=>$row['cur_state'],
+                'tt_id'=>$row['tt_id'],
+                'client_id'=>$row['client_id'],
+                'type'=>$row['type'],
+                'trouble_cur_state'=>$row['trouble_cur_state'],
                 'bill_no' => $row["bill_no"],
                 'bill_sum' => $row["bill_sum"],
                 'sum_good' => $row["sum_good"],
@@ -2059,196 +2116,196 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 'sum_service' => $row["sum_service"],
                 'count_service' => $row["count_service"],
                 'bonus' => $bonus
-			);
-			$count++;
+            );
+            $count++;
 
-		}
+        }
 
-		$design->assign('sum_bonus',$sumBonus);
-		$design->assign('count',$count);
-		$design->assign_by_ref('report_data',$ret);
-		if(get_param_protected('print',false)){
-			$design->assign('print',true);
-			$design->ProcessEx('tt/doers_report.tpl');
-		}else{
-			if(count($_POST)>0)
-				$design->assign(
-					'print_report',
-					'?module=tt'.
-					'&action=doers_list'.
-					'&print=yes'.
-					'&date_begin_d='.$_POST['date_begin_d'].
-					'&date_begin_m='.$_POST['date_begin_m'].
-					'&date_begin_y='.$_POST['date_begin_y'].
-					'&date_end_d='.$_POST['date_end_d'].
-					'&date_end_m='.$_POST['date_end_m'].
-					'&date_end_y='.$_POST['date_end_y'].
-					(($doer_filter_<>'null')?'&doer_filter='.$doer_filter_:'').
-					(($ttype_filter_<>'null')?'&ttype_filter='.$ttype_filter_:'').
-					(($state_filter_<>'null')?'&state_filter='.$state_filter_:'')
-				);
+        $design->assign('sum_bonus',$sumBonus);
+        $design->assign('count',$count);
+        $design->assign_by_ref('report_data',$ret);
+        if(get_param_protected('print',false)){
+            $design->assign('print',true);
+            $design->ProcessEx('tt/doers_report.tpl');
+        }else{
+            if(count($_POST)>0)
+                $design->assign(
+                    'print_report',
+                    '?module=tt'.
+                    '&action=doers_list'.
+                    '&print=yes'.
+                    '&date_begin_d='.$_POST['date_begin_d'].
+                    '&date_begin_m='.$_POST['date_begin_m'].
+                    '&date_begin_y='.$_POST['date_begin_y'].
+                    '&date_end_d='.$_POST['date_end_d'].
+                    '&date_end_m='.$_POST['date_end_m'].
+                    '&date_end_y='.$_POST['date_end_y'].
+                    (($doer_filter_<>'null')?'&doer_filter='.$doer_filter_:'').
+                    (($ttype_filter_<>'null')?'&ttype_filter='.$ttype_filter_:'').
+                    (($state_filter_<>'null')?'&state_filter='.$state_filter_:'')
+                );
 
             $dDoers = array('null' => 'Все');
-			foreach($db->AllRecords("
-						SELECT
-							`id`,
-							`depart`,
-							`name`
-						FROM
-							`courier`
-						WHERE
-							`enabled`='yes'
-						ORDER BY
-							`depart`,
-							`name`
-					", null, MYSQL_ASSOC) as $id => $d)
+            foreach($db->AllRecords("
+                        SELECT
+                            `id`,
+                            `depart`,
+                            `name`
+                        FROM
+                            `courier`
+                        WHERE
+                            `enabled`='yes'
+                        ORDER BY
+                            `depart`,
+                            `name`
+                    ", null, MYSQL_ASSOC) as $id => $d)
             {
                 $dDoers[$d["depart"]][$d["id"]] = $d["name"];
             }
-			$design->assign('doer_filter', $dDoers);
+            $design->assign('doer_filter', $dDoers);
             /*
-			$design->assign(
-				'doer_filter',
-				array_merge(
-					array(array('id'=>'null','name'=>'Все','depart'=>'')),
-					$db->AllRecords("
-						SELECT
-							`id`,
-							`depart`,
-							`name`
-						FROM
-							`courier`
-						WHERE
-							`enabled`='yes'
-						ORDER BY
-							`depart`,
-							`name`
-					", null, MYSQL_ASSOC)
-				)
-			);*/
+            $design->assign(
+                'doer_filter',
+                array_merge(
+                    array(array('id'=>'null','name'=>'Все','depart'=>'')),
+                    $db->AllRecords("
+                        SELECT
+                            `id`,
+                            `depart`,
+                            `name`
+                        FROM
+                            `courier`
+                        WHERE
+                            `enabled`='yes'
+                        ORDER BY
+                            `depart`,
+                            `name`
+                    ", null, MYSQL_ASSOC)
+                )
+            );*/
 
-			$design->assign(
-				'l_state_filter',
-				array_merge(
-					array(
-						array('id'=>'null','name'=>'Все (кроме: закрыт, отказ)'),
-					),
-					$db->AllRecords("
-						SELECT
-							`id`,
-							`name`
-						FROM
-							`tt_states`
-						where
-							pk & 17703 #2047
-						ORDER BY
-							`name`
-					", null, MYSQL_ASSOC)
-				)
-			);
+            $design->assign(
+                'l_state_filter',
+                array_merge(
+                    array(
+                        array('id'=>'null','name'=>'Все (кроме: закрыт, отказ)'),
+                    ),
+                    $db->AllRecords("
+                        SELECT
+                            `id`,
+                            `name`
+                        FROM
+                            `tt_states`
+                        where
+                            pk & 17703 #2047
+                        ORDER BY
+                            `name`
+                    ", null, MYSQL_ASSOC)
+                )
+            );
 
-			$design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQL_ASSOC));
+            $design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQL_ASSOC));
 
-			$design->AddMain('tt/doers_report.tpl');
-		}
-	}
-	function tt_refix_doers($fixclient){
-		if(count($_POST)>0){
-			global $db,$design;
-			$trouble_id = (int)$_POST['id'];
+            $design->AddMain('tt/doers_report.tpl');
+        }
+    }
+    function tt_refix_doers($fixclient){
+        if(count($_POST)>0){
+            global $db,$design;
+            $trouble_id = (int)$_POST['id'];
 
-			$row = $db->GetRow($q="
-				SELECT
-					`cur_stage_id` `stage_id`
-				FROM
-					`tt_troubles`
-				WHERE
-					`id` = ".$trouble_id
-			);
+            $row = $db->GetRow($q="
+                SELECT
+                    `cur_stage_id` `stage_id`
+                FROM
+                    `tt_troubles`
+                WHERE
+                    `id` = ".$trouble_id
+            );
 
-			if(!$row['stage_id']){
-				$design->assign('BIG_ERROR',true);
-				$this->showTimeTable(true,'refix');
-				return false;
-			}
+            if(!$row['stage_id']){
+                $design->assign('BIG_ERROR',true);
+                $this->showTimeTable(true,'refix');
+                return false;
+            }
 
-			if(isset($_POST['doer_fix'])){
-				$date = array_keys($_POST['doer_fix']);
-				$date = $date[0];
-				$time = array_keys($_POST['doer_fix'][$date]);
-				$time = $time[0];
-				$date_start = $date." ".$time.":00:00";
-				$db->Query("
-					UPDATE
-						`tt_stages`
-					SET
-						`date_start` = '".$date_start."'
-					WHERE
-						`stage_id` = ".$row['stage_id']
-				);
-			}
-			//$db->Query("LOCK TABLES `tt_doers` WRITE");
-			$db->Query('start transaction');
-			$db->Query("DELETE FROM `tt_doers` WHERE `stage_id`=".$row['stage_id']);
-			$this->doers_action('fix_doers', $trouble_id, $row['stage_id']);
-			//$db->Query("UNLOCK TABLES");
-			$db->Query('commit');
-			$design->assign('BIG_VICTORY',true);
-			$this->showTimeTable(true,'refix');
-			return false;
-		}elseif(count($_GET)>0){
-			$_GET['id'] = (int)$_GET['tt_id'];
-			$this->showTimeTable(true,'refix');
-		}
-		return false;
-	}
-	function doers_action($action,$trouble=null,$stage=null){
-		global $db,$design;
-		switch($action){
-			case "show_panel":{
-				break;
-			}case "fix_doers":{
-				$trouble = (int)$trouble;
-				$stage = (int)$stage;
-				if(!($stage > 0) || !isset($_POST['doer_fix']))
-					break;
-				$doers = $_POST['doer_fix'];
-				$date = array_keys($doers);
-				$date = $date[0];
-				$time = array_keys($doers[$date]);
-				$time = $time[0];
-				$doers = array_keys($doers[$date][$time]);
+            if(isset($_POST['doer_fix'])){
+                $date = array_keys($_POST['doer_fix']);
+                $date = $date[0];
+                $time = array_keys($_POST['doer_fix'][$date]);
+                $time = $time[0];
+                $date_start = $date." ".$time.":00:00";
+                $db->Query("
+                    UPDATE
+                        `tt_stages`
+                    SET
+                        `date_start` = '".$date_start."'
+                    WHERE
+                        `stage_id` = ".$row['stage_id']
+                );
+            }
+            //$db->Query("LOCK TABLES `tt_doers` WRITE");
+            $db->Query('start transaction');
+            $db->Query("DELETE FROM `tt_doers` WHERE `stage_id`=".$row['stage_id']);
+            $this->doers_action('fix_doers', $trouble_id, $row['stage_id']);
+            //$db->Query("UNLOCK TABLES");
+            $db->Query('commit');
+            $design->assign('BIG_VICTORY',true);
+            $this->showTimeTable(true,'refix');
+            return false;
+        }elseif(count($_GET)>0){
+            $_GET['id'] = (int)$_GET['tt_id'];
+            $this->showTimeTable(true,'refix');
+        }
+        return false;
+    }
+    function doers_action($action,$trouble=null,$stage=null){
+        global $db,$design;
+        switch($action){
+            case "show_panel":{
+                break;
+            }case "fix_doers":{
+                $trouble = (int)$trouble;
+                $stage = (int)$stage;
+                if(!($stage > 0) || !isset($_POST['doer_fix']))
+                    break;
+                $doers = $_POST['doer_fix'];
+                $date = array_keys($doers);
+                $date = $date[0];
+                $time = array_keys($doers[$date]);
+                $time = $time[0];
+                $doers = array_keys($doers[$date][$time]);
 
-				$query = "
-					INSERT INTO `tt_doers`
-						(`stage_id`,`doer_id`)
-					VALUES
-						";
-				$dscnt = 0;
+                $query = "
+                    INSERT INTO `tt_doers`
+                        (`stage_id`,`doer_id`)
+                    VALUES
+                        ";
+                $dscnt = 0;
                 $toSendDoer = array();
-				foreach($doers as $doer){
-					$edoer = (int)$doer;
-					if(!($edoer > 0))
-						break;
+                foreach($doers as $doer){
+                    $edoer = (int)$doer;
+                    if(!($edoer > 0))
+                        break;
                     $toSendDoer[] = $edoer;
-					$query .= "(".$stage.",".$edoer."),";
-					$dscnt++;
-				}
-				if($dscnt == 0)
-					break;
-				$query = substr($query, 0, strlen($query)-1);
+                    $query .= "(".$stage.",".$edoer."),";
+                    $dscnt++;
+                }
+                if($dscnt == 0)
+                    break;
+                $query = substr($query, 0, strlen($query)-1);
 
-				$db->Query($query,0);
+                $db->Query($query,0);
 
                 if($toSendDoer) {
                     foreach($toSendDoer as $edoer)
                         $this->sendDoerToAll4geo($trouble, $edoer);
                 }
-				return true;
-				break;
-			}
-		}
-	}
+                return true;
+                break;
+            }
+        }
+    }
 
     function checkTroubleToSend($tId)
     {
@@ -2312,96 +2369,96 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         }
     }
 
-	function tt_doers($fixclient){
-		global $db,$design;
-		$this->curclient = $fixclient;
-		if((isset($_POST['change']) && $_POST['change']) || (isset($_POST['append'])) || isset($_GET['drop'])){
-			if(isset($_GET['drop']) && is_numeric($_GET['drop']) && $_GET['drop']){
-				$query = "
-					DELETE FROM
-						`courier`
-					WHERE
-						`id` = ".((int)$_GET['drop'])."
-				";
-				$db->Query($query);
-				Header("Location: ?module=tt&action=doers");
-				exit();
-			}elseif(isset($_POST['append'])){
-				$query = "
-					INSERT INTO `courier`
-						(`name`,`depart`,`enabled`)
-					VALUES
-						('".addslashes($_POST['doer_name'])."','".str_replace("'", "\'", str_replace("\\","\\\\",$_POST['doer_depart']))."','".((isset($_POST['doer_active']))?'yes':'no')."')
-				";
-			}elseif($_POST['change']){
-				$query = "
-					UPDATE
-						`courier`
-					SET
-						`name` = '".addslashes($_POST['doer_name'])."',
-						`depart` = '".str_replace("'", "\'", str_replace("\\","\\\\",$_POST['doer_depart']))."',
-						`enabled` = '".((isset($_POST['doer_active']))?'yes':'no')."'
-					WHERE
-						`id` = ".((int)$_POST['change'])."
-				";
-			}
-			$db->Query($query);
-		}
+    function tt_doers($fixclient){
+        global $db,$design;
+        $this->curclient = $fixclient;
+        if((isset($_POST['change']) && $_POST['change']) || (isset($_POST['append'])) || isset($_GET['drop'])){
+            if(isset($_GET['drop']) && is_numeric($_GET['drop']) && $_GET['drop']){
+                $query = "
+                    DELETE FROM
+                        `courier`
+                    WHERE
+                        `id` = ".((int)$_GET['drop'])."
+                ";
+                $db->Query($query);
+                Header("Location: ?module=tt&action=doers");
+                exit();
+            }elseif(isset($_POST['append'])){
+                $query = "
+                    INSERT INTO `courier`
+                        (`name`,`depart`,`enabled`)
+                    VALUES
+                        ('".addslashes($_POST['doer_name'])."','".str_replace("'", "\'", str_replace("\\","\\\\",$_POST['doer_depart']))."','".((isset($_POST['doer_active']))?'yes':'no')."')
+                ";
+            }elseif($_POST['change']){
+                $query = "
+                    UPDATE
+                        `courier`
+                    SET
+                        `name` = '".addslashes($_POST['doer_name'])."',
+                        `depart` = '".str_replace("'", "\'", str_replace("\\","\\\\",$_POST['doer_depart']))."',
+                        `enabled` = '".((isset($_POST['doer_active']))?'yes':'no')."'
+                    WHERE
+                        `id` = ".((int)$_POST['change'])."
+                ";
+            }
+            $db->Query($query);
+        }
 
-		$query = "
-			SELECT
-				`id`,
-				`name`,
-				`depart`,
-				`enabled`
-			FROM
-				`courier`
-			ORDER BY
-				`depart`,
-				`enabled`,
-				`name`
-		";
-		$doers = array();
-		$db->Query($query);
-		while($row=$db->NextRecord(MYSQL_ASSOC)){
-			if(!isset($doers[$row['depart']]))
-				$doers[$row['depart']] = array();
-			$doers[$row['depart']][] = $row;
-		}
-		$design->assign('doers',$doers);
-		$design->assign('departs',array_keys($doers));
-		$design->AddMain('tt/doers_edit.tpl');
-	}
+        $query = "
+            SELECT
+                `id`,
+                `name`,
+                `depart`,
+                `enabled`
+            FROM
+                `courier`
+            ORDER BY
+                `depart`,
+                `enabled`,
+                `name`
+        ";
+        $doers = array();
+        $db->Query($query);
+        while($row=$db->NextRecord(MYSQL_ASSOC)){
+            if(!isset($doers[$row['depart']]))
+                $doers[$row['depart']] = array();
+            $doers[$row['depart']][] = $row;
+        }
+        $design->assign('doers',$doers);
+        $design->assign('departs',array_keys($doers));
+        $design->AddMain('tt/doers_edit.tpl');
+    }
 
-	function tt_rpc_setState1c(){
-		global $db, $user;
-		if(!isset($_POST['bill_no']) || !isset($_POST['state'])){
-			header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
-			exit();
-		}
-		$bill = $_POST['bill_no'];
-		$state = $_POST['state'];
-		include_once(INCLUDE_PATH.'1c_integration.php');
-		$bs = new \_1c\billMaker($db);
-		$fault = null;
-		$f = $bs->setOrderStatus($bill, $state, $fault);
-		if(!$f){
-			trigger_error("Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />");
-			echo "<br /><br />";
-			echo "<a href='index.php?module=tt&action=view&id=".$_POST['id']."'>Вернуться к заявке</a>";
-			exit();
-		}
-		if($f){
-			if (strcmp($state,'Отказ') == 0){
-				$db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
+    function tt_rpc_setState1c(){
+        global $db, $user;
+        if(!isset($_POST['bill_no']) || !isset($_POST['state'])){
+            header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
+            exit();
+        }
+        $bill = $_POST['bill_no'];
+        $state = $_POST['state'];
+        include_once(INCLUDE_PATH.'1c_integration.php');
+        $bs = new \_1c\billMaker($db);
+        $fault = null;
+        $f = $bs->setOrderStatus($bill, $state, $fault);
+        if(!$f){
+            trigger_error("Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />");
+            echo "<br /><br />";
+            echo "<a href='index.php?module=tt&action=view&id=".$_POST['id']."'>Вернуться к заявке</a>";
+            exit();
+        }
+        if($f){
+            if (strcmp($state,'Отказ') == 0){
+                $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
                event::setReject($bill, $state);
-			}else{
-				$db->Query($q="update newbills set state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
-			}
-			$db->QueryInsert("log_newbills",array('bill_no'=>$_POST['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Статус заказа: '.$_POST['state']));
-		}
-		header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
-		exit();
-	}
+            }else{
+                $db->Query($q="update newbills set state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
+            }
+            $db->QueryInsert("log_newbills",array('bill_no'=>$_POST['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Статус заказа: '.$_POST['state']));
+        }
+        header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
+        exit();
+    }
 }
 ?>

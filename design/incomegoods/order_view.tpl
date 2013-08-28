@@ -14,10 +14,10 @@
 </h4>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
-	<tr>
+	<!--tr>
 		<th>Статус 1С</th>
 		<td><strong>{$order->status}</strong></td>
-	</tr>
+	</tr-->
 	<tr>
 		<th>Номер, Дата</th>
 		<td>{$order->number} от {$order->date->format('d.m.Y H:i:s')}</td>

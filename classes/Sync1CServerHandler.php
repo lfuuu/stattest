@@ -127,6 +127,8 @@ class Sync1CServerHandler
 
 	public function parseGoodsIncomeOrder($data)
 	{
+        global $user;
+
 		try {
 			$order = GoodsIncomeOrder::find($data->Код1С);
 		} catch (RecordNotFound $e) {
@@ -167,6 +169,103 @@ class Sync1CServerHandler
 			$item->line_code = $line->КодСтроки;
 			$item->save();
 		}
+
+        $trouble = Trouble::find_by_bill_no($order->number);
+        if(!$trouble)
+        {
+            $now = new ActiveRecord\DateTime();
+            $now = $now->format("db");
+
+
+            $trouble = new Trouble();
+            $trouble->bill_no = $order->number;
+
+            $client = clientCard::find($order->client_card_id);
+            $trouble->client = $client->client;
+
+            $trouble->trouble_type = "incomegoods";
+            $trouble->trouble_subtype = "incomegoods";
+            $trouble->user_author = '1c-vitrina';
+
+            $trouble->date_creation = $now;
+            $trouble->cur_stage_id = 0;
+
+            $trouble->folder = 100931731456; // folder for incomegoods troubles (see `tt_states`)
+            
+            $trouble->save();
+
+
+            $stage = new TroubleStage();
+            $stage->trouble_id = $trouble->id;
+            $stage->state_id = 35;
+            $stage->user_main = $user->Get("user");
+            $stage->date_start = $now;
+            $stage->date_finish_desired = $now;
+            $stage->save();
+
+            $trouble->cur_stage_id = $stage->id;
+            $trouble->save();
+        }else{
+
+
+            $cur_state = $trouble->current_stage->state;
+
+            // switch states
+            if($order->status != $cur_state->state_1c)
+            {
+                // folder for incomegoods, section pre-income && close
+                $states = TroubleState::find('all', 
+                    array("conditions" => array("folder & ( 100931731456 | 34359738368) and state_1c = ?", $order->status))
+                );
+
+                $statuses = array();
+                foreach($states as $state)
+                {
+                    $statuses[] = $state->name;
+                }
+
+
+                if(in_array($cur_state->state_1c, $statuses))
+                {
+                    // Пришедший и текущий статус одинаковы
+                    // nothing
+                }else{
+                    // нужна новая стадия
+                    $to_state = $states[0];
+
+                    echo $to_state->name;
+
+                    $now = new ActiveRecord\DateTime();
+                    $now = $now->format("db");
+
+                    if($trouble->current_stage)
+                    {
+                        $trouble->current_stage->date_edit = $now;
+                        $trouble->current_stage->user_edit = "1C";
+                        $trouble->current_stage->save();
+                    }
+
+                    $new_stage = new TroubleStage();
+                    $new_stage->trouble_id = $trouble->id;
+                    $new_stage->user_main = "1c-vitrina";
+                    $new_stage->state_id = $to_state->id;
+                    $new_stage->date_start = $now;
+                    $new_stage->date_edit = $now;
+                    $new_stage->date_finish_desired = $now;
+                    $new_stage->save();
+
+                    $trouble->cur_stage_id = $new_stage->id;
+                    $trouble->save();
+
+                }
+
+
+            }
+
+
+            // reject
+            // close
+        }
 
 		return $order;
 	}
