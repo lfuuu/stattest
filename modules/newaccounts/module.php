@@ -5475,7 +5475,7 @@ $sql .= "    order by client, bill_no";
             $S[$r['currency']] += $r['sum_rub'];
         } unset($r);
         $design->assign('user',$user);
-        $design->assign('users',$db->AllRecords("select id,user,name from user_users where usergroup in ('admin','manager','accounts_department') and enabled = 'yes' order by name",null,MYSQL_ASSOC));
+        $design->assign('users',$db->AllRecords("select id,user,name from user_users where usergroup in ('admin','manager','account_managers','accounts_department') and enabled = 'yes' order by name",null,MYSQL_ASSOC));
         $design->assign('payments',$R);
         $design->assign('totals',$S);
         $design->assign("fullscreen", $isFullscreen = (get_param_raw("fullscreen", "") != ""));
