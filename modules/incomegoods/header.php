@@ -8,15 +8,15 @@ class m_incomegoods_head extends IModuleHead{
 	);
 
 	public $actions=array(
-		'order_list' => array('voip','access'),
-		'order_view' => array('voip','access'),
-		'order_edit' => array('voip','admin'),
-		'order_save' => array('voip','admin'),
-		'document_view' => array('voip','access'),
-		'document_edit' => array('voip','admin'),
-		'document_save' => array('voip','admin'),
-		'store_view' => array('voip','access'),
-		'add_gtd' => array('voip','admin'),
+		'order_list' => array('incomegoods','access'),
+		'order_view' => array('incomegoods','access'),
+		'order_edit' => array('incomegoods','admin'),
+		'order_save' => array('incomegoods','admin'),
+		'document_view' => array('incomegoods','access'),
+		'document_edit' => array('incomegoods','admin'),
+		'document_save' => array('incomegoods','admin'),
+		'store_view' => array('incomegoods','access'),
+		'add_gtd' => array('incomegoods','admin'),
 	);
 
 	public $menu=array(
