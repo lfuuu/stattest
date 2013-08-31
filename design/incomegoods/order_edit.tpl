@@ -69,7 +69,6 @@
 						<option value="{$org->id}" {if $order->organization_id==$org->id}selected{/if}>{$org->name}</option>
 					{/foreach}
 				</select>
-                //
                 {/if}
 
 			</td>

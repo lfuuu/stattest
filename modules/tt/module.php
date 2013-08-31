@@ -390,7 +390,8 @@ class m_tt extends IModule{
                     "support_welltime" => 256,
                     "shop_orders" => 2,
                     "mounting_orders" => 2,
-                    "order_welltime" => 2
+                    "order_welltime" => 2,
+                    "incomegoods" => 214748364
                     );
             if($folder == 1)
             {
@@ -1264,9 +1265,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($typePk == 5 || $isAll)
             $a["prospecting"] = "Разведка";
 
-        if($isAll){
-            $a["shop"] = "Заказ";
+        if($typePk == 7 || $isAll)
             $a["incomegoods"] = "Заказ поставщику";
+
+
+        if($isAll){
+            $a["shop"] = "Заказ"; // possible: type_pk == 6
             $a[""] = "";
         }
 

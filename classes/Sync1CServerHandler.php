@@ -176,6 +176,7 @@ class Sync1CServerHandler
             $now = new ActiveRecord\DateTime();
             $now = $now->format("db");
 
+            $state = TroubleState::find(35); // tt_states.id=35 -> first state for new income goods order;
 
             $trouble = new Trouble();
             $trouble->bill_no = $order->number;
@@ -190,14 +191,14 @@ class Sync1CServerHandler
             $trouble->date_creation = $now;
             $trouble->cur_stage_id = 0;
 
-            $trouble->folder = 100931731456; // folder for incomegoods troubles (see `tt_states`)
+            $trouble->folder = $state->folder;
             
             $trouble->save();
 
 
             $stage = new TroubleStage();
             $stage->trouble_id = $trouble->id;
-            $stage->state_id = 35;
+            $stage->state_id = $state->id;
             $stage->user_main = $user->Get("user");
             $stage->date_start = $now;
             $stage->date_finish_desired = $now;
@@ -254,6 +255,7 @@ class Sync1CServerHandler
                     $new_stage->date_finish_desired = $now;
                     $new_stage->save();
 
+                    $trouble->folder = $to_state->folder;
                     $trouble->cur_stage_id = $new_stage->id;
                     $trouble->save();
 
