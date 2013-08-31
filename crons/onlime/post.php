@@ -5,7 +5,7 @@ class OnlimeRequest
 {
     const STATUS_DELIVERY = 1;
     const STATUS_NOT_DELIVERY = 2;
-    const STATUS_REJECT = 2;
+    const STATUS_REJECT = 3;
 
     public function post($order_id, $delivery_id, $status, $status_text)
     {
@@ -19,7 +19,7 @@ class OnlimeRequest
         }
 
         echo "\n".$data."\n";
-        self::_post($data);
+        //self::_post($data);
     }
 
     private function _post($data)

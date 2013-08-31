@@ -48,51 +48,88 @@ EOF;
 $f = file_get_contents("http://www.onlime.ru/shop_xml_export.php");
 
 
+
+//$db->Query("truncate onlime_delivery");
+//$db->Query("truncate onlime_order");
+
+
 $xml = new SimpleXMLElement($f);
 
 $orders = OnlimeParserXML::parse($xml);
 $checkedOrders = OnlimeCheckOrders::check($orders);
 
-//print_r($checkedOrders);
+
+
+
+//_saveOrder
 
 // process
 $toAdd = array();
 $toDecline = array();
 
+echo date("r");
+$count = 0;
 foreach($checkedOrders as $order)
 {
+    $count++;
+    //if($count > 1) continue;;
+    
+    $r = OnlimeOrder::find_by_external_id($order["order"]["id"]);
+
+    if($r) continue;
+
+    $id = $order["order"]["id"];
+    echo "\n----------------------------id: ".$id."\n";
+    print_r($order["error"]);
+
+    $dbObj = OnlimeOrder::saveOrder($order["order"], $order["error"]);
+
     if($order["error"])
     {
-        $toDecline[] = $order;
+        $id = "reject".$order["order"]["id"];
+        $status = OnlimeRequest::STATUS_REJECT;
+        $errorMsg = $order["error"]["message"];
+        echo "\nnew: ".$order["order"]["id"]." => ".$order["error"]["status"].": ".$order["error"]["message"];
     }else{
+        $id = "new: ok".$order["order"]["id"];
         $toAdd[] = $order;
+        $status = OnlimeRequest::STATUS_NOT_DELIVERY;
+        $errorMsg = "";
+        echo "\n".$order["order"]["id"].": ".$order["order"]["fio"]." ===> ".$id;
     }
-}
 
-/*
-foreach($toDecline as $order)
-{
-    //if($order["order"]["id"] != 35) continue;
-
-    if($order["error"]["status"] != "ignore")
+    if($dbObj)
     {
-        echo "\n".$order["order"]["id"]." => ".$order["error"]["status"].": ".$order["error"]["message"];
-
-        OnlimeRequest::post($order["order"]["id"], "", OnlimeRequest::STATUS_REJECT, $order["error"]["message"]);
+        $dbObj->setStatus($status, $errorMsg);
+        $dbObj->setInternalId($id);
+    }else{
+        echo "\n!!! order[obj]: id[".$order["id"]."] not found";
     }
 }
-*/
 
-foreach($toAdd as $order)
+
+foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_NEW))) as $order)
 {
-    $o = $order["order"];
-    if($o["id"] != 37) continue;
 
+    $id = $order->external_id;;
+    $intId = $order->bill_no;
+    if($order->status == OnlimeRequest::STATUS_NOT_DELIVERY) //normal order, need save
+    {
+        $intId = Onlime1CCreateBill::create(unserialize(Encoding::toUtf8($order->order_serialize)));
+        $order->setInternalId($intId);
+    }
+    $order->setStage(OnlimeOrder::STAGE_ADDED);
+    echo "\nadded: ".$id." => ".$intId;
 
-    $id = Onlime1CCreateBill::create($o);
+    if($order->status == OnlimeRequest::STATUS_NOT_DELIVERY) //normal order, need save
+        exit();
+}
 
-    echo "\n".$o["id"].": ".$o["fio"]." ===> ".$id;;
-    OnlimeRequest::post($order["order"]["id"], $id, OnlimeRequest::STATUS_NOT_DELIVERY);
-    exit();
+foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_ADDED))) as $order)
+{
+    echo "\nanswer: ".$order->id;
+    OnlimeRequest::post($order->external_id, $order->bill_no, $order->status, $order->error);
+
+    $order->setStage(OnlimeOrder::STAGE_ANSWERED);
 }
 

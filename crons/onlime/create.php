@@ -151,6 +151,10 @@ class Onlime1CCreateBill
         $od = new OnlimeDelivery();
         $od->bill_no = $bill_no;
         $od->delivery_date = $o["delivery"]["date"]." ".$o["delivery"]["time"]["from"];
+
+
+        echo ">>>>".$o["delivery"]["date"]." ".$o["delivery"]["time"]["from"]."<<<<<";
+
         $od->save();
 
         return $bill_no;

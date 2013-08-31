@@ -15,11 +15,15 @@ class OnlimeCheckOrders
 
             self::_checkValuesFormat($order, $error);
 
+            /*
             if(!$error)
                 self::_checkValuesInDB($order, $error);
+                */
 
             if(!$error)
                 self::_checkValuesDelivRange($order, $error);
+
+            //self::_saveOrder($order, $error);
 
             $checkedOrders[] = array("order" => $order, "error" => $error);
         }
@@ -32,9 +36,11 @@ class OnlimeCheckOrders
     private function _checkValuesFormat($order, &$error)
     {
         try{
+            $isPossibleSave = false;
             CheckFormat::isEmpty($order["id"], "ID не задан");
             CheckFormat::isNotInt($order["id"], "ID имеет неправльный формат (".$order["id"].")");
             CheckFormat::isZero($order["id"], "ID не задан");
+            $isPossibleSave = true;
 
             CheckFormat::isDateDB($order["date"], "Дата задана не верно (".$order["date"].")");
             CheckFormat::isEq($order["date"], "0000-00-00 00:00:00", "Задана пустая дата");
@@ -72,13 +78,17 @@ class OnlimeCheckOrders
         }catch(Exception $e)
         {
             $error = array("status" => "critical", "message" => $e->getMessage());
+
+            if(!$isPossibleSave)
+                $error["possible_save"] = false;
         }
 
     }
 
     private function _checkValuesInDB($order, &$error)
     {
-        $r = NewbillsAddInfo::find_by_req_no($order["id"]);        
+        $r = OnlimeOrder::find_by_external_id($order["id"]);        
+
         if($r)
             $error = array("status" => "ignore", "message" => "Заказ уже сохранен");
     }
@@ -91,5 +101,9 @@ class OnlimeCheckOrders
             $error = array("status" => "critical", "message" => $e->getMessage());
         }
     }
+
+            
+
+
 }
 
