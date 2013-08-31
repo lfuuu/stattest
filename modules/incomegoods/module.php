@@ -63,10 +63,14 @@ class m_incomegoods extends IModule{
     {
         global $design;
 
-        if (!isset($_GET['id'])) throw new IncorrectRequestParametersException();
+        if (!isset($_GET['id']) && !isset($_GET["number"])) throw new IncorrectRequestParametersException();
 
-
-        $order = GoodsIncomeOrder::find($_GET['id']);
+        if(isset($_GET["number"]))
+        {
+            $order = GoodsIncomeOrder::find_by_number($_GET["number"], array("order" => "date desc"));
+        }else{
+            $order = GoodsIncomeOrder::find($_GET['id']);
+        }
 
         $design->assign('order', $order);
         $design->AddMain('incomegoods/order_view.tpl');
@@ -149,25 +153,32 @@ class m_incomegoods extends IModule{
         if(!isset($_POST["status"])) $_POST['status'] = 'Согласован';
         if(!isset($_POST["active"])) $_POST['active'] = 1;
 
-        if($_POST["id"])
+        if($_POST["id"]) // add new
         {
             $gio = GoodsIncomeOrder::find($_POST['id']);
+            if(!$gio)
+                throw new Exception("Заказ не найден!");
 
-            $_POST['status'] = $gio->status;
-            $_POST['active'] = $gio->active;
+            $status = $gio->status;
+            $active = $gio->active;
+            $organizationId = $gio->organization_id;
 
+        }else{
+            $status = 'Согласован';
+            $active = 1;
+            $organizationId = $_POST["organization_id"];
         }
 
 
 
         $data = array(
             'Код1С' => $_POST['id'],
-            'Проведен' => (bool)$_POST['active'],
+            'Проведен' => (bool)$active,
             'КодКонтрагента' => $_POST['client_card_id'],
             'НомерПоДаннымПоставщика' => $_POST['external_number'],
             'ДатаПоДаннымПоставщика' => $external_date,
-            'Статус' => $_POST['status'],
-            'Организация' => $_POST['organization_id'],
+            'Статус' => $status,
+            'Организация' => $organizationId,
             'Склад' => $_POST['store_id'],
             'Валюта' => $_POST['currency'],
             'ЦенаВключаетНДС' => (bool)$_POST['price_includes_nds'],

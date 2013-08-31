@@ -61,11 +61,17 @@
 		<tr>
 			<th>Организация</th>
 			<td>
+                {if !$order->is_new_record()}
+                    {$order->organization->name}
+                {else}
 				<select name="organization_id" class="form-control input-sm">
 					{foreach from=$organizations item=org}
 						<option value="{$org->id}" {if $order->organization_id==$org->id}selected{/if}>{$org->name}</option>
 					{/foreach}
 				</select>
+                //
+                {/if}
+
 			</td>
 		</tr>
 		<tr>
@@ -91,11 +97,11 @@
 		<tr>
 			<th>Валюта</th>
 			<td>
-				<select name="currency" class="form-control input-sm">
-					{foreach from=$currencies item=currency}
-						<option value="{$currency->id}" {if $order->currency==$currency->id}selected{/if}>{$currency->id}</option>
-					{/foreach}
-				</select>
+                <select name="currency" class="form-control input-sm">
+                    {foreach from=$currencies item=currency}
+                        <option value="{$currency->id}" {if $order->currency==$currency->id}selected{/if}>{$currency->id}</option>
+                    {/foreach}
+                </select>
 			</td>
 		</tr>
 		<tr>
