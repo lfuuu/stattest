@@ -37,6 +37,9 @@ class OnlimeParserXML
                         );
             }
 
+            foreach(array("from", "to") as $f)
+                $delivery["time"][$f] = str_replace(".", ":", $delivery["time"][$f]);
+
             $products = array();
             if(isset($i->order_product))
             {

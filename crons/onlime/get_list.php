@@ -107,6 +107,8 @@ foreach($checkedOrders as $order)
     }
 }
 
+exit();
+
 
 foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_NEW))) as $order)
 {
