@@ -54,7 +54,7 @@ class checkFormat
 
     public function isNotBetween($value, $from, $to, $errorStr)
     {
-        if($from < $value || $value > $to)
+        if($from > $value || $value > $to)
             throw new Exception($errorStr);
     }
 

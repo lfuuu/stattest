@@ -72,7 +72,7 @@ class OnlimeCheckOrders
 
                 CheckFormat::isEmpty($product["quantity"], "Количество продукта #".($idx+1)." не задано");
                 CheckFormat::isNotInt($product["quantity"], "Количество продукта #".($idx+1)." задано неверно");
-                CheckFormat::isNotBetween($product["quantity"], 1, 10, "Количество продукта #".($idx+1)." задано неверно");
+                CheckFormat::isNotBetween($product["quantity"], 1, 10, "Количество продукта #".($idx+1)." задано неверно.");
             }
 
         }catch(Exception $e)
