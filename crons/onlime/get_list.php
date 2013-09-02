@@ -67,7 +67,7 @@ $checkedOrders = OnlimeCheckOrders::check($orders);
 $toAdd = array();
 $toDecline = array();
 
-echo date("r");
+echo "\n".date("r");
 $count = 0;
 foreach($checkedOrders as $order)
 {
