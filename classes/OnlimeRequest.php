@@ -10,14 +10,18 @@ class OnlimeRequest
     public function post($order_id, $delivery_id, $status, $status_text)
     {
         $data = "";
+        $_data = "";
 
         if(!$delivery_id)
             $delivery_id = "rej".time()."_".rand(10000,99999);
+
         foreach(array("order_id", "delivery_id", "status", "status_text") as $f)
         {
+            $_data .= ($data ? "&" : "").$f."=".($$f);
             $data .= ($data ? "&" : "").$f."=".urlencode($$f);
         }
 
+        self::_log($data);
         echo "\n".$data."\n";
         //self::_post($data);
     }
@@ -40,6 +44,13 @@ class OnlimeRequest
         $result = curl_exec($ch); // выполняем запрос
         curl_close($ch); // завершаем сессию
         echo $result;
+    }
+
+    private function _log($str)
+    {
+        $pFile = fopen(LOG_DIR."onlime.log", "a+");
+        fwrite($pFile, "\n".date("r").": ".$str);
+        fclose($pFile);
     }
 }
 

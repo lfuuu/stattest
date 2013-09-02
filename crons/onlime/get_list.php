@@ -14,7 +14,7 @@ exit();
 include "xml_parser.php";
 include "checker.php";
 include "limit.php";
-include "post.php";
+//include "post.php";
 include "create.php";
 
 $f = <<<EOF
