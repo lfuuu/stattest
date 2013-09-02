@@ -232,6 +232,27 @@ class m_tt extends IModule{
                 $oBill->SetUnCleared();
             }
         }
+        if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
+        {
+            $onlimeOrder = OnlimeOrder::find_by_bill_no($trouble["bill_no"]);
+            if($onlimeOrder)
+                $onlimeId = $onlimeOrder->external_id;
+
+            if($onlimeId)
+            {
+                $status = null;
+                if($trouble["state_id"] == 21)//reject
+                {
+                    $status = OnlimeRequest::STATUS_REJECT;
+                }elseif(in_array($trouble["state_id"], array(2,20))) // normal close, delivered
+                {
+                    $status = OnlimeRequest::STATUS_DELIVERY;
+                }
+
+                if($status)
+                    OnlimeRequest::post($onlimeId, $trouble["bill_no"], $status, $comment);
+            }
+        }
 
 		if($trouble['bill_no']){
 			header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
