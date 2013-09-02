@@ -56,15 +56,19 @@ class sip
                     $s = array();
                     foreach($sips as $l)
                     {
-                            $count = count($l["numbers"]);
+                        $count = count($l["numbers"]);
 
-                            $s[] = array_merge($l, $l["numbers"][0])+array("count" => $count);
+                        $m = $l;
+                        if(isset($l["numbers"][0]))
+                            $m = array_merge($l, $l["numbers"][0]);
+                        $m +=array("count" => $count);
+                        $s[] = $m;
 
-                            foreach($l["numbers"] as $idx => $n)
-                            {
-                                if($idx == 0) continue;
-                                $s[] = $n+array("is_number" => true);
-                            }
+                        foreach($l["numbers"] as $idx => $n)
+                        {
+                            if($idx == 0) continue;
+                            $s[] = $n+array("is_number" => true);
+                        }
                     }
 
             $design->assign('s1', $s);
