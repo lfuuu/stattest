@@ -1271,9 +1271,9 @@ class SoapHandler{
             if(!$err && $err |= mysql_errno())
                 $err_msg = mysql_error();
 
-            if(isset($add_info_koi8r) && !$comment){
+            if(isset($add_info_koi8r) && (!$comment || $client == "onlime")){
                 $comment = "
-                        %s<br />
+                        %s<hr />
                         Телефон: %s<br />
                         Адрес доставки: %s<br />
                         Комментарий1: %s<br />
