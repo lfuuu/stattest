@@ -13,8 +13,8 @@ class OnlimeDeliveryLimit
         if(is_null(self::$cache) || !isset(self::$cache[$date]))
             self::_loadCacheOnDate($date);
 
-        echo "\n---------------------\n".$date." ".$time;
-        print_r(self::$cache);
+        //echo "\n---------------------\n".$date." ".$time;
+        //print_r(self::$cache);
         return self::addValue($date, $time);
 
     }
