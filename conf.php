@@ -51,7 +51,9 @@ $config = array(
     'SMTP_SERVER'        =>     'smtp.mcn.ru',
     'MAIL_TEST_ONLY'    =>    0,
     
-    'PATH_TO_ROOT'      => dirname(__FILE__)."/"
+    'PATH_TO_ROOT'      => dirname(__FILE__)."/",
+    "LOG_DIR"           => "/tmp/"
+
 );
 
 $config = array_merge($config, require(dirname(__FILE__).'/local.conf.php'));
