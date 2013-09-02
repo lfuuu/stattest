@@ -107,7 +107,6 @@ foreach($checkedOrders as $order)
     }
 }
 
-exit();
 
 
 foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_NEW))) as $order)
@@ -122,9 +121,6 @@ foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", Onlime
     }
     $order->setStage(OnlimeOrder::STAGE_ADDED);
     echo "\nadded: ".$id." => ".$intId;
-
-    if($order->status == OnlimeRequest::STATUS_NOT_DELIVERY) //normal order, need save
-        exit();
 }
 
 foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_ADDED))) as $order)

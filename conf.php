@@ -87,7 +87,6 @@ date_default_timezone_set("Asia/Dubai");
 ini_set('SMTP',SMTP_SERVER);
 
 define('PAGE_OBJ_COUNT',	50);
-define('USE_MD5',			0);
 
 define('INCLUDE_PATH',		PATH_TO_ROOT.'include/');
 define('MODELS_PATH',		PATH_TO_ROOT.'models/');

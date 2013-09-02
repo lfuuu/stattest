@@ -19,7 +19,7 @@ class OnlimeRequest
         }
 
         echo "\n".$data."\n";
-        //self::_post($data);
+        self::_post($data);
     }
 
     private function _post($data)
