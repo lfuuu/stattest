@@ -126,7 +126,8 @@ foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", Onlime
 foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_ADDED))) as $order)
 {
     echo "\nanswer: ".$order->id;
-    OnlimeRequest::post($order->external_id, $order->bill_no, $order->status, $order->error);
+    $answer = OnlimeRequest::post($order->external_id, $order->bill_no, $order->status, $order->error);
+    echo $answer;
 
     $order->setStage(OnlimeOrder::STAGE_ANSWERED);
 }

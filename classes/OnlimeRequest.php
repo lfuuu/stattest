@@ -22,8 +22,10 @@ class OnlimeRequest
         }
 
         self::_log($data);
-        echo "\n".$data."\n";
-        self::_post($data);
+        $answer = self::_post($data);
+        self::_log($answer);
+
+        return $answer;
     }
 
     private function _post($data)
@@ -43,7 +45,7 @@ class OnlimeRequest
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data); // добавляем данные POST-запроса
         $result = curl_exec($ch); // выполняем запрос
         curl_close($ch); // завершаем сессию
-        echo $result;
+        return $result;
     }
 
     private function _log($str)
