@@ -234,7 +234,6 @@ class m_tt extends IModule{
         }
 
 		if($trouble['bill_no']){
-
 			header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
 			exit();
 		}
