@@ -24,7 +24,7 @@ $f = <<<EOF
         <date>2013-08-27 20:58:35</date>
         <name>Саньков Кирилл Андреевич</name>
         <address>
-            Москва, 9-я Парковая улица, м. Измайловская, д. 49, корп. 1, кв 22
+            Москва, 9-я Парковая улица, м. �?змайловская, д. 49, корп. 1, кв 22
         </address>
         <delivery>
             <cost>0</cost>
@@ -120,9 +120,6 @@ foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", Onlime
     }
     $order->setStage(OnlimeOrder::STAGE_ADDED);
     echo "\nadded: ".$id." => ".$intId;
-
-    if($order->status == OnlimeRequest::STATUS_NOT_DELIVERY) //normal order, need save
-        exit();
 }
 
 foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_ADDED))) as $order)

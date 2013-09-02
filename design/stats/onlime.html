@@ -130,7 +130,7 @@ $('#date_to').datepicker({
 <tr>
 <td>{$idx+1}.</td>
 <td>{$i.fio_oper}</td>
-<td>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a></td>
+<td>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}{if $i.fio_oper != 'onlime_shop'}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a>{/if}</td>
 <td>{$i.date_creation}</td>
 <td align=center>{$i.count_cards|round:0}</td>
 <td>{$i.fio}</td>
