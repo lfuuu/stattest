@@ -218,12 +218,6 @@ class m_tt extends IModule{
 
             $new_state = TroubleState::find($R["state_id"]);
 
-
-            /*
-            printdbg($s);
-            exit();
-            */
-
             if($new_state->name == "Отказ")
             {
                 $gio->setStatusAndSave($cur_state->state_1c, false);
@@ -1411,11 +1405,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
 
     function checkTroubleAccess($trouble = null) {
+
         global $db,$design,$user;
         if (access('tt','admin')) return true;
         if (!access('tt','use')) return false;
         $u = $user->Get('user');
-        if ($trouble['state_id']==2) return false;
+        if (in_array($trouble['state_id'], array(2, 20, 39))) return false;
         if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
         if ($trouble['is_editableByMe']) return true;
         if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;

@@ -234,8 +234,6 @@ class Sync1CServerHandler
                     // нужна новая стадия
                     $to_state = $states[0];
 
-                    echo $to_state->name;
-
                     $now = new ActiveRecord\DateTime();
                     $now = $now->format("db");
 
@@ -259,15 +257,13 @@ class Sync1CServerHandler
                     $trouble->cur_stage_id = $new_stage->id;
                     $trouble->save();
 
-                }
-
-
             }
-
 
             // reject
             // close
         }
+
+        GoodsIncomeOrder::checkClose($order->id);
 
 		return $order;
 	}
@@ -319,6 +315,7 @@ class Sync1CServerHandler
 			$item->save();
 		}
 
+        GoodsIncomeOrder::checkClose($document->order_id);
 		return $document;
 	}
 
@@ -366,6 +363,8 @@ class Sync1CServerHandler
 
 			$item->save();
 		}
+
+        GoodsIncomeOrder::checkClose($document->order_id);
 
 		return $document;
 	}

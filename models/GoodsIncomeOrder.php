@@ -55,7 +55,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         return $order;
     }
 
-    private function _to_save($data)
+    private function _to_save()
     {
         $list = array();
         foreach($this->lines as $line) {
@@ -85,5 +85,72 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         );
 
         return $data;
+    }
+
+    public function checkClose($orderId)
+    {
+        try{
+            $order = GoodsIncomeOrder::find($orderId);
+        }catch(ActiveRecord\RecordNotFound $e)
+        {
+            return null;
+        }
+        // other error let it be throw ecxception
+
+        if(!$order || !$order->active || $order->status == GoodsIncomeOrder::STATUS_CLOSED) return null;
+
+
+        $order_lines =GoodsIncomeOrderLine::find("first", array(
+                    "select" => "sum(l.amount) as sum_amount", 
+                    "from" => "g_income_order_lines l",
+                    "joins" => "inner join g_income_order o on (o.id = l.order_id)",
+                    "conditions" => array("l.order_id = ? and o.active", $orderId))
+                );
+
+        if(!$order_lines->sum_amount) return null;
+        $orderAmount = (int)$order_lines->sum_amount;
+
+
+        $doc_lines =GoodsIncomeDocumentLine::find("first", array(
+                    "select" => "sum(l.amount) as sum_amount", 
+                    "from" => "g_income_document_lines l",
+                    "joins" => "inner join g_income_document d on (d.id = l.document_id)",
+                    "conditions" => array("l.order_id = ? and d.active", $orderId))
+                );
+
+        if(!$doc_lines->sum_amount) return null;
+        $docAmount = (int)$doc_lines->sum_amount;
+
+
+        $store_lines =GoodsIncomeStoreLine::find("first", array(
+                    "select" => "sum(l.amount) as sum_amount", 
+                    "from" => "g_income_store_lines l",
+                    "joins" => "inner join g_income_store s on (s.id = l.document_id)",
+                    "conditions" => array("l.order_id = ? and s.active", $orderId))
+                );
+
+        if(!$store_lines->sum_amount) return null;
+        $storeAmount = (int)$store_lines->sum_amount;
+
+        //echo "<hr>store: ".$storeAmount.", doc: ".$docAmount.", order: ".$orderAmount;
+
+        if($storeAmount == $docAmount && $docAmount == $orderAmount)
+        {
+            // need close
+            $order->setStatusAndSave(GoodsIncomeOrder::STATUS_CLOSED, $order->active);
+        }
+
+    }
+
+    public function isClosed()
+    {
+        $trouble = Trouble::find("first", array(
+                    "conditions" => array("bill_no = ?", $this->number), 
+                    "order" => "id desc")
+                );
+
+        if(!$trouble) return true;
+
+        return $trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_CLOSED;
     }
 }

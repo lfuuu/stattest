@@ -12,11 +12,13 @@
 		{$document->number}
 	</a>
 
+{if !$order->isClosed()}
 	<small><a href="?module=incomegoods&action=document_edit&id={$document->id}"><span class="icon_edit"></span>
 			Редактировать</a></small>
 
 	<small><a href="?module=incomegoods&action=document_edit&id=&order_id={$order->id}"><span class="icon_add"></span>
 			Создать поступление</a></small>
+{/if}
 </h4>
 
 
