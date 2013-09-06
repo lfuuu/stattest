@@ -361,3 +361,43 @@ table.table_style tr.title{
 }
 
 #form input.error, #form textarea.error { background-color: #db7093 }
+
+.icon_active {
+    display: inline-block;
+    background: url("./images/icons/action_check.gif");
+    width: 16px;
+    height: 16px;
+    margin-bottom: -4px;
+}
+
+.icon_disabled {
+    display: inline-block;
+    background: url("./images/icons/action_check_off.gif");
+    width: 16px;
+    height: 16px;
+    margin-bottom: -4px;
+}
+
+.icon_deleted_disabled {
+    display: inline-block;
+    background: url("./images/icons/action_delete.gif");
+    width: 16px;
+    height: 16px;
+    margin-bottom: -4px;
+}
+
+.icon_edit {
+    display: inline-block;
+    background: url("./images/icons/edit.gif");
+    width: 16px;
+    height: 16px;
+    margin-bottom: -4px;
+}
+
+.icon_add {
+    display: inline-block;
+    background: url("./images/icons/add.gif");
+    width: 16px;
+    height: 16px;
+    margin-bottom: -4px;
+}

@@ -1,5 +1,6 @@
-<!DOCTYPE HTML>
-<HTML xmlns="http://www.w3.org/1999/html"><HEAD>
+<!DOCTYPE html>
+<html>
+<head>
   <base href="{$PATH_TO_ROOT}">
   <TITLE>stat - MCN Телеком</TITLE>
   <meta http-equiv="Content-Type" content="text/html; charset=koi8-r" />
@@ -49,12 +50,7 @@
 src="{$IMAGES_PATH}1.gif" width=1></DIV>
 <DIV style="WIDTH: 1px; HEIGHT: 15px"><IMG height=15 alt="" 
 src="{$IMAGES_PATH}1.gif" width=1></DIV>
-<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
-  <TBODY>
-  <TR>
-    <TD width="100%"><IMG height=1 alt="" src="{$IMAGES_PATH}2.gif" 
-      width="100%"><BR></TD></TR></TBODY></TABLE>
-<DIV style="WIDTH: 1px; HEIGHT: 15px"><IMG height=15 alt="" 
+<DIV style="WIDTH: 1px; HEIGHT: 15px"><IMG height=15 alt=""
 src="{$IMAGES_PATH}1.gif" width=1></DIV>
 <DIV style="WIDTH: 1px; HEIGHT: 10px"><IMG height=10 alt="" 
 src="{$IMAGES_PATH}1.gif" width=1></DIV>

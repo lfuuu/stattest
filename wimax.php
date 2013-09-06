@@ -17,7 +17,7 @@ echo date("r")."\n";
 
 
 
-    class user {
+    class UserWimax {
         function Get($n)
         {
             if($n = "name") return "update1";
@@ -26,7 +26,7 @@ echo date("r")."\n";
         }
     }
 
-$user = new user();
+$user = new UserWimax();
 
 
     $db2		= new MySQLDatabase("85.94.32.194", "b_wificomstar", "90516ac423d", "welltone_new3");

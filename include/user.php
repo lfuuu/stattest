@@ -48,15 +48,13 @@ function access_action($module,$action){
     return access($act[0],$act[1]);
 }
 
-class User {
+class AuthUser {
     var $_Login = '';
     var $_IsAuthorized = 0;
     var $_Data;
     var $_Priveleges;
     var $_Client;
 
-    function User(){
-    }
     function IsAuthorized(){
         return $this->_IsAuthorized;
     }
