@@ -1189,7 +1189,9 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_view($fixclient){
         global $design, $db, $user, $fixclient_data;
-        //stat bills
+        
+        
+        //old all4net bills
         if(isset($_POST['bill_no']) && preg_match('/^\d{6}-\d{4}-\d+$/',$_POST['bill_no'])){
 
             //set doers
@@ -1218,9 +1220,15 @@ class m_newaccounts extends IModule
 				$n = addcslashes($_POST['nal'],"\\\\'");
 				$db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
 			}
+
+            //income orders
 		}elseif(isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"])){ // incoming orders
             header("Location: ./?module=incomegoods&action=order_view&number=".urlencode($_GET["bill"]));
             exit();
+
+            // stat bills
+        }elseif(preg_match("/\d{6}-\d{4}/", $_GET["bill"])){
+            //nothing
         }else{
             die("Неизвестный тип документа");
         }
