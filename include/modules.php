@@ -53,7 +53,19 @@ abstract class IModuleHead {
 	}
 	public final function __call($k,$param) {
 		if (!$this->obj) $this->load();
-		return call_user_func_array(array($this->obj,$k),$param);
+		try {
+			return call_user_func_array(array($this->obj,$k),$param);
+		} catch (Sync1CException $e) {
+			echo htmlspecialchars($e->getMessage());
+			exit;
+		} catch (Exception $e) {
+			echo "<h1>" . htmlspecialchars($e->getMessage()) . "</h1>\n";
+			echo "<pre>\n";
+			echo htmlspecialchars($e->getTraceAsString());
+			echo "</pre>\n";
+			exit;
+		}
+
 	}
 }
 abstract class IModule {

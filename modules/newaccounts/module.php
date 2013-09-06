@@ -556,11 +556,17 @@ class m_newaccounts extends IModule
 
         $counters = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
 
+        try{
+
         $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
                                                 CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum,
                                                 CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum
                                         FROM billing.counters
                                         WHERE client_id='".$fixclient_data["id"]."'");
+        }catch(Exception $e)
+        {
+            trigger_error($e->getMessage());
+        }
         $counters['amount_sum'] = $counters_reg['amount_sum'];
         $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
         $counters['amount_month_sum'] = $counters_reg['amount_month_sum'];
@@ -1199,19 +1205,24 @@ class m_newaccounts extends IModule
                 $db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
             }
             // 1c || all4net bills
-        }elseif(isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4}|\d{6,7})$/',$_GET['bill'])){
-            $design->assign('1c_bill_flag',true);
-            if(isset($_POST['select_doer'])){
-                $d = (int)$_POST['doer'];
-                $db->Query("select name from courier where id=".$d);
-                $row = $db->NextRecord(MYSQL_ASSOC);
-                $db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
-                $db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
-                unset($row);
-            }elseif(isset($_POST['select_nal'])){
-                $n = addcslashes($_POST['nal'],"\\\\'");
-                $db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
-            }
+		}elseif(isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4}|\d{6,7})$/',$_GET['bill'])){
+			$design->assign('1c_bill_flag',true);
+			if(isset($_POST['select_doer'])){
+				$d = (int)$_POST['doer'];
+				$db->Query("select name from courier where id=".$d);
+				$row = $db->NextRecord(MYSQL_ASSOC);
+				$db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
+				$db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
+				unset($row);
+			}elseif(isset($_POST['select_nal'])){
+				$n = addcslashes($_POST['nal'],"\\\\'");
+				$db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
+			}
+		}elseif(isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"])){ // incoming orders
+            header("Location: ./?module=incomegoods&action=order_view&number=".urlencode($_GET["bill"]));
+            exit();
+        }else{
+            die("Неизвестный тип документа");
         }
 
         $bill_no=get_param_protected("bill");

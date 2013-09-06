@@ -15,7 +15,7 @@ echo date("r")."\n";
 
 
 
-    class user {
+    class UserUtilDelOrder {
         function Get($n)
         {
             if($n = "name") return "automat";
@@ -24,7 +24,7 @@ echo date("r")."\n";
         }
     }
 
-$user = new user();
+$user = new UserUtilDelOrder();
 
 
     $db	= new MySQLDatabase("localhost", "latyntsev", "kxpyLNJ", "nispd");

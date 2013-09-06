@@ -21,7 +21,7 @@ class m_services extends IModule{
     function services_in_async($fixclient) {
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest =& new Subsys_JsHttpRequest_Php();
+        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
         $JsHttpRequest->setEncoding("koi8-r");
         $node=get_param_protected('node');
         $port_type=get_param_protected('port_type');
@@ -1573,7 +1573,7 @@ class m_services extends IModule{
     function services_ex_async($fixclient) {
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest =& new Subsys_JsHttpRequest_Php();
+        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
         $JsHttpRequest->setEncoding("koi8-r");
         $id=get_param_integer('id');
         $tarif_table = get_param_protected('tarif_table', 'extra');

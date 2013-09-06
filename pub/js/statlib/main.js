@@ -322,3 +322,27 @@ statlib.modules.voip.hide_price = function(ev) {
 	
 }
 
+
+statlib.prepareAjaxSubmittingForm = function(formId, buttonId) {
+	var form = $('#' + formId);
+	var button = $('#' + buttonId);
+
+	button.on('click', function(){
+		button.attr('disabled', 'disabled');
+		$.ajax( {
+			type: "POST",
+			url: form.attr('action'),
+			data: form.serialize()
+		}).always(function(){
+				button.removeAttr('disabled');
+			}).done(function(responce){
+				if (responce.url) {
+					location.href = responce.url;
+				} else {
+					showErrorModal(responce);
+				}
+			}).fail(function(responce){
+				showErrorModal('Ошибка при отправке формы');
+			});
+	});
+}
