@@ -241,16 +241,18 @@ class m_tt extends IModule{
             if($onlimeId)
             {
                 $status = null;
-                if($trouble["state_id"] == 21)//reject
+                if($R["state_id"] == 21)//reject
                 {
                     $status = OnlimeRequest::STATUS_REJECT;
-                }elseif(in_array($trouble["state_id"], array(2,20))) // normal close, delivered
+                }elseif($R["state_id"] == 20) // normal close, delivered
                 {
                     $status = OnlimeRequest::STATUS_DELIVERY;
                 }
 
                 if($status)
+                {
                     OnlimeRequest::post($onlimeId, $trouble["bill_no"], $status, $comment);
+                }
             }
         }
 
