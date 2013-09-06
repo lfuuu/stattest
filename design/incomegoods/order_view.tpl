@@ -8,9 +8,10 @@
 {if !$order->isClosed()}
 	<small><a href="?module=incomegoods&action=order_edit&id={$order->id}"><span class="icon_edit"></span>
 			Редактировать</a></small>
-
+    {if $order->isEntering()}
 	<small><a href="?module=incomegoods&action=document_edit&id=&order_id={$order->id}"><span class="icon_add"></span>
 			Создать поступление</a></small>
+    {/if}
 {/if}
 </h4>
 

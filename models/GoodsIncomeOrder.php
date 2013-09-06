@@ -20,6 +20,9 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 	const STATUS_ENTERING	= 'К поступлению';
 	const STATUS_CLOSED		= 'Закрыт';
 
+	const STATUS_STAT_ENTERING	= 'Поступление';
+	const STATUS_STAT_CLOSED	= 'Закрыт';
+
 	public static $statuses = array(
 		self::STATUS_NOT_AGREED	=> 'Не согласован',
 		self::STATUS_AGREED		=> 'Согласован',
@@ -142,15 +145,23 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 
     }
 
-    public function isClosed()
+    public function get_trouble()
     {
-        $trouble = Trouble::find("first", array(
+        return Trouble::find("first", array(
                     "conditions" => array("bill_no = ?", $this->number), 
                     "order" => "id desc")
                 );
-
-        if(!$trouble) return true;
-
-        return $trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_CLOSED;
     }
+
+    public function isClosed()
+    {
+        return $this->trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_STAT_CLOSED;
+    }
+
+    public function isEntering()
+    {
+        return $this->trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_STAT_ENTERING;
+    }
+
+
 }
