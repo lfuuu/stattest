@@ -177,7 +177,9 @@ class m_tt extends IModule{
         */
 
         // all4net bills && 1c bills (843434 | 201307/0123)
-        if($trouble['bill_no'] && !strpos($trouble['bill_no'], '-') && $trouble["trouble_type"] == "shop_orders"){
+        // $trouble["trouble_type"] in ("shop_orders", "shop")
+        if($trouble['bill_no'] && preg_match("/\d{6}\/\d{4}/", $trouble['bill_no'])/* && $trouble["trouble_type"] == "shop_orders"*/){
+
             $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($trouble['bill_no'],"\\'")."'");
             $newstate = $db->GetRow("select * from tt_states where id=".(int)$R['state_id']);
             if($newstate['state_1c']<>$bill['state_1c']){
@@ -261,6 +263,7 @@ class m_tt extends IModule{
                 $oBill->SetUnCleared();
             }
         }
+
         if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
         {
             $onlimeOrder = OnlimeOrder::find_by_bill_no($trouble["bill_no"]);
