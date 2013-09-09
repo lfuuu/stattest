@@ -98,10 +98,16 @@ abstract class ServicePrototype {
         }
         return $R;
     }
-    public function GetDatePercent() {
-        if (!$this->date_from || !$this->date_to) return 0;
-        $d1=getdate($this->date_from);
-        $d2=getdate($this->date_to);
+    public function GetDatePercent($date_from=null, $date_to = null) 
+    {
+        if($date_from === null) $date_from = $this->date_from;
+        if($date_to === null) $date_to = $this->date_to;
+
+        if (!$date_from || !$date_to) return 0;
+
+        $d1=getdate($date_from);
+        $d2=getdate($date_to);
+
         if (isset($this->tarif_current['period']) && $this->tarif_current['period']=='once') return 1;
         if (isset($this->tarif_current['period']) && $this->tarif_current['period']=='year') {
             $v=$d2['year']-$d1['year'];
@@ -659,6 +665,7 @@ class ServiceUsageVoip extends ServicePrototype {
                 );
             }
         }
+
         if($this->date_from_prev && $this->date_to_prev){
             $O = array();
             $lines=$this->calc();
@@ -666,6 +673,7 @@ class ServiceUsageVoip extends ServicePrototype {
             foreach ($lines as $dest => $r){
                 $price = $r['price'];
                 $name = '';
+                $percent = 1;
                 if ($dest == '4'){
                     $name = 'Превышение лимита, включенного в абонентскую плату по номеру %NUM% (местные вызовы) %PERIOD%';
                 }elseif($dest == '5'){
@@ -728,10 +736,16 @@ class ServiceUsageVoip extends ServicePrototype {
                 $name = str_replace('%NUM%', $this->service['E164'], $name);
                 $name = str_replace('%PERIOD%', 'с '.date('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev), $name);
 
+                // минимальный платеж должен выставляться пропорционально использованию услуги
+                if(strpos($name, "Минимальный ") !== false)
+                {
+                    $percent = $this->GetDatePercent($this->date_from_prev, $this->date_to_prev);
+                }
+
                 $R[] = array(
                     $this->tarif_previous['currency'],
                     $name,
-                    1,
+                    $percent,
                     $price,
                     'service',
                     $this->service['service'],
