@@ -13,7 +13,7 @@ class Sync1CClient
     {
         $this->helper = new Sync1CHelper();
         $this->soap = $soapHandler;
-		$this->handler = new Sync1CServerHandler($this->helper);
+        $this->handler = new Sync1CServerHandler($this->helper);
     }
 
 
@@ -73,66 +73,66 @@ class Sync1CClient
         return true;
     }
 
-	public function saveGtd(array $data)
-	{
-		global $user;
+    public function saveGtd(array $data)
+    {
+        global $user;
 
-		try {
-			$params = array(
-				'gtd' => $data,
-				'user' => $user->Get("user")
-			);
+        try {
+            $params = array(
+                'gtd' => $data,
+                'user' => $user->Get("user")
+            );
 
-			$result = $this->soap->utSaveGtd($params);
+            $result = $this->soap->utSaveGtd($params);
 
-		} catch (\SoapFault $e) {
-			$this->helper->throw1CException($e);
-		}
+        } catch (\SoapFault $e) {
+            $this->helper->throw1CException($e);
+        }
 
-		return $this->handler->parseGtd($result->return);
-	}
+        return $this->handler->parseGtd($result->return);
+    }
 
-	public function saveGoodsIncomeOrder(array $data)
-	{
-		global $user;
+    public function saveGoodsIncomeOrder(array $data)
+    {
+        global $user;
 
-		try {
-			$params = array(
-				'order' => $data,
-				'user' => $user->Get("user")
-			);
+        try {
+            $params = array(
+                'order' => $data,
+                'user' => $user->Get("user")
+            );
 
-			$result = $this->soap->utSaveGoodsIncomeOrder($params);
+            $result = $this->soap->utSaveGoodsIncomeOrder($params);
 
-		} catch (\SoapFault $e) {
-			$this->helper->throw1CException($e);
-		}
+        } catch (\SoapFault $e) {
+            $this->helper->throw1CException($e);
+        }
 
-		return $this->handler->parseGoodsIncomeOrder($result->return);
-	}
+        return $this->handler->parseGoodsIncomeOrder($result->return);
+    }
 
-	public function saveGoodsIncomeDocument(array $data)
-	{
-		global $user;
+    public function saveGoodsIncomeDocument(array $data)
+    {
+        global $user;
 
-		try {
-			$params = array(
-				'document' => $data,
-				'user' => $user->Get("user")
-			);
+        try {
+            $params = array(
+                'document' => $data,
+                'user' => $user->Get("user")
+            );
 
-			$result = $this->soap->utSaveGoodsIncomeDocument($params);
+            $result = $this->soap->utSaveGoodsIncomeDocument($params);
 
-		} catch (\SoapFault $e) {
-			$this->helper->throw1CException($e);
-		}
+        } catch (\SoapFault $e) {
+            $this->helper->throw1CException($e);
+        }
 
-		return $this->handler->parseGoodsIncomeDocument($result->return);
-	}
+        return $this->handler->parseGoodsIncomeDocument($result->return);
+    }
 
-	/*
-	public function __call($method, $args){
-		return call_user_func_array(array($this->handler, $method), $args);
-	}
-	*/
+    /*
+    public function __call($method, $args){
+        return call_user_func_array(array($this->handler, $method), $args);
+    }
+    */
 }
