@@ -41,6 +41,14 @@
 	{/foreach}
 	</select>
 
+    <select name="f_mob">
+        <option value="0">-- Моб/Стац --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+    </select>
+
+    <br/>
+
 	<input type="checkbox" name="f_onlydiff" {if $f_onlydiff != ''} checked{/if}>Только&nbsp;измененные&nbsp;&nbsp;
 	<input type="checkbox" name="f_showdefs" {if $f_showdefs != ''} checked{/if}>Показать&nbsp;коды&nbsp;&nbsp;
     <input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить&nbsp;&nbsp;
@@ -107,7 +115,7 @@
 <tr class={cycle values='even,odd'}>
 	<td>{$rd.defcode}</td>
 	<td>{$rd.zone}</td>
-	<td>{$rd.destination}</td>
+	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
 	{foreach from=$params item='p'}
 		{if $p.date2 == ''}
 		<td align=right 
