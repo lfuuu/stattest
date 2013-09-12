@@ -138,8 +138,8 @@ class m_incomegoods extends IModule{
 
             $list[] = array(
                 'Номенклатура' => $line['good_id'],
-                'Количество' => $line['amount'],
-                'Цена' => $line['price'],
+                'Количество' => str_replace(",", ".", $line['amount']),
+                'Цена' => str_replace(",", ".", $line['price']),
                 'КодСтроки' => $line['line_code'],
                 'ДатаПоступления' => $incoming_date,
             );

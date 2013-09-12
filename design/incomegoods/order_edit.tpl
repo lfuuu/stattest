@@ -235,8 +235,8 @@
         }
 
         var calc_row = function(tr){
-            var amount = parseFloat(tr.find('.amount').val());
-            var price = parseFloat(tr.find('.price').val());
+            var amount = parseFloat(tr.find('.amount').val().replace(",","."));
+            var price = parseFloat(tr.find('.price').val().replace(",","."));
             var sum = amount*price;
             var sum_nds = calc_nds(sum);
             tr.find('.sum').text(sum.toFixed(2));
