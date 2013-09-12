@@ -1,6 +1,12 @@
 <?php
 
 class m_incomegoods extends IModule{
+
+    public function incomegoods_default()
+    {
+        $this->incomegoods_order_list();
+    }
+
     public function incomegoods_order_list()
     {
         global $design, $user;
