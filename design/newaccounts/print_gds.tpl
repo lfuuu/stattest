@@ -22,7 +22,7 @@
 		<tr>
 			<td align="center">{$k}</td>
 			<td align="left">{if isset($1c_lines[$k])}{$1c_lines[$k].articul}{/if}&nbsp;</td>
-			<td align="left">{$l.item}&nbsp;</td>
+			<td align="left">{$l.item}&nbsp;{if $serials && isset($serials[$l.code_1c])}<br>(с/н: {foreach from=$serials[$l.code_1c] item=s name=foreach_ss}{if $smarty.foreach.foreach_ss.iteration > 1},{/if} {$s}{/foreach}){/if}</td>
 			<td align="center">{$l.amount|round:0} шт.</td>
 			<td align="center">{$l.price*1.18|round:2} руб.</td>
 			<td align="center">{if $l.line_nds == 18}{$l.sum*1.18|round:2}{else}{$l.sum|round:2}{/if} руб.</td>

@@ -222,7 +222,8 @@
 <input type=checkbox value=1 name="akt-2" id=cb9><label for=cb9{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Акт (2)</label><br>
 <input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3)</label><br>
 <input type=checkbox value=1 name="lading" id=cbb><label for=cbb{if !$bill_invoices[4]} style='color:#C0C0C0'{/if}>Накладная</label><br>
-<input type="checkbox" value="1" name="gds" id="cbc" /><label for=cbc{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек</label><br>
+<input type="checkbox" value="1" name="gds" id="gds" /><label for=gds{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек</label><br>
+<input type="checkbox" value="1" name="gds-serial" id="gds_serial" /><label for=gds_serial{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек (с серийными номерами)</label><br>
 <input type="checkbox" value="1" name="gds-2" id="cbd" /><label for=cbd style='color:#808080'>Товарный чек (все позиции)</label><hr>
 {if $is_set_date}
 <input type='text' value='{if $bill.doc_ts}{$bill.doc_ts|date_format:"%d.%m.%Y"}{else}{$smarty.now|date_format:"%d.%m.%Y"}{/if}' name='without_date_date' size='10'{if $bill.doc_ts} style="color: #c40000; font-weight: bold;"{/if}> <br><input type='checkbox' name='without_date' value='1' id='wd' /><label for=wd>Установить дату документа</label><br>
