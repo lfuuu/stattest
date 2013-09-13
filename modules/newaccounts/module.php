@@ -81,14 +81,63 @@ class m_newaccounts extends IModule
         if ($W_add) $W[] = $W_add;
         return $db->AllRecords('select '.$select.' from newbills as B where '.MySQLDatabase::Generate($W).($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
     }
-    private function enumBillsFullSum($client_id,$currency,$saldo_ts,$sort = 'bill_date asc, bill_no asc',$addSql = '',$arrKeySrc = 'bill_no', $W_add = null) {
+
+    private function enumBillsFullSum(
+            $client_id,
+            $currency,
+            $saldo_ts,
+            $sort = 'bill_date asc, bill_no asc',
+            $addSql = '',
+            $arrKeySrc = 'bill_no', 
+            $W_add = null) 
+    {
         global $db;
+
         $W = array('AND','B.client_id='.$client_id,'B.currency="'.$currency.'"','B.bill_date>="'.$saldo_ts.'"');
         if ($W_add) $W[] = $W_add;
-        $sum_f = 'CASE B.cleared_sum > 0 WHEN true THEN B.cleared_sum ELSE B.sum END as sum_full';
-        $r = $db->AllRecords($q='select B.bill_no, B.is_payed, B.inv_rur, B.sum, '.($saldo_ts?' CASE B.bill_date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, '.$sum_f.' from newbills B where '.MySQLDatabase::Generate($W).' GROUP BY B.bill_no, B.is_payed, B.inv_rur, B.sum, B.bill_date, B.currency '.($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
+
+        $r = $db->AllRecords($q='
+                SELECT * FROM (
+                SELECT 
+                    B.bill_no, 
+                    B.bill_date,
+                    B.currency,
+                    B.is_payed, 
+                    B.inv_rur, 
+                    B.sum, 
+                    '.($saldo_ts?' CASE B.bill_date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
+                    CASE B.cleared_sum > 0 WHEN true THEN B.cleared_sum ELSE B.sum END as sum_full
+                FROM 
+                    newbills B 
+                WHERE 
+                    '.MySQLDatabase::Generate($W).' 
+
+                UNION 
+
+                SELECT 
+                    G.number as bill_no, 
+                    cast(G.date as date) bill_date,
+                    if(currency = "RUB", "RUR", currency) as currency,
+                    G.is_payed,
+                    0.0 as inv_rur,  
+                    G.sum, 
+                    '.($saldo_ts?' CASE G.date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
+                    G.sum as sum_full
+
+                  FROM `g_income_order` G
+                  WHERE 
+                        client_card_id = "'.$client_id.'"
+                    and G.currency = "'.($currency == "RUR" ? "RUB" : $currency).'"
+                    and G.date>="'.$saldo_ts.'"
+                ) as B #bills_and_incomegoods
+
+                GROUP BY 
+                    B.bill_no, B.is_payed, B.inv_rur, B.sum, B.bill_date, B.currency '.
+                ($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
+
         return $r;
     }
+
     private function enumPayments($client_id,$currency,$saldo_ts,$select,$sort = 'payment_date asc',$addSql = '',$arrKeySrc = 'id', $W_add = null) {
         global $db;
         $W = array('AND','P.client_id='.$client_id);
@@ -115,13 +164,15 @@ class m_newaccounts extends IModule
     }
     function update_balance($client_id,$currency) {
         global $db, $fixclient_data;
-        set_time_limit(0);
+        set_time_limit(120);
         $saldo=$this->getClientSaldo($client_id,$currency,get_param_raw('nosaldo'));
 
         $fixclient_data=$client = $db->GetRow("select * from clients where id=".intval($client_id));
 
         $R1 = $this->enumBillsFullSum        ($client_id,$currency,$saldo['ts']);
         $R2 = $this->enumPayments    ($client_id,$currency,$saldo['ts'],'P.*,round(P.sum_rub/P.payment_rate,2) as sum');
+
+
         $sum = -$saldo['saldo'];
 
         $balance = 0;
@@ -478,10 +529,13 @@ class m_newaccounts extends IModule
 
         $db->Query('START TRANSACTION');
 
-        foreach ($R1 as $k => $v) {
-            if ($v['is_payed'] != $v['new_is_payed']) {
-                $db->Query($q='update newbills set is_payed = '.$v['new_is_payed'].' where bill_no="'.$k.'"');
-                //echo "<br>".$q;
+        foreach ($R1 as $k => $v) 
+        {
+            if ($v['is_payed'] != $v['new_is_payed']) 
+            {
+                $doc = Bill::getDocument($k, $fixclient_data["id"]);
+                $doc->is_payed = $v['new_is_payed'];
+                $doc->save();
             }
         }
         $db->Query('delete from newpayments_orders where client_id='.$client_id);
@@ -519,7 +573,7 @@ class m_newaccounts extends IModule
         if(!$fixclient)
             return;
 
-        set_time_limit(0);
+        set_time_limit(60);
 
         $_SESSION['clients_client'] = $fixclient;
 
@@ -927,6 +981,7 @@ class m_newaccounts extends IModule
         }
 
         $R1 = $db->AllRecords($q='
+                select * from (
             select
                 bill_no, bill_date, client_id, currency, sum, inv_rur, is_payed, P.comment, postreg, nal,
                 '.(
@@ -943,6 +998,25 @@ class m_newaccounts extends IModule
             where
                 client_id='.$fixclient_data['id'].'
                 '.($isMulty && !$isViewCanceled? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
+                ) bills
+                union
+                (
+                    ### incomegoods
+                 SELECT 
+                    number as bill_no, 
+                    cast(date as date) as bill_date, 
+                    client_card_id as client_id, 
+                    if(currency = "RUB", "RUR", currency) as currency, 
+                    sum, 
+                    0.0 as inv_rur,  
+                    is_payed,
+                    "" `comment`, 
+                    "0000-00-00" postreg , 
+                    "" nal, 
+                    1 in_sum 
+
+                  FROM `g_income_order` where client_card_id = "'.$fixclient_data['id'].'"
+                )
             order by
                 bill_date desc,
                 bill_no desc
@@ -5213,16 +5287,15 @@ $sql .= "    order by client, bill_no";
         $bill_no = $_POST['dbform']['bill_no'];
         if ($bill_no==''){trigger_error('Не выбран счет'); return;}
 
-        $oBill = new Bill($bill_no);
-        $isPayed = $oBill->Get("is_payed");
-        $fixclient_data = ClientCS::FetchClient($oBill->Get("client_id"));
+
+        $b = bill::getDocument($bill_no, $_POST['dbform']['client_id']);
 
         // каст для БИЛАЙНА
 
-        if($_SESSION["_mcn_user_login_stat.mcn.ru"] == "drupov11" && $isPayed == 1 && $fixclient_data["id"] != 14043 && $_POST["dbform"]["sum_rub"]>0) {
+        if($b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0) {
             trigger_error("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
             return;
-        }elseif($isPayed == 0){
+        }elseif($b->is_payed == 0){
             $r = $db->GetValue("select client_id from newpayments where bill_no = '".$bill_no."'");
             if($r)
             {
@@ -5236,17 +5309,13 @@ $sql .= "    order by client, bill_no";
         }
 
 
-
         $dbf = new DbFormNewpayments();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
 
 
-
-
-
-        $this->update_balance($fixclient_data["id"], $fixclient_data["currency"]);
+        $this->update_balance($b->client->id, $b->client->currency);
         /*
         if(include_once(INCLUDE_PATH."1c_integration.php")){
             $clS = new \_1c\clientSyncer($db);
@@ -5304,10 +5373,11 @@ $sql .= "    order by client, bill_no";
         if(!$id)
             return;
 
-        $pay = $db->GetRow('select * from newpayments where id='.$id);
+        $pay = Payment::find($id);
 
-        $db->Query("insert into log_newbills set bill_no='".$pay['bill_no']."', ts=NOW(), user_id=".$user->Get('id').", comment='Удаление платежа (".$pay['id']."), на сумму: ".$pay['sum_rub']."'");
-        $db->Query('delete from newpayments where id='.$id);
+        LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum_rub);
+
+        $pay->delete();
 
         if(include(INCLUDE_PATH."1c_integration.php")){
             $clS = new \_1c\clientSyncer($db);

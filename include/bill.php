@@ -739,5 +739,40 @@ class Bill{
         return $l["type"] == "service" && $l["id_service"] == 0 && $l["service"] == "";
         
     }
+
+    public function getDocumentType($bill_no)
+    {
+        if(preg_match("/\d{2}-\d{8}/", $bill_no))
+        {
+            return array("type" => "incomegood");
+        }elseif(preg_match("/20\d{4}\/\d{4}/", $bill_no))
+        {
+            return array("type" => "bill", "bill_type" => "1c");
+        }elseif(preg_match("/20\d{4}-\d{4}/", $bill_no)){
+            return array("type" => "bill", "bill_type" => "stat");
+        }
+
+        return array("type" => "unknown");
+    }
+
+    public function getDocument($docId, $clientId = false)
+    {
+        $docType = self::getDocumentType($docId);
+
+        if($docType["type"] == "bill")
+        {
+            $doc = NewBill::find($docId);
+        }elseif($docType["type"] == "incomegood")
+        {
+            $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
+        }else{
+            die("Неизвестный тип документа!");
+        }
+
+        if(!$doc)
+            throw new Exception("Документ не найден");
+
+        return $doc;
+    }
 }
 ?>

@@ -9,7 +9,7 @@ class m_incomegoods extends IModule{
 
     public function incomegoods_order_list()
     {
-        global $design, $user;
+        global $design, $user, $fixclient_data;
 
         $filter = array(
             'status' => 'all',
@@ -20,6 +20,15 @@ class m_incomegoods extends IModule{
 
         $where = 'true';
         $whereData = array();
+
+        if($fixclient_data && $fixclient_data['id'])
+        {
+            $where .= ' and client_card_id = ?';
+            $whereData[] = $fixclient_data['id'];
+        }
+
+        
+
 
         if ($filter['manager'] != 'all') {
             $where .= ' and manager_id=? ';
@@ -47,6 +56,7 @@ class m_incomegoods extends IModule{
             $where .= ' and status=? ';
             $whereData[] = $filter['status'];
         }
+
 
         array_unshift($whereData, $where);
 
