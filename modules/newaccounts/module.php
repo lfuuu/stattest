@@ -2290,6 +2290,7 @@ class m_newaccounts extends IModule
                 }elseif($obj == 'gds'){
 
                     $serials = array();
+                    $onlimeOrder = false;
                     if($source == "serial")
                     {
                         foreach(Serial::find('all', array(
@@ -2297,12 +2298,28 @@ class m_newaccounts extends IModule
                                             'bill_no' => $bill->GetNo()
                                             ),
                                         'order' => 'code_1c'
-                                    )
-                                ) as $s)
+                                        )
+                                    ) as $s)
                         {
                             $serials[$s->code_1c][] = $s->serial;
                         }
+
+                        // для onlime'а показываются номера купонов, если таковые есть
+                        if($bill->Get("client_id") == "18042")
+                        {
+                            $oo = OnlimeOrder::find_by_bill_no($bill->GetNo());
+                            if($oo)
+                            {
+                                if($oo->coupon)
+                                {
+                                    $onlimeOrder = $oo;
+                                }
+                            }
+                        }
                     }
+
+                    $design->assign("onlime_order", $onlimeOrder);
+
 
                     include_once INCLUDE_PATH.'1c_integration.php';
                     $bm = new \_1c\billMaker($db);
