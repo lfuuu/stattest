@@ -20,23 +20,22 @@ include "create.php";
 $f = <<<EOF
 <orders>
     <order_item>
-        <id>68</id>
-        <date>2013-08-27 20:58:35</date>
-        <name>Саньков Кирилл Андреевич</name>
+        <id>116</id>
+        <date>2013-09-13 17:33:06</date>
+        <name>Кузнецов Александр Николаевич</name>
         <address>
-            Москва, 9-я Парковая улица, м. Измайловская, д. 49, корп. 1, кв 22
+        Москва, м. Свиблово, улица Лётчика Бабушкина, д.444, кв. 1111
         </address>
-        <delivery>
-            <cost>0</cost>
-            <date>2013-08-29</date>
-            <time time_from="10:00" time_to="15:00"/>
-        </delivery>
-        <comment/>
+        <delivery_cost>0</delivery_cost>
+        <delivery_date>2013-09-15</delivery_date>
+        <delivery_time time_from="10:00" time_to="16:00"/>
+        <comment>от метро автобус 185, 176 или пешком 15мин</comment>
         <request_status>0</request_status>
         <request_text/>
         <phones>
-            <cell>926 3459974</cell>
+            <cell>903 1112223</cell>
         </phones>
+        <coupon groupon="111" seccode="222" vercode="333"/>
         <order_product>
             <product id="3" quantity="1" cost="2500" total="2500"/>
         </order_product>

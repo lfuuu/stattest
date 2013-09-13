@@ -1899,7 +1899,7 @@ class m_newaccounts extends IModule
         $isFromImport = get_param_raw("from", "") == "import";
         $stamp = get_param_raw("stamp", "");
 
-        $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2');
+        $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'assignment','assignment_stamp','assignment_wo_stamp','order','notice','assignmentcomstar'));
         $L = array_merge($L, array('wimax_order_blank','wimax_contract','stream_arenda_decoder','stream_arenda_w300','stream_blank', 'stream_arenda_cii', 'stream_arenda_fonera','nbn_deliv','nbn_modem','nbn_gds'));
@@ -2186,8 +2186,7 @@ class m_newaccounts extends IModule
 
         if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
             $obj='bill';
-        if ($source!=1 && $source!=2 && $source!=4 && $source!=5) //имхо глупость..
-            $source = 3;
+
         if ($obj!='bill')
             $curr = 'RUR';
 
@@ -2289,6 +2288,39 @@ class m_newaccounts extends IModule
                         )
                     );
                 }elseif($obj == 'gds'){
+
+                    $serials = array();
+                    $onlimeOrder = false;
+                    if($source == "serial")
+                    {
+                        foreach(Serial::find('all', array(
+                                        'conditions' => array(
+                                            'bill_no' => $bill->GetNo()
+                                            ),
+                                        'order' => 'code_1c'
+                                        )
+                                    ) as $s)
+                        {
+                            $serials[$s->code_1c][] = $s->serial;
+                        }
+
+                        // для onlime'а показываются номера купонов, если таковые есть
+                        if($bill->Get("client_id") == "18042")
+                        {
+                            $oo = OnlimeOrder::find_by_bill_no($bill->GetNo());
+                            if($oo)
+                            {
+                                if($oo->coupon)
+                                {
+                                    $onlimeOrder = $oo;
+                                }
+                            }
+                        }
+                    }
+
+                    $design->assign("onlime_order", $onlimeOrder);
+
+
                     include_once INCLUDE_PATH.'1c_integration.php';
                     $bm = new \_1c\billMaker($db);
                     $f = null;
@@ -2301,6 +2333,7 @@ class m_newaccounts extends IModule
                             $_1c_lines[$item['strCode']] = $item;
                         }
                     }
+                    $design->assign("serials", $serials);
                     $design->assign('1c_lines',$_1c_lines);
                 }
                 if($mode=='html')
