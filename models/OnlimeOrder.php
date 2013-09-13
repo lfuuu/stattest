@@ -19,6 +19,11 @@ class OnlimeOrder extends ActiveRecord\Model
         $o->stage = OnlimeOrder::STAGE_NEW;
         $o->error = "";
 
+        //coupon fields
+        $o->coupon = $order["coupon"]["groupon"];
+        $o->seccode = $order["coupon"]["seccode"];
+        $o->vercode = $order["coupon"]["vercode"];
+
         $o->save();
 
         return $o;

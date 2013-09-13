@@ -54,6 +54,21 @@ class OnlimeParserXML
                 }
             }
 
+            $coupon = array(
+                "groupon" => "",
+                "seccode" => "0",
+                "vercode" => ""
+                );
+
+            if(isset($i->coupon))
+            {
+                $couponAttr = $i->coupon->attributes();
+
+                if(isset($couponAttr->groupon)) $coupon["groupon"] = trim((string)$couponAttr->groupon);
+                if(isset($couponAttr->seccode)) $coupon["seccode"] = trim((string)$couponAttr->seccode);
+                if(isset($couponAttr->vercode)) $coupon["vercode"] = trim((string)$couponAttr->vercode);
+            }
+
 
             $order = array(
                     "id" => trim((string)$i->id),
@@ -67,7 +82,8 @@ class OnlimeParserXML
                     "request" => array(
                         "status" => trim((string)$i->request_status),
                         "text" => trim((string)$i->request_text)
-                        )
+                        ),
+                    "coupon" => $coupon
                     );
 
 
