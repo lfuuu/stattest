@@ -2304,22 +2304,18 @@ class m_newaccounts extends IModule
                         }
                     }
 
-                    /*
                     include_once INCLUDE_PATH.'1c_integration.php';
                     $bm = new \_1c\billMaker($db);
                     $f = null;
                     $b = $bm->getOrder($bill_no, $fault);
-                    */
 
                     $_1c_lines = array();
-                    /*
                     if($b)
                     {
                         foreach($b['list'] as $item){
                             $_1c_lines[$item['strCode']] = $item;
                         }
                     }
-                    */
                     $design->assign("serials", $serials);
                     $design->assign('1c_lines',$_1c_lines);
                 }
