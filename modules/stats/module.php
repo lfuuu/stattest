@@ -430,15 +430,19 @@ class m_stats extends IModule{
         
         $ns = array();
         $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
+        $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
 
         $rangeFrom = get_param_raw("range_from", '74996850000');
         $rangeTo = get_param_raw("range_to", '74996850199');
-        $group = get_param_raw("group",array_keys($groups) );
+        $group = get_param_raw("group",array_keys($groups));
+        $beauty = get_param_raw("beauty",array_keys($beautys));
 
         $design->assign("range_from", $rangeFrom);
         $design->assign("range_to", $rangeTo);
         $design->assign("group", $group);
         $design->assign("groups", $groups);
+        $design->assign("beauty", $beauty);
+        $design->assign("beautys", $beautys);
 
         if(get_param_raw("do",""))
         {
@@ -464,7 +468,7 @@ class m_stats extends IModule{
               ) as status
             
             from (
-            select number, price, client_id, usage_id,reserved_free_date,  used_until_date,
+            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level,
 
 
             (select max(actual_to) from usage_voip u where u.e164 = v.number and 
@@ -474,9 +478,11 @@ class m_stats extends IModule{
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
 
              from voip_numbers v where 
-            number between '".$rangeFrom."' and '".$rangeTo."' and client_id is not null
-            )a, clients c 
-            where c.id = a.client_id
+            number between '".$rangeFrom."' and '".$rangeTo."' 
+            )a 
+            left join clients c on (c.id = a.client_id)
+
+            where beauty_level in ('".implode("','", $beauty)."')
 
             having status in ('".implode("','", $group)."')
 
@@ -489,17 +495,17 @@ class m_stats extends IModule{
                 if($n["status"] == "stop")
                 {
                     foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth, sum(1) as count_calls
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, sum(1) as count_calls
                     from billing.calls_99 
                     where time between now() - interval '3 month' and now() 
                     and usage_id is null 
                     and region=99 
                     and usage_num = '".$n["number"]."'
-                    group by mnth
+                    group by mnth, mnth_s
                     order by mnth
                     ") as $c)
                     {
-                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth"].": ".$c["count_calls"];
+                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
                     }
                 }
 
@@ -507,6 +513,7 @@ class m_stats extends IModule{
         }
 
         $design->assign("ns", $ns);
+        $design->assign("ns_count", count($ns));
         $design->AddMain("stats/voip_free_stat.htm");
 
     }
