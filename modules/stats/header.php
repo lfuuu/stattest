@@ -31,6 +31,7 @@ class m_stats_head extends IModuleHead{
 		'courier_sms'		=> array('stats','report'),
 		'report_voip_operators_traf' => array('stats','vip_report'),
 		'voip_recognition' => array('stats','r'),
+		'voip_free_stat' => array('stats','r'),
 //		'recalcalls'		=> array('stats','modify'),
 		'support_efficiency'	=>  array('stats','report'),
     'report_phone_sales'  =>  array('stats','report')
@@ -41,6 +42,7 @@ class m_stats_head extends IModuleHead{
 		array('PPP',			'ppp'),
 		array('Телефония',		'voip'),
 		array('Телефония-нераспознанное',		'voip_recognition'),
+		array('Состояние номеров',		'voip_free_stat'),
 //		array('Пересчитать звонки','recalcalls'),
 		array('Телефония прод.','voip_sell'),
 		array('Callback',		'callback'),

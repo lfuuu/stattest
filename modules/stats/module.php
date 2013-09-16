@@ -422,6 +422,94 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip_form_recognition.tpl');
         $design->AddMain('stats/voip_recognition.tpl');
 	}
+
+    function stats_voip_free_stat($fixclient)
+    {
+        global $db, $pg_db, $design;
+
+        
+        $ns = array();
+        $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
+
+        $rangeFrom = get_param_raw("range_from", '74996850000');
+        $rangeTo = get_param_raw("range_to", '74996850199');
+        $group = get_param_raw("group",array_keys($groups) );
+
+        $design->assign("range_from", $rangeFrom);
+        $design->assign("range_to", $rangeTo);
+        $design->assign("group", $group);
+        $design->assign("groups", $groups);
+
+        if(get_param_raw("do",""))
+        {
+
+            $ns = $db->AllRecords($q = "
+            select a.*,c.company, c.client,
+                    
+            if(active_usage_id is not null, 
+                'used', 
+                if(client_id is null, 
+                    'free', 
+                    if(client_id in ('9130', '764'), 
+                        'our', 
+                        if(reserved_free_date is not null,
+                            'reserv',
+                            if(used_until_date < (now() - interval 6 month), 
+                                'free', 
+                                'stop'
+                                )
+                        )
+                      )
+                  )
+              ) as status
+            
+            from (
+            select number, price, client_id, usage_id,reserved_free_date,  used_until_date,
+
+
+            (select max(actual_to) from usage_voip u where u.e164 = v.number and 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as max_date,
+            
+            (select id from usage_voip u where u.e164 = v.number and 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
+
+             from voip_numbers v where 
+            number between '".$rangeFrom."' and '".$rangeTo."' and client_id is not null
+            )a, clients c 
+            where c.id = a.client_id
+
+            having status in ('".implode("','", $group)."')
+
+            ");
+
+            foreach($ns as &$n)
+            {
+                $n["calls"] = "";
+
+                if($n["status"] == "stop")
+                {
+                    foreach($pg_db->AllRecords("
+                    select to_char(time, 'Mon') as mnth, sum(1) as count_calls
+                    from billing.calls_99 
+                    where time between now() - interval '3 month' and now() 
+                    and usage_id is null 
+                    and region=99 
+                    and usage_num = '".$n["number"]."'
+                    group by mnth
+                    order by mnth
+                    ") as $c)
+                    {
+                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth"].": ".$c["count_calls"];
+                    }
+                }
+
+            }
+        }
+
+        $design->assign("ns", $ns);
+        $design->AddMain("stats/voip_free_stat.htm");
+
+    }
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error('Выберите клиента');return;}

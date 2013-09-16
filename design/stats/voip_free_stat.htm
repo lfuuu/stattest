@@ -1,0 +1,60 @@
+<h2>Детальный отчет по номерам</h2>
+
+<br><br>
+
+
+<form action="./" method=post>
+<input type=hidden name="module" value="stats">
+<input type=hidden name="action" value="voip_free_stat">
+<input type=hidden name="do" value="1">
+    <table>
+        <tr>
+            <td>Диапазон с</td>
+            <td><input type=text name=range_from value="{$range_from}"></td>
+        </tr>
+        <tr>
+            <td>Диапазон по</td>
+            <td><input type=text name=range_to value="{$range_to}"></td>
+        </tr>
+        <tr>
+            <td>Группы номеров</td>
+            <td>{html_checkboxes name="group" options=$groups selected=$group   separator="<br />"}</td>
+        </tr>
+    </table>
+    <input type=submit value="Сформировать">
+</form>
+
+<hr>
+
+<br>
+
+<table cellpadding="3" border="1" style="border: 1px solid gray; border-collapse: collapse; color: black;">
+    <tr>
+        <th>Номер</th>
+        <th>Клиент</th>
+        <th>Состояние</th>
+        <th></th>
+        <th>Кол-во звонков</th>
+    </tr>
+    {foreach from=$ns item=n}
+    <tr>
+        <td>{$n.number}</td>
+        <td><a href="./?module=clients&id={$n.client_id}">{$n.client}</a></td>
+        <td>
+            {if $n.status == 'stop'}
+                В отстойнике
+            {elseif $n.status == 'used'}
+                Используется
+            {elseif $n.status == 'free'}
+                Свободен
+            {elseif $n.status == 'our'}
+                номер за ЭмСиЭн
+            {elseif $n.status == 'reserv'}
+                В резерве
+            {/if}</td>
+        <td>{if $n.status == 'stop' || $n.status == "reserv"}c {$n.used_until_date}{/if}</td>
+        <td>{if $n.status == 'stop'}{$n.calls}{/if}</td>
+    </tr>
+    {/foreach}
+
+</table>
