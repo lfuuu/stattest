@@ -96,23 +96,41 @@ class CyberPlatRequest
 
     private function echoError($e)
     {
-        echo "<?xml version=\"1.0\" encoding=\"koi8-r\"?>\n".
+        $str = "<?xml version=\"1.0\" encoding=\"koi8-r\"?>\n";
             "<response>\n".
-            "   <code>".$e->getCode()."</code>\n".
-            "   <message>".iconv("utf-8", "koi8-r", $e->getMessage())."</message>\n".
+            "<code>".$e->getCode()."</code>\n".
+            "<message>".iconv("utf-8", "koi8-r", $e->getMessage())."</message>\n".
             "</response>\n";
+
+        echo $this->sign($str);
     }
 
     private function echoOK($e)
     {
-        echo "<?xml version=\"1.0\" encoding=\"koi8-r\"?>\n".
+        $str = "<?xml version=\"1.0\" encoding=\"koi8-r\"?>\n".
             "<response>\n".
-            "   <code>0</code>\n".
-            "   <message>".iconv("utf-8", "koi8-r", $e->getMessage())."</message>\n".
+            "<code>0</code>\n".
+            "<message>".iconv("utf-8", "koi8-r", $e->getMessage())."</message>\n".
             "</response>\n";
+        echo $this->sign($str);
+    }
 
+    private function sign($str)
+    {
+        $private_key = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__private.key");
+        $passhare = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__passhare.key");
+
+        $pk = openssl_pkey_get_private($private_key, trim($passhare));
+
+        $sign = "";
+        $res = openssl_sign($str, $sign, $pk);
+        $sign = unpack("H*", $sign);
+        $str = str_replace("</response>", "<sign>".$sign[1]."</sign></response>", $str);
+
+        return $str;
     }
 }
+
 
 
 class CyberplatError extends Exception

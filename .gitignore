@@ -8,6 +8,7 @@
 /store/documents/
 /store/files/
 /store/payments/
+/store/keys/
 
 
 /store/contracts/*
