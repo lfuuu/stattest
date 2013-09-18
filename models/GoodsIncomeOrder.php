@@ -4,6 +4,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 	static $table_name = 'g_income_order';
 	static $belongs_to = array(
 		array('client_card', 'class_name' => 'ClientCard'),
+		array('client', 'class_name' => 'ClientCard'),
 		array('organization', 'class_name' => 'Organization'),
 		array('store', 'class_name' => 'Store', 'foreign_key' => 'store_id'),
 		array('manager', 'class_name' => 'User', 'foreign_key' => 'manager_id'),
@@ -32,6 +33,23 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 	);
 
 	static $before_save = array('calculate_ready');
+
+    public function getOrder($orderNumber, $clientId = false)
+    {
+        $conditions = array(
+                'number' => $orderNumber
+                );
+
+        if($clientId)
+            $conditions['client_card_id'] = $clientId;
+
+        return GoodsIncomeOrder::find('first', array(
+                    'conditions' => $conditions,
+                    'order' => 'date desc',
+                    'limit' => 1
+                    )
+                );
+    }
 
 	public function calculate_ready() {
 		$this->ready =
