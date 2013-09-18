@@ -1379,14 +1379,67 @@ class DbFormNewpayments extends DbForm{
         global $db;
         $c=$this->data['client_id'];
         if (!$c) $c=$this->fields['client_id']['default'];
-        if ($c){
+        if ($c)
+        {
             $this->fields['bill_no']['type']='enum';
+
             $R=array();
-            $db->Query('select bill_no from newbills where client_id="'.$c.'" and is_payed=0 order by bill_no');
-            while ($r=$db->NextRecord()) $R[]=$r['bill_no'];
-            $R[]='';            
-            $db->Query('select bill_no from newbills where client_id="'.$c.'" and is_payed!=0 order by bill_no');
-            while ($r=$db->NextRecord()) $R[]=$r['bill_no'];
+
+            //добавляем не оплаченные счета
+            $billsNoPayed = array();
+            foreach(NewBill::find('all', array(
+                            'select' => 'bill_no',
+                            'conditions' => array('client_id' => $c, 'is_payed' => 0),
+                            'order' => 'bill_no'
+                            )
+                        ) as $bill) 
+            {
+                $billsNoPayed[]=$bill->bill_no;
+            }
+            if($billsNoPayed) 
+            {
+                $R[] = '';
+                $R[] = 'счета не оплаченые';
+                $R = array_merge($R, $billsNoPayed);
+            }
+
+            // добавляем оплаченные счета
+            $billsPayed = array();
+            foreach(NewBill::find('all', array(
+                            'select' => 'bill_no',
+                            'conditions' => array('client_id = ? and is_payed != 0', $c),
+                            'order' => 'bill_no'
+                            )
+                        ) as $bill) 
+            {
+                $billsPayed[]=$bill->bill_no;
+            }
+            if($billsPayed)
+            {
+                $R[] = '';
+                $R[] = 'счета оплаченые';
+                $R = array_merge($R, $billsPayed);
+            }
+
+
+            // добавляем не полаченые заказы поставщикам
+            $incomeGoodsNoPayed = array();
+            foreach(GoodsIncomeOrder::find('all', array(
+                        'select' => 'number',
+                        'conditions' => array(
+                            'is_payed' => 0,
+                            'client_card_id' => $c),
+                        'order' => 'number')) as $order)
+            {
+                $incomeGoodsNoPayed[]=$order->number;
+            }
+            if($incomeGoodsNoPayed)
+            {
+                $R[]='';
+                $R[]='заказы не оплаченые';
+                $R = array_merge($R, $incomeGoodsNoPayed);
+            }
+
             $this->fields['bill_no']['enum']=$R;
         }
         $curr = '';

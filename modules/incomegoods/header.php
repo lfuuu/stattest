@@ -8,6 +8,7 @@ class m_incomegoods_head extends IModuleHead{
 	);
 
 	public $actions=array(
+        'default'=> array('incomegoods','access'),
 		'order_list' => array('incomegoods','access'),
 		'order_view' => array('incomegoods','access'),
 		'order_edit' => array('incomegoods','admin'),
