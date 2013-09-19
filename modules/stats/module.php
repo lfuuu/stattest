@@ -4029,7 +4029,7 @@ private function report_plusopers__phoneToStr($l)
 {
 	if(strpos($l["phone"], "^") !== false)
 	{
-		list($home, $mob, $work) = explode(" ^ ", $l["phone"]);
+		list($home, $mob, $work) = explode(" ^ ", $l["phone"]." ^  ^  ^ ");
 		$p = array();
 
 		if($home) $p[] = "Домашний: ".$home;

@@ -246,7 +246,11 @@ class m_tt extends IModule{
         // если заявка уходит со стадии "новый", кто уводит - тот и менеджер счета (получает бонусы)
         // даже если переход с новой на новую
 
-        if($trouble["bill_no"] && $trouble["trouble_type"] == "shop_orders")
+
+// todo: переделать на bill::getDocumentType
+
+
+        if($trouble["bill_no"] && ($trouble["trouble_type"] == "shop_orders" || $trouble["trouble_type"] == "shop" || $trouble["trouble_type"] == "mounting_orders"))
         {
             include_once INCLUDE_PATH.'bill.php';
             $oBill = new \Bill($trouble["bill_no"]);
