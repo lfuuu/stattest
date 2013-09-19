@@ -55,7 +55,6 @@ class Onlime1CCreateBill
             */
             $metro = "";
 
-
         $ai = array (
                 'ФИО' => $o['fio'],
                 'Адрес' => $o['address'],
@@ -109,6 +108,10 @@ class Onlime1CCreateBill
                 case '11': $goodId = "72904487-32f6-11e2-9369-00155d881200"; break;
             }
 
+            if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])
+            {
+                $goodId = "6d2dfd2a-211e-11e3-95df-00155d881200"; //15804  OnLime TeleCARD Акция
+            }
 
             $res["items_list"][] =
                     array(
