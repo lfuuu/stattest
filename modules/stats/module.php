@@ -3749,8 +3749,11 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     	$d1Default = date("Y-m-01");
     	$d2Default = date("Y-m-d", strtotime("+1 month -1 day", strtotime(date("Y-m-01"))));
 
+        $filterPromoAll = array("all"=> "Все", "promo" => "По акции", "no_promo" => "Не по акции");
+
     	$d1 = get_param_raw("date_from", $d1Default);
     	$d2 = get_param_raw("date_to", $d2Default);
+    	$filterPromo = get_param_raw("filter_promo", "all");
 
     	if(!strtotime($d1) || !strtotime($d2))
     	{
@@ -3760,6 +3763,8 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
         $design->assign("date_from", $d1);
         $design->assign("date_to", $d2);
+        $design->assign("filter_promo_all", $filterPromoAll);
+        $design->assign("filter_promo", $filterPromo);
     }
 
     $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
@@ -3768,15 +3773,15 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if($client == "onlime_all")
     {
-        list($r1, $closeList1, $deliveryList1) = $this->report_plusopers__getCount("onlime", $d1, $d2);
-        list($r2, $closeList2, $deliveryList2) = $this->report_plusopers__getCount("onlime2", $d1, $d2);
+        list($r1, $closeList1, $deliveryList1) = $this->report_plusopers__getCount("onlime", $d1, $d2, $filterPromo);
+        list($r2, $closeList2, $deliveryList2) = $this->report_plusopers__getCount("onlime2", $d1, $d2, $filterPromo);
 
         foreach($r1 as $k => $v) $r2[$k]+= $v;
 
         $r = $r2;
 
     }else{
-        list($r, $closeList, $deliveryList) = $this->report_plusopers__getCount($client, $d1, $d2);
+        list($r, $closeList, $deliveryList) = $this->report_plusopers__getCount($client, $d1, $d2, $filterPromo);
     }
 
 
@@ -3790,12 +3795,12 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     {
         if($client == "onlime_all")
         {
-            $list1 = $this->report_plusopers__getList("onlime", $listType, $d1, $d2, $deliveryList1, $closeList1);
-            $list2 = $this->report_plusopers__getList("onlime2", $listType, $d1, $d2, $deliveryList2, $closeList2);
+            $list1 = $this->report_plusopers__getList("onlime", $listType, $d1, $d2, $deliveryList1, $closeList1, $filterPromo);
+            $list2 = $this->report_plusopers__getList("onlime2", $listType, $d1, $d2, $deliveryList2, $closeList2, $filterPromo);
 
             $list = array_merge($list1, $list2);
         }else{
-            $list = $this->report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList);
+            $list = $this->report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList, $filterPromo);
         }
     }
 
@@ -4063,10 +4068,9 @@ private function report_plusopers__Load($client, $billNo)
 	return $a;
 }
 
-private function report_plusopers__getCount($client, $d1, $d2)
+private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
 {
     global $db;
-
 
 
     $deliveryList = $db->AllRecords($sql = "

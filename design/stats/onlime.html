@@ -28,22 +28,6 @@
 <form action="" method=get>
 	<input type="hidden" name="module" value="stats" />
 	<input type="hidden" name="action" value="{$report}" />
-	{if false}
-	<table>
-		<tr>
-			<td>С</td>
-			<td><select name="date_from_y1" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y1','date_from_m1','date_from_d1')">{generate_sequence_options_select start=2003 selected=$date_from_y1}</select></td>
-			<td><select name="date_from_m1" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y1','date_from_m1','date_from_d1')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_m1}</select></td>
-			<td><select name="date_from_d1" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y1','date_from_m1','date_from_d1')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_d1}</select></td>
-			<td>&nbsp;</td>
-			<td>по</td>
-			<td><select name="date_to_y1" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y1','date_to_m1','date_to_d1')">{generate_sequence_options_select start=2003 selected=$date_to_y1}</select></td>
-			<td><select name="date_to_m1" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y1','date_to_m1','date_to_d1')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_m1}</select></td>
-			<td><select name="date_to_d1" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y1','date_to_m1','date_to_d1')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_d1}</select></td>
-            <td><input type=submit value="OK"></td>
-		</tr>
-    </table>
-    {/if}
     <table>
     	<tr>
     		<td>C </td>
@@ -52,6 +36,9 @@
     		<td><input type=text value="{$date_to}"  id=date_to name=date_to></td>
     		<td><input type=submit value="OK"></td>
     	</tr>
+        <tr>
+            <td colspan=5>Показать: {html_radios options=$filter_promo_all selected=$filter_promo name="filter_promo"}</td>
+        </tr>
     </table>
 <script>
 {literal}
