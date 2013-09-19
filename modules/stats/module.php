@@ -2655,18 +2655,20 @@ class m_stats extends IModule{
 					cast(sum(amount)/100.0 as NUMERIC(10,2)) as price_mcn,
 					operator_id as operator_id,
 					case direction_out when true then
-						case dest=0 when true then
-							case mob when true then
-								11
-							else
-								10
-							end
+						case phone_num::varchar like '7800%' when true then
+							100
 						else
-						  case dest=-1 when true then
-						    9
-						  else
-						    100+dest
-						  end
+							case dest when 0 then
+								case mob when true then
+									11
+								else
+									10
+								end
+							when -1 then
+								9
+							else
+								100+dest
+							end
 						end
 					else 900 end as dest2
 					".$sod."
@@ -3816,7 +3818,11 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 	{
 		foreach($list as  &$l)
 		{
+      $l["count_3"] = (int)$l["count_3"];
+      $l["count_9"] = (int)$l["count_9"];
+      $l["count_11"] = (int)$l["count_11"];
 			$design->assign("i_stages", $l["stages"]);
+			$design->assign("last", 1000);
 			$html = $design->fetch("stats/onlime_stage.tpl");
 			$html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
 			$l["stages_text"] = strip_tags($html);
@@ -3828,7 +3834,10 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                 "Оператор" => "fio_oper",
                 "Номер счета" => "bill_no",
                 "Дата создания заказа" => "date_creation",
-                "Кол-во Onlime-Telecard" => "count_cards",
+                "Кол-во Onlime-Telecard" => "count_3",
+                "Кол-во HD-ресивер OnLime" => "count_9",
+                "Кол-во HD-ресивер с диском" => "count_11",
+                "Серийные номера" => "serials",
                 "ФИО клиента" => "fio",
                 "Телефон клиента" => "phone",
                 "Адрес" => "address",
@@ -4106,7 +4115,18 @@ if($client != "nbn")
 
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
-                        and nl.bill_no = t.bill_no) as count_cards,
+                        and nl.bill_no = t.bill_no) as count_3,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '4acdb33c-0319-11e2-9c41-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_9,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '72904487-32f6-11e2-9369-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_11,
+
+        (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+
                 a.comment1 as date_deliv,
                 a.comment2 as fio_oper
 
@@ -4143,9 +4163,9 @@ if($client != "nbn")
 
     if($client != "nbn")
     {
-        $closeCount = 0;
-        foreach($closeList as $l) $closeCount += $l["count_cards"];
-    	$r["close"] = $closeCount;
+      //$closeCount = 0;
+      //foreach($closeList as $l) $closeCount += $l["count_cards"];
+      $r["close"] = count($closeList);//$closeCount;
     }
     return array($r, $closeList, $deliveryList);
 }
@@ -4183,9 +4203,23 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             t.id as trouble_id, t.bill_no, t.problem,
                             req_no, fio, phone, address, date_creation
                             ".($client != "nbn" ?
-                    ", (select sum(amount) from newbill_lines nl
+                    ", 
+                    
+                    
+				(select sum(amount) from newbill_lines nl
                         where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
-                        and nl.bill_no = t.bill_no) as count_cards,
+                        and nl.bill_no = t.bill_no) as count_3,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '4acdb33c-0319-11e2-9c41-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_9,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '72904487-32f6-11e2-9369-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_11,
+
+        (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+
                             (select date_start from tt_stages s, tt_doers d where s.stage_id = d.stage_id and s.trouble_id = t.id order by s.stage_id desc limit 1) as date_delivered,
                             i.comment1 as date_deliv,
                             i.comment2 as fio_oper

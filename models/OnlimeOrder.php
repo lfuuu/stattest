@@ -14,10 +14,15 @@ class OnlimeOrder extends ActiveRecord\Model
 
         $o = new OnlimeOrder();
         $o->external_id = $order["id"];
-        $o->order_serialize = Encoding::toKoi8r(serialize($order));
+        $o->order_serialize = serialize(Encoding::toKoi8r($order));
         $o->status = 0;
         $o->stage = OnlimeOrder::STAGE_NEW;
         $o->error = "";
+
+        //coupon fields
+        $o->coupon = $order["coupon"]["groupon"];
+        $o->seccode = $order["coupon"]["seccode"];
+        $o->vercode = $order["coupon"]["vercode"];
 
         $o->save();
 

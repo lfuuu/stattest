@@ -691,7 +691,7 @@ class m_voipnew extends IModule{
 		$id = get_param_protected('id', 0);
 		
 		
-		$query = "delete from voip_raw_file where id=".$id;
+		$query = "delete from voip.raw_file where id=".$id;
 		$pg_db->Query($query);
 		if ($pg_db->mError == '') {
 			header('location: index.php?module=voipnew&action=raw_files');
@@ -1031,7 +1031,7 @@ class m_voipnew extends IModule{
 				return;
 			}
 
-			//$pg_db->Query('update voip_raw_file set active=true where id='.$rawfile_id);
+			//$pg_db->Query('update voip.raw_file set active=true where id='.$rawfile_id);
 			
 //			$design->assign('rawfile_id', $rawfile_id);
 //			$design->assign('rows_count', count($defs));

@@ -3,11 +3,12 @@
 <script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
 <link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
 
-
 <h2>Отчет. {$client_name} {$date}</h2>
+{if false}
 <div style="text-align: right; padding-right: 100px;">
 <a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=add">Создать заявку</a>
 </div>
+{/if}
 <style>
 {literal}
 #repart_table td {
@@ -114,7 +115,8 @@ $('#date_to').datepicker({
 <td rowspan=2 width=10%>Оператор</td>
 <td rowspan=2 width=10%>Номер счета</td>
 <td rowspan=2 width=10%>Дата<br>создания заказа</td>
-<td rowspan=2 width=1%>Кол-во Onlime-<br>Telecard</td>
+<td colspan=3 width=1%>Кол-во</td>
+<td rowspan=2 width=10%>Серийный номер</td>
 <td rowspan=2 width=10%>ФИО клиента</td>
 <td rowspan=2 width=10%>Телефон клиента</td>
 <td rowspan=2 width=20%>Адрес</td>
@@ -122,6 +124,9 @@ $('#date_to').datepicker({
 <td rowspan=2 width=20%>Этапы</td>
 </tr>
 <tr>
+<td>TeleCARD</td>
+<td>HD-ресивер</td>
+<td>НВ-р. с диском</td>
 <td>Желаемая</td>
 <td>Фактическая</td>
 </tr>
@@ -132,23 +137,34 @@ $('#date_to').datepicker({
 <td>{$i.fio_oper}</td>
 <td>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}{if $i.fio_oper != 'onlime_shop'}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a>{/if}</td>
 <td>{$i.date_creation}</td>
-<td align=center>{$i.count_cards|round:0}</td>
+<td align=center>{$i.count_3|round:0}</td>
+<td align=center>{$i.count_9|round:0}</td>
+<td align=center>{$i.count_11|round:0}</td>
+<td>{$i.serials|replace:",":",<br>"}</td>
 <td>{$i.fio}</td>
 <td>{$i.phone}</td>
 <td>{$i.address}</td>
 <td>{$i.date_deliv}</td>
 <td>{$i.date_delivered|substr:0:-3}</td>
 <td>
-{include file='stats/onlime_stage.tpl' i_stages=$i.stages}
-
-{if false}
-            {foreach from=$i.stages item=t}
-<span style="font-size: 8pt;">{$t.date_finish_desired}</span> {if $viewLink}<a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a>{else}<b>{$t.state_name}</b>{/if} {$t.user_edit}: <u style="background-color: #cfffcf;"> {$t.comment} </u>
-        {if $t.doers} {foreach from=$t.doers item=d}<span style="background-color: #cfcfff;">----><b>{$d.depart} {$d.name} </span>({$t.date_start}){if $t.sms} <br><span style="color: #c40000;">{$t.sms.sms_send} // {$t.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}<br>
-            {/foreach}
+<div id="d_{$idx}" style="display:none;" title="Заказ {$i.bill_no}">
+{include file='stats/onlime_stage.tpl' i_stages=$i.stages last=100}
+</div>
+{include file='stats/onlime_stage.tpl' i_stages=$i.stages last=2}
+{if count($i.stages) > 2}
+    <div style="cursor: pointer; color: blue;" class="to_view" id="t_{$idx}">Посмотреть всю историю</div>
 {/if}
 </td>
 </tr>
 {/foreach}
 </table>
+<script>
+{literal}
+
+$("div.to_view").click(function(e){
+    $("#"+e.srcElement.id.replace("t_", "d_")).dialog();
+})
+
+{/literal}
+</script>
 {/if}

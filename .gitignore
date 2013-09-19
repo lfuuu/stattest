@@ -3,3 +3,12 @@
 /.idea/
 /local.conf.php
 /tags
+/*.lock
+
+/store/documents/
+/store/files/
+/store/payments/
+
+
+/store/contracts/*
+!template*

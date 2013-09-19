@@ -177,7 +177,9 @@ class m_tt extends IModule{
         */
 
         // all4net bills && 1c bills (843434 | 201307/0123)
-        if($trouble['bill_no'] && !strpos($trouble['bill_no'], '-') && $trouble["trouble_type"] == "shop_orders"){
+        // $trouble["trouble_type"] in ("shop_orders", "shop")
+        if($trouble['bill_no'] && preg_match("/\d{6}\/\d{4}/", $trouble['bill_no'])/* && $trouble["trouble_type"] == "shop_orders"*/){
+
             $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($trouble['bill_no'],"\\'")."'");
             $newstate = $db->GetRow("select * from tt_states where id=".(int)$R['state_id']);
             if($newstate['state_1c']<>$bill['state_1c']){
@@ -281,6 +283,30 @@ class m_tt extends IModule{
             }
         }
 
+        if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
+        {
+            $onlimeOrder = OnlimeOrder::find_by_bill_no($trouble["bill_no"]);
+            if($onlimeOrder)
+                $onlimeId = $onlimeOrder->external_id;
+
+            if($onlimeId)
+            {
+                $status = null;
+                if($R["state_id"] == 21)//reject
+                {
+                    $status = OnlimeRequest::STATUS_REJECT;
+                }elseif($R["state_id"] == 20) // normal close, delivered
+                {
+                    $status = OnlimeRequest::STATUS_DELIVERY;
+                }
+
+                if($status)
+                {
+                    OnlimeRequest::post($onlimeId, $trouble["bill_no"], $status, $comment);
+                }
+            }
+        }
+
         if($trouble['bill_no'] && $trouble["trouble_type"] == "shop_orders")
         {
             header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
@@ -297,8 +323,7 @@ class m_tt extends IModule{
         {
             header('Location: ?module=tt&action=view&id='.$trouble['id']);
         }
-    }
-
+	}
 
     function tt_list_types($fixclient){
         global $db,$design;
@@ -403,7 +428,8 @@ class m_tt extends IModule{
                     "support_welltime" => 256,
                     "shop_orders" => 2,
                     "mounting_orders" => 2,
-                    "order_welltime" => 2
+                    "order_welltime" => 2,
+                    "incomegoods" => 214748364
                     );
             if($folder == 1)
             {
@@ -637,15 +663,12 @@ class m_tt extends IModule{
         $bill = false;
 
 
-// Пока этот блок отключаем, во избежании редиректа. Потом надо добавить филтьр по номеру
-/*
-        if($trouble['bill_no'] && !isset($_GET['bill'])){
-            echo 111;
-            exit();
+        //bill_no - for shop orders,
+        //number - for income goods orders
+        if($trouble['bill_no'] && (!isset($_GET['bill']) && !isset($_GET["number"]))){
             header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
             exit();
         }
-        */
 
         $design->AddMain('tt/trouble.tpl');
         $this->showTimetable();
@@ -1280,9 +1303,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($typePk == 5 || $isAll)
             $a["prospecting"] = "Разведка";
 
-        if($isAll){
-            $a["shop"] = "Заказ";
+        if($typePk == 7 || $isAll)
             $a["incomegoods"] = "Заказ поставщику";
+
+
+        if($isAll){
+            $a["shop"] = "Заказ"; // possible: type_pk == 6
             $a[""] = "";
         }
 
@@ -1423,11 +1449,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
 
     function checkTroubleAccess($trouble = null) {
+
         global $db,$design,$user;
         if (access('tt','admin')) return true;
         if (!access('tt','use')) return false;
         $u = $user->Get('user');
-        if ($trouble['state_id']==2) return false;
+        if (in_array($trouble['state_id'], array(2, 20, 39))) return false;
         if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
         if ($trouble['is_editableByMe']) return true;
         if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;

@@ -22,7 +22,7 @@
 		<tr>
 			<td align="center">{$k}</td>
 			<td align="left">{if isset($1c_lines[$k])}{$1c_lines[$k].articul}{/if}&nbsp;</td>
-			<td align="left">{$l.item}&nbsp;</td>
+			<td align="left">{$l.item}&nbsp;{if $serials && isset($serials[$l.code_1c])}<br>(с/н: {foreach from=$serials[$l.code_1c] item=s name=foreach_ss}{if $smarty.foreach.foreach_ss.iteration > 1},{/if} {$s}{/foreach}){/if}</td>
 			<td align="center">{$l.amount|round:0} шт.</td>
 			<td align="center">{$l.price*1.18|round:2} руб.</td>
 			<td align="center">{if $l.line_nds == 18}{$l.sum*1.18|round:2}{else}{$l.sum|round:2}{/if} руб.</td>
@@ -37,5 +37,13 @@
 	Информация о порядке и сроках возврата товара надлежащего качества предоставлена
 	мне в письменной форме в момент доставки товара в Гарантийном талоне &#8470; {$bill.bill_no}<br /><br />
 	Подпись: ____________________</p>
+
+{if $onlime_order}
+<br>________________________________________________</br>
+<b>Onlime</b>
+Купон: {$onlime_order->coupon}<br>
+Секретный код: {$onlime_order->seccode}<br>
+Проверочный код: {$onlime_order->vercode}
+{/if}
 </body>
 </html>
