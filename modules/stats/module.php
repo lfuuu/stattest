@@ -4046,7 +4046,7 @@ private function report_plusopers__Load($client, $billNo)
 			$a["deliv_type"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and item_id = 'a449a3f7-d918-11e0-bdf8-00155d21fe06'") ? "moskow" : "mkad";
 		}else{//onlime
 			$a["qty"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and
-				item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')");
+				item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711','6d2dfd2a-211e-11e3-95df-00155d881200')");
 			$a["deliv_type"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and item_id = '81d52242-4d6c-11e1-8572-00155d881200'") ? "moskow" : "mkad";
 
 			$address = explode(" ^ ", $a["address"]);
@@ -4114,7 +4114,7 @@ if($client != "nbn")
 				order by s.stage_id desc limit 1) as date_delivered,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
+                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
                         and nl.bill_no = t.bill_no) as count_3,
 
 				(select sum(amount) from newbill_lines nl
@@ -4207,7 +4207,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                     
                     
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
+                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
                         and nl.bill_no = t.bill_no) as count_3,
 
 				(select sum(amount) from newbill_lines nl
