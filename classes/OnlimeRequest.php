@@ -22,7 +22,10 @@ class OnlimeRequest
         }
 
         self::_log($data);
-        $answer = self::_post($data);
+
+        if(!defined("test"))
+            $answer = self::_post($data);
+
         self::_log($answer);
 
         return $answer;
