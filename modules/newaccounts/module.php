@@ -5325,7 +5325,7 @@ $sql .= "    order by client, bill_no";
 
         // каст для БИЛАЙНА
 
-        if($b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0) {
+        if($b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0 && $b->sum > 0) {
             trigger_error("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
             return;
         }elseif($b->is_payed == 0){
