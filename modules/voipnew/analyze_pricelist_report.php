@@ -36,6 +36,7 @@ class m_voipnew_analyze_pricelist_report {
 		
 		$f_country_id = get_param_protected('f_country_id', '0');
 		$f_region_id = get_param_protected('f_region_id', '0');
+        $f_mob = get_param_protected('f_mob', '0');
 		$f_dest_group = get_param_protected('f_dest_group', '-1');
 		$f_onlydiff = get_param_raw('f_onlydiff', '');
 		$f_showdefs = get_param_raw('f_showdefs', '');
@@ -59,8 +60,12 @@ class m_voipnew_analyze_pricelist_report {
 				$where .= " and g.country='{$f_country_id}'";
 			if ($f_region_id != '0')
 				$where .= " and g.region='{$f_region_id}'";
-			
-			//$ext_params = array( array('name' => 'ext1', 'formula'=>'[f1] + [f2]') );
+            if ($f_mob == 't')
+                $where .= " and d.mob=true ";
+            if ($f_mob == 'f')
+                $where .= " and d.mob=false ";
+
+            //$ext_params = array( array('name' => 'ext1', 'formula'=>'[f1] + [f2]') );
 								
 			$ext_params = $pg_db->GetValue("select ext_params from voip.analyze_pricelist_report where id={$report_id}");
 			if ($ext_params == '') $ext_params = array();
@@ -236,6 +241,7 @@ class m_voipnew_analyze_pricelist_report {
 		$design->assign('report_id',$report_id);
 		$design->assign('f_country_id',$f_country_id);
 		$design->assign('f_region_id',$f_region_id);
+        $design->assign('f_mob',$f_mob);
 		$design->assign('f_dest_group',$f_dest_group);
 		$design->assign('f_onlydiff', $f_onlydiff);
 		$design->assign('f_showdefs', $f_showdefs);
