@@ -1,19 +1,20 @@
 <?php
 class m_voipnew_operator_report {
 
-	public function invoke($method, $arguments) {
-		if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $arguments);
-	}
+    public function invoke($method, $arguments) {
+        if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $arguments);
+    }
 
-	function voipnew_operator_report_show(){
-		global $design, $pg_db, $db;
-		if (isset($_GET['id']))$report_id = intval($_GET['id']); else $report_id=0;
+    function voipnew_operator_report_show(){
+        global $design, $pg_db, $db;
+        if (isset($_GET['id']))$report_id = intval($_GET['id']); else $report_id=0;
 
-		set_time_limit(0);
+        set_time_limit(0);
 
-		$f_country_id = get_param_protected('f_country_id', '0');
-		$f_region_id = get_param_protected('f_region_id', '0');
-		$f_dest_group = get_param_protected('f_dest_group', '-1');
+        $f_country_id = get_param_protected('f_country_id', '0');
+        $f_region_id = get_param_protected('f_region_id', '0');
+        $f_dest_group = get_param_protected('f_dest_group', '-1');
+        $f_mob = get_param_protected('f_mob', '0');
     $f_prefix = get_param_raw('f_prefix','');
     $f_volume = get_param_raw('f_volume','');
 
@@ -35,33 +36,38 @@ class m_voipnew_operator_report {
     $totals = array('all'=>array('volume'=>'','amount'=>'','amount_op'=>''));
 
     $report = array();
-		if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])){
+        if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])){
 
       $where = '';
       if ($f_prefix != '')
         $where .= " and r.prefix like '".intval($f_prefix)."%' ";
-			if ($f_dest_group != '-1')
-				$where .= " and g.dest='{$f_dest_group}' ";
-			if ($f_country_id != '0')
-				$where .= " and g.country='{$f_country_id}' ";
-			if ($f_region_id != '0')
-				$where .= " and g.region='{$f_region_id}' ";
+            if ($f_dest_group != '-1')
+                $where .= " and g.dest='{$f_dest_group}' ";
+            if ($f_country_id != '0')
+                $where .= " and g.country='{$f_country_id}' ";
+            if ($f_region_id != '0')
+                $where .= " and g.region='{$f_region_id}' ";
       if ($f_volume != '')
         $where .= " and (v.seconds_op>=".($f_volume*60).")  ";
+        if ($f_mob == 't')
+            $where .= " and d.mob=true ";
+        if ($f_mob == 'f')
+            $where .= " and d.mob=false ";
 
-      $report =   $pg_db->AllRecords("
-										select r.prefix, r.pricelists, r.prices, r.locked, v.seconds_op/60.0 as volume, v.amount_op/100.0 as amount_op,
-										      g.name as destination, d.mob
-										from voip.select_routing_report({$report_id}) r
-												LEFT JOIN voip_destinations d ON r.prefix=d.defcode
-      					        LEFT JOIN geo.geo g ON g.id=d.geo_id
-												LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
-												LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.prefix=r.prefix
-												where true {$where}
-												order by g.name, r.prefix
-										 ");
 
-			foreach($report as $k=>$r){
+            $report =   $pg_db->AllRecords("
+                                        select r.prefix, r.pricelists, r.prices, r.locked, v.seconds_op/60.0 as volume, v.amount_op/100.0 as amount_op,
+                                              g.name as destination, d.mob
+                                        from voip.select_routing_report({$report_id}) r
+                                                LEFT JOIN voip_destinations d ON r.prefix=d.defcode
+                                  LEFT JOIN geo.geo g ON g.id=d.geo_id
+                                                LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
+                                                LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.prefix=r.prefix
+                                                where true {$where}
+                                                order by g.name, r.prefix
+                                         ");
+
+            foreach($report as $k=>$r){
         $r_prices   =   explode(',', substr($r['prices'], 1, strlen($r['prices'])-2));
         $r_pricelists = explode(',', substr($r['pricelists'], 1, strlen($r['pricelists'])-2));
 
@@ -99,8 +105,8 @@ class m_voipnew_operator_report {
         $report[$k]['parts'] = $r_parts;
         $report[$k]['pricelists'] = $r_pricelists;
         $report[$k]['prices'] = $r_prices;
-			}
-		}else{
+            }
+        }else{
       if (!isset($_GET['volume']))
         $f_volume = '0';
     }
@@ -118,7 +124,7 @@ class m_voipnew_operator_report {
     $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
     $regions = $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name");
     $pricelists = $pg_db->AllRecords("select p.id, p.name, o.short_name as operator, 0 as volume, 0 as amount from voip.pricelist p
-						                          left join voip.operator o on p.operator_id=o.id and o.region=p.region ", 'id');
+                                                  left join voip.operator o on p.operator_id=o.id and o.region=p.region ", 'id');
 
     if (!isset($_GET['export']))
     {
@@ -131,6 +137,7 @@ class m_voipnew_operator_report {
       $design->assign('f_volume',$f_volume);
       $design->assign('f_country_id',$f_country_id);
       $design->assign('f_region_id',$f_region_id);
+      $design->assign('f_mob',$f_mob);
       $design->assign('f_dest_group',$f_dest_group);
       $design->assign('geo_countries',$countries);
       $design->assign('geo_regions',$regions);
@@ -170,7 +177,7 @@ class m_voipnew_operator_report {
       echo iconv('koi8-r','windows-1251',ob_get_clean());
       exit;
     }
-	}
+    }
 
 
   public function voipnew_operator_report_list($p){
@@ -186,7 +193,7 @@ class m_voipnew_operator_report {
 
     $pricelists = $pg_db->AllRecords('
             select p.id as pricelist_id, p.operator_id, o.short_name as operator from voip.pricelist p
-						left join voip.operator o on p.operator_id=o.id and o.region=p.region ', 'pricelist_id');
+                        left join voip.operator o on p.operator_id=o.id and o.region=p.region ', 'pricelist_id');
     $design->assign('pricelists',$pricelists);
     $design->AddMain('voipnew/operator_report_list.html');
 

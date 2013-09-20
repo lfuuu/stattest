@@ -422,6 +422,101 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip_form_recognition.tpl');
         $design->AddMain('stats/voip_recognition.tpl');
 	}
+
+    function stats_voip_free_stat($fixclient)
+    {
+        global $db, $pg_db, $design;
+
+        
+        $ns = array();
+        $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
+        $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
+
+        $rangeFrom = get_param_raw("range_from", '74996850000');
+        $rangeTo = get_param_raw("range_to", '74996850199');
+        $group = get_param_raw("group",array_keys($groups));
+        $beauty = get_param_raw("beauty",array_keys($beautys));
+
+        $design->assign("range_from", $rangeFrom);
+        $design->assign("range_to", $rangeTo);
+        $design->assign("group", $group);
+        $design->assign("groups", $groups);
+        $design->assign("beauty", $beauty);
+        $design->assign("beautys", $beautys);
+
+        if(get_param_raw("do",""))
+        {
+
+            $ns = $db->AllRecords($q = "
+            select a.*,c.company, c.client,
+                    
+            if(active_usage_id is not null, 
+                'used', 
+                if(client_id is null, 
+                    'free', 
+                    if(client_id in ('9130', '764'), 
+                        'our', 
+                        if(reserved_free_date is not null,
+                            'reserv',
+                            if(used_until_date < (now() - interval 6 month), 
+                                'free', 
+                                'stop'
+                                )
+                        )
+                      )
+                  )
+              ) as status
+            
+            from (
+            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level,
+
+
+            (select max(actual_to) from usage_voip u where u.e164 = v.number and 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as max_date,
+            
+            (select id from usage_voip u where u.e164 = v.number and 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
+
+             from voip_numbers v where 
+            number between '".$rangeFrom."' and '".$rangeTo."' 
+            )a 
+            left join clients c on (c.id = a.client_id)
+
+            where beauty_level in ('".implode("','", $beauty)."')
+
+            having status in ('".implode("','", $group)."')
+
+            ");
+
+            foreach($ns as &$n)
+            {
+                $n["calls"] = "";
+
+                if($n["status"] == "stop")
+                {
+                    foreach($pg_db->AllRecords("
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, sum(1) as count_calls
+                    from billing.calls_99 
+                    where time between now() - interval '3 month' and now() 
+                    and usage_id is null 
+                    and region=99 
+                    and usage_num = '".$n["number"]."'
+                    group by mnth, mnth_s
+                    order by mnth
+                    ") as $c)
+                    {
+                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
+                    }
+                }
+
+            }
+        }
+
+        $design->assign("ns", $ns);
+        $design->assign("ns_count", count($ns));
+        $design->AddMain("stats/voip_free_stat.htm");
+
+    }
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error('Выберите клиента');return;}
@@ -3939,7 +4034,7 @@ private function report_plusopers__phoneToStr($l)
 {
 	if(strpos($l["phone"], "^") !== false)
 	{
-		list($home, $mob, $work) = explode(" ^ ", $l["phone"]);
+		list($home, $mob, $work) = explode(" ^ ", $l["phone"]." ^  ^  ^ ");
 		$p = array();
 
 		if($home) $p[] = "Домашний: ".$home;
