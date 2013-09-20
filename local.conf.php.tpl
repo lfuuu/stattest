@@ -56,4 +56,9 @@ return array(
     'SYNC1C_UT_PASSWORD'  => '',
     'SYNC1C_STAT_TOKEN'   => '',
 */
+
+/* dir with log files , 
+ (stat.mcn.ru => /var/log/nispd/)
+ */
+    "LOG_DIR" => "/tmp/",
 );

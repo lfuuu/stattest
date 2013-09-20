@@ -1271,13 +1271,29 @@ class SoapHandler{
             if(!$err && $err |= mysql_errno())
                 $err_msg = mysql_error();
 
-            if(isset($add_info_koi8r) && !$comment){
+            if(isset($add_info_koi8r) && (!$comment || $client == "onlime")){
+                $orig_comment = $comment;
+
+                if($client == "onlime")
+                {
+                    $oo = \OnlimeOrder::find_by_external_id($add_info_koi8r["req_no"]);
+                    if($oo)
+                    {
+                        if(isset($oo->coupon) && trim($oo->coupon))
+                        {
+                            $orig_comment .= "<br /><b>Акция!!</b> Купон: ".$oo->coupon." / ".$oo->seccode." / ".$oo->vercode;
+                        }
+                    }
+                }
+
+
                 $comment = "
-                        %s<br />
+                        %s<hr />
                         Телефон: %s<br />
                         Адрес доставки: %s<br />
                         Комментарий1: %s<br />
-                        Комментарий2: %s
+                        Комментарий2: %s<br />
+                        Комментарий к заказу: %s
                         ";
                 $comment = sprintf(
                     $comment,
@@ -1285,7 +1301,8 @@ class SoapHandler{
                     $add_info_koi8r['phone'],
                     $add_info_koi8r['address'],
                     $add_info_koi8r['comment1'],
-                    $add_info_koi8r['comment2']
+                    $add_info_koi8r['comment2'],
+                    $orig_comment
                 );
             }
 

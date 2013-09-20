@@ -21,7 +21,7 @@ class m_services extends IModule{
     function services_in_async($fixclient) {
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest =& new Subsys_JsHttpRequest_Php();
+        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
         $JsHttpRequest->setEncoding("koi8-r");
         $node=get_param_protected('node');
         $port_type=get_param_protected('port_type');
@@ -920,34 +920,6 @@ class m_services extends IModule{
         $design->ProcessEx('../store/acts/voip_act.tpl'); 
     }
 
-    function services_welltime_act($fixclient){
-        global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
-
-        $id=get_param_integer('id',0);
-
-        if(!$id) {trigger_error('Ощибка в данных'); return;}
-
-        $r = $db->GetRow('select * from usage_welltime where (client="'.$fixclient.'") and id ="'.$id.'"');
-
-        $r["login"] = "______________";
-        $r["password"] = "______________";
-
-        //parse login / pass
-        $v = $r["comment"];
-        $v = trim($v);
-
-        if(preg_match_all('/(\S+)/', $v, $o) && count($o[0]) >= 2)
-        { 
-            $r["login"] = $o[0][0];
-            $r["password"] = $o[0][count($o[0])-1];
-        }
-
-
-        $design->assign('d',$r);
-                
-        $design->ProcessEx('services/welltime_act.tpl'); 
-    }
 
     function services_in_dev_act($fixclient){
         global $design,$db;
@@ -1601,7 +1573,7 @@ class m_services extends IModule{
     function services_ex_async($fixclient) {
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest =& new Subsys_JsHttpRequest_Php();
+        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
         $JsHttpRequest->setEncoding("koi8-r");
         $id=get_param_integer('id');
         $tarif_table = get_param_protected('tarif_table', 'extra');
@@ -1839,8 +1811,8 @@ class m_services extends IModule{
         $R=array();
         $db->Query($q='
             SELECT
-                S.*,
                 T.*,
+                S.*,
                 S.id as id,
                 sp.name as server_pbx,
                 IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
@@ -1891,6 +1863,35 @@ class m_services extends IModule{
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Редактировать дополнительную услугу');
+    }
+
+    function services_virtpbx_act($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+
+        $id=get_param_integer('id',0);
+
+        if(!$id) {trigger_error('Ошибка в данных'); return;}
+
+        $r = $db->GetRow('select * from usage_virtpbx where (client="'.$fixclient.'") and id ="'.$id.'"');
+
+        $r["login"] = "______________";
+        $r["password"] = "______________";
+
+        //parse login / pass
+        $v = $r["comment"];
+        $v = trim($v);
+
+        if(preg_match_all('/(\S+)/', $v, $o) && count($o[0]) >= 2)
+        { 
+            $r["login"] = $o[0][0];
+            $r["password"] = $o[0][count($o[0])-1];
+        }
+
+
+        $design->assign('d',$r);
+                
+        $design->ProcessEx('services/virtpbx_act.tpl'); 
     }
 // =========================================================================================================================================
     function services_welltime_view($fixclient){
@@ -2649,7 +2650,7 @@ class voipRegion
 
         $result = pg_query(
                 $q = "SELECT distinct callerid, name
-                FROM ".($region == 99 || $region == 97? "sip_users" : "sipdevices")." WHERE client='".$client."'
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."'
                 ORDER BY callerid");
 
         $e164s = array();
@@ -2731,7 +2732,7 @@ class voipRegion
         $result = pg_query(
                 $q = "SELECT *,name, callerid, permit, deny, secret, 
                 ".($region == 99  ? "":"'reg".$region."' as ")." ippbx
-                FROM ".($region == 99 || $region == 97? "sip_users" : "sipdevices")." 
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." 
                 WHERE client = '".$client."' 
                 and (
                     ".($callerids ? "callerid in ('".implode("','", $callerids)."')" : "").
@@ -2788,7 +2789,8 @@ class voipRegion
         {
             $conn = pg_connect($q = "host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS);
         }else{
-            $conn = pg_connect($q = "host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=voipdb user=".R_CALLS_USER." password=".R_CALLS_PASS);
+            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $conn = pg_connect($q = "host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
         }
     }
 }

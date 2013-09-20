@@ -10,7 +10,7 @@
 		<option value="xls_mtt_full">МТТ (Полный)</option>
 		{elseif $pricelist.operator_id == '7'}
 		<option value="xls_orange_full">Orange (Полный)</option>
-		{elseif $pricelist.operator_id == '999'}
+		{else}{*if $pricelist.operator_id == '999'*}
 		<option value="xls_mcn_prime_full">ЭмСиЭн Прайм (Полный)</option>
 		<option value="xls_mcn_prime_changes">ЭмСиЭн Прайм  (Изменения)</option>
 		{/if}

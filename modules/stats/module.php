@@ -422,6 +422,101 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip_form_recognition.tpl');
         $design->AddMain('stats/voip_recognition.tpl');
 	}
+
+    function stats_voip_free_stat($fixclient)
+    {
+        global $db, $pg_db, $design;
+
+        
+        $ns = array();
+        $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
+        $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
+
+        $rangeFrom = get_param_raw("range_from", '74996850000');
+        $rangeTo = get_param_raw("range_to", '74996850199');
+        $group = get_param_raw("group",array_keys($groups));
+        $beauty = get_param_raw("beauty",array_keys($beautys));
+
+        $design->assign("range_from", $rangeFrom);
+        $design->assign("range_to", $rangeTo);
+        $design->assign("group", $group);
+        $design->assign("groups", $groups);
+        $design->assign("beauty", $beauty);
+        $design->assign("beautys", $beautys);
+
+        if(get_param_raw("do",""))
+        {
+
+            $ns = $db->AllRecords($q = "
+            select a.*,c.company, c.client,
+                    
+            if(active_usage_id is not null, 
+                'used', 
+                if(client_id is null, 
+                    'free', 
+                    if(client_id in ('9130', '764'), 
+                        'our', 
+                        if(reserved_free_date is not null,
+                            'reserv',
+                            if(used_until_date < (now() - interval 6 month), 
+                                'free', 
+                                'stop'
+                                )
+                        )
+                      )
+                  )
+              ) as status
+            
+            from (
+            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level,
+
+
+            (select max(actual_to) from usage_voip u where u.e164 = v.number and 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as max_date,
+            
+            (select id from usage_voip u where u.e164 = v.number and 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
+
+             from voip_numbers v where 
+            number between '".$rangeFrom."' and '".$rangeTo."' 
+            )a 
+            left join clients c on (c.id = a.client_id)
+
+            where beauty_level in ('".implode("','", $beauty)."')
+
+            having status in ('".implode("','", $group)."')
+
+            ");
+
+            foreach($ns as &$n)
+            {
+                $n["calls"] = "";
+
+                if($n["status"] == "stop")
+                {
+                    foreach($pg_db->AllRecords("
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, sum(1) as count_calls
+                    from billing.calls_99 
+                    where time between now() - interval '3 month' and now() 
+                    and usage_id is null 
+                    and region=99 
+                    and usage_num = '".$n["number"]."'
+                    group by mnth, mnth_s
+                    order by mnth
+                    ") as $c)
+                    {
+                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
+                    }
+                }
+
+            }
+        }
+
+        $design->assign("ns", $ns);
+        $design->assign("ns_count", count($ns));
+        $design->AddMain("stats/voip_free_stat.htm");
+
+    }
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error('Выберите клиента');return;}
@@ -3749,8 +3844,11 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     	$d1Default = date("Y-m-01");
     	$d2Default = date("Y-m-d", strtotime("+1 month -1 day", strtotime(date("Y-m-01"))));
 
+        $filterPromoAll = array("all"=> "Все", "promo" => "По акции", "no_promo" => "Не по акции");
+
     	$d1 = get_param_raw("date_from", $d1Default);
     	$d2 = get_param_raw("date_to", $d2Default);
+    	$filterPromo = get_param_raw("filter_promo", "all");
 
     	if(!strtotime($d1) || !strtotime($d2))
     	{
@@ -3760,6 +3858,8 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
         $design->assign("date_from", $d1);
         $design->assign("date_to", $d2);
+        $design->assign("filter_promo_all", $filterPromoAll);
+        $design->assign("filter_promo", $filterPromo);
     }
 
     $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
@@ -3768,15 +3868,15 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if($client == "onlime_all")
     {
-        list($r1, $closeList1, $deliveryList1) = $this->report_plusopers__getCount("onlime", $d1, $d2);
-        list($r2, $closeList2, $deliveryList2) = $this->report_plusopers__getCount("onlime2", $d1, $d2);
+        list($r1, $closeList1, $deliveryList1) = $this->report_plusopers__getCount("onlime", $d1, $d2, $filterPromo);
+        list($r2, $closeList2, $deliveryList2) = $this->report_plusopers__getCount("onlime2", $d1, $d2, $filterPromo);
 
         foreach($r1 as $k => $v) $r2[$k]+= $v;
 
         $r = $r2;
 
     }else{
-        list($r, $closeList, $deliveryList) = $this->report_plusopers__getCount($client, $d1, $d2);
+        list($r, $closeList, $deliveryList) = $this->report_plusopers__getCount($client, $d1, $d2, $filterPromo);
     }
 
 
@@ -3790,12 +3890,12 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     {
         if($client == "onlime_all")
         {
-            $list1 = $this->report_plusopers__getList("onlime", $listType, $d1, $d2, $deliveryList1, $closeList1);
-            $list2 = $this->report_plusopers__getList("onlime2", $listType, $d1, $d2, $deliveryList2, $closeList2);
+            $list1 = $this->report_plusopers__getList("onlime", $listType, $d1, $d2, $deliveryList1, $closeList1, $filterPromo);
+            $list2 = $this->report_plusopers__getList("onlime2", $listType, $d1, $d2, $deliveryList2, $closeList2, $filterPromo);
 
             $list = array_merge($list1, $list2);
         }else{
-            $list = $this->report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList);
+            $list = $this->report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList, $filterPromo);
         }
     }
 
@@ -3818,7 +3918,11 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 	{
 		foreach($list as  &$l)
 		{
+      $l["count_3"] = (int)$l["count_3"];
+      $l["count_9"] = (int)$l["count_9"];
+      $l["count_11"] = (int)$l["count_11"];
 			$design->assign("i_stages", $l["stages"]);
+			$design->assign("last", 1000);
 			$html = $design->fetch("stats/onlime_stage.tpl");
 			$html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
 			$l["stages_text"] = strip_tags($html);
@@ -3830,7 +3934,10 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                 "Оператор" => "fio_oper",
                 "Номер счета" => "bill_no",
                 "Дата создания заказа" => "date_creation",
-                "Кол-во Onlime-Telecard" => "count_cards",
+                "Кол-во Onlime-Telecard" => "count_3",
+                "Кол-во HD-ресивер OnLime" => "count_9",
+                "Кол-во HD-ресивер с диском" => "count_11",
+                "Серийные номера" => "serials",
                 "ФИО клиента" => "fio",
                 "Телефон клиента" => "phone",
                 "Адрес" => "address",
@@ -3927,7 +4034,7 @@ private function report_plusopers__phoneToStr($l)
 {
 	if(strpos($l["phone"], "^") !== false)
 	{
-		list($home, $mob, $work) = explode(" ^ ", $l["phone"]);
+		list($home, $mob, $work) = explode(" ^ ", $l["phone"]." ^  ^  ^ ");
 		$p = array();
 
 		if($home) $p[] = "Домашний: ".$home;
@@ -4039,7 +4146,7 @@ private function report_plusopers__Load($client, $billNo)
 			$a["deliv_type"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and item_id = 'a449a3f7-d918-11e0-bdf8-00155d21fe06'") ? "moskow" : "mkad";
 		}else{//onlime
 			$a["qty"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and
-				item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')");
+				item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711','6d2dfd2a-211e-11e3-95df-00155d881200')");
 			$a["deliv_type"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and item_id = '81d52242-4d6c-11e1-8572-00155d881200'") ? "moskow" : "mkad";
 
 			$address = explode(" ^ ", $a["address"]);
@@ -4056,10 +4163,9 @@ private function report_plusopers__Load($client, $billNo)
 	return $a;
 }
 
-private function report_plusopers__getCount($client, $d1, $d2)
+private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
 {
     global $db;
-
 
 
     $deliveryList = $db->AllRecords($sql = "
@@ -4107,8 +4213,19 @@ if($client != "nbn")
 				order by s.stage_id desc limit 1) as date_delivered,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
-                        and nl.bill_no = t.bill_no) as count_cards,
+                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_3,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '4acdb33c-0319-11e2-9c41-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_9,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '72904487-32f6-11e2-9369-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_11,
+
+        (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+
                 a.comment1 as date_deliv,
                 a.comment2 as fio_oper
 
@@ -4145,9 +4262,9 @@ if($client != "nbn")
 
     if($client != "nbn")
     {
-        $closeCount = 0;
-        foreach($closeList as $l) $closeCount += $l["count_cards"];
-    	$r["close"] = $closeCount;
+      //$closeCount = 0;
+      //foreach($closeList as $l) $closeCount += $l["count_cards"];
+      $r["close"] = count($closeList);//$closeCount;
     }
     return array($r, $closeList, $deliveryList);
 }
@@ -4185,9 +4302,23 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             t.id as trouble_id, t.bill_no, t.problem,
                             req_no, fio, phone, address, date_creation
                             ".($client != "nbn" ?
-                    ", (select sum(amount) from newbill_lines nl
-                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
-                        and nl.bill_no = t.bill_no) as count_cards,
+                    ", 
+                    
+                    
+				(select sum(amount) from newbill_lines nl
+                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_3,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '4acdb33c-0319-11e2-9c41-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_9,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id = '72904487-32f6-11e2-9369-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_11,
+
+        (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+
                             (select date_start from tt_stages s, tt_doers d where s.stage_id = d.stage_id and s.trouble_id = t.id order by s.stage_id desc limit 1) as date_delivered,
                             i.comment1 as date_deliv,
                             i.comment2 as fio_oper

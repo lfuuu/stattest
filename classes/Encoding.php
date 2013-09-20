@@ -30,12 +30,12 @@ class Encoding {
 	public static function toKoi8r($data)
 	{
 		if (is_string($data)) {
-			return iconv('utf-8', 'koi8-r//ignore', $data);
+			return iconv('utf-8', 'koi8-r//TRANSLIT', $data);
 		} elseif (is_array($data)) {
 			$translated = array();
 			foreach ($data as $k => $v) {
 				if (is_string($k)) {
-					$k = iconv('utf-8', 'koi8-r//ignore', $k);
+					$k = iconv('utf-8', 'koi8-r//TRANSLIT', $k);
 				}
 				$translated[$k] = self::toKoi8r($v);
 			}
@@ -43,7 +43,7 @@ class Encoding {
 		} elseif ($data instanceof stdClass) {
 			$translated = array();
 			foreach ((array)$data as $k => $v) {
-				$k = iconv('utf-8', 'koi8-r//ignore', $k);
+				$k = iconv('utf-8', 'koi8-r//TRANSLIT', $k);
 				$translated[$k] = self::toKoi8r($v);
 			}
 			return (object)$translated;

@@ -18,16 +18,20 @@
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
+          <TD class=header vAlign=bottom>#</TD>
           <TD class=header vAlign=bottom>Дата/время</TD>
           <TD class=header vAlign=bottom>Тип документа</TD>
           <TD class=header vAlign=bottom>Номер</TD>
+          <TD class=header vAlign=bottom>Префикс</TD>
         </TR>
 
 {foreach from=$data item=i key=key name=outer}
 	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
+    <TD>{$i.idx}.</TD>
     <TD>{$i.ts}</TD>
     <TD>{$i.type}</TD>
     <TD><b><a href="./?module=newaccounts&action=doc_file&id={$i.id}" target=_blank>{$i.number}</a></b></TD>
+    <TD>{$i.prefix}</TD>
 	</TR>
 {/foreach}
 </TBODY></TABLE>

@@ -1,7 +1,8 @@
 <?
 //error_reporting (E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE | E_ERROR | E_WARNING | E_ALL );
 //error_reporting (E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE | E_ERROR | E_WARNING | E_NOTICE | E_PARSE);
-error_reporting (E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_WARNING);
+#error_reporting (E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_WARNING);
+error_reporting (E_ALL);
 
 function error_init(){
 	global $G;
