@@ -33,10 +33,10 @@ class Sync1CHelper
 
 
 
-	public function throw1CException($e)
-	{
-		$messages = explode("|||",Encoding::toKoi8r($e->getMessage()));
-		throw new Sync1CException(count($messages) > 1 ? $messages[1] : $messages[0]);
-	}
+    public function throw1CException($e)
+    {
+        $messages = explode("|||",Encoding::toKoi8r($e->getMessage()));
+        throw new Sync1CException(count($messages) > 1 ? $messages[1] : $messages[0]);
+    }
 
 }

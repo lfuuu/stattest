@@ -127,6 +127,12 @@ td.lock_default {
 	{/foreach}
 	</select>
 
+    <select name="f_mob">
+        <option value="0">-- Моб/Стац --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+    </select>
+
   <input type="checkbox" name="f_locks" {if $f_locks != ''} checked{/if}>Блокировки
   <br/>
   <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>

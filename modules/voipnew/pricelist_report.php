@@ -17,6 +17,7 @@ class m_voipnew_pricelist_report {
 
     $f_country_id = get_param_protected('f_country_id', '0');
     $f_region_id = get_param_protected('f_region_id', '0');
+    $f_mob = get_param_protected('f_mob', '0');
     $f_dest_group = get_param_protected('f_dest_group', '-1');
     $f_locks = get_param_raw('f_locks', '');
     $f_prefix = get_param_raw('f_prefix','');
@@ -41,8 +42,13 @@ class m_voipnew_pricelist_report {
         $where .= " and g.region='{$f_region_id}' ";
       if ($f_locks != '')
         $where .= " and (r.locked=true or r.locked_raw is not null)  ";
+        if ($f_mob == 't')
+            $where .= " and d.mob=true ";
+        if ($f_mob == 'f')
+            $where .= " and d.mob=false ";
 
-      $report =   $pg_db->AllRecords("
+
+        $report =   $pg_db->AllRecords("
 										select r.prefix, r.op_pricelists as pricelists, r.op_prices as prices,
 										      g.name as destination, d.mob
 										from voip.prepare_pricelist_report({$report_id}) r
@@ -81,6 +87,7 @@ class m_voipnew_pricelist_report {
     $design->assign('f_prefix',$f_prefix);
     $design->assign('f_country_id',$f_country_id);
     $design->assign('f_region_id',$f_region_id);
+    $design->assign('f_mob',$f_mob);
     $design->assign('f_dest_group',$f_dest_group);
     $design->assign('f_locks', $f_locks);
     $design->assign('geo_countries',$countries);
