@@ -29,7 +29,7 @@ class m_voipnew_analyze_pricelist_report {
 	}
 
 	function voipnew_analyze_pricelist_report_show(){
-		global $design, $pg_db;
+		global $design, $db, $pg_db;
 		if (isset($_GET['id']))$report_id = intval($_GET['id']); else $report_id=0;
 		
 		set_time_limit(0);
@@ -43,7 +43,7 @@ class m_voipnew_analyze_pricelist_report {
     $f_short = get_param_raw('f_short', '');
 
     $rep = $pg_db->GetRow("select * from voip.analyze_pricelist_report where id={$report_id}");
-    $volume = $pg_db->GetRow("SELECT * FROM voip.volume_calc_task WHERE id=".intval($rep['volume_calc_task_id']));
+    $volume = $pg_db->GetRow("SELECT * FROM voip.volume_calc_task t WHERE id=".intval($rep['volume_calc_task_id']));
     if (isset($volume['id']))
       $volume_task_id = $volume['id'];
     else
@@ -80,7 +80,7 @@ class m_voipnew_analyze_pricelist_report {
 												LEFT JOIN voip_destinations d ON r.ndef=d.ndef
       					        LEFT JOIN geo.geo g ON g.id=d.geo_id
 												LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
-												LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.prefix=d.defcode
+												LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.operator_id=0 and v.prefix=d.defcode
 												where r.report_id={$report_id} {$where}
 												order by r.report_id, r.position, r.param, g.name, d.defcode
 										 ");
@@ -122,7 +122,7 @@ class m_voipnew_analyze_pricelist_report {
 		$m = explode('-', $rep['volumes_date_to']); if (count($m)==3) $rep['volumes_date_to'] = $m[2].'.'.$m[1].'.'.$m[0];
 		
 		$countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
-		$regions = $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name");
+		$geo_regions = $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name");
 		$pricelists = $pg_db->AllRecords("select * from voip.pricelist", 'id');
 
 		if (isset($_GET['export'])){
@@ -135,7 +135,7 @@ class m_voipnew_analyze_pricelist_report {
 		}
 
         if ($f_short != ''){
-            $dest=''; $destination=''; $ismob=''; $price='';$volume=0;
+            $dest=''; $destination=''; $ismob=''; $price='';
 
             $resgroups = array();
             $resgroup = array();
@@ -159,7 +159,6 @@ class m_voipnew_analyze_pricelist_report {
                         if (isset($part['d1']['price'])) $price .= $part['d1']['price'];
                         if (isset($part['d2']['price'])) $price .= $part['d2']['price'];
                     }
-                    $volume=0;
 
                     if (count($resgroup) > 0){
                         $resgroups[] = $resgroup;
@@ -247,7 +246,8 @@ class m_voipnew_analyze_pricelist_report {
 		$design->assign('f_showdefs', $f_showdefs);
         $design->assign('f_short', $f_short);
 		$design->assign('countries',$countries);
-		$design->assign('regions',$regions);
+		$design->assign('geo_regions',$geo_regions);
+        $design->assign('regions',$db->AllRecords('select id, name from regions', 'id'));
 		$design->assign('pricelists',$pricelists);
 		
 		if (!isset($_GET['export'])){

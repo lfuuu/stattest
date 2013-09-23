@@ -70,7 +70,7 @@ class m_voipnew_routing_report {
                                                     LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                                       LEFT JOIN geo.geo g ON g.id=d.geo_id
                                                     LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
-                                                    LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.prefix=r.prefix
+                                                    LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.operator_id=0 and v.prefix=r.prefix
                                                     where true {$where}
                                                     order by g.name, r.prefix
                                              ");
