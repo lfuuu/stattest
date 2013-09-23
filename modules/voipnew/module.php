@@ -1575,7 +1575,7 @@ class m_voipnew extends IModule
                     from billing.instance_settings i
                     left join geo.region r on r.id::varchar = ANY(i.region_id)
                     order by i.id desc, r.name asc ";
-        foreach($pg_db->AllRecords($query) as $r) {
+        foreach ($pg_db->AllRecords($query) as $r) {
             if (!isset($instances[$r['id']])) {
                 $r['city_prefix'] = str_replace('{', '', $r['city_prefix']);
                 $r['city_prefix'] = str_replace('}', '', $r['city_prefix']);
