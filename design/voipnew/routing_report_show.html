@@ -9,7 +9,7 @@
 
 <p>
   {if $volume.calc_date}
-  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id].name}{else}Все регионы{/if})
   {if $volume.need_recalc == 't'}
   <b>(требуется пересчет)</b>
   {/if}
@@ -126,6 +126,12 @@ td.lock_default {
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
+
+    <select name="f_mob">
+        <option value="0">-- Моб/Стац --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+    </select>
 
   <input type="checkbox" name="f_locks" {if $f_locks != ''} checked{/if}>Блокировки
   <br/>

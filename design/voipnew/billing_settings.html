@@ -1,0 +1,13 @@
+<p><b>Инстансы:</b></p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr><td class=header>id</td><td class=header>Регионы</td><td class=header>Префиксы городов</td></tr>
+    {foreach from=$instances item='r'}
+    <tr class="{cycle values='even,odd'}"><td>{$r.id}</td>
+        <td>
+            {foreach from=$r.regions item='region_name'}
+                {$region_name}<br/>
+            {/foreach}
+        </td>
+        <td>{$r.city_prefix}</td></tr>
+    {/foreach}
+</table>

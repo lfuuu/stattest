@@ -15,11 +15,11 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 		array('stores', 'class_name' => 'GoodsIncomeStore', 'foreign_key' => 'order_id'),
 	);
 
-	const STATUS_NOT_AGREED	= 'Не согласован';
-	const STATUS_AGREED		= 'Согласован';
-	const STATUS_CONFIRMED	= 'Подтвержден';
-	const STATUS_ENTERING	= 'К поступлению';
-	const STATUS_CLOSED		= 'Закрыт';
+    const STATUS_NOT_AGREED    = 'Не согласован';
+    const STATUS_AGREED        = 'Согласован';
+    const STATUS_CONFIRMED    = 'Подтвержден';
+    const STATUS_ENTERING    = 'К поступлению';
+    const STATUS_CLOSED        = 'Закрыт';
 
 	const STATUS_STAT_ENTERING	= 'Поступление';
 	const STATUS_STAT_CLOSED	= 'Закрыт';
@@ -32,7 +32,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 		self::STATUS_CLOSED		=> 'Закрыт',
 	);
 
-	static $before_save = array('calculate_ready');
+    static $before_save = array('calculate_ready');
 
     public function getOrder($orderNumber, $clientId = false)
     {
