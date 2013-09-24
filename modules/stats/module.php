@@ -3650,6 +3650,7 @@ function stats_support_efficiency($fixclient)
             "usage_voip" => "Телефония",
             "usage_welltime" => "Welltime"
             );
+    $usage = array_keys($usages);
 
 
     $dateFrom = strtotime(date("Y-m-01", time()));
@@ -3665,7 +3666,7 @@ function stats_support_efficiency($fixclient)
 
         $dateFrom = get_param_raw('date_from', $dateFrom);
         $dateTo = get_param_raw('date_to', $dateTo);
-        $usage = get_param_raw("usage", array_keys($usages));
+        $usage = get_param_raw("usage", $usage);
 
         $date = $dateFrom == $dateTo ? 'за '.$dateFrom : 'с '.$dateFrom.' по '.$dateTo;
 
