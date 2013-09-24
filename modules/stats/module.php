@@ -3844,7 +3844,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     	$d1Default = date("Y-m-01");
     	$d2Default = date("Y-m-d", strtotime("+1 month -1 day", strtotime(date("Y-m-01"))));
 
-        $filterPromoAll = array("all"=> "Все", "promo" => "По акции", "no_promo" => "Не по акции");
+        $filterPromoAll = array("all"=> "Все заявки", "promo" => "По акции", "no_promo" => "Не по акции");
 
     	$d1 = get_param_raw("date_from", $d1Default);
     	$d2 = get_param_raw("date_to", $d2Default);
@@ -4202,9 +4202,6 @@ private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
                     and s2.state_id in (2,20)
                 ");
 
-
-if($client != "nbn")
-{
     $addWhere = "";
     $addJoin = "";
 
@@ -4218,7 +4215,8 @@ if($client != "nbn")
         $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
     }
 
-
+if($client != "nbn")
+{
 	$closeList = $db->AllRecords("
 		select t.id as trouble_id, req_no, fio, phone, address, t.bill_no, date_creation,
 
@@ -4272,11 +4270,13 @@ if($client != "nbn")
                     count(1)                                   as count
                 FROM
                     `tt_troubles` t, tt_stages s, newbills b
+                    ".$addJoin."
                 where
                         t.client = '".$client."'
                     and b.bill_no = t.bill_no
                     and s.stage_id = t.cur_stage_id
-                    and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'")+array("delivery" => count($deliveryList));
+                    and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'
+                    ".$addWhere)+array("delivery" => count($deliveryList));
 
     if($client != "nbn")
     {
