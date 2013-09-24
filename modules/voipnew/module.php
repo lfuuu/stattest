@@ -1462,14 +1462,26 @@ class m_voipnew extends IModule
 
     public function voipnew_calc_volume()
     {
-        global $pg_db, $design;
+        global $db, $pg_db, $design;
 
         $report_type = get_param_protected('report_type');
         $report_id = get_param_integer('report_id');
+        $region_id = get_param_integer('region_id', 0);
+        if ($region_id <= 0) $region_id = null;
         $volume = $pg_db->GetRow("select * from voip.volume_calc_task where report_type='$report_type' and report_id='$report_id'");
 
+
         if ($volume && $volume['calc_running'] != 't' && isset($_POST['calc'])) {
-            $pg_db->QueryUpdate('voip.volume_calc_task', 'id', array('id' => $volume['id'], 'calc_running' => true, 'date_from' => $_POST['volume_date_from'], 'date_to' => $_POST['volume_date_to']));
+            $pg_db->QueryUpdate(
+                'voip.volume_calc_task', 'id',
+                array(
+                    'id' => $volume['id'],
+                    'calc_running' => true,
+                    'date_from' => $_POST['volume_date_from'],
+                    'date_to' => $_POST['volume_date_to'],
+                    'region_id' => $region_id,
+                )
+            );
             if ($pg_db->mError) die($pg_db->mError);
             set_time_limit(60 * 30);
             session_write_close();
@@ -1483,9 +1495,23 @@ class m_voipnew extends IModule
         if (!$volume) {
             if ($report_type == 'routing') {
                 if ($pg_db->GetRow("select * from voip.routing_report where id='$report_id'")) {
-                    $volume_id = $pg_db->QueryInsert('voip.volume_calc_task', array('report_type' => $report_type, 'report_id' => $report_id));
+                    $volume_id =
+                        $pg_db->QueryInsert(
+                            'voip.volume_calc_task',
+                            array(
+                                'report_type' => $report_type,
+                                'report_id' => $report_id,
+                                'region_id' => $region_id,
+                            )
+                        );
                     if ($pg_db->mError) die($pg_db->mError);
-                    $pg_db->QueryUpdate('voip.routing_report', 'id', array('id' => $report_id, 'volume_calc_task_id' => $volume_id));
+                    $pg_db->QueryUpdate(
+                        'voip.routing_report', 'id',
+                        array(
+                            'id' => $report_id,
+                            'volume_calc_task_id' => $volume_id,
+                        )
+                    );
                     if ($pg_db->mError) die($pg_db->mError);
                 }
             } elseif ($report_type == 'analyze_pricelist') {
@@ -1505,6 +1531,7 @@ class m_voipnew extends IModule
         if (!$volume) die('volume calc task not found');
 
         $design->assign('volume', $volume);
+        $design->assign('regions', $db->AllRecords("select id, name from regions order by id desc"));
         $design->AddMain('voipnew/calc_volume.html');
 
     }
@@ -1548,7 +1575,7 @@ class m_voipnew extends IModule
                     from billing.instance_settings i
                     left join geo.region r on r.id::varchar = ANY(i.region_id)
                     order by i.id desc, r.name asc ";
-        foreach($pg_db->AllRecords($query) as $r) {
+        foreach ($pg_db->AllRecords($query) as $r) {
             if (!isset($instances[$r['id']])) {
                 $r['city_prefix'] = str_replace('{', '', $r['city_prefix']);
                 $r['city_prefix'] = str_replace('}', '', $r['city_prefix']);

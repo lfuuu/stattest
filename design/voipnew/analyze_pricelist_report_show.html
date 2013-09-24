@@ -4,7 +4,7 @@
 
 <p>
   {if $volume.calc_date}
-  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id].name}{else}Все регионы{/if})
   {if $volume.need_recalc == 't'}
   <b>(требуется пересчет)</b>
   {/if}
@@ -36,7 +36,7 @@
 	</select>
 	<select name="f_region_id">
 	<option value="0">-- Все регионы --</option>
-	{foreach from=$regions item='g'}
+	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>

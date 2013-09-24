@@ -9,7 +9,7 @@
 
 <p>
   {if $volume.calc_date}
-  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}  ({if $volume.region_id}{$regions[$volume.region_id].name}{else}Все регионы{/if})
   {if $volume.need_recalc == 't'}
   <b>(требуется пересчет)</b>
   {/if}
@@ -86,7 +86,7 @@ tr.lock td {
   <td class=header style="min-width: 100px;">Назначение</td>
   <td nowrap colspan="3" class=header align=center style="text-align: center">Итого<br/>Факт. Стоимость / Объем / Стоимость</td>
   {foreach from=$rep.pricelists item='p'}
-    <td nowrap colspan="2" class=header align=center style="text-align: center">{$pricelists[$p].operator}<br/>Цена / Стоимость</td>
+    <td nowrap colspan="3" class=header align=center style="text-align: center">{$pricelists[$p].operator}<br/>Цена / Объем / Стоимость</td>
 	{/foreach}
 </tr>
 
@@ -100,6 +100,7 @@ tr.lock td {
   <td nowrap align=center style="min-width: 50px;">{$rd.parts[$best_p].amount}</td>
   {foreach from=$rep.pricelists item='p'}
   	<td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$p].price}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$p].volume}</td>
     <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$p].amount}</td>
 	{/foreach}
 </tr>
@@ -112,6 +113,7 @@ tr.lock td {
   <td nowrap align=center><b>{$totals.all.volume}</b> м.</td>
   <td nowrap align=center><b>{$totals.all.amount}</b> р.</td>
   {foreach from=$rep.pricelists item='p'}
+  <td nowrap align=center>&nbsp;</td>
   <td nowrap align=center><b>{$totals[$p].volume}</b> м.</td>
   <td nowrap align=center><b>{$totals[$p].amount}</b> р.</td>
   {/foreach}

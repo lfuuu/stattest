@@ -26,6 +26,12 @@
   <input type="hidden" name="calc" value="run" />
   C <input id=volume_date_from name=volume_date_from readonly type=text value="{$volume.date_from}"/>
   По <input id=volume_date_to name=volume_date_to readonly type=text value="{$volume.date_to}"/>
+    <select name="region_id">
+        <option value="0">-- Все регионы --</option>
+        {foreach from=$regions item='g'}
+        <option value="{$g.id}" {if $g.id eq $volume.region_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
   <button>Запустить расчет</button>
 </form>
 {/if}
