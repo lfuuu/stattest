@@ -1,3 +1,7 @@
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
+<link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
+
 <h2>Отчет по ТехПоддержке{if $date} {$date}{/if}</h2>
 <style>
 {literal}
@@ -9,25 +13,70 @@ font-weight: bold;
 text-align: center;
 {/literal}
 </style>
+
 <form action="" method=get>
 	<input type="hidden" name="module" value="stats" />
 	<input type="hidden" name="action" value="support_efficiency" />
 	<table>
 		<tr>
 			<td>С</td>
-			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$d_from_y}</select></td>
-			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$d_from_m}</select></td>
-			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$d_from_d}</select></td>
+			<td><input type=text name="date_from" value="{$date_from}" id="date_from"></td>
 			<td>&nbsp;</td>
 			<td>по</td>
-			<td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$d_to_y}</select></td>
-			<td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$d_to_m}</select></td>
-			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$d_to_d}</select></td>
+			<td><input type=text name="date_to" value="{$date_to}" id="date_to"></td>
             <td><input type=submit value="OK" name="make_report"></td>
 		</tr>
+        <tr>
+            <td colspan=2>Услуги в траблах:</td>
+            <td colspan=4>{html_checkboxes name=usage options=$usages selected=$usages_selected separator="<br>"}</td>
+        </tr>
     </table>
-    
-    </form>
+</form>
+
+<script>
+{literal}
+
+$('#date_from').datepicker({
+    dateFormat: 'yy-mm-dd',
+    onClose: function(dateText, inst) {
+        var endDateTextBox = $('#date_to');
+        if (endDateTextBox.val() != '') {
+            var testStartDate = new Date(dateText);
+            var testEndDate = new Date(endDateTextBox.val());
+            if (testStartDate > testEndDate)
+            endDateTextBox.val(dateText);
+        } else {
+            endDateTextBox.val(dateText);
+        }
+    },
+    onSelect: function (selectedDateTime){
+        var start = $(this).datepicker('getDate');
+        $('#date_to').datepicker('option', 'minDate', new Date(start.getTime()));
+    }
+});
+
+$('#date_to').datepicker({
+    dateFormat: 'yy-mm-dd',
+    onClose: function(dateText, inst) {
+        var startDateTextBox = $('#date_from');
+        if (startDateTextBox.val() != '') {
+            var testStartDate = new Date(startDateTextBox.val());
+            var testEndDate = new Date(dateText);
+            if (testStartDate > testEndDate)
+                startDateTextBox.val(dateText);
+        } else {
+            startDateTextBox.val(dateText);
+        }
+    },
+    onSelect: function (selectedDateTime){
+        var end = $(this).datepicker('getDate');
+        $('#date_from').datepicker('option', 'maxDate', new Date(end.getTime()) );
+    }
+});
+
+{/literal}
+
+</script>
 
 <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
 <tr id="tr_head">

@@ -3627,42 +3627,51 @@ function stats_courier_sms($fixclient, $genReport = false){
         $design->AddMain("stats/courier_sms.html");
     }
 }
-function stats_support_efficiency($fixclient){
+
+function stats_support_efficiency($fixclient)
+{
     global $db,$design;
 
     $m = array();
     $total = array(
-        "monitoring" => 0, 
-        "trouble" => 0, 
+        "monitoring"   => 0, 
+        "trouble"      => 0, 
         "consultation" => 0,
-        "task" => 0);
+        "task"         => 0
+        );
+
     $date = "";
+
+    $usages = array(
+            "" => "Без услуги",
+            "usage_extra" => "Доп услуги",
+            "usage_ip_ports" => "Интернет",
+            "usage_virtpbx" => "Виртуальная АТС",
+            "usage_voip" => "Телефония",
+            "usage_welltime" => "Welltime"
+            );
+
+
+    $dateFrom = strtotime(date("Y-m-01", time()));
+    $dateTo = strtotime("+1 month -1 day", $dateFrom);
+
+    $dateFrom = date("Y-m-d", $dateFrom);
+    $dateTo = date("Y-m-d", $dateTo);
+
+
 
     if(get_param_raw("make_report", "") == "OK")
     {
 
-        $date_from_y = get_param_raw('date_from_y', date('Y'));
-        $date_from_m = get_param_raw('date_from_m', date('m'));
-        $date_from_d = get_param_raw('date_from_d', date('d'));
-        $date_to_y = get_param_raw('date_to_y', date('Y'));
-        $date_to_m = get_param_raw('date_to_m', date('m'));
-        $date_to_d = get_param_raw('date_to_d', date('d'));
+        $dateFrom = get_param_raw('date_from', $dateFrom);
+        $dateTo = get_param_raw('date_to', $dateTo);
+        $usage = get_param_raw("usage", array_keys($usages));
 
-        $design->assign('d_from_y', $date_from_y);
-        $design->assign('d_from_m', $date_from_m);
-        $design->assign('d_from_d', $date_from_d);
-        $design->assign('d_to_y', $date_to_y);
-        $design->assign('d_to_m', $date_to_m);
-        $design->assign('d_to_d', $date_to_d);
-
-        $d1 = $date_from_y."-".$date_from_m."-".$date_from_d;
-        $d2 = $date_to_y."-".$date_to_m."-".$date_to_d;
-
-        $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+        $date = $dateFrom == $dateTo ? 'за '.$dateFrom : 'с '.$dateFrom.' по '.$dateTo;
 
 
         $r = $db->AllRecords(
-                "
+                $q = "
                     select *, 
                         count(1) as c, 
                         sum(rating) rating, 
@@ -3678,8 +3687,9 @@ function stats_support_efficiency($fixclient){
                     where 
                             usergroup ='support' 
                         and uu.user =    tt.user_author 
-                        and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' 
-                        and trouble_type in ('trouble', 'task')
+                        and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
+                        and trouble_type in ('trouble', 'task', 'support_welltime')
+                        and service in ('".implode("','", $usage)."')
                         order by uu.name
                       ) a 
                     group by user_author, trouble_subtype
@@ -3689,7 +3699,13 @@ function stats_support_efficiency($fixclient){
         foreach($r as $l)
         {
             if($l["trouble_subtype"] == "") continue;
-            if(!isset($m[$l["user_author"]])) $m[$l["user_author"]] = array("name" => $l["name"], "count" => $count++, "data" => array());
+
+            if(!isset($m[$l["user_author"]]))
+                $m[$l["user_author"]] = array(
+                    "name" => $l["name"], 
+                    "count" => $count++, 
+                    "data" => array()
+                );
 
             $m[$l["user_author"]]["data"][$l["trouble_subtype"]] = array(
                     "count" => $l["c"],
@@ -3700,14 +3716,20 @@ function stats_support_efficiency($fixclient){
             if(isset($total[$l["trouble_subtype"]]))
                 $total[$l["trouble_subtype"]] += $l["c"];
         }
-
-
     }
+
+    $design->assign('date_from', $dateFrom);
+    $design->assign('date_to', $dateTo);
+
+    $design->assign('usages', $usages);
+    $design->assign('usages_selected', $usage);
+
     $design->assign("date", $date);
     $design->assign("d", $m);
     $design->assign("total", $total);
     $design->AddMain("stats/support_efficiency.html");
 }
+
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){
     $this->stats_report_plusopers($fixclient, 'nbn', $genReport, $viewLink);
 }
