@@ -430,15 +430,19 @@ class m_stats extends IModule{
         
         $ns = array();
         $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
+        $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
 
         $rangeFrom = get_param_raw("range_from", '74996850000');
         $rangeTo = get_param_raw("range_to", '74996850199');
-        $group = get_param_raw("group",array_keys($groups) );
+        $group = get_param_raw("group",array_keys($groups));
+        $beauty = get_param_raw("beauty",array_keys($beautys));
 
         $design->assign("range_from", $rangeFrom);
         $design->assign("range_to", $rangeTo);
         $design->assign("group", $group);
         $design->assign("groups", $groups);
+        $design->assign("beauty", $beauty);
+        $design->assign("beautys", $beautys);
 
         if(get_param_raw("do",""))
         {
@@ -464,7 +468,7 @@ class m_stats extends IModule{
               ) as status
             
             from (
-            select number, price, client_id, usage_id,reserved_free_date,  used_until_date,
+            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level,
 
 
             (select max(actual_to) from usage_voip u where u.e164 = v.number and 
@@ -474,9 +478,11 @@ class m_stats extends IModule{
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
 
              from voip_numbers v where 
-            number between '".$rangeFrom."' and '".$rangeTo."' and client_id is not null
-            )a, clients c 
-            where c.id = a.client_id
+            number between '".$rangeFrom."' and '".$rangeTo."' 
+            )a 
+            left join clients c on (c.id = a.client_id)
+
+            where beauty_level in ('".implode("','", $beauty)."')
 
             having status in ('".implode("','", $group)."')
 
@@ -489,17 +495,17 @@ class m_stats extends IModule{
                 if($n["status"] == "stop")
                 {
                     foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth, sum(1) as count_calls
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, sum(1) as count_calls
                     from billing.calls_99 
                     where time between now() - interval '3 month' and now() 
                     and usage_id is null 
                     and region=99 
                     and usage_num = '".$n["number"]."'
-                    group by mnth
+                    group by mnth, mnth_s
                     order by mnth
                     ") as $c)
                     {
-                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth"].": ".$c["count_calls"];
+                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
                     }
                 }
 
@@ -507,6 +513,7 @@ class m_stats extends IModule{
         }
 
         $design->assign("ns", $ns);
+        $design->assign("ns_count", count($ns));
         $design->AddMain("stats/voip_free_stat.htm");
 
     }
@@ -3837,8 +3844,11 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     	$d1Default = date("Y-m-01");
     	$d2Default = date("Y-m-d", strtotime("+1 month -1 day", strtotime(date("Y-m-01"))));
 
+        $filterPromoAll = array("all"=> "Все заявки", "promo" => "По акции", "no_promo" => "Не по акции");
+
     	$d1 = get_param_raw("date_from", $d1Default);
     	$d2 = get_param_raw("date_to", $d2Default);
+    	$filterPromo = get_param_raw("filter_promo", "all");
 
     	if(!strtotime($d1) || !strtotime($d2))
     	{
@@ -3848,6 +3858,8 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
         $design->assign("date_from", $d1);
         $design->assign("date_to", $d2);
+        $design->assign("filter_promo_all", $filterPromoAll);
+        $design->assign("filter_promo", $filterPromo);
     }
 
     $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
@@ -3856,21 +3868,19 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if($client == "onlime_all")
     {
-        list($r1, $closeList1, $deliveryList1) = $this->report_plusopers__getCount("onlime", $d1, $d2);
-        list($r2, $closeList2, $deliveryList2) = $this->report_plusopers__getCount("onlime2", $d1, $d2);
+        list($r1, $closeList1, $deliveryList1) = $this->report_plusopers__getCount("onlime", $d1, $d2, $filterPromo);
+        list($r2, $closeList2, $deliveryList2) = $this->report_plusopers__getCount("onlime2", $d1, $d2, $filterPromo);
 
         foreach($r1 as $k => $v) $r2[$k]+= $v;
 
         $r = $r2;
 
     }else{
-        list($r, $closeList, $deliveryList) = $this->report_plusopers__getCount($client, $d1, $d2);
+        list($r, $closeList, $deliveryList) = $this->report_plusopers__getCount($client, $d1, $d2, $filterPromo);
     }
 
 
     $design->assign("s", $r);
-
-
 
     $list = array();
 
@@ -3878,12 +3888,12 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     {
         if($client == "onlime_all")
         {
-            $list1 = $this->report_plusopers__getList("onlime", $listType, $d1, $d2, $deliveryList1, $closeList1);
-            $list2 = $this->report_plusopers__getList("onlime2", $listType, $d1, $d2, $deliveryList2, $closeList2);
+            $list1 = $this->report_plusopers__getList("onlime", $listType, $d1, $d2, $deliveryList1, $closeList1, $filterPromo);
+            $list2 = $this->report_plusopers__getList("onlime2", $listType, $d1, $d2, $deliveryList2, $closeList2, $filterPromo);
 
             $list = array_merge($list1, $list2);
         }else{
-            $list = $this->report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList);
+            $list = $this->report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList, $filterPromo);
         }
     }
 
@@ -3903,39 +3913,41 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
 
     if(get_param_raw("export", "") == "excel")
-	{
-		foreach($list as  &$l)
-		{
-      $l["count_3"] = (int)$l["count_3"];
-      $l["count_9"] = (int)$l["count_9"];
-      $l["count_11"] = (int)$l["count_11"];
-			$design->assign("i_stages", $l["stages"]);
-			$design->assign("last", 1000);
-			$html = $design->fetch("stats/onlime_stage.tpl");
-			$html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
-			$l["stages_text"] = strip_tags($html);
-		}
-		unset($l);
+    {
+        foreach($list as  &$l)
+        {
+            $l["count_3"] = (int)$l["count_3"];
+            $l["count_9"] = (int)$l["count_9"];
+            $l["count_11"] = (int)$l["count_11"];
+            $design->assign("i_stages", $l["stages"]);
+            $design->assign("last", 1000);
+            $html = $design->fetch("stats/onlime_stage.tpl");
+            $html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
+            $l["stages_text"] = strip_tags($html);
+        }
+        unset($l);
 
-    	$this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
-            array(
-                "Оператор" => "fio_oper",
-                "Номер счета" => "bill_no",
-                "Дата создания заказа" => "date_creation",
-                "Кол-во Onlime-Telecard" => "count_3",
-                "Кол-во HD-ресивер OnLime" => "count_9",
-                "Кол-во HD-ресивер с диском" => "count_11",
-                "Серийные номера" => "serials",
-                "ФИО клиента" => "fio",
-                "Телефон клиента" => "phone",
-                "Адрес" => "address",
-                "Дата доставки желаемая" => "date_deliv",
-                "Дата доставки фактическа" => "date_delivered",
-                "Этапы" => "stages_text"
-                ),
-            $list);
+        $this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
+                array(
+                    "Оператор" => "fio_oper",
+                    "Номер счета OnLime" => "req_no",
+                    "Номер счета МСН" => "bill_no",
+                    "Дата создания заказа" => "date_creation",
+                    "Кол-во Onlime-Telecard" => "count_3",
+                    "Кол-во HD-ресивер OnLime" => "count_9",
+                    "Кол-во HD-ресивер с диском" => "count_11",
+                    "Серийные номера" => "serials",
+                    "Номер купона" => "coupon",
+                    "ФИО клиента" => "fio",
+                    "Телефон клиента" => "phone",
+                    "Адрес" => "address",
+                    "Дата доставки желаемая" => "date_deliv",
+                    "Дата доставки фактическа" => "date_delivered",
+                    "Этапы" => "stages_text"
+                    ),
+                $list);
 
-	}
+    }
 
     if($genReport)
     {
@@ -4022,7 +4034,7 @@ private function report_plusopers__phoneToStr($l)
 {
 	if(strpos($l["phone"], "^") !== false)
 	{
-		list($home, $mob, $work) = explode(" ^ ", $l["phone"]);
+		list($home, $mob, $work) = explode(" ^ ", $l["phone"]." ^  ^  ^ ");
 		$p = array();
 
 		if($home) $p[] = "Домашний: ".$home;
@@ -4134,7 +4146,7 @@ private function report_plusopers__Load($client, $billNo)
 			$a["deliv_type"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and item_id = 'a449a3f7-d918-11e0-bdf8-00155d21fe06'") ? "moskow" : "mkad";
 		}else{//onlime
 			$a["qty"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and
-				item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')");
+				item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711','6d2dfd2a-211e-11e3-95df-00155d881200')");
 			$a["deliv_type"] = $db->GetValue("select amount from newbill_lines where bill_no = '".$billNo."' and item_id = '81d52242-4d6c-11e1-8572-00155d881200'") ? "moskow" : "mkad";
 
 			$address = explode(" ^ ", $a["address"]);
@@ -4151,10 +4163,9 @@ private function report_plusopers__Load($client, $billNo)
 	return $a;
 }
 
-private function report_plusopers__getCount($client, $d1, $d2)
+private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
 {
     global $db;
-
 
 
     $deliveryList = $db->AllRecords($sql = "
@@ -4191,6 +4202,19 @@ private function report_plusopers__getCount($client, $d1, $d2)
                     and s2.state_id in (2,20)
                 ");
 
+    $addWhere = "";
+    $addJoin = "";
+
+    if($filterPromo == "promo")
+    {
+        $addWhere = "and coupon != ''";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }elseif($filterPromo == "no_promo")
+    {
+        $addWhere = "and (coupon = '' or coupon is null)";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }
+
 if($client != "nbn")
 {
 	$closeList = $db->AllRecords("
@@ -4202,7 +4226,7 @@ if($client != "nbn")
 				order by s.stage_id desc limit 1) as date_delivered,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
+                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
                         and nl.bill_no = t.bill_no) as count_3,
 
 				(select sum(amount) from newbill_lines nl
@@ -4214,11 +4238,13 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+        (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
                 a.comment1 as date_deliv,
                 a.comment2 as fio_oper
 
 		from tt_stages s, tt_troubles t, newbills_add_info a, newbills b
+        ".$addJoin."
 		where
 				s.trouble_id = t.id
 			and s.date_start between '".$d1." 00:00:00' and '".$d2." 23:59:59'
@@ -4227,6 +4253,7 @@ if($client != "nbn")
 			and t.bill_no = a.bill_no
             and b.bill_no = t.bill_no
             and is_rollback = 0
+            ".$addWhere."
             ");
 
 }else{
@@ -4243,11 +4270,13 @@ if($client != "nbn")
                     count(1)                                   as count
                 FROM
                     `tt_troubles` t, tt_stages s, newbills b
+                    ".$addJoin."
                 where
                         t.client = '".$client."'
                     and b.bill_no = t.bill_no
                     and s.stage_id = t.cur_stage_id
-                    and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'")+array("delivery" => count($deliveryList));
+                    and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'
+                    ".$addWhere)+array("delivery" => count($deliveryList));
 
     if($client != "nbn")
     {
@@ -4258,9 +4287,23 @@ if($client != "nbn")
     return array($r, $closeList, $deliveryList);
 }
 
-private function report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList)
+private function report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList, $filterPromo)
 {
     global $design, $db;
+
+
+    $addWhere = "";
+    $addJoin = "";
+
+    if($filterPromo == "promo")
+    {
+        $addWhere = "and coupon != ''";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }elseif($filterPromo == "no_promo")
+    {
+        $addWhere = "and (coupon = '' or coupon is null)";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }
 
         $sTypes = array(
                 "work"   => array("sql" => "is_rollback =0 and state_id not in (2,20,21)",
@@ -4271,6 +4314,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                                   "title" => ($client == "nbn" ? "в отказе" : "Отказ")),
                 "delivery" => array(                            "title" => "доставка")
                 );
+
         if($client != "nbn")  // onlime
         {
             $sTypes["rollback"] = array("sql" => "is_rollback =1", "title" => "Возврат");
@@ -4295,7 +4339,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                     
                     
 				(select sum(amount) from newbill_lines nl
-                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711')
+                        where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
                         and nl.bill_no = t.bill_no) as count_3,
 
 				(select sum(amount) from newbill_lines nl
@@ -4307,6 +4351,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+        (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
                             (select date_start from tt_stages s, tt_doers d where s.stage_id = d.stage_id and s.trouble_id = t.id order by s.stage_id desc limit 1) as date_delivered,
                             i.comment1 as date_deliv,
@@ -4314,6 +4359,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             " : "")."
                         FROM
                             `tt_troubles` t, tt_stages s, newbills_add_info i, newbills b
+                            ".$addJoin."
                         WHERE
                                 t.client = '".$client."'
                             AND s.stage_id = t.cur_stage_id
@@ -4321,6 +4367,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             AND i.bill_no = t.bill_no
                             AND t.bill_no = b.bill_no
                             AND ".$sTypes[$listType]["sql"]."
+                            ".$addWhere."
                         ORDER BY
                             date_creation");
 

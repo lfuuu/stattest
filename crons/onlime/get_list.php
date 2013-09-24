@@ -106,8 +106,6 @@ foreach($checkedOrders as $order)
     }
 }
 
-
-
 foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", OnlimeOrder::STAGE_NEW))) as $order)
 {
 
@@ -115,7 +113,7 @@ foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", Onlime
     $intId = $order->bill_no;
     if($order->status == OnlimeRequest::STATUS_NOT_DELIVERY) //normal order, need save
     {
-        $intId = Onlime1CCreateBill::create(unserialize(Encoding::toUtf8($order->order_serialize)));
+        $intId = Onlime1CCreateBill::create(Encoding::toUtf8(unserialize($order->order_serialize)));
         $order->setInternalId($intId);
     }
     $order->setStage(OnlimeOrder::STAGE_ADDED);

@@ -31,7 +31,7 @@ class m_stats_head extends IModuleHead{
 		'courier_sms'		=> array('stats','report'),
 		'report_voip_operators_traf' => array('stats','vip_report'),
 		'voip_recognition' => array('stats','r'),
-		'voip_free_stat' => array('stats','r'),
+		'voip_free_stat' => array('stats','report'),
 //		'recalcalls'		=> array('stats','modify'),
 		'support_efficiency'	=>  array('stats','report'),
     'report_phone_sales'  =>  array('stats','report')

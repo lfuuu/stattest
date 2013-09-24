@@ -305,13 +305,19 @@ class PgSQLDatabase {
     function QueryUpdate($table,$keys,$data) {
     	$V1=array(); $V2=array();
     	if (!is_array($keys)) $keys=array($keys);
-    	foreach ($data as $k=>$v)
-    		if (in_array($k,$keys))
-    			$V2[]='"'.$k.'"'.'=\''.pg_escape_string($v).'\'';
-    		elseif (!is_array($v))
-    			$V1[]='"'.$k.'"'.'=\''.pg_escape_string($v).'\'';
-    		else $V1[]='"'.$k.'"'.'='.$v[0];
-    	return $this->Query('update '.$table.' SET '.implode(',',$V1).' WHERE ('.implode(') AND (',$V2).')');
+    	foreach ($data as $k=>$v) {
+            $key = '"'.$k.'"'.'=';
+    		if (in_array($k,$keys)) {
+                $val = $v !== null ? '\''.pg_escape_string($v).'\'' : 'NULL';
+                $V2[] = $key . $val;
+            } elseif (!is_array($v)) {
+                $val = $v !== null ? '\''.pg_escape_string($v).'\'' : 'NULL';
+                $V1[] = $key . $val;
+            } else {
+                $V1[] = $key . $v[0];
+            }
+        }
+        return $this->Query('update '.$table.' SET '.implode(',',$V1).' WHERE ('.implode(') AND (',$V2).')');
     }
     function QuerySelectRow($table,$data,$x = 0) {
     	$this->QuerySelect($table,$data,$x);

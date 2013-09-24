@@ -9,16 +9,20 @@
 <input type=hidden name="do" value="1">
     <table>
         <tr>
-            <td>Диапазон с</td>
+            <td>Диапазон с:</td>
             <td><input type=text name=range_from value="{$range_from}"></td>
         </tr>
         <tr>
-            <td>Диапазон по</td>
+            <td>Диапазон по:</td>
             <td><input type=text name=range_to value="{$range_to}"></td>
         </tr>
         <tr>
-            <td>Группы номеров</td>
+            <td valign=top>Группы номеров:</td>
             <td>{html_checkboxes name="group" options=$groups selected=$group   separator="<br />"}</td>
+        </tr>
+        <tr>
+            <td valign=top>Ценовая группа:</td>
+            <td>{html_checkboxes name="beauty" options=$beautys selected=$beauty  separator="<br />"}</td>
         </tr>
     </table>
     <input type=submit value="Сформировать">
@@ -31,6 +35,7 @@
 <table cellpadding="3" border="1" style="border: 1px solid gray; border-collapse: collapse; color: black;">
     <tr>
         <th>Номер</th>
+        <th>Цена</th>
         <th>Клиент</th>
         <th>Состояние</th>
         <th></th>
@@ -39,18 +44,19 @@
     {foreach from=$ns item=n}
     <tr>
         <td>{$n.number}</td>
+        <td>{$n.price}</td>
         <td><a href="./?module=clients&id={$n.client_id}">{$n.client}</a></td>
         <td>
             {if $n.status == 'stop'}
-                В отстойнике
+                <font style="color: blue;">В отстойнике</font>
             {elseif $n.status == 'used'}
-                Используется
+                <font style="color: gray;">Используется</font>
             {elseif $n.status == 'free'}
-                Свободен
+                <b style="color: green;">Свободен</b>
             {elseif $n.status == 'our'}
                 номер за ЭмСиЭн
             {elseif $n.status == 'reserv'}
-                В резерве
+                <b style="color: #c40000;">В резерве</b>
             {/if}</td>
         <td>{if $n.status == 'stop' || $n.status == "reserv"}c {$n.used_until_date}{/if}</td>
         <td>{if $n.status == 'stop'}{$n.calls}{/if}</td>
@@ -58,3 +64,9 @@
     {/foreach}
 
 </table>
+
+<hr>
+
+{if $ns_count}
+Всего: {$ns_count}
+{/if}

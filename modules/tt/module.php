@@ -206,7 +206,7 @@ class m_tt extends IModule{
 
         if($trouble["bill_no"] && $trouble["trouble_type"] == "incomegoods")
         {
-            // find last income order. Number mast by repeat.
+            // find last income order. Number mast by repeated.
             $gio = GoodsIncomeOrder::find("first", array(
                         "conditions" => array(
                             "number = ?", $trouble["bill_no"]
@@ -228,9 +228,7 @@ class m_tt extends IModule{
             {
                 $gio->setStatusAndSave($new_state->state_1c);
             }
-
         }
-
 
         $this->createStage(
             $trouble['id'],
@@ -246,7 +244,11 @@ class m_tt extends IModule{
         // если заявка уходит со стадии "новый", кто уводит - тот и менеджер счета (получает бонусы)
         // даже если переход с новой на новую
 
-        if($trouble["bill_no"] && $trouble["trouble_type"] == "shop_orders")
+
+// todo: переделать на bill::getDocumentType
+
+
+        if($trouble["bill_no"] && ($trouble["trouble_type"] == "shop_orders" || $trouble["trouble_type"] == "shop" || $trouble["trouble_type"] == "mounting_orders"))
         {
             include_once INCLUDE_PATH.'bill.php';
             $oBill = new \Bill($trouble["bill_no"]);
@@ -261,6 +263,27 @@ class m_tt extends IModule{
                 $oBill->SetCleared();
             }else{
                 $oBill->SetUnCleared();
+            }
+        }
+        if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
+        {
+            $onlimeOrder = OnlimeOrder::find_by_bill_no($trouble["bill_no"]);
+            if($onlimeOrder)
+                $onlimeId = $onlimeOrder->external_id;
+
+            if($onlimeId)
+            {
+                $status = null;
+                if($trouble["state_id"] == 21)//reject
+                {
+                    $status = OnlimeRequest::STATUS_REJECT;
+                }elseif(in_array($trouble["state_id"], array(2,20))) // normal close, delivered
+                {
+                    $status = OnlimeRequest::STATUS_DELIVERY;
+                }
+
+                if($status)
+                    OnlimeRequest::post($onlimeId, $trouble["bill_no"], $status, $comment);
             }
         }
 
