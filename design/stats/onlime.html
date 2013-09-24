@@ -100,40 +100,42 @@ $('#date_to').datepicker({
 <tr id="tr_head">
 <td rowspan=2 width=1%>#</td>
 <td rowspan=2 width=10%>Оператор</td>
-<td rowspan=2 width=10%>Номер счета</td>
+<td colspan=2 width=10%>Номер счета</td>
 <td rowspan=2 width=10%>Дата<br>создания заказа</td>
 <td colspan=3 width=1%>Кол-во</td>
-<td rowspan=2 width=10%>Серийный номер</td>
-<td rowspan=2 width=10%>ФИО клиента</td>
-<td rowspan=2 width=10%>Телефон клиента</td>
-<td rowspan=2 width=20%>Адрес</td>
+<td colspan=1 width=10%>Номер купона</td>
+<td rowspan=2 width=30%>Клиент <br />(ФИО, телефон, адрес)</td>
 <td colspan=2 width=10%>Дата доставки</td>
 <td rowspan=2 width=20%>Этапы</td>
 </tr>
-<tr>
-<td>TeleCARD</td>
+<tr id="tr_head">
+<td>OnLime</td>
+<td>МСН</td>
+<td>Tele CARD</td>
 <td>HD-ресивер</td>
 <td>НВ-р. с диском</td>
+<td>Серийный номер</td>
 <td>Желаемая</td>
 <td>Фактическая</td>
 </tr>
 
 {foreach from=$list item=i key=idx}
 <tr>
-<td>{$idx+1}.</td>
-<td>{$i.fio_oper}</td>
-<td>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}{if $i.fio_oper != 'onlime_shop'}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a>{/if}</td>
-<td>{$i.date_creation}</td>
-<td align=center>{$i.count_3|round:0}</td>
-<td align=center>{$i.count_9|round:0}</td>
-<td align=center>{$i.count_11|round:0}</td>
-<td>{$i.serials|replace:",":",<br>"}</td>
-<td>{$i.fio}</td>
-<td>{$i.phone}</td>
-<td>{$i.address}</td>
-<td>{$i.date_deliv}</td>
-<td>{$i.date_delivered|substr:0:-3}</td>
-<td>
+<td rowspan=2>{$idx+1}.</td>
+<td rowspan=2>{$i.fio_oper}</td>
+<td rowspan=2>{$i.req_no}</td>
+<td rowspan=2>{if $viewLink}<a href="./?module=newaccounts&action=bill_view&bill={$i.bill_no}">{/if}{$i.bill_no}{if $viewLink}</a>{/if}{if $i.fio_oper != 'onlime_shop'}&nbsp;<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=edit&bill_no={$i.bill_no}"><img src="./images/icons/edit.gif" border=0 align=absmiddle></a>{/if}</td>
+<td rowspan=2>{$i.date_creation}</td>
+<td rowspan=2 align=center>{$i.count_3|round:0}</td>
+<td rowspan=2 align=center>{$i.count_9|round:0}</td>
+<td rowspan=2 align=center>{$i.count_11|round:0}</td>
+<td colspan=1>{if $i.coupon}{$i.coupon}{/if}</td>
+<td rowspan=2><p>{$i.fio}</p>
+    <p>{$i.phone}</p>
+    <p>{$i.address}</p></td>
+<td rowspan=2>{$i.date_deliv}</td>
+<td rowspan=2>{$i.date_delivered|substr:0:-3}</td>
+<td rowspan=2>
 <div id="d_{$idx}" style="display:none;" title="Заказ {$i.bill_no}">
 {include file='stats/onlime_stage.tpl' i_stages=$i.stages last=100}
 </div>
@@ -142,6 +144,9 @@ $('#date_to').datepicker({
     <div style="cursor: pointer; color: blue;" class="to_view" id="t_{$idx}">Посмотреть всю историю</div>
 {/if}
 </td>
+</tr>
+<tr>
+    <td>{$i.serials|replace:",":",<br>"}</td>
 </tr>
 {/foreach}
 </table>

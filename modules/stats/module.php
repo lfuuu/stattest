@@ -3882,8 +3882,6 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     $design->assign("s", $r);
 
-
-
     $list = array();
 
     if(($listType = get_param_raw("list", "")) != "")
@@ -3915,39 +3913,41 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
 
     if(get_param_raw("export", "") == "excel")
-	{
-		foreach($list as  &$l)
-		{
-      $l["count_3"] = (int)$l["count_3"];
-      $l["count_9"] = (int)$l["count_9"];
-      $l["count_11"] = (int)$l["count_11"];
-			$design->assign("i_stages", $l["stages"]);
-			$design->assign("last", 1000);
-			$html = $design->fetch("stats/onlime_stage.tpl");
-			$html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
-			$l["stages_text"] = strip_tags($html);
-		}
-		unset($l);
+    {
+        foreach($list as  &$l)
+        {
+            $l["count_3"] = (int)$l["count_3"];
+            $l["count_9"] = (int)$l["count_9"];
+            $l["count_11"] = (int)$l["count_11"];
+            $design->assign("i_stages", $l["stages"]);
+            $design->assign("last", 1000);
+            $html = $design->fetch("stats/onlime_stage.tpl");
+            $html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
+            $l["stages_text"] = strip_tags($html);
+        }
+        unset($l);
 
-    	$this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
-            array(
-                "Оператор" => "fio_oper",
-                "Номер счета" => "bill_no",
-                "Дата создания заказа" => "date_creation",
-                "Кол-во Onlime-Telecard" => "count_3",
-                "Кол-во HD-ресивер OnLime" => "count_9",
-                "Кол-во HD-ресивер с диском" => "count_11",
-                "Серийные номера" => "serials",
-                "ФИО клиента" => "fio",
-                "Телефон клиента" => "phone",
-                "Адрес" => "address",
-                "Дата доставки желаемая" => "date_deliv",
-                "Дата доставки фактическа" => "date_delivered",
-                "Этапы" => "stages_text"
-                ),
-            $list);
+        $this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
+                array(
+                    "Оператор" => "fio_oper",
+                    "Номер счета OnLime" => "req_no",
+                    "Номер счета МСН" => "bill_no",
+                    "Дата создания заказа" => "date_creation",
+                    "Кол-во Onlime-Telecard" => "count_3",
+                    "Кол-во HD-ресивер OnLime" => "count_9",
+                    "Кол-во HD-ресивер с диском" => "count_11",
+                    "Серийные номера" => "serials",
+                    "Номер купона" => "coupon",
+                    "ФИО клиента" => "fio",
+                    "Телефон клиента" => "phone",
+                    "Адрес" => "address",
+                    "Дата доставки желаемая" => "date_deliv",
+                    "Дата доставки фактическа" => "date_delivered",
+                    "Этапы" => "stages_text"
+                    ),
+                $list);
 
-	}
+    }
 
     if($genReport)
     {
@@ -4202,8 +4202,23 @@ private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
                     and s2.state_id in (2,20)
                 ");
 
+
 if($client != "nbn")
 {
+    $addWhere = "";
+    $addJoin = "";
+
+    if($filterPromo == "promo")
+    {
+        $addWhere = "and coupon != ''";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }elseif($filterPromo == "no_promo")
+    {
+        $addWhere = "and (coupon = '' or coupon is null)";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }
+
+
 	$closeList = $db->AllRecords("
 		select t.id as trouble_id, req_no, fio, phone, address, t.bill_no, date_creation,
 
@@ -4225,11 +4240,13 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+        (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
                 a.comment1 as date_deliv,
                 a.comment2 as fio_oper
 
 		from tt_stages s, tt_troubles t, newbills_add_info a, newbills b
+        ".$addJoin."
 		where
 				s.trouble_id = t.id
 			and s.date_start between '".$d1." 00:00:00' and '".$d2." 23:59:59'
@@ -4238,6 +4255,7 @@ if($client != "nbn")
 			and t.bill_no = a.bill_no
             and b.bill_no = t.bill_no
             and is_rollback = 0
+            ".$addWhere."
             ");
 
 }else{
@@ -4269,9 +4287,23 @@ if($client != "nbn")
     return array($r, $closeList, $deliveryList);
 }
 
-private function report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList)
+private function report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList, $filterPromo)
 {
     global $design, $db;
+
+
+    $addWhere = "";
+    $addJoin = "";
+
+    if($filterPromo == "promo")
+    {
+        $addWhere = "and coupon != ''";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }elseif($filterPromo == "no_promo")
+    {
+        $addWhere = "and (coupon = '' or coupon is null)";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }
 
         $sTypes = array(
                 "work"   => array("sql" => "is_rollback =0 and state_id not in (2,20,21)",
@@ -4282,6 +4314,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                                   "title" => ($client == "nbn" ? "в отказе" : "Отказ")),
                 "delivery" => array(                            "title" => "доставка")
                 );
+
         if($client != "nbn")  // onlime
         {
             $sTypes["rollback"] = array("sql" => "is_rollback =1", "title" => "Возврат");
@@ -4318,6 +4351,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+        (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
                             (select date_start from tt_stages s, tt_doers d where s.stage_id = d.stage_id and s.trouble_id = t.id order by s.stage_id desc limit 1) as date_delivered,
                             i.comment1 as date_deliv,
@@ -4325,6 +4359,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             " : "")."
                         FROM
                             `tt_troubles` t, tt_stages s, newbills_add_info i, newbills b
+                            ".$addJoin."
                         WHERE
                                 t.client = '".$client."'
                             AND s.stage_id = t.cur_stage_id
@@ -4332,6 +4367,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             AND i.bill_no = t.bill_no
                             AND t.bill_no = b.bill_no
                             AND ".$sTypes[$listType]["sql"]."
+                            ".$addWhere."
                         ORDER BY
                             date_creation");
 
