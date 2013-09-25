@@ -1,10 +1,11 @@
 <?php
 
 
-class CyberPlatRequest
+class CyberPlatProcessor
 {
     // request fields
     private $data = array();
+    private $actionChecker = null;
 
     public function proccessRequest()
     {
@@ -41,6 +42,8 @@ class CyberPlatRequest
             $this->log($this->data);
         }
 
+        $this->actionChecker = new CyberplatActionCheck();
+
         switch($action)
         {
             case 'check': $this->check(); break;
@@ -54,19 +57,19 @@ class CyberPlatRequest
 
     private function check()
     {
-        CyberplatActionCheck::check($this->data);
+        $this->actionChecker->check($this->data);
 
         throw new Answer_OK("Абонент найден");
     }
 
     private function payment()
     {
-        CyberplatActionCheck::payment($this->data);
+        $this->actionChecker->payment($this->data);
     }
 
     private function status()
     {
-        CyberplatActionCheck::status($this->data);
+        $this->actionChecker->status($this->data);
     }
 
     private function cancel()
@@ -239,23 +242,28 @@ class Answer_ERR_cancal extends CyberplatError
 
 class CyberplatActionCheck
 {
+    public function __construct()
+    {
+        $this->fieldChecker = new CyberplatFieldCheck();
+    }
+
     public function check(&$data)
     {
-        CyberplatFieldCheck::type($data);
-        CyberplatFieldCheck::amount($data);
-        CyberplatFieldCheck::number($data);
+        $this->fieldChecker->assertType($data);
+        $this->fieldChecker->assertAmount($data);
+        $this->fieldChecker->assertNumber($data);
     }
 
     public function payment(&$data)
     {
-        CyberplatFieldCheck::type($data);
-        CyberplatFieldCheck::amount($data);
-        CyberplatFieldCheck::receipt($data);
-        CyberplatFieldCheck::is_added_receipt($data);
+        $this->fieldChecker->assertType($data);
+        $this->fieldChecker->assertAmount($data);
+        $this->fieldChecker->assertReceipt($data);
+        $this->fieldChecker->is_added_receipt($data);
 
-        $paymentDate = CyberplatFieldCheck::date($data);
+        $paymentDate = $this->fieldChecker->assertDate($data);
 
-        $client = CyberplatFieldCheck::number($data);
+        $client = $this->fieldChecker->assertNumber($data);
 
         $objNow = new ActiveRecord\DateTime();
         $now = $objNow->format("db");
@@ -288,7 +296,7 @@ class CyberplatActionCheck
 
     public function status(&$data)
     {
-        CyberplatFieldCheck::receipt($data);
+        $this->fieldChecker->assertReceipt($data);
 
         $pay = Payment::find_by_payment_no($data["receipt"]);
 
@@ -311,13 +319,13 @@ class CyberplatActionCheck
 
 class CyberplatFieldCheck
 {
-    public function type(&$data)
+    public function assertType(&$data)
     {
         if(!$data["type"] || $data["type"] != 1)
             throw new Answer_ERR_TYPE();
     }
 
-    public function amount(&$data)
+    public function assertAmount(&$data)
     {
         if(!$data["amount"])
             throw new Answer_ERR_BAD_AMOUNT();
@@ -328,7 +336,7 @@ class CyberplatFieldCheck
             throw new Answer_ERR_BAD_AMOUNT();
     }
 
-    public function number(&$data)
+    public function assertNumber(&$data)
     {
         if(!$data["number"] || !preg_match("/^\d{1,6}$/", $data["number"]))
             throw new Answer_ERR_CLIENT_NOT_FOUND();
@@ -342,7 +350,7 @@ class CyberplatFieldCheck
             throw new Answer_ERR_CLIENT_NOT_FOUND();
     }
 
-    public function receipt(&$data)
+    public function assertReceipt(&$data)
     {
         $r = $data["receipt"];
 
@@ -358,7 +366,7 @@ class CyberplatFieldCheck
         }
     }
 
-    public function date(&$data)
+    public function assertDate(&$data)
     {
         //echo $data["date"];
 
