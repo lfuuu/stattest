@@ -3646,8 +3646,8 @@ function stats_support_efficiency($fixclient)
             "" => "Без услуги",
             "usage_extra" => "Доп услуги",
             "usage_ip_ports" => "Интернет",
-            "usage_virtpbx" => "Виртуальная АТС",
             "usage_voip" => "Телефония",
+            "usage_virtpbx" => "Виртуальная АТС",
             "usage_welltime" => "Welltime"
             );
     $usage = array_keys($usages);
@@ -3659,7 +3659,9 @@ function stats_support_efficiency($fixclient)
     $dateFrom = date("Y-m-d", $dateFrom);
     $dateTo = date("Y-m-d", $dateTo);
 
-
+    $onCompleted_users = array();
+    $onCompleted_data = array();
+    $onCompleted_total = array();
 
     if(get_param_raw("make_report", "") == "OK")
     {
@@ -3687,7 +3689,7 @@ function stats_support_efficiency($fixclient)
                         FROM `tt_troubles` tt ,user_users uu 
                     where 
                             usergroup ='support' 
-                        and uu.user =    tt.user_author 
+                        and uu.user = tt.user_author 
                         and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
                         and trouble_type in ('trouble', 'task', 'support_welltime')
                         and service in ('".implode("','", $usage)."')
@@ -3717,6 +3719,8 @@ function stats_support_efficiency($fixclient)
             if(isset($total[$l["trouble_subtype"]]))
                 $total[$l["trouble_subtype"]] += $l["c"];
         }
+
+        list($onCompleted_data, $onCompleted_users, $onCompleted_total) = $this->stats_support_efficiency__basisOnCompleted($dateFrom, $dateTo, $usage);
     }
 
     $design->assign('date_from', $dateFrom);
@@ -3725,10 +3729,100 @@ function stats_support_efficiency($fixclient)
     $design->assign('usages', $usages);
     $design->assign('usages_selected', $usage);
 
+    $design->assign("on_completed_data", $onCompleted_data);
+    $design->assign("on_completed_users", $onCompleted_users);
+    $design->assign("on_completed_total", $onCompleted_total);
+
     $design->assign("date", $date);
     $design->assign("d", $m);
     $design->assign("total", $total);
     $design->AddMain("stats/support_efficiency.html");
+}
+
+function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
+{
+    global $db;
+
+    $rs = $db->AllRecords("
+        SELECT 
+            trouble_subtype as type,
+            ts.trouble_id, 
+            ts.state_id, 
+            user_main, 
+            user_edit  
+        FROM 
+            `tt_troubles` tt , tt_stages ts, user_users u
+        where 
+                tt.id = ts.trouble_id
+            AND u.user= tt.user_author
+            AND usergroup = 'support'
+            AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
+            AND trouble_type in ('trouble', 'task', 'support_welltime')
+            AND service in ('".implode("','", $usage)."')
+            ORDER BY tt.id, ts.stage_id
+            ");
+
+    $counter = array(
+        "7" => array(), // completed
+        "2" => array()  // closed
+        );
+
+    $total = array(
+        "7" => array(), // completed
+        "2" => array()  // closed
+        );
+
+
+
+    $users = array();
+
+    $troubleId = 0;
+    foreach ($rs as $r)
+    {
+        // new trouble, reset
+        if ($r["trouble_id"] != $troubleId)
+        {
+            $troubleId = $r["trouble_id"];
+            $state = $r["state_id"];
+            $user = $r["user_main"];
+
+            continue; //this first stage
+        }
+
+        $user = $r["user_main"];
+
+        if ($state != $r["state_id"])
+        {
+            if($r["state_id"] == 7 || $r["state_id"] == 2)
+            {
+                if(!isset($counter[$r["state_id"]][$r["type"]]))
+                    $counter[$r["state_id"]][$r["type"]] = array();
+
+                if(!isset($counter[$r["state_id"]][$r["type"]][$user]))
+                    $counter[$r["state_id"]][$r["type"]][$user] = 0;
+
+                $counter[$r["state_id"]][$r["type"]][$user]++;
+
+
+                if (!isset($total[$r["state_id"]][$r["type"]]))
+                    $total[$r["state_id"]][$r["type"]] = 0;
+
+                $total[$r["state_id"]][$r["type"]]++;
+
+
+                $users[$user] = $user;
+            }
+
+            $state = $r["state_id"];
+        }
+    }
+
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
+    {
+        $users[$u["user"]] = $u["name"];
+    }
+
+    return array($counter, $users, $total);
 }
 
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){
