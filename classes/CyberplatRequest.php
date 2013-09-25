@@ -324,12 +324,15 @@ class CyberplatFieldCheck
 
         $data["amount"] = (float)@floatval($data["amount"]);
 
-        if($data["amount"] > 15000 || $data["amount"] <= 10)
+        if($data["amount"] > 15000 || $data["amount"] < 10)
             throw new Answer_ERR_BAD_AMOUNT();
     }
 
     public function number(&$data)
     {
+        if(!$data["number"] || !preg_match("/^\d{1,6}$/", $data["number"]))
+            throw new Answer_ERR_CLIENT_NOT_FOUND();
+
         $c = ClientCard::find_by_id($data["number"]);
         if($c)
         {
