@@ -3320,20 +3320,27 @@ class m_newaccounts extends IModule
     }
 
 
-    function do_firm_residents($firma, $bill = null)
+    function do_firm_residents($firma, $bill_or_time = null)
     {
 
         if(!$firma)
         {
             $firma = "mcn";
         }
-
-        if($bill == null)
+        
+        if ($bill_or_time === null)
         {
             $billDate = time();
-        }else{
-            $billDate = strtotime($bill["bill_date"]);
+        } elseif (is_array($bill_or_time) && isset($bill_or_time["bill_date"])) {
+            $billDate = strtotime($bill_or_time["bill_date"]);
+        } elseif (preg_match("/^\d+$/", $bill_or_time)) { //timestamp
+            $billDate = $bill_or_time;
+        } elseif (preg_match("/\d{4}-\d{2}-\d{2}/", $bill_or_time)) { // date
+            $billDate = strtotime($bill_or_time);
+        } else {
+            $billDate = time();
         }
+
 
         if($firma == "all4geo")
         {
@@ -4799,7 +4806,7 @@ $sql .= "    order by client, bill_no";
         $date_to = date("Y-m-d", strtotime($date_to));
 
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-        $this->do_firm_residents($c["firma"]);
+        $this->do_firm_residents($c["firma"], $date_from);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('date_from', $date_from);

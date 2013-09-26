@@ -115,13 +115,8 @@ h3 {
         <td><p>От {$company_full}</td>
 </tr>
 <tr><td>
-        <br><br>Руководитель организации ___________________
-    {if $fixclient_data.firma=='ooomcn'}Бирюкова Н.В.
-{elseif $fixclient_data.firma == "all4net"}Пыцкая М. А.
-{elseif $fixclient_data.firma == "ooocmc"}Надточеева Н.А.
-{elseif $fixclient_data.firma == "markomnet_new"}Мазур Т.В.
-{elseif $fixclient_data.firma == "mcn_telekom"}Надточеева Н.А.
-{else}Мельников А.К.{/if} <br><br>
+        <br><br>Руководитель организации ___________________{$firm_director.name}
+ <br><br>
     </td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td><br><br>______________________________<br><br></td>
