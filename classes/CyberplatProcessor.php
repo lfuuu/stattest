@@ -259,39 +259,64 @@ class CyberplatActionCheck
         $this->fieldChecker->assertType($data);
         $this->fieldChecker->assertAmount($data);
         $this->fieldChecker->assertReceipt($data);
-        $this->fieldChecker->is_added_receipt($data);
+
+        $already = false;
+        try{
+            $this->fieldChecker->is_added_receipt($data);
+        }catch(CyberplatError $e)
+        {
+            $already = true;
+        }
+
 
         $paymentDate = $this->fieldChecker->assertDate($data);
 
         $client = $this->fieldChecker->assertNumber($data);
 
-        $objNow = new ActiveRecord\DateTime();
-        $now = $objNow->format("db");
 
-        $b = NewBill::getLastUnpayedBill($client->id);
+        if(!$already)
+        {
+            $objNow = new ActiveRecord\DateTime();
+            $now = $objNow->format("db");
 
-        $payment = new Payment();
-        $payment->client_id = $client->id;
-        $payment->bill_no = $b ? $b->bill_no : "";
-        $payment->bill_vis_no = $b ? $b->bill_no : "";
-        $payment->payment_no = $data["receipt"];
-        $payment->oper_date = $now;
-        $payment->payment_date = $paymentDate;
-        $payment->add_date = $now;
-        $payment->payment_rate = 1;
-        $payment->type='neprov';
-        $payment->sum_rub = $data["amount"];
-        $payment->currency = "RUR";
-        $payment->comment = "Cyberplat pay# ".$data["receipt"]." at ".str_replace("T", " ", $data["date"]);
-        $payment->save();
+            $b = NewBill::getLastUnpayedBill($client->id);
 
-        $answer =  new Answer_OK_payment();
-        $answer->setData(array(
-            "authcode" => $payment->id, 
-            "date" => $objNow->format("Y-m-d\TH:i:s"))
-        );
+            $payment = new Payment();
+            $payment->client_id = $client->id;
+            $payment->bill_no = $b ? $b->bill_no : "";
+            $payment->bill_vis_no = $b ? $b->bill_no : "";
+            $payment->payment_no = $data["receipt"];
+            $payment->oper_date = $now;
+            $payment->payment_date = $paymentDate;
+            $payment->add_date = $now;
+            $payment->payment_rate = 1;
+            $payment->type='neprov';
+            $payment->sum_rub = $data["amount"];
+            $payment->currency = "RUR";
+            $payment->comment = "Cyberplat pay# ".$data["receipt"]." at ".str_replace("T", " ", $data["date"]);
+            $payment->save();
 
-        throw $answer;
+            $answer =  new Answer_OK_payment();
+            $answer->setData(array(
+                        "authcode" => $payment->id, 
+                        "date" => $objNow->format("Y-m-d\TH:i:s"))
+                    );
+
+            throw $answer;
+        }else{
+            $payment = Payment::find('first', array(
+                "conditions" => array("client_id" => $client->id, "payment_no" => $data["receipt"])
+                ));
+
+            $answer =  new Answer_OK_payment();
+            $answer->setData(array(
+                        "authcode" => $payment->id, 
+                        "date" => $payment->add_date->format("Y-m-d\TH:i:s"))
+                    );
+
+            throw $answer;
+
+        }
     }
 
     public function status(&$data)
