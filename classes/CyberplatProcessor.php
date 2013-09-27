@@ -98,11 +98,12 @@ class CyberPlatProcessor
 
     private function echoError($e)
     {
-        $str = "<?xml version=\"1.0\" encoding=\"koi8-r\"?>\n".
-            "<response>\n".
-            "<code>".$e->getCode()."</code>\n".
-            "<message>".iconv("utf-8", "koi8-r", $e->getMessage())."</message>\n".
-            "</response>\n";
+        header("Content-Type:text/html; charset=windows-1251");
+        $str = "<?xml version=\"1.0\" encoding=\"windows-1251\"?>".
+            "<response>".
+            "<code>".$e->getCode()."</code>".
+            "<message>".iconv("utf-8", "windows-1251", $e->getMessage())."</message>".
+            "</response>";
 
             $this->log($str);
 
@@ -111,11 +112,12 @@ class CyberPlatProcessor
 
     private function echoOK($e)
     {
-        $str = "<?xml version=\"1.0\" encoding=\"koi8-r\"?>\n".
-            "<response>\n".
+        header("Content-Type:text/html; charset=windows-1251");
+        $str = "<?xml version=\"1.0\" encoding=\"windows-1251\"?>".
+            "<response>".
             "<code>0</code>\n".$e->getDataStr().
-            "<message>".iconv("utf-8", "koi8-r", $e->getMessage())."</message>\n".
-            "</response>\n";
+            "<message>".iconv("utf-8", "windows-1251", $e->getMessage())."</message>".
+            "</response>";
             $this->log($str);
         echo $this->sign($str);
     }
