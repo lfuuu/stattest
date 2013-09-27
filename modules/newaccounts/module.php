@@ -44,12 +44,12 @@ class m_newaccounts extends IModule
 /*        $R=$db->AllRecords("select c.id, c.currency from clients c where id in (SELECT distinct b.client_id FROM `newbills` b, `newpayments` p  where is_payed != 1 and p.bill_no = b.bill_no and sum = sum_rub and
             (b.bill_no like '201%') )
                 ");*/
-        $R=$db->AllRecords("select c.id, c.client, c.currency from clients c ");
+        $R=$db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash') ");
         set_time_limit(0);
         session_write_close();
         foreach ($R as $r) {
-            $this->update_balance($r['id'],$r['currency']);
             echo $r['client']."<br>\n";flush();
+            $this->update_balance($r['id'],$r['currency']);
         }
     }
 
@@ -531,6 +531,8 @@ class m_newaccounts extends IModule
 
         foreach ($R1 as $k => $v) 
         {
+            if($v["bill_no"] == "saldo") continue; 
+
             if ($v['is_payed'] != $v['new_is_payed']) 
             {
                 $doc = Bill::getDocument($k, $fixclient_data["id"]);
