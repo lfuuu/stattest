@@ -4808,7 +4808,7 @@ $sql .= "    order by client, bill_no";
         $date_to = date("Y-m-d", strtotime($date_to));
 
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-        $this->do_firm_residents($c["firma"], $date_from);
+        $this->do_firm_residents($c["firma"], $date_to);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('date_from', $date_from);
