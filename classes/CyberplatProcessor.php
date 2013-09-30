@@ -6,6 +6,7 @@ class CyberPlatProcessor
     // request fields
     private $data = array();
     private $actionChecker = null;
+    private $crypter = null;
 
     public function proccessRequest()
     {
@@ -36,13 +37,17 @@ class CyberPlatProcessor
 
     private function do_action($action)
     {
+
         if($action)
         {
             $this->data = $this->_load();
             $this->log($this->data);
+
+            $this->actionChecker = new CyberplatActionCheck();
+            $this->actionChecker->assertSign();
         }
 
-        $this->actionChecker = new CyberplatActionCheck();
+
 
         switch($action)
         {
@@ -107,7 +112,7 @@ class CyberPlatProcessor
 
             $this->log($str);
 
-        echo $this->sign($str);
+        echo CyberplatCrypt::sign($str);
     }
 
     private function echoOK($e)
@@ -119,25 +124,10 @@ class CyberPlatProcessor
             "<message>".iconv("utf-8", "windows-1251", $e->getMessage())."</message>".
             "</response>";
             $this->log($str);
-        echo $this->sign($str);
+
+        echo CyberplatCrypt::sign($str);
     }
 
-    private function sign($str)
-    {
-        //return $str;
-
-        $private_key = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__private.key");
-        $passhare = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__passhare.key");
-
-        $pk = openssl_pkey_get_private($private_key, trim($passhare));
-
-        $sign = "";
-        $res = openssl_sign($str, $sign, $pk);
-        $sign = unpack("H*", $sign);
-        $str = str_replace("</response>", "<sign>".$sign[1]."</sign></response>", $str);
-
-        return $str;
-    }
 }
 
 
@@ -190,6 +180,12 @@ class Answer_OK_status extends CyberplatOK
 class Answer_ERR extends CyberplatError
 {
     //
+}
+
+class Answer_ERR_SIGN extends CyberplatError
+{
+    public $code = -4;
+    public $message = "Ошибка проверки АСП";
 }
 
 class Answer_ERR_TYPE extends CyberplatError
@@ -263,6 +259,7 @@ class CyberplatActionCheck
         $this->fieldChecker->assertReceipt($data);
 
         $already = false;
+
         try{
             $this->fieldChecker->is_added_receipt($data);
         }catch(CyberplatError $e)
@@ -341,6 +338,63 @@ class CyberplatActionCheck
             throw new Answer_ERR_status();
         }
         
+    }
+
+    public function assertSign()
+    {
+        $queryStr = $_SERVER["QUERY_STRING"];
+
+        if(preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o))
+        {
+            if(CyberplatCrypt::checkSign($o[1], $o[2]))
+            {
+                return true;
+            }
+        }
+
+        throw new Answer_ERR_SIGN();
+    }
+}
+
+class CyberplatCrypt
+{
+    static $my_private = "";
+    static $my_public = "";
+    static $my_passhare = "";
+    static $cyberplat_public = "";
+
+    private function init()
+    {
+        self::$my_private = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__private.key");
+        self::$my_public = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__public.key");
+        self::$my_passhare = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__passhare.key");
+        self::$cyberplat_public = file_get_contents(PATH_TO_ROOT."store/keys/cyberplat_public.key");
+    }
+
+    public function checkSign($msg, $signHex)
+    {
+        self::init();
+        $msg = trim($msg);
+        if(!($sign = @pack("H*", $signHex)))
+            return false;
+
+        $publicKey = openssl_get_publickey(self::$cyberplat_public);
+
+        return openssl_verify($msg, $sign, $publicKey);
+    }
+
+    public function sign(&$str)
+    {
+        //return $str;
+
+        $pk = openssl_pkey_get_private(self::$my_private, trim(self::$my_passhare));
+
+        $sign = "";
+        $res = openssl_sign($str, $sign, $pk);
+        $sign = unpack("H*", $sign);
+        $str = str_replace("</response>", "<sign>".$sign[1]."</sign></response>", $str);
+
+        return $str;
     }
 }
 
