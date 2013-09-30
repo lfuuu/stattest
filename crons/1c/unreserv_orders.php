@@ -5,22 +5,18 @@ define("PATH_TO_ROOT", "../../");
 
 include PATH_TO_ROOT."conf.php";
 
-$b = NewBill::find("201309/0093");
 
-
-print_r($b->trouble->current_stage->state->name);
+echo "\n".date("r").": ";
 
 $newStateId = 21;
 
-foreach(Trouble::find('all', array(
-    "select" => "bill_no",
-    "joins" => "inner join tt_stages s on cur_stage_id = s.stage_id and state_id = 16 and date_start < (now() - INTERVAL 7 day)",
-    "conditions" => array("id" => "147313")
-    )) as $t)
+foreach(Trouble::find_by_sql(
+    "select id, bill_no, user_main, cur_stage_id from tt_troubles
+    inner join tt_stages s on cur_stage_id = s.stage_id and state_id = 16 and date_start < (now() - INTERVAL 7 day)
+	where user_main in ('belyaev', 'li') and bill_no  in ('201309/0298', '201309/0210')"
+    ) as $t)
 {
-    echo $t->bill_no."<br>";
-
-    continue;
+    echo "\n".$t->bill_no." -> ".$t->user_main;
 
     $b = NewBill::find($t->bill_no);
 
@@ -34,9 +30,7 @@ foreach(Trouble::find('all', array(
             $fault = null;
             $f = $bs->setOrderStatus($b->bill_no, $newstate['state_1c'], $fault);
             if(!$f){
-                echo "Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />";
-                echo "<br /><br />";
-                echo "<a href='index.php?module=tt&action=view&id=".$t->id."'>Вернуться к заявке</a>";
+                echo "\nНе удалось обновить статус заказа:\n ".\_1c\getFaultMessage($fault)."\n";
                 exit();
             }
             if($f){
@@ -52,11 +46,11 @@ foreach(Trouble::find('all', array(
         $GLOBALS['module_tt']->createStage(
                 $t->id,
                 array(
-                    "user_main" => $t->current_stage->user_main,
-                    "state_id" => 21
+                    "user_main" => $t->user_main,
+                    "state_id" => $newStateId
                     ),
                 array(
-                    'comment'=> Encoding::toKoi8r("Заказ снят с резерва по истечении 7 дней"),
+                    'comment'=> Encoding::toKoi8r("Заказ снят автоматически с резерва по истечении 7 дней"),
                     'stage_id'=>$t->cur_stage_id
                     ),
                 "sys"
