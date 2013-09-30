@@ -13,7 +13,7 @@ $newStateId = 21;
 foreach(Trouble::find_by_sql(
     "select id, bill_no, user_main, cur_stage_id from tt_troubles
     inner join tt_stages s on cur_stage_id = s.stage_id and state_id = 16 and date_start < (now() - INTERVAL 7 day)
-	where user_main in ('belyaev', 'li') and bill_no  in ('201309/0298', '201309/0210')"
+	where user_main in ('belyaev', 'li')"
     ) as $t)
 {
     echo "\n".$t->bill_no." -> ".$t->user_main;
