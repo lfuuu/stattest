@@ -110,7 +110,7 @@ $('#date_to').datepicker({
 </tr>
 <tr id="tr_head">
 <td>OnLime</td>
-<td>МСН</td>
+<td>Маркомнет Сервис</td>
 <td>Tele CARD</td>
 <td>HD-ресивер</td>
 <td>НВ-р. с диском</td>
@@ -149,6 +149,15 @@ $('#date_to').datepicker({
     <td>{$i.serials|replace:",":",<br>"}</td>
 </tr>
 {/foreach}
+{if $list}
+<tr>
+    <td colspan=5 align=right><b>Итого:</b>&nbsp;&nbsp;</td>
+    <td align=center><b>{$total.count_3}</b></td>
+    <td align=center><b>{$total.count_9}</b></td>
+    <td align=center><b>{$total.count_11}</b></td>
+    <td colspan=5>&nbsp;</td>
+</tr>
+{/if}
 </table>
 <script>
 {literal}
