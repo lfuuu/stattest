@@ -4060,7 +4060,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                 array(
                     "Оператор" => "fio_oper",
                     "Номер счета OnLime" => "req_no",
-                    "Номер счета МСН" => "bill_no",
+                    "Номер счета Маркомнет Сервис" => "bill_no",
                     "Дата создания заказа" => "date_creation",
                     "Кол-во Onlime-Telecard" => "count_3",
                     "Кол-во HD-ресивер OnLime" => "count_9",
