@@ -4014,7 +4014,17 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
+    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0);
+
+    foreach($list as $l)
+    {
+        $total["count_3"] += $l["count_3"];
+        $total["count_9"] += $l["count_9"];
+        $total["count_11"] += $l["count_11"];
+    }
+
     $design->assign("list", $list);
+    $design->assign("total", $total);
 
     unset($_GET["list"]);
     $url = "";
@@ -4043,6 +4053,8 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["stages_text"] = strip_tags($html);
         }
         unset($l);
+
+        $list[] = $total+array("date_creation" => "Итого:");
 
         $this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
                 array(
