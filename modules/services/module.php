@@ -679,6 +679,11 @@ class m_services extends IModule{
 
     private function getSIPregs($client, $region, $phone = "")
     {
+
+        $schema = "";
+        $needRegion = false;
+
+
         if($region == 99)
         {
             $conn = pg_connect("host=85.94.32.237 dbname=nispd user=www password=dD99zmHRs2hR7PPGEMsg");
@@ -686,11 +691,24 @@ class m_services extends IModule{
 
             // Соловьев не переключил старую базу на новую, перед уходом в отпуск
             $dbname = $region == 97 ? "voipdb97" : "voipdb";
-            $conn = pg_connect($q="host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
+
+            $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
+        
+            if(in_array($region, array(94))) // new schema. scynced
+            {
+                $schema = "astschema";
+                $dbHost = "eridanus.mcn.ru";
+                $needRegion = true;
+            }
+
+            $conn = pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
+
+            if($schema)
+                pg_query("SET search_path TO ".$schema.", \"\$user\", public");
         }
 
-        if(!$conn) return;
 
+        if(!$conn) return;
 
         if($region != "99")
         {
@@ -712,7 +730,7 @@ class m_services extends IModule{
                     INNER JOIN sipregs b ON a.name = b.name
                     LEFT JOIN numbers n ON n.number::varchar = a.callerid
                     WHERE 
-                    client='".$client."' 
+                    client='".$client."' ".($needRegion ? "and a.region ='".$region."'" : "")."
                     ORDER BY 
                     callerid, name");
         }else{
@@ -735,7 +753,6 @@ class m_services extends IModule{
                     ORDER BY 
                     name, callerid");
         }
-
 
 
         $dirs = array("my-full-out" => "Всё",
@@ -2662,8 +2679,10 @@ class voipRegion
             }
 
             if(strpos($l["callerid"], "+") !== false)
+            {
                 $l["callerid"] = preg_replace("@\+\d+@", "", $l["callerid"]);
                 $l["callerid"] = preg_replace("@\d+\*@", "", $l["callerid"]);
+            }
 
             $e164s[$callerId] = $l["callerid"];
             self::$e164Region[$callerId] = $region;
@@ -2790,7 +2809,18 @@ class voipRegion
             $conn = pg_connect($q = "host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS);
         }else{
             $dbname = $region == 97 ? "voipdb97" : "voipdb";
-            $conn = pg_connect($q = "host=".str_replace("[region]", $region, R_CALLS_HOST)." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
+            $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
+            $schema = "";
+
+            if(in_array($region, array(94))) // new schema. scynced
+            {
+                $schema = "astschema";
+                $dbHost = "eridanus.mcn.ru";
+            }
+
+            $conn = pg_connect($q = "host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
+            if($schema)
+                pg_query("SET search_path TO ".$schema.", \"\$user\", public");
         }
     }
 }

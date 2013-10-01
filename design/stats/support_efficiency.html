@@ -1,3 +1,7 @@
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
+<link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
+
 <h2>Отчет по ТехПоддержке{if $date} {$date}{/if}</h2>
 <style>
 {literal}
@@ -9,29 +13,106 @@ font-weight: bold;
 text-align: center;
 {/literal}
 </style>
+
 <form action="" method=get>
 	<input type="hidden" name="module" value="stats" />
 	<input type="hidden" name="action" value="support_efficiency" />
 	<table>
 		<tr>
 			<td>С</td>
-			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$d_from_y}</select></td>
-			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$d_from_m}</select></td>
-			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$d_from_d}</select></td>
+			<td><input type=text name="date_from" value="{$date_from}" id="date_from"></td>
 			<td>&nbsp;</td>
 			<td>по</td>
-			<td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$d_to_y}</select></td>
-			<td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$d_to_m}</select></td>
-			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$d_to_d}</select></td>
+			<td><input type=text name="date_to" value="{$date_to}" id="date_to"></td>
             <td><input type=submit value="OK" name="make_report"></td>
 		</tr>
+        <tr>
+            <td colspan=2>Услуги в траблах:</td>
+            <td colspan=4>{html_checkboxes name=usage options=$usages selected=$usages_selected separator="<br>"}</td>
+        </tr>
     </table>
-    
-    </form>
+</form>
+
+<script>
+{literal}
+
+$('#date_from').datepicker({
+    dateFormat: 'yy-mm-dd',
+    onClose: function(dateText, inst) {
+        var endDateTextBox = $('#date_to');
+        if (endDateTextBox.val() != '') {
+            var testStartDate = new Date(dateText);
+            var testEndDate = new Date(endDateTextBox.val());
+            if (testStartDate > testEndDate)
+            endDateTextBox.val(dateText);
+        } else {
+            endDateTextBox.val(dateText);
+        }
+    },
+    onSelect: function (selectedDateTime){
+        var start = $(this).datepicker('getDate');
+        $('#date_to').datepicker('option', 'minDate', new Date(start.getTime()));
+    }
+});
+
+$('#date_to').datepicker({
+    dateFormat: 'yy-mm-dd',
+    onClose: function(dateText, inst) {
+        var startDateTextBox = $('#date_from');
+        if (startDateTextBox.val() != '') {
+            var testStartDate = new Date(startDateTextBox.val());
+            var testEndDate = new Date(dateText);
+            if (testStartDate > testEndDate)
+                startDateTextBox.val(dateText);
+        } else {
+            startDateTextBox.val(dateText);
+        }
+    },
+    onSelect: function (selectedDateTime){
+        var end = $(this).datepicker('getDate');
+        $('#date_from').datepicker('option', 'maxDate', new Date(end.getTime()) );
+    }
+});
+
+{/literal}
+
+</script>
 
 <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+    <tr id="tr_head">
+        <td>#</td>
+        <td>ФИО</td>
+        <td>Консультаций</td>
+        <td>Мониторинг</td>
+        <td>Траблы</td>
+        <td>Задания</td>
+        <td>Всего</td>
+    </tr>
+    {foreach from=$d item=i key=idx}
+    <tr>
+        <td>{$i.count+1}.</td>
+        <td>{$i.name} <sup>({$idx})</sup></td>
+        <td>{$i.data.consultation.count}</td>
+        <td>{$i.data.monitoring.count}</td>
+        <td>{$i.data.trouble.count}{if $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}</td>
+        <td>{$i.data.task.count}</td>
+        <td><i>{$i.data.trouble.count+$i.data.monitoring.count+$i.data.consultation.count+$i.data.task.count}</i></td>
+    </tr>
+    {/foreach}
+    <tr>
+        <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+        <td><b>{$total.consultation}</b></td>
+        <td><b>{$total.monitoring}</b></td>
+        <td><b>{$total.trouble}</b></td>
+        <td><b>{$total.task}</b></td>
+        <td><b><i>{$total.trouble+$total.monitoring+$total.consultation+$total.task}</i></b></td>
+    </tr>
+</table>
+
+<br><br><br>
+<b>на основании перехода на стадию "Выполнено"</b>
+<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
 <tr id="tr_head">
-<td>#</td>
 <td>ФИО</td>
 <td>Консультаций</td>
 <td>Мониторинг</td>
@@ -39,23 +120,56 @@ text-align: center;
 <td>Задания</td>
 <td>Всего</td>
 </tr>
-{foreach from=$d item=i key=idx}
+{foreach from=$on_completed_users item=user_name key=user_user}
 <tr>
-<td>{$i.count+1}.</td>
-<td>{$i.name} <sup>({$idx})</sup></td>
-<td>{$i.data.consultation.count}</td>
-<td>{$i.data.monitoring.count}</td>
-<td>{$i.data.trouble.count}{if $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}</td>
-<td>{$i.data.task.count}</td>
-<td><i>{$i.data.trouble.count+$i.data.monitoring.count+$i.data.consultation.count+$i.data.task.count}</i></td>
+<td>{$user_name} <sup>({$user_user})</sup></td>
+<td>{$on_completed_data.7.consultation[$user_user]}</td>
+<td>{$on_completed_data.7.monitoring[$user_user]}</td>
+<td>{$on_completed_data.7.trouble[$user_user]}</td>
+<td>{$on_completed_data.7.task[$user_user]}</td>
+<td><i>{$on_completed_data.7.consultation[$user_user]+$on_completed_data.7.monitoring[$user_user]+$on_completed_data.7.trouble[$user_user]+$on_completed_data.7.task[$user_user]}</i></td>
 </tr>
 {/foreach}
-<td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-<td><b>{$total.consultation}</b></td>
-<td><b>{$total.monitoring}</b></td>
-<td><b>{$total.trouble}</b></td>
-<td><b>{$total.task}</b></td>
-<td><b><i>{$total.trouble+$total.monitoring+$total.consultation+$total.task}</i></b></td>
-</tr>
+    <tr>
+        <td colspan=1 align=right><b>Итого:</b>&nbsp;</td>
+        <td><b>{$on_completed_total.7.consultation}</b></td>
+        <td><b>{$on_completed_total.7.monitoring}</b></td>
+        <td><b>{$on_completed_total.7.trouble}</b></td>
+        <td><b>{$on_completed_total.7.task}</b></td>
+        <td><b><i>{$on_completed_total.7.trouble+$on_completed_total.7.monitoring+$on_completed_total.7.consultation+$on_completed_total.7.task}</i></b></td>
+    </tr>
 </table>
 
+<br><br><br>
+<b>на основании перехода на стадию "Закрыто"</b>
+<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+<tr id="tr_head">
+<td>ФИО</td>
+<td>Консультаций</td>
+<td>Мониторинг</td>
+<td>Траблы</td>
+<td>Задания</td>
+<td>Всего</td>
+</tr>
+{foreach from=$on_completed_users item=user_name key=user_user}
+<tr>
+<td>{$user_name} <sup>({$user_user})</sup></td>
+<td>{$on_completed_data.2.consultation[$user_user]}</td>
+<td>{$on_completed_data.2.monitoring[$user_user]}</td>
+<td>{$on_completed_data.2.trouble[$user_user]}</td>
+<td>{$on_completed_data.2.task[$user_user]}</td>
+<td><i>{$on_completed_data.2.consultation[$user_user]+$on_completed_data.2.monitoring[$user_user]+$on_completed_data.2.trouble[$user_user]+$on_completed_data.2.task[$user_user]}</i></td>
+</tr>
+{/foreach}
+    <tr>
+        <td colspan=1 align=right><b>Итого:</b>&nbsp;</td>
+        <td><b>{$on_completed_total.2.consultation}</b></td>
+        <td><b>{$on_completed_total.2.monitoring}</b></td>
+        <td><b>{$on_completed_total.2.trouble}</b></td>
+        <td><b>{$on_completed_total.2.task}</b></td>
+        <td><b><i>{$on_completed_total.2.trouble+$on_completed_total.2.monitoring+$on_completed_total.2.consultation+$on_completed_total.2.task}</i></b></td>
+    </tr>
+</table>
+
+<br>
+* - <small>Отчет формируется по траблам, созданным в указанный период. Считается каждый переход на стадию. Только заявки созданные сотрудниками тех.поддержки</small>
