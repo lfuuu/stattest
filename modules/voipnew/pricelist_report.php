@@ -100,9 +100,10 @@ class m_voipnew_pricelist_report
         if (isset($_GET['id'])) $report_id = intval($_GET['id']); else $report_id = 0;
 
         $report = PricelistReport::first($report_id);
+        $report_type_id = $report->report_type_id;
         $report->delete();
 
-        header('location: ?module=voipnew&action=pricelist_report_list');
+        header('location: ?module=voipnew&action=pricelist_report_list&report_type_id='.$report_type_id);
         exit;
     }
 
