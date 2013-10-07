@@ -3627,42 +3627,54 @@ function stats_courier_sms($fixclient, $genReport = false){
         $design->AddMain("stats/courier_sms.html");
     }
 }
-function stats_support_efficiency($fixclient){
+
+function stats_support_efficiency($fixclient)
+{
     global $db,$design;
 
     $m = array();
     $total = array(
-        "monitoring" => 0, 
-        "trouble" => 0, 
+        "monitoring"   => 0, 
+        "trouble"      => 0, 
         "consultation" => 0,
-        "task" => 0);
+        "task"         => 0
+        );
+
     $date = "";
+
+    $usages = array(
+            "" => "Без услуги",
+            "usage_extra" => "Доп услуги",
+            "usage_ip_ports" => "Интернет",
+            "usage_voip" => "Телефония",
+            "usage_virtpbx" => "Виртуальная АТС",
+            "usage_welltime" => "Welltime"
+            );
+    $usage = array_keys($usages);
+
+
+    $dateFrom = strtotime(date("Y-m-01", time()));
+    $dateTo = strtotime("+1 month -1 day", $dateFrom);
+
+    $dateFrom = date("Y-m-d", $dateFrom);
+    $dateTo = date("Y-m-d", $dateTo);
+
+    $onCompleted_users = array();
+    $onCompleted_data = array();
+    $onCompleted_total = array();
 
     if(get_param_raw("make_report", "") == "OK")
     {
 
-        $date_from_y = get_param_raw('date_from_y', date('Y'));
-        $date_from_m = get_param_raw('date_from_m', date('m'));
-        $date_from_d = get_param_raw('date_from_d', date('d'));
-        $date_to_y = get_param_raw('date_to_y', date('Y'));
-        $date_to_m = get_param_raw('date_to_m', date('m'));
-        $date_to_d = get_param_raw('date_to_d', date('d'));
+        $dateFrom = get_param_raw('date_from', $dateFrom);
+        $dateTo = get_param_raw('date_to', $dateTo);
+        $usage = get_param_raw("usage", $usage);
 
-        $design->assign('d_from_y', $date_from_y);
-        $design->assign('d_from_m', $date_from_m);
-        $design->assign('d_from_d', $date_from_d);
-        $design->assign('d_to_y', $date_to_y);
-        $design->assign('d_to_m', $date_to_m);
-        $design->assign('d_to_d', $date_to_d);
-
-        $d1 = $date_from_y."-".$date_from_m."-".$date_from_d;
-        $d2 = $date_to_y."-".$date_to_m."-".$date_to_d;
-
-        $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+        $date = $dateFrom == $dateTo ? 'за '.$dateFrom : 'с '.$dateFrom.' по '.$dateTo;
 
 
         $r = $db->AllRecords(
-                "
+                $q = "
                     select *, 
                         count(1) as c, 
                         sum(rating) rating, 
@@ -3677,9 +3689,10 @@ function stats_support_efficiency($fixclient){
                         FROM `tt_troubles` tt ,user_users uu 
                     where 
                             usergroup ='support' 
-                        and uu.user =    tt.user_author 
-                        and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59' 
-                        and trouble_type in ('trouble', 'task')
+                        and uu.user = tt.user_author 
+                        and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
+                        and trouble_type in ('trouble', 'task', 'support_welltime')
+                        and service in ('".implode("','", $usage)."')
                         order by uu.name
                       ) a 
                     group by user_author, trouble_subtype
@@ -3689,7 +3702,13 @@ function stats_support_efficiency($fixclient){
         foreach($r as $l)
         {
             if($l["trouble_subtype"] == "") continue;
-            if(!isset($m[$l["user_author"]])) $m[$l["user_author"]] = array("name" => $l["name"], "count" => $count++, "data" => array());
+
+            if(!isset($m[$l["user_author"]]))
+                $m[$l["user_author"]] = array(
+                    "name" => $l["name"], 
+                    "count" => $count++, 
+                    "data" => array()
+                );
 
             $m[$l["user_author"]]["data"][$l["trouble_subtype"]] = array(
                     "count" => $l["c"],
@@ -3701,13 +3720,111 @@ function stats_support_efficiency($fixclient){
                 $total[$l["trouble_subtype"]] += $l["c"];
         }
 
-
+        list($onCompleted_data, $onCompleted_users, $onCompleted_total) = $this->stats_support_efficiency__basisOnCompleted($dateFrom, $dateTo, $usage);
     }
+
+    $design->assign('date_from', $dateFrom);
+    $design->assign('date_to', $dateTo);
+
+    $design->assign('usages', $usages);
+    $design->assign('usages_selected', $usage);
+
+    $design->assign("on_completed_data", $onCompleted_data);
+    $design->assign("on_completed_users", $onCompleted_users);
+    $design->assign("on_completed_total", $onCompleted_total);
+
     $design->assign("date", $date);
     $design->assign("d", $m);
     $design->assign("total", $total);
     $design->AddMain("stats/support_efficiency.html");
 }
+
+function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
+{
+    global $db;
+
+    $rs = $db->AllRecords("
+        SELECT 
+            trouble_subtype as type,
+            ts.trouble_id, 
+            ts.state_id, 
+            user_main, 
+            user_edit  
+        FROM 
+            `tt_troubles` tt , tt_stages ts, user_users u
+        where 
+                tt.id = ts.trouble_id
+            AND u.user= tt.user_author
+            AND usergroup = 'support'
+            AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
+            AND trouble_type in ('trouble', 'task', 'support_welltime')
+            AND service in ('".implode("','", $usage)."')
+            ORDER BY tt.id, ts.stage_id
+            ");
+
+    $counter = array(
+        "7" => array(), // completed
+        "2" => array()  // closed
+        );
+
+    $total = array(
+        "7" => array(), // completed
+        "2" => array()  // closed
+        );
+
+
+
+    $users = array();
+
+    $troubleId = 0;
+    foreach ($rs as $r)
+    {
+        // new trouble, reset
+        if ($r["trouble_id"] != $troubleId)
+        {
+            $troubleId = $r["trouble_id"];
+            $state = $r["state_id"];
+            $user = $r["user_main"];
+
+            continue; //this first stage
+        }
+
+        $user = $r["user_main"];
+
+        if ($state != $r["state_id"])
+        {
+            if($r["state_id"] == 7 || $r["state_id"] == 2)
+            {
+                if(!isset($counter[$r["state_id"]][$r["type"]]))
+                    $counter[$r["state_id"]][$r["type"]] = array();
+
+                if(!isset($counter[$r["state_id"]][$r["type"]][$user]))
+                    $counter[$r["state_id"]][$r["type"]][$user] = 0;
+
+                $counter[$r["state_id"]][$r["type"]][$user]++;
+
+
+                if (!isset($total[$r["state_id"]][$r["type"]]))
+                    $total[$r["state_id"]][$r["type"]] = 0;
+
+                $total[$r["state_id"]][$r["type"]]++;
+
+
+                $users[$user] = $user;
+            }
+
+            $state = $r["state_id"];
+        }
+    }
+
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
+    {
+        $users[$u["user"]] = $u["name"];
+    }
+
+    return array($counter, $users, $total);
+}
+
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){
     $this->stats_report_plusopers($fixclient, 'nbn', $genReport, $viewLink);
 }
@@ -3844,7 +3961,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     	$d1Default = date("Y-m-01");
     	$d2Default = date("Y-m-d", strtotime("+1 month -1 day", strtotime(date("Y-m-01"))));
 
-        $filterPromoAll = array("all"=> "Все", "promo" => "По акции", "no_promo" => "Не по акции");
+        $filterPromoAll = array("all"=> "Все заявки", "promo" => "По акции", "no_promo" => "Не по акции");
 
     	$d1 = get_param_raw("date_from", $d1Default);
     	$d2 = get_param_raw("date_to", $d2Default);
@@ -3882,8 +3999,6 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     $design->assign("s", $r);
 
-
-
     $list = array();
 
     if(($listType = get_param_raw("list", "")) != "")
@@ -3899,7 +4014,17 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
+    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0);
+
+    foreach($list as $l)
+    {
+        $total["count_3"] += $l["count_3"];
+        $total["count_9"] += $l["count_9"];
+        $total["count_11"] += $l["count_11"];
+    }
+
     $design->assign("list", $list);
+    $design->assign("total", $total);
 
     unset($_GET["list"]);
     $url = "";
@@ -3915,39 +4040,43 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
 
     if(get_param_raw("export", "") == "excel")
-	{
-		foreach($list as  &$l)
-		{
-      $l["count_3"] = (int)$l["count_3"];
-      $l["count_9"] = (int)$l["count_9"];
-      $l["count_11"] = (int)$l["count_11"];
-			$design->assign("i_stages", $l["stages"]);
-			$design->assign("last", 1000);
-			$html = $design->fetch("stats/onlime_stage.tpl");
-			$html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
-			$l["stages_text"] = strip_tags($html);
-		}
-		unset($l);
+    {
+        foreach($list as  &$l)
+        {
+            $l["count_3"] = (int)$l["count_3"];
+            $l["count_9"] = (int)$l["count_9"];
+            $l["count_11"] = (int)$l["count_11"];
+            $design->assign("i_stages", $l["stages"]);
+            $design->assign("last", 1000);
+            $html = $design->fetch("stats/onlime_stage.tpl");
+            $html = str_replace(array("\r","\n", "<br>", "    ", "   ", "   ", "  "), array("","", "\n", " ", " ", " ", " "), $html);
+            $l["stages_text"] = strip_tags($html);
+        }
+        unset($l);
 
-    	$this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
-            array(
-                "Оператор" => "fio_oper",
-                "Номер счета" => "bill_no",
-                "Дата создания заказа" => "date_creation",
-                "Кол-во Onlime-Telecard" => "count_3",
-                "Кол-во HD-ресивер OnLime" => "count_9",
-                "Кол-во HD-ресивер с диском" => "count_11",
-                "Серийные номера" => "serials",
-                "ФИО клиента" => "fio",
-                "Телефон клиента" => "phone",
-                "Адрес" => "address",
-                "Дата доставки желаемая" => "date_deliv",
-                "Дата доставки фактическа" => "date_delivered",
-                "Этапы" => "stages_text"
-                ),
-            $list);
+        $list[] = $total+array("date_creation" => "Итого:");
 
-	}
+        $this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
+                array(
+                    "Оператор" => "fio_oper",
+                    "Номер счета OnLime" => "req_no",
+                    "Номер счета Маркомнет Сервис" => "bill_no",
+                    "Дата создания заказа" => "date_creation",
+                    "Кол-во Onlime-Telecard" => "count_3",
+                    "Кол-во HD-ресивер OnLime" => "count_9",
+                    "Кол-во HD-ресивер с диском" => "count_11",
+                    "Серийные номера" => "serials",
+                    "Номер купона" => "coupon",
+                    "ФИО клиента" => "fio",
+                    "Телефон клиента" => "phone",
+                    "Адрес" => "address",
+                    "Дата доставки желаемая" => "date_deliv",
+                    "Дата доставки фактическа" => "date_delivered",
+                    "Этапы" => "stages_text"
+                    ),
+                $list);
+
+    }
 
     if($genReport)
     {
@@ -4202,6 +4331,19 @@ private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
                     and s2.state_id in (2,20)
                 ");
 
+    $addWhere = "";
+    $addJoin = "";
+
+    if($filterPromo == "promo")
+    {
+        $addWhere = "and coupon != ''";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }elseif($filterPromo == "no_promo")
+    {
+        $addWhere = "and (coupon = '' or coupon is null)";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }
+
 if($client != "nbn")
 {
 	$closeList = $db->AllRecords("
@@ -4225,11 +4367,13 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+        (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
                 a.comment1 as date_deliv,
                 a.comment2 as fio_oper
 
 		from tt_stages s, tt_troubles t, newbills_add_info a, newbills b
+        ".$addJoin."
 		where
 				s.trouble_id = t.id
 			and s.date_start between '".$d1." 00:00:00' and '".$d2." 23:59:59'
@@ -4238,6 +4382,7 @@ if($client != "nbn")
 			and t.bill_no = a.bill_no
             and b.bill_no = t.bill_no
             and is_rollback = 0
+            ".$addWhere."
             ");
 
 }else{
@@ -4254,11 +4399,13 @@ if($client != "nbn")
                     count(1)                                   as count
                 FROM
                     `tt_troubles` t, tt_stages s, newbills b
+                    ".$addJoin."
                 where
                         t.client = '".$client."'
                     and b.bill_no = t.bill_no
                     and s.stage_id = t.cur_stage_id
-                    and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'")+array("delivery" => count($deliveryList));
+                    and date_creation between '".$d1." 00:00:00' and '".$d2." 23:59:59'
+                    ".$addWhere)+array("delivery" => count($deliveryList));
 
     if($client != "nbn")
     {
@@ -4269,9 +4416,23 @@ if($client != "nbn")
     return array($r, $closeList, $deliveryList);
 }
 
-private function report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList)
+private function report_plusopers__getList($client, $listType, $d1, $d2, $deliveryList, $closeList, $filterPromo)
 {
     global $design, $db;
+
+
+    $addWhere = "";
+    $addJoin = "";
+
+    if($filterPromo == "promo")
+    {
+        $addWhere = "and coupon != ''";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }elseif($filterPromo == "no_promo")
+    {
+        $addWhere = "and (coupon = '' or coupon is null)";
+        $addJoin = "left join onlime_order oo on (oo.bill_no = b.bill_no)";
+    }
 
         $sTypes = array(
                 "work"   => array("sql" => "is_rollback =0 and state_id not in (2,20,21)",
@@ -4282,6 +4443,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                                   "title" => ($client == "nbn" ? "в отказе" : "Отказ")),
                 "delivery" => array(                            "title" => "доставка")
                 );
+
         if($client != "nbn")  // onlime
         {
             $sTypes["rollback"] = array("sql" => "is_rollback =1", "title" => "Возврат");
@@ -4318,6 +4480,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
+        (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
                             (select date_start from tt_stages s, tt_doers d where s.stage_id = d.stage_id and s.trouble_id = t.id order by s.stage_id desc limit 1) as date_delivered,
                             i.comment1 as date_deliv,
@@ -4325,6 +4488,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             " : "")."
                         FROM
                             `tt_troubles` t, tt_stages s, newbills_add_info i, newbills b
+                            ".$addJoin."
                         WHERE
                                 t.client = '".$client."'
                             AND s.stage_id = t.cur_stage_id
@@ -4332,6 +4496,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             AND i.bill_no = t.bill_no
                             AND t.bill_no = b.bill_no
                             AND ".$sTypes[$listType]["sql"]."
+                            ".$addWhere."
                         ORDER BY
                             date_creation");
 
