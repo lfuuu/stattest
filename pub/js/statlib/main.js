@@ -277,52 +277,6 @@ statlib.modules.tt.mktt.setState1c = function(ev,element){
 	form.submit()
 }
 
-statlib.modules.voip.show_price2 = function(ev, operator, defcode, date_before, diff_before, price_before, date_from, price, date_after, diff_after, price_after) {
-	var e = ev || window.event
-	if(!e.target) // IE fix
-		e.target = e.srcElement
-	
-	var target_offset = $(e.target).offset();
-	var popup = $('#popup_price');
-	popup.css({left: target_offset.left, top: target_offset.top+$(e.target).height()+6})
-	var text = '<b>'+operator+'</b><br/>Префикс: <b>'+defcode+'</b><br/>';
-	if (date_from != '')
-		text = text + '<b>Текущая цена: '+price+'</b> от '+date_from+'<br\>';
-	if (date_before != '')
-		text = text + 'Предыдущая цена: '+price_before+' от '+date_before+' ('+diff_before+'%)<br\>';
-	if (date_after != '')
-		text = text + 'Будущая цена: '+price_after+' от '+date_after+' ('+diff_after+'%)<br\>';
-	popup.html(text);
-	popup.show();
-}
-
-statlib.modules.voip.show_price = function(ev, defcode, effndef, date_from) {
-	var e = ev || window.event
-	if(!e.target) // IE fix
-		e.target = e.srcElement
-	
-	var target_offset = $(e.target).offset();
-	var popup = $('#popup_price');
-	popup.css({left: target_offset.left, top: target_offset.top+$(e.target).height()+6})
-	var text;
-	if (defcode == effndef)
-		text = effndef+' (префикс)<br/>';
-	else
-		text = '<b>'+effndef+' (префикс)</b><br/>';
-	if (date_from != '')
-		text = text + date_from+' (дата)<br\>';
-	popup.html(text);
-	popup.show();
-}
-
-
-statlib.modules.voip.hide_price = function(ev) {
-	var popup = $('#popup_price');
-	popup.hide();
-	
-}
-
-
 statlib.prepareAjaxSubmittingForm = function(formId, buttonId) {
 	var form = $('#' + formId);
 	var button = $('#' + buttonId);
