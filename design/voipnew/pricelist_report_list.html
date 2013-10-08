@@ -1,23 +1,79 @@
-<p style="font-weight: bold">Отчеты по прайслистам</p>
+<p style="font-weight: bold">Отчеты
+{if $report_type_id==1}
+    По маршрутизации
+{elseif $report_type_id==2}
+    Сравнение операторов
+{elseif $report_type_id==3}
+    Анализ прайслистов
+{/if}
+</p>
+<a href="index.php?module=voipnew&action=pricelist_report_edit&report_type_id={$report_type_id}">Создать новый отчет</a><br/><br/>
+
+<form id="formFilter" action="?module=voipnew&action=pricelist_report_analyze_list" method="GET">
+    <input type="hidden" name="module" value="voipnew" />
+    <input type="hidden" name="action" value="pricelist_report_analyze_list" />
+    <input type="hidden" name="report_type_id" value="{$report_type_id}" />
+
+Регион: <select name="f_instance_id" onchange="$('#formFilter').submit()">
+    <option value="0">--- выберите регион --- </option>
+    {foreach from=$regions item='r'}
+    <option value="{$r->id}" {if $f_instance_id==$r->id}selected{/if} >{$r->name}</option>
+    {/foreach}
+</select><br/>
+
+</form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 	<tr>
-		<td class=header style="min-width: 100px;">Регион</td><td class=header style="min-width: 100px;">Прайслист</td><td class=header style="min-width: 100px;">Операторы</td>
+		<td class=header>Регион</td>
+        <td class=header>Наименование</td>
+        <td class=header>Прайслисты</td>
+        <td class=header>Операции</td>
 	</tr>
 	{foreach from=$reports item='r'}
-	<tr class={cycle values='even,odd'}>
-		<td nowrap><a href="index.php?module=voipnew&action=pricelist_report_show&id={$r.id}">
-      {$regions[$r.region_id].name}
-    </a></td>
-    <td nowrap><a href="index.php?module=voipnew&action=pricelist_report_show&id={$r.id}">
-      {$pricelists[$r.pricelist_id].pricelist}
-    </a></td>
-		<td nowrap><a href="index.php?module=voipnew&action=pricelist_report_show&id={$r.id}">
-			{foreach from=$r.pricelists key='i' item='pl'}
-        {if $i > 0},{/if}
-				{$pricelists[$pl].operator}
-			{/foreach}
-    </a></td>
-	</tr>
+	<tr class="{cycle values='even,odd'}">
+		<td nowrap>
+            <a href="index.php?module=voipnew&action=pricelist_report_show&id={$r->id}">
+                {assign var=region_id value="`$r->instance_id`"}
+                {if $regions.$region_id}
+                    {$regions.$region_id->name}
+                {else}
+                    Все регионы
+                {/if}
+            </a>
+        </td>
+        <td nowrap>
+            <a href="index.php?module=voipnew&action=pricelist_report_show&id={$r->id}">
+            {$r->name}
+            </a>
+        </td>
+        <td>
+            <table>
+            {foreach from=$r->getFields() item='f'}
+            <tr>
+                <td nowrap>
+                    {php} echo $this->_tpl_vars['f']['pricelist']->getOperator()->short_name; {/php}
+                </td>
+                <td nowrap>/</td>
+                <td nowrap>
+                     {$f.pricelist->name}
+                </td>
+                <td nowrap bgcolor="white">
+                    {if $f.date}{$f.date->format('d.m.Y')}{else}Текущая дата{/if}
+                </td>
+            </tr>
+            {/foreach}
+            </table>
+        </td>
+        <td nowrap>
+            &nbsp;&nbsp;&nbsp;
+            <a href="index.php?module=voipnew&action=pricelist_report_show&id={$r->id}">Просмотр</a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="index.php?module=voipnew&action=pricelist_report_edit&id={$r->id}">Настройка</a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="index.php?module=voipnew&action=pricelist_report_delete&id={$r->id}" onclick="return confirm('Удалить отчет?');">Удалить</a>
+            &nbsp;&nbsp;&nbsp;
+        </td>
+    </tr>
 	{/foreach}
 </table>

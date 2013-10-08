@@ -149,6 +149,7 @@ if (!defined('NO_INCLUDE')){
 ActiveRecord\Config::initialize(function($cfg) {
     $connections = array(
         'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . '/' . SQL_DB . '?charset=koi8r',
+        'voip' => 'pgsql://' . PGSQL_USER . ':' . PGSQL_PASS . '@' . PGSQL_HOST . '/' . PGSQL_DB . '?charset=koi8r',
     );
 
     $cfg->set_model_directory(MODELS_PATH);

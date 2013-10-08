@@ -269,7 +269,7 @@ class m_voipnew_analyze_pricelist_report
 
         if (!isset($_GET['export'])) {
 
-            $design->AddMain('voipnew/analyze_pricelist_report_show.html');
+            $design->AddMain('voipnew/analyze_pricelist_report_show_old.html');
         } else {
 
             $ctype = "application/vnd.ms-excel; charset=utf-8";
@@ -282,7 +282,7 @@ class m_voipnew_analyze_pricelist_report
 
             //header("Content-Type: text/html; charset=utf-8");      
 
-            $design->ProcessEx('voipnew/analyze_pricelist_report_export.html');
+            $design->ProcessEx('voipnew/analyze_pricelist_report_export_old.html');
             exit;
         }
     }
@@ -404,4 +404,232 @@ class m_voipnew_analyze_pricelist_report
         $design->AddMain('voipnew/analyze_pricelist_report_list.html');
 
     }
+
+
+    function analyze_report_show()
+    {
+        global $design, $db, $pg_db;
+        if (isset($_GET['id'])) $report_id = intval($_GET['id']); else $report_id = 0;
+
+        $f_country_id = get_param_protected('f_country_id', '0');
+        $f_region_id = get_param_protected('f_region_id', '0');
+        $f_mob = get_param_protected('f_mob', '0');
+        $f_dest_group = get_param_protected('f_dest_group', '-1');
+        $f_short = get_param_raw('f_short', '');
+
+        $recalc = isset($_GET['calc']) ? 'true' : 'false';
+
+        $rep = PricelistReport::find($report_id);
+
+        $volume = $pg_db->GetRow("SELECT * FROM voip.volume_calc_task WHERE id=" . intval($rep->volume_calc_task_id));
+        if (isset($volume['id']))
+            $volume_task_id = $volume['id'];
+        else
+            $volume_task_id = 0;
+
+        $report = array();
+        if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])) {
+            $where = '';
+            if ($f_dest_group != '-1')
+                $where .= " and g.dest='{$f_dest_group}'";
+            if ($f_country_id != '0')
+                $where .= " and g.country='{$f_country_id}'";
+            if ($f_region_id != '0')
+                $where .= " and g.region='{$f_region_id}'";
+            if ($f_mob == 't')
+                $where .= " and d.mob=true ";
+            if ($f_mob == 'f')
+                $where .= " and d.mob=false ";
+
+            $report = $pg_db->AllRecords("
+                                        select r.prefix, r.fields, r.pricelists, r.prices, r.priorities, r.locked, v.seconds/60 as volume,
+                                                  g.name as destination, d.mob, g.zone, dgr.shortname as dgroup
+                                        from voip.select_pricelist_report({$report_id}, {$recalc}) r
+                                                LEFT JOIN voip_destinations d ON r.prefix=d.defcode
+                                                LEFT JOIN geo.geo g ON g.id=d.geo_id
+                                                LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
+                                                LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.operator_id=0 and v.prefix=d.defcode
+                                                where true {$where}
+                                                order by g.name, r.prefix
+                                         ");
+
+            foreach ($report as $k => $r) {
+                $fields = explode(',', substr($r['fields'], 1, strlen($r['fields']) - 2));
+                $prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
+                $pricelists = explode(',', substr($r['pricelists'], 1, strlen($r['pricelists']) - 2));
+
+                $columns = array();
+                foreach($fields as $pos => $num) {
+                    $columns[$num] = array(
+                        'pricelist_id' => $pricelists[$pos],
+                        'price' => $prices[$pos],
+                        'pos' => $pos
+                    );
+                }
+                foreach($rep->pricelist_ids as $pos => $pl) {
+                    if (!isset($columns[$pos])) {
+                        $columns[$pos] = array(
+                            'pricelist_id' => null,
+                            'price' => null,
+                            'pos' => null
+                        );
+                    }
+                }
+
+                $report[$k]['columns'] = $columns;
+                $report[$k]['pricelists'] = $pricelists;
+                $report[$k]['best_price'] = $prices[0];
+            }
+
+        }
+
+        if (isset($_GET['export'])) {
+            foreach ($report as &$r) {
+                $r['destination'] = iconv('koi8-r', 'utf-8', $r['destination']);
+            }
+        }
+
+        if ($f_short != '') {
+            $dest = '';
+            $destination = '';
+            $ismob = '';
+            $price = '';
+
+            $resgroups = array();
+            $resgroup = array();
+            foreach ($report as $r) {
+                $r_price = '';
+                foreach ($r['columns'] as $column) {
+                    if (isset($column['price'])) $r_price .= $column['price'];
+                }
+
+                if ($dest != $r['dgroup'] ||
+                    $destination != $r['destination'] ||
+                    $ismob != $r['mob'] ||
+                    $price != $r_price
+                ) {
+                    $dest = $r['dgroup'];
+                    $destination = $r['destination'];
+                    $ismob = $r['mob'];
+                    $price = '';
+                    foreach ($r['columns'] as $column) {
+                        if (isset($column['price'])) $price .= $column['price'];
+                    }
+
+                    if (count($resgroup) > 0) {
+                        $resgroups[] = $resgroup;
+                    }
+                    $resgroup = $r;
+                    $resgroup['defs'] = array();
+                    $resgroup['prefix'] = '';
+
+                } else {
+                    $resgroup['volume'] = $resgroup['volume'] + $r['volume'];
+                }
+
+
+                $resgroup['defs'][] = $r['prefix'];
+            }
+            if (count($resgroup) > 0) {
+                $resgroups[] = $resgroup;
+            }
+
+            foreach ($resgroups as $k => $resgroup) {
+                while (true) {
+                    $can_trim = false;
+                    $first = true;
+                    $char = '';
+                    $defs = array();
+                    foreach ($resgroups[$k]['defs'] as $d) {
+                        if ($first == true) {
+                            $can_trim = true;
+                            $first = false;
+                            $char = substr($d, 0, 1);
+                        } else {
+                            if ($char != substr($d, 0, 1)) {
+                                $can_trim = false;
+                            }
+                        }
+                    }
+
+                    if ($can_trim == true) {
+                        foreach ($resgroups[$k]['defs'] as $d) {
+                            $dd = substr($d, 1);
+                            if (strlen($dd) > 0)
+                                $defs[] = $dd;
+                            else if (strlen($dd) == 0) {
+                                $defs = array();
+                                break;
+                            }
+                        }
+                        $resgroups[$k]['prefix'] = $resgroups[$k]['prefix'] . $char;
+                        $resgroups[$k]['defs'] = $defs;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            $res = array();
+            foreach ($resgroups as $resgroup) {
+                $defs = '';
+                foreach ($resgroup['defs'] as $d) {
+                    if ($defs == '') {
+                        $defs .= $d;
+                    } else {
+                        $defs .= ', ' . $d;
+                    }
+                }
+                $resgroup['def2'] = '';
+
+                if ($defs != '') {
+                    $resgroup['prefix'] = $resgroup['prefix'] . ' </b>' . '(' . $defs . ')<b>';
+                }
+                $res[] = $resgroup;
+            }
+            $report = $res;
+        }
+
+
+        $design->assign('rep', $rep);
+        $design->assign('volume', $volume);
+        $design->assign('report', $report);
+        $design->assign('report_id', $report_id);
+        $design->assign('f_country_id', $f_country_id);
+        $design->assign('f_region_id', $f_region_id);
+        $design->assign('f_mob', $f_mob);
+        $design->assign('f_dest_group', $f_dest_group);
+        $design->assign('f_short', $f_short);
+        $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
+        $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
+        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+
+        $pricelists = $pg_db->AllRecords("select * from voip.pricelist", 'id');
+        if (isset($_GET['export'])) {
+            foreach ($pricelists as &$r) {
+                $r['name'] = iconv('koi8-r', 'utf-8', $r['name']);
+            }
+        }
+        $design->assign('pricelists', $pricelists);
+
+        if (!isset($_GET['export'])) {
+
+            $design->AddMain('voipnew/analyze_pricelist_report_show.html');
+        } else {
+
+            $ctype = "application/vnd.ms-excel; charset=utf-8";
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header('Content-Disposition: attachment; filename="price.xls"');
+            header("Content-Type: $ctype");
+            header("Content-Transfer-Encoding: binary");
+
+            //header("Content-Type: text/html; charset=utf-8");
+
+            $design->ProcessEx('voipnew/analyze_pricelist_report_export.html');
+            exit;
+        }
+    }
+
 }
