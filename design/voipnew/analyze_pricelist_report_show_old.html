@@ -1,5 +1,5 @@
-<p style="font-weight: bold">Отчет: {$rep->id}
-    <a href="./?module=voipnew&action=pricelist_report_list">Назад</a>
+<p style="font-weight: bold">Отчет Анализ прайслистов: {$rep.id}
+    <a href="./?module=voipnew&action=analyze_pricelist_report_list">Назад</a>
 </p>
 
 <p>
@@ -14,13 +14,13 @@
     {if $volume.calc_running == 't'}
     <b>(идет расчет)</b>
     {else}
-    <a href="./?module=voipnew&action=calc_volume&report_type=pricelist&report_id={$rep.id}" target="_blank">Рассчитать</a>
+    <a href="./?module=voipnew&action=calc_volume&report_type=analyze_pricelist&report_id={$rep.id}" target="_blank">Рассчитать</a>
     {/if}
 </p>
 
 <form action="./index.php" method="get" style="display:inline">
     <input type="hidden" name="module" value="voipnew" />
-    <input type="hidden" name="action" value="pricelist_report_show" />
+    <input type="hidden" name="action" value="analyze_pricelist_report_show" />
     <input type="hidden" name="id" value="{$report_id}" />
     <select name="f_dest_group">
         <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>

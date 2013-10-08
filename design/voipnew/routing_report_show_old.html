@@ -1,0 +1,77 @@
+<p style="font-weight: bold">Отчеты по прайслистам: {$regions[$rep.region].name}
+    (  {foreach from=$rep.pricelists key='i' item='pl'}
+    {if $i > 0},{/if}
+    {$pricelists[$pl].operator}
+    {/foreach})
+
+    <a href="./?module=voipnew&action=pricelist_report_list">Назад</a>
+</p>
+
+<form action="./index.php" method="get" style="display:inline">
+    <input type="hidden" name="module" value="voipnew" />
+    <input type="hidden" name="action" value="pricelist_report_show" />
+    <input type="hidden" name="id" value="{$report_id}" />
+    <select name="f_dest_group">
+        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
+        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
+        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
+        <option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+    </select>
+    <select name="f_country_id">
+        <option value="0">-- Все страны --</option>
+        {foreach from=$geo_countries item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
+    <select name="f_region_id">
+        <option value="0">-- Все регионы --</option>
+        {foreach from=$geo_regions item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
+
+    <select name="f_mob">
+        <option value="0">-- Моб/Стац --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+    </select>
+
+    <input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить
+    <input type="checkbox" name="f_locks" {if $f_locks != ''} checked{/if}>Блокировки
+    <br/>
+    <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type=submit name="make" id="make_report" value="Сформировать"/>
+</form>
+
+<div id='popup_price' style="position:absolute;display:none;background-color:#FFFFFF;border:1px #BBBBBB solid;padding: 3px;"></div>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
+        <td class=header style="min-width: 100px;">Назначение</td>
+        <td nowrap class=header style="min-width: 100px;text-align: center">Лучшая цена</td>
+        {foreach from=$rep.pricelists item='p'}
+        <td nowrap class=header align=center style="min-width: 100px;text-align: center">{$pricelists[$p].operator}</td>
+        {/foreach}
+        <td nowrap class=header style="min-width: 100px;text-align: center">Порядок</td>
+    </tr>
+    {foreach from=$report item='rd'}
+
+    <tr class="{cycle values='even,odd'}">
+        <td>{$rd.prefix}</td>
+        <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+        <td nowrap align=center style="font-weight: bold">{$rd.prices[0]}</td>
+        {foreach from=$rep.pricelists item='p'}
+        <td nowrap align=center class="{if $rd.pricelists[0]==$p}best{/if}">{$rd.parts[$p].price}</td>
+        {/foreach}
+        <td nowrap align=center>
+            {foreach from=$rd.pricelists key='i' item='pl'}
+            {if $i > 0}->{/if}
+            {$pricelists[$pl].operator}
+            {/foreach}
+        </td>
+    </tr>
+
+    {/foreach}
+</table>

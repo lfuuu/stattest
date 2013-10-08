@@ -1,11 +1,17 @@
-<p style="font-weight: bold">Отчет по маршрутизации: {$regions[$rep.region].name}
-(  {foreach from=$rep.pricelists key='i' item='pl'}
+<h1>
+    <small>
+        <a href="?module=voipnew&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+    </small>
+
+    Отчет по маршрутизации:
+    <small>{if $rep->instance_id}{$regions[$rep->instance_id].name}{else}Все регионы{/if}
+
+    (  {foreach from=$rep->pricelist_ids key='i' item='pl'}
     {if $i > 0},{/if}
     {$pricelists[$pl].operator}
-  {/foreach})
-
-  <a href="./?module=voipnew&action=routing_report_list">Назад</a>
-</p>
+    {/foreach})
+    </small>
+</h1>
 
 <p>
   {if $volume.calc_date}
@@ -19,13 +25,18 @@
   {if $volume.calc_running == 't'}
   <b>(идет расчет)</b>
   {else}
-  <a href="./?module=voipnew&action=calc_volume&report_type=routing&report_id={$rep.id}" target="_blank">Рассчитать</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="?module=voipnew&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">Рассчет объемов</a>
   {/if}
+
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <a href="?module=voipnew&action=pricelist_report_edit&id={$rep->id}">Настройка отчета</a>
 </p>
 
-{if $rep.generated}
+{if $rep->generated_at}
 <p>
-  Отчет расчитан {$rep.generated}
+  Отчет расчитан {$rep->generated_at}
 </p>
 {/if}
 
@@ -106,7 +117,7 @@ td.lock_default {
 </script>
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipnew" />
-	<input type="hidden" name="action" value="routing_report_show" />
+	<input type="hidden" name="action" value="pricelist_report_show" />
 	<input type="hidden" name="id" value="{$report_id}" />
 	<select name="f_dest_group">
 	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
@@ -144,14 +155,12 @@ td.lock_default {
   <input type=button value="Заблокировать дорогие коды" onclick="lock_by_price()"/>
 </form>
 
-<div id='popup_price' style="position:absolute;display:none;background-color:#FFFFFF;border:1px #BBBBBB solid;padding: 3px;"></div>
-
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr>
   <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
   <td class=header style="min-width: 100px;">Назначение</td>
   <td nowrap class=header style="min-width: 100px;text-align: center">Лучшая цена</td>
-  {foreach from=$rep.pricelists item='p'}
+  {foreach from=$rep->pricelist_ids item='p'}
     <td nowrap class=header align=center style="min-width: 100px;text-align: center">{$pricelists[$p].operator}</td>
 	{/foreach}
   {if $volume.calc_date}<td nowrap class=header style="text-align: center">Объем<br/>(мин)</td>{/if}
@@ -163,9 +172,9 @@ td.lock_default {
 <tr class="{cycle values='even,odd'} {if $rd.locked=='t'}lock{/if} " value="{$rd.locked}">
 	<td>{$rd.prefix}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-  <td nowrap align=center style="font-weight: bold">{$rd.prices[0]}</td>
-  {foreach from=$rep.pricelists item='p'}
-		<td nowrap align=center class="{if $rd.pricelists[0]==$p}best{/if}">{$rd.parts[$p].price}</td>
+  <td nowrap align=center style="font-weight: bold">{$rd.best_price}</td>
+  {foreach from=$rep->pricelist_ids key='i' item='p'}
+		<td nowrap align=center class="{if $rd.columns[$i].pos === 0}best{/if}">{$rd.columns[$i].price}</td>
 	{/foreach}
   {if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
   <td nowrap align=center>
