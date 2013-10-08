@@ -665,212 +665,23 @@ class m_newaccounts extends IModule
 
         $design->assign("view_canceled", $isViewCanceled);
 
-        $sum = array(
-            'USD'=>array(
-                'delta'=>0,
-                'bill'=>0,
-                'ts'=>''
-            ),
-            'RUR'=>array(
-                'delta'=>0,
-                'bill'=>0,
-                'ts'=>''
-            )
-        );
-
-        $r=$db->GetRow('
-            select
-                *
-            from
-                newsaldo
-            where
-                client_id='.$fixclient_data['id'].'
-            and
-                currency="'.$fixclient_data['currency'].'"
-            and
-                is_history=0
-            order by
-                id desc
-            limit 1
-        ');
-        if($r){
-            $sum[$fixclient_data['currency']]
-                =
-            array(
-                'delta'=>0,
-                'bill'=>$r['saldo'],
-                'ts'=>$r['ts'],
-                'saldo'=>$r['saldo']
+        $params = array(
+            "client_id" => $fixclient_data["id"],
+            "client_currency" => $fixclient_data["currency"],
+            "is_multy" => $isMulty,
+            "is_view_canceled" => $isViewCanceled,
+            "get_sum" => $get_sum
             );
-        }else{
-            $sum[$fixclient_data['currency']]
-                =
-            array(
-                'delta'=>0,
-                'bill'=>0,
-                'ts'=>''
-            );
-        }
 
-        $sqlLimit = $fixclient_data["type"] == "multi" ? " limit 200" : "";
+        $R = BalanceSimple::get($params);
 
-        $R1 = $db->AllRecords($q='
-            select
-                *,
-                '.(
-                    $sum[$fixclient_data['currency']]['ts']
-                        ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
-                        :    '1'
-                ).' as in_sum
-            from
-                newbills
-            '.($isMulty && !$isViewCanceled ? "
-                left join tt_troubles t using (bill_no)
-                left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
-                " : "").'
-            where
-                client_id='.$fixclient_data['id'].'
-                '.($isMulty && !$isViewCanceled? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
-            order by
-                bill_date desc,
-                bill_no desc
-            '.$sqlLimit.'
-        ','',MYSQL_ASSOC);
+        if($get_sum)
+            return $R;
+
+        list($R, $sum, $sw) = $R;
 
 
-        $R2 = $db->AllRecords('
-            select
-                P.*,
-                (P.sum_rub/P.payment_rate) as sum,
-                U.user as user_name,
-                '.(
-                    $sum[$fixclient_data['currency']]['ts']
-                        ?    'IF(P.payment_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
-                        :    '1'
-                ).' as in_sum
-            from
-                newpayments as P
-            LEFT JOIN
-                user_users as U
-            on
-                U.id=P.add_user
-            where
-                P.client_id='.$fixclient_data['id'].'
-            order by
-                P.payment_date
-            desc
-                '.$sqlLimit.'
-            ',
-        '',MYSQL_ASSOC);
 
-        $R=array();
-        foreach($R1 as &$r){
-            $v=array(
-                'bill'=>$r,
-                'date'=>$r['bill_date'],
-                'pays'=>array(),
-                'delta'=>-$r['sum']
-            );
-            foreach($R2 as $k2=>$r2){
-                $r2['bill_vis_no'] = $r2['bill_no'];
-                $R2[$k2]['bill_vis_no'] = $r2['bill_no'];
-                if(
-                    $r['bill_no'] == $r2['bill_no']
-                &&
-                    (
-                        $r2['bill_no'] == $r2['bill_vis_no']
-                    )
-                ){
-                    $r2['divide']=0;
-                    $v['pays'][]=$r2;
-                    $v['delta']+=$r2['sum'];
-                    unset($R2[$k2]);
-                }
-            }
-
-            foreach($R2 as $k2=>$r2)
-                if(
-                    $r['bill_no'] == $r2['bill_no']
-                &&
-                    $r2['bill_no'] != $r2['bill_vis_no']
-                ){
-                    $d = round(-$v['delta'],2);
-                    $R2[$k2]['sum'] = $r2['sum']-$d;
-                    $R2[$k2]['sum_rub'] = round($R2[$k2]['sum']*$R2[$k2]['payment_rate'],2);
-                    $r2['sum'] = $d;
-                    $r2['sum_rub'] = round($r2['sum']*$r2['payment_rate'],2);
-                    $r2['divide'] = 1;
-                    $v['pays'][] = $r2;
-                    $v['delta'] -= $d;
-                }
-            $r['v'] = $v;
-        }
-        unset($r);
-        foreach($R1 as $r){
-            $v=$r['v'];
-            foreach($R2 as $k2=>$r2)
-                if(
-                    $r['bill_no'] == $r2['bill_vis_no']
-                &&
-                    $r2['bill_no'] != $r['bill_no']
-                ){
-                    $r2['divide']=2;
-                    $v['pays'][]=$r2;
-                    $v['delta']+=round($r2['sum'],2);
-                    unset($R2[$k2]);
-                }
-            if($r['in_sum']){
-                $sum[$r['currency']]['bill'] += $r['sum'];
-                $sum[$r['currency']]['delta'] -= $v['delta'];
-            }
-            $R[$r['bill_no']] = $v;
-        }
-        foreach($R2 as $r2){
-            $v = array(
-                'date'=>$r2['payment_date'],
-                'pays'=>array($r2),
-                'delta'=>$r2['sum']
-            );
-            if($r2['in_sum'])
-                $sum[$fixclient_data['currency']]['delta']-=$v['delta'];
-            $R[]=$v;
-        }
-        if($get_sum){
-            return $sum;
-        }
-        ## sorting
-        $sk = array();
-        foreach($R as $bn=>$b){
-            if(!isset($sk[$b['date']]))
-                $sk[$b['date']] = array();
-            $sk[$b['date']][$bn] = 1;
-        }
-        $buf = array();
-
-        $sw = array();
-
-        krsort($sk);
-
-        foreach($sk as $bn){
-            krsort($bn);
-            foreach($bn as $billno=>$v)
-            {
-                $buf[$billno] = $R[$billno];
-
-                $bDate = $R[$billno]["bill"]["bill_date"];
-
-                if($bDate)
-                {
-                    $sw[$bDate] = $billno;
-                }
-
-            }
-        }
-
-        $R = $buf;
-
-
-        ksort($buf);
         ksort($sw);
 
         if($stDate = $this->_getSwitchTelekomDate($fixclient_data["id"]))
