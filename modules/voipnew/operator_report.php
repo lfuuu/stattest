@@ -287,7 +287,7 @@ class m_voipnew_operator_report
             }
 
             $report = $pg_db->AllRecords("
-                                        select r.prefix, r.pricelists, r.prices, r.locked,
+                                        select r.prefix, r.prices, r.locked, r.orders, r.routes,
                                               g.name as destination, d.mob
                                         from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                                 LEFT JOIN voip_destinations d ON r.prefix=d.defcode
@@ -298,7 +298,6 @@ class m_voipnew_operator_report
                                          ");
 
             foreach ($report as $k => $r) {
-
                 $r['volume'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['volume'] : '';
                 $r['amount_op'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['amount_op'] : '';
 
@@ -308,34 +307,32 @@ class m_voipnew_operator_report
                 }
 
                 $r_prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
-                $r_pricelists = explode(',', substr($r['pricelists'], 1, strlen($r['pricelists']) - 2));
+                $r_pricelists = explode(',', substr($r['routes'], 1, strlen($r['routes']) - 2));
 
                 $r_parts = array();
-                $i = 0;
-                foreach ($r_pricelists as $pl) {
+                foreach ($rep->pricelist_ids as $i => $pl) {
                     if ($i == 0) {
                         $operator_id = isset($pricelistToOperator[$pl]) ? $pricelistToOperator[$pl]['operator_id'] : '';
 
                         $r_volume = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['volume'] : '';
                         $r_amount = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['amount_op'] : '';;
-                        $r_parts[$pl] = array(
+                        $r_parts[$i] = array(
                             'price' => $r_prices[$i],
                             'volume' => $r_volume ? round($r_volume) : '',
                             'amount' => $r_amount ? round($r_amount) : '');
-                        if (!isset($totals[$pl])) $totals[$pl] = array('volume' => '', 'amount' => '', 'amount_op' => '');
+                        if (!isset($totals[$i])) $totals[$i] = array('volume' => '', 'amount' => '', 'amount_op' => '');
 
                         if ($r_volume) {
-                            $totals[$pl]['volume'] += $r_volume;
+                            $totals[$i]['volume'] += $r_volume;
                             $totals['all']['volume'] += $r_volume;
                         }
                         if ($r_amount) {
-                            $totals[$pl]['amount'] += $r_amount;
+                            $totals[$i]['amount'] += $r_amount;
                             $totals['all']['amount'] += $r_amount;
                         }
                     } else {
-                        $r_parts[$pl] = array('price' => $r_prices[$i]);
+                        $r_parts[$i] = array('price' => $r_prices[$i]);
                     }
-                    $i++;
                 }
 
 

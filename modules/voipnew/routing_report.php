@@ -229,9 +229,9 @@ class m_voipnew_routing_report
                 $where .= " and (v.seconds_op>=" . ($f_volume * 60) . ")  ";
 
             $report = $pg_db->AllRecords("
-                                            select r.prefix, r.fields, r.pricelists, r.prices, r.priorities, r.locked, v.seconds_op/60 as volume,
+                                            select r.prefix, r.prices, r.locked, r.orders, r.routes, v.seconds_op/60 as volume,
                                                   g.name as destination, d.mob
-                                            from voip.select_routing_report2({$report_id}, {$recalc}) r
+                                            from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                             LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                                             LEFT JOIN geo.geo g ON g.id=d.geo_id
                                             LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
@@ -241,32 +241,15 @@ class m_voipnew_routing_report
                                      ");
 
             foreach ($report as $k => $r) {
-                $fields = explode(',', substr($r['fields'], 1, strlen($r['fields']) - 2));
+                $orders = explode(',', substr($r['orders'], 1, strlen($r['orders']) - 2));
                 $prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
-                $pricelists = explode(',', substr($r['pricelists'], 1, strlen($r['pricelists']) - 2));
-
-                $columns = array();
-                foreach($fields as $pos => $num) {
-                    $columns[$num] = array(
-                        'pricelist_id' => $pricelists[$pos],
-                        'price' => $prices[$pos],
-                        'pos' => $pos
-                    );
-                }
-                foreach($rep->pricelist_ids as $pos => $pl) {
-                    if (!isset($columns[$pos])) {
-                        $columns[$pos] = array(
-                            'pricelist_id' => null,
-                            'price' => null,
-                            'pos' => null
-                        );
-                    }
-                }
+                $routes = explode(',', substr($r['routes'], 1, strlen($r['routes']) - 2));
 
                 $report[$k]['locked_raw'] = (isset($lock_prefix[$r['prefix']]) ? $lock_prefix[$r['prefix']]['locked'] : '');
-                $report[$k]['columns'] = $columns;
-                $report[$k]['pricelists'] = $pricelists;
-                $report[$k]['best_price'] = $prices[0];
+                $report[$k]['prices'] = $prices;
+                $report[$k]['routes'] = $routes;
+                $report[$k]['orders'] = $orders;
+                $report[$k]['best_price'] = $prices[$orders[0]];
             }
         }
 

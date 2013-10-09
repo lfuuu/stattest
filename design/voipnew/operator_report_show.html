@@ -107,10 +107,10 @@ tr.lock td {
   <td nowrap align=center style="min-width: 50px;">{$rd.amount_op}</td>
   <td nowrap align=center style="min-width: 50px;">{$rd.volume}</td>
   <td nowrap align=center style="min-width: 50px;">{$rd.parts[$best_p].amount}</td>
-  {foreach from=$rep->pricelist_ids item='p'}
-  	<td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$p].price}</td>
-    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$p].volume}</td>
-    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$p].amount}</td>
+  {foreach from=$rep->pricelist_ids key='i' item='p'}
+  	<td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if $rd.parts[$i].price != 'NULL'}{$rd.parts[$i].price}{/if}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].volume}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].amount}</td>
 	{/foreach}
 </tr>
 {/foreach}
@@ -121,10 +121,10 @@ tr.lock td {
   <td nowrap align=center><b>{$totals.all.amount_op}</b> Ò.</td>
   <td nowrap align=center><b>{$totals.all.volume}</b> Í.</td>
   <td nowrap align=center><b>{$totals.all.amount}</b> Ò.</td>
-  {foreach from=$rep->pricelist_ids item='p'}
+  {foreach from=$rep->pricelist_ids key='i' item='p'}
   <td nowrap align=center>&nbsp;</td>
-  <td nowrap align=center><b>{$totals[$p].volume}</b> Í.</td>
-  <td nowrap align=center><b>{$totals[$p].amount}</b> Ò.</td>
+  <td nowrap align=center><b>{$totals[$i].volume}</b> Í.</td>
+  <td nowrap align=center><b>{$totals[$i].amount}</b> Ò.</td>
   {/foreach}
 </tr>
 </table>

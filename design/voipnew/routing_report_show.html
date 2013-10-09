@@ -174,11 +174,11 @@ td.lock_default {
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
   <td nowrap align=center style="font-weight: bold">{$rd.best_price}</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td nowrap align=center class="{if $rd.columns[$i].pos === 0}best{/if}">{$rd.columns[$i].price}</td>
+		<td nowrap align=center class="{if $rd.orders[$i] == '0'}best{/if}">{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]}{/if}</td>
 	{/foreach}
   {if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
   <td nowrap align=center>
-  {foreach from=$rd.pricelists key='i' item='pl'}
+  {foreach from=$rd.routes key='i' item='pl'}
     {if $i > 0}->{/if}
     {$pricelists[$pl].operator}
   {/foreach}
