@@ -294,18 +294,57 @@ class m_mail{
 		$id=get_param_integer('id');
 		$state = get_param_raw('state');
 		$db->Query('update mail_job set job_state="'.$state.'" where job_id='.$id);
-		if ($state=='PM') {
+
+        if($state == "ready") //реальная отправка писем
+        {
+            $this->_publishClientBills($id);
+        }
+
+		if ($state=='PM') 
+        {
 			$job = new MailJob($id);
 			$R=$db->AllRecords('select * from mail_letter where job_id='.$id);
-			foreach ($R as $r) {
-				$job->assign_client($r['client']);
-				$job->get_object_link('PM',$id);
-				$db->QueryUpdate('mail_letter',array('job_id','client'),array('job_id'=>$id,'client'=>$r['client'],'letter_state'=>'sent','send_message'=>'','send_date'=>array('NOW()')));
-			}
+			foreach ($R as $r) 
+            {
+                $job->assign_client($r['client']);
+                $job->get_object_link('PM',$id);
+                $db->QueryUpdate(
+                        'mail_letter',
+                        array('job_id', 'client'),
+                        array(
+                            'job_id' => $id,
+                            'client' => $r['client'],
+                            'letter_state' => 'sent',
+                            'send_message' => '',
+                            'send_date' => array('NOW()')
+                            )
+                        );
+            }
 
 		}
 		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail&action=view&id='.$id);
 	}
+
+    function _publishClientBills($jobId)
+    {
+        global $db;
+
+        $db->Query(
+        "update 
+            mail_letter m, 
+            clients c, 
+            newbills b 
+        set 
+            is_lk_show=1 
+        where 
+                job_id = '".$jobId."'
+            and c.client=m.client 
+            and b.client_id = c.id 
+            and is_lk_show =0");
+
+
+    }
+
 	function mail_default($fixclient,$pre = 0) {
 		global $db,$design,$user,$fixclient_data;
         return $this->mail_list($fixclient);
