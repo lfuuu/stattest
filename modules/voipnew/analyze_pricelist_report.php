@@ -442,7 +442,7 @@ class m_voipnew_analyze_pricelist_report
                 $where .= " and d.mob=false ";
 
             $report = $pg_db->AllRecords("
-                                        select r.prefix, r.fields, r.pricelists, r.prices, r.priorities, r.locked, v.seconds/60 as volume,
+                                        select r.prefix, r.prices, r.locked, r.orders, v.seconds/60 as volume,
                                                   g.name as destination, d.mob, g.zone, dgr.shortname as dgroup
                                         from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                                 LEFT JOIN voip_destinations d ON r.prefix=d.defcode
@@ -454,31 +454,11 @@ class m_voipnew_analyze_pricelist_report
                                          ");
 
             foreach ($report as $k => $r) {
-                $fields = explode(',', substr($r['fields'], 1, strlen($r['fields']) - 2));
+                $orders = explode(',', substr($r['orders'], 1, strlen($r['orders']) - 2));
                 $prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
-                $pricelists = explode(',', substr($r['pricelists'], 1, strlen($r['pricelists']) - 2));
-
-                $columns = array();
-                foreach($fields as $pos => $num) {
-                    $columns[$num] = array(
-                        'pricelist_id' => $pricelists[$pos],
-                        'price' => $prices[$pos],
-                        'pos' => $pos
-                    );
-                }
-                foreach($rep->pricelist_ids as $pos => $pl) {
-                    if (!isset($columns[$pos])) {
-                        $columns[$pos] = array(
-                            'pricelist_id' => null,
-                            'price' => null,
-                            'pos' => null
-                        );
-                    }
-                }
-
-                $report[$k]['columns'] = $columns;
-                $report[$k]['pricelists'] = $pricelists;
-                $report[$k]['best_price'] = $prices[0];
+                $report[$k]['prices'] = $prices;
+                $report[$k]['orders'] = $orders;
+                $report[$k]['best_price'] = $prices[$orders[0]];
             }
 
         }
@@ -498,10 +478,7 @@ class m_voipnew_analyze_pricelist_report
             $resgroups = array();
             $resgroup = array();
             foreach ($report as $r) {
-                $r_price = '';
-                foreach ($r['columns'] as $column) {
-                    if (isset($column['price'])) $r_price .= $column['price'];
-                }
+                $r_price = implode('', $r['prices']);
 
                 if ($dest != $r['dgroup'] ||
                     $destination != $r['destination'] ||
@@ -511,10 +488,7 @@ class m_voipnew_analyze_pricelist_report
                     $dest = $r['dgroup'];
                     $destination = $r['destination'];
                     $ismob = $r['mob'];
-                    $price = '';
-                    foreach ($r['columns'] as $column) {
-                        if (isset($column['price'])) $price .= $column['price'];
-                    }
+                    $price = implode('', $r['prices']);
 
                     if (count($resgroup) > 0) {
                         $resgroups[] = $resgroup;
