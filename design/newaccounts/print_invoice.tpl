@@ -152,13 +152,39 @@
       <tr>
         <th{if $inv_is_new3} rowspan=2{/if}>Наименование<br>товара<br>(описание выполненных работ, оказанных услуг){if $inv_is_new},<br>имущественного права{/if}</th>
         {if !$inv_is_new3}<th>Еди-<br>ница<br>изме-<br>рения</th>{else}<th colspan=2>Единица<br>измерения</th>{/if}
-        <th{if $inv_is_new3} rowspan=2{/if}>Коли-<br>чество</th>
-        <th{if $inv_is_new3} rowspan=2{/if}>Цена<br>(та-<br>риф)<br>за еди-<br>ницу изме-<br>рения{if $inv_is_new3}<br>руб{/if}</th>
-        <th{if $inv_is_new3} rowspan=2{/if}>Стои-<br>мость<br>товаров<br>(работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if}, всего без<br>налога{if $inv_is_new3}<br>руб{/if}</th>
-        <th{if $inv_is_new3} rowspan=2{/if}>в том<br>чис-<br>ле<br>акциз</th>
-        <th{if $inv_is_new3} rowspan=2{/if}>Нало-<br>говая<br>ставка</th>
-        <th{if $inv_is_new3} rowspan=2{/if}>Сумма<br>нало-<br>га{if $inv_is_new3}<br>руб{/if}</th>
-        <th{if $inv_is_new3} rowspan=2{/if}>Стоимость<br>товаров<br>(работ,<br>услуг){if $inv_is_new},<br>имущественных прав{/if},<br>всего с<br>учетом<br>налога{if $inv_is_new3}<br>руб{/if}</th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            Коли-<br>чество{if $inv_is_new6}<br>(объем){/if}
+        </th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            Цена<br>(та-<br>риф)<br>за еди-<br>ницу изме-<br>рения{if $inv_is_new3}<br>руб{/if}
+        </th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            {if $inv_is_new6}
+                Стоимость<br>товаров работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if} без налога-<br>всего
+            {else}
+                Стои-<br>мость<br>товаров<br>(работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if}, всего без<br>налога{if $inv_is_new3}<br>руб{/if}
+            {/if}
+        </th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            в том<br>чис-<br>ле<br>{if $inv_is_new6}сумма<br>{/if}акциз{if $inv_is_new6}а{/if}
+        </th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            Нало-<br>говая<br>ставка
+        </th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            Сумма{if $inv_is_new6} налога,<br> предъявляемая<br>покупателю{else}<br>нало-<br>га,{if $inv_is_new3}<br>руб{/if}{/if}
+        </th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            {if $inv_is_new6}
+                Стоимость товаров<br>(работ, услуг),<br>имущественных <br>прав с налогом-<br>всего
+            {else}
+                Стоимость<br>товаров<br>(работ,<br>услуг)
+                    {if $inv_is_new},<br>имущественных прав{/if}
+                ,<br>всего с<br>учетом<br>налога
+                    {if $inv_is_new3}<br>руб
+            {/if}
+
+        {/if}</th>
         {if !$inv_is_new3}<th>Стра-<br>на проис-<br> хожде-<br> ния</th>{else}<th colspan=2>Страна<br>происхождения<br>товара</th>{/if}
         <th{if $inv_is_new3} rowspan=2{/if}>Номер<br> тамо-<br> женной<br> декла-<br> рации</th>
       </tr>
