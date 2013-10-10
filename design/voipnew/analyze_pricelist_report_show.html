@@ -72,7 +72,7 @@
 
     <br/>
 
-    <input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить&nbsp;&nbsp;
+    <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>&nbsp;&nbsp;
 	<input type=submit name="make" value="Сформировать"/>
     <input type=submit name="calc" value="Пересчитать"/>
 	<input type=submit name="export" value="Выгрузить"/>
@@ -100,7 +100,7 @@
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
     <td  align=center>{$rd.best_price}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td align=center>{$rd.columns[$i].price}</td>
+		<td align=center>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]}{/if}</td>
 	{/foreach}
 	{if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
 </tr>
