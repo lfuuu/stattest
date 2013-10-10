@@ -776,7 +776,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "Плата за звонки по номеру") !== false)
             {
-                $l[1] .= BillContract::getString($this->service["client_id"]);
+                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getString($this->service["client_id"]);
             }
 
             if(strpos($l[1], "Услуга местного завершения вызо") !== false)
