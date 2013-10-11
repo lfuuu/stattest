@@ -79,6 +79,7 @@
 	<TD class=header vAlign=bottom colspan=4>Платёж</td>
 	<TD class=header vAlign=bottom colspan=3>Разбивка оплаты</td>
 	<TD class=header vAlign=bottom rowspan=2>Привязка</td>
+	<TD class=header vAlign=bottom colspan=2>Документы</td>
 </TR><TR>
 	<TD class=header vAlign=bottom>Дата</TD>
 	<TD class=header vAlign=bottom>Номер</TD>
@@ -91,6 +92,8 @@
 	<TD class=header vAlign=bottom>разница</TD>
 	<TD class=header vAlign=bottom>Сумма оплаты</TD>
 	<TD class=header vAlign=bottom>Дата платежа</TD>
+	<TD class=header vAlign=bottom>Акт-1</TD>
+	<TD class=header vAlign=bottom>Акт-2</TD>
 </TR>
 {foreach from=$billops item=op key=key name=outer}
 {count_comments v=$op}
@@ -159,6 +162,8 @@
 		</select>
 		</form>{/if}
 	</TD>
+    <td>{if $qrs[$op.bill.bill_no].11}<a href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank><img border=0 src="images/icons/act.gif" title="Акт-1"></a>{else}&nbsp;{/if}</td>
+    <td>{if $qrs[$op.bill.bill_no].12}<a href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank><img border=0 src="images/icons/act.gif" title="Акт-2"></a>{else}&nbsp;{/if}</td>
 	{if $pay.comment}
 	</TR><TR class={$class}><TD colspan=4 class=comment>{$pay.comment|escape:"html"}</TD><TD colspan=2>&nbsp;</TD>{/if}
 	{/foreach}

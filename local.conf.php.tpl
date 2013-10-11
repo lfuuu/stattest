@@ -58,7 +58,12 @@ return array(
 */
 
 /* dir with log files , 
- (stat.mcn.ru => /var/log/nispd/)
- */
+*  stat.mcn.ru => /var/log/nispd/
+*/
     "LOG_DIR" => "/tmp/",
+
+/*   dir with scaned docs (for qrcodes response) 
+*    stat.mcn.ru: 'SCAN_DOC_DIR'      => '/var/log/skanpdf/';
+*/
+    'SCAN_DOC_DIR'      => "/tmp/docs/"
 );
