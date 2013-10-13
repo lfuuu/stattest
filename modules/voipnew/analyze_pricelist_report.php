@@ -415,7 +415,7 @@ class m_voipnew_analyze_pricelist_report
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_mob = get_param_protected('f_mob', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
-        $f_short = get_param_raw('f_short', '');
+        $f_short = get_param_protected('f_short', '');
 
         $recalc = isset($_GET['calc']) ? 'true' : 'false';
 
@@ -426,6 +426,7 @@ class m_voipnew_analyze_pricelist_report
             $volume_task_id = $volume['id'];
         else
             $volume_task_id = 0;
+        $volumes = array();
 
         $report = array();
         if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])) {
@@ -441,14 +442,29 @@ class m_voipnew_analyze_pricelist_report
             if ($f_mob == 'f')
                 $where .= " and d.mob=false ";
 
+
+            $res_volumes = $pg_db->AllRecords("
+                                        select prefix, instance_id, seconds/60 as volume
+                                        from voip.volume_calc_data
+                                        where task_id={$volume_task_id} and operator_id=0
+                                  ");
+            foreach($rep->getFields() as $field) {
+                $volumes[$field['pricelist']->region] = array();
+            }
+            foreach ($res_volumes as $r) {
+                if (!isset($volumes[$r['instance_id']])) {
+                    continue;
+                }
+                $volumes[$r['instance_id']][$r['prefix']] = $r;
+            }
+
             $report = $pg_db->AllRecords("
                                         select r.prefix, r.prices, r.locked, r.orders, v.seconds/60 as volume,
-                                                  g.name as destination, d.mob, g.zone, dgr.shortname as dgroup
+                                                  g.name as destination, d.mob, g.zone
                                         from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                                 LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                                                 LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                                LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
-                                                LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.operator_id=0 and v.prefix=d.defcode
+                                                LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.operator_id=0 and v.prefix=d.defcode
                                                 where true {$where}
                                                 order by g.name, r.prefix
                                          ");
@@ -567,6 +583,7 @@ class m_voipnew_analyze_pricelist_report
 
         $design->assign('rep', $rep);
         $design->assign('volume', $volume);
+        $design->assign('volumes', $volumes);
         $design->assign('report', $report);
         $design->assign('report_id', $report_id);
         $design->assign('f_country_id', $f_country_id);

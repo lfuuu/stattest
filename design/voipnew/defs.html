@@ -1,25 +1,30 @@
+<h1>
+    <small>
+        <a href="index.php?module=voipnew&action=pricelists">Прайслисты</a>
+    </small>
+
+    Цены:
+    <small>
+        {foreach from=$pricelists item='o'}
+        {if $pricelist_id eq $o.id}{$o.name}{/if}
+        {/foreach}
+    </small>
+</h1>
 <form id="filter" action="./index.php" method="get">
-<script type="text/javascript">
-{literal}
-function try_submit(){
-	if (document.getElementById('f_print').checked){
-		document.getElementById('filter').target = '_blank';
-	}else{
-		document.getElementById('filter').target = '';
-	}
-	document.getElementById('filter').submit();	
-}
-{/literal}
-</script>
 	<input type="hidden" name="module" value="voipnew" />
 	<input type="hidden" name="action" value="defs" />
-	<table><tr>
-	<td>На дату:</td><td><input name="f_date" value="{$f_date}"></td>
-	<td><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить&nbsp;<input type="checkbox" id="f_print" name="f_print">Печать</td>
-	<td style="width:50px;"></td>
-	</tr></table>
-	
-	<select name="f_dest_group">
+
+    <select name="pricelist">
+        {foreach from=$pricelists item='o'}
+        <option value="{$o.id}" {if $pricelist_id eq $o.id} selected{/if}>{$o.name}</option>
+        {/foreach}
+    </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    На дату: <input name="f_date" value="{$f_date}">
+
+    <br/>
+
+    <select name="f_dest_group">
 	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
 	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
 	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
@@ -37,12 +42,15 @@ function try_submit(){
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
-		
-	{foreach from=$pricelists item='o'}
-	<input {if $pricelist_id eq $o.id}style="font-weight:bold"{/if} type="button" value="{$o.name}" onclick="document.getElementById('pricelist').value='{$o.id}';try_submit();">
-	{/foreach}
 
-	<input type="hidden" id="pricelist" name="pricelist" value="" />
+    <br/>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <label><input type="checkbox" id="f_print" name="f_print">Печать</label>
+
+	<input type="submit" value="Сформировать">
 </form>
 
 {if count($pager_pages)>1}

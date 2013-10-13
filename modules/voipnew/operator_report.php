@@ -235,8 +235,8 @@ class m_voipnew_operator_report
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
         $f_mob = get_param_protected('f_mob', '0');
-        $f_prefix = get_param_raw('f_prefix', '');
-        $f_volume = get_param_raw('f_volume', '');
+        $f_prefix = get_param_protected('f_prefix', '');
+        $f_volume = get_param_protected('f_volume', '');
 
         $recalc = isset($_GET['calc']) ? 'true' : 'false';
 
@@ -248,6 +248,10 @@ class m_voipnew_operator_report
             $volume_task_id = 0;
 
         $totals = array('all' => array('volume' => '', 'amount' => '', 'amount_op' => ''));
+        foreach ($rep->pricelist_ids as $i => $pl) {
+            $totals[$i] = array('volume' => '', 'amount' => '', 'amount_op' => '');
+        }
+
 
         $report = array();
         if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])) {
@@ -261,8 +265,6 @@ class m_voipnew_operator_report
                 $where .= " and g.country='{$f_country_id}' ";
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
-//            if ($f_volume != '')
-//                $where .= " and (v.seconds_op>=" . ($f_volume * 60) . ")  ";
             if ($f_mob == 't')
                 $where .= " and d.mob=true ";
             if ($f_mob == 'f')
@@ -276,7 +278,7 @@ class m_voipnew_operator_report
             $res_volumes = $pg_db->AllRecords("
                                         select prefix, operator_id, seconds_op/60.0 as volume, amount_op/100.0 as amount_op
                                         from voip.volume_calc_data
-                                        where task_id={$volume_task_id}
+                                        where task_id={$volume_task_id} and instance_id=0
                                   ");
             $volumes = array();
             foreach ($res_volumes as $r) {
@@ -292,12 +294,12 @@ class m_voipnew_operator_report
                                         from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                                 LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                                   LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                                LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
                                                 where true {$where}
                                                 order by g.name, r.prefix
                                          ");
 
             foreach ($report as $k => $r) {
+
                 $r['volume'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['volume'] : '';
                 $r['amount_op'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['amount_op'] : '';
 
@@ -311,28 +313,26 @@ class m_voipnew_operator_report
 
                 $r_parts = array();
                 foreach ($rep->pricelist_ids as $i => $pl) {
-                    if ($i == 0) {
-                        $operator_id = isset($pricelistToOperator[$pl]) ? $pricelistToOperator[$pl]['operator_id'] : '';
 
-                        $r_volume = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['volume'] : '';
-                        $r_amount = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['amount_op'] : '';;
-                        $r_parts[$i] = array(
-                            'price' => $r_prices[$i],
-                            'volume' => $r_volume ? round($r_volume) : '',
-                            'amount' => $r_amount ? round($r_amount) : '');
-                        if (!isset($totals[$i])) $totals[$i] = array('volume' => '', 'amount' => '', 'amount_op' => '');
+                    $operator_id = isset($pricelistToOperator[$pl]) ? $pricelistToOperator[$pl]['operator_id'] : '';
 
-                        if ($r_volume) {
-                            $totals[$i]['volume'] += $r_volume;
-                            $totals['all']['volume'] += $r_volume;
-                        }
-                        if ($r_amount) {
-                            $totals[$i]['amount'] += $r_amount;
-                            $totals['all']['amount'] += $r_amount;
-                        }
-                    } else {
-                        $r_parts[$i] = array('price' => $r_prices[$i]);
+                    $r_volume = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['volume'] : '';
+                    $r_amount = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['amount_op'] : '';
+
+                    $r_parts[$i] = array(
+                        'price' => $r_prices[$i],
+                        'volume' => $r_volume ? round($r_volume) : '',
+                        'amount' => $r_amount ? round($r_amount) : '');
+
+                    if ($r_volume) {
+                        $totals[$i]['volume'] += $r_volume;
+                        $totals['all']['volume'] += $r_volume;
                     }
+                    if ($r_amount) {
+                        $totals[$i]['amount'] += $r_amount;
+                        $totals['all']['amount'] += $r_amount;
+                    }
+
                 }
 
 

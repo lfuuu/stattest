@@ -182,9 +182,9 @@ class m_voipnew_routing_report
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
         $f_mob = get_param_protected('f_mob', '0');
-        $f_locks = get_param_raw('f_locks', '');
-        $f_prefix = get_param_raw('f_prefix', '');
-        $f_volume = get_param_raw('f_volume', '');
+        $f_locks = get_param_protected('f_locks', '');
+        $f_prefix = get_param_protected('f_prefix', '');
+        $f_volume = get_param_protected('f_volume', '');
 
         $recalc = isset($_GET['calc']) ? 'true' : 'false';
 
@@ -234,8 +234,7 @@ class m_voipnew_routing_report
                                             from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                             LEFT JOIN voip_destinations d ON r.prefix=d.defcode
                                             LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                            LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
-                                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.operator_id=0 and v.prefix=r.prefix
+                                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.operator_id=0 and v.prefix=r.prefix
                                             where true {$where}
                                             order by g.name, r.prefix
                                      ");

@@ -1325,10 +1325,10 @@ class m_voipnew extends IModule
     {
         global $db, $pg_db, $design;
 
-        $res = $pg_db->AllRecords("select p.*, o.name as operator, c.code as currency from voip.pricelist p
+        $res = $pg_db->AllRecords("select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
 											left join public.currency c on c.id=p.currency_id
 											left join voip.operator o on o.id=p.operator_id and o.region=p.region 
-                                    order by p.operator_id, p.region desc, p.name");
+                                    order by p.region desc, p.operator_id, p.name");
 
         $design->assign('pricelists', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
@@ -1492,14 +1492,15 @@ class m_voipnew extends IModule
         $design->AddMain('voipnew/calls_recalc.html');
     }
 
-    public function voipnew_billing_settings()
+    public function voipnew_catalogs()
     {
         global $pg_db, $design;
 
         $instances = array();
 
-        $query = "  select i.id, r.name as region_name, i.city_prefix
+        $query = "  select i.id, r.id as region_id, r.name as region_name, i.city_prefix, i.city_geo_id, cg.city_name as city_name
                     from billing.instance_settings i
+                    left join geo.geo cg on cg.id=i.city_geo_id
                     left join geo.region r on r.id::varchar = ANY(i.region_id)
                     order by i.id desc, r.name asc ";
         foreach ($pg_db->AllRecords($query) as $r) {
@@ -1508,13 +1509,69 @@ class m_voipnew extends IModule
                 $r['city_prefix'] = str_replace('}', '', $r['city_prefix']);
                 $r['city_prefix'] = str_replace(',', ', ', $r['city_prefix']);
                 $instances[$r['id']] = $r;
-                $instances['regions'] = array();
+                $instances[$r['id']]['regions'] = array();
 
             }
-            $instances[$r['id']]['regions'][] = $r['region_name'];
+            $instances[$r['id']]['regions'][$r['region_id']] = $r['region_name'];
         }
         $design->assign('instances', $instances);
 
-        $design->AddMain('voipnew/billing_settings.html');
+        $design->AddMain('voipnew/catalogs.html');
+    }
+
+
+    public function voipnew_catalog_prefix()
+    {
+        global $db, $pg_db, $design;
+
+        $f_prefix = get_param_protected('f_prefix', '');
+        $f_country_id = get_param_protected('f_country_id', '0');
+        $f_region_id = get_param_protected('f_region_id', '0');
+        $f_city_geo_id = get_param_protected('f_city_geo_id', '0');
+        $f_mob = get_param_protected('f_mob', '0');
+        $f_dest_group = get_param_protected('f_dest_group', '-1');
+
+
+        $report = array();
+        if (isset($_GET['make'])) {
+            $where = '';
+            if ($f_prefix != '')
+                $where .= " and p.prefix like '" . intval($f_prefix) . "%' ";
+            if ($f_city_geo_id != '0')
+                $where .= " and p.geo_id='{$f_city_geo_id}'";
+            if ($f_dest_group != '-1')
+                $where .= " and g.dest='{$f_dest_group}'";
+            if ($f_country_id != '0')
+                $where .= " and g.country='{$f_country_id}'";
+            if ($f_region_id != '0')
+                $where .= " and p.region='{$f_region_id}'";
+            if ($f_mob == 't')
+                $where .= " and p.mob=true ";
+            if ($f_mob == 'f')
+                $where .= " and p.mob=false ";
+
+            $report = $pg_db->AllRecords("
+                                        select p.prefix, g.name as destination, p.mob
+                                        from geo.prefix p
+                                        LEFT JOIN geo.geo g ON g.id=p.geo_id
+                                        where true {$where}
+                                        order by p.prefix
+                                         ");
+
+        }
+
+        $design->assign('report', $report);
+        $design->assign('f_prefix', $f_prefix);
+        $design->assign('f_country_id', $f_country_id);
+        $design->assign('f_region_id', $f_region_id);
+        $design->assign('f_city_geo_id', $f_city_geo_id);
+        $design->assign('f_mob', $f_mob);
+        $design->assign('f_dest_group', $f_dest_group);
+        $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
+        $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
+        $design->assign('cities', $pg_db->AllRecords("SELECT i.city_geo_id as id, g.city_name as name FROM billing.instance_settings i left join geo.geo g on i.city_geo_id=g.id ORDER BY g.city_name"));
+        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+
+        $design->AddMain('voipnew/catalog_prefix.html');
     }
 }
