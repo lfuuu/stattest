@@ -49,13 +49,17 @@
     <tr>
         <td class=header>Префикс номера</td>
         <td class=header>Назначение</td>
+        <td class=header>Моб.</td>
+        <td class=header>Оператор</td>
     </tr>
 
     {foreach from=$report item='rd'}
 
     <tr class={cycle values='even,odd'}>
         <td>{$rd.prefix}</td>
-        <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+        <td>{$rd.destination}</td>
+        <td>{if $rd.mob=='t'}mob{else}&nbsp;{/if}</td>
+        <td>{$rd.operator}</td>
     </tr>
 
     {/foreach}

@@ -1551,9 +1551,10 @@ class m_voipnew extends IModule
                 $where .= " and p.mob=false ";
 
             $report = $pg_db->AllRecords("
-                                        select p.prefix, g.name as destination, p.mob
+                                        select p.prefix, p.mob, g.name as destination, o.name as operator
                                         from geo.prefix p
-                                        LEFT JOIN geo.geo g ON g.id=p.geo_id
+                                        left join geo.geo g on g.id=p.geo_id
+                                        left join geo.operator o on o.id=p.operator_id
                                         where true {$where}
                                         order by p.prefix
                                          ");
