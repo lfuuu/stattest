@@ -43,7 +43,7 @@ class m_voipnew_pricelist_report
             $report->report_type_id = isset($_GET['report_type_id']) ? intval($_GET['report_type_id']) : 0;
         }
 
-        $design->assign('pricelists', Pricelist::find('all'));
+        $design->assign('pricelists', Pricelist::find('all', array('order'=>'region desc')));
 
         $fieldsData = array(
             'pricelists' => array(),

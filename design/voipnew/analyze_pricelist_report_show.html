@@ -83,14 +83,24 @@
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$pricelists[$p].name}</td>
 	{/foreach}
-	{if $volume.calc_date}<td class=header align=center>Объем</td>{/if}
+	{if $volume.calc_date}
+        <td class=header align=center>Объем</td>
+        {foreach from=$volumes key='instance_id' item='v'}
+            <td  class=header align=center>Объем</td>
+        {/foreach}
+    {/if}
 </tr>
 <tr><td class=header>Префикс номера</td><td class=header>Зона</td><td class=header>Назначение</td>
     <td nowrap class=header align=center>Лучшая цена</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$rep->dates[$i]}</td>
 	{/foreach}
-	{if $volume.calc_date}<td class=header align=center>(мин)</td>{/if}
+	{if $volume.calc_date}
+        <td class=header align=center>(мин)</td>
+        {foreach from=$volumes key='instance_id' item='v'}
+            <td  class=header align=center>{$regions[$instance_id].name}</td>
+        {/foreach}
+    {/if}
 </tr>
 {foreach from=$report item='rd'}
 
@@ -102,7 +112,12 @@
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td align=center>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]}{/if}</td>
 	{/foreach}
-	{if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
+	{if $volume.calc_date}
+        <td align=center>{$rd.volume}</td>
+        {foreach from=$volumes key='instance_id' item='v'}
+            <td align=center>{$v[$rd.prefix].volume}</td>
+        {/foreach}
+    {/if}
 </tr>
 
 {/foreach}
