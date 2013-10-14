@@ -444,25 +444,49 @@ class m_stats extends IModule{
         $design->assign("beauty", $beauty);
         $design->assign("beautys", $beautys);
 
+        /* number status. Version 1 
+        *
+        if(active_usage_id is not null, 
+        'used', 
+
+        if(client_id in ('9130', '764'), 
+        'our', 
+
+        if(max_date >= (now() - interval 6 month), 
+        'stop',
+
+        if(client_id is not null, #reserved_free_date is not null,
+        'reserv',
+
+        'free'
+
+        )))) as status 
+        */
+
+
         if(get_param_raw("do",""))
         {
 
             $ns = $db->AllRecords($q = "
             select a.*,c.company, c.client,
                     
+
+            /* number status. version 2 */
+
             if(active_usage_id is not null, 
                 'used', 
-                if(client_id is null, 
-                    'free', 
-                    if(client_id in ('9130', '764'), 
-                        'our', 
-                        if(reserved_free_date is not null,
-                            'reserv',
-                            if(used_until_date < (now() - interval 6 month), 
-                                'free', 
-                                'stop'
-                                )
-                        )
+
+                if(client_id in ('9130', '764'), 
+                    'our', 
+
+                    if(client_id is not null and reserved_free_date is not null,
+                        'reserv',
+
+                        if(max_date >= (now() - interval 6 month), 
+                            'stop',
+                            'free'
+
+                          )
                       )
                   )
               ) as status
@@ -471,8 +495,7 @@ class m_stats extends IModule{
             select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level,
 
 
-            (select max(actual_to) from usage_voip u where u.e164 = v.number and 
-            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as max_date,
+            (select max(actual_to) from usage_voip u where u.e164 = v.number and actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')) as max_date,
             
             (select id from usage_voip u where u.e164 = v.number and 
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
