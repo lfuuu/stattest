@@ -1,28 +1,28 @@
 <?php
+
+//test();
+//exit();
 define('NO_WEB',1);
 define('PATH_TO_ROOT','./');
 include PATH_TO_ROOT."conf.php";
 
 
 
-$region = 87;
+$region = 88;
 
 
-
-//$db->Query("delete from voip_numbers where region = '".$region."'");
+$db->Query("delete from voip_numbers where region = '".$region."'");
 
 
 $sql = "";
 for($i=0;$i<500;$i++)
 {
-
- $num = '78633090'.str_pad($i, 3, "0", STR_PAD_LEFT); 
-
- $sql .= ($sql ? "," : "").'("'.$num.'",'.$region.')';
+    $num = '78312350'.str_pad($i, 3, "0", STR_PAD_LEFT); 
+    //echo "\n".$num;
+    $sql .= ($sql ? "," : "").'("'.$num.'",'.$region.')';
 }
 
 $db->Query('insert into voip_numbers(number,region) values'.$sql);
-
 work();
 
 $db->Query("update `voip_numbers` set price = null where region = ".$region." and beauty_level = 1");
@@ -134,6 +134,10 @@ $cat = 0;
 		preg_match('/^(\d)(\d)\2\d\1\2\2$/', $num) ||
 		preg_match('/^(\d)(\d)\1\d\1\2\1$/', $num) ||
 		preg_match('/^(\d)(\d)(\d)\d\1\2\3$/', $num) ||
+	// ABX-XY-XY	две одинаковые пары подряд в конце номера	247-75-75
+	// ABY-XY-XY	две одинаковые пары подряд в конце номера	375-25-25
+	// NUM-XY-XY 	две одинаковые пары подряд в конце номера	245-16-16
+		preg_match('/^\d\d\d(\d)(\d)\1\2$/', $num) ||
 		0
 	) $cat = 1;	
 	elseif(
@@ -173,10 +177,6 @@ $cat = 0;
 		preg_match('/^(\d)\1(\d)\1\1\2\2$/', $num) ||
 		preg_match('/^(\d)(\d)\1\2\2\1\1$/', $num) ||
 		preg_match('/^(\d)(\d)\1\1\1\2\2$/', $num) ||
-	// ABX-XY-XY	две одинаковые пары подряд в конце номера	247-75-75
-	// ABY-XY-XY	две одинаковые пары подряд в конце номера	375-25-25
-	// NUM-XY-XY 	две одинаковые пары подряд в конце номера	245-16-16
-		preg_match('/^\d\d\d(\d)(\d)\1\2$/', $num) ||
 	// XYY-ZZ-BB	три пары одинаковых цифр	244-66-77
 	// XYY-ZZ-XX		233-55-22
 	// XYY-ZZ-YY 		455-66-55
@@ -203,8 +203,6 @@ $cat = 0;
 	// XXX-YY-ZY		222-44-04
 		preg_match('/^(\d)\1\1(\d)\2\d\1$/', $num) ||
 		preg_match('/^(\d)\1\1(\d)\2\d\2$/', $num) ||
-	// NUM-XX-YY	две пары одинаковых цифр подряд в конце номера	283-22-00
-		preg_match('/^\d\d\d(\d)\1(\d)\2$/', $num) ||
 	// XYY-Z-YYY	пять одинаковых цифр (из них 3 подряд)	277-5-777
 	// XXX-YX-ZX		222-42-52
 		preg_match('/^\d(\d)\1\d\1\1\1$/', $num) ||
@@ -258,6 +256,11 @@ $cat = 0;
 		preg_match('/^(\d)(\d)(\d)\d\3\2\1$/', $num) ||
 		preg_match('/^\d\d(\d)(\d)\2\1\d$/', $num) ||
 		preg_match('/^\d(\d)(\d)\1\2\d\d$/', $num) ||
+	// NUM-XX-YY	две пары одинаковых цифр подряд в конце номера	283-22-00
+		preg_match('/^\d\d\d(\d)\1(\d)\2$/', $num) ||
+
+        //num-xx-yy
+		//preg_match('/^\d\d\d(\d)\1(\d)\2$/', $num) ||
 		0
   	) $cat = 3;	
 	elseif(		
@@ -386,6 +389,10 @@ function test()
 				'33-521-88',
 				'792-34-43',
 				);
+
+    $nums = array("9505566", "9501515");
+
+
 	foreach($nums as $num){
 		$num = str_replace('-', '', $num);
 		$cat = getNumCat($num);
