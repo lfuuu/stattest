@@ -105,8 +105,9 @@ BODY { "
 				<tr>
 					<td>
 						<p>
-							<font face="Times New Roman, serif"><br />Генеральный
-								директор ___________ / Мельников&nbsp;А.&nbsp;К. /</font>
+							<font face="Times New Roman, serif"><br />
+                                {$firm_director.position} ___________ / {$firm_director.name} /
+                            </font>
 						</p></td>
 					<td>
 						<p style="margin-bottom: 0cm">

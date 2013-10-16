@@ -1905,6 +1905,7 @@ class m_services extends IModule{
             $r["password"] = $o[0][count($o[0])-1];
         }
 
+        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->assign('d',$r);
                 
