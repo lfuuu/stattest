@@ -308,8 +308,10 @@ class m_voipnew_operator_report
                     continue;
                 }
 
-                $r_prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
-                $r_pricelists = explode(',', substr($r['routes'], 1, strlen($r['routes']) - 2));
+                $r_prices = substr($r['prices'], 1, strlen($r['prices']) - 2);
+                $r_prices = $r_prices != '' ? explode(',', $r_prices) : array();
+                $r_pricelists = substr($r['routes'], 1, strlen($r['routes']) - 2);
+                $r_pricelists = $r_pricelists != '' ? explode(',', $r_pricelists) : array();
 
                 $r_parts = array();
                 foreach ($rep->pricelist_ids as $i => $pl) {

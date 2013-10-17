@@ -240,15 +240,18 @@ class m_voipnew_routing_report
                                      ");
 
             foreach ($report as $k => $r) {
-                $orders = explode(',', substr($r['orders'], 1, strlen($r['orders']) - 2));
-                $prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
-                $routes = explode(',', substr($r['routes'], 1, strlen($r['routes']) - 2));
+                $orders = substr($r['orders'], 1, strlen($r['orders']) - 2);
+                $orders = $orders != '' ? explode(',', $orders) : array();
+                $prices = substr($r['prices'], 1, strlen($r['prices']) - 2);
+                $prices = $prices != '' ? explode(',', $prices) : array();
+                $routes = substr($r['routes'], 1, strlen($r['routes']) - 2);
+                $routes = $routes != '' ? explode(',', $routes) : array();
 
                 $report[$k]['locked_raw'] = (isset($lock_prefix[$r['prefix']]) ? $lock_prefix[$r['prefix']]['locked'] : '');
                 $report[$k]['prices'] = $prices;
                 $report[$k]['routes'] = $routes;
                 $report[$k]['orders'] = $orders;
-                $report[$k]['best_price'] = $prices[$orders[0]];
+                $report[$k]['best_price'] = count($orders) > 0 ? $prices[$orders[0]] : '';
             }
         }
 
