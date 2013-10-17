@@ -1790,7 +1790,7 @@ class m_newaccounts extends IModule
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'assignment','assignment_stamp','assignment_wo_stamp','order','notice','assignmentcomstar'));
         $L = array_merge($L, array('wimax_order_blank','wimax_contract','stream_arenda_decoder','stream_arenda_w300','stream_blank', 'stream_arenda_cii', 'stream_arenda_fonera','nbn_deliv','nbn_modem','nbn_gds'));
-        $L = array_merge($L, array("assignment-4"));
+        $L = array_merge($L, array("assignment-4", "receipt-2-RUR"));
 
         //$bills = array("201204-0465");
 
@@ -1946,7 +1946,6 @@ class m_newaccounts extends IModule
         {
             $R[0]["param"] = "alone=true";
         }
-               
         $design->assign('rows',$P);
         $design->assign('objects',$R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
@@ -1993,6 +1992,25 @@ class m_newaccounts extends IModule
     function newaccounts_bill_print($fixclient){
         global $design,$db,$user;
         $this->do_include();
+
+        $object = get_param_protected('object');
+
+        $mode = get_param_protected('mode', 'html');
+        self::$object = $object;
+        if ($object) {
+            list($obj,$source,$curr) = explode('-',$object.'---');
+        } else {
+            $obj=get_param_protected("obj");
+            $source = get_param_integer('source',1);
+            $curr = get_param_raw('curr','RUR');
+        }
+
+        if($obj == "receipt")
+        {
+            $this->_print_receipt();
+            exit();
+        }
+
         $bill_no=get_param_protected("bill");
         if(!$bill_no)
             return;
@@ -2009,17 +2027,6 @@ class m_newaccounts extends IModule
         if(get_param_raw("emailed", "0") != "0")
             $design->assign("emailed", get_param_raw("emailed", "0"));
 
-        $object = get_param_protected('object');
-
-        $mode = get_param_protected('mode', 'html');
-        self::$object = $object;
-        if ($object) {
-            list($obj,$source,$curr) = explode('-',$object.'---');
-        } else {
-            $obj=get_param_protected("obj");
-            $source = get_param_integer('source',1);
-            $curr = get_param_raw('curr','RUR');
-        }
 
         if($obj == "stream_blank") {
             $this->report_stream_blank($bill_no);
@@ -2071,7 +2078,7 @@ class m_newaccounts extends IModule
             $design->assign("assignment_month", mdate('месяца', $assignmentDate));
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info', 'receipt')))
             $obj='bill';
 
         if ($obj!='bill')
@@ -2153,7 +2160,6 @@ class m_newaccounts extends IModule
             
 
 
-
         if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice", "assignment"))){
 
       $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? qrcode::getNo($bill->GetNo()) : false));
@@ -2233,6 +2239,36 @@ class m_newaccounts extends IModule
             trigger_error('Документ не готов');
         }
         $design->ProcessEx('errors.tpl');
+    }
+
+    function _print_receipt()
+    {
+        global $design;
+        $clientId = get_param_raw("client", 0);
+        $sum = get_param_raw("sum", 0);
+        $sum = (float)$sum;
+
+        if($clientId && $sum)
+        {
+            list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
+
+            $sumNds = (($sum/118)*18);
+            list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
+
+            $sSum = array(
+                    "rub" => $rub,
+                    "kop" => $kop,
+                    "nds" => array(
+                        "rub" => $ndsRub,
+                        "kop" => $ndsKop
+                        )
+                    );
+            $design->assign("sum", $sSum);
+            $design->assign("client", ClientCS::FetchClient($clientId));
+            echo $design->fetch("newaccounts/print_receipt.tpl");
+
+        }
+
     }
 
 

@@ -41,6 +41,11 @@ function do_func($function)
 	{
 		case 'getBalance': return Func::getBalance(get_param_raw("client_id")); break;
 		case 'getBalanceList': return Func::getBalanceList(get_param_raw("client_id")); break;
+		case 'getUserBillOnSum': return Func::getUserBillOnSum(get_param_raw("client_id"), get_param_raw("sum")); break;
+		case 'getBillURL': return Func::getBillURL(get_param_raw("bill_no")); break;
+		case 'getReceiptURL': return Func::getReceiptURL(get_param_raw("client_id"), get_param_raw("sum")); break;
+		case 'getPropertyPaymentOnCard': return Func::getPropertyPaymentOnCard(get_param_raw("client_id"), get_param_raw("sum")); break;
+		case 'updateUnitellerOrder': return Func::updateUnitellerOrder(get_param_raw("order_id")); break;
 		default: throw new Exception("Функция не определенна");
 	}
 }
@@ -132,6 +137,131 @@ class Func
 
 		return array("bills" => $bills, "sums" => $nSum);
 
+	}
+
+	public function getUserBillOnSum($clientId, $sum)
+	{
+		if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
+			throw new Exception("Неверный номер лицевого счета!");
+
+		$sum = (float)$sum;
+
+		if(!$sum || $sum < 1 || $sum > 1000000)
+			throw new Exception("Ошибка в данных");
+
+
+		$c = ClientCard::find_by_id($clientId);
+		if(!$c)
+			throw new Exception("Лицевой счет не найден!");
+
+		/* !!! проверка поличества созданных счетов */
+
+
+		$bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
+
+		if(!$bill)
+		{
+			include_once INCLUDE_PATH.'bill.php';
+
+			$newBill = new Bill(null, $clientId, strtotime(date("Y-m-d")), 0, 'RUR', true, true);
+			$newBill->AddLine("RUR", Encoding::toKoi8r("Авансовый платеж"), 1, $sum/1.18, 'zadatok');
+			$newBill->save();
+
+			$bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
+		}
+
+		if(!$bill)
+			throw new Exception("Невозможно создать счет");
+
+		return $bill;
+	}
+
+	private function _getUserBillOnSum_fromDB($clientId, $sum)
+	{
+		global $db;
+
+		return $db->GetValue(
+			"SELECT 
+				b.bill_no 
+			FROM 
+				`newbills` b, newbill_lines l 
+			where 
+					b.bill_no = l.bill_no 
+				and client_id = '".$clientId."' 
+				and is_user_prepay = 1
+				and l.sum = '".$sum."'");
+	}
+
+	public function getBillUrl($billNo)
+	{
+		$bill = NewBill::first(array("bill_no" => $billNo));
+		if(!$bill)
+			throw new Exception("Счет не найден");
+
+		if(!defined('API__print_bill_url') || !APP__print_bill_url)
+			throw new Exception("Не установлена ссылка на печать документов");
+
+		$R = array('bill'=>$billNo,'object'=>"bill-2-RUR",'client'=>$bill->client_id);
+		return API__print_bill_url.udata_encode_arr($R);
+	}
+
+	public function getReceiptURL($clientId, $sum)
+	{
+		if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
+			throw new Exception("Неверный номер лицевого счета!");
+
+		$sum = (float)$sum;
+
+		if(!$sum || $sum < 1 || $sum > 1000000)
+			throw new Exception("Ошибка в данных");
+
+
+		$c = ClientCard::find_by_id($clientId);
+		if(!$c)
+			throw new Exception("Лицевой счет не найден!");
+
+		$R = array("sum" => $sum, 'object'=>"receipt-2-RUR",'client'=>$c->id);
+		return API__print_bill_url.udata_encode_arr($R);
+	}
+
+	public function getPropertyPaymentOnCard($clientId, $sum)
+	{
+		global $db;
+
+		if(!defined("UNITELLER_SHOP_ID") || !defined("UNITELLER_PASSWORD"))
+			throw new Exception("Не заданы параметры для UNITELLER в конфиге");
+
+		if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
+			throw new Exception("Неверный номер лицевого счета!");
+
+		$sum = (float)$sum;
+
+		if(!$sum || $sum < 1 || $sum > 1000000)
+			throw new Exception("Ошибка в данных");
+
+
+		$c = ClientCard::find_by_id($clientId);
+		if(!$c)
+			throw new Exception("Лицевой счет не найден!");
+
+
+		$sum = number_format($sum, 2, '.', '');			
+		$orderId = $db->QueryInsert('payments_orders', array(
+			'type' => 'card',
+			'client_id' => $clientId,
+			'sum' => $sum
+			)
+		);
+
+		$signature = strtoupper(md5(UNITELLER_SHOP_ID . $orderId . $sum . UNITELLER_PASSWORD));
+
+		return array("sum" => $sum, "order" => $orderId, "signature" => $signature);
+	}
+
+	public function updateUnitellerOrder($orderId)
+	{
+		return true;
+		exit();
 	}
 }
 

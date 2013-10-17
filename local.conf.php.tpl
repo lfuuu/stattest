@@ -61,4 +61,11 @@ return array(
  (stat.mcn.ru => /var/log/nispd/)
  */
     "LOG_DIR" => "/tmp/",
+
+    /** ссылка-префикс для вывода публичных счетов */
+    'API__print_bill_url' => 'https://lk.mcn.ru/print?bill=' //'https://stat.mcn.ru/tst/bill.php?bill='
+
+    /** параметры для достпа к платежной системе Unileller */
+    'UNITELLER_SHOP_ID' => '',
+    'UNITELLER_PASSWORD' => ''
 );
