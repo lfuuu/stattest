@@ -144,6 +144,19 @@
       $filter = " and g.dest=1 and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>72,'param'=>'d1', 'date'=>date('Y-m-d'));
 
+    }elseif ($p_region == 88 && $p_dest == 1){
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 88 && $p_dest == 2){
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 88 && $p_dest == 3){
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 88 && $p_dest == 4){
+      $filter = " and g.dest=1 and d.mob=false ";
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>81,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 88 && $p_dest == 5){
+      $filter = " and g.dest=1 and d.mob=true ";
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
+
     }else{
         die('error: incorrect parameters');
     }
