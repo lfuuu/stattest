@@ -172,9 +172,9 @@ td.lock_default {
 <tr class="{cycle values='even,odd'} {if $rd.locked=='t'}lock{/if} " value="{$rd.locked}">
 	<td>{$rd.prefix}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-  <td nowrap align=center style="font-weight: bold">{$rd.best_price}</td>
+  <td nowrap align=center style="font-weight: bold">{$rd.best_price|replace:'.':','}</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td nowrap align=center class="{if $rd.orders[$i] == '0'}best{/if}">{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]}{/if}</td>
+		<td nowrap align=center class="{if $rd.orders[$i] == '0'}best{/if}">{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>
 	{/foreach}
   {if $volume.calc_date}<td align=center>{$rd.volume}</td>{/if}
   <td nowrap align=center>

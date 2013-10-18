@@ -86,7 +86,6 @@ tr.lock td {
   &nbsp;&nbsp;&nbsp;&nbsp;
 	<input type=submit name="make" id="make_report" value="Сформировать"/>
   <input type=submit name="calc" value="Пересчитать"/>
-  <input type=submit name="export" value="Экспорт CSV"/>
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
@@ -108,7 +107,7 @@ tr.lock td {
   <td nowrap align=center style="min-width: 50px;">{$rd.volume}</td>
   <td nowrap align=center style="min-width: 50px;">{$rd.parts[$best_p].amount}</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
-  	<td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if $rd.parts[$i].price != 'NULL'}{$rd.parts[$i].price}{/if}</td>
+  	<td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if $rd.parts[$i].price != 'NULL'}{$rd.parts[$i].price|replace:'.':','}{/if}</td>
     <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].volume}</td>
     <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].amount}</td>
 	{/foreach}

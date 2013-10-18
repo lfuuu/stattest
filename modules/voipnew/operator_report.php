@@ -308,8 +308,10 @@ class m_voipnew_operator_report
                     continue;
                 }
 
-                $r_prices = explode(',', substr($r['prices'], 1, strlen($r['prices']) - 2));
-                $r_pricelists = explode(',', substr($r['routes'], 1, strlen($r['routes']) - 2));
+                $r_prices = substr($r['prices'], 1, strlen($r['prices']) - 2);
+                $r_prices = $r_prices != '' ? explode(',', $r_prices) : array();
+                $r_pricelists = substr($r['routes'], 1, strlen($r['routes']) - 2);
+                $r_pricelists = $r_pricelists != '' ? explode(',', $r_pricelists) : array();
 
                 $r_parts = array();
                 foreach ($rep->pricelist_ids as $i => $pl) {
@@ -366,52 +368,22 @@ class m_voipnew_operator_report
         $pricelists = $pg_db->AllRecords("select p.id, p.name, o.short_name as operator, 0 as volume, 0 as amount from voip.pricelist p
                                                   left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id');
 
-        if (!isset($_GET['export'])) {
-            $design->assign('rep', $rep);
-            $design->assign('volume', $volume);
-            $design->assign('totals', $totals);
-            $design->assign('report', $report);
-            $design->assign('report_id', $report_id);
-            $design->assign('f_prefix', $f_prefix);
-            $design->assign('f_volume', $f_volume);
-            $design->assign('f_country_id', $f_country_id);
-            $design->assign('f_region_id', $f_region_id);
-            $design->assign('f_mob', $f_mob);
-            $design->assign('f_dest_group', $f_dest_group);
-            $design->assign('geo_countries', $countries);
-            $design->assign('geo_regions', $regions);
-            $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-            $design->assign('pricelists', $pricelists);
-            $design->AddMain('voipnew/operator_report_show.html');
-        } else {
-            header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="routing.csv"');
-
-            ob_start();
-
-            echo '"Префикс";"Направление";"Лучшая цена";';
-            foreach ($rep['pricelists'] as $pl) {
-                echo '"' . $pricelists[$pl]['operator'] . '";';
-            }
-            echo '"Порядок"' . "\n";
-            foreach ($report as $r) {
-                echo '"' . $r['prefix'] . '";';
-                echo '"' . $r['destination'] . '";';
-                echo '"' . str_replace('.', ',', $r['prices'][0]) . '";';
-                foreach ($rep['pricelists'] as $pl) {
-                    echo '"' . str_replace('.', ',', $r['parts'][$pl]['price']) . '";';
-                }
-                echo '"';
-                foreach ($r['pricelists'] as $i => $pl) {
-                    if ($i > 0) echo ' -> ';
-                    echo $pricelists[$pl]['operator'];
-                }
-                echo '"' . "\n";
-            }
-
-            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
-            exit;
-        }
+        $design->assign('rep', $rep);
+        $design->assign('volume', $volume);
+        $design->assign('totals', $totals);
+        $design->assign('report', $report);
+        $design->assign('report_id', $report_id);
+        $design->assign('f_prefix', $f_prefix);
+        $design->assign('f_volume', $f_volume);
+        $design->assign('f_country_id', $f_country_id);
+        $design->assign('f_region_id', $f_region_id);
+        $design->assign('f_mob', $f_mob);
+        $design->assign('f_dest_group', $f_dest_group);
+        $design->assign('geo_countries', $countries);
+        $design->assign('geo_regions', $regions);
+        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+        $design->assign('pricelists', $pricelists);
+        $design->AddMain('voipnew/operator_report_show.html');
     }
 
 }
