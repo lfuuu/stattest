@@ -108,9 +108,9 @@
 	<td>{$rd.prefix}</td>
 	<td align=center>{$rd.zone}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-    <td  align=center>{$rd.best_price}</td>
+    <td  align=center>{$rd.best_price|replace:'.':','}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td align=center>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]}{/if}</td>
+		<td align=center>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>
 	{/foreach}
 	{if $volume.calc_date}
         <td align=center>{$rd.volume}</td>
