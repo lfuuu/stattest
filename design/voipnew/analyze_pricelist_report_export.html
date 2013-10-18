@@ -33,9 +33,9 @@
 	<td>{$rd.prefix}</td>
 	<td>{$rd.zone}</td>
 	<td>{$rd.destination}</td>
-    <td>{$rd.best_price}</td>
+    <td>{$rd.best_price|replace:'.':','}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]}{/if}</td>
+		<td>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>
 	{/foreach}
   {if $volume.calc_date}
     <td>{$rd.volume}</td>

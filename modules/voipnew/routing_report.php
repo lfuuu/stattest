@@ -285,19 +285,19 @@ class m_voipnew_routing_report
             ob_start();
 
             echo '"Префикс";"Направление";"Лучшая цена";';
-            foreach ($rep['pricelists'] as $pl) {
+            foreach ($rep->pricelist_ids as $pl) {
                 echo '"' . $pricelists[$pl]['operator'] . '";';
             }
             echo '"Порядок"' . "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
                 echo '"' . $r['destination'] . '";';
-                echo '"' . str_replace('.', ',', $r['prices'][0]) . '";';
-                foreach ($rep['pricelists'] as $pl) {
-                    echo '"' . str_replace('.', ',', $r['parts'][$pl]['price']) . '";';
+                echo '"' . str_replace('.', ',', $r['best_price']) . '";';
+                foreach ($rep->pricelist_ids as $i => $pl) {
+                    echo '"' . str_replace('.', ',', ($r['prices'][$i] != 'NULL' ? $r['prices'][$i] : '')) . '";';
                 }
                 echo '"';
-                foreach ($r['pricelists'] as $i => $pl) {
+                foreach ($r['routes'] as $i => $pl) {
                     if ($i > 0) echo ' -> ';
                     echo $pricelists[$pl]['operator'];
                 }
