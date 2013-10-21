@@ -356,11 +356,11 @@ class m_voipnew_operator_report
 
         foreach ($totals as $k => $v) {
             if ($v['volume'])
-                $totals[$k]['volume'] = round($v['volume']);
+                $totals[$k]['volume'] = round($v['volume'], 2);
             if ($v['amount'])
-                $totals[$k]['amount'] = round($v['amount']);
+                $totals[$k]['amount'] = round($v['amount'], 2);
             if ($v['amount_op'])
-                $totals[$k]['amount_op'] = round($v['amount_op']);
+                $totals[$k]['amount_op'] = round($v['amount_op'], 2);
         }
 
         $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
