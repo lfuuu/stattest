@@ -6,7 +6,7 @@
 <table border=1>
 <tr><td colspan=4>&nbsp;</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td align=center><b>{$pricelists[$p].name}</b></td>
+		<td align=center><b>{$pricelists[$p]->name}</b></td>
 	{/foreach}
     {if $volume.calc_date}
         <td align=center><b>Объем</b></td>
@@ -23,7 +23,7 @@
     {if $volume.calc_date}
         <td align=center>(мин)</td>
         {foreach from=$volumes key='instance_id' item='v'}
-            <td  class=header>{$regions[$instance_id].name}</td>
+            <td  class=header>{$regions[$instance_id]->name}</td>
         {/foreach}
     {/if}
 </tr>

@@ -1,5 +1,5 @@
 <?php
-class m_voipnew_operator_report
+class m_voipnew_cost_report
 {
 
     public function invoke($method, $arguments)

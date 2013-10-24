@@ -4,18 +4,18 @@
     </small>
 
     Отчет: Анализ прайслистов:
-    <small>{if $rep->instance_id}{$regions[$rep->instance_id].name}{else}Все регионы{/if}
+    <small>{if $rep->instance_id}{php}echo $this->_tpl_vars['regions'][$this->_tpl_vars['rep']->instance_id]->name;{/php}{else}Все регионы{/if}
 
     ({foreach from=$rep->pricelist_ids key='i' item='pl'}
     {if $i > 0},{/if}
-    {$pricelists[$pl].name}
+    {$pricelists[$pl]->name}
     {/foreach})
     </small>
 </h1>
 
 <p>
     {if $volume.calc_date}
-    Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id].name}{else}Все регионы{/if})
+    Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id]->name}{else}Все регионы{/if})
     {if $volume.need_recalc == 't'}
     <b>(требуется пересчет)</b>
     {/if}
@@ -79,9 +79,10 @@
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-<tr><td class=header colspan=4>&nbsp;</td>
+<tr><td class=header colspan=3>&nbsp;</td>
+    <td nowrap class=header align=center>Лучшая цена</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td class=header align=center>{$pricelists[$p].name}</td>
+		<td class=header align=center>{$pricelists[$p]->name}</td>
 	{/foreach}
 	{if $volume.calc_date}
         <td class=header align=center>Объем</td>
@@ -91,14 +92,14 @@
     {/if}
 </tr>
 <tr><td class=header>Префикс номера</td><td class=header>Зона</td><td class=header>Назначение</td>
-    <td nowrap class=header align=center>Лучшая цена</td>
+    <td nowrap class=header align=center>{php}echo $this->_tpl_vars['regions'][$this->_tpl_vars['rep']->instance_id]->name;{/php}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$rep->dates[$i]}</td>
 	{/foreach}
 	{if $volume.calc_date}
         <td class=header align=center>(мин)</td>
         {foreach from=$volumes key='instance_id' item='v'}
-            <td  class=header align=center>{$regions[$instance_id].name}</td>
+            <td  class=header align=center>{$regions[$instance_id]->name}</td>
         {/foreach}
     {/if}
 </tr>
