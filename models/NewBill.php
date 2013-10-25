@@ -13,6 +13,10 @@ class NewBill extends ActiveRecord\Model
         array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_no')
         );
 
+    static $has_many = array(
+        array("lines", "class_name" => "BillLines", "foreign_key" => "bill_no")
+        );
+
     public function getLastUnpayedBill($clientId)
     {
         return NewBill::find('first', array(
@@ -21,5 +25,10 @@ class NewBill extends ActiveRecord\Model
                     "order" => "bill_date desc"
                     )
         );
+    }
+
+    public function is1C()
+    {
+        return strpos("/", $this->bill_no) !== false;
     }
 }

@@ -46,6 +46,7 @@ function do_func($function)
 		case 'getReceiptURL': return Func::getReceiptURL(get_param_raw("client_id"), get_param_raw("sum")); break;
 		case 'getPropertyPaymentOnCard': return Func::getPropertyPaymentOnCard(get_param_raw("client_id"), get_param_raw("sum")); break;
 		case 'updateUnitellerOrder': return Func::updateUnitellerOrder(get_param_raw("order_id")); break;
+		case 'getBill': return Func::getBill(get_param_raw("client_id"), get_param_raw("bill_no")); break;
 		default: throw new Exception("Функция не определенна");
 	}
 }
@@ -262,6 +263,50 @@ class Func
 	{
 		return true;
 		exit();
+	}
+
+	public function getBill($clientId, $billNo)
+	{
+		if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
+			throw new Exception("Неверный номер лицевого счета!");
+
+		$c = ClientCard::find_by_id($clientId);
+		if(!$c)
+			throw new Exception("Лицевой счет не найден!");
+
+		$b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo)));
+		if(!$b)
+			throw new Exception("Счет не найден!");
+
+		$lines = array();
+
+		foreach($b->lines as $l)
+		{
+			$lines[] = array(
+					"item"      => Encoding::toUtf8($l->item), 
+					"date_from" => $l->date_from->format("d-m-Y"),
+					"amount"    => $l->amount, 
+					"price"     => $l->price, 
+					"sum"       => $l->sum
+					);
+		}
+
+		return array(
+				"bill" => array(
+					"bill_no" => $b->bill_no,
+					"is_rollback" => $b->is_rollback,
+					"is_1c" => $b->is1C(),
+					"lines" => $lines,
+					"sum_total" => $b->sum
+					),
+				"link" => array(
+					"bill" => "#",
+					"invoice1" => "#",
+					"invoice2" => "#",
+					"akt1" => "#",
+					"akt2" => "#"
+					),
+				);
 	}
 }
 
