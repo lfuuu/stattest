@@ -26,7 +26,7 @@
         </tr>
     </table>
     <input type=submit value="Сформировать">
-</form>
+    <input type=submit value="Опубликовать номера на сайте" name="publish">
 
 <hr>
 
@@ -40,6 +40,8 @@
         <th>Состояние</th>
         <th></th>
         <th>Кол-во звонков</th>
+        <th><small>Среднее в месяц,<br/> за последнее 3 месяца</small></th>
+        <th><small>Принудительно<br/>на сайт<small></th>
     </tr>
     {foreach from=$ns item=n}
     <tr>
@@ -60,11 +62,14 @@
             {/if}</td>
         <td>{if $n.status == 'stop' || $n.status == "reserv"}c {$n.used_until_date}{/if}</td>
         <td>{if $n.status == 'stop'}{$n.calls}{/if}</td>
+        <td{if $n.count_3m && $n.count_avg3m <= $minCalls} style="font-weight: bold; color: green;"{/if}>{if $n.status == 'stop'}{$n.count_avg3m}{/if}</td>
+        <td>{if $n.status == 'stop' && $n.count_3m && $n.count_avg3m <= $minCalls}<input type="checkbox" name="publish_phones[]" value="{$n.number}"{if $n.site_publish == "Y"} checked{/if}>{if $n.site_publish == "Y"}<input type=hidden name="published_phones[]" value="{$n.number}">{/if}{/if}</td>
     </tr>
     {/foreach}
 
 </table>
 
+</form>
 <hr>
 
 {if $ns_count}

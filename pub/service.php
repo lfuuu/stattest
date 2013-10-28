@@ -112,9 +112,11 @@ if ($action=='add_client') {
 	                          from voip_numbers
 	                          where client_id is null and
                                 (
-                                  (used_until_date is null or used_until_date < now() - interval 6 MONTH)
+                                    (used_until_date is null or used_until_date < now() - interval 6 MONTH)
                                   or
-                                  (number like '7495%' and (used_until_date is null or used_until_date < now()))
+                                    (number like '7495%' and (used_until_date is null or used_until_date < now()))
+                                  or 
+                                    site_publish = 'Y'
                                  ) ".($region !== null ? " and region = '".$region."'" : "")."
 
               )a
