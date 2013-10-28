@@ -444,34 +444,34 @@ class m_stats extends IModule{
         $design->assign("beauty", $beauty);
         $design->assign("beautys", $beautys);
 
-        /* number status. Version 1 
-        *
-        if(active_usage_id is not null, 
-        'used', 
-
-        if(client_id in ('9130', '764'), 
-        'our', 
-
-        if(max_date >= (now() - interval 6 month), 
-        'stop',
-
-        if(client_id is not null, #reserved_free_date is not null,
-        'reserv',
-
-        'free'
-
-        )))) as status 
-        */
+        $design->assign("minCalls", 10);
 
 
         if(get_param_raw("do",""))
         {
+            
+            if (get_param_raw("publish"))
+            {
+                $nums = get_param_raw("publish_phones");
+                $setNums = get_param_raw("published_phones");
+
+                $add = array_diff($nums, $setNums);
+                $del = array_diff($setNums, $nums);
+
+                if ($add)
+                {
+                    $db->Query($q = "update voip_numbers set site_publish ='Y' where number in ('".implode("','", $add)."')");
+                }
+
+                if ($del)
+                {
+                    $db->Query($q = "update voip_numbers set site_publish ='N' where number in ('".implode("','", $del)."')");
+                }
+            }
 
             $ns = $db->AllRecords($q = "
             select a.*,c.company, c.client,
                     
-
-            /* number status. version 2 */
 
             if(active_usage_id is not null, 
                 'used', 
@@ -492,14 +492,12 @@ class m_stats extends IModule{
               ) as status
             
             from (
-            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level,
-
+            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level, site_publish,
 
             (select max(actual_to) from usage_voip u where u.e164 = v.number and actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')) as max_date,
             
             (select id from usage_voip u where u.e164 = v.number and 
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
-
              from voip_numbers v where 
             number between '".$rangeFrom."' and '".$rangeTo."' 
             )a 
@@ -511,16 +509,25 @@ class m_stats extends IModule{
 
             ");
 
+            $unsetPublish = array();
+            $fromTime = strtotime("first day of -3 month, midnight");
+
             foreach($ns as &$n)
             {
+                if ($n["site_publish"] == "Y" && $n["status"] != "stop")
+                    $unsetPublish[] = $n["number"];
+
                 $n["calls"] = "";
+                $n["count_3m"] = 0;
 
                 if($n["status"] == "stop")
                 {
                     foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, sum(1) as count_calls
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
+                        sum(1) as count_calls,
+                        sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
                     from billing.calls_99 
-                    where time between now() - interval '3 month' and now() 
+                    where time > '".date("Y-m-d H:i:s", $fromTime)."'
                     and usage_id is null 
                     and region=99 
                     and usage_num = '".$n["number"]."'
@@ -529,10 +536,20 @@ class m_stats extends IModule{
                     ") as $c)
                     {
                         $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
+                        $n["count_3m"] += $c["count_3m"];
                     }
                 }
 
+                if($n["count_3m"])
+                {
+                    $n["count_avg3m"] = round($n["count_3m"]/3, 2);
+                }
             }
+        }
+
+        if ($unsetPublish)
+        {
+            $db->Query($q = "update voip_numbers set site_publish ='N' where number in ('".implode("','", $unsetPublish)."')");
         }
 
         $design->assign("ns", $ns);
