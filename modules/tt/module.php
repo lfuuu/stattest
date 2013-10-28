@@ -101,10 +101,10 @@ class m_tt extends IModule{
         }
         if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$trouble['id']);
     }
-    function tt_move($fixclient){
-
-
+    function tt_move($fixclient)
+    {
         global $db,$design,$user;
+
         $id = get_param_integer('id',0);
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
         if(!count($R)){
@@ -120,7 +120,10 @@ class m_tt extends IModule{
 
         $R = array();
 
-        if($trouble["state_id"] == 2 && access('tt', 'rating'))
+
+        //rating
+        $setState = get_param_integer('state',0);
+        if(($setState == 2 || $setState == 7) && access('tt', 'rating') && !$this->isRated($trouble["id"]))
         {
             $R["rating"] = get_param_integer("trouble_rating", 0);
             $R["user_rating"] = $user->Get("user");
@@ -589,6 +592,7 @@ class m_tt extends IModule{
         $stage = $trouble['stages'][count($trouble['stages'])-1];
 
         $design->assign("cur_state", $stage["state_id"]);
+        $design->assign("rated", $this->isRated($trouble["id"]));
 
         $allow_state = 0;
         if($trouble['bill_no'] && strpos($trouble['bill_no'], '/')){
@@ -1462,8 +1466,50 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
         if ($trouble['is_editableByMe']) return true;
         if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;
-        if(in_array($trouble['client'],array('all4net','wellconnect')) && access('tt','shop_orders')) return true;
-        if($trouble["user_author"] == "1c-vitrina") return true;
+        if (in_array($trouble['client'],array('all4net','wellconnect')) && access('tt','shop_orders')) return true;
+        if ($trouble["user_author"] == "1c-vitrina") return true;
+        return false;
+    }
+
+
+    /**
+    * Установлен ли рейтинг на текущей стадии заявки
+    */
+    function isRated($trouble)
+    {
+        global $db;
+
+        $trouble = Trouble::find($trouble);
+
+        $stages = array();
+
+        foreach ($trouble->stages as $stage)
+        {
+            $stages[] = $stage;
+        }
+
+        $stages = array_reverse($stages);
+
+        $stateId = null;
+
+        foreach ($stages as $stage)
+        {
+            if ($stateId === null)
+            {
+                $stateId = $stage->state->id;
+            }
+
+            if ($stateId != $stage->state->id)
+            {
+                return false;
+            }else{
+                if ($stage->rating > 0)
+                {
+                    return $stage->rating;
+                }
+            }
+        }
+
         return false;
     }
 
