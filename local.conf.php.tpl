@@ -58,8 +58,8 @@ return array(
 */
 
 /* dir with log files , 
- (stat.mcn.ru => /var/log/nispd/)
- */
+*  stat.mcn.ru => /var/log/nispd/
+*/
     "LOG_DIR" => "/tmp/",
 
     /** ссылка-префикс для вывода публичных счетов */
@@ -68,4 +68,8 @@ return array(
     /** параметры для достпа к платежной системе Unileller */
     'UNITELLER_SHOP_ID' => '',
     'UNITELLER_PASSWORD' => ''
+/*   dir with scaned docs (for qrcodes response) 
+*    stat.mcn.ru: 'SCAN_DOC_DIR'      => '/var/log/skanpdf/';
+*/
+    'SCAN_DOC_DIR'      => "/tmp/docs/"
 );

@@ -1,0 +1,66 @@
+<h1>
+    <small>
+        Префиксы
+    </small>
+</h1>
+
+<form action="./index.php" method="get" style="display:inline">
+    <input type="hidden" name="module" value="voipnew" />
+    <input type="hidden" name="action" value="catalog_prefix" />
+    <select name="f_dest_group">
+        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
+        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
+        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
+        <option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+    </select>
+    <select name="f_country_id">
+        <option value="0">-- Все страны --</option>
+        {foreach from=$countries item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
+    <select name="f_region_id">
+        <option value="0">-- Все регионы --</option>
+        {foreach from=$geo_regions item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
+
+    <select name="f_city_geo_id">
+        <option value="0">-- Все города --</option>
+        {foreach from=$cities item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_city_geo_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
+
+    <select name="f_mob">
+        <option value="0">-- Моб/Стац --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+    </select>
+
+    <br/>
+    <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type=submit name="make" value="Сформировать"/>
+</form>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td class=header>Префикс номера</td>
+        <td class=header>Назначение</td>
+        <td class=header>Моб.</td>
+        <td class=header>Оператор</td>
+    </tr>
+
+    {foreach from=$report item='rd'}
+
+    <tr class={cycle values='even,odd'}>
+        <td>{$rd.prefix}</td>
+        <td>{$rd.destination}</td>
+        <td>{if $rd.mob=='t'}mob{else}&nbsp;{/if}</td>
+        <td>{$rd.operator}</td>
+    </tr>
+
+    {/foreach}
+</table>

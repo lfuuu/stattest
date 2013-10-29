@@ -9,7 +9,8 @@ class m_voipnew_head extends IModuleHead
     );
 
     public $actions = array(
-        'billing_settings' => array('voip', 'access'),
+        'catalogs' => array('voip', 'access'),
+        'catalog_prefix' => array('voip', 'access'),
         'raw_files' => array('voip', 'access'),
         'view_raw_file' => array('voip', 'access'),
         'compare_raw_file' => array('voip', 'access'),
@@ -20,16 +21,16 @@ class m_voipnew_head extends IModuleHead
         'mtt_parse' => array('voip', 'access'),
         'get_mos_mob' => array('voip', 'access'),
         'pricelist' => array('voip', 'access'),
-        'analyze_pricelist_report_list' => array('voip', 'access'),
-        'analyze_pricelist_report_show' => array('voip', 'access'),
-        'analyze_pricelist_report_edit' => array('voip', 'access'),
-        'analyze_pricelist_report_delete' => array('voip', 'access'),
         'upload' => array('voip', 'access'),
         'pricelists' => array('voip', 'access'),
-        'routing_report_list' => array('voip', 'access'),
-        'routing_report_show' => array('voip', 'access'),
-        'operator_report_list' => array('voip', 'access'),
-        'operator_report_show' => array('voip', 'access'),
+        'pricelist_report_list' => array('voip', 'access'),
+        'pricelist_report_routing_list' => array('voip', 'access'),
+        'pricelist_report_operator_list' => array('voip', 'access'),
+        'pricelist_report_analyze_list' => array('voip', 'access'),
+        'pricelist_report_show' => array('voip', 'access'),
+        'pricelist_report_edit' => array('voip', 'access'),
+        'pricelist_report_save' => array('voip', 'access'),
+        'pricelist_report_delete' => array('voip', 'access'),
         'priority_list' => array('voip', 'access'),
         'set_lock_prefix' => array('voip', 'access'),
         'lock_by_price' => array('voip', 'access'),
@@ -38,14 +39,14 @@ class m_voipnew_head extends IModuleHead
     );
 
     public $menu = array(
-        array('Настройки', 'billing_settings'),
-        array('Приоритеты', 'priority_list'),
-        array('Цены', 'defs'),
+        array('Справочники', 'catalogs'),
         array('Прайс-листы', 'pricelists'),
-        array('Отчет: Анализ прайс-листов', 'analyze_pricelist_report_list'),
-        array('Отчет: Сравнение операторов', 'operator_report_list'),
-        array('Отчет: По маршрутизации', 'routing_report_list'),
+        array('', 'catalogs'),
+        array('Отчет: Анализ прайс-листов', 'pricelist_report_analyze_list'),
+        array('Отчет: Сравнение операторов', 'pricelist_report_operator_list'),
+        array('Отчет: По маршрутизации', 'pricelist_report_routing_list'),
+        array('', 'catalogs'),
         array('Пересчет звонков', 'calls_recalc'),
-
+        array('Приоритеты', 'priority_list'),
     );
 }

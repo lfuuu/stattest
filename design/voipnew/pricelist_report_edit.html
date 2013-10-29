@@ -1,0 +1,156 @@
+<script language="JavaScript" type="text/javascript" src="js/json2.js"></script>
+<h1>
+    <small>
+    <a href="?module=voipnew&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+    </small>
+
+    {if $rep->id==0}Новый отчет{else}Изменить отчет{/if}
+    {if $rep->report_type_id==1}
+    По маршрутизации
+    {elseif $rep->report_type_id==2}
+    Сравнение операторов
+    {elseif $rep->report_type_id==3}
+    Анализ прайслистов
+    {/if}
+</h1>
+<script type="text/javascript">
+    {literal}
+    function add_client_price(){
+        var pricelist_id = $('#addClientPrice')[0].value;
+        if (pricelist_id == '') return;
+
+        conf = { pricelist_id: pricelist_id, date: new Date() };
+        add_selprice_line(conf);
+    }
+    function add_operator_price(){
+        var pricelist_id = $('#addOperatorPrice')[0].value;
+        if (pricelist_id == '') return;
+
+        conf = { pricelist_id: pricelist_id, date: new Date() };
+        add_selprice_line(conf);
+    }
+    function add_selprice_line(conf){
+        var tr = $('<tr class="even">');
+        tr[0]._conf = conf;
+        var option = $("#addClientPrice option[value='"+conf.pricelist_id+"'], #addOperatorPrice option[value='"+conf.pricelist_id+"']");
+        var name = '<a href="?module=voipnew&action=raw_files&pricelist=' + option.val() + '" target="_blank">' + option.text() + '</a>'
+        var pricelist = '<input type=hidden name="pricelist_ids[]" value="' + conf.pricelist_id + '"/>';
+        tr.append($('<td class="header" style="cursor: pointer">'+option.val()+'</td>'));
+        tr.append($('<td>' + name + pricelist + '</td>'));
+        var date;var btncl;
+        date = $('<input readonly type=text name="dates[]" value="" placeholder="Текущая дата"/>').datepicker().datepicker('setDate', conf.date);
+        btncl = $('<a href="#" onclick="this.date.datepicker(\'setDate\',\'\');return false">[x]</a>')
+        btncl[0].date = date;
+        tr[0]._conf.datepicker = date;
+        tr.append($('<td>').append(date).append(btncl));
+
+        var btndel = $('<a href="#" onclick="this.tr.remove();return false">Удалить</a>')
+        btndel[0].tr = tr;
+        tr.append($('<td>').append(btndel));
+        $('#selprices tbody').append(tr);
+    }
+    $(document).ready(function(){
+        $.datepicker.regional.ru = {
+            closeText: 'Закрыть',
+            prevText: '&#x3c;Пред',
+            nextText: 'След&#x3e;',
+            currentText: 'Сегодня',
+            monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+            monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+                'Июл','Авг','Сен','Окт','Ноя','Дек'],
+            dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+            dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+            dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+            weekHeader: 'Не',
+            dateFormat: 'dd.mm.yy',
+            firstDay: 1,
+            showMonthAfterYear: false,
+            yearSuffix: ''};
+        $.datepicker.setDefaults($.datepicker.regional.ru);
+
+        $('#volumes_from').datepicker();
+        $('#volumes_to').datepicker();
+        var data = JSON.parse($('#data')[0].value);
+        for(var i = 0; i < data.pricelists.length;i++){
+            var conf = { pricelist_id: data.pricelists[i], date: data.dates[i]}
+            add_selprice_line(conf);
+        }
+
+        $("#selprices tbody").sortable().disableSelection();
+    });
+    {/literal}
+</script>
+<form id="editreport" action="?module=voipnew&action=pricelist_report_save" method="POST" >
+    <input type=hidden id='data' value='{$data}' />
+    <input type=hidden name='report_id' value='{$rep->id}' />
+    <input type=hidden name='report_type_id' value='{$rep->report_type_id}' />
+
+    Наименование: <input type=text name='name' value='{$rep->name}' size="50" /><br/>
+
+    Регион: <select name="instance_id">
+        <option value="">--- Все регионы --- </option>
+        {foreach from=$regions item='r'}
+        <option value="{$r->id}" {if $rep->instance_id==$r->id}selected{/if} >{$r->name}</option>
+        {/foreach}
+    </select><br/>
+
+
+    <label><input type=checkbox name='use_rossvyaz_codes' value='1' {if $rep->use_rossvyaz_codes}checked{/if} /> Развернуть мобильные коды региона</label><br/>
+
+    <br/>
+
+    Добавить клиентский прайс:
+    <select id="addClientPrice">
+        <option value="">--- выберите прайслист --- </option>
+        {foreach from=$pricelists item='r'}
+            {if $r->operator_id == 999}
+            <option value="{$r->id}">
+                {$r->getRegionName()}  /
+                {php} echo $this->_tpl_vars['r']->getOperator()->short_name; {/php} /
+                {$r->name}
+            </option>
+            {/if}
+        {/foreach}
+    </select>
+    <input type="button" value="Добавить" onclick="add_client_price()">
+    <br/>
+    Добавить операторский прайс:
+    <select id="addOperatorPrice">
+        <option value="">--- выберите прайслист --- </option>
+        {foreach from=$pricelists key='i' item='r'}
+        {if $r->operator_id != 999}
+        <option value="{$r->id}">
+            {$r->getRegionName()} /
+            {php} echo $this->_tpl_vars['r']->getOperator()->short_name; {/php} /
+            {$r->name}
+        </option>
+        {/if}
+        {/foreach}
+    </select>
+    <input type="button" value="Добавить" onclick="add_operator_price()">
+    <br/><br/>
+
+    Выбранные прайсы: <small>(поддерживается сортировка перетаскиванием)</small>
+    <table id="selprices" class=price cellSpacing=2 cellPadding=4 border=0>
+        <thead>
+            <tr>
+                <td class=header>ID</td><td class=header>Прайслист</td><td class=header>Дата</td><td class=header>&nbsp;</td>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <br/><br/>
+    <input type=submit value="Сохранить" />
+
+    {if $rep->id > 0}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="?module=voipnew&action=pricelist_report_show&id={$rep->id}">Просмотр отчета</a>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="?module=voipnew&action=calc_volume&report_type=pricelist&report_id={$rep->id}">Рассчет объемов</a>
+    {/if}
+</form>

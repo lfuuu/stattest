@@ -151,27 +151,46 @@
 	{/foreach}
 
 {else}
-			<SELECT name='state' onclick="tuspd.style.display=(document.getElementById('state_3') && state_3.selected?'':'none');">
+			<SELECT name='state' onChange="tuspd.style.display=(document.getElementById('state_3') && state_3.selected?'':'none');
+            {if access('tt','rating')} onChangeSelectState(this); {/if} ">
 			{foreach from=$tt_states item=item}
 			{if !isset($tt_restrict_states) || !($item.pk & $tt_restrict_states)}
-				<option id='state_{$item.id}' value='{$item.id}'{if $tt_trouble.state_id==$item.id} selected{/if}>{$item.name}</option>
+				<option id='state_{$item.id}' data-id="{$item.id}" value='{$item.id}'{if $tt_trouble.state_id==$item.id} selected{/if}>{$item.name}</option>
 			{/if}
 			{/foreach}</select>
 			{if $admin_order}
 				<input type=submit value="Предать в admin.markomnet" name="to_admin" class=button>
 			{/if}
 {/if}
-			{if $tt_trouble.state_id == 2 && access('tt','rating')}
-            &nbsp; Оценка: <select name=trouble_rating>
+    <span id="rating" style="display: none";>
+            &nbsp; Оценка: {if $rated}<b>{$rated}</b>{else}<select name=trouble_rating>
                 <option value=0>-----</option>
                 <option value=1>1</option>
                 <option value=2>2</option>
                 <option value=3>3</option>
                 <option value=4>4</option>
                 <option value=5>5</option>
-            </select>
+            </select>{/if}
+        </span>
 
-            {/if}
+{if access('tt','rating')}
+<script>
+{literal}
+function onChangeSelectState(o)
+{
+    var stateId = $(o).find(':selected').data('id');
+    if(stateId == 7 || stateId == 2)
+    {
+        $('#rating').show();
+    }else{
+        $('#rating').hide();
+    }
+}
+{/literal}
+{if $tt_trouble.state_id == 2 || $tt_trouble.state_id == 7}$('#rating').show();{/if}
+</script>
+{/if}
+
 			</TD></TR>
 			{if $bill}
 			<tr>

@@ -247,7 +247,7 @@ class Sync1CServerHandler
                     $new_stage = new TroubleStage();
                     $new_stage->trouble_id = $trouble->id;
                     $new_stage->user_main = "1c-vitrina";
-                    $new_stage->state_id = $to_state->id;
+                    $new_stage->state_id = $to_state->id?:35;
                     $new_stage->date_start = $now;
                     $new_stage->date_edit = $now;
                     $new_stage->date_finish_desired = $now;
@@ -305,13 +305,13 @@ class Sync1CServerHandler
             $item = new GoodsIncomeDocumentLine();
             $item->document_id = $document->id;
             $item->order_id = $document->order_id;
-            $item->good_id = $line->îÏÍÅÎËÌÁÔÕÒÁ;
+            $item->good_id = $line->îÏÍÅÎËÌÁÔÕÒÁ?: 0;
             $item->good_ext_id = $line->èÁÒÁËÔÅÒÉÓÔÉËÁ;
-            $item->price = $line->ãÅÎÁ;
-            $item->amount = $line->ëÏÌÉŞÅÓÔ×Ï;
-            $item->sum = $line->óÕÍÍÁ;
-            $item->sum_nds= $line->óÕÍÍÁîäó;
-            $item->line_code = $line->ëÏÄóÔÒÏËÉ;
+            $item->price = $line->ãÅÎÁ?: 0.00;
+            $item->amount = $line->ëÏÌÉŞÅÓÔ×Ï?: 0;
+            $item->sum = $line->óÕÍÍÁ ?: 0.00;
+            $item->sum_nds= $line->óÕÍÍÁîäó ?: 0.00;
+            $item->line_code = $line->ëÏÄóÔÒÏËÉ?: 0;
             $item->gtd_id = $line->ëÏÄîÏÍÅÒçôä ?: null;
             $item->save();
         }

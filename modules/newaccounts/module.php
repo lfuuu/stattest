@@ -727,7 +727,8 @@ class m_newaccounts extends IModule
         $design->AddMain('newaccounts/bill_list_simple.tpl');
     }
 
-    function newaccounts_bill_list_full($get_sum=false){
+    function newaccounts_bill_list_full($get_sum=false)
+    {
         global $design, $db, $user, $fixclient_data;
 
         $isMulty = $fixclient_data["type"] == "multi";
@@ -1036,6 +1037,15 @@ class m_newaccounts extends IModule
                 $R[$ks]["switch_to_mcn"] = 1;
             
         }
+
+        $qrs = array();
+        foreach($db->QuerySelectAll("qr_code", array("client_id" => $fixclient_data["id"])) as $q)
+        {
+            $qrs[$q["bill_no"]][$q["doc_type"]] = $q["id"];
+        }
+
+        $design->assign("qrs", $qrs);
+
 
         #krsort($R);
         $design->assign('billops',$R);
@@ -2162,7 +2172,7 @@ class m_newaccounts extends IModule
 
         if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice", "assignment"))){
 
-      $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? qrcode::getNo($bill->GetNo()) : false));
+      $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
       $design->assign("source", $source);
 
             if($source==3 && $obj=='akt')
@@ -3128,6 +3138,7 @@ class m_newaccounts extends IModule
                 $design->assign('inv_is_new3', ($inv_date>=mktime(0,0,0,1,24,2012)));
                 $design->assign('inv_is_new4', ($inv_date>=mktime(0,0,0,2,13,2012)));
                 $design->assign('inv_is_new5', ($inv_date>=mktime(0,0,0,10,1,2012))); // доработки в акте и сф, собственные (акциз, шт => -) + увеличен шрифт в шапке
+                $design->assign('inv_is_new6', ($inv_date>=mktime(0,0,0,1,1,2013))); // 3 (объем), 5 всего, 6 сумма, 8 предъявлен покупателю, 8 всего
             }
             $design->assign('opener','interface');
             $design->assign('bill',$bdata);
@@ -6078,10 +6089,12 @@ $sql .= "    order by client, bill_no";
             $r["ts"] = $r["date"];
 
 
-            $qNo = qrcode::decodeNo($r["code"]);
+            $qNo = QRCode::decodeNo($r["code"]);
 
             $r["type"] = $qNo ? $qNo["type"]["name"] : "????";
             $r["number"] = $qNo ? $qNo["number"] : "????";
+
+            $num = "";
 
             if($pos = strrpos($r["file"], "_"))
             {
@@ -6107,7 +6120,17 @@ $sql .= "    order by client, bill_no";
     {
         global $db;
 
-        $dir = "/var/log/skanpdf/";
+        if(!defined("SCAN_DOC_DIR"))
+            throw new Exception("Директория с отсканированными документами не задана");
+
+        $dir = SCAN_DOC_DIR;
+
+        if(!is_dir($dir))
+            throw new Exception("Директория с отсканированными документами задана не верно (".SCAN_DOC_DIR.")");
+
+        if(!is_readable($dir))
+            throw new Exception("В директорию с документами доступ запрещен");
+
 
         $d = dir($dir);
 
@@ -6129,18 +6152,34 @@ $sql .= "    order by client, bill_no";
         foreach($docs as $e)
         {
             $qrcode = QRCode::decodeFile($dir.$e);
+            $qr = QRCode::decodeNo($qrcode);
 
             if($qrcode)
             {
+                $clientId = 0;
+                $billNo = "";
+                $type = "";
+
+                if($qr)
+                {
+                    $billNo = $qr["number"];
+                    $clientId = NewBill::find_by_bill_no($billNo)->client_id;
+                    $type = $qr["type"]["code"];
+                }
+
                 $id = $db->QueryInsert("qr_code", array(
                             "file" => $e,
-                            "code" => $qrcode
+                            "code" => $qrcode,
+                            "bill_no" => $billNo,
+                            "client_id" => $clientId,
+                            "doc_type" => $type
                             ));
 
                 exec("mv ".$dir.$e." ../store/documents/".$id.".pdf");
             }else{
                 exec("mv ".$dir.$e." ../store/documents/unrecognized/".$e);
             }
+
 
         }
         $d->close();
@@ -6151,6 +6190,12 @@ $sql .= "    order by client, bill_no";
         global $design;
 
         $dirPath = STORE_PATH."documents/unrecognized/";
+
+        if(!is_dir($dirPath))
+            throw new Exception("Директория с нераспознаными документами задана не верно (".$dirPath.")");
+
+        if(!is_readable($dirPath))
+            throw new Exception("В директорию с нераспознаными документами доступ запрещен");
 
         if(($delFile = get_param_raw("del", "")) !== "")
         {

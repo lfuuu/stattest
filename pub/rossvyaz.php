@@ -53,4 +53,57 @@ parse_rossvyaz('ABC-4x.html');
 parse_rossvyaz('ABC-8x.html');
 parse_rossvyaz('DEF-9x.html');
 
-echo "OK";
+echo "parse - OK<br/>\n";
+
+
+$pgDb = new PgSQLDatabase(PGSQL_HOST, PGSQL_USER, PGSQL_PASS, "voipdb");
+$regions = $pgDb->AllRecords("select * from astschema.region");
+
+
+$sqlIns = array();
+$sqlDel = array();
+
+$pgDb = new PgSQLDatabase(PGSQL_HOST, PGSQL_USER, PGSQL_PASS, "nispd");
+
+$countAll = 0;
+foreach($regions as $region)
+{
+    echo "\n<br>region: ".$region["id"];
+    $sqlDel[$region["id"]] = "delete from astschema.extensions where context = 'my-local-".$region["code"]."-mobile-out' and region ='".$region["id"]."'";
+
+    $sqlIns[$region["id"]] = array();
+
+
+    $count = 0;
+    foreach($pgDb->AllRecords("select prefix, sufix from voip.openca_get_mobile_prefix(".$region["id"].")") as $l)
+    {
+        $count++;
+        $countAll++;
+
+        $len = strlen($l["prefix"])+($l["sufix"]? 1 : 0);
+
+        $l["ext_str"] = "_".$l["prefix"].($l["sufix"] ? "[".preg_replace("/[^\d]/", "", $l["sufix"])."]":"").str_repeat("X", 11-$len);
+        //echo "\n".$l["prefix"]." + ".$l["sufix"]." => ".$l["ext_str"];
+
+        $sqlIns[$region["id"]][] = "('my-local-".$region["code"]."-mobile-out', '".$l["ext_str"]."', 1, 'Return',  '\${MOBLOC}02',    'mcn-route',  't',   '".$region["id"]."')";
+
+    }
+    echo " => ".$count;
+}
+
+$pgDb = new PgSQLDatabase(PGSQL_HOST, PGSQL_USER, PGSQL_PASS, "voipdb");
+$pgDb->Query("start transaction");
+foreach($regions as $region)
+{
+    //echo "\n".$sqlDel[$region["id"]];
+    $pgDb->Query($sqlDel[$region["id"]]);
+    $ins = "insert into astschema.extensions (context, exten, priority, app, appdata, client, enabled, region) values ".
+        implode(",\n", $sqlIns[$region["id"]]);
+
+    //echo "\n".$ins;
+    $pgDb->Query($ins);
+
+}
+$pgDb->Query("commit");
+
+echo "\n<br/>fill ".$countAll." mobile out extensions\n<br/> complete";
