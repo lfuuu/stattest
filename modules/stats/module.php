@@ -444,16 +444,20 @@ class m_stats extends IModule{
         $design->assign("beauty", $beauty);
         $design->assign("beautys", $beautys);
 
-        $design->assign("minCalls", 10);
+        $design->assign("minCalls", 10); //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
 
 
-        if(get_param_raw("do",""))
+        $unsetPublish = array();
+        if (get_param_raw("do",""))
         {
             
             if (get_param_raw("publish"))
             {
                 $nums = get_param_raw("publish_phones");
                 $setNums = get_param_raw("published_phones");
+
+                $nums = $nums ? $nums : array();
+                $setNums = $setNums ? $setNums : array();
 
                 $add = array_diff($nums, $setNums);
                 $del = array_diff($setNums, $nums);
@@ -509,7 +513,6 @@ class m_stats extends IModule{
 
             ");
 
-            $unsetPublish = array();
             $fromTime = strtotime("first day of -3 month, midnight");
 
             foreach($ns as &$n)
