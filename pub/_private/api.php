@@ -47,6 +47,12 @@ function do_func($function)
 		case 'getPropertyPaymentOnCard': return Func::getPropertyPaymentOnCard(get_param_raw("client_id"), get_param_raw("sum")); break;
 		case 'updateUnitellerOrder': return Func::updateUnitellerOrder(get_param_raw("order_id")); break;
 		case 'getBill': return Func::getBill(get_param_raw("client_id"), get_param_raw("bill_no")); break;
+		case 'getDomainList': return Func::getDomainList(get_param_raw("client_id")); break;
+		case 'getEmailList': return Func::getEmailList(get_param_raw("client_id")); break;
+		case 'getVoipList': return Func::getVoipList(get_param_raw("client_id")); break;
+		case 'getInternetList': return Func::getInternetList(get_param_raw("client_id")); break;
+		case 'getCollocationList': return Func::getCollocationList(get_param_raw("client_id")); break;
+		case 'getExtraList': return Func::getExtraList(get_param_raw("client_id")); break;
 		default: throw new Exception("Функция не определенна");
 	}
 }
@@ -290,6 +296,7 @@ class Func
 					"sum"       => $l->sum
 					);
 		}
+		
 
 		return array(
 				"bill" => array(
@@ -300,13 +307,309 @@ class Func
 					"sum_total" => $b->sum
 					),
 				"link" => array(
-					"bill" => "#",
-					"invoice1" => "#",
-					"invoice2" => "#",
-					"akt1" => "#",
-					"akt2" => "#"
+					"bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUR", "client" => $clientId)),
+					"invoice1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-1", "client" => $clientId)),
+					"invoice2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-2", "client" => $clientId)),
+					"akt1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-1", "client" => $clientId)),
+					"akt2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-2", "client" => $clientId)),
 					),
 				);
+	}
+
+	public function getDomainList($clientId)
+	{
+		$ret = array();
+
+		foreach (NewBill::find_by_sql('
+				SELECT
+					`d`.`id`,
+					CAST(`d`.`actual_from` AS DATE) AS `actual_from`,
+					CAST(`d`.`actual_to` AS DATE) AS `actual_to`,
+					`d`.`domain`,
+					`d`.`paid_till`,
+					IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 1, 0) AS `actual`
+				FROM
+					`domains` AS `d`
+				INNER JOIN `clients` ON (`d`.`client` = `clients`.`client`)
+				WHERE
+					`clients`.`id`=?
+				ORDER BY
+					IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 0, 1) ASC,
+					`actual_from` DESC
+				', array($clientId)) as $d)
+		{
+			$ret[] = self::_exportModelRow(array("id", "actual_from", "actual_to", "domain", "paid_till", "actual"), $d);
+		}
+
+		return $ret;
+
+
+	}
+
+	public function getEmailList($clientId)
+	{
+
+		$ret = array();
+
+		foreach(NewBill::find_by_sql('
+				SELECT
+					`e`.`id`,
+					CAST(`e`.`actual_from` AS DATE) AS `actual_from`,
+					CAST(`e`.`actual_to` AS DATE) AS `actual_to`,
+					`e`.`local_part`,
+					`e`.`domain`,
+					`e`.`box_size`,
+					`e`.`box_quota`,
+					`e`.`status`,
+					IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 1, 0) AS `actual`
+				FROM `emails` AS `e`
+				INNER JOIN `clients` ON (`e`.`client` = `clients`.`client`)
+				WHERE
+					`clients`.`id` = ?
+				ORDER BY
+					`local_part`,
+					IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 0, 1) ASC,
+					`actual_from` DESC
+				', array($clientId)) as $e)
+		{
+
+			$line = self::_exportModelRow(array("id", "actual_from", "actual_to", "local_part", "domain", "box_size", "box_quota", "status", "actual"), $e);
+			$line['email'] = $line['local_part'].'@'.$line['domain'];
+			$ret[] = $line;
+
+		}
+
+		return $ret;
+	}
+
+	public function getVoipList($clientId)
+	{
+		$ret = array();
+
+		foreach(NewBill::find_by_sql('
+				SELECT
+					`u`.*,
+					`t`.`name` AS `tarif_name`
+				FROM
+				(
+				 SELECT
+					 `u`.`id`,
+					 `u`.`E164` AS `number`,
+					 `u`.`no_of_lines`,
+					 `u`.`actual_from`,
+					 `u`.`actual_to`,
+					 IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+					 IF ((`u`.`actual_from` <= (NOW()+INTERVAL 5 DAY)), 1, 0) AS `actual5d`,
+					 MAX(`l`.`date_activation`) AS `tarif_date_activation`
+				 FROM
+					 `usage_voip` AS `u`
+				 INNER JOIN `clients` ON (`u`.`client` = `clients`.`client`)
+				 LEFT JOIN `log_tarif` AS `l` on (
+						`l`.`service` = "usage_voip" 
+					AND `l`.`id_service` = `u`.`id` 
+					AND `l`.`date_activation` <= CAST(NOW() as DATE)
+					)
+				 WHERE
+					 `clients`.`id`=?
+				 GROUP BY
+					 `u`.`E164`,
+					 `u`.`no_of_lines`,
+					 `u`.`actual_from`,
+					 `u`.`actual_to`,
+					 `l`.`date_activation`
+				 ) as `u`
+				 LEFT JOIN `log_tarif` AS `l` ON (
+					`l`.`service` = "usage_voip" 
+					AND `l`.`id_service` = `u`.`id` 
+					AND `l`.`date_activation` = `u`.`tarif_date_activation`
+					)
+				 LEFT JOIN `tarifs_voip` AS `t` ON (
+					`t`.`id` = `l`.`id_tarif`
+					)
+				 ORDER BY
+					 `actual` DESC,
+					 `u`.`actual_from` DESC
+				', array($clientId)) as $v)
+		{
+			$line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual", "actual5d", "tarif_date_activation", "tarif_name"), $v);
+			$ret[] = $line;
+		}
+
+		return $ret;
+	}
+
+	public static function getInternetList($clientId)
+	{
+		return self::_getConnectionsByType($clientId);
+	}
+
+	public static function getCollocationList($clientId)
+	{
+		return self::_getConnectionsByType($clientId, "C");
+	}
+
+	private static function _getConnectionsByType($clientId, $connectType = "I")
+	{
+		$ret = array();
+
+		foreach(NewBill::find_by_sql('
+				SELECT 
+					a.*, 
+					ti.name as tarif,
+					ti.adsl_speed
+				FROM (
+					SELECT
+						u.*,
+						IF((u.actual_from<=NOW()) and (u.actual_to>NOW()),1,0) as actual,
+						p.port_name as port,
+						p.node,
+						p.port_type,
+						IF(u.actual_from<=(NOW()+INTERVAL 5 DAY),1,0) as actual5d,
+						(SELECT 
+							t.id
+						 FROM 
+							`log_tarif` AS `l`, `tarifs_internet` AS `t` 
+						 WHERE 
+							    `l`.`service` = "usage_ip_ports" 
+							AND `l`.`id_service` = u.id
+							AND `t`.`id` = `l`.`id_tarif`
+						 ORDER BY 
+							date_activation DESC, 
+							l.id DESC
+						 LIMIT 1
+						 ) AS tarif_id
+					FROM usage_ip_ports u
+					INNER JOIN clients c ON (c.client= u.client)
+					LEFT JOIN tech_ports p ON (p.id=u.port_id)
+					LEFT JOIN usage_ip_routes r ON (u.id=r.port_id)
+					WHERE c.id = ?
+					GROUP BY
+						u.id
+					order by 
+						actual desc, 
+						actual_from desc
+					) a 
+				INNER JOIN tarifs_internet ti ON (ti.id = a.tarif_id)
+				WHERE 
+					ti.type = ?
+					', array($clientId, $connectType)) as $i)
+		{
+			$line = self::_exportModelRow(array("id", "address", "actual_from", "actual_to", "actual", "tarif", "port", "port_type", "status", "adsl_speed", "node"), $i);
+
+			$line["nets"] = self::_getInternet_nets($line["id"]);
+			$line["cpe"] = self::_getInternet_cpe($line["id"]);
+
+			$ret[] = $line;
+		}
+
+		return $ret;
+	}
+
+	private static function _getInternet_nets($portId)
+	{
+		$ret = array();
+
+		foreach(NewBill::find_by_sql('
+				SELECT
+					*,
+					IF (`actual_from` <= NOW() and `actual_to` > NOW(), 1, 0) as `actual`
+				FROM
+					`usage_ip_routes`
+				WHERE
+					(port_id= ? )
+				AND `actual_from` <= NOW()
+				AND `actual_to` > NOW()
+				ORDER BY
+					`actual` DESC,
+					`actual_from` DESC
+				', array($portId)) as $net)
+		{
+			$ret[] = self::_exportModelRow(explode(",", "id,actual_from,actual_to,net,type,actual"), $net);
+		}
+		return $ret;
+	}
+
+	public static function _getInternet_cpe($portId)
+	{
+		foreach(NewBill::find_by_sql("
+					SELECT
+						`tech_cpe`.*,
+						`type`,
+						`vendor`,
+						`model`,
+						IF (`actual_from` <= NOW() AND `actual_to` >= NOW(), 1, 0) as `actual`
+					FROM
+						`tech_cpe`
+					INNER JOIN `tech_cpe_models` ON `tech_cpe_models`.`id` = `tech_cpe`.`id_model`
+					WHERE
+							`tech_cpe`.`service` = 'usage_ip_ports'
+						AND `tech_cpe`.`id_service` = ?
+						AND (`actual_from` <= NOW() AND `actual_to` >= NOW())
+					ORDER BY
+						`actual` DESC,
+						`actual_from` DESC
+					", array($portId)) as $cpe)
+		{
+			$ret[] = self::_exportModelRow(array("actual_from", "actual_to","ip",  "type", "vendor", "model", "actual", "numbers"), $cpe);
+		}
+
+		return $ret;
+	}
+
+	public static function getExtraList($clientId)
+	{
+		$ret = array();
+
+		foreach(NewBill::find_by_sql("
+					SELECT 
+						`u`.`id`,
+						`u`.`actual_from`,
+						`u`.`actual_to`,
+						`u`.`amount`,
+						`t`.`description`,
+						`t`.`period`,
+						`t`.`price`,
+						`t`.`param_name`,
+						`u`.`param_value`,
+						IF ((`actual_from` <= CAST(NOW() AS DATE)) AND (`actual_to` > CAST(NOW() AS DATE)), 1, 0) AS `actual`,
+						IF ((`actual_from` <= (CAST(NOW() AS DATE) + INTERVAL 5 DAY)), 1, 0) AS `actual5d`
+					FROM
+						`usage_extra` AS `u`
+					INNER JOIN `clients` ON (`clients`.`client` = `u`.`client`)
+					LEFT JOIN `tarifs_extra` AS `t` ON t.id=u.tarif_id
+					WHERE
+						`clients`.`id` = ?
+					AND `actual_from` <= CAST(NOW() AS DATE)
+					AND `actual_to` > CAST(NOW() AS DATE)
+					ORDER BY
+						`actual` DESC,
+						`actual_from` DESC
+				", array($clientId)) as $service)
+				{
+					$line = self::_exportModelRow(array("id", "actual_from", "actual_to", "amount", "description", "period", "price", "param_name", "param_value", "actual", "actual5d"), $service);
+
+					if ($line['param_name'])
+					{
+						$line['description'] = str_replace('%', '<i>' . $line['param_value'] . '</i>', $line['description']);
+					}
+					$line['amount'] = (double)$line['amount'];
+					$line['price'] = (double)$line['price'];
+
+					$ret[] = $line;
+				}
+
+		return $ret;
+	}
+
+
+	private static function _exportModelRow($fields, &$row)
+	{
+		$line = array();
+		foreach ($fields as $field)
+		{
+			$line[$field] = Encoding::toUtf8($row->{$field});
+		}
+		return $line;
 	}
 }
 
