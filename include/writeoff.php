@@ -577,7 +577,7 @@ class ServiceUsageVoip extends ServicePrototype {
                 else dest end rdest, 
                 cast( sum(amount)/100.0 as NUMERIC(10,2)) as price
             from
-                billing.calls_'.intval($this->service['region']).'
+                calls.calls_'.intval($this->service['region']).'
             where '.$W.'
             group by rdest
             having cast( sum(amount)/100.0 as NUMERIC(10,2)) > 0');

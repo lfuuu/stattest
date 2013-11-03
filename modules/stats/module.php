@@ -393,7 +393,7 @@ class m_stats extends IModule{
 	        	$filter .= ' and usage_num='.$pg_db->escape($phone).' ';
 
           $stats = $pg_db->AllRecords("select id, usage_num, phone_num, len, direction_out, \"time\", geo_id, mob
-	                    from billing.calls_".intval($region)."
+	                    from calls.calls_".intval($region)."
 	                    where $filter
 	                    order by time");
 	        foreach($stats as $k=>$r)
@@ -496,7 +496,7 @@ class m_stats extends IModule{
                 {
                     foreach($pg_db->AllRecords("
                     select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, sum(1) as count_calls
-                    from billing.calls_99 
+                    from calls.calls_99
                     where time between now() - interval '3 month' and now() 
                     and usage_id is null 
                     and region=99 
@@ -800,7 +800,7 @@ class m_stats extends IModule{
       $R = array();
       $geo = array();
         foreach($pg_db->AllRecords($q =
-                  "SELECT direction_out,usage_num,phone_num,len,time, geo_id FROM billing.calls
+                  "SELECT direction_out,usage_num,phone_num,len,time, geo_id FROM calls.calls
                   WHERE \"time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
                   AND phone_num = '".$find."'
                   AND region = '".$region."'
@@ -922,7 +922,7 @@ class m_stats extends IModule{
                                     '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len else 0 end':'len').') as ts2,
                                     '.($group?'sum('.($paidonly?'case amount>0 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
-                                    billing.calls_'.intval($region).'
+                                    calls.calls_'.intval($region).'
                             where '.MySQLDatabase::Generate($W).$group."
                             ORDER BY
                                     ts1 ASC
@@ -977,7 +977,7 @@ class m_stats extends IModule{
                     return $R;
                 }else{
                     $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(len) as len, sum(1) as cnt
-                            from billing.calls_".intval($region)."
+                            from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
                     $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0),
@@ -2768,7 +2768,7 @@ class m_stats extends IModule{
 					else 900 end as dest2
 					".$sod."
 				from
-					billing.calls_".intval($region)."
+					calls.calls_".intval($region)."
 				where len>0 and
 					".$wm.$wo.$wde.$wdi.$god.$ob;
 
