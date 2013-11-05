@@ -13,7 +13,7 @@ for($i=1,$work_days=0,$time = time();$i<=30;$i++)
 
 $counters = $pg_db->AllRecords("
                 select c.usage_id, sum(amount) amount
-                from billing.calls c
+                from calls.calls c
                 where
                   c.time >= cast(now() as DATE) - '1 month'::interval and
                   c.time <  cast(now() as DATE)
