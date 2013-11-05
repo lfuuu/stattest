@@ -80,7 +80,14 @@ class m_voipnew_analyze_pricelist_report
                 $prices = $prices != '' ? explode(',', $prices) : array();
 
                 $report[$k]['prices'] = $prices;
-                $report[$k]['best_price'] = count($orders) > 0 ? $prices[$orders[0]] : '';
+                if (count($orders) > 0) {
+                    $report[$k]['best_index'] = $orders[0];
+                    $report[$k]['best_price'] = $prices[$orders[0]];
+                } else {
+                    $report[$k]['best_index'] = -1;
+                    $report[$k]['best_price'] = '';
+                }
+
             }
 
         }
