@@ -40,6 +40,13 @@
 </p>
 {/if}
 
+<style type="text/css">
+    {literal}
+    td.best {
+        background-color:rgb(153, 247, 153);
+    }
+    {/literal}
+</style>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipnew" />
@@ -111,7 +118,7 @@
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
     <td  align=center>{$rd.best_price|replace:'.':','}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
-		<td align=center>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>
+		<td align=center class="{if $rd.best_index == $i}best{/if}">{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>
 	{/foreach}
 	{if $volume.calc_date}
         <td align=center>{$rd.volume}</td>
