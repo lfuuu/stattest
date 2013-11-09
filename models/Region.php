@@ -10,7 +10,7 @@ class Region extends ActiveRecord\Model
     {
         if (!self::$cachedList) {
             self::$cachedList = array();
-            foreach(self::all() as $item) {
+            foreach(self::find('all', array('order' => 'id desc')) as $item) {
                 self::$cachedList[$item->id] = $item;
             }
         }
