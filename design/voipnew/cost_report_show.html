@@ -1,17 +1,20 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
 <h1>Отчет по себестоимости:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipnew" />
 	<input type="hidden" name="action" value="cost_report" />
-    <select name="f_instance_id">
+    <select class="select2" name="f_instance_id" style="width: 180px">
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name}</option>
         {/foreach}
     </select>
-    <select name="f_operator_id">
+    <select class="select2" name="f_operator_id" style="width: 300px">
         <option value="0">-- Все операторы --</option>
-        {foreach from=$operators item='r'}
-        <option value="{$r->id}" {if $r->id eq $f_operator_id} selected{/if}>{$r->getRegionName()} {$r->short_name} ({$r->id})</option>
+        {foreach from=$operators key='id' item='name'}
+        <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
         {/foreach}
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -23,20 +26,22 @@
         <option value="op" {if $f_prefix_type eq 'op'} selected{/if}>Использовать операторские префиксы</option>
         <option value="mcn" {if $f_prefix_type eq 'mcn'} selected{/if}>Использовать префиксы MCN</option>
     </select>
-    <br/>
+
+    <div style="height: 5px"></div>
+
 	<select name="f_dest_group">
 	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
 	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
 	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
 	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
 	</select>
-	<select name="f_country_id">
+	<select class="select2" name="f_country_id" style="width: 250px">
 	<option value="0">-- Все страны --</option>
 	{foreach from=$geo_countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
-	<select name="f_region_id">
+	<select class="select2" name="f_region_id" style="width: 300px">
 	<option value="0">-- Все регионы --</option>
 	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
@@ -49,7 +54,8 @@
         <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
     </select>
 
-  <br/>
+    <div style="height: 5px"></div>
+
   <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
 <!--  <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/> -->
   &nbsp;&nbsp;&nbsp;&nbsp;
@@ -81,6 +87,7 @@
 
         $('#date_from').datepicker();
         $('#date_to').datepicker();
+        $('.select2').select2();
     });
 {/literal}
 </script>
@@ -89,19 +96,21 @@
 <thead>
 <tr>
     <td nowrap class=header colspan="2">&nbsp;</td>
-    <td class=header colspan="2">МСN Telecom</td>
+    <td class=header colspan="3">МСN Telecom</td>
     {foreach from=$reportOperators key='k' item='op'}
-    <td nowrap class=header colspan="2">{$op->short_name} ({$k})</td>
+    <td nowrap class=header colspan="3">{$op->short_name} ({$k})</td>
     {/foreach}
 </tr>
 <tr>
     <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
     <td class=header style="min-width: 100px;">Назначение</td>
-    <td class=header>Объем</td>
-    <td class=header>Стоимость</td>
+    <td class=header>Кол.</td>
+    <td class=header>Мин.</td>
+    <td class=header>Руб.</td>
     {foreach from=$reportOperators key='k' item='op'}
-    <td class=header>Объем</td>
-    <td class=header>Стоимость</td>
+    <td class=header>Кол.</td>
+    <td class=header>Мин.</td>
+    <td class=header>Руб.</td>
     {/foreach}
 </tr>
 </thead>
@@ -110,9 +119,11 @@
 <tr class="{cycle values='even,odd'}">
 	<td>{$rd.prefix}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+    <td align=right>{$rd.count}</td>
     <td align=right>{$rd.len_mcn}</td>
     <td align=right>{$rd.amount_mcn}</td>
     {foreach from=$reportOperators key='k' item='op'}
+    <td align=right>{$rd.operators[$k].count}</td>
     <td align=right>{$rd.operators[$k].len_op}</td>
     <td align=right>{$rd.operators[$k].amount_op}</td>
     {/foreach}
@@ -122,9 +133,11 @@
 <tfoot>
 <tr>
     <td colspan="2"><b>Итого:</b></td>
+    <td align=right><b>{$totals.count}</b></td>
     <td align=right><b>{$totals.len_mcn}</b></td>
     <td align=right><b>{$totals.amount_mcn}</b></td>
     {foreach from=$reportOperators key='k' item='op'}
+    <td align=right><b>{$totals.operators[$k].count}</b></td>
     <td align=right><b>{$totals.operators[$k].len_op}</b></td>
     <td align=right><b>{$totals.operators[$k].amount_op}</b></td>
     {/foreach}
@@ -132,3 +145,4 @@
 </tfoot>
 
 </table>
+</div>
