@@ -34,7 +34,7 @@ class m_voipnew_cost_report
         if (isset($_GET['make']) || isset($_GET['export'])) {
 
             $where = " r.time >= '{$date_from}'";
-            $where .= " and r.time <= '{$date_from} 23:59:59'";
+            $where .= " and r.time <= '{$date_to} 23:59:59'";
             $where .= " and direction_out ";
 
             if ($f_operator_id != '0')
@@ -118,7 +118,7 @@ class m_voipnew_cost_report
             $totals['amount_mcn'] += $r['amount_mcn'];
             $totals['count'] += $r['count'];
 
-            $report[$k]['len_mcn'] =        number_format(  $report[$k]['len_mcn'] / 100, 2, ',', '');
+            $report[$k]['len_mcn'] =        number_format(  $report[$k]['len_mcn'] / 60, 2, ',', '');
             $report[$k]['amount_mcn'] =     number_format(  $report[$k]['amount_mcn'] / 100, 2, ',', '');
             foreach($r['operators'] as $k_op => $op) {
 
@@ -134,17 +134,17 @@ class m_voipnew_cost_report
                 $totals['operators'][$k_op]['count'] += $op['count'];
 
                 $report[$k]['operators'][$k_op]['len_op'] =
-                                            number_format(  $report[$k]['operators'][$k_op]['len_op'] / 100, 2, ',', '');
+                                            number_format(  $report[$k]['operators'][$k_op]['len_op'] / 60, 2, ',', '');
                 $report[$k]['operators'][$k_op]['amount_op'] =
                                             number_format(  $report[$k]['operators'][$k_op]['amount_op'] / 100, 2, ',', '');
             }
         }
 
-        $totals['len_mcn'] =        number_format(  $totals['len_mcn'] / 100, 2, ',', '');
+        $totals['len_mcn'] =        number_format(  $totals['len_mcn'] / 60, 2, ',', '');
         $totals['amount_mcn'] =     number_format(  $totals['amount_mcn'] / 100, 2, ',', '');
         foreach($totals['operators'] as $k_op => $op) {
             $totals['operators'][$k_op]['len_op'] =
-                number_format(  $totals['operators'][$k_op]['len_op'] / 100, 2, ',', '');
+                number_format(  $totals['operators'][$k_op]['len_op'] / 60, 2, ',', '');
             $totals['operators'][$k_op]['amount_op'] =
                 number_format(  $totals['operators'][$k_op]['amount_op'] / 100, 2, ',', '');
         }
