@@ -597,6 +597,7 @@ include_once 'analyze_pricelist_report.php';
 include_once 'operator_report.php';
 include_once 'routing_report.php';
 include_once 'pricelist_report.php';
+include_once 'cost_report.php';
 
 
 class m_voipnew extends IModule
@@ -622,6 +623,7 @@ class m_voipnew extends IModule
         $this->_addInheritance(new m_voipnew_operator_report);
         $this->_addInheritance(new m_voipnew_routing_report);
         $this->_addInheritance(new m_voipnew_pricelist_report);
+        $this->_addInheritance(new m_voipnew_cost_report);
     }
 
     public function voipnew_raw_files()

@@ -51,8 +51,6 @@ class m_voipnew_routing_report
                 $where .= " and g.country='{$f_country_id}' ";
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
-            if ($f_prefix != '')
-                $where .= " and r.prefix like '" . intval($f_prefix) . "%' ";
             if ($f_mob == 't')
                 $where .= " and d.mob=true ";
             if ($f_mob == 'f')
