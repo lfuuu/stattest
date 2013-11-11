@@ -29,7 +29,7 @@ class m_voipnew_cost_report
         $prefixField = 'prefix_' . $f_prefix_type;
 
         $report = array();
-        $totals = array('len_mcn' => 0, 'amount_mcn' => 0, 'operators' => array());
+        $totals = array('count' => 0, 'len_mcn' => 0, 'amount_mcn' => 0, 'operators' => array());
         $reportOperators = array();
         if (isset($_GET['make']) || isset($_GET['export'])) {
 
@@ -37,6 +37,8 @@ class m_voipnew_cost_report
             $where .= " and r.time <= '{$date_from} 23:59:59'";
             $where .= " and direction_out ";
 
+            if ($f_operator_id != '0')
+                $where .= " and r.operator_id='{$f_operator_id}' ";
             if ($f_prefix != '')
                 $where .= " and r.{$prefixField}::varchar like '" . intval($f_prefix) . "%' ";
             if ($f_dest_group != '-1')
@@ -87,10 +89,12 @@ class m_voipnew_cost_report
                         'operators' => array(),
                         'len_mcn' => 0,
                         'amount_mcn' => 0,
+                        'count' => 0,
                     );
                 }
                 $report[$k]['len_mcn'] += $r['len_mcn'];
                 $report[$k]['amount_mcn'] += $r['amount_mcn'];
+                $report[$k]['count'] += $r['count'];
 
                 if (!isset($reportOperators[$r['operator_id']])) {
                     $reportOperators[$r['operator_id']] = VoipOperator::getByIdAndInstanceId($r['operator_id'], $f_instance_id);
@@ -99,10 +103,12 @@ class m_voipnew_cost_report
                     $report[$k]['operators'][$r['operator_id']] = array(
                         'len_op' => 0,
                         'amount_op' => 0,
+                        'count' => 0,
                     );
                 }
                 $report[$k]['operators'][$r['operator_id']]['len_op'] += $r['len_op'];
                 $report[$k]['operators'][$r['operator_id']]['amount_op'] += $r['amount_op'];
+                $report[$k]['operators'][$r['operator_id']]['count'] += $r['count'];
             }
         }
 
@@ -110,6 +116,7 @@ class m_voipnew_cost_report
 
             $totals['len_mcn'] += $r['len_mcn'];
             $totals['amount_mcn'] += $r['amount_mcn'];
+            $totals['count'] += $r['count'];
 
             $report[$k]['len_mcn'] =        number_format(  $report[$k]['len_mcn'] / 100, 2, ',', '');
             $report[$k]['amount_mcn'] =     number_format(  $report[$k]['amount_mcn'] / 100, 2, ',', '');
@@ -119,10 +126,12 @@ class m_voipnew_cost_report
                     $totals['operators'][$k_op] = array(
                         'len_op' => 0,
                         'amount_op' => 0,
+                        'count' => 0,
                     );
                 }
                 $totals['operators'][$k_op]['len_op'] += $op['len_op'];
                 $totals['operators'][$k_op]['amount_op'] += $op['amount_op'];
+                $totals['operators'][$k_op]['count'] += $op['count'];
 
                 $report[$k]['operators'][$k_op]['len_op'] =
                                             number_format(  $report[$k]['operators'][$k_op]['len_op'] / 100, 2, ',', '');
@@ -140,9 +149,13 @@ class m_voipnew_cost_report
                 number_format(  $totals['operators'][$k_op]['amount_op'] / 100, 2, ',', '');
         }
 
-        $operators = VoipOperator::find('all', array(
-            'order' => 'region desc, short_name'
-        ));
+        $operators = array();
+        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
+        {
+            if (!isset($operators[$op->id])) {
+                $operators[$op->id] = $op->short_name;
+            }
+        }
         $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
         $pricelists = $pg_db->AllRecords("select p.id, p.name, o.short_name as operator from voip.pricelist p
                                           left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id');
