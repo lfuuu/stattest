@@ -6321,11 +6321,11 @@ $sql .= "    order by client, bill_no";
                 }
 
                 $id = $db->QueryInsert("qr_code", array(
-                            "file" => $e,
-                            "code" => $qrcode,
-                            "bill_no" => $billNo,
+                            "file"      => $e,
+                            "code"      => $qrcode,
+                            "bill_no"   => $billNo,
                             "client_id" => $clientId,
-                            "doc_type" => $type
+                            "doc_type"  => $type
                             ));
 
                 exec("mv ".$dir.$e." ../store/documents/".$id.".pdf");
@@ -6403,11 +6403,28 @@ $sql .= "    order by client, bill_no";
 
         global $db;
 
-        $id = $db->QueryInsert("qr_code", array(
-                    "file" => $file,
-                    "code" => QRCode::encode($type, $number)
-                    ));
 
+        $qrcode = QRCode::encode($type, $number);
+        $qr = QRCode::decodeNo($qrcode);
+
+        $billNo = "";
+        $clientId = 0;
+        $type = "";
+
+        if($qr)
+        {
+            $billNo = $qr["number"];
+            $clientId = NewBill::find_by_bill_no($billNo)->client_id;
+            $type = $qr["type"]["code"];
+        }
+
+        $id = $db->QueryInsert("qr_code", array(
+                    "file"      => $file,
+                    "code"      => $qrcode,
+                    "bill_no"   => $billNo,
+                    "client_id" => $clientId,
+                    "doc_type"  => $type
+                    ));
 
 
         exec("mv ".$dirUnrec.$file." ".$dirDoc.$id.".pdf");
