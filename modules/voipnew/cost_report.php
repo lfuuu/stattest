@@ -17,7 +17,6 @@ class m_voipnew_cost_report
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_prefix_type = get_param_protected('f_prefix_type', 'op');
-        $f_instance_id = (int)get_param_protected('f_instance_id ', '99');
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
