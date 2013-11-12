@@ -12,7 +12,7 @@ class m_voipnew_cost_report
         global $design, $pg_db;
         set_time_limit(0);
 
-        $f_instance_id = get_param_protected('f_instance_id', '99');
+        $f_instance_id = (int)get_param_protected('f_instance_id', '99');
         $f_operator_id = get_param_protected('f_operator_id', '0');
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
