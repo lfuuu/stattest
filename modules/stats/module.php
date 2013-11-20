@@ -350,9 +350,9 @@ class m_stats extends IModule{
 		$design->assign('destination',$destination);
 		$design->assign('direction',$direction);
 		$design->assign('detality',$detality=get_param_protected('detality','day'));
-		$design->assign('showfree',$showfree=get_param_integer('showfree',0));
+		$design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
 
-		if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,1-$showfree,0,$destination,$direction))) return;
+		if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction))) return;
     $design->assign('stats',$stats);
     $design->AddMain('stats/voip_form.tpl');
     $design->AddMain('stats/voip.tpl');
