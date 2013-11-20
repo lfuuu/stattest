@@ -63,11 +63,13 @@ class m_voipnew_cost_report
                               sum(r.amount) as amount_mcn,
                               sum(r.len) as len_op,
                               sum(r.amount_op) amount_op,
-                              max(g.name) as destination
+                              gn.name as destination
                         from calls.calls_{$f_instance_id} r
                         left join geo.geo g on g.id=r.geo_id
+                        left join voip_destinations d on d.ndef=r.{$prefixField}
+                        left join geo.geo gn on gn.id=d.geo_id
                         where {$where}
-                        group by r.{$prefixField}, r.mob, r.operator_id
+                        group by r.{$prefixField}, r.mob, r.operator_id, gn.name
                         order by destination, r.{$prefixField}
                                      ");
 
