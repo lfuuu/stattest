@@ -70,12 +70,27 @@
     <tr><td>бесплатных местных минут:</td><td>
         <input type="text" name="free_local_min" value="{$data.free_local_min}"/>
     </td></tr>
-    <tr><td colspan="2">бесплатные минуты для номера (да) или для линии (нет):
-      <input type="checkbox" name="freemin_for_number" value="1" {if $data.freemin_for_number > 0}checked{/if} />
+    <tr><td></td><td><label>
+                <input type="checkbox" name="freemin_for_number" value="1" {if $data.freemin_for_number > 0}checked{/if} />
+                бесплатные минуты для номера (да) или для линии (нет):</label>
     </td></tr>
-    <tr><td>платные переадресации:</td><td>
-        <input type="checkbox" name="paid_redirect" value="1" {if $data.paid_redirect > 0}checked{/if} />
+    <tr><td></td><td><label>
+                <input type="checkbox" name="paid_redirect" value="1" {if $data.paid_redirect > 0}checked{/if} />
+                платные переадресации
+            </label>
     </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="tariffication_by_minutes" value="1" {if $data.tariffication_by_minutes > 0}checked{/if} />
+                тарификация: поминутная (да), посекундная (нет)</label>
+        </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="tariffication_by_minutes" value="1" {if $data.tariffication_full_first_minute > 0}checked{/if} />
+                тарификация: первая минута оплачивается полностью</label>
+        </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="tariffication_by_minutes" value="1" {if $data.tariffication_free_first_seconds > 0}checked{/if} />
+                тарификация: первые 5 секунд бесплатно</label>
+        </td></tr>
     <tr><td>прайс-лист:</td><td>
         <select name="pricelist_id">
         {foreach from=$pricelists item='r'}

@@ -12,12 +12,11 @@ class m_voipnew_cost_report
         global $design, $pg_db;
         set_time_limit(0);
 
-        $f_instance_id = get_param_protected('f_instance_id', '99');
+        $f_instance_id = (int)get_param_protected('f_instance_id', '99');
         $f_operator_id = get_param_protected('f_operator_id', '0');
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_prefix_type = get_param_protected('f_prefix_type', 'op');
-        $f_instance_id = (int)get_param_protected('f_instance_id ', '99');
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
@@ -64,11 +63,12 @@ class m_voipnew_cost_report
                               sum(r.amount) as amount_mcn,
                               sum(r.len) as len_op,
                               sum(r.amount_op) amount_op,
-                              max(g.name) as destination
+                              g.name as destination
                         from calls.calls_{$f_instance_id} r
-                        left join geo.geo g on g.id=r.geo_id
+                        left join voip_destinations d on d.ndef=r.{$prefixField}
+                        left join geo.geo g on g.id=d.geo_id
                         where {$where}
-                        group by r.{$prefixField}, r.mob, r.operator_id
+                        group by r.{$prefixField}, r.mob, r.operator_id, g.name
                         order by destination, r.{$prefixField}
                                      ");
 

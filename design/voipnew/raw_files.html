@@ -2,7 +2,13 @@
 	<input type="hidden" name="step" value="upfile" />
 	<input type="hidden" name="pricelist_id" value="{$pricelist.id}" />
 	<select name="ftype">
-		{if $pricelist.operator_id == '2'}
+        {if $pricelist.type == 'network' and $pricelist.operator_id == '2'}
+        <option value="xls_beeline_networks">Сети билайн (Полный)</option>
+        {elseif $pricelist.type == 'network'}
+        <option value="xls_networks">Сети операторов (Полный)</option>
+        {elseif $pricelist.type == 'network_prices'}
+        <option value="xls_networks">Местные цены (Полный)</option>
+		{elseif $pricelist.operator_id == '2'}
 		<option value="xls_beeline_full1">Билайн (Полный 1)</option>
 		<option value="xls_beeline_full2">Билайн (Полный 2)</option>
 		<option value="xls_beeline_changes">Билайн (Изменения)</option>

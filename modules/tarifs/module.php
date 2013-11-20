@@ -187,6 +187,9 @@ class m_tarifs{
             $data['freemin_for_number'] = (get_param_integer('freemin_for_number', 0) > 0 ? 1 : 0);
             $data['pricelist_id'] = (int)$_POST['pricelist_id'];
             $data['paid_redirect'] = (get_param_integer('paid_redirect', 0) > 0 ? 1 : 0);
+            $data['tariffication_by_minutes'] = (get_param_integer('tariffication_by_minutes', 0) > 0 ? 1 : 0);
+            $data['tariffication_full_first_minute'] = (get_param_integer('tariffication_full_first_minute', 0) > 0 ? 1 : 0);
+            $data['tariffication_free_first_seconds'] = (get_param_integer('tariffication_free_first_seconds', 0) > 0 ? 1 : 0);
             $data['edit_user'] = $user->Get('id');
             $data['edit_time'] = date('Y.m.d H:i:s');
             $data['id'] = $id;
