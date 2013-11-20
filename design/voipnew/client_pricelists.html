@@ -1,0 +1,17 @@
+<p>Прайлисты MCN:</p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<tr>
+    <td class=header>Регион</td>
+    <td class=header>Прайслист</td>
+<!--    <td class=header>Валюта</td> -->
+    <td class=header>Цены</td>
+</tr>
+{foreach from=$pricelists item='o'}
+	<tr class="{cycle values='even,odd'}">
+        <td>{$regions[$o.region].name}</td>
+        <td><a href='index.php?module=voipnew&action=raw_files&pricelist={$o.id}'>{$o.name}</a></td>
+<!--        <td>{$o.currency}</td> -->
+        <td><a href='index.php?module=voipnew&action=defs&pricelist={$o.id}' target="_blank">цены</a></td>
+    </tr>
+{/foreach}
+</table>
