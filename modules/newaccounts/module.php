@@ -857,7 +857,7 @@ class m_newaccounts extends IModule
             {
                 $buf[$billno] = $R[$billno];
 
-                $bDate = $R[$billno]["bill"]["bill_date"];
+                $bDate = isset($R[$billno]) && isset($R[$billno]["bill"]) ? $R[$billno]["bill"]["bill_date"] : false;
 
                 if($bDate)
                 {
@@ -1197,7 +1197,7 @@ class m_newaccounts extends IModule
             {
                 $buf[$billno] = $R[$billno];
 
-                $bDate = $R[$billno]["bill"]["bill_date"];
+                $bDate = isset($R[$billno]) && isset($R[$billno]["bill"]) ? $R[$billno]["bill"]["bill_date"] : false;
 
                 if($bDate)
                 {
@@ -1988,7 +1988,7 @@ class m_newaccounts extends IModule
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'assignment','assignment_stamp','assignment_wo_stamp','order','notice','assignmentcomstar'));
-        $L = array_merge($L, array('wimax_order_blank','wimax_contract','stream_arenda_decoder','stream_arenda_w300','stream_blank', 'stream_arenda_cii', 'stream_arenda_fonera','nbn_deliv','nbn_modem','nbn_gds'));
+        $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
         $L = array_merge($L, array("assignment-4"));
 
         //$bills = array("201204-0465");
@@ -2220,12 +2220,7 @@ class m_newaccounts extends IModule
             $curr = get_param_raw('curr','RUR');
         }
 
-        if($obj == "stream_blank") {
-            $this->report_stream_blank($bill_no);
-            exit();
-        }
-
-        if(in_array($obj,array('wimax_contract','wimax_order_blank','stream_arenda_decoder','stream_arenda_w300','stream_blank', 'stream_arenda_cii', 'stream_arenda_fonera','nbn_deliv', 'nbn_modem','nbn_gds'))){
+        if(in_array($obj,array('nbn_deliv', 'nbn_modem','nbn_gds'))){
             $this->do_print_prepare($bill,'bill',1,'RUR');
             $design->assign('cli',$cli=$db->GetRow("select * from newbills_add_info where bill_no='".$bill_no."'"));
             if(ereg("([0-9]{2})\.([0-9]{2})\.([0-9]{4})",$cli["passp_birthday"], $out))
@@ -2248,16 +2243,6 @@ class m_newaccounts extends IModule
             $design->assign('cli_passp_when_given',$cli_passp_when_given);
             $design->assign('cli_acc_no',explode(' ',$cli['acc_no']));
 
-            if($obj == "wimax_order_blank"){
-                $t = $db->GetRow("
-                        select item
-                        from newbill_lines l, g_goods g
-                        where bill_no='".$bill_no."'
-                        and g.id = l.item_id
-                        and num_id in (3233, 3234,4216,3606) limit 1");
-                if($t)
-                $design->assign("wimax_tarif", $t["item"]);
-            }
 
             $design->ProcessEx('newaccounts/'.$obj.'.html');
             return true;

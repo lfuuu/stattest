@@ -233,14 +233,6 @@
 <input type=checkbox value=1 name="nbn_deliv" id=wm9><label for='wm9'>NetByNet: акт доставка</label><br>
 <input type=checkbox value=1 name="nbn_modem" id=wm10><label for='wm10'>NetByNet: акт модем</label><br>
 <input type=checkbox value=1 name="nbn_gds" id=wm11><label for='wm11'>NetByNet: заказ</label><br>
-{elseif $bill_client.type == "multi"}
-<input type=checkbox value=1 name="wimax_order_blank" id=wm1><label for='wm1'>WiMax: Бланк-Заявка</label><br>
-<input type=checkbox value=1 name="wimax_contract" id=wm2><label for='wm2'>WiMax: Договор Аренда</label><br>
-<input type=checkbox value=1 name="stream_arenda_decoder" id=wm3><label for='wm3'>Stream: Доп. соглашение, аренда декодера</label><br>
-<input type=checkbox value=1 name="stream_arenda_w300" id=wm4><label for='wm4'>Stream: Доп. соглашение, аренда w300</label><br>
-<input type=checkbox value=1 name="stream_blank" id=wm5><label for='wm5'>Stream: бланк заказа</label><br>
-<input type=checkbox value=1 name="stream_arenda_cii" id=wm5><label for='wm5'>Stream: Аренда Cll ДС 13.10.10</label><br>
-<input type=checkbox value=1 name="stream_arenda_fonera" id=wm5><label for='wm5'>Stream: ДС АРЕНДА FONERA Stone 13.10.10</label><br>
 {/if}
 {if $assignment}
 <table>
