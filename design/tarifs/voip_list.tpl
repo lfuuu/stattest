@@ -49,18 +49,55 @@
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
-        <td class=header rowspan="2">Тариф</td><comment><td class=header rowspan="2">Статус</td><td class=header rowspan="2">Местных минут</td><td class=header rowspan="2">Платная<br/>переадресация</td><td class=header rowspan="2">Мин. платеж</td>
-        <td class=header colspan="2"><b>Ежемесячно</b></td><td class=header colspan="2"><b>Подключение</b></td>
-        <td class=header rowspan="2">Направление</td><td class=header rowspan="2">Валюта</td><td class=header rowspan="2">Прайслист</td><td class=header rowspan="2">Регион</td></tr>
-    <tr><td class=header>за линию</td><td class=header>за номер</td><td class=header>за линию</td><td class=header>за номер</td></tr>
+        <td class=header rowspan="2">Тариф</td>
+        <td class=header rowspan="2">Статус</td>
+        <td class=header rowspan="2">Местных минут</td>
+        <td class=header rowspan="2">Мин. платеж</td>
+        <td class=header rowspan="2">Платная<br/>переадресация</td>
+        <td class=header rowspan="2">Метод<br/>тарификации</td>
+        <td class=header colspan="2"><b>Ежемесячно</b></td>
+        <td class=header colspan="2"><b>Подключение</b></td>
+        <td class=header rowspan="2">Направление</td>
+        <td class=header rowspan="2">Валюта</td>
+        <td class=header rowspan="2">Прайслист</td>
+        <td class=header rowspan="2">Регион</td></tr>
+    <tr>
+        <td class=header>за линию</td>
+        <td class=header>за номер</td>
+        <td class=header>за линию</td>
+        <td class=header>за номер</td>
+    </tr>
 {foreach from=$tarifs_by_dest item='tarifs' key='dest'}
-    <tr class="{cycle values='even,odd'}"><td colspan="13"><b>{$dests[$dest]}</b></td></tr>
+    <tr class="{cycle values='even,odd'}"><td colspan="14"><b>{$dests[$dest]}</b></td></tr>
     {foreach from=$tarifs item='o'}
         <tr class="{cycle values='even,odd'}">
             <td>{if access('tarifs','edit')}<a href='index.php?module=tarifs&action=voip_edit&id={$o.id}'>{$o.name}</a>{else}{$o.name}{/if} {$o.name_short}</td>
-            <td>{$o.status}</td><td align="center">{$o.free_local_min}</td><td align="center">{if $o.paid_redirect > 0}да{else}нет{/if}</td><td align="center">{$o.month_min_payment}</td>
-            <td align="center">{$o.month_line}</td><td align="center">{$o.month_number}</td><td align="center">{$o.once_line}</td><td align="center">{$o.once_number}</td>
-            <td>{$dests[$o.dest]}</td><td align="center">{$o.currency}</td><td>{$pricelists[$o.pricelist_id].name}</td><td>{$regions[$o.region].name}</td></tr>
+            <td>{$o.status}</td>
+            <td align="center">{$o.free_local_min}</td>
+            <td align="center">{$o.month_min_payment}</td>
+            <td align="center">{if $o.paid_redirect > 0}да{else}нет{/if}</td>
+            <td align="center">
+                {if $o.tariffication_free_first_seconds > 0}
+                    c 6 секунды,
+                {/if}
+                {if $o.tariffication_by_minutes > 0}
+                    поминутная
+                {else}
+                    посекундная
+                    {if $o.tariffication_full_first_minute > 0}
+                        со второй минуты
+                    {/if}
+                {/if}
+            </td>
+            <td align="center">{$o.month_line}</td>
+            <td align="center">{$o.month_number}</td>
+            <td align="center">{$o.once_line}</td>
+            <td align="center">{$o.once_number}</td>
+            <td>{$dests[$o.dest]}</td>
+            <td align="center">{$o.currency}</td>
+            <td>{$pricelists[$o.pricelist_id].name}</td>
+            <td>{$regions[$o.region].name}</td>
+        </tr>
     {/foreach}
 {/foreach}
 </table>
