@@ -1069,6 +1069,84 @@ class DbFormUsageVirtpbx extends DbForm{
     }
 }
 
+class DbFormUsage8800 extends DbForm{
+    public function __construct() {
+        global $db;
+
+        DbForm::__construct('usage_8800');
+        $this->fields['client']=array('type'=>'label');
+        $this->fields['actual_from']=array('default'=>'2029-01-01');
+        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['tarif_id']=array('type'=>'hidden');
+        $this->fields['tarif_str']=array('db_ignore'=>1);
+        $this->fields['amount']=array("default" => 1);
+        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
+        $this->fields['comment']=array();
+        $this->includesPre=array('dbform_block.tpl');
+        $this->includesPre2=array('dbform_tt.tpl');
+        $this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
+    }
+    public function Display($form_params = array(),$h2='',$h3='') {
+         global $db,$design, $fixclient_data;
+
+        if(!isset($fixclient_data))
+            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+        if ($this->isData('id')) {
+            HelpDbForm::assign_block('usage_8800',$this->data['id']);
+            HelpDbForm::assign_tt('usage_8800',$this->data['id'],$this->data['client']);
+
+            $db->Query('
+                select
+                    id,
+                    description,
+                    price,
+                    currency
+                from
+                    tarifs_8800
+                where
+                    id='.$this->data['tarif_id']
+            );
+
+            $r=$db->NextRecord();
+            $this->fields['tarif_str']['type']='label';
+            $design->assign('tarif_real_id',$r['id']);
+            $this->data['tarif_str']=$r['description'];
+        }else{
+            $db->Query('
+            select
+                id,
+                description,
+                price,
+                currency
+            from
+                tarifs_8800
+            order by price'
+            );
+            $R=array('');
+            while($r=$db->NextRecord())
+                $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
+            $this->fields['tarif_id']['type']='select';
+            $this->fields['tarif_id']['add']=' onchange=form_usage_8800_get()';
+            $this->fields['tarif_id']['assoc_enum']=$R;
+            $this->fields['tarif_str']['type']='no';
+        }
+        DbForm::Display($form_params,$h2,$h3);
+    }
+    public function Process($no_real_update = 0){
+        global $db,$user;
+        $this->Get();
+        if(!isset($this->dbform['id']))
+            return '';
+        $v=DbForm::Process();
+        if($v=='add' || $v=='edit'){
+            if(!isset($this->dbform['t_block']))
+                $this->dbform['t_block'] = 0;
+            HelpDbForm::save_block('usage_8800',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
+        }
+        return $v;
+    }
+}
+
 class DbFormUsageWellSystem extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
@@ -1534,6 +1612,8 @@ class DbFormFactory {
             return new DbFormUsageWelltime();
         }elseif ($table=='usage_virtpbx') {
             return new DbFormUsageVirtpbx();
+        }elseif ($table=='usage_8800') {
+            return new DbFormUsage8800();
         }elseif ($table=='emails') {
             return new DbFormEmails();
         }
