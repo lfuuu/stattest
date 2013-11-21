@@ -15,7 +15,9 @@ class m_tarifs{
             'voip_edit'            => array('tarifs','edit'),
             'price_tel'            => array('tarifs','edit'),
             'virtpbx'              => array('tarifs','edit'),
+            '8800'              => array('tarifs','edit'),
         );
+
     var $menu=array(
             array('Интернет',                'view','&m=internet'),
             array('Collocation',            'view','&m=collocation'),
@@ -28,6 +30,7 @@ class m_tarifs{
             array('IT Park',                'itpark',''),
             array('Welltime',                'welltime',''),
             array('Виртуальная АТС',        'virtpbx',''),
+            array('8800',                   '8800',''),
             array('WellSystem',                'wellsystem',''),
 //            array('Старые доп.услуги',        'view','&m=add'),
             array('IP-телефония',            'voip'),
@@ -83,6 +86,7 @@ class m_tarifs{
         elseif ($m=='wellsystem') {$p='wellsystem'; $q='z';}
         elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
         elseif ($m=='voip') {$p='voip'; $q='z';}
+        elseif ($m=='8800') {$p='8800'; $q='z';}
         else return false;
         return array($p,$q);
     }
@@ -663,6 +667,11 @@ class m_tarifs{
     function tarifs_virtpbx()
     {
         Header('Location: ?module=tarifs&action=view&m=virtpbx');
+        exit();
+    }
+    function tarifs_8800()
+    {
+        Header('Location: ?module=tarifs&action=view&m=8800');
         exit();
     }
 }
