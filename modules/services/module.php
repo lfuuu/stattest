@@ -690,11 +690,11 @@ class m_services extends IModule{
         }else{
 
             // Соловьев не переключил старую базу на новую, перед уходом в отпуск
-            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $dbname = "voipdb";
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -2906,11 +2906,11 @@ class voipRegion
         {
             $conn = pg_connect($q = "host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS);
         }else{
-            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $dbname = "voipdb";
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
             $schema = "";
 
-            if(in_array($region, array(94))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
