@@ -63,6 +63,13 @@ function check_all2(){ldelim}
 с <input type=text name='filter[bill][1]' value='{0|mdate:"Y-m-01"}'>
 по <input type=text name='filter[bill][2]' value='{0|mdate:"Y-m-31"}'>
 </td></tr>
+<tr><td>Услуга: 8800</TD><TD>
+<select name='filter[s8800][0]'><option value='NO'>(не фильтровать по этому полю)</option>
+<option value='with'{if $mail_filter.s8800.0 == 'with'} selected{/if}>с услугой</option>
+<option value='without'{if $mail_filter.s8800.0 == 'without'} selected{/if}>без услуги</option>
+</select>
+</option></select>
+</td></tr>
 <tr><td colspan=2>
 <INPUT id=submit class=button type=submit value="Фильтр">
 </td></tr>

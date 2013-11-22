@@ -1912,6 +1912,103 @@ class m_services extends IModule{
         $design->ProcessEx('services/virtpbx_act.tpl'); 
     }
 // =========================================================================================================================================
+    function services_8800_view($fixclient){
+        global $db,$design;
+        if(!$this->fetch_client($fixclient)){
+
+            $design->assign("filter_manager", $filterManager = get_param_protected('filter_manager', ''));
+            
+
+            $db->Query($q='
+            SELECT
+                S.*,
+                T.*,
+                S.id as id,
+                c.status as client_status,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_8800 as S
+            LEFT JOIN clients c ON (c.client = S.client)
+            LEFT JOIN tarifs_8800 as T ON T.id=S.tarif_id
+            '.($filterManager ? "where c.manager = '".$filterManager."'" : "").'
+            HAVING actual
+            ORDER BY client,actual_from'
+
+            );
+
+            $R = array();
+            $statuses = ClientCS::$statuses;
+            while($r=$db->NextRecord()){
+                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
+                if($r['period']=='month')
+                    $r['period_rus']='ежемесячно';
+                $R[]=$r;
+            }
+
+            $m=array();
+            $GLOBALS['module_users']->d_users_get($m,'manager');
+
+            $design->assign(
+                'f_manager',
+                $m
+            );
+
+            $design->assign('services_8800',$R);
+            $design->AddMain('services/8800_all.tpl');
+            return;
+        }
+
+
+        $R=array();
+        $db->Query($q='
+            SELECT
+                T.*,
+                S.*,
+                S.id as id,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_8800 as S
+            LEFT JOIN tarifs_8800 as T ON T.id=S.tarif_id
+            WHERE S.client="'.$fixclient.'"'
+        );
+
+        $isViewAkt = false;
+        while($r=$db->NextRecord()){
+            if($r['period']=='month')
+                $r['period_rus']='ежемесячно';
+            $R[]=$r;
+        }
+
+        $design->assign('services_8800',$R);
+        $design->AddMain('services/8800.tpl');
+    }
+    function services_8800_add($fixclient){
+        global $design,$db;
+        if(!$this->fetch_client($fixclient)){
+            trigger_error('Не выбран клиент');
+            return;
+        }
+        $db->Query('select * from clients where client="'.$fixclient.'"');
+        $r=$db->NextRecord();
+        $dbf = new DbFormUsage8800();
+        $dbf->SetDefault('client',$fixclient);
+        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Новая услуга 8800');
+    }
+    function services_8800_apply($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        $dbf = new DbFormUsage8800();
+        $id=get_param_integer('id','');
+        if ($id) $dbf->Load($id);
+        $result=$dbf->Process();
+        if ($result=='delete') {
+            header('Location: ?module=services&action=8800_view');
+            $design->ProcessX('empty.tpl');
+        }
+        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Редактировать услугу 8800');
+    }
+
+// =========================================================================================================================================
     function services_welltime_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
