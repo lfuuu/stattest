@@ -16,6 +16,7 @@
 <TR>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >id</TD>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Клиент</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Номер</TD>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Описание</TD>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >дата c</TD>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >дата по</TD>
@@ -25,6 +26,7 @@
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
     <td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_8800&id={$item.id}" target="_blank">{$item.id}</a>&nbsp;</td>
     <td {if $item.client_color}style='background-color:{$item.client_color};'{/if}><a {if $item.client_color}style="color: black" {/if}href="./?module=clients&id={$item.client}" target="_blank">{$item.client}</a>&nbsp;</td>
+    <td>{$item.number}</td>
     <td>{$item.description}</td>
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_8800&id={$item.id}" target="_blank">{$item.actual_from}</a>&nbsp;</td>
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_8800&id={$item.id}" target="_blank">{if $item.actual_to != '2029-01-01'}{$item.actual_to}{/if}</a>&nbsp;</td>

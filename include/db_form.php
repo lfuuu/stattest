@@ -1079,6 +1079,7 @@ class DbFormUsage8800 extends DbForm{
         $this->fields['actual_to']=array('default'=>'2029-01-01');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
+        $this->fields['number']=array("default" => "7800");
         $this->fields['amount']=array("default" => 1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
@@ -1139,6 +1140,9 @@ class DbFormUsage8800 extends DbForm{
             return '';
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
+
+            $this->dbform["number"] = trim($this->dbform["number"]);
+
             if(!isset($this->dbform['t_block']))
                 $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('usage_8800',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
@@ -1789,6 +1793,7 @@ $GLOBALS['translate_arr']=array(
     '*.is_record' => 'Запись звонков',
     '*.is_fax' => 'Факс',
     '*.datacenter_id' => 'Тех. площадка',
-    '*.server_pbx_id' => 'Сервер АТС'
+    '*.server_pbx_id' => 'Сервер АТС',
+    '*.number' => 'Номер'
     );
 ?>
