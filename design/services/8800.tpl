@@ -17,7 +17,7 @@
 	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">дата</TD>
 	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom>Номер</TD>
 	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom>Описание</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">Стоимость</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">Стоимость, без НДС</TD>
 </TR>
 {foreach from=$services_8800 item=item name=outer}
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
@@ -27,7 +27,7 @@
     </td>
 	<td>{$item.number}</td>
 	<td>{$item.description}</td>
-	<td>{$item.price*1.18|round:2} ({$item.price*1})</td>
+	<td>{$item.price*1}</td>
 </tr>	
 {/foreach}
 </tbody>
