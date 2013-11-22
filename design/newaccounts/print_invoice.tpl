@@ -156,11 +156,15 @@
             Коли-<br>чество{if $inv_is_new6}<br>(объем){/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
+            {if $inv_is_new6}
+            Цена<br>(тариф)<br>за еди-<br>ницу изме-<br>рения
+            {else}
             Цена<br>(та-<br>риф)<br>за еди-<br>ницу изме-<br>рения{if $inv_is_new3}<br>руб{/if}
+            {/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
             {if $inv_is_new6}
-                Стоимость<br>товаров работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if} без налога-<br>всего
+                Стоимость<br>товаров (работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if} без налога-<br>всего
             {else}
                 Стои-<br>мость<br>товаров<br>(работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if}, всего без<br>налога{if $inv_is_new3}<br>руб{/if}
             {/if}
