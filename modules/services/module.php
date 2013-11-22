@@ -1916,6 +1916,9 @@ class m_services extends IModule{
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
 
+            $design->assign("filter_manager", $filterManager = get_param_protected('filter_manager', ''));
+            
+
             $db->Query($q='
             SELECT
                 S.*,
@@ -1927,6 +1930,7 @@ class m_services extends IModule{
             FROM usage_8800 as S
             LEFT JOIN clients c ON (c.client = S.client)
             LEFT JOIN tarifs_8800 as T ON T.id=S.tarif_id
+            '.($filterManager ? "where c.manager = '".$filterManager."'" : "").'
             HAVING actual
             ORDER BY client,actual_from'
 
@@ -1940,6 +1944,14 @@ class m_services extends IModule{
                     $r['period_rus']='ежемесячно';
                 $R[]=$r;
             }
+
+            $m=array();
+            $GLOBALS['module_users']->d_users_get($m,'manager');
+
+            $design->assign(
+                'f_manager',
+                $m
+            );
 
             $design->assign('services_8800',$R);
             $design->AddMain('services/8800_all.tpl');

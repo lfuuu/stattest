@@ -3,7 +3,13 @@
 <H2>Услуги</H2>
 <H3>8800</H3>
 
-
+<form action="./?module=services&action=8800_view" id="form_filter_8800" method="post">
+<table>
+<TR><TD>Менеджер</TD><TD>
+<select name='filter_manager' onchange="$('#form_filter_8800').submit();"><option value=''>(без фильтра)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$filter_manager} selected{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
+</td></tr>
+</table>
+</form>
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
