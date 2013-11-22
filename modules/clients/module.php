@@ -607,9 +607,24 @@ class m_clients {
 					SELECT `client` FROM `usage_voip` `uv` WHERE `uv`.`e164` = "'.($search).'" ORDER BY `actual_from` DESC LIMIT 1
 				',null,MYSQL_ASSOC);
 				if(count($cls))
+                {
 					$in_c = "'".$cls[0]['client']."'";
-				else
-					$in_c = "''";
+                } else {
+
+                    // search by service 8800
+                    if(strlen($search) > 5)
+                    {
+                        $n = $db->GetValue("select client from usage_8800 where number like '%".$search."%'");
+                        if ($n)
+                        {
+                            $in_c = "'".$n."'";
+                        } else {
+                            $in_c = "''";
+                        }
+                    } else {
+                        $in_c = "''";
+                    }
+                }
 			}elseif($smode==8){
 				$cls = $db->AllRecords(
                         $q=' SELECT `client` FROM `domains` WHERE `domain` = "'.($search).'" AND now() BETWEEN `actual_from` AND `actual_to` ',null,MYSQL_ASSOC);
