@@ -679,7 +679,6 @@ class m_services extends IModule{
 
     private function getSIPregs($client, $region, $phone = "")
     {
-
         $schema = "";
         $needRegion = false;
 
@@ -694,7 +693,7 @@ class m_services extends IModule{
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94, 95, 87, 97, 98))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -774,7 +773,8 @@ class m_services extends IModule{
                 "reg98" => "37.228.81.6",
                 "reg95" => "37.228.85.6",
                 "reg94" => "37.228.83.6",
-                "reg87" => "37.228.86.6"
+                "reg87" => "37.228.86.6",
+                "reg88" => "37.228.87.6"
                 );
 
 
@@ -2834,7 +2834,8 @@ class voipRegion
                 "reg98" => "37.228.81.6",
                 "reg95" => "37.228.85.6",
                 "reg94" => "37.228.83.6",
-                "reg87" => "37.228.86.6"
+                "reg87" => "37.228.86.6",
+                "reg88" => "37.228.87.6"
                 );
 
         $callerids = $names = array();
@@ -2910,7 +2911,7 @@ class voipRegion
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
             $schema = "";
 
-            if(in_array($region, array(94, 95, 87, 97, 98))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
