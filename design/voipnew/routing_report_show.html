@@ -183,7 +183,7 @@ td.lock_default {
     {$pricelists[$pl].operator}
   {/foreach}
   </td>
-  <td nowrap align=center prefix="{$rd.prefix}" value="{$rd.locked_raw}" onclick="lock_click(this);">
+  <td nowrap align=center prefix="{$rd.prefix}" value="{$rd.locked_raw}" onclick="lock_click(this);"
     {if $rd.locked_raw == 't'} class="lock_lock">Заблокирован
     {elseif $rd.locked_raw == 'f'} class="lock_unlock">Разблокирован
     {else} class="lock_default">Поумолчанию
