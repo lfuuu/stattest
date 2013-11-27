@@ -1417,7 +1417,7 @@ class ClientCS {
     public function getOnDate($clientId, $date)
     {
         global $db;
-        //echo $date."|".$clientId;
+        //echo "<br>".$date."|".$clientId;
 
         $dNow = date("Y-m-d",strtotime("+1 day"));
         $c = $db->GetRow("select * from clients where id='".$clientId."'");
@@ -1439,6 +1439,7 @@ class ClientCS {
                             and type='fields'
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
+                            and is_apply_set = 'yes'
                         order by lf.id desc ") as $l)
             {
                 $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
@@ -1454,6 +1455,7 @@ class ClientCS {
                             and type='fields'
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
+                            and is_apply_set = 'yes'
                         order by lf.id") as $l)
             {
                 $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
