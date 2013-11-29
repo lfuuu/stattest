@@ -609,25 +609,15 @@ class m_newaccounts extends IModule
         $design->assign("sum_l", $sum_l);
 
 
-
-        $counters = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
-
+        
         try{
-
-        $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
-                                                CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum,
-                                                CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum
-                                        FROM billing.counters
-                                        WHERE client_id='".$fixclient_data["id"]."'");
+            $billingCounter = ClientCS::getBillingCounters($fixclient_data["id"]);
         }catch(Exception $e)
         {
             trigger_error($e->getMessage());
         }
-        $counters['amount_sum'] = $counters_reg['amount_sum'];
-        $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
-        $counters['amount_month_sum'] = $counters_reg['amount_month_sum'];
 
-        $design->assign("counters", $counters);
+        $design->assign("counters", $billingCounter);
 
 
 
