@@ -287,6 +287,11 @@ function form_usage_8800_get(id)
     __form_get(id, '8800');
 }
 
+function form_usage_sms_get(id)
+{
+    __form_get(id, 'sms');
+}
+
 function form_usage_extra_get(id) {
     __form_get(id, 'extra');
 }

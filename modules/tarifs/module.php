@@ -16,6 +16,7 @@ class m_tarifs{
             'price_tel'            => array('tarifs','edit'),
             'virtpbx'              => array('tarifs','edit'),
             '8800'              => array('tarifs','edit'),
+            'sms'              => array('tarifs','edit'),
         );
 
     var $menu=array(
@@ -31,6 +32,7 @@ class m_tarifs{
             array('Welltime',                'welltime',''),
             array('Виртуальная АТС',        'virtpbx',''),
             array('8800',                   '8800',''),
+            array('СМС',                   'sms',''),
             array('WellSystem',                'wellsystem',''),
 //            array('Старые доп.услуги',        'view','&m=add'),
             array('IP-телефония',            'voip'),
@@ -87,6 +89,7 @@ class m_tarifs{
         elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
         elseif ($m=='voip') {$p='voip'; $q='z';}
         elseif ($m=='8800') {$p='8800'; $q='z';}
+        elseif ($m=='sms') {$p='sms'; $q='z';}
         else return false;
         return array($p,$q);
     }
@@ -669,9 +672,16 @@ class m_tarifs{
         Header('Location: ?module=tarifs&action=view&m=virtpbx');
         exit();
     }
+
     function tarifs_8800()
     {
         Header('Location: ?module=tarifs&action=view&m=8800');
+        exit();
+    }
+
+    function tarifs_sms()
+    {
+        Header('Location: ?module=tarifs&action=view&m=sms');
         exit();
     }
 }

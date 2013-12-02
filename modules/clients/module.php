@@ -1077,6 +1077,7 @@ class m_clients {
 				$GLOBALS['module_services']->services_welltime_view($r['client']);
 				$GLOBALS['module_services']->services_virtpbx_view($r['client']);
 				$GLOBALS['module_services']->services_8800_view($r['client']);
+				$GLOBALS['module_services']->services_sms_view($r['client']);
 				$GLOBALS['module_services']->services_wellsystem_view($r['client']);
 				$GLOBALS['module_services']->services_ad_view($r['client']);
 				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
