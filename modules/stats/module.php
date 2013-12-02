@@ -1830,7 +1830,7 @@ class m_stats extends IModule{
 		}
 		$design->assign('clients',$clients);
 
-		$thiamis = new MySQLDatabase('thiamis.mcn.ru','sms_stat','yeeg5oxGa','smsinfo');
+		$thiamis = new MySQLDatabase('thiamis.mcn.ru','sms_stat','yeeg5oxGa','sms2');
 
 		// <editor-fold defaultstate="collapsed" desc="stat_query">
 		$query_stat = "

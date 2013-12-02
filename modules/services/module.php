@@ -2009,6 +2009,100 @@ class m_services extends IModule{
     }
 
 // =========================================================================================================================================
+    function services_sms_view($fixclient){
+        global $db,$design;
+        if(!$this->fetch_client($fixclient)){
+
+
+            $db->Query($q='
+            SELECT
+                S.*,
+                T.*,
+                S.id as id,
+                c.status as client_status,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_sms as S
+            LEFT JOIN clients c ON (c.client = S.client)
+            LEFT JOIN tarifs_sms as T ON T.id=S.tarif_id
+            HAVING actual
+            ORDER BY client,actual_from'
+
+            );
+
+            $R = array();
+            $statuses = ClientCS::$statuses;
+            while($r=$db->NextRecord()){
+                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
+                if($r['period']=='month')
+                    $r['period_rus']='ежемесячно';
+                $R[]=$r;
+            }
+
+            $m=array();
+            $GLOBALS['module_users']->d_users_get($m,'manager');
+
+            $design->assign(
+                'f_manager',
+                $m
+            );
+
+            $design->assign('services_sms',$R);
+            $design->AddMain('services/sms_all.tpl');
+            return;
+        }
+
+
+        $R=array();
+        $db->Query($q='
+            SELECT
+                T.*,
+                S.*,
+                S.id as id,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_sms as S
+            LEFT JOIN tarifs_sms as T ON T.id=S.tarif_id
+            WHERE S.client="'.$fixclient.'"'
+        );
+
+        $isViewAkt = false;
+        while($r=$db->NextRecord()){
+            if($r['period']=='month')
+                $r['period_rus']='ежемесячно';
+            $R[]=$r;
+        }
+
+        $design->assign('services_sms',$R);
+        $design->AddMain('services/sms.tpl');
+    }
+    function services_sms_add($fixclient){
+        global $design,$db;
+        if(!$this->fetch_client($fixclient)){
+            trigger_error('Не выбран клиент');
+            return;
+        }
+        $db->Query('select * from clients where client="'.$fixclient.'"');
+        $r=$db->NextRecord();
+        $dbf = new DbFormUsageSms();
+        $dbf->SetDefault('client',$fixclient);
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Новая услуга CMC');
+    }
+    function services_sms_apply($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        $dbf = new DbFormUsageSms();
+        $id=get_param_integer('id','');
+        if ($id) $dbf->Load($id);
+        $result=$dbf->Process();
+        if ($result=='delete') {
+            header('Location: ?module=services&action=sms_view');
+            $design->ProcessX('empty.tpl');
+        }
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Редактировать услугу CMC');
+    }
+
+// =========================================================================================================================================
     function services_welltime_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
