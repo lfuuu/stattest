@@ -667,13 +667,14 @@ class DbFormUsageIpRoutes extends DbForm{
         $this->fields['port_id']=array('type'=>'hidden');
         $this->fields['actual_from']=array('default'=>'2029-01-01');
         $this->fields['actual_to']=array('default'=>'2029-01-01');
-        $this->fields['type']=array('enum'=>array('unused', 'uplink', 'uplink+pool', 'client', 'client-nat', 'pool', 'aggregate', 'reserved'),'default'=>'aggregate');
+        $this->fields['type']=array('enum'=>array('unused', 'uplink', 'uplink+pool', 'client', 'client-nat', 'pool', 'aggregate', 'reserved', 'gpon'),'default'=>'aggregate');
         $this->fields['net']=array();
         $this->fields['nat_net']=array();
         $this->fields['dnat']=array();
         $this->fields['flows_node']=array('default'=>'rubicon');
         $this->fields['up_node']=array();
         $this->fields['comment']=array();
+        $this->fields['gpon_reserv']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->includesPost =array('dbform_internet_route_history.tpl');
     }
     public function Display($form_params = array(),$h2='',$h3='') {
@@ -1878,5 +1879,6 @@ $GLOBALS['translate_arr']=array(
     '*.number' => 'Номер',
     '*.per_month_price' => 'Абонентская плата (с НДС)',
     '*.per_sms_price' => 'за 1 СМС (с НДС)',
+    '*.gpon_reserv' => 'Сеть под GPON'
     );
 ?>

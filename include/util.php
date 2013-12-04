@@ -1544,7 +1544,8 @@ class IPList{
                 `R`.`net`,
                 `clients`.`client`,
                 `clients`.`status`,
-                `R`.`id`
+                `R`.`id`,
+                `R`.`gpon_reserv`
             FROM
                 `usage_ip_routes` as `R`
             INNER JOIN
@@ -1584,14 +1585,16 @@ class IPList{
 
                         if(!isset($this->data[$i]) || $this->data[$i][1]<$r['actual_to'] /*|| $bEnter*/){
                             $st = '';
-                            if($r['status']=='tech_deny')
+                            if($r["gpon_reserv"])
+                                $st = 'gpon';
+                            elseif($r['status']=='tech_deny')
                                 $st = 'tech';
                             elseif($r['status']=='closed' || $r['status']=='deny' || $r['actual_to']<=(time()-3600*24*30))
                                 $st = 'off';
                             if($st){
                                 if(iplist_check($special,$v[0]))
                                     $st = 'special';
-                                $this->data[$i] = array($st,$r['actual_to'],$r['id']);
+                                $this->data[$i] = array($st,$r['actual_to'],$r['id'], $r["client"]);
                             }elseif(isset($this->data[$i]))
                                 unset($this->data[$i]);
                         }
@@ -1617,7 +1620,8 @@ class IPList{
                     }
                     $r = array(
                         'actual_to'=>$v[1],
-                        'id'=>$v[2]
+                        'id'=>$v[2],
+                        'client' => $v[3]
                     );
                     $d = 1;
                     $md = 1;
@@ -1629,7 +1633,7 @@ class IPList{
                     }
                     $dv = floor(log($d,2));
                     $d = pow(2,$dv);
-                    $V[$t][long2ip($k)] = array(32-$dv,$r['actual_to'],$r['id'],$d);
+                    $V[$t][long2ip($k)] = array(32-$dv,$r['actual_to'],$r['id'],$d, $r["client"]);
                     $S[$t][$v[1]][$k] = long2ip($k);
                     for($i=0;$i<$d;$i++){
                         unset($ta[$k+$i]);
@@ -1656,6 +1660,7 @@ class IPList{
         }
         unset($V);
         $V =& $V_buf;
+
         return $V;
     }
 }
