@@ -432,13 +432,21 @@ class m_stats extends IModule{
         $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
         $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
 
+        $numberRanges = array(
+                "74996850000" => array("74996850000", "74996850199"),
+                "74996851000" => array("74996851000", "74996851999"),
+                "74992130000" => array("74992130000", "74992130499"),
+                "74992133000" => array("74992133000", "74992133999")
+                );
+
         $rangeFrom = get_param_raw("range_from", '74996850000');
-        $rangeTo = get_param_raw("range_to", '74996850199');
+        $rangeTo = $numberRanges[$rangeFrom][1];
+
         $group = get_param_raw("group",array_keys($groups));
         $beauty = get_param_raw("beauty",array_keys($beautys));
 
+        $design->assign("ranges", $numberRanges);
         $design->assign("range_from", $rangeFrom);
-        $design->assign("range_to", $rangeTo);
         $design->assign("group", $group);
         $design->assign("groups", $groups);
         $design->assign("beauty", $beauty);

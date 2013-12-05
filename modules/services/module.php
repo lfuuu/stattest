@@ -2859,7 +2859,7 @@ class voipRegion
 
         $result = pg_query(
                 $q = "SELECT distinct callerid, name
-                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."' and region = '".$region."'
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."' ".($region != 99 ? "and region = '".$region."'" : "")."
                 ORDER BY callerid");
 
         $e164s = array();

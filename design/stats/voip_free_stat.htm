@@ -9,12 +9,12 @@
 <input type=hidden name="do" value="1">
     <table>
         <tr>
-            <td>Диапазон с:</td>
-            <td><input type=text name=range_from value="{$range_from}"></td>
-        </tr>
-        <tr>
-            <td>Диапазон по:</td>
-            <td><input type=text name=range_to value="{$range_to}"></td>
+            <td>Диапазон:</td>
+            <td><select name=range_from>
+            {foreach from=$ranges item=i key=k}
+                <option value="{$k}"{if $k == $range_from} selected{/if}>{$i[0]} - {$i[1]}</option>
+            {/foreach}
+             </td>
         </tr>
         <tr>
             <td valign=top>Группы номеров:</td>
