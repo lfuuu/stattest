@@ -13,7 +13,7 @@ $region = 99;
 
 //$db->Query("delete from voip_numbers where region = '".$region."'");
 
-
+/*
 $sql = "";
 for($i=0;$i<500;$i++)
 {
@@ -24,6 +24,8 @@ for($i=0;$i<500;$i++)
 
 
 $db->Query('insert into voip_numbers(number,region) values'.$sql);
+
+*/
 work();
 
 $db->Query("update `voip_numbers` set price = null where region = ".$region." and beauty_level = 1");
@@ -265,10 +267,10 @@ $cat = 0;
 		0
   	) $cat = 3;	
 	elseif(		
-		preg_match('/^\d\d(\d)(\d)\1\2\d$/', $num) ||
-		preg_match('/^\d\d(\d)\1(\d)\2\d$/', $num) ||
-		preg_match('/^\d(\d)(\d)\2\1\d\d$/', $num) ||
-		preg_match('/^\d(\d)(\d)\1\2\d\d$/', $num) ||
+		//preg_match('/^\d\d(\d)(\d)\1\2\d$/', $num) ||
+		//preg_match('/^\d\d(\d)\1(\d)\2\d$/', $num) ||
+		//preg_match('/^\d(\d)(\d)\2\1\d\d$/', $num) ||
+		//preg_match('/^\d(\d)(\d)\1\2\d\d$/', $num) ||
 		preg_match('/^\d\d\d(\d)\1\d\1$/', $num) ||
 		preg_match('/^\d\d\d\d\d(\d)\1$/', $num) ||		
 		0
