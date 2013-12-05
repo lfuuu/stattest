@@ -1544,6 +1544,7 @@ class IPList{
                 `R`.`net`,
                 `clients`.`client`,
                 `clients`.`status`,
+                `clients`.`manager`,
                 `R`.`id`,
                 `R`.`gpon_reserv`
             FROM
@@ -1592,9 +1593,12 @@ class IPList{
                             elseif($r['status']=='closed' || $r['status']=='deny' || $r['actual_to']<=(time()-3600*24*30))
                                 $st = 'off';
                             if($st){
-                                if(iplist_check($special,$v[0]))
-                                    $st = 'special';
-                                $this->data[$i] = array($st,$r['actual_to'],$r['id'], $r["client"]);
+
+                                if ($st != 'gpon')
+                                    if(iplist_check($special,$v[0]))
+                                        $st = 'special';
+
+                                $this->data[$i] = array($st,$r['actual_to'],$r['id'], $r["client"], $r["manager"]);
                             }elseif(isset($this->data[$i]))
                                 unset($this->data[$i]);
                         }
@@ -1621,7 +1625,8 @@ class IPList{
                     $r = array(
                         'actual_to'=>$v[1],
                         'id'=>$v[2],
-                        'client' => $v[3]
+                        'client' => $v[3],
+                        'manager' => $v[4]
                     );
                     $d = 1;
                     $md = 1;
@@ -1633,7 +1638,7 @@ class IPList{
                     }
                     $dv = floor(log($d,2));
                     $d = pow(2,$dv);
-                    $V[$t][long2ip($k)] = array(32-$dv,$r['actual_to'],$r['id'],$d, $r["client"]);
+                    $V[$t][long2ip($k)] = array(32-$dv,$r['actual_to'],$r['id'],$d, $r["client"], $r["manager"]);
                     $S[$t][$v[1]][$k] = long2ip($k);
                     for($i=0;$i<$d;$i++){
                         unset($ta[$k+$i]);
