@@ -28,22 +28,19 @@
 
 <td valign=top>
 {foreach from=$data.gpon item=item key=key}
-<a href="https://stat.mcn.ru/tst/index.php?module=clients&id={$item[4]|urlencode}">{$item[4]|htmlentities}</a> </br>
-<br>
+<a href="https://stat.mcn.ru/tst/index.php?module=clients&id={$item[4]|urlencode}">{$item[4]|htmlentities}</a>&nbsp;({$item[5]})</br>
 {/foreach}
 </td>
 
 <td valign=top>
 {foreach from=$data.gpon item=item key=key}
 {$item[1]|date_format:"%d-%m-%Y"}</br>
-<br>
 {/foreach}
 </td>
 
 <td valign=top>
 {foreach from=$data.gpon item=item key=key}
 {$key}/{$item[0]}</br>
-<br>
 {/foreach}
 </td>
 
