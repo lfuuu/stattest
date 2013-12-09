@@ -23,6 +23,7 @@ class m_voipnew_head extends IModuleHead
         'get_mos_mob' => array('voip', 'access'),
         'pricelist' => array('voip', 'access'),
         'upload' => array('voip', 'access'),
+        'operators' => array('voip', 'access'),
         'client_pricelists' => array('voip', 'access'),
         'operator_pricelists' => array('voip', 'access'),
         'operator_networks' => array('voip', 'access'),
@@ -46,6 +47,7 @@ class m_voipnew_head extends IModuleHead
 
     public $menu = array(
         array('Справочники', 'catalogs'),
+        array('Операторы', 'operators'),
         array('Клиенстские прайслисты', 'client_pricelists'),
         array('Операторские прайслисты', 'operator_pricelists'),
         array('Операторские сети', 'operator_networks'),

@@ -675,6 +675,7 @@ class _voipnew_prices_parser
     }
 }
 
+include_once 'operators.php';
 include_once 'analyze_pricelist_report.php';
 include_once 'operator_report.php';
 include_once 'routing_report.php';
@@ -685,6 +686,16 @@ include_once 'cost_report.php';
 class m_voipnew extends IModule
 {
     private $_inheritances = array();
+
+    public function __construct()
+    {
+        $this->_addInheritance(new m_voipnew_operators);
+        $this->_addInheritance(new m_voipnew_analyze_pricelist_report);
+        $this->_addInheritance(new m_voipnew_operator_report);
+        $this->_addInheritance(new m_voipnew_routing_report);
+        $this->_addInheritance(new m_voipnew_pricelist_report);
+        $this->_addInheritance(new m_voipnew_cost_report);
+    }
 
     public function __call($method, array $arguments = array())
     {
@@ -697,15 +708,6 @@ class m_voipnew extends IModule
     {
         $this->_inheritances[get_class($inheritance)] = $inheritance;
         $inheritance->module = $this;
-    }
-
-    public function __construct()
-    {
-        $this->_addInheritance(new m_voipnew_analyze_pricelist_report);
-        $this->_addInheritance(new m_voipnew_operator_report);
-        $this->_addInheritance(new m_voipnew_routing_report);
-        $this->_addInheritance(new m_voipnew_pricelist_report);
-        $this->_addInheritance(new m_voipnew_cost_report);
     }
 
     public function voipnew_raw_files()
