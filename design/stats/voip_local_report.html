@@ -1,0 +1,70 @@
+<form action="" method="get">
+    <input type="hidden" name="module" value="stats" />
+    <input type="hidden" name="action" value="voip_local_report" />
+    <table>
+        <tr>
+            <td>С</td>
+            <td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_yy}</select></td>
+            <td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_mm}</select></td>
+            <td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_dd}</select></td>
+            <td>&nbsp;</td>
+            <td>По</td>
+            <td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_yy}</select></td>
+            <td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_mm}</select></td>
+            <td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select></td>
+        </tr>
+        <tr>
+            <td>Оператор</td>
+            <td colspan="8">
+                <select name="operator">
+                    <option value="all">Все</option>
+                    {foreach from=$operators item='o'}
+                    <option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Группировка</td>
+            <td colspan="8">
+                <select name="groupp">
+                    <option value="0">Нет</option>
+                    <option value="1"{if $groupp==1} selected='selected'{/if}>По дням</option>
+                    <option value="2"{if $groupp==2} selected='selected'{/if}>По месяцам</option>
+                </select>
+            </td>
+            <td>Регион</td>
+            <td colspan="8">
+                <select name="region">
+                    {foreach from=$regions item='r'}
+                    <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+        <tr><td colspan="9"><input type="submit" name="get" value="Сформировать" /></td></tr>
+    </table>
+</form>
+
+{if isset($report)}
+{assign var='bg' value='#40c0ff'}{assign var='fg' value='black'}
+<table class='price' cellSpacing='4' cellPadding='2'  border='0'>
+    <tr>
+        {if $groupp}<td class='header' vAlign='bottom' width="100">Дата</td>{/if}
+        <td class='header' vAlign='bottom' width="110">Оператор</td>
+        <td class='header' vAlign='bottom' width="110">Факт</td>
+        <td class='header' vAlign='bottom' width="110">Оператор</td>
+        <td class='header' vAlign='bottom' width="110">MCN</td>
+    </tr>
+    {foreach from=$report item='r'}
+    <tr class="{cycle values='even,odd'}">
+        {if $groupp}<td>{$r.date}</td>{/if}
+        <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
+        <td vAlign='bottom'>{$r.len|round:2} минут<br />Количество: {$r.count}</td>
+        <td vAlign='bottom'>{$r.len_op|round:2} минут<br />стоимость: {$r.amount_op}</td>
+        <td vAlign='bottom'>{$r.len_mcn|round:2} минут<br />стоимость: {$r.amount_mcn}</td>
+    </tr>
+    {/foreach}
+</table>
+
+{/if}

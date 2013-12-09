@@ -1,5 +1,32 @@
 <?php
+include_once 'voip_7800_report.php';
+include_once 'voip_local_report.php';
+include_once 'voip_mgmn_report.php';
+
 class m_stats extends IModule{
+
+    private $_inheritances = array();
+
+    public function __construct()
+    {
+        $this->_addInheritance(new m_stats_voip_7800_report);
+        $this->_addInheritance(new m_stats_voip_local_report);
+        $this->_addInheritance(new m_stats_voip_mgmn_report);
+    }
+
+    public function __call($method, array $arguments = array())
+    {
+        foreach ($this->_inheritances as $inheritance) {
+            $inheritance->invoke($method, $arguments);
+        }
+    }
+
+    protected function _addInheritance(Inheritance $inheritance)
+    {
+        $this->_inheritances[get_class($inheritance)] = $inheritance;
+        $inheritance->module = $this;
+    }
+
 	function stats_default($fixclient){
 		$this->stats_internet($fixclient);
 	}

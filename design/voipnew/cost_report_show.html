@@ -54,6 +54,11 @@
         <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
     </select>
 
+    <select name="f_direction_out">
+        <option value="t" {if $f_direction_out eq 't'} selected{/if}>Исходящие</option>
+        <option value="f" {if $f_direction_out eq 'f'} selected{/if}>Входящие</option>
+    </select>
+
     <div style="height: 5px"></div>
 
   <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>

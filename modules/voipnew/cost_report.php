@@ -20,6 +20,7 @@ class m_voipnew_cost_report
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
+        $f_direction_out = get_param_protected('f_direction_out', 't');
         $f_mob = get_param_protected('f_mob', '0');
         $f_prefix = get_param_protected('f_prefix', '');
         $f_volume = get_param_protected('f_volume', '');
@@ -34,7 +35,7 @@ class m_voipnew_cost_report
 
             $where = " r.time >= '{$date_from}'";
             $where .= " and r.time <= '{$date_to} 23:59:59'";
-            $where .= " and direction_out ";
+            $where .= $f_direction_out == 'f' ?  " and r.direction_out=false " : " and r.direction_out=true ";
 
             if ($f_operator_id != '0')
                 $where .= " and r.operator_id='{$f_operator_id}' ";
@@ -172,6 +173,7 @@ class m_voipnew_cost_report
             $design->assign('f_prefix', $f_prefix);
             $design->assign('f_country_id', $f_country_id);
             $design->assign('f_region_id', $f_region_id);
+            $design->assign('f_direction_out', $f_direction_out);
             $design->assign('f_mob', $f_mob);
             $design->assign('f_dest_group', $f_dest_group);
             $design->assign('f_volume', $f_volume);

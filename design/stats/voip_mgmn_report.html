@@ -1,0 +1,136 @@
+<form action="" method="get">
+    <input type="hidden" name="module" value="stats" />
+    <input type="hidden" name="action" value="voip_mgmn_report" />
+    <table>
+        <tr>
+            <td>С</td>
+            <td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_yy}</select></td>
+            <td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_mm}</select></td>
+            <td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_dd}</select></td>
+            <td>&nbsp;</td>
+            <td>По</td>
+            <td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_yy}</select></td>
+            <td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_mm}</select></td>
+            <td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select></td>
+        </tr>
+        <tr>
+            <td>Оператор</td>
+            <td colspan="8">
+                <select name="operator">
+                    <option value="all">Все</option>
+                    {foreach from=$operators item='o'}
+                    <option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Группировка</td>
+            <td colspan="8">
+                <select name="groupp">
+                    <option value="0">Нет</option>
+                    <option value="1"{if $groupp==1} selected='selected'{/if}>По дням</option>
+                    <option value="2"{if $groupp==2} selected='selected'{/if}>По месяцам</option>
+                </select>
+            </td>
+            <td>Регион</td>
+            <td colspan="8">
+                <select name="region">
+                    {foreach from=$regions item='r'}
+                    <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+        <tr><td colspan="9"><input type="submit" name="get" value="Сформировать" /></td></tr>
+    </table>
+</form>
+
+{if isset($report)}
+{assign var='bg' value='#40c0ff'}{assign var='fg' value='black'}
+<table class='price' cellSpacing='4' cellPadding='2'  border='0'>
+    <tr>
+        {if $groupp}<td class='header'>Дата</td>{/if}
+        <td class='header'>Оператор</td>
+        <td class='header'>Зона Моб</td>
+        <td class='header'>7800</td>
+        <td class='header'>Россия</td>
+        <td class='header'>Международка</td>
+        <td class='header'>СНГ</td>
+        <td class='header'>Входящие</td>
+    </tr>
+    {foreach from=$report item='r'}
+    <tr class="{cycle values='even,odd'}">
+        {if $groupp}<td>{$r.date}</td>{/if}
+        <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
+        <td>{if $r.100}
+            Количество: <b>{$r.100.count}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.100.len|round:2}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.100.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.100.len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.100.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.100.amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+        <td>{if $r.7800}
+            Количество: <b>{$r.7800.count}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.7800.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.7800.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.7800.len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.7800.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.7800.amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+        <td>{if $r.101}
+            Количество: <b>{$r.101.count}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.101.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.101.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.101.len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.101.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.101.amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+        <td>{if $r.102}
+            Количество: <b>{$r.102.count}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.102.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.102.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.102.len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.102.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.102.amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+        <td>{if $r.103}
+            Количество: <b>{$r.103.count}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.103.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.103.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.103.len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.103.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.103.amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+        <td>{if $r.900}
+            Количество: <b>{$r.900.count}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.900.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.900.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.900.len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.900.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.900.amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+    </tr>
+    {/foreach}
+</table>
+
+{/if}
