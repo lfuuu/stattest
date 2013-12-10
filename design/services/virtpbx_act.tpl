@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>АКТ &#8470;3-14410</title>
+<title>АКТ &#8470;3-{$client.id}</title>
 </head>
 <body>
 	<style>
@@ -16,7 +16,7 @@ BODY { "
 	
 		<p align="CENTER"
 			style="margin-top: 0.05cm; margin-bottom: 0.05cm; line-height: 100%">
-			<font face="Times New Roman, serif"><font size="5"><b>АКТ &#8470;3-14410</b>
+			<font face="Times New Roman, serif"><font size="5"><b>АКТ &#8470;3-{$client.id}</b>
 			</font>
 			</font>
 		</p>
@@ -51,8 +51,8 @@ BODY { "
 				face="Times New Roman, serif"><font size="3"><b>{$client.signer_positionV} {$client.signer_nameV}</b>
 			</font>
 			</font><font face="Times New Roman, serif">, и&nbsp;Оператором ООО
-				&laquo;МСН Телеком&raquo;, в&nbsp;лице Генерального директора
-				Мельникова А. К., о&nbsp; том, что услуга &laquo;Виртуальная
+				&laquo;МСН Телеком&raquo;, в&nbsp;лице {$firm_director.position_}
+				{$firm_director.name_}, о&nbsp; том, что услуга &laquo;Виртуальная
 				АТС&raquo; подключена.</font>
 		</p>
 		<p
