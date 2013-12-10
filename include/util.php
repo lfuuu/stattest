@@ -520,11 +520,13 @@ class util{
         $page = get_param_integer("page", 1);
         $countPages = ceil($count/$items_on_page);
         $url = "";
+        /*
         foreach($_GET as $k => $v) {
             $url .= ($url ? "&" : "").$k."=".$v;
         }
         $url = "./?".$url;
-
+        */
+        $url = "./?".http_build_query($_GET);
 
         $start = $page > 10 ? $page-10 : 1;
         $end = $page +10;
