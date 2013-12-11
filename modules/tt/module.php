@@ -663,7 +663,7 @@ class m_tt extends IModule{
             }
         }
 
-        $trouble["problem"] = html_entity_decode($trouble["problem"]);
+        $trouble["problem"] = html_entity_decode($trouble["problem"], ENT_QUOTES, 'KOI8-R');
 
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
@@ -700,7 +700,7 @@ class m_tt extends IModule{
                case "add" : $a = "Добавлена"; break;
                case "delete" : $a = "Удалена"; break;
             }
-            $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
+            $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
             $ff = array();
             if($l["action"] == "change"){
                 foreach($l["fields"] as $f)

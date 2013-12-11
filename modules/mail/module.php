@@ -593,7 +593,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 
 		if($format=='html'){
-			$text = nl2br(htmlspecialchars($text));
+			$text = nl2br(htmlspecialchars_($text));
 		}
 		return $text;
 	}

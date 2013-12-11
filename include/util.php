@@ -77,7 +77,7 @@ function printdbgu($param, $s="")
 
 
     echo "<br><pre>(<i> printdbg _utf8() </i>) ".$s."=";
-    echo htmlspecialchars($s);
+    echo htmlspecialchars_($s);
     echo "</pre><br>";
 
 }
@@ -90,10 +90,10 @@ function print1Cerror(&$e)
 }
 
 function trigger_array($p,$s='') {
-    trigger_error($s.'<pre>'.htmlspecialchars(print_r($p,1)).'</pre>');
+    trigger_error($s.'<pre>'.htmlspecialchars_(print_r($p,1)).'</pre>');
 }
 function trigger_string($p) {
-    trigger_error(htmlspecialchars(print_r($p,1)));
+    trigger_error(htmlspecialchars_(print_r($p,1)));
        return $p;
 }
 function str_protect($str){
@@ -1835,6 +1835,12 @@ class event
             mail("shop@nbn-holding.ru", "MCN заявака в отказ", "Заявка #".$db->GetValue("select concat(req_no,'/',bill_no) from newbills_add_info  where bill_no = '".$bill["bill_no"]."'")." переведенна на этап \"отказ\"","Content-Type: text/plain; charset = \"koi8-r\"\nFrom: info@mcn.ru");
         }
     }
+}
+
+function htmlspecialchars_($s)
+{
+    // migration php 5.3 => 5.5
+    return htmlspecialchars($s, ENT_COMPAT | ENT_HTML401, "KOI8-R");
 }
 
 
