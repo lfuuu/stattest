@@ -47,7 +47,6 @@
         default: return;
     }
 
-
 	$design->assign('hl',$hl);	
 	$dbf = DbFormFactory::Create($table);
 	if (!$dbf) return;
