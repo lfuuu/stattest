@@ -47,22 +47,31 @@
 </form>
 
 {if isset($report)}
-{assign var='bg' value='#40c0ff'}{assign var='fg' value='black'}
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
     <tr>
-        {if $groupp}<td class='header' vAlign='bottom' width="100">Дата</td>{/if}
-        <td class='header' vAlign='bottom' width="110">Оператор</td>
-        <td class='header' vAlign='bottom' width="110">Факт</td>
-        <td class='header' vAlign='bottom' width="110">Оператор</td>
-        <td class='header' vAlign='bottom' width="110">MCN</td>
+        {if $groupp}<td class='header'>Дата</td>{/if}
+        <td class='header'>Оператор</td>
+        {foreach from=$columns item='n'}
+        <td class='header'>{$n}</td>
+        {/foreach}
     </tr>
     {foreach from=$report item='r'}
     <tr class="{cycle values='even,odd'}">
         {if $groupp}<td>{$r.date}</td>{/if}
         <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
-        <td vAlign='bottom'>{$r.len|round:2} минут<br />Количество: {$r.count}</td>
-        <td vAlign='bottom'>{$r.len_op|round:2} минут<br />стоимость: {$r.amount_op}</td>
-        <td vAlign='bottom'>{$r.len_mcn|round:2} минут<br />стоимость: {$r.amount_mcn}</td>
+        {foreach from=$columns key='k' item='n'}
+        <td>{if $r[$k]}
+            Количество: <b>{$r[$k].count}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r[$k].len|round:2}</b><br />
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r[$k].len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r[$k].len_mcn|round:2}</b><br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r[$k].amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r[$k].amount_mcn|round:2}</b><br />
+            {/if}
+        </td>
+        {/foreach}
     </tr>
     {/foreach}
 </table>

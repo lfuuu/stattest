@@ -125,7 +125,7 @@ class m_voipnew_routing_report
             echo '"Порядок"' . "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
-                echo '"' . $r['destination'] . '";';
+                echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'')  . '";';
                 echo '"' . str_replace('.', ',', $r['best_price']) . '";';
                 foreach ($rep->pricelist_ids as $i => $pl) {
                     echo '"' . str_replace('.', ',', ($r['prices'][$i] != 'NULL' ? $r['prices'][$i] : '')) . '";';

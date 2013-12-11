@@ -47,7 +47,6 @@
 </form>
 
 {if isset($report)}
-{assign var='bg' value='#40c0ff'}{assign var='fg' value='black'}
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
     <tr>
         {if $groupp}<td class='header'>Дата</td>{/if}
@@ -65,72 +64,71 @@
         <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
         <td>{if $r.100}
             Количество: <b>{$r.100.count}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.100.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.100.len|round:2}</b><br />
             Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.100.len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.100.len_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.100.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.100.len_mcn|round:2}</b><br />
             Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.100.amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.100.amount_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.100.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.100.amount_mcn|round:2}</b><br />
             {/if}
         </td>
         <td>{if $r.7800}
             Количество: <b>{$r.7800.count}</b><br />
             Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.7800.len|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.7800.len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.7800.len_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.7800.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.7800.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.7800.len_mcn|round:2}</b><br />
             Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.7800.amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.7800.amount_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.7800.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.7800.amount_mcn|round:2}</b><br />
             {/if}
         </td>
         <td>{if $r.101}
             Количество: <b>{$r.101.count}</b><br />
             Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.101.len|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.101.len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.101.len_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.101.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.101.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.101.len_mcn|round:2}</b><br />
             Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.101.amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.101.amount_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.101.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.101.amount_mcn|round:2}</b><br />
             {/if}
         </td>
         <td>{if $r.102}
             Количество: <b>{$r.102.count}</b><br />
             Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.102.len|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.102.len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.102.len_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.102.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.102.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.102.len_mcn|round:2}</b><br />
             Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.102.amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.102.amount_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.102.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.102.amount_mcn|round:2}</b><br />
             {/if}
         </td>
         <td>{if $r.103}
             Количество: <b>{$r.103.count}</b><br />
             Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.103.len|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.103.len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.103.len_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.103.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.103.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.103.len_mcn|round:2}</b><br />
             Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.103.amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.103.amount_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.103.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.103.amount_mcn|round:2}</b><br />
             {/if}
         </td>
         <td>{if $r.900}
             Количество: <b>{$r.900.count}</b><br />
             Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.900.len|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.900.len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.900.len_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.900.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.900.len_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.900.len_mcn|round:2}</b><br />
             Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.900.amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.900.amount_mcn|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r.900.amount_op|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r.900.amount_mcn|round:2}</b><br />
             {/if}
         </td>
     </tr>
     {/foreach}
 </table>
-
 {/if}
