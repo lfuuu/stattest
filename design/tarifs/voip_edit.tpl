@@ -84,11 +84,11 @@
                 тарификация: поминутная (да), посекундная (нет)</label>
         </td></tr>
     <tr><td></td><td><label>
-                <input type="checkbox" name="tariffication_by_minutes" value="1" {if $data.tariffication_full_first_minute > 0}checked{/if} />
+                <input type="checkbox" name="tariffication_full_first_minute" value="1" {if $data.tariffication_full_first_minute > 0}checked{/if} />
                 тарификация: первая минута оплачивается полностью</label>
         </td></tr>
     <tr><td></td><td><label>
-                <input type="checkbox" name="tariffication_by_minutes" value="1" {if $data.tariffication_free_first_seconds > 0}checked{/if} />
+                <input type="checkbox" name="tariffication_free_first_seconds" value="1" {if $data.tariffication_free_first_seconds > 0}checked{/if} />
                 тарификация: первые 5 секунд бесплатно</label>
         </td></tr>
     <tr><td>прайс-лист:</td><td>

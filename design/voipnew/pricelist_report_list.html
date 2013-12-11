@@ -1,3 +1,6 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
 <p style="font-weight: bold">Отчеты
 {if $report_type_id==1}
     По маршрутизации
@@ -14,7 +17,7 @@
     <input type="hidden" name="action" value="pricelist_report_analyze_list" />
     <input type="hidden" name="report_type_id" value="{$report_type_id}" />
 
-Регион: <select name="f_instance_id" onchange="$('#formFilter').submit()">
+Регион: <select name="f_instance_id" onchange="$('#formFilter').submit()" class="select2" style="width: 250px">
     <option value="0">--- выберите регион --- </option>
     {foreach from=$regions item='r'}
     <option value="{$r->id}" {if $f_instance_id==$r->id}selected{/if} >{$r->name}</option>
@@ -77,3 +80,12 @@
     </tr>
 	{/foreach}
 </table>
+
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $('.select2').select2();
+    });
+    {/literal}
+</script>

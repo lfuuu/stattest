@@ -41,7 +41,7 @@ class m_stats_voip_mgmn_report
             $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59';
 
             $where  = " and (time between '".$date_from."' and '".$date_to."') ";
-            $where .= ' and dest >= 0';
+            $where .= ' and (dest >= 0 or direction_out=false)';
 
             if ($operator>0) {
                 $where .= " and operator_id=".$operator;
@@ -90,7 +90,7 @@ class m_stats_voip_mgmn_report
                     $k .= '_' . $r['date'];
                 }
                 if (!isset($report[$k])) {
-                    $report[$k] = array('operator_id' => $r['operator_id']);
+                    $report[$k] = array('operator_id' => $r['operator_id'],'date' => $r['date']);
                 }
                 if (!isset($report[$k][$r['dest2']])) {
                     $report[$k][$r['dest2']] = $r;

@@ -1,3 +1,6 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
 <h1>
     <small>
         <a href="?module=voipnew&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
@@ -125,13 +128,13 @@ td.lock_default {
 	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
 	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
 	</select>
-	<select name="f_country_id">
+	<select name="f_country_id" class="select2" style="width: 250px">
 	<option value="0">-- Все страны --</option>
 	{foreach from=$geo_countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
-	<select name="f_region_id">
+	<select name="f_region_id" class="select2" style="width: 300px">
 	<option value="0">-- Все регионы --</option>
 	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
@@ -149,7 +152,7 @@ td.lock_default {
   <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
   <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
-	<input type=submit name="make" id="make_report" value="Сформировать"/>
+  <input type=submit name="make" id="make_report" value="Сформировать"/>
   <input type=submit name="calc" value="Пересчитать"/>
   <input type=submit name="export" value="Экспорт CSV"/>
   <input type=button value="Заблокировать дорогие коды" onclick="lock_by_price()"/>
@@ -193,3 +196,11 @@ td.lock_default {
 
 {/foreach}
 </table>
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $('.select2').select2();
+    });
+    {/literal}
+</script>

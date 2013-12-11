@@ -33,7 +33,7 @@ class m_voipnew_cost_report
         $reportOperators = array();
         if (isset($_GET['make']) || isset($_GET['export'])) {
 
-            $where = " r.time >= '{$date_from}'";
+            $where = " and r.time >= '{$date_from}'";
             $where .= " and r.time <= '{$date_to} 23:59:59'";
             $where .= $f_direction_out == 'f' ?  " and r.direction_out=false " : " and r.direction_out=true ";
 
@@ -54,11 +54,14 @@ class m_voipnew_cost_report
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
 
+            $networkGroups = $pg_db->AllRecords('select code, name from voip.operator_network_groups', 'code');
+
             $preReport = $pg_db->AllRecords("
                         select
                               r.{$prefixField} as prefix,
                               r.operator_id,
                               r.mob as mob,
+                              r.dest,
                               count(*) as count,
                               sum(r.len_mcn) as len_mcn,
                               sum(r.amount) as amount_mcn,
@@ -68,8 +71,8 @@ class m_voipnew_cost_report
                         from calls.calls_{$f_instance_id} r
                         left join voip_destinations d on d.ndef=r.{$prefixField}
                         left join geo.geo g on g.id=d.geo_id
-                        where {$where}
-                        group by r.{$prefixField}, r.mob, r.operator_id, g.name
+                        where len>0 {$where}
+                        group by r.{$prefixField}, r.mob, r.operator_id, g.name, r.dest
                         order by destination, r.{$prefixField}
                                      ");
 
@@ -78,7 +81,10 @@ class m_voipnew_cost_report
                     $r['prefix'] = 'unknown';
                     $r['destination'] = 'unknown';
                     $r['mob'] = 'f';
+                } elseif ($r['dest'] < 0 && isset($networkGroups[$r['prefix']])) {
+                    $r['destination'] = $networkGroups[$r['prefix']]['name'];
                 }
+
                 $k = $r['prefix'];
 
                 if (!isset($report[$k])) {
@@ -185,22 +191,32 @@ class m_voipnew_cost_report
             $design->AddMain('voipnew/cost_report_show.html');
         } else {
             header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="routing.csv"');
+            header('Content-Disposition: attachment; filename="cost.csv"');
 
             ob_start();
 
-            echo '"Префикс";"Направление";"Лучшая цена";';
-            echo '"Порядок"' . "\n";
+            echo ';;МСN Telecom;;;';
+            foreach ($reportOperators as $k => $op) {
+                echo '"' . $op->short_name . ' (' . $k . ')";;;';
+            }
+            echo "\n";
+            echo '"Префикс номера";"Назначение";"Кол.";"Мин.";"Руб.";';
+            foreach ($reportOperators as $k => $op) {
+                echo '"Кол.";"Мин.";"Руб.";';
+            }
+            echo "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
-                echo '"' . $r['destination'] . '";';
-                echo '"' . str_replace('.', ',', $r['best_price']) . '";';
-                echo '"';
-                foreach ($r['routes'] as $i => $pl) {
-                    if ($i > 0) echo ' -> ';
-                    echo $pricelists[$pl]['operator'];
+                echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'') . '";';
+                echo '"' . $r['count'] . '";';
+                echo '"' . $r['len_mcn'] . '";';
+                echo '"' . $r['amount_mcn'] . '";';
+                foreach ($reportOperators as $k => $op) {
+                    echo '"' . $r['operators'][$k]['count'] . '";';
+                    echo '"' . $r['operators'][$k]['len_op'] . '";';
+                    echo '"' . $r['operators'][$k]['amount_op'] . '";';
                 }
-                echo '"' . "\n";
+                echo "\n";
             }
 
             echo iconv('koi8-r', 'windows-1251', ob_get_clean());

@@ -28,9 +28,9 @@ class m_voipnew_operator_report
         else
             $volume_task_id = 0;
 
-        $totals = array('all' => array('volume' => '', 'amount' => '', 'amount_op' => ''));
+        $totals = array('all' => array('volume' => '', 'amount' => '', 'amount_op' => '', 'count' => ''));
         foreach ($rep->pricelist_ids as $i => $pl) {
-            $totals[$i] = array('volume' => '', 'amount' => '', 'amount_op' => '');
+            $totals[$i] = array('volume' => '', 'amount' => '', 'amount_op' => '', 'count' => '');
         }
 
 
@@ -57,7 +57,7 @@ class m_voipnew_operator_report
                                   ", 'id');
 
             $res_volumes = $pg_db->AllRecords("
-                                        select prefix, operator_id, seconds_op/60.0 as volume, amount_op/100.0 as amount_op
+                                        select prefix, operator_id, seconds_op/60.0 as volume, amount_op/100.0 as amount, amount_op/100.0 as amount_op, \"count\" as count
                                         from voip.volume_calc_data
                                         where task_id={$volume_task_id} and instance_id=0
                                   ");
@@ -83,6 +83,7 @@ class m_voipnew_operator_report
 
                 $r['volume'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['volume'] : '';
                 $r['amount_op'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['amount_op'] : '';
+                $r['count'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['count'] : '';
 
                 if ($f_volume != '' && $r['volume'] < $f_volume) {
                     unset($report[$k]);
@@ -93,6 +94,8 @@ class m_voipnew_operator_report
                 $r_prices = $r_prices != '' ? explode(',', $r_prices) : array();
                 $r_pricelists = substr($r['routes'], 1, strlen($r['routes']) - 2);
                 $r_pricelists = $r_pricelists != '' ? explode(',', $r_pricelists) : array();
+                $r_orders = substr($r['orders'], 1, strlen($r['orders']) - 2);
+                $r_orders = $r_orders != '' ? explode(',', $r_orders) : array();
 
                 $r_parts = array();
                 foreach ($rep->pricelist_ids as $i => $pl) {
@@ -100,12 +103,15 @@ class m_voipnew_operator_report
                     $operator_id = isset($pricelistToOperator[$pl]) ? $pricelistToOperator[$pl]['operator_id'] : '';
 
                     $r_volume = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['volume'] : '';
-                    $r_amount = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['amount_op'] : '';
+                    $r_amount = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['amount'] : '';
+                    $r_count = isset($volumes[$operator_id][$r['prefix']]) ? $volumes[$operator_id][$r['prefix']]['count'] : '';
 
                     $r_parts[$i] = array(
                         'price' => $r_prices[$i],
                         'volume' => $r_volume ? round($r_volume) : '',
-                        'amount' => $r_amount ? round($r_amount) : '');
+                        'amount' => $r_amount ? round($r_amount) : '',
+                        'count' => $r_count ? $r_count : '',
+                    );
 
                     if ($r_volume) {
                         $totals[$i]['volume'] += $r_volume;
@@ -115,7 +121,10 @@ class m_voipnew_operator_report
                         $totals[$i]['amount'] += $r_amount;
                         $totals['all']['amount'] += $r_amount;
                     }
-
+                    if ($r_count) {
+                        $totals[$i]['count'] += $r_count;
+                        $totals['all']['count'] += $r_count;
+                    }
                 }
 
 
@@ -125,6 +134,9 @@ class m_voipnew_operator_report
                 if ($r['amount_op']) {
                     $report[$k]['amount_op'] = round($r['amount_op']);
                     $totals['all']['amount_op'] += $r['amount_op'];
+                }
+                if ($r['count']) {
+                    $report[$k]['count'] = round($r['count']);
                 }
                 $report[$k]['parts'] = $r_parts;
                 $report[$k]['pricelists'] = $r_pricelists;
@@ -142,6 +154,8 @@ class m_voipnew_operator_report
                 $totals[$k]['amount'] = round($v['amount'], 2);
             if ($v['amount_op'])
                 $totals[$k]['amount_op'] = round($v['amount_op'], 2);
+            if ($v['count'])
+                $totals[$k]['count'] = round($v['count']);
         }
 
         $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
@@ -149,22 +163,61 @@ class m_voipnew_operator_report
         $pricelists = $pg_db->AllRecords("select p.id, p.name, o.short_name as operator, 0 as volume, 0 as amount from voip.pricelist p
                                                   left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id');
 
-        $design->assign('rep', $rep);
-        $design->assign('volume', $volume);
-        $design->assign('totals', $totals);
-        $design->assign('report', $report);
-        $design->assign('report_id', $report_id);
-        $design->assign('f_prefix', $f_prefix);
-        $design->assign('f_volume', $f_volume);
-        $design->assign('f_country_id', $f_country_id);
-        $design->assign('f_region_id', $f_region_id);
-        $design->assign('f_mob', $f_mob);
-        $design->assign('f_dest_group', $f_dest_group);
-        $design->assign('geo_countries', $countries);
-        $design->assign('geo_regions', $regions);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->assign('pricelists', $pricelists);
-        $design->AddMain('voipnew/operator_report_show.html');
+
+        if (!isset($_GET['export'])) {
+            $design->assign('rep', $rep);
+            $design->assign('volume', $volume);
+            $design->assign('totals', $totals);
+            $design->assign('report', $report);
+            $design->assign('report_id', $report_id);
+            $design->assign('f_prefix', $f_prefix);
+            $design->assign('f_volume', $f_volume);
+            $design->assign('f_country_id', $f_country_id);
+            $design->assign('f_region_id', $f_region_id);
+            $design->assign('f_mob', $f_mob);
+            $design->assign('f_dest_group', $f_dest_group);
+            $design->assign('geo_countries', $countries);
+            $design->assign('geo_regions', $regions);
+            $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+            $design->assign('pricelists', $pricelists);
+            $design->AddMain('voipnew/operator_report_show.html');
+        } else {
+            header('Content-type: application/csv');
+            header('Content-Disposition: attachment; filename="operator.csv"');
+
+            ob_start();
+
+            echo ';;"Итого";;;;';
+            foreach ($rep->pricelist_ids as $i => $p) {
+                echo '"' . $pricelists[$p]['operator'] . '";;;;';
+            }
+            echo "\n";
+            echo '"Префикс номера";"Назначение";"Факт. Стоимость";"Кол-во";"Объем";"Стоимость";';
+            foreach ($rep->pricelist_ids as $i => $p) {
+                echo '"Цена";"Кол-во";"Объем";"Стоимость";';
+            }
+            echo "\n";
+            foreach ($report as $r) {
+                echo '"' . $r['prefix'] . '";';
+                echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'') . '";';
+                echo '"' . str_replace('.',',',$r['amount_op']) . '";';
+                echo '"' . $r['count'] . '";';
+                echo '"' . $r['volume'] . '";';
+                echo '"' . str_replace('.',',',$r['amount_op']) . '";';
+                foreach ($rep->pricelist_ids as $i => $p) {
+                    echo '"' . str_replace('.',',', $r['parts'][$i]['price']) . '";';
+                    echo '"' . $r['parts'][$i]['count'] . '";';
+                    echo '"' . $r['parts'][$i]['volume'] . '";';
+                    echo '"' . str_replace('.',',', $r['parts'][$i]['amount']) . '";';
+                }
+                echo "\n";
+            }
+
+
+            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            exit;
+
+        }
     }
 
 }

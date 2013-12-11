@@ -2,7 +2,7 @@
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
         <td class=header colspan="3">&nbsp;</td>
-        <td class=header colspan="3">Операторские прайсы</td>
+        <td class=header colspan="4">Операторские прайсы</td>
         <td class=header rowspan="2">Завершение вызова</td>
         <td class=header>Клиентские прайсы</td>
     </tr>
@@ -14,6 +14,7 @@
         <td class=header>Местные</td>
         <td class=header>Моб, МГМН</td>
         <td class=header>7800</td>
+        <td class=header>7800</td>
     </tr>
     {foreach from=$operators item='o'}
     <tr class="{cycle values='even,odd'}">
@@ -23,6 +24,7 @@
         <td>{if $o.local_network_id}{$pricelists[$o.local_network_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_id}">({$o.local_network_id})</a>{/if}</td>
         <td>{if $o.local_network_pricelist_id}{$pricelists[$o.local_network_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_pricelist_id}">({$o.local_network_pricelist_id})</a>{/if}</td>
         <td>{if $o.pricelist_id}{$pricelists[$o.pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.pricelist_id}">({$o.pricelist_id})</a>{/if}</td>
+        <td>{if $o.operator_7800_pricelist_id}{$pricelists[$o.operator_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.operator_7800_pricelist_id}">({$o.operator_7800_pricelist_id})</a>{/if}</td>
         <td style="text-align: center">{if $o.term_in_cost != 0}{$o.term_in_cost}{/if}</td>
         <td>{if $o.client_7800_pricelist_id}{$pricelists[$o.client_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.client_7800_pricelist_id}">({$o.client_7800_pricelist_id})</a>{/if}</td>
     </tr>
