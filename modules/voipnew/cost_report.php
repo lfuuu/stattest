@@ -19,7 +19,7 @@ class m_voipnew_cost_report
         $f_prefix_type = get_param_protected('f_prefix_type', 'op');
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
+        $f_dest_group = get_param_protected('f_dest_group', '');
         $f_direction_out = get_param_protected('f_direction_out', 't');
         $f_mob = get_param_protected('f_mob', '0');
         $f_prefix = get_param_protected('f_prefix', '');
@@ -41,8 +41,13 @@ class m_voipnew_cost_report
                 $where .= " and r.operator_id='{$f_operator_id}' ";
             if ($f_prefix != '')
                 $where .= " and r.{$prefixField}::varchar like '" . intval($f_prefix) . "%' ";
-            if ($f_dest_group != '-1')
-                $where .= " and g.dest='{$f_dest_group}' ";
+            if ($f_dest_group != '') {
+                if ($f_dest_group == '-1') {
+                    $where .= " and r.dest < 0 ";
+                } else {
+                    $where .= " and r.dest='{$f_dest_group}' ";
+                }
+            }
             if ($f_country_id != '0')
                 $where .= " and g.country='{$f_country_id}' ";
             if ($f_region_id != '0')
