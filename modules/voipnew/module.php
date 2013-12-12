@@ -70,11 +70,10 @@ class m_voipnew extends IModule
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
 
-        $query = "  select o.name as operator, p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows ,c.name as currency
+        $query = "  select o.name as operator, p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
                     from voip.raw_file f
                     left join voip.pricelist p on p.id=f.pricelist_id
                     left join voip.operator o on o.id=p.operator_id
-                    left join public.currency c on c.id=f.currency_id
                     WHERE f.id=" . $id;
         $file = $pg_db->GetRow($query);
         $design->assign('file', $file);
@@ -561,10 +560,6 @@ class m_voipnew extends IModule
                     $raw_file['startdate'] = $defs[0]['startdate'];
                 else
                     $raw_file['startdate'] = date('Y-m-d');
-                if (isset($defs[0]['currency_id']))
-                    $raw_file['currency_id'] = $defs[0]['currency_id'];
-                else
-                    $raw_file['currency_id'] = 1;
             }
 
             if ($this->save_price_file($raw_file, $defs) <= 0) {
