@@ -321,10 +321,10 @@ class m_stats extends IModule{
         $region = explode('_', $phone);
         $region = $region[0];
         foreach ($usages as $r) {
-        	if ($region == 'all') {
-        		if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
-        		if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
-        	}
+			if ($region == 'all') {
+				if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
+				if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
+			}
         	
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
@@ -333,7 +333,6 @@ class m_stats extends IModule{
             }
 			$phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
             if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
-            
 		}
 		$design->assign('phones',$phones);
 		$def=getdate();
