@@ -31,13 +31,12 @@
     <TD style="color: {if $item.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $item.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
 	<TD>{$item.phone_num}</TD>
 	<TD><b>{$item.tsf2}</b></TD>
-    {if $smarty.foreach.outer.last}
-    	<TD colspan='2'>{$item.price}</TD>
-    {else}
-    	<TD>{$item.price}</TD>
-    	<TD>{$item.geo}</TD>
-    {/if}
-    
+	{if $smarty.foreach.outer.last}
+		<TD colspan='2'>{$item.price}</TD>
+	{else}
+		<TD>{$item.price}</TD>
+		<TD>{$item.geo}</TD>
+	{/if}    
 {else}
     <TD>{$item.tsf1}</TD>
     <TD>{$item.cnt}</TD>
