@@ -2,8 +2,8 @@
 	<input type="hidden" name="step" value="upfile" />
 	<input type="hidden" name="pricelist_id" value="{$pricelist.id}" />
 	<select name="ftype">
-        {if $pricelist.type == 'network' and $pricelist.operator_id == '2'}
-        <option value="xls_beeline_networks">Сети билайн (Полный)</option>
+        {if $pricelist.type == 'network' and $pricelist.operator_id == '15'}
+        <option value="csv_mgts_networks">Сети МГТС (Полный)</option>
         {elseif $pricelist.type == 'network'}
         <option value="xls_networks">Сети операторов (Полный)</option>
         {elseif $pricelist.type == 'network_prices'}

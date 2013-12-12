@@ -64,7 +64,6 @@
         <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
         <td>{if $r.100}
                 {if $details}
-                    Количество: <b>{$r.100.count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.100.len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.100.len_op|round:2}<br />
@@ -72,15 +71,15 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.100.amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.100.amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r.100.count}</b><br />
+                {else}
                     Минут: <b>{$r.100.len|round:2}</b><br />
+                    Количество: <b>{$r.100.count}</b><br />
                 {/if}
             {/if}
         </td>
         <td>{if $r.7800}
                 {if $details}
-                    Количество: <b>{$r.7800.count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.7800.len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.7800.len_op|round:2}<br />
@@ -88,15 +87,15 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.7800.amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.7800.amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r.7800.count}</b><br />
+                {else}
                     Минут: <b>{$r.7800.len|round:2}</b><br />
+                    Количество: <b>{$r.7800.count}</b><br />
                 {/if}
             {/if}
         </td>
         <td>{if $r.101}
                 {if $details}
-                    Количество: <b>{$r.101.count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.101.len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.101.len_op|round:2}<br />
@@ -104,15 +103,15 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.101.amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.101.amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r.101.count}</b><br />
+                {else}
                     Минут: <b>{$r.101.len|round:2}</b><br />
+                    Количество: <b>{$r.101.count}</b><br />
                 {/if}
             {/if}
         </td>
         <td>{if $r.102}
                 {if $details}
-                    Количество: <b>{$r.102.count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.102.len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.102.len_op|round:2}<br />
@@ -120,15 +119,15 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.102.amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.102.amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r.102.count}</b><br />
+                {else}
                     Минут: <b>{$r.102.len|round:2}</b><br />
+                    Количество: <b>{$r.102.count}</b><br />
                 {/if}
             {/if}
         </td>
         <td>{if $r.103}
                 {if $details}
-                    Количество: <b>{$r.103.count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.103.len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.103.len_op|round:2}<br />
@@ -136,15 +135,15 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.103.amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.103.amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r.103.count}</b><br />
+                {else}
                     Минут: <b>{$r.103.len|round:2}</b><br />
+                    Количество: <b>{$r.103.count}</b><br />
                 {/if}
             {/if}
         </td>
         <td>{if $r.900}
                 {if $details}
-                    Количество: <b>{$r.900.count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.900.len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.900.len_op|round:2}<br />
@@ -152,9 +151,10 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.900.amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.900.amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r.900.count}</b><br />
+                {else}
                     Минут: <b>{$r.900.len|round:2}</b><br />
+                    Количество: <b>{$r.900.count}</b><br />
                 {/if}
             {/if}
         </td>

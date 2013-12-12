@@ -1,680 +1,8 @@
 <?php
 include_once 'definfo.php';
+include_once 'prices_parser.php';
 
-class _voipnew_prices_parser
-{
-    public static function make_numbers(&$mres, $number1, $number2, $prefix = '', $max = 0)
-    {
-        if ($number1 == '' && $number2 == '') {
-            $mres[] = $prefix;
-            return;
-        }
-
-        $nn1 = (int)substr($number1, 0, 1);
-        $nn2 = (int)substr($number2, 0, 1);
-
-        if (($nn1 == 0) && $nn2 == 9) {
-            return;
-        }
-
-        if ($max == 1) {
-            _voipnew_prices_parser::make_numbers($mres, substr($number1, 1), substr($number2, 1), $prefix . $nn1, 1);
-            for ($n = $nn1 + 1; $n <= 9; $n = $n + 1) {
-                $mres[] = $prefix . $n;
-            }
-        }
-        if ($max == 2) {
-            for ($n = 0; $n <= $nn2 - 1; $n = $n + 1) {
-                $mres[] = $prefix . $n;
-            }
-            _voipnew_prices_parser::make_numbers($mres, substr($number1, 1), substr($number2, 1), $prefix . $nn2, 2);
-        }
-        if ($max == 0) {
-            if ($nn1 == $nn2) {
-                _voipnew_prices_parser::make_numbers($mres, substr($number1, 1), substr($number2, 1), $prefix . $nn1, 0);
-            } else {
-                if (strlen($number1) <= 1) {
-                    $mres[] = $prefix . $nn1;
-                } else
-                    _voipnew_prices_parser::make_numbers($mres, substr($number1, 1), substr($number2, 1), $prefix . $nn1, 1);
-                for ($n = $nn1 + 1; $n <= $nn2 - 1; $n = $n + 1) {
-                    $mres[] = $prefix . $n;
-                }
-                if (strlen($number2) <= 1) {
-                    $mres[] = $prefix . $nn2;
-                } else
-                    _voipnew_prices_parser::make_numbers($mres, substr($number1, 1), substr($number2, 1), $prefix . $nn2, 2);
-            }
-        }
-    }
-
-    public static function &xls_read($fname)
-    {
-        require_once INCLUDE_PATH . 'exel/excel_reader2.php';
-        @$xlsreader = new Spreadsheet_Excel_Reader($fname, false, 'koi8-r');
-        return $xlsreader;
-    }
-
-    public static function &csv_read($fname)
-    {
-        $f = fopen($fname, 'r');
-        $csv = array();
-        while (($row = fgetcsv($f, 1 * 1024 * 1024, "\t", '"'))) {
-            $csv[] = $row;
-        }
-        fclose($f);
-        return $csv;
-    }
-
-    public static function &open_file($filename, $format = 'Excel5', $sheet = -1)
-    {
-        require_once INCLUDE_PATH . 'exel/PHPExcel.php';
-        require_once INCLUDE_PATH . 'exel/PHPExcel/IOFactory.php';
-        $excelReader = PHPExcel_IOFactory::createReader($format);
-        $excelReader->setReadDataOnly(true);
-
-        $objExcel = $excelReader->load($filename);
-        if (!$objExcel) {
-            $objExcel = false;
-            return $objExcel;
-        }
-        if ($sheet == -1)
-            $objWorksheet = @$objExcel->getActiveSheet();
-        else
-            $objWorksheet = @$objExcel->getSheet($sheet);
-        if (!$objWorksheet) {
-            $objWorksheet = false;
-            return $objWorksheet;
-        }
-
-        return $objWorksheet;
-    }
-
-    public static function &read_table(&$objWorksheet, $fields)
-    {
-        $rowIterator = $objWorksheet->getRowIterator();
-        $table = array();
-
-        foreach ($fields as $k => $f)
-            $fields[$k]['col'] = false;
-        $isFindHeader = false;
-        foreach ($rowIterator as $row) {
-            if (!$isFindHeader) {
-                $cellIterator = $row->getCellIterator();
-                foreach ($cellIterator as $cell) {
-                    foreach ($fields as $k => $f) {
-                        if ($cell->getValue() == $f['v']) {
-                            $fields[$k]['col'] = $cellIterator->key();
-                            $isFindHeader = true;
-                        }
-                    }
-                }
-                if ($isFindHeader) {
-                    foreach ($fields as $k => $f) {
-                        if ($f['col'] === false) {
-                            $table = false;
-                            return $table;
-                        }
-                    }
-                }
-            } else {
-                $cellIterator = $row->getCellIterator();
-                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
-                $table_row = array();
-                foreach ($fields as $k => $f)
-                    $table_row[$k] = '';
-                foreach ($cellIterator as $cell) {
-                    foreach ($fields as $k => $f) {
-                        if ($cellIterator->key() == $f['col']) {
-                            if ($f['t'] == 'F') {
-                                $table_row[$k] = number_format(floatval(str_replace(',', '.', $cell->getValue())), 4, '.', '');
-                            } elseif ($f['t'] == 'D') {
-                                $table_row[$k] = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP(trim($cell->getValue())));
-                            } else {
-                                $table_row[$k] = strip_tags(trim($cell->getValue()));
-                            }
-                        }
-                    }
-                }
-                $table[] = $table_row;
-            }
-        }
-
-        return $table;
-    }
-
-    public static function &read_beeline_full1($filename)
-    {
-
-        global $pg_db;
-
-        $objWorksheet = _voipnew_prices_parser::open_file($filename);
-        if ($objWorksheet === false) return false;
-        $fields = array('defcode' => array('t' => 'S', 'v' => 'Code/CNP'),
-            'startdate' => array('t' => 'D', 'v' => 'SDate'),
-            'price' => array('t' => 'F', 'v' => 'RATE'),
-            'destination' => array('t' => 'S', 'v' => 'Group/Destination'),
-            'type' => array('t' => 'S', 'v' => 'Type'),
-            'currency_id' => array('t' => 'S', 'v' => 'CUR'),
-        );
-        $table = _voipnew_prices_parser::read_table($objWorksheet, $fields);
-        if ($table === false) return $table;
-
-
-        foreach ($table as $k => &$v) {
-            $table[$k]['deleting'] = 0;
-            if ($table[$k]['currency_id'] != 'RUB') die('bad currency'); else $table[$k]['currency_id'] = 1;
-
-            unset($table[$k]['type']);
-        }
-        return $table;
-    }
-
-    public static function &read_beeline_full2($filename)
-    {
-        $objWorksheet = _voipnew_prices_parser::open_file($filename);
-        if ($objWorksheet === false) return false;
-        $fields = array('destination' => array('t' => 'S', 'v' => 'DEST'),
-            'defcode1' => array('t' => 'S', 'v' => 'COUNTRY CODE'),
-            'defcode2' => array('t' => 'S', 'v' => 'ROLLUP'),
-            'price' => array('t' => 'F', 'v' => 'RATE'),
-            'startdate' => array('t' => 'D', 'v' => 'EFFECTIVED'),
-        );
-        $table = _voipnew_prices_parser::read_table($objWorksheet, $fields);
-        if ($table === false) return $table;
-        $defs = array();
-        foreach ($table as $row) {
-            $codes_list = explode(',', $row['defcode2']);
-
-            foreach ($codes_list as $code) {
-                $period = explode('-', $code);
-
-                if (count($period) == 1) {
-                    $n = trim($period[0]);
-                    if (!preg_match('#^\d*$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $defs[] = array('defcode' => $row['defcode1'] . $n,
-                        'deleting' => 0,
-                        'startdate' => $row['startdate'],
-                        'price' => $row['price'],
-                        'currency_id' => 1,
-                        'destination' => $row['destination']);
-
-                } elseif (count($period) == 2) {
-                    $n = trim($period[0]);
-                    $n2 = trim($period[1]);
-                    if (!preg_match('#^\d+$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    if (!preg_match('#^\d+$#', $n2)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $l = strlen($n);
-                    $n = (int)$n;
-                    $n2 = (int)$n2;
-                    while ($n <= $n2) {
-                        while (strlen($n) < $l) $n = '0' . $n;
-                        $defs[] = array('defcode' => $row['defcode1'] . $n,
-                            'deleting' => 0,
-                            'startdate' => $row['startdate'],
-                            'price' => $row['price'],
-                            'currency_id' => 1,
-                            'destination' => $row['destination']);
-                        $n = $n + 1;
-                    }
-                } else {
-                    $table = false;
-                    return $table;
-                }
-            }
-        }
-        return $defs;
-    }
-
-    public static function &read_beeline_changes($filename)
-    {
-        $objWorksheet = _voipnew_prices_parser::open_file($filename);
-        if ($objWorksheet === false) return false;
-        $fields = array('destination' => array('t' => 'S', 'v' => 'DEST'),
-            'defcode1' => array('t' => 'S', 'v' => 'COUNTRY CODE'),
-            'defcode2' => array('t' => 'S', 'v' => 'ROLLUP'),
-            'price' => array('t' => 'F', 'v' => 'RATE'),
-            'comments' => array('t' => 'S', 'v' => 'COMMENTS'),
-            'startdate' => array('t' => 'D', 'v' => 'EFFECTIVED'),
-        );
-        $table = _voipnew_prices_parser::read_table($objWorksheet, $fields);
-        if ($table === false) return $table;
-        $defs = array();
-        foreach ($table as $row) {
-            $codes_list = explode(',', $row['defcode2']);
-            foreach ($codes_list as $code) {
-                $period = explode('-', $code);
-
-                if (count($period) == 1) {
-                    $n = trim($period[0]);
-                    if (!preg_match('#^\d*$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $defs[] = array('defcode' => $row['defcode1'] . $n,
-                        'startdate' => $row['startdate'],
-                        'price' => $row['price'],
-                        'deleting' => 0,
-                        'currency_id' => 1,
-                        'destination' => $row['destination']);
-
-                } elseif (count($period) == 2) {
-                    $n = trim($period[0]);
-                    $n2 = trim($period[1]);
-                    if (!preg_match('#^\d+$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    if (!preg_match('#^\d+$#', $n2)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $l = strlen($n);
-                    $n = (int)$n;
-                    $n2 = (int)$n2;
-
-                    while ($n <= $n2) {
-                        while (strlen($n) < $l) $n = '0' . $n;
-                        $defs[] = array('defcode' => $row['defcode1'] . $n,
-                            'startdate' => $row['startdate'],
-                            'price' => $row['price'],
-                            'deleting' => 0,
-                            'currency_id' => 1,
-                            'destination' => $row['destination']);
-                        $n = $n + 1;
-                    }
-                } else {
-                    $table = false;
-                    return $table;
-                }
-            }
-            $del_list = explode('Del: ' . $row['defcode1'], $row['comments']);
-            if (count($del_list) < 2) continue;
-            $del_list = trim($del_list[1]);
-
-            $del_list = explode('Add:', $del_list);
-            $del_list = trim($del_list[0]);
-
-            $del_list = explode(',', $del_list);
-            foreach ($del_list as $code) {
-                $period = explode('-', $code);
-
-                if (count($period) == 1) {
-                    $n = trim($period[0]);
-                    if (!preg_match('#^\d*$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $defs[] = array('defcode' => $row['defcode1'] . $n,
-                        'startdate' => $row['startdate'],
-                        'price' => 0,
-                        'deleting' => 1,
-                        'currency_id' => 1,
-                        'destination' => $row['destination']);
-
-                } elseif (count($period) == 2) {
-                    $n = trim($period[0]);
-                    $n2 = trim($period[1]);
-                    if (!preg_match('#^\d+$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    if (!preg_match('#^\d+$#', $n2)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $n = (int)$n;
-                    $n2 = (int)$n2;
-
-                    while ($n <= $n2) {
-                        $defs[] = array('defcode' => $row['defcode1'] . $n,
-                            'startdate' => $row['startdate'],
-                            'price' => 0,
-                            'deleting' => 1,
-                            'currency_id' => 1,
-                            'destination' => $row['destination']);
-                        $n = $n + 1;
-                    }
-                } else {
-                    $table = false;
-                    return $table;
-                }
-            }
-
-        }
-        return $defs;
-    }
-
-
-    public static function &read_mtt_full($filename)
-    {
-        $objWorksheet = _voipnew_prices_parser::open_file($filename, 'Excel5', 0);
-        if ($objWorksheet === false) return false;
-        $fields = array(
-            'defcode2' => array('t' => 'S', 'v' => 'Коды АВС abx'),
-            'price' => array('t' => 'F', 'v' => 'РТ, руб./мин.'),
-        );
-        $table = _voipnew_prices_parser::read_table($objWorksheet, $fields);
-        if ($table === false) return false;
-
-        $objWorksheet = _voipnew_prices_parser::open_file($filename, 'Excel5', 1);
-        if ($objWorksheet === false) return false;
-        $fields = array(
-            'defcode1' => array('t' => 'S', 'v' => 'Коды АВС'),
-            'defcode2' => array('t' => 'S', 'v' => 'Коды АВС abx'),
-            'price' => array('t' => 'F', 'v' => 'РТ, руб./мин.'),
-        );
-        $table2 = _voipnew_prices_parser::read_table($objWorksheet, $fields);
-        if ($table2 === false) return false;
-
-        $table = array_merge($table, $table2);
-
-
-        $defs = array();
-        foreach ($table as $row) {
-            if (!isset($row['defcode1'])) $row['defcode1'] = '7';
-            $row['defcode2'] = str_replace(' ', '', $row['defcode2']);
-            $i = strpos($row['defcode2'], '(');
-            if ($i !== FALSE) {
-                $row['defcode1'] .= substr($row['defcode2'], 0, $i);
-                $row['defcode2'] = substr($row['defcode2'], $i + 1);
-                $row['defcode2'] = str_replace(')', '', $row['defcode2']);
-            }
-            if ($row['defcode2'] == '') {
-                $row['defcode2'] = $row['defcode1'];
-                $row['defcode1'] = '';
-            }
-            $codes_list = explode(',', $row['defcode2']);
-            foreach ($codes_list as $code) {
-                $period = explode('-', $code);
-
-                if (count($period) == 1) {
-                    $n = trim($period[0]);
-                    if (!preg_match('#^\d*$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $defs[] = array('defcode' => $row['defcode1'] . $n,
-                        'deleting' => 0,
-                        'startdate' => '2000-01-01',
-                        'price' => $row['price'],
-                        'currency_id' => 1,);
-
-                } elseif (count($period) == 2) {
-                    $n = trim($period[0]);
-                    $n2 = trim($period[1]);
-                    if (!preg_match('#^\d+$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    if (!preg_match('#^\d+$#', $n2)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $l = strlen($n);
-                    $n = (int)$n;
-                    $n2 = (int)$n2;
-
-                    while ($n <= $n2) {
-                        while (strlen($n) < $l) $n = '0' . $n;
-                        $defs[] = array('defcode' => $row['defcode1'] . $n,
-                            'deleting' => 0,
-                            'startdate' => '2000-01-01',
-                            'price' => $row['price'],
-                            'currency_id' => 1);
-                        $n = $n + 1;
-                    }
-                } else {
-                    $table = false;
-                    return $table;
-                }
-            }
-        }
-        return $defs;
-    }
-
-    public static function &read_mcn_prime_full($filename)
-    {
-        $objWorksheet = _voipnew_prices_parser::open_file($filename);
-
-        $rowIterator = $objWorksheet->getRowIterator();
-        $table = array();
-        $isFindHeader = false;
-        $price_column = 1;
-        foreach ($rowIterator as $row) {
-            if (!$isFindHeader) {
-                $isFindHeader = true;
-                $cellIterator = $row->getCellIterator();
-                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
-                foreach ($cellIterator as $cell) {
-                    if (strip_tags(trim($cell->getValue())) == "Новая  цена") {
-                        $price_column = $cellIterator->key();
-                        break;
-                    }
-                }
-            } else {
-                $table_row = array();
-                $cellIterator = $row->getCellIterator();
-                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
-                $table_row = array('startdate' => date('Y-m-d'), 'deleting' => 0, 'currency_id' => 1);
-                foreach ($cellIterator as $cell) {
-                    if ($cellIterator->key() == 0) {
-                        $table_row['defcode'] = strip_tags(trim($cell->getCalculatedValue()));
-                    }
-                    if ($cellIterator->key() == $price_column) {
-                        $table_row['price'] = number_format(floatval(str_replace(',', '.', $cell->getCalculatedValue())), 4, '.', '');
-                    }
-                }
-                $table[] = $table_row;
-            }
-        }
-        return $table;
-    }
-
-    public static function &read_networks($filename)
-    {
-        $objWorksheet = _voipnew_prices_parser::open_file($filename);
-
-        $rowIterator = $objWorksheet->getRowIterator();
-        $table = array();
-        $isFindHeader = false;
-        foreach ($rowIterator as $row) {
-            if (!$isFindHeader) {
-                $isFindHeader = true;
-            } else {
-                $cellIterator = $row->getCellIterator();
-                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
-                $table_row = array();
-                foreach ($cellIterator as $cell) {
-                    if ($cellIterator->key() == 0) {
-                        $table_row['defcode'] = strip_tags(trim($cell->getCalculatedValue()));
-                    }
-                    if ($cellIterator->key() == 1) {
-                        $table_row['price'] = number_format(floatval(str_replace(',', '.', $cell->getCalculatedValue())), 4, '.', '');
-                    }
-                }
-                $table[] = $table_row;
-            }
-        }
-        return $table;
-    }
-
-
-    public static function read_beeline_networks($filename)
-    {
-        $table = array();
-        if (($handle = fopen($filename, "r")) !== FALSE) {
-            fgetcsv($handle, 1000, ";");
-            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-                $def = '7' . $data[0];
-                $prefixFrom = $data[2];
-                $prefixTo = $data[3];
-                $level = $data[5];
-
-                if ($level == '1') {
-                    $level = 1001;
-                } elseif ($level == '2') {
-                    $level = 1002;
-                } elseif ($level == '3') {
-                    $level = 1003;
-                } elseif ($level == '5_1' || $level == '5_01') {
-                    $level = 5001;
-                } elseif ($level == '5_2' || $level == '5_02') {
-                    $level = 5002;
-                } elseif ($level == '5_3' || $level == '5_03') {
-                    $level = 5003;
-                } elseif ($level == '5_4' || $level == '5_04') {
-                    $level = 5004;
-                } else {
-                    continue;
-                }
-
-                while (strlen($prefixFrom) > 0 && $prefixFrom[strlen($prefixFrom) - 1] == '0' && $prefixTo[strlen($prefixTo) - 1] == '9') {
-                    if (strlen($prefixFrom) > 1) {
-                        $prefixFrom = substr($prefixFrom, 0, strlen($prefixFrom) - 1);
-                        $prefixTo = substr($prefixTo, 0, strlen($prefixTo) - 1);
-                    } else {
-                        $prefixFrom = '';
-                        $prefixTo = '';
-                    }
-                }
-
-                while (strlen($prefixFrom) > 0 && $prefixFrom[0] == $prefixTo[0]) {
-                    $def .= $prefixFrom[0];
-                    if (strlen($prefixFrom) > 1) {
-                        $prefixFrom = substr($prefixFrom, 1);
-                        $prefixTo = substr($prefixTo, 1);
-                    } else {
-                        $prefixFrom = '';
-                        $prefixTo = '';
-                    }
-                }
-
-                $table[] = array(
-                    'defcode' => $def,
-                    'price' => $level,
-                    '$prefixFrom' => $prefixFrom,
-                    '$prefixTo' => $prefixTo,
-                );
-
-                $len = strlen($prefixFrom);
-                if ($len > 0) {
-                    for ($n = $prefixFrom; $n <= $prefixTo; $n++) {
-                        $prefix = $n;
-                        while (strlen($prefix) < $len) $prefix = '0' . $prefix;
-                        $table[] = array(
-                            'defcode' => $def . $prefix,
-                            'price' => $level,
-                        );
-                    }
-                } else {
-                    $table[] = array(
-                        'defcode' => $def,
-                        'price' => $level,
-                    );
-                }
-
-            }
-            fclose($handle);
-        }
-        return $table;
-    }
-
-    public static function &read_orange_full($filename)
-    {
-        $objWorksheet = _voipnew_prices_parser::open_file($filename);
-        if ($objWorksheet === false) return false;
-        $fields = array('defcode' => array('t' => 'S', 'v' => 'КОД'),
-            'price' => array('t' => 'F', 'v' => 'Tariff, RuR /min'),
-        );
-        $table = _voipnew_prices_parser::read_table($objWorksheet, $fields);
-        if ($table === false) return $table;
-
-        $defs = array();
-        foreach ($table as $k => &$v) {
-            $table[$k]['startdate'] = date('Y-m-d');
-            $table[$k]['deleting'] = 0;
-            $table[$k]['currency_id'] = 1;
-
-
-            $row = $table[$k];
-
-            $codes_list = explode(',', $row['defcode']);
-            foreach ($codes_list as $code) {
-                $period = explode('-', $code);
-
-                if (count($period) == 1) {
-                    $n = trim($period[0]);
-                    if (!preg_match('#^\d*$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    $defs[] = array('defcode' => $n,
-                        'deleting' => 0,
-                        'startdate' => $row['startdate'],
-                        'price' => $row['price'],
-                        'currency_id' => 1);
-
-                } elseif (count($period) == 2) {
-                    $n = trim($period[0]);
-                    $n2 = trim($period[1]);
-                    if (!preg_match('#^\d+$#', $n)) {
-                        $table = false;
-                        return $table;
-                    }
-                    if (!preg_match('#^\d+$#', $n2)) {
-                        $table = false;
-                        return $table;
-                    }
-
-                    $mres = array();
-                    _voipnew_prices_parser::make_numbers($mres, $n, $n2);
-                    foreach ($mres as $n) {
-                        $defs[] = array('defcode' => $n,
-                            'deleting' => 0,
-                            'startdate' => $row['startdate'],
-                            'price' => $row['price'],
-                            'currency_id' => 1);
-                    }
-                } else {
-                    $table = false;
-                    return $table;
-                }
-            }
-
-        }
-        /*		echo "<pre>";
-                print_r($defs);
-                echo "</pre>";
-                die();*/
-        return $defs;
-    }
-
-
-    public static function mcn_read_price($str)
-    {
-        $l = explode("\n", $str);
-        $len = count($l);
-        $defs = array();
-        for ($i = 0; $i < $len; $i++) {
-            $d = array_map('trim', explode("\t", $l[$i]));
-            if (!is_numeric($d[0]))
-                continue;
-            $defs[$d[0]] = $d[1];
-        }
-        return $defs;
-    }
-}
-
+include_once 'network.php';
 include_once 'operators.php';
 include_once 'analyze_pricelist_report.php';
 include_once 'operator_report.php';
@@ -695,6 +23,7 @@ class m_voipnew extends IModule
         $this->_addInheritance(new m_voipnew_routing_report);
         $this->_addInheritance(new m_voipnew_pricelist_report);
         $this->_addInheritance(new m_voipnew_cost_report);
+        $this->_addInheritance(new m_voipnew_network);
     }
 
     public function __call($method, array $arguments = array())
@@ -997,7 +326,7 @@ class m_voipnew extends IModule
                 trigger_error('Пожалуйста, загрузите файл для обработки');
                 return;
             } elseif ($_FILES['upfile']['error']) {
-                trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз');
+                trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз' . $_FILES['upfile']['error']);
                 return;
             }
 
@@ -1022,61 +351,65 @@ class m_voipnew extends IModule
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_beeline_full1($f['tmp_name']);
+                $defs = prices_parser::read_beeline_full1($f['tmp_name']);
 
             } elseif ($_POST['ftype'] == 'xls_beeline_full2') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_beeline_full2($f['tmp_name']);
+                $defs = prices_parser::read_beeline_full2($f['tmp_name']);
 
             } elseif ($_POST['ftype'] == 'xls_beeline_changes') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
-                $defs = _voipnew_prices_parser::read_beeline_changes($f['tmp_name']);
+                $defs = prices_parser::read_beeline_changes($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mtt_full') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_mtt_full($f['tmp_name']);
+                $defs = prices_parser::read_mtt_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_arktel_changes') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 0;
-                $defs = _voipnew_prices_parser::read_arktel_changes($f['tmp_name']);
+                $defs = prices_parser::read_arktel_changes($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mcn_prime_full') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_mcn_prime_full($f['tmp_name']);
+                $defs = prices_parser::read_mcn_prime_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mcn_prime_changes') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 0;
-                $defs = _voipnew_prices_parser::read_mcn_prime_full($f['tmp_name']);
+                $defs = prices_parser::read_mcn_prime_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_orange_full') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_orange_full($f['tmp_name']);
+                $defs = prices_parser::read_orange_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_networks') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_networks($f['tmp_name']);
-            } elseif ($_POST['ftype'] == 'xls_beeline_networks') {
+                $defs = prices_parser::read_networks($f['tmp_name']);
+            } elseif ($_POST['ftype'] == 'csv_mgts_networks') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = _voipnew_prices_parser::read_beeline_networks($f['tmp_name']);
+                $defs = prices_parser::read_mgts_networks($f['tmp_name']);
             }
 
             if ($defs === false) {
                 trigger_error('Ошибка чтения файла');
                 return;
             }
+            
+            if ($_POST['ftype'] == 'csv_mgts_networks') {
+                $defs = VoipUtils::reducePrefixes($defs, 'defcode', array('price'));
+            }
 
-            if ($raw_file['full'] == 1) {
+            if ($raw_file['full'] == 1 && $_POST['ftype'] != 'csv_mgts_networks') {
                 usort($defs, function($a, $b){
                     return strcmp($a["defcode"], $b["defcode"]);
                 });

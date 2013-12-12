@@ -52,18 +52,18 @@
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
     <tr>
         {if $groupp}<td class='header' vAlign='bottom' width="100">Дата</td>{/if}
-        <td class='header' vAlign='bottom' width="110">Оператор</td>
-        <td class='header' vAlign='bottom' width="110">Факт</td>
-        <td class='header' vAlign='bottom' width="110">Оператор</td>
-        <td class='header' vAlign='bottom' width="110">MCN</td>
+        <td class='header' vAlign='bottom' width="150">Оператор</td>
+        <td class='header' vAlign='bottom' width="150">Факт</td>
+        <td class='header' vAlign='bottom' width="150">Оператор</td>
+        <td class='header' vAlign='bottom' width="150">MCN</td>
     </tr>
     {foreach from=$report item='r'}
     <tr class="{cycle values='even,odd'}">
         {if $groupp}<td>{$r.date}</td>{/if}
         <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
-        <td vAlign='bottom'>{$r.len|round:2} минут<br />Количество: {$r.count}</td>
-        <td vAlign='bottom'>{$r.len_op|round:2} минут<br />стоимость: {$r.amount_op}</td>
-        <td vAlign='bottom'>{$r.len_mcn|round:2} минут<br />стоимость: {$r.amount_mcn}</td>
+        <td vAlign='bottom'>Минут: {$r.len|round:2}<br />Количество: {$r.count}</td>
+        <td vAlign='bottom'>Минут: {$r.len_op|round:2}<br />Стоимость: {$r.amount_op}</td>
+        <td vAlign='bottom'>Минут: {$r.len_mcn|round:2}<br />Стоимость: {$r.amount_mcn}</td>
     </tr>
     {/foreach}
 </table>

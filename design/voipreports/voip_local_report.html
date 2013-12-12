@@ -62,7 +62,6 @@
         {foreach from=$columns key='k' item='n'}
         <td>{if $r[$k]}
                 {if $details}
-                    Количество: <b>{$r[$k].count}</b><br />
                     Длительность (мин):<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r[$k].len|round:2}</b><br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r[$k].len_op|round:2}<br />
@@ -70,9 +69,10 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор    {$r[$k].amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].amount_mcn|round:2}<br />
-                {else}
                     Количество: <b>{$r[$k].count}</b><br />
+                {else}
                     Минут: <b>{$r[$k].len|round:2}</b><br />
+                    Количество: <b>{$r[$k].count}</b><br />
                 {/if}
             {/if}
         </td>
