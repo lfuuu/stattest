@@ -75,7 +75,7 @@ function smarty_function_html_options($params, &$smarty)
     if (isset($options)) {
         
         foreach ($options as $_key=>$_val)
-			$_html_result .= smarty_function_html_options_optoutput($_key, $_val, $selected);
+            $_html_result .= smarty_function_html_options_optoutput($_key, $_val, $selected);
 
     } else {
         
