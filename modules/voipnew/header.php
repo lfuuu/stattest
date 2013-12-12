@@ -2,7 +2,7 @@
 class m_voipnew_head extends IModuleHead
 {
     public $module_name = 'voipnew';
-    public $module_title = 'IP Телефония (New)';
+    public $module_title = 'IP Телефония';
 
     public $rights = array(
         'voip' => array('Список операторов', 'access,admin', 'доступ,администрирование')
