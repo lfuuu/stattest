@@ -6,6 +6,7 @@
 {if $detality=='call'}
           <TD class=header vAlign=bottom>Id</TD>
           <TD class=header vAlign=bottom>Дата/время</TD>
+          {if $phone=='all_regions'}<TD>Регион</TD>{/if}
           <TD class=header vAlign=bottom>Номер абонента</TD>
           <TD class=header vAlign=bottom>Направление</TD>
           <TD class=header vAlign=bottom>Внешний номер</TD>
@@ -25,12 +26,18 @@
 {if $detality=='call'}
     <TD style="color:gray">{$item.id}</TD>
     <TD>{$item.tsf1}</TD>
-		<TD>{$item.usage_num}</TD>
+	{if $phone=='all_regions'}<TD>{$item.reg_id}</TD>{/if}
+	<TD>{$item.usage_num}</TD>
     <TD style="color: {if $item.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $item.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
-		<TD>{$item.phone_num}</TD>
-    <TD><b>{$item.tsf2}</b></TD>
-    <TD>{$item.price}</TD>
-    <TD>{$item.geo}</TD>
+	<TD>{$item.phone_num}</TD>
+	<TD><b>{$item.tsf2}</b></TD>
+    {if $smarty.foreach.outer.last}
+    	<TD colspan='2'>{$item.price}</TD>
+    {else}
+    	<TD>{$item.price}</TD>
+    	<TD>{$item.geo}</TD>
+    {/if}
+    
 {else}
     <TD>{$item.tsf1}</TD>
     <TD>{$item.cnt}</TD>

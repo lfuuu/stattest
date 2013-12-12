@@ -314,12 +314,18 @@ class m_stats extends IModule{
 		$design->assign('phone',$phone=get_param_protected('phone',''));
 		$phones = array();
 		$phones_sel = array();
+		$regions = array();
 
-        $last_region = '';
+		$last_region = '';
         if ($phone == '' && count($usages) > 0) $phone = $usages[0]['region'];
         $region = explode('_', $phone);
         $region = $region[0];
         foreach ($usages as $r) {
+        	if ($region == 'all') {
+        		if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
+        		if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
+        	}
+        	
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
                 $phones[$r['region']] = $r['region_name'].' (все номера)';
@@ -327,6 +333,7 @@ class m_stats extends IModule{
             }
 			$phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
             if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
+            
 		}
 		$design->assign('phones',$phones);
 		$def=getdate();
@@ -352,10 +359,117 @@ class m_stats extends IModule{
 		$design->assign('detality',$detality=get_param_protected('detality','day'));
 		$design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
 
-		if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction))) return;
-    $design->assign('stats',$stats);
-    $design->AddMain('stats/voip_form.tpl');
-    $design->AddMain('stats/voip.tpl');
+		if ($region == 'all') {
+			$stats = array();
+			foreach ($regions as $k=>$v) {
+				$stats[$k] = $this->GetStatsVoIP($k,$from,$to,$detality,$client_id,$v,$paidonly,0,$destination,$direction, $regions);
+			}
+			$stats = $this->prepareStatArray($stats, $detality);
+		} else
+			if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) return;
+		
+		$design->assign('stats',$stats);
+    	$design->AddMain('stats/voip_form.tpl');
+    	$design->AddMain('stats/voip.tpl');
+	}
+	/*функция формирует единый массив для разных регионов,
+	 * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
+	*/
+	function prepareStatArray($data = array(), $detality = '') {
+		
+		if (!count($data)) return $data;
+		$Res = array();
+		$rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
+		
+		
+		switch ($detality) {
+			case 'dest':
+				foreach ($data as $r_id=>$reg_data) {
+					foreach ($reg_data as $k=>$r) {
+						if ($r['tsf1']!='<b>Итого</b>') {
+							if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
+							
+							$Res[$k]['cnt'] += $r['cnt'];
+							$Res[$k]['len'] += $r['len'];
+							$Res[$k]['price'] += $r['price'];
+							
+							if ($Res[$k]['len']>=24*60*60) $d=floor($Res[$k]['len']/(24*60*60)); else $d=0;
+							$Res[$k]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$k]['len']-$d*24*60*60).'</b>';
+							
+							if (isset($r['price'])) $rt['price']+=$r['price'];
+							if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+							if (isset($r['len'])) $rt['len']+=$r['len'];
+						}
+					}
+				}
+				$rt['tsf1']='<b>Итого</b>';
+				if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
+				$rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60).'</b>';
+				$rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+				
+			break;
+			case 'call':
+				foreach ($data as $r_id=>$reg_data) {
+					foreach ($reg_data as $r) {
+						if ($r['tsf1']!='<b>Итого</b>') {
+							$Res[] = array('mktime'=>$r['mktime'],'reg_id'=>$r_id)+$r;
+							
+							if (isset($r['price'])) $rt['price']+=$r['price'];
+							if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+							if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+						}
+					}
+				}
+				array_multisort($Res);
+
+				$rt['ts1']='Итого';
+				$rt['tsf1']='<b>Итого</b>';
+				$rt['num_to']='&nbsp;';
+				$rt['num_from']='&nbsp;';
+				if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+				$rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
+				$rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+			break;
+			default:
+				foreach ($data as $r_id=>$reg_data) {
+					foreach ($reg_data as $k=>$r) {
+						if ($r['tsf1']!='<b>Итого</b>') {
+							if (!isset($Res[$r['ts1']])) 
+								$Res[$r['ts1']] = array(
+										'ts1'=>$r['ts1'],
+										'tsf1'=>$r['tsf1'], 
+										'mktime'=>$r['mktime'],
+										'geo'=>$r['geo'],
+										'reg_id'=>$r_id, 
+										'cnt'=>0,
+										'price'=>0, 
+										'ts2'=>0
+								);
+							
+							$Res[$r['ts1']]['cnt'] += $r['cnt'];
+							$Res[$r['ts1']]['ts2'] += $r['ts2'];
+							$Res[$r['ts1']]['price'] += $r['price'];
+							
+							if ($Res[$r['ts1']]['ts2']>=24*60*60) $d=floor($Res[$r['ts1']]['ts2']/(24*60*60)); else $d=0;
+							$Res[$r['ts1']]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$r['ts1']]['ts2']-$d*24*60*60).'</b>';
+							
+							if (isset($r['price'])) $rt['price']+=$r['price'];
+							if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+							if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+						}			
+					}
+				}
+				$rt['tsf1']='<b>Итого</b>';
+				if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+				$rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
+				$rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+			break;
+		}
+		
+		
+		$Res[] = $rt;
+		
+		return $Res;
 	}
 	function stats_voip_recognition($fixclient){
 		global $db,$pg_db,$design;
@@ -882,9 +996,8 @@ class m_stats extends IModule{
       return $R;
     }
 
-	function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both'){
+	function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array()){
     global $pg_db;
-
 
     /*
     $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
@@ -901,7 +1014,7 @@ class m_stats extends IModule{
 			$group=" group by date_trunc('year',month)";
 			$format='Y г.';
 		} elseif ($detality=='month'){
-			$group=' group by month';
+			$group=" group by date_trunc('month',month)";
 			$format='Месяц Y г.';
 		} elseif ($detality=='day'){
 			$group=' group by day';
@@ -940,9 +1053,7 @@ class m_stats extends IModule{
 				$W[] = 'direction_out=true';
 		}
 
-        $t='';
-        foreach ($usage_arr as $uid) $t.=($t?',':'').$uid;
-		if ($t) $W[]='usage_id IN ('.$t.')'; else $W[] = 'FALSE';
+        $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'usage_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE'; 
 
 		if ($paidonly) {
 			$W[]='amount!=0';
@@ -965,7 +1076,7 @@ class m_stats extends IModule{
                                     ".($group?'':'usage_id,')."
                                     ".($group?'':'direction_out,');
                     if ($detality == 'day') $sql.= ' day as ts1, ';
-                    elseif ($detality == 'month') $sql.= ' month as ts1, ';
+                    elseif ($detality == 'month') $sql.= " date_trunc('month',month) as ts1, ";
                     elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
                     else $sql.= ' time as ts1, ';
                     $sql .=
@@ -983,12 +1094,12 @@ class m_stats extends IModule{
                     $pg_db->Query($sql);
 
                     //if ($db_calls->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-                    //if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+                    if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
                     $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0);
                     $geo = array();
 
                     //while ($r=$db_calls->NextRecord()){
-                    $records = $pg_db->AllRecords();
+                    $records = $pg_db->AllRecords();                   
                     foreach($records as $r)
                     {
                             if (isset($r['geo_id']))
@@ -1006,6 +1117,7 @@ class m_stats extends IModule{
                             else $t=array('0','0','0');
                             $ts = mktime($t[0],$t[1],intval($t[2]),$d[1],$d[2],$d[0]);
                             $r['tsf1']=mdate($format,$ts);
+                            $r['mktime'] = $ts;
 
                             if ($r['ts2']>=24*60*60) $d=floor($r['ts2']/(24*60*60)); else $d=0;
                             $r['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$r['ts2']);
@@ -1022,7 +1134,7 @@ class m_stats extends IModule{
                     $rt['num_from']='&nbsp;';
                     if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                     $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-                    $rt['price']=$rt['price'] .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
 
                     $R[]=$rt;
                     return $R;
