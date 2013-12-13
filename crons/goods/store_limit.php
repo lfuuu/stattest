@@ -27,7 +27,7 @@ foreach($db->AllRecords("
     SELECT 
         g.num_id as id, 
         g.name,
-        ifnull(s.qty_store, 'null') as c 
+        ifnull(s.qty_free, 'null') as c 
     FROM 
         `g_goods` g
     INNER JOIN g_good_store s on (g.id = s.good_id)
