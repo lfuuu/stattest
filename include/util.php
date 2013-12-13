@@ -519,13 +519,6 @@ class util{
         global $db_pg, $design;
         $page = get_param_integer("page", 1);
         $countPages = ceil($count/$items_on_page);
-        $url = "";
-        /*
-        foreach($_GET as $k => $v) {
-            $url .= ($url ? "&" : "").$k."=".$v;
-        }
-        $url = "./?".$url;
-        */
         $url = "./?".http_build_query($_GET);
 
         $start = $page > 10 ? $page-10 : 1;
@@ -594,7 +587,7 @@ class Wordifier {
         $isMinus = false;
 
         if($num < 0) {
-            $num = abs($num); 
+            $num = abs($num);
             $isMinus = true;
         }
 
@@ -1479,7 +1472,7 @@ class ClientCS {
             $n = $manager;
 
         return $n;
-        
+
     }
 }
 
