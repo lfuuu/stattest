@@ -516,7 +516,7 @@ class util{
 
     public static function pager_pg($count, $items_on_page = 50)
     {
-        global $db_pg, $design;
+        global $design;
         $page = get_param_integer("page", 1);
         $countPages = ceil($count/$items_on_page);
         $url = "";

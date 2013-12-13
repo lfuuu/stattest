@@ -1,5 +1,5 @@
 <form action="" method="get">
-    <input type="hidden" name="module" value="stats" />
+    <input type="hidden" name="module" value="voipreports" />
     <input type="hidden" name="action" value="voip_local_report" />
     <table>
         <tr>
@@ -42,7 +42,7 @@
                 </select>
             </td>
         </tr>
-        <tr><td colspan="9"><input type="submit" name="get" value="Сформировать" /></td></tr>
+        <tr><td colspan="9"><label><input type="checkbox" name="details" value="1" {if $details > 0}checked{/if}>подробности</label> <input type="submit" name="get" value="Сформировать" /></td></tr>
     </table>
 </form>
 
@@ -61,14 +61,19 @@
         <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
         {foreach from=$columns key='k' item='n'}
         <td>{if $r[$k]}
-            Количество: <b>{$r[$k].count}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r[$k].len|round:2}</b><br />
-            Длительность (мин):<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r[$k].len_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r[$k].len_mcn|round:2}</b><br />
-            Стоимость:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор <b>{$r[$k].amount_op|round:2}</b><br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN <b>{$r[$k].amount_mcn|round:2}</b><br />
+                {if $details}
+                    Длительность (мин):<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r[$k].len|round:2}</b><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r[$k].len_op|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].len_mcn|round:2}<br />
+                    Стоимость:<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор    {$r[$k].amount_op|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].amount_mcn|round:2}<br />
+                    Количество: <b>{$r[$k].count}</b><br />
+                {else}
+                    Минут: <b>{$r[$k].len|round:2}</b><br />
+                    Количество: <b>{$r[$k].count}</b><br />
+                {/if}
             {/if}
         </td>
         {/foreach}

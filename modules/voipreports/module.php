@@ -1,29 +1,19 @@
 <?php
-include_once 'definfo.php';
-include_once 'prices_parser.php';
 
-include_once 'network.php';
-include_once 'operators.php';
-include_once 'analyze_pricelist_report.php';
-include_once 'operator_report.php';
-include_once 'routing_report.php';
-include_once 'pricelist_report.php';
-include_once 'cost_report.php';
+include_once 'voip_7800_report.php';
+include_once 'voip_local_report.php';
+include_once 'voip_mgmn_report.php';
 
 
-class m_voipnew extends IModule
+class m_voipreports extends IModule
 {
     private $_inheritances = array();
 
     public function __construct()
     {
-        $this->_addInheritance(new m_voipnew_operators);
-        $this->_addInheritance(new m_voipnew_analyze_pricelist_report);
-        $this->_addInheritance(new m_voipnew_operator_report);
-        $this->_addInheritance(new m_voipnew_routing_report);
-        $this->_addInheritance(new m_voipnew_pricelist_report);
-        $this->_addInheritance(new m_voipnew_cost_report);
-        $this->_addInheritance(new m_voipnew_network);
+        $this->_addInheritance(new m_voipreports_voip_7800_report);
+        $this->_addInheritance(new m_voipreports_voip_local_report);
+        $this->_addInheritance(new m_voipreports_voip_mgmn_report);
     }
 
     public function __call($method, array $arguments = array())
@@ -70,10 +60,11 @@ class m_voipnew extends IModule
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
 
-        $query = "  select o.name as operator, p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
+        $query = "  select o.name as operator, p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows ,c.name as currency
                     from voip.raw_file f
                     left join voip.pricelist p on p.id=f.pricelist_id
                     left join voip.operator o on o.id=p.operator_id
+                    left join public.currency c on c.id=f.currency_id
                     WHERE f.id=" . $id;
         $file = $pg_db->GetRow($query);
         $design->assign('file', $file);
@@ -325,7 +316,7 @@ class m_voipnew extends IModule
                 trigger_error('Пожалуйста, загрузите файл для обработки');
                 return;
             } elseif ($_FILES['upfile']['error']) {
-                trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз' . $_FILES['upfile']['error']);
+                trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз');
                 return;
             }
 
@@ -350,65 +341,61 @@ class m_voipnew extends IModule
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_beeline_full1($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_beeline_full1($f['tmp_name']);
 
             } elseif ($_POST['ftype'] == 'xls_beeline_full2') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_beeline_full2($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_beeline_full2($f['tmp_name']);
 
             } elseif ($_POST['ftype'] == 'xls_beeline_changes') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
-                $defs = prices_parser::read_beeline_changes($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_beeline_changes($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mtt_full') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_mtt_full($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_mtt_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_arktel_changes') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 0;
-                $defs = prices_parser::read_arktel_changes($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_arktel_changes($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mcn_prime_full') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_mcn_prime_full($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_mcn_prime_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mcn_prime_changes') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 0;
-                $defs = prices_parser::read_mcn_prime_full($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_mcn_prime_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_orange_full') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_orange_full($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_orange_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_networks') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_networks($f['tmp_name']);
-            } elseif ($_POST['ftype'] == 'csv_mgts_networks') {
+                $defs = _voipnew_prices_parser::read_networks($f['tmp_name']);
+            } elseif ($_POST['ftype'] == 'xls_beeline_networks') {
                 $raw_file['pricelist_id'] = $pricelist_id;
 
                 $raw_file['full'] = 1;
-                $defs = prices_parser::read_mgts_networks($f['tmp_name']);
+                $defs = _voipnew_prices_parser::read_beeline_networks($f['tmp_name']);
             }
 
             if ($defs === false) {
                 trigger_error('Ошибка чтения файла');
                 return;
             }
-            
-            if ($_POST['ftype'] == 'csv_mgts_networks') {
-                $defs = VoipUtils::reducePrefixes($defs, 'defcode', array('price'));
-            }
 
-            if ($raw_file['full'] == 1 && $_POST['ftype'] != 'csv_mgts_networks') {
+            if ($raw_file['full'] == 1) {
                 usort($defs, function($a, $b){
                     return strcmp($a["defcode"], $b["defcode"]);
                 });
@@ -560,6 +547,10 @@ class m_voipnew extends IModule
                     $raw_file['startdate'] = $defs[0]['startdate'];
                 else
                     $raw_file['startdate'] = date('Y-m-d');
+                if (isset($defs[0]['currency_id']))
+                    $raw_file['currency_id'] = $defs[0]['currency_id'];
+                else
+                    $raw_file['currency_id'] = 1;
             }
 
             if ($this->save_price_file($raw_file, $defs) <= 0) {

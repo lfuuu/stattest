@@ -1,7 +1,4 @@
 <?php
-include_once 'voip_7800_report.php';
-include_once 'voip_local_report.php';
-include_once 'voip_mgmn_report.php';
 
 class m_stats extends IModule{
 
@@ -9,9 +6,7 @@ class m_stats extends IModule{
 
     public function __construct()
     {
-        $this->_addInheritance(new m_stats_voip_7800_report);
-        $this->_addInheritance(new m_stats_voip_local_report);
-        $this->_addInheritance(new m_stats_voip_mgmn_report);
+//        $this->_addInheritance(new m_stats_);
     }
 
     public function __call($method, array $arguments = array())

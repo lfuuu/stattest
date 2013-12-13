@@ -70,7 +70,7 @@ class m_voipnew_cost_report
                               count(*) as count,
                               sum(r.len_mcn) as len_mcn,
                               sum(r.amount) as amount_mcn,
-                              sum(r.len) as len_op,
+                              sum(r.len_op) as len_op,
                               sum(r.amount_op) amount_op,
                               g.name as destination
                         from calls.calls_{$f_instance_id} r

@@ -2,7 +2,7 @@
 class m_voipnew_head extends IModuleHead
 {
     public $module_name = 'voipnew';
-    public $module_title = 'IP Телефония (New)';
+    public $module_title = 'IP Телефония';
 
     public $rights = array(
         'voip' => array('Список операторов', 'access,admin', 'доступ,администрирование')
@@ -42,7 +42,11 @@ class m_voipnew_head extends IModuleHead
         'set_lock_prefix' => array('voip', 'access'),
         'lock_by_price' => array('voip', 'access'),
         'calc_volume' => array('voip', 'access'),
-        'calls_recalc' => array('voip', 'admin')
+        'calls_recalc' => array('voip', 'admin'),
+        'network_list' => array('voip', 'access'),
+        'network_config_show' => array('voip', 'admin'),
+        'network_file_upload' => array('voip', 'admin'),
+        'network_file_show' => array('voip', 'access'),
     );
 
     public $menu = array(
@@ -52,6 +56,8 @@ class m_voipnew_head extends IModuleHead
         array('Операторские прайслисты', 'operator_pricelists'),
         array('Операторские сети', 'operator_networks'),
         array('Местные цены', 'network_prices'),
+        array('', 'catalogs'),
+        array('Cети', 'network_list'),
         array('', 'catalogs'),
         array('Отчет: Анализ прайс-листов', 'pricelist_report_analyze_list'),
         array('Отчет: Сравнение операторов', 'pricelist_report_operator_list'),
