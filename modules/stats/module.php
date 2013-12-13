@@ -302,7 +302,7 @@ class m_stats extends IModule{
 			trigger_error('Клиент не выбран');
 			return;
 		}
-		
+
 		$client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
 
 		$client_id = $client['id'];
@@ -387,7 +387,7 @@ class m_stats extends IModule{
           if($direction<>'both')
             $filter .= " and direction_out=".(($direction=='in')?'false':'true');
 
-	        if ($haslen == 1) 
+	        if ($haslen == 1)
 	        	$filter .= ' and len>0 ';
 	        if ($phone != '')
 	        	$filter .= ' and usage_num='.$pg_db->escape($phone).' ';
@@ -427,7 +427,7 @@ class m_stats extends IModule{
     {
         global $db, $pg_db, $design;
 
-        
+
         $ns = array();
         $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
         $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
@@ -458,7 +458,7 @@ class m_stats extends IModule{
         $unsetPublish = array();
         if (get_param_raw("do",""))
         {
-            
+
             if (get_param_raw("publish"))
             {
                 $nums = get_param_raw("publish_phones");
@@ -483,18 +483,18 @@ class m_stats extends IModule{
 
             $ns = $db->AllRecords($q = "
             select a.*,c.company, c.client,
-                    
 
-            if(active_usage_id is not null, 
-                'used', 
 
-                if(client_id in ('9130', '764'), 
-                    'our', 
+            if(active_usage_id is not null,
+                'used',
+
+                if(client_id in ('9130', '764'),
+                    'our',
 
                     if(client_id is not null and reserved_free_date is not null,
                         'reserv',
 
-                        if(max_date >= (now() - interval 6 month), 
+                        if(max_date >= (now() - interval 6 month),
                             'stop',
                             'free'
 
@@ -502,17 +502,17 @@ class m_stats extends IModule{
                       )
                   )
               ) as status
-            
+
             from (
             select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level, site_publish,
 
             (select max(actual_to) from usage_voip u where u.e164 = v.number and actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')) as max_date,
-            
-            (select id from usage_voip u where u.e164 = v.number and 
+
+            (select id from usage_voip u where u.e164 = v.number and
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
-             from voip_numbers v where 
-            number between '".$rangeFrom."' and '".$rangeTo."' 
-            )a 
+             from voip_numbers v where
+            number between '".$rangeFrom."' and '".$rangeTo."'
+            )a
             left join clients c on (c.id = a.client_id)
 
             where beauty_level in ('".implode("','", $beauty)."')
@@ -534,13 +534,13 @@ class m_stats extends IModule{
                 if($n["status"] == "stop")
                 {
                     foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth,
                         sum(1) as count_calls,
                         sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
                     from calls.calls_99
                     where time > '".date("Y-m-d H:i:s", $fromTime)."'
-                    and usage_id is null 
-                    and region=99 
+                    and usage_id is null
+                    and region=99
                     and usage_num = '".$n["number"]."'
                     group by mnth, mnth_s
                     order by mnth
@@ -3685,8 +3685,8 @@ function stats_support_efficiency($fixclient)
 
     $m = array();
     $total = array(
-        "monitoring"   => 0, 
-        "trouble"      => 0, 
+        "monitoring"   => 0,
+        "trouble"      => 0,
         "consultation" => 0,
         "task"         => 0
         );
@@ -3727,26 +3727,26 @@ function stats_support_efficiency($fixclient)
 
         $r = $db->AllRecords(
                 $q = "
-                    select *, 
-                        count(1) as c, 
-                        sum(rating) rating, 
-                        sum(rating_count) as rating_count 
+                    select *,
+                        count(1) as c,
+                        sum(rating) rating,
+                        sum(rating_count) as rating_count
                     from (
-                        SELECT 
+                        SELECT
                             uu.name,
-                            user_author, 
+                            user_author,
                             trouble_subtype,
                             (select sum(rating) from tt_stages  where trouble_id =tt.id) as rating,
                             (select sum(if(rating=0,0,1)) from tt_stages where trouble_id =tt.id) as rating_count
-                        FROM `tt_troubles` tt ,user_users uu 
-                    where 
-                        usergroup ='support' 
-                        and uu.user = tt.user_author 
-                        and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
+                        FROM `tt_troubles` tt ,user_users uu
+                    where
+                        usergroup ='support'
+                        and uu.user = tt.user_author
+                        and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
                         and trouble_type in ('trouble', 'task', 'support_welltime')
                         and service in ('".implode("','", $usage)."')
                         order by uu.name
-                      ) a 
+                      ) a
                     group by user_author, trouble_subtype
                 ");
 
@@ -3757,8 +3757,8 @@ function stats_support_efficiency($fixclient)
 
             if(!isset($m[$l["user_author"]]))
                 $m[$l["user_author"]] = array(
-                    "name" => $l["name"], 
-                    "count" => $count++, 
+                    "name" => $l["name"],
+                    "count" => $count++,
                     "data" => array()
                 );
 
@@ -3795,30 +3795,28 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 {
 	global $db;
 
-	 $rs = $db->AllRecords($q = "SELECT
-	 				trouble_subtype as type,
-	 				ts.trouble_id,
-	 				ts.state_id,
-	 				user_main,
-	 				user_edit,
-	 				(select sum(rating) from tt_stages where trouble_id =tt.id) as rating,
-	 				(select sum(if(rating=0,0,1)) from tt_stages where trouble_id =tt.id) as rating_count
-	 				FROM
-	 				`tt_troubles` tt , tt_stages ts, user_users u
-	 				where
-	 				tt.id = ts.trouble_id
-	 				AND u.user= tt.user_author
-	 				AND usergroup = 'support'
-	 				AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
-	 				AND trouble_type in ('trouble', 'task', 'support_welltime')
-	 				AND service in ('".implode("','", $usage)."')
-	 				ORDER BY tt.id, ts.stage_id
-	 		");
-	$rating = array(
-			"7" => array(), // completed
-			"2" => array()  // closed
-	);
-	$counter = array(
+    $rs = $db->AllRecords($q = "SELECT
+                    trouble_subtype as type,
+                    ts.trouble_id,
+                    ts.state_id,
+                    user_main,
+                    user_edit,
+                    rating,
+                    user_rating
+                    FROM
+                    `tt_troubles` tt , tt_stages ts, user_users u
+                    where
+                    tt.id = ts.trouble_id
+                    AND u.user= tt.user_author
+                    AND usergroup = 'support'
+                    AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
+                    AND trouble_type in ('trouble', 'task', 'support_welltime')
+                    AND service in ('".implode("','", $usage)."')
+                    ORDER BY tt.id, ts.stage_id
+            ");
+    $tmp = array();
+    $rating = array();
+    $counter = array(
 			"7" => array(), // completed
 			"2" => array()  // closed
 	);
@@ -3832,16 +3830,32 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 
 	foreach ($rs as $r)
 	{
-		// new trouble, reset
+        if ($r["state_id"] == 7 && strlen($r["user_rating"])) {
+            if (!isset($tmp[$r["trouble_id"]]))
+                $tmp[$r["trouble_id"]] = array('type'=>$r["type"],'user_rating'=>'','7'=>0,'2'=>0,'1u'=>array());
+
+            if ($r["rating"] > 0) {
+                if (strlen($tmp[$r["trouble_id"]]['user_rating']) && $tmp[$r["trouble_id"]]['user_rating']!=$r["user_rating"]) $tmp[$r["trouble_id"]]['1u'][]=$tmp[$r["trouble_id"]]['user_rating'];
+                $tmp[$r["trouble_id"]]['type']=$r["type"];
+                $tmp[$r["trouble_id"]]['user_rating']=$r["user_rating"];
+                $tmp[$r["trouble_id"]]['7']=$r["rating"];
+            }
+        }
+        if ($r["state_id"] == 2 && strlen($r["user_rating"])) {
+            if (isset($tmp[$r["trouble_id"]]) && $r["rating"] > 0 && strlen($r["user_rating"])) {
+                $tmp[$r["trouble_id"]]['2']=$r["rating"];
+            }
+        }
+	    // new trouble, reset
 		if ($r["trouble_id"] != $troubleId)
 		{
 			$troubleId = $r["trouble_id"];
 			$state = $r["state_id"];
 			$user = $r["user_main"];
-		
+
 			continue; //this first stage
 		}
-		
+
 		$user = $r["user_main"];
 
 		if ($state != $r["state_id"])
@@ -3855,16 +3869,6 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 					$counter[$r["state_id"]][$r["type"]][$user] =0;
 
 				$counter[$r["state_id"]][$r["type"]][$user]++;
-				
-				if(!isset($rating[$r["state_id"]][$r["type"]]))
-					$rating[$r["state_id"]][$r["type"]] = array();
-				
-				if(!isset($rating[$r["state_id"]][$r["type"]][$user]))
-					$rating[$r["state_id"]][$r["type"]][$user] = array('rating'=>0, 'rating_count'=>0, 'rating_avg'=>0);
-				
-				$rating[$r["state_id"]][$r["type"]][$user]['rating'] += $r["rating"];
-				$rating[$r["state_id"]][$r["type"]][$user]['rating_count'] += $r["rating_count"];
-				$rating[$r["state_id"]][$r["type"]][$user]['rating_avg'] = ($rating[$r["state_id"]][$r["type"]][$user]['rating_count'] > 0 ? $rating[$r["state_id"]][$r["type"]][$user]['rating'] / $rating[$r["state_id"]][$r["type"]][$user]['rating_count'] : 0);
 
 				if (!isset($total[$r["state_id"]][$r["type"]]))
 					$total[$r["state_id"]][$r["type"]] = 0;
@@ -3878,6 +3882,18 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 			$state = $r["state_id"];
 		}
 	}
+	foreach ($tmp as $k=>$rat) {
+	    //if (count($rat['1u'])>0) print_r($rat+array('tr_id'=>$k));
+	    if (strlen($rat['user_rating'])) {
+	        if (!isset($rating[$rat['user_rating']])) $rating[$rat['user_rating']] = array();
+	        if (!isset($rating[$rat['user_rating']][$rat['type']])) $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
+	        $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
+	        $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
+
+	        if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
+	    }
+	}
+
 	foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
 	{
 		$users[$u["user"]] = $u["name"];
@@ -4388,7 +4404,7 @@ private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
                     and s.date_start between '".$d1." 00:00:00' and '".$d2." 23:59:59'
                     and t.id = m.trouble_id
                     and t.bill_no = a.bill_no
-                    and s2.stage_id = t.cur_stage_id 
+                    and s2.stage_id = t.cur_stage_id
                     and s2.state_id in (2,20)
                 ");
 
@@ -4525,9 +4541,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             t.id as trouble_id, t.bill_no, t.problem,
                             req_no, fio, phone, address, date_creation
                             ".($client != "nbn" ?
-                    ", 
-                    
-                    
+                    ",
+
+
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
                         and nl.bill_no = t.bill_no) as count_3,
@@ -4630,15 +4646,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     global $db, $design;
 
     $curr_phones = $db->AllRecords('
-        select 
-          u.region, 
-          count(*) as count_num, 
-          sum(no_of_lines) as count_lines 
-        from 
-          voip_numbers v, usage_voip u 
-        where 
-          usage_id = u.id 
-        group by 
+        select
+          u.region,
+          count(*) as count_num,
+          sum(no_of_lines) as count_lines
+        from
+          voip_numbers v, usage_voip u
+        where
+          usage_id = u.id
+        group by
           u.region', 'region');
 
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
@@ -4648,20 +4664,20 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $date = date("Y-m-01");
 
       $res = $db->AllRecords("
-          select 
-            u.region, 
-            u.E164 as phone, 
+          select
+            u.region,
+            u.E164 as phone,
             u.no_of_lines,
-            c.id as client_id, 
-            ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new, 
+            c.id as client_id,
+            ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new,
             s.name as sale_channel
           from usage_voip u
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
-          where 
-              u.actual_from>=date_add('$date',interval -$mm month) 
+          where
+              u.actual_from>=date_add('$date',interval -$mm month)
             and u.actual_from<date_add('$date',interval -$mm+1 month)
-          group by 
+          group by
             u.region, u.E164, c.id, c.created, s.name  ");
 
       $sale_nums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
@@ -4674,7 +4690,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       {
         if (strlen($r['phone']) > 4) //номера
         {
-          if (!isset($sale_nums[$r['region']])) 
+          if (!isset($sale_nums[$r['region']]))
               $sale_nums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
           if ($r['is_new'] > 0){
@@ -4689,7 +4705,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
         }else{ //линия без номера
 
-          if (!isset($sale_nonums[$r['region']])) 
+          if (!isset($sale_nonums[$r['region']]))
               $sale_nonums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
           if ($r['is_new'] > 0){
@@ -4718,7 +4734,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         {
           $clients[$r['client_id']] = $r['client_id'];
 
-          if (!isset($sale_clients[$r['region']])) 
+          if (!isset($sale_clients[$r['region']]))
               $sale_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
           if ($r['is_new'] > 0){
@@ -4733,7 +4749,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         }
 
         if ($r['is_new']){
-          if (!isset($sale_channels['managers'][$r['sale_channel']])) 
+          if (!isset($sale_channels['managers'][$r['sale_channel']]))
             $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0);
 
           $sale_channels['managers'][$r['sale_channel']]['nums'] += 1;
@@ -4754,15 +4770,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $del_nonums = array('all'=>0);
       $del_lines = array('all'=>0);
       $res = $db->AllRecords("
-          select 
-            u.region, 
-            u.E164 as phone, 
+          select
+            u.region,
+            u.E164 as phone,
             u.no_of_lines,
             c.id as client_id
           from usage_voip u
           left join clients c on c.client=u.client
-          where 
-                u.actual_to>=date_add('$date',interval -$mm month) 
+          where
+                u.actual_to>=date_add('$date',interval -$mm month)
             and u.actual_to<date_add('$date',interval -$mm+1 month)
           group by u.region, u.E164, c.id  ");
 
@@ -4770,20 +4786,20 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       {
         if (strlen($r['phone']) > 4)
         {
-          if (!isset($del_nums[$r['region']])) 
+          if (!isset($del_nums[$r['region']]))
             $del_nums[$r['region']] = 0;
 
           $del_nums[$r['region']] += 1;
           $del_nums['all'] += 1;
         }else{
-          if (!isset($del_nonums[$r['region']])) 
+          if (!isset($del_nonums[$r['region']]))
             $del_nonums[$r['region']] = 0;
 
           $del_nonums[$r['region']] += 1;
           $del_nonums['all'] += 1;
         }
 
-        if (!isset($del_lines[$r['region']])) 
+        if (!isset($del_lines[$r['region']]))
           $del_lines[$r['region']] = 0;
 
         $del_lines[$r['region']] += $r['no_of_lines'];
