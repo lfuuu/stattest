@@ -44,6 +44,9 @@ class m_voipnew_head extends IModuleHead
         'calc_volume' => array('voip', 'access'),
         'calls_recalc' => array('voip', 'admin'),
         'network_list' => array('voip', 'access'),
+        'network_config_show' => array('voip', 'admin'),
+        'network_file_upload' => array('voip', 'admin'),
+        'network_file_show' => array('voip', 'access'),
     );
 
     public $menu = array(

@@ -518,30 +518,34 @@ class prices_parser
                 $def = '7' . $data[0];
                 $prefixFrom = $data[2];
                 $prefixTo = $data[3];
-                $level = $data[5];
+                $group = $data[5];
 
-                if ($level == '1') {
-                    $level = 1001;
-                } elseif ($level == '2') {
-                    $level = 1002;
-                } elseif ($level == '3') {
-                    $level = 1003;
-                } elseif ($level == '5_1' || $level == '5_01') {
-                    $level = 5001;
-                } elseif ($level == '5_2' || $level == '5_02') {
-                    $level = 5002;
-                } elseif ($level == '5_3' || $level == '5_03') {
-                    $level = 5003;
-                } elseif ($level == '5_4' || $level == '5_04') {
-                    $level = 5004;
+                if ($group == '1') {
+                    $group = 101;
+                } elseif ($group == '2') {
+                    $group = 102;
+                } elseif ($group == '3') {
+                    $group = 103;
+                } elseif ($group == '4') {
+                    $group = 104;
+                } elseif ($group == '5_1' || $group == '5_01') {
+                    $group = 201;
+                } elseif ($group == '5_2' || $group == '5_02') {
+                    $group = 202;
+                } elseif ($group == '5_3' || $group == '5_03') {
+                    $group = 203;
+                } elseif ($group == '5_4' || $group == '5_04') {
+                    $group = 204;
+                } elseif ($group == '6') {
+                    $group = 300;
                 } else {
                     continue;
                 }
 
-                VoipUtils::explodeNumber($def, $prefixFrom, $prefixTo, function($prefix) use (&$table, $level) {
+                VoipUtils::explodeNumber($def, $prefixFrom, $prefixTo, function($prefix) use (&$table, $group) {
                     $table[] = array(
-                        'defcode' => $prefix,
-                        'price' => $level,
+                        'prefix' => $prefix,
+                        'group' => $group,
                     );
                 });
             }

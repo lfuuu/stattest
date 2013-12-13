@@ -5,18 +5,16 @@
         <td class=header>Регион</td>
         <td class=header>Оператор</td>
         <td class=header>Название</td>
-        <td class=header>&nbsp;</td>
     </tr>
     {foreach from=$networkConfigs item='r'}
     {assign var="network_config_id" value=$r->id}
     {assign var="instance_id" value=$r->instance_id}
     {assign var="operator_id" value=$r->operator_id}
     <tr class="{cycle values='even,odd'}">
-        <td>{$r->id}</td>
-        <td>{$regions[$instance_id]->name}</td>
-        <td>{$operators[$operator_id]}</td>
-        <td>{$r->name}</td>
-        <td><a href="#">Изменить</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$r->id}</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$regions[$instance_id]->name}</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$operators[$operator_id]}</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$r->name}</a></td>
     </tr>
     <tr class="{cycle values='even,odd'}">
         <td>&nbsp;</td>
@@ -36,7 +34,6 @@
             {/foreach}
         </table>
         </td>
-        <td>&nbsp;</td>
     </tr>
     {/foreach}
 </table>
