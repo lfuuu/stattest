@@ -6,11 +6,7 @@
 {if $detality=='call'}
           <TD class=header vAlign=bottom>Id</TD>
           <TD class=header vAlign=bottom>Дата/время</TD>
-<<<<<<< HEAD
           {if $phone=='all_regions'}<TD class=header vAlign=bottom>Регион</TD>{/if}
-=======
-          {if $phone=='all_regions'}<TD>Регион</TD>{/if}
->>>>>>> e451073c55ec011afd0361e9a2cac8e54bfb2605
           <TD class=header vAlign=bottom>Номер абонента</TD>
           <TD class=header vAlign=bottom>Направление</TD>
           <TD class=header vAlign=bottom>Внешний номер</TD>
