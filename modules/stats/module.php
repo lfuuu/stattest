@@ -302,7 +302,7 @@ class m_stats extends IModule{
 			trigger_error('Клиент не выбран');
 			return;
 		}
-
+		
 		$client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
 
 		$client_id = $client['id'];
@@ -387,7 +387,7 @@ class m_stats extends IModule{
           if($direction<>'both')
             $filter .= " and direction_out=".(($direction=='in')?'false':'true');
 
-	        if ($haslen == 1)
+	        if ($haslen == 1) 
 	        	$filter .= ' and len>0 ';
 	        if ($phone != '')
 	        	$filter .= ' and usage_num='.$pg_db->escape($phone).' ';
@@ -427,7 +427,7 @@ class m_stats extends IModule{
     {
         global $db, $pg_db, $design;
 
-
+        
         $ns = array();
         $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
         $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
@@ -458,7 +458,7 @@ class m_stats extends IModule{
         $unsetPublish = array();
         if (get_param_raw("do",""))
         {
-
+            
             if (get_param_raw("publish"))
             {
                 $nums = get_param_raw("publish_phones");
@@ -483,36 +483,36 @@ class m_stats extends IModule{
 
             $ns = $db->AllRecords($q = "
             select a.*,c.company, c.client,
+                    
 
-
-            if(active_usage_id is not null,
-                'used',
-
-                if(client_id in ('9130', '764'),
-                    'our',
-
+            if(active_usage_id is not null, 
+                'used', 
+                    
+                if(client_id in ('9130', '764'), 
+                    'our', 
+                    
                     if(client_id is not null and reserved_free_date is not null,
                         'reserv',
 
-                        if(max_date >= (now() - interval 6 month),
-                            'stop',
+                        if(max_date >= (now() - interval 6 month), 
+                                                'stop',
                             'free'
 
                           )
                       )
                   )
               ) as status
-
+            
             from (
             select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level, site_publish,
 
             (select max(actual_to) from usage_voip u where u.e164 = v.number and actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')) as max_date,
-
-            (select id from usage_voip u where u.e164 = v.number and
+            
+            (select id from usage_voip u where u.e164 = v.number and 
             ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
-             from voip_numbers v where
-            number between '".$rangeFrom."' and '".$rangeTo."'
-            )a
+             from voip_numbers v where 
+            number between '".$rangeFrom."' and '".$rangeTo."' 
+            )a 
             left join clients c on (c.id = a.client_id)
 
             where beauty_level in ('".implode("','", $beauty)."')
@@ -534,13 +534,13 @@ class m_stats extends IModule{
                 if($n["status"] == "stop")
                 {
                     foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth,
+                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
                         sum(1) as count_calls,
                         sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
                     from calls.calls_99
                     where time > '".date("Y-m-d H:i:s", $fromTime)."'
-                    and usage_id is null
-                    and region=99
+                    and usage_id is null 
+                    and region=99 
                     and usage_num = '".$n["number"]."'
                     group by mnth, mnth_s
                     order by mnth
@@ -3685,8 +3685,8 @@ function stats_support_efficiency($fixclient)
 
     $m = array();
     $total = array(
-        "monitoring"   => 0,
-        "trouble"      => 0,
+        "monitoring"   => 0, 
+        "trouble"      => 0, 
         "consultation" => 0,
         "task"         => 0
         );
@@ -3727,38 +3727,38 @@ function stats_support_efficiency($fixclient)
 
         $r = $db->AllRecords(
                 $q = "
-                    select *,
-                        count(1) as c,
-                        sum(rating) rating,
-                        sum(rating_count) as rating_count
+                    select *, 
+                        count(1) as c, 
+                        sum(rating) rating, 
+                        sum(rating_count) as rating_count 
                     from (
-                        SELECT
+                        SELECT 
                             uu.name,
-                            user_author,
+                            user_author, 
                             trouble_subtype,
                             (select sum(rating) from tt_stages  where trouble_id =tt.id) as rating,
                             (select sum(if(rating=0,0,1)) from tt_stages where trouble_id =tt.id) as rating_count
-                        FROM `tt_troubles` tt ,user_users uu
-                    where
-                        usergroup ='support'
-                        and uu.user = tt.user_author
-                        and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
+                        FROM `tt_troubles` tt ,user_users uu 
+                    where 
+                        usergroup ='support' 
+                        and uu.user = tt.user_author 
+                        and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
                         and trouble_type in ('trouble', 'task', 'support_welltime')
                         and service in ('".implode("','", $usage)."')
                         order by uu.name
-                      ) a
+                      ) a 
                     group by user_author, trouble_subtype
                 ");
 
         $count = 0;
         foreach($r as $l)
         {
-        	if($l["trouble_subtype"] == "") continue;
+            if($l["trouble_subtype"] == "") continue;
 
             if(!isset($m[$l["user_author"]]))
                 $m[$l["user_author"]] = array(
-                    "name" => $l["name"],
-                    "count" => $count++,
+                    "name" => $l["name"], 
+                    "count" => $count++, 
                     "data" => array()
                 );
 
@@ -3791,6 +3791,7 @@ function stats_support_efficiency($fixclient)
     $design->assign("total", $total);
     $design->AddMain("stats/support_efficiency.html");
 }
+
 function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
 {
 	global $db;
@@ -3817,19 +3818,20 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
     $tmp = array();
     $rating = array();
     $counter = array(
-			"7" => array(), // completed
-			"2" => array()  // closed
-	);
+        "7" => array(), // completed
+        "2" => array()  // closed
+        );
 
-	$total = array(
-			"7" => array(), // completed
-			"2" => array()  // closed
-	);
-	$users = array();
-	$troubleId = 0;
+    $total = array(
+        "7" => array(), // completed
+        "2" => array()  // closed
+        );
 
-	foreach ($rs as $r)
-	{
+    $users = array();
+
+    $troubleId = 0;
+    foreach ($rs as $r)
+    {
         if ($r["state_id"] == 7 && strlen($r["user_rating"])) {
             if (!isset($tmp[$r["trouble_id"]]))
                 $tmp[$r["trouble_id"]] = array('type'=>$r["type"],'user_rating'=>'','7'=>0,'2'=>0,'1u'=>array());
@@ -3846,60 +3848,61 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
                 $tmp[$r["trouble_id"]]['2']=$r["rating"];
             }
         }
-	    // new trouble, reset
-		if ($r["trouble_id"] != $troubleId)
-		{
-			$troubleId = $r["trouble_id"];
-			$state = $r["state_id"];
-			$user = $r["user_main"];
+            // new trouble, reset
+        if ($r["trouble_id"] != $troubleId)
+        {
+            $troubleId = $r["trouble_id"];
+            $state = $r["state_id"];
+            $user = $r["user_main"];
 
-			continue; //this first stage
-		}
+            continue; //this first stage
+        }
 
-		$user = $r["user_main"];
+        $user = $r["user_main"];
 
-		if ($state != $r["state_id"])
-		{
-			if($r["state_id"] == 7 || $r["state_id"] == 2)
-			{
-				if(!isset($counter[$r["state_id"]][$r["type"]]))
-					$counter[$r["state_id"]][$r["type"]] = array();
+        if ($state != $r["state_id"])
+        {
+            if($r["state_id"] == 7 || $r["state_id"] == 2)
+            {
+                if(!isset($counter[$r["state_id"]][$r["type"]]))
+                    $counter[$r["state_id"]][$r["type"]] = array();
 
-				if(!isset($counter[$r["state_id"]][$r["type"]][$user]))
-					$counter[$r["state_id"]][$r["type"]][$user] =0;
+                if(!isset($counter[$r["state_id"]][$r["type"]][$user]))
+                    $counter[$r["state_id"]][$r["type"]][$user] = 0;
 
-				$counter[$r["state_id"]][$r["type"]][$user]++;
-
-				if (!isset($total[$r["state_id"]][$r["type"]]))
-					$total[$r["state_id"]][$r["type"]] = 0;
-
-				$total[$r["state_id"]][$r["type"]]++;
+                $counter[$r["state_id"]][$r["type"]][$user]++;
 
 
-				$users[$user] = $user;
-			}
+                if (!isset($total[$r["state_id"]][$r["type"]]))
+                    $total[$r["state_id"]][$r["type"]] = 0;
 
-			$state = $r["state_id"];
-		}
-	}
-	foreach ($tmp as $k=>$rat) {
-	    //if (count($rat['1u'])>0) print_r($rat+array('tr_id'=>$k));
-	    if (strlen($rat['user_rating'])) {
-	        if (!isset($rating[$rat['user_rating']])) $rating[$rat['user_rating']] = array();
-	        if (!isset($rating[$rat['user_rating']][$rat['type']])) $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
-	        $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
-	        $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
+                $total[$r["state_id"]][$r["type"]]++;
 
-	        if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
-	    }
-	}
 
-	foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
-	{
-		$users[$u["user"]] = $u["name"];
-	}
+                $users[$user] = $user;
+            }
 
-	return array($counter, $users, $total, $rating);
+            $state = $r["state_id"];
+        }
+    }
+    foreach ($tmp as $k=>$rat) {
+        //if (count($rat['1u'])>0) print_r($rat+array('tr_id'=>$k));
+        if (strlen($rat['user_rating'])) {
+            if (!isset($rating[$rat['user_rating']])) $rating[$rat['user_rating']] = array();
+            if (!isset($rating[$rat['user_rating']][$rat['type']])) $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
+            $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
+            $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
+
+            if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
+        }
+    }
+
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
+    {
+        $users[$u["user"]] = $u["name"];
+    }
+
+    return array($counter, $users, $total, $rating);
 }
 
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){
