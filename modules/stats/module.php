@@ -4708,7 +4708,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
         }else{ //линия без номера
 
-          if (!isset($sale_nonums[$r['region']]))
+          if (!isset($sale_nonums[$r['region']])) 
               $sale_nonums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
           if ($r['is_new'] > 0){
@@ -4737,7 +4737,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         {
           $clients[$r['client_id']] = $r['client_id'];
 
-          if (!isset($sale_clients[$r['region']]))
+          if (!isset($sale_clients[$r['region']])) 
               $sale_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
           if ($r['is_new'] > 0){
