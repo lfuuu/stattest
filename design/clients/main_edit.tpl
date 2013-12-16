@@ -1,5 +1,6 @@
 <link rel="stylesheet"  href="css/themes/smoothness/jquery.ui.all.css" type="text/css"/>
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery.inputmask.js"></script>
 
 <!--script src="js/ui/jquery.ui.datepicker.js"></script-->
 <!--script src="js/ui/i18n/jquery.ui.datepicker-ru.koi8r.js"></script-->
@@ -148,7 +149,9 @@ $(function(){
 			}
 		}
 	}
-
+	$(document).ready(function() {
+		$("#phone_mask").inputmask("+9(999)999-99-99");
+	});
 
 {/literal}
 </script>
@@ -291,6 +294,8 @@ $(function(){
 	<TR><TD class=left{if $voip_counters.need_lock_limit_day} style="background-color: #f4a0a0;"{/if}>Телефония, лимит использования (день):</TD><TD{if $voip_counters.need_lock_limit_day} style="background-color: #f4a0a0;"{/if}><input name=voip_credit_limit_day class=text value='{$client.voip_credit_limit_day}'> Расход за день: {$voip_counters.amount_day_sum}
       <label><input type="checkbox" name="voip_is_day_calc" value=1{if $client.voip_is_day_calc} checked{/if}> - Включить пересчет дневного лимита</label>
     </td></tr>
+	<TR><TD class=left>Номер для СМС уведомлений:</TD><TD><input id="phone_mask" name=voip_sms_notice class=text value='{$client.voip_sms_notice}'></td></tr>
+
 	<TR><TD style='visibility:hidden' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Пароль:</TD><TD><input style='width:100%' name=password class=text value='{$client.password}'></td></tr>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>

@@ -367,9 +367,9 @@ class m_stats extends IModule{
         } else
             if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) return;
 		
-		$design->assign('stats',$stats);
-    	$design->AddMain('stats/voip_form.tpl');
-    	$design->AddMain('stats/voip.tpl');
+        $design->assign('stats',$stats);
+        $design->AddMain('stats/voip_form.tpl');
+        $design->AddMain('stats/voip.tpl');
 	}
 	/*функция формирует единый массив для разных регионов,
 	 * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
@@ -1097,7 +1097,7 @@ class m_stats extends IModule{
                     $geo = array();
 
                     //while ($r=$db_calls->NextRecord()){
-                    $records = $pg_db->AllRecords();                   
+                    $records = $pg_db->AllRecords();
                     foreach($records as $r)
                     {
                             if (isset($r['geo_id']))

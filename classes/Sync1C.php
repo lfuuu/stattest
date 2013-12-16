@@ -34,7 +34,7 @@ class Sync1C
      */
     public static function me()
     {
-        return self::$instance ? self::$instance : self::$instance = new Sync1C();
+       return self::$instance ? self::$instance : self::$instance = new Sync1C();
     }
 
     /**
@@ -51,6 +51,7 @@ class Sync1C
                 $params['login'] = $login;
                 $params['password'] = $pass;
             }
+            if (self::me()->utWsdlUrl == '?wsdl') return false;
             $soapClient = new SoapClient(self::me()->utWsdlUrl, $params);
             $soapHandler = new Sync1CClientSoapHandler($soapClient);
             self::$client = new Sync1CClient($soapHandler);

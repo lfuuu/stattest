@@ -763,7 +763,7 @@ class ClientCS {
                         "usd_rate_percent,company_full,type,login,inn,kpp,form_type,stamp,nal,signer_nameV,signer_positionV,id_all4net,".
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
-                        "head_company,head_company_address_jur,region,okpo,bill_rename1,nds_calc_method";
+                        "head_company,head_company_address_jur,region,okpo,bill_rename1,nds_calc_method,voip_sms_notice";
                 $t=explode(",",$L);
                 $this->P = array();
                 foreach ($t as $v) $this->P[$v] = $v;
@@ -773,6 +773,7 @@ class ClientCS {
             if($this->F["credit"] == '') $this->F["credit"] = -1;
             if($this->F["mail_print"] != "yes") $this->F["mail_print"] = "no";
             if($this->F["bill_rename1"] != "yes") $this->F["bill_rename1"] = "no";
+            $this->F["voip_sms_notice"] = preg_replace("/[^\d]+/", "", $this->F["voip_sms_notice"]);
         }
     }
     public function GetContacts($type = null,$onlyActive = false,$onlyOfficial = false) {
