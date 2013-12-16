@@ -550,7 +550,7 @@ class m_tt extends IModule{
 
     //всякие функции
     function tt_view($fixclient){
-    	global $db,$design,$user;
+        global $db,$design,$user;
         $this->curclient = $fixclient;
 
         if(!$this->cur_trouble_id){
@@ -1021,6 +1021,7 @@ class m_tt extends IModule{
             $recInPage = 300;
 
         //printdbg($W);
+
         $R = $db->AllRecords($q='
             SELECT sql_calc_found_rows
                 T.*,
@@ -1061,7 +1062,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             ORDER BY T.id
             DESC limit '.(($page-1)*$recInPage).','.$recInPage.'
         ');
-        
+
         $resultCount = $db->GetValue('select found_rows() as count');
         util::pager_pg($resultCount, $recInPage);
 
@@ -1078,7 +1079,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $lLogistic = ClientCS::GetList("logistic");
 
         foreach($R as $k=>$r){
-        	$R[$k]["trouble_name"] = str_replace(array("заказы"), array("Заказ"), mb_strtoupper($r["trouble_name"]));
+            $R[$k]["trouble_name"] = str_replace(array("заказы"), array("Заказ"), mb_strtoupper($r["trouble_name"]));
             if($r['time_pass'])
                 $R[$k]['time_pass'] = time_period($r['time_pass']);
             if($r['time_start'])
