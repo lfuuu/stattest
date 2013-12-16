@@ -331,7 +331,7 @@ class m_stats extends IModule{
                 $phones[$r['region']] = $r['region_name'].' (все номера)';
                 $last_region = $r['region'];
             }
-			$phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
+            $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
             if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
 		}
 		$design->assign('phones',$phones);
@@ -371,17 +371,16 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip_form.tpl');
         $design->AddMain('stats/voip.tpl');
 	}
-	
+	/*функция формирует единый массив для разных регионов,
+	 * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
+	*/
     function prepareStatArray($data = array(), $detality = '') {
-	
+		
         if (!count($data)) return $data;
         $Res = array();
         $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
-        if (!count($data)) return $data;
-        $Res = array();
-        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
-
-
+		
+		
         switch ($detality) {
             case 'dest':
                 foreach ($data as $r_id=>$reg_data) {
@@ -999,7 +998,6 @@ class m_stats extends IModule{
     function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array()){
     global $pg_db;
 
-
     /*
     $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
         R_CALLS_USER, R_CALLS_PASS,
@@ -1015,7 +1013,7 @@ class m_stats extends IModule{
 			$group=" group by date_trunc('year',month)";
 			$format='Y г.';
 		} elseif ($detality=='month'){
-            $group=" group by date_trunc('month',month)";
+			$group=" group by date_trunc('month',month)";
 			$format='Месяц Y г.';
 		} elseif ($detality=='day'){
 			$group=' group by day';
@@ -1055,7 +1053,6 @@ class m_stats extends IModule{
 		}
 
         $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'usage_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE'; 
-
 
 		if ($paidonly) {
 			$W[]='amount!=0';
