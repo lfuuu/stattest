@@ -487,15 +487,15 @@ class m_stats extends IModule{
 
             if(active_usage_id is not null, 
                 'used', 
-                    
+
                 if(client_id in ('9130', '764'), 
                     'our', 
-                    
+
                     if(client_id is not null and reserved_free_date is not null,
                         'reserv',
 
                         if(max_date >= (now() - interval 6 month), 
-                                                'stop',
+                            'stop',
                             'free'
 
                           )
@@ -3794,7 +3794,7 @@ function stats_support_efficiency($fixclient)
 
 function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
 {
-	global $db;
+    global $db;
 
     $rs = $db->AllRecords($q = "SELECT
                     trouble_subtype as type,
@@ -4407,7 +4407,7 @@ private function report_plusopers__getCount($client, $d1, $d2, $filterPromo)
                     and s.date_start between '".$d1." 00:00:00' and '".$d2." 23:59:59'
                     and t.id = m.trouble_id
                     and t.bill_no = a.bill_no
-                    and s2.stage_id = t.cur_stage_id
+                    and s2.stage_id = t.cur_stage_id 
                     and s2.state_id in (2,20)
                 ");
 
@@ -4544,9 +4544,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                             t.id as trouble_id, t.bill_no, t.problem,
                             req_no, fio, phone, address, date_creation
                             ".($client != "nbn" ?
-                    ",
-
-
+                    ", 
+                    
+                    
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('ea05defe-4e36-11e1-8572-00155d881200', 'f75a5b2f-382f-11e0-9c3c-d485644c7711', '6d2dfd2a-211e-11e3-95df-00155d881200')
                         and nl.bill_no = t.bill_no) as count_3,
@@ -4649,15 +4649,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     global $db, $design;
 
     $curr_phones = $db->AllRecords('
-        select
-          u.region,
-          count(*) as count_num,
-          sum(no_of_lines) as count_lines
-        from
-          voip_numbers v, usage_voip u
-        where
-          usage_id = u.id
-        group by
+        select 
+          u.region, 
+          count(*) as count_num, 
+          sum(no_of_lines) as count_lines 
+        from 
+          voip_numbers v, usage_voip u 
+        where 
+          usage_id = u.id 
+        group by 
           u.region', 'region');
 
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
@@ -4667,20 +4667,20 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $date = date("Y-m-01");
 
       $res = $db->AllRecords("
-          select
-            u.region,
-            u.E164 as phone,
+          select 
+            u.region, 
+            u.E164 as phone, 
             u.no_of_lines,
-            c.id as client_id,
-            ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new,
+            c.id as client_id, 
+            ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new, 
             s.name as sale_channel
           from usage_voip u
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
-          where
-              u.actual_from>=date_add('$date',interval -$mm month)
+          where 
+              u.actual_from>=date_add('$date',interval -$mm month) 
             and u.actual_from<date_add('$date',interval -$mm+1 month)
-          group by
+          group by 
             u.region, u.E164, c.id, c.created, s.name  ");
 
       $sale_nums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
@@ -4693,7 +4693,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       {
         if (strlen($r['phone']) > 4) //номера
         {
-          if (!isset($sale_nums[$r['region']]))
+          if (!isset($sale_nums[$r['region']])) 
               $sale_nums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
           if ($r['is_new'] > 0){
@@ -4752,7 +4752,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         }
 
         if ($r['is_new']){
-          if (!isset($sale_channels['managers'][$r['sale_channel']]))
+          if (!isset($sale_channels['managers'][$r['sale_channel']])) 
             $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0);
 
           $sale_channels['managers'][$r['sale_channel']]['nums'] += 1;
@@ -4773,15 +4773,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $del_nonums = array('all'=>0);
       $del_lines = array('all'=>0);
       $res = $db->AllRecords("
-          select
-            u.region,
-            u.E164 as phone,
+          select 
+            u.region, 
+            u.E164 as phone, 
             u.no_of_lines,
             c.id as client_id
           from usage_voip u
           left join clients c on c.client=u.client
-          where
-                u.actual_to>=date_add('$date',interval -$mm month)
+          where 
+                u.actual_to>=date_add('$date',interval -$mm month) 
             and u.actual_to<date_add('$date',interval -$mm+1 month)
           group by u.region, u.E164, c.id  ");
 
@@ -4789,20 +4789,20 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       {
         if (strlen($r['phone']) > 4)
         {
-          if (!isset($del_nums[$r['region']]))
+          if (!isset($del_nums[$r['region']])) 
             $del_nums[$r['region']] = 0;
 
           $del_nums[$r['region']] += 1;
           $del_nums['all'] += 1;
         }else{
-          if (!isset($del_nonums[$r['region']]))
+          if (!isset($del_nonums[$r['region']])) 
             $del_nonums[$r['region']] = 0;
 
           $del_nonums[$r['region']] += 1;
           $del_nonums['all'] += 1;
         }
 
-        if (!isset($del_lines[$r['region']]))
+        if (!isset($del_lines[$r['region']])) 
           $del_lines[$r['region']] = 0;
 
         $del_lines[$r['region']] += $r['no_of_lines'];
