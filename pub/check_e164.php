@@ -14,11 +14,11 @@
             $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
             $ann_ = "substring(`e164` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
         }elseif ($m[2] == 'short') {
-            $query = " select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6";
-            $ret = $db->AllRecords($query);
-            if (count($ret) > 0 && $ret[0]['number']) {
-                echo $ret[0]['number'];
-            } else echo "FAIL";
+            $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6";
+            if (($res=$db->GetValue($query)) !== false) 
+                echo $res;
+            else 
+                echo "FAIL";
             exit();
         }else{
             $ann = '';
