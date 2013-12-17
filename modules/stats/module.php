@@ -3837,7 +3837,9 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
                 $tmp[$r["trouble_id"]] = array('type'=>$r["type"],'user_rating'=>'','7'=>0,'2'=>0,'1u'=>array());
 
             if ($r["rating"] > 0) {
-                if (strlen($tmp[$r["trouble_id"]]['user_rating']) && $tmp[$r["trouble_id"]]['user_rating']!=$r["user_rating"]) $tmp[$r["trouble_id"]]['1u'][]=$tmp[$r["trouble_id"]]['user_rating'];
+                if (strlen($tmp[$r["trouble_id"]]['user_rating']) && $tmp[$r["trouble_id"]]['user_rating']!=$r["user_rating"]) 
+                    $tmp[$r["trouble_id"]]['1u'][]=$tmp[$r["trouble_id"]]['user_rating'];
+
                 $tmp[$r["trouble_id"]]['type']=$r["type"];
                 $tmp[$r["trouble_id"]]['user_rating']=$r["user_rating"];
                 $tmp[$r["trouble_id"]]['7']=$r["rating"];
@@ -3886,10 +3888,12 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
         }
     }
     foreach ($tmp as $k=>$rat) {
-        //if (count($rat['1u'])>0) print_r($rat+array('tr_id'=>$k));
         if (strlen($rat['user_rating'])) {
-            if (!isset($rating[$rat['user_rating']])) $rating[$rat['user_rating']] = array();
-            if (!isset($rating[$rat['user_rating']][$rat['type']])) $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
+            if (!isset($rating[$rat['user_rating']])) 
+                $rating[$rat['user_rating']] = array();
+            if (!isset($rating[$rat['user_rating']][$rat['type']])) 
+                $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
+
             $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
             $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
 
