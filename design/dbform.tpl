@@ -26,6 +26,7 @@
 	<script type='text/javascript'>optools.voip.check_e164.old_number='{$item.value}';</script>
 	<select id='get_free_e164' alt='Получить свободный номер' onchange='optools.voip.check_e164.get_free_e164(this)'>
 		<option value='null'>Cвободный номер</option>
+		<option value='short'>Короткий номер</option>
         {if $region eq '99'}
             <option value='7499685'>7(499) 685</option>
             <option value='7499213'>7(499) 213</option>
