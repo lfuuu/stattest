@@ -32,7 +32,7 @@
 
 		$actual_from = $_GET['actual_from'];
 		$actual_to = $_GET['actual_to'];
-        
+
 		$query = "
 			select `vn`.`number`, (select max(actual_to) from usage_voip uv where uv.e164 = vn.number) as actual_to
 			from `voip_numbers` `vn`
@@ -40,7 +40,7 @@
 			    and vn.client_id is null
 			    and ifnull(`vn`.`nullcalls_last_2_days`,0) <= ".$limit_call."
 			    ".$ann."
-		
+
             having date_add(ifnull(actual_to,'2000-01-01'), interval 6 month) <= now()
 			order by
                 ifnull(actual_to, '2000-01-01') asc , rand()
@@ -51,7 +51,7 @@
 
 		$ret = $db->AllRecords($query);
 //printdbg($ret);
-    		if(count($ret) == 1)
+		if(count($ret) == 1)
 			echo $ret[0]['number'];
 		else
 			echo "FAIL";
