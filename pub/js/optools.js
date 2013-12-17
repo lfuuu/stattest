@@ -171,7 +171,6 @@ var optools = {
 				var img = document.getElementById('e164_flag_image');
 				var img_els = img.src.split("/");
 				img.style.visibility = "visible";
-				
 				if(data == 'true'){
 					optools.voip.check_e164.is_valid = true;
 					img_els[img_els.length-1] = "enable.gif";
