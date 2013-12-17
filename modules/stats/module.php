@@ -360,8 +360,8 @@ class m_stats extends IModule{
 
         if ($region == 'all') {
             $stats = array();
-            foreach ($regions as $k=>$v) {
-                $stats[$k] = $this->GetStatsVoIP($k,$from,$to,$detality,$client_id,$v,$paidonly,0,$destination,$direction, $regions);
+            foreach ($regions as $region=>$phones_sel) {
+                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions);
             }
             $stats = $this->prepareStatArray($stats, $detality);
         } else
@@ -385,7 +385,7 @@ class m_stats extends IModule{
             case 'dest':
                 foreach ($data as $r_id=>$reg_data) {
                     foreach ($reg_data as $k=>$r) {
-                        if ($r['tsf1']!='<b>Итого</b>') {
+                        if ($r['is_total'] == false) {
                             if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
 
                             $Res[$k]['cnt'] += $r['cnt'];
@@ -410,7 +410,7 @@ class m_stats extends IModule{
             case 'call':
                 foreach ($data as $r_id=>$reg_data) {
                     foreach ($reg_data as $r) {
-                        if ($r['tsf1']!='<b>Итого</b>') {
+                        if ($r['is_total'] == false) {
                             $Res[] = array('mktime'=>$r['mktime'],'reg_id'=>$r_id)+$r;
 
                             if (isset($r['price'])) $rt['price']+=$r['price'];
@@ -432,7 +432,7 @@ class m_stats extends IModule{
             default:
                 foreach ($data as $r_id=>$reg_data) {
                     foreach ($reg_data as $k=>$r) {
-                        if ($r['tsf1']!='<b>Итого</b>') {
+                        if ($r['is_total'] == false) {
                             if (!isset($Res[$r['ts1']]))
                                 $Res[$r['ts1']] = array(
                                     'ts1'=>$r['ts1'],
@@ -1089,12 +1089,10 @@ class m_stats extends IModule{
                                     ts1 ASC
                             LIMIT 5000";
 
-                    // $db_calls->Query($sql);
                     $pg_db->Query($sql);
 
-                    //if ($db_calls->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
                     if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-                    $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0);
+                    $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0,'is_total'=>true);
                     $geo = array();
 
                     //while ($r=$db_calls->NextRecord()){
@@ -1117,6 +1115,7 @@ class m_stats extends IModule{
                             $ts = mktime($t[0],$t[1],intval($t[2]),$d[1],$d[2],$d[0]);
                             $r['tsf1']=mdate($format,$ts);
                             $r['mktime'] = $ts;
+                            $r['is_total'] = false;
 
                             if ($r['ts2']>=24*60*60) $d=floor($r['ts2']/(24*60*60)); else $d=0;
                             $r['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$r['ts2']);
@@ -1142,11 +1141,11 @@ class m_stats extends IModule{
                             from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
-                    $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0));
+                    $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
                     //$db_calls->Query($sql);
                     $pg_db->Query($sql);
                     //while ($r=$db_calls->NextRecord()){
@@ -1182,6 +1181,7 @@ class m_stats extends IModule{
                         $R[$k]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$r['len']-$d*24*60*60).'</b>';
                         $R[$k]['price'] = number_format($r['price'], 2, '.','');
                     }
+                    $rt['is_total']=true;
                     $rt['tsf1']='<b>Итого</b>';
                     if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
                     $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';

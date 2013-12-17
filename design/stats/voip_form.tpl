@@ -10,8 +10,8 @@
             <input type=hidden name=module value=stats>
             <input type=hidden name=action value=voip>
             <SELECT name=phone>
-                {foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
                 <option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>
+                {foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
             </SELECT>
         <TR>
           <TD class=left>Дата начала отчёта</TD>
