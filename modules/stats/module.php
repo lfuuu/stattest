@@ -3773,6 +3773,7 @@ function stats_support_efficiency($fixclient)
         }
 
         list($onCompleted_data, $onCompleted_users, $onCompleted_total, $onCompleted_rating) = $this->stats_support_efficiency__basisOnCompleted($dateFrom, $dateTo, $usage);
+        list($onCompleted_data2, $onCompleted_users2, $onCompleted_total2, $onCompleted_rating2) = $this->stats_support_efficiency__basisOnStartDate($dateFrom, $dateTo, $usage);
     }
 
     $design->assign('date_from', $dateFrom);
@@ -3785,11 +3786,133 @@ function stats_support_efficiency($fixclient)
     $design->assign("on_completed_users", $onCompleted_users);
     $design->assign("on_completed_total", $onCompleted_total);
     $design->assign("on_completed_rating", $onCompleted_rating);
-
+    
+    $design->assign("on_completed_data2", $onCompleted_data2);
+    $design->assign("on_completed_users2", $onCompleted_users2);
+    $design->assign("on_completed_total2", $onCompleted_total2);
+    $design->assign("on_completed_rating2", $onCompleted_rating2);
+    
     $design->assign("date", $date);
     $design->assign("d", $m);
     $design->assign("total", $total);
     $design->AddMain("stats/support_efficiency.html");
+}
+function stats_support_efficiency__basisOnStartDate(&$dateFrom, &$dateTo, &$usage)
+{
+    global $db;
+
+    $rs = $db->AllRecords($q = "SELECT
+                    trouble_subtype as type,
+                    ts.trouble_id,
+                    ts.state_id,
+                    user_main,
+                    user_edit,
+                    tt.user_author,
+                    rating,
+                    user_rating
+                    FROM
+                    `tt_troubles` tt , tt_stages ts, user_users u
+                    where
+                    tt.id = ts.trouble_id
+                    AND u.user= tt.user_author
+                    AND usergroup = 'support'
+                    AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
+                    AND trouble_type in ('trouble', 'task', 'support_welltime')
+                    AND service in ('".implode("','", $usage)."')
+                    ORDER BY tt.id, ts.stage_id
+            ");
+    $tmp = array();
+    $rating = array();
+    $counter = array(
+                    "7" => array(), // completed
+                    "2" => array()  // closed
+    );
+
+    $total = array(
+                    "7" => array(), // completed
+                    "2" => array()  // closed
+    );
+
+    $users = array();
+
+    $troubleId = 0;
+    foreach ($rs as $r)
+    {
+        if ($r["state_id"] == 7 && strlen($r["user_rating"])) {
+            if (!isset($tmp[$r["trouble_id"]]))
+                $tmp[$r["trouble_id"]] = array('type'=>$r["type"],'user_rating'=>'','7'=>0,'2'=>0,'1u'=>array());
+
+            if ($r["rating"] > 0) {
+                if (strlen($tmp[$r["trouble_id"]]['user_rating']) && $tmp[$r["trouble_id"]]['user_rating']!=$r["user_rating"])
+                    $tmp[$r["trouble_id"]]['1u'][]=$tmp[$r["trouble_id"]]['user_rating'];
+
+                $tmp[$r["trouble_id"]]['type']=$r["type"];
+                $tmp[$r["trouble_id"]]['user_rating']=$r["user_rating"];
+                $tmp[$r["trouble_id"]]['7']=$r["rating"];
+            }
+        }
+        if ($r["state_id"] == 2 && strlen($r["user_rating"])) {
+            if (isset($tmp[$r["trouble_id"]]) && $r["rating"] > 0 && strlen($r["user_rating"])) {
+                $tmp[$r["trouble_id"]]['2']=$r["rating"];
+            }
+        }
+        // new trouble, reset
+        if ($r["trouble_id"] != $troubleId)
+        {
+            $troubleId = $r["trouble_id"];
+            $state = $r["state_id"];
+            $user = $r["user_main"];
+
+            continue; //this first stage
+        }
+
+        $user = $r["user_author"];
+
+        if ($state != $r["state_id"])
+        {
+            if($r["state_id"] == 7 || $r["state_id"] == 2)
+            {
+                if(!isset($counter[$r["state_id"]][$r["type"]]))
+                    $counter[$r["state_id"]][$r["type"]] = array();
+
+                if(!isset($counter[$r["state_id"]][$r["type"]][$user]))
+                    $counter[$r["state_id"]][$r["type"]][$user] = 0;
+
+                $counter[$r["state_id"]][$r["type"]][$user]++;
+
+
+                if (!isset($total[$r["state_id"]][$r["type"]]))
+                    $total[$r["state_id"]][$r["type"]] = 0;
+
+                $total[$r["state_id"]][$r["type"]]++;
+
+
+                $users[$user] = $user;
+            }
+
+            $state = $r["state_id"];
+        }
+    }
+    foreach ($tmp as $k=>$rat) {
+        if (strlen($rat['user_rating'])) {
+            if (!isset($rating[$rat['user_rating']]))
+                $rating[$rat['user_rating']] = array();
+            if (!isset($rating[$rat['user_rating']][$rat['type']]))
+                $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
+
+            $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
+            $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
+
+            if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
+        }
+    }
+
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."') order by name") as $u)
+    {
+        $users[$u["user"]] = $u["name"];
+    }
+
+    return array($counter, $users, $total, $rating);
 }
 
 function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
@@ -3802,6 +3925,7 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
                     ts.state_id,
                     user_main,
                     user_edit,
+                    tt.user_author,
                     rating,
                     user_rating
                     FROM
@@ -3860,7 +3984,7 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
             continue; //this first stage
         }
 
-        $user = $r["user_main"];
+        $user = $r["user_author"];
 
         if ($state != $r["state_id"])
         {
@@ -3896,20 +4020,15 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 
             $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
             $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
-            $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
-            $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
             
             if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
         }
     }
 
-    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."') ") as $u)
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."') order by name") as $u)
     {
         $users[$u["user"]] = $u["name"];
     }
-    
-    setlocale(LC_ALL, 'ru_RU.KOI8-R'); 
-    asort($users, SORT_LOCALE_STRING);
     
     return array($counter, $users, $total, $rating);
 }
