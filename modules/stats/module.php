@@ -3810,7 +3810,7 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
                     tt.id = ts.trouble_id
                     AND u.user= tt.user_author
                     AND usergroup = 'support'
-                    AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
+                    AND date_edit between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
                     AND trouble_type in ('trouble', 'task', 'support_welltime')
                     AND service in ('".implode("','", $usage)."')
                     ORDER BY tt.id, ts.stage_id
@@ -3896,16 +3896,21 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 
             $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
             $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
-
+            $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
+            $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
+            
             if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
         }
     }
 
-    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."') ") as $u)
     {
         $users[$u["user"]] = $u["name"];
     }
-
+    
+    setlocale(LC_ALL, 'ru_RU.KOI8-R'); 
+    asort($users, SORT_LOCALE_STRING);
+    
     return array($counter, $users, $total, $rating);
 }
 
