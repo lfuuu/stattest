@@ -3782,15 +3782,16 @@ function stats_support_efficiency($fixclient)
     $design->assign('usages', $usages);
     $design->assign('usages_selected', $usage);
 
-    $design->assign("on_completed_data", $onCompleted_data);
-    $design->assign("on_completed_users", $onCompleted_users);
-    $design->assign("on_completed_total", $onCompleted_total);
-    $design->assign("on_completed_rating", $onCompleted_rating);
-    
-    $design->assign("on_completed_data2", $onCompleted_data2);
-    $design->assign("on_completed_users2", $onCompleted_users2);
-    $design->assign("on_completed_total2", $onCompleted_total2);
-    $design->assign("on_completed_rating2", $onCompleted_rating2);
+    $design->assign(array(
+                    "on_completed_data"=>$onCompleted_data,
+                    "on_completed_users"=>$onCompleted_users,
+                    "on_completed_total"=>$onCompleted_total,
+                    "on_completed_rating"=>$onCompleted_rating,
+                    "on_completed_data2"=>$onCompleted_data2,
+                    "on_completed_users2"=>$onCompleted_users2,
+                    "on_completed_total2"=>$onCompleted_total2,
+                    "on_completed_rating2"=>$onCompleted_rating2
+                    ));
     
     $design->assign("date", $date);
     $design->assign("d", $m);
@@ -3801,25 +3802,26 @@ function stats_support_efficiency__basisOnStartDate(&$dateFrom, &$dateTo, &$usag
 {
     global $db;
 
-    $rs = $db->AllRecords($q = "SELECT
-                    trouble_subtype as type,
-                    ts.trouble_id,
-                    ts.state_id,
-                    user_main,
-                    user_edit,
-                    tt.user_author,
-                    rating,
-                    user_rating
-                    FROM
-                    `tt_troubles` tt , tt_stages ts, user_users u
-                    where
-                    tt.id = ts.trouble_id
-                    AND u.user= tt.user_author
-                    AND usergroup = 'support'
-                    AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59'
-                    AND trouble_type in ('trouble', 'task', 'support_welltime')
-                    AND service in ('".implode("','", $usage)."')
-                    ORDER BY tt.id, ts.stage_id
+    $rs = $db->AllRecords($q = "
+            SELECT
+                trouble_subtype as type,
+                ts.trouble_id,
+                ts.state_id,
+                user_main,
+                user_edit,
+                tt.user_author,
+                rating,
+                user_rating
+            FROM
+                tt_stages ts
+            LEFT JOIN `tt_troubles` tt ON tt.id = ts.trouble_id
+            LEFT JOIN `user_users` u ON u.user = tt.user_author
+            WHERE
+                usergroup = 'support' AND 
+                date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' AND 
+                trouble_type in ('trouble', 'task', 'support_welltime') AND 
+                service in ('".implode("','", $usage)."')
+            ORDER BY tt.id, ts.stage_id
             ");
     $tmp = array();
     $rating = array();
