@@ -1,5 +1,6 @@
 <link rel="stylesheet"  href="css/themes/smoothness/jquery.ui.all.css" type="text/css"/>
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery.inputmask.js"></script>
 
 <!--script src="js/ui/jquery.ui.datepicker.js"></script-->
 <!--script src="js/ui/i18n/jquery.ui.datepicker-ru.koi8r.js"></script-->
@@ -148,7 +149,9 @@ $(function(){
 			}
 		}
 	}
-
+	$(document).ready(function() {
+		$("#phone_mask").inputmask("+9(999)999-99-99");
+	});
 
 {/literal}
 </script>
@@ -218,6 +221,7 @@ $(function(){
 	<TR><TD class=left>"Кому" письмо<span title="Если поле оставить пустое - то будет вставляться название компании">*</span>:</TD><TD><input style='width:100%' name=mail_who class=text value='{$client.mail_who|escape}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Предполагаемый адрес подключения:</TD><TD><input style='width:100%' name=address_connect class=text value='{$client.address_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Предполагаемый телефон подключения:</TD><TD><input style='width:100%' name=phone_connect class=text value='{$client.phone_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
+	<TR><TD class=left>Номер для СМС уведомлений:</TD><TD><input id="phone_mask" name=voip_sms_notice class=text value='{$client.voip_sms_notice}'></td></tr>
 
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Головная компания:</TD><TD><input style='width:100%' name=head_company class=text value='{$client.head_company}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
