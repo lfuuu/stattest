@@ -78,12 +78,23 @@
     Грузоотправитель и его адрес: {if ('2009-06-01' <= $bill.bill_date && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МАРКОМНЕТ"</strong><br>
     <strong>123458, г. Москва, Таллинская ул., д.2/282</strong><br>{/if}
 {elseif $bill_client.firma == "mcn_telekom"}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
+
+    <td valign="top" width="55%" class="ht">Продавец: <strong>{$firm.name}</strong><br>
+    Адрес: <strong>{$firm.address}</strong><br>
+    Телефон: <strong>{$firm.phone}</strong><br>
+    ИНН/КПП продавца: <strong>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</strong><br>
+    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
+    <strong>{$firm.address}</strong><br>{/if}
+
+{if false}
+    <!--td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
     Адрес: <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>
     Телефон: <strong>(495) 950-56-78</strong><br>
     ИНН/КПП продавца: <strong>7727752084&nbsp;/&nbsp;772401001</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
     <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>{/if}
+    {/if}
+
 {elseif $bill_client.firma == "markomnet_service"}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "Маркомнет сервис"</strong><br>
     Адрес: <strong>117574, Москва, Одоевского проезд, д.3, к.7</strong><br>

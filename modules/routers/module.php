@@ -527,7 +527,7 @@ class m_routers {
         $t = $t->GetContracts();
         $design->assign('contract',$t[count($t)-1]);
 
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$cpe["client"]."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$cpe["client"]."'"));
 
         $act=get_param_integer('act');
         if ($act=='1') {

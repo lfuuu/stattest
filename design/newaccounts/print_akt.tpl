@@ -32,8 +32,11 @@
 <strong>ИНН/КПП 7727701308/772701001</strong>
 
 {elseif $bill_client.firma eq 'mcn_telekom'}
-<strong>ООО &laquo;МСН Телеком&raquo;</strong><br>
-<strong>ИНН/КПП 7727752084/772401001</strong>
+<strong>{$firm.name}</strong><br>
+<strong>ИНН/КПП {$firm.inn}/{$firm.kpp}</strong>
+
+{if false}<!--strong>ООО &laquo;МСН Телеком&raquo;</strong><br>
+<strong>ИНН/КПП 7727752084/772401001</strong-->{/if}
 
 {elseif $bill_client.firma eq 'markomnet_service'}
 <strong>ООО &laquo;Маркомнет сервис&raquo;</strong><br>
@@ -68,7 +71,8 @@
 {elseif $bill_client.firma eq 'markomnet_new'}
 Телефон: <strong>(495) 638-638-4</strong><br>
 {elseif $bill_client.firma eq 'mcn_telekom'}
-Телефон: <strong>(495) 950-56-78</strong><br>
+Телефон: <strong>{$firm.phone}</strong><br>
+{if false}<!-- Телефон: <strong>(495) 950-56-78</strong><br-->{/if}
 {elseif $bill_client.firma eq 'markomnet_service'}
 Телефон: <strong>(495) 638-63-84</strong><br>
 {elseif $bill_client.firma eq 'mcm'}
