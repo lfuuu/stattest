@@ -92,14 +92,14 @@
 БИК:&nbsp;044525787<br>
 
 {elseif $bill_client.firma == 'mcn_telekom'}
-<b>Поставщик: ООО &laquo;МСН Телеком&raquo;</b><br>
-ИНН:&nbsp;7727752084 ;&nbsp;&nbsp;КПП:&nbsp;772401001<br>
-Адрес:&nbsp;115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8<br>
-Телефон: (495) 950-56-78<br>
-Факс: (495) 638-50-17<br>
-р/с:&nbsp;40702810038110015462 в Московский банк Сбербанка России ОАО, г.Москва<br>
-к/с:&nbsp;30101810400000000225<br>
-БИК:&nbsp;044525225<br>
+<b>Поставщик: {$firm.name}</b><br>
+ИНН:&nbsp;{$firm.inn} ;&nbsp;&nbsp;КПП:&nbsp;{$firm.kpp}<br>
+Адрес:&nbsp;{$firm.address}<br>
+Телефон: {$firm.phone}<br>
+Факс: {$firm.fax}<br>
+р/с:&nbsp;{$firm.acc} в {$firm.bank}<br>
+к/с:&nbsp;{$firm.kor_acc}<br>
+БИК:&nbsp;{$firm.bik}<br>
 
 
 {elseif $bill_client.firma == 'mcm'}

@@ -420,7 +420,7 @@ class m_services extends IModule{
         $id=get_param_protected('id');
         if ($id=='') return;
         
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $conn=$db->GetRow("select * from usage_ip_ports where id='".$id."'");
         $routes=array(); $db->Query('select * from usage_ip_routes where (port_id="'.$id.'") and (actual_from<=NOW()) and (actual_to>=NOW()) order by id');
@@ -932,7 +932,7 @@ class m_services extends IModule{
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($fixclient);
 
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->ProcessEx('../store/acts/voip_act.tpl'); 
     }
@@ -1905,7 +1905,7 @@ class m_services extends IModule{
             $r["password"] = $o[0][count($o[0])-1];
         }
 
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->assign('d',$r);
                 
