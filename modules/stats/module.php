@@ -3949,13 +3949,15 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
     $rating = array();
     $counter = array(
         "7" => array(), // completed
-        "2" => array()  // closed
+        "2" => array(),  // closed
+        "2w7" => array()  //closed without completed
         );
 
     $total = array(
         "7" => array(), // completed
-        "2" => array()  // closed
-        );
+        "2" => array(),  // closed
+        "2w7" => array()  //closed without completed
+    );
 
     $users = array();
 
@@ -3988,10 +3990,11 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
     foreach ($tmp as $trouble_id=>$t) {
         
         //counter calculation
-        if (!isset($counter['7'][$t['type']])) $counter['7'][$t['type']] = array();
-        if (!isset($total['7'][$t['type']])) $total['7'][$t['type']] = 0;
         
         if (strlen($t['user_7'])) {
+            if (!isset($counter['7'][$t['type']])) $counter['7'][$t['type']] = array();
+            if (!isset($total['7'][$t['type']])) $total['7'][$t['type']] = 0;
+            
             if (!isset($counter['7'][$t['type']][$t['user_7']])) 
                 $counter['7'][$t['type']][$t['user_7']] = 0;
             
@@ -4002,18 +4005,36 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
                 $users[$t['user_7']] = $t['user_7'];
         }
         
-        if (!isset($counter['2'][$t['type']])) $counter['2'][$t['type']] = array();
-        if (!isset($total['2'][$t['type']])) $total['2'][$t['type']] = 0;
         
         if (strlen($t['user_2'])) {
-            if (!isset($counter['2'][$t['type']][$t['user_7']]))
-                $counter['2'][$t['type']][$t['user_7']] = 0;
+            if (strlen($t['user_7'])) {
+                // closed and completed
+                if (!isset($counter['2'][$t['type']])) $counter['2'][$t['type']] = array();
+                if (!isset($total['2'][$t['type']])) $total['2'][$t['type']] = 0;
+                
+                if (!isset($counter['2'][$t['type']][$t['user_7']]))
+                    $counter['2'][$t['type']][$t['user_7']] = 0;
+                
+                $counter['2'][$t['type']][$t['user_7']]++;
+                $total['2'][$t["type"]]++;
+                
+                if (!isset($users[$t['user_7']])) 
+                    $users[$t['user_7']] = $t['user_7'];
+            } else {
+                // closed not completed
+                if (!isset($counter['2w7'][$t['type']])) $counter['2w7'][$t['type']] = array();
+                if (!isset($total['2w7'][$t['type']])) $total['2w7'][$t['type']] = 0;
+                
+                if (!isset($counter['2w7'][$t['type']][$t['user_2']]))
+                    $counter['2w7'][$t['type']][$t['user_2']] = 0;
+                
+                $counter['2w7'][$t['type']][$t['user_2']]++;
+                $total['2w7'][$t["type"]]++;
+                
+                if (!isset($users[$t['user_2']])) 
+                    $users[$t['user_2']] = $t['user_2'];
+            }
         
-            $counter['2'][$t['type']][$t['user_7']]++;
-            $total['2'][$t["type"]]++;
-            
-            if (!isset($users[$t['user_2']])) 
-                $users[$t['user_2']] = $t['user_2'];
         }
 
         //rating calculation

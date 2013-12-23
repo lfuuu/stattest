@@ -159,6 +159,39 @@ $( "#date_from" ).datepicker({
     <br>
     * - <small>Отчет формируется по траблам, <b>закрытым</b> в указанный период и <b>выполненные определенным сотрудником</b>. <br />Только заявки созданные сотрудниками тех.поддержки</small>
 </div>
+<div style="padding-top:30px;">
+    <b>на основании перехода на стадию "Закрыто" без "Выполнено" (новый алгоритм)</b>
+    <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+        <tr id="tr_head">
+            <td>#</td>
+            <td>ФИО</td>
+            <td>Консультаций</td>
+            <td>Мониторинг</td>
+            <td>Траблы</td>
+            <td>Задания</td>
+            <td>Всего</td>
+        </tr>
+        {foreach from=$on_completed_users item=user_name key=user_user name='list'}
+            <tr>
+                <td>{$smarty.foreach.list.iteration}.</td>
+                <td>{$user_name} <sup>({$user_user})</sup></td>
+                <td>{$on_completed_data.2w7.consultation[$user_user]}</td>
+                <td>{$on_completed_data.2w7.monitoring[$user_user]}</td>
+                <td>{$on_completed_data.2w7.trouble[$user_user]}</td>
+                <td>{$on_completed_data.2w7.task[$user_user]}</td>
+                <td><i>{$on_completed_data.2w7.consultation[$user_user]+$on_completed_data.2w7.monitoring[$user_user]+$on_completed_data.2w7.trouble[$user_user]+$on_completed_data.2w7.task[$user_user]}</i></td>
+            </tr>
+        {/foreach}
+        <tr>
+            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td><b>{$on_completed_total.2w7.consultation}</b></td>
+            <td><b>{$on_completed_total.2w7.monitoring}</b></td>
+            <td><b>{$on_completed_total.2w7.trouble}</b></td>
+            <td><b>{$on_completed_total.2w7.task}</b></td>
+            <td><b><i>{$on_completed_total.2w7.trouble+$on_completed_total.2w7.monitoring+$on_completed_total.2w7.consultation+$on_completed_total.2w7.task}</i></b></td>
+        </tr>
+    </table>
+</div>
 
 <div style="padding-top:30px;">
     <b>на основании перехода на стадию "Выполнено" (по дате создания заявки)</b>
