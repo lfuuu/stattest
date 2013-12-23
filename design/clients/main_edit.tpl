@@ -221,7 +221,6 @@ $(function(){
 	<TR><TD class=left>"Кому" письмо<span title="Если поле оставить пустое - то будет вставляться название компании">*</span>:</TD><TD><input style='width:100%' name=mail_who class=text value='{$client.mail_who|escape}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Предполагаемый адрес подключения:</TD><TD><input style='width:100%' name=address_connect class=text value='{$client.address_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Предполагаемый телефон подключения:</TD><TD><input style='width:100%' name=phone_connect class=text value='{$client.phone_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
-	<TR><TD class=left>Номер для СМС уведомлений:</TD><TD><input id="phone_mask" name=voip_sms_notice class=text value='{$client.voip_sms_notice}'></td></tr>
 
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Головная компания:</TD><TD><input style='width:100%' name=head_company class=text value='{$client.head_company}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
@@ -295,6 +294,8 @@ $(function(){
 	<TR><TD class=left{if $voip_counters.need_lock_limit_day} style="background-color: #f4a0a0;"{/if}>Телефония, лимит использования (день):</TD><TD{if $voip_counters.need_lock_limit_day} style="background-color: #f4a0a0;"{/if}><input name=voip_credit_limit_day class=text value='{$client.voip_credit_limit_day}'> Расход за день: {$voip_counters.amount_day_sum}
       <label><input type="checkbox" name="voip_is_day_calc" value=1{if $client.voip_is_day_calc} checked{/if}> - Включить пересчет дневного лимита</label>
     </td></tr>
+	<TR><TD class=left>Номер для СМС уведомлений:</TD><TD><input id="phone_mask" name=voip_sms_notice class=text value='{$client.voip_sms_notice}'></td></tr>
+
 	<TR><TD style='visibility:hidden' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Пароль:</TD><TD><input style='width:100%' name=password class=text value='{$client.password}'></td></tr>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
