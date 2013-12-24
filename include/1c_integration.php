@@ -1188,11 +1188,11 @@ class SoapHandler{
                     $q = "update tt_stages set comment='".mysql_escape_string(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
 
                 if($state_1c == 'Отгружен')
-                    $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                    $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
                 elseif($state_1c == 'КОтгрузке')
-                    $q = "update tt_stages set comment='Возврат товара: ".nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                    $q = "update tt_stages set comment='Возврат товара: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
                 else{
-                    $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : "";
+                    $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : "";
                     $q = "update tt_stages set comment='".$comment."', date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
                 }
 

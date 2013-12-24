@@ -56,12 +56,12 @@ abstract class IModuleHead {
 		try {
 			return call_user_func_array(array($this->obj,$k),$param);
 		} catch (Sync1CException $e) {
-			echo htmlspecialchars($e->getMessage());
+			echo htmlspecialchars_($e->getMessage());
 			exit;
 		} catch (Exception $e) {
-			echo "<h1>" . htmlspecialchars($e->getMessage()) . "</h1>\n";
+			echo "<h1>" . htmlspecialchars_($e->getMessage()) . "</h1>\n";
 			echo "<pre>\n";
-			echo htmlspecialchars($e->getTraceAsString());
+			echo htmlspecialchars_($e->getTraceAsString());
 			echo "</pre>\n";
 			exit;
 		}
