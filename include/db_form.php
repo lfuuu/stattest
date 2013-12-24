@@ -322,9 +322,9 @@ class DbFormUsageIpPorts extends DbForm{
 class DbFormUsageVoip extends DbForm {
     public function __construct() {
         global $db;
-        $regions = array('none' => '-- не выбран --');
+        $regions = array();
         foreach($db->AllRecords('select * from regions') as $item)
-            $regions[$item['id']] = $item['name'];
+            $regions[$item['id']] = $item['code'].' - '.$item['name'];
 
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly');

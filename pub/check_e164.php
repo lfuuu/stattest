@@ -8,7 +8,7 @@
 		echo "Authorize please!";
 		exit();
 	}
-
+	
     if(preg_match('/^FREE(\d+)?:(\d{4,7}|short)?/',$_GET['e164'],$m)){
         if(isset($m[2]) && $m[2] != 'short'){
             $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
@@ -129,7 +129,7 @@
 			AND
 				now() between `actual_from` and `actual_to`
 		";
-
+		
 		$res = $db->AllRecords($query);
 		if(count($res)>0){
 			echo "true_but";

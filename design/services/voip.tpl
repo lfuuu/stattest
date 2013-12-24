@@ -3,11 +3,8 @@
 <H2>Услуги</H2>
 <H3>IP-телефония</H3>
 {if access_action('services','vo_add')}<a id='vo_add_link' href='{$LINK_START}module=services&action=vo_add'><img class=icon src='{$IMAGES_PATH}icons/phone_add.gif'>Добавить телефонный номер</a>
-<select id="region" class=text onchange="document.getElementById('vo_add_link').href='{$LINK_START}module=services&action=vo_add&region='+document.getElementById('region').value;">
-    {foreach from=$regions item='r'}
-        <option value="{$r.id}"{if $r.id eq $cur_region} selected{/if}>{$r.code} - {$r.name} </option>
-    {/foreach}
-</select><br>{/if}
+<br>
+{/if}
 {else}
 <H3><a href='?module=services&action=vo_view'>IP-телефония</a></H3>
 {/if}
