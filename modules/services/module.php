@@ -817,7 +817,7 @@ class m_services extends IModule{
 
         if($id)
         {
-            $u=$db->GetValue("select e164 from usage_voip where id = '".$id."' and client='".$fixclient."'");
+            $u=$db->GetValue($q = "select id from usage_voip where id = '".$id."' and client='".$fixclient."'");
             if($u)
             {
                 $db->Query("delete from usage_voip where id = '".$id."' and client='".$fixclient."'");
