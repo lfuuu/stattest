@@ -15,7 +15,6 @@ $conf = array(
         "14732" => 5000,
         "14679" => 2000,
         "15078" => 1000,
-        "3839" => 5000,
         "15840" => 1000,
         "14221" => 100,
         "15954" => 3000
@@ -45,8 +44,12 @@ foreach($db->AllRecords("
 
 if ($goods)
 {
-    mail("adima123@yandex.ru", "[stat/goods/store:min_store_level] оповещение о снижении мимнимального остатка на складе", "Количество по следущим позициям меньше установленного уровня:\n\n\n".implode("\n", $goods) );
-    mail("li@mcn.ru", "оповещение о снижении мимнимального остатка на складе", "Количество по следущим позициям меньше установленного уровня:\n\n\n".implode("\n", $goods) );
+    $headers = "Content-type: text/html; charset=utf-8";
+    $subject = "оповещение о снижении мимнимального остатка на складе";
+    $body = "Количество по следущим позициям меньше установленного уровня:<br><br>".implode("<br>", $goods);
+
+    mail("adima123@yandex.ru", "[stat/goods/store:min_store_level] ".$subject, $body, $headers);
+    mail("vladimir@mcn.ru", $subject, $body , $headers);
 }
 
 
