@@ -11,6 +11,7 @@ padding: 2px 2px 2px 2px;
 #tr_head td {
 font-weight: bold;
 text-align: center;
+}
 {/literal}
 </style>
 
@@ -35,141 +36,237 @@ text-align: center;
 
 <script>
 {literal}
-
-$('#date_from').datepicker({
+$( "#date_from" ).datepicker({
     dateFormat: 'yy-mm-dd',
-    onClose: function(dateText, inst) {
-        var endDateTextBox = $('#date_to');
-        if (endDateTextBox.val() != '') {
-            var testStartDate = new Date(dateText);
-            var testEndDate = new Date(endDateTextBox.val());
-            if (testStartDate > testEndDate)
-            endDateTextBox.val(dateText);
-        } else {
-            endDateTextBox.val(dateText);
-        }
-    },
-    onSelect: function (selectedDateTime){
-        var start = $(this).datepicker('getDate');
-        $('#date_to').datepicker('option', 'minDate', new Date(start.getTime()));
+    maxDate: $( "#date_to" ).val(),
+    onClose: function( selectedDate ) {
+      $( "#date_to" ).datepicker( "option", "minDate", selectedDate );
     }
-});
-
-$('#date_to').datepicker({
+  });
+  $( "#date_to" ).datepicker({
     dateFormat: 'yy-mm-dd',
-    onClose: function(dateText, inst) {
-        var startDateTextBox = $('#date_from');
-        if (startDateTextBox.val() != '') {
-            var testStartDate = new Date(startDateTextBox.val());
-            var testEndDate = new Date(dateText);
-            if (testStartDate > testEndDate)
-                startDateTextBox.val(dateText);
-        } else {
-            startDateTextBox.val(dateText);
-        }
-    },
-    onSelect: function (selectedDateTime){
-        var end = $(this).datepicker('getDate');
-        $('#date_from').datepicker('option', 'maxDate', new Date(end.getTime()) );
+    minDate: $( "#date_from" ).val(),
+    onClose: function( selectedDate ) {
+      $( "#date_from" ).datepicker( "option", "maxDate", selectedDate );
     }
-});
-
+  });
 {/literal}
-
 </script>
 
-<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
-    <tr id="tr_head">
-        <td>#</td>
-        <td>ФИО</td>
-        <td>Консультаций</td>
-        <td>Мониторинг</td>
-        <td>Траблы</td>
-        <td>Задания</td>
-        <td>Всего</td>
-    </tr>
-    {foreach from=$d item=i key=idx}
-    <tr>
-        <td>{$i.count+1}.</td>
-        <td>{$i.name} <sup>({$idx})</sup></td>
-        <td>{$i.data.consultation.count}</td>
-        <td>{$i.data.monitoring.count}</td>
-        <td>{$i.data.trouble.count}{if $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}</td>
-        <td>{$i.data.task.count}</td>
-        <td><i>{$i.data.trouble.count+$i.data.monitoring.count+$i.data.consultation.count+$i.data.task.count}</i></td>
-    </tr>
-    {/foreach}
-    <tr>
-        <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-        <td><b>{$total.consultation}</b></td>
-        <td><b>{$total.monitoring}</b></td>
-        <td><b>{$total.trouble}</b></td>
-        <td><b>{$total.task}</b></td>
-        <td><b><i>{$total.trouble+$total.monitoring+$total.consultation+$total.task}</i></b></td>
-    </tr>
-</table>
+<div style="padding-top:10px;">
+	<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+	    <tr id="tr_head">
+	        <td>#</td>
+	        <td>ФИО</td>
+	        <td>Консультаций</td>
+	        <td>Мониторинг</td>
+	        <td>Траблы</td>
+	        <td>Задания</td>
+	        <td>Всего</td>
+	    </tr>
+	    {foreach from=$d item=i key=idx}
+	    <tr>
+	        <td>{$i.count+1}.</td>
+	        <td>{$i.name} <sup>({$idx})</sup></td>
+	        <td>{$i.data.consultation.count}{if $i.data.consultation.rating_count > 0} / <font style="color: {if $i.data.consultation.rating_avg <=3}#c40000{else}green{/if}">{$i.data.consultation.rating_avg|round:1}<sup>({$i.data.consultation.rating_count})</sup></font>{/if}</td>
+	        <td>{$i.data.monitoring.count}{if $i.data.monitoring.rating_count > 0} / <font style="color: {if $i.data.monitoring.rating_avg <=3}#c40000{else}green{/if}">{$i.data.monitoring.rating_avg|round:1}<sup>({$i.data.monitoring.rating_count})</sup></font>{/if}</td>
+	        <td>{$i.data.trouble.count}{if $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}</td>
+	        <td>{$i.data.task.count}{if $i.data.task.rating_count > 0} / <font style="color: {if $i.data.task.rating_avg <=3}#c40000{else}green{/if}">{$i.data.task.rating_avg|round:1}<sup>({$i.data.task.rating_count})</sup></font>{/if}</td>
+	        <td><i>{$i.data.trouble.count+$i.data.monitoring.count+$i.data.consultation.count+$i.data.task.count}</i></td>
+	    </tr>
+	    {/foreach}
+	    <tr>
+	        <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+	        <td><b>{$total.consultation}</b></td>
+	        <td><b>{$total.monitoring}</b></td>
+	        <td><b>{$total.trouble}</b></td>
+	        <td><b>{$total.task}</b></td>
+	        <td><b><i>{$total.trouble+$total.monitoring+$total.consultation+$total.task}</i></b></td>
+	    </tr>
+	</table>
+    <br>
+    * - <small>Отчет формируется по траблам, <b>созданным</b> в указанный период. <br />Только заявки созданные сотрудниками тех.поддержки</small>
+</div>
 
-<br><br><br>
-<b>на основании перехода на стадию "Выполнено"</b>
-<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
-<tr id="tr_head">
-<td>ФИО</td>
-<td>Консультаций</td>
-<td>Мониторинг</td>
-<td>Траблы</td>
-<td>Задания</td>
-<td>Всего</td>
-</tr>
-{foreach from=$on_completed_users item=user_name key=user_user}
-<tr>
-<td>{$user_name} <sup>({$user_user})</sup></td>
-<td>{$on_completed_data.7.consultation[$user_user]}</td>
-<td>{$on_completed_data.7.monitoring[$user_user]}</td>
-<td>{$on_completed_data.7.trouble[$user_user]}</td>
-<td>{$on_completed_data.7.task[$user_user]}</td>
-<td><i>{$on_completed_data.7.consultation[$user_user]+$on_completed_data.7.monitoring[$user_user]+$on_completed_data.7.trouble[$user_user]+$on_completed_data.7.task[$user_user]}</i></td>
-</tr>
-{/foreach}
-    <tr>
-        <td colspan=1 align=right><b>Итого:</b>&nbsp;</td>
-        <td><b>{$on_completed_total.7.consultation}</b></td>
-        <td><b>{$on_completed_total.7.monitoring}</b></td>
-        <td><b>{$on_completed_total.7.trouble}</b></td>
-        <td><b>{$on_completed_total.7.task}</b></td>
-        <td><b><i>{$on_completed_total.7.trouble+$on_completed_total.7.monitoring+$on_completed_total.7.consultation+$on_completed_total.7.task}</i></b></td>
-    </tr>
-</table>
+<div style="padding-top:30px;">
+	<b>на основании перехода на стадию "Выполнено" (новый алгоритм)</b>
+	<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2>
+		<tr id="tr_head">
+			<td>#</td>
+			<td>ФИО</td>
+			<td>Консультаций</td>
+			<td>Мониторинг</td>
+			<td>Траблы</td>
+			<td>Задания</td>
+			<td>Всего</td>
+		</tr>
+		{foreach from=$on_completed_users item=user_name key=user_user name='list'}
+			{assign var=rating_total value=`$on_completed_rating[$user_user].consultation[7]+$on_completed_rating[$user_user].monitoring[7]+$on_completed_rating[$user_user].trouble[7]+$on_completed_rating[$user_user].task[7]`}
+			<tr>
+				<td>{$smarty.foreach.list.iteration}.</td>
+				<td>{$user_name} <sup>({$user_user})</sup></td>
+				<td>{$on_completed_data.7.consultation[$user_user]}{if $on_completed_rating[$user_user].consultation[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].consultation[7]}</font>{/if}</td>
+				<td>{$on_completed_data.7.monitoring[$user_user]}{if $on_completed_rating[$user_user].monitoring[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].monitoring[7]}</font>{/if}</td>
+				<td>{$on_completed_data.7.trouble[$user_user]}{if $on_completed_rating[$user_user].trouble[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].trouble[7]}</font>{/if}</td>
+				<td>{$on_completed_data.7.task[$user_user]}{if $on_completed_rating[$user_user].task[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].task[7]}</font>{/if}</td>
+				<td><i>{$on_completed_data.7.consultation[$user_user]+$on_completed_data.7.monitoring[$user_user]+$on_completed_data.7.trouble[$user_user]+$on_completed_data.7.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+			</tr>
+		{/foreach}
+		<tr>
+		    <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+		    <td><b>{$on_completed_total.7.consultation}</b></td>
+		    <td><b>{$on_completed_total.7.monitoring}</b></td>
+		    <td><b>{$on_completed_total.7.trouble}</b></td>
+		    <td><b>{$on_completed_total.7.task}</b></td>
+		    <td><b><i>{$on_completed_total.7.trouble+$on_completed_total.7.monitoring+$on_completed_total.7.consultation+$on_completed_total.7.task}</i></b></td>
+		</tr>
+	</table>
+    <br>
+    * - <small>Отчет формируется по траблам, <b>выполненным</b> в указанный период <b>определенным</b> сотрудником. <br />Только заявки созданные сотрудниками тех.поддержки</small>
+</div>
 
-<br><br><br>
-<b>на основании перехода на стадию "Закрыто"</b>
-<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
-<tr id="tr_head">
-<td>ФИО</td>
-<td>Консультаций</td>
-<td>Мониторинг</td>
-<td>Траблы</td>
-<td>Задания</td>
-<td>Всего</td>
-</tr>
-{foreach from=$on_completed_users item=user_name key=user_user}
-<tr>
-<td>{$user_name} <sup>({$user_user})</sup></td>
-<td>{$on_completed_data.2.consultation[$user_user]}</td>
-<td>{$on_completed_data.2.monitoring[$user_user]}</td>
-<td>{$on_completed_data.2.trouble[$user_user]}</td>
-<td>{$on_completed_data.2.task[$user_user]}</td>
-<td><i>{$on_completed_data.2.consultation[$user_user]+$on_completed_data.2.monitoring[$user_user]+$on_completed_data.2.trouble[$user_user]+$on_completed_data.2.task[$user_user]}</i></td>
-</tr>
-{/foreach}
-    <tr>
-        <td colspan=1 align=right><b>Итого:</b>&nbsp;</td>
-        <td><b>{$on_completed_total.2.consultation}</b></td>
-        <td><b>{$on_completed_total.2.monitoring}</b></td>
-        <td><b>{$on_completed_total.2.trouble}</b></td>
-        <td><b>{$on_completed_total.2.task}</b></td>
-        <td><b><i>{$on_completed_total.2.trouble+$on_completed_total.2.monitoring+$on_completed_total.2.consultation+$on_completed_total.2.task}</i></b></td>
-    </tr>
-</table>
+<div style="padding-top:30px;">
+    <b>на основании перехода на стадию "Закрыто" (новый алгоритм)</b>
+    <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+        <tr id="tr_head">
+            <td>#</td>
+            <td>ФИО</td>
+            <td>Консультаций</td>
+            <td>Мониторинг</td>
+            <td>Траблы</td>
+            <td>Задания</td>
+            <td>Всего</td>
+        </tr>
+        {foreach from=$on_completed_users item=user_name key=user_user name='list'}
+            {assign var=rating_total value=`$on_completed_rating[$user_user].consultation[2]+$on_completed_rating[$user_user].monitoring[2]+$on_completed_rating[$user_user].trouble[2]+$on_completed_rating[$user_user].task[2]`}
+            <tr>
+                <td>{$smarty.foreach.list.iteration}.</td>
+                <td>{$user_name} <sup>({$user_user})</sup></td>
+                <td>{$on_completed_data.2.consultation[$user_user]}{if $on_completed_rating[$user_user].consultation[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].consultation[2]}</font>{/if}</td>
+                <td>{$on_completed_data.2.monitoring[$user_user]}{if $on_completed_rating[$user_user].monitoring[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].monitoring[2]}</font>{/if}</td>
+                <td>{$on_completed_data.2.trouble[$user_user]}{if $on_completed_rating[$user_user].trouble[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].trouble[2]}</font>{/if}</td>
+                <td>{$on_completed_data.2.task[$user_user]}{if $on_completed_rating[$user_user].task[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].task[2]}</font>{/if}</td>
+                <td><i>{$on_completed_data.2.consultation[$user_user]+$on_completed_data.2.monitoring[$user_user]+$on_completed_data.2.trouble[$user_user]+$on_completed_data.2.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+            </tr>
+        {/foreach}
+        <tr>
+            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td><b>{$on_completed_total.2.consultation}</b></td>
+            <td><b>{$on_completed_total.2.monitoring}</b></td>
+            <td><b>{$on_completed_total.2.trouble}</b></td>
+            <td><b>{$on_completed_total.2.task}</b></td>
+            <td><b><i>{$on_completed_total.2.trouble+$on_completed_total.2.monitoring+$on_completed_total.2.consultation+$on_completed_total.2.task}</i></b></td>
+        </tr>
+    </table>
+    <br>
+    * - <small>Отчет формируется по траблам, <b>закрытым</b> в указанный период и <b>выполненные определенным сотрудником</b>. <br />Только заявки созданные сотрудниками тех.поддержки</small>
+</div>
+<div style="padding-top:30px;">
+    <b>на основании перехода на стадию "Закрыто" без "Выполнено" (новый алгоритм)</b>
+    <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+        <tr id="tr_head">
+            <td>#</td>
+            <td>ФИО</td>
+            <td>Консультаций</td>
+            <td>Мониторинг</td>
+            <td>Траблы</td>
+            <td>Задания</td>
+            <td>Всего</td>
+        </tr>
+        {foreach from=$on_completed_users item=user_name key=user_user name='list'}
+            <tr>
+                <td>{$smarty.foreach.list.iteration}.</td>
+                <td>{$user_name} <sup>({$user_user})</sup></td>
+                <td>{$on_completed_data.2w7.consultation[$user_user]}</td>
+                <td>{$on_completed_data.2w7.monitoring[$user_user]}</td>
+                <td>{$on_completed_data.2w7.trouble[$user_user]}</td>
+                <td>{$on_completed_data.2w7.task[$user_user]}</td>
+                <td><i>{$on_completed_data.2w7.consultation[$user_user]+$on_completed_data.2w7.monitoring[$user_user]+$on_completed_data.2w7.trouble[$user_user]+$on_completed_data.2w7.task[$user_user]}</i></td>
+            </tr>
+        {/foreach}
+        <tr>
+            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td><b>{$on_completed_total.2w7.consultation}</b></td>
+            <td><b>{$on_completed_total.2w7.monitoring}</b></td>
+            <td><b>{$on_completed_total.2w7.trouble}</b></td>
+            <td><b>{$on_completed_total.2w7.task}</b></td>
+            <td><b><i>{$on_completed_total.2w7.trouble+$on_completed_total.2w7.monitoring+$on_completed_total.2w7.consultation+$on_completed_total.2w7.task}</i></b></td>
+        </tr>
+    </table>
+    <br>
+    * - <small>Отчет формируется по траблам, <b>закрытым</b> в указанный период, но <b>не выполненные</b>. <br />Только заявки созданные сотрудниками тех.поддержки</small>
+</div>
 
-<br>
-* - <small>Отчет формируется по траблам, созданным в указанный период. Считается каждый переход на стадию. Только заявки созданные сотрудниками тех.поддержки</small>
+<div style="padding-top:30px;">
+    <b>на основании перехода на стадию "Выполнено" (по дате создания заявки)</b>
+    <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2>
+        <tr id="tr_head">
+            <td>#</td>
+            <td>ФИО</td>
+            <td>Консультаций</td>
+            <td>Мониторинг</td>
+            <td>Траблы</td>
+            <td>Задания</td>
+            <td>Всего</td>
+        </tr>
+        {foreach from=$on_completed_users2 item=user_name key=user_user name='list'}
+            {assign var=rating_total value=`$on_completed_rating2[$user_user].consultation[7]+$on_completed_rating2[$user_user].monitoring[7]+$on_completed_rating2[$user_user].trouble[7]+$on_completed_rating2[$user_user].task[7]`}
+            <tr>
+                <td>{$smarty.foreach.list.iteration}.</td>
+                <td>{$user_name} <sup>({$user_user})</sup></td>
+                <td>{$on_completed_data2.7.consultation[$user_user]}{if $on_completed_rating2[$user_user].consultation[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].consultation[7]}</font>{/if}</td>
+                <td>{$on_completed_data2.7.monitoring[$user_user]}{if $on_completed_rating2[$user_user].monitoring[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].monitoring[7]}</font>{/if}</td>
+                <td>{$on_completed_data2.7.trouble[$user_user]}{if $on_completed_rating2[$user_user].trouble[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].trouble[7]}</font>{/if}</td>
+                <td>{$on_completed_data2.7.task[$user_user]}{if $on_completed_rating2[$user_user].task[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].task[7]}</font>{/if}</td>
+                <td><i>{$on_completed_data2.7.consultation[$user_user]+$on_completed_data2.7.monitoring[$user_user]+$on_completed_data2.7.trouble[$user_user]+$on_completed_data2.7.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+            </tr>
+        {/foreach}
+        <tr>
+            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td><b>{$on_completed_total2.7.consultation}</b></td>
+            <td><b>{$on_completed_total2.7.monitoring}</b></td>
+            <td><b>{$on_completed_total2.7.trouble}</b></td>
+            <td><b>{$on_completed_total2.7.task}</b></td>
+            <td><b><i>{$on_completed_total2.7.trouble+$on_completed_total2.7.monitoring+$on_completed_total2.7.consultation+$on_completed_total2.7.task}</i></b></td>
+        </tr>
+    </table>
+</div>
+
+
+<div style="padding-top:30px;">
+    <b>на основании перехода на стадию "Закрыто" (по дате создания заявки)</b>
+    <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
+        <tr id="tr_head">
+            <td>#</td>
+            <td>ФИО</td>
+            <td>Консультаций</td>
+            <td>Мониторинг</td>
+            <td>Траблы</td>
+            <td>Задания</td>
+            <td>Всего</td>
+        </tr>
+        {foreach from=$on_completed_users2 item=user_name key=user_user name='list'}
+            {assign var=rating_total value=`$on_completed_rating2[$user_user].consultation[2]+$on_completed_rating2[$user_user].monitoring[2]+$on_completed_rating2[$user_user].trouble[2]+$on_completed_rating2[$user_user].task[2]`}
+            <tr>
+                <td>{$smarty.foreach.list.iteration}.</td>
+                <td>{$user_name} <sup>({$user_user})</sup></td>
+                <td>{$on_completed_data2.2.consultation[$user_user]}{if $on_completed_rating2[$user_user].consultation[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].consultation[2]}</font>{/if}</td>
+                <td>{$on_completed_data2.2.monitoring[$user_user]}{if $on_completed_rating2[$user_user].monitoring[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].monitoring[2]}</font>{/if}</td>
+                <td>{$on_completed_data2.2.trouble[$user_user]}{if $on_completed_rating2[$user_user].trouble[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].trouble[2]}</font>{/if}</td>
+                <td>{$on_completed_data2.2.task[$user_user]}{if $on_completed_rating2[$user_user].task[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].task[2]}</font>{/if}</td>
+                <td><i>{$on_completed_data2.2.consultation[$user_user]+$on_completed_data2.2.monitoring[$user_user]+$on_completed_data2.2.trouble[$user_user]+$on_completed_data2.2.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+            </tr>
+        {/foreach}
+        <tr>
+            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td><b>{$on_completed_total2.2.consultation}</b></td>
+            <td><b>{$on_completed_total2.2.monitoring}</b></td>
+            <td><b>{$on_completed_total2.2.trouble}</b></td>
+            <td><b>{$on_completed_total2.2.task}</b></td>
+            <td><b><i>{$on_completed_total2.2.trouble+$on_completed_total2.2.monitoring+$on_completed_total2.2.consultation+$on_completed_total2.2.task}</i></b></td>
+        </tr>
+    </table>
+</div>
+
+	<br>
+	* - <small>Отчет формируется по траблам, созданным в указанный период. Считается каждый переход на стадию. Только заявки созданные сотрудниками тех.поддержки</small>
