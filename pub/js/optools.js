@@ -782,32 +782,33 @@ $(document).ready(function() {
 	$('#region').change(function(){
 		var region_id = $(this).val();
 		if ($('#get_free_e164').length) {
-			$('#get_free_e164').find('[value!="null"][ value!="short"]').remove();
+			var get_free_e164 = $('#get_free_e164');
+			get_free_e164.find('[value!="null"][ value!="short"]').remove();
 			$('#E164').val('');
 			$('#e164_flag_image').css('visibility', 'hidden');
 	
 			if (region_id == '99') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7499685'>7(499) 685</option>")
 					.append("<option value='7499213'>7(499) 213</option>")
 					.append("<option value='7495'>7(495)</option>");
 			} else if(region_id == '97') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7861204'>7(861) 204</option>");
 			} else if(region_id == '98') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7812'>7(812)</option>");
 			} else if(region_id == '95') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7343302'>7(343) 302</option>");
 			} else if(region_id == '96') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7846215'>7(846) 215</option>");
 			} else if(region_id == '94') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7383312'>7(383) 312</option>");
 			} else if(region_id == '87') {
-				$('#get_free_e164')
+				get_free_e164
 					.append("<option value='7863309'>7(863) 309</option>");
 			}
 		}
