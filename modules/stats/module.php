@@ -336,13 +336,18 @@ class m_stats extends IModule{
 		$design->assign('phone',$phone=get_param_protected('phone',''));
 		$phones = array();
 		$phones_sel = array();
-        
+
         $regions = array();
 
         $last_region = '';
-        if ($phone == '' && count($usages) > 0) $phone = $usages[0]['region'];
-        $region = explode('_', $phone);
-        $region = $region[0];
+        if ($phone == '' && count($usages) > 0) {
+            $phone = $usages[0]['region'];
+            $region = 'all';
+        } else {
+            $region = explode('_', $phone);
+            $region = $region[0];
+        }
+
         foreach ($usages as $r) {
             if ($region == 'all') {
                 if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
