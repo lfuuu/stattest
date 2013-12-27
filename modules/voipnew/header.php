@@ -5,12 +5,12 @@ class m_voipnew_head extends IModuleHead
     public $module_title = 'IP Телефония';
 
     public $rights = array(
-        'voip' => array('Список операторов', 'access,admin', 'доступ,администрирование')
+        'voip' => array('Список операторов', 'access,admin,catalog', 'доступ,администрирование,справочники')
     );
 
     public $actions = array(
-        'catalogs' => array('voip', 'access'),
-        'catalog_prefix' => array('voip', 'access'),
+        'catalogs' => array('voip', 'catalog'),
+        'catalog_prefix' => array('voip', 'catalog'),
         'raw_files' => array('voip', 'access'),
         'view_raw_file' => array('voip', 'access'),
         'compare_raw_file' => array('voip', 'access'),
