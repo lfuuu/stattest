@@ -1,5 +1,5 @@
 <?php
-class m_voipnew_routing_report
+class m_voipreports_routing_report
 {
 
     public function invoke($method, $arguments)
@@ -111,7 +111,7 @@ class m_voipnew_routing_report
             $design->assign('geo_regions', $regions);
             $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
             $design->assign('pricelists', $pricelists);
-            $design->AddMain('voipnew/routing_report_show.html');
+            $design->AddMain('voipreports/routing_report_show.html');
         } else {
             header('Content-type: application/csv');
             header('Content-Disposition: attachment; filename="routing.csv"');

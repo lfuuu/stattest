@@ -1,5 +1,5 @@
 <?php
-class m_voipnew_cost_report
+class m_voipreports_cost_report
 {
 
     public function invoke($method, $arguments)
@@ -7,7 +7,7 @@ class m_voipnew_cost_report
         if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $arguments);
     }
 
-    function voipnew_cost_report()
+    function voipreports_cost_report()
     {
         global $design, $pg_db;
         set_time_limit(0);
@@ -193,7 +193,7 @@ class m_voipnew_cost_report
             $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
             $design->assign('regions', Region::getListAssoc());
             $design->assign('pricelists', $pricelists);
-            $design->AddMain('voipnew/cost_report_show.html');
+            $design->AddMain('voipreports/cost_report_show.html');
         } else {
             header('Content-type: application/csv');
             header('Content-Disposition: attachment; filename="cost.csv"');

@@ -1,0 +1,72 @@
+<script language="JavaScript" type="text/javascript" src="js/json2.js"></script>
+<link href="css/themes/smoothness/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+
+
+<p style="font-weight: bold">Рассчет объемов звонков:</p>
+<p>
+  {if $volume.calc_date}
+  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  {if $volume.need_recalc == 't'}
+    <b>(требуется пересчет)</b>
+  {/if}
+  {else}
+    Объемы не рассчитаны
+  {/if}
+  {if $volume.calc_running == 't'}
+    <b>(идет расчет)</b>
+  {/if}
+</p>
+{if $volume.calc_running != 't'}
+<form method="post" action="./">
+  <input type="hidden" name="module" value="voipreports" />
+  <input type="hidden" name="action" value="calc_volume" />
+  <input type="hidden" name="report_type" value="{$volume.report_type}" />
+  <input type="hidden" name="report_id" value="{$volume.report_id}" />
+  <input type="hidden" name="calc" value="run" />
+  C <input id=volume_date_from name=volume_date_from readonly type=text value="{$volume.date_from}"/>
+  По <input id=volume_date_to name=volume_date_to readonly type=text value="{$volume.date_to}"/>
+    <select name="region_id">
+        <option value="0">-- Все регионы --</option>
+        {foreach from=$regions item='g'}
+        <option value="{$g.id}" {if $g.id eq $volume.region_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+    </select>
+  <button>Запустить расчет</button>
+</form>
+{/if}
+
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="?module=voipreports&action=pricelist_report_show&id={$volume.report_id}">Просмотр отчета</a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="?module=voipreports&action=pricelist_report_edit&id={$volume.report_id}">Настройка отчета</a>
+
+<script type="text/javascript">
+{literal}
+  $(function(){
+    $.datepicker.regional.ru = {
+      closeText: 'Закрыть',
+      prevText: '&#x3c;Пред',
+      nextText: 'След&#x3e;',
+      currentText: 'Сегодня',
+      monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+        'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+      monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+        'Июл','Авг','Сен','Окт','Ноя','Дек'],
+      dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+      dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+      dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+      weekHeader: 'Не',
+      dateFormat: 'yy-mm-dd',
+      firstDay: 1,
+      showMonthAfterYear: false,
+      yearSuffix: ''};
+    $.datepicker.setDefaults($.datepicker.regional.ru);
+
+    $('#volume_date_from').datepicker();
+    $('#volume_date_to').datepicker();
+  });
+{/literal}
+</script>

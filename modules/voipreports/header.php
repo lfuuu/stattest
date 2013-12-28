@@ -12,9 +12,27 @@ class m_voipreports_head extends IModuleHead
         'voip_7800_report' => array('voipreports','access'),
         'voip_local_report' => array('voipreports','access'),
         'voip_mgmn_report' => array('voipreports','access'),
+
+        'calc_volume' => array('voipreports', 'admin'),
+        'cost_report' => array('voipreports', 'access'),
+
+        'pricelist_report_list' => array('voipreports', 'access'),
+        'pricelist_report_routing_list' => array('voipreports', 'access'),
+        'pricelist_report_operator_list' => array('voipreports', 'access'),
+        'pricelist_report_analyze_list' => array('voipreports', 'access'),
+        'pricelist_report_show' => array('voipreports', 'access'),
+        'pricelist_report_edit' => array('voipreports', 'admin'),
+        'pricelist_report_save' => array('voipreports', 'admin'),
+        'pricelist_report_delete' => array('voipreports', 'admin'),
+
     );
 
     public $menu = array(
+        array('Анализ прайс-листов', 'pricelist_report_analyze_list'),
+        array('Сравнение операторов', 'pricelist_report_operator_list'),
+        array('По маршрутизации', 'pricelist_report_routing_list'),
+        array('Себестоимость', 'cost_report'),
+        array('', 'voip_7800_report'),
         array('Voip 7800', 'voip_7800_report'),
         array('Voip Местные', 'voip_local_report'),
         array('Voip МГМН', 'voip_mgmn_report'),

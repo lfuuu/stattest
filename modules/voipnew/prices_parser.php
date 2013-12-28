@@ -521,31 +521,31 @@ class prices_parser
                 $group = $data[5];
 
                 if ($group == '1') {
-                    $group = 101;
+                    $network_type_id = 101;
                 } elseif ($group == '2') {
-                    $group = 102;
+                    $network_type_id = 102;
                 } elseif ($group == '3') {
-                    $group = 103;
+                    $network_type_id = 103;
                 } elseif ($group == '4') {
-                    $group = 104;
+                    $network_type_id = 104;
                 } elseif ($group == '5_1' || $group == '5_01') {
-                    $group = 201;
+                    $network_type_id = 201;
                 } elseif ($group == '5_2' || $group == '5_02') {
-                    $group = 202;
+                    $network_type_id = 202;
                 } elseif ($group == '5_3' || $group == '5_03') {
-                    $group = 203;
+                    $network_type_id = 203;
                 } elseif ($group == '5_4' || $group == '5_04') {
-                    $group = 204;
+                    $network_type_id = 204;
                 } elseif ($group == '6') {
-                    $group = 300;
+                    $network_type_id = 300;
                 } else {
                     continue;
                 }
 
-                VoipUtils::explodeNumber($def, $prefixFrom, $prefixTo, function($prefix) use (&$table, $group) {
+                VoipUtils::explodeNumber($def, $prefixFrom, $prefixTo, function($prefix) use (&$table, $network_type_id) {
                     $table[] = array(
                         'prefix' => $prefix,
-                        'group' => $group,
+                        'network_type_id' => $network_type_id,
                     );
                 });
             }
@@ -554,6 +554,113 @@ class prices_parser
 
         return $table;
     }
+
+    public static function read_beeline_networks($filename)
+    {
+        $objWorksheet = self::open_file($filename);
+
+        $rowIterator = $objWorksheet->getRowIterator();
+        $table = array();
+        $isFindHeader = false;
+        foreach ($rowIterator as $row) {
+            if (!$isFindHeader) {
+                $isFindHeader = true;
+            } else {
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
+                $def = '';
+                $prefixFrom = '';
+                $prefixTo = '';
+                foreach ($cellIterator as $cell) {
+                    if ($cellIterator->key() == 1) {
+                        $def = '7' . strip_tags(trim($cell->getCalculatedValue()));
+                    }
+                    if ($cellIterator->key() == 3) {
+                        $prefixFrom = strip_tags(trim($cell->getCalculatedValue()));;
+                    }
+                    if ($cellIterator->key() == 4) {
+                        $prefixTo = strip_tags(trim($cell->getCalculatedValue()));;
+                    }
+                }
+                if ($def && $prefixFrom && $prefixTo) {
+                    VoipUtils::explodeNumber($def, $prefixFrom, $prefixTo, function($prefix) use (&$table) {
+                        $table[] = array(
+                            'prefix' => $prefix,
+                            'network_type_id' => 101,
+                        );
+                    });
+                }
+            }
+        }
+        return $table;
+    }
+
+
+    public static function &read_mts_networks($filename)
+    {
+        $objWorksheet = self::open_file($filename);
+
+        $rowIterator = $objWorksheet->getRowIterator();
+        $table = array();
+        $isFindHeader = false;
+        $column = 1;
+        foreach ($rowIterator as $row) {
+            if (!$isFindHeader) {
+
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
+                foreach ($cellIterator as $cell) {
+                    if (strip_tags(trim($cell->getValue())) == "ëõ-72") {
+                        $isFindHeader = true;
+                        $column = $cellIterator->key();
+                        break;
+                    }
+                }
+            } else {
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
+                $code = '';
+                $group = '';
+                foreach ($cellIterator as $cell) {
+                    if ($cellIterator->key() == 0) {
+                        $code = strip_tags(trim($cell->getCalculatedValue()));
+                    }
+                    if ($cellIterator->key() == $column) {
+                        $group = strip_tags(trim($cell->getCalculatedValue()));;
+                    }
+                }
+
+                if ($group == '101') {
+                    $network_type_id = 101;
+                } elseif ($group == '102') {
+                    $network_type_id = 102;
+                } elseif ($group == '103') {
+                    $network_type_id = 103;
+                } elseif ($group == '201') {
+                    $network_type_id = 201;
+                } elseif ($group == '202') {
+                    $network_type_id = 202;
+                } elseif ($group == '203') {
+                    $network_type_id = 203;
+                } elseif ($group == '204') {
+                    $network_type_id = 204;
+                } else {
+                    continue;
+                }
+
+                if (preg_match('/\((\d{3})\)\s+(\d{7})-(\d{7})/', $code, $regs)) {
+                    VoipUtils::explodeNumber('7' . $regs[1], $regs[2], $regs[3], function($prefix) use (&$table, $network_type_id) {
+                        $table[] = array(
+                            'prefix' => $prefix,
+                            'network_type_id' => $network_type_id,
+                        );
+                    });
+                }
+            }
+        }
+        return $table;
+    }
+
 
     public static function &read_orange_full($filename)
     {

@@ -10,10 +10,10 @@
     Анализ прайслистов
 {/if}
 </p>
-<a href="index.php?module=voipnew&action=pricelist_report_edit&report_type_id={$report_type_id}">Создать новый отчет</a><br/><br/>
+<a href="index.php?module=voipreports&action=pricelist_report_edit&report_type_id={$report_type_id}">Создать новый отчет</a><br/><br/>
 
-<form id="formFilter" action="?module=voipnew&action=pricelist_report_analyze_list" method="GET">
-    <input type="hidden" name="module" value="voipnew" />
+<form id="formFilter" action="?module=voipreports&action=pricelist_report_analyze_list" method="GET">
+    <input type="hidden" name="module" value="voipreports" />
     <input type="hidden" name="action" value="pricelist_report_analyze_list" />
     <input type="hidden" name="report_type_id" value="{$report_type_id}" />
 
@@ -36,7 +36,7 @@
 	{foreach from=$reports item='r'}
 	<tr class="{cycle values='even,odd'}">
 		<td nowrap>
-            <a href="index.php?module=voipnew&action=pricelist_report_show&id={$r->id}">
+            <a href="index.php?module=voipreports&action=pricelist_report_show&id={$r->id}">
                 {assign var=region_id value="`$r->instance_id`"}
                 {if $regions.$region_id}
                     {$regions.$region_id->name}
@@ -46,7 +46,7 @@
             </a>
         </td>
         <td nowrap>
-            <a href="index.php?module=voipnew&action=pricelist_report_show&id={$r->id}">
+            <a href="index.php?module=voipreports&action=pricelist_report_show&id={$r->id}">
             {$r->name}
             </a>
         </td>
@@ -70,11 +70,11 @@
         </td>
         <td nowrap>
             &nbsp;&nbsp;&nbsp;
-            <a href="index.php?module=voipnew&action=pricelist_report_show&id={$r->id}">Просмотр</a>
+            <a href="index.php?module=voipreports&action=pricelist_report_show&id={$r->id}">Просмотр</a>
             &nbsp;&nbsp;&nbsp;
-            <a href="index.php?module=voipnew&action=pricelist_report_edit&id={$r->id}">Настройка</a>
+            <a href="index.php?module=voipreports&action=pricelist_report_edit&id={$r->id}">Настройка</a>
             &nbsp;&nbsp;&nbsp;
-            <a href="index.php?module=voipnew&action=pricelist_report_delete&id={$r->id}" onclick="return confirm('Удалить отчет?');">Удалить</a>
+            <a href="index.php?module=voipreports&action=pricelist_report_delete&id={$r->id}" onclick="return confirm('Удалить отчет?');">Удалить</a>
             &nbsp;&nbsp;&nbsp;
         </td>
     </tr>

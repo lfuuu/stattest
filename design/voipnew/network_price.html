@@ -1,0 +1,70 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
+<h1>
+    <small>
+    <a href='index.php?module=voipnew&action=network_prices'>Цены</a>:
+    {$pricelists[$pricelist_id].name}
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href='index.php?module=voipnew&action=raw_files&pricelist={$pricelist_id}'>Изменить</a>
+    </small>
+</h1>
+<form action="./index.php" method="get">
+    <input type="hidden" name="module" value="voipnew" />
+    <input type="hidden" name="action" value="network_price" />
+
+    <select name="pricelist" class="select2" style="width: 350px">
+        {foreach from=$pricelists item='o'}
+        <option value="{$o.id}" {if $pricelist_id eq $o.id} selected{/if}>{$regions[$o.instance_id]->name} / {$o.name}</option>
+        {/foreach}
+    </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    На дату: <input id="f_date" name="f_date" value="{$f_date}">
+
+    <input type="submit" value="Сформировать">
+</form>
+<p>&nbsp;</p>
+{if $pricelist_id ne ''}
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td class=header>Группа</td>
+        <td class=header>Название</td>
+        <td class=header>Цена</td>
+    </tr>
+    {foreach from=$defs item='o'}
+    <tr class={cycle values='even,odd'}>
+    <td width="70">{$o.defcode}</td>
+    <td width="400">{$network_types[$o.defcode]->name}</td>
+    <td align=right><b>{$o.price}</b></td>
+    </tr>
+    {/foreach}
+</table>
+{/if}
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $.datepicker.regional.ru = {
+            closeText: 'Закрыть',
+            prevText: '&#x3c;Пред',
+            nextText: 'След&#x3e;',
+            currentText: 'Сегодня',
+            monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+            monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+                'Июл','Авг','Сен','Окт','Ноя','Дек'],
+            dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+            dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+            dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+            weekHeader: 'Не',
+            dateFormat: 'yy-mm-dd',
+            firstDay: 1,
+            showMonthAfterYear: false,
+            yearSuffix: ''};
+        $.datepicker.setDefaults($.datepicker.regional.ru);
+
+        $('#f_date').datepicker();
+        $('.select2').select2();
+    });
+    {/literal}
+</script>

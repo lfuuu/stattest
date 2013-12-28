@@ -3,7 +3,7 @@
 
 <h1>
     <small>
-        <a href="?module=voipnew&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+        <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
     </small>
 
     Отчет: Сравнение операторов:
@@ -29,12 +29,12 @@
   <b>(идет расчет)</b>
   {else}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="?module=voipnew&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">Рассчет объемов</a>
+    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">Рассчет объемов</a>
   {/if}
 
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-  <a href="?module=voipnew&action=pricelist_report_edit&id={$rep->id}">Настройка отчета</a>
+  <a href="?module=voipreports&action=pricelist_report_edit&id={$rep->id}">Настройка отчета</a>
 </p>
 
 {if $rep->generated_at}
@@ -55,7 +55,7 @@ tr.lock td {
 </style>
 
 <form action="./index.php" method="get" style="display:inline">
-	<input type="hidden" name="module" value="voipnew" />
+	<input type="hidden" name="module" value="voipreports" />
 	<input type="hidden" name="action" value="pricelist_report_show" />
 	<input type="hidden" name="id" value="{$report_id}" />
 	<select name="f_dest_group">

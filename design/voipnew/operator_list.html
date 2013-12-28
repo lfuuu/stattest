@@ -2,8 +2,9 @@
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
         <td class=header colspan="3">&nbsp;</td>
+        <td class=header rowspan="2">Минимальный<br/>платеж</td>
         <td class=header colspan="4">Операторские прайсы</td>
-        <td class=header rowspan="2">Завершение вызова</td>
+        <td class=header rowspan="2">Завершение<br/>вызова</td>
         <td class=header>Клиентские прайсы</td>
     </tr>
     <tr>
@@ -21,6 +22,7 @@
         <td>{$regions[$o.region]->name}</td>
         <td>{$o.id}</td>
         <td>{$o.short_name}</td>
+        <td align="center">{$o.minimum_payment}</td>
         <td>{if $o.local_network_id}{$pricelists[$o.local_network_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_id}">({$o.local_network_id})</a>{/if}</td>
         <td>{if $o.local_network_pricelist_id}{$pricelists[$o.local_network_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_pricelist_id}">({$o.local_network_pricelist_id})</a>{/if}</td>
         <td>{if $o.pricelist_id}{$pricelists[$o.pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.pricelist_id}">({$o.pricelist_id})</a>{/if}</td>

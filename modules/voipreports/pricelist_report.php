@@ -3,7 +3,7 @@
 global $report_defs;
 
 
-class m_voipnew_pricelist_report
+class m_voipreports_pricelist_report
 {
 
     public function invoke($method, $arguments)
@@ -11,7 +11,7 @@ class m_voipnew_pricelist_report
         if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $arguments);
     }
 
-    function voipnew_pricelist_report_show()
+    function voipreports_pricelist_report_show()
     {
         set_time_limit(0);
 
@@ -28,7 +28,7 @@ class m_voipnew_pricelist_report
         }
     }
 
-    function voipnew_pricelist_report_edit()
+    function voipreports_pricelist_report_edit()
     {
         global $design;
         set_time_limit(0);
@@ -59,10 +59,10 @@ class m_voipnew_pricelist_report
         $design->assign('data', json_encode($fieldsData));
         $design->assign('regions', Region::getListAssoc());
 
-        $design->AddMain('voipnew/pricelist_report_edit.html');
+        $design->AddMain('voipreports/pricelist_report_edit.html');
     }
 
-    function voipnew_pricelist_report_save()
+    function voipreports_pricelist_report_save()
     {
         $report_id = intval($_POST['report_id']);
         $pricelist_ids = $_POST['pricelist_ids'];
@@ -91,11 +91,11 @@ class m_voipnew_pricelist_report
         $report->name = $_POST['name'];
         $report->save();
 
-        header('location: index.php?module=voipnew&action=pricelist_report_edit&id=' . $report->id);
+        header('location: index.php?module=voipreports&action=pricelist_report_edit&id=' . $report->id);
         exit;
     }
 
-    function voipnew_pricelist_report_delete()
+    function voipreports_pricelist_report_delete()
     {
         if (isset($_GET['id'])) $report_id = intval($_GET['id']); else $report_id = 0;
 
@@ -103,11 +103,11 @@ class m_voipnew_pricelist_report
         $report_type_id = $report->report_type_id;
         $report->delete();
 
-        header('location: ?module=voipnew&action=pricelist_report_list&report_type_id='.$report_type_id);
+        header('location: ?module=voipreports&action=pricelist_report_list&report_type_id='.$report_type_id);
         exit;
     }
 
-    function voipnew_pricelist_report_list($type)
+    function voipreports_pricelist_report_list($type)
     {
         global $design;
 
@@ -138,25 +138,25 @@ class m_voipnew_pricelist_report
         $design->assign('regions', Region::getListAssoc());
         $design->assign('pricelists', Pricelist::getListAssoc());
 
-        $design->AddMain('voipnew/pricelist_report_list.html');
+        $design->AddMain('voipreports/pricelist_report_list.html');
     }
 
-    function voipnew_pricelist_report_routing_list()
+    function voipreports_pricelist_report_routing_list()
     {
-        $this->voipnew_pricelist_report_list(PricelistReport::TYPE_ROUTING);
+        $this->voipreports_pricelist_report_list(PricelistReport::TYPE_ROUTING);
     }
 
-    function voipnew_pricelist_report_operator_list()
+    function voipreports_pricelist_report_operator_list()
     {
-        $this->voipnew_pricelist_report_list(PricelistReport::TYPE_OPERATOR);
+        $this->voipreports_pricelist_report_list(PricelistReport::TYPE_OPERATOR);
     }
 
-    function voipnew_pricelist_report_analyze_list()
+    function voipreports_pricelist_report_analyze_list()
     {
-        $this->voipnew_pricelist_report_list(PricelistReport::TYPE_ANALYZE);
+        $this->voipreports_pricelist_report_list(PricelistReport::TYPE_ANALYZE);
     }
 
-    public function voipnew_calc_volume()
+    public function voipreports_calc_volume()
     {
         global $db, $pg_db, $design;
 
@@ -184,7 +184,7 @@ class m_voipnew_pricelist_report
 
             $pg_db->Query("select * from voip.calc_volumes({$volume['id']})");
             if ($pg_db->mError) die($pg_db->mError);
-            header("location: ./?module=voipnew&action=calc_volume&report_type=$report_type&report_id=$report_id");
+            header("location: index.php?module=voipreports&action=calc_volume&report_type=$report_type&report_id=$report_id");
             exit;
         }
 
@@ -249,7 +249,7 @@ class m_voipnew_pricelist_report
 
         $design->assign('volume', $volume);
         $design->assign('regions', $db->AllRecords("select id, name from regions order by id desc"));
-        $design->AddMain('voipnew/calc_volume.html');
+        $design->AddMain('voipreports/calc_volume.html');
 
     }
 }

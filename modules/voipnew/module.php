@@ -4,11 +4,6 @@ include_once 'prices_parser.php';
 
 include_once 'network.php';
 include_once 'operators.php';
-include_once 'analyze_pricelist_report.php';
-include_once 'operator_report.php';
-include_once 'routing_report.php';
-include_once 'pricelist_report.php';
-include_once 'cost_report.php';
 
 
 class m_voipnew extends IModule
@@ -18,11 +13,6 @@ class m_voipnew extends IModule
     public function __construct()
     {
         $this->_addInheritance(new m_voipnew_operators);
-        $this->_addInheritance(new m_voipnew_analyze_pricelist_report);
-        $this->_addInheritance(new m_voipnew_operator_report);
-        $this->_addInheritance(new m_voipnew_routing_report);
-        $this->_addInheritance(new m_voipnew_pricelist_report);
-        $this->_addInheritance(new m_voipnew_cost_report);
         $this->_addInheritance(new m_voipnew_network);
     }
 
@@ -793,21 +783,6 @@ class m_voipnew extends IModule
         $design->assign('pricelists', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
         $design->AddMain('voipnew/operator_networks.html');
-    }
-
-    public function voipnew_network_prices()
-    {
-        global $db, $pg_db, $design;
-
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                                    where p.type = 'network_prices'
-                                    order by p.region desc, p.operator_id, p.name");
-
-        $design->assign('pricelists', $res);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->AddMain('voipnew/network_prices.html');
     }
 
     public function voipnew_priority_list()

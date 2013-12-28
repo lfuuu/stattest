@@ -3,7 +3,7 @@
 <tr>
     <td class=header>Регион</td>
     <td class=header>Оператор</td>
-    <td class=header>Название</td>
+    <td class=header>Прайслист</td>
     <td class=header>Цены</td>
 </tr>
 {foreach from=$pricelists item='o'}
@@ -11,7 +11,7 @@
         <td>{$regions[$o.region].name}</td>
         <td>{$o.operator}</td>
         <td><a href='index.php?module=voipnew&action=raw_files&pricelist={$o.id}'>{$o.name}</a></td>
-        <td><a href='index.php?module=voipnew&action=defs&pricelist={$o.id}' target="_blank">цены</a></td>
+        <td><a href='index.php?module=voipnew&action=network_price&pricelist={$o.id}'>цены</a></td>
     </tr>
 {/foreach}
 </table>

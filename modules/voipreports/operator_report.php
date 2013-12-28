@@ -1,5 +1,5 @@
 <?php
-class m_voipnew_operator_report
+class m_voipreports_operator_report
 {
 
     public function invoke($method, $arguments)
@@ -143,8 +143,8 @@ class m_voipnew_operator_report
                 $report[$k]['prices'] = $r_prices;
             }
         } else {
-            if (!isset($_GET['volume']))
-                $f_volume = '0';
+            //if (!isset($_GET['volume']))
+            //    $f_volume = '0';
         }
 
         foreach ($totals as $k => $v) {
@@ -180,7 +180,7 @@ class m_voipnew_operator_report
             $design->assign('geo_regions', $regions);
             $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
             $design->assign('pricelists', $pricelists);
-            $design->AddMain('voipnew/operator_report_show.html');
+            $design->AddMain('voipreports/operator_report_show.html');
         } else {
             header('Content-type: application/csv');
             header('Content-Disposition: attachment; filename="operator.csv"');
