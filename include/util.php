@@ -773,7 +773,7 @@ class ClientCS {
             if($this->F["credit"] == '') $this->F["credit"] = -1;
             if($this->F["mail_print"] != "yes") $this->F["mail_print"] = "no";
             if($this->F["bill_rename1"] != "yes") $this->F["bill_rename1"] = "no";
-            $this->F["voip_sms_notice"] = str_replace(array('+','(',')','-'), '', $this->F["voip_sms_notice"]);
+            $this->F["voip_sms_notice"] = preg_replace("/[^\d]+/", "", $this->F["voip_sms_notice"]);
         }
     }
     public function GetContacts($type = null,$onlyActive = false,$onlyOfficial = false) {
