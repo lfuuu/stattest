@@ -4751,7 +4751,8 @@ if($client != "nbn")
             and b.bill_no = t.bill_no
             and is_rollback = 0
             ".$addWhere."
-            ");
+            group by s.trouble_id
+	        ");
 
 }else{
     $closeList = array();
