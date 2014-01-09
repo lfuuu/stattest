@@ -2,15 +2,16 @@
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
         <td class=header colspan="3">&nbsp;</td>
-        <td class=header colspan="4">Операторские прайсы</td>
-        <td class=header rowspan="2">Завершение вызова</td>
+        <td class=header rowspan="2">Минимальный<br/>платеж</td>
+        <td class=header colspan="3">Операторские прайсы</td>
+        <td class=header rowspan="2">Завершение<br/>вызова</td>
         <td class=header>Клиентские прайсы</td>
     </tr>
     <tr>
         <td class=header>Регион</td>
         <td class=header>Id</td>
         <td class=header>Оператор</td>
-        <td class=header>Сеть</td>
+        <!-- <td class=header>Сеть</td> -->
         <td class=header>Местные</td>
         <td class=header>Моб, МГМН</td>
         <td class=header>7800</td>
@@ -19,9 +20,10 @@
     {foreach from=$operators item='o'}
     <tr class="{cycle values='even,odd'}">
         <td>{$regions[$o.region]->name}</td>
-        <td>{$o.id}</td>
-        <td>{$o.short_name}</td>
-        <td>{if $o.local_network_id}{$pricelists[$o.local_network_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_id}">({$o.local_network_id})</a>{/if}</td>
+        <td><a href="index.php?module=voipnew&action=operator_edit&instance_id={$o.region}&&operator_id={$o.id}">{$o.id}</a></td>
+        <td><a href="index.php?module=voipnew&action=operator_edit&instance_id={$o.region}&operator_id={$o.id}">{$o.short_name}</a></td>
+        <td align="center">{$o.minimum_payment}</td>
+        <!-- <td>{if $o.local_network_id}{$pricelists[$o.local_network_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_id}">({$o.local_network_id})</a>{/if}</td> -->
         <td>{if $o.local_network_pricelist_id}{$pricelists[$o.local_network_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.local_network_pricelist_id}">({$o.local_network_pricelist_id})</a>{/if}</td>
         <td>{if $o.pricelist_id}{$pricelists[$o.pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.pricelist_id}">({$o.pricelist_id})</a>{/if}</td>
         <td>{if $o.operator_7800_pricelist_id}{$pricelists[$o.operator_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.operator_7800_pricelist_id}">({$o.operator_7800_pricelist_id})</a>{/if}</td>

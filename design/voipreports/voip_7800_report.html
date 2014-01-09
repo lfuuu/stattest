@@ -60,7 +60,7 @@
     {foreach from=$report item='r'}
     <tr class="{cycle values='even,odd'}">
         {if $groupp}<td>{$r.date}</td>{/if}
-        <td>{$operators[$r.operator_id].name} ({$operators[$r.operator_id].id})</td>
+        <td>{$operators[$r.operator_id].name} ({$r.operator_id})</td>
         <td vAlign='bottom'>Минут: {$r.len|round:2}<br />Количество: {$r.count}</td>
         <td vAlign='bottom'>Минут: {$r.len_op|round:2}<br />Стоимость: {$r.amount_op}</td>
         <td vAlign='bottom'>Минут: {$r.len_mcn|round:2}<br />Стоимость: {$r.amount_mcn}</td>

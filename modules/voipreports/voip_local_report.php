@@ -63,7 +63,7 @@ class m_voipreports_voip_local_report
                 $ob = " order by operator_id ";
             }
 
-            $networkGroups = $pg_db->AllRecords('select code, name from voip.operator_network_groups', 'code');
+            $networkGroups = $pg_db->AllRecords('select id, name from voip.network_type', 'id');
 
             $query = "
 				select

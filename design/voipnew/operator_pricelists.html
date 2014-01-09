@@ -1,18 +1,23 @@
-<p>Прайлисты операторов:</p>
+<p>Прайлисты операторов: <a href="index.php?module=voipnew&action=operator_pricelist_edit">Добавить</a></p>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr>
     <td class=header>Регион</td>
     <td class=header>Оператор</td>
+    <td class=header>Ид</td>
     <td class=header>Прайслист</td>
     <td class=header>Метод тарификации</td>
     <!--    <td class=header>Валюта</td> -->
+    <td class=header>Инициация<br/>МГМН вызова</td>
+    <td class=header>Инициация<br/>зонового вызова</td>
+    <td class=header>Префиксы</td>
     <td class=header>Цены</td>
 </tr>
 {foreach from=$pricelists item='o'}
 	<tr class="{cycle values='even,odd'}">
         <td>{$regions[$o.region].name}</td>
         <td>{$o.operator}</td>
-        <td><a href='index.php?module=voipnew&action=raw_files&pricelist={$o.id}'>{$o.name}</a></td>
+        <td><a href='index.php?module=voipnew&action=operator_pricelist_edit&pricelist_id={$o.id}'>{$o.id}</a></td>
+        <td><a href='index.php?module=voipnew&action=operator_pricelist_edit&pricelist_id={$o.id}'>{$o.name}</a></td>
         <td>
             {if $o.tariffication_by_minutes == 't'}
                 поминутная
@@ -24,7 +29,10 @@
             {/if}
         </td>
 <!--        <td>{$o.currency}</td> -->
-        <td><a href='index.php?module=voipnew&action=defs&pricelist={$o.id}' target="_blank">цены</a></td>
+        <td>{if $o.initiate_mgmn_cost > 0}{$o.initiate_mgmn_cost}{/if}</td>
+        <td>{if $o.initiate_zona_cost > 0}{$o.initiate_zona_cost}{/if}</td>
+        <td><a href='index.php?module=voipnew&action=raw_files&pricelist={$o.id}'>префиксы</a></td>
+        <td><a href='index.php?module=voipnew&action=defs&pricelist={$o.id}'>цены</a></td>
     </tr>
 {/foreach}
 </table>

@@ -1,5 +1,5 @@
 <?php
-class m_voipnew_analyze_pricelist_report
+class m_voipreports_analyze_pricelist_report
 {
 
     public function invoke($method, $arguments)
@@ -129,7 +129,7 @@ class m_voipnew_analyze_pricelist_report
 
         if (!isset($_GET['export'])) {
 
-            $design->AddMain('voipnew/analyze_pricelist_report_show.html');
+            $design->AddMain('voipreports/analyze_pricelist_report_show.html');
         } else {
 
             $ctype = "application/vnd.ms-excel; charset=utf-8";
@@ -142,7 +142,7 @@ class m_voipnew_analyze_pricelist_report
 
 //            header("Content-Type: text/html; charset=utf-8");
 
-            $design->ProcessEx('voipnew/analyze_pricelist_report_export.html');
+            $design->ProcessEx('voipreports/analyze_pricelist_report_export.html');
             exit;
         }
     }

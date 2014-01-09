@@ -4,7 +4,7 @@
 <script language="JavaScript" type="text/javascript" src="js/json2.js"></script>
 <h1>
     <small>
-    <a href="?module=voipnew&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+    <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
     </small>
 
     {if $rep->id==0}Новый отчет{else}Изменить отчет{/if}
@@ -85,7 +85,7 @@
     });
     {/literal}
 </script>
-<form id="editreport" action="?module=voipnew&action=pricelist_report_save" method="POST" >
+<form id="editreport" action="?module=voipreports&action=pricelist_report_save" method="POST" >
     <input type=hidden id='data' value='{$data}' />
     <input type=hidden name='report_id' value='{$rep->id}' />
     <input type=hidden name='report_type_id' value='{$rep->report_type_id}' />
@@ -152,9 +152,9 @@
 
     {if $rep->id > 0}
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="?module=voipnew&action=pricelist_report_show&id={$rep->id}">Просмотр отчета</a>
+        <a href="?module=voipreports&action=pricelist_report_show&id={$rep->id}">Просмотр отчета</a>
 
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="?module=voipnew&action=calc_volume&report_type=pricelist&report_id={$rep->id}">Рассчет объемов</a>
+        <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}">Рассчет объемов</a>
     {/if}
 </form>

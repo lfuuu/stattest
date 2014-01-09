@@ -1,4 +1,4 @@
-<p>Сеть: <b>{$networkConfig->id}</b>. Файл: {$file->file_name}. Загруженные префиксы <a href="index.php?module=voipnew&action=network_config_show&id={$networkConfig->id}">Назад</a>
+<p>Сеть: <b>{$networkConfig->name}</b>. Файл: {$file->file_name} <a href="index.php?module=voipnew&action=network_config_show&id={$networkConfig->id}">Назад</a>
 <div style="position:relative;left:50;">
     <table>
         <tr>
@@ -38,7 +38,7 @@
                 <form action="./index.php" method="post">
                     <input type="hidden" name="module" value="voipnew" />
                     <input type="hidden" name="action" value="network_file_change_start_date" />
-                    <input type="hidden" name="id" value="{$file-.id}" />
+                    <input type="hidden" name="id" value="{$file->id}" />
                     начало действия: <input id="startdate" name="startdate" value="{$file->startdate}"></b>
                     <input type="submit" value="Изменить дату начала действия" />
                 </form>
