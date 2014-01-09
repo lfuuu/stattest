@@ -81,17 +81,26 @@ class cbe_list_manager
 	{
 		$c = iconv("cp1251", "koi8-r//TRANSLIT", $c);
 		$lists = explode("\r\nСекцияДокумент=Платежное поручение\r\n", $c);
-		$header = $lists[0];
-		unset($lists[0]);
+
+        if (count($lists) > 1)
+        {
+            $header = $lists[0];
+            unset($lists[0]);
+        } else {
+            $header = "";
+        }
 
 		$ll = array();
 
 		foreach($lists as $c)
 		{
-			if(preg_match_all("/ДатаПоступило=(\d+)\.(\d+)\.(\d+)/", $c, $o))
+			if (preg_match_all("/ДатаПоступило=(\d+)\.(\d+)\.(\d+)/", $c, $o))
 			{
 				$data = $o[1][0]."-".$o[2][0]."-".$o[3][0];
-			}else{
+			} elseif (preg_match_all("/ДатаНачала=(\d+)\.(\d+)\.(\d+)/", $c, $o))
+			{
+				$data = $o[1][0]."-".$o[2][0]."-".$o[3][0];
+			} else {
 				preg_match_all("/ДатаСписано=(\d+)\.(\d+)\.(\d+)/", $c, $o);
 				$data = $o[1][0]."-".$o[2][0]."-".$o[3][0];
 			}
