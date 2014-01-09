@@ -332,18 +332,24 @@ class m_stats extends IModule{
                                        left join regions r on r.id=u.region
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
-
+        
+        $regions_cnt = $db->GetValue("select COUNT(DISTINCT(u.region)) from usage_voip u
+                                       left join regions r on r.id=u.region
+                                       where u.client='".addslashes($client['client'])."'");
+        
+        $design->assign('regions_cnt',$regions_cnt);
 		$design->assign('phone',$phone=get_param_protected('phone',''));
 		$phones = array();
 		$phones_sel = array();
 
         $regions = array();
 
-        $last_region = '';
+        $last_region = $region = '';
         if ($phone == '' && count($usages) > 0) {
             $phone = $usages[0]['region'];
-            $region = 'all';
-        } else {
+            if ($regions_cnt > 1) $region = 'all';
+        }
+        if ($region != 'all') {
             $region = explode('_', $phone);
             $region = $region[0];
         }
