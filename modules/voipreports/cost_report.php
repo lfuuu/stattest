@@ -59,7 +59,7 @@ class m_voipreports_cost_report
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
 
-            $networkGroups = $pg_db->AllRecords('select code, name from voip.operator_network_groups', 'code');
+            $networkGroups = $pg_db->AllRecords('select id, name from voip.network_type', 'id');
 
             $preReport = $pg_db->AllRecords("
                         select

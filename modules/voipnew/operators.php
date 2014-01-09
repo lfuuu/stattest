@@ -22,4 +22,57 @@ class m_voipnew_operators
         $design->assign('regions', Region::getListAssoc());
         $design->AddMain('voipnew/operator_list.html');
     }
+
+    public function voipnew_operator_edit()
+    {
+        global $design;
+        $instance_id = get_param_protected('instance_id');
+        $operator_id = get_param_protected('operator_id', 0);
+
+        $operator = VoipOperator::getByIdAndInstanceId($operator_id, $instance_id);
+        if (!$operator) {
+            $operator = new VoipOperator();
+            $operator->region = $instance_id;
+            $operator->id = $operator_id;
+        }
+
+        $design->assign('operator', $operator);
+        $design->assign('pricelists', Pricelist::getListAssoc());
+        $design->assign('regions', Region::getListAssoc());
+        $design->AddMain('voipnew/operator_edit.html');
+    }
+
+    public function voipnew_operator_save()
+    {
+        $instance_id = get_param_protected('instance_id', 0);
+        $operator_id = get_param_protected('operator_id', 0);
+        $name = get_param_protected('name');
+        $shortName = get_param_protected('short_name');
+        $minimumPayment = get_param_protected('minimum_payment');
+        $termInCost = get_param_protected('term_in_cost');
+        $localNetworkPricelistId = get_param_protected('local_network_pricelist_id');
+        $defaultPricelistId = get_param_protected('default_pricelist_id');
+        $operator7800PricelistId = get_param_protected('operator_7800_pricelist_id');
+        $client7800PricelistId = get_param_protected('client_7800_pricelist_id');
+
+        $operator = VoipOperator::getByIdAndInstanceId($operator_id, $instance_id);
+        if (!$operator) {
+            $operator = new VoipOperator();
+            $operator->region = $instance_id;
+            $operator->id = $operator_id;
+        }
+
+        $operator->name = $name;
+        $operator->short_name = $shortName;
+        $operator->minimum_payment = $minimumPayment ? $minimumPayment : null;
+        $operator->term_in_cost = $termInCost ? $termInCost : 0;
+        $operator->default_pricelist_id = $defaultPricelistId ? $defaultPricelistId : null;
+        $operator->local_network_pricelist_id = $localNetworkPricelistId ? $localNetworkPricelistId : null;
+        $operator->operator_7800_pricelist_id = $operator7800PricelistId ? $operator7800PricelistId : null;
+        $operator->client_7800_pricelist_id = $client7800PricelistId ? $client7800PricelistId : null;
+        $operator->save();
+
+        header('location: index.php?module=voipnew&action=operator_edit&instance_id=' . $instance_id . '&operator_id=' . $operator_id);
+        exit;
+    }
 }

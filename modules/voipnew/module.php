@@ -4,7 +4,7 @@ include_once 'prices_parser.php';
 
 include_once 'network.php';
 include_once 'operators.php';
-
+include_once 'pricelists.php';
 
 class m_voipnew extends IModule
 {
@@ -14,6 +14,7 @@ class m_voipnew extends IModule
     {
         $this->_addInheritance(new m_voipnew_operators);
         $this->_addInheritance(new m_voipnew_network);
+        $this->_addInheritance(new m_voipnew_pricelists);
     }
 
     public function __call($method, array $arguments = array())
@@ -53,7 +54,6 @@ class m_voipnew extends IModule
     public function voipnew_view_raw_file()
     {
         global $pg_db, $design;
-
 
         $id = get_param_protected('id', 0);
         $f_country_id = get_param_protected('f_country_id', '0');
@@ -266,8 +266,6 @@ class m_voipnew extends IModule
     public function save_price_file($raw_file, $defs)
     {
         global $pg_db;
-        $correct = $pg_db->GetValue('select correct from voip.pricelist where id=' . intval($raw_file['pricelist_id']));
-        if ($correct === false) $correct = 0;
         $pg_db->Begin();
         $rawfile_id = $pg_db->QueryInsert('voip.raw_file', $raw_file);
         if ($rawfile_id > 0 && $raw_file['rows'] > 0) {
@@ -275,7 +273,6 @@ class m_voipnew extends IModule
             foreach ($defs as $row) {
                 $row['rawfile_id'] = $rawfile_id;
                 $row['pricelist_id'] = $raw_file['pricelist_id'];
-                $row['price'] = $row['price'] + $correct;
                 $new_rows[] = $row;
                 if (count($new_rows) >= 10000) {
                     if (!$this->insert_raw_prices($new_rows)) {
@@ -740,36 +737,7 @@ class m_voipnew extends IModule
 
     }
 
-    public function voipnew_client_pricelists()
-    {
-        global $db, $pg_db, $design;
-
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                                    where p.operator_id = 999 and p.type = 'client'
-                                    order by p.region desc, p.operator_id, p.name");
-
-        $design->assign('pricelists', $res);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->AddMain('voipnew/client_pricelists.html');
-    }
-
-    public function voipnew_operator_pricelists()
-    {
-        global $db, $pg_db, $design;
-
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
-                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                                    where p.operator_id != 999 and p.type = 'operator'
-                                    order by p.region desc, p.operator_id, p.name");
-
-        $design->assign('pricelists', $res);
-        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->AddMain('voipnew/operator_pricelists.html');
-    }
-
+    /*
     public function voipnew_operator_networks()
     {
         global $db, $pg_db, $design;
@@ -784,6 +752,7 @@ class m_voipnew extends IModule
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
         $design->AddMain('voipnew/operator_networks.html');
     }
+    */
 
     public function voipnew_priority_list()
     {

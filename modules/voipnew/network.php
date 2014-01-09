@@ -151,6 +151,45 @@ class m_voipnew_network
         $design->AddMain('voipnew/network_file_show.html');
     }
 
+    public function voipnew_network_file_activatedeactivate()
+    {
+        $id = get_param_protected('id', 0);
+
+        $file = VoipNetworkFile::find($id);
+        if (!$file) {
+            trigger_error('network file #' . $id . ' not found');
+        }
+
+        set_time_limit(0);
+
+        if (isset($_POST['activate'])) {
+            $file->active = 't';
+        } elseif (isset($_POST['deactivate'])) {
+            $file->active = 'f';
+        }
+        $file->save();
+
+        header('location: index.php?module=voipnew&action=network_config_show&id=' . $file->network_config_id);
+        exit;
+    }
+
+    public function voipnew_network_file_change_start_date()
+    {
+        $id = get_param_protected('id', 0);
+        $startDate = get_param_protected('startdate', 0);
+
+        $file = VoipNetworkFile::find($id);
+        if (!$file) {
+            trigger_error('network file #' . $id . ' not found');
+        }
+
+        $file->startdate = $startDate;
+        $file->save();
+
+        header('location: index.php?module=voipnew&action=network_file_show&id=' . $file->id);
+        exit;
+    }
+
     public function voipnew_network_prices()
     {
         global $db, $pg_db, $design;
