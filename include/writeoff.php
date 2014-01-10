@@ -1,5 +1,4 @@
 <?
-//,"domains","","usage_phone_callback");
 $writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails", "usage_8800","usage_sms");
 
 function Underscore2Caps($s) {
@@ -729,7 +728,19 @@ class ServiceUsageVoip extends ServicePrototype {
 
                 }elseif($dest == '900'){
 
-                    $name = "Плата за звонки по номеру %NUM% (местные, междугородные, международные) %PERIOD%";
+                    if (substr($this->service["E164"], 0, 4) == "7800")
+                    {
+                        $minPayment = $this->tarif_current["month_min_payment"];
+                        if ($price <= $minPayment)
+                        {
+                            $name = "Минимальный платеж за звонки по номеру %NUM% %PERIOD%";
+                            $price = $minPayment;
+                        } else {
+                            $name = "Плата за звонки по номеру %NUM% %PERIOD%";
+                        }
+                    } else {
+                        $name = "Плата за звонки по номеру %NUM% (местные, междугородные, международные) %PERIOD%";
+                    }
 
                 }
 
