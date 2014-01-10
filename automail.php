@@ -24,15 +24,22 @@ define("print_sql", 1);
 	echo "############".date("Y-m-d H:i:s")."############## Was Running... \n";
 	$R = array();
 	$db->Query('select * from mail_letter where letter_state="ready"');
+	
+	
 	while($r = $db->NextRecord(MYSQL_ASSOC))
 		$R[$r['job_id']][] = $r;
+	
 	foreach($R as $job_id=>$R2){
+		$idx = 0;
 		$job = new MailJob($job_id);
 		if(in_array($job->data['job_state'],array('ready','test','news'))){
 			$test = (defined('MAIL_TEST_ONLY') && (MAIL_TEST_ONLY==1));
 			$test = $test || $job->data['job_state']=='test';
 			foreach($R2 as $r){
+				if (($idx % 10) == 0 && !in_array($job->get_cur_state(), array('ready','test','news'))) continue;
+				
 				$job->assign_client($r['client']);
+				
 				echo 'Sending '.$job_id.' to '.$r['client'].'..';
 				$res = $job->Send($test?'dga@mcn.ru':null);
 				if($res!==true){
@@ -41,6 +48,8 @@ define("print_sql", 1);
 					echo "ok\n";
 				}
 				sleep(5);
+				
+				$idx++;
 			}
 		}
 	}
