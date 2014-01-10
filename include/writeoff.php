@@ -560,7 +560,7 @@ class ServiceUsageVoip extends ServicePrototype {
         return array();
     }
 
-    private function calc($num = ''){
+    private function calc($is7800){
     global $pg_db;
         $d = getdate($this->date_from_prev);
 
@@ -628,6 +628,10 @@ class ServiceUsageVoip extends ServicePrototype {
             $lines[$dest]['price'] += $r['price'];
         }
 
+        if ($is7800)
+            if (!$lines)
+                $lines["900"] = array("price" => 0);
+
         uksort($lines, "cmp_calc_voip_by_dest");
 
         return $lines;
@@ -635,6 +639,9 @@ class ServiceUsageVoip extends ServicePrototype {
 
     public function GetLinesMonth(){
         $R=ServicePrototype::GetLinesMonth();
+
+        $is7800 = substr($this->service["E164"], 0, 4) == "7800";
+
         if($this->date_from && $this->date_to){
             $R[] = array(
                 $this->tarif_current['currency'],
@@ -665,9 +672,10 @@ class ServiceUsageVoip extends ServicePrototype {
             }
         }
 
+
         if($this->date_from_prev && $this->date_to_prev){
             $O = array();
-            $lines=$this->calc();
+            $lines=$this->calc($is7800);
 
             foreach ($lines as $dest => $r){
                 $price = $r['price'];
@@ -728,7 +736,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
                 }elseif($dest == '900'){
 
-                    if (substr($this->service["E164"], 0, 4) == "7800")
+                    if ($is7800)
                     {
                         $minPayment = $this->tarif_current["month_min_payment"];
                         if ($price <= $minPayment)
