@@ -1460,61 +1460,48 @@ class m_newaccounts extends IModule
 
     function get_bill_docs(Bill &$bill, $L = null)
     {
-        $bill_akts = $bill_invoices = array();
-        
-        if (($doctypes = $bill->getBill2Doctypes()) == false) {
-        
-            if(!$L)
-                $L = $bill->GetLines();
-    
-            $period_date = get_inv_date_period($bill->GetTs());
-    
-            $p1 = self::do_print_prepare_filter('invoice',1,$L,$period_date);
-            $a1 = self::do_print_prepare_filter('akt',1,$L,$period_date);
-    
-            $p2 = self::do_print_prepare_filter('invoice',2,$L,$period_date);
-            $a2 = self::do_print_prepare_filter('akt',2,$L,$period_date);
-    
-            $p3 = self::do_print_prepare_filter('invoice',3,$L,$period_date,true,true);
-            $a3 = self::do_print_prepare_filter('akt',3,$L,$period_date);
-    
-            $p4 = self::do_print_prepare_filter('lading',1,$L,$period_date);
-            $p5 = self::do_print_prepare_filter('invoice',4,$L,$period_date);
-    
-            $p6 = self::do_print_prepare_filter('invoice',5,$L,$period_date);
-    
-            $gds = self::do_print_prepare_filter('gds',3,$L,$period_date);
-    
-            $bill_akts = array(
-                1=>count($a1),
-                2=>count($a2),
-                3=>count($a3)
-            );
-    
-            $bill_invoices = array(
-                1=>count($p1),
-                2=>count($p2),
-                3=>count($p3),
-                4=>count($p4),
-                5=>($p5==-1 || $p5 == 0)?$p5:count($p5),
-                6=>count($p6),
-                7=>count($gds)
-            );
-            
-            $doctypes = array();
-            for ($i=1;$i<=3;$i++) $doctypes['a'.$i] = $bill_akts[$i];
-            for ($i=1;$i<=7;$i++) $doctypes['i'.$i] = $bill_invoices[$i];
-            
-            $bill->setBill2Doctypes($doctypes);
-            
-        } else {
-            for ($i=1;$i<=3;$i++) $bill_akts[$i] = $doctypes['a'.$i];
-            for ($i=1;$i<=7;$i++) $bill_invoices[$i] = $doctypes['i'.$i];
-        }
+        if(!$L)
+            $L = $bill->GetLines();
+
+        $period_date = get_inv_date_period($bill->GetTs());
+        $p1 = self::do_print_prepare_filter('invoice',1,$L,$period_date);
+        $a1 = self::do_print_prepare_filter('akt',1,$L,$period_date);
+
+        $p2 = self::do_print_prepare_filter('invoice',2,$L,$period_date);
+        $a2 = self::do_print_prepare_filter('akt',2,$L,$period_date);
+
+        $p3 = self::do_print_prepare_filter('invoice',3,$L,$period_date,true,true);
+        $a3 = self::do_print_prepare_filter('akt',3,$L,$period_date);
+
+        $p4 = self::do_print_prepare_filter('lading',1,$L,$period_date);
+        $p5 = self::do_print_prepare_filter('invoice',4,$L,$period_date);
+
+        $p6 = self::do_print_prepare_filter('invoice',5,$L,$period_date);
+
+        $gds = self::do_print_prepare_filter('gds',3,$L,$period_date);
+
+        $bill_akts = array(
+                null,
+            1=>count($a1),
+            2=>count($a2),
+            3=>count($a3)
+        );
+
+        $bill_invoices = array(
+            null,
+            count($p1),
+            count($p2),
+            count($p3),
+            count($p4),
+            ($p5==-1 || $p5 == 0)?$p5:count($p5),
+            count($p6),
+            count($gds)
+        );
+
         //printdbg(array("akts" => $bill_akts, "bills" => $bill_invoices, "p3" => $p3));
         return array($bill_akts, $bill_invoices);
     }
-
+    
     function newaccounts_bill_courier_comment()
     {
         $doerId= get_param_raw("doer_id", "0");

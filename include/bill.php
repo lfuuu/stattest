@@ -774,25 +774,5 @@ class Bill{
 
         return $doc;
     }
-//------------------------------------------------------------------------------------
-    public function setBill2Doctypes($data = array())
-    {
-        global $db;
-        
-        $data['bill_no'] = $this->bill_no;
-        $data['ts'] = array('NOW()');
-        
-        $db->QueryInsert("newbills_documents",$data);
-    }
-//------------------------------------------------------------------------------------
-    public function getBill2Doctypes()
-    {
-        global $db;
-
-        $res = $db->GetRow("SELECT * FROM newbills_documents WHERE bill_no='".$this->bill_no."'");
-
-        return $res;
-    }
-//------------------------------------------------------------------------------------
 }
 ?>
