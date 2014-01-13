@@ -641,10 +641,5 @@ class MailJob {
 		$db->QueryUpdate('mail_letter',array('job_id','client'),$r);
 		return $ret;
 	}
-	function get_cur_state()
-	{
-	    $res = $db->GetValue('select job_state from mail_job where job_id='.$this->id);
-	    return $res;
-	}
 }
 ?>
