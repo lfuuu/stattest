@@ -332,17 +332,30 @@ class m_stats extends IModule{
                                        left join regions r on r.id=u.region
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
+        $regions = array();
+        foreach ($usages as $u)
+            if (!isset($regions[$u['region']])) 
+                $regions[$u['region']] = $u['region'];
 
+        $regions_cnt = count($regions);
+
+        $design->assign('regions_cnt',$regions_cnt);
 		$design->assign('phone',$phone=get_param_protected('phone',''));
 		$phones = array();
 		$phones_sel = array();
-        
+
         $regions = array();
 
-        $last_region = '';
-        if ($phone == '' && count($usages) > 0) $phone = $usages[0]['region'];
-        $region = explode('_', $phone);
-        $region = $region[0];
+        $last_region = $region = '';
+        if ($phone == '' && count($usages) > 0) {
+            $phone = $usages[0]['region'];
+            if ($regions_cnt > 1) $region = 'all';
+        }
+        if ($region != 'all') {
+            $region = explode('_', $phone);
+            $region = $region[0];
+        }
+
         foreach ($usages as $r) {
             if ($region == 'all') {
                 if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
