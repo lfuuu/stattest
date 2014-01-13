@@ -1501,7 +1501,7 @@ class m_newaccounts extends IModule
         //printdbg(array("akts" => $bill_akts, "bills" => $bill_invoices, "p3" => $p3));
         return array($bill_akts, $bill_invoices);
     }
-    
+
     function newaccounts_bill_courier_comment()
     {
         $doerId= get_param_raw("doer_id", "0");
