@@ -34,7 +34,7 @@ class Sync1C
      */
     public static function me()
     {
-       return self::$instance ? self::$instance : self::$instance = new Sync1C();
+        return self::$instance ? self::$instance : self::$instance = new Sync1C();
     }
 
     /**
