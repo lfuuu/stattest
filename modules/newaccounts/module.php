@@ -2075,6 +2075,8 @@ class m_newaccounts extends IModule
                 if($r == "invoice-1" && $isFromImport && !$isAkt1 && $isSF)
                     $isDeny = true;
 
+                if($r == "assignment_stamp" && $isFromImport)
+                    $isDeny = true;
 
                 if ((get_param_protected($r) || $reCode || $toPass) && !$isDeny) {
 
