@@ -1,3 +1,4 @@
+<script src="js/jquery.inputmask.js"></script>
 <H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
 <table width=100%><tr><td>
 	<table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
@@ -181,14 +182,14 @@ function togglecs() {
 	<input type=hidden name=action value=recontact>
 	<input type=hidden name=id value='{$client.id}'>
 	<td>
-		<select name=type class=text style='font-size:10px'>
+		<select name=type class=text style='font-size:10px' id='cd_type'>
 			<option value='phone'>телефон</option>
 			<option value='fax'>факс</option>
 			<option value='email'>e-mail</option>
 		</select>
 		<input type=checkbox class=text name=official title="официальный?">
 	</td>
-	<td><input class=text style='width:100%' type=text name=data></td>
+	<td><input class=text style='width:100%' type=text name=data id='i_cd_data'></td>
 	<td colspan=2><input class=text style='width:100%' type=text name=comment></td>
 	<td><input class=button type=submit value="добавить"></td>
 </tr></form>
@@ -279,6 +280,17 @@ function optSort(i, ii)
 {
     return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
 }
+$('#cd_type').change(function(){
+	if($(this).val() == 'email') {
+		$('#i_cd_data').inputmask("remove");
+	} else {
+		$('#i_cd_data').inputmask("+9(999)999-99-99");
+	}
+});
+$(document).ready(function() {
+    $('#i_cd_data').inputmask("+9(999)999-99-99");
+});
+
 {/literal}
 </script>
 </table></td></tr>
