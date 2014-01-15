@@ -1836,7 +1836,7 @@ class event
 function htmlspecialchars_($s)
 {
     // migration php 5.3 => 5.5
-    return htmlspecialchars($s, ENT_COMPAT | ENT_HTML401, "KOI8-R");
+    return htmlspecialchars($s, ENT_COMPAT, "KOI8-R");
 }
 
 
