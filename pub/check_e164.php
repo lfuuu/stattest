@@ -9,15 +9,18 @@
 		exit();
 	}
 
+    $spec_numbers = array('9999', '7495', '7499');
+
     if(preg_match('/^FREE(\d+)?:(\d{4,7}|short)?/',$_GET['e164'],$m)){
         if(isset($m[2]) && $m[2] != 'short'){
             $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
             $ann_ = "substring(`e164` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
         }elseif ($m[2] == 'short') {
             $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6";
-            if (($res=$db->GetValue($query)) !== false) 
+            if (($res=$db->GetValue($query)) !== false) {
+                while (in_array($res, $spec_numbers)) $res++;
                 echo $res;
-            else 
+            } else 
                 echo "FAIL";
             exit();
         }else{
@@ -83,6 +86,10 @@
         }
     }
 
+    if (in_array($number, $spec_numbers)) {
+        echo 'true';
+        exit();
+    }
 	$actual_from = $_GET['actual_from'];
 	$actual_to = $_GET['actual_to'];
 
