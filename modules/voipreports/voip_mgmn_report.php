@@ -42,7 +42,7 @@ class m_voipreports_voip_mgmn_report
             $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59';
 
             $where  = " and (time between '".$date_from."' and '".$date_to."') ";
-            $where .= ' and (dest >= 0 or direction_out=false)';
+            $where .= ' and direction_out and dest >= 0 ';
 
             if ($operator>0) {
                 $where .= " and operator_id=".$operator;
@@ -71,13 +71,11 @@ class m_voipreports_voip_mgmn_report
 					cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as amount_op,
 					cast(sum(amount)/100.0 as NUMERIC(10,2)) as amount_mcn,
 					operator_id as operator_id,
-					case direction_out when true then
-						case phone_num::varchar like '7800%' when true then
-							7800
-						else
-							100+dest
-						end
-					else 900 end as dest2
+                    case phone_num::varchar like '7800%' when true then
+                        7800
+                    else
+                        100+dest
+                    end as dest2
 					".$sod."
 				from
 					calls.calls_".intval($region)."
@@ -101,10 +99,23 @@ class m_voipreports_voip_mgmn_report
                 }
                 else {
                     $report[$k][$r['dest2']]['count'] += $r['count'];
+                    $report[$k][$r['dest2']]['len'] += $r['len'];
                     $report[$k][$r['dest2']]['len_op'] += $r['len_op'];
                     $report[$k][$r['dest2']]['len_mcn'] += $r['len_mcn'];
                     $report[$k][$r['dest2']]['amount_op'] += $r['amount_op'];
                     $report[$k][$r['dest2']]['amount_mcn'] += $r['amount_mcn'];
+                }
+
+                if (!isset($report[$k]['8000'])) {
+                    $report[$k]['8000'] = $r;
+                }
+                else {
+                    $report[$k]['8000']['count'] += $r['count'];
+                    $report[$k]['8000']['len'] += $r['len'];
+                    $report[$k]['8000']['len_op'] += $r['len_op'];
+                    $report[$k]['8000']['len_mcn'] += $r['len_mcn'];
+                    $report[$k]['8000']['amount_op'] += $r['amount_op'];
+                    $report[$k]['8000']['amount_mcn'] += $r['amount_mcn'];
                 }
             }
 
