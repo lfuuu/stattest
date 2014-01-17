@@ -104,6 +104,15 @@ class m_voipnew extends IModule
         }
         $pg_db->Query('END');
 
+        if ($file['type'] == 'network_prices') {
+            $networkGroups = $pg_db->AllRecords('select id, name from voip.network_type', 'id');
+            foreach ($defs as $k => $def) {
+                if (isset($networkGroups[$def['defcode']])) {
+                    $defs[$k]['destination'] = $networkGroups[$def['defcode']]['name'];
+                }
+            }
+        }
+
         $design->assign('defs_list', $defs);
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
