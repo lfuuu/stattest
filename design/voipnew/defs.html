@@ -1,3 +1,6 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
 <h1>
     Цены:
     <small>
@@ -10,43 +13,47 @@
 	<input type="hidden" name="module" value="voipnew" />
 	<input type="hidden" name="action" value="defs" />
 
-    <select name="pricelist">
-        {foreach from=$pricelists item='o'}
-        <option value="{$o.id}" {if $pricelist_id eq $o.id} selected{/if}>{$o.name}</option>
+    <div style="margin: 5px 0">
+        <select name="pricelist" class="select2" style="width:300px">
+            {foreach from=$pricelists item='o'}
+            <option value="{$o.id}" {if $pricelist_id eq $o.id} selected{/if}>{$o.name}</option>
+            {/foreach}
+        </select>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        На дату: <input name="f_date" value="{$f_date}">
+    </div>
+    <div style="margin: 5px 0">
+        <select name="f_dest_group" class="select2" style="width:200px">
+        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
+        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
+        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
+        <option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+        </select>
+        &nbsp;&nbsp;
+        <select name="f_country_id" class="select2" style="width:250px">
+        <option value="0">-- Все страны --</option>
+        {foreach from=$countries item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
         {/foreach}
-    </select>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    На дату: <input name="f_date" value="{$f_date}">
-
-    <br/>
-
-    <select name="f_dest_group">
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
-	</select>
-	<select name="f_country_id">
-	<option value="0">-- Все страны --</option>
-	{foreach from=$countries item='g'}
-	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
-	{/foreach}
-	</select>
-	<select name="f_region_id">
-	<option value="0">-- Все регионы --</option>
-	{foreach from=$regions item='g'}
-	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
-	{/foreach}
-	</select>
-
-    <br/>
-
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <label><input type="checkbox" id="f_print" name="f_print">Печать</label>
-
-	<input type="submit" value="Сформировать">
+        </select>
+        &nbsp;&nbsp;
+        <select name="f_region_id" class="select2" style="width:300px">
+        <option value="0">-- Все регионы --</option>
+        {foreach from=$regions item='g'}
+        <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
+        {/foreach}
+        </select>
+    </div>
+    <div style="margin: 5px 0">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label><input type="checkbox" id="f_print" name="f_print">Печать</label>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="submit" value="Сформировать">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="submit" name="export" value="Выгрузить">
+    </div>
 </form>
 
 {if count($pager_pages)>1}
@@ -65,10 +72,18 @@
 		<td nowrap>{$o.dgroup}</td>
 		<td nowrap>{$o.destination}</td>
 		<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-		<td><b>{$o.defcode}</b></td>
+		<td><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
 		<td align=right><b>{$o.price}</b></td>
 		{if $f_short == ''}<td>{$o.date_from} - {$o.date_to}</td>{/if}
 		</tr>
 	{/foreach}
 </table>
 {/if}
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $('.select2').select2();
+    });
+    {/literal}
+</script>
