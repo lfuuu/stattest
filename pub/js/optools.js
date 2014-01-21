@@ -812,5 +812,44 @@ $(document).ready(function() {
 					.append("<option value='7863309'>7(863) 309</option>");
 			}
 		}
+		getTarifs(region_id);
 	});
 });
+function getTarifs(region_id)
+{
+	//dest == 4
+	$('#t_id_tarif_public').empty();
+	$('#t_id_tarif_archive').empty();
+	$('#t_id_tarif_special').empty();
+	//dest == 1
+	$('#t_id_tarif_russia').empty();
+	//dest == 3
+	$('#t_id_tarif_sng').empty();
+	//dest == 2
+	$('#t_id_tarif_intern').empty();	
+	//dest == 5
+	$('#t_id_tarif_local_mob').empty();
+	
+	$.ajax({
+		type:'GET',
+		url:'index_lite.php',
+		data:"module=services&action=get_tarifs&region="+region_id,
+		dataType: "json",
+		success: function(data){
+			$.each(data, function( k, v ) {
+				if (v.dest == 1) {
+					$('#t_id_tarif_russia').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
+				} else if (v.dest == 2) {
+					$('#t_id_tarif_intern').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
+				} else if (v.dest == 3) {
+					$('#t_id_tarif_sng').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
+				} else if (v.dest == 4) {
+					$('#t_id_tarif_' + v.status).append('<option value="'+v.id+'">'+v.name+' ('+v.month_number+'-'+v.month_line+')</option>');
+				} else if (v.dest == 5) {
+					$('#t_id_tarif_local_mob').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
+				}
+			});
+		}
+	});
+
+}

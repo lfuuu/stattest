@@ -2834,6 +2834,27 @@ class m_services extends IModule{
         $design->assign('logs',$log);
         $design->AddMain('services/voip_e164_edit.tpl');
     }
+    function services_get_tarifs($fixclient)
+    {
+        global $db;
+        $region = get_param_protected('region','');
+        $Res = array();
+        $C = $db->GetRow('select * from clients where client="'.$fixclient.'"');
+        $R=$db->AllRecords('select status, id, name, month_number, month_line, dest, month_min_payment from tarifs_voip where currency="'.$C['currency'].'" and region="'.$region.'" '.
+                'order by status, month_line, month_min_payment', 'id');
+        foreach ($R as $r) {
+            $Res[$r['id']] = array(
+                            'name'=>Encoding::toUtf8($r['name']),
+                            'month_number'=>$r['month_number'], 
+                            'month_line'=>$r['month_line'], 
+                            'status'=>$r['status'], 
+                            'dest'=>$r['dest'],
+                            'month_min_payment'=>$r['month_min_payment']
+            );
+        }
+
+        echo json_encode($Res);
+    }
 }
 
 class voipRegion
