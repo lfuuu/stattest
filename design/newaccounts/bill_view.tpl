@@ -204,7 +204,10 @@
 <input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2)</label><br>
 <input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3] || $deinv3} style='color:#C0C0C0'{/if}>Счёт-фактура (3)</label><br>
 <input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4)</label><br>
-<input type=checkbox value=1 name="invoice-5" id=cb7><label for=cb7{if !$bill_invoices[6]} style='color:#C0C0C0'{/if}>Счёт-фактура (5)</label><br>
+<input type=checkbox value=1 name="invoice-5" id=cb10><label for=cb10{if !$bill_invoices[6]} style='color:#C0C0C0'{/if}>Счёт-фактура (5)</label><br>
+
+<input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1)</label><br>
+<input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2)</label><br>
 
 Действие: <select name=action id="action">
 <option value="bill_mprint">печать</option>

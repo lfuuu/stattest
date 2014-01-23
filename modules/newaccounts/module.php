@@ -1365,13 +1365,19 @@ class m_newaccounts extends IModule
            Акт (1) - абонен.плата
            Акт (2) - превышение
            Акт (3) - залог
+           
+           счет-фактура-акт(1)-абонен.плата
+           счет-фактура-акт(2)-превышение
+           
          */
 
-        list($bill_akts, $bill_invoices) = $this->get_bill_docs($bill, $L);
+        list($bill_akts, $bill_invoices, $bill_upd) = $this->get_bill_docs($bill, $L);
 
         $design->assign('bill_akts', $bill_akts);
 
         $design->assign('bill_invoices', $bill_invoices);
+
+        $design->assign('bill_upd', $bill_upd);
 
         $design->assign('template_bills',
             $db->AllRecords('
@@ -1497,9 +1503,15 @@ class m_newaccounts extends IModule
             count($p6),
             count($gds)
         );
+        
+        $bill_upd = array(
+            null,
+            1=>count($p1),
+            2=>count($p2)
+        );
 
         //printdbg(array("akts" => $bill_akts, "bills" => $bill_invoices, "p3" => $p3));
-        return array($bill_akts, $bill_invoices);
+        return array($bill_akts, $bill_invoices, $bill_upd);
     }
 
     function newaccounts_bill_courier_comment()
@@ -1986,7 +1998,7 @@ class m_newaccounts extends IModule
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
-        $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3'));
+        $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'assignment','assignment_stamp','assignment_wo_stamp','order','notice','assignmentcomstar'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
         $L = array_merge($L, array("assignment-4"));
@@ -2075,8 +2087,6 @@ class m_newaccounts extends IModule
                 if($r == "invoice-1" && $isFromImport && !$isAkt1 && $isSF)
                     $isDeny = true;
 
-                if($r == "assignment_stamp" && $isFromImport)
-                    $isDeny = true;
 
                 if ((get_param_protected($r) || $reCode || $toPass) && !$isDeny) {
 
@@ -2257,7 +2267,7 @@ class m_newaccounts extends IModule
             $design->assign("assignment_month", mdate('месяца', $assignmentDate));
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
             $obj='bill';
 
         if ($obj!='bill')
@@ -2350,7 +2360,7 @@ class m_newaccounts extends IModule
                 if($mode=='html')
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
             }else{
-                if($obj=='invoice'){
+                if(in_array($obj, array('invoice','upd'))){
                     $id = $db->QueryInsert(
                         "log_newbills",
                         array(
@@ -2725,7 +2735,7 @@ class m_newaccounts extends IModule
                 );
             }
         }else{ //invoice
-            if($source==1 || $source==2){
+            if(in_array($source, array(1,2))){
                 $M['all4net']=1;
                 $M['service']=1;
                 $M['zalog']=0;
@@ -2933,7 +2943,7 @@ class m_newaccounts extends IModule
         if($bill->is1CBill())
         {
             //то доступны только счета (в RUR || USD)
-            if($obj == "bill" && ($source == "1" || $source == "2"))
+            if($obj == "bill" && in_array($source, array('1','2')))
             {
                 $inv_date = $bill->GetTs();
             }else{
@@ -2966,7 +2976,7 @@ class m_newaccounts extends IModule
         }
 
 
-        if($obj == "invoice" || $obj == "akt")
+        if(in_array($obj, array('invoice','akt','upd')))
         {
             if(date("Ymd", $inv_date) != date("Ymd", $bill->GetTs()))
             {
@@ -2988,7 +2998,7 @@ class m_newaccounts extends IModule
 
 
 
-        if($obj=='invoice' && (($source==5) || ($source==3) || ($source==1) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
+        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
             /*$W = array('AND');
             $W[] = 'payment_no!=""';
             $W[] = '(bill_no="'.$bdata['bill_no'].'") OR (bill_vis_no="'.$bdata['bill_no'].'")';
@@ -3077,7 +3087,7 @@ class m_newaccounts extends IModule
         $L_prev=$bill->GetLines($usd_rate,((preg_match('/bill-\d/',self::$object))?'order':false));//2 для фактур значит за прошлый период
 
 
-        if($obj == "invoice")
+        if(in_array($obj, array("invoice","upd")))
         {
             $this->checkSF_discount($L_prev);
         }
@@ -3270,7 +3280,7 @@ class m_newaccounts extends IModule
         if ($do_assign){
             $design->assign('cpe',$cpe);
             $design->assign('curr',$curr);
-            if ($obj=='invoice' || $obj=='akt') {
+            if (in_array($obj, array('invoice','akt','upd'))) {
                 $design->assign('inv_no','-'.$source);
                 $design->assign('inv_date',$inv_date);
                 $design->assign('inv_is_new',($inv_date>=mktime(0,0,0,5,1,2006)));
@@ -3289,15 +3299,14 @@ class m_newaccounts extends IModule
             }
             $design->assign('total_amount',$total_amount);
 
-            Company::setResidents($r["firma"], $b);
-            $design->assign("firm", Company::getProperty($r["firma"], $b));
+            $this->do_firm_residents($r["firma"], $b);
 
             ClientCS::Fetch($r);
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
             $design->assign('bill_client',$r);
             return true;
         } else {
-            if ($obj=='invoice' || $obj=='akt') {
+            if (in_array($obj, array('invoice','akt','upd'))) {
                 return array('bill'=>$bdata,'bill_lines'=>$L,'inv_no'=>$bdata['bill_no'].'-'.$source,'inv_date'=>$inv_date);
             } else return array('bill'=>$bdata,'bill_lines'=>$L);
         }
@@ -3318,6 +3327,232 @@ class m_newaccounts extends IModule
 
             }
         }
+    }
+
+
+    function do_firm_residents($firma, $bill_or_time = null)
+    {
+
+        if(!$firma)
+        {
+            $firma = "mcn";
+        }
+        
+        if ($bill_or_time === null)
+        {
+            $billDate = time();
+        } elseif (is_array($bill_or_time) && isset($bill_or_time["bill_date"])) {
+            $billDate = strtotime($bill_or_time["bill_date"]);
+        } elseif (preg_match("/^\d+$/", $bill_or_time)) { //timestamp
+            $billDate = $bill_or_time;
+        } elseif (preg_match("/\d{4}-\d{2}-\d{2}/", $bill_or_time)) { // date
+            $billDate = strtotime($bill_or_time);
+        } else {
+            $billDate = time();
+        }
+
+
+        if($firma == "all4geo")
+        {
+          $b = "kot_oi";
+        }elseif($firma == "mcm")
+        {
+            $b = "mel_ei";
+        }elseif ($firma == 'markomnet_new'){
+            $b = "maz";
+
+            if($billDate >= strtotime("2011-12-01") && $billDate <= strtotime("2012-03-31"))
+                $b = "usk";
+
+        }elseif ($firma == 'ooocmc')
+        {
+            if($billDate >= strtotime("2012-11-16"))
+            {
+                $b = "lgm";
+            }else{
+                $b = "usk";
+            };
+        }elseif($firma == 'ooomcn')
+        {
+            if($billDate >= strtotime("2012-11-16"))
+            {
+                $b = "lgm";
+            }elseif($billDate >= strtotime("2010-10-01"))
+            {
+                $b = "usk";
+            }else{
+                $b = "pol";
+            }
+        }elseif($firma == 'all4net' && $billDate > strtotime("2011-04-01")){
+            $b = "nem";
+        }elseif($billDate > strtotime("2008-03-31"))
+        {
+            $b = "ant";
+        }else{
+            $b = "pol";
+        }
+
+        if($firma == "all4geo")
+        {
+            $d = "kot_oi";
+        }elseif ($firma == 'ooomcn' && $billDate > strtotime("2010-05-04"))
+        {
+            $d = "bnv";
+        }elseif($firma == "all4net")
+        {
+            $d = "pma";
+        }elseif($firma == "mcn_telekom")
+        {
+            $d = $b = "vav";
+            if($billDate >= strtotime("2012-04-01"))
+            {
+                $d = "mak";
+                $b = "ant";
+            }
+
+            if($billDate >= strtotime("2013-07-31"))
+            {
+                $d = "nat";
+            }
+        }elseif ($firma == "markomnet_new")
+        {
+            $d = "maz";
+        }elseif ($firma == "markomnet_service")
+        {
+            $b = $d = "udi";
+            if($billDate >= strtotime("2012-10-01"))
+            {
+                $b =$d ="mel_du";
+            }
+        }elseif ($firma == "mcm")
+        {
+            $d = "mel_ei";
+        }elseif ($firma == "ooocmc" && $billDate >= strtotime("2012-01-01") && $billDate < strtotime("2013-03-01"))
+        {
+            $d = "nat";
+        }else{
+            $d = "mak";
+        }
+
+        $u = array(
+                "bnv" => array(
+                    "name" => "Бирюкова Н.В.",
+                    "name_" => "Бирюковой Н.В.",
+                    "position" => "Директор",
+                    "position_" => "Директора",
+                    "sign" => array("src" => "sign_bnv.png", "width" => 140, "height" => 142)),
+
+                "pma" => array(
+                    "name" => "Пыцкая М. А.",
+                    "name_" => "Пыцкой М. А.",
+                    "position" => "Директор",
+                    "position_" => "Директора",
+                    "sign" => array("src" => "sign_pma.png", "width" => false)),
+
+                "vav" => array(
+                    "name" => "Вавилова Я. В.",
+                    "name_" => "Вавиловой Я. В.",
+                    "position" => "Генеральный директор",
+                    "position_" => "Генерального директора",
+                    "sign" => array("src" => "sign_vav.png", "width" => 140, "height" => 142)),
+                "maz" => array(
+                    "name" => "Мазур Т. В.",
+                    "name_" => "Мазур Т. В.",
+                    "position" => "Генеральный директор",
+                    "position_" => "Генерального директора",
+                    "sign" => false),
+                "mak" => array(
+                    "name" => "Мельников&nbsp;А.&nbsp;К.",
+                    "name_" => "Мельникова А. К.",
+                    "position" => "Генеральный директор",
+                    "position_" => "Генерального директора",
+                    "sign" => array("src" => "sign_mel.gif", "width" => 155, "height" => 80)),
+                "kot_oi" => array(
+                  "name" => "Котельникова&nbsp;О.&nbsp;И.",
+                  "name_" => "Котельникову О. И.",
+                  "position" => "Генеральный директор",
+                  "position_" => "Генерального директора",
+                  "sign" => false),
+                "nat" => array(
+                    "name" => "Надточеева Н. А.",
+                    "name_" => "Надточеевой Н. А.",
+                    "position" => "Генеральный директор",
+                    "position_" => "Генерального директора",
+                    "sign" => array("src" => "sign_nat.png", "width" => 152, "height" => 94)),
+                "udi" => array(
+                    "name" => "Юдицкая Н. С.",
+                    "name_" => "Юдицкая Н. С.",
+                    "position" => "Генеральный директор",
+                    "position_" => "Генерального директора",
+                    "sign" => false),
+                "mel_du" => array(
+                    "name" => "Мельников Д.",
+                    "name_" => "Мельникова Д.",
+                    "position" => "Генеральный директор",
+                    "position_" => "Генерального директора",
+                    "sign" => false),
+
+                "mel_ei" => array(
+                        "name" => "Мельников Е. И.",
+                        "name_" => "Мельникова Е. И.",
+                        "position" => "Директор",
+                        "position_" => "Директора",
+                        "sign" => false
+                        ),
+
+
+                "usk" => array(
+                        "name" => "Ускова М. С.",
+                        "sign" => array("src" => "sign_usk.png", "width" => 137, "height" => 123)),
+                "pol" => array("name" => "Полехина Г. Н.",  "sign" => false),
+                "lgm" => array("name" => "Лаврова Г. М.",  "sign" => false),
+                "ant" => array("name" => "Антонова Т. С.",  "sign" => array("src" => "sign_ant.gif", "width" => 139, "height" => 35)),
+                "nem" => array("name" => "Нем И. В.",       "sign" => array("src" => "sign_nem.png", "width" => 140, "height" => 142))
+                );
+
+        $firms = array(
+                "all4net" => array(
+                    "src" => "stamp_all4net.jpg",
+                    "style" => "position:relative;left:-10;top:-160;z-index:-10; margin-bottom:-170px;",
+                    "name" => "ООО &laquo;Олфонет&raquo;",
+                    "width" => false
+                    ),
+                "mcn" => array(
+                    "src" => "stampmcn.gif",
+                    "style" => "position:relative;left:-20;top:-160;z-index:-10; margin-bottom:-170px;",
+                    "name" => "ООО &laquo;Эм Си Эн&raquo;",
+                    "width" => false
+                    ),
+                "mcn_telekom" => array(
+                    "src" => "stamp_mcn_telekom.png",
+                    "style" => "position:relative;left:40;top:-200;z-index:-10; margin-bottom:-170px;",
+                    "name" => "ООО &laquo;МСН Телеком&raquo;",
+                    "width"=>251*0.8, "height"=>256*0.8
+                    ),
+                "ooocmc" => array(
+                    "src" => "stamp_si_em_si.png",
+                    "style" => "position:relative;left:-40;top:-240;z-index:-10; margin-bottom:-170px;",
+                    "name" => "ООО &laquo;Си Эм Си&raquo;",
+                    "width"=>250*0.8, "height"=>252*0.8
+                    ),
+                "ooomcn" => array(
+                        "src" => "stamp_mcn.png",
+                        "style" => "position:relative;left:30;top:-260;z-index:-10; margin-bottom:-170px;",
+                        "name" => "ООО &laquo;МСН&raquo;",
+                        "width"=>250*0.8, "height"=>251*0.8
+                        ),
+                    "markomnet" => array("name" => "ООО &laquo;МАРКОМНЕТ&raquo;", "src" => false, "style" => "", "width" => false),
+                    "markomnet_new" => array("name" => "ООО &laquo;МАРКОМНЕТ&raquo;", "src" => false, "style" => "", "width" => false),
+                    "markomnet_service" => array("name" => "ООО &laquo;Маркомнет сервис&raquo;", "src" => false, "style" => "", "width" => false),
+                    "mcm" => array("name" => "ООО &laquo;МСМ&raquo;", "src" => false, "style" => "", "width" => false),
+          "all4geo" => array("name" => "ООО &laquo;Олфогео&raquo;", "src" => false, "style" => "", "width" => false),
+                    );
+
+        global $design;
+
+        $design->assign("firma", $firms[$firma]);
+        $design->assign("firm_director", $u[$d]);
+        $design->assign("firm_buh", $u[$b]);
     }
 
     function newaccounts_pi_list($fixclient) {
@@ -4581,8 +4816,7 @@ $sql .= "    order by client, bill_no";
         $date_to = date("Y-m-d", strtotime($date_to));
 
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-
-        Company::setResidents($c["firma"], $date_to);
+        $this->do_firm_residents($c["firma"], $date_to);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('date_from', $date_from);
