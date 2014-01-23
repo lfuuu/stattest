@@ -1371,13 +1371,13 @@ class m_newaccounts extends IModule
            
          */
 
-        list($bill_akts, $bill_invoices, $bill_utd) = $this->get_bill_docs($bill, $L);
+        list($bill_akts, $bill_invoices, $bill_upd) = $this->get_bill_docs($bill, $L);
 
         $design->assign('bill_akts', $bill_akts);
 
         $design->assign('bill_invoices', $bill_invoices);
 
-        $design->assign('bill_utd', $bill_utd);
+        $design->assign('bill_upd', $bill_upd);
 
         $design->assign('template_bills',
             $db->AllRecords('
@@ -1504,14 +1504,14 @@ class m_newaccounts extends IModule
             count($gds)
         );
         
-        $bill_utd = array(
+        $bill_upd = array(
             null,
             1=>count($p1),
             2=>count($p2)
         );
 
         //printdbg(array("akts" => $bill_akts, "bills" => $bill_invoices, "p3" => $p3));
-        return array($bill_akts, $bill_invoices, $bill_utd);
+        return array($bill_akts, $bill_invoices, $bill_upd);
     }
 
     function newaccounts_bill_courier_comment()
@@ -1998,7 +1998,7 @@ class m_newaccounts extends IModule
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
-        $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','utd-1', 'utd-2'));
+        $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'assignment','assignment_stamp','assignment_wo_stamp','order','notice','assignmentcomstar'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
         $L = array_merge($L, array("assignment-4"));
@@ -2087,8 +2087,6 @@ class m_newaccounts extends IModule
                 if($r == "invoice-1" && $isFromImport && !$isAkt1 && $isSF)
                     $isDeny = true;
 
-                if($r == "assignment_stamp" && $isFromImport)
-                    $isDeny = true;
 
                 if ((get_param_protected($r) || $reCode || $toPass) && !$isDeny) {
 
@@ -2269,7 +2267,7 @@ class m_newaccounts extends IModule
             $design->assign("assignment_month", mdate('месяца', $assignmentDate));
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'utd', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
             $obj='bill';
 
         if ($obj!='bill')
@@ -2362,7 +2360,7 @@ class m_newaccounts extends IModule
                 if($mode=='html')
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
             }else{
-                if(in_array($obj, array('invoice','utd'))){
+                if(in_array($obj, array('invoice','upd'))){
                     $id = $db->QueryInsert(
                         "log_newbills",
                         array(
@@ -2978,7 +2976,7 @@ class m_newaccounts extends IModule
         }
 
 
-        if(in_array($obj, array('invoice','akt','utd')))
+        if(in_array($obj, array('invoice','akt','upd')))
         {
             if(date("Ymd", $inv_date) != date("Ymd", $bill->GetTs()))
             {
@@ -3000,7 +2998,7 @@ class m_newaccounts extends IModule
 
 
 
-        if(in_array($obj, array('invoice','utd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
+        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
             /*$W = array('AND');
             $W[] = 'payment_no!=""';
             $W[] = '(bill_no="'.$bdata['bill_no'].'") OR (bill_vis_no="'.$bdata['bill_no'].'")';
@@ -3089,7 +3087,7 @@ class m_newaccounts extends IModule
         $L_prev=$bill->GetLines($usd_rate,((preg_match('/bill-\d/',self::$object))?'order':false));//2 для фактур значит за прошлый период
 
 
-        if(in_array($obj, array("invoice","utd")))
+        if(in_array($obj, array("invoice","upd")))
         {
             $this->checkSF_discount($L_prev);
         }
@@ -3282,7 +3280,7 @@ class m_newaccounts extends IModule
         if ($do_assign){
             $design->assign('cpe',$cpe);
             $design->assign('curr',$curr);
-            if (in_array($obj, array('invoice','akt','utd'))) {
+            if (in_array($obj, array('invoice','akt','upd'))) {
                 $design->assign('inv_no','-'.$source);
                 $design->assign('inv_date',$inv_date);
                 $design->assign('inv_is_new',($inv_date>=mktime(0,0,0,5,1,2006)));
@@ -3309,7 +3307,7 @@ class m_newaccounts extends IModule
             $design->assign('bill_client',$r);
             return true;
         } else {
-            if (in_array($obj, array('invoice','akt','utd'))) {
+            if (in_array($obj, array('invoice','akt','upd'))) {
                 return array('bill'=>$bdata,'bill_lines'=>$L,'inv_no'=>$bdata['bill_no'].'-'.$source,'inv_date'=>$inv_date);
             } else return array('bill'=>$bdata,'bill_lines'=>$L);
         }
@@ -4593,7 +4591,6 @@ $sql .= "    order by client, bill_no";
         $date_to = date("Y-m-d", strtotime($date_to));
 
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-
         Company::setResidents($c["firma"], $date_to);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');

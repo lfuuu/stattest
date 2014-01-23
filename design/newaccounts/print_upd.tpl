@@ -1,0 +1,892 @@
+
+<html>
+
+<head>
+<LINK title=default href="{$PATH_TO_ROOT}invoice.css" type=text/css rel=stylesheet>
+<meta http-equiv=Content-Type content="text/html; charset=koi8-r">
+
+<title>Универсальный передаточный документ N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
+
+
+<style>
+{literal}
+@page {size: landscape;}
+@page rotated {size: landscape;}
+div.Section1
+	{page:Section1;
+	align:center;}
+
+span {
+font-size:7.5pt;
+font-family:"Arial";
+}
+
+td {
+padding:0cm 2.4pt 0cm 2.4pt;
+}
+
+
+.tr_h15 td p span{font-size:7.5pt;}
+.tr_h11 td p span{font-size:7.5pt;}
+.tr_h20 td p span{font-size:7.5pt;}
+
+.tr_h30 td p span{font-size:7.5pt;}
+.tr_h50 td p span{font-size:7.5pt;}
+
+.tr_h8 td p span{font-size:7.0pt;}
+
+.tr_h2 td p span{font-size:1.0pt;}
+
+{/literal}
+</style>
+
+</head>
+
+<body>
+
+<div align="center"><center>
+
+<table Table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
+	<tr valign='top'>
+		<td colspan="2" style='border-right:solid windowtext 1.5pt;'>
+			<table border=0 cellspacing=0 cellpadding=0>
+				<tr>
+					<td colspan="3"><p><span>Универсальный<br>передаточный<br>документ<br><br></span></p></td>
+				</tr>
+				<tr>
+					<td style="text-align: left;"><p  style='text-align:center'><span>Статус:</span></p></td>
+					<td style='border:solid windowtext 2.0pt;'><p style='text-align:center'><span>1</span></p></td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td colspan="3" valign=top><p><span style='font-size:6.5pt;'><br><br>1 - счет-фактура и<br>передаточный документ<br>(акт)<br> 2 - передаточный<br>документ (акт)</span></p></td>
+				</tr>
+			</table>
+		</td>
+		<td colspan="13">
+			<div style="padding-left:10px; padding-bottom:6px;">
+			<table border=0 cellspacing=0 cellpadding=0>
+				<tr>
+					<td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
+					<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{$bill.bill_no}{$inv_no}</span></p></td>
+					<td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
+					<td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>
+                {if !$without_date_date}
+                    {if $is_four_order && isset($inv_pays)}
+                        {$inv_pays[0].payment_date_ts|mdate:"d месяца Y г."}
+                    {else}
+                        {$inv_date|mdate:"d месяца Y г."}
+                    {/if}
+                {else} 
+                    {$without_date_date|mdate:"d месяца Y г."}
+                {/if}
+					</span></p></td>
+					<td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
+					<td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>Исправление N</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
+					<td><p  style='text-align:center'><span>от</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
+					<td><p style='text-align:center'><span>(1а)</span></p></td>
+				</tr>
+			</table>
+			<table border=0 cellspacing=0 cellpadding=0>
+				<tr>
+					<td style='width:155pt;'><p><b><span >Продавец:</span></b></p></td>
+					<td style='width:635pt;border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.name}</span></p></td>
+					<td><p style='width:20pt;text-align:right'><span>(2)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>Адрес:</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.address}</span></p></td>
+					<td><p style='text-align:right'><span>(2а)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>ИНН/КПП продавца:</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p></td>
+					<td><p style='text-align:right'><span>(2б)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>Грузоотправитель и его адрес:</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}ООО "МСН Телеком"{$firm.address}{/if}</span></p></td>
+					<td><p style='text-align:right'><span>(3)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>Грузополучатель и его адрес:</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}</span></p></td>
+					<td><p style='text-align:right'><span>(4)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>К платежно-расчетному документу N</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</span></p></td>
+					<td><p style='text-align:right'><span>(5)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span><b>Покупатель:</b></span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</span></p></td>
+					<td><p style='text-align:right'><span>(6)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>Адрес:</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</span></p></td>
+					<td><p style='text-align:right'><span>(6а)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>ИНН/КПП покупателя:</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</span></p></td>
+					<td><p style='text-align:right'><span>(6б)</span></p></td>
+				</tr>
+				<tr>
+					<td><p><span>Валюта: наименование, код</span></p></td>
+					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>Российский рубль, 643</span></p></td>
+					<td><p style='text-align:right'><span>(7)</span></p></td>
+				</tr>
+			</table>
+			</div>
+		</td>
+	</tr>
+	<tr class='tr_h30'>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>N<br>п/п</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
+			<p style='text-align:center'><span>Код<br>товара/<br>работ,<br>услуг</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;mso-border-left-alt: solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</span></p>
+		</td>
+		<td colspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Единица<br> измерения</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Коли-<br>чество <br> (объем)</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Цена (тариф)<br>за<br>единицу измерения</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных<br>прав без<br>налога - всего</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>В том<br>числе<br>сумма <br>акциза</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Нало-<br>говая ставка</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Сумма налога, предъяв-<br>ляемая покупателю</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных прав<br>с налогом - всего</span></p>
+		</td>
+		<td colspan="2" style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Страна<br> происхождения товара</span></p>
+		</td>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>Номер<br> таможен<br>ной<br> декла<br>рации</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h50'>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>код</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>условное обозна-<br>чение (нацио-<br>нальное)</span></p>
+		</td>
+		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>циф-<br>ро-<br>вой код</span></p>
+		</td>
+		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>краткое наиме-<br>нование</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h11'>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>А</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
+			<p style='text-align:center'><span>Б</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>1</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>2</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>2а</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>3</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>4</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>5</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' >
+			<p style='text-align:center'><span>6</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' >
+			<p style='text-align:center'><span>7</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' >
+			<p style='text-align:center'><span>8</span></p>
+		</td>
+		<td style='border:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>9</span></p>
+		</td>
+		<td style='border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>10</span></p>
+		</td>
+		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>10а</span></p>
+		</td>
+		<td style='border:solid windowtext 1.0pt;' >
+			<p style='text-align:center'><span>11</span></p>
+		</td>
+	</tr>
+{foreach from=$bill_lines item=row key=key name='list'}
+	<tr class='tr_h15'>
+		<td valign=top style='border:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>{$smarty.foreach.list.iteration}</span></p>
+		</td>
+		<td valign=top style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{$row.item}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>
+                {if $is_four_order}
+                --
+                {else}
+                    {if $inv_is_new4}
+                        {if $row.okvd_code}
+                            {$row.okvd_code|string_format:"%03d"}
+                        {else}
+                            {if $row.type == "service"}
+                            --
+                            {else}
+                            769
+                            {/if}
+                        {/if}
+                    {else}
+                    769
+                    {/if}
+                {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>
+            {if $is_four_order}
+                --
+            {else}
+                {if $inv_is_new4}
+                    {if $row.okvd_code}
+                        {$row.okvd}
+                    {else}
+                        {if $row.type == "service"}
+                            --
+                        {else}
+                            шт.
+                        {/if}
+                    {/if}
+                {else}
+                    шт.
+                {/if}
+            {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>
+        {if $bill.bill_date < "2012-01-01"}{$row.amount|round:2}{else}
+            {if $is_four_order}
+                --
+            {else}
+                {if $inv_is_new4}
+                    {if $row.okvd_code}
+                        {$row.amount|round:2}
+                    {else}
+
+                        {if $row.type == "service"}
+                            --
+                        {else}
+                            {$row.amount|round:2}
+                        {/if}
+                    {/if}
+                {else}
+                    {$row.amount|round:2}
+                {/if}
+            {/if}
+        {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>
+            {if $is_four_order}
+                --
+            {else}
+                {if $inv_is_new4}
+                    {if $row.okvd_code}
+                        {$row.outprice|round:2}
+                    {else}
+                        {if $row.type == "service"}
+                            --
+                        {else}
+                            {$row.outprice|round:2}
+                        {/if}
+                    {/if}
+                {else}
+                    {$row.outprice|round:2}
+                {/if}
+            {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>
+            {if $is_four_order}
+                --
+            {else}
+                {if $bill_client.nds_calc_method != 1}
+                    {$row.sum|mround:2:2}
+                {else}
+                    {$row.sum|mround:2:2}
+                {/if}
+                    
+            {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' nowrap>
+			<p ><span>{if $inv_is_new4}без акциза{else}--{/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{if $row.tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>
+            {if $bill_client.nds_calc_method != 1}
+                {$row.tax|string_format:"%.2f"}
+            {else}
+                {if $row.tax == 0 && $row.line_nds == 0}
+                    --
+                {else}
+                    {$row.tsum/1.18*0.18|round:2}
+                {/if}
+            {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>
+            {if $bill_client.nds_calc_method != 1}
+                {$row.tsum|round:2}
+            {else}
+                {$row.tsum|round:2}
+            {/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{if $row.country_id == 0}--{else}{$row.country_id}{/if}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{$row.country_name|default:"--"}</span></p>
+		</td>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p ><span>{$row.gtd|default:"--"}</span></p>
+		</td>
+	</tr>
+{/foreach}
+	<tr class='tr_h11'>
+		<td colspan="2" valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
+			<p  align=right style='text-align:right'><span>&nbsp;</span></p>
+		</td>
+		<td colspan=5 valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><b><span>Всего к оплате</span></b></p>
+		</td>
+		<td valign=bottom style='border:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum|round:2}{/if}</span></p>
+		</td>
+		<td colspan=2 valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span><b>Х</b></span></p>
+		</td>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>
+            {if $bill_client.nds_calc_method != 1}
+                {$bill.tax|string_format:"%.2f"}
+            {else}
+                {if $bill.tax == 0 && $bill.sum}
+                    --
+                {else}
+                    {$bill.tsum/1.18*0.18|round:2}
+                {/if}
+            {/if}</span></p>
+		</td>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p  align=right style='text-align:right'><span>{$bill.tsum|round:2}</span></p>
+		</td>
+		<td colspan="3" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>1 листе</span></p></td>
+		<td colspan="13"  style='border-bottom:solid windowtext 1.5pt;'>
+			<div style="padding-bottom:4px;">
+	<table border=0 cellspacing=0 cellpadding=0>
+	<tr class='tr_h20'>
+		<td valign=bottom style='width:160pt;'>
+			<p ><span>Руководитель организации<br>или иное уполномоченное лицо</span></p>
+		</td>
+		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style="width:5pt">
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{$firm_director.name}</span></p>
+		</td>
+		<td valign=bottom style="width:5pt">
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style='width:160pt;'>
+			<p ><span>Главный бухгалтер<br>или иное уполномоченное лицо</span></p>
+		</td>
+		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style="width:5pt">
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{$firm_buh.name}</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h20'>
+		<td valign=bottom>
+			<p ><span>Индивидуальный предприниматель</span></p>
+		</td>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td colspan="4" valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+			<p style='text-align:center'><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p  style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p  style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td colspan=4 valign=top>
+			<p style='text-align:center'><span>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</span></p>
+		</td>
+	</tr>
+	</table>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<table Table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
+	<tr class='tr_h15'>
+		<td colspan="2" valign=bottom nowrap>
+			<p ><span>Основание передачи (сдачи) / получения (приемки)</span></p>
+		</td>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>[8]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td colspan="2" valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p style='text-align:center'><span>(договор; доверенность и др.)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td valign=bottom nowrap>
+			<p><span>Данные о транспортировке и грузе</span></p>
+		</td>
+		<td colspan="2" valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+			<p><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p><span>[9]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td colspan="2" valign=bottom nowrap>
+			<p style='text-align:center'><span>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто/ брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+</table>
+
+<table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
+	<tr class='tr_h15'>
+		<td colspan="6" nowrap>
+			<p ><span>Товар (груз) передал / услуги, результаты работ, права сдал</span></p>
+		</td>
+		<td rowspan="14" style='width:4.0pt;border-left: solid windowtext 1.0pt;'>
+			<p ><span style='font-size:1.0pt;'>&nbsp;</span></p>
+		</td>
+		<td colspan="6" nowrap>
+			<p ><span>Товар (груз) получил / услуги, результаты работ, права принял</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td style='width:140pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>Генеральный директор</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{$firm_director.name}</span></p>
+		</td>
+		<td style='width:20pt;'>
+			<p ><span>[10]</span></p>
+		</td>
+		<td style='width:140pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:20pt;'>
+			<p ><span>[15]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td valign=top>
+			<p style='text-align:center'><span>(должность)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(должность)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td nowrap>
+			<p ><span>Дата отгрузки, передачи (сдачи)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>
+                {if !$without_date_date}
+                    {if $is_four_order && isset($inv_pays)}
+                        {$inv_pays[0].payment_date_ts|mdate:"d месяца Y года"}
+                    {else}
+                        {$inv_date|mdate:"d месяца Y года"}
+                    {/if}
+                {else} 
+                    {$without_date_date|mdate:"d месяца Y года"}
+                {/if}</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>[11]</span></p>
+		</td>
+		<td nowrap>
+			<p ><span>Дата получения (приемки)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>"{section loop="6" name="mysec"}&nbsp;{/section}"{section loop="20" name="mysec"}&nbsp;{/section}20{section loop="10" name="mysec"}&nbsp;{/section}года</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>[16]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td colspan="6" nowrap>
+			<p ><span>Иные сведения об отгрузке, передаче</span></p>
+		</td>
+		<td colspan="6" nowrap>
+			<p ><span>Иные сведения о получении, приемке</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='border:none;'>
+			<p ><span>[12]</span></p>
+		</td>
+		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>[17]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td colspan="5" valign=top nowrap>
+			<p style='text-align:center'><span>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</span></p>
+		</td>
+		<td valign=top>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td colspan="5" valign=top nowrap>
+			<p style='text-align:center'><span>(информация о наличии/отсутствии претензии; ссылки на неотъемлемые приложения, и другие документы и т.п.)</span></p>
+		</td>
+		<td valign=top>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td colspan="6" nowrap>
+			<p ><span>Ответственный за правильность оформления факта хозяйственной жизни</span></p>
+		</td>
+		<td colspan="6" nowrap>
+			<p ><span>Ответственный за правильность оформления факта хозяйственной жизни</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>[13]</span></p>
+		</td>
+		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td>
+			<p ><span>[18]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td valign=top>
+			<p style='text-align:center'><span>(должность)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(должность)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(подпись)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=top>
+			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+		</td>
+		<td>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td colspan="6" nowrap>
+			<p ><span>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</span></p>
+		</td>
+		<td colspan="6" nowrap>
+			<p ><span>Наименование экономического субъекта - составителя документа</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{$firm.name}, ИНН/КПП {$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p>
+		</td>
+		<td valign=bottom>
+			<p ><span>[14]</span></p>
+		</td>
+		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
+			<p ><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}, ИНН/КПП {$bill_client.inn}&nbsp;/&nbsp;{$bill_client.kpp}</span></p>
+		</td>
+		<td>
+			<p ><span>[19]</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h8'>
+		<td colspan="5" valign=top nowrap>
+			<p style='text-align:center'><span>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</span></p>
+		</td>
+		<td valign=top>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td colspan="5" valign=top nowrap>
+			<p style='text-align:center'><span>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</span></p>
+		</td>
+		<td valign=top>
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+	<tr class='tr_h15'>
+		<td valign=bottom>
+			<p style='text-align:center'><span>МП</span></p>
+		</td>
+		<td colspan="5">
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td valign=bottom>
+			<p style='text-align:center'><span>МП</span></p>
+		</td>
+		<td colspan="5">
+			<p ><span>&nbsp;</span></p>
+		</td>
+	</tr>
+</table>
+</center></div>
+</body>
+</html>
