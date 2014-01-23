@@ -89,6 +89,9 @@ foreach($checkedOrders as $order)
         $status = OnlimeRequest::STATUS_REJECT;
         $errorMsg = $order["error"]["message"];
         echo "\nnew: ".$order["order"]["id"]." => ".$order["error"]["status"].": ".$order["error"]["message"];
+
+        mail_error($order["order"]["id"], $order["error"]);
+
     }else{
         $id = "new: ok".$order["order"]["id"];
         $toAdd[] = $order;
@@ -129,3 +132,14 @@ foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", Onlime
     $order->setStage(OnlimeOrder::STAGE_ANSWERED);
 }
 
+function mail_error($id, $err)
+{
+
+    //
+    $headers = "Content-type: text/html; charset=utf-8";
+    $subject = "Ошибка экспорта ONLIME";
+    $body = "Order onlime ID: ".$id." => [".$err["status"]."] ".$err["message"];
+
+    mail("adima123@yandex.ru", "[stat/onlime/get_list] ".$subject, $body, $headers);
+    mail("vika@mcn.ru", $subject, $body , $headers);
+}
