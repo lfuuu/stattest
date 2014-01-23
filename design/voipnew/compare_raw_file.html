@@ -8,7 +8,6 @@
 дата загрузки: {$file.date}<br>
 количество строк: {$file.rows}<br>
 начало действия: <b>{$file.startdate}</b><br>
-валюта: <b>{$file.currency}</b>
 </td>
 <td>
 {if $file.active eq 't'}
@@ -66,8 +65,6 @@
 <td colspan=2>Удалено</td>
 {elseif $o.inserting eq 't'}
 <td colspan=2>Добавлено</td>
-{elseif $o.new_currency_id neq $o.old_currency_id}
-<td colspan=2>!!!!!</td>
 {elseif $o.price_diff gt 0}
 <td>+{$o.price_diff}</td><td>+{$o.price_diff_pr}%</td>
 {elseif $o.price_diff lt 0}

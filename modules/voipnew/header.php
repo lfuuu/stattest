@@ -51,7 +51,7 @@ class m_voipnew_head extends IModuleHead
         array('Операторские прайслисты', 'operator_pricelists'),
 //        array('Операторские сети', 'operator_networks'),
         array('', 'catalogs'),
-        array('Cети', 'network_list'),
+        array('Местные префиксы', 'network_list'),
         array('Местные цены', 'network_prices'),
         array('', 'catalogs'),
         array('Пересчет звонков', 'calls_recalc'),

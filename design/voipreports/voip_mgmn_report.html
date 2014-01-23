@@ -56,7 +56,7 @@
         <td class='header'>Россия</td>
         <td class='header'>Международка</td>
         <td class='header'>СНГ</td>
-        <td class='header'>Входящие</td>
+        <td class='header'><b>Сумма</b></td>
     </tr>
     {foreach from=$report item='r'}
     <tr class="{cycle values='even,odd'}">
@@ -142,19 +142,19 @@
                 {/if}
             {/if}
         </td>
-        <td>{if $r.900}
+        <td>{if $r.8000}
                 {if $details}
                     Длительность (мин):<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.900.len|round:2}</b><br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.900.len_op|round:2}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.900.len_mcn|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.8000.len|round:2}</b><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.8000.len_op|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.8000.len_mcn|round:2}<br />
                     Стоимость:<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.900.amount_op|round:2}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.900.amount_mcn|round:2}<br />
-                    Количество: <b>{$r.900.count}</b><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.8000.amount_op|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.8000.amount_mcn|round:2}<br />
+                    Количество: <b>{$r.8000.count}</b><br />
                 {else}
-                    Минут: <b>{$r.900.len|round:2}</b><br />
-                    Количество: <b>{$r.900.count}</b><br />
+                    Минут: <b>{$r.8000.len|round:2}</b><br />
+                    Количество: <b>{$r.8000.count}</b><br />
                 {/if}
             {/if}
         </td>

@@ -45,7 +45,7 @@
 		<tr>
 			<td>{$o.destination}</td>
 			<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-			<td class="def"><b>{$o.defcode}</b></td>
+			<td class="def"><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
 			<td align=right><b>{$o.price|string_format:"%.2f"|replace:'.':','}</b></td>
 		</tr>
 	{/if} 
@@ -60,7 +60,7 @@
 		<tr>
 			<td>{$o.destination}</td>
 			<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-			<td class="def"><b>{$o.defcode}</b></td>
+			<td class="def"><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
 			<td align=right><b>{$o.price|string_format:"%.2f"|replace:'.':','}</b></td>
 		</tr>
 	{/if} 
@@ -75,7 +75,7 @@
 		<tr>
 			<td>{$o.destination}</td>
 			<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-			<td class="def"><b>{$o.defcode}</b></td>
+			<td class="def"><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
 			<td align=right><b>{$o.price|string_format:"%.2f"|replace:'.':','}</b></td>
 		</tr>
 	{/if} 
@@ -90,7 +90,7 @@
 		<tr>
 			<td>{$o.destination}</td>
 			<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-			<td class="def"><b>{$o.defcode}</b></td>
+			<td class="def"><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
 			<td align=right><b>{$o.price|string_format:"%.2f"|replace:'.':','}</b></td>
 		</tr>
 	{/if} 

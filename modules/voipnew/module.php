@@ -104,6 +104,15 @@ class m_voipnew extends IModule
         }
         $pg_db->Query('END');
 
+        if ($file['type'] == 'network_prices') {
+            $networkGroups = $pg_db->AllRecords('select id, name from voip.network_type', 'id');
+            foreach ($defs as $k => $def) {
+                if (isset($networkGroups[$def['defcode']])) {
+                    $defs[$k]['destination'] = $networkGroups[$def['defcode']]['name'];
+                }
+            }
+        }
+
         $design->assign('defs_list', $defs);
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
@@ -124,11 +133,10 @@ class m_voipnew extends IModule
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
 
-        $query = "  select o.name as operator, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows ,c.name as currency
+        $query = "  select o.name as operator, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
                     from voip.raw_file f
                     left join voip.pricelist p on p.id=f.pricelist_id
                     left join voip.operator o on o.id=p.operator_id
-                    left join public.currency c on c.id=f.currency_id
                     WHERE f.id=" . $id;
         $design->assign('file', $pg_db->GetRow($query));
 
@@ -700,7 +708,8 @@ class m_voipnew extends IModule
                     $resgroup['def2'] = ''; //$defs;
 
                     if ($defs != '') {
-                        $resgroup['defcode'] = $resgroup['defcode'] . ' </b>' . '(' . $defs . ')<b>';
+                        $resgroup['defcode'] = $resgroup['defcode'];
+                        $resgroup['defcode2'] = $defs;
                     }
                     $res[] = $resgroup;
                 }
@@ -714,26 +723,50 @@ class m_voipnew extends IModule
 
             usort($res, "defs_cmp");
 
-            $design->assign('defs', $res);
-        }
-        $query = "select o.id, o.name from voip.pricelist o";
-        $design->assign('pricelists', $pg_db->AllRecords($query));
-
-        $design->assign('pricelist_id', $pricelist_id);
-        $design->assign('f_date', $f_date);
-        $design->assign('f_short', $f_short);
-        $design->assign('f_country_id', $f_country_id);
-        $design->assign('f_region_id', $f_region_id);
-        $design->assign('f_dest_group', $f_dest_group);
-        $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
-        $design->assign('regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
-
-        if ($f_print != '') {
-            $design->display('voipnew/defs_print.html');
-            exit;
         } else {
-            $design->AddMain('voipnew/defs.html');
+            $res = array();
         }
+
+        $pricelists = $pg_db->AllRecords("select o.id, o.name from voip.pricelist o");
+        $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
+        $regions = $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name");
+
+        if (!isset($_REQUEST['export'])) {
+            $design->assign('defs', $res);
+            $design->assign('pricelists', $pricelists);
+            $design->assign('pricelist_id', $pricelist_id);
+            $design->assign('f_date', $f_date);
+            $design->assign('f_short', $f_short);
+            $design->assign('f_country_id', $f_country_id);
+            $design->assign('f_region_id', $f_region_id);
+            $design->assign('f_dest_group', $f_dest_group);
+            $design->assign('countries', $countries);
+            $design->assign('regions', $regions);
+
+            if ($f_print != '') {
+                $design->display('voipnew/defs_print.html');
+                exit;
+            } else {
+                $design->AddMain('voipnew/defs.html');
+            }
+        } else {
+            header('Content-type: application/csv');
+            header('Content-Disposition: attachment; filename="price.csv"');
+
+            ob_start();
+
+            echo '"Префикс";"Цена";"Направление"' . "\n";
+            foreach ($res as $r) {
+                echo '"' . $r['defcode'] . (isset($r['defcode2']) ? ' (' . $r['defcode2'] . ')' : '') . '";';
+                echo '"' . str_replace('.', ',', $r['price']) . '";';
+                echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'')  . '"';
+                echo "\n";
+            }
+
+            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            exit;
+        }
+
 
     }
 
