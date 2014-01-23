@@ -17,7 +17,7 @@ div.Section1
 	align:center;}
 
 span {
-font-size:8.0pt;
+font-size:7.5pt;
 font-family:"Arial";
 }
 
@@ -152,7 +152,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>N<br>п/п</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
-			<p style='text-align:center'><span>Код товара/<br>работ, услуг</span></p>
+			<p style='text-align:center'><span>Код<br>товара/<br>работ,<br>услуг</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;mso-border-left-alt: solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</span></p>
@@ -167,7 +167,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>Цена (тариф)<br>за<br>единицу измерения</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Стоимость товаров (работ, услуг), имущест-<br>венных прав без налога - всего</span></p>
+			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных<br>прав без<br>налога - всего</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>В том<br>числе<br>сумма <br>акциза</span></p>
@@ -179,13 +179,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>Сумма налога, предъяв-<br>ляемая покупателю</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Стоимость товаров (работ, услуг), имущест-<br> венных прав с налогом - всего</span></p>
+			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных прав<br>с налогом - всего</span></p>
 		</td>
 		<td colspan="2" style='border:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>Страна<br> происхождения товара</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Номер<br> таможенной<br> декларации</span></p>
+			<p style='text-align:center'><span>Номер<br> таможен<br>ной<br> декла<br>рации</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h50'>
