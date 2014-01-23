@@ -209,9 +209,6 @@
 <input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1)</label><br>
 <input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2)</label><br>
 
-<input type=checkbox value=1 name="utd-1" id=cb7><label for=cb7{if !$bill_utd[1]} style='color:#C0C0C0'{/if}>С/ф акт (1)</label><br>
-<input type=checkbox value=1 name="utd-2" id=cb7><label for=cb7{if !$bill_utd[2]} style='color:#C0C0C0'{/if}>С/ф акт (2)</label><br>
-
 Действие: <select name=action id="action">
 <option value="bill_mprint">печать</option>
 <option value="bill_email">отправка</option>
