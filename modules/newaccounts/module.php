@@ -609,25 +609,15 @@ class m_newaccounts extends IModule
         $design->assign("sum_l", $sum_l);
 
 
-
-        $counters = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
-
+        
         try{
-
-        $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
-                                                CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum,
-                                                CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum
-                                        FROM billing.counters
-                                        WHERE client_id='".$fixclient_data["id"]."'");
+            $billingCounter = ClientCS::getBillingCounters($fixclient_data["id"]);
         }catch(Exception $e)
         {
             trigger_error($e->getMessage());
         }
-        $counters['amount_sum'] = $counters_reg['amount_sum'];
-        $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
-        $counters['amount_month_sum'] = $counters_reg['amount_month_sum'];
 
-        $design->assign("counters", $counters);
+        $design->assign("counters", $billingCounter);
 
 
 
@@ -665,212 +655,21 @@ class m_newaccounts extends IModule
 
         $design->assign("view_canceled", $isViewCanceled);
 
-        $sum = array(
-            'USD'=>array(
-                'delta'=>0,
-                'bill'=>0,
-                'ts'=>''
-            ),
-            'RUR'=>array(
-                'delta'=>0,
-                'bill'=>0,
-                'ts'=>''
-            )
-        );
-
-        $r=$db->GetRow('
-            select
-                *
-            from
-                newsaldo
-            where
-                client_id='.$fixclient_data['id'].'
-            and
-                currency="'.$fixclient_data['currency'].'"
-            and
-                is_history=0
-            order by
-                id desc
-            limit 1
-        ');
-        if($r){
-            $sum[$fixclient_data['currency']]
-                =
-            array(
-                'delta'=>0,
-                'bill'=>$r['saldo'],
-                'ts'=>$r['ts'],
-                'saldo'=>$r['saldo']
+        $params = array(
+            "client_id" => $fixclient_data["id"],
+            "client_currency" => $fixclient_data["currency"],
+            "is_multy" => $isMulty,
+            "is_view_canceled" => $isViewCanceled,
+            "get_sum" => $get_sum
             );
-        }else{
-            $sum[$fixclient_data['currency']]
-                =
-            array(
-                'delta'=>0,
-                'bill'=>0,
-                'ts'=>''
-            );
-        }
 
-        $sqlLimit = $fixclient_data["type"] == "multi" ? " limit 200" : "";
+        $R = BalanceSimple::get($params);
 
-        $R1 = $db->AllRecords($q='
-            select
-                *,
-                '.(
-                    $sum[$fixclient_data['currency']]['ts']
-                        ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
-                        :    '1'
-                ).' as in_sum
-            from
-                newbills
-            '.($isMulty && !$isViewCanceled ? "
-                left join tt_troubles t using (bill_no)
-                left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
-                " : "").'
-            where
-                client_id='.$fixclient_data['id'].'
-                '.($isMulty && !$isViewCanceled? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
-            order by
-                bill_date desc,
-                bill_no desc
-            '.$sqlLimit.'
-        ','',MYSQL_ASSOC);
+        if($get_sum)
+            return $R;
 
+        list($R, $sum, $sw) = $R;
 
-        $R2 = $db->AllRecords('
-            select
-                P.*,
-                (P.sum_rub/P.payment_rate) as sum,
-                U.user as user_name,
-                '.(
-                    $sum[$fixclient_data['currency']]['ts']
-                        ?    'IF(P.payment_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
-                        :    '1'
-                ).' as in_sum
-            from
-                newpayments as P
-            LEFT JOIN
-                user_users as U
-            on
-                U.id=P.add_user
-            where
-                P.client_id='.$fixclient_data['id'].'
-            order by
-                P.payment_date
-            desc
-                '.$sqlLimit.'
-            ',
-        '',MYSQL_ASSOC);
-
-        $R=array();
-        foreach($R1 as &$r){
-            $v=array(
-                'bill'=>$r,
-                'date'=>$r['bill_date'],
-                'pays'=>array(),
-                'delta'=>-$r['sum']
-            );
-            foreach($R2 as $k2=>$r2){
-                $r2['bill_vis_no'] = $r2['bill_no'];
-                $R2[$k2]['bill_vis_no'] = $r2['bill_no'];
-                if(
-                    $r['bill_no'] == $r2['bill_no']
-                &&
-                    (
-                        $r2['bill_no'] == $r2['bill_vis_no']
-                    )
-                ){
-                    $r2['divide']=0;
-                    $v['pays'][]=$r2;
-                    $v['delta']+=$r2['sum'];
-                    unset($R2[$k2]);
-                }
-            }
-
-            foreach($R2 as $k2=>$r2)
-                if(
-                    $r['bill_no'] == $r2['bill_no']
-                &&
-                    $r2['bill_no'] != $r2['bill_vis_no']
-                ){
-                    $d = round(-$v['delta'],2);
-                    $R2[$k2]['sum'] = $r2['sum']-$d;
-                    $R2[$k2]['sum_rub'] = round($R2[$k2]['sum']*$R2[$k2]['payment_rate'],2);
-                    $r2['sum'] = $d;
-                    $r2['sum_rub'] = round($r2['sum']*$r2['payment_rate'],2);
-                    $r2['divide'] = 1;
-                    $v['pays'][] = $r2;
-                    $v['delta'] -= $d;
-                }
-            $r['v'] = $v;
-        }
-        unset($r);
-        foreach($R1 as $r){
-            $v=$r['v'];
-            foreach($R2 as $k2=>$r2)
-                if(
-                    $r['bill_no'] == $r2['bill_vis_no']
-                &&
-                    $r2['bill_no'] != $r['bill_no']
-                ){
-                    $r2['divide']=2;
-                    $v['pays'][]=$r2;
-                    $v['delta']+=round($r2['sum'],2);
-                    unset($R2[$k2]);
-                }
-            if($r['in_sum']){
-                $sum[$r['currency']]['bill'] += $r['sum'];
-                $sum[$r['currency']]['delta'] -= $v['delta'];
-            }
-            $R[$r['bill_no']] = $v;
-        }
-        foreach($R2 as $r2){
-            $v = array(
-                'date'=>$r2['payment_date'],
-                'pays'=>array($r2),
-                'delta'=>$r2['sum']
-            );
-            if($r2['in_sum'])
-                $sum[$fixclient_data['currency']]['delta']-=$v['delta'];
-            $R[]=$v;
-        }
-        if($get_sum){
-            return $sum;
-        }
-        ## sorting
-        $sk = array();
-        foreach($R as $bn=>$b){
-            if(!isset($sk[$b['date']]))
-                $sk[$b['date']] = array();
-            $sk[$b['date']][$bn] = 1;
-        }
-        $buf = array();
-
-        $sw = array();
-
-        krsort($sk);
-
-        foreach($sk as $bn){
-            krsort($bn);
-            foreach($bn as $billno=>$v)
-            {
-                $buf[$billno] = $R[$billno];
-
-                $bDate = isset($R[$billno]) && isset($R[$billno]["bill"]) ? $R[$billno]["bill"]["bill_date"] : false;
-
-                if($bDate)
-                {
-                    $sw[$bDate] = $billno;
-                }
-
-            }
-        }
-
-        $R = $buf;
-
-
-        ksort($buf);
         ksort($sw);
 
         if($stDate = $this->_getSwitchTelekomDate($fixclient_data["id"]))
@@ -2157,7 +1956,6 @@ class m_newaccounts extends IModule
         {
             $R[0]["param"] = "alone=true";
         }
-               
         $design->assign('rows',$P);
         $design->assign('objects',$R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
@@ -2204,6 +2002,25 @@ class m_newaccounts extends IModule
     function newaccounts_bill_print($fixclient){
         global $design,$db,$user;
         $this->do_include();
+
+        $object = get_param_protected('object');
+
+        $mode = get_param_protected('mode', 'html');
+        self::$object = $object;
+        if ($object) {
+            list($obj,$source,$curr) = explode('-',$object.'---');
+        } else {
+            $obj=get_param_protected("obj");
+            $source = get_param_integer('source',1);
+            $curr = get_param_raw('curr','RUR');
+        }
+
+        if($obj == "receipt")
+        {
+            $this->_print_receipt();
+            exit();
+        }
+
         $bill_no=get_param_protected("bill");
         if(!$bill_no)
             return;
@@ -2220,17 +2037,6 @@ class m_newaccounts extends IModule
         if(get_param_raw("emailed", "0") != "0")
             $design->assign("emailed", get_param_raw("emailed", "0"));
 
-        $object = get_param_protected('object');
-
-        $mode = get_param_protected('mode', 'html');
-        self::$object = $object;
-        if ($object) {
-            list($obj,$source,$curr) = explode('-',$object.'---');
-        } else {
-            $obj=get_param_protected("obj");
-            $source = get_param_integer('source',1);
-            $curr = get_param_raw('curr','RUR');
-        }
 
         if(in_array($obj,array('nbn_deliv', 'nbn_modem','nbn_gds'))){
             $this->do_print_prepare($bill,'bill',1,'RUR');
@@ -2349,7 +2155,6 @@ class m_newaccounts extends IModule
             
 
 
-
         if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice", "assignment"))){
 
       $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
@@ -2429,6 +2234,36 @@ class m_newaccounts extends IModule
             trigger_error('Документ не готов');
         }
         $design->ProcessEx('errors.tpl');
+    }
+
+    function _print_receipt()
+    {
+        global $design;
+        $clientId = get_param_raw("client", 0);
+        $sum = get_param_raw("sum", 0);
+        $sum = (float)$sum;
+
+        if($clientId && $sum)
+        {
+            list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
+
+            $sumNds = (($sum/118)*18);
+            list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
+
+            $sSum = array(
+                    "rub" => $rub,
+                    "kop" => $kop,
+                    "nds" => array(
+                        "rub" => $ndsRub,
+                        "kop" => $ndsKop
+                        )
+                    );
+            $design->assign("sum", $sSum);
+            $design->assign("client", ClientCS::FetchClient($clientId));
+            echo $design->fetch("newaccounts/print_receipt.tpl");
+
+        }
+
     }
 
 

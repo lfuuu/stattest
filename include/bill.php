@@ -30,7 +30,7 @@ class Bill{
            $this->client_data = ClientCS::getOnDate($this->client_id, $date);
     }
 
-	public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true) {
+	public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true, $isUserPrepay=false) {
 		global $db;
 		if ($bill_no){
 			$this->bill_no=$bill_no;
@@ -45,7 +45,7 @@ class Bill{
 			$this->max_sort=($r?$r['V']:0);
 		} else {
 			$prefix=date("Ym",$bill_date);
-			if ($r=$db->GetRow("
+			if ($r=$db->GetRow($q = "
 				SELECT
 					bill_no as suffix
 				FROM
@@ -59,6 +59,7 @@ class Bill{
 				$suffix=1+intval(substr($r['suffix'],7));
 			else
 				$suffix=1;
+
 		    $this->bill_no=sprintf("%s-%04d",$prefix,$suffix);
 
 		    if (is_array($client_id)) {
@@ -84,7 +85,8 @@ class Bill{
 					"bill_no"=>$this->bill_no,
 					"bill_date"=>date('Y-m-'.($is_auto?'01':'d'),$bill_date),
 					"nal" => $this->client_data["nal"],
-                    "is_lk_show" => $isLkShow ? 1 : 0
+                    "is_lk_show" => $isLkShow ? 1 : 0,
+                    "is_user_prepay" => $isUserPrepay ? 1 : 0
 				)
 			);
 		}

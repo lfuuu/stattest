@@ -1475,6 +1475,30 @@ class ClientCS {
         return $n;
         
     }
+
+    public function getBillingCounters($clientId)
+    {
+        global $pg_db;
+
+        $counters = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
+
+        try{
+
+        $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
+                                                CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum,
+                                                CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum
+                                        FROM billing.counters
+                                        WHERE client_id='".$clientId."'");
+        }catch(Exception $e)
+        {
+            throw new Exception("База билллинга телефонии не доступна");
+        }
+        $counters['amount_sum'] = $counters_reg['amount_sum'];
+        $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
+        $counters['amount_month_sum'] = $counters_reg['amount_month_sum'];
+
+        return $counters;
+    }
 }
 
 function iplist_make($D) {
