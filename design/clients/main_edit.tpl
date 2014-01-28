@@ -308,6 +308,7 @@ $(function(){
 				<option id="cl_type_org" value='office'{if $client.type=='office'} selected{/if}>Офис</option>
 				<option id="cl_type_org" value='multi'{if $client.type=='multi'} selected{/if}>Магазин</option>
 				<option id="cl_type_org" value='distr'{if $client.type=='distr'} selected{/if}>Дистрибьютор</option>
+				<option id="cl_type_org" value='operator'{if $client.type=='operator'} selected{/if}>Оператор</option>
 			</select></td></tr>
 	<TR><TD class=left>ID в All4Net:</TD><TD><input style='width:100%' name=id_all4net class=text value='{$client.id_all4net}'></td></tr>
 	<TR><TD class=left>Наследовать права пользователя:</TD><TD><input style='width:100%' name=user_impersonate class=text value='{$client.user_impersonate}'></td></tr>

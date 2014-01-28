@@ -338,8 +338,9 @@ class m_clients {
 		ksort($L);
 		$L['*'] = '*';
 		$L['@'] = '@';
-		$L['!'] = '!';
-		$L['+'] = '+';
+		$L['!'] = 'Клиенты ItPark';
+		$L['+'] = 'Тип: Дистрибютор';
+		$L['-'] = 'Тип: Оператор';
 
       foreach($db->AllRecords("select id, name from regions order by if(id = 99, '!!!', name)", "id") as $r => $n)
         $LR[$r] = $n["name"];
@@ -361,7 +362,7 @@ class m_clients {
         $design->assign("view_add_search", $_COOKIE["stat_addit_search"]);
 
 		$design->assign('letters', $L);
-    $design->assign('letter_regions', $LR);
+        $design->assign('letter_regions', $LR);
 		if ($action) $design->assign('action', $action);
 		if ($subj) $design->assign('client_subj', $subj);
 
@@ -449,10 +450,12 @@ class m_clients {
 		}
 
 		if($letter!==''){
-            if($letter=='!')
+            if($letter=='!'){
 				$where .= " and cl.client in (select client from usage_extra ue inner join tarifs_extra te on ue.tarif_id=te.id and te.status='itpark') ";
-            elseif($letter == "+"){
+            } elseif ($letter == "+") {
 				$where.="and cl.type ='distr' ";
+            } elseif ($letter == "-") {
+				$where.="and cl.type ='operator' ";
             }else{
 				$where.="and cl.client LIKE '{$letter}%' ";
 			}
