@@ -1,3 +1,6 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
 <h1>
     <small>
         <a href="?module=voipnew&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
@@ -61,13 +64,13 @@ tr.lock td {
 	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
 	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
 	</select>
-	<select name="f_country_id">
+	<select name="f_country_id" class="select2" style="width: 250px">
 	<option value="0">-- Все страны --</option>
 	{foreach from=$geo_countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
-	<select name="f_region_id">
+	<select name="f_region_id" class="select2" style="width: 300px">
 	<option value="0">-- Все регионы --</option>
 	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
@@ -84,33 +87,36 @@ tr.lock td {
   <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
   <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
-	<input type=submit name="make" id="make_report" value="Сформировать"/>
-  <input type=submit name="calc" value="Пересчитать"/>
+    <input type=submit name="make" id="make_report" value="Сформировать"/>
+    <input type=submit name="calc" value="Пересчитать"/>
+    <input type=submit name="export" value="Экспорт CSV"/>
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr>
   <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
   <td class=header style="min-width: 100px;">Назначение</td>
-  <td nowrap colspan="3" class=header align=center style="text-align: center">Итого<br/>Факт. Стоимость / Объем / Стоимость</td>
+  <td nowrap colspan="4" class=header align=center style="text-align: center">Итого<br/>Факт. Стоимость / Кол-во / Объем / Стоимость</td>
   {foreach from=$rep->pricelist_ids item='p'}
-    <td nowrap colspan="3" class=header align=center style="text-align: center">{$pricelists[$p].operator}<br/>Цена / Объем / Стоимость</td>
+    <td nowrap colspan="4" class=header align=center style="text-align: center">{$pricelists[$p].operator}<br/>Цена / Кол-во / Объем / Стоимость</td>
 	{/foreach}
 </tr>
 
 {foreach from=$report item='rd'}
 {assign var='best_p' value=$rd.pricelists[0]}
 <tr class="{cycle values='even,odd'} {if $rd.locked=='t'}lock{/if} " value="{$rd.locked}">
-	<td>{$rd.prefix}</td>
-	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+  <td>{$rd.prefix}</td>
+  <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
   <td nowrap align=center style="min-width: 50px;">{$rd.amount_op}</td>
+  <td nowrap align=center style="min-width: 50px;">{$rd.count}</td>
   <td nowrap align=center style="min-width: 50px;">{$rd.volume}</td>
-  <td nowrap align=center style="min-width: 50px;">{$rd.parts[$best_p].amount}</td>
+  <td nowrap align=center style="min-width: 50px;">{$rd.amount_op}</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
-  	<td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if $rd.parts[$i].price != 'NULL'}{$rd.parts[$i].price|replace:'.':','}{/if}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if $rd.parts[$i].price != 'NULL'}{$rd.parts[$i].price|replace:'.':','}{/if}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].count}</td>
     <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].volume}</td>
     <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].amount}</td>
-	{/foreach}
+  {/foreach}
 </tr>
 {/foreach}
 
@@ -118,12 +124,22 @@ tr.lock td {
   <td><b>ИТОГО:</b></td>
   <td>&nbsp;</td>
   <td nowrap align=center><b>{$totals.all.amount_op}</b> р.</td>
+  <td nowrap align=center><b>{$totals.all.count}</b></td>
   <td nowrap align=center><b>{$totals.all.volume}</b> м.</td>
   <td nowrap align=center><b>{$totals.all.amount}</b> р.</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
   <td nowrap align=center>&nbsp;</td>
+  <td nowrap align=center><b>{$totals[$i].count}</b></td>
   <td nowrap align=center><b>{$totals[$i].volume}</b> м.</td>
   <td nowrap align=center><b>{$totals[$i].amount}</b> р.</td>
   {/foreach}
 </tr>
 </table>
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $('.select2').select2();
+    });
+    {/literal}
+</script>

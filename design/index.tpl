@@ -13,7 +13,6 @@
   <script src="js/script.js"></script>
   <script src="js/jquery.js"></script>
   <script src="js/jquery.tmpl.min.js"></script>
-  <script src="js/knockout-2.2.0.js"></script>
   <script src="js/optools.js"></script>
   <script src="js/statlib/main.js"></script>
   <script src="js/jquery.meio.mask.min.js"></script>
@@ -42,7 +41,7 @@
 <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
   <TBODY>
   <TR>
-    <TD vAlign=top width=200><!-- ######## Left Panel ######## -->{if isset($panel)}{foreach from=$panel item=item}{if $item[0] == 0}{$item[1]}{else}{include file="$item[1]"}{/if}{/foreach}{else}&nbsp;{/if}</TD><!-- ######## /Left Panel ######## -->
+    <TD vAlign=top width=200 style="min-width: 200px"><!-- ######## Left Panel ######## -->{if isset($panel)}{foreach from=$panel item=item}{if $item[0] == 0}{$item[1]}{else}{include file="$item[1]"}{/if}{/foreach}{else}&nbsp;{/if}</TD><!-- ######## /Left Panel ######## -->
     <TD vAlign=bottom width=15>&nbsp;</TD>
     <TD vAlign=top align=left><FONT class=text><div id=div_errors></div>{foreach from=$premain item=item}{if $item[0] == 0}{$item[1]}{else}{include file="$item[1]"}{/if}{/foreach}{foreach from=$main item=item}{if $item[0] == 0}{$item[1]}{else}{include file="$item[1]"}{/if}{/foreach}</FONT></TD>
     <TD vAlign=bottom width=15>&nbsp;</TD></TR></TBODY></TABLE><!-- ######## Footer ######## -->

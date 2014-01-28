@@ -1,5 +1,5 @@
-      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=voip&phone={$phone}&showfree={$showfree}&detality=day&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">прошлый месяц</a>,
-      								за <a href="?module=stats&action=voip&phone={$phone}&showfree={$showfree}&detality=day&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">текущий месяц</a>)</H3>
+      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=voip&phone={$phone}&paidonly={$paidonly}&detality=day&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">прошлый месяц</a>,
+      								за <a href="?module=stats&action=voip&phone={$phone}&paidonly={$paidonly}&detality=day&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">текущий месяц</a>)</H3>
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
   
         <TBODY>
@@ -10,8 +10,9 @@
             <input type=hidden name=module value=stats>
             <input type=hidden name=action value=voip>
             <SELECT name=phone>
-				{foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
-              </SELECT>
+                <option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>
+                {foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
+            </SELECT>
         <TR>
           <TD class=left>Дата начала отчёта</TD>
           <TD>
@@ -154,8 +155,8 @@
 				</select>
 			</td>
 		</tr>
-		<TR><TD class=left>Показывать бесплатные звонки:</TD><TD>
-		<input type=checkbox name=showfree value='1'{if $showfree==1} checked{/if}>
+		<TR><TD class=left>Только платные звонки:</TD><TD>
+		<input type=checkbox name=paidonly value='1'{if $paidonly==1} checked{/if}>
         </TD></TR></TBODY></TABLE>
       <HR>
 

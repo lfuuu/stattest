@@ -1,6 +1,6 @@
 <?
 //,"domains","","usage_phone_callback");
-$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails");
+$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails", "usage_8800","usage_sms");
 
 function Underscore2Caps($s) {
     return preg_replace_callback("/_(.)/",create_function('$a','return strtoupper($a[1]);'),$s);
@@ -577,7 +577,7 @@ class ServiceUsageVoip extends ServicePrototype {
                 else dest end rdest, 
                 cast( sum(amount)/100.0 as NUMERIC(10,2)) as price
             from
-                billing.calls_'.intval($this->service['region']).'
+                calls.calls_'.intval($this->service['region']).'
             where '.$W.'
             group by rdest
             having cast( sum(amount)/100.0 as NUMERIC(10,2)) > 0');
@@ -1115,6 +1115,107 @@ class ServiceUsageVirtpbx extends ServicePrototype {
         $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
 
         $R[]=$v;
+        return $R;
+    }
+}
+
+class ServiceUsage8800 extends ServicePrototype {
+    var $tarif_std = 0;
+    public function LoadTarif() {
+        global $db;
+        $this->tarif_current=$db->GetRow('select * from tarifs_8800 where id='.$this->service['tarif_id']);
+    }
+
+    public function SetMonth($month) {
+        return parent::SetMonth($month);
+    }
+
+    public function GetLinesMonth(){
+        if(!$this->date_from || !$this->date_to)
+            return array();
+
+        $R=ServicePrototype::GetLinesMonth();
+        $v=array(
+            $this->tarif_current['currency'],
+            $this->tarif_current['description'],
+            $this->service['amount']*$this->GetDatePercent(),
+            $this->tarif_current['price'],
+            'service',
+            $this->service['service'],
+            $this->service['id'],
+            date('Y-m-d',$this->date_from),
+            date('Y-m-d',$this->date_to)
+        );
+
+        //by month
+        $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+
+        $R[]=$v;
+
+        return $R;
+    }
+}
+
+class ServiceUsageSms extends ServicePrototype {
+    var $tarif_std = 0;
+    public function LoadTarif() {
+        global $db;
+        $this->tarif_current=$db->GetRow('select * from tarifs_sms where id='.$this->service['tarif_id']);
+    }
+
+    public function SetMonth($month) {
+        return parent::SetMonth($month);
+    }
+
+    public function GetLinesMonth(){
+
+        global $db;
+
+        if(!$this->date_from || !$this->date_to)
+            return array();
+
+
+        $R=ServicePrototype::GetLinesMonth();
+
+        if ($this->tarif_current["per_month_price"] > 0)
+        {
+            $v=array(
+                    $this->tarif_current['currency'],
+                    "Абонентская плата за СМС рассылки, ".$this->tarif_current['description'],
+                    1*$this->GetDatePercent(),
+                    $this->tarif_current['per_month_price']/1.18,
+                    'service',
+                    $this->service['service'],
+                    $this->service['id'],
+                    date('Y-m-d',$this->date_from),
+                    date('Y-m-d',$this->date_to)
+                    );
+
+            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            $R[]=$v;
+        }
+
+        $count = $db->GetValue("SELECT sum(`count`)  FROM `sms_stat` where sender = ".$this->client["id"]." and date_hour between '".date("Y-m-d", $this->date_from_prev)."' and '".date("Y-m-d", $this->date_to_prev)."'");
+        if ($count > 0)
+        {
+            $v=array(
+                    $this->tarif_current['currency'],
+                    "СМС рассылка, ".$this->tarif_current['description'],
+                    $count,
+                    $this->tarif_current['per_sms_price']/1.18,
+                    'service',
+                    $this->service['service'],
+                    $this->service['id'],
+                    date('Y-m-d',$this->date_from_prev),
+                    date('Y-m-d',$this->date_to_prev)
+                    );
+
+            $v[1].=' с '.mdate('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev);
+            $R[]=$v;
+        }
+
+
+
         return $R;
     }
 }

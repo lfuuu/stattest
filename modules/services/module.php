@@ -420,7 +420,7 @@ class m_services extends IModule{
         $id=get_param_protected('id');
         if ($id=='') return;
         
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $conn=$db->GetRow("select * from usage_ip_ports where id='".$id."'");
         $routes=array(); $db->Query('select * from usage_ip_routes where (port_id="'.$id.'") and (actual_from<=NOW()) and (actual_to>=NOW()) order by id');
@@ -679,7 +679,6 @@ class m_services extends IModule{
 
     private function getSIPregs($client, $region, $phone = "")
     {
-
         $schema = "";
         $needRegion = false;
 
@@ -690,11 +689,11 @@ class m_services extends IModule{
         }else{
 
             // Соловьев не переключил старую базу на новую, перед уходом в отпуск
-            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $dbname = "voipdb";
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -774,7 +773,8 @@ class m_services extends IModule{
                 "reg98" => "37.228.81.6",
                 "reg95" => "37.228.85.6",
                 "reg94" => "37.228.83.6",
-                "reg87" => "37.228.86.6"
+                "reg87" => "37.228.86.6",
+                "reg88" => "37.228.87.6"
                 );
 
 
@@ -817,7 +817,7 @@ class m_services extends IModule{
 
         if($id)
         {
-            $u=$db->GetValue("select e164 from usage_voip where id = '".$id."' and client='".$fixclient."'");
+            $u=$db->GetValue($q = "select id from usage_voip where id = '".$id."' and client='".$fixclient."'");
             if($u)
             {
                 $db->Query("delete from usage_voip where id = '".$id."' and client='".$fixclient."'");
@@ -932,7 +932,7 @@ class m_services extends IModule{
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($fixclient);
 
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->ProcessEx('../store/acts/voip_act.tpl'); 
     }
@@ -1905,12 +1905,203 @@ class m_services extends IModule{
             $r["password"] = $o[0][count($o[0])-1];
         }
 
-        $GLOBALS["module_newaccounts"]->do_firm_residents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->assign('d',$r);
                 
         $design->ProcessEx('services/virtpbx_act.tpl'); 
     }
+// =========================================================================================================================================
+    function services_8800_view($fixclient){
+        global $db,$design;
+        if(!$this->fetch_client($fixclient)){
+
+            $design->assign("filter_manager", $filterManager = get_param_protected('filter_manager', ''));
+            
+
+            $db->Query($q='
+            SELECT
+                S.*,
+                T.*,
+                S.id as id,
+                c.status as client_status,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_8800 as S
+            LEFT JOIN clients c ON (c.client = S.client)
+            LEFT JOIN tarifs_8800 as T ON T.id=S.tarif_id
+            '.($filterManager ? "where c.manager = '".$filterManager."'" : "").'
+            HAVING actual
+            ORDER BY client,actual_from'
+
+            );
+
+            $R = array();
+            $statuses = ClientCS::$statuses;
+            while($r=$db->NextRecord()){
+                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
+                if($r['period']=='month')
+                    $r['period_rus']='ежемесячно';
+                $R[]=$r;
+            }
+
+            $m=array();
+            $GLOBALS['module_users']->d_users_get($m,'manager');
+
+            $design->assign(
+                'f_manager',
+                $m
+            );
+
+            $design->assign('services_8800',$R);
+            $design->AddMain('services/8800_all.tpl');
+            return;
+        }
+
+
+        $R=array();
+        $db->Query($q='
+            SELECT
+                T.*,
+                S.*,
+                S.id as id,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_8800 as S
+            LEFT JOIN tarifs_8800 as T ON T.id=S.tarif_id
+            WHERE S.client="'.$fixclient.'"'
+        );
+
+        $isViewAkt = false;
+        while($r=$db->NextRecord()){
+            if($r['period']=='month')
+                $r['period_rus']='ежемесячно';
+            $R[]=$r;
+        }
+
+        $design->assign('services_8800',$R);
+        $design->AddMain('services/8800.tpl');
+    }
+    function services_8800_add($fixclient){
+        global $design,$db;
+        if(!$this->fetch_client($fixclient)){
+            trigger_error('Не выбран клиент');
+            return;
+        }
+        $db->Query('select * from clients where client="'.$fixclient.'"');
+        $r=$db->NextRecord();
+        $dbf = new DbFormUsage8800();
+        $dbf->SetDefault('client',$fixclient);
+        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Новая услуга 8800');
+    }
+    function services_8800_apply($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        $dbf = new DbFormUsage8800();
+        $id=get_param_integer('id','');
+        if ($id) $dbf->Load($id);
+        $result=$dbf->Process();
+        if ($result=='delete') {
+            header('Location: ?module=services&action=8800_view');
+            $design->ProcessX('empty.tpl');
+        }
+        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Редактировать услугу 8800');
+    }
+
+// =========================================================================================================================================
+    function services_sms_view($fixclient){
+        global $db,$design;
+        if(!$this->fetch_client($fixclient)){
+
+
+            $db->Query($q='
+            SELECT
+                S.*,
+                T.*,
+                S.id as id,
+                c.status as client_status,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_sms as S
+            LEFT JOIN clients c ON (c.client = S.client)
+            LEFT JOIN tarifs_sms as T ON T.id=S.tarif_id
+            HAVING actual
+            ORDER BY client,actual_from'
+
+            );
+
+            $R = array();
+            $statuses = ClientCS::$statuses;
+            while($r=$db->NextRecord()){
+                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
+                if($r['period']=='month')
+                    $r['period_rus']='ежемесячно';
+                $R[]=$r;
+            }
+
+            $m=array();
+            $GLOBALS['module_users']->d_users_get($m,'manager');
+
+            $design->assign(
+                'f_manager',
+                $m
+            );
+
+            $design->assign('services_sms',$R);
+            $design->AddMain('services/sms_all.tpl');
+            return;
+        }
+
+
+        $R=array();
+        $db->Query($q='
+            SELECT
+                T.*,
+                S.*,
+                S.id as id,
+                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
+                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
+            FROM usage_sms as S
+            LEFT JOIN tarifs_sms as T ON T.id=S.tarif_id
+            WHERE S.client="'.$fixclient.'"'
+        );
+
+        $isViewAkt = false;
+        while($r=$db->NextRecord()){
+            if($r['period']=='month')
+                $r['period_rus']='ежемесячно';
+            $R[]=$r;
+        }
+
+        $design->assign('services_sms',$R);
+        $design->AddMain('services/sms.tpl');
+    }
+    function services_sms_add($fixclient){
+        global $design,$db;
+        if(!$this->fetch_client($fixclient)){
+            trigger_error('Не выбран клиент');
+            return;
+        }
+        $db->Query('select * from clients where client="'.$fixclient.'"');
+        $r=$db->NextRecord();
+        $dbf = new DbFormUsageSms();
+        $dbf->SetDefault('client',$fixclient);
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Новая услуга CMC');
+    }
+    function services_sms_apply($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        $dbf = new DbFormUsageSms();
+        $id=get_param_integer('id','');
+        if ($id) $dbf->Load($id);
+        $result=$dbf->Process();
+        if ($result=='delete') {
+            header('Location: ?module=services&action=sms_view');
+            $design->ProcessX('empty.tpl');
+        }
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Редактировать услугу CMC');
+    }
+
 // =========================================================================================================================================
     function services_welltime_view($fixclient){
         global $db,$design;
@@ -2668,7 +2859,7 @@ class voipRegion
 
         $result = pg_query(
                 $q = "SELECT distinct callerid, name
-                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."'
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."' ".($region != 99 ? "and region = '".$region."'" : "")."
                 ORDER BY callerid");
 
         $e164s = array();
@@ -2737,7 +2928,8 @@ class voipRegion
                 "reg98" => "37.228.81.6",
                 "reg95" => "37.228.85.6",
                 "reg94" => "37.228.83.6",
-                "reg87" => "37.228.86.6"
+                "reg87" => "37.228.86.6",
+                "reg88" => "37.228.87.6"
                 );
 
         $callerids = $names = array();
@@ -2809,11 +3001,11 @@ class voipRegion
         {
             $conn = pg_connect($q = "host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS);
         }else{
-            $dbname = $region == 97 ? "voipdb97" : "voipdb";
+            $dbname = "voipdb";
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
             $schema = "";
 
-            if(in_array($region, array(94))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";

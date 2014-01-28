@@ -663,7 +663,7 @@ class m_tt extends IModule{
             }
         }
 
-        $trouble["problem"] = html_entity_decode($trouble["problem"]);
+        $trouble["problem"] = html_entity_decode($trouble["problem"], ENT_QUOTES, 'KOI8-R');
 
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
@@ -700,7 +700,7 @@ class m_tt extends IModule{
                case "add" : $a = "Добавлена"; break;
                case "delete" : $a = "Удалена"; break;
             }
-            $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
+            $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
             $ff = array();
             if($l["action"] == "change"){
                 foreach($l["fields"] as $f)
@@ -990,7 +990,7 @@ class m_tt extends IModule{
         $showStages = ($mode>=1 || $client || $service || $service_id || $t_id);
 
         if($mode>=1)
-            $W[]='S.state_id not in (2,20,21)';
+            $W[]='S.state_id not in (2,20,21,39,40)';
         if($mode==2 || $mode==3)
             $W[]='S.date_start<=NOW()';
         if($mode==2)
@@ -1020,7 +1020,6 @@ class m_tt extends IModule{
         if(isset($_SESSION["_mcn_user_login_stat.mcn.ru"]) && in_array($_SESSION["_mcn_user_login_stat.mcn.ru"], array("drupov", "vinokurov")))
             $recInPage = 300;
 
-        //printdbg($W);
 
         $R = $db->AllRecords($q='
             SELECT sql_calc_found_rows
@@ -1197,6 +1196,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     // 4 = открытые, менеджер клиента - я.
 
     function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null){
+
 
 
         if($this->dont_again)
@@ -1385,7 +1385,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     $data_to_open['date_finish_desired'] = $r2['date_finish_desired'];
             }
         }
-        if(in_array($data_to_open['state_id'],array(2,20,21))){
+        if(in_array($data_to_open['state_id'],array(2,20,21,39,40))){
             $data_to_open['date_finish_desired'] = array('NOW()');
             $data_to_open['date_edit'] = array('NOW()');
             $data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
@@ -1866,9 +1866,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($state_filter == "null")
         {
-            $state_filter = " not in (2,20,21)";
+            $state_filter = " not in (2,20,21,39,40)";
         }elseif($state_filter == 2 || $state_filter == 20){
-            $state_filter = " in (2,20)";
+            $state_filter = " in (2,20,39,40)";
         }else{
             $state_filter = ' = "'.$state_filter.'"';
         }

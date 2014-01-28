@@ -607,9 +607,24 @@ class m_clients {
 					SELECT `client` FROM `usage_voip` `uv` WHERE `uv`.`e164` = "'.($search).'" ORDER BY `actual_from` DESC LIMIT 1
 				',null,MYSQL_ASSOC);
 				if(count($cls))
+                {
 					$in_c = "'".$cls[0]['client']."'";
-				else
-					$in_c = "''";
+                } else {
+
+                    // search by service 8800
+                    if(strlen($search) > 5)
+                    {
+                        $n = $db->GetValue("select client from usage_8800 where number like '%".$search."%'");
+                        if ($n)
+                        {
+                            $in_c = "'".$n."'";
+                        } else {
+                            $in_c = "''";
+                        }
+                    } else {
+                        $in_c = "''";
+                    }
+                }
 			}elseif($smode==8){
 				$cls = $db->AllRecords(
                         $q=' SELECT `client` FROM `domains` WHERE `domain` = "'.($search).'" AND now() BETWEEN `actual_from` AND `actual_to` ',null,MYSQL_ASSOC);
@@ -1061,6 +1076,8 @@ class m_clients {
 				$GLOBALS['module_services']->services_it_view($r['client']);
 				$GLOBALS['module_services']->services_welltime_view($r['client']);
 				$GLOBALS['module_services']->services_virtpbx_view($r['client']);
+				$GLOBALS['module_services']->services_8800_view($r['client']);
+				$GLOBALS['module_services']->services_sms_view($r['client']);
 				$GLOBALS['module_services']->services_wellsystem_view($r['client']);
 				$GLOBALS['module_services']->services_ad_view($r['client']);
 				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
@@ -2130,111 +2147,10 @@ DBG::sql_out($select_client_data);
 
     static function contract_apply_firma($firma)
     {
-        $firma = $firma ? $firma : "mcn";
-
-        $firms = array(
-                "mcn_telekom" => array(
-                    "name" => "ООО &laquo;МСН Телеком&raquo;",
-                    "address" => "115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8",
-        			      "post_address" => "115162, г. Москва, а/я &#8470;21",
-                    "inn" => "7727752084",
-                    "kpp" => "772401001",
-                    "acc" => "40702810038110015462",
-                    "bank" => "Московский банк Сбербанка России ОАО, г.Москва",
-                    "kor_acc" => "30101810400000000225",
-                    "bik" => "044525225",
-                    "phone" => "(495) 950-56-78",
-                    "fax" => "(495) 638-50-17",
-                    "email" => "info@mcn.ru",
-                    //"director" => "Мельников А. К.",
-                    //"director_" => "Мельникова А. К.",
-                    "director" => "Надточеева Н. А.",
-                    "director_" => "Надточеевой Н. А. ",
-                    "director_post" => "Генеральный директор",
-                    "director_post_" => "Генерального директора"
-
-                    ),
-                "mcn" => array(
-                    "name" => "ООО &laquo;Эм Си Эн&raquo;",
-                    "address" => "113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130",
-                    "post_address" => "115162, г. Москва, а/я &#8470;21",
-                    "inn" => "7727508671",
-                    "kpp" => "772701001",
-                    "acc" => "40702810600301422002",
-                    "bank" => "ЗАО КБ &laquo;Ситибанк&raquo;",
-                    "kor_acc" => "30101810300000000202",
-                    "bik" => "044525202",
-                    "phone" => "(495) 950-56-78",
-                    "fax" => "(495) 638-50-17",
-                    "email" => "info@mcn.ru",
-                    "director" => "Мельников А. К.",
-                    "director_" => "Мельникова А. К.",
-                    "director_post" => "Генеральный директор",
-                    "director_post_" => "Генерального директора"
-                    ),
-                "mcm" => array(
-                    "name" => "ООО &laquo;МСМ&raquo;",
-                    "address" => "117218, г. Москва, ул. Б. Черемушкинская, д. 25, стр. 97",
-                    "inn" => "7727667833",
-                    "kpp" => "772701001",
-                    "acc" => "40702810500540001425",
-                    "bank" => "ОАО &laquo;БАНК УРАЛСИБ&raquo;",
-                    "kor_acc" => "30101810100000000787",
-                    "bik" => "044525787",
-                    "phone" => "(495) 950-58-41",
-                    "email" => "arenda@mcn.ru",
-                    "director" => "Мельников Е. И.",
-                    "director_" => "Мельникова Е. И.",
-                    "director_post" => "Директор",
-                    "director_post_" => "Директора"
-                    ),
-                "ooocmc" => array(
-                    "name" => "ООО &laquo;Си Эм Си&raquo;",
-                    "address" => "117218, г. Москва, ул. Б. Черемушкинская, д. 25, стр. 97",
-                    "inn" => "7727701308",
-                    "kpp" => "772701001",
-                    "acc" => "40702810800540001507",
-                    "bank" => "ОАО &laquo;БАНК УРАЛСИБ&raquo;",
-                    "kor_acc" => "30101810100000000787",
-                    "bik" => "044525787",
-                    "phone" => "(495) 950-58-41",
-                    //"fax" => "(499) 123-55-33",
-                    "email" => "arenda@mcn.ru",
-                    "director" => "Надточеева Н. А.",
-                    "director_" => "Надточееву Н. А. ",
-                    "director_post" => "Заместитель Генерального директора",
-                    "director_post_" => "Заместителя Генерального директора"
-                    ),
-          "all4geo" => array(
-            "name" => "ООО &laquo;Олфогео&raquo;",
-            "address" => "115487, г. Москва, Нагатинский 2-й проезд, дом 2, строение 8",
-            "inn" => "7727752091",
-            "kpp" => "772401001",
-            "acc" => "40702810038110016607",
-            "bank" => "ОАО Сбербанк России",
-            "kor_acc" => "30101810400000000225",
-            "bik" => "044525225",
-            //"phone" => "(495) 950-58-41",
-            //"fax" => "(499) 123-55-33",
-            //"email" => "arenda@mcn.ru",
-            "director" => "Котельникова О. И.",
-            "director_" => "Котельникову О. И.",
-            "director_post" => "Генеральный директор",
-            "director_post_" => "Генеральный директор"
-          ),
-                    );
-
-        $f = $firms[$firma];
-
-
-        $d = $f["name"]."<br /> Юридический адрес: ".$f["address"].
-        (isset($f["post_address"]) ? "<br /> Почтовый адрес: ".$f["post_address"] : "").
-        "<br /> ИНН ".$f["inn"].", КПП ".$f["kpp"]."<br /> Банковские реквизиты:<br /> р/с:&nbsp;".$f["acc"]." в ".$f["bank"]."<br /> к/с:&nbsp;".$f["kor_acc"]."<br /> БИК:&nbsp;".$f["bik"]."<br /> телефон: ".$f["phone"].(isset($f["fax"]) && $f["fax"] ? "<br /> факс: ".$f["fax"] : "")."<br /> е-mail: ".$f["email"];
-
         global $design;
 
-        $design->assign("firm_detail", $d);
-        $design->assign("firm", $f);
+        $design->assign("firm_detail", Company::getDetail($firma));
+        $design->assign("firm", Company::getProperty($firma));
     }
 
 	function clients_rpc_findClient1c(){

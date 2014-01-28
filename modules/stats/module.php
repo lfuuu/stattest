@@ -1,5 +1,27 @@
 <?php
+
 class m_stats extends IModule{
+
+    private $_inheritances = array();
+
+    public function __construct()
+    {
+//        $this->_addInheritance(new m_stats_);
+    }
+
+    public function __call($method, array $arguments = array())
+    {
+        foreach ($this->_inheritances as $inheritance) {
+            $inheritance->invoke($method, $arguments);
+        }
+    }
+
+    protected function _addInheritance(Inheritance $inheritance)
+    {
+        $this->_inheritances[get_class($inheritance)] = $inheritance;
+        $inheritance->module = $this;
+    }
+
 	function stats_default($fixclient){
 		$this->stats_internet($fixclient);
 	}
@@ -314,18 +336,24 @@ class m_stats extends IModule{
 		$design->assign('phone',$phone=get_param_protected('phone',''));
 		$phones = array();
 		$phones_sel = array();
+        
+        $regions = array();
 
         $last_region = '';
         if ($phone == '' && count($usages) > 0) $phone = $usages[0]['region'];
         $region = explode('_', $phone);
         $region = $region[0];
         foreach ($usages as $r) {
+            if ($region == 'all') {
+                if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
+                if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
+            }
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
                 $phones[$r['region']] = $r['region_name'].' (все номера)';
                 $last_region = $r['region'];
             }
-			$phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
+            $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
             if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
 		}
 		$design->assign('phones',$phones);
@@ -350,13 +378,120 @@ class m_stats extends IModule{
 		$design->assign('destination',$destination);
 		$design->assign('direction',$direction);
 		$design->assign('detality',$detality=get_param_protected('detality','day'));
-		$design->assign('showfree',$showfree=get_param_integer('showfree',0));
+		$design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
 
-		if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,1-$showfree,0,$destination,$direction))) return;
-    $design->assign('stats',$stats);
-    $design->AddMain('stats/voip_form.tpl');
-    $design->AddMain('stats/voip.tpl');
+        if ($region == 'all') {
+            $stats = array();
+            foreach ($regions as $region=>$phones_sel) {
+                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions);
+            }
+            $stats = $this->prepareStatArray($stats, $detality);
+        } else
+            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) return;
+
+        $design->assign('stats',$stats);
+        $design->AddMain('stats/voip_form.tpl');
+        $design->AddMain('stats/voip.tpl');
 	}
+	/*функция формирует единый массив для разных регионов,
+	 * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
+	*/
+    function prepareStatArray($data = array(), $detality = '') {
+		
+        if (!count($data)) return $data;
+        $Res = array();
+        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
+		
+		
+        switch ($detality) {
+            case 'dest':
+                foreach ($data as $r_id=>$reg_data) {
+                    foreach ($reg_data as $k=>$r) {
+                        if ($r['is_total'] == false) {
+                            if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
+
+                            $Res[$k]['cnt'] += $r['cnt'];
+                            $Res[$k]['len'] += $r['len'];
+                            $Res[$k]['price'] += $r['price'];
+
+                            if ($Res[$k]['len']>=24*60*60) $d=floor($Res[$k]['len']/(24*60*60)); else $d=0;
+                            $Res[$k]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$k]['len']-$d*24*60*60).'</b>';
+
+                            if (isset($r['price'])) $rt['price']+=$r['price'];
+                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+                            if (isset($r['len'])) $rt['len']+=$r['len'];
+                        }
+                    }
+                }
+                $rt['tsf1']='<b>Итого</b>';
+                if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
+                $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60).'</b>';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+
+            break;
+            case 'call':
+                foreach ($data as $r_id=>$reg_data) {
+                    foreach ($reg_data as $r) {
+                        if ($r['is_total'] == false) {
+                            $Res[] = array('mktime'=>$r['mktime'],'reg_id'=>$r_id)+$r;
+
+                            if (isset($r['price'])) $rt['price']+=$r['price'];
+                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+                            if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+                        }
+                    }
+                }
+                array_multisort($Res);
+
+                $rt['ts1']='Итого';
+                $rt['tsf1']='<b>Итого</b>';
+                $rt['num_to']='&nbsp;';
+                $rt['num_from']='&nbsp;';
+                if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+                $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            break;
+            default:
+                foreach ($data as $r_id=>$reg_data) {
+                    foreach ($reg_data as $k=>$r) {
+                        if ($r['is_total'] == false) {
+                            if (!isset($Res[$r['ts1']]))
+                                $Res[$r['ts1']] = array(
+                                    'ts1'=>$r['ts1'],
+                                    'tsf1'=>$r['tsf1'],
+                                    'mktime'=>$r['mktime'],
+                                    'geo'=>$r['geo'],
+                                    'reg_id'=>$r_id,
+                                    'cnt'=>0,
+                                    'price'=>0,
+                                    'ts2'=>0
+                                );
+
+                            $Res[$r['ts1']]['cnt'] += $r['cnt'];
+                            $Res[$r['ts1']]['ts2'] += $r['ts2'];
+                            $Res[$r['ts1']]['price'] += $r['price'];
+
+                            if ($Res[$r['ts1']]['ts2']>=24*60*60) $d=floor($Res[$r['ts1']]['ts2']/(24*60*60)); else $d=0;
+                            $Res[$r['ts1']]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$r['ts1']]['ts2']-$d*24*60*60).'</b>';
+
+                            if (isset($r['price'])) $rt['price']+=$r['price'];
+                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+                            if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+                        }
+                    }
+                }
+                $rt['tsf1']='<b>Итого</b>';
+                if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+                $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            break;
+        }
+
+        $Res[] = $rt;
+
+        return $Res;
+    }
+	
 	function stats_voip_recognition($fixclient){
 		global $db,$pg_db,$design;
 
@@ -393,7 +528,7 @@ class m_stats extends IModule{
 	        	$filter .= ' and usage_num='.$pg_db->escape($phone).' ';
 
           $stats = $pg_db->AllRecords("select id, usage_num, phone_num, len, direction_out, \"time\", geo_id, mob
-	                    from billing.calls_".intval($region)."
+	                    from calls.calls_".intval($region)."
 	                    where $filter
 	                    order by time");
 	        foreach($stats as $k=>$r)
@@ -432,28 +567,40 @@ class m_stats extends IModule{
         $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
         $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
 
+        $numberRanges = array(
+                "74996850000" => array("74996850000", "74996850199"),
+                "74996851000" => array("74996851000", "74996851999"),
+                "74992130000" => array("74992130000", "74992130499"),
+                "74992133000" => array("74992133000", "74992133999")
+                );
+
         $rangeFrom = get_param_raw("range_from", '74996850000');
-        $rangeTo = get_param_raw("range_to", '74996850199');
+        $rangeTo = $numberRanges[$rangeFrom][1];
+
         $group = get_param_raw("group",array_keys($groups));
         $beauty = get_param_raw("beauty",array_keys($beautys));
 
+        $design->assign("ranges", $numberRanges);
         $design->assign("range_from", $rangeFrom);
-        $design->assign("range_to", $rangeTo);
         $design->assign("group", $group);
         $design->assign("groups", $groups);
         $design->assign("beauty", $beauty);
         $design->assign("beautys", $beautys);
 
-        $design->assign("minCalls", 10);
+        $design->assign("minCalls", 10); //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
 
 
-        if(get_param_raw("do",""))
+        $unsetPublish = array();
+        if (get_param_raw("do",""))
         {
             
             if (get_param_raw("publish"))
             {
                 $nums = get_param_raw("publish_phones");
                 $setNums = get_param_raw("published_phones");
+
+                $nums = $nums ? $nums : array();
+                $setNums = $setNums ? $setNums : array();
 
                 $add = array_diff($nums, $setNums);
                 $del = array_diff($setNums, $nums);
@@ -509,7 +656,6 @@ class m_stats extends IModule{
 
             ");
 
-            $unsetPublish = array();
             $fromTime = strtotime("first day of -3 month, midnight");
 
             foreach($ns as &$n)
@@ -526,7 +672,7 @@ class m_stats extends IModule{
                     select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
                         sum(1) as count_calls,
                         sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
-                    from billing.calls_99 
+                    from calls.calls_99
                     where time > '".date("Y-m-d H:i:s", $fromTime)."'
                     and usage_id is null 
                     and region=99 
@@ -840,7 +986,7 @@ class m_stats extends IModule{
       $R = array();
       $geo = array();
         foreach($pg_db->AllRecords($q =
-                  "SELECT direction_out,usage_num,phone_num,len,time, geo_id FROM billing.calls
+                  "SELECT direction_out,usage_num,phone_num,len,time, geo_id FROM calls.calls
                   WHERE \"time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
                   AND phone_num = '".$find."'
                   AND region = '".$region."'
@@ -871,9 +1017,8 @@ class m_stats extends IModule{
       return $R;
     }
 
-	function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both'){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array()){
     global $pg_db;
-
 
     /*
     $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
@@ -890,7 +1035,7 @@ class m_stats extends IModule{
 			$group=" group by date_trunc('year',month)";
 			$format='Y г.';
 		} elseif ($detality=='month'){
-			$group=' group by month';
+			$group=" group by date_trunc('month',month)";
 			$format='Месяц Y г.';
 		} elseif ($detality=='day'){
 			$group=' group by day';
@@ -929,9 +1074,7 @@ class m_stats extends IModule{
 				$W[] = 'direction_out=true';
 		}
 
-        $t='';
-        foreach ($usage_arr as $uid) $t.=($t?',':'').$uid;
-		if ($t) $W[]='usage_id IN ('.$t.')'; else $W[] = 'FALSE';
+        $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'usage_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE'; 
 
 		if ($paidonly) {
 			$W[]='amount!=0';
@@ -954,7 +1097,7 @@ class m_stats extends IModule{
                                     ".($group?'':'usage_id,')."
                                     ".($group?'':'direction_out,');
                     if ($detality == 'day') $sql.= ' day as ts1, ';
-                    elseif ($detality == 'month') $sql.= ' month as ts1, ';
+                    elseif ($detality == 'month') $sql.= " date_trunc('month',month) as ts1, ";
                     elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
                     else $sql.= ' time as ts1, ';
                     $sql .=
@@ -962,18 +1105,16 @@ class m_stats extends IModule{
                                     '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len else 0 end':'len').') as ts2,
                                     '.($group?'sum('.($paidonly?'case amount>0 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
-                                    billing.calls_'.intval($region).'
+                                    calls.calls_'.intval($region).'
                             where '.MySQLDatabase::Generate($W).$group."
                             ORDER BY
                                     ts1 ASC
                             LIMIT 5000";
 
-                    // $db_calls->Query($sql);
                     $pg_db->Query($sql);
 
-                    //if ($db_calls->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-                    //if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-                    $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0);
+                    if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+                    $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0,'is_total'=>true);
                     $geo = array();
 
                     //while ($r=$db_calls->NextRecord()){
@@ -995,6 +1136,8 @@ class m_stats extends IModule{
                             else $t=array('0','0','0');
                             $ts = mktime($t[0],$t[1],intval($t[2]),$d[1],$d[2],$d[0]);
                             $r['tsf1']=mdate($format,$ts);
+                            $r['mktime'] = $ts;
+                            $r['is_total'] = false;
 
                             if ($r['ts2']>=24*60*60) $d=floor($r['ts2']/(24*60*60)); else $d=0;
                             $r['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$r['ts2']);
@@ -1011,20 +1154,20 @@ class m_stats extends IModule{
                     $rt['num_from']='&nbsp;';
                     if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                     $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-                    $rt['price']=$rt['price'] .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
 
                     $R[]=$rt;
                     return $R;
                 }else{
                     $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(len) as len, sum(1) as cnt
-                            from billing.calls_".intval($region)."
+                            from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
-                    $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0),
-                                    'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0));
+                    $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
                     //$db_calls->Query($sql);
                     $pg_db->Query($sql);
                     //while ($r=$db_calls->NextRecord()){
@@ -1060,6 +1203,7 @@ class m_stats extends IModule{
                         $R[$k]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$r['len']-$d*24*60*60).'</b>';
                         $R[$k]['price'] = number_format($r['price'], 2, '.','');
                     }
+                    $rt['is_total']=true;
                     $rt['tsf1']='<b>Итого</b>';
                     if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
                     $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
@@ -1827,7 +1971,7 @@ class m_stats extends IModule{
 		}
 		$design->assign('clients',$clients);
 
-		$thiamis = new MySQLDatabase('thiamis.mcn.ru','sms_stat','yeeg5oxGa','smsinfo');
+		$thiamis = new MySQLDatabase('thiamis.mcn.ru','sms_stat','yeeg5oxGa','sms2');
 
 		// <editor-fold defaultstate="collapsed" desc="stat_query">
 		$query_stat = "
@@ -2808,7 +2952,7 @@ class m_stats extends IModule{
 					else 900 end as dest2
 					".$sod."
 				from
-					billing.calls_".intval($region)."
+					calls.calls_".intval($region)."
 				where len>0 and
 					".$wm.$wo.$wde.$wdi.$god.$ob;
 
@@ -3702,7 +3846,10 @@ function stats_support_efficiency($fixclient)
     $onCompleted_users = array();
     $onCompleted_data = array();
     $onCompleted_total = array();
-
+    $onCompleted_rating = array();
+    
+    $onCompleted_users2 = $onCompleted_data2 = $onCompleted_total2 = $onCompleted_rating2 = array();
+    
     if(get_param_raw("make_report", "") == "OK")
     {
 
@@ -3728,7 +3875,7 @@ function stats_support_efficiency($fixclient)
                             (select sum(if(rating=0,0,1)) from tt_stages where trouble_id =tt.id) as rating_count
                         FROM `tt_troubles` tt ,user_users uu 
                     where 
-                            usergroup ='support' 
+                        usergroup ='support' 
                         and uu.user = tt.user_author 
                         and date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
                         and trouble_type in ('trouble', 'task', 'support_welltime')
@@ -3760,7 +3907,8 @@ function stats_support_efficiency($fixclient)
                 $total[$l["trouble_subtype"]] += $l["c"];
         }
 
-        list($onCompleted_data, $onCompleted_users, $onCompleted_total) = $this->stats_support_efficiency__basisOnCompleted($dateFrom, $dateTo, $usage);
+        list($onCompleted_data, $onCompleted_users, $onCompleted_total, $onCompleted_rating) = $this->stats_support_efficiency__basisOnCompleted($dateFrom, $dateTo, $usage);
+        list($onCompleted_data2, $onCompleted_users2, $onCompleted_total2, $onCompleted_rating2) = $this->stats_support_efficiency__basisOnStartDate($dateFrom, $dateTo, $usage);
     }
 
     $design->assign('date_from', $dateFrom);
@@ -3769,56 +3917,82 @@ function stats_support_efficiency($fixclient)
     $design->assign('usages', $usages);
     $design->assign('usages_selected', $usage);
 
-    $design->assign("on_completed_data", $onCompleted_data);
-    $design->assign("on_completed_users", $onCompleted_users);
-    $design->assign("on_completed_total", $onCompleted_total);
-
+    $design->assign(array(
+                    "on_completed_data"=>$onCompleted_data,
+                    "on_completed_users"=>$onCompleted_users,
+                    "on_completed_total"=>$onCompleted_total,
+                    "on_completed_rating"=>$onCompleted_rating,
+                    "on_completed_data2"=>$onCompleted_data2,
+                    "on_completed_users2"=>$onCompleted_users2,
+                    "on_completed_total2"=>$onCompleted_total2,
+                    "on_completed_rating2"=>$onCompleted_rating2
+                    ));
+    
     $design->assign("date", $date);
     $design->assign("d", $m);
     $design->assign("total", $total);
     $design->AddMain("stats/support_efficiency.html");
 }
-
-function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
+function stats_support_efficiency__basisOnStartDate(&$dateFrom, &$dateTo, &$usage)
 {
     global $db;
 
-    $rs = $db->AllRecords("
-        SELECT 
-            trouble_subtype as type,
-            ts.trouble_id, 
-            ts.state_id, 
-            user_main, 
-            user_edit  
-        FROM 
-            `tt_troubles` tt , tt_stages ts, user_users u
-        where 
-                tt.id = ts.trouble_id
-            AND u.user= tt.user_author
-            AND usergroup = 'support'
-            AND date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' 
-            AND trouble_type in ('trouble', 'task', 'support_welltime')
-            AND service in ('".implode("','", $usage)."')
+    $rs = $db->AllRecords($q = "
+            SELECT
+                trouble_subtype as type,
+                ts.trouble_id,
+                ts.state_id,
+                user_main,
+                user_edit,
+                tt.user_author,
+                rating,
+                user_rating
+            FROM
+                tt_stages ts
+            LEFT JOIN `tt_troubles` tt ON tt.id = ts.trouble_id
+            LEFT JOIN `user_users` u ON u.user = tt.user_author
+            WHERE
+                usergroup = 'support' AND 
+                date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' AND 
+                trouble_type in ('trouble', 'task', 'support_welltime') AND 
+                service in ('".implode("','", $usage)."')
             ORDER BY tt.id, ts.stage_id
             ");
-
+    $tmp = array();
+    $rating = array();
     $counter = array(
-        "7" => array(), // completed
-        "2" => array()  // closed
-        );
+                    "7" => array(), // completed
+                    "2" => array()  // closed
+    );
 
     $total = array(
-        "7" => array(), // completed
-        "2" => array()  // closed
-        );
-
-
+                    "7" => array(), // completed
+                    "2" => array()  // closed
+    );
 
     $users = array();
 
     $troubleId = 0;
     foreach ($rs as $r)
     {
+        if ($r["state_id"] == 7 && strlen($r["user_rating"])) {
+            if (!isset($tmp[$r["trouble_id"]]))
+                $tmp[$r["trouble_id"]] = array('type'=>$r["type"],'user_rating'=>'','7'=>0,'2'=>0,'1u'=>array());
+
+            if ($r["rating"] > 0) {
+                if (strlen($tmp[$r["trouble_id"]]['user_rating']) && $tmp[$r["trouble_id"]]['user_rating']!=$r["user_rating"])
+                    $tmp[$r["trouble_id"]]['1u'][]=$tmp[$r["trouble_id"]]['user_rating'];
+
+                $tmp[$r["trouble_id"]]['type']=$r["type"];
+                $tmp[$r["trouble_id"]]['user_rating']=$r["user_rating"];
+                $tmp[$r["trouble_id"]]['7']=$r["rating"];
+            }
+        }
+        if ($r["state_id"] == 2 && strlen($r["user_rating"])) {
+            if (isset($tmp[$r["trouble_id"]]) && $r["rating"] > 0 && strlen($r["user_rating"])) {
+                $tmp[$r["trouble_id"]]['2']=$r["rating"];
+            }
+        }
         // new trouble, reset
         if ($r["trouble_id"] != $troubleId)
         {
@@ -3829,7 +4003,7 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
             continue; //this first stage
         }
 
-        $user = $r["user_main"];
+        $user = $r["user_author"];
 
         if ($state != $r["state_id"])
         {
@@ -3856,13 +4030,167 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
             $state = $r["state_id"];
         }
     }
+    foreach ($tmp as $k=>$rat) {
+        if (strlen($rat['user_rating'])) {
+            if (!isset($rating[$rat['user_rating']]))
+                $rating[$rat['user_rating']] = array();
+            if (!isset($rating[$rat['user_rating']][$rat['type']]))
+                $rating[$rat['user_rating']][$rat['type']] = array('7'=>0,'2'=>0);
+
+            $rating[$rat['user_rating']][$rat['type']]['7']+=$rat['7'];
+            $rating[$rat['user_rating']][$rat['type']]['2']+=$rat['2'];
+
+            if (!isset($users[$rat['user_rating']])) $users[$rat['user_rating']] = $rat['user_rating'];
+        }
+    }
 
     foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
     {
         $users[$u["user"]] = $u["name"];
     }
 
-    return array($counter, $users, $total);
+    return array($counter, $users, $total, $rating);
+}
+
+function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usage)
+{
+    global $db;
+
+    $rs = $db->AllRecords($q = "
+            SELECT
+                trouble_subtype as type,
+                ts.trouble_id,
+                ts.state_id,
+                user_main,
+                user_edit,
+                tt.user_author,
+                rating,
+                user_rating
+            FROM
+                tt_stages ts
+            LEFT JOIN `tt_troubles` tt ON tt.id = ts.trouble_id
+            LEFT JOIN `user_users` u ON u.user = tt.user_author
+            WHERE
+                ts.state_id IN(2,7) AND 
+                usergroup = 'support' AND 
+                date_edit between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' AND 
+                trouble_type in ('trouble', 'task', 'support_welltime') AND 
+                service in ('".implode("','", $usage)."') 
+            ORDER BY tt.id, ts.stage_id
+            ");
+    $tmp = array();
+    $rating = array();
+    $counter = array(
+        "7" => array(), // completed
+        "2" => array(),  // closed
+        "2w7" => array()  //closed without completed
+        );
+
+    $total = array(
+        "7" => array(), // completed
+        "2" => array(),  // closed
+        "2w7" => array()  //closed without completed
+    );
+
+    $users = array();
+
+    $troubleId = 0;
+    foreach ($rs as $r)
+    {
+        if (!isset($tmp[$r["trouble_id"]]))
+            $tmp[$r["trouble_id"]] = array('type'=>$r["type"], 'user_author'=>$r["user_author"], 'user_7'=>'', 'user_2'=>'','user_rating'=>'','7'=>0,'2'=>0,'1u'=>array());
+        
+        if ($r["state_id"] == 7) {
+            $tmp[$r["trouble_id"]]['user_7'] = $r["user_edit"];
+
+            if ($r["rating"] > 0 && strlen($r["user_rating"])) {
+                if (strlen($tmp[$r["trouble_id"]]['user_rating']) && $tmp[$r["trouble_id"]]['user_rating']!=$r["user_rating"]) 
+                    $tmp[$r["trouble_id"]]['1u'][]=$tmp[$r["trouble_id"]]['user_rating'];
+
+                $tmp[$r["trouble_id"]]['user_rating']=$r["user_rating"];
+                $tmp[$r["trouble_id"]]['7']=$r["rating"];
+            }
+        }
+        
+        if ($r["state_id"] == 2) {
+            $tmp[$r["trouble_id"]]['user_2'] = $r["user_edit"];
+            if ($r["rating"] > 0 && strlen($r["user_rating"])) {
+                $tmp[$r["trouble_id"]]['2']=$r["rating"];
+            }
+        }
+    }
+
+    foreach ($tmp as $trouble_id=>$t) {
+        
+        //counter calculation
+        
+        if (strlen($t['user_7'])) {
+            if (!isset($counter['7'][$t['type']])) $counter['7'][$t['type']] = array();
+            if (!isset($total['7'][$t['type']])) $total['7'][$t['type']] = 0;
+            
+            if (!isset($counter['7'][$t['type']][$t['user_7']])) 
+                $counter['7'][$t['type']][$t['user_7']] = 0;
+            
+            $counter['7'][$t['type']][$t['user_7']]++;
+            $total['7'][$t["type"]]++;
+            
+            if (!isset($users[$t['user_7']])) 
+                $users[$t['user_7']] = $t['user_7'];
+        }
+        
+        
+        if (strlen($t['user_2'])) {
+            if (strlen($t['user_7'])) {
+                // closed and completed
+                if (!isset($counter['2'][$t['type']])) $counter['2'][$t['type']] = array();
+                if (!isset($total['2'][$t['type']])) $total['2'][$t['type']] = 0;
+                
+                if (!isset($counter['2'][$t['type']][$t['user_7']]))
+                    $counter['2'][$t['type']][$t['user_7']] = 0;
+                
+                $counter['2'][$t['type']][$t['user_7']]++;
+                $total['2'][$t["type"]]++;
+                
+                if (!isset($users[$t['user_7']])) 
+                    $users[$t['user_7']] = $t['user_7'];
+            } else {
+                // closed not completed
+                if (!isset($counter['2w7'][$t['type']])) $counter['2w7'][$t['type']] = array();
+                if (!isset($total['2w7'][$t['type']])) $total['2w7'][$t['type']] = 0;
+                
+                if (!isset($counter['2w7'][$t['type']][$t['user_2']]))
+                    $counter['2w7'][$t['type']][$t['user_2']] = 0;
+                
+                $counter['2w7'][$t['type']][$t['user_2']]++;
+                $total['2w7'][$t["type"]]++;
+                
+                if (!isset($users[$t['user_2']])) 
+                    $users[$t['user_2']] = $t['user_2'];
+            }
+        
+        }
+
+        //rating calculation
+        if (strlen($t['user_rating'])) {
+            if (!isset($rating[$t['user_rating']])) 
+                $rating[$t['user_rating']] = array();
+            if (!isset($rating[$t['user_rating']][$t['type']])) 
+                $rating[$t['user_rating']][$t['type']] = array('7'=>0,'2'=>0);
+
+            $rating[$t['user_rating']][$t['type']]['7']+=$t['7'];
+            $rating[$t['user_rating']][$t['type']]['2']+=$t['2'];
+            
+            if (!isset($users[$t['user_rating']])) 
+                $users[$t['user_rating']] = $t['user_rating'];
+        }
+    }
+
+    foreach($db->AllRecords("select user, name from user_users where user in ('".implode("','", $users)."')") as $u)
+    {
+        $users[$u["user"]] = $u["name"];
+    }
+
+    return array($counter, $users, $total, $rating);
 }
 
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){

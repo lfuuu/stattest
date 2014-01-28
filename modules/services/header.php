@@ -97,6 +97,14 @@ class m_services_head extends IModuleHead {
 					'virtpbx_add'			=> array('services_welltime','full'),
 					'virtpbx_apply'			=> array('services_welltime','full'),
 					'virtpbx_act'			=> array('services_welltime','docs'),
+//8800
+					'8800_view'			=> array('services_welltime','full'),
+					'8800_add'			=> array('services_welltime','full'),
+					'8800_apply'			=> array('services_welltime','full'),
+//sms
+					'sms_view'			=> array('services_welltime','full'),
+					'sms_add'			=> array('services_welltime','full'),
+					'sms_apply'			=> array('services_welltime','full'),
 
 //WellSystem
 					'wellsystem_view'			=> array('services_wellsystem','full'),
@@ -123,6 +131,8 @@ class m_services_head extends IModuleHead {
 		array('IP Телефония',			'vo_view'),
 		array('Welltime',				'welltime_view'),
         array('Виртуальная АТС',		'virtpbx_view'),
+        array('8800',	                '8800_view'),
+        array('СМС',	                'sms_view'),
 		array('Интернет',				'in_view'),
 		array('Collocation',			'co_view'),
 		array('WellSystem',				'wellsystem_view'),

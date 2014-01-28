@@ -77,7 +77,7 @@ function printdbgu($param, $s="")
 
 
     echo "<br><pre>(<i> printdbg _utf8() </i>) ".$s."=";
-    echo htmlspecialchars($s);
+    echo htmlspecialchars_($s);
     echo "</pre><br>";
 
 }
@@ -90,10 +90,10 @@ function print1Cerror(&$e)
 }
 
 function trigger_array($p,$s='') {
-    trigger_error($s.'<pre>'.htmlspecialchars(print_r($p,1)).'</pre>');
+    trigger_error($s.'<pre>'.htmlspecialchars_(print_r($p,1)).'</pre>');
 }
 function trigger_string($p) {
-    trigger_error(htmlspecialchars(print_r($p,1)));
+    trigger_error(htmlspecialchars_(print_r($p,1)));
        return $p;
 }
 function str_protect($str){
@@ -516,15 +516,10 @@ class util{
 
     public static function pager_pg($count, $items_on_page = 50)
     {
-        global $db_pg, $design;
+        global $design;
         $page = get_param_integer("page", 1);
         $countPages = ceil($count/$items_on_page);
-        $url = "";
-        foreach($_GET as $k => $v) {
-            $url .= ($url ? "&" : "").$k."=".$v;
-        }
-        $url = "./?".$url;
-
+        $url = "./?".http_build_query($_GET);
 
         $start = $page > 10 ? $page-10 : 1;
         $end = $page +10;
@@ -877,6 +872,7 @@ class ClientCS {
                 "MCN-Екатеринбург" => "mcn95",
                 "MCN-Новосибирск" => "mcn94",
                 "MCN-Ростов-на-Дону" => "mcn87",
+                "MCN-НижнийНовгород" => "mcn88",
                 "WellTime" => "welltime",
                 "IT-Park" => "itpark",
                 "Arhiv" => "arhiv"
@@ -1416,7 +1412,7 @@ class ClientCS {
     public function getOnDate($clientId, $date)
     {
         global $db;
-        //echo $date."|".$clientId;
+        //echo "<br>".$date."|".$clientId;
 
         $dNow = date("Y-m-d",strtotime("+1 day"));
         $c = $db->GetRow("select * from clients where id='".$clientId."'");
@@ -1438,6 +1434,7 @@ class ClientCS {
                             and type='fields'
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
+                            and is_apply_set = 'yes'
                         order by lf.id desc ") as $l)
             {
                 $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
@@ -1453,6 +1450,7 @@ class ClientCS {
                             and type='fields'
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
+                            and is_apply_set = 'yes'
                         order by lf.id") as $l)
             {
                 $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
@@ -1565,7 +1563,9 @@ class IPList{
                 `R`.`net`,
                 `clients`.`client`,
                 `clients`.`status`,
-                `R`.`id`
+                `clients`.`manager`,
+                `R`.`id`,
+                `R`.`gpon_reserv`
             FROM
                 `usage_ip_routes` as `R`
             INNER JOIN
@@ -1605,14 +1605,19 @@ class IPList{
 
                         if(!isset($this->data[$i]) || $this->data[$i][1]<$r['actual_to'] /*|| $bEnter*/){
                             $st = '';
-                            if($r['status']=='tech_deny')
+                            if($r["gpon_reserv"])
+                                $st = 'gpon';
+                            elseif($r['status']=='tech_deny')
                                 $st = 'tech';
                             elseif($r['status']=='closed' || $r['status']=='deny' || $r['actual_to']<=(time()-3600*24*30))
                                 $st = 'off';
                             if($st){
-                                if(iplist_check($special,$v[0]))
-                                    $st = 'special';
-                                $this->data[$i] = array($st,$r['actual_to'],$r['id']);
+
+                                if ($st != 'gpon')
+                                    if(iplist_check($special,$v[0]))
+                                        $st = 'special';
+
+                                $this->data[$i] = array($st,$r['actual_to'],$r['id'], $r["client"], $r["manager"]);
                             }elseif(isset($this->data[$i]))
                                 unset($this->data[$i]);
                         }
@@ -1638,7 +1643,9 @@ class IPList{
                     }
                     $r = array(
                         'actual_to'=>$v[1],
-                        'id'=>$v[2]
+                        'id'=>$v[2],
+                        'client' => $v[3],
+                        'manager' => $v[4]
                     );
                     $d = 1;
                     $md = 1;
@@ -1650,7 +1657,7 @@ class IPList{
                     }
                     $dv = floor(log($d,2));
                     $d = pow(2,$dv);
-                    $V[$t][long2ip($k)] = array(32-$dv,$r['actual_to'],$r['id'],$d);
+                    $V[$t][long2ip($k)] = array(32-$dv,$r['actual_to'],$r['id'],$d, $r["client"], $r["manager"]);
                     $S[$t][$v[1]][$k] = long2ip($k);
                     for($i=0;$i<$d;$i++){
                         unset($ta[$k+$i]);
@@ -1677,6 +1684,7 @@ class IPList{
         }
         unset($V);
         $V =& $V_buf;
+
         return $V;
     }
 }
@@ -1846,6 +1854,12 @@ class event
             mail("shop@nbn-holding.ru", "MCN заявака в отказ", "Заявка #".$db->GetValue("select concat(req_no,'/',bill_no) from newbills_add_info  where bill_no = '".$bill["bill_no"]."'")." переведенна на этап \"отказ\"","Content-Type: text/plain; charset = \"koi8-r\"\nFrom: info@mcn.ru");
         }
     }
+}
+
+function htmlspecialchars_($s)
+{
+    // migration php 5.3 => 5.5
+    return htmlspecialchars($s, ENT_COMPAT | ENT_HTML401, "KOI8-R");
 }
 
 

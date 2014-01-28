@@ -15,7 +15,10 @@ class m_tarifs{
             'voip_edit'            => array('tarifs','edit'),
             'price_tel'            => array('tarifs','edit'),
             'virtpbx'              => array('tarifs','edit'),
+            '8800'              => array('tarifs','edit'),
+            'sms'              => array('tarifs','edit'),
         );
+
     var $menu=array(
             array('Интернет',                'view','&m=internet'),
             array('Collocation',            'view','&m=collocation'),
@@ -28,6 +31,8 @@ class m_tarifs{
             array('IT Park',                'itpark',''),
             array('Welltime',                'welltime',''),
             array('Виртуальная АТС',        'virtpbx',''),
+            array('8800',                   '8800',''),
+            array('СМС',                   'sms',''),
             array('WellSystem',                'wellsystem',''),
 //            array('Старые доп.услуги',        'view','&m=add'),
             array('IP-телефония',            'voip'),
@@ -83,6 +88,8 @@ class m_tarifs{
         elseif ($m=='wellsystem') {$p='wellsystem'; $q='z';}
         elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
         elseif ($m=='voip') {$p='voip'; $q='z';}
+        elseif ($m=='8800') {$p='8800'; $q='z';}
+        elseif ($m=='sms') {$p='sms'; $q='z';}
         else return false;
         return array($p,$q);
     }
@@ -187,6 +194,9 @@ class m_tarifs{
             $data['freemin_for_number'] = (get_param_integer('freemin_for_number', 0) > 0 ? 1 : 0);
             $data['pricelist_id'] = (int)$_POST['pricelist_id'];
             $data['paid_redirect'] = (get_param_integer('paid_redirect', 0) > 0 ? 1 : 0);
+            $data['tariffication_by_minutes'] = (get_param_integer('tariffication_by_minutes', 0) > 0 ? 1 : 0);
+            $data['tariffication_full_first_minute'] = (get_param_integer('tariffication_full_first_minute', 0) > 0 ? 1 : 0);
+            $data['tariffication_free_first_seconds'] = (get_param_integer('tariffication_free_first_seconds', 0) > 0 ? 1 : 0);
             $data['edit_user'] = $user->Get('id');
             $data['edit_time'] = date('Y.m.d H:i:s');
             $data['id'] = $id;
@@ -660,6 +670,18 @@ class m_tarifs{
     function tarifs_virtpbx()
     {
         Header('Location: ?module=tarifs&action=view&m=virtpbx');
+        exit();
+    }
+
+    function tarifs_8800()
+    {
+        Header('Location: ?module=tarifs&action=view&m=8800');
+        exit();
+    }
+
+    function tarifs_sms()
+    {
+        Header('Location: ?module=tarifs&action=view&m=sms');
         exit();
     }
 }

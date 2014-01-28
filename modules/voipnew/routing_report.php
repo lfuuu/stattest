@@ -51,8 +51,6 @@ class m_voipnew_routing_report
                 $where .= " and g.country='{$f_country_id}' ";
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
-            if ($f_prefix != '')
-                $where .= " and r.prefix like '" . intval($f_prefix) . "%' ";
             if ($f_mob == 't')
                 $where .= " and d.mob=true ";
             if ($f_mob == 'f')
@@ -127,7 +125,7 @@ class m_voipnew_routing_report
             echo '"Порядок"' . "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
-                echo '"' . $r['destination'] . '";';
+                echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'')  . '";';
                 echo '"' . str_replace('.', ',', $r['best_price']) . '";';
                 foreach ($rep->pricelist_ids as $i => $pl) {
                     echo '"' . str_replace('.', ',', ($r['prices'][$i] != 'NULL' ? $r['prices'][$i] : '')) . '";';

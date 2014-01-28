@@ -1,3 +1,6 @@
+<link href="lib/select2/select2.css" rel="stylesheet"/>
+<script src="lib/select2/select2.js"></script>
+
 <script language="JavaScript" type="text/javascript" src="js/json2.js"></script>
 <h1>
     <small>
@@ -78,6 +81,7 @@
         }
 
         $("#selprices tbody").sortable().disableSelection();
+        $('.select2').select2();
     });
     {/literal}
 </script>
@@ -88,7 +92,7 @@
 
     Наименование: <input type=text name='name' value='{$rep->name}' size="50" /><br/>
 
-    Регион: <select name="instance_id">
+    Регион: <select name="instance_id" class="select2" style="width: 250px">
         <option value="">--- Все регионы --- </option>
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $rep->instance_id==$r->id}selected{/if} >{$r->name}</option>
@@ -101,7 +105,7 @@
     <br/>
 
     Добавить клиентский прайс:
-    <select id="addClientPrice">
+    <select id="addClientPrice" class="select2" style="width: 400px">
         <option value="">--- выберите прайслист --- </option>
         {foreach from=$pricelists item='r'}
             {if $r->operator_id == 999}
@@ -116,7 +120,7 @@
     <input type="button" value="Добавить" onclick="add_client_price()">
     <br/>
     Добавить операторский прайс:
-    <select id="addOperatorPrice">
+    <select id="addOperatorPrice" class="select2" style="width: 400px">
         <option value="">--- выберите прайслист --- </option>
         {foreach from=$pricelists key='i' item='r'}
         {if $r->operator_id != 999}

@@ -79,14 +79,14 @@ class Subsys_JsHttpRequest_Php
     // only '"', '>' and '<' (we presume than '&' is already quoted by
     // input reader function).
     //
-    // Use this function INSTEAD of htmlspecialchars() for $_GET data 
+    // Use this function INSTEAD of htmlspecialchars_() for $_GET data 
     // in your scripts.
     function quoteInput($s)
     {
         if ($this->SCRIPT_DECODE_MODE == 'entities')
             return str_replace(array('"', '<', '>'), array('&quot;', '&lt;', '&gt;'), $s);
         else
-            return htmlspecialchars($s);
+            return htmlspecialchars_($s);
     }
 
     

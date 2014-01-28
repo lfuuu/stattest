@@ -65,7 +65,7 @@ class PgSQLDatabase {
     }
     function QueryX($query) {
     	global $G;
-    	trigger_error(htmlspecialchars($query));
+    	trigger_error(htmlspecialchars_($query));
 //		$G['notices'][]=array($query,__FILE__,__LINE__,'');
     	$this->Query($query);	
     }
@@ -85,7 +85,7 @@ class PgSQLDatabase {
         }
 
         if ($query == '') return 0;
-		if (DEBUG_LEVEL>=2) trigger_error(htmlspecialchars($query));
+		if (DEBUG_LEVEL>=2) trigger_error(htmlspecialchars_($query));
 
 		if (!$this->Connect()) return 0;
         if ($saveDefault) {
@@ -100,7 +100,7 @@ class PgSQLDatabase {
       $this->mErrno = 0;
       $this->mError = '';
 
-      if (!$req) {$this->_Halt("Invalid SQL: " . htmlspecialchars($query));}
+      if (!$req) {$this->_Halt("Invalid SQL: " . htmlspecialchars_($query));}
         if ($saveDefault) $this->_QueryId = $req;
        	return $req;
     }

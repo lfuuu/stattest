@@ -223,6 +223,11 @@ class m_mail{
 							$W[] = 'B.`sum`	- (select sum(if(B.currency="USD",sum_rub/payment_rate,sum_rub)) from newpayments where bill_no=B.bill_no group by bill_no) > 1';
 						}
 						break;
+                    case 's8800':
+                        $J[] = 'left join usage_8800 u8 on (u8.client = C.client)';
+                        $W[] = 'u8.id is '.($p[0] == 'with' ? ' not ' : '').'null';
+                        
+                        break;
 				}
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
@@ -588,7 +593,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 
 		if($format=='html'){
-			$text = nl2br(htmlspecialchars($text));
+			$text = nl2br(htmlspecialchars_($text));
 		}
 		return $text;
 	}

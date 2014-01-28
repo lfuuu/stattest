@@ -1,0 +1,105 @@
+<p>Сеть: <b>{$networkConfig->id}</b>. Файл: {$file->file_name}. Загруженные префиксы <a href="index.php?module=voipnew&action=network_config_show&id={$networkConfig->id}">Назад</a>
+<div style="position:relative;left:50;">
+    <table>
+        <tr>
+            <td valign=top>
+                файл: {$file->file_name}<br>
+                дата загрузки: {$file->created_at}<br>
+                количество строк: {$file->rows}<br>
+            </td>
+            <td valign=top>
+                <form action="./index.php" method="post" style="margin-left:30px">
+                    <input type="hidden" name="module" value="voipnew" />
+                    <input type="hidden" name="action" value="network_file_activatedeactivate" />
+                    <input type="hidden" name="id" value="{$file->id}" />
+                    {if $file->active eq 't'}
+                    <b>Активирован</b><br>
+                    <input type="submit" name="deactivate" value="Деактивировать" />
+                    {else}
+                    <input type="submit" name="activate" value="Активировать" />
+                    {/if}
+                </form>
+            </td>
+            <td valign=top>
+                <form action="./index.php" method="post" style="margin-left:10px">
+                    <input type="hidden" name="module" value="voipnew" />
+                    <input type="hidden" name="action" value="delete_raw_file" />
+                    <input type="hidden" name="id" value="{$file->id}" />
+                    {if $file->active neq 't'}
+                    <input type="submit" value="Удалить" />
+                    {else}
+                    <input type="submit" value="Удалить" />
+                    {/if}
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <form action="./index.php" method="post">
+                    <input type="hidden" name="module" value="voipnew" />
+                    <input type="hidden" name="action" value="network_file_change_start_date" />
+                    <input type="hidden" name="id" value="{$file-.id}" />
+                    начало действия: <input id="startdate" name="startdate" value="{$file->startdate}"></b>
+                    <input type="submit" value="Изменить дату начала действия" />
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</p>
+<form action="./index.php" method="get">
+    <input type="hidden" name="module" value="voipnew" />
+    <input type="hidden" name="action" value="network_file_show" />
+    <input type="hidden" name="id" value="{$file->id}" />
+
+    <input name="f_prefix" value="{$f_prefix}" placeholder="Префикс"/>
+    <select name="f_network_type_id">
+        <option value="0">-- Все группы --</option>
+        {foreach from=$network_types key='k' item='g'}
+        <option value="{$g->id}" {if $g->id eq $f_network_type_id} selected{/if}>{$g->id}. {$g->name}</option>
+        {/foreach}
+    </select>
+
+    <input type=submit value="Сформировать"/>
+</form>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td class=header>Префикс номера</td>
+        <td class=header>Группа</td>
+    </tr>
+    {foreach from=$prefixes item='r'}
+    <tr class="{cycle values='even,odd'}">
+        <td>{$r.prefix}</td>
+        <td>{$network_types[$r.network_type_id]->name} ({$r.network_type_id})</td>
+    </tr>
+    {/foreach}
+</table>
+
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $.datepicker.regional.ru = {
+            closeText: 'Закрыть',
+            prevText: '&#x3c;Пред',
+            nextText: 'След&#x3e;',
+            currentText: 'Сегодня',
+            monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+            monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+                'Июл','Авг','Сен','Окт','Ноя','Дек'],
+            dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+            dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+            dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+            weekHeader: 'Не',
+            dateFormat: 'yy-mm-dd',
+            firstDay: 1,
+            showMonthAfterYear: false,
+            yearSuffix: ''};
+        $.datepicker.setDefaults($.datepicker.regional.ru);
+
+        $('#startdate').datepicker();
+    });
+    {/literal}
+</script>

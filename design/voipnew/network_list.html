@@ -1,0 +1,39 @@
+<p>Сети:</p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td class=header>Id</td>
+        <td class=header>Регион</td>
+        <td class=header>Оператор</td>
+        <td class=header>Название</td>
+    </tr>
+    {foreach from=$networkConfigs item='r'}
+    {assign var="network_config_id" value=$r->id}
+    {assign var="instance_id" value=$r->instance_id}
+    {assign var="operator_id" value=$r->operator_id}
+    <tr class="{cycle values='even,odd'}">
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$r->id}</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$regions[$instance_id]->name}</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$operators[$operator_id]}</a></td>
+        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$r->name}</a></td>
+    </tr>
+    <tr class="{cycle values='even,odd'}">
+        <td>&nbsp;</td>
+        <td colspan="3">
+        <table class=price cellSpacing=2 cellPadding=4 border=0>
+            <tr>
+                <td class=header colspan="2">Тип</td>
+                <td class=header>&nbsp;</td>
+            </tr>
+            {foreach from=$networksByConfig[$network_config_id] item='n'}
+            {assign var="network_type_id" value=$n->network_type_id}
+            <tr class="{cycle values='even,odd'}">
+                <td>{$network_type_id}</td>
+                <td>{$networkTypes[$network_type_id]->name}</td>
+                <td>&nbsp;</td>
+            </tr>
+            {/foreach}
+        </table>
+        </td>
+    </tr>
+    {/foreach}
+</table>

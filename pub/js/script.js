@@ -280,7 +280,16 @@ function createOption(oSel, id,value){
 function form_usage_virtpbx_get(id)
 {
     __form_get(id, 'virtpbx');
+}
 
+function form_usage_8800_get(id)
+{
+    __form_get(id, '8800');
+}
+
+function form_usage_sms_get(id)
+{
+    __form_get(id, 'sms');
 }
 
 function form_usage_extra_get(id) {

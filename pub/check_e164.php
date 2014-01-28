@@ -9,14 +9,21 @@
 		exit();
 	}
 
-	if(preg_match('/^FREE(\d+)?:(\d{4,7})?/',$_GET['e164'],$m)){
-		if(isset($m[2])){
-			$ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
-			$ann_ = "substring(`e164` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
-		}else{
-			$ann = '';
-			$ann_ = '';
-		}
+    if(preg_match('/^FREE(\d+)?:(\d{4,7}|short)?/',$_GET['e164'],$m)){
+        if(isset($m[2]) && $m[2] != 'short'){
+            $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
+            $ann_ = "substring(`e164` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
+        }elseif ($m[2] == 'short') {
+            $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6";
+            if (($res=$db->GetValue($query)) !== false) 
+                echo $res;
+            else 
+                echo "FAIL";
+            exit();
+        }else{
+            $ann = '';
+            $ann_ = '';
+        }
 
 		if(isset($m[1]) && is_numeric($m[1])){
 			$limit_call = (int)$m[1];
@@ -67,7 +74,7 @@
 		exit();
 	}
 
-    if(strlen($number)>4)
+    if(strlen($number)>5)
     {
         if(!preg_match("/^7[0-9]+$/", $_GET["e164"]))
         {
