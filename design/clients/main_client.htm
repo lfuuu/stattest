@@ -2,19 +2,70 @@
 <H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
 <table width=100%><tr><td>
 	<table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
+
+
 		{if $client.previous_reincarnation}
 		<tr>
 			<td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>Предыдущие реквизиты:</td>
 			<td><a href="?module=clients&id={$client.previous_reincarnation}">{$client.prev_r_cl}</a></td>
 		</tr>
 		{/if}
+
+        <tr>
+            <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
+                Клиент:
+            </td>
+            <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+                <b>{$client.super_client_name}</b>
+            </td>
+        </tr>
+
+        <tr>
+            <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
+            Контрагент:
+            </td>
+            <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+                {foreach from=$client.contragents item='c'}
+                    {if $client.contragent_id <> $c.id}
+                        <a href="?module=clients&contragent_id={$c.id}">
+                    {else}
+                        <b>
+                    {/if}
+                    {$c.name}
+                    {if $client.contragent_id <> $c.id}
+                        </a>
+                    {else}
+                        </b>
+                    {/if}&nbsp;&nbsp;
+            {/foreach}
+            </td>
+        </tr>
+
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
             Карточки:
             </td>
             <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-            {foreach from=$_cards item='c'}{if $client.id <> $c.id}<a href="?module=clients&id={$c.id}">{/if}{$c.client}{if $client.id <> $c.id}</a>{/if}&nbsp;&nbsp;{/foreach}
+                {foreach from=$client.cards item='c'}
+                    {if $client.id <> $c.id}
+                        <a href="?module=clients&id={$c.id}">
+                    {else}
+                        <b>
+                    {/if}
+                    
+                    {$c.client}
+        
+                    {if $client.id <> $c.id}
+                        </a>
+                    {else}
+                        </b>
+                    {/if}&nbsp;&nbsp;
+                {/foreach}
             </td>
+        </tr>
+        <tr height=5>
+            <td class=left></td>
+            <td colspan="2"></td>
         </tr>
         <tr>
             <td class=left>Регион:</td>
@@ -27,8 +78,12 @@
 			<td valign="top" width=250 rowspan={if access('clients','restatus')}14{else}11{/if}>
 				{if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
 				{if access('clients','edit') || access('clients','edit_tele')}
-					<a href='{$LINK_START}module=clients&id={$client.id}&action=edit'>
-						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Редактировать
+					<a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
+						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Редактировать ЛС
+					</a>
+					<br><br>
+					<a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
+						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
 					</a>
 					<br><br>
 					<a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>

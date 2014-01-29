@@ -44,6 +44,7 @@ class m_clients {
 					'rpc_findClient1c'	=> array('clients','new'),
 					'rpc_findBank1c'	=> array('clients','new'),
 					'view_history'		=> array('clients', 'edit'),
+                    'contragent_edit'   => array('clients', 'edit'),
 
 					'p_edit' => array('clients','edit')
 				);
@@ -319,7 +320,9 @@ class m_clients {
 		$id=get_param_protected('id','');
 		if ($id) {
 			$this->client_view($id);
-		} else {
+		} elseif ($contragentId = get_param_protected("contragent_id")){
+            $this->client_contragent($contragentId);
+        } else {
 			if (access('clients','read_filter')) {
 				$this->clients_my($fixclient);
 			} else {
@@ -980,12 +983,14 @@ class m_clients {
 					uA.color as manager_color,
 					uB.name as support_name,
 					uB.color as support_color,
-					cl.client prev_r_cl
+					cl.client prev_r_cl,
+                    s.name as super_client_name
 				from
 					clients
 				LEFT JOIN  user_users as uA  ON uA.user=clients.manager
 				LEFT JOIN  user_users as uB  ON uB.user=clients.support
 				left join  clients cl on cl.id = clients.previous_reincarnation
+                LEFT JOIN client_super s ON (clients.super_id = s.id)
 				where
 					'.$q.'
 				limit 1
@@ -1014,15 +1019,21 @@ class m_clients {
 		}
 
 
+        /*
 		$_cards_sel = "select id,client from clients where client<>'' and client = '".$cl_main_card."' or client like '".$cl_main_card."/%' order by client";
 		$_cards = $db->AllRecords($_cards_sel,null,MYSQL_ASSOC);
 		$design->assign('_cards',$_cards);
-		$design->assign('all_cls',$db->AllRecords("select id,client from clients where client<>'' order by client",null,MYSQL_ASSOC));
+        */
+
+        if ($r)
+            $r["cards"] = $db->AllRecords("select id, client, company from clients where contragent_id = ".$r["contragent_id"]." order by id");
+
+		//$design->assign('all_cls',$db->AllRecords("select id,client from clients where client<>'' order by client",null,MYSQL_ASSOC));
 
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
 		$r['status_color'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['color'] : '');
-    $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
-    $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
+        $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
+        $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
 
 		$design->assign('fixclient',$id);
 		$GLOBALS['fixclient'] = $id;
@@ -1036,6 +1047,9 @@ class m_clients {
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
+
+        if ($r)
+            $r["contragents"] = $db->AllRecords($q = "select id, name from client_contragent where super_id = '".$r["super_id"]."'");
 
 
 		if(!$show_edit){
@@ -1161,6 +1175,21 @@ class m_clients {
         $design->assign('region_name', $db->GetValue('select `name` from regions where id='.intval($r['region'])) );
 		$_SESSION['clients_client'] = $r['client'];
 	}
+
+    function client_contragent($contragentId)
+    {
+        global $db;
+
+        if ($clientId = $db->GetValue("select id from clients where contragent_id = '".$contragentId."' order by id"))
+        {
+            header("Location: ./?module=clients&id=".$clientId);
+            exit();
+        } else {
+            trigger_error("Контрагент не найден!");
+        }
+    }
+
+
 	function clients_new() {
 		global $design, $db,$user;
 		$design->assign('mode_new',1);
@@ -1389,123 +1418,34 @@ class m_clients {
 		}else{
 			$last_pf = substr($row['client'],-1);
 			if($last_pf == '9')
+            {
 				$nc = $cl_main_card.'/a';
-			elseif($last_pf == 'z')
-				$nc = $cl_main_card.'/A';
-			elseif($last_pf == 'Z'){
+            } elseif ($last_pf == 'z')
+            {
 				trigger_error("Количество договоров клиента достигло максимального кол-ва");
 				return;
-			}else
+			} else {
 				$nc = $cl_main_card.'/'.chr(ord($last_pf)+1);
+            }
 		}
+
+        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, support, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, currency_bill, stamp, nal, telemarketing, sale_channel, uid, site_req_no, signer_positionV, hid_rtsaldo_date, hid_rtsaldo_RUR, hid_rtsaldo_USD, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc"; 
 
 		# client_contacts
 		$db->Query('start transaction');
 		$q = "
 			insert into clients (
-				client,
-				password,
-				password_type,
-				company,
-				comment,
-				address_jur,
-				status,
-				usd_rate_percent,
-				company_full,
-				address_post,
-				address_post_real,
-				type,
-				manager,
-				support,
-				login,
-				inn,
-				kpp,
-				bik,
-				bank_properties,
-				signer_name,
-				signer_position,
-				signer_nameV,
-				firma,
-				currency,
-				currency_bill,
-				stamp,
-				nal,
-				telemarketing,
-				sale_channel,
-				uid,
-				site_req_no,
-				signer_positionV,
-				hid_rtsaldo_date,
-				hid_rtsaldo_RUR,
-				hid_rtsaldo_USD,
-				credit,
-				user_impersonate,
-				address_connect,
-				phone_connect,
-				id_all4net,
-				dealer_comment,
-				form_type,
-				metro_id,
-				payment_comment,
-				bank_city,
-				bank_name,
-				pay_acc,
-				corr_acc
+                    client, ".$cp_fields."
 			) select
 				'".$nc."',
-				password,
-				password_type,
-				company,
-				comment,
-				address_jur,
-				status,
-				usd_rate_percent,
-				company_full,
-				address_post,
-				address_post_real,
-				type,
-				manager,
-				support,
-				login,
-				inn,
-				kpp,
-				bik,
-				bank_properties,
-				signer_name,
-				signer_position,
-				signer_nameV,
-				firma,
-				currency,
-				currency_bill,
-				stamp,
-				nal,
-				telemarketing,
-				sale_channel,
-				uid,
-				site_req_no,
-				signer_positionV,
-				hid_rtsaldo_date,
-				hid_rtsaldo_RUR,
-				hid_rtsaldo_USD,
-				credit,
-				user_impersonate,
-				address_connect,
-				phone_connect,
-				id_all4net,
-				dealer_comment,
-				form_type,
-				metro_id,
-				payment_comment,
-				bank_city,
-				bank_name,
-				pay_acc,
-				corr_acc
+                ".$cp_fields."
 			from
 				clients
 			where
 				client = '".$cl_main_card."'
 			limit 1
 		";
+
 		$db->Query($q);
 		$id = mysql_insert_id();
 		$main_id = $db->getRow("select id from clients where client='".$cl_main_card."' limit 1");
@@ -2461,5 +2401,13 @@ DBG::sql_out($select_client_data);
 
 		$design->AddMain('clients/phisclient.html');
 	}
+
+    public function clients_contragent_edit($fixclient)
+    {
+        global $design;
+
+
+        $design->AddMain("clients/contragent_edit.html");
+    }
 }
 
