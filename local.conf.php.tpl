@@ -71,5 +71,6 @@ return array(
 /*   dir with scaned docs (for qrcodes response) 
 *    stat.mcn.ru: 'SCAN_DOC_DIR'      => '/var/log/skanpdf/';
 */
-    'SCAN_DOC_DIR'      => "/tmp/docs/"
+    'SCAN_DOC_DIR'      => "/tmp/docs/",
+    "CORE_API_URL" => "http://demo.mcn.loc/core/api/", ///with end slash
 );

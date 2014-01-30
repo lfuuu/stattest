@@ -1476,7 +1476,8 @@ class m_clients {
 		$db->Query('commit');
 
 		try {
-			Sync1C::getClient()->saveClientCard($id);
+			if ($syncClient = Sync1C::getClient())
+                $syncClient->saveClientCard($id);
 		} catch (Sync1CException $e) {
 			$e->triggerError();
 		}
@@ -1492,6 +1493,9 @@ class m_clients {
 		$comment=get_param_protected('comment');
 		$cs=new ClientCS($id);
 		$cs->Add($status,$comment);
+
+        event::go("client_set_status", $id);
+
         voipNumbers::check();
 		$this->client_view($id);
 	}
@@ -1623,15 +1627,40 @@ class m_clients {
 		$cs->DeleteFile(get_param_protected('id'));
 		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=clients&action=files');
 	}
-	function clients_recontact() {
-		global $design;
-		$id=get_param_protected('id');
-		if ($this->check_tele($id)==0) return;
-		$cs=new ClientCS($id);
-		$cs->AddContact(get_param_protected('type'),get_param_protected('data'),get_param_protected('comment'),get_param_protected('official')?1:0);
-		$design->assign('contact_open',true);
-		$this->client_view($id);
-	}
+    function clients_recontact() {
+        global $design;
+        
+        $id=get_param_protected('id');
+
+        if (get_param_raw("add_contact"))
+        {
+            if ($this->check_tele($id)==0) return;
+            $cs=new ClientCS($id);
+            $type = get_param_protected('type');
+            $data = get_param_protected('data');
+            $dataId = $cs->AddContact($type,$data,get_param_protected('comment'),get_param_protected('official')?1:0);
+            event::go("contact_add_".$type, array("client_id" => $id, "contact_id" => $dataId, "email" => $data));
+        } elseif (get_param_raw("set_admin")) {
+
+            $adminContactId = get_param_integer('admin_contact');
+
+            if ($adminContactId && ($cc = ClientContact::find('first', array('id' => $adminContactId, 'is_official' => 1, 'is_active' => 1)))){
+                $adminContactId = $cc->id;
+            } else {
+                $adminContactId = 0;
+            }
+
+            if ($cl = ClientCard::find($id))
+            {
+                $cl->admin_contact_id = $adminContactId;
+                $cl->admin_is_active = 1;
+                $cl->save();
+            }
+        }
+        $design->assign('contact_open',true);
+        $this->client_view($id);
+    }
+
 	function clients_inn() {
 		global $design,$db,$user;
 		$id=get_param_protected('id');
@@ -1767,7 +1796,9 @@ class m_clients {
             if ($C->Create()){
 
 				try {
-					Sync1C::getClient()->saveClientCard($C->F['id']);
+					if ($syncClient = Sync1C::getClient())
+                        $syncClient->saveClientCard($C->F['id']);
+
 				} catch (Sync1CException $e) {
 					$e->triggerError();
 				}

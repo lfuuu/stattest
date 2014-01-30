@@ -223,19 +223,24 @@ function togglecs() {
 </TD></TR>
 {/if}
 
-<TR id=contact{if !isset($contact_open)} style='display:none'{/if}><td colspan=3 style='padding-left:50px'><table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th>тип</th><th>контакт</th><th>комментарий</th><th>кто</th><th>когда</th><th>&nbsp;</th></tr>
-{foreach from=$contacts item=item}
-<tr{if !$item.is_active} class="other"{/if}><td{if $item.is_official} style='font-weight:bold'{/if}>
-{if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{/if}
-</td><td>{$item.data}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
-<a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
-</td></tr>
-{/foreach}
+<TR id=contact{if !isset($contact_open)} style='display:none'{/if}>
+<td colspan=3 style='padding-left:50px'>
+
+<table class=insblock cellspacing=4 cellpadding=2 border=0>
+<tr><th>тип</th><th></th><th>контакт</th><th>комментарий</th><th>кто</th><th>когда</th><th>&nbsp;</th></tr>
 <FORM action="?" method=post><tr>
 	<input type=hidden name=module value=clients>
 	<input type=hidden name=action value=recontact>
 	<input type=hidden name=id value='{$client.id}'>
+{foreach from=$contacts item=item}
+<tr{if !$item.is_active} class="other"{/if}><td{if $item.is_official} style='font-weight:bold'{/if}>
+{if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{/if}
+</td>
+<td>{if $card_type == "main" && $item.type == "email" && $item.is_official && $item.is_active}<input type=radio value="{$item.id}" name="admin_contact"{if $client.admin_contact_id == $item.id} checked{/if}>{/if}</td>
+<td>{$item.data}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
+<a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+</td></tr>
+{/foreach}
 	<td>
 		<select name=type class=text style='font-size:10px' id='cd_type'>
 			<option value='phone'>телефон</option>
@@ -244,10 +249,20 @@ function togglecs() {
 		</select>
 		<input type=checkbox class=text name=official title="официальный?">
 	</td>
+    <td></td>
 	<td><input class=text style='width:100%' type=text name=data id='i_cd_data'></td>
 	<td colspan=2><input class=text style='width:100%' type=text name=comment></td>
-	<td><input class=button type=submit value="добавить"></td>
-</tr></form>
+	<td><input class=button type=submit name="add_contact" value="добавить"></td>
+</tr>
+
+{if $card_type == "main"}
+    <tr><td>&nbsp;</td>
+            <td><input type=radio name="admin_contact" title="Сбросить" value=0{if $client.admin_contact_id == 0} checked{/if}></td><td colspan=4>
+        <input class=button type=submit name="set_admin" value="Администратор в LK">
+        </td></tr>
+{/if}
+    </form>
+
 </table></td></tr>
 
 
