@@ -1499,6 +1499,34 @@ class ClientCS {
 
         return $counters;
     }
+
+    public function getVoipPrefix($regionId = 0)
+    {
+        switch($regionId) {
+            case '99':
+                return array('499','495');
+            break;
+            case '97':
+                return array('861');
+            break;
+            case '98':
+                return array('812');
+            break;
+            case '95':
+                return array('343');
+            break;
+            case '96':
+                return array('846');
+            break;
+            case '94':
+                return array('383');
+            break;
+            case '87':
+                return array('863');
+            break;
+        }
+        return array();
+    }
 }
 
 function iplist_make($D) {

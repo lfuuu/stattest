@@ -50,9 +50,40 @@ function do_func($function)
 		case 'getDomainList': return Api::getDomainList(get_param_raw("client_id")); break;
 		case 'getEmailList': return Api::getEmailList(get_param_raw("client_id")); break;
 		case 'getVoipList': return Api::getVoipList(get_param_raw("client_id")); break;
+		case 'getVpbxList': return Api::getVpbxList(get_param_raw("client_id")); break;
 		case 'getInternetList': return Api::getInternetList(get_param_raw("client_id")); break;
 		case 'getCollocationList': return Api::getCollocationList(get_param_raw("client_id")); break;
 		case 'getExtraList': return Api::getExtraList(get_param_raw("client_id")); break;
+		
+		case 'getCollocationTarifs': return Api::getCollocationTarifs(); break;
+		case 'getInternetTarifs': return Api::getInternetTarifs(); break;
+		case 'getVpbxTarifs': return Api::getVpbxTarifs(); break;
+		case 'getDomainTarifs': return Api::getDomainTarifs(); break;
+		case 'getVoipTarifs': return Api::getVoipTarifs(); break;
+		case 'getRegionList': return Api::getRegionList(); break;
+		case 'getFreeNumbers': return Api::getFreeNumbers(); break;
+		
+		case 'orderInternetTarif': return Api::orderInternetTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
+		case 'orderCollocationTarif': return Api::orderCollocationTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
+		case 'orderVoipTarif': return Api::orderVoipTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("number"), get_param_raw("tarif_id"), get_param_raw("lines_cnt")); break;
+		case 'orderVpbxTarif': return Api::orderVpbxTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
+		case 'orderDomainTarif': return Api::orderDomainTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
+		case 'orderEmailTarif': return Api::orderEmailTarif(get_param_raw("client_id"), get_param_raw("domain_id"), get_param_raw("local_part"), get_param_raw("password")); break;
+
+		case 'changeInternetTarif': return Api::changeInternetTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
+		case 'changeCollocationTarif': return Api::changeCollocationTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
+		case 'changeVoipTarif': return Api::changeVoipTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
+		case 'changeVpbxTarif': return Api::changeVpbxTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
+		case 'changeDomainTarif': return Api::changeDomainTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
+		case 'changeEmailTarif': return Api::changeEmailTarif(get_param_raw("client_id"), get_param_raw("email"), get_param_raw("password")); break;
+
+		case 'disconnectInternet': return Api::disconnectInternet(get_param_raw("client_id"), get_param_raw("service_id")); break;
+		case 'disconnectCollocation': return Api::disconnectCollocation(get_param_raw("client_id"), get_param_raw("service_id")); break;
+		case 'disconnectVoip': return Api::disconnectVoip(get_param_raw("client_id"), get_param_raw("service_id")); break;
+		case 'disconnectVpbx': return Api::disconnectVpbx(get_param_raw("client_id"), get_param_raw("service_id")); break;
+		case 'disconnectDomain': return Api::disconnectDomain(get_param_raw("client_id"), get_param_raw("service_id")); break;
+		case 'disconnectEmail': return Api::disconnectEmail(get_param_raw("client_id"), get_param_raw("email")); break;
+
 		default: throw new Exception("Функция не определенна");
 	}
 }
