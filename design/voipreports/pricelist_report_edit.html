@@ -1,6 +1,3 @@
-<link href="lib/select2/select2.css" rel="stylesheet"/>
-<script src="lib/select2/select2.js"></script>
-
 <script language="JavaScript" type="text/javascript" src="js/json2.js"></script>
 <h1>
     <small>
@@ -53,27 +50,6 @@
         $('#selprices tbody').append(tr);
     }
     $(document).ready(function(){
-        $.datepicker.regional.ru = {
-            closeText: 'Закрыть',
-            prevText: '&#x3c;Пред',
-            nextText: 'След&#x3e;',
-            currentText: 'Сегодня',
-            monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
-                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
-            monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
-                'Июл','Авг','Сен','Окт','Ноя','Дек'],
-            dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
-            dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
-            dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
-            weekHeader: 'Не',
-            dateFormat: 'dd.mm.yy',
-            firstDay: 1,
-            showMonthAfterYear: false,
-            yearSuffix: ''};
-        $.datepicker.setDefaults($.datepicker.regional.ru);
-
-        $('#volumes_from').datepicker();
-        $('#volumes_to').datepicker();
         var data = JSON.parse($('#data')[0].value);
         for(var i = 0; i < data.pricelists.length;i++){
             var conf = { pricelist_id: data.pricelists[i], date: data.dates[i]}
@@ -81,7 +57,6 @@
         }
 
         $("#selprices tbody").sortable().disableSelection();
-        $('.select2').select2();
     });
     {/literal}
 </script>
