@@ -1,7 +1,7 @@
 <?php
 
 	define('NO_WEB',1);
-	define('PATH_TO_ROOT','./');
+	define('PATH_TO_ROOT','../../');
 	include PATH_TO_ROOT."conf.php";
     include INCLUDE_PATH."runChecker.php";
     include INCLUDE_PATH.'icq/WebIcqPro.class.php';
@@ -13,7 +13,6 @@
     if(runChecker::isRun())
         die(".");
     echo "\n".date("r").": start";
-    //$db->Query("use test_operator");
 
     runChecker::run();
 
@@ -30,8 +29,6 @@
                 exit();
             }
 
-            //print_r($icq->get_message());
-
             if($r = $db->GetRow("select * from tt_send limit 1"))
             {
             echo "->";
@@ -43,7 +40,7 @@
 
 
                     echo "\n".iconv("koi8r", "utf8", $r["text"]);
-                    if(!$icq->sendMessage($uin, iconv("koi8r", "cp1251//translit", $r["text"])))
+                    if(!$icq->sendMessage($uin, iconv("koi8r", "cp1251//translit", strim($r["text"]))))
                     {
                         echo "error: ".$icq->error;
                     }else{
@@ -80,4 +77,22 @@
 
     runChecker::stop();
 
+function strim($a)
+{
+    $maxLen = 400;
+
+    if (strlen($a) > $maxLen)
+    {
+        $a = substr($a, 0, $maxLen-1);
+
+        $rpos = strrpos($a, " ");
+
+        $a = substr($a, 0, $rpos);
+
+        $a = trim($a);
+
+    }
+
+    return $a;
+}
 

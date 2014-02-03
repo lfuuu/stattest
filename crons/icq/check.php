@@ -1,7 +1,7 @@
 <?php
 
 	define('NO_WEB',1);
-	define('PATH_TO_ROOT','./');
+	define('PATH_TO_ROOT','../../');
 	include PATH_TO_ROOT."conf.php";
     include INCLUDE_PATH."runChecker.php";
 
