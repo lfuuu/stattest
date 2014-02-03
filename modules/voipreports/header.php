@@ -12,9 +12,14 @@ class m_voipreports_head extends IModuleHead
         'voip_7800_report' => array('voipreports','access'),
         'voip_local_report' => array('voipreports','access'),
         'voip_mgmn_report' => array('voipreports','access'),
+        'by_dest_operator' => array('voipreports','access'),
+        'operators_traf' => array('voipreports', 'access'),
+        'unrecognized' => array('voipreports', 'access'),
 
         'calc_volume' => array('voipreports', 'admin'),
         'cost_report' => array('voipreports', 'access'),
+
+        'aibulat_report' => array('voipreports', 'access'),
 
         'pricelist_report_list' => array('voipreports', 'access'),
         'pricelist_report_routing_list' => array('voipreports', 'access'),
@@ -32,9 +37,13 @@ class m_voipreports_head extends IModuleHead
         array('Сравнение операторов', 'pricelist_report_operator_list'),
         array('По маршрутизации', 'pricelist_report_routing_list'),
         array('Себестоимость', 'cost_report'),
+        array('Отчет для Айбулата', 'aibulat_report'),
         array('', 'voip_7800_report'),
         array('Voip 7800', 'voip_7800_report'),
         array('Voip Местные', 'voip_local_report'),
         array('Voip МГМН', 'voip_mgmn_report'),
+        array('На кого ушли звонки', 'by_dest_operator'),
+        array('Отчет по операторскому трафику voip', 'operators_traf'),
+        array('Не распознанные вызовы', 'unrecognized'),
     );
 }

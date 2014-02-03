@@ -14,7 +14,7 @@
 	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
     <TD style="color:gray;">{$item.id}</TD>
 		<TD>{$item.time}</TD>
-		<TD><a href="./?module=clients&action=all&smode=7&search={$item.usage_num}" target=_blank>{$item.usage_num}</a></TD>
+		<TD><a href="../stats?module=clients&action=all&smode=7&search={$item.usage_num}" target=_blank>{$item.usage_num}</a></TD>
     <TD style="color: {if $item.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $item.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
     <TD>{$item.phone_num}</TD>
 		<TD>{$item.length}</TD>

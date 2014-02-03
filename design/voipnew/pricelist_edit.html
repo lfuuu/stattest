@@ -1,6 +1,3 @@
-<link href="lib/select2/select2.css" rel="stylesheet"/>
-<script src="lib/select2/select2.js"></script>
-
 <p>Редактирование прайслиста:
     {if $pricelist->type == 'client'}
     <a href="index.php?module=voipnew&action=client_pricelists">назад</a>
@@ -125,11 +122,3 @@
         </tr>
     </table>
 </form>
-
-<script type="text/javascript">
-    {literal}
-    $(document).ready(function(){
-        $('.select2').select2();
-    });
-    {/literal}
-</script>

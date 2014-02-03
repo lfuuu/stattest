@@ -1,10 +1,9 @@
-      <H2>Статистика</H2>
-      <H3>VoIP (нераспознанное)</H3>
-      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=voip_recognition&phone={$phone}&haslen={$haslen}&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">прошлый месяц</a>,
-      								за <a href="?module=stats&action=voip_recognition&phone={$phone}&haslen={$haslen}&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">текущий месяц</a>)</H3>
+      <H2>Телефония: Не распознанные вызовы</H2>
+      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=voipreports&action=unrecognized&phone={$phone}&haslen={$haslen}&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">прошлый месяц</a>,
+      								за <a href="?module=voipreports&action=unrecognized&phone={$phone}&haslen={$haslen}&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">текущий месяц</a>)</H3>
             <FORM action="?" method=get>
-            <input type=hidden name=module value=stats>
-            <input type=hidden name=action value=voip_recognition>
+            <input type=hidden name=module value="voipreports" />
+            <input type=hidden name=action value="unrecognized" />
 
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>

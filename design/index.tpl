@@ -9,13 +9,17 @@
   <LINK title=default href="main.css" type=text/css rel=stylesheet>
   <script>var LOADED=0;</script>
   <script>var PATH_TO_ROOT="";</script>
+
+  <link href="lib/select2/select2.css" rel="stylesheet"/>
+
   <script src="js/JsHttpRequest.js"></script>
   <script src="js/script.js"></script>
   <script src="js/jquery.js"></script>
-  <script src="js/jquery.tmpl.min.js"></script>
   <script src="js/optools.js"></script>
   <script src="js/statlib/main.js"></script>
   <script src="js/jquery.meio.mask.min.js"></script>
+  <script src="lib/select2/select2.js"></script>
+
   <LINK href="/favicon.ico" rel="SHORTCUT ICON">
 </HEAD>
 <BODY text=#404040 vLink=#000099 aLink=#000000 link=#000099 bgColor=#efefef>
@@ -74,4 +78,30 @@ class=z10 color=#666666>&#0169;2013 MCN. тел. (495) 950&#8211;5678
 <DIV style="WIDTH: 1px; HEIGHT: 15px"><IMG height=15 alt="" 
 src="{$IMAGES_PATH}1.gif" width=1></DIV>
 <script language=JavaScript>LOADED=1;</script>
+
+<script type="text/javascript">
+    {literal}
+    $(document).ready(function(){
+        $.datepicker.setDefaults({
+            closeText: 'Закрыть',
+            prevText: '&#x3c;Пред',
+            nextText: 'След&#x3e;',
+            currentText: 'Сегодня',
+            monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+            monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+                'Июл','Авг','Сен','Окт','Ноя','Дек'],
+            dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+            dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+            dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+            weekHeader: 'Не',
+            dateFormat: 'yy-mm-dd',
+            firstDay: 1,
+            showMonthAfterYear: false,
+            yearSuffix: ''});
+        $('.datepicker').datepicker();
+        $('.select2').select2();
+    });
+    {/literal}
+</script>
 </BODY></HTML>

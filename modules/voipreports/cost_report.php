@@ -13,7 +13,7 @@ class m_voipreports_cost_report
         set_time_limit(0);
 
         $f_instance_id = (int)get_param_protected('f_instance_id', '99');
-        $f_operator_id = get_param_protected('f_operator_id', '0');
+        $f_operator_id = (int)get_param_protected('f_operator_id', '0');
         $date_from = get_param_protected('date_from', date('Y-m-d'));
         $date_to = get_param_protected('date_to', date('Y-m-d'));
         $f_prefix_type = get_param_protected('f_prefix_type', 'op');
@@ -168,9 +168,6 @@ class m_voipreports_cost_report
                 $operators[$op->id] = $op->short_name;
             }
         }
-        $countries = $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name");
-        $pricelists = $pg_db->AllRecords("select p.id, p.name, o.short_name as operator from voip.pricelist p
-                                          left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id');
 
         if (!isset($_GET['export'])) {
             $design->assign('report', $report);
@@ -189,10 +186,14 @@ class m_voipreports_cost_report
             $design->assign('f_dest_group', $f_dest_group);
             $design->assign('f_volume', $f_volume);
             $design->assign('operators', $operators);
-            $design->assign('geo_countries', $countries);
+            $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
             $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
             $design->assign('regions', Region::getListAssoc());
-            $design->assign('pricelists', $pricelists);
+            $design->assign(
+                'pricelists',
+                $pg_db->AllRecords("    select p.id, p.name, o.short_name as operator from voip.pricelist p
+                                        left join voip.operator o on p.operator_id=o.id and (o.region=p.region or o.region=0) ", 'id')
+            );
             $design->AddMain('voipreports/cost_report_show.html');
         } else {
             header('Content-type: application/csv');

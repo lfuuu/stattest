@@ -1,0 +1,71 @@
+<h1>Отчет для Айбулата:</h1>
+
+<form action="./index.php" method="get" style="display:inline">
+	<input type="hidden" name="module" value="voipreports" />
+	<input type="hidden" name="action" value="aibulat_report" />
+    <select class="select2" name="f_instance_id" style="width: 180px">
+        {foreach from=$regions item='r'}
+        <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name}</option>
+        {/foreach}
+    </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <select class="select2" name="f_operator_id" style="width: 300px">
+        <option value="0">-- Все операторы --</option>
+        {foreach from=$operators key='id' item='name'}
+        <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
+        {/foreach}
+    </select>
+
+    <div style="height: 5px"></div>
+
+    С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <select name="f_include_initiate">
+        <option value="t" {if $f_include_initiate eq 't'} selected{/if}>Включить стоимость инициации в цену</option>
+        <option value="f" {if $f_include_initiate eq 'f'} selected{/if}>Не включать стоимость инициации в цену</option>
+    </select>
+    <div style="height: 5px"></div>
+    <input type=submit name="make" id="make_report" value="Сформировать"/>
+</form>
+<br/><br/>
+
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<thead>
+<tr>
+    <td class=header>Направление</td>
+    <td class=header>Кол-во звонков</td>
+    <td class=header>Кол-во минут</td>
+    <td class=header>Тариф</td>
+    <td class=header>Сумма без НДС</td>
+    <td class=header>Сумма НДС</td>
+    <td class=header>Сумма ИТОГО</td>
+</tr>
+</thead>
+<tbody>
+{foreach from=$report item='r'}
+<tr class="{cycle values='even,odd'}">
+	<td>{$r.destination}</td>
+    <td align=right>{$r.count}</td>
+	<td align=right>{$r.minutes}</td>
+    <td align=right>{$r.price}</td>
+    <td align=right>{$r.amount}</td>
+    <td align=right>{$r.nds}</td>
+    <td align=right>{$r.amount_with_nds}</td>
+</tr>
+{/foreach}
+</tbody>
+<tfoot>
+<tr>
+    <td><b>Итого:</b></td>
+    <td align=right><b>{$totals.count}</b></td>
+    <td align=right><b>{$totals.minutes}</b></td>
+    <td align=right>&nbsp;</td>
+    <td align=right><b>{$totals.amount}</b></td>
+    <td align=right><b>{$totals.nds}</b></td>
+    <td align=right><b>{$totals.amount_with_nds}</b></td>
+</tr>
+</tfoot>
+</table>
+</div>
