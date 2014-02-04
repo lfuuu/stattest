@@ -33,7 +33,8 @@ class m_stats_head extends IModuleHead{
 		'voip_free_stat' => array('stats','report'),
 //		'recalcalls'		=> array('stats','modify'),
 		'support_efficiency'	=>  array('stats','report'),
-    'report_phone_sales'  =>  array('stats','report')
+    'report_phone_sales'  =>  array('stats','report'),
+    'report_agent' => array('stats','report')
 	);
 	var $menu=array(
 		array('Интернет',		'internet'),
@@ -62,6 +63,7 @@ class m_stats_head extends IModuleHead{
         array('Отчет: Продажи номеров', 'report_phone_sales'),
 
         array('Отчет: ИНН', 'report_inn'),
+        array('Отчет по Агентам', 'report_agent'),
 	);
 }
 ?>
