@@ -644,7 +644,7 @@ class MailJob {
 	function get_cur_state()
 	{
 	    global $db;
-	    $res = $db->GetValue('select job_state from mail_job where job_id='.$this->id);
+	    $res = $db->GetValue('select job_state from mail_job where job_id='.$this->data['job_id']);
 	    
 	    return $res;
 	}
