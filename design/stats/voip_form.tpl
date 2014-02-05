@@ -10,7 +10,7 @@
             <input type=hidden name=module value=stats>
             <input type=hidden name=action value=voip>
             <SELECT name=phone>
-                {if count($regions_cnt) > 1}<option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>{/if}
+                {if $regions_cnt > 1}<option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>{/if}
                 {foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
             </SELECT>
         <TR>
