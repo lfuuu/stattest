@@ -237,26 +237,6 @@
 <input type=checkbox value=1 name="nbn_modem" id=wm10><label for='wm10'>NetByNet: акт модем</label><br>
 <input type=checkbox value=1 name="nbn_gds" id=wm11><label for='wm11'>NetByNet: заказ</label><br>
 {/if}
-{if $assignment}
-<table>
-<tr>
-<td collspan=2>Соглашение:</td></tr>
-<tr><td style="padding-left: 10px;">
-<input type=checkbox value=1 name="assignment_wo_stamp" id=wm10><label for='wm10'>без печати</label><br>
-<input type=checkbox value=1 name="assignment_stamp" id=wm13><label for='wm13'>с печатью</label><br>
-</td>
-<td valign=top><select name="assignment_select">
-<option value="4">с 1 апреля</option>
-<option value="5">с 1 мая</option>
-<option value="6">с 1 июня</option>
-</select>
-</td>
-</tr>
-</table>
-<input type=checkbox value=1 name="assignmentcomstar" id=wm14><label for='wm14'>Соглашение 3хсторонее</label><br>
-<input type=checkbox value=1 name="order" id=wm11><label for='wm11'>Приказ</label><br>
-<input type=checkbox value=1 name="notice" id=wm12><label for='wm12'>Уведомление</label><br>
-{/if}
 
 
 </td><td valign=top>

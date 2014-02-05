@@ -1146,8 +1146,6 @@ class m_newaccounts extends IModule
         }
         $design->assign('admin_order',$adminNum);
 
-        $design->assign('assignment',$db->GetValue("select id from test_operator.mcn_client where id = '".$bill->Get("client_id")."'"));
-
         $design->assign('bill',$bill->GetBill());
         $design->assign('bill_manager',getUserName($bill->GetManager()));
         $design->assign('bill_comment',$bill->GetStaticComment());
@@ -1688,7 +1686,6 @@ class m_newaccounts extends IModule
                     'Счет-фактура: '=>array('invoice-1','invoice-2','invoice-3','invoice-4'),
                     'Акт: '=>array('akt-1','akt-2','akt-3'),
                     'Накладная: '=>array('lading'),
-                    'Соглашение о передаче прав и обязанностей: ' => array("assignment","assignmentcomstar","assignment_stamp","assignment_wo_stamp"),
                     'Приказ о назначении: ' => array("order"),
                     'Уведомление о назначении: ' => array("notice")
         );
@@ -1705,14 +1702,6 @@ class m_newaccounts extends IModule
                 {
                     $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
                     $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
-                }
-
-                if(in_array($r, array("assignment_stamp", "assignment_wo_stamp")))
-                {
-                    $R["emailed"] = ($r == "assignment_stamp" ? 1 :0);
-                    $R["object"] = "assignment-".get_param_protected("assignment_select", "4");
-                    $link[] = 'https://lk.mcn.ru/print?bill='.udata_encode_arr($R);
-                    $link[] = 'https://lk.mcn.ru/print?bill='.udata_encode_arr($R);
                 }
 
 
@@ -1773,34 +1762,13 @@ class m_newaccounts extends IModule
         $P = '';
 
 
-        $clientsToSend = array();
-        foreach($db->AllRecords("
-                select id from test_operator.mcn_client
-                 where id not in
-                 (select distinct c.id
-                 from log_newbills l, test_operator.mcn_client c, newbills b
-                 where l.bill_no like '20120%'
-                  and l.comment like 'Печать Соглашение о передачи прав%'
-                  and l.bill_no = b.bill_no
-                  and c.id = b.client_id
-                  order by l.id desc)
-        ") as $l){
-            $clientsToSend[$l["id"]] = 1;
-        }
-
-        ///$clientsToSend["15776"] = 1;
-
-        //printdbg($clientsToSend,111);
-
-
         $isFromImport = get_param_raw("from", "") == "import";
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2'));
-        $L = array_merge($L, array('akt-1','akt-2','akt-3', 'assignment','assignment_stamp','assignment_wo_stamp','order','notice','assignmentcomstar'));
+        $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
-        $L = array_merge($L, array("assignment-4"));
 
         //$bills = array("201204-0465");
 
@@ -1875,10 +1843,6 @@ class m_newaccounts extends IModule
                 if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF)
                     $reCode = $r;
 
-                $toPass = false;
-                if($isFromImport && !$isSF && $r == "assignment-4" && isset($clientsToSend[$c["id"]]))
-                    $toPass = true;
-
                 $isDeny = false;
                 if($r == "akt-1" && $isFromImport && !$isAkt1 && !$isSF)
                     $isDeny = true;
@@ -1887,22 +1851,13 @@ class m_newaccounts extends IModule
                     $isDeny = true;
 
 
-                if ((get_param_protected($r) || $reCode || $toPass) && !$isDeny) {
+                if ((get_param_protected($r) || $reCode) && !$isDeny) {
 
                     if($reCode)
                         $r = $reCode;
 
                     // при импорте клиентов с долларами, печатать долларовые счета
                     if($isFromImport && $c["currency"] == "USD" && $r == "bill-2-RUR") $r = "bill-2-USD";
-                    if($isFromImport && $r == "assignment-4") $r = "assignment-4&emailed=1";
-
-                    if($r == "assignment_stamp")
-                    {
-                        $r = "assignment-".get_param_raw("assignment_select", "4")."&emailed=1";
-                    }elseif($r == "assignment_wo_stamp")
-                    {
-                        $r = "assignment-".get_param_raw("assignment_select", "4");
-                    }
                     if (isset($h[$r]))
                     {
                         $idxs[$bill_no."==".$r."-2"] = count($R);
@@ -1925,8 +1880,7 @@ class m_newaccounts extends IModule
                             "obj" => $r, 
                             "bill_client" => $bill->Get("client_id"), 
                             "g" => get_param_protected($r), 
-                            "r"  => $reCode, 
-                            "p" => $toPass
+                            "r"  => $reCode
                             );
 
                     $R[] = $ll;
@@ -2066,68 +2020,21 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        if($obj == "assignment")
-        {
-            $source = $source >= 1 && $source <= 12 ? $source : 4;
-            $assignmentDate = strtotime("2000-".$source."-01");
-            $design->assign("assignment_month", mdate('месяца', $assignmentDate));
-        }
-
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'assignment', 'order', 'notice','assignmentcomstar', 'new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info')))
             $obj='bill';
 
         if ($obj!='bill')
             $curr = 'RUR';
 
-        $assignment = false;
-
         $cc = $bill->Client();
 
-        if(
-                (
-                 (
-                  $obj == "bill" && preg_match("/^201204/", $bill_no) && $cc["firma"] == "mcn_telekom"
-                  || $obj == "assignment"
-                  || $obj == "assignmentcomstar"
-                 )
-                 && $db->GetValue("select id from test_operator.mcn_client where id = '".$bill->Get("client_id")."'")
-                )
-          )
+        if(in_array($obj, array("order","notice")))
         {
-
-            $assignment = $db->GetRow("select contract_no as no, contract_date as no_date from client_contracts where client_id = '".$bill->Get("client_id")."' and is_active and contract_date <= '2012-04-01' order by id desc limit 1");
-            $assignment["no_date"] = mdate('d месяца Y', strtotime($assignment["no_date"]));
-        }
-
-
-        if(
-                (
-                 (
-                  $obj == "bill" && preg_match("/^201205/", $bill_no) && $cc["firma"] == "mcn_telekom"
-                  || $obj == "assignment"
-                  || $obj == "assignmentcomstar"
-                 )
-                 && $db->GetValue("select id from test_operator.mcn_client_may where id = '".$bill->Get("client_id")."'")
-                )
-          )
-        {
-
-            $assignment = $db->GetRow("select contract_no as no, contract_date as no_date from client_contracts where client_id = '".$bill->Get("client_id")."' and is_active and contract_date <= '2012-04-01' order by id desc limit 1");
-
-            if($assignment)
-                $assignment["no_date"] = mdate('d месяца Y', strtotime($assignment["no_date"]));
-        }
-        $design->assign("assignment", $assignment);
-
-
-
-        if(in_array($obj, array("order","notice", "assignment", "assignmentcomstar")))
-        {
-            $t = ($obj == "assignmentcomstar" ? "Соглашение 3хсторонее" :($obj == "order" ?
+            $t = ($obj == "order" ?
                     "Приказ (Телеком)":
                     ($obj == "notice" ?
-                        "Уведомление (Телеком)":
-                        "Соглашение о передачи прав (".mdate("месяц", $assignmentDate).") (Телеком)")));
+                        "Уведомление (Телеком)":""));
+                        
             if($user->Get('id'))
             $db->QueryInsert(
                 "log_newbills",
@@ -2139,12 +2046,6 @@ class m_newaccounts extends IModule
                 )
             );
 
-            /*
-            if($obj != "assignment")
-            {
-                header("Location: /client/pdf/".$obj.".jpg");
-                exit();
-            }*/
         }
 
         if($obj == "new_director_info")
@@ -2155,7 +2056,7 @@ class m_newaccounts extends IModule
             
 
 
-        if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice", "assignment"))){
+        if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice"))){
 
       $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
       $design->assign("source", $source);
@@ -3516,9 +3417,6 @@ class m_newaccounts extends IModule
                 }
             }
         }
-
-        //printdbg(implode("','", $bills));
-
 
         $design->assign('file',$file);
         $design->assign("sum", $sum);
