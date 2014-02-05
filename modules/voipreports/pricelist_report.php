@@ -52,7 +52,7 @@ class m_voipreports_pricelist_report
 
         foreach ($report->getFields() as $field) {
             $fieldsData['pricelists'][] = $field['pricelist_id'];
-            $fieldsData['dates'][] = $field['date'] ? $field['date']->format('d.m.Y') : '';
+            $fieldsData['dates'][] = $field['date'] ? $field['date']->format('Y-m-d') : '';
         }
 
         $design->assign('rep', $report);
@@ -68,10 +68,7 @@ class m_voipreports_pricelist_report
         $pricelist_ids = $_POST['pricelist_ids'];
         $dates = $_POST['dates'];
         foreach ($dates as &$date) {
-            if ($date) {
-                $md = explode('.', $date);
-                $date = $md[2] . '-' . $md[1] . '-' . $md[0];
-            } else {
+            if (!$date) {
                 $date = 'NULL';
             }
         }

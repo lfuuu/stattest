@@ -1,4 +1,3 @@
-<script language="JavaScript" type="text/javascript" src="js/json2.js"></script>
 <h1>
     <small>
     <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
@@ -38,7 +37,7 @@
         tr.append($('<td class="header" style="cursor: pointer">'+option.val()+'</td>'));
         tr.append($('<td>' + name + pricelist + '</td>'));
         var date;var btncl;
-        date = $('<input readonly type=text name="dates[]" value="" placeholder="Текущая дата"/>').datepicker().datepicker('setDate', conf.date);
+        date = $('<input readonly type=text name="dates[]" value="" placeholder="Текущая дата"/>').datepicker(datepicker_ru).datepicker('setDate', conf.date);
         btncl = $('<a href="#" onclick="this.date.datepicker(\'setDate\',\'\');return false">[x]</a>')
         btncl[0].date = date;
         tr[0]._conf.datepicker = date;
