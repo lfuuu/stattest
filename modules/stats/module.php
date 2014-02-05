@@ -407,6 +407,105 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip.tpl');
 	}
 
+	/*функция формирует единый массив для разных регионов,
+	 * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
+	*/
+	function prepareStatArray($data = array(), $detality = '') {
+	
+	    if (!count($data)) return $data;
+	    $Res = array();
+	    $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
+	
+	
+	    switch ($detality) {
+	    	case 'dest':
+	    	    foreach ($data as $r_id=>$reg_data) {
+	    	        foreach ($reg_data as $k=>$r) {
+	    	            if ($r['is_total'] == false) {
+	    	                if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
+	
+	    	                $Res[$k]['cnt'] += $r['cnt'];
+	    	                $Res[$k]['len'] += $r['len'];
+	    	                $Res[$k]['price'] += $r['price'];
+	
+	    	                if ($Res[$k]['len']>=24*60*60) $d=floor($Res[$k]['len']/(24*60*60)); else $d=0;
+	    	                $Res[$k]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$k]['len']-$d*24*60*60).'</b>';
+	
+	    	                if (isset($r['price'])) $rt['price']+=$r['price'];
+	    	                if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+	    	                if (isset($r['len'])) $rt['len']+=$r['len'];
+	    	            }
+	    	        }
+	    	    }
+	    	    $rt['tsf1']='<b>Итого</b>';
+	    	    if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
+	    	    $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60).'</b>';
+	    	    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+	
+	    	    break;
+	    	case 'call':
+	    	    foreach ($data as $r_id=>$reg_data) {
+	    	        foreach ($reg_data as $r) {
+	    	            if ($r['is_total'] == false) {
+	    	                $Res[] = array('mktime'=>$r['mktime'],'reg_id'=>$r_id)+$r;
+	
+	    	                if (isset($r['price'])) $rt['price']+=$r['price'];
+	    	                if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+	    	                if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+	    	            }
+	    	        }
+	    	    }
+	    	    array_multisort($Res);
+	
+	    	    $rt['ts1']='Итого';
+	    	    $rt['tsf1']='<b>Итого</b>';
+	    	    $rt['num_to']='&nbsp;';
+	    	    $rt['num_from']='&nbsp;';
+	    	    if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+	    	    $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
+	    	    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+	    	    break;
+	    	default:
+	    	    foreach ($data as $r_id=>$reg_data) {
+	    	        foreach ($reg_data as $k=>$r) {
+	    	            if ($r['is_total'] == false) {
+	    	                if (!isset($Res[$r['ts1']]))
+	    	                    $Res[$r['ts1']] = array(
+	    	                                    'ts1'=>$r['ts1'],
+	    	                                    'tsf1'=>$r['tsf1'],
+	    	                                    'mktime'=>$r['mktime'],
+	    	                                    'geo'=>$r['geo'],
+	    	                                    'reg_id'=>$r_id,
+	    	                                    'cnt'=>0,
+	    	                                    'price'=>0,
+	    	                                    'ts2'=>0
+	    	                    );
+	
+	    	                $Res[$r['ts1']]['cnt'] += $r['cnt'];
+	    	                $Res[$r['ts1']]['ts2'] += $r['ts2'];
+	    	                $Res[$r['ts1']]['price'] += $r['price'];
+	
+	    	                if ($Res[$r['ts1']]['ts2']>=24*60*60) $d=floor($Res[$r['ts1']]['ts2']/(24*60*60)); else $d=0;
+	    	                $Res[$r['ts1']]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$r['ts1']]['ts2']-$d*24*60*60).'</b>';
+	
+	    	                if (isset($r['price'])) $rt['price']+=$r['price'];
+	    	                if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+	    	                if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+	    	            }
+	    	        }
+	    	    }
+	    	    $rt['tsf1']='<b>Итого</b>';
+	    	    if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+	    	    $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
+	    	    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+	    	    break;
+	    }
+	
+	    $Res[] = $rt;
+	
+	    return $Res;
+	}
+	
     function stats_voip_free_stat($fixclient)
     {
         global $db, $pg_db, $design;
