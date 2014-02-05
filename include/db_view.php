@@ -678,7 +678,7 @@ class DbViewMonitorClients extends DbView {
 			$R=$db->AllRecords('select INET_NTOA(ip_int),count from monitor_ips where monitor_id='.$k['id']);
 			$p=null;
 			$s1=''; $s2=''; foreach ($R as $r) {
-				$s1.=($s1?'<br>':'').__ipstat(array('net'=>$r[0]),&$p);
+				$s1.=($s1?'<br>':'').__ipstat(array('net'=>$r[0]),$p);
 				$s2.=($s2?'<br>':'').$r[1];
 			}
 			$k['ips']=$s1; $k['bad']=$s2;
@@ -778,7 +778,9 @@ class DbViewSaleChannels extends DbView {
 		$this->FieldSets['z']=array(
 							'name' => 'Название',
 							'dealer_id' => 'ID дилера',
-							);
+							'is_agent' => 'Агент',
+							'interest' => 'Вознаграждение',
+		);
 		$this->fieldset='z';
 	}
 }
@@ -787,6 +789,8 @@ class DbFormSaleChannels extends DbForm{
 		DbForm::__construct('sale_channels');
 		$this->fields['name']=array();
 		$this->fields['dealer_id']=array();
+		$this->fields['is_agent']=array('assoc_enum'=>array('0'=>'Нет', '1'=>'Да'));
+		$this->fields['interest']=array();
 	}
 }
 class DbViewTechNets extends DbView {

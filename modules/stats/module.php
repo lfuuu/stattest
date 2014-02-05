@@ -2284,6 +2284,123 @@ class m_stats extends IModule{
         return $R;
     }
 
+    function stats_report_agent()
+    {
+        global $db;
+        global $design;
+
+        $agents = array();
+        $agent = false;
+        $agent_id = get_param_raw("agent", false);
+        $agents = $db->AllRecords('SELECT id, name FROM sale_channels WHERE is_agent=1');
+        if ($agent_id && $agent_id > 0) $agent = $db->GetRow('SELECT * FROM sale_channels WHERE id=' . $agent_id);
+
+        $cur_m = get_param_raw("from_m", date('m'));
+        $cur_y = get_param_raw("from_y", date('Y'));
+
+        $mm = array();
+        for($i=1;$i<=12;$i++) $mm[date('m', mktime(0,0,0,$i,1,date('Y')))] = mdate('Месяц', mktime(0,0,0,$i,1,date('Y')));
+        $yy = array(date('Y'), date('Y')-1);
+
+        $from = date("01.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
+        $to = date("t.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
+
+        list($R, $T) = $this->_stat_report_agent($agent, $from, $to);
+
+        $params = array(
+                        'mm'=>$mm, 
+                        'yy'=>$yy, 
+                        'inns'=>$R, 
+                        'agent'=>$agent, 
+                        'agents'=>$agents, 
+                        'cur_m'=>$cur_m, 
+                        'cur_y'=>$cur_y, 
+                        'total'=>$T,
+                        'from'=>$from,
+                        'to'=>$to
+                    );
+        $design->assign($params);
+        $design->AddMain("stats/report_agent.tpl");
+    }
+
+    function _stat_report_agent($agent = false, $from = false, $to = false)
+    {
+        if ($agent === false) return array(array(),array());
+        global $db;
+        $ret = array(); $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
+
+        $from = date("Y-m-d", strtotime($from));
+        $to = date("Y-m-d", strtotime($to));
+        $prev_from = date("Y-m-01", mktime(0,0,0,date('m', strtotime($from))-3,1,date('Y', strtotime($from))));
+
+        $R = $db->AllRecords($q = "
+                SELECT 
+                    c.id, c.client, c.company, sum(l.sum) as sum
+                FROM 
+                    clients c
+                LEFT JOIN newbills b ON (b.client_id = c.id)
+                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
+                WHERE
+                    c.sale_channel = ".$agent['id']."
+                AND b.bill_date >= '".date("Y-m-d", strtotime($from))."' 
+                AND b.bill_date <= '".date("Y-m-d", strtotime($to))."'
+                AND l.item LIKE ('Абонентская%')
+                GROUP BY c.id
+             ");
+
+        foreach ($R as $r) {
+            $ret[$r['id']] = array('id'=>$r['id'],'client'=>$r['client'],'company'=>$r['company'],'isum'=>$r['sum'],'psum'=>0,'fsum'=>0, 'period'=>0);
+        }
+
+        $R2 = $db->AllRecords($q = "
+                SELECT 
+                    c.id, sum(l.sum) AS sum, (MONTH(p.payment_date)-MONTH(b.bill_date)+1) AS period
+                FROM 
+                    clients c
+                LEFT JOIN newbills b ON (b.client_id = c.id)
+                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
+                LEFT JOIN newpayments p ON (b.bill_no = p.bill_no)
+                WHERE
+                    c.sale_channel = ".$agent['id']." 
+                AND
+                (
+                    (
+                        p.payment_date >= '".$from."' AND 
+                        p.payment_date <= '".$to."' AND 
+                        b.bill_date >= '".$from."' AND 
+                        b.bill_date <= '".$to."') 
+                    OR 
+                    (
+                        (
+                            p.payment_date >= '".$from."' AND 
+                            p.payment_date <= '".$to."'
+                        ) 
+                        AND 
+                        (
+                            b.bill_date >= '".$prev_from."' AND b.bill_date < '".$from."'
+                        )
+                    )
+                )
+                AND l.item LIKE ('Абонентская%')
+                GROUP BY c.id
+                ");
+
+        foreach ($R2 as $r) {
+            if ($r['sum'] > 0) {
+                $ret[$r['id']]['psum'] += $r['sum'];
+                $ret[$r['id']]['fsum'] += round($r['sum']*$agent['interest']/100, 2);
+                $ret[$r['id']]['period'] = $r['period'];
+                
+                $total['psum'] += $ret[$r['id']]['psum'];
+                $total['fsum'] += $ret[$r['id']]['fsum'];
+            }
+        }
+        $total['nds'] = round($total['fsum']*(18/118), 2);
+        $total['fsum_str'] = floor($total['fsum']) . ' руб. ' . floor(100*($total['fsum'] - floor($total['fsum']))) . ' коп.';
+        $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(100*($total['nds'] - floor($total['nds']))) . ' коп.';
+        return array($ret, $total);
+    }
+
 	function stats_report_rates(){
 		global $db,$design;
 
