@@ -17,26 +17,6 @@
 <p>Адрес доставки счета: {$bill_client.address_post}<br>
 Факс для отправки счета: {foreach from=$contact.fax item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}{$item.data}{/foreach}</p>
 
-{if $assignment}
-<hr>
-<center style="font: normal 14pt Verdana,Tahoma,Arial,Helvetica,sans-serif;"><b>ВНИМАНИЕ!</b></center>
-
-<center>
-<div style="width: 70%;">
-<p style="text-align: left;font: normal 9pt Verdana,Tahoma,Arial,Helvetica,sans-serif;">В связи с тем, что с 01.04.2012г. ООО &laquo;Эм Си Эн&raquo; передало ООО&nbsp;&laquo;МСН&nbsp;Телеком&raquo; свои права и обязанности (соглашение о передаче прилагается), просьба все платежи направлять:</p>
-
-<p style="text-align: left;font: normal 10pt Verdana,Tahoma,Arial,Helvetica,sans-serif;"><b>ООО &laquo;МСН Телеком&raquo;</b><br>
-Юридический адрес: 115487, г. Москва, 2-й Нагатинский проезд, д. 2, стр.8<br>
-ИНН 7727752084, КПП 772401001<br>
-р/с 40702810038110015462 в Московском Банке Сбербанка России ОАО г. Москва<br>
-к/с 30101810400000000225<br>
-БИК 044525225
-</p>
-</div>
-</center>
-
-{else}
-
 <p>
 
 {if $bill_client.firma eq 'all4geo'}
@@ -145,8 +125,6 @@
 к/с:&nbsp;30101810600000000986<br>
 БИК:&nbsp;044525986<br>
 {/if}</p>
-
-{/if} {*width accept*}
 
 </td>
 <td align=right>
