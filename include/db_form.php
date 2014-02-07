@@ -208,7 +208,7 @@ class DbFormUsageIpPorts extends DbForm{
         $this->fields['actual_to']=array('default'=>'2029-01-01');
         $this->fields['address']=array();
         
-        $this->fields['port_type']=array('db_ignore'=>1,'enum'=>array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota'),'default'=>'adsl','add'=>' onchange=form_ip_ports_hide()');
+        $this->fields['port_type']=array('db_ignore'=>1,'enum'=>array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota','GPON'),'default'=>'adsl','add'=>' onchange=form_ip_ports_hide()');
 
         $this->fields['node']=array('db_ignore'=>1,'add'=>' onchange="form_ip_ports_get_ports()" ');
         $this->fields['phone']=array('db_ignore'=>1);
@@ -276,7 +276,7 @@ class DbFormUsageIpPorts extends DbForm{
         if (isset($this->dbform['t_tarif_type']) && isset($this->dbform['t_tarif_status']) && isset($this->dbform['t_id_tarif'.$this->dbform['t_tarif_type'].$this->dbform['t_tarif_status']])) {
             $this->dbform['t_id_tarif']=$this->dbform['t_id_tarif'.$this->dbform['t_tarif_type'].$this->dbform['t_tarif_status']];
         }
-        if ($this->dbform['port_type']=='adsl' || $this->dbform['port_type']=='adsl_cards' || $this->dbform['port_type']=='adsl_connect' || $this->dbform['port_type']=='adsl_karta' || $this->dbform['port_type']=='adsl_rabota' || $this->dbform['port_type']=='adsl_terminal' || $this->dbform['port_type']=='adsl_tranzit1') {
+        if ($this->dbform['port_type']=='adsl' || $this->dbform['port_type']=='adsl_cards' || $this->dbform['port_type']=='adsl_connect' || $this->dbform['port_type']=='adsl_karta' || $this->dbform['port_type']=='adsl_rabota' || $this->dbform['port_type']=='adsl_terminal' || $this->dbform['port_type']=='adsl_tranzit1'|| $this->dbform['port_type']=='yota'|| $this->dbform['port_type']=='GPON') {
             $v=$this->dbform['phone'];
             $v=preg_replace('/[^\d]+/','',$v);
             $v1=preg_replace('/^495/','',$v);

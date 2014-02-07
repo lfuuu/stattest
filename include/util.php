@@ -1620,7 +1620,7 @@ class IPList{
                 `R`.`actual_from`<=`R`.`actual_to`
             AND `R`.`actual_from`!='2029-01-01'
             AND `R`.`actual_to`<>'0000-00-00'
-            AND `tech_ports`.`port_type` IN ('adsl','adsl_connect','adsl_cards','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1')
+            AND `tech_ports`.`port_type` IN ('adsl','adsl_connect','adsl_cards','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1', 'GPON')
             order by
                 `R`.`actual_to` ASC, actual_from
         ");//.MySQLDatabase::Generate($Cond));
