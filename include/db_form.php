@@ -1622,7 +1622,7 @@ class DbFormTechCPEModels extends DbForm{
         DbForm::__construct('tech_cpe_models');
         $this->fields['vendor']=array();
         $this->fields['model']=array();
-        $this->fields['type']=array('enum'=>array('','voip','router','adsl','wireless'));
+        $this->fields['type']=array('enum'=>array('','voip','router','adsl','wireless', 'pon'));
         $this->fields['default_deposit_sumUSD']=array();
         $this->fields['default_deposit_sumRUR']=array();
     }
