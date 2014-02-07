@@ -274,7 +274,7 @@ class m_services extends IModule{
             }
         }*/
         $design->assign_by_ref('ports',$nPorts);
-        $design->assign('port_types',array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota'));
+        $design->assign('port_types',array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota', 'GPON'));
         $design->AddMain('services/internet_report.tpl');
     }
 
