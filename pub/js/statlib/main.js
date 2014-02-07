@@ -86,11 +86,31 @@ statlib.modules.clients.create.checkTIK = function(){
 	if(!t)
 		return true
 
-	inn = document.getElementById('cl_inn').value
-	kpp = document.getElementById('cl_kpp').value
+    company = document.getElementById('cl_company');
+    if (!company)
+        return true;
 
-	if(!inn || !kpp){
-		alert('При типе организации ЮрЛицо(org) необходимо указать ИНН и КПП')
+    if (company.value.trim() == "")
+    {
+        alert("Название компании обязательно!");
+        company.focus();
+        return false;
+    }
+
+
+	var inn = document.getElementById('cl_inn');
+	var kpp = document.getElementById('cl_kpp');
+
+	if(!inn.value || !kpp.value){
+		alert('При типе организации ЮрЛицо(org) необходимо указать ИНН и КПП');
+
+        if (!inn.value)
+        {
+            inn.focus();
+        } else {
+            kpp.focus();
+        }
+
 		return false
 	}
 	return true

@@ -42,14 +42,19 @@ if ($action=='add_client') {
 	if($P["phone_connect"])
 		$O->phone_connect = $P["phone_connect"];
 
-	$O->firma="mcn_telekom";
-	$O->status = 'income';
 	if ($O->Create(0)) {
+        $contactId = 0;
 		if($P['contact']) $O->AddContact('phone',$P['contact'],$P["fio"],0);
 		if($P['phone']) $O->AddContact('phone',$P['phone'],$P["fio"],1);
 		if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
-		if($P['email']) $O->AddContact('email',$P['email'],$P["fio"],1);
+		if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
 		$O->Add('income',$P['client_comment']);
+        if ($contactId)
+        {
+            $O->admin_contact_id = $contactId;
+            $O->admin_is_active = 0;
+            $O->Apply();
+        }
 		echo 'ok:'.$O->id;
 	} else {
 		echo 'error:';

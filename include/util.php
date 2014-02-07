@@ -823,6 +823,7 @@ class ClientCS {
         if ($cid=self::findClient($this->id)) {
             self::updateProperty($cid,$type=='email'?'mail':$type,$value,$id);
         }
+        return $id;
     }
     public function ActivateContact($id,$active) {
         global $db,$user;
@@ -912,6 +913,12 @@ class ClientCS {
     }
 
     function Create($uid = null){
+
+        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen());
+        foreach ($defaultFields as $field => $defaultValue)
+            if (!isset($this->F[$field]) || !$this->F[$field])
+                $this->F[$field] = $defaultValue;
+
         global $db;
         if($this->client!=""){
             if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_escape_string($this->F['client'])."'"))
@@ -1872,6 +1879,18 @@ class send
 
 class event
 {
+    function go($event, $param)
+    {
+        if (is_array($param))
+        {
+            $param = serialize($param);
+        }
+
+        global $db;
+
+        $db->QueryInsert("event_queue", array("event" => $event, "param" => $param));
+    }
+
     function setReject($bill, $state)
     {
         if($bill["client_id"] == 15701)

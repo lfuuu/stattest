@@ -210,7 +210,7 @@ $(function(){
         {/foreach}
         </select>
     </TD></TR>
-    <TR><TD class=left width=30%>Компания:</TD><TD><input style='width:100%' name=company class=text value='{$client.company}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
+    <TR><TD class=left width=30%>{if isset($mode_new)}<font color="blue"><b> {/if}Компания:{if isset($mode_new)}</b></font>{/if}</TD><TD><input style='width:100%' id="cl_company" name=company class=text value='{$client.company}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
     <TR><TD class=left>Полное название компании:</TD><TD><input style='width:100%' name=company_full class=text value='{$client.company_full}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Юридический адрес:</TD><TD><input style='width:100%' name=address_jur class=text value='{$client.address_jur}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Почтовый адрес:</TD><TD><input style='width:100%' name=address_post class=text value='{$client.address_post}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
@@ -237,9 +237,9 @@ $(function(){
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Банковские реквизиты:</TD><TD><input style='width:100%' name=bank_properties class=text value='{$client.bank_properties}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>{if isset($mode_new)}<font color="blue"><b>(1) {/if}ИНН:{if isset($mode_new)}</b></font>{/if}</TD><TD><input id="cl_inn" style='width:100%' {if isset($mode_new)}onKeyUp="statlib.modules.clients.create.findByInn(event)"{/if} name=inn class=text value='{$client.inn}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
-	<TR><TD class=left>КПП:</TD><TD><input style='width:100%' name=kpp id="cl_kpp" class=text value='{$client.kpp}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
+	<TR><TD class=left>{if isset($mode_new)}<font color="blue"><b>(2) {/if}КПП:{if isset($mode_new)}</b></font>{/if}</TD><TD><input style='width:100%' name=kpp id="cl_kpp" class=text value='{$client.kpp}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
   <TR><TD class=left>Р/С:</TD><TD><input style='width:100%' name=pay_acc class=text value='{$client.pay_acc}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
-  <TR><TD class=left><font color="blue"><b>(2) БИК:</b></font></TD><TD><input style='width:100%' onKeyUp="statlib.modules.clients.create.findByBik(event)" name=bik class=text value='{$client.bik}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
+  <TR><TD class=left>БИК:</TD><TD><input style='width:100%' onKeyUp="statlib.modules.clients.create.findByBik(event)" name=bik class=text value='{$client.bik}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
   <TR><TD class=left>К/С:</TD><TD><input style='width:100%; background-color: #eeeeee' readonly name=corr_acc value='{$client.corr_acc}'/></TD></TR>
 	<TR><TD class=left>Название банка:</TD><TD><input style='width:100%; background-color: #eeeeee' readonly name=bank_name value='{$client.bank_name}'/></TD></TR>
 	<TR><TD class=left>Город банка:</TD><TD><input style='width:100%; background-color: #eeeeee' readonly name=bank_city value='{$client.bank_city}'/></TD></TR>
