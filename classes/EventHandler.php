@@ -15,4 +15,14 @@ class EventHandler
         $card->contragent->name = $card->company;
         $card->contragent->save();
     }
+
+    public function updateBalance($clientId)
+    {
+        include_once INCLUDE_PATH."bill.php";
+
+        $card = ClientCard::find($clientId);
+        if ($card) {
+            $GLOBALS['module_newaccounts']->update_balance($card->id, $card->currency);
+        }
+    }
 }

@@ -289,11 +289,14 @@ class CyberplatActionCheck
             $payment->payment_date = $paymentDate;
             $payment->add_date = $now;
             $payment->payment_rate = 1;
-            $payment->type='neprov';
+            $payment->type='bank';
             $payment->sum_rub = $data["amount"];
             $payment->currency = "RUR";
             $payment->comment = "Cyberplat pay# ".$data["receipt"]." at ".str_replace("T", " ", $data["date"]);
             $payment->save();
+
+            event::go("cyberplat_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance
+
 
             $answer =  new Answer_OK_payment();
             $answer->setData(array(
@@ -314,7 +317,6 @@ class CyberplatActionCheck
                     );
 
             throw $answer;
-
         }
     }
 
