@@ -2312,7 +2312,6 @@ DBG::sql_out($select_client_data);
 	        "voip_credit_limit_day" => "Телефония, лимит использования (день)",
 	        "voip_disabled" => "- Выключить телефонию,",
 	        "voip_is_day_calc" => "- Включить пересчет дневного лимита",
-	        "voip_sms_notice"=> "- Номер для СМС уведомлений",
 	        "password" => "Пароль",
 	        "usd_rate_percent" => "USD уровень в процентах",
 	        "type" => "Тип",
