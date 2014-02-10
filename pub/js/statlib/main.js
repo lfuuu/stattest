@@ -62,10 +62,10 @@ statlib.modules.clients.create.findByBik = function(ev){
 			var cl,i
 			eval('cl = '+data)
 			if(!cl){
-				target.parentNode.previousSibling.firstChild.setAttribute('color', 'blue')
+				$(target.parentNode.previousSibling).css('color', 'red').css("font-weight", "bold").attr("title", "БИК не найден!");
 				return false
 			}
-			target.parentNode.previousSibling.firstChild.setAttribute('color', 'gray')
+		    $(target.parentNode.previousSibling).css('color', 'black').attr("title", "БИК найден!");
 			for(i in cl){
 				if(document.getElementsByName(i)){
 					document.getElementsByName(i)[0].value = cl[i]
