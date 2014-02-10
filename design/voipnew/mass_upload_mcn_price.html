@@ -1,0 +1,29 @@
+<form action="./index.php?module=voipnew&action=upload" method="post" enctype='multipart/form-data'>
+<div>
+    <input type="hidden" name="step" value="upfile" />
+    <select name="ftype">
+        <option value="xls_mcn_prime_changes">ЭмСиЭн Прайм  (Изменения)</option>
+        <option value="xls_mcn_prime_full">ЭмСиЭн Прайм (Полный)</option>
+    </select>
+    <input type="file" name="upfile" />
+    <input type="submit" name="up" value="Загрузить" />
+</div>
+<p>&nbsp;</p>
+<p>Прайслисты:</p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td class=header>&nbsp;</td>
+        <td class=header>Регион</td>
+        <td class=header>Ид</td>
+        <td class=header>Прайслист</td>
+    </tr>
+    {foreach from=$pricelists item='p'}
+    <tr class="{cycle values='even,odd'}">
+        <td><input name="pricelist_ids[]" type="checkbox" value="{$p.id}"/></td>
+        <td>{$regions[$p.region].name}</td>
+        <td>{$p.id}</td>
+        <td>{$p.name}</td>
+    </tr>
+    {/foreach}
+</table>
+</form>

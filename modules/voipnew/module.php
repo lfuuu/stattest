@@ -274,7 +274,6 @@ class m_voipnew extends IModule
     public function save_price_file($raw_file, $defs)
     {
         global $pg_db;
-        $pg_db->Begin();
         $rawfile_id = $pg_db->QueryInsert('voip.raw_file', $raw_file);
         if ($rawfile_id > 0 && $raw_file['rows'] > 0) {
             $new_rows = array();
@@ -285,8 +284,6 @@ class m_voipnew extends IModule
                 if (count($new_rows) >= 10000) {
                     if (!$this->insert_raw_prices($new_rows)) {
                         echo $pg_db->mError;
-                        $pg_db->Rollback();
-                        die('error');
                         return 0;
                     }
                     $new_rows = array();
@@ -295,7 +292,6 @@ class m_voipnew extends IModule
             if (count($new_rows) >= 0) {
                 if (!$this->insert_raw_prices($new_rows)) {
                     echo $pg_db->mError;
-                    $pg_db->Rollback();
                     return 0;
                 }
             }
@@ -304,9 +300,7 @@ class m_voipnew extends IModule
             $pg_db->Commit();
 
         } else {
-
             echo $pg_db->mError;
-            $pg_db->Rollback();
             return 0;
         }
         return $rawfile_id;
@@ -314,6 +308,7 @@ class m_voipnew extends IModule
 
     public function voipnew_upload()
     {
+        global $pg_db;
         set_time_limit(0);
         if (isset($_POST['step']) && $_POST['step'] == 'upfile') {
             if (!$_FILES['upfile']) {
@@ -332,7 +327,6 @@ class m_voipnew extends IModule
                 trigger_error('Формат файла указан не правильно');
                 return;
             }
-            $pricelist_id = get_param_protected('pricelist_id', '0');
 
             $raw_file = array('date' => date('Y-m-d H:i:s'),
                 'format' => $_POST['ftype'],
@@ -342,54 +336,34 @@ class m_voipnew extends IModule
 
 
             if ($_POST['ftype'] == 'xls_beeline_full1') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_beeline_full1($f['tmp_name']);
 
             } elseif ($_POST['ftype'] == 'xls_beeline_full2') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_beeline_full2($f['tmp_name']);
 
             } elseif ($_POST['ftype'] == 'xls_beeline_changes') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $defs = prices_parser::read_beeline_changes($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mtt_full') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_mtt_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_arktel_changes') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 0;
                 $defs = prices_parser::read_arktel_changes($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mcn_prime_full') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_mcn_prime_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_mcn_prime_changes') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 0;
                 $defs = prices_parser::read_mcn_prime_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_orange_full') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_orange_full($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'xls_networks') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_networks($f['tmp_name']);
             } elseif ($_POST['ftype'] == 'csv_mgts_networks') {
-                $raw_file['pricelist_id'] = $pricelist_id;
-
                 $raw_file['full'] = 1;
                 $defs = prices_parser::read_mgts_networks($f['tmp_name']);
             }
@@ -557,12 +531,26 @@ class m_voipnew extends IModule
                     $raw_file['startdate'] = date('Y-m-d');
             }
 
-            if ($this->save_price_file($raw_file, $defs) <= 0) {
-                die('error');
-                return;
+            $pricelistIds = $_POST['pricelist_ids'];
+
+            $pg_db->Begin();
+
+            foreach($pricelistIds as $pricelistId) {
+                $raw_file['pricelist_id'] = (int)$pricelistId;
+
+                if ($this->save_price_file($raw_file, $defs) <= 0) {
+                    $pg_db->Rollback();
+                    die('error');
+                }
             }
 
-            header('location: ./index.php?module=voipnew&action=raw_files&pricelist=' . $pricelist_id);
+            $pg_db->Commit();
+
+            header(
+                count($pricelistIds) == 1
+                    ? 'location: index.php?module=voipnew&action=raw_files&pricelist=' . (int)$pricelistIds[0]
+                    : 'location: index.php?module=voipnew&action=client_pricelists'
+            );
             exit;
         }
 
@@ -1026,5 +1014,22 @@ class m_voipnew extends IModule
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
 
         $design->AddMain('voipnew/catalog_prefix.html');
+    }
+
+
+    public function voipnew_mass_upload_mcn_price()
+    {
+        global $db, $pg_db, $design;
+
+        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
+                                    left join public.currency c on c.id=p.currency_id
+                                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
+                                    where p.operator_id = 999 and p.type = 'client'
+                                    order by p.region desc, p.operator_id, p.name");
+
+        $design->assign('pricelists', $res);
+        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+
+        $design->AddMain('voipnew/mass_upload_mcn_price.html');
     }
 }
