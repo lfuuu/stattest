@@ -234,7 +234,7 @@ function togglecs() {
 	<input type=hidden name=id value='{$client.id}'>
 {foreach from=$contacts item=item}
 <tr{if !$item.is_active} class="other"{/if}><td{if $item.is_official} style='font-weight:bold'{/if}>
-{if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{/if}
+{if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{elseif $item.type=='sms'}СМС{/if}
 </td>
 <td>{if $card_type == "main" && $item.type == "email" && $item.is_official && $item.is_active}<input type=radio value="{$item.id}" name="admin_contact"{if $client.admin_contact_id == $item.id} checked{/if}>{/if}</td>
 <td>{$item.data}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
@@ -246,6 +246,7 @@ function togglecs() {
 			<option value='phone'>телефон</option>
 			<option value='fax'>факс</option>
 			<option value='email'>e-mail</option>
+			<option value='sms'>СМС</option>
 		</select>
 		<input type=checkbox class=text name=official title="официальный?">
 	</td>
@@ -351,7 +352,7 @@ function optSort(i, ii)
     return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
 }
 $('#cd_type').change(function(){
-	if($(this).val() == 'email') {
+	if($(this).val() != 'sms') {
 		$('#i_cd_data').inputmask("remove");
 	} else {
 		$('#i_cd_data').inputmask("+9(999)999-99-99");
