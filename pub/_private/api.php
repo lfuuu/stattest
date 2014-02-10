@@ -83,7 +83,13 @@ function do_func($function)
 		case 'disconnectVpbx': return Api::disconnectVpbx(get_param_raw("client_id"), get_param_raw("service_id")); break;
 		case 'disconnectDomain': return Api::disconnectDomain(get_param_raw("client_id"), get_param_raw("service_id")); break;
 		case 'disconnectEmail': return Api::disconnectEmail(get_param_raw("client_id"), get_param_raw("email")); break;
-
+		
+		case 'getStatisticsVoipPhones': return Api::getStatisticsVoipPhones(get_param_raw("client_id")); break;
+		case 'getStatisticsVoipData': return Api::getStatisticsVoipData(get_param_raw("client_id"), get_param_raw("phone"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("destination"), get_param_raw("direction"), get_param_raw("onlypay")); break;
+		case 'getStatisticsInternetRoutes': return Api::getStatisticsInternetRoutes(get_param_raw("client_id")); break;
+		case 'getStatisticsInternetData': return Api::getStatisticsInternetData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
+		case 'getStatisticsCollocationData': return Api::getStatisticsCollocationData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
+		
 		default: throw new Exception("Функция не определенна");
 	}
 }

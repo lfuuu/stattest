@@ -1072,5 +1072,150 @@ class Api
         $tt->createTrouble($R, $user);
         return;
     }
+
+    public static function getStatisticsVoipPhones($client = '')
+    {
+        global $db;
+
+        $client = $db->GetRow("select * from clients where '".addslashes($client)."' in (id, client)");
+
+        $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
+                                       left join regions r on r.id=u.region
+                                       where u.client='".addslashes($client['client'])."'
+                                       order by u.region desc, u.id asc");
+
+        $regions = array();
+        foreach ($usages as $u)
+        if (!isset($regions[$u['region']]))
+            $regions[$u['region']] = $u['region'];
+
+        $regions_cnt = count($regions);
+
+        $phone = $last_region = '';
+        $regions = $phones = array();
+        if ($regions_cnt > 1) {
+            $region = 'all';
+            $phones['all'] = 'Все регионы';
+        }
+
+        if ($phone == '' && count($usages) > 0) {
+            $phone = $usages[0]['region'];
+        }
+        if ($region != 'all') {
+            $region = explode('_', $phone);
+            $region = $region[0];
+        }
+
+        foreach ($usages as $r) {
+            if ($region == 'all') {
+                if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
+                if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
+            }
+            if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
+            if ($last_region != $r['region']){
+                $phones[$r['region']] = Encoding::toUTF8($r['region_name']).' (все номера)';
+                $last_region = $r['region'];
+            }
+            $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
+        }
+        $ret = array();
+        foreach ($phones as $k=>$v) $ret[] = array('id'=>$k, 'number'=>$v);
+        return $ret;
+    }
     
+    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $onlypay = 0)
+    {
+        global $db;
+        include PATH_TO_ROOT . "modules/stats/module.php";
+        $module_stats = new m_stats();
+
+        $destination = (!in_array($destination,array('all','0','0-m','0-f','1','1-m','1-f','2','3'))) ? 'all': $destination;
+        $direction = (!in_array($direction,array('both','in','out'))) ? 'both' : $direction;
+        
+        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
+
+        $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
+                                       left join regions r on r.id=u.region
+                                       where u.client='".addslashes($client['client'])."'
+                                       order by u.region desc, u.id asc");
+
+        $regions = $phones_sel = array();
+        
+        $last_region = $region = '';
+        if ($phone != 'all') {
+            $region = explode('_', $phone);
+            $region = $region[0];
+        } else $region = 'all';
+
+        foreach ($usages as $r) {
+            if ($phone == 'all') {
+                if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
+                if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
+            }
+            if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
+        }
+        
+        $stats = array();
+        if ($phone == 'all') {
+            
+            foreach ($regions as $region=>$phones_sel) {
+                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), true);
+            }
+            
+            $ar = array();
+            $all_regions = $db->AllRecords('select id, name from regions');
+            foreach ($all_regions as $reg) $ar[$reg['id']] =  Encoding::toUTF8($reg['name']);
+            $stats = $module_stats->prepareStatArray($stats, $detality, true, $ar);
+        } else {
+            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), true);
+        }
+        //$r['tsf2']=preg_replace('/^(?<!\d)[0:]+/', "<span style='color:#CCC;'>$0</span>", $r['tsf2']);
+        return $stats;
+    }
+
+    public static function getStatisticsInternetRoutes($client_id = '')
+    {
+        global $db;
+        include PATH_TO_ROOT . "modules/stats/module.php";
+        $module_stats = new m_stats();
+        
+        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
+        
+        list($routes_all,$routes_allB)=$module_stats->get_routes_list($client['client']);
+
+        return $routes_all;
+    }
+
+    public static function getStatisticsInternetData($client_id = '', $from = '', $to = '', $detality = 'day', $route = '', $is_coll = 0)
+    {
+        global $db;
+        include PATH_TO_ROOT . "modules/stats/module.php";
+        $module_stats = new m_stats();
+        
+        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
+
+        list($routes_all,$routes_allB)=$module_stats->get_routes_list($client['client']);
+
+        //если сеть не задана, выводим все подсети клиента.
+        if($route){
+            if(isset($routes_all[$route])){
+                $routes=array($routes_all[$route]);
+            }else{
+                return array();
+            }
+        }else{
+            $routes=array();
+            foreach($routes_allB as $r)
+                $routes[] = $r;
+        }
+
+        $stats = $module_stats->GetStatsInternet($client['client'],$from,$to,$detality,$routes,$is_coll,true);
+
+        return $stats;
+    }
+
+    public static function getStatisticsCollocationData($client_id = '', $from = '', $to = '', $detality = 'day', $route = '')
+    {
+        return Api::getStatisticsInternetData($client_id, $from, $to, $detality, $route, 1);
+    }
 }

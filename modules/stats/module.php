@@ -392,7 +392,6 @@ class m_stats extends IModule{
 		$design->assign('direction',$direction);
 		$design->assign('detality',$detality=get_param_protected('detality','day'));
 		$design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
-
         if ($region == 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
@@ -406,106 +405,175 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip_form.tpl');
         $design->AddMain('stats/voip.tpl');
 	}
-
 	/*функция формирует единый массив для разных регионов,
 	 * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
 	*/
-	function prepareStatArray($data = array(), $detality = '') {
+    function prepareStatArray($data = array(), $detality = '', $is_utf8 = false, $all_regions = array()) {
+		
+        if (!count($data)) return $data;
+        $Res = array();
+        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
+		
+		
+        switch ($detality) {
+            case 'dest':
+                foreach ($data as $r_id=>$reg_data) {
+                    foreach ($reg_data as $k=>$r) {
+                        if ($r['is_total'] == false) {
+                            if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
+
+                            $Res[$k]['cnt'] += $r['cnt'];
+                            $Res[$k]['len'] += $r['len'];
+                            $Res[$k]['price'] += $r['price'];
+                            $Res[$k]['price'] = number_format($Res[$k]['price'], 2, '.','');
+
+                            if ($Res[$k]['len']>=24*60*60) $d=floor($Res[$k]['len']/(24*60*60)); else $d=0;
+                            $Res[$k]['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$Res[$k]['len']-$d*24*60*60);
+
+                            if (isset($r['price'])) $rt['price']+=$r['price'];
+                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+                            if (isset($r['len'])) $rt['len']+=$r['len'];
+                        }
+                    }
+                }
+                $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
+                $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+
+            break;
+            case 'call':
+                foreach ($data as $r_id=>$reg_data) {
+                    foreach ($reg_data as $r) {
+                        if ($r['is_total'] == false) {
+                            $r['price'] = number_format($r['price'], 2, '.','');
+                            $Res[] = array('mktime'=>$r['mktime'],'reg_id'=>(isset($all_regions[$r_id])?$all_regions[$r_id]:$r_id))+$r;
+
+                            if (isset($r['price'])) $rt['price']+=$r['price'];
+                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+                            if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+
+                        }
+                    }
+                }
+                array_multisort($Res);
+
+                $rt['ts1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                $rt['num_to']='&nbsp;';
+                $rt['num_from']='&nbsp;';
+                if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+                $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+            break;
+            default:
+                foreach ($data as $r_id=>$reg_data) {
+                    foreach ($reg_data as $k=>$r) {
+                        if ($r['is_total'] == false) {
+                            if (!isset($Res[$r['ts1']]))
+                                $Res[$r['ts1']] = array(
+                                    'ts1'=>$r['ts1'],
+                                    'tsf1'=>$r['tsf1'],
+                                    'mktime'=>$r['mktime'],
+                                    'geo'=>$r['geo'],
+                                    'reg_id'=>$r_id,
+                                    'cnt'=>0,
+                                    'price'=>0,
+                                    'ts2'=>0
+                                );
+
+                            $Res[$r['ts1']]['cnt'] += $r['cnt'];
+                            $Res[$r['ts1']]['ts2'] += $r['ts2'];
+                            $Res[$r['ts1']]['price'] += $r['price'];
+                            $Res[$r['ts1']]['price'] = number_format($Res[$r['ts1']]['price'], 2, '.','');
+
+                            if ($Res[$r['ts1']]['ts2']>=24*60*60) $d=floor($Res[$r['ts1']]['ts2']/(24*60*60)); else $d=0;
+                            $Res[$r['ts1']]['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$Res[$r['ts1']]['ts2']-$d*24*60*60);
+
+                            if (isset($r['price'])) $rt['price']+=$r['price'];
+                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
+                            if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
+                        }
+                    }
+                }
+                $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
+                $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+            break;
+        }
+
+        $Res['total'] = $rt;
+
+        return $Res;
+    }
 	
-	    if (!count($data)) return $data;
-	    $Res = array();
-	    $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
-	
-	
-	    switch ($detality) {
-	    	case 'dest':
-	    	    foreach ($data as $r_id=>$reg_data) {
-	    	        foreach ($reg_data as $k=>$r) {
-	    	            if ($r['is_total'] == false) {
-	    	                if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
-	
-	    	                $Res[$k]['cnt'] += $r['cnt'];
-	    	                $Res[$k]['len'] += $r['len'];
-	    	                $Res[$k]['price'] += $r['price'];
-	
-	    	                if ($Res[$k]['len']>=24*60*60) $d=floor($Res[$k]['len']/(24*60*60)); else $d=0;
-	    	                $Res[$k]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$k]['len']-$d*24*60*60).'</b>';
-	
-	    	                if (isset($r['price'])) $rt['price']+=$r['price'];
-	    	                if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
-	    	                if (isset($r['len'])) $rt['len']+=$r['len'];
-	    	            }
-	    	        }
-	    	    }
-	    	    $rt['tsf1']='<b>Итого</b>';
-	    	    if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
-	    	    $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60).'</b>';
-	    	    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
-	
-	    	    break;
-	    	case 'call':
-	    	    foreach ($data as $r_id=>$reg_data) {
-	    	        foreach ($reg_data as $r) {
-	    	            if ($r['is_total'] == false) {
-	    	                $Res[] = array('mktime'=>$r['mktime'],'reg_id'=>$r_id)+$r;
-	
-	    	                if (isset($r['price'])) $rt['price']+=$r['price'];
-	    	                if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
-	    	                if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
-	    	            }
-	    	        }
-	    	    }
-	    	    array_multisort($Res);
-	
-	    	    $rt['ts1']='Итого';
-	    	    $rt['tsf1']='<b>Итого</b>';
-	    	    $rt['num_to']='&nbsp;';
-	    	    $rt['num_from']='&nbsp;';
-	    	    if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
-	    	    $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-	    	    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
-	    	    break;
-	    	default:
-	    	    foreach ($data as $r_id=>$reg_data) {
-	    	        foreach ($reg_data as $k=>$r) {
-	    	            if ($r['is_total'] == false) {
-	    	                if (!isset($Res[$r['ts1']]))
-	    	                    $Res[$r['ts1']] = array(
-	    	                                    'ts1'=>$r['ts1'],
-	    	                                    'tsf1'=>$r['tsf1'],
-	    	                                    'mktime'=>$r['mktime'],
-	    	                                    'geo'=>$r['geo'],
-	    	                                    'reg_id'=>$r_id,
-	    	                                    'cnt'=>0,
-	    	                                    'price'=>0,
-	    	                                    'ts2'=>0
-	    	                    );
-	
-	    	                $Res[$r['ts1']]['cnt'] += $r['cnt'];
-	    	                $Res[$r['ts1']]['ts2'] += $r['ts2'];
-	    	                $Res[$r['ts1']]['price'] += $r['price'];
-	
-	    	                if ($Res[$r['ts1']]['ts2']>=24*60*60) $d=floor($Res[$r['ts1']]['ts2']/(24*60*60)); else $d=0;
-	    	                $Res[$r['ts1']]['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$Res[$r['ts1']]['ts2']-$d*24*60*60).'</b>';
-	
-	    	                if (isset($r['price'])) $rt['price']+=$r['price'];
-	    	                if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
-	    	                if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
-	    	            }
-	    	        }
-	    	    }
-	    	    $rt['tsf1']='<b>Итого</b>';
-	    	    if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
-	    	    $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-	    	    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
-	    	    break;
+	function stats_voip_recognition($fixclient){
+		global $db,$pg_db,$design;
+
+		$def=getdate();
+		$def['mday']=1; $from=param_load_date('from_',$def);
+		$def['mday']=31; $to=param_load_date('to_',$def);
+
+		$def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
+		$def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
+		$def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
+		$def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
+		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+		$phone = get_param_protected('phone','none');
+		$haslen = get_param_protected('haslen','0');
+		$region = get_param_integer('region', 99);
+
+		$direction = get_param_raw('direction', 'both');
+		if(!in_array($direction,array('both','in','out')))
+			$direction = 'both';
+
+        $stats = array();
+        $geo = array();
+        if ($phone != 'none')
+        {
+	        $filter = " time between '".date("Y-m-d", $from)." 00:00:00' and '".date("Y-m-d", $to)." 23:59:59' ";
+	        $filter .= " and usage_id is null and region=$region ";
+          if($direction<>'both')
+            $filter .= " and direction_out=".(($direction=='in')?'false':'true');
+
+	        if ($haslen == 1) 
+	        	$filter .= ' and len>0 ';
+	        if ($phone != '')
+	        	$filter .= ' and usage_num='.$pg_db->escape($phone).' ';
+
+          $stats = $pg_db->AllRecords("select id, usage_num, phone_num, len, direction_out, \"time\", geo_id, mob
+	                    from calls.calls_".intval($region)."
+	                    where $filter
+	                    order by time");
+	        foreach($stats as $k=>$r)
+	        {
+
+            if ($r["len"]>=24*60*60) $d=floor($r["len"]/(24*60*60)); else $d=0;
+            $length=($d?($d.'d '):'').gmdate("<b>H:i</b>:s",$r["len"]);
+
+            $stats[$k]['time'] = substr($r["time"], 0, 19);
+            $stats[$k]['length'] = $length;
+
+            if (!isset($geo[$r['geo_id']]))
+              $geo[$r['geo_id']] = $pg_db->GetValue('select name from geo.geo where id='.((int)$r['geo_id']));
+            $stats[$k]['geo'] = $geo[$r['geo_id']];
+            if ($r['mob'] == 't') $stats[$k]['geo'] .= ' (mob)';
+	        }
+			$design->assign('phone',$phone);
+			$design->assign('haslen',$haslen);
 	    }
-	
-	    $Res[] = $rt;
-	
-	    return $Res;
+
+		$design->assign('stats',$stats);
+		$design->assign('direction',$direction);
+		$design->assign('region',$region);
+		$design->assign('regions',$db->AllRecords('select * from regions'));
+
+        $design->AddMain('stats/voip_form_recognition.tpl');
+        $design->AddMain('stats/voip_recognition.tpl');
 	}
-	
+
     function stats_voip_free_stat($fixclient)
     {
         global $db, $pg_db, $design;
@@ -678,7 +746,7 @@ class m_stats extends IModule{
 		$design->AddMain('stats/callback_form.tpl');
 	}
 
-	function GetStatsInternet($client,$from,$to,$detality,$routes,$is_collocation=0){
+	function GetStatsInternet($client,$from,$to,$detality,$routes,$is_collocation=0, $is_utf8=false){
 		global $db;
 		if(date('Y-m-d',$from)=='2029-01-01'){
 			$r=array('in_bytes'=>0, 'out_bytes'=>0,'ts'=>0,'tsf'=>0);
@@ -858,8 +926,8 @@ class m_stats extends IModule{
 				}
 			}
 		}
-		$T['ts']='<b>Итого</b>';
-		$T['tsf']='<b>Итого</b>';
+		$T['ts']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
+		$T['tsf']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
 		$T['ip']='&nbsp;';
 		$R[]=$T;
 		return $R;
@@ -968,7 +1036,7 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array()){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array(), $is_utf8 = false){
     global $pg_db;
 
     /*
@@ -1076,7 +1144,7 @@ class m_stats extends IModule{
                             {
                               if (!isset($geo[$r['geo_id']]))
                                 $geo[$r['geo_id']] = $pg_db->GetValue('select name from geo.geo where id='.((int)$r['geo_id']));
-                              $r['geo'] = $geo[$r['geo_id']];
+                              $r['geo'] = (($is_utf8 === true) ? Encoding::toUTF8($geo[$r['geo_id']]) : $geo[$r['geo_id']]);
                               if ($r['mob'] == 't') $r['geo'] .= ' (mob)';
                             } else $r['geo'] = '';
 
@@ -1086,12 +1154,13 @@ class m_stats extends IModule{
                                     $t = explode(':', $dt[1]);
                             else $t=array('0','0','0');
                             $ts = mktime($t[0],$t[1],intval($t[2]),$d[1],$d[2],$d[0]);
-                            $r['tsf1']=mdate($format,$ts);
+                            $r['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8(mdate($format,$ts)) : mdate($format,$ts));
                             $r['mktime'] = $ts;
                             $r['is_total'] = false;
 
                             if ($r['ts2']>=24*60*60) $d=floor($r['ts2']/(24*60*60)); else $d=0;
                             $r['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$r['ts2']);
+                            $r['price'] = number_format($r['price'], 2, '.','');
                             //if (!$group && !$paidonly && ($r['ts2']<0) && isset($Trans[-$r['ts2']])) $r['cause']=$Trans[-$r['ts2']]; else $r['cause']='';
 
                             $R[]=$r;
@@ -1099,26 +1168,25 @@ class m_stats extends IModule{
                             $rt['cnt']+=$r['cnt'];
                             $rt['ts2']+=$r['ts2'];
                     }
-                    $rt['ts1']='Итого';
-                    $rt['tsf1']='<b>Итого</b>';
+                    $rt['ts1']= (($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                    $rt['tsf1']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
                     $rt['num_to']='&nbsp;';
                     $rt['num_from']='&nbsp;';
                     if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                     $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-                    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                    $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)'; 
 
-                    $R[]=$rt;
-                    return $R;
+                    $R['total']=$rt;
                 }else{
                     $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(len) as len, sum(1) as cnt
                             from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
-                    $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                                    'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                                    'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                                    'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                                    'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
+                    $R = array(     'mos_loc'=>  array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Местные Стационарные') : 'Местные Стационарные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'mos_mob'=> array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Местные Мобильные') : 'Местные Мобильные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'rus_fix'=> array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Россия Стационарные') : 'Россия Стационарные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'rus_mob'=> array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Россия Мобильные') : 'Россия Мобильные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                                    'int'=>     array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Международка') : 'Международка'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
                     //$db_calls->Query($sql);
                     $pg_db->Query($sql);
                     //while ($r=$db_calls->NextRecord()){
@@ -1155,16 +1223,14 @@ class m_stats extends IModule{
                         $R[$k]['price'] = number_format($r['price'], 2, '.','');
                     }
                     $rt['is_total']=true;
-                    $rt['tsf1']='<b>Итого</b>';
+                    $rt['tsf1']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
                     if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
                     $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
-                    $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                    $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
                     $rt['cnt']=$cnt;
-                    $R[] = $rt;
-                    return $R;
+                    $R['total'] = $rt;
                 }
-
-
+                return $R;
 	}
 
 	function GetStatsCallback($from,$to,$detality,$client_id){
@@ -2383,123 +2449,6 @@ class m_stats extends IModule{
         return $R;
     }
 
-    function stats_report_agent()
-    {
-        global $db;
-        global $design;
-
-        $agents = array();
-        $agent = false;
-        $agent_id = get_param_raw("agent", false);
-        $agents = $db->AllRecords('SELECT id, name FROM sale_channels WHERE is_agent=1');
-        if ($agent_id && $agent_id > 0) $agent = $db->GetRow('SELECT * FROM sale_channels WHERE id=' . $agent_id);
-
-        $cur_m = get_param_raw("from_m", date('m'));
-        $cur_y = get_param_raw("from_y", date('Y'));
-
-        $mm = array();
-        for($i=1;$i<=12;$i++) $mm[date('m', mktime(0,0,0,$i,1,date('Y')))] = mdate('Месяц', mktime(0,0,0,$i,1,date('Y')));
-        $yy = array(date('Y'), date('Y')-1);
-
-        $from = date("01.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
-        $to = date("t.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
-
-        list($R, $T) = $this->_stat_report_agent($agent, $from, $to);
-
-        $params = array(
-                        'mm'=>$mm, 
-                        'yy'=>$yy, 
-                        'inns'=>$R, 
-                        'agent'=>$agent, 
-                        'agents'=>$agents, 
-                        'cur_m'=>$cur_m, 
-                        'cur_y'=>$cur_y, 
-                        'total'=>$T,
-                        'from'=>$from,
-                        'to'=>$to
-                    );
-        $design->assign($params);
-        $design->AddMain("stats/report_agent.tpl");
-    }
-
-    function _stat_report_agent($agent = false, $from = false, $to = false)
-    {
-        if ($agent === false) return array(array(),array());
-        global $db;
-        $ret = array(); $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
-
-        $from = date("Y-m-d", strtotime($from));
-        $to = date("Y-m-d", strtotime($to));
-        $prev_from = date("Y-m-01", mktime(0,0,0,date('m', strtotime($from))-3,1,date('Y', strtotime($from))));
-
-        $R = $db->AllRecords($q = "
-                SELECT 
-                    c.id, c.client, c.company, sum(l.sum) as sum
-                FROM 
-                    clients c
-                LEFT JOIN newbills b ON (b.client_id = c.id)
-                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
-                WHERE
-                    c.sale_channel = ".$agent['id']."
-                AND b.bill_date >= '".date("Y-m-d", strtotime($from))."' 
-                AND b.bill_date <= '".date("Y-m-d", strtotime($to))."'
-                AND l.item LIKE ('Абонентская%')
-                GROUP BY c.id
-             ");
-
-        foreach ($R as $r) {
-            $ret[$r['id']] = array('id'=>$r['id'],'client'=>$r['client'],'company'=>$r['company'],'isum'=>$r['sum'],'psum'=>0,'fsum'=>0, 'period'=>0);
-        }
-
-        $R2 = $db->AllRecords($q = "
-                SELECT 
-                    c.id, sum(l.sum) AS sum, (MONTH(p.payment_date)-MONTH(b.bill_date)+1) AS period
-                FROM 
-                    clients c
-                LEFT JOIN newbills b ON (b.client_id = c.id)
-                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
-                LEFT JOIN newpayments p ON (b.bill_no = p.bill_no)
-                WHERE
-                    c.sale_channel = ".$agent['id']." 
-                AND
-                (
-                    (
-                        p.payment_date >= '".$from."' AND 
-                        p.payment_date <= '".$to."' AND 
-                        b.bill_date >= '".$from."' AND 
-                        b.bill_date <= '".$to."') 
-                    OR 
-                    (
-                        (
-                            p.payment_date >= '".$from."' AND 
-                            p.payment_date <= '".$to."'
-                        ) 
-                        AND 
-                        (
-                            b.bill_date >= '".$prev_from."' AND b.bill_date < '".$from."'
-                        )
-                    )
-                )
-                AND l.item LIKE ('Абонентская%')
-                GROUP BY c.id
-                ");
-
-        foreach ($R2 as $r) {
-            if ($r['sum'] > 0) {
-                $ret[$r['id']]['psum'] += $r['sum'];
-                $ret[$r['id']]['fsum'] += round($r['sum']*$agent['interest']/100, 2);
-                $ret[$r['id']]['period'] = $r['period'];
-                
-                $total['psum'] += $ret[$r['id']]['psum'];
-                $total['fsum'] += $ret[$r['id']]['fsum'];
-            }
-        }
-        $total['nds'] = round($total['fsum']*(18/118), 2);
-        $total['fsum_str'] = floor($total['fsum']) . ' руб. ' . floor(100*($total['fsum'] - floor($total['fsum']))) . ' коп.';
-        $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(100*($total['nds'] - floor($total['nds']))) . ' коп.';
-        return array($ret, $total);
-    }
-
 	function stats_report_rates(){
 		global $db,$design;
 
@@ -2907,6 +2856,632 @@ class m_stats extends IModule{
 		$design->assign('statuses',$statuses);
 		$design->AddMain('stats/report_rates.html');
 	}
+
+	function stats_report_voip_operators_traf(){
+		global $design,$db, $pg_db;
+		$region = get_param_integer('region', '99');
+
+		$date_from_y = get_param_raw('date_from_y', date('Y'));
+		$date_from_m = get_param_raw('date_from_m', date('m'));
+		$date_from_d = get_param_raw('date_from_d', date('d'));
+		$date_to_y = get_param_raw('date_to_y', date('Y'));
+		$date_to_m = get_param_raw('date_to_m', date('m'));
+		$date_to_d = get_param_raw('date_to_d', date('d'));
+		$operator = get_param_raw('operator', 'all');
+		$destination = get_param_raw('destination', 'all');
+		$direction = get_param_raw('direction', 'both');
+		$groupp = get_param_raw('groupp',0);
+
+		if(!is_numeric($date_from_y))
+			$date_from_y = date('Y');
+		if(!is_numeric($date_from_m))
+			$date_from_m = date('m');
+//		if(!is_numeric($date_from_d))
+//			$date_from_d = date('d');
+		if(!is_numeric($date_to_y))
+			$date_to_y = date('Y');
+		if(!is_numeric($date_to_m))
+			$date_to_m = date('m');
+		if(!is_numeric($date_to_d))
+			$date_to_d = date('d');
+		if(!in_array($operator,array(0,1,2,3,4,9)))
+			$operator = 0;
+		if(!in_array($destination,array('all',10,11,101,102,103)))
+			$destination = 'all';
+		if(!in_array($direction,array('both','in','out')))
+			$direction = 'both';
+
+        $regions = $db->AllRecords('select * from regions','id');
+
+		$operators = $pg_db->AllRecords("select id::varchar||'_'||case region when 0 then ".$region." else region end as idregion, * from voip.operator  order by id, region",'idregion');
+        foreach($operators as $k=>$v){
+            $operators[$k]['fullname'] = $v['name'];
+            if (isset($regions[$v['region']]))
+                $operators[$k]['fullname'] .= ' - '.$regions[$v['region']]['name'];
+        }
+
+		if(isset($_GET['get'])){
+			$date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
+			$date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59';
+
+			$wm = " (time between '".$date_from."' and '".$date_to."') ";
+
+			if($operator>0)
+				$wo = " and operator_id=".$operator;
+			else
+				$wo = '';
+
+			if($destination != 'all'){
+				if ($destination == 10){
+                    $dest = -$db->GetValue('select code from regions where id='.intval($region));
+					$wde = " and dest=".$dest." and mob=false ";
+				}elseif ($destination == 11){
+                    $dest = -$db->GetValue('select code from regions where id='.intval($region));
+					$wde = " and dest=".$dest." and mob=true ";
+				}else{
+					$wde = " and dest=".($destination-100);
+				}
+			}else
+				$wde = '';
+
+			if($direction<>'both')
+				$wdi = " and direction_out=".(($direction=='in')?'false':'true');
+			else
+				$wdi = '';
+
+			if($groupp){
+				$god = " group by ";
+				if ($groupp==1)		$god .= " day, ";
+				else $god .= " month, ";
+				$god .= "	operator_id,
+							dest2";
+				if ($groupp==1)		$sod = " ,day as date";
+				else	$sod = " ,month as date";
+				$ob = " order by date, operator_id, dest2";
+			}else{
+				$god = ' group by operator_id, dest2';
+				$sod = '';
+				$ob = " order by operator_id, dest2";
+			}
+
+			$query = "
+				select
+					sum(len) as length,
+					cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as price,
+					cast(sum(amount)/100.0 as NUMERIC(10,2)) as price_mcn,
+					operator_id as operator_id,
+					case direction_out when true then
+						case phone_num::varchar like '7800%' when true then
+							100
+						else
+							case dest when 0 then
+								case mob when true then
+									11
+								else
+									10
+								end
+							when -1 then
+								9
+							else
+								100+dest
+							end
+						end
+					else 900 end as dest2
+					".$sod."
+				from
+					calls.calls_".intval($region)."
+				where len>0 and
+					".$wm.$wo.$wde.$wdi.$god.$ob;
+
+			$pg_db->Query($query);
+			$report = array();
+			$report_dest = array();
+			$report_oper = array();
+			while($row=$pg_db->NextRecord(MYSQL_ASSOC)){
+				if(!isset($report[$row['operator_id']]))
+					$report[$row['operator_id']] = array();
+				$r =& $report[$row['operator_id']];
+
+				if(!isset($report_oper[$row['operator_id']]))
+					$report_oper[$row['operator_id']] = array();
+
+				if($groupp){
+					if(!isset($r[$row['date']]))
+						$r[$row['date']] = array();
+					$r =& $r[$row['date']];
+				}else{
+					if(!isset($r[0]))
+						$r[0] = array();
+					$r =& $r[0];
+				}
+
+				if(!isset($report_oper[$row['operator_id']][$row['dest2']])){
+					$report_oper[$row['operator_id']][$row['dest2']] = array(
+						'clean'=>0,
+						'human'=>0,
+                        'price'=>0,
+                        'price_mcn'=>0
+					);
+				}
+				if(!isset($report_dest[$row['dest2']])){
+					$report_dest[$row['dest2']] = array(
+						'clean'=>0,
+						'human'=>'',
+                        'price'=>0,
+                        'price_mcn'=>0
+					);
+				}
+				$report_dest[$row['dest2']]['clean'] += $row['length'];
+                $report_dest[$row['dest2']]['price'] += $row['price'];
+                $report_dest[$row['dest2']]['price_mcn'] += $row['price_mcn'];
+
+				//$h = (int)($report_dest[$row['dest2']]['clean']/3600);
+				//$m = (int)(($report_dest[$row['dest2']]['clean']-($h*3600))/60);
+				//$s = $report_dest[$row['dest2']]['clean'] - ($m*60+$h*3600);
+				$report_dest[$row['dest2']]['human'] = round($report_dest[$row['dest2']]['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
+
+				$row['length'] = (int)$row['length'];
+				//$h = (int)($row['length']/3600);
+				//$m = (int)(($row['length']-($h*3600))/60);
+				//$s = $row['length'] - ($m*60+$h*3600);
+				$report_oper[$row['operator_id']][$row['dest2']]['clean'] += $row['length'];
+                $report_oper[$row['operator_id']][$row['dest2']]['price'] += $row['price'];
+                $report_oper[$row['operator_id']][$row['dest2']]['price_mcn'] += $row['price_mcn'];
+				if($row['dest2']==900){
+					$r[900] = array(
+						'clean'=>$row['length'],
+						'human'=> round($row['length']/3600,2), //$h.'ч '.$m.'м '.$s.'с',
+                        'price'=>$row['price'],
+                        'price_mcn'=>$row['price_mcn']
+					);
+				}else{
+					$r[$row['dest2']] = array(
+						'clean'=>$row['length'],
+						'human'=>round($row['length']/3600,2), //$h.'ч '.$m.'м '.$s.'с',
+                        'price'=>$row['price'],
+                        'price_mcn'=>$row['price_mcn']
+					);
+					if(!isset($r['sum'])){
+						$r['sum'] = array(
+							'clean'=>0,
+							'human'=>'',
+                            'price'=>0,
+                            'price_mcn'=>0
+						);
+					}
+					if(!isset($report_dest['sum'])){
+						$report_dest['sum'] = array(
+							'clean'=>0,
+							'human'=>'',
+                            'price'=>0,
+                            'price_mcn'=>0
+						);
+					}
+					$r['sum']['clean'] += $row['length'];
+                    $r['sum']['price'] += $row['price'];
+                    $r['sum']['price_mcn'] += $row['price_mcn'];
+					//$h = (int)($r['sum']['clean']/3600);
+					//$m = (int)(($r['sum']['clean']-($h*3600))/60);
+					//$s = $r['sum']['clean'] - ($m*60+$h*3600);
+					$r['sum']['human'] = round($r['sum']['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
+
+					$report_dest['sum']['clean'] += $row['length'];
+                    $report_dest['sum']['price'] += $row['price'];
+                    $report_dest['sum']['price_mcn'] += $row['price_mcn'];
+					//$h = (int)($report_dest['sum']['clean']/3600);
+					//$m = (int)(($report_dest['sum']['clean']-($h*3600))/60);
+					//$s = $report_dest['sum']['clean'] - ($m*60+$h*3600);
+					$report_dest['sum']['human'] = round($report_dest['sum']['clean']/3600,2); //$h.'ч '.$m.'м '.$s.'с';
+				}
+				ksort($r);
+			}
+			ksort($report_dest);
+			foreach($report_oper as $op=>&$repo){
+				if(!isset($report_oper[$op]['sum']))
+					$report_oper[$op]['sum'] = array('clean'=>0,'human'=>'','price'=>0,'price_mcn'=>0);
+				foreach($repo as $dk=>&$dd){
+					if($dk=='sum')
+						continue;
+					if($dk<>900){
+						$report_oper[$op]['sum']['clean'] += $dd['clean'];
+                        $report_oper[$op]['sum']['price'] += $dd['price'];
+                        $report_oper[$op]['sum']['price_mcn'] += $dd['price_mcn'];
+					}
+					//$h = (int)($report_oper[$op][$dk]['clean']/3600);
+					//$m = (int)(($report_oper[$op][$dk]['clean']-($h*3600))/60);
+					//$s = $report_oper[$op][$dk]['clean'] - ($m*60+$h*3600);
+					$report_oper[$op][$dk]['human'] = round($report_oper[$op][$dk]['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
+				}
+				//$h = (int)($report_oper[$op]['sum']['clean']/3600);
+				//$m = (int)(($report_oper[$op]['sum']['clean']-($h*3600))/60);
+				//$s = $report_oper[$op]['sum']['clean'] - ($m*60+$h*3600);
+				$report_oper[$op]['sum']['human'] = round($report_oper[$op]['sum']['clean']/3600,2);//$h.'ч '.$m.'м '.$s.'с';
+			}
+			$design->assign('report_oper',$report_oper);
+			$design->assign('report_dest',$report_dest);
+
+
+			$design->assign('report',$report);
+		}
+
+		$design->assign('date_from_yy',$date_from_y);
+		$design->assign('date_from_mm',$date_from_m);
+		$design->assign('date_from_dd',$date_from_d);
+		$design->assign('date_to_yy',$date_to_y);
+		$design->assign('date_to_mm',$date_to_m);
+		$design->assign('date_to_dd',$date_to_d);
+		$design->assign('operator',$operator);
+		$design->assign('operators', $operators);
+		$design->assign('destination',$destination);
+		$design->assign('direction',$direction);
+		$design->assign('groupp',$groupp);
+		$design->assign('region',$region);
+        $design->assign('regions',$regions);
+		$design->AddMain('stats/report_voip_operators_traf.html');
+	}
+
+/*
+	function stats_recalcalls($client){
+		global $db,$design;
+
+		$checks = array('dates'=>array(),'conns'=>array(),'first'=>true);
+		$design->assign_by_ref('checks',$checks);
+		$design->assign('client',$client);
+
+		// <editor-fold defaultstate="collapsed" desc="query connections">
+		$query = "
+			select
+				`id`,
+				`actual_from`,
+				`actual_to`,
+				`e164`,
+				`no_of_lines`,
+				`status`,
+				now() between `actual_from` and `actual_to` `active`
+			from
+				`usage_voip`
+			where
+				`client`='".addslashes($client)."'
+			order by
+				`actual_to` desc";
+		// </editor-fold>
+		$conns = $db->AllRecords($query,null,MYSQL_ASSOC);
+		$design->assign_by_ref('conns',$conns);
+		$design->assign('conns_count',count($conns));
+
+		$date_from = param_load_date("date_from_", date('Y-m-d'));
+		$date_to = param_load_date("date_to_", date('Y-m-d'));
+
+		$err = false;
+		if(date('m',$date_from)<>date('m',$date_to)){
+			$err = true;
+			trigger_error("Период должен быть в одном месяце", E_USER_WARNING);
+		}
+
+		foreach($_REQUEST as $k=>$v){
+			if($k == 'date_from_y')
+				$checks['dates']['from_y'] = $v;
+			elseif($k == 'date_from_m')
+				$checks['dates']['from_m'] = $v;
+			elseif($k == 'date_from_d')
+				$checks['dates']['from_d'] = $v;
+			elseif($k == 'date_to_y')
+				$checks['dates']['to_y'] = $v;
+			elseif($k == 'date_to_m')
+				$checks['dates']['to_m'] = $v;
+			elseif($k == 'date_to_d')
+				$checks['dates']['to_d'] = $v;
+			elseif($k == 'conns'){
+				$checks['first'] = false;
+				foreach($v as $conn){
+					if(!in_array($conn,$checks['conns']))
+						$checks['conns'][] = $conn;
+				}
+			}
+		}
+
+		if(!$err && isset($_REQUEST['step1']) && !isset($_REQUEST['step2'])){
+			$month = ((int)date('Y',$date_from)-2000)*12+date('m',$date_from)-1;
+			$from_delta = $date_from-mktime(0, 0, 0, date('m',$date_from), 1, date('Y',$date_from));
+			$to_delta = $date_to-mktime(0, 0, 0, date('m',$date_to), 1, date('Y',$date_to))
+						+3600*24; // включая последний день
+
+			$query = "
+				select
+					`tv`.`id`,
+					`tv`.`free_local_min` * `uv`.`no_of_lines` * 60 `free_sec`,
+					`tv`.`currency`,
+					`uns`.`msk_length`,
+					`uns`.`all_cost`,
+					`uv`.`e164`,
+					`uv`.`actual_from`,
+					`uv`.`actual_to`,
+					`uv`.`no_of_lines`
+				from
+					`usage_voip` `uv`
+				left join
+					`log_tarif` `lt`
+				on
+					`lt`.`service` = 'usage_voip'
+				and
+					`lt`.`id_service` = `uv`.`id`
+				left join
+					`tarifs_voip` `tv`
+				on
+					`tv`.`id` = `lt`.`id_tarif`
+				left join
+					`usage_nvoip_sum` `uns`
+				on
+					`uns`.`month` = ".$month."
+				and
+					`uns`.`usage_id` = `uv`.`id`
+				where
+					`uv`.`id` = %d
+				and
+					`lt`.`date_activation` < now()
+				order by
+					date_activation desc,
+					ts desc,
+					id desc
+				limit 1
+			";
+			$connections = array();
+			foreach($checks['conns'] as $conn_id){
+				$connections[$conn_id] = $db->AllRecords(sprintf($query, $conn_id),null,MYSQL_ASSOC);
+				$connections[$conn_id] = $connections[$conn_id][0];
+			}
+
+			$case = "case `us`.`usage_id` ";
+			foreach($connections as $id=>$c){
+				$case .= 'when '.$id.' then `pv`.`rate_';
+				if($c['currency'] == 'RUR')
+					$case .= 'RUR` ';
+				else
+					$case .= 'USD` ';
+			}
+			$case .= 'end';
+
+			$query = "
+				select
+					`us`.`id`,
+					`us`.`usage_id`,
+					`us`.`lengthresult`,
+					`up`.`phone_num` `phone`,
+					`ts_full` `date`,
+					`us`.`tarif_sum`,
+					`us`.`flag`,
+					`ud`.`def`,
+					`ud`.`dgroup`,
+					`ud`.`dsubgroup`,
+					`pv`.`destination_prefix` `newdef`,
+					`pv`.`dgroup` `newdgroup`,
+					`pv`.`dsubgroup` `newdsubgroup`,
+					`pv`.`dsubgroup` `newsubgroup`,
+					if(
+						`us`.`lengthresult`<60,
+						".$case.",
+						round(".$case."*`us`.`lengthresult`/60.0,2)
+					) `newsum`
+				from
+					`usage_nvoip_sess` `us`
+				left join
+					`usage_nvoip_phone` `up`
+				on
+					`up`.`phone_id` = `us`.`phone_id`
+				left join
+					`usage_nvoip_sess_destination` `ud`
+				on
+					`ud`.`sess_pk` = `us`.`id`
+				left join
+					`price_voip` `pv`
+				on
+					`pv`.`destination_prefix` = (
+						select
+							`def`
+						from
+							`price_voip_groups`
+						where
+							`def` = substring(`up`.`phone_num` from 1 for `deflen`)
+						order by
+							`deflen` desc
+						limit 1
+					)
+				where
+					`us`.`usage_id` in (".implode(',',array_map('intval', $checks['conns'])).")
+				and
+					`us`.`ts_month` = ".$month."
+				and
+					`us`.`ts_delta` between ".$from_delta." and ".$to_delta."
+				and
+					`us`.`lengthresult` > 0
+				and
+					`us`.`flag`&32=0
+				having
+					`def`<>`newdef`
+				or
+					`dgroup`<>`newdgroup`
+				or
+					`dsubgroup`<>`newdsubgroup`
+				or
+					`tarif_sum`<>`newsum`
+				order by
+					`us`.`id` desc
+			";
+
+			$calls = array();
+
+			$db->Query($query);
+			while($r = $db->NextRecord(MYSQL_ASSOC)){
+				if(!isset($calls[$r['usage_id']]))
+					$calls[$r['usage_id']] = array(
+						'free'=>array(
+							'ttime'=>$connections[$r['usage_id']]['free_sec'],
+							'ctime'=>$connections[$r['usage_id']]['msk_length'],
+							'retime'=>$connections[$r['usage_id']]['msk_length'],
+							'sum'=>$connections[$r['usage_id']]['all_cost'],
+							'resum'=>$connections[$r['usage_id']]['all_cost'],
+							'recalc_count'=>0
+						)
+					);
+
+				$l =& $calls[$r['usage_id']];
+
+				if(		// звонок по москве
+					$r['tarif_sum']<>$r['newsum']
+				&&
+					$r['dgroup'] == $r['newdgroup']
+				&&
+					$r['dsubgroup'] == $r['newdsubgroup']
+				&&
+					$r['dgroup'] == 0
+				&&
+					$r['dsubgroup'] == 1
+				&&
+					$l['free']['ttime'] > 0
+				){
+					if($l['free']['retime'] < $l['free']['ttime']) // бесплатный звонок по москве ( лимит бесплатных звонков не исчерпан )
+						continue;
+					elseif($r['tarif_sum']>0){ // тарифицированный звонок по москве ( превышение бесплатного лимита )
+						$l['free']['resum'] -= $r['tarif_sum']-$r['newsum'];
+					}else{ // тарифицированный звонок по москве, но посчитался как бесплатный ( лимит исчерпан, но во время обсчета статистики это было не так )
+						$l['free']['retime'] -= $r['lengthresult'];
+						$l['free']['resum'] += $r['newsum'];
+						$r['flag'] = $r['flag']^8|4;
+					}
+					$l[$r['id']] = $r;
+					$l['free']['recalc_count']++;
+					continue;
+				}
+
+				if($r['tarif_sum']<>$r['newsum']){
+					$l['free']['resum'] -= $r['tarif_sum'] - $r['newsum'];
+					$l[$r['id']] = $r;
+					$l['free']['recalc_count']++;
+					continue;
+				}
+			}
+
+			ksort($calls);
+			foreach($calls as $usage_id=>&$ucalls){
+				ksort($calls[$usage_id]);
+				$calls[$usage_id]['free']['diftime'] = $calls[$usage_id]['free']['retime'] - $calls[$usage_id]['free']['ctime'];
+				$calls[$usage_id]['free']['difsum'] = $calls[$usage_id]['free']['resum'] - $calls[$usage_id]['free']['sum'];
+			}
+
+			$design->assign('step',1);
+			$design->assign('month',$month);
+			$design->assign_by_ref('connections',$connections);
+			$design->assign_by_ref('calls',$calls);
+		}
+
+		if(isset($_REQUEST['err'])){
+			if($_REQUEST['err'])
+				$msg = 'Внимание! Возникли ошибки. Пожалуйста, обратитесь к программисту.';
+			else
+				$msg = 'Обновление прошло успешно.';
+
+			$design->assign('step',2);
+			$design->assign('message',$msg);
+		}
+
+		if(isset($_REQUEST['step2'])){
+			$month = (int)$_POST['month'];
+			$update = array('sums'=>array(),'calls'=>array());
+			foreach($_POST as $k=>$v){
+				if(preg_match('/^(u|s)_(\d+)_([^\s]+)$/',$k,$m)){
+					$key = $m[1]=='u'?'sums':'calls';
+					if(!isset($update[$key][$m[2]]))
+						$update[$key][$m[2]] = array();
+					$l =& $update[$key][$m[2]];
+					$l[$m[3]] = $v;
+				}
+			}
+			unset($key,$k,$v);
+			$sql = array('sums'=>array(),'calls'=>array());
+
+			foreach($update['sums'] as $usage_id=>$newvals){
+				$sql['sums'][] = "
+					update
+						`usage_nvoip_sum`
+					set
+						`msk_length` = `msk_length` + ".$newvals['freesec'].",
+						`all_cost` = `all_cost` + ".$newvals['addsum']."
+					where
+						`month`=".$month."
+					and
+						`usage_id`=".$usage_id;
+			}
+			foreach($update['calls'] as $session_id=>$newvals){
+				$sql['calls'][] = "
+					update
+						`usage_nvoip_sess`
+					set
+						`flag` = ".((int)$newvals['flag']).",
+						`tarif_sum` = ".((float)$newvals['sum'])."
+					where
+						`id` = ".$session_id."
+				";
+				$sql['calls'][] = "
+					update
+						`usage_nvoip_sess_destination`
+					set
+						`def` = '".addslashes($newvals['def'])."',
+						`dgroup` = '".addslashes($newvals['dgroup'])."',
+						`dsubgroup` = '".addslashes($newvals['dsubgroup'])."'
+					where
+						`sess_pk` = ".$session_id."
+				";
+			}
+			global $user;
+			file_put_contents(
+				'../log/recalculate_calls.log',
+				"==== StarT ====\n".
+				date('Y-m-d H:i:s').
+				"\nManager: ".$user->Get('user').
+				"\nCLient: ".$client."\n\n".print_r($sql,true)."\n\n ===== EnD =====",
+				FILE_APPEND
+			);
+			$err = 0;
+			foreach($sql['calls'] as $query){
+				$db->Query($query);
+				if($db->mErrno){
+					$err++;
+					file_put_contents(
+						'../log/recalculate_calls_err.log',
+						"==== StarT ====\n".
+						"Manager: ".$user->Get('user').
+						"\nCLient: ".$client.
+						"\n\nQuery: ".$query.
+						"\nError: ".$db->mError.
+						"===== EnD =====",
+						FILE_APPEND
+					);
+				}
+			}
+			foreach($sql['sums'] as $query){
+				$db->Query($query);
+				if($db->mErrno){
+					$err++;
+					file_put_contents(
+						'../log/recalculate_calls_err.log',
+						"==== StarT ====\n".
+						"Manager: ".$user->Get('user').
+						"\nCLient: ".$client.
+						"\n\nQuery: ".$query.
+						"\nError: ".$db->mError.
+						"===== EnD =====",
+						FILE_APPEND
+					);
+				}
+			}
+
+			Header('Location: ?module=stats&action=recalcalls&err='.(($err)?1:0));
+			exit();
+		}
+
+		$design->AddMain('stats/recalcalls.html');
+	}
+*/
 
 /*
 function stats_report_wimax_test($fixclient){
