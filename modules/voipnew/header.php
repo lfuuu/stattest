@@ -29,6 +29,7 @@ class m_voipnew_head extends IModuleHead
         'client_pricelist_edit' => array('voip', 'admin'),
         'operator_pricelist_edit' => array('voip', 'admin'),
         'pricelist_save' => array('voip', 'admin'),
+        'mass_upload_mcn_price' => array('voip', 'admin'),
 //        'pricelists' => array('voip', 'access'),
         'priority_list' => array('voip', 'access'),
         'set_lock_prefix' => array('voip', 'admin'),
