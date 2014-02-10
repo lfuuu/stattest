@@ -69,6 +69,9 @@ function do_events()
             switch($event->event)
             {
                 case 'company_changed':     EventHandler::companyChanged($param); break;
+
+                case 'cyberplat_payment':   $clientId = $param["client_id"]; 
+                                            EventHandler::updateBalance($clientId); break;
             }
         } catch (Exception $e)
         {
