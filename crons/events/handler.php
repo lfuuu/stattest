@@ -60,6 +60,8 @@ function do_events()
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
                 case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param); break;
+
+                case 'company_changed':     EventHandler::companyChanged($param); break;
             }
         } catch (Exception $e)
         {
