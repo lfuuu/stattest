@@ -4,6 +4,11 @@ class ClientCard extends ActiveRecord\Model
     static $table_name = 'clients';
     static $after_create = array('init_client_nick');
 
+    static $belongs_to = array(
+        array("super", "class_name" => "ClientSuper", "foreign_key" => "super_id"),
+        array("contragent", "class_name" => "ClientContragent", "foreign_key" => "contragent_id")
+        );
+
     public function getClient()
     {
         if (strrpos($this->client, '/') === false)
@@ -32,5 +37,10 @@ class ClientCard extends ActiveRecord\Model
         } else {
             ClientCard::query("delete from z_sync_1c where tname='clientCard' and tid=?", array($this->id));
         }
+    }
+
+    public function isMainCard()
+    {
+        return (strrpos($this->client, '/') === false);
     }
 }
