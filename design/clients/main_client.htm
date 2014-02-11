@@ -223,6 +223,13 @@ function togglecs() {
 </TD></TR>
 {/if}
 
+{if count($contact.sms)}
+<TR><TD class=left>уну:</TD><TD colspan=2>{foreach from=$contact.sms item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
+<span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
+{/foreach}
+</TD></TR>
+{/if}
+
 <TR id=contact{if !isset($contact_open)} style='display:none'{/if}>
 <td colspan=3 style='padding-left:50px'>
 
@@ -358,10 +365,6 @@ $('#cd_type').change(function(){
 		$('#i_cd_data').inputmask("+9(999)999-99-99");
 	}
 });
-$(document).ready(function() {
-    $('#i_cd_data').inputmask("+9(999)999-99-99");
-});
-
 {/literal}
 </script>
 </table></td></tr>
