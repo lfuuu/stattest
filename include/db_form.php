@@ -719,9 +719,11 @@ class DbFormUsageIpRoutes extends DbForm{
                         id!="'.addslashes($this->dbform['id']).'"')
         );
         if ($v) {$this->dbform['net']=''; trigger_error('Сеть уже занята');}
-        if (!$v && !$p && $this->dbform_action!='delete') {
-            $db->QueryInsert('log_usage_ip_routes',array(
-                        'usage_ip_routes_id'    => $this->dbform['id'],
+        $action=DbForm::Process($p);
+
+        if (!$v && !$p && $action!='delete') {
+            $db->QueryInsert('log_usage_ip_routes',$qq = array(
+                        'usage_ip_routes_id'    => $this->dbform['id']?:$db->GetValue("select last_insert_id()"), // edit or add
                         'user_id'                => $user->Get('id'),
                         'ts'                    => array('NOW()'),
                         'actual_from'            => $this->dbform['actual_from'],
@@ -729,7 +731,7 @@ class DbFormUsageIpRoutes extends DbForm{
                         'net'                    => $this->dbform['net'],
                         ));
         }
-        $v=DbForm::Process($p);
+
         return $v;
     }
 }
