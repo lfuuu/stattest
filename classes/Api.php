@@ -604,6 +604,15 @@ class Api
 		return $line;
 	}
 
+	private static function _importModelRow($fields)
+	{
+	    foreach ($fields as $k=>$v)
+	    {
+	        $fields[$k] = Encoding::toKOI8R($v);
+	    }
+	    return $fields;
+	}
+	
     public static function getCollocationTarifs()
     {
         return self::_getInternetTarifs("C");
@@ -1218,4 +1227,30 @@ class Api
     {
         return Api::getStatisticsInternetData($client_id, $from, $to, $detality, $route, 1);
     }
+
+    public static function getClientData($client_id = '')
+    {
+        if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+
+        $ret = self::_exportModelRow(array('id','client','status','inn','kpp','address_jur','address_post','corr_acc',
+            'pay_acc','bik','address_post_real','signer_name','signer_position','address_connect','phone_connect',
+            'mail_who', 'company','company_full'), ClientCard::find_by_id($client_id));
+
+        return $ret;
+    }
+
+    public static function saveClientData($client_id = '', $data = array())
+    {
+        global $db;
+        if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+        //$module_clients = new m_clients();
+
+        //$res = $module_clients->clients_apply(self::_importModelRow($data));
+        $res = $db->QueryUpdate('clients','id', self::_importModelRow($data));
+
+        return $res;
+    }
+    
 }
