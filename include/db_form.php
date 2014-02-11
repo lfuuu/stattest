@@ -748,7 +748,7 @@ class DbFormUsageExtra extends DbForm{
         $this->fields['async_price']=array('type'=>'label','db_ignore'=>1);
         $this->fields['async_period']=array('type'=>'label','db_ignore'=>1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
-        $this->fields['t_comment']=array('db_ignore'=>1);
+        $this->fields['comment']=array();
         $this->includesPre = array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
         $this->includesPost =array('dbform_block_history.tpl','dbform_usage_extra.tpl');
