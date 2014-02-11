@@ -89,7 +89,10 @@ function do_func($function)
 		case 'getStatisticsInternetRoutes': return Api::getStatisticsInternetRoutes(get_param_raw("client_id")); break;
 		case 'getStatisticsInternetData': return Api::getStatisticsInternetData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
 		case 'getStatisticsCollocationData': return Api::getStatisticsCollocationData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
-		
+
+        case 'getClientPhoneNumbers': return Api::getClientPhoneNumbers(get_param_raw("client_id")); break;
+        case 'setClientVatsPhoneNumbers': return Api::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
+
 		default: throw new Exception("Функция не определенна");
 	}
 }
