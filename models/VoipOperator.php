@@ -16,7 +16,7 @@ class VoipOperator extends ActiveRecord\Model
             $this->assign_attribute('id', null);
             $this->assign_attribute('short_name', null);
             $this->assign_attribute('name', null);
-            $this->assign_attribute('default_pricelist_id', null);
+            $this->assign_attribute('pricelist_id', null);
             $this->assign_attribute('operator_7800_pricelist_id', null);
             $this->assign_attribute('client_7800_pricelist_id', null);
             $this->assign_attribute('minimum_payment', null);
