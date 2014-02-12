@@ -68,11 +68,11 @@
         <tr>
             <th>Операторский прайс<br/>МГМН, Моб:</th>
             <td>
-                <select class="select2" name="default_pricelist_id" style="width: 300px">
+                <select class="select2" name="pricelist_id" style="width: 300px">
                     <option value="">--- выберите прайслист ---</option>
                     {foreach from=$pricelists item='p'}
-                        {if $operator->default_pricelist_id == $p->id || $p->type == 'operator' && ($p->operator_id == 0 || $p->operator_id == $operator->id)}
-                        <option value="{$p->id}" {if $operator->default_pricelist_id == $p->id} selected{/if}>{$p->name}</option>
+                        {if $operator->pricelist_id == $p->id || $p->type == 'operator' && ($p->operator_id == 0 || $p->operator_id == $operator->id)}
+                        <option value="{$p->id}" {if $operator->pricelist_id == $p->id} selected{/if}>{$p->name}</option>
                         {/if}
                     {/foreach}
                 </select>
