@@ -1047,6 +1047,7 @@ class m_stats extends IModule{
                                     ".($group?'':'geo_id,')."
                                     ".($group?'':'mob,')."
                                     ".($group?'':'usage_num,')."
+                                    ".($group?'':'redirect_num,')."
                                     ".($group?'':'usage_id,')."
                                     ".($group?'':'direction_out,');
             if ($detality == 'day') $sql.= ' day as ts1, ';
