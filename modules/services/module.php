@@ -685,7 +685,7 @@ class m_services extends IModule{
 
         if($region == 99)
         {
-            $conn = pg_connect("host=85.94.32.237 dbname=nispd user=www password=dD99zmHRs2hR7PPGEMsg");
+            $conn = @pg_connect("host=85.94.32.237 dbname=nispd user=www password=dD99zmHRs2hR7PPGEMsg connect_timeout=1");
         }else{
 
             // Соловьев не переключил старую базу на новую, перед уходом в отпуск
@@ -700,10 +700,16 @@ class m_services extends IModule{
                 $needRegion = true;
             }
 
-            $conn = pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
+            $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
 
-            if($schema)
+            if($conn && $schema)
                 pg_query("SET search_path TO ".$schema.", \"\$user\", public");
+        }
+
+        if (!$conn)
+        {
+            trigger_error("Ошибка соединения с сервером регистрации SIP в регионе ".$region);
+            return array();    
         }
 
 
