@@ -65,7 +65,7 @@ function do_func($function)
 		
 		case 'orderInternetTarif': return Api::orderInternetTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderCollocationTarif': return Api::orderCollocationTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
-		case 'orderVoipTarif': return Api::orderVoipTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("number"), get_param_raw("tarif_id"), get_param_raw("lines_cnt")); break;
+		case 'orderVoip': return Api::orderVoip(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("number"), get_param_raw("tarif_id"), get_param_raw("lines_cnt")); break;
 		case 'orderVpbxTarif': return Api::orderVpbxTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderDomainTarif': return Api::orderDomainTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderEmailTarif': return Api::orderEmailTarif(get_param_raw("client_id"), get_param_raw("domain_id"), get_param_raw("local_part"), get_param_raw("password")); break;
@@ -93,6 +93,11 @@ function do_func($function)
         case 'getClientPhoneNumbers': return Api::getClientPhoneNumbers(get_param_raw("client_id")); break;
         case 'setClientVatsPhoneNumbers': return Api::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
 
+        case 'getServiceOptions': return Api::getServiceOptions(get_param_protected("service"), get_param_integer("client_id")); break;
+
+		case 'getClientData': return Api::getClientData(get_param_raw("client_id")); break;
+		case 'saveClientData': return Api::saveClientData(get_param_raw("client_id"), get_param_raw("data")); break;
+		
 		default: throw new Exception("Функция не определенна");
 	}
 }
