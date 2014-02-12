@@ -25,7 +25,7 @@
 {if $detality=='call'}
     <TD style="color:gray">{$item.id}</TD>
     <TD>{$item.tsf1}</TD>
-		<TD>{$item.usage_num}</TD>
+		<TD>{if $item.redirect_num}{$item.redirect_num} -> {/if}{$item.usage_num}</TD>
     <TD style="color: {if $item.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $item.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
 		<TD>{$item.phone_num}</TD>
     <TD><b>{$item.tsf2}</b></TD>
