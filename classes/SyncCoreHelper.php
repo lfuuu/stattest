@@ -26,14 +26,15 @@ class SyncCoreHelper
 
             foreach($db->AllRecords("select id, client, password, status  from clients where contragent_id = '".$contr["id"]."'") as $c)
             {
-                if (strpos($c["client"], "/") === false)
+                $isMainCard = strpos($c["client"], "/") === false;
+                if ($isMainCard)
                 {
                     $password = $c["password"];
                     $main_card = $c["client"];
                     $main_card_id = $c["id"];
                 }
 
-                if (!in_array($c["status"], self::$allowClientStatusSQL)) continue;
+                if (!$isMainCard && !in_array($c["status"], self::$allowClientStatusSQL)) continue;
 
                 //self::loadEmails($emails, $c["id"]);
 
@@ -65,7 +66,7 @@ class SyncCoreHelper
         echo "\n".__FUNCTION__;
 
         var_dump($cl->status);
-        if (!in_array($cl->status, self::$allowClientStatusSQL)) return false;
+        if (!$cl->isMainCard() && !in_array($cl->status, self::$allowClientStatusSQL)) return false;
          
         return array(
                 "contragent" => array("id" => $cl->contragent_id), 
