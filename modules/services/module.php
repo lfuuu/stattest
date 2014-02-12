@@ -693,7 +693,7 @@ class m_services extends IModule{
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94, 95, 87, 97, 98, 88))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -708,7 +708,8 @@ class m_services extends IModule{
 
         if (!$conn)
         {
-            trigger_error("Ошибка соединения с сервером регистрации SIP в регионе ".$region);
+            $reg = Region::first(array("id" => $region));
+            trigger_error("Ошибка соединения с сервером регистрации SIP в регионе \"".$reg->name."\" (id: ".$reg->id.")");
             return array();    
         }
 
@@ -3032,7 +3033,7 @@ class voipRegion
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
             $schema = "";
 
-            if(in_array($region, array(94, 95, 87, 97, 98, 88))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
