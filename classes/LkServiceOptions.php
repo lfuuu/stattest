@@ -26,9 +26,24 @@ class LkServiceOptions
         global $db;
         $data = array("connect" => 0, "tarif_change" => 0, "disable" => 0);
 
-        $vpbx = $db->GetValue($q = "select u.id from usage_virtpbx u, clients c where c.id = '".$this->clientId."' and c.client = u.client");
 
-        if ($vpbx)
+        $vpbx = $db->GetRow(
+                $q = "
+                SELECT
+                    u.id,
+                    IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`
+                FROM 
+                    usage_virtpbx u, 
+                    clients c
+                WHERE
+                        c.id = '".$this->clientId."'
+                    and c.client = u.client
+                order by actual desc, u.id desc
+                limit 1
+                ");
+
+
+        if ($vpbx && $vpbx["actual"])
         {
             $data["tarif_change"] = 1;
             $data["disable"] = 1;

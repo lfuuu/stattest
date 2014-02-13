@@ -54,29 +54,37 @@ class Api
 		
 		list($R, $sum, ) = BalanceSimple::get($params);
 
+        $cutOffDate = self::_getCutOffDate($clientId);
+
 		$bills = array();
 		foreach ($R as $r)
-		{
-			$b = $r["bill"];
-			$bill = array(
-				"bill_no"   => $b["bill_no"], 
-				"bill_date" => $b["bill_date"], 
-				"sum"       => $b["sum"], 
-				"type"      => $b["nal"], 
-				"pays"      => array()
-				);
+        {
+            if (strtotime($r["bill"]["bill_date"]) <= $cutOffDate)
+                continue;
 
-			foreach ($r["pays"] as $p)
-			{
-				$bill["pays"][] = array(
-					"no"   => $p["payment_no"], 
-					"date" => $p["payment_date"], 
-					"type" => $p["type"], 
-					"sum"  => $p["sum_rub"]
-					);
-			}
-			$bills[] = $bill;
-		}
+            $b = $r["bill"];
+            $bill = array(
+                    "bill_no"   => $b["bill_no"], 
+                    "bill_date" => $b["bill_date"], 
+                    "sum"       => $b["sum"], 
+                    "type"      => $b["nal"], 
+                    "pays"      => array()
+                    );
+
+            foreach ($r["pays"] as $p)
+            {
+                if (strtotime($p["payment_date"]) <= $cutOffDate)
+                    continue;
+
+                $bill["pays"][] = array(
+                        "no"   => $p["payment_no"], 
+                        "date" => $p["payment_date"], 
+                        "type" => $p["type"], 
+                        "sum"  => $p["sum_rub"]
+                        );
+            }
+            $bills[] = $bill;
+        }
 
 		$sum = $sum["RUR"];
 	
@@ -94,8 +102,35 @@ class Api
 			);
 
 		return array("bills" => $bills, "sums" => $nSum);
-
 	}
+
+    private function _getCutOffDate($clientId)
+    {
+        global $db;
+
+        $dateStart = $db->GetValue(
+                "
+                SELECT 
+                    UNIX_TIMESTAMP(if(apply_ts = '0000-00-00', cast(l.ts as date), apply_ts)) as ts 
+                FROM 
+                    `clients` c, 
+                    `log_client` l, 
+                    log_client_fields f 
+                WHERE 
+                        c.id = l.client_id 
+                    AND f.ver_id = l.id
+                    AND ts >= '2012-04-01 00:00:00'
+                    AND field = 'inn'
+                    AND value_from != ''
+                    AND c.id = '".$clientId."'
+                ORDER BY ts DESC
+                LIMIT 1");
+
+        if(!$dateStart) 
+            $dateStart = strtotime("2012-04-01");
+
+        return $dateStart;
+    }
 
 	public function getUserBillOnSum($clientId, $sum)
 	{
@@ -471,6 +506,7 @@ class Api
             ORDER BY
                 `actual` DESC,
                 `actual_from` DESC
+            LIMIT 1
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
@@ -743,7 +779,7 @@ class Api
         return $ret;
     }
 
-    public static function getVoipTarifs($currency = 'RUR', $status = 'public')
+    public static function getVoipTarifs($currency = 'RUR', $status = 'public', $dest = '4')
     {
         $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','region');
         $ret = array();
@@ -755,10 +791,10 @@ class Api
             WHERE
                 `currency` = ?
             AND `status` = ?
-            AND `name` LIKE('".Encoding::toKOI8R('Тариф')."%')
+            AND `dest` = ?
             ORDER BY
                 `name`
-            ", array($currency, $status)) as $service)
+            ", array($currency, $status, $dest)) as $service)
         {
             $line = self::_exportModelRow($fields, $service);
             $ret[] = $line;
