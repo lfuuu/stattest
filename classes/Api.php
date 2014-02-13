@@ -471,6 +471,7 @@ class Api
             ORDER BY
                 `actual` DESC,
                 `actual_from` DESC
+            LIMIT 1
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
