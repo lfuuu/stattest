@@ -450,7 +450,8 @@ class Api
                 `t`.description as tarif_name,
 	            `t`.`price`,
 	            `t`.`space`,
-                `t`.`num_ports`
+                `t`.`num_ports`,
+                `d`.`name` AS city
             FROM
                 `usage_virtpbx` AS `u`
             INNER JOIN `clients` ON (
@@ -459,6 +460,12 @@ class Api
             LEFT JOIN `tarifs_virtpbx` AS `t` ON (
                 `t`.`id` = `u`.`tarif_id`
             )
+            LEFT JOIN `server_pbx` AS `s` ON (
+                `u`.`server_pbx_id` = `s`.`id`
+            )
+            LEFT JOIN `datacenter` AS `d` ON (
+                `s`.`datacenter_id` = `d`.`id`
+            )
             WHERE 
                 `clients`.`id`= ?
             ORDER BY
@@ -466,7 +473,7 @@ class Api
                 `actual_from` DESC
             ', array($clientId)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports"), $v);
+            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
             $line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
