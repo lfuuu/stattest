@@ -849,6 +849,8 @@ class Api
     {
         global $db;
 
+        exit();
+
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, name from tarifs_voip where id='".$tarif_id."'");
