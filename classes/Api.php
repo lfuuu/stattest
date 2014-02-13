@@ -743,7 +743,7 @@ class Api
         return $ret;
     }
 
-    public static function getVoipTarifs($currency = 'RUR', $status = 'public')
+    public static function getVoipTarifs($currency = 'RUR', $status = 'public', $dest = '4')
     {
         $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','region');
         $ret = array();
@@ -755,10 +755,10 @@ class Api
             WHERE
                 `currency` = ?
             AND `status` = ?
-            AND `name` LIKE('".Encoding::toKOI8R('Тариф')."%')
+            AND `dest` = ?
             ORDER BY
                 `name`
-            ", array($currency, $status)) as $service)
+            ", array($currency, $status, $dest)) as $service)
         {
             $line = self::_exportModelRow($fields, $service);
             $ret[] = $line;
