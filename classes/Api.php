@@ -333,11 +333,12 @@ class Api
 		return $ret;
 	}
 
-	public function getVoipList($clientId)
+	public function getVoipList($clientId, $isSimple = false)
 	{
 		$ret = array();
 
-		foreach(NewBill::find_by_sql('
+		foreach(NewBill::find_by_sql(
+                    /*'
 				SELECT
 					`u`.*,
 					`t`.`name` AS `tarif_name`,
@@ -381,10 +382,53 @@ class Api
 				 ORDER BY
 					 `actual` DESC,
 					 `u`.`actual_from` DESC
-				', array($clientId)) as $v)
+				'*/
+                '
+                SELECT 
+                    u.id, 
+                    t.name AS tarif_name, 
+                    u.E164 AS number, 
+                    actual_from, 
+                    actual_to, 
+                    no_of_lines,
+                    IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+                    u.region
+                FROM (
+                        SELECT
+                            MAX(`u`.`id`) AS u_id, 
+                            (
+                                SELECT 
+                                    id_tarif 
+                                FROM 
+                                    log_tarif 
+                                WHERE 
+                                        service = "usage_voip" 
+                                    AND id_service= u.id 
+                                ORDER BY 
+                                    date_activation DESC, 
+                                    id DESC 
+                                LIMIT 1
+                            ) AS tarif_id
+                        FROM
+                            `usage_voip` AS `u`
+                        INNER JOIN `clients` ON (
+                            `u`.`client` = `clients`.`client`
+                            )
+                        WHERE
+                            `clients`.`id`=?
+                        GROUP BY
+                            `u`.`E164`
+                    ) a
+                INNER JOIN usage_voip u ON (
+                        u.id = a.u_id
+                        )
+                LEFT JOIN tarifs_voip t ON (
+                        t.id = a.tarif_id
+                        )
+                ', array($clientId)) as $v)
 		{
-			$line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual", "actual5d", "tarif_date_activation", "tarif_name", "tarif_region"), $v);
-			$ret[] = $line;
+			$line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
+			$ret[] = $isSimple ? $line["number"] : $line;
 		}
 
 		return $ret;
@@ -406,7 +450,8 @@ class Api
                 `t`.description as tarif_name,
 	            `t`.`price`,
 	            `t`.`space`,
-                `t`.`num_ports`
+                `t`.`num_ports`,
+                `d`.`name` AS city
             FROM
                 `usage_virtpbx` AS `u`
             INNER JOIN `clients` ON (
@@ -415,6 +460,12 @@ class Api
             LEFT JOIN `tarifs_virtpbx` AS `t` ON (
                 `t`.`id` = `u`.`tarif_id`
             )
+            LEFT JOIN `server_pbx` AS `s` ON (
+                `u`.`server_pbx_id` = `s`.`id`
+            )
+            LEFT JOIN `datacenter` AS `d` ON (
+                `s`.`datacenter_id` = `d`.`id`
+            )
             WHERE 
                 `clients`.`id`= ?
             ORDER BY
@@ -422,7 +473,7 @@ class Api
                 `actual_from` DESC
             ', array($clientId)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports"), $v);
+            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
             $line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
@@ -604,6 +655,15 @@ class Api
 		return $line;
 	}
 
+	private static function _importModelRow($fields)
+	{
+	    foreach ($fields as $k=>$v)
+	    {
+	        $fields[$k] = Encoding::toKOI8R($v);
+	    }
+	    return $fields;
+	}
+	
     public static function getCollocationTarifs()
     {
         return self::_getInternetTarifs("C");
@@ -725,7 +785,7 @@ class Api
         return $ret;
     }
 
-    public static function getFreeNumbers()
+    public static function getFreeNumbers($isSimple = false)
     {
         $ret = array();
 
@@ -763,9 +823,10 @@ class Api
             $line['full_number'] = $line['number'];
             $line['area_code'] = substr($line['number'],1,3);
             $l = strlen($line['number']);
+            $number = $line["number"];
             $line['number'] = substr($line['number'],4,($l-8)).'-'.substr($line['number'],($l-4),2).'-'.substr($line['number'],($l-2),2);
             if ($line['price'] == '') $line['price_add'] = 'Договорная';
-            $ret[] = $line;
+            $ret[] = $isSimple ? $number : $line;
         }
         return $ret;
     }
@@ -784,22 +845,61 @@ class Api
         return;
     }
 
-    public static function orderVoipTarif($client_id, $region_id, $number, $tarif_id, $lines_cnt)
+    public static function orderVoip($client_id, $region_id, $number, $tarif_id, $lines_cnt)
     {
         global $db;
 
+        exit();
+
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
-        $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
+        $region = $db->GetRow("select name from regions where id='".$region_id."'");
+        $tarif = $db->GetRow("select id, name from tarifs_voip where id='".$tarif_id."'");
+
+        $lines_cnt = (int)$lines_cnt;
+        if ($lines_cnt > 10) $lines_cnt = 10;
+        if ($lines_cnt < 1) $lines_cnt = 1;
+
+        if (!$client || !$region || !$tarif)
+            throw new Exception("Ошибка в данных!");
+
+        $freeNumbers = self::getFreeNumbers(true);
+        if (array_search($number, $freeNumbers) === false)
+            throw new Exception("Номер не свободен!");
+
+        $clientNumbers = self::getVoipList($client_id, true);
+        if (array_search($number, $clientNumbers) !== false)
+            throw new Exception("Номер уже используется");
 
         $message = Encoding::toKOI8R("Заказ услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Номер: ') . $number . "\n";
         $message .= Encoding::toKOI8R('Кол-во линий: ') . $lines_cnt . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
+        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["description"] . " (Id: ".$tarif["id"].")";
 
-        Api::createTT($message, $client['client'], 'adima');
+        $usageVoipId = $db->QueryInsert("usage_voip", array(
+                    "client"        => $client["client"],
+                    "region"        => $region_id,
+                    "E164"          => $number,
+                    "no_of_lines"   => $lines_cnt,
+                    "actual_from"   => "2029-01-01",
+                    "actual_to"     => "2029-01-01",
+                    "status"        => "connecting"
+                    )
+                );
+
+        $db->QueryInsert("log_tarif", array(
+                    "service" => "usage_voip",
+                    "id_service" => $usageVoipId,
+                    "id_tarif" =>$tarif["id"],
+                    "id_tarif_local_mob" => 86,
+                    "id_tarif_russia" => 72,
+                    "id_tarif_intern" => 78,
+                    "id_tarif_sng" => 75,
+                    "ts" => array("NOW()")
+                    )
+                );
+        Api::createTT($message, $client['client'], self::_getUserForTrouble(), "usage_voip", $usageVoipId);
         return;
     }
 
@@ -807,16 +907,39 @@ class Api
     {
         global $db;
 
+        $client_id = (int)$client_id;
+        $region_id = (int)$region_id;
+        $tarif_id = (int)$tarif_id;
+
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
         $region = $db->GetValue("select name from regions where id='".$region_id."'");
-        $tarif = $db->GetValue("select name from tarifs_virtpbx where id='".$tarif_id."'");
+        $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
+
+        if (!$client || !$region || !$tarif) 
+            throw new Exception("Ошибка в данных!");
 
         $message = Encoding::toKOI8R("Заказ услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
+        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["name"] . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        $vpbx = $db->GetValue("select id from usage_virtpbx where client = '".$client["client"]."'");
+
+        if (!$vpbx) // добавляем VPBX, если его нет
+        {
+            $vpbxId = $db->QueryInsert("usage_virtpbx", array(
+                        "client"        => $client["client"],
+                        "actual_from"   => "2029-01-01",
+                        "actual_to"     => "2029-01-01",
+                        "amount"        => 1,
+                        "status"        => "connecting",
+                        "tarif_id"      => $tarif["id"],
+                        "server_pbx_id" => 1
+                        )
+                    );
+
+            Api::createTT($message, $client['client'], self::_getUserForTrounble(), "usage_virtpbx", $vpbxId);
+        }
         return;
     }
 
@@ -833,7 +956,7 @@ class Api
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -853,7 +976,7 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $local_part . "\n";
         $message .= Encoding::toKOI8R('Пароль: ') . $password;
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -871,7 +994,7 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -888,7 +1011,7 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -905,7 +1028,7 @@ class Api
         $message .= Encoding::toKOI8R('Номер: ') . $number . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -914,14 +1037,28 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
-        $tarif = $db->GetValue("select name from tarifs_virtpbx where id='".$tarif_id."'");
+        $tarif = $db->GetValue("select description as name from tarifs_virtpbx where id='".$tarif_id."'");
+
+        if (!$client || !$tarif)
+            throw new Exception("Ошибка в данных!");
 
         $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Услуга: ') . $service_id . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Новый тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where client = '".$client["client"]."'");
+
+        if ($vpbx)
+        {
+            if ($vpbx["actual_from"] == "2029-01-01")
+            {
+                $db->QueryUpdate("usage_virtpbx", "id", array("id"=>$vpbx["id"], "tarif_id" => $tarif_id));
+                $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
+            }
+            Api::createTT($message, $client['client'], self::_getUserForTrounble(), 'usage_virtpbx', $vpbx["id"]);
+        }
+
 
         return;
     }
@@ -939,7 +1076,7 @@ class Api
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -955,7 +1092,7 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $email . "\n";
         $message .= Encoding::toKOI8R('Новый пароль: ') . $password;
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -971,7 +1108,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -986,7 +1123,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
     
@@ -1001,7 +1138,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Номер: ') . $number . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -1015,7 +1152,20 @@ class Api
         $message = Encoding::toKOI8R("Заказ на отключение услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
 
-        Api::createTT($message, $client['client'], 'adima');
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where client = '".$client["client"]."'");
+
+        if ($vpbx)
+        {
+            if ($vpbx["actual_from"] == "2029-01-01")
+            {
+                $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
+
+                $message .= Encoding::toKOI8R("\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было");
+            }
+
+            Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        }
+
         return;
     }
     
@@ -1030,7 +1180,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
     
@@ -1044,14 +1194,14 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Почтовый ящик: ') . $email;
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
     
-    public static function createTT($message = '', $client = '', $user = '')
+    public static function createTT($message = '', $client = '', $user = '', $service = '', $service_id = 0)
     {
-        include PATH_TO_ROOT . "modules/tt/module.php";
+        include_once PATH_TO_ROOT . "modules/tt/module.php";
         $tt = new m_tt();
 
         $R = array(
@@ -1062,10 +1212,10 @@ class Api
                 'date_start' => date('Y-m-d H:i:s'),
                 'date_finish_desired' => date('Y-m-d H:i:s'),
                 'problem' => $message,
-                'service' => '',
                 'is_important' => '0' ,
                 'bill_no' => null ,
-                'service_id' => '0',
+                'service' => $service,
+                'service_id' => $service_id,
                 'user_author' => $user
         );
 
@@ -1169,7 +1319,6 @@ class Api
         } else {
             $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), true);
         }
-
         return $stats;
     }
 
@@ -1294,4 +1443,50 @@ class Api
         $db->Query("commit");
         return true;
     }
+
+    public static function getServiceOptions($service, $clientId)
+    {
+        $o = new LkServiceOptions($service, $clientId);
+        return $o->getOptions();
+    }
+
+    /**
+    * Получение карточки клиента
+    *
+    */
+
+    public static function getClientData($client_id = '')
+    {
+        if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+
+        $ret = self::_exportModelRow(array('id','client','status','inn','kpp','address_jur','address_post','corr_acc',
+            'pay_acc','bik','address_post_real','signer_name','signer_position','address_connect','phone_connect',
+            'mail_who', 'company','company_full'), ClientCard::find_by_id($client_id));
+
+        return $ret;
+    }
+
+    /**
+    * Сохранение карточки клиента
+    *
+    */
+    public static function saveClientData($client_id = '', $data = array())
+    {
+        global $db;
+        if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+        //$module_clients = new m_clients();
+
+        //$res = $module_clients->clients_apply(self::_importModelRow($data));
+        $res = $db->QueryUpdate('clients','id', self::_importModelRow($data));
+
+        return $res;
+    }
+
+    private function _getUserForTrounble()
+    {
+        return defined("API__USER_FOR_TROUBLE") ? API__USER_FOR_TROUBLE : "adima";
+    }
+    
 }
