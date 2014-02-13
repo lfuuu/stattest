@@ -897,7 +897,7 @@ class Api
                     "ts" => array("NOW()")
                     )
                 );
-        Api::createTT($message, $client['client'], 'adima', "usage_voip", $usageVoipId);
+        Api::createTT($message, $client['client'], self::_getUserForTrouble(), "usage_voip", $usageVoipId);
         return;
     }
 
@@ -936,7 +936,7 @@ class Api
                         )
                     );
 
-            Api::createTT($message, $client['client'], 'adima', "usage_virtpbx", $vpbxId);
+            Api::createTT($message, $client['client'], self::_getUserForTrounble(), "usage_virtpbx", $vpbxId);
         }
         return;
     }
@@ -954,7 +954,7 @@ class Api
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -974,7 +974,7 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $local_part . "\n";
         $message .= Encoding::toKOI8R('Пароль: ') . $password;
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -992,7 +992,7 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -1009,7 +1009,7 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -1026,7 +1026,7 @@ class Api
         $message .= Encoding::toKOI8R('Номер: ') . $number . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -1054,7 +1054,7 @@ class Api
                 $db->QueryUpdate("usage_virtpbx", "id", array("id"=>$vpbx["id"], "tarif_id" => $tarif_id));
                 $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
             }
-            Api::createTT($message, $client['client'], 'adima', 'usage_virtpbx', $vpbx["id"]);
+            Api::createTT($message, $client['client'], self::_getUserForTrounble(), 'usage_virtpbx', $vpbx["id"]);
         }
 
 
@@ -1074,7 +1074,7 @@ class Api
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -1090,7 +1090,7 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $email . "\n";
         $message .= Encoding::toKOI8R('Новый пароль: ') . $password;
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -1106,7 +1106,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
 
@@ -1121,7 +1121,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
     
@@ -1136,7 +1136,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Номер: ') . $number . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -1161,7 +1161,7 @@ class Api
                 $message .= Encoding::toKOI8R("\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было");
             }
 
-            Api::createTT($message, $client['client'], 'adima');
+            Api::createTT($message, $client['client'], self::_getUserForTrounble());
         }
 
         return;
@@ -1178,7 +1178,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
         return;
     }
     
@@ -1192,7 +1192,7 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Почтовый ящик: ') . $email;
 
-        Api::createTT($message, $client['client'], 'adima');
+        Api::createTT($message, $client['client'], self::_getUserForTrounble());
 
         return;
     }
@@ -1480,6 +1480,11 @@ class Api
         $res = $db->QueryUpdate('clients','id', self::_importModelRow($data));
 
         return $res;
+    }
+
+    private function _getUserForTrounble()
+    {
+        return defined("API__USER_FOR_TROUBLE") ? API__USER_FOR_TROUBLE : "adima";
     }
     
 }
