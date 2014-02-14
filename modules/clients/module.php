@@ -752,16 +752,24 @@ class m_clients {
 		// Сортировка результата по указанному полю
 		$so = get_param_integer ('so', 1);
 		$order = $so ? 'asc' : 'desc';
-		switch($sort=get_param_integer('sort',1)){
+		$sort=get_param_integer('sort',1);
+		if ($filter == 'income' && $sort == 1) {
+		    $sort=8;
+		    $order='desc';
+		    $so=0;
+		}
+		
+		switch($sort){
 			case 2: $order='cl.company '.$order; break;
 			case 3: $order='cl.currency '.$order; break;
 			case 4: $order='cl.sale_channel '.$order; break;
 			case 5: $order='cl.manager '.$order; break;
 			case 6: $order='cl.support '.$order; break;
 			case 7: $order='cl.telemarketing '.$order; break;
-			case 8: $order='1 '.$order; break;
+			case 8: $order='cl.created '.$order; break;
 			default: $order='cl.client '.$order; break;	//=1
 		}
+		
 		$design->assign('sort',$sort);
 		$design->assign('so',$so);
 		$query.="ORDER BY ".$order;
