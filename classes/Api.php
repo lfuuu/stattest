@@ -278,8 +278,8 @@ class Api
 					"item"      => Encoding::toUtf8($l->item), 
 					"date_from" => $l->date_from->format("d-m-Y"),
 					"amount"    => $l->amount, 
-					"price"     => $l->price, 
-					"sum"       => $l->sum
+					"price"     => number_format($l->price, 2, '.',''), 
+					"sum"       => number_format($l->sum, 2, '.','')
 					);
 		}
 		
@@ -290,7 +290,7 @@ class Api
 					"is_rollback" => $b->is_rollback,
 					"is_1c" => $b->is1C(),
 					"lines" => $lines,
-					"sum_total" => $b->sum
+					"sum_total" => number_format($b->sum, 2, '.','')
 					),
 				"link" => array(
 					"bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUR", "client" => $clientId)),
