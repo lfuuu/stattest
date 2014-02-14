@@ -496,13 +496,15 @@ class m_stats extends IModule{
                         }
                     }
                 }
+                ksort($Res);
+
                 $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('È‘œ«œ') : 'È‘œ«œ');
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Û’ÕÕ¡ ” Ó‰Û') : 'Û’ÕÕ¡ ” Ó‰Û').'</b>)';
             break;
         }
-    
+
         $Res['total'] = $rt;
 
         return $Res;
