@@ -2392,6 +2392,7 @@ class m_stats extends IModule{
         $agents = array();
         $agent = false;
         $agent_id = get_param_raw("agent", false);
+        $export = get_param_raw("export", false);
         $agents = $db->AllRecords('SELECT id, name FROM sale_channels WHERE is_agent=1');
         if ($agent_id && $agent_id > 0) $agent = $db->GetRow('SELECT * FROM sale_channels WHERE id=' . $agent_id);
 
@@ -2407,20 +2408,49 @@ class m_stats extends IModule{
 
         list($R, $T) = $this->_stat_report_agent($agent, $from, $to);
 
-        $params = array(
-                        'mm'=>$mm,
-                        'yy'=>$yy,
-                        'inns'=>$R,
-                        'agent'=>$agent,
-                        'agents'=>$agents,
-                        'cur_m'=>$cur_m,
-                        'cur_y'=>$cur_y,
-                        'total'=>$T,
-                        'from'=>$from,
-                        'to'=>$to
-        );
-        $design->assign($params);
-        $design->AddMain("stats/report_agent.tpl");
+        if ($export) {
+            header('Content-type: application/csv');
+            header('Content-Disposition: attachment; filename="agent_report_'.date("01mY", mktime(0,0,0,$cur_m,1,$cur_y)).'_'.date("tmY", mktime(0,0,0,$cur_m,1,$cur_y)).'.csv"');
+
+            ob_start();
+            
+            echo 'Агент:;'.$agent['name'].';Расчетный период с;'.$from.'г.;по;'.$to.'г.;';
+            echo "\n";
+            echo ';;;;;;';
+            echo "\n";
+            echo 'Компания;Абон плата, с учетом НДС;оплаченный период (мес.);Сумма полученных платежей;Вознаграждение;Сумма вознаграждения;';
+            echo "\n";
+            foreach ($R as $r) {
+                echo '"' . $r['company'] . '";';
+                echo '"' . number_format($r['isum'], 2, ',', '') . '";';
+                echo '"' . $r['period'] . '";';
+                echo '"' . number_format($r['psum'], 2, ',', '') . '";';
+                echo '"' . $agent['interest'] . ' %";';
+                echo '"' . number_format($r['fsum'], 2, ',', '') . '";';
+                echo "\n";
+            }
+            echo '"Итого";;;';
+            echo '"' . number_format($T['psum'], 2, ',', '') . '";;';
+            echo '"' . number_format($T['fsum'], 2, ',', '') . '";';
+            echo "\n";
+            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            exit;
+        } else {
+            $params = array(
+                            'mm'=>$mm,
+                            'yy'=>$yy,
+                            'inns'=>$R,
+                            'agent'=>$agent,
+                            'agents'=>$agents,
+                            'cur_m'=>$cur_m,
+                            'cur_y'=>$cur_y,
+                            'total'=>$T,
+                            'from'=>$from,
+                            'to'=>$to
+            );
+            $design->assign($params);
+            $design->AddMain("stats/report_agent.tpl");
+        }
     }
 
     function _stat_report_agent($agent = false, $from = false, $to = false)
