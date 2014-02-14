@@ -116,12 +116,18 @@
     ИНН/КПП продавца: <strong>7727702076&nbsp;/&nbsp;772701001</strong><br>
     Грузоотправитель и его адрес: <strong>ООО "МАРКОМНЕТ"</strong><br>
     <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
-{elseif $bill_client.firma=='mcn' || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")}
+{elseif $bill_client.firma=='mcn'}{* || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")*}
   <td valign="top" width="55%" class="ht">Продавец: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Эм Си Эн"{if $bill.bill_date < '2012-01-24'} (ООО "Эм Си Эн"){/if}{else}ООО "Эм Си Эн"{/if}</strong><br>
     Адрес: <strong>113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130</strong><br>
     ИНН/КПП продавца: <strong>7727508671 / 772701001</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Эм Си Эн"</strong><br>
     <strong>113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130</strong><br>{/if}
+{else}
+  <td valign="top" width="55%" class="ht">Продавец: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}{$firm.name_full}{if $bill.bill_date < '2012-01-24'} ({$firm.name}){/if}{else}{$firm.name}{/if}</strong><br>
+    Адрес: <strong>{$firm.address}</strong><br>
+    ИНН/КПП продавца: <strong>{$firm.inn} / {$firm.kpp}</strong><br>
+    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$firm.name}</strong><br>
+    <strong>{$firm.address}</strong><br>{/if}
 {/if}
     Грузополучатель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
     <strong>{$bill_client.address_post}</strong><br>{/if}

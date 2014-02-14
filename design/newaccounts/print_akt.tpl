@@ -58,10 +58,14 @@
 <strong>ООО "МАРКОМНЕТ"</strong><br>
 <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
 
-{elseif $bill_client.firma=='mcn' || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")}
+{elseif $bill_client.firma=='mcn'}{* || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")*}
 <strong>OOO "Эм Си Эн"</strong><br>
 <strong>ИНН/КПП 7727508671/772701001</strong><br>
 <!-- strong>113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130</strong><br-->
+
+{else}
+<strong>{$firm.name}</strong><br>
+<strong>ИНН/КПП {$firm.inn}/{$firm.kpp}</strong><br>
 {/if}
 
 {if $bill_client.firma eq 'all4geo'}
