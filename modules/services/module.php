@@ -2851,6 +2851,7 @@ class m_services extends IModule{
                 'order by status, month_line, month_min_payment', 'id');
         foreach ($R as $r) {
             $Res[$r['id']] = array(
+                            'id'=>$r['id'],
                             'name'=>Encoding::toUtf8($r['name']),
                             'month_number'=>$r['month_number'], 
                             'month_line'=>$r['month_line'], 
