@@ -841,10 +841,10 @@ class m_stats extends IModule{
 				");
 			}
 
-			//printdbg($q);
+			//printdbg($db->NumRows(), $q);
 			if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
-				$r['tsf']=mdate($format,$r['ts']);
+				$r['tsf']=($is_utf8 === true) ? Encoding::toUTF8(mdate($format,$r['ts'])) : mdate($format,$r['ts']);
 				$R[]=$r;
 				//printdbg($r);
 				if ($is_collocation) {
