@@ -23,7 +23,7 @@
 <TR class={if $smarty.foreach.outer.iteration%2==count($clients)%2}even{else}odd{/if}>
 	<TD {if $item.status_color}style='background-color:{$item.status_color}'{/if}><a href='{$LINK_START}module=clients&id={$item.id}'>{if $item.client==""}Заявка {$item.id|hl:$search}{else}{$item.client|hl:$search}{/if}</a></TD>
 	<TD><a href='{$LINK_START}module=clients&id={$item.id}'>{$item.company|hl:$search}</a></TD>
-	<TD>{$item.date_zayavka}</TD>
+	<TD>{$item.created}</TD>
 	<TD>{$item.currency}</TD>
 	<TD>{$item.sale_channel}</TD>
 	<TD><a href='{$LINK_START}module=users&m=user&id={$item.manager}'>{$item.manager|hl:$search}</a></TD>
