@@ -24,9 +24,15 @@ class Api
 				throw new Exception("Лицевой счет не найден!");
 			}
 
-			$billingCounter = ClientCS::getBillingCounters($clientId);
+            $balance = $c->balance;
 
-			$result[$c->id] = array("id" => $c->id, "balance" => $c->balance-$billingCounter["amount_sum"]);
+            if ($c->credit >= 0)
+            {
+                $billingCounter = ClientCS::getBillingCounters($clientId);
+                $balance -=$billingCounter["amount_sum"];
+            }
+
+			$result[$c->id] = array("id" => $c->id, "balance" => $balance);
 		}
 
         if ($simple)
@@ -59,7 +65,7 @@ class Api
 		$bills = array();
 		foreach ($R as $r)
         {
-            if (strtotime($r["bill"]["bill_date"]) <= $cutOffDate)
+            if (strtotime($r["bill"]["bill_date"]) < $cutOffDate)
                 continue;
 
             $b = $r["bill"];
@@ -73,7 +79,7 @@ class Api
 
             foreach ($r["pays"] as $p)
             {
-                if (strtotime($p["payment_date"]) <= $cutOffDate)
+                if (strtotime($p["payment_date"]) < $cutOffDate)
                     continue;
 
                 $bill["pays"][] = array(
@@ -372,95 +378,62 @@ class Api
 	{
 		$ret = array();
 
+        $card = ClientCard::first(array("id" => $clientId));
+
+        if (!$card)
+            return $ret;
+
 		foreach(NewBill::find_by_sql(
-                    /*'
-				SELECT
-					`u`.*,
-					`t`.`name` AS `tarif_name`,
-					`t`.`region` AS `tarif_region`
-						FROM
-				(
-				 SELECT
-					 `u`.`id`,
-					 `u`.`E164` AS `number`,
-					 `u`.`no_of_lines`,
-					 `u`.`actual_from`,
-					 `u`.`actual_to`,
-					 IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
-					 IF ((`u`.`actual_from` <= (NOW()+INTERVAL 5 DAY)), 1, 0) AS `actual5d`,
-					 MAX(`l`.`date_activation`) AS `tarif_date_activation`
-				 FROM
-					 `usage_voip` AS `u`
-				 INNER JOIN `clients` ON (`u`.`client` = `clients`.`client`)
-				 LEFT JOIN `log_tarif` AS `l` on (
-						`l`.`service` = "usage_voip" 
-					AND `l`.`id_service` = `u`.`id` 
-					AND `l`.`date_activation` <= CAST(NOW() as DATE)
-					)
-				 WHERE
-					 `clients`.`id`=?
-				 GROUP BY
-					 `u`.`E164`,
-					 `u`.`no_of_lines`,
-					 `u`.`actual_from`,
-					 `u`.`actual_to`,
-					 `l`.`date_activation`
-				 ) as `u`
-				 LEFT JOIN `log_tarif` AS `l` ON (
-					`l`.`service` = "usage_voip" 
-					AND `l`.`id_service` = `u`.`id` 
-					AND `l`.`date_activation` = `u`.`tarif_date_activation`
-					)
-				 LEFT JOIN `tarifs_voip` AS `t` ON (
-					`t`.`id` = `l`.`id_tarif`
-					)
-				 ORDER BY
-					 `actual` DESC,
-					 `u`.`actual_from` DESC
-				'*/
                 '
-                SELECT 
-                    u.id, 
-                    t.name AS tarif_name, 
-                    u.E164 AS number, 
-                    actual_from, 
-                    actual_to, 
-                    no_of_lines,
-                    IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
-                    u.region
-                FROM (
+                    SELECT
+                        u.id,
+                        t.name AS tarif_name,
+                        u.E164 AS number,
+                        actual_from,
+                        actual_to,
+                        no_of_lines,
+                        IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+                        u.region
+                    FROM (
                         SELECT
-                            MAX(`u`.`id`) AS u_id, 
+                            u.*,
                             (
-                                SELECT 
-                                    id_tarif 
-                                FROM 
-                                    log_tarif 
-                                WHERE 
-                                        service = "usage_voip" 
-                                    AND id_service= u.id 
-                                ORDER BY 
-                                    date_activation DESC, 
-                                    id DESC 
-                                LIMIT 1
+                                SELECT
+                                    MAX(id_tarif)
+                                FROM
+                                    log_tarif
+                                WHERE
+                                        service = "usage_voip"
+                                    AND id_service= u.id
+                                ORDER BY
+                                    date_activation DESC,
+                                    id DESC
                             ) AS tarif_id
                         FROM
-                            `usage_voip` AS `u`
-                        INNER JOIN `clients` ON (
-                            `u`.`client` = `clients`.`client`
-                            )
+                            usage_voip u, (
+                                SELECT
+                                    MAX(actual_from) AS max_actual_from,
+                                    E164
+                                FROM
+                                    usage_voip
+                                WHERE
+                                    client=?
+                                GROUP BY E164
+                            ) a
                         WHERE
-                            `clients`.`id`=?
-                        GROUP BY
-                            `u`.`E164`
-                    ) a
-                INNER JOIN usage_voip u ON (
-                        u.id = a.u_id
-                        )
-                LEFT JOIN tarifs_voip t ON (
-                        t.id = a.tarif_id
-                        )
-                ', array($clientId)) as $v)
+                                a.e164 = u.e164
+                            AND client=?
+                            AND max_actual_from = u.actual_from
+                            AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
+                        ) AS `u`
+
+                    LEFT JOIN tarifs_voip t ON (
+                        t.id = u.tarif_id
+                    )
+                     ORDER BY
+                         `u`.`actual_from` DESC
+
+                ', array($card->client, $card->client)) as $v)
 		{
 			$line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
 			$ret[] = $isSimple ? $line["number"] : $line;
