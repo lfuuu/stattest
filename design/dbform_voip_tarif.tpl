@@ -97,7 +97,7 @@ $(document).ready(function(){
 	</tr>
 	<tr>
 		<td>Тип тарифа:</td>
-		<td><select onchange="optools.friendly.voip.change_type(this)">
+		<td><select onchange="optools.friendly.voip.change_type(this)" id="s_tarif_type">
 			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>Публичный</option>
 			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>Архивный</option>
 			<option value='special'{if $dbform_f_tarif_current.status eq 'special'} selected='selected'{/if}>Специальный</option>

@@ -327,16 +327,18 @@ class DbFormUsageVoip extends DbForm {
             $regions[$item['id']] = $item['code'].' - '.$item['name'];
 
         DbForm::__construct('usage_voip');
-        $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly');
+        $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>'2029-01-01');
         $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['E164']=array();
         $this->fields['no_of_lines']=array('default'=>1);
         $this->fields['no_of_callfwd']=array('default'=>0);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
+
         $this->includesPreL = array('dbform_voip_tarif.tpl');
         $this->includesPreR = array('dbform_block.tpl');
         $this->includesPre=array('dbform_tt.tpl');
@@ -369,7 +371,7 @@ class DbFormUsageVoip extends DbForm {
         if(!isset($this->dbform['id']))
             return '';
 
-        if(!$this->check_number()) return;
+        if($this->dbform['is_trunk'] == '0' && !$this->check_number()) return;
 
         $this->dbform['edit_user_id'] = $user->Get('id');
         $v=DbForm::Process();
@@ -1741,6 +1743,7 @@ $GLOBALS['translate_arr']=array(
     '*.enabled'                => 'включено',
     '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
+    '*.is_trunk'              => 'Транк',
         
     'emails.local_part'        => 'почтовый ящик',
     'emails.box_size'        => 'занято, Kb',
