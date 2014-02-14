@@ -13,7 +13,7 @@
 
 <H2>Отчет по Агентам</H2>
 
-        <form action="./?module=stats&action=report_agent" method=post>
+<form action="./?module=stats&action=report_agent" method=post>
 
         <table border=0 cellpadding=3>
             <tr>
@@ -31,12 +31,12 @@
 				<td>Расчетный период</td>
 				<td><select name='from_m'>{foreach from=$mm item='m' key='key'}<option value='{$key}' {if $key == $cur_m}selected='selected'{/if}>{$m}</option>{/foreach}</select></td>
 				<td><select name='from_y'>{foreach from=$yy item='y'}<option value='{$y}' {if $y == $cur_y}selected='selected'{/if}>{$y}</option>{/foreach}</select></td>
-				<td><input type=submit value="Найти"></td>
+				<td><input type=submit value="Найти" /></td>
 			</tr>
         </table>
-        </form>
 
 {if count($inns)}
+<input type=submit value="Экспорт в CSV" name="export" />
 <div class='tbl_legend'>
 	Агент: <b>{$agent.name}</b><br />
 	Расчетный период с <b>{$from}</b> г. по <b>{$to}</b> г.
@@ -78,3 +78,4 @@
 	Прописью: {$total.fsum|wordify:'RUR'}
 </div>
 {/if}
+</form>
