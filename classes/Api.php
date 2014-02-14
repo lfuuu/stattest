@@ -85,7 +85,7 @@ class Api
                 $bill["pays"][] = array(
                         "no"   => $p["payment_no"], 
                         "date" => $p["payment_date"], 
-                        "type" => $p["type"], 
+                        "type" => self::_getPaymentTypeName($p["type"]),
                         "sum"  => $p["sum_rub"]
                         );
             }
@@ -109,6 +109,19 @@ class Api
 
 		return array("bills" => $bills, "sums" => $nSum);
 	}
+
+    private function _getPaymentTypeName($type)
+    {
+        switch ($type)
+        {
+            case 'bank': $v = "Банк"; break;
+            case 'prov': $v = "Наличные"; break;
+            case 'neprov': $v = "Эл.денги"; break;
+            default: $v = "Банк";
+        }
+
+        return $v;
+    }
 
     private function _getCutOffDate($clientId)
     {
