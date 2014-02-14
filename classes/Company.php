@@ -12,6 +12,7 @@ class Company
 
         $firms = array(
                 "mcn_telekom" => array(
+                    "name_full" => "Общество с ограниченной ответственностью &laquo;МСН Телеком&raquo;",
                     "name" => "ООО &laquo;МСН Телеком&raquo;",
                     "address" => "115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8",
                     "post_address" => "115162, г. Москва, а/я &#8470;21",
@@ -33,6 +34,7 @@ class Company
 
                         ),
                     "mcn" => array(
+                            "name_name" => "Общество с ограниченной ответственностью &laquo;Эм Си Эн&raquo;",
                             "name" => "ООО &laquo;Эм Си Эн&raquo;",
                             "address" => "113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130",
                             "post_address" => "115162, г. Москва, а/я &#8470;21",
@@ -51,6 +53,7 @@ class Company
                             "director_post_" => "Генерального директора"
                             ),
                     "mcm" => array(
+                            "name_full" => "Общество с ограниченной ответственностью &laquo;МСМ&raquo;",
                             "name" => "ООО &laquo;МСМ&raquo;",
                             "address" => "117218, г. Москва, ул. Б. Черемушкинская, д. 25, стр. 97",
                             "inn" => "7727667833",
@@ -67,6 +70,7 @@ class Company
                             "director_post_" => "Директора"
                             ),
                     "ooocmc" => array(
+                            "name_full" => "Общество с ограниченной ответственностью &laquo;Си Эм Си&raquo;",
                             "name" => "ООО &laquo;Си Эм Си&raquo;",
                             "address" => "117218, г. Москва, ул. Б. Черемушкинская, д. 25, стр. 97",
                             "inn" => "7727701308",
@@ -84,6 +88,7 @@ class Company
                             "director_post_" => "Заместителя Генерального директора"
                             ),
                     "all4geo" => array(
+                            "name_full" => "Общество с ограниченной ответственностью &laquo;Олфогео&raquo;",
                             "name" => "ООО &laquo;Олфогео&raquo;",
                             "address" => "115487, г. Москва, Нагатинский 2-й проезд, дом 2, строение 8",
                             "inn" => "7727752091",
@@ -101,6 +106,7 @@ class Company
                             "director_post_" => "Генеральный директор"
                             ),
                     "all4net" => array(
+                            "name_full" => "Общество с ограниченной ответственностью &laquo;Олфонет&raquo;",
                             "name" => "ООО &laquo;Олфонет&raquo;",
                             "address" => "117218, Москва г, Черемушкинская Б. ул, дом 25, строение 97",
                             "inn" => "7727731060",
@@ -117,6 +123,25 @@ class Company
                             "director_post" => "Генеральный директор",
                             "director_post_" => "Генеральный директор"
                             ),
+                    "wellstart" => array(
+                            "name_full" => "Общество с ограниченной ответственностью &laquo;Веллстарт&raquo;",
+                            "name" => "ООО &laquo;Веллстарт&raquo;",
+                            "address" => "115487, Москва, 2-й Нагатинский проезд, д.2, стр.8",
+                            "inn" => "7724899307",
+                            "kpp" => "772401001",
+                            "acc" => "40702810038110020279",
+                            "bank" => "ОАО СБЕРБАНК РОССИИ",
+                            "kor_acc" => "30101810400000000225",
+                            "bik" => "044525225",
+                            "phone" => "(495) 950-56-78",
+                            //"fax" => "(499) 123-55-33",
+                            //"email" => "arenda@mcn.ru",
+                            "director" => "Полуторнова Т. В.",
+                            "director_" => "Полуторнову Т. В.",
+                            "director_post" => "Генеральный директор",
+                            "director_post_" => "Генеральный директор"
+                            ),
+
 
                     );
 
@@ -268,6 +293,11 @@ class Company
             $d = "mak";
         }
 
+        if ($firma == "wellstart")
+        {
+            $d = $b = "pol_tv";
+        }
+
         $u = array(
                 "bnv" => array(
                     "name" => "Бирюкова Н.В.",
@@ -333,6 +363,13 @@ class Company
                         "position_" => "Директора",
                         "sign" => false
                         ),
+                "pol_tv" => array(
+                        "name" => "Полуторнова Т. В.",
+                        "name_" => "Полуторнову Т. В.",
+                        "position" => "Генеральный директор",
+                        "position_" => "Генерального директора",
+                        "sign" => false
+                        ),
 
 
                 "usk" => array(
@@ -380,6 +417,7 @@ class Company
                 "markomnet_service" => array("name" => "ООО &laquo;Маркомнет сервис&raquo;", "src" => false, "style" => "", "width" => false),
                 "mcm" => array("name" => "ООО &laquo;МСМ&raquo;", "src" => false, "style" => "", "width" => false),
                 "all4geo" => array("name" => "ООО &laquo;Олфогео&raquo;", "src" => false, "style" => "", "width" => false),
+                "wellstart" => array("name" => "ООО &laquo;Веллстарт&raquo;", "src" => false, "style" => "", "width" => false),
                 );
 
         global $design;

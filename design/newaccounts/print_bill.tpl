@@ -102,7 +102,7 @@
 к/с:&nbsp;30101810400000000225<br>
 БИК:&nbsp;044525225<br>
 
-{elseif $bill_client.firma=='mcn' || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")}
+{elseif $bill_client.firma=='mcn'}{* || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")*}
 <b>Поставщик: ООО &laquo;Эм Си Эн&raquo;</b><br>
 ИНН:&nbsp;7727508671 &nbsp;&nbsp;КПП:&nbsp;772701001<br>
 Адрес:&nbsp;113452, г.Москва, Балаклавский пр-т, д.20, кор. 4 кв. 130<br>
@@ -114,6 +114,15 @@
 к/с:&nbsp;30101810300000000202<br>
 БИК:&nbsp;044525202<br>
 {else}
+<b>Поставщик: {$firm.name}</b><br>
+ИНН:&nbsp;{$firm.inn};&nbsp;&nbsp;КПП:&nbsp;{$firm.kpp}<br>
+Адрес:&nbsp;{$firm.address}<br>
+{if isset($firm.phone)}Телефон: {$firm.phone}<br>{/if}
+{if isset($firm.fax)}Факс: (495) 638-50-17<br>{/if}
+р/с:&nbsp;{$firm.acc} в {$firm.bank}<br>
+к/с:&nbsp;{$firm.kor_acc}<br>
+БИК:&nbsp;{$firm.bik}<br>
+{*
 <b>Поставщик: ООО &laquo;МАРКОМНЕТ&raquo;</b><br>
 ИНН:&nbsp;7734246040;&nbsp;&nbsp;КПП:&nbsp;773401001<br>
 Адрес:&nbsp;123458, г.Москва, Таллинская ул., д.2/282<br>
@@ -124,6 +133,7 @@
 р/с:&nbsp;40702810300070015232 в АКБ &laquo;Пробизнесбанк&raquo; (ОАО)<br>
 к/с:&nbsp;30101810600000000986<br>
 БИК:&nbsp;044525986<br>
+*}
 {/if}</p>
 
 </td>
