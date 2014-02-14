@@ -1367,6 +1367,9 @@ class Api
 
         list($routes_all,$routes_allB)=$module_stats->get_routes_list($client['client']);
 
+        $from = strtotime($from);
+        $to = strtotime($to);
+
         //если сеть не задана, выводим все подсети клиента.
         if($route){
             if(isset($routes_all[$route])){
