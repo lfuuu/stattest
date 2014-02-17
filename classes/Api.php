@@ -1331,15 +1331,21 @@ class Api
         if ($phone == 'all') {
 
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), true);
+                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array());
             }
 
             $ar = array();
             $all_regions = $db->AllRecords('select id, name from regions');
             foreach ($all_regions as $reg) $ar[$reg['id']] =  Encoding::toUTF8($reg['name']);
-            $stats = $module_stats->prepareStatArray($stats, $detality, true, $ar);
+            $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
         } else {
-            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), true);
+            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array());
+        }
+        foreach ($stats as $k=>$r) {
+            $stats[$k]["ts1"] = Encoding::toUTF8($stats[$k]["ts1"]);
+            $stats[$k]["tsf1"] = Encoding::toUTF8($stats[$k]["tsf1"]);
+            $stats[$k]["price"] = Encoding::toUTF8($stats[$k]["price"]);
+            $stats[$k]["geo"] = Encoding::toUTF8($stats[$k]["geo"]);
         }
         return $stats;
     }
@@ -1383,8 +1389,11 @@ class Api
                 $routes[] = $r;
         }
 
-        $stats = $module_stats->GetStatsInternet($client['client'],$from,$to,$detality,$routes,$is_coll,true);
-
+        $stats = $module_stats->GetStatsInternet($client['client'],$from,$to,$detality,$routes,$is_coll);
+        foreach ($stats as $k=>$r) {
+            $stats[$k]["tsf"] = Encoding::toUTF8($stats[$k]["tsf"]);
+            $stats[$k]["ts"] = Encoding::toUTF8($stats[$k]["ts"]);
+        }
         return $stats;
     }
 

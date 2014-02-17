@@ -409,7 +409,7 @@ class m_stats extends IModule{
     /*функция формирует единый массив для разных регионов,
      * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
     */
-    function prepareStatArray($data = array(), $detality = '', $is_utf8 = false, $all_regions = array()) {
+    function prepareStatArray($data = array(), $detality = '', $all_regions = array()) {
 
         if (!count($data)) return $data;
         $Res = array();
@@ -436,10 +436,10 @@ class m_stats extends IModule{
                         }
                     }
                 }
-                $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                $rt['tsf1']='Итого';
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
 
                 break;
             case 'call':
@@ -458,13 +458,13 @@ class m_stats extends IModule{
                 }
                 array_multisort($Res);
 
-                $rt['ts1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
-                $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                $rt['ts1']='Итого';
+                $rt['tsf1']='Итого';
                 $rt['num_to']='&nbsp;';
                 $rt['num_from']='&nbsp;';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -498,10 +498,10 @@ class m_stats extends IModule{
                 }
                 ksort($Res);
 
-                $rt['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
+                $rt['tsf1']='Итого';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-               $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+               $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
             break;
         }
 
@@ -682,7 +682,7 @@ class m_stats extends IModule{
 		$design->AddMain('stats/callback_form.tpl');
 	}
 
-	function GetStatsInternet($client,$from,$to,$detality,$routes,$is_collocation=0, $is_utf8=false){
+	function GetStatsInternet($client,$from,$to,$detality,$routes,$is_collocation=0){
 		global $db;
 		if(date('Y-m-d',$from)=='2029-01-01'){
 			$r=array('in_bytes'=>0, 'out_bytes'=>0,'ts'=>0,'tsf'=>0);
@@ -844,7 +844,7 @@ class m_stats extends IModule{
 			//printdbg($db->NumRows(), $q);
 			if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
-				$r['tsf']=($is_utf8 === true) ? Encoding::toUTF8(mdate($format,$r['ts'])) : mdate($format,$r['ts']);
+				$r['tsf']=mdate($format,$r['ts']);
 				$R[]=$r;
 				//printdbg($r);
 				if ($is_collocation) {
@@ -862,8 +862,8 @@ class m_stats extends IModule{
 				}
 			}
 		}
-		$T['ts']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
-		$T['tsf']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
+		$T['ts']='<b>Итого</b>';
+		$T['tsf']='<b>Итого</b>';
 		$T['ip']='&nbsp;';
 		$R[]=$T;
 		return $R;
@@ -972,7 +972,7 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array(), $is_utf8 = false){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array()){
         global $pg_db;
 
         /*
@@ -1081,7 +1081,7 @@ class m_stats extends IModule{
                 {
                     if (!isset($geo[$r['geo_id']]))
                         $geo[$r['geo_id']] = $pg_db->GetValue('select name from geo.geo where id='.((int)$r['geo_id']));
-                    $r['geo'] = (($is_utf8 === true) ? Encoding::toUTF8($geo[$r['geo_id']]) : $geo[$r['geo_id']]);
+                    $r['geo'] = $geo[$r['geo_id']];
                     if ($r['mob'] == 't') $r['geo'] .= ' (mob)';
                 } else $r['geo'] = '';
 
@@ -1091,7 +1091,7 @@ class m_stats extends IModule{
                     $t = explode(':', $dt[1]);
                 else $t=array('0','0','0');
                 $ts = mktime($t[0],$t[1],intval($t[2]),$d[1],$d[2],$d[0]);
-                $r['tsf1']=(($is_utf8 === true) ? Encoding::toUTF8(mdate($format,$ts)) : mdate($format,$ts));
+                $r['tsf1']=mdate($format,$ts);
                 $r['mktime'] = $ts;
                 $r['is_total'] = false;
 
@@ -1105,13 +1105,13 @@ class m_stats extends IModule{
                 $rt['cnt']+=$r['cnt'];
                 $rt['ts2']+=$r['ts2'];
             }
-            $rt['ts1']= (($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого');
-            $rt['tsf1']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
+            $rt['ts1']= 'Итого';
+            $rt['tsf1']='<b>Итого</b>';
             $rt['num_to']='&nbsp;';
             $rt['num_from']='&nbsp;';
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
 
             $R['total']=$rt;
         }else{
@@ -1119,11 +1119,11 @@ class m_stats extends IModule{
                             from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
-            $R = array(     'mos_loc'=>  array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Местные Стационарные') : 'Местные Стационарные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'mos_mob'=> array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Местные Мобильные') : 'Местные Мобильные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'rus_fix'=> array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Россия Стационарные') : 'Россия Стационарные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'rus_mob'=> array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Россия Мобильные') : 'Россия Мобильные'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'int'=>     array('tsf1'=>(($is_utf8 === true) ? Encoding::toUTF8('Международка') : 'Международка'),'cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
+            $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
             //$db_calls->Query($sql);
             $pg_db->Query($sql);
             //while ($r=$db_calls->NextRecord()){
@@ -1160,10 +1160,10 @@ class m_stats extends IModule{
                 $R[$k]['price'] = number_format($r['price'], 2, '.','');
             }
             $rt['is_total']=true;
-            $rt['tsf1']='<b>'.(($is_utf8 === true) ? Encoding::toUTF8('Итого') : 'Итого').'</b>';
+            $rt['tsf1']='<b>Итого</b>';
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
-            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - '.(($is_utf8 === true) ? Encoding::toUTF8('Сумма с НДС') : 'Сумма с НДС').'</b>)';
+            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
         }
