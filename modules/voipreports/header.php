@@ -19,7 +19,7 @@ class m_voipreports_head extends IModuleHead
         'calc_volume' => array('voipreports', 'admin'),
         'cost_report' => array('voipreports', 'access'),
 
-        'aibulat_report' => array('voipreports', 'access'),
+        'reconciliation_report' => array('voipreports', 'access'),
 
         'pricelist_report_list' => array('voipreports', 'access'),
         'pricelist_report_routing_list' => array('voipreports', 'access'),
@@ -37,7 +37,7 @@ class m_voipreports_head extends IModuleHead
         array('Сравнение операторов', 'pricelist_report_operator_list'),
         array('По маршрутизации', 'pricelist_report_routing_list'),
         array('Себестоимость', 'cost_report'),
-        array('Отчет для Айбулата', 'aibulat_report'),
+        array('Отчет для сверок', 'reconciliation_report'),
         array('', 'voip_7800_report'),
         array('Voip 7800', 'voip_7800_report'),
         array('Voip Местные', 'voip_local_report'),
