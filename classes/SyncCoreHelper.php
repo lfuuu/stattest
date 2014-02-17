@@ -46,7 +46,7 @@ class SyncCoreHelper
             $data["contragents"][] = $dataContragent;
         }
 
-        $data["admin"] = array("email" => "id".$main_card_id."@mcn.user", "password" => $password?:password_gen(), "active" => true);
+        $data["admin"] = array("email" => $main_card_id."@mcn.ru", "password" => $password?:password_gen(), "active" => true);
         /*
         if ($emails && $password)
         {

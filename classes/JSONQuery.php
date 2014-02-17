@@ -17,6 +17,7 @@ class JSONQuery
                 CURLOPT_FORBID_REUSE => 1, 
                 CURLOPT_TIMEOUT => 4, 
                 CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_SSL_VERIFYPEER => FALSE
                 //CURLOPT_COOKIE => "mcn_uid=139031302648788611069664" /* !!!!!!! */
                 ); 
 
@@ -36,6 +37,7 @@ class JSONQuery
         // todo: переделать эту хрень на событийную модель
         if ($info["http_code"] !== 200)
         {
+            print_r($info);
             throw new Exception("VPBX Sync Error: http code: ".$info["http_code"], $info["http_code"]);
         }
 
