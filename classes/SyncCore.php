@@ -62,7 +62,7 @@ class SyncCore
 
             if ($cl->id == $client->id) // is main card
             {
-                $struct = SyncCoreHelper::getEmailStruct($client->client."@mcn.user", $client->password?:password_gen());
+                $struct = SyncCoreHelper::getEmailStruct($client->id."@mcn.ru", $client->password?:password_gen());
             }
         }
         if ($struct)
@@ -110,7 +110,7 @@ class SyncCore
 
         if ($client)
         {
-            $email = "id".$client->id."@mcn.user";
+            $email = $client->id."@mcn.ru";
             $cc = ClientContact::find("first", array("id" => $client->admin_contact_id, "is_official" => 1, "is_active" => 1, "type" => 'email'));
 
             if ($cc)
