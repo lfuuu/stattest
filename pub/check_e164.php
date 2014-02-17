@@ -11,6 +11,15 @@
 
     $spec_numbers = array('9999', '7495', '7499');
 
+    if ($_GET['e164'] == 'TRUNK') {
+        $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)=3";
+        if (($res=$db->GetValue($query)) !== false) {
+            echo $res;
+        } else 
+            echo "FAIL";
+        exit();
+    }
+
     if(preg_match('/^FREE(\d+)?:(\d{4,7}|short)?/',$_GET['e164'],$m)){
         if(isset($m[2]) && $m[2] != 'short'){
             $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";

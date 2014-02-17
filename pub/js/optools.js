@@ -14,6 +14,12 @@ var optools = {
 		return false
 	},
 	check_submit:function(){
+		if ($('select[name="dbform[t_id_tarif]"]').val() == '0') {
+			alert("Тариф не выбран!");
+			return false;
+		}
+		if ($('#is_trunk').val() == '1') return true;
+
 		return optools.voip.check_e164.isValid()
 	},
 	friendly:{
@@ -197,6 +203,19 @@ var optools = {
 						e164:'FREE'+document.getElementById('get_free_e164_limit_calls').value+':'+el.value,
 						actual_from:document.getElementById('actual_from').value,
 						actual_to:document.getElementById('actual_to').value
+					},
+					function(data){
+						document.getElementById('E164').value = data
+						document.getElementById('E164').onkeyup()
+					}
+				);
+				return false
+			},
+			get_free_e164_trunk:function(){
+				$.get(
+					'check_e164.php',
+					{
+						e164:'TRUNK'
 					},
 					function(data){
 						document.getElementById('E164').value = data
@@ -813,6 +832,19 @@ $(document).ready(function() {
 			}
 		}
 		getTarifs(region_id);
+	});
+	
+	$('#is_trunk').change(function(){
+		if($(this).val() == '1') {
+			$('#get_free_e164, #get_free_e164_limit_calls, #e164_flag_image, #e164_flag_letter').hide();
+			optools.voip.check_e164.get_free_e164_trunk();
+			$('#s_tarif_type').val('special').change();
+			$('#tr_E164 td:first-child').html('номер транка');
+		} else {
+			$('#get_free_e164, #get_free_e164_limit_calls, #e164_flag_image, #e164_flag_letter').show();
+			$('#s_tarif_type').val('public').change();
+			$('#tr_E164 td:first-child').html('номер телефона');
+		}
 	});
 });
 function getTarifs(region_id)
