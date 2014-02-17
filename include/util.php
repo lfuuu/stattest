@@ -815,6 +815,15 @@ class ClientCS {
         $design->assign('client',$D);
     }
 
+    public static function FetchMain($client) {
+        global $db,$design;
+        $main_client = preg_replace('/^(.+)(\/)(.*)/i', '$1', $client);
+        if ($main_client != $client) {
+            $D = self::FetchClient($main_client);
+            $design->assign('main_client',$D);
+        } else $design->assign('main_client',false);
+    }
+    
     public function AddContact($type,$value,$comment,$is_official) {
         global $db,$user;
         $V = array('type'=>$type,'data'=>$value,'ts'=>array('NOW()'),'client_id'=>$this->id,'comment'=>$comment,'is_official'=>$is_official,'user_id'=>$user->Get('id'),'is_active'=>1);

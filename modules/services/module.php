@@ -938,7 +938,7 @@ class m_services extends IModule{
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($fixclient);
-
+        ClientCS::FetchMain($fixclient);
         Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->ProcessEx('../store/acts/voip_act.tpl'); 

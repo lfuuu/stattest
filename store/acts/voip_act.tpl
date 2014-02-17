@@ -33,8 +33,13 @@
 <h5>Информация для получения статистики</h5>
 Страница просмотра: <i>https://lk.mcn.ru/</i><br>
 
-Логин: <b>{$client.client}</b><br>
+{if $main_client}
+Логин: <b>{$main_client.id}</b><br>
+Пароль: <b>{$main_client.password}</b>
+{else}
+Логин: <b>{$client.id}</b><br>
 Пароль: <b>{$client.password}</b>
+{/if}
 </p>
 
 
