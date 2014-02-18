@@ -1,8 +1,8 @@
-<h1>Отчет для Айбулата:</h1>
+<h1>Отчет для сверок:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
-	<input type="hidden" name="action" value="aibulat_report" />
+	<input type="hidden" name="action" value="reconciliation_report" />
     <select class="select2" name="f_instance_id" style="width: 180px">
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name}</option>
@@ -26,6 +26,12 @@
         <option value="t" {if $f_include_initiate eq 't'} selected{/if}>Включить стоимость инициации в цену</option>
         <option value="f" {if $f_include_initiate eq 'f'} selected{/if}>Не включать стоимость инициации в цену</option>
     </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <label>
+        <input type="checkbox" name="exclude_local" value="1" {if $exclude_local > 0}checked{/if} />
+        Исключить местные вызовы
+    </label>
+
     <div style="height: 5px"></div>
     <input type=submit name="make" id="make_report" value="Сформировать"/>
 </form>

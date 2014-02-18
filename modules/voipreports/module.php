@@ -11,7 +11,7 @@ include_once 'pricelist_report.php';
 include_once 'cost_report.php';
 include_once 'operators_traf_report.php';
 include_once 'unrecognized_report.php';
-include_once 'aibulat_report.php';
+include_once 'reconciliation_report.php';
 
 
 class m_voipreports extends IModule
@@ -32,7 +32,7 @@ class m_voipreports extends IModule
         $this->_addInheritance(new m_voipreports_routing_report);
         $this->_addInheritance(new m_voipreports_pricelist_report);
         $this->_addInheritance(new m_voipreports_cost_report);
-        $this->_addInheritance(new m_voipreports_aibulat_report);
+        $this->_addInheritance(new m_voipreports_reconciliation_report);
     }
 
     public function __call($method, array $arguments = array())
