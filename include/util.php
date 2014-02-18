@@ -1696,7 +1696,10 @@ class IPList{
                     while(($md<16) && ($k & (pow(2,$md)-1))==0)
                         $md++;
                     $md = pow(2,$md-1);
-                    while(isset($ta[$k+$d]) && ($d<$md)){
+                    while(
+                            ($t != 'gpon' && isset($ta[$k+$d]) && ($d<$md)) || 
+                            ($t == 'gpon' && isset($ta[$k+$d]) && ($d<$md) && ($ta[$k+$d][2] == $v[2]))
+                    ) {
                         $d++;
                     }
                     $dv = floor(log($d,2));
