@@ -416,7 +416,8 @@ class Api
                                 FROM
                                     log_tarif
                                 WHERE
-                                        service = "usage_voip"
+                                    service = "usage_voip"
+                                    AND date_activation<NOW()
                                     AND id_service= u.id
                                 ORDER BY
                                     date_activation DESC,
@@ -857,25 +858,57 @@ class Api
     {
         $order_str = 'Заказ услуги Интернет из Личного Кабинета. '.
             'Client ID: ' . $client_id . '; Region ID: ' . $region_id . '; Tarif ID: ' . $tarif_id;
-        return;
+
+        return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
 
     public static function orderCollocationTarif($client_id, $region_id, $tarif_id)
     {
         $order_str = 'Заказ услуги Collocation из Личного Кабинета. '.
                 'Client ID: ' . $client_id . '; Region ID: ' . $region_id . '; Tarif ID: ' . $tarif_id;
-        return;
+
+        return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
 
     public static function orderVoip($client_id, $region_id, $number, $tarif_id, $lines_cnt)
     {
         global $db;
-
-        exit();
+        //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
 
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, name from tarifs_voip where id='".$tarif_id."'");
+        $tarifs = $db->AllRecords($q = "select 
+                                    id, dest 
+                                from 
+                                    tarifs_voip 
+                                where 
+                                    status='public' 
+                                and 
+                                    region='".$region_id."' 
+                                and 
+                                    currency='RUR' 
+                                " . (($region_id == '99') ? "AND name LIKE('%".Encoding::toKOI8R('Базовый')."%')" : '') 
+                                );
+
+        $default_tarifs = array(
+                        'id_tarif_local_mob'=>0,
+                        'id_tarif_russia'=>0,
+                        'id_tarif_intern'=>0,
+                        'id_tarif_sng'=>0
+                        );
+        foreach ($tarifs as $r) {
+            switch ($r['dest']) {
+                case '1':
+                    $default_tarifs['id_tarif_russia'] = $r['id'];break;
+                case '2':
+                    $default_tarifs['id_tarif_intern'] = $r['id'];break;
+                case '3':
+                    $default_tarifs['id_tarif_sng'] = $r['id'];break;
+                case '5':
+                    $default_tarifs['id_tarif_local_mob'] = $r['id'];break;
+            }
+        }
 
         $lines_cnt = (int)$lines_cnt;
         if ($lines_cnt > 10) $lines_cnt = 10;
@@ -886,11 +919,13 @@ class Api
 
         $freeNumbers = self::getFreeNumbers(true);
         if (array_search($number, $freeNumbers) === false)
-            throw new Exception("Номер не свободен!");
+            //throw new Exception("Номер не свободен!");
+            return array('status'=>'error','message'=>'Номер не свободен!');
 
         $clientNumbers = self::getVoipList($client_id, true);
         if (array_search($number, $clientNumbers) !== false)
-            throw new Exception("Номер уже используется");
+            //throw new Exception("Номер уже используется");
+            return array('status'=>'error','message'=>'Номер уже используется!');
 
         $message = Encoding::toKOI8R("Заказ услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
@@ -911,18 +946,29 @@ class Api
                 );
 
         $db->QueryInsert("log_tarif", array(
-                    "service" => "usage_voip",
-                    "id_service" => $usageVoipId,
-                    "id_tarif" =>$tarif["id"],
-                    "id_tarif_local_mob" => 86,
-                    "id_tarif_russia" => 72,
-                    "id_tarif_intern" => 78,
-                    "id_tarif_sng" => 75,
-                    "ts" => array("NOW()")
+                    "service"             => "usage_voip",
+                    "id_service"          => $usageVoipId,
+                    "id_tarif"            =>$tarif["id"],
+                    "id_tarif_local_mob"  => $default_tarifs['id_tarif_local_mob'],
+                    "id_tarif_russia"     => $default_tarifs['id_tarif_russia'],
+                    "id_tarif_intern"     => $default_tarifs['id_tarif_intern'],
+                    "id_tarif_sng"        => $default_tarifs['id_tarif_sng'],
+                    "ts"                  => array("NOW()"),
+                    "date_activation"     => array("NOW()"),
+                    "dest_group"          => '0',
+                    "minpayment_group"    => '0',
+                    "minpayment_local_mob"=> '0',
+                    "minpayment_russia"   => '0',
+                    "minpayment_intern"   => '0',
+                    "minpayment_sng"      => '0'
                     )
                 );
-        Api::createTT($message, $client['client'], self::_getUserForTrouble(), "usage_voip", $usageVoipId);
-        return;
+
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
 
     public static function orderVpbxTarif($client_id, $region_id, $tarif_id)
@@ -945,7 +991,15 @@ class Api
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["name"] . " (Id: $tarif_id)";
 
-        $vpbx = $db->GetValue("select id from usage_virtpbx where client = '".$client["client"]."'");
+        $vpbx = $db->GetRow("
+                select 
+                    id, 
+                    IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 1, 0) AS `actual` 
+                from 
+                    usage_virtpbx 
+                where 
+                    client = '".$client["client"]."'
+                ");
 
         if (!$vpbx) // добавляем VPBX, если его нет
         {
@@ -960,9 +1014,27 @@ class Api
                         )
                     );
 
-            Api::createTT($message, $client['client'], self::_getUserForTrounble(), "usage_virtpbx", $vpbxId);
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+                return array('status'=>'ok','message'=>'Заявка принята'); 
+            else
+                return array('status'=>'error','message'=>'Ошибка добавления заявки');
+        } elseif ($vpbx['actual'] == 0) {
+            // Тариф есть, но не актуальный (заявка)
+            $db->QueryUpdate("usage_virtpbx", "id", array(
+                            "id"            => $vpbx['id'],
+                            "tarif_id"      => $tarif["id"],
+                            "server_pbx_id" => 1
+                            )
+                        );
+
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+                return array('status'=>'ok','message'=>'Заявка принята'); 
+            else
+                return array('status'=>'error','message'=>'Ошибка добавления заявки');
+        } else {
+            // Уже есть актуальный
+            return array('status'=>'error','message'=>'Вы уже подключены.');
         }
-        return;
     }
 
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
@@ -978,9 +1050,11 @@ class Api
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
 
-        return;
     }
 
     public static function orderEmailTarif($client_id, $domain_id, $local_part, $password)
@@ -998,9 +1072,11 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $local_part . "\n";
         $message .= Encoding::toKOI8R('Пароль: ') . $password;
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
 
-        return;
     }
 
     public static function changeInternetTarif($client_id, $service_id, $tarif_id)
@@ -1016,8 +1092,11 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
-        return;
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
 
     public static function changeCollocationTarif($client_id, $service_id, $tarif_id)
@@ -1033,8 +1112,11 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
-        return;
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
 
     public static function changeVoipTarif($client_id, $service_id, $tarif_id)
@@ -1042,16 +1124,23 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
-        $number = $db->GetValue("select E164 from usage_voip where id='".$service_id."'");
+        $voip = $db->GetRow("select E164, status from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
 
         $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Номер: ') . $number . " (Id: $service_id)\n";
+        $message .= Encoding::toKOI8R('Номер: ') . $voip['E164'] . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
-        return;
+        if ($voip['status'] == 'connecting') {
+            $db->QueryUpdate("log_tarif", "id_service", array("id_service"=>$service_id, "id_tarif" => $tarif_id));
+            $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
+        }
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
 
     public static function changeVpbxTarif($client_id, $service_id, $tarif_id)
@@ -1078,11 +1167,12 @@ class Api
                 $db->QueryUpdate("usage_virtpbx", "id", array("id"=>$vpbx["id"], "tarif_id" => $tarif_id));
                 $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
             }
-            Api::createTT($message, $client['client'], self::_getUserForTrounble(), 'usage_virtpbx', $vpbx["id"]);
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+                return array('status'=>'ok','message'=>'Заявка принята'); 
         }
 
 
-        return;
+        return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
 
     public static function changeDomainTarif($client_id, $service_id, $tarif_id)
@@ -1098,9 +1188,11 @@ class Api
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
 
-        return;
     }
 
     public static function changeEmailTarif($client_id, $email, $password)
@@ -1114,9 +1206,11 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $email . "\n";
         $message .= Encoding::toKOI8R('Новый пароль: ') . $password;
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
 
-        return;
     }
 
     public static function disconnectInternet($client_id, $service_id)
@@ -1130,8 +1224,11 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
-        return;
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
 
     public static function disconnectCollocation($client_id, $service_id)
@@ -1145,8 +1242,11 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
-        return;
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
     
     public static function disconnectVoip($client_id, $service_id)
@@ -1154,15 +1254,22 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
-        $number = $db->GetValue("select E164 from usage_voip where id='".$service_id."'");
+        $voip = $db->GetRow("select E164, status from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Номер: ') . $number . " (Id: $service_id)";
+        $message .= Encoding::toKOI8R('Номер: ') . $voip['E164'] . " (Id: $service_id)";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        if ($voip['status'] == 'connecting') {
+            $db->QueryDelete('log_tarif', array('id_service'=>$service_id));
+            $db->QueryDelete('usage_voip', array('id'=>$service_id));
+            $message .= Encoding::toKOI8R("\n\номер удален, т.к. подключения не было");
+        }
 
-        return;
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
     
     public static function disconnectVpbx($client_id, $service_id)
@@ -1185,10 +1292,11 @@ class Api
                 $message .= Encoding::toKOI8R("\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было");
             }
 
-            Api::createTT($message, $client['client'], self::_getUserForTrounble());
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+                return array('status'=>'ok','message'=>'Заявка принята'); 
         }
 
-        return;
+        return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
     
     public static function disconnectDomain($client_id, $service_id)
@@ -1202,8 +1310,11 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
-        return;
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+
     }
     
     public static function disconnectEmail($client_id, $email)
@@ -1216,9 +1327,11 @@ class Api
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Почтовый ящик: ') . $email;
 
-        Api::createTT($message, $client['client'], self::_getUserForTrounble());
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            return array('status'=>'ok','message'=>'Заявка принята'); 
+        else 
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
 
-        return;
     }
     
     public static function createTT($message = '', $client = '', $user = '', $service = '', $service_id = 0)
@@ -1241,8 +1354,7 @@ class Api
                 'user_author' => $user
         );
 
-        $tt->createTrouble($R, $user);
-        return;
+        return $tt->createTrouble($R, $user);
     }
 
     public static function getStatisticsVoipPhones($client = '')
