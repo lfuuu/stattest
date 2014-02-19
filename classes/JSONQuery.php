@@ -47,7 +47,7 @@ class JSONQuery
 
         if (!$result)
         {
-            throw new Exception("VPBX Sync Error: result false");
+            throw new Exception("VPBX Sync Error: result false", -1);
         }
 
         if (isset($result["errors"]))
