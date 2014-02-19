@@ -25,9 +25,19 @@ class SyncCore
         $action = "add_accounts_from_stat";
         if ($struct)
         {
-            JSONQuery::exec(CORE_API_URL.$action, $struct);
+            try{
+                JSONQuery::exec(CORE_API_URL.$action, $struct);
+            } catch(Exception $e)
+            {
+                echo "-----------";
+                if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
+                {
+                    event::go("add_super_client", $cl->super_id);
+                    event::go("add_account", $cl->id);
+                }
+                echo "-----------";
+            }
         }
-        //
     }
 
     public function addEmail($param)

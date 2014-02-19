@@ -1018,6 +1018,14 @@ class m_clients {
                 return;
             }
 
+        if (get_param_raw("sync"))
+        {
+            event::go("add_account", $r["id"]);
+            header("Location: ./?module=clients&id=".$r["id"]);
+            exit();
+        }
+
+
 		if(strrpos($r['client'],'/')!==false){
 			$cl_main_card = substr($r['client'],0,-2);
 			$design->assign('card_type','addition');
