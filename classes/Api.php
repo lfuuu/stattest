@@ -1508,14 +1508,50 @@ class Api
     public static function saveClientData($client_id = '', $data = array())
     {
         global $db;
+        $status_arr = array('income','connecting','testing');
+        $edit_fields = array(
+                        'inn','kpp','company_full','address_jur','address_post','pay_acc','bik',
+                        'signer_name','signer_position','mail_who','address_connect','phone_connect'
+                        );
+
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
             throw new Exception("Неверный номер лицевого счета!");
-        //$module_clients = new m_clients();
 
-        //$res = $module_clients->clients_apply(self::_importModelRow($data));
-        $res = $db->QueryUpdate('clients','id', self::_importModelRow($data));
+        $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
+        if (!$client)
+            throw new Exception("Неверный номер лицевого счета!");
+
+        if (!in_array($client['status'], $status_arr))
+            throw new Exception("Запрет редактирования клиента!");
+
+        $edit_data = array('id'=>$client_id);
+        foreach ($edit_fields as $fld) {
+            if (isset($data[$fld])) {
+                $v = htmlentities(trim(strip_tags(preg_replace(array('/\\\\+/','/\/\/+/'), array('\\','/'), $data[$fld]))),ENT_QUOTES);
+                $edit_data[$fld] = substr($v, 0, 250);
+            }
+        }
+
+        $res = $db->QueryUpdate('clients','id', self::_importModelRow($edit_data));
 
         return $res;
+    }
+
+    /**
+     * Получение названия компании
+     *
+     */
+
+    public static function getCompanyName($client_id = '')
+    {
+        if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+
+        $ret = array();
+        $client = ClientCard::find_by_id($client_id);
+        if ($client) $ret = self::_exportModelRow(array('name'), $client->super);
+
+        return $ret;
     }
 
     private function _getUserForTrounble()
