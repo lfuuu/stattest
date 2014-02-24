@@ -466,7 +466,7 @@ class MailJob {
 		}
 		$k = self::get_object_key($r);
 		//return WEB_ADDRESS.WEB_PATH.'mail.php?o='.$r['object_id'].'&k='.$k;
-        return 'https://lk.mcn.ru/mail?o='.$r['object_id'].'&k='.$k;
+        return 'https://lk.mcn.ru/lk/docs/?o='.$r['object_id'].'&k='.$k;
 	}
 	public function _get_assignments($match){
 

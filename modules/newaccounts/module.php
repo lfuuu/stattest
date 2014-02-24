@@ -1705,9 +1705,9 @@ class m_newaccounts extends IModule
                 }
 
 
-                $link[] = 'https://lk.mcn.ru/print?bill='.udata_encode_arr($R);
+                $link[] = 'https://lk.mcn.ru/lk/docs/?bill='.udata_encode_arr($R);
                 $R['emailed'] = '0';
-                $link[] = 'https://lk.mcn.ru/print?bill='.udata_encode_arr($R);
+                $link[] = 'https://lk.mcn.ru/lk/docs/?bill='.udata_encode_arr($R);
                 foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
             }
         }
