@@ -3,6 +3,11 @@
 <table width=100%><tr><td>
 	<table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
 
+        <tr>
+            <td class=left>Регион:</td>
+            <td colspan="2"><b>{$region_name}</b></td>
+        </tr>
+
 
 		{if $client.previous_reincarnation}
 		<tr>
@@ -11,6 +16,7 @@
 		</tr>
 		{/if}
 
+        {if $client.contragents_count > 1}
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
                 Клиент:
@@ -40,10 +46,12 @@
             {/foreach}
             </td>
         </tr>
+        {/if}
 
+        {if $client.cards_count > 1}
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-            Карточки:
+            {if $client.cards_count > 1}Карточки{else}Карточка{/if}:
             </td>
             <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
                 {foreach from=$client.cards item='c'}
@@ -67,10 +75,7 @@
             <td class=left></td>
             <td colspan="2"></td>
         </tr>
-        <tr>
-            <td class=left>Регион:</td>
-            <td colspan="2"><b>{$region_name}</b></td>
-        </tr>
+        {/if}
         <TR><TD class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
 				<a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:</TD><TD{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
 				<b>{$client.company_full}</b>&nbsp; &nbsp;{if trim($client.company_full)!= trim($client.company)}({$client.company}){/if}&nbsp; &nbsp;(<span style='color:#000080'>{$client.firma}</span>)</TD>
@@ -147,6 +152,9 @@
 							document.getElementById('YotaContractLink').style.display = 'block';
 					</script>
 				{*/if*}
+
+                <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
+
 			</td>
 		</TR>
 		<TR id=company_names style="display: none;"><TD colspan=2 align=center>Изменения названия компании:
