@@ -287,7 +287,7 @@ class DbFormUsageIpPorts extends DbForm{
             } elseif ($v3!=$v) {
                 $v='(499) '.$v3;
             } else {
-                $v='????? '.$v;
+                $v=''.$v;
             }
             $this->dbform['node']=$v;
             $this->dbform['port']='mgts';
