@@ -97,6 +97,7 @@ function do_func($function)
 
 		case 'getClientData': return Api::getClientData(get_param_raw("client_id")); break;
 		case 'saveClientData': return Api::saveClientData(get_param_raw("client_id"), get_param_raw("data")); break;
+		case 'getCompanyName': return Api::getCompanyName(get_param_raw("client_id")); break;
 		
 		default: throw new Exception("Функция не определенна");
 	}
