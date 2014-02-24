@@ -31,6 +31,7 @@ class LkServiceOptions
                 $q = "
                 SELECT
                     u.id,
+                    u.actual_from,
                     IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`
                 FROM 
                     usage_virtpbx u, 
@@ -43,10 +44,16 @@ class LkServiceOptions
                 ");
 
 
-        if ($vpbx && $vpbx["actual"])
-        {
-            $data["tarif_change"] = 1;
-            $data["disable"] = 1;
+        if ($vpbx)
+        {  
+            if ($vpbx["actual"] || $vpbx["actual_from"] == "2029-01-01")
+            {
+                $data["tarif_change"] = 1;
+                $data["disable"] = 1;
+            } else {
+                $data["connect"] = 1;
+            }
+
         } else {
             $data["connect"] = 1;
         }
