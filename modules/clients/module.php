@@ -1042,7 +1042,10 @@ class m_clients {
         */
 
         if ($r)
+        {
             $r["cards"] = $db->AllRecords("select id, client, company from clients where contragent_id = ".$r["contragent_id"]." order by id");
+            $r["cards_count"] = count($r["cards"]);
+        }
 
 		//$design->assign('all_cls',$db->AllRecords("select id,client from clients where client<>'' order by client",null,MYSQL_ASSOC));
 
@@ -1064,8 +1067,10 @@ class m_clients {
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
 
-        if ($r)
+        if ($r){
             $r["contragents"] = $db->AllRecords($q = "select id, name from client_contragent where super_id = '".$r["super_id"]."'");
+            $r["contragents_count"] = count($r["contragents"]);
+        }
 
 
 		if(!$show_edit){

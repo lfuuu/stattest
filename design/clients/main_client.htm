@@ -11,6 +11,7 @@
 		</tr>
 		{/if}
 
+        {if $client.contragents_count > 1}
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
                 Клиент:
@@ -40,10 +41,11 @@
             {/foreach}
             </td>
         </tr>
+        {/if}
 
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-            Карточки:
+            {if $client.cards_count > 1}Карточки{else}Карточка{/if}:
             </td>
             <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
                 {foreach from=$client.cards item='c'}
