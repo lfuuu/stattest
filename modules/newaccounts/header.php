@@ -9,7 +9,8 @@ class m_newaccounts_head extends IModuleHead{
 					'newaccounts_mass'			=>array("Массовые операции",'access','доступ'),
 					'newaccounts_balance'		=>array("Баланс",'read','просмотр'),
 					'newaccounts_usd'			=>array("Курс доллара",'access','доступ'),
-				);
+					'newaccounts_akts'			=>array("Акты",'delete','удаление'),
+	);
 	public $actions=array(
 					'bill_list'			=> array('newaccounts_bills','read'),
 					'bill_create'		=> array('newaccounts_bills','edit'),
@@ -71,6 +72,7 @@ class m_newaccounts_head extends IModuleHead{
 					'docs'			=> array('newaccounts_bills','read'),
 					'docs_unrec'			=> array('newaccounts_bills','read'),
 					'doc_file'			=> array('newaccounts_bills','read'),
+	                'doc_file_delete'	=> array('newaccounts_akts','delete'),
 
 				);
 	public $menu=array(
