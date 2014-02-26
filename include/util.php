@@ -1668,6 +1668,7 @@ class IPList{
                     }
                 }
             }
+            ksort($this->data);
     }
     public function getByType(){
         $R = array();
