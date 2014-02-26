@@ -110,23 +110,33 @@ if ($action=='add_client') {
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
 	$res = $db->AllRecords("
-          select a.*, (select max(actual_to) from usage_voip where e164 = a.number and not (actual_from = '2029-01-01' and actual_to='2029-01-01')) date_to
-          from (
+          SELECT a.*, (SELECT MAX(actual_to) FROM usage_voip WHERE e164 = a.number AND NOT (actual_from = '2029-01-01' AND actual_to='2029-01-01')) date_to
+          FROM (
+            SELECT number, beauty_level, price, vn.region
+              FROM voip_numbers vn
+              LEFT JOIN usage_voip uv ON (
+                    uv.E164 = vn.number AND 
+                    (
+                           ( actual_from = '2029-01-01' AND actual_from='2029-01-01') 
+                        OR ( actual_from <= CAST(NOW() AS date) AND actual_to >= CAST(NOW() AS date))
+                    )
+              )
 
-            select number,beauty_level,price,region
-	                          from voip_numbers
-	                          where client_id is null and
-                                (
-                                    (used_until_date is null or used_until_date < now() - interval 6 MONTH)
-                                  or
-                                    (number like '7495%' and (used_until_date is null or used_until_date < now()))
-                                  or 
-                                    site_publish = 'Y'
-                                 ) ".($region !== null ? " and region = '".$region."'" : "")."
+              WHERE 
+                  uv.E164 IS NULL 
+                AND client_id IS NULL 
+                AND (
+                    (used_until_date IS NULL OR used_until_date < NOW() - INTERVAL 6 MONTH)
+                  OR
+                    (number LIKE '7495%' AND (used_until_date IS NULL OR used_until_date < NOW()))
+                  OR 
+                    site_publish = 'Y'
+                 ) ".($region !== null ? " AND vn.region = '".$region."'" : "")."
 
               )a
-          having date_to is null or date_to < now()
-          order by if(beauty_level=0, 10, beauty_level) desc, number
+          HAVING date_to IS NULL OR date_to < NOW()
+          #order by if(beauty_level=0, 10, beauty_level) desc, number
+          ORDER BY IF(region = 99, -IFNULL(price,0), if(beauty_level=0, 10, beauty_level)) DESC, number
 	                        ");
 	foreach($res as $r)
 	{

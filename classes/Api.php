@@ -825,11 +825,13 @@ class Api
                     ) date_to
           FROM (
             SELECT 
-                number, beauty_level, price, region
-	        FROM 
+                number, beauty_level, price, voip_numbers.region
+            FROM 
                 voip_numbers
-	        WHERE 
-                client_id IS NULL 
+            LEFT JOIN usage_voip uv ON (uv.E164 = voip_numbers.number)
+            WHERE 
+                uv.E164 IS NULL 
+                AND client_id IS NULL 
                 AND (
                     (used_until_date IS NULL OR used_until_date < now() - interval 6 MONTH)
                     OR
@@ -875,7 +877,10 @@ class Api
         global $db;
         //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+        $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from='2029-01-01' AND actual_to='2029-01-01'");
+        if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'Допускается резервировать не более 5 номеров!');
+
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, name from tarifs_voip where id='".$tarif_id."'");
         $tarifs = $db->AllRecords($q = "select 
@@ -964,7 +969,7 @@ class Api
                     )
                 );
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -979,7 +984,7 @@ class Api
         $region_id = (int)$region_id;
         $tarif_id = (int)$tarif_id;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $region = $db->GetValue("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
 
@@ -1014,7 +1019,7 @@ class Api
                         )
                     );
 
-            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
                 return array('status'=>'ok','message'=>'Заявка принята'); 
             else
                 return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1027,7 +1032,7 @@ class Api
                             )
                         );
 
-            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
                 return array('status'=>'ok','message'=>'Заявка принята'); 
             else
                 return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1041,7 +1046,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $region = $db->GetValue("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
 
@@ -1050,7 +1055,7 @@ class Api
         $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1061,7 +1066,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $region = $db->GetValue("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
         $domain = $db->GetValue("select domain from domains where id='".$domain_id."'");
@@ -1072,7 +1077,7 @@ class Api
         $message .= Encoding::toKOI8R('Email: ') . $local_part . "\n";
         $message .= Encoding::toKOI8R('Пароль: ') . $password;
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1083,7 +1088,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
         $tarif = $db->GetValue("select name from tarifs_internet where id='".$tarif_id."'");
 
@@ -1092,7 +1097,7 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1103,7 +1108,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
 
@@ -1112,7 +1117,7 @@ class Api
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1123,7 +1128,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $voip = $db->GetRow("select E164, status from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
 
@@ -1136,7 +1141,7 @@ class Api
             $db->QueryUpdate("log_tarif", "id_service", array("id_service"=>$service_id, "id_tarif" => $tarif_id));
             $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
         }
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1147,7 +1152,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $tarif = $db->GetValue("select description as name from tarifs_virtpbx where id='".$tarif_id."'");
 
         if (!$client || !$tarif)
@@ -1167,7 +1172,7 @@ class Api
                 $db->QueryUpdate("usage_virtpbx", "id", array("id"=>$vpbx["id"], "tarif_id" => $tarif_id));
                 $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
             }
-            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
                 return array('status'=>'ok','message'=>'Заявка принята'); 
         }
 
@@ -1179,7 +1184,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $domain = $db->GetValue("select domain from domains where id='".$service_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
 
@@ -1188,7 +1193,7 @@ class Api
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1199,14 +1204,14 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
 
         $message = Encoding::toKOI8R("Заказ на изменения пароля к почтовому ящику из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Email: ') . $email . "\n";
         $message .= Encoding::toKOI8R('Новый пароль: ') . $password;
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1217,14 +1222,14 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение услуги Интернет из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1235,14 +1240,14 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение услуги Collocation из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Адрес: ') . $address . " (Id: $service_id)";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1253,7 +1258,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $voip = $db->GetRow("select E164, status from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение услуги IP Телефония из Личного Кабинета. \n");
@@ -1266,7 +1271,7 @@ class Api
             $message .= Encoding::toKOI8R("\n\номер удален, т.к. подключения не было");
         }
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1276,7 +1281,7 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
@@ -1292,7 +1297,7 @@ class Api
                 $message .= Encoding::toKOI8R("\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было");
             }
 
-            if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+            if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
                 return array('status'=>'ok','message'=>'Заявка принята'); 
         }
 
@@ -1303,14 +1308,14 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $domain = $db->GetRow("select domain from domains where id='".$service_id."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение услуги Домен из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $service_id)\n";
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1321,13 +1326,13 @@ class Api
     {
         global $db;
 
-        $client = $db->GetRow("select client, company from clients where id='".$client_id."'");
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
 
         $message = Encoding::toKOI8R("Заказ на отключение Почтового ящика из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Почтовый ящик: ') . $email;
 
-        if (Api::createTT($message, $client['client'], self::_getUserForTrounble()) > 0) 
+        if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
             return array('status'=>'ok','message'=>'Заявка принята'); 
         else 
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
@@ -1666,9 +1671,13 @@ class Api
         return $ret;
     }
 
-    private function _getUserForTrounble()
+    private function _getUserForTrounble($manager)
     {
-        return defined("API__USER_FOR_TROUBLE") ? API__USER_FOR_TROUBLE : "adima";
+        $default_manager = "adima";
+
+        if (defined("API__USER_FOR_TROUBLE")) return API__USER_FOR_TROUBLE;
+        else if (strlen($manager)) return $manager;
+        else return $default_manager;
     }
     
 }
