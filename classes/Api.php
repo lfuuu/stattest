@@ -934,7 +934,7 @@ class Api
 
         $message = Encoding::toKOI8R("Заказ услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Номер: ') . $number . "\n";
         $message .= Encoding::toKOI8R('Кол-во линий: ') . $lines_cnt . "\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["description"] . " (Id: ".$tarif["id"].")";
@@ -985,7 +985,7 @@ class Api
         $tarif_id = (int)$tarif_id;
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
+        $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
 
         if (!$client || !$region || !$tarif) 
@@ -993,7 +993,7 @@ class Api
 
         $message = Encoding::toKOI8R("Заказ услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["name"] . " (Id: $tarif_id)";
 
         $vpbx = $db->GetRow("
@@ -1047,12 +1047,12 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
+        $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
 
         $message = Encoding::toKOI8R("Заказ услуги Домен из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
         if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
@@ -1067,7 +1067,6 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
         $domain = $db->GetValue("select domain from domains where id='".$domain_id."'");
 
