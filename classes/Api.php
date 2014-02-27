@@ -670,10 +670,11 @@ class Api
 
 	private static function _exportModelRow($fields, &$row)
 	{
+	    $spec_chars = array('/\t/', '/\f/','/\n/','/\r/','/\v/');
 		$line = array();
 		foreach ($fields as $field)
 		{
-			$line[$field] = Encoding::toUtf8($row->{$field});
+			$line[$field] = Encoding::toUtf8(preg_replace($spec_chars,' ',$row->{$field}));
 		}
 		return $line;
 	}
