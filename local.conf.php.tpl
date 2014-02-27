@@ -72,5 +72,6 @@ return array(
 *    stat.mcn.ru: 'SCAN_DOC_DIR'      => '/var/log/skanpdf/';
 */
     'SCAN_DOC_DIR'      => "/tmp/docs/",
-    "CORE_API_URL" => "http://demo.mcn.loc/core/api/", ///with end slash
+    "CORE_API_URL" => "http://demo.mcn.loc/core/api/", ///with end slash,
+    "LK_PATH" => "https://lk.mcn.ru/lk/"
 );
