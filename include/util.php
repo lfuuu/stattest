@@ -754,7 +754,7 @@ class ClientCS {
                 $this->P = $get_params;
             } else {
                 $L="client,currency,currency_bill,credit,password,company,company_full,address_jur,address_post,address_connect,phone_connect,sale_channel," .
-                        "telemarketing,manager,support,address_post_real,bik,bank_properties,signer_name,signer_position,firma," .
+                        "telemarketing,account_manager,manager,support,address_post_real,bik,bank_properties,signer_name,signer_position,firma," .
                         "usd_rate_percent,company_full,type,login,inn,kpp,form_type,stamp,nal,signer_nameV,signer_positionV,id_all4net,".
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".

@@ -1136,6 +1136,12 @@ class m_clients {
 			$design->assign('users_telemarketing',$R);
 
 			$R=array();
+			$module_users->d_users_get($R,'account_managers');
+			if(isset($R[$r['account_manager']]))
+				$R[$r['account_manager']]['selected']=' selected';
+			$design->assign('account_managers',$R);
+
+			$R=array();
 			$module_users->d_users_get($R,'manager');
 			if(isset($R[$r['manager']]))
 				$R[$r['manager']]['selected']=' selected';
@@ -1214,6 +1220,12 @@ class m_clients {
 	function clients_new() {
 		global $design, $db,$user;
 		$design->assign('mode_new',1);
+
+		$R=array();
+		$GLOBALS['module_users']->d_users_get($R,'account_managers');
+		if(isset($R[$r['account_manager']]))
+		$R[$r['account_manager']]['selected']=' selected';
+		$design->assign('account_managers',$R);
 
 		$R=array();
 		$GLOBALS['module_users']->d_users_get($R,'manager');
