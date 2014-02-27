@@ -832,7 +832,7 @@ class m_clients {
         }
 
 		$p=data_encode($c['id'].'-'.$c['client_id']);
-		$adr="https://lk.mcn.ru/document?code=".str_replace('=','%%3D',$p);
+		$adr=LK_PATH."docs/?code=".str_replace('=','%%3D',$p);
 
 		$body="Уважаемые Господа!" . "<br><br>" . "Отправляем Вам договор:" . "<br>";
 		$body.="<a href=\"".$adr."\">".$adr."</a><br><br>";

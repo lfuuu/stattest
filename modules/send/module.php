@@ -133,7 +133,7 @@ class m_send {
 			$bill = new Bill($r['bill_no']);
 			$R=array('obj'=>'bill','source'=>2,'curr'=>'USD','bill'=>$r['bill_no']);
 			$R['client']=$bill->Get('client_id');
-			$body.='https://lk.mcn.ru/print?bill='.udata_encode_arr($R)."\n";
+			$body.=LK_PATH.'docs/?bill='.udata_encode_arr($R)."\n";
 		}
 		$body.="\n Просим своевременно их оплатить.\n\n";
 		
