@@ -120,6 +120,11 @@
 				<a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
 					Обращение в Welltone
 				</a>
+                {if $card_type == "main"}
+				<br>
+				<a target=_blank href="https://lk.mcn.ru/core/support/login_under_core_admin?stat_contragent_id={$client.id}">
+					Переход в LK
+				</a>{/if}
 				<br>
 				<br>
 
