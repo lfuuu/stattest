@@ -89,7 +89,8 @@ class Api
                         "sum"  => $p["sum_rub"]
                         );
             }
-            $bills[] = $bill;
+            if ($b["is_lk_show"] == '1') 
+                $bills[] = $bill;
         }
 
 		$sum = $sum["RUR"];
@@ -285,7 +286,7 @@ class Api
 		if(!$c)
 			throw new Exception("Лицевой счет не найден!");
 
-		$b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo)));
+		$b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo, "is_lk_show" => "1")));
 		if(!$b)
 			throw new Exception("Счет не найден!");
 
