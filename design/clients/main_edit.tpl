@@ -228,6 +228,7 @@ $(function(){
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Канал продаж:</TD><TD>{html_options name=sale_channel options=$sale_channels selected=$selected_channel}</TD></TR>
 	<TR><TD class=left>Телемаркетинг:</TD><TD><SELECT name=telemarketing><option value=''>не определено</option>{foreach from=$users_telemarketing item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
+	<TR><TD class=left>Аккаунт менеджер:</TD><TD><SELECT name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
 	<TR><TD class=left>Менеджер:</TD><TD><SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
 	<TR><TD class=left>Техподдержка:</TD><TD><SELECT name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
