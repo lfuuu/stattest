@@ -7,6 +7,7 @@ statlib.modules.voip = {}
 
 statlib.modules.clients.create = {}
 statlib.modules.newaccounts.mk1cBill = {}
+statlib.modules.newaccounts.bill_list_full = {}
 statlib.modules.tt.mktt = {}
 
 statlib.modules.clients.create.findByInn = function(ev){
@@ -286,6 +287,51 @@ statlib.modules.newaccounts.mk1cBill.findProduct.fixProd = function(i,p){
 	}
 }
 statlib.modules.newaccounts.mk1cBill.findProduct.Timer = null
+
+statlib.modules.newaccounts.bill_list_full.simple_tooltip = function (target_items, name){
+	$(target_items).each(function(i){
+		var id = $(this).attr('id');
+		var timeout = null;
+		$("body").append('<div class="'+name+'" id="tt_'+id+'"><p><img src="/images/icons/delete.gif" alt="Удалить" ></p></div>');
+		var my_tooltip = $("#tt_"+id);
+
+		$(this).removeAttr("title").mouseover(function(){
+			my_tooltip
+				.css({opacity:0.8, display:"none", left:$(this).position().left+16, top:$(this).position().top-4});
+			clearTimeout(timeout);
+			timeout = setTimeout( '$("#tt_'+id+'").fadeIn(400);',1000 );
+		}).mouseout(function(){
+			clearTimeout(timeout);
+			timeout = setTimeout( '$("#tt_'+id+'").fadeOut(400);',4000 );
+		});
+
+		my_tooltip.click(function(){
+			if (confirm("Вы уверены, что хотите удалить документ?")) {
+				$.ajax({
+					type:"GET",
+					url:"/",
+					dataType:'html',
+					data:{
+						module:'newaccounts',
+						action:'doc_file_delete',
+						id:$(this).attr('id').replace(/tt_/g,"")
+					},
+					success:function(data){
+						if (data == 'ok') {
+							$("#"+id+".del_doc").fadeOut(500);
+						} else {
+							alert(data);
+						}
+						return;
+					}
+				});
+			}
+		}).mouseout(function(){
+			clearTimeout(timeout);
+			$(this).fadeOut(800);
+		});
+	});	
+}
 
 statlib.modules.tt.mktt.setState1c = function(ev,element){
 	var state = element.value,

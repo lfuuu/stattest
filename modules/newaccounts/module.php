@@ -5973,5 +5973,25 @@ $sql .= "    order by client, bill_no";
         }
         //
     }
+
+    function newaccounts_doc_file_delete($fixclient)
+    {
+        $dirPath = STORE_PATH."documents/";
+
+        if(($id = get_param_integer("id", 0)) !== 0)
+        {
+            global $db;
+
+            if($db->Query("delete from qr_code where id = '".$id."'"))
+            {
+                if (file_exists($dirPath.$id.".pdf")) unlink($dirPath.$id.".pdf");
+                echo 'ok';
+            } else echo 'Ошибка удаления!';
+
+
+        } else echo 'Файл не задан!';
+
+        exit();
+    }
 }
 ?>
