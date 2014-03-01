@@ -89,7 +89,8 @@ class Api
                         "sum"  => $p["sum_rub"]
                         );
             }
-            $bills[] = $bill;
+            if ($b["is_lk_show"] == '1') 
+                $bills[] = $bill;
         }
 
 		$sum = $sum["RUR"];
@@ -285,7 +286,7 @@ class Api
 		if(!$c)
 			throw new Exception("Лицевой счет не найден!");
 
-		$b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo)));
+		$b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo, "is_lk_show" => "1")));
 		if(!$b)
 			throw new Exception("Счет не найден!");
 
@@ -670,10 +671,11 @@ class Api
 
 	private static function _exportModelRow($fields, &$row)
 	{
+	    $spec_chars = array('/\t/', '/\f/','/\n/','/\r/','/\v/');
 		$line = array();
 		foreach ($fields as $field)
 		{
-			$line[$field] = Encoding::toUtf8($row->{$field});
+			$line[$field] = Encoding::toUtf8(preg_replace($spec_chars,' ',$row->{$field}));
 		}
 		return $line;
 	}
@@ -934,7 +936,7 @@ class Api
 
         $message = Encoding::toKOI8R("Заказ услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Номер: ') . $number . "\n";
         $message .= Encoding::toKOI8R('Кол-во линий: ') . $lines_cnt . "\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["description"] . " (Id: ".$tarif["id"].")";
@@ -985,7 +987,7 @@ class Api
         $tarif_id = (int)$tarif_id;
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
+        $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
 
         if (!$client || !$region || !$tarif) 
@@ -993,7 +995,7 @@ class Api
 
         $message = Encoding::toKOI8R("Заказ услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["name"] . " (Id: $tarif_id)";
 
         $vpbx = $db->GetRow("
@@ -1047,12 +1049,12 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
+        $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
 
         $message = Encoding::toKOI8R("Заказ услуги Домен из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
 
         if (Api::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0) 
@@ -1067,7 +1069,6 @@ class Api
         global $db;
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $region = $db->GetValue("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
         $domain = $db->GetValue("select domain from domains where id='".$domain_id."'");
 
