@@ -4,12 +4,11 @@ class m_newaccounts_head extends IModuleHead{
 	public $module_title = 'Бухгалтерия';
 
 	public $rights=array(
-					'newaccounts_bills'			=>array("Счета",'read,edit,delete,admin','просмотр,изменение,удаление,изменение счета в любое время'),
+					'newaccounts_bills'			=>array("Счета",'read,edit,delete,admin,del_docs','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов'),
 					'newaccounts_payments'		=>array("Платежи",'read,edit,delete','просмотр,редактирование,удаление'),
 					'newaccounts_mass'			=>array("Массовые операции",'access','доступ'),
 					'newaccounts_balance'		=>array("Баланс",'read','просмотр'),
-					'newaccounts_usd'			=>array("Курс доллара",'access','доступ'),
-					'newaccounts_akts'			=>array("Акты",'delete','удаление'),
+					'newaccounts_usd'			=>array("Курс доллара",'access','доступ')
 	);
 	public $actions=array(
 					'bill_list'			=> array('newaccounts_bills','read'),
@@ -72,7 +71,7 @@ class m_newaccounts_head extends IModuleHead{
 					'docs'			=> array('newaccounts_bills','read'),
 					'docs_unrec'			=> array('newaccounts_bills','read'),
 					'doc_file'			=> array('newaccounts_bills','read'),
-	                'doc_file_delete'	=> array('newaccounts_akts','delete'),
+	                'doc_file_delete'	=> array('newaccounts_bills','del_docs'),
 
 				);
 	public $menu=array(

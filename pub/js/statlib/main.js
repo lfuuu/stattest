@@ -292,7 +292,7 @@ statlib.modules.newaccounts.bill_list_full.simple_tooltip = function (target_ite
 	$(target_items).each(function(i){
 		var id = $(this).attr('id');
 		var timeout = null;
-		$("body").append('<div class="'+name+'" id="tt_'+id+'"><p><img src="/images/icons/delete.gif" alt="Удалить" ></p></div>');
+		$("body").append('<div class="'+name+'" id="tt_'+id+'"><p><img src="images/icons/delete.gif" alt="Удалить" ></p></div>');
 		var my_tooltip = $("#tt_"+id);
 
 		$(this).removeAttr("title").mouseover(function(){
