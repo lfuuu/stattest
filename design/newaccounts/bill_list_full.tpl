@@ -162,8 +162,8 @@
 		</select>
 		</form>{/if}
 	</TD>
-    <td>{if $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_akts','delete')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="áËÔ-1"><img border=0 src="images/icons/act.gif"></a>{else}&nbsp;{/if}</td>
-    <td>{if $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_akts','delete')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="áËÔ-2"><img border=0 src="images/icons/act.gif"></a>{else}&nbsp;{/if}</td>
+    <td>{if $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="áËÔ-1"><img border=0 src="images/icons/act.gif"></a>{else}&nbsp;{/if}</td>
+    <td>{if $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="áËÔ-2"><img border=0 src="images/icons/act.gif"></a>{else}&nbsp;{/if}</td>
 	{if $pay.comment}
 	</TR><TR class={$class}><TD colspan=4 class=comment>{$pay.comment|escape:"html"}</TD><TD colspan=2>&nbsp;</TD>{/if}
 	{/foreach}
@@ -187,6 +187,7 @@
 
 {/foreach}
 </TABLE>
+{if access('newaccounts_bills','del_docs')}
 <script>
 {literal}
 	$(document).ready(function(){
@@ -194,4 +195,4 @@
 	});
 {/literal}
 </script>
-
+{/if}
