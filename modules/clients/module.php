@@ -1223,8 +1223,8 @@ class m_clients {
 
 		$R=array();
 		$GLOBALS['module_users']->d_users_get($R,'account_managers');
-		if(isset($R[$r['account_manager']]))
-		$R[$r['account_manager']]['selected']=' selected';
+		if(isset($R[$user->Get('user')]))
+			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('account_managers',$R);
 
 		$R=array();
