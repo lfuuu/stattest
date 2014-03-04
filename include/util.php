@@ -735,7 +735,7 @@ class ClientCS {
                 'double'            => array('name'=>'дубликат','color'=>'#60a0e0'),
                 'trash'                => array('name'=>'мусор','color'=>'#a5e934'),
                 'move'                => array('name'=>'переезд','color'=>'#f590f3'),
-                'already'            => array('name'=>'есть канал','color'=>'#C4a3C0'),
+                'suspended'           => array('name'=>'приостановленные','color'=>'#C4a3C0'),
                 'denial'            => array('name'=>'отказ/задаток','color'=>'#00C0C0'),
                 'once'                => array('name'=>'разовые','color'=>'silver'),
                 'reserved'            => array('name'=>'резервирование канала','color'=>'silver'),
