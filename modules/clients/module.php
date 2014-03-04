@@ -70,7 +70,7 @@ class m_clients {
                     array('Дубликаты',              'show','&subj=double'),
 				    array('Мусор',                  'show','&subj=trash'),
 				    array('Переезд',                'show','&subj=move'),
-				    array('Есть канал',             'show','&subj=already'),
+				    array('Приостановленные',       'show','&subj=suspended'),
 				    array('Отказ/задаток',          'show','&subj=denial'),
 					array('Разовые',				'show','&subj=once'),
 					array('Резервирование канала',	'show','&subj=reserved'),
@@ -292,7 +292,7 @@ class m_clients {
             case 'double':   $design->assign('name_of_action','Дубликаты');break;
             case 'trash': $design->assign('name_of_action','Мусор');break;
             case 'move':  $design->assign('name_of_action','Переезд');break;
-            case 'already': $design->assign('name_of_action','Есть канал');break;
+            case 'suspended': $design->assign('name_of_action','Приостановленные');break;
 			case 'denial':  $design->assign('name_of_action','Отказ/задаток');break;
 			case 'reserved': $design->assign('name_of_action','Резервирование канала');break;
 			case 'voip_disabled': $design->assign('name_of_action', 'Телефония отключена');break;
