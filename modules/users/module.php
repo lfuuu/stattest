@@ -83,7 +83,19 @@ class m_users {
 		$this->d_groups_get($d_groups);
 		$this->d_departs_get($d_depart);
 		$id=get_param_protected('id');
-
+		$Firms = array(
+		                'mcn_telekom'=>'ïïï &laquo;íóî ôÅÌÅËÏÍ&raquo;',
+		                'mcn'=>'ïïï &laquo;üÍ óÉ üÎ&raquo;',
+		                'markomnet_new'=>'ïïï &laquo;íáòëïíîåô&raquo;',
+		                'markomnet_service'=>'ïïï &laquo;íáòëïíîåô ÓÅÒ×ÉÓ&raquo;',
+		                'ooomcn'=>'ïïï &laquo;íóî&raquo;',
+		                'all4net'=>'ïïï &laquo;ïìæïîåô&raquo;',
+		                'ooocmc'=>'ïïï &laquo;óÉ üÍ óÉ&raquo;',
+		                'mcm'=>'ïïï &laquo;íóí&raquo;',
+		                'all4geo'=>'ïïï &laquo;ïÌÆÏÇÅÏ&raquo;',
+		                'wellstart'=>'ïïï &laquo;÷ÅÌÌÓÔÁÒÔ&raquo;'
+		);
+		
 		if ($action=='add'){
 			$f=array(
 				'user'			=> get_param_protected('user'),
@@ -91,7 +103,8 @@ class m_users {
 				'depart_id'		=> get_param_protected('depart_id'),
 				'name'			=> get_param_protected('name'),
 				'pass_text'		=> password_gen(),
-				);
+				'firms'	    	=> get_param_protected('user2firm'),
+			);
 			$f['pass']=password::hash($f['pass_text']);
 			$id=$f['user'];
 			if (!$id) {
@@ -103,6 +116,11 @@ class m_users {
 				trigger_error('ïĞÅÒÁÔÏÒ '.$id.' ÓÏÚÄÁÎ. ğÁÒÏÌØ: '.$f['pass_text']);
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
+
+                //äÏÓÔÕĞ ĞÏ ÆÉÒÍÁÍ
+                $f['firms'] = (count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
+                if ($f['firms'] != implode(',', array_keys($Firms)))
+                    $db->Query('insert into user_grant_users (name,resource,access) values ("'.$id.'","firms","'.$f['firms'].'")');
 			}
 		} else if ($action=='edit'){
 			$f=array(
@@ -120,7 +138,8 @@ class m_users {
 				'phone_work'		=> get_param_protected('phone_work'),
 				'phone_mobile'		=> get_param_protected('phone_mobile'),
 				'icq'				=> get_param_protected('icq'),
-                'enabled'           => get_param_protected('enabled', 'no')
+                'enabled'           => get_param_protected('enabled', 'no'),
+			    'firms'	          	=> get_param_protected('user2firm'),
 				);
 
             if(!$f["enabled"]) $f["enabled"] = "no";
@@ -161,6 +180,21 @@ class m_users {
 					while ($r=$db->NextRecord()) {
 						$R[$r['resource']]=$r['access'];
 					}
+
+                    //äÏÓÔÕĞ ĞÏ ÆÉÒÍÁÍ
+                    $f['firms'] = (is_array($f['firms']) && count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
+                    if ($f['firms'] == implode(',', array_keys($Firms))) {
+                        //åÓÌÉ ×ÙÂÒÁÎÙ ×ÓÅ É ÂÙÌÁ ÚÁĞÉÓØ × ÔÁÂÌÉÃÅ - ÕÄÁÌÉÍ ÚÁĞÉÓØ ÉÚ ÔÁÂÌÉÃÙ
+                        if (isset($R['firms'])) 
+                            $db->Query('delete from user_grant_users where (name="'.$id.'") and (resource="firms")');
+                    } else {
+                        if (!isset($R['firms'])) {
+                            $db->Query('insert into user_grant_users (name,resource,access) values ("'.$id.'","firms","'.$f['firms'].'")');
+                        } else {
+                            $db->Query('update user_grant_users set access="'.$f['firms'].'" where (name="'.$id.'") and (resource="firms")');
+                        }
+                    }
+
 					$this->d_rights_get($d_rights);
 					foreach ($d_rights as $i=>$v){
 						if (isset($f['rights_radio'][$i]) && $f['rights_radio'][$i]){
@@ -202,8 +236,19 @@ class m_users {
 			$R[$r['resource']]=$r['access'];
 			$R2[$r['resource']]=$r['access'];
 		}
+
+		if (!isset($R['firms'])) {
+		    foreach ($Firms as $k=>$v) $user2firm[$k] = 1;
+		} else {
+		    $tmp = explode(',', $R['firms']);
+		    foreach ($tmp as $k) $user2firm[$k] = 1;
+		}
+		$design->assign("user2firm",$user2firm);
+
 		$design->assign_by_ref("rights_real",$R);
 		$design->assign("rights_user",$R2);
+
+        $design->assign("firms",$Firms);
 
 		$design->AddMain('users/main_user.tpl');
 	}

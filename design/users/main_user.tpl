@@ -79,6 +79,21 @@
 {if $user.photo}
 	</TD></TR></table>
 {/if}
+
+<hr />
+<H3>Фирмы</H3>
+<table cellSpacing=4 cellPadding=2 border=0>
+	<thead>
+		<tr><th>Фирма</th><th><input id="check_all" type="checkbox" value="1" /> Доступ</th></tr>
+	</thead>
+	<tbody>
+		{foreach from=$firms item='firma' key='key'}
+			<tr><td>{$firma}</td><td><input class="check_firm" type="checkbox" name="user2firm[{$key}]" value="1" {if $user2firm.$key == 1}checked{/if} /></td></tr>
+		{/foreach}
+	</tbody>
+</table>
+<hr />
+
 {if access('users','grant')}
 <H3>Права доступа</H3>
       <TABLE cellSpacing=4 cellPadding=2 width="100%" border=0>
@@ -114,6 +129,13 @@ function set_enable(p) {
 	document.getElementById(v).disabled = 0;
 	return 1;
 }
+$(function(){
+	$("#check_all").change(function()
+	{
+		if ($(this).is(':checked')) $('.check_firm').prop('checked', true);
+		else $('.check_firm').prop('checked', false);
+	});
+});
 </script>
 {/literal}
 {/if}
