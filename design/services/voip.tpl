@@ -8,7 +8,11 @@
 {else}
 <H3><a href='?module=services&action=vo_view'>IP-телефония</a></H3>
 {/if}
-<a href='{$LINK_START}module=services&action=vo_act' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a><br>
+<a href='{$LINK_START}module=services&action=vo_act' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a>
+{if $has_trunk}
+<a href='{$LINK_START}module=services&action=vo_act_trunk' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт&nbsp;на&nbsp;транк</a>
+{/if}
+<br />
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
