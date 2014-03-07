@@ -8,7 +8,7 @@
   }
   {/literal}
 </style>
-<div style="width: 380px; ">
+<div style="width: 520px; ">
 
 <DIV style="float: left;">
 {if (access('clients','read'))}
@@ -22,7 +22,7 @@
 
 
 <DIV style="float: left; display: none;" id="filter_menu_contener">
-  <ul id="filter_menu" STYLE="width: 100px;">
+  <ul id="filter_menu" STYLE="width: 240px;">
     <li>Фильтр:
         {if isset($letter) && $letter && isset($letters[$letter])}
             {$letters[$letter]}
@@ -98,7 +98,7 @@ function doAddSearchShow()
     location.href='./?module=clients&action=all&additional_view={/literal}{if $view_add_search}0{else}1{/if}{literal}&retpath='+escape(l);
 }
 
-$( "#filter_menu" ).menu({ position: { my: "left top", at: "right-50 top+15" } });
+$( "#filter_menu" ).menu({ position: { my: "left top", at: "right-201 top+15" } });
 $( "#search_menu" ).menu({ position: { my: "left top", at: "right-130 top+15" } });
 
 $("#filter_menu_contener").show();

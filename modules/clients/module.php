@@ -69,11 +69,11 @@ class m_clients {
 					array('Отключенные за долги',	'show','&subj=debt'),
                     array('Дубликаты',              'show','&subj=double'),
 				    array('Мусор',                  'show','&subj=trash'),
-				    array('Переезд',                'show','&subj=move'),
+				    array('Поставщики',             'show','&subj=distr'),
 				    array('Приостановленные',       'show','&subj=suspended'),
 				    array('Отказ/задаток',          'show','&subj=denial'),
-					array('Разовые',				'show','&subj=once'),
-					array('Резервирование канала',	'show','&subj=reserved'),
+					array('Интернет Магазин',		'show','&subj=once'),
+					array('Операторы',	            'show','&subj=operator'),
 					array('Телефония отключена',	'show','&subj=voip_disabled'),
 					array('Временно заблокирован',	'show','&subj=blocked'),
 					array('',						'sc'),
@@ -298,6 +298,8 @@ class m_clients {
 			case 'voip_disabled': $design->assign('name_of_action', 'Телефония отключена');break;
 			case 'blocked': $design->assign('name_of_action', 'Временно заблокирован');break;
 			case 'once': $design->assign('name_of_action', 'Разовые');break;
+			case 'distr': $design->assign('name_of_action', 'Поставщики');break;
+			case 'operator': $design->assign('name_of_action', 'Операторы');break;
 			default: return;
 		};
 
@@ -336,14 +338,25 @@ class m_clients {
 		global $design,$db,$user;
 		$L=array("" => "***нет***");
     $LR = array("any" => "***Любой***");
-		$L['1'] = '1';
-		for ($i = ord('a');$i<=ord('z');$i++) $L[chr($i)] = chr($i);
-		ksort($L);
+		//$L['1'] = '1';
+		//for ($i = ord('a');$i<=ord('z');$i++) $L[chr($i)] = chr($i);
+		//ksort($L);
 		$L['*'] = '*';
 		$L['@'] = '@';
 		$L['!'] = 'Клиенты ItPark';
 		$L['+'] = 'Тип: Дистрибютор';
 		$L['-'] = 'Тип: Оператор';
+		$L['firma:mcn_telekom'] = 'ООО "МСН Телеком"';
+		$L['firma:mcn'] = 'ООО "Эм Си Эн"';
+		$L['firma:markomnet_new'] = 'ООО "МАРКОМНЕТ"';
+		$L['firma:markomnet_service'] = 'ООО "МАРКОМНЕТ сервис"';
+		//$L['firma:markomnet'] = 'ООО "МАРКОМНЕТ (старый)"';
+		$L['firma:ooomcn'] = 'ООО "МСН"';
+		$L['firma:all4net'] = 'ООО "ОЛФОНЕТ"';
+		$L['firma:ooocmc'] = 'ООО "Си Эм Си"';
+		$L['firma:mcm'] = 'ООО "МСМ"';
+		$L['firma:all4geo'] = 'ООО "Олфогео"';
+		$L['firma:wellstart'] = 'ООО "Веллстарт"';
 
       foreach($db->AllRecords("select id, name from regions order by if(id = 99, '!!!', name)", "id") as $r => $n)
         $LR[$r] = $n["name"];
@@ -446,6 +459,8 @@ class m_clients {
 			if($filter!=='')
                 if($filter == "voip_disabled")
                     $where.="and voip_disabled ";
+                elseif (in_array($filter, array('distr','operator')))
+                    $where.="and cl.type ='".$filter."' ";
                 else
                     $where.="and cl.status='".$filter."' ";
 			else
@@ -459,6 +474,9 @@ class m_clients {
 				$where.="and cl.type ='distr' ";
             } elseif ($letter == "-") {
 				$where.="and cl.type ='operator' ";
+            } elseif (substr($letter,0,5) == 'firma') {
+                $firma = substr($letter,6);
+                $where.="and cl.firma ='".$firma."' ";
             }else{
 				$where.="and cl.client LIKE '{$letter}%' ";
 			}
