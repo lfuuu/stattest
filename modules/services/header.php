@@ -48,6 +48,7 @@ class m_services_head extends IModuleHead {
 //VOip
 					'vo_view'			=> array('services_voip','r'),
 					'vo_act'			=> array('services_voip','r'),
+	                'vo_act_trunk'		=> array('services_voip','r'),
 					'vo_add'			=> array('services_voip','addnew'),
 					'vo_apply'			=> array('services_voip','edit'),
 					'vo_close'			=> array('services_voip','close'),
