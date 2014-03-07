@@ -561,6 +561,7 @@ class m_services extends IModule{
         $design->assign('sort',$sort);
         $design->assign('so',$so);
 
+        $has_trunk = false;
         if (!$this->fetch_client($fixclient)) {
       $region = get_param_protected("letter_region");
       $phone=get_param_protected('phone','');
@@ -586,9 +587,11 @@ class m_services extends IModule{
                     actual desc,
                     ".$order
       );
-      $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
+
+      $R=array(); while ($r=$db->NextRecord()) {$R[]=$r; if ($r['is_trunk'] == '1') $has_trunk = true;}
             $design->assign('phone',$phone);
             $design->assign('voip_conn',$R);
+            $design->assign('has_trunk',$has_trunk);
             $design->AddMain('services/voip_all.tpl'); 
         } else {
             $db->Query($q='
@@ -607,7 +610,7 @@ class m_services extends IModule{
                 desc,
                 '.$order
             );
-            $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
+            $R=array(); while ($r=$db->NextRecord()) {$R[]=$r; if ($r['is_trunk'] == '1') $has_trunk = true;}
             foreach ($R as &$r) {
                 $r['tarif']=get_tarif_current('usage_voip',$r['id']);
                 $r['cpe']=get_cpe_history('usage_voip',$r['id']);
@@ -629,6 +632,7 @@ class m_services extends IModule{
 
 
             $design->assign('voip_conn',$R);
+            $design->assign('has_trunk',$has_trunk);
             $design->assign('voip_conn_permit',$notAcos);
             $design->assign('is_vo_view', get_param_raw("action", "") == "vo_view");
             $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)','id') );
@@ -944,6 +948,19 @@ class m_services extends IModule{
         $design->ProcessEx('../store/acts/voip_act.tpl'); 
     }
 
+    function services_vo_act_trunk($fixclient){
+        global $design,$db;
+        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+    
+        $id=get_param_integer('id','');
+    
+        ClientCS::Fetch($fixclient);
+        ClientCS::FetchMain($fixclient);
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+    
+        $design->ProcessEx('../store/acts/voip_act_trunk.tpl');
+    }
+    
 
     function services_in_dev_act($fixclient){
         global $design,$db;
