@@ -1,5 +1,5 @@
 <?php
-class m_voipreports_by_dest_operator_report
+class m_voipreports_by_source_operator_report
 {
 
     public function invoke($method, $arguments)
@@ -7,7 +7,7 @@ class m_voipreports_by_dest_operator_report
         if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $arguments);
     }
 
-    function voipreports_by_dest_operator()
+    function voipreports_by_source_operator()
     {
         global $pg_db, $design;
 
@@ -21,7 +21,7 @@ class m_voipreports_by_dest_operator_report
         $f_mob = get_param_protected('f_mob', '0');
 
         if ($f_instance_id) {
-            $where = "r.direction_out and len > 0 and r.time >= '{$date_from}' and r.time <= '{$date_to} 23:59:59' ";
+            $where = "not r.direction_out and len > 0 and r.time >= '{$date_from}' and r.time <= '{$date_to} 23:59:59' ";
 
             if ($f_operator_id)
                 $where .= " and r.operator_id = '{$f_operator_id}' ";
@@ -84,6 +84,6 @@ class m_voipreports_by_dest_operator_report
         $design->assign('regions', Region::getListAssoc());
         $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
-        $design->AddMain('voipreports/by_dest_operator_report.html');
+        $design->AddMain('voipreports/by_source_operator_report.html');
     }
 }

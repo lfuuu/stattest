@@ -1,8 +1,8 @@
-<h1>На кого ушли звонки:</h1>
+<h1>От кого пришли звонки:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
-	<input type="hidden" name="action" value="by_dest_operator" />
+	<input type="hidden" name="action" value="by_source_operator" />
     <select class="select2" name="f_instance_id" style="width: 180px">
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name}</option>

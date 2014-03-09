@@ -13,6 +13,7 @@ class m_voipreports_head extends IModuleHead
         'voip_local_report' => array('voipreports','access'),
         'voip_mgmn_report' => array('voipreports','access'),
         'by_dest_operator' => array('voipreports','access'),
+        'by_source_operator' => array('voipreports','access'),
         'operators_traf' => array('voipreports', 'access'),
         'unrecognized' => array('voipreports', 'access'),
 
@@ -43,6 +44,7 @@ class m_voipreports_head extends IModuleHead
         array('Voip Местные', 'voip_local_report'),
         array('Voip МГМН', 'voip_mgmn_report'),
         array('На кого ушли звонки', 'by_dest_operator'),
+        array('От кого пришли звонки', 'by_source_operator'),
         array('Отчет по операторскому трафику voip', 'operators_traf'),
         array('Не распознанные вызовы', 'unrecognized'),
     );
