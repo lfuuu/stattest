@@ -40,6 +40,12 @@
         <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
         {/foreach}
         </select>
+        &nbsp;&nbsp;
+        <select name="f_mob">
+            <option value="0">-- Моб/Стац --</option>
+            <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
+            <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+        </select>
     </div>
     <div style="margin: 5px 0">
         &nbsp;&nbsp;&nbsp;&nbsp;
