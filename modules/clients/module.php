@@ -459,8 +459,6 @@ class m_clients {
 			if($filter!=='')
                 if($filter == "voip_disabled")
                     $where.="and voip_disabled ";
-                elseif (in_array($filter, array('distr','operator')))
-                    $where.="and cl.type ='".$filter."' ";
                 else
                     $where.="and cl.status='".$filter."' ";
 			else
@@ -470,10 +468,6 @@ class m_clients {
 		if($letter!==''){
             if($letter=='!'){
 				$where .= " and cl.client in (select client from usage_extra ue inner join tarifs_extra te on ue.tarif_id=te.id and te.status='itpark') ";
-            } elseif ($letter == "+") {
-				$where.="and cl.type ='distr' ";
-            } elseif ($letter == "-") {
-				$where.="and cl.type ='operator' ";
             } elseif (substr($letter,0,5) == 'firma') {
                 $firma = substr($letter,6);
                 $where.="and cl.firma ='".$firma."' ";

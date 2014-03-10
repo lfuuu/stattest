@@ -739,7 +739,9 @@ class ClientCS {
                 'denial'            => array('name'=>'отказ/задаток','color'=>'#00C0C0'),
                 'once'                => array('name'=>'разовые','color'=>'silver'),
                 'reserved'            => array('name'=>'резервирование канала','color'=>'silver'),
-                'blocked'            => array('name'=>'временно заблокирован','color'=>'silver')
+                'blocked'            => array('name'=>'временно заблокирован','color'=>'silver'),
+                'distr'               => array('name'=>'Поставщик','color'=>'yellow'),
+                'operator'            => array('name'=>'Оператор','color'=>'lightblue')
             );
     //вернёт название статуса
     public static function translate($status_code){
