@@ -988,7 +988,7 @@ class ApiLk
         global $db;
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $voip = $db->GetRow("select E164, status from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
+        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
     
         $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги IP Телефония из Личного Кабинета. \n");
@@ -996,8 +996,8 @@ class ApiLk
         $message .= Encoding::toKOI8R('Номер: ') . $voip['E164'] . " (Id: $service_id)\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif . " (Id: $tarif_id)";
     
-        if ($voip['status'] == 'connecting') {
-            $db->QueryUpdate("log_tarif", "id_service", array("id_service"=>$service_id, "id_tarif" => $tarif_id));
+        if ($voip['actual_from'] == '2029-01-01') {
+            $db->QueryUpdate("log_tarif", array("id_service", "service"), array("service" => "usage_voip", "id_service"=>$service_id, "id_tarif" => $tarif_id));
             $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
         }
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
@@ -1118,14 +1118,14 @@ class ApiLk
         global $db;
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $voip = $db->GetRow("select E164, status from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
+        $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
     
         $message = Encoding::toKOI8R("Заказ на отключение услуги IP Телефония из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Номер: ') . $voip['E164'] . " (Id: $service_id)";
     
-        if ($voip['status'] == 'connecting') {
-            $db->QueryDelete('log_tarif', array('id_service'=>$service_id));
+        if ($voip['actual_from'] == '2029-01-01') {
+            $db->QueryDelete('log_tarif', array("service" => "usage_voip", 'id_service'=>$service_id));
             $db->QueryDelete('usage_voip', array('id'=>$service_id));
             $message .= Encoding::toKOI8R("\n\номер удален, т.к. подключения не было");
         }

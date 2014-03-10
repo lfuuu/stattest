@@ -309,7 +309,7 @@ statlib.modules.newaccounts.bill_list_full.simple_tooltip = function (target_ite
 			if (confirm("Вы уверены, что хотите удалить документ?")) {
 				$.ajax({
 					type:"GET",
-					url:"/",
+					url:"./",
 					dataType:'html',
 					data:{
 						module:'newaccounts',
