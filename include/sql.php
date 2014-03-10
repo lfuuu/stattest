@@ -43,7 +43,7 @@ class MySQLDatabase {
 
     function Connect() {
         if ($this->_LinkId == 0) {
-            $this->_LinkId = @mysql_connect($this->host, $this->user, $this->pass);
+            $this->_LinkId = @mysql_connect($this->host, $this->user, $this->pass, true);
             if (!$this->_LinkId && $this->host !== 'thiamis.mcn.ru'){
                 $this->_Halt("connect failed.");
                 echo "can't connect mysql ".$this->host; exit;

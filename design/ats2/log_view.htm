@@ -1,0 +1,26 @@
+{if $log}
+<hr>
+    <h2>
+    Лог паролей
+    </h2>
+    <table cellpadding=2 border=1 style="border-collapse: collapse;" cellspacing=4>
+    <tr>
+        <th>Дата/Время</th>
+        <th>Кто</th>
+        <th>Аккаунт</th>
+        <th>Действие</th>
+    </tr>
+    {foreach from=$log item=l}
+    <tr>
+        <td>{$l.time}</td>
+        <td>{$l.name}</td>
+        <td>{if $l.s_id}<a href="./?module=ats2&action=account&id={$l.sip_id}">{$l.account}</a>{else}{$l.account}{/if}</td>
+        <td>{if $l.event == "view"}Просмотр{else}Изменение{/if}</td>
+    </tr>
+    {/foreach}
+    </table>
+
+    {if $isMany}
+    ... посмотреть полный <a href="./?module=ats2&action=log_view&full=true">список</a>
+    {/if}
+{/if}

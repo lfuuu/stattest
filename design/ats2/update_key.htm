@@ -1,0 +1,7 @@
+<hr>
+
+{if $update_time}
+<h3>Лицевой счет поставлен на синхронизацию {$update_time|mdate:"d месяца Yг. в H:i:s"}</h3>
+{else}
+<a href="./?module=ats2&action=set_update">Синхронизировать</a>
+{/if}

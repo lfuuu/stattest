@@ -165,17 +165,29 @@ class FormConctructor
                 {
                     $curData[$k] = $v;
                 }
-            }elseif($val["type"] == "query")
+            }elseif($val["type"] == "query" || $val["type"] == "sql")
             {
-                foreach($db->AllRecords($val["query"], "", MYSQL_BOTH) as $v)
+                if (isset($val["db"]))
                 {
-                    $curData[$v[0]]= $v[1];
+                    global $$val["db"];
+
+                    $dbConnector = &$$val["db"];
+                } else {
+                    $dbConnector = &$db;
                 }
-            }elseif($val["type"] == "sql")
-            {
-                foreach($db->AllRecords($val["sql"]) as $v)
+
+                if ($val["type"] == "query")
                 {
-                    $curData[$v["id"]]= $v;
+                    foreach($dbConnector->AllRecords($val["query"], "", MYSQL_BOTH) as $v)
+                    {
+                        $curData[$v[0]]= $v[1];
+                    }
+                }elseif($val["type"] == "sql")
+                {
+                    foreach($dbConnector->AllRecords($val["sql"]) as $v)
+                    {
+                        $curData[$v["id"]]= $v;
+                    }
                 }
             }
 

@@ -128,6 +128,12 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'sql.php');
     $db        = new MySQLDatabase();
 
+    if (defined("SQL_ATS2_DB") && SQL_ATS2_DB) {
+        $db_ats = new MySQLDatabase(SQL_HOST, SQL_USER, SQL_PASS, SQL_ATS2_DB);
+    } else {
+        $db_ats = &$db;
+    }
+
     require_once(INCLUDE_PATH.'pgsql.php');
     $pg_db    = new PgSQLDatabase();
 

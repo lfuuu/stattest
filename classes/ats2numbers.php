@@ -1,0 +1,456 @@
+<?php
+
+class ats2NumbersChecker
+{
+    public function check()
+    {
+        l::ll(__CLASS__,__FUNCTION__);
+
+        $actual = self::load("actual");
+
+        if($diff = self::diff(self::load("number"), $actual))
+        {
+            ats2Diff::apply($diff);
+        }
+    }
+
+    private function sqlClient($client = null)
+    {
+        global $db;
+        if($client == null)
+        {
+            $client = $_SESSION["clients_client"];
+        }
+        
+        static $c = array();
+
+        if(!isset($c[$client]))
+            $c[$client] = $db->GetValue("select id from clients where client = '".mysql_escape_string($client)."'");
+
+        return "client_id='".$c[$client]."'";
+    }
+
+    private static $sqlActual = "select client_id, e164, no_of_lines, no_of_callfwd, region from (
+        SELECT 
+            c.id as client_id,
+            trim(e164) as e164,
+            u.no_of_lines, 
+            u.no_of_callfwd,
+            u.region,
+            (select block from log_block where id= (select max(id) from log_block where service='usage_voip' and id_service=u.id)) is_block
+        FROM 
+            usage_voip u, clients c
+        WHERE 
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')
+            and u.client = c.client and ((c.status in ('work','connecting','testing')) or c.id = 9130)
+            /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
+
+    private static $sqlNumber=
+        "SELECT client_id, number as e164, call_count as no_of_lines, callfwd_count as no_of_callfwd, region
+        FROM a_number WHERE enabled = 'yes'
+        order by id";
+
+    private function load($type)
+    {
+        l::ll(__CLASS__,__FUNCTION__,$type);
+        global $db, $db_ats;
+
+        $sql = "";
+
+        switch($type)
+        {
+            case 'actual': $sql = self::$sqlActual; $_db = &$db;     break;
+            case 'number': $sql = self::$sqlNumber; $_db = &$db_ats; break;
+            default: throw new Exception("Unknown type");
+        }
+
+        $d = array();
+        foreach($_db->AllRecords($sql) as $l)
+            $d[$l["e164"]] = $l;
+
+        return $d;
+    }
+
+    private function diff(&$saved, &$actual)
+    {
+        l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
+
+        $d = array(
+                "added" => array(), 
+                "deleted" => array(), 
+                "changed_lines" => array(), 
+                "changed_callfwd" => array(),
+                "new_client" => array(),
+                "clients" => array(),
+                "region" => array()
+                );
+
+        foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
+            $d["deleted"][$l] = $saved[$l];
+
+        foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
+            $d["added"][$l] = $actual[$l];
+
+        foreach($actual as $e164 => $l)
+            if(isset($saved[$e164]) && $saved[$e164]["no_of_lines"] != $l["no_of_lines"]) 
+                $d["changed_lines"][$e164] = $l + array("no_of_lines_prev" => $saved[$e164]["no_of_lines"]);
+
+        foreach($actual as $e164 => $l)
+            if(isset($saved[$e164]) && $saved[$e164]["no_of_callfwd"] != $l["no_of_callfwd"])
+                $d["changed_callfwd"][$e164] = $l + array("no_of_callfwd_prev" => $saved[$e164]["no_of_callfwd"]);
+
+        foreach($actual as $e164 => $l)
+            if(isset($saved[$e164]) && $saved[$e164]["client_id"] != $l["client_id"])
+                $d["new_client"][$e164] = $l + array("client_id_prev" => $saved[$e164]["client_id"]);
+
+        foreach($actual as $e164 => $l)
+            if(isset($saved[$e164]) && $saved[$e164]["region"] != $l["region"]) 
+                $d["region"][$e164] = $l + array("region_prev" => $saved[$e164]["region"]);
+
+        //collect clients
+        foreach($d as $k => $v)
+        {
+            if($k == "clients") continue;
+            foreach($v as $l)
+            {
+                $d["clients"][$l["client_id"]] = $l["client_id"];
+
+                if($k == "new_client")
+                    $d["clients"][$l["client_id_prev"]] = $l["client_id_prev"];
+
+            }
+        }
+
+
+
+        foreach($d as $k => $v)
+            if($v)
+                return $d;
+
+        return false;
+    }
+
+    private function save(&$actual)
+    {
+        l::ll(__CLASS__,__FUNCTION__,"..."/*, $actual*/);
+        global $db_ats;
+
+        $db_ats->Begin();
+        $db_ats->Query("truncate v_usage_save");
+        $db_ats->Query("insert into v_usage_save ".self::$sqlActual);
+        $db_ats->Commit();
+    }
+}
+
+class ats2Numbers
+{
+    public function check()
+    {
+        l::ll(__CLASS__,__FUNCTION__);
+        ats2NumbersChecker::check();
+    }
+
+    public function getNumberId($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+
+        static $c = array();
+        $key = $l["client_id"]."--".$l["e164"];
+        if(!isset($c[$key]))
+        {
+            $c[$key] = $db_ats->getValue("select id from a_number 
+                    where number = '".$l["e164"]."' 
+                    and client_id='".$l["client_id"]."'");
+        }
+
+        return $c[$key];
+    }
+
+    public function getNumberById($clientId, $numberId, $isFull = false)
+    {
+        global $db_ats;
+
+        $r = $db_ats->GetRow("select ".($isFull ? "*" : "number")." from a_number where id = '".$numberId."' and client_id='".$clientId."'");
+
+        return $isFull ? $r : $r["number"];
+    }
+
+    public function add($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+
+        return $db_ats->QueryInsert("a_number", array(
+                    "client_id"     => $l["client_id"],
+                    "number"        => $l["e164"],
+                    "call_count"    => $l["no_of_lines"],
+                    "callfwd_count" => $l["no_of_callfwd"],
+                    "region"        => $l["region"]
+                    )
+                );
+    }
+
+    public function switchEnabled($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        $numberId = self::getNumberId($l);
+        if($numberId)
+            self::_db_switchEnabled($numberId, true);
+    }
+
+    public function switchDisabled($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        $numberId = self::getNumberId($l);
+        if($numberId)
+            self::_db_switchEnabled($numberId, false);
+    }
+
+    private function _db_switchEnabled($numberId, $isEnabled)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $numberId, $isEnabled);
+        global $db_ats;
+
+        $db_ats->QueryUpdate("a_number", "id", array(
+                    "id" => $numberId, 
+                    "enabled" => $isEnabled ? "yes" : "no",
+                    "last_update" => array("NOW()")
+                    )
+                );
+    }
+
+    public function isNumberEnabled($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+
+        $r= $db_ats->GetValue($q = "select enabled from a_number where client_id = '".$l["client_id"]."' and number='".$l["e164"]."'") == "yes";
+
+        return $r;
+    }
+
+    public function isUsed($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+
+        $numberId = self::getNumberId($l);
+
+        return (bool)$db_ats->GetValue("select count(*) from a_link where number_id = '".$numberId."'");
+    }
+
+    public function delFull($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+
+        $numberId = self::getNumberId($l);
+
+
+        $db_ats->QueryDelete("a_link", array("number_id" => $numberId));
+        $db_ats->QueryDelete("a_number", array("id" => $numberId));
+    }
+}
+
+class ats2Diff
+{
+    public function apply(&$diff)
+    {
+        l::ll(__CLASS__,__FUNCTION__,$diff);
+
+
+        if($diff["added"])
+            self::add($diff["added"]);
+
+        if($diff["deleted"])
+            self::del($diff["deleted"]);
+
+        if($diff["changed_lines"])
+            self::numOfLineChanged($diff["changed_lines"]);
+
+        if($diff["changed_callfwd"])
+            self::numOfCallFwdChanged($diff["changed_callfwd"]);
+
+        if($diff["region"])
+            self::regionChanged($diff["region"]);
+
+        if($diff["new_client"])
+            self::clientChanged($diff["new_client"]);
+
+        if($diff["clients"])
+            self::updateClients($diff["clients"]);
+    }
+
+    private function add(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::add($l);
+    }
+
+    private function del(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::del($l);
+    }
+
+    private function numOfLineChanged(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::numOfLineChanged($l);
+    }
+
+    private function numOfCallFwdChanged(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::numOfCallFwdChanged($l);
+    }
+
+    private function regionChanged(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::regionChanged($l);
+    }
+
+    private function clientChanged(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::clientChanged($l);
+    }
+
+    private function updateClients(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $clientId)
+            ats2sync::updateClient($clientId);
+
+    }
+
+}
+
+class ats2NumberAction
+{
+    public function add(&$l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+
+        if(ats2Numbers::getNumberId($l))
+        { 
+            if(ats2Numbers::isNumberEnabled($l))
+            {
+                // error
+            }else{
+                ats2Numbers::switchEnabled($l);
+            }
+
+            //ats2Numbers::updateCallCountInMT
+        }else{
+            //посмотрит, если этот номер у когото другого
+            global $db_ats;
+            if($db_ats->GetValue("select client_id from a_number where number = '".$l["e164"]."'"))
+            {
+                ats2NumberAction::clientChanged($l);
+            }else{
+                ats2Numbers::add($l);
+            }
+        }
+    }
+
+    public function del(&$l, $lookInDeleted = false)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l, var_export($lookInDeleted, true));
+
+        if( ats2Numbers::isNumberEnabled($l))
+        {
+            ats2Numbers::switchDisabled($l);
+            //ats2Numbers::updateCallCountInMT
+        }
+    }
+
+    public function delFull(&$l)
+    {
+        if(!isUsed($l))
+            delFull($l);
+    }
+
+    public function numOfLineChanged($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        global $db_ats;
+
+        $db_ats->QueryUpdate("a_number", "number", array(
+                    "number" => $l["e164"],
+                    "call_count" => $l["no_of_lines"]
+                    )
+                );
+
+        /*
+        if($n = ats2Numbers::isUsed($l))
+            vSip::recalcCallCount($n["id"]);
+            */
+    }
+    
+    public function numOfCallFwdChanged($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        global $db_ats;
+
+        $db_ats->QueryUpdate("a_number", "number", array(
+                    "number" => $l["e164"],
+                    "callfwd_count" => $l["no_of_callfwd"]
+                    )
+                );
+    }
+
+    public function regionChanged($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        global $db_ats;
+
+        $db_ats->QueryUpdate("a_number", "number", array(
+                    "number" => $l["e164"],
+                    "region" => $l["region"]
+                    )
+                );
+    }
+
+    public function clientChanged($l)
+    {
+        global $db_ats;
+
+        $numberId = $db_ats->GetValue("select id from a_number 
+                where number = '".$l["e164"]."'");
+
+        if($numberId)
+        {
+            $db_ats->QueryDelete("a_link", array("number_id" => $numberId));
+            $db_ats->QueryUpdate("a_number", "id", array(
+                        "id" => $numberId, 
+                        "client_id" => $l["client_id"], 
+                        "last_update" => array("NOW()"),
+                        "enabled" => "yes")
+                    );
+        }
+
+    }
+}
+
