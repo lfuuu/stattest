@@ -297,7 +297,7 @@ class m_clients {
 			case 'reserved': $design->assign('name_of_action','Резервирование канала');break;
 			case 'voip_disabled': $design->assign('name_of_action', 'Телефония отключена');break;
 			case 'blocked': $design->assign('name_of_action', 'Временно заблокирован');break;
-			case 'once': $design->assign('name_of_action', 'Разовые');break;
+			case 'once': $design->assign('name_of_action', 'Интернет Магазин');break;
 			case 'distr': $design->assign('name_of_action', 'Поставщики');break;
 			case 'operator': $design->assign('name_of_action', 'Операторы');break;
 			default: return;
