@@ -570,6 +570,7 @@ class m_voipnew extends IModule
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
+        $f_mob = get_param_protected('f_mob', '0');
 
         $query = "select o.id, o.name from voip.pricelist o";
         $design->assign('pricelists', $pg_db->AllRecords($query));
@@ -579,6 +580,8 @@ class m_voipnew extends IModule
             if ($f_dest_group >= 0) $filter .= ' and g.dest=' . intval($f_dest_group);
             if ($f_country_id > 0) $filter .= ' and g.country=' . intval($f_country_id);
             if ($f_region_id > 0) $filter .= ' and g.region=' . intval($f_region_id);
+            if ($f_mob == 't') $filter .= " and d.mob=true ";
+            if ($f_mob == 'f') $filter .= " and d.mob=false ";
 
             $pg_db->Query('BEGIN');
             try {
@@ -728,6 +731,7 @@ class m_voipnew extends IModule
             $design->assign('f_country_id', $f_country_id);
             $design->assign('f_region_id', $f_region_id);
             $design->assign('f_dest_group', $f_dest_group);
+            $design->assign('f_mob', $f_mob);
             $design->assign('countries', $countries);
             $design->assign('regions', $regions);
 
@@ -743,11 +747,13 @@ class m_voipnew extends IModule
 
             ob_start();
 
-            echo '"Префикс";"Цена";"Направление"' . "\n";
+            echo '"Префикс";"Цена";"Направление";"Направление";"Fix / Mоb";' . "\n";
             foreach ($res as $r) {
                 echo '"' . $r['defcode'] . (isset($r['defcode2']) ? ' (' . $r['defcode2'] . ')' : '') . '";';
                 echo '"' . str_replace('.', ',', $r['price']) . '";';
-                echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'')  . '"';
+                echo '"' . $r['dgroup'] . '";';
+                echo '"' . $r['destination'] . '";';
+                echo '"' . ($r['mob']=='t'?'mob':'fix') . '";';
                 echo "\n";
             }
 
