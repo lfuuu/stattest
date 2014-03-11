@@ -299,12 +299,17 @@ function get_rus_date($date=0){
     return $d['mday'].' '.$p[$d['mon']-1].' '.$d['year'].' Ç.';
 }
 
-function password_gen($len = 8,$addstr = ''){
+function password_gen($len = 12, $isStrong = true){
     mt_srand((double) microtime() * 1000000);
-    $pass=md5(mt_rand().mt_rand().mt_rand().mt_rand().mt_rand());
-    if ($addstr) $pass=md5($pass.mt_rand().$addstr);
+    if ($isStrong)
+    {
+        $pass = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand())));
+    } else {
+        $pass = md5(mt_rand().mt_rand().mt_rand().mt_rand().mt_rand());
+    }
     return substr($pass,0,$len);
 }
+
 
 function _provide_sort_thefunc($a,$b){
   global $fld,$sso,$fld2;
@@ -923,7 +928,7 @@ class ClientCS {
 
     function Create($uid = null){
 
-        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen());
+        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false));
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
                 $this->F[$field] = $defaultValue;

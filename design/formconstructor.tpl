@@ -50,23 +50,13 @@ function genPass()
 
 function getPass(len)
 {
-    s = "";
+    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var s = "";
     for(i = 0; i < len ; i++)
     {
-        s += getC(Math.floor(Math.random()*(36)));
+        s += chars[Math.floor(Math.random()*(chars.length))];
     }
     return s;
-}
-
-function getC(i)
-{
-    if(i < 10)
-    {
-        v= i+48;
-    }else{
-        v= i-10+97;
-    }
-    return String.fromCharCode(v);
 }
 
 </script>
