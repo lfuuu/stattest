@@ -4280,13 +4280,13 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_id = u.id 
         group by 
           u.region', 'region');
-
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $reports = array();
     for($mm = 0; $mm < 4; $mm++)
     {
       $date = date("Y-m-01");
 
+      $client_ids = array();
       $res = $db->AllRecords("
           select 
             u.region, 
@@ -4308,10 +4308,11 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $sale_nonums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_lines = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_channels = array('all' => array('nums' => 0, 'lines' => 0), "managers" => array());
+      $sale_channels = array('all' => array('nums' => 0, 'lines' => 0, 'visits' => 0), "managers" => array());
       $clients = array();
       foreach($res as $r)
       {
+          $client_ids[$r['client_id']] = 0;
         if (strlen($r['phone']) > 4) //номера
         {
           if (!isset($sale_nums[$r['region']])) 
@@ -4374,13 +4375,40 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
         if ($r['is_new']){
           if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0);
+            $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0, 'clients' => array(), 'visits' => 0);
 
           $sale_channels['managers'][$r['sale_channel']]['nums'] += 1;
           $sale_channels['all']['nums'] += 1;
 
           $sale_channels['managers'][$r['sale_channel']]['lines'] += $r['no_of_lines'];
           $sale_channels['all']['lines'] += $r['no_of_lines'];
+          
+          $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
+        }
+      }
+
+      //Выезды
+      $res = $db->AllRecords("
+              select
+                count(*) as cnt, 
+                c.id as client_id
+              from 
+                tt_stages ts
+              left join tt_troubles tt on tt.id=ts.trouble_id
+              left join clients c on c.client=tt.client
+              where
+                ts.state_id=4 and
+                ts.date_edit>=date_add('$date',interval -$mm month) and
+                ts.date_edit<date_add('$date',interval -$mm+1 month) and
+                c.id in (" . implode(',', array_keys($client_ids)) . ")
+              group by c.id
+              ");
+      foreach ($res as $r) {
+        foreach ($sale_channels['managers'] as $manager=>&$val) {
+            if (in_array($r['client_id'], $val['clients'])) {
+                $val['visits'] += $r['cnt'];
+                $sale_channels['all']['visits'] += $r['cnt'];
+            }
         }
       }
 
@@ -4388,7 +4416,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       {
         $d["nums_perc"] = round( $d["nums"] / $sale_channels["all"]["nums"] * 100);
         $d["lines_perc"] = round( $d["lines"] / $sale_channels["all"]["lines"] * 100);
+        $d["visits_perc"] = round( $d["visits"] / $sale_channels["all"]["visits"] * 100);
       }
+
 
       $del_nums = array('all'=>0);
       $del_nonums = array('all'=>0);
@@ -4434,7 +4464,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $m = date("m") - $mm;
       if ($m < 1) $m = 12;
       $date = $month_list[$m-1].' '.date("Y");
-
+      
       $reports[] = array(
         'date' => $date,
         'sale_nums'=>$sale_nums,
