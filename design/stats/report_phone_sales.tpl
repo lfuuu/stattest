@@ -24,7 +24,7 @@
     {/foreach}
   </tr>
   <tr>
-    <td><b>Подключено линой (СЛ)</b></td>
+    <td><b>Подключено линий (СЛ)</b></td>
     {foreach from=$regions item=r}
         <td class="dig"><b>{$curr_phones[$r.id].count_lines}</b></td>
     {/foreach}
@@ -164,6 +164,8 @@
       <th>%</th>
       <th>СЛ, шт.</th>
       <th>%</th>
+      <th>Выезды</th>
+      <th>%</th>
     </tr>
     {foreach from=$sale_channels.managers item=sales key=manager}
     <tr>
@@ -172,6 +174,8 @@
       <td class="dig">{$sales.nums_perc}%</td>
       <td class="dig"><b>{$sales.lines}</b></td>
       <td class="dig">{$sales.lines_perc}%</td>
+      <td class="dig"><b>{$sales.visits}</b></td>
+      <td class="dig">{$sales.visits_perc}%</td>
     </tr>
     {/foreach}
   </table>
