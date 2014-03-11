@@ -782,7 +782,7 @@ class account
                     "context" => "c-realtime-out",
                     "last_update" => "0000-00-00 00:00:00",
                     "enabled" => "yes",
-                    "permit_on" => "yes",
+                    "permit_on" => "auto",
                     "host_type" => "dynamic",
                     "host_static" => "",
                     "host_port_static" => "5060",
