@@ -44,7 +44,7 @@ class m_pay extends IModule {
 		
 		$S = array('client_id'=>$fixclient_data['id'],'status'=>'reserved');
 		if (!($r=$db->QuerySelectRow('newpayments_webmoney',$S))) {
-			$S['keyword'] = password_gen(6,$fixclient_data['company_full']);
+			$S['keyword'] = password_gen(6);
 			$S['id'] = $db->QueryInsert('newpayments_webmoney', $S);
 			$r = $S;
 		}
