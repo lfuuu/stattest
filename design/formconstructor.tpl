@@ -217,7 +217,7 @@ function _nl_check(obj,name)
                 </table>
                 <script>
 
-                var countInPool = 0{$count_in_pool};
+                var countInPool = parseInt("0{$count_in_pool}", 10);
                 {literal}
                 function _is_pool_check()
 {
