@@ -72,6 +72,9 @@ function do_events()
 
                 case 'cyberplat_payment':   $clientId = $param["client_id"]; 
                                             EventHandler::updateBalance($clientId); break;
+                case 'usage_voip__insert':
+                case 'usage_voip__update':
+                case 'usage_voip__delete':  ats2Numbers::check(); break;
             }
         } catch (Exception $e)
         {

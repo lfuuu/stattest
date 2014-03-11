@@ -4,6 +4,7 @@
 /local.conf.php
 /tags
 /*.lock
+/crons/events/handler_test.php
 
 /store/documents/
 /store/files/
