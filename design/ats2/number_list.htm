@@ -1,0 +1,90 @@
+<hr>
+<h2>Номера</h2>
+
+<style>
+{literal}
+#t_num th {
+    font-size: 8pt;
+}
+#t_num td {
+    padding: 2px 2px 2px 2px;
+}
+
+{/literal}
+</style>
+<table style="border: 1px solid gray; border-collapse: collapse;" id="t_num" border=1>
+<th>
+    Номер
+</th>
+<th>
+    Тип
+</th>
+<th>
+    Аккаунты
+</th>
+<th>
+    Направления
+</th>
+<th>
+    &nbsp;
+</th>
+
+{foreach from=$numbers item=n}
+
+<tr>
+    <td valign=top>
+{if $n.enabled}
+    {if $n.is_virtpbx}
+        {$n.number}
+    {else}
+        {if $n.type != 'multitrunk'}
+            <a href="./?module=ats2&action=number&id={$n.id}">{$n.number}</a>
+        {else}
+            <a href="./?module=ats2&action=mt_link&id={$n.c_id}">{$n.number}</a>
+        {/if}
+    {/if}
+{else}
+    <b style="color: gray;" title="Отключен">{$n.number}</b>
+{/if}
+    </td>
+
+    {if $n.l}
+        <td valign=top>
+            {$n.type}
+        </td>
+        <td>
+                {if $n.type == 'multitrunk'}
+                    <a href="./?module=ats2&action=mt_edit&id={$n.trunk_id}">{$n.name}</a>
+                {else}
+                    <ul>
+                    {foreach from=$n.l item=l}
+                        <li><a href="./?module=ats2&action=account&id={$l.id}">{$l.account}</a></li>
+                    {/foreach}
+                    </ul>
+                {/if}
+        </td>
+        <td valign=top>
+            {if $n.type != 'multitrunk'}
+                {$n.direction}
+            {/if}
+        </td>
+        <td valign=top align=right>
+            {if $n.type != 'multitrunk'}
+                <a href="./?module=ats2&action=number_del&id={$n.id}">x</a>
+            {/if}
+        </td>
+    {else}
+        {if $n.is_virtpbx}
+        <td colspan=5 align=center style="color:blue;">
+            Виртуальная АТС
+        </td>
+        {else}
+        <td colspan=5>
+            &nbsp;
+        </td>
+        {/if}
+    {/if}
+</tr>
+{/foreach}
+</table>
+

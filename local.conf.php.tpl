@@ -10,7 +10,8 @@ return array(
     'SQL_USER'            =>    '',
     'SQL_PASS'            =>    '',
     'SQL_DB'            =>    '',
-    'SQL_ATS_DB'        =>    '',
+    'SQL_ATS_DB'        =>    '', //db width ats v.1
+    'SQL_ATS2_DB'        =>    '', //db width ats v.2 (with "a" prefix, with schema)
 
 
 /* voip central db

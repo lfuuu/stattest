@@ -1064,13 +1064,37 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+
+        if(!$this->check_virtats()) return;
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
                 $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('usage_welltime',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
         }
+        virtPbx::check();
         return $v;
+    }
+
+    private function check_virtats()
+    {
+        global $db;
+
+        $f = $this->dbform["actual_from"];
+        $t = $this->dbform["actual_to"];
+
+        $c = $db->GetRow(
+                "select * from usage_virtpbx where ((actual_from between '".$f."' and '".$t."' or actual_to between '".$f."' and '".$t."' or (actual_from <= '".$f."' and '".$t."' <= actual_to ))) and id != '".$this->dbform["id"]."' and client='".$this->dbform["client"]."'");
+
+        if($c)
+        {
+            trigger_error("На указанные даты виртуальная АТС, у этого клиента, уже работает");
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -1663,7 +1687,7 @@ class DbFormDataCenter extends DbForm{
 
 class DbFormServerPbx extends DbForm{
     public function __construct() {
-        global $db;
+        global $db, $db_ats;
 
         DbForm::__construct('server_pbx');
 
@@ -1671,6 +1695,13 @@ class DbFormServerPbx extends DbForm{
         $this->fields['ip'] = array();
 
         $this->fields['datacenter_id'] = array("assoc_enum" => $db->AllRecordsAssoc("select name,id from datacenter order by name desc", "id", "name"));
+
+        $trunks = array(0 => "-- Не установленно --");
+
+        foreach ($db_ats->AllRecordsAssoc("select name,id from a_multitrunk where parent_id = 0 order by name desc", "id", "name")as $id => $name)
+            $trunks[$id] = $name;
+
+        $this->fields['trunk_vpbx_id'] = array("assoc_enum" => $trunks);
 
     }
 }
@@ -1886,6 +1917,7 @@ $GLOBALS['translate_arr']=array(
     '*.number' => 'Номер',
     '*.per_month_price' => 'Абонентская плата (с НДС)',
     '*.per_sms_price' => 'за 1 СМС (с НДС)',
-    '*.gpon_reserv' => 'Сеть под GPON'
+    '*.gpon_reserv' => 'Сеть под GPON',
+    '*.trunk_vpbx_id' => 'Транк на VPBX'
     );
 ?>
