@@ -1902,6 +1902,7 @@ $GLOBALS['translate_arr']=array(
     '*.dealer_id'        => 'ID дилера',
     '*.is_agent'        => 'Агент',
     '*.interest'        => 'Вознаграждение',
+    '*.courier_id' => 'Курьер',
     'price_voip.operator' => 'Оператор',
     'price_voip.dgroup' => 'Направление',
     'price_voip.dsubgroup' => 'Подгруппа',

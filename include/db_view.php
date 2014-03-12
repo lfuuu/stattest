@@ -780,6 +780,7 @@ class DbViewSaleChannels extends DbView {
 							'dealer_id' => 'ID дилера',
 							'is_agent' => 'Агент',
 							'interest' => 'Вознаграждение',
+							'courier_id' => 'Курьер',
 		);
 		$this->fieldset='z';
 	}
@@ -791,6 +792,13 @@ class DbFormSaleChannels extends DbForm{
 		$this->fields['dealer_id']=array();
 		$this->fields['is_agent']=array('assoc_enum'=>array('0'=>'Нет', '1'=>'Да'));
 		$this->fields['interest']=array();
+        global $db;
+        $couriers = array("0" => "-");
+        foreach($db->AllRecords("select id, name from courier where depart='Региональный представитель'") as $o)
+        {
+            $couriers[$o["id"]] = $o["name"];
+        }
+		$this->fields['courier_id']=array('assoc_enum' => $couriers);
 	}
 }
 class DbViewTechNets extends DbView {

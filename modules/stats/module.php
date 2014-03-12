@@ -4294,7 +4294,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             u.no_of_lines,
             c.id as client_id, 
             ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new, 
-            s.name as sale_channel
+            s.name as sale_channel,
+            s.courier_id as courier_id
           from usage_voip u
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
@@ -4375,7 +4376,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
         if ($r['is_new']){
           if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0, 'clients' => array(), 'visits' => 0);
+            $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0, 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
 
           $sale_channels['managers'][$r['sale_channel']]['nums'] += 1;
           $sale_channels['all']['nums'] += 1;
@@ -4386,7 +4387,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
         }
       }
-
+/*
       //Выезды
       $res = $db->AllRecords("
               select
@@ -4411,12 +4412,49 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             }
         }
       }
-
+*/
+      //Выезды
+      foreach($sale_channels["managers"] as $manager => &$d)
+      {
+        if ($d['courier_id'] > 0) {
+            $res = $db->GetValue("
+                select count(*) as cnt from (
+                SELECT 
+                    distinct `s`.`date_start` `date`, 
+                    `s`.`state_id` `cur_state`
+                from 
+                (
+                    select 
+                        max(s2.stage_id) as stage_id 
+                    from 
+                        tt_stages s 
+                    inner join tt_troubles t on (t.id = s.trouble_id) 
+                    inner join tt_stages s2 on (t.id = s2.trouble_id) 
+                    inner JOIN `tt_doers` `td` ON `td`.`stage_id` = `s2`.`stage_id` and `td`.`doer_id` = ".$d['courier_id']." 
+                    where 
+                        s.`date_start`>=date_add('$date',interval -$mm month) and
+                        s.`date_start`<date_add('$date',interval -$mm+1 month) and
+                        s.state_id in (2,20) 
+                    group by t.id 
+                )a, tt_stages s 
+                LEFT JOIN `tt_troubles` `tt` ON `tt`.`id` = s.trouble_id 
+                LEFT JOIN `tt_stages` `cts` ON cts.stage_id = tt.cur_stage_id 
+                LEFT JOIN `clients` `cl` ON `cl`.`client` = `tt`.`client` 
+                INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `s`.`stage_id` 
+                INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id` 
+                where 
+                   s.stage_id = a.stage_id and `s`.`state_id`=4
+               )q
+            ");
+            $sale_channels['all']['visits'] += $res;
+            $d['visits'] = $res;
+        }
+      }
       foreach($sale_channels["managers"] as $mamager => &$d)
       {
         $d["nums_perc"] = round( $d["nums"] / $sale_channels["all"]["nums"] * 100);
         $d["lines_perc"] = round( $d["lines"] / $sale_channels["all"]["lines"] * 100);
-        $d["visits_perc"] = round( $d["visits"] / $sale_channels["all"]["visits"] * 100);
+        $d["visits_perc"] = ($sale_channels["all"]["visits"] > 0) ? round( $d["visits"] / $sale_channels["all"]["visits"] * 100) : 0;
       }
 
 
