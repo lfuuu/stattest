@@ -3,7 +3,7 @@ class m_stats_head extends IModuleHead{
 	public $module_name = 'stats';
 	public $module_title = 'Статистика';
 	var $rights=array(
-		'stats'=>array("Статистика", 'r,report,vip_report,voip_recognition','просмотр,отчет,vip report,телефония-нераспознаные'),
+		'stats'=>array("Статистика", 'r,report,vip_report,voip_recognition,sale_channel_report','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители'),
 	);
 	var $actions=array(
 		'default'			=> array('stats','r'),
@@ -34,7 +34,8 @@ class m_stats_head extends IModuleHead{
 //		'recalcalls'		=> array('stats','modify'),
 		'support_efficiency'	=>  array('stats','report'),
     'report_phone_sales'  =>  array('stats','report'),
-    'report_agent' => array('stats','report')
+    'report_agent' => array('stats','report'),
+    'report_sale_channel' => array('stats','sale_channel_report')
 	);
 	var $menu=array(
 		array('Интернет',		'internet'),
@@ -64,6 +65,7 @@ class m_stats_head extends IModuleHead{
 
         array('Отчет: ИНН', 'report_inn'),
         array('Отчет по Агентам', 'report_agent'),
+        array('Региональные представители', 'report_sale_channel'),
 	);
 }
 ?>
