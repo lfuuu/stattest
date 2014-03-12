@@ -572,44 +572,69 @@ class m_stats extends IModule{
             }
 
             $ns = $db->AllRecords($q = "
-            select a.*,c.company, c.client,
-                    
-
-            if(active_usage_id is not null, 
-                'used', 
-
-                if(client_id in ('9130', '764'), 
-                    'our', 
-
-                    if(client_id is not null and reserved_free_date is not null,
-                        'reserv',
-
-                        if(max_date >= (now() - interval 6 month), 
-                            'stop',
-                            'free'
-
-                          )
-                      )
-                  )
-              ) as status
-            
-            from (
-            select number, price, client_id, usage_id,reserved_free_date,  cast(used_until_date as date) used_until_date, beauty_level, site_publish,
-
-            (select max(actual_to) from usage_voip u where u.e164 = v.number and actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')) as max_date,
-            
-            (select id from usage_voip u where u.e164 = v.number and 
-            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')) as active_usage_id
-             from voip_numbers v where 
-            number between '".$rangeFrom."' and '".$rangeTo."' 
-            )a 
-            left join clients c on (c.id = a.client_id)
-
-            where beauty_level in ('".implode("','", $beauty)."')
-
-            having status in ('".implode("','", $group)."')
-
-            ");
+                        SELECT 
+                            a.*, c.company, c.client,
+                            IF(client_id IN ('9130', '764'), 'our', 
+                                IF(date_reserved IS NOT NULL, 'reserv', 
+                                    IF(active_usage_id IS NOT NULL, 'used', 
+                                        IF(max_date >= (now() - INTERVAL 6 MONTH), 'stop', 'free'
+                                        )
+                                    )
+                                )
+                            ) AS status
+                        FROM (
+                            SELECT 
+                                number, 
+                                region, 
+                                price, 
+                                client_id, 
+                                usage_id, 
+                                reserved_free_date, 
+                                cast(used_until_date as date) used_until_date, 
+                                beauty_level, 
+                                site_publish, 
+                                (
+                                    SELECT 
+                                        MAX(actual_to) 
+                                    FROM 
+                                        usage_voip u 
+                                    WHERE 
+                                        u.e164 = v.number AND 
+                                        actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')
+                                ) AS max_date,
+                                (
+                                    SELECT 
+                                        MAX(id) 
+                                    FROM 
+                                        usage_voip u 
+                                    WHERE 
+                                        u.e164 = v.number AND 
+                                        (
+                                            (
+                                                actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND 
+                                                actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
+                                            ) OR 
+                                            actual_from >= '2029-01-01'
+                                        )
+                                ) as active_usage_id,
+                                (
+                                    SELECT 
+                                        MAX(created) 
+                                    FROM 
+                                        usage_voip u 
+                                    WHERE 
+                                        u.e164 = v.number AND 
+                                        actual_from = '2029-01-01'
+                                ) AS date_reserved
+                            FROM
+                                voip_numbers v
+                            WHERE 
+                                number BETWEEN '".$rangeFrom."' AND '".$rangeTo."' 
+                        )a 
+                        LEFT JOIN clients c ON (c.id = a.client_id)
+                        WHERE beauty_level IN ('".implode("','", $beauty)."')
+                        HAVING status IN ('".implode("','", $group)."')
+                    ");
 
             $fromTime = strtotime("first day of -3 month, midnight");
 
@@ -627,10 +652,10 @@ class m_stats extends IModule{
                     select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
                         sum(1) as count_calls,
                         sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
-                    from calls.calls_99
+                    from calls.calls_".$n['region']."
                     where time > '".date("Y-m-d H:i:s", $fromTime)."'
                     and usage_id is null 
-                    and region=99 
+                    and region=".$n['region']." 
                     and usage_num = '".$n["number"]."'
                     group by mnth, mnth_s
                     order by mnth
