@@ -2455,6 +2455,188 @@ class m_stats extends IModule{
         }
     }
 
+    function stats_report_sale_channel($fixclient)
+    {
+        global $db,$design;
+        $date_begin = get_param_raw('date_from', date('Y-m-d'));
+        $date_end = get_param_raw('date_to',  date('Y-m-d'));
+        $design->assign(array('date_begin'=>$date_begin, 'date_end'=>$date_end));
+        $doer_filter = $doer_filter_ = get_param_protected('doer_filter','null');
+        $design->assign('doer_filter_selected',$doer_filter);
+        
+        $all_doers = array();
+        $dDoers = array('null' => 'Все');
+        foreach($db->AllRecords("
+                        SELECT
+                            `id`,
+                            `depart`,
+                            `name`
+                        FROM
+                            `courier`
+                        WHERE
+                            `enabled`='yes' and `depart`='Региональный представитель'
+                        ORDER BY
+                            `depart`,
+                            `name`
+                    ", null, MYSQL_ASSOC) as $id => $d)
+        {
+            $dDoers[$d["id"]] = $d["name"];
+            $all_doers[] = $d["id"];
+        }
+        $design->assign('doer_filter', $dDoers);
+
+        $doerId = 0;
+        if($doer_filter == 'null'){
+            $doer_filter = ' AND `cr`.`id` IN('.implode(',', $all_doers).')';
+        }else{
+            $doerId = (int)$doer_filter;
+            $doer_filter = '
+                    AND `cr`.`id` = '.((int)$doer_filter);
+        }
+
+        $state_filter = $state_filter_ = get_param_protected('state_filter', 'null');
+        
+        $design->assign("state_filter_selected", $state_filter);
+        
+        if($state_filter == "null")
+        {
+            $state_filter = " not in (2,20,21,39,40)";
+        }elseif($state_filter == 2 || $state_filter == 20){
+            $state_filter = " in (2,20,39,40)";
+        }else{
+            $state_filter = ' = "'.$state_filter.'"';
+        }
+        
+        $query = "
+                SELECT distinct
+                    DATE(`date`) `date`,
+                    `courier_name`,
+                    `company`,
+                    `task`,
+                    `cur_state`,
+                    `client_id`,
+                    `tt_id`,
+                    `type`,
+                    trouble_cur_state,
+                    `bill_no`
+                FROM
+                    (
+                        SELECT distinct
+                            `ts`.`date_start` `date`,
+                            `cr`.`name` `courier_name`,
+                            `cl`.`company` `company`,
+                            `tt`.`problem` `task`,
+                            `ts`.`state_id` `cur_state`,
+                            `tt`.`id` `tt_id`,
+                            `cl`.`id` `client_id`,
+                            'ticket' `type`,
+                            cts.state_id `trouble_cur_state`,
+                            `tt`.`bill_no`
+                        FROM `tt_stages` `ts`
+        
+                        INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `ts`.`stage_id`
+                        INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id` ".$doer_filter."
+        
+                        LEFT JOIN `tt_troubles` `tt`  ON `tt`.`id` = `ts`.`trouble_id`
+        
+                        LEFT JOIN `tt_stages`   `cts` ON cts.stage_id = tt.cur_stage_id
+                        LEFT JOIN `clients`     `cl`  ON `cl`.`client` = `tt`.`client`
+        
+                        WHERE
+                            /*`ts`.`state_id` = 4
+                        AND */
+                            cts.state_id ".$state_filter."
+                        and
+                            `ts`.`date_start` BETWEEN '".$date_begin." 00:00:00' AND '".$date_end." 23:59:59'
+                    ) `tbl`
+                ORDER BY
+                    `date`,
+                    `company`,
+                    `courier_name`
+            ";
+        $ret = array();
+
+        $db->Query($query);
+        $sumBonus = 0;
+        $count = 0;
+        
+        while($row=$db->NextRecord(MYSQL_ASSOC)){
+            if(!isset($ret[$row['date']])){
+                $ret[$row['date']] = array('rowspan'=>0,'doers'=>array());
+            }
+        
+            $ret[$row['date']]['rowspan']++;
+        
+            $bonus = 0;
+            $row["bill_sum"] = $row["sum_good"] = $row["sum_service"] = $row["count_service"] = $row["count_good"] = 0;
+        
+            $ret[$row['date']]['doers'][] = array(
+                            'name'=>$row['courier_name'],
+                            'company'=>$row['company'],
+                            'task'=>stripslashes($row['task']),
+                            'cur_state'=>$row['cur_state'],
+                            'tt_id'=>$row['tt_id'],
+                            'client_id'=>$row['client_id'],
+                            'type'=>$row['type'],
+                            'trouble_cur_state'=>$row['trouble_cur_state'],
+                            'bill_no' => $row["bill_no"],
+                            'bill_sum' => $row["bill_sum"],
+                            'sum_good' => $row["sum_good"],
+                            'count_good' => $row["count_good"],
+                            'sum_service' => $row["sum_service"],
+                            'count_service' => $row["count_service"],
+                            'bonus' => $bonus
+            );
+            $count++;
+        
+        }
+
+        $design->assign('sum_bonus',$sumBonus);
+        $design->assign('count',$count);
+        $design->assign_by_ref('report_data',$ret);
+        if(get_param_protected('print',false)){
+            $design->assign('print',true);
+            $design->ProcessEx('stats/sale_channel_report.tpl');
+        }else{
+            if(count($_POST)>0)
+                $design->assign(
+                        'print_report',
+                        '?module=stats'.
+                        '&action=report_sale_channel'.
+                        '&print=yes'.
+                        '&date_from='.$date_begin.
+                        '&date_to='.$date_end.
+                        (($doer_filter_<>'null')?'&doer_filter='.$doer_filter_:'').
+                        (($state_filter_<>'null')?'&state_filter='.$state_filter_:'')
+                );
+        
+            $design->assign(
+                    'l_state_filter',
+                    array_merge(
+                            array(
+                                array('id'=>'null','name'=>'Все (кроме: закрыт, отказ)'),
+                            ),
+                            $db->AllRecords("
+                        SELECT
+                            `id`,
+                            `name`
+                        FROM
+                            `tt_states`
+                        where
+                            pk & 17703 #2047
+                        ORDER BY
+                            `name`
+                    ", null, MYSQL_ASSOC)
+                    )
+            );
+        
+            $design->assign('tt_states_list',$db->AllRecords('select * from tt_states','id',MYSQL_ASSOC));
+        
+            $design->AddMain('stats/sale_channel_report.tpl');
+        }
+        
+    }
+
     function _stat_report_agent($agent = false, $from = false, $to = false)
     {
         if ($agent === false) return array(array(),array());
