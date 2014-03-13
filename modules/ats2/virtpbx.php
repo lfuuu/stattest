@@ -232,19 +232,14 @@ class aVirtPbx
 
     private function getMap($id)
     {
-        $map = array();
+        global $design;
 
+        $map = array();
 
         $sqlNumbers = array(array("type" => "query", "query" => 
                     "select id, concat(number, 'x', call_count), number from a_number where id not in (select distinct number_id from a_link) and client_id = '".getClientId()."' order by number",
                     "db" => "db_ats"
                     )
-                );
-
-        $ap["numbers"] = array(
-                "title" => "Номера",
-                "type" => "sort_list",
-                "data_all" => $sqlNumbers
                 );
 
         $map["numbers"] = array(
@@ -253,9 +248,6 @@ class aVirtPbx
                 "data_all" => $sqlNumbers
                 );
 
-        //printdbg($m);
-
-        global $design;
 
         $design->assign("direction", array(
                     "full" => "Full",

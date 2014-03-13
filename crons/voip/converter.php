@@ -637,7 +637,7 @@ function getVpbxTrunkNumbers($trunkId)
 
     foreach($mDB->AllRecords(
                 "SELECT 
-                    n.number, n.call_count
+                    n.number, n.call_count, l.direction
                  FROM 
                     `a_virtpbx` v, a_virtpbx_link l, a_number n 
                  where 
@@ -646,7 +646,7 @@ function getVpbxTrunkNumbers($trunkId)
                     and n.id = l.type_id 
                     and l.type = 'number'") as $l)
     {
-        $numbers[$l["number"]] = $l + array("direction" => "full");
+        $numbers[$l["number"]] = $l;
     }
 
     return $numbers;
