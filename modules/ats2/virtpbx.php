@@ -21,7 +21,7 @@ class aVirtPbx
 
         include_once INCLUDE_PATH."formconstructor.php";
 
-        $map = self::getMap();
+        $map = self::getMap($virtpbx["id"]);
 
         $formConstructor = new FormConctructor($map);
 
@@ -60,9 +60,14 @@ class aVirtPbx
                     $design->AddMain("ats2/virtpbx_error_save.htm");
                 }
             }
-        }else{
+        } else {
+            $ll = array();
+            foreach($virtpbx["numbers"] as $n)
+            {
+                $ll[] = $n["id"]."=".$n["direction"];
+            }
             $l = array(
-                    "numbers"  => implode(",", array_keys($virtpbx["numbers"]))
+                    "numbers"  => implode(",", $ll)
                     );
             $formConstructor->make($l);
         }
@@ -92,8 +97,16 @@ class aVirtPbx
                     $numbers[$l["number_id"]] = 1;
         }
 
-        if (array_intersect(explode(",", $d["numbers"]), array_keys($numbers)))
-            throw new exception("Один из номера уже используется");
+        foreach(explode(",", $d["numbers"]) as $fNumber)
+        {
+            if (!$fNumber) continue;
+
+            list($numberId, ) = explode("=", $fNumber);
+
+            if (isset($numbers[$numberId]))
+                throw new exception("Один из номера уже используется");
+        }
+
     }
 
     private function save($data)
@@ -107,8 +120,23 @@ class aVirtPbx
 
         $vpbx = virtPbx::getList();
 
-        $saved = array_keys($vpbx["numbers"]);
-        $posted = $data["numbers"]  ? explode(",", $data["numbers"]) : array();
+        $getNumbers = array();
+        foreach(explode(",", $data["numbers"]) as $fNumber)
+        {
+            list($numberId, $direction) = explode("=", $fNumber);
+            $getNumbers[$numberId] = $direction;
+        }
+
+        $savedNumbers = array();
+        foreach($vpbx["numbers"] as $numberId => $oNumber)
+        {
+            $savedNumbers[$numberId] = $oNumber["direction"];
+        }
+
+
+
+        $saved = array_keys($savedNumbers);
+        $posted = array_keys($getNumbers);
 
         $add = array_diff($posted, $saved);
         $del = array_diff($saved, $posted);
@@ -119,6 +147,7 @@ class aVirtPbx
         $result = array();
         $isErrorResult = false;
 
+        // need add number 
         if ($add)
         {
             foreach($add as $numberId)
@@ -129,11 +158,11 @@ class aVirtPbx
 
                 if (!$vpbx["is_started"])
                 {
-                    virtPbx::addNumber($clientId, $number);
+                    virtPbx::addNumber($clientId, $number, $getNumbers[$numberId]);
                 } else {
 
                     try{
-                        $res = ApiVpbx::addDid($clientId, $phone);
+                        $res = ApiVpbx::addDid($clientId, $phone, $getNumbers[$numberId]);
                     }catch(Exception $e)
                     {
                         $res = $e->getMessage();
@@ -146,6 +175,7 @@ class aVirtPbx
             }                
         }
 
+        // need remove number
         if ($del)
         {
             foreach($del as $numberId)
@@ -173,6 +203,24 @@ class aVirtPbx
             }                
         }
 
+        //need change direction
+        $isChangedDirection = false;
+        foreach($getNumbers as $numberId => $direction)
+        {
+            if (isset($savedNumbers[$numberId]) && $savedNumbers[$numberId] != $direction) 
+            {
+                virtPbx::changeDirection($clientId, $numberId, $direction);
+                $isChangedDirection = true;
+            }
+        }
+
+        if ($add || $del || $isChangedDirection) //is need client sync schema
+        {
+            ats2sync::updateClient($clientId);
+        }
+
+
+
         if ($isErrorResult)
         {
             return $result;
@@ -182,21 +230,39 @@ class aVirtPbx
     }
 
 
-    private function getMap()
+    private function getMap($id)
     {
         $map = array();
 
 
         $sqlNumbers = array(array("type" => "query", "query" => 
-                    "select id, number from a_number where id not in (select distinct number_id from a_link) and client_id = '".getClientId()."'",
+                    "select id, concat(number, 'x', call_count), number from a_number where id not in (select distinct number_id from a_link) and client_id = '".getClientId()."' order by number",
                     "db" => "db_ats"
                     )
                 );
 
-        $map["numbers"] = array(
+        $ap["numbers"] = array(
                 "title" => "Номера",
                 "type" => "sort_list",
                 "data_all" => $sqlNumbers
+                );
+
+        $map["numbers"] = array(
+                "title" => "Номера",
+                "type" => "multitrunk_numbers",
+                "data_all" => $sqlNumbers
+                );
+
+        //printdbg($m);
+
+        global $design;
+
+        $design->assign("direction", array(
+                    "full" => "Full",
+                    "russia" => "Russia",
+                    "mskmob" => "MskMob",
+                    "msk" => "Msk"
+                    )
                 );
 
         return $map;
