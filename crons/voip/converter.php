@@ -788,7 +788,7 @@ function insertNumber(&$peers, &$all, &$inss)
 		$m = array(
              "number"    =>  $number,
              "type"      =>  $peerInfo["type"],
-             "peername"  => ($peerInfo["peers"] ? ($peerInfo["_type"] == "line" ? $number : $peerInfo["peers"][0]) : "" ),
+             "peername"  => ($peerInfo["peers"] && $peerInfo["_type"] == "multitrunk" ? $peerInfo["peers"][0] : ""),
              "client_id" =>  $peerInfo["client_id"],
              "delim"     => ($peerInfo["type"] == "line" ? $peerInfo["delimeter"] : ""),
              "uncond"    => (_is_on($all, $number, "redir") ? "true" : "false"),
