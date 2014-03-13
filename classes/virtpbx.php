@@ -157,6 +157,7 @@ class virtPbx
                         type, 
                         if(type = 'number', n.id, a.id) as id, 
                         if(type = 'number', n.number, a.account) as name,
+                        direction,
                         is_started
                     FROM `a_virtpbx` v
                     LEFT JOIN a_virtpbx_link l on (v.id = l.virtpbx_id)
@@ -170,7 +171,7 @@ class virtPbx
 
             if ($l["type"] == "number")
             {
-                $numbers[$l["id"]] = array("id" => $l["id"], "number" => $l["name"]);
+                $numbers[$l["id"]] = array("id" => $l["id"], "number" => $l["name"], "direction" => $l["direction"]);
             } else if ($l["type"] == "account"){
                 $accounts[$l["id"]] = array("id" => $l["id"], "account" => $l["name"]);
             }
@@ -205,7 +206,7 @@ class virtPbx
         return new virtPbxStatus($r["status"], $r["is_started"]);
     }
 
-    public function addNumber($clientId, $number)
+    public function addNumber($clientId, $number, $direction = "full")
     {
         global $db_ats;
 
@@ -226,7 +227,7 @@ class virtPbx
         if (isset($vpbx["numbers"][$numberId]))
             return true;
 
-        return $db_ats->QueryInsert("a_virtpbx_link", array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId));
+        return $db_ats->QueryInsert("a_virtpbx_link", array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId, "direction" => $direction));
     }
 
 
@@ -252,6 +253,19 @@ class virtPbx
             return false;
 
         return $db_ats->QueryDelete("a_virtpbx_link", array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId));
+    }
+
+    public function changeDirection($clientId, $numberId, $newDirection)
+    {
+        global $db_ats;
+        $vpbx = self::getList($clientId);
+
+        if (!$vpbx && !$vpbx["id"])
+        {
+            throw new Exception("VPBX у клиента не нейдана");
+        }
+
+        $db_ats->QueryUpdate("a_virtpbx_link", array("virtpbx_id", "type_id", "type"), array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId, "direction" => $newDirection));
     }
 
 
