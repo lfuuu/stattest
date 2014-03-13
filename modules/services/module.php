@@ -431,7 +431,7 @@ class m_services extends IModule{
             $r['gate']=implode(".",$t);
             $routes[]=$r;    
         }
-        if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
+        //if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
         //$conn['actual_from']=convert_date($conn['actual_from']);
         $design->assign('conn',$conn);
         $design->assign('port',$db->GetRow("select * from tech_ports where id='".$conn['port_id']."'"));
