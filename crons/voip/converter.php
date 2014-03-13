@@ -747,7 +747,8 @@ function convertSip(&$a, &$inss, &$peers)
             "context"   =>  $v["context"],//($v["type"] == "multitrunk" ? "c-multitrunk-out" : "c-realtime-out"),
             "is_multitrunk" => ($v["type"] == "multitrunk" ? "true" : "false"),
 			"priority"  => ($v["type"] == "line" ? $v["priority"] : 1),
-            "region"    => $v["region"]
+            "region"    => $v["region"],
+            "type"      => ($v["host_type"] != "dynamic" ? "peer" : "friend")
 
 		);
 
