@@ -346,18 +346,54 @@ class m_clients {
 		$L['!'] = 'ëÌÉÅÎÔÙ ItPark';
 		$L['+'] = 'ôÉÐ: äÉÓÔÒÉÂÀÔÏÒ';
 		$L['-'] = 'ôÉÐ: ïÐÅÒÁÔÏÒ';
-		$L['firma:mcn_telekom'] = 'ïïï "íóî ôÅÌÅËÏÍ"';
-		$L['firma:mcn'] = 'ïïï "üÍ óÉ üÎ"';
-		$L['firma:markomnet_new'] = 'ïïï "íáòëïíîåô"';
-		$L['firma:markomnet_service'] = 'ïïï "íáòëïíîåô ÓÅÒ×ÉÓ"';
-		//$L['firma:markomnet'] = 'ïïï "íáòëïíîåô (ÓÔÁÒÙÊ)"';
-		$L['firma:ooomcn'] = 'ïïï "íóî"';
-		$L['firma:all4net'] = 'ïïï "ïìæïîåô"';
-		$L['firma:ooocmc'] = 'ïïï "óÉ üÍ óÉ"';
-		$L['firma:mcm'] = 'ïïï "íóí"';
-		$L['firma:all4geo'] = 'ïïï "ïÌÆÏÇÅÏ"';
-		$L['firma:wellstart'] = 'ïïï "÷ÅÌÌÓÔÁÒÔ"';
-
+		if (isset($user->_Priveleges['firms']) && count($user->_Priveleges['firms']) > 0) {
+			foreach ($user->_Priveleges['firms'] as $firm=>$v) {
+				switch ($firm) {
+					case 'mcn_telekom':
+					    $L['firma:mcn_telekom'] = 'ïïï "íóî ôÅÌÅËÏÍ"';
+					break;
+					case 'mcn':
+					    $L['firma:mcn'] = 'ïïï "üÍ óÉ üÎ"';
+					break;
+					case 'markomnet_new':
+					    $L['firma:markomnet_new'] = 'ïïï "íáòëïíîåô"';
+					break;
+					case 'markomnet_service':
+					    $L['firma:markomnet_service'] = 'ïïï "íáòëïíîåô ÓÅÒ×ÉÓ"';
+					break;
+					case 'ooomcn':
+					    $L['firma:ooomcn'] = 'ïïï "íóî"';
+					break;
+					case 'all4net':
+					    $L['firma:all4net'] = 'ïïï "ïìæïîåô"';
+					break;
+					case 'ooocmc':
+					    $L['firma:ooocmc'] = 'ïïï "óÉ üÍ óÉ"';
+					break;
+					case 'mcm':
+					    $L['firma:mcm'] = 'ïïï "íóí"';
+					break;
+					case 'all4geo':
+					    $L['firma:all4geo'] = 'ïïï "ïÌÆÏÇÅÏ"';
+					break;
+					case 'wellstart':
+					    $L['firma:wellstart'] = 'ïïï "÷ÅÌÌÓÔÁÒÔ"';
+					break;
+				}
+			}
+		} else {
+            $L['firma:mcn_telekom'] = 'ïïï "íóî ôÅÌÅËÏÍ"';
+            $L['firma:mcn'] = 'ïïï "üÍ óÉ üÎ"';
+            $L['firma:markomnet_new'] = 'ïïï "íáòëïíîåô"';
+            $L['firma:markomnet_service'] = 'ïïï "íáòëïíîåô ÓÅÒ×ÉÓ"';
+            //$L['firma:markomnet'] = 'ïïï "íáòëïíîåô (ÓÔÁÒÙÊ)"';
+            $L['firma:ooomcn'] = 'ïïï "íóî"';
+            $L['firma:all4net'] = 'ïïï "ïìæïîåô"';
+            $L['firma:ooocmc'] = 'ïïï "óÉ üÍ óÉ"';
+            $L['firma:mcm'] = 'ïïï "íóí"';
+            $L['firma:all4geo'] = 'ïïï "ïÌÆÏÇÅÏ"';
+            $L['firma:wellstart'] = 'ïïï "÷ÅÌÌÓÔÁÒÔ"';
+		}
       foreach($db->AllRecords("select id, name from regions order by if(id = 99, '!!!', name)", "id") as $r => $n)
         $LR[$r] = $n["name"];
 
@@ -480,6 +516,9 @@ class m_clients {
     {
       $region = (int)$letter_region;
       $where .= " and cl.region = '".$region."'";
+    }
+    if (isset($user->_Priveleges['firms']) && count($user->_Priveleges['firms']) > 0) {
+        $where .= " and cl.firma IN ('".implode("','", array_keys($user->_Priveleges['firms']))."')";
     }
 
 
