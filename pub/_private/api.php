@@ -68,21 +68,23 @@ function do_func($function)
 		case 'orderVoip': return ApiLk::orderVoip(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("number"), get_param_raw("tarif_id"), get_param_raw("lines_cnt")); break;
 		case 'orderVpbxTarif': return ApiLk::orderVpbxTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
 		case 'orderDomainTarif': return ApiLk::orderDomainTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
-		case 'orderEmailTarif': return ApiLk::orderEmailTarif(get_param_raw("client_id"), get_param_raw("domain_id"), get_param_raw("local_part"), get_param_raw("password")); break;
+		case 'orderEmail': return ApiLk::orderEmail(get_param_raw("client_id"), get_param_raw("domain_id"), get_param_raw("local_part"), get_param_raw("password")); break;
 
 		case 'changeInternetTarif': return ApiLk::changeInternetTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
 		case 'changeCollocationTarif': return ApiLk::changeCollocationTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
 		case 'changeVoipTarif': return ApiLk::changeVoipTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
 		case 'changeVpbxTarif': return ApiLk::changeVpbxTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
 		case 'changeDomainTarif': return ApiLk::changeDomainTarif(get_param_raw("client_id"), get_param_raw("service_id"), get_param_raw("tarif_id")); break;
-		case 'changeEmailTarif': return ApiLk::changeEmailTarif(get_param_raw("client_id"), get_param_raw("email"), get_param_raw("password")); break;
-
+		case 'changeEmail': return ApiLk::changeEmail(get_param_raw("client_id"), get_param_raw("email_id"), get_param_raw("password")); break;
+		case 'changeEmailSpamAct': return ApiLk::changeEmailSpamAct(get_param_raw("client_id"), get_param_raw("email_id"), get_param_raw("spam_act")); break;
+		case 'getEmailAccess': return ApiLk::getEmailAccess(get_param_raw("client_id")); break;
+		
 		case 'disconnectInternet': return ApiLk::disconnectInternet(get_param_raw("client_id"), get_param_raw("service_id")); break;
 		case 'disconnectCollocation': return ApiLk::disconnectCollocation(get_param_raw("client_id"), get_param_raw("service_id")); break;
 		case 'disconnectVoip': return ApiLk::disconnectVoip(get_param_raw("client_id"), get_param_raw("service_id")); break;
 		case 'disconnectVpbx': return ApiLk::disconnectVpbx(get_param_raw("client_id"), get_param_raw("service_id")); break;
 		case 'disconnectDomain': return ApiLk::disconnectDomain(get_param_raw("client_id"), get_param_raw("service_id")); break;
-		case 'disconnectEmail': return ApiLk::disconnectEmail(get_param_raw("client_id"), get_param_raw("email")); break;
+		case 'disconnectEmail': return ApiLk::disconnectEmail(get_param_raw("client_id"), get_param_raw("email_id"), get_param_raw("action")); break;
 
 		case 'getStatisticsVoipPhones': return ApiLk::getStatisticsVoipPhones(get_param_raw("client_id")); break;
 		case 'getStatisticsVoipData': return ApiLk::getStatisticsVoipData(get_param_raw("client_id"), get_param_raw("phone"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("destination"), get_param_raw("direction"), get_param_raw("onlypay")); break;
