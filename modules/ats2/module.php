@@ -271,6 +271,7 @@ class m_ats2 extends IModule
 
             $a["key"] = ats2passcrypt::cryptId($a["id"]);
 
+
             $formConstr->make($a);
         }
 
@@ -411,6 +412,7 @@ class m_ats2 extends IModule
                 "title" => "Host",
                 "type" => "radio",
                 "data" => array(array("type" => "array", "array" => array("static" => "static", "dynamic" => "dynamic"))),
+                "onchange" => "check_if_static()"
                 );
         $map["host_static"] = array(
                 "title" => "Host IP",
@@ -426,8 +428,7 @@ class m_ats2 extends IModule
 
         $map["password"] =array(
                 "title" => "Пароль",
-                "type" => "password_ats2",
-                "condition" => array("nq", "host_type", "static")
+                "type" => "password_ats2"
                 );
         $map["dtmf"] = array(
                 "title" => "DTMF",

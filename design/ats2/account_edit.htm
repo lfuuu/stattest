@@ -45,6 +45,27 @@
     </tr>
     </table>
     </div>
-
 </form>
+<script>
+{literal}
+var savePass = {'static': "", 'dynamic': "********"};
+function check_if_static()
+{
+    var isStatic = ($("input[type=radio][name=host_type]:checked").val() == "static");
+    var oPass = $("#password");
+
+    if (isStatic) 
+    {
+        savePass.dynamic = oPass.val();
+        oPass.attr("value", savePass.static);
+    } else {
+        savePass.static = oPass.val();
+        oPass.attr("value", savePass.dynamic);
+    }
+
+    $("input[name=subaccount_count]").attr("value", isStatic ? "stat" : "dyn");
+
+}
+{/literal}
+</script>
 <script language="JavaScript" src="./js/hint.js"></script>

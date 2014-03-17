@@ -276,7 +276,8 @@ class MT
                 "title" => "Host",
                 "type" => "radio",
                 "data" => array(array("type" => "array", "array" => array("static" => "static","dynamic" => "dynamic"))),
-                "default" => "dynamic"
+                "default" => "dynamic",
+                "onchange" => "check_if_static()"
                 );
 
         $m["host_static"] = array(
@@ -292,8 +293,7 @@ class MT
 
         $m["password"] =array(
                 "title" => "Пароль",
-                "type" => "password_ats2",
-                "condition" => array("nq", "host_type", "static")
+                "type" => "password_ats2"
                 );
 
         $m["dtmf"] = array(
