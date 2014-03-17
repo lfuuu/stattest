@@ -637,7 +637,7 @@ function getVpbxTrunkNumbers($trunkId)
 
     foreach($mDB->AllRecords(
                 "SELECT 
-                    n.number, n.call_count
+                    n.number, n.call_count, l.direction
                  FROM 
                     `a_virtpbx` v, a_virtpbx_link l, a_number n 
                  where 
@@ -646,7 +646,7 @@ function getVpbxTrunkNumbers($trunkId)
                     and n.id = l.type_id 
                     and l.type = 'number'") as $l)
     {
-        $numbers[$l["number"]] = $l + array("direction" => "full");
+        $numbers[$l["number"]] = $l;
     }
 
     return $numbers;
@@ -828,12 +828,14 @@ function insertNumber(&$peers, &$all, &$inss)
                     "time"         => "",
                     "announce"     => _get_anonce($all, $number, $l),
                     "dial_targets" => "",
-                    "strategy"     => "all",
+                    "strategy"     => "rr",
                     "timeout"      => 0,
                     "client_id"    => $peerInfo["client_id"],
                     "region"       => $peerInfo["region"]
 			);
 
+           /* settingss for this section are not available */
+            /*
 			$s = isset($all[$number][$l]) ? $all[$number][$l] : array(
 				"announce" => "",
 				"strategy" => "rr",
@@ -846,6 +848,7 @@ function insertNumber(&$peers, &$all, &$inss)
 				$m["strategy"] = "rr";
 				$m["timeout"] = $s["call_wait"]*5; // 5 sec = 1 beep
 			}
+            */
 
 			if(isset($s["contacts"]))
 				$m["dial_targets"] = implode(",", $s["contacts"]);
