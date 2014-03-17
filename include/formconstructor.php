@@ -14,7 +14,7 @@ class FormConctructor
     {
         global $design;
 
-        $constructor = array("list" => array(), "selected" => array());
+        $constructor = array("list" => array(), "selected" => array(), "onchange" => array());
 
         $aCondValues = array();
 
@@ -44,6 +44,12 @@ class FormConctructor
                     }
                 }
                 $constructor["selected"][$name] = $selected;
+
+                if (isset($value["onchange"]))
+                {
+                    $constructor["onchange"][$name] = $value["onchange"];
+                }
+
             }elseif($value["type"] == "sort_list")
             {
                 $allData = $this->_constructor_makeData($value["data_all"]);
@@ -55,6 +61,7 @@ class FormConctructor
                 {
                     $value["data_in"] = $data[$name];
                 }
+
                 foreach(explode(",", $value["data_in"]) as $v)
                 {
                     if (isset($allData[$v]))
