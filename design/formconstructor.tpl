@@ -97,7 +97,7 @@ function getPass(len)
 	        </select>
 	    {elseif $item.type == "radio"}
 	        {foreach from=$constructor.list[$name] key=val item=label}
-	        <input id="{$name}_{$val}" type=radio name={$name} value={$val}{if $val==$constructor.selected[$name]} checked{/if}{if isset($item.check_change)} onChange="_check()"{/if}><label for="{$name}_{$val}" style="cursor: pointer;">{$label}</label>
+	        <input id="{$name}_{$val}" type=radio name={$name} value={$val}{if $val==$constructor.selected[$name]} checked{/if}{if isset($item.check_change) || isset($constructor.onchange[$name])} onChange="{if isset($item.check_change)}_check();{/if}{if isset($constructor.onchange[$name])}{$constructor.onchange[$name]};{/if}"{/if}><label for="{$name}_{$val}" style="cursor: pointer;">{$label}</label>
 	        {/foreach}
 	    {elseif $item.type == "break"}
             </table></td><td width=50% valign=top style="border-left: 3px solid #ccc;"><table><tr><td>
