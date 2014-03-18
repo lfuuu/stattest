@@ -3466,7 +3466,7 @@ function stats_support_efficiency__basisOnStartDate(&$dateFrom, &$dateTo, &$usag
             LEFT JOIN `tt_troubles` tt ON tt.id = ts.trouble_id
             LEFT JOIN `user_users` u ON u.user = tt.user_author
             WHERE
-                usergroup = 'support' AND 
+                usergroup IN ('support','manager') AND 
                 date_creation between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' AND 
                 trouble_type in ('trouble', 'task', 'support_welltime') AND 
                 service in ('".implode("','", $usage)."')
@@ -3586,7 +3586,7 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
             LEFT JOIN `user_users` u ON u.user = tt.user_author
             WHERE
                 ts.state_id IN(2,7) AND 
-                usergroup = 'support' AND 
+                usergroup IN ('support','manager') AND 
                 date_edit between '".$dateFrom." 00:00:00' and '".$dateTo." 23:59:59' AND 
                 trouble_type in ('trouble', 'task', 'support_welltime') AND 
                 service in ('".implode("','", $usage)."') 
