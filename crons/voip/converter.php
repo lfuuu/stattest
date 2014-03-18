@@ -748,8 +748,8 @@ function convertSip(&$a, &$inss, &$peers)
             "is_multitrunk" => ($v["type"] == "multitrunk" ? "true" : "false"),
 			"priority"  => ($v["type"] == "line" ? $v["priority"] : 1),
             "region"    => $v["region"],
-            "type"      => ($v["host_type"] != "dynamic" ? "peer" : "friend")
-
+            "type"      => ($v["host_type"] != "dynamic" ? "peer" : "friend"),
+            "autolink_ip" => $v["permit_on"] == "auto" ? "true" : "false"
 		);
 
 		if($v["type"] == "multitrunk")
