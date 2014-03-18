@@ -804,7 +804,7 @@ function insertNumber(&$peers, &$all, &$inss)
              "region"    => $peerInfo["region"],
 
              "strategy"  =>  $strategy["call_strategy"] == "ringall" ? "all" : "rr",
-             "timeout"   =>  $strategy["call_wait"]*5
+             "timeout"   =>  $strategy["call_wait"] == 6 ? 0 : $strategy["call_wait"]*5
 		);
 
 		$inss["numbers"][$m["client_id"]][$m["number"]] = $m;
