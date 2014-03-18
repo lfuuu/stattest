@@ -48,7 +48,7 @@ foreach($pDB->AllRecords("select * from ".PG_SCHEMA.".autolink_ip where is_synce
         }
     }
 
-    $pDB->QueryUpdate(PG_SCHEMA.".autolink_ip", "id", array("id" => $l["id"], "is_synced" => true));
+    $pDB->QueryUpdate(PG_SCHEMA.".autolink_ip", "id", array("id" => $l["id"], "srcip" => "", "is_synced" => true));
 
     if ($r)
         ats2sync::updateClient($r["client_id"]);
