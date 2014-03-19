@@ -671,8 +671,60 @@ class ApiLk
     public static function getFreeNumbers($isSimple = false)
     {
         $ret = array();
-    
-        foreach(NewBill::find_by_sql("
+
+        $q = "SELECT 
+                a.number, a.region, a.price, a.beauty_level,
+                IF(client_id IN ('9130', '764'), 'our', 
+                    IF(date_reserved IS NOT NULL, 'reserv', 
+                        IF(active_usage_id IS NOT NULL, 'used', 
+                            IF(max_date >= (now() - INTERVAL 6 MONTH), 'stop', 'free' 
+                            ) 
+                        ) 
+                    ) 
+                ) AS status 
+            FROM ( 
+                SELECT 
+                    number, region, price, client_id, beauty_level, 
+                    (
+                        SELECT 
+                            MAX(actual_to) 
+                        FROM 
+                            usage_voip u 
+                        WHERE 
+                            u.e164 = v.number AND 
+                            actual_from <= DATE_FORMAT(now(), '%Y-%m-%d')
+                    ) AS max_date, 
+                    (
+                        SELECT 
+                            MAX(id) 
+                        FROM 
+                            usage_voip u 
+                        WHERE 
+                            u.e164 = v.number AND 
+                            (
+                                (
+                                    actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND 
+                                    actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
+                                ) OR 
+                                actual_from >= '2029-01-01'
+                            ) 
+                    ) AS active_usage_id, 
+                    (
+                        SELECT 
+                            MAX(created) 
+                        FROM 
+                            usage_voip u 
+                        WHERE 
+                            u.e164 = v.number AND 
+                            actual_from = '2029-01-01'
+                    ) AS date_reserved 
+                FROM 
+                    voip_numbers v 
+                )a 
+            LEFT JOIN clients c ON (c.id = a.client_id) 
+            HAVING status IN ('free')";
+        
+        foreach(NewBill::find_by_sql($q/*"
           SELECT
                 a.*, (
                     SELECT
@@ -702,7 +754,7 @@ class ApiLk
               )a
           HAVING date_to IS NULL OR date_to < now()
           ORDER BY if(beauty_level=0, 10, beauty_level) DESC, number
-          ") as $service)
+          "*/) as $service)
         {
             $line = self::_exportModelRow(array("number", "beauty_level", "price", "region"), $service);
             $line['full_number'] = $line['number'];
