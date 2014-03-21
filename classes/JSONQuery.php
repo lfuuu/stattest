@@ -15,13 +15,13 @@ class JSONQuery
                 CURLOPT_FRESH_CONNECT => 1, 
                 CURLOPT_RETURNTRANSFER => 1, 
                 CURLOPT_FORBID_REUSE => 1, 
-                CURLOPT_TIMEOUT => 4, 
+                CURLOPT_TIMEOUT => 30, 
                 CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_SSL_VERIFYPEER => FALSE
                 //CURLOPT_COOKIE => "mcn_uid=139031302648788611069664" /* !!!!!!! */
                 ); 
 
-        echo "\n".json_encode($data);
+        //echo "\n".json_encode($data);
 
         $ch = curl_init(); 
         curl_setopt_array($ch, $defaults); 
@@ -37,13 +37,13 @@ class JSONQuery
         // todo: переделать эту хрень на событийную модель
         if ($info["http_code"] !== 200)
         {
-            print_r($info);
+            //print_r($info);
             throw new Exception("VPBX Sync Error: http code: ".$info["http_code"], $info["http_code"]);
         }
 
-        print_r($result);
+        //print_r($result);
         $result = @json_decode($result, true);
-        print_r($result);
+        //print_r($result);
 
         if (!$result)
         {
@@ -52,7 +52,7 @@ class JSONQuery
 
         if (isset($result["errors"]))
         {
-            throw new Exception($result["errors"][0]["message"], $result["errors"][0]["code"]);
+            throw new Exception(Encoding::toKoi8r($result["errors"][0]["message"]), $result["errors"][0]["code"]);
         }
 
         return $result;
