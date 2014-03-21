@@ -727,12 +727,6 @@ class m_ats2 extends IModule
 
         $clientId = getClientId();
         try{
-
-            $rr = SyncVirtPbx::create($clientId);
-
-            printdbg($rr);
-
-            exit();
             if ($rr = SyncVirtPbx::create($clientId))
             {
 
