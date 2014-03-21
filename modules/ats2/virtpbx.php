@@ -121,18 +121,22 @@ class aVirtPbx
         $vpbx = virtPbx::getList();
 
         $getNumbers = array();
-        foreach(explode(",", $data["numbers"]) as $fNumber)
+
+        if ($data["numbers"])
         {
-            list($numberId, $direction) = explode("=", $fNumber);
-            $getNumbers[$numberId] = $direction;
+            foreach(explode(",", $data["numbers"]) as $fNumber)
+            {
+                list($numberId, $direction) = explode("=", $fNumber);
+                $getNumbers[$numberId] = $direction;
+            }
         }
+
 
         $savedNumbers = array();
         foreach($vpbx["numbers"] as $numberId => $oNumber)
         {
             $savedNumbers[$numberId] = $oNumber["direction"];
         }
-
 
 
         $saved = array_keys($savedNumbers);
@@ -162,7 +166,7 @@ class aVirtPbx
                 } else {
 
                     try{
-                        $res = ApiVpbx::addDid($clientId, $phone, $getNumbers[$numberId]);
+                        $res = ApiVpbx::addDid($clientId, $number, $getNumbers[$numberId]);
                     }catch(Exception $e)
                     {
                         $res = $e->getMessage();

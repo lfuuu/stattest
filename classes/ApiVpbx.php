@@ -12,7 +12,7 @@ class ApiVpbx
     */
     public static function getClientPhoneNumbers($clientId, $isSimple = false)
     {
-        global $db;
+        global $db_ats;
 
         $clientId = (int)$clientId;
 
@@ -20,25 +20,17 @@ class ApiVpbx
             throw new Exception("Лицевой счет не найден!");
 
         $data = array();
-        foreach($db->AllRecords("
-                    SELECT E164, 
-                    no_of_lines,
-                    (select count(*) from vpbx_numbers v where (v.client_id = c.id and v.number = E164)) as is_vpbx
-                    FROM 
-                        `usage_voip` u, clients c 
-                    where 
-                            c.id = '".$clientId."' 
-                        and c.client = u.client 
-                        and actual_from < cast(now() as date) 
-                        and actual_to >= cast(now() as date)") as $l)
+        foreach($db_ats->AllRecords("SELECT number, call_count from a_number where client_id = '".$clientId."' and enabled = 'yes'") as $l)
         {
             if ($isSimple)
             {
-                $data[$l["E164"]] = 1;
+                $data[$l["number"]] = 1;
             } else {
-                $data[] = array("number" => $l["E164"], "lines" => $l["no_of_lines"], "on_the_vpbx" => $l["is_vpbx"] ? 1 : 0);
+                $isVpbx = $db_ats->GetValue("SELECT count(1) FROM `a_virtpbx_link` l, a_virtpbx v, a_number n where l.virtpbx_id = v.id and v.client_id = '".$clientId."' and l.type='number' and n.id = type_id and v.client_id = n.client_id and n.number = '".$l["number"]."'");
+                $data[] = array("number" => $l["number"], "lines" => $l["call_count"], "on_the_vpbx" => $isVpbx ? 1 : 0);
             }
         }
+
         return  $data;
     }
 
@@ -48,7 +40,7 @@ class ApiVpbx
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
         if (!isset($clientNumbers[$phone])) 
         {
-            throw new Exception("Неизвестный номер");
+            throw new Exception("Неизвестный номер", 501);
         }
 
         //already added => answer: ok
@@ -141,7 +133,7 @@ class ApiVpbx
     * @param array массив номеров
     * @return bool
     */
-    public static function setClientVatsPhoneNumbers($clientId, $numbers)
+    public static function ______setClientVatsPhoneNumbers($clientId, $numbers)
     {
         global $db;
 
