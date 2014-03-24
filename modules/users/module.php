@@ -102,7 +102,7 @@ class m_users {
 				'usergroup'		=> get_param_protected('usergroup'),
 				'depart_id'		=> get_param_protected('depart_id'),
 				'name'			=> get_param_protected('name'),
-				'pass_text'		=> password_gen(),
+				'pass_text'		=> password_gen(8),
 				'firms'	    	=> get_param_protected('user2firm'),
 			);
 			$f['pass']=password::hash($f['pass_text']);
