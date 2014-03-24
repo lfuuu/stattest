@@ -118,7 +118,7 @@ class m_users {
 				$design->assign_by_ref("users",$d_users);
 
                 //Доступ по фирмам
-                $f['firms'] = (count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
+                $f['firms'] = (is_array($f['firms']) && count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
                 if ($f['firms'] != implode(',', array_keys($Firms)))
                     $db->Query('insert into user_grant_users (name,resource,access) values ("'.$id.'","firms","'.$f['firms'].'")');
 			}
