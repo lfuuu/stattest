@@ -453,13 +453,12 @@ class m_ats2 extends IModule
         $map["permit_on"] = array(
                 "title" => "Привязка",
                 "type" => "select",
-                "data" => array(array("type" => "array", "array" => array("yes" => "Да", "no" => "Нет", "auto" => "Авто"))),
-                "condition" => array("nq", "host_type", "static")
+                "data" => array(array("type" => "array", "array" => array("yes" => "Да", "no" => "Нет", "auto" => "Авто")))
                 );
         $map["permit"] = array(
                 "title" => "Привязка к IP",
                 "type" => "permit_net",
-                "condition" => array("and", array("eq", "permit_on", "yes"),array("nq", "host_type", "static"))
+                "condition" => array("eq", "permit_on", "yes")
                 );
         $map["break"] = array(
                 "type" => "break"
