@@ -299,7 +299,7 @@ function get_rus_date($date=0){
     return $d['mday'].' '.$p[$d['mon']-1].' '.$d['year'].' Ç.';
 }
 
-function password_gen($len = 12, $isStrong = true){
+function password_gen($len = 15, $isStrong = true){
     mt_srand((double) microtime() * 1000000);
     if ($isStrong)
     {
