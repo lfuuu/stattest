@@ -733,7 +733,7 @@ function convertSip(&$a, &$inss, &$peers)
             "client"    =>  $v["client_id"],
             "stat_id"   =>  $v["id"],
             "client_id" =>  $v["client_id"],
-            "callerid"  => ($v["type"] == "multitrunk" ? "" : (strlen($v["number"]) >= 5 ? $v["number"] : "74959505680*".$v["number"])),
+            "callerid"  => ($v["type"] == "multitrunk" ? "" : $v["number"]),
             //"ast_ds"    =>  $ds,
             //"ast_cl"    =>  $v["call_count"],
             "secret"    =>  $v["password"],
