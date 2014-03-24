@@ -45,7 +45,7 @@ function getE(name) { return document.getElementById(name); }
 
 function genPass()
 {
-    getE('password').value= getPass(12);
+    getE('password').value= getPass(15);
 }
 
 function getPass(len)
