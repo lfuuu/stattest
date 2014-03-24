@@ -19,7 +19,7 @@
 
 <ol>
 <li>Абоненту был установлено подключение к&nbsp;Интернету по&nbsp;адресу: <b>{$conn.address}</b></li>
-<li>Абоненту выданы следующие IP-адреса/IP-сеть: <b>{foreach from=$routes item=item name=outer}{if $smarty.foreach.outer.iteration!=1}, {/if}{$item.net}{/foreach}</b></li>
+{if count($routes) > 0}<li>Абоненту выданы следующие IP-адреса/IP-сеть: <b>{foreach from=$routes item=item name=outer}{if $smarty.foreach.outer.iteration!=1}, {/if}{$item.net}{/foreach}</b></li>{/if}
 
 {if $port.port_type=='adsl'||$port.port_type=='adsl_cards' || $port.port_type=='adsl_karta' || $port.port_type=='adsl_rabota' || $port.port_type=='adsl_terminal' || $port.port_type=='adsl_tranzit1'}
 	<li>На телефонной линии <b>{$port.node}</b> абоненту установлено и введено в эксплуатацию следующее оборудование:</li><ul>
