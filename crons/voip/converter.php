@@ -777,8 +777,8 @@ function insertNumber(&$peers, &$all, &$inss)
 		$oNum = isset($ons[$number]) ? $ons[$number] : false;
 
         $strategy = array(
-                "call_strategy" => "ringall",
-                "call_wait" => 3
+                "call_strategy" => "rrmemory",
+                "call_wait" => 0
                 );
 
         if (isset($all[$number]["strategy"]))
