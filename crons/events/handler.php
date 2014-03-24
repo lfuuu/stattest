@@ -75,6 +75,11 @@ function do_events()
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
                 case 'usage_voip__delete':  ats2Numbers::check(); break;
+
+                case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
+                                 ats2Numbers::check();
+                                 virtPbx::check();
+                                 break;
             }
         } catch (Exception $e)
         {
