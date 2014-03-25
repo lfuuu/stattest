@@ -291,12 +291,15 @@ class ApiLk
 
     public function getVoipList($clientId, $isSimple = false)
     {
+        global $db_ats;
         $ret = array();
     
         $card = ClientCard::first(array("id" => $clientId));
     
         if (!$card)
             return $ret;
+
+        $isDBAtsInited = $db_ats && $db != $db_ats;
     
         foreach(NewBill::find_by_sql(
                 '
@@ -352,6 +355,13 @@ class ApiLk
                 ', array($card->client, $card->client)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
+
+            if ($isDBAtsInited)
+            {
+                $line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
+            } else {
+                $line["vpbx"] = 0;
+            }
             $ret[] = $isSimple ? $line["number"] : $line;
         }
     
