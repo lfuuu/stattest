@@ -255,14 +255,17 @@ class _diff
 			if(get_class($this) == "diffNumbersFwd")
 				$this->key = $this->key1;
 
-			$data = array($this->key => $this->diffs["delete"]);
-			if(!defined("diff_not_apply"))
-			{
-				$pDB->QueryDelete(PG_SCHEMA.".".$this->table, $data);
-			}else{
-				echo "\nQueryDelete: ".PG_SCHEMA.".".$this->table."\n";
-				print_r($data);
-			}
+            foreach($this->diffs["delete"] as $d)
+            {
+                $data = array($this->key => $d);
+                if(!defined("diff_not_apply"))
+                {
+                    $pDB->QueryDelete(PG_SCHEMA.".".$this->table, $data);
+                }else{
+                    echo "\nQueryDelete: ".PG_SCHEMA.".".$this->table."\n";
+                    print_r($data);
+                }
+            }
 		}
 
 
