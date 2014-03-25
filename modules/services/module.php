@@ -588,12 +588,22 @@ class m_services extends IModule{
                     ".$order
       );
 
-      $R=array(); while ($r=$db->NextRecord()) {$R[]=$r; if ($r['is_trunk'] == '1') $has_trunk = true;}
+      $R=array(); 
+      while ($r=$db->NextRecord()) {
+          $R[]=$r; 
+          if ($r['is_trunk'] == '1') 
+              $has_trunk = true;
+      }
             $design->assign('phone',$phone);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
             $design->AddMain('services/voip_all.tpl'); 
         } else {
+
+            global $db_ats;
+
+            $isDbAtsInited = $db_ats && $db != $db_ats;
+
             $db->Query($q='
                 select
                     usage_voip.*,
@@ -610,10 +620,27 @@ class m_services extends IModule{
                 desc,
                 '.$order
             );
-            $R=array(); while ($r=$db->NextRecord()) {$R[]=$r; if ($r['is_trunk'] == '1') $has_trunk = true;}
+
+            $R=array(); 
+            while ($r=$db->NextRecord()) {
+                $R[]=$r; 
+                if ($r['is_trunk'] == '1') 
+                    $has_trunk = true;
+            }
+
+            if ($isDbAtsInited)
+            {
+            }
             foreach ($R as &$r) {
                 $r['tarif']=get_tarif_current('usage_voip',$r['id']);
                 $r['cpe']=get_cpe_history('usage_voip',$r['id']);
+
+                if ($isDbAtsInited)
+                {
+                    $r["vpbx"] = virtPbx::number_isOnVpbx($this->fetched_client["id"], $r["E164"]);
+                } else {
+                    $r["vpbx"] = false;
+                }
             }
 
             $notAcos = array();
@@ -2601,7 +2628,7 @@ class m_services extends IModule{
         $db->Query('select * from clients where (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return 0;
         $design->assign('client',$r);
-        $this->fetched_client=1;
+        $this->fetched_client=$r;
         return 1;
         
     }

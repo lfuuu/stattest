@@ -189,6 +189,26 @@ class virtPbx
                 );
     }
 
+    public function number_isOnVpbx($clientId, $number)
+    {
+        global $db_ats;
+
+        return $db_ats->GetValue(
+                "SELECT 
+                    tarif_id 
+                 FROM 
+                    `a_number` n, 
+                    `a_virtpbx_link` l, 
+                    `a_virtpbx` v 
+                 WHERE 
+                        n.number = '".$number."'
+                    and n.client_id = '".$clientId."'
+                    and l.type='number' and l.type_id=n.id 
+                    and v.id = l.virtpbx_id 
+                    and n.client_id = v.client_id");
+    }
+
+
     public function getStatus($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);

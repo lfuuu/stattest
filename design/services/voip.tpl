@@ -30,7 +30,7 @@
         {if $item.actual_from == '2029-01-01' && access('services_voip', 'del2029')}<a href="./?module=services&action=vo_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
 	</td>
     <td>{$regions[$item.region].name}</td>
-	<td>{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<div style='width:150px;text-align:center'>адрес отсутствует</div>{/if}</td>	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from} - {if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
+	<td>{if $item.vpbx}<div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>{else}{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...{/if}{/if}</td>	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from} - {if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
 	<td>{$item.E164} x {$item.no_of_lines}{if access('services_voip','view_reg')} <a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
 	<!--td>{if $item.cl}{$item.cl}{else}&nbsp;{/if}</td-->
 	<!--td>{if $item.cl}{if !$item.enable}<img class=icon src='{$IMAGES_PATH}icons/delete.gif'>{else}<img class=icon src='{$IMAGES_PATH}icons/add.gif'>{/if}{else}&nbsp;{/if}</td-->
