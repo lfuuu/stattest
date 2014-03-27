@@ -2,6 +2,11 @@
 
 define("exception_sql", 1);
 
+include_once PATH_TO_ROOT."modules/ats2/account.php";
+include_once PATH_TO_ROOT."modules/ats2/freeaccount.php";
+include_once PATH_TO_ROOT."modules/ats2/reservaccount.php";
+include_once PATH_TO_ROOT."modules/ats2/linedb.php";
+
 function getClient($fixClient = null )
 {
 
@@ -308,7 +313,6 @@ class m_ats2 extends IModule
 
             $id = lineDB::insert($d);
 
-            reservAccount::reset();
 
             if($d["is_group"] && $subAccountCount > 0)
             {
@@ -482,19 +486,19 @@ class m_ats2 extends IModule
     {
         $r = account::get($d["id"]);
 
-        $changedTo = array_diff_assoc($d,$r);
+        $changedTo = array_diff_assoc($d, $r);
 
         $changedFrom = array();
         foreach($changedTo as $k => $v)
             $changedFrom[$k] = $r[$k];
 
         if(isset($changedTo["subaccount_count"]))
-            $this->change_subaccount($d,$r, $changedFrom["subaccount_count"], $changedTo["subaccount_count"]);
+            account::change_subaccount($d, $changedTo["subaccount_count"]);
 
 
         if($r["is_group"] && $r["subaccount_count"] > 0) // apply group save changes
         {
-            $isAllSave = get_param_raw("type_save","all") == "all";
+            $isAllSave = get_param_raw("type_save", "all") == "all";
 
             if($isAllSave)
             {
@@ -520,49 +524,6 @@ class m_ats2 extends IModule
         return $changedTo;
     }
 
-    private function change_subaccount(&$d,&$r, $from, $to)
-    {
-        if($from > $to)
-        {
-            $d["subaccount_count"] = $from;
-            return;
-        }
-
-        $sequence = $this->getMaxSequence($d);
-
-        $d1 = $d;
-
-        unset($d1["subaccount_count"], $d1["id"], $d1["c_id"]);
-        $d1["is_group"] = 0;
-        $d1["parent_id"] = $d["id"];
-        $d1["password"] = $r["password"];
-
-
-        for($i = 0; $i< $to-$from; $i++)
-        {
-            $d1["sequence"] = $sequence+1+$i;
-            $d1["account"] = account::make($d1);
-            $d1["password"] = password_gen();
-
-            lineDB::insert($d1);
-        }
-    }
-
-    private function getMaxSequence(&$d)
-    {
-        global $db_ats;
-
-        $r = $db_ats->GetValue(
-                "select max(sequence) 
-                from a_line
-                where 
-                        serial='".$d["serial"]."' 
-                    and is_group = 0");
-
-        if(!$r) return 0;
-
-        return $r;
-    }
 
     private function lookDiffInLines(&$map, &$d)
     {
@@ -750,344 +711,8 @@ class m_ats2 extends IModule
     }
 }
 
-class account
-{
-    public function get($id)
-    {
-        global $db_ats;
 
-        if($id == 0)
-        {
-            $c = getClient();
-            $newAcc = freeAccount::get();
-            return array(
-                    "id" => "0",
-                    "is_group" => "1",
-                    "subaccount_count" => 0,
-                    "account" => $newAcc["account"],
-                    "serial" => $newAcc["serial"],
-                    "format" => "ats2",
-                    "link_id" => "0",
-                    "password" => "********",
-                    "parent_id" => "0",
-                    "sequence" => "0",
-                    "permit" => "",
-                    "codec" => "alaw,g729",
-                    "context" => "c-realtime-out",
-                    "last_update" => "0000-00-00 00:00:00",
-                    "enabled" => "yes",
-                    "permit_on" => "auto",
-                    "host_type" => "dynamic",
-                    "host_static" => "",
-                    "host_port_static" => "5060",
-                    "dtmf" => "rfc2833",
-                    "insecure" => ""
-                        );
-        }
 
-        if(!$id) return false;
 
-        $r = $db_ats->GetRow("select * from a_line l, a_connect c where l.c_id = c.id and l.id = ".$id." and ".sqlClient());
-        if($r)
-        {
-            $r["id"] = $id;
 
-            if($r["is_group"])
-                $r["subaccount_count"] = (int)$db_ats->GetValue("select count(1) from a_line where parent_id = '".$r["id"]."'");
 
-            $r["account"] = account::make($r);
-        }
-
-        return $r;
-    }
-
-    public function make(&$l)
-    {
-        return 
-            sprintf("%06d", $l["serial"]).
-            (!isset($l["is_group"]) ||  $l["is_group"] ? "" : sprintf("%02d", $l["sequence"]));
-    }
-
-    public function parse($acc)
-    {
-        $acc = trim($acc);
-
-        if(strlen($acc) == 6 || strlen($acc) == 8)
-        {
-            if(preg_match("/^([0-9]{6})([0-9]{2})?/", $acc, $o))
-            {
-                $r = array(
-                        "serial" => (int)$o[1],
-                        "sequence" => isset($o[2]) ? $o[2] : 0
-                        );
-
-                return $r;
-
-            }else{
-                throw new Exception("Ошибка добавления аккаунта");
-            }
-        }else{
-            throw new Exception("Ошибка добавления аккаунта");
-        }
-    }
-
-    public function getSubaccounts($id)
-    {
-        global $db_ats;
-
-        $dd = array();
-        foreach($db_ats->AllRecords("select id from a_line where parent_id = '".$id."'") as $l)
-            $dd[] = self::get($l["id"]);
-
-        return $dd;
-
-    }
-}
-
-
-class reservAccount
-{
-    private function clear()
-    {
-        global $db_ats;
-
-        $db_ats->Query("delete from a_reserv_account where (date+interval 5 minute) < now()");
-    }
-
-    public function get()
-    {
-        global $db_ats;
-
-        self::clear();
-
-        $sessionId = session_id();
-
-        $v = $db_ats->GetRow("select serial from a_reserv_account where session = '".$sessionId."'");
-        if($v)
-        {
-            $v["account"] = account::make($v);
-        }
-
-        return $v;
-    }
-
-    public function set($l)
-    {
-        global $db_ats;
-
-        $db_ats->QueryInsert("a_reserv_account", array(
-                    "serial" => $l["serial"],
-                    "session" => session_id()
-                    )
-                );
-    }
-
-    public function reset() 
-    {
-        global $db_ats;
-
-        $db_ats->QueryDelete("a_reserv_account", array(
-                    "session" => session_id()
-                    )
-                );
-    }
-
-    public function isReservedOther($serial)
-    {
-        global $db_ats;
-
-        return $db_ats->GetValue(
-                "select serial 
-                from a_reserv_account 
-                where 
-                        serial ='".$serial."' 
-                    and session != '".session_id()."'");
-    }
-}
-
-class freeAccount
-{
-    public function get()
-    {
-        $v = reservAccount::get();
-        $isReserv = $v ? true : false;
-
-        //printdbg($v, "reserv");
-
-        if(!$isReserv)
-        {
-            $serial = 100000;
-            $inMiss = true;
-
-            $c = 0;
-            do
-            {
-                if($inMiss)
-                {
-                    // поиск пропущенных
-                    $serialMiss = self::getNextMissedAccount($serial);
-
-                    //echo "<br>serialMiss=".$serialMiss." (".$serial.")";
-                    if($serialMiss)
-                        $serial = $serialMiss;
-                }
-
-                if($inMiss && !$serialMiss) 
-                    $inMiss = false;
-
-                // поиск максимального
-                if(!$inMiss)
-                {
-                    $serialMax = self::getMaxSerial();
-                    //echo "<br>serialMax=".$serialMax." (".$serialMax.")";
-
-                    if($serialMax)
-                    {
-                        if($serial < $serialMax)
-                            $serial = $serialMax+1;
-                        else
-                            $serial++;
-                    }else{
-                        $serial = 100001;
-                    }
-
-                }
-                //echo "<br>".$serial;
-
-                if($c++ > 10) die("c=11");
-            }while(reservAccount::isReservedOther($serial));
-
-            $v = array("serial" => $serial);
-            $v["account"] = account::make($v);
-
-            reservAccount::set($v);
-        }
-
-        return $v;
-    }
-
-
-
-    private function getNextMissedAccount($serial)
-    {
-        global $db_ats;
-
-        foreach($db_ats->AllRecords(
-                    "select serial 
-                    from a_line
-                    where 
-                            is_group = 1 
-                        and serial > ".$serial."
-                    order by serial") as $k => $l)
-        {
-            //printdbg($l, "k".$k);
-            if($k+1+$serial != $l["serial"]) return $k+1+$serial;
-        }
-
-        return false;
-    }
-
-    private function getMaxSerial()
-    {
-        global $db_ats;
-
-        return $db_ats->GetValue("select max(serial) as v from a_line ");
-    }
-
-}
-
-
-class lineDB
-{
-    public function insert($d)
-    {
-        global $db_ats;
-
-        /*
-        (
-         [account] => 99000001
-         [host_type] => dynamic
-         [host_static] => 
-         [host_port_static] => 5060
-         [password] => 679qotqraaju
-         [dtmf] => rfc2833
-         [insecure] => 
-         [permit_on] => no
-         [permit] => 
-         [codec] => alaw,g729
-         [context] => c-realtime-out
-         [serial] => 1
-         [sequence] => 0
-         [is_group] => 1
-         [client_id] => 9130
-        )
-        */
-
-        $line = array();
-        foreach(array("parent_id", "account", "serial", "sequence", "is_group", "client_id") as $l)
-        {
-            $line[$l] = $d[$l];
-            unset($d[$l]);
-        }
-
-
-        $lineId = $db_ats->QueryInsert("a_line", $line, true);
-
-        $cId = $db_ats->QueryInsert("a_connect", $d, true);
-
-        $db_ats->QueryUpdate("a_line", "id", array("id" => $lineId, "c_id" => $cId));
-
-        return $lineId;
-    }
-
-    public function update(&$d)
-    {
-        global $db_ats;
-
-        foreach(array("parent_id", "account", "serial", "sequence", "is_group", "client_id", "c_id") as $l)
-            unset($d[$l]);
-
-        if(count($d) <= 1) return; // если есть только id, то ничего не делаем
-
-        $d["id"] = self::getConnectId($d["id"]);
-
-        $db_ats->QueryUpdate("a_connect", "id", $d);
-    }
-
-    public function getConnectId($lineId)
-    {
-        global $db_ats;
-
-        return $db_ats->GetValue("select c_id from a_line where id = '".$lineId."' and ".sqlClient());
-    }
-
-    public function del($id)
-    {
-        global $db_ats;
-
-        if($id && $r = account::get($id))
-        {
-            if($r["is_group"])
-            {
-                foreach($db_ats->AllRecords("select id, c_id from a_line where parent_id = '".$r["id"]."'") as $l)
-                    self::_del($l);
-            }
-
-            self::_del($r);
-            ats2sync::updateClient($r["client_id"]);
-        }
-    }
-
-    private function _del($l)
-    {
-        global $db_ats;
-
-        $db_ats->QueryDelete("a_line", array("id" => $l["id"], "c_id" => $l["c_id"]));
-        $db_ats->QueryDelete("a_connect", array("id" => $l["c_id"]));
-
-        $db_ats->QueryDelete("a_link", array("c_id" => $l["id"], "c_type" => "line"));
-        $db_ats->QueryDelete("a_link", array("c_id" => $l["id"], "c_type" => "trunk"));
-
-        $db_ats->QueryDelete("a_virtpbx_link", array("type_id" => $l["id"], "type" => "account"));
-    }
-}

@@ -437,6 +437,9 @@ class DbFormUsageVoip extends DbForm {
                             $this->dbform['t_minpayment_local_mob'],$this->dbform['t_minpayment_russia'],$this->dbform['t_minpayment_intern'],$this->dbform['t_minpayment_sng']
                         );
                 }
+
+                event::go("autocreate_accounts", $this->data["id"]);
+
             }else{
                 trigger_error("Не сохранено! Выберите тариф");
             }

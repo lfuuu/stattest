@@ -39,7 +39,7 @@ class SyncCoreHelper
                 //self::loadEmails($emails, $c["id"]);
 
                 /* add account event fiered next time
-                $account = array("id" => $c["id"], "products" => self::getProducts($c["id"]));
+                $_account = array("id" => $c["id"], "products" => self::getProducts($c["id"]));
                 $dataContragent["accounts"][] = $account;
                 */
             }
