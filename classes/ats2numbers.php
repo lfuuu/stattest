@@ -1,5 +1,10 @@
 <?php
 
+include_once(PATH_TO_ROOT."modules/ats2/account.php");
+include_once(PATH_TO_ROOT."modules/ats2/freeaccount.php");
+include_once(PATH_TO_ROOT."modules/ats2/linedb.php");
+include_once(PATH_TO_ROOT."modules/ats2/reservaccount.php");
+
 class ats2NumbersChecker
 {
     public function check()
@@ -150,18 +155,31 @@ class ats2Numbers
         ats2NumbersChecker::check();
     }
 
-    public function getNumberId($l)
+    public function autocreateAccounts($usageId)
     {
-        l::ll(__CLASS__,__FUNCTION__, $l);
+        ats2Helper::autocreateAccounts($usageId);
+    }
+
+    public function getNumberId($l, $clientId = null)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l, $clientId);
         global $db_ats;
 
+        if ($clientId !== null)
+        {
+            $number = $l;
+        } else {
+            $clientId = $l["client_id"];
+            $number = $l["E164"];
+        }
+
         static $c = array();
-        $key = $l["client_id"]."--".$l["e164"];
+        $key = $clientId."--".$number;
         if(!isset($c[$key]))
         {
             $c[$key] = $db_ats->getValue("select id from a_number 
-                    where number = '".$l["e164"]."' 
-                    and client_id='".$l["client_id"]."'");
+                    where number = '".$number."' 
+                    and client_id='".$clientId."'");
         }
 
         return $c[$key];
@@ -235,12 +253,30 @@ class ats2Numbers
     public function isUsed($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
-        global $db_ats;
-
         $numberId = self::getNumberId($l);
 
-        return (bool)$db_ats->GetValue("select count(*) from a_link where number_id = '".$numberId."'");
+        return (bool)self::getLinkCount($numberId);
     }
+
+    public function getLinkCount($numberId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+        return $db_ats->GetValue("select count(*) from a_link where number_id = '".$numberId."'");
+    }
+
+    public function getGroupLinkId($numberId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+        global $db_ats;
+
+        $firstLineId = $db_ats->GetValue("select c_id from a_link where number_id = '".$numberId."' and c_type in ('line', 'trunk')");
+
+        return $db_ats->GetValue("select parent_id from a_line where id = '".$firstLineId."'");
+    }
+
+
+
 
     public function delFull($l)
     {
@@ -248,7 +284,6 @@ class ats2Numbers
         global $db_ats;
 
         $numberId = self::getNumberId($l);
-
 
         $db_ats->QueryDelete("a_link", array("number_id" => $numberId));
         $db_ats->QueryDelete("a_number", array("id" => $numberId));
@@ -453,4 +488,79 @@ class ats2NumberAction
 
     }
 }
+
+class ats2Helper
+{
+    public function autocreateAccounts($usageId)
+    {
+        global $db, $db_ats;
+
+        $usage = $db->GetRow("select * from usage_voip where id = '".$usageId."'");
+        if (!$usage) {
+            throw new Exception("Usage voip с id=".$usageId." не найден!");
+        }
+
+        $clientId = $db->GetValue("select id from clients where client = '".mysql_escape_string($usage["client"])."'");
+
+        if (!$clientId) {
+            throw new Exception("Клиент не найден");
+        }
+
+        $usage["client_id"] = $clientId;
+
+        // extract numberId
+        $count = 0;
+        do { 
+            if ($count > 0) {
+                sleep(1);
+            }
+            $numberId = ats2Numbers::getNumberId($usage["E164"], $clientId);
+        } while($count++ < 10 && !$numberId); // expect to create number
+
+        if (!$numberId) {
+            throw new Exception("Номер не найден");
+        }
+
+        $currentCountAccounts = ats2Numbers::getLinkCount($numberId);
+
+        //group line id
+        if (!$currentCountAccounts)
+        {
+            // create group account
+            $line = account::get();
+            $line["client_id"] = $clientId;
+            $lineId = lineDB::insert($line);
+
+            $currentCountAccounts = 0;
+        } else {
+            $lineId = ats2Numbers::getGroupLinkId($numberId);
+        }
+
+        if (!$lineId) {
+            throw new Exception("LineId не установлен");
+        }
+
+        //is need add accounts
+        if ($currentCountAccounts < $usage["no_of_lines"])
+        {
+            $line = account::get($lineId);
+
+            if (!$line) {
+                throw new Exception("Акакунт не найден");
+            }
+
+            foreach(account::change_subaccount($line, $usage["no_of_lines"]) as $lineId)
+            {
+                $db_ats->QueryInsert("a_link", array(
+                            "c_type" => "line",
+                            "c_id" => $lineId,
+                            "number_id" => $numberId,
+                            "direction" => "full"
+                            )
+                        );
+            }
+        }
+    }
+}
+
 
