@@ -80,6 +80,8 @@ function do_events()
                                  ats2Numbers::check();
                                  virtPbx::check();
                                  break;
+
+                case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param); break;
             }
         } catch (Exception $e)
         {

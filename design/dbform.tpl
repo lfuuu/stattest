@@ -46,18 +46,11 @@
         {/if}
 	</select>
 	<input type='text' id='get_free_e164_limit_calls' value='4' size='1' />
+    {if !$dbform_data.id.value}Создать и привязать SIP учетки: <input type='checkbox' name='autocreate_sip' id='autocreate_sip'>{/if}
 {/if}
 {if $key == "actual_from" || $key == "actual_to"}
     <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("Y-m-d");{/php}"'>
-    <input type=button value="8" title="Услуга открыта" onclick='document.getElementById("{$key}").value="2029-01-01"'
-    style="
-    width: 24px;
-height: 30px;
-padding-bottom: 1px;
-    -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-            -ms-transform: rotate(90deg);
-                transform: rotate(90deg);">
+    <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="2029-01-01"' style="">
 {/if}
 </TD></TR>
 {elseif $item.type=='first_text'}
