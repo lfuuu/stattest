@@ -799,7 +799,8 @@ function insertNumber(&$peers, &$all, &$inss)
              "cond"      => (_is_on($all, $number, "redirif") ? "true" : "false"),
              "announce"  => _get_anonce($all, $number, "main"),
              "noanswer"  => (_is_on($all, $number, "linenoanswer") ? "true" : "false"),
-             "unavail"   => (_is_on($all, $number, "linenotavail") ? "true" : "false"),
+                            //аварийная переадресация должна быть включена, если есть номера для переадресации
+             "unavail"   => (_is_on($all, $number, "linenotavail") && isset($all[$number]["linenotavail"]["contacts"]) && $all[$number]["linenotavail"]["contacts"] ? "true" : "false"), 
              "busy"      => (_is_on($all, $number, "linebusy") ? "true" : "false"),
              "cl"        =>  $peerInfo["cl"],
              "ds"        =>  $peerInfo["ds"],
