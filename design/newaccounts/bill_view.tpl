@@ -111,6 +111,7 @@
 		<td>Валюта проводки:</td><td><b{if $bill.currency=='RUR'} style='color:blue'{/if}>{$bill.currency}</b></td>
 		<td>Исполнитель:</td><td>{if $bill.courier_id != 0}<i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}</td>
 		<td>Предполагаемый тип платежа:</td><td><i{if $bill.nal != "beznal"} style="background-color: {if $bill.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}"{/if}>{$bill.nal}</i></td>
+		<td>Внешний номер:</td><td><b>{$bill.bill_no_ext}</b></td>
 	</tr>
 </table>
 

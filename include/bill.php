@@ -181,6 +181,14 @@ class Bill{
 			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен предпологаемый тип платежа на ".$nal));
         }
     }
+    public function SetExtNo($bill_no_ext)
+    {
+        if ($this->bill["bill_no_ext"] != $bill_no_ext) {
+            global $db,$user;
+            $this->Set("bill_no_ext", $bill_no_ext);
+			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен внешний номер на ".$bill_no_ext));
+        }
+    }
     public function SetCourier($courierId){
         if ((int)$courierId != $courierId) return;
         if ($this->bill["courier_id"] != $courierId) {
