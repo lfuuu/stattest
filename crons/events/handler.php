@@ -79,6 +79,9 @@ function do_events()
                 case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();
                                  virtPbx::check();
+                                 if(date("d") == 11) { //каждого 11-го числа помечаем, что все счета показываем в LK
+                                     NewBill::setLkShowForAll();
+                                 }
                                  break;
 
                 case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param); break;
