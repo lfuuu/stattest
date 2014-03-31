@@ -41,4 +41,13 @@ class NewBill extends ActiveRecord\Model
     {
         return strpos("/", $this->bill_no) !== false;
     }
+
+    public function setLkShowForAll()
+    {
+        foreach(self::find('all', array("conditions" => array('is_lk_show' => 0), "limit" => 100)) as $b)
+        {
+            $b->is_lk_show = 1;
+            $b->save();
+        }
+    }
 }
