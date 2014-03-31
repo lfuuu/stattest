@@ -46,6 +46,11 @@
             $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
             $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
 
+    }elseif ($p_region == 991 && in_array($p_dest, array(1,2,3))){
+        $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
+        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
+        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
+
     }elseif ($p_region == 97 && $p_dest == 1){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>27,'param'=>'d1', 'date'=>date('Y-m-d'));
 //        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>28,'param'=>'d1', 'date'=>date('Y-m-d'));
