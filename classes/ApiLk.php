@@ -1609,6 +1609,10 @@ class ApiLk
                         'service_id' => $service_id,
                         'user_author' => $user
         );
+
+        if ($user == "ava") {
+            mail("ava@mcn.ru", "[lk] Заказ услуги", $message);
+        }
     
         return $tt->createTrouble($R, $user);
     }
