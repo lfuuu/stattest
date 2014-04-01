@@ -170,7 +170,7 @@ class ats2Numbers
             $number = $l;
         } else {
             $clientId = $l["client_id"];
-            $number = $l["E164"];
+            $number = $l["e164"];
         }
 
         static $c = array();
