@@ -694,6 +694,7 @@ class PriceTel
 
         $data = array(
                 "990" => array("city" => "Москва (старый прайс)", "time" => false),
+                "991" => array("city" => "Присоединение сетей", "time" => false),
                 );
 
         foreach($db->AllRecords('select id, name from regions order by id desc', 'id') as $r)
@@ -733,7 +734,7 @@ class PriceTel
 
         $d = array();
 
-        if($region != 990)
+        if($region != 990 && $region != 991)
         {
             self::__addTitle("Местные стационарные", $d);
             self::__parsePrice($pp[4], $d);
