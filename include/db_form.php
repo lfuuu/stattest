@@ -334,7 +334,6 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['E164']=array();
         $this->fields['no_of_lines']=array('default'=>1);
-        $this->fields['no_of_callfwd']=array('default'=>0);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
@@ -438,7 +437,9 @@ class DbFormUsageVoip extends DbForm {
                         );
                 }
 
-                event::go("autocreate_accounts", $this->data["id"]);
+                if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
+                    event::go("autocreate_accounts", $this->data["id"]);
+                }
 
             }else{
                 trigger_error("Не сохранено! Выберите тариф");
@@ -1803,7 +1804,6 @@ $GLOBALS['translate_arr']=array(
     'usage_ip_ports.test_req_no'        => 'test_req_no Заявка в МГТС',
 
     'usage_voip.no_of_lines'            => 'число линий',
-    'usage_voip.no_of_callfwd'            => 'кол-во переадресациий',
     'usage_voip.tech_voip_device_id'    => 'устройство',
     'usage_voip.tarif'                    => 'тариф',
         

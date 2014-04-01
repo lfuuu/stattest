@@ -45,8 +45,6 @@
             <option value='7863309'>7(863) 309</option>
         {/if}
 	</select>
-	<input type='text' id='get_free_e164_limit_calls' value='4' size='1' />
-    {if !$dbform_data.id.value}Создать и привязать SIP учетки: <input type='checkbox' name='autocreate_sip' id='autocreate_sip'>{/if}
 {/if}
 {if $key == "actual_from" || $key == "actual_to"}
     <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("Y-m-d");{/php}"'>

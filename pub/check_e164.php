@@ -20,11 +20,11 @@
         exit();
     }
 
-    if(preg_match('/^FREE(\d+)?:(\d{4,7}|short)?/',$_GET['e164'],$m)){
-        if(isset($m[2]) && $m[2] != 'short'){
-            $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
-            $ann_ = "substring(`e164` from 1 for ".strlen($m[2]).") = '".$m[2]."'";
-        }elseif ($m[2] == 'short') {
+    if(preg_match('/^FREE:(\d{4,7}|short)?/',$_GET['e164'],$m)){
+        if(isset($m[1]) && $m[1] != 'short'){
+            $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
+            $ann_ = "substring(`e164` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
+        }elseif ($m[1] == 'short') {
             $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6 and e164 not in ('".implode("','", $spec_numbers)."')";
             if (($res=$db->GetValue($query)) !== false) {
                 while (in_array($res, $spec_numbers)) $res++;
@@ -37,11 +37,6 @@
             $ann_ = '';
         }
 
-		if(isset($m[1]) && is_numeric($m[1])){
-			$limit_call = (int)$m[1];
-		}else
-			$limit_call = 4;
-
 		$actual_from = $_GET['actual_from'];
 		$actual_to = $_GET['actual_to'];
 
@@ -50,7 +45,6 @@
 			from `voip_numbers` `vn`
 			    where `vn`.`beauty_level` = '0'
 			    and vn.client_id is null
-			    and ifnull(`vn`.`nullcalls_last_2_days`,0) <= ".$limit_call."
 			    ".$ann."
 
             having date_add(ifnull(actual_to,'2000-01-01'), interval 6 month) <= now()

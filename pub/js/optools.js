@@ -200,7 +200,7 @@ var optools = {
 				$.get(
 					'check_e164.php',
 					{
-						e164:'FREE'+document.getElementById('get_free_e164_limit_calls').value+':'+el.value,
+						e164:'FREE:'+el.value,
 						actual_from:document.getElementById('actual_from').value,
 						actual_to:document.getElementById('actual_to').value
 					},
@@ -836,12 +836,12 @@ $(document).ready(function() {
 	
 	$('#is_trunk').change(function(){
 		if($(this).val() == '1') {
-			$('#get_free_e164, #get_free_e164_limit_calls, #e164_flag_image, #e164_flag_letter').hide();
+			$('#get_free_e164, #e164_flag_image, #e164_flag_letter').hide();
 			optools.voip.check_e164.get_free_e164_trunk();
 			$('#s_tarif_type').val('special').change();
 			$('#tr_E164 td:first-child').html('номер транка');
 		} else {
-			$('#get_free_e164, #get_free_e164_limit_calls, #e164_flag_image, #e164_flag_letter').show();
+			$('#get_free_e164, #e164_flag_image, #e164_flag_letter').show();
 			$('#s_tarif_type').val('public').change();
 			$('#tr_E164 td:first-child').html('номер телефона');
 		}
