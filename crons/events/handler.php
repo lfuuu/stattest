@@ -41,9 +41,12 @@ function do_events()
         if (strpos($param, "a:") === 0)
             $param = unserialize($param);
 
+        if (strpos($param, "|") !== false)
+            $param = explode("|", $param);
+
         try{
 
-            if (defined("CORE_API_URL"))
+            if (defined("CORE_SERVER") && CORE_SERVER)
             {
                 switch($event->event)
                 {
@@ -58,11 +61,11 @@ function do_events()
 
                     case 'usage_vpbx__insert':
                     case 'usage_vpbx__update':
-                    case 'usage_vpbx__delete':  SyncCore::checkProductState('vpbx', $param); break;
+                    case 'usage_vpbx__delete':  SyncCore::checkProductState('vpbx', $param/*id, client*/); break; 
 
                     case 'usage_voip__insert':
                     case 'usage_voip__update':
-                    case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param); break;
+                    case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
                 }
             }
 
