@@ -95,6 +95,8 @@ class SyncCore
 
     public function checkProductState($product, $param)
     {
+        if (!defined("PHONE_SERVER") || !PHONE_SERVER) return;
+
         list($usageId, $client) = $param;
 
         $client = ClientCard::find("first", array("client" => $client));
