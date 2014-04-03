@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}/{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
+<LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
 <title>Акт &#8470;{$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
 <META http-equiv=Content-Type content="text/html; charset=koi8-r">
 </head>
@@ -88,7 +88,7 @@
 <br>
 Заказчик: <strong style="font-size: 10pt;">{if $bill_client.head_company}{$bill_client.head_company}, {/if}{$bill_client.company_full}</strong>
 </td> {if $bill_no_qr}
-  <td align="right"><br><img src="{if $is_pdf == '1'}{$WEB_PATH}{else}.{/if}/get_qr.php?data={$bill_no_qr.akt[$source]}"></td>
+  <td align="right"><br><img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}get_qr.php?data={$bill_no_qr.akt[$source]}"></td>
 {/if}
   </tr>
   </table>
