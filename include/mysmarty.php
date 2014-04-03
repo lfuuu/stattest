@@ -323,7 +323,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('rus_fin','rus_fin');
 		$this->register_modifier('koi2win','smarty_modifier_koi2win');
 		$this->assign('premain',array());
-		$this->assign('WEB_PATH', PROTOCOL_STRING . $_SERVER['HTTP_HOST']);
+		$this->assign('WEB_PATH', WEB_ADDRESS);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);
 		$this->assign('PATH_TO_ROOT',WEB_PATH);
 		$this->assign('SUM_ADVANCE',SUM_ADVANCE);
