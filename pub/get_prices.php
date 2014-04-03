@@ -33,6 +33,7 @@
         $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>43,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>4,'pricelist_id'=>45,'param'=>'d1', 'date'=>date('Y-m-d'));
 
+    //áÒÈÉ×ÎÙÅ ÔÁÒÉÆÙ ÄÌÑ íÏÓË×Ù
     }elseif ($p_region == 990 && $p_dest == 1){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
@@ -46,6 +47,7 @@
             $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
             $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
 
+    //ôÁÒÉÆÙ ÄÌÑ ÄÏÇÏ×ÏÒÁ ĞÒÉÓÏÅÄÉÎÅÎÉÑ ÓÅÔÅÊ
     }elseif ($p_region == 991 && in_array($p_dest, array(1,2,3))){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
