@@ -29,7 +29,7 @@
 </TR>
 {foreach from=$tt_troubles item=r name=outer}
 <tr>
-<td colspan=7 style="background-color:{cycle values="#E5E5E5,#F5F5F5"};">
+<td colspan=7 style="background-color:{if $r.is_payed == '1'}#CCFFCC;{else}{cycle values="#E5E5E5,#F5F5F5"};{/if}" >
 
 <table border=0 width=90%>
     <tr>
