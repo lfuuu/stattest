@@ -80,7 +80,14 @@ $(document).ready(function() {
 				<tr><td>Присутствуют</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="on"{if isset($s_e) && $s_e} checked{/if} /></td></tr>
 				<tr><td>Отсутствует</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="off"{if isset($s_e) && !$s_e} checked{/if} /></td></tr>
 				<tr><td>Не задано</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="unset"{if !isset($s_e)} checked{/if} /></td></tr>
-				<tr><td colspan="3"><div id="d_s_e" style="display: {if isset($s_e) && $s_e}block;{else}none;{/if}">Тариф:<br><select name="s_s_e" style="width: 120px;"><option value="0">Любой</option>{foreach from=$e_tarifs item='t'}<option value="{$t.id}" {if $s_s_e == $t.id}selected{/if}>{$t.description}</option>{/foreach}</select></div></td></tr>
+				<tr><td colspan="3">
+				    <div id="d_s_e" style="display: {if isset($s_e) && $s_e}block;{else}none;{/if}">Тариф:<br>
+				        <select name="s_s_e" style="width: 120px;">
+				            <option value="0">Любой</option>
+				            {foreach from=$e_tarifs item='t'}<option value="{$t.id}" {if $s_s_e == $t.id}selected{/if}>{if strlen($t.code)}({$t.code}) {/if}{$t.description} &nbsp;&nbsp;&nbsp;({$t.price} {$t.currency})</option>{/foreach}
+				        </select>
+				    </div>
+				</td></tr>
 			</table>
 		</td>
 	</tr>

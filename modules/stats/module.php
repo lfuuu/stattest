@@ -2347,8 +2347,8 @@ class m_stats extends IModule{
 		unset($tarifs_map);
 		$tarifs_map =& $tarifs_map_new;
 
-		$design->assign('i_tarifs',$db->AllRecords('select id, name from tarifs_internet'));
-		$design->assign('e_tarifs',$db->AllRecords('select id, description from tarifs_extra'));
+		$design->assign('i_tarifs',$db->AllRecords("select id, name from tarifs_internet where status not in ('archive') order by name"));
+		$design->assign('e_tarifs',$db->AllRecords("select id, description, code, price, currency from tarifs_extra where status not in ('archive') order by code, description"));
 
 		$design->assign('fix',isset($_REQUEST['fix']));
 		$design->assign('scount',count($show));
