@@ -3,7 +3,7 @@
 <HEAD>
 <TITLE>Счёт &#8470;{$bill.bill_no}</TITLE>
 <META http-equiv=Content-Type content="text/html; charset=koi8-r">
-<LINK title=default href="{$PATH_TO_ROOT}bill.css" type="text/css" rel="stylesheet">
+<LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}/{else}{$PATH_TO_ROOT}{/if}bill.css" type="text/css" rel="stylesheet">
 </HEAD>
 <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
 	<center><h2>Товарный чек &#8470;{$bill.bill_no}</h2></center>

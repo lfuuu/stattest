@@ -1758,6 +1758,8 @@ class m_newaccounts extends IModule
         $bills=get_param_raw("bill",array()); if (!$bills) return;
         if(!is_array($bills)) $bills = array($bills);
 
+        $is_pdf = get_param_raw("is_pdf", 0);
+        $one_pdf = get_param_raw("one_pdf", 0);
         $R = array();
         $P = '';
 
@@ -1910,10 +1912,64 @@ class m_newaccounts extends IModule
         {
             $R[0]["param"] = "alone=true";
         }
+        if ($one_pdf == '1') {
+            $this->create_pdf_from_docs($fixclient, $R);
+        }
+        $design->assign('is_pdf',$is_pdf);
         $design->assign('rows',$P);
         $design->assign('objects',$R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
         #$design->ProcessEx('errors.tpl');
+    }
+
+    function create_pdf_from_docs($fixclient, $bills = array())
+    {
+        global $user, $db, $design;
+
+        if (count($bills) == 0) return;
+
+        $fnames = array();
+        $fbasename = '../tmp/'.mktime().$user->_Data['id'];
+        $i=0;
+        $is_invoice = false;
+
+        foreach ($bills as $b) {
+            $fname = $fbasename . (++$i) . '.html';
+            if ($b['obj'] == 'envelope') {
+                if (($r = $db->GetRow('select * from clients where (id="'.$b['bill_client'].'") limit 1'))) {
+                    ClientCS::Fetch($r,null);
+                    $content = $design->fetch('../store/acts/envelope.tpl');
+                }
+            } else {
+                if (($pos = strpos($b['obj'], '&to_client=true'))) {
+                    $to_client = true;
+                    $obj = substr($b['obj'], 0, $pos);
+                } else {
+                    $to_client = false;
+                    $obj = $b['obj'];
+                }
+                if (strpos($obj, 'invoice')!==false) $is_invoice = true;
+                $content = $this->newaccounts_bill_print($fixclient, array('object'=>$obj,'bill'=>$b['bill_no'], 'only_html'=>'1','to_client'=>$to_client, 'is_pdf'=>1));
+            }
+            if (strlen($content)) {
+                file_put_contents($fname, $content);
+                $fnames[] = $fname;
+            }
+        }
+
+        $options = ' --quiet -L 5 -R 5 -T 0 -B 0';
+        if ($is_invoice) $options .= ' --orientation Landscape ';
+        passthru("/usr/local/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
+        $pdf = file_get_contents($fbasename . '.pdf');
+        foreach ($fnames as $f) unlink($f);
+        unlink($fbasename.'.pdf');
+
+        header('Content-Type: application/pdf');
+        ob_clean();
+        flush();
+        echo $pdf;
+        exit;
+        
     }
 
     function newaccounts_bill_clear($fixclient) {
@@ -1953,13 +2009,18 @@ class m_newaccounts extends IModule
         if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
     }
     //ÜÔÁ ÆÕÎËÃÉÑ ÇÏÔÏ×ÉÔ ÓÞ£Ô Ë ÐÅÞÁÔÉ. æïòíéòï÷áîéå óþ³ôá
-    function newaccounts_bill_print($fixclient){
+    function newaccounts_bill_print($fixclient, $params = array()){
         global $design,$db,$user;
         $this->do_include();
 
-        $object = get_param_protected('object');
+        $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
 
         $mode = get_param_protected('mode', 'html');
+
+        $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
+        $design->assign("is_pdf", $is_pdf);
+
+        $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
         self::$object = $object;
         if ($object) {
             list($obj,$source,$curr) = explode('-',$object.'---');
@@ -1975,7 +2036,7 @@ class m_newaccounts extends IModule
             exit();
         }
 
-        $bill_no=get_param_protected("bill");
+        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected("bill");
         if(!$bill_no)
             return;
 
@@ -1985,7 +2046,8 @@ class m_newaccounts extends IModule
 
         $design->assign('without_date_date', $bill->getShipmentDate());
 
-        $design->assign("to_client", get_param_raw("to_client", "false"));
+        $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
+        $design->assign("to_client", $to_client);
         $design->assign("stamp", $this->get_import1_name($bill, get_param_raw("stamp", "false")));
 
         if(get_param_raw("emailed", "0") != "0")
@@ -2122,16 +2184,52 @@ class m_newaccounts extends IModule
                     $design->assign("serials", $serials);
                     $design->assign('1c_lines',$_1c_lines);
                 }
-                if($mode=='html')
-                {
-                    $design->ProcessEx('newaccounts/print_'.$obj.'.tpl');
-                }elseif($mode=='xml'){
-                    $design->ProcessEx('newaccounts/print_'.$obj.'.xml.tpl');
-                }elseif($mode=='pdf'){
-                    include(INCLUDE_PATH.'fpdf/model/'.$obj.'.php');
+                
+                if ($only_html == '1') {
+                    return $design->fetch('newaccounts/print_'.$obj.'.tpl');
+                }
+                
+                if ($is_pdf) {
+                    /*wkhtmltopdf*/
+                    $options = ' --quiet -L 0 -R 0 -T 0 -B 0';
+                    switch ($obj) {
+                        case 'upd':
+                            $options .= ' --orientation Landscape ';
+                        break;
+                        case 'invoice':
+                            $options .= ' --orientation Landscape ';
+                        break;
+                    }
+                    $content = $design->fetch('newaccounts/print_'.$obj.'.tpl');
+                    $file_name = '../tmp/' . mktime().$user->_Data['id'];
+                    $file_html = $file_name.'.html';
+                    $file_pdf = $file_name.'.pdf';
+
+                    file_put_contents($file_name . '.html', $content);
+
+                    passthru("/usr/local/bin/wkhtmltopdf $options $file_html $file_pdf");
+                    $pdf = file_get_contents($file_pdf);
+                    unlink($file_html);unlink($file_pdf);
+
+                    header('Content-Type: application/pdf');
+                    ob_clean();
+                    flush();
+                    echo $pdf;
+                    exit;
+
+                } else {
+                    if($mode=='html')
+                    {
+                        $design->ProcessEx('newaccounts/print_'.$obj.'.tpl');
+                    }elseif($mode=='xml'){
+                        $design->ProcessEx('newaccounts/print_'.$obj.'.xml.tpl');
+                    }elseif($mode=='pdf'){
+                        include(INCLUDE_PATH.'fpdf/model/'.$obj.'.php');
+                    }
                 }
             }
         }else{
+            if ($only_html == '1') return '';
             trigger_error('äÏËÕÍÅÎÔ ÎÅ ÇÏÔÏ×');
         }
         $design->ProcessEx('errors.tpl');
