@@ -88,7 +88,16 @@
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
 </form>
-</td></tr></table>
+</td>
+<td>
+<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&akt-1=1&from=import&one_pdf=1" method=post target=_blank>
+{foreach from=$bills item=bill_no}
+<input type=hidden name=bill[] value="{$bill_no}">
+{/foreach}
+<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+</form>
+</td>
+</tr></table>
 
 
 
@@ -111,7 +120,16 @@
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
 </form>
-</td></tr></table>
+</td>
+<td>
+<form action="./?module=newaccounts&invoice-1=1&action=bill_mprint&from=import&one_pdf=1" method=post target=_blank>
+{foreach from=$bills item=bill_no}
+<input type=hidden name=bill[] value="{$bill_no}">
+{/foreach}
+<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+</form>
+</td>
+</tr></table>
 
 <hr>
 Регистрация почтового реестра:

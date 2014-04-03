@@ -2,7 +2,6 @@
 <html>
 
 <head>
-<LINK title=default href="{$PATH_TO_ROOT}invoice.css" type=text/css rel=stylesheet>
 <meta http-equiv=Content-Type content="text/html; charset=koi8-r">
 
 <title>Универсальный передаточный документ N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
@@ -51,7 +50,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td colspan="2" style='border-right:solid windowtext 1.5pt;'>
 			<table border=0 cellspacing=0 cellpadding=0>
 				<tr>
-					<td colspan="3"><p><span>Универсальный<br>передаточный<br>документ<br><br></span></p></td>
+					<td colspan="3" nowrap><p><span>Универсальный<br>передаточный<br>документ<br><br></span></p></td>
 				</tr>
 				<tr>
 					<td style="text-align: left;"><p  style='text-align:center'><span>Статус:</span></p></td>
@@ -59,7 +58,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="3" valign=top><p><span style='font-size:6.5pt;'><br><br>1 - счет-фактура и<br>передаточный документ<br>(акт)<br> 2 - передаточный<br>документ (акт)</span></p></td>
+					<td colspan="3" valign=top><p><span style='font-size:6.5pt;'><br><br>1 - счет-фактура<br>и передаточный документ<br>(акт)<br> 2 - передаточный<br>документ (акт)</span></p></td>
 				</tr>
 			</table>
 		</td>
@@ -158,15 +157,15 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</span></p>
 		</td>
 		<td colspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Единица<br> измерения</span></p>
+			<p style='text-align:center'><span>Единица<br>измерения</span></p>
 		</td>
-		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Коли-<br>чество <br> (объем)</span></p>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
+			<p style='text-align:center'><span>Коли-<br>чество<br>(объем)</span></p>
 		</td>
-		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Цена (тариф)<br>за<br>единицу измерения</span></p>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
+			<p style='text-align:center'><span>Цена (тариф)<br>за<br>единицу<br>измерения</span></p>
 		</td>
-		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
 			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных<br>прав без<br>налога - всего</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
@@ -184,18 +183,18 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td colspan="2" style='border:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>Страна<br> происхождения товара</span></p>
 		</td>
-		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Номер<br> таможен<br>ной<br> декла<br>рации</span></p>
+		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
+			<p style='text-align:center'><span>Номер<br>таможен<br>ной<br>декла<br>рации</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h50'>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>код</span></p>
+			<p style='text-align:center'><span>к<br>о<br>д</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>условное обозна-<br>чение (нацио-<br>нальное)</span></p>
 		</td>
-		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
+		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;' nowrap>
 			<p style='text-align:center'><span>циф-<br>ро-<br>вой код</span></p>
 		</td>
 		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
@@ -534,12 +533,12 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 </table>
 
-<table Table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
+<table border=0 cellspacing=0 cellpadding=0 style='width:100%;'>
 	<tr class='tr_h15'>
-		<td colspan="2" valign=bottom nowrap>
+		<td valign=bottom nowrap>
 			<p ><span>Основание передачи (сдачи) / получения (приемки)</span></p>
 		</td>
-		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;width:100%;'>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom>
@@ -547,7 +546,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 	</tr>
 	<tr class='tr_h8'>
-		<td colspan="2" valign=bottom>
+		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom>
@@ -557,11 +556,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 	</tr>
+</table>
+<table border=0 cellspacing=0 cellpadding=0 style='width:100%;'>
 	<tr class='tr_h15'>
 		<td valign=bottom nowrap>
 			<p><span>Данные о транспортировке и грузе</span></p>
 		</td>
-		<td colspan="2" valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
+		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;width:100%;'>
 			<p><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom>
@@ -570,10 +571,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h8'>
 		<td valign=bottom>
-			<p ><span>&nbsp;</span></p>
+			<p><span>&nbsp;</span></p>
 		</td>
-		<td colspan="2" valign=bottom nowrap>
-			<p style='text-align:center'><span>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто/ брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</span></p>
+		<td valign=bottom nowrap>
+			<p style='text-align:center;'><span>(транспортная накладная, поручение экспедитору, экспедиторская/складская расписка и др./масса нетто/брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
@@ -581,7 +582,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 </table>
 
-<table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
+<table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;width:100%;'>
 	<tr class='tr_h15'>
 		<td colspan="6" nowrap>
 			<p ><span>Товар (груз) передал / услуги, результаты работ, права сдал</span></p>
@@ -704,7 +705,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>"{section loop="6" name="mysec"}&nbsp;{/section}"{section loop="20" name="mysec"}&nbsp;{/section}20{section loop="10" name="mysec"}&nbsp;{/section}года</span></p>
+			<p><span>"{section loop="6" name="mysec"}&nbsp;{/section}"{section loop="21" name="mysec"}&nbsp;{/section}20{section loop="7" name="mysec"}&nbsp;{/section}года</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>

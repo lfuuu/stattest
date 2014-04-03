@@ -213,6 +213,7 @@
 <option value="bill_mprint">печать</option>
 <option value="bill_email">отправка</option>
 </select><br>
+PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 
 <br><input type=button class=button value='Поехали' onclick="doFormSend()">
 

@@ -1,14 +1,15 @@
 <html>
 
 <head>
-<LINK title=default href="{$PATH_TO_ROOT}invoice.css" type=text/css rel=stylesheet>
+<LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}/{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
 <title>Акт &#8470;{$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
+<META http-equiv=Content-Type content="text/html; charset=koi8-r">
 </head>
 
 
 <body bgcolor="#FFFFFF" text="#000000">
 
-<table border="0" width=95%>
+<table width=95%>
 <tr>
   <td>
 
@@ -87,7 +88,7 @@
 <br>
 Заказчик: <strong style="font-size: 10pt;">{if $bill_client.head_company}{$bill_client.head_company}, {/if}{$bill_client.company_full}</strong>
 </td> {if $bill_no_qr}
-  <td align="right"><br><img src="./get_qr.php?data={$bill_no_qr.akt[$source]}"></td>
+  <td align="right"><br><img src="{if $is_pdf == '1'}{$WEB_PATH}{else}.{/if}/get_qr.php?data={$bill_no_qr.akt[$source]}"></td>
 {/if}
   </tr>
   </table>
@@ -177,14 +178,14 @@
 <tr><td>
         <br><br><table border=0><tr><td>Руководитель организации</td>
 
-            <td>{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{$IMAGES_PATH}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _______________{/if}
-            </td><td>
+            <td>{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _______________{/if}
+            </td><td nowrap>
          / {$firm_director.name} /
          </td></tr></table>
               <br><br>
     </td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td>{$bill_client.signer_position}________________________/{$bill_client.signer_name|replace:" ":"&nbsp;"}/</td>
+    <td nowrap>{$bill_client.signer_position}________________________/{$bill_client.signer_name|replace:" ":"&nbsp;"}/</td>
       </tr>
       <tr>
         <td align="center"><small>(подпись)</small></td>
@@ -203,7 +204,7 @@
 </table>
 {if isset($emailed) && $emailed==1}<tr>
 	<div style="position: relative; top: -10;left: 100px;">
-{if $firma && isset($firma.src) && $firma.src}<img style='{$firma.style}' src="{$IMAGES_PATH}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
+{if $firma && isset($firma.src) && $firma.src}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
 </div>{/if}
 </div>
 </body>
