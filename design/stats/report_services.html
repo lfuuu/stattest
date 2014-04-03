@@ -1,3 +1,28 @@
+
+<script type="text/javascript">
+{literal}
+
+$(document).ready(function() {
+	$('.i_s_i').live('change', function(e){
+		if($(this).val() == 'on') {
+			$('#d_s_i').show();
+		} else {
+			$('#d_s_i select').val('0');
+			$('#d_s_i').hide();
+		}
+	});
+	$('.i_s_e').live('change', function(e){
+		if($(this).val() == 'on') {
+			$('#d_s_e').show();
+		} else {
+			$('#d_s_e select').val('0');
+			$('#d_s_e').hide();
+		}
+	});
+});
+{/literal}
+</script>
+
 <form action="" method="get">
 <input type="hidden" name="module" value="stats" />
 <input type="hidden" name="action" value="report_services" />
@@ -11,9 +36,10 @@
 		<td>Интернет</td>
 		<td>
 			<table>
-				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_i" value="on"{if isset($s_i) && $s_i} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_i" value="off"{if isset($s_i) && !$s_i} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_i" value="unset"{if !isset($s_i)} checked{/if} /></td></tr>
+				<tr><td>Присутствует</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="on"{if isset($s_i) && $s_i} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="off"{if isset($s_i) && !$s_i} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="unset"{if !isset($s_i)} checked{/if} /></td></tr>
+				<tr><td colspan="3"><div id="d_s_i" style="display: {if isset($s_i) && $s_i}block;{else}none;{/if}">Тариф:<br><select name="s_s_i" style="width: 120px;"><option value="0">Любой</option>{foreach from=$i_tarifs item='t'}<option value="{$t.id}" {if $s_s_i == $t.id}selected{/if}>{$t.name}</option>{/foreach}</select></div></td></tr>
 			</table>
 		</td>
 	</tr>
@@ -51,9 +77,10 @@
 		<td>Дополнительные услуги</td>
 		<td>
 			<table>
-				<tr><td>Присутствуют</td><td>-</td><td><input type="radio" name="s_e" value="on"{if isset($s_e) && $s_e} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_e" value="off"{if isset($s_e) && !$s_e} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_e" value="unset"{if !isset($s_e)} checked{/if} /></td></tr>
+				<tr><td>Присутствуют</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="on"{if isset($s_e) && $s_e} checked{/if} /></td></tr>
+				<tr><td>Отсутствует</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="off"{if isset($s_e) && !$s_e} checked{/if} /></td></tr>
+				<tr><td>Не задано</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="unset"{if !isset($s_e)} checked{/if} /></td></tr>
+				<tr><td colspan="3"><div id="d_s_e" style="display: {if isset($s_e) && $s_e}block;{else}none;{/if}">Тариф:<br><select name="s_s_e" style="width: 120px;"><option value="0">Любой</option>{foreach from=$e_tarifs item='t'}<option value="{$t.id}" {if $s_s_e == $t.id}selected{/if}>{$t.description}</option>{/foreach}</select></div></td></tr>
 			</table>
 		</td>
 	</tr>

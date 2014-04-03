@@ -1998,6 +1998,10 @@ class m_stats extends IModule{
 				}
 			}
 		}
+		$tarif_extra_id = get_param_raw("s_s_e", 0);
+		$tarif_internet_id = get_param_raw("s_s_i", 0);
+		$design->assign("s_s_e", $tarif_extra_id);
+		$design->assign("s_s_i", $tarif_internet_id);
 
 		$query = "
 			select
@@ -2059,6 +2063,8 @@ class m_stats extends IModule{
 				`te`.`id` = `ue`.`tarif_id`
 			where
 				`c`.`status` = 'work'
+		        ".(($tarif_extra_id > 0) ? ' and `te`.`id`=' . $tarif_extra_id : '') . "
+		        ".(($tarif_internet_id > 0) ? ' and `ti`.`id`=' . $tarif_internet_id : '') . "
 			and
 				(`lti`.`id` is null or `lti`.`id` = (
 					SELECT
@@ -2340,6 +2346,9 @@ class m_stats extends IModule{
 		}
 		unset($tarifs_map);
 		$tarifs_map =& $tarifs_map_new;
+
+		$design->assign('i_tarifs',$db->AllRecords('select id, name from tarifs_internet'));
+		$design->assign('e_tarifs',$db->AllRecords('select id, description from tarifs_extra'));
 
 		$design->assign('fix',isset($_REQUEST['fix']));
 		$design->assign('scount',count($show));
