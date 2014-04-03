@@ -1931,7 +1931,7 @@ class m_newaccounts extends IModule
         if (count($bills) == 0) return;
 
         $fnames = array();
-        $fbasename = '../tmp/'.mktime().$user->_Data['id'];
+        $fbasename = '/tmp/'.mktime().$user->_Data['id'];
         $i=0;
         $is_invoice = false;
 
@@ -1961,7 +1961,7 @@ class m_newaccounts extends IModule
 
         $options = ' --quiet -L 5 -R 5 -T 0 -B 0';
         if ($is_invoice) $options .= ' --orientation Landscape ';
-        passthru("/usr/local/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
+        passthru("/usr/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
         $pdf = file_get_contents($fbasename . '.pdf');
         foreach ($fnames as $f) unlink($f);
         unlink($fbasename.'.pdf');
@@ -2203,13 +2203,13 @@ class m_newaccounts extends IModule
                         break;
                     }
                     $content = $design->fetch('newaccounts/print_'.$obj.'.tpl');
-                    $file_name = '../tmp/' . mktime().$user->_Data['id'];
+                    $file_name = '/tmp/' . mktime().$user->_Data['id'];
                     $file_html = $file_name.'.html';
                     $file_pdf = $file_name.'.pdf';
 
                     file_put_contents($file_name . '.html', $content);
 
-                    passthru("/usr/local/bin/wkhtmltopdf $options $file_html $file_pdf");
+                    passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
                     $pdf = file_get_contents($file_pdf);
                     unlink($file_html);unlink($file_pdf);
 
