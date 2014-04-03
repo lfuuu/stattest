@@ -197,6 +197,7 @@ class m_tarifs{
             $data['tariffication_by_minutes'] = (get_param_integer('tariffication_by_minutes', 0) > 0 ? 1 : 0);
             $data['tariffication_full_first_minute'] = (get_param_integer('tariffication_full_first_minute', 0) > 0 ? 1 : 0);
             $data['tariffication_free_first_seconds'] = (get_param_integer('tariffication_free_first_seconds', 0) > 0 ? 1 : 0);
+            $data['is_virtual'] = (get_param_integer('is_virtual', 0) > 0 ? 1 : 0);
             $data['edit_user'] = $user->Get('id');
             $data['edit_time'] = date('Y.m.d H:i:s');
             $data['id'] = $id;

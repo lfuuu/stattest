@@ -91,6 +91,10 @@
                 <input type="checkbox" name="tariffication_free_first_seconds" value="1" {if $data.tariffication_free_first_seconds > 0}checked{/if} />
                 тарификация: первые 5 секунд бесплатно</label>
         </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="is_virtual" value="1" {if $data.is_virtual > 0}checked{/if} />
+                тариф для виртуальных номеров</label>
+        </td></tr>
     <tr><td>прайс-лист:</td><td>
         <select name="pricelist_id">
         {foreach from=$pricelists item='r'}
