@@ -3,7 +3,7 @@
 <HEAD>
 <TITLE></TITLE>
 <META http-equiv=Content-Type content="text/html; charset=koi8-r">
-<LINK href="{if $is_pdf == '1'}{$WEB_PATH}/{else}{$PATH_TO_ROOT}{/if}print.css" type=text/css rel=stylesheet>
+<LINK href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}print.css" type=text/css rel=stylesheet>
 </HEAD>
 <BODY text="#404040" vLink="#000099" aLink="#000000" link="#000099" bgColor="#EFEFEF">
 

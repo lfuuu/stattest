@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}/{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
+<LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
 <title>СЧЕТ-ФАКТУРА N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
 <META http-equiv=Content-Type content="text/html; charset=koi8-r">
 <style>
