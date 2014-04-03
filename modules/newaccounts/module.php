@@ -1421,12 +1421,14 @@ class m_newaccounts extends IModule
         $bill_date = get_param_raw("bill_date");
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
+        $bill_no_ext = get_param_raw("bill_no_ext");
         $bill = new Bill($bill_no);
         if(!$bill->CheckForAdmin())
             return;
         $bill->Set('bill_date',$bill_date);
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
+        $bill->SetExtNo($bill_no_ext);
         $V = $bill->GetLines();
         $V[$bill->GetMaxSort()+1] = array();
         $V[$bill->GetMaxSort()+2] = array();
