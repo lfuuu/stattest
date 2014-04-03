@@ -121,10 +121,12 @@
 					Обращение в Welltone
 				</a>
                 {if $card_type == "main"}
-				<br>
-				<a target=_blank href="https://lk.mcn.ru/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
-					Переход в LK
-				</a>{/if}
+                {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
+                    <br>
+                    <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
+                        Переход в LK
+                    </a>{/if}
+                {php} endif; {/php}
 				<br>
 				<br>
 

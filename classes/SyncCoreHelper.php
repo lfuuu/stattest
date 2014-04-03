@@ -156,7 +156,7 @@ class SyncCoreHelper
                     AND actual_from <= cast(now() AS date)
                     AND actual_to >= cast(now() AS date)") > 0)
         {
-            return array("server_host" => "lk.mcn.ru", "mnemonic" => "phone");
+            return array("server_host" => PHONE_SERVER, "mnemonic" => "phone");
         }
 
         return false;

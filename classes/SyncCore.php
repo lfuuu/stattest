@@ -5,6 +5,11 @@
 class SyncCore
 {
 
+    private function getCoreApiUrl()
+    {
+        return "https://".CORE_SERVER."/core/api/";
+    }
+
     public function addSuperClient($superId)
     {
         $struct = SyncCoreHelper::getFullClientStruct($superId);
@@ -12,9 +17,8 @@ class SyncCore
 
         if ($struct)
         {
-            JSONQuery::exec(CORE_API_URL.$action, $struct);
+            JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
         }
-
     }
 
     public function addAccount($clientId)
@@ -26,18 +30,26 @@ class SyncCore
         if ($struct)
         {
             try{
-                JSONQuery::exec(CORE_API_URL.$action, $struct);
+                JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
             } catch(Exception $e)
             {
-                echo "-----------";
                 if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
                 {
                     event::go("add_super_client", $cl->super_id);
                     event::go("add_account", $cl->id);
                 }
-                echo "-----------";
+                throw $e;
             }
         }
+        self::_checkNeedSyncProducts($cl->client);
+
+    }
+
+    private function _checkNeedSyncProducts($client)
+    {
+        echo "\n== [_checkNeedSyncProducts](".$client.")\n";
+        self::checkProductState('phone', array(0, $client));
+        self::checkProductState('vpbx', array(0, $client));
     }
 
     public function addEmail($param)
@@ -56,7 +68,7 @@ class SyncCore
 
         if ($struct)
         {
-            JSONQuery::exec(CORE_API_URL.$action, $struct);
+            JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
         }
     }
 
@@ -77,14 +89,16 @@ class SyncCore
         }
         if ($struct)
         {
-            JSONQuery::exec(CORE_API_URL.$action, $struct);
+            JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
         }
-
-
     }
 
-    public function checkProductState($product, $client)
+    public function checkProductState($product, $param)
     {
+        if (!defined("PHONE_SERVER") || !PHONE_SERVER) return;
+
+        list($usageId, $client) = $param;
+
         $client = ClientCard::find("first", array("client" => $client));
 
         if (!$client) return false;
@@ -102,7 +116,7 @@ class SyncCore
 
             if ($struct)
             {
-                JSONQuery::exec(CORE_API_URL.$action, $struct);
+                JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
             }
         }
     }
@@ -129,7 +143,7 @@ class SyncCore
             $struct = SyncCoreHelper::adminChangeStruct($client->super_id, $email, $client->password?:password_gen(), (bool)$client->admin_is_active);
             if ($struct)
             {
-                JSONQuery::exec(CORE_API_URL.$action, $struct);
+                JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
             }
 
         }

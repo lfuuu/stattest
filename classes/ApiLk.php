@@ -226,7 +226,7 @@ class ApiLk
     public function getDomainList($clientId)
     {
         $ret = array();
-    
+
         foreach (NewBill::find_by_sql('
 				SELECT
 					`d`.`id`,
@@ -268,6 +268,7 @@ class ApiLk
 					`e`.`box_size`,
 					`e`.`box_quota`,
 					`e`.`status`,
+                    `e`.`spam_act`,
 					IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 1, 0) AS `actual`
 				FROM `emails` AS `e`
 				INNER JOIN `clients` ON (`e`.`client` = `clients`.`client`)
@@ -280,7 +281,7 @@ class ApiLk
 				', array($clientId)) as $e)
         {
     
-            $line = self::_exportModelRow(array("id", "actual_from", "actual_to", "local_part", "domain", "box_size", "box_quota", "status", "actual"), $e);
+            $line = self::_exportModelRow(array("id", "actual_from", "actual_to", "local_part", "domain", "box_size", "box_quota", "status", "actual","spam_act"), $e);
             $line['email'] = $line['local_part'].'@'.$line['domain'];
             $ret[] = $line;
     
@@ -984,25 +985,34 @@ class ApiLk
     
     }
 
-    public static function orderEmailTarif($client_id, $domain_id, $local_part, $password)
+    public static function orderEmail($client_id, $domain_id, $local_part, $password)
     {
         global $db;
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
         $domain = $db->GetValue("select domain from domains where id='".$domain_id."'");
-    
-        $message = Encoding::toKOI8R("Заказ услуги Почта из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Домен: ') . $domain . " (Id: $domain_id)\n";
-        $message .= Encoding::toKOI8R('Email: ') . $local_part . "\n";
-        $message .= Encoding::toKOI8R('Пароль: ') . $password;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
-        else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
-    
+        $email_id = $db->GetValue("
+                select id from emails where 
+                    client='".$client["client"]."' and 
+                    domain='".$domain."' and 
+                    local_part='".$local_part."'
+                ");
+        if ($email_id)
+            return array('status'=>'error','message'=>'Такой Email уже используется');
+
+        $emailId = $db->QueryInsert("emails", array(
+                        "local_part"        => $local_part,
+                        "domain"        => $domain,
+                        "password"          => $password,
+                        "client"   => $client["client"],
+                        "box_size"   => "20",
+                        "box_quota"     => "50000",
+                        "status"        => "working",
+                        "actual_from"   => array('NOW()'),
+                        "actual_to"     => "2029-12-31"
+                        )
+                    );
+        return array('status'=>'ok','message'=>'Ящик добавлен. Спасибо.');
     }
 
     public static function changeInternetTarif($client_id, $service_id, $tarif_id)
@@ -1121,24 +1131,59 @@ class ApiLk
     
     }
 
-    public static function changeEmailTarif($client_id, $email, $password)
+    public static function changeEmail($client_id, $email_id, $password)
     {
         global $db;
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-    
-        $message = Encoding::toKOI8R("Заказ на изменения пароля к почтовому ящику из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Email: ') . $email . "\n";
-        $message .= Encoding::toKOI8R('Новый пароль: ') . $password;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
-        else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
-    
+        $email = $db->GetRow("select * from emails where client='".$client['client']."' and id=".$email_id);
+        if ($email) {
+            $db->QueryUpdate(
+                    "emails", 
+                    array("id", "client"), 
+                    array("id" => $email_id, "client"=>$client['client'], "password" => $password)
+            );
+
+            return array('status'=>'ok','message'=>'Пароль изменен');
+        } else return array('status'=>'error','message'=>'Ошибка изменения пароля.');
     }
 
+    public static function changeEmailSpamAct($client_id, $email_id, $spam_act)
+    {
+        global $db;
+    
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+        $cur_spam_act = $db->GetValue("select spam_act from emails where client='".$client['client']."' and id=".$email_id);
+        if ($cur_spam_act) {
+            $db->QueryUpdate("emails", array("id", "client"), array("id" => $email_id, "client"=>$client['client'], "spam_act" => $spam_act));
+        } else 
+            return array('status'=>'error','message'=>'Ошибка изменения фильтрации спама');
+
+        return array('status'=>'ok','message'=>'ok');
+    }
+
+    public static function getEmailAccess($client_id)
+    {
+        global $db;
+
+        $res = array('add_email'=>0, 'domain_cnt'=>0);
+        $clients = array(780,2339,2817,3680,3920,1378,447,1266,652,41,941,51,440,54,452,866,529);
+        
+        /*если клиент не в заданном списке - вернем пустой массив*/
+        if (in_array($client_id, $clients))
+            $res['add_email'] = 1;
+        
+        $res['domain_cnt'] = $db->GetValue("
+                SELECT 
+                    COUNT(1)
+                FROM 
+                    `domains` AS `d` 
+                INNER JOIN `clients` ON (`d`.`client` = `clients`.`client`) 
+                WHERE `clients`.`id`=".$client_id);
+        
+        return $res;
+    }
+    
     public static function disconnectInternet($client_id, $service_id)
     {
         global $db;
@@ -1243,21 +1288,25 @@ class ApiLk
     
     }
 
-    public static function disconnectEmail($client_id, $email)
+    public static function disconnectEmail($client_id, $email_id, $action = 'disable')
     {
         global $db;
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-    
-        $message = Encoding::toKOI8R("Заказ на отключение Почтового ящика из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Почтовый ящик: ') . $email;
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
-        else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
-    
+        $email = $db->GetRow("select * from emails where client='".$client['client']."' and id=".$email_id);
+        if ($email) {
+            $db->QueryUpdate(
+                    "emails", 
+                    array("id", "client"), 
+                    array(
+                        "id" => $email_id, 
+                        "client"=>$client['client'], 
+                        "enabled" => (($action == 'disable') ? '0' : '1'),
+                        "actual_to" => (($action == 'disable') ? array('NOW()') : '2029-12-31')
+                    )
+            );
+            return array('status'=>'ok','message'=>(($action == 'disable') ? 'Почтовый ящик отключен.' : 'Почтовый ящик подключен.'));
+        } else return array('status'=>'error','message'=>(($action == 'disable') ? 'Ошибка отключения ящика.' : 'Ошибка подключения ящика.'));
     }
 
     /**
