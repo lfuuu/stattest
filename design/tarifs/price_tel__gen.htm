@@ -54,8 +54,8 @@ $(function(){
     newTable = $(newTableTmeplate).clone();
     $("#add_div").append($(newTable).append(th.clone()));
 
-
     pageSize = 900;
+    {/literal}{if $region == '991'}{literal}pageSize = 1060;{/literal}{/if}{literal}
     page = 0;
     prevTr = null;
 
