@@ -23,7 +23,8 @@ function mark_del(){
 <option value="beznal"{if $bill.nal=="beznal"} selected{/if}>безнал</option>
 <option value="nal"{if $bill.nal=="nal"} selected{/if}>нал</option>
 <option value="prov"{if $bill.nal=="prov"} selected{/if}>пров</option>
-</select>
+</select><br>
+Внешний номер: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}">
 <br>
 
 <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
