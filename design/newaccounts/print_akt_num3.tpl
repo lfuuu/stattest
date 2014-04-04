@@ -36,12 +36,12 @@
 	Абонент: <b>{$bill_client.company_full}</b>
 </td></tr><tr><td>
 	<br><br><p>
-{$firm_director.position} {if $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_director.sign.src}"  border="0" alt="" align="top" valign="middle"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} ___________________ {/if}{$firm_director.name}
+{$firm_director.position} {if $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top" valign="middle"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} ___________________ {/if}{$firm_director.name}
 </td><td>
 	<br><br><p>{$bill_client.signer_position}________{$bill_client.signer_name|replace:" ":"&nbsp;"}</p>
 </td></TR></TBODY></TABLE>
 {if isset($emailed) && $emailed==1}<tr>
 	<div style="position: relative; top: 60;left: 240px;">
-{if $firma}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
+{if $firma}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
 </div>{/if}
 </body></html>
