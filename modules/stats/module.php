@@ -2491,7 +2491,8 @@ class m_stats extends IModule{
 
     function stats_report_sale_channel($fixclient)
     {
-        global $db,$design;
+        global $db,$design,$user;
+
         $date_begin = get_param_raw('date_from', date('Y-m-d'));
         $date_end = get_param_raw('date_to',  date('Y-m-d'));
         $design->assign(array('date_begin'=>$date_begin, 'date_end'=>$date_end));
@@ -2516,6 +2517,10 @@ class m_stats extends IModule{
         {
             $dDoers[$d["id"]] = $d["name"];
             $all_doers[] = $d["id"];
+            if ($user->_Data['courier_id'] == $d["id"]) {
+                $dDoers = array($d["id"]=>$d["name"]);
+                break;
+            }
         }
         $design->assign('doer_filter', $dDoers);
 

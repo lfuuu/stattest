@@ -104,6 +104,7 @@ class m_users {
 				'name'			=> get_param_protected('name'),
 				'pass_text'		=> password_gen(8),
 				'firms'	    	=> get_param_protected('user2firm'),
+			    'courier_id'        => get_param_protected('courier_id'),
 			);
 			$f['pass']=password::hash($f['pass_text']);
 			$id=$f['user'];
@@ -140,6 +141,7 @@ class m_users {
 				'icq'				=> get_param_protected('icq'),
                 'enabled'           => get_param_protected('enabled', 'no'),
 			    'firms'	          	=> get_param_protected('user2firm'),
+			    'courier_id'        => get_param_protected('courier_id'),
 				);
 
             if(!$f["enabled"]) $f["enabled"] = "no";
@@ -172,7 +174,8 @@ class m_users {
 								'phone_mobile="'.$f['phone_mobile']. '",' .
 								'icq="'.$f['icq']. '",' .
 								'enabled="'.$f['enabled']. '",' .
-								'trouble_redirect="'.$f['trouble_redirect'].'"'.$q_photo .' where user="'.$id.'"');
+								'courier_id="'.$f['courier_id'].'",'.
+				                'trouble_redirect="'.$f['trouble_redirect'].'"'.$q_photo .' where user="'.$id.'"');
 
 				if (access('users','grant')){
 					$R=array();
@@ -248,7 +251,13 @@ class m_users {
 		$design->assign_by_ref("rights_real",$R);
 		$design->assign("rights_user",$R2);
 
+		$couriers = array();
+		foreach($db->AllRecords('select id, name, depart from courier order by name') as $c) {
+			if (!isset($couriers[$c['depart']])) $couriers[$c['depart']] = array();
+			$couriers[$c['depart']][$c['id']] = $c['name'];
+		}
         $design->assign("firms",$Firms);
+        $design->assign("couriers", $couriers);
 
 		$design->AddMain('users/main_user.tpl');
 	}
