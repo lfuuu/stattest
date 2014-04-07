@@ -28,13 +28,16 @@
         </table>
     </td></tr>
     <tr style='background-color:lightgreen'><td style='text-align:center'>Действия</td><td>
+
+    Дейсвтия не доступны
+    {if false}
         <ul>
             {if $is_using == false}
                 {if $client_id==764}
                     <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>Сделать арендуемым</a></li>
                 {else}
                     {if $is_reserved}
-                        <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>Снять резерв</a></li>
+                        <!-- li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>Снять резерв</a></li -->
                     {elseif $current_client_id}
                         <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve={$current_client_id}'>Зарезервировать за клиентом {$current_client}</a></li>
                         <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=764'>Сделать своим</a></li>
@@ -42,6 +45,7 @@
                 {/if}
             {/if}
         </ul>
+    {/if}
     </td></tr>
 </table>
 
