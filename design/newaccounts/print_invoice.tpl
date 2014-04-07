@@ -410,7 +410,7 @@
         <td>
         {if isset($emailed) || $invoice_source eq 5}
 
-            {if $firm_director.sign} <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _________________________________ {/if}
+            {if $firm_director.sign} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _________________________________ {/if}
 
 
         {else}<br>________________________________<br><br>{/if}</td>
@@ -420,7 +420,7 @@
         <td><p align="right">&nbsp;Главный&nbsp;бухгалтер{if $inv_is_new4}<br>или иное уполномоченное лицо{/if}:</td>
     <td>{if isset($emailed) || $invoice_source eq 5}
 
-            {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
+            {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
 
 {else}<br>________________________________<br><br>{/if}</td>
         <td nowrap>
@@ -488,74 +488,74 @@
 <small>Примечание: Первый экземпляр - покупателю, второй экземпляр - продавцу.</small>
 
 {if $stamp == "solop_nm"}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_nm.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_nm.png" 
 style="position:relative;left:-30;top:-138;z-index:-10; margin-bottom:-90px;" width=68 height=40>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_nm.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_nm.png" 
 style="position:relative;left: 300;top:-138;z-index:-10; margin-bottom:-290px;" width=68 height=40>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_solop_nm.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_solop_nm.png" 
 style="position:relative;left:-340;top:-101;z-index:-10; margin-bottom:-90px;" width=164 height=79>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_solop_nm.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_solop_nm.png" 
 style="position:relative;left:10;top:-101;z-index:-10; margin-bottom:-90px;" width=164 height=79>
 {/if}
 {if $stamp == "solop_tp"}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left:-30;top:-125;z-index:-10; margin-bottom:-90px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left: 350;top:-125;z-index:-10; margin-bottom:-290px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_solop_tp.png" 
 style="position:relative;left:-40;top:-101;z-index:-10; margin-bottom:-90px;" width=164 height=56>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_solop_tp.png" 
 style="position:relative;left:210;top:-81;z-index:-10; margin-bottom:-90px;" width=164 height=56>
 {if false}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left:-30;top:-202;z-index:-10; margin-bottom:-90px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left: 350;top:-402;z-index:-10; margin-bottom:-290px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_solop_tp.png" 
 style="position:relative;left:-340;top:-101;z-index:-10; margin-bottom:-90px;" width=164 height=56>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_solop_tp.png" 
 style="position:relative;left:10;top:-101;z-index:-10; margin-bottom:-90px;" width=164 height=56>
 {/if}
 {/if}
 {if $stamp == "uskova"}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_uskova.png" 
 style="position:relative;left:-30;top:-130;z-index:-10; margin-bottom:-90px;" width=37 height=49>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_uskova.png" 
 style="position:relative;left: 350;top:-135;z-index:-10; margin-bottom:-290px;" width=37 height=49>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_uskova.png" 
 style="position:relative;left:-50;top:-100;z-index:-10; margin-bottom:-90px;" width=142 height=47>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_uskova.png" 
 style="position:relative;left:220;top:-101;z-index:-10; margin-bottom:-90px;" width=142 height=47>
 {*FF*}
 {if false}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_uskova.png" 
 style="position:relative;left:-30;top:-180;z-index:-10; margin-bottom:-90px;" width=37 height=49>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_uskova.png" 
 style="position:relative;left: 350;top:-380;z-index:-10; margin-bottom:-290px;" width=37 height=49>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_uskova.png" 
 style="position:relative;left:-50;top:-150;z-index:-10; margin-bottom:-90px;" width=142 height=47>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_uskova.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_uskova.png" 
 style="position:relative;left:220;top:-131;z-index:-10; margin-bottom:-90px;" width=142 height=47>
 {/if}
 {/if}
 {if $stamp == "zam_solop_tp"}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left:-30;top:-125;z-index:-10; margin-bottom:-90px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left: 350;top:-125;z-index:-10; margin-bottom:-290px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_zam_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_zam_solop_tp.png" 
 style="position:relative;left:-50;top:-121;z-index:-10; margin-bottom:-90px;" width=174 height=68>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_zam_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_zam_solop_tp.png" 
 style="position:relative;left:160;top:-101;z-index:-10; margin-bottom:-90px;" width=174 height=68>
 {*FF*}
 {if false}
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left:-30;top:-202;z-index:-10; margin-bottom:-90px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/sign_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_tp.png" 
 style="position:relative;left: 350;top:-402;z-index:-10; margin-bottom:-290px;" width=30 height=26>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_zam_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_zam_solop_tp.png" 
 style="position:relative;left:-50;top:-121;z-index:-10; margin-bottom:-90px;" width=174 height=68>
-<img src="{if $is_pdf == '1'}{$WEB_PATH}/{/if}images/stamp_zam_solop_tp.png" 
+<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/stamp_zam_solop_tp.png" 
 style="position:relative;left:160;top:-101;z-index:-10; margin-bottom:-90px;" width=174 height=68>
 {/if}
 {/if}

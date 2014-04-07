@@ -178,7 +178,7 @@
 <tr><td>
         <br><br><table border=0><tr><td>Руководитель организации</td>
 
-            <td>{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _______________{/if}
+            <td>{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _______________{/if}
             </td><td nowrap>
          / {$firm_director.name} /
          </td></tr></table>
@@ -204,7 +204,7 @@
 </table>
 {if isset($emailed) && $emailed==1}<tr>
 	<div style="position: relative; top: -10;left: 100px;">
-{if $firma && isset($firma.src) && $firma.src}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
+{if $firma && isset($firma.src) && $firma.src}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
 </div>{/if}
 </div>
 </body>
