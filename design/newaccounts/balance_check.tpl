@@ -1,54 +1,41 @@
-{if $fullscreen}
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<TITLE>Акт сверки {$fixclient_data.client}</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
-{literal}<STYLE>
-.price {
-	font-size:15px;
-}
-body {
-    color: black;
-}
-td {
-    color: black;
-}
-thead tr td {
-	font-weight:bold;
-}
-h2 {
-	text-align:center;
-}
-h3 {
-	text-align:center;
-}
-</STYLE>{/literal}
-</HEAD>
-
-
-<body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
-<h2>АКТ СВЕРКИ</h2>
-<h3 style="color: black;">взаимных расчетов по состоянию на {$date_to_val|mdate:"d.m.Y г."}<br>
-между {$company_full}<br>
-и
-{$firma.name}
-</h3>
-
-<TABLE class=price cellSpacing=0 cellPadding=2 border=1>
-{else}
-<form style='display:inline' action='?'>
+{literal}
+<script>
+	function sendForm()
+	{
+		var act = $('#act').val();
+		if (act == 'html') {
+			$("#f_send").attr('target','_blank');
+			$('#i_pdf').val('0');
+			$('#i_fullscreen').val('1');
+		} else if (act == 'pdf') {
+			$("#f_send").attr('target','_blank');
+			$('#i_pdf').val('1');
+			$('#i_fullscreen').val('1');			
+		}
+		$("#f_send").submit();
+	}
+</script>
+{/literal}
+<form style='display:inline' action='?' id="f_send">
 	<input type=hidden name=module value=newaccounts>
 	<input type=hidden name=action value=balance_check>
 От:	<input type=text name=date_from value='{$date_from}' class=text>
 До:	<input type=text name=date_to value='{$date_to}' class=text>
 Начальное сальдо: <input type=text name=saldo value='{$saldo}' class=text style='width:35px'>
-Полный экран: <input type=checkbox name=fullscreen value='1'>
-<input type=submit value='Показать' class=button>
+<!--Полный экран: <input type=checkbox name=fullscreen value='1'>-->
+Подпись: <select name='sign'>
+			<option value=''>Без подписи</option>
+			<option value='istomina'{if $sign == 'istomina'} selected{/if}>Истомина И.В.</option>
+			<option value='director'{if $sign == 'director'} selected{/if}>Директор</option>
+		</select>
+Действие: <select id='act'><option value='none'>Пересчет</option><option value='html'>HTML</option><option value='pdf'>PDF</option></select>
+<input type=hidden name=fullscreen value='0' id="i_fullscreen" />
+<input type=hidden name=is_pdf value='0' id="i_pdf" />
+<!--<input type=submit value='Показать' class=button>-->
+<input type=button value='Поехали' class=button onclick=sendForm();>
 </form>
 <h2>Акт сверки по клиенту {$fixclient_data.client}</h2>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
-{/if}
 <thead>
 <tr ><td width=50% colspan=4>По данным {$firma.name}, руб.</td><td width=50% colspan=4>По данным {$company_full}, руб.</td></tr>
 <tr><td width=4%>&#8470; п/п</td><td width=24%>Наименование операции,<br>документы</td><td width=11%>Дебет</td><td width=11%>Кредит</td>
@@ -106,35 +93,3 @@ h3 {
 {/if}
 </font>
 {*if $zalog}({$formula}){/if*}.
-{if $fullscreen}
-    <div>
-    <table border="0" cellpadding="0" cellspacing="5">
-      <tr>
-        <td><p>От {$firma.name}</td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><p>От {$company_full}</td>
-</tr>
-<tr><td>
-        <br><br>Руководитель организации ___________________{$firm_director.name}
- <br><br>
-    </td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td><br><br>______________________________<br><br></td>
-      </tr>
-      <tr>
-        <td align="center"><small>(подпись)</small></td>
-    <td></td>
-        <td align="center"><small>(подпись)</small></td>
-      </tr>
-      <tr>
-        <td align="center"><br><br>М.П.</td>
-    <td></td>
-        <td align="center"><br><br>М.П.</td>
-      </tr>
-    </table>
-    </div>
-
-
-</body>
-</html>
-{/if}
