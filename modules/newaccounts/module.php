@@ -785,7 +785,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_date, client_id, currency, sum, inv_rur, is_payed, P.comment, postreg, nal,
+                bill_no, bill_no_ext, bill_date, client_id, currency, sum, inv_rur, is_payed, P.comment, postreg, nal,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -806,6 +806,7 @@ class m_newaccounts extends IModule
                     ### incomegoods
                  SELECT 
                     number as bill_no, 
+                    "" as bill_no_ext,
                     cast(date as date) as bill_date, 
                     client_card_id as client_id, 
                     if(currency = "RUB", "RUR", currency) as currency, 
@@ -4327,7 +4328,7 @@ $sql .= "    order by client, bill_no";
                     'select newbills.*,clients.nal,clients.client,clients.company
                     FROM newbills
                     INNER JOIN clients ON (clients.id=newbills.client_id)
-                    WHERE bill_no LIKE "'.$search.'%" ORDER BY client,bill_no LIMIT 1000');
+                    WHERE bill_no LIKE "'.$search.'%" OR bill_no_ext LIKE "'.$search.'%" ORDER BY client,bill_no LIMIT 1000');
 
             if(!$R)
             {

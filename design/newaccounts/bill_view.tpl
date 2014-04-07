@@ -9,7 +9,8 @@
 			</a>
 {assign var="isClosed" value="0"}{if $tt_trouble && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
 {*if !$isClosed*}
-{if $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}{if $bill.is_rollback}-<b><u>возврат</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}</b>
+{if $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}{if $bill.is_rollback}-<b><u>возврат</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
+
 
 {if !$all4net_order_number && !$1c_bill_flag}
 {if !$isClosed}<a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
@@ -111,7 +112,6 @@
 		<td>Валюта проводки:</td><td><b{if $bill.currency=='RUR'} style='color:blue'{/if}>{$bill.currency}</b></td>
 		<td>Исполнитель:</td><td>{if $bill.courier_id != 0}<i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}</td>
 		<td>Предполагаемый тип платежа:</td><td><i{if $bill.nal != "beznal"} style="background-color: {if $bill.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}"{/if}>{$bill.nal}</i></td>
-		<td>Внешний номер:</td><td><b>{$bill.bill_no_ext}</b></td>
 	</tr>
 </table>
 
