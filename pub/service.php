@@ -146,7 +146,7 @@ if ($action=='add_client') {
 {
     $client_id = get_param_integer("client_id", 0);
 	$numbers = mysql_escape_string( get_param_raw("number","") );
-	$numbers = explode(',', $numbers);
+	$numbers = $_numbers = explode(',', $numbers);
 	$numbers = "'".implode("','", $numbers)."'";
 
   $comment = "Reserve numbers: <br/>\n";
@@ -157,8 +157,19 @@ if ($action=='add_client') {
   }
   $db->QueryInsert('client_statuses', array('id_client'=>$client_id,'comment'=>$comment,'user'=>'auto'));
 
-	$db->Query("update voip_numbers set client_id=".$client_id.", edit_user_id=0 where client_id is null and number in (".$numbers.")");
-	echo $db->AffectedRows();
+  $isOk = true;
+  foreach($_numbers as $number)
+  {
+      try{
+          VoipReservNumber::reserv($number, $client_id);
+      } catch (Exception $e)
+      {
+          $isOk = false;
+          mail("adima123@yandex.ru", "voip reserv error", "Number: ".$number.", clientId: ".$client_id."\n".$e->GetMessage());
+      }
+  }
+  echo $isOk ? 1 : 0;
+
 }elseif($action == "stat_voip")
 {
     if(!isset($_GET["d"])) die("error: empty params");
