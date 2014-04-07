@@ -2811,6 +2811,11 @@ class m_services extends IModule{
         if(!is_null($reserve)){
             $reserve = (int)$reserve;
             if ($reserve == 0) $reserve = 'NULL';
+
+            /* резерв переведен на новую схему */
+            header('location: ?module=services&action=e164_edit&e164='.$e164); 
+            exit();
+
             $db->Query($q = "
                 update
                     `voip_numbers`
@@ -2820,7 +2825,6 @@ class m_services extends IModule{
                 where usage_id is null and
                     `number` = '".$e164."'
             ");
-            header('location: ?module=services&action=e164_edit&e164='.$e164);
             die();
         }
         $query = "
