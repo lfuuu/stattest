@@ -38,7 +38,7 @@
 		<input name=phone_mobile class=text value='{$user.phone_mobile}'>
 		</TD></TR>
 		<TR><TD class=left>ICQ:</TD><TD>
-		<input name=icq class=text value='{$user.icq}'>
+		<input name=icq class=text value='{$user.icq}' autocomplete="off">
 		</TD></TR>
 
 		<TR><TD class=left>Фотография:</TD><TD>
@@ -46,14 +46,25 @@
 		</TD></TR>
 		
 		<TR><TD class=left>Пароль: (если оставить пустым - не изменится)</TD><TD>
-		<input name=pass1 class=text type=password value=''>
+		<input name=pass1 class=text type=password value='' autocomplete="off">
 		</TD></TR>
 		<TR><TD class=left>Пароль ещё раз:</TD><TD>
-		<input name=pass2 class=text type=password value=''>
+		<input name=pass2 class=text type=password value='' autocomplete="off">
 		</TD></TR>  
 
 		<TR><TD class=left>Пользователь активен:</TD><TD>
 		<input type=checkbox value="yes" name=enabled{if $user.enabled=='yes'} checked{/if}>
+		</TD></TR>  
+
+		<TR><TD class=left>Привязка к курьеру:</TD><TD>
+		<select name='courier_id'>
+			<option value="0">Нет</option>
+            {foreach from=$couriers item='cs' key='depart'}
+				<optgroup label="{$depart}">
+				{foreach from=$cs item='name' key='id'}<option value='{$id}'{if $user.courier_id == $id} selected{/if}>{$name}</option>{/foreach}
+				</optgroup>
+            {/foreach}
+		</select>
 		</TD></TR>  
 {else}
 		<TR><TD class=left>Логин:</TD><TD>
