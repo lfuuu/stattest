@@ -405,6 +405,10 @@ class MySQLDatabase {
     		return '('.$where.')';
     	}
     }
+    function escape($str) {
+        return mysql_escape_string($str);
+    }
+
 
 }
 ?>

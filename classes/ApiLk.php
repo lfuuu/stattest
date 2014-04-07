@@ -799,100 +799,36 @@ class ApiLk
     {
         global $db;
         //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
+
+        $freeNumbers = self::getFreeNumbers(true);
+        if (array_search($number, $freeNumbers) === false)
+            return array('status'=>'error','message'=>'Номер не свободен!');
+    
+        $clientNumbers = self::getVoipList($client_id, true);
+        if (array_search($number, $clientNumbers) !== false)
+            return array('status'=>'error','message'=>'Номер уже используется!');
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from='2029-01-01' AND actual_to='2029-01-01'");
         if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'Допускается резервировать не более 5 номеров!');
     
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
-        $tarif = $db->GetRow("select id, name from tarifs_voip where id='".$tarif_id."'");
-        $tarifs = $db->AllRecords($q = "select
-                                    id, dest
-                                from
-                                    tarifs_voip
-                                where
-                                    status='public'
-                                and
-                                    region='".$region_id."'
-                                and
-                                    currency='RUR'
-                                " . (($region_id == '99') ? "AND name LIKE('%".Encoding::toKOI8R('Базовый')."%')" : '')
-        );
-    
-        $default_tarifs = array(
-                        'id_tarif_local_mob'=>0,
-                        'id_tarif_russia'=>0,
-                        'id_tarif_intern'=>0,
-                        'id_tarif_sng'=>0
-        );
-        foreach ($tarifs as $r) {
-            switch ($r['dest']) {
-            	case '1':
-            	    $default_tarifs['id_tarif_russia'] = $r['id'];break;
-            	case '2':
-            	    $default_tarifs['id_tarif_intern'] = $r['id'];break;
-            	case '3':
-            	    $default_tarifs['id_tarif_sng'] = $r['id'];break;
-            	case '5':
-            	    $default_tarifs['id_tarif_local_mob'] = $r['id'];break;
-            }
-        }
     
         $lines_cnt = (int)$lines_cnt;
         if ($lines_cnt > 10) $lines_cnt = 10;
         if ($lines_cnt < 1) $lines_cnt = 1;
-    
-        if (!$client || !$region || !$tarif)
-            throw new Exception("Ошибка в данных!");
-    
-        $freeNumbers = self::getFreeNumbers(true);
-        if (array_search($number, $freeNumbers) === false)
-            //throw new Exception("Номер не свободен!");
-            return array('status'=>'error','message'=>'Номер не свободен!');
-    
-        $clientNumbers = self::getVoipList($client_id, true);
-        if (array_search($number, $clientNumbers) !== false)
-            //throw new Exception("Номер уже используется");
-            return array('status'=>'error','message'=>'Номер уже используется!');
+
+        $reserNumber = VoipReservNumber::reserv($number, $client_id, $lines_cnt, $tarif_id);
     
         $message = Encoding::toKOI8R("Заказ услуги IP Телефония из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: $region_id)\n";
+        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: ".$client_id.")\n";
+        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . " (Id: ".$region_id.")\n";
         $message .= Encoding::toKOI8R('Номер: ') . $number . "\n";
         $message .= Encoding::toKOI8R('Кол-во линий: ') . $lines_cnt . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["description"] . " (Id: ".$tarif["id"].")";
+        $message .= Encoding::toKOI8R('Тарифный план: ') . $reserNumber["tarif"]["description"] . " (Id: ".$reserNumber["tarif"]["id"].")";
     
-        $usageVoipId = $db->QueryInsert("usage_voip", array(
-                        "client"        => $client["client"],
-                        "region"        => $region_id,
-                        "E164"          => $number,
-                        "no_of_lines"   => $lines_cnt,
-                        "actual_from"   => "2029-01-01",
-                        "actual_to"     => "2029-01-01",
-                        "status"        => "connecting"
-        )
-        );
     
-        $db->QueryInsert("log_tarif", array(
-                        "service"             => "usage_voip",
-                        "id_service"          => $usageVoipId,
-                        "id_tarif"            =>$tarif["id"],
-                        "id_tarif_local_mob"  => $default_tarifs['id_tarif_local_mob'],
-                        "id_tarif_russia"     => $default_tarifs['id_tarif_russia'],
-                        "id_tarif_intern"     => $default_tarifs['id_tarif_intern'],
-                        "id_tarif_sng"        => $default_tarifs['id_tarif_sng'],
-                        "ts"                  => array("NOW()"),
-                        "date_activation"     => array("NOW()"),
-                        "dest_group"          => '0',
-                        "minpayment_group"    => '0',
-                        "minpayment_local_mob"=> '0',
-                        "minpayment_russia"   => '0',
-                        "minpayment_intern"   => '0',
-                        "minpayment_sng"      => '0'
-        )
-        );
-    
-        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager']), "usage_voip", $reserNumber["usage_id"]) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
         else
             return array('status'=>'error','message'=>'Ошибка добавления заявки');
