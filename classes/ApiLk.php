@@ -1012,7 +1012,7 @@ class ApiLk
                         "actual_to"     => "2029-12-31"
                         )
                     );
-        return array('status'=>'ok','message'=>'Ящик добавлен. Спасибо.');
+        return array('status'=>'ok','message'=>'Почтовый ящик добавлен.');
     }
 
     public static function changeInternetTarif($client_id, $service_id, $tarif_id)
