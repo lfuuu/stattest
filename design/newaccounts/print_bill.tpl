@@ -140,11 +140,11 @@
 <td align=right>
 <div style="width: 110px;  text-align: center;padding-right: 10px;">
 {if $bill_client.firma == "all4net"}
-<img border="0" src="{$IMAGES_PATH}logo_all4net.gif">
+<img border="0" src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}logo_all4net.gif">
 {elseif $bill_client.firma == "mcn"}
-<img border="0" src="{$IMAGES_PATH}logo2.gif">
+<img border="0" src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}logo2.gif">
 {elseif $bill_client.firma == "mcn_telekom"}
-<img border="0" src="{$IMAGES_PATH}mcntelecom-logo.png"  width=115 height=25 style="">
+<img border="0" src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}mcntelecom-logo.png"  width=115 height=25 style="">
 www.mcntelecom.ru
 {/if}
 </div>
@@ -261,7 +261,7 @@ www.mcntelecom.ru
 	<td>{$firm_director.position}</td>
 {if isset($emailed) && $emailed==1}
     <td>
-        {if $firm_director.sign} <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _________________________________ {/if}
+        {if $firm_director.sign} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _________________________________ {/if}
     </td>
 
 {else}
@@ -272,7 +272,7 @@ www.mcntelecom.ru
 	<td>Главный бухгалтер</td>
 {if isset($emailed) && $emailed==1}
 	<td>
-            {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
+            {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
 
     </td>
 {else}
@@ -286,7 +286,7 @@ www.mcntelecom.ru
 	<td>&nbsp;</td>
 	<td align=left>
 
-{if $firma}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}{/if}{$IMAGES_PATH}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
+{if $firma}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
 
     </td>
 	<td>&nbsp;</td>

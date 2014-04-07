@@ -785,7 +785,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_date, client_id, currency, sum, inv_rur, is_payed, P.comment, postreg, nal,
+                bill_no, bill_no_ext, bill_date, client_id, currency, sum, inv_rur, is_payed, P.comment, postreg, nal,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -806,6 +806,7 @@ class m_newaccounts extends IModule
                     ### incomegoods
                  SELECT 
                     number as bill_no, 
+                    "" as bill_no_ext,
                     cast(date as date) as bill_date, 
                     client_card_id as client_id, 
                     if(currency = "RUB", "RUR", currency) as currency, 
@@ -4327,7 +4328,7 @@ $sql .= "    order by client, bill_no";
                     'select newbills.*,clients.nal,clients.client,clients.company
                     FROM newbills
                     INNER JOIN clients ON (clients.id=newbills.client_id)
-                    WHERE bill_no LIKE "'.$search.'%" ORDER BY client,bill_no LIMIT 1000');
+                    WHERE bill_no LIKE "'.$search.'%" OR bill_no_ext LIKE "'.$search.'%" ORDER BY client,bill_no LIMIT 1000');
 
             if(!$R)
             {
@@ -4595,12 +4596,39 @@ $sql .= "    order by client, bill_no";
         $design->assign('formula',$formula);
 
         $fullscreen = get_param_protected('fullscreen',0);
+        $is_pdf = get_param_protected('is_pdf',0);
+        $sign = get_param_protected('sign','');
         $design->assign('fullscreen',$fullscreen);
+        $design->assign('is_pdf',$is_pdf);
+        $design->assign('sign',$sign);
+        
+        if ($is_pdf == 1) {
+            /*wkhtmltopdf*/
+            $options = ' --quiet -L 2 -R 2 -T 2 -B 2';
+            $content = $design->fetch('newaccounts/print_balance_check.tpl');
+            $file_name = '/tmp/' . mktime().$user->_Data['id'];
+            $file_html = $file_name.'.html';
+            $file_pdf = $file_name.'.pdf';
+
+            file_put_contents($file_name . '.html', $content);
+
+            passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+            $pdf = file_get_contents($file_pdf);
+            unlink($file_html);unlink($file_pdf);
+
+            header('Content-Type: application/pdf');
+            ob_clean();
+            flush();
+            echo $pdf;
+            exit;
+        }
+
         if ($fullscreen==1) {
-            $design->ProcessEx('pop_header.tpl');
-            $design->ProcessEx('errors.tpl');
-            $design->ProcessEx('newaccounts/balance_check.tpl');
-            $design->ProcessEx('pop_footer.tpl');
+            $design->ProcessEx('newaccounts/print_balance_check.tpl');
+            //$design->ProcessEx('pop_header.tpl');
+            //$design->ProcessEx('errors.tpl');
+            //$design->ProcessEx('newaccounts/balance_check.tpl');
+            //$design->ProcessEx('pop_footer.tpl');
         } else {
             $design->AddMain('newaccounts/balance_check.tpl');
         }
