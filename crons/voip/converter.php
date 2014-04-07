@@ -398,7 +398,7 @@ function loadRedirectSettings($clientId)
 	     select
 	          n.number, s.*
 	     from
-	          rr_weekdays s, a_number n
+	          rr_weekday s, a_number n
 	     where
 	               number_id=n.id
 	          and s.number_id = n.id
