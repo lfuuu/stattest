@@ -4595,12 +4595,51 @@ $sql .= "    order by client, bill_no";
         $design->assign('formula',$formula);
 
         $fullscreen = get_param_protected('fullscreen',0);
+        $is_pdf = get_param_protected('is_pdf',0);
+        $sign = get_param_protected('sign','');
         $design->assign('fullscreen',$fullscreen);
+        $design->assign('is_pdf',$is_pdf);
+        $design->assign('sign',$sign);
+        
+        if ($is_pdf == 1) {
+            /*wkhtmltopdf*/
+            $options = ' --quiet -L 2 -R 2 -T 2 -B 2';
+            $content = $design->fetch('newaccounts/print_balance_check.tpl');
+            $file_name = '/tmp/' . mktime().$user->_Data['id'];
+            $file_html = $file_name.'.html';
+            $file_pdf = $file_name.'.pdf';
+
+            file_put_contents($file_name . '.html', $content);
+
+            passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+            $pdf = file_get_contents($file_pdf);
+
+            //Create file
+            $V = array(
+                    'name'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.').pdf',
+                    'ts'=>array('NOW()'),
+                    'client_id'=>$fixclient_data['id'],
+                    'comment'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.')',
+                    'user_id'=>$user->Get('id')
+                );
+            $id = $db->QueryInsert('client_files',$V);
+            copy($file_pdf, STORE_PATH.'files/'.$id);
+
+            unlink($file_html);unlink($file_pdf);
+
+            header('Content-Type: application/pdf');
+            ob_clean();
+            flush();
+            echo $pdf;
+            exit;
+        }
+
         if ($fullscreen==1) {
-            $design->ProcessEx('pop_header.tpl');
-            $design->ProcessEx('errors.tpl');
-            $design->ProcessEx('newaccounts/balance_check.tpl');
-            $design->ProcessEx('pop_footer.tpl');
+            $design->ProcessEx('newaccounts/print_balance_check.tpl');
+            //$design->ProcessEx('pop_header.tpl');
+            //$design->ProcessEx('errors.tpl');
+            //$design->ProcessEx('newaccounts/balance_check.tpl');
+            //$design->ProcessEx('pop_footer.tpl');
         } else {
             $design->AddMain('newaccounts/balance_check.tpl');
         }
