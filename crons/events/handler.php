@@ -39,10 +39,11 @@ function do_events()
         $param = $event->param; 
 
         if (strpos($param, "a:") === 0)
+        {
             $param = unserialize($param);
-
-        if (strpos($param, "|") !== false)
+        }else if (strpos($param, "|") !== false) {
             $param = explode("|", $param);
+        }
 
         try{
 
