@@ -131,7 +131,7 @@ class m_ats2 extends IModule
         foreach($db_ats->AllRecords($q = "
                     select 
                         n.id, number, k.c_id,
-                        account, c_type, direction, n.enabled, 
+                        account, c_type, n.direction, n.enabled, 
                         m.name, m.parent_id as trunk_id,
                         (
                             select 

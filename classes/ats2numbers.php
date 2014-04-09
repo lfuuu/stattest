@@ -35,13 +35,14 @@ class ats2NumbersChecker
         return "client_id='".$c[$client]."'";
     }
 
-    private static $sqlActual = "select client_id, e164, no_of_lines, region from (
+    private static $sqlActual = "select client_id, e164, no_of_lines, region, allowed_direction as direction from (
         SELECT 
             c.id as client_id,
             trim(e164) as e164,
             u.no_of_lines, 
             u.region,
-            (select block from log_block where id= (select max(id) from log_block where service='usage_voip' and id_service=u.id)) is_block
+            (select block from log_block where id= (select max(id) from log_block where service='usage_voip' and id_service=u.id)) is_block,
+            allowed_direction
         FROM 
             usage_voip u, clients c
         WHERE 
@@ -50,7 +51,7 @@ class ats2NumbersChecker
             /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
 
     private static $sqlNumber=
-        "SELECT client_id, number as e164, call_count as no_of_lines, region
+        "SELECT client_id, number as e164, call_count as no_of_lines, region, direction
         FROM a_number WHERE enabled = 'yes'
         order by id";
 
@@ -85,7 +86,8 @@ class ats2NumbersChecker
                 "changed_lines" => array(), 
                 "new_client" => array(),
                 "clients" => array(),
-                "region" => array()
+                "region" => array(),
+                "direction" => array()
                 );
 
         foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
@@ -105,6 +107,10 @@ class ats2NumbersChecker
         foreach($actual as $e164 => $l)
             if(isset($saved[$e164]) && $saved[$e164]["region"] != $l["region"]) 
                 $d["region"][$e164] = $l + array("region_prev" => $saved[$e164]["region"]);
+
+        foreach($actual as $e164 => $l)
+            if(isset($saved[$e164]) && $saved[$e164]["direction"] != $l["direction"]) 
+                $d["direction"][$e164] = $l + array("direction_prev" => $saved[$e164]["direction"]);
 
         //collect clients
         foreach($d as $k => $v)
@@ -302,6 +308,9 @@ class ats2Diff
         if($diff["region"])
             self::regionChanged($diff["region"]);
 
+        if($diff["direction"])
+            self::directionChanged($diff["direction"]);
+
         if($diff["new_client"])
             self::clientChanged($diff["new_client"]);
 
@@ -339,6 +348,14 @@ class ats2Diff
 
         foreach($d as $e164 => $l)
             ats2NumberAction::regionChanged($l);
+    }
+
+    private function directionChanged(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $e164 => $l)
+            ats2NumberAction::directionChanged($l);
     }
 
     private function clientChanged(&$d)
@@ -433,6 +450,19 @@ class ats2NumberAction
         $db_ats->QueryUpdate("a_number", "number", array(
                     "number" => $l["e164"],
                     "region" => $l["region"]
+                    )
+                );
+    }
+
+    public function directionChanged($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        global $db_ats;
+
+        $db_ats->QueryUpdate("a_number", "number", array(
+                    "number" => $l["e164"],
+                    "direction" => $l["direction"]
                     )
                 );
     }

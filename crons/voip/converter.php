@@ -454,7 +454,7 @@ function loadSIPLines($clientId)
 	$a = $mDB->AllRecords("
 
 					SELECT
-						n.number, n.client_id, n.region, call_count, direction,
+						n.number, n.client_id, n.region, call_count, n.direction,
 						l.account, c_type as type, c.*
 					FROM
 						`a_link` k, a_number n, a_line l, a_connect c
@@ -553,7 +553,7 @@ function loadSIPMultitrunks(&$mtIds, $clientId = null)
 
 	// load linked
     foreach($mDB->AllRecords(
-     					"select m.parent_id, l.direction, n.number, n.call_count
+     					"select m.parent_id, n.direction, n.number, n.call_count
      					from a_multitrunk m, a_link l, a_number n
      					where
      							l.c_id = m.id
@@ -640,7 +640,7 @@ function getVpbxTrunkNumbers($trunkId)
 
     foreach($mDB->AllRecords(
                 "SELECT 
-                    n.number, n.call_count, l.direction
+                    n.number, n.call_count, n.direction
                  FROM 
                     `a_virtpbx` v, a_virtpbx_link l, a_number n 
                  where 
