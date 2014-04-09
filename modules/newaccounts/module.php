@@ -881,8 +881,10 @@ class m_newaccounts extends IModule
         '',MYSQL_ASSOC);
         $R=array();
 
-
+        $bill_total_add = array('p'=>0,'n'=>0);
         foreach($R1 as $k=>$r){
+            if ($r['sum'] > 0) $bill_total_add['p']+=$r['sum'];
+            if ($r['sum'] < 0) $bill_total_add['n']+=$r['sum'];
             $v=array(
                 'bill'=>$r,
                 'date'=>$r['bill_date'],
@@ -1034,7 +1036,8 @@ class m_newaccounts extends IModule
         }
 
         $design->assign("qrs", $qrs);
-
+        $bill_total_add['t'] = $bill_total_add['n']+$bill_total_add['p'];
+        $design->assign('bill_total_add',$bill_total_add);
 
         #krsort($R);
         $design->assign('billops',$R);
