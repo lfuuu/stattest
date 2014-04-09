@@ -4614,6 +4614,18 @@ $sql .= "    order by client, bill_no";
 
             passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
             $pdf = file_get_contents($file_pdf);
+
+            //Create file
+            $V = array(
+                    'name'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.').pdf',
+                    'ts'=>array('NOW()'),
+                    'client_id'=>$fixclient_data['id'],
+                    'comment'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.')',
+                    'user_id'=>$user->Get('id')
+                );
+            $id = $db->QueryInsert('client_files',$V);
+            copy($file_pdf, STORE_PATH.'files/'.$id);
+
             unlink($file_html);unlink($file_pdf);
 
             header('Content-Type: application/pdf');

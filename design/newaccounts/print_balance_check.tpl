@@ -75,7 +75,10 @@
                     </td>
                     <td align=right>{if isset($item.sum_income)}{$item.sum_income|round:2|replace:".":","}{else}&nbsp;{/if}</td>
                     <td align=right>{if isset($item.sum_outcome) && ($item.sum_outcome != 0 || $item.type =='saldo')}{$item.sum_outcome|round:2|replace:".":","}{else}&nbsp;{/if}</td>
-                    <td colspan="4">&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
                 </tr>
             {/foreach}
         </tbody>
@@ -136,17 +139,17 @@
     </div>
     {if $sign == 'istomina'}
         <div style="position:absolute; z-index:100; left:190px; margin-left:-110px;margin-top:-130px;">
-            <img src="{if $is_pdf}{WEB_PATH}{/if}images/sign_istomina.png" width="120px" height="62px" />
+            <img src="{$WEB_PATH}images/sign_istomina.png" width="120px" height="62px" />
         </div>
         <div style="position:absolute; z-index:100; left:200px; margin-left:-140px;margin-top:130px;">
-            <img style='{$firma.style}' src="{if $is_pdf}{WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if} />
+            <img style='{$firma.style}' src="{$WEB_PATH}images/{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if} />
         </div>
     {elseif $sign == 'director'}
         <div style="position:absolute; z-index:100; left:200px; margin-left:-80px;margin-top:-125px;">
-            <img src="{if $is_pdf}{WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}>
+            <img src="{$WEB_PATH}images/{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}>
         </div>
         <div style="position:absolute; z-index:100; left:200px; margin-left:-140px;margin-top:130px;">
-            <img style='{$firma.style}' src="{if $is_pdf}{WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if} />
+            <img style='{$firma.style}' src="{$WEB_PATH}images/{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if} />
         </div>
     {/if}
 </body>

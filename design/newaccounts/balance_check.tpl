@@ -31,7 +31,6 @@
 Действие: <select id='act'><option value='none'>Пересчет</option><option value='html'>HTML</option><option value='pdf'>PDF</option></select>
 <input type=hidden name=fullscreen value='0' id="i_fullscreen" />
 <input type=hidden name=is_pdf value='0' id="i_pdf" />
-<!--<input type=submit value='Показать' class=button>-->
 <input type=button value='Поехали' class=button onclick=sendForm();>
 </form>
 <h2>Акт сверки по клиенту {$fixclient_data.client}</h2>
@@ -53,7 +52,7 @@
 		{else}
 			Накладная
 		{/if}
-	{/if} <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.inv_no}{*if $fullscreen}{$item.inv_no}{else}<a href='{$LINK_START}module=newaccounts&action=bill_print&bill={$item.bill_no}&obj=invoice&source={$item.inv_num}'>{$item.inv_no}</a>{/if*})</nobr>
+	{/if} <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.inv_no})</nobr>
 {elseif $item.type=='pay'}
 	Оплата <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.pay_no})</nobr>
 {elseif $item.type=='total'}
@@ -92,4 +91,3 @@
 	отсутствует
 {/if}
 </font>
-{*if $zalog}({$formula}){/if*}.
