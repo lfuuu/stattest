@@ -326,6 +326,14 @@ class DbFormUsageVoip extends DbForm {
         foreach($db->AllRecords('select * from regions') as $item)
             $regions[$item['id']] = $item['code'].' - '.$item['name'];
 
+
+        $directions = array(
+                    "full"   => "Все",
+                    "russia" => "Россия",
+                    "mskmob" => "Москва (мобильные)",
+                    "msk"    => "Москва (вся)"
+                );
+
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
@@ -334,6 +342,7 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['E164']=array();
         $this->fields['no_of_lines']=array('default'=>1);
+        $this->fields['allowed_direction']=array('assoc_enum' => $directions, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
@@ -1779,6 +1788,7 @@ $GLOBALS['translate_arr']=array(
     '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
     '*.is_trunk'              => 'Транк',
+    '*.allowed_direction'      => 'Разрешенные направления',
         
     'emails.local_part'        => 'почтовый ящик',
     'emails.box_size'        => 'занято, Kb',
