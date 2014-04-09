@@ -1,0 +1,94 @@
+
+<script language="JavaScript" type="text/javascript" src="./js/jquery.js"></script>
+
+
+<table border=1 style='border-collapse: collapse; font: normal 7pt arial;' cellpadding=1 width=640 id='t1'>
+    <tr>
+        <th>Страна</th>
+        <th width="100%">Префикс</th>
+        <th>БАЗ</th>
+    </tr>
+
+{foreach from=$d key=idx item=l}
+<tr>
+    {if $l.type == "title"}
+        <td valign=top colspan=5><b>{$l.title}</b></td>
+    {else}
+        <td valign=top nowrap>{$l.name}</td>
+        <td valign=top><b>{$l.code1}</b>{if $l.code2} <span style='font: normal 6pt arial'>{$l.code2}</span>{/if}</td>
+        <td valign=top>{$l.price1}</td>
+    {/if}
+</tr>
+{/foreach}
+</table>
+
+<div id='add_div'></div>
+
+
+<script>
+{literal}
+$(function(){
+    var t1 = $('#t1 tr');
+    var th = $("#t1 tr:first");
+    var prefOffTop = 0;
+
+    var newTableTmeplate = $("<table border=1 style='border-collapse: collapse; font: normal 7pt arial;' cellpadding=1 width=640>");
+
+
+    newTable = $(newTableTmeplate).clone();
+    $("#add_div").append($(newTable).append(th.clone()));
+
+    pageSize = 1060;
+    page = 0;
+    prevTr = null;
+
+    lastTr = 15;
+    console.log(t1.length);
+    t1.each(function(i,o)
+    {
+        if(i == 0) return;
+
+        var offsetTop = $(o).offset().top;
+
+        v = offsetTop - prefOffTop;
+        if(page + v > pageSize)
+        {
+            newTable = $(newTableTmeplate).clone();
+            $("#add_div").append($("<br style=\"mso-special-character:line-break;page-break-before: always\"\>"));
+            $("#add_div").append($(newTable).append(th.clone()));
+
+            page = v;
+            v += "+";
+        }else
+            page += v;
+
+
+        if(i != 0) 
+        {
+            newTable.append($(prevTr).clone());
+        }
+
+        prefOffTop = offsetTop;
+        prevTr = o;
+
+        if(i == t1.length -1)
+            newTable.append($(prevTr).clone());
+    });
+
+
+    $("#t1").remove();
+
+    $.ajax({
+        type: "post",
+        url: "./?module=tarifs&action=price_tel&save=true&region={/literal}{$region}{literal}",
+        data: {html: $("#add_div2").html()},
+        success: function(s){
+            console.log(s);
+            alert(s);
+        }
+        
+    });
+
+});
+{/literal}
+</script>

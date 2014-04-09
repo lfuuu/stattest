@@ -43,9 +43,13 @@
 	<td>/</td>
 	<td align=right>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|round:2} ${else} <b>{$sum.USD.bill|round:2} $</b>{/if}</td>
 </tr>
-
-
+{if $fixclient_data.status == 'distr' or $fixclient_data.status == 'operator'}
 <tr>
+	<td>По счетам:</td>
+	<td align=right colspan="3"> <b>+{$bill_total_add.p} / {$bill_total_add.n} = {$bill_total_add.t}</b>
+</tr>
+{/if}
+<tr  style="background-color: #eaeaea;">
 	<td>Общая сумма <span title='Клиент должен нам'>долга</span> (с учётом сальдо):</td>
 	<td align=right> <b>{if $fixclient_data.currency!='USD'} {$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum.RUR.delta+$sum.RUR.saldo|round:2}{/if} р.</b>
 	<td>/</td>

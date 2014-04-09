@@ -752,7 +752,7 @@ class PriceTel
         $design->assign("d", $d);
         $design->assign("region", $region);
 
-        echo $design->display("tarifs/price_tel__gen.htm");
+        echo ($region == 991) ? $design->display("tarifs/price_tel__gen991.htm") : $design->display("tarifs/price_tel__gen.htm");
         exit();
 
     }
