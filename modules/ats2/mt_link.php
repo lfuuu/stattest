@@ -89,11 +89,9 @@ class MTLink
                 "data" => array(array("type" => "query", "query" => "select id, name from a_multitrunk where parent_id = 0 order by name", "db" => "db_ats"))
                 );
 
-        $m["br"] = array("type" => "break");
-
         $m["numbers_mt"] = array(
                 "title" => "Номера",
-                "type" => "multitrunk_numbers",
+                "type" => "sort_list",
                 "data_all" => array(array("type" => "query", "query" => "
                         select id, concat(number, 'x', call_count) as number 
                         from a_number 
@@ -116,18 +114,6 @@ class MTLink
 
                         order by number
                         ", "db" => "db_ats"))
-                );
-
-        //printdbg($m);
-
-        global $design;
-
-        $design->assign("direction", array(
-                    "full" => "Full",
-                    "russia" => "Russia",
-                    "mskmob" => "MskMob",
-                    "msk" => "Msk"
-                    )
                 );
 
 
@@ -177,17 +163,17 @@ class mtLinkDB
                     );
         }else{
             global $db_ats;
-            $data = $db_ats->GetRow("select id, parent_id as multitrunk_id from a_multitrunk where ".sqlClient()." and id='".$id."'");
+            $data = $db_ats->GetRow($q = "select id, parent_id as multitrunk_id from a_multitrunk where ".sqlClient()." and id='".$id."'");
 
             //$data = $db_ats->GetRow("select id from a_multitrunk m, a_connect c where c.id = m.c_id and m.id = ".$id);
 
             $mts = "";
             foreach($db_ats->AllRecords(
-                        "select number_id, direction 
+                        "select number_id
                         from a_link 
                         where c_type='multitrunk' and c_id='".$id."'") as $l)
             {
-                $mts .= ($mts ? "," : "").$l["number_id"]."=".$l["direction"];
+                $mts .= ($mts ? "," : "").$l["number_id"];
             }
 
             $data["numbers_mt"] = $mts;
@@ -231,15 +217,12 @@ class mtLinkDB
         $numbers = trim($numbers);
         if(!$numbers) return;
 
-        foreach(explode(",", $numbers) as $l)
+        foreach(explode(",", $numbers) as $numberId)
         {
-            list($nId, $direction) = explode("=", $l);
-
             $db_ats->QueryInsert("a_link", array(
                         "c_type" => "multitrunk",
                         "c_id" => $id,
-                        "number_id" => $nId,
-                        "direction" => $direction
+                        "number_id" => $numberId
                         ));
         }
     }

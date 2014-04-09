@@ -123,8 +123,7 @@ class aNumber
             $db_ats->QueryInsert("a_link", array(
                         "c_type" => $l["c_type"],
                         "c_id" => $cId,
-                        "number_id" => $l["id"],
-                        "direction" => $l["direction"]
+                        "number_id" => $l["id"]
                         ));
         }
     }
@@ -200,13 +199,13 @@ class aNumber
         
         $n = $db_ats->GetRow("select 
                 c_type, 
-                group_concat(c_id order by id) as c_id, direction 
+                group_concat(c_id order by id) as c_id
                 from a_link 
                 where number_id = '".$numberId."' 
                 group by number_id");
 
         if(!$n)
-            return array(false, array("c_type" => "line", "c_id" => "", "direction" => "full"));
+            return array(false, array("c_type" => "line", "c_id" => ""));
 
         return array(true, $n);
     }
@@ -295,19 +294,6 @@ class aNumber
                 "condition" => array("eq", "c_type", "line")
                 );
 
-        $map["direction"] = array(
-                "title" => "Разрешенные направления",
-                "type" => "select",
-                "data" => array(
-                    array("type" => "array", "array" => array(
-                            "full" => "Full",
-                            "russia" => "Russia",
-                            "mskmob" => "MskMob",
-                            "msk" => "Msk"
-                            )
-                        )
-                    )
-                );
         return $map;
     }
 
