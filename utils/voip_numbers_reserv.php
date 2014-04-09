@@ -32,7 +32,7 @@ try {
         
 
         $client = $db->GetRow("select client from clients where id='".$r['client_id']."'");
-        if (false && $client) {
+        if ($client) {
             //Создаем запись услуги
             $usageVoipId = $db->QueryInsert("usage_voip", array(
                             "client"        => $client["client"],
