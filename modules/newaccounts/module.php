@@ -5955,18 +5955,11 @@ $sql .= "    order by client, bill_no";
             $qrcode = QRCode::decodeFile($dir.$e);
             $qr = QRCode::decodeNo($qrcode);
 
-            if($qrcode)
+            if($qrcode && $qr)
             {
-                $clientId = 0;
-                $billNo = "";
-                $type = "";
-
-                if($qr)
-                {
-                    $billNo = $qr["number"];
-                    $clientId = NewBill::find_by_bill_no($billNo)->client_id;
-                    $type = $qr["type"]["code"];
-                }
+                $billNo = $qr["number"];
+                $clientId = NewBill::find_by_bill_no($billNo)->client_id;
+                $type = $qr["type"]["code"];
 
                 $id = $db->QueryInsert("qr_code", array(
                             "file"      => $e,
