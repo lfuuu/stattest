@@ -808,7 +808,7 @@ function insertNumber(&$peers, &$all, &$inss)
              "region"    => $peerInfo["region"],
 
              "strategy"  =>  $strategy["call_strategy"] == "ringall" ? "all" : "rr",
-             "timeout"   =>  $strategy["call_wait"] == 6 ? 0 : $strategy["call_wait"]*5
+             "timeout"   =>  $strategy["call_wait"]
 		);
 
 		$inss["numbers"][$m["client_id"]][$m["number"]] = $m;
@@ -850,7 +850,7 @@ function insertNumber(&$peers, &$all, &$inss)
 			if(isset($s["call_strategy"]) && $s["call_strategy"] != "ringall") //'ringall' && 'rrmemory'
 			{
 				$m["strategy"] = "rr";
-				$m["timeout"] = $s["call_wait"]*5; // 5 sec = 1 beep
+				$m["timeout"] = $s["call_wait"];
 			}
             /**/
 
