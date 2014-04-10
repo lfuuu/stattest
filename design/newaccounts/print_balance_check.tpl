@@ -46,9 +46,9 @@
             </tr>
             <tr>
                 <td width=4%>&#8470; п/п</td>
-                <td width=24%>Наименование операции,<br>документы</td>
-                <td width=11%>Дебет</td>
-                <td width=11%>Кредит</td>
+                <td width=36%>Наименование операции,<br>документы</td>
+                <td width=5%>Дебет</td>
+                <td width=5%>Кредит</td>
                 <td width=4%>&#8470; п/п</td>
                 <td width=24%>Наименование операции,<br>документы</td>
                 <td width=11%>Дебет</td>
@@ -138,17 +138,17 @@
         </table>
     </div>
     {if $sign == 'istomina'}
-        <div style="position:absolute; z-index:100; left:190px; margin-left:-110px;margin-top:-130px;">
+        <div style="position:absolute; z-index:100; left:190px; margin-left:-110px;margin-top:-120px;">
             <img src="{$WEB_PATH}images/sign_istomina.png" width="120px" height="62px" />
         </div>
-        <div style="position:absolute; z-index:100; left:200px; margin-left:-140px;margin-top:130px;">
+        <div style="position:absolute; z-index:100; left:200px; margin-left:-160px;margin-top:0px;">
             <img style='{$firma.style}' src="{$WEB_PATH}images/{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if} />
         </div>
     {elseif $sign == 'director'}
         <div style="position:absolute; z-index:100; left:200px; margin-left:-80px;margin-top:-125px;">
             <img src="{$WEB_PATH}images/{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}>
         </div>
-        <div style="position:absolute; z-index:100; left:200px; margin-left:-140px;margin-top:130px;">
+        <div style="position:absolute; z-index:100; left:200px; margin-left:-120px;margin-top:0px;">
             <img style='{$firma.style}' src="{$WEB_PATH}images/{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if} />
         </div>
     {/if}
