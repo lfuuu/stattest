@@ -4604,7 +4604,7 @@ $sql .= "    order by client, bill_no";
         $design->assign('fullscreen',$fullscreen);
         $design->assign('is_pdf',$is_pdf);
         $design->assign('sign',$sign);
-        
+
         if ($is_pdf == 1) {
             /*wkhtmltopdf*/
             $options = ' --quiet -L 2 -R 2 -T 2 -B 2';
@@ -4620,7 +4620,7 @@ $sql .= "    order by client, bill_no";
 
             //Create file
             $V = array(
-                    'name'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.').pdf',
+                    'name'=>str_replace(array('"'), "", $period_client_data["company_full"]).' Акт сверки (на '.$date_to.').pdf',
                     'ts'=>array('NOW()'),
                     'client_id'=>$fixclient_data['id'],
                     'comment'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.')',
