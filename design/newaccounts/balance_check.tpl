@@ -11,6 +11,10 @@
 			$("#f_send").attr('target','_blank');
 			$('#i_pdf').val('1');
 			$('#i_fullscreen').val('1');			
+		} else {
+			$('#i_pdf').val('0');
+			$('#i_fullscreen').val('0');
+			$("#f_send").attr('target','');
 		}
 		$("#f_send").submit();
 	}
@@ -37,7 +41,7 @@
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <thead>
 <tr ><td width=50% colspan=4>По данным {$firma.name}, руб.</td><td width=50% colspan=4>По данным {$company_full}, руб.</td></tr>
-<tr><td width=4%>&#8470; п/п</td><td width=24%>Наименование операции,<br>документы</td><td width=11%>Дебет</td><td width=11%>Кредит</td>
+<tr><td width=4%>&#8470; п/п</td><td width=36%>Наименование операции,<br>документы</td><td width=5%>Дебет</td><td width=5%>Кредит</td>
 <td width=4%>&#8470; п/п</td><td width=24%>Наименование операции,<br>документы</td><td width=11%>Дебет</td><td width=11%>Кредит</td></tr></thead><tbody>
 {foreach from=$data item=item name=outer}
 <tr{if !$fullscreen} class={cycle values="even,odd"}{/if}>
