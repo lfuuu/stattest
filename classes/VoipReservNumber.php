@@ -102,7 +102,7 @@ class VoipReservNumber
                         status='public' and
                         region='".$region_id."' and
                         currency='RUR'
-                    " . (($region_id == '99') ? "AND name LIKE('%".Encoding::toKOI8R('Базовый')."%')" : '')
+                    " . (($region_id == '99') ? "AND name LIKE('%Базовый%')" : '')
                     );
             foreach ($tarifs as $r) {
                 switch ($r['dest']) {
