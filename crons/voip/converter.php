@@ -545,7 +545,7 @@ function loadSIPMultitrunks(&$mtIds, $clientId = null)
 
     foreach($trunkMain as &$trunk)
     {
-        $trunk["region"] = getClientRegion($trunk["client_id"]);
+        $trunk["region"] = "all";
     }
 
 
@@ -598,16 +598,6 @@ function loadSIPMultitrunks(&$mtIds, $clientId = null)
 
      return $trunkMain;
 }
-
-function getClientRegion($clientId)
-{
-    global $db;
-
-    $region = $db->GetValue("select region from clients where id = '".$clientId."'");
-
-    return $region?:99;
-}
-
 
 function getVpbxTrunkNumbers($trunkId)
 {
@@ -678,7 +668,7 @@ function loadNumbers($mtIds, $clientId = null)
 	}
 
 	foreach($mDB->AllRecords(
-                "select client_id, number, call_count, 'line' as type, region 
+                "select client_id, number, call_count, 'line' as type, region, direction
                 from a_number 
                 where enabled = 'yes'".$whereSql) as $v)
 	{
@@ -688,7 +678,7 @@ function loadNumbers($mtIds, $clientId = null)
 			              "delimeter" => "",
 			              "peers"     => array(),
 			              "client_id" => $v["client_id"],
-			              "ds"        => "",
+			              "ds"        => getDS($v["direction"]),
 			              "cl"        => $v["call_count"],
                           "region"    => $v["region"]
 		);
@@ -703,21 +693,12 @@ function convertSip(&$a, &$inss, &$peers)
 
     printdbg($peers, "peers");
 
-	$aDst = array(
-        "full"   => "full",
-        "russia" => "full-russia",
-        "mskmob" => "local-mobile",
-        "msk"    => "local"
-	);
 
 	foreach($a as $n => $v)
 	{
 		$number = $v["number"];
 		//$name = ($v["type"] == "trunk" ? "tr".$v["number"] : ($v["type"] == "multitrunk" || $v["type"] == "line" ? $v["number"] : ""));
 		$name = ($v["type"] == "trunk" ? $v["account"] : ($v["type"] == "multitrunk" || $v["type"] == "line" ? $v["account"] : ""));
-		$ds = /* ($v["type"] == "multitrunk" ? "" : */
-			"my-".(isset($aDst[$v["direction"]]) ? $aDst[$v["direction"]] : $v["direction"])."-out"
-			/*)*/;
 
 		$peers[$v["number"]] = array_merge($peers[$v["number"]], array(
               "type"      => getSipType($v),
@@ -725,7 +706,7 @@ function convertSip(&$a, &$inss, &$peers)
               "delimeter" => ($v["format"] == "ats2" ? "" : $v["format"]),
               //"peers"     => array(),
               //"client_id" => $v["client_id"],
-              "ds"        => $ds,
+              "ds"        => getDS($v["direction"]),
               //"cl"        => $v["call_count"]
 		));
 
@@ -868,6 +849,16 @@ function insertNumber(&$peers, &$all, &$inss)
 	}
 }
 
+function getDS($direction)
+{
+    $aDst = array(
+            "full"   => "full",
+            "russia" => "full-russia",
+            "localmob" => "local-mobile",
+            "local"    => "local"
+            );
+    return $ds = "my-".(isset($aDst[$direction]) ? $aDst[$direction] : $direction)."-out";
+}
 
 
 

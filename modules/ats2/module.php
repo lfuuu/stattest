@@ -164,7 +164,7 @@ class m_ats2 extends IModule
                         "l"=>array()
                         );
 
-            if($n["direction"])
+            if($n["account"])
                 $ns[$n["number"]]["l"][] = array("id" => $n["c_id"], "account" => $n["account"]);
 
         }

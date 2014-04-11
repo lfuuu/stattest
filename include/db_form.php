@@ -330,8 +330,8 @@ class DbFormUsageVoip extends DbForm {
         $directions = array(
                     "full"   => "Все",
                     "russia" => "Россия",
-                    "mskmob" => "Москва (мобильные)",
-                    "msk"    => "Москва (вся)"
+                    "localmob" => "Местные (мобильные)",
+                    "local"    => "Местные (все)"
                 );
 
         DbForm::__construct('usage_voip');

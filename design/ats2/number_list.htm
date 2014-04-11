@@ -56,11 +56,13 @@
                 {if $n.type == 'multitrunk'}
                     <a href="./?module=ats2&action=mt_edit&id={$n.trunk_id}">{$n.name}</a>
                 {else}
-                    <ul>
-                    {foreach from=$n.l item=l}
-                        <li><a href="./?module=ats2&action=account&id={$l.id}">{$l.account}</a></li>
-                    {/foreach}
-                    </ul>
+                    {if $n.l}
+                        <ul>
+                        {foreach from=$n.l item=l}
+                            <li><a href="./?module=ats2&action=account&id={$l.id}">{$l.account}</a></li>
+                        {/foreach}
+                        </ul>
+                    {/if}
                 {/if}
         </td>
         <td valign=top>
