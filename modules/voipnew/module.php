@@ -532,29 +532,58 @@ class m_voipnew extends IModule
             }
 
             $pricelistIds = $_POST['pricelist_ids'];
-
+            $rawFilesIds = [];
             $pg_db->Begin();
 
             foreach($pricelistIds as $pricelistId) {
                 $raw_file['pricelist_id'] = (int)$pricelistId;
 
-                if ($this->save_price_file($raw_file, $defs) <= 0) {
+                $rawFileId = $this->save_price_file($raw_file, $defs);
+                if ($rawFileId <= 0) {
                     $pg_db->Rollback();
                     die('error');
                 }
+                $rawFilesIds[] = $rawFileId;
             }
 
             $pg_db->Commit();
 
             header(
-                count($pricelistIds) == 1
-                    ? 'location: index.php?module=voipnew&action=raw_files&pricelist=' . (int)$pricelistIds[0]
-                    : 'location: index.php?module=voipnew&action=client_pricelists'
+                count($rawFilesIds) == 1
+                    ? 'location: index.php?module=voipnew&action=view_raw_file&id=' . (int)$rawFilesIds[0]
+                    : 'location: index.php?' . http_build_query(array('module'=>'voipnew','action'=>'mass_activate','ids'=>$rawFilesIds))
             );
             exit;
         }
 
         trigger_error('bad parameters');
+    }
+
+    public function voipnew_mass_activate()
+    {
+        global $db, $pg_db, $design;
+
+        if (isset($_POST['activate'])) {
+            foreach ($_POST['ids'] as $id) {
+                $pg_db->QueryUpdate('voip.raw_file', 'id', array('id' => $id, 'active' => 1));
+            }
+            header('location: index.php?module=voipnew&action=client_pricelists');
+            exit;
+        }
+        foreach ($_GET['ids'] as $id)
+            $ids[] = (int)$id;
+
+        $query = "  select  p.*, f.id as rawfile_id, o.short_name as operator
+                    from voip.raw_file f
+                    left join voip.pricelist p on p.id=f.pricelist_id
+                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
+                    where f.id in (" . implode(',', $ids) . ")
+                    order by p.region desc, p.operator_id, p.name";
+
+        $design->assign('list', $pg_db->AllRecords($query));
+        $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+
+        $design->AddMain('voipnew/mass_activate.html');
     }
 
     public function voipnew_defs()
