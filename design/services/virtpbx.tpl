@@ -4,11 +4,11 @@
 <H3>Виртаульная АТС</H3>
 {if access_action('services','virtpbx_add')}<a href='{$LINK_START}module=services&action=virtpbx_add'>Добавить услугу</a>{/if}
 {else}
-<H3><a href='?module=services&action=virtpbx_view'>Витртуальная АТС</a></H3>
+<H3><a href='?module=services&action=virtpbx_view'>Виртуальная АТС</a></H3>
 {/if}
 {if $virtpbx_akt}
-<a href='{$LINK_START}module=services&action=virtpbx_act&id={$virtpbx_akt.id}' target="_blank">
-    <img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a><br>
+<a href='{$LINK_START}module=services&action=virtpbx_act&id={$virtpbx_akt.id}' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a>
+<a href='{$LINK_START}module=services&action=virtpbx_act&id={$virtpbx_akt.id}&sendmail=1' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Отправить&nbsp;акт</a>
 {/if}
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
