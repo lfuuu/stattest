@@ -248,6 +248,7 @@ class Bill{
 		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Удаление"));
 		//$db->QueryDelete('log_newbills',array('bill_no'=>$bill_no));
 		$db->Query("update log_newbills set bill_no = '".$bill_no.date('dHs')."' where bill_no='".$bill_no."'");
+		$db->QueryDelete('newbills_documents',array('bill_no'=>$bill_no));
 		$db->Query('commit');
 	}
 	public function Save($remove_empty = 0,$check_change=1) {
@@ -272,6 +273,7 @@ class Bill{
 			$bSave = $this->bill;
 			unset($bSave["doc_ts"]);
 			$db->QueryUpdate("newbills","bill_no",$bSave);
+			$this->updateBill2Doctypes(null, false);
             /*
 			if(include_once(INCLUDE_PATH."1c_integration.php")){
 				$clS = new \_1c\clientSyncer($db);
@@ -784,5 +786,92 @@ class Bill{
 
         return $doc;
     }
+//------------------------------------------------------------------------------------
+    public function setBill2Doctypes($data = array())
+    {
+        global $db;
+
+        $data['bill_no'] = $this->bill_no;
+        $data['ts'] = array('NOW()');
+
+        if ($this->checkBill2Doctypes()) 
+            $db->QueryUpdate("newbills_documents","bill_no",$data);
+        else 
+            $db->QueryInsert("newbills_documents",$data);
+
+    }
+//------------------------------------------------------------------------------------
+    public function updateBill2Doctypes($L = null, $returnData = false)
+    {
+        global $db;
+
+        if(!$L) 
+            $L = $this->GetLines();
+
+        $period_date = get_inv_date_period($this->GetTs());
+
+        $p1 = m_newaccounts::do_print_prepare_filter('invoice',1,$L,$period_date);
+        $a1 = m_newaccounts::do_print_prepare_filter('akt',1,$L,$period_date);
+
+        $p2 = m_newaccounts::do_print_prepare_filter('invoice',2,$L,$period_date);
+        $a2 = m_newaccounts::do_print_prepare_filter('akt',2,$L,$period_date);
+
+        $p3 = m_newaccounts::do_print_prepare_filter('invoice',3,$L,$period_date,true,true);
+        $a3 = m_newaccounts::do_print_prepare_filter('akt',3,$L,$period_date);
+
+        $p4 = m_newaccounts::do_print_prepare_filter('lading',1,$L,$period_date);
+        $p5 = m_newaccounts::do_print_prepare_filter('invoice',4,$L,$period_date);
+
+        $p6 = m_newaccounts::do_print_prepare_filter('invoice',5,$L,$period_date);
+
+        $gds = m_newaccounts::do_print_prepare_filter('gds',3,$L,$period_date);
+
+        $bill_akts = array(
+            1=>count($a1),
+            2=>count($a2),
+            3=>count($a3)
+        );
+
+        $bill_invoices = array(
+            1=>count($p1),
+            2=>count($p2),
+            3=>count($p3),
+            4=>count($p4),
+            5=>($p5==-1 || $p5 == 0)?$p5:count($p5),
+            6=>count($p6),
+            7=>count($gds)
+        );
+
+        $bill_invoice_akts = array(
+                        1=>count($p1),
+                        2=>count($p2)
+        );
+
+        $doctypes = array();
+        for ($i=1;$i<=3;$i++) $doctypes['a'.$i] = $bill_akts[$i];
+        for ($i=1;$i<=7;$i++) $doctypes['i'.$i] = $bill_invoices[$i];
+        for ($i=1;$i<=2;$i++) $doctypes['ia'.$i] = $bill_invoice_akts[$i];
+
+        $this->setBill2Doctypes($doctypes);
+
+        return ($returnData) ? $this->getBill2Doctypes() : true;
+    }
+//------------------------------------------------------------------------------------
+    public function getBill2Doctypes()
+    {
+        global $db;
+
+        $res = $db->GetRow("SELECT * FROM newbills_documents WHERE bill_no='".$this->bill_no."'");
+
+        return $res;
+    }
+//------------------------------------------------------------------------------------
+    public function checkBill2Doctypes()
+    {
+        global $db;
+
+        return $db->GetValue("SELECT COUNT(*) FROM newbills_documents WHERE bill_no='".$this->bill_no."'");
+    }
+//------------------------------------------------------------------------------------
 }
 ?>

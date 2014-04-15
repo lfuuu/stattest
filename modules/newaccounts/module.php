@@ -1267,51 +1267,18 @@ class m_newaccounts extends IModule
 
     function get_bill_docs(Bill &$bill, $L = null)
     {
-        if(!$L)
-            $L = $bill->GetLines();
+        $bill_akts = $bill_invoices = $bill_upd = array();
 
-        $period_date = get_inv_date_period($bill->GetTs());
-        $p1 = self::do_print_prepare_filter('invoice',1,$L,$period_date);
-        $a1 = self::do_print_prepare_filter('akt',1,$L,$period_date);
+        if (($doctypes = $bill->getBill2Doctypes()) == false) {
+            $doctypes = $bill->updateBill2Doctypes($L, true);
+        }
 
-        $p2 = self::do_print_prepare_filter('invoice',2,$L,$period_date);
-        $a2 = self::do_print_prepare_filter('akt',2,$L,$period_date);
+        if ($doctypes && count($doctypes) > 0) {
+            for ($i=1;$i<=3;$i++) $bill_akts[$i] = $doctypes['a'.$i];
+            for ($i=1;$i<=7;$i++) $bill_invoices[$i] = $doctypes['i'.$i];
+            for ($i=1;$i<=2;$i++) $bill_upd[$i] = $doctypes['ia'.$i];
+        }
 
-        $p3 = self::do_print_prepare_filter('invoice',3,$L,$period_date,true,true);
-        $a3 = self::do_print_prepare_filter('akt',3,$L,$period_date);
-
-        $p4 = self::do_print_prepare_filter('lading',1,$L,$period_date);
-        $p5 = self::do_print_prepare_filter('invoice',4,$L,$period_date);
-
-        $p6 = self::do_print_prepare_filter('invoice',5,$L,$period_date);
-
-        $gds = self::do_print_prepare_filter('gds',3,$L,$period_date);
-
-        $bill_akts = array(
-                null,
-            1=>count($a1),
-            2=>count($a2),
-            3=>count($a3)
-        );
-
-        $bill_invoices = array(
-            null,
-            count($p1),
-            count($p2),
-            count($p3),
-            count($p4),
-            ($p5==-1 || $p5 == 0)?$p5:count($p5),
-            count($p6),
-            count($gds)
-        );
-        
-        $bill_upd = array(
-            null,
-            1=>count($p1),
-            2=>count($p2)
-        );
-
-        //printdbg(array("akts" => $bill_akts, "bills" => $bill_invoices, "p3" => $p3));
         return array($bill_akts, $bill_invoices, $bill_upd);
     }
 
@@ -1631,10 +1598,17 @@ class m_newaccounts extends IModule
                                 'ORDER by client LIMIT '.($page*50).',50') as $r) {
                     $bill = new Bill($r['bill_no']);
                     $L = $bill->GetLines();
-                    $period_date = get_inv_date_period($bill->GetTs());
-                    $p1 = count(self::do_print_prepare_filter('invoice',1,$L,$period_date));
-                    $p2 = count(self::do_print_prepare_filter('invoice',2,$L,$period_date));
-                    $p3 = count(self::do_print_prepare_filter('invoice',3,$L,$period_date));
+                    //$period_date = get_inv_date_period($bill->GetTs());
+                    //$p1 = count(self::do_print_prepare_filter('invoice',1,$L,$period_date));
+                    //$p2 = count(self::do_print_prepare_filter('invoice',2,$L,$period_date));
+                    //$p3 = count(self::do_print_prepare_filter('invoice',3,$L,$period_date));
+                    if (($doctypes = $bill->getBill2Doctypes()) == false) {
+                        $doctypes = $bill->updateBill2Doctypes($L, true);
+                    }
+                    $p1 = $doctypes['i1'];
+                    $p2 = $doctypes['i2'];
+                    $p3 = $doctypes['i3'];
+
                     if (($bill->Get('currency')=='USD') && !floatval($bill->Get('inv_rur'))) {
                          if (!floatval($bill->Get('inv1_rate'))) $p1 = 0;
                          if (!floatval($bill->Get('inv2_rate'))) $p2 = 0;
