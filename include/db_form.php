@@ -1085,7 +1085,7 @@ class DbFormUsageVirtpbx extends DbForm{
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
                 $this->dbform['t_block'] = 0;
-            HelpDbForm::save_block('usage_welltime',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
+            HelpDbForm::save_block('usage_virtpbx',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
         }
         virtPbx::check();
         return $v;

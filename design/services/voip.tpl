@@ -9,6 +9,7 @@
 <H3><a href='?module=services&action=vo_view'>IP-телефония</a></H3>
 {/if}
 <a href='{$LINK_START}module=services&action=vo_act' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a>
+<a href='{$LINK_START}module=services&action=vo_act&sendmail=1' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Отправить&nbsp;акт</a>
 {if $has_trunk}
 <a href='{$LINK_START}module=services&action=vo_act_trunk' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт&nbsp;на&nbsp;транк</a>
 {/if}

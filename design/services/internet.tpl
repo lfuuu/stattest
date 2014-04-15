@@ -11,11 +11,15 @@
 {else}
 <H3><a href='?module=services&action={$actprefix}_view'>{if $internet_suffix!="collocation"}Интернет{else}Collocation{/if} подключения</a></H3>
 {/if}
+
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0 style='margin-top:-9px'>
 <TBODY>
 {foreach from=$services_conn item=conn name=outer}
-<TR><TR><TD colspan="4"></TD></TR>
+<TR><TR><TD colspan="4">
+	<a href="{$LINK_START}module=services&action=in_act_pon&id={$conn.data.id}" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Выписать акт'> Выписать акт PON</a>
+	<a href="{$LINK_START}module=services&action=in_act_pon&id={$conn.data.id}&sendmail=1" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Отправить акт'> Отправить акт PON</a>
+</TD></TR>
 <TR bgcolor="{if $conn.data.status=='working'}{if $conn.data.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
 {if isset($show_client)}
 	<TD>Клиент <b><a href='{$LINK_START}module=clients&id={$conn.data.client}'>{$conn.data.client}</a></b></td>

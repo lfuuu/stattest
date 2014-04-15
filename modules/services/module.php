@@ -456,7 +456,50 @@ class m_services extends IModule{
             exit();
         }
         $design->ProcessEx('../store/acts/'.$suffix.'_act.tpl');
-    }    
+    }
+
+    function services_in_act_pon($fixclient,$suffix="internet"){
+        global $design,$db;
+        $id=get_param_protected('id');
+        if ($id=='') return;
+    
+        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+    
+        $conn=$db->GetRow("select * from usage_ip_ports where id='".$id."'");
+        $routes=array(); $db->Query('select * from usage_ip_routes where (port_id="'.$id.'") and (actual_from<=NOW()) and (actual_to>=NOW()) order by id');
+        while ($r=$db->NextRecord()) {
+            $t=explode("/",$r['net']);
+            $t=explode('.',$t[0]);
+            $t[3]++;
+            $r['gate']=implode(".",$t);
+            $routes[]=$r;
+        }
+        //if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
+        //$conn['actual_from']=convert_date($conn['actual_from']);
+        $design->assign('conn',$conn);
+        $design->assign('port',$db->GetRow("select * from tech_ports where id='".$conn['port_id']."'"));
+        $design->assign('routes',$routes);
+        $design->assign('cpe',get_cpe_history("usage_ip_ports",$id));
+        ClientCS::Fetch($conn['client']);
+        $design->assign('ppp',$db->AllRecords('select * FROM usage_ip_ppp where client="'.$conn['client'].'"'));
+        $design->assign('internet_suffix',$suffix);
+        $sendmail = get_param_raw('sendmail',0);
+        if($sendmail){
+            $msg = $design->fetch('../store/acts/'.$suffix.'_act_pon.tpl');
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="'.addcslashes($fixclient, '\\"').'"';
+            $db->Query($query);
+            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $mails['mails'];
+            $design->clear_all_assign();
+            $design->assign('content_encode','base64');
+            $design->assign('emails',$mails);
+            $design->assign('subject',iconv('koi8r','utf8','Акт'));
+            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            echo $design->fetch('wellsend.html');
+            exit();
+        }
+        $design->ProcessEx('../store/acts/'.$suffix.'_act_pon.tpl');
+    }
     
     function services_in_close($fixclient,$suffix='internet'){
         global $design,$db;
@@ -973,6 +1016,22 @@ class m_services extends IModule{
         ClientCS::FetchMain($fixclient);
         Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
+        $sendmail = get_param_raw('sendmail',0);
+        if($sendmail){
+            $msg = $design->fetch('../store/acts/voip_act.tpl');
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="'.addcslashes($fixclient, '\\"').'"';
+            $db->Query($query);
+            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $mails['mails'];
+            $design->clear_all_assign();
+            $design->assign('content_encode','base64');
+            $design->assign('emails',$mails);
+            $design->assign('subject',iconv('koi8r','utf8','Акт'));
+            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            echo $design->fetch('wellsend.html');
+            exit();
+        }
+        
         $design->ProcessEx('../store/acts/voip_act.tpl'); 
     }
 
@@ -1960,7 +2019,23 @@ class m_services extends IModule{
         Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $design->assign('d',$r);
-                
+
+        $sendmail = get_param_raw('sendmail',0);
+        if($sendmail){
+            $msg = $design->fetch('../store/acts/virtpbx_act.tpl');
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="'.addcslashes($fixclient, '\\"').'"';
+            $db->Query($query);
+            $mails = $db->NextRecord(MYSQL_ASSOC);
+            $mails = $mails['mails'];
+            $design->clear_all_assign();
+            $design->assign('content_encode','base64');
+            $design->assign('emails',$mails);
+            $design->assign('subject',iconv('koi8r','utf8','Акт'));
+            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            echo $design->fetch('wellsend.html');
+            exit();
+        }
+        
         $design->ProcessEx('services/virtpbx_act.tpl'); 
     }
 // =========================================================================================================================================

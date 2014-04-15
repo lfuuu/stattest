@@ -617,14 +617,20 @@ class m_stats extends IModule{
                                             actual_from >= '2029-01-01'
                                         )
                                 ) as active_usage_id,
-                                (
+                               
+                                ( 
                                     SELECT 
-                                        MAX(created) 
+                                        MAX(ts) 
                                     FROM 
-                                        usage_voip u 
+                                        log_tarif lt, usage_voip u  
                                     WHERE 
                                         u.e164 = v.number AND 
-                                        actual_from = '2029-01-01'
+                                        lt.service = 'usage_voip' AND  
+                                        u.id = lt.id_service AND 
+                                        u.actual_from = '2029-01-01' AND 
+                                        u.actual_to = '2029-01-01' AND 
+                                        u.status = 'connecting' 
+                                    GROUP BY lt.id_service
                                 ) AS date_reserved
                             FROM
                                 voip_numbers v
