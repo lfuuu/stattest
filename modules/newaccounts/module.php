@@ -823,7 +823,7 @@ class m_newaccounts extends IModule
             order by
                 bill_date desc,
                 bill_no desc
-            limit 500
+            limit 1000
         ','',MYSQL_ASSOC);
 
         if (isset($sum[$fixclient_data['currency']]['saldo']) && $sum[$fixclient_data['currency']]['saldo'] > 0){
@@ -876,7 +876,7 @@ class m_newaccounts extends IModule
 
             order by
                 P.payment_date desc
-            limit 500
+            limit 1000
                 ',
         '',MYSQL_ASSOC);
         $R=array();
@@ -4797,12 +4797,12 @@ $sql .= "    order by client, bill_no";
             $bill=new Bill($p['bill_no']);
             for ($I=1;$I<=3;$I++) {
 
-                $A = $this->bb_cache__get($p["bill_no"]."--".$I);
+                $A = false;//$this->bb_cache__get($p["bill_no"]."--".$I);
 
                 if($A === false)
                 {
                     $A=$this->do_print_prepare($bill,'invoice',$I,'RUR',0, true);
-                    $this->bb_cache__set($p["bill_no"]."--".$I, $A);
+                    //$this->bb_cache__set($p["bill_no"]."--".$I, $A);
                 }
 
 

@@ -65,7 +65,7 @@ class BalanceSimple
         if(!isset($params["is_multy"])) $params["is_multy"] = false;
         if(!isset($params["is_view_canceled"])) $params["is_view_canceled"] = true;
 
-        $sqlLimit = $params["is_multy"] ? " limit 200" : "";
+        $sqlLimit = $params["is_multy"] ? " limit 1000" : "";
 
         $R1 = $db->AllRecords($q='
             select
