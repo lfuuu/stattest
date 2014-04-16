@@ -91,10 +91,9 @@ class m_incomegoods extends IModule{
         $design->assign('order', $order);
         $design->AddMain('incomegoods/order_view.tpl');
 
-        if($order || isset($_GET["number"]))
+        if($order)
         {
-            global $db;
-            $trouble  = Trouble::find_by_bill_no($order ? $order->number : $_GET["number"]);
+            $trouble  = Trouble::find_by_bill_id($order->id);
             if($trouble){
                 $GLOBALS['module_tt']->dont_filters = true;
                 #$GLOBALS['module_tt']->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
