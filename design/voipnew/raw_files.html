@@ -9,16 +9,18 @@
         {elseif $pricelist.type == 'network_prices'}
         <option value="xls_networks">Местные цены (Полный)</option>
 		{elseif $pricelist.operator_id == '2'}
-        <option value="xls_beeline_changes">Билайн (Изменения)</option>
-		<option value="xls_beeline_full1">Билайн (Полный 1)</option>
-		<option value="xls_beeline_full2">Билайн (Полный 2)</option>
+        <option value="xls_beeline_changes">Формат Билайн (Изменения)</option>
+		<option value="xls_beeline_full1">Формат Билайн (Полный 1)</option>
+		<option value="xls_beeline_full2">Формат Билайн (Полный 2)</option>
 		{elseif $pricelist.operator_id == '8'}
-		<option value="xls_mtt_full">МТТ (Полный)</option>
+		<option value="xls_mtt_full">Формат МТТ (Полный)</option>
+        <option value="xls_mcn_prime_full">Формат ЭмСиЭн (Полный)</option>
 		{elseif $pricelist.operator_id == '7'}
-		<option value="xls_orange_full">Orange (Полный)</option>
+		<option value="xls_orange_full">Формат Orange (Полный)</option>
+        <option value="xls_mcn_prime_full">Формат ЭмСиЭн (Полный)</option>
 		{else}{*if $pricelist.operator_id == '999'*}
-		<option value="xls_mcn_prime_changes">ЭмСиЭн Прайм  (Изменения)</option>
-        <option value="xls_mcn_prime_full">ЭмСиЭн Прайм (Полный)</option>
+		<option value="xls_mcn_prime_changes">Формат ЭмСиЭн (Изменения)</option>
+        <option value="xls_mcn_prime_full">Формат ЭмСиЭн (Полный)</option>
 		{/if}
 	</select>
 	<input type="file" name="upfile" />

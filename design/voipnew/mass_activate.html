@@ -1,0 +1,24 @@
+<form action="index.php?module=voipnew&action=mass_activate" method="post">
+<p>&nbsp;</p>
+<p>Загруженные файлы:</p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+    <tr>
+        <td class=header>&nbsp;</td>
+        <td class=header>Регион</td>
+        <td class=header>Ид</td>
+        <td class=header>Прайслист</td>
+        <td class=header></td>
+    </tr>
+    {foreach from=$list item='p'}
+    <tr class="{cycle values='even,odd'}">
+        <td><input name="ids[]" type="checkbox" value="{$p.rawfile_id}"/></td>
+        <td>{$regions[$p.region].name}</td>
+        <td>{$p.id}</td>
+        <td>{$p.name}</td>
+        <td><a href="index.php?module=voipnew&action=view_raw_file&id={$p.rawfile_id}" target="_blank">просмотр</a></td>
+    </tr>
+    {/foreach}
+</table>
+
+    <input type="submit" name="activate" value="Активировать файлы"/>
+</form>

@@ -19,6 +19,7 @@ class m_voipnew_head extends IModuleHead
         'activatedeactivate' => array('voip', 'admin'),
         'change_raw_file_start_date' => array('voip', 'admin'),
         'upload' => array('voip', 'admin'),
+        'mass_activate' => array('voip', 'admin'),
         'pricelist' => array('voip', 'access'),
         'operators' => array('voip', 'access'),
         'operator_edit' => array('voip', 'admin'),
