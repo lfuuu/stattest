@@ -523,7 +523,7 @@ class util{
         global $design;
         $page = get_param_integer("page", 1);
         $countPages = ceil($count/$items_on_page);
-        $url = "./?".http_build_query($_GET);
+        $url = "./?" . http_build_query($_GET);
 
         $start = $page > 10 ? $page-10 : 1;
         $end = $page +10;
