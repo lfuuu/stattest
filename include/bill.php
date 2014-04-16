@@ -862,7 +862,10 @@ class Bill{
         global $db;
 
         $res = $db->GetRow("SELECT * FROM newbills_documents WHERE bill_no='".$this->bill_no."'");
-
+        
+        if (!$res) 
+            $res = $this->updateBill2Doctypes(null, true);
+        
         return $res;
     }
 //------------------------------------------------------------------------------------

@@ -203,15 +203,20 @@ class ApiLk
                             "sum"       => number_format($l->sum, 2, '.','')
             );
         }
-    
-    
+
+        include_once INCLUDE_PATH.'bill.php';
+        include_once PATH_TO_ROOT . "modules/newaccounts/module.php";
+        $curr_bill = new Bill($billNo);
+        $dt = $curr_bill->getBill2Doctypes();
+
         return array(
                         "bill" => array(
                                         "bill_no" => $b->bill_no,
                                         "is_rollback" => $b->is_rollback,
                                         "is_1c" => $b->is1C(),
                                         "lines" => $lines,
-                                        "sum_total" => number_format($b->sum, 2, '.','')
+                                        "sum_total" => number_format($b->sum, 2, '.',''),
+                                        "dtypes" => $dt
                         ),
                         "link" => array(
                                         "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUR", "client" => $clientId)),
