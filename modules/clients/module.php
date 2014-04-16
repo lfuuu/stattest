@@ -857,6 +857,20 @@ class m_clients {
             }
         }
 
+        // posible income order
+        if(!count($R) && strlen($search) > 4){
+           $incomeOrder = GoodsIncomeOrder::first(array(
+                       "conditions" => array("number" => $search),
+                       "order" => "date desc",
+                       "limit" => 1
+                       )
+                   );
+            if($incomeOrder){
+                header("Location: ./?module=incomegoods&action=order_view&id=".urlencode($incomeOrder->id));
+                exit;
+            }
+        }
+
 
 		if($move_if_single && (count($R)==1) && $flag_single){
 			Header("Location: ?module=clients&id=".($R[0]['client'] ? $R[0]['client'] :$R[0]['id']));

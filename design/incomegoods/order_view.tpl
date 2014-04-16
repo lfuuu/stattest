@@ -30,7 +30,7 @@
 	</tr>
 	<tr>
 		<th>Поставщик</th>
-		<td>{$order->client_card->company}</td>
+		<td><a href="./?moudle=clients&id={$order->client_card->id}">{$order->client_card->company}</a></td>
 	</tr>
 	<tr>
 		<th>По данным поставщика</th>

@@ -170,7 +170,7 @@ class Sync1CServerHandler
             $item->save();
         }
 
-        $trouble = Trouble::find_by_bill_no($order->number);
+        $trouble = Trouble::find_by_bill_id($order->id);
         if(!$trouble)
         {
             $now = new ActiveRecord\DateTime();
@@ -180,6 +180,7 @@ class Sync1CServerHandler
 
             $trouble = new Trouble();
             $trouble->bill_no = $order->number;
+            $trouble->bill_id = $order->id;
 
             $client = clientCard::find($order->client_card_id);
             $trouble->client = $client->client;
@@ -207,8 +208,6 @@ class Sync1CServerHandler
             $trouble->cur_stage_id = $stage->id;
             $trouble->save();
         }else{
-
-
             $cur_state = $trouble->current_stage->state;
 
             // switch states
