@@ -11,9 +11,12 @@
         <tr>
             <td>Диапазон:</td>
             <td><select name=range_from>
-            {foreach from=$ranges item=i key=k}
+            {foreach from=$ranges item=i key=k name='rf'}
+                {if strlen($i[2]) > 0}{if $smarty.foreach.rf.iteration == 0}<optgroup label='{$i[2]}'>{else}</optgroup><optgroup label='{$i[2]}'>{/if}{/if}
                 <option value="{$k}"{if $k == $range_from} selected{/if}>{$i[0]} - {$i[1]}</option>
             {/foreach}
+            </optgroup>
+            </select>
              </td>
         </tr>
         <tr>
