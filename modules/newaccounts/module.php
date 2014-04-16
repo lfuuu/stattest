@@ -1110,9 +1110,22 @@ class m_newaccounts extends IModule
 				$db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
 			}
 
-            //income orders
-		}elseif(isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"])){ // incoming orders
-            header("Location: ./?module=incomegoods&action=order_view&number=".urlencode($_GET["bill"]));
+       //income orders
+	   //}elseif(isset($_GET["bill"]) && preg_match("/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/", $_GET["bill"])){ // incoming orders
+       }elseif(isset($_GET["bill"]) && preg_match("/\d{2}-\d{8}/", $_GET["bill"])){ // incoming orders
+
+           //find last order
+           $order = GoodsIncomeOrder::first(array(
+                       "conditions" => array("number" => $_GET["bill"]),
+                       "order" => "date desc",
+                       "limit" => 1
+                       )
+                   );
+
+           if (!$order)
+               die("Неизвестный тип документа");
+
+            header("Location: ./?module=incomegoods&action=order_view&id=".urlencode($order->id));
             exit();
 
             // stat bills

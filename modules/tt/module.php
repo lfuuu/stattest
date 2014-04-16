@@ -670,14 +670,6 @@ class m_tt extends IModule{
 
         $bill = false;
 
-
-        //bill_no - for shop orders,
-        //number - for income goods orders
-        if($trouble['bill_no'] && (!isset($_GET['bill']) && !isset($_GET["number"]))){
-            header('Location: ?module=newaccounts&action=bill_view&bill='.$trouble['bill_no']);
-            exit();
-        }
-
         $design->AddMain('tt/trouble.tpl');
         $this->showTimetable();
     }
