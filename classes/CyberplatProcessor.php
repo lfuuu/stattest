@@ -280,6 +280,9 @@ class CyberplatActionCheck
 
             $b = NewBill::getLastUnpayedBill($client->id);
 
+            if (!$b)
+                $b = NewBill::getLastUnpayedBill(9130);
+
             $payment = new Payment();
             $payment->client_id = $client->id;
             $payment->bill_no = $b ? $b->bill_no : "";
