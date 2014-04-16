@@ -130,10 +130,10 @@
               </tr>
               <tr>
                 <td></td>
-                <td align="center"><br><br>í.ð.</td>
+                <td align="center">í.ð.</td>
                 <td></td>
                 <td></td>
-                <td align="center"><br><br>í.ð.</td>
+                <td align="center">í.ð.</td>
             </tr>
         </table>
     </div>
