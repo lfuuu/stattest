@@ -1016,8 +1016,8 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>'2029-01-01');
         $this->fields['actual_to']=array('default'=>'2029-01-01');
-        $this->fields['tarif_id']=array('type'=>'hidden');
-        $this->fields['tarif_str']=array('db_ignore'=>1);
+        //$this->fields['tarif_id']=array('type'=>'hidden');
+        //$this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"));
         $this->fields['amount']=array("default" => 1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
@@ -1025,6 +1025,8 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->includesPre=array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
         $this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
+        $this->includesPreL = array('dbform_vpbx_tarif.tpl');
+        $this->includesPost =array('dbform_vpbx_tarif_history.tpl','dbform_block_history.tpl');
     }
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design, $fixclient_data;
@@ -1034,42 +1036,10 @@ class DbFormUsageVirtpbx extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);
-
-            $db->Query('
-                select
-                    id,
-                    description,
-                    price,
-                    currency
-                from
-                    tarifs_virtpbx
-                where
-                    id='.$this->data['tarif_id']
-            );
-
-            $r=$db->NextRecord();
-            $this->fields['tarif_str']['type']='label';
-            $design->assign('tarif_real_id',$r['id']);
-            $this->data['tarif_str']=$r['description'];
-        }else{
-            $db->Query('
-            select
-                id,
-                description,
-                price,
-                currency
-            from
-                tarifs_virtpbx
-            order by price'
-            );
-            $R=array('');
-            while($r=$db->NextRecord())
-                $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
-            $this->fields['tarif_id']['type']='select';
-            $this->fields['tarif_id']['add']=' onchange=form_usage_virtpbx_get()';
-            $this->fields['tarif_id']['assoc_enum']=$R;
-            $this->fields['tarif_str']['type']='no';
+            HelpDbForm::assign_tarif('usage_virtpbx',$this->data['id']);
         }
+
+        $design->assign('dbform_f_tarifs',$db->AllRecords('select id, description, price, currency, status from tarifs_virtpbx'));
         DbForm::Display($form_params,$h2,$h3);
     }
     public function Process($no_real_update = 0){
@@ -1078,14 +1048,19 @@ class DbFormUsageVirtpbx extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
-
         if(!$this->check_virtats()) return;
+
+        $cur_tarif = get_tarif_current('usage_virtpbx',$this->dbform['id']);
 
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
                 $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('usage_virtpbx',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
+
+            if ($this->dbform['t_id_tarif'] != $cur_tarif['id'] || $this->dbform['t_date_activation'] != $cur_tarif['date_activation']) {
+                HelpDbForm::logTarif('usage_virtpbx', $this->dbform['id'], $this->dbform['t_id_tarif'], $this->dbform['t_date_activation']);
+            }
         }
         virtPbx::check();
         return $v;

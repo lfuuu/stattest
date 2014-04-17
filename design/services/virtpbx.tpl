@@ -23,10 +23,10 @@
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
 	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{$item.actual_from} - {$item.actual_to}</a>&nbsp;
 		<a href='index.php?module=tt&clients_client={$item.client}&service=usage_virtpbx&service_id={$item.id}&action=view_type&type_pk=3&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
-    
+    	{if $item.actual_from == '2029-01-01' && access('services_voip', 'del2029')}<a href="./?module=services&action=virtpbx_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
     </td>
-	<td>{$item.description}</td>
-	<td>{$item.price*1.18|round:2} ({$item.price*1})</td>
+	<td>{$item.tarif.description}</td>
+	<td>{$item.tarif.price*1.18|round:2} ({$item.tarif.price*1})</td>
 	<td>{$item.server_pbx}</td>
 </tr>	
 {/foreach}
