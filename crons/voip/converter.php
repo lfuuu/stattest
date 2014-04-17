@@ -412,7 +412,7 @@ function loadRedirectSettings($clientId)
             if ($f == "to" && $v[$f] == "00:00") 
                 $v[$f] = "24:00";
 
-			$all[$v["number"]][$v["section"]]["weekday"][$v["day"]][$f] = $v[$f];
+			$all[$v["number"]]["redirif"]["weekday"][$v["day"]][$f] = $v[$f];
 		}
 	}
 
