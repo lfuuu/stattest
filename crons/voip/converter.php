@@ -911,6 +911,7 @@ function _getTime(&$s)
 function _makeTime__weekdays(&$times, $weekday)
 {
 	$days = array(
+		"all" => "*",
 		"holyday" => "hol",
 		"workday" => "wrk",
 		"d1" => "mon",
