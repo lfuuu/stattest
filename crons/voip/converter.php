@@ -51,6 +51,8 @@ $pDB->Connect() or die("PgSQLDatabase not connected");
 
 define("PG_SCHEMA", "astschema");
 
+define("DEFAULT_TIMEOUT", 200);
+
 
 // body
 
@@ -814,7 +816,7 @@ function insertNumber(&$peers, &$all, &$inss)
                     "announce"     => _get_anonce($all, $number, $l),
                     "dial_targets" => "",
                     "strategy"     => "rr",
-                    "timeout"      => 0,
+                    "timeout"      => DEFAULT_TIMEOUT,
                     "client_id"    => $peerInfo["client_id"],
                     "region"       => $peerInfo["region"]
 			);
@@ -824,7 +826,7 @@ function insertNumber(&$peers, &$all, &$inss)
 			$s = isset($all[$number][$l]) ? $all[$number][$l] : array(
 				"announce" => "",
 				"strategy" => "rr",
-				"timeout"  => 0
+				"timeout"  => DEFAULT_TIMEOUT,
 			);
 
 
