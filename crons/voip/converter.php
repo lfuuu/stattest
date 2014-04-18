@@ -912,7 +912,7 @@ function _makeTime__weekdays(&$times, $weekday)
 {
 	$days = array(
 		"all" => "*",
-		"holyday" => "hol",
+		"holiday" => "hol",
 		"workday" => "wrk",
 		"d1" => "mon",
 		"d2" => "tue",
