@@ -38,7 +38,11 @@ class SyncCore
                     event::go("add_super_client", $cl->super_id);
                     event::go("add_account", $cl->id);
                 }
-                throw $e;
+
+                if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует
+                {
+                    throw $e;
+                } //для синхронизации продуктов
             }
         }
         self::_checkNeedSyncProducts($cl->client);
