@@ -3,21 +3,23 @@
 //test();
 //exit();
 define('NO_WEB',1);
-define('PATH_TO_ROOT','./');
+define('PATH_TO_ROOT','../');
 include PATH_TO_ROOT."conf.php";
 
 
 
 $region = 99;
+$prefix = "74951059";
+
+$whereSql = "region = '".$region."' and number like '".$prefix."%'";
 
 
-//$db->Query("delete from voip_numbers where region = '".$region."'");
+$db->Query("delete from voip_numbers where ".$whereSql);
 
-/*
 $sql = "";
-for($i=0;$i<500;$i++)
+for($i=0;$i<1000;$i++)
 {
-    $num = '74992133'.str_pad($i, 3, "0", STR_PAD_LEFT); 
+    $num = $prefix.str_pad($i, 11-strlen($prefix), "0", STR_PAD_LEFT); 
     echo "\n".$num;
     $sql .= ($sql ? "," : "").'("'.$num.'",'.$region.')';
 }
@@ -25,14 +27,14 @@ for($i=0;$i<500;$i++)
 
 $db->Query('insert into voip_numbers(number,region) values'.$sql);
 
-*/
+
 work();
 
-$db->Query("update `voip_numbers` set price = null where region = ".$region." and beauty_level = 1");
-$db->Query("update `voip_numbers` set price = 29999 where region = ".$region." and beauty_level = 2");
-$db->Query("update `voip_numbers` set price = 12999 where region = ".$region." and beauty_level = 3");
-$db->Query("update `voip_numbers` set price = 3999 where region = ".$region." and beauty_level = 4");
-$db->Query("update `voip_numbers` set price = 0 where region = ".$region." and beauty_level = 0");
+$db->Query("update `voip_numbers` set price = null where ".$whereSql." and beauty_level = 1");
+$db->Query("update `voip_numbers` set price = 29999 where ".$whereSql." and beauty_level = 2");
+$db->Query("update `voip_numbers` set price = 12999 where ".$whereSql." and beauty_level = 3");
+$db->Query("update `voip_numbers` set price = 3999 where ".$whereSql." and beauty_level = 4");
+$db->Query("update `voip_numbers` set price = 0 where ".$whereSql." and beauty_level = 0");
 
 
 exit();
@@ -405,8 +407,8 @@ function test()
 
 function work()
 {
-	global $db, $region;
-	$nums = $db->AllRecords('select number from voip_numbers where region = '.$region);
+	global $db, $whereSql;
+	$nums = $db->AllRecords("select number from voip_numbers where ".$whereSql);
 	foreach($nums as $num){
 		$nnn = substr($num['number'], -7);
 		$cat = getNumCat($nnn);

@@ -532,7 +532,7 @@ class m_voipnew extends IModule
             }
 
             $pricelistIds = $_POST['pricelist_ids'];
-            $rawFilesIds = [];
+            $rawFilesIds = array();
             $pg_db->Begin();
 
             foreach($pricelistIds as $pricelistId) {
