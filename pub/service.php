@@ -134,7 +134,7 @@ if ($action=='add_client') {
                  ) ".($region !== null ? " AND vn.region = '".$region."'" : "")."
 
               )a
-          HAVING date_to IS NULL OR date_to < NOW()
+          HAVING (date_to IS NULL OR date_to < NOW()) and if(region = 99, number like '74951059%' or beauty_level in (1,2), true)
           #order by if(beauty_level=0, 10, beauty_level) desc, number
           ORDER BY IF(region = 99, -IFNULL(price,0), if(beauty_level=0, 10, beauty_level)) DESC, number
 	                        ");
