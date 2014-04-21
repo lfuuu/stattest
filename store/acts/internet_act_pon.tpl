@@ -9,7 +9,7 @@
 <h2>АКТ &#8470; 1-{$client.id}</h2>
 <h3>сдачи-приемки работ по&nbsp;подключению к&nbsp;Интернету{if false}<br>
 по&nbsp;договору &#8470; {$contract.contract_no} от {$contract.contract_date|mdate:"d.m.Y г."}{/if}
-<table align=center width=90%><tr><td align=left><b>г. Москва</b></td><td align=right><b>{if $conn.actual_from<=date('Y-m-d')}{$conn.actual_from|mdate:"d.m.Y г."}{else}{*php}echo date("Y");{/php*}{/if}</b></td></tr></table>
+<table align=center width=90%><tr><td align=left><b>г. Москва</b></td><td align=right>"___" _____________ {php}echo date("Y");{/php} г.</td></tr></table>
 </h3>
 </center>
 <p>Настоящий акт составлен между Абонентом <b>{$client.company_full}</b>, в&nbsp;лице
