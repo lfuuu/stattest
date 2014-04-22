@@ -1439,7 +1439,7 @@ class ClientCS {
         $dNow = date("Y-m-d",strtotime("+1 day"));
         $c = $db->GetRow("select * from clients where id='".$clientId."'");
 
-        $trasitFields = array("mail_print", "bill_rename1", "nds_zero");
+        $trasitFields = array("mail_print", "bill_rename1");
         $transit = array();
 
         foreach($trasitFields as $f)
