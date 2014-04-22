@@ -4594,7 +4594,7 @@ $sql .= "    order by client, bill_no";
 
         if ($is_pdf == 1) {
             /*wkhtmltopdf*/
-            $options = ' --quiet -L 2 -R 2 -T 2 -B 2';
+            $options = ' --quiet -L 2 -R 2 -T '.get_param_protected('pdf_top_padding', 2).' -B 2';
             $content = $design->fetch('newaccounts/print_balance_check.tpl');
             $file_name = '/tmp/' . mktime().$user->_Data['id'];
             $file_html = $file_name.'.html';

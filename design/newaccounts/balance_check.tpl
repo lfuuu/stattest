@@ -18,24 +18,44 @@
 		}
 		$("#f_send").submit();
 	}
+	function onchange_act(el) 
+	{
+		if($("#act").val() == 'pdf') {
+			$("#ptp").show();
+		} else {
+			$("#ptp").hide();
+		}
+	}
 </script>
 {/literal}
 <form style='display:inline' action='?' id="f_send">
-	<input type=hidden name=module value=newaccounts>
-	<input type=hidden name=action value=balance_check>
-От:	<input type=text name=date_from value='{$date_from}' class=text>
-До:	<input type=text name=date_to value='{$date_to}' class=text>
-Начальное сальдо: <input type=text name=saldo value='{$saldo}' class=text style='width:35px'>
-<!--Полный экран: <input type=checkbox name=fullscreen value='1'>-->
-Подпись: <select name='sign'>
+<table>
+	<tr>
+		<td>От:<br><input type=text name=date_from value='{$date_from}' class=text style="width:100px;"></td>
+		<td>До:<br><input type=text name=date_to value='{$date_to}' class=text style="width:100px;"></td>
+		<td>Начальное сальдо:<br><input type=text name=saldo value='{$saldo}' class=text style='width:100px'></td>
+		<td>Подпись:<br><select name='sign'>
 			<option value=''>Без подписи</option>
 			<option value='istomina'{if $sign == 'istomina'} selected{/if}>Истомина И.В.</option>
 			<option value='director'{if $sign == 'director'} selected{/if}>Директор</option>
-		</select>
-Действие: <select id='act'><option value='none'>Пересчет</option><option value='html'>HTML</option><option value='pdf'>PDF</option></select>
+		</select></td>
+		<td>Действие:<br><select id='act' onchange="onchange_act(this);"><option value='none'>Пересчет</option><option value='html'>HTML</option><option value='pdf'>PDF</option></select></td>
+		<td><div id="ptp" style="display:none;">Верхний отступ:<br><input type='text' name='pdf_top_padding' value='2' style="width:100px;" /></div></td>
+		<td><br><input type=button value='Поехали' class=button onclick=sendForm();></td>
+	</tr>
+</table>
+	<input type=hidden name=module value=newaccounts>
+	<input type=hidden name=action value=balance_check>
+
+
+
+<!--Полный экран: <input type=checkbox name=fullscreen value='1'>-->
+
+
+
 <input type=hidden name=fullscreen value='0' id="i_fullscreen" />
 <input type=hidden name=is_pdf value='0' id="i_pdf" />
-<input type=button value='Поехали' class=button onclick=sendForm();>
+
 </form>
 <h2>Акт сверки по клиенту {$fixclient_data.client}</h2>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
