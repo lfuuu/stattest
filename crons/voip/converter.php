@@ -336,22 +336,36 @@ function loadRedirectSettings($clientId)
 
 	$ons = $mDB->AllRecords("
 	select
-		number, call_count,
-		if(ifnull((select elem from rr_redirect_on r where r.number_id = n.id and elem = 'redir'),'') != '', 1,0) redir,
-		if(ifnull((select elem from rr_redirect_on r where r.number_id = n.id and elem = 'redirif'),'') != '', 1,0) redirif,
-		if(ifnull((select elem from rr_redirect_on r where r.number_id = n.id and elem = 'linenotavail'),'') != '', 1,0) linenotavail,
-		if(ifnull((select elem from rr_redirect_on r where r.number_id = n.id and elem = 'linebusy'),'') != '', 1,0) linebusy,
-		if(ifnull((select elem from rr_redirect_on r where r.number_id = n.id and elem = 'linenoanswer'),'') != '', 1,0) linenoanswer
+		number, elem as section, is_on, timeout
 	from
 		a_number n
+    LEFT JOIN rr_redirect_on r ON (r.number_id = n.id)
 	where 
-        enabled='yes'".($clientId ? " and client_id =  ".$clientId : ""), "number");
+        n.enabled='yes'".($clientId ? " and n.client_id =  ".$clientId : ""));
+
+    $defaultSection = [
+		'redir' =>        ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
+		'redirif' =>      ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
+		'linenotavail' => ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
+		'linebusy' =>     ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
+		'linenoanswer' => ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT]
+        ];
+
+
+    $number = null;
 
 	foreach($ons as $v)
 	{
-		foreach(array("redir", "redirif", "linenotavail", "linebusy", "linenoanswer") as $section)
+        if ($v["number"] != $number)
+        {
+            $number = $v["number"];
+            $all[$v["number"]] = $defaultSection;
+        }
+
+		if ($v["section"])
 		{
-			$all[$v["number"]][$section]["is_on"] = $v[$section];
+			$all[$v["number"]][$v["section"]]["is_on"] = $v["is_on"] == "yes" ? 1 : 0;
+			$all[$v["number"]][$v["section"]]["timeout"] = $v["timeout"];
 		}
 	}
 	unset($ons);
@@ -816,7 +830,7 @@ function insertNumber(&$peers, &$all, &$inss)
                     "announce"     => _get_anonce($all, $number, $l),
                     "dial_targets" => "",
                     "strategy"     => "rr",
-                    "timeout"      => DEFAULT_TIMEOUT,
+                    "timeout"      => isset($all[$number][$l]["timeout"])? $all[$number][$l]["timeout"] : DEFAULT_TIMEOUT,
                     "client_id"    => $peerInfo["client_id"],
                     "region"       => $peerInfo["region"]
 			);
