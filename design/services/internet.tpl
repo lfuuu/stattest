@@ -16,12 +16,10 @@
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0 style='margin-top:-9px'>
 <TBODY>
 {foreach from=$services_conn item=conn name=outer}
-{if $conn.data.port_type == 'GPON'}
-<TR><TR><TD colspan="4">
-	<a href="{$LINK_START}module=services&action=in_act_pon&id={$conn.data.id}" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Выписать акт'> Выписать акт PON</a>
-	<a href="{$LINK_START}module=services&action=in_act_pon&id={$conn.data.id}&sendmail=1" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Отправить акт'> Отправить акт PON</a>
+
+<TR><TD colspan="4">
 </TD></TR>
-{/if}
+
 <TR bgcolor="{if $conn.data.status=='working'}{if $conn.data.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
 {if isset($show_client)}
 	<TD>Клиент <b><a href='{$LINK_START}module=clients&id={$conn.data.client}'>{$conn.data.client}</a></b></td>
@@ -29,8 +27,8 @@
 	<TD width="1%" nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_ip_ports&id={$conn.data.id}" target="_blank"><b>{$conn.data.id}</b></a>
 						<a href='{$LINK_START}module=stats&action=internet'><img class=icon src='{$IMAGES_PATH}icons/stats.gif' alt='Статистика'></a>
                         {if $conn.data.actual5d}
-						<a href="{$LINK_START}module=services&action=in_act&id={$conn.data.id}" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Выписать акт'></a>
-						<a href="{$LINK_START}module=services&action=in_act&id={$conn.data.id}&sendmail=1" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Отправить акт по почте'></a>
+						<a href="{$LINK_START}module=services&action=in_act{if $conn.data.port_type == 'GPON'}_pon{/if}&id={$conn.data.id}" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Выписать акт'></a>
+						<a href="{$LINK_START}module=services&action=in_act{if $conn.data.port_type == 'GPON'}_pon{/if}&id={$conn.data.id}&sendmail=1" target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif' alt='Отправить акт по почте'></a>
 						{/if}
                         {if ($conn.data.actual)}<a href="{$LINK_START}module=services&action={$actprefix}_close&id={$conn.data.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Отключить"></a>{/if}
 						<a href='index.php?module=tt&clients_client={$conn.data.client}&service=usage_ip_ports&service_id={$conn.data.id}&action=view_type&type_pk=1&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
