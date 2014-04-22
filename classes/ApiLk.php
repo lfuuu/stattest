@@ -738,7 +738,7 @@ class ApiLk
                     voip_numbers v 
                 )a 
             LEFT JOIN clients c ON (c.id = a.client_id) 
-            WHERE if(a.region = 99, number like '74951059%' or a.beauty_level in (1,2), true)
+            WHERE if(a.region = 99, if(number like '7495%', number like '74951059%' or beauty_level in (1,2),true), true)
             HAVING status IN ('free')";
         
         foreach(NewBill::find_by_sql($q/*"
