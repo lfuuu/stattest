@@ -226,7 +226,7 @@ class virtPbx
         return new virtPbxStatus($r["status"], $r["is_started"]);
     }
 
-    public function addNumber($clientId, $number, $direction = "full")
+    public function addNumber($clientId, $number)
     {
         global $db_ats;
 
@@ -247,7 +247,7 @@ class virtPbx
         if (isset($vpbx["numbers"][$numberId]))
             return true;
 
-        return $db_ats->QueryInsert("a_virtpbx_link", array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId, "direction" => $direction));
+        return $db_ats->QueryInsert("a_virtpbx_link", array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId));
     }
 
 
@@ -273,19 +273,6 @@ class virtPbx
             return false;
 
         return $db_ats->QueryDelete("a_virtpbx_link", array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId));
-    }
-
-    public function changeDirection($clientId, $numberId, $newDirection)
-    {
-        global $db_ats;
-        $vpbx = self::getList($clientId);
-
-        if (!$vpbx && !$vpbx["id"])
-        {
-            throw new Exception("VPBX у клиента не нейдана");
-        }
-
-        $db_ats->QueryUpdate("a_virtpbx_link", array("virtpbx_id", "type_id", "type"), array("virtpbx_id" => $vpbx["id"], "type" => "number", "type_id" => $numberId, "direction" => $newDirection));
     }
 
 
@@ -358,7 +345,29 @@ class virtPbx
                 );
     }
 
+    public function startVpbx($clientId)
+    {
+        try{
+            if ($rr = SyncVirtPbx::create($clientId))
+            {
+                self::setStarted($clientId);
+                return true;
+            }
 
+            throw new Exception("VPBX not started", 500);
+        } catch(Exception $e)
+        {
+            $code = $e->getCode();
+
+            if ($code == 547) //Для лицевого счёта 9130 уже существует экземпляр vpbx
+            {
+                self::setStarted($clientId);
+                return true;
+            }
+
+            throw $e;
+        }
+    }
 }
 
 class virtPbxDiff

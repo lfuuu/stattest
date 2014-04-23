@@ -60,9 +60,20 @@ function do_events()
                     case 'password_changed': SyncCore::updateAdminPassword($param);break;
                     case 'admin_changed': SyncCore::adminChanged($param); break;
 
-                    case 'usage_vpbx__insert':
-                    case 'usage_vpbx__update':
-                    case 'usage_vpbx__delete':  SyncCore::checkProductState('vpbx', $param/*id, client*/); break; 
+                    case 'usage_virtpbx__insert':
+                    case 'usage_virtpbx__update':
+                    case 'usage_virtpbx__delete':
+                                                if(SyncCore::checkProductState('vpbx', $param/*id, client*/) == 'added')
+                                                {
+                                                    if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
+                                                    {
+                                                        $client = ClientCard::find("first", array("client" => $param[1]));
+                                                        if ($client)
+                                                        {
+                                                            virtpbx::startVpbx($client->id);
+                                                        }
+                                                    }
+                                                } break; 
 
                     case 'usage_voip__insert':
                     case 'usage_voip__update':

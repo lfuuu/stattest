@@ -121,8 +121,12 @@ class SyncCore
             if ($struct)
             {
                 JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+
+                return 'added';
             }
         }
+
+        return null;
     }
 
     public function adminChanged($clientId)

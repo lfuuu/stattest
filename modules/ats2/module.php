@@ -686,19 +686,17 @@ class m_ats2 extends IModule
         global $design;
 
         $clientId = getClientId();
+
         try{
-            if ($rr = SyncVirtPbx::create($clientId))
-            {
+            virtPbx::startVpbx($clientId);
 
-                virtPbx::setStarted($clientId);
-
-                header("Location: ./?module=ats2");
-                exit();
-            }
+            header("Location: ./?module=ats2");
+            exit();
         } catch(Exception $e)
         {
             $res = $e->getMessage();
             $code = $e->getCode();
+
             $isErrorResult = $isError = true;
 
             $result[] = array("number" => "", "action" => "create", "error" => true, "message" => $res, "code" => $code);
