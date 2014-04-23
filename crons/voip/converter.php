@@ -37,9 +37,6 @@ echo "\n***";
 echo date("r")." clientId: ".$clientId;
 
 
-$path_to_anonce = "/tmp/";
-
-
 $mDB = $db_ats;
 
 $db = new MySQLDatabase('localhost', 'root', '', 'nispd_test_ats2');
@@ -448,16 +445,17 @@ function loadRedirectSettings($clientId)
 
     foreach($mDB->AllRecords("
                 select 
-                    number, section, is_on, anonce_id
+                    number, section, is_on, file_name
                 from
-                    rr_anonce a, a_number n
+                    rr_anonce a, a_number n, anonce an
                 where 
                         n.id = a.number_id
+                    and an.id = a.anonce_id
                     and is_on = 'yes'
 	            ".($clientId ? " and a.client_id = ".$clientId : "")."
                     ") as $v)
     {
-        $all[$v["number"]]["anonse"][$v["section"]] = $v["anonce_id"];
+        $all[$v["number"]]["anonse"][$v["section"]] = $v["file_name"];
     }
 
 	return $all;
@@ -886,14 +884,12 @@ function _is_on($all, $number, $section)
 
 function _get_anonce(&$all, $number, $section)
 {
-    global $path_to_anonce;
-
     if ($section == "redir") $section = "redirect";
     if ($section == "redirif") $section = "redirectif";
 
     if (isset($all[$number]) && isset($all[$number]["anonse"]) && isset($all[$number]["anonse"][$section]))
     {
-        return $path_to_anonce.$all[$number]["anonse"][$section];
+        return $all[$number]["anonse"][$section];
     }
 
     return "";
