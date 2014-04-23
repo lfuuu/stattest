@@ -34,7 +34,7 @@ class ApiVpbx
         return  $data;
     }
 
-    public static function addDid($clientId, $phone, $direction = "full")
+    public static function addDid($clientId, $phone)
     {
         // check cleint && exists phone number
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
@@ -69,7 +69,7 @@ class ApiVpbx
 
         if (isset($r["success"]) || $isPass)
         {
-            virtPbx::addNumber($clientId, $phone, $direction);
+            virtPbx::addNumber($clientId, $phone);
 
             return "ok";
         } else {

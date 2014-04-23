@@ -29,6 +29,8 @@ class JSONQuery
         { 
             trigger_error(curl_error($ch)); 
         } 
+
+        self::log("answer: ", $result);
         
         $info = curl_getinfo($ch);
         curl_close($ch); 
@@ -52,7 +54,12 @@ class JSONQuery
 
         if (isset($result["errors"]))
         {
-            throw new Exception(Encoding::toKoi8r($result["errors"][0]["message"]), $result["errors"][0]["code"]);
+            $msg = "";
+            if ( ! isset($result['errors'][0]["message"]) && isset($result['errors'][0]))
+            {
+                $msg = "Текст ошибки не найден! <br>".var_export($result['errors'][0], true);
+            }
+            throw new Exception(Encoding::toKoi8r($msg ?: $result["errors"][0]["message"]), $result["errors"][0]["code"]);
         }
 
         return $result;

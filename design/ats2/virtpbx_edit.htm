@@ -24,7 +24,11 @@
     <td align=left>
 
 
-    <input type=button value="Сохранить" name="apply" onClick="{literal}if(prepareMTN()) {getE('save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+    <input type=button value="Сохранить" name="apply" onclick="{literal}
+        if( $('#send_members_numbers').length == 0 || ($('#send_members_numbers').length && prepareData('numbers'))) 
+             
+    {
+        getE('save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
 
 
     </td><td>

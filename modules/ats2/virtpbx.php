@@ -48,27 +48,22 @@ class aVirtPbx
                     exit();
                 } else { // same error
 
+                    /*
                     $virtpbx = virtpbx::getList();
                     $l = array(
                             "numbers"  => implode(",", array_keys($virtpbx["numbers"]))
                             );
 
                     $formConstructor->make($l);
-                    //$formConstructor->make($gData);
+                    */
+                    $formConstructor->make($gData);
 
                     $design->assign("error_full", $result);
                     $design->AddMain("ats2/virtpbx_error_save.htm");
                 }
             }
         } else {
-            $ll = array();
-            foreach($virtpbx["numbers"] as $n)
-            {
-                $ll[] = $n["id"]."=".$n["direction"];
-            }
-            $l = array(
-                    "numbers"  => implode(",", $ll)
-                    );
+            $l = array("numbers" => implode(",", array_keys($virtpbx["numbers"])));
             $formConstructor->make($l);
         }
 
@@ -124,10 +119,9 @@ class aVirtPbx
 
         if ($data["numbers"])
         {
-            foreach(explode(",", $data["numbers"]) as $fNumber)
+            foreach(explode(",", $data["numbers"]) as $numberId)
             {
-                list($numberId, $direction) = explode("=", $fNumber);
-                $getNumbers[$numberId] = $direction;
+                $getNumbers[$numberId] = 1;
             }
         }
 
@@ -135,7 +129,7 @@ class aVirtPbx
         $savedNumbers = array();
         foreach($vpbx["numbers"] as $numberId => $oNumber)
         {
-            $savedNumbers[$numberId] = $oNumber["direction"];
+            $savedNumbers[$numberId] = 1;
         }
 
 
@@ -162,11 +156,11 @@ class aVirtPbx
 
                 if (!$vpbx["is_started"])
                 {
-                    virtPbx::addNumber($clientId, $number, $getNumbers[$numberId]);
+                    virtPbx::addNumber($clientId, $number);
                 } else {
 
                     try{
-                        $res = ApiVpbx::addDid($clientId, $number, $getNumbers[$numberId]);
+                        $res = ApiVpbx::addDid($clientId, $number);
                     }catch(Exception $e)
                     {
                         $res = $e->getMessage();
@@ -207,18 +201,7 @@ class aVirtPbx
             }                
         }
 
-        //need change direction
-        $isChangedDirection = false;
-        foreach($getNumbers as $numberId => $direction)
-        {
-            if (isset($savedNumbers[$numberId]) && $savedNumbers[$numberId] != $direction) 
-            {
-                virtPbx::changeDirection($clientId, $numberId, $direction);
-                $isChangedDirection = true;
-            }
-        }
-
-        if ($add || $del || $isChangedDirection) //is need client sync schema
+        if ($add || $del) //is need client sync schema
         {
             ats2sync::updateClient($clientId);
         }
@@ -248,18 +231,10 @@ class aVirtPbx
 
         $map["numbers"] = array(
                 "title" => "Номера",
-                "type" => "multitrunk_numbers",
+                "type" => "sort_list",
                 "data_all" => $sqlNumbers
                 );
 
-
-        $design->assign("direction", array(
-                    "full" => "Full",
-                    "russia" => "Russia",
-                    "mskmob" => "MskMob",
-                    "msk" => "Msk"
-                    )
-                );
 
         return $map;
     }
