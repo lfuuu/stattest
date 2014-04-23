@@ -49,7 +49,7 @@ class MTLink
             }else{
                 $this->apply($gData);
 
-                $this->setUpdateClientsByLink($id);
+                $this->setUpdateClientsByMultitrunkId($gData["multitrunk_id"]);
 
                 ats2mt::updatePoolCount($id);
 
@@ -130,21 +130,14 @@ class MTLink
         checker::isEmpty($data["numbers_mt"], "Номера не заданы!");
     }
 
-    private function setUpdateClientsByLink($id)
+    private function setUpdateClientsByMultitrunkId($id)
     {
         global $db_ats;
 
-        $r = $db_ats->GetRow(
-                "select client_id, 
-                    (select client_id from a_multitrunk m1 where m1.id=m.parent_id) as trunk_client_id
-                from a_multitrunk m 
-                where id = '".$id."' and parent_id != 0");
-
-        ats2sync::updateClient($r["client_id"]);
-
-        if($r["client_id"] != $r["trunk_client_id"])
-            ats2sync::updateClient($r["trunk_client_id"]);
-
+        foreach($db_ats->AllRecords("SELECT distinct client_id FROM `a_multitrunk` where ".$id." in (id, parent_id)") as $r)
+        {
+            ats2sync::updateClient($r["client_id"]);
+        }
     }
 
 }
