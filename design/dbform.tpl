@@ -30,6 +30,7 @@
         {if $region eq '99'}
             <option value='7499685'>7(499) 685</option>
             <option value='7499213'>7(499) 213</option>
+            <option value='7495105'>7(495) 105</option>
             <option value='7495'>7(495)</option>
         {elseif $region eq '97'}
             <option value='7861204'>7(861) 204</option>
