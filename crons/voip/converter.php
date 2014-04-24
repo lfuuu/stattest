@@ -481,7 +481,7 @@ function loadSIPLines($clientId)
 						and l.client_id = n.client_id
 						and is_group = 0
 						and n.enabled ='yes'
-					order by k.number_id, k.id
+					order by k.number_id, l.priority, k.id
 
 		", "id"); // id = a_connect.id
 
