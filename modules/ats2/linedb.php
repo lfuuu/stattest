@@ -30,9 +30,12 @@ class lineDB
         unset($d["subaccount_count"]);
 
         $line = array();
-        foreach(array("parent_id", "account", "serial", "sequence", "is_group", "client_id") as $l)
+        foreach(array("parent_id", "account", "serial", "sequence", "is_group", "client_id", "priority", "format") as $l)
         {
-            $line[$l] = $d[$l];
+            if (isset($d[$l]))
+            {
+                $line[$l] = $d[$l];
+            }
             unset($d[$l]);
         }
 

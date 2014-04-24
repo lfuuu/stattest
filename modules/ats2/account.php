@@ -16,7 +16,6 @@ class account
                     "subaccount_count" => 0,
                     "account" => $newAcc["account"],
                     "serial" => $newAcc["serial"],
-                    "format" => "ats2",
                     "password" => "********",
                     "parent_id" => "0",
                     "sequence" => "0",

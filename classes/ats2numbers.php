@@ -48,7 +48,7 @@ class ats2NumbersChecker
             usage_voip u, clients c
         WHERE 
             (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
-            and u.client = c.client and ((c.status in ('work','connecting','testing')) or c.id = 9130)
+            and u.client = c.client and ((c.status in ('work','connecting','testing')) or c.id = 9130) and LENGTH(e164) >= 3
             /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
 
     private static $sqlNumber=
@@ -168,12 +168,12 @@ class ats2Numbers
         ats2NumbersChecker::check();
     }
 
-    public function autocreateAccounts($usageId)
+    public function autocreateAccounts($usageId, $isTrunk)
     {
-        ats2Helper::autocreateAccounts($usageId);
+        ats2Helper::autocreateAccounts($usageId, $isTrunk);
     }
 
-    public function getNumberId($l, $clientId = null)
+    public function getNumberId($l, $clientId = null, $isFromCache = true)
     {
         l::ll(__CLASS__,__FUNCTION__, $l, $clientId);
         global $db_ats;
@@ -188,7 +188,7 @@ class ats2Numbers
 
         static $c = array();
         $key = $clientId."--".$number;
-        if(!isset($c[$key]))
+        if(!$isFromCache || !isset($c[$key]))
         {
             $c[$key] = $db_ats->getValue("select id from a_number 
                     where number = '".$number."' 
@@ -527,7 +527,7 @@ class ats2NumberAction
 
 class ats2Helper
 {
-    public function autocreateAccounts($usageId)
+    public function autocreateAccounts($usageId, $isTrunk)
     {
         global $db, $db_ats;
 
@@ -550,7 +550,11 @@ class ats2Helper
             if ($count > 0) {
                 sleep(1);
             }
-            $numberId = ats2Numbers::getNumberId($usage["E164"], $clientId);
+
+            echo "\n---";
+            print_r($usage);
+            echo "\n--".$clientId."--";
+            $numberId = ats2Numbers::getNumberId($usage["E164"], $clientId, false);
         } while($count++ < 10 && !$numberId); // expect to create number
 
         if (!$numberId) {
@@ -560,7 +564,7 @@ class ats2Helper
         $currentCountAccounts = ats2Numbers::getLinkCount($numberId);
 
         //group line id
-        if (!$currentCountAccounts)
+        if ($isTrunk || !$currentCountAccounts) //для транка всегда новая группа 
         {
             // create group account
             $line = account::get();
@@ -577,7 +581,7 @@ class ats2Helper
         }
 
         //is need add accounts
-        if ($currentCountAccounts < $usage["no_of_lines"])
+        if ($isTrunk || $currentCountAccounts < $usage["no_of_lines"]) // для транка только 1 линия
         {
             $line = account::get($lineId);
 
@@ -585,13 +589,12 @@ class ats2Helper
                 throw new Exception("Акакунт не найден");
             }
 
-            foreach(account::change_subaccount($line, $usage["no_of_lines"]) as $lineId)
+            foreach(account::change_subaccount($line, $isTrunk ? 1 : $usage["no_of_lines"]) as $lineId)
             {
                 $db_ats->QueryInsert("a_link", array(
                             "c_type" => "line",
                             "c_id" => $lineId,
-                            "number_id" => $numberId,
-                            "direction" => "full"
+                            "number_id" => $numberId
                             )
                         );
             }

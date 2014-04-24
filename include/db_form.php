@@ -446,8 +446,8 @@ class DbFormUsageVoip extends DbForm {
                         );
                 }
 
-                if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
-                    event::go("autocreate_accounts", $this->data["id"]);
+                if ($v == "add" && defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
+                    event::go("autocreate_accounts", $this->data["id"]."|".get_param_raw("createsiplink_as_trunk",0));
                 }
 
             }else{
