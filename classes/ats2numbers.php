@@ -287,7 +287,13 @@ class ats2Numbers
         return $db_ats->GetValue("select parent_id from a_line where id = '".$firstLineId."'");
     }
 
+    public function getLastGroupId($clientId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $clientId);
+        global $db_ats;
 
+        return $db_ats->GetValue("select id from a_line where is_group=1 and client_id = '".$clientId."' order by id desc limit 1");
+    }
 
 
     public function delFull($l)
@@ -551,9 +557,6 @@ class ats2Helper
                 sleep(1);
             }
 
-            echo "\n---";
-            print_r($usage);
-            echo "\n--".$clientId."--";
             $numberId = ats2Numbers::getNumberId($usage["E164"], $clientId, false);
         } while($count++ < 10 && !$numberId); // expect to create number
 
@@ -561,19 +564,27 @@ class ats2Helper
             throw new Exception("Номер не найден");
         }
 
+
         $currentCountAccounts = ats2Numbers::getLinkCount($numberId);
 
-        //group line id
-        if ($isTrunk || !$currentCountAccounts) //для транка всегда новая группа 
+        $needLines = $isTrunk ? 1 : $usage["no_of_lines"];
+
+        //exract group line id
+        if ($currentCountAccounts)
         {
-            // create group account
-            $line = account::get();
-            $line["client_id"] = $clientId;
-            $lineId = lineDB::insert($line);
+            $lineId = ats2Numbers::getGroupLinkId($numberId); //получаем группу по номеру
+        } else {
+            $lineId = ats2Numbers::getLastGroupId($clientId); //последная группа у клиента
+
+            if (!$lineId)
+            {
+                // create group account
+                $line = account::get();
+                $line["client_id"] = $clientId;
+                $lineId = lineDB::insert($line);
+            }
 
             $currentCountAccounts = 0;
-        } else {
-            $lineId = ats2Numbers::getGroupLinkId($numberId);
         }
 
         if (!$lineId) {
@@ -581,7 +592,7 @@ class ats2Helper
         }
 
         //is need add accounts
-        if ($isTrunk || $currentCountAccounts < $usage["no_of_lines"]) // для транка только 1 линия
+        if ($currentCountAccounts < $needLines)
         {
             $line = account::get($lineId);
 
@@ -589,7 +600,9 @@ class ats2Helper
                 throw new Exception("Акакунт не найден");
             }
 
-            foreach(account::change_subaccount($line, $isTrunk ? 1 : $usage["no_of_lines"]) as $lineId)
+            $from = count(account::getSubaccounts($line["id"]));
+
+            foreach(account::change_subaccount($line, $from+($needLines-$currentCountAccounts)) as $lineId) //всегда для привязки создаем новые подключения
             {
                 $db_ats->QueryInsert("a_link", array(
                             "c_type" => "line",

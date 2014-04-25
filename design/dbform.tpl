@@ -46,7 +46,6 @@
             <option value='7863309'>7(863) 309</option>
         {/if}
 	</select>
-{if !$dbform_data.id.value}&nbsp;&nbsp;&nbsp;<small>Подключить как транк: <input type='checkbox' name='createsiplink_as_trunk' value=1></small>{/if}
 {/if}
 {if $key == "actual_from" || $key == "actual_to"}
     <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("Y-m-d");{/php}"'>
