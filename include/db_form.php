@@ -339,11 +339,12 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>'2029-01-01');
         $this->fields['actual_to']=array('default'=>'2029-01-01');
-        $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['E164']=array();
         $this->fields['no_of_lines']=array('default'=>1);
         $this->fields['allowed_direction']=array('assoc_enum' => $directions, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
+        $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
+        $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
 
@@ -382,6 +383,7 @@ class DbFormUsageVoip extends DbForm {
         if($this->dbform['is_trunk'] == '0' && !$this->check_number()) return;
 
         $this->dbform['edit_user_id'] = $user->Get('id');
+        $current = $db->GetRow("select * from usage_voip where id = '".$this->dbform["id"]."'");
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
             $b = 1;
@@ -446,8 +448,29 @@ class DbFormUsageVoip extends DbForm {
                         );
                 }
 
-                if ($v == "add" && defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
-                    event::go("autocreate_accounts", $this->data["id"]."|".get_param_raw("createsiplink_as_trunk",0));
+                if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
+                    
+                    $toAutoCreate = false;
+
+                    if ($v == "add")
+                    {
+                        $toAutoCreate = true;
+                    } elseif ($v == "edit")
+                    {
+                        foreach(array("actual_from", "actual_to", "one_sip", "no_of_lines", ) as $field)
+                        {
+                            if ($this->dbform[$field] != $current[$field])
+                            {
+                                $toAutoCreate = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($toAutoCreate)
+                    {
+                        event::go("autocreate_accounts", $this->data["id"]."|".$this->data["one_sip"]);
+                    }
                 }
 
             }else{
@@ -1782,13 +1805,14 @@ $GLOBALS['translate_arr']=array(
     '*.model'                => 'модель',
     '*.serial'                => 'серийный номер',
     '*.location'            => 'местоположение',
-    '*.E164'                => 'номер телефона',
+    'usage_voip.E164'                => 'номер телефона',
     '*.ClientIPAddress'        => 'IP-адрес',
     '*.enabled'                => 'включено',
     '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
-    '*.is_trunk'              => 'Транк',
-    '*.allowed_direction'      => 'Разрешенные направления',
+    'usage_voip.is_trunk'              => 'Транк',
+    'usage_voip.one_sip'              => 'Одна SIP-учетка',
+    'usage_voip.allowed_direction'      => 'Разрешенные направления',
         
     'emails.local_part'        => 'почтовый ящик',
     'emails.box_size'        => 'занято, Kb',
