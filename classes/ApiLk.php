@@ -415,7 +415,7 @@ class ApiLk
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
-            $line['price'] = (double)round($line['price']*1.18);
+            //$line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
     
@@ -655,7 +655,7 @@ class ApiLk
             ", array($currency, $status)) as $service)
         {
             $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_mb", "is_record", "is_fax"), $service);
-            $line['price'] = (double)round($line['price']*1.18);
+            //$line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
         return $ret;
