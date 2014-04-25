@@ -8,22 +8,21 @@ include PATH_TO_ROOT."conf.php";
 
 
 
-$region = 99;
-$prefix = "74951059";
+$region = 95;
+$prefix = "7343302";
 
 $whereSql = "region = '".$region."' and number like '".$prefix."%'";
 
 
-$db->Query("delete from voip_numbers where ".$whereSql);
+//$db->Query("delete from voip_numbers where ".$whereSql);
 
 $sql = "";
-for($i=0;$i<1000;$i++)
+for($i=500;$i<=2999;$i++)
 {
     $num = $prefix.str_pad($i, 11-strlen($prefix), "0", STR_PAD_LEFT); 
     echo "\n".$num;
     $sql .= ($sql ? "," : "").'("'.$num.'",'.$region.')';
 }
-
 
 $db->Query('insert into voip_numbers(number,region) values'.$sql);
 
@@ -33,8 +32,8 @@ work();
 $db->Query("update `voip_numbers` set price = null where ".$whereSql." and beauty_level = 1");
 $db->Query("update `voip_numbers` set price = 29999 where ".$whereSql." and beauty_level = 2");
 $db->Query("update `voip_numbers` set price = 12999 where ".$whereSql." and beauty_level = 3");
-$db->Query("update `voip_numbers` set price = 3999 where ".$whereSql." and beauty_level = 4");
-$db->Query("update `voip_numbers` set price = 0 where ".$whereSql." and beauty_level = 0");
+$db->Query("update `voip_numbers` set price = 0 where ".$whereSql." and beauty_level = 4"); //3999
+$db->Query("update `voip_numbers` set price = 0 where ".$whereSql." and beauty_level = 0"); //999
 
 
 exit();

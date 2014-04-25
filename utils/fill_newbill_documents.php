@@ -21,6 +21,7 @@ foreach ($bills as $bill_no) {
         $Bill->updateBill2Doctypes(null, false);
         $new_cnt++;
     }
+    unset($Bill);
 }
 
 print "\nAll - " . $all_cnt . '; New - ' . $new_cnt . "\n";
