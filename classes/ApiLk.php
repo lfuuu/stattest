@@ -684,8 +684,9 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($isSimple = false)
+    public static function getFreeNumbers($region_id = 0, $isSimple = false)
     {
+        $valid_regions = array('87','88','94','95','96','97','98','99');
         $ret = array();
 
         $q = "SELECT 
@@ -736,6 +737,7 @@ class ApiLk
                     ) AS date_reserved 
                 FROM 
                     voip_numbers v 
+                ".(($region_id > 0 && in_array($region_id, $valid_regions)) ? ' WHERE region=' . $region_id : '')."
                 )a 
             LEFT JOIN clients c ON (c.id = a.client_id) 
             WHERE if(a.region = 99, if(number like '7495%', number like '74951059%' or beauty_level in (1,2),true), true)
@@ -780,6 +782,7 @@ class ApiLk
             $number = $line["number"];
             $line['number'] = substr($line['number'],4,($l-8)).'-'.substr($line['number'],($l-4),2).'-'.substr($line['number'],($l-2),2);
             if ($line['price'] == '') $line['price_add'] = 'Договорная';
+            else $line['price_add'] = 'руб.';
             $ret[] = $isSimple ? $number : $line;
         }
         return $ret;
@@ -806,7 +809,7 @@ class ApiLk
         global $db;
         //return array('status'=>'error','message'=>'Ошибка добавления заявки. Свяжитесь с менеджером.');
 
-        $freeNumbers = self::getFreeNumbers(true);
+        $freeNumbers = self::getFreeNumbers(0, true);
         if (array_search($number, $freeNumbers) === false)
             return array('status'=>'error','message'=>'Номер не свободен!');
     
