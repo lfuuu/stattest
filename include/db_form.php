@@ -128,7 +128,6 @@ class DbForm {
                     {
                         $this->dbform["t_fields_changes"] = $sDiff;
                     }
-
                     $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
                     $p='edit';
                     trigger_error('Запись обновлена');
@@ -197,7 +196,81 @@ class HelpDbForm {
                                         intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).','.intval($minpayment_sng).
                                     ')');
         
-    }    
+    }
+    public static function saveChangeHistory($cur = array(), $new = array(), $usage_name = '') 
+    {
+        global $user, $db;
+
+        if (!$cur || count($cur) == 0 || count($new) == 0 || !strlen($usage_name))
+            return;
+
+        $fields = array();
+        foreach ($cur as $k=>$v) {
+            if (isset($new[$k]) && $new[$k] != $v) {
+                $fields[$k] = array('value_from'=>$v, 'value_to'=>$new[$k]);
+            }
+        }
+        if (!count($fields)) return;
+
+        $post = array(
+            'service'=>$usage_name,
+            'service_id'=>$cur['id'],
+            'user_id'=>$user->Get('id')
+        );
+        $log_usage_history_id = $db->QueryInsert('log_usage_history', $post);
+        if ($log_usage_history_id) {
+            foreach ($fields as $fld=>$v) {
+                $post = array(
+                                'log_usage_history_id'=>$log_usage_history_id,
+                                'field'=>$fld,
+                                'value_from'=>$v['value_from'],
+                                'value_to'=>$v['value_to']
+                );
+                $db->QueryInsert('log_usage_history_fields', $post);
+            }
+        }
+    }
+    public static function assign_log_history($service, $id) {
+        global $design, $db;
+        $all = $db->AllRecords('
+                SELECT 
+                    l.*, u.user 
+                FROM 
+                    log_usage_history l 
+                LEFT JOIN user_users u ON u.id=l.user_id 
+                WHERE 
+                    service="'.$service.'" AND service_id='.$id
+                );
+        foreach ($all as $k=>$v) {
+            foreach($db->AllRecords("SELECT * FROM log_usage_history_fields WHERE log_usage_history_id = '".$v["id"]."'") as $f) {
+                $f["name"] = HelpDbForm::_log_history__getFieldName($f["field"]);
+                $all[$k]['fields'][] = $f;
+            }
+        }
+        $design->assign('dbform_log_usage_history', $all);
+    }
+    public static function _log_history__getFieldName($fld = '') 
+    {
+        $names = array(
+            'address'=>'адрес',
+            'no_of_lines'=>'число линий',
+            'allowed_direction'=>'Разрешенные направления',
+            'region'=>'Регион',
+            'actual_from'=>'активна с',
+            'actual_to'=>'активна до',
+            'E164'=>'номер телефона',
+            'status'=>'состояние',
+            'is_trunk'=>'Транк',
+            'one_sip'=>'Одна SIP-учетка',
+            'param_value'=>'param_value',
+            'comment'=>'комментарий',
+            'ip'=>'ip',
+            'router'=>'роутер',
+            'amount'=>'количество',
+            'server_pbx_id'=>'Сервер АТС',
+        );
+        return isset($names[$fld]) ? $names[$fld] : $fld;
+    }
 }
 
 class DbFormUsageIpPorts extends DbForm{
@@ -361,6 +434,7 @@ class DbFormUsageVoip extends DbForm {
             HelpDbForm::assign_tarif('usage_voip2',$this->data['id'],'2');
             HelpDbForm::assign_block('usage_voip',$this->data['id']);
             HelpDbForm::assign_tt('usage_voip',$this->data['id'],$this->data['client']);
+            HelpDbForm::assign_log_history('usage_voip',$this->data['id']);
             $region = $this->data['region'];
         }else{
             $region = $this->fields['region']['default'];
@@ -384,6 +458,7 @@ class DbFormUsageVoip extends DbForm {
 
         $this->dbform['edit_user_id'] = $user->Get('id');
         $current = $db->GetRow("select * from usage_voip where id = '".$this->dbform["id"]."'");
+        HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_voip');
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
             $b = 1;
@@ -756,6 +831,7 @@ class DbFormUsageIpRoutes extends DbForm{
                     and
                         id!="'.addslashes($this->dbform['id']).'"')
         );
+
         if ($v) {$this->dbform['net']=''; trigger_error('Сеть уже занята');}
         $action=DbForm::Process($p);
 
@@ -800,6 +876,7 @@ class DbFormUsageExtra extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
+            HelpDbForm::assign_log_history('usage_extra',$this->data['id']);
 
             $db->Query('select id,description,price,currency from tarifs_extra where 1 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').'and id='.$this->data['tarif_id']);
             $r=$db->NextRecord();
@@ -854,6 +931,10 @@ class DbFormUsageExtra extends DbForm{
         global $db,$user;
         $this->Get();
         if (!isset($this->dbform['id'])) return '';
+
+        $current = $db->GetRow("select * from usage_extra where id = '".$this->dbform["id"]."'");
+        HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_extra');
+
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
@@ -972,7 +1053,8 @@ class DbFormUsageWelltime extends DbForm{
             $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_welltime',$this->data['id']);
-            HelpDbForm::assign_tt('usage_willtime',$this->data['id'],$this->data['client']);
+            HelpDbForm::assign_tt('usage_welltime',$this->data['id'],$this->data['client']);
+            HelpDbForm::assign_log_history('usage_welltime',$this->data['id']);
 
             $db->Query('
                 select
@@ -1021,6 +1103,10 @@ class DbFormUsageWelltime extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+        $current = $db->GetRow("select * from usage_welltime where id = '".$this->dbform["id"]."'");
+        HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_welltime');
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
@@ -1057,6 +1143,7 @@ class DbFormUsageVirtpbx extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);
+            HelpDbForm::assign_log_history('usage_virtpbx',$this->data['id']);
 
             $db->Query('
                 select
@@ -1103,6 +1190,9 @@ class DbFormUsageVirtpbx extends DbForm{
 
 
         if(!$this->check_virtats()) return;
+
+        $current = $db->GetRow("select * from usage_virtpbx where id = '".$this->dbform["id"]."'");
+        HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_virtpbx');
 
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
@@ -1241,6 +1331,7 @@ class DbFormUsageSms extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_sms',$this->data['id']);
             HelpDbForm::assign_tt('usage_sms',$this->data['id'],$this->data['client']);
+            HelpDbForm::assign_log_history('usage_sms',$this->data['id']);
 
             $db->Query('
                 select
@@ -1284,6 +1375,10 @@ class DbFormUsageSms extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+        $current = $db->GetRow("select * from usage_sms where id = '".$this->dbform["id"]."'");
+        HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_sms');
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
 
