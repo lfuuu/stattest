@@ -24,7 +24,7 @@ class NewBill extends ActiveRecord\Model
             $b = NewBill::find('first', array(
                         "conditions" => array("client_id = ? and is_payed = ?", $clientId, $payStatus), // 0 - not paid, 1 - fully paid, 2 - partly paid
                         "limit" => 1,
-                        "order" => "bill_date desc"
+                        "order" => "bill_date"
                         )
                     );
             if ($b)

@@ -665,6 +665,14 @@ class m_tt extends IModule{
 
         $trouble["problem"] = html_entity_decode($trouble["problem"], ENT_QUOTES, 'KOI8-R');
 
+        //printdbg($trouble);
+
+        if($trouble["bill_no"] && isset($_GET["module"]) && $_GET["module"] != "newaccounts" && preg_match("/\d{6}(\/|-)\d{4}/", $trouble["bill_no"]))
+        {
+            header("Location: ./?module=newaccounts&action=bill_view&bill=".urlencode($trouble["bill_no"]));
+            exit();
+        }
+
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
 
