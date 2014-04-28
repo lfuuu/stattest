@@ -8,7 +8,7 @@
         <option value="xls_networks">Сети операторов (Полный)</option>
         {elseif $pricelist.type == 'network_prices'}
         <option value="xls_networks">Местные цены (Полный)</option>
-		{elseif $pricelist.operator_id == '2'}
+		{elseif $pricelist.operator_id == '2' || $pricelist.operator_id == '46'}
         <option value="xls_beeline_changes">Формат Билайн (Изменения)</option>
 		<option value="xls_beeline_full1">Формат Билайн (Полный 1)</option>
 		<option value="xls_beeline_full2">Формат Билайн (Полный 2)</option>
