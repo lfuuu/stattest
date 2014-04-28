@@ -737,11 +737,11 @@ class m_services extends IModule{
         $regs = array();
         if($phone && isset($nns[$phone]))
         {
-            $regs = $this->getSIPregs($c["client"], $nns[$phone], $phone);
+            $regs = $this->getSIPregs($c, $nns[$phone], $phone);
         }else{
             foreach($nrs as $region => $ns)
             {
-                $reg = $this->getSIPregs($c["client"], $region, $phone);
+                $reg = $this->getSIPregs($c, $region, $phone);
                 $regs = array_merge($regs, $reg);
             }
         }
@@ -751,7 +751,7 @@ class m_services extends IModule{
         $design->AddMain('services/voip_permit.tpl'); 
     }
 
-    private function getSIPregs($client, $region, $phone = "")
+    private function getSIPregs($cl, $region, $phone = "")
     {
         $schema = "";
         $needRegion = false;
@@ -810,7 +810,7 @@ class m_services extends IModule{
                     INNER JOIN sipregs b ON a.name = b.name
                     LEFT JOIN numbers n ON n.number::varchar = a.callerid
                     WHERE 
-                    client='".$client."' ".($needRegion ? "and a.region ='".$region."'" : "")."
+                    a.client_id='".$cl["id"]."' ".($needRegion ? "and a.region ='".$region."'" : "")."
                     ORDER BY 
                     callerid, name");
         }else{
@@ -829,7 +829,7 @@ class m_services extends IModule{
                     FROM 
                     sip_users 
                     WHERE 
-                    ".($phone ? "callerid='".$phone."' or callerid='74959505680*".$phone."'" : "client='".$client."'")." 
+                    ".($phone ? "callerid='".$phone."' or callerid='74959505680*".$phone."'" : "client='".$cl["client"]."'")." 
                     ORDER BY 
                     name, callerid");
         }
