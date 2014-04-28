@@ -39,11 +39,7 @@ echo date("r")." clientId: ".$clientId;
 
 $mDB = $db_ats;
 
-$db = new MySQLDatabase('localhost', 'root', '', 'nispd_test_ats2');
-
-
-//$pDB = new PgSQLDatabase('localhost','pgadmin','pgadmin', 'ats2');
-$pDB = new PgSQLDatabase('10.252.12.204','statconv','statconv', 'voipdb');
+$pDB = new PgSQLDatabase('eridanus.mcn.ru','statconv','hdfy300VGnaSdsa2', 'voipdb');
 $pDB->Connect() or die("PgSQLDatabase not connected");
 
 define("PG_SCHEMA", "astschema");
@@ -100,6 +96,16 @@ $pDB->Query("start transaction");
 
 
 $pDB->Query("commit");
+
+$dependedClientId = getVpbxTrunkClientHolder($clientId);
+
+if ($dependedClientId)
+{
+    echo "\nupdate client: ".$dependedClientId;
+    ats2sync::updateClient($dependedClientId);
+}
+
+
 
 
 
@@ -340,13 +346,13 @@ function loadRedirectSettings($clientId)
 	where 
         n.enabled='yes'".($clientId ? " and n.client_id =  ".$clientId : ""));
 
-    $defaultSection = [
-		'redir' =>        ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
-		'redirif' =>      ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
-		'linenotavail' => ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
-		'linebusy' =>     ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT],
-		'linenoanswer' => ["is_on" => 0, "timeout" => DEFAULT_TIMEOUT]
-        ];
+    $defaultSection = array(
+		'redir' =>        array("is_on" => 0, "timeout" => DEFAULT_TIMEOUT),
+		'redirif' =>      array("is_on" => 0, "timeout" => DEFAULT_TIMEOUT),
+		'linenotavail' => array("is_on" => 0, "timeout" => DEFAULT_TIMEOUT),
+		'linebusy' =>     array("is_on" => 0, "timeout" => DEFAULT_TIMEOUT),
+		'linenoanswer' => array("is_on" => 0, "timeout" => DEFAULT_TIMEOUT)
+        );
 
 
     $number = null;
@@ -657,6 +663,34 @@ function getVpbxTrunkNumbers($trunkId)
     }
 
     return $numbers;
+}
+
+function getVpbxTrunkClientHolder($clientId)
+{
+    global $mDB, $db;
+    // is vpbx enabled
+    if ($mDB->GetValue("select id from a_virtpbx where client_id = '".$clientId."'"))
+    {
+        $vpbxTrunkId = $db->GetValue(
+        "select 
+            trunk_vpbx_id 
+        from 
+            server_pbx s, 
+            usage_virtpbx uv, 
+            clients c 
+        where 
+                c.id = '".$clientId."' 
+            and uv.server_pbx_id=s.id 
+            and c.client=uv.client 
+            and cast(now() as date) between actual_from and actual_to");
+
+        if ($vpbxTrunkId)
+        {
+            $vpbxTrunkClientId = $mDB->GetValue("select client_id from a_multitrunk where id = '".$vpbxTrunkId."'");
+
+            return $vpbxTrunkClientId;
+        }
+    }
 }
 
 
