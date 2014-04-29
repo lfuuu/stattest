@@ -919,7 +919,7 @@ class m_services extends IModule{
         $phone = get_param_protected("phone", "");
         $id = $fixclient;
 
-        global $design, $db, $user;
+        global $design, $db, $db_ats, $user;
 
         $isSent = false;
         $error = false;
@@ -927,7 +927,12 @@ class m_services extends IModule{
 
         $design->assign("log", $db->AllRecords("select * from log_send_voip_settings where client='".$fixclient."' order by id desc limit 30"));
 
-        $e164s = voipRegion::getClientE164s($c["client"]);
+        //$e164s = voipRegion::getClientE164s($c["client"]);
+
+        foreach($db_ats->AllRecords("select number from a_number where client_id = '".$c["id"]."' and enabled='yes'") as $l)
+        {
+            $e164s[$l["number"]] = $l["number"];
+        }
 
         foreach($db->AllRecords("SELECT data as email 
                     FROM `client_contacts` cc, clients c 
@@ -954,7 +959,7 @@ class m_services extends IModule{
                     if(!isset($emails[$_email]))
                         throw new Exception("Не выбраны номера или email'ы");
 
-                $msg = voipRegion::getEmailMsg($c["client"], $_e164s);
+                $msg = voipRegion::getEmailMsg($c["id"], $_e164s);
 
                 if(!$msg)
                     throw new Exception("Информация не найдена!");
@@ -977,7 +982,7 @@ class m_services extends IModule{
                         );
 
                 mail(trim($_email), "[MCN] Настройки SIP", $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
-                //mail("dga@mcn.ru", "[MCN] Настройки SIP - ".$_email, $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
+                //mail("adima123@yandex.ru", "[MCN] Настройки SIP - ".$_email, $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
             }
         }
 
@@ -3047,7 +3052,7 @@ class voipRegion
         return $rs;
     }
 
-    static public function getEmailMsg($client, $needSendE164)
+    static public function _getEmailMsg($client, $needSendE164)
     {
         $a = array();
         foreach($needSendE164 as $n)
@@ -3066,6 +3071,81 @@ class voipRegion
             $msg .= self::getRegionRegs($client, $region, $numbers);
 
         return $msg ? $msgHeader.$msg : false;
+    }
+
+    static public function getEmailMsg($clientId, $needSendE164)
+    {
+        $msgHeader = "Здравствуйте!\n";
+        $msg = "";
+
+        foreach($needSendE164 as $n)
+        {
+            $msg .= self::getMsg($clientId, $n);
+        }
+
+        return $msg ? $msgHeader.$msg : false;
+    }
+
+
+    static private function getMsg($clientId, $number)
+    {
+        global $db_ats;
+
+        $pbx = array(
+                "99" => "sip.mcn.ru",
+                "96" => "37.228.82.12",
+                "97" => "37.228.80.6",
+                "98" => "37.228.81.6",
+                "95" => "37.228.85.6",
+                "94" => "37.228.83.6",
+                "93" => "37.228.84.6",
+                "87" => "37.228.86.6",
+                "88" => "37.228.87.6"
+                );
+
+        $numberId = ats2Numbers::getNumberId($number, $clientId);
+
+        $msg = "";
+
+        if ($numberId )
+        {
+            $number = $db_ats->GetRow("select * from a_number where id = '".$numberId."'");
+
+            if ($number)
+            {
+                foreach($db_ats->AllRecords("select c_id from a_link where number_id = '".$numberId."' and c_type in ('line', 'trunk')") as $line)
+                {
+                    $lineId = $line["c_id"];
+
+                    if ($lineId)
+                    {
+                        $a = account::get($lineId);
+
+                        $permit = "";
+
+                        if ($a["permit_on"] == "auto")
+                        {
+                            $permit = "автоматическая привязка при первой регистрации";
+                        } elseif ($a["permit_on"] == "no") {
+                            $permit = "любой адрес";
+                        } elseif ($a["permit_on"] == "yes"){
+                            $permit = "разрешено: ".str_replace(",", " ", $a["permit"]);
+                        }
+
+                        $msg .= "\n-----------------------------------------\n".
+                            "Номер телефона: ".$number["number"]."\n".//($l["callerid"]? $l["callerid"]: "***trunk***")."\n".
+                            "SIP proxy: ".$pbx[$number["region"]]."\n".
+                            "register: YES\n".
+                            "username: ".$a["account"]."\n".
+                            "password: ".$a["password"]."\n".
+                            "привязка: ".$permit."\n";
+
+                    }
+                }
+            }
+        }
+
+        return $msg;
     }
 
     static private function getRegionRegs($client, $region, $_e164s)
