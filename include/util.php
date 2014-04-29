@@ -544,6 +544,7 @@ class util{
         $design->assign("pager_url", $url);
         $design->assign("pager_page", $page);
         $design->assign("pager_all", $count);
+        $design->assign("pager_page_size", $items_on_page);
     }
 }
 
