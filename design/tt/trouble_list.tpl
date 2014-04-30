@@ -11,7 +11,7 @@
 Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 {else}
-Показано {$pager_page_size} из {$pager_all}
+{if $pager_all > $pager_page_size}Показано {$pager_page_size} из {$pager_all}{/if}
 {/if}
 <TABLE class={if $tt_design=='service'}insblock{else}price{/if} cellSpacing=2 cellPadding=2 width="{if $tt_design=='service'}700px{else}100%{/if}" border=0>
 <TBODY>
