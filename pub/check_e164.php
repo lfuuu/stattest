@@ -93,6 +93,15 @@
         echo 'true';
         exit();
     }
+    
+    if (substr($number, 0, 4) != '7800') {
+        $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'"';
+        $res = $db->getRow($q);
+        if (!$res) {
+            echo "false";
+        }
+    }
+
 	$actual_from = $_GET['actual_from'];
 	$actual_to = $_GET['actual_to'];
 
