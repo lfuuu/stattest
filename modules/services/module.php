@@ -738,11 +738,23 @@ class m_services extends IModule{
         if($phone && isset($nns[$phone]))
         {
             $regs = $this->getSIPregs($c, $nns[$phone], $phone);
+
+            if ($nns[$phone] == 99)
+            {
+                $reg = $this->getSIPregs($c, 991, $phone);
+                $regs = array_merge($regs, $reg);
+            }
         }else{
             foreach($nrs as $region => $ns)
             {
                 $reg = $this->getSIPregs($c, $region, $phone);
                 $regs = array_merge($regs, $reg);
+
+                if ($region == 99)
+                {
+                    $reg = $this->getSIPregs($c, 991, $phone);
+                    $regs = array_merge($regs, $reg);
+                }
             }
         }
 
@@ -767,7 +779,7 @@ class m_services extends IModule{
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -792,6 +804,11 @@ class m_services extends IModule{
 
         if($region != "99")
         {
+            if ($region == 991)
+            {
+                $region = 99;
+            }
+
             $result = pg_query($q = "
                     SELECT 
                     a.id, a.callerid, a.name, 
@@ -849,6 +866,7 @@ class m_services extends IModule{
                 "ast244" => "85.94.32.244",
                 "ast245" => "85.94.32.245",
                 "ast248" => "85.94.32.248",
+                "reg99" => "sip.mcn.ru",
                 "reg96" => "37.228.82.12",
                 "reg97" => "37.228.80.6",
                 "reg98" => "37.228.81.6",
