@@ -269,7 +269,8 @@ class m_newaccounts extends IModule
             if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] >= 0) {
                 if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'],$currency)) {
                     //echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
-                    $sum = round($R1[$bill_no]['sum_full'], 2);
+                    //$sum = round($R1[$bill_no]['sum_full'], 2);
+                    $sum = round($R1[$bill_no]['sum'], 2);
                     if ($currency == 'RUR')
                         $sum_rub = $sum;
                     else{
