@@ -3135,11 +3135,10 @@ class voipRegion
                         $msg .= "\n-----------------------------------------\n".
                             "Номер телефона: ".$number["number"]."\n".//($l["callerid"]? $l["callerid"]: "***trunk***")."\n".
                             "SIP proxy: ".$pbx[$number["region"]]."\n".
-                            "register: YES\n".
+                            ($a["host_type"] == "dynamic" ? "register: Да\n" : "").
                             "username: ".$a["account"]."\n".
                             "password: ".$a["password"]."\n".
                             "привязка: ".$permit."\n";
-
                     }
                 }
             }
