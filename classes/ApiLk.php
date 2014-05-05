@@ -323,7 +323,7 @@ class ApiLk
                             u.*,
                             (
                                 SELECT
-                                    MAX(id_tarif)
+                                    id_tarif
                                 FROM
                                     log_tarif
                                 WHERE
@@ -333,6 +333,7 @@ class ApiLk
                                 ORDER BY
                                     date_activation DESC,
                                     id DESC
+                                LIMIT 1
                             ) AS tarif_id
                         FROM
                             usage_voip u, (
