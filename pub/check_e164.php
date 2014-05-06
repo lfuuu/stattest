@@ -94,7 +94,7 @@
         exit();
     }
     
-    if (substr($number, 0, 4) != '7800') {
+    if (strlen($number) > 5 && substr($number, 0, 4) != '7800') {
         $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'"';
         $res = $db->getRow($q);
         if (!$res) {

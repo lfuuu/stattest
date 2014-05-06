@@ -13,7 +13,7 @@ include PATH_TO_ROOT."conf.php";
 
 $mDB = $db_ats;
 
-$pDB = new PgSQLDatabase('10.252.12.204','statconv','statconv', 'voipdb');
+$pDB = new PgSQLDatabase('eridanus.mcn.ru','statconv','hdfy300VGnaSdsa2', 'voipdb');
 $pDB->Connect() or die("PgSQLDatabase not connected");
 
 define("PG_SCHEMA", "astschema");
