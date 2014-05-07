@@ -4544,7 +4544,8 @@ $sql .= "    order by client, bill_no";
             where
                     b.bill_no = l.bill_no
                 and client_id = '".$fixclient_data['id']."'
-                and type='zalog'") as $z)
+                and type='zalog'
+                and b.bill_date<='".$date_to."'") as $z)
         {
             $z["sum_income"] = (
                     $z["currency"] == "USD" ? 
@@ -4557,7 +4558,6 @@ $sql .= "    order by client, bill_no";
             $zalog[$z["date"]."-".count($zalog)] = $z;
             $S_zalog += $z["sum_income"];
         }
-
 
         ksort($R);
         //tabledbg($R);
