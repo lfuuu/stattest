@@ -1107,7 +1107,8 @@ class ServiceUsageVirtpbx extends ServicePrototype {
     var $tarif_std = 0;
     public function LoadTarif() {
         global $db;
-        $this->tarif_current=$db->GetRow('select * from tarifs_virtpbx where id='.$this->service['tarif_id']);
+        //$this->tarif_current=$db->GetRow('select * from tarifs_virtpbx where id='.$this->service['tarif_id']);
+        $this->tarif_current=get_tarif_current('usage_virtpbx',$this->service['id']);
     }
 
     public function SetMonth($month) {
@@ -1386,8 +1387,11 @@ function get_tarif_history($service,$param,$date_quoted = 'NOW()'){
     } elseif ($service=="domains") {
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_hosting as A ON A.id=log_tarif.id_tarif';
+    } elseif ($service=="usage_virtpbx") {
+        $add1='A.*,';
+        $add2=' LEFT JOIN tarifs_virtpbx as A ON A.id=log_tarif.id_tarif';
     } else {
-        $add1 = '';
+                $add1 = '';
         $add2 = '';
     }
 
@@ -1497,6 +1501,12 @@ function get_tarif_current($service,$param){
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
         $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
+    }elseif($service=="usage_virtpbx"){
+        $add1='A.*,';
+        $add2='LEFT JOIN
+            tarifs_virtpbx as A
+        ON
+            A.id=log_tarif.id_tarif';
     }else{
         $add1="";
         $add2="";
