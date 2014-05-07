@@ -2013,10 +2013,14 @@ class m_stats extends IModule{
 				}
 			}
 		}
+
+		$def_statuses = array('work','negotiations','testing','connecting','debt','suspended','operator','distr','blocked');
 		$tarif_extra_id = get_param_raw("s_s_e", 0);
 		$tarif_internet_id = get_param_raw("s_s_i", 0);
+		$statuses = get_param_raw("status", $def_statuses);
 		$design->assign("s_s_e", $tarif_extra_id);
 		$design->assign("s_s_i", $tarif_internet_id);
+		$design->assign("statuses", $statuses);
 
 		$query = "
 			select
@@ -2077,7 +2081,7 @@ class m_stats extends IModule{
 			on
 				`te`.`id` = `ue`.`tarif_id`
 			where
-				`c`.`status` = 'work'
+				`c`.`status` IN ('".implode("','", $statuses)."')
 		        ".(($tarif_extra_id > 0) ? ' and `te`.`id`=' . $tarif_extra_id : '') . "
 		        ".(($tarif_internet_id > 0) ? ' and `ti`.`id`=' . $tarif_internet_id : '') . "
 			and
