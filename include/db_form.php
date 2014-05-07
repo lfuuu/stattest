@@ -1040,15 +1040,31 @@ class DbFormUsageVirtpbx extends DbForm{
         }
 
         $design->assign('dbform_f_tarifs',$db->AllRecords('select id, description, price, currency, status from tarifs_virtpbx'));
+
         DbForm::Display($form_params,$h2,$h3);
     }
     public function Process($no_real_update = 0){
-        global $db,$user;
+        global $db,$user,$design;
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
 
-        if(!$this->check_virtats()) return;
+        if(!$this->check_virtats()) {
+            $this->fields['actual_from']['default']=$this->dbform['actual_from'];
+            $this->fields['actual_to']['default']=$this->dbform['actual_to'];
+            $this->fields['amount']['default']=$this->dbform['amount'];
+            $this->fields['status']['default']=$this->dbform['status'];
+            $this->fields['comment']['default']=$this->dbform['comment'];
+
+            if (isset($this->dbform['t_id_tarif'])) {
+                $cur_tarif = $db->getRow('select * from tarifs_virtpbx where id='.$this->dbform['t_id_tarif']);
+                $cur_tarif['date_activation'] = $this->dbform['t_date_activation'];
+                $design->assign('dbform_f_tarif_current', $cur_tarif);
+                
+            }
+
+            return;
+        }
 
         $cur_tarif = get_tarif_current('usage_virtpbx',$this->dbform['id']);
 
