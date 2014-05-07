@@ -31,6 +31,7 @@ $(document).ready(function() {
 	<tr>
 		<td>Услуга</td>
 		<td>Фильтр</td>
+		<td>Статус</td>
 	</tr>
 	<tr>
 		<td>Интернет</td>
@@ -41,6 +42,29 @@ $(document).ready(function() {
 				<tr><td>Не задано</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="unset"{if !isset($s_i)} checked{/if} /></td></tr>
 				<tr><td colspan="3"><div id="d_s_i" style="display: {if isset($s_i) && $s_i}block;{else}none;{/if}">Тариф:<br><select name="s_s_i" style="width: 120px;"><option value="0">Любой</option>{foreach from=$i_tarifs item='t'}<option value="{$t.id}" {if $s_s_i == $t.id}selected{/if}>{$t.name}</option>{/foreach}</select></div></td></tr>
 			</table>
+		</td>
+		<td rowspan="5">
+		  <input type="checkbox" name="status[]" value="negotiations" {if in_array('negotiations', $statuses)}checked{/if} /> В стадии переговоров<br />
+		  <input type="checkbox" name="status[]" value="testing" {if in_array('testing', $statuses)}checked{/if} /> Тестируемые<br />
+		  <input type="checkbox" name="status[]" value="connecting" {if in_array('connecting', $statuses)}checked{/if} /> Подключаемые<br />
+		  <input type="checkbox" name="status[]" value="work" {if in_array('work', $statuses)}checked{/if} /> Включенные<br />
+		  <input type="checkbox" name="status[]" value="closed" {if in_array('closed', $statuses)}checked{/if} /> Отключенные<br />
+		  <input type="checkbox" name="status[]" value="tech_deny" {if in_array('tech_deny', $statuses)}checked{/if} /> С тех. отказом<br />
+		  <input type="checkbox" name="status[]" value="telemarketing" {if in_array('telemarketing', $statuses)}checked{/if} /> telemarketing<br />
+		  <input type="checkbox" name="status[]" value="income" {if in_array('income', $statuses)}checked{/if} /> income<br />
+		  <input type="checkbox" name="status[]" value="deny" {if in_array('deny', $statuses)}checked{/if} /> Отказ<br />
+		  <input type="checkbox" name="status[]" value="debt" {if in_array('debt', $statuses)}checked{/if} /> Отключенные за долги<br />
+		  <input type="checkbox" name="status[]" value="double" {if in_array('double', $statuses)}checked{/if} /> Дубликаты<br />
+		  <input type="checkbox" name="status[]" value="trash" {if in_array('trash', $statuses)}checked{/if} /> Мусор<br />
+		  <input type="checkbox" name="status[]" value="move" {if in_array('move', $statuses)}checked{/if} /> move<br />
+		  <input type="checkbox" name="status[]" value="already" {if in_array('already', $statuses)}checked{/if} /> already<br />
+		  <input type="checkbox" name="status[]" value="denial" {if in_array('denial', $statuses)}checked{/if} /> Отказ/задаток<br />
+		  <input type="checkbox" name="status[]" value="once" {if in_array('once', $statuses)}checked{/if} /> Интернет Магазин<br />
+		  <input type="checkbox" name="status[]" value="reserved" {if in_array('reserved', $statuses)}checked{/if} /> reserved<br />
+		  <input type="checkbox" name="status[]" value="suspended" {if in_array('suspended', $statuses)}checked{/if} /> Приостановленные<br />
+		  <input type="checkbox" name="status[]" value="operator" {if in_array('operator', $statuses)}checked{/if} /> Операторы<br />
+		  <input type="checkbox" name="status[]" value="distr" {if in_array('distr', $statuses)}checked{/if} /> Поставщики<br />
+		  <input type="checkbox" name="status[]" value="blocked" {if in_array('blocked', $statuses)}checked{/if} /> Временно заблокирован<br />
 		</td>
 	</tr>
 	<tr>
@@ -91,7 +115,7 @@ $(document).ready(function() {
 			</table>
 		</td>
 	</tr>
-	<tr align="center"><td colspan="2"><input type="submit" value="Ok" /></td></tr>
+	<tr align="center"><td colspan="3"><input type="submit" value="Ok" /></td></tr>
 </table>
 </form>
 {if $fix}
