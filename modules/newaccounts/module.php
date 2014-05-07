@@ -5333,6 +5333,11 @@ $sql .= "    order by client, bill_no";
                 ";
                 ob_start();
                 $db->Query($query);
+
+                //Обновление списка документов
+                $b = new Bill($_REQUEST['bill_no']);
+                $b->updateBill2Doctypes(null, false);
+
                 ob_end_clean();
                 if(mysql_errno()){
                     echo 'MySQLErr';
