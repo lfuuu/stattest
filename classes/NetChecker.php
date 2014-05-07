@@ -3,7 +3,7 @@
 
 class NetChecker
 {
-    private $nets = array(
+    public static $nets = array(
         //Москва
         '99'=>array(
                     '94.25.144.0/20', 
@@ -15,7 +15,8 @@ class NetChecker
         '98'=>array(
                     '109.188.128.0/17',
                     '178.178.0.0/18',
-                    '94.25.192.0/19'
+                    '94.25.192.0/19',
+                    '188.162.64.0/21'
                 ),
         //Сочи
         '82'=>array(
@@ -46,7 +47,7 @@ class NetChecker
     public function check($ip = '')
     {
         $ip_sum = netmask_to_ip_sum($ip);
-        foreach ($this->nets as $region=>$ns) {
+        foreach (self::$nets as $region=>$ns) {
             $ips = iplist_make($ns);
             if (iplist_check($ips, $ip_sum[0])) return $ns;
         }
