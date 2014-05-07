@@ -1982,7 +1982,7 @@ class m_services extends IModule{
                 $r['period_rus']='ежемесячно';
             $R[]=$r;
 
-            if($r["actual"] && (strpos($r["description"], "Виртуальная АТС пакет") !== false || strpos($r["description"], "ВАТС ") !== false))
+            if($r["actual"] && (strpos($r["tarif"]["description"], "Виртуальная АТС пакет") !== false || strpos($r["tarif"]["description"], "ВАТС ") !== false))
             {
                 $isViewAkt = $r;
             }
