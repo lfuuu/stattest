@@ -71,7 +71,7 @@
 
 {foreach from=$dbform_includesForm item=item name=outer}{include file=$item}{/foreach}
 </TBODY></TABLE>
-{if count($dbform_includesPreL) || count($dbform_includesPreL)}
+{if count($dbform_includesPreL) || count($dbform_includesPreR)}
 	<table cellspacing=0 cellpadding=2 border=0 width=100%><TR><TD valign=top>
 		{foreach from=$dbform_includesPreL item=item name=outer}{include file=$item}{/foreach}
 	</TD><TD valign=top>

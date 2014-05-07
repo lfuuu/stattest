@@ -1922,10 +1922,10 @@ class m_services extends IModule{
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
 
-            $db->Query($q='
+            $vpbxs = $db->AllRecords($q='
             SELECT
                 S.*,
-                T.*,
+
                 S.id as id,
                 sp.name as server_pbx,
                 c.status as client_status,
@@ -1934,7 +1934,7 @@ class m_services extends IModule{
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
             LEFT JOIN clients c ON (c.client = S.client)
-            LEFT JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+
             HAVING actual
             ORDER BY client,actual_from'
 
@@ -1942,11 +1942,12 @@ class m_services extends IModule{
 
             $R = array();
             $statuses = ClientCS::$statuses;
-            while($r=$db->NextRecord()){
+            foreach($vpbxs as $r){
+                $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
-                if($r['period']=='month')
+                if($r['tarif']['period']=='month')
                     $r['period_rus']='ежемесячно';
-                elseif($r['period']=='year')
+                elseif($r['tarif']['period']=='year')
                     $r['period_rus']='ежегодно';
                 $R[]=$r;
             }
@@ -1960,9 +1961,9 @@ class m_services extends IModule{
 
 
         $R=array();
-        $db->Query($q='
+        $vpbxs = $db->AllRecords($q='
             SELECT
-                T.*,
+                
                 S.*,
                 S.id as id,
                 sp.name as server_pbx,
@@ -1970,13 +1971,14 @@ class m_services extends IModule{
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
-            LEFT JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+            
             WHERE S.client="'.$fixclient.'"'
         );
 
         $isViewAkt = false;
-        while($r=$db->NextRecord()){
-            if($r['period']=='month')
+        foreach($vpbxs as $r){
+            $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
+            if($r['tarif']['period']=='month')
                 $r['period_rus']='ежемесячно';
             $R[]=$r;
 
@@ -2061,7 +2063,24 @@ class m_services extends IModule{
         
         $design->ProcessEx('services/virtpbx_act.tpl'); 
     }
-// =========================================================================================================================================
+    function services_virtpbx_delete($fixclient)
+    {
+        global $db, $user;
+
+        $id = get_param_protected("id", 0);
+
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$id." and client = '".$fixclient."'");
+
+        if ($vpbx)
+        {
+            if ($vpbx["actual_from"] == "2029-01-01")
+            {
+                $db->QueryDelete("log_tarif", array("id_service" => $vpbx["id"]));
+                $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
+            }
+        }
+    }
+    // =========================================================================================================================================
     function services_8800_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){

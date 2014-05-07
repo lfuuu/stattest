@@ -380,39 +380,40 @@ class ApiLk
         $ret = array();
     
         foreach(NewBill::find_by_sql('
-            SELECT
-                `u`.`id`,
-                `u`.`amount`,
-                `u`.`actual_from`,
-                `u`.`actual_to`,
-                IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
-                `u`.`status`,
-                `u`.`tarif_id`,
-                `t`.description as tarif_name,
-	            `t`.`price`,
-	            `t`.`space`,
-                `t`.`num_ports`,
-                `d`.`name` AS city
-            FROM
-                `usage_virtpbx` AS `u`
-            INNER JOIN `clients` ON (
-                `u`.`client` = `clients`.`client`
-            )
-            LEFT JOIN `tarifs_virtpbx` AS `t` ON (
-                `t`.`id` = `u`.`tarif_id`
-            )
-            LEFT JOIN `server_pbx` AS `s` ON (
-                `u`.`server_pbx_id` = `s`.`id`
-            )
-            LEFT JOIN `datacenter` AS `d` ON (
-                `s`.`datacenter_id` = `d`.`id`
-            )
-            WHERE
-                `clients`.`id`= ?
-            ORDER BY
-                `actual` DESC,
-                `actual_from` DESC
-            LIMIT 1
+            SELECT 
+                a.*, 
+                `t`.description AS tarif_name,
+                `t`.`price`,
+                `t`.`space`,
+                `t`.`num_ports`
+                 FROM (
+                    SELECT
+                        `u`.`id`,
+                        `u`.`amount`,
+                        `u`.`actual_to`,
+                        IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+                        `u`.`status`,
+                        `d`.`name` AS city,
+                        (SELECT id_tarif FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1) AS cur_tarif_id,
+                        (SELECT date_activation FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<now() ORDER BY date_activation DESC, id DESC LIMIT 1) AS actual_from
+                    FROM
+                        `usage_virtpbx` AS `u`
+                    INNER JOIN `clients` ON (
+                        `u`.`client` = `clients`.`client`
+                    )
+                    LEFT JOIN `server_pbx` AS `s` ON (
+                        `u`.`server_pbx_id` = `s`.`id`
+                    )
+                    LEFT JOIN `datacenter` AS `d` ON (
+                        `s`.`datacenter_id` = `d`.`id`
+                    )
+                    WHERE
+                        `clients`.`id`= ?
+                    ORDER BY
+                        `actual` DESC,
+                        `actual_from` DESC
+                )a
+                LEFT JOIN `tarifs_virtpbx` AS `t` ON (`t`.`id` = cur_tarif_id)
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
@@ -864,51 +865,33 @@ class ApiLk
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . "\n";
         $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["name"];
-    
-        $vpbx = $db->GetRow("
-                select
-                    id,
-                    IF ((`actual_from` <= NOW()) AND (`actual_to` > NOW()), 1, 0) AS `actual`
-                from
-                    usage_virtpbx
-                where
-                    client = '".$client["client"]."'
-                ");
-    
-        if (!$vpbx) // добавляем VPBX, если его нет
-        {
-            $vpbxId = $db->QueryInsert("usage_virtpbx", array(
+
+        $vpbxId = $db->QueryInsert("usage_virtpbx", array(
                             "client"        => $client["client"],
                             "actual_from"   => "2029-01-01",
                             "actual_to"     => "2029-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
-                            "tarif_id"      => $tarif["id"],
                             "server_pbx_id" => 1
-            )
-            );
+                            )
+                        );
+
+        if (!$vpbxId) return array('status'=>'error','message'=>'Ошибка подключения услуги');
+
+        $db->QueryInsert("log_tarif", array(
+                            "service"         => 'usage_virtpbx',
+                            "id_service"      => $vpbxId,
+                            "id_tarif"        => $tarif_id,
+                            "id_user"         => self::_getUserLK(),
+                            "ts"              => array('NOW()'),
+                            "date_activation" => date('Y-m-d')
+                            )
+                        );
     
-            if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-                return array('status'=>'ok','message'=>'Заявка принята');
-            else
-                return array('status'=>'error','message'=>'Ошибка добавления заявки');
-        } elseif ($vpbx['actual'] == 0) {
-            // Тариф есть, но не актуальный (заявка)
-            $db->QueryUpdate("usage_virtpbx", "id", array(
-                            "id"            => $vpbx['id'],
-                            "tarif_id"      => $tarif["id"],
-                            "server_pbx_id" => 1
-            )
-            );
-    
-            if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-                return array('status'=>'ok','message'=>'Заявка принята');
-            else
-                return array('status'=>'error','message'=>'Ошибка добавления заявки');
-        } else {
-            // Уже есть актуальный
-            return array('status'=>'error','message'=>'Вы уже подключены.');
-        }
+        if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
+            return array('status'=>'ok','message'=>'Заявка принята');
+        else
+            return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
 
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
@@ -1039,15 +1022,23 @@ class ApiLk
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
         $message .= Encoding::toKOI8R('Новый тарифный план: ') . $tarif;
     
-        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where client = '".$client["client"]."'");
+        $vpbx = $db->GetRow($q = "select * from usage_virtpbx where id=".$service_id." and client = '".$client["client"]."'");
     
         if ($vpbx)
         {
-            if ($vpbx["actual_from"] == "2029-01-01")
-            {
-                $db->QueryUpdate("usage_virtpbx", "id", array("id"=>$vpbx["id"], "tarif_id" => $tarif_id));
-                $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
-            }
+            $first_day_next_month = date('Y-m-d', mktime(0, 0, 0, date("m")+1, 1, date("Y")));
+            $db->QueryInsert("log_tarif", array(
+                            "service"         => 'usage_virtpbx',
+                            "id_service"      => $service_id,
+                            "id_tarif"        => $tarif_id,
+                            "id_user"         => self::_getUserLK(),
+                            "ts"              => array('NOW()'),
+                            "date_activation" => ($vpbx['actual_from'] == '2029-01-01') ? date('Y-m-d') : $first_day_next_month
+                            )
+                        );
+
+            $message .= Encoding::toKOI8R("\n\nтариф изменен из личного кабинета");
+
             if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
                 return array('status'=>'ok','message'=>'Заявка принята');
         }
@@ -1191,18 +1182,20 @@ class ApiLk
     public static function disconnectVpbx($client_id, $service_id)
     {
         global $db;
-    
+
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-    
+
         $message = Encoding::toKOI8R("Заказ на отключение услуги Виртуальная АТС из Личного Кабинета. \n");
         $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-    
-        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where client = '".$client["client"]."'");
-    
+        $message .= Encoding::toKOI8R('Услуга: ') . $service_id . " (Id: $service_id)\n";
+
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$service_id." and client = '".$client["client"]."'");
+
         if ($vpbx)
         {
             if ($vpbx["actual_from"] == "2029-01-01")
             {
+                $db->QueryDelete("log_tarif", array("id_service" => $vpbx["id"]));
                 $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
     
                 $message .= Encoding::toKOI8R("\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было");
@@ -1211,7 +1204,7 @@ class ApiLk
             if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
                 return array('status'=>'ok','message'=>'Заявка принята');
         }
-    
+
         return array('status'=>'error','message'=>'Ошибка добавления заявки');
     }
 
@@ -1618,6 +1611,16 @@ class ApiLk
         if (defined("API__USER_FOR_TROUBLE")) return API__USER_FOR_TROUBLE;
         else if (strlen($manager)) return $manager;
         else return $default_manager;
+    }
+
+    private function _getUserLK()
+    {
+        global $db;
+        $default_user = 48;
+
+        $user = $db->GetValue('SELECT id FROM user_users WHERE user="LK" LIMIT 1');
+        if ($user > 0) return $user;
+        else return $default_user;
     }
 
 
