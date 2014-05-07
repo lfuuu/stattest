@@ -22,6 +22,14 @@ var optools = {
 
 		return optools.voip.check_e164.isValid()
 	},
+	check_vpbx_submit:function(){
+		if ($('select[name="dbform[t_id_tarif]"]').val() == '0') {
+			alert("Тариф не выбран!");
+			return false;
+		}
+
+		return true;
+	},
 	friendly:{
 		voip:{
 			change_type:function(el){
