@@ -125,7 +125,11 @@ class account
         $d1["parent_id"] = $d["id"];
 
         $addedIds = array();
-        for($i = 0; $i< $to-$from; $i++)
+
+        $addLines = $to-$from;
+        $addLines = $addLines > 110 ? 110 : $addLines;
+
+        for($i = 0; $i< $addLines; $i++)
         {
             $d1["sequence"] = $sequence+1+$i;
             $d1["account"] = account::make($d1);
