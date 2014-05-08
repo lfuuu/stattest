@@ -602,7 +602,10 @@ class ats2Helper
 
             $from = count(account::getSubaccounts($line["id"]));
 
-            foreach(account::change_subaccount($line, $from+($needLines-$currentCountAccounts)) as $lineId) //всегда для привязки создаем новые подключения
+            $plusLines = $from+($needLines-$currentCountAccounts);
+            $plusLines = $plusLines > 110 ? 110 : $plusLines;
+
+            foreach(account::change_subaccount($line, $plusLines) as $lineId) //всегда для привязки создаем новые подключения
             {
                 $db_ats->QueryInsert("a_link", array(
                             "c_type" => "line",
