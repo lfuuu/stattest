@@ -1,4 +1,5 @@
 {if !isset($hide_tt_list) || $hide_tt_list == 0}
+
 {if !isset($hide_tts)}{if !isset($tt_wo_explain) && $tt_design=='full'}<H2>{$tt_header}
 	{if $fixclient_data}(клиент <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
 	</H2>
