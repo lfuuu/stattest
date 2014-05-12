@@ -8,7 +8,7 @@ class m_voipreports_voip_mgmn_report
 
     function voipreports_voip_mgmn_report() {
         global $design,$db, $pg_db;
-        $region = get_param_integer('region', '99');
+        $region = get_param_integer('region', '0');
 
         $date_from_y = get_param_raw('date_from_y', date('Y'));
         $date_from_m = get_param_raw('date_from_m', date('m'));
@@ -86,7 +86,7 @@ class m_voipreports_voip_mgmn_report
                     end as dest2
                     ".$sod."
                 from
-                    calls.calls_".intval($region)."
+                    " . ($region ? "calls.calls_{$region}" : "calls.calls") . "
                 where len>0
                     ".$where.$god.$ob;
 

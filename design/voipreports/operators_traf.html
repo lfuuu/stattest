@@ -63,6 +63,7 @@
 			<td>Регион</td>
 			<td colspan="8">
                 <select name="region">
+                    <option value="0">Все</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
                     {/foreach}
@@ -91,8 +92,7 @@
 	{if $groupp && $operator<>$co}
 	{if $co<>'0'}
 	<tr>
-        {assign var='idregion' value="`$co`_`$region`"}
-		<td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$idregion].name}:</td>
+		<td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$co].name}:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if isset($report_oper[$co][$dkey])}
@@ -118,8 +118,7 @@
 	<tr class="{cycle values='even,odd'}">
 		{if $groupp}<td>{$day}</td>{/if}
         <td>{$operator}</td>
-        {assign var='idregion' value="`$operator`_`$region`"}
-        {assign var='op' value="`$operators[$idregion]`"}
+        {assign var='op' value="`$operators[$operator]`"}
         <td>{$op.name}</td>
 	{foreach from=$report_dest item='rd' key='dkey'}
 	{if $dkey<>'sum'}
@@ -142,8 +141,7 @@
 	{/foreach}
 	{if $groupp && count($report)>1}
 	<tr>
-        {assign var='idregion' value="`$co`_`$region`"}
-        <td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$idregion].name}:</td>
+        <td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$co].name}:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if isset($report_oper[$co][$dkey])}
