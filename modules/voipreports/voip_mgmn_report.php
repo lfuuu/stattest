@@ -24,8 +24,8 @@ class m_voipreports_voip_mgmn_report
             $date_from_y = date('Y');
         if(!is_numeric($date_from_m))
             $date_from_m = date('m');
-		if(!is_numeric($date_from_d))
-			$date_from_d = date('d');
+        if(!is_numeric($date_from_d))
+            $date_from_d = date('d');
         if(!is_numeric($date_to_y))
             $date_to_y = date('Y');
         if(!is_numeric($date_to_m))
@@ -63,24 +63,32 @@ class m_voipreports_voip_mgmn_report
             }
 
             $query = "
-				select
-				    count(*) as count,
-					sum(len) / 60.0 as len,
-					sum(len_op) / 60.0 as len_op,
-					sum(len_mcn) / 60.0 as len_mcn,
-					cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as amount_op,
-					cast(sum(amount)/100.0 as NUMERIC(10,2)) as amount_mcn,
-					operator_id as operator_id,
+                select
+                    count(*) as count,
+                    sum(len) / 60.0 as len,
+                    sum(len_op) / 60.0 as len_op,
+                    sum(len_mcn) / 60.0 as len_mcn,
+                    cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as amount_op,
+                    cast(sum(amount)/100.0 as NUMERIC(10,2)) as amount_mcn,
+                    operator_id as operator_id,
                     case phone_num::varchar like '7800%' when true then
                         7800
                     else
-                        100+dest
+                        case dest when 0 then
+                            case mob when false then
+                                1001
+                            else
+                                1002
+                            end
+                        else
+                            100+dest
+                        end
                     end as dest2
-					".$sod."
-				from
-					calls.calls_".intval($region)."
-				where len>0
-					".$where.$god.$ob;
+                    ".$sod."
+                from
+                    calls.calls_".intval($region)."
+                where len>0
+                    ".$where.$god.$ob;
 
             $report = array();
             foreach($pg_db->AllRecords($query) as $r) {

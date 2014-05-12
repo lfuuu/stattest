@@ -51,6 +51,7 @@
     <tr>
         {if $groupp}<td class='header'>Дата</td>{/if}
         <td class='header'>Оператор</td>
+        <td class='header'>Зона Стац</td>
         <td class='header'>Зона Моб</td>
         <td class='header'>7800</td>
         <td class='header'>Россия</td>
@@ -62,20 +63,36 @@
     <tr class="{cycle values='even,odd'}">
         {if $groupp}<td>{$r.date}</td>{/if}
         <td>{$operators[$r.operator_id].name} ({$r.operator_id})</td>
-        <td>{if $r.100}
+        <td>{if $r.1001}
                 {if $details}
                     Длительность (мин):<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.100.len|round:2}</b><br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.100.len_op|round:2}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.100.len_mcn|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.1001.len|round:2}</b><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.1001.len_op|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.1001.len_mcn|round:2}<br />
                     Стоимость:<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.100.amount_op|round:2}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.100.amount_mcn|round:2}<br />
-                    Количество: <b>{$r.100.count}</b><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.1001.amount_op|round:2}<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.1001.amount_mcn|round:2}<br />
+                    Количество: <b>{$r.1001.count}</b><br />
                 {else}
-                    Минут: <b>{$r.100.len|round:2}</b><br />
-                    Количество: <b>{$r.100.count}</b><br />
+                    Минут: <b>{$r.1001.len|round:2}</b><br />
+                    Количество: <b>{$r.1001.count}</b><br />
                 {/if}
+            {/if}
+        </td>
+        <td>{if $r.1002}
+            {if $details}
+            Длительность (мин):<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r.1002.len|round:2}</b><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.1002.len_op|round:2}<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.1002.len_mcn|round:2}<br />
+            Стоимость:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r.1002.amount_op|round:2}<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r.1002.amount_mcn|round:2}<br />
+            Количество: <b>{$r.1002.count}</b><br />
+            {else}
+            Минут: <b>{$r.1002.len|round:2}</b><br />
+            Количество: <b>{$r.1002.count}</b><br />
+            {/if}
             {/if}
         </td>
         <td>{if $r.7800}
