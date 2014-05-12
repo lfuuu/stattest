@@ -944,6 +944,7 @@ class m_services extends IModule{
         $emails = array();
 
         $design->assign("log", $db->AllRecords("select * from log_send_voip_settings where client='".$fixclient."' order by id desc limit 30"));
+        $e164s = array();
 
         //$e164s = voipRegion::getClientE164s($c["client"]);
 
@@ -978,6 +979,12 @@ class m_services extends IModule{
                         throw new Exception("Не выбраны номера или email'ы");
 
                 $msg = voipRegion::getEmailMsg($c["id"], $_e164s);
+
+                if(!$msg)
+                {
+                    voipRegion::getClientE164s($c["client"]); //для заполнения массива номер=>регион (voipRegion::$e164Region)
+                    $msg = voipRegion::_getEmailMsg($c["client"], $_e164s);
+                }
 
                 if(!$msg)
                     throw new Exception("Информация не найдена!");
@@ -3094,6 +3101,9 @@ class voipRegion
         $a = array();
         foreach($needSendE164 as $n)
         {
+            if(!isset(self::$e164Region[$n]))
+                return false;
+
             if(!isset($a[self::$e164Region[$n]]))
                 $a[self::$e164Region[$n]] = array();
 
