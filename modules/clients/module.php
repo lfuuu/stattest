@@ -876,6 +876,7 @@ class m_clients {
 			Header("Location: ?module=clients&id=".($R[0]['client'] ? $R[0]['client'] :$R[0]['id']));
 			exit;
 		}
+		$design->assign('clients_cnt',count($R));
 		$design->assign('clients',$R);
 		//$design->assign('letter',$letter);
     //$design->assign('letter_region',$letter_region);
