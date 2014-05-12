@@ -876,6 +876,7 @@ class m_clients {
 			Header("Location: ?module=clients&id=".($R[0]['client'] ? $R[0]['client'] :$R[0]['id']));
 			exit;
 		}
+
 		if (strlen($search) && count($R) > 1) $design->assign('hide_tt_list',1);
 
 		$design->assign('clients',$R);
