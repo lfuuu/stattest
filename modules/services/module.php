@@ -821,7 +821,7 @@ class m_services extends IModule{
                     b.regseconds::integer::abstime::timestamp as registered, 
                     b.regseconds::integer - extract(epoch from now())::integer as regtime, 
                     extract(epoch from (b.regseconds::integer::abstime::timestamp - abstime(now()))) as regtime, 
-                    b.useragent, n.ds as direction
+                    b.useragent, n.ds as direction, a.autolink_ip
                     FROM 
                     sipdevices a 
                     INNER JOIN sipregs b ON a.name = b.name
@@ -891,7 +891,17 @@ class m_services extends IModule{
             } elseif ($l['deny'] == '0.0.0.0/0.0.0.0') {
                 $perm = $permit;
             } elseif (($permit == '') and ($l['deny'] == '')) {
+                if (isset($l["autolink_ip"]))
+                {
+                    if ($l["autolink_ip"] == "t")
+                    {
+                        $perm = 'Автопривязка: еще не привязан';
+                    } else {
+                        $perm = "Любой IP";
+                    }
+                } else {
                 $perm = 'Автопривязка: еще не привязан';
+                }
             } else {
                 $perm = 'разрешено: '.$permit.'<br>запрещено: '.$l['deny'];
             }

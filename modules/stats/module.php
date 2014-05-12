@@ -1394,7 +1394,8 @@ class m_stats extends IModule{
 				net,id
 		');
 		while ($r=$db->NextRecord()){
-			$routes_all[$r['net']]=array($r['net'],$r['actual_from'],$r['actual_to']);
+            if ($r['net'])
+                $routes_all[$r['net']]=array($r['net'],$r['actual_from'],$r['actual_to']);
 		}
 		$routes_all_f=$this->get_routes_list_ip($routes_all);
 		return array($routes_all_f,$routes_all);
