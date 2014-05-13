@@ -63,7 +63,7 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-                                                if(SyncCore::checkProductState('vpbx', $param/*id, client*/) == 'added')
+                                                if(SyncCore::checkProductState('vpbx', $param/*id, client*/) == 'add')
                                                 {
                                                     if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
                                                     {
