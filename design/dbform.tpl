@@ -71,7 +71,7 @@
 
 {foreach from=$dbform_includesForm item=item name=outer}{include file=$item}{/foreach}
 </TBODY></TABLE>
-{if count($dbform_includesPreL) || count($dbform_includesPreL)}
+{if count($dbform_includesPreL) || count($dbform_includesPreR)}
 	<table cellspacing=0 cellpadding=2 border=0 width=100%><TR><TD valign=top>
 		{foreach from=$dbform_includesPreL item=item name=outer}{include file=$item}{/foreach}
 	</TD><TD valign=top>
@@ -80,8 +80,17 @@
 {/if}
 {foreach from=$dbform_includesPre item=item name=outer}{include file=$item}{/foreach}
 
-<DIV align=center><INPUT id=b_submit class=button {if $dbform_table=="usage_voip"} type=button onclick="if(optools.check_submit()) document.getElementById('dbform').submit();"{else} type=submit{/if} value="{if $dbform_btn_new}Добавить{else}Изменить{/if}"></DIV>
+<DIV align=center><INPUT id=b_submit class=button {if $dbform_table=="usage_voip"} type=button onclick="if(optools.check_submit()) document.getElementById('dbform').submit();"{elseif $dbform_table=="usage_virtpbx"} type=button onclick="if(optools.check_vpbx_submit()) document.getElementById('dbform').submit();"{else} type=submit{/if} value="{if $dbform_btn_new}Добавить{else}Изменить{/if}"></DIV>
 
 {foreach from=$dbform_includesPost item=item name=outer}{include file=$item}{/foreach}
 </form>
 {foreach from=$dbform_includesPost2 item=item name=outer}{include file=$item}{/foreach}
+
+{if count($dbform_log_usage_history) > 0}
+	<br />
+	<h3>История изменений услуги</h3>
+	{include file='log_usage_history.inc'}
+{/if}
+
+
+

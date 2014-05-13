@@ -177,7 +177,7 @@ class aNumber
 
 
 
-    private function getNumber($id)
+    public function getNumber($id)
     {
         global $db_ats;
         

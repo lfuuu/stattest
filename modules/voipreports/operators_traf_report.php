@@ -10,7 +10,7 @@ class m_voipreports_operators_traf
 
     function voipreports_operators_traf(){
         global $design,$db, $pg_db;
-        $region = get_param_integer('region', '99');
+        $region = get_param_integer('region', '0');
 
         $date_from_y = get_param_raw('date_from_y', date('Y'));
         $date_from_m = get_param_raw('date_from_m', date('m'));
@@ -27,8 +27,8 @@ class m_voipreports_operators_traf
             $date_from_y = date('Y');
         if(!is_numeric($date_from_m))
             $date_from_m = date('m');
-//		if(!is_numeric($date_from_d))
-//			$date_from_d = date('d');
+//        if(!is_numeric($date_from_d))
+//            $date_from_d = date('d');
         if(!is_numeric($date_to_y))
             $date_to_y = date('Y');
         if(!is_numeric($date_to_m))
@@ -44,12 +44,15 @@ class m_voipreports_operators_traf
 
         $regions = $db->AllRecords('select * from regions','id');
 
+        /*
         $operators = $pg_db->AllRecords("select id::varchar||'_'||case region when 0 then ".$region." else region end as idregion, * from voip.operator  order by id, region",'idregion');
         foreach($operators as $k=>$v){
             $operators[$k]['fullname'] = $v['name'];
             if (isset($regions[$v['region']]))
                 $operators[$k]['fullname'] .= ' - '.$regions[$v['region']]['name'];
         }
+        */
+        $operators = $pg_db->AllRecords("select id, max(short_name) as name from voip.operator group by id",'id');
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
@@ -64,11 +67,9 @@ class m_voipreports_operators_traf
 
             if($destination != 'all'){
                 if ($destination == 10){
-                    $dest = -$db->GetValue('select code from regions where id='.intval($region));
-                    $wde = " and dest=".$dest." and mob=false ";
+                    $wde = " and dest<0 and mob=false ";
                 }elseif ($destination == 11){
-                    $dest = -$db->GetValue('select code from regions where id='.intval($region));
-                    $wde = " and dest=".$dest." and mob=true ";
+                    $wde = " and dest<0 and mob=true ";
                 }else{
                     $wde = " and dest=".($destination-100);
                 }
@@ -82,12 +83,12 @@ class m_voipreports_operators_traf
 
             if($groupp){
                 $god = " group by ";
-                if ($groupp==1)		$god .= " day, ";
+                if ($groupp==1)        $god .= " day, ";
                 else $god .= " month, ";
-                $god .= "	operator_id,
-							dest2";
-                if ($groupp==1)		$sod = " ,day as date";
-                else	$sod = " ,month as date";
+                $god .= "    operator_id,
+                            dest2";
+                if ($groupp==1)        $sod = " ,day as date";
+                else    $sod = " ,month as date";
                 $ob = " order by date, operator_id, dest2";
             }else{
                 $god = ' group by operator_id, dest2';
@@ -96,33 +97,33 @@ class m_voipreports_operators_traf
             }
 
             $query = "
-				select
-					sum(len) as length,
-					cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as price,
-					cast(sum(amount)/100.0 as NUMERIC(10,2)) as price_mcn,
-					operator_id as operator_id,
-					case direction_out when true then
-						case phone_num::varchar like '7800%' when true then
-							100
-						else
-							case dest when 0 then
-								case mob when true then
-									11
-								else
-									10
-								end
-							when -1 then
-								9
-							else
-								100+dest
-							end
-						end
-					else 900 end as dest2
-					".$sod."
-				from
-					calls.calls_".intval($region)."
-				where len>0 and
-					".$wm.$wo.$wde.$wdi.$god.$ob;
+                select
+                    sum(len) as length,
+                    cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as price,
+                    cast(sum(amount)/100.0 as NUMERIC(10,2)) as price_mcn,
+                    operator_id as operator_id,
+                    case direction_out when true then
+                        case phone_num::varchar like '7800%' when true then
+                            100
+                        else
+                            case dest when 0 then
+                                case mob when true then
+                                    11
+                                else
+                                    10
+                                end
+                            when -1 then
+                                9
+                            else
+                                100+dest
+                            end
+                        end
+                    else 900 end as dest2
+                    ".$sod."
+                from
+                    " . ($region ? "calls.calls_{$region}" : "calls.calls") . "
+                where len>0 and
+                    ".$wm.$wo.$wde.$wdi.$god.$ob;
 
             $pg_db->Query($query);
             $report = array();

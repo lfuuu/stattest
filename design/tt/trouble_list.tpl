@@ -1,3 +1,4 @@
+{if !isset($hide_tt_list) || $hide_tt_list == 0}
 {if !isset($hide_tts)}{if !isset($tt_wo_explain) && $tt_design=='full'}<H2>{$tt_header}
 	{if $fixclient_data}(клиент <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
 	</H2>
@@ -7,9 +8,11 @@
 
 {if $tt_design == "full"}
 Найдено {$pager_all} заявок<br>
-{if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
-{/if}
+    {if count($pager_pages)>1}
+        Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
+    {/if}
+{else}
+    {if $pager_all}Показано заявок: {if $pager_all > $pager_page_size}{$pager_page_size} из {$pager_all}{else} {$pager_all}{/if}{/if}
 {/if}
 <TABLE class={if $tt_design=='service'}insblock{else}price{/if} cellSpacing=2 cellPadding=2 width="{if $tt_design=='service'}700px{else}100%{/if}" border=0>
 <TBODY>
@@ -138,4 +141,5 @@
 
 
 
+{/if}
 {/if}

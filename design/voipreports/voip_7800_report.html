@@ -37,6 +37,7 @@
             <td>Регион</td>
             <td colspan="8">
                 <select name="region">
+                    <option value="0">Все</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
                     {/foreach}

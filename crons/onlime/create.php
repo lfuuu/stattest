@@ -97,6 +97,12 @@ class Onlime1CCreateBill
            ид3=телекард,              12032   f75a5b2f-382f-11e0-9c3c-d485644c7711    12032
            ид9=хд ресивер онлайм,     14593   4acdb33c-0319-11e2-9c41-00155d881200    14593
            ид11=хд ресивер с диском   14787   72904487-32f6-11e2-9369-00155d881200    14787
+
+           from 5.05.2014
+           14723f35-d423-11e3-9fe5-00155d881200 16206 <= 14593 
+           2c6d3955-d423-11e3-9fe5-00155d881200 16207 <= 14787
+
+
          */
 
         foreach($o["products"] as $product)
@@ -104,8 +110,8 @@ class Onlime1CCreateBill
             switch($product["id"])
             {
                 case '3': $goodId = "f75a5b2f-382f-11e0-9c3c-d485644c7711"; break;
-                case '9': $goodId = "4acdb33c-0319-11e2-9c41-00155d881200"; break;
-                case '11': $goodId = "72904487-32f6-11e2-9369-00155d881200"; break;
+                case '9': $goodId = "14723f35-d423-11e3-9fe5-00155d881200"; break;
+                case '11': $goodId = "2c6d3955-d423-11e3-9fe5-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])

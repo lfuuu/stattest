@@ -22,6 +22,14 @@ var optools = {
 
 		return optools.voip.check_e164.isValid()
 	},
+	check_vpbx_submit:function(){
+		if ($('select[name="dbform[t_id_tarif]"]').val() == '0') {
+			alert("Тариф не выбран!");
+			return false;
+		}
+
+		return true;
+	},
 	friendly:{
 		voip:{
 			change_type:function(el){
@@ -237,7 +245,7 @@ var optools = {
 				if(optools.voip.check_e164.is_valid)
 					return true;
 				else{
-					alert('Пожалуйста, укажите корректный номер.\nНомер не должен быть закреплен за другим пользователем в настоящее время.');
+					alert('Пожалуйста, укажите корректный номер.\n1. Номер должен присутствовать в базе\n2. Номер не должен быть закреплен за другим пользователем в настоящее время.');
 					return false;
 				}
 			}

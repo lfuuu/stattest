@@ -544,6 +544,7 @@ class util{
         $design->assign("pager_url", $url);
         $design->assign("pager_page", $page);
         $design->assign("pager_all", $count);
+        $design->assign("pager_page_size", $items_on_page);
     }
 }
 
@@ -1629,7 +1630,7 @@ class IPList{
             INNER JOIN
                 `tech_ports`
             ON
-                `tech_ports`.`id`=`P`.`port_id`
+                `tech_ports`.`id`=`R`.`port_id`
             WHERE
                 `R`.`actual_from`<=`R`.`actual_to`
             AND `R`.`actual_from`!='2029-01-01'

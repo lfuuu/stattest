@@ -91,6 +91,8 @@ function do_events()
                 case 'usage_voip__update':
                 case 'usage_voip__delete':  ats2Numbers::check(); break;
 
+                case 'update_balance': EventHandler::updateBalance($param); break;
+
                 case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();
                                  virtPbx::check();

@@ -30,7 +30,9 @@ class virtPbxChecker
 
     private static $sqlActual = "
             SELECT
-                c.id as client_id, tarif_id
+                u.id as usage_id,
+                c.id as client_id,
+                IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id
             FROM
                 usage_virtpbx u, clients c
             WHERE
@@ -45,7 +47,7 @@ class virtPbxChecker
 
 
     private static $sqlSaved=
-        "SELECT client_id, tarif_id
+        "SELECT usage_id, client_id, tarif_id
         FROM a_virtpbx WHERE enabled = 'yes'
         order by id";
 
@@ -65,7 +67,7 @@ class virtPbxChecker
 
         $d = array();
         foreach($_db->AllRecords($sql) as $l)
-            $d[$l["client_id"]] = $l;
+            $d[$l["usage_id"]] = $l;
 
         return $d;
     }
@@ -86,9 +88,9 @@ class virtPbxChecker
         foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
             $d["added"][$l] = $actual[$l];
 
-        foreach($actual as $clientId => $l)
-            if(isset($saved[$clientId]) && $saved[$clientId]["tarif_id"] != $l["tarif_id"]) 
-                $d["changed_tarif"][$clientId] = $l + array("prev_tarif_id" => $saved[$clientId]["tarif_id"]);
+        foreach($actual as $usageId => $l)
+            if(isset($saved[$usageId]) && $saved[$usageId]["tarif_id"] != $l["tarif_id"]) 
+                $d["changed_tarif"][$usageId] = $l + array("prev_tarif_id" => $saved[$usageId]["tarif_id"]);
 
 
         foreach($d as $k => $v)
@@ -284,6 +286,7 @@ class virtPbx
         return $db_ats->QueryInsert("a_virtpbx", array(
                     "client_id" => $l["client_id"],
                     "tarif_id" => $l["tarif_id"],
+                    "usage_id" => $l["usage_id"]
                     )
                 );
     }
@@ -471,7 +474,8 @@ class virtPbxAction
 
         $db_ats->QueryUpdate("a_virtpbx", "client_id", array(
                     "client_id" => $l["client_id"],
-                    "tarif_id" => $l["tarif_id"]
+                    "tarif_id" => $l["tarif_id"],
+                    "usage_id" => $l["usage_id"]
                     )
                 );
     }

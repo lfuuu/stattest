@@ -9,11 +9,9 @@ define("exception_sql", 1);
 
 include PATH_TO_ROOT."conf.php";
 
-
-
 $mDB = $db_ats;
 
-$pDB = new PgSQLDatabase('10.252.12.204','statconv','statconv', 'voipdb');
+$pDB = new PgSQLDatabase('eridanus.mcn.ru','statconv','hdfy300VGnaSdsa2', 'voipdb');
 $pDB->Connect() or die("PgSQLDatabase not connected");
 
 define("PG_SCHEMA", "astschema");
@@ -33,7 +31,6 @@ foreach($pDB->AllRecords("select * from ".PG_SCHEMA.".autolink_ip where is_synce
 
         if ($r)
         {
-
             if (($c = $mDB->GetRow("select * from a_connect where id = '".$r["c_id"]."'")) && $c["permit_on"] == "auto")
             {
                 print_r($c);
@@ -41,7 +38,7 @@ foreach($pDB->AllRecords("select * from ".PG_SCHEMA.".autolink_ip where is_synce
                 $mDB->QueryUpdate("a_connect", "id", array(
                             "id" => $c["id"],
                             "permit_on" =>"yes",
-                            "permit" => $l["srcip"]."/32"
+                            "permit" => implode(",", NetChecker::check($l["srcip"]))
                             )
                         );
             }

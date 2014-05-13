@@ -737,12 +737,24 @@ class m_services extends IModule{
         $regs = array();
         if($phone && isset($nns[$phone]))
         {
-            $regs = $this->getSIPregs($c["client"], $nns[$phone], $phone);
+            $regs = $this->getSIPregs($c, $nns[$phone], $phone);
+
+            if ($nns[$phone] == 99)
+            {
+                $reg = $this->getSIPregs($c, 991, $phone);
+                $regs = array_merge($regs, $reg);
+            }
         }else{
             foreach($nrs as $region => $ns)
             {
-                $reg = $this->getSIPregs($c["client"], $region, $phone);
+                $reg = $this->getSIPregs($c, $region, $phone);
                 $regs = array_merge($regs, $reg);
+
+                if ($region == 99)
+                {
+                    $reg = $this->getSIPregs($c, 991, $phone);
+                    $regs = array_merge($regs, $reg);
+                }
             }
         }
 
@@ -751,7 +763,7 @@ class m_services extends IModule{
         $design->AddMain('services/voip_permit.tpl'); 
     }
 
-    private function getSIPregs($client, $region, $phone = "")
+    private function getSIPregs($cl, $region, $phone = "")
     {
         $schema = "";
         $needRegion = false;
@@ -767,7 +779,7 @@ class m_services extends IModule{
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -792,6 +804,11 @@ class m_services extends IModule{
 
         if($region != "99")
         {
+            if ($region == 991)
+            {
+                $region = 99;
+            }
+
             $result = pg_query($q = "
                     SELECT 
                     a.id, a.callerid, a.name, 
@@ -804,13 +821,13 @@ class m_services extends IModule{
                     b.regseconds::integer::abstime::timestamp as registered, 
                     b.regseconds::integer - extract(epoch from now())::integer as regtime, 
                     extract(epoch from (b.regseconds::integer::abstime::timestamp - abstime(now()))) as regtime, 
-                    b.useragent, n.ds as direction
+                    b.useragent, n.ds as direction, a.autolink_ip
                     FROM 
                     sipdevices a 
                     INNER JOIN sipregs b ON a.name = b.name
                     LEFT JOIN numbers n ON n.number::varchar = a.callerid
                     WHERE 
-                    client='".$client."' ".($needRegion ? "and a.region ='".$region."'" : "")."
+                    a.client_id='".$cl["id"]."' ".($needRegion ? "and a.region ='".$region."'" : "")."
                     ORDER BY 
                     callerid, name");
         }else{
@@ -829,7 +846,7 @@ class m_services extends IModule{
                     FROM 
                     sip_users 
                     WHERE 
-                    ".($phone ? "callerid='".$phone."' or callerid='74959505680*".$phone."'" : "client='".$client."'")." 
+                    ".($phone ? "callerid='".$phone."' or callerid='74959505680*".$phone."'" : "client='".$cl["client"]."'")." 
                     ORDER BY 
                     name, callerid");
         }
@@ -849,6 +866,7 @@ class m_services extends IModule{
                 "ast244" => "85.94.32.244",
                 "ast245" => "85.94.32.245",
                 "ast248" => "85.94.32.248",
+                "reg99" => "sip.mcn.ru",
                 "reg96" => "37.228.82.12",
                 "reg97" => "37.228.80.6",
                 "reg98" => "37.228.81.6",
@@ -873,7 +891,17 @@ class m_services extends IModule{
             } elseif ($l['deny'] == '0.0.0.0/0.0.0.0') {
                 $perm = $permit;
             } elseif (($permit == '') and ($l['deny'] == '')) {
+                if (isset($l["autolink_ip"]))
+                {
+                    if ($l["autolink_ip"] == "t")
+                    {
+                        $perm = 'Автопривязка: еще не привязан';
+                    } else {
+                        $perm = "Любой IP";
+                    }
+                } else {
                 $perm = 'Автопривязка: еще не привязан';
+                }
             } else {
                 $perm = 'разрешено: '.$permit.'<br>запрещено: '.$l['deny'];
             }
@@ -919,15 +947,21 @@ class m_services extends IModule{
         $phone = get_param_protected("phone", "");
         $id = $fixclient;
 
-        global $design, $db, $user;
+        global $design, $db, $db_ats, $user;
 
         $isSent = false;
         $error = false;
         $emails = array();
 
         $design->assign("log", $db->AllRecords("select * from log_send_voip_settings where client='".$fixclient."' order by id desc limit 30"));
+        $e164s = array();
 
-        $e164s = voipRegion::getClientE164s($c["client"]);
+        //$e164s = voipRegion::getClientE164s($c["client"]);
+
+        foreach($db_ats->AllRecords("select number from a_number where client_id = '".$c["id"]."' and enabled='yes'") as $l)
+        {
+            $e164s[$l["number"]] = $l["number"];
+        }
 
         foreach($db->AllRecords("SELECT data as email 
                     FROM `client_contacts` cc, clients c 
@@ -954,7 +988,13 @@ class m_services extends IModule{
                     if(!isset($emails[$_email]))
                         throw new Exception("Не выбраны номера или email'ы");
 
-                $msg = voipRegion::getEmailMsg($c["client"], $_e164s);
+                $msg = voipRegion::getEmailMsg($c["id"], $_e164s);
+
+                if(!$msg)
+                {
+                    voipRegion::getClientE164s($c["client"]); //для заполнения массива номер=>регион (voipRegion::$e164Region)
+                    $msg = voipRegion::_getEmailMsg($c["client"], $_e164s);
+                }
 
                 if(!$msg)
                     throw new Exception("Информация не найдена!");
@@ -977,7 +1017,7 @@ class m_services extends IModule{
                         );
 
                 mail(trim($_email), "[MCN] Настройки SIP", $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
-                //mail("dga@mcn.ru", "[MCN] Настройки SIP - ".$_email, $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
+                //mail("adima123@yandex.ru", "[MCN] Настройки SIP - ".$_email, $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
             }
         }
 
@@ -1899,10 +1939,10 @@ class m_services extends IModule{
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
 
-            $db->Query($q='
+            $vpbxs = $db->AllRecords($q='
             SELECT
                 S.*,
-                T.*,
+
                 S.id as id,
                 sp.name as server_pbx,
                 c.status as client_status,
@@ -1911,7 +1951,7 @@ class m_services extends IModule{
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
             LEFT JOIN clients c ON (c.client = S.client)
-            LEFT JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+
             HAVING actual
             ORDER BY client,actual_from'
 
@@ -1919,11 +1959,12 @@ class m_services extends IModule{
 
             $R = array();
             $statuses = ClientCS::$statuses;
-            while($r=$db->NextRecord()){
+            foreach($vpbxs as $r){
+                $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
-                if($r['period']=='month')
+                if($r['tarif']['period']=='month')
                     $r['period_rus']='ежемесячно';
-                elseif($r['period']=='year')
+                elseif($r['tarif']['period']=='year')
                     $r['period_rus']='ежегодно';
                 $R[]=$r;
             }
@@ -1937,9 +1978,9 @@ class m_services extends IModule{
 
 
         $R=array();
-        $db->Query($q='
+        $vpbxs = $db->AllRecords($q='
             SELECT
-                T.*,
+                
                 S.*,
                 S.id as id,
                 sp.name as server_pbx,
@@ -1947,17 +1988,18 @@ class m_services extends IModule{
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
             LEFT JOIN server_pbx sp ON sp.id = server_pbx_id
-            LEFT JOIN tarifs_virtpbx as T ON T.id=S.tarif_id
+            
             WHERE S.client="'.$fixclient.'"'
         );
 
         $isViewAkt = false;
-        while($r=$db->NextRecord()){
-            if($r['period']=='month')
+        foreach($vpbxs as $r){
+            $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
+            if($r['tarif']['period']=='month')
                 $r['period_rus']='ежемесячно';
             $R[]=$r;
 
-            if($r["actual"] && (strpos($r["description"], "Виртуальная АТС пакет") !== false || strpos($r["description"], "ВАТС ") !== false))
+            if($r["actual"] && (strpos($r["tarif"]["description"], "Виртуальная АТС пакет") !== false || strpos($r["tarif"]["description"], "ВАТС ") !== false))
             {
                 $isViewAkt = $r;
             }
@@ -2038,7 +2080,24 @@ class m_services extends IModule{
         
         $design->ProcessEx('services/virtpbx_act.tpl'); 
     }
-// =========================================================================================================================================
+    function services_virtpbx_delete($fixclient)
+    {
+        global $db, $user;
+
+        $id = get_param_protected("id", 0);
+
+        $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$id." and client = '".$fixclient."'");
+
+        if ($vpbx)
+        {
+            if ($vpbx["actual_from"] == "2029-01-01")
+            {
+                $db->QueryDelete("log_tarif", array("id_service" => $vpbx["id"]));
+                $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
+            }
+        }
+    }
+    // =========================================================================================================================================
     function services_8800_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
@@ -3047,11 +3106,14 @@ class voipRegion
         return $rs;
     }
 
-    static public function getEmailMsg($client, $needSendE164)
+    static public function _getEmailMsg($client, $needSendE164)
     {
         $a = array();
         foreach($needSendE164 as $n)
         {
+            if(!isset(self::$e164Region[$n]))
+                return false;
+
             if(!isset($a[self::$e164Region[$n]]))
                 $a[self::$e164Region[$n]] = array();
 
@@ -3066,6 +3128,80 @@ class voipRegion
             $msg .= self::getRegionRegs($client, $region, $numbers);
 
         return $msg ? $msgHeader.$msg : false;
+    }
+
+    static public function getEmailMsg($clientId, $needSendE164)
+    {
+        $msgHeader = "Здравствуйте!\n";
+        $msg = "";
+
+        foreach($needSendE164 as $n)
+        {
+            $msg .= self::getMsg($clientId, $n);
+        }
+
+        return $msg ? $msgHeader.$msg : false;
+    }
+
+
+    static private function getMsg($clientId, $number)
+    {
+        global $db_ats;
+
+        $pbx = array(
+                "99" => "sip.mcn.ru",
+                "96" => "37.228.82.12",
+                "97" => "37.228.80.6",
+                "98" => "37.228.81.6",
+                "95" => "37.228.85.6",
+                "94" => "37.228.83.6",
+                "93" => "37.228.84.6",
+                "87" => "37.228.86.6",
+                "88" => "37.228.87.6"
+                );
+
+        $numberId = ats2Numbers::getNumberId($number, $clientId);
+
+        $msg = "";
+
+        if ($numberId )
+        {
+            $number = $db_ats->GetRow("select * from a_number where id = '".$numberId."'");
+
+            if ($number)
+            {
+                foreach($db_ats->AllRecords("select c_id from a_link where number_id = '".$numberId."' and c_type in ('line', 'trunk')") as $line)
+                {
+                    $lineId = $line["c_id"];
+
+                    if ($lineId)
+                    {
+                        $a = account::get($lineId);
+
+                        $permit = "";
+
+                        if ($a["permit_on"] == "auto")
+                        {
+                            $permit = "автоматическая привязка при первой регистрации";
+                        } elseif ($a["permit_on"] == "no") {
+                            $permit = "любой адрес";
+                        } elseif ($a["permit_on"] == "yes"){
+                            $permit = "разрешено: ".str_replace(",", " ", $a["permit"]);
+                        }
+
+                        $msg .= "\n-----------------------------------------\n".
+                            "Номер телефона: ".$number["number"]."\n".//($l["callerid"]? $l["callerid"]: "***trunk***")."\n".
+                            "SIP proxy: ".$pbx[$number["region"]]."\n".
+                            ($a["host_type"] == "dynamic" ? "register: Да\n" : "").
+                            "username: ".$a["account"]."\n".
+                            "password: ".$a["password"]."\n".
+                            "привязка: ".$permit."\n";
+                    }
+                }
+            }
+        }
+
+        return $msg;
     }
 
     static private function getRegionRegs($client, $region, $_e164s)

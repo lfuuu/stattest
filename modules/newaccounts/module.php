@@ -269,7 +269,8 @@ class m_newaccounts extends IModule
             if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] >= 0) {
                 if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'],$currency)) {
                     //echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
-                    $sum = round($R1[$bill_no]['sum_full'], 2);
+                    //$sum = round($R1[$bill_no]['sum_full'], 2);
+                    $sum = round($R1[$bill_no]['sum'], 2);
                     if ($currency == 'RUR')
                         $sum_rub = $sum;
                     else{
@@ -4543,7 +4544,8 @@ $sql .= "    order by client, bill_no";
             where
                     b.bill_no = l.bill_no
                 and client_id = '".$fixclient_data['id']."'
-                and type='zalog'") as $z)
+                and type='zalog'
+                and b.bill_date<='".$date_to."'") as $z)
         {
             $z["sum_income"] = (
                     $z["currency"] == "USD" ? 
@@ -4556,7 +4558,6 @@ $sql .= "    order by client, bill_no";
             $zalog[$z["date"]."-".count($zalog)] = $z;
             $S_zalog += $z["sum_income"];
         }
-
 
         ksort($R);
         //tabledbg($R);
@@ -5332,6 +5333,11 @@ $sql .= "    order by client, bill_no";
                 ";
                 ob_start();
                 $db->Query($query);
+
+                //Обновление списка документов
+                $b = new Bill($_REQUEST['bill_no']);
+                $b->updateBill2Doctypes(null, false);
+
                 ob_end_clean();
                 if(mysql_errno()){
                     echo 'MySQLErr';
