@@ -75,6 +75,8 @@ function do_events()
                                                     }
                                                 } break; 
 
+                    case 'virtpbx_tarif_changed': SyncVirtPbx::changeTarif($param["client_id"], $param["usage_id"]); break;
+
                     case 'usage_voip__insert':
                     case 'usage_voip__update':
                     case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;

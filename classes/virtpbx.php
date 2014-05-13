@@ -472,12 +472,14 @@ class virtPbxAction
 
         global $db_ats;
 
-        $db_ats->QueryUpdate("a_virtpbx", "client_id", array(
+        $q = array(
                     "client_id" => $l["client_id"],
                     "tarif_id" => $l["tarif_id"],
                     "usage_id" => $l["usage_id"]
-                    )
-                );
+                    );
+
+        $db_ats->QueryUpdate("a_virtpbx", "client_id", $q);
+
+        event::go("virtpbx_tarif_changed", $q);
     }
-    
 }
