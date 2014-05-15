@@ -23,6 +23,19 @@ class SyncVirtPbx
         return self::_send($tarif["ip"], "create", $data);
     }
 
+    public function stop($clientId)
+    {
+        self::$clientId = $clientId;
+
+        $tarif = self::getTarif();
+
+        $data = array(
+                "client_id"  => self::$clientId
+                );
+
+        return self::_send($tarif["ip"], "delete", $data);
+    }
+
     public function changeTarif($clientId, $usageId)
     {
         $tarif = self::getTarif($clientId, $usageId);

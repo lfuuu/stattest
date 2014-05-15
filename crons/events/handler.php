@@ -62,18 +62,7 @@ function do_events()
 
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
-                    case 'usage_virtpbx__delete':
-                                                if(SyncCore::checkProductState('vpbx', $param/*id, client*/) == 'add')
-                                                {
-                                                    if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
-                                                    {
-                                                        $client = ClientCard::find("first", array("client" => $param[1]));
-                                                        if ($client)
-                                                        {
-                                                            virtpbx::startVpbx($client->id);
-                                                        }
-                                                    }
-                                                } break; 
+                    case 'usage_virtpbx__delete': SyncCore::checkProductState('vpbx', $param/*id, client*/); break; 
 
                     case 'virtpbx_tarif_changed': SyncVirtPbx::changeTarif($param["client_id"], $param["usage_id"]); break;
 
