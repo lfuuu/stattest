@@ -205,6 +205,11 @@ class SyncCoreHelper
         return array("account" => array("id" => $clientId), "products" => array($productStruct));
     }
 
+    public function getRemoveProductStruct($clientId, $product)
+    {
+        return array("account_id" => $clientId, "product" => $product);
+    }
+
     public function adminChangeStruct($superId, $email, $password, $isActive)
     {
         return array("client_id" => $superId, "admin" => array("email" => $email, "password" => $password, "active" => (bool)$isActive));

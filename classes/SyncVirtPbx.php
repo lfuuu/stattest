@@ -23,6 +23,20 @@ class SyncVirtPbx
         return self::_send($tarif["ip"], "create", $data);
     }
 
+    public function changeTarif($clientId, $usageId)
+    {
+        $tarif = self::getTarif($clientId, $usageId);
+
+        $data = array(
+                "client_id"  => $clientId,
+                "phones"     => $tarif["num_ports"],
+                "faxes"      => $tarif["is_fax"] ? 5 : 0,
+                "record"     => (bool)$tarif["is_record"],
+                );
+
+        return self::_send($tarif["ip"], "update", $data);
+    }
+
     public function addDid($clientId, $number)
     {
         global $db;
@@ -93,34 +107,55 @@ class SyncVirtPbx
         return array_keys($numbers);
     }
 
-    private function getTarif($clientId = null)
+    private function getTarif($clientId = null, $usageId = null)
     {
         global $db;
 
         if ($clientId === null)
             $clientId = self::$clientId;
 
-        $row = $db->GetRow("
-                SELECT 
-                    t.num_ports, 
-                    space, 
-                    is_record, 
-                    is_fax, 
-                    s.ip 
-                FROM (
-                    SELECT 
-                        max(u.id) as virtpbx_id 
-                    FROM 
-                        usage_virtpbx u, clients c 
-                    WHERE 
-                            c.id = '".$clientId."' 
-                        AND c.client = u.client 
-                        AND actual_from <= cast(now() AS date) 
+        if ($usageId === null)
+        {
+            $usageId = $db->getValue("
+                    SELECT
+                        max(u.id) as virtpbx_id
+                    FROM
+                        usage_virtpbx u, clients c
+                    WHERE
+                            c.id = '".$clientId."'
+                        AND c.client = u.client
+                        AND actual_from <= cast(now() AS date)
                         AND actual_to >= cast(now() AS date)
-                ) a, usage_virtpbx u
+                    ");
+        }
+
+        //
+
+        $row = $db->GetRow("
+                SELECT
+                    t.num_ports,
+                    space,
+                    is_record,
+                    is_fax,
+                    s.ip
+                FROM (select (
+                        select 
+                            id_tarif 
+                        from 
+                            log_tarif 
+                        where 
+                                id_service = u.id 
+                            and service = 'usage_virtpbx' 
+                            and date_activation < now() 
+                        ORDER BY 
+                        date_activation DESC, id DESC LIMIT 1
+                        ) as tarif_id, 
+                        server_pbx_id
+                    FROM usage_virtpbx u
+                    WHERE u.id = '".$usageId."' ) u
                 LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
                 LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
-                WHERE u.id = a.virtpbx_id
+
                 ");
 
         return $row;

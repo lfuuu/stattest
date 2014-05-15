@@ -53,8 +53,8 @@ function do_events()
                 {
                     case 'add_super_client': SyncCore::AddSuperClient($param); break;
 
-                    case 'add_account': 
-                    case 'client_set_status': SyncCore::AddAccount($param); break;
+                    case 'add_account':       SyncCore::AddAccount($param, true);  break;
+                    case 'client_set_status': SyncCore::AddAccount($param, false); break;
 
                     //case 'contact_add_email': SyncCore::AddEmail($param);break;
                     case 'password_changed': SyncCore::updateAdminPassword($param);break;
@@ -63,7 +63,7 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-                                                if(SyncCore::checkProductState('vpbx', $param/*id, client*/) == 'added')
+                                                if(SyncCore::checkProductState('vpbx', $param/*id, client*/) == 'add')
                                                 {
                                                     if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
                                                     {
@@ -74,6 +74,8 @@ function do_events()
                                                         }
                                                     }
                                                 } break; 
+
+                    case 'virtpbx_tarif_changed': SyncVirtPbx::changeTarif($param["client_id"], $param["usage_id"]); break;
 
                     case 'usage_voip__insert':
                     case 'usage_voip__update':

@@ -21,9 +21,21 @@ class SyncCore
         }
     }
 
-    public function addAccount($clientId)
+    public function addAccount($clientId, $isResetProductState = false)
     {
         $cl = ClientCard::find('first', array("id" => $clientId));
+
+        if (!$cl)
+            throw new Exeption("Клиент не найден");
+
+        if ($isResetProductState)
+        {
+            $clientProducts = ProductState::find("first", array("client_id" => $clientId));
+
+            if ($clientProducts)
+                $clientProducts->delete();
+        }
+
         // addition card
         $struct = SyncCoreHelper::getAccountStruct($cl);
         $action = "add_accounts_from_stat";
@@ -99,7 +111,7 @@ class SyncCore
 
     public function checkProductState($product, $param)
     {
-        if (!defined("PHONE_SERVER") || !PHONE_SERVER) return;
+        if ($product == "phone" && !defined("PHONE_SERVER") || !PHONE_SERVER) return;
 
         list($usageId, $client) = $param;
 
@@ -107,26 +119,31 @@ class SyncCore
 
         if (!$client) return false;
 
-        $action = "add_products_from_stat";
-
         $currentState = SyncCoreHelper::getProductSavedState($client->id, $product);
         $newState = SyncCoreHelper::getProductState($client->id, $product);
 
         SyncCoreHelper::setProductSavedState($client->id, $product, (bool)$newState);
 
+        $action = null;
+
         if (!$currentState && $newState)
         {
+            $action = "add";
+            $actionJSON = "add_products_from_stat";
             $struct = SyncCoreHelper::getAddProductStruct($client->id, $newState);
-
-            if ($struct)
-            {
-                JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
-
-                return 'added';
-            }
+        }else if($currentState && !$newState)
+        {
+            $action = "remove";
+            $actionJSON = "remove_product";
+            $struct = SyncCoreHelper::getRemoveProductStruct($client->id, $product);
         }
 
-        return null;
+        if ($action && $struct)
+        {
+            JSONQuery::exec(self::getCoreApiUrl().$actionJSON, $struct);
+        }
+
+        return $action;
     }
 
     public function adminChanged($clientId)
