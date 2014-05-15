@@ -4300,11 +4300,11 @@ if($client != "nbn")
                         and nl.bill_no = t.bill_no) as count_3,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id = '4acdb33c-0319-11e2-9c41-00155d881200'
+                        where item_id in ('4acdb33c-0319-11e2-9c41-00155d881200', '14723f35-d423-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_9,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id = '72904487-32f6-11e2-9369-00155d881200'
+                        where item_id in ('72904487-32f6-11e2-9369-00155d881200', '2c6d3955-d423-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
@@ -4414,11 +4414,11 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         and nl.bill_no = t.bill_no) as count_3,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id = '4acdb33c-0319-11e2-9c41-00155d881200'
+                        where item_id in ('4acdb33c-0319-11e2-9c41-00155d881200', '14723f35-d423-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_9,
 
 				(select sum(amount) from newbill_lines nl
-                        where item_id = '72904487-32f6-11e2-9369-00155d881200'
+                        where item_id in ('72904487-32f6-11e2-9369-00155d881200', '2c6d3955-d423-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_11,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
