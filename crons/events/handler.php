@@ -53,8 +53,8 @@ function do_events()
                 {
                     case 'add_super_client': SyncCore::AddSuperClient($param); break;
 
-                    case 'add_account': 
-                    case 'client_set_status': SyncCore::AddAccount($param); break;
+                    case 'add_account':       SyncCore::AddAccount($param, true);  break;
+                    case 'client_set_status': SyncCore::AddAccount($param, false); break;
 
                     //case 'contact_add_email': SyncCore::AddEmail($param);break;
                     case 'password_changed': SyncCore::updateAdminPassword($param);break;

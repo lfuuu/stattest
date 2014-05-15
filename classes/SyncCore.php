@@ -21,9 +21,21 @@ class SyncCore
         }
     }
 
-    public function addAccount($clientId)
+    public function addAccount($clientId, $isResetProductState = false)
     {
         $cl = ClientCard::find('first', array("id" => $clientId));
+
+        if (!$cl)
+            throw new Exeption("Клиент не найден");
+
+        if ($isResetProductState)
+        {
+            $clientProducts = ProductState::find("first", array("client_id" => $clientId));
+
+            if ($clientProducts)
+                $clientProducts->delete();
+        }
+
         // addition card
         $struct = SyncCoreHelper::getAccountStruct($cl);
         $action = "add_accounts_from_stat";
