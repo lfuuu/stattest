@@ -348,8 +348,25 @@ class virtPbx
                 );
     }
 
+    public function setStoped($clientId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $clientId);
+
+        global $db_ats;
+
+        $db_ats->QueryUpdate("a_virtpbx", 
+                "client_id", 
+                array(
+                    "client_id" => $clientId,
+                    "is_started" => "no"
+                    )
+                );
+    }
+
     public function startVpbx($clientId)
     {
+        l::ll(__CLASS__,__FUNCTION__, $clientId);
+
         try{
             if ($rr = SyncVirtPbx::create($clientId))
             {
@@ -365,6 +382,32 @@ class virtPbx
             if ($code == 547) //Для лицевого счёта 9130 уже существует экземпляр vpbx
             {
                 self::setStarted($clientId);
+                return true;
+            }
+
+            throw $e;
+        }
+    }
+
+    public function stopVpbx($clientId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $clientId);
+
+        try{
+            if ($rr = SyncVirtPbx::stop($clientId))
+            {
+                self::setStoped($clientId);
+                return true;
+            }
+
+            throw new Exception("VPBX not stoped", 500);
+        } catch(Exception $e)
+        {
+            $code = $e->getCode();
+
+            if ($code == 539) //Лицевой счёт не найден
+            {
+                self::setStoped($clientId);
                 return true;
             }
 
@@ -434,6 +477,14 @@ class virtPbxAction
             }
         }
 
+        if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
+        {
+            if (!$status->isEnabled() && !$status->isStarted())
+            {
+                virtPbx::startVpbx($l["client_id"]);           
+            }
+        }
+
     }
 
     public function del(&$l)
@@ -452,6 +503,14 @@ class virtPbxAction
             virtPbx::markDelete($l);
         }else{
             virtPbx::delet($l);
+        }
+
+        if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
+        {
+            if ($status->isEnabled() && $status->isStarted())
+            {
+                virtPbx::stopVpbx($l["client_id"]);           
+            }
         }
     }
 
