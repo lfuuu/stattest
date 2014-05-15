@@ -49,7 +49,7 @@ if ($action=='add_client') {
 		if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
 		if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
 		$O->Add('income',$P['client_comment']);
-        if ($contactId)
+        if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
         {
             $O->admin_contact_id = $contactId;
             $O->admin_is_active = 0;
