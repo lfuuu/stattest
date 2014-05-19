@@ -18,6 +18,10 @@ function smarty_make_timestamp($string)
     if(empty($string)) {
         $string = "now";
     }
+
+    if (preg_match("/^\d{10}$/", $string))// already timestamp
+        return (int)$string;
+
     $time = strtotime($string);
     if (is_numeric($time) && $time != -1)
         return $time;
