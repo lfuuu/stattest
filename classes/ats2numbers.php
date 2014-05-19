@@ -533,7 +533,7 @@ class ats2NumberAction
 
 class ats2Helper
 {
-    public function autocreateAccounts($usageId, $isTrunk)
+    public function autocreateAccounts($usageId, $isTrunk, $isSync = false)
     {
         global $db, $db_ats;
 
@@ -614,6 +614,9 @@ class ats2Helper
                             )
                         );
             }
+
+            if ($isSync)
+                ats2sync::updateClient($clientId);
         }
     }
 }
