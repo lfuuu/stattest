@@ -92,7 +92,7 @@ function do_events()
                                  }
                                  break;
 
-                case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1]); break;
+                case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
             }
         } catch (Exception $e)
         {
