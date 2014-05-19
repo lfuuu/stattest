@@ -1574,7 +1574,7 @@ class IPList{
                 if($v[1]>65536)
                     die("tech_nets is WROONG!");
                 for($i = $v[0];$i<$v[0]+$v[1];$i++){
-                    $this->data[$i] = array('new',0,0);
+                    $this->data[$i] = array('new',0,0, '', '');
                 }
             }
 
@@ -1630,7 +1630,7 @@ class IPList{
             INNER JOIN
                 `tech_ports`
             ON
-                `tech_ports`.`id`=`R`.`port_id`
+                `tech_ports`.`id`=`P`.`port_id`
             WHERE
                 `R`.`actual_from`<=`R`.`actual_to`
             AND `R`.`actual_from`!='2029-01-01'
@@ -1693,6 +1693,7 @@ class IPList{
                     if(!isset($S[$t][$v[1]])){
                         $S[$t][$v[1]] = array();
                     }
+
                     $r = array(
                         'actual_to'=>$v[1],
                         'id'=>$v[2],
