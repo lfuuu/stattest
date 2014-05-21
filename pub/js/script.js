@@ -177,6 +177,14 @@ function form_newpayments_hide()
 		document.getElementById('tr_bank').style.display='';
     }
 
+    if (val != "ecash")
+    {
+		document.getElementById('tr_ecash_operator').style.display='none';
+		document.getElementById('ecash_operator').selectedIndex =1;
+    }else{
+		document.getElementById('tr_ecash_operator').style.display='';
+    }
+
 }
 
 function form_ip_ports_get_ports() {

@@ -5221,6 +5221,8 @@ $sql .= "    order by client, bill_no";
             $filter = '';
         }
 
+        $filterBank = $filterEcash = "";
+
         $type = get_param_raw('type','payment_date');
         if ($type!='payment_date' && $type!='oper_date') $type = 'add_date';
         $design->assign('type',$type);
@@ -5228,21 +5230,37 @@ $sql .= "    order by client, bill_no";
         $bdefault = array("mos" => true, "citi" => true, "ural" => true, "sber" => true);
         $banks = get_param_raw("banks", $bdefault);
         $design->assign("banks", $banks);
-        $filter .= " and P.bank in ('".implode("','", array_keys($banks))."')";
+
+        $edefault = array("cyberplat"=> true, "yandex" => true, "uniteller" => true);
+        $ecashs = get_param_raw("ecashs", $edefault);
+        $design->assign("ecashs", $ecashs);
+
 
         $types = '';
-        foreach (array('bank','prov','neprov') as $k) {
+        foreach (array('bank','prov','neprov', 'ecash') as $k) {
             if ($v = get_param_raw($k)) $types .= ($types?',':'').'"'.$k.'"';
             $design->assign($k,$v);
         }
 
-        if (!$types) $R = array(); else $R = $db->AllRecords($q='select P.*,C.manager,C.client,C.company,B.bill_date,U.user from newpayments as P'.
-                        ' INNER JOIN clients as C ON C.id=P.client_id'.
-                        ' LEFT JOIN user_users as U ON U.id=P.add_user'.
-                        ' LEFT JOIN newbills as B ON B.bill_no=P.bill_no'.
-                        ' WHERE '.$type.'>=FROM_UNIXTIME('.$from.') AND '.$type.'<FROM_UNIXTIME('.$to.')'.
-                        ' AND P.type IN ('.$types.')'.$filter.' LIMIT 5000');
-        $S = array('bRUR'=>0,'pRUR'=>0,'nRUR'=>0,'bUSD'=>0,'pUSD'=>0,'nUSD'=>0,'RUR'=>0,'USD'=>0);
+        $filterBank = " P.bank in ('".implode("','", array_keys($banks))."')";
+
+        if (isset($types["ecash"]))
+        {
+            $filterEcash = " P.ecash_operator in ('".implode("','", array_keys($ecashs))."')";
+        }
+
+        $filter .= " and (".$filterBank.($filterEcash ? " OR ".$filterEcash : "").")";
+
+        if (!$types) $R = array(); else $R = $db->AllRecords($q='select P.*,C.manager,C.client,C.company,B.bill_date,U.user from newpayments as P
+                         INNER JOIN clients as C ON C.id=P.client_id
+                         LEFT JOIN user_users as U ON U.id=P.add_user
+                         LEFT JOIN newbills as B ON B.bill_no=P.bill_no
+                         WHERE '.$type.'>=FROM_UNIXTIME('.$from.') AND '.$type.'<FROM_UNIXTIME('.$to.')
+                         AND P.type IN ('.$types.')'.$filter.' LIMIT 5000');
+
+        $S = array(
+            'bRUR'=>0, 'pRUR'=>0, 'nRUR'=>0, 'eRUR'=>0,
+            'bUSD'=>0, 'pUSD'=>0, 'nUSD'=>0,'RUR'=>0,'USD'=>0);
 
         foreach ($R as &$r) {
             $r['type']=substr($r['type'],0,1);

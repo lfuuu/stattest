@@ -17,7 +17,7 @@ class ApiLk
         $params = array("client_id" => $c->id, "client_currency" => $c->currency);
     
         list($R, $sum, ) = BalanceSimple::get($params);
-    
+
         $cutOffDate = self::_getCutOffDate($clientId);
     
         $bills = array();
@@ -43,7 +43,7 @@ class ApiLk
                 $bill["pays"][] = array(
                                 "no"   => $p["payment_no"],
                                 "date" => $p["payment_date"],
-                                "type" => self::_getPaymentTypeName($p["type"]),
+                                "type" => self::_getPaymentTypeName($p),
                                 "sum"  => $p["sum_rub"]
                 );
             }
@@ -1478,13 +1478,21 @@ class ApiLk
         return $o->getOptions();
     }
 
-    private function _getPaymentTypeName($type)
+    private function _getPaymentTypeName($pay)
     {
-        switch ($type)
+        switch ($pay["type"])
         {
         	case 'bank': $v = "Банк"; break;
         	case 'prov': $v = "Наличные"; break;
-        	case 'neprov': $v = "Эл.денги"; break;
+        	case 'neprov': $v = "Эл.деньги"; break;
+            case 'ecash': $v = "Эл.деньги";
+                switch($pay["ecash_operator"])
+                {
+                    case 'yandex': $v = "Яндекс.Деньги"; break;
+                    case 'cyberplat': $v = "Cyberplat"; break;
+                    case 'uniteller': $v = "Uniteller"; break;
+                }
+                break;
         	default: $v = "Банк";
         }
     
