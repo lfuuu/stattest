@@ -55,7 +55,11 @@ class SyncVirtPbx
         global $db;
 
         $tarif = self::getTarif($clientId);
-        $region = $db->GetValue("select region from voip_numbers where number = '".$number."'") ?: 99;
+        $region = $db->GetValue("select region from voip_numbers where number = '".$number."'");
+
+        //if line without number, or trunk
+        if (!$region)
+            $region = $db->GetValue("SELECT region FROM `usage_voip` where E164 = '".$number."' and cast(now() as date) between actual_from and actual_to limit 1") ?: 99;
 
         return self::_send($tarif["ip"], "add_did", array(
                     "client_id" => $clientId,
