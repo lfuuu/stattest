@@ -69,6 +69,12 @@
 </select>{$item.comment}</TD></TR>
 {/if}{/foreach}
 
+{if $dbform_table == "newpayments"}
+<script>
+    form_newpayments_hide();
+</script>
+{/if}
+
 {foreach from=$dbform_includesForm item=item name=outer}{include file=$item}{/foreach}
 </TBODY></TABLE>
 {if count($dbform_includesPreL) || count($dbform_includesPreR)}

@@ -1667,8 +1667,9 @@ class DbFormNewpayments extends DbForm{
         $this->fields['oper_date']=array('type'=>'text','default'=>date('Y-m-d'));
         $this->fields['payment_no']=array('type'=>'text','default'=>'0');
         $this->fields['payment_rate']=array('type'=>'text');
-        $this->fields['type']=array('assoc_enum'=>array('bank'=>'b bank','prov'=>'p prov', 'neprov'=>'n neprov'),'default'=>'bank', 'add'=>' onchange=form_newpayments_hide()');
+        $this->fields['type']=array('assoc_enum'=>array('bank'=>'b bank','prov'=>'p prov', 'neprov'=>'n neprov', 'ecash' => "Электронные деньги"),'default'=>'bank', 'add'=>' onchange=form_newpayments_hide();');
         $this->fields['bank']=array('assoc_enum'=>array('citi'=>'CitiBank','mos'=>'Банк Москвы','ural'=>'УралСиб','sber'=>'Сбербанк'),'default'=>'mos');
+        $this->fields['ecash_operator']=array('assoc_enum'=>array('Cyberplat'=>'Cyberplat','Yandex'=>'Яндекс.Деньги','Uniteller'=>'Uniteller'),'default'=>'');
         $this->fields['comment']=array('default'=>'');
         $this->fields['bill_no']=array('type'=>'text');
     }
@@ -1680,6 +1681,15 @@ class DbFormNewpayments extends DbForm{
         $this->fields['add_date']=array();
         $this->dbform['add_user']=$user->Get('id');
         $this->dbform['add_date']=array('NOW()');
+
+        if($this->dbform["type"] != "ecash")
+        {
+            $this->dbform["ecash_operator"] = "";
+        } else {
+            $this->dbform["comment"] = $this->dbform["ecash_operator"]." pay. ".$this->dbform["comment"];
+            $this->dbform["ecash_operator"] = strtolower($this->dbform["ecash_operator"]);
+        }
+
         $this->fields['bill_vis_no']=array();
         $this->dbform['bill_vis_no']=$this->dbform['bill_no'];
         if (!$this->dbform['payment_rate']) {
@@ -2042,6 +2052,7 @@ $GLOBALS['translate_arr']=array(
     '*.per_month_price' => 'Абонентская плата (с НДС)',
     '*.per_sms_price' => 'за 1 СМС (с НДС)',
     '*.gpon_reserv' => 'Сеть под GPON',
-    '*.trunk_vpbx_id' => 'Транк на VPBX'
+    '*.trunk_vpbx_id' => 'Транк на VPBX',
+    'newpayments.ecash_operator' => "Оператор платежа"
     );
 ?>

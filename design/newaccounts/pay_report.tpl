@@ -22,7 +22,7 @@
 	<td>{if !$fullscreen}<a href='{$LINK_START}module=clients&id={$item.client_id}'>{$item.client}</a>{else}{$item.client}{/if}</td>
 	<td style='font-size:85%'>{$item.company}</td>
 	<td>{$item.manager}</td>
-	<td>{$item.bank}</td>
+	<td>{if $item.type=='e'}{$item.ecash_operator}{else}{$item.bank}{/if}</td>
 	<td>{$item.payment_no}</td>
 	<td>{$item.payment_date}</td>
 	<td>{$item.oper_date}</td>
@@ -36,6 +36,7 @@
 <tr><td colspan=2>Сумма по RUR</td><td>b</td><td></td><td></td><td>{$totals.bRUR}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUR</td><td>p</td><td></td><td></td><td>{$totals.pRUR}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUR</td><td>n</td><td></td><td></td><td>{$totals.nRUR}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUR</td><td>n</td><td></td><td></td><td>{$totals.eRUR}р</td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan=2>Сумма по RUR</td><td></td><td></td><td></td><td>{$totals.RUR}р</td><td></td><td></td><td></td><td></td></tr>
 {if $totals.bUSD+$totals.pUSD+$totals.nUSD!=0}
 	<tr><td colspan=2>Сумма по USD</td><td>b</td><td></td><td></td><td>{$totals.bUSD}$</td><td></td><td></td><td></td><td></td></tr>
@@ -109,6 +110,7 @@ function checkPeriod()
           		<input type=checkbox name=bank{if $bank} checked{/if}>b
           		<input type=checkbox name=prov{if $prov} checked{/if}>p
           		<input type=checkbox name=neprov{if $neprov} checked{/if}>n
+          		<input type=checkbox name=ecash{if $ecash} checked{/if}>Эл. деньги
 			</td></tr>
         <tr>
           <TD class=left>Банки</TD>
@@ -117,6 +119,13 @@ function checkPeriod()
           		<input type=checkbox name=banks[citi]{if $banks.citi} checked{/if}>СитиБанк
           		<input type=checkbox name=banks[ural]{if $banks.ural} checked{/if}>УралСиб
           		<input type=checkbox name=banks[sber]{if $banks.sber} checked{/if}>СберБанк
+			</td></tr>
+        <tr>
+          <TD class=left>Операторы электронных денег</TD>
+          <td valign=top>
+          		<input type=checkbox name=ecashs[cyberplat]{if $ecashs.cyberplat} checked{/if}>Cyberplat
+          		<input type=checkbox name=ecashs[yandex]{if $ecashs.yandex} checked{/if}>Яндекс.Деньги
+          		<input type=checkbox name=ecashs[uniteller]{if $ecashs.uniteller} checked{/if}>Uniteller
 			</td></tr>
 		<tr>
 			<td class="left">Пользователь: </td>
