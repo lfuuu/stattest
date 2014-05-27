@@ -564,6 +564,11 @@ class ats2Helper
             throw new Exception("Номер не найден");
         }
 
+        $vpbxId = $db_ats->GetValue("select virtpbx_id from a_virtpbx_link where type='number' and type_id = '".$numberId."'");
+
+        if ($vpbxId)
+            throw new Exception("Номер заведен на vpbx");
+
 
         $currentCountAccounts = ats2Numbers::getLinkCount($numberId);
 
