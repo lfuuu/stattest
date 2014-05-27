@@ -137,7 +137,7 @@
 			&nbsp;
 		{/if}
 		</TD>
-	<TD align="right"><span title="{$pay.add_date}">{$pay.user_name}</span>{if access('newaccounts_payments','delete')}<a onclick="return confirm('Вы уверены?')" href="{$LINK_START}module=newaccounts&action=pay_delete&id={$pay.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>{/if}</TD>
+	<TD align="right"><span title="{$pay.add_date}">{$pay.user_name}</span>{if (access('newaccounts_payments','delete') && $pay.type != 'ecash')}<a onclick="return confirm('Вы уверены?')" href="{$LINK_START}module=newaccounts&action=pay_delete&id={$pay.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>{/if}</TD>
 	{else}
 	<TD colspan=4>&nbsp;</TD>
 	{/if}
