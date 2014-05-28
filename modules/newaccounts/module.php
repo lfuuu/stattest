@@ -1031,12 +1031,15 @@ class m_newaccounts extends IModule
         }
 
         $qrs = array();
+        $qrsDate = array();
         foreach($db->QuerySelectAll("qr_code", array("client_id" => $fixclient_data["id"])) as $q)
         {
             $qrs[$q["bill_no"]][$q["doc_type"]] = $q["id"];
+            $qrsDate[$q["bill_no"]][$q["doc_type"]] = $q["date"];
         }
 
         $design->assign("qrs", $qrs);
+        $design->assign("qrs_date", $qrsDate);
         $bill_total_add['t'] = $bill_total_add['n']+$bill_total_add['p'];
         $design->assign('bill_total_add',$bill_total_add);
 
