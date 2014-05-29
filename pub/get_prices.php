@@ -138,6 +138,19 @@
       $filter = " and g.dest=1 and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>68,'param'=>'d1', 'date'=>date('Y-m-d'));
 
+    }elseif ($p_region == 93 && $p_dest == 1){
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>79,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 93 && $p_dest == 2){
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>79,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 93 && $p_dest == 3){
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>79,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 93 && $p_dest == 4){
+      $filter = " and g.dest=1 and d.mob=false ";
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>78,'param'=>'d1', 'date'=>date('Y-m-d'));
+    }elseif ($p_region == 93 && $p_dest == 5){
+      $filter = " and g.dest=1 and d.mob=true ";
+      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>78,'param'=>'d1', 'date'=>date('Y-m-d'));
+
     }elseif ($p_region == 87 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>73,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 87 && $p_dest == 2){
