@@ -688,7 +688,7 @@ class ApiLk
 
     public static function getFreeNumbers($region_id = 0, $isSimple = false)
     {
-        $valid_regions = array('87','88','94','95','96','97','98','99');
+        $valid_regions = array('87','88','94','95','93','97','98','99');
         $ret = array();
 
         $q = "SELECT 
