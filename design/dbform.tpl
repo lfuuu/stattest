@@ -42,6 +42,8 @@
             <option value='7846215'>7(846) 215</option>
         {elseif $region eq '94'}
             <option value='7383312'>7(383) 312</option>
+        {elseif $region eq '93'}
+            <option value='7843207'>7(843) 207</option>
         {elseif $region eq '87'}
             <option value='7863309'>7(863) 309</option>
         {/if}
