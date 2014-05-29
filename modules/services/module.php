@@ -2092,7 +2092,7 @@ class m_services extends IModule{
         {
             if ($vpbx["actual_from"] == "2029-01-01")
             {
-                $db->QueryDelete("log_tarif", array("id_service" => $vpbx["id"]));
+                $db->QueryDelete("log_tarif", array("service" => "usage_virtpbx", "id_service" => $vpbx["id"]));
                 $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
             }
         }
