@@ -1602,7 +1602,7 @@ class ApiLk
                         'bill_no' => null ,
                         'service' => $service,
                         'service_id' => $service_id,
-                        'user_author' => $user
+                        'user_author' => "AutoLK"
         );
 
         if ($user == "ava") {
