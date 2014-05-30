@@ -67,7 +67,7 @@ class virtPbxChecker
 
         $d = array();
         foreach($_db->AllRecords($sql) as $l)
-            $d[$l["usage_id"]] = $l;
+            $d[$l["client_id"]] = $l;
 
         return $d;
     }
@@ -80,6 +80,7 @@ class virtPbxChecker
                 "added" => array(), 
                 "deleted" => array(), 
                 "changed_tarif" => array(), 
+                "changed_usage_id" => array(), 
                 );
 
         foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
@@ -91,6 +92,10 @@ class virtPbxChecker
         foreach($actual as $usageId => $l)
             if(isset($saved[$usageId]) && $saved[$usageId]["tarif_id"] != $l["tarif_id"]) 
                 $d["changed_tarif"][$usageId] = $l + array("prev_tarif_id" => $saved[$usageId]["tarif_id"]);
+
+        foreach($actual as $usageId => $l)
+            if(isset($saved[$usageId]) && $saved[$usageId]["usage_id"] != $l["usage_id"]) 
+                $d["changed_usage_id"][$usageId] = $l + array("prev_usage_id" => $saved[$usageId]["usage_id"]);
 
 
         foreach($d as $k => $v)
@@ -431,6 +436,9 @@ class virtPbxDiff
         if($diff["changed_tarif"])
             self::tarifChanged($diff["changed_tarif"]);
 
+        if($diff["changed_usage_id"])
+            self::usageIdChanged($diff["changed_usage_id"]);
+
     }
 
     private function add(&$d)
@@ -455,6 +463,14 @@ class virtPbxDiff
 
         foreach($d as $cleintId => $l)
             virtPbxAction::tarifChanged($l);
+    }
+
+    private function usageIdChanged(&$d)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $d);
+
+        foreach($d as $cleintId => $l)
+            virtPbxAction::usageIdChanged($l);
     }
 
 }
@@ -534,11 +550,24 @@ class virtPbxAction
         $q = array(
                     "client_id" => $l["client_id"],
                     "tarif_id" => $l["tarif_id"],
-                    "usage_id" => $l["usage_id"]
                     );
 
         $db_ats->QueryUpdate("a_virtpbx", "client_id", $q);
 
         event::go("virtpbx_tarif_changed", $q);
+    }
+
+    public function usageIdChanged($l)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
+        global $db_ats;
+
+        $q = array(
+                    "client_id" => $l["client_id"],
+                    "usage_id" => $l["usage_id"]
+                    );
+
+        $db_ats->QueryUpdate("a_virtpbx", "client_id", $q);
     }
 }
