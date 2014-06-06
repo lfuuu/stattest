@@ -890,6 +890,7 @@ class ClientCS {
                 "MCN-Новосибирск" => "mcn94",
                 "MCN-Ростов-на-Дону" => "mcn87",
                 "MCN-НижнийНовгород" => "mcn88",
+                "MCN-Казань" => "mcn93",
                 "WellTime" => "welltime",
                 "IT-Park" => "itpark",
                 "Arhiv" => "arhiv"
