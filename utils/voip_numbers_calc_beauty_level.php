@@ -8,8 +8,8 @@ include PATH_TO_ROOT."conf.php";
 
 
 
-$region = 95;
-$prefix = "7343302";
+$region = 89;
+$prefix = "74232060";
 
 $whereSql = "region = '".$region."' and number like '".$prefix."%'";
 
@@ -17,7 +17,7 @@ $whereSql = "region = '".$region."' and number like '".$prefix."%'";
 //$db->Query("delete from voip_numbers where ".$whereSql);
 
 $sql = "";
-for($i=500;$i<=2999;$i++)
+for($i=0;$i<=499;$i++)
 {
     $num = $prefix.str_pad($i, 11-strlen($prefix), "0", STR_PAD_LEFT); 
     echo "\n".$num;
@@ -32,7 +32,7 @@ work();
 $db->Query("update `voip_numbers` set price = null where ".$whereSql." and beauty_level = 1");
 $db->Query("update `voip_numbers` set price = 29999 where ".$whereSql." and beauty_level = 2");
 $db->Query("update `voip_numbers` set price = 12999 where ".$whereSql." and beauty_level = 3");
-$db->Query("update `voip_numbers` set price = 0 where ".$whereSql." and beauty_level = 4"); //3999
+$db->Query("update `voip_numbers` set price = 3999 where ".$whereSql." and beauty_level = 4"); //3999
 $db->Query("update `voip_numbers` set price = 0 where ".$whereSql." and beauty_level = 0"); //999
 
 
