@@ -2,14 +2,14 @@
 
 	define('NO_WEB',1);
 	define('NUM',35);
-	define('PATH_TO_ROOT','./');
+	define('PATH_TO_ROOT','../');
 	include PATH_TO_ROOT."conf.php";
 
 
 		include INCLUDE_PATH."class.phpmailer.php";
 		include INCLUDE_PATH."class.smtp.php";
 
-        $f = file_get_contents("send_emails3");
+        $f = file_get_contents("send_emails");
         $f = unserialize($f);
 
         $emails = $db->AllRecords(
@@ -20,21 +20,15 @@
                     and co.type='email' 
                     and is_active 
                     and status ='work'
+                    and client_id in (
+                       SELECT distinct client_id FROM `newpayments` WHERE `type` = 'ecash'
+                    )
                     /* and manager != 'Vavilova' */");
 
-        //$emails = array(array("data" => "dga@mcn.ru"));
+        //$emails = array(array("data" => "adima123@yandex.ru"));
+        echo count($emails);
+        //exit();
 
-        //unset($f["my_inbox2006@mail.ru"], $f["shadow_d_@mail.ru"], $f["neomatrixer@mail.ru"], $f["my_inbox2007@mail.ru"]);
-
-        /*
-        $emails = array(
-                array("data" => "my_inbox2007@mail.ru"),
-                array("data" => "my_inbox2006@mail.ru"),
-                array("data" => "shadow_d_@mail.ru"),
-                array("data" => "dga@mcn.ru"),
-                array("data" => "neomatrixer@mail.ru")
-                );
-                */
 
 		$Mail = new PHPMailer();
 		$Mail->SetLanguage("ru","include/");
@@ -43,6 +37,8 @@
 		$Mail->FromName="МСН Телеком";
 		$Mail->Mailer='smtp';
 		$Mail->Host=SMTP_SERVER;
+
+        print_r($Mail);
 		foreach($emails as $adr1)
 
 {
@@ -75,7 +71,7 @@
         echo "\n".$adr["data"];
 
         $Mail->ContentType='text/html';
-        $Mail->Subject = "Компания  \"МСН Телеком\" поздравляет Вас С Новым Годом!";
+        $Mail->Subject = "Моментальная оплата услуг связи МСН Телеком Яндекс.Деньгами";
         $Mail->IsHTML(true);
         $Mail->Body = "
             <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">
@@ -84,13 +80,22 @@
             <meta content=\"text/html; charset=UTF-8\" http-equiv=\"Content-Type\">
             </head>
             <body text=\"#000000\" bgcolor=\"#ffffff\">
-            <img alt=\"С Новый Годом!\" src=\"cid:part1.06010907.08000703@mcn.ru\">
+
+            <p>Оператор МСН Телеком рад сообщить Вам о том, что теперь услуги связи можно оплачивать <b>Яндекс.Деньгами через Личный кабинет на сайте mcn.ru</b>.</p>
+            <p>Обращаем Ваше внимание, что в этом случае <b><u>зачисление средств на Ваш Лицевой счет</u> будет производиться моментально</b>.</p>
+            <p><u>Как оплатить:</u>
+            <br>1. В Личном кабинете на нашем сайте на вкладке \"Счета и платежи\" в меню слева выберите пункт \"Пополнить лицевой счет\" и введите необходимую сумму платежа.
+            <br>2. Нажмите на иконку \"Оплата Яндекс.Деньгами\" и вы перейдете на страницу оплаты в сервисе \"Яндекс.Деньги\".</p>
+            <p><i>Подробная инструкция: <a href=\"http://telephony.mcn.ru/payment/\">http://telephony.mcn.ru/payment/</a></i></p>
+
+            <p>Яндекс.Деньги - это сервис онлайн-платежей, который работает 24 часа в сутки и 7 дней в неделю. Пользоваться Яндекс.Деньгами можно сразу после создания электронного кошелька.</p>
+
             </body>
             </html>
             ";
         //$Mail->AddEmbeddedImage("mcn-2011.jpg", "part1.06010907.08000702@mcn.ru", "mcn-2011.jpg", "base64", "image/jpeg");
         //$Mail->AddEmbeddedImage("blue.png", "part1.06010907.08000702@mcn.ru", "mcn-2012-new-year.png", "base64", "image/png");
-        $Mail->AddEmbeddedImage("NY_mail.png", "part1.06010907.08000703@mcn.ru", "mcn-2013-new-year.png", "base64", "image/png");
+        //$Mail->AddEmbeddedImage("NY_mail.png", "part1.06010907.08000703@mcn.ru", "mcn-2013-new-year.png", "base64", "image/png");
 
         if(!(@$Mail->Send())){
             $ret = $Mail->ErrorInfo;
@@ -107,7 +112,7 @@
         print_r($r);
         $f[$adr["data"]] = 1;
 
-        file_put_contents("send_emails3", serialize($f));
+        file_put_contents("send_emails", serialize($f));
 
         sleep(1);
     }
