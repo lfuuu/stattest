@@ -12,12 +12,12 @@ class SyncVirtPbx
         $numbers = self::getNumbers();
 
         $data = array(
-                "client_id"  => self::$clientId,
+                "client_id"  => (int)self::$clientId,
                 "numbers"    => $numbers,
                 "phones"     => $tarif["num_ports"],
-                "faxes"      => $tarif["is_fax"] ? 5 : 0,
+                "faxes"      => (int)$tarif["is_fax"] ? 5 : 0,
                 "record"     => (bool)$tarif["is_record"],
-                "disk_space" => $tarif["space"]
+                "disk_space" => (int)$tarif["space"]
                 );
 
         return self::_send($tarif["ip"], "create", $data);
@@ -63,7 +63,7 @@ class SyncVirtPbx
 
         return self::_send($tarif["ip"], "add_did", array(
                     "client_id" => $clientId,
-                    "numbers"   => array(array($number, $region))
+                    "numbers"   => array(array($number, (int)$region))
                     )
                 );
 
@@ -78,7 +78,7 @@ class SyncVirtPbx
 
         return self::_send($tarif["ip"], "remove_did", array(
                     "client_id" => $clientId,
-                    "numbers"   => array(array($number, $region))
+                    "numbers"   => array(array($number, (int)$region))
                     )
                 );
 
@@ -186,7 +186,7 @@ class SyncVirtPbx
         foreach($list["numbers"] as $numberId => $n)
         {
             $number = ats2Numbers::getNumberById(self::$clientId, $numberId, true);
-            $numbers[] = array($number["number"], $number["region"]);
+            $numbers[] = array($number["number"], (int)$number["region"]);
         }
 
         return $numbers;
