@@ -6,6 +6,8 @@ class QRCode
             "bill"  => array("code" => "01", "c" => "bill",          "name" => "óÞÅÔ"),
             "akt-1" => array("code" => "11", "c" => "akt", "s" => 1, "name" => "áËÔ 1"),
             "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "áËÔ 2"),
+            "upd-1" => array("code" => "21", "c" => "upd", "s" => 1, "name" => "õðä 1"),
+            "upd-2" => array("code" => "22", "c" => "upd", "s" => 2, "name" => "õðä 2"),
             );
 
     public function encode($docType, $billNo)
@@ -30,7 +32,6 @@ class QRCode
 
         foreach(self::$codes as $c)
         {
-
             if(isset($c["s"]))
             {
                 $r[$c["c"]][$c["s"]] = $c["code"]."".$billNo;

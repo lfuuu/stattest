@@ -64,85 +64,94 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 		<td colspan="13">
 			<div style="padding-left:10px; padding-bottom:6px;">
-			<table border=0 cellspacing=0 cellpadding=0>
-				<tr>
-					<td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
-					<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{$bill.bill_no}{$inv_no}</span></p></td>
-					<td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
-					<td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>
-                {if !$without_date_date}
-                    {if $is_four_order && isset($inv_pays)}
-                        {$inv_pays[0].payment_date_ts|mdate:"d месяца Y г."}
-                    {else}
-                        {$inv_date|mdate:"d месяца Y г."}
-                    {/if}
-                {else} 
-                    {$without_date_date|mdate:"d месяца Y г."}
-                {/if}
-					</span></p></td>
-					<td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
-					<td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>Исправление N</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
-					<td><p  style='text-align:center'><span>от</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
-					<td><p style='text-align:center'><span>(1а)</span></p></td>
-				</tr>
-			</table>
-			<table border=0 cellspacing=0 cellpadding=0>
-				<tr>
-					<td style='width:155pt;'><p><b><span >Продавец:</span></b></p></td>
-					<td style='width:635pt;border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.name}</span></p></td>
-					<td><p style='width:20pt;text-align:right'><span>(2)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>Адрес:</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.address}</span></p></td>
-					<td><p style='text-align:right'><span>(2а)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>ИНН/КПП продавца:</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p></td>
-					<td><p style='text-align:right'><span>(2б)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>Грузоотправитель и его адрес:</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}ООО "МСН Телеком"{$firm.address}{/if}</span></p></td>
-					<td><p style='text-align:right'><span>(3)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>Грузополучатель и его адрес:</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}</span></p></td>
-					<td><p style='text-align:right'><span>(4)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>К платежно-расчетному документу N</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</span></p></td>
-					<td><p style='text-align:right'><span>(5)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span><b>Покупатель:</b></span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</span></p></td>
-					<td><p style='text-align:right'><span>(6)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>Адрес:</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</span></p></td>
-					<td><p style='text-align:right'><span>(6а)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>ИНН/КПП покупателя:</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</span></p></td>
-					<td><p style='text-align:right'><span>(6б)</span></p></td>
-				</tr>
-				<tr>
-					<td><p><span>Валюта: наименование, код</span></p></td>
-					<td style='border-bottom:solid windowtext 1.0pt;'><p><span>Российский рубль, 643</span></p></td>
-					<td><p style='text-align:right'><span>(7)</span></p></td>
-				</tr>
-			</table>
+                <table>
+                    <tr>
+                        <td>
+                            <table border=0 cellspacing=0 cellpadding=0>
+                                <tr>
+                                    <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
+                                    <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{$bill.bill_no}{$inv_no}</span></p></td>
+                                    <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
+                                    <td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>
+                                {if !$without_date_date}
+                                    {if $is_four_order && isset($inv_pays)}
+                                        {$inv_pays[0].payment_date_ts|mdate:"d месяца Y г."}
+                                    {else}
+                                        {$inv_date|mdate:"d месяца Y г."}
+                                    {/if}
+                                {else} 
+                                    {$without_date_date|mdate:"d месяца Y г."}
+                                {/if}
+                                    </span></p></td>
+                                    <td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
+                                    <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>Исправление N</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
+                                    <td><p  style='text-align:center'><span>от</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
+                                    <td><p style='text-align:center'><span>(1а)</span></p></td>
+                                </tr>
+                            </table>
+                            <table border=0 cellspacing=0 cellpadding=0>
+                                <tr>
+                                    <td style='width:155pt;'><p><b><span >Продавец:</span></b></p></td>
+                                    <td style='width:635pt;border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.name}</span></p></td>
+                                    <td><p style='width:20pt;text-align:right'><span>(2)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>Адрес:</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.address}</span></p></td>
+                                    <td><p style='text-align:right'><span>(2а)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>ИНН/КПП продавца:</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p></td>
+                                    <td><p style='text-align:right'><span>(2б)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>Грузоотправитель и его адрес:</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}ООО "МСН Телеком"{$firm.address}{/if}</span></p></td>
+                                    <td><p style='text-align:right'><span>(3)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>Грузополучатель и его адрес:</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}</span></p></td>
+                                    <td><p style='text-align:right'><span>(4)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>К платежно-расчетному документу N</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</span></p></td>
+                                    <td><p style='text-align:right'><span>(5)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span><b>Покупатель:</b></span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</span></p></td>
+                                    <td><p style='text-align:right'><span>(6)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>Адрес:</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</span></p></td>
+                                    <td><p style='text-align:right'><span>(6а)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>ИНН/КПП покупателя:</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</span></p></td>
+                                    <td><p style='text-align:right'><span>(6б)</span></p></td>
+                                </tr>
+                                <tr>
+                                    <td><p><span>Валюта: наименование, код</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>Российский рубль, 643</span></p></td>
+                                    <td><p style='text-align:right'><span>(7)</span></p></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td align=center style="width: 100pt;">
+                            {if $bill_no_qr}<img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}get_qr.php?data={$bill_no_qr.upd[$source]}">{else}&nbsp;{/if}</td>
+                        </td>
+                    </tr>
+                </table>
 			</div>
 		</td>
 	</tr>
