@@ -3461,7 +3461,6 @@ class m_newaccounts extends IModule
             if($clientIdSum) 
             {
                 $pay["clients_bills"] = $this->getClientBills($clientIdSum, $billNo);
-
                 if($pay["sum"] < 0)
                 {
                     $pay["clients_bills"][]  =array("bill_no" => "--Минус счета--", "is_payed" => -1, "is_group"=> 1);
@@ -3470,6 +3469,22 @@ class m_newaccounts extends IModule
                         if($this->notInBillList($pay["clients_bills"], $p))
                             $pay["clients_bills"][] = $p;
                 }
+
+                $extBills = array();
+                foreach($pay["clients_bills"] as &$b)
+                {
+                    if (!isset($b["bill_no_ext"]) || !$b["bill_no_ext"]) continue;
+                    if (isset($b["is_group"]) && $b["is_group"]) continue;
+
+                    $extBills[$b["bill_no_ext"]][] = $b["bill_no"];
+
+                    if (strpos($pay["description"], $b["bill_no_ext"]) !== false)
+                    {
+                        $b["ext_no"] = $b["bill_no_ext"];
+                    }
+                }
+                unset($b);
+
             }
 
 
@@ -3569,17 +3584,17 @@ class m_newaccounts extends IModule
         {
             if(count($clientIds) > 1){
                 $c = $this->getClient($clientId);
-                $v[] = array("bill_no" => "--".$c[0]["client"]."--", "is_payed" => -1, "is_group" => true);
+                $v[] = array("bill_no" => "--".$c[0]["client"]."--", "is_payed" => -1, "is_group" => true, "bill_no_ext" => false);
             }
 
             foreach($db->AllRecords($q = '
-                        (select bill_no, is_payed,sum from newbills n2
+                        (select bill_no, is_payed,sum,bill_no_ext from newbills n2
                          where n2.client_id="'.$clientId.'" and n2.is_payed=1
                          /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "'.$clientId.'")
                          */
                          order by n2.bill_date desc limit 1)
-                        union (select bill_no, is_payed,sum from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
-                        union (select bill_no, is_payed,sum from newbills where client_id='.$clientId.' and is_payed!="1")
+                        union (select bill_no, is_payed,sum,bill_no_ext from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
+                        union (select bill_no, is_payed,sum,bill_no_ext from newbills where client_id='.$clientId.' and is_payed!="1")
                         '
                         ) as $b){
                 $v[] = $b;

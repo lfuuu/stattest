@@ -45,7 +45,7 @@
             </optgroup>
             <optgroup label="{$bill.bill_no}">
         {else}
-            <option value={$bill.bill_no}{if $pay.bill_no==$bill.bill_no || ($pay.sum < 0 && $bill.sum == $pay.sum)} selected{assign var='is_select' value=true}{/if}>{$bill.bill_no}{if $bill.is_payed==1}={elseif $bill.is_payed ==2}+{elseif $bill.is_payed ==-1}-{/if}</option>
+            <option value={$bill.bill_no}{if $pay.bill_no==$bill.bill_no || ($pay.sum < 0 && $bill.sum == $pay.sum)} selected{assign var='is_select' value=true}{/if}>{$bill.bill_no}{if $bill.is_payed==1}={elseif $bill.is_payed ==2}+{elseif $bill.is_payed ==-1}-{/if}{if $bill.ext_no} {$bill.ext_no}{/if}</option>
         {/if}
 	{/foreach}
 	{if !$is_select && $pay.bill_no}
