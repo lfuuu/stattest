@@ -168,9 +168,9 @@ class ats2Numbers
         ats2NumbersChecker::check();
     }
 
-    public function autocreateAccounts($usageId, $isTrunk)
+    public function autocreateAccounts($usageId, $isTrunk, $isSync)
     {
-        ats2Helper::autocreateAccounts($usageId, $isTrunk);
+        ats2Helper::autocreateAccounts($usageId, $isTrunk, $isSync);
     }
 
     public function getNumberId($l, $clientId = null, $isFromCache = true)
