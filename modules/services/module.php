@@ -3088,8 +3088,13 @@ class voipRegion
                 $l["callerid"] = preg_replace("@\d+\*@", "", $l["callerid"]);
             }
 
+            if(strpos($l["callerid"], "*") !== false)
+            {
+                $l["callerid"] = preg_replace("@\d+\*@", "", $l["callerid"]);
+            }
+
             $e164s[$callerId] = $l["callerid"];
-            self::$e164Region[$callerId] = $region;
+            self::$e164Region[$l["callerid"]] = $region;
         }
 
         return $e164s;
@@ -3111,13 +3116,22 @@ class voipRegion
         $a = array();
         foreach($needSendE164 as $n)
         {
+            $nn = $n;
             if(!isset(self::$e164Region[$n]))
-                return false;
+            { 
+                $nn = "trunk:".$n;
+                if (!isset(self::$e164Region["trunk:".$n]))
+                {
+                    return false;
+                }
+            }
 
-            if(!isset($a[self::$e164Region[$n]]))
-                $a[self::$e164Region[$n]] = array();
+            if(!isset($a[self::$e164Region[$nn]]))
+            {
+                $a[self::$e164Region[$nn]] = array();
+            }
 
-            $a[self::$e164Region[$n]][] = $n;
+            $a[self::$e164Region[$nn]][] = $nn;
         }
 
 
@@ -3226,9 +3240,14 @@ class voipRegion
         foreach($_e164s as $e)
         {
             if(strpos($e, "trunk:") !== false)
+            {
                 $names[] = str_replace("trunk:", "", $e);
-            else
+                $names[] = str_replace("trunk:", "", $e)."+1";
+                $names[] = str_replace("trunk:", "", $e)."*1";
+            }else{
                 $callerids[] = $e;
+                $callerids[] = "74959505680*".$e;
+            }
         }
 
         $result = pg_query(
@@ -3269,9 +3288,8 @@ class voipRegion
                 $l["callerid"] = "линия без номера (".str_replace("74959505680*", "", $l["callerid"]).")";
             }
 
-
             $msg .= "\n-----------------------------------------\n".
-                "Номер телефона: ".($l["callerid"]? $l["callerid"]: "***trunk***")."\n".
+                "Номер телефона: ".($l["callerid"]? $l["callerid"]: (strpos($l["name"], "7800") !== false ? preg_replace("@\+\d+@", "", $l["name"]) : "***trunk***"))."\n".
                 "SIP proxy: ".$l["ippbx"]."\n".
                 "register: YES\n".
                 "username: ".$l["name"]."\n".
