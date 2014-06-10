@@ -41,11 +41,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
 
 </head>
 
-<body>
+<body marginwidth=5 marginheight=5>
 
 <div align="center"><center>
 
-<table Table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
+<table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
 	<tr valign='top'>
 		<td colspan="2" style='border-right:solid windowtext 1.5pt;'>
 			<table border=0 cellspacing=0 cellpadding=0>
@@ -69,6 +69,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
                         <td>
                             <table border=0 cellspacing=0 cellpadding=0>
                                 <tr>
+                                    <td colspan=6><p style='text-align:right'><span style='font-size:6.5pt;'>
+                                    Приложение N 1 к письму ФНС России от 21.10.2013 N ММВ-20-3/96</span></p></td>
+                                </tr>
+                                <tr>
                                     <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
                                     <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{$bill.bill_no}{$inv_no}</span></p></td>
                                     <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
@@ -84,7 +88,8 @@ padding:0cm 2.4pt 0cm 2.4pt;
                                 {/if}
                                     </span></p></td>
                                     <td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
-                                    <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
+                                    <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>
+                                    Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>Исправление N</span></p></td>
