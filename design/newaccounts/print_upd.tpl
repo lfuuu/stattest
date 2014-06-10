@@ -439,7 +439,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>1 листе</span></p></td>
+		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>{if $smarty.foreach.list.total < 4}1{else}2{/if} листе</span></p></td>
 		<td colspan="13"  style='border-bottom:solid windowtext 1.5pt;'>
 			<div style="padding-bottom:4px;">
 	<table border=0 cellspacing=0 cellpadding=0>
