@@ -29,6 +29,8 @@ class m_voipreports_reconciliation_report
 
             $report = $pg_db->AllRecords("
                                                 select
+                                                    g.id,
+                                                    r.phone_num::varchar like '7800%' as is7800,
                                                     g.name as destination,
                                                     count(*) as count,
                                                     sum(len_op) / 60 as minutes,
@@ -45,8 +47,8 @@ class m_voipreports_reconciliation_report
                                                 left join voip.pricelist p on p.id=r.pricelist_op_id
                                                 left join billing.instance_settings i on i.id = p.region
                                                 where {$where}
-                                                group by g.name, r.price_op, g.region, p.initiate_zona_cost, p.initiate_mgmn_cost, i.region_id, p.initiate_mgmn_cost
-                                                order by g.name, amount
+                                                group by g.id, g.name, r.price_op, g.region, p.initiate_zona_cost, p.initiate_mgmn_cost, i.region_id, p.initiate_mgmn_cost, r.phone_num::varchar like '7800%'
+                                                order by is7800 desc, g.name, amount
                                              ");
             foreach($report as $k => $r) {
                 if ($f_include_initiate == 't' && $r['initiate_price'] > 0 && $r['price'] > 0) {
@@ -55,6 +57,9 @@ class m_voipreports_reconciliation_report
                     $initiate_price = 0;
                 }
 
+                if ($r['is7800'] == 't') {
+                    $r['destination'] = '7800 ' . $r['destination'];
+                }
 
                 $r['price'] = $r['price'] + $initiate_price;
                 $initiate_amount = $initiate_price * $r['minutes'];
@@ -84,7 +89,7 @@ class m_voipreports_reconciliation_report
         }
 
         $operators = array();
-        foreach (VoipOperator::find('all', array('order' => 'region desc, short_name')) as $op)
+        foreach (VoipOperator::find('all', array('order' => 'id, region desc')) as $op)
         {
             if (!isset($operators[$op->id])) {
                 $operators[$op->id] = $op->short_name;

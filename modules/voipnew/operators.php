@@ -11,7 +11,12 @@ class m_voipnew_operators
     {
         global $pg_db, $design;
 
-        $res = $pg_db->AllRecords(" select o.region, o.id, o.short_name, o.minimum_payment, o.term_in_cost, o.local_network_id, o.local_network_pricelist_id, o.pricelist_id, o.operator_7800_pricelist_id, o.client_7800_pricelist_id
+        $res = $pg_db->AllRecords(" select
+                                        o.region, o.id, o.short_name,
+                                        o.minimum_payment, o.term_in_cost,
+                                        o.local_network_id, o.local_network_pricelist_id, o.pricelist_id,
+                                        o.operator_7800_pricelist_id, o.client_7800_pricelist_id,
+                                        o.stat_client_card_id
                                     from voip.operator o
                                     order by o.region desc, o.id ");
 
@@ -54,6 +59,11 @@ class m_voipnew_operators
         $defaultPricelistId = get_param_protected('default_pricelist_id');
         $operator7800PricelistId = get_param_protected('operator_7800_pricelist_id');
         $client7800PricelistId = get_param_protected('client_7800_pricelist_id');
+        $statClientCardId = get_param_protected('stat_client_card_id');
+
+        if ($statClientCardId && ClientCard::find($statClientCardId) == null) {
+            throw new Exception("Can't find client card with id #{$statClientCardId}");
+        }
 
         $operator = VoipOperator::getByIdAndInstanceId($operator_id, $instance_id);
         if (!$operator) {
@@ -70,6 +80,7 @@ class m_voipnew_operators
         $operator->local_network_pricelist_id = $localNetworkPricelistId ? $localNetworkPricelistId : null;
         $operator->operator_7800_pricelist_id = $operator7800PricelistId ? $operator7800PricelistId : null;
         $operator->client_7800_pricelist_id = $client7800PricelistId ? $client7800PricelistId : null;
+        $operator->stat_client_card_id = $statClientCardId ? $statClientCardId : null;
         $operator->save();
 
         header('location: index.php?module=voipnew&action=operator_edit&instance_id=' . $instance_id . '&operator_id=' . $operator_id);

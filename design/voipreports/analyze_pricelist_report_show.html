@@ -96,6 +96,9 @@
         {foreach from=$volumes key='instance_id' item='v'}
             <td  class=header align=center>Объем</td>
         {/foreach}
+        {foreach from=$volumesByOper key='operator_id' item='v'}
+            <td  class=header align=center>Объем</td>
+        {/foreach}
     {/if}
 </tr>
 <tr><td class=header>Префикс номера</td><td class=header>Зона</td><td class=header>Назначение</td>
@@ -107,6 +110,9 @@
         <td class=header align=center>(мин)</td>
         {foreach from=$volumes key='instance_id' item='v'}
             <td  class=header align=center>{$regions[$instance_id]->name}</td>
+        {/foreach}
+        {foreach from=$volumesByOper key='operator_id' item='v'}
+            <td  class=header align=center>{$operators[$operator_id]}</td>
         {/foreach}
     {/if}
 </tr>
@@ -123,6 +129,9 @@
 	{if $volume.calc_date}
         <td align=center>{$rd.volume}</td>
         {foreach from=$volumes key='instance_id' item='v'}
+            <td align=center>{$v[$rd.prefix].volume}</td>
+        {/foreach}
+        {foreach from=$volumesByOper key='operator_id' item='v'}
             <td align=center>{$v[$rd.prefix].volume}</td>
         {/foreach}
     {/if}

@@ -50,15 +50,15 @@ class m_voipreports_voip_local_report
             }
 
             if ($groupp == 1) {
-                $god = " group by direction_out, day,operator_id, prefix_op ";
+                $god = " group by direction_out, day,operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
                 $sod = " ,day as date";
                 $ob = " order by date, operator_id ";
             } elseif ($groupp == 2) {
-                $god = " group by direction_out, month, operator_id, prefix_op ";
+                $god = " group by direction_out, month, operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
                 $sod = " ,month as date";
                 $ob = " order by date, operator_id";
             }else{
-                $god = ' group by direction_out, operator_id, prefix_op ';
+                $god = " group by direction_out, operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
                 $sod = '';
                 $ob = " order by operator_id ";
             }
@@ -67,6 +67,7 @@ class m_voipreports_voip_local_report
 
             $query = "
                 select
+                    phone_num::varchar like '7_____' or phone_num::varchar like '7______' as is_special,
                     count(*) as count,
                     sum(len) / 60.0 as len,
                     sum(len_op) / 60.0 as len_op,
@@ -99,6 +100,10 @@ class m_voipreports_voip_local_report
 
                 if ($r['direction_out'] == 'f') {
                     $r['prefix_op'] = '9000';
+                } else {
+                    if ($r['is_special'] == 't') {
+                        $r['prefix_op'] = 'special';
+                    }
                 }
 
                 if (!isset($report[$k][$r['prefix_op']])) {
@@ -136,6 +141,8 @@ class m_voipreports_voip_local_report
                         $columns[$r['prefix_op']] = 'unknown';
                     } elseif($columns[$r['prefix_op']] == '8000') {
                         $columns[$r['prefix_op']] = 'Итого';
+                    } elseif($columns[$r['prefix_op']] == 'special') {
+                        $columns[$r['prefix_op']] = 'Спец. службы';
                     } elseif($columns[$r['prefix_op']] == '9000') {
                         $columns[$r['prefix_op']] = 'Входящие';
                     }
