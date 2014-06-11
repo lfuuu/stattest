@@ -100,6 +100,7 @@ var optools = {
 			timeout:false,
 			inputElement:false,
 			old_number:'',
+            region: '',
 			is_valid:true,
 
 			checkIsset:function(e164,imgEl){
@@ -148,6 +149,8 @@ var optools = {
 				if(optools.voip.check_e164.timeout)
 					window.clearTimeout(optools.voip.check_e164.timeout);
 				optools.voip.check_e164.inputElement = inputElement;
+				optools.voip.check_e164.region = $("#region option:selected").val();
+
 				if(inputElement.value.length < 4){
 					optools.voip.check_e164.is_valid = false;
 					img = document.getElementById('e164_flag_image');
@@ -175,6 +178,7 @@ var optools = {
 					'check_e164.php',
 					{
 						e164:optools.voip.check_e164.inputElement.value,
+						region:optools.voip.check_e164.region,
 						actual_from:document.getElementById('actual_from').value,
 						actual_to:document.getElementById('actual_to').value
 					},
@@ -245,7 +249,7 @@ var optools = {
 				if(optools.voip.check_e164.is_valid)
 					return true;
 				else{
-					alert('Пожалуйста, укажите корректный номер.\n1. Номер должен присутствовать в базе\n2. Номер не должен быть закреплен за другим пользователем в настоящее время.');
+					alert('Пожалуйста, укажите корректный номер.\n1. Номер должен присутствовать в базе\n2. Номер не должен быть закреплен за другим пользователем в настоящее время.\n3. Номер находится в выбранном регионе');
 					return false;
 				}
 			}
