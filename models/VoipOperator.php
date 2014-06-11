@@ -21,6 +21,7 @@ class VoipOperator extends ActiveRecord\Model
             $this->assign_attribute('client_7800_pricelist_id', null);
             $this->assign_attribute('minimum_payment', null);
             $this->assign_attribute('term_in_cost', null);
+            $this->assign_attribute('stat_client_card_id', null);
         }
     }
 

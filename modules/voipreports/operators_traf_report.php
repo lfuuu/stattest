@@ -52,7 +52,7 @@ class m_voipreports_operators_traf
                 $operators[$k]['fullname'] .= ' - '.$regions[$v['region']]['name'];
         }
         */
-        $operators = $pg_db->AllRecords("select id, max(short_name) as name from voip.operator group by id",'id');
+        $operators = $pg_db->AllRecords("select id, max(short_name) as name from voip.operator group by id order by id",'id');
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';

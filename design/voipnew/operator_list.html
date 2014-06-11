@@ -6,6 +6,7 @@
         <td class=header colspan="3">Операторские прайсы</td>
         <td class=header rowspan="2">Завершение<br/>вызова</td>
         <td class=header>Клиентские прайсы</td>
+        <td class=header rowspan="2">Карточка<br/>СТАТ</td>
     </tr>
     <tr>
         <td class=header>Регион</td>
@@ -29,6 +30,7 @@
         <td>{if $o.operator_7800_pricelist_id}{$pricelists[$o.operator_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.operator_7800_pricelist_id}">({$o.operator_7800_pricelist_id})</a>{/if}</td>
         <td style="text-align: center">{if $o.term_in_cost != 0}{$o.term_in_cost}{/if}</td>
         <td>{if $o.client_7800_pricelist_id}{$pricelists[$o.client_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.client_7800_pricelist_id}">({$o.client_7800_pricelist_id})</a>{/if}</td>
+        <td>{if $o.stat_client_card_id}<a href="?module=clients&id={$o.stat_client_card_id}" target="_blank">({$o.stat_client_card_id})</a>{/if}</td>
     </tr>
     {/foreach}
 </table>

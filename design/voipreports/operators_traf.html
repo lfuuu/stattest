@@ -19,9 +19,7 @@
 				<select name="operator">
 					<option value="all">Все</option>
 					{foreach from=$operators item='o'}
-						{if $o.group_id==1 or $o.group_id==2}
-						<option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.fullname}</option>
-						{/if}
+						<option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
 					{/foreach}
 				</select>
 			</td>
