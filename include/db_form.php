@@ -2053,6 +2053,7 @@ $GLOBALS['translate_arr']=array(
     '*.per_sms_price' => 'за 1 СМС (с НДС)',
     '*.gpon_reserv' => 'Сеть под GPON',
     '*.trunk_vpbx_id' => 'Транк на VPBX',
-    'newpayments.ecash_operator' => "Оператор платежа"
+    'newpayments.ecash_operator' => "Оператор платежа",
+    'usage_voip.region' => 'Регион'
     );
 ?>

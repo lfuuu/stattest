@@ -93,12 +93,15 @@
         echo 'true';
         exit();
     }
+
+    $region = mysql_escape_string(get_param_raw("region", 0));
     
     if (strlen($number) > 5 && substr($number, 0, 4) != '7800') {
-        $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'"';
+        $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'" and region = "'.$region.'"';
         $res = $db->getRow($q);
         if (!$res) {
             echo "false";
+            exit();
         }
     }
 
@@ -135,9 +138,10 @@
 	";
 
 	$res = $db->AllRecords($query);
-	if(count($res)>0)
+	if(count($res)>0) {
 		echo "false";
-	else{
+        exit();
+	}else{
 		$query = "
 			SELECT
 				*
