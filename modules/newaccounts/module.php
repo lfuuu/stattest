@@ -2126,6 +2126,9 @@ class m_newaccounts extends IModule
                     $design->ProcessEx('newaccounts/print_akt_num3.tpl');
             }else{
                 if(in_array($obj, array('invoice','upd'))){
+
+                    $design->assign("client_contract", BillContract::getString($bill->CLient("id")));
+
                     $id = $db->QueryInsert(
                         "log_newbills",
                         array(
