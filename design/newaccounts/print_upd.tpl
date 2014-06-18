@@ -70,7 +70,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
                             <table border=0 cellspacing=0 cellpadding=0>
                                 <tr>
                                     <td colspan=6><p style='text-align:right'><span style='font-size:6.5pt;'>
-                                    Приложение N 1 к письму ФНС России от 21.10.2013 N ММВ-20-3/96</span></p></td>
+                                    Приложение N 1 к письму ФНС России от 21.10.2013 N ММВ-20-3/96@</span></p></td>
                                 </tr>
                                 <tr>
                                     <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
@@ -553,7 +553,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Основание передачи (сдачи) / получения (приемки)</span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;width:100%;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>&nbsp;{if isset($client_contract)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; договор N{$client_contract}{/if}</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>[8]</span></p>

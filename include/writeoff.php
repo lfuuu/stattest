@@ -509,7 +509,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $clientId = $this->service["client_id"];
                 if($clientId)
                 {
-                    if($str = BillContract::getString($clientId))
+                    if($str = BillContract::getBillItemString($clientId))
                     {
                         $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".substr($l[1],strpos($l[1], "("));
                         $l[1] .= $str;
@@ -524,13 +524,23 @@ class ServiceUsageIpPorts extends ServicePrototype {
 
 class BillContract
 {
+    public function getBillItemString($clientId)
+    {
+        $contract = self::getString($clientId);
+
+        if($contract)
+            return ", согласно Договора ".$contract;
+
+        return "";
+    }
     public function getString($clientId)
     {
         $contract = self::getLastContract($clientId);
 
         if($contract)
-            return ", согласно Договора ".$contract["no"]." от ".mdate("d месяца Y г.",$contract["date"]);
+            return $contract["no"]." от ".mdate("d месяца Y г.",$contract["date"]);
 
+        return "";
     }
     private function getLastContract($clientId)
     {
@@ -785,7 +795,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "бонентская плата за") !== false)
             {
-                $contractStr = BillContract::getString($this->service["client_id"]);
+                $contractStr = BillContract::getBillItemString($this->service["client_id"]);
                 if($contractStr)
                 {
                     $l[1] = "Оказанные услуги за ".substr($l[1],strpos($l[1], "за ")+3).$contractStr;
@@ -795,12 +805,12 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "Плата за звонки по номеру") !== false)
             {
-                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getString($this->service["client_id"]);
+                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"]);
             }
 
             if(strpos($l[1], "Услуга местного завершения вызо") !== false)
             {
-                $l[1] .= BillContract::getString($this->service["client_id"]);
+                $l[1] .= BillContract::getBillItemString($this->service["client_id"]);
             }
 
         }
@@ -1013,7 +1023,7 @@ class ServiceUsageExtra extends ServicePrototype {
         
         if($this->client["bill_rename1"] == "yes")
         {
-            $v[1] .= BillContract::getString($this->service["client_id"]);
+            $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
         }
 
         $R[]=$v;
@@ -1338,7 +1348,7 @@ class ServiceEmails extends ServicePrototype {
 
         if($this->client["bill_rename1"] == "yes")
             foreach($R as &$v)
-                $v[1] .= BillContract::getString($this->service["client_id"]);
+                $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
 
         return $R;
     }
