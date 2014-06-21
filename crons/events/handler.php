@@ -76,15 +76,17 @@ function do_events()
             {
                 case 'company_changed':     EventHandler::companyChanged($param); break;
 
-                case 'cyberplat_payment':
-                case 'yandex_payment':      $clientId = $param["client_id"]; 
-                                            EventHandler::updateBalance($clientId); break;
-
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
                 case 'usage_voip__delete':  ats2Numbers::check(); break;
 
+                case 'cyberplat_payment':
+                case 'yandex_payment':      $clientId = $param["client_id"]; 
+                                            EventHandler::updateBalance($clientId); 
+                                            break;
+
                 case 'update_balance': EventHandler::updateBalance($param); break;
+                case 'add_payment': LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); break;
 
                 case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();

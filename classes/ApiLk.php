@@ -1478,6 +1478,420 @@ class ApiLk
         return $o->getOptions();
     }
 
+    /**
+     * Получение настроек уведомлений клиента
+     *
+     *@param int $client_id id клиента
+     */
+    public static function getAccountsNotification($client_id = '')
+    {
+        if (!self::validateClient($client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+    
+        $ret = array();
+        foreach(ClientContact::find_by_sql("
+                select c.id, c.type, c.data as info, n.min_balance, n.day_limit, n.add_pay_notif, n.status
+                from client_contacts c
+                left join lk_notice_settings n on n.client_contact_id=c.id
+                left join user_users u on u.id=c.user_id
+                where c.client_id='".$client_id."'
+                and u.user='LK'
+                ") as $v) {
+                    $ret[] = self::_exportModelRow(array('id','type','info','min_balance','day_limit', 'add_pay_notif', 'status'), $v);
+        }
+        return $ret;
+    }
+
+    /**
+     * Добавление контакта для уведомлений
+     *
+     *@param int $client_id id клиента
+     *@param string $type тип (телефон или Email)
+     *@param string $data значение
+     */
+    public static function addAccountNotification($client_id = '', $type = '', $data = '')
+    {
+        global $db;
+        if (!self::validateClient($client_id))
+            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+        if (!$client)
+            return array('status'=>'error','message'=>'Лицевой счет не найден!');
+
+        $lk_user = $db->GetRow("select id, user from user_users where user='LK'");
+        if (!$lk_user)
+            return array('status'=>'error','message'=>'Ошибка добавления Контакта. Свяжитесь с менеджером.');
+    
+        $contact_cnt = $db->GetValue("SELECT COUNT(*) FROM client_contacts WHERE client_id='".$client_id."' AND user_id='".$lk_user["id"]."'");
+        if ($contact_cnt >= 5) 
+            return array('status'=>'error','message'=>'Допускается добавлять не более 5 контактов!');
+
+        if (!in_array($type, array('email', 'phone')))
+            return array('status'=>'error','message'=>'Неверный тип контакта.');
+        
+        if (!self::validateData($type, $data))
+            return array('status'=>'error','message'=>'Неверный формат данных.');
+    
+        $contact_id = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$client_id."' AND type='".$type."' AND data='".$data."'");
+        if (!$contact_id) {
+            $contact_id = $db->QueryInsert("client_contacts", array(
+                        "client_id"     => $client_id,
+                        "type"        => $type,
+                        "data"          => $data,
+                        "user_id"   => $lk_user['id'],
+                        "comment"   => "",
+                        "is_active"     => "1",
+                        "is_official"        => "0"
+                        )
+                    );
+        }
+
+        if ($contact_id && $contact_id > 0) {
+            $res = $db->QueryInsert("lk_notice_settings", array(
+                            "client_contact_id" => $contact_id,
+                            "client_id"         => $client_id
+                            )
+                        );
+        } else 
+            return array('status'=>'error','message'=>'Ошибка добавления контакта.');
+
+        self::sendApproveMessage($client_id, $type, $data, $contact_id);
+
+        return array('status'=>'ok','message'=>'Контакт добавлен');
+    }
+
+    public static function validateData($t = '', $d = '')
+    {
+        switch ($t) {
+            case 'email':
+                if (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/", $d)) 
+                    return false;
+            break;
+            case 'phone':
+                if (!preg_match("/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/", $d))
+                    return false;
+            break;
+        }
+        return true;
+    }
+
+    /**
+     * Редактирование контакта для уведомлений
+     *
+     *@param int $client_id id клиента
+     *@param int $contact_id id контакта
+     *@param string $type тип (телефон или Email)
+     *@param string $data значение
+     */
+    public static function editAccountNotification($client_id = '', $contact_id = '', $type = '', $data = '')
+    {
+        global $db;
+        if (!self::validateClient($client_id))
+            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+
+        $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
+
+        if (!self::validateContact($client_id, $contact_id))
+            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+
+        if (!in_array($type, array('email', 'phone')))
+            return array('status'=>'error','message'=>'Неверный тип контакта.');
+
+        if (!self::validateData($type, $data))
+            return array('status'=>'error','message'=>'Неверный формат данных.');
+
+        $status = $db->GetValue("select status from lk_notice_settings where client_id='".$client_id."' and client_contact_id='".$contact_id."'");
+
+        $res = $db->QueryUpdate("client_contacts", array('client_id','id'), array(
+                        'type'=>$type,
+                        'data'=>$data,
+                        'client_id'=>$client_id,
+                        'id'=>$contact_id
+                        )
+                    );
+        if ($res) {
+            $res = $db->QueryUpdate(
+                    "lk_notice_settings",
+                    array('client_id','client_contact_id'),
+                    array(
+                        'status'=>'connecting',
+                        'client_id'=>$client_id,
+                        'client_contact_id'=>$contact_id
+                        )
+                    );
+        }
+
+        if ($res && $status == 'working') {
+            self::sendApproveMessage($client_id, $type, $data, $contact_id);
+        }
+
+        return array('status'=>'ok','message'=>'Контакт изменен');
+    }
+
+    /**
+     * Удаление контакта для уведомлений
+     *
+     *@param int $client_id id клиента
+     *@param int $contact_id id контакта
+     */
+    public static function disableAccountNotification($client_id = '', $contact_id = '')
+    {
+        global $db;
+        if (!self::validateClient($client_id))
+            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+        if (!self::validateContact($client_id, $contact_id))
+            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+    
+        $db->QueryDelete('lk_notice_settings', array('client_contact_id'=>$contact_id));
+        $db->QueryDelete('client_contacts', array('id'=>$contact_id, 'client_id'=>$client_id));
+    
+        return array('status'=>'ok','message'=>'Контакт удален.');
+    }
+
+    /**
+     * Активация контакта для уведомлений
+     *
+     *@param int $client_id id клиента
+     *@param int $contact_id id контакта
+     *@param string $code код активации
+     */
+    public static function activateAccountNotification($client_id = '', $contact_id = '', $code = '')
+    {
+        global $db;
+        if (!self::validateClient($client_id))
+            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+        if (!self::validateContact($client_id, $contact_id))
+            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+        if ($code == '')
+            return array('status'=>'error','message'=>'Код активации не задан!');
+        
+        $etalon_code = $db->GetValue("select activate_code from lk_notice_settings where client_id='".$client_id."' AND client_contact_id='".$contact_id."'");
+        if ($etalon_code != $code)
+            return array('status'=>'error','message'=>'Неверный код активации!');
+        
+        $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
+        if ($res)
+            return array('status'=>'ok','message'=>'Контакт активирован.');
+        else 
+            return array('status'=>'error','message'=>'Ошибка активации! Свяжитесь с менеджером.');
+    }
+
+    /**
+     * Активация Email контакта для уведомлений
+     *
+     *@param int $client_id id клиента
+     *@param int $contact_id id контакта
+     *@param string $key ключ
+     */
+    public static function activatebyemailAccountNotification($client_id = '', $contact_id = '', $key = '')
+    {
+        global $db;
+        if (!self::validateClient($client_id))
+            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+        if (!self::validateContact($client_id, $contact_id))
+            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+
+        if ($key == '' || $key != md5($client_id.'SeCrEt-KeY'.$contact_id))
+            return array('status'=>'error','message'=>'Неверный код активации!');
+
+        $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
+        if ($res)
+            return array('status'=>'ok','message'=>'Контакт активирован.');
+        else
+            return array('status'=>'error','message'=>'Ошибка активации! Свяжитесь с менеджером.');
+    }
+
+    /**
+     * Сохранение настроек
+     *
+     *@param int $client_id id клиента
+     *@param array $data данные
+     */
+    public static function saveAccountNotification($client_id = '', $data = array(), $min_balance = '0', $day_limit = '0')
+    {
+        global $db;
+        if (!self::validateClient($client_id))
+            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+    
+        $res = array();
+        foreach ($data as $name) 
+        {
+            $tmp = explode('__', $name);
+
+            if(!isset($res[$tmp[1]])) 
+                $res[$tmp[1]] = array(
+                        'client_contact_id'=>$tmp[1],
+                        'min_balance'=>0, 
+                        'day_limit'=>0, 
+                        'add_pay_notif'=>0);
+
+            $res[$tmp[1]][$tmp[0]] = 1;
+        }
+
+        $allSavedContacts = $db->AllRecords("
+                SELECT id 
+                FROM `client_contacts` 
+                WHERE `client_id` = '".mysql_escape_string($client_id)."' AND `user_id` = (select id from user_users where user = 'LK') AND `is_active` = '1' ", "id");
+
+        foreach ($res as $contact_id=>$d) 
+        {
+            if (!isset($allSavedContacts[$contact_id]))
+                continue;
+
+            unset($allSavedContacts[$contact_id]);
+
+            $cc_id = $db->GetValue("select client_contact_id 
+                    from lk_notice_settings 
+                    where client_contact_id='".$d['client_contact_id']."' and client_id='".$client_id."'");
+
+            $data = array(
+                    'client_contact_id'=>$d['client_contact_id'],
+                    'client_id'=>$client_id,
+                    'min_balance'=>$d['min_balance'],
+                    'day_limit'=>$d['day_limit'],
+                    'add_pay_notif'=>$d['add_pay_notif']
+                    );
+            if ($cc_id) {
+                $db->QueryUpdate('lk_notice_settings',array('client_contact_id','client_id'),$data);
+            } else {
+                $db->QueryInsert('lk_notice_settings',$data);
+            }
+        }
+
+        if ($allSavedContacts) //for deletion because there is no data
+        {
+            foreach($db->AllRecords("select client_contact_id as id from lk_notice_settings where client_contact_id in ('".implode("','", array_keys($allSavedContacts))."')", "id") as $contact_id => $data)
+            {
+                $db->QueryUpdate("lk_notice_settings", "client_contact_id", array(
+                            "client_contact_id" => $contact_id,
+                            "min_balance" => 0,
+                            "day_limit" => 0,
+                            "add_pay_notif" => 0));
+            }
+        }
+
+        $clientSettings = $db->GetValue("select * from lk_client_settings where client_id='".$client_id."'");
+
+        $data = array(
+                'client_id'=>$client_id,
+                'min_balance'=>$min_balance,
+                'day_limit'=>$day_limit
+                );
+        if ($clientSettings) 
+        {
+            if ($clientSettings["is_min_balance_sent"] && $clientSettings["min_balance"] < $data["min_balance"])
+            {
+                $data["is_min_balance_sent"] = 0;
+            }
+
+            if ($clientSettings["is_day_limit_sent"] && $clientSettings["day_limit"] < $data["day_limit"])
+            {
+                $data["is_day_limit_sent"] = 0;
+            }
+
+            $db->QueryUpdate('lk_client_settings',array('client_id'),$data);
+        } else {
+            $db->QueryInsert('lk_client_settings',$data);
+        }
+        
+        return array('status'=>'ok','message'=>'Данные сохранены.');
+    }
+
+    /**
+     * Получение настроек клиента
+     *
+     *@param int $client_id id клиента
+     */
+    public static function getAccountSettings($client_id = '')
+    {
+        if (!self::validateClient($client_id))
+            throw new Exception("Неверный номер лицевого счета!");
+    
+        $ret = array();
+        foreach(ClientContact::find_by_sql("
+                select *
+                from lk_client_settings
+                where client_id='".$client_id."'
+                ") as $v) {
+                    $ret = self::_exportModelRow(array('client_id','min_balance','day_limit'), $v);
+        }
+        return $ret;
+    }
+
+    public static function sendApproveMessage($client_id, $type, $data, $contact_id)
+    {
+        global $design, $db;
+
+        $res = false;
+        if ($type == 'email') {
+            $key = md5($client_id.'SeCrEt-KeY'.$contact_id);
+            $db->QueryUpdate(
+                    'lk_notice_settings',
+                    array('client_contact_id','client_id'),
+                    array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$key)
+                    );
+
+            $url = 'https://'.CORE_SERVER.'/lk/accounts_notification/activate_by_email?client_id=' . $client_id . '&contact_id=' . $contact_id . '&key=' . $key;
+            $design->assign(array('url'=>$url));
+            $message = $design->fetch('letters/notification/approve.tpl');
+            $params = array(
+                            'data'=>$data,
+                            'subject'=>Encoding::toKoi8r('Подтверждение Email адреса для уведомлений'),
+                            'message'=>Encoding::toKoi8r($message),
+                            'type'=>'email',
+                            'contact_id'=>$contact_id
+                        );
+            $id = $db->QueryInsert('lk_notice', $params);
+            if ($id) $res = true;
+        } else if ($type == 'phone') {
+            $code = '';
+            for ($i=0;$i<6;$i++) $code .= rand(0,9);
+            $db->QueryUpdate(
+                    'lk_notice_settings',
+                    array('client_contact_id','client_id'),
+                    array('client_contact_id'=>$contact_id,'client_id'=>$client_id,'activate_code'=>$code)
+                    );
+            $params = array(
+                            'data'=>$data,
+                            'message'=>Encoding::toKoi8r('Код активации: ' . $code),
+                            'type'=>'phone',
+                            'contact_id'=>$contact_id
+                        );
+            $id = $db->QueryInsert('lk_notice', $params);
+            if ($id) $res = true;
+        }
+        return $res;
+    }
+
+
+    public static function validateClient($id) 
+    {
+        if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
+            return false;
+
+        $c = ClientCard::find_by_id($id);
+        if(!$c)
+            return false;
+
+        return true;
+    }
+
+    public static function validateContact($clientId, $id) 
+    {
+        global $db;
+
+        if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
+            return false;
+
+        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".mysql_escape_string($clientId)."' AND id = '".mysql_escape_string($id)."'");
+        if (!$contactId)
+            return false;
+
+        return true;
+    }
+
+
     private function _getPaymentTypeName($pay)
     {
         switch ($pay["type"])

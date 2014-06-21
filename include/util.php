@@ -785,12 +785,24 @@ class ClientCS {
         if ($onlyOfficial) $wh.= ' and client_contacts.is_official=1';
         return $db->AllRecords("select client_contacts.*,user_users.user from client_contacts LEFT JOIN user_users ON user_users.id=client_contacts.user_id where client_id=".$this->id. $wh." order by client_contacts.id");
     }
+
+
     public function GetContact($onlyOfficial = true) {
         global $db;
         $V = $this->GetContacts(null,true,$onlyOfficial);
         $R = array('fax'=>array(),'phone'=>array(),'email'=>array());
         foreach ($V as $v) $R[$v['type']][] = $v;
         return $R;
+    }
+
+    public function GetContactsFromLK($type = null) {
+        global $db;
+        $wh = '';
+        if ($type) $wh.= ' and cc.type="'.addslashes($type).'"';
+        $cc = $db->AllRecords("select cc.id, ns.status from client_contacts cc LEFT JOIN user_users u ON u.id=cc.user_id LEFT JOIN lk_notice_settings ns ON ns.client_contact_id=cc.id where cc.client_id=".$this->id. $wh." AND u.user='LK' order by cc.id");
+        $res = array();
+        foreach ($cc as $c) $res[$c['id']] = $c['status'];
+        return $res;
     }
     public function GetContracts() {
         global $db;
@@ -847,6 +859,10 @@ class ClientCS {
             $d = $db->getRow('select type,data from client_contacts where id = '.$id);
             self::updateProperty($cid,$d['type']=='email'?'mail':$d['type'],$active?$d['data']:null,$id);
         }
+    }
+    public function ActivateContactLK($id,$active) {
+        global $db;
+        $db->Query('update lk_notice_settings set status="'.$active.'" where client_id="'.$this->id.'" and client_contact_id="'.$id.'"');
     }
     public function AddContract($content,$no,$date,$date_dop, $comment) {
         global $db,$user;

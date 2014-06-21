@@ -13,6 +13,7 @@ class m_clients {
 					'edit'			=> array('',''),					//права проверяются потом
 					'restatus'		=> array('clients','restatus'),
 					'recontact'		=> array('',''),
+                    'recontactLK'   => array('',''),
 					'recontact2'	=> array('',''),
 					'recontract'	=> array('',''),
 					'recontract2'	=> array('',''),
@@ -1143,6 +1144,7 @@ class m_clients {
 
 		if(!$show_edit){
 			$design->assign('contacts',$cs->GetContacts());
+            $design->assign('lk_contacts',$cs->GetContactsFromLK());
 			$d = $cs->GetContracts();
 			foreach ($d as $k=>$v){
 				$p = data_encode($v['id'].'-'.$v['client_id']);
@@ -1822,6 +1824,17 @@ class m_clients {
 		$cs->ActivateContact($cid,$active);
 		$this->client_view($id);
 	}
+    function clients_recontactLK() {
+        global $design,$db,$user;
+        $id=get_param_protected('id');
+        if ($this->check_tele($id)==0) return;
+        $cid=get_param_protected('cid');
+        $active=get_param_raw('act');
+        $design->assign('contact_open',true);
+        $cs=new ClientCS($id);
+        $cs->ActivateContactLK($cid,$active);
+        $this->client_view($id);
+    }
 	function clients_recontract($clientClient){
 		global $design,$db;
 		$id=get_param_protected('id');
