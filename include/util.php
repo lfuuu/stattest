@@ -1238,9 +1238,16 @@ class ClientCS {
         $db->Query("select status from clients where id=".$this->id);
         $r=$db->NextRecord();
         if ($r['status']==$status) $status="";
-        $db->Query("insert into client_statuses (ts,id_client,user,status,comment) values (NOW(),'".$this->id."','".$user->Get('user')."','{$status}','{$comment}')");
+        $db->QueryInsert("client_statuses", array(
+                    "ts" => array('NOW()'),
+                    "id_client" => $this->id,
+                    "user" => $user->Get('user'),
+                    "status" => $status,
+                    "comment" => $comment)
+        );
+
         if($status){
-            $db->Query("update clients set status='{$status}' where id=".$this->id);
+            $db->QueryUpdate("clients", "id", array("id" => $this->id, "status" => $status));
         }
     }
     function GetLastComment() {
