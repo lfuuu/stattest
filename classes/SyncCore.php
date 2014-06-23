@@ -45,6 +45,13 @@ class SyncCore
                 JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
             } catch(Exception $e)
             {
+
+                if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
+                {
+                    event::go("add_super_client", $cl->super_id);
+                    event::go("add_account", $cl->id);
+                }
+
                 if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
                 {
                     event::go("add_super_client", $cl->super_id);
