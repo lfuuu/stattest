@@ -2212,6 +2212,11 @@ DBG::sql_out($select_client_data);
             case '97': $phone = "(861) 204-00-99"; break;
             case '98': $phone = "(812) 372-69-99"; break;
             case '95': $phone = "(343) 302-00-99"; break;
+            case '94': $phone = "(383) 312-00-99"; break;
+            case '96': $phone = "(846) 215-00-99"; break;
+            case '87': $phone = "(863) 309-00-99"; break;
+            case '93': $phone = "(843) 207-00-99"; break;
+            case '88': $phone = "(831) 235-00-99"; break;
             case '99':
             default: 
                 $phone = "(495) 950-56-78";
