@@ -219,8 +219,8 @@ $(function(){
 	<TR><TD class=left>Предполагаемый телефон подключения:</TD><TD><input style='width:100%' name=phone_connect class=text value='{$client.phone_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
-	<TR><TD class=left>Головная компания:</TD><TD><input style='width:100%' name=head_company class=text value='{$client.head_company}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
-	<TR><TD class=left>Юр. адрес головной компании:</TD><TD><input style='width:100%' name=head_company_address_jur class=text value='{$client.head_company_address_jur}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
+	<TR><TD class=left>Головная компания:</TD><TD><input style='width:100%' name=head_company class=text value='{$client.head_company}'{*if $card_type=='addition'}readonly='readonly'{/if*}></TD></TR>
+	<TR><TD class=left>Юр. адрес головной компании:</TD><TD><input style='width:100%' name=head_company_address_jur class=text value='{$client.head_company_address_jur}'{*if $card_type=='addition'}readonly='readonly'{/if*}></TD></TR>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 
 	<TR><TD class=left>Станция метро:</TD><TD>{html_options name='metro_id' options=$l_metro selected=$client.metro_id}</TD></TR>

@@ -87,6 +87,16 @@
 						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Редактировать ЛС
 					</a>
 					<br><br>
+				<a href='{$LINK_START}module=clients&id={$client.id}&action=print&data=envelope' target='_blank'>
+					<img class=icon src='{$IMAGES_PATH}icons/envelope.gif'>Напечатать конверт
+				</a>
+				<br><br>
+				{if access('clients','file')}
+					<a href="{$LINK_START}module=clients&action=files&cid={$client.id}">
+						<img class=icon src='{$IMAGES_PATH}icons/contract.gif'>Файлы
+					</a> ({$cfiles} шт.)
+					<br><br>
+				{/if}
 					<a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
 						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
 					</a>
@@ -96,20 +106,10 @@
 					</a>
 					<br><br>
 				{/if}
-				<a href='{$LINK_START}module=clients&id={$client.id}&action=print&data=envelope' target='_blank'>
-					<img class=icon src='{$IMAGES_PATH}icons/envelope.gif'>Напечатать конверт
-				</a>
-				<br><br>
 				{if access('monitoring','edit') || access('clients','edit_tele')}
 					<a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
 						<img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
 					</a>
-					<br><br>
-				{/if}
-				{if access('clients','file')}
-					<a href="{$LINK_START}module=clients&action=files&cid={$client.id}">
-						<img class=icon src='{$IMAGES_PATH}icons/contract.gif'>Файлы
-					</a> ({$cfiles} шт.)
 					<br><br>
 				{/if}
 
