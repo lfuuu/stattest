@@ -3,7 +3,7 @@
 
 class JSONQuery
 {
-    public function exec($url, $data)
+    public function exec($url, $data, $isPostJSON = true)
     {
         self::log($url, $data);
 
@@ -16,10 +16,16 @@ class JSONQuery
                 CURLOPT_RETURNTRANSFER => 1, 
                 CURLOPT_FORBID_REUSE => 1, 
                 CURLOPT_TIMEOUT => 30, 
-                CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_SSL_VERIFYPEER => FALSE
-                //CURLOPT_COOKIE => "mcn_uid=139031302648788611069664" /* !!!!!!! */
                 ); 
+
+        if ($isPostJSON)
+        {
+            $defaults[CURLOPT_POSTFIELDS] = json_encode($data);
+        } else {
+            $defaults[CURLOPT_URL] .= "?".http_build_query($data);
+        }
+
 
         //echo "\n".json_encode($data);
 

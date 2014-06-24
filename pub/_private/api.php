@@ -102,6 +102,15 @@ function do_func($function)
         case 'setClientVatsPhoneNumbers': return Api::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
 
         case 'getServiceOptions': return ApiLk::getServiceOptions(get_param_protected("service"), get_param_integer("client_id")); break;
+        case 'getAccountsNotification': return ApiLk::getAccountsNotification(get_param_integer("client_id")); break;
+        case 'addAccountNotification': return ApiLk::addAccountNotification(get_param_integer("client_id"), get_param_raw("type"), get_param_raw("data")); break;
+        case 'editAccountNotification': return ApiLk::editAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("type"), get_param_raw("data")); break;
+        case 'disableAccountNotification': return ApiLk::disableAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id")); break;
+        case 'saveAccountNotification': return ApiLk::saveAccountNotification(get_param_integer("client_id"), get_param_raw("data"), get_param_raw("min_balance"), get_param_raw("day_limit")); break;
+        case 'getAccountSettings': return ApiLk::getAccountSettings(get_param_integer("client_id")); break;
+        case 'activateAccountNotification': return ApiLk::activateAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("code")); break;
+        case 'activatebyemailAccountNotification': return ApiLk::activatebyemailAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("key")); break;
+
 
 		case 'getClientData': return ApiLk::getClientData(get_param_raw("client_id")); break;
 		case 'saveClientData': return ApiLk::saveClientData(get_param_raw("client_id"), get_param_raw("data")); break;
