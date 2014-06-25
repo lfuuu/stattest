@@ -821,7 +821,7 @@ class m_services extends IModule{
                     b.regseconds::integer::abstime::timestamp as registered, 
                     b.regseconds::integer - extract(epoch from now())::integer as regtime, 
                     extract(epoch from (b.regseconds::integer::abstime::timestamp - abstime(now()))) as regtime, 
-                    b.useragent, n.ds as direction, a.autolink_ip
+                    b.useragent, n.ds as direction, a.autolink_ip, b.invite_ip, b.invite_contact
                     FROM 
                     sipdevices a 
                     INNER JOIN sipregs b ON a.name = b.name
@@ -908,6 +908,8 @@ class m_services extends IModule{
             $l["permit"] = $perm;
 
             $l["direction"] = isset($dirs[$l["direction"]]) ? $dirs[$l["direction"]] : $l["direction"];
+
+            $l["invite_contact"] = str_replace(array("<", ">"), "", $l["invite_contact"]);
 
             $regs[] = $l;
         }
