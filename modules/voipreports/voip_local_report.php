@@ -44,6 +44,11 @@ class m_voipreports_voip_local_report
             $where  = " and (time between '".$date_from."' and '".$date_to."') ";
             $where .= ' and ( dest < 0 or direction_out = false) ';
 
+            $link = "index.php?module=voipreports&action=calls_report&make=";
+            $link .= "&f_instance_id={$region}&f_operator_id={$operator}";
+            $link .= "&date_from={$date_from_y}-{$date_from_m}-{$date_from_d}";
+            $link .= "&date_to={$date_to_y}-{$date_to_m}-{$date_to_d}";
+
 
             if ($operator>0) {
                 $where .= " and operator_id=".$operator;
@@ -108,6 +113,13 @@ class m_voipreports_voip_local_report
 
                 if (!isset($report[$k][$r['prefix_op']])) {
                     $report[$k][$r['prefix_op']] = $r;
+                    if ($r['prefix_op'] == '9000') {
+                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=f&f_operator_id={$r['operator_id']}";
+                    } elseif ($r['prefix_op'] == '') {
+                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}&f_without_prefix_op=1";
+                    } else {
+                        $report[$k][$r['prefix_op']]['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}&f_prefix_op={$r['prefix_op']}";
+                    }
                 }
                 else {
                     $report[$k][$r['prefix_op']]['count'] += $r['count'];
@@ -121,6 +133,7 @@ class m_voipreports_voip_local_report
                 if ($r['direction_out'] == 't') {
                     if (!isset($report[$k]['8000'])) {
                         $report[$k]['8000'] = $r;
+                        $report[$k]['8000']['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}";
                     }
                     else {
                         $report[$k]['8000']['count'] += $r['count'];
