@@ -860,7 +860,7 @@ class DbFormUsageExtra extends DbForm{
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['param_value']=array();
-        $this->fields['amount']=array();
+        $this->fields['amount']=array("default" => 1);
         $this->fields['async_price']=array('type'=>'label','db_ignore'=>1);
         $this->fields['async_period']=array('type'=>'label','db_ignore'=>1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
