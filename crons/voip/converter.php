@@ -637,7 +637,7 @@ function getVpbxTrunkNumbers($trunkId)
                     and s.id = server_pbx_id 
                     and c.client = u.client
                     and trunk_vpbx_id = '".$trunkId."'
-#and c.id = 8016
+                    and c.status in ('work','connecting','testing')
                 group by c.id
                 ") as $l)
             {
