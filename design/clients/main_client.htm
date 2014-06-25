@@ -260,7 +260,7 @@ function togglecs() {
 </td>
 <td>{if $card_type == "main" && $item.type == "email" && $item.is_official && $item.is_active}<input type=radio value="{$item.id}" name="admin_contact"{if $client.admin_contact_id == $item.id} checked{/if}>{/if}</td>
 <td>{$item.data}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
-{if $item.user == 'LK'}
+{if $item.user == 'AutoLK'}
     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
 {else}
     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
