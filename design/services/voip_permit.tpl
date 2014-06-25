@@ -4,12 +4,12 @@
             <td class="header">PBX</td>
             <td class="header">Имя</td>
             <td class="header">CallerID</td>
-            <td class="header">IP-адрес</td>
+            <td class="header">IP-адрес <br>(инвайт)</td>
             <td class="header">Разрешения</td>
             <td class="header">Зарегестрирован</td>
             <td class="header">Время&nbsp;регегистрации</td>
             <td class="header">UserAgent</td>
-            <td class="header">Контакт</td>
+            <td class="header">Контакт <br>(инвайта)</td>
             <td class="header">Направление</td>
             {if false && access('services_voip','view_regpass')}
             <td class="header">Пароль</td>
@@ -21,12 +21,14 @@
             <td>{$i.ippbx}</td>
             <td>{$i.name}</td>
             <td>{$i.callerid}</td>
-            <td>{$i.ipaddr}</td>
+            <td>{$i.ipaddr}<br>
+            {if $i.invite_ip}({$i.invite_ip}){else}&nbsp;{/if}</td>
             <td>{$i.permit}</td>
             <td>{$i.registered}</td>
             <td>{if $i.regtime}{get_time sec=$i.regtime}{/if}</td>
             <td>{$i.useragent}</td>
-            <td>{$i.fullcontact}</td>
+            <td>{$i.fullcontact}<br>
+            {if $i.invite_contact}<br>({$i.invite_contact|wordwrap:45:"<br/>":true}){else}&nbsp;{/if}</td>
             <td>{$i.direction}</td>
             {if false && access('services_voip','view_regpass')}
             <td>{$i.secret|substr:0:3}...{$i.secret|substr:-3}</td>
