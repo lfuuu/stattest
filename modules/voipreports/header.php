@@ -30,7 +30,7 @@ class m_voipreports_head extends IModuleHead
         'pricelist_report_edit' => array('voipreports', 'admin'),
         'pricelist_report_save' => array('voipreports', 'admin'),
         'pricelist_report_delete' => array('voipreports', 'admin'),
-
+        'calls_report' => array('voipreports', 'access'),
     );
 
     public $menu = array(
@@ -43,6 +43,7 @@ class m_voipreports_head extends IModuleHead
         array('Voip 7800', 'voip_7800_report'),
         array('Voip Местные', 'voip_local_report'),
         array('Voip МГМН', 'voip_mgmn_report'),
+        array('Отчет по звонкам', 'calls_report'),
         array('На кого ушли звонки', 'by_dest_operator'),
         array('От кого пришли звонки', 'by_source_operator'),
         array('Отчет по операторскому трафику voip', 'operators_traf'),

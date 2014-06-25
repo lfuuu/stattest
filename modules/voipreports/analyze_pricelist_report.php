@@ -56,7 +56,7 @@ class m_voipreports_analyze_pricelist_report
 
 
             $res_volumes = $pg_db->AllRecords("
-                                        select prefix, instance_id, seconds/60 as volume
+                                        select prefix, instance_id, round(seconds/60.0) as volume
                                         from voip.volume_calc_data
                                         where task_id={$volume_task_id} and operator_id=0
                                   ");
@@ -71,7 +71,7 @@ class m_voipreports_analyze_pricelist_report
             }
 
             $res_volumes = $pg_db->AllRecords("
-                                        select prefix, operator_id, seconds/60 as volume
+                                        select prefix, operator_id, round(seconds_op/60.0) as volume
                                         from voip.volume_calc_data
                                         where task_id={$volume_task_id} and instance_id=0 and operator_id!=0
                                   ");
@@ -87,7 +87,7 @@ class m_voipreports_analyze_pricelist_report
             }
 
             $report = $pg_db->AllRecords("
-                                        select r.prefix, r.prices, r.locked, r.orders, v.seconds/60 as volume,
+                                        select r.prefix, r.prices, r.locked, r.orders, round(v.seconds/60.0) as volume,
                                                   g.name as destination, d.mob, g.zone
                                         from voip.select_pricelist_report({$report_id}, {$recalc}) r
                                                 LEFT JOIN voip_destinations d ON r.prefix=d.defcode

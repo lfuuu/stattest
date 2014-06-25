@@ -1,9 +1,10 @@
-<h1>Отчет по себестоимости:</h1>
+<h1>Отчет по звонкам:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
-	<input type="hidden" name="action" value="cost_report" />
+	<input type="hidden" name="action" value="calls_report" />
     <select class="select2" name="f_instance_id" style="width: 180px">
+        <option value="0" {if $f_instance_id eq 0} selected{/if}>Все регионы</option>
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name} ({$r->id})</option>
         {/foreach}
@@ -18,11 +19,6 @@
     С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <select name="f_prefix_type">
-        <option value="op" {if $f_prefix_type eq 'op'} selected{/if}>Использовать операторские префиксы</option>
-        <option value="mcn" {if $f_prefix_type eq 'mcn'} selected{/if}>Использовать префиксы MCN</option>
-    </select>
 
     <div style="height: 5px"></div>
 
@@ -60,64 +56,77 @@
 
     <div style="height: 5px"></div>
 
-  <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
-<!--  <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/> -->
-  &nbsp;&nbsp;&nbsp;&nbsp;
-    <input type=submit name="make" id="make_report" value="Сформировать"/>
-    <input type=submit name="export" value="Экспорт CSV"/>
-</form>
+    <input name="f_prefix_op" value="{$f_prefix_op}" placeholder="Префик оператора" />
 
+    <label>
+    <input name="f_without_prefix_op" type="checkbox" value="1" {if $f_without_prefix_op} checked{/if}/>
+        без префикса оператора
+    </label>
+
+    <div style="height: 5px"></div>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input name="offset" type="hidden" value="0" id="calls_report_offset"/>
+
+    <input type=submit name="make" id="make_report" value="Сформировать"/>
+
+    {if $item_from > 0}
+        <div style="height: 5px"></div>
+        звонки {$item_from} - {$item_to}
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        {if $previous_offset !== 'none'}
+        <input type=submit onclick="document.getElementById('calls_report_offset').value='{$previous_offset}';" name="make" value="Предыдущие"/>
+        {/if}
+        {if $next_offset !== 'none'}
+        <input type=submit onclick="document.getElementById('calls_report_offset').value='{$next_offset}';" name="make" value="Следующие 100"/>
+        {/if}
+    {/if}
+
+
+</form>
+<br/><br/>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <thead>
 <tr>
-    <td nowrap class=header colspan="2">&nbsp;</td>
-    <td class=header colspan="3">МСN Telecom</td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td nowrap class=header colspan="3">{$op->short_name} ({$k})</td>
-    {/foreach}
-</tr>
-<tr>
-    <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
-    <td class=header style="min-width: 100px;">Назначение</td>
-    <td class=header>Кол.</td>
-    <td class=header>Мин.</td>
-    <td class=header>Руб.</td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td class=header>Кол.</td>
-    <td class=header>Мин.</td>
-    <td class=header>Руб.</td>
-    {/foreach}
+    <td class=header>Id</td>
+    <td class=header style="min-width: 100px;">Дата</td>
+    <td class=header>Номер абонента</td>
+    <td class=header>Направление</td>
+    <td class=header>Внешний номер</td>
+    <td class=header>Длительность<br/>реал/опер/клиент</td>
+    <td class=header colspan="2">Стоимость<br/>опер/клиент</td>
+    <td class=header colspan="2">Префикс<br/>опер/клиент</td>
+    <td class=header colspan="2">Направление</td>
+    <td class=header>Регион</td>
+    <td class=header>Оператор</td>
 </tr>
 </thead>
 <tbody>
 {foreach from=$report item='rd'}
 <tr class="{cycle values='even,odd'}">
-	<td>{$rd.prefix}</td>
-	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-    <td align=right>{$rd.count}</td>
-    <td align=right>{$rd.len_mcn}</td>
-    <td align=right>{$rd.amount_mcn}</td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td align=right>{$rd.operators[$k].count}</td>
-    <td align=right>{$rd.operators[$k].len_op}</td>
-    <td align=right>{$rd.operators[$k].amount_op}</td>
-    {/foreach}
+    <td style="color: #AAA">{$rd.id}</td>
+	<td>{$rd.time}</td>
+    <td>{$rd.usage_num}</td>
+    <td style="color: {if $rd.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $rd.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
+    <td>{$rd.phone_num}</td>
+    <td>{$rd.len}<span style="color: #AAA"> / {$rd.len_op} / {$rd.len_mcn}</span></td>
+    <td>{$rd.amount_op}</td>
+    <td>{$rd.amount_mcn}</td>
+    <td>{$rd.prefix_op}</td>
+    <td>{$rd.prefix_mcn}</td>
+    <td>{if $rd.dest == '-1'}Местные
+        {elseif $rd.dest == '0'}Зона
+        {elseif $rd.dest == '1'}Россия
+        {elseif $rd.dest == '2'}Международка
+        {elseif $rd.dest == '3'}СНГ
+        {/if}
+    </td>
+    <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+    <td>{$regions[$rd.srv_region_id]->name} ({$regions[$rd.srv_region_id]->id})</td>
+    <td>{$operators[$rd.operator_id]} ({$rd.operator_id})</td>
 </tr>
 {/foreach}
 </tbody>
-<tfoot>
-<tr>
-    <td colspan="2"><b>Итого:</b></td>
-    <td align=right><b>{$totals.count}</b></td>
-    <td align=right><b>{$totals.len_mcn}</b></td>
-    <td align=right><b>{$totals.amount_mcn}</b></td>
-    {foreach from=$reportOperators key='k' item='op'}
-    <td align=right><b>{$totals.operators[$k].count}</b></td>
-    <td align=right><b>{$totals.operators[$k].len_op}</b></td>
-    <td align=right><b>{$totals.operators[$k].amount_op}</b></td>
-    {/foreach}
-</tr>
-</tfoot>
 
 </table>
 </div>

@@ -70,10 +70,10 @@
                     Стоимость:<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор    {$r[$k].amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].amount_mcn|round:2}<br />
-                    Количество: <b>{$r[$k].count}</b><br />
+                    Количество: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
                 {else}
                     Минут: <b>{$r[$k].len|round:2}</b><br />
-                    Количество: <b>{$r[$k].count}</b><br />
+                    Количество: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
                 {/if}
             {/if}
         </td>
