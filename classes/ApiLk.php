@@ -1495,7 +1495,7 @@ class ApiLk
                 left join lk_notice_settings n on n.client_contact_id=c.id
                 left join user_users u on u.id=c.user_id
                 where c.client_id='".$client_id."'
-                and u.user='LK'
+                and u.user='AutoLK'
                 ") as $v) {
                     $ret[] = self::_exportModelRow(array('id','type','info','min_balance','day_limit', 'add_pay_notif', 'status'), $v);
         }
@@ -1519,7 +1519,7 @@ class ApiLk
         if (!$client)
             return array('status'=>'error','message'=>'Лицевой счет не найден!');
 
-        $lk_user = $db->GetRow("select id, user from user_users where user='LK'");
+        $lk_user = $db->GetRow("select id, user from user_users where user='AutoLK'");
         if (!$lk_user)
             return array('status'=>'error','message'=>'Ошибка добавления Контакта. Свяжитесь с менеджером.');
     
@@ -1732,7 +1732,7 @@ class ApiLk
         $allSavedContacts = $db->AllRecords("
                 SELECT id 
                 FROM `client_contacts` 
-                WHERE `client_id` = '".mysql_escape_string($client_id)."' AND `user_id` = (select id from user_users where user = 'LK') AND `is_active` = '1' ", "id");
+                WHERE `client_id` = '".mysql_escape_string($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
 
         foreach ($res as $contact_id=>$d) 
         {
@@ -2040,7 +2040,7 @@ class ApiLk
         global $db;
         $default_user = 48;
 
-        $user = $db->GetValue('SELECT id FROM user_users WHERE user="LK" LIMIT 1');
+        $user = $db->GetValue('SELECT id FROM user_users WHERE user="AutoLK" LIMIT 1');
         if ($user > 0) return $user;
         else return $default_user;
     }
