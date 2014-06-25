@@ -306,6 +306,21 @@ class ats2Numbers
         $db_ats->QueryDelete("a_link", array("number_id" => $numberId));
         $db_ats->QueryDelete("a_number", array("id" => $numberId));
     }
+
+    public function getTarif($usageId)
+    {
+        global $db;
+        
+        return $db->GetRow("
+                SELECT tv.*
+                FROM log_tarif lt, tarifs_voip tv 
+                WHERE 
+                        service = 'usage_voip' 
+                    AND id_service = '".$usageId."'
+                    AND id_tarif = tv.id 
+                ORDER BY lt.date_activation DESC, lt.id DESC 
+                LIMIT 1");
+    }
 }
 
 class ats2Diff
@@ -548,6 +563,12 @@ class ats2Helper
             throw new Exception("Клиент не найден");
         }
 
+        $tarif = ats2Numbers::getTarif($usage["id"]);
+
+        if (!$tarif || $tarif["is_virtual"]) {
+            return; //SS-78: Для виртуальных номер SIP-учетки создавать не надо
+        }
+
         $usage["client_id"] = $clientId;
 
         // extract numberId
@@ -608,7 +629,7 @@ class ats2Helper
             $from = count(account::getSubaccounts($line["id"]));
 
             $plusLines = $from+($needLines-$currentCountAccounts);
-            $plusLines = $plusLines > 110 ? 110 : $plusLines;
+            $plusLines = $plusLines > 16 ? 16 : $plusLines;
 
             foreach(account::change_subaccount($line, $plusLines) as $lineId) //всегда для привязки создаем новые подключения
             {
