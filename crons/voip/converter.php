@@ -39,7 +39,15 @@ echo date("r")." clientId: ".$clientId;
 
 $mDB = $db_ats;
 
-$pDB = new PgSQLDatabase('eridanus.mcn.ru','statconv','hdfy300VGnaSdsa2', 'voipdb');
+foreach(array("HOST", "PASS", "USER", "DB") as $f)
+{
+    if (!defined("PG_ATS_".$f))
+    {
+        throw new Exception("PG_ATS_".$f." не найден");
+    }
+}
+
+$pDB = new PgSQLDatabase(PG_ATS_HOST, PG_ATS_USER, PG_ATS_PASS, PG_ATS_DB);
 $pDB->Connect() or die("PgSQLDatabase not connected");
 
 define("PG_SCHEMA", "astschema");
@@ -57,7 +65,6 @@ $sipMultitrunks = loadSIPMultitrunks($mtIds, $clientId);
 $peers          = loadNumbers($mtIds, $clientId);
 
 
-printdbg($sipMultitrunks, "sipMultitrunks");
 
 //echo "\n------ all -----\n";
 //print_r($all);
@@ -614,7 +621,6 @@ function loadSIPMultitrunks(&$mtIds, $clientId = null)
 
 
      refactMT($trunkMain);
-     printdbg($trunkMain, "trunkMain - refactored");
 
      return $trunkMain;
 }
@@ -720,15 +726,17 @@ function loadNumbers($mtIds, $clientId = null)
                 from a_number 
                 where enabled = 'yes'".$whereSql) as $v)
 	{
+        list($sipType_type, $sipType_fake) = getSipType($v);
 		$peers[$v["number"]] = array(
-			              "type"      => getSipType($v),
+			              "type"      => $sipType_type,
 			              "_type"     => $v["type"],
 			              "delimeter" => "",
 			              "peers"     => array(),
 			              "client_id" => $v["client_id"],
 			              "ds"        => getDS($v["direction"]),
 			              "cl"        => $v["call_count"],
-                          "region"    => $v["region"]
+                          "region"    => $v["region"],
+                          "fake"      => $sipType_fake
 		);
 	}
 
@@ -739,23 +747,18 @@ function convertSip(&$a, &$inss, &$peers)
 {
 	global $pDB;
 
-    printdbg($peers, "peers");
-
-
 	foreach($a as $n => $v)
 	{
 		$number = $v["number"];
-		//$name = ($v["type"] == "trunk" ? "tr".$v["number"] : ($v["type"] == "multitrunk" || $v["type"] == "line" ? $v["number"] : ""));
 		$name = ($v["type"] == "trunk" ? $v["account"] : ($v["type"] == "multitrunk" || $v["type"] == "line" ? $v["account"] : ""));
 
+        list($sipType_type, $sipType_fake) = getSipType($v);
 		$peers[$v["number"]] = array_merge($peers[$v["number"]], array(
-              "type"      => getSipType($v),
+              "type"      => $sipType_type,
               "_type"     => $v["type"],
               "delimeter" => ($v["format"] == "ats2" ? "" : $v["format"]),
-              //"peers"     => array(),
-              //"client_id" => $v["client_id"],
               "ds"        => getDS($v["direction"]),
-              //"cl"        => $v["call_count"]
+              //"fake"      => $sipType_fake // ненадо это поле изменять. Если линия в мультитранке, то флаг "fake", неизменным остается
 		));
 
 		$peers[$v["number"]]["peers"][] = $name;
@@ -801,9 +804,6 @@ function insertNumber(&$peers, &$all, &$inss)
 
 	$ins = array();
 
-	printdbg($peers, "peers - insNum");
-	printdbg($all, "all - insNum");
-
 	foreach($peers as $number => $peerInfo)
 	{
 		$oNum = isset($ons[$number]) ? $ons[$number] : false;
@@ -821,6 +821,7 @@ function insertNumber(&$peers, &$all, &$inss)
 		$m = array(
              "number"    =>  $number,
              "type"      =>  $peerInfo["type"],
+             "fake"      =>  $peerInfo["fake"],
              "peername"  => ($peerInfo["peers"] && $peerInfo["_type"] == "multitrunk" ? $peerInfo["peers"][0] : ""),
              "client_id" =>  $peerInfo["client_id"],
              "delim"     => ($peerInfo["type"] == "line" ? $peerInfo["delimeter"] : ""),
@@ -977,13 +978,21 @@ function _makeTime__weekdays(&$times, $weekday)
 
 function getSipType(&$v)
 {
+    $fake = "f";
+    $type = $v["type"];
+
 	switch($v["type"])
 	{
-		case 'trunk': return $v["type"];
-		case 'multitrunk':  return "multi";
+		case 'trunk': $type = $v["type"]; break;
+		case 'multitrunk':  $type = "multi"; break;
 		default: //line
-			return strlen($v["number"]) > 5 ? "line" : "nonum";
+            $type = "line";
+			if (strlen($v["number"]) <= 5) { 
+               $fake = "t";
+            }
 	}
+
+    return array($type, $fake);
 }
 
 function refactMT(&$a)
