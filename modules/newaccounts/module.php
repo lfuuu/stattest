@@ -1769,6 +1769,8 @@ class m_newaccounts extends IModule
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
 
+        //$L = array("invoice-1");
+
         //$bills = array("201204-0465");
 
             $idxs = array();
@@ -1820,16 +1822,20 @@ class m_newaccounts extends IModule
             if($isFromImport)
             {
                 $isSF = get_param_raw("invoice-1", "") == "1";
+                $isUPD = get_param_raw("upd-1", "") == "1";
+                $isAktImport = get_param_raw("akt-1", "") == "1";
+
                 $c = $bill->Client();
                 if($c["mail_print"] == "no") continue;
 
                 $d = $this->get_bill_docs($bill);
 
-                $isAkt1 = $d[1][1];
-                $isAkt2 = $d[1][2];
+                $isAkt1 = $d[1][1] && $isAktImport; // запрет печати актов, если небыло заявлено в переаметрах
+                $isAkt2 = $d[1][2] && $isAktImport;
 
             }
             //$design->assign('bill',$bb);
+
 
             $h = array();
             foreach($L as $r) {
@@ -1837,18 +1843,25 @@ class m_newaccounts extends IModule
                 $reCode = false;
 
                 if($r == "invoice-2" && $isFromImport && $isAkt2 && $isSF)
+                {
                     $reCode = $r;
+                }
 
-                if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF)
+                if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF && !$isUPD)
+                {
                     $reCode = $r;
+                }
 
                 $isDeny = false;
                 if($r == "akt-1" && $isFromImport && !$isAkt1 && !$isSF)
+                {
                     $isDeny = true;
+                }
 
                 if($r == "invoice-1" && $isFromImport && !$isAkt1 && $isSF)
-                    $isDeny = true;
-
+                {
+                    //$isDeny = true;
+                }
 
                 if ((get_param_protected($r) || $reCode) && !$isDeny) {
 
@@ -1888,6 +1901,8 @@ class m_newaccounts extends IModule
             }
             unset($bill);
         }
+
+        //printdbg($R);
 
 
         $_R = $R;
@@ -1929,6 +1944,7 @@ class m_newaccounts extends IModule
         $fbasename = '/tmp/'.mktime().$user->_Data['id'];
         $i=0;
         $is_invoice = false;
+        $is_upd = false;
 
         foreach ($bills as $b) {
             $fname = $fbasename . (++$i) . '.html';
@@ -1946,6 +1962,7 @@ class m_newaccounts extends IModule
                     $obj = $b['obj'];
                 }
                 if (strpos($obj, 'invoice')!==false) $is_invoice = true;
+                if (strpos($obj, 'upd')!==false) $is_upd = true;
                 $content = $this->newaccounts_bill_print($fixclient, array('object'=>$obj,'bill'=>$b['bill_no'], 'only_html'=>'1','to_client'=>$to_client, 'is_pdf'=>1));
             }
             if (strlen($content)) {
@@ -1955,7 +1972,7 @@ class m_newaccounts extends IModule
         }
 
         $options = ' --quiet -L 5 -R 5 -T 0 -B 0';
-        if ($is_invoice) $options .= ' --orientation Landscape ';
+        if ($is_invoice || $is_upd) $options .= ' --orientation Landscape ';
         passthru("/usr/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
         $pdf = file_get_contents($fbasename . '.pdf');
         foreach ($fnames as $f) unlink($f);

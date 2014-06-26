@@ -131,6 +131,61 @@
 </td>
 </tr></table>
 
+
+
+<hr>
+Печать УПД:
+{assign var="cc" value=0}
+{assign var="cp" value=1}
+<table border=0>
+<tr>
+<td>
+<form  style="padding: 0; margin: 0;">
+{foreach from=$bills item=bill_no}
+{if $bill_no}{if $cc%10 == 0}</form></td><td>
+	<form action="./?module=newaccounts&upd-1=1&upd-2=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	{assign var="cp" value=$cp+1}
+	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
+{/foreach}
+</form>
+</td>
+<td>
+<form action="./?module=newaccounts&upd-1=1&action=bill_mprint&from=import&one_pdf=1" method=post target=_blank>
+{foreach from=$bills item=bill_no}
+<input type=hidden name=bill[] value="{$bill_no}">
+{/foreach}
+<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+</form>
+</td>
+</tr></table>
+
+<hr>
+Печать сопроводительного письма, счета:
+
+{assign var="cc" value=0}
+{assign var="cp" value=1}
+<table border=0>
+<tr>
+<td>
+<form  style="padding: 0; margin: 0;">
+{foreach from=$bills item=bill_no}
+{if $bill_no}{if $cc%10 == 0}</form></td><td>
+	<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	{assign var="cp" value=$cp+1}
+	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
+{/foreach}
+</form>
+</td>
+<td>
+<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&from=import&one_pdf=1" method=post target=_blank>
+{foreach from=$bills item=bill_no}
+<input type=hidden name=bill[] value="{$bill_no}">
+{/foreach}
+<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+</form>
+</td>
+</tr></table>
+
 <hr>
 Регистрация почтового реестра:
 {assign var="cc" value=0}
