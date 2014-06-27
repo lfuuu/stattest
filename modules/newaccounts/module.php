@@ -2155,6 +2155,12 @@ class m_newaccounts extends IModule
                             'comment'=>'Печать с/ф &#8470;'.$source
                         )
                     );
+                    
+                    if ($obj == "upd")
+                    {
+                        $design->assign("print_upd", printUPD::getInfo(count($bill->GetLines())));
+                    }
+
                 }elseif($obj == 'gds'){
 
                     $serials = array();

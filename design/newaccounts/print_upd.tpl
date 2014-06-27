@@ -35,6 +35,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 .tr_h8 td p span{font-size:7.0pt;}
 
 .tr_h2 td p span{font-size:1.0pt;}
+.td_item {height: {/literal}{$print_upd.row_size}{literal}px;}
 
 {/literal}
 </style>
@@ -270,7 +271,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td valign=top style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
 			<p ><span>&nbsp;</span></p>
 		</td>
-		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' class="td_item">
 			<p ><span>{$row.item}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
@@ -439,7 +440,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>{if $smarty.foreach.list.total < 4}1{else}2{/if} листе</span></p></td>
+		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>{if $print_upd.pages == 1}1 листе{else}{$print_upd.pages} листах{/if}</span></p></td>
 		<td colspan="13"  style='border-bottom:solid windowtext 1.5pt;'>
 			<div style="padding-bottom:4px;">
 	<table border=0 cellspacing=0 cellpadding=0>
