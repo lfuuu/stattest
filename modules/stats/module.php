@@ -32,24 +32,17 @@ class m_stats extends IModule{
 			trigger_error('Выберите клиента');
 			return;
 		}
-		
 		$route=get_param_raw('route','');
-		
-		// kubik for datepicker
-		$dateFrom = new StatisticDays('date_from', 'FirstDayOfMonth');
-		$dateTo = new StatisticDays('date_to', 'LastDayOfMonth');
-		$from = $dateFrom->getTimestamp();
-		$to = $dateTo->getTimestamp();
-		
-		$today = new DateTime();
-		$statisticPeriods = new StatisticPeriods($today);
-		$periods = array(
-				'today' => '0 days', 
-				'cur_' => '0 month', 
-				'prev_' => '-1 month'
-				);
-		$statisticPeriods->assignPeriods($periods);
-		// end kubik for datepicker
+
+		$def=getdate();
+		$def['mday']=1; $from=param_load_date('from_',$def);
+		$def['mday']=31; $to=param_load_date('to_',$def);
+
+		$def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
+		$def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
+		$def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
+		$def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
+		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
 
 		$ip_group = get_param_integer('ip_group',0);
 		$design->assign('ip_group',$ip_group);
