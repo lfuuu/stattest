@@ -2,71 +2,35 @@
 
 class StatisticPeriods
 {
-	public $day;
-	
-	private $default_dates = array(
-					'year' => 0,
-					'month' => 0,
-					'day' => 0
-				);
-	
-	
-	function __construct(DateTime $day)
-	{
-		$this->day = $day;
-		$this->initDefaultDates();
-	}
-	private function initDefaultDates() {
-		$this->default_dates['year'] = $this->day->format('Y');
-		$this->default_dates['month'] = $this->day->format('m');
-		$this->default_dates['day'] = $this->day->format('d');
-	}
-	private function getDay($format = 'd-m-Y')
-	{
-		return $this->day->format($format);
-	}
-	private function moveDate($interval)
-	{
-		$this->day->add($interval);
-	}
-	private function resetDates()
-	{
-		$this->day->setDate($this->default_dates['year'], $this->default_dates['month'], $this->default_dates['day']);
-	}
-	private function setToDay($day, $month = '', $year = '')
-	{
-		if (empty($month))
-		{
-			$month = $this->getDay('m');
-		}
-		if (empty($year))
-		{
-			$year = $this->getDay('Y');
-		}
-		$this->day->setDate($year, $month, $day);
-	}
-	
-	function getTimestamp($date) 
-	{
-		return $this->day->getTimestamp();
-	}
-	function assignPeriods($periods)
+	public static function assignPeriods(DateTime $date, $periods = array('cur_' => '0 month', 'today' => '0 days'))
 	{
 		global $design;
-		foreach ($periods as $prefix => $v) {
-			$interval = DateInterval::createFromDateString($v);
-			if (strpos($v, 'month') === false) {
-				$this->moveDate($interval);
-				$design->assign($prefix, $this->getDay());
-				$this->resetDates();
+		foreach ($periods as $prefix => $v) 
+		{
+			if (strpos($v, 'month') === false) 
+			{
+				self::assignOneDay($date, $prefix, $v);
 			} else {
-				$this->setToDay(1);
-				$this->moveDate($interval);
-				$design->assign($prefix . 'date_from', $this->getDay());
-				$design->assign($prefix . 'date_to', $this->getDay('t-m-Y'));
-				$this->resetDates();
+				self::assignStartEndMonth($date, $prefix, $v);
 			} 
 		}
+		unset($date);
 	}
-	
+	public static function assignStartEndMonth(DateTime $date, $prefix, $interval = '0 days')
+	{
+		global $design;
+		$_date = clone $date;
+		$interval = DateInterval::createFromDateString($interval);
+		$_date->add($interval);
+		$design->assign($prefix . 'date_from', $_date->format('01-m-Y'));
+		$design->assign($prefix . 'date_to', $_date->format('t-m-Y'));
+	}
+	public static function assignOneDay(DateTime $date, $var_name, $interval = '0 days')
+	{
+		global $design;
+		$_date = clone $date;
+		$interval = DateInterval::createFromDateString($interval);
+		$_date->add($interval);
+		$design->assign($var_name, $_date->format('d-m-Y'));
+	}
 }

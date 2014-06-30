@@ -36,19 +36,13 @@ class m_stats extends IModule{
 		$route=get_param_raw('route','');
 		
 		// kubik for datepicker
-		$dateFrom = new StatisticDays('date_from', 'FirstDayOfMonth');
-		$dateTo = new StatisticDays('date_to', 'LastDayOfMonth');
+		$dateFrom = new DatePickerValues('date_from', 'first day of ' . date('F Y'));
+		$dateTo = new DatePickerValues('date_to', 'last day of ' . date('F Y'));
 		$from = $dateFrom->getTimestamp();
 		$to = $dateTo->getTimestamp();
 		
-		$today = new DateTime();
-		$statisticPeriods = new StatisticPeriods($today);
-		$periods = array(
-				'today' => '0 days', 
-				'cur_' => '0 month', 
-				'prev_' => '-1 month'
-				);
-		$statisticPeriods->assignPeriods($periods);
+		StatisticPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+		StatisticPeriods::assignPeriods(new DateTime());
 		// end kubik for datepicker
 
 		$ip_group = get_param_integer('ip_group',0);
