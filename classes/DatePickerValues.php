@@ -1,9 +1,22 @@
 <?php
 class DatePickerValues 
 {
+	/**
+	 * @var DateTime $day экземпляр класса DateTime
+	 */
 	public $day;
+	/**
+	  * @var string $format формат вывода переменной $day, аналогично первому параметру функции date() 
+	  */
 	public $format = 'd-m-Y';
 	
+	/**
+	 * Инициализация объекта
+	 *
+	 * @param string $_day имя переменной в get запросе
+	 * @param string $default_day допустимые значения: "first" - первый день текущего месяца, "last" - последний день текущего месяца  или Строка даты/времени
+	 * @param bool $assign передать значение $day в Smarty сразу после инициализации или нет
+	 */
 	function __construct($_day, $default_day, $assign = true)
 	{
 		$this->initDay($_day, $default_day);
@@ -11,6 +24,13 @@ class DatePickerValues
 			$this->assignDay($_day);
 		}
 	}
+	/**
+	 * Инициализация переменной $day
+	 *
+	 * @param string $_day имя переменной в get запросе
+	 * @param string $default_day допустимые значения: "first", "last"  или Строка даты/времени
+	 * 
+	 */
 	private function initDay($_day, $default_day)
 	{
 		$_date = get_param_raw($_day, '');
@@ -39,14 +59,24 @@ class DatePickerValues
 		}
 		$this->day = $day;
 	}
+	/**
+	 * Возвращает  $day, отформатированную согласно свойству $format
+	 */
 	public function getDay()
 	{
 		return $this->day->format($this->format);
 	}
+	/**
+	 * Возвращает временную метку Unix свойсва $day
+	 */
 	public function getTimestamp()
 	{
 		return $this->day->getTimestamp();
 	}
+	/**
+	 * Передает в Smarty значение $day, отформатированное согласно свойству $format
+	 * @param string $var_name имя переменной в Smarty
+	 */
 	public function assignDay($var_name)
 	{
 		global $design;
