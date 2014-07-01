@@ -22,9 +22,19 @@ class DatePickerValues
 		if (!is_object($day))
 		{
 			$day = new DateTime();
-			if (!empty($default_day) && ($timestamp = strtotime($default_day)) !== false) 
+			if (!empty($default_day)) 
 			{
-				$day->setTimestamp($timestamp);
+				if ($default_day == 'first')
+				{
+					$timestamp = strtotime('first day of ' . date('F Y'));
+				} elseif ($default_day == 'last') {
+					$timestamp = strtotime('last day of ' . date('F Y'));
+				} else {
+					$timestamp = strtotime($default_day);
+				}
+				if ($timestamp !== false) {
+					$day->setTimestamp($timestamp);
+				}
 			}
 		}
 		$this->day = $day;

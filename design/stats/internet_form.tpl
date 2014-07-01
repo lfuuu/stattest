@@ -1,15 +1,12 @@
 <style>
 {literal}
-#repart_table td {
-    padding: 2px 2px 2px 2px;
-    font: normal 8pt sans-serif;
-}
-#tr_head td {
-    font-weight: bold;
-    text-align: center;
-}
 .ui-datepicker {
 	font-size: 10px;
+}
+.datepicker-input {
+	font-family: "Geneva CY",Tahoma,Arial,sans-serif;
+	font-size: 11px;
+	width: 9.5em;
 }
 {/literal}
 </style>
@@ -21,7 +18,7 @@
         <TBODY>
 	<TR>
 		<TD class=left>
-			IP:<DIV style="WIDTH: 1px; HEIGHT: 10px"><IMG height=10 alt="" src="<?=IMAGES_PATH;?>1.gif" width=1></DIV>
+			IP:
 		</TD>
 		<TD>
 			<FORM action="?" method=get>
@@ -32,20 +29,16 @@
 			<OPTION value='' selected>все</OPTION>
 					{foreach from=$routes_all item=item}<option value="{$item[0]}"{if $route==$item[0]} selected{/if}>{$item[0]} ({$item[1]} - {$item[2]})</option>{/foreach}
 			</SELECT><BR>
-			<DIV style="WIDTH: 1px; HEIGHT: 10px"><IMG height=10 alt="" 
-			src="<?=IMAGES_PATH;?>1.gif" width=1></DIV>
+			{*<DIV style="WIDTH: 1px; HEIGHT: 10px"><IMG height=10 alt="" 
+			src="<?=IMAGES_PATH;?>1.gif" width=1></DIV>*}
 		</TD>
-		<td colspan="2"></td>
+		
 	</TR>
 	<tr>
 		<td class=left>С:</td>
 		<td>
-			<input style="width: 12em;" type=text class="" name="date_from" value="{$date_from}" id="date_from">
-		</td>
-	
-		<td class=left>по:</td>
-		<td>
-			<input style="width: 12em;" type=text name="date_to" value="{$date_to}" id="date_to">
+			<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
+			По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
 		</td>
 	</tr>
         <TR>
@@ -59,7 +52,7 @@
 			<OPTION value=year{if $detality=='year'} selected{/if}>годам</OPTION>
 		</SELECT>
         </TD>
-        <td colspan="2"></td>
+        
         </TR></TBODY></TABLE>
       <HR>
 

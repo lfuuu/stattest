@@ -36,8 +36,8 @@ class m_stats extends IModule{
 		$route=get_param_raw('route','');
 		
 		// kubik for datepicker
-		$dateFrom = new DatePickerValues('date_from', 'first day of ' . date('F Y'));
-		$dateTo = new DatePickerValues('date_to', 'last day of ' . date('F Y'));
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'last');
 
 		$from = $dateFrom->getTimestamp();
 		$to = $dateTo->getTimestamp();
