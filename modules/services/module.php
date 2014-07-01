@@ -909,7 +909,12 @@ class m_services extends IModule{
 
             $l["direction"] = isset($dirs[$l["direction"]]) ? $dirs[$l["direction"]] : $l["direction"];
 
-            $l["invite_contact"] = str_replace(array("<", ">"), "", $l["invite_contact"]);
+            if (!isset($l["invite_contact"]))
+            {
+                $l["invite_contact"] = $l["invite_ip"] = "";
+            } else {
+                $l["invite_contact"] = str_replace(array("<", ">"), "", $l["invite_contact"]);
+            }
 
             $regs[] = $l;
         }
