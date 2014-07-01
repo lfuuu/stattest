@@ -38,6 +38,7 @@ class m_stats extends IModule{
 		// kubik for datepicker
 		$dateFrom = new DatePickerValues('date_from', 'first day of ' . date('F Y'));
 		$dateTo = new DatePickerValues('date_to', 'last day of ' . date('F Y'));
+
 		$from = $dateFrom->getTimestamp();
 		$to = $dateTo->getTimestamp();
 		
