@@ -1766,7 +1766,7 @@ class m_newaccounts extends IModule
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2'));
-        $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice'));
+        $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
 
         //$L = array("invoice-1");
@@ -1830,8 +1830,8 @@ class m_newaccounts extends IModule
 
                 $d = $this->get_bill_docs($bill);
 
-                $isAkt1 = $d[1][1] && $isAktImport; // запрет печати актов, если небыло заявлено в переаметрах
-                $isAkt2 = $d[1][2] && $isAktImport;
+                $isAkt1 = $d[1][1];
+                $isAkt2 = $d[1][2];
 
             }
             //$design->assign('bill',$bb);
@@ -1847,7 +1847,7 @@ class m_newaccounts extends IModule
                     $reCode = $r;
                 }
 
-                if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF && !$isUPD)
+                if($r == "akt-2" && $isFromImport && $isAkt2 && !$isSF && !$isUPD && $isAktImport)
                 {
                     $reCode = $r;
                 }
@@ -1862,6 +1862,17 @@ class m_newaccounts extends IModule
                 {
                     //$isDeny = true;
                 }
+
+                if($r == "upd-1" && $isFromImport && !$isAkt1)
+                {
+                    $isDeny = true;
+                }
+
+                if($r == "upd-2" && $isFromImport && !$isAkt2)
+                {
+                    $isDeny = true;
+                }
+
 
                 if ((get_param_protected($r) || $reCode) && !$isDeny) {
 
@@ -2144,7 +2155,7 @@ class m_newaccounts extends IModule
             }else{
                 if(in_array($obj, array('invoice','upd'))){
 
-                    $design->assign("client_contract", BillContract::getString($bill->CLient("id")));
+                    $design->assign("client_contract", BillContract::getString($bill->Client("id"), $bill->getTs()));
 
                     $id = $db->QueryInsert(
                         "log_newbills",
@@ -2158,7 +2169,7 @@ class m_newaccounts extends IModule
                     
                     if ($obj == "upd")
                     {
-                        $design->assign("print_upd", printUPD::getInfo(count($bill->GetLines())));
+                        $design->assign("print_upd", printUPD::getInfo(count($design->_tpl_vars["bill_lines"])));
                     }
 
                 }elseif($obj == 'gds'){
