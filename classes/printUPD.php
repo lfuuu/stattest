@@ -26,7 +26,7 @@ class printUPD
                 echo "\n".$pobj["obj"];
                 echo "\nsize: ".$size. " (rowSize: ".$rowSize.")";
                 echo "\nsize+p[size]: ".($size + $pobj["size"]);
-                echo "\npage: ".$pageNum.", pageSize: ".($page*self::$pageSize);
+                echo "\npage: ".$pageNum.", pageSize: ".($pageNum*self::$pageSize);
             }
 
             $isNewPage = ($size + $pobj["size"] >= $pageNum*self::$pageSize);

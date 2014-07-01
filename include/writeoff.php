@@ -524,28 +524,41 @@ class ServiceUsageIpPorts extends ServicePrototype {
 
 class BillContract
 {
-    public function getBillItemString($clientId)
+    public function getBillItemString($clientId, $date = null)
     {
-        $contract = self::getString($clientId);
+        if ( $date === null)
+            $date = time();
+
+        $contract = self::getString($clientId, $date);
 
         if($contract)
             return ", согласно Договора ".$contract;
 
         return "";
     }
-    public function getString($clientId)
+    public function getString($clientId, $date)
     {
-        $contract = self::getLastContract($clientId);
+        $contract = self::getLastContract($clientId, $date);
 
         if($contract)
             return $contract["no"]." от ".mdate("d месяца Y г.",$contract["date"]);
 
         return "";
     }
-    private function getLastContract($clientId)
+    private function getLastContract($clientId, $dateTs)
     {
         global $db;
-        return $db->GetRow("select contract_no as no, unix_timestamp(contract_date) as date from client_contracts where client_id = ".$clientId." and is_active order by id desc limit 1");
+        return $db->GetRow("
+            select 
+                contract_no as no, 
+                unix_timestamp(contract_date) as date 
+            from 
+                client_contracts 
+            where 
+                    client_id = ".$clientId." 
+                and contract_date <= FROM_UNIXTIME('".$dateTs."')
+            order by id desc 
+            limit 1");
     }
 }
 
