@@ -799,7 +799,7 @@ class ClientCS {
         global $db;
         $wh = '';
         if ($type) $wh.= ' and cc.type="'.addslashes($type).'"';
-        $cc = $db->AllRecords("select cc.id, ns.status from client_contacts cc LEFT JOIN user_users u ON u.id=cc.user_id LEFT JOIN lk_notice_settings ns ON ns.client_contact_id=cc.id where cc.client_id=".$this->id. $wh." AND u.user='LK' order by cc.id");
+        $cc = $db->AllRecords("select cc.id, ns.status from client_contacts cc LEFT JOIN user_users u ON u.id=cc.user_id LEFT JOIN lk_notice_settings ns ON ns.client_contact_id=cc.id where cc.client_id=".$this->id. $wh." AND u.user='AutoLK' order by cc.id");
         $res = array();
         foreach ($cc as $c) $res[$c['id']] = $c['status'];
         return $res;
