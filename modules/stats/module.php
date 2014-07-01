@@ -42,8 +42,8 @@ class m_stats extends IModule{
 		$from = $dateFrom->getTimestamp();
 		$to = $dateTo->getTimestamp();
 		
-		StatisticPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
-		StatisticPeriods::assignPeriods(new DateTime());
+		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+		DatePickerPeriods::assignPeriods(new DateTime());
 		// end kubik for datepicker
 
 		$ip_group = get_param_integer('ip_group',0);

@@ -2,21 +2,23 @@
 class DatePickerValues 
 {
 	public $day;
+	public $format;
 	
-	function __construct($_day, $default_day, $format = 'd-m-Y', $assign = true)
+	function __construct($_day, $default_day, $assign = true, $format = 'd-m-Y')
 	{
-		$this->initDay($_day, $format, $default_day);
+		$this->format = $format;
+		$this->initDay($_day, $default_day);
 		if ($assign) {
 			$this->assignDay($_day);
 		}
 	}
-	private function initDay($_day, $format, $default_day)
+	private function initDay($_day, $default_day)
 	{
 		$_date = get_param_raw($_day, '');
-		$day = '';
+		$day = null;
 		if (!empty($_date))
 		{
-			$day = DateTime::createFromFormat($format, $_date);
+			$day = DateTime::createFromFormat($this->format, $_date);
 		}
 		if (!is_object($day))
 		{
@@ -28,17 +30,17 @@ class DatePickerValues
 		}
 		$this->day = $day;
 	}
-	public function getDay($format = 'd-m-Y')
+	public function getDay()
 	{
-		return $this->day->format($format);
+		return $this->day->format($this->format);
 	}
 	public function getTimestamp()
 	{
 		return $this->day->getTimestamp();
 	}
-	public function assignDay($var_name, $format = 'd-m-Y')
+	public function assignDay($var_name)
 	{
 		global $design;
-		$design->assign($var_name, $this->getDay($format));
+		$design->assign($var_name, $this->getDay());
 	}
 }
