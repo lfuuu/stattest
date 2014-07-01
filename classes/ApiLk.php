@@ -1533,7 +1533,7 @@ class ApiLk
         if (!self::validateData($type, $data))
             return array('status'=>'error','message'=>'Неверный формат данных.');
     
-        $contact_id = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$client_id."' AND type='".$type."' AND data='".$data."'");
+        $contact_id = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$client_id."' AND type='".$type."' AND data='".$data."' AND user_id='".$lk_user["id"]."'");
         if (!$contact_id) {
             $contact_id = $db->QueryInsert("client_contacts", array(
                         "client_id"     => $client_id,
