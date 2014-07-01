@@ -1,7 +1,7 @@
 <?php
 
 define('NO_WEB',1);
-define('PATH_TO_ROOT','./');
+define('PATH_TO_ROOT','../../');
 include PATH_TO_ROOT."conf.php";
 
 include INCLUDE_PATH."class.phpmailer.php";
@@ -21,17 +21,14 @@ $clients = array('id4102',
 'id23385',
 'taxi/2');
 
-$clients = array('id20000');
+$clients = array('id18620');
 
 
 $R = array();
-foreach($db->AllRecords("select id, client, credit from clients where credit > -1 and status='work' /*and client in ('".implode("', '", $clients)."')*/") as $l)
+foreach($db->AllRecords("select id, client, credit from clients where credit > -1 and status='work' /* and client in ('".implode("', '", $clients)."') */ limit 1000") as $l)
 {
 
     echo "\n".$l["client"].": (".$l["credit"].")";
-
-
-    /*
 
     $usages = array();
     foreach($db->AllRecords("select id from usage_voip where client = '".$l["client"]."'") as $u)
@@ -42,10 +39,12 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
         echo " no usages";
         continue;
     }
+    /*
     */
 
-    /*
     $r = $pg_db->GetRow("SELECT cast(sum(amount)/100.0 as numeric(10,2))as sum, min(time) as min, max(time) as max FROM calls.calls WHERE time > '2013-09-01 00:00:00' AND usage_id IN (".implode(", ", $usages).") LIMIT 1000 OFFSET 0");
+
+    var_dump($r);
 
     $r["min"] = strtotime($r["min"]);
     $r["max"] = strtotime($r["max"]);
@@ -66,8 +65,12 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
 
     $realLimit = $realLimit < 100 ? 100 : $realLimit;
 
+    echo ", real limit: ".$realLimit;
+
     if($realLimit < 100) continue;
 
+
+    /*
     */
 
     $balance = Api::getBalance($l["id"]);
@@ -76,37 +79,32 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
 
     if (!$lastAbon || $lastAbon <= 0) continue;
 
-    /*
+    echo ", last abon: ";
+
     $a = array( 
         "days"      => $days,
         "perday"    => $perDay,
         "limit"     => $limit, 
         "reallimit" => $realLimit,
-        "balance"   => $balance,
-        "days2"     => round($balance/$perDay),
-        "---"       => ($balance < $realLimit ? "!!!" : ""),
+        "balance"   => round($balance, 2),
+        "days2"     => ($balance != 0 && $perDay != 0 ? round($balance/$perDay) : 0),
+        "---"       => ($balance < $realLimit ? "!!!" : "----"),
+        "client" => $l["client"],
         "abon"      => $lastAbon,
         "str"       => "На ваше"
         );
     $a["real_balance"] = $balance-$a["abon"];
-    */
-
-
-    $a = array( 
-        "client" => $l["client"],
-        "balance"   => $balance,
-        "abon"      => $lastAbon,
-        );
 
     $R[$l["id"]] = $a;
 
     print_r($a);
 }
 
+
 if (!$R) exit();
 
 $Mail = new PHPMailer();
-$Mail->SetLanguage("ru","include/");
+$Mail->SetLanguage("ru",PATH_TO_ROOT."include/");
 $Mail->CharSet = "utf-8";
 $Mail->From = "info@mcn.ru";
 $Mail->FromName="МСН Телеком";
@@ -121,15 +119,14 @@ $template = file_get_contents("./mail.before_billing");
 
 foreach ($R as $clientId => $a)
 {
+    if ($a["abon"] <= 0 || ($a["balance"]-($a["abon"]*2)) > 0 ) continue;
+
     $emails = getContactsForSend($clientId);
-    /*
-    $ee = "";
-        foreach ($emails as $email)
-            $ee .= ", ".$email;
-            */
 
     //$emails = array("adima123@yandex.ru");
     if (!$emails) continue;
+
+    echo "\n ".$clientId." abon: ".$a["abon"].", balance: ".$a["balance"].", emails: ".implode(", ", $emails);
 
     foreach ($emails as $email)
     {
@@ -141,6 +138,7 @@ foreach ($R as $clientId => $a)
 
     $Mail->ClearAddresses();
     $Mail->ClearAttachments();
+
 }
 
 function template($t, $a)
