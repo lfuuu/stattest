@@ -1191,7 +1191,6 @@ class DbFormUsageVirtpbx extends DbForm{
                 HelpDbForm::logTarif('usage_virtpbx', $this->dbform['id'], $this->dbform['t_id_tarif'], $this->dbform['t_date_activation']);
             }
         }
-        virtPbx::check();
         return $v;
     }
 

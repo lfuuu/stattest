@@ -36,7 +36,8 @@ class virtPbxChecker
             FROM
                 usage_virtpbx u, clients c
             WHERE
-                ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) OR actual_from >= '2029-01-01')
+                    actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') 
+                AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
                 AND u.client = c.client 
                 AND (   
                            c.status IN ('work','connecting','testing') 
