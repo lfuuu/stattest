@@ -13,31 +13,31 @@ class DatePickerValues
 	/**
 	 * Инициализация объекта
 	 *
-	 * @param string $_day имя переменной в get запросе
+	 * @param string $formFieldName имя переменной в get запросе
 	 * @param string $default_day допустимые значения: "first" - первый день текущего месяца, "last" - последний день текущего месяца  или Строка даты/времени
 	 * @param bool $assign передать значение $day в Smarty сразу после инициализации или нет
 	 */
-	function __construct($_day, $default_day, $assign = true)
+	function __construct($formFieldName, $default_day, $assign = true)
 	{
-		$this->initDay($_day, $default_day);
+		$this->initDay($formFieldName, $default_day);
 		if ($assign) {
-			$this->assignDay($_day);
+			$this->assignDay($formFieldName);
 		}
 	}
 	/**
 	 * Инициализация переменной $day
 	 *
-	 * @param string $_day имя переменной в get запросе
+	 * @param string $formFieldName имя переменной в get запросе
 	 * @param string $default_day допустимые значения: "first", "last"  или Строка даты/времени
 	 * 
 	 */
-	private function initDay($_day, $default_day)
+	private function initDay($formFieldName, $default_day)
 	{
-		$_date = get_param_raw($_day, '');
+		$date = get_param_raw($formFieldName, '');
 		$day = null;
-		if (!empty($_date))
+		if (!empty($date))
 		{
-			$day = DateTime::createFromFormat($this->format, $_date);
+			$day = DateTime::createFromFormat($this->format, $date);
 		}
 		if (!is_object($day))
 		{
