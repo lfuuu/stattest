@@ -2,11 +2,10 @@
 class DatePickerValues 
 {
 	public $day;
-	public $format;
+	public $format = 'd-m-Y';
 	
-	function __construct($_day, $default_day, $assign = true, $format = 'd-m-Y')
+	function __construct($_day, $default_day, $assign = true)
 	{
-		$this->format = $format;
 		$this->initDay($_day, $default_day);
 		if ($assign) {
 			$this->assignDay($_day);
