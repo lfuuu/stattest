@@ -41,49 +41,7 @@
         </tr>
     </table>
 <script>
-{literal}
-
-$('#date_from').datepicker({
-	dateFormat: 'dd-mm-yy',
-    onClose: function(dateText, inst) {
-        var endDateTextBox = $('#date_to');
-        if (endDateTextBox.val() != '') {
-            var testStartDate = new Date(dateText);
-            var testEndDate = new Date(endDateTextBox.val());
-            if (testStartDate > testEndDate)
-                endDateTextBox.val(dateText);
-        }
-        else {
-            endDateTextBox.val(dateText);
-        }
-    },
-    onSelect: function (selectedDateTime){
-        var start = $(this).datepicker('getDate');
-        $('#date_to').datepicker('option', 'minDate', new Date(start.getTime()));
-    }
-});
-
-$('#date_to').datepicker({
-	dateFormat: 'dd-mm-yy',
-    onClose: function(dateText, inst) {
-        var startDateTextBox = $('#date_from');
-        if (startDateTextBox.val() != '') {
-            var testStartDate = new Date(startDateTextBox.val());
-            var testEndDate = new Date(dateText);
-            if (testStartDate > testEndDate)
-                startDateTextBox.val(dateText);
-        }
-        else {
-            startDateTextBox.val(dateText);
-        }
-    },
-    onSelect: function (selectedDateTime){
-        var end = $(this).datepicker('getDate');
-        $('#date_from').datepicker('option', 'maxDate', new Date(end.getTime()) );
-    }
-});
-
-{/literal}
+optools.DatePickerInit('');
 </script>
     </form>
 {/if}

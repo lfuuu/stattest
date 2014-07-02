@@ -792,6 +792,22 @@ var optools = {
 		else if(rol == 'l')
 			last = 0
 		return string.substring(first,string.length-last)
+	},
+	DatePickerInit: function(prefix){
+		$( '#' + prefix + 'date_from' ).datepicker({
+			dateFormat: 'dd-mm-yy',
+			maxDate: $( '#' + prefix + 'date_to' ).val(),
+			onClose: function( selectedDate ) {
+				$( '#' + prefix + 'date_to' ).datepicker( 'option', 'minDate', selectedDate );
+			}
+		});
+		$( '#' + prefix + 'date_to' ).datepicker({
+			dateFormat: 'dd-mm-yy',
+			minDate: $( '#' + prefix + 'date_from' ).val(),
+			onClose: function( selectedDate ) {
+				$( '#' + prefix + 'date_from' ).datepicker( 'option', 'maxDate', selectedDate );
+			}
+		});
 	}
 }
 optools.friendly.dates.mon_right_days.inArray = optools.friendly.dates.leap_years.inArray = optools.inArray

@@ -21,7 +21,6 @@
   <script src="lib/select2/select2.js"></script>
 
   <LINK href="/favicon.ico" rel="SHORTCUT ICON">
-
 </HEAD>
 <BODY text=#404040 vLink=#000099 aLink=#000000 link=#000099 bgColor=#efefef>
 {if isset($authuser)}
@@ -106,16 +105,4 @@ src="{$IMAGES_PATH}1.gif" width=1></DIV>
     });
     {/literal}
 </script>
-  <style>
-{literal}
-.ui-datepicker {
-	font-size: 10px;
-}
-.datepicker-input {
-	font-family: "Geneva CY",Tahoma,Arial,sans-serif;
-	font-size: 11px;
-	width: 9.5em;
-}
-{/literal}
-</style>
 </BODY></HTML>

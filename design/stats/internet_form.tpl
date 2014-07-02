@@ -47,20 +47,5 @@
 
       <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM>
 <script>
-{literal}
-$( "#date_from" ).datepicker({
-    dateFormat: 'dd-mm-yy',
-    maxDate: $( "#date_to" ).val(),
-    onClose: function( selectedDate ) {
-      $( "#date_to" ).datepicker( "option", "minDate", selectedDate );
-    }
-  });
-  $( "#date_to" ).datepicker({
-    dateFormat: 'dd-mm-yy',
-    minDate: $( "#date_from" ).val(),
-    onClose: function( selectedDate ) {
-      $( "#date_from" ).datepicker( "option", "maxDate", selectedDate );
-    }
-  });
-{/literal}
+	optools.DatePickerInit('');
 </script>
