@@ -23,5 +23,5 @@
 	{/foreach}
 </table>
 <script>
-optools.DatePickerInit('');
+optools.DatePickerInit();
 </script>

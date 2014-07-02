@@ -37,5 +37,5 @@
 
       <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM>
 <script>
-optools.DatePickerInit('');
+optools.DatePickerInit();
 </script>

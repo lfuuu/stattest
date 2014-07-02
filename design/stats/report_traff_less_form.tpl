@@ -28,5 +28,5 @@
 
 <DIV align=center><INPUT class=button type=submit name=make_report value="Сформировать отчёт"></DIV></FORM>
 <script>
-optools.DatePickerInit('');
+optools.DatePickerInit();
 </script>

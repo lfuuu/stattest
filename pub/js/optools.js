@@ -794,6 +794,7 @@ var optools = {
 		return string.substring(first,string.length-last)
 	},
 	DatePickerInit: function(prefix){
+		prefix = prefix || '';
 		$( '#' + prefix + 'date_from' ).datepicker({
 			dateFormat: 'dd-mm-yy',
 			maxDate: $( '#' + prefix + 'date_to' ).val(),
