@@ -3270,7 +3270,7 @@ function stats_report_wimax($fixclient, $genReport = false){
 
     if($genReport)
     {
-	$dateFrom = new DatePickerValues('date', '-1 day');
+	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
 	$d1 = $d2 = $dateFrom->getDay();
 	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
 	$dateFrom->format = 'Y-m-d';
@@ -3285,9 +3285,7 @@ function stats_report_wimax($fixclient, $genReport = false){
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
     }
-
     
-
     $design->assign("date", $date);
 
 
@@ -3337,7 +3335,7 @@ function stats_courier_sms($fixclient, $genReport = false){
 
     if($genReport)
     {
-	$dateFrom = new DatePickerValues('date', '-1 day');
+	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
 	$d1 = $d2 = $dateFrom->getDay();
 	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
 	$dateFrom->format = 'Y-m-d';
@@ -3466,9 +3464,6 @@ function stats_support_efficiency($fixclient)
         list($onCompleted_data, $onCompleted_users, $onCompleted_total, $onCompleted_rating) = $this->stats_support_efficiency__basisOnCompleted($dateFrom, $dateTo, $usage);
         list($onCompleted_data2, $onCompleted_users2, $onCompleted_total2, $onCompleted_rating2) = $this->stats_support_efficiency__basisOnStartDate($dateFrom, $dateTo, $usage);
     }
-
-//     $design->assign('date_from', $dateFrom);
-//     $design->assign('date_to', $dateTo);
 
     $design->assign('usages', $usages);
     $design->assign('usages_selected', $usage);
@@ -3880,7 +3875,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if($genReport)
     {
-	$dateFrom = new DatePickerValues('date', '-1 day');
+	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
 	$d1 = $d2 = $dateFrom->getDay();
 	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
 	$dateFrom->format = 'Y-m-d';
