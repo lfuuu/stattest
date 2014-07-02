@@ -374,15 +374,16 @@ class m_stats extends IModule{
             if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
         }
         $design->assign('phones',$phones);
-        $def=getdate();
-        $def['mday']=1; $from=param_load_date('from_',$def);
-        $def['mday']=31; $to=param_load_date('to_',$def);
+        // kubik for datepicker
+	$dateFrom = new DatePickerValues('date_from', 'first');
+	$dateTo = new DatePickerValues('date_to', 'last');
 
-        $def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
-        $def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
-        $def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
-        $def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
-        $def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+	$from = $dateFrom->getTimestamp();
+	$to = $dateTo->getTimestamp();
+	
+	DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+	DatePickerPeriods::assignPeriods(new DateTime());
+	// end kubik for datepicker
 
         $destination = get_param_raw('destination', 'all');
         if(!in_array($destination,array('all','0','0-m','0-f','1','1-m','1-f','2','3')))
