@@ -94,15 +94,16 @@ class m_stats extends IModule{
 		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
 		$ip=get_param_raw('ip','');
 
-		$def=getdate();
-		$def['mday']=1; $from=param_load_date('from_',$def);
-		$def['mday']=31; $to=param_load_date('to_',$def);
+		// kubik for datepicker
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'last');
 
-		$def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
-		$def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
-		$def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
-		$def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
-		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+		$from = $dateFrom->getTimestamp();
+		$to = $dateTo->getTimestamp();
+		
+		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+		DatePickerPeriods::assignPeriods(new DateTime());
+		// end kubik for datepicker
 
 		$detality=get_param_protected('detality','day');
 		$design->assign('detality',$detality);
@@ -198,15 +199,16 @@ class m_stats extends IModule{
 			}
 		}
 
-		$def=getdate();
-		$def['mday']=1; $from=param_load_date('from_',$def);
-		$def['mday']=31; $to=param_load_date('to_',$def);
+		// kubik for datepicker
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'last');
 
-		$def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
-		$def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
-		$def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
-		$def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
-		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+		$from = $dateFrom->getTimestamp();
+		$to = $dateTo->getTimestamp();
+		
+		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+		DatePickerPeriods::assignPeriods(new DateTime());
+		// end kubik for datepicker
 
 		$detality=get_param_protected('detality','day');
 
@@ -705,15 +707,16 @@ class m_stats extends IModule{
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error('Выберите клиента');return;}
 
-		$def=getdate();
-		$def['mday']=1; $from=param_load_date('from_',$def);
-		$def['mday']=31; $to=param_load_date('to_',$def);
+		// kubik for datepicker
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'last');
 
-		$def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
-		$def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
-		$def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
-		$def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
-		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+		$from = $dateFrom->getTimestamp();
+		$to = $dateTo->getTimestamp();
+		
+		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+		DatePickerPeriods::assignPeriods(new DateTime());
+		// end kubik for datepicker
 
 		$detality=get_param_protected('detality','day');
 
@@ -1514,10 +1517,13 @@ class m_stats extends IModule{
 		$design->assign('managers',$managers);
 		$design->assign('manager',$manager=get_param_protected('manager', 'anyone'));
 
-        $d = getdate();
-        $d["mday"] = 1;
-		$date=param_load_date('',$d,true);
-		$date2=param_load_date('e',getdate(),true);
+		// kubik for datepicker
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'today');
+		$dateFrom->format = 'Y-m-d'; $dateTo->format = 'Y-m-d';
+		$date = $dateFrom->getDay();
+		$date2 = $dateTo->getDay();
+		// end kubik for datepicker
 
 		$trafLess = (float)(get_param_raw('traf_less',10));
 
@@ -1922,24 +1928,13 @@ class m_stats extends IModule{
 	function stats_report_sms_gate($fixuser){
 		global $db,$design;
 
-		$date_from = param_load_date(
-			'_sms_fil_from_',
-			array(
-				'mon'=>date('m'),
-				'mday'=>date('d'),
-				'year'=>date('Y')
-			),
-			true
-		);
-		$date_for = param_load_date(
-			'_sms_fil_for_',
-			array(
-				'mon'=>date('m'),
-				'mday'=>date('d'),
-				'year'=>date('Y')
-			),
-			true
-		);
+		// kubik for datepicker
+		$dateFrom = new DatePickerValues('date_from', 'today');
+		$dateTo = new DatePickerValues('date_to', 'today');
+		$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+		$date_from = $dateFrom->getDay();
+		$date_for = $dateTo->getDay();
+		// end kubik for datepicker
 		$cf = (isset($_REQUEST['client_fil']))?(int)$_REQUEST['client_fil']:0;
 		$clients = array();
 		// <editor-fold defaultstate="collapsed" desc="clients_query">
@@ -3286,21 +3281,27 @@ function stats_report_wimax($fixclient, $genReport = false){
 
     if($genReport)
     {
-        $d1 = $d2 = date("Y-m-d", strtotime("-1 day"));
+        // kubik for datepicker
+	$dateFrom = new DatePickerValues('date', '-1 day');
+	$d1 = $d2 = $dateFrom->getDay();
+	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$dateFrom->format = 'Y-m-d';
+	$d1 = $d2 = $dateFrom->getDay();
+	// end kubik for datepicker
     }else{
-        $date_from_y = get_param_raw('date_from_y', date('Y'));
-        $date_from_m = get_param_raw('date_from_m', date('m'));
-        $date_from_d = get_param_raw('date_from_d', date('d'));
-        $date_to_y = get_param_raw('date_to_y', date('Y'));
-        $date_to_m = get_param_raw('date_to_m', date('m'));
-        $date_to_d = get_param_raw('date_to_d', date('d'));
-
-
-        $d1 = $date_from_y."-".$date_from_m."-".$date_from_d;
-        $d2 = $date_to_y."-".$date_to_m."-".$date_to_d;
+        // kubik for datepicker
+	$dateFrom = new DatePickerValues('date_from', 'today');
+	$dateTo = new DatePickerValues('date_to', 'today');
+	$d1 = $dateFrom->getDay();
+        $d2 = $dateTo->getDay();
+	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+	$d1 = $dateFrom->getDay();
+        $d2 = $dateTo->getDay();
+        // end kubik for datepicker
     }
 
-    $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+    
 
     $design->assign("date", $date);
 
@@ -3351,21 +3352,25 @@ function stats_courier_sms($fixclient, $genReport = false){
 
     if($genReport)
     {
-        $d1 = $d2 = date("Y-m-d", strtotime("-1 day"));
+        // kubik for datepicker
+	$dateFrom = new DatePickerValues('date', '-1 day');
+	$d1 = $d2 = $dateFrom->getDay();
+	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$dateFrom->format = 'Y-m-d';
+	$d1 = $d2 = $dateFrom->getDay();
+	// end kubik for datepicker
     }else{
-        $date_from_y = get_param_raw('date_from_y', date('Y'));
-        $date_from_m = get_param_raw('date_from_m', date('m'));
-        $date_from_d = get_param_raw('date_from_d', date('d'));
-        $date_to_y = get_param_raw('date_to_y', date('Y'));
-        $date_to_m = get_param_raw('date_to_m', date('m'));
-        $date_to_d = get_param_raw('date_to_d', date('d'));
-
-
-        $d1 = $date_from_y."-".$date_from_m."-".$date_from_d;
-        $d2 = $date_to_y."-".$date_to_m."-".$date_to_d;
+        // kubik for datepicker
+	$dateFrom = new DatePickerValues('date_from', 'today');
+	$dateTo = new DatePickerValues('date_to', 'today');
+	$d1 = $dateFrom->getDay();
+        $d2 = $dateTo->getDay();
+	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+	$d1 = $dateFrom->getDay();
+        $d2 = $dateTo->getDay();
+        // end kubik for datepicker
     }
-
-    $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
 
     $design->assign("date", $date);
 
@@ -3412,13 +3417,14 @@ function stats_support_efficiency($fixclient)
             );
     $usage = array_keys($usages);
 
-
-    $dateFrom = strtotime(date("Y-m-01", time()));
-    $dateTo = strtotime("+1 month -1 day", $dateFrom);
-
-    $dateFrom = date("Y-m-d", $dateFrom);
-    $dateTo = date("Y-m-d", $dateTo);
-
+	// kubik for datepicker
+	$date_from = new DatePickerValues('date_from', 'first');
+	$date_to = new DatePickerValues('date_to', 'last');
+	$dateFrom = $date_from->getDay();$dateTo = $date_to->getDay();
+	$date = $dateFrom == $dateTo ? 'за '.$dateFrom : 'с '.$dateFrom.' по '.$dateTo;
+	$date_from->format = 'Y-m-d';$date_to->format = 'Y-m-d';
+	$dateFrom = $date_from->getDay();$dateTo = $date_to->getDay();
+	// end kubik for datepicker
     $onCompleted_users = array();
     $onCompleted_data = array();
     $onCompleted_total = array();
@@ -3428,13 +3434,7 @@ function stats_support_efficiency($fixclient)
     
     if(get_param_raw("make_report", "") == "OK")
     {
-
-        $dateFrom = get_param_raw('date_from', $dateFrom);
-        $dateTo = get_param_raw('date_to', $dateTo);
         $usage = get_param_raw("usage", $usage);
-
-        $date = $dateFrom == $dateTo ? 'за '.$dateFrom : 'с '.$dateFrom.' по '.$dateTo;
-
 
         $r = $db->AllRecords(
                 $q = "
@@ -3487,8 +3487,8 @@ function stats_support_efficiency($fixclient)
         list($onCompleted_data2, $onCompleted_users2, $onCompleted_total2, $onCompleted_rating2) = $this->stats_support_efficiency__basisOnStartDate($dateFrom, $dateTo, $usage);
     }
 
-    $design->assign('date_from', $dateFrom);
-    $design->assign('date_to', $dateTo);
+//     $design->assign('date_from', $dateFrom);
+//     $design->assign('date_to', $dateTo);
 
     $design->assign('usages', $usages);
     $design->assign('usages_selected', $usage);
@@ -3900,31 +3900,32 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if($genReport)
     {
-        $d1 = $d2 = date("Y-m-d", strtotime("-1 day"));
+        // kubik for datepicker
+	$dateFrom = new DatePickerValues('date', '-1 day');
+	$d1 = $d2 = $dateFrom->getDay();
+	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$dateFrom->format = 'Y-m-d';
+	$d1 = $d2 = $dateFrom->getDay();
+	// end kubik for datepicker
     }else{
-    	$d1Default = date("Y-m-01");
-    	$d2Default = date("Y-m-d", strtotime("+1 month -1 day", strtotime(date("Y-m-01"))));
+    	 // kubik for datepicker
+	$dateFrom = new DatePickerValues('date_from', 'first');
+	$dateTo = new DatePickerValues('date_to', 'last');
+	$d1 = $dateFrom->getDay();
+        $d2 = $dateTo->getDay();
+	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+	$d1 = $dateFrom->getDay();
+        $d2 = $dateTo->getDay();
+        // end kubik for datepicker
 
         $filterPromoAll = array("all"=> "Все заявки", "promo" => "По акции", "no_promo" => "Не по акции");
-
-    	$d1 = get_param_raw("date_from", $d1Default);
-    	$d2 = get_param_raw("date_to", $d2Default);
     	$filterPromo = get_param_raw("filter_promo", "all");
 
-    	if(!strtotime($d1) || !strtotime($d2))
-    	{
-    		$d1 = $d1Default;
-    		$d2 = $d2Default;
-    	}
-
-        $design->assign("date_from", $d1);
-        $design->assign("date_to", $d2);
         $design->assign("filter_promo_all", $filterPromoAll);
         $design->assign("filter_promo", $filterPromo);
     }
-
-    $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
-
+    
     $design->assign("date", $date);
 
     if($client == "onlime_all")

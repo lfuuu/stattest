@@ -1,15 +1,4 @@
-<style>
-{literal}
-.ui-datepicker {
-	font-size: 10px;
-}
-.datepicker-input {
-	font-family: "Geneva CY",Tahoma,Arial,sans-serif;
-	font-size: 11px;
-	width: 9.5em;
-}
-{/literal}
-</style>
+
       <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&route={$route}&action=internet&is_coll={$is_collocation}&detality=day&date_from={$prev_date_from}&date_to={$prev_date_to}">прошлый месяц</a>,
       								за <a href="?module=stats&is_coll={$is_collocation}&route={$route}&action=internet&detality=day&date_from={$cur_date_from}&date_to={$cur_date_to}">текущий месяц</a>,
       								за <a href="?module=stats&is_coll={$is_collocation}&route={$route}&action=internet&detality=hour&date_from={$today}&date_to={$today}">текущий день</a>)</H3>
