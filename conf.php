@@ -141,10 +141,12 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'modules.php');
 
     if (!defined('NO_WEB')){
+        session_start();
+
         require_once(INCLUDE_PATH.'mysmarty.php');
         $design = new MySmarty();
 
-        require_once(INCLUDE_PATH.'user.php');
+        require_once(INCLUDE_PATH.'authuser.php');
         $user    = new AuthUser();
 
         $modules= new Modules();
