@@ -417,3 +417,11 @@ table.table_style tr.title{
     height:16px;
     cursor: pointer;
 }
+.datepicker-input {
+	font-family: "Geneva CY",Tahoma,Arial,sans-serif;
+	font-size: 11px;
+	width: 9.5em;
+}
+.ui-datepicker{
+	font-size: 10px !important;
+}

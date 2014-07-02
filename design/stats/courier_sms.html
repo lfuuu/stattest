@@ -16,14 +16,10 @@ text-align: center;
 	<table>
 		<tr>
 			<td>С</td>
-			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_y}</select></td>
-			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_m}</select></td>
-			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_d}</select></td>
-			<td>&nbsp;</td>
-			<td>по</td>
-			<td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_y}</select></td>
-			<td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_m}</select></td>
-			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_d}</select></td>
+			<td>
+				<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
+				По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
+			</td>
             <td><input type=submit value="OK"></td>
 		</tr>
     </table>
@@ -49,4 +45,7 @@ text-align: center;
 </tr>
 {/foreach}
 </table>
+<script>
+optools.DatePickerInit();
+</script>
 

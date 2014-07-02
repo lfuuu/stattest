@@ -21,10 +21,10 @@ text-align: center;
 	<table>
 		<tr>
 			<td>С</td>
-			<td><input type=text name="date_from" value="{$date_from}" id="date_from"></td>
+			<td><input class="datepicker-input" type=text name="date_from" value="{$date_from}" id="date_from"></td>
 			<td>&nbsp;</td>
 			<td>по</td>
-			<td><input type=text name="date_to" value="{$date_to}" id="date_to"></td>
+			<td><input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to"></td>
             <td><input type=submit value="OK" name="make_report"></td>
 		</tr>
         <tr>
@@ -35,22 +35,7 @@ text-align: center;
 </form>
 
 <script>
-{literal}
-$( "#date_from" ).datepicker({
-    dateFormat: 'yy-mm-dd',
-    maxDate: $( "#date_to" ).val(),
-    onClose: function( selectedDate ) {
-      $( "#date_to" ).datepicker( "option", "minDate", selectedDate );
-    }
-  });
-  $( "#date_to" ).datepicker({
-    dateFormat: 'yy-mm-dd',
-    minDate: $( "#date_from" ).val(),
-    onClose: function( selectedDate ) {
-      $( "#date_from" ).datepicker( "option", "maxDate", selectedDate );
-    }
-  });
-{/literal}
+optools.DatePickerInit();
 </script>
 
 <div style="padding-top:10px;">
