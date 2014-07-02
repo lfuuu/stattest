@@ -23,5 +23,16 @@ function stat_autoload($class_name)
         return true;
     }
 
+    if(file_exists($filePath = PATH_TO_ROOT . "include/" . strtolower($class_name) . ".php")) {
+        require $filePath;
+        return true;
+    }
+
+    if (strpos($class_name, "m_") !== false && file_exists($filePath = PATH_TO_ROOT . "modules/" . substr(strtolower($class_name), 2) . "/module.php")) {
+        require $filePath;
+        return true;
+    }
+
+
     return false;
 }

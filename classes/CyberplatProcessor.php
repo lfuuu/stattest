@@ -281,7 +281,7 @@ class CyberplatActionCheck
             $b = NewBill::getLastUnpayedBill($client->id);
 
             if (!$b)
-                $b = NewBill::getLastUnpayedBill(9130);
+                $b = NewBill::createBillOnPay($client->id, $data["amount"]);
 
             $payment = new Payment();
             $payment->client_id = $client->id;

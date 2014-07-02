@@ -264,7 +264,11 @@ class Bill{
 		} else {
 			if($this->bill['sum']!=$r['B']) {
 				$this->bill['sum']=$r['B'];
-				$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>($this->_comment?$this->_comment:'óÕÍÍÁ: '.$this->bill['sum'])));
+				$db->QueryInsert("log_newbills",array(
+                    'bill_no'=>$this->bill['bill_no'],
+                    'ts'=>array('NOW()'),
+                    'user_id'=>(is_object($user) ? $user->Get('id') : AuthUser::getSystemUserId()),
+                    'comment'=>($this->_comment?$this->_comment:'óÕÍÍÁ: '.$this->bill['sum'])));
 			}
 			if(!$this->bill['cleared_flag']){
 				$this->bill['cleared_sum'] = $this->bill['sum'];

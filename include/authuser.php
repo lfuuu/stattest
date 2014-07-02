@@ -243,6 +243,12 @@ class AuthUser {
         }
     }
 
+    function getSystemUserId()
+    {
+        global $db;
+
+        return $db->GetValue("select id from user_users where user='system'");
+    }
+
 };
-session_start();
 ?>

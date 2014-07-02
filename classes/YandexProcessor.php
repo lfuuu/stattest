@@ -138,7 +138,7 @@ class YandexProcessor
         $b = NewBill::getLastUnpayedBill($client->id);
 
         if (!$b)
-            $b = NewBill::getLastUnpayedBill(9130);
+            $b = NewBill::createBillOnPay($client->id, $this->data["orderSumAmount"]);
 
         $payment = new Payment();
         $payment->client_id = $client->id;

@@ -57,4 +57,22 @@ class NewBill extends ActiveRecord\Model
             $b->save();
         }
     }
+
+    /**
+     * Создает счет на основе суммы платежа
+     *
+     * @param $clientId Id клиента
+     * @param $paySum сумма платежа
+     *
+     * @return ActiveRecord//Model//NewBill
+     */
+    public function createBillOnPay($clientId, $paySum)
+    {
+        $currency = "RUR";
+        $bill = new Bill(null,$clientId,time(),0,$currency);
+        $bill->AddLine($currency, Encoding::toKoi8r("Авансовый платеж за услуги связи"),1, $paySum/1.18, "zalog");
+        $bill->Save();
+
+        return NewBill::find_by_bill_no($bill->GetNo());
+    }
 }
