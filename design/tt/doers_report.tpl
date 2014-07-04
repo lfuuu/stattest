@@ -55,16 +55,16 @@
 <form method="POST">
 	<table border='0' align='center'>
 	<tr align='center'><td colspan='3'>Начало периода</td><td colspan='3'>Конец периода</td></tr>
-	<tr align='center'><td>Год</td><td>Месяц</td><td>День</td><td>Год</td><td>Месяц</td><td>День</td></tr>
-	<tr>
-	<td> <select name='date_begin_y'> {generate_sequence_options_select start='2003' selected=$date_begin_y} </select>
-	</td><td> <select name='date_begin_m'> {generate_sequence_options_select start='1' end='12' mode='m' selected=$date_begin_m} </select>
-	</td><td> <select name='date_begin_d'> {generate_sequence_options_select start='1' end='31' mode='d' selected=$date_begin_d} </select> </td>
-	<td> <select name='date_end_y'> {generate_sequence_options_select start='2003' selected=$date_end_y} </select>
-	</td><td> <select name='date_end_m'> {generate_sequence_options_select start='1' end='12' mode='m' selected=$date_end_m} </select>
-	</td><td> <select name='date_end_d'> {generate_sequence_options_select start='1' end='31' mode='d' selected=$date_end_d} </select>
+	
+	<tr align='center'>
+	<td colspan='3'>
+	<input class="datepicker-input" type=text name="date_from" value="{$date_from}" id="date_from">
+	</td>
+	<td colspan='3'>
+	<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
 	</td>
 	</tr>
+	
 	<tr align='center'><td colspan='3'>Исполнитель</td><td colspan='3'>Состояние</td><td colspan='3'>Заявки/Счета</td></tr>
 	<tr align='center'>
 		<td colspan='3'>
@@ -88,3 +88,6 @@
 	<tr align='center'><td colspan='6'><input type='submit' value='Отчет' name="do"/></td></tr>
 	</table>
 </form>{/if}
+<script>
+optools.DatePickerInit();
+</script>

@@ -1830,26 +1830,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
     function tt_doers_list($fixclient){
         global $db,$design;
-
-        $date_begin = param_load_date(
-            'date_begin_',
-            array(
-                'mday'=>date('d'),
-                'mon' =>date('m'),
-                'year'=>date('Y')
-            ),
-            true
-        )." 00:00:00";
-
-        $date_end = param_load_date(
-            'date_end_',
-            array(
-                'mday'=>date('d'),
-                'mon' =>date('m'),
-                'year'=>date('Y')
-            ),
-            true
-        )." 23:59:59";
+        
+        $dateFrom = new DatePickerValues('date_from', 'today');
+        $dateTo = new DatePickerValues('date_to', 'today');
+        $dateFrom->format = 'Y-m-d 00:00:00';$dateTo->format = 'Y-m-d 23:59:59';
+        $date_begin = $dateFrom->getDay();
+        $date_end = $dateTo->getDay();
 
         $ttype_filter = $ttype_filter_ = get_param_protected('ttype_filter','all');
         $design->assign('ttype_filter_selected',$ttype_filter);
