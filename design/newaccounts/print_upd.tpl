@@ -264,6 +264,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 	</tr>
 {foreach from=$bill_lines item=row key=key name='list'}
+	{if $print_upd.newPageLineIndex.$key}
+		<tr class='tr_h15' style="page-break-after: always;">
+			<td colspan="15" class="td_item">&nbsp;</td>
+		</tr>
+	{/if}
 	<tr class='tr_h15'>
 		<td valign=top style='border:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>{$smarty.foreach.list.iteration}</span></p>
