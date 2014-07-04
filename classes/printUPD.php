@@ -18,7 +18,8 @@ class printUPD
 
         $size = 0;
         $pageNum = 1;
-        foreach($page as $pobj)
+        $newPageLineIndex = array();
+        foreach($page as $k => $pobj)
         {
             if (defined("print_debug"))
             {
@@ -27,6 +28,11 @@ class printUPD
                 echo "\nsize: ".$size. " (rowSize: ".$rowSize.")";
                 echo "\nsize+p[size]: ".($size + $pobj["size"]);
                 echo "\npage: ".$pageNum.", pageSize: ".($pageNum*self::$pageSize);
+            }
+            
+            if ($pobj["obj"] == "line")
+            {
+		$newPageLineIndex[$k-1] = false;
             }
 
             $isNewPage = ($size + $pobj["size"] >= $pageNum*self::$pageSize);
@@ -37,13 +43,15 @@ class printUPD
                 if ($pobj["obj"] == "footer" || ($pobj["obj"] == "line" && $pobj["is_last"]))
                 {
                     return self::getInfo($positions, $rowSize+1);
+                } else {
+		     $newPageLineIndex[$k-1] = true;
+		     $size +=$pobj["size"];
                 }
                 $pageNum++;
             }
             $size += $pobj["size"];
         }
-
-        return array("row_size" => $rowSize, "pages" => $pageNum);
+        return array("row_size" => $rowSize, "pages" => $pageNum, "newPageLineIndex" => $newPageLineIndex);
     }
 
     private static function constructPage($positions, $rowSize)
