@@ -796,22 +796,27 @@ class m_tt extends IModule{
             }else
                 $subtype = false;
 
-            $date_from = param_load_date('date_from_',null);
-            $date_to = param_load_date('date_to_',null);
+            $dateFrom = new DatePickerValues('date_from', 'today');
+            $dateTo = new DatePickerValues('date_to', 'today');
+            $date_from = $dateFrom->getTimestamp();
+            $date_to = $dateTo->getTimestamp();
 
             if(isset($_REQUEST['date_from']) && $_REQUEST['date_from']=='prev_mon')
             {
-                $date_from = strtotime("-1 month");
+                $dateFrom = new DatePickerValues('date_from', '-1 month');
+                $date_from = $dateFrom->getTimestamp();
                 $_POST["is_create"] = "on";
-                param_load_date('date_from_',array('mday'=>date('d',$date_from),'mon'=>date('m', $date_from),'year'=>date('Y',$date_from)));
-                $date_to = param_load_date('date_to_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
             }
 
-            $date_active_from = param_load_date('date_active_from_',null);
-            $date_active_to = param_load_date('date_active_to_',null);
+            $dateFrom = new DatePickerValues('active_date_from', 'today');
+            $dateTo = new DatePickerValues('active_date_to', 'today');
+            $active_date_from = $dateFrom->getTimestamp();
+            $active_date_to = $dateTo->getTimestamp();
 
-            $date_close_from = param_load_date('date_close_from_',null);
-            $date_close_to = param_load_date('date_close_to_',null);
+            $dateFrom = new DatePickerValues('close_date_from', 'today');
+            $dateTo = new DatePickerValues('close_date_to', 'today');
+            $close_date_from = $dateFrom->getTimestamp();
+            $close_date_to = $dateTo->getTimestamp();
 
 
             $dates = array(
@@ -820,8 +825,8 @@ class m_tt extends IModule{
                         "active" => get_param_raw("is_active", "") != "",
                         "close" => get_param_raw("is_close", "") != ""),
                     "create" => array($date_from, $date_to),
-                    "active" => array($date_active_from, $date_close_to),
-                    "close" => array($date_close_from, $date_close_to)
+                    "active" => array($active_date_from, $close_date_to),
+                    "close" => array($close_date_from, $close_date_to)
                     );
 
             $filter = array("owner" => $owner, "resp" => $resp, "edit" => $editor, "subtype" => $subtype);
@@ -850,26 +855,32 @@ class m_tt extends IModule{
                     $date_from = $dates["create"][0];
                     $date_to = $dates["create"][1];
                 }else{
-                    $date_from = param_load_date('date_from_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
-                    $date_to = param_load_date('date_to_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
+			$dateFrom = new DatePickerValues('date_from', 'today');
+			$dateTo = new DatePickerValues('date_to', 'today');
+			$date_from = $dateFrom->getTimestamp();
+			$date_to = $dateTo->getTimestamp();
                 }
 
                 if($ons["active"])
                 {
-                    $date_active_from = $dates["active"][0];
-                    $date_active_to = $dates["active"][1];
+                    $active_date_from = $dates["active"][0];
+                    $active_date_to = $dates["active"][1];
                 }else{
-                    $date_active_from = param_load_date('date_active_from_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
-                    $date_active_to = param_load_date('date_active_to_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
+			$dateFrom = new DatePickerValues('active_date_from', 'today');
+			$dateTo = new DatePickerValues('active_date_to', 'today');
+			$active_date_from = $dateFrom->getTimestamp();
+			$active_date_to = $dateTo->getTimestamp();
                 }
 
                 if($ons["close"])
                 {
-                    $date_close_from = $dates["close"][0];
-                    $date_close_to = $dates["close"][1];
+                    $close_date_from = $dates["close"][0];
+                    $close_date_to = $dates["close"][1];
                 }else{
-                    $date_close_from = param_load_date('date_close_from_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
-                    $date_close_to = param_load_date('date_close_to_',array('mday'=>date('d'),'mon'=>date('m'),'year'=>date('Y')));
+			$dateFrom = new DatePickerValues('close_date_from', 'today');
+			$dateTo = new DatePickerValues('close_date_to', 'today');
+			$close_date_from = $dateFrom->getTimestamp();
+			$close_date_to = $dateTo->getTimestamp();
                 }
 
                 $_SESSION["trouble_filter"]["time_set"] = time();
@@ -878,21 +889,24 @@ class m_tt extends IModule{
                 $filter = array("owner" => false, "resp" => false, "edit" => false, "subtype" => false);
                 $ons = array("create" => false, "active" => false, "close" => false);
 
-                $mTime = time();
-                $date_from = $date_to = $mTime;
+                $prefixs = array('', 'active_', 'close_');
+                foreach ($prefixs as $prefix) 
+                {
+			$var_name = $prefix . 'date_to';
+			$mTime = new DatePickerValues($var_name, 'now');
+			$$var_name = $mTime->getTimestamp();
+			$var_name = $prefix . 'date_from';
+			$mTime = new DatePickerValues($var_name, 'now');
+			$$var_name = $mTime->getTimestamp();
+                }
 
                 if(isset($_REQUEST['date_from']) && $_REQUEST['date_from']=='prev_mon')
-                    $date_from = time()-60*60*24*30;
-
-                $date_active_from = $date_active_to = $date_close_from = $date_close_to = $mTime;
+                {
+                    $dateFrom = new DatePickerValues('date_from', '-1 month');
+                    $date_from = $dateFrom->getTimestamp();
+                }
             }
 
-            $this->assignDate("date_from", $date_from);
-            $this->assignDate("date_to", $date_to);
-            $this->assignDate("date_active_from", $date_active_from);
-            $this->assignDate("date_active_to", $date_active_to);
-            $this->assignDate("date_close_from", $date_close_from);
-            $this->assignDate("date_close_to", $date_close_to);
             $owner = $filter["owner"];
             $resp = $filter["resp"];
             $editor = $filter["edit"];
@@ -914,23 +928,23 @@ class m_tt extends IModule{
             else
                 $date_to = date('Y-m-d',$date_to).' 23:59:59';
 
-            if($date_active_from < $min_time)
-                $date_active_from = false;
+            if($active_date_from < $min_time)
+                $active_date_from = false;
             else
-                $date_active_from = date('Y-m-d',$date_active_from);
-            if($date_active_to < $min_time)
-                $date_active_to = false;
+                $active_date_from = date('Y-m-d',$active_date_from);
+            if($active_date_to < $min_time)
+                $active_date_to = false;
             else
-                $date_active_to = date('Y-m-d',$date_active_to).' 23:59:59';
+                $active_date_to = date('Y-m-d',$active_date_to).' 23:59:59';
 
-            if($date_close_from < $min_time)
-                $date_close_from = false;
+            if($close_date_from < $min_time)
+                $close_date_from = false;
             else
-                $date_close_from = date('Y-m-d',$date_close_from);
-            if($date_close_to < $min_time)
-                $date_close_to = false;
+                $close_date_from = date('Y-m-d',$close_date_from);
+            if($close_date_to < $min_time)
+                $close_date_to = false;
             else
-                $date_close_to = date('Y-m-d',$date_close_to).' 23:59:59';
+                $close_date_to = date('Y-m-d',$close_date_to).' 23:59:59';
 
         $design->assign("filter",$filter);
         $design->assign("filter_head", array("action" => get_param_raw("action", "view_type"), "mode" => get_param_raw("mode", 0)));
@@ -967,15 +981,15 @@ class m_tt extends IModule{
             if($date_to !== false && $ons["create"])
                 $W[] = "T.date_creation <= '".$date_to."'";
 
-            if($date_active_from !== false && $ons["active"])
-                $W[] = "S.date_start >= '".$date_active_from."'";
-            if($date_active_to !== false && $ons["active"])
-                $W[] = "S.date_start <= '".$date_active_to."'";
+            if($active_date_from !== false && $ons["active"])
+                $W[] = "S.date_start >= '".$active_date_from."'";
+            if($active_date_to !== false && $ons["active"])
+                $W[] = "S.date_start <= '".$active_date_to."'";
 
-            if($date_close_from !== false && $ons["close"])
-                $W[] = "T.date_close >= '".$date_close_from."'";
-            if($date_close_to !== false && $ons["close"])
-                $W[] = "T.date_close <= '".$date_close_to."'";
+            if($close_date_from !== false && $ons["close"])
+                $W[] = "T.date_close >= '".$close_date_from."'";
+            if($close_date_to !== false && $ons["close"])
+                $W[] = "T.date_close <= '".$close_date_to."'";
         //}
 
         if($client)
