@@ -57,6 +57,7 @@ class DatePickerValues
 				}
 			}
 		}
+		$day->setTime(0,0,0);
 		$this->day = $day;
 	}
 	/**
