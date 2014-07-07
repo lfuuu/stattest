@@ -2,6 +2,13 @@
 define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
 
+$allowedDirection = array(
+            "full"   => "Все",
+            "russia" => "Россия",
+            "localmob" => "Местные (мобильные)",
+            "local"    => "Местные (все)"
+        );
+
 function get_payment_rate_by_bill($payment_date,$payment_sum = null,$bill_no = null) {
     global $db;
     if ($bill_no) {
