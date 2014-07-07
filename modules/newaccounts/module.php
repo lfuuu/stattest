@@ -5876,7 +5876,7 @@ $sql .= "    order by client, bill_no";
 
                     $ret .= "{".
                     "id:'".addcslashes($good['id'],"\\'")."',".
-                    "name:'".addcslashes($good['name'],"\\'")."',".
+                    "name:'".str_replace(array("\r", "\n"), "", addcslashes($good['name'],"\\'"))."',".
                     "description:'".addcslashes($good['description'],"\\'")."',".
                     "division:'".addcslashes($good['division'],"\\'")."',".
                     "price:'".addcslashes($good['price'],"\\'")."',".
