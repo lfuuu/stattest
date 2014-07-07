@@ -15,11 +15,11 @@
 {/if}
 <br />
 <div border="1">
-<TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
+<TABLE class=price cellSpacing=2 cellPadding=1 width=100% border=0>
 <TBODY>
 {foreach from=$voip_conn item=item name=inner}
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
-<td>
+<td width=1% nowrap>
 {if access("services_voip", "edit")}
     <a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.id}</a>
 {else}
@@ -30,12 +30,13 @@
 		<a href='index.php?module=tt&clients_client={$item.client}&service=usage_voip&service_id={$item.id}&action=view_type&type_pk=1&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
         {if $item.actual_from == '2029-01-01' && access('services_voip', 'del2029')}<a href="./?module=services&action=vo_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
 	</td>
-    <td>{$regions[$item.region].name}</td>
-	<td>{if $item.vpbx}<div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>{else}{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...{/if}{/if}</td>	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from} - {if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
-	<td>{$item.E164} x {$item.no_of_lines}{if access('services_voip','view_reg')} <a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
+    <td width=5% nowrap>{$regions[$item.region].name}</td>
+	<td style="font-size: 8pt; width: 15%;">{if $item.vpbx}<div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>{else}{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...{/if}{/if}</td>	
+    <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
+	<td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
 	<!--td>{if $item.cl}{$item.cl}{else}&nbsp;{/if}</td-->
 	<!--td>{if $item.cl}{if !$item.enable}<img class=icon src='{$IMAGES_PATH}icons/delete.gif'>{else}<img class=icon src='{$IMAGES_PATH}icons/add.gif'>{/if}{else}&nbsp;{/if}</td-->
-	<td>{$item.tarif.name} ({$item.tarif.month_number}-{$item.tarif.month_line})
+	<td style="font-size: 8pt;">{$item.tarif.name} ({$item.tarif.month_number}-{$item.tarif.month_line})
 		{if $item.tarif.dest_group != 0}
 		/ Набор:
 		{if strpos($item.tarif.dest_group, '5') !== false}Моб{/if}
@@ -57,6 +58,7 @@
 		/ СНГ {$item.tarif.tarif_sng_name} {if $item.tarif.minpayment_sng > 0}({$item.tarif.minpayment_sng}){/if}
 		{/if}
 		{if $item.permit}<br><span style="font-size: 7pt;">{$item.permit}</span>{/if}</td>
+        <td style="font-size: 8pt;">{$allowed_direction[$item.allowed_direction]}</td>
 </tr>
 
 {/foreach}

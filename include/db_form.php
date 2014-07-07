@@ -394,18 +394,11 @@ class DbFormUsageIpPorts extends DbForm{
 
 class DbFormUsageVoip extends DbForm {
     public function __construct() {
-        global $db;
+        global $db, $allowedDirection;
         $regions = array();
         foreach($db->AllRecords('select * from regions') as $item)
             $regions[$item['id']] = $item['code'].' - '.$item['name'];
 
-
-        $directions = array(
-                    "full"   => "Все",
-                    "russia" => "Россия",
-                    "localmob" => "Местные (мобильные)",
-                    "local"    => "Местные (все)"
-                );
 
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
@@ -414,7 +407,7 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['actual_to']=array('default'=>'2029-01-01');
         $this->fields['E164']=array();
         $this->fields['no_of_lines']=array('default'=>1);
-        $this->fields['allowed_direction']=array('assoc_enum' => $directions, 'default'=>'full');
+        $this->fields['allowed_direction']=array('assoc_enum' => $allowedDirection, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
@@ -1905,7 +1898,7 @@ $GLOBALS['translate_arr']=array(
     '*.enabled'                => 'включено',
     '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
-    'usage_voip.is_trunk'              => 'Транк',
+    'usage_voip.is_trunk'              => 'Оператор',
     'usage_voip.one_sip'              => 'Одна SIP-учетка',
     'usage_voip.allowed_direction'      => 'Разрешенные направления',
         

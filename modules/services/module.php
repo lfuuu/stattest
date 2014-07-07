@@ -591,7 +591,7 @@ class m_services extends IModule{
 
 // =========================================================================================================================================
     function services_vo_view($fixclient){
-        global $db,$design;
+        global $db,$design, $allowedDirection;
 
         $so = get_param_integer ('so', 1);
         $order = $so ? 'asc' : 'desc';
@@ -701,6 +701,7 @@ class m_services extends IModule{
             }
 
 
+            $design->assign('allowed_direction', $allowedDirection);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
             $design->assign('voip_conn_permit',$notAcos);
@@ -779,7 +780,7 @@ class m_services extends IModule{
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93, 991))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 89, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -874,7 +875,8 @@ class m_services extends IModule{
                 "reg94" => "37.228.83.6",
                 "reg93" => "37.228.84.6",
                 "reg87" => "37.228.86.6",
-                "reg88" => "37.228.87.6"
+                "reg88" => "37.228.87.6",
+                "reg89" => "176.227.177.6" // Заявка 178491: Нужно добавить Владивосток в "просмотр регистраций". PBX = 176.227.177.6
                 );
 
 
