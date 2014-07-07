@@ -218,7 +218,7 @@ class m_tt extends IModule{
                         "limit" => 1)
                     );
 
-            $gio_trouble = Trouble::find_by_bill_no($trouble["bill_no"]);
+            $gio_trouble = Trouble::find_by_bill_id($trouble["bill_id"]);
             $cur_state = $gio_trouble->current_stage->state;
 
             $new_state = TroubleState::find($R["state_id"]);
