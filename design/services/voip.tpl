@@ -33,8 +33,13 @@
     <td>{$regions[$item.region].name}</td>
 	<td>{if $item.vpbx}<div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>{else}{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...{/if}{/if}</td>	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from} - {if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
 	<td>{$item.E164} x {$item.no_of_lines}{if access('services_voip','view_reg')} <a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
-	<!--td>{if $item.cl}{$item.cl}{else}&nbsp;{/if}</td-->
-	<!--td>{if $item.cl}{if !$item.enable}<img class=icon src='{$IMAGES_PATH}icons/delete.gif'>{else}<img class=icon src='{$IMAGES_PATH}icons/add.gif'>{/if}{else}&nbsp;{/if}</td-->
+    <td>
+        {if $ats_schema[$item.E164]}
+            {if $ats_schema[$item.E164] == "new"}<span style="color: green;" title="Новая схема">Новая</span>
+            {elseif $ats_schema[$item.E164] == "old"}<span style="color: gray;" title="Старая схема">Старая</span>
+            {/if}
+        {/if}
+    </td>
 	<td>{$item.tarif.name} ({$item.tarif.month_number}-{$item.tarif.month_line})
 		{if $item.tarif.dest_group != 0}
 		/ Набор:
