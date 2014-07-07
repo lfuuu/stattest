@@ -665,10 +665,14 @@ class m_services extends IModule{
             );
 
             $R=array(); 
+            $actualNumbers = array();
             while ($r=$db->NextRecord()) {
                 $R[]=$r; 
                 if ($r['is_trunk'] == '1') 
                     $has_trunk = true;
+
+                if ( $r["actual"] )
+                    $actualNumbers[] = $r["E164"];
             }
 
             if ($isDbAtsInited)
@@ -700,6 +704,7 @@ class m_services extends IModule{
                 $notAcos[] = $p;
             }
 
+            $design->assign('ats_schema', $this->whereNumber($actualNumbers));
 
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
@@ -728,11 +733,12 @@ class m_services extends IModule{
 
         $nrs = array();
         $nns = array();
-        foreach($db->AllRecords("select region, E164 as number from usage_voip where client = '".$c["client"]."'") as $n)
+        foreach($db->AllRecords("select distinct region, E164 as number from usage_voip where client = '".$c["client"]."'") as $n)
         {
             $nrs[$n["region"]][] = $n["number"];
             $nns[$n["number"]] = $n["region"];
         }
+
 
         $regs = array();
         if($phone && isset($nns[$phone]))
@@ -763,6 +769,98 @@ class m_services extends IModule{
         $design->AddMain('services/voip_permit.tpl'); 
     }
 
+    private function whereNumber($numbers)
+    {
+        $outNumbers = array();
+        if ($numbers && !is_array($numbers))
+        {
+            $numbers = array($numbers);
+        }
+
+        if (!$numbers)
+            return array();
+
+        foreach($numbers as $number)
+        {
+            $outNumbers[$number] = null;
+        }
+
+        $checkNumbers = $outNumbers;
+        try{
+            foreach($this->getInOldSchema($numbers) as $number)
+            {
+                $outNumbers[$number] = "old";
+                unset($checkNumbers[$number]);
+            }
+        } catch(Exception $e) {
+            trigger_error($e->getMessage());
+        }
+
+        try{
+            if ($checkNumbers)
+                foreach($this->getInNewSchema(array_keys($checkNumbers)) as $number)
+                {
+                    $outNumbers[$number] = "new";
+                    unset($checkNumbers[$number]);
+                }
+        } catch(Exception $e) {
+            trigger_error($e->getMessage());
+        }
+
+        return $outNumbers;
+
+    }
+
+    private function getInOldSchema($numbers)
+    {
+        //albis
+        $resultNumbers = array();
+
+        $conn = @pg_connect("host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS." connect_timeout=1");
+
+        if (!$conn) 
+            throw new Exception("Connection error (PG HOST: ".R_CALLS_99_HOST.")");
+
+        $res = @pg_query("SELECT exten FROM extensions WHERE exten in ('".implode("', '", $numbers)."') AND enabled = 't'");
+
+        if (!$res) 
+            throw new Exception("Query error (PG HOST: ".R_CALLS_99_HOST.")");
+
+        while($l = pg_fetch_assoc($res))
+        {
+            $number = $l["exten"];
+            $resultNumbers[] = $number;
+        } 
+
+        return $resultNumbers;
+    }
+
+    private function getInNewSchema($numbers)
+    {
+        $schema = "astschema";
+        $dbHost = "eridanus.mcn.ru";
+        $dbname = "voipdb";
+
+        $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
+
+        if (!$conn) 
+            throw new Exception("Connection error (PG HOST: ".$dbHost.")");
+
+        $res = pg_query("SELECT number FROM ".$schema.".numbers WHERE number in ('".implode("', '", $numbers)."') AND enabled = 't'");
+
+        if (!$res) 
+            throw new Exception("Query error (PG HOST: ".R_CALLS_99_HOST.")");
+
+        $resultNumbers = array();
+
+        while ( $l = pg_fetch_assoc($res) )
+        {
+            $resultNumbers[] = $l["number"];
+        }
+
+        return $resultNumbers;
+    }
+
     private function getSIPregs($cl, $region, $phone = "")
     {
         $schema = "";
@@ -771,10 +869,9 @@ class m_services extends IModule{
 
         if($region == 99)
         {
-            $conn = @pg_connect("host=85.94.32.237 dbname=nispd user=www password=dD99zmHRs2hR7PPGEMsg connect_timeout=1");
+            $conn = @pg_connect("host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS." connect_timeout=1");
         }else{
 
-            // Соловьев не переключил старую базу на новую, перед уходом в отпуск
             $dbname = "voipdb";
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
@@ -3320,14 +3417,14 @@ class voipRegion
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
             $schema = "";
 
-            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
             }
 
-            $conn = pg_connect($q = "host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS);
-            if($schema)
+            $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
+            if($conn && $schema)
                 pg_query("SET search_path TO ".$schema.", \"\$user\", public");
         }
     }
