@@ -1684,7 +1684,8 @@ class m_newaccounts extends IModule
                     'áËÔ: '=>array('akt-1','akt-2','akt-3'),
                     'îÁËÌÁÄÎÁÑ: '=>array('lading'),
                     'ğÒÉËÁÚ Ï ÎÁÚÎÁŞÅÎÉÉ: ' => array("order"),
-                    'õ×ÅÄÏÍÌÅÎÉÅ Ï ÎÁÚÎÁŞÅÎÉÉ: ' => array("notice")
+                    'õ×ÅÄÏÍÌÅÎÉÅ Ï ÎÁÚÎÁŞÅÎÉÉ: ' => array("notice"),
+                    'õğä: ' => array('upd-1', 'upd-2')
         );
 
         foreach ($D as $k=>$rs) {
