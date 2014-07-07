@@ -17,8 +17,8 @@
 			<td>Дата создания </td>
 			<td id="td_is_create">
 				<input type=checkbox id=is_create name=is_create onclick="{literal}var isCreate=$('#is_create')[0].checked; $('#td_is_create input[type=text]').each(function(o,i){i.disabled = !isCreate;});{/literal}" {if $is_create} checked{/if}> 
-				С <input class="datepicker-input" type=text {if !$is_create}disabled {/if}name="date_from" value="{$date_from}" id="date_from">
-				По <input class="datepicker-input" {if !$is_create}disabled {/if}type=text name="date_to" value="{$date_to}" id="date_to">
+				С <input class="datepicker-input" type=text {if !$is_create}disabled {/if}name="create_date_from" value="{$create_date_from}" id="create_date_from">
+				По <input class="datepicker-input" {if !$is_create}disabled {/if}type=text name="create_date_to" value="{$create_date_to}" id="create_date_to">
 			</td>
 		</tr>
 		<tr>
@@ -90,7 +90,7 @@
 </form>
 </div>
 <script>
-optools.DatePickerInit();
+optools.DatePickerInit('create_');
 optools.DatePickerInit('active_');
 optools.DatePickerInit('close_');
 </script>

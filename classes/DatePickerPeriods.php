@@ -43,6 +43,7 @@ class DatePickerPeriods
 	public static function assignStartEndMonth(DateTime $date, $prefix, $interval = '0 days')
 	{
 		$_date = self::moveDate($date, $interval);
+		$_date->setTime(0,0,0);
 		self::moveToDay($_date, 1);
 		self::assignVar($_date, $prefix . 'date_from');
 		
@@ -59,6 +60,7 @@ class DatePickerPeriods
 	public static function assignOneDay(DateTime $date, $var_name, $interval = '0 days')
 	{
 		$_date = self::moveDate($date, $interval);
+		$_date->setTime(0,0,0);
 		self::assignVar($_date, $var_name);
 	}
 	/**

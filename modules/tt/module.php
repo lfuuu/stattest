@@ -798,13 +798,13 @@ class m_tt extends IModule{
 
             $dateFrom = new DatePickerValues('date_from', 'today');
             $dateTo = new DatePickerValues('date_to', 'today');
-            $date_from = $dateFrom->getTimestamp();
-            $date_to = $dateTo->getTimestamp();
+            $create_date_from = $dateFrom->getTimestamp();
+            $create_date_to = $dateTo->getTimestamp();
 
             if(isset($_REQUEST['date_from']) && $_REQUEST['date_from']=='prev_mon')
             {
                 $dateFrom = new DatePickerValues('date_from', '-1 month');
-                $date_from = $dateFrom->getTimestamp();
+                $create_date_from = $dateFrom->getTimestamp();
                 $_POST["is_create"] = "on";
             }
 
@@ -824,7 +824,7 @@ class m_tt extends IModule{
                         "create" => get_param_raw("is_create", "") != "",
                         "active" => get_param_raw("is_active", "") != "",
                         "close" => get_param_raw("is_close", "") != ""),
-                    "create" => array($date_from, $date_to),
+                    "create" => array($create_date_from, $create_date_to),
                     "active" => array($active_date_from, $close_date_to),
                     "close" => array($close_date_from, $close_date_to)
                     );
@@ -852,13 +852,13 @@ class m_tt extends IModule{
                 $ons = $dates["on"];
                 if($ons["create"])
                 {
-                    $date_from = $dates["create"][0];
-                    $date_to = $dates["create"][1];
+                    $create_date_from = $dates["create"][0];
+                    $create_date_to = $dates["create"][1];
                 }else{
 			$dateFrom = new DatePickerValues('date_from', 'today');
 			$dateTo = new DatePickerValues('date_to', 'today');
-			$date_from = $dateFrom->getTimestamp();
-			$date_to = $dateTo->getTimestamp();
+			$create_date_from = $dateFrom->getTimestamp();
+			$create_date_to = $dateTo->getTimestamp();
                 }
 
                 if($ons["active"])
@@ -889,7 +889,7 @@ class m_tt extends IModule{
                 $filter = array("owner" => false, "resp" => false, "edit" => false, "subtype" => false);
                 $ons = array("create" => false, "active" => false, "close" => false);
 
-                $prefixs = array('', 'active_', 'close_');
+                $prefixs = array('create_', 'active_', 'close_');
                 foreach ($prefixs as $prefix) 
                 {
 			$var_name = $prefix . 'date_to';
@@ -903,7 +903,7 @@ class m_tt extends IModule{
                 if(isset($_REQUEST['date_from']) && $_REQUEST['date_from']=='prev_mon')
                 {
                     $dateFrom = new DatePickerValues('date_from', '-1 month');
-                    $date_from = $dateFrom->getTimestamp();
+                    $create_date_from = $dateFrom->getTimestamp();
                 }
             }
 
@@ -919,14 +919,14 @@ class m_tt extends IModule{
 
             $min_time = mktime(0, 0, 0, 1, 1, 2001);
 
-            if($date_from < $min_time)
-                $date_from = false;
+            if($create_date_from < $min_time)
+                $create_date_from = false;
             else
-                $date_from = date('Y-m-d',$date_from);
-            if($date_to < $min_time)
-                $date_to = false;
+                $create_date_from = date('Y-m-d',$create_date_from);
+            if($create_date_to < $min_time)
+                $create_date_to = false;
             else
-                $date_to = date('Y-m-d',$date_to).' 23:59:59';
+                $create_date_to = date('Y-m-d',$create_date_to).' 23:59:59';
 
             if($active_date_from < $min_time)
                 $active_date_from = false;
@@ -976,10 +976,10 @@ class m_tt extends IModule{
             if($subtype !== false)
                 $W[] = "T.trouble_subtype = '".$subtype."'";
 
-            if($date_from !== false && $ons["create"])
-                $W[] = "T.date_creation >= '".$date_from."'";
-            if($date_to !== false && $ons["create"])
-                $W[] = "T.date_creation <= '".$date_to."'";
+            if($create_date_from !== false && $ons["create"])
+                $W[] = "T.date_creation >= '".$create_date_from."'";
+            if($create_date_to !== false && $ons["create"])
+                $W[] = "T.date_creation <= '".$create_date_to."'";
 
             if($active_date_from !== false && $ons["active"])
                 $W[] = "S.date_start >= '".$active_date_from."'";
