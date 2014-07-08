@@ -209,6 +209,7 @@
 
 <input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1)</label><br>
 <input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2)</label><br>
+<input type=checkbox value=1 name="upd-t" id="updt"><label for="updt"{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>УПД (T)</label><br>
 
 Действие: <select name=action id="action">
 <option value="bill_mprint">печать</option>
