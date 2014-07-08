@@ -1098,8 +1098,8 @@ class m_services extends IModule{
 
                 if(!$msg)
                 {
-                    voipRegion::getClientE164s($c["client"]); //для заполнения массива номер=>регион (voipRegion::$e164Region)
-                    $msg = voipRegion::_getEmailMsg($c["client"], $_e164s);
+                    voipRegion::getClientE164s($c); //для заполнения массива номер=>регион (voipRegion::$e164Region)
+                    $msg = voipRegion::_getEmailMsg($c, $_e164s);
                 }
 
                 if(!$msg)
@@ -3177,7 +3177,7 @@ class voipRegion
 
         $result = pg_query(
                 $q = "SELECT distinct callerid, name
-                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client='".$client."' ".($region != 99 ? "and region = '".$region."'" : "")."
+                FROM ".($region == 99 ? "sip_users" : "sipdevices")." WHERE client_id='".$client["id"]."' ".($region != 99 ? "and region = '".$region."'" : "")."
                 ORDER BY callerid");
 
         $e164s = array();
@@ -3211,7 +3211,7 @@ class voipRegion
         global $db;
 
         $rs = array();
-        foreach($db->AllRecords("select distinct region from usage_voip where client = '".$client."' order by region desc") as $r)
+        foreach($db->AllRecords("select distinct region from usage_voip where client = '".$client["client"]."' order by region desc") as $r)
             $rs[] = $r["region"];
 
         return $rs;
@@ -3339,7 +3339,8 @@ class voipRegion
                 "reg94" => "37.228.83.6",
                 "reg93" => "37.228.84.6",
                 "reg87" => "37.228.86.6",
-                "reg88" => "37.228.87.6"
+                "reg88" => "37.228.87.6",
+                "reg89" => "176.227.177.6" // Заявка 178491: Нужно добавить Владивосток в "просмотр регистраций". PBX = 176.227.177.6
                 );
 
         $callerids = $names = array();
@@ -3360,7 +3361,7 @@ class voipRegion
                 $q = "SELECT *,name, callerid, permit, deny, secret, 
                 ".($region == 99  ? "":"'reg".$region."' as ")." ippbx
                 FROM ".($region == 99 ? "sip_users" : "sipdevices")." 
-                WHERE client = '".$client."' 
+                WHERE client_id = '".$client["id"]."' 
                 and (
                     ".($callerids ? "callerid in ('".implode("','", $callerids)."')" : "").
                     ($callerids && $names ? " or (" : "").
@@ -3419,7 +3420,7 @@ class voipRegion
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
             $schema = "";
 
-            if(in_array($region, array(94, 95, 87, 97, 98, 88, 93, 991))) // new schema. scynced
+            if(in_array($region, array(94, 95, 87, 97, 98, 88, 89, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
