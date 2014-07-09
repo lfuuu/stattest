@@ -159,21 +159,33 @@
   <br/>
   <table class="price">
     <tr>
-      <th>Продажи новых номеров/линий без номера по менеджерам</th>
+      <th rowspan="2">Продажи номеров/линий без номера по менеджерам</th>
+      <th colspan="4" style="text-align: center;">Новые</th>
+      <th colspan="4" style="text-align: center;">Допродажи</th>
+      <th rowspan="2" >Выезды</th>
+      <th rowspan="2">%</th>   
+    </tr>
+    <tr>
       <th>шт</th>
       <th>%</th>
       <th>СЛ, шт.</th>
       <th>%</th>
-      <th>Выезды</th>
+      <th>шт</th>
       <th>%</th>
-    </tr>
+      <th>СЛ, шт.</th>
+      <th>%</th>
+    <tr>
     {foreach from=$sale_channels.managers item=sales key=manager}
     <tr>
       <td>{$manager|default:"???????"}</td>
-      <td class="dig"><b>{$sales.nums}</b></td>
-      <td class="dig">{$sales.nums_perc}%</td>
-      <td class="dig"><b>{$sales.lines}</b></td>
-      <td class="dig">{$sales.lines_perc}%</td>
+      <td class="dig"><b>{$sales.nums.new}</b></td>
+      <td class="dig">{$sales.nums_perc.new}%</td>
+      <td class="dig"><b>{$sales.lines.new}</b></td>
+      <td class="dig">{$sales.lines_perc.new}%</td>
+      <td class="dig"><b>{$sales.nums.old}</b></td>
+      <td class="dig">{$sales.nums_perc.old}%</td>
+      <td class="dig"><b>{$sales.lines.old}</b></td>
+      <td class="dig">{$sales.lines_perc.old}%</td>
       <td class="dig"><b>{$sales.visits}</b></td>
       <td class="dig">{$sales.visits_perc}%</td>
     </tr>

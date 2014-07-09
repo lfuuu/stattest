@@ -4525,7 +4525,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $sale_nonums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_lines = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_channels = array('all' => array('nums' => 0, 'lines' => 0, 'visits' => 0), "managers" => array());
+      $sale_channels = array('all' => array('nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'visits' => 0), "managers" => array());
       $clients = array();
       foreach($res as $r)
       {
@@ -4590,17 +4590,23 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           $sale_clients['all']['all'] += 1;
         }
 
+        if (!isset($sale_channels['managers'][$r['sale_channel']])) 
+            $sale_channels['managers'][$r['sale_channel']] = array('nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+        $sale_channels['managers'][$r['sale_channel']]['nums']['all'] += 1;
+        $sale_channels['managers'][$r['sale_channel']]['lines']['all'] += $r['no_of_lines'];
+        $sale_channels['all']['lines']['all'] += $r['no_of_lines'];
+        $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
+        $sale_channels['all']['nums']['all'] += 1;
         if ($r['is_new']){
-          if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('nums' => 0, 'lines' => 0, 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
-
-          $sale_channels['managers'][$r['sale_channel']]['nums'] += 1;
-          $sale_channels['all']['nums'] += 1;
-
-          $sale_channels['managers'][$r['sale_channel']]['lines'] += $r['no_of_lines'];
-          $sale_channels['all']['lines'] += $r['no_of_lines'];
-          
-          $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
+          $sale_channels['managers'][$r['sale_channel']]['nums']['new'] += 1;
+          $sale_channels['managers'][$r['sale_channel']]['lines']['new'] += $r['no_of_lines'];
+          $sale_channels['all']['nums']['new'] += 1;
+          $sale_channels['all']['lines']['new'] += $r['no_of_lines'];
+        } else {
+          $sale_channels['managers'][$r['sale_channel']]['nums']['old'] += 1;
+          $sale_channels['managers'][$r['sale_channel']]['lines']['old'] += $r['no_of_lines'];
+          $sale_channels['all']['nums']['old'] += 1;
+          $sale_channels['all']['lines']['old'] += $r['no_of_lines'];
         }
       }
 /*
@@ -4668,8 +4674,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       }
       foreach($sale_channels["managers"] as $mamager => &$d)
       {
-        $d["nums_perc"] = round( $d["nums"] / $sale_channels["all"]["nums"] * 100);
-        $d["lines_perc"] = round( $d["lines"] / $sale_channels["all"]["lines"] * 100);
+        $d["nums_perc"]['new'] = round( $d["nums"]['new'] / $sale_channels["all"]["nums"]['all'] * 100);
+        $d["lines_perc"]['new'] = round( $d["lines"]['new'] / $sale_channels["all"]["lines"]['all'] * 100);
+        $d["nums_perc"]['old'] = round( $d["nums"]['old'] / $sale_channels["all"]["nums"]['all'] * 100);
+        $d["lines_perc"]['old'] = round( $d["lines"]['old'] / $sale_channels["all"]["lines"]['all'] * 100);
         $d["visits_perc"] = ($sale_channels["all"]["visits"] > 0) ? round( $d["visits"] / $sale_channels["all"]["visits"] * 100) : 0;
       }
 
