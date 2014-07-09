@@ -7,7 +7,7 @@
 <label for="r3">Сводный: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><input type=radio name="user_type" id="r3" value="union"{if $user_type == 'union'} checked{/if}><font style="font-size: 8pt;">(по менеджеру+по создателю счета)</font><br />
 
 <SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select>
-От <input type=text class=text name='date_from' value='{$date_from}'> до <input type=text class=text name='date_to' value='{$date_to}'><br>
+От <input type=text class=text name='date_from' id='date_from' value='{$date_from}'> до <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
 <input type=checkbox{if $b_nedopay} checked{/if} name=b_nedopay value=1>Оплаченные не полностью счета |
 Недоплата больше, чем рублей: <input type='text' name='p_nedopay' size=5 value='{if $p_nedopay}{$p_nedopay}{else}1{/if}'><br>
 <input type=checkbox{if $b_pay0} checked{/if} name=b_pay0 value=1>Показывать неоплаченные счета<br>
@@ -54,3 +54,6 @@
 </tr>
 </TABLE>
 {/if}
+<script>
+optools.DatePickerInit();
+</script>

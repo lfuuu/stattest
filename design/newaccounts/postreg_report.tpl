@@ -1,4 +1,4 @@
-Дата {$from_d}.{$from_m}.{$from_y}<br>
+Дата {$date_from}<br>
 <H1>РЕЕСТР</H1>
 <h2>заказных почтовых отправлений</h2>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
