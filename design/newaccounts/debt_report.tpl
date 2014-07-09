@@ -138,7 +138,7 @@ function doSaveComment(billNo)
 Менеджер: <SELECT name=manager>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select><br>
 Курьер: <select name="courier" id="courier">{html_options options=$l_couriers selected=$courier}</select><br>
 Метро: <select name="metro" id="metro">{html_options options=$l_metro selected=$metro}</select><br>
-От <input type=text class=text name='date_from' value='{$date_from}'> до <input type=text class=text name='date_to' value='{$date_to}'><br>
+От <input type=text class=text id='date_from' name='date_from' value='{$date_from}'> до <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
 <input type=checkbox{if $nal.beznal} checked{/if} name=nal[] value=beznal>Банковский перевод<br>
 <input type=checkbox{if $nal.nal} checked{/if} name=nal[] value=nal>Наличными<br>
 <input type=checkbox{if $nal.prov} checked{/if} name=nal[] value=prov>Наличными (проведенные)<br><br>
@@ -176,3 +176,6 @@ function doSaveComment(billNo)
 </tr>
 </TABLE>
 {/if}
+<script>
+optools.DatePickerInit();
+</script>

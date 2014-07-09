@@ -29,15 +29,15 @@ h3 {
 <h2>КНИГА ПРОДАЖ</h2>
 Продавец     __________________________________________________________________________________________________________<br>
 Идентификационный номер и код причины постановки на учет налогоплательщика-продавца     __________________________________________________________________________________________________________<br>
-Продажа за период с {date_from_val|mdate:"d месяца Y г."} по {date_from_val|mdate:"d месяца Y г."}<br>
+Продажа за период с {$date_from_val|mdate:"d месяца Y г."} по {$date_to_val|mdate:"d месяца Y г."}<br>
 
 <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
 {else}
 <form style='display:inline' action='?'>
 	<input type=hidden name=module value=newaccounts>
 	<input type=hidden name=action value=balance_sell>
-От:	<input type=text name=date_from value='{$date_from}' class=text>
-До:	<input type=text name=date_to value='{$date_to}' class=text><br>
+От:	<input id=date_from type=text name=date_from value='{$date_from}' class=text>
+До:	<input id=date_to type=text name=date_to value='{$date_to}' class=text><br>
 Метод оплаты: <select name=paymethod>
 	<option value=beznal{if $paymethod=='beznal'} selected{/if}>beznal</option>
 	<option value=nal{if $paymethod=='nal'} selected{/if}>nal</option>
@@ -118,6 +118,9 @@ h3 {
 	<td>0</td>
 </tr>
 </tbody></table>
+<script>
+optools.DatePickerInit();
+</script>
 {if $fullscreen}
 </body>
 </html>

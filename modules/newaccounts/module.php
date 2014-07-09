@@ -3993,13 +3993,17 @@ class m_newaccounts extends IModule
     $design->assign('b_nedopay',$nedopay=get_param_protected('b_nedopay',0));
     $design->assign('p_nedopay',$p_nedopay=get_param_protected('p_nedopay',1));
     $design->assign('manager',$manager=get_param_protected('manager'));
-    $design->assign('date_from',$date_from=get_param_protected('date_from',date('Y-m-01')));
-    $design->assign('date_to',$date_to=get_param_protected('date_to',date('Y-m-30')));
     $design->assign('b_pay0',($b_pay0=get_param_protected('b_pay0',0)));
     $design->assign('b_pay1',$b_pay1=get_param_protected('b_pay1',0));
     $design->assign('b_show_bonus',$b_show_bonus=get_param_protected('b_show_bonus',0));
     $design->assign('user_type',$userType =get_param_protected('user_type','manager'));
 
+	$dateFrom = new DatePickerValues('date_from', 'first');
+	$dateTo= new DatePickerValues('date_to', 'last');
+	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
+	$date_from=$dateFrom->getDay();
+	$date_to=$dateTo->getDay();
+    
     $design->assign("l_status", $lStatus = array(
                 "work" => "Включенные",
                 "income" => "Входящие",
@@ -4184,10 +4188,14 @@ $sql .= "    order by client, bill_no";
         $design->assign('courier',$courier=get_param_protected('courier',"all"));
         $design->assign('metro',$metro=get_param_protected('metro',"all"));
         $design->assign('manager',$manager=get_param_protected('manager'));
-        $design->assign('date_from',$date_from=get_param_protected('date_from',date('Y-m-01')));
-        $design->assign('date_to',$date_to=get_param_protected('date_to',date('Y-m-30')));
         $design->assign('cl_off',$cl_off=get_param_protected('cl_off'));
         $design->assign('zerobills',1);
+        $dateFrom = new DatePickerValues('date_from', 'first');
+	$dateTo= new DatePickerValues('date_to', 'last');
+	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
+        $date_from=$dateFrom->getDay();
+        $date_to=$dateTo->getDay();
+        
 
         $zerobill=get_param_integer('zerobills', 0);
 
@@ -4465,18 +4473,16 @@ $sql .= "    order by client, bill_no";
 
         if (!$fixclient) {trigger_error('Выберите клиента'); return;}
 
-
-        $date_from=get_param_protected('date_from',date('Y-m-01'));
-        $date_from = date("Y-m-d", strtotime($date_from));
-        $date_to=get_param_protected('date_to',date('Y-m-31'));
-        $date_to = date("Y-m-d", strtotime($date_to));
-
+	$dateFrom = new DatePickerValues('date_from', 'first');
+	$dateTo= new DatePickerValues('date_to', 'last');
+	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
+        $date_from=$dateFrom->getDay();
+        $date_to=$dateTo->getDay();
+       
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
         Company::setResidents($c["firma"], $date_to);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
-        $design->assign('date_from', $date_from);
-        $design->assign('date_to', $date_to);
         $design->assign('saldo', $startsaldo=floatval(get_param_protected('saldo',0)));
         $design->assign('date_from_val',$date_from_val=strtotime($date_from));
         $design->assign('date_to_val',$date_to_val=strtotime($date_to));
@@ -4694,10 +4700,13 @@ $sql .= "    order by client, bill_no";
     }
     function newaccounts_balance_sell($fixclient){
         global $design,$db,$user;
-        $design->assign('date_from',$date_from=get_param_protected('date_from',date('Y-m-01')));
-        $design->assign('date_to',$date_to=get_param_protected('date_to',date('Y-m-31')));
-        $design->assign('date_from_val',$date_from_val=strtotime($date_from));
-        $design->assign('date_to_val',$date_to_val=strtotime($date_to));
+        $dateFrom = new DatePickerValues('date_from', 'first');
+	$dateTo= new DatePickerValues('date_to', 'last');
+	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
+	$date_from=$dateFrom->getDay();
+	$date_to=$dateTo->getDay();
+        $design->assign('date_from_val',$date_from_val=$dateFrom->getTimestamp());
+        $design->assign('date_to_val',$date_to_val=$dateTo->getTimestamp());
         $design->assign('paymethod',$paymethod = get_param_protected('paymethod','nal'));
         $design->assign('payfilter',$payfilter = get_param_protected('payfilter','1'));
         $design->assign('firma',$firma = get_param_protected('firma','mcn_telekom'));
@@ -5339,14 +5348,14 @@ $sql .= "    order by client, bill_no";
 
     function newaccounts_postreg_report() {
         global $design,$db;
-        $def=getdate();
-        $from=param_load_date('from_',$def);
+        $dateFrom = new DatePickerValues('date_from', 'today');
+        $from=$dateFrom->getTimestamp();
         $design->AddMain('newaccounts/postreg_report_form.tpl');
     }
     function newaccounts_postreg_report_do() {
         global $design,$db;
-        $def=getdate();
-        $from=param_load_date('from_',$def);
+        $dateFrom = new DatePickerValues('date_from', 'today');
+        $from=$dateFrom->getTimestamp();
         $ord = 0;
         $R = $db->AllRecords('select B.*,C.company,C.address_post_real from newbills as B inner join clients as C ON C.id=B.client_id where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         foreach ($R as &$r) {
@@ -5926,8 +5935,11 @@ $sql .= "    order by client, bill_no";
 
         $R = array();
 
-        $from = get_param_raw("from", date("Y-m-d"));
-        $to = get_param_raw("to", date("Y-m-d"));
+        $dateFrom = new DatePickerValues('date_from', 'today');
+        $dateTo = new DatePickerValues('date_to', 'today');
+        $dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+        $from = $dateFrom->getDay();
+        $to = $dateTo->getDay();
 
         if(get_param_raw("do", "") != "")
         {

@@ -31,8 +31,8 @@
 <form style='display:inline' action='?' id="f_send">
 <table>
 	<tr>
-		<td>От:<br><input type=text name=date_from value='{$date_from}' class=text style="width:100px;"></td>
-		<td>До:<br><input type=text name=date_to value='{$date_to}' class=text style="width:100px;"></td>
+		<td>От:<br><input type=text id="date_from" name=date_from value='{$date_from}' class=text style="width:100px;"></td>
+		<td>До:<br><input type=text id="date_to" name=date_to value='{$date_to}' class=text style="width:100px;"></td>
 		<td>Начальное сальдо:<br><input type=text name=saldo value='{$saldo}' class=text style='width:100px'></td>
 		<td>Подпись:<br><select name='sign'>
 			<option value=''>Без подписи</option>
@@ -115,3 +115,6 @@
 	отсутствует
 {/if}
 </font>
+<script>
+optools.DatePickerInit();
+</script>
