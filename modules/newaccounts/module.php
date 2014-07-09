@@ -1983,7 +1983,7 @@ class m_newaccounts extends IModule
             }
         }
 
-        $options = ' --quiet -L 5 -R 5 -T 0 -B 0';
+        $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
         if ($is_invoice || $is_upd) $options .= ' --orientation Landscape ';
         passthru("/usr/bin/wkhtmltopdf $options ".implode(' ', $fnames)." $fbasename.pdf");
         $pdf = file_get_contents($fbasename . '.pdf');
@@ -2226,7 +2226,7 @@ class m_newaccounts extends IModule
                 
                 if ($is_pdf) {
                     /*wkhtmltopdf*/
-                    $options = ' --quiet -L 0 -R 0 -T 0 -B 0';
+                    $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
                     switch ($obj) {
                         case 'upd':
                             $options .= ' --orientation Landscape ';
@@ -4657,7 +4657,7 @@ $sql .= "    order by client, bill_no";
 
         if ($is_pdf == 1) {
             /*wkhtmltopdf*/
-            $options = ' --quiet -L 2 -R 2 -T '.get_param_protected('pdf_top_padding', 2).' -B 2';
+            $options = ' --quiet -L 10 -R 10 -T '.get_param_protected('pdf_top_padding', 10).' -B 10';
             $content = $design->fetch('newaccounts/print_balance_check.tpl');
             $file_name = '/tmp/' . mktime().$user->_Data['id'];
             $file_html = $file_name.'.html';
