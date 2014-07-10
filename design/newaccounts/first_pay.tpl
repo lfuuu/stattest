@@ -3,8 +3,8 @@
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=first_pay>
 
-С: <input type=text name='from' value="{$from}">
-По: <input type=text name='to' value="{$to}">
+С: <input type=text name='date_from' id='date_from' value="{$date_from}">
+По: <input type=text name='date_to' id='date_to' value="{$date_to}">
 Сортировка: <SELECT name=sort><option value='channel'{if $sort=='channel'} selected{/if}>по каналу продаж</option><option value='manager'{if $sort=='manager'} selected{/if}>по менеджеру</option><option value='client'{if $sort=='client'} selected{/if}>по клиенту</option></select>
 <input type=submit class=button value='Просмотр' name=process>
 </form>
@@ -92,3 +92,6 @@
 {/foreach}
 </TABLE>
 {/if}
+<script>
+optools.DatePickerInit();
+</script>

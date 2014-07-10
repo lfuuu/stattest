@@ -5146,12 +5146,13 @@ $sql .= "    order by client, bill_no";
 
     function newaccounts_first_pay($fixclient) {
         global $design,$db;
-        $from = get_param_raw('from', date('Y-m-')."1");
-        $to = get_param_raw('to', date('Y-m-d'));
+        $dateFrom = new DatePickerValues('date_from', 'first');
+        $dateTo = new DatePickerValues('date_to', 'today');
+        $dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+        $from = $dateFrom->getDay();
+        $to = $dateTo->getDay();
+        
         $sort = get_param_raw('sort', 'channel');
-
-        $design->assign('from', $from);
-        $design->assign('to', $to);
         $design->assign('sort', $sort);
 
         if(get_param_raw('process', 'stop') != 'stop') {
