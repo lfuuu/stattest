@@ -29,13 +29,21 @@
         <td class="dig"><b>{$curr_phones[$r.id].count_lines}</b></td>
     {/foreach}
   </tr>
+  <tr>
+    <td><b>Количество клиентов</b></td>
+    {foreach from=$regions item=r}
+        <td class="dig"><b>{$region_clients_count[$r.id]}</b></td>
+    {/foreach}
+  </tr>
+  {if access('stats', 'vip_report')}
   {assign var=region_sums value=$reports.0.region_sums}
   <tr>
     <td><b>Доход по региону</b></td>
     {foreach from=$regions item=r}
-        <td class="dig"><b>{$region_sums[$r.id]}</b></td>
+        <td class="dig"><b>{$region_sums[$r.id]|number_format:0:",":" "}</b></td>
     {/foreach}
   </tr>
+  {/if}
 </table>
 
 {foreach from=$reports item=report}
@@ -163,12 +171,14 @@
         {/foreach}
       <td class="dig">{$del_lines.all}</td>
     </tr>
+    {if access('stats', 'vip_report')}
     <tr class="head_tr">
       <td>Доход по региону</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$region_sums[$r.id]}</td>
+          <td class="dig">{$region_sums[$r.id]|number_format:0:",":" "}</td>
         {/foreach}
-      <td class="dig">{$region_sums.all}</td>
+      <td class="dig">{$region_sums.all|number_format:0:",":" "}</td>
+     {/if}
     </tr>
   </table>
   <br/>
