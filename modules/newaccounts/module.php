@@ -1685,7 +1685,7 @@ class m_newaccounts extends IModule
                     'Накладная: '=>array('lading'),
                     'Приказ о назначении: ' => array("order"),
                     'Уведомление о назначении: ' => array("notice"),
-                    'УПД: ' => array('upd-1', 'upd-2')
+                    'УПД: ' => array('upd-1', 'upd-2', 'upd-3')
         );
 
         foreach ($D as $k=>$rs) {
@@ -1766,8 +1766,8 @@ class m_newaccounts extends IModule
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
-        $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-t'));
-        $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-t'));
+        $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
+        $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
 
         //$L = array("invoice-1");
@@ -3000,7 +3000,7 @@ class m_newaccounts extends IModule
         }
         unset($li);
 
-        $L = self::do_print_prepare_filter($obj,$source,$L_prev,$period_date,($obj == "invoice" && $source == 3) || ($obj == "upd" && $source == 't'), $isSellBook ? true : false, $origObj);
+        $L = self::do_print_prepare_filter($obj,$source,$L_prev,$period_date,(($obj == "invoice" || $obj == "upd") && $source == 3), $isSellBook ? true : false, $origObj);
 
 
         if ($sum_rur!=0) { //расчет долларовых счетов
