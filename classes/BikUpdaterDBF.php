@@ -41,27 +41,26 @@ class BikUpdaterDBF
 	 */
 	public function readMyDBF()
 	{
-		$db = dbase_open($this->dbf_file, 0);
-		if ($db) {
-			$record_numbers = dbase_numrecords($db);
-			for ($i = 1; $i <= $record_numbers; $i++) {
-				$row = dbase_get_record_with_names($db, $i);
-				$row_data = $this->parseRow($row);
-				if (!isset($this->data[$row_data['bik']])) 
+		$dbf = new dbf_class($this->dbf_file);
+		
+		$record_numbers = $dbf->dbf_num_rec;
+		for ($i = 1; $i <= $record_numbers; $i++) {
+			$row = $dbf->getRowAssoc($i);
+			$row_data = $this->parseRow($row);
+			if (!isset($this->data[$row_data['bik']])) 
+			{
+				$this->data[$row_data['bik']] = $row_data;
+			} else {
+				if (strtotime($row_data['date_izm']) > strtotime($this->data[$row_data['bik']]['date_izm'])) 
 				{
 					$this->data[$row_data['bik']] = $row_data;
-				} else {
-					if (strtotime($row_data['date_izm']) > strtotime($this->data[$row_data['bik']]['date_izm'])) 
-					{
-						$this->data[$row_data['bik']] = $row_data;
-					}
 				}
 			}
-			$this->all_cnt = $record_numbers;
-		
-			return true;
 		}
-		dbase_close($db);
+		$this->all_cnt = $record_numbers;
+	
+		return true;
+
 	}
 	/** 
 	 *	Разбор и преобразование строки с данными 
