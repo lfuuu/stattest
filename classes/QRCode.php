@@ -8,7 +8,7 @@ class QRCode
             "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "бЋ‘ 2"),
             "upd-1" => array("code" => "21", "c" => "upd", "s" => 1, "name" => "хрд 1"),
             "upd-2" => array("code" => "22", "c" => "upd", "s" => 2, "name" => "хрд 2"),
-            "upd-t" => array("code" => "23", "c" => "upd", "s" => 't', "name" => "хрд t"),
+            "upd-3" => array("code" => "23", "c" => "upd", "s" => 3, "name" => "хрд ф"),
             );
 
     public function encode($docType, $billNo)
