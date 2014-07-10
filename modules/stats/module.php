@@ -4496,6 +4496,20 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_id = u.id 
         group by 
           u.region', 'region');
+    $region_clients_count = $db->AllRecordsAssoc("
+	SELECT 
+		COUNT(id) as clients,
+		region
+	FROM 
+		clients
+	WHERE 
+		status IN ('testing', 'conecting', 'work') AND
+		region > 0 
+	GROUP BY 
+		region
+	ORDER BY
+		region DESC
+    ", 'region', 'clients');
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
@@ -4519,7 +4533,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 								date = a.bill_date)
 							*a.sum)
 					)
-				), 2) as sum
+				)) as sum
 		FROM 
 			newbills as a
 		LEFT JOIN
@@ -4779,6 +4793,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     }
 
     $design->assign("regions", $regions);
+    $design->assign("region_clients_count", $region_clients_count);
     $design->assign('reports',$reports);
     $design->assign('curr_phones',$curr_phones);
     $design->AddMain('stats/report_phone_sales.tpl');
