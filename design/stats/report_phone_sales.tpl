@@ -29,10 +29,18 @@
         <td class="dig"><b>{$curr_phones[$r.id].count_lines}</b></td>
     {/foreach}
   </tr>
+  {assign var=region_sums value=$reports.0.region_sums}
+  <tr>
+    <td><b>Доход по региону</b></td>
+    {foreach from=$regions item=r}
+        <td class="dig"><b>{$region_sums[$r.id]}</b></td>
+    {/foreach}
+  </tr>
 </table>
 
 {foreach from=$reports item=report}
   {assign var=sale_nums value=$report.sale_nums}
+  {assign var=region_sums value=$report.region_sums}
   {assign var=sale_nonums value=$report.sale_nonums}
   {assign var=sale_lines value=$report.sale_lines}
   {assign var=sale_clients value=$report.sale_clients}
@@ -154,6 +162,13 @@
           <td class="dig">{$del_lines[$r.id]}</td>
         {/foreach}
       <td class="dig">{$del_lines.all}</td>
+    </tr>
+    <tr class="head_tr">
+      <td>Доход по региону</td>
+        {foreach from=$regions item=r}
+          <td class="dig">{$region_sums[$r.id]}</td>
+        {/foreach}
+      <td class="dig">{$region_sums.all}</td>
     </tr>
   </table>
   <br/>

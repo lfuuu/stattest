@@ -4497,12 +4497,49 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         group by 
           u.region', 'region');
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
+    $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
     for($mm = 0; $mm < 4; $mm++)
     {
       $date = date("Y-m-01");
 
       $client_ids = array();
+      $region_sums = $db->AllRecordsAssoc($q="
+		SELECT 
+			b.region,
+			ROUND(
+				SUM(
+					IF(a.currency='RUR', a.sum, 
+						IF (a.inv_rur > 0, a.inv_rur, 
+							(SELECT 
+								rate 
+							FROM 
+								bill_currency_rate 
+							WHERE 
+								date = a.bill_date)
+							*a.sum)
+					)
+				), 2) as sum
+		FROM 
+			newbills as a
+		LEFT JOIN
+			clients as b ON a.client_id = b.id
+		WHERE 
+			a.bill_date >= date_add('$date',interval -$mm month) AND 
+			a.bill_date < date_add('$date',interval -$mm+1 month) AND 
+			b.region > 0 AND 
+			b.status IN ('testing', 'conecting', 'work')
+		GROUP BY
+			b.region
+		ORDER BY 
+			b.region DESC
+      ", 'region', 'sum');
+      $region_sums['all'] = 0;
+      foreach ($region_sums as $k => $v)
+      {
+		$region_sums['all'] += $v;
+      }
+      
       $res = $db->AllRecords("
           select 
             u.region, 
@@ -4726,9 +4763,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $m = date("m") - $mm;
       if ($m < 1) $m = 12;
       $date = $month_list[$m-1].' '.date("Y");
-      
+
       $reports[] = array(
         'date' => $date,
+        'region_sums' => $region_sums,
         'sale_nums'=>$sale_nums,
         'sale_nonums'=>$sale_nonums,
         'sale_lines'=>$sale_lines,
@@ -4740,7 +4778,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       );
     }
 
-    $design->assign("regions", $r = $db->AllRecords("select id, short_name, name from regions order by id desc"));
+    $design->assign("regions", $regions);
     $design->assign('reports',$reports);
     $design->assign('curr_phones',$curr_phones);
     $design->AddMain('stats/report_phone_sales.tpl');
