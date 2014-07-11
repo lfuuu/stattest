@@ -48,7 +48,6 @@
 				<TD align=left>
 					{if $item.contact_type == "email"}
 						<a style="font-weight:bold" href="mailto:{$item.contact_data}">{$item.contact_data}</a>
-						{$item.contact_data} {$item.contact_type}
 					{else}
 						<span style="font-weight:bold">{$item.contact_data}</span>
 					{/if}
