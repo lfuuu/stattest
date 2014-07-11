@@ -34,19 +34,19 @@ class LkNotification {
     public function __construct($clientId, $contactId, $type, $value)
     {
         $this->Client = ClientCard::find_by_id($clientId);
-        $this->type = $type;
         $this->Contact = ClientContact::find_by_id($contactId);
+
+        $this->type = $type;
         $this->value = $value;
     }
 
     function send()
     {
-        if ($this->Contact->type == 'email') {
-            //Send email
-            return $this->sendMail();
-        } else if($this->Contact->type == 'phone') {
-            //Send SMS
-            return $this->sendSMS();
+        switch( $this->Contact->type) {
+            case 'email': return $this->sendMail();
+
+            case 'phone': 
+            case 'sms': return $this->sendSMS();
         }
 
         return false;
@@ -55,8 +55,26 @@ class LkNotification {
     function getMessage()
     {
         global $design;
-        $design->assign(array('value'=>$this->value));
-        $message = $design->fetch($this->tpl_dir . $this->Contact->type . '_' . $this->type . '.tpl');
+
+        $contactType = $this->Contact->type;
+
+        if ($contactType == "sms") {
+            $contactType = "phone";
+        }
+
+        $design->assign(array('value'=>$this->value, 'balance' => $this->Client->balance, "account" => $this->Client->id));
+        $message = $design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
+
+
+        if ($contactType == "email") {
+            if (in_array($this->type, array("day_limit", "min_balance", "zero_balance"))) {
+                $message .= $design->fetch($q = $this->tpl_dir . $contactType . '__sms_notification.tpl'); // реклама услуги ""Уведомление о критическом остатке"
+
+            }
+            $message .= $design->fetch($this->tpl_dir . $contactType . '__footer.tpl'); 
+        }
+
+
         return $message;
     }
 
@@ -65,13 +83,16 @@ class LkNotification {
         $res = 'Уведомление';
         switch ($this->type) {
             case 'min_balance':
-                $res .= ' о снижении баланса';
+                $res .= ' о критическом остатке на лицевом счете МСН Телеком';
             break;
-            case 'daily_excess':
+            case 'zero_balance':
+                $res .= ' о финансовой блокировке усулг связи МСН Телеком';
+            break;
+            case 'day_limit':
                 $res .= ' о превышении суточного лимита';
             break;
             case 'add_pay_notif':
-                $res .= ' о пополнении баланса';
+                $res .= ' о зачислении средств на лицевой счета МСН Телеком';
             break;
         }
         return $res;
@@ -81,12 +102,13 @@ class LkNotification {
     {
         global $db;
         $params = array(
-                    'data'=>$this->Contact->data,
-                    'subject'=>Encoding::toKoi8r($this->getSubject()),
+                    'data'=>'adima123@yandex.ru', //($this->Contact->data, /** for test **/
+                    'subject'=>$this->Contact->data." - "./** for test **/Encoding::toKoi8r($this->getSubject()),
                     'message'=>Encoding::toKoi8r($this->getMessage()),
-                    'type'=>'email'
+                    'type'=>'email',
+                    'contact_id'=>$this->Contact->id
                 );
-        
+
         $res = $db->QueryInsert('lk_notice', $params);
         if ($res) 
             return true;
@@ -97,10 +119,14 @@ class LkNotification {
     function sendSMS()
     {
         global $db;
+
+        $phoneNumber = preg_replace("/[^\d]+/", "", $this->Contact->data);
+
         $params = array(
-                    'data'=>$this->Contact->data,
-                    'message'=>Encoding::toKoi8r($this->getMessage()),
-                    'type'=>'phone'
+                    'data'=> '79264290771', //$phoneNumber, /** for test **/
+                    'message'=>$phoneNumber./** for test */Encoding::toKoi8r($this->getMessage()),
+                    'type'=>'phone',
+                    'contact_id'=>$this->Contact->id
                 );
         
         $res = $db->QueryInsert('lk_notice', $params);

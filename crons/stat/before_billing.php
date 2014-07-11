@@ -128,13 +128,17 @@ foreach ($R as $clientId => $a)
 
     echo "\n ".$clientId." abon: ".$a["abon"].", balance: ".$a["balance"].", emails: ".implode(", ", $emails);
 
-    foreach ($emails as $email)
+
+    foreach ($emails as $contactId => $email)
     {
         $Mail->AddAddress($email);
     }
 
     $Mail->Body = /*$ee.*/template($template, $a);
-    $Mail->Send();
+
+    if($Mail->Send()) {
+        LkNotificationLog::addLogRaw($clientId, 0, "prebil_prepayers_notif", true, $a["balance"], 0, $a["abon"]);
+    }
 
     $Mail->ClearAddresses();
     $Mail->ClearAttachments();
@@ -168,9 +172,9 @@ function getContactsForSend($clientId)
 
     $a = array();
 
-    foreach ($db->AllRecords("SELECT data FROM `client_contacts` WHERE `client_id` = '".$clientId."' AND `type` = 'email' AND `is_active` = '1' AND `is_official` = '1' LIMIT 0, 1000") as $l)
+    foreach ($db->AllRecords("SELECT id, data FROM `client_contacts` WHERE `client_id` = '".$clientId."' AND `type` = 'email' AND `is_active` = '1' AND `is_official` = '1' LIMIT 0, 1000") as $l)
     {
-        $a[] = $l["data"];
+        $a[$l["id"]] = $l["data"];
     }
 
     return $a;
