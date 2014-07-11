@@ -3980,7 +3980,9 @@ class m_newaccounts extends IModule
         }
 #            if ($P['bill_no'] && $bill_sum && ($curr=='USD')) {
 
-        foreach ($CL as $cl_id=>$curr) $this->update_balance($cl_id,$curr);
+        //foreach ($CL as $cl_id=>$curr) $this->update_balance($cl_id,$curr); // обновление баланса делается после занесения платежа.
+
+
         //$this->newaccounts_bill_balance_mass($fixclient);
         trigger_error("<br>Баланс обновлён");
         if ($b && $design->ProcessEx('errors.tpl')) {
@@ -5125,10 +5127,10 @@ $sql .= "    order by client, bill_no";
             return;
 
         $pay = Payment::find($id);
-
         LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum_rub);
-
         $pay->delete();
+
+        $this->update_balance($fixclient_data['id'], $fixclient_data['currency']);
 
         if(include(INCLUDE_PATH."1c_integration.php")){
             $clS = new \_1c\clientSyncer($db);
@@ -5138,7 +5140,6 @@ $sql .= "    order by client, bill_no";
             }
         }
 
-        $this->update_balance($fixclient_data['id'], $fixclient_data['currency']);
         header('Location: ?module=newaccounts');
         $design->ProcessX();
     }
