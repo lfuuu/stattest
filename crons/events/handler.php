@@ -47,6 +47,29 @@ function do_events()
 
         try{
 
+            switch($event->event)
+            {
+                case 'company_changed':     EventHandler::companyChanged($param); break;
+
+                case 'usage_voip__insert':
+                case 'usage_voip__update':
+                case 'usage_voip__delete':  ats2Numbers::check(); break;
+
+                case 'add_payment':    EventHandler::updateBalance($param[1]); 
+                                       LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); break;
+                case 'update_balance': EventHandler::updateBalance($param); break;
+
+                case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
+                                 ats2Numbers::check();
+                                 virtPbx::check();
+                                 if(date("d") == 11) { //каждого 11-го числа помечаем, что все счета показываем в LK
+                                     NewBill::setLkShowForAll();
+                                 }
+                                 break;
+
+                case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
+            }
+
             if (defined("CORE_SERVER") && CORE_SERVER)
             {
                 switch($event->event)
@@ -74,28 +97,6 @@ function do_events()
                 }
             }
 
-            switch($event->event)
-            {
-                case 'company_changed':     EventHandler::companyChanged($param); break;
-
-                case 'usage_voip__insert':
-                case 'usage_voip__update':
-                case 'usage_voip__delete':  ats2Numbers::check(); break;
-
-                case 'add_payment':    EventHandler::updateBalance($param[1]); 
-                                       LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); break;
-                case 'update_balance': EventHandler::updateBalance($param); break;
-
-                case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
-                                 ats2Numbers::check();
-                                 virtPbx::check();
-                                 if(date("d") == 11) { //каждого 11-го числа помечаем, что все счета показываем в LK
-                                     NewBill::setLkShowForAll();
-                                 }
-                                 break;
-
-                case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
-            }
         } catch (Exception $e)
         {
             echo "\n--------------\n";

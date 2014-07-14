@@ -118,13 +118,23 @@ class aNumber
 
         $db_ats->QueryDelete("a_link", array("number_id" => $l["id"]));
 
+        $idx = 1;
         foreach($l["c_id"] as $cId)
         {
-            $db_ats->QueryInsert("a_link", array(
-                        "c_type" => $l["c_type"],
-                        "c_id" => $cId,
-                        "number_id" => $l["id"]
-                        ));
+            $db_ats->QueryInsert("a_link", 
+                array(
+                    "c_type" => $l["c_type"],
+                    "c_id" => $cId,
+                    "number_id" => $l["id"]
+                )
+            );
+
+            $db_ats->QueryUpdate("a_line", "id", 
+                array(
+                    "id" => $cId, 
+                    "priority" => $idx++
+                )
+            );
         }
     }
 
@@ -197,11 +207,11 @@ class aNumber
     {
         global $db_ats;
         
-        $n = $db_ats->GetRow("select 
-                c_type, 
-                group_concat(c_id order by id) as c_id
-                from a_link 
-                where number_id = '".$numberId."' 
+        $n = $db_ats->GetRow("select
+                c_type,
+                group_concat(ln.c_id order by l.priority, ln.id) as c_id
+                from a_link ln, a_line l
+                where ln.c_id = l.id and number_id = '".$numberId."'
                 group by number_id");
 
         if(!$n)
