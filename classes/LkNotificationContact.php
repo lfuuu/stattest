@@ -103,7 +103,7 @@ class LkNotificationContact
                 cc.data,
                 1 as is_zero_balance,
                 ifnull(cs.is_zero_balance_sent, 0) as is_zero_balance_sent,
-                0 as zero_balance,
+                -c.credit as zero_balance,
                 c.balance,
                 c.credit
             FROM
