@@ -3516,7 +3516,8 @@ class m_newaccounts extends IModule
 
                     $extBills[$b["bill_no_ext"]][] = $b["bill_no"];
 
-                    if (strpos($pay["description"], $b["bill_no_ext"]) !== false)
+                    $description = preg_replace_callback("@\d[\d\/ -]{3,}@", function($m) {return str_replace(" ", "", $m[0]);}, $pay["description"]);
+                    if (strpos($description, $b["bill_no_ext"]) !== false)
                     {
                         $b["ext_no"] = $b["bill_no_ext"];
                     }
