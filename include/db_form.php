@@ -394,7 +394,9 @@ class DbFormUsageIpPorts extends DbForm{
 
 class DbFormUsageVoip extends DbForm {
     public function __construct() {
-        global $db, $allowedDirection;
+        global $db, $allowedDirection, $fixclient_data;
+
+
         $regions = array();
         foreach($db->AllRecords('select * from regions') as $item)
             $regions[$item['id']] = $item['code'].' - '.$item['name'];
@@ -405,8 +407,9 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>'2029-01-01');
         $this->fields['actual_to']=array('default'=>'2029-01-01');
-        $this->fields['E164']=array();
+        $this->fields['E164']=array("add" => " onchange='form_usagevoip_hide()'");
         $this->fields['no_of_lines']=array('default'=>1);
+        $this->fields['line7800_id']=array("assoc_enum" => array());
         $this->fields['allowed_direction']=array('assoc_enum' => $allowedDirection, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
@@ -420,7 +423,7 @@ class DbFormUsageVoip extends DbForm {
         $this->includesPost =array('dbform_voip_tarif_history.tpl','dbform_block_history.tpl');
     }
     public function Display($form_params = array(),$h2='',$h3='') {
-        global $db,$design;
+        global $db,$design,$fixclient_data;
         if ($this->isData('id')) {
             HelpDbForm::assign_tarif('usage_voip',$this->data['id']);
             HelpDbForm::assign_tarif('usage_voip',$this->data['id'],'_sng');
@@ -429,9 +432,25 @@ class DbFormUsageVoip extends DbForm {
             HelpDbForm::assign_tt('usage_voip',$this->data['id'],$this->data['client']);
             HelpDbForm::assign_log_history('usage_voip',$this->data['id']);
             $region = $this->data['region'];
+            $client = $this->data["client"];
         }else{
             $region = $this->fields['region']['default'];
+            $client = $fixclient_data["client"];
         }
+
+        $lines7800 = $db->AllRecordsAssoc($q =  "select id, E164 from usage_voip where LENGTH(E164) <= 5 and client = '".($client)."'
+            and (
+                cast(now() as date) between actual_from and actual_to
+                and id not in (select line7800_id from usage_voip where client = '".$client."')
+        
+        )".($this->data["line7800_id"] ? " or id = '".$this->data["line7800_id"]."'" : "")."
+            ", "id", "E164")?:array();
+
+
+        $line7800_default = array("0" => "Не задано");
+
+        $this->fields["line7800_id"]["assoc_enum"] = $line7800_default + $lines7800;
+
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
         $R=$db->AllRecords('select * from tarifs_voip '.
@@ -996,7 +1015,7 @@ class DbFormUsageITPark extends DbForm{
             while($r=$db->NextRecord())
                 $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
             $this->fields['tarif_id']['type']='select';
-            $this->fields['tarif_id']['add']=' onchange=form_usage_extra_get()';
+            $this->fields['tarif_id']['add']=' onchange=form_usage_extra_get(this)';
             $this->fields['tarif_id']['assoc_enum']=$R;
             $this->fields['tarif_str']['type']='no';
         }
@@ -2046,6 +2065,7 @@ $GLOBALS['translate_arr']=array(
     '*.gpon_reserv' => 'Сеть под GPON',
     '*.trunk_vpbx_id' => 'Транк на VPBX',
     'newpayments.ecash_operator' => "Оператор платежа",
-    'usage_voip.region' => 'Регион'
+    'usage_voip.region' => 'Регион',
+    'usage_voip.line7800_id' => 'Линия без номера для номера 8800'
     );
 ?>

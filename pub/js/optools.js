@@ -18,6 +18,16 @@ var optools = {
 			alert("Тариф не выбран!");
 			return false;
 		}
+
+        var e164 = $('#E164');
+        
+        if (e164.length == 1 && e164.val().substr(0,4) == "7800") {
+            if ($('select#line7800_id').val() == 0) {
+                alert('Выберите линию без номера, связанную с номеров 8800');
+                return false;
+            }
+        }
+
 		if ($('#is_trunk').val() == '1') return true;
 
 		return optools.voip.check_e164.isValid()
@@ -160,7 +170,7 @@ var optools = {
 					img.style.visibility = "visible";
 					return false;
 				}
-                
+
 				optools.voip.check_e164.timeout = window.setTimeout(optools.voip.check_e164.coloring, 800);
 				return true;
 			},
