@@ -59,6 +59,7 @@
 	}
 	$design->display('pop_header.tpl');
 	$dbf->nodesign=1;
+	HelpDbForm::assign_log_history($table,$id);
 	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'Редактирование'.' id='.$id);
 	$design->display('errors.tpl');
 	$design->display('dbform.tpl');
