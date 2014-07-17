@@ -26,10 +26,6 @@ class BikUpdaterDBF
 	 * @var array $log массив, в котором хранится информация о разнице между данными файла и базы 
 	 */
 	public $log = array('insert'=>array(),'update'=>array());
-	/**
-	 * @var string $admin_email email на который отправляется информация о разнице между данными файла и базы
-	 */
-	public $admin_email = 'adima123@yandex.ru';
 	
 	public function __construct($fn = '')
 	{
@@ -134,21 +130,7 @@ class BikUpdaterDBF
 		
 	}
 	/** 
-	 *	Выдает данных о новых и изменненых БИК'ах
-	 *	@param bool $toScreen true - вывод на экран, false - отправка email
-	 */
-	public function Logs($toScreen = false)
-	{
-		$log = $this->getLogs();
-		if (!$toScreen)
-		{
-			$this->sendLog($log);
-		} else {
-			echo $log;
-		}
-	}
-	/** 
-	 *	Отправка данных о изменениях БИК на admin_email
+	 *	Отправка данных о изменениях БИК на ADMIN_EMAIL
 	 *	@param string $log данные о изменениях
 	 */
 	private function sendLog($log)
@@ -164,15 +146,15 @@ class BikUpdaterDBF
 		$Mail->FromName="МСН Телеком";
 		$Mail->Mailer='mail';
 		$Mail->Host=SMTP_SERVER;
-		$Mail->AddAddress($this->admin_email);
+		$Mail->AddAddress(ADMIN_EMAIL);
 		$Mail->Body = $log;
 		$Mail->Subject = 'Изменения в БИК от ' . date('d-m-Y');
-		$Mail->Send();
+		return $Mail->Send();
 	}
 	/** 
-	 *	Составление таблицы о изменениях в БИК'ах
+	 *	Составление таблицы о изменениях в БИК'ах и отправка этой таблицы на email
 	 */
-	private function getLogs()
+	public function sendLogs()
 	{
 		//Insert
 		$log = '<table style="text-align: centr;" border="1" width="100%"><tr><td colspan="5">Новые</td></tr>';
@@ -214,6 +196,37 @@ class BikUpdaterDBF
 		$log .= '<tr><td colspan="5">' . 'Всего: ' . $this->all_cnt . "</td></tr>";
 		$log .= '<tr><td colspan="5">Новых' . count($this->log['insert']) . "</td></tr>";
 		$log .= '<tr><td colspan="5">Измененных: ' . count($this->log['update'])."</td></tr></table>";
+		$this->sendLog($log);
 		return $log;
+	}
+	/** 
+	 *	Вывод данных о новых и изменненых БИК'ах
+	 */
+	public function showLog()
+	{
+		//Insert
+		echo 'Новые' . ":\n";
+		if (count($this->log['insert']) > 0) 
+		{
+			foreach ($this->log['insert'] as $d) 
+			{
+				foreach ($d as $k=>$v) echo $k . ': ' . Encoding::toUtf8($v) . '; ';
+				echo "\n";
+			}
+		}
+		//Update
+		echo 'Измененные' . ":\n";
+		if (count($this->log['update']) > 0) 
+		{
+			foreach ($this->log['update'] as $bik=>$d) 
+			{
+				echo 'bik - ' . $bik . ":\n";
+				foreach ($d as $k=>$v) echo $k . ': ' . Encoding::toUtf8($v[0]) . ' ('.Encoding::toUtf8($v[1]).'); ';
+				echo "\n";
+			}
+		}
+		echo "\n" . 'Всего: ' . $this->all_cnt . "\n";
+		echo 'Новых: ' . count($this->log['insert']) . "\n";
+		echo 'Измененных: ' . count($this->log['update'])."\n\n";
 	}
 }
