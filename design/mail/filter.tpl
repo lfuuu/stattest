@@ -6,6 +6,20 @@
 <input type=hidden name=action value=client>
 <input type=hidden name=id value={$mail_id}>
 <input type=hidden name=module value=mail>
+<input type="hidden" name="filter[status][0]" value="{$mail_filter.status.0}">
+<input type="hidden" name="filter[region_for][0]" value="{$mail_filter.region_for.0}">
+<input type="hidden" name="filter[manager][0]" value="{$mail_filter.manager.0}">
+<input type="hidden" name="filter[bill][0]" value="{$mail_filter.bill.0}">
+<input type="hidden" name="filter[bill][1]" value="{$date_from}">
+<input type="hidden" name="filter[bill][2]" value="{$date_to}">
+<input type="hidden" name="filter[s8800][0]" value="{$mail_filter.s8800.0}">
+{foreach from=$mail_filter.regions item="r"}
+	<input type="hidden" name="filter[regions][]" value="{$r}">
+{/foreach}
+{foreach from=$mail_filter.tarifs item="t"}
+	<input type="hidden" name="filter[tarifs][]" value="{$t}">
+{/foreach}
+
 <TBODY>
 <TR>
   <TD class=header vAlign=bottom>Клиент</TD>
@@ -48,20 +62,20 @@ function check_all2(){ldelim}
 <input type=hidden name=ack value=1>
 <tbody>
 <TR><TD>Статус клиента</TD><TD>
-<select name='filter[status][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_status item=r key=k}<option value={$k}>{$r.name}</option>{/foreach}</select>
+<select name='filter[status][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_status item=r key=k}<option value={$k} {if $mail_filter.status.0 == $k}selected="selected"{/if}>{$r.name}</option>{/foreach}</select>
 </td></tr>
 <TR><TD>Менеджер</TD><TD>
-<select name='filter[manager][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$mail_filter.manager.0} selected{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
+<select name='filter[manager][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$mail_filter.manager.0} selected="selected"{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
 </td></tr>
 <tr><td>Счета</TD><TD>
 <select name='filter[bill][0]'><option value='NO'>(не фильтровать по этому полю)</option>
-<option value='1'>любые</option>
-<option value='2'>полностью неоплаченные</option>
-<option value='3'>оплаченные не полностью</option>
+<option value='1' {if $mail_filter.bill.0 == 1}selected{/if}>любые</option>
+<option value='2' {if $mail_filter.bill.0 == 2}selected{/if}>полностью неоплаченные</option>
+<option value='3' {if $mail_filter.bill.0 == 3}selected{/if}>оплаченные не полностью</option>
 </select>
 </option></select>
-с <input type=text name='filter[bill][1]' value='{0|mdate:"Y-m-01"}'>
-по <input type=text name='filter[bill][2]' value='{0|mdate:"Y-m-31"}'>
+с <input type=text name='date_from' id="date_from" value='{$date_from}'>
+по <input type=text name='date_to' id="date_to" value='{$date_to}'>
 </td></tr>
 <tr><td>Услуга: 8800</TD><TD>
 <select name='filter[s8800][0]'><option value='NO'>(не фильтровать по этому полю)</option>
@@ -70,7 +84,88 @@ function check_all2(){ldelim}
 </select>
 </option></select>
 </td></tr>
+
+<tr><td>Регионы:</TD><TD>
+<input onchange="show_all_regions();" type="radio" value="client" name="filter[region_for][0]" id="for_clients" {if !$mail_filter.region_for.0 || $mail_filter.region_for.0 == 'client'} checked="checked"{/if}>
+<label for="for_clients">Регионы для клиентов</label>
+
+<input onchange="show_all_regions(1);" type="radio" value="tarif" name="filter[region_for][0]" id="for_tarifs" {if $mail_filter.region_for.0 == 'tarif'} checked="checked"{/if}>
+<label for="for_tarifs">Регионы для номеров</label>
+</td></tr>
+
+<tr><td>&nbsp;</TD><TD id="all_regions">
+
+{foreach from=$f_regions item="reg"}
+	<div style="float: left; margin-right: 15px;" >
+	{foreach from=$reg item="r"}
+		{capture name="region_`$r.id`"}
+			<div>{$r.name}</div>
+		{/capture}
+		<div>
+			<input onchange="show_regions_tarifs('{$r.id}');" id="region_{$r.id}" type="checkbox" name='filter[regions][]' value="{$r.id}" {if $r.id|in_array:$mail_filter.regions}checked="checked"{/if}>
+			<label for="region_{$r.id}">{$r.name}</option>
+		</div>
+	{/foreach}
+	</div>
+{/foreach}
+<div style="clear: both;"></div>
+</td></tr>
+
+<tr><td>Тарифы:</TD><TD>
+{foreach from=$f_tarifs item="reg" key="k"}
+{assign var="selected_region" value=false}
+{if $k|in_array:$mail_filter.regions && $mail_filter.region_for.0 == 'tarif'}
+	{assign var="selected_region" value=true}
+{/if}
+<div id="tarifs_for_{$k}" style="margin-bottom: 10px; {if !$selected_region}display:none;{/if}">
+	{assign var="name" value="region_`$k`"}
+	{$smarty.capture.$name}
+	{foreach from=$reg item="r"}
+		<div style="float: left; margin-right: 15px; ">
+		{foreach from=$r item="t"}
+			<div style="font-size: 11px;">
+				<input {if !$selected_region}disabled="disabled"{/if} id="tarif_{$t.id}" type="checkbox" name='filter[tarifs][]' value="{$t.id}" {if $t.id|in_array:$mail_filter.tarifs}checked="checked"{/if}>
+				<label for="tarif_{$t.id}">{$t.name}</option>
+			</div>
+		{/foreach}
+		</div>
+	{/foreach}
+	<div style="clear: both;"></div>
+</div>
+{/foreach}
+</td></tr>
+
 <tr><td colspan=2>
 <INPUT id=submit class=button type=submit value="Фильтр">
 </td></tr>
 </tbody></form></table>
+<script>
+	optools.DatePickerInit();
+	{literal}
+	function show_regions_tarifs(id)
+	{
+		var isTarif=$('#for_tarifs')[0].checked;
+		if (isTarif) {
+			$('#tarifs_for_'+id).toggle();
+		}
+		var isSelected=$('#region_'+id)[0].checked;
+		$('#tarifs_for_'+id+' input[type=checkbox]').each(function(o,i){i.disabled = !(isSelected && isTarif);});
+	}
+	function show_all_regions(show) 
+	{
+		show = show | 0;
+		var regions = $('#all_regions input[type=checkbox]');
+		
+		regions.each(function(o,i){
+			if (i.checked)
+			{
+				show_regions_tarifs(i.value);
+				if (!show) {
+					$('#tarifs_for_'+i.value).toggle();
+				}
+			}
+		});
+		
+	}
+	{/literal}
+</script>

@@ -200,6 +200,15 @@ class m_mail{
 		$W = array('AND');
 		$J = array();
 		$filter = get_param_raw('filter',array());
+		
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'last');
+		$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+		if (!empty($filter)) {
+			$filter['bill'][1] = $dateFrom->getDay();
+			$filter['bill'][2] = $dateTo->getDay();
+		}
+		
 		foreach($filter as $type=>$p)
 			if($p[0]!='NO')
 				switch($type){
@@ -223,11 +232,67 @@ class m_mail{
 							$W[] = 'B.`sum`	- (select sum(if(B.currency="USD",sum_rub/payment_rate,sum_rub)) from newpayments where bill_no=B.bill_no group by bill_no) > 1';
 						}
 						break;
-                    case 's8800':
-                        $J[] = 'left join usage_8800 u8 on (u8.client = C.client)';
-                        $W[] = 'u8.id is '.($p[0] == 'with' ? ' not ' : '').'null';
-                        
-                        break;
+					case 's8800':
+						$J[] = 'LEFT JOIN usage_voip as UV8 ON UV8.client = C.client';
+						$W[] = "CAST(NOW() AS DATE) BETWEEN UV8.actual_from AND UV8.actual_to";
+						if ($p[0] == 'with') {
+							$W[] = "UV8.E164 LIKE '7800%'";
+						} else {
+							$W[] = "UV8.client NOT IN (SELECT client 
+											FROM usage_voip
+											WHERE 
+												CAST(NOW() as DATE) BETWEEN actual_from AND actual_to AND 
+												E164 LIKE '7800%')";
+						}
+						
+						break;
+					case 'regions':
+						if (!empty($p)) {
+							if ($filter['region_for'][0] == 'client') 
+							{
+								$W[] = "C.region IN ('" . implode("', '", $p) . "')";
+							} else {
+								if (empty($filter['tarifs']))
+								{
+									$J[] = 'LEFT JOIN usage_voip as UV ON UV.client = C.client';
+									$J[] = "LEFT JOIN log_tarif as LT ON UV.id = LT.id_service";
+									$J[] = 'LEFT JOIN tarifs_voip as TV ON TV.id = LT.id_tarif';
+									$W[] = "TV.status != 'archive'";
+									$W[] = "LT.service = 'usage_voip'";
+									$W[] = "CAST(NOW() AS DATE) BETWEEN UV.actual_from AND UV.actual_to";
+								}
+								$W[] = "TV.region IN ('" . implode("', '", $p) . "')";
+							}
+						}
+						break;
+					case 'tarifs':
+						if (!empty($p)) {
+							$J[] = 'LEFT JOIN usage_voip as UV ON UV.client = C.client';
+							$J[] = "LEFT JOIN log_tarif as LT ON UV.id = LT.id_service";
+							$J[] = 'LEFT JOIN tarifs_voip as TV ON TV.id = LT.id_tarif';
+							$W[] = "LT.id_tarif IN ('" . implode("', '", $p) . "')";
+							$W[] = "LT.service = 'usage_voip'";
+							$W[] = "CAST(NOW() AS DATE) BETWEEN UV.actual_from AND UV.actual_to";
+							$W[] = "LT.id = (
+									SELECT id 
+									FROM log_tarif as b
+									WHERE
+										date_activation = (
+											SELECT MAX(date_activation)
+											FROM log_tarif 
+											WHERE 
+												CAST(NOW() as DATE) >= date_activation AND 
+												service = 'usage_voip' AND 
+												id_service = b.id_service
+											) AND 
+										id_service = LT.id_service
+									ORDER BY
+											ts desc
+									LIMIT 0,1
+									)";
+						}
+						break;
+						
 				}
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
@@ -241,7 +306,27 @@ class m_mail{
 		);
 
 		$design->assign('f_status',$GLOBALS['module_clients']->statuses);
-
+		$f_regions = $db->AllRecords("select id, short_name, name from regions order by id desc", 'id');
+		$f_tarifs = array();
+		foreach ($f_regions as $v) {
+			$_tarifs = $db->AllRecords("
+				select 
+					id, name 
+				from 
+					tarifs_voip 
+				WHERE 
+					region = " . $v['id'] . " AND 
+					status != 'archive' 
+				order by 
+					name asc");
+			if (!empty($_tarifs)) {
+				$f_tarifs[$v['id']] = array_chunk($_tarifs, round(count($_tarifs)/3));
+			}
+			
+		}
+		$f_regions = array_chunk($f_regions, round(count($f_regions)/4), true);
+		$design->assign('f_regions', $f_regions);
+		$design->assign('f_tarifs', $f_tarifs);
 		$J[] = 'LEFT JOIN client_contacts as M ON M.type="email" AND M.client_id=C.id AND M.is_active=1 AND M.is_official=1';
 		$ack = get_param_raw('ack',0);
 		$C = array();
@@ -263,6 +348,7 @@ class m_mail{
 				selected desc,
 				C.client asc
 		');
+		
 		foreach($R as $r)
 			$C[$r['id']] = $r;
 		if($ack || (count($W)>1)){
@@ -282,7 +368,6 @@ class m_mail{
 				ORDER BY
 					C.client
 			');
-
 			foreach($R as $r){
 				if(!isset($C[$r['id']]))
 					$C[$r['id']] = $r;
@@ -290,7 +375,6 @@ class m_mail{
 					$C[$r['id']]['filtered']=$r['filtered'];
 			}
 		}
-
 		$design->assign('mail_clients',$C);
 		$design->AddMain('mail/filter.tpl');
 	}
