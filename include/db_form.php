@@ -376,9 +376,11 @@ class DbFormUsageIpPorts extends DbForm{
             $db->QueryInsert('tech_ports',array('node'=>$this->dbform['node'],'port_name'=>$this->dbform['port'],'port_type'=>$this->dbform['port_type']));    
             $this->dbform['port_id']=$db->GetInsertId();
         }
+        $current = $db->GetRow("select * from usage_ip_ports where id = '".$this->dbform["id"]."'");
         $v=DbForm::Process();
         
         if ($v=='add' || $v=='edit') {
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_ports');
             if (!($olddata=get_tarif_current("usage_ip_ports",$this->data['id']))) $b=1; else $b=0;
             if (!$b && $this->dbform['t_id_tarif']!=$olddata['id_tarif']) $b=1;
             if (!$b && $this->dbform['t_date_activation']!=$olddata['date_activation']) $b=1;
@@ -427,7 +429,7 @@ class DbFormUsageVoip extends DbForm {
             HelpDbForm::assign_tarif('usage_voip2',$this->data['id'],'2');
             HelpDbForm::assign_block('usage_voip',$this->data['id']);
             HelpDbForm::assign_tt('usage_voip',$this->data['id'],$this->data['client']);
-            HelpDbForm::assign_log_history('usage_voip',$this->data['id']);
+
             $region = $this->data['region'];
         }else{
             $region = $this->fields['region']['default'];
@@ -647,10 +649,12 @@ class DbFormEmails extends DbForm {
                 return '';
             }
         }
+        $current = $db->GetRow("select * from emails where id = '".$this->dbform["id"]."'");
         
         $v=DbForm::Process();
         
         if ($v=='add' || $v=='edit') {
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'emails');
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('emails',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
         }
@@ -707,8 +711,10 @@ class DbFormDomains extends DbForm {
         global $db,$user;
         $this->Get();
         if (!isset($this->dbform['id'])) return '';
+        $current = $db->GetRow("select * from domains where id = '".$this->dbform["id"]."'");
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'domains');
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('domains',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
         }
@@ -758,9 +764,10 @@ class DbFormBillMonthlyadd extends DbForm {
             $r['ts']=array('NOW()');
             $db->QueryInsert('bill_monthlyadd_log',$r);
         }
+        $current = $db->GetRow("select * from bill_monthlyadd where id = '".$this->dbform["id"]."'");
         $v=DbForm::Process();
-
         if ($v=='add' || $v=='edit') {
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'bill_monthlyadd');
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('bill_monthlyadd',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
         }
@@ -826,9 +833,11 @@ class DbFormUsageIpRoutes extends DbForm{
         );
 
         if ($v) {$this->dbform['net']=''; trigger_error('Сеть уже занята');}
+        $current = $db->GetRow("select * from usage_ip_routes where id = '".$this->dbform["id"]."'");
         $action=DbForm::Process($p);
 
         if (!$v && !$p && $action!='delete') {
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_routes');
             $db->QueryInsert('log_usage_ip_routes',$qq = array(
                         'usage_ip_routes_id'    => $this->dbform['id']?:$db->GetValue("select last_insert_id()"), // edit or add
                         'user_id'                => $user->Get('id'),
@@ -869,7 +878,6 @@ class DbFormUsageExtra extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
-            HelpDbForm::assign_log_history('usage_extra',$this->data['id']);
 
             $db->Query('select id,description,price,currency from tarifs_extra where 1 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').'and id='.$this->data['tarif_id']);
             $r=$db->NextRecord();
@@ -1047,7 +1055,6 @@ class DbFormUsageWelltime extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_welltime',$this->data['id']);
             HelpDbForm::assign_tt('usage_welltime',$this->data['id'],$this->data['client']);
-            HelpDbForm::assign_log_history('usage_welltime',$this->data['id']);
 
             $db->Query('
                 select
@@ -1138,7 +1145,6 @@ class DbFormUsageVirtpbx extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);
-            HelpDbForm::assign_log_history('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tarif('usage_virtpbx',$this->data['id']);
         }
 
@@ -1276,9 +1282,11 @@ class DbFormUsage8800 extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+        $current = $db->GetRow("select * from usage_8800 where id = '".$this->dbform["id"]."'");
+        
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
-
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_8800');
             $this->dbform["number"] = trim($this->dbform["number"]);
 
             if(!isset($this->dbform['t_block']))
@@ -1314,7 +1322,6 @@ class DbFormUsageSms extends DbForm{
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_sms',$this->data['id']);
             HelpDbForm::assign_tt('usage_sms',$this->data['id'],$this->data['client']);
-            HelpDbForm::assign_log_history('usage_sms',$this->data['id']);
 
             $db->Query('
                 select
@@ -1507,8 +1514,11 @@ class DbFormUsageIPPPP extends DbForm{
         global $db,$user;
         $this->Get();
         if (!isset($this->dbform['id'])) return '';
+        $current = $db->GetRow("select * from usage_ip_ppp where id = '".$this->dbform["id"]."'");
+        
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
+            HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_ppp');
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             $text = ' (скорость вх - '.$this->dbform['limit_kbps_in'].',  - '.$this->dbform['limit_kbps_out'].')';
             HelpDbForm::save_block('usage_ip_ppp',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment'].$text);
