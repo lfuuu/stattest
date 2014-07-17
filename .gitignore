@@ -10,7 +10,7 @@
 /store/files/
 /store/payments/
 /store/keys/
-
+/store/mail/
 
 /store/contracts/*
 !template*
