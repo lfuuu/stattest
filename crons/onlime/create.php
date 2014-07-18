@@ -102,6 +102,8 @@ class Onlime1CCreateBill
            14723f35-d423-11e3-9fe5-00155d881200 16206 <= 14593 
            2c6d3955-d423-11e3-9fe5-00155d881200 16207 <= 14787
 
+           from 18.07.2014
+           ид12=NetGear Беспроводной роутер, JNR3210-1NNRUS e1a5bf94-0764-11e4-8c79-00155d881200 16315
 
          */
 
@@ -112,6 +114,7 @@ class Onlime1CCreateBill
                 case '3': $goodId = "f75a5b2f-382f-11e0-9c3c-d485644c7711"; break;
                 case '9': $goodId = "14723f35-d423-11e3-9fe5-00155d881200"; break;
                 case '11': $goodId = "2c6d3955-d423-11e3-9fe5-00155d881200"; break;
+                case '12': $goodId = "e1a5bf94-0764-11e4-8c79-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])
