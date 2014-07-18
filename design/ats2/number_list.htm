@@ -9,9 +9,16 @@
 #t_num td {
     padding: 2px 2px 2px 2px;
 }
-
+#t_num .account-table td {
+	font-size: 10px;
+	line-height: 100%;
+	padding: 0;
+}
 {/literal}
 </style>
+<form action="?" method="post">
+<input type="hidden" value="ats2" name="module">
+<input type="hidden" value="account_bulk_del" name="action">
 <table style="border: 1px solid gray; border-collapse: collapse;" id="t_num" border=1>
 <th>
     Номер
@@ -57,11 +64,15 @@
                     <a href="./?module=ats2&action=mt_edit&id={$n.trunk_id}">{$n.name}</a>
                 {else}
                     {if $n.l}
-                        <ul>
+                        <table class="account-table">
+                        <tr><td>&nbsp;</td><td><input type="checkbox" id="{$n.id}" onchange="check_line_all(this);"></td></tr>
                         {foreach from=$n.l item=l}
-                            <li><a href="./?module=ats2&action=account&id={$l.id}">{$l.account}</a></li>
+                            <tr>
+				<td><a href="./?module=ats2&action=account&id={$l.id}">{$l.account}</a></td>
+				<td><input class="line_{$n.id}" type="checkbox" name="accounts[{$n.id}][]" value="{$l.id}"></td>
+                            </tr>
                         {/foreach}
-                        </ul>
+                        </table>
                     {/if}
                 {/if}
         </td>
@@ -89,4 +100,22 @@
 </tr>
 {/foreach}
 </table>
+<div style="margin-top: 5px; font-size: 8pt; margin-left:110px;line-height:80%;">
+		<label for="number_del_action">Действие</label>
+		<select style="font-size: 10px;" id="number_del_action" name="del_action">
+			<option value="no">---------------</option>
+			<option value="account">Удалить аккаунт</option>
+			<option value="link">Удалить привязку</option>
+		</select>
+		<input type="submit" value="Go" style="font-size: 8pt;">
+</div>
 
+</form>
+{literal}
+<script>
+	function check_line_all(elm)
+	{
+		$('.line_'+elm.id).attr('checked', elm.checked);
+	}
+</script>
+{/literal}

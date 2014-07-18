@@ -102,6 +102,31 @@ class m_ats2 extends IModule
     {
         return $this->ats2_accounts($fixclient);
     }
+    public function ats2_account_bulk_del($fixclient)
+    {
+        $del_action = get_param_protected('del_action', 'no');
+        if ($del_action != 'no') 
+        {
+		$accounts = get_param_protected('accounts', array());
+		switch ($del_action) 
+		{
+			case 'account':
+				foreach ($accounts as $ids) 
+				{
+					foreach ($ids as $v)
+					{
+						lineDB::del($v);
+					}
+				}
+				break;
+			case 'link':
+				include "number.php";
+				aNumber::bulk_del($accounts);
+		}
+	}
+        header("Location: ./?module=ats2");
+        exit();
+    }
 
     public function ats2_account_del($fixclient)
     {
@@ -195,7 +220,9 @@ class m_ats2 extends IModule
                 $d[] = $l;
             }else{
                 if(isset($k[$l["parent_id"]]))
+                {
                     $d[$k[$l["parent_id"]]]["childs"][] = $l;
+                }
             }
         }
 
