@@ -3930,13 +3930,14 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
-    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0);
+    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0);
 
     foreach($list as $l)
     {
         $total["count_3"] += $l["count_3"];
         $total["count_9"] += $l["count_9"];
         $total["count_11"] += $l["count_11"];
+        $total["count_12"] += $l["count_12"];
     }
 
     $design->assign("list", $list);
@@ -3962,6 +3963,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["count_3"] = (int)$l["count_3"];
             $l["count_9"] = (int)$l["count_9"];
             $l["count_11"] = (int)$l["count_11"];
+            $l["count_12"] = (int)$l["count_12"];
             $design->assign("i_stages", $l["stages"]);
             $design->assign("last", 1000);
             $html = $design->fetch("stats/onlime_stage.tpl");
@@ -3981,6 +3983,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     "Кол-во Onlime-Telecard" => "count_3",
                     "Кол-во HD-ресивер OnLime" => "count_9",
                     "Кол-во HD-ресивер с диском" => "count_11",
+                    "NetGear Беспроводной роутер, JNR3210-1NNRUS" => "count_12",
                     "Серийные номера" => "serials",
                     "Номер купона" => "coupon",
                     "ФИО клиента" => "fio",
@@ -4282,6 +4285,10 @@ if($client != "nbn")
                         where item_id in ('72904487-32f6-11e2-9369-00155d881200', '2c6d3955-d423-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_11,
 
+				(select sum(amount) from newbill_lines nl
+                        where item_id in ('e1a5bf94-0764-11e4-8c79-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_12,
+
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
@@ -4395,6 +4402,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('72904487-32f6-11e2-9369-00155d881200', '2c6d3955-d423-11e3-9fe5-00155d881200')
                         and nl.bill_no = t.bill_no) as count_11,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id in ('e1a5bf94-0764-11e4-8c79-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_12,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
