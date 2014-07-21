@@ -148,18 +148,57 @@ class m_newaccounts extends IModule
         $W2[] = array('AND','B.currency="'.$currency.'"','B.bill_date>="'.$saldo_ts.'"', 'B.bill_no=P.bill_no');
         if ($W_add) {$W[] = $W_add; $W2[] = $W_add;}
 
+	$r = $db->AllRecords($q =
+		'select '.$select.' from newpayments as P
+		left join newbills as B ON (P.client_id = B.client_id)
+		where '.MySQLDatabase::Generate($W).
+		" UNION ".
+		'select '.$select.' from newpayments as P
+		left join newbills as B ON (P.client_id = B.client_id)
+		where '.MySQLDatabase::Generate($W2).
 
-        $r = $db->AllRecords($q =
-                'select '.$select.' from newpayments as P
-                left join newbills as B ON (P.client_id = B.client_id)
-                where '.MySQLDatabase::Generate($W).
-                " UNION ".
-                'select '.$select.' from newpayments as P
-                left join newbills as B ON (P.client_id = B.client_id)
-                where '.MySQLDatabase::Generate($W2).
+		($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
+		
 
-                ($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
-
+	$bill_payments = $db->AllRecords($q = "
+					SELECT B.* 
+					FROM newbills as B 
+					LEFT JOIN clients as C ON C.id = B.client_id 
+					WHERE 
+						B.bill_date>='" . $saldo_ts . "' AND 
+						B.client_id = ". $client_id . " AND 
+						B.sum < 0 AND 
+						B.currency = 'RUR' AND 
+						C.status NOT IN ('operator', 'distr') 
+						
+	");
+	foreach ($bill_payments as $v) 
+	{
+		$check_old_schema = false;
+		foreach ($r as $v2)
+		{
+			if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] == $v2['sum']) 
+			{
+				$check_old_schema = true;
+			}
+		}
+		if (empty($check_old_schema)) 
+		{
+			$pay = array (
+				'id' => $v['bill_no'],
+				'client_id' => $v['client_id'],
+				'payment_date' => $v['bill_date'],
+				'payment_rate' => 1,
+				'payment_id' => $v['bill_no'],
+				'sum_rub' => -$v['sum'],
+				'currency' => $v['currency'],
+				'sum' => -$v['sum'],
+				'bill_no' => '',
+				'bill_vis_no' => ''
+			);
+			$r[$v['bill_no']] = $pay;
+		}
+	}
         return $r;
     }
     function update_balance($client_id,$currency) {
@@ -526,7 +565,6 @@ class m_newaccounts extends IModule
             }
 
         } // не магазин
-
 
         $db->Query('START TRANSACTION');
 
@@ -896,6 +934,15 @@ class m_newaccounts extends IModule
 
             foreach($R2 as $k2=>$r2){
 
+                if (strpos($r2['payment_id'], '-'))
+                {
+			$r2['payment_rate'] = 1;
+			$r2['currency'] = 'RUR';
+			$r2['id'] = $r2['payment_id'];
+			$R2[$k2]['payment_rate'] = 1;
+			$R2[$k2]['currency'] = 'RUR';
+			$R2[$k2]['id'] = $r2['payment_id'];
+                }
                 if ($r2['payment_rate'] != ''){
                     $r2['sum_rub_full'] = round($r2['sum_rub_full'],2);
                     $r2['sum_full'] = round($r2['sum_rub_full']/$r2['payment_rate'],2);
@@ -937,20 +984,14 @@ class m_newaccounts extends IModule
 
         foreach($R1 as $k=>$r){
             $v=$r['v'];
-
             foreach($R2 as $k2=>$r2){
-
                 if($r['bill_no'] == $r2['bill_no']){
                     $v['delta2']+=$r2['sum_pay'];
-
                     if ($r['bill_no'] != $r2['p_bill_no'])
                         $r2['comment'] = '';
-
                     $v['pays'][$r2['id']]=$r2;
-
                     unset($R2[$k2]);
                 }
-
             }
             $R1[$k]['v'] = $v;
         }
@@ -980,8 +1021,6 @@ class m_newaccounts extends IModule
         if($get_sum){
             return $sum;
         }
-
-
         ## sorting
         $sk = array();
         foreach($R as $bn=>$b){
@@ -1042,7 +1081,6 @@ class m_newaccounts extends IModule
         $design->assign("qrs_date", $qrsDate);
         $bill_total_add['t'] = $bill_total_add['n']+$bill_total_add['p'];
         $design->assign('bill_total_add',$bill_total_add);
-
         #krsort($R);
         $design->assign('billops',$R);
         $design->assign('sum',$sum);
