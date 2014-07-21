@@ -86,54 +86,59 @@ function check_all2(){ldelim}
 </td></tr>
 
 <tr><td>Регионы:</TD><TD>
-<input onchange="show_all_regions();" type="radio" value="client" name="filter[region_for][0]" id="for_clients" {if !$mail_filter.region_for.0 || $mail_filter.region_for.0 == 'client'} checked="checked"{/if}>
-<label for="for_clients">Регионы для клиентов</label>
-
-<input onchange="show_all_regions(1);" type="radio" value="tarif" name="filter[region_for][0]" id="for_tarifs" {if $mail_filter.region_for.0 == 'tarif'} checked="checked"{/if}>
-<label for="for_tarifs">Регионы для номеров</label>
+<select name="filter[region_for][0]" onchange="show_all_regions(this.value);">
+	<option value="NO" {if !$mail_filter.region_for.0 || $mail_filter.region_for.0 == 'NO'} selected="selected"{/if}>не фильтровать по этому полю</option>
+	<option value="client" {if $mail_filter.region_for.0 == 'client'} selected="selected"{/if}>Регионы для клиентов</option>
+	<option id="for_tarifs" value="tarif" {if $mail_filter.region_for.0 == 'tarif'} selected="selected"{/if}>Регионы для номеров</option>
+</select>
 </td></tr>
 
-<tr><td>&nbsp;</TD><TD id="all_regions">
-
-{foreach from=$f_regions item="reg"}
-	<div style="float: left; margin-right: 15px;" >
-	{foreach from=$reg item="r"}
-		{capture name="region_`$r.id`"}
-			<div>{$r.name}</div>
-		{/capture}
-		<div>
-			<input onchange="show_regions_tarifs('{$r.id}');" id="region_{$r.id}" type="checkbox" name='filter[regions][]' value="{$r.id}" {if $r.id|in_array:$mail_filter.regions}checked="checked"{/if}>
-			<label for="region_{$r.id}">{$r.name}</option>
-		</div>
-	{/foreach}
-	</div>
-{/foreach}
-<div style="clear: both;"></div>
-</td></tr>
-
-<tr><td>Тарифы:</TD><TD>
-{foreach from=$f_tarifs item="reg" key="k"}
-{assign var="selected_region" value=false}
-{if $k|in_array:$mail_filter.regions && $mail_filter.region_for.0 == 'tarif'}
-	{assign var="selected_region" value=true}
-{/if}
-<div id="tarifs_for_{$k}" style="margin-bottom: 10px; {if !$selected_region}display:none;{/if}">
-	{assign var="name" value="region_`$k`"}
-	{$smarty.capture.$name}
-	{foreach from=$reg item="r"}
-		<div style="float: left; margin-right: 15px; ">
-		{foreach from=$r item="t"}
-			<div style="font-size: 11px;">
-				<input {if !$selected_region}disabled="disabled"{/if} id="tarif_{$t.id}" type="checkbox" name='filter[tarifs][]' value="{$t.id}" {if $t.id|in_array:$mail_filter.tarifs}checked="checked"{/if}>
-				<label for="tarif_{$t.id}">{$t.name}</option>
+<tr id="tr_regions" {if $mail_filter.region_for.0 != 'tarif' && $mail_filter.region_for.0 != 'client'}style="display: none;"{/if}>
+	<td>&nbsp;</TD>
+	<TD id="all_regions">
+		{foreach from=$f_regions item="reg"}
+			<div style="float: left; margin-right: 15px;" >
+			{foreach from=$reg item="r"}
+				{capture name="region_`$r.id`"}
+					<div>{$r.name}</div>
+				{/capture}
+				<div>
+					<input onchange="show_regions_tarifs('{$r.id}');" id="region_{$r.id}" type="checkbox" name='filter[regions][]' value="{$r.id}" {if $r.id|in_array:$mail_filter.regions}checked="checked"{/if}>
+					<label for="region_{$r.id}">{$r.name}</option>
+				</div>
+			{/foreach}
 			</div>
 		{/foreach}
+		<div style="clear: both;"></div>
+	</td>
+</tr>
+
+<tr id="tr_tarifs" {if $mail_filter.region_for.0 != 'tarif'}style="display: none;"{/if}>
+	<td>Тарифы:</TD>
+	<TD>
+		{foreach from=$f_tarifs item="reg" key="k"}
+		{assign var="selected_region" value=false}
+		{if $k|in_array:$mail_filter.regions && $mail_filter.region_for.0 == 'tarif'}
+			{assign var="selected_region" value=true}
+		{/if}
+		<div id="tarifs_for_{$k}" style="margin-bottom: 10px; {if !$selected_region}display:none;{/if}">
+			{assign var="name" value="region_`$k`"}
+			{$smarty.capture.$name}
+			{foreach from=$reg item="r"}
+				<div style="float: left; margin-right: 15px; ">
+				{foreach from=$r item="t"}
+					<div style="font-size: 11px;">
+						<input {if !$selected_region}disabled="disabled"{/if} id="tarif_{$t.id}" type="checkbox" name='filter[tarifs][]' value="{$t.id}" {if $t.id|in_array:$mail_filter.tarifs}checked="checked"{/if}>
+						<label for="tarif_{$t.id}">{$t.name}</option>
+					</div>
+				{/foreach}
+				</div>
+			{/foreach}
+			<div style="clear: both;"></div>
 		</div>
-	{/foreach}
-	<div style="clear: both;"></div>
-</div>
-{/foreach}
-</td></tr>
+		{/foreach}
+	</td>
+</tr>
 
 <tr><td colspan=2>
 <INPUT id=submit class=button type=submit value="Фильтр">
@@ -144,28 +149,51 @@ function check_all2(){ldelim}
 	{literal}
 	function show_regions_tarifs(id)
 	{
-		var isTarif=$('#for_tarifs')[0].checked;
-		if (isTarif) {
-			$('#tarifs_for_'+id).toggle();
-		}
+		var isTarif=$('#for_tarifs')[0].selected;
 		var isSelected=$('#region_'+id)[0].checked;
+		if (isTarif && isSelected) {
+			$('#tarifs_for_'+id).show();
+		} else {
+			$('#tarifs_for_'+id).hide();
+		}
 		$('#tarifs_for_'+id+' input[type=checkbox]').each(function(o,i){i.disabled = !(isSelected && isTarif);});
 	}
-	function show_all_regions(show) 
+	function show_all_regions(value) 
 	{
-		show = show | 0;
-		var regions = $('#all_regions input[type=checkbox]');
-		
-		regions.each(function(o,i){
-			if (i.checked)
-			{
-				show_regions_tarifs(i.value);
-				if (!show) {
-					$('#tarifs_for_'+i.value).toggle();
-				}
-			}
-		});
-		
+		switch (value) {
+			case 'client':
+				$('#tr_regions').show();
+				$('#tr_regions input[type=checkbox]').each(function(o,i){i.disabled = false;});
+				var regions = $('#all_regions input[type=checkbox]');
+				regions.each(function(o,i){
+					$('#tarifs_for_'+i.value).hide();
+				});
+				$('#tr_tarifs').hide();
+				$('#tr_tarifs input[type=checkbox]').each(function(o,i){i.disabled = true;});
+				break;
+			case 'tarif':
+				$('#tr_regions').show();
+				$('#tr_regions input[type=checkbox]').each(function(o,i){i.disabled = false;});
+				$('#tr_tarifs').show();
+				var regions = $('#all_regions input[type=checkbox]');
+				regions.each(function(o,i){
+					if (i.checked)
+					{
+						show_regions_tarifs(i.value);
+					}
+				});
+				break;
+			case 'NO':
+				$('#tr_regions').hide();
+				$('#tr_regions input[type=checkbox]').each(function(o,i){i.disabled = true;});
+				var regions = $('#all_regions input[type=checkbox]');
+				regions.each(function(o,i){
+					$('#tarifs_for_'+i.value).hide();
+				});
+				$('#tr_tarifs').hide();
+				$('#tr_tarifs input[type=checkbox]').each(function(o,i){i.disabled = true;});
+				break;
+		}
 	}
 	{/literal}
 </script>
