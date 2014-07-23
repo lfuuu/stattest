@@ -23,7 +23,8 @@ class m_ats2_head extends IModuleHead{
             'mt_link' => array("ats2", "access"),
             'set_update' => array("ats2", "access"),
             'virtpbx' => array("ats2", "access"),
-            'virtpbx_start' => array("ats2", "access")
+            'virtpbx_start' => array("ats2", "access"),
+            'account_bulk_del' => array("ats2", "access"),
 
             );
 

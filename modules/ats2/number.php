@@ -184,8 +184,44 @@ class aNumber
         header("Location: ./?module=ats2");
         exit();
     }
+    public function bulk_del($ids)
+    {
+        global $db_ats;
+        foreach ($ids as $numberId => $c_ids)
+        {
+		$number = self::getNumber($numberId);
+		if (self::delete_alink_rows($numberId, $number, $c_ids) === false)
+		{
+			trigger_error("Ошибка удаления"); 
+			continue;
+		}
+        }
+        ats2sync::updateClient($number["client_id"]);
+        header("Location: ./?module=ats2");
+        exit();
+    }
+    public function delete_alink_rows($numberId, $number, $c_ids)
+    {
+	global $db_ats;
+	if(!$numberId || !$number) 
+	{
+		return false;
+	}
+	
+	list($isEdit, $l) = self::getNumberLink($numberId);
 
+	if(!$isEdit)
+	{
+		return false;;
+	}
 
+	foreach ($c_ids as $v) 
+	{
+		$db_ats->QueryDelete("a_link", array("number_id" => $numberId, 'c_id' => $v));
+	}
+	return true;
+	
+    }
 
     public function getNumber($id)
     {
