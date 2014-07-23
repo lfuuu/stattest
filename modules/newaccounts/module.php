@@ -1410,6 +1410,11 @@ class m_newaccounts extends IModule
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
+        $date_from_active = get_param_raw("date_from_active", 'N');
+        $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
+        $dateFrom->format = 'Y-m-d';
+        $bill_no_ext_date = $dateFrom->getDay();
+        
         $bill = new Bill($bill_no);
         if(!$bill->CheckForAdmin())
             return;
@@ -1417,6 +1422,12 @@ class m_newaccounts extends IModule
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
+        if ($date_from_active == 'Y')
+        {
+		$bill->SetExtNoDate($bill_no_ext_date);
+        } else {
+		$bill->SetExtNoDate();
+        }
         $V = $bill->GetLines();
         $V[$bill->GetMaxSort()+1] = array();
         $V[$bill->GetMaxSort()+2] = array();
@@ -3451,6 +3462,7 @@ class m_newaccounts extends IModule
         }
 
         $firms = $this->getFirmByPayAccs($payAccs);
+        $date_formats = array('d.m.Y', 'd.m.y', 'd-m-Y', 'd-m-y');
 
         foreach($pays as $pay)
         {
@@ -3511,6 +3523,7 @@ class m_newaccounts extends IModule
                 $extBills = array();
                 foreach($pay["clients_bills"] as &$b)
                 {
+                    $b['is_selected'] = false;
                     if (!isset($b["bill_no_ext"]) || !$b["bill_no_ext"]) continue;
                     if (isset($b["is_group"]) && $b["is_group"]) continue;
 
@@ -3521,9 +3534,18 @@ class m_newaccounts extends IModule
                     {
                         $b["ext_no"] = $b["bill_no_ext"];
                     }
+                    if (!isset($b["ext_no"]) || !isset($b["bill_no_ext_date"]) || !$b["bill_no_ext_date"]) continue;
+                    
+                    foreach ($date_formats as $format) {
+			$bill_no_ext_date = date($format, $b["bill_no_ext_date"]);
+			if (strpos($description, $bill_no_ext_date) !== false)
+			{
+				$b["ext_no_date"] = $bill_no_ext_date;
+				break;
+			}
+                    }
                 }
                 unset($b);
-
             }
 
 
@@ -3539,6 +3561,35 @@ class m_newaccounts extends IModule
             }
 
             $this->isPayPass($clientIdSum, $pay);
+
+            if (!empty($pay["clients_bills"])) 
+            {
+		$rank = 0;
+		$selected = null;
+		foreach($pay["clients_bills"] as $k=>$b)
+		{
+			if ($pay['bill_no'] == $b['bill_no']) 
+			{
+				$selected = $k;
+				break;
+			} elseif ($rank < 2 && $pay['sum'] < 0 && isset($b['sum']) && $pay['sum'] == $b['sum']) {
+				if (isset($b['ext_no']) && isset($b['ext_no_date'])) 
+				{
+					$rank = 2;
+					$selected = $k;
+				} elseif (isset($b['ext_no'])) {
+					$selected = $k;
+					$rank = 1;
+				} elseif (!$rank) {
+					$selected = $k;
+				}
+			}
+                }
+                if (!is_null($selected)) 
+                {
+			$pay["clients_bills"][$selected]['is_selected'] = true;
+		}
+            }
 
             $sum["all"] += $pay["sum"];
             $sum["plus"] += $pay["sum"] > 0 ? $pay["sum"] : 0;
@@ -3627,13 +3678,13 @@ class m_newaccounts extends IModule
             }
 
             foreach($db->AllRecords($q = '
-                        (select bill_no, is_payed,sum,bill_no_ext from newbills n2
+                        (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills n2
                          where n2.client_id="'.$clientId.'" and n2.is_payed=1
                          /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "'.$clientId.'")
                          */
                          order by n2.bill_date desc limit 1)
-                        union (select bill_no, is_payed,sum,bill_no_ext from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
-                        union (select bill_no, is_payed,sum,bill_no_ext from newbills where client_id='.$clientId.' and is_payed!="1")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills where client_id='.$clientId.' and bill_no = "'.$billNo.'")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date from newbills where client_id='.$clientId.' and is_payed!="1")
                         '
                         ) as $b){
                 $v[] = $b;
@@ -3653,10 +3704,10 @@ class m_newaccounts extends IModule
 
         // все неоплаченные, и последний оплаченный
         foreach($db->AllRecords("
-        (select b.bill_no, b.sum, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
+        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
             from newbills b where ".$where." having is_payed1 = 0)
         union
-        (select b.bill_no, b.sum, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
+        (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
             from newbills b where ".$where." having is_payed1 = 1 order by bill_no desc limit 1)
         ") as $p)
         {
