@@ -146,10 +146,15 @@
  	{/if}
 
 	{if $pay.bill_no==$op.bill.bill_no}
-	<TD style='{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>{objCurrency op=$op obj='pay2' pay=$pay currency=$fixclient_data.currency}</TD>
-	<TD style='font-size:85%;{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>{$pay.payment_date} - &#8470;{$pay.payment_no} /
-		{if $pay.type=='bank'}b({$pay.bank}){elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
-		{if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}</TD>
+	{if $pay.payment_id|strpos:"-"}
+		<TD style='{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>{objCurrency op=$op obj='pay2' pay=$pay currency=$fixclient_data.currency}</TD>
+		<TD style='font-size:85%;{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>&#8470;{$pay.payment_id}</TD>
+	{else}
+		<TD style='{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>{objCurrency op=$op obj='pay2' pay=$pay currency=$fixclient_data.currency}</TD>
+		<TD style='font-size:85%;{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>{$pay.payment_date} - &#8470;{$pay.payment_no} /
+			{if $pay.type=='bank'}b({$pay.bank}){elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
+			{if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}</TD>
+	{/if}
 	{else}
 	<TD colspan=2>&nbsp;</TD>
 	{/if}
