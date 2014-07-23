@@ -251,7 +251,7 @@ class m_mail{
 							if ($filter['region_for'][0] == 'client') 
 							{
 								$W[] = "C.region IN ('" . implode("', '", $p) . "')";
-							} else {
+							} elseif ($filter['region_for'][0] == 'tarif') {
 								if (empty($filter['tarifs']))
 								{
 									$J[] = 'LEFT JOIN usage_voip as UV ON UV.client = C.client';
