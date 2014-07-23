@@ -18,7 +18,7 @@
 <TR id=tr_{$key}>
     <TD class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</TD>
     <TD{if $hl==$key} style="background-color: #EEE0B9"{/if}>
-        <input class=text type={$item.type} name=dbform[{$key}] id={$key} {if $key eq "E164"}onchange='optools.voip.check_e164.set_timeout_check(this);'onkeyup='optools.voip.check_e164.set_timeout_check(this);'{/if} value='{$item.value}'{$item.add}>{$item.comment}
+        <input class=text type={$item.type} name=dbform[{$key}] id={$key} {if $key eq "E164"}onchange='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();' onkeyup='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();'{/if} value='{$item.value}'{$item.add}>{$item.comment}
 
 {if $key eq "E164"}
 	<img src="{$PATH_TO_ROOT}images/icons/disable.gif" id="e164_flag_image" style="visibility:hidden" />
@@ -76,6 +76,12 @@
 {if $dbform_table == "newpayments"}
 <script>
     form_newpayments_hide();
+</script>
+{/if}
+
+{if $dbform_table == "usage_voip"}
+<script>
+    form_usagevoip_hide();
 </script>
 {/if}
 

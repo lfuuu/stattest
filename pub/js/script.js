@@ -187,6 +187,22 @@ function form_newpayments_hide()
 
 }
 
+var usagevoip_line7800_hide = false;
+function form_usagevoip_hide()
+{
+    var val = document.getElementById("E164").value;
+
+    var toHide = false;
+
+    toHide = val.substr(0,4) != "7800";
+
+    if (toHide != usagevoip_line7800_hide)
+    {
+        document.getElementById("tr_line7800_id").style.display= toHide ? 'none' : '';
+        usagevoip_line7800_hide = toHide;
+    }
+}
+
 function form_ip_ports_get_ports() {
 	var nodeval=document.getElementById('node').value;
 	var porttypeval=document.getElementById('port_type').value;

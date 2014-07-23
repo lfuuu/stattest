@@ -166,6 +166,7 @@ class ats2Numbers
     {
         l::ll(__CLASS__,__FUNCTION__);
         ats2NumbersChecker::check();
+        ats2_7800line::check();
     }
 
     public function autocreateAccounts($usageId, $isTrunk, $isSync)
