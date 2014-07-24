@@ -62,8 +62,13 @@ function do_events()
                 case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();
                                  virtPbx::check();
-                                 if(date("d") == 11) { //каждого 11-го числа помечаем, что все счета показываем в LK
+                                 if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
+                                 }
+                                 if(WorkDays::isWorkDayFromMonthEnd(time(), 4)) { //за 4 дня предупреждаем о списании абонентки аваносовым клиентам
+                                     $execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
+                                     echo " exec: ".$execStr;
+                                     exec($execStr);
                                  }
                                  break;
 

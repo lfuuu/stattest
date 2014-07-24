@@ -10,6 +10,8 @@ include INCLUDE_PATH."class.smtp.php";
 $db->Query("set names utf8");
 
 
+echo "\n".date("r").":\n";
+
 $clients = array('id4102',
 'id18620',
 'id18698',
@@ -44,8 +46,6 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
 
     $r = $pg_db->GetRow("SELECT cast(sum(amount)/100.0 as numeric(10,2))as sum, min(time) as min, max(time) as max FROM calls.calls WHERE time > '2013-09-01 00:00:00' AND usage_id IN (".implode(", ", $usages).") LIMIT 1000 OFFSET 0");
 
-    var_dump($r);
-
     $r["min"] = strtotime($r["min"]);
     $r["max"] = strtotime($r["max"]);
 
@@ -70,16 +70,13 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
     if($realLimit < 100) continue;
 
 
-    /*
-    */
-
     $balance = Api::getBalance($l["id"]);
 
     $lastAbon = getLastMonthSumAbon($l["id"]);
 
-    if (!$lastAbon || $lastAbon <= 0) continue;
+    if (!($lastAbon > 0)) continue;
 
-    echo ", last abon: ";
+    echo ", last abon: ".$lastAbon;
 
     $a = array( 
         "days"      => $days,
@@ -96,8 +93,6 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
     $a["real_balance"] = $balance-$a["abon"];
 
     $R[$l["id"]] = $a;
-
-    print_r($a);
 }
 
 
@@ -123,10 +118,11 @@ foreach ($R as $clientId => $a)
 
     $emails = getContactsForSend($clientId);
 
-    //$emails = array("adima123@yandex.ru");
+    $emails = array("adima123@yandex.ru");
     if (!$emails) continue;
 
-    echo "\n ".$clientId." abon: ".$a["abon"].", balance: ".$a["balance"].", emails: ".implode(", ", $emails);
+    echo "\n ".$clientId." abon: ".$a["abon"].", balance: ".$a["balance"].", real balance: ".$a["real_balance"].",emails: ".implode(", ", $emails);
+    continue;
 
 
     foreach ($emails as $contactId => $email)
