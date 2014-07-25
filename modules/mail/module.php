@@ -12,7 +12,10 @@ class m_mail{
 		'remove'		=> array('mail','w'),
 		'preview'		=> array('mail','w'),
 		'state'			=> array('mail','w'),
-		'client'		=> array('mail','w')
+		'client'		=> array('mail','w'),
+		'file_put'		=> array('mail','w'),
+		'file_get'		=> array('mail','w'),
+		'file_del'		=> array('mail','w')
 	);
 
 	var $menu=array(
@@ -157,6 +160,11 @@ class m_mail{
 			}
 			unset($l);
 			$design->assign('mail_letter',$L);
+			require_once('mailFiles.php');
+			$Files = new mailFiles($id);
+			$files = $Files->getFiles();
+			$design->assign('files', $files);
+			$design->assign('job_id', $id);
 		}
 
 		$design->AddMain('mail/view.tpl');
@@ -378,6 +386,42 @@ class m_mail{
 		$design->assign('mail_clients',$C);
 		$design->AddMain('mail/filter.tpl');
 	}
+	function mail_file_put($fixclient) {
+		require_once('mailFiles.php');
+		global $design;
+		if(!($job_id=get_param_integer('job_id')))
+			return;
+
+		$Files=new mailFiles($job_id);
+		$Files->putFile();
+		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail&action=view&id='.$job_id);
+	}
+	function mail_file_get($fixclient) {
+		require_once('mailFiles.php');
+		global $design;
+		$job_id = get_param_integer('job_id');
+		if (!$job_id) return;
+		$Files=new mailFiles($job_id);
+		if ($f = $Files->getFile(get_param_protected('file_id'))) {
+			header("Content-Type: " . $f['type']);
+			header("Pragma: ");
+			header("Cache-Control: ");
+			header('Content-Transfer-Encoding: binary');
+			header('Content-Disposition: attachment; filename="'.iconv("KOI8-R","CP1251",$f['name']).'"');
+			header("Content-Length: " . filesize($f['path']));
+			readfile($f['path']);
+			$design->ProcessEx();
+		}
+	}
+	function mail_file_del($fixclient) {
+		require_once('mailFiles.php');
+		global $design;
+		$job_id = get_param_integer('job_id');
+		if (!$job_id) return;
+		$Files=new mailFiles($job_id);
+		$Files->deleteFile(get_param_protected('file_id'));
+		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail&action=view&id='.$job_id);
+	}
 	function mail_state($fixclient) {
 		global $db,$design;
 		$id=get_param_integer('id');
@@ -574,8 +618,9 @@ class MailJob {
         {
         	$T = "Информационное письмо о смене генерального директора: ".
         	$this->get_object_link('new_director_info', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
+        }elseif($match[1] == "DOGOVOR") {
+		$T = BillContract::getString($this->client["id"], time());
         }
-
         return $T;
     }
 
@@ -657,6 +702,8 @@ class MailJob {
 		}
 		return $T;
 	}
+	
+	
 	public function Template($str,$format = 'text'){
 
 
@@ -675,7 +722,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(NOTICE)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(ORDER)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
-
+		$text = preg_replace_callback('/%(DOGOVOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}
@@ -688,7 +735,7 @@ class MailJob {
 	}
 	public function Send($emails = null){
 		global $db;
-
+		require_once('mailFiles.php');
 		if(!self::$prepared)
 			self::SendPrepare();
 
@@ -708,6 +755,17 @@ class MailJob {
 			if($adr)
 				$Mail->AddAddress($adr);
 		$Mail->ContentType='text/plain';
+		
+		$Files = new mailFiles($this->data['job_id']);
+		$files = $Files->getFiles(true);
+		if (!empty($files))
+		{
+			foreach ($files as $v)
+			{
+				$Mail->AddAttachment($v['path'], $v['name'], "base64", $v['type']);
+			}
+		}
+		
 		$Mail->Subject = $this->Template('template_subject');
 		$Mail->Body = $this->Template('template_body');
 

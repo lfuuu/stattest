@@ -17,7 +17,30 @@
 <a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>Новый директор Надточеева</a><br><br>
+<a href='#' onclick='form.body.value+="\n%DOGOVOR_TELEKOM%";return false;'>Договор</a><br><br>
 </TD></TR></FORM></TABLE>
+
+<H3>Прикрепленные файлы</H3>
+<table class=insblock cellspacing=4 cellpadding=2 border=0>
+<tr><th>имя файла</th><th>&nbsp;</th></tr>
+{foreach from=$files item=item}<tr>
+	<td>
+		<a href='{$LINK_START}module=mail&file_id={$item.id}&action=file_get&job_id={$job_id}'>{$item.name}</a> 
+	</td>
+	<td>
+		<a href='{$LINK_START}module=mail&action=file_del&file_id={$item.id}&job_id={$job_id}' onclick="return confirm('Вы уверены, что хотите удалить файл {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>
+	</td>
+</tr>{/foreach}
+<FORM action="?" method=post enctype="multipart/form-data"><tr>
+	<input type=hidden name="module" value="mail">
+	<input type=hidden name="action" value="file_put">
+	<input type=hidden name="job_id" value="{$job_id}">
+	<td><input type=file name=file></td>
+	<td><input class=button type=submit value="загрузить"></td>
+</tr></form>
+</table>
+
+
 
 {if $template.job_id}
 <H3>Отправка письма</H3>
@@ -35,6 +58,7 @@
 
 <br><br><br>
 <a href='{$LINK_START}module=mail&action=client&id={$template.job_id}'>Добавить клиентов</a>
+
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
 <TR>
