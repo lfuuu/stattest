@@ -26,16 +26,17 @@ class m_stats_head extends IModuleHead{
 		'report_onlime'	    => array('stats','report'),
 		'report_onlime2'	    => array('stats','report'),
 		'report_onlime_all'	    => array('stats','report'),
-        'report_inn'	    => array('stats','report'),
+		'report_inn'	    => array('stats','report'),
 		//'report_wimax_test'		=> array('stats','report'),
 		'courier_sms'		=> array('stats','report'),
 		'report_voip_operators_traf' => array('stats','vip_report'),
 		'voip_free_stat' => array('stats','report'),
 //		'recalcalls'		=> array('stats','modify'),
 		'support_efficiency'	=>  array('stats','report'),
-    'report_phone_sales'  =>  array('stats','report'),
-    'report_agent' => array('stats','report'),
-    'report_sale_channel' => array('stats','sale_channel_report')
+		'report_phone_sales'  =>  array('stats','report'),
+		'report_agent' => array('stats','report'),
+		'report_sale_channel' => array('stats','sale_channel_report'),
+		'report_vpbx_stat_space' => array('stats', 'report')
 	);
 	var $menu=array(
 		array('Интернет',		'internet'),
@@ -61,11 +62,12 @@ class m_stats_head extends IModuleHead{
 		array('Отчет по OnLime', 'report_onlime'),
 		array('Отчет по OnLime2', 'report_onlime2'),
 		array('Отчет по OnLime 1+2', 'report_onlime_all'),
-        array('Отчет: Продажи номеров', 'report_phone_sales'),
+		array('Отчет: Продажи номеров', 'report_phone_sales'),
 
-        array('Отчет: ИНН', 'report_inn'),
-        array('Отчет по Агентам', 'report_agent'),
-        array('Региональные представители', 'report_sale_channel'),
+		array('Отчет: ИНН', 'report_inn'),
+		array('Отчет по Агентам', 'report_agent'),
+		array('Региональные представители', 'report_sale_channel'),
+		array('ВАТС: свободное про-во', 'report_vpbx_stat_space')
 	);
 }
 ?>
