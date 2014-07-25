@@ -44,7 +44,12 @@
 					<TD align=left><a href="index.php?module=clients&id={$item.client_id}">{$item.client}</a></TD>
 				{/if}
 				<TD align=left>{$item.timestamp|mdate:"d месяца Y H:i:s"}</TD>
-				<TD align=left>{$events_description[$item.event]}</TD>
+				<TD align=left>
+					{if !$item.is_set && $item.event != 'add_pay_notif' && $item.event != 'prebil_prepayers_notif'}
+						Снято: 
+					{/if}
+					{$events_description[$item.event]}
+				</TD>
 				<TD align=left>
 					{if $item.contact_type == "email"}
 						<a style="font-weight:bold" href="mailto:{$item.contact_data}">{$item.contact_data}</a>

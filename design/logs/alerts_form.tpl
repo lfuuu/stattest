@@ -30,6 +30,21 @@
 			</TD>
 
 		</TR>
+		{if !$fixclient}
+			<tr>
+				<td class="left">
+					Менеджер:
+				</td>
+				<td>
+					<select name='manager'>
+						<option value=''>(не фильтровать по этому полю)</option>
+						{foreach from=$f_manager item=r}
+							<option value='{$r.user}'{if $r.user==$manager} selected="selected"{/if}>{$r.name} ({$r.user})</option>
+						{/foreach}
+					</select>
+				</td>
+			</tr>
+		{/if}
 </TBODY>
 </TABLE>
 <HR>

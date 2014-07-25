@@ -58,7 +58,13 @@ class m_logs extends IModule{
 		$page = get_param_raw('page', 1);
 		$design->assign('page', $page);
 		
-		list($logs, $pages) = $this->getLogs($client_id, $from, $to, $events, $page);
+		$manager = get_param_raw('manager', '');
+		$design->assign('manager', $manager);
+		$m=array();
+		$GLOBALS['module_users']->d_users_get($m,'manager');
+		$design->assign('f_manager', $m);
+		
+		list($logs, $pages) = $this->getLogs($client_id, $from, $to, $events, $manager, $page);
 		$design->assign('pages', $pages);
 		$design->assign('logs', $logs);
 		
@@ -67,7 +73,8 @@ class m_logs extends IModule{
 			'action' => 'alerts',
 			'date_from' => $dateFrom->getDay(),
 			'date_to' => $dateTo->getDay(),
-			'events' => $events
+			'events' => $events,
+			'manager' => $manager
 		);
 		$url = http_build_query($params);
 		$design->assign('url', '?' . $url . '&');
@@ -95,7 +102,7 @@ class m_logs extends IModule{
 	 * @param array $events - список событий, которые будут отображены в отчете
 	 * @param int $page - номер страницы отчета
 	 */
-	function getLogs($client_id, $from, $to, $events, $page)
+	function getLogs($client_id, $from, $to, $events, $manager, $page)
 	{
 		global $db;
 		$join = $condition = '';
@@ -106,6 +113,10 @@ class m_logs extends IModule{
 		} else {
 			$fields .= ', c.client';
 			$join = ' LEFT JOIN clients as c ON log.client_id = c.id';
+			if (!empty($manager))
+			{
+				$condition = " AND c.manager = '" . $manager . "' ";
+			}
 		}
 		if (!empty($events))
 		{
@@ -115,30 +126,31 @@ class m_logs extends IModule{
 		}
 		$limit = 'LIMIT ' . ($page-1)*50 . ', 50';
 		$logs = $db->AllRecords($q = "
-			SELECT 
-				$fields
+			SELECT " . 
+				$fields . "
 			FROM 
 				lk_notice_log as log
 			LEFT JOIN
-				client_contacts as cc ON cc.id = log.contact_id 
-			$join
+				client_contacts as cc ON cc.id = log.contact_id " . 
+				$join . " 
 			WHERE 
-				log.date >= FROM_UNIXTIME($from) AND 
-				log.date <= FROM_UNIXTIME($to+86399) 
-				$condition
+				log.date >= FROM_UNIXTIME(" . $from . ") AND 
+				log.date <= FROM_UNIXTIME(" . $to . "+86399) " . 
+				$condition . " 
 			ORDER BY
-				log.date DESC
+				log.date DESC " .
 			$limit
-		");
+		);
 		$total = $db->getValue("
 			SELECT 
 				COUNT(*)
 			FROM 
-				lk_notice_log as log 
+				lk_notice_log as log " . 
+			$join . " 
 			WHERE 
-				log.date >= FROM_UNIXTIME($from) AND 
-				log.date <= FROM_UNIXTIME($to+86399) 
-				$condition
+				log.date >= FROM_UNIXTIME(" . $from . ") AND 
+				log.date <= FROM_UNIXTIME(" . $to . "+86399) " . 
+				$condition . " 
 			ORDER BY
 				log.date DESC
 		");
