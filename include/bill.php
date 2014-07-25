@@ -95,7 +95,8 @@ class Bill{
 			select
 				*,
 				UNIX_TIMESTAMP(bill_date) as ts,
-				UNIX_TIMESTAMP(doc_date) as doc_ts
+				UNIX_TIMESTAMP(doc_date) as doc_ts,
+				UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date 
 			from
 				newbills
 			where
@@ -187,6 +188,15 @@ class Bill{
             global $db,$user;
             $this->Set("bill_no_ext", $bill_no_ext);
 			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен внешний номер на ".$bill_no_ext));
+        }
+    }
+    public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
+    {
+        if ($this->bill["bill_no_ext_date"] != $bill_no_ext_date) {
+            global $db,$user;
+            $this->Set("bill_no_ext_date", $bill_no_ext_date . ' 00:00:00');
+            $comment = ($bill_no_ext_date) ? "Именена дата внешнего счета на ". $bill_no_ext_date : 'Удаление даты внешнего счета';
+			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$comment));
         }
     }
     public function SetCourier($courierId){

@@ -24,7 +24,10 @@ function mark_del(){
 <option value="nal"{if $bill.nal=="nal"} selected{/if}>нал</option>
 <option value="prov"{if $bill.nal=="prov"} selected{/if}>пров</option>
 </select><br>
-Внешний номер: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}">
+Внешний счет: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}">
+<br>
+Дата внешнего счета: <input {if !$bill.bill_no_ext_date} disabled="disabled"{/if} id=date_from  type=text name=bill_no_ext_date value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
+<input type="checkbox" value="Y" name="date_from_active" {if $bill.bill_no_ext_date} checked="checked"{/if} onchange="activateDatePicker(this);"> 
 <br>
 
 <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
@@ -70,3 +73,12 @@ function mark_del(){
 	<input id='submit' class='button' type='submit' value="Изменить">
 </div>
 </form>
+<script>
+	optools.DatePickerInit();
+	{literal}
+	function activateDatePicker(elm)
+	{
+		$('#date_from').attr('disabled', !elm.checked);
+	}
+	{/literal}
+</script>

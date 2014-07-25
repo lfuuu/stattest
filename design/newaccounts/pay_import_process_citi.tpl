@@ -38,22 +38,37 @@
 
 {if $pay.clients}
 	<select name=pay[{$pay.no}][bill_no] id=bills_{$pay.no}{if $pay.to_check_bill_only} disabled='disabled'{/if}>
-	<option value=''>(без привязки)</option>
-    {assign var='is_select' value=false}
-	{foreach from=$pay.clients_bills item=bill name=inner2}
-        {if $bill.is_group}
-            </optgroup>
-            <optgroup label="{$bill.bill_no}">
-        {else}
-            <option value={$bill.bill_no}{if $pay.bill_no==$bill.bill_no || ($pay.sum < 0 && $bill.sum == $pay.sum)} selected{assign var='is_select' value=true}{/if}>{$bill.bill_no}{if $bill.is_payed==1}={elseif $bill.is_payed ==2}+{elseif $bill.is_payed ==-1}-{/if}{if $bill.ext_no} {$bill.ext_no}{/if}</option>
-        {/if}
-	{/foreach}
-	{if !$is_select && $pay.bill_no}
-        </optgroup>
-        <optgroup label="Вне списка">
-            <option value={$pay.bill_no} selected>{$pay.bill_no}{if !$pay.imported} !?{/if} ??</option>
-        </optgroup>
-    {/if}
+		<option value=''>(без привязки)</option>
+		{assign var='is_select' value=false}
+		{foreach from=$pay.clients_bills item=bill name=inner2}
+			{if $bill.is_group}
+				</optgroup>
+				<optgroup label="{$bill.bill_no}">
+			{else}
+				<option value={$bill.bill_no}{if $bill.is_selected} selected{assign var='is_select' value=true}{/if}>
+					{$bill.bill_no}
+					{if $bill.is_payed==1}
+						=
+					{elseif $bill.is_payed ==2}
+						+
+					{elseif $bill.is_payed ==-1}
+						-
+					{/if}
+					{if $bill.ext_no}
+						{$bill.ext_no}
+						{if $bill.bill_no_ext_date}
+							({"d-m-Y"|date:$bill.bill_no_ext_date})
+						{/if}
+					{/if}
+				</option>
+			{/if}
+		{/foreach}
+		{if !$is_select && $pay.bill_no}
+			</optgroup>
+			<optgroup label="Вне списка">
+				<option value={$pay.bill_no} selected>{$pay.bill_no}{if !$pay.imported} !?{/if} ??</option>
+			</optgroup>
+		{/if}
 	</select>
 {else}
 	<input type=text class=text name=pay[{$pay.no}][bill_no] style='width:100px'>
