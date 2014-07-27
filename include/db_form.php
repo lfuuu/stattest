@@ -181,18 +181,18 @@ class HelpDbForm {
         
     }
     public static function logTarifUsage($service,$id,$dateActivation,
-                                        $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifInternId,$tarifSngId,
+                                        $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,$tarifSngId,
                                         $dest_group, $minpayment_group, 
                                         $minpayment_local_mob, $minpayment_russia, $minpayment_intern, $minpayment_sng)
     {
         global $db,$user;
         $db->Query('insert into log_tarif (service,id_service,id_user,ts,date_activation,comment,
-                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_intern,id_tarif_sng,
+                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_russia_mob,id_tarif_intern,id_tarif_sng,
                                         dest_group,minpayment_group,
                                         minpayment_local_mob,minpayment_russia,minpayment_intern,minpayment_sng
                                     ) VALUES '.
                                     '("'.$service.'",'.$id.','.$user->Get('id').',NOW(),"'.addslashes($dateActivation).'","",'.
-                                        intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifInternId).','.intval($tarifSngId).','.
+                                        intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.intval($tarifSngId).','.
                                         intval($dest_group).','.intval($minpayment_group).','.
                                         intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).','.intval($minpayment_sng).
                                     ')');
@@ -378,6 +378,7 @@ class DbFormUsageVoip extends DbForm {
             if ($this->dbform['t_id_tarif'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_local_mob'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_russia'] == 0) $b=0;
+            if ($this->dbform['t_id_tarif_russia_mob'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_intern'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_sng'] == 0) $b=0;
             if ($this->dbform['t_minpayment_group'] == '') $b=0;
@@ -415,6 +416,7 @@ class DbFormUsageVoip extends DbForm {
                     if ($this->dbform['t_id_tarif']!=$olddata['id_tarif']) $b=1;
                     if ($this->dbform['t_id_tarif_local_mob']!=$olddata['id_tarif_local_mob']) $b=1;
                     if ($this->dbform['t_id_tarif_russia']!=$olddata['id_tarif_russia']) $b=1;
+                    if ($this->dbform['t_id_tarif_russia_mob']!=$olddata['id_tarif_russia_mob']) $b=1;
                     if ($this->dbform['t_id_tarif_intern']!=$olddata['id_tarif_intern']) $b=1;
                     if ($this->dbform['t_id_tarif_sng']!=$olddata['id_tarif_sng']) $b=1;
                     if ($this->dbform['t_date_activation']!=$olddata['date_activation']) $b=1;
@@ -430,7 +432,7 @@ class DbFormUsageVoip extends DbForm {
 
                     HelpDbForm::logTarifUsage("usage_voip",
                             $usage_id,$this->dbform['t_date_activation'],
-                            $this->dbform['t_id_tarif'],$this->dbform['t_id_tarif_local_mob'],$this->dbform['t_id_tarif_russia'],$this->dbform['t_id_tarif_intern'],$this->dbform['t_id_tarif_sng'],
+                            $this->dbform['t_id_tarif'],$this->dbform['t_id_tarif_local_mob'],$this->dbform['t_id_tarif_russia'],$this->dbform['t_id_tarif_russia_mob'],$this->dbform['t_id_tarif_intern'],$this->dbform['t_id_tarif_sng'],
                             $this->dbform['t_dest_group'],$this->dbform['t_minpayment_group'],
                             $this->dbform['t_minpayment_local_mob'],$this->dbform['t_minpayment_russia'],$this->dbform['t_minpayment_intern'],$this->dbform['t_minpayment_sng']
                         );

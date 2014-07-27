@@ -174,6 +174,22 @@ $(document).ready(function(){
 		<td><input id="russia_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
 		<td><input id="minpayment_russia" type="hidden" name="dbform[t_minpayment_russia]" value="{$dbform_f_tarif_current.minpayment_russia}"/></td>
 	</tr>
+    <tr>
+        <td nowrap>Тариф Россия (моб.):</td>
+        <td>
+            <select id=t_id_tarif_russia_mob name=dbform[t_id_tarif_russia_mob] style='display:"";width:270px'>>
+                {foreach from=$dbform_f_tarifs item=tarif name=tarif_russia}
+                    {if $tarif.dest == '1'}
+                        <option value={$tarif.id} {if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif_russia_mob} selected{/if}>
+                            {$tarif.name}
+                        </option>
+                    {/if}
+                {/foreach}
+            </select>
+        </td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
 	<tr>
 		<td nowrap>Тариф Международка:</td>
 		<td>
