@@ -316,6 +316,12 @@ $(function(){
 			<option value='payment'{if $client.form_type=='payment'} selected{/if}>при внесении платежа</option>
 		</select>
 	</td></tr>
+	<TR>
+		<TD class=left>Агент:</TD>
+		<TD>
+			<input type="checkbox" value="Y" name="is_agent" {if $client.is_agent == "Y"}checked="checked"{/if}>
+		</TD>
+	</TR>
 	<TR><TD class=left>Тип цены:</TD><TD>
     {html_options options=$l_price_type selected=$client.price_type name="price_type"}
 	</td></tr>
