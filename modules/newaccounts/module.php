@@ -754,6 +754,12 @@ class m_newaccounts extends IModule
         $design->AddMain('newaccounts/bill_list_simple.tpl');
     }
 
+    function newaccounts_show_income_goods()
+    {
+	global $design;
+	$_SESSION['get_income_goods_on_bill_list'] = get_param_raw('show', 'N') == "Y";
+	header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+    }
     function newaccounts_bill_list_full($get_sum=false)
     {
         global $design, $db, $user, $fixclient_data;
@@ -821,6 +827,9 @@ class m_newaccounts extends IModule
             );
         }
 
+        $get_income_goods_on_bill_list = get_param_integer('get_income_goods_on_bill_list', false);
+        $design->assign('get_income_goods_on_bill_list', $get_income_goods_on_bill_list);
+
         $R1 = $db->AllRecords($q='
                 select * from (
             select
@@ -839,8 +848,8 @@ class m_newaccounts extends IModule
             where
                 client_id='.$fixclient_data['id'].'
                 '.($isMulty && !$isViewCanceled? " and (state_id is null or (state_id is not null and state_id !=21)) " : "").'
-                ) bills
-                union
+                ) bills  ' . 
+                (($get_income_goods_on_bill_list) ? 'union
                 (
                     ### incomegoods
                  SELECT 
@@ -858,8 +867,8 @@ class m_newaccounts extends IModule
                     1 in_sum 
 
                   FROM `g_income_order` where client_card_id = "'.$fixclient_data['id'].'"
-                )
-            order by
+                )' : ' ' ) . 
+            'order by
                 bill_date desc,
                 bill_no desc
             limit 1000

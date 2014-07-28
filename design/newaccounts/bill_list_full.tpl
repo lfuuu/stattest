@@ -60,6 +60,14 @@
 </table>
 </td>
 <td valign=top style="padding-left: 100px;" align=right>
+<div>
+	<form action="?" name="show_incomegoods" method="get">
+	<input type="hidden" name="module" value="newaccounts">
+	<input type="hidden" name="action" value="show_income_goods">
+	<input id="with_income" type="checkbox" value="Y" name="show" {if $get_income_goods_on_bill_list}checked{/if} onchange="show_income_goods();">
+	<label for="with_income">Показывать заказы поставищика</label>
+	</form>
+</div>
 {if $counters}
     <table>
         <tr>
@@ -212,6 +220,10 @@
 	$(document).ready(function(){
 		statlib.modules.newaccounts.bill_list_full.simple_tooltip(".del_doc" ,"tooltip");
 	});
+	function show_income_goods()
+	{
+		document.forms["show_incomegoods"].submit();
+	}
 {/literal}
 </script>
 {/if}
