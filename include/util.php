@@ -1495,17 +1495,17 @@ class ClientCS {
                 $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
                 $c[$l["field"]] = $l["value_from"];
             }
-        }else{
+        }
+        if ($dNow <= $date)
+        {
             foreach($db->AllRecords($sql =
                         "select *
                         from log_client lc, log_client_fields lf
-                        where client_id = ".$c["id"]." and
-                            if(apply_ts = '0000-00-00', ts >= '".$date." 23:59:59', apply_ts >= '".$date."')
-                            and if(apply_ts = '0000-00-00', ts >= '".$dNow." 00:00:00', apply_ts > '".$dNow."')
-                            and type='fields'
-                            and lc.id = lf.ver_id
-                            and is_overwrited = 'no'
-                            and is_apply_set = 'yes'
+                        where client_id = ".$c["id"]." 
+                            and apply_ts BETWEEN  '".$dNow."' AND '".$date."' 
+                            and type='fields' 
+                            and lc.id = lf.ver_id 
+                            and is_apply_set = 'no' 
                         order by lf.id") as $l)
             {
                 $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);

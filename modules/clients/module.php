@@ -921,13 +921,13 @@ class m_clients {
 		if(file_exists(STORE_PATH.$fileTemplate)) //already
 			return true;
 
-		if (!($r = $db->GetRow('select * from clients where (id="'.intval($clientId).'") limit 1'))) {
-			trigger_error('Такого клиента не существует');
-			return;
-		}
-
 		if (!($c = $db->GetRow('select * from client_contracts where id="'.intval($contractId).'"'))) {
 			trigger_error('Такого договора не существует');
+			return;
+		}
+		
+		if (!($r = ClientCS::getOnDate(intval($clientId), $c['contract_date']))) {
+			trigger_error('Такого клиента не существует');
 			return;
 		}
 
@@ -961,10 +961,12 @@ class m_clients {
 		if ($data=='contract') {
 			$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
 			$id = $c['client_id'];
-		} else
+			$r = ClientCS::getOnDate($id, $c['contract_date']);
+		} else {
 			$c = null;
-
-		if (!($r = $db->GetRow('select * from clients where (id="'.$id.'") limit 1'))) {
+			$r = $db->GetRow('select * from clients where (id="'.$id.'") limit 1');
+		}
+		if (!$r) {
 			trigger_error('Такого клиента не существует');
 			return;
 		}
@@ -1020,7 +1022,7 @@ class m_clients {
 		$id=get_param_protected('id');
 		if ($this->check_tele($id)==0) return;
 		$contract = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
-		$client = $db->GetRow('select * from clients where (id="'.$contract['client_id'].'") limit 1');
+		$client = ClientCS::getOnDate($contract['client_id'], $contract['contract_date']);
 		$design->assign('contract',$contract);
 		$design->assign('client',$client);
 		$design->assign('content',ClientCS::getContractTemplate($client['id'].'-'.$contract['id']));
