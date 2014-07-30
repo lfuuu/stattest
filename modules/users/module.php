@@ -143,8 +143,12 @@ class m_users {
 			    'firms'	          	=> get_param_protected('user2firm'),
 			    'courier_id'        => get_param_protected('courier_id'),
 				);
-
-            if(!$f["enabled"]) $f["enabled"] = "no";
+			foreach ($f['rights'] as &$v)
+			{
+				$v = implode(',', $v);
+			}
+			unset($v);
+			if(!$f["enabled"]) $f["enabled"] = "no";
 
 			if (!$f['user']) {
 				trigger_error('Оператор должен иметь имя');
@@ -308,6 +312,11 @@ class m_users {
 				'comment'			=> get_param_protected('comment'),
 				'rights'			=> get_param_raw('rights',array()),
 				);
+				foreach ($f['rights'] as &$v)
+				{
+					$v=implode(',',$v);
+				}
+				unset($v);
 			if (!$f['usergroup']) {
 				trigger_error('Группа должна иметь имя');
 			} else if (($f['usergroup']!=$id) && isset($d_users[$f['usergroup']])){
