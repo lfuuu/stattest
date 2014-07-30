@@ -56,6 +56,9 @@
 		{if strpos($item.tarif.dest_group, '1') === false}
 		/ םח {$item.tarif.tarif_russia_name} {if $item.tarif.minpayment_russia > 0}({$item.tarif.minpayment_russia}){/if}
 		{/if}
+		{if strpos($item.tarif.dest_group, '1') === false}
+		/ םח {$item.tarif.tarif_russia_mob_name}
+		{/if}
 		{if strpos($item.tarif.dest_group, '2') === false}
 		/ םמ {$item.tarif.tarif_intern_name} {if $item.tarif.minpayment_intern > 0}({$item.tarif.minpayment_intern}){/if}
 		{/if}

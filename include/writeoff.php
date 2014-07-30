@@ -1399,12 +1399,13 @@ function get_tarif_history($service,$param,$date_quoted = 'NOW()'){
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_internet as A ON A.id=log_tarif.id_tarif';
     } elseif ($service=="usage_voip"){
-        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
-        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
+        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
+        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
         $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,log_tarif.minpayment_sng,';
         $add2 =' LEFT JOIN tarifs_voip as A ON A.id=log_tarif.id_tarif ';
         $add2.=' LEFT JOIN tarifs_voip as A5 ON A5.id=log_tarif.id_tarif_local_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
+        $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
         $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
     } elseif ($service=="domains") {
@@ -1516,12 +1517,13 @@ function get_tarif_current($service,$param){
         ON
             A.id=log_tarif.id_tarif';
     }elseif($service=="usage_voip"){
-        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
-        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
+        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
+        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
         $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,log_tarif.minpayment_sng,';
         $add2 =' LEFT JOIN tarifs_voip as A ON A.id=log_tarif.id_tarif ';
         $add2.=' LEFT JOIN tarifs_voip as A5 ON A5.id=log_tarif.id_tarif_local_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
+        $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
         $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
     }elseif($service=="usage_virtpbx"){

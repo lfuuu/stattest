@@ -18,6 +18,9 @@
 		{if strpos($T.dest_group, '1') === false}
 		/ םח {$T.tarif_russia_name} {if $T.minpayment_russia > 0}({$T.minpayment_russia}){/if}
 		{/if}
+		{if strpos($T.dest_group, '1') === false}
+		/ םח {$T.tarif_russia_mob_name}
+		{/if}
 		{if strpos($T.dest_group, '2') === false}
 		/ םמ {$T.tarif_intern_name} {if $T.minpayment_intern > 0}({$T.minpayment_intern}){/if}
 		{/if}
