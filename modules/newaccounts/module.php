@@ -1752,6 +1752,7 @@ class m_newaccounts extends IModule
                 }
 
 
+                $R['emailed'] = '1';
                 $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
                 $R['emailed'] = '0';
                 $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);

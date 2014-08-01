@@ -24,7 +24,9 @@ td {
 padding:0cm 2.4pt 0cm 2.4pt;
 }
 
-
+.sign_main {
+	position: absolute !important;
+}
 .tr_h15 td p span{font-size:7.5pt;}
 .tr_h11 td p span{font-size:7.5pt;}
 .tr_h20 td p span{font-size:7.5pt;}
@@ -454,7 +456,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Руководитель организации<br>или иное уполномоченное лицо</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span style="position: relative;">{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
@@ -619,7 +621,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Генеральный директор</span></p>
 		</td>
 		<td>
-			<p ><span>&nbsp;</span></p>
+			<p ><span style="position: relative;">{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>
@@ -909,5 +911,12 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 </table>
 </center></div>
+{if isset($emailed) && $emailed==1}
+	{if $firma && isset($firma.src) && $firma.src}
+	<div style="position: relative; top: -10;left: 100px;">
+	<img class="sign_main" style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>
+	</div>
+	{/if}
+{/if}
 </body>
 </html>
