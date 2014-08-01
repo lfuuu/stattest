@@ -685,7 +685,8 @@ class MailJob {
 				$this->get_object_link('bill',$r['bill_no']); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
 
             $bill = new Bill($r["bill_no"]);
-            list($b_akt, $b_sf) = m_newaccounts::get_bill_docs($bill);
+            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs($bill);
+            /*
             if($b_sf[1]) $T .="\nСчет-фактура ".$r['bill_no']."-1: ".$this->get_object_link('invoice',$r['bill_no'],1);
             if($b_sf[2]) $T .="\nСчет-фактура ".$r['bill_no']."-2: ".$this->get_object_link('invoice',$r['bill_no'],2);
             if($b_sf[3]) $T .="\nСчет-фактура ".$r['bill_no']."-3: ".$this->get_object_link('invoice',$r['bill_no'],3);
@@ -695,6 +696,10 @@ class MailJob {
             if($b_akt[1]) $T .="\nАкт ".$r['bill_no']."-1: ".$this->get_object_link('akt',$r['bill_no'],1);
             if($b_akt[2]) $T .="\nАкт ".$r['bill_no']."-2: ".$this->get_object_link('akt',$r['bill_no'],2);
             if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
+             */
+
+            if($b_upd[1]) $T .="\nУПД ".$r['bill_no']."-1: ".$this->get_object_link('upd',$r['bill_no'],1);
+            if($b_upd[2]) $T .="\nУПД ".$r['bill_no']."-2: ".$this->get_object_link('upd',$r['bill_no'],2);
 
             if($b_sf[4]) $T .="\nТоварная накладная ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no']);
 
