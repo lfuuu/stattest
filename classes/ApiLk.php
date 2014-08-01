@@ -209,6 +209,20 @@ class ApiLk
         $curr_bill = new Bill($billNo);
         $dt = $curr_bill->getBill2Doctypes();
 
+        $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
+
+        if (strtotime($curr_bill->Get("bill_date")) >= strtotime("2014-07-01"))
+        {
+            $types["u1"] = $dt["a1"];
+            $types["u2"] = $dt["a2"];
+        } else {
+            $types["a1"] = $dt["a1"];
+            $types["a2"] = $dt["a2"];
+            $types["i1"] = $dt["a1"];
+            $types["i2"] = $dt["a2"];
+        }
+
+
         return array(
                         "bill" => array(
                                         "bill_no" => $b->bill_no,
@@ -216,7 +230,7 @@ class ApiLk
                                         "is_1c" => $b->is1C(),
                                         "lines" => $lines,
                                         "sum_total" => number_format($b->sum, 2, '.',''),
-                                        "dtypes" => $dt
+                                        "dtypes" => $types
                         ),
                         "link" => array(
                                         "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUR", "client" => $clientId)),
@@ -224,6 +238,8 @@ class ApiLk
                                         "invoice2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-2", "client" => $clientId)),
                                         "akt1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-1", "client" => $clientId)),
                                         "akt2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-2", "client" => $clientId)),
+                                        "upd1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-1", "client" => $clientId)),
+                                        "upd2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-2", "client" => $clientId)),
                         ),
         );
     }
