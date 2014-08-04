@@ -156,11 +156,14 @@ class aNumber
         return $d;
     }
 
-    public function del()
+    public function del($numberId = null)
     {
         global $db_ats;
 
-        $numberId = get_param_integer("id", 0);
+        if (is_null($numberId))
+        {
+		$numberId = get_param_integer("id", 0);
+        }
         $number = self::getNumber($numberId);
 
         if(!$numberId || !$number) 

@@ -83,7 +83,7 @@
         </td>
         <td valign=top align=right>
             {if $n.type != 'multitrunk'}
-                <a href="./?module=ats2&action=number_del&id={$n.id}">x</a>
+                <input type="checkbox" value="{$n.id}" name="numbers[]">
             {/if}
         </td>
     {else}
@@ -106,6 +106,8 @@
 			<option value="no">---------------</option>
 			<option value="account">Удалить аккаунт</option>
 			<option value="link">Удалить привязку</option>
+			<option value="numbers">Удалить все привязки номера</option>
+			<option value="full">Удалить все аккаунты номера</option>
 		</select>
 		<input type="submit" value="Go" style="font-size: 8pt;">
 </div>

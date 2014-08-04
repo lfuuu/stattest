@@ -71,6 +71,18 @@ class lineDB
         return $db_ats->GetValue("select c_id from a_line where id = '".$lineId."' and ".sqlClient());
     }
 
+    public function bulk_del($numbers)
+    {
+	global $db_ats;
+	foreach ($numbers as $v)
+	{
+		$links = $db_ats->AllRecordsAssoc('SELECT c_id FROM a_link WHERE number_id = ' . $v, 'c_id', 'c_id');
+		foreach ($links as $id)
+		{
+			self::del($id);
+		}
+	}
+    }
     public function del($id)
     {
         global $db_ats;

@@ -51,7 +51,7 @@
         </table>
     </td>
     <td valign=top align=right>
-        <a href="./?module=ats2&action=account_del&id={$acc.id}">x</a>
+	<input type="checkbox" value="{$acc.id}" name="ids[]">
     </td>
 </tr>
 {/foreach}
@@ -61,6 +61,7 @@
 		<select style="font-size: 10px;" id="account_del_action" name="del_action">
 			<option value="no">---------------</option>
 			<option value="account">Удалить аккаунт</option>
+			<option value="group">Удалить группу</option>
 		</select>
 		<input type="submit" value="Go" style="font-size: 8pt;">
 </div>
