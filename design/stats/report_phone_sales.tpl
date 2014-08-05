@@ -7,6 +7,9 @@
     background-color: #eee;
     font-weight: bold;
 }
+.td_title {
+	font-size: 10px;
+}
 {/literal}
 </style>
 
@@ -18,29 +21,35 @@
     {/foreach}
   </tr>
   <tr>
-    <td><b>Подключено номеров</b></td>
+    <td class="td_title"><b>Подключено номеров</b></td>
     {foreach from=$regions item=r}
-        <td class="dig"><b>{$curr_phones[$r.id].count_num}</b></td>
+        <td class="dig"><b>{$curr_phones[$r.id].count_num|num_format}</b></td>
     {/foreach}
   </tr>
   <tr>
-    <td><b>Подключено линий (СЛ)</b></td>
+    <td class="td_title"><b>Подключено линий (СЛ)</b></td>
     {foreach from=$regions item=r}
-        <td class="dig"><b>{$curr_phones[$r.id].count_lines}</b></td>
+        <td class="dig"><b>{$curr_phones[$r.id].count_lines|num_format}</b></td>
     {/foreach}
   </tr>
   <tr>
-    <td><b>Количество клиентов</b></td>
+    <td class="td_title"><b>Подключено ВАТС</b></td>
     {foreach from=$regions item=r}
-        <td class="dig"><b>{$region_clients_count[$r.id]}</b></td>
+        <td class="dig"><b>{$curr_vpbx[$r.id]|num_format}</b></td>
+    {/foreach}
+  </tr>
+  <tr>
+    <td class="td_title"><b>Количество клиентов</b></td>
+    {foreach from=$regions item=r}
+        <td class="dig"><b>{$region_clients_count[$r.id]|num_format}</b></td>
     {/foreach}
   </tr>
   {if access('stats', 'vip_report')}
   {assign var=region_sums value=$reports.0.region_sums}
   <tr>
-    <td><b>Доход по региону</b></td>
+    <td class="td_title"><b>Доход по региону</b></td>
     {foreach from=$regions item=r}
-        <td class="dig"><b>{$region_sums[$r.id]|number_format:0:",":" "}</b></td>
+        <td class="dig"><b>{if $region_sums[$r.id]}&nbsp;{/if}{$region_sums[$r.id]|num_format:true}</b></td>
     {/foreach}
   </tr>
   {/if}
@@ -56,6 +65,9 @@
   {assign var=del_nums value=$report.del_nums}
   {assign var=del_nonums value=$report.del_nonums}
   {assign var=del_lines value=$report.del_lines}
+  {assign var=del_vpbx value=$report.del_vpbx}
+  {assign var=sale_vpbx value=$report.sale_vpbx}
+  {assign var=vpbx_clients value=$report.vpbx_clients}
   <h2>Статистика продаж телефонных номеров {$report.date}</h2>
 
   <table class="price">
@@ -67,117 +79,166 @@
       <th>Все</th>
     </tr>
     <tr class="head_tr">
-      <td>Всего подано номеров</td>
+      <td class="td_title">Всего продано<br/>номеров</td>
         {foreach from=$regions item=r}
-            <td class="dig">{$sale_nums[$r.id].all}</td>
+            <td class="dig">{$sale_nums[$r.id].all|num_format}</td>
         {/foreach}
-        <td class="dig">{$sale_nums.all.all}</td>
+        <td class="dig">{$sale_nums.all.all|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них новая продажа</td>
+      <td class="td_title">из них новая продажа</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_nums[$r.id].new}</td>
+          <td class="dig">{$sale_nums[$r.id].new|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_nums.all.new}</td>
+      <td class="dig">{$sale_nums.all.new|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них допродажа</td>
+      <td class="td_title">из них допродажа</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_nums[$r.id].old}</td>
+          <td class="dig">{$sale_nums[$r.id].old|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_nums.all.old}</td>
+      <td class="dig">{$sale_nums.all.old|num_format:true}</td>
     </tr>
     <tr class="head_tr">
-      <td>Всего подано линий без номера</td>
+      <td class="td_title">Всего продано линий<br/>без номера</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_nonums[$r.id].all}</td>
+          <td class="dig">{$sale_nonums[$r.id].all|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_nonums.all.all}</td>
+      <td class="dig">{$sale_nonums.all.all|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них новая продажа</td>
+      <td class="td_title">из них новая продажа</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_nonums[$r.id].new}</td>
+          <td class="dig">{$sale_nonums[$r.id].new|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_nonums.all.new}</td>
+      <td class="dig">{$sale_nonums.all.new|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них допродажа</td>
+      <td class="td_title">из них допродажа</td>
         {foreach from=$regions item=r}
-      <td class="dig">{$sale_nonums[$r.id].old}</td>
+      <td class="dig">{$sale_nonums[$r.id].old|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_nonums.all.old}</td>
+      <td class="dig">{$sale_nonums.all.old|num_format:true}</td>
     </tr>
     <tr class="head_tr">
-      <td>Всего подано соединительных линий</td>
+      <td class="td_title">Всего продано<br/>соединительных линий</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_lines[$r.id].all}</td>
+          <td class="dig">{$sale_lines[$r.id].all|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_lines.all.all}</td>
+      <td class="dig">{$sale_lines.all.all|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них новая продажа</td>
+      <td class="td_title">из них новая продажа</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_lines[$r.id].new}</td>
+          <td class="dig">{$sale_lines[$r.id].new|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_lines.all.new}</td>
+      <td class="dig">{$sale_lines.all.new|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них допродажа</td>
+      <td class="td_title">из них допродажа</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_lines[$r.id].old}</td>
+          <td class="dig">{$sale_lines[$r.id].old|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_lines.all.old}</td>
+      <td class="dig">{$sale_lines.all.old|num_format:true}</td>
     </tr>
     <tr class="head_tr">
-      <td>Всего клиентов телефонии</td>
+      <td class="td_title">Всего клиентов<br/>телефонии</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_clients[$r.id].all}</td>
+          <td class="dig">{$sale_clients[$r.id].all|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_clients.all.all}</td>
+      <td class="dig">{$sale_clients.all.all|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них новых</td>
+      <td class="td_title">из них новых</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$sale_clients[$r.id].new}</td>
+          <td class="dig">{$sale_clients[$r.id].new|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_clients.all.new}</td>
+      <td class="dig">{$sale_clients.all.new|num_format:true}</td>
     </tr>
     <tr>
-      <td>из них допродажа</td>
+      <td class="td_title">из них допродажа</td>
             {foreach from=$regions item=r}
-          <td class="dig">{$sale_clients[$r.id].old}</td>
+          <td class="dig">{$sale_clients[$r.id].old|num_format}</td>
         {/foreach}
-      <td class="dig">{$sale_clients.all.old}</td>
+      <td class="dig">{$sale_clients.all.old|num_format:true}</td>
     </tr>
     <tr class="head_tr">
-      <td>Отключено номеров</td>
+      <td class="td_title">Всего продано ВАТС</td>
+        {foreach from=$regions item=r}
+            <td class="dig">{$sale_vpbx[$r.id].all|num_format}</td>
+        {/foreach}
+        <td class="dig">{$sale_vpbx.all.all|num_format:true}</td>
+    </tr>
+    <tr>
+      <td class="td_title">из них новая продажа</td>
+        {foreach from=$regions item=r}
+          <td class="dig">{$sale_vpbx[$r.id].new|num_format}</td>
+        {/foreach}
+      <td class="dig">{$sale_vpbx.all.new|num_format:true}</td>
+    </tr>
+    <tr>
+      <td class="td_title">из них допродажа</td>
+        {foreach from=$regions item=r}
+          <td class="dig">{$sale_vpbx[$r.id].old|num_format}</td>
+        {/foreach}
+      <td class="dig">{$sale_vpbx.all.old|num_format:true}</td>
+    </tr>
+    <tr class="head_tr">
+      <td class="td_title">Всего клиентов<br/>ВАТС</td>
+        {foreach from=$regions item=r}
+          <td class="dig">{$vpbx_clients[$r.id].all|num_format}</td>
+        {/foreach}
+      <td class="dig">{$vpbx_clients.all.all|num_format:true}</td>
+    </tr>
+    <tr>
+      <td class="td_title">из них новых</td>
+        {foreach from=$regions item=r}
+          <td class="dig">{$vpbx_clients[$r.id].new|num_format}</td>
+        {/foreach}
+      <td class="dig">{$vpbx_clients.all.new|num_format:true}</td>
+    </tr>
+    <tr>
+      <td class="td_title">из них допродажа</td>
             {foreach from=$regions item=r}
-          <td class="dig">{$del_nums[$r.id]}</td>
+          <td class="dig">{$vpbx_clients[$r.id].old|num_format}</td>
         {/foreach}
-      <td class="dig">{$del_nums.all}</td>
+      <td class="dig">{$vpbx_clients.all.old|num_format:true}</td>
     </tr>
     <tr class="head_tr">
-      <td>Отключено линий без номера</td>
-        {foreach from=$regions item=r}
-          <td class="dig">{$del_nonums[$r.id]}</td>
+      <td class="td_title">Отключено номеров</td>
+            {foreach from=$regions item=r}
+          <td class="dig">{$del_nums[$r.id]|num_format}</td>
         {/foreach}
-      <td class="dig">{$del_nonums.all}</td>
+      <td class="dig">{$del_nums.all|num_format:true}</td>
     </tr>
     <tr class="head_tr">
-      <td>Отключено соединительных линий</td>
+      <td class="td_title">Отключено линий<br/>без номера</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$del_lines[$r.id]}</td>
+          <td class="dig">{$del_nonums[$r.id]|num_format}</td>
         {/foreach}
-      <td class="dig">{$del_lines.all}</td>
+      <td class="dig">{$del_nonums.all|num_format:true}</td>
+    </tr>
+    <tr class="head_tr">
+      <td class="td_title">Отключено<br/>соединительных линий</td>
+        {foreach from=$regions item=r}
+          <td class="dig">{$del_lines[$r.id]|num_format}</td>
+        {/foreach}
+      <td class="dig">{$del_lines.all|num_format:true}</td>
+    </tr>
+    <tr class="head_tr">
+      <td class="td_title">Отключено ВАТС</td>
+            {foreach from=$regions item=r}
+          <td class="dig">{$del_vpbx[$r.id]|num_format}</td>
+        {/foreach}
+      <td class="dig">{$del_vpbx.all|num_format:true}</td>
     </tr>
     {if access('stats', 'vip_report')}
     <tr class="head_tr">
-      <td>Доход по региону</td>
+      <td class="td_title">Доход по региону</td>
         {foreach from=$regions item=r}
-          <td class="dig">{$region_sums[$r.id]|number_format:0:",":" "}</td>
+          <td class="dig">{if $region_sums[$r.id]}&nbsp;{/if}{$region_sums[$r.id]|num_format:true}</td>
         {/foreach}
-      <td class="dig">{$region_sums.all|number_format:0:",":" "}</td>
+      <td class="dig">{if $region_sums.all}&nbsp;{/if}{$region_sums.all|num_format:true}</td>
      {/if}
     </tr>
   </table>
@@ -189,6 +250,7 @@
       <th colspan="4" style="text-align: center;">Допродажи</th>
       <th rowspan="2" >Выезды</th>
       <th rowspan="2">%</th>   
+      <th colspan="4">Продажи ВАТС</th>
     </tr>
     <tr>
       <th>шт</th>
@@ -198,6 +260,10 @@
       <th>шт</th>
       <th>%</th>
       <th>СЛ, шт.</th>
+      <th>%</th>
+      <th>Новые, шт</th>
+      <th>%</th>
+      <th>Доп, шт.</th>
       <th>%</th>
     <tr>
     {foreach from=$sale_channels.managers item=sales key=manager}
@@ -213,6 +279,10 @@
       <td class="dig">{$sales.lines_perc.old}%</td>
       <td class="dig"><b>{$sales.visits}</b></td>
       <td class="dig">{$sales.visits_perc}%</td>
+        <td class="dig"><b>{$sales.vpbx.new}</b></td>
+      <td class="dig">{$sales.vpbx_perc.new}%</td>
+      <td class="dig"><b>{$sales.vpbx.old}</b></td>
+      <td class="dig">{$sales.vpbx_perc.old}%</td>
     </tr>
     {/foreach}
   </table>
