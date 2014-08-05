@@ -564,6 +564,11 @@ class ats2Helper
             throw new Exception("Клиент не найден");
         }
 
+        if (preg_match("/^7800\d+/", $usage["E164"]))
+        {
+            return; // для номеров 8800 не создавать учеток.
+        }
+
         $tarif = ats2Numbers::getTarif($usage["id"]);
 
         if (!$tarif || $tarif["is_virtual"]) {
