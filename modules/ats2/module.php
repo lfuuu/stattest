@@ -122,6 +122,31 @@ class m_ats2 extends IModule
 			case 'link':
 				include "number.php";
 				aNumber::bulk_del($accounts);
+			case 'group':
+				$ids = get_param_protected('ids', array());
+				if (!empty($ids))
+				{
+					foreach ($ids as $id)
+					{
+						lineDB::del($id);
+					}
+				}
+			case 'numbers':
+				$numbers = get_param_protected('numbers', array());
+				if (!empty($numbers))
+				{
+					include "number.php";
+					foreach ($numbers as $number)
+					{
+						aNumber::del($number);
+					}
+				}
+			case 'full':
+				$numbers = get_param_protected('numbers', array());
+				if (!empty($numbers))
+				{
+					lineDB::bulk_del($numbers);
+				}
 		}
 	}
         header("Location: ./?module=ats2");
