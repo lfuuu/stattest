@@ -28,16 +28,35 @@
           </TBODY></TABLE>
 
 {if access('users','grant')}
-<H3>Права доступа</H3>
+<H2>Права доступа</H2>
       <TABLE cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
 {foreach from=$rights item=supitem key=supkey name=outer}
-		<TR><TD colspan=2><h3>{$supkey}</h3></TD></TR>
-{foreach from=$supitem item=item key=right name=fe}
-          <TR><TD>{$item.comment} (<b>{$right}</b>)<br>{foreach from=$item.values item=item2 key=key2 name=inner}{if $key2>0}; {/if}<b>{$item2}</b> - {$item.values_desc[$key2]}{/foreach}</TD><TD width=40%>
-          <input name=rights[{$right}] class=text value='{$rights_group.$right}' style='width:100%'>
-          </TD></TR>
-{/foreach}
+	<TR>
+		<TD colspan=2>
+			<span style="font-weight: bold; font-size: 17px;">{$supkey}</span>
+		</TD>
+	</TR>
+	{foreach from=$supitem item=item key=right name=fe}
+		<TR>
+			<TD valign=top>
+				<span style="padding-left: 15px; font-weight: bold; font-size: 14px;">{$item.comment} ({$right})</span>
+			</TD>
+			<TD width=40%>
+				{assign var="applied_rights" value=","|explode:$rights_group.$right}
+				{foreach from=$item.values item=item2 key=key2 name=inner}
+					<div>
+						<input type="checkbox" id="{$right}_{$item2}"{if $item2|in_array:$applied_rights} checked{/if} value="{$item2}" name="rights[{$right}][]" >
+						<label for="{$right}_{$item2}">{$item.values_desc[$key2]} (<b>{$item2}</b>)</label>
+					</div>
+					{*if $key2>0}; {/if}<b>{$item2}</b> - {$item.values_desc[$key2]*}
+				{/foreach}
+			</TD>
+		</TR>
+		<tr>
+			<td colspan=2><hr style="background-color: #CCCCCC;color: #CCCCCC;"></td>
+		</tr>
+	{/foreach}
 {/foreach}
           </TBODY></TABLE>
 	<HR>

@@ -106,39 +106,96 @@
 <hr />
 
 {if access('users','grant')}
-<H3>Права доступа</H3>
+<H2>Права доступа</H2>
       <TABLE cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
 {counter start=0 assign=CNT}
 {foreach from=$rights item=supitem key=supkey name=outer}
-		<TR><TD colspan=2><h3>{$supkey}</h3></TD></TR>
-{foreach from=$supitem item=item key=right name=fe}
-		<TR><TD>{$item.comment} (<b>{$right}</b>)<br>{foreach from=$item.values item=item2 key=key2 name=inner}{if $key2>0}; {/if}<b>{$item2}</b> - {$item.values_desc[$key2]}{/foreach}</TD><TD>
-{if !isset($rights_user.$right)}
-		<input name=rights_radio[{$right}] id=r0_{$CNT} type=radio onchange="javascript:set_disable({$CNT},'{$rights_group.$right}')" value=0 checked><label for='r0_{$CNT}'>Стандартный</label> <input name=rights_radio[{$right}] id=r1_{$CNT} type=radio onchange="javascript:set_enable({$CNT})" value=1><label for='r1_{$CNT}'>Особый</label>
-		<input name=rights[{$right}] id=rights_{$CNT} class=text value='{$rights_real.$right}' disabled>
-{else}
-		<input name=rights_radio[{$right}] id=r0_{$CNT} type=radio onchange="javascript:set_disable({$CNT},'{$rights_group.$right}')" value=0><label for='r0_{$CNT}'>Стандартный</label> <input name=rights_radio[{$right}] id=r1_{$CNT} type=radio onchange="javascript:set_enable({$CNT})" value=1 checked><label for='r1_{$CNT}'>Особый</label>
-		<input name=rights[{$right}] id=rights_{$CNT} class=text value='{$rights_real.$right}'>
-{/if}
-		</TD></TR>
-{counter}
-{/foreach}
+	<TR>
+		<TD colspan=2>
+			<span style="font-weight: bold; font-size: 17px;">{$supkey}</span>
+		</TD>
+	</TR>
+	{foreach from=$supitem item=item key=right name=fe}
+		<TR>
+			<TD vAlign=top>
+				<span style="font-weight: bold; font-size: 14px; padding-left: 15px;">{$item.comment} ({$right})</span>
+			</TD>
+			<TD vAlign=top>
+				<div style="margin-bottom: 10px;">
+				<input name=rights_radio[{$right}] id="{$right}_0" type=radio onchange="javascript:set_disable('{$right}')" value=0 {if !isset($rights_user.$right)}checked{/if}>
+				<label for='{$right}_0' style="font-size: 9px;vertical-align: top; line-height: 18px;">Стандартный</label> 
+				<input name=rights_radio[{$right}] id="{$right}_1" type=radio onchange="javascript:set_enable('{$right}')" value=1 {if isset($rights_user.$right)}checked{/if}>
+				<label for='{$right}_1' style="font-size: 9px;vertical-align: top; line-height: 18px;">Особый</label>
+				</div>
+				{assign var="applied_rights" value=","|explode:$rights_real.$right}
+				{foreach from=$item.values item=item2 key=key2 name=inner}
+					<div>
+						<input onchange="set_real_value(this, '{$right}', '{$item2}');" {if !isset($rights_user.$right)}disabled{/if} class="checkbox_{$right}" type="checkbox" id="{$right}_{$item2}"{if $item2|in_array:$applied_rights} checked{/if} value="{$item2}" name="rights[{$right}][]" >
+						<label class="label_{$right}" for="{$right}_{$item2}" {if !isset($rights_user.$right)}style="color: #CCCCCC;"{/if}>{$item.values_desc[$key2]} (<b>{$item2}</b>)</label>
+					</div>
+				{/foreach}
+			</TD>
+		</TR>
+		<tr>
+			<td colspan=2><hr style="background-color: #CCCCCC;color: #CCCCCC;"></td>
+		</tr>
+	{counter}
+	{/foreach}
 {/foreach}
 		</TBODY></TABLE>
 	<HR>
-{literal}
+
 <script language=javascript>
-function set_disable(p,k) {
-	v='rights_'+p;
-	document.all[v].disabled = 1;
-	document.all[v].value = k;
+var rights_real = [];
+var rights_group = [];
+{foreach from=$rights item=supitem}
+	{foreach from=$supitem item=item key=k}
+		rights_group['{$k}'] = [];
+		rights_real['{$k}'] = [];
+	{/foreach}
+{/foreach}
+{foreach from=$rights_group item="i" key="k"}
+	{assign var="applied_rights" value=","|explode:$i}
+	rights_group['{$k}'] = [];
+	{foreach from="$applied_rights" item="v"}
+		rights_group['{$k}']['{$v}'] = 1; 
+	{/foreach}
+{/foreach}
+{foreach from=$rights_real item="i" key="k"}
+	{assign var="applied_rights" value=","|explode:$i}
+	rights_real['{$k}'] = [];
+	{foreach from="$applied_rights" item="v"}
+		rights_real['{$k}']['{$v}'] = 1; 
+	{/foreach}
+{/foreach}
+{literal}
+function set_disable(r) {
+	$('.checkbox_'+r).attr('disabled', true);
+	$('.checkbox_'+r).attr('checked', false);
+	$('.label_'+r).css('color', '#CCCCCC');
+	for(right in rights_group[r])
+	{
+		$('#' + r + '_' + right).attr('checked', true);
+	}
 	return 1;
 }
-function set_enable(p) {
-	v='rights_'+p;
-	document.getElementById(v).disabled = 0;
+function set_enable(r) {
+	$('.checkbox_'+r).attr('disabled', false);
+	$('.checkbox_'+r).attr('checked', false);
+	$('.label_'+r).css('color', '');
+	for(right in rights_real[r])
+	{
+		if (rights_real[r][right] == 1)
+		{
+			$('#' + r + '_' + right).attr('checked', true);
+		}
+	}
 	return 1;
+}
+function set_real_value(elm, r, v)
+{
+	rights_real[r][v] = elm.checked;
 }
 $(function(){
 	$("#check_all").change(function()
