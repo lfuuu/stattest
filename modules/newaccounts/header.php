@@ -72,6 +72,7 @@ class m_newaccounts_head extends IModuleHead{
 					'docs_unrec'			=> array('newaccounts_bills','read'),
 					'doc_file'			=> array('newaccounts_bills','read'),
 	                'doc_file_delete'	=> array('newaccounts_bills','del_docs'),
+	                'show_income_goods'	=> array('newaccounts_bills','read'),
 
 				);
 	public $menu=array(
