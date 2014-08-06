@@ -847,7 +847,7 @@ class m_services extends IModule{
         if (!$conn) 
             throw new Exception("Connection error (PG HOST: ".$dbHost.")");
 
-        $res = pg_query("SELECT number FROM ".$schema.".numbers WHERE number in ('".implode("', '", $numbers)."') AND enabled = 't'");
+        $res = @pg_query("SELECT number FROM ".$schema.".numbers WHERE number in ('".implode("', '", $numbers)."') AND enabled = 't'");
 
         if (!$res) 
             throw new Exception("Query error (PG HOST: ".R_CALLS_99_HOST.")");
