@@ -159,7 +159,6 @@ class m_newaccounts extends IModule
 
 		($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
 		
-
 	$bill_payments = $db->AllRecords($q = "
 					SELECT B.* 
 					FROM newbills as B 
@@ -195,20 +194,22 @@ class m_newaccounts extends IModule
 					$v['sum'] -= $v2['sum'];
 				}
 			}
-		
-			$pay = array (
-				'id' => $v['bill_no'],
-				'client_id' => $v['client_id'],
-				'payment_date' => $v['bill_date'],
-				'payment_rate' => 1,
-				'payment_id' => $v['bill_no'],
-				'sum_rub' => -$v['sum'],
-				'currency' => $v['currency'],
-				'sum' => -$v['sum'],
-				'bill_no' => '',
-				'bill_vis_no' => ''
-			);
-			$r[$v['bill_no']] = $pay;
+			if ($v['sum'] < 0)
+			{
+				$pay = array (
+					'id' => $v['bill_no'],
+					'client_id' => $v['client_id'],
+					'payment_date' => $v['bill_date'],
+					'payment_rate' => 1,
+					'payment_id' => $v['bill_no'],
+					'sum_rub' => -$v['sum'],
+					'currency' => $v['currency'],
+					'sum' => -$v['sum'],
+					'bill_no' => '',
+					'bill_vis_no' => ''
+				);
+				$r[$v['bill_no']] = $pay;
+			}
 		}
 	}
         return $r;
