@@ -6,7 +6,7 @@
 	$o = MailJob::GetObjectP();
 	$db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id='.$o['object_id']);
 
-	if (in_array($o["object_type"], array("bill", "assignment", "order", "notice", "invoice","akt", "lading", "new_director_info"))) {
+	if (in_array($o["object_type"], array("bill", "assignment", "order", "notice", "invoice","akt", "lading", "new_director_info", "upd"))) {
         if($o["object_type"] == "assignment" && $o["source"] == 2)
             $o["source"] = 4;
 		$R = array();
