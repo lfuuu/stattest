@@ -48,7 +48,6 @@ if ($goods)
     $subject = "оповещение о снижении мимнимального остатка на складе";
     $body = "Количество по следущим позициям меньше установленного уровня:<br><br>".implode("<br>", $goods);
 
-    mail("adima123@yandex.ru", "[stat/goods/store:min_store_level] ".$subject, $body, $headers);
     mail("vladimir@mcn.ru", $subject, $body , $headers);
 }
 
