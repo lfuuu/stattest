@@ -40,6 +40,8 @@ class account
         {
             $r["id"] = $id;
 
+            unset($r["priority"]);
+
             if($r["is_group"])
                 $r["subaccount_count"] = (int)$db_ats->GetValue("select count(1) from a_line where parent_id = '".$r["id"]."'");
 
