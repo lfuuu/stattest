@@ -172,18 +172,30 @@ class m_newaccounts extends IModule
 						C.status NOT IN ('operator', 'distr') 
 						
 	");
-	foreach ($bill_payments as $v) 
+	$old_schema_payments = array();
+	foreach ($r as $v)
 	{
-		$check_old_schema = false;
 		foreach ($r as $v2)
 		{
-			if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] == $v2['sum']) 
+			if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] == -$v2['sum']) 
 			{
-				$check_old_schema = true;
+				$old_schema_payments[$v['bill_no']] = 1;
 			}
 		}
-		if (empty($check_old_schema)) 
+	}
+
+	foreach ($bill_payments as $v) 
+	{
+		if (!isset($old_schema_payments[$v['bill_no']])) 
 		{
+			foreach ($r as $v2)
+			{
+				if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) 
+				{
+					$v['sum'] -= $v2['sum'];
+				}
+			}
+		
 			$pay = array (
 				'id' => $v['bill_no'],
 				'client_id' => $v['client_id'],
