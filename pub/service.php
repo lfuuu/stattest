@@ -26,7 +26,20 @@ if ($action=='add_client') {
 		die("error: ".iconv('KOI8-R','UTF-8',"��� �������� �� ������!"));
 	}
 
-	if($id = $db->GetValue("select id from clients where company = '".mysql_escape_string($P["company"])."'"))
+    $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_escape_string($P["company"])."'");
+    $cid2 = $db->GetValue(
+        "SELECT 
+            client_id 
+        FROM 
+            `client_contacts` 
+        WHERE 
+                type='email' 
+            and `data` = '".mysql_escape_string($P["email"])."' 
+        ORDER BY if(is_active = 1, if(is_official = 1, 2, 1), 0) desc, `id` DESC limit 1");
+
+    $id = ($cid2 ? $cid2 : ($cid1 ? $cid1 : false));
+
+	if($id)
 	{
 		die("ok:".$id);
 	}
