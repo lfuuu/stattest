@@ -28,7 +28,7 @@ if (count($err_log) == 0)
     print_r($str);
 
     $headers = "Content-type: text/html; charset=koi8-r";
-    mail("adima123@yandex.ru", "[stat/voip/check_traf] VOIP трафик в регионах", "Статистика по телефонии за прошедшие сутки недоступна в следующих регионах: <br>".implode(", ", $str), $headers);
+    mail(ADMIN_EMAIL, "[stat/voip/check_traf] VOIP трафик в регионах", "Статистика по телефонии за прошедшие сутки недоступна в следующих регионах: <br>".implode(", ", $str), $headers);
 }
 
 /** Функция проверяет, 
@@ -43,15 +43,14 @@ function checkRegionStat($region = '')
 
     if (!strlen($region)) return 0;
 
-    $st_date = date('Y-m-d', strtotime("-2 day"));
-    $en_date = date('Y-m-d');
+    $date = date('Y-m-d', strtotime("-1 day"));
 
     $sql = "select 
                 * 
             from 
                 calls.calls_".$region." 
             where 
-                ((time>='".$st_date."') AND (time<='".$en_date." 23:59:59'))
+                ((time>='".$date." 00:00:00') AND (time<='".$date." 23:59:59'))
             limit 1
             ";
 
