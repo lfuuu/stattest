@@ -263,13 +263,14 @@ class _diff
 
 
 		if($this->diffs["delete"])
-		{
-			if(get_class($this) == "diffNumbersFwd")
-				$this->key = $this->key1;
+        {
+            $delKey = $this->key;
+            if(get_class($this) == "diffNumbersFwd")
+                $key = $this->key1;
 
             foreach($this->diffs["delete"] as $d)
             {
-                $data = array($this->key => $d);
+                $data = array($delKey => $d);
                 if(!defined("diff_not_apply"))
                 {
                     $pDB->QueryDelete(PG_SCHEMA.".".$this->table, $data);
@@ -278,7 +279,7 @@ class _diff
                     print_r($data);
                 }
             }
-		}
+        }
 
 
 		if($this->diffs["insert"])
