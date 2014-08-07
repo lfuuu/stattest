@@ -10,9 +10,10 @@
 <input type="hidden" name="filter[region_for][0]" value="{$mail_filter.region_for.0}">
 <input type="hidden" name="filter[manager][0]" value="{$mail_filter.manager.0}">
 <input type="hidden" name="filter[bill][0]" value="{$mail_filter.bill.0}">
-<input type="hidden" name="filter[bill][1]" value="{$date_from}">
-<input type="hidden" name="filter[bill][2]" value="{$date_to}">
+<input type="hidden" name="date_from" value="{$date_from}">
+<input type="hidden" name="date_to" value="{$date_to}">
 <input type="hidden" name="filter[s8800][0]" value="{$mail_filter.s8800.0}">
+<input type="hidden" name="disable_filter" value="Y">
 {foreach from=$mail_filter.regions item="r"}
 	<input type="hidden" name="filter[regions][]" value="{$r}">
 {/foreach}
@@ -23,14 +24,14 @@
 <TBODY>
 <TR>
   <TD class=header vAlign=bottom>Клиент</TD>
-  <TD class=header valign=bottom><input type=checkbox id='allconfirm' checked onclick='javascript:check_all()'></td>
+  <TD class=header valign=bottom><input type=checkbox id='allconfirm' {if !$disable_filter}checked{/if} onclick='javascript:check_all()'></td>
   <TD class=header valign=bottom><input type=checkbox id='allconfirm2' checked onclick='javascript:check_all2()'></td>
   <TD>&nbsp;</TD>
   </TR>
 {foreach from=$mail_clients item=r name=outer}{if $r.letter_state!="sent"}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 	<TD><input type=hidden value='{$r.client}' name='clients[{$smarty.foreach.outer.iteration}]'><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></TD>
-	<TD><input type=checkbox value=1 name='flag[{$smarty.foreach.outer.iteration}]' id='flag_{$smarty.foreach.outer.iteration}'{if $r.filtered} checked{/if}></TD>
+	<TD><input type=checkbox value=1 name='flag[{$smarty.foreach.outer.iteration}]' id='flag_{$smarty.foreach.outer.iteration}'{if $r.filtered && !$disable_filter} checked{/if}></TD>
 	<TD><input type=checkbox value=1 name='flag2[{$smarty.foreach.outer.iteration}]' id='flag2_{$smarty.foreach.outer.iteration}'{if $r.selected} checked{/if}></TD>
 	<TD><input type=hidden value='{$r.email}' name='emails[{$smarty.foreach.outer.iteration}]'>{$r.email}</TD>
 </TR>
@@ -70,8 +71,9 @@ function check_all2(){ldelim}
 <tr><td>Счета</TD><TD>
 <select name='filter[bill][0]'><option value='NO'>(не фильтровать по этому полю)</option>
 <option value='1' {if $mail_filter.bill.0 == 1}selected{/if}>любые</option>
-<option value='2' {if $mail_filter.bill.0 == 2}selected{/if}>полностью неоплаченные</option>
-<option value='3' {if $mail_filter.bill.0 == 3}selected{/if}>оплаченные не полностью</option>
+<option value='2' {if $mail_filter.bill.0 == 2}selected{/if}>полностью неоплаченные(красные)</option>
+<option value='3' {if $mail_filter.bill.0 == 3}selected{/if}>оплаченные не полностью(желтые)</option>
+<option value='4' {if $mail_filter.bill.0 == 4}selected{/if}>не полностью оплаченные(красные и желтые)</option>
 </select>
 </option></select>
 с <input type=text name='date_from' id="date_from" value='{$date_from}'>

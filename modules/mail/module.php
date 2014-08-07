@@ -164,6 +164,7 @@ class m_mail{
 			$Files = new mailFiles($id);
 			$files = $Files->getFiles();
 			$design->assign('files', $files);
+			$design->assign('count_files', count($files));
 			$design->assign('job_id', $id);
 		}
 
@@ -208,7 +209,8 @@ class m_mail{
 		$W = array('AND');
 		$J = array();
 		$filter = get_param_raw('filter',array());
-		
+		$disable_filter = get_param_raw('disable_filter',false);
+		$design->assign('disable_filter', $disable_filter);
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
 		$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
@@ -229,16 +231,21 @@ class m_mail{
 					case 'bill':
 						$W[] = 'B.bill_date>="'.addslashes($p[1]).'"';
 						$W[] = 'B.bill_date<="'.addslashes($p[2]).'"';
+						$W[] = 'B.`sum` > 0';
 						$J[] = 'INNER JOIN newbills as B ON B.client_id=C.id';
-						if($p[0]==2){
-							$W[] = 'B.is_payed!=1';
-							$W[] = '(select sum(sum_rub) from newpayments where bill_no=B.bill_no) IS NULL';
-							$W[] = 'B.`sum` > 0';
+						switch ($p[0])
+						{
+							case 2: 
+								$W[] = 'B.is_payed = 0';
+								break;
+							case 3: 
+								$W[] = 'B.is_payed = 2';
+								break;
+							case 4: 
+								$W[] = '(B.is_payed = 2 OR B.is_payed = 0)';
+								break;
 						}
-						if($p[0]==3){
-							$W[] = 'B.is_payed<>1';
-							$W[] = 'B.`sum`	- (select sum(if(B.currency="USD",sum_rub/payment_rate,sum_rub)) from newpayments where bill_no=B.bill_no group by bill_no) > 1';
-						}
+						
 						break;
 					case 's8800':
 						$J[] = 'LEFT JOIN usage_voip as UV8 ON UV8.client = C.client';
@@ -646,18 +653,13 @@ class MailJob {
 		}
 
 		if($match[1]=='U')
-			$pay_flag = 'AND
-				`is_payed`<>1
-			AND
-				`sum` > 0
-			AND
-				(select sum(`sum_rub`) from `newpayments` where `bill_no`=`newbills`.`bill_no`) IS NULL';
-		elseif($match[1]=='P')
-			$pay_flag = 'AND
-				`is_payed`<>1
-			AND
-				`newbills`.`sum`	- (select sum(if(`newbills`.`currency`="USD",`sum_rub`/`payment_rate`,`sum_rub`)) from `newpayments` where `bill_no`=`newbills`.`bill_no` group by `bill_no`) > 1';
-		else
+		{
+			$pay_flag = 'AND `is_payed`= 0';
+		} elseif($match[1]=='P') {
+			$pay_flag = 'AND `is_payed`= 2';
+		}elseif($match[1]=='N') {
+			$pay_flag = 'AND (`is_payed`= 2 OR `is_payed`= 0)';
+		} else
 			$pay_flag = '';
 
 		$query = "
@@ -667,7 +669,9 @@ class MailJob {
 				`newbills`
 			WHERE
 				`client_id` = ".$this->client['id']."
-			AND
+			AND 
+				`sum` > 0 
+			AND 
 				`bill_date` BETWEEN '".$match[2]."-1'
 							AND		DATE_ADD(DATE_ADD('".$match[2]."-1', INTERVAL 1 MONTH),INTERVAL -1 DAY)
 			".$pay_flag;
@@ -723,6 +727,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(A)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
 		$text = preg_replace_callback('/%(U)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
 		$text = preg_replace_callback('/%(P)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
+		$text = preg_replace_callback('/%(N)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
 		$text = preg_replace_callback('/%(SOGL)_TELEKOM(\d{0,2})%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(NOTICE)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(ORDER)_TELEKOM%/',array($this,'_get_assignments'),$text);
