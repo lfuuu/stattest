@@ -9,6 +9,10 @@ class DatePickerValues
 	  * @var string $format формат вывода переменной $day, аналогично первому параметру функции date() 
 	  */
 	public $format = 'd-m-Y';
+	/**
+	  * @var string $sql_format формат вывода переменной $day 
+	  */
+	private $sql_format = 'Y-m-d';
 	
 	/**
 	 * Инициализация объекта
@@ -66,6 +70,13 @@ class DatePickerValues
 	public function getDay()
 	{
 		return $this->day->format($this->format);
+	}
+	/**
+	 * Возвращает  $day, отформатированную согласно свойству $sql_format
+	 */
+	public function getSqlDay()
+	{
+		return $this->day->format($this->sql_format);
 	}
 	/**
 	 * Возвращает временную метку Unix свойсва $day

@@ -4939,6 +4939,250 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     $design->assign('curr_vpbx',$curr_vpbx);
     $design->AddMain('stats/report_phone_sales.tpl');
   }
+	function stats_report_vpbx_stat_space($fixclient)
+	{
+		global $db, $design;
+		
+		$dateFrom = new DatePickerValues('date_from', 'first');
+		$dateTo = new DatePickerValues('date_to', 'last');
+		$from = $dateFrom->getSqlDay();
+		$to = $dateTo->getSqlDay();
+		
+		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+		DatePickerPeriods::assignPeriods(new DateTime());
+		
+		$vpbx_id = get_param_integer('vpbx', 0);
+		$design->assign('vpbx_id', $vpbx_id);
+
+		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($fixclient, $vpbx_id, $from, $to);
+		$design->assign('stats', $stats);
+		$design->assign('stat_detailed', $stat_detailed);
+
+		$options = array();
+		$options['select'] = 'UV.id, UV.client, UNIX_TIMESTAMP(LT.date_activation) as actual, T.description as tarif ';
+		$options['from'] = 'usage_virtpbx as UV';
+		$options['joins'] = '
+			LEFT JOIN log_tarif AS LT ON UV.id = LT.id_service 
+			LEFT JOIN tarifs_virtpbx as T ON LT.id_tarif = T.id ';
+		$options['order'] = 'UV.id desc';
+		$condition_string = "
+			LT.id = (
+				SELECT id 
+				FROM log_tarif as b
+				WHERE
+					date_activation = (
+						SELECT MAX(date_activation)
+						FROM log_tarif 
+						WHERE 
+							CAST(NOW() as DATE) >= date_activation AND 
+							service = 'usage_virtpbx' AND 
+							id_service = b.id_service
+						) AND 
+					id_service = LT.id_service
+				ORDER BY
+						ts desc
+				LIMIT 0,1
+			) AND 
+			LT.service = ?";
+			
+		$condition_values = array(
+			'usage_virtpbx'
+		);
+		if ($fixclient)
+		{
+			$condition_string .=' AND UV.client = ?';
+			$condition_values[] = $fixclient;
+		}
+		$options['conditions'] = array($condition_string);
+		foreach ($condition_values as $v) 
+		{
+			$options['conditions'][] = $v;
+		}
+		
+		$vpbxs = UsageVirtpbx::find('all', $options);
+		$design->assign('vpbxs', $vpbxs);
+
+		$design->AddMain('stats/vpbx_stat_space_form.tpl');
+		$design->AddMain('stats/vpbx_stat_space.tpl');
+	}
+	/** 
+	 *	Получение данных о использование дискового пространства и внутренних номерах
+	 *	@param string $fixclient имя клиент
+	 *		если задан, статистика берется только по ВАТС данного клиента
+	 *	@param int $vpbx_id ВАТС ID
+	 *		если задан, то функция дополнительно возвращает детализацию по текущему ВАТС
+	 *	@param int $from timestamp начала периода
+	 *	@param int $to timestamp конца периода
+	 */
+	function getReportVpbxStatSpace($fixclient, $vpbx_id, $from, $to) 
+	{
+		global $db;
+		$stat_detailed = array();
+		$options = array();
+		$options['select'] = '
+				stat.usage_id, 
+				MAX(stat.use_space) as max, 
+				MIN(stat.use_space) as min, 
+				AVG(stat.use_space) as avg,
+				MAX(stat.numbers) as max_number, 
+				MIN(stat.numbers) as min_number, 
+				AVG(stat.numbers) as avg_number,
+				UNIX_TIMESTAMP(LT.date_activation) as actual,
+				T.description as tarif,
+				0 as profit,
+				0 as deficit,
+				0 as profit_number,
+				0 as deficit_number';
+				
+		$options['from'] = 'virtpbx_stat_space as stat';
+		
+		$options['joins'] = 'LEFT JOIN log_tarif as LT ON stat.usage_id = LT.id_service  ' . 
+			'LEFT JOIN tarifs_virtpbx as T ON LT.id_tarif = T.id ' . 
+			'LEFT JOIN usage_virtpbx as UV ON UV.id = stat.usage_id';
+
+		$options['group'] = 'stat.usage_id';
+		
+		$condition_string = "
+			LT.id = (
+				SELECT id 
+				FROM log_tarif as b
+				WHERE
+					date_activation = (
+						SELECT MAX(date_activation)
+						FROM log_tarif 
+						WHERE 
+							CAST(NOW() as DATE) >= date_activation AND 
+							service = 'usage_virtpbx' AND 
+							id_service = b.id_service
+						) AND 
+					id_service = LT.id_service
+				ORDER BY
+						ts desc
+				LIMIT 0,1
+			) AND 
+			stat.date >= ? AND 
+			stat.date <= ? AND 
+			LT.service = ?";
+			
+		$condition_values = array(
+			$from,
+			$to,
+			'usage_virtpbx'
+		);
+		if ($vpbx_id)
+		{
+			$condition_string .=' AND stat.usage_id = ?';
+			$condition_values[] = $vpbx_id;
+		}
+		if ($fixclient)
+		{
+			$condition_string .=' AND UV.client = ?';
+			$condition_values[] = $fixclient;
+		} else {
+			$options['select'] .= ',UV.client';
+		}
+		$options['conditions'] = array($condition_string);
+		foreach ($condition_values as $v) 
+		{
+			$options['conditions'][] = $v;
+		}
+		$stats = VirtpbxStatSpace::find('all', $options);
+
+		if ($vpbx_id && !empty($stats)) 
+		{
+			$options = array();
+			$options['select'] = 'UNIX_TIMESTAMP(date) as mdate, use_space, numbers, 0 as profit, 0 as deficit, 0 as profit_number, 0 as deficit_number';
+			$options['conditions'] = array(
+							"date >= ? AND date <= ? AND usage_id = ?",
+							$from,
+							$to,
+							$vpbx_id
+			);
+			$stat_detailed = VirtpbxStatSpace::find('all', $options);
+
+			foreach ($stat_detailed as $k => &$v) 
+			{
+				if (isset($stat_detailed[$k-1])) 
+				{
+					if ($v->use_space > $stat_detailed[$k-1]->use_space)
+					{
+						$v->profit = $v->use_space -$stat_detailed[$k-1]->use_space;
+					} else {
+						$v->deficit = $stat_detailed[$k-1]->use_space - $v->use_space;
+					}
+					if ($v->numbers > $stat_detailed[$k-1]->numbers)
+					{
+						$v->profit_number = $v->numbers -$stat_detailed[$k-1]->numbers;
+					} else {
+						$v->deficit_number = $stat_detailed[$k-1]->numbers - $v->numbers;
+					}
+				} else 	{
+					$options = array();
+					$options['select'] = 'use_space, numbers';
+					$options['conditions'] = array(
+									"date < ? AND usage_id = ?",
+									date('Y-m-d', $v->mdate),
+									$vpbx_id
+					);
+					$options['limit'] = 1;
+					$options['order'] = 'date desc';
+					$options['offset'] = 0;
+					$prev_day_use_spase = VirtpbxStatSpace::find('first', $options);
+					if (!empty($prev_day_use_spase)) {
+						if ($prev_day_use_spase->use_space < $v->use_space)
+						{
+							$v->profit = $v->use_space - $prev_day_use_spase->use_space;
+						} else {
+							$v->deficit = $prev_day_use_spase->use_space - $v->use_space;
+						}
+						if ($prev_day_use_spase->numbers < $v->numbers)
+						{
+							$v->profit_number = $v->numbers - $prev_day_use_spase->numbers;
+						} else {
+							$v->deficit_number = $prev_day_use_spase->numbers - $v->numbers;
+						}
+					} else {
+						$v->profit = $v->use_space;
+						$v->profit_number = $v->numbers;
+					}
+				}
+				
+			}
+			unset($v);
+			
+		}
+		foreach ($stats as $k => &$v) 
+		{
+			$options = array();
+			$options['select'] = '
+				SUM(IF (b.use_space > a.use_space, b.use_space - a.use_space, 0)) as deficit, 
+				SUM(IF (b.use_space < a.use_space, a.use_space - b.use_space, 0)) as profit, 
+				SUM(IF (b.numbers > a.numbers, b.numbers - a.numbers, 0)) as deficit_number, 
+				SUM(IF (b.numbers < a.numbers, a.numbers - b.numbers, 0)) as profit_number' ;
+			$options['from'] = 'virtpbx_stat_space as a';
+			$options['joins'] = 'LEFT JOIN virtpbx_stat_space as b ON a.date > b.date';
+			$options['conditions'] = array(
+				"b.date = (
+					SELECT MAX(date) 
+					FROM virtpbx_stat_space 
+					WHERE 
+						a.date > date AND 
+						a.usage_id = usage_id
+				) AND a.usage_id = ? AND b.usage_id = ? AND a.date >= ? AND a.date <= ?", 
+				$v->usage_id, 
+				$v->usage_id, 
+				$from, 
+				$to
+			);
+			$sums = VirtpbxStatSpace::find('first', $options);
+			$v->profit = $sums->profit;
+			$v->deficit = $sums->deficit;
+			$v->profit_number = $sums->profit_number;
+			$v->deficit_number = $sums->deficit_number;
+		}
+		unset($v);
+		return array($stats, $stat_detailed);
+	}
 }
 
 

@@ -227,6 +227,50 @@ function smarty_modifier_mdate($value,$format) {
 function smarty_modifier_koi2win($value,$format) {
 	return convert_cyr_string($value,'k','w');	
 }
+/**
+ * Smarty bytesize modifier plugin
+ *
+ * Type:     modifier<br>
+ * Name:     bytesize<br>
+ * 
+ * @param int  $number        input value in bytes
+ * @param string  $esc_type      escape type
+ * 
+ * @return string escaped input string
+ */
+function smarty_modifier_bytesize($number, $esc_type = 'Mb')
+{
+    static $st = 0;
+    $step = array(
+	'0' => 'b',
+	'1' => 'Kb',
+	'2' => 'Mb',
+	'3' => 'Gb',
+	'4' => 'Tb',
+	'5' => 'Pb',
+	'6' => 'Eb',
+	'7' => 'Zb',
+	'8' => 'Yb'
+    );
+    $obr_step = array_flip($step);
+    if (!isset($obr_step[$esc_type])) {
+	$esc_type = 'b';
+    }
+    $st = $obr_step[$esc_type];
+    while ($number >= 1024) {
+	$st++;
+	$number = $number/1024;
+	if ($st > 8) {
+		break;
+	}
+    }
+    if ($number >= 1000 && $st <= 7) {
+	$st++;
+	$number = $number/1024;
+    }
+    
+    return round($number, 2) . ' ' . $step[$st];
+}
 function smarty_function_objCurrency($params,&$smarty) {
 	$op = &$params['op'];
 	$obj = $params['obj'];
@@ -330,6 +374,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
 		$this->register_modifier('num_format','smarty_modifier_num_format');
+		$this->register_modifier('bytesize','smarty_modifier_bytesize');
 		$this->register_modifier('rus_fin','rus_fin');
 		$this->register_modifier('koi2win','smarty_modifier_koi2win');
 		$this->assign('premain',array());
