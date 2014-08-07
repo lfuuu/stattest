@@ -16,6 +16,11 @@
 
 	$design->assign('emailed',$v=get_param_raw('emailed',1));
 	$module_newaccounts->newaccounts_bill_print('');
-	header('Content-Type: text/html; charset=koi8-r');
+	if (isset($R['is_pdf']) && $R['is_pdf'] == 1) 
+	{
+		header('Content-Type: application/pdf');
+	}else {
+		header('Content-Type: text/html; charset=koi8-r');
+	}
 	$design->Process();
 ?>
