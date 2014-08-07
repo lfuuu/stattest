@@ -5419,7 +5419,9 @@ $sql .= "    order by client, bill_no";
         $edefault = array("cyberplat"=> true, "yandex" => true, "uniteller" => true);
         $ecashs = get_param_raw("ecashs", $edefault);
         $design->assign("ecashs", $ecashs);
-
+        
+        $order_by = get_param_raw('order_by', 'add_date');
+        $design->assign("order_by", $order_by);
 
         $types = '';
         foreach (array('bank','prov','neprov', 'ecash') as $k) {
@@ -5441,7 +5443,7 @@ $sql .= "    order by client, bill_no";
                          LEFT JOIN user_users as U ON U.id=P.add_user
                          LEFT JOIN newbills as B ON B.bill_no=P.bill_no
                          WHERE '.$type.'>=FROM_UNIXTIME('.$from.') AND '.$type.'<FROM_UNIXTIME('.$to.')
-                         AND P.type IN ('.$types.')'.$filter.' LIMIT 5000');
+                         AND P.type IN ('.$types.')'.$filter.' ORDER BY '. $order_by . ' LIMIT 5000');
 
         $S = array(
             'bRUR'=>0, 'pRUR'=>0, 'nRUR'=>0, 'eRUR'=>0,

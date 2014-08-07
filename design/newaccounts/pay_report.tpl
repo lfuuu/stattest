@@ -1,50 +1,7 @@
-<H2>Отчёт по платежам</H2>
+<H2 id="top">Отчёт по платежам</H2>
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
 <script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
 <link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
-
-      <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-        <TBODY>
-        <TR>
-          <TD class=header vAlign=bottom>Клиент</TD>
-          <TD class=header vAlign=bottom>Компания</TD>
-          <TD class=header vAlign=bottom>мнджр</TD>
-          <TD class=header vAlign=bottom colspan=3>Платеж</TD>
-          <TD class=header vAlign=bottom>пров.</TD>
-          <TD class=header vAlign=bottom>Сумма-курс</TD>
-          <TD class=header vAlign=bottom>Счёт</TD>
-          <TD class=header vAlign=bottom>Кто</TD>
-          <TD class=header vAlign=bottom>Когда</TD>
-          <TD class=header vAlign=bottom>Комментарий</TD>
-        </TR>
-
-{foreach from=$payments item=item}<tr>
-	<td>{if !$fullscreen}<a href='{$LINK_START}module=clients&id={$item.client_id}'>{$item.client}</a>{else}{$item.client}{/if}</td>
-	<td style='font-size:85%'>{$item.company}</td>
-	<td>{$item.manager}</td>
-	<td>{if $item.type=='e'}{$item.ecash_operator}{else}{$item.bank}{/if}</td>
-	<td>{$item.payment_no}</td>
-	<td>{$item.payment_date}</td>
-	<td>{$item.oper_date}</td>
-	<td>{$item.sum_rub}{if $item.currency=='USD'}${else}р{/if}{if $item.payment_rate!=1}<span style='font-size:85%'> / {$item.payment_rate}</span>{/if}</td>
-	<td>{$item.bill_no}<span style='font-size:85%'> от {$item.bill_date}</span></td>
-	<td style='font-size:85%'>{$item.user}</td>
-	<td style='font-size:85%'>{$item.add_date}</td>
-	<td style='font-size:85%'>{$item.comment}</td>
-</tr>{/foreach}
-
-<tr><td colspan=2>Сумма по RUR</td><td>b</td><td></td><td></td><td>{$totals.bRUR}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td>p</td><td></td><td></td><td>{$totals.pRUR}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td>n</td><td></td><td></td><td>{$totals.nRUR}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td>n</td><td></td><td></td><td>{$totals.eRUR}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td></td><td></td><td></td><td>{$totals.RUR}р</td><td></td><td></td><td></td><td></td></tr>
-{if $totals.bUSD+$totals.pUSD+$totals.nUSD!=0}
-	<tr><td colspan=2>Сумма по USD</td><td>b</td><td></td><td></td><td>{$totals.bUSD}$</td><td></td><td></td><td></td><td></td></tr>
-	<tr><td colspan=2>Сумма по USD</td><td>p</td><td></td><td></td><td>{$totals.pUSD}$</td><td></td><td></td><td></td><td></td></tr>
-	<tr><td colspan=2>Сумма по USD</td><td>n</td><td></td><td></td><td>{$totals.nUSD}$</td><td></td><td></td><td></td><td></td></tr>
-	<tr><td colspan=2>Сумма по USD</td><td></td><td></td><td></td><td>{$totals.USD}$</td><td></td><td></td><td></td><td></td></tr>
-{/if}
-</tbody></table>
 
 {if !$fullscreen}
 
@@ -139,6 +96,17 @@ function checkPeriod()
 			</td>
 		</tr>
 		<tr>
+			<td class="left">Сортировать по: </td>
+			<td>
+				<select name="order_by">
+					<option value="add_date" {if $order_by == "add_date"}selected{/if}>Дате заненсения платежа</option>
+					<option value="C.client" {if $order_by == "C.client"}selected{/if}>Клиенту</option>
+					<option value="payment_no" {if $order_by == "payment_no"}selected{/if}>Номеру платежа</option>
+					<option value="sum_rub" {if $order_by == "sum_rub"}selected{/if}>Сумме</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
 			<td class="left">На весь экран: </td>
 			<td>
                 <input type=checkbox name=fullscreen>
@@ -171,3 +139,57 @@ $( "#to_period" ).datepicker({
         </script>
       <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM>
 {/if}
+
+      <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD class=header vAlign=bottom rowspan=2>Клиент</TD>
+          <TD class=header vAlign=bottom rowspan=2>Компания</TD>
+          <TD class=header vAlign=bottom rowspan=2>мнджр</TD>
+          <TD class=header vAlign=bottom colspan=3>Информация о платеже</TD>
+          <TD class=header vAlign=bottom rowspan=2>Дата проводки</TD>
+          <TD class=header vAlign=bottom rowspan=2>Сумма</TD>
+          <TD class=header vAlign=bottom rowspan=2>Счёт</TD>
+          <TD class=header vAlign=bottom colspan=2>Занесение платежа</TD>
+          <TD class=header vAlign=bottom rowspan=2>Комментарий</TD>
+        </TR>
+        <TR>
+          <TD class=header vAlign=bottom>Банк</TD>
+          <TD class=header vAlign=bottom>Номер</TD>
+          <TD class=header vAlign=bottom>Дата</TD>
+          <TD class=header vAlign=bottom>Кто</TD>
+          <TD class=header vAlign=bottom>Когда</TD>
+        </tr>
+
+{foreach from=$payments item=item}<tr>
+	<td>{if !$fullscreen}<a href='{$LINK_START}module=clients&id={$item.client_id}'>{$item.client}</a>{else}{$item.client}{/if}</td>
+	<td style='font-size:85%'>{$item.company}</td>
+	<td>{$item.manager}</td>
+	<td>{if $item.type=='e'}{$item.ecash_operator}{else}{$item.bank}{/if}</td>
+	<td>{$item.payment_no}</td>
+	<td>{$item.payment_date}</td>
+	<td>{$item.oper_date}</td>
+	<td align=right>{$item.sum_rub|num_format:true:2}{if $item.currency=='USD'}${else}р{/if}{if $item.payment_rate!=1}<span style='font-size:85%'> / {$item.payment_rate}</span>{/if}</td>
+	<td>{$item.bill_no}<span style='font-size:85%'> от {$item.bill_date}</span></td>
+	<td style='font-size:85%'>{$item.user}</td>
+	<td style='font-size:85%'>{$item.add_date}</td>
+	<td style='font-size:85%'>{$item.comment}</td>
+</tr>{/foreach}
+
+<tr><td colspan=2>Сумма по RUR</td><td>b</td><td></td><td></td><td align=right>{$totals.bRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUR</td><td>p</td><td></td><td></td><td align=right>{$totals.pRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUR</td><td>n</td><td></td><td></td><td align=right>{$totals.nRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUR</td><td>Эл. деньги</td><td></td><td></td><td align=right>{$totals.eRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUR</td><td></td><td></td><td></td><td align=right>{$totals.RUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+{if $totals.bUSD+$totals.pUSD+$totals.nUSD!=0}
+	<tr><td colspan=2>Сумма по USD</td><td>b</td><td></td><td></td><td align=right>{$totals.bUSD|num_format:true:2}$</td><td></td><td></td><td></td><td></td></tr>
+	<tr><td colspan=2>Сумма по USD</td><td>p</td><td></td><td></td><td align=right>{$totals.pUSD|num_format:true:2}$</td><td></td><td></td><td></td><td></td></tr>
+	<tr><td colspan=2>Сумма по USD</td><td>n</td><td></td><td></td><td align=right>{$totals.nUSD|num_format:true:2}$</td><td></td><td></td><td></td><td></td></tr>
+	<tr><td colspan=2>Сумма по USD</td><td></td><td></td><td></td><td align=right>{$totals.USD|num_format:true:2}$</td><td></td><td></td><td></td><td></td></tr>
+{/if}
+<tr>
+	<td colspan="10" align=right>
+		<a onclick="$('body,html').animate({ldelim}scrollTop:100{rdelim},200);">Начало отчета</a>
+	</td>
+<tr>
+</tbody></table>
