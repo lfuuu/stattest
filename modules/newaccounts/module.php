@@ -1405,6 +1405,7 @@ class m_newaccounts extends IModule
         $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
+        $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
         $design->assign('l_couriers',$bill->GetCouriers());
