@@ -1744,6 +1744,7 @@ class m_newaccounts extends IModule
         $this->do_include();
         $bill_no=get_param_protected("bill"); if (!$bill_no) return;
         $bill = new Bill($bill_no);
+        $is_pdf = get_param_raw('is_pdf', 0);
 
         $template = 'Уважаемые господа!<br>Отправляем Вам следующие документы:<br>';
         $template = array($template,$template);
@@ -1760,7 +1761,7 @@ class m_newaccounts extends IModule
 
         foreach ($D as $k=>$rs) {
             foreach ($rs as $r) if (get_param_protected($r)) {
-                $R = array('bill'=>$bill_no,'object'=>$r,'client'=>$bill->Get('client_id'));
+                $R = array('bill'=>$bill_no,'object'=>$r,'client'=>$bill->Get('client_id'), 'is_pdf' => $is_pdf);
                 if(isset($_REQUEST['without_date'])){
                     $R['without_date'] = 1;
                     $R['without_date_date'] = $_REQUEST['without_date_date'];
@@ -1786,7 +1787,10 @@ class m_newaccounts extends IModule
         $contact = $cs->GetContact();
         $this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
         $this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
+        echo "<hr><br>Шаблон с печатью <br><br>";
         echo $template[0];
+        echo "<br><hr><br>\n\n Шаблон без печати <br><br>";
+        echo $template[1];
         $design->ProcessEx('errors.tpl');
     }
 
