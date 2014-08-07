@@ -4507,6 +4507,19 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_id = u.id 
         group by 
           u.region', 'region');
+    $curr_vpbx = $db->AllRecordsAssoc(
+	'SELECT 
+		c.region, COUNT(*) as count_vpbx
+	FROM 
+		usage_virtpbx as u
+	LEFT JOIN 
+		clients as c ON c.client = u.client 
+	WHERE 
+		CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+	GROUP BY
+		c.region
+	', 'region', 'count_vpbx'
+    );
     $region_clients_count = $db->AllRecordsAssoc("
 	SELECT 
 		COUNT(id) as clients,
@@ -4550,10 +4563,12 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		LEFT JOIN
 			clients as b ON a.client_id = b.id
 		WHERE 
-			a.bill_date >= date_add('$date',interval -$mm month) AND 
-			a.bill_date < date_add('$date',interval -$mm+1 month) AND 
+			a.bill_date >= date_add('".$date."',interval -".$mm." month) AND 
+			a.bill_date < date_add('".$date."',interval -".$mm."+1 month) AND 
 			b.region > 0 AND 
-			b.status IN ('testing', 'conecting', 'work')
+			b.status IN ('testing', 'conecting', 'work') AND 
+			b.type IN ('org', 'priv') AND 
+			sum > 0 
 		GROUP BY
 			b.region
 		ORDER BY 
@@ -4571,24 +4586,44 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             u.E164 as phone, 
             u.no_of_lines,
             c.id as client_id, 
-            ifnull(c.created >= date_add('$date',interval -$mm-1 month), 0) as is_new, 
+            ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
             s.name as sale_channel,
             s.courier_id as courier_id
           from usage_voip u
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
           where 
-              u.actual_from>=date_add('$date',interval -$mm month) 
-            and u.actual_from<date_add('$date',interval -$mm+1 month)
+              u.actual_from>=date_add('".$date."',interval -".$mm." month) 
+            and u.actual_from<date_add('".$date."',interval -".$mm."+1 month)
           group by 
             u.region, u.E164, c.id, c.created, s.name  ");
+            
+	$res_vpbx = $db->AllRecords("
+          select 
+            c.region, 
+            u.id, 
+            c.id as client_id, 
+            ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
+            s.name as sale_channel,
+            s.courier_id as courier_id
+          from usage_virtpbx u
+          left join clients c on c.client=u.client
+          left join sale_channels s on s.id=c.sale_channel
+          where 
+              u.actual_from>=date_add('".$date."',interval -".$mm." month) 
+            and u.actual_from<date_add('".$date."',interval -".$mm."+1 month)
+          group by 
+            c.region, c.id, c.created, s.name  ");
 
       $sale_nums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
+      $sale_vpbx = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_nonums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_lines = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
-      $sale_channels = array('all' => array('nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'visits' => 0), "managers" => array());
+      $sale_channels = array('all' => array('vpbx' => array('new'=>0,'old'=>0,'all'=>0), 'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'visits' => 0), "managers" => array());
       $clients = array();
+      $clients_vpbx = array();
+      $vpbx_clients = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       foreach($res as $r)
       {
           $client_ids[$r['client_id']] = 0;
@@ -4653,7 +4688,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         }
 
         if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+            $sale_channels['managers'][$r['sale_channel']] = array('vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
         $sale_channels['managers'][$r['sale_channel']]['nums']['all'] += 1;
         $sale_channels['managers'][$r['sale_channel']]['lines']['all'] += $r['no_of_lines'];
         $sale_channels['all']['lines']['all'] += $r['no_of_lines'];
@@ -4669,6 +4704,56 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           $sale_channels['managers'][$r['sale_channel']]['lines']['old'] += $r['no_of_lines'];
           $sale_channels['all']['nums']['old'] += 1;
           $sale_channels['all']['lines']['old'] += $r['no_of_lines'];
+        }
+      }
+      foreach($res_vpbx as $r)
+      {
+          $client_ids[$r['client_id']] = 0;
+        
+          if (!isset($sale_vpbx[$r['region']])) 
+              $sale_vpbx[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+
+          if ($r['is_new'] > 0){
+            $sale_vpbx[$r['region']]['new'] += 1;
+            $sale_vpbx['all']['new'] += 1;
+          }else{
+            $sale_vpbx[$r['region']]['old'] += 1;
+            $sale_vpbx['all']['old'] += 1;
+          }
+          $sale_vpbx[$r['region']]['all'] += 1;
+          $sale_vpbx['all']['all'] += 1;
+
+        if (!isset($clients_vpbx[$r['client_id']]))
+        {
+          $clients_vpbx[$r['client_id']] = $r['client_id'];
+
+          if (!isset($vpbx_clients[$r['region']])) 
+              $vpbx_clients[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+
+          if ($r['is_new'] > 0){
+            $vpbx_clients[$r['region']]['new'] += 1;
+            $vpbx_clients['all']['new'] += 1;
+          }else{
+            $vpbx_clients[$r['region']]['old'] += 1;
+            $vpbx_clients['all']['old'] += 1;
+          }
+          $vpbx_clients[$r['region']]['all'] += 1;
+          $vpbx_clients['all']['all'] += 1;
+        }
+
+        
+
+        if (!isset($sale_channels['managers'][$r['sale_channel']])) 
+            $sale_channels['managers'][$r['sale_channel']] = array('vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+        $sale_channels['managers'][$r['sale_channel']]['vpbx']['all'] += 1;
+        $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
+        $sale_channels['all']['vpbx']['all'] += 1;
+        if ($r['is_new']){
+          $sale_channels['managers'][$r['sale_channel']]['vpbx']['new'] += 1;
+          $sale_channels['all']['vpbx']['new'] += 1;
+        } else {
+          $sale_channels['managers'][$r['sale_channel']]['vpbx']['old'] += 1;
+          $sale_channels['all']['vpbx']['old'] += 1;
         }
       }
 /*
@@ -4736,10 +4821,30 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       }
       foreach($sale_channels["managers"] as $mamager => &$d)
       {
-        $d["nums_perc"]['new'] = round( $d["nums"]['new'] / $sale_channels["all"]["nums"]['all'] * 100);
-        $d["lines_perc"]['new'] = round( $d["lines"]['new'] / $sale_channels["all"]["lines"]['all'] * 100);
-        $d["nums_perc"]['old'] = round( $d["nums"]['old'] / $sale_channels["all"]["nums"]['all'] * 100);
-        $d["lines_perc"]['old'] = round( $d["lines"]['old'] / $sale_channels["all"]["lines"]['all'] * 100);
+        if ($sale_channels["all"]["nums"]['all'] > 0)
+        {
+		$d["nums_perc"]['new'] = round( $d["nums"]['new'] / $sale_channels["all"]["nums"]['all'] * 100);
+		$d["nums_perc"]['old'] = round( $d["nums"]['old'] / $sale_channels["all"]["nums"]['all'] * 100);
+        } else {
+		$d["nums_perc"]['new'] = 0;
+		$d["nums_perc"]['old'] = 0;
+        }
+        if ($sale_channels["all"]["lines"]['all'] > 0)
+        {
+		$d["lines_perc"]['new'] = round( $d["lines"]['new'] / $sale_channels["all"]["lines"]['all'] * 100);
+		$d["lines_perc"]['old'] = round( $d["lines"]['old'] / $sale_channels["all"]["lines"]['all'] * 100);
+        } else {
+		$d["lines_perc"]['new'] = 0;
+		$d["lines_perc"]['old'] = 0;
+        }
+        if ($sale_channels["all"]["vpbx"]['all'] > 0) 
+        {
+		$d["vpbx_perc"]['new'] = round( $d["vpbx"]['new'] / $sale_channels["all"]["vpbx"]['all'] * 100);
+		$d["vpbx_perc"]['old'] = round( $d["vpbx"]['old'] / $sale_channels["all"]["vpbx"]['all'] * 100);
+        } else {
+		$d["vpbx_perc"]['new'] = 0;
+		$d["vpbx_perc"]['old'] = 0;
+        }
         $d["visits_perc"] = ($sale_channels["all"]["visits"] > 0) ? round( $d["visits"] / $sale_channels["all"]["visits"] * 100) : 0;
       }
 
@@ -4747,6 +4852,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $del_nums = array('all'=>0);
       $del_nonums = array('all'=>0);
       $del_lines = array('all'=>0);
+      $del_vpbx = array('all'=>0);
       $res = $db->AllRecords("
           select 
             u.region, 
@@ -4756,10 +4862,22 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           from usage_voip u
           left join clients c on c.client=u.client
           where 
-                u.actual_to>=date_add('$date',interval -$mm month) 
-            and u.actual_to<date_add('$date',interval -$mm+1 month)
+                u.actual_to>=date_add('".$date."',interval -".$mm." month) 
+            and u.actual_to<date_add('".$date."',interval -".$mm."+1 month)
           group by u.region, u.E164, c.id  ");
 
+      $res_vpbx = $db->AllRecords("
+          select 
+            c.region, 
+            u.id, 
+            c.id as client_id
+          from usage_virtpbx u
+          left join clients c on c.client=u.client
+          where 
+                u.actual_to>=date_add('".$date."',interval -".$mm." month) 
+            and u.actual_to<date_add('".$date."',interval -".$mm."+1 month) 
+          group by c.region, u.id, c.id  ");
+      
       foreach($res as $r)
       {
         if (strlen($r['phone']) > 4)
@@ -4783,6 +4901,14 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         $del_lines[$r['region']] += $r['no_of_lines'];
         $del_lines['all'] += $r['no_of_lines'];
       }
+      foreach($res_vpbx as $r)
+      {
+          if (!isset($del_vpbx[$r['region']])) 
+            $del_vpbx[$r['region']] = 0;
+
+          $del_vpbx[$r['region']] += 1;
+          $del_vpbx['all'] += 1;
+      }
 
 
       $m = date("m") - $mm;
@@ -4799,7 +4925,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         'sale_channels'=>$sale_channels,
         'del_nums'=>$del_nums,
         'del_nonums'=>$del_nonums,
-        'del_lines'=>$del_lines
+        'del_lines'=>$del_lines,
+        'del_vpbx' => $del_vpbx,
+        'sale_vpbx' => $sale_vpbx,
+        'vpbx_clients' => $vpbx_clients
       );
     }
 
@@ -4807,6 +4936,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     $design->assign("region_clients_count", $region_clients_count);
     $design->assign('reports',$reports);
     $design->assign('curr_phones',$curr_phones);
+    $design->assign('curr_vpbx',$curr_vpbx);
     $design->AddMain('stats/report_phone_sales.tpl');
   }
 }

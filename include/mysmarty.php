@@ -201,6 +201,15 @@ function smarty_modifier_hl($string,$hl){
 	if (!$hl) return $string;
 	return preg_replace("/".preg_quote($hl)."/i","<span style='background-color:#D0D0FF; color:#000000'>$0</span>",$string);
 }
+function smarty_modifier_num_format($string, $with_zero = false){
+	if (!$string && !$with_zero)
+	{
+		return '';
+	}
+	$string = number_format($string, 0, ',', ' ');
+	$string = str_replace(' ', '&nbsp', $string);
+	return $string;
+}
 function smarty_modifier_round($val,$b,$t = ''){
     $val = round($val, $b);
 	return sprintf("%0.".$b."f",($t==='-'?-$val:$val));
@@ -320,6 +329,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('round','smarty_modifier_round');
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
+		$this->register_modifier('num_format','smarty_modifier_num_format');
 		$this->register_modifier('rus_fin','rus_fin');
 		$this->register_modifier('koi2win','smarty_modifier_koi2win');
 		$this->assign('premain',array());
