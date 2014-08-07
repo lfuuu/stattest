@@ -243,8 +243,7 @@ class m_users {
 			$R[$r['resource']]=$r['access'];
 			$R2[$r['resource']]=$r['access'];
 		}
-
-		if (!isset($R['firms'])) {
+		if (!isset($R['firms']) || empty($R['firms'])) {
 		    foreach ($Firms as $k=>$v) $user2firm[$k] = 1;
 		} else {
 		    $tmp = explode(',', $R['firms']);
