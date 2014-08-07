@@ -201,12 +201,12 @@ function smarty_modifier_hl($string,$hl){
 	if (!$hl) return $string;
 	return preg_replace("/".preg_quote($hl)."/i","<span style='background-color:#D0D0FF; color:#000000'>$0</span>",$string);
 }
-function smarty_modifier_num_format($string, $with_zero = false){
+function smarty_modifier_num_format($string, $with_zero = false, $after_dot = 0){
 	if (!$string && !$with_zero)
 	{
 		return '';
 	}
-	$string = number_format($string, 0, ',', ' ');
+	$string = number_format($string, $after_dot, ',', ' ');
 	$string = str_replace(' ', '&nbsp', $string);
 	return $string;
 }
