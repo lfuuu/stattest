@@ -4504,7 +4504,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         from 
           voip_numbers v, usage_voip u 
         where 
-          usage_id = u.id 
+          usage_id = u.id AND 
+          CAST(NOW() AS DATE) BETWEEN u.actual_from AND u.actual_to 
         group by 
           u.region', 'region');
     $curr_vpbx = $db->AllRecordsAssoc(
