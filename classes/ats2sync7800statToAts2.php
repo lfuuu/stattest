@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Класс синхронизации привязанных линий без номера к номерам 7800
+ * Класс синхронизации привязанных линий без номера к номерам 7800, из стата в ats2
  *
  * @author Andreev Dmitriy
  */
 
-class ats2_7800line
+class ats2sync7800statToAts2
 {
     /**
      * Функция запуска синхронизации
      */
-    public static function check()
+    public static function sync()
     {
         $statData = self::load_fromStat();
         $atsData = self::load_fromATS();
