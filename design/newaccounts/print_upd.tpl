@@ -471,7 +471,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Главный бухгалтер<br>или иное уполномоченное лицо</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span style="position: relative;">{if isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -25px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
@@ -785,19 +785,19 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>{$firm_buh.position}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span style="position: relative;">{if isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -22px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>{$firm_buh.name}</span></p>
 		</td>
 		<td>
 			<p ><span>[13]</span></p>
@@ -913,7 +913,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 </center></div>
 {if isset($emailed) && $emailed==1}
 	{if $firma && isset($firma.src) && $firma.src}
-	<div style="position: relative; top: -10;left: 100px;">
+	<div style="position: relative; top: -50;left: 140px;">
 	<img class="sign_main" style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>
 	</div>
 	{/if}
