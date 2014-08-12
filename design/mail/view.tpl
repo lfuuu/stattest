@@ -11,36 +11,15 @@
 <a href='#' onclick='form.body.value+="\n%CLIENT%";return false;'>логин клиента</a><br><br>
 <a href='#' onclick='form.body.value+="\n%CLIENT_NAME%";return false;'>полное название компании</a><br><br>
 <a href='#' onclick='form.body.value+="\n%ABILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>счета клиента за месяц</a><br><br>
-<a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные</a><br><br>
-<a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью</a><br><br>
+<a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%NBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Не полностью оплаченные(красные и желтые)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%SOGL_TELEKOM"+prompt("месяц","{$smarty.now|date_format:"%m"}")+"%";return false;'>Соглашение о передаче прав (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>Новый директор Надточеева</a><br><br>
 <a href='#' onclick='form.body.value+="\n%DOGOVOR_TELEKOM%";return false;'>Договор</a><br><br>
 </TD></TR></FORM></TABLE>
-
-<H3>Прикрепленные файлы</H3>
-<table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th>имя файла</th><th>&nbsp;</th></tr>
-{foreach from=$files item=item}<tr>
-	<td>
-		<a href='{$LINK_START}module=mail&file_id={$item.id}&action=file_get&job_id={$job_id}'>{$item.name}</a> 
-	</td>
-	<td>
-		<a href='{$LINK_START}module=mail&action=file_del&file_id={$item.id}&job_id={$job_id}' onclick="return confirm('Вы уверены, что хотите удалить файл {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>
-	</td>
-</tr>{/foreach}
-<FORM action="?" method=post enctype="multipart/form-data"><tr>
-	<input type=hidden name="module" value="mail">
-	<input type=hidden name="action" value="file_put">
-	<input type=hidden name="job_id" value="{$job_id}">
-	<td><input type=file name=file></td>
-	<td><input class=button type=submit value="загрузить"></td>
-</tr></form>
-</table>
-
-
 
 {if $template.job_id}
 <H3>Отправка письма</H3>
@@ -55,8 +34,29 @@
 {else}
 <a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>Запретить отправку</a><br>
 {/if}
-
-<br><br><br>
+<br>
+<a onclick="$('#mail_files').toggle();"><img class="icon" alt="Изменить" src="{$IMAGES_PATH}icons/edit.gif"></a> <span>Прикрепить файл</span>
+<div id="mail_files" style="{if !$count_files}display: none;{/if}font-size: 10px;">
+	<table cellspacing=4 cellpadding=2 border=0>
+	<tr><th>имя файла</th><th>&nbsp;</th></tr>
+	{foreach from=$files item=item}<tr>
+		<td style="font-size: 10px;">
+			<a href='{$LINK_START}module=mail&file_id={$item.id}&action=file_get&job_id={$job_id}'>{$item.name}</a> 
+		</td>
+		<td style="font-size: 10px;">
+			<a href='{$LINK_START}module=mail&action=file_del&file_id={$item.id}&job_id={$job_id}' onclick="return confirm('Вы уверены, что хотите удалить файл {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>
+		</td>
+	</tr>{/foreach}
+	<FORM action="?" method=post enctype="multipart/form-data"><tr>
+		<input type=hidden name="module" value="mail">
+		<input type=hidden name="action" value="file_put">
+		<input type=hidden name="job_id" value="{$job_id}">
+		<td><input style="font-size: 10px;" type=file name=file></td>
+		<td><input style="font-size: 10px;" class=button type=submit value="загрузить"></td>
+	</tr></form>
+	</table>
+</div>
+<br><br>
 <a href='{$LINK_START}module=mail&action=client&id={$template.job_id}'>Добавить клиентов</a>
 
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
