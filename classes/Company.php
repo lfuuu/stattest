@@ -377,7 +377,11 @@ class Company
                         "sign" => array("src" => "sign_usk.png", "width" => 137, "height" => 123)),
                 "pol" => array("name" => "Полехина Г. Н.",  "sign" => false),
                 "lgm" => array("name" => "Лаврова Г. М.",  "sign" => false),
-                "ant" => array("name" => "Антонова Т. С.",  "sign" => array("src" => "sign_ant.gif", "width" => 139, "height" => 35)),
+                "ant" => array(
+			"name" => "Антонова Т. С.",
+			"sign" => array("src" => "sign_ant.gif", "width" => 139, "height" => 35),
+			"position" => "Главный бухгалтер",
+		),
                 "nem" => array("name" => "Нем И. В.",       "sign" => array("src" => "sign_nem.png", "width" => 140, "height" => 142))
                     );
 
@@ -390,7 +394,7 @@ class Company
                     ),
                 "mcn" => array(
                     "src" => "stampmcn.gif",
-                    "style" => "position:relative;left:-20;top:-160;z-index:-10; margin-bottom:-170px;",
+                    "style" => "position:relative;left:-20;top:-180;z-index:-10; margin-bottom:-170px;",
                     "name" => "ООО &laquo;Эм Си Эн&raquo;",
                     "width" => false
                     ),
