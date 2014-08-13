@@ -91,12 +91,8 @@ class ApiLk
     
         if(!$bill)
         {
-            include_once INCLUDE_PATH.'bill.php';
-    
-            $newBill = new Bill(null, $clientId, strtotime(date("Y-m-d")), 0, 'RUR', true, true);
-            $newBill->AddLine("RUR", Encoding::toKoi8r("Авансовый платеж"), 1, $sum/1.18, 'zadatok');
-            $newBill->save();
-    
+            NewBill::createBillOnPay($clientId, $sum);
+
             $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
         }
     

@@ -70,7 +70,7 @@ class NewBill extends ActiveRecord\Model
     {
         $currency = "RUR";
         $bill = new Bill(null,$clientId,time(),0,$currency);
-        $bill->AddLine($currency, Encoding::toKoi8r("Авансовый платеж за услуги связи"),1, $paySum/1.18, "zalog");
+        $bill->AddLine($currency, Encoding::toKoi8r("Авансовый платеж за услуги связи"),1, $paySum/1.18, "zadatok");
         $bill->Save();
 
         return NewBill::find_by_bill_no($bill->GetNo());
