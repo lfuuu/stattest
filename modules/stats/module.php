@@ -1096,7 +1096,7 @@ class m_stats extends IModule{
             else $sql.= ' time as ts1, ';
             $sql .=
             'cast('.($group?'sum':'').'(amount)/100.0 as NUMERIC(10,2)) as price,
-                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len else 0 end':'len').') as ts2,
+                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len_mcn else 0 end':'len_mcn').') as ts2,
                                     '.($group?'sum('.($paidonly?'case amount>0 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
                                     calls.calls_'.intval($region).'
