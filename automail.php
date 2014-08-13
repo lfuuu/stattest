@@ -41,7 +41,7 @@ define("print_sql", 1);
 				$job->assign_client($r['client']);
 				
 				echo 'Sending '.$job_id.' to '.$r['client'].'..';
-				$res = $job->Send($test?'dga@mcn.ru':null);
+				$res = $job->Send($test?ADMIN_EMAIL:null);
 				if($res!==true){
 					echo "error\n";
 				}else{
