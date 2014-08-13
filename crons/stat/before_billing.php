@@ -12,22 +12,9 @@ $db->Query("set names utf8");
 
 echo "\n".date("r").":\n";
 
-$clients = array('id4102',
-'id18620',
-'id18698',
-'id20000',
-'id20135',
-'id21415',
-'id21832',
-'id23354',
-'id23385',
-'taxi/2');
-
-$clients = array('id18620');
-
 
 $R = array();
-foreach($db->AllRecords("select id, client, credit from clients where credit > -1 and status='work' /* and client in ('".implode("', '", $clients)."') */ limit 1000") as $l)
+foreach($db->AllRecords("select id, client, credit from clients where credit > -1 and status='work' ") as $l)
 {
 
     echo "\n".$l["client"].": (".$l["credit"].")";
@@ -41,8 +28,6 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
         echo " no usages";
         continue;
     }
-    /*
-    */
 
     $r = $pg_db->GetRow("SELECT cast(sum(amount)/100.0 as numeric(10,2))as sum, min(time) as min, max(time) as max FROM calls.calls WHERE time > '2013-09-01 00:00:00' AND usage_id IN (".implode(", ", $usages).") LIMIT 1000 OFFSET 0");
 
@@ -118,11 +103,9 @@ foreach ($R as $clientId => $a)
 
     $emails = getContactsForSend($clientId);
 
-    $emails = array("adima123@yandex.ru");
     if (!$emails) continue;
 
     echo "\n ".$clientId." abon: ".$a["abon"].", balance: ".$a["balance"].", real balance: ".$a["real_balance"].",emails: ".implode(", ", $emails);
-    continue;
 
 
     foreach ($emails as $contactId => $email)
@@ -130,7 +113,7 @@ foreach ($R as $clientId => $a)
         $Mail->AddAddress($email);
     }
 
-    $Mail->Body = /*$ee.*/template($template, $a);
+    $Mail->Body = template($template, $a);
 
     if($Mail->Send()) {
         LkNotificationLog::addLogRaw($clientId, 0, "prebil_prepayers_notif", true, $a["balance"], 0, $a["abon"]);
