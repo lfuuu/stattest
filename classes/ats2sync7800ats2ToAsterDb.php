@@ -33,6 +33,11 @@ class ats2sync7800ats2ToAsterDb
     {
         global $db_ats, $pDB;
 
+        if ($pDB === null)
+        {
+            $pDB = self::_connect();
+        }
+
         foreach ($db_ats->AllRecords(
             "SELECT
             ifnull(a7800.number, 0) as number7800,
@@ -113,7 +118,7 @@ class ats2sync7800ats2ToAsterDb
                     "number_region" => $line["region"]
                 );
 
-                $pDB->QueryInsert("number_location", $data);
+                $pDB->QueryInsert(PG_SCHEMA.".number_location", $data);
             }
         }
 
@@ -122,7 +127,7 @@ class ats2sync7800ats2ToAsterDb
         {
             foreach (self::$diff["del"] as $number)
             {
-                $pDB->QueryDelete("number_location", array("number" => $number));
+                $pDB->QueryDelete(PG_SCHEMA.".number_location", array("number" => $number));
             }
         }
 
@@ -136,9 +141,27 @@ class ats2sync7800ats2ToAsterDb
                 if (isset($d["line"]))   $data["fake_number"]   = $d["line"];
                 if (isset($d["region"])) $data["number_region"] = $d["region"];
 
-                $pDB->QueryUpdate("number_location", "number", $data);
+                $pDB->QueryUpdate(PG_SCHEMA.".number_location", "number", $data);
             }
         }
+    }
+
+    private static function _connect()
+    {
+        foreach(array("HOST", "PASS", "USER", "DB") as $f)
+        {
+            if (!defined("PG_ATS_".$f))
+            {
+                throw new Exception("PG_ATS_".$f." не найден");
+            }
+        }
+
+        $pDB = new PgSQLDatabase(PG_ATS_HOST, PG_ATS_USER, PG_ATS_PASS, PG_ATS_DB);
+        $pDB->Connect() or die("PgSQLDatabase not connected");
+
+        define("PG_SCHEMA", "astschema");
+
+        return $pDB;
     }
 }
 
