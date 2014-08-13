@@ -378,11 +378,13 @@ class Company
                 "pol" => array("name" => "Полехина Г. Н.",  "sign" => false),
                 "lgm" => array("name" => "Лаврова Г. М.",  "sign" => false),
                 "ant" => array(
-			"name" => "Антонова Т. С.",
-			"sign" => array("src" => "sign_ant.gif", "width" => 139, "height" => 35),
-			"position" => "Главный бухгалтер",
-		),
-                "nem" => array("name" => "Нем И. В.",       "sign" => array("src" => "sign_nem.png", "width" => 140, "height" => 142))
+                        "name" => "Антонова Т. С.",
+                        "sign" => array("src" => "sign_ant.gif", "width" => 139, "height" => 35)
+                        ),
+                "nem" => array(
+                        "name" => "Нем И. В.",       
+                        "sign" => array("src" => "sign_nem.png", "width" => 140, "height" => 142)
+                        )
                     );
 
         $firms = array(
@@ -426,8 +428,13 @@ class Company
 
         global $design;
 
+        $firm_buh = $u[$b];
+
+        if (!isset($firm_buh["position"]))
+            $firm_buh["position"] = "Главный бухгалтер";
+
         $design->assign("firma", $firms[$firma]);
         $design->assign("firm_director", $u[$d]);
-        $design->assign("firm_buh", $u[$b]);
+        $design->assign("firm_buh", $firm_buh);
     }
 }
