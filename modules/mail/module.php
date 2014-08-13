@@ -772,7 +772,7 @@ class MailJob {
 		{
 			foreach ($files as $v)
 			{
-				$Mail->AddAttachment($v['path'], $v['name'], "base64", $v['type']);
+                $Mail->AddAttachment($v['path'], "=?koi8-r?B?".base64_encode($v['name'])."?=", "base64", $v['type']);
 			}
 		}
 		

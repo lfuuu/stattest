@@ -57,9 +57,11 @@
 
 			$name = basename($_FILES['file']['name']);
 			$type = $_FILES['file']['type'];
-			$V = array('name'=>$name,'job_id'=>$this->job_id,'type'=>$type);
-			$id = $db->QueryInsert('mail_files',$V);
-			move_uploaded_file($_FILES['file']['tmp_name'],$this->files_path.$id.'.attach');
+			if (move_uploaded_file($_FILES['file']['tmp_name'],$this->files_path.$id.'.attach'))
+            {
+                $V = array('name'=>$name,'job_id'=>$this->job_id,'type'=>$type);
+                $id = $db->QueryInsert('mail_files',$V);
+            }
 			
 		}
 		/**
