@@ -192,6 +192,39 @@ class SyncVirtPbx
         return $numbers;
     }
 
+    /**
+    * Функция забора статистики с ВАТСа.
+    * 
+    * @param $clientId int id лицевого счета
+    * @param $date date-string(format: YYYY-MM-DD) за какой день статистику надо получить
+    * @param $statisticFunction string вызываемая функция стаистики
+    * @param $statisticField string поле, в которым храниться результат, в возвращаемых дланных
+    * @return mix полученное занчение
+    */
+    public function getStatistic($clientId, $date, $statisticFunction = "get_total_space_usage", $statisticField = "total")
+    {
+        $tarif = self::getTarif($clientId);
+
+        $data = array(
+                "client_id" => $clientId,
+                "date" => $date
+                );
+
+        $result = self::_send($tarif["ip"], $statisticFunction, $data);
+
+        if (isset($result[$statisticField]))
+        {
+            return $result[$statisticField];
+        } else {
+            throw new Exception(
+                    (isset($result["errors"]) && $result["errors"]) ? 
+                    implode("; ", $result["error"]) :  
+                    "Ошибка получения статистики"
+                    );
+        }
+
+    }
+
     private function _send($address, $action, $data)
     {
         if (!defined("VIRTPBX_URL"))

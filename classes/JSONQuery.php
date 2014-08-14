@@ -58,7 +58,7 @@ class JSONQuery
             throw new Exception("VPBX Sync Error: result false", -1);
         }
 
-        if (isset($result["errors"]))
+        if (isset($result["errors"]) && $result["errors"])
         {
             $msg = "";
             if ( ! isset($result['errors'][0]["message"]) && isset($result['errors'][0]))

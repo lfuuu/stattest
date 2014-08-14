@@ -127,6 +127,30 @@ class ApiVpbx
     }
 
     /**
+    * Получаем статистику по занятому пространству
+    *
+    * @param $clientId int id лицевого счета
+    * @param $data array данные запроса, для форирования статистики
+    * @return int занятое просторанство
+    */
+    public static function getUsageSpaceStatistic($clientId, $data)
+    {
+        return SyncVirtPbx::getStatistic($clientId, $data, "get_total_space_usage", "total");
+    }
+
+    /**
+    * Получаем статистику по количеству используемых портов
+    *
+    * @param $clientId int id лицевого счета
+    * @param $data array данные запроса, для форирования статистики
+    * @return int кол-во используемых портов
+    */
+    public static function getUsageNumbersStatistic($clientId, $data)
+    {
+        return SyncVirtPbx::getStatistic($clientId, $data, "get_int_number_usage", "int_number_amount");
+    }
+
+    /**
     * Устанавливает, какие номера используются в vpbx'е
     *
     * @param int id лицевого счета
