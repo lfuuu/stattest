@@ -101,6 +101,7 @@ $(document).ready(function(){
 			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>Публичный</option>
 			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>Архивный</option>
 			<option value='special'{if $dbform_f_tarif_current.status eq 'special'} selected='selected'{/if}>Специальный</option>
+			<option value='operator'{if $dbform_f_tarif_current.status eq 'operator'} selected='selected'{/if}>Оператор</option>
 		</select></td>
 		<td colspan="2">
 		</td>
@@ -132,6 +133,16 @@ $(document).ready(function(){
 				<option value=0>-- выберите тариф --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'special' and $tarif.dest == '4'}
+					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif} selected{/if}>
+						{$tarif.name} ({$tarif.month_number}-{$tarif.month_line})
+					</option>
+					{/if}
+				{/foreach}
+			</select>
+			<select id='t_id_tarif_operator' name='' style='display:none'>
+				<option value=0>-- выберите тариф --</option>
+				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
+					{if $tarif.status eq 'operator' and $tarif.dest == '4'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif} selected{/if}>
 						{$tarif.name} ({$tarif.month_number}-{$tarif.month_line})
 					</option>
