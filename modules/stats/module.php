@@ -4502,9 +4502,11 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           count(*) as count_num, 
           sum(no_of_lines) as count_lines 
         from 
-          voip_numbers v, usage_voip u 
+          usage_voip u 
         where 
-          usage_id = u.id 
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND 
+          E164 NOT LIKE "7800%" AND 
+          LENGTH(E164) > 4 
         group by 
           u.region', 'region');
     $curr_vpbx = $db->AllRecordsAssoc(
@@ -4520,6 +4522,30 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		c.region
 	', 'region', 'count_vpbx'
     );
+    $curr_8800 = $db->AllRecords('
+        select 
+          u.region, 
+          count(*) as count_num, 
+          sum(no_of_lines) as count_lines 
+        from 
+          usage_voip u 
+        where 
+          u.E164 LIKE "7800%" AND 
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+        group by 
+          u.region', 'region');
+    $curr_no_nums = $db->AllRecords('
+        select 
+          u.region, 
+          count(*) as count_num, 
+          sum(no_of_lines) as count_lines 
+        from 
+          usage_voip u 
+        where 
+          LENGTH(u.E164) < 5 AND 
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+        group by 
+          u.region', 'region');
     $region_clients_count = $db->AllRecordsAssoc("
 	SELECT 
 		COUNT(id) as clients,
@@ -4537,6 +4563,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
+    $m = date('n');
     for($mm = 0; $mm < 4; $mm++)
     {
       $date = date("Y-m-01");
@@ -4588,6 +4615,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             c.id as client_id, 
             ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
             s.name as sale_channel,
+            s.id as sale_channel_id,
             s.courier_id as courier_id
           from usage_voip u
           left join clients c on c.client=u.client
@@ -4605,6 +4633,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             c.id as client_id, 
             ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
             s.name as sale_channel,
+            s.id as sale_channel_id,
             s.courier_id as courier_id
           from usage_virtpbx u
           left join clients c on c.client=u.client
@@ -4616,6 +4645,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             c.region, c.id, c.created, s.name  ");
 
       $sale_nums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
+      $sale_8800 = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_vpbx = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_nonums = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
       $sale_lines = array('all'=>array('new'=>0,'old'=>0,'all'=>0));
@@ -4629,18 +4659,38 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           $client_ids[$r['client_id']] = 0;
         if (strlen($r['phone']) > 4) //номера
         {
-          if (!isset($sale_nums[$r['region']])) 
-              $sale_nums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
-
-          if ($r['is_new'] > 0){
-            $sale_nums[$r['region']]['new'] += 1;
-            $sale_nums['all']['new'] += 1;
-          }else{
-            $sale_nums[$r['region']]['old'] += 1;
-            $sale_nums['all']['old'] += 1;
-          }
-          $sale_nums[$r['region']]['all'] += 1;
-          $sale_nums['all']['all'] += 1;
+		if (strpos($r['phone'], '7800') === 0)
+		{
+			if (!isset($sale_8800[$r['region']])) 
+			{
+				$sale_8800[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+			}
+			if ($r['is_new'] > 0)
+			{
+				$sale_8800[$r['region']]['new'] += 1;
+				$sale_8800['all']['new'] += 1;
+			} else {
+				$sale_8800[$r['region']]['old'] += 1;
+				$sale_8800['all']['old'] += 1;
+			}
+			$sale_8800[$r['region']]['all'] += 1;
+			$sale_8800['all']['all'] += 1;
+		} else {
+			if (!isset($sale_nums[$r['region']])) 
+			{
+				$sale_nums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
+			}
+			if ($r['is_new'] > 0)
+			{
+				$sale_nums[$r['region']]['new'] += 1;
+				$sale_nums['all']['new'] += 1;
+			} else {
+				$sale_nums[$r['region']]['old'] += 1;
+				$sale_nums['all']['old'] += 1;
+			}
+			$sale_nums[$r['region']]['all'] += 1;
+			$sale_nums['all']['all'] += 1;
+		}
 
         }else{ //линия без номера
 
@@ -4688,7 +4738,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         }
 
         if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+            $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id'=>$r['sale_channel_id'],'vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
         $sale_channels['managers'][$r['sale_channel']]['nums']['all'] += 1;
         $sale_channels['managers'][$r['sale_channel']]['lines']['all'] += $r['no_of_lines'];
         $sale_channels['all']['lines']['all'] += $r['no_of_lines'];
@@ -4744,7 +4794,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         
 
         if (!isset($sale_channels['managers'][$r['sale_channel']])) 
-            $sale_channels['managers'][$r['sale_channel']] = array('vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
+            $sale_channels['managers'][$r['sale_channel']] = array('sale_channel_id'=>$r['sale_channel_id'],'vpbx' => array('new'=>0,'old'=>0,'all'=>0),'nums' => array('new'=>0,'old'=>0,'all'=>0), 'lines' => array('new'=>0,'old'=>0,'all'=>0), 'clients' => array(), 'visits' => 0, 'courier_id' => $r['courier_id']);
         $sale_channels['managers'][$r['sale_channel']]['vpbx']['all'] += 1;
         $sale_channels['managers'][$r['sale_channel']]['clients'][]=$r['client_id'];
         $sale_channels['all']['vpbx']['all'] += 1;
@@ -4786,35 +4836,38 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       foreach($sale_channels["managers"] as $manager => &$d)
       {
         if ($d['courier_id'] > 0) {
-            $res = $db->GetValue("
-                select count(*) as cnt from (
-                SELECT 
-                    distinct `s`.`date_start` `date`, 
-                    `s`.`state_id` `cur_state`
-                from 
-                (
-                    select 
-                        max(s2.stage_id) as stage_id 
-                    from 
-                        tt_stages s 
-                    inner join tt_troubles t on (t.id = s.trouble_id) 
-                    inner join tt_stages s2 on (t.id = s2.trouble_id) 
-                    inner JOIN `tt_doers` `td` ON `td`.`stage_id` = `s2`.`stage_id` and `td`.`doer_id` = ".$d['courier_id']." 
-                    where 
-                        s.`date_start`>=date_add('$date',interval -$mm month) and
-                        s.`date_start`<date_add('$date',interval -$mm+1 month) and
-                        s.state_id in (2,20) 
-                    group by t.id 
-                )a, tt_stages s 
-                LEFT JOIN `tt_troubles` `tt` ON `tt`.`id` = s.trouble_id 
-                LEFT JOIN `tt_stages` `cts` ON cts.stage_id = tt.cur_stage_id 
-                LEFT JOIN `clients` `cl` ON `cl`.`client` = `tt`.`client` 
-                INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `s`.`stage_id` 
-                INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id` 
-                where 
-                   s.stage_id = a.stage_id and `s`.`state_id`=4
-               )q
-            ");
+            $res = $db->GetValue($qq='SELECT 
+				COUNT(*)
+			FROM 
+				tt_stages as st
+			LEFT JOIN 
+				tt_troubles as tt ON tt.id = st.trouble_id 
+			LEFT JOIN 
+				tt_doers as td ON td.stage_id = st.stage_id 
+			WHERE 
+				tt.id IN (SELECT 
+						DISTINCT(t.id) 
+					FROM 
+						tt_doers as d
+					LEFT JOIN 
+						tt_stages as s ON d.stage_id = s.stage_id 
+					LEFT JOIN 
+						tt_troubles as t ON s.trouble_id = t.id 
+					WHERE 
+						    d.doer_id = ' . $d['courier_id'] . ' 
+						AND 
+						    s.date_start >= date_add("'.$date.'",interval -'.$mm.'-1 month)  
+						AND 
+						    s.date_start < date_add("'.$date.'",interval -'.$mm.'+2 month) 
+					) 
+				AND 
+				    st.state_id = 4 
+				AND 
+				    st.date_start >= date_add("'.$date.'",interval -'.$mm.' month)  
+				AND 
+				    st.date_start < date_add("'.$date.'",interval -'.$mm.'+1 month) 
+				AND  
+				    td.doer_id = ' . $d['courier_id']);
             $sale_channels['all']['visits'] += $res;
             $d['visits'] = $res;
         }
@@ -4850,6 +4903,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
 
       $del_nums = array('all'=>0);
+      $del_8800 = array('all'=>0);
       $del_nonums = array('all'=>0);
       $del_lines = array('all'=>0);
       $del_vpbx = array('all'=>0);
@@ -4882,11 +4936,20 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       {
         if (strlen($r['phone']) > 4)
         {
-          if (!isset($del_nums[$r['region']])) 
-            $del_nums[$r['region']] = 0;
+		if (strpos($r['phone'], '7800') === 0)
+		{
+			if (!isset($del_8800[$r['region']])) 
+				$del_8800[$r['region']] = 0;
 
-          $del_nums[$r['region']] += 1;
-          $del_nums['all'] += 1;
+			$del_8800[$r['region']] += 1;
+			$del_8800['all'] += 1;
+		} else {
+			if (!isset($del_nums[$r['region']])) 
+				$del_nums[$r['region']] = 0;
+
+			$del_nums[$r['region']] += 1;
+			$del_nums['all'] += 1;
+		}
         }else{
           if (!isset($del_nonums[$r['region']])) 
             $del_nonums[$r['region']] = 0;
@@ -4911,25 +4974,28 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       }
 
 
-      $m = date("m") - $mm;
       if ($m < 1) $m = 12;
       $date = $month_list[$m-1].' '.date("Y");
 
       $reports[] = array(
         'date' => $date,
+        'month' => $m,
         'region_sums' => $region_sums,
         'sale_nums'=>$sale_nums,
+        'sale_8800'=>$sale_8800,
         'sale_nonums'=>$sale_nonums,
         'sale_lines'=>$sale_lines,
         'sale_clients'=>$sale_clients,
         'sale_channels'=>$sale_channels,
         'del_nums'=>$del_nums,
+        'del_8800'=>$del_8800,
         'del_nonums'=>$del_nonums,
         'del_lines'=>$del_lines,
         'del_vpbx' => $del_vpbx,
         'sale_vpbx' => $sale_vpbx,
         'vpbx_clients' => $vpbx_clients
       );
+      $m--;
     }
 
     $design->assign("regions", $regions);
@@ -4937,6 +5003,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     $design->assign('reports',$reports);
     $design->assign('curr_phones',$curr_phones);
     $design->assign('curr_vpbx',$curr_vpbx);
+    $design->assign('curr_8800',$curr_8800);
+    $design->assign('curr_no_nums',$curr_no_nums);
     $design->AddMain('stats/report_phone_sales.tpl');
   }
 	function stats_report_vpbx_stat_space($fixclient)
@@ -5182,6 +5250,11 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		}
 		unset($v);
 		return array($stats, $stat_detailed);
+	}
+	function stats_phone_sales_details($fixclient)
+	{
+		include_once 'PhoneSalesDetails.php';
+		PhoneSalesDetails::getDetails();
 	}
 }
 
