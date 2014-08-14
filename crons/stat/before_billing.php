@@ -57,7 +57,7 @@ foreach($db->AllRecords("select id, client, credit from clients where credit > -
 
     $balance = Api::getBalance($l["id"]);
 
-    $lastAbon = getLastMonthSumAbon($l["id"]);
+    $lastAbon = Bill::getPreBillAmount($l["id"]);
 
     if (!($lastAbon > 0)) continue;
 
