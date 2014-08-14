@@ -44,6 +44,7 @@
             <option value='public'{if $data.status eq 'public'} selected{/if}>публичный</option>
             <option value='special'{if $data.status eq 'special'} selected{/if}>специальный</option>
             <option value='archive'{if $data.status eq 'archive'} selected{/if}>архивный</option>
+            <option value='operator'{if $data.status eq 'operator'} selected{/if}>оператор</option>
         </select>
     </td></tr>
     <tr><td>Название тарифа:</td><td>

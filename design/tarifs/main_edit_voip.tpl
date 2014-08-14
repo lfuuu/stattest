@@ -10,6 +10,7 @@
 <option value='public'{if $tarifs_data.status=='public'} selected{/if}>публичный</option>
 <option value='special'{if $tarifs_data.status=='special'} selected{/if}>специальный</option>
 <option value='archive'{if $tarifs_data.status=='archive'} selected{/if}>архивный</option>
+<option value='operator'{if $tarifs_data.status=='operator'} selected{/if}>оператор</option>
 </select></TD></TR>
 <TR><TD class=left width=40%>{$tarifs_translate.currency}</TD>
 <TD><select class=text name=currency>

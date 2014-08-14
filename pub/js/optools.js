@@ -43,8 +43,8 @@ var optools = {
 	friendly:{
 		voip:{
 			change_type:function(el){
-				var type = el.value || el, types=['public','archive','special'], sel
-				for(var i=0;i<3;i++){
+				var type = el.value || el, types=['public','archive','special','operator'], sel
+				for(var i=0;i<4;i++){
 					sel = document.getElementById('t_id_tarif_'+types[i])
 					if(type==types[i]){
 						sel.style.display = 'block'
