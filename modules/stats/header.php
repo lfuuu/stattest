@@ -36,7 +36,8 @@ class m_stats_head extends IModuleHead{
 		'report_phone_sales'  =>  array('stats','report'),
 		'report_agent' => array('stats','report'),
 		'report_sale_channel' => array('stats','sale_channel_report'),
-		'report_vpbx_stat_space' => array('stats', 'report')
+		'report_vpbx_stat_space' => array('stats', 'report'),
+		'phone_sales_details' => array('stats','report'),
 	);
 	var $menu=array(
 		array('Интернет',		'internet'),
