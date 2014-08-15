@@ -28,7 +28,7 @@
 	{foreach from=$stats item="s" name=outer key="k"}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td style="text-align: center;">
-					<a href="?module=stats&action=report_vpbx_stat_space&vpbx={$s->usage_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->usage_id}</a>
+					<a href="?module=stats&action=report_vpbx_stat_space&client_id={$s->client_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
 				</td>
 				{if !$fixclient}
 					<td style="text-align: center;">
@@ -37,15 +37,15 @@
 				{/if}
 				<td style="text-align: center;">{$s->actual|mdate:"j месяца Y"}</td>
 				<td style="text-align: center;">{$s->tarif}</td>
-				<td style="text-align: center;">{$s->max|bytesize}</td>
+				<td style="text-align: center;">{$s->max|bytesize:"b"}</td>
 				<td style="text-align: center;">{$s->max_number}</td>
-				<td style="text-align: center;">{$s->min|bytesize}</td>
+				<td style="text-align: center;">{$s->min|bytesize:"b"}</td>
 				<td style="text-align: center;">{$s->min_number}</td>
-				<td style="text-align: center;">{$s->avg|bytesize}</td>
+				<td style="text-align: center;">{$s->avg|bytesize:"b"}</td>
 				<td style="text-align: center;">{$s->avg_number|number_format:"2":",":" "}</td>
-				<td style="text-align: center;" class="profit">{$s->profit|bytesize}</td>
+				<td style="text-align: center;" class="profit">{$s->profit|bytesize:"b"}</td>
 				<td style="text-align: center;" class="profit">{$s->profit_number}</td>
-				<td style="text-align: center;" class="deficit">{$s->deficit|bytesize}</td>
+				<td style="text-align: center;" class="deficit">{$s->deficit|bytesize:"b"}</td>
 				<td style="text-align: center;" class="deficit">{$s->deficit_number}</td>
 			</tr>
 	{/foreach}
@@ -53,13 +53,15 @@
 	<tr><td colspan="7" style="text-align: center;">Нет информации</td></tr>
 {/if}
 </table>
-{if $stat_detailed}
-	<TABLE class=price cellSpacing=4 cellPadding=2 width="70%" border=0>
+{assign var="details" value=$stat_detailed.0}
+{assign var="totals" value=$stat_detailed.1}
+{if $details}
+	<TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 		<tr>
 			<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Дата</td>
 			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Показатель</td>
-			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Рост</td>
-			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Падение</td>
+			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Изменение за день</td>
+			<td style="text-align: center;" class="header" vAlign=bottom colspan="3">Сумма за день</td>
 		</tr>
 		<tr>
 			<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
@@ -68,17 +70,40 @@
 			<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
 			<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
 			<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>Итого</td>
 		</tr>
-		{foreach from=$stat_detailed item="data" name=outer}
+		{foreach from=$details item="data" name=outer}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td style="text-align: center;">{$data->mdate|mdate:"j месяца Y"}</td>
-				<td style="text-align: center;">{$data->use_space|bytesize}</td>
+				<td style="text-align: center;">{$data->use_space|bytesize:"b"}</td>
 				<td style="text-align: center;">{$data->numbers}</td>
-				<td style="text-align: center;" class="profit">{$data->profit|bytesize}</td>
-				<td style="text-align: center;" class="profit">{$data->profit_number}</td>
-				<td style="text-align: center;" class="deficit">{$data->deficit|bytesize}</td>
-				<td style="text-align: center;" class="deficit">{$data->deficit_number}</td>
+				<td style="text-align: center;color: {if $data->diff > 0}#000033{elseif $data->diff < 0}#663300{else}#C0C0C0{/if};">{if $data->diff > 0}+{/if}{$data->diff|bytesize:"b"}</td>
+				<td style="text-align: center;color: {if $data->diff_number > 0}#000033{elseif $data->diff_number < 0}#663300{else}#C0C0C0{/if}">{if $data->diff_number > 0}+{/if}{$data->diff_number}</td>
+				<td style="text-align: right;">
+						{$data->sum_space|num_format:true:2}{if $data->sum_space}<sup><small>за {$data->for_space} Mb</small></sup>{/if}
+				</td>
+				<td style="text-align: right;">
+					{$data->sum_number|num_format:true:2}{if $data->sum_number}<sup><small>за {$data->for_number} порт(ов)</small></sup>{/if}
+				</td>
+				<td style="text-align: right;">
+					{$data->sum|num_format:true:2}
+				</td>
 			</tr>
 		{/foreach}
+		<tr>
+			<td colspan=4></td>
+			<td>
+				<b>Итого</b>
+			</td>
+			<td style="text-align: right;">
+				{$totals.sum_space|num_format:true:2}{if $totals.sum_space}<sup><small>за {$totals.for_space} Mb</small></sup>{/if}
+			</td>
+			<td style="text-align: right;">
+				{$totals.sum_number|num_format:true:2}{if $totals.sum_number}<sup><small>за {$totals.for_number} порт(ов)</small></sup>{/if}
+			</td>
+			<td style="text-align: right;">
+				{$totals.sum|num_format:true:2}
+			</td>
+		</tr>
 	</table>
 {/if}
