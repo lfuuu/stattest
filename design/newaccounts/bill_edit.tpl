@@ -24,7 +24,7 @@ function mark_del(){
 <option value="nal"{if $bill.nal=="nal"} selected{/if}>нал</option>
 <option value="prov"{if $bill.nal=="prov"} selected{/if}>пров</option>
 </select><br>
-{if $show_bill_no_ext}
+{if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
 Внешний счет: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}">
 <br>
 Дата внешнего счета: <input {if !$bill.bill_no_ext_date} disabled="disabled"{/if} id=date_from  type=text name=bill_no_ext_date value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
