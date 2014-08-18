@@ -154,6 +154,53 @@ class VirtpbxStat extends ActiveRecord\Model
 		}
 		unset($v);
 		return 	array($stat_detailed, $totals);
-	}
+    }
+
+	/**
+	*	Функция возвращает статистику по ВАТС
+	*	@param int $client_id - id клиента
+	*	@param int $from - timestamp начала периода 
+	*	@param int $to - timestamp конца периода
+	*/
+	public static function getVpbxStatDetailsFormated($client_id, $from, $to)
+    {
+
+        if (!$from || strtotime("2000-01-01") > $from || $to < $from || round(($to-$from)/86400) > 100)
+        {
+            $total = array();
+            $total["sum_space"]  = 0;
+            $total["sum_number"] = 0;
+            $total["sum"]        = 0;
+
+            return array("data" => array(), "total" => $total);
+        }
+
+        list($_data, $total) = self::getVpbxStatDetails($client_id, $from, $to);
+
+        $data = array();
+
+        $fields = array("mdate", "use_space", "numbers", "diff", "diff_number", "sum_space", "sum_number", "sum", "for_space", "for_number");
+
+
+        foreach($_data as $l)
+        {
+            $line = ApiLk::_exportModelRow($fields, $l);
+
+            $line["mdate"]      = Encoding::toUTF8(mdate(Encoding::toKoi8r("j месяца Y г."), $line["mdate"]));
+            $line["use_space"]  = smarty_modifier_bytesize($line["use_space"], 'b');
+            $line["diff"]       = number_format($line["diff"], 2, ',', ' ');
+            $line["sum_space"]  = number_format($line["sum_space"], 2, ',', ' ');
+            $line["sum_number"] = number_format($line["sum_number"], 2, ',', ' ');
+            $line["sum"]        = number_format($line["sum"], 2, ',', ' ');
+
+            $data[] = $line;
+        }
+
+        $total["sum_space"]  = number_format($total["sum_space"],  2, ',', ' ');
+        $total["sum_number"] = number_format($total["sum_number"], 2, ',', ' ');
+        $total["sum"]        = number_format($total["sum"], 2, ',', ' ');
+
+        return array("data" => $data, "total" => $total);
+    }
 
 }
