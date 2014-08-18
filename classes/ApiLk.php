@@ -1969,7 +1969,7 @@ class ApiLk
 				and l.sum = '".$sum."'");
     }
 
-    private static function _exportModelRow($fields, &$row)
+    public static function _exportModelRow($fields, &$row)
     {
         $spec_chars = array('/\t/', '/\f/','/\n/','/\r/','/\v/');
         $line = array();
