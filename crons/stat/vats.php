@@ -125,13 +125,13 @@ class VpbxStatisticProcessor
         if ($this->_stat === null)
             throw new Exception("Статистика не получена");
 
-        VirtpbxStatSpace::table()->delete(array("client_id" => $this->clientId, "date" => $this->day));
+        VirtpbxStat::table()->delete(array("client_id" => $this->clientId, "date" => $this->day));
 
         $stat = $this->_stat;
 
         if ($stat["space"] || $stat["numbers"])
         {
-            $record = new VirtpbxStatSpace();
+            $record = new VirtpbxStat();
 
             $record->date = $this->day;
             $record->client_id = $this->clientId;

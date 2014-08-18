@@ -10,7 +10,7 @@
 		global $design;
 		$from = strtotime('first day of this month 00:00:00');
 		$to = strtotime('today  00:00:00');
-		$data = VirtpbxStatSpace::getBadStat($from, $to);
+		$data = VirtpbxStat::getBadStat($from, $to);
 		if (empty($data))
 		{
 			echo "\n" . Encoding::toUtf8("Все данные были получены\n\n");

@@ -7,22 +7,24 @@
 	<input type=hidden name=action value=report_vpbx_stat_space>
 	<TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 		<TBODY>
-			<TR>
-				<TD class=left>
-					<label for="vpbx">Виртуальная АТС:</label>
-				</TD>
-				<TD>
-					<select name="vpbx" id="vpbx">
-						<option value="0" {if $vpbx_id == 0}selected="selected"{/if}>Все</option>
-						{foreach from=$vpbxs item="vpbx"}
-							<option value="{$vpbx->id}" {if $vpbx_id == $vpbx->id}selected="selected"{/if}>
-								{if !$fixclient}{$vpbx->client} {/if}ВАТС {$vpbx->id} {$vpbx->tarif} с {$vpbx->actual|mdate:"j месяца Y"}
-							</option>
-						{/foreach}
-					</select>
-				</TD>
-				
-			</TR>
+			{if !$fixclient}
+				<TR>
+					<TD class=left>
+						<label for="vpbx">Виртуальная АТС:</label>
+					</TD>
+					<TD>
+						<select name="client_id" id="vpbx">
+							<option value="0" {if $client_id == 0}selected="selected"{/if}>Все</option>
+							{foreach from=$vpbxs item="vpbx"}
+								<option value="{$vpbx->client_id}" {if $client_id == $vpbx->client_id}selected="selected"{/if}>
+									ВАТС {if !$fixclient}{$vpbx->client} {/if} {$vpbx->tarif} с {$vpbx->actual|mdate:"j месяца Y"}
+								</option>
+							{/foreach}
+						</select>
+					</TD>
+					
+				</TR>
+			{/if}
 			<tr>
 				<td class=left>С:</td>
 				<td>

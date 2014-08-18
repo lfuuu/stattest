@@ -110,6 +110,7 @@ function do_func($function)
         case 'getAccountSettings': return ApiLk::getAccountSettings(get_param_integer("client_id")); break;
         case 'activateAccountNotification': return ApiLk::activateAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("code")); break;
         case 'activatebyemailAccountNotification': return ApiLk::activatebyemailAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("key")); break;
+        case 'getVpbxDetails': return VirtpbxStat::getVpbxStatDetails(get_param_integer("client_id"), get_param_integer("time_from"), get_param_integer("time_to")); break;
 
 
 		case 'getClientData': return ApiLk::getClientData(get_param_raw("client_id")); break;
