@@ -5211,6 +5211,72 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		unset($v);
 		return array($stats, $stat_detailed);
 	}
+
+    /**
+    * Функция возвращает обобщенную статистику по региону.
+    *
+    * @param $regionId int ид региона
+    * @param $from int(unix_timestamp) дата начала выборки
+    * @param $to   int(unix_timestamp) дата окончания выборки
+    * @return array
+    */
+    function getVoipSummaryRegionStatistic($regionId, $from, $to)
+    {
+        global $pg_db;
+
+        $data = array();
+
+        foreach($pg_db->AllRecords(
+            "SELECT 
+                day, 
+                direction_out, 
+                SUM(len) AS sum_len, 
+                COUNT(*) AS call_count
+            FROM 
+                calls.calls 
+            WHERE 
+                time BETWEEN  '".date("Y-m-d", $from)."' AND '".date("Y-m-d", $to)."'
+                AND srv_region_id = '".$regionId."'
+            GROUP BY 
+                srv_region_id, 
+                day, 
+                direction_out
+            ORDER BY 
+                day,
+                direction_out") as $l)
+        {
+            $day = strtotime($l["day"]);
+
+            if (!isset($data[$day]))
+                $data[$day] = array(
+                    "time" => $day, 
+                    "day" => $l["day"], 
+                    "len" => 0, 
+                    "count" => 0, 
+                    "data_in" => array(
+                        "len" => 0, 
+                        "count" => 0
+                    ), 
+                    "data_out" => array(
+                        "len" => 0, 
+                        "count" => 0
+                        )
+                    );
+
+            $direction = $l["direction_out"] == "f" ? "in" : "out";
+
+            $data[$day]["len"] += $l["sum_len"];
+            $data[$day]["data_".$direction]["len"] = $l["sum_len"];
+
+            $data[$day]["count"] += $l["call_count"];
+            $data[$day]["data_".$direction]["count"] = $l["call_count"];
+        }
+
+        return $data;
+        
+    }
+
+
 	function stats_phone_sales_details($fixclient)
 	{
 		include_once 'PhoneSalesDetails.php';
