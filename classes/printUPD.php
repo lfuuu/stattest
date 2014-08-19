@@ -62,7 +62,7 @@ class printUPD
     private static function constructPage($positions, $rowSize)
     {
         $page = array();
-        $page[] = array("obj" => "header", "size" => self::$defaultRowSize*10);
+        $page[] = array("obj" => "header", "size" => self::$defaultRowSize*get_param_integer('header_size', 10));
 
         for($i=1 ; $i <= $positions; $i++)
         {
@@ -72,7 +72,7 @@ class printUPD
         if ($positions)
             $page[count($page)-1]["is_last"] = true;
 
-        $page[] = array("obj" => "footer", "size" => self::$defaultRowSize*10);
+        $page[] = array("obj" => "footer", "size" => self::$defaultRowSize*get_param_integer('header_size', 10));
         
         return $page;
     }
