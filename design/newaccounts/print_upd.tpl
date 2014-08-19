@@ -268,7 +268,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 {foreach from=$bill_lines item=row key=key name='list'}
 	{if $print_upd.newPageLineIndex.$key}
 		<tr class='tr_h15' style="page-break-after: always;">
-			<td colspan="15" class="td_item">&nbsp;</td>
+			<td colspan="15" style="height: {$print_upd.newPageLineIndex.$key}px;"><p ><span>&nbsp;</span></p></td>
 		</tr>
 	{/if}
 	<tr class='tr_h15'>
