@@ -241,6 +241,12 @@ function smarty_modifier_koi2win($value,$format) {
 function smarty_modifier_bytesize($number, $esc_type = 'Mb')
 {
     static $st = 0;
+    $sign = '';
+    if ($number < 0)
+    {
+	$number = -$number;
+	$sign = '-';
+    }
     $step = array(
 	'0' => 'b',
 	'1' => 'Kb',
@@ -269,7 +275,7 @@ function smarty_modifier_bytesize($number, $esc_type = 'Mb')
 	$number = $number/1024;
     }
     
-    return round($number, 2) . ' ' . $step[$st];
+    return $sign . round($number, 2) . ' ' . $step[$st];
 }
 function smarty_function_objCurrency($params,&$smarty) {
 	$op = &$params['op'];
