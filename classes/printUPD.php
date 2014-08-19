@@ -13,6 +13,11 @@ class printUPD
         {
             $rowSize = self::$defaultRowSize;
         }
+        $changeSize = get_param_integer('page_size', 0);
+        if ($changeSize)
+        {
+		self::changePageSize($changeSize);
+        }
 
         $page = self::constructPage($positions, $rowSize);
 
@@ -44,8 +49,8 @@ class printUPD
                 {
                     return self::getInfo($positions, $rowSize+1);
                 } else {
-		     $newPageLineIndex[$k-1] = true;
-		     $size +=$pobj["size"];
+		     $newPageLineIndex[$k-1] = $pageNum*self::$pageSize-$size;
+		     $size = $pageNum*self::$pageSize;
                 }
                 $pageNum++;
             }
@@ -70,6 +75,10 @@ class printUPD
         $page[] = array("obj" => "footer", "size" => self::$defaultRowSize*10);
         
         return $page;
+    }
+    private static function changePageSize($size)
+    {
+	self::$pageSize = $size;
     }
 }
 
