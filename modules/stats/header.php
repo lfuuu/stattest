@@ -37,7 +37,7 @@ class m_stats_head extends IModuleHead{
 		'report_agent' => array('stats','report'),
 		'report_sale_channel' => array('stats','sale_channel_report'),
 		'report_vpbx_stat_space' => array('stats', 'report'),
-		'phone_sales_details' => array('stats','report'),
+		'phone_sales_details' => array('stats','report')
 	);
 	var $menu=array(
 		array('Интернет',		'internet'),
@@ -68,7 +68,7 @@ class m_stats_head extends IModuleHead{
 		array('Отчет: ИНН', 'report_inn'),
 		array('Отчет по Агентам', 'report_agent'),
 		array('Региональные представители', 'report_sale_channel'),
-		array('ВАТС: свободное про-во', 'report_vpbx_stat_space')
+		array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
 	);
 }
 ?>

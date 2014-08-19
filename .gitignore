@@ -11,6 +11,7 @@
 /store/payments/
 /store/keys/
 /store/mail/
+/store/graphs/
 
 /store/contracts/*
 !template*
