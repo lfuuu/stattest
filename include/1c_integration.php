@@ -1427,6 +1427,32 @@ class SoapHandler{
         return array('return'=>true);
     }
 
+    public function statSaveUnit($data)
+    {
+        global $db;
+
+        $code = $data->{tr('ЕдиницаИзмерения')}->{tr('Код1С')};
+        $okei = $data->{tr('ЕдиницаИзмерения')}->{tr('Код')};
+        $name = trr($data->{tr('ЕдиницаИзмерения')}->{tr('Наименование')});
+        $isDel = $data->{tr('ЕдиницаИзмерения')}->{tr('Удален')};
+
+        $db->QueryDelete("g_unit", array("id" => $code));
+        if(!$isDel)
+        {
+            $db->QueryInsert("g_unit", array(
+                    "id"=>$code,
+                    "name"=>$name,
+                    "okei"=>$okei
+                    )
+            );
+        }
+        $err = mysql_errno();
+        if($err) {
+            return new \SoapFault('statSaveUnit',tr('ошибка создания Единица Измерения: '.mysql_error()));
+        }
+        return array('return'=>true);
+    }
+
     public function statSavePriceList($data)
     {
         global $db;
@@ -1446,7 +1472,7 @@ class SoapHandler{
 
         $d = array();
         foreach($l as $i){
-            $goodId = $i->{tr('КодНоменклатура1С')};
+            $goodId = $i->{tr('Код Номенклатура1С')};
             $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
             $priceId = $i->{\_1c\tr('КодВидЦен1С')};
             $cost = $i->{\_1c\tr('Цена')};
@@ -1585,7 +1611,8 @@ class SoapHandler{
             "is_allowpricechange" => "РазрешитьПроизвольныеЦены",
             "division_id" => "ОтвПодразделение",
             "store" => "ТипЗапаса",
-            "nds" => "СтавкаНДС"
+            "nds" => "СтавкаНДС",
+            "unit_id" => "КодЕдиницыИзмерения"
         );
         $d = array();
         foreach($f as $field => $_1cname) {
