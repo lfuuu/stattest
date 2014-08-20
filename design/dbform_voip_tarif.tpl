@@ -259,5 +259,29 @@ $(document).ready(function(){
 <tr><td>Дата активации:</td><td><input type=text class=text name=dbform[t2_date_activation] value={if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}></td></tr>
 </table><br>
 <script type="text/javascript">
-	optools.friendly.voip.change_type('{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.status}{else}public{/if}')
+	optools.friendly.voip.change_type('{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.status}{else}public{/if}');
+</script>
+
+<div id="div_extend_reserv" style="display: none;"><input type=button id="extend_reserv" value="Продлить резерв" class="button" style="margin-left: 10%;"></div>
+<script>
+    {literal}
+        if ($("#actual_from").val() == "2029-01-01" && $("#actual_to").val() == "2029-01-01")
+        {
+            $("#div_extend_reserv").show();
+            $("#div_extend_reserv").click(function(){ 
+                $.ajax({
+                    type: "POST",
+                    url: "./?module=services&action=rpc_extendReserv", 
+                    data: {usage_id: $("#id").val()}
+                }).done(function(d) {
+                    if (d == "ok")
+                    {
+                        document.location.href='./pop_services.php?table=usage_voip&id=' + $("#id").val();
+                    } else {
+                        alert(d);
+                    }
+                })
+            });
+        }
+    {/literal}
 </script>

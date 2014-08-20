@@ -3152,6 +3152,40 @@ class m_services extends IModule{
 
         echo json_encode($Res);
     }
+
+    public function services_rpc_extendReserv($fixclient)
+    {
+        global $db, $user;
+
+        $usage_id = get_param_integer("usage_id", 0);
+
+        if ($usage_id > 0)
+        {
+            $usage_id = $db->GetValue("select id from usage_voip where actual_from = '2029-01-01' and actual_to = '2029-01-01' and id = '".$db->escape($usage_id)."'");
+
+            if ($usage_id)
+            {
+                $max_id = $db->GetValue("select max(id) from log_tarif where service='usage_voip' and id_service='".$db->escape($usage_id)."'");
+
+                $lastLog = $db->GetRow("select * from log_tarif where id = '".$max_id."'");
+
+                unset($lastLog["id"]);
+                $lastLog["ts"] = date("Y-m-d H:i:s");
+                $lastLog["id_user"] = $user->Get("id");
+                $lastLog["comment"] = "продление резерва";
+
+                $db->QueryInsert("log_tarif", $lastLog);
+
+                echo "ok";
+                exit();
+            } else {
+                echo "Ошибка!";
+            }
+        } else {
+            echo "Ошибка!";
+        }
+        exit();
+    }
 }
 
 class voipRegion
