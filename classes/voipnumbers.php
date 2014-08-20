@@ -69,6 +69,9 @@ class voipNumbersChecker
         foreach($db->AllRecords($sql) as $l)
             $d[$l["e164"]] = $l;
 
+        if (!$d)
+            throw new Exception("Data not load");
+
         return $d;
     }
 
