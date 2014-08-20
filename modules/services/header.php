@@ -101,6 +101,8 @@ class m_services_head extends IModuleHead {
 					'virtpbx_apply'			=> array('services_welltime','full'),
 					'virtpbx_act'			=> array('services_welltime','docs'),
 					'virtpbx_delete'		=> array('services_voip','del2029'),
+                    'rpc_extendReserv'      => array('services_voip','edit'),
+
 //8800
 					'8800_view'			=> array('services_welltime','full'),
 					'8800_add'			=> array('services_welltime','full'),
