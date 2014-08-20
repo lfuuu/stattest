@@ -293,11 +293,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
                             {if $row.type == "service"}
                             --
                             {else}
-                            769
+                            796
                             {/if}
                         {/if}
                     {else}
-                    769
+                    796
                     {/if}
                 {/if}</span></p>
 		</td>

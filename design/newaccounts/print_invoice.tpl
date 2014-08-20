@@ -266,11 +266,11 @@
                         {if $row.type == "service"}
                             -
                         {else}
-                            769
+                            796
                         {/if}
                     {/if}
                 {else}
-                    769
+                    796
                 {/if}
             {/if}
     {*if $row.okvd_code && !$is_four_order}{$row.okvd_code|string_format:"%03d"}{else}
