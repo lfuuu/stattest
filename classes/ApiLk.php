@@ -1965,8 +1965,10 @@ class ApiLk
 			where
 					b.bill_no = l.bill_no
 				and client_id = '".$clientId."'
-				and is_user_prepay = 1
-				and l.sum = '".$sum."'");
+                and l.sum = '".$sum."'
+                order by bill_date desc 
+                limit 1");
+        );
     }
 
     public static function _exportModelRow($fields, &$row)
