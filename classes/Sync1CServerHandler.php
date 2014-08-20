@@ -305,7 +305,7 @@ class Sync1CServerHandler
             $item->document_id = $document->id;
             $item->order_id = $document->order_id;
             $item->good_id = $line->Номенклатура?: 0;
-            $item->good_ext_id = $line->Характеристика;
+            $item->good_ext_id = $line->Характеристика ?: '00000000-0000-0000-0000-000000000000';
             $item->price = $line->Цена?: 0.00;
             $item->amount = $line->Количество?: 0;
             $item->sum = $line->Сумма ?: 0.00;
