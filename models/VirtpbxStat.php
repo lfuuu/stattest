@@ -185,7 +185,8 @@ class VirtpbxStat extends ActiveRecord\Model
 
             $line["mdate"]      = Encoding::toUTF8(mdate(Encoding::toKoi8r("j месяца Y г."), $line["mdate"]));
             $line["use_space"]  = smarty_modifier_bytesize($line["use_space"], 'b');
-            $line["diff"]       = number_format($line["diff"], 2, ',', ' ');
+            $line["diff"]       = smarty_modifier_bytesize($line["diff"], 'b');
+            $line["for_space"]  = smarty_modifier_bytesize($line["for_space"], 'Gb');
             $line["sum_space"]  = number_format($line["sum_space"], 2, ',', ' ');
             $line["sum_number"] = number_format($line["sum_number"], 2, ',', ' ');
             $line["sum"]        = number_format($line["sum"], 2, ',', ' ');
