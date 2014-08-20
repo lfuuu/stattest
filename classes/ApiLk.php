@@ -1968,7 +1968,6 @@ class ApiLk
                 and l.sum = '".$sum."'
                 order by bill_date desc 
                 limit 1");
-        );
     }
 
     public static function _exportModelRow($fields, &$row)
