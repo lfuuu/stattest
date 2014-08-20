@@ -69,7 +69,7 @@ class NewBill extends ActiveRecord\Model
     public function createBillOnPay($clientId, $paySum)
     {
         $currency = "RUR";
-        $bill = new Bill(null,$clientId,time(),0,$currency);
+        $bill = new Bill(null,$clientId,time(),0,$currency, true, true);
         $bill->AddLine($currency, Encoding::toKoi8r("Авансовый платеж за услуги связи"),1, $paySum/1.18, "zadatok");
         $bill->Save();
 
