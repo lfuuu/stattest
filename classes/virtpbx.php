@@ -40,7 +40,7 @@ class virtPbxChecker
                 AND actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
                 AND u.client = c.client 
                 AND (   
-                           c.status IN ('work','connecting','testing') 
+                           c.status IN ('work','negotiations','connecting','testing','debt','blocked','suspended') 
                         OR c.client = 'id9130'
                         )
             GROUP BY u.client
@@ -69,6 +69,9 @@ class virtPbxChecker
         $d = array();
         foreach($_db->AllRecords($sql) as $l)
             $d[$l["client_id"]] = $l;
+
+        if (!$d)
+            throw new Exception("Data not load");
 
         return $d;
     }
