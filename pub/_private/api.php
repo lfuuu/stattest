@@ -88,7 +88,7 @@ function do_func($function)
 		case 'disconnectEmail': return ApiLk::disconnectEmail(get_param_raw("client_id"), get_param_raw("email_id"), get_param_raw("action")); break;
 
 		case 'getStatisticsVoipPhones': return ApiLk::getStatisticsVoipPhones(get_param_raw("client_id")); break;
-		case 'getStatisticsVoipData': return ApiLk::getStatisticsVoipData(get_param_raw("client_id"), get_param_raw("phone"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("destination"), get_param_raw("direction"), get_param_raw("onlypay")); break;
+		case 'getStatisticsVoipData': return ApiLk::getStatisticsVoipData(get_param_raw("client_id"), get_param_raw("phone"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("destination"), get_param_raw("direction"), get_param_raw("onlypay"), get_param_raw("is_full")); break;
 		case 'getStatisticsInternetRoutes': return ApiLk::getStatisticsInternetRoutes(get_param_raw("client_id")); break;
 		case 'getStatisticsInternetData': return ApiLk::getStatisticsInternetData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
 		case 'getStatisticsCollocationData': return ApiLk::getStatisticsCollocationData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;

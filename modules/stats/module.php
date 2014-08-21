@@ -1010,7 +1010,7 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array()){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array(), $isFull = false){
         global $pg_db;
 
         /*
@@ -1142,7 +1142,7 @@ class m_stats extends IModule{
                             where '.MySQLDatabase::Generate($W).$group."
                             ORDER BY
                                     ts1 ASC
-                            LIMIT 5000";
+                            LIMIT ".($isFull ? "50000" : "5000");
 
             $pg_db->Query($sql);
 

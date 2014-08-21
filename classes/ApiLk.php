@@ -1377,7 +1377,7 @@ class ApiLk
         return $ret;
     }
 
-    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $onlypay = 0)
+    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $onlypay = 0, $isFull = 0)
     {
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
@@ -1421,7 +1421,7 @@ class ApiLk
             foreach ($all_regions as $reg) $ar[$reg['id']] =  Encoding::toUTF8($reg['name']);
             $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
         } else {
-            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array());
+            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), $isFull);
         }
         foreach ($stats as $k=>$r) {
             $stats[$k]["ts1"] = Encoding::toUTF8($stats[$k]["ts1"]);
