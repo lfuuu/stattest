@@ -1073,6 +1073,42 @@ class m_stats extends IModule{
             $W[]='amount!=0';
         }
 
+        global $db;
+
+        $isByMins = $db->GetValue(
+            $q = "
+                select 
+                    lt.id_service 
+                from 
+                    log_tarif lt, 
+                    tarifs_voip tv, 
+                    usage_voip uv , 
+                    (
+                        select 
+                            id_service, 
+                            max(lt.id) max_log 
+                        from 
+                            log_tarif lt, 
+                            usage_voip uv, 
+                            clients c 
+                        where 
+                                uv.id = id_service 
+                            and lt.service ='usage_voip' 
+                            and cast(now() as date) between uv.actual_from and uv.actual_to 
+                            and uv.client=c.client 
+                            and c.id = '".$client_id."'
+                        group by 
+                            id_service
+                    ) a 
+                where 
+                        tv.id = lt.id_tarif 
+                    and uv.id = lt.id_service 
+                    and a.id_service = uv.id 
+                    and a.max_log = lt.id 
+                    and tariffication_by_minutes = 1 
+                limit 1");
+
+
         //$Trans0= array('BUSY'=>'номер занят','FAILED'=>'ошибка','NO ANSWER'=>'нет ответа','CONGESTION'=>'номер занят');
         //$Trans=array();
         //$db->Query('select * from usage_nvoip_result');
@@ -1094,9 +1130,12 @@ class m_stats extends IModule{
             elseif ($detality == 'month') $sql.= " date_trunc('month',month) as ts1, ";
             elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
             else $sql.= ' time as ts1, ';
+
+            $lenSql = $isByMins ? "case direction_out='f' when true then ((len_mcn-len_mcn%60)+60) else len_mcn end" : "len_mcn";
+
             $sql .=
             'cast('.($group?'sum':'').'(amount)/100.0 as NUMERIC(10,2)) as price,
-                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len_mcn else 0 end':'len_mcn').') as ts2,
+                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then '.$lenSql.' else 0 end':$lenSql).') as ts2,
                                     '.($group?'sum('.($paidonly?'case amount>0 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
                                     calls.calls_'.intval($region).'
