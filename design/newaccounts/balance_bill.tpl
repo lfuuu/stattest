@@ -42,7 +42,9 @@
 </tr>{/foreach}
 
 <tr style='background:#FFFFFF'>
-<td colspan=4 align=right><b>Всего по долларовым счетам:</b></td>
+<td colspan=2 align=left><b>Всего клиентов:</b></td>
+<td align=left>{$clients_count}</td>
+<td align=right><b>Всего по долларовым счетам:</b></td>
 <td align=right>{$bills_total_USD.sum} $</td>
 <td align=center>{$bills_total_USD.pay_sum_usd} $ = {$bills_total_USD.pay_sum_rur} р</td>
 </tr>
