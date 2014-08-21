@@ -212,7 +212,7 @@ class m_tt extends IModule{
             // find last income order. Number mast by repeated.
             $gio = GoodsIncomeOrder::find("first", array(
                         "conditions" => array(
-                            "number = ?", $trouble["bill_no"]
+                            "id = ?", $trouble["bill_id"]
                             ), 
                         "order" => "date desc", 
                         "limit" => 1)
