@@ -2,7 +2,7 @@
 //вывод данных мониторинга
 class m_monitoring {
 	var $rights=array(
-					'monitoring'		=>array('Просмотр данных мониторинга','view,top,edit','просмотр,панелька сверху,редактирование списка VIP-клиентов')
+					'monitoring'		=>array('Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики')
 				);
 	var $actions=array(
 					'default'			=> array('monitoring','view'),
@@ -10,9 +10,13 @@ class m_monitoring {
 					'add'				=> array('monitoring','edit'),
 					'view'				=> array('monitoring','view'),
 					'top'				=> array('monitoring','top'),
+					'report_voip_graph' 		=> array('monitoring','graphs'),
+					'report_bill_graph' 		=> array('monitoring','graphs'),
 				);
 	var $menu=array(
 					array('VIP-клиенты',			'default'),
+					array('Отчет: Динамика звоноков',	'report_voip_graph'),
+					array('Отчет: Динамика счетов',	'report_bill_graph'),
 				);
 	function m_monitoring(){	
 		
@@ -223,6 +227,476 @@ class m_monitoring {
 		$alt=''; if ($C1+$C2==0) $alt=' alt="Ошибка. Обратитесь к администратору."';
 		if ($v>=2 && $P1+$P2>0) $img=$P1.'_'.$P2; else $img=$P1;
 		return '<img width=12 height=12 src="'.WEB_IMAGES_PATH.'stat/'.$img.'.png"'.$alt.'>';*/
+	}
+	
+	/**
+	 * Функция возвращает обобщенную статистику по региону.
+	 *
+	 * @param $regionId int ид региона
+	 * @param $from int(unix_timestamp) дата начала выборки
+	 * @param $to   int(unix_timestamp) дата окончания выборки
+	 * @return array
+	 */
+	function getVoipSummaryRegionStatistic($regionId, $from, $to)
+	{
+		global $pg_db;
+
+		$data = array();
+
+		foreach($pg_db->AllRecords(
+			"SELECT 
+				day, 
+				direction_out, 
+				SUM(len) AS sum_len, 
+				COUNT(*) AS call_count
+			FROM 
+				calls.calls 
+			WHERE 
+				time BETWEEN  '".date("Y-m-d", $from)."' AND '".date("Y-m-d", $to)."'
+				AND srv_region_id = '".$regionId."'
+			GROUP BY 
+				srv_region_id, 
+				day, 
+				direction_out
+			ORDER BY 
+				day,
+				direction_out") as $l)
+		{
+			$day = strtotime($l["day"]);
+
+			if (!isset($data[$day]))
+				$data[$day] = array(
+				"time" => $day, 
+				"day" => $l["day"], 
+				"len" => 0, 
+				"count" => 0, 
+				"data_in" => array(
+					"len" => 0, 
+					"count" => 0
+				), 
+				"data_out" => array(
+					"len" => 0, 
+					"count" => 0
+					)
+				);
+
+			$direction = $l["direction_out"] == "f" ? "in" : "out";
+
+			$data[$day]["len"] += $l["sum_len"];
+			$data[$day]["data_".$direction]["len"] = $l["sum_len"];
+
+			$data[$day]["count"] += $l["call_count"];
+			$data[$day]["data_".$direction]["count"] = $l["call_count"];
+		}
+
+		return $data;
+        
+	}
+	function monitoring_report_voip_graph($fixclient)
+	{
+		global $design,$db;
+		require_once ('JpGraphsInit.php');
+		require_once (PATH_TO_ROOT.'libs/jpgraph/jpgraph.php');
+		require_once (PATH_TO_ROOT.'libs/jpgraph/jpgraph_line.php');
+		$regionId = get_param_integer('region', 99);
+		$design->assign('region', $regionId);
+		
+		$from = strtotime('first day of this month 00:00:00');
+		$to = strtotime('last day of this month 23:59:59');
+		
+		$week_start = min(date('w', $from),date('w', strtotime('-1 month', $from)),date('w', strtotime('-2 month', $from)));
+
+		$data = $this->getVoipSummaryRegionStatistic($regionId, strtotime('-2 month',$from), $to);
+
+		$week_stats = array();
+		$g_data = array();
+		$no_calls = array();
+		$week_num = null;
+		if (!empty($data))
+		{
+			foreach ($data as $k=>$v)
+			{
+				//понедельная статистика
+				if ($week_num != date('W', $k))
+				{
+					if (isset($week_stats[$week_num])) 
+					{
+						$week_stats[$week_num]['avg'] = $week_stats[$week_num]['count']/$week_stats[$week_num]['count_in_week'];
+						$week_stats[$week_num]['len_avg'] = $week_stats[$week_num]['len']/$week_stats[$week_num]['count_in_week'];
+					}
+					if (isset($week_stats[$week_num-1]))
+					{
+						$week_stats[$week_num]['diff'] = $week_stats[$week_num]['count'] - $week_stats[$week_num-1]['count'];
+						$week_stats[$week_num]['len_diff'] = $week_stats[$week_num]['len'] - $week_stats[$week_num-1]['len'];
+					}
+				}
+				$week_num = date('W', $k);
+				$v['len'] = round($v['len']/3600,2);
+				if (!isset($week_stats[$week_num]))
+				{
+					$week_stats[$week_num] = array(
+						'count' => 0,
+						'max' => 0,
+						'min' => $v['count'],
+						'avg' => 0,
+						'count_in_week' => 0,
+						'len' => 0,
+						'len_max' => 0,
+						'len_min' => $v['len'],
+						'len_avg' => 0,
+						'week_start' => $k,
+						'week_end' => ''
+					);
+				}
+				$week_stats[$week_num]['count'] += $v['count'];
+				$week_stats[$week_num]['len'] += $v['len'];
+				$week_stats[$week_num]['max'] = ($v['count'] > $week_stats[$week_num]['max']) ? $v['count'] : $week_stats[$week_num]['max'];
+				$week_stats[$week_num]['min'] = ($v['count'] < $week_stats[$week_num]['min']) ? $v['count'] : $week_stats[$week_num]['min'];
+				$week_stats[$week_num]['len_max'] = ($v['len'] > $week_stats[$week_num]['len_max']) ? $v['len'] : $week_stats[$week_num]['len_max'];
+				$week_stats[$week_num]['len_min'] = ($v['len'] < $week_stats[$week_num]['len_min']) ? $v['len'] : $week_stats[$week_num]['len_min'];
+				$week_stats[$week_num]['count_in_week']++;
+				$week_stats[$week_num]['week_end'] = $k;
+				
+				//данные для графиков
+				$f_day = null;
+				if (!isset($month_num) || $month_num != date('n', $k))
+				{
+					if (isset($month_num)) {
+						$ts = strtotime('last day of previous month', $k);
+						$last_day = date('j', $ts);
+						if ($last_day != $prev_day)
+						{
+							$index = count($g_data['count'][$month_num])-1;
+							$val_count = $g_data['count'][$month_num][$index];
+							$val_len = $g_data['len'][$month_num][$index];
+							for($i=$prev_day+1;$i<=$last_day;$i++)
+							{
+								$g_data['count'][$month_num][] = '-';
+								$g_data['len'][$month_num][] = '-';
+								$no_calls[] = strtotime(date('Y', $ts) . '-' . $month_num . '-' . $i);
+								$index = count($g_data['count'][$month_num])-1;
+								$no_calls_lines['count'][$month_num][][$index] = $val_count;
+								$no_calls_lines['len'][$month_num][][$index] = $val_len;
+							}
+						}
+					}
+					$prev_day = 0;
+				}
+				$month_num = date('n', $k);
+				$this_day = date('j', $k);
+				if ($this_day - $prev_day > 1)
+				{
+					$j = 1;
+					$dx = $this_day-$prev_day;
+					if (isset($g_data['count'][$month_num]))
+					{
+						$index = count($g_data['count'][$month_num])-1;
+						$val_count = $g_data['count'][$month_num][$index];
+						$val_len = $g_data['len'][$month_num][$index];
+					} else {
+						$index=$val_count=$val_len=0;
+					}
+					$dy_c =  round($v['count']/1000,3) - $val_count;
+					$dy_l =  $v['len'] - $val_len;
+					for($i=$prev_day+1;$i<$this_day;$i++)
+					{
+						$g_data['count'][$month_num][] = '-';
+						$g_data['len'][$month_num][] = '-';
+						$no_calls[] = strtotime(date('Y', $k) . '-' . $month_num . '-' . $i);
+						$index = count($g_data['count'][$month_num])-1;
+						$no_calls_lines['count'][$month_num][][$index] = $val_count + $j*$dy_c/$dx;
+						$no_calls_lines['len'][$month_num][][$index] = $val_len + $j*$dy_l/$dx;
+						$j++;
+					}
+					
+				}
+				$prev_day = $this_day;
+				$g_data['count'][$month_num][] = round($v['count']/1000,3);
+				$g_data['len'][$month_num][] = $v['len'];
+			}
+			$week_stats[$week_num]['avg'] = $week_stats[$week_num]['count']/$week_stats[$week_num]['count_in_week'];
+			$week_stats[$week_num]['len_avg'] = $week_stats[$week_num]['len']/$week_stats[$week_num]['count_in_week'];
+			if (isset($week_stats[$week_num-1]))
+			{
+				$week_stats[$week_num]['diff'] = $week_stats[$week_num]['count'] - $week_stats[$week_num-1]['count'];
+				$week_stats[$week_num]['len_diff'] = $week_stats[$week_num]['len'] - $week_stats[$week_num-1]['len'];
+			}
+			$graph_count = JpGraphsInit::getLineGraph('Количество звонков, шт x 1000');
+			$graph_duration = JpGraphsInit::getLineGraph('Продолжительность звонков, час');
+			
+			JpGraphsInit::setLines($graph_count,$g_data['count'], $week_start);
+			JpGraphsInit::setLines($graph_duration,$g_data['len'], $week_start);
+			
+			if (!empty($no_calls_lines))
+			{
+				JpGraphsInit::setNoCallLines($graph_count,$no_calls_lines['count'], $week_start);
+				JpGraphsInit::setNoCallLines($graph_duration,$no_calls_lines['len'], $week_start);
+			}
+
+			$gc_filename = PATH_TO_ROOT.'store/graphs/count.png';
+			$graph_count->legend->SetFrameWeight(1);
+			$graph_count->Stroke($gc_filename);
+			$design->assign('graph_count', $gc_filename);
+			
+			$gd_filename = PATH_TO_ROOT.'store/graphs/duration.png';
+			$graph_duration->legend->SetFrameWeight(1);
+			$graph_duration->Stroke($gd_filename);
+			$design->assign('graph_duration', $gd_filename);
+		}
+		
+		$regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
+		$design->assign('regions', $regions);
+		
+		$i=$key=$j=0;
+		$no_calls_periods = array();
+		while (isset($no_calls[$i]))
+		{
+			$month = date('n', $no_calls[$i]);
+			$no_calls_periods[$month][$key]['start'] = $no_calls[$i];
+			while (isset($no_calls[$i+1]) && date('n', $no_calls[$i+1]) == $month && (date('j', $no_calls[$i+1]) - date('j', $no_calls[$i]))==1)
+			{
+				$i++;
+			}
+			$no_calls_periods[$month][$key]['end'] = $no_calls[$i];
+			$i++;
+			$key++;
+		}
+		$design->assign('no_calls_periods', $no_calls_periods);
+		$design->assign('week_stats', $week_stats);
+		$design->AddMain('monitoring/report_voip_graph.tpl');
+		
+	}
+	/**
+	 * Функция возвращает обобщенную статистику счетов.
+	 *
+	 * @param $regionId int ид региона
+	 *	если задан то берется информация по заданому региону
+	 *	иначе берется информация по всем регионам кроме Москвы
+	 * @param $from int(unix_timestamp) дата начала выборки
+	 * @param $to   int(unix_timestamp) дата окончания выборки
+	 * @return array
+	 */
+	function getBillsStatistic($regionId, $from, $to)
+	{
+		$options = array();
+		$options['select'] = '
+			DATE_FORMAT(B.bill_date, "%c") as month,
+			DATE_FORMAT(B.bill_date, "%Y") as year,
+			SUM(L.sum) as sum,
+			C.region as region,
+			SUM(
+				IF(
+					L.type = "good" OR C.status = "once", 
+					L.sum, 
+					0
+				)
+			) as good,
+			SUM(
+				IF (
+					L.type = "service" 
+					AND
+					DATE_FORMAT(B.bill_date, "%m") = DATE_FORMAT(L.date_from, "%m") 
+					AND 
+					DATE_FORMAT(B.bill_date, "%m") = DATE_FORMAT(L.date_from,"%m"),
+					L.sum,
+					0
+				)
+			) as abon,
+			SUM(
+				IF (
+					L.type = "service" 
+					AND
+					DATE_FORMAT(B.bill_date, "%m") <> DATE_FORMAT(L.date_from, "%m") 
+					AND  
+					DATE_FORMAT(B.bill_date, "%m") <> DATE_FORMAT(L.date_from,"%m"),
+					L.sum,
+						0
+				)
+			) as overrun
+		';
+		$options['from'] = 'newbills as B';
+		$options['joins'] = '
+			LEFT JOIN clients as C ON C.id = B.client_id 
+			LEFT JOIN newbill_lines as L ON B.bill_no = L.bill_no
+		';
+		$options['conditions'] = array(
+			'C.region > 0 AND C.status = ? AND C.type IN (?) AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ?',
+			'work',
+			array('org', 'priv'),
+			date('Y-m-d', $from),
+			date('Y-m-d', $to),
+			'RUR',
+			0
+		);
+		if ($regionId)
+		{
+			$options['conditions'][0] .= ' AND C.region = ?';
+			$options['conditions'][] = $regionId;
+		} else {
+			$options['conditions'][0] .= ' AND C.region <> ?';
+			$options['conditions'][] = 99;
+		}
+		$options['group'] = 'region, month';
+		$options['order'] = 'region DESC, year ASC, month ASC';
+		$_bills = NewBill::find('all', $options);
+		
+		$min_month = date('n', $from);$max_month = date('n', $to);$year = date('Y');
+		if ($min_month > $max_month)
+		{
+			$periods = array(array('start' => $min_month, 'end' => 12, 'year' => $year-1), array('start' => 1, 'end' => $max_month, 'year' => $year));
+		} else {
+			$periods = array(array('start' => $min_month, 'end' => $max_month, 'year' => $year));
+		}
+		$total = array();
+		foreach ($_bills as $b)
+		{
+			if (!isset($total[$b->region]))
+			{
+				$total[$b->region] = array();
+				foreach ($periods as $period)
+				{
+					$year = $period['year'];
+					for($month=$period['start'];$month<=$period['end'];$month++)
+					{
+						$created = false;
+						foreach ($_bills as $v)
+						{
+							if ($b->region == $v->region && $v->month == $month && $v->year == $year)
+							{
+								$created = true;
+								$total[$b->region]['bills']['abons'][] =round($v->abon/1000);
+								$total[$b->region]['bills']['overruns'][] =round($v->overrun/1000);
+								$total[$b->region]['bills']['goods'][] =round($v->good/1000);
+								$total[$b->region]['bills']['diff'][] =round(($v->sum-$v->abon-$v->overrun-$v->good)/1000);
+								
+								$total[$b->region]['bills_by_month'][$v->month][] =round($v->abon/1000);
+								$total[$b->region]['bills_by_month'][$v->month][] =round($v->overrun/1000);
+								$total[$b->region]['bills_by_month'][$v->month][] =round($v->good/1000);
+								$total[$b->region]['bills_by_month'][$v->month][] =round(($v->sum-$v->abon-$v->overrun-$v->good)/1000);
+							}
+						}
+						if (!$created)
+						{
+							$total[$b->region]['bills']['abons'][] = 0;
+							$total[$b->region]['bills']['overruns'][] =0;
+							$total[$b->region]['bills']['goods'][] =0;
+							$total[$b->region]['bills']['diff'][] =0;
+							
+							$total[$b->region]['bills_by_month'][$month][] =0;
+							$total[$b->region]['bills_by_month'][$month][] =0;
+							$total[$b->region]['bills_by_month'][$month][] =0;
+							$total[$b->region]['bills_by_month'][$month][] =0;
+						}
+					}
+				}
+			}
+		}
+		return $total;
+	}
+	function monitoring_report_bill_graph($fixclient)
+	{
+		global $design,$db;
+		require_once ('JpGraphsInit.php');
+		require_once (PATH_TO_ROOT.'libs/jpgraph/jpgraph.php');
+		require_once (PATH_TO_ROOT.'libs/jpgraph/jpgraph_bar.php');
+		$regionId = get_param_integer('region', 99);
+		$design->assign('region', $regionId);
+		$from = strtotime('first day of this month 00:00:00');
+		$from = strtotime('-5 month',$from);
+		$to = strtotime('last day of this month 23:59:59');
+		
+		$_data = $this->getBillsStatistic($regionId, $from, $to);
+		$graphs = array();
+		if (!empty($_data))
+		{
+			foreach ($_data as $r_id => $region_data)
+			{
+				$data_by_month = $region_data['bills_by_month'];
+				$data = $region_data['bills'];
+				if (!empty($data_by_month))
+				{
+					$graph = JpGraphsInit::getBarGraph('Подробная информация по счетам, тыс. рублей');
+					$graph->xaxis->SetTickLabels(array(
+						Encoding::toUtf8('абонентская плата'),
+						Encoding::toUtf8('Превышение'),
+						Encoding::toUtf8('Товары'),
+						Encoding::toUtf8('Остальное')
+					));
+					$colors = array('#0000CD','#B0C4DE','#8B008B', 'yellow', 'red', 'green');
+					$bplots = array();
+					$ts = $to+1;
+					for ($i=0;$i<=5;$i++)
+					{
+						$ts = strtotime('-1 month', $ts);
+						$month_key = date('n', $ts);
+						if (!isset($data_by_month[$month_key]))
+						{
+							$data_by_month[$month_key] = array(0.001,0.001,0.001,0.001);
+						}
+						
+						$bplot = new BarPlot($data_by_month[$month_key]);
+						$bplot->SetLegend(Encoding::toUtf8(mdate('Месяц', $ts)));
+						$bplots[] = $bplot;
+					}
+
+					$gbplot = new GroupBarPlot(array_reverse($bplots));
+					$graph->Add($gbplot);
+					foreach ($bplots as $k=>$v)
+					{
+						$v->SetColor($colors[$k]);
+						$v->SetFillColor($colors[$k]);
+					}
+					
+					$filename = PATH_TO_ROOT.'store/graphs/bills_details_'. $r_id .'.png';
+					// Display the graph
+					$graph->Stroke($filename);
+					$graphs[$r_id]['bill_details'] = $filename;
+					unset($graph);
+				}
+				if (!empty($data))
+				{
+					$graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей');
+					
+					$ts = $from;
+					for ($i=0;$i<=5;$i++)
+					{
+						if ($i) $ts = strtotime('+1 month', $ts);
+						$xaxis[] = Encoding::toUtf8(mdate('Месяц', $ts));
+					}
+					
+					$graph->xaxis->SetTickLabels($xaxis);
+					$colors = array('#0000CD','#B0C4DE','#8B008B', '#000000');
+					$legends = array('abons'=>'Абоненская плата', 'overruns'=>'Превышение', 'goods'=>'Товары', 'diff'=>'Остальное');
+					$bplots = array();
+					$i=0;
+					foreach ($data as $k=>$v)
+					{
+						$bplot = new BarPlot($v);
+						$bplot->SetLegend(Encoding::toUtf8($legends[$k]));
+						$bplots[] = $bplot;
+						$i++;
+					}
+					
+					$gbbplot = new AccBarPlot($bplots);
+					$gbplot = new GroupBarPlot(array($gbbplot));
+					$graph->Add($gbplot);
+					$graph->legend->setReverse(true);
+					foreach ($bplots as $k=>$v)
+					{
+						$v->SetColor($colors[$k]);
+						$v->SetFillColor($colors[$k]);
+					}
+					$filename = PATH_TO_ROOT.'store/graphs/bills_totals_' . $r_id . '.png';
+					// Display the graph
+					$graph->Stroke($filename);
+					$graphs[$r_id]['bill_totals'] = $filename;
+				}
+			}
+		}
+		$regions = $db->AllRecords("select id, name from regions where id <> 99 order by id desc ",'id');
+		$design->assign('regions', $regions);
+		$design->assign('graphs', $graphs);
+		$design->AddMain('monitoring/report_bill_graph.tpl');
 	}
 }
 ?>

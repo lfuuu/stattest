@@ -700,6 +700,11 @@ function debug_table($str) {
     if (!defined('DEBUG_TABLE') || DEBUG_TABLE=="") return;
     $db->Query('insert into '.DEBUG_TABLE.' (ts,text) VALUES (NOW(),"'.addslashes($str).'")',0);
 }
+if( !function_exists('imageantialias') ) {
+	function imageantialias($v1,$v2) {
+		return true;
+	}
+}
 
 class Percenter {
     public $Total;
