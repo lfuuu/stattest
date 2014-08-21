@@ -1472,7 +1472,7 @@ class SoapHandler{
 
         $d = array();
         foreach($l as $i){
-            $goodId = $i->{tr('Код Номенклатура1С')};
+            $goodId = $i->{tr('КодНоменклатура1С')};
             $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
             $priceId = $i->{\_1c\tr('КодВидЦен1С')};
             $cost = $i->{\_1c\tr('Цена')};
