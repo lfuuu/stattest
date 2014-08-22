@@ -269,6 +269,7 @@ $(document).ready(function(){
         {
             $("#div_extend_reserv").show();
             $("#div_extend_reserv").click(function(){ 
+                $('#extend_reserv').attr('disabled', true);
                 $.ajax({
                     type: "POST",
                     url: "./?module=services&action=rpc_extendReserv", 
