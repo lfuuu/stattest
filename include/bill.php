@@ -935,6 +935,60 @@ class Bill{
 	
 	return $R;
     }
+    /**
+     *	Предназнеачена для изменения "линий" в счетах, при вызове все линии счета удаляются и заменяются одной обобщенной
+     */
+    public function changeToOnlyContract()
+    {
+	$ts = $this->GetTs();
+	$lines = BillLines::find('all', array('conditions' => array('bill_no = ?', $this->bill_no)));
+	$new_line = new BillLines();
+	$new_line->bill_no = $this->bill_no;
+	$new_line->sort = 1;
+	$new_line->item = 'Услуги связи по договору '.BillContract::getString($this->client_id, $ts);
+	$new_line->amount = 1;
+	$new_line->type = 'service';
+	$new_line->price = 0;
+	$new_line->sum = 0;
+	$new_line->date_from = date('Y-m-d', strtotime('first day of previous month', $ts));
+	$new_line->date_to = date('Y-m-d', strtotime('last day of previous month', $ts));
+	
+	foreach ($lines as $v)
+	{
+		$new_line->price += $v->price;
+		$new_line->sum += $v->sum;
+	}
+	BillLines::table()->delete(array('bill_no' => $this->bill_no));
+	$new_line->save();
+    }
+    /**
+     *	Предназнеачена для добавления "линии" переплата
+     *	@param int $balance текущий баланс клиента
+     *	@param bool $nds_zero флаг, приминять НДС или нет 
+     */
+    public function applyRefundOverpay($balance, $nds_zero)
+    {
+	if (!$balance) return;
+	$nds = ($nds_zero) ? 1 : 1.18;
+	$lines_info = BillLines::first(array('select' => 'MAX(sort) as max_sort, SUM(sum) as sum', 'conditions' => array('bill_no = ?', $this->bill_no)));
+	if ($lines_info->sum)
+	{
+		$balance = min($lines_info->sum, $balance);
+		$new_line = new BillLines();
+		$new_line->bill_no = $this->bill_no;
+		$new_line->sort = $lines_info->max_sort + 1;
+		$new_line->item = 'Переплата';
+		$new_line->amount = 1;
+		$new_line->type = 'zadatok';
+		$new_line->price = -$balance/$nds;
+		$new_line->sum = -$balance;
+		
+		$ts = $this->GetTs();
+		$new_line->date_from = date('Y-m-d', strtotime('first day of previous month', $ts));
+		$new_line->date_to = date('Y-m-d', strtotime('last day of previous month', $ts));
+		$new_line->save();
+	}
+    }
 //------------------------------------------------------------------------------------
 }
 ?>
