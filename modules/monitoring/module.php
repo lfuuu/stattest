@@ -433,12 +433,12 @@ class m_monitoring {
 				JpGraphsInit::setNoCallLines($graph_duration,$no_calls_lines['len'], $week_start);
 			}
 
-			$gc_filename = PATH_TO_ROOT.'store/graphs/count.png';
+			$gc_filename = WEB_IMAGES_PATH.'graphs/count.png';
 			$graph_count->legend->SetFrameWeight(1);
 			$graph_count->Stroke($gc_filename);
 			$design->assign('graph_count', $gc_filename);
 			
-			$gd_filename = PATH_TO_ROOT.'store/graphs/duration.png';
+			$gd_filename = WEB_IMAGES_PATH.'graphs/duration.png';
 			$graph_duration->legend->SetFrameWeight(1);
 			$graph_duration->Stroke($gd_filename);
 			$design->assign('graph_duration', $gd_filename);
@@ -647,7 +647,7 @@ class m_monitoring {
 						$v->SetFillColor($colors[$k]);
 					}
 					
-					$filename = PATH_TO_ROOT.'store/graphs/bills_details_'. $r_id .'.png';
+					$filename = WEB_IMAGES_PATH.'graphs/bills_details_'. $r_id .'.png';
 					// Display the graph
 					$graph->Stroke($filename);
 					$graphs[$r_id]['bill_details'] = $filename;
@@ -686,7 +686,7 @@ class m_monitoring {
 						$v->SetColor($colors[$k]);
 						$v->SetFillColor($colors[$k]);
 					}
-					$filename = PATH_TO_ROOT.'store/graphs/bills_totals_' . $r_id . '.png';
+					$filename = WEB_IMAGES_PATH.'graphs/bills_totals_' . $r_id . '.png';
 					// Display the graph
 					$graph->Stroke($filename);
 					$graphs[$r_id]['bill_totals'] = $filename;
