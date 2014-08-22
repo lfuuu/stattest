@@ -4237,7 +4237,9 @@ $sql .= "    order by client, bill_no";
                 'sum'=>0,
                 'bonus' => 0
                 );
+        $clients = array();
         foreach($R as &$r){
+            $clients[$r['client_id']] =1;
             if($r['currency']=='USD'){
                 $s_USD['pay_sum_rur'] += $r['pay_sum_rur'];
                 $s_USD['pay_sum_usd'] += $r['pay_sum_usd'];
@@ -4248,6 +4250,7 @@ $sql .= "    order by client, bill_no";
                 @$s_RUR['bonus'] += $r['bonus'];
             }
         }
+        $design->assign('clients_count', count($clients));
         $design->assign('bills',$R);
         $design->assign('bills_total_USD',$s_USD);
         $design->assign('bills_total_RUR',$s_RUR);
