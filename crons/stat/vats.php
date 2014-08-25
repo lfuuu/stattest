@@ -63,7 +63,7 @@ foreach ($db_ats->AllRecords("SELECT client_id FROM `a_virtpbx` where is_started
 {
     $clientId = $vats["client_id"];
 
-    echo "\n--------------------------\nclientId: ".$clientId;
+    echo "\nclientId: ".$clientId;
 
     for($d = $startDate; $d <= $endDate; $d = strtotime("+1 day", $d))
     {
@@ -76,7 +76,7 @@ foreach ($db_ats->AllRecords("SELECT client_id FROM `a_virtpbx` where is_started
 
             if ($stat["space"] !== null || $stat["numbers"] !== null)
             {
-                echo "\n".date("Y-m-d", $d).": ".$stat["space"]." || ".$stat["numbers"];
+                echo ", ".date("Y-m-d", $d).": space: ".$stat["space"].", ports ".$stat["numbers"];
             }
 
         } catch (Exception $exc)
