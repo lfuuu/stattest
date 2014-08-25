@@ -552,35 +552,58 @@ class Bill{
 
 	public function GetLines($rate = 1,$mode=false){
 		global $db;
-        $nds = $this->Client("nds_zero") ? "1" : "1.18";
-
+		$nds = $this->Client("nds_zero") ? "1" : "1.18";
+		$fields = '';
+		$joins = '';
+		if (strpos($this->bill_no, '/') !== false)
+		{
+			$fields = '  gu.name, ';
+			$joins = ' LEFT JOIN g_unit as gu ON g.unit_id = gu.id ';
+		}
 		$ret =
 			$db->AllRecords($q='
 				select
 					nl.*,
-                    art,
+					art,
 					round(nl.price*'.$rate.',4) as outprice,
 					if(sum is null,round(nl.price*amount*'.$rate.',4),sum/'.$nds.') as sum,
 					sort as id,
 					UNIX_TIMESTAMP(date_from) as ts_from,
 					UNIX_TIMESTAMP(date_to) as ts_to,
-                    if(g.nds is null, 18, g.nds) as line_nds,
-                    g.num_id,
-                    store,
-                    service, 
-
-                    if(nl.service="usage_extra", (select concat(o.name,"@",o.code) from 
-                        usage_extra u, tarifs_extra t, okvd o  
-                        where u.id = nl.id_service and t.id = tarif_id and o.code=okvd_code),"") okvd
+					if(g.nds is null, 18, g.nds) as line_nds,
+					g.num_id,
+					store,
+					service, 
+					if(nl.service="usage_extra", 
+						(select 
+							okvd_code 
+						from 
+							usage_extra u, tarifs_extra t 
+						where 
+							u.id = nl.id_service and 
+							t.id = tarif_id 
+						), 
+						if (nl.type = "good", 
+							(select 
+								okei 
+							FROM
+								g_unit
+							WHERE 
+								id = g.unit_id
+							), "")
+					) okvd_code
 
 				from
 					newbill_lines nl
-                left join g_goods g on (nl.item_id = g.id)
+				left join 
+					g_goods g on (nl.item_id = g.id) 
+				LEFT JOIN 
+					g_unit as gu ON g.unit_id = gu.id
 				where
 					bill_no="'.$this->bill_no.'"
 				order by
 					sort
-			','id');
+				','id');
 
 
 		$countryMaker = array();
@@ -591,13 +614,6 @@ class Bill{
                     round($r["sum"]/$r["amount"],4) != $r["price"])
             {
                 $r["sum"] = round($r["price"]*$r["amount"], 4);
-            }
-            if(strpos($r["okvd"], "@") !== false)
-            {
-                list($r["okvd"], $r["okvd_code"]) = explode("@", $r["okvd"]);
-            }else{
-                $r["okvd"] = "";
-                $r["okvd_code"] = 0;
             }
             $r["amount"] = round($r["amount"],6);
             $r["country_name"] = $this->getCountryName($r["country_id"]);

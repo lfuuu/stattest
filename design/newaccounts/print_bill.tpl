@@ -216,7 +216,7 @@ www.mcntelecom.ru
 		<td align="right">{$key}</td>
 		<td>{$line.item}</td>
 		<td align="center">{$line.amount|mround:4:6}</td>
-        <td align="center">{if $line.okvd_code}{$line.okvd}{else}{if $line.type == "service"}-{else}ÛÔ.{/if}{/if}</td>
+        <td align="center">{if $line.okvd_code}{$line.okvd_code|okei_name}{else}{if $line.type == "service"}-{else}ÛÔ.{/if}{/if}</td>
         <td align="center">{$line.outprice|round:4}</td>
         <td align="center">{$line.sum|round:2}</td>
         <td align="center">{if $bill_client.nds_zero || $line.line_nds == 0}ÂÅÚ îäó{else}{$line.tax|round:2}{/if}</td>
