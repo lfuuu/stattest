@@ -33,21 +33,27 @@
       <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV>
 </FORM>
 {if $graphs}
-	{if $region == 99}
-		<h2>Москва</h2>
-	{/if}
+	<table>
 	{foreach from=$graphs item="g" key="r" name="r"}
-		<h2>{$regions.$r.name}</h2>
-		<div>
-			<img src="{$g.bill_totals}">
-		</div>
-		<div>
-			<img src="{$g.bill_details}">
-		</div>
-		{if !$smarty.foreach.r.last}
-			<hr/>
-		{/if}
+		<tr>
+			<td {if $region == 0}colspan=2{/if}>
+				<h2>{if $region == 99}Москва{else}{$regions.$r.name}{/if}</h2>
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: middle;">
+				<img src="{$g.bill_totals}" {if $region == 0}width=460px height=480px{/if}>
+			</td>
+			{if $region != 0}
+				</tr>
+				<tr>
+			{/if}
+			<td>
+				<img src="{$g.bill_details}">
+			</td>
+		</tr>
 	{/foreach}
+	</table>
 {/if}
 
 
