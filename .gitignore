@@ -15,4 +15,5 @@
 
 /store/contracts/*
 !template*
+!region_*
 *~
