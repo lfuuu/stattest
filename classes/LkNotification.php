@@ -26,18 +26,25 @@ class LkNotification {
     private $value = null;
 
     /**
+     *
+     * @var int $balance Баланс лицевого счета
+     */
+    private $balance = null;
+
+    /**
      * 
      * @var string $tpl_dir Папка с шаблонами сообщений
      */
     private $tpl_dir = 'letters/notification/';
 
-    public function __construct($clientId, $contactId, $type, $value)
+    public function __construct($clientId, $contactId, $type, $value, $balance)
     {
         $this->Client = ClientCard::find_by_id($clientId);
         $this->Contact = ClientContact::find_by_id($contactId);
 
         $this->type = $type;
         $this->value = $value;
+        $this->balance = round($balance, 2);
     }
 
     function send()
@@ -62,7 +69,9 @@ class LkNotification {
             $contactType = "phone";
         }
 
-        $design->assign(array('value'=>$this->value, 'balance' => $this->Client->balance, "account" => $this->Client->id));
+        $assigns = array('value'=>$this->value, 'balance' => $this->balance, "account" => $this->Client->id);
+
+        $design->assign($assigns);
         $message = $design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
 
 
@@ -101,10 +110,27 @@ class LkNotification {
     function sendMail()
     {
         global $db;
+
+        $subject = Encoding::toKoi8r($this->getSubject());
+        $msg = Encoding::toKoi8r($this->getMessage());
+
+        if (defined("TEST_NOTICE") && defined("ADMIN_EMAIL"))
+        {
+            $params = array(
+                    'data'=>ADMIN_EMAIL,
+                    'subject'=>$this->Contact->data." - ".$subject,
+                    'message'=>$msg,
+                    'type'=>'email',
+                    'contact_id'=>$this->Contact->id
+                    );
+
+            $res = $db->QueryInsert('lk_notice', $params);
+        }
+
         $params = array(
-                    'data'=>'adima123@yandex.ru', //($this->Contact->data, /** for test **/
-                    'subject'=>$this->Contact->data." - "./** for test **/Encoding::toKoi8r($this->getSubject()),
-                    'message'=>Encoding::toKoi8r($this->getMessage()),
+                    'data'=> $this->Contact->data,
+                    'subject' => $subject,
+                    'message' => $msg,
                     'type'=>'email',
                     'contact_id'=>$this->Contact->id
                 );
@@ -122,9 +148,21 @@ class LkNotification {
 
         $phoneNumber = preg_replace("/[^\d]+/", "", $this->Contact->data);
 
+        if (defined("TEST_NOTICE") && defined("ADMIN_PHONE"))
+        {
+            $params = array(
+                    'data'=> ADMIN_PHONE,
+                    'message'=>$phoneNumber.Encoding::toKoi8r($this->getMessage()),
+                    'type'=>'phone',
+                    'contact_id'=>$this->Contact->id
+                    );
+
+            $res = $db->QueryInsert('lk_notice', $params);
+        }
+
         $params = array(
-                    'data'=> '79264290771', //$phoneNumber, /** for test **/
-                    'message'=>$phoneNumber./** for test */Encoding::toKoi8r($this->getMessage()),
+                    'data'=> $phoneNumber,
+                    'message'=> Encoding::toKoi8r($this->getMessage()),
                     'type'=>'phone',
                     'contact_id'=>$this->Contact->id
                 );
