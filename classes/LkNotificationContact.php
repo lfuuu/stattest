@@ -133,13 +133,16 @@ class LkNotificationContact
 
     public static function getListForPayment($client_id)
     {
+        $list = array();
+
         $res = ClientContact::find_by_sql("
             SELECT
                 cc.id,
                 cc.type,
                 cc.data,
                 cs.client_id,
-                c.balance
+                c.balance,
+                c.credit
             FROM
                 client_contacts cc
             LEFT JOIN lk_notice_settings ns ON cc.id=ns.client_contact_id
@@ -151,7 +154,20 @@ class LkNotificationContact
                 ns.add_pay_notif='1' 
             ");
 
-        return $res;
+        foreach ($res as &$r) 
+        {
+            if (!isset(self::$billingCounters[$r->client_id])) {
+                self::$billingCounters[$r->client_id] = ClientCS::getBillingCounters($r->client_id);
+            }
+
+            if ($r->credit > -1) {
+                $r->balance -= self::$billingCounters[$r->client_id]['amount_sum'];
+            }
+
+            $list[] = $r;
+        }
+
+        return $list;
     }
     
     public static function createBalanceNotifacation($clientId, $paymentId)
@@ -164,8 +180,6 @@ class LkNotificationContact
         $Contacts = self::getListForPayment($clientId);
         if ($Contacts) {
             foreach ($Contacts as $C) {
-                $Notification = new LkNotification($C->client_id, $C->id, 'add_pay_notif', $pay->sum_rub);
-                $Notification->send();
 
                 $client = ClientCard::find($C->client_id);
 
@@ -177,6 +191,9 @@ class LkNotificationContact
                 }
 
                 LkNotificationLog::addLogRaw($C->client_id, $C->id, 'add_pay_notif', true, $client->balance, 0, $pay->sum_rub);
+
+                $Notification = new LkNotification($C->client_id, $C->id, 'add_pay_notif', $pay->sum_rub, $client->balance);
+                $Notification->send();
             }
         }
     }
