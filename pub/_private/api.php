@@ -147,7 +147,9 @@ function array_to_json( $array )
 
 			// Format the value:
 			if( is_array( $value )){
-				$value = array_to_json( $value );
+                $value = array_to_json( $value );
+            } else if (is_bool( $value )) {
+                $value = $value ? "true" : "false";
 			} else if( !is_numeric( $value ) || is_string( $value ) ){
 				$value = "\"".addslashes($value)."\"";
 			}
@@ -167,6 +169,8 @@ function array_to_json( $array )
 			// Format the value:
 			if( is_array( $value )){
 				$value = array_to_json( $value );
+            } else if (is_bool( $value )) {
+                $value = $value ? "true" : "false";
 			} else if( !is_numeric( $value ) || is_string( $value ) ){
 				$value = "\"".addslashes($value)."\"";
 			}
