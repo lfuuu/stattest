@@ -2057,18 +2057,29 @@ class ApiLk
         if ($user > 0) return $user;
         else return $default_user;
     }
+
     public static function checkVoipNumber($number)
     {
-	global $db;
-	$options = array();
-	if (strpos($number, '7800') === 0)
-	{
-		$options['conditions'] = array('E164 = ? AND CAST(NOW() as DATE) BETWEEN actual_from AND actual_to', $number);
-		$check = UsageVoip::first($options);
-	} else {
-		$check = VoipNumbers::first($number);
-	}
-	return !empty($check);
+        global $db;
+        $options = array();
+
+        try{
+            if (strpos($number, '7800') === 0)
+            {
+                $options['conditions'] = array('E164 = ? AND CAST(NOW() as DATE) BETWEEN actual_from AND actual_to', $number);
+                $check = UsageVoip::first($options);
+            } else {
+                $check = VoipNumbers::first($number);
+            }
+        }catch(ActiveRecord\RecordNotFound $r)
+            {
+                return false;
+            }catch(Exception $e)
+            {
+                throw $e;
+            }
+
+        return true;
     }
 
 
