@@ -296,6 +296,20 @@ $(function(){
 	<TR><TD class=left>Пароль:</TD><TD><input style='width:100%' name=password class=text value='{$client.password}'></td></tr>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left> "Абонентская плата по" на "Оказанные услуги по Договору"</TD><TD><input type=checkbox name="bill_rename1" value="yes"{if $client.bill_rename1 == "yes"} checked{/if}></td></tr>
+	{if $client.status == "operator"}
+		<TR>
+			<TD class=left>Возврат переплаты:</TD>
+			<TD>
+				<input type="checkbox" value="1" name="is_bill_with_refund" {if $client.is_bill_with_refund}checked="checked"{/if}>
+			</TD>
+		</TR>
+		<TR>
+			<TD class=left>Услуги по договору ...:</TD>
+			<TD>
+				<input type="checkbox" value="1" name="is_bill_only_contract" {if $client.is_bill_only_contract}checked="checked"{/if}>
+			</TD>
+		</TR>
+	{/if}
 	<TR><TD class=left>USD уровень в процентах:</TD><TD><input style='width:100%' name=usd_rate_percent class=text value='{$client.usd_rate_percent}'></td></tr>
 	<TR><TD class=left>Тип:</TD>
 		<TD><select name=type class=text>

@@ -1487,7 +1487,11 @@ class m_newaccounts extends IModule
         {
 		$bill->SetExtNoDate($bill_no_ext_date);
         } else {
-		$bill->SetExtNoDate();
+		$bill_data = $bill->GetBill();
+		if ($bill_data['bill_no_ext_date'] > 0)
+		{
+			$bill->SetExtNoDate();
+		}
         }
         $V = $bill->GetLines();
         $V[$bill->GetMaxSort()+1] = array();
@@ -1568,8 +1572,14 @@ class m_newaccounts extends IModule
         } elseif ($obj=='regular') {
             ClientCS::getClientClient($fixclient);
             $services = get_all_services($fixclient,$fixclient_data['id']);
-
             $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
+            
+            $client = ClientCard::first($fixclient_data['id']);
+            if ($client->status == "operator" && $client->is_bill_with_refund)
+            {
+		$this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
+		$client = ClientCard::first($fixclient_data['id']);
+            }
             foreach ($services as $service){
                 // если у нас телефония, или интернет, и канал уже закрыт прошлым числом - все равно надо предъявлять превышение лимита
                 if(!in_array($service['service'],array('usage_voip','usage_ip_ports')) && (unix_timestamp($service['actual_from']) > $time || unix_timestamp($service['actual_to']) < $time))
@@ -1581,6 +1591,17 @@ class m_newaccounts extends IModule
                     continue;
                 if(!$bill->AddLines($R))
                     $err=1;
+            }
+            if ($client->status == "operator")
+            {
+		if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
+		{
+			$bill->changeToOnlyContract();
+		}
+		if ($client->is_bill_with_refund && $client->balance > 0)
+		{
+			$bill->applyRefundOverpay($client->balance, $client->nds_zero);
+		}
             }
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
