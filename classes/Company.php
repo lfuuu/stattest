@@ -164,6 +164,28 @@ class Company
                 $firms["all4net"]["address"] = "117452, г. Москва, Балаклавский проспект, д.20, к.4 кв.130";
             }
         }
+	if ($billDate >= strtotime("2014-08-26"))
+	{
+		switch ($firma)
+		{
+			case 'mcn': 
+				$firms['mcn']["phone"] =  '(495) 105-99-99';
+				break;
+			case 'mcn_telekom': 
+				$firms['mcn']["phone"] =  '(495) 105-99-99';
+				break;
+			case 'wellstart': 
+				$firms['mcn']["phone"] =  '(495) 105-99-99';
+				break;
+			case 'all4net': 
+				$firms['mcn']["phone"] =  '(495) 105-99-97';
+				break;
+		}
+		if (isset($firms[$firma]['fax']))
+		{
+			$firms[$firma]['fax'] = '(495) 105-99-96';
+		}
+	}
 
 
         return $firms[$firma];
