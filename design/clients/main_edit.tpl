@@ -217,7 +217,12 @@ $(function(){
 	<TR><TD class=left>"Кому" письмо<span title="Если поле оставить пустое - то будет вставляться название компании">*</span>:</TD><TD><input style='width:100%' name=mail_who class=text value='{$client.mail_who|escape}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Предполагаемый адрес подключения:</TD><TD><input style='width:100%' name=address_connect class=text value='{$client.address_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>Предполагаемый телефон подключения:</TD><TD><input style='width:100%' name=phone_connect class=text value='{$client.phone_connect}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
-
+	<TR>
+		<TD class=left>Грузополучатель:</TD><TD>
+			<input style='width:65%' name=consignee class=text value='{$client.consignee}'{if $card_type=='addition'}readonly='readonly'{/if}>
+			<input type="checkbox" name=is_with_consignee value=1 {if $client.is_with_consignee} checked{/if}{if $card_type=='addition'} readonly='readonly'{/if}>-Использовать грузополучателя
+		</TD>
+	</TR>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Головная компания:</TD><TD><input style='width:100%' name=head_company class=text value='{$client.head_company}'{*if $card_type=='addition'}readonly='readonly'{/if*}></TD></TR>
 	<TR><TD class=left>Юр. адрес головной компании:</TD><TD><input style='width:100%' name=head_company_address_jur class=text value='{$client.head_company_address_jur}'{*if $card_type=='addition'}readonly='readonly'{/if*}></TD></TR>
