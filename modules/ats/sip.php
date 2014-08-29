@@ -322,11 +322,20 @@ class sip
         $ids = get_param_raw("ids", array());
         $superId = get_param_raw("super_id", 0);
 
+
         foreach($ids as $id)
         {
             $info = self::getInfo($id, $fixclient);
 
-            if($action == "delete")
+            if ($action == "delete_with_sync")
+            {
+                if (isset($info["number"]["number"]) && $info["number"]["number"])
+                {
+                    self::_markDisabledinDB($info["number"]["number"]);
+                }
+            }
+
+            if($action == "delete" || $action == "delete_with_sync")
             {
                 vSip::del($id, $info, $fixclient);
             }elseif($action == "enable" || $action == "disable")
@@ -354,6 +363,27 @@ class sip
             header("Location: ./?module=ats&action=sip_modify&id=".$superId);
         }
         exit();
+    }
+
+    private function _markDisabledinDB($number)
+    {
+        static $conn = null;
+
+        if ($conn === null)
+            $conn = @pg_connect("host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS." connect_timeout=1");
+
+        if (!$conn) 
+            throw new Exception("Connection error (PG HOST: ".R_CALLS_99_HOST.")");
+
+        $res = @pg_query("SELECT * FROM extensions WHERE exten = '".$number."' AND enabled = 't'");
+
+        if (!$res) 
+            throw new Exception("Query error (PG HOST: ".R_CALLS_99_HOST.")");
+
+        if ($l = pg_fetch_assoc($res))
+        {
+            pg_query("UPDATE extensions SET enabled='f' WHERE exten = '".$number."' and priority = 1");
+        }
     }
 
     private function check(&$data, &$od, &$map)

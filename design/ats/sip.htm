@@ -3,7 +3,7 @@
         <a href="./?module=ats&action=sip_add"><img align=absmiddle src="./images/icons/add.gif">Добавить</a>
     {/if*}
 {/if}
-<form action="./?module=ats&action=sip_action" method=post>
+<form action="./?module=ats&action=sip_action" method=post id="form_sip_action">
 <script>
 var sipAllChecked = false;
 </script>
@@ -89,12 +89,27 @@ font: bold 8pt sans-serif;
 
 {if !access("ats","support")}
 <div style="text-align: right; padding-right: 20px;">Действие
-    <select name="sip_action">
+    <select name="sip_action" id="sip_action">
     <option value="">------------</option>
     <option value="delete">Удалить</option>
+    <option value="delete_with_sync">Удалить из базы</option>
     </select>
-    <input type=submit value="go" style="width: 27px; height:23px;">
+    <input type=button id=sip_action_go value="go" style="width: 27px; height:23px;">
     </div>
+    <script>
+    {literal}
+    $("#sip_action_go").click(function(e){
+
+        var sipAction = $("#sip_action").val();
+
+        if ((sipAction == "delete_with_sync" && confirm("Точно удалить из базы?")) || sipAction == "delete")
+        {
+            $("#form_sip_action").submit();
+        }
+
+        });
+    {/literal}
+    </script>
 {/if}
 </form>
 
