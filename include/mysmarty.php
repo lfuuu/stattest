@@ -210,6 +210,13 @@ function smarty_modifier_num_format($string, $with_zero = false, $after_dot = 0)
 	$string = str_replace(' ', '&nbsp', $string);
 	return $string;
 }
+function smarty_modifier_okei_name($string){
+	$options = array();
+	$options['select'] = 'name';
+	$options['conditions'] = array('okei = ? AND name NOT LIKE ?', $string, '%del%');
+	$res = GoodUnit::first($options);
+	return $res->name;
+}
 function smarty_modifier_round($val,$b,$t = ''){
     $val = round($val, $b);
 	return sprintf("%0.".$b."f",($t==='-'?-$val:$val));
@@ -380,6 +387,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
 		$this->register_modifier('num_format','smarty_modifier_num_format');
+		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');
 		$this->register_modifier('rus_fin','rus_fin');
 		$this->register_modifier('koi2win','smarty_modifier_koi2win');

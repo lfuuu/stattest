@@ -308,7 +308,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
             {else}
                 {if $inv_is_new4}
                     {if $row.okvd_code}
-                        {$row.okvd}
+                        {$row.okvd_code|okei_name}
                     {else}
                         {if $row.type == "service"}
                             --

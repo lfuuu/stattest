@@ -123,7 +123,7 @@
 
                 {if $inv_is_new4}
                     {if $line.okvd_code}
-                        {$line.okvd}
+                        {$line.okvd_code|okei_name}
                     {else}
                         {if $line.type == "service"}
                             -

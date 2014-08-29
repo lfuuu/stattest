@@ -95,7 +95,7 @@
     <strong>{$firm.address}</strong><br>{/if}
 
 {if false}
-    <!--td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
+    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
     Адрес: <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>
     Телефон: <strong>(495) 950-56-78</strong><br>
     ИНН/КПП продавца: <strong>7727752084&nbsp;/&nbsp;772401001</strong><br>
@@ -283,7 +283,7 @@
             {else}
                 {if $inv_is_new4}
                     {if $row.okvd_code}
-                        {$row.okvd}
+                        {$row.okvd_code|okei_name}
                     {else}
                         {if $row.type == "service"}
                             -
