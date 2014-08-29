@@ -2,6 +2,9 @@
 class Good extends ActiveRecord\Model
 {
     static $table_name = 'g_goods';
+    static $belongs_to = array(
+        array('unit', 'class_name' => 'GoodUnit', 'foreign_key' => 'unit_id')
+    );
 
     /**
      * @deprecated
