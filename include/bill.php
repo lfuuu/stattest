@@ -941,25 +941,28 @@ class Bill{
     public function changeToOnlyContract()
     {
 	$ts = $this->GetTs();
-	$lines = BillLines::find('all', array('conditions' => array('bill_no = ?', $this->bill_no)));
-	$new_line = new BillLines();
-	$new_line->bill_no = $this->bill_no;
-	$new_line->sort = 1;
-	$new_line->item = 'Услуги связи по договору '.BillContract::getString($this->client_id, $ts);
-	$new_line->amount = 1;
-	$new_line->type = 'service';
-	$new_line->price = 0;
-	$new_line->sum = 0;
-	$new_line->date_from = date('Y-m-d', strtotime('first day of previous month', $ts));
-	$new_line->date_to = date('Y-m-d', strtotime('last day of previous month', $ts));
-	
-	foreach ($lines as $v)
+	$lines = BillLines::find('all', array('conditions' => array('bill_no = ?', $this->bill_no), 'order' => 'sort'));
+	if (!empty($lines))
 	{
-		$new_line->price += $v->price;
-		$new_line->sum += $v->sum;
+		foreach ($lines as $k=>&$v)
+		{
+			if ($k)
+			{
+				$first->price += $v->price;
+				$first->sum += $v->sum;
+				unset($v);
+			} else {
+				$v->item = 'Услуги связи по договору '.BillContract::getString($this->client_id, $ts);
+				$v->amount = 1;
+				$v->type = 'service';
+				$v->service = "";
+				$v->id_service = "";
+				$first = $v;
+			}
+		}
+		BillLines::delete_all(array('conditions'=>array('bill_no = ? AND sort > ?', $this->bill_no, 1)));
+		$first->save();
 	}
-	BillLines::table()->delete(array('bill_no' => $this->bill_no));
-	$new_line->save();
     }
     /**
      *	Предназнеачена для добавления "линии" переплата
