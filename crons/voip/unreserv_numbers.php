@@ -2,16 +2,20 @@
 define('PATH_TO_ROOT','../../');
 include PATH_TO_ROOT."conf.php";
 
+echo "\n=========== ".date("r")." ===========\n";
+
 $dates  = array(
             'notify'=>array(
-                'st_date'=>date('Y-m-d H:i:s', mktime(0, 0, 0, date("m")  , date("d")-27, date("Y"))),
-                'en_date'=>date('Y-m-d H:i:s', mktime(23, 59, 59, date("m")  , date("d")-27, date("Y")))
+                'st_date'=>date('Y-m-d H:i:s', strtotime("-28 day 00:00:00")),
+                'en_date'=>date('Y-m-d H:i:s', strtotime("-28 day 23:59:59"))
                 ),
             'unreserve'=>array(
                 'st_date'=>false,
-                'en_date'=>date('Y-m-d H:i:s', mktime(23, 59, 59, date("m")  , date("d")-31, date("Y")))
+                'en_date'=>date('Y-m-d H:i:s', strtotime("-30 day 00:00:00"))
                 )
             );
+
+print_r($dates);
 
 try {
     notifyManagers(getVoipUsageIDs($dates['notify']));
@@ -94,6 +98,9 @@ function deleteReserv($data = array())
     global $db;
     if (count($data) == 0) return;
 
+    echo "\n---------- for del -----\n";
+    print_r($data);
+
     $u_ids = array();
     foreach ($data as $d) 
     {
@@ -103,8 +110,12 @@ function deleteReserv($data = array())
         }
     }
 
-    $db->Query('DELETE FROM log_tarif WHERE id_service IN ('.implode(',',$u_ids).')');
-    $db->Query('DELETE FROM usage_voip WHERE id IN ('.implode(',',$u_ids).')');
+
+    $q = "DELETE FROM log_tarif WHERE service = 'usage_voip' and id_service IN ('".implode("','",$u_ids)."')";
+    $db->Query($q); echo "\n".$q;
+
+    $q = "DELETE FROM usage_voip WHERE id IN ('".implode("','",$u_ids)."')";
+    $db->Query($q); echo "\n".$q;
 
     return;
 }
@@ -122,6 +133,9 @@ function notifyManagers($data = array())
         echo "\n\n".$message;
 
         if (!strlen($r['manager'])) $r['manager'] = 'ava';
+
+        mail(ADMIN_EMAIL, "[stat] unreserv voip numbers", $message."íÅÎÅÄÖÅÒ: ".$r["manager"]);
+        mail("ava@mcn.ru", "[stat] unreserv voip numbers", $message."íÅÎÅÄÖÅÒ: ".$r["manager"]);
 
         ApiLk::createTT($message, $r['client'], $r['manager']);
     }
