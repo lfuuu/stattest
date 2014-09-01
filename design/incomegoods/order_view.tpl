@@ -92,7 +92,7 @@
 		<tr>
 			<th>Код</th>
 			<th>Наименование</th>
-			<th>Ед.измерения</th>
+			<th colspan=2>Ед.измерения</th>
 			<th>Заказано</th>
 			<th>Поступило</th>
 			<th>Оприходовано</th>
@@ -107,7 +107,8 @@
 		<tr>
 			<td>{$item->good->num_id}</td>
 			<td>{$item->good->name}</td>
-			<td>{if $item->good->unit}{$item->good->unit->name} ({$item->good->unit->okei}){/if}</td>
+			<td>{if $item->good->unit}{$item->good->unit->okei}{/if}</td>
+			<td>{if $item->good->unit}{$item->good->unit->name}{/if}</td>
 			<td>{$item->amount}</td>
 			<td>{$item->getDocumentAmount()}</td>
 			<td>{$item->getStoreAmount()}</td>
