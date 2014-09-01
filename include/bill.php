@@ -957,7 +957,8 @@ class Bill{
     public function changeToOnlyContract()
     {
 	$ts = $this->GetTs();
-	$lines = BillLines::find('all', array('conditions' => array('bill_no = ?', $this->bill_no), 'order' => 'sort'));
+	$min_ts = time();
+	$lines = BillLines::find('all', array('select' => '*,UNIX_TIMESTAMP(date_from) as from_ts', 'conditions' => array('bill_no = ?', $this->bill_no), 'order' => 'sort'));
 	if (!empty($lines))
 	{
 		foreach ($lines as $k=>&$v)
@@ -971,6 +972,10 @@ class Bill{
 					$first->service = 'usage_voip'; 
 					$first->id_service = $v->id_service;
 				}
+				if ($min_ts > $v->from_ts)
+				{
+					$min_ts = $v->from_ts;
+				}
 				unset($v);
 			} else {
 				$v->item = 'õÓÌÕÇÉ Ó×ÑÚÉ ĞÏ ÄÏÇÏ×ÏÒÕ '.BillContract::getString($this->client_id, $ts);
@@ -982,6 +987,10 @@ class Bill{
 			}
 		}
 		BillLines::delete_all(array('conditions'=>array('bill_no = ? AND sort > ?', $this->bill_no, 1)));
+		$date_string = ' ÚÁ ĞÅÒÉÏÄ c ' . date('d', $min_ts) . ' ĞÏ ' . mdate('t ÍÅÓÑÃÁ', $min_ts);
+		$first->item .= $date_string;
+		$first->date_from = date('Y-m-d', $min_ts);
+		$first->date_to = date('Y-m-t', $min_ts);
 		$first->save();
 	}
     }
