@@ -966,6 +966,11 @@ class Bill{
 			{
 				$first->price += $v->price;
 				$first->sum += $v->sum;
+				if ($v->service == 'usage_voip' && $v->id_service > 0)
+				{
+					$first->service = 'usage_voip'; 
+					$first->id_service = $v->id_service;
+				}
 				unset($v);
 			} else {
 				$v->item = 'Услуги связи по договору '.BillContract::getString($this->client_id, $ts);

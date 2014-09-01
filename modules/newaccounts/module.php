@@ -1636,10 +1636,15 @@ class m_newaccounts extends IModule
 
             $res = mysql_query('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") /*and id=2363*/ order by client');
             while($c=mysql_fetch_assoc($res)){
-
                 $bill = new Bill(null,$c,time(), 1, null, false);
                 $bill2 = null;
                 $services = get_all_services($c['client'],$c['id']);
+                $client = null;
+                if ($c['status'] == "operator" && $c['is_bill_with_refund'])
+                {
+                	$this->update_balance($c['id'],$c['currency']);
+                	$client = ClientCard::first($c['id']);
+                }
                 foreach($services as $service){
                     $s=ServiceFactory::Get($service,$bill);
                     $s->SetMonth(time());
@@ -1664,6 +1669,17 @@ class m_newaccounts extends IModule
                 }
                 $no=$bill->GetNo();
                 $v=$bill->Save(1);
+                if ($c['status'] == "operator")
+                {
+                	if ($c['is_bill_only_contract'])
+                	{
+                		$bill->changeToOnlyContract();
+                	}
+                	if ($c['is_bill_with_refund'] && !is_null($client) && $client->balance > 0)
+                	{
+                		$bill->applyRefundOverpay($client->balance, $client->nds_zero);
+                	}
+                }
                 unset($bill);
                 if($v==1){
                     echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен".$p."<br>");
