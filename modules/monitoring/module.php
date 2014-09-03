@@ -215,18 +215,6 @@ class m_monitoring {
 						'<div class=ping2 style="background-color:'.$P2.'">&nbsp;</div>');
 
 
-/*		if (!$C1) $P1=0;
-		elseif ($P1==$C1*5) $P1=3;
-		elseif ($P1>2*$C1) $P1=2;
-		else $P1=1;
-		if (!$C2) $P2=0;
-		elseif ($P2==$C2*5) $P2=3;
-		elseif ($P2>2*$C2) $P2=2;
-		else $P2=1;
-
-		$alt=''; if ($C1+$C2==0) $alt=' alt="Ошибка. Обратитесь к администратору."';
-		if ($v>=2 && $P1+$P2>0) $img=$P1.'_'.$P2; else $img=$P1;
-		return '<img width=12 height=12 src="'.WEB_IMAGES_PATH.'stat/'.$img.'.png"'.$alt.'>';*/
 	}
 	
 	/**
@@ -433,12 +421,14 @@ class m_monitoring {
 				JpGraphsInit::setNoCallLines($graph_duration,$no_calls_lines['len'], $week_start);
 			}
 
-			$gc_filename = WEB_IMAGES_PATH.'graphs/count.png';
+			$gc_filename = './images/graphs/count.png';
+
 			$graph_count->legend->SetFrameWeight(1);
 			$graph_count->Stroke($gc_filename);
 			$design->assign('graph_count', $gc_filename);
+
 			
-			$gd_filename = WEB_IMAGES_PATH.'graphs/duration.png';
+			$gd_filename = './images/graphs/duration.png';
 			$graph_duration->legend->SetFrameWeight(1);
 			$graph_duration->Stroke($gd_filename);
 			$design->assign('graph_duration', $gd_filename);
@@ -647,7 +637,7 @@ class m_monitoring {
 						$v->SetFillColor($colors[$k]);
 					}
 					
-					$filename = WEB_IMAGES_PATH.'graphs/bills_details_'. $r_id .'.png';
+					$filename = './images/graphs/bills_details_'. $r_id .'.png';
 					// Display the graph
 					$graph->Stroke($filename);
 					$graphs[$r_id]['bill_details'] = $filename;
@@ -686,7 +676,7 @@ class m_monitoring {
 						$v->SetColor($colors[$k]);
 						$v->SetFillColor($colors[$k]);
 					}
-					$filename = WEB_IMAGES_PATH.'graphs/bills_totals_' . $r_id . '.png';
+					$filename = './images/graphs/bills_totals_' . $r_id . '.png';
 					// Display the graph
 					$graph->Stroke($filename);
 					$graphs[$r_id]['bill_totals'] = $filename;
