@@ -223,11 +223,11 @@ bgColor="#FFFFFF">
 </tr>
 <tr>
     <td align="right"><div style="font-size:8px">Вид деятельности по ОКДП</div></td>
-    <td>&nbsp;{$bill_client.okpo}</td>
+    <td>&nbsp;</td>
 </tr>
 <tr>
     <td align="right">по ОКПО</td>
-    <td>&nbsp;</td>
+    <td>&nbsp;{if $bill_client.okpo}{$bill_client.okpo}{/if}</td>
 </tr>
 <tr>
     <td>&nbsp;</td>
@@ -265,7 +265,7 @@ bgColor="#FFFFFF">
 </tr>
 <tr>
 <td align="right">по ОКПО</td>
-<td>&nbsp;</td>
+<td>&nbsp;{if $bill_client.okpo}{$bill_client.okpo}{/if}</td>
 </tr>
 
 
