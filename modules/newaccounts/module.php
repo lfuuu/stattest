@@ -3638,14 +3638,14 @@ class m_newaccounts extends IModule
                         $b["ext_no"] = $b["bill_no_ext"];
                     }
                     if (!isset($b["ext_no"]) || !isset($b["bill_no_ext_date"]) || !$b["bill_no_ext_date"]) continue;
-                    
+
                     foreach ($date_formats as $format) {
-			$bill_no_ext_date = date($format, $b["bill_no_ext_date"]);
-			if (strpos($description, $bill_no_ext_date) !== false)
-			{
-				$b["ext_no_date"] = $bill_no_ext_date;
-				break;
-			}
+                        $bill_no_ext_date = date($format, $b["bill_no_ext_date"]);
+                        if (strpos($description, $bill_no_ext_date) !== false)
+                        {
+                            $b["ext_no_date"] = $bill_no_ext_date;
+                            break;
+                        }
                     }
                 }
                 unset($b);
@@ -3667,31 +3667,31 @@ class m_newaccounts extends IModule
 
             if (!empty($pay["clients_bills"])) 
             {
-		$rank = 0;
-		$selected = null;
-		foreach($pay["clients_bills"] as $k=>$b)
-		{
-			if ($pay['bill_no'] == $b['bill_no']) 
-			{
-				$selected = $k;
-				break;
-			} elseif ($rank < 2 && $pay['sum'] < 0 && isset($b['sum']) && $pay['sum'] == $b['sum']) {
-				if (isset($b['ext_no']) && isset($b['ext_no_date'])) 
-				{
-					$rank = 2;
-					$selected = $k;
-				} elseif (isset($b['ext_no'])) {
-					$selected = $k;
-					$rank = 1;
-				} elseif (!$rank) {
-					$selected = $k;
-				}
-			}
+                $rank = 0;
+                $selected = null;
+                foreach($pay["clients_bills"] as $k=>$b)
+                {
+                    if ($pay['bill_no'] == $b['bill_no']) 
+                    {
+                        $selected = $k;
+                        break;
+                    } elseif ($rank < 2 && $pay['sum'] < 0 && isset($b['sum']) && $pay['sum'] == $b['sum']) {
+                        if (isset($b['ext_no']) && isset($b['ext_no_date'])) 
+                        {
+                            $rank = 2;
+                            $selected = $k;
+                        } elseif (isset($b['ext_no'])) {
+                            $selected = $k;
+                            $rank = 1;
+                        } elseif (!$rank) {
+                            $selected = $k;
+                        }
+                    }
                 }
                 if (!is_null($selected)) 
                 {
-			$pay["clients_bills"][$selected]['is_selected'] = true;
-		}
+                    $pay["clients_bills"][$selected]['is_selected'] = true;
+                }
             }
 
             $sum["all"] += $pay["sum"];
@@ -3710,7 +3710,7 @@ class m_newaccounts extends IModule
             {
                 $bill = new Bill($p["bill_no"]);
 
-                if(/*substr($bill->Get("bill_date"), 7,3) == "-01" && */$bill->Get("postreg") == "0000-00-00")
+                if(/*substr($bill->Get("bill_date"), 7,3) == "-01" && */$bill->Get("postreg") == "0000-00-00" && !$bill->isOneZadatok())
                 {
                     $c = $bill->Client();
                     if($c["mail_print"] == "yes")
