@@ -778,16 +778,17 @@ class Bill{
         if(count($ls) != 1) return false;
 
         return $ls[0]["type"] == "service" && $ls[0]["id_service"] == 0 && $ls[0]["service"] == "";
+    }
 
-        /*$ls = $this->GetLines();
+    public function isOneZadatok()
+    {
+        global $db;
+
+        $ls = $db->AllRecords("select type, service, id_service from newbill_lines where bill_no='".$this->bill_no."'");
 
         if(count($ls) != 1) return false;
 
-        $lk = array_keys($ls); // номерация строк может быть разная
-        $l = $ls[$lk[0]];
-
-        return $l["type"] == "service" && $l["id_service"] == 0 && $l["service"] == "";*/
-        
+        return $ls[0]["type"] == "zadatok";
     }
 
     public function getDocumentType($bill_no)
