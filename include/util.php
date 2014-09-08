@@ -1535,9 +1535,15 @@ class ClientCS {
         
     }
 
-    public function getBillingCounters($clientId)
+    private function sendBillingCountersNotification($clientId)
     {
-        global $pg_db;
+        $subj = Encoding::toUtf8('[stat/include/util] База биллинга телефонии не доступна');
+        $body = Encoding::toUtf8('Клиент ' . ClientCard::find($clientId)->client . ' не получил информацию по биллингу');
+        mail(ADMIN_EMAIL, $subj, $body);
+    }
+    public function getBillingCounters($clientId, $silent_mode = false)
+    {
+        global $pg_db,$db;
 
         $counters = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
 
@@ -1550,7 +1556,22 @@ class ClientCS {
                                         WHERE client_id='".$clientId."'");
         }catch(Exception $e)
         {
-            throw new Exception("База билллинга телефонии не доступна");
+            if (!$silent_mode)
+            {
+                trigger_error("База биллинга телефонии не доступна");
+            }
+            self::sendBillingCountersNotification($clientId);
+        }
+        if (isset($counters_reg) && !empty($counters_reg))
+        {
+            $db->Query('INSERT INTO client_counters VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].') 
+            ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
+        } else {
+            $counters_reg = $db->GetRow('SELECT * FROM client_counters WHERE client_id = ' . $clientId);
+            if (empty($counters_reg))
+            {
+                $counters_reg = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
+            }
         }
         $counters['amount_sum'] = $counters_reg['amount_sum'];
         $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
