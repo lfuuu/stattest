@@ -1131,7 +1131,7 @@ class m_stats extends IModule{
             elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
             else $sql.= ' time as ts1, ';
 
-            $lenSql = $isByMins ? "case direction_out='f' when true then ((len_mcn-len_mcn%60)+60) else len_mcn end" : "len_mcn";
+            $lenSql = $isByMins ? "case direction_out='f' and len_mcn>0 when true then ((len_mcn-len_mcn%60)+60) else len_mcn end" : "len_mcn";
 
             $sql .=
             'cast('.($group?'sum':'').'(amount)/100.0 as NUMERIC(10,2)) as price,
