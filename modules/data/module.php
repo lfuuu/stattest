@@ -34,6 +34,8 @@ class m_data extends IModule {
 				'num_id' => $good->num_id,
 				'art' => iconv('koi8-r', 'utf-8', $good->art),
 				'name' => iconv('koi8-r', 'utf-8', $good->name),
+				'okei' => iconv('koi8-r', 'utf-8', $good->unit->okei),
+				'unit_name' => iconv('koi8-r', 'utf-8', $good->unit->name),
 			);
 		}
 

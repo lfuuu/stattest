@@ -147,6 +147,7 @@
         <tr>
             <th>Код</th>
             <th>Наименование</th>
+            <th colspan=2>Ед.измерения</th>
             <th>Заказано</th>
             <th>Поступило</th>
             <th>Оприходовано</th>
@@ -164,6 +165,8 @@
                     <input type="hidden" name="item[{$pos}][good_id]" value="{$item->good_id}" />
                 </td>
                 <td>{$item->good->name}</td>
+                <td>{if $item->good->unit}{$item->good->unit->okei}{/if}</td>
+                <td>{if $item->good->unit}{$item->good->unit->name}{/if}</td>
                 <td>
                     <input type="text" name="item[{$pos}][amount]" class="form-control input-sm amount" value="{$item->amount}" autocomplete="off"/>
                 </td>
@@ -281,6 +284,8 @@
                         .append($('<input type="hidden" name="item['+row_id+'][line_code]" value="0" />'))
                         .append($('<input type="hidden" name="item['+row_id+'][good_id]" value="'+good.id+'" />'));
                 $('<td>').text(good.name).appendTo(tr);
+                $('<td>').text(good.okei).appendTo(tr);
+                $('<td>').text(good.unit_name).appendTo(tr);
                 $('<td>').appendTo(tr)
                         .append($('<input type="text" name="item['+row_id+'][amount]" class="form-control input-sm  amount" value="1" />'));
                 $('<td>').text('0').appendTo(tr);
