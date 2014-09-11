@@ -125,7 +125,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
                                 </tr>
                                 <tr>
                                     <td><p><span>Грузополучатель и его адрес:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full} {$bill_client.address_post}{/if}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.is_with_consignee && $bill_client.consignee}{$bill_client.consignee}{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}{/if}</span></p></td>
                                     <td><p style='text-align:right'><span>(4)</span></p></td>
                                 </tr>
                                 <tr>

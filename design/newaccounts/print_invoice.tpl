@@ -137,8 +137,8 @@
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$firm.name}</strong><br>
     <strong>{$firm.address}</strong><br>{/if}
 {/if}
-    Грузополучатель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
-    <strong>{$bill_client.address_post}</strong><br>{/if}
+    Грузополучатель и его адрес: {if $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
+    <strong>{$bill_client.address_post}</strong><br>{/if}{/if}
 К платежно-расчетному документу{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}<br>
     Покупатель: <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong><br>
     Адрес: <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong><br>
