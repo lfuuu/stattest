@@ -37,7 +37,7 @@ class m_stats_head extends IModuleHead{
 		'report_agent' => array('stats','report'),
 		'report_sale_channel' => array('stats','sale_channel_report'),
 		'report_vpbx_stat_space' => array('stats', 'report'),
-		'phone_sales_details' => array('stats','report')
+		'phone_sales_details' => array('stats','report'),
         'agent_settings' => array('stats', 'vip_report'),
         'save_agent_settings' => array('stats', 'vip_report'),
 	);
