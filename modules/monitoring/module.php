@@ -292,9 +292,9 @@ class m_monitoring {
 		$from = strtotime('first day of this month 00:00:00');
 		$to = strtotime('last day of this month 23:59:59');
 		
-		$week_start = min(date('w', $from),date('w', strtotime('-1 month', $from)),date('w', strtotime('-2 month', $from)));
+		$week_start = min(date('w', $from),date('w', strtotime('-1 month', $from)),date('w', strtotime('-2 month', $from)), date('w', strtotime('-3 month', $from)));
 
-		$data = $this->getVoipSummaryRegionStatistic($regionId, strtotime('-2 month',$from), $to);
+		$data = $this->getVoipSummaryRegionStatistic($regionId, strtotime('-3 month',$from), $to);
 
 		$week_stats = array();
 		$g_data = array();

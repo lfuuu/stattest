@@ -42,7 +42,7 @@ class JpGraphsInit
 	 */
 	public static function setLines($graph, $data, $week_start)
 	{
-		$colors = array('#6495ED', '#B22222', '#FF1493');
+		$colors = array('#6495ED', '#B22222','#8B008B', '#0000CD');
 		$i = 0;
 		$month = date('n');
 		foreach ($data as $k => $v)
@@ -66,7 +66,7 @@ class JpGraphsInit
 	 */
 	public static function setNoCallLines($graph, $data, $week_start)
 	{
-		$colors = array('#6495ED', '#B22222', '#FF1493');
+		$colors = array('#6495ED', '#B22222','#8B008B', '#0000CD');
 		$i = 0;
 		$month = date('n');
 		foreach ($data as $m => $v2)
