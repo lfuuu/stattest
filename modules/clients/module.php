@@ -850,6 +850,15 @@ class m_clients {
 
         util::pager("cl");
 
+        if(!count($R) && is_numeric($search))
+        {
+		$tt_exists = Trouble::exists($search);
+		if ($tt_exists)
+		{
+			header("Location: ./?module=tt&action=view&id=".urlencode($search));
+			exit;
+		}
+        }
         // posible bill
         if(!count($R) && strlen($search) > 4){
             if($db->GetRow("select bill_no from `newbills` where bill_no = '".mysql_escape_string($search)."'")){
@@ -871,16 +880,6 @@ class m_clients {
                 exit;
             }
         }
-        if(!count($R) && strlen($search))
-        {
-		$tt_exists = Trouble::exists($search);
-		if ($tt_exists)
-		{
-			header("Location: ./?module=tt&action=view&id=".urlencode($search));
-			exit;
-		}
-        }
-
 
 		if($move_if_single && (count($R)==1) && $flag_single){
 			Header("Location: ?module=clients&id=".($R[0]['client'] ? $R[0]['client'] :$R[0]['id']));
