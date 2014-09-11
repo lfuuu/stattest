@@ -871,6 +871,15 @@ class m_clients {
                 exit;
             }
         }
+        if(!count($R) && strlen($search))
+        {
+		$tt_exists = Trouble::exists($search);
+		if ($tt_exists)
+		{
+			header("Location: ./?module=tt&action=view&id=".urlencode($search));
+			exit;
+		}
+        }
 
 
 		if($move_if_single && (count($R)==1) && $flag_single){
