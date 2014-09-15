@@ -18,7 +18,7 @@
 	</SELECT></TD>
 </TR>{/if}<TR>
 	<TD class=left>Клиент</TD>
-	<TD><input name=client readonly="readonly" value='{if $fixclient}{$fixclient}{/if}' class=text style='width:300px'></TD>
+	<TD><input name=client readonly="readonly" value='{if $fixclient}{$fixclient_data.client}{/if}' class=text style='width:300px'></TD>
 </TR>{if $tt_service}<TR>	
 	<TD class=left>Услуга</TD>
 	<TD><a href='pop_services.php?table={$tt_service}&id={$tt_service_id}'>{$tt_service} #{$tt_service_id}</a></TD>

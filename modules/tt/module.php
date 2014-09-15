@@ -368,6 +368,12 @@ class m_tt extends IModule{
         }
 
         if($fixclient)
+        {
+            $fixclient_data = ClientCS::FetchClient($fixclient);
+            if (!empty($fixclient_data))
+            {
+		$fixclient = $fixclient_data['client'];
+            } 
             $folders = $db->AllRecords($q="
                 select
                     tf.pk,
@@ -393,6 +399,7 @@ class m_tt extends IModule{
                 'pk',
                 MYSQL_ASSOC
             );
+        }
         else
             $folders = $db->AllRecords($q="
                 select
@@ -1216,6 +1223,15 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($this->dont_again)
             return 0;
         global $db,$design,$user;
+        
+        if ($fixclient) 
+        {
+            $fixclient_data = ClientCS::FetchClient($fixclient);
+            if (!empty($fixclient_data))
+            {
+		$fixclient = $fixclient_data['client'];
+            } 
+	}
 
         if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
