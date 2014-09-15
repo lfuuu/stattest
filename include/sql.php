@@ -97,7 +97,7 @@ class MySQLDatabase {
 
         global $user;
 
-        if(defined("print_sql"))
+        if(defined("print_sql") || (isset($_GET["show_sql"]) && $_GET["show_sql"] == 1))
         {
             echo "\n<br>";
             printdbg($query);
