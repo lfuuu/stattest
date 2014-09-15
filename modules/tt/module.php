@@ -2441,7 +2441,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     "Создатель: ".$p["user_author"]."\n".
                     "Проблема: ".$p["problem"]."\n\n".
                     ($comment ? "Последний коментарий: ".$comment."\n\n" : "").
-                    "https://stat.mcn.ru/operator/?module=tt&action=view&id=".$tId
+                    "https://stat.mcn.ru/operator/?search=".$tId
                     );
         }
     }
