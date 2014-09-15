@@ -46,6 +46,7 @@ class ats2sync7800ats2ToAsterDb
                 a_7800_line ln
                 LEFT JOIN a_number a7800 ON (ln.number7800_id = a7800.id and ln.client_id = a7800.client_id)
                 LEFT JOIN a_number anonum ON (ln.line_nonum_id = anonum.id and ln.client_id = anonum.client_id)
+            HAVING number7800 != 0 and line_nonum != 0
                 ") as $l)
         {
             self::$loaded[$l["number7800"]] = array("line" => $l["line_nonum"], "region" => $l["region"]);
