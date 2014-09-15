@@ -882,7 +882,7 @@ class m_clients {
         }
 
 		if($move_if_single && (count($R)==1) && $flag_single){
-			Header("Location: ?module=clients&id=".($R[0]['client'] ? $R[0]['client'] :$R[0]['id']));
+			Header("Location: ?module=clients&id=".($R[0]['id']));
 			exit;
 		}
 
