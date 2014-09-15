@@ -820,7 +820,10 @@ class m_services extends IModule{
         $conn = @pg_connect("host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS." connect_timeout=1");
 
         if (!$conn) 
-            throw new Exception("Connection error (PG HOST: ".R_CALLS_99_HOST.")");
+        {
+            mail(ADMIN_EMAIL, "[pg connect]", "services/getInOldSchema");
+            throw new Exception("Connection error (PG HOST: ".R_CALLS_99_HOST.")..");
+        }
 
         $res = @pg_query("SELECT exten FROM extensions WHERE exten in ('".implode("', '", $numbers)."') AND enabled = 't'");
 
@@ -845,7 +848,10 @@ class m_services extends IModule{
         $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
 
         if (!$conn) 
-            throw new Exception("Connection error (PG HOST: ".$dbHost.")");
+        {
+            mail(ADMIN_EMAIL, "[pg connect]", "services/getInNewSchema");
+            throw new Exception("Connection error (PG HOST: ".$dbHost.")...");
+        }
 
         $res = @pg_query("SELECT number FROM ".$schema.".numbers WHERE number in ('".implode("', '", $numbers)."') AND enabled = 't'");
 
@@ -871,6 +877,11 @@ class m_services extends IModule{
         if($region == 99)
         {
             $conn = @pg_connect("host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS." connect_timeout=1");
+
+            if (!$conn)
+            {
+                mail(ADMIN_EMAIL, "[pg connect]", "services/getSIPregs");
+            }
         }else{
 
             $dbname = "voipdb";
@@ -885,6 +896,11 @@ class m_services extends IModule{
             }
 
             $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
+
+            if (!$conn)
+            {
+                mail(ADMIN_EMAIL, "[pg connect]", "services/getSIPregs_2");
+            }
 
             if($conn && $schema)
                 pg_query("SET search_path TO ".$schema.", \"\$user\", public");
@@ -3450,6 +3466,11 @@ class voipRegion
         if($region == "99")
         {
             $conn = pg_connect($q = "host=".R_CALLS_99_HOST." dbname=".R_CALLS_99_DB." user=".R_CALLS_99_USER." password=".R_CALLS_99_PASS);
+            if (!$conn)
+            {
+                mail(ADMIN_EMAIL, "[pg connect]", "services/__db_connect");
+            }
+
         }else{
             $dbname = "voipdb";
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
@@ -3462,6 +3483,10 @@ class voipRegion
             }
 
             $conn = @pg_connect($q="host=".$dbHost." dbname=".$dbname." user=".R_CALLS_USER." password=".R_CALLS_PASS." connect_timeout=1");
+            if (!$conn)
+            {
+                mail(ADMIN_EMAIL, "[pg connect]", "services/__db_connect_2");
+            }
             if($conn && $schema)
                 pg_query("SET search_path TO ".$schema.", \"\$user\", public");
         }
