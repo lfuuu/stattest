@@ -356,7 +356,6 @@ class MT
     private function prepare(&$d)
     {
         if(!$d["is_pool"]) $d["is_pool"] = "no";
-        if($d["host_type"] == "static") $d["password"] = "";
     }
 
     private function check(&$data, $id)
