@@ -114,15 +114,16 @@ class ats2sync7800statToAts2
                     $diff["number_update"][$clientId][$number] = $statNums[$number];
                 }
 
-                if ($addNums)
-                    foreach ($addNums as $number)
-                    {
-                        $diff["number_add"][$clientId][$number] = $statNums[$number];
-                    }
-
-                if ($delNums)
-                    $diff["number_del"][$clientId] = $delNums;
             }
+
+            if ($addNums)
+                foreach ($addNums as $number)
+                {
+                    $diff["number_add"][$clientId][$number] = $statNums[$number];
+                }
+
+            if ($delNums)
+                $diff["number_del"][$clientId] = $delNums;
         }
 
         // появлись номера у клиента, у которого раньше небыло привязок
