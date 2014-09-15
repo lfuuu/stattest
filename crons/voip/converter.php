@@ -89,6 +89,10 @@ insertNumber($peers, $all, $inss); // numbers + numbers_forward
 // diffs
 
 define("print_sql", 1);
+
+try
+{
+
 $pDB->Query("start transaction");
 
 	$d = new diffSip($clientId);
@@ -103,6 +107,10 @@ $pDB->Query("start transaction");
 
 
 $pDB->Query("commit");
+} catch (Exception $e)
+{
+    mail(ADMIN_EMAIL, "[voip/converter] error convert clientId: ".$clientId, $e->GetMessage());
+}
 
 $dependedClientId = getVpbxTrunkClientHolder($clientId);
 
