@@ -565,7 +565,7 @@ class BillContract
             where 
                     client_id = ".$clientId." 
                 and contract_date <= FROM_UNIXTIME('".$dateTs."')
-            order by id desc 
+            order by is_active desc, id desc 
             limit 1");
     }
 }
