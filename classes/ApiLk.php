@@ -193,7 +193,7 @@ class ApiLk
         {
             $lines[] = array(
                             "item"      => Encoding::toUtf8($l->item),
-                            "date_from" => $l->date_from->format("d-m-Y"),
+                            "date_from" => $l->date_from ? $l->date_from->format("d-m-Y") : "",
                             "amount"    => $l->amount,
                             "price"     => number_format($l->price, 2, '.',''),
                             "sum"       => number_format($l->sum, 2, '.','')
