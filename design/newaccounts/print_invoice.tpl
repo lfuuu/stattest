@@ -137,7 +137,7 @@
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$firm.name}</strong><br>
     <strong>{$firm.address}</strong><br>{/if}
 {/if}
-    Грузополучатель и его адрес: {if $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
+    Грузополучатель и его адрес: {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
     <strong>{$bill_client.address_post}</strong><br>{/if}{/if}
 К платежно-расчетному документу{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}<br>
     Покупатель: <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong><br>
@@ -415,7 +415,7 @@
       <tr >
         <td><p align="right">Руководитель&nbsp;организации{if $inv_is_new4}<br>или иное уполномоченное лицо{/if}:</td>
         <td>
-        {if isset($emailed) || $invoice_source eq 5}
+        {if (isset($emailed) && $emailed == 1) || $invoice_source eq 5}
 
             {if $firm_director.sign} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _________________________________ {/if}
 
@@ -425,7 +425,7 @@
 
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
         <td><p align="right">&nbsp;Главный&nbsp;бухгалтер{if $inv_is_new4}<br>или иное уполномоченное лицо{/if}:</td>
-    <td>{if isset($emailed) || $invoice_source eq 5}
+    <td>{if (isset($emailed) && $emailed == 1) || $invoice_source eq 5}
 
             {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
 
