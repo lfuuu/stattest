@@ -958,8 +958,8 @@ class m_voipnew extends IModule
             header('Location: ?module=voipnew&action=calls_recalc');
         }
 
-        $regions = $db->AllRecords('select id, name from regions order by id desc');
-        $design->assign('regions', $regions);
+        $servers = $pg_db->AllRecords('select id, name from billing.instance_settings where active = true order by id desc');
+        $design->assign('servers', $servers);
 
         $tasks = $pg_db->AllRecords("select region_id, max(id) as id, max(task) as task, max(status) as status, max(created) as created from billing.tasks where task in ('recalc_current_month','recalc_last_month') group by region_id", 'region_id');
         $design->assign('tasks', $tasks);
