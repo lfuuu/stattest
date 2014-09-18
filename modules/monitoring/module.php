@@ -487,7 +487,7 @@ class m_monitoring {
 					AND
 					DATE_FORMAT(B.bill_date, "%m") = DATE_FORMAT(L.date_from, "%m") 
 					AND 
-					DATE_FORMAT(B.bill_date, "%m") = DATE_FORMAT(L.date_from,"%m"),
+					DATE_FORMAT(B.bill_date, "%m") = DATE_FORMAT(L.date_to,"%m"),
 					L.sum,
 					0
 				)
@@ -498,7 +498,7 @@ class m_monitoring {
 					AND
 					DATE_FORMAT(B.bill_date, "%m") <> DATE_FORMAT(L.date_from, "%m") 
 					AND  
-					DATE_FORMAT(B.bill_date, "%m") <> DATE_FORMAT(L.date_from,"%m"),
+					DATE_FORMAT(B.bill_date, "%m") <> DATE_FORMAT(L.date_to,"%m"),
 					L.sum,
 						0
 				)
@@ -529,7 +529,6 @@ class m_monitoring {
 		$options['group'] = 'region, month';
 		$options['order'] = 'region DESC, year ASC, month ASC';
 		$_bills = NewBill::find('all', $options);
-		
 		$min_month = date('n', $from);$max_month = date('n', $to);$year = date('Y');
 		if ($min_month > $max_month)
 		{
@@ -554,15 +553,15 @@ class m_monitoring {
 							if ($b->region == $v->region && $v->month == $month && $v->year == $year)
 							{
 								$created = true;
-								$total[$b->region]['bills']['abons'][] =round($v->abon/1000);
-								$total[$b->region]['bills']['overruns'][] =round($v->overrun/1000);
-								$total[$b->region]['bills']['goods'][] =round($v->good/1000);
-								$total[$b->region]['bills']['diff'][] =round(($v->sum-$v->abon-$v->overrun-$v->good)/1000);
+								$total[$b->region]['bills']['abons'][] =round($v->abon/1000, 2);
+								$total[$b->region]['bills']['overruns'][] =round($v->overrun/1000, 2);
+								$total[$b->region]['bills']['goods'][] =round($v->good/1000, 2);
+								$total[$b->region]['bills']['diff'][] =round(($v->sum-$v->abon-$v->overrun-$v->good)/1000, 2);
 								
-								$total[$b->region]['bills_by_month'][$v->month][] =round($v->abon/1000);
-								$total[$b->region]['bills_by_month'][$v->month][] =round($v->overrun/1000);
-								$total[$b->region]['bills_by_month'][$v->month][] =round($v->good/1000);
-								$total[$b->region]['bills_by_month'][$v->month][] =round(($v->sum-$v->abon-$v->overrun-$v->good)/1000);
+								$total[$b->region]['bills_by_month'][$v->month][] =round($v->abon/1000, 2);
+								$total[$b->region]['bills_by_month'][$v->month][] =round($v->overrun/1000, 2);
+								$total[$b->region]['bills_by_month'][$v->month][] =round($v->good/1000, 2);
+								$total[$b->region]['bills_by_month'][$v->month][] =round(($v->sum-$v->abon-$v->overrun-$v->good)/1000, 2);
 							}
 						}
 						if (!$created)

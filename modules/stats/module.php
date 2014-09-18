@@ -23,7 +23,7 @@ class m_stats extends IModule{
     }
 
 	function stats_default($fixclient){
-		$this->stats_internet($fixclient);
+		$this->stats_voip($fixclient);
 	}
 
 	function stats_internet($fixclient){

@@ -1,6 +1,6 @@
 <H2>Статистика счетов</H2>
 
-<FORM action="?" method=get>
+<FORM action="?" method=get name="bill_region">
 	<input type=hidden name=module value=monitoring>
 	<input type=hidden name=action value=report_bill_graph>
 	<TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
@@ -10,7 +10,7 @@
 					<label for="region">Регион:</label>
 				</TD>
 				<TD>
-					<select name="region" id="region">
+					<select name="region" id="region" onchange='document.forms["bill_region"].submit();'>
 						<option value="99" {if $region == 99}selected="selected"{/if}>
 							Москва
 						</option>

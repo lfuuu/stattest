@@ -42,10 +42,10 @@ class m_stats_head extends IModuleHead{
         'save_agent_settings' => array('stats', 'vip_report'),
 	);
 	var $menu=array(
+		array('Телефония',              'voip'),
 		array('Интернет',		'internet'),
 		array('Collocation',	'internet','&is_coll=1'),
 		array('PPP',			'ppp'),
-		array('Телефония',		'voip'),
 		array('Состояние номеров',		'voip_free_stat'),
 //		array('Пересчитать звонки','recalcalls'),
 		array('Телефония прод.','voip_sell'),
