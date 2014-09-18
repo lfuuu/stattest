@@ -1075,44 +1075,41 @@ class m_stats extends IModule{
 
         global $db;
 
+        //если у клиента есть хоть один номера с поминутной тарификацией - то всё считаем поминутно
         $isByMins = $db->GetValue(
             $q = "
-                select 
+                SELECT 
                     lt.id_service 
-                from 
+                FROM 
                     log_tarif lt, 
                     tarifs_voip tv, 
                     usage_voip uv , 
                     (
-                        select 
+                        SELECT 
                             id_service, 
-                            max(lt.id) max_log 
-                        from 
+                            MAX(lt.id) max_log 
+                        FROM 
                             log_tarif lt, 
                             usage_voip uv, 
                             clients c 
-                        where 
+                        WHERE 
                                 uv.id = id_service 
-                            and lt.service ='usage_voip' 
-                            and cast(now() as date) between uv.actual_from and uv.actual_to 
-                            and uv.client=c.client 
-                            and c.id = '".$client_id."'
-                        group by 
+                            AND lt.service ='usage_voip' 
+                            AND CAST(NOW() AS date) BETWEEN uv.actual_from AND uv.actual_to 
+                            AND uv.client=c.client 
+                            AND c.id = '".$client_id."'
+                        GROUP BY 
                             id_service
                     ) a 
-                where 
+                WHERE 
                         tv.id = lt.id_tarif 
-                    and uv.id = lt.id_service 
-                    and a.id_service = uv.id 
-                    and a.max_log = lt.id 
-                    and tariffication_by_minutes = 1 
-                limit 1");
-
-
-        //$Trans0= array('BUSY'=>'номер занят','FAILED'=>'ошибка','NO ANSWER'=>'нет ответа','CONGESTION'=>'номер занят');
-        //$Trans=array();
-        //$db->Query('select * from usage_nvoip_result');
-        //while ($r=$db->NextRecord()) if (isset($Trans0[$r['param']])) $Trans[$r['id']]=$Trans0[$r['param']];
+                    AND uv.id = lt.id_service 
+                    AND a.id_service = uv.id 
+                    AND a.max_log = lt.id 
+                    AND tariffication_by_minutes = 1 
+                LIMIT 1");
+        
+        $lenSql = $isByMins ? "case direction_out='f' and len_mcn>0 when true then ((len_mcn-len_mcn%60)+60) else len_mcn end" : "len_mcn";
 
         if ($detality != 'dest') {
             $R=array();
@@ -1131,7 +1128,6 @@ class m_stats extends IModule{
             elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
             else $sql.= ' time as ts1, ';
 
-            $lenSql = $isByMins ? "case direction_out='f' and len_mcn>0 when true then ((len_mcn-len_mcn%60)+60) else len_mcn end" : "len_mcn";
 
             $sql .=
             'cast('.($group?'sum':'').'(amount)/100.0 as NUMERIC(10,2)) as price,
@@ -1192,7 +1188,7 @@ class m_stats extends IModule{
 
             $R['total']=$rt;
         }else{
-            $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(len) as len, sum(1) as cnt
+            $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(".$lenSql.") as len, sum(1) as cnt
                             from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
