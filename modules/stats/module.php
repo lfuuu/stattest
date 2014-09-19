@@ -330,6 +330,11 @@ class m_stats extends IModule{
                                        left join regions r on r.id=u.region
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
+        if (!$usages) {
+            trigger_error("У клиента нет подключенных телефонных номеров!");
+            return;
+        }
+
         $regions = array();
         foreach ($usages as $u)
             if (!isset($regions[$u['region']]))
@@ -396,8 +401,11 @@ class m_stats extends IModule{
                 $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions);
             }
             $stats = $this->prepareStatArray($stats, $detality);
-        } else
-            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) return;
+        } else {
+            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) {
+                return;
+            }
+        }
 
         $design->assign('stats',$stats);
         $design->AddMain('stats/voip_form.tpl');
@@ -1013,6 +1021,7 @@ class m_stats extends IModule{
     function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array(), $isFull = false){
         global $pg_db;
 
+
         /*
          $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
                  R_CALLS_USER, R_CALLS_PASS,
@@ -1127,6 +1136,7 @@ class m_stats extends IModule{
             elseif ($detality == 'month') $sql.= " date_trunc('month',month) as ts1, ";
             elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
             else $sql.= ' time as ts1, ';
+
 
 
             $sql .=
