@@ -1628,19 +1628,20 @@ class m_clients {
 	function clients_files_report() {
 		global $db,$design;
 		$manager = get_param_protected('manager');
-		$def=getdate();
-		$from=param_load_date('from_',$def);
-		$to=param_load_date('to_',$def);
-		$def['mday']=1; $cur_from=param_load_date('cur_from_',$def);
-		$def['mday']=31; $cur_to=param_load_date('cur_to_',$def);
-		$def['mon']--; if ($def['mon']==0) {$def['mon']=12; $def['year']--; }
-		$def['mday']=1; $prev_from=param_load_date('prev_from_',$def);
-		$def['mday']=31; $prev_to=param_load_date('prev_to_',$def);
+		$dateFrom = new DatePickerValues('date_from', 'today');
+                $dateTo = new DatePickerValues('date_to', 'today');
+
+                $from = $dateFrom->getTimestamp();
+                $to = $dateTo->getTimestamp();
+                
+                DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+                DatePickerPeriods::assignPeriods(new DateTime());
+                
 		$R=array(); $GLOBALS['module_users']->d_users_get($R,'manager');
 		$design->assign('users',$R);
 		$design->assign('manager',$manager);
 
-		$R = $db->AllRecords('select client_files.*,clients.client as client_client,clients.company as client_company,user_users.user as user,clients.manager as client_manager'.
+		$R = $db->AllRecords('select client_files.*,UNIX_TIMESTAMP(client_files.ts) as ts,clients.client as client_client,clients.company as client_company,user_users.user as user,clients.manager as client_manager'.
 								' FROM client_files'.
 								' INNER JOIN clients ON clients.id=client_files.client_id'.
 								' LEFT JOIN user_users ON user_users.id=client_files.user_id'.
