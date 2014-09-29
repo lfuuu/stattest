@@ -70,6 +70,7 @@ function do_events()
                                      echo " exec: ".$execStr;
                                      exec($execStr);
                                  }
+                                 EventQueue::clean();
                                  break;
 
                 case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
