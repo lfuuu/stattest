@@ -107,10 +107,10 @@ class YandexProcessor
             throw new Exception("Отказ в приеме перевода (bad amount)", 100);
 
 
-        if(!$this->data["customerNumber"] || !preg_match("/^\d{1,6}$/", $this->data["customerNumber"]))
+        if(!$this->data["customerNumber"] || !preg_match("/^\d{1,13}$/", $this->data["customerNumber"]))
             throw new Exception("Отказ в приеме перевода (bad customer number)", 100);
 
-        $c = ClientCard::find_by_id($this->data["customerNumber"]);
+        $c = $this->getClientByCustomerNumber($this->data["customerNumber"]);
         if(!$c)
             throw new Exception("Отказ в приеме перевода (customer not found)", 100);
 
@@ -129,7 +129,7 @@ class YandexProcessor
         $paymentDateFull = $paymentDate->format("Y-m-d H:i:s");
         $paymentDate = $paymentDate->format("Y-m-d");
 
-        $client = ClientCard::find_by_id($this->data["customerNumber"]);
+        $client = $this->getClientByCustomerNumber($this->data["customerNumber"]);
 
 
         $objNow = new ActiveRecord\DateTime();
@@ -159,6 +159,44 @@ class YandexProcessor
         event::go("yandex_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance
 
         return true;
+    }
+
+    public function getClientByCustomerNumber($customerNumber)
+    {
+        $c = ClientCard::find_by_id($customerNumber);
+
+        if (!$c)
+        {
+            $usage = self::getActualUsageVoip($customerNumber);
+
+            if (!$usage)
+                $usage = self::getActualUsageVoip("7".$customerNumber);
+
+            if (!$usage)
+            {
+                $_customerNumber = $customerNumber;
+                $_customerNumber[0] = "7";
+
+                $usage = self::getActualUsageVoip($_customerNumber);
+            }
+
+            if ($usage)
+            {
+                $c = ClientCard::find_by_client($usage->client);
+            }
+        }
+
+        if ($c && !in_array($c->status, array("closed", "trash", "double")))
+        {
+            return $c;
+        } else {
+            return null;
+        }
+    }
+
+    private function getActualUsageVoip($number)
+    {
+        return UsageVoip::first(array("conditions" => array("E164 = ? and cast(now() as date) between actual_from and actual_to", $number)));
     }
 }
 
