@@ -20,12 +20,13 @@ class m_tarifs{
         );
 
     var $menu=array(
+            array('IP-телефония',            'voip'),
             array('Интернет',                'view','&m=internet'),
             array('Collocation',            'view','&m=collocation'),
             array('VPN',                    'view','&m=vpn'),
 //            array('Хостинг',                'view','&m=hosting'),
-            array('Междугородняя связь',    'view','&m=russia'),
-            array('Международная связь',    'view','&m=world'),
+//             array('Междугородняя связь',    'view','&m=russia'),
+//             array('Международная связь',    'view','&m=world'),
             array('Дополнительные услуги',    'view','&m=extra'),
             //array('IT Park',                'view','&m=itpark'),
             array('IT Park',                'itpark',''),
@@ -35,7 +36,6 @@ class m_tarifs{
             array('СМС',                   'sms',''),
             array('WellSystem',                'wellsystem',''),
 //            array('Старые доп.услуги',        'view','&m=add'),
-            array('IP-телефония',            'voip'),
             array('Пакетная загрузка тарифов','csv_upload'),
             array('Договора',            'contracts',''),
             array('Договор-Прайс-Телефония',            'price_tel',''),
@@ -71,7 +71,7 @@ class m_tarifs{
         call_user_func(array($this,'tarifs_'.$action),$fixclient);
     }
     function tarifs_default(){
-        $this->tarifs_view();    
+        $this->tarifs_voip();    
     }
     function GetTableFilter($m) {
         $p=''; $q=''; 
@@ -79,8 +79,8 @@ class m_tarifs{
         elseif ($m=='vpn') {$p='internet'; $q='v';}
         elseif ($m=='collocation') {$p='internet'; $q='c';}
         elseif ($m=='hosting') {$p='hosting'; $q='z';}
-        elseif ($m=='russia') {$p='price_voip'; $q='r';}
-        elseif ($m=='world') {$p='price_voip'; $q='w';}
+//         elseif ($m=='russia') {$p='price_voip'; $q='r';}
+//         elseif ($m=='world') {$p='price_voip'; $q='w';}
         elseif ($m=='extra') {$p='extra'; $q='z';}
         elseif ($m=='itpark') {$p='itpark'; $q='z';}
         elseif ($m=='welltime') {$p='welltime'; $q='z';}
