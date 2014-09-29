@@ -19,4 +19,9 @@ class EventQueue extends ActiveRecord\Model
         $this->is_stoped = 1;
         $this->save();
     }
+
+    public function clean()
+    {
+        EventQueue::table()->conn->query("delete from event_queue where date < date_sub(now(), INTERVAL 3 month)");
+    }
 }
