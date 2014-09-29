@@ -56,7 +56,7 @@ class m_clients {
 //					array('Все клиенты',			'all'),
 					array('Новый клиент',			'new'),
 					#array('ФизЛицо',				'p_edit'),
-					array('Кредит',					'credit'),
+// 					array('Кредит',					'credit'),
 					array('',						'show'),	//чтобы пробел не показывался, если read_filter отключен
 					array('Телемаркетинг',			'show','&subj=telemarketing'),
 					array('Входящие',				'show','&subj=income'),
@@ -276,6 +276,7 @@ class m_clients {
 		global $design,$user;
 		$subj=get_param_protected("subj");
 		if (!$subj) return;
+		$design->assign('hide_tt_list',1);
 		$_SESSION['clients_filter'] = $subj;
 		$this->clients_headers('show', $subj);
 
