@@ -15,21 +15,21 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 		array('stores', 'class_name' => 'GoodsIncomeStore', 'foreign_key' => 'order_id'),
 	);
 
-    const STATUS_NOT_AGREED    = 'îÅ ÓÏÇÌÁÓÏ×ÁÎ';
-    const STATUS_AGREED        = 'óÏÇÌÁÓÏ×ÁÎ';
-    const STATUS_CONFIRMED    = 'ğÏÄÔ×ÅÒÖÄÅÎ';
-    const STATUS_ENTERING    = 'ë ĞÏÓÔÕĞÌÅÎÉÀ';
-    const STATUS_CLOSED        = 'úÁËÒÙÔ';
+    const STATUS_NOT_AGREED    = 'ĞĞµ ÑĞ¾Ğ³Ğ»Ğ°ÑĞ¾Ğ²Ğ°Ğ½';
+    const STATUS_AGREED        = 'Ğ¡Ğ¾Ğ³Ğ»Ğ°ÑĞ¾Ğ²Ğ°Ğ½';
+    const STATUS_CONFIRMED    = 'ĞŸĞ¾Ğ´Ñ‚Ğ²ĞµÑ€Ğ¶Ğ´ĞµĞ½';
+    const STATUS_ENTERING    = 'Ğš Ğ¿Ğ¾ÑÑ‚ÑƒĞ¿Ğ»ĞµĞ½Ğ¸Ñ';
+    const STATUS_CLOSED        = 'Ğ—Ğ°ĞºÑ€Ñ‹Ñ‚';
 
-	const STATUS_STAT_ENTERING	= 'ğÏÓÔÕĞÌÅÎÉÅ';
-	const STATUS_STAT_CLOSED	= 'úÁËÒÙÔ';
+	const STATUS_STAT_ENTERING	= 'ĞŸĞ¾ÑÑ‚ÑƒĞ¿Ğ»ĞµĞ½Ğ¸Ğµ';
+	const STATUS_STAT_CLOSED	= 'Ğ—Ğ°ĞºÑ€Ñ‹Ñ‚';
 
 	public static $statuses = array(
-		self::STATUS_NOT_AGREED	=> 'îÅ ÓÏÇÌÁÓÏ×ÁÎ',
-		self::STATUS_AGREED		=> 'óÏÇÌÁÓÏ×ÁÎ',
-		self::STATUS_CONFIRMED	=> 'ğÏÄÔ×ÅÒÖÄÅÎ',
-		self::STATUS_ENTERING	=> 'ë ĞÏÓÔÕĞÌÅÎÉÀ',
-		self::STATUS_CLOSED		=> 'úÁËÒÙÔ',
+		self::STATUS_NOT_AGREED	=> 'ĞĞµ ÑĞ¾Ğ³Ğ»Ğ°ÑĞ¾Ğ²Ğ°Ğ½',
+		self::STATUS_AGREED		=> 'Ğ¡Ğ¾Ğ³Ğ»Ğ°ÑĞ¾Ğ²Ğ°Ğ½',
+		self::STATUS_CONFIRMED	=> 'ĞŸĞ¾Ğ´Ñ‚Ğ²ĞµÑ€Ğ¶Ğ´ĞµĞ½',
+		self::STATUS_ENTERING	=> 'Ğš Ğ¿Ğ¾ÑÑ‚ÑƒĞ¿Ğ»ĞµĞ½Ğ¸Ñ',
+		self::STATUS_CLOSED		=> 'Ğ—Ğ°ĞºÑ€Ñ‹Ñ‚',
 	);
 
     static $before_save = array('calculate_ready');
@@ -64,8 +64,8 @@ class GoodsIncomeOrder extends ActiveRecord\Model
     {
         $data = $this->_to_save();
 
-        $data['óÔÁÔÕÓ'] = $status;
-        $data['ğÒÏ×ÅÄÅÎ'] = (bool)$isActive;
+        $data['Ğ¡Ñ‚Ğ°Ñ‚ÑƒÑ'] = $status;
+        $data['ĞŸÑ€Ğ¾Ğ²ĞµĞ´ĞµĞ½'] = (bool)$isActive;
 
         try{
             $order = Sync1C::getClient()->saveGoodsIncomeOrder($data);
@@ -82,27 +82,27 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         foreach($this->lines as $line) {
 
             $list[] = array(
-                'îÏÍÅÎËÌÁÔÕÒÁ' => $line->good_id,
-                'ëÏÌÉŞÅÓÔ×Ï' => $line->amount,
-                'ãÅÎÁ' => $line->price,
-                'ëÏÄóÔÒÏËÉ' => $line->line_code,
-                'äÁÔÁğÏÓÔÕĞÌÅÎÉÑ' => ($line->incoming_date ? $line->incoming_date->format("atom") : '0001-01-01T00:00:00')
+                'ĞĞ¾Ğ¼ĞµĞ½ĞºĞ»Ğ°Ñ‚ÑƒÑ€Ğ°' => $line->good_id,
+                'ĞšĞ¾Ğ»Ğ¸Ñ‡ĞµÑÑ‚Ğ²Ğ¾' => $line->amount,
+                'Ğ¦ĞµĞ½Ğ°' => $line->price,
+                'ĞšĞ¾Ğ´Ğ¡Ñ‚Ñ€Ğ¾ĞºĞ¸' => $line->line_code,
+                'Ğ”Ğ°Ñ‚Ğ°ĞŸĞ¾ÑÑ‚ÑƒĞ¿Ğ»ĞµĞ½Ğ¸Ñ' => ($line->incoming_date ? $line->incoming_date->format("atom") : '0001-01-01T00:00:00')
             );
         }
 
         $data = array(
-            'ëÏÄ1ó' => $this->id,
-            'ğÒÏ×ÅÄÅÎ' => (bool)$this->active,
-            'ëÏÄëÏÎÔÒÁÇÅÎÔÁ' => $this->client_card_id,
-            'îÏÍÅÒğÏäÁÎÎÙÍğÏÓÔÁ×İÉËÁ' => $this->external_number,
-            'äÁÔÁğÏäÁÎÎÙÍğÏÓÔÁ×İÉËÁ' => $this->external_date ? $this->external_date->format('atom') : '0001-01-01T00:00:00',
-            'óÔÁÔÕÓ' => $this->status,
-            'ïÒÇÁÎÉÚÁÃÉÑ' => $this->organization_id,
-            'óËÌÁÄ' => $this->store_id,
-            '÷ÁÌÀÔÁ' => $this->currency,
-            'ãÅÎÁ÷ËÌÀŞÁÅÔîäó' => (bool)$this->price_includes_nds,
-            'íÅÎÅÄÖÅÒ' => $this->manager_id,
-            'óĞÉÓÏËğÏÚÉÃÉÊ' => $list,
+            'ĞšĞ¾Ğ´1Ğ¡' => $this->id,
+            'ĞŸÑ€Ğ¾Ğ²ĞµĞ´ĞµĞ½' => (bool)$this->active,
+            'ĞšĞ¾Ğ´ĞšĞ¾Ğ½Ñ‚Ñ€Ğ°Ğ³ĞµĞ½Ñ‚Ğ°' => $this->client_card_id,
+            'ĞĞ¾Ğ¼ĞµÑ€ĞŸĞ¾Ğ”Ğ°Ğ½Ğ½Ñ‹Ğ¼ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ñ‰Ğ¸ĞºĞ°' => $this->external_number,
+            'Ğ”Ğ°Ñ‚Ğ°ĞŸĞ¾Ğ”Ğ°Ğ½Ğ½Ñ‹Ğ¼ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ñ‰Ğ¸ĞºĞ°' => $this->external_date ? $this->external_date->format('atom') : '0001-01-01T00:00:00',
+            'Ğ¡Ñ‚Ğ°Ñ‚ÑƒÑ' => $this->status,
+            'ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ' => $this->organization_id,
+            'Ğ¡ĞºĞ»Ğ°Ğ´' => $this->store_id,
+            'Ğ’Ğ°Ğ»ÑÑ‚Ğ°' => $this->currency,
+            'Ğ¦ĞµĞ½Ğ°Ğ’ĞºĞ»ÑÑ‡Ğ°ĞµÑ‚ĞĞ”Ğ¡' => (bool)$this->price_includes_nds,
+            'ĞœĞµĞ½ĞµĞ´Ğ¶ĞµÑ€' => $this->manager_id,
+            'Ğ¡Ğ¿Ğ¸ÑĞ¾ĞºĞŸĞ¾Ğ·Ğ¸Ñ†Ğ¸Ğ¹' => $list,
         );
 
         return $data;

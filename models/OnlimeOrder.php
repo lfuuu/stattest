@@ -14,7 +14,7 @@ class OnlimeOrder extends ActiveRecord\Model
 
         $o = new OnlimeOrder();
         $o->external_id = $order["id"];
-        $o->order_serialize = serialize(Encoding::toKoi8r($order));
+        $o->order_serialize = serialize($order);
         $o->status = 0;
         $o->stage = OnlimeOrder::STAGE_NEW;
         $o->error = "";
@@ -32,7 +32,7 @@ class OnlimeOrder extends ActiveRecord\Model
     public function setStatus($status, $error)
     {
         $this->status = $status;
-        $this->error = Encoding::toKoi8r($error);
+        $this->error = $error;
         $this->save();
     }
 
