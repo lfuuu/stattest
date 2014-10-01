@@ -1,4 +1,4 @@
-<H2>·––¡“¡‘’“¡</H2>
+<H2>–ê–ø–ø–∞—Ä–∞—Ç—É—Ä–∞</H2>
 <H3>{$query_table}:</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=d_apply>
@@ -15,5 +15,5 @@
 {/foreach}
 
 </TBODY></TABLE>
-<DIV align=center><INPUT id=submit class=button type=submit value="È⁄Õ≈Œ…‘ÿ"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="–ò–∑–º–µ–Ω–∏—Ç—å"></DIV>
 </form>

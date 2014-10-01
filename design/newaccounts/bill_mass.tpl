@@ -1,21 +1,21 @@
-<h2>Массовые операции со счетами</h2>
+<h2>п°п╟я│я│п╬п╡я▀п╣ п╬п©п╣я─п╟я├п╦п╦ я│п╬ я│я┤п╣я┌п╟п╪п╦</h2>
 <form action='?' method=get>
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=bill_mass>
 <input type=hidden name=obj value=print>
-Напечатать
-<input type=checkbox name=do_bill checked>счета
-<input type=checkbox name=do_inv>счет-фактуры
-<input type=checkbox name=do_akt>акты
-<select name=date><option value='month'>созданные в текущем месяце</option><option value='today'>созданные сегодня</option><option value='paytoday'>с сегодняшними платежами</option></select>
-<input type=submit class=button value='Печать'>
+п²п╟п©п╣я┤п╟я┌п╟я┌я▄
+<input type=checkbox name=do_bill checked>я│я┤п╣я┌п╟
+<input type=checkbox name=do_inv>я│я┤п╣я┌-я└п╟п╨я┌я┐я─я▀
+<input type=checkbox name=do_akt>п╟п╨я┌я▀
+<select name=date><option value='month'>я│п╬п╥п╢п╟п╫п╫я▀п╣ п╡ я┌п╣п╨я┐я┴п╣п╪ п╪п╣я│я▐я├п╣</option><option value='today'>я│п╬п╥п╢п╟п╫п╫я▀п╣ я│п╣пЁп╬п╢п╫я▐</option><option value='paytoday'>я│ я│п╣пЁп╬п╢п╫я▐я┬п╫п╦п╪п╦ п©п╩п╟я┌п╣п╤п╟п╪п╦</option></select>
+<input type=submit class=button value='п÷п╣я┤п╟я┌я▄'>
 </form><br><br>
 
-<a href='?module=newaccounts&action=bill_mass&obj=create' target=_blank onclick='javascript:return confirm("Точно?")'>Выставить счета всем клиентам за текущий месяц</a><br>
+<a href='?module=newaccounts&action=bill_mass&obj=create' target=_blank onclick='javascript:return confirm("п╒п╬я┤п╫п╬?")'>п▓я▀я│я┌п╟п╡п╦я┌я▄ я│я┤п╣я┌п╟ п╡я│п╣п╪ п╨п╩п╦п╣п╫я┌п╟п╪ п╥п╟ я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├</a><br>
 <br>
-<a href='./?module=newaccounts&action=bill_mass&obj=print'>Печать всех счетов за текущий месяц</a><br>
+<a href='./?module=newaccounts&action=bill_mass&obj=print'>п÷п╣я┤п╟я┌я▄ п╡я│п╣я┘ я│я┤п╣я┌п╬п╡ п╥п╟ я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├</a><br>
 <br>
-<a href='./?module=newaccounts&action=bill_balance_mass' target=_blank onclick='javascript:return confirm("Точно?")'>Обновить баланс всем клиентам</a><br>
+<a href='./?module=newaccounts&action=bill_balance_mass' target=_blank onclick='javascript:return confirm("п╒п╬я┤п╫п╬?")'>п·п╠п╫п╬п╡п╦я┌я▄ п╠п╟п╩п╟п╫я│ п╡я│п╣п╪ п╨п╩п╦п╣п╫я┌п╟п╪</a><br>
 <br>
-<a href='./?module=newaccounts&action=bill_publish'>Опубликовать счета выставленные в этом месяце</a><br>
+<a href='./?module=newaccounts&action=bill_publish'>п·п©я┐п╠п╩п╦п╨п╬п╡п╟я┌я▄ я│я┤п╣я┌п╟ п╡я▀я│я┌п╟п╡п╩п╣п╫п╫я▀п╣ п╡ я█я┌п╬п╪ п╪п╣я│я▐я├п╣</a><br>
 

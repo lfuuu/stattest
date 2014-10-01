@@ -1,14 +1,14 @@
-<H2>Операторы</H2>
-<H3>Список операторов</H3>
+<H2>п·п©п╣я─п╟я┌п╬я─я▀</H2>
+<H3>п║п©п╦я│п╬п╨ п╬п©п╣я─п╟я┌п╬я─п╬п╡</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 <TR>
   <TD class=header vAlign=bottom width="20%">Login</TD>
-  <TD class=header vAlign=bottom width="15%">Группа</TD>
-  <TD class=header vAlign=bottom width="15%">Отдел</TD>
-  <TD class=header vAlign=bottom width="38%">Полное имя</TD>
-  <TD class=header vAlign=bottom width="10%">Редирект</TD>
-  <TD class=header vAlign=bottom width="2%">Фото?</TD>
+  <TD class=header vAlign=bottom width="15%">п⌠я─я┐п©п©п╟</TD>
+  <TD class=header vAlign=bottom width="15%">п·я┌п╢п╣п╩</TD>
+  <TD class=header vAlign=bottom width="38%">п÷п╬п╩п╫п╬п╣ п╦п╪я▐</TD>
+  <TD class=header vAlign=bottom width="10%">п═п╣п╢п╦я─п╣п╨я┌</TD>
+  <TD class=header vAlign=bottom width="2%">п╓п╬я┌п╬?</TD>
   <TD class=header vAlign=bottom width="10%">&nbsp;</TD>
   </TR>
 {foreach from=$users item=item name=outer}
@@ -19,14 +19,14 @@
 	<TD>{$item.name}</TD>
 	<TD>{$item.trouble_redirect}</TD>
 	<TD>{if $item.photo}+{/if}</TD>
-	<TD><a href='{$LINK_START}module=users&m=users&action=delete&id={$item.user}'>Удалить</a></TD>
+	<TD><a href='{$LINK_START}module=users&m=users&action=delete&id={$item.user}'>пёп╢п╟п╩п╦я┌я▄</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>
 {if access('users','change')}
       <DIV style="WIDTH: 1px; HEIGHT: 30px"><IMG height=30 alt="" 
       src="<?=IMAGES_PATH;?>1.gif" width=1></DIV>
-      <H3>Добавить оператора:</H3>
+      <H3>п■п╬п╠п╟п╡п╦я┌я▄ п╬п©п╣я─п╟я┌п╬я─п╟:</H3>
 <FORM action="?" method=get>
 <input type=hidden name=action value=add>
 <input type=hidden name=module value=users>
@@ -35,20 +35,20 @@
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TR><TD class=left>Логин:</TD>
+          <TR><TD class=left>п⌡п╬пЁп╦п╫:</TD>
           <TD><input name=user class=text></TD>
           </TR>
           
-          <TR><TD class=left>Группа:</TD>
+          <TR><TD class=left>п⌠я─я┐п©п©п╟:</TD>
           <TD><SELECT name=usergroup>{foreach from=$groups item=item}<option value={$item.usergroup}>{$item.usergroup} - {$item.comment}</option>{/foreach}</select></TD>
           </TR>
 
-          <TR><TD class=left>Полное имя:</TD>
+          <TR><TD class=left>п÷п╬п╩п╫п╬п╣ п╦п╪я▐:</TD>
           <TD><input name=name class=text></TD>
           </TR>
           </TBODY></TABLE>
       <HR>
 
-<DIV align=center><INPUT class=button type=submit value="Создать оператора"></DIV>
+<DIV align=center><INPUT class=button type=submit value="п║п╬п╥п╢п╟я┌я▄ п╬п©п╣я─п╟я┌п╬я─п╟"></DIV>
 </FORM>
 {/if}

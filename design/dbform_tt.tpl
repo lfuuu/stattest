@@ -1,5 +1,5 @@
-<H3>Незакрытые заявки</H3>
+<H3>п²п╣п╥п╟п╨я─я▀я┌я▀п╣ п╥п╟я▐п╡п╨п╦</H3>
 {include file='tt/trouble_list.tpl'}
 {if $tt_service}
-	<a href='index.php?module=tt&clients_client={$tt_client}&service={$tt_service}&service_id={$tt_service_id}'>Создать заявку</a><br>
+	<a href='index.php?module=tt&clients_client={$tt_client}&service={$tt_service}&service_id={$tt_service_id}'>п║п╬п╥п╢п╟я┌я▄ п╥п╟я▐п╡п╨я┐</a><br>
 {/if}

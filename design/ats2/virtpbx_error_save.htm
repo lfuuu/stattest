@@ -1,18 +1,18 @@
 <div>
-    Синхронизация выполнена с ошибками:
+    п║п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦я▐ п╡я▀п©п╬п╩п╫п╣п╫п╟ я│ п╬я┬п╦п╠п╨п╟п╪п╦:
     <table border=1 style="border-collapse: collapse;" cellpadding=5>
         <tr>
-            <th>Номер</th>
-            <th>Действие</th>
-            <th>Статус</th>
-            <th>Код ошибки</th>
-            <th>Сообщение</th>
+            <th>п²п╬п╪п╣я─</th>
+            <th>п■п╣п╧я│я┌п╡п╦п╣</th>
+            <th>п║я┌п╟я┌я┐я│</th>
+            <th>п п╬п╢ п╬я┬п╦п╠п╨п╦</th>
+            <th>п║п╬п╬п╠я┴п╣п╫п╦п╣</th>
         </tr>
         {foreach from=$error_full item=e}
         <tr>
             <td>{$e.number}</td>
-            <td>{if $e.action == "del"}Удаление{else}{if $e.action == "add"}Добавление{else}{if $e.action == "create"}Создание{else}{$e.action}{/if}{/if}{/if}</td>
-            <td>{if $e.error}Ошибка{else}OK{/if}</td>
+            <td>{if $e.action == "del"}пёп╢п╟п╩п╣п╫п╦п╣{else}{if $e.action == "add"}п■п╬п╠п╟п╡п╩п╣п╫п╦п╣{else}{if $e.action == "create"}п║п╬п╥п╢п╟п╫п╦п╣{else}{$e.action}{/if}{/if}{/if}</td>
+            <td>{if $e.error}п·я┬п╦п╠п╨п╟{else}OK{/if}</td>
             <td>{$e.code}</td>
             <td{if $e.error} style="color: #c40000; font-weight: bold;"{/if}>{$e.message}</td>
         </tr>

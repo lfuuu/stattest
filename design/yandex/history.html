@@ -2,26 +2,26 @@
 <input type=hidden name=module value="yandex"/>
 <input type=hidden name=action value="history"/>
 <input type=hidden name=k value="stat"/>
-<input type=submit value="Показать историю по кошельку СТАТ"/>
+<input type=submit value="п÷п╬п╨п╟п╥п╟я┌я▄ п╦я│я┌п╬я─п╦я▌ п©п╬ п╨п╬я┬п╣п╩я▄п╨я┐ п║п╒п░п╒"/>
 </form>
 <form method="get" style="display:inline">
 <input type=hidden name=module value="yandex"/>
 <input type=hidden name=action value="history"/>
 <input type=hidden name=k value="compapa"/>
-<input type=submit value="Показать историю по кошельку Компапа"/>
+<input type=submit value="п÷п╬п╨п╟п╥п╟я┌я▄ п╦я│я┌п╬я─п╦я▌ п©п╬ п╨п╬я┬п╣п╩я▄п╨я┐ п п╬п╪п©п╟п©п╟"/>
 </form>
 <br/><br/>
 {if $k eq 'stat'}
-	<b>История операций по кошельку СТАТ</b><br/><br/>
+	<b>п≤я│я┌п╬я─п╦я▐ п╬п©п╣я─п╟я├п╦п╧ п©п╬ п╨п╬я┬п╣п╩я▄п╨я┐ п║п╒п░п╒</b><br/><br/>
 {elseif $k eq 'compapa'}
-	<b>История операций по кошельку Компапа</b><br/><br/>
+	<b>п≤я│я┌п╬я─п╦я▐ п╬п©п╣я─п╟я├п╦п╧ п©п╬ п╨п╬я┬п╣п╩я▄п╨я┐ п п╬п╪п©п╟п©п╟</b><br/><br/>
 {/if}
 {if $account neq ''}
-Баланс: <b>{$balance}</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Номер счета: <b>{$account}</b><br /><br />
+п▒п╟п╩п╟п╫я│: <b>{$balance}</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; п²п╬п╪п╣я─ я│я┤п╣я┌п╟: <b>{$account}</b><br /><br />
 {/if}
 {if $k neq ''} 
 	<table class=price cellSpacing=2 cellPadding=4 border=0>
-	<tr><td class=header>Дата</td><td class=header>Наименование платежа</td><td class=header>Сумма</td></tr>
+	<tr><td class=header>п■п╟я┌п╟</td><td class=header>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п©п╩п╟я┌п╣п╤п╟</td><td class=header>п║я┐п╪п╪п╟</td></tr>
 	{foreach from=$history item='h'}
 		<tr class={cycle values='even,odd'} ><td>{$h.date}</td><td>{$h.title}</td><td align="right">{$h.sum}</td></tr>
 	{/foreach}

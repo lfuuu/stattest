@@ -3,37 +3,37 @@
 	<input type="hidden" name="pricelist_ids[]" value="{$pricelist.id}" />
 	<select name="ftype">
         {if $pricelist.type == 'network' and $pricelist.operator_id == '15'}
-        <option value="csv_mgts_networks">Сети МГТС (Полный)</option>
+        <option value="csv_mgts_networks">п║п╣я┌п╦ п°п⌠п╒п║ (п÷п╬п╩п╫я▀п╧)</option>
         {elseif $pricelist.type == 'network'}
-        <option value="xls_networks">Сети операторов (Полный)</option>
+        <option value="xls_networks">п║п╣я┌п╦ п╬п©п╣я─п╟я┌п╬я─п╬п╡ (п÷п╬п╩п╫я▀п╧)</option>
         {elseif $pricelist.type == 'network_prices'}
-        <option value="xls_networks">Местные цены (Полный)</option>
+        <option value="xls_networks">п°п╣я│я┌п╫я▀п╣ я├п╣п╫я▀ (п÷п╬п╩п╫я▀п╧)</option>
 		{elseif $pricelist.operator_id == '2' || $pricelist.operator_id == '22'}
-        <option value="xls_beeline_changes">Формат Билайн (Изменения)</option>
-		<option value="xls_beeline_full1">Формат Билайн (Полный 1)</option>
-		<option value="xls_beeline_full2">Формат Билайн (Полный 2)</option>
+        <option value="xls_beeline_changes">п╓п╬я─п╪п╟я┌ п▒п╦п╩п╟п╧п╫ (п≤п╥п╪п╣п╫п╣п╫п╦я▐)</option>
+		<option value="xls_beeline_full1">п╓п╬я─п╪п╟я┌ п▒п╦п╩п╟п╧п╫ (п÷п╬п╩п╫я▀п╧ 1)</option>
+		<option value="xls_beeline_full2">п╓п╬я─п╪п╟я┌ п▒п╦п╩п╟п╧п╫ (п÷п╬п╩п╫я▀п╧ 2)</option>
 		{elseif $pricelist.operator_id == '8'}
-		<option value="xls_mtt_full">Формат МТТ (Полный)</option>
-        <option value="xls_mcn_prime_full">Формат ЭмСиЭн (Полный)</option>
+		<option value="xls_mtt_full">п╓п╬я─п╪п╟я┌ п°п╒п╒ (п÷п╬п╩п╫я▀п╧)</option>
+        <option value="xls_mcn_prime_full">п╓п╬я─п╪п╟я┌ п╜п╪п║п╦п╜п╫ (п÷п╬п╩п╫я▀п╧)</option>
 		{elseif $pricelist.operator_id == '7'}
-		<option value="xls_orange_full">Формат Orange (Полный)</option>
-        <option value="xls_mcn_prime_full">Формат ЭмСиЭн (Полный)</option>
+		<option value="xls_orange_full">п╓п╬я─п╪п╟я┌ Orange (п÷п╬п╩п╫я▀п╧)</option>
+        <option value="xls_mcn_prime_full">п╓п╬я─п╪п╟я┌ п╜п╪п║п╦п╜п╫ (п÷п╬п╩п╫я▀п╧)</option>
 		{else}{*if $pricelist.operator_id == '999'*}
-		<option value="xls_mcn_prime_changes">Формат ЭмСиЭн (Изменения)</option>
-        <option value="xls_mcn_prime_full">Формат ЭмСиЭн (Полный)</option>
+		<option value="xls_mcn_prime_changes">п╓п╬я─п╪п╟я┌ п╜п╪п║п╦п╜п╫ (п≤п╥п╪п╣п╫п╣п╫п╦я▐)</option>
+        <option value="xls_mcn_prime_full">п╓п╬я─п╪п╟я┌ п╜п╪п║п╦п╜п╫ (п÷п╬п╩п╫я▀п╧)</option>
 		{/if}
 	</select>
 	<input type="file" name="upfile" />
-	<input type="submit" name="up" value="Загрузить" />
+	<input type="submit" name="up" value="п≈п╟пЁя─я┐п╥п╦я┌я▄" />
 </form>
-<p>Загруженные файлы:</p>
+<p>п≈п╟пЁя─я┐п╤п╣п╫п╫я▀п╣ я└п╟п╧п╩я▀:</p>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-<tr><td class=header>Начало действия</td><td class=header>Оператор</td><td class=header>Тип</td><td class=header>Формат</td><td class=header>Имя файла</td><td class=header>Дата загрузки</td><td class=header>Количество строк</td></tr>
+<tr><td class=header>п²п╟я┤п╟п╩п╬ п╢п╣п╧я│я┌п╡п╦я▐</td><td class=header>п·п©п╣я─п╟я┌п╬я─</td><td class=header>п╒п╦п©</td><td class=header>п╓п╬я─п╪п╟я┌</td><td class=header>п≤п╪я▐ я└п╟п╧п╩п╟</td><td class=header>п■п╟я┌п╟ п╥п╟пЁя─я┐п╥п╨п╦</td><td class=header>п п╬п╩п╦я┤п╣я│я┌п╡п╬ я│я┌я─п╬п╨</td></tr>
 {foreach from=$files_list item='o'}
 {if $o.active eq 't'}
-	<tr class="{cycle values='even_g,odd_g'}"><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.startdate}</a></td><td>{$o.operator}</td><td>{if $o.full eq 't'}Полный{else}Изменения{/if}</td><td>{$o.format}</td><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.filename}</a></td><td align=center>{$o.date}</td><td align=center>{$o.rows}</td></tr>
+	<tr class="{cycle values='even_g,odd_g'}"><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.startdate}</a></td><td>{$o.operator}</td><td>{if $o.full eq 't'}п÷п╬п╩п╫я▀п╧{else}п≤п╥п╪п╣п╫п╣п╫п╦я▐{/if}</td><td>{$o.format}</td><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.filename}</a></td><td align=center>{$o.date}</td><td align=center>{$o.rows}</td></tr>
 {else}
-	<tr class="{cycle values='even,odd'}"><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.startdate}</a></td><td>{$o.operator}</td><td>{if $o.full eq 't'}Полный{else}Изменения{/if}</td><td>{$o.format}</td><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.filename}</a></td><td align=center>{$o.date}</td><td align=center>{$o.rows}</td></tr>
+	<tr class="{cycle values='even,odd'}"><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.startdate}</a></td><td>{$o.operator}</td><td>{if $o.full eq 't'}п÷п╬п╩п╫я▀п╧{else}п≤п╥п╪п╣п╫п╣п╫п╦я▐{/if}</td><td>{$o.format}</td><td><a href='index.php?module=voipnew&action=view_raw_file&id={$o.id}'>{$o.filename}</a></td><td align=center>{$o.date}</td><td align=center>{$o.rows}</td></tr>
 {/if}
 {/foreach}
 </table>

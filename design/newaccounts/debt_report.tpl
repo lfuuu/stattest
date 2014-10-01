@@ -125,7 +125,7 @@ function doSaveComment(billNo)
 
 {/literal}
 </script>
-<h2>Отчет по долгам</h2>
+<h2>п·я┌я┤п╣я┌ п©п╬ п╢п╬п╩пЁп╟п╪</h2>
 <form action='?' method=get id="aForm">
 <input type=hidden name=save id=save value=0>
 <input type=hidden name=bill_no id=bill_no value="">
@@ -135,29 +135,29 @@ function doSaveComment(billNo)
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=debt_report>
 <input type=hidden name=go value=yes>
-Менеджер: <SELECT name=manager>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select><br>
-Курьер: <select name="courier" id="courier">{html_options options=$l_couriers selected=$courier}</select><br>
-Метро: <select name="metro" id="metro">{html_options options=$l_metro selected=$metro}</select><br>
-От <input type=text class=text id='date_from' name='date_from' value='{$date_from}'> до <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
-<input type=checkbox{if $nal.beznal} checked{/if} name=nal[] value=beznal>Банковский перевод<br>
-<input type=checkbox{if $nal.nal} checked{/if} name=nal[] value=nal>Наличными<br>
-<input type=checkbox{if $nal.prov} checked{/if} name=nal[] value=prov>Наличными (проведенные)<br><br>
-<input type=checkbox checked name='zerobills' value='1'>Не включать нулевые счета<br>
-<input type=checkbox value=1 name=cl_off{if $cl_off} checked{/if}>Показывать все счета<br>
-<input type=submit class=button value='Просмотр'>
+п°п╣п╫п╣п╢п╤п╣я─: <SELECT name=manager>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select><br>
+п я┐я─я▄п╣я─: <select name="courier" id="courier">{html_options options=$l_couriers selected=$courier}</select><br>
+п°п╣я┌я─п╬: <select name="metro" id="metro">{html_options options=$l_metro selected=$metro}</select><br>
+п·я┌ <input type=text class=text id='date_from' name='date_from' value='{$date_from}'> п╢п╬ <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
+<input type=checkbox{if $nal.beznal} checked{/if} name=nal[] value=beznal>п▒п╟п╫п╨п╬п╡я│п╨п╦п╧ п©п╣я─п╣п╡п╬п╢<br>
+<input type=checkbox{if $nal.nal} checked{/if} name=nal[] value=nal>п²п╟п╩п╦я┤п╫я▀п╪п╦<br>
+<input type=checkbox{if $nal.prov} checked{/if} name=nal[] value=prov>п²п╟п╩п╦я┤п╫я▀п╪п╦ (п©я─п╬п╡п╣п╢п╣п╫п╫я▀п╣)<br><br>
+<input type=checkbox checked name='zerobills' value='1'>п²п╣ п╡п╨п╩я▌я┤п╟я┌я▄ п╫я┐п╩п╣п╡я▀п╣ я│я┤п╣я┌п╟<br>
+<input type=checkbox value=1 name=cl_off{if $cl_off} checked{/if}>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╡я│п╣ я│я┤п╣я┌п╟<br>
+<input type=submit class=button value='п÷я─п╬я│п╪п╬я┌я─'>
 </form>
 {if isset($bills)}
-{if $get_url}<table border=0 width="100%"><tr><td align=right><a href="{$get_url}&print=1" target=_blank style="font: normal 6pt Arial;">Версия для печати</a></td></tr></table>{/if}
+{if $get_url}<table border=0 width="100%"><tr><td align=right><a href="{$get_url}&print=1" target=_blank style="font: normal 6pt Arial;">п▓п╣я─я│п╦я▐ п╢п╩я▐ п©п╣я┤п╟я┌п╦</a></td></tr></table>{/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-<tr><th>&nbsp;</th><th>клиент</th><th>компания</th><th>Менеджер</th><th>дата/н счёта</th><th>сумма</th><th>сальдо</th><th>Тип оплаты</th><th>Курьер</th></tr>
+<tr><th>&nbsp;</th><th>п╨п╩п╦п╣п╫я┌</th><th>п╨п╬п╪п©п╟п╫п╦я▐</th><th>п°п╣п╫п╣п╢п╤п╣я─</th><th>п╢п╟я┌п╟/п╫ я│я┤я▒я┌п╟</th><th>я│я┐п╪п╪п╟</th><th>я│п╟п╩я▄п╢п╬</th><th>п╒п╦п© п╬п©п╩п╟я┌я▀</th><th>п я┐я─я▄п╣я─</th></tr>
 {foreach from=$bills item=item key=key name=outer}<tr class={cycle values="even,odd"}>
 <td>{$smarty.foreach.outer.iteration}{if !$item.date} <span style="cursor:pointer; color: rgb(67,101,125);text-decoration: underline;" onclick="openAddComment(this, '{$item.bill_no}');" id="a_{$item.bill_no}">(+)</a>{/if}</td>
 <td{if $item.nal!='beznal'} bgcolor='#{if $item.nal == "nal"}FFC0C0{else}C0C0FF{/if}'{/if}><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.client}'>{$item.client}</a></td>
 <td style='font-size:85%'>{$item.company}</td>
 <td>{$item.manager}</td>
 <td>{$item.bill_date} - <a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$item.bill_no}'>{$item.bill_no}</a></td>
-<td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$ {if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rur} р</span>{/if}{else}р.{/if} </td>
-<td align=center>{$item.debt.sum|round:2}{if $item.debt.currency=='USD'}${else}р.{/if} </td>
+<td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$ {if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='п║я┐п╪п╪п╟ я│я┤я▒я┌п╟, {$item.gen_bill_date}'>b {$item.gen_bill_rur} я─</span>{/if}{else}я─.{/if} </td>
+<td align=center>{$item.debt.sum|round:2}{if $item.debt.currency=='USD'}${else}я─.{/if} </td>
 <td onselect="return false" ondblclick="doDBL(this, '{$item.bill_no}')" align=center{if $item.bill_nal!='beznal'} bgcolor='#{if $item.bill_nal == "nal"}FFC0C0{else}C0C0FF{/if}'{/if}>{$item.bill_nal}</td>
 <td ondblclick="doDBL_courer(this, '{$item.bill_no}','{$item.courier_id}')">{$item.courier|replace:"-":""}</td>
 </tr>
@@ -165,14 +165,14 @@ function doSaveComment(billNo)
 {/foreach}
 
 <tr style='background:#FFFFFF'>
-<td colspan=5 align=right><b>Всего по долларовым счетам:</b></td>
+<td colspan=5 align=right><b>п▓я│п╣пЁп╬ п©п╬ п╢п╬п╩п╩п╟я─п╬п╡я▀п╪ я│я┤п╣я┌п╟п╪:</b></td>
 <td align=right>{$bills_total_USD.sum|round:2} $</td>
 <td align=center>{$bills_total_USD.saldo|round:2} $ </td>
 </tr>
 <tr style='background:#FFFFFF'>
-<td colspan=5 align=right><b>Всего по рублёвым счетам:</b></td>
-<td align=right>{$bills_total_RUR.sum|round:2} р</td>
-<td align=center>{$bills_total_RUR.saldo|round:2} р</td>
+<td colspan=5 align=right><b>п▓я│п╣пЁп╬ п©п╬ я─я┐п╠п╩я▒п╡я▀п╪ я│я┤п╣я┌п╟п╪:</b></td>
+<td align=right>{$bills_total_RUR.sum|round:2} я─</td>
+<td align=center>{$bills_total_RUR.saldo|round:2} я─</td>
 </tr>
 </TABLE>
 {/if}

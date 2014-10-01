@@ -1,9 +1,9 @@
-<TR><TD class=left width=40%>Период</TD>
+<TR><TD class=left width=40%>п÷п╣я─п╦п╬п╢</TD>
 <TD><select style='width:100%' name='period'>
-<option value='day'{if $tarifs_data.period=='day'} selected{/if}>ежедневно</option>
-<option value='month'{if $tarifs_data.period=='month'} selected{/if}>ежемесячно</option>
-<option value='year'{if $tarifs_data.period=='year'} selected{/if}>ежегодно</option>
-<option value='once'{if $tarifs_data.period=='once'} selected{/if}>единажды</option>
+<option value='day'{if $tarifs_data.period=='day'} selected{/if}>п╣п╤п╣п╢п╫п╣п╡п╫п╬</option>
+<option value='month'{if $tarifs_data.period=='month'} selected{/if}>п╣п╤п╣п╪п╣я│я▐я┤п╫п╬</option>
+<option value='year'{if $tarifs_data.period=='year'} selected{/if}>п╣п╤п╣пЁп╬п╢п╫п╬</option>
+<option value='once'{if $tarifs_data.period=='once'} selected{/if}>п╣п╢п╦п╫п╟п╤п╢я▀</option>
 </select></TD></TR>
 <TR><TD class=left width=40%>{$tarifs_translate.currency}</TD>
 <TD><select class=text name=currency>

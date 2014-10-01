@@ -1,4 +1,4 @@
-<H2>Тарифы</H2>
+<H2>п╒п╟я─п╦я└я▀</H2>
 <H3>{$tarifs_title}:</H3>
 {if access('tarifs','edit')}
 <FORM action="?" method=post id=form name=form>
@@ -19,6 +19,6 @@
 
 </TBODY></TABLE>
 {if access('tarifs','edit')}
-<DIV align=center><input id=submit class=button type=submit value="Изменить"></DIV></FORM>
-<a href='{$LINK_START}module=tarifs&m={$m}&id={$tarifs_data.id}&action=delete'>Удалить</a>
+<DIV align=center><input id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV></FORM>
+<a href='{$LINK_START}module=tarifs&m={$m}&id={$tarifs_data.id}&action=delete'>пёп╢п╟п╩п╦я┌я▄</a>
 {/if}

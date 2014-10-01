@@ -1,21 +1,21 @@
-<p style="font-weight: bold">Отчеты
+<p style="font-weight: bold">п·я┌я┤п╣я┌я▀
 {if $report_type_id==1}
-    По маршрутизации
+    п÷п╬ п╪п╟я─я┬я─я┐я┌п╦п╥п╟я├п╦п╦
 {elseif $report_type_id==2}
-    Сравнение операторов
+    п║я─п╟п╡п╫п╣п╫п╦п╣ п╬п©п╣я─п╟я┌п╬я─п╬п╡
 {elseif $report_type_id==3}
-    Анализ прайслистов
+    п░п╫п╟п╩п╦п╥ п©я─п╟п╧я│п╩п╦я│я┌п╬п╡
 {/if}
 </p>
-<a href="index.php?module=voipreports&action=pricelist_report_edit&report_type_id={$report_type_id}">Создать новый отчет</a><br/><br/>
+<a href="index.php?module=voipreports&action=pricelist_report_edit&report_type_id={$report_type_id}">п║п╬п╥п╢п╟я┌я▄ п╫п╬п╡я▀п╧ п╬я┌я┤п╣я┌</a><br/><br/>
 
 <form id="formFilter" action="?module=voipreports&action=pricelist_report_analyze_list" method="GET">
     <input type="hidden" name="module" value="voipreports" />
     <input type="hidden" name="action" value="pricelist_report_analyze_list" />
     <input type="hidden" name="report_type_id" value="{$report_type_id}" />
 
-Регион: <select name="f_instance_id" onchange="$('#formFilter').submit()" class="select2" style="width: 250px">
-    <option value="0">--- выберите регион --- </option>
+п═п╣пЁп╦п╬п╫: <select name="f_instance_id" onchange="$('#formFilter').submit()" class="select2" style="width: 250px">
+    <option value="0">--- п╡я▀п╠п╣я─п╦я┌п╣ я─п╣пЁп╦п╬п╫ --- </option>
     {foreach from=$regions item='r'}
     <option value="{$r->id}" {if $f_instance_id==$r->id}selected{/if} >{$r->name}</option>
     {/foreach}
@@ -25,10 +25,10 @@
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 	<tr>
-		<td class=header>Регион</td>
-        <td class=header>Наименование</td>
-        <td class=header>Прайслисты</td>
-        <td class=header>Операции</td>
+		<td class=header>п═п╣пЁп╦п╬п╫</td>
+        <td class=header>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣</td>
+        <td class=header>п÷я─п╟п╧я│п╩п╦я│я┌я▀</td>
+        <td class=header>п·п©п╣я─п╟я├п╦п╦</td>
 	</tr>
 	{foreach from=$reports item='r'}
 	<tr class="{cycle values='even,odd'}">
@@ -38,7 +38,7 @@
                 {if $regions.$region_id}
                     {$regions.$region_id->name}
                 {else}
-                    Все регионы
+                    п▓я│п╣ я─п╣пЁп╦п╬п╫я▀
                 {/if}
             </a>
         </td>
@@ -59,7 +59,7 @@
                      {$f.pricelist->name}
                 </td>
                 <td nowrap bgcolor="white">
-                    {if $f.date}{$f.date->format('d.m.Y')}{else}Текущая дата{/if}
+                    {if $f.date}{$f.date->format('d.m.Y')}{else}п╒п╣п╨я┐я┴п╟я▐ п╢п╟я┌п╟{/if}
                 </td>
             </tr>
             {/foreach}
@@ -67,11 +67,11 @@
         </td>
         <td nowrap>
             &nbsp;&nbsp;&nbsp;
-            <a href="index.php?module=voipreports&action=pricelist_report_show&id={$r->id}">Просмотр</a>
+            <a href="index.php?module=voipreports&action=pricelist_report_show&id={$r->id}">п÷я─п╬я│п╪п╬я┌я─</a>
             &nbsp;&nbsp;&nbsp;
-            <a href="index.php?module=voipreports&action=pricelist_report_edit&id={$r->id}">Настройка</a>
+            <a href="index.php?module=voipreports&action=pricelist_report_edit&id={$r->id}">п²п╟я│я┌я─п╬п╧п╨п╟</a>
             &nbsp;&nbsp;&nbsp;
-            <a href="index.php?module=voipreports&action=pricelist_report_delete&id={$r->id}" onclick="return confirm('Удалить отчет?');">Удалить</a>
+            <a href="index.php?module=voipreports&action=pricelist_report_delete&id={$r->id}" onclick="return confirm('пёп╢п╟п╩п╦я┌я▄ п╬я┌я┤п╣я┌?');">пёп╢п╟п╩п╦я┌я▄</a>
             &nbsp;&nbsp;&nbsp;
         </td>
     </tr>

@@ -1,11 +1,11 @@
-<H2>Услуги</H2>
-Настройка списка адресов, письма с которых Вы не считаете спамом<br>
-<H3>Список {if $em_filter} для адреса {$em_filter.local_part}@{$em_filter.domain} <span style='font-size:75%'>(<a href='{$LINK_START}module=services&action=em_whitelist'>тонкая настройка белого списка</a>)</span>{/if}</h3>
+<H2>пёя│п╩я┐пЁп╦</H2>
+п²п╟я│я┌я─п╬п╧п╨п╟ я│п©п╦я│п╨п╟ п╟п╢я─п╣я│п╬п╡, п©п╦я│я▄п╪п╟ я│ п╨п╬я┌п╬я─я▀я┘ п▓я▀ п╫п╣ я│я┤п╦я┌п╟п╣я┌п╣ я│п©п╟п╪п╬п╪<br>
+<H3>п║п©п╦я│п╬п╨ {if $em_filter} п╢п╩я▐ п╟п╢я─п╣я│п╟ {$em_filter.local_part}@{$em_filter.domain} <span style='font-size:75%'>(<a href='{$LINK_START}module=services&action=em_whitelist'>я┌п╬п╫п╨п╟я▐ п╫п╟я│я┌я─п╬п╧п╨п╟ п╠п╣п╩п╬пЁп╬ я│п©п╦я│п╨п╟</a>)</span>{/if}</h3>
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
 <TR>
-	<TD class=header vAlign=bottom width="40%" colspan=3>ваш адрес</TD>
-	<TD class=header vAlign=bottom width="40%" colspan=3>адрес отправителя</TD>
+	<TD class=header vAlign=bottom width="40%" colspan=3>п╡п╟я┬ п╟п╢я─п╣я│</TD>
+	<TD class=header vAlign=bottom width="40%" colspan=3>п╟п╢я─п╣я│ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐</TD>
 	<td width=20%>&nbsp;</td>
 </TR>
 {foreach from=$whlist item=item name=outer}
@@ -32,13 +32,13 @@
 	<td><b>*</b></td>
 {/if}
 	<td>
-		<a href="{$LINK_START}module=services&action=em_whitelist_delete&filter={$em_filter.id}&id={$item.id}" onclick='javascript:return(confirm("Вы уверены?"))'>удалить</a>
+		<a href="{$LINK_START}module=services&action=em_whitelist_delete&filter={$em_filter.id}&id={$item.id}" onclick='javascript:return(confirm("п▓я▀ я┐п╡п╣я─п╣п╫я▀?"))'>я┐п╢п╟п╩п╦я┌я▄</a>
 		&nbsp;</td>
 </tr>
 {/foreach}
 </tbody>
 </table>
-<br><br><h3>Добавить адрес</h3>
+<br><br><h3>п■п╬п╠п╟п╡п╦я┌я▄ п╟п╢я─п╣я│</h3>
 <FORM action="?" method=post name=form id=form>
 <input type=hidden name=action value=em_whitelist_add>
 <input type=hidden name=module value=services>
@@ -46,7 +46,7 @@
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 <TR><TD class=left>
-	Ваш адрес:
+	п▓п╟я┬ п╟п╢я─п╣я│:
 </TD><TD>
 {if $em_filter}
 	<input name=adr_radio0 type=hidden value=0>
@@ -54,7 +54,7 @@
 	{$em_filter.local_part}@{$em_filter.domain}
 {else}
 	<input name=adr_radio0 id=r00 type=radio onchange="javascript:set_first(0)" value=0 checked>
-	<label for='r00'>Отдельный адрес</label>
+	<label for='r00'>п·я┌п╢п╣п╩я▄п╫я▀п╧ п╟п╢я─п╣я│</label>
 	<SELECT name=mail0 id=mail0>
 		{foreach from=$mails item=item name=outer}
 			<option value={$item.id}>{$item.local_part}@{$item.domain}</option>
@@ -63,7 +63,7 @@
 	<br>
 {if count($domains)}
 	<input name=adr_radio0 id=r01 type=radio onchange="javascript:set_second(0)" value=1>
-	<label for='r01'>Домен полностью</label>
+	<label for='r01'>п■п╬п╪п╣п╫ п©п╬п╩п╫п╬я│я┌я▄я▌</label>
 	<SELECT name=domain0 id=domain0 disabled=1>
 		{foreach from=$domains item=item name=outer}
 			<option value={$item}>{$item}</option>
@@ -74,19 +74,19 @@
 </TD></TR>
 
 <TR><TD class=left>
-	Адрес отправителя:
+	п░п╢я─п╣я│ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐:
 </TD><TD>
 	<input name=adr_radio1 id=r10 type=radio onchange="javascript:set_first(1)" value=0 checked>
-	<label for='r10'>Отдельный адрес</label>
+	<label for='r10'>п·я┌п╢п╣п╩я▄п╫я▀п╧ п╟п╢я─п╣я│</label>
 	<input type=text class=text name=mail1 id=mail1>
 	<br>	
 	<input name=adr_radio1 id=r11 type=radio onchange="javascript:set_second(1)" value=1>
-	<label for='r11'>Домен полностью</label>
+	<label for='r11'>п■п╬п╪п╣п╫ п©п╬п╩п╫п╬я│я┌я▄я▌</label>
 	<input type=text class=text name=domain1 id=domain1>
 {if !($em_filter)}
 	<br>
 	<input name=adr_radio1 id=r12 type=radio onchange="javascript:set_third(1)" value=2>
-	<label for='r12'>Любой адрес</label>
+	<label for='r12'>п⌡я▌п╠п╬п╧ п╟п╢я─п╣я│</label>
 {/if}
 </TD></TR>
 </TBODY></TABLE>
@@ -110,7 +110,7 @@ function set_third(p) {
 }
 </script>
 {/literal}
-<DIV align=center><INPUT class=button type=submit value="Добавить"></DIV>
+<DIV align=center><INPUT class=button type=submit value="п■п╬п╠п╟п╡п╦я┌я▄"></DIV>
 </FORM>
 
 <br><br>

@@ -2,7 +2,7 @@
 <script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/html2xhtml.js"></script>
 <script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/richtext_compressed.js"></script>
 
-<h2>Договора</h2>
+<h2>п■п╬пЁп╬п╡п╬я─п╟</h2>
 <div id=add_from style="display:none;">
 <FORM action="?" method=post>
 	<input type=hidden name=module value=tarifs>
@@ -11,15 +11,15 @@
 	<input type=hidden name=new value=true>
     <table border=0 width=90%>
     <tr>
-    <td>Договор:</td><td>
+    <td>п■п╬пЁп╬п╡п╬я─:</td><td>
 	<select class=text name=contract_template_group>
     {foreach from=$templates key=k item=item}
         <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
     {/foreach}
 	</select> 
     <input type=text name=contract_template_add>
-    <input type=submit value="Создать">
-    <input type=button value="Отмена" onclick="toggle(true);">
+    <input type=submit value="п║п╬п╥п╢п╟я┌я▄">
+    <input type=button value="п·я┌п╪п╣п╫п╟" onclick="toggle(true);">
     </td>
     </tr>
     </table>
@@ -29,7 +29,7 @@
 <div id=edit_from style="display:block;">
     <table border=0 width=90%>
     <tr>
-    <td>Договор:</td><td>
+    <td>п■п╬пЁп╬п╡п╬я─:</td><td>
     <table width=100%><tr><td>
 <FORM action="?" method=post onsubmit="updateRTEs();return true;">
 	<input type=hidden name=module value=tarifs>
@@ -45,7 +45,7 @@
     {foreach from=$templates[$contract_template_group] item=item}
             <option value="{$item}"{if $contract_template == $item} selected{/if}>{$item}</option>
     {/foreach}
-	</select> <input type=submit value="Открыть"></form></td><td><img src="./images/icons/add.gif" align=absmiddle style="cursor: pointer;" onclick="toggle(false);"></td><td align=right>{$info}</td></tr></table>
+	</select> <input type=submit value="п·я┌п╨я─я▀я┌я▄"></form></td><td><img src="./images/icons/add.gif" align=absmiddle style="cursor: pointer;" onclick="toggle(false);"></td><td align=right>{$info}</td></tr></table>
     </form>
     </td>
     </tr>
@@ -114,7 +114,7 @@ rte1.build();
     </tr>
     <tr>
     <td colspan=2 align=right>
-    <input type=submit value="Сохранить" name="save_text" style="width: 100%"></td>
+    <input type=submit value="п║п╬я┘я─п╟п╫п╦я┌я▄" name="save_text" style="width: 100%"></td>
 </form>
     </tr>
 {/if}

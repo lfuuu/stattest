@@ -4,7 +4,7 @@
 {if $item.client}
 <a href='{$LINK_START}module=clients&id={$item.client}' target=_top style='color:red'>{$item.client}</a> 
 {else}
-<a href='{$LINK_START}module=routers&id={$item.router}' target=_top style='color:red'>{$item.router}</a> (“œ’‘≈“) 
+<a href='{$LINK_START}module=routers&id={$item.router}' target=_top style='color:red'>{$item.router}</a> (—Ä–æ—É—Ç–µ—Ä) 
 {/if}
 
 {/foreach}

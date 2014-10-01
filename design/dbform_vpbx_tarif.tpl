@@ -19,22 +19,22 @@
 {/literal}
 <table>
 	<tr>
-		<th colspan="2" align="left">Тариф:</th>
+		<th colspan="2" align="left">п╒п╟я─п╦я└:</th>
 		<th align="left" width="60"></th>
 	</tr>
 	<tr>
-		<td>Тип тарифа:</td>
+		<td>п╒п╦п© я┌п╟я─п╦я└п╟:</td>
 		<td><select onchange="change_type(this)" id="s_tarif_type">
-			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>Публичный</option>
-			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>Архивный</option>
+			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>п÷я┐п╠п╩п╦я┤п╫я▀п╧</option>
+			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>п░я─я┘п╦п╡п╫я▀п╧</option>
 		</select></td>
 		<td></td>
 	</tr>
 	<tr>
-		<td nowrap>Тариф:</td>
+		<td nowrap>п╒п╟я─п╦я└:</td>
 		<td>
 			<select id='t_id_tarif_public' name='dbform[t_id_tarif]'>
-				<option value=0>-- выберите тариф --</option>
+				<option value=0>-- п╡я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└ --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'public'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id} selected{/if}>
@@ -44,7 +44,7 @@
 				{/foreach}
 			</select>
 			<select id='t_id_tarif_archive' name='' >
-				<option value=0>-- выберите тариф --</option>
+				<option value=0>-- п╡я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└ --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'archive'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id} selected{/if}>
@@ -57,7 +57,7 @@
 		<td></td>
 	</tr>
 	<tr>
-		<td>Дата активации:</td>
+		<td>п■п╟я┌п╟ п╟п╨я┌п╦п╡п╟я├п╦п╦:</td>
 		<td>
 			<input type=text class=text name=dbform[t_date_activation] value={if $dbform_f_tarif_current}{$dbform_f_tarif_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}>
 		</td>

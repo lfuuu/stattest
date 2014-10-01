@@ -3,29 +3,29 @@
 setTimeout('window.location.reload()',{$refresh*1000});
 </script>
 {/if}
-<H2>Рассылки</H2>
-<H3>Редактирование письма</H3>
+<H2>п═п╟я│я│я▀п╩п╨п╦</H2>
+<H3>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©п╦я│я▄п╪п╟</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=module value=letters>
 <input type=hidden name=action value=lapply>
 <input type=hidden name=letter value='{$letter.id}'>
 <input type=text name=subject style='width:80%' value='{$letter.subject}'><br>
 <textarea name=body style='width:80%;height:250px'>{$letter.body}</textarea><br>
-<DIV align=center><INPUT id=submit class=button type=submit value="Изменить"></DIV></FORM>
+<DIV align=center><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV></FORM>
 {if $letter.id}
-<H3>Файлы</H3>
+<H3>п╓п╟п╧п╩я▀</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
 <TR>
-  <TD class=header vAlign=bottom width="55%">Имя файла</TD>
-  <TD class=header vAlign=bottom width="35%">Размер</TD>
+  <TD class=header vAlign=bottom width="55%">п≤п╪я▐ я└п╟п╧п╩п╟</TD>
+  <TD class=header vAlign=bottom width="35%">п═п╟п╥п╪п╣я─</TD>
   <TD class=header valign=bottom>&nbsp;</td>
   </TR>
 {foreach from=$letter_files item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 	<TD>{$item.0}</TD>
 	<TD>{fsizeKB value=$item.1}</TD>
-	<TD><a href='{$LINK_START}module=letters&action=funassign&letter={$letter.id}&filename={$item.0}'>Удалить</a></TD>
+	<TD><a href='{$LINK_START}module=letters&action=funassign&letter={$letter.id}&filename={$item.0}'>пёп╢п╟п╩п╦я┌я▄</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>
@@ -35,30 +35,30 @@ setTimeout('window.location.reload()',{$refresh*1000});
 <input type=hidden name=letter value='{$letter.id}'>
 <select name=filename>
 {foreach from=$letters_files item=item name=outer}<option value="{$item.0}">{$item.0} ({fsizeKB value=$item.1})</option>{/foreach}
-</select><INPUT id=submit class=button type=submit value="Добавить файл"></FORM>
+</select><INPUT id=submit class=button type=submit value="п■п╬п╠п╟п╡п╦я┌я▄ я└п╟п╧п╩"></FORM>
 <FORM action="?" method=post enctype="multipart/form-data" style='padding-top:0;margin-top:5;'>
 <input type=hidden name=module value=letters>
 <input type=hidden name=action value=fupload2>
-<input type=hidden name=letter value='{$letter.id}'> <input type=file name=file><INPUT id=submit class=button type=submit value="Загрузить файл"></FORM><br>
+<input type=hidden name=letter value='{$letter.id}'> <input type=file name=file><INPUT id=submit class=button type=submit value="п≈п╟пЁя─я┐п╥п╦я┌я▄ я└п╟п╧п╩"></FORM><br>
 
 
-<H3>Состояние</H3>
-<a href='{$LINK_START}module=letters&action=process&letter={$letter.id}&test=1'>Тестовая отправка счетов</a> (5 штук)<br>
-<a href='{$LINK_START}module=letters&action=process&letter={$letter.id}&test=0'>Реальная отправка счетов</a> (5 штук)<br>
-<a href='{$LINK_START}module=letters&action=process&letter={$letter.id}&test=0&cont=1'>Реальная отправка счетов</a> (все)<br>
-<a href='{$LINK_START}module=letters&action=unassign&letter={$letter.id}'>Удалить неотосланные письма</a> (error и ready)<br>
-<a href='javascript:toggle2(document.getElementById("div_addc"));'>Добавить клиентов</a><br>
+<H3>п║п╬я│я┌п╬я▐п╫п╦п╣</H3>
+<a href='{$LINK_START}module=letters&action=process&letter={$letter.id}&test=1'>п╒п╣я│я┌п╬п╡п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡</a> (5 я┬я┌я┐п╨)<br>
+<a href='{$LINK_START}module=letters&action=process&letter={$letter.id}&test=0'>п═п╣п╟п╩я▄п╫п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡</a> (5 я┬я┌я┐п╨)<br>
+<a href='{$LINK_START}module=letters&action=process&letter={$letter.id}&test=0&cont=1'>п═п╣п╟п╩я▄п╫п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡</a> (п╡я│п╣)<br>
+<a href='{$LINK_START}module=letters&action=unassign&letter={$letter.id}'>пёп╢п╟п╩п╦я┌я▄ п╫п╣п╬я┌п╬я│п╩п╟п╫п╫я▀п╣ п©п╦я│я▄п╪п╟</a> (error п╦ ready)<br>
+<a href='javascript:toggle2(document.getElementById("div_addc"));'>п■п╬п╠п╟п╡п╦я┌я▄ п╨п╩п╦п╣п╫я┌п╬п╡</a><br>
 <div id='div_addc' style='padding-left:20px; display:none; padding-top:10px;'>
-<a href='{$LINK_START}module=letters&action=filter&letter={$letter.id}&filter=internet'>с интернет-каналом</a><br>
-<a href='{$LINK_START}module=letters&action=filter&letter={$letter.id}&filter=voip'>с телефоном</a><br>
-<a href='{$LINK_START}module=letters&action=filter&letter={$letter.id}&filter=email'>с e-mail ящиками</a><br>
-С первыми цифрами номера интернет-канала: <form style='display:inline;padding:0;margin:0' action='?' method=get>
+<a href='{$LINK_START}module=letters&action=filter&letter={$letter.id}&filter=internet'>я│ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╬п╪</a><br>
+<a href='{$LINK_START}module=letters&action=filter&letter={$letter.id}&filter=voip'>я│ я┌п╣п╩п╣я└п╬п╫п╬п╪</a><br>
+<a href='{$LINK_START}module=letters&action=filter&letter={$letter.id}&filter=email'>я│ e-mail я▐я┴п╦п╨п╟п╪п╦</a><br>
+п║ п©п╣я─п╡я▀п╪п╦ я├п╦я└я─п╟п╪п╦ п╫п╬п╪п╣я─п╟ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟: <form style='display:inline;padding:0;margin:0' action='?' method=get>
 	<input type=hidden name=module value=letters>
 	<input type=hidden name=action value=filter>
 	<input type=hidden name=letter value='{$letter.id}'>
 	<input type=hidden name=filter value=number>
 	<input type=text class=text name=filter_param value='123'><input type=submit class=submit value='ok'></form><br>
-Использующих роутер: <form style='display:inline;padding:0;margin:0' action='?' method=get>
+п≤я│п©п╬п╩я▄п╥я┐я▌я┴п╦я┘ я─п╬я┐я┌п╣я─: <form style='display:inline;padding:0;margin:0' action='?' method=get>
 	<input type=hidden name=module value=letters>
 	<input type=hidden name=action value=filter>
 	<input type=hidden name=letter value='{$letter.id}'>
@@ -70,7 +70,7 @@ setTimeout('window.location.reload()',{$refresh*1000});
 	</select>
 	
 		<input type=submit class=submit value='ok'></form><br>
-С доп. услугами: <form style='display:inline;padding:0;margin:0' action='?' method=get>
+п║ п╢п╬п©. я┐я│п╩я┐пЁп╟п╪п╦: <form style='display:inline;padding:0;margin:0' action='?' method=get>
 	<input type=hidden name=module value=letters>
 	<input type=hidden name=action value=filter>
 	<input type=hidden name=letter value='{$letter.id}'>
@@ -82,22 +82,22 @@ setTimeout('window.location.reload()',{$refresh*1000});
 	{/foreach}
 	</select>
 	<input type=submit class=submit value='ok'></form><br>
-Назначенных на фирму: <form style='display:inline;padding:0;margin:0' action='?' method=get>
+п²п╟п╥п╫п╟я┤п╣п╫п╫я▀я┘ п╫п╟ я└п╦я─п╪я┐: <form style='display:inline;padding:0;margin:0' action='?' method=get>
 	<input type=hidden name=module value=letters>
 	<input type=hidden name=action value=filter>
 	<input type=hidden name=letter value='{$letter.id}'>
 	<input type=hidden name=filter value=firma>
-	<select name=filter_param class=text><option value='mcn'>MCN</option><option value='markomnet'>Маркомнет</option></select>
+	<select name=filter_param class=text><option value='mcn'>MCN</option><option value='markomnet'>п°п╟я─п╨п╬п╪п╫п╣я┌</option></select>
 	<input type=submit class=submit value='ok'></form><br>
 
 </div>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
 <TR>
-  <TD class=header vAlign=bottom width="30%">Клиент</TD>
-  <TD class=header vAlign=bottom width="15%">Состояние</TD>
-  <TD class=header vAlign=bottom width="15%">Дата отправки</TD>
-  <TD class=header valign=bottom>Сообщение об ошибке, если есть</td>
+  <TD class=header vAlign=bottom width="30%">п п╩п╦п╣п╫я┌</TD>
+  <TD class=header vAlign=bottom width="15%">п║п╬я│я┌п╬я▐п╫п╦п╣</TD>
+  <TD class=header vAlign=bottom width="15%">п■п╟я┌п╟ п╬я┌п©я─п╟п╡п╨п╦</TD>
+  <TD class=header valign=bottom>п║п╬п╬п╠я┴п╣п╫п╦п╣ п╬п╠ п╬я┬п╦п╠п╨п╣, п╣я│п╩п╦ п╣я│я┌я▄</td>
   </TR>
 {foreach from=$letter_assigns item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}{if $item.state=='sent' && !isset($item.cur_sent)} style='color:gray'{/if}>

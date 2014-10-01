@@ -4,14 +4,14 @@
 	<input type='hidden' name='sub' value='show' />
 	<table align='center' border='0'>
 		<tr><td></td><td></td><td></td><td></td><td style='padding:0px 0px 0px 0px'><ul style='margin:0px 0px 0px 0px;padding:0px 0px 0px 20px'>
-			<li><b>%</b> - Много символов</li>
-			<li><b>_</b> - Один символ</li>
+			<li><b>%</b> - п°п╫п╬пЁп╬ я│п╦п╪п╡п╬п╩п╬п╡</li>
+			<li><b>_</b> - п·п╢п╦п╫ я│п╦п╪п╡п╬п╩</li>
 		</td></tr>
 		<tr>
 			<td valign="top">
 				<select name='free_or_non[]' multiple size='2'>
-					<option value='free' {if isset($fon) && in_array('free',$fon)}selected{/if}>Свободные</option>
-					<option value='nonfree' {if isset($fon) && in_array('nonfree',$fon)}selected{/if}>Используемые</option>
+					<option value='free' {if isset($fon) && in_array('free',$fon)}selected{/if}>п║п╡п╬п╠п╬п╢п╫я▀п╣</option>
+					<option value='nonfree' {if isset($fon) && in_array('nonfree',$fon)}selected{/if}>п≤я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣</option>
 				</select>
 			</td>
 			<td valign="top">
@@ -21,20 +21,20 @@
 			</td>
 			<td valign="top">
 				<select name='is[]' multiple size='7'>
-					<option value='just' {if isset($is) && in_array('just',$is)}selected{/if}>Обычные</option>
-					<option value='special1' {if isset($is) && in_array('special1',$is)}selected{/if}>Красивые Платина</option>
-                    <option value='special2' {if isset($is) && in_array('special2',$is)}selected{/if}>Красивые Золото</option>
-                    <option value='special3' {if isset($is) && in_array('special3',$is)}selected{/if}>Красивые Серебро</option>
-                    <option value='special4' {if isset($is) && in_array('special4',$is)}selected{/if}>Красивые Бронза</option>
+					<option value='just' {if isset($is) && in_array('just',$is)}selected{/if}>п·п╠я▀я┤п╫я▀п╣</option>
+					<option value='special1' {if isset($is) && in_array('special1',$is)}selected{/if}>п я─п╟я│п╦п╡я▀п╣ п÷п╩п╟я┌п╦п╫п╟</option>
+                    <option value='special2' {if isset($is) && in_array('special2',$is)}selected{/if}>п я─п╟я│п╦п╡я▀п╣ п≈п╬п╩п╬я┌п╬</option>
+                    <option value='special3' {if isset($is) && in_array('special3',$is)}selected{/if}>п я─п╟я│п╦п╡я▀п╣ п║п╣я─п╣п╠я─п╬</option>
+                    <option value='special4' {if isset($is) && in_array('special4',$is)}selected{/if}>п я─п╟я│п╦п╡я▀п╣ п▒я─п╬п╫п╥п╟</option>
 				</select>
 			</td>
 			<td valign="top"><select name='is_our' size='2'>
-				<option value='alien' {if $is_our=='alien'}selected{/if}>Арендуемые</option>
-                <option value='reserve' {if $is_our=='reserve'}selected{/if}>Зарезервированные</option>
-                <option value='our' {if $is_our=='our'}selected{/if}>Собственные</option>
+				<option value='alien' {if $is_our=='alien'}selected{/if}>п░я─п╣п╫п╢я┐п╣п╪я▀п╣</option>
+                <option value='reserve' {if $is_our=='reserve'}selected{/if}>п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╫я▀п╣</option>
+                <option value='our' {if $is_our=='our'}selected{/if}>п║п╬п╠я│я┌п╡п╣п╫п╫я▀п╣</option>
 			</select></td>
 		</tr>
-		<tr><td colspan='5'>Количество звонков за последние 2 дня <input type='text' size='3' name='count_calls' value='{if $count_calls}{$count_calls}{else}<4{/if}' />
+		<tr><td colspan='5'>п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╡п╬п╫п╨п╬п╡ п╥п╟ п©п╬я│п╩п╣п╢п╫п╦п╣ 2 п╢п╫я▐ <input type='text' size='3' name='count_calls' value='{if $count_calls}{$count_calls}{else}<4{/if}' />
 		<input type='checkbox' name='filter_count_calls' {if $filter_count_calls}checked{/if} /></td></tr>
 		<tr style='text-align:center'><td colspan='5'><input type='submit' value='Ok' /></td></tr>
 	</table>
@@ -43,19 +43,19 @@
 
 {if isset($sub) && $sub eq 'show'}
 <table align='center' width='60%' border=1><tr align='center'>
-	<td><b>Свободные</b></td>
-	<td><b>Зарезервированные</b></td>
-    <td><b>Собственные</b></td>
-    <td><b>Используемые</b></td>
+	<td><b>п║п╡п╬п╠п╬п╢п╫я▀п╣</b></td>
+	<td><b>п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╫я▀п╣</b></td>
+    <td><b>п║п╬п╠я│я┌п╡п╣п╫п╫я▀п╣</b></td>
+    <td><b>п≤я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣</b></td>
 </tr>
-<tr><td align='center' colspan="3">Количество: {$free_count}</td><td align='center'>Количество: {$nonfree_count}</td></tr>
+<tr><td align='center' colspan="3">п п╬п╩п╦я┤п╣я│я┌п╡п╬: {$free_count}</td><td align='center'>п п╬п╩п╦я┤п╣я│я┌п╡п╬: {$nonfree_count}</td></tr>
 	<tr valign='top' align='center'>
 	<td><table>
 		{foreach from=$free_nums item='num'}
             {if $num.client_id == ''}
 			<tr><td >
 				<a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='?module=services&action=e164_edit&e164={$num.number}'>{$num.number}</a>
-                {if $num.actual_to} (откл: {$num.actual_to}){/if}
+                {if $num.actual_to} (п╬я┌п╨п╩: {$num.actual_to}){/if}
             </td></tr>
             {/if}
 		{/foreach}
@@ -65,8 +65,8 @@
             {if $num.client_id != '' and $num.client_id != '764' and $num.usage_id == ''}
             <tr><td>
                 <a {if $num.to_add == "N"}style="color: gray;"{else}style='color:{if $num.beauty_level > 0}blue{else}black{/if}{/if}' href='?module=services&action=e164_edit&e164={$num.number}'>{$num.number}</a>
-                (клиент: <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='?module=clients&id={$num.client_id}'>{$num.client_id}</a>
-                резерв: {$num.reserved_free_date|substr:0:10})
+                (п╨п╩п╦п╣п╫я┌: <a style='color:{if $num.beauty_level > 0}blue{else}black{/if}' href='?module=clients&id={$num.client_id}'>{$num.client_id}</a>
+                я─п╣п╥п╣я─п╡: {$num.reserved_free_date|substr:0:10})
             </td></tr>
             {/if}
         {/foreach}

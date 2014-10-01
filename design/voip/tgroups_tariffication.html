@@ -29,7 +29,7 @@
 			tgr.pane.style.display = 'none'
 	}
 
-	tgr.mkTable = function(tObj,parent_obj){ // сгенерировать таблицу детализации
+	tgr.mkTable = function(tObj,parent_obj){ // я│пЁп╣п╫п╣я─п╦я─п╬п╡п╟я┌я▄ я┌п╟п╠п╩п╦я├я┐ п╢п╣я┌п╟п╩п╦п╥п╟я├п╦п╦
 		if(tgr.pane.childNodes[0])
 			tgr.pane.removeChild(tgr.pane.childNodes[0])
 
@@ -62,16 +62,16 @@
 		tbody.appendChild(tr)
 		td = document.createElement('td')
 		tr.appendChild(td)
-		td.appendChild(document.createTextNode('Префикс'))
+		td.appendChild(document.createTextNode('п÷я─п╣я└п╦п╨я│'))
 		td = document.createElement('td')
 		tr.appendChild(td)
-		td.appendChild(document.createTextNode('Минут'))
+		td.appendChild(document.createTextNode('п°п╦п╫я┐я┌'))
 		td = document.createElement('td')
 		tr.appendChild(td)
-		td.appendChild(document.createTextNode('Цена за минуту'))
+		td.appendChild(document.createTextNode('п╕п╣п╫п╟ п╥п╟ п╪п╦п╫я┐я┌я┐'))
 		td = document.createElement('td')
 		tr.appendChild(td)
-		td.appendChild(document.createTextNode('Сумма'))
+		td.appendChild(document.createTextNode('п║я┐п╪п╪п╟'))
 
 		for(i=0;i<tObj['b'].length;i++){
 			tr = document.createElement('tr')
@@ -80,7 +80,7 @@
 
 			td = document.createElement('td')
 			tr.appendChild(td)
-			td.appendChild(document.createTextNode('Билайн'))
+			td.appendChild(document.createTextNode('п▒п╦п╩п╟п╧п╫'))
 			td.setAttribute('colspan', 4)
 			td.style.textAlign = 'center'
 
@@ -117,7 +117,7 @@
 
 			td = document.createElement('td')
 			tr.appendChild(td)
-			td.appendChild(document.createTextNode('Арктел'))
+			td.appendChild(document.createTextNode('п░я─п╨я┌п╣п╩'))
 			td.setAttribute('colspan', 4)
 			td.style.textAlign = 'center'
 
@@ -155,7 +155,7 @@
 	<input type="hidden" name="action" value="tgroups_tariffication">
 	<table>
 		<tr>
-			<td>С</td>
+			<td>п║</td>
 			<td>
 				<select name='from_d'>
 					{generate_sequence_options_select start=1 end=31 mode='d' selected=$from_d}
@@ -167,7 +167,7 @@
 					{generate_sequence_options_select start=2010 selected=$from_y}
 				</select>
 			</td>
-			<td>По</td>
+			<td>п÷п╬</td>
 			<td>
 				<select name='to_d'>
 					{generate_sequence_options_select start=1 end=31 mode='d' selected=$to_d}
@@ -181,10 +181,10 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Направление</td>
+			<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
 			<td colspan="3">
 				<select name="dgroup">
-					<option value="all">Все</option>
+					<option value="all">п▓я│п╣</option>
 					{foreach from=$dests item='d'}
 					<option value="{$d.pk}"{if $dgroup==$d.pk} selected='selected'{/if}>{$d.name}</option>
 					{/foreach}
@@ -192,10 +192,10 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Округ</td>
+			<td>п·п╨я─я┐пЁ</td>
 			<td colspan="3">
 				<select name="dsubgroup">
-					<option value="all">Все</option>
+					<option value="all">п▓я│п╣</option>
 					{foreach from=$dest_fo item='d'}
 					<option value="{$d.pk}"{if $dsubgroup==$d.pk} selected='selected'{/if}>{$d.name}</option>
 					{/foreach}
@@ -203,47 +203,47 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Мобильные/Стационарные</td>
+			<td>п°п╬п╠п╦п╩я▄п╫я▀п╣/п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</td>
 			<td colspan="3">
 				<select name="fixormob">
-					<option value="both">Все</option>
-					<option value="fix"{if $fixormob=='fix'} selected='selected'{/if}>Стационарные</option>
-					<option value="mob"{if $fixormob=='mob'} selected='selected'{/if}>Мобильные</option>
+					<option value="both">п▓я│п╣</option>
+					<option value="fix"{if $fixormob=='fix'} selected='selected'{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
+					<option value="mob"{if $fixormob=='mob'} selected='selected'{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td>Сортировать по полю</td>
+			<td>п║п╬я─я┌п╦я─п╬п╡п╟я┌я▄ п©п╬ п©п╬п╩я▌</td>
 			<td colspan="3">
 				<select name="sort_by">
-					<option value="dgroup"{if $sort_by=='dgroup'} selected='selected'{/if}>Направление</option>
-					<option value="dsubgroup"{if $sort_by=='dsubgroup'} selected='selected'{/if}>Округ</option>
+					<option value="dgroup"{if $sort_by=='dgroup'} selected='selected'{/if}>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</option>
+					<option value="dsubgroup"{if $sort_by=='dsubgroup'} selected='selected'{/if}>п·п╨я─я┐пЁ</option>
 					<option value="dest"{if $sort_by=='dest'} selected='selected'{/if}>Destination</option>
-					<option value="fixormob"{if $sort_by=='fixormob'} selected='selected'{/if}>Стац./Моб.</option>
-					<option value="def"{if $sort_by=='def'} selected='selected'{/if}>Префикс</option>
-					<option value="tmin"{if $sort_by=='tmin'} selected='selected'{/if}>Всего минут</option>
-					<option value="bmin"{if $sort_by=='bmin'} selected='selected'{/if}>Минут билайн</option>
-					<option value="amin"{if $sort_by=='amin'} selected='selected'{/if}>Минут арктел</option>
-					<!--option value="omin"{if $sort_by=='omin'} selected='selected'{/if}>Минут др.</option-->
-					<option value="mprice"{if $sort_by=='mprice'} selected='selected'{/if}>Ц/м MCN</option>
-					<option value="bprice"{if $sort_by=='bprice'} selected='selected'{/if}>Ц/м билайн</option>
-					<option value="aprice"{if $sort_by=='aprice'} selected='selected'{/if}>Ц/м арктел</option>
-					<!--option value="oprice"{if $sort_by=='oprice'} selected='selected'{/if}>Ц(ср)/м др.</option-->
-					<option value="msum"{if $sort_by=='msum'} selected='selected'{/if}>Сум MCN</option>
-					<option value="bsum"{if $sort_by=='bsum'} selected='selected'{/if}>Сум билайн</option>
-					<option value="asum"{if $sort_by=='asum'} selected='selected'{/if}>Сум арктел</option>
-					<!--option value="osum"{if $sort_by=='osum'} selected='selected'{/if}>Сум др.</option-->
-					<option value="mrealsum"{if $sort_by=='mrealsum'} selected='selected'{/if}>Реал. сум. MCN</option>
-					<option value="diff"{if $sort_by=='diff'} selected='selected'{/if}>Прибыль</option>
+					<option value="fixormob"{if $sort_by=='fixormob'} selected='selected'{/if}>п║я┌п╟я├./п°п╬п╠.</option>
+					<option value="def"{if $sort_by=='def'} selected='selected'{/if}>п÷я─п╣я└п╦п╨я│</option>
+					<option value="tmin"{if $sort_by=='tmin'} selected='selected'{/if}>п▓я│п╣пЁп╬ п╪п╦п╫я┐я┌</option>
+					<option value="bmin"{if $sort_by=='bmin'} selected='selected'{/if}>п°п╦п╫я┐я┌ п╠п╦п╩п╟п╧п╫</option>
+					<option value="amin"{if $sort_by=='amin'} selected='selected'{/if}>п°п╦п╫я┐я┌ п╟я─п╨я┌п╣п╩</option>
+					<!--option value="omin"{if $sort_by=='omin'} selected='selected'{/if}>п°п╦п╫я┐я┌ п╢я─.</option-->
+					<option value="mprice"{if $sort_by=='mprice'} selected='selected'{/if}>п╕/п╪ MCN</option>
+					<option value="bprice"{if $sort_by=='bprice'} selected='selected'{/if}>п╕/п╪ п╠п╦п╩п╟п╧п╫</option>
+					<option value="aprice"{if $sort_by=='aprice'} selected='selected'{/if}>п╕/п╪ п╟я─п╨я┌п╣п╩</option>
+					<!--option value="oprice"{if $sort_by=='oprice'} selected='selected'{/if}>п╕(я│я─)/п╪ п╢я─.</option-->
+					<option value="msum"{if $sort_by=='msum'} selected='selected'{/if}>п║я┐п╪ MCN</option>
+					<option value="bsum"{if $sort_by=='bsum'} selected='selected'{/if}>п║я┐п╪ п╠п╦п╩п╟п╧п╫</option>
+					<option value="asum"{if $sort_by=='asum'} selected='selected'{/if}>п║я┐п╪ п╟я─п╨я┌п╣п╩</option>
+					<!--option value="osum"{if $sort_by=='osum'} selected='selected'{/if}>п║я┐п╪ п╢я─.</option-->
+					<option value="mrealsum"{if $sort_by=='mrealsum'} selected='selected'{/if}>п═п╣п╟п╩. я│я┐п╪. MCN</option>
+					<option value="diff"{if $sort_by=='diff'} selected='selected'{/if}>п÷я─п╦п╠я▀п╩я▄</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td>Метод сортировки</td>
+			<td>п°п╣я┌п╬п╢ я│п╬я─я┌п╦я─п╬п╡п╨п╦</td>
 			<td colspan="3">
 				<select name="sort_type">
-					<option value="asc"{if $sort_type=='asc'} selected='selected'{/if}>По возрастанию</option>
-					<option value="desc"{if $sort_type=='desc'} selected='selected'{/if}>По убыванию</option>
+					<option value="asc"{if $sort_type=='asc'} selected='selected'{/if}>п÷п╬ п╡п╬п╥я─п╟я│я┌п╟п╫п╦я▌</option>
+					<option value="desc"{if $sort_type=='desc'} selected='selected'{/if}>п÷п╬ я┐п╠я▀п╡п╟п╫п╦я▌</option>
 				</select>
 			</td>
 		</tr>
@@ -254,62 +254,62 @@
 	<table class='price' cellSpacing='4' cellPadding='2' width='100%' border='0'>
 		<tr>
 			<td class='header' valign='bottom'>Destination</td>
-			<td class='header' valign='bottom'>Направление</td>
-			<td class='header' valign='bottom'>Округ</td>
-			<td class='header' valign='bottom'>Стац./ Моб.</td>
-			<td class='header' valign='bottom'>Префикс МCN</td>
-			<td class='header' valign='bottom'>Всего минут</td>
-			<td class='header' valign='bottom'>Минут билайн</td>
-			<td class='header' valign='bottom'>Минут арктел</td>
-			<!--td class='header' valign='bottom'>Минут др.</td-->
-			<td class='header' valign='bottom'>Ц/м MCN</td>
-			<!--td class='header' valign='bottom'>Ц(ср)/м др.</td-->
-			<td class='header' valign='bottom'>Сум MCN</td>
-			<td class='header' valign='bottom'>Сум билайн</td>
-			<td class='header' valign='bottom'>Сум арктел</td>
-			<!--td class='header' valign='bottom'>Сум др.</td-->
-			<td class='header' valign='bottom'>Реал. сум. MCN</td>
-			<td class='header' valign='bottom'>Прибыль</td>
+			<td class='header' valign='bottom'>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
+			<td class='header' valign='bottom'>п·п╨я─я┐пЁ</td>
+			<td class='header' valign='bottom'>п║я┌п╟я├./ п°п╬п╠.</td>
+			<td class='header' valign='bottom'>п÷я─п╣я└п╦п╨я│ п°CN</td>
+			<td class='header' valign='bottom'>п▓я│п╣пЁп╬ п╪п╦п╫я┐я┌</td>
+			<td class='header' valign='bottom'>п°п╦п╫я┐я┌ п╠п╦п╩п╟п╧п╫</td>
+			<td class='header' valign='bottom'>п°п╦п╫я┐я┌ п╟я─п╨я┌п╣п╩</td>
+			<!--td class='header' valign='bottom'>п°п╦п╫я┐я┌ п╢я─.</td-->
+			<td class='header' valign='bottom'>п╕/п╪ MCN</td>
+			<!--td class='header' valign='bottom'>п╕(я│я─)/п╪ п╢я─.</td-->
+			<td class='header' valign='bottom'>п║я┐п╪ MCN</td>
+			<td class='header' valign='bottom'>п║я┐п╪ п╠п╦п╩п╟п╧п╫</td>
+			<td class='header' valign='bottom'>п║я┐п╪ п╟я─п╨я┌п╣п╩</td>
+			<!--td class='header' valign='bottom'>п║я┐п╪ п╢я─.</td-->
+			<td class='header' valign='bottom'>п═п╣п╟п╩. я│я┐п╪. MCN</td>
+			<td class='header' valign='bottom'>п÷я─п╦п╠я▀п╩я▄</td>
 		</tr>
 		{foreach from=$report item='d' key='def'}
 		<tr onclick="tgr.ev_lsnr(event,'{$d.detailed_json|replace:"'":"\'"}',true)" class='{cycle values="even,odd"}'{if $d.diff_orig<0} style='background-color:pink'{/if}>
 			<td title="Destination">{$d.dest}</td>
-			<td title="Направление">{$d.dgroup}</td>
-			<td title="Округ">{$d.dsubgroup}</td>
-			<td title="Стационарные/Мобильные">{$d.fixormob}</td>
-			<td title="Префикс МCN">{$def}</td>
-			<td align="right" title="Всего минут">{$d.tmin}</td>
-			<td align="right" title="Минут Билайн">{$d.bmin}</td>
-			<td align="right" title="Минут Арктел">{$d.amin}</td>
+			<td title="п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣">{$d.dgroup}</td>
+			<td title="п·п╨я─я┐пЁ">{$d.dsubgroup}</td>
+			<td title="п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣/п°п╬п╠п╦п╩я▄п╫я▀п╣">{$d.fixormob}</td>
+			<td title="п÷я─п╣я└п╦п╨я│ п°CN">{$def}</td>
+			<td align="right" title="п▓я│п╣пЁп╬ п╪п╦п╫я┐я┌">{$d.tmin}</td>
+			<td align="right" title="п°п╦п╫я┐я┌ п▒п╦п╩п╟п╧п╫">{$d.bmin}</td>
+			<td align="right" title="п°п╦п╫я┐я┌ п░я─п╨я┌п╣п╩">{$d.amin}</td>
 			<!--td align="right">{$d.omin}</td-->
-			<td align="right" title="Цена/минуту MCN">{$d.mprice}</td>
+			<td align="right" title="п╕п╣п╫п╟/п╪п╦п╫я┐я┌я┐ MCN">{$d.mprice}</td>
 			<!--td align="right">{$d.oprice}</td-->
-			<td align="right" title="Сумма MCN">{$d.msum}</td>
-			<td align="right" title="Сумма Билайн">{$d.bsum}</td>
-			<td align="right" title="Сумма Арктел">{$d.asum}</td>
+			<td align="right" title="п║я┐п╪п╪п╟ MCN">{$d.msum}</td>
+			<td align="right" title="п║я┐п╪п╪п╟ п▒п╦п╩п╟п╧п╫">{$d.bsum}</td>
+			<td align="right" title="п║я┐п╪п╪п╟ п░я─п╨я┌п╣п╩">{$d.asum}</td>
 			<!--td align="right">{$d.osum}</td-->
-			<td align="right" title="Реальная сумма MCN">{$d.mrealsum}</td>
-			<td align="right" title="Прибыль">{$d.diff}</td>
+			<td align="right" title="п═п╣п╟п╩я▄п╫п╟я▐ я│я┐п╪п╪п╟ MCN">{$d.mrealsum}</td>
+			<td align="right" title="п÷я─п╦п╠я▀п╩я▄">{$d.diff}</td>
 		</tr>
 		{/foreach}
 		<tr style="font-weight: bold;">
-			<td>Итого:</td>
+			<td>п≤я┌п╬пЁп╬:</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
-			<td align="right" title="Всего минут">{$tts.tmin}</td>
-			<td align="right" title="Минут Билайн">{$tts.bmin}</td>
-			<td align="right" title="Минут Арктел">{$tts.amin}</td>
+			<td align="right" title="п▓я│п╣пЁп╬ п╪п╦п╫я┐я┌">{$tts.tmin}</td>
+			<td align="right" title="п°п╦п╫я┐я┌ п▒п╦п╩п╟п╧п╫">{$tts.bmin}</td>
+			<td align="right" title="п°п╦п╫я┐я┌ п░я─п╨я┌п╣п╩">{$tts.amin}</td>
 			<!--td align="right">{$d.omin}</td-->
 			<td>&nbsp;</td>
 			<!--td align="right">{$d.oprice}</td-->
-			<td align="right" title="Сумма MCN">{$tts.msum}</td>
-			<td align="right" title="Сумма Билайн">{$tts.bsum}</td>
-			<td align="right" title="Сумма Арктел">{$tts.asum}</td>
+			<td align="right" title="п║я┐п╪п╪п╟ MCN">{$tts.msum}</td>
+			<td align="right" title="п║я┐п╪п╪п╟ п▒п╦п╩п╟п╧п╫">{$tts.bsum}</td>
+			<td align="right" title="п║я┐п╪п╪п╟ п░я─п╨я┌п╣п╩">{$tts.asum}</td>
 			<!--td align="right">{$d.osum}</td-->
-			<td align="right" title="Реальная сумма MCN">{$tts.mrealsum}</td>
-			<td align="right" title="Прибыль">{$tts.diff}</td>
+			<td align="right" title="п═п╣п╟п╩я▄п╫п╟я▐ я│я┐п╪п╪п╟ MCN">{$tts.mrealsum}</td>
+			<td align="right" title="п÷я─п╦п╠я▀п╩я▄">{$tts.diff}</td>
 		</tr>
 	</table>
 {/if}

@@ -1,5 +1,5 @@
-<H2>Услуги</H2>
-<H3>PPP-логины</H3>
+<H2>пёя│п╩я┐пЁп╦</H2>
+<H3>PPP-п╩п╬пЁп╦п╫я▀</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=module value=services>
 <input type=hidden name=dbaction value=apply>
@@ -10,17 +10,17 @@
 {/foreach}
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
-<TR><TD class=left>Клиент:</TD><TD>{$fixclient}</TD></TR>
+<TR><TD class=left>п п╩п╦п╣п╫я┌:</TD><TD>{$fixclient}</TD></TR>
 {foreach from=$row key=key item=item name=outer}
 {dbmap_element}
 {/foreach}
 
-<TR><TD class=left>Подключение:</TD><TD>
+<TR><TD class=left>п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣:</TD><TD>
 <SELECT name="row[port_id]">
 {foreach from=$ports key=key item=item}
 <option value="{$item.id}"{if $row.port_id.value==$item.id} selected{/if}>{$item.id} | {$item.address} | {$item.node}</option>
 {/foreach}
 </SELECT></TD></TR>
 </TBODY></TABLE>
-<DIV align=center><INPUT id=submit class=button type=submit value="Добавить"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="п■п╬п╠п╟п╡п╦я┌я▄"></DIV>
 </form>

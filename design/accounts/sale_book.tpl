@@ -1,20 +1,20 @@
-<h1>Книга продаж за период <b>{$period}</b> Компания: <b>{$firma}</b></h1>
+<h1>п п╫п╦пЁп╟ п©я─п╬п╢п╟п╤ п╥п╟ п©п╣я─п╦п╬п╢ <b>{$period}</b> п п╬п╪п©п╟п╫п╦я▐: <b>{$firma}</b></h1>
 
 
-<h2>Всего платежей на сумму: <font color="Red" ><b>{$total}</b></font></h2>
+<h2>п▓я│п╣пЁп╬ п©п╩п╟я┌п╣п╤п╣п╧ п╫п╟ я│я┐п╪п╪я┐: <font color="Red" ><b>{$total}</b></font></h2>
 <br><br>
 <table border="1">
 	<Tr bgcolor="#cfd8df">
 		<b>
 		<td></td>
-		<TD>Клиент</TD>
-		<td>Название компани</td>
-		<td>ИНН</td>
-		<td>КПП</td>
-		<td>Платеж</td>
-		<td>Дата платежа</td>
-		<td>Сумма платежа</td>
-		<td>Счета фактур</td>
+		<TD>п п╩п╦п╣п╫я┌</TD>
+		<td>п²п╟п╥п╡п╟п╫п╦п╣ п╨п╬п╪п©п╟п╫п╦</td>
+		<td>п≤п²п²</td>
+		<td>п п÷п÷</td>
+		<td>п÷п╩п╟я┌п╣п╤</td>
+		<td>п■п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟</td>
+		<td>п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟</td>
+		<td>п║я┤п╣я┌п╟ я└п╟п╨я┌я┐я─</td>
 		</b>
 		
 		
@@ -32,7 +32,7 @@
 		<TD> 
 			{foreach from=$pay.invoice item=invoice}
 				<a href="modules/accounts/view_inv.php?invoice_no={$invoice.invoice_no}&todo=invoice" target="_blank">
-				{$invoice.invoice_no}</a> от {$invoice.invoice_date}<br>
+				{$invoice.invoice_no}</a> п╬я┌ {$invoice.invoice_date}<br>
 			{/foreach}
 		</TD>
 		</tr>

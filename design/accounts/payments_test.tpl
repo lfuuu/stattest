@@ -1,17 +1,17 @@
-<h2>Платежи <FONT color="Red">{$client}</FONT></h2>
+<h2>п÷п╩п╟я┌п╣п╤п╦ <FONT color="Red">{$client}</FONT></h2>
 
 <table cellpadding="5" cellspacing="0" border="1">
 <tr bgcolor="#CFD8DF">
-	<TD colspan="4">Баланс на основе всех платежей и счетов</TD>
+	<TD colspan="4">п▒п╟п╩п╟п╫я│ п╫п╟ п╬я│п╫п╬п╡п╣ п╡я│п╣я┘ п©п╩п╟я┌п╣п╤п╣п╧ п╦ я│я┤п╣я┌п╬п╡</TD>
 </tr>
 <tr>
-	<TD>Платежи всего: <b><FONT color="Red">{$payments_sum_usd}</FONT></b></TD>
-	<TD>Оказано услуг на сумму: <b><FONT color="Red">{$bill_sum_usd}</FONT></b></TD>
-	<TD>{if $debet > 0}Остаток на счете:{else}Задолженность клиента:{/if} <b><FONT color="Red">{$debet}</FONT></b></TD>
-	<TD>Баланс: <b><font color=red>{$balance}</font></b></TD>
+	<TD>п÷п╩п╟я┌п╣п╤п╦ п╡я│п╣пЁп╬: <b><FONT color="Red">{$payments_sum_usd}</FONT></b></TD>
+	<TD>п·п╨п╟п╥п╟п╫п╬ я┐я│п╩я┐пЁ п╫п╟ я│я┐п╪п╪я┐: <b><FONT color="Red">{$bill_sum_usd}</FONT></b></TD>
+	<TD>{if $debet > 0}п·я│я┌п╟я┌п╬п╨ п╫п╟ я│я┤п╣я┌п╣:{else}п≈п╟п╢п╬п╩п╤п╣п╫п╫п╬я│я┌я▄ п╨п╩п╦п╣п╫я┌п╟:{/if} <b><FONT color="Red">{$debet}</FONT></b></TD>
+	<TD>п▒п╟п╩п╟п╫я│: <b><font color=red>{$balance}</font></b></TD>
 </tr>
 <tr bgcolor="#CFD8DF">
-	<TD colspan="4">Баланс на основе введенного сальдо</TD>
+	<TD colspan="4">п▒п╟п╩п╟п╫я│ п╫п╟ п╬я│п╫п╬п╡п╣ п╡п╡п╣п╢п╣п╫п╫п╬пЁп╬ я│п╟п╩я▄п╢п╬</TD>
 </tr>
 <tr>
 
@@ -24,13 +24,13 @@
 	<FORM action="modules/accounts/update_saldo.php?client={$client}" method="POST" target="_blank">
    
  
-		<TD>Переплата/недоплата <b><FONT color="Red">{$saldo.saldo}</FONT></b></TD>
-		<TD>Дата последней сверки <b><FONT color="Red">
+		<TD>п÷п╣я─п╣п©п╩п╟я┌п╟/п╫п╣п╢п╬п©п╩п╟я┌п╟ <b><FONT color="Red">{$saldo.saldo}</FONT></b></TD>
+		<TD>п■п╟я┌п╟ п©п╬я│п╩п╣п╢п╫п╣п╧ я│п╡п╣я─п╨п╦ <b><FONT color="Red">
 		<INPUT type="text" name="date_last_saldo" value="{$saldo.date_of_last_saldo}" size="10" {$readonly}></FONT></b></TD>
-		<TD colspan=2>Баланс на дату сверки <b><FONT color="Red">
+		<TD colspan=2>п▒п╟п╩п╟п╫я│ п╫п╟ п╢п╟я┌я┐ я│п╡п╣я─п╨п╦ <b><FONT color="Red">
 		<INPUT type="text" name="fix_saldo" value="{$saldo.fix_saldo}" size="10" {$readonly}></FONT></b><br>
 		<textarea name="comment" cols="40" rows="5" {$readonly}>{$saldo.comment}</textarea>
-		<INPUT type="submit" name="submit" value="Обновить сальдо" {$readonly}>
+		<INPUT type="submit" name="submit" value="п·п╠п╫п╬п╡п╦я┌я▄ я│п╟п╩я▄п╢п╬" {$readonly}>
 		</TD>
 	
 	</FORM>
@@ -54,26 +54,26 @@ function menu_item(element,flag){
 <table border="0" cellpadding="5">
 <tr bgcolor="#FFFFFF">
 <td id="td1" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" >{if access('accounts_payments','w')}
-<a href="modules/accounts/add_payment.php?client={$client}&saldo={$saldo.saldo}" target="_blank">Внести новый платеж</a>
+<a href="modules/accounts/add_payment.php?client={$client}&saldo={$saldo.saldo}" target="_blank">п▓п╫п╣я│я┌п╦ п╫п╬п╡я▀п╧ п©п╩п╟я┌п╣п╤</a>
 {/if}</td>
 <TD  id="td2" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);">
-{if access('accounts_bills','w')}<A href="modules/accounts/bill_make.php?action=make&what=bill&client={$client}" target="_blank">Выставить счет</A>{/if}</TD>
+{if access('accounts_bills','w')}<A href="modules/accounts/bill_make.php?action=make&what=bill&client={$client}" target="_blank">п▓я▀я│я┌п╟п╡п╦я┌я▄ я│я┤п╣я┌</A>{/if}</TD>
 
 <TD  id="td5" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);">
-{if access('accounts_bills','w')}<A href="modules/accounts/bill_make_adv.php?client={$client}" target="_blank">Выставить счет на задаток</A>{/if}</TD>
+{if access('accounts_bills','w')}<A href="modules/accounts/bill_make_adv.php?client={$client}" target="_blank">п▓я▀я│я┌п╟п╡п╦я┌я▄ я│я┤п╣я┌ п╫п╟ п╥п╟п╢п╟я┌п╬п╨</A>{/if}</TD>
 
 <TD  id="td7" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);">
-{if access('accounts_bills','w')}<A href="modules/accounts/bill_make_adv_phone.php?client={$client}" target="_blank">Выставить первый счет на подключение телефонии</A>{/if}
+{if access('accounts_bills','w')}<A href="modules/accounts/bill_make_adv_phone.php?client={$client}" target="_blank">п▓я▀я│я┌п╟п╡п╦я┌я▄ п©п╣я─п╡я▀п╧ я│я┤п╣я┌ п╫п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ я┌п╣п╩п╣я└п╬п╫п╦п╦</A>{/if}
 </TD>
 
 <TD  id="td6" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);">
-{if access('accounts_bills','w')}<A href="modules/accounts/bill_make_conn.php?client={$client}" target="_blank">Выставить счет на подключение</A>{/if}</TD>
+{if access('accounts_bills','w')}<A href="modules/accounts/bill_make_conn.php?client={$client}" target="_blank">п▓я▀я│я┌п╟п╡п╦я┌я▄ я│я┤п╣я┌ п╫п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</A>{/if}</TD>
 
 <td id="td3" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" >
-	<a href="modules/accounts/import_bills.php?client={$client}" >Загрузить счета из магазина</a>
+	<a href="modules/accounts/import_bills.php?client={$client}" >п≈п╟пЁя─я┐п╥п╦я┌я▄ я│я┤п╣я┌п╟ п╦п╥ п╪п╟пЁп╟п╥п╦п╫п╟</a>
 </td>
 <TD  id="td4" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);">
-{if access('accounts_bills','w')}<A href="http://shop.mcn.ru/admin/orders/basket/index.html?client={$client}" target="_blank">Выставить счет из интернет магазина</A>{/if}
+{if access('accounts_bills','w')}<A href="http://shop.mcn.ru/admin/orders/basket/index.html?client={$client}" target="_blank">п▓я▀я│я┌п╟п╡п╦я┌я▄ я│я┤п╣я┌ п╦п╥ п╦п╫я┌п╣я─п╫п╣я┌ п╪п╟пЁп╟п╥п╦п╫п╟</A>{/if}
 </TD>
 </tr>
 </table>
@@ -82,13 +82,13 @@ function menu_item(element,flag){
 
 <table align="left" border="1">
 	<tr bgcolor="#CFD8DF">
-		<td>Дата счета</td>
-		<td>Номер счета</td>
-		<td>Сумма счета</td>
-		<td>Переплаты<br>недоплаты<br><b><FONT color="Red">{$saldo.saldo}</FONT></b></td>
-		<td width="150">Сумма платежа</td>
-		<TD width="150">Дата платежа</TD>
-		<td  width="150">Курс доллара</td>
+		<td>п■п╟я┌п╟ я│я┤п╣я┌п╟</td>
+		<td>п²п╬п╪п╣я─ я│я┤п╣я┌п╟</td>
+		<td>п║я┐п╪п╪п╟ я│я┤п╣я┌п╟</td>
+		<td>п÷п╣я─п╣п©п╩п╟я┌я▀<br>п╫п╣п╢п╬п©п╩п╟я┌я▀<br><b><FONT color="Red">{$saldo.saldo}</FONT></b></td>
+		<td width="150">п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟</td>
+		<TD width="150">п■п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟</TD>
+		<td  width="150">п я┐я─я│ п╢п╬п╩п╩п╟я─п╟</td>
 		
 	</tr>
 	{foreach from=$bills item=bill key=key}
@@ -97,9 +97,9 @@ function menu_item(element,flag){
 			<TD>
 				<a href="modules/accounts/view.php?bill_no={$bill.bill_no}&client={$client}" target="_blank">{$bill.bill_no}</a><br><br>
 				{if $bill.state eq 'ready'}
-				<a href="modules/accounts/bill_edit.php?bill={$bill.bill_no}" target="_blank">Редактировать</a><br>	
-				<a href="?module=accounts&action=accounts_payments&bill={$bill.bill_no}&todo=cancel_bill" >Аннулировать</a>
-				<a href="modules/{$module}/send.php?bill_no={$bill.bill_no}&client={$bill.client}&date={$bill.bill_date}" target="_blank">Выслать</a>
+				<a href="modules/accounts/bill_edit.php?bill={$bill.bill_no}" target="_blank">п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄</a><br>	
+				<a href="?module=accounts&action=accounts_payments&bill={$bill.bill_no}&todo=cancel_bill" >п░п╫п╫я┐п╩п╦я─п╬п╡п╟я┌я▄</a>
+				<a href="modules/{$module}/send.php?bill_no={$bill.bill_no}&client={$bill.client}&date={$bill.bill_date}" target="_blank">п▓я▀я│п╩п╟я┌я▄</a>
 				{/if}			
 			</TD>
 			<td align="right" valign="bottom">{$bill.sum}</td>
@@ -114,7 +114,7 @@ function menu_item(element,flag){
 					<TD width="150">
 						{if access('accounts_del_payment','w')}
 							<form style='display:inline' method=post action='?module=accounts&action=accounts_payments&client={$client}&todo=rerate&pay_id={$pays.id}'><input type=text class=text name=rate value="{$pays.rate}" style='width:70px'><input class=button type=submit value='ok'></form>&nbsp; 
-						<a href="?module=accounts&action=accounts_payments&client={$client}&todo=cancel_payment&pay_id={$pays.id}">Удалить</a>
+						<a href="?module=accounts&action=accounts_payments&client={$client}&todo=cancel_payment&pay_id={$pays.id}">пёп╢п╟п╩п╦я┌я▄</a>
 						{else}{$pays.rate}{/if}
 					</TD>
 					
@@ -135,16 +135,16 @@ function menu_item(element,flag){
 			<tr bgcolor="#FFFFFF"><TD id="p{$key}" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" >
 			{if $bill.state neq "payed"} 
 			<a href="modules/accounts/make_inv2.php?bill_no={$bill.bill_no}&client={$client}" target="_blank">
-			Провести счет
+			п÷я─п╬п╡п╣я│я┌п╦ я│я┤п╣я┌
 			</a>
 			{else}
 			<a href="?module=accounts&action=accounts_payments&bill={$bill.bill_no}&todo=bill_dont_payed">
-			Снять признак оплаты
+			п║п╫я▐я┌я▄ п©я─п╦п╥п╫п╟п╨ п╬п©п╩п╟я┌я▀
 			</a>
 			{/if}	
 			</TD><TD id="k{$key}" onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);">
 			<a href="modules/accounts/make_inv3.php?bill_no={$bill.bill_no}&client={$client}" target="_blank">
-			Сделать счет-фактуры
+			п║п╢п╣п╩п╟я┌я▄ я│я┤п╣я┌-я└п╟п╨я┌я┐я─я▀
 			</a>
 			</TD>
 			</tr>

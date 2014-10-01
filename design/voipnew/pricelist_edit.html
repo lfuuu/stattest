@@ -1,8 +1,8 @@
-<p>Редактирование прайслиста:
+<p>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╟п╧я│п╩п╦я│я┌п╟:
     {if $pricelist->type == 'client'}
-    <a href="index.php?module=voipnew&action=client_pricelists">назад</a>
+    <a href="index.php?module=voipnew&action=client_pricelists">п╫п╟п╥п╟п╢</a>
     {elseif $pricelist->type == 'operator'}
-    <a href="index.php?module=voipnew&action=operator_pricelists">назад</a>
+    <a href="index.php?module=voipnew&action=operator_pricelists">п╫п╟п╥п╟п╢</a>
     {/if}
 </p>
 
@@ -17,14 +17,14 @@
     <table class="price">
         {if $pricelist->id}
         <tr>
-            <th>Ид:</th>
+            <th>п≤п╢:</th>
             <th>{$pricelist->id}</th>
         </tr>
         <tr>
-            <th>Регион:</th>
+            <th>п═п╣пЁп╦п╬п╫:</th>
             <th>
                 {if $instance_id == 0}
-                Все регионы
+                п▓я│п╣ я─п╣пЁп╦п╬п╫я▀
                 {else}
                 {$regions[$instance_id]->name}
                 {/if}
@@ -33,7 +33,7 @@
             </th>
         </tr>
         <tr>
-            <th>Оператор:</th>
+            <th>п·п©п╣я─п╟я┌п╬я─:</th>
             <th>
                 {if $operator}
                     {$operator->short_name} ({$operator_id})
@@ -46,10 +46,10 @@
         {else}
             {if $pricelist->type == 'operator'}
             <tr>
-                <th>Оператор:</th>
+                <th>п·п©п╣я─п╟я┌п╬я─:</th>
                 <td>
                     <select class="select2" name="instance_id_operator_id" style="width: 400px">
-                        <option value="">--- выберите оператора ---</option>
+                        <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п╬п©п╣я─п╟я┌п╬я─п╟ ---</option>
                         {foreach from=$operators item='o'}
                         {assign var="op_instance_id" value=$o->region}
                         <option value="{$op_instance_id}_{$o->id}">{$regions[$op_instance_id]->name} ({$o->region}) / {$o->short_name} ({$o->id})</option>
@@ -59,10 +59,10 @@
             </tr>
             {elseif $pricelist->type == 'client'}
             <tr>
-                <th>Регион:</th>
+                <th>п═п╣пЁп╦п╬п╫:</th>
                 <td>
                     <select class="select2" name="instance_id" style="width: 300px">
-                        <option value="">--- выберите регион ---</option>
+                        <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ я─п╣пЁп╦п╬п╫ ---</option>
                         {foreach from=$regions item='r'}
                         <option value="{$r->id}">{$r->name} ({$r->id})</option>
                         {/foreach}
@@ -72,51 +72,51 @@
             {/if}
         {/if}
         <tr>
-            <th>Тип:</th>
+            <th>п╒п╦п©:</th>
             <th>
                 {if $pricelist->type == 'operator'}
-                    Операторский
+                    п·п©п╣я─п╟я┌п╬я─я│п╨п╦п╧
                 {elseif $pricelist->type == 'client'}
-                    Клиентский
+                    п п╩п╦п╣п╫я┌я│п╨п╦п╧
                 {/if}
                 <input type="hidden" name="type" value="{$pricelist->type}" />
             </th>
         </tr>
         <tr>
-            <th>Название:</th>
+            <th>п²п╟п╥п╡п╟п╫п╦п╣:</th>
             <td><input name="name" value="{$pricelist->name}" style="width: 400px" /></td>
         </tr>
         {if $pricelist->type == 'operator'}
         <tr>
-            <th>Инициация МГМН вызова:</th>
+            <th>п≤п╫п╦я├п╦п╟я├п╦я▐ п°п⌠п°п² п╡я▀п╥п╬п╡п╟:</th>
             <td><input name="initiate_mgmn_cost" value="{$pricelist->initiate_mgmn_cost}" /></td>
         </tr>
         <tr>
-            <th>Инициация зонового вызова:</th>
+            <th>п≤п╫п╦я├п╦п╟я├п╦я▐ п╥п╬п╫п╬п╡п╬пЁп╬ п╡я▀п╥п╬п╡п╟:</th>
             <td><input name="initiate_zona_cost" value="{$pricelist->initiate_zona_cost}" /></td>
         </tr>
         <tr>
-            <th>Тарификация:</th>
+            <th>п╒п╟я─п╦я└п╦п╨п╟я├п╦я▐:</th>
             <td><label>
             <input type="checkbox" name="tariffication_by_minutes" value="1" {if $pricelist->tariffication_by_minutes > 0}checked{/if} />
-            поминутная (да), посекундная (нет)</label>
+            п©п╬п╪п╦п╫я┐я┌п╫п╟я▐ (п╢п╟), п©п╬я│п╣п╨я┐п╫п╢п╫п╟я▐ (п╫п╣я┌)</label>
         </td></tr>
         <tr>
-            <th>Тарификация:</th>
+            <th>п╒п╟я─п╦я└п╦п╨п╟я├п╦я▐:</th>
             <td><label>
             <input type="checkbox" name="tariffication_full_first_minute" value="1" {if $pricelist->tariffication_full_first_minute > 0}checked{/if} />
-            первая минута оплачивается полностью</label>
+            п©п╣я─п╡п╟я▐ п╪п╦п╫я┐я┌п╟ п╬п©п╩п╟я┤п╦п╡п╟п╣я┌я│я▐ п©п╬п╩п╫п╬я│я┌я▄я▌</label>
         </td></tr>
         {/if}
         <tr>
             <td></td>
             <td>
-                <input type="submit" value="Сохранить" />
+                <input type="submit" value="п║п╬я┘я─п╟п╫п╦я┌я▄" />
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 {if $pricelist->type == 'client'}
-                <a href="index.php?module=voipnew&action=client_pricelists">назад</a>
+                <a href="index.php?module=voipnew&action=client_pricelists">п╫п╟п╥п╟п╢</a>
                 {elseif $pricelist->type == 'operator'}
-                <a href="index.php?module=voipnew&action=operator_pricelists">назад</a>
+                <a href="index.php?module=voipnew&action=operator_pricelists">п╫п╟п╥п╟п╢</a>
                 {/if}
             </td>
         </tr>

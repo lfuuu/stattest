@@ -1,20 +1,20 @@
-      <H2>Заявки</H2>
-      <H3>Отчёт за период с {$tt_from|mdate:"Y-m-d"} по {$tt_to|mdate:"Y-m-d"}</H3>
+      <H2>п≈п╟я▐п╡п╨п╦</H2>
+      <H3>п·я┌я┤я▒я┌ п╥п╟ п©п╣я─п╦п╬п╢ я│ {$tt_from|mdate:"Y-m-d"} п©п╬ {$tt_to|mdate:"Y-m-d"}</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 border=0 width=750>
         <TR>
 			<TD class=header style='background:none'>&nbsp;</TD>
-			<TD class=header colspan=2 style='font-weight:bold'>потраченное время</TD>
-			<TD class=header colspan=3 style='font-weight:bold'>просроченные этапы</TD>
-			<TD class=header colspan=2 style='font-weight:bold'>этапы</TD>
+			<TD class=header colspan=2 style='font-weight:bold'>п©п╬я┌я─п╟я┤п╣п╫п╫п╬п╣ п╡я─п╣п╪я▐</TD>
+			<TD class=header colspan=3 style='font-weight:bold'>п©я─п╬я│я─п╬я┤п╣п╫п╫я▀п╣ я█я┌п╟п©я▀</TD>
+			<TD class=header colspan=2 style='font-weight:bold'>я█я┌п╟п©я▀</TD>
 		</TR><TR>
-			<TD class=header vAlign=bottom>пользователь</TD>
-			<TD class=header vAlign=bottom>реально</TD>
-			<TD class=header vAlign=bottom>допустимо</TD>
-			<TD class=header vAlign=bottom>время</TD>
-			<TD class=header vAlign=bottom>открытых, шт</TD>
-			<TD class=header vAlign=bottom>всего, шт</TD>
-			<TD class=header vAlign=bottom>открытых, шт</TD>
-			<TD class=header vAlign=bottom>всего, шт</TD>
+			<TD class=header vAlign=bottom>п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄</TD>
+			<TD class=header vAlign=bottom>я─п╣п╟п╩я▄п╫п╬</TD>
+			<TD class=header vAlign=bottom>п╢п╬п©я┐я│я┌п╦п╪п╬</TD>
+			<TD class=header vAlign=bottom>п╡я─п╣п╪я▐</TD>
+			<TD class=header vAlign=bottom>п╬я┌п╨я─я▀я┌я▀я┘, я┬я┌</TD>
+			<TD class=header vAlign=bottom>п╡я│п╣пЁп╬, я┬я┌</TD>
+			<TD class=header vAlign=bottom>п╬я┌п╨я─я▀я┌я▀я┘, я┬я┌</TD>
+			<TD class=header vAlign=bottom>п╡я│п╣пЁп╬, я┬я┌</TD>
         </TR>
 
 {foreach from=$tt_report item=item key=key name=outer}

@@ -2,27 +2,27 @@
 
 <head>
 <LINK title=default href="../../design/accounts/invoice.css" type=text/css rel=stylesheet>
-<title>Акт N {$invoice.invoice_no} от {$invoice.invoice_date}</title>
+<title>п░п╨я┌ N {$invoice.invoice_no} п╬я┌ {$invoice.invoice_date}</title>
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 
 <strong>
-{if $client.firma eq "mcn"}OOO "Эм Си Эн"
-{else}ООО "МАРКОМНЕТ"
+{if $client.firma eq "mcn"}OOO "п╜п╪ п║п╦ п╜п╫"
+{else}п·п·п· "п°п░п═п п·п°п²п∙п╒"
 {/if}
 </strong>
 <br>
-Адрес: <strong>{if $client.firma eq "mcn"}113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130{else}123458, г. Москва, Таллинская ул., д.2/282{/if}</strong>
+п░п╢я─п╣я│: <strong>{if $client.firma eq "mcn"}113452 пЁ. п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─-я┌., п╢. 20, п╨п╬я─. 4 п╨п╡. 130{else}123458, пЁ. п°п╬я│п╨п╡п╟, п╒п╟п╩п╩п╦п╫я│п╨п╟я▐ я┐п╩., п╢.2/282{/if}</strong>
 <br>
-Телефон: <strong>(495) 950-5678</strong>
+п╒п╣п╩п╣я└п╬п╫: <strong>(495) 950-5678</strong>
 <br>
 <br>
-Заказчик: <strong>{$client.company_full}</strong>
+п≈п╟п╨п╟п╥я┤п╦п╨: <strong>{$client.company_full}</strong>
 
 <div align="center"><center>
 <h2>
-Акт N {$invoice.invoice_no} от {$invoice.invoice_date}
+п░п╨я┌ N {$invoice.invoice_no} п╬я┌ {$invoice.invoice_date}
 </h2>
 
 <br>
@@ -31,12 +31,12 @@
 
     <div align="center"><center><table border="1" cellpadding="3" cellspacing="0" width="100%">
       <tr>
-        <th>NN<br>п/п</th>
-        <th>Наименование работы (услуги)</th>
-        <th>Ед.<br>изм.</th>
-        <th>Коли-<br>чество</th>
-        <th>Цена</th>
-        <th>Сумма</th>
+        <th>NN<br>п©/п©</th>
+        <th>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ я─п╟п╠п╬я┌я▀ (я┐я│п╩я┐пЁп╦)</th>
+        <th>п∙п╢.<br>п╦п╥п╪.</th>
+        <th>п п╬п╩п╦-<br>я┤п╣я│я┌п╡п╬</th>
+        <th>п╕п╣п╫п╟</th>
+        <th>п║я┐п╪п╪п╟</th>
       </tr>
 <!-- lines -->
 <!-- line -->
@@ -52,23 +52,23 @@
 {/foreach}
 
       <tr>
-        <td colspan=5 align="right"><b>Итого:</b></td>
+        <td colspan=5 align="right"><b>п≤я┌п╬пЁп╬:</b></td>
         <td align="right">{$invoice.sum}</td>
       </tr>
       <tr>
-        <td colspan=5 align="right"><b>Итого НДС:</b></td>
+        <td colspan=5 align="right"><b>п≤я┌п╬пЁп╬ п²п■п║:</b></td>
         <td align="right">{$invoice.tax_sum}</td>
       </tr>
       <tr>
-        <td colspan=5 align="right"><b>Всего (с учетом НДС):</b></td>
+        <td colspan=5 align="right"><b>п▓я│п╣пЁп╬ (я│ я┐я┤п╣я┌п╬п╪ п²п■п║):</b></td>
         <td align="right">{$invoice.sum_plus_tax}</td>
       </tr>
     </table>
     </center></div>
     <br>
-    Всего оказано услуг на сумму: {$sum_plus_tax_in_words}, в т.ч. НДС: {$tax_sum_in_words}<br>
+    п▓я│п╣пЁп╬ п╬п╨п╟п╥п╟п╫п╬ я┐я│п╩я┐пЁ п╫п╟ я│я┐п╪п╪я┐: {$sum_plus_tax_in_words}, п╡ я┌.я┤. п²п■п║: {$tax_sum_in_words}<br>
     <br>
-    Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.
+    п▓я▀я┬п╣п©п╣я─п╣я┤п╦я│п╩п╣п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦ п╡я▀п©п╬п╩п╫п╣п╫я▀ п©п╬п╩п╫п╬я│я┌я▄я▌ п╦ п╡ я│я─п╬п╨. п≈п╟п╨п╟п╥я┤п╦п╨ п©я─п╣я┌п╣п╫п╥п╦п╧ п©п╬ п╬п╠я┼п╣п╪я┐, п╨п╟я┤п╣я│я┌п╡я┐ п╦ я│я─п╬п╨п╟п╪ п╬п╨п╟п╥п╟п╫п╦я▐ я┐я│п╩я┐пЁ п╫п╣ п╦п╪п╣п╣я┌.
     <br>
     <br>
     <br>
@@ -87,7 +87,7 @@
     <div style="position:relative; top:{$pos}px; z-index:10">
     <table border="0" cellpadding="0" cellspacing="5">
       <tr>
-        <td><p align="right">Исполнитель</td>
+        <td><p align="right">п≤я│п©п╬п╩п╫п╦я┌п╣п╩я▄</td>
     <td>{if $client.stamp == 0 or $client.firma == 'mcn'}
         <br><br>______________________________<br><br>
         {else}
@@ -95,22 +95,22 @@
         {/if}
     </td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><p align="right">Заказчик</td>
+        <td><p align="right">п≈п╟п╨п╟п╥я┤п╦п╨</td>
     <td>______________________________</td>
       </tr>
       <tr>
         <td></td>
-        <td align="center"><small>(подпись)</small></td>
+        <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
     <td></td>
         <td></td>
-        <td align="center"><small>(подпись)</small></td>
+        <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
       </tr>
       <tr>
         <td></td>
-        <td align="center"><br><br>М.П.</td>
+        <td align="center"><br><br>п°.п÷.</td>
     <td></td>
         <td></td>
-        <td align="center"><br><br>М.П.</td>
+        <td align="center"><br><br>п°.п÷.</td>
       </tr>
     </table>
     </div>

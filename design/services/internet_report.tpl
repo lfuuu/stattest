@@ -1,15 +1,15 @@
-<H2>Отчёт по подключениям</H2>
+<H2>п·я┌я┤я▒я┌ п©п╬ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐п╪</H2>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
           <TD class=header vAlign=bottom>&#8470;</TD>
           <TD class=header vAlign=bottom>ID</TD>
-          <TD class=header vAlign=bottom>Клиент</TD>
-          <TD class=header vAlign=bottom>Менеджер</TD>
-          <TD class=header vAlign=bottom>Тариф</TD>
-          <TD class=header vAlign=bottom>Скорость ADSL</TD>
-          <TD class=header vAlign=bottom>Подключение</TD>
-          <td class=header vAlign=bottom>Активно</TD>
+          <TD class=header vAlign=bottom>п п╩п╦п╣п╫я┌</TD>
+          <TD class=header vAlign=bottom>п°п╣п╫п╣п╢п╤п╣я─</TD>
+          <TD class=header vAlign=bottom>п╒п╟я─п╦я└</TD>
+          <TD class=header vAlign=bottom>п║п╨п╬я─п╬я│я┌я▄ ADSL</TD>
+          <TD class=header vAlign=bottom>п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</TD>
+          <td class=header vAlign=bottom>п░п╨я┌п╦п╡п╫п╬</TD>
         </TR>
 
 {foreach from=$ports item=item}<tr>
@@ -18,9 +18,9 @@
 	<td><a href='{$LINK_START}module=clients&id={$item.client}'>{$item.client}</a></td>
 	<td>{$item.manager}</td>
 	<td>{if isset($item.tarif.name)}
-		<span title='Текущий тариф: {$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}'>{$item.tarif.name}</span>
+		<span title='п╒п╣п╨я┐я┴п╦п╧ я┌п╟я─п╦я└: {$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}'>{$item.tarif.name}</span>
 		<span style='font-size:85%'>{$item.tarif.comment}</span>
-		{else}не установлен{/if}
+		{else}п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫{/if}
 	</td>
     <td>{if isset($item.tarif.name)}{if $item.tarif.adsl_speed == $item.speed_mgts}{$item.speed_mgts}{else}<b style="color: {if $item.tarif.adsl_speed != "768/6144"}#c40000{else}#c4c400{/if};">{$item.speed_mgts} ({$item.tarif.adsl_speed})</b>{/if}{/if}</td>
 	<td><nobr><b>{$item.port_type}, {if $item.port=='mgts'}{$item.node}{else}<a href='{$LINK_START}module=routers&id={$item.node}'>{$item.node}</a>::{$item.port}{/if}</b></nobr></td>
@@ -30,15 +30,15 @@
 
 
 
-      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=services&action=in_report&port_type={$port_type}&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">прошлый месяц</a>,
-      								за <a href="?module=services&action=in_report&port_type={$port_type}&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">текущий месяц</a>)</H3>
+      <H3>п║п╬п╥п╢п╟п╧я┌п╣ п╬я┌я┤я▒я┌ я│п╟п╪п╦: (п╦п╩п╦ - п©п╬я│п╪п╬я┌я─п╦я┌п╣ п╬я┌я┤я▒я┌я▀ п╥п╟ <a href="?module=services&action=in_report&port_type={$port_type}&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">п©я─п╬я┬п╩я▀п╧ п╪п╣я│я▐я├</a>,
+      								п╥п╟ <a href="?module=services&action=in_report&port_type={$port_type}&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├</a>)</H3>
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
             <FORM action="?" method=get>
             <input type=hidden name=module value=services>
             <input type=hidden name=action value=in_report>
         <TR>
-          <TD class=left>Дата начала отчёта</TD>
+          <TD class=left>п■п╟я┌п╟ п╫п╟я┤п╟п╩п╟ п╬я┌я┤я▒я┌п╟</TD>
           <TD>
           <SELECT name=from_d>
 			<OPTION value=1{if $from_d==1} selected{/if}>01</OPTION>
@@ -74,24 +74,24 @@
 			<OPTION value=31{if $from_d==31} selected{/if}>31</OPTION>
 		</SELECT>
 		<SELECT name=from_m>
-			<OPTION value=1{if $from_m==1} selected{/if}>янв</OPTION>
-			<OPTION value=2{if $from_m==2} selected{/if}>фев</OPTION>
-			<OPTION value=3{if $from_m==3} selected{/if}>мар</OPTION>
-			<OPTION value=4{if $from_m==4} selected{/if}>апр</OPTION>
-			<OPTION value=5{if $from_m==5} selected{/if}>мая</OPTION>
-			<OPTION value=6{if $from_m==6} selected{/if}>июн</OPTION>
-			<OPTION value=7{if $from_m==7} selected{/if}>июл</OPTION>
-			<OPTION value=8{if $from_m==8} selected{/if}>авг</OPTION>
-			<OPTION value=9{if $from_m==9} selected{/if}>сен</OPTION>
-			<OPTION value=10{if $from_m==10} selected{/if}>окт</OPTION>
-			<OPTION value=11{if $from_m==11} selected{/if}>ноя</OPTION>
-			<OPTION value=12{if $from_m==12} selected{/if}>дек</OPTION>
+			<OPTION value=1{if $from_m==1} selected{/if}>я▐п╫п╡</OPTION>
+			<OPTION value=2{if $from_m==2} selected{/if}>я└п╣п╡</OPTION>
+			<OPTION value=3{if $from_m==3} selected{/if}>п╪п╟я─</OPTION>
+			<OPTION value=4{if $from_m==4} selected{/if}>п╟п©я─</OPTION>
+			<OPTION value=5{if $from_m==5} selected{/if}>п╪п╟я▐</OPTION>
+			<OPTION value=6{if $from_m==6} selected{/if}>п╦я▌п╫</OPTION>
+			<OPTION value=7{if $from_m==7} selected{/if}>п╦я▌п╩</OPTION>
+			<OPTION value=8{if $from_m==8} selected{/if}>п╟п╡пЁ</OPTION>
+			<OPTION value=9{if $from_m==9} selected{/if}>я│п╣п╫</OPTION>
+			<OPTION value=10{if $from_m==10} selected{/if}>п╬п╨я┌</OPTION>
+			<OPTION value=11{if $from_m==11} selected{/if}>п╫п╬я▐</OPTION>
+			<OPTION value=12{if $from_m==12} selected{/if}>п╢п╣п╨</OPTION>
 		</SELECT>
 		<SELECT name=from_y>
 			{generate_sequence_options_select start='2003' selected=$from_y}
 		</SELECT> </TD></TR>
         <TR>
-          <TD class=left>По какую дату</TD>
+          <TD class=left>п÷п╬ п╨п╟п╨я┐я▌ п╢п╟я┌я┐</TD>
           <TD>
 		<SELECT name=to_d>
 			<OPTION value=1{if $to_d==1} selected{/if}>01</OPTION>
@@ -127,18 +127,18 @@
 			<OPTION value=31{if $to_d==31} selected{/if}>31</OPTION>
 		</SELECT>
 		<SELECT name=to_m>
-			<OPTION value=1{if $to_m==1} selected{/if}>янв</OPTION>
-			<OPTION value=2{if $to_m==2} selected{/if}>фев</OPTION>
-			<OPTION value=3{if $to_m==3} selected{/if}>мар</OPTION>
-			<OPTION value=4{if $to_m==4} selected{/if}>апр</OPTION>
-			<OPTION value=5{if $to_m==5} selected{/if}>мая</OPTION>
-			<OPTION value=6{if $to_m==6} selected{/if}>июн</OPTION>
-			<OPTION value=7{if $to_m==7} selected{/if}>июл</OPTION>
-			<OPTION value=8{if $to_m==8} selected{/if}>авг</OPTION>
-			<OPTION value=9{if $to_m==9} selected{/if}>сен</OPTION>
-			<OPTION value=10{if $to_m==10} selected{/if}>окт</OPTION>
-			<OPTION value=11{if $to_m==11} selected{/if}>ноя</OPTION>
-			<OPTION value=12{if $to_m==12} selected{/if}>дек</OPTION>
+			<OPTION value=1{if $to_m==1} selected{/if}>я▐п╫п╡</OPTION>
+			<OPTION value=2{if $to_m==2} selected{/if}>я└п╣п╡</OPTION>
+			<OPTION value=3{if $to_m==3} selected{/if}>п╪п╟я─</OPTION>
+			<OPTION value=4{if $to_m==4} selected{/if}>п╟п©я─</OPTION>
+			<OPTION value=5{if $to_m==5} selected{/if}>п╪п╟я▐</OPTION>
+			<OPTION value=6{if $to_m==6} selected{/if}>п╦я▌п╫</OPTION>
+			<OPTION value=7{if $to_m==7} selected{/if}>п╦я▌п╩</OPTION>
+			<OPTION value=8{if $to_m==8} selected{/if}>п╟п╡пЁ</OPTION>
+			<OPTION value=9{if $to_m==9} selected{/if}>я│п╣п╫</OPTION>
+			<OPTION value=10{if $to_m==10} selected{/if}>п╬п╨я┌</OPTION>
+			<OPTION value=11{if $to_m==11} selected{/if}>п╫п╬я▐</OPTION>
+			<OPTION value=12{if $to_m==12} selected{/if}>п╢п╣п╨</OPTION>
 		</SELECT>
 		<SELECT name=to_y>
 			{generate_sequence_options_select start='2003'}
@@ -147,35 +147,35 @@
 
 
         <TR>
-			<TD class=left>Тип подключения</TD>
+			<TD class=left>п╒п╦п© п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</TD>
         	<TD><SELECT name='port_type[]' multiple size='10'>
 				{foreach from=$port_types item=item}<option value='{$item}'{if in_array($item,$port_type)} selected{/if}>{$item}</option>{/foreach}
 			</SELECT></TD>
 		</TR>
         <TR>
-			<TD class=left>Скрывать низкоскоростные подключения</TD>
+			<TD class=left>п║п╨я─я▀п╡п╟я┌я▄ п╫п╦п╥п╨п╬я│п╨п╬я─п╬я│я┌п╫я▀п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</TD>
         	<TD><input type=checkbox value=1 name="hide_slow"{if $hide_slow} checked{/if}></TD>
 		</TR>
         <TR>
-			<TD class=left>Скрывать отключенных в отчетный период</TD>
+			<TD class=left>п║п╨я─я▀п╡п╟я┌я▄ п╬я┌п╨п╩я▌я┤п╣п╫п╫я▀я┘ п╡ п╬я┌я┤п╣я┌п╫я▀п╧ п©п╣я─п╦п╬п╢</TD>
         	<TD><input type=checkbox value=1 name="hide_off"{if $hide_off} checked{/if}></TD>
 		</TR>
         <TR>
-			<TD class=left>Только безлимитные тарифы</TD>
+			<TD class=left>п╒п╬п╩я▄п╨п╬ п╠п╣п╥п╩п╦п╪п╦я┌п╫я▀п╣ я┌п╟я─п╦я└я▀</TD>
         	<TD><input type=checkbox value=1 name="unlim"{if $unlim} checked{/if}></TD>
 		</TR>
 		<tr>
-			<TD class=left>Выбрать отключения</TD>
+			<TD class=left>п▓я▀п╠я─п╟я┌я▄ п╬я┌п╨п╩я▌я┤п╣п╫п╦я▐</TD>
         	<TD><input type=checkbox value=1 name="show_off"{if $show_off} checked{/if}></TD>
 		</tr>
 		<tr>
-			<td class=left>Менеджер</td>
+			<td class=left>п°п╣п╫п╣п╢п╤п╣я─</td>
 			<td><SELECT name=manager>
-				<option value=''>не определено</option>
+				<option value=''>п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬</option>
 				{foreach from=$managers item=item key=user}<option value='{$item.user}'{if $item.user==$manager} selected{/if}>{$item.name} ({$item.user})</option>{/foreach}
 			</select></td>
 		</tr>
         </TBODY></TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM>
+      <DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV></FORM>

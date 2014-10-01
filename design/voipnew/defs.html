@@ -1,5 +1,5 @@
 <h1>
-    Цены:
+    п╕п╣п╫я▀:
     <small>
         {foreach from=$pricelists item='o'}
         {if $pricelist_id eq $o.id}{$o.name}{/if}
@@ -17,58 +17,58 @@
             {/foreach}
         </select>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        На дату: <input name="f_date" value="{$f_date}">
+        п²п╟ п╢п╟я┌я┐: <input name="f_date" value="{$f_date}">
     </div>
     <div style="margin: 5px 0">
         <select name="f_dest_group" class="select2" style="width:200px">
-        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-        <option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+        <option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+        <option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+        <option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
         </select>
         &nbsp;&nbsp;
         <select name="f_country_id" class="select2" style="width:250px">
-        <option value="0">-- Все страны --</option>
+        <option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
         {foreach from=$countries item='g'}
         <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
         {/foreach}
         </select>
         &nbsp;&nbsp;
         <select name="f_region_id" class="select2" style="width:300px">
-        <option value="0">-- Все регионы --</option>
+        <option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
         {foreach from=$regions item='g'}
         <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
         {/foreach}
         </select>
         &nbsp;&nbsp;
         <select name="f_mob">
-            <option value="0">-- Моб/Стац --</option>
-            <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
-            <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+            <option value="0">-- п°п╬п╠/п║я┌п╟я├ --</option>
+            <option value="t" {if $f_mob eq 't'} selected{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+            <option value="f" {if $f_mob eq 'f'} selected{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
         </select>
     </div>
     <div style="margin: 5px 0">
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>
+        <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>п║п╬п╨я─п╟я┌п╦я┌я▄</label>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <label><input type="checkbox" id="f_print" name="f_print">Печать</label>
+        <label><input type="checkbox" id="f_print" name="f_print">п÷п╣я┤п╟я┌я▄</label>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="submit" value="Сформировать">
+        <input type="submit" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄">
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="submit" name="export" value="Выгрузить">
+        <input type="submit" name="export" value="п▓я▀пЁя─я┐п╥п╦я┌я▄">
     </div>
 </form>
 
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+п║я┌я─п╟п╫п╦я├я▀: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 {if $pricelist_id ne ''}
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 	<tr>
-		<td class=header>Направление</td><td class=header>Назначение</td><td class=header>fix/mob</td>
-		<td class=header>Префикс</td>
-		<td class=header>Цена</td>
-		{if $f_short == ''}<td class=header style="width:130px">Действие</td>{/if}
+		<td class=header>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td><td class=header>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</td><td class=header>fix/mob</td>
+		<td class=header>п÷я─п╣я└п╦п╨я│</td>
+		<td class=header>п╕п╣п╫п╟</td>
+		{if $f_short == ''}<td class=header style="width:130px">п■п╣п╧я│я┌п╡п╦п╣</td>{/if}
 		</tr>
 	{foreach from=$defs item='o'}
 	<tr class={cycle values='even,odd'}>

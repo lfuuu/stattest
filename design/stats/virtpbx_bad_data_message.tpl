@@ -1,18 +1,18 @@
 <table class="table" width="100%" border="1">
 <tr>
-	<th width="15%">АТС</th>
-	<th width="15%">Клиент</th>
-	<th width="70%">Даты</th>
+	<th width="15%">п░п╒п║</th>
+	<th width="15%">п п╩п╦п╣п╫я┌</th>
+	<th width="70%">п■п╟я┌я▀</th>
 </tr>
 {if $data}
 	{foreach from=$data item="s" key="k"}
 		{if $s.ts}
 			<tr>
-				<td style="text-align: center;">АТС {$k}</td>
+				<td style="text-align: center;">п░п╒п║ {$k}</td>
 				<td style="text-align: center;">{$s.client}</td>
 				<td style="text-align: center;">
 					{foreach from=$s.ts item="d" name="days"}
-						{$d|mdate:"j месяца Y"}
+						{$d|mdate:"j п╪п╣я│я▐я├п╟ Y"}
 						{if !$smarty.foreach.days.last}
 							, 
 						{/if}
@@ -22,6 +22,6 @@
 		{/if}
 	{/foreach}
 {else}
-	<tr><td colspan="2">Нет данных</td></tr>
+	<tr><td colspan="2">п²п╣я┌ п╢п╟п╫п╫я▀я┘</td></tr>
 {/if}
 </table>

@@ -13,9 +13,9 @@
 <DIV style="float: left;">
 {if (access('clients','read'))}
 {if (!isset($clients_my) || !$clients_my) && (!isset($letter) || !$letter) && $module=="clients" && (!isset($client))}
-	<span style='color:red;font-weight:bold'>Все клиенты</span> |
+	<span style='color:red;font-weight:bold'>п▓я│п╣ п╨п╩п╦п╣п╫я┌я▀</span> |
 {else}
-	<a href='{$LINK_START}module=clients&action=all&letter=&region=any'>Все клиенты</a> |
+	<a href='{$LINK_START}module=clients&action=all&letter=&region=any'>п▓я│п╣ п╨п╩п╦п╣п╫я┌я▀</a> |
 {/if}
 </DIV>
 
@@ -23,11 +23,11 @@
 
 <DIV style="float: left; display: none;" id="filter_menu_contener">
   <ul id="filter_menu" STYLE="width: 240px;">
-    <li>Фильтр:
+    <li>п╓п╦п╩я▄я┌я─:
         {if isset($letter) && $letter && isset($letters[$letter])}
             {$letters[$letter]}
         {else}
-            <span style="color: gray"> нет</span>
+            <span style="color: gray"> п╫п╣я┌</span>
         {/if}
     <ul>
 {foreach from=$letters key=k item=item}
@@ -42,10 +42,10 @@
 {if $letter_regions}
 <DIV style="float: left; display: none;" id="search_menu_contener">
 <ul id="search_menu" STYLE="width: 180px;">
-  <li>Регион: {if isset($letter_region) && isset($letter_regions[$letter_region]) && $letter_region != "any"}
+  <li>п═п╣пЁп╦п╬п╫: {if isset($letter_region) && isset($letter_regions[$letter_region]) && $letter_region != "any"}
       {$letter_regions[$letter_region]}
     {else}
-      <span style="color: gray"> ***Любой***</span>
+      <span style="color: gray"> ***п⌡я▌п╠п╬п╧***</span>
     {/if}
 
     <ul>
@@ -60,29 +60,29 @@
   </div>
 
   {if isset($clients_my) && $clients_my}
-	| <span style='color:red;font-weight:bold'>Мои клиенты</span>
+	| <span style='color:red;font-weight:bold'>п°п╬п╦ п╨п╩п╦п╣п╫я┌я▀</span>
 {else}
-	| <a href='{$LINK_START}module=clients{if isset($client_subj)}&subj={$client_subj}{/if}&action=my'>Мои клиенты</a>
+	| <a href='{$LINK_START}module=clients{if isset($client_subj)}&subj={$client_subj}{/if}&action=my'>п°п╬п╦ п╨п╩п╦п╣п╫я┌я▀</a>
 {/if}
 <div style="clear: both;"></div>
 
-<FORM action="./?module=clients&action=all" method=get id=searchform name=searchform style='padding: 0,0,0,0; margin:1,1,1,1'>Поиск:
+<FORM action="./?module=clients&action=all" method=get id=searchform name=searchform style='padding: 0,0,0,0; margin:1,1,1,1'>п÷п╬п╦я│п╨:
 <input type=hidden name=module value=clients><input type=hidden name=action value=all><input type=hidden name=smode value=1>
 <input type=text name=search class=text id=searchfield onblur='doHide()' onkeyup="doLoadUp(700)" value='{if isset($search)}{$search}{/if}'>
 
 {if !$view_add_search}
-<input type=submit class=button value='Искать'>
+<input type=submit class=button value='п≤я│п╨п╟я┌я▄'>
 {/if}
 {if $view_add_search}
-<input type=submit class=button value='Искать' onclick='document.getElementById("searchform").smode.value=5; return true;'>
-<input type=submit class=button value='по телефону' onclick='document.getElementById("searchform").smode.value=2; return true;'>
-<input type=submit class=button value='по voip' onclick='document.getElementById("searchform").smode.value=7; return true;'>
-<input type=submit class=button value='IP-адресу' onclick='document.getElementById("searchform").smode.value=3; return true;'>
-<input type=submit class=button value='по адресу' onclick='document.getElementById("searchform").smode.value=4; return true;'>
-<input type=submit class=button value='по email' onclick='document.getElementById("searchform").smode.value=6; return true;'>
-<input type=submit class=button value='по домену' onclick='document.getElementById("searchform").smode.value=8;return true;'>
-<input type=submit class=button value='ИНН' onclick='document.getElementById("searchform").smode.value=9; return true;'>
-<input type=submit class=button value='Счёт/Заявка' onclick='document.getElementById("searchform").module.value="newaccounts"; document.getElementById("searchform").action.value="search"; return true;'> 
+<input type=submit class=button value='п≤я│п╨п╟я┌я▄' onclick='document.getElementById("searchform").smode.value=5; return true;'>
+<input type=submit class=button value='п©п╬ я┌п╣п╩п╣я└п╬п╫я┐' onclick='document.getElementById("searchform").smode.value=2; return true;'>
+<input type=submit class=button value='п©п╬ voip' onclick='document.getElementById("searchform").smode.value=7; return true;'>
+<input type=submit class=button value='IP-п╟п╢я─п╣я│я┐' onclick='document.getElementById("searchform").smode.value=3; return true;'>
+<input type=submit class=button value='п©п╬ п╟п╢я─п╣я│я┐' onclick='document.getElementById("searchform").smode.value=4; return true;'>
+<input type=submit class=button value='п©п╬ email' onclick='document.getElementById("searchform").smode.value=6; return true;'>
+<input type=submit class=button value='п©п╬ п╢п╬п╪п╣п╫я┐' onclick='document.getElementById("searchform").smode.value=8;return true;'>
+<input type=submit class=button value='п≤п²п²' onclick='document.getElementById("searchform").smode.value=9; return true;'>
+<input type=submit class=button value='п║я┤я▒я┌/п≈п╟я▐п╡п╨п╟' onclick='document.getElementById("searchform").module.value="newaccounts"; document.getElementById("searchform").action.value="search"; return true;'> 
 {/if}
 <span style="border: 1px solid #ededed; color: #cdcdcd; padding: 2px 2px 2px 2px;" onclick="doAddSearchShow()"> {if !$view_add_search}&gt;&gt;{else}&lt;&lt;{/if} </span>
 </FORM>

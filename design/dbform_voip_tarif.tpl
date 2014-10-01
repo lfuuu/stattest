@@ -91,26 +91,26 @@ $(document).ready(function(){
 {/literal}
 <table>
 	<tr>
-		<th colspan="2" align="left">Тариф:</th>
+		<th colspan="2" align="left">п╒п╟я─п╦я└:</th>
 		<th align="left" width="60"></th>
-		<th align="left">Гарантированный платеж</th>
+		<th align="left">п⌠п╟я─п╟п╫я┌п╦я─п╬п╡п╟п╫п╫я▀п╧ п©п╩п╟я┌п╣п╤</th>
 	</tr>
 	<tr>
-		<td>Тип тарифа:</td>
+		<td>п╒п╦п© я┌п╟я─п╦я└п╟:</td>
 		<td><select onchange="optools.friendly.voip.change_type(this)" id="s_tarif_type">
-			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>Публичный</option>
-			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>Архивный</option>
-			<option value='special'{if $dbform_f_tarif_current.status eq 'special'} selected='selected'{/if}>Специальный</option>
-			<option value='operator'{if $dbform_f_tarif_current.status eq 'operator'} selected='selected'{/if}>Оператор</option>
+			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>п÷я┐п╠п╩п╦я┤п╫я▀п╧</option>
+			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>п░я─я┘п╦п╡п╫я▀п╧</option>
+			<option value='special'{if $dbform_f_tarif_current.status eq 'special'} selected='selected'{/if}>п║п©п╣я├п╦п╟п╩я▄п╫я▀п╧</option>
+			<option value='operator'{if $dbform_f_tarif_current.status eq 'operator'} selected='selected'{/if}>п·п©п╣я─п╟я┌п╬я─</option>
 		</select></td>
 		<td colspan="2">
 		</td>
 	</tr>
 	<tr>
-		<td nowrap>Тариф Местные стационарные:</td>
+		<td nowrap>п╒п╟я─п╦я└ п°п╣я│я┌п╫я▀п╣ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣:</td>
 		<td>
 			<select id='t_id_tarif_public' name='dbform[t_id_tarif]'>
-				<option value=0>-- выберите тариф --</option>
+				<option value=0>-- п╡я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└ --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'public' and $tarif.dest == '4'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif} selected{/if}>
@@ -120,7 +120,7 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 			<select id='t_id_tarif_archive' name='' >
-				<option value=0>-- выберите тариф --</option>
+				<option value=0>-- п╡я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└ --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'archive' and $tarif.dest == '4'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif} selected{/if}>
@@ -130,7 +130,7 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 			<select id='t_id_tarif_special' name='' style='display:none'>
-				<option value=0>-- выберите тариф --</option>
+				<option value=0>-- п╡я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└ --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'special' and $tarif.dest == '4'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif} selected{/if}>
@@ -140,7 +140,7 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 			<select id='t_id_tarif_operator' name='' style='display:none'>
-				<option value=0>-- выберите тариф --</option>
+				<option value=0>-- п╡я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└ --</option>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_2}
 					{if $tarif.status eq 'operator' and $tarif.dest == '4'}
 					<option	value={$tarif.id}{if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif} selected{/if}>
@@ -154,7 +154,7 @@ $(document).ready(function(){
 		<td colspan="2"></td>
 	</tr>
 	<tr>
-		<td nowrap>Тариф Местные мобильные:</td>
+		<td nowrap>п╒п╟я─п╦я└ п°п╣я│я┌п╫я▀п╣ п╪п╬п╠п╦п╩я▄п╫я▀п╣:</td>
 		<td>
 			<select id=t_id_tarif_local_mob name=dbform[t_id_tarif_local_mob] style='display:"";width:270px' onchange="onchange_tarif(this, document.getElementById('minpayment_local_mob'))">
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_russia}
@@ -166,11 +166,11 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 		</td>
-		<td><input id="local_mob_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
+		<td><input id="local_mob_in_group" type="checkbox" onchange="onchange_use_group()"/>п²п╟п╠п╬я─</td>
 		<td><input id="minpayment_local_mob" type="hidden" name="dbform[t_minpayment_local_mob]" value="{$dbform_f_tarif_current.minpayment_local_mob}"/></td>
 	</tr>
 	<tr>
-		<td nowrap>Тариф Россия:</td>
+		<td nowrap>п╒п╟я─п╦я└ п═п╬я│я│п╦я▐:</td>
 		<td>
 			<select id=t_id_tarif_russia name=dbform[t_id_tarif_russia] style='display:"";width:270px' onchange="onchange_tarif(this, document.getElementById('minpayment_russia'))">>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_russia}
@@ -182,11 +182,11 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 		</td>
-		<td><input id="russia_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
+		<td><input id="russia_in_group" type="checkbox" onchange="onchange_use_group()"/>п²п╟п╠п╬я─</td>
 		<td><input id="minpayment_russia" type="hidden" name="dbform[t_minpayment_russia]" value="{$dbform_f_tarif_current.minpayment_russia}"/></td>
 	</tr>
     <tr>
-        <td nowrap>Тариф Россия (моб.):</td>
+        <td nowrap>п╒п╟я─п╦я└ п═п╬я│я│п╦я▐ (п╪п╬п╠.):</td>
         <td>
             <select id=t_id_tarif_russia_mob name=dbform[t_id_tarif_russia_mob] style='display:"";width:270px'>>
                 {foreach from=$dbform_f_tarifs item=tarif name=tarif_russia}
@@ -202,7 +202,7 @@ $(document).ready(function(){
         <td>&nbsp;</td>
     </tr>
 	<tr>
-		<td nowrap>Тариф Международка:</td>
+		<td nowrap>п╒п╟я─п╦я└ п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟:</td>
 		<td>
 			<select id=t_id_tarif_intern name=dbform[t_id_tarif_intern] style='display:"";width:270px' onchange="onchange_tarif(this, document.getElementById('minpayment_intern'))">>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_intern}
@@ -214,11 +214,11 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 		</td>
-		<td><input id="intern_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
+		<td><input id="intern_in_group" type="checkbox" onchange="onchange_use_group()"/>п²п╟п╠п╬я─</td>
 		<td><input id="minpayment_intern" type="hidden" name="dbform[t_minpayment_intern]" value="{$dbform_f_tarif_current.minpayment_intern}"/></td>
 	</tr>
 	<tr>
-		<td nowrap>Тариф СНГ:</td>
+		<td nowrap>п╒п╟я─п╦я└ п║п²п⌠:</td>
 		<td>
 			<select id=t_id_tarif_sng name=dbform[t_id_tarif_sng] style='display:"";width:270px' onchange="onchange_tarif(this, document.getElementById('minpayment_sng'))">>
 				{foreach from=$dbform_f_tarifs item=tarif name=tarif_sng}
@@ -230,39 +230,39 @@ $(document).ready(function(){
 				{/foreach}
 			</select>
 		</td>
-		<td><input id="sng_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
+		<td><input id="sng_in_group" type="checkbox" onchange="onchange_use_group()"/>п²п╟п╠п╬я─</td>
 		<td><input id="minpayment_sng" type="hidden" name="dbform[t_minpayment_sng]" value="{$dbform_f_tarif_current.minpayment_sng}"/></td>
 	</tr>
 	<tr id="tr_group">
 		<td colspan="2"></td>
-		<td>Набор:</td>
+		<td>п²п╟п╠п╬я─:</td>
 		<td>
 			<input id="dest_group" type="hidden" name="dbform[t_dest_group]" value="{$dbform_f_tarif_current.dest_group}"/>
 			<input id="minpayment_group" type="text" name="dbform[t_minpayment_group]" value="{$dbform_f_tarif_current.minpayment_group}"/>
 		</td>
 	</tr>
 	<tr>
-		<td>Дата активации:</td>
+		<td>п■п╟я┌п╟ п╟п╨я┌п╦п╡п╟я├п╦п╦:</td>
 		<td>
 			<input type=text class=text name=dbform[t_date_activation] value={if $dbform_f_tarif_current}{$dbform_f_tarif_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}>
 		</td>
-		<td сщдызфт=Э2Э></td>
+		<td я│я┴п╢я▀п╥я└я┌=п╜2п╜></td>
 	</tr>
-	<tr><td colspan="4"><input type="checkbox" name="dbform[t_apply_for_all_tarif_id]" value="{$dbform_f_tarif_current.id_tarif}"/>Применить для всех услуг с тарифом "{$dbform_f_tarifs[$dbform_f_tarif_current.id_tarif].name}"</td></tr>
+	<tr><td colspan="4"><input type="checkbox" name="dbform[t_apply_for_all_tarif_id]" value="{$dbform_f_tarif_current.id_tarif}"/>п÷я─п╦п╪п╣п╫п╦я┌я▄ п╢п╩я▐ п╡я│п╣я┘ я┐я│п╩я┐пЁ я│ я┌п╟я─п╦я└п╬п╪ "{$dbform_f_tarifs[$dbform_f_tarif_current.id_tarif].name}"</td></tr>
 </table><br>
-<h3>Группа тарификации (priceId):</h3>
+<h3>п⌠я─я┐п©п©п╟ я┌п╟я─п╦я└п╦п╨п╟я├п╦п╦ (priceId):</h3>
 <table width=400>
 <tr><td width=120>priceId:</td><td><input style='width:40px' type=text class=text name=dbform[t2_priceid] value="{if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.id_tarif}{/if}"></td></tr>
 {if $dbform_f_tarif_current}
-<tr><td>priceId в тарифе:</td><td><input style='width:40px' disabled type=text class=text value="{$dbform_f_tarif_current.priceid}"></td></tr>
+<tr><td>priceId п╡ я┌п╟я─п╦я└п╣:</td><td><input style='width:40px' disabled type=text class=text value="{$dbform_f_tarif_current.priceid}"></td></tr>
 {/if}
-<tr><td>Дата активации:</td><td><input type=text class=text name=dbform[t2_date_activation] value={if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}></td></tr>
+<tr><td>п■п╟я┌п╟ п╟п╨я┌п╦п╡п╟я├п╦п╦:</td><td><input type=text class=text name=dbform[t2_date_activation] value={if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}></td></tr>
 </table><br>
 <script type="text/javascript">
 	optools.friendly.voip.change_type('{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.status}{else}public{/if}');
 </script>
 
-<div id="div_extend_reserv" style="display: none;"><input type=button id="extend_reserv" value="Продлить резерв" class="button" style="margin-left: 10%;"></div>
+<div id="div_extend_reserv" style="display: none;"><input type=button id="extend_reserv" value="п÷я─п╬п╢п╩п╦я┌я▄ я─п╣п╥п╣я─п╡" class="button" style="margin-left: 10%;"></div>
 <script>
     {literal}
         if ($("#actual_from").val() == "2029-01-01" && $("#actual_to").val() == "2029-01-01")

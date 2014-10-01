@@ -1,43 +1,43 @@
-<h3>История тарифов:</h3>
+<h3>п≤я│я┌п╬я─п╦я▐ я┌п╟я─п╦я└п╬п╡:</h3>
 {if count($dbform_f_tarif)}
 	{foreach from=$dbform_f_tarif item=T key=key name=tarif_1}
 	{if $T.is_current}<span style='color:#0000C0'>{elseif $T.is_previous}<span style='color:#C00000'>{elseif $T.is_next}<span style='color:#00C000'>{/if}
 	<b>{$T.ts} - {$T.user}</b>:
-	{$T.name} ({$T.month_number}-{$T.month_line}), дата активации {$T.date_activation} {$T.tarif_local_mob_name}
+	{$T.name} ({$T.month_number}-{$T.month_line}), п╢п╟я┌п╟ п╟п╨я┌п╦п╡п╟я├п╦п╦ {$T.date_activation} {$T.tarif_local_mob_name}
 		{if $T.dest_group != 0}
-		/ Набор:
-		{if strpos($T.dest_group, '5') !== false}Моб{/if}
-		{if strpos($T.dest_group, '1') !== false}МГ{/if}
-		{if strpos($T.dest_group, '2') !== false}МН{/if}
-		{if strpos($T.dest_group, '3') !== false}СНГ{/if}
+		/ п²п╟п╠п╬я─:
+		{if strpos($T.dest_group, '5') !== false}п°п╬п╠{/if}
+		{if strpos($T.dest_group, '1') !== false}п°п⌠{/if}
+		{if strpos($T.dest_group, '2') !== false}п°п²{/if}
+		{if strpos($T.dest_group, '3') !== false}п║п²п⌠{/if}
 		({$T.minpayment_group})
 		{/if}
 		{if strpos($T.dest_group, '5') === false}
-		/ Моб {$T.tarif_local_mob_name} {if $T.minpayment_local_mob > 0}({$T.minpayment_local_mob}){/if}
+		/ п°п╬п╠ {$T.tarif_local_mob_name} {if $T.minpayment_local_mob > 0}({$T.minpayment_local_mob}){/if}
 		{/if}
 		{if strpos($T.dest_group, '1') === false}
-		/ МГ {$T.tarif_russia_name} {if $T.minpayment_russia > 0}({$T.minpayment_russia}){/if}
+		/ п°п⌠ {$T.tarif_russia_name} {if $T.minpayment_russia > 0}({$T.minpayment_russia}){/if}
 		{/if}
 		{if strpos($T.dest_group, '1') === false}
-		/ МГ {$T.tarif_russia_mob_name}
+		/ п°п⌠ {$T.tarif_russia_mob_name}
 		{/if}
 		{if strpos($T.dest_group, '2') === false}
-		/ МН {$T.tarif_intern_name} {if $T.minpayment_intern > 0}({$T.minpayment_intern}){/if}
+		/ п°п² {$T.tarif_intern_name} {if $T.minpayment_intern > 0}({$T.minpayment_intern}){/if}
 		{/if}
 		{if strpos($T.dest_group, '3') === false}
-		/ СНГ {$T.tarif_sng_name} {if $T.minpayment_sng > 0}({$T.minpayment_sng}){/if}
+		/ п║п²п⌠ {$T.tarif_sng_name} {if $T.minpayment_sng > 0}({$T.minpayment_sng}){/if}
 		{/if}
 	<br>
 	{if $T.is_current || $T.is_previous || $T.is_next}</span>{/if}
-	{if $T.comment}<b>Комментарий: </b>	{$T.comment}<br><br>{/if}
+	{if $T.comment}<b>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧: </b>	{$T.comment}<br><br>{/if}
 {/foreach}
-{else}тариф ни разу не был выбран{/if}
-<h3>История тарификации:</h3>
+{else}я┌п╟я─п╦я└ п╫п╦ я─п╟п╥я┐ п╫п╣ п╠я▀п╩ п╡я▀п╠я─п╟п╫{/if}
+<h3>п≤я│я┌п╬я─п╦я▐ я┌п╟я─п╦я└п╦п╨п╟я├п╦п╦:</h3>
 {if count($dbform_f_tarif2)}
 	{foreach from=$dbform_f_tarif2 item=T key=key name=tarif_1}
 	{if $T.is_current}<span style='color:#0000C0'>{elseif $T.is_previous}<span style='color:#C00000'>{elseif $T.is_next}<span style='color:#00C000'>{/if}
-	<b>{$T.ts} - {$T.user}</b>: смена на группу {$T.id_tarif}, дата активации {$T.date_activation}<br>
+	<b>{$T.ts} - {$T.user}</b>: я│п╪п╣п╫п╟ п╫п╟ пЁя─я┐п©п©я┐ {$T.id_tarif}, п╢п╟я┌п╟ п╟п╨я┌п╦п╡п╟я├п╦п╦ {$T.date_activation}<br>
 	{if $T.is_current || $T.is_previous || $T.is_next}</span>{/if}
-	{if $T.comment}<b>Комментарий: </b>	{$T.comment}<br><br>{/if}
+	{if $T.comment}<b>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧: </b>	{$T.comment}<br><br>{/if}
 	{/foreach}
-{else}группа тарификации ни разу не была выбрана{/if}
+{else}пЁя─я┐п©п©п╟ я┌п╟я─п╦я└п╦п╨п╟я├п╦п╦ п╫п╦ я─п╟п╥я┐ п╫п╣ п╠я▀п╩п╟ п╡я▀п╠я─п╟п╫п╟{/if}

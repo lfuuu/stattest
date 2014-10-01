@@ -1,10 +1,10 @@
-<h2>Загрузка курьеров по доставке по счетам</h2>
+<h2>п≈п╟пЁя─я┐п╥п╨п╟ п╨я┐я─я▄п╣я─п╬п╡ п©п╬ п╢п╬я│я┌п╟п╡п╨п╣ п©п╬ я│я┤п╣я┌п╟п╪</h2>
 {if count($data)>0}<table id="doers_report_pane" border="1" cellpadding="3" cellspacing="0" width="100%; border-collapse: collapse;">
 <tr align='center'>
-	<th width='30%' rowspan=3>Отдел</td>
-	<th width='40%' rowspan=3>Исполнитель</td>
-	<th width='30%' colspan={$departs_info.all}>Количество</td>
-	<th rowspan=3>Всего</td>
+	<th width='30%' rowspan=3>п·я┌п╢п╣п╩</td>
+	<th width='40%' rowspan=3>п≤я│п©п╬п╩п╫п╦я┌п╣п╩я▄</td>
+	<th width='30%' colspan={$departs_info.all}>п п╬п╩п╦я┤п╣я│я┌п╡п╬</td>
+	<th rowspan=3>п▓я│п╣пЁп╬</td>
 </tr>
 <tr align='center'>
     {foreach from=$departs item=dd key=k}
@@ -44,7 +44,7 @@
 	</tr>
 {/foreach}
 <tr>
-<td colspan=2 align=right><b>Итого:</b></td>
+<td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b></td>
     {foreach from=$departs item=dd key=k}
         {foreach from=$dd item=d}
             <td><b>{$total[$d]}</b></td>
@@ -55,20 +55,20 @@
 </table>
 {/if}
 
-Всего: <b>{$count_all}</b><br>
-Самовывоз: <b>{$count_self}</b><br>
+п▓я│п╣пЁп╬: <b>{$count_all}</b><br>
+п║п╟п╪п╬п╡я▀п╡п╬п╥: <b>{$count_self}</b><br>
 WiMax: <b>{$total.WiMaxComstar}</b>
 
 {if !isset($print) || !$print}
 <form method="POST">
 	<table border='0' align='center'>
-	<tr align='center'><td colspan='2'>Период</td></tr>
-	<tr align='center'><td>Год</td><td>Месяц</td></tr>
+	<tr align='center'><td colspan='2'>п÷п╣я─п╦п╬п╢</td></tr>
+	<tr align='center'><td>п⌠п╬п╢</td><td>п°п╣я│я▐я├</td></tr>
 	<tr>
 	<td> <select name='date_y'> {generate_sequence_options_select start='2003' selected=$date_y} </select>
 	</td><td> <select name='date_m'> {generate_sequence_options_select start='1' end='12' mode='m' selected=$date_m} </select>
 	</td>
 	</tr>
-	<tr align='center'><td colspan='6'><input type='submit' value='Отчет' name="do"/></td></tr>
+	<tr align='center'><td colspan='6'><input type='submit' value='п·я┌я┤п╣я┌' name="do"/></td></tr>
 	</table>
 </form>{/if}

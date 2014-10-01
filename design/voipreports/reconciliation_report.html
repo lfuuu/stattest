@@ -1,4 +1,4 @@
-<h1>Отчет для сверок:</h1>
+<h1>п·я┌я┤п╣я┌ п╢п╩я▐ я│п╡п╣я─п╬п╨:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
@@ -10,7 +10,7 @@
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <select class="select2" name="f_operator_id" style="width: 300px">
-        <option value="0">-- Все операторы --</option>
+        <option value="0">-- п▓я│п╣ п╬п©п╣я─п╟я┌п╬я─я▀ --</option>
         {foreach from=$operators key='id' item='name'}
         <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
         {/foreach}
@@ -18,35 +18,35 @@
 
     <div style="height: 5px"></div>
 
-    С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
+    п║: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
+    п÷п╬: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <select name="f_include_initiate">
-        <option value="t" {if $f_include_initiate eq 't'} selected{/if}>Включить стоимость инициации в цену</option>
-        <option value="f" {if $f_include_initiate eq 'f'} selected{/if}>Не включать стоимость инициации в цену</option>
+        <option value="t" {if $f_include_initiate eq 't'} selected{/if}>п▓п╨п╩я▌я┤п╦я┌я▄ я│я┌п╬п╦п╪п╬я│я┌я▄ п╦п╫п╦я├п╦п╟я├п╦п╦ п╡ я├п╣п╫я┐</option>
+        <option value="f" {if $f_include_initiate eq 'f'} selected{/if}>п²п╣ п╡п╨п╩я▌я┤п╟я┌я▄ я│я┌п╬п╦п╪п╬я│я┌я▄ п╦п╫п╦я├п╦п╟я├п╦п╦ п╡ я├п╣п╫я┐</option>
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <label>
         <input type="checkbox" name="exclude_local" value="1" {if $exclude_local > 0}checked{/if} />
-        Исключить местные вызовы
+        п≤я│п╨п╩я▌я┤п╦я┌я▄ п╪п╣я│я┌п╫я▀п╣ п╡я▀п╥п╬п╡я▀
     </label>
 
     <div style="height: 5px"></div>
-    <input type=submit name="make" id="make_report" value="Сформировать"/>
+    <input type=submit name="make" id="make_report" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
 </form>
 <br/><br/>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <thead>
 <tr>
-    <td class=header>Направление</td>
-    <td class=header>Кол-во звонков</td>
-    <td class=header>Кол-во минут</td>
-    <td class=header>Тариф</td>
-    <td class=header>Сумма без НДС</td>
-    <td class=header>Сумма НДС</td>
-    <td class=header>Сумма ИТОГО</td>
+    <td class=header>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
+    <td class=header>п п╬п╩-п╡п╬ п╥п╡п╬п╫п╨п╬п╡</td>
+    <td class=header>п п╬п╩-п╡п╬ п╪п╦п╫я┐я┌</td>
+    <td class=header>п╒п╟я─п╦я└</td>
+    <td class=header>п║я┐п╪п╪п╟ п╠п╣п╥ п²п■п║</td>
+    <td class=header>п║я┐п╪п╪п╟ п²п■п║</td>
+    <td class=header>п║я┐п╪п╪п╟ п≤п╒п·п⌠п·</td>
 </tr>
 </thead>
 <tbody>
@@ -64,7 +64,7 @@
 </tbody>
 <tfoot>
 <tr>
-    <td><b>Итого:</b></td>
+    <td><b>п≤я┌п╬пЁп╬:</b></td>
     <td align=right><b>{$totals.count}</b></td>
     <td align=right><b>{$totals.minutes}</b></td>
     <td align=right>&nbsp;</td>

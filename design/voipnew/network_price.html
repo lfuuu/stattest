@@ -1,9 +1,9 @@
 <h1>
     <small>
-    <a href='index.php?module=voipnew&action=network_prices'>Цены</a>:
+    <a href='index.php?module=voipnew&action=network_prices'>п╕п╣п╫я▀</a>:
     {$pricelists[$pricelist_id].name}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href='index.php?module=voipnew&action=raw_files&pricelist={$pricelist_id}'>Изменить</a>
+    <a href='index.php?module=voipnew&action=raw_files&pricelist={$pricelist_id}'>п≤п╥п╪п╣п╫п╦я┌я▄</a>
     </small>
 </h1>
 <form action="./index.php" method="get">
@@ -16,17 +16,17 @@
         {/foreach}
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;
-    На дату: <input id="f_date" class="datepicker" name="f_date" value="{$f_date}">
+    п²п╟ п╢п╟я┌я┐: <input id="f_date" class="datepicker" name="f_date" value="{$f_date}">
 
-    <input type="submit" value="Сформировать">
+    <input type="submit" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄">
 </form>
 <p>&nbsp;</p>
 {if $pricelist_id ne ''}
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
-        <td class=header>Группа</td>
-        <td class=header>Название</td>
-        <td class=header>Цена</td>
+        <td class=header>п⌠я─я┐п©п©п╟</td>
+        <td class=header>п²п╟п╥п╡п╟п╫п╦п╣</td>
+        <td class=header>п╕п╣п╫п╟</td>
     </tr>
     {foreach from=$defs item='o'}
     <tr class={cycle values='even,odd'}>

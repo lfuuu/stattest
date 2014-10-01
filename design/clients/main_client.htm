@@ -1,17 +1,17 @@
 <script src="js/jquery.inputmask.js"></script>
-<H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
+<H2>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п╨п╩п╦п╣п╫я┌п╣ <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
 <table width=100%><tr><td>
 	<table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
 
         <tr>
-            <td class=left>Регион:</td>
+            <td class=left>п═п╣пЁп╦п╬п╫:</td>
             <td colspan="2"><b>{$region_name}</b></td>
         </tr>
 
 
 		{if $client.previous_reincarnation}
 		<tr>
-			<td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>Предыдущие реквизиты:</td>
+			<td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>п÷я─п╣п╢я▀п╢я┐я┴п╦п╣ я─п╣п╨п╡п╦п╥п╦я┌я▀:</td>
 			<td><a href="?module=clients&id={$client.previous_reincarnation}">{$client.prev_r_cl}</a></td>
 		</tr>
 		{/if}
@@ -19,7 +19,7 @@
         {if $client.contragents_count > 1}
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-                Клиент:
+                п п╩п╦п╣п╫я┌:
             </td>
             <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
                 <b>{$client.super_client_name}</b>
@@ -28,7 +28,7 @@
 
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-            Контрагент:
+            п п╬п╫я┌я─п╟пЁп╣п╫я┌:
             </td>
             <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
                 {foreach from=$client.contragents item='c'}
@@ -51,7 +51,7 @@
         {if $client.cards_count > 1}
         <tr>
             <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-            {if $client.cards_count > 1}Карточки{else}Карточка{/if}:
+            {if $client.cards_count > 1}п п╟я─я┌п╬я┤п╨п╦{else}п п╟я─я┌п╬я┤п╨п╟{/if}:
             </td>
             <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
                 {foreach from=$client.cards item='c'}
@@ -77,54 +77,54 @@
         </tr>
         {/if}
         <TR><TD class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
-				<a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:</TD><TD{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+				<a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="п÷п╬я│п╪п╬я┌я─п╣я┌я▄"></a>п п╬п╪п©п╟п╫п╦я▐:</TD><TD{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
 				<b>{$client.company_full}</b>&nbsp; &nbsp;{if trim($client.company_full)!= trim($client.company)}({$client.company}){/if}&nbsp; &nbsp;(<span style='color:#000080'>{$client.firma}</span>)</TD>
 
 			<td valign="top" width=250 rowspan={if access('clients','restatus')}14{else}11{/if}>
-				{if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
+				{if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>п÷п╬я│п╪п╬я┌я─п╣я┌я▄ п╥п╟я▐п╡п╨п╦</a> (п╡я│п╣пЁп╬: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>п╦п╥ п╫п╦я┘ п╫п╣п╥п╟п╨я─я▀я┌я▀я┘: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
 				{if access('clients','edit') || access('clients','edit_tele')}
-					<a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
-						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Редактировать ЛС
+					<a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╩п╦я├п╣п╡п╬п╧ я│я┤п╣я┌">
+						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п⌡п║
 					</a>
 					<br><br>
 				<a href='{$LINK_START}module=clients&id={$client.id}&action=print&data=envelope' target='_blank'>
-					<img class=icon src='{$IMAGES_PATH}icons/envelope.gif'>Напечатать конверт
+					<img class=icon src='{$IMAGES_PATH}icons/envelope.gif'>п²п╟п©п╣я┤п╟я┌п╟я┌я▄ п╨п╬п╫п╡п╣я─я┌
 				</a>
 				<br><br>
 				{if access('clients','file')}
 					<a href="{$LINK_START}module=clients&action=files&cid={$client.id}">
-						<img class=icon src='{$IMAGES_PATH}icons/contract.gif'>Файлы
-					</a> ({$cfiles} шт.)
+						<img class=icon src='{$IMAGES_PATH}icons/contract.gif'>п╓п╟п╧п╩я▀
+					</a> ({$cfiles} я┬я┌.)
 					<br><br>
 				{/if}
-					<a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
-						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
+					<a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="п÷п╣я─п╣п╫п╬я│ п╨п╟я─я┌п╬я┤п╨п╦">
+						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>п÷п╣я─п╣п╫п╬я│ п╨п╟я─я┌п╬я┤п╨п╦
 					</a>
 					<br><br>
 					<a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>
-						<img class=icon src='{$IMAGES_PATH}icons/password.gif'>Изменить пароль
+						<img class=icon src='{$IMAGES_PATH}icons/password.gif'>п≤п╥п╪п╣п╫п╦я┌я▄ п©п╟я─п╬п╩я▄
 					</a>
 					<br><br>
 				{/if}
 				{if access('monitoring','edit') || access('clients','edit_tele')}
 					<a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
-						<img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
+						<img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>п■п╬п╠п╟п╡п╦я┌я▄ п╡ п╪п╬п╫п╦я┌п╬я─п╦п╫пЁ
 					</a>
 					<br><br>
 				{/if}
 
 				<a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&up_id={$client.id}">
-					Профиль в Welltone
+					п÷я─п╬я└п╦п╩я▄ п╡ Welltone
 				</a>
 				<br>
 				<a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
-					Обращение в Welltone
+					п·п╠я─п╟я┴п╣п╫п╦п╣ п╡ Welltone
 				</a>
                 {if $card_type == "main"}
                 {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
                     <br>
                     <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
-                        Переход в LK
+                        п÷п╣я─п╣я┘п╬п╢ п╡ LK
                     </a>{/if}
                 {php} endif; {/php}
 				<br>
@@ -133,54 +133,54 @@
 				{*if access('newaccounts_bills','regProductsOrder')*}
 				{if access('clients','all4net')}
 					<br /><br />
-					<a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> Создать заказ на Установку/Монтаж</a><br />
+					<a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> п║п╬п╥п╢п╟я┌я▄ п╥п╟п╨п╟п╥ п╫п╟ пёя│я┌п╟п╫п╬п╡п╨я┐/п°п╬п╫я┌п╟п╤</a><br />
 				<br>
-					<a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders'><img src="./images/icons/add.gif" border=0>Создать заказ из Магазина</a><br />
+					<a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders'><img src="./images/icons/add.gif" border=0>п║п╬п╥п╢п╟я┌я▄ п╥п╟п╨п╟п╥ п╦п╥ п°п╟пЁп╟п╥п╦п╫п╟</a><br />
 				<br>
-					<a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1'><img src="./images/icons/disable.gif" border=0> Возврат товара</a><br />
+					<a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1'><img src="./images/icons/disable.gif" border=0> п▓п╬п╥п╡я─п╟я┌ я┌п╬п╡п╟я─п╟</a><br />
 				<br>
 				{/if}
 
 			{if access('incomegoods','admin')}
 				<br/>
-				<a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>Создать заказ Поставщику</a>
+				<a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>п║п╬п╥п╢п╟я┌я▄ п╥п╟п╨п╟п╥ п÷п╬я│я┌п╟п╡я┴п╦п╨я┐</a>
 				<br/><br/><br/>
 			{/if}
 
-			<a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
+			<a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">п║п╬п╥п╢п╟я┌я▄ п╥п╟п╢п╟п╫п╦п╣</a><br />
 				<br>
-				<a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
+				<a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">п║п╬п╥п╢п╟я┌я▄ п╥п╟я▐п╡п╨я┐ п╫п╟ п©п╬п╢п╢п╣я─п╤п╨я┐</a>
 
 				{*if access('clients','yota')*}
 					<br /><br />
-					<a href='{$LINK_START}module=clients&action=print_yota_contract' target='_blank' id='YotaContractLink' style='display:none'>Печатать договор Yota</a>
+					<a href='{$LINK_START}module=clients&action=print_yota_contract' target='_blank' id='YotaContractLink' style='display:none'>п÷п╣я┤п╟я┌п╟я┌я▄ п╢п╬пЁп╬п╡п╬я─ Yota</a>
 					<script type='text/javascript'>
 						if(!document.all && window.navigator.appName != "Opera")
 							document.getElementById('YotaContractLink').style.display = 'block';
 					</script>
 				{*/if*}
 
-                <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
+                <br> <a href="./?module=clients&id={$client.id}&sync=true">п║п╦п╫я┘я─п╬п╫п╦п╥п╬п╡п╟я┌я▄ я│ п⌡п </a>
 
 			</td>
 		</TR>
-		<TR id=company_names style="display: none;"><TD colspan=2 align=center>Изменения названия компании:
+		<TR id=company_names style="display: none;"><TD colspan=2 align=center>п≤п╥п╪п╣п╫п╣п╫п╦я▐ п╫п╟п╥п╡п╟п╫п╦я▐ п╨п╬п╪п©п╟п╫п╦п╦:
 			<table style="background-color: gray;" cellspacing=1 cellpadding=3>
-				<tr><td><b>Дата</td><td><b>Пользователь</td><td><b>Полное названия</b></td><td><b>Краткое</b></td></tr>
+				<tr><td><b>п■п╟я┌п╟</td><td><b>п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄</td><td><b>п÷п╬п╩п╫п╬п╣ п╫п╟п╥п╡п╟п╫п╦я▐</b></td><td><b>п я─п╟я┌п╨п╬п╣</b></td></tr>
 				{foreach from=$log_company item=l}
 					<tr><td>{$l.ts}</td><td>{$l.user}</td><td>{$l.company.company_full.to}</td><td>{$l.company.company.to}</td></tr>
 				{foreachelse}
-					<tr><td colspan=4 align=center><i>Нет изменений</i></td></tr>
+					<tr><td colspan=4 align=center><i>п²п╣я┌ п╦п╥п╪п╣п╫п╣п╫п╦п╧</i></td></tr>
 				{/foreach}
 			</table>
 
 					</TD></TR>
-		<TR><TD class=left{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>Менеджер:</TD><TD{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}><b>{if $client.manager}{$client.manager_name} ({$client.manager}){/if}</b></TD></TR>
-		<TR><TD class=left{if $client.support_color} style='background-color:{$client.support_color}'{/if}>Техподдержка:</TD><TD{if $client.support_color} style='background-color:{$client.support_color}'{/if}><b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b></TD></TR>
-		<TR><TD class=left>Валюта:</TD><TD><b{if $client.currency=='USD'}>${else} style='color:blue'>рубли{/if}</b> <span style='font-size:85%'>(кредит <b>{if $client.credit >= 0}{$client.credit}{else}не ограничен{/if}</b>)</span></TD></TR>
-		<TR><TD class=left>Адрес:</TD><TD><b>{$client.address_post}</b></TD></TR>
+		<TR><TD class=left{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>п°п╣п╫п╣п╢п╤п╣я─:</TD><TD{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}><b>{if $client.manager}{$client.manager_name} ({$client.manager}){/if}</b></TD></TR>
+		<TR><TD class=left{if $client.support_color} style='background-color:{$client.support_color}'{/if}>п╒п╣я┘п©п╬п╢п╢п╣я─п╤п╨п╟:</TD><TD{if $client.support_color} style='background-color:{$client.support_color}'{/if}><b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b></TD></TR>
+		<TR><TD class=left>п▓п╟п╩я▌я┌п╟:</TD><TD><b{if $client.currency=='USD'}>${else} style='color:blue'>я─я┐п╠п╩п╦{/if}</b> <span style='font-size:85%'>(п╨я─п╣п╢п╦я┌ <b>{if $client.credit >= 0}{$client.credit}{else}п╫п╣ п╬пЁя─п╟п╫п╦я┤п╣п╫{/if}</b>)</span></TD></TR>
+		<TR><TD class=left>п░п╢я─п╣я│:</TD><TD><b>{$client.address_post}</b></TD></TR>
 		<TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-		<TR><TD class=left{if $client.status_color} style='background-color:{$client.status_color}'{/if}>Статус:</TD><TD{if $client.status_color} style='background-color:{$client.status_color}'{/if}><b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}</TD></TR>
+		<TR><TD class=left{if $client.status_color} style='background-color:{$client.status_color}'{/if}>п║я┌п╟я┌я┐я│:</TD><TD{if $client.status_color} style='background-color:{$client.status_color}'{/if}><b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="п÷п╬я│п╪п╬я┌я─п╣я┌я▄"></a>&nbsp; &nbsp; {if $client.site_req_no}(п╥п╟я▐п╡п╨п╟ &#8470;{$client.site_req_no}){/if}</TD></TR>
 <script language=javascript>
 {literal}
 function togglecs() {
@@ -200,7 +200,7 @@ function togglecs() {
 {if $item.comment}
 <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
 {/if}{if $item.status}
-<b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
+<b>{$item.user} {$item.ts}</b>: я│я┌п╟я┌я┐я│ п╦п╥п╪п╣п╫я▒п╫ п╫п╟ {$item.status}<br>
 {/if}
 {/foreach}
 </td></tr>
@@ -209,23 +209,23 @@ function togglecs() {
 <input style='width:100%' type=hidden name=module value=clients>
 <input style='width:100%' type=hidden name=action value=restatus>
 <input style='width:100%' type=hidden name=id value='{$client.id}'>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2><TD class=left>Статус:</TD><TD><SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}'{$item.selected}>{$item.name}</option>{/foreach}</select></TD></TR>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4><TD class=left>Комментарий:</TD><TD><textarea style='width:100%;height:100px' name=comment class=text></textarea></TD></TR>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3><TD class=left style='border-bottom:1 solid red'>&nbsp;</TD><TD style='border-bottom:1 solid red'><input class=text value='Изменить' type=submit></TD></TR>
+<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2><TD class=left>п║я┌п╟я┌я┐я│:</TD><TD><SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}'{$item.selected}>{$item.name}</option>{/foreach}</select></TD></TR>
+<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4><TD class=left>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧:</TD><TD><textarea style='width:100%;height:100px' name=comment class=text></textarea></TD></TR>
+<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3><TD class=left style='border-bottom:1 solid red'>&nbsp;</TD><TD style='border-bottom:1 solid red'><input class=text value='п≤п╥п╪п╣п╫п╦я┌я▄' type=submit></TD></TR>
 </form>
 {/if}
-<TR><TD class=left>Предполагаемый <b>адрес</b> подключения:</TD><TD>{$client.address_connect}{if $client.phone_connect} <b>телефон:</b> {$client.phone_connect}{/if}</TD></TR>
-<TR><TD class=left>Комментарий:</TD><TD><b>{$client.comment.comment}</b></TD></TR>
+<TR><TD class=left>п÷я─п╣п╢п©п╬п╩п╟пЁп╟п╣п╪я▀п╧ <b>п╟п╢я─п╣я│</b> п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐:</TD><TD>{$client.address_connect}{if $client.phone_connect} <b>я┌п╣п╩п╣я└п╬п╫:</b> {$client.phone_connect}{/if}</TD></TR>
+<TR><TD class=left>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧:</TD><TD><b>{$client.comment.comment}</b></TD></TR>
 <TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
 <TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
 <TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-<TR><TD class=left><a href='javascript:toggle2("contact");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
-Телефон:</TD><TD colspan=2>{foreach from=$contact.phone item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
+<TR><TD class=left><a href='javascript:toggle2("contact");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="п≤п╥п╪п╣п╫п╦я┌я▄"></a>
+п╒п╣п╩п╣я└п╬п╫:</TD><TD colspan=2>{foreach from=$contact.phone item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
 <span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}{/foreach}
 </TD></TR>
 
 {if count($contact.fax)}
-<TR><TD class=left>Факс:</TD><TD colspan=2>{foreach from=$contact.fax item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
+<TR><TD class=left>п╓п╟п╨я│:</TD><TD colspan=2>{foreach from=$contact.fax item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
 <span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}{/foreach}
 </TD></TR>
 {/if}
@@ -239,7 +239,7 @@ function togglecs() {
 {/if}
 
 {if count($contact.sms)}
-<TR><TD class=left>СМС:</TD><TD colspan=2>{foreach from=$contact.sms item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
+<TR><TD class=left>п║п°п║:</TD><TD colspan=2>{foreach from=$contact.sms item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
 <span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
 {/foreach}
 </TD></TR>
@@ -249,44 +249,44 @@ function togglecs() {
 <td colspan=3 style='padding-left:50px'>
 
 <table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th>тип</th><th></th><th>контакт</th><th>комментарий</th><th>кто</th><th>когда</th><th>&nbsp;</th></tr>
+<tr><th>я┌п╦п©</th><th></th><th>п╨п╬п╫я┌п╟п╨я┌</th><th>п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</th><th>п╨я┌п╬</th><th>п╨п╬пЁп╢п╟</th><th>&nbsp;</th></tr>
 <FORM action="?" method=post><tr>
 	<input type=hidden name=module value=clients>
 	<input type=hidden name=action value=recontact>
 	<input type=hidden name=id value='{$client.id}'>
 {foreach from=$contacts item=item}
 <tr{if !$item.is_active} class="other"{/if}><td{if $item.is_official} style='font-weight:bold'{/if}>
-{if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{elseif $item.type=='sms'}СМС{/if}
+{if $item.type=='phone'}я┌п╣п╩п╣я└п╬п╫{elseif $item.type=='fax'}я└п╟п╨я│{elseif $item.type=='email'}e-mail{elseif $item.type=='sms'}п║п°п║{/if}
 </td>
 <td>{if $card_type == "main" && $item.type == "email" && $item.is_official && $item.is_active}<input type=radio value="{$item.id}" name="admin_contact"{if $client.admin_contact_id == $item.id} checked{/if}>{/if}</td>
 <td>{$item.data}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
 {if $item.user == 'AutoLK'}
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
+    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="п░п╨я┌п╦п╡п╫п╬я│я┌я▄"></a>
 {else}
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="п░п╨я┌п╦п╡п╫п╬я│я┌я▄"></a>
 {/if}
 
 </td></tr>
 {/foreach}
 	<td>
 		<select name=type class=text style='font-size:10px' id='cd_type'>
-			<option value='phone'>телефон</option>
-			<option value='fax'>факс</option>
+			<option value='phone'>я┌п╣п╩п╣я└п╬п╫</option>
+			<option value='fax'>я└п╟п╨я│</option>
 			<option value='email'>e-mail</option>
-			<option value='sms'>СМС</option>
+			<option value='sms'>п║п°п║</option>
 		</select>
-		<input type=checkbox class=text name=official title="официальный?">
+		<input type=checkbox class=text name=official title="п╬я└п╦я├п╦п╟п╩я▄п╫я▀п╧?">
 	</td>
     <td></td>
 	<td><input class=text style='width:100%' type=text name=data id='i_cd_data'></td>
 	<td colspan=2><input class=text style='width:100%' type=text name=comment></td>
-	<td><input class=button type=submit name="add_contact" value="добавить"></td>
+	<td><input class=button type=submit name="add_contact" value="п╢п╬п╠п╟п╡п╦я┌я▄"></td>
 </tr>
 
 {if $card_type == "main"}
     <tr><td>&nbsp;</td>
-            <td><input type=radio name="admin_contact" title="Сбросить" value=0{if $client.admin_contact_id == 0} checked{/if}></td><td colspan=4>
-        <input class=button type=submit name="set_admin" value="Администратор в LK">
+            <td><input type=radio name="admin_contact" title="п║п╠я─п╬я│п╦я┌я▄" value=0{if $client.admin_contact_id == 0} checked{/if}></td><td colspan=4>
+        <input class=button type=submit name="set_admin" value="п░п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─ п╡ LK">
         </td></tr>
 {/if}
     </form>
@@ -297,12 +297,12 @@ function togglecs() {
 
 <TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
 
-<TR><TD class=left><a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>
-Договор:</TD><TD>{foreach from=$contracts item=item key=key}{if $item.is_active}
-	<b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> от {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts})</span> {if $key!=$contract_last}; {/if}
+<TR><TD class=left><a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="п÷п╬я│п╪п╬я┌я─п╣я┌я▄"></a>
+п■п╬пЁп╬п╡п╬я─:</TD><TD>{foreach from=$contracts item=item key=key}{if $item.is_active}
+	<b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> п╬я┌ {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts})</span> {if $key!=$contract_last}; {/if}
 {/if}{/foreach}</TD></TR>
 <TR id=contract{if !isset($contract_open)} style='display:none'{/if}><td colspan=3 style='padding-left:50px'><table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th style="font: bold 10pt sans-serif;">&#8470;<br>договора</th><th style="font: bold 10pt sans-serif;">дата<br>договора</th><th style="font: bold 10pt sans-serif;">дата доп.<br>соглашения</th><th>комментарий</th><th>кто</th><th>когда</th></tr>
+<tr><th style="font: bold 10pt sans-serif;">&#8470;<br>п╢п╬пЁп╬п╡п╬я─п╟</th><th style="font: bold 10pt sans-serif;">п╢п╟я┌п╟<br>п╢п╬пЁп╬п╡п╬я─п╟</th><th style="font: bold 10pt sans-serif;">п╢п╟я┌п╟ п╢п╬п©.<br>я│п╬пЁп╩п╟я┬п╣п╫п╦я▐</th><th>п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</th><th>п╨я┌п╬</th><th>п╨п╬пЁп╢п╟</th></tr>
 {foreach from=$contracts item=item}<tr{if !$item.is_active} class="other"{/if}>
 	<td>{$item.contract_no}</td><td>{$item.contract_date}</td><td>{if $item.contract_dop_date != "2012-01-01"}{$item.contract_dop_date}{/if}</td><td>{$item.comment}</td><td>{$item.user}</td>
 	<td style='font-size:85%'>{$item.ts}</td>
@@ -310,8 +310,8 @@ function togglecs() {
 		<a href='{$LINK_START}module=clients&id={$item.id}&action=contract_edit' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/edit.gif'></a>
 		<a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/printer.gif'></a>
 		<a href='{$LINK_START}module=clients&id={$item.id}&action=send&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/contract.gif'></a>
-		<a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontract2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
-		<a href="{$item.link}" target='_blank'>ссылка</a>
+		<a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontract2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="п░п╨я┌п╦п╡п╫п╬я│я┌я▄"></a>
+		<a href="{$item.link}" target='_blank'>я│я│я▀п╩п╨п╟</a>
 	</td>
 </tr>{/foreach}
 <FORM action="?" method=post><tr>
@@ -334,7 +334,7 @@ function togglecs() {
             <option value="{$item}">{$item}</option>
     {/foreach}
 	</select>
-	<input class=button type=submit value="зарегистрировать"></td>
+	<input class=button type=submit value="п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟я┌я▄"></td>
 </tr></form>
 <script>
 var tDogovors = new Array();

@@ -1,23 +1,23 @@
-<H2>Курьеры</H2>
+<H2>п я┐я─я▄п╣я─я▀</H2>
 
 <FORM action="?" method=get id=form name=form>
 <input type=hidden name=module value=employeers>
 <input type=hidden name=action value=couriers>
 <input type=hidden name="cId" value="{$cId}">
-{if $cId != 0}Редактирование{else}Добавление{/if}: <br>
-<table><tr><td>Имя: </td><td><input type="text" value="{$cName}" name="cName"></td></tr>
-<tr><td>Телефон: </td><td><input type="text" value="{$cPhone}" name="cPhone"></td></tr>
-<tr><td>All4Geo ид: </td><td><input type="text" value="{$cAll4geo}" name="cAll4geo"></td></tr>
+{if $cId != 0}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣{else}п■п╬п╠п╟п╡п╩п╣п╫п╦п╣{/if}: <br>
+<table><tr><td>п≤п╪я▐: </td><td><input type="text" value="{$cName}" name="cName"></td></tr>
+<tr><td>п╒п╣п╩п╣я└п╬п╫: </td><td><input type="text" value="{$cPhone}" name="cPhone"></td></tr>
+<tr><td>All4Geo п╦п╢: </td><td><input type="text" value="{$cAll4geo}" name="cAll4geo"></td></tr>
 </table>
-<input type=submit value='Сохранить' class=button>
+<input type=submit value='п║п╬я┘я─п╟п╫п╦я┌я▄' class=button>
 </form>
 
-<h3>Список курьеров</h3>
+<h3>п║п©п╦я│п╬п╨ п╨я┐я─я▄п╣я─п╬п╡</h3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0 width="100%">
 <TBODY>
-<TR><TD class=header vAlign=bottom>Имя</TD>
+<TR><TD class=header vAlign=bottom>п≤п╪я▐</TD>
 <TD class=header vAlign=bottom>All4geo Id</TD>
-<TD class=header vAlign=bottom>Телефон</TD>
+<TD class=header vAlign=bottom>п╒п╣п╩п╣я└п╬п╫</TD>
 <TD class=header vAlign=bottom width="1%"></TD></TR>
 
 {foreach from=$l_couriers item=item name=outer}
@@ -27,6 +27,6 @@
 <TD valign=center>{$item.phone}</TD>
 <TD><a href='{$LINK_START}module=employeers&action=couriers&del={$item.id}'>x</a></TD></TR>
 {foreachelse}
-<tr><td colspan=3 align=center><i>Список пуст</i></td></tr>
+<tr><td colspan=3 align=center><i>п║п©п╦я│п╬п╨ п©я┐я│я┌</i></td></tr>
 {/foreach}
 </TBODY></TABLE>

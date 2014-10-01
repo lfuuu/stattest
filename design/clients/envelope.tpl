@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=koi8-r">
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
 	<TITLE>      </TITLE>
 
 {literal}
@@ -30,23 +30,23 @@
 
 <br><br><br>
 <div class="envelope_from">
-<IMG SRC="images/logo2.gif" NAME="Графический объект1" ALIGN=BOTTOM WIDTH=180 HEIGHT=79 BORDER=0><br>
+<IMG SRC="images/logo2.gif" NAME="п⌠я─п╟я└п╦я┤п╣я│п╨п╦п╧ п╬п╠я┼п╣п╨я┌1" ALIGN=BOTTOM WIDTH=180 HEIGHT=79 BORDER=0><br>
 {if $client.firma=="markomnet"}
-О О О   &laquo;М а р к о м н е т&raquo;<BR>
+п· п· п·   &laquo;п° п╟ я─ п╨ п╬ п╪ п╫ п╣ я┌&raquo;<BR>
 {else}
-О О О   &laquo;Эм Си Эн&raquo;<BR>
+п· п· п·   &laquo;п╜п╪ п║п╦ п╜п╫&raquo;<BR>
 {/if}
-117485, г.Москва, ул. Бутлерова 12 <br>
-Телефон:   332-00-37, 950-5678  <br>
-Факс: 332-00-27                      <br>
+117485, пЁ.п°п╬я│п╨п╡п╟, я┐п╩. п▒я┐я┌п╩п╣я─п╬п╡п╟ 12 <br>
+п╒п╣п╩п╣я└п╬п╫:   332-00-37, 950-5678  <br>
+п╓п╟п╨я│: 332-00-27                      <br>
 info@mcn.ru    http://www.mcn.ru          <br>
 </div>
 <br><br><br><br><br>
  <div class="envelope_to">
  <table border="0" style="font-size: 14pt" sellpadding="10">
  <tr>
- <td><b>Куда:</b></td><td style="font-size: 12pt">{$client.address_post_real}</td></tr>
- <tr><td><b> Кому:</b> </td><td style="font-size: 12pt">{$client.company_full}</td> </tr>
+ <td><b>п я┐п╢п╟:</b></td><td style="font-size: 12pt">{$client.address_post_real}</td></tr>
+ <tr><td><b> п п╬п╪я┐:</b> </td><td style="font-size: 12pt">{$client.company_full}</td> </tr>
   <tr>
  <td><b></b></td><td style="font-size: 14pt">  </td>
  </tr>

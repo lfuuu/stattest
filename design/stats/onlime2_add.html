@@ -5,22 +5,22 @@
 <script src="js/ui/i18n/jquery.ui.timepicker-ru.js"></script>
 <link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
 
-<h2>{$client_name}. {if $a.bill_no}Редактирование заказа #{$a.bill_no}{else}Создание заказа{/if}.</h2>
+<h2>{$client_name}. {if $a.bill_no}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╥п╟п╨п╟п╥п╟ #{$a.bill_no}{else}п║п╬п╥п╢п╟п╫п╦п╣ п╥п╟п╨п╟п╥п╟{/if}.</h2>
 {if $viewLink}
 <form action="./?{if $viewLink}module=stats&action={$report}{/if}&do=add" method=post>
 <input type=hidden name=info_form value=1>
 <textarea name="onlime_info" style="width: 450px; height: 100px;">{$onlime_info}</textarea>
-<input type=submit value="Сохранить">
+<input type=submit value="п║п╬я┘я─п╟п╫п╦я┌я▄">
 </form>
 {else}
 <pre>{$onlime_info}</pre>
 {/if}
 <div style="text-align: right; padding-right: 100px;">
-<a href="./?{if $viewLink}module=stats&action={$report}{/if}">к списку заказов</a>
+<a href="./?{if $viewLink}module=stats&action={$report}{/if}">п╨ я│п©п╦я│п╨я┐ п╥п╟п╨п╟п╥п╬п╡</a>
 </div>
 
 <div style="font: bold 9pt sans-serif; color:#c40000;">{if $error}{$error}{else}&nbsp;{/if}</div>
-<div style="font: bold 9pt sans-serif; color:#009300;">{if $info}Создана заявка #{$info}{else}&nbsp;{/if}</div>
+<div style="font: bold 9pt sans-serif; color:#009300;">{if $info}п║п╬п╥п╢п╟п╫п╟ п╥п╟я▐п╡п╨п╟ #{$info}{else}&nbsp;{/if}</div>
 {literal}
 <style>
 #nbn_add_t input {
@@ -48,33 +48,33 @@
 <input type=hidden name="bill_no" value="{$a.bill_no}">
 <div style="float:left;">
 <table border=0 style="border-collapse: collapse;text-align:center;" id="nbn_add_t">
-<tr><td>ФИО Оператора</td><td><input type=text name="fio_oper" value="{$a.fio_oper}"{if $a.bill_no} readonly{/if}></td></tr>
-<!-- tr><td>Номер заказа</td><td><input type=text name="req" value="{$a.req}"></td></tr -->
-<tr><td>ФИО потенциального Покупателя</td><td><input type=text name=fio value="{$a.fio}"></td></tr>
+<tr><td>п╓п≤п· п·п©п╣я─п╟я┌п╬я─п╟</td><td><input type=text name="fio_oper" value="{$a.fio_oper}"{if $a.bill_no} readonly{/if}></td></tr>
+<!-- tr><td>п²п╬п╪п╣я─ п╥п╟п╨п╟п╥п╟</td><td><input type=text name="req" value="{$a.req}"></td></tr -->
+<tr><td>п╓п≤п· п©п╬я┌п╣п╫я├п╦п╟п╩я▄п╫п╬пЁп╬ п÷п╬п╨я┐п©п╟я┌п╣п╩я▐</td><td><input type=text name=fio value="{$a.fio}"></td></tr>
 <tr><td>&nbsp;</td></tr>
-<tr><td colspan=2><b>Адрес доставки:</b></td></tr>
-<tr><td>улица</td><td><input type=text name=address_street value="{$a.address_street}"></td></tr>
-<tr><td>дом</td><td><input type=text name=address_house value="{$a.address_house}"></td></tr>
-<tr><td>корпус/строение</td><td><input type=text name=address_building value="{$a.address_building}"></td></tr>
-<tr><td>подъезд</td><td><input type=text name=address_porch value="{$a.address_porch}"></td></tr>
-<tr><td>этаж</td><td><input type=text name=address_floor value="{$a.address_floor}"></td></tr>
-<tr><td>квартира</td><td><input type=text name=address_flat value="{$a.address_flat}"></td></tr>
-<tr><td>домофон / код</td><td><input type=text name=address_interkom value="{$a.address_interkom}"></td></tr>
+<tr><td colspan=2><b>п░п╢я─п╣я│ п╢п╬я│я┌п╟п╡п╨п╦:</b></td></tr>
+<tr><td>я┐п╩п╦я├п╟</td><td><input type=text name=address_street value="{$a.address_street}"></td></tr>
+<tr><td>п╢п╬п╪</td><td><input type=text name=address_house value="{$a.address_house}"></td></tr>
+<tr><td>п╨п╬я─п©я┐я│/я│я┌я─п╬п╣п╫п╦п╣</td><td><input type=text name=address_building value="{$a.address_building}"></td></tr>
+<tr><td>п©п╬п╢я┼п╣п╥п╢</td><td><input type=text name=address_porch value="{$a.address_porch}"></td></tr>
+<tr><td>я█я┌п╟п╤</td><td><input type=text name=address_floor value="{$a.address_floor}"></td></tr>
+<tr><td>п╨п╡п╟я─я┌п╦я─п╟</td><td><input type=text name=address_flat value="{$a.address_flat}"></td></tr>
+<tr><td>п╢п╬п╪п╬я└п╬п╫ / п╨п╬п╢</td><td><input type=text name=address_interkom value="{$a.address_interkom}"></td></tr>
 <tr><td>&nbsp;</td></tr>
-<tr><td colspan=2><b>Контактные телефоны:</b></td></tr>
-<tr><td>Домашний:</td><td><input type=text name=phone_home value="{$a.phone_home}"></td></tr>
-<tr><td>Мобильный:</td><td><input type=text name=phone_mobil value="{$a.phone_mobil}"></td></tr>
-<tr><td>Рабочий:</td><td><input type=text name=phone_work value="{$a.phone_work}"></td></tr>
+<tr><td colspan=2><b>п п╬п╫я┌п╟п╨я┌п╫я▀п╣ я┌п╣п╩п╣я└п╬п╫я▀:</b></td></tr>
+<tr><td>п■п╬п╪п╟я┬п╫п╦п╧:</td><td><input type=text name=phone_home value="{$a.phone_home}"></td></tr>
+<tr><td>п°п╬п╠п╦п╩я▄п╫я▀п╧:</td><td><input type=text name=phone_mobil value="{$a.phone_mobil}"></td></tr>
+<tr><td>п═п╟п╠п╬я┤п╦п╧:</td><td><input type=text name=phone_work value="{$a.phone_work}"></td></tr>
 <tr><td>&nbsp;</td></tr>
-<tr><td>Желаемая дата и время доставки заказа</td><td><input type=text id=date_deliv name=date_deliv value="{$a.date_deliv}"></td></tr>
-<tr><td>Комментарий</td><td><textarea name=comment style="width:250px;height: 60px;">{$a.comment}</textarea></td></tr>
+<tr><td>п√п╣п╩п╟п╣п╪п╟я▐ п╢п╟я┌п╟ п╦ п╡я─п╣п╪я▐ п╢п╬я│я┌п╟п╡п╨п╦ п╥п╟п╨п╟п╥п╟</td><td><input type=text id=date_deliv name=date_deliv value="{$a.date_deliv}"></td></tr>
+<tr><td>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</td><td><textarea name=comment style="width:250px;height: 60px;">{$a.comment}</textarea></td></tr>
 <tr><td colspan=2 style="text-align: right"><hr noshade></td></tr>
 </table>
 <table border=0 style="border-collapse: collapse;text-align:center;width: 100%;" id="nbn_add_t">
 <tr><td>OnLime TeleCARD</td><td></td><td>{html_options name="qty" options=$qtys selected=$a.qty}</td></tr>
-<tr><td>Услуга доставки</td><td>{html_options name="deliv_type" options=$deliv_type selected=$a.deliv_type}</td><td><select disabled readonly>{html_options options=$qtys selected=1}</select></td></tr>
+<tr><td>пёя│п╩я┐пЁп╟ п╢п╬я│я┌п╟п╡п╨п╦</td><td>{html_options name="deliv_type" options=$deliv_type selected=$a.deliv_type}</td><td><select disabled readonly>{html_options options=$qtys selected=1}</select></td></tr>
 <tr><td colspan=2 style="text-align: right"><hr noshade></td></tr>
-<tr><td colspan=2 style="text-align: right"><input type=submit name="form" value="Сохранить"></td></tr>
+<tr><td colspan=2 style="text-align: right"><input type=submit name="form" value="п║п╬я┘я─п╟п╫п╦я┌я▄"></td></tr>
 </table>
 </div>
 </form>

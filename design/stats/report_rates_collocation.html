@@ -3,11 +3,11 @@
 		<td colspan="5" align="center">Collocation</td>
 	</tr>
 	<tr class="title">
-		{if !$selected.group_bill}<td>Тариф</td>{/if}
-		<td>Клиент &laquo;статус&raquo;</td>
-		<td>Счет &laquo;валюта&raquo; &laquo;дата счета&raquo;</td>
-		<td>Сумма превышения</td>
-		<td>Превышения</td>
+		{if !$selected.group_bill}<td>п╒п╟я─п╦я└</td>{/if}
+		<td>п п╩п╦п╣п╫я┌ &laquo;я│я┌п╟я┌я┐я│&raquo;</td>
+		<td>п║я┤п╣я┌ &laquo;п╡п╟п╩я▌я┌п╟&raquo; &laquo;п╢п╟я┌п╟ я│я┤п╣я┌п╟&raquo;</td>
+		<td>п║я┐п╪п╪п╟ п©я─п╣п╡я▀я┬п╣п╫п╦я▐</td>
+		<td>п÷я─п╣п╡я▀я┬п╣п╫п╦я▐</td>
 	</tr>
 	{foreach from=$c_r item='rate' key='rate_id'}
 	{foreach from=$rate.clients item='client' key='client_id'}
@@ -19,11 +19,11 @@
 		<td>{if $selected.with_nds}{$bill.price}{else}{$bill.price|div:1.18:2}{/if}</td>
 		<td>
 			<table>
-				<tr><td>Тип</td><td>Кол-во</td><td>Сумма</td></tr>
+				<tr><td>п╒п╦п©</td><td>п п╬п╩-п╡п╬</td><td>п║я┐п╪п╪п╟</td></tr>
 				{foreach from=$bill.overs item='o'}
 				<tr>
-					<td>{if $o.ads.traffic_type eq 'in'}входящий{else}исходящий{/if}</td>
-					<td>{$o.quantity} Мб</td>
+					<td>{if $o.ads.traffic_type eq 'in'}п╡я┘п╬п╢я▐я┴п╦п╧{else}п╦я│я┘п╬п╢я▐я┴п╦п╧{/if}</td>
+					<td>{$o.quantity} п°п╠</td>
 					<td>{if $selected.with_nds}{$o.price}{else}{$o.price|div:1.18:2}{/if}</td>
 				</tr>
 				{/foreach}

@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <HTML><HEAD>
-<TITLE>/ MCN | Маркомнет {ldelim}MCN | Маркомнет{rdelim}
+<TITLE>/ MCN | п°п╟я─п╨п╬п╪п╫п╣я┌ {ldelim}MCN | п°п╟я─п╨п╬п╪п╫п╣я┌{rdelim}
 </TITLE>
-<meta http-equiv="Content-Type" content="text/html; charset=koi8-r">
-<META content="&#10;/ MCN | Маркомнет&#10;{ldelim}MCN | Маркомнет{rdelim}&#10;" name=title>
-<META content="Компания MCN. Быстрый интернет по технологии ADSL. IP-телефония, VoIP. Хостинг. Collocation. Подключение под ключ, выезд специалистов, оплата после подключения." name=description>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<META content="&#10;/ MCN | п°п╟я─п╨п╬п╪п╫п╣я┌&#10;{ldelim}MCN | п°п╟я─п╨п╬п╪п╫п╣я┌{rdelim}&#10;" name=title>
+<META content="п п╬п╪п©п╟п╫п╦я▐ MCN. п▒я▀я│я┌я─я▀п╧ п╦п╫я┌п╣я─п╫п╣я┌ п©п╬ я┌п╣я┘п╫п╬п╩п╬пЁп╦п╦ ADSL. IP-я┌п╣п╩п╣я└п╬п╫п╦я▐, VoIP. п╔п╬я│я┌п╦п╫пЁ. Collocation. п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п©п╬п╢ п╨п╩я▌я┤, п╡я▀п╣п╥п╢ я│п©п╣я├п╦п╟п╩п╦я│я┌п╬п╡, п╬п©п╩п╟я┌п╟ п©п╬я│п╩п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐." name=description>
 <LINK title=default href="{$PATH_TO_ROOT}main.css" type=text/css rel=stylesheet>
 <LINK media=print href="{$PATH_TO_ROOT}print.css" type=text/css rel=stylesheet>
 <LINK href="/favicon.ico" rel="SHORTCUT ICON">

@@ -3,10 +3,10 @@
 <script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
 <link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
 
-<h2>Отчет. {$client_name} {$date}</h2>
+<h2>п·я┌я┤п╣я┌. {$client_name} {$date}</h2>
 {if false}
 <div style="text-align: right; padding-right: 100px;">
-<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=add">Создать заявку</a>
+<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=add">п║п╬п╥п╢п╟я┌я▄ п╥п╟я▐п╡п╨я┐</a>
 </div>
 {/if}
 <style>
@@ -32,12 +32,12 @@
     	<tr>
     		<td>C </td>
     		<td><input class="datepicker-input" type=text value="{$date_from}" id=date_from name=date_from></td>
-    		<td>по </td>
+    		<td>п©п╬ </td>
     		<td><input class="datepicker-input" type=text value="{$date_to}"  id=date_to name=date_to></td>
     		<td><input type=submit value="OK"></td>
     	</tr>
         <tr>
-            <td colspan=5>Показать: {html_options options=$filter_promo_all selected=$filter_promo name="filter_promo"}</td>
+            <td colspan=5>п÷п╬п╨п╟п╥п╟я┌я▄: {html_options options=$filter_promo_all selected=$filter_promo name="filter_promo"}</td>
         </tr>
     </table>
 <script>
@@ -46,36 +46,36 @@ optools.DatePickerInit();
     </form>
 {/if}
 <table border=1 style="border-collapse:collapse; width: 300px;text-align:center;">
-<tr><td><b>В Обработке</b></td><td>{if $s.work}{$s.work}{else}0{/if}</td><td><a href="./?{$url}&list=work">Посмотреть&raquo;</a></td></tr>
-<tr><td><b>Достaвлен</b></td><td>{if $s.close}{$s.close}{else}0{/if}</td><td><a href="./?{$url}&list=close">Посмотреть&raquo;</a></td></tr>
-<tr><td><b>Отказ</b></td><td>{if $s.reject}{$s.reject}{else}0{/if}</td><td><a href="./?{$url}&list=reject">Посмотреть&raquo;</a></td></tr>
-<tr><td><b>Возврат</b></td><td>{if $s.rollback}{$s.rollback}{else}0{/if}</td><td><a href="./?{$url}&list=rollback">Посмотреть&raquo;</a></td></tr>
+<tr><td><b>п▓ п·п╠я─п╟п╠п╬я┌п╨п╣</b></td><td>{if $s.work}{$s.work}{else}0{/if}</td><td><a href="./?{$url}&list=work">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
+<tr><td><b>п■п╬я│я┌aп╡п╩п╣п╫</b></td><td>{if $s.close}{$s.close}{else}0{/if}</td><td><a href="./?{$url}&list=close">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
+<tr><td><b>п·я┌п╨п╟п╥</b></td><td>{if $s.reject}{$s.reject}{else}0{/if}</td><td><a href="./?{$url}&list=reject">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
+<tr><td><b>п▓п╬п╥п╡я─п╟я┌</b></td><td>{if $s.rollback}{$s.rollback}{else}0{/if}</td><td><a href="./?{$url}&list=rollback">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
 </table><br>
 {if $list}
 <h2>{$listName}</h2>
-<div style="text-align: right;"><a href="./?{$url}&list={$listType}&export=excel">Экспорт в Excel</a></div>
+<div style="text-align: right;"><a href="./?{$url}&list={$listType}&export=excel">п╜п╨я│п©п╬я─я┌ п╡ Excel</a></div>
 <table id=repart_table border=1 style="border-collapse: collapse;" cellspacing=2 >
 <tr id="tr_head">
 <td rowspan=2 width=1%>#</td>
-<td rowspan=2 width=10%>Оператор</td>
-<td colspan=2 width=10%>Номер счета</td>
-<td rowspan=2 width=10%>Дата<br>создания заказа</td>
-<td colspan=4 width=1%>Кол-во</td>
-<td colspan=1 width=10%>Номер купона</td>
-<td rowspan=2 width=30%>Клиент <br />(ФИО, телефон, адрес)</td>
-<td colspan=2 width=10%>Дата доставки</td>
-<td rowspan=2 width=20%>Этапы</td>
+<td rowspan=2 width=10%>п·п©п╣я─п╟я┌п╬я─</td>
+<td colspan=2 width=10%>п²п╬п╪п╣я─ я│я┤п╣я┌п╟</td>
+<td rowspan=2 width=10%>п■п╟я┌п╟<br>я│п╬п╥п╢п╟п╫п╦я▐ п╥п╟п╨п╟п╥п╟</td>
+<td colspan=4 width=1%>п п╬п╩-п╡п╬</td>
+<td colspan=1 width=10%>п²п╬п╪п╣я─ п╨я┐п©п╬п╫п╟</td>
+<td rowspan=2 width=30%>п п╩п╦п╣п╫я┌ <br />(п╓п≤п·, я┌п╣п╩п╣я└п╬п╫, п╟п╢я─п╣я│)</td>
+<td colspan=2 width=10%>п■п╟я┌п╟ п╢п╬я│я┌п╟п╡п╨п╦</td>
+<td rowspan=2 width=20%>п╜я┌п╟п©я▀</td>
 </tr>
 <tr id="tr_head">
 <td>OnLime</td>
-<td>Маркомнет Сервис</td>
+<td>п°п╟я─п╨п╬п╪п╫п╣я┌ п║п╣я─п╡п╦я│</td>
 <td>Tele CARD</td>
-<td>HD-ресивер</td>
-<td>НВ-р. с диском</td>
-<td>NetGear роутер</td>
-<td>Серийный номер</td>
-<td>Желаемая</td>
-<td>Фактическая</td>
+<td>HD-я─п╣я│п╦п╡п╣я─</td>
+<td>п²п▓-я─. я│ п╢п╦я│п╨п╬п╪</td>
+<td>NetGear я─п╬я┐я┌п╣я─</td>
+<td>п║п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─</td>
+<td>п√п╣п╩п╟п╣п╪п╟я▐</td>
+<td>п╓п╟п╨я┌п╦я┤п╣я│п╨п╟я▐</td>
 </tr>
 
 {foreach from=$list item=i key=idx}
@@ -96,12 +96,12 @@ optools.DatePickerInit();
 <td rowspan=2>{$i.date_deliv}</td>
 <td rowspan=2>{$i.date_delivered|substr:0:-3}</td>
 <td rowspan=2>
-<div id="d_{$idx}" style="display:none;" title="Заказ {$i.bill_no}">
+<div id="d_{$idx}" style="display:none;" title="п≈п╟п╨п╟п╥ {$i.bill_no}">
 {include file='stats/onlime_stage.tpl' i_stages=$i.stages last=100}
 </div>
 {include file='stats/onlime_stage.tpl' i_stages=$i.stages last=2}
 {if count($i.stages) > 2}
-    <div style="cursor: pointer; color: blue;" class="to_view" id="t_{$idx}">Посмотреть всю историю</div>
+    <div style="cursor: pointer; color: blue;" class="to_view" id="t_{$idx}">п÷п╬я│п╪п╬я┌я─п╣я┌я▄ п╡я│я▌ п╦я│я┌п╬я─п╦я▌</div>
 {/if}
 </td>
 </tr>
@@ -111,7 +111,7 @@ optools.DatePickerInit();
 {/foreach}
 {if $list}
 <tr>
-    <td colspan=5 align=right><b>Итого:</b>&nbsp;&nbsp;</td>
+    <td colspan=5 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;&nbsp;</td>
     <td align=center><b>{$total.count_3}</b></td>
     <td align=center><b>{$total.count_9}</b></td>
     <td align=center><b>{$total.count_11}</b></td>

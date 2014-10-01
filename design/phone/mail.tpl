@@ -1,25 +1,25 @@
-<H2>Виртуальная АТС</H2>
+<H2>п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║</H2>
 {if count($phones_mail)}
-<H3>Голосовая почта - файл голосового сообщения</h3>
+<H3>п⌠п╬п╩п╬я│п╬п╡п╟я▐ п©п╬я┤я┌п╟ - я└п╟п╧п╩ пЁп╬п╩п╬я│п╬п╡п╬пЁп╬ я│п╬п╬п╠я┴п╣п╫п╦я▐</h3>
 <form action='?' method=post enctype="multipart/form-data">
 <input type=hidden name=action value=mail_file>	
 <input type=hidden name=module value=phone>
 <table><tr><td>
 <TABLE class=mform cellSpacing=4 cellPadding=2 border=0><TBODY>
-<TR><TD class=left>Файл в формате wav:</TD><TD><input name=sound class=text type=file value=''><br>{if $phone_mail_file}Текущий файл: {fsizeKB value=$phone_mail_file.size}{/if}
-<tr><td class=left>Комментарий:</td><td><input class=text name=comment value='{$phone_mail_file.comment}'></td></tr>
+<TR><TD class=left>п╓п╟п╧п╩ п╡ я└п╬я─п╪п╟я┌п╣ wav:</TD><TD><input name=sound class=text type=file value=''><br>{if $phone_mail_file}п╒п╣п╨я┐я┴п╦п╧ я└п╟п╧п╩: {fsizeKB value=$phone_mail_file.size}{/if}
+<tr><td class=left>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧:</td><td><input class=text name=comment value='{$phone_mail_file.comment}'></td></tr>
 </tbody></table>
-<INPUT id=submit class=button type=submit value="Обновить файл"><br>
+<INPUT id=submit class=button type=submit value="п·п╠п╫п╬п╡п╦я┌я▄ я└п╟п╧п╩"><br>
 </FORM>
 
-<H3>Голосовая почта - номера для прослушивания сообщений</h3>
-Для прослушивания голосовых сообщений необходимо указать телефон, с которого вы будете их слушать, в правом столбце. После этого вы звоните на наш специальный номер xxx-xxxx и слушаете<br>
+<H3>п⌠п╬п╩п╬я│п╬п╡п╟я▐ п©п╬я┤я┌п╟ - п╫п╬п╪п╣я─п╟ п╢п╩я▐ п©я─п╬я│п╩я┐я┬п╦п╡п╟п╫п╦я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧</h3>
+п■п╩я▐ п©я─п╬я│п╩я┐я┬п╦п╡п╟п╫п╦я▐ пЁп╬п╩п╬я│п╬п╡я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ я┐п╨п╟п╥п╟я┌я▄ я┌п╣п╩п╣я└п╬п╫, я│ п╨п╬я┌п╬я─п╬пЁп╬ п╡я▀ п╠я┐п╢п╣я┌п╣ п╦я┘ я│п╩я┐я┬п╟я┌я▄, п╡ п©я─п╟п╡п╬п╪ я│я┌п╬п╩п╠я├п╣. п÷п╬я│п╩п╣ я█я┌п╬пЁп╬ п╡я▀ п╥п╡п╬п╫п╦я┌п╣ п╫п╟ п╫п╟я┬ я│п©п╣я├п╦п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ xxx-xxxx п╦ я│п╩я┐я┬п╟п╣я┌п╣<br>
 <FORM action="?" method="POST">
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <input type=hidden name=action value='mail_save'>
 <input type=hidden name=module value=phone>
 <TBODY>
-<TR><td class=header>Номер в MCN</td><td class=header>С какого номера слушать сообщения</td></tr>
+<TR><td class=header>п²п╬п╪п╣я─ п╡ MCN</td><td class=header>п║ п╨п╟п╨п╬пЁп╬ п╫п╬п╪п╣я─п╟ я│п╩я┐я┬п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦я▐</td></tr>
 {foreach from=$phones_mail item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==count($phones_mail)%2}even{else}odd{/if}>
 	<TD>{$item.E164}</TD>
@@ -27,9 +27,9 @@
 </TR>
 {/foreach}
 </TBODY></TABLE>
-<INPUT class=button type=submit value="Сохранить"><br>
+<INPUT class=button type=submit value="п║п╬я┘я─п╟п╫п╦я┌я▄"><br>
 </form>
 {else}
-<h3>Голосовая почта</h3>
-У вас нет активных телефонных номеров. Работа с голосовой почтой невозможна.<br>
+<h3>п⌠п╬п╩п╬я│п╬п╡п╟я▐ п©п╬я┤я┌п╟</h3>
+пё п╡п╟я│ п╫п╣я┌ п╟п╨я┌п╦п╡п╫я▀я┘ я┌п╣п╩п╣я└п╬п╫п╫я▀я┘ п╫п╬п╪п╣я─п╬п╡. п═п╟п╠п╬я┌п╟ я│ пЁп╬п╩п╬я│п╬п╡п╬п╧ п©п╬я┤я┌п╬п╧ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╟.<br>
 {/if}

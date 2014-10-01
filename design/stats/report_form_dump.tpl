@@ -4,7 +4,7 @@
             <input type=hidden name=module value=stats>
             <input type=hidden name=action value=report>
         <TR>
-          <TD class=left>Отчёт за дату</TD>
+          <TD class=left>п·я┌я┤я▒я┌ п╥п╟ п╢п╟я┌я┐</TD>
           <TD>
           <SELECT name=d>
 			<OPTION value=1{if $d==1} selected{/if}>01</OPTION>
@@ -40,40 +40,40 @@
 			<OPTION value=31{if $d==31} selected{/if}>31</OPTION>
 		</SELECT>          
 		<SELECT name=m>
-			<OPTION value=1{if $m==1} selected{/if}>янв</OPTION>
-			<OPTION value=2{if $m==2} selected{/if}>фев</OPTION>
-			<OPTION value=3{if $m==3} selected{/if}>мар</OPTION>
-			<OPTION value=4{if $m==4} selected{/if}>апр</OPTION>
-			<OPTION value=5{if $m==5} selected{/if}>мая</OPTION>
-			<OPTION value=6{if $m==6} selected{/if}>июн</OPTION>
-			<OPTION value=7{if $m==7} selected{/if}>июл</OPTION>
-			<OPTION value=8{if $m==8} selected{/if}>авг</OPTION>
-			<OPTION value=9{if $m==9} selected{/if}>сен</OPTION>
-			<OPTION value=10{if $m==10} selected{/if}>окт</OPTION>
-			<OPTION value=11{if $m==11} selected{/if}>ноя</OPTION>
-			<OPTION value=12{if $m==12} selected{/if}>дек</OPTION>
+			<OPTION value=1{if $m==1} selected{/if}>я▐п╫п╡</OPTION>
+			<OPTION value=2{if $m==2} selected{/if}>я└п╣п╡</OPTION>
+			<OPTION value=3{if $m==3} selected{/if}>п╪п╟я─</OPTION>
+			<OPTION value=4{if $m==4} selected{/if}>п╟п©я─</OPTION>
+			<OPTION value=5{if $m==5} selected{/if}>п╪п╟я▐</OPTION>
+			<OPTION value=6{if $m==6} selected{/if}>п╦я▌п╫</OPTION>
+			<OPTION value=7{if $m==7} selected{/if}>п╦я▌п╩</OPTION>
+			<OPTION value=8{if $m==8} selected{/if}>п╟п╡пЁ</OPTION>
+			<OPTION value=9{if $m==9} selected{/if}>я│п╣п╫</OPTION>
+			<OPTION value=10{if $m==10} selected{/if}>п╬п╨я┌</OPTION>
+			<OPTION value=11{if $m==11} selected{/if}>п╫п╬я▐</OPTION>
+			<OPTION value=12{if $m==12} selected{/if}>п╢п╣п╨</OPTION>
 		</SELECT>
 		<SELECT name=y>
 			{generate_sequence_options_select start=2005 selected=$y}
 		</SELECT> </TD></TR>
         <TR>
-            <TD class=left><input type=checkbox name="is_in_less_out" value="true"{if $is_in_less_out} checked{/if}> Превыщение исходящего над входящим <span style="background-color:red;  display:inline; padding: 6px;">&nbsp;</span></TD>
+            <TD class=left><input type=checkbox name="is_in_less_out" value="true"{if $is_in_less_out} checked{/if}> п÷я─п╣п╡я▀я┴п╣п╫п╦п╣ п╦я│я┘п╬п╢я▐я┴п╣пЁп╬ п╫п╟п╢ п╡я┘п╬п╢я▐я┴п╦п╪ <span style="background-color:red;  display:inline; padding: 6px;">&nbsp;</span></TD>
             
             <TD></td>
 		</TR>
         <TR>
-            <TD class=left><input type=checkbox name="is_over" value="true"{if $is_over} checked{/if}> Превышение, раз <span style="background-color:blue; display:inline; padding: 6px;">&nbsp;</span></TD>
+            <TD class=left><input type=checkbox name="is_over" value="true"{if $is_over} checked{/if}> п÷я─п╣п╡я▀я┬п╣п╫п╦п╣, я─п╟п╥ <span style="background-color:blue; display:inline; padding: 6px;">&nbsp;</span></TD>
             <TD><input class=text name=over value="{$over}"></td>
 		</TR>
         <TR>
-            <TD class=left><input type=checkbox name="is_traf_less" value="true"{if $is_traf_less} checked{/if}> Суммарный трафик меньше: <span style="background-color:magenta;  display:inline; padding: 6px;">&nbsp;</span></TD>
-            <TD><input class=text name=traf_less value="{$traf_less}"> Мб</td>
+            <TD class=left><input type=checkbox name="is_traf_less" value="true"{if $is_traf_less} checked{/if}> п║я┐п╪п╪п╟я─п╫я▀п╧ я┌я─п╟я└п╦п╨ п╪п╣п╫я▄я┬п╣: <span style="background-color:magenta;  display:inline; padding: 6px;">&nbsp;</span></TD>
+            <TD><input class=text name=traf_less value="{$traf_less}"> п°п╠</td>
 		</TR>
 		<TR>
-            <TD class=left><input type=checkbox name="show_unlim" value="true"{if $show_unlim} checked{/if}> Включать безлимитные тарифы</TD>
+            <TD class=left><input type=checkbox name="show_unlim" value="true"{if $show_unlim} checked{/if}> п▓п╨п╩я▌я┤п╟я┌я▄ п╠п╣п╥п╩п╦п╪п╦я┌п╫я▀п╣ я┌п╟я─п╦я└я▀</TD>
             <TD>&nbsp;</td>
 		</TR>
         </TBODY></TABLE>
       <HR>
 
-<DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM>
+<DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV></FORM>

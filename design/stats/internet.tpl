@@ -1,21 +1,21 @@
-      <H2>Статистика</H2>
-      <H3>Интернет</H3>
+      <H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</H2>
+      <H3>п≤п╫я┌п╣я─п╫п╣я┌</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="25%">Дата/время</TD>
+          <TD class=header vAlign=bottom width="25%">п■п╟я┌п╟/п╡я─п╣п╪я▐</TD>
 {if $is_collocation}
-          <TD class=header vAlign=bottom width="7%" style='text-align:right'>вход. Россия, мб</TD>
-          <TD class=header vAlign=bottom width="6%" style='text-align:right'>исх. Россия, мб</TD>
-          <TD class=header vAlign=bottom width="6%" style='text-align:right'>вход. Россия2, мб</TD>
-          <TD class=header vAlign=bottom width="7%" style='text-align:right'>исх. Россия2, мб</TD>
-          <TD class=header vAlign=bottom width="6%" style='text-align:right'>вход. заруб, мб</TD>
-          <TD class=header vAlign=bottom width="6%" style='text-align:right'>исх. заруб, мб</TD>
+          <TD class=header vAlign=bottom width="7%" style='text-align:right'>п╡я┘п╬п╢. п═п╬я│я│п╦я▐, п╪п╠</TD>
+          <TD class=header vAlign=bottom width="6%" style='text-align:right'>п╦я│я┘. п═п╬я│я│п╦я▐, п╪п╠</TD>
+          <TD class=header vAlign=bottom width="6%" style='text-align:right'>п╡я┘п╬п╢. п═п╬я│я│п╦я▐2, п╪п╠</TD>
+          <TD class=header vAlign=bottom width="7%" style='text-align:right'>п╦я│я┘. п═п╬я│я│п╦я▐2, п╪п╠</TD>
+          <TD class=header vAlign=bottom width="6%" style='text-align:right'>п╡я┘п╬п╢. п╥п╟я─я┐п╠, п╪п╠</TD>
+          <TD class=header vAlign=bottom width="6%" style='text-align:right'>п╦я│я┘. п╥п╟я─я┐п╠, п╪п╠</TD>
 {else}
-          <TD class=header vAlign=bottom width="25%" style='text-align:right'>Входящий трафик, мегабайты</TD>
-          <TD class=header vAlign=bottom width="25%" style='text-align:right'>Исходящий трафик, мегабайты</TD>
+          <TD class=header vAlign=bottom width="25%" style='text-align:right'>п▓я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨, п╪п╣пЁп╟п╠п╟п╧я┌я▀</TD>
+          <TD class=header vAlign=bottom width="25%" style='text-align:right'>п≤я│я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨, п╪п╣пЁп╟п╠п╟п╧я┌я▀</TD>
 {/if}
-{if $detality=='ip'}          <TD class=header vAlign=bottom width="25%">IP-адрес</TD>{/if}
+{if $detality=='ip'}          <TD class=header vAlign=bottom width="25%">IP-п╟п╢я─п╣я│</TD>{/if}
         </TR>
 
 {foreach from=$stats item=item key=key name=outer}

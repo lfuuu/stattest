@@ -4,59 +4,59 @@
 <input type='hidden' name='submit' value='exist' />
 <table align='center'>
 <tr>
-	<td>Группа: </td>
+	<td>п⌠я─я┐п©п©п╟: </td>
 	<td>
 		<select name='dgroup'>
-			<option value='0' selected='selected'>Москва (0)</option>
-			<option value='1'>Россия (1)</option>
-			<option value='2'>Международная (2)</option>
+			<option value='0' selected='selected'>п°п╬я│п╨п╡п╟ (0)</option>
+			<option value='1'>п═п╬я│я│п╦я▐ (1)</option>
+			<option value='2'>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╟я▐ (2)</option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td>Субруппа: </td>
+	<td>п║я┐п╠я─я┐п©п©п╟: </td>
 	<td>
 		<select name="dsubgroup">
-			<option value='0' selected="selected">Мобильные</option>
-			<option value='1'>1 Зона/Стационарные</option>
-			<option value='2'>2 Зона</option>
-			<option value='3'>3 Зона</option>
-			<option value='4'>4 Зона</option>
-			<option value='5'>5 Зона</option>
-			<option value='6'>6 Зона</option>
-			<option value='97'>Международное Фрифон</option>
-			<option value='98'>Россия Фрифон</option>
-			<option value='99'>Другое</option>
+			<option value='0' selected="selected">п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+			<option value='1'>1 п≈п╬п╫п╟/п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
+			<option value='2'>2 п≈п╬п╫п╟</option>
+			<option value='3'>3 п≈п╬п╫п╟</option>
+			<option value='4'>4 п≈п╬п╫п╟</option>
+			<option value='5'>5 п≈п╬п╫п╟</option>
+			<option value='6'>6 п≈п╬п╫п╟</option>
+			<option value='97'>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣ п╓я─п╦я└п╬п╫</option>
+			<option value='98'>п═п╬я│я│п╦я▐ п╓я─п╦я└п╬п╫</option>
+			<option value='99'>п■я─я┐пЁп╬п╣</option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td>Цена RUR: </td>
+	<td>п╕п╣п╫п╟ RUR: </td>
 	<td><input type='text' value='1.08' name='price_RUR' size='5' /></td>
 </tr>
 <tr>
-	<td>Цена USD: </td>
+	<td>п╕п╣п╫п╟ USD: </td>
 	<td><input type='text' value='0.04' name='price_USD' size='5' /></td>
 </tr>
 <tr>
-	<td>Наценка %:</td>
+	<td>п²п╟я├п╣п╫п╨п╟ %:</td>
 	<td><input type='text' value='0' name='add_to_price' /></td>
 </tr>
 <tr>
-	<td>Курс USD:</td>
+	<td>п я┐я─я│ USD:</td>
 	<td><input type="text" value="0" name="usd_currency" /></td>
 </tr>
 <tr>
-	<td>Формат: </td>
+	<td>п╓п╬я─п╪п╟я┌: </td>
 	<td>
 		<select name='file_format'>
-			<option value='stable_pack'>Тарифы поставщика</option>
-			<option value='mtt1'>mtt.ru/Мобильные операторы</option>
+			<option value='stable_pack'>п╒п╟я─п╦я└я▀ п©п╬я│я┌п╟п╡я┴п╦п╨п╟</option>
+			<option value='mtt1'>mtt.ru/п°п╬п╠п╦п╩я▄п╫я▀п╣ п╬п©п╣я─п╟я┌п╬я─я▀</option>
 		</select>
 	</td>
 </tr>
 <tr>
-	<td>Кодировка файла: </td>
+	<td>п п╬п╢п╦я─п╬п╡п╨п╟ я└п╟п╧п╩п╟: </td>
 	<td>
 		<select name='encoding'>
 			<option value='cp1251'>WINDOWS-1251</option>
@@ -66,7 +66,7 @@
 	</td>
 </tr>
 <tr>
-	<td>Файл: </td>
+	<td>п╓п╟п╧п╩: </td>
 	<td><input type='file' name='csv_file' /></td>
 </tr>
 <tr align='center'><td colspan='2'><input type='submit' value='Upload' /></td></tr>

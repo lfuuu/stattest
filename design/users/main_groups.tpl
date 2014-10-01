@@ -1,10 +1,10 @@
-<H2>Группы</H2>
-<H3>Список групп</H3>
+<H2>п⌠я─я┐п©п©я▀</H2>
+<H3>п║п©п╦я│п╬п╨ пЁя─я┐п©п©</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 <TR>
-  <TD class=header vAlign=bottom width="45%">Группа</TD>
-  <TD class=header vAlign=bottom width="45%">Комментарий</TD>
+  <TD class=header vAlign=bottom width="45%">п⌠я─я┐п©п©п╟</TD>
+  <TD class=header vAlign=bottom width="45%">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</TD>
   <TD class=header vAlign=bottom width="10%">&nbsp;</TD>
   </TR>
 {foreach from=$groups item=item name=outer}
@@ -15,14 +15,14 @@
 	<TD>{$item.usergroup}</TD>
 {/if}
 	<TD>{$item.comment}</TD>
-	<TD><a href='{$LINK_START}module=users&m=groups&action=delete&id={$item.usergroup}'>Удалить</a></TD>
+	<TD><a href='{$LINK_START}module=users&m=groups&action=delete&id={$item.usergroup}'>пёп╢п╟п╩п╦я┌я▄</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>
 {if access('users','change')}
       <DIV style="WIDTH: 1px; HEIGHT: 30px"><IMG height=30 alt="" 
       src="<?=IMAGES_PATH;?>1.gif" width=1></DIV>
-      <H3>Добавить группу:</H3>
+      <H3>п■п╬п╠п╟п╡п╦я┌я▄ пЁя─я┐п©п©я┐:</H3>
 <FORM action="?" method=get>
 <input type=hidden name=action value=add>
 <input type=hidden name=module value=users>
@@ -31,15 +31,15 @@
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TR><TD class=left>Имя группы:</TD>
+          <TR><TD class=left>п≤п╪я▐ пЁя─я┐п©п©я▀:</TD>
           <TD><input name=usergroup class=text></TD>
           </TR>
-          <TR><TD class=left>Описание:</TD>
+          <TR><TD class=left>п·п©п╦я│п╟п╫п╦п╣:</TD>
           <TD><input name=comment class=text></TD>
           </TR>
           </TBODY></TABLE>
       <HR>
 
-<DIV align=center><INPUT class=button type=submit value="Создать группу"></DIV>
+<DIV align=center><INPUT class=button type=submit value="п║п╬п╥п╢п╟я┌я▄ пЁя─я┐п©п©я┐"></DIV>
 </FORM>
 {/if}

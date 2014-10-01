@@ -1,6 +1,6 @@
 <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 
-<h4><a href="?module=incomegoods&action=order_list">Заказы поставщику</a></h4>
+<h4><a href="?module=incomegoods&action=order_list">п≈п╟п╨п╟п╥я▀ п©п╬я│я┌п╟п╡я┴п╦п╨я┐</a></h4>
 
 <ul class="nav nav-pills">
 	<form id="filter" action="" method="GET" class="navbar-form pull-left" style="margin-right: 15px;">
@@ -8,7 +8,7 @@
 		<input type="hidden" name="action" value="order_list"/>
 		<input id="filter_status" type="hidden" name="filter[status]" value="{$qfilter.status}"/>
 		<select class="form-control input-sm" name="filter[manager]" onchange="$('#filter').submit(); return false;">
-			<option value="all">--- Фильтр по менеджеру ---</option>
+			<option value="all">--- п╓п╦п╩я▄я┌я─ п©п╬ п╪п╣п╫п╣п╢п╤п╣я─я┐ ---</option>
 			{foreach from=$users item=user}
 				<option value="{$user->id}" {if $user->id==$qfilter.manager}selected{/if}>{$user->name}</option>
 			{/foreach}
@@ -25,14 +25,14 @@
 <table class="table table-bordered table-condensed table-hover">
 	<thead>
 		<tr>
-			<th>Номер</th>
-			<th>Дата</th>
-			<th>Статус</th>
-			<th>Номер Вх.</th>
-			<th>Сумма <small>(с НДС)</small></th>
-			<th>Валюта</th>
-			<th>Контрагент</th>
-			<th>Менеджер</th>
+			<th>п²п╬п╪п╣я─</th>
+			<th>п■п╟я┌п╟</th>
+			<th>п║я┌п╟я┌я┐я│</th>
+			<th>п²п╬п╪п╣я─ п▓я┘.</th>
+			<th>п║я┐п╪п╪п╟ <small>(я│ п²п■п║)</small></th>
+			<th>п▓п╟п╩я▌я┌п╟</th>
+			<th>п п╬п╫я┌я─п╟пЁп╣п╫я┌</th>
+			<th>п°п╣п╫п╣п╢п╤п╣я─</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -44,7 +44,7 @@
 			</a></td>
 			<td><a href="?module=incomegoods&action=order_view&id={$item->id}">{$item->date->format('d.m.Y')}</a></td>
 			<td>{$item->status}</td>
-			<td>{if $item->external_number}{$item->external_number}{if $item->external_date} от {$item->external_date->format('d.m.Y')}{/if}{else}&nbsp;{/if}</td>
+			<td>{if $item->external_number}{$item->external_number}{if $item->external_date} п╬я┌ {$item->external_date->format('d.m.Y')}{/if}{else}&nbsp;{/if}</td>
 			<td>{$item->sum}</td>
 			<td>{$item->currency}</td>
 			<td>{$item->client_card->company}</td>

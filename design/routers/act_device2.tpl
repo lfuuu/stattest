@@ -2,54 +2,54 @@
 <HTML>
 <HEAD>
 <TITLE></TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 </HEAD>
 <BODY text="#404040" vLink="#000099" aLink="#000000" link="#000099" bgColor="#EFEFEF">
 <center>
-<h2>АКТ</h2>
-<h3>сдачи-приемки работ<br>
-по дополнительному соглашению к&nbsp;договору &#8470; {$client.contract_no} от {$client.contract_date|mdate:'d.m.Y г.'}
+<h2>п░п п╒</h2>
+<h3>я│п╢п╟я┤п╦-п©я─п╦п╣п╪п╨п╦ я─п╟п╠п╬я┌<br>
+п©п╬ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬п╪я┐ я│п╬пЁп╩п╟я┬п╣п╫п╦я▌ п╨&nbsp;п╢п╬пЁп╬п╡п╬я─я┐ &#8470; {$client.contract_no} п╬я┌ {$client.contract_date|mdate:'d.m.Y пЁ.'}
 </h3>
-<table align=center width=90%><tr><td align=left>г. Москва </td><td align=right>{if $cpe.actual_from<=date('Y-m-d')}<b>{$cpe.actual_from|mdate:"d.m.Y г."}</b>{else}&nbsp;{/if}</td></tr></table>
+<table align=center width=90%><tr><td align=left>пЁ. п°п╬я│п╨п╡п╟ </td><td align=right>{if $cpe.actual_from<=date('Y-m-d')}<b>{$cpe.actual_from|mdate:"d.m.Y пЁ."}</b>{else}&nbsp;{/if}</td></tr></table>
 </center>
-<p>Настоящий акт составлен между Абонентом <b>{$client.company_full}</b>, в&nbsp;лице 
-<b>{$client.signer_positionV} {$client.signer_nameV}</b> и&nbsp;Оператором 
+<p>п²п╟я│я┌п╬я▐я┴п╦п╧ п╟п╨я┌ я│п╬я│я┌п╟п╡п╩п╣п╫ п╪п╣п╤п╢я┐ п░п╠п╬п╫п╣п╫я┌п╬п╪ <b>{$client.company_full}</b>, п╡&nbsp;п╩п╦я├п╣ 
+<b>{$client.signer_positionV} {$client.signer_nameV}</b> п╦&nbsp;п·п©п╣я─п╟я┌п╬я─п╬п╪ 
 {if $client.firma eq "mcn"}
-ООО &laquo;Эм Си Эн&raquo; в&nbsp;лице Генерального директора Мельникова&nbsp; А.&nbsp;К. о&nbsp;
-{else}ООО &laquo;МАРКОМНЕТ&raquo; в&nbsp;лице директора Мельникова&nbsp; А.&nbsp;К. о&nbsp;
+п·п·п· &laquo;п╜п╪ п║п╦ п╜п╫&raquo; п╡&nbsp;п╩п╦я├п╣ п⌠п╣п╫п╣я─п╟п╩я▄п╫п╬пЁп╬ п╢п╦я─п╣п╨я┌п╬я─п╟ п°п╣п╩я▄п╫п╦п╨п╬п╡п╟&nbsp; п░.&nbsp;п . п╬&nbsp;
+{else}п·п·п· &laquo;п°п░п═п п·п°п²п∙п╒&raquo; п╡&nbsp;п╩п╦я├п╣ п╢п╦я─п╣п╨я┌п╬я─п╟ п°п╣п╩я▄п╫п╦п╨п╬п╡п╟&nbsp; п░.&nbsp;п . п╬&nbsp;
 {/if} 
-том, что:</p>
+я┌п╬п╪, я┤я┌п╬:</p>
 <ol>
 <li>
-Абоненту был установлен VOIP-шлюз:
+п░п╠п╬п╫п╣п╫я┌я┐ п╠я▀п╩ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ VOIP-я┬п╩я▌п╥:
 <ul>
-	<li>модель: {$cpe.vendor|upper} {$cpe.model|upper}</li>
-	<li>серийный номер: {$cpe.serial}</li>
+	<li>п╪п╬п╢п╣п╩я▄: {$cpe.vendor|upper} {$cpe.model|upper}</li>
+	<li>я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─: {$cpe.serial}</li>
 </ul><br>
-для доступа в телефонную сеть общего пользования.<br><br>
-VOIP-шлюз установлен по адресу: {if $conn.address}{$conn.address}{else}{$client.address_jur}{/if}<br>
+п╢п╩я▐ п╢п╬я│я┌я┐п©п╟ п╡ я┌п╣п╩п╣я└п╬п╫п╫я┐я▌ я│п╣я┌я▄ п╬п╠я┴п╣пЁп╬ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐.<br><br>
+VOIP-я┬п╩я▌п╥ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╬ п╟п╢я─п╣я│я┐: {if $conn.address}{$conn.address}{else}{$client.address_jur}{/if}<br>
 <br>
 </li>
-<li>На порты VOIP-шлюза назначены следующие телефонные номера:<br>
+<li>п²п╟ п©п╬я─я┌я▀ VOIP-я┬п╩я▌п╥п╟ п╫п╟п╥п╫п╟я┤п╣п╫я▀ я│п╩п╣п╢я┐я▌я┴п╦п╣ я┌п╣п╩п╣я└п╬п╫п╫я▀п╣ п╫п╬п╪п╣я─п╟:<br>
 <ul>
 {$cpe.numbers}
 </ul>
 </ol><br><br>
 
-<p>Все вышеперечисленное оборудование передается Абоненту во&nbsp;временное пользование на&nbsp;срок действия договора.</p>
-<p>Перечисленное выше оборудование, каналы связи проверены представителем Абонента, функционируют нормально и&nbsp;удовлетворяют требованиям договора.</p>
+<p>п▓я│п╣ п╡я▀я┬п╣п©п╣я─п╣я┤п╦я│п╩п╣п╫п╫п╬п╣ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦п╣ п©п╣я─п╣п╢п╟п╣я┌я│я▐ п░п╠п╬п╫п╣п╫я┌я┐ п╡п╬&nbsp;п╡я─п╣п╪п╣п╫п╫п╬п╣ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╫п╟&nbsp;я│я─п╬п╨ п╢п╣п╧я│я┌п╡п╦я▐ п╢п╬пЁп╬п╡п╬я─п╟.</p>
+<p>п÷п╣я─п╣я┤п╦я│п╩п╣п╫п╫п╬п╣ п╡я▀я┬п╣ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦п╣, п╨п╟п╫п╟п╩я▀ я│п╡я▐п╥п╦ п©я─п╬п╡п╣я─п╣п╫я▀ п©я─п╣п╢я│я┌п╟п╡п╦я┌п╣п╩п╣п╪ п░п╠п╬п╫п╣п╫я┌п╟, я└я┐п╫п╨я├п╦п╬п╫п╦я─я┐я▌я┌ п╫п╬я─п╪п╟п╩я▄п╫п╬ п╦&nbsp;я┐п╢п╬п╡п╩п╣я┌п╡п╬я─я▐я▌я┌ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐п╪ п╢п╬пЁп╬п╡п╬я─п╟.</p>
 
 <TABLE cellSpacing=0 cellPadding=0 border=0 width="100%"><TBODY>
 <TR>
 <TD>
-Оператор: {if $client.firma eq "mcn"}
-ООО &laquo;Эм Си Эн&raquo; &nbsp;{else}ООО &laquo;МАРКОМНЕТ&raquo;
-{/if} </td><td>Абонент: <b>{$client.company_full}</b></td>
+п·п©п╣я─п╟я┌п╬я─: {if $client.firma eq "mcn"}
+п·п·п· &laquo;п╜п╪ п║п╦ п╜п╫&raquo; &nbsp;{else}п·п·п· &laquo;п°п░п═п п·п°п²п∙п╒&raquo;
+{/if} </td><td>п░п╠п╬п╫п╣п╫я┌: <b>{$client.company_full}</b></td>
 
 </tr>
 <tr><td>
 <br><br>{if $client.firma eq "mcn"}
-Генеральный директор {else}Директор{/if} ___________ Мельников&nbsp; А.&nbsp;К. </td><td>
+п⌠п╣п╫п╣я─п╟п╩я▄п╫я▀п╧ п╢п╦я─п╣п╨я┌п╬я─ {else}п■п╦я─п╣п╨я┌п╬я─{/if} ___________ п°п╣п╩я▄п╫п╦п╨п╬п╡&nbsp; п░.&nbsp;п . </td><td>
 <br><br>
 {$client.signer_position}_____________{$client.signer_name}
 </td></TR></TBODY></TABLE>

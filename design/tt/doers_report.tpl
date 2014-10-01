@@ -1,12 +1,12 @@
-{if isset($print) && $print}<center><h3>Задания на выезд</center></h3>{/if}
-{if isset($print_report)}<a href="{$print_report}" target="_blank">Печать</a>{/if}
+{if isset($print) && $print}<center><h3>п≈п╟п╢п╟п╫п╦я▐ п╫п╟ п╡я▀п╣п╥п╢</center></h3>{/if}
+{if isset($print_report)}<a href="{$print_report}" target="_blank">п÷п╣я┤п╟я┌я▄</a>{/if}
 {if count($report_data)>0}<table id="doers_report_pane" border="1" cellpadding="3" cellspacing="0" width="100%">
 <tr align='center'>
-	<th width='10%'>Дата</td>
-	<th width='20%'>Ф.И.О.</td>
-	<th width='20%'>Организация</td>
-	<th width='30%'>Задание</td>
-	<th width='20%'>Подпись</td>
+	<th width='10%'>п■п╟я┌п╟</td>
+	<th width='20%'>п╓.п≤.п·.</td>
+	<th width='20%'>п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐</td>
+	<th width='30%'>п≈п╟п╢п╟п╫п╦п╣</td>
+	<th width='20%'>п÷п╬п╢п©п╦я│я▄</td>
 </tr>
 {*{foreach from=$report_data item="one_day" key="date"}
 	<tr align='center'>
@@ -29,9 +29,9 @@
 		{foreach from=$one_day.doers item="day" key="doer"}
 			<td>{$day.name}<br /><br /><b style="color:red">{$tt_states_list[$day.cur_state].name}</b></td>
 			<td>{if !isset($print) || !$print}<a href='?module=clients&id={$day.client_id}' target='_blank' style='text-decoration:none;'>{$day.company}</a><br><br>{if $day.bill_no}<a href="./?module=newaccounts&action=bill_view&bill={$day.bill_no}" target=_blank>{$day.bill_no}</a>{if $view_calc}<br><br>
-            счет: {$day.bill_sum} <br>
-            товары: {$day.sum_good}{if $day.count_good > 1}(x{$day.count_good}){/if} <br>
-            услуги: {$day.sum_service}{if $day.count_service > 1}(x{$day.count_service}){/if}{/if}
+            я│я┤п╣я┌: {$day.bill_sum} <br>
+            я┌п╬п╡п╟я─я▀: {$day.sum_good}{if $day.count_good > 1}(x{$day.count_good}){/if} <br>
+            я┐я│п╩я┐пЁп╦: {$day.sum_service}{if $day.count_service > 1}(x{$day.count_service}){/if}{/if}
         {/if}{else}{$day.company}{/if}</td>
 			<td>
 				<table width='100%'><tr>
@@ -51,10 +51,10 @@
 </table>
 {/if}
 {if !isset($print) || !$print}
-<br> Всего заявок: {$count}
+<br> п▓я│п╣пЁп╬ п╥п╟я▐п╡п╬п╨: {$count}
 <form method="POST">
 	<table border='0' align='center'>
-	<tr align='center'><td colspan='3'>Начало периода</td><td colspan='3'>Конец периода</td></tr>
+	<tr align='center'><td colspan='3'>п²п╟я┤п╟п╩п╬ п©п╣я─п╦п╬п╢п╟</td><td colspan='3'>п п╬п╫п╣я├ п©п╣я─п╦п╬п╢п╟</td></tr>
 	
 	<tr align='center'>
 	<td colspan='3'>
@@ -65,27 +65,27 @@
 	</td>
 	</tr>
 	
-	<tr align='center'><td colspan='3'>Исполнитель</td><td colspan='3'>Состояние</td><td colspan='3'>Заявки/Счета</td></tr>
+	<tr align='center'><td colspan='3'>п≤я│п©п╬п╩п╫п╦я┌п╣п╩я▄</td><td colspan='3'>п║п╬я│я┌п╬я▐п╫п╦п╣</td><td colspan='3'>п≈п╟я▐п╡п╨п╦/п║я┤п╣я┌п╟</td></tr>
 	<tr align='center'>
 		<td colspan='3'>
             {html_options name='doer_filter' options=$doer_filter selected=$doer_filter_selected}
 		</td>
-		<td colspan='3'>(работает только в заявках)<br>
+		<td colspan='3'>(я─п╟п╠п╬я┌п╟п╣я┌ я┌п╬п╩я▄п╨п╬ п╡ п╥п╟я▐п╡п╨п╟я┘)<br>
 			<select name='state_filter'>{foreach from=$l_state_filter item='state'}
 				<option value='{$state.id}'{if $state.id eq $state_filter_selected} selected='selected'{/if}>{$state.name}</option>
 			{/foreach}</select>
             </td><td>
 			<select name="ttype_filter">
-				<option value="all">Все</option>
-				<option value="bills"{if $ttype_filter_selected=='bills'} selected='selected'{/if}>Счета</option>
-				<option value="troubles"{if $ttype_filter_selected=='troubles'} selected='selected'{/if}>Заявки</option>
-				<option value="closed_troubles"{if $ttype_filter_selected=='closed_troubles'} selected='selected'{/if}>Закрытые</option>
+				<option value="all">п▓я│п╣</option>
+				<option value="bills"{if $ttype_filter_selected=='bills'} selected='selected'{/if}>п║я┤п╣я┌п╟</option>
+				<option value="troubles"{if $ttype_filter_selected=='troubles'} selected='selected'{/if}>п≈п╟я▐п╡п╨п╦</option>
+				<option value="closed_troubles"{if $ttype_filter_selected=='closed_troubles'} selected='selected'{/if}>п≈п╟п╨я─я▀я┌я▀п╣</option>
 			</select>
-            <br><input type=checkbox name="view_bwt" value=1{if $view_bwt} checked{/if}>Показывать счета без заданий
-            <br><input type=checkbox name="view_calc" value=1{if $view_calc} checked{/if}>Показывать расчеты
+            <br><input type=checkbox name="view_bwt" value=1{if $view_bwt} checked{/if}>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я│я┤п╣я┌п╟ п╠п╣п╥ п╥п╟п╢п╟п╫п╦п╧
+            <br><input type=checkbox name="view_calc" value=1{if $view_calc} checked{/if}>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я─п╟я│я┤п╣я┌я▀
 		</td>
 	</tr>
-	<tr align='center'><td colspan='6'><input type='submit' value='Отчет' name="do"/></td></tr>
+	<tr align='center'><td colspan='6'><input type='submit' value='п·я┌я┤п╣я┌' name="do"/></td></tr>
 	</table>
 </form>{/if}
 <script>

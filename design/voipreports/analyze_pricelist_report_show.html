@@ -1,10 +1,10 @@
 <h1>
     <small>
-        <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+        <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">п·я┌я┤п╣я┌я▀</a>
     </small>
 
-    Отчет: Анализ прайслистов:
-    <small>{if $rep->instance_id}{php}echo $this->_tpl_vars['regions'][$this->_tpl_vars['rep']->instance_id]->name;{/php}{else}Все регионы{/if}
+    п·я┌я┤п╣я┌: п░п╫п╟п╩п╦п╥ п©я─п╟п╧я│п╩п╦я│я┌п╬п╡:
+    <small>{if $rep->instance_id}{php}echo $this->_tpl_vars['regions'][$this->_tpl_vars['rep']->instance_id]->name;{/php}{else}п▓я│п╣ я─п╣пЁп╦п╬п╫я▀{/if}
 
     ({foreach from=$rep->pricelist_ids key='i' item='pl'}
     {if $i > 0},{/if}
@@ -15,28 +15,28 @@
 
 <p>
     {if $volume.calc_date}
-    Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id]->name}{else}Все регионы{/if})
+    п·п╠я┼п╣п╪я▀ п╥п╡п╬п╫п╨п╬п╡ я─п╟я│я│я┤п╦я┌п╟п╫я▀ я│ {$volume.date_from} п©п╬ {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id]->name}{else}п▓я│п╣ я─п╣пЁп╦п╬п╫я▀{/if})
     {if $volume.need_recalc == 't'}
-    <b>(требуется пересчет)</b>
+    <b>(я┌я─п╣п╠я┐п╣я┌я│я▐ п©п╣я─п╣я│я┤п╣я┌)</b>
     {/if}
     {else}
-    Объемы не рассчитаны
+    п·п╠я┼п╣п╪я▀ п╫п╣ я─п╟я│я│я┤п╦я┌п╟п╫я▀
     {/if}
     {if $volume.calc_running == 't'}
-    <b>(идет расчет)</b>
+    <b>(п╦п╢п╣я┌ я─п╟я│я┤п╣я┌)</b>
     {else}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">Рассчет объемов</a>
+    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">п═п╟я│я│я┤п╣я┌ п╬п╠я┼п╣п╪п╬п╡</a>
     {/if}
 
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-    <a href="?module=voipreports&action=pricelist_report_edit&id={$rep->id}">Настройка отчета</a>
+    <a href="?module=voipreports&action=pricelist_report_edit&id={$rep->id}">п²п╟я│я┌я─п╬п╧п╨п╟ п╬я┌я┤п╣я┌п╟</a>
 </p>
 
 {if $rep->generated_at}
 <p>
-    Отчет расчитан {$rep->generated_at}
+    п·я┌я┤п╣я┌ я─п╟я│я┤п╦я┌п╟п╫ {$rep->generated_at}
 </p>
 {/if}
 
@@ -53,61 +53,61 @@
 	<input type="hidden" name="action" value="pricelist_report_show" />
 	<input type="hidden" name="id" value="{$report_id}" />
 	<select name="f_dest_group">
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
 	</select>
 	<select name="f_country_id" class="select2" style="width: 250px">
-	<option value="0">-- Все страны --</option>
+	<option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
 	{foreach from=$countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 	<select name="f_region_id" class="select2" style="width: 300px">
-	<option value="0">-- Все регионы --</option>
+	<option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
 	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 
     <select name="f_mob">
-        <option value="0">-- Моб/Стац --</option>
-        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
-        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+        <option value="0">-- п°п╬п╠/п║я┌п╟я├ --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
     </select>
 
     <br/>
 
-    <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>&nbsp;&nbsp;
-	<input type=submit name="make" value="Сформировать"/>
-    <input type=submit name="calc" value="Пересчитать"/>
-	<input type=submit name="export" value="Выгрузить"/>
+    <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>п║п╬п╨я─п╟я┌п╦я┌я▄</label>&nbsp;&nbsp;
+	<input type=submit name="make" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
+    <input type=submit name="calc" value="п÷п╣я─п╣я│я┤п╦я┌п╟я┌я▄"/>
+	<input type=submit name="export" value="п▓я▀пЁя─я┐п╥п╦я┌я▄"/>
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr><td class=header colspan=3>&nbsp;</td>
-    <td nowrap class=header align=center>Лучшая цена</td>
+    <td nowrap class=header align=center>п⌡я┐я┤я┬п╟я▐ я├п╣п╫п╟</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$pricelists[$p]->name}</td>
 	{/foreach}
 	{if $volume.calc_date}
-        <td class=header align=center>Объем</td>
+        <td class=header align=center>п·п╠я┼п╣п╪</td>
         {foreach from=$volumes key='instance_id' item='v'}
-            <td  class=header align=center>Объем</td>
+            <td  class=header align=center>п·п╠я┼п╣п╪</td>
         {/foreach}
         {foreach from=$volumesByOper key='operator_id' item='v'}
-            <td  class=header align=center>Объем</td>
+            <td  class=header align=center>п·п╠я┼п╣п╪</td>
         {/foreach}
     {/if}
 </tr>
-<tr><td class=header>Префикс номера</td><td class=header>Зона</td><td class=header>Назначение</td>
+<tr><td class=header>п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟</td><td class=header>п≈п╬п╫п╟</td><td class=header>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</td>
     <td nowrap class=header align=center>{php}echo $this->_tpl_vars['regions'][$this->_tpl_vars['rep']->instance_id]->name;{/php}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$rep->dates[$i]}</td>
 	{/foreach}
 	{if $volume.calc_date}
-        <td class=header align=center>(мин)</td>
+        <td class=header align=center>(п╪п╦п╫)</td>
         {foreach from=$volumes key='instance_id' item='v'}
             <td  class=header align=center>{$regions[$instance_id]->name}</td>
         {/foreach}

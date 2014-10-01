@@ -2,38 +2,38 @@
 <HTML>
 <HEAD>
 <TITLE></TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 <LINK href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}print.css" type=text/css rel=stylesheet>
 </HEAD>
 <BODY text="#404040" vLink="#000099" aLink="#000000" link="#000099" bgColor="#EFEFEF">
 
-<h2 align=center>АКТ ПРИЕМА ПЕРЕДАЧИ {*<br>N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}*}</h2>
-<h3 align=center>по&nbsp;договору &#8470; {$contract.contract_no}{if !$without_date_date} от {$contract.contract_date|mdate:"d.m.Y г."}{else} от {$without_date_date|mdate:"d.m.Y г."}{/if}</h3>
-<table align=center width=90%><tr><td align=left>г. Москва </td><td align=right><b>{if isset($cpe[0])}{$cpe[0].actual_from|mdate:"d.m.Y г."}{else}{php} echo date("d.m.Y г.");{/php}{/if}</b></td></tr></table>
+<h2 align=center>п░п п╒ п÷п═п≤п∙п°п░ п÷п∙п═п∙п■п░п╖п≤ {*<br>N {$bill.bill_no}{$inv_no} п╬я┌ {$inv_date|mdate:"d.m.Y пЁ."}*}</h2>
+<h3 align=center>п©п╬&nbsp;п╢п╬пЁп╬п╡п╬я─я┐ &#8470; {$contract.contract_no}{if !$without_date_date} п╬я┌ {$contract.contract_date|mdate:"d.m.Y пЁ."}{else} п╬я┌ {$without_date_date|mdate:"d.m.Y пЁ."}{/if}</h3>
+<table align=center width=90%><tr><td align=left>пЁ. п°п╬я│п╨п╡п╟ </td><td align=right><b>{if isset($cpe[0])}{$cpe[0].actual_from|mdate:"d.m.Y пЁ."}{else}{php} echo date("d.m.Y пЁ.");{/php}{/if}</b></td></tr></table>
 <br>
 <br>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-     Мы, нижеподписавшиеся, 
+     п°я▀, п╫п╦п╤п╣п©п╬п╢п©п╦я│п╟п╡я┬п╦п╣я│я▐, 
 
 {$firm_director.position} {$firm_director.name} {$firma.name}
-	 и представитель <b>{$bill_client.company_full}</b>, в&nbsp;лице <b>{$bill_client.signer_positionV} {$bill_client.signer_nameV}</b>, произвели прием-передачу во временное пользование следующего оборудования:
+	 п╦ п©я─п╣п╢я│я┌п╟п╡п╦я┌п╣п╩я▄ <b>{$bill_client.company_full}</b>, п╡&nbsp;п╩п╦я├п╣ <b>{$bill_client.signer_positionV} {$bill_client.signer_nameV}</b>, п©я─п╬п╦п╥п╡п╣п╩п╦ п©я─п╦п╣п╪-п©п╣я─п╣п╢п╟я┤я┐ п╡п╬ п╡я─п╣п╪п╣п╫п╫п╬п╣ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ я│п╩п╣п╢я┐я▌я┴п╣пЁп╬ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦я▐:
 </p><ul>
 
 {foreach from=$cpe item=r}
-		 <li>{if $r.type && $r.vendor}{$r.type|upper}-модем {$r.vendor} {/if}{if $r.model eq 'Залог за модем'}Модем{else}{$r.model}{/if}{if $r.serial}, серийный номер {$r.serial|upper}{/if}, {$r.amount} шт.</li>
+		 <li>{if $r.type && $r.vendor}{$r.type|upper}-п╪п╬п╢п╣п╪ {$r.vendor} {/if}{if $r.model eq 'п≈п╟п╩п╬пЁ п╥п╟ п╪п╬п╢п╣п╪'}п°п╬п╢п╣п╪{else}{$r.model}{/if}{if $r.serial}, я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ {$r.serial|upper}{/if}, {$r.amount} я┬я┌.</li>
 {/foreach}
-	 </ul><p>Получен залог в сумме {$bill.tsum|round:2} рублей</p>
+	 </ul><p>п÷п╬п╩я┐я┤п╣п╫ п╥п╟п╩п╬пЁ п╡ я│я┐п╪п╪п╣ {$bill.tsum|round:2} я─я┐п╠п╩п╣п╧</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 {if $to_client == "true"}
-    <b>Обращаем Ваше Вниманиние!</b> <br>Этот экземпляр Акта, просьба с подписью и печатью направить в наш адрес:<br>115162 г.Москва,а/я 21 ООО "ЭмСиЭн"{/if}
+    <b>п·п╠я─п╟я┴п╟п╣п╪ п▓п╟я┬п╣ п▓п╫п╦п╪п╟п╫п╦п╫п╦п╣!</b> <br>п╜я┌п╬я┌ я█п╨п╥п╣п╪п©п╩я▐я─ п░п╨я┌п╟, п©я─п╬я│я▄п╠п╟ я│ п©п╬п╢п©п╦я│я▄я▌ п╦ п©п╣я┤п╟я┌я▄я▌ п╫п╟п©я─п╟п╡п╦я┌я▄ п╡ п╫п╟я┬ п╟п╢я─п╣я│:<br>115162 пЁ.п°п╬я│п╨п╡п╟,п╟/я▐ 21 п·п·п· "п╜п╪п║п╦п╜п╫"{/if}
 	 <p>&nbsp;</p>
 
 <TABLE cellSpacing=0 cellPadding=0 border=0 width="100%"><TBODY><TR><TD>
-	Оператор: <b>{$firma.name}</b>
+	п·п©п╣я─п╟я┌п╬я─: <b>{$firma.name}</b>
 </td><td>
-	Абонент: <b>{$bill_client.company_full}</b>
+	п░п╠п╬п╫п╣п╫я┌: <b>{$bill_client.company_full}</b>
 </td></tr><tr><td>
 	<br><br><p>
 {$firm_director.position} {if $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top" valign="middle"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} ___________________ {/if}{$firm_director.name}

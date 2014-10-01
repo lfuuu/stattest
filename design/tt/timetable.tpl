@@ -1,10 +1,10 @@
 {if $BIG_ERROR}
 <script type='text/javascript'>
-alert('Возникла ошибка. Если у вас проблема, обратитесь к программисту.');
+alert('п▓п╬п╥п╫п╦п╨п╩п╟ п╬я┬п╦п╠п╨п╟. п∙я│п╩п╦ я┐ п╡п╟я│ п©я─п╬п╠п╩п╣п╪п╟, п╬п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п©я─п╬пЁя─п╟п╪п╪п╦я│я┌я┐.');
 </script>
 {elseif $BIG_VICTORY}
 <script type='text/javascript'>
-alert('Фиксирование успешно завершено.\nGood Luck!');
+alert('п╓п╦п╨я│п╦я─п╬п╡п╟п╫п╦п╣ я┐я│п©п╣я┬п╫п╬ п╥п╟п╡п╣я─я┬п╣п╫п╬.\nGood Luck!');
 </script>
 {/if}
 
@@ -16,9 +16,9 @@ alert('Фиксирование успешно завершено.\nGood Luck!');
 <input type='hidden' name='id' value='{$tt_id}' />
 {/if}
 <table class='timetable' cellspacing=0 border=0 id='timetable_pane' width='100%' align='center' {if !isset($timetableShow)}style='display:none'{/if}>
-	<tr><td colspan='48'><div align='right' style='background-color:lightgray'><a href='#' style='text-decoration:none' id='show_cal' onclick='return optools.tt.timetable_event_handler(event);'>Другая дата</a></div></td></tr>
+	<tr><td colspan='48'><div align='right' style='background-color:lightgray'><a href='#' style='text-decoration:none' id='show_cal' onclick='return optools.tt.timetable_event_handler(event);'>п■я─я┐пЁп╟я▐ п╢п╟я┌п╟</a></div></td></tr>
 	<tr>
-		<td>Исполнитель</td>
+		<td>п≤я│п©п╬п╩п╫п╦я┌п╣п╩я▄</td>
 		<td colspan='15'>{$dates.yesterday}</td>
 		<td>&nbsp;</td>
 		<td colspan='15'>{$dates.today}</td>
@@ -142,7 +142,7 @@ alert('Фиксирование успешно завершено.\nGood Luck!');
 			{if $refix_flag}
 				<input type='submit' value='Fix' />
 			{elseif $tt_id}
-				<a href="?module=tt&action=refix_doers&tt_id={$tt_id}" target="_blank">Ошибка?</a>
+				<a href="?module=tt&action=refix_doers&tt_id={$tt_id}" target="_blank">п·я┬п╦п╠п╨п╟?</a>
 			{/if}
 		</td>
 	</tr>
@@ -159,7 +159,7 @@ alert('Фиксирование успешно завершено.\nGood Luck!');
 	<tr><td colspan='2'><div align='right'><a href='#' style='text-decoration:none' id='hide_cal' onclick='return optools.tt.timetable_event_handler(event);'>X</a></div></td></tr>
 	<tr>
 		<td valign='middle'><a href='#' style='text-decoration:none' id='year_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='2009' readonly='readonly' id='timetable_cal_year_area' /><a href='#' style='text-decoration:none' id='year_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
-		<td valign='middle'><a href='#' style='text-decoration:none' id='month_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='Авг' readonly='readonly' id='timetable_cal_month_area' /><a href='#' style='text-decoration:none' id='month_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
+		<td valign='middle'><a href='#' style='text-decoration:none' id='month_dec' onclick='return optools.tt.timetable_event_handler(event);'>&lt;&lt;</a><input type='text' size='3' value='п░п╡пЁ' readonly='readonly' id='timetable_cal_month_area' /><a href='#' style='text-decoration:none' id='month_inc' onclick='return optools.tt.timetable_event_handler(event);'>&gt;&gt;</a></td>
 	</tr>
 	<tr><td colspan='2'>
 		<table id='timetable_cal_panel' align='center' border='0' cellpadding='1' cellspacing='1'></table>

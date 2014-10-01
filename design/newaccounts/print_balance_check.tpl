@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-    <TITLE>Акт сверки {$fixclient_data.client}</TITLE>
-    <META http-equiv=Content-Type content="text/html; charset=koi8-r">
+    <TITLE>п░п╨я┌ я│п╡п╣я─п╨п╦ {$fixclient_data.client}</TITLE>
+    <META http-equiv=Content-Type content="text/html; charset=utf-8">
     {literal}
     <STYLE>
     .price {
@@ -36,41 +36,41 @@
 
 
 <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
-    <h2>АКТ СВЕРКИ</h2>
-    <h3 style="color: black;">взаимных расчетов по состоянию на {$date_to_val|mdate:"d.m.Y г."}<br>между {$company_full}<br>и {$firma.name}</h3>
+    <h2>п░п п╒ п║п▓п∙п═п п≤</h2>
+    <h3 style="color: black;">п╡п╥п╟п╦п╪п╫я▀я┘ я─п╟я│я┤п╣я┌п╬п╡ п©п╬ я│п╬я│я┌п╬я▐п╫п╦я▌ п╫п╟ {$date_to_val|mdate:"d.m.Y пЁ."}<br>п╪п╣п╤п╢я┐ {$company_full}<br>п╦ {$firma.name}</h3>
     <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
         <thead>
             <tr>
-                <td width=50% colspan=4>По данным {$firma.name}, руб.</td>
-                <td width=50% colspan=4>По данным {$company_full}, руб.</td>
+                <td width=50% colspan=4>п÷п╬ п╢п╟п╫п╫я▀п╪ {$firma.name}, я─я┐п╠.</td>
+                <td width=50% colspan=4>п÷п╬ п╢п╟п╫п╫я▀п╪ {$company_full}, я─я┐п╠.</td>
             </tr>
             <tr>
-                <td width=4%>&#8470; п/п</td>
-                <td width=36%>Наименование операции,<br>документы</td>
-                <td width=5%>Дебет</td>
-                <td width=5%>Кредит</td>
-                <td width=4%>&#8470; п/п</td>
-                <td width=24%>Наименование операции,<br>документы</td>
-                <td width=11%>Дебет</td>
-                <td width=11%>Кредит</td>
+                <td width=4%>&#8470; п©/п©</td>
+                <td width=36%>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п╬п©п╣я─п╟я├п╦п╦,<br>п╢п╬п╨я┐п╪п╣п╫я┌я▀</td>
+                <td width=5%>п■п╣п╠п╣я┌</td>
+                <td width=5%>п я─п╣п╢п╦я┌</td>
+                <td width=4%>&#8470; п©/п©</td>
+                <td width=24%>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п╬п©п╣я─п╟я├п╦п╦,<br>п╢п╬п╨я┐п╪п╣п╫я┌я▀</td>
+                <td width=11%>п■п╣п╠п╣я┌</td>
+                <td width=11%>п я─п╣п╢п╦я┌</td>
             </tr>
         </thead>
         <tbody>
             {foreach from=$data item=item name=outer}
                 <tr{if !$fullscreen} class={cycle values="even,odd"}{/if}>
                     <td>{$smarty.foreach.outer.iteration}</td>
-                    <td>{if $item.type=='saldo'}Сальдо на {$item.date|mdate:"d.m.Y"}
+                    <td>{if $item.type=='saldo'}п║п╟п╩я▄п╢п╬ п╫п╟ {$item.date|mdate:"d.m.Y"}
                         {elseif $item.type=='inv'}
                             {if $item.inv_num == 3}
-                                Акт передачи оборудования под залог
+                                п░п╨я┌ п©п╣я─п╣п╢п╟я┤п╦ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦я▐ п©п╬п╢ п╥п╟п╩п╬пЁ
                             {else}
-                                  {if $item.inv_num!=4}Акт{else}Накладная{/if}
+                                  {if $item.inv_num!=4}п░п╨я┌{else}п²п╟п╨п╩п╟п╢п╫п╟я▐{/if}
                             {/if} 
                             <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.inv_no})</nobr>
                         {elseif $item.type=='pay'}
-                            Оплата <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.pay_no})</nobr>
+                            п·п©п╩п╟я┌п╟ <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.pay_no})</nobr>
                         {elseif $item.type=='total'}
-                            Обороты за период
+                            п·п╠п╬я─п╬я┌я▀ п╥п╟ п©п╣я─п╦п╬п╢
                         {/if}
                     </td>
                     <td align=right>{if isset($item.sum_income)}{$item.sum_income|round:2|replace:".":","}{else}&nbsp;{/if}</td>
@@ -85,55 +85,55 @@
     </table>
 
     <font style="color: black;">
-        По данным  {$firma.name} на {$date_to_val|mdate:"d.m.Y г."},
+        п÷п╬ п╢п╟п╫п╫я▀п╪  {$firma.name} п╫п╟ {$date_to_val|mdate:"d.m.Y пЁ."},
 
-        {if $zalog} с учетом платежей полученных в обеспечение исполнения обязательств по договору:
+        {if $zalog} я│ я┐я┤п╣я┌п╬п╪ п©п╩п╟я┌п╣п╤п╣п╧ п©п╬п╩я┐я┤п╣п╫п╫я▀я┘ п╡ п╬п╠п╣я│п©п╣я┤п╣п╫п╦п╣ п╦я│п©п╬п╩п╫п╣п╫п╦я▐ п╬п╠я▐п╥п╟я┌п╣п╩я▄я│я┌п╡ п©п╬ п╢п╬пЁп╬п╡п╬я─я┐:
             <table>
                 {foreach from=$zalog item=z name=zalog}
-                    <tr><td>{$smarty.foreach.zalog.iteration}.&nbsp;</td><td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td><td>{$z.sum_income|round:2|replace:".":","} рубл{$z.sum_income|rus_fin:'ь':'я':'ей'}</td></tr>
+                    <tr><td>{$smarty.foreach.zalog.iteration}.&nbsp;</td><td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td><td>{$z.sum_income|round:2|replace:".":","} я─я┐п╠п╩{$z.sum_income|rus_fin:'я▄':'я▐':'п╣п╧'}</td></tr>
                 {/foreach}
             </table>
         {/if}
     
-        &nbsp;задолженность
+        &nbsp;п╥п╟п╢п╬п╩п╤п╣п╫п╫п╬я│я┌я▄
         {if $ressaldo.sum_income>0.0001}
-            в пользу {$firma.name} составляет {$ressaldo.sum_income|round:2|replace:".":","} рубл{$ressaldo.sum_income|rus_fin:'ь':'я':'ей'}
+            п╡ п©п╬п╩я▄п╥я┐ {$firma.name} я│п╬я│я┌п╟п╡п╩я▐п╣я┌ {$ressaldo.sum_income|round:2|replace:".":","} я─я┐п╠п╩{$ressaldo.sum_income|rus_fin:'я▄':'я▐':'п╣п╧'}
         {elseif $ressaldo.sum_outcome>0.0001}
-            в пользу {$company_full} составляет {$ressaldo.sum_outcome|round:2|replace:".":","} рубл{$ressaldo.sum_outcome|rus_fin:'ь':'я':'ей'}
+            п╡ п©п╬п╩я▄п╥я┐ {$company_full} я│п╬я│я┌п╟п╡п╩я▐п╣я┌ {$ressaldo.sum_outcome|round:2|replace:".":","} я─я┐п╠п╩{$ressaldo.sum_outcome|rus_fin:'я▄':'я▐':'п╣п╧'}
         {else}
-            отсутствует
+            п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌
         {/if}
     </font>.
 
     <div>
         <table border="0" cellpadding="0" cellspacing="5">
             <tr>
-                <td colspan="3"><p>От {$firma.name}</p></td>
+                <td colspan="3"><p>п·я┌ {$firma.name}</p></td>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                <td><p>От {$company_full}</p></td>
+                <td><p>п·я┌ {$company_full}</p></td>
             </tr>
             <tr><td colspan="5">&nbsp;</td></tr>
             <tr><td colspan="5">&nbsp;</td></tr>
             <tr>
-                <td>{if $sign == 'istomina'}Бухгалтер{else}Руководитель организации{/if}</td>
+                <td>{if $sign == 'istomina'}п▒я┐я┘пЁп╟п╩я┌п╣я─{else}п═я┐п╨п╬п╡п╬п╢п╦я┌п╣п╩я▄ п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦{/if}</td>
                 <td>___________________</td>
-                <td>{if $sign == 'istomina'}Истомина И.В. Приказ N24 от 01.08.2013{else}{$firm_director.name}{/if}</td>
+                <td>{if $sign == 'istomina'}п≤я│я┌п╬п╪п╦п╫п╟ п≤.п▓. п÷я─п╦п╨п╟п╥ N24 п╬я┌ 01.08.2013{else}{$firm_director.name}{/if}</td>
                 <td></td>
                 <td>______________________________</td>
             </tr>
             <tr>
                 <td></td>
-                <td align="center"><small>(подпись)</small></td>
+                <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
                 <td></td>
                 <td></td>
-                <td align="center"><small>(подпись)</small></td>
+                <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
               </tr>
               <tr>
                 <td></td>
-                <td align="center">М.П.</td>
+                <td align="center">п°.п÷.</td>
                 <td></td>
                 <td></td>
-                <td align="center">М.П.</td>
+                <td align="center">п°.п÷.</td>
             </tr>
         </table>
     </div>

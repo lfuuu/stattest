@@ -1,4 +1,4 @@
-<h2>Массовая печать счетов</h2>
+<h2>п°п╟я│я│п╬п╡п╟я▐ п©п╣я┤п╟я┌я▄ я│я┤п╣я┌п╬п╡</h2>
 {foreach from=$pages item=page}
-<a href='?module=newaccounts&action=bill_mass&obj=print&page={$page}&do_bill={$do_bill}&do_inv={$do_inv}&do_akt={$do_akt}&date={$date}' target=_blank>Часть {$page}</a><br>
+<a href='?module=newaccounts&action=bill_mass&obj=print&page={$page}&do_bill={$do_bill}&do_inv={$do_inv}&do_akt={$do_akt}&date={$date}' target=_blank>п╖п╟я│я┌я▄ {$page}</a><br>
 {/foreach}

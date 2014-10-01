@@ -1,24 +1,24 @@
 {if count($mails) || !isset($is_secondary_output)}
 {if !isset($is_secondary_output)}
-<H2>Услуги</H2>
+<H2>пёя│п╩я┐пЁп╦</H2>
 <H3>E-Mail</H3>
-{if access_action('services','em_add')}<a href='{$LINK_START}module=services&action=em_add'>Добавить ящик</a><br>{/if}
+{if access_action('services','em_add')}<a href='{$LINK_START}module=services&action=em_add'>п■п╬п╠п╟п╡п╦я┌я▄ я▐я┴п╦п╨</a><br>{/if}
 {else}
 <H3><a href='?module=services&action=em_view'>E-Mail</a></H3>
 {/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
 <TR>
-	<TD class=header vAlign=bottom width="20%" rowspan=2>дата</TD>
-	<TD class=header vAlign=bottom width="15%" rowspan=2>ящик</TD>
-	<TD class=header vAlign=bottom width="10%" rowspan=2>размер</TD>
-	<TD class=header vAlign=bottom style='text-align:center' width="24%" colspan=3>настройки спам-фильтра</TD>
+	<TD class=header vAlign=bottom width="20%" rowspan=2>п╢п╟я┌п╟</TD>
+	<TD class=header vAlign=bottom width="15%" rowspan=2>я▐я┴п╦п╨</TD>
+	<TD class=header vAlign=bottom width="10%" rowspan=2>я─п╟п╥п╪п╣я─</TD>
+	<TD class=header vAlign=bottom style='text-align:center' width="24%" colspan=3>п╫п╟я│я┌я─п╬п╧п╨п╦ я│п©п╟п╪-я└п╦п╩я▄я┌я─п╟</TD>
 	<td rowspan=2>&nbsp;</td>
 </TR>	
 <TR>
-<Td class=header valign=top width=8%>фильтровать?</TD>
-<Td class=header valign=top width=8%>помечать</TD>
-<Td class=header valign=top width=8%>удалять</TD>
+<Td class=header valign=top width=8%>я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄?</TD>
+<Td class=header valign=top width=8%>п©п╬п╪п╣я┤п╟я┌я▄</TD>
+<Td class=header valign=top width=8%>я┐п╢п╟п╩я▐я┌я▄</TD>
 
 {foreach from=$mails item=item name=outer}
 <TR{if !$item.actual} style="color:#C0C0C0"{/if}>
@@ -55,9 +55,9 @@
 
 	</td>
 	<td>
-		{if access('services_mail','activate')}<a href="{$LINK_START}module=services&action=em_activate&id={$item.id}" onclick='javascript:return(confirm("Вы уверены?"))'>{if ($item.actual)}деактивировать{else}активировать{/if}</a>{/if}
+		{if access('services_mail','activate')}<a href="{$LINK_START}module=services&action=em_activate&id={$item.id}" onclick='javascript:return(confirm("п▓я▀ я┐п╡п╣я─п╣п╫я▀?"))'>{if ($item.actual)}п╢п╣п╟п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄{else}п╟п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄{/if}</a>{/if}
 {if ($item.actual)}
-		{if access('services_mail','chpass')}<a href="{$LINK_START}module=services&action=em_chpass&id={$item.id}">сменить пароль</a>{/if}
+		{if access('services_mail','chpass')}<a href="{$LINK_START}module=services&action=em_chpass&id={$item.id}">я│п╪п╣п╫п╦я┌я▄ п©п╟я─п╬п╩я▄</a>{/if}
 
 {/if}
 		&nbsp;</td>
@@ -66,12 +66,12 @@
 </tbody>
 </table>
 {if count($mailservers)}
-<H3>Виртуальные почтовые сервера</H3>
+<H3>п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╣ п©п╬я┤я┌п╬п╡я▀п╣ я│п╣я─п╡п╣я─п╟</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 width=50% border=0>
 <TBODY>
 <TR>
-	<TD class=header vAlign=bottom width="40%">дата</TD>
-	<TD class=header vAlign=bottom width="40%">стоимость</TD>
+	<TD class=header vAlign=bottom width="40%">п╢п╟я┌п╟</TD>
+	<TD class=header vAlign=bottom width="40%">я│я┌п╬п╦п╪п╬я│я┌я▄</TD>
 	<td>&nbsp;</td>
 </TR>
 {foreach from=$mailservers item=item name=outer}
@@ -79,8 +79,8 @@
 	<td><a href="{$PATH_TO_ROOT}pop_services_ad.php?id={$item.id}" target="_blank">{$item.actual_from} - {if !$item.actual}{$item.actual_to}{/if}</a></td>
 	<td><a href="{$PATH_TO_ROOT}pop_services_ad.php?id={$item.id}" target="_blank">{$item.price}</a></td>
 	<td>{if $item.enabled}+{else}&nbsp;{/if}</td>
-	<td><a href="{$LINK_START}module=services&action=ad_close&id={$item.id}">отключить</a>
-		<a href="{$LINK_START}module=services&action=ad_activate&id={$item.id}">{if ($item.actual)}заблокировать{else}разблокировать{/if}</a>
+	<td><a href="{$LINK_START}module=services&action=ad_close&id={$item.id}">п╬я┌п╨п╩я▌я┤п╦я┌я▄</a>
+		<a href="{$LINK_START}module=services&action=ad_activate&id={$item.id}">{if ($item.actual)}п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄{else}я─п╟п╥п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄{/if}</a>
 		</td>
 </tr>	
 {/foreach}
@@ -89,6 +89,6 @@
 {/if}
 {if !isset($is_secondary_output)}
 <br><br>
-{if access_action('services','em_whitelist')}<br><a href='{$LINK_START}module=services&action=em_whitelist'>Настройка списка адресов, письма с которых Вы не считаете спамом</a><br>{/if}
+{if access_action('services','em_whitelist')}<br><a href='{$LINK_START}module=services&action=em_whitelist'>п²п╟я│я┌я─п╬п╧п╨п╟ я│п©п╦я│п╨п╟ п╟п╢я─п╣я│п╬п╡, п©п╦я│я▄п╪п╟ я│ п╨п╬я┌п╬я─я▀я┘ п▓я▀ п╫п╣ я│я┤п╦я┌п╟п╣я┌п╣ я│п©п╟п╪п╬п╪</a><br>{/if}
 {/if}
 {/if}

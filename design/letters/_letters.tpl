@@ -1,9 +1,9 @@
-<h1>Отправка сообщений клиентам</h1>
-<b>Письмо</b><span style="position : relative; left : 300px;">{$letter}</span>
+<h1>п·я┌п©я─п╟п╡п╨п╟ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╨п╩п╦п╣п╫я┌п╟п╪</h1>
+<b>п÷п╦я│я▄п╪п╬</b><span style="position : relative; left : 300px;">{$letter}</span>
 <br>
 <hr>
 <br>
-<a href="?module=letters&action=letters_send&todo=send">Отправить</a>
+<a href="?module=letters&action=letters_send&todo=send">п·я┌п©я─п╟п╡п╦я┌я▄</a>
 
 
 

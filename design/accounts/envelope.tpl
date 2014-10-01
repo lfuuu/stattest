@@ -1,5 +1,5 @@
 <script>
-	alert("Не забудьте установить конверты");
+	alert("п²п╣ п╥п╟п╠я┐п╢я▄я┌п╣ я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п╨п╬п╫п╡п╣я─я┌я▀");
 </script>
 <frameset rows="{$rows}">
 	{foreach from=$clients item=client}

@@ -1,4 +1,4 @@
-<h1>{if $data.id == 0}Добавление{else}Редактирование{/if} мультитранка {if $data.id != 0}{$data.number}{/if}</h1>
+<h1>{if $data.id == 0}п■п╬п╠п╟п╡п╩п╣п╫п╦п╣{else}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣{/if} п╪я┐п╩я▄я┌п╦я┌я─п╟п╫п╨п╟ {if $data.id != 0}{$data.number}{/if}</h1>
 
 <style>
 {literal}
@@ -14,7 +14,7 @@ color:green;
 <br>
 {/if}
 {if $isSaved}
-<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">Данные сохранены</span>
+<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">п■п╟п╫п╫я▀п╣ я│п╬я┘я─п╟п╫п╣п╫я▀</span>
 {else}
 <br>
 {/if}
@@ -36,11 +36,11 @@ color:green;
     <tr>
     <td align=left>
 
-    <input type=button value="Сохранить" name="apply" onclick="{literal}if(prepareData('codec') && prepareIpNet('permit')) {getE('mt_save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+    <input type=button value="п║п╬я┘я─п╟п╫п╦я┌я▄" name="apply" onclick="{literal}if(prepareData('codec') && prepareIpNet('permit')) {getE('mt_save_form').submit();}else{alert('п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐!');}{/literal}">
 
 
     </td><td>
-    <input type=submit value="Отмена" name="cancel"></td>
+    <input type=submit value="п·я┌п╪п╣п╫п╟" name="cancel"></td>
     </tr>
     </table>
     </div>

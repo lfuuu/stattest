@@ -1,6 +1,6 @@
-{if $view == "number"}<h1>Учетные записи SIP</h1>
+{if $view == "number"}<h1>пёя┤п╣я┌п╫я▀п╣ п╥п╟п©п╦я│п╦ SIP</h1>
     {*if $client && $isAllowAdd}
-        <a href="./?module=ats&action=sip_add"><img align=absmiddle src="./images/icons/add.gif">Добавить</a>
+        <a href="./?module=ats&action=sip_add"><img align=absmiddle src="./images/icons/add.gif">п■п╬п╠п╟п╡п╦я┌я▄</a>
     {/if*}
 {/if}
 <form action="./?module=ats&action=sip_action" method=post id="form_sip_action">
@@ -20,16 +20,16 @@ font: bold 8pt sans-serif;
 {if $view == "number"}
 <table width=100% border=1 style="border-collapse:collapse;" id="sip_table">
 <tr>
-<th colspan=3>Номер</th>
+<th colspan=3>п²п╬п╪п╣я─</th>
 <th colspan=5>SIP-account</th>
 </tr>
 <tr>
-<th>Номер</th>
-<th>Одноврем. звонков</th>
-<th>Направление</th>
-<th>Логин</th>
-<th>Тип</th>
-<th>Одновр. звонков</th>
+<th>п²п╬п╪п╣я─</th>
+<th>п·п╢п╫п╬п╡я─п╣п╪. п╥п╡п╬п╫п╨п╬п╡</th>
+<th>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</th>
+<th>п⌡п╬пЁп╦п╫</th>
+<th>п╒п╦п©</th>
+<th>п·п╢п╫п╬п╡я─. п╥п╡п╬п╫п╨п╬п╡</th>
 <th align=center><input type=checkbox style="padding: 0 0 0 0;margin: 0 0 0 0;" onclick="$('#sip_table input[type=checkbox]').each({literal}function (i,o){if(i>0){o.checked=sipAllChecked;}else{sipAllChecked = o.checked}}){/literal}"></th>
 </tr>
 
@@ -40,9 +40,9 @@ font: bold 8pt sans-serif;
 <td>{$n.n_call_count}</td>
 <td>{$n.direction}</td>
 {if !$n.is_number}
-<td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}><a {if $n.enabled == "no"}style="text-decoration: line-through;color: gray;"{/if} href="./?module=ats&action=sip_modify&id={$n.s_id}">{$n.number}</a>{if $n.type=="line" && $n.line_mask != $n.number} (маска: {$n.line_mask}){/if}</td>
-<td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}>{if $n.atype == "link"}Привязка к {$n.type}'у{else}{$n.type}{/if}</td>
-<td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}>{$n.s_call_count}{if $n.type=="multitrunk"}, общий счетчик: {$n.m_call_count}{/if}{if $n.type=="line"}, {$n.lines} линий{/if}</td>
+<td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}><a {if $n.enabled == "no"}style="text-decoration: line-through;color: gray;"{/if} href="./?module=ats&action=sip_modify&id={$n.s_id}">{$n.number}</a>{if $n.type=="line" && $n.line_mask != $n.number} (п╪п╟я│п╨п╟: {$n.line_mask}){/if}</td>
+<td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}>{if $n.atype == "link"}п÷я─п╦п╡я▐п╥п╨п╟ п╨ {$n.type}'я┐{else}{$n.type}{/if}</td>
+<td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}>{$n.s_call_count}{if $n.type=="multitrunk"}, п╬п╠я┴п╦п╧ я│я┤п╣я┌я┤п╦п╨: {$n.m_call_count}{/if}{if $n.type=="line"}, {$n.lines} п╩п╦п╫п╦п╧{/if}</td>
 {if false}
 {if $n.type == "line" && strlen($n.number) < 11 || $n.atype == "link"}
 <td{if $n.count && $n.count > 1} rowspan={$n.count}{/if}></td>
@@ -63,7 +63,7 @@ font: bold 8pt sans-serif;
 </tr>
 {/foreach}
 {if !$s1free && !$s1}
-<tr><td align=center colspan=9><i>Нет записей</i></td></tr>
+<tr><td align=center colspan=9><i>п²п╣я┌ п╥п╟п©п╦я│п╣п╧</i></td></tr>
 {/if}
 </table>
 
@@ -71,8 +71,8 @@ font: bold 8pt sans-serif;
 
 <table width=100% border=1 style="border-collapse:collapse;" id="sip_table">
 <tr>
-<td>Логин</td>
-<td>Тип</td>
+<td>п⌡п╬пЁп╦п╫</td>
+<td>п╒п╦п©</td>
 <td align=center><input type=checkbox style="padding: 0 0 0 0;margin: 0 0 0 0;" onclick="$('#sip_table input[type=checkbox]').each({literal}function (i,o){if(i>0){o.checked=sipAllChecked;}else{sipAllChecked = o.checked}}){/literal}"></td>
 </tr>
 {foreach from=$sip item=n}
@@ -82,17 +82,17 @@ font: bold 8pt sans-serif;
 <td align=center><input name="ids[]" type=checkbox value={$n.s_id} style="padding: 0 0 0 0;margin: 0 0 0 0;"></td>
 </tr>
 {foreachelse}
-<tr><td align=center colspan=9><i>Нет записей</i></td></tr>
+<tr><td align=center colspan=9><i>п²п╣я┌ п╥п╟п©п╦я│п╣п╧</i></td></tr>
 {/foreach}
 </table>
 {/if}
 
 {if !access("ats","support")}
-<div style="text-align: right; padding-right: 20px;">Действие
+<div style="text-align: right; padding-right: 20px;">п■п╣п╧я│я┌п╡п╦п╣
     <select name="sip_action" id="sip_action">
     <option value="">------------</option>
-    <option value="delete">Удалить</option>
-    <option value="delete_with_sync">Удалить из базы</option>
+    <option value="delete">пёп╢п╟п╩п╦я┌я▄</option>
+    <option value="delete_with_sync">пёп╢п╟п╩п╦я┌я▄ п╦п╥ п╠п╟п╥я▀</option>
     </select>
     <input type=button id=sip_action_go value="go" style="width: 27px; height:23px;">
     </div>
@@ -102,7 +102,7 @@ font: bold 8pt sans-serif;
 
         var sipAction = $("#sip_action").val();
 
-        if ((sipAction == "delete_with_sync" && confirm("Точно удалить из базы?")) || sipAction == "delete")
+        if ((sipAction == "delete_with_sync" && confirm("п╒п╬я┤п╫п╬ я┐п╢п╟п╩п╦я┌я▄ п╦п╥ п╠п╟п╥я▀?")) || sipAction == "delete")
         {
             $("#form_sip_action").submit();
         }
@@ -125,6 +125,6 @@ function doVATS(id, obj)
 </script>
 <div id="load_vSettings">{$load_vSettings}</div>
 {else}
-<div style="float:right"><a href="./?module=ats&action=sip_users">К списку номеров</a></div>
+<div style="float:right"><a href="./?module=ats&action=sip_users">п  я│п©п╦я│п╨я┐ п╫п╬п╪п╣я─п╬п╡</a></div>
 {/if}
 

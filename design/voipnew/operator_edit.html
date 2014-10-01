@@ -1,4 +1,4 @@
-<p>Редактирование оператора: <a href="index.php?module=voipnew&action=operators">назад</a></p>
+<p>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬п©п╣я─п╟я┌п╬я─п╟: <a href="index.php?module=voipnew&action=operators">п╫п╟п╥п╟п╢</a></p>
 
 <form action="./index.php" method="post">
     <input type="hidden" name="module" value="voipnew" />
@@ -8,11 +8,11 @@
 
     <table class="price">
         <tr>
-            <th>Регион:</th>
+            <th>п═п╣пЁп╦п╬п╫:</th>
             {if $operator->id}
             <th>
                 {if $instance_id == 0}
-                    Все регионы
+                    п▓я│п╣ я─п╣пЁп╦п╬п╫я▀
                 {else}
                     {$regions[$instance_id]->name}
                 {/if}
@@ -22,8 +22,8 @@
             {else}
             <td>
                 <select class="select2" name="instance_id" style="width: 300px">
-                    <option value="">--- выберите регион ---</option>
-                    <option value="0">Все регионы</option>
+                    <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ я─п╣пЁп╦п╬п╫ ---</option>
+                    <option value="0">п▓я│п╣ я─п╣пЁп╦п╬п╫я▀</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r->id}">{$r->name} ({$r->id})</option>
                     {/foreach}
@@ -32,7 +32,7 @@
             {/if}
         </tr>
         <tr>
-            <th>Ид:</th>
+            <th>п≤п╢:</th>
             {if $operator->id}
             <th>
                 {$operator->id}
@@ -45,18 +45,18 @@
             {/if}
         </tr>
         <tr>
-            <th>Короткое название:</th>
+            <th>п п╬я─п╬я┌п╨п╬п╣ п╫п╟п╥п╡п╟п╫п╦п╣:</th>
             <td><input name="short_name" value="{$operator->short_name}"/></td>
         </tr>
         <tr>
-            <th>Полное название:</th>
+            <th>п÷п╬п╩п╫п╬п╣ п╫п╟п╥п╡п╟п╫п╦п╣:</th>
             <td><input name="name" value="{$operator->name}" /></td>
         </tr>
         <tr>
-            <th>Операторский прайс<br/>Местные:</th>
+            <th>п·п©п╣я─п╟я┌п╬я─я│п╨п╦п╧ п©я─п╟п╧я│<br/>п°п╣я│я┌п╫я▀п╣:</th>
             <td>
                 <select class="select2" name="local_network_pricelist_id" style="width: 300px">
-                    <option value="">--- выберите прайслист ---</option>
+                    <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п©я─п╟п╧я│п╩п╦я│я┌ ---</option>
                     {foreach from=$pricelists item='p'}
                     {if $operator->local_network_pricelist_id == $p->id || $p->type == 'network_prices'}
                     <option value="{$p->id}" {if $operator->local_network_pricelist_id == $p->id} selected{/if}>{$p->name}</option>
@@ -66,10 +66,10 @@
             </td>
         </tr>
         <tr>
-            <th>Операторский прайс<br/>МГМН, Моб:</th>
+            <th>п·п©п╣я─п╟я┌п╬я─я│п╨п╦п╧ п©я─п╟п╧я│<br/>п°п⌠п°п², п°п╬п╠:</th>
             <td>
                 <select class="select2" name="pricelist_id" style="width: 300px">
-                    <option value="">--- выберите прайслист ---</option>
+                    <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п©я─п╟п╧я│п╩п╦я│я┌ ---</option>
                     {foreach from=$pricelists item='p'}
                         {if $operator->pricelist_id == $p->id || $p->type == 'operator' && ($p->operator_id == 0 || $p->operator_id == $operator->id)}
                         <option value="{$p->id}" {if $operator->pricelist_id == $p->id} selected{/if}>{$p->name}</option>
@@ -79,10 +79,10 @@
             </td>
         </tr>
         <tr>
-            <th>Операторский прайс<br/>7800:</th>
+            <th>п·п©п╣я─п╟я┌п╬я─я│п╨п╦п╧ п©я─п╟п╧я│<br/>7800:</th>
             <td>
                 <select class="select2" name="operator_7800_pricelist_id" style="width: 300px">
-                    <option value="">--- выберите прайслист ---</option>
+                    <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п©я─п╟п╧я│п╩п╦я│я┌ ---</option>
                     {foreach from=$pricelists item='p'}
                         {if $operator->operator_7800_pricelist_id == $p->id || $p->type == 'operator' && ($p->operator_id == 0 || $p->operator_id == $operator->id)}
                         <option value="{$p->id}" {if $operator->operator_7800_pricelist_id == $p->id} selected{/if}>{$p->name}</option>
@@ -92,10 +92,10 @@
             </td>
         </tr>
         <tr>
-            <th>Клиентский прайс<br/>7800:</th>
+            <th>п п╩п╦п╣п╫я┌я│п╨п╦п╧ п©я─п╟п╧я│<br/>7800:</th>
             <td>
                 <select class="select2" name="client_7800_pricelist_id" style="width: 300px">
-                    <option value="">--- выберите прайслист ---</option>
+                    <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п©я─п╟п╧я│п╩п╦я│я┌ ---</option>
                     {foreach from=$pricelists item='p' }
                         {if $operator->client_7800_pricelist_id == $p->id || $p->type == 'client'}
                         <option value="{$p->id}" {if $operator->client_7800_pricelist_id == $p->id} selected{/if}>{$p->name}</option>
@@ -105,23 +105,23 @@
             </td>
         </tr>
         <tr>
-            <th>Завершение входящих на MCN (руб):</th>
+            <th>п≈п╟п╡п╣я─я┬п╣п╫п╦п╣ п╡я┘п╬п╢я▐я┴п╦я┘ п╫п╟ MCN (я─я┐п╠):</th>
             <td><input name="term_in_cost" value="{$operator->term_in_cost}" /></td>
         </tr>
         <tr>
-            <th>Минимальный платеж (руб):</th>
+            <th>п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ (я─я┐п╠):</th>
             <td><input name="minimum_payment" value="{$operator->minimum_payment}" /></td>
         </tr>
         <tr>
-            <th>Id карточки клиента Stat:</th>
+            <th>Id п╨п╟я─я┌п╬я┤п╨п╦ п╨п╩п╦п╣п╫я┌п╟ Stat:</th>
             <td><input name="stat_client_card_id" value="{$operator->stat_client_card_id}" /></td>
         </tr>
         <tr>
             <td></td>
             <td>
-                <input type="submit" value="Сохранить" />
+                <input type="submit" value="п║п╬я┘я─п╟п╫п╦я┌я▄" />
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <a href="index.php?module=voipnew&action=operators">назад</a>
+                <a href="index.php?module=voipnew&action=operators">п╫п╟п╥п╟п╢</a>
             </td>
         </tr>
     </table>

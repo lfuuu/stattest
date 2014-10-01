@@ -7,14 +7,14 @@
 		<table cellspacing=0 cellpadding=3 border=0><tr><td valign=top>
 			<b><a href='{$LINK_START}module=clients&id={$fixclient}' style='font-size:17'>{if $fixclient_data.client}{$fixclient_data.client}{else}<font color=red>id=</font>{$fixclient_data.id}{/if}</a> </b>
 		</td><td>
-			(<b><a href='{$LINK_START}module=clients&unfix=1'>снять</a></B>)
+			(<b><a href='{$LINK_START}module=clients&unfix=1'>я│п╫я▐я┌я▄</a></B>)
 		</td></tr></table>
 	    {$fixclient_data.company} 
-		<div class=card>Логин: <STRONG>{$authuser.user}</STRONG>&nbsp; 
+		<div class=card>п⌡п╬пЁп╦п╫: <STRONG>{$authuser.user}</STRONG>&nbsp; 
 	{/if}
 {else}
 	<script language=javascript>var fixclient="";</script>
-	Клиент не выбран
-	<div class=card>Логин: <STRONG>{$authuser.user}</STRONG>&nbsp; 
+	п п╩п╦п╣п╫я┌ п╫п╣ п╡я▀п╠я─п╟п╫
+	<div class=card>п⌡п╬пЁп╦п╫: <STRONG>{$authuser.user}</STRONG>&nbsp; 
 {/if}
 <a href='{$LINK_START}action=logout'>Logout</a></div>

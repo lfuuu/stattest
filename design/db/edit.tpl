@@ -1,4 +1,4 @@
-<H2>База данных</H2>
+<H2>п▒п╟п╥п╟ п╢п╟п╫п╫я▀я┘</H2>
 <H3>{$query_table}:</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=apply>
@@ -19,11 +19,11 @@
 {foreach from=$item.variants item=i_item name=inner}
 <option value={$i_item.key}{if $item.value==$i_item.key} selected{/if}>{$i_item.show}</option>
 {/foreach}
-{if $item.show==3}<option value=nouse selected>использовать текстовое поле</option>{/if}
+{if $item.show==3}<option value=nouse selected>п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┌п╣п╨я│я┌п╬п╡п╬п╣ п©п╬п╩п╣</option>{/if}
 </SELECT>
 {/if}</TD></TR>
 {/foreach}
 
 </TBODY></TABLE>
-<DIV align=center><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 </form>

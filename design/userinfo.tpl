@@ -1,4 +1,4 @@
 <DIV class=card>
-      Логин: <STRONG>{$authuser.user}</STRONG> &nbsp; <a href='{$LINK_START}action=logout'>Logout</a><BR>
-      Кто это: <STRONG>{$authuser.name}</STRONG><BR>
+      п⌡п╬пЁп╦п╫: <STRONG>{$authuser.user}</STRONG> &nbsp; <a href='{$LINK_START}action=logout'>Logout</a><BR>
+      п я┌п╬ я█я┌п╬: <STRONG>{$authuser.name}</STRONG><BR>
 </DIV>

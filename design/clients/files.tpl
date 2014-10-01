@@ -1,5 +1,5 @@
 <table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th>имя файла</th><th>комментарий</th><th>кто</th><th>когда&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;</th></tr>
+<tr><th>п╦п╪я▐ я└п╟п╧п╩п╟</th><th>п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</th><th>п╨я┌п╬</th><th>п╨п╬пЁп╢п╟&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;</th></tr>
 {foreach from=$files item=item}<tr>
 	<td><a href='{$LINK_START}module=clients&id={$item.id}&action=file_get&cid={$item.client_id}'>{$item.name}</a> 
     <a href="./?module=clients&id={$item.id}&action=file_send&cid={$item.client_id}"><img border=0 src='images/icons/envelope.gif'></a></td>
@@ -7,7 +7,7 @@
 	<td>{$item.user}</td>
 	<td style='font-size:85%'>{$item.ts}</td>
 	<td>
-		<a href='{$LINK_START}module=clients&action=file_del&id={$item.id}' onclick="return confirm('Вы уверены, что хотите удалить файл {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>
+		<a href='{$LINK_START}module=clients&action=file_del&id={$item.id}' onclick="return confirm('п▓я▀ я┐п╡п╣я─п╣п╫я▀, я┤я┌п╬ я┘п╬я┌п╦я┌п╣ я┐п╢п╟п╩п╦я┌я▄ я└п╟п╧п╩ {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="пёп╢п╟п╩п╦я┌я▄"></a>
 	</td>
 </tr>{/foreach}
 <FORM action="?" method=post enctype="multipart/form-data"><tr>
@@ -16,6 +16,6 @@
 	<td><input class=text style='width:100' type=text name=name value=""></td>
 	<td><input class=text style='width:200' type=text name=comment></td>
 	<td><input type=file name=file></td>
-	<td colspan=2><input class=button type=submit value="загрузить"></td>
+	<td colspan=2><input class=button type=submit value="п╥п╟пЁя─я┐п╥п╦я┌я▄"></td>
 </tr></form>
 </table>

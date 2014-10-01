@@ -1,4 +1,4 @@
-<H2>Статистика счетов</H2>
+<H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟ я│я┤п╣я┌п╬п╡</H2>
 
 <FORM action="?" method=get name="bill_region">
 	<input type=hidden name=module value=monitoring>
@@ -7,15 +7,15 @@
 		<TBODY>
 			<TR>
 				<TD class=left>
-					<label for="region">Регион:</label>
+					<label for="region">п═п╣пЁп╦п╬п╫:</label>
 				</TD>
 				<TD>
 					<select name="region" id="region" onchange='document.forms["bill_region"].submit();'>
 						<option value="99" {if $region == 99}selected="selected"{/if}>
-							Москва
+							п°п╬я│п╨п╡п╟
 						</option>
 						<option value="0" {if $region == 0}selected="selected"{/if}>
-								Все регионы
+								п▓я│п╣ я─п╣пЁп╦п╬п╫я▀
 							</option>
 						{foreach from=$regions item="r"}
 							<option value="{$r.id}" {if $region == $r.id}selected="selected"{/if}>
@@ -30,14 +30,14 @@
        </TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV>
+      <DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV>
 </FORM>
 {if $graphs}
 	<table>
 	{foreach from=$graphs item="g" key="r" name="r"}
 		<tr>
 			<td {if $region == 0}colspan=2{/if}>
-				<h2>{if $region == 99}Москва{else}{$regions.$r.name}{/if}</h2>
+				<h2>{if $region == 99}п°п╬я│п╨п╡п╟{else}{$regions.$r.name}{/if}</h2>
 			</td>
 		</tr>
 		<tr>

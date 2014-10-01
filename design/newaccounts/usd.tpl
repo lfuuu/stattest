@@ -1,12 +1,12 @@
-<H2>Курс доллара</H2>
+<H2>п я┐я─я│ п╢п╬п╩п╩п╟я─п╟</H2>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=usd>
 <input type=hidden name=module value=newaccounts>
-Дата: <input type=text name=date value='{$cur_date}'>
-Курс: <input type=text name=rate value=''>
-<INPUT id=submit class=button type=submit value="Изменить">
+п■п╟я┌п╟: <input type=text name=date value='{$cur_date}'>
+п я┐я─я│: <input type=text name=rate value=''>
+<INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄">
 </form>
-<table class=price><tr><td>Дата</td><td>Курс</td></tr>
+<table class=price><tr><td>п■п╟я┌п╟</td><td>п я┐я─я│</td></tr>
 {foreach from=$rates item=item}
 <tr><td>{$item.date}</td><td>{$item.rate}</td></tr>
 {/foreach}

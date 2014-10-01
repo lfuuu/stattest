@@ -1,6 +1,6 @@
 
 
-<H2>Услуги</H2>
+<H2>пёя│п╩я┐пЁп╦</H2>
 <H3>WellTime</H3>
 
 
@@ -9,14 +9,14 @@
 <TBODY>
 <TR>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >id</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Клиент</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Описание</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >дата c</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >дата по</TD>
-	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >Количество</TD>
-	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >Стоимость</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п п╩п╦п╣п╫я┌</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п·п©п╦я│п╟п╫п╦п╣</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п╢п╟я┌п╟ c</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п╢п╟я┌п╟ п©п╬</TD>
+	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >п п╬п╩п╦я┤п╣я│я┌п╡п╬</TD>
+	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >п║я┌п╬п╦п╪п╬я│я┌я▄</TD>
 	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >IP</TD>
-	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >Роутер</TD>
+	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >п═п╬я┐я┌п╣я─</TD>
 </TR>
 {foreach from=$services_welltime item=item name=outer}
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">

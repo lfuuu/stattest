@@ -1,13 +1,13 @@
-<h2>Ввод курса доллара</h2>
+<h2>п▓п╡п╬п╢ п╨я┐я─я│п╟ п╢п╬п╩п╩п╟я─п╟</h2>
 
 <i>{$message}</i><br>
 
 <form action="?module=accounts&action=accounts_add_usd_rate&todo=add_rate" method="POST">
 <table align="center">
 	<tr>
-		<TD>Курс доллара</TD><td><INPUT type="text" name="rate" value="00.0000"></td>
-		<TD>Дата</TD><td><INPUT type="text" name="date" value="ГГГГ-ММ-ДД"></td>
-		<TD><INPUT type="submit" name="payment" value="Внести курс"></TD>
+		<TD>п я┐я─я│ п╢п╬п╩п╩п╟я─п╟</TD><td><INPUT type="text" name="rate" value="00.0000"></td>
+		<TD>п■п╟я┌п╟</TD><td><INPUT type="text" name="date" value="п⌠п⌠п⌠п⌠-п°п°-п■п■"></td>
+		<TD><INPUT type="submit" name="payment" value="п▓п╫п╣я│я┌п╦ п╨я┐я─я│"></TD>
 	</tr>
 
 </table>

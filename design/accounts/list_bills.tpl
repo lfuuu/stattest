@@ -1,14 +1,14 @@
-<h2>Счета</h2>
-Общая сумма: <b>{$acc_sum}</b>
+<h2>п║я┤п╣я┌п╟</h2>
+п·п╠я┴п╟я▐ я│я┐п╪п╪п╟: <b>{$acc_sum}</b>
 <table cellpadding="10" cellspacing="0" border="1">
 <tr>
 	<td></td>
-	<td>Номер счета</td>
-	<td>Клиент</td>
-	<td>Компания</td>
-	<td>Сумма</td>
-	<td>Дата счета</td>
-	<td>тип счёта</td>
+	<td>п²п╬п╪п╣я─ я│я┤п╣я┌п╟</td>
+	<td>п п╩п╦п╣п╫я┌</td>
+	<td>п п╬п╪п©п╟п╫п╦я▐</td>
+	<td>п║я┐п╪п╪п╟</td>
+	<td>п■п╟я┌п╟ я│я┤п╣я┌п╟</td>
+	<td>я┌п╦п© я│я┤я▒я┌п╟</td>
 	<td>&nbsp;</td>	
 </tr>
 
@@ -38,7 +38,7 @@
         	</td>
         	<td>{$bill.type}</td>
 			<td>
-				<a href="modules/{$module}/send.php?bill_no={$bill.bill_no}&client={$bill.client}&date={$bill.date}" target="_blank">выслать</a>
+				<a href="modules/{$module}/send.php?bill_no={$bill.bill_no}&client={$bill.client}&date={$bill.date}" target="_blank">п╡я▀я│п╩п╟я┌я▄</a>
 			</td>
         </tr>
         

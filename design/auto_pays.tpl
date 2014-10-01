@@ -2,35 +2,35 @@
 
 <head>
 <LINK title=default href="" type=text/css rel=stylesheet>
-<title>Автоматический ввод платежей</title>
+<title>п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦п╧ п╡п╡п╬п╢ п©п╩п╟я┌п╣п╤п╣п╧</title>
 
 </head>
 
 
 <body bgcolor="#FFFFFF" text="#000000">
-<h1>Автоматический ввод платежей</h1>
+<h1>п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦п╧ п╡п╡п╬п╢ п©п╩п╟я┌п╣п╤п╣п╧</h1>
 
 {foreach from=$payments item=pay key=key}
 <br><hr><hr><br>
 <FORM action="modules/accounts/add_auto_pay.php" method="POST" target="_blank">
   <TABLE border="1" bgcolor="#c5d6e3">
     <tr>
-    	<TD>Платильщик</TD>
+    	<TD>п÷п╩п╟я┌п╦п╩я▄я┴п╦п╨</TD>
     	<td>{$pay.company}</td>
-    	<td>Логин</td>
+    	<td>п⌡п╬пЁп╦п╫</td>
     	<TD><INPUT type="text" name="client" value="{$pay.client}" size="10"></TD>
     </tr>
     <tr>
-    	<TD>Назначение платежа</TD>
+    	<TD>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣ п©п╩п╟я┌п╣п╤п╟</TD>
     	<TD colspan="3">{$pay.comments}</TD>
     </tr>
   </TABLE>
   <table border="1" bgcolor="#c5d6e3">
   	<TR>
-  		<TD>Сумма</TD>
-  		<TD>Дата </TD>
-  		<TD>Номер</TD>
-  		<TD>Счет</TD>
+  		<TD>п║я┐п╪п╪п╟</TD>
+  		<TD>п■п╟я┌п╟ </TD>
+  		<TD>п²п╬п╪п╣я─</TD>
+  		<TD>п║я┤п╣я┌</TD>
   		
   	</TR>
   	<TR>
@@ -52,12 +52,12 @@
   	</TR>
   	<tr>
   		{if $pay.valid}
-  		<TD>Клиент и счет существуют, можно внести платеж</TD>
-  		<TD><INPUT type="submit" name="add_auto_pay" value="Внести платеж"></TD>
+  		<TD>п п╩п╦п╣п╫я┌ п╦ я│я┤п╣я┌ я│я┐я┴п╣я│я┌п╡я┐я▌я┌, п╪п╬п╤п╫п╬ п╡п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤</TD>
+  		<TD><INPUT type="submit" name="add_auto_pay" value="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤"></TD>
   		{else}
-  		<TD bgcolor="Red"><b>Внимание!!! Клиент или счет не опознан автоматически.
-  		Вы можете скорректировать данные в этой форме, но будьте предельно внимательны!!!</b></TD>
-  		<TD><INPUT type="submit" name="add_auto_pay" value="Внести платеж"></TD>
+  		<TD bgcolor="Red"><b>п▓п╫п╦п╪п╟п╫п╦п╣!!! п п╩п╦п╣п╫я┌ п╦п╩п╦ я│я┤п╣я┌ п╫п╣ п╬п©п╬п╥п╫п╟п╫ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦.
+  		п▓я▀ п╪п╬п╤п╣я┌п╣ я│п╨п╬я─я─п╣п╨я┌п╦я─п╬п╡п╟я┌я▄ п╢п╟п╫п╫я▀п╣ п╡ я█я┌п╬п╧ я└п╬я─п╪п╣, п╫п╬ п╠я┐п╢я▄я┌п╣ п©я─п╣п╢п╣п╩я▄п╫п╬ п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫я▀!!!</b></TD>
+  		<TD><INPUT type="submit" name="add_auto_pay" value="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤"></TD>
   		{/if}
   	</tr>
   </table>

@@ -2,7 +2,7 @@
 <script src="js/ui/i18n/jquery.ui.datepicker-ru.js"></script>
 <link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
 
-<h2>Отчет по ТехПоддержке{if $date} {$date}{/if}</h2>
+<h2>п·я┌я┤п╣я┌ п©п╬ п╒п╣я┘п÷п╬п╢п╢п╣я─п╤п╨п╣{if $date} {$date}{/if}</h2>
 <style>
 {literal}
 #repart_table td {
@@ -20,15 +20,15 @@ text-align: center;
 	<input type="hidden" name="action" value="support_efficiency" />
 	<table>
 		<tr>
-			<td>С</td>
+			<td>п║</td>
 			<td><input class="datepicker-input" type=text name="date_from" value="{$date_from}" id="date_from"></td>
 			<td>&nbsp;</td>
-			<td>по</td>
+			<td>п©п╬</td>
 			<td><input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to"></td>
             <td><input type=submit value="OK" name="make_report"></td>
 		</tr>
         <tr>
-            <td colspan=2>Услуги в траблах:</td>
+            <td colspan=2>пёя│п╩я┐пЁп╦ п╡ я┌я─п╟п╠п╩п╟я┘:</td>
             <td colspan=4>{html_checkboxes name=usage options=$usages selected=$usages_selected separator="<br>"}</td>
         </tr>
     </table>
@@ -42,12 +42,12 @@ optools.DatePickerInit();
 	<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
 	    <tr id="tr_head">
 	        <td>#</td>
-	        <td>ФИО</td>
-	        <td>Консультаций</td>
-	        <td>Мониторинг</td>
-	        <td>Траблы</td>
-	        <td>Задания</td>
-	        <td>Всего</td>
+	        <td>п╓п≤п·</td>
+	        <td>п п╬п╫я│я┐п╩я▄я┌п╟я├п╦п╧</td>
+	        <td>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</td>
+	        <td>п╒я─п╟п╠п╩я▀</td>
+	        <td>п≈п╟п╢п╟п╫п╦я▐</td>
+	        <td>п▓я│п╣пЁп╬</td>
 	    </tr>
 	    {foreach from=$d item=i key=idx}
 	    <tr>
@@ -61,7 +61,7 @@ optools.DatePickerInit();
 	    </tr>
 	    {/foreach}
 	    <tr>
-	        <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+	        <td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;</td>
 	        <td><b>{$total.consultation}</b></td>
 	        <td><b>{$total.monitoring}</b></td>
 	        <td><b>{$total.trouble}</b></td>
@@ -70,21 +70,21 @@ optools.DatePickerInit();
 	    </tr>
 	</table>
     <br>
-    * - <small>Отчет формируется по траблам, <b>созданным</b> в указанный период. <br />
-    Только заявки созданные сотрудниками тех.поддержки и менеджерами</small>
+    * - <small>п·я┌я┤п╣я┌ я└п╬я─п╪п╦я─я┐п╣я┌я│я▐ п©п╬ я┌я─п╟п╠п╩п╟п╪, <b>я│п╬п╥п╢п╟п╫п╫я▀п╪</b> п╡ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п©п╣я─п╦п╬п╢. <br />
+    п╒п╬п╩я▄п╨п╬ п╥п╟я▐п╡п╨п╦ я│п╬п╥п╢п╟п╫п╫я▀п╣ я│п╬я┌я─я┐п╢п╫п╦п╨п╟п╪п╦ я┌п╣я┘.п©п╬п╢п╢п╣я─п╤п╨п╦ п╦ п╪п╣п╫п╣п╢п╤п╣я─п╟п╪п╦</small>
 </div>
 
 <div style="padding-top:30px;">
-	<b>на основании перехода на стадию "Выполнено" (новый алгоритм)</b>
+	<b>п╫п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦ п©п╣я─п╣я┘п╬п╢п╟ п╫п╟ я│я┌п╟п╢п╦я▌ "п▓я▀п©п╬п╩п╫п╣п╫п╬" (п╫п╬п╡я▀п╧ п╟п╩пЁп╬я─п╦я┌п╪)</b>
 	<table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2>
 		<tr id="tr_head">
 			<td>#</td>
-			<td>ФИО</td>
-			<td>Консультаций</td>
-			<td>Мониторинг</td>
-			<td>Траблы</td>
-			<td>Задания</td>
-			<td>Всего</td>
+			<td>п╓п≤п·</td>
+			<td>п п╬п╫я│я┐п╩я▄я┌п╟я├п╦п╧</td>
+			<td>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</td>
+			<td>п╒я─п╟п╠п╩я▀</td>
+			<td>п≈п╟п╢п╟п╫п╦я▐</td>
+			<td>п▓я│п╣пЁп╬</td>
 		</tr>
 		{foreach from=$on_completed_users item=user_name key=user_user name='list'}
 			{assign var=rating_total value=`$on_completed_rating[$user_user].consultation[7]+$on_completed_rating[$user_user].monitoring[7]+$on_completed_rating[$user_user].trouble[7]+$on_completed_rating[$user_user].task[7]`}
@@ -99,7 +99,7 @@ optools.DatePickerInit();
 			</tr>
 		{/foreach}
 		<tr>
-		    <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+		    <td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;</td>
 		    <td><b>{$on_completed_total.7.consultation}</b></td>
 		    <td><b>{$on_completed_total.7.monitoring}</b></td>
 		    <td><b>{$on_completed_total.7.trouble}</b></td>
@@ -108,21 +108,21 @@ optools.DatePickerInit();
 		</tr>
 	</table>
     <br>
-    * - <small>Отчет формируется по траблам, <b>выполненным</b> в указанный период <b>определенным</b> сотрудником. <br />
-    Только заявки созданные сотрудниками тех.поддержки и менеджерами</small>
+    * - <small>п·я┌я┤п╣я┌ я└п╬я─п╪п╦я─я┐п╣я┌я│я▐ п©п╬ я┌я─п╟п╠п╩п╟п╪, <b>п╡я▀п©п╬п╩п╫п╣п╫п╫я▀п╪</b> п╡ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п©п╣я─п╦п╬п╢ <b>п╬п©я─п╣п╢п╣п╩п╣п╫п╫я▀п╪</b> я│п╬я┌я─я┐п╢п╫п╦п╨п╬п╪. <br />
+    п╒п╬п╩я▄п╨п╬ п╥п╟я▐п╡п╨п╦ я│п╬п╥п╢п╟п╫п╫я▀п╣ я│п╬я┌я─я┐п╢п╫п╦п╨п╟п╪п╦ я┌п╣я┘.п©п╬п╢п╢п╣я─п╤п╨п╦ п╦ п╪п╣п╫п╣п╢п╤п╣я─п╟п╪п╦</small>
 </div>
 
 <div style="padding-top:30px;">
-    <b>на основании перехода на стадию "Закрыто" (новый алгоритм)</b>
+    <b>п╫п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦ п©п╣я─п╣я┘п╬п╢п╟ п╫п╟ я│я┌п╟п╢п╦я▌ "п≈п╟п╨я─я▀я┌п╬" (п╫п╬п╡я▀п╧ п╟п╩пЁп╬я─п╦я┌п╪)</b>
     <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
         <tr id="tr_head">
             <td>#</td>
-            <td>ФИО</td>
-            <td>Консультаций</td>
-            <td>Мониторинг</td>
-            <td>Траблы</td>
-            <td>Задания</td>
-            <td>Всего</td>
+            <td>п╓п≤п·</td>
+            <td>п п╬п╫я│я┐п╩я▄я┌п╟я├п╦п╧</td>
+            <td>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</td>
+            <td>п╒я─п╟п╠п╩я▀</td>
+            <td>п≈п╟п╢п╟п╫п╦я▐</td>
+            <td>п▓я│п╣пЁп╬</td>
         </tr>
         {foreach from=$on_completed_users item=user_name key=user_user name='list'}
             {assign var=rating_total value=`$on_completed_rating[$user_user].consultation[2]+$on_completed_rating[$user_user].monitoring[2]+$on_completed_rating[$user_user].trouble[2]+$on_completed_rating[$user_user].task[2]`}
@@ -137,7 +137,7 @@ optools.DatePickerInit();
             </tr>
         {/foreach}
         <tr>
-            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;</td>
             <td><b>{$on_completed_total.2.consultation}</b></td>
             <td><b>{$on_completed_total.2.monitoring}</b></td>
             <td><b>{$on_completed_total.2.trouble}</b></td>
@@ -146,20 +146,20 @@ optools.DatePickerInit();
         </tr>
     </table>
     <br>
-    * - <small>Отчет формируется по траблам, <b>закрытым</b> в указанный период и <b>выполненные определенным сотрудником</b>. <br />
-    Только заявки созданные сотрудниками тех.поддержки и менеджерами</small>
+    * - <small>п·я┌я┤п╣я┌ я└п╬я─п╪п╦я─я┐п╣я┌я│я▐ п©п╬ я┌я─п╟п╠п╩п╟п╪, <b>п╥п╟п╨я─я▀я┌я▀п╪</b> п╡ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п©п╣я─п╦п╬п╢ п╦ <b>п╡я▀п©п╬п╩п╫п╣п╫п╫я▀п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╫я▀п╪ я│п╬я┌я─я┐п╢п╫п╦п╨п╬п╪</b>. <br />
+    п╒п╬п╩я▄п╨п╬ п╥п╟я▐п╡п╨п╦ я│п╬п╥п╢п╟п╫п╫я▀п╣ я│п╬я┌я─я┐п╢п╫п╦п╨п╟п╪п╦ я┌п╣я┘.п©п╬п╢п╢п╣я─п╤п╨п╦ п╦ п╪п╣п╫п╣п╢п╤п╣я─п╟п╪п╦</small>
 </div>
 <div style="padding-top:30px;">
-    <b>на основании перехода на стадию "Закрыто" без "Выполнено" (новый алгоритм)</b>
+    <b>п╫п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦ п©п╣я─п╣я┘п╬п╢п╟ п╫п╟ я│я┌п╟п╢п╦я▌ "п≈п╟п╨я─я▀я┌п╬" п╠п╣п╥ "п▓я▀п©п╬п╩п╫п╣п╫п╬" (п╫п╬п╡я▀п╧ п╟п╩пЁп╬я─п╦я┌п╪)</b>
     <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
         <tr id="tr_head">
             <td>#</td>
-            <td>ФИО</td>
-            <td>Консультаций</td>
-            <td>Мониторинг</td>
-            <td>Траблы</td>
-            <td>Задания</td>
-            <td>Всего</td>
+            <td>п╓п≤п·</td>
+            <td>п п╬п╫я│я┐п╩я▄я┌п╟я├п╦п╧</td>
+            <td>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</td>
+            <td>п╒я─п╟п╠п╩я▀</td>
+            <td>п≈п╟п╢п╟п╫п╦я▐</td>
+            <td>п▓я│п╣пЁп╬</td>
         </tr>
         {foreach from=$on_completed_users item=user_name key=user_user name='list'}
             <tr>
@@ -173,7 +173,7 @@ optools.DatePickerInit();
             </tr>
         {/foreach}
         <tr>
-            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;</td>
             <td><b>{$on_completed_total.2w7.consultation}</b></td>
             <td><b>{$on_completed_total.2w7.monitoring}</b></td>
             <td><b>{$on_completed_total.2w7.trouble}</b></td>
@@ -182,21 +182,21 @@ optools.DatePickerInit();
         </tr>
     </table>
     <br>
-    * - <small>Отчет формируется по траблам, <b>закрытым</b> в указанный период, но <b>не выполненные</b>. <br />
-    Только заявки созданные сотрудниками тех.поддержки и менеджерами</small>
+    * - <small>п·я┌я┤п╣я┌ я└п╬я─п╪п╦я─я┐п╣я┌я│я▐ п©п╬ я┌я─п╟п╠п╩п╟п╪, <b>п╥п╟п╨я─я▀я┌я▀п╪</b> п╡ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п©п╣я─п╦п╬п╢, п╫п╬ <b>п╫п╣ п╡я▀п©п╬п╩п╫п╣п╫п╫я▀п╣</b>. <br />
+    п╒п╬п╩я▄п╨п╬ п╥п╟я▐п╡п╨п╦ я│п╬п╥п╢п╟п╫п╫я▀п╣ я│п╬я┌я─я┐п╢п╫п╦п╨п╟п╪п╦ я┌п╣я┘.п©п╬п╢п╢п╣я─п╤п╨п╦ п╦ п╪п╣п╫п╣п╢п╤п╣я─п╟п╪п╦</small>
 </div>
 
 <div style="padding-top:30px;">
-    <b>на основании перехода на стадию "Выполнено" (по дате создания заявки)</b>
+    <b>п╫п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦ п©п╣я─п╣я┘п╬п╢п╟ п╫п╟ я│я┌п╟п╢п╦я▌ "п▓я▀п©п╬п╩п╫п╣п╫п╬" (п©п╬ п╢п╟я┌п╣ я│п╬п╥п╢п╟п╫п╦я▐ п╥п╟я▐п╡п╨п╦)</b>
     <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2>
         <tr id="tr_head">
             <td>#</td>
-            <td>ФИО</td>
-            <td>Консультаций</td>
-            <td>Мониторинг</td>
-            <td>Траблы</td>
-            <td>Задания</td>
-            <td>Всего</td>
+            <td>п╓п≤п·</td>
+            <td>п п╬п╫я│я┐п╩я▄я┌п╟я├п╦п╧</td>
+            <td>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</td>
+            <td>п╒я─п╟п╠п╩я▀</td>
+            <td>п≈п╟п╢п╟п╫п╦я▐</td>
+            <td>п▓я│п╣пЁп╬</td>
         </tr>
         {foreach from=$on_completed_users2 item=user_name key=user_user name='list'}
             {assign var=rating_total value=`$on_completed_rating2[$user_user].consultation[7]+$on_completed_rating2[$user_user].monitoring[7]+$on_completed_rating2[$user_user].trouble[7]+$on_completed_rating2[$user_user].task[7]`}
@@ -211,7 +211,7 @@ optools.DatePickerInit();
             </tr>
         {/foreach}
         <tr>
-            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;</td>
             <td><b>{$on_completed_total2.7.consultation}</b></td>
             <td><b>{$on_completed_total2.7.monitoring}</b></td>
             <td><b>{$on_completed_total2.7.trouble}</b></td>
@@ -223,16 +223,16 @@ optools.DatePickerInit();
 
 
 <div style="padding-top:30px;">
-    <b>на основании перехода на стадию "Закрыто" (по дате создания заявки)</b>
+    <b>п╫п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦ п©п╣я─п╣я┘п╬п╢п╟ п╫п╟ я│я┌п╟п╢п╦я▌ "п≈п╟п╨я─я▀я┌п╬" (п©п╬ п╢п╟я┌п╣ я│п╬п╥п╢п╟п╫п╦я▐ п╥п╟я▐п╡п╨п╦)</b>
     <table id=repart_table border=1 style="border-collapse: collapse; border-color: #ccc;" cellspacing=2 >
         <tr id="tr_head">
             <td>#</td>
-            <td>ФИО</td>
-            <td>Консультаций</td>
-            <td>Мониторинг</td>
-            <td>Траблы</td>
-            <td>Задания</td>
-            <td>Всего</td>
+            <td>п╓п≤п·</td>
+            <td>п п╬п╫я│я┐п╩я▄я┌п╟я├п╦п╧</td>
+            <td>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</td>
+            <td>п╒я─п╟п╠п╩я▀</td>
+            <td>п≈п╟п╢п╟п╫п╦я▐</td>
+            <td>п▓я│п╣пЁп╬</td>
         </tr>
         {foreach from=$on_completed_users2 item=user_name key=user_user name='list'}
             {assign var=rating_total value=`$on_completed_rating2[$user_user].consultation[2]+$on_completed_rating2[$user_user].monitoring[2]+$on_completed_rating2[$user_user].trouble[2]+$on_completed_rating2[$user_user].task[2]`}
@@ -247,7 +247,7 @@ optools.DatePickerInit();
             </tr>
         {/foreach}
         <tr>
-            <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
+            <td colspan=2 align=right><b>п≤я┌п╬пЁп╬:</b>&nbsp;</td>
             <td><b>{$on_completed_total2.2.consultation}</b></td>
             <td><b>{$on_completed_total2.2.monitoring}</b></td>
             <td><b>{$on_completed_total2.2.trouble}</b></td>
@@ -258,4 +258,4 @@ optools.DatePickerInit();
 </div>
 
 	<br>
-	* - <small>Отчет формируется по траблам, созданным в указанный период. Считается каждый переход на стадию.<br />Только заявки созданные сотрудниками тех.поддержки и менеджерами</small>
+	* - <small>п·я┌я┤п╣я┌ я└п╬я─п╪п╦я─я┐п╣я┌я│я▐ п©п╬ я┌я─п╟п╠п╩п╟п╪, я│п╬п╥п╢п╟п╫п╫я▀п╪ п╡ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п©п╣я─п╦п╬п╢. п║я┤п╦я┌п╟п╣я┌я│я▐ п╨п╟п╤п╢я▀п╧ п©п╣я─п╣я┘п╬п╢ п╫п╟ я│я┌п╟п╢п╦я▌.<br />п╒п╬п╩я▄п╨п╬ п╥п╟я▐п╡п╨п╦ я│п╬п╥п╢п╟п╫п╫я▀п╣ я│п╬я┌я─я┐п╢п╫п╦п╨п╟п╪п╦ я┌п╣я┘.п©п╬п╢п╢п╣я─п╤п╨п╦ п╦ п╪п╣п╫п╣п╢п╤п╣я─п╟п╪п╦</small>

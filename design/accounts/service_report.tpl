@@ -1,22 +1,22 @@
-<h1>Отчет по услугам за период <b>{$period}</b> Компания: <b>{$firma}</b></h1>
+<h1>п·я┌я┤п╣я┌ п©п╬ я┐я│п╩я┐пЁп╟п╪ п╥п╟ п©п╣я─п╦п╬п╢ <b>{$period}</b> п п╬п╪п©п╟п╫п╦я▐: <b>{$firma}</b></h1>
 
 
-<h2>Всего оказано услуг на сумму: <font color="Red" ><b>{$total_services}</b></font></h2>
-В том числе залогов на <b>{$total_zalog}</b>
-<h2>Всего получено платежей на сумму: <font color="Red" ><b>{$total_payments}</b></font></h2>
-<h2>ИТОГО БАЛАНС: <font color="Red" ><b>{$total_debet}</b></font></h2>
+<h2>п▓я│п╣пЁп╬ п╬п╨п╟п╥п╟п╫п╬ я┐я│п╩я┐пЁ п╫п╟ я│я┐п╪п╪я┐: <font color="Red" ><b>{$total_services}</b></font></h2>
+п▓ я┌п╬п╪ я┤п╦я│п╩п╣ п╥п╟п╩п╬пЁп╬п╡ п╫п╟ <b>{$total_zalog}</b>
+<h2>п▓я│п╣пЁп╬ п©п╬п╩я┐я┤п╣п╫п╬ п©п╩п╟я┌п╣п╤п╣п╧ п╫п╟ я│я┐п╪п╪я┐: <font color="Red" ><b>{$total_payments}</b></font></h2>
+<h2>п≤п╒п·п⌠п· п▒п░п⌡п░п²п║: <font color="Red" ><b>{$total_debet}</b></font></h2>
 <br><br>
 <table border="1">
 	<Tr bgcolor="#cfd8df">
 		<b>
 		<td></td>
-		<TD  width="100">Клиент</TD>
-		<td>Счета фактур</td>
-		<td>ИТОГО Услуг</td>
-		<td>В том числе<br>залогов</td>
-		<td>Платежи</td>
-		<td>ИТОГО Оплата</td>
-		<td>Дебет</td>
+		<TD  width="100">п п╩п╦п╣п╫я┌</TD>
+		<td>п║я┤п╣я┌п╟ я└п╟п╨я┌я┐я─</td>
+		<td>п≤п╒п·п⌠п· пёя│п╩я┐пЁ</td>
+		<td>п▓ я┌п╬п╪ я┤п╦я│п╩п╣<br>п╥п╟п╩п╬пЁп╬п╡</td>
+		<td>п÷п╩п╟я┌п╣п╤п╦</td>
+		<td>п≤п╒п·п⌠п· п·п©п╩п╟я┌п╟</td>
+		<td>п■п╣п╠п╣я┌</td>
 	</b>
 		
 		
@@ -32,7 +32,7 @@
 		<TD>
 			{foreach from=$client.invoice item=invoice}
 				<a href="modules/accounts/view_inv.php?invoice_no={$invoice.invoice_no}&todo=invoice" target="_blank">
-				{$invoice.invoice_no}</a> от {$invoice.invoice_date} сумма <b>{$invoice.sum_plus_tax}</b><br>
+				{$invoice.invoice_no}</a> п╬я┌ {$invoice.invoice_date} я│я┐п╪п╪п╟ <b>{$invoice.sum_plus_tax}</b><br>
 			{/foreach}
 		</TD>
 		<TD><b>{$client.sum}</b></TD>
@@ -40,7 +40,7 @@
 		<TD>
 			{foreach from=$client.payments item=pay}
 				<a href="?module=accounts&action=accounts_payments&clients_client={$client.client}" target="_blank">{$pay.sum_rub}</a>
-				 {$pay.payment_no} от {$pay.payment_date}<br>
+				 {$pay.payment_no} п╬я┌ {$pay.payment_date}<br>
 			{/foreach}
 		</TD>
 		<TD><b> {$client.total}</b> </TD>

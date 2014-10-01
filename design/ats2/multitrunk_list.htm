@@ -1,24 +1,24 @@
-<h1>Мультитранки</h1>
-    <a href="./?module=ats2&action=mt_add"><img align=absmiddle src="./images/icons/add.gif">Добавить мултитранк</a><br>
-    <a href="./?module=ats2&action=mt_link"><img align=absmiddle src="./images/icons/add.gif">Добавить привязку</a><br>
+<h1>п°я┐п╩я▄я┌п╦я┌я─п╟п╫п╨п╦</h1>
+    <a href="./?module=ats2&action=mt_add"><img align=absmiddle src="./images/icons/add.gif">п■п╬п╠п╟п╡п╦я┌я▄ п╪я┐п╩я┌п╦я┌я─п╟п╫п╨</a><br>
+    <a href="./?module=ats2&action=mt_link"><img align=absmiddle src="./images/icons/add.gif">п■п╬п╠п╟п╡п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐</a><br>
 <script>
 var mtAllChecked = false;
 </script>
 <form action="./?module=ats2&action=mt" method=post>
 <table width=100% border=1 style="border-collapse:collapse;" id="mt_table">
 <tr>
-<td>Мультитранк</td>
-<td>Одновр. звонков</td>
-<td>Объединение</td>
-<td>Клиент-владелец</td>
-<td>Привязки</td>
+<td>п°я┐п╩я▄я┌п╦я┌я─п╟п╫п╨</td>
+<td>п·п╢п╫п╬п╡я─. п╥п╡п╬п╫п╨п╬п╡</td>
+<td>п·п╠я┼п╣п╢п╦п╫п╣п╫п╦п╣</td>
+<td>п п╩п╦п╣п╫я┌-п╡п╩п╟п╢п╣п╩п╣я├</td>
+<td>п÷я─п╦п╡я▐п╥п╨п╦</td>
 <td align=center><!--input type=checkbox style="padding: 0 0 0 0;margin: 0 0 0 0;" onclick="$('#mt_table input[type=checkbox]').each({literal}function (i,o){if(i>0){o.checked=mtAllChecked;}else{mtAllChecked = o.checked}}){/literal}"--></td>
 </tr>
 {foreach from=$mts item=n}
 <tr>
 <td valign=top><a href="./?module=ats2&action=mt_edit&id={$n.id}">{$n.name}</a></td>
 <td valign=top>{$n.call_count}</a></td>
-<td valign=top>{if $n.is_pool}Да{else}нет{/if}</a></td>
+<td valign=top>{if $n.is_pool}п■п╟{else}п╫п╣я┌{/if}</a></td>
 <td valign=top>{$n.client}</a></td>
 <td>{foreach from=$n.parent item=p}
 <b><a href="./?module=ats2&action=mt_link&id={$p.id}">{$p.client}</a></b>&nbsp;&nbsp;&nbsp;<input name="ids[]" type=checkbox value={$p.id} style="padding: 0 0 0 0;margin: 0 0 0 0;"></br>
@@ -33,14 +33,14 @@ var mtAllChecked = false;
 <td align=center><input name="ids[]" type=checkbox value={$n.id} style="padding: 0 0 0 0;margin: 0 0 0 0;"></td>
 </tr>
 {foreachelse}
-<tr><td align=center colspan=9><i>Нет записей</i></td></tr>
+<tr><td align=center colspan=9><i>п²п╣я┌ п╥п╟п©п╦я│п╣п╧</i></td></tr>
 {/foreach}
 </table>
-<div style="text-align: right; padding-right: 20px;">Действие
+<div style="text-align: right; padding-right: 20px;">п■п╣п╧я│я┌п╡п╦п╣
     <select name="subaction">
     <option value="">------------</option>
-    <option value="delete_trunk">Удалить мултитранк</option>
-    <option value="delete_link">Удалить привязку</option>
+    <option value="delete_trunk">пёп╢п╟п╩п╦я┌я▄ п╪я┐п╩я┌п╦я┌я─п╟п╫п╨</option>
+    <option value="delete_link">пёп╢п╟п╩п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐</option>
     </select>
     <input type=submit value="go" style="width: 27px; height:23px;">
     </div>

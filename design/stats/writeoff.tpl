@@ -1,15 +1,15 @@
-      <H2>Статистика</H2>
-      <H3>Списание средств</H3>
-Сумма по счетам за тот же период: {if $sum_bills!=""}{$sum_bills}{else}0{/if}<br>
+      <H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</H2>
+      <H3>п║п©п╦я│п╟п╫п╦п╣ я│я─п╣п╢я│я┌п╡</H3>
+п║я┐п╪п╪п╟ п©п╬ я│я┤п╣я┌п╟п╪ п╥п╟ я┌п╬я┌ п╤п╣ п©п╣я─п╦п╬п╢: {if $sum_bills!=""}{$sum_bills}{else}0{/if}<br>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="15%">Клиент</TD>
-          <TD class=header vAlign=bottom width="20%">Услуга</TD>
-          <TD class=header vAlign=bottom width="10%">Параметр</TD>
-          <TD class=header vAlign=bottom width="20%">Сроки оказания услуги</TD>
-          <TD class=header vAlign=bottom width="20%">Комментарий</TD>
-          <TD class=header vAlign=bottom width="15%">Сумма</TD>
+          <TD class=header vAlign=bottom width="15%">п п╩п╦п╣п╫я┌</TD>
+          <TD class=header vAlign=bottom width="20%">пёя│п╩я┐пЁп╟</TD>
+          <TD class=header vAlign=bottom width="10%">п÷п╟я─п╟п╪п╣я┌я─</TD>
+          <TD class=header vAlign=bottom width="20%">п║я─п╬п╨п╦ п╬п╨п╟п╥п╟п╫п╦я▐ я┐я│п╩я┐пЁп╦</TD>
+          <TD class=header vAlign=bottom width="20%">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</TD>
+          <TD class=header vAlign=bottom width="15%">п║я┐п╪п╪п╟</TD>
         </TR>
 
 {foreach from=$stats item=item key=key name=outer}

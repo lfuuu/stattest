@@ -3,19 +3,19 @@
 <table class="price">
 	<tr>
 		<th colspan=2>
-			Клиент
+			п п╩п╦п╣п╫я┌
 		</th>
 		<th>
-			ВАТС ID
+			п▓п░п╒п║ ID
 		</th>
 		<th>
-			Тариф
+			п╒п╟я─п╦я└
 		</th>
 		<th>
-			Работает с
+			п═п╟п╠п╬я┌п╟п╣я┌ я│
 		</th>
 		<th>
-			Работает по
+			п═п╟п╠п╬я┌п╟п╣я┌ п©п╬
 		</th>
 	</tr>
 	{if $vpbxs}
@@ -34,16 +34,16 @@
 					{$p.tarif}
 				</td>
 				<td>
-					{$p.actual_from|mdate:"d месяца Y"}
+					{$p.actual_from|mdate:"d п╪п╣я│я▐я├п╟ Y"}
 				</td>
 				<td>
-					{if $p.actual_to == "--"}{$p.actual_to}{else}{$p.actual_to|mdate:"d месяца Y"}{/if}
+					{if $p.actual_to == "--"}{$p.actual_to}{else}{$p.actual_to|mdate:"d п╪п╣я│я▐я├п╟ Y"}{/if}
 				</td>
 			</tr>
 		{/foreach}
 		<tr>
 			<th colspan=2>
-				<b>Всего</b>
+				<b>п▓я│п╣пЁп╬</b>
 			</th>
 			<td align="right">
 				{$total}
@@ -54,7 +54,7 @@
 		<tr>
 	{else}
 		<tr>
-			<td colspan="5">Нет данных</td>
+			<td colspan="5">п²п╣я┌ п╢п╟п╫п╫я▀я┘</td>
 		</tr>
 	{/if}
 </table>

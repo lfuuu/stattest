@@ -1,19 +1,19 @@
 <p>
-Сравнение файла:
+п║я─п╟п╡п╫п╣п╫п╦п╣ я└п╟п╧п╩п╟:
 <div style="position:relative;left:50;">
 <table><tr>
 <td>
-прайс лист: {$file.pricelist} ({$file.operator})<br>
-файл: {$file.filename}<br>
-дата загрузки: {$file.date}<br>
-количество строк: {$file.rows}<br>
-начало действия: <b>{$file.startdate}</b><br>
+п©я─п╟п╧я│ п╩п╦я│я┌: {$file.pricelist} ({$file.operator})<br>
+я└п╟п╧п╩: {$file.filename}<br>
+п╢п╟я┌п╟ п╥п╟пЁя─я┐п╥п╨п╦: {$file.date}<br>
+п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я│я┌я─п╬п╨: {$file.rows}<br>
+п╫п╟я┤п╟п╩п╬ п╢п╣п╧я│я┌п╡п╦я▐: <b>{$file.startdate}</b><br>
 </td>
 <td>
 {if $file.active eq 't'}
-	<b>Активирован</b><br>
+	<b>п░п╨я┌п╦п╡п╦я─п╬п╡п╟п╫</b><br>
 {else}
-	<b>Не активирован</b><br>
+	<b>п²п╣ п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫</b><br>
 {/if}
 </td>
 </tr></table>
@@ -25,46 +25,46 @@
 	<input type="hidden" name="id" value="{$file.id}" />
 
 	<select name="f_dest_group">
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-	<option value="0" {if $f_dest_group eq '0'} selected{/if}>Москва</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+	<option value="0" {if $f_dest_group eq '0'} selected{/if}>п°п╬я│п╨п╡п╟</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
 	</select>
 	<select name="f_country_id">
-	<option value="0">-- Все страны --</option>
+	<option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
 	{foreach from=$countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 	<select name="f_region_id">
-	<option value="0">-- Все регионы --</option>
+	<option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
 	{foreach from=$regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 	
 	<input type=hidden name="make" value="1"/>
-	<input type=submit value="Сформировать"/>
-<br>найдено {$pager_all} изменений
+	<input type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
+<br>п╫п╟п╧п╢п╣п╫п╬ {$pager_all} п╦п╥п╪п╣п╫п╣п╫п╦п╧
 </form>
 
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+п║я┌я─п╟п╫п╦я├я▀: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-<tr><td class=header>Префикс номера</td><td class=header colspan=2>Изменение цены</td><td class=header>НОВАЯ Цена</td><td class=header>СТАРАЯ Цена</td>
-<td class=header>Направление</td>
-<td class=header>Назначение</td>
+<tr><td class=header>п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟</td><td class=header colspan=2>п≤п╥п╪п╣п╫п╣п╫п╦п╣ я├п╣п╫я▀</td><td class=header>п²п·п▓п░п╞ п╕п╣п╫п╟</td><td class=header>п║п╒п░п═п░п╞ п╕п╣п╫п╟</td>
+<td class=header>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
+<td class=header>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</td>
 <td class=header>Fix/Mob</td>
 {foreach from=$defs_list item='o'}
 <tr class={cycle values='even,odd'} {if $o.deleting eq 't'}style="text-decoration:line-through"{/if}><td>{$o.defcode}</td>
 
 {if $o.deleting eq 't'}
-<td colspan=2>Удалено</td>
+<td colspan=2>пёп╢п╟п╩п╣п╫п╬</td>
 {elseif $o.inserting eq 't'}
-<td colspan=2>Добавлено</td>
+<td colspan=2>п■п╬п╠п╟п╡п╩п╣п╫п╬</td>
 {elseif $o.price_diff gt 0}
 <td>+{$o.price_diff}</td><td>+{$o.price_diff_pr}%</td>
 {elseif $o.price_diff lt 0}

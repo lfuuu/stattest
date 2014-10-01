@@ -1,12 +1,12 @@
-      <H2>Заявки</H2>
+      <H2>п≈п╟я▐п╡п╨п╦</H2>
       <h3>tt_states</h3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
           <TD class=header vAlign=bottom width="12%">id</TD>
-          <TD class=header vAlign=bottom width="32%">название</TD>
-          <TD class=header vAlign=bottom width="22%">порядок</TD>
-          <TD class=header vAlign=bottom width="22%">изменение времени</TD>
+          <TD class=header vAlign=bottom width="32%">п╫п╟п╥п╡п╟п╫п╦п╣</TD>
+          <TD class=header vAlign=bottom width="22%">п©п╬я─я▐п╢п╬п╨</TD>
+          <TD class=header vAlign=bottom width="22%">п╦п╥п╪п╣п╫п╣п╫п╦п╣ п╡я─п╣п╪п╣п╫п╦</TD>
           <TD>&nbsp;</td>
 		</TR>
 {foreach from=$tt_states item=item name=outer}
@@ -15,8 +15,8 @@
           <TD>{$item.name}</TD>
           <TD>{$item.order}</TD>
           <TD>{if $item.time_mark}{$item.time_mark|mdate:'Y-m-d H:i:s'} &ndash; {/if}{$item.time_delta}</TD>
-          <TD><a href='{$LINK_START}module=tt&action=sapply&dbaction=delete&keys[id]={$item.id}'>удалить</a></TD>
+          <TD><a href='{$LINK_START}module=tt&action=sapply&dbaction=delete&keys[id]={$item.id}'>я┐п╢п╟п╩п╦я┌я▄</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>
-<a href='{$LINK_START}module=tt&action=sadd'>Добавить состояние</a><br>
+<a href='{$LINK_START}module=tt&action=sadd'>п■п╬п╠п╟п╡п╦я┌я▄ я│п╬я│я┌п╬я▐п╫п╦п╣</a><br>

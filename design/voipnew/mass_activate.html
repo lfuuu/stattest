@@ -1,12 +1,12 @@
 <form action="index.php?module=voipnew&action=mass_activate" method="post">
 <p>&nbsp;</p>
-<p>Загруженные файлы:</p>
+<p>п≈п╟пЁя─я┐п╤п╣п╫п╫я▀п╣ я└п╟п╧п╩я▀:</p>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
         <td class=header>&nbsp;</td>
-        <td class=header>Регион</td>
-        <td class=header>Ид</td>
-        <td class=header>Прайслист</td>
+        <td class=header>п═п╣пЁп╦п╬п╫</td>
+        <td class=header>п≤п╢</td>
+        <td class=header>п÷я─п╟п╧я│п╩п╦я│я┌</td>
         <td class=header></td>
     </tr>
     {foreach from=$list item='p'}
@@ -15,10 +15,10 @@
         <td>{$regions[$p.region].name}</td>
         <td>{$p.id}</td>
         <td>{$p.name}</td>
-        <td><a href="index.php?module=voipnew&action=view_raw_file&id={$p.rawfile_id}" target="_blank">просмотр</a></td>
+        <td><a href="index.php?module=voipnew&action=view_raw_file&id={$p.rawfile_id}" target="_blank">п©я─п╬я│п╪п╬я┌я─</a></td>
     </tr>
     {/foreach}
 </table>
 
-    <input type="submit" name="activate" value="Активировать файлы"/>
+    <input type="submit" name="activate" value="п░п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄ я└п╟п╧п╩я▀"/>
 </form>

@@ -2,29 +2,29 @@
 <HTML>
 <HEAD>
 <TITLE></TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 </HEAD>
 <BODY text="#404040" vLink="#000099" aLink="#000000" link="#000099" bgColor="#EFEFEF">
 <center>
-<h2>АКТ</h2>
-<h3>сдачи-приемки работ<br>
-по дополнительному соглашению к&nbsp;договору &#8470; {$contract.contract_no} от {$contract.contract_date}
-<table align=center width=90%><tr><td align=left>г. Москва </td><td align=right>{if $conn.actual_from<=date('Y-m-d')}<b>{$conn.actual_from|mdate:"d.m.Y г."}</b>{else}&nbsp;{/if}</td></tr></table>
+<h2>п░п п╒</h2>
+<h3>я│п╢п╟я┤п╦-п©я─п╦п╣п╪п╨п╦ я─п╟п╠п╬я┌<br>
+п©п╬ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬п╪я┐ я│п╬пЁп╩п╟я┬п╣п╫п╦я▌ п╨&nbsp;п╢п╬пЁп╬п╡п╬я─я┐ &#8470; {$contract.contract_no} п╬я┌ {$contract.contract_date}
+<table align=center width=90%><tr><td align=left>пЁ. п°п╬я│п╨п╡п╟ </td><td align=right>{if $conn.actual_from<=date('Y-m-d')}<b>{$conn.actual_from|mdate:"d.m.Y пЁ."}</b>{else}&nbsp;{/if}</td></tr></table>
 </h3></center>
-<p>Настоящий акт составлен между Абонентом <b>{$client.company_full}</b>, в&nbsp;лице 
-<b>{$client.signer_positionV} {$client.signer_nameV}</b>, и&nbsp;Оператором 
+<p>п²п╟я│я┌п╬я▐я┴п╦п╧ п╟п╨я┌ я│п╬я│я┌п╟п╡п╩п╣п╫ п╪п╣п╤п╢я┐ п░п╠п╬п╫п╣п╫я┌п╬п╪ <b>{$client.company_full}</b>, п╡&nbsp;п╩п╦я├п╣ 
+<b>{$client.signer_positionV} {$client.signer_nameV}</b>, п╦&nbsp;п·п©п╣я─п╟я┌п╬я─п╬п╪ 
 {if $client.firma eq "mcn"}
-	ООО &laquo;Эм Си Эн&raquo;, в&nbsp;лице Генерального директора Мельникова&nbsp; А.&nbsp;К., о&nbsp;
+	п·п·п· &laquo;п╜п╪ п║п╦ п╜п╫&raquo;, п╡&nbsp;п╩п╦я├п╣ п⌠п╣п╫п╣я─п╟п╩я▄п╫п╬пЁп╬ п╢п╦я─п╣п╨я┌п╬я─п╟ п°п╣п╩я▄п╫п╦п╨п╬п╡п╟&nbsp; п░.&nbsp;п ., п╬&nbsp;
 {else}
-	ООО &laquo;МАРКОМНЕТ&raquo; в&nbsp;лице директора Мельникова&nbsp; А.&nbsp;К., о&nbsp;
+	п·п·п· &laquo;п°п░п═п п·п°п²п∙п╒&raquo; п╡&nbsp;п╩п╦я├п╣ п╢п╦я─п╣п╨я┌п╬я─п╟ п°п╣п╩я▄п╫п╦п╨п╬п╡п╟&nbsp; п░.&nbsp;п ., п╬&nbsp;
 {/if} 
-том, что:</p>
+я┌п╬п╪, я┤я┌п╬:</p>
 
 <ol>
 {foreach from=$voip_connections item=item}{if $item.address}
-<li>Абоненту был установлено подключение к&nbsp;телефонной сети общего пользования по&nbsp;адресу: <b>{$item.address}</b></li>
+<li>п░п╠п╬п╫п╣п╫я┌я┐ п╠я▀п╩ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╬ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╨&nbsp;я┌п╣п╩п╣я└п╬п╫п╫п╬п╧ я│п╣я┌п╦ п╬п╠я┴п╣пЁп╬ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ п©п╬&nbsp;п╟п╢я─п╣я│я┐: <b>{$item.address}</b></li>
 {/if}{/foreach}
-<li>Абоненту выданы следующие телефонные номера:<br>
+<li>п░п╠п╬п╫п╣п╫я┌я┐ п╡я▀п╢п╟п╫я▀ я│п╩п╣п╢я┐я▌я┴п╦п╣ я┌п╣п╩п╣я└п╬п╫п╫я▀п╣ п╫п╬п╪п╣я─п╟:<br>
 <ul>
 {foreach from=$voip_connections item=item}
 <li>(495) {$item.E164_last} {*if $item.no_of_lines>1} x {$item.no_of_lines}{/if*}</li>
@@ -32,27 +32,27 @@
 </ul>
 </ol><br>
 
-<p>Каналы связи проверены представителем Заказчика, функционируют нормально и&nbsp;удовлетворяют требованиям Договора.</p>
+<p>п п╟п╫п╟п╩я▀ я│п╡я▐п╥п╦ п©я─п╬п╡п╣я─п╣п╫я▀ п©я─п╣п╢я│я┌п╟п╡п╦я┌п╣п╩п╣п╪ п≈п╟п╨п╟п╥я┤п╦п╨п╟, я└я┐п╫п╨я├п╦п╬п╫п╦я─я┐я▌я┌ п╫п╬я─п╪п╟п╩я▄п╫п╬ п╦&nbsp;я┐п╢п╬п╡п╩п╣я┌п╡п╬я─я▐я▌я┌ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐п╪ п■п╬пЁп╬п╡п╬я─п╟.</p>
 
-<h5>Информация для получения статистики</h5>
-Страница просмотра: <i>https://lk.mcn.ru/</i><br>
+<h5>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╢п╩я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╦</h5>
+п║я┌я─п╟п╫п╦я├п╟ п©я─п╬я│п╪п╬я┌я─п╟: <i>https://lk.mcn.ru/</i><br>
 
-Логин: <b>{$client.client}</b><br>
-Пароль: <b>{$client.password}</b>
+п⌡п╬пЁп╦п╫: <b>{$client.client}</b><br>
+п÷п╟я─п╬п╩я▄: <b>{$client.password}</b>
 </p>
 
 
 <TABLE cellSpacing=0 cellPadding=0 border=0 width="100%"><TBODY>
 <TR>
 <TD>
-<p>Оператор: {if $client.firma eq "mcn"}
-ООО &laquo;Эм Си Эн&raquo; &nbsp;{else}ООО &laquo;МАРКОМНЕТ&raquo;
-{/if} </td><td>Абонент: <b>{$client.company_full}</b></td>
+<p>п·п©п╣я─п╟я┌п╬я─: {if $client.firma eq "mcn"}
+п·п·п· &laquo;п╜п╪ п║п╦ п╜п╫&raquo; &nbsp;{else}п·п·п· &laquo;п°п░п═п п·п°п²п∙п╒&raquo;
+{/if} </td><td>п░п╠п╬п╫п╣п╫я┌: <b>{$client.company_full}</b></td>
 
 
 </tr><tr><td>
 <br><br><p>{if $client.firma eq "mcn"}
-Ген. директор {else}Директор{/if} ___________ Мельников&nbsp; А.&nbsp;К. </td><td>
+п⌠п╣п╫. п╢п╦я─п╣п╨я┌п╬я─ {else}п■п╦я─п╣п╨я┌п╬я─{/if} ___________ п°п╣п╩я▄п╫п╦п╨п╬п╡&nbsp; п░.&nbsp;п . </td><td>
 {$client.signer_position}/_____________/{$client.signer_name}</p>
 </td></TR></TBODY></TABLE>
 </body></html>

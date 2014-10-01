@@ -1,14 +1,14 @@
-      <H2>Статистика</H2>
+      <H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</H2>
       <H3>PPP</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="20%">Дата/время</TD>
-          <TD class=header vAlign=bottom width="20%">Время он-лайн</TD>
-          <TD class=header vAlign=bottom width="20%" style='text-align:right'>Входящий трафик, мегабайты</TD>
-          <TD class=header vAlign=bottom width="20%" style='text-align:right'>Исходящий трафик, мегабайты</TD>
+          <TD class=header vAlign=bottom width="20%">п■п╟я┌п╟/п╡я─п╣п╪я▐</TD>
+          <TD class=header vAlign=bottom width="20%">п▓я─п╣п╪я▐ п╬п╫-п╩п╟п╧п╫</TD>
+          <TD class=header vAlign=bottom width="20%" style='text-align:right'>п▓я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨, п╪п╣пЁп╟п╠п╟п╧я┌я▀</TD>
+          <TD class=header vAlign=bottom width="20%" style='text-align:right'>п≤я│я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨, п╪п╣пЁп╟п╠п╟п╧я┌я▀</TD>
 {if $detality=="sessions" || $detality=="login"}
-          <TD class=header vAlign=bottom width="20%">Логин</TD>
+          <TD class=header vAlign=bottom width="20%">п⌡п╬пЁп╦п╫</TD>
 {/if}
         </TR>
 

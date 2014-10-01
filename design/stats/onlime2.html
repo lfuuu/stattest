@@ -4,9 +4,9 @@
 <link href="css/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css"/>
 
 
-<h2>Отчет. {$client_name} {$date}</h2>
+<h2>п·я┌я┤п╣я┌. {$client_name} {$date}</h2>
 <div style="text-align: right; padding-right: 100px;">
-<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=add">Создать заявку</a>
+<a href="./?{if $viewLink}module=stats&action={$report}{/if}&do=add">п║п╬п╥п╢п╟я┌я▄ п╥п╟я▐п╡п╨я┐</a>
 </div>
 <style>
 {literal}
@@ -30,12 +30,12 @@
 	{if false}
 	<table>
 		<tr>
-			<td>С</td>
+			<td>п║</td>
 			<td><select name="date_from_y1" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y1','date_from_m1','date_from_d1')">{generate_sequence_options_select start=2003 selected=$date_from_y1}</select></td>
 			<td><select name="date_from_m1" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y1','date_from_m1','date_from_d1')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_m1}</select></td>
 			<td><select name="date_from_d1" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y1','date_from_m1','date_from_d1')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_d1}</select></td>
 			<td>&nbsp;</td>
-			<td>по</td>
+			<td>п©п╬</td>
 			<td><select name="date_to_y1" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y1','date_to_m1','date_to_d1')">{generate_sequence_options_select start=2003 selected=$date_to_y1}</select></td>
 			<td><select name="date_to_m1" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y1','date_to_m1','date_to_d1')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_m1}</select></td>
 			<td><select name="date_to_d1" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y1','date_to_m1','date_to_d1')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_d1}</select></td>
@@ -47,7 +47,7 @@
     	<tr>
     		<td>C </td>
     		<td><input class="datepicker-input" type=text value="{$date_from}" id=date_from name=date_from></td>
-    		<td>по </td>
+    		<td>п©п╬ </td>
     		<td><input class="datepicker-input" type=text value="{$date_to}"  id=date_to name=date_to></td>
     		<td><input type=submit value="OK"></td>
     	</tr>
@@ -58,30 +58,30 @@ optools.DatePickerInit();
     </form>
 {/if}
 <table border=1 style="border-collapse:collapse; width: 300px;text-align:center;">
-<tr><td><b>В Обработке</b></td><td>{if $s.work}{$s.work}{else}0{/if}</td><td><a href="./?{$url}&list=work">Посмотреть&raquo;</a></td></tr>
-<tr><td><b>Достaвлен</b></td><td>{if $s.close}{$s.close}{else}0{/if}</td><td><a href="./?{$url}&list=close">Посмотреть&raquo;</a></td></tr>
-<tr><td><b>Отказ</b></td><td>{if $s.reject}{$s.reject}{else}0{/if}</td><td><a href="./?{$url}&list=reject">Посмотреть&raquo;</a></td></tr>
-<tr><td><b>Возврат</b></td><td>{if $s.rollback}{$s.rollback}{else}0{/if}</td><td><a href="./?{$url}&list=rollback">Посмотреть&raquo;</a></td></tr>
+<tr><td><b>п▓ п·п╠я─п╟п╠п╬я┌п╨п╣</b></td><td>{if $s.work}{$s.work}{else}0{/if}</td><td><a href="./?{$url}&list=work">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
+<tr><td><b>п■п╬я│я┌aп╡п╩п╣п╫</b></td><td>{if $s.close}{$s.close}{else}0{/if}</td><td><a href="./?{$url}&list=close">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
+<tr><td><b>п·я┌п╨п╟п╥</b></td><td>{if $s.reject}{$s.reject}{else}0{/if}</td><td><a href="./?{$url}&list=reject">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
+<tr><td><b>п▓п╬п╥п╡я─п╟я┌</b></td><td>{if $s.rollback}{$s.rollback}{else}0{/if}</td><td><a href="./?{$url}&list=rollback">п÷п╬я│п╪п╬я┌я─п╣я┌я▄&raquo;</a></td></tr>
 </table><br>
 {if $list}
 <h2>{$listName}</h2>
-<div style="text-align: right;"><a href="./?{$url}&list={$listType}&export=excel">Экспорт в Excel</a></div>
+<div style="text-align: right;"><a href="./?{$url}&list={$listType}&export=excel">п╜п╨я│п©п╬я─я┌ п╡ Excel</a></div>
 <table id=repart_table border=1 style="border-collapse: collapse;" cellspacing=2 >
 <tr id="tr_head">
 <td rowspan=2 width=1%>#</td>
-<td rowspan=2 width=10%>Оператор</td>
-<td rowspan=2 width=10%>Номер счета</td>
-<td rowspan=2 width=10%>Дата<br>создания заказа</td>
-<td rowspan=2 width=1%>Кол-во Onlime-<br>Telecard</td>
-<td rowspan=2 width=10%>ФИО клиента</td>
-<td rowspan=2 width=10%>Телефон клиента</td>
-<td rowspan=2 width=20%>Адрес</td>
-<td colspan=2 width=10%>Дата доставки</td>
-<td rowspan=2 width=20%>Этапы</td>
+<td rowspan=2 width=10%>п·п©п╣я─п╟я┌п╬я─</td>
+<td rowspan=2 width=10%>п²п╬п╪п╣я─ я│я┤п╣я┌п╟</td>
+<td rowspan=2 width=10%>п■п╟я┌п╟<br>я│п╬п╥п╢п╟п╫п╦я▐ п╥п╟п╨п╟п╥п╟</td>
+<td rowspan=2 width=1%>п п╬п╩-п╡п╬ Onlime-<br>Telecard</td>
+<td rowspan=2 width=10%>п╓п≤п· п╨п╩п╦п╣п╫я┌п╟</td>
+<td rowspan=2 width=10%>п╒п╣п╩п╣я└п╬п╫ п╨п╩п╦п╣п╫я┌п╟</td>
+<td rowspan=2 width=20%>п░п╢я─п╣я│</td>
+<td colspan=2 width=10%>п■п╟я┌п╟ п╢п╬я│я┌п╟п╡п╨п╦</td>
+<td rowspan=2 width=20%>п╜я┌п╟п©я▀</td>
 </tr>
 <tr>
-<td>Желаемая</td>
-<td>Фактическая</td>
+<td>п√п╣п╩п╟п╣п╪п╟я▐</td>
+<td>п╓п╟п╨я┌п╦я┤п╣я│п╨п╟я▐</td>
 </tr>
 
 {foreach from=$list item=i key=idx}

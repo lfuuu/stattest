@@ -1,6 +1,6 @@
 <table cellspacing=0 cellpadding=2 border=1 valign=top>
-<tr><td rowspan=2>отключенные</td><td rowspan=2>тех.отказ</td><td rowspan=2>новые</td><td rowspan=2>особые</td><td colspan=3>GPON резерв</td></tr>
-<tr><td>клиент</td><td>Дата</td><td>Сeть</td></tr>
+<tr><td rowspan=2>п╬я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣</td><td rowspan=2>я┌п╣я┘.п╬я┌п╨п╟п╥</td><td rowspan=2>п╫п╬п╡я▀п╣</td><td rowspan=2>п╬я│п╬п╠я▀п╣</td><td colspan=3>GPON я─п╣п╥п╣я─п╡</td></tr>
+<tr><td>п╨п╩п╦п╣п╫я┌</td><td>п■п╟я┌п╟</td><td>п║eя┌я▄</td></tr>
 <tr>
 <td valign=top>
 {foreach from=$data.off item=item key=key}

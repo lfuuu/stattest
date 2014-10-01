@@ -1,15 +1,15 @@
-      <H2>Виртуальная АТС</H2>
-      <H3>Пропущенные звонки</H3>
+      <H2>п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║</H2>
+      <H3>п÷я─п╬п©я┐я┴п╣п╫п╫я▀п╣ п╥п╡п╬п╫п╨п╦</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="20%">Дата/время</TD>
+          <TD class=header vAlign=bottom width="20%">п■п╟я┌п╟/п╡я─п╣п╪я▐</TD>
 {if $detality=='call'}
-          <TD class=header vAlign=bottom width="22%">Кто звонил</TD>
-          <TD class=header vAlign=bottom width="23%">Кому звонил</TD>
-          <TD class=header vAlign=bottom width="15%">Причина завершения</TD>
+          <TD class=header vAlign=bottom width="22%">п я┌п╬ п╥п╡п╬п╫п╦п╩</TD>
+          <TD class=header vAlign=bottom width="23%">п п╬п╪я┐ п╥п╡п╬п╫п╦п╩</TD>
+          <TD class=header vAlign=bottom width="15%">п÷я─п╦я┤п╦п╫п╟ п╥п╟п╡п╣я─я┬п╣п╫п╦я▐</TD>
 {else}
-          <TD class=header vAlign=bottom width="15%">Число пропущенных звонков</TD>
+          <TD class=header vAlign=bottom width="15%">п╖п╦я│п╩п╬ п©я─п╬п©я┐я┴п╣п╫п╫я▀я┘ п╥п╡п╬п╫п╨п╬п╡</TD>
 {/if}
         </TR>
 

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 {literal}<STYLE>BODY                             { margin: 0px;}
 BODY, TD, FONT                          {FONT-FAMILY: Tahoma, Arial, Helvetica, sans-serif;}
 
@@ -77,7 +77,7 @@ bgColor="#FFFFFF">
 <td width="33%">&nbsp;</td>
 <td width=3%>&nbsp;</td>
 <td width="60%" align="right">
-Унифицированная форма &#8470; ТОРГ-12. Утверждена постановлением Госкомстата России от 25.12.98 &#8470; 132 </td>
+пёп╫п╦я└п╦я├п╦я─п╬п╡п╟п╫п╫п╟я▐ я└п╬я─п╪п╟ &#8470; п╒п·п═п⌠-12. пёя┌п╡п╣я─п╤п╢п╣п╫п╟ п©п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣п╪ п⌠п╬я│п╨п╬п╪я│я┌п╟я┌п╟ п═п╬я│я│п╦п╦ п╬я┌ 25.12.98 &#8470; 132 </td>
 </tr>
 </tbody></table>
 <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" class=z11>
@@ -91,57 +91,57 @@ bgColor="#FFFFFF">
 <td width="87">&nbsp;</td>
 <td width="91">&nbsp;</td>
 <td >&nbsp;</td>
-<td width="41">Коды</td>
+<td width="41">п п╬п╢я▀</td>
 </tr>
 <tr>
-<td align="right" rowspan=4>Грузоотправитель:</td>
+<td align="right" rowspan=4>п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄:</td>
 <td colspan="5"  rowspan=4>
 
 {*** from ***}
 {capture name=from}
 
 {if $bill_client.firma=='all4geo'}
-  ООО &quot;Олфогео&quot;, 115487, г. Москва, Нагатинский 2-й проезд, дом 2, строение 8<br />
-  р/с 40702810038110016607 в ОАО Сбербанк России, Корр/с 30101810400000000225<br />ИНН/КПП 7727752091/772401001 БИК 044525225
+  п·п·п· &quot;п·п╩я└п╬пЁп╣п╬&quot;, 115487, пЁ. п°п╬я│п╨п╡п╟, п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ 2-п╧ п©я─п╬п╣п╥п╢, п╢п╬п╪ 2, я│я┌я─п╬п╣п╫п╦п╣ 8<br />
+  я─/я│ 40702810038110016607 п╡ п·п░п· п║п╠п╣я─п╠п╟п╫п╨ п═п╬я│я│п╦п╦, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ 7727752091/772401001 п▒п≤п  044525225
 {elseif $bill_client.firma=='all4net'}
     
-	ООО &quot;Олфонет&quot;, 
+	п·п·п· &quot;п·п╩я└п╬п╫п╣я┌&quot;, 
     {if $bill.ts >= strtotime("2013-08-13")}
-        117452, г.Москва, Балаклавский проспект, д.20, к.4 кв.130, тел: 638-7777<br />
+        117452, пЁ.п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─п╬я│п©п╣п╨я┌, п╢.20, п╨.4 п╨п╡.130, я┌п╣п╩: 638-7777<br />
     {else}
-        117218, г.Москва, ул. Большая Черемушкинская д. 25, стр. 97, тел: 638-7777<br />
+        117218, пЁ.п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ п╢. 25, я│я┌я─. 97, я┌п╣п╩: 638-7777<br />
     {/if}
-    р/с 40702810500540000002 в ОАО &laquo;УРАЛСИБ&raquo;, Корр/с 30101810100000000787<br />ИНН/КПП 7727731060/772701001 БИК 044525787
+    я─/я│ 40702810500540000002 п╡ п·п░п· &laquo;пёп═п░п⌡п║п≤п▒&raquo;, п п╬я─я─/я│ 30101810100000000787<br />п≤п²п²/п п÷п÷ 7727731060/772701001 п▒п≤п  044525787
 
 
 {elseif $bill_client.firma=='ooocmc'}
-	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Си Эм Си" (ООО "Си Эм Си"){else}ООО "Си Эм Си"{/if}, 117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97   <br />
-р/с 40702810800540001507 в ОАО "УРАЛСИБ", Корр/с 30101810100000000787<br />ИНН/КПП продавца: 7727701308/772701001 БИК 044525787
+	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п║п╦ п╜п╪ п║п╦" (п·п·п· "п║п╦ п╜п╪ п║п╦"){else}п·п·п· "п║п╦ п╜п╪ п║п╦"{/if}, 117218, пЁ. п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐, п╢. 25, я│я┌я─. 97   <br />
+я─/я│ 40702810800540001507 п╡ п·п░п· "пёп═п░п⌡п║п≤п▒", п п╬я─я─/я│ 30101810100000000787<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7727701308/772701001 п▒п≤п  044525787
 {elseif $bill_client.firma=='mcn_telekom'}
 
 	{$firm.name}, {$firm.address}<br />
-р/с {$firm.acc} в {$firm.bank}, Корр/с {$firm.kor_acc}<br />ИНН/КПП продавца: {$firm.inn}/{$firm.kpp} БИК {$firm.bik}
+я─/я│ {$firm.acc} п╡ {$firm.bank}, п п╬я─я─/я│ {$firm.kor_acc}<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: {$firm.inn}/{$firm.kpp} п▒п≤п  {$firm.bik}
 
 {if false}
-	<!--ООО &quot;МСН Телеком&quot;, 115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8   <br />
-р/с 40702810038110015462 в Московский банк Сбербанка России ОАО, г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7727752084/772401001 БИК 044525225
+	<!--п·п·п· &quot;п°п║п² п╒п╣п╩п╣п╨п╬п╪&quot;, 115487, пЁ. п°п╬я│п╨п╡п╟, 2-п╧ п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ п©я─-п╢, п╢.2, я│я┌я─.8   <br />
+я─/я│ 40702810038110015462 п╡ п°п╬я│п╨п╬п╡я│п╨п╦п╧ п╠п╟п╫п╨ п║п╠п╣я─п╠п╟п╫п╨п╟ п═п╬я│я│п╦п╦ п·п░п·, пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7727752084/772401001 п▒п≤п  044525225
     -->
 {/if}
 
 {elseif $bill_client.firma=='markomnet_service'}
-	ООО &quot;Марктмнет сервис&quot;, 117574, Москва, Одоевского проезд, д.3, к.7  <br />
-р/с 40702810538110016699 в ОАО &laquo;Сбербанк России&raquo; г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7728802130/772801001 БИК 044525225
+	п·п·п· &quot;п°п╟я─п╨я┌п╪п╫п╣я┌ я│п╣я─п╡п╦я│&quot;, 117574, п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─п╬п╣п╥п╢, п╢.3, п╨.7  <br />
+я─/я│ 40702810538110016699 п╡ п·п░п· &laquo;п║п╠п╣я─п╠п╟п╫п╨ п═п╬я│я│п╦п╦&raquo; пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7728802130/772801001 п▒п≤п  044525225
 {elseif $bill_client.firma=='markomnet_new'}
-	ООО &quot;Маркомнет&quot;, 117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97   <br />
-р/с 40702810100540001508 в ОАО "УРАЛСИБ" г. Москва, Корр/с 30101810100000000787<br />ИНН/КПП продавца: 7727702076/772701001 БИК 044525787
+	п·п·п· &quot;п°п╟я─п╨п╬п╪п╫п╣я┌&quot;, 117218, пЁ. п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐, п╢. 25, я│я┌я─. 97   <br />
+я─/я│ 40702810100540001508 п╡ п·п░п· "пёп═п░п⌡п║п≤п▒" пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810100000000787<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7727702076/772701001 п▒п≤п  044525787
 {elseif $bill_client.firma=='ooomcn'}
-	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "МСН" (ООО "МСН"){else}ООО "МСН"{/if}, 117574 г. Москва, Одоевского пр-д., д. 3, кор. 7, тел: (495) 950-5678 доб 159<br />
-р/с 40702810538110011157 в Московский банк Сбербанка России ОАО, г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7728638151/772801001 БИК 044525225
+	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п°п║п²" (п·п·п· "п°п║п²"){else}п·п·п· "п°п║п²"{/if}, 117574 пЁ. п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─-п╢., п╢. 3, п╨п╬я─. 7, я┌п╣п╩: (495) 950-5678 п╢п╬п╠ 159<br />
+я─/я│ 40702810538110011157 п╡ п°п╬я│п╨п╬п╡я│п╨п╦п╧ п╠п╟п╫п╨ п║п╠п╣я─п╠п╟п╫п╨п╟ п═п╬я│я│п╦п╦ п·п░п·, пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7728638151/772801001 п▒п≤п  044525225
 {else}
-	{$firm.name}, {$firm.address}{if isset($firm.phone)}, тел: {$firm.phone}{/if}<br />
-р/с:&nbsp;{$firm.acc} в {$firm.bank} Корр/с:&nbsp;{$firm.kor_acc}<br>
-ИНН/КПП {$firm.inn}/{$firm.kpp}<br>
-БИК:&nbsp;{$firm.bik}<br>
+	{$firm.name}, {$firm.address}{if isset($firm.phone)}, я┌п╣п╩: {$firm.phone}{/if}<br />
+я─/я│:&nbsp;{$firm.acc} п╡ {$firm.bank} п п╬я─я─/я│:&nbsp;{$firm.kor_acc}<br>
+п≤п²п²/п п÷п÷ {$firm.inn}/{$firm.kpp}<br>
+п▒п≤п :&nbsp;{$firm.bik}<br>
 
 {/if}
 {/capture}
@@ -149,62 +149,62 @@ bgColor="#FFFFFF">
 {*** to ***}
 {capture name=to}
 {$bill_client.company_full}, {$bill_client.address_post}<br />
-{$bill_client.bank_properties}<br /> ИНН/КПП {$bill_client.inn}/{$bill_client.kpp} БИК {$bill_client.bik}
+{$bill_client.bank_properties}<br /> п≤п²п²/п п÷п÷ {$bill_client.inn}/{$bill_client.kpp} п▒п≤п  {$bill_client.bik}
 {/capture}
 
 {*** from_send ***}
 {capture name=from_send}
   {if $bill_client.firma=='all4geo'}
-    ООО &quot;Олфогео&quot;, 115487, г.Москва, Нагатинский 2-й проезд, дом 2, строение 8<br />
-    р/с 40702810038110016607 в ОАО Сбербанк России, Корр/с 30101810400000000225<br />ИНН/КПП 7727752091/772401001 БИК 044525225
+    п·п·п· &quot;п·п╩я└п╬пЁп╣п╬&quot;, 115487, пЁ.п°п╬я│п╨п╡п╟, п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ 2-п╧ п©я─п╬п╣п╥п╢, п╢п╬п╪ 2, я│я┌я─п╬п╣п╫п╦п╣ 8<br />
+    я─/я│ 40702810038110016607 п╡ п·п░п· п║п╠п╣я─п╠п╟п╫п╨ п═п╬я│я│п╦п╦, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ 7727752091/772401001 п▒п≤п  044525225
 {elseif $bill_client.firma=='all4net'}
-    ООО &quot;Олфонет&quot;, 
+    п·п·п· &quot;п·п╩я└п╬п╫п╣я┌&quot;, 
     {if $bill.ts >= strtotime("2013-08-13")} 
-        117452, г.Москва, Балаклавский проспект, д.20, к.4 кв.130, тел: 638-7777<br />
+        117452, пЁ.п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─п╬я│п©п╣п╨я┌, п╢.20, п╨.4 п╨п╡.130, я┌п╣п╩: 638-7777<br />
     {else}
-        117218, г.Москва, ул. Большая Черемушкинская д. 25, стр. 97, тел: 638-7777<br />
+        117218, пЁ.п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ п╢. 25, я│я┌я─. 97, я┌п╣п╩: 638-7777<br />
     {/if}
-    р/с 40702810500540000002 в ОАО &laquo;УРАЛСИБ&raquo;, Корр/с 30101810100000000787<br />ИНН/КПП 7727731060/772701001 БИК 044525787
+    я─/я│ 40702810500540000002 п╡ п·п░п· &laquo;пёп═п░п⌡п║п≤п▒&raquo;, п п╬я─я─/я│ 30101810100000000787<br />п≤п²п²/п п÷п÷ 7727731060/772701001 п▒п≤п  044525787
 
 {elseif $bill_client.firma=='ooocmc'}
-	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Си Эм Си" (ООО "Си Эм Си"){else}ООО "Си Эм Си"{/if}, 117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97<br />
-р/с 40702810800540001507 в ОАО "УРАЛСИБ", Корр/с 30101810100000000787<br />ИНН/КПП продавца: 7727701308/772701001 БИК 044525787
+	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п║п╦ п╜п╪ п║п╦" (п·п·п· "п║п╦ п╜п╪ п║п╦"){else}п·п·п· "п║п╦ п╜п╪ п║п╦"{/if}, 117218, пЁ. п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐, п╢. 25, я│я┌я─. 97<br />
+я─/я│ 40702810800540001507 п╡ п·п░п· "пёп═п░п⌡п║п≤п▒", п п╬я─я─/я│ 30101810100000000787<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7727701308/772701001 п▒п≤п  044525787
 {elseif $bill_client.firma=='mcn_telekom'}
 	{$firm.name}, {$firm.address}<br />
-р/с {$firm.acc} в {$firm.bank}, Корр/с {$firm.kor_acc}<br />ИНН/КПП продавца: {$firm.inn}/{$firm.kpp} БИК {$firm.bik}
+я─/я│ {$firm.acc} п╡ {$firm.bank}, п п╬я─я─/я│ {$firm.kor_acc}<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: {$firm.inn}/{$firm.kpp} п▒п≤п  {$firm.bik}
 
 {elseif $bill_client.firma=='markomnet_service'}
-	ООО &quot;Маркомнет сервис&quot;, 117574, Москва, Одоевского проезд, д.3, к.7<br />
-р/с 40702810538110016699 в ОАО &laquo;Сбербанк России&raquo; г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7728802130/772801001 БИК 044525225
+	п·п·п· &quot;п°п╟я─п╨п╬п╪п╫п╣я┌ я│п╣я─п╡п╦я│&quot;, 117574, п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─п╬п╣п╥п╢, п╢.3, п╨.7<br />
+я─/я│ 40702810538110016699 п╡ п·п░п· &laquo;п║п╠п╣я─п╠п╟п╫п╨ п═п╬я│я│п╦п╦&raquo; пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7728802130/772801001 п▒п≤п  044525225
 {elseif $bill_client.firma=='markomnet_new'}
-	ООО &quot;Маркомнет&quot;, 117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97<br />
-р/с 40702810100540001508 в ОАО "УРАЛСИБ" г. Москва, Корр/с 30101810100000000787<br />ИНН/КПП продавца: 7727702076/772701001 БИК 044525787
+	п·п·п· &quot;п°п╟я─п╨п╬п╪п╫п╣я┌&quot;, 117218, пЁ. п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐, п╢. 25, я│я┌я─. 97<br />
+я─/я│ 40702810100540001508 п╡ п·п░п· "пёп═п░п⌡п║п≤п▒" пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810100000000787<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7727702076/772701001 п▒п≤п  044525787
 {elseif $bill_client.firma=='ooomcn'}
-	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "МСН" (ООО "МСН"){else}ООО "МСН"{/if}, 117574 г. Москва, Одоевского пр-д., д. 3, кор. 7, тел: (495) 950-5678 доб 159<br />
-р/с 40702810538110011157 в Московский банк Сбербанка России ОАО, г. Москва, Корр/с 30101810400000000225<br />ИНН/КПП продавца: 7728638151/772801001 БИК 044525225
+	{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п°п║п²" (п·п·п· "п°п║п²"){else}п·п·п· "п°п║п²"{/if}, 117574 пЁ. п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─-п╢., п╢. 3, п╨п╬я─. 7, я┌п╣п╩: (495) 950-5678 п╢п╬п╠ 159<br />
+я─/я│ 40702810538110011157 п╡ п°п╬я│п╨п╬п╡я│п╨п╦п╧ п╠п╟п╫п╨ п║п╠п╣я─п╠п╟п╫п╨п╟ п═п╬я│я│п╦п╦ п·п░п·, пЁ. п°п╬я│п╨п╡п╟, п п╬я─я─/я│ 30101810400000000225<br />п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: 7728638151/772801001 п▒п≤п  044525225
 {else}
-	{$firm.name}, {$firm.address}{if isset($firm.phone)}, тел: {$firm.phone}{/if}<br />
-р/с:&nbsp;{$firm.acc} в {$firm.bank} Корр/с:&nbsp;{$firm.kor_acc}<br>
-ИНН/КПП {$firm.inn}/{$firm.kpp}<br>
-БИК:&nbsp;{$firm.bik}<br>
+	{$firm.name}, {$firm.address}{if isset($firm.phone)}, я┌п╣п╩: {$firm.phone}{/if}<br />
+я─/я│:&nbsp;{$firm.acc} п╡ {$firm.bank} п п╬я─я─/я│:&nbsp;{$firm.kor_acc}<br>
+п≤п²п²/п п÷п÷ {$firm.inn}/{$firm.kpp}<br>
+п▒п≤п :&nbsp;{$firm.bik}<br>
 {/if}
 {/capture}
 
 {*** to_pay ***}
 {capture name=to_pay}
 {$bill_client.company_full}, {$bill_client.address_jur}<br />
-{$bill_client.bank_properties}<br />ИНН/КПП {$bill_client.inn}/{$bill_client.kpp} БИК {$bill_client.bik}
+{$bill_client.bank_properties}<br />п≤п²п²/п п÷п÷ {$bill_client.inn}/{$bill_client.kpp} п▒п≤п  {$bill_client.bik}
 {/capture}
 
 {if $bill.is_rollback}{$smarty.capture.to}{else}{$smarty.capture.from}{/if}
 </td>
 </tr>
 <tr>
-<td align="right">Форма по ОКУД </td>
+<td align="right">п╓п╬я─п╪п╟ п©п╬ п·п пёп■ </td>
 <td>0330212</td>
 </tr>
 <tr>
-<td align="right">по ОКПО </td>
+<td align="right">п©п╬ п·п п÷п· </td>
 <td>58543248</td>
 </tr>
 <tr>
@@ -212,21 +212,21 @@ bgColor="#FFFFFF">
     <td>&nbsp;</td>
 </tr>
 <tr>
-    <td colspan="2" align="right">Структурное подразделение:</td>
+    <td colspan="2" align="right">п║я┌я─я┐п╨я┌я┐я─п╫п╬п╣ п©п╬п╢я─п╟п╥п╢п╣п╩п╣п╫п╦п╣:</td>
     <td colspan="4">&nbsp;</td>
     <td align="right">&nbsp;</td>
     <td>&nbsp;</td>
 </tr>
 <tr>
-    <td align="right" rowspan=4>Грузополучатель:</td>
+    <td align="right" rowspan=4>п⌠я─я┐п╥п╬п©п╬п╩я┐я┤п╟я┌п╣п╩я▄:</td>
     <td colspan="5" rowspan=4>{if !$bill.is_rollback}{$smarty.capture.to}{else}{$smarty.capture.from}{/if}</td>
 </tr>
 <tr>
-    <td align="right"><div style="font-size:8px">Вид деятельности по ОКДП</div></td>
+    <td align="right"><div style="font-size:8px">п▓п╦п╢ п╢п╣я▐я┌п╣п╩я▄п╫п╬я│я┌п╦ п©п╬ п·п п■п÷</div></td>
     <td>&nbsp;</td>
 </tr>
 <tr>
-    <td align="right">по ОКПО</td>
+    <td align="right">п©п╬ п·п п÷п·</td>
     <td>&nbsp;{if $bill_client.okpo}{$bill_client.okpo}{/if}</td>
 </tr>
 <tr>
@@ -234,7 +234,7 @@ bgColor="#FFFFFF">
     <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right" rowspan=4>Поставщик:</td>
+<td align="right" rowspan=4>п÷п╬я│я┌п╟п╡я┴п╦п╨:</td>
 <td colspan="5" rowspan=4>{if $bill.is_rollback}{$smarty.capture.to_pay}{else}{$smarty.capture.from_send}{/if}</td>
 </tr>
 <tr>
@@ -246,11 +246,11 @@ bgColor="#FFFFFF">
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">по ОКПО</td>
+<td align="right">п©п╬ п·п п÷п·</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right" rowspan=4>Плательщик:</td>
+<td align="right" rowspan=4>п÷п╩п╟я┌п╣п╩я▄я┴п╦п╨:</td>
 <td colspan="5" rowspan=4>{if !$bill.is_rollback}{$smarty.capture.to_pay}{else}{$smarty.capture.from_send}{/if}</td>
 </tr>
 <tr>
@@ -264,54 +264,54 @@ bgColor="#FFFFFF">
 <td></td>
 </tr>
 <tr>
-<td align="right">по ОКПО</td>
+<td align="right">п©п╬ п·п п÷п·</td>
 <td>&nbsp;{if $bill_client.okpo}{$bill_client.okpo}{/if}</td>
 </tr>
 
 
 <tr>
-<td align="right">Основание:</td>
-<td colspan="5">{if $bill.is_rollback}Возврат{else}Основной договор{/if} </td>
-<td align="right"> номер</td>
+<td align="right">п·я│п╫п╬п╡п╟п╫п╦п╣:</td>
+<td colspan="5">{if $bill.is_rollback}п▓п╬п╥п╡я─п╟я┌{else}п·я│п╫п╬п╡п╫п╬п╧ п╢п╬пЁп╬п╡п╬я─{/if} </td>
+<td align="right"> п╫п╬п╪п╣я─</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
 <td>&nbsp;</td>
 <td colspan="5" align="center">&nbsp;</td>
-<td align="right"><div style="font-size:9px">Транспортная накладная номер</div></td>
+<td align="right"><div style="font-size:9px">п╒я─п╟п╫я│п©п╬я─я┌п╫п╟я▐ п╫п╟п╨п╩п╟п╢п╫п╟я▐ п╫п╬п╪п╣я─</div></td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td colspan=3 align=right>наименование документа (договор, контракт, заказ-наряд)</td>
-<td align="center">Номер документа </td>
-<td align="center" colspan="2">Дата составления </td>
-<td align="right">дата </td>
+<td colspan=3 align=right>п╫п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п╢п╬п╨я┐п╪п╣п╫я┌п╟ (п╢п╬пЁп╬п╡п╬я─, п╨п╬п╫я┌я─п╟п╨я┌, п╥п╟п╨п╟п╥-п╫п╟я─я▐п╢)</td>
+<td align="center">п²п╬п╪п╣я─ п╢п╬п╨я┐п╪п╣п╫я┌п╟ </td>
+<td align="center" colspan="2">п■п╟я┌п╟ я│п╬я│я┌п╟п╡п╩п╣п╫п╦я▐ </td>
+<td align="right">п╢п╟я┌п╟ </td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td colspan=3 rowspan=2 align=right style="font-size: 12pt; font-weight: bold">ТОВАРНАЯ НАКЛАДНАЯ </td> <td rowspan=2 align="center"
+<td colspan=3 rowspan=2 align=right style="font-size: 12pt; font-weight: bold">п╒п·п▓п░п═п²п░п╞ п²п░п п⌡п░п■п²п░п╞ </td> <td rowspan=2 align="center"
 style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td rowspan=2 align="center" colspan="2" style="font-size: 10pt; font-weight: bold">
     {if !$without_date_date}
-        {$bill.bill_date|mdate:"d.m.Y г."}
+        {$bill.bill_date|mdate:"d.m.Y пЁ."}
     {else}
-        {$without_date_date|mdate:"d.m.Y г."}
+        {$without_date_date|mdate:"d.m.Y пЁ."}
     {/if}</td>
-<td valign=top align=right>Вид операции</td>
+<td valign=top align=right>п▓п╦п╢ п╬п©п╣я─п╟я├п╦п╦</td>
 <td valign=top align=right>&nbsp;</td>
 <!--/tr>
 </table></td>
 <td valign=top><table border="0" align="right" cellpadding="0" width=100% cellspacing="0" class=price2>
 <tr>
 <td >&nbsp;</td>
-<td width="41">Коды</td>
+<td width="41">п п╬п╢я▀</td>
 </tr>
 <tr>
-<td align="right">Форма по ОКУД </td>
+<td align="right">п╓п╬я─п╪п╟ п©п╬ п·п пёп■ </td>
 <td>0330212</td>
 </tr>
 <tr>
-<td align="right">по ОКПО </td>
+<td align="right">п©п╬ п·п п÷п· </td>
 <td>58543248</td>
 </tr>
 <tr>
@@ -319,11 +319,11 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right"><div style="font-size:8px">Вид деятельности по ОКДП</div></td>
+<td align="right"><div style="font-size:8px">п▓п╦п╢ п╢п╣я▐я┌п╣п╩я▄п╫п╬я│я┌п╦ п©п╬ п·п п■п÷</div></td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">по ОКПО</td>
+<td align="right">п©п╬ п·п п÷п·</td>
 <td>&nbsp;</td>
 </tr>
 <tr style="height: 30px;">
@@ -331,7 +331,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td><span style="font-size: 3px;">&nbsp;</span></td>
 </tr>
 <tr>
-<td align="right">по ОКПО</td>
+<td align="right">п©п╬ п·п п÷п·</td>
 <td >&nbsp;</td>
 </tr>
 <tr style="height: 31px;">
@@ -339,7 +339,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td><span style="font-size: 3px;">&nbsp;</span></td>
 </tr>
 <tr>
-<td align="right">по ОКПО</td>
+<td align="right">п©п╬ п·п п÷п·</td>
 <td >&nbsp;</td>
 </tr>
 <tr>
@@ -347,23 +347,23 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">номер</td>
+<td align="right">п╫п╬п╪п╣я─</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">дата</td>
+<td align="right">п╢п╟я┌п╟</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right"><div style="font-size:9px">Транспортная накладная номер</div></td>
+<td align="right"><div style="font-size:9px">п╒я─п╟п╫я│п©п╬я─я┌п╫п╟я▐ п╫п╟п╨п╩п╟п╢п╫п╟я▐ п╫п╬п╪п╣я─</div></td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">дата</td>
+<td align="right">п╢п╟я┌п╟</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td align="right">Вид операции </td>
+<td align="right">п▓п╦п╢ п╬п©п╣я─п╟я├п╦п╦ </td>
 <td>&nbsp;</td>
 </tr>
 </table></td-->
@@ -372,33 +372,33 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <hr>
 <table width="100%" border="0" cellpadding="3" cellspacing="1" class=price2>
 <tr align="center" class=header>
-<td class=header>Номер по порядку </td>
-<td class=header width="250" colspan="2">Товар</td>
-<td class=header width="128" colspan="2">Единица измерения </td>
-<td class=header>Вид упаковки </td>
-<td class=header width="128" colspan="2">Количество </td>
-<td class=header>Масса брутто </td>
-<td class=header>Кол-во (масса нетто)</td>
-<td class=header>Цена, руб. коп. </td>
-<td class=header>Сумма без учета НДС, руб. коп. </td>
-<td class=header width="128" colspan="2">НДС</td>
-<td class=header>Сумма с учетом НДС, руб. коп. </td>
+<td class=header>п²п╬п╪п╣я─ п©п╬ п©п╬я─я▐п╢п╨я┐ </td>
+<td class=header width="250" colspan="2">п╒п╬п╡п╟я─</td>
+<td class=header width="128" colspan="2">п∙п╢п╦п╫п╦я├п╟ п╦п╥п╪п╣я─п╣п╫п╦я▐ </td>
+<td class=header>п▓п╦п╢ я┐п©п╟п╨п╬п╡п╨п╦ </td>
+<td class=header width="128" colspan="2">п п╬п╩п╦я┤п╣я│я┌п╡п╬ </td>
+<td class=header>п°п╟я│я│п╟ п╠я─я┐я┌я┌п╬ </td>
+<td class=header>п п╬п╩-п╡п╬ (п╪п╟я│я│п╟ п╫п╣я┌я┌п╬)</td>
+<td class=header>п╕п╣п╫п╟, я─я┐п╠. п╨п╬п©. </td>
+<td class=header>п║я┐п╪п╪п╟ п╠п╣п╥ я┐я┤п╣я┌п╟ п²п■п║, я─я┐п╠. п╨п╬п©. </td>
+<td class=header width="128" colspan="2">п²п■п║</td>
+<td class=header>п║я┐п╪п╪п╟ я│ я┐я┤п╣я┌п╬п╪ п²п■п║, я─я┐п╠. п╨п╬п©. </td>
 </tr>
 <tr align="center">
 <td>&nbsp; </td>
-<td >наименование, характеристика, сорт, артикул товара </td>
-<td >код </td>
-<td>наиме- нование </td>
-<td>код по ОКЕИ </td>
+<td >п╫п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣, я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟, я│п╬я─я┌, п╟я─я┌п╦п╨я┐п╩ я┌п╬п╡п╟я─п╟ </td>
+<td >п╨п╬п╢ </td>
+<td>п╫п╟п╦п╪п╣- п╫п╬п╡п╟п╫п╦п╣ </td>
+<td>п╨п╬п╢ п©п╬ п·п п∙п≤ </td>
 <td>&nbsp; </td>
-<td>в одном месте </td>
-<td>мест, штук </td>
+<td>п╡ п╬п╢п╫п╬п╪ п╪п╣я│я┌п╣ </td>
+<td>п╪п╣я│я┌, я┬я┌я┐п╨ </td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td>ставка, %</td>
-<td>сумма, руб. коп.</td>
+<td>я│я┌п╟п╡п╨п╟, %</td>
+<td>я│я┐п╪п╪п╟, я─я┐п╠. п╨п╬п©.</td>
 <td>&nbsp;</td>
 </tr>
 <tr align="center">
@@ -423,7 +423,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td align="right">{$key+1}</td>
 <td width="192">{$line.item}</td>
 <td >&nbsp;</td>
-<td align="center">шт</td>
+<td align="center">я┬я┌</td>
 <td align="center">796 </td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -439,25 +439,25 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 {/foreach}
 
 <tr>
-<td colspan="7" align="right">Итого</td>
+<td colspan="7" align="right">п≤я┌п╬пЁп╬</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align='right'>{$total_amount|round:2}</td>
-<td align="right">Х </td>
+<td align="right">п╔ </td>
 <td align="right">{$bill.sum|round:2}</td>
-<td align="right">Х </td>
+<td align="right">п╔ </td>
 <!--td align="right">{$bill.tax|round:2}</td-->
 <td align="right">{$bill.tax}{*$bill.tsum/1.18*0.18|round:2*}</td>
 <td align="right">{$bill.tsum|round:2}</td>
 </tr>
 <tr>
-<td colspan="7" align="right">Всего по накладной</td>
+<td colspan="7" align="right">п▓я│п╣пЁп╬ п©п╬ п╫п╟п╨п╩п╟п╢п╫п╬п╧</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align='right'>{$total_amount|round:2}</td>
-<td align="right">Х </td>
+<td align="right">п╔ </td>
 <td align="right">{$bill.sum|round:2}</td>
-<td align="right">Х </td>
+<td align="right">п╔ </td>
 <td align="right">{$bill.tax|round:2}</td>
 <!-- td align="right">{$bill.tsum/1.18*0.18|round:2}</td-->
 <td align="right">{$bill.tsum|round:2}</td>
@@ -469,23 +469,23 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td width=50%>
 <table cellspacing=0 cellpadding=0 border=0 width=100% class=z10>
 <tbody><tr>
-<td valign=top>Товарная накладная имеет приложение на</td>
+<td valign=top>п╒п╬п╡п╟я─п╫п╟я▐ п╫п╟п╨п╩п╟п╢п╫п╟я▐ п╦п╪п╣п╣я┌ п©я─п╦п╩п╬п╤п╣п╫п╦п╣ п╫п╟</td>
 <td>____________</td>
-<td>листах</td>
+<td>п╩п╦я│я┌п╟я┘</td>
 </tr><tr>
-<td>и содержит</td>
+<td>п╦ я│п╬п╢п╣я─п╤п╦я┌</td>
 <td>____________</td>
-<td>порядковых номеров записей</td>
+<td>п©п╬я─я▐п╢п╨п╬п╡я▀я┘ п╫п╬п╪п╣я─п╬п╡ п╥п╟п©п╦я│п╣п╧</td>
 </tr></tbody></table>
 </td><td style="border-left: solid 1px #999">&nbsp;</td>
 <td>
 <table cellspacing=0 cellpadding=0 border=0 width=100% class=z10>
 <tbody><tr>
-<td rowspan=2>Всего мест</td>
-<td>Масса груза (нетто)</td>
+<td rowspan=2>п▓я│п╣пЁп╬ п╪п╣я│я┌</td>
+<td>п°п╟я│я│п╟ пЁя─я┐п╥п╟ (п╫п╣я┌я┌п╬)</td>
 <td>__________________________________________________</td>
 </tr><tr>
-<td>Масса груза (брутто)</td>
+<td>п°п╟я│я│п╟ пЁя─я┐п╥п╟ (п╠я─я┐я┌я┌п╬)</td>
 <td>__________________________________________________</td>
 </tr>
 </tbody></table>
@@ -494,26 +494,26 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <table cellspacing=0 cellpadding=0 border=0 width=100% class=z11><tbody>
 
 <tr>
-<td align="left" valign="top" colspan="8" rowspan="2">Всего отпущено на сумму: {$bill.tsum|wordify:'RUR'}</td>
+<td align="left" valign="top" colspan="8" rowspan="2">п▓я│п╣пЁп╬ п╬я┌п©я┐я┴п╣п╫п╬ п╫п╟ я│я┐п╪п╪я┐: {$bill.tsum|wordify:'RUR'}</td>
 <td>&nbsp;</td>
-<td align="left" valign="top" colspan="2" style="border-left:1px solid">По доверенности &#8470;</td>
+<td align="left" valign="top" colspan="2" style="border-left:1px solid">п÷п╬ п╢п╬п╡п╣я─п╣п╫п╫п╬я│я┌п╦ &#8470;</td>
 <td align="center" valign="bottom" style="border-bottom:1px solid">&nbsp;</td>
-<td align="center" valign="bottom">от&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"</td>
+<td align="center" valign="bottom">п╬я┌&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"</td>
 <td align="center" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
-<td align="left" valign="bottom">20&nbsp;&nbsp;&nbsp;года</td>
+<td align="left" valign="bottom">20&nbsp;&nbsp;&nbsp;пЁп╬п╢п╟</td>
 </tr>
 <tr>
 <td>&nbsp;</td>
-<td align="left" valign="top" style="border-left:1px solid">выданной</td>
+<td align="left" valign="top" style="border-left:1px solid">п╡я▀п╢п╟п╫п╫п╬п╧</td>
 <td align="center" valign="bottom" colspan="6" style="border-bottom:1px solid">&nbsp;</td>
 </tr>
 <tr>
 <td colspan="9">&nbsp;</td>
 <td style="border-left:1px solid">&nbsp;</td>
-<td align="center" valign="top" colspan="6" class="cod7">кем, кому (организация, место работы, должность, фамилия, и. о.)</td>
+<td align="center" valign="top" colspan="6" class="cod7">п╨п╣п╪, п╨п╬п╪я┐ (п╬я─пЁп╟п╫п╦п╥п╟я├п╦я▐, п╪п╣я│я┌п╬ я─п╟п╠п╬я┌я▀, п╢п╬п╩п╤п╫п╬я│я┌я▄, я└п╟п╪п╦п╩п╦я▐, п╦. п╬.)</td>
 </tr>
 <tr>
-<td align="left" valign="top" colspan="2"><nobr>Отпуск груза разрешил</nobr></td>
+<td align="left" valign="top" colspan="2"><nobr>п·я┌п©я┐я│п╨ пЁя─я┐п╥п╟ я─п╟п╥я─п╣я┬п╦п╩</nobr></td>
 <td align="center" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="center" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
@@ -523,62 +523,62 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
-<td align="center" valign="top" colspan="2" class="cod7">должность</td>
-<td align="center" valign="top" colspan="2" class="cod7">подпись</td>
-<td align="center" valign="top" colspan="2" class="cod7">расшифровка подписи</td>
+<td align="center" valign="top" colspan="2" class="cod7">п╢п╬п╩п╤п╫п╬я│я┌я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7">п©п╬п╢п©п╦я│я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7">я─п╟я│я┬п╦я└я─п╬п╡п╨п╟ п©п╬п╢п©п╦я│п╦</td>
 <td>&nbsp;</td>
-<td align="left" valign="top" style="border-left:1px solid">Груз принял</td>
+<td align="left" valign="top" style="border-left:1px solid">п⌠я─я┐п╥ п©я─п╦п╫я▐п╩</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 </tr>
 <tr>
-<td colspan="3" align="right" class="cod9"><b>Главный (старший) бухгалтер</b></td>
+<td colspan="3" align="right" class="cod9"><b>п⌠п╩п╟п╡п╫я▀п╧ (я│я┌п╟я─я┬п╦п╧) п╠я┐я┘пЁп╟п╩я┌п╣я─</b></td>
 <td align="center" valign="bottom" colspan="3" style="border-bottom:1px solid">&nbsp;</td>
 <td align="center" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td>&nbsp;</td>
 <td style="border-left:1px solid">&nbsp;</td>
-<td align="center" valign="top" colspan="2" class="cod7">должность</td>
-<td align="center" valign="top" colspan="2" class="cod7">подпись</td>
-<td align="center" valign="top" colspan="2" class="cod7"><nobr>расшифровка подписи</nobr></td>
+<td align="center" valign="top" colspan="2" class="cod7">п╢п╬п╩п╤п╫п╬я│я┌я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7">п©п╬п╢п©п╦я│я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7"><nobr>я─п╟я│я┬п╦я└я─п╬п╡п╨п╟ п©п╬п╢п©п╦я│п╦</nobr></td>
 </tr>
 <tr>
 <td colspan="3">&nbsp;</td>
-<td align="center" valign="top" colspan="3" class="cod7">подпись</td>
-<td align="center" valign="top" colspan="2" class="cod7"><nobr>расшифровка подписи</nobr></td>
+<td align="center" valign="top" colspan="3" class="cod7">п©п╬п╢п©п╦я│я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7"><nobr>я─п╟я│я┬п╦я└я─п╬п╡п╨п╟ п©п╬п╢п©п╦я│п╦</nobr></td>
 <td>&nbsp;</td>
 <td colspan="7" style="border-left:1px solid">&nbsp;</td>
 </tr>
 <tr>
-<td align="left" valign="top" colspan="2"><nobr>Отпуск груза произвел</nobr></td>
+<td align="left" valign="top" colspan="2"><nobr>п·я┌п©я┐я│п╨ пЁя─я┐п╥п╟ п©я─п╬п╦п╥п╡п╣п╩</nobr></td>
 <td align="center" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="center" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td>&nbsp;</td>
-<td align="left" valign="top" style="border-left:1px solid"><nobr>Груз получил</nobr></td>
+<td align="left" valign="top" style="border-left:1px solid"><nobr>п⌠я─я┐п╥ п©п╬п╩я┐я┤п╦п╩</nobr></td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 <td align="left" valign="bottom" colspan="2" style="border-bottom:1px solid">&nbsp;</td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
-<td align="center" valign="top" colspan="2" class="cod7">должность</td>
-<td align="center" valign="top" colspan="2" class="cod7">подпись</td>
-<td align="center" valign="top" colspan="2" class="cod7">расшифровка подписи</td>
+<td align="center" valign="top" colspan="2" class="cod7">п╢п╬п╩п╤п╫п╬я│я┌я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7">п©п╬п╢п©п╦я│я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7">я─п╟я│я┬п╦я└я─п╬п╡п╨п╟ п©п╬п╢п©п╦я│п╦</td>
 <td>&nbsp;</td>
 <td align="left" valign="top" style="border-left:1px solid">&nbsp;</td>
-<td align="center" valign="top" colspan="2" class="cod7">должность</td>
-<td align="center" valign="top" colspan="2" class="cod7">подпись</td>
-<td align="center" valign="top" colspan="2" class="cod7"><nobr>расшифровка подписи</nobr></td>
+<td align="center" valign="top" colspan="2" class="cod7">п╢п╬п╩п╤п╫п╬я│я┌я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7">п©п╬п╢п©п╦я│я▄</td>
+<td align="center" valign="top" colspan="2" class="cod7"><nobr>я─п╟я│я┬п╦я└я─п╬п╡п╨п╟ п©п╬п╢п©п╦я│п╦</nobr></td>
 </tr>
 <tr>
 <td>&nbsp;</td>
-<td align="center" valign="absmiddle">М.П.</td>
-<td align="center" valign="bottom" colspan="4">"&nbsp;&nbsp;&nbsp;&nbsp;" ____________________ 20&nbsp;&nbsp;&nbsp;&nbsp;года</td>
+<td align="center" valign="absmiddle">п°.п÷.</td>
+<td align="center" valign="bottom" colspan="4">"&nbsp;&nbsp;&nbsp;&nbsp;" ____________________ 20&nbsp;&nbsp;&nbsp;&nbsp;пЁп╬п╢п╟</td>
 <td align="center" valign="top" colspan="3">&nbsp;</td>
 <td style="border-left:1px solid">&nbsp;</td>
-<td align="center" valign="absmiddle">М.П.</td>
-<td align="center" valign="bottom" colspan="4"><nobr>"&nbsp;&nbsp;&nbsp;&nbsp;" ____________________ 20&nbsp;&nbsp;&nbsp;&nbsp;года</nobr></td>
+<td align="center" valign="absmiddle">п°.п÷.</td>
+<td align="center" valign="bottom" colspan="4"><nobr>"&nbsp;&nbsp;&nbsp;&nbsp;" ____________________ 20&nbsp;&nbsp;&nbsp;&nbsp;пЁп╬п╢п╟</nobr></td>
 <td align="center" valign="top">&nbsp;</td>
 </tr>
 </tbody></table>

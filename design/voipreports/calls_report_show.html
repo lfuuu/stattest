@@ -1,66 +1,66 @@
-<h1>Отчет по звонкам:</h1>
+<h1>п·я┌я┤п╣я┌ п©п╬ п╥п╡п╬п╫п╨п╟п╪:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
 	<input type="hidden" name="action" value="calls_report" />
     <select class="select2" name="f_instance_id" style="width: 180px">
-        <option value="0" {if $f_instance_id eq 0} selected{/if}>Все регионы</option>
+        <option value="0" {if $f_instance_id eq 0} selected{/if}>п▓я│п╣ я─п╣пЁп╦п╬п╫я▀</option>
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $r->id eq $f_instance_id} selected{/if}>{$r->name} ({$r->id})</option>
         {/foreach}
     </select>
     <select class="select2" name="f_operator_id" style="width: 300px">
-        <option value="0">-- Все операторы --</option>
+        <option value="0">-- п▓я│п╣ п╬п©п╣я─п╟я┌п╬я─я▀ --</option>
         {foreach from=$operators key='id' item='name'}
         <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
         {/foreach}
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
+    п║: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
+    п÷п╬: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
 
     <div style="height: 5px"></div>
 
 	<select name="f_dest_group">
-	<option value="" {if $f_dest_group eq ''} selected{/if}>-- Все направления --</option>
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>Местные</option>
-	<option value="0" {if $f_dest_group eq '0'} selected{/if}>Зона</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	<option value="" {if $f_dest_group eq ''} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>п°п╣я│я┌п╫я▀п╣</option>
+	<option value="0" {if $f_dest_group eq '0'} selected{/if}>п≈п╬п╫п╟</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
 	</select>
 	<select class="select2" name="f_country_id" style="width: 250px">
-	<option value="0">-- Все страны --</option>
+	<option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
 	{foreach from=$geo_countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 	<select class="select2" name="f_region_id" style="width: 300px">
-	<option value="0">-- Все регионы --</option>
+	<option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
 	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 
     <select name="f_mob">
-        <option value="0">-- Моб/Стац --</option>
-        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
-        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+        <option value="0">-- п°п╬п╠/п║я┌п╟я├ --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
     </select>
 
     <select name="f_direction_out">
-        <option value="t" {if $f_direction_out eq 't'} selected{/if}>Исходящие</option>
-        <option value="f" {if $f_direction_out eq 'f'} selected{/if}>Входящие</option>
+        <option value="t" {if $f_direction_out eq 't'} selected{/if}>п≤я│я┘п╬п╢я▐я┴п╦п╣</option>
+        <option value="f" {if $f_direction_out eq 'f'} selected{/if}>п▓я┘п╬п╢я▐я┴п╦п╣</option>
     </select>
 
     <div style="height: 5px"></div>
 
-    <input name="f_prefix_op" value="{$f_prefix_op}" placeholder="Префик оператора" />
+    <input name="f_prefix_op" value="{$f_prefix_op}" placeholder="п÷я─п╣я└п╦п╨ п╬п©п╣я─п╟я┌п╬я─п╟" />
 
     <label>
     <input name="f_without_prefix_op" type="checkbox" value="1" {if $f_without_prefix_op} checked{/if}/>
-        без префикса оператора
+        п╠п╣п╥ п©я─п╣я└п╦п╨я│п╟ п╬п©п╣я─п╟я┌п╬я─п╟
     </label>
 
     <div style="height: 5px"></div>
@@ -68,17 +68,17 @@
     &nbsp;&nbsp;&nbsp;&nbsp;
     <input name="offset" type="hidden" value="0" id="calls_report_offset"/>
 
-    <input type=submit name="make" id="make_report" value="Сформировать"/>
+    <input type=submit name="make" id="make_report" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
 
     {if $item_from > 0}
         <div style="height: 5px"></div>
-        звонки {$item_from} - {$item_to}
+        п╥п╡п╬п╫п╨п╦ {$item_from} - {$item_to}
         &nbsp;&nbsp;&nbsp;&nbsp;
         {if $previous_offset !== 'none'}
-        <input type=submit onclick="document.getElementById('calls_report_offset').value='{$previous_offset}';" name="make" value="Предыдущие"/>
+        <input type=submit onclick="document.getElementById('calls_report_offset').value='{$previous_offset}';" name="make" value="п÷я─п╣п╢я▀п╢я┐я┴п╦п╣"/>
         {/if}
         {if $next_offset !== 'none'}
-        <input type=submit onclick="document.getElementById('calls_report_offset').value='{$next_offset}';" name="make" value="Следующие 100"/>
+        <input type=submit onclick="document.getElementById('calls_report_offset').value='{$next_offset}';" name="make" value="п║п╩п╣п╢я┐я▌я┴п╦п╣ 100"/>
         {/if}
     {/if}
 
@@ -89,16 +89,16 @@
 <thead>
 <tr>
     <td class=header>Id</td>
-    <td class=header style="min-width: 100px;">Дата</td>
-    <td class=header>Номер абонента</td>
-    <td class=header>Направление</td>
-    <td class=header>Внешний номер</td>
-    <td class=header>Длительность<br/>реал/опер/клиент</td>
-    <td class=header colspan="2">Стоимость<br/>опер/клиент</td>
-    <td class=header colspan="2">Префикс<br/>опер/клиент</td>
-    <td class=header colspan="2">Направление</td>
-    <td class=header>Регион</td>
-    <td class=header>Оператор</td>
+    <td class=header style="min-width: 100px;">п■п╟я┌п╟</td>
+    <td class=header>п²п╬п╪п╣я─ п╟п╠п╬п╫п╣п╫я┌п╟</td>
+    <td class=header>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
+    <td class=header>п▓п╫п╣я┬п╫п╦п╧ п╫п╬п╪п╣я─</td>
+    <td class=header>п■п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄<br/>я─п╣п╟п╩/п╬п©п╣я─/п╨п╩п╦п╣п╫я┌</td>
+    <td class=header colspan="2">п║я┌п╬п╦п╪п╬я│я┌я▄<br/>п╬п©п╣я─/п╨п╩п╦п╣п╫я┌</td>
+    <td class=header colspan="2">п÷я─п╣я└п╦п╨я│<br/>п╬п©п╣я─/п╨п╩п╦п╣п╫я┌</td>
+    <td class=header colspan="2">п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
+    <td class=header>п═п╣пЁп╦п╬п╫</td>
+    <td class=header>п·п©п╣я─п╟я┌п╬я─</td>
 </tr>
 </thead>
 <tbody>
@@ -107,18 +107,18 @@
     <td style="color: #AAA">{$rd.id}</td>
 	<td>{$rd.time}</td>
     <td>{$rd.usage_num}</td>
-    <td style="color: {if $rd.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif $rd.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
+    <td style="color: {if $rd.direction_out=='f'}blue;">&darr;&nbsp;п╡я┘п╬п╢я▐я┴п╦п╧{elseif $rd.direction_out=='t'}green">&uarr;&nbsp;п╦я│я┘п╬п╢я▐я┴п╦п╧{else}">{/if}</td>
     <td>{$rd.phone_num}</td>
     <td>{$rd.len}<span style="color: #AAA"> / {$rd.len_op} / {$rd.len_mcn}</span></td>
     <td>{$rd.amount_op}</td>
     <td>{$rd.amount_mcn}</td>
     <td>{$rd.prefix_op}</td>
     <td>{$rd.prefix_mcn}</td>
-    <td>{if $rd.dest == '-1'}Местные
-        {elseif $rd.dest == '0'}Зона
-        {elseif $rd.dest == '1'}Россия
-        {elseif $rd.dest == '2'}Международка
-        {elseif $rd.dest == '3'}СНГ
+    <td>{if $rd.dest == '-1'}п°п╣я│я┌п╫я▀п╣
+        {elseif $rd.dest == '0'}п≈п╬п╫п╟
+        {elseif $rd.dest == '1'}п═п╬я│я│п╦я▐
+        {elseif $rd.dest == '2'}п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟
+        {elseif $rd.dest == '3'}п║п²п⌠
         {/if}
     </td>
     <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>

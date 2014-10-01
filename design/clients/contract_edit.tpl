@@ -7,9 +7,9 @@
 <input style='width:100%' type=hidden name=module value=clients>
 <input style='width:100%' type=hidden name=action value=recontract>
 <input type=hidden name=id value='{$client.id}'>
-договор &#8470;<input class=text style='width:100' type=text name=contract_no value={$contract.contract_no}>
-от <input class=text style='width:100' type=text name=contract_date value={$contract.contract_date}>
-комментарий <input class=text style='width:100' type=text name=comment value={$contract.comment}>
+п╢п╬пЁп╬п╡п╬я─ &#8470;<input class=text style='width:100' type=text name=contract_no value={$contract.contract_no}>
+п╬я┌ <input class=text style='width:100' type=text name=contract_date value={$contract.contract_date}>
+п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ <input class=text style='width:100' type=text name=comment value={$contract.comment}>
 <script language=javascript type='text/javascript'>
 initRTE("{$PATH_TO_ROOT}editor/images/", "{$PATH_TO_ROOT}editor/", "", true);
 
@@ -57,5 +57,5 @@ rte1.toggleSrc = false;
 rte1.build();
 </script>
 
-<input type=submit value="Сохранить">
+<input type=submit value="п║п╬я┘я─п╟п╫п╦я┌я▄">
 </form>

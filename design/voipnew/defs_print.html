@@ -25,20 +25,20 @@
 {/literal}
 </head>
 <body>
-<h4>Тарифы на услуги междугородной и международной связи</h4>
+<h4>п╒п╟я─п╦я└я▀ п╫п╟ я┐я│п╩я┐пЁп╦ п╪п╣п╤п╢я┐пЁп╬я─п╬п╢п╫п╬п╧ п╦ п╪п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╧ я│п╡я▐п╥п╦</h4>
 
 <table cellspacing=0 cellpadding=1>
 	<tr>
-		<th>Назначение</th>
+		<th>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</th>
 		<th>fix/mob</th>
-		<th>Префикс</th>
-		<th>Цена</th>
+		<th>п÷я─п╣я└п╦п╨я│</th>
+		<th>п╕п╣п╫п╟</th>
 	</tr>
 	{assign var="pre_napr" value=""}
 	{foreach from=$defs item='o'}
-	{if $o.dgroup == 'Моск'}
+	{if $o.dgroup == 'п°п╬я│п╨'}
 		{if $pre_napr != $o.dgroup}
-		<tr><td colspan=6 class="hpart">Москва</td></tr>
+		<tr><td colspan=6 class="hpart">п°п╬я│п╨п╡п╟</td></tr>
 		{assign var="pre_napr" value=$o.dgroup}
 		{/if}
 		
@@ -51,9 +51,9 @@
 	{/if} 
 	{/foreach}
 	{foreach from=$defs item='o'}
-	{if $o.dgroup == 'МГ'}
+	{if $o.dgroup == 'п°п⌠'}
 		{if $pre_napr != $o.dgroup}
-		<tr><td colspan=6 class="hpart">Россия</td></tr>
+		<tr><td colspan=6 class="hpart">п═п╬я│я│п╦я▐</td></tr>
 		{assign var="pre_napr" value=$o.dgroup}
 		{/if}
 		
@@ -66,9 +66,9 @@
 	{/if} 
 	{/foreach}
 	{foreach from=$defs item='o'}
-	{if $o.dgroup == 'СНГ'}
+	{if $o.dgroup == 'п║п²п⌠'}
 		{if $pre_napr != $o.dgroup}
-		<tr><td colspan=6 class="hpart">Ближнее зарубежье</td></tr>
+		<tr><td colspan=6 class="hpart">п▒п╩п╦п╤п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣</td></tr>
 		{assign var="pre_napr" value=$o.dgroup}
 		{/if}
 		
@@ -81,9 +81,9 @@
 	{/if} 
 	{/foreach}
 	{foreach from=$defs item='o'}
-	{if $o.dgroup == 'МН'}
+	{if $o.dgroup == 'п°п²'}
 		{if $pre_napr != $o.dgroup}
-		<tr><td colspan=6 class="hpart">Дальнее зарубежье</td></tr>
+		<tr><td colspan=6 class="hpart">п■п╟п╩я▄п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣</td></tr>
 		{assign var="pre_napr" value=$o.dgroup}
 		{/if}
 		

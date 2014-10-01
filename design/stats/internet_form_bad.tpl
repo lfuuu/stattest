@@ -1,10 +1,10 @@
-      <H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=internet&detality=day&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">прошлый месяц</a>,
-      								за <a href="?module=stats&action=internet&detality=day&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">текущий месяц</a>)</H3>
+      <H3>п║п╬п╥п╢п╟п╧я┌п╣ п╬я┌я┤я▒я┌ я│п╟п╪п╦: (п╦п╩п╦ - п©п╬я│п╪п╬я┌я─п╦я┌п╣ п╬я┌я┤я▒я┌я▀ п╥п╟ <a href="?module=stats&action=internet&detality=day&from_d={$prev_from_d}&to_d={$prev_to_d}&from_m={$prev_from_m}&to_m={$prev_to_m}&from_y={$prev_from_y}&to_y={$prev_to_y}">п©я─п╬я┬п╩я▀п╧ п╪п╣я│я▐я├</a>,
+      								п╥п╟ <a href="?module=stats&action=internet&detality=day&from_d={$cur_from_d}&to_d={$cur_to_d}&from_m={$cur_from_m}&to_m={$cur_to_m}&from_y={$cur_from_y}&to_y={$cur_to_y}">я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├</a>)</H3>
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
   
         <TBODY>
         <TR>
-          <TD class=left>Дата начала отчёта</TD>
+          <TD class=left>п■п╟я┌п╟ п╫п╟я┤п╟п╩п╟ п╬я┌я┤я▒я┌п╟</TD>
           <TD>
 <FORM action="?" method=get>
 <input type=hidden name=module value=stats>
@@ -43,18 +43,18 @@
 			<OPTION value=31{if $from_d==31} selected{/if}>31</OPTION>
 		</SELECT>
 		<SELECT name=from_m>
-			<OPTION value=1{if $from_m==1} selected{/if}>янв</OPTION>
-			<OPTION value=2{if $from_m==2} selected{/if}>фев</OPTION>
-			<OPTION value=3{if $from_m==3} selected{/if}>мар</OPTION>
-			<OPTION value=4{if $from_m==4} selected{/if}>апр</OPTION>
-			<OPTION value=5{if $from_m==5} selected{/if}>мая</OPTION>
-			<OPTION value=6{if $from_m==6} selected{/if}>июн</OPTION>
-			<OPTION value=7{if $from_m==7} selected{/if}>июл</OPTION>
-			<OPTION value=8{if $from_m==8} selected{/if}>авг</OPTION>
-			<OPTION value=9{if $from_m==9} selected{/if}>сен</OPTION>
-			<OPTION value=10{if $from_m==10} selected{/if}>окт</OPTION>
-			<OPTION value=11{if $from_m==11} selected{/if}>ноя</OPTION>
-			<OPTION value=12{if $from_m==12} selected{/if}>дек</OPTION>
+			<OPTION value=1{if $from_m==1} selected{/if}>я▐п╫п╡</OPTION>
+			<OPTION value=2{if $from_m==2} selected{/if}>я└п╣п╡</OPTION>
+			<OPTION value=3{if $from_m==3} selected{/if}>п╪п╟я─</OPTION>
+			<OPTION value=4{if $from_m==4} selected{/if}>п╟п©я─</OPTION>
+			<OPTION value=5{if $from_m==5} selected{/if}>п╪п╟я▐</OPTION>
+			<OPTION value=6{if $from_m==6} selected{/if}>п╦я▌п╫</OPTION>
+			<OPTION value=7{if $from_m==7} selected{/if}>п╦я▌п╩</OPTION>
+			<OPTION value=8{if $from_m==8} selected{/if}>п╟п╡пЁ</OPTION>
+			<OPTION value=9{if $from_m==9} selected{/if}>я│п╣п╫</OPTION>
+			<OPTION value=10{if $from_m==10} selected{/if}>п╬п╨я┌</OPTION>
+			<OPTION value=11{if $from_m==11} selected{/if}>п╫п╬я▐</OPTION>
+			<OPTION value=12{if $from_m==12} selected{/if}>п╢п╣п╨</OPTION>
 		</SELECT>
 		<SELECT name=from_y>
 			<OPTION value=2003{if $from_y==2003} selected{/if}>2003</OPTION>
@@ -62,7 +62,7 @@
 			<OPTION value=2005{if $from_y==2005} selected{/if}>2005</OPTION>
 		</SELECT> </TD></TR>
         <TR>
-          <TD class=left>По какую дату</TD>
+          <TD class=left>п÷п╬ п╨п╟п╨я┐я▌ п╢п╟я┌я┐</TD>
           <TD>
 		<SELECT name=to_d>
 			<OPTION value=1{if $to_d==1} selected{/if}>01</OPTION>
@@ -98,34 +98,34 @@
 			<OPTION value=31{if $to_d==31} selected{/if}>31</OPTION>
 		</SELECT>
 		<SELECT name=to_m>
-			<OPTION value=1{if $to_m==1} selected{/if}>янв</OPTION>
-			<OPTION value=2{if $to_m==2} selected{/if}>фев</OPTION>
-			<OPTION value=3{if $to_m==3} selected{/if}>мар</OPTION>
-			<OPTION value=4{if $to_m==4} selected{/if}>апр</OPTION>
-			<OPTION value=5{if $to_m==5} selected{/if}>мая</OPTION>
-			<OPTION value=6{if $to_m==6} selected{/if}>июн</OPTION>
-			<OPTION value=7{if $to_m==7} selected{/if}>июл</OPTION>
-			<OPTION value=8{if $to_m==8} selected{/if}>авг</OPTION>
-			<OPTION value=9{if $to_m==9} selected{/if}>сен</OPTION>
-			<OPTION value=10{if $to_m==10} selected{/if}>окт</OPTION>
-			<OPTION value=11{if $to_m==11} selected{/if}>ноя</OPTION>
-			<OPTION value=12{if $to_m==12} selected{/if}>дек</OPTION>
+			<OPTION value=1{if $to_m==1} selected{/if}>я▐п╫п╡</OPTION>
+			<OPTION value=2{if $to_m==2} selected{/if}>я└п╣п╡</OPTION>
+			<OPTION value=3{if $to_m==3} selected{/if}>п╪п╟я─</OPTION>
+			<OPTION value=4{if $to_m==4} selected{/if}>п╟п©я─</OPTION>
+			<OPTION value=5{if $to_m==5} selected{/if}>п╪п╟я▐</OPTION>
+			<OPTION value=6{if $to_m==6} selected{/if}>п╦я▌п╫</OPTION>
+			<OPTION value=7{if $to_m==7} selected{/if}>п╦я▌п╩</OPTION>
+			<OPTION value=8{if $to_m==8} selected{/if}>п╟п╡пЁ</OPTION>
+			<OPTION value=9{if $to_m==9} selected{/if}>я│п╣п╫</OPTION>
+			<OPTION value=10{if $to_m==10} selected{/if}>п╬п╨я┌</OPTION>
+			<OPTION value=11{if $to_m==11} selected{/if}>п╫п╬я▐</OPTION>
+			<OPTION value=12{if $to_m==12} selected{/if}>п╢п╣п╨</OPTION>
 		</SELECT>
 		<SELECT name=to_y>
 			<OPTION value=2003{if $to_y==2003} selected{/if}>2003</OPTION>
 			<OPTION value=2004{if $to_y==2004} selected{/if}>2004</OPTION>
 			<OPTION value=2005{if $to_y==2005} selected{/if}>2005</OPTION>
 		</SELECT> </TD></TR><TR>
-          <TD class=left>Выводить по:</TD>
+          <TD class=left>п▓я▀п╡п╬п╢п╦я┌я▄ п©п╬:</TD>
           <TD>
 		<SELECT name=detality>
-			<OPTION value=ip{if $detality=='ip'} selected{/if}>IP-адресам</OPTION>
-			<OPTION value=hour{if $detality=='hour'} selected{/if}>часам</OPTION>
-			<OPTION value=day{if $detality=='day'} selected{/if}>дням</OPTION>
-			<OPTION value=month{if $detality=='month'} selected{/if}>месяцам</OPTION>
-			<OPTION value=year{if $detality=='year'} selected{/if}>годам</OPTION>
+			<OPTION value=ip{if $detality=='ip'} selected{/if}>IP-п╟п╢я─п╣я│п╟п╪</OPTION>
+			<OPTION value=hour{if $detality=='hour'} selected{/if}>я┤п╟я│п╟п╪</OPTION>
+			<OPTION value=day{if $detality=='day'} selected{/if}>п╢п╫я▐п╪</OPTION>
+			<OPTION value=month{if $detality=='month'} selected{/if}>п╪п╣я│я▐я├п╟п╪</OPTION>
+			<OPTION value=year{if $detality=='year'} selected{/if}>пЁп╬п╢п╟п╪</OPTION>
 		</SELECT>
         </TD></TR></TBODY></TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM><!-- ######## /Content ######## -->
+      <DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV></FORM><!-- ######## /Content ######## -->

@@ -1,12 +1,12 @@
 <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 
 <h4>
-	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
-	<small>Заказ
+	<small><a href="?module=incomegoods&action=order_list">п≈п╟п╨п╟п╥я▀</a> - </small>
+	<small>п≈п╟п╨п╟п╥
 		<a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 			{$order->number}</a> -
 	</small>
-	Поступление товаров
+	п÷п╬я│я┌я┐п©п╩п╣п╫п╦п╣ я┌п╬п╡п╟я─п╬п╡
 	<a href="?module=incomegoods&action=document_view&id={$document->id}">
 		<span class="{if $document->active}icon_active{elseif $document->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 		{$document->number}
@@ -14,56 +14,56 @@
 
 {if !$order->isClosed()}
 	<small><a href="?module=incomegoods&action=document_edit&id={$document->id}"><span class="icon_edit"></span>
-			Редактировать</a></small>
+			п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄</a></small>
 
 	<small><a href="?module=incomegoods&action=document_edit&id=&order_id={$order->id}"><span class="icon_add"></span>
-			Создать поступление</a></small>
+			п║п╬п╥п╢п╟я┌я▄ п©п╬я│я┌я┐п©п╩п╣п╫п╦п╣</a></small>
 {/if}
 </h4>
 
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
 	<tr>
-		<th>Номер, Дата</th>
-		<td>{$document->number} от {$document->date->format('d.m.Y H:i:s')}</td>
+		<th>п²п╬п╪п╣я─, п■п╟я┌п╟</th>
+		<td>{$document->number} п╬я┌ {$document->date->format('d.m.Y H:i:s')}</td>
 	</tr>
 	<tr>
-		<th>Поставщик</th>
+		<th>п÷п╬я│я┌п╟п╡я┴п╦п╨</th>
 		<td>{$document->client_card->company}</td>
 	</tr>
 	<tr>
-		<th>Организация</th>
+		<th>п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐</th>
 		<td>{$document->organization->name}</td>
 	</tr>
 	<tr>
-		<th>Склад</th>
+		<th>п║п╨п╩п╟п╢</th>
 		<td>{$document->store->name}</td>
 	</tr>
 	<tr>
-		<th>Сумма</th>
+		<th>п║я┐п╪п╪п╟</th>
 		<td>{$document->sum} {$document->currency}</td>
 	</tr>
 	{if $document->comment}
 		<tr>
-			<th>Комментарий</th>
+			<th>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</th>
 			<td>{$document->comment}</td>
 		</tr>
 	{/if}
 </table>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px; margin-right: 10px;">
-	<caption><h5 class="text-left">Документы поступления:</h5></caption>
+	<caption><h5 class="text-left">п■п╬п╨я┐п╪п╣п╫я┌я▀ п©п╬я│я┌я┐п©п╩п╣п╫п╦я▐:</h5></caption>
 	{foreach from=$order->documents item=item}
 		<tr>
 			{if $document->id != $item->id}
 				<td><a href="?module=incomegoods&action=document_view&id={$item->id}">
 						<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-						{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+						{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 				</a></td>
 			{else}
 				<td>
 					<span class="{if $item->active}icon_active{elseif $item->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
-					{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+					{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 				</td>
 			{/if}
 		</tr>
@@ -71,12 +71,12 @@
 </table>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px">
-	<caption><h5 class="text-left">Приходные ордера:</h5></caption>
+	<caption><h5 class="text-left">п÷я─п╦я┘п╬п╢п╫я▀п╣ п╬я─п╢п╣я─п╟:</h5></caption>
 	{foreach from=$order->stores item=item}
 		<tr>
 			<td><a href="?module=incomegoods&action=store_view&id={$item->id}">
 					<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-					{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+					{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 			</a></td>
 		</tr>
 	{/foreach}
@@ -86,18 +86,18 @@
 
 <table class="table table-bordered table-condensed table-hover">
 	<thead>
-	<caption><h5 class="text-left">Товары:</h5></caption>
+	<caption><h5 class="text-left">п╒п╬п╡п╟я─я▀:</h5></caption>
 	<tr>
 
-		<th>Код</th>
-		<th>Наименование</th>
-		<th>Заказано</th>
-		<th>Поступило</th>
-		<th>Оприходовано</th>
-		<th>Количество</th>
-		<th>Цена</th>
-		<th>Сумма <small>{if $document->price_includes_nds}(Вкл. НДС){else}(Без НДС){/if}</small></th>
-		<th>Номер ГТД</th>
+		<th>п п╬п╢</th>
+		<th>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣</th>
+		<th>п≈п╟п╨п╟п╥п╟п╫п╬</th>
+		<th>п÷п╬я│я┌я┐п©п╦п╩п╬</th>
+		<th>п·п©я─п╦я┘п╬п╢п╬п╡п╟п╫п╬</th>
+		<th>п п╬п╩п╦я┤п╣я│я┌п╡п╬</th>
+		<th>п╕п╣п╫п╟</th>
+		<th>п║я┐п╪п╪п╟ <small>{if $document->price_includes_nds}(п▓п╨п╩. п²п■п║){else}(п▒п╣п╥ п²п■п║){/if}</small></th>
+		<th>п²п╬п╪п╣я─ п⌠п╒п■</th>
 	</tr>
 	</thead>
 	<tbody>

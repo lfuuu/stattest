@@ -1,9 +1,9 @@
-<h1>Прайс листы, в договора</h1>
+<h1>п÷я─п╟п╧я│ п╩п╦я│я┌я▀, п╡ п╢п╬пЁп╬п╡п╬я─п╟</h1>
 <table cellpadding=2 border=1 style="border-collapse: collapse;">
 <tr>
-<th>Код</th>
-<th>Город</th>
-<th>Дата генерации</th>
+<th>п п╬п╢</th>
+<th>п⌠п╬я─п╬п╢</th>
+<th>п■п╟я┌п╟ пЁп╣п╫п╣я─п╟я├п╦п╦</th>
 <th>&nbsp;</th>
 </tr>
 {foreach from=$data key=region item=i}
@@ -11,7 +11,7 @@
 <td>{$region}</td>
 <td>{$i.city}</td>
 <td>{if $i.time}{$i.time}{else}----{/if}</td>
-<td><a href="./?module=tarifs&action=price_tel&gen=true&region={$region}" target=_blank>сформировать</a></td>
+<td><a href="./?module=tarifs&action=price_tel&gen=true&region={$region}" target=_blank>я│я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄</a></td>
 </tr>
 {/foreach}
 </table>

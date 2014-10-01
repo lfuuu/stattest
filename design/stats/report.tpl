@@ -1,5 +1,5 @@
-      <H2>Статистика</H2>
-      <H3>Интернет</H3>
+      <H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</H2>
+      <H3>п≤п╫я┌п╣я─п╫п╣я┌</H3>
 
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
@@ -7,14 +7,14 @@
           <TD class=header vAlign=bottom width="2%"></TD>
           <TD class=header vAlign=bottom width="2%"></TD>
           <TD class=header vAlign=bottom width="2%"></TD>
-          <TD class=header vAlign=bottom width="24%">Клиент</TD>
-          <TD class=header vAlign=bottom width="5%">Подключение</TD>
-          <TD class=header vAlign=bottom width="15%">Тариф</TD>{if $show_tarif_traf}
-		  <TD class=header vAlign=bottom width="15%">Трафик</TD>{/if}
-          <TD class=header vAlign=bottom width="10%" style='text-align:right'>Входящий трафик, Мб</TD>
-          <TD class=header vAlign=bottom width="10%" style='text-align:right'>Исходящий трафик, Мб</TD>
-		  <TD class=header vAlign=bottom width="10%" style='text-align:right'>Входящий трафик/мес, Мб</TD>
-          <TD class=header vAlign=bottom width="10%" style='text-align:right'>Исходящий трафик/мес, Мб</TD>
+          <TD class=header vAlign=bottom width="24%">п п╩п╦п╣п╫я┌</TD>
+          <TD class=header vAlign=bottom width="5%">п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</TD>
+          <TD class=header vAlign=bottom width="15%">п╒п╟я─п╦я└</TD>{if $show_tarif_traf}
+		  <TD class=header vAlign=bottom width="15%">п╒я─п╟я└п╦п╨</TD>{/if}
+          <TD class=header vAlign=bottom width="10%" style='text-align:right'>п▓я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨, п°п╠</TD>
+          <TD class=header vAlign=bottom width="10%" style='text-align:right'>п≤я│я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨, п°п╠</TD>
+		  <TD class=header vAlign=bottom width="10%" style='text-align:right'>п▓я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨/п╪п╣я│, п°п╠</TD>
+          <TD class=header vAlign=bottom width="10%" style='text-align:right'>п≤я│я┘п╬п╢я▐я┴п╦п╧ я┌я─п╟я└п╦п╨/п╪п╣я│, п°п╠</TD>
         </TR>
 
 {foreach from=$stats item=item key=key name=outer}
@@ -34,11 +34,11 @@
 		<TD><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_ip_ports&id={$item.id}" target="_blank">{$item.id}</a></TD>
 		<TD>
 {if isset($item.tarif.name)}
-			<img alt='Текущий тариф' class=icon src='{$IMAGES_PATH}icons/tarif.gif' alt="{$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}">
-			<span style='color:#0000C0' title='Текущий тариф: {$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}'>{$item.tarif.name}</span><br>
+			<img alt='п╒п╣п╨я┐я┴п╦п╧ я┌п╟я─п╦я└' class=icon src='{$IMAGES_PATH}icons/tarif.gif' alt="{$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}">
+			<span style='color:#0000C0' title='п╒п╣п╨я┐я┴п╦п╧ я┌п╟я─п╦я└: {$item.tarif.mb_month}-{$item.tarif.pay_month}-{$item.tarif.pay_mb}'>{$item.tarif.name}</span><br>
 {elseif $newgen}
-			<img alt='Текущий тариф' class=icon src='{$IMAGES_PATH}icons/tarif.gif' alt="{$item.mb_month}-{$item.pay_month}-{$item.pay_mb}">
-			<span style='color:#0000C0' title='Текущий тариф: {$item.mb_month}-{$item.pay_month}-{$item.pay_mb}'>{$item.tarif_name}</span><br>
+			<img alt='п╒п╣п╨я┐я┴п╦п╧ я┌п╟я─п╦я└' class=icon src='{$IMAGES_PATH}icons/tarif.gif' alt="{$item.mb_month}-{$item.pay_month}-{$item.pay_mb}">
+			<span style='color:#0000C0' title='п╒п╣п╨я┐я┴п╦п╧ я┌п╟я─п╦я└: {$item.mb_month}-{$item.pay_month}-{$item.pay_mb}'>{$item.tarif_name}</span><br>
 {/if}	</TD>{if $show_tarif_traf}
 		<TD align=right>{$item.mb_month}</TD>{/if}
 		<TD align=right>{fsize value=$item.in_bytes}</TD>

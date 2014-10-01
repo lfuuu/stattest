@@ -1,20 +1,20 @@
-<h2>Платежи</h2>
+<h2>п÷п╩п╟я┌п╣п╤п╦</h2>
 
 <table cellpadding="10" cellspacing="0" border="1">
 <tr>
-	<TD>Платежи всего:<b><FONT color="Red">{$sum_bills}</FONT></b></TD>
-	<TD>Оказано услуг на сумму:<b><FONT color="Red">{$sum_bill}</FONT></b></TD>
-	<TD>{if $debet > 0}Остаток на счете:{else}Задолженность клиента:{/if}<b><FONT color="Red">{$debet}</FONT></b></TD>
-	<TD>Баланс: <b><font color=red>{$balance}</font></b></TD>
+	<TD>п÷п╩п╟я┌п╣п╤п╦ п╡я│п╣пЁп╬:<b><FONT color="Red">{$sum_bills}</FONT></b></TD>
+	<TD>п·п╨п╟п╥п╟п╫п╬ я┐я│п╩я┐пЁ п╫п╟ я│я┐п╪п╪я┐:<b><FONT color="Red">{$sum_bill}</FONT></b></TD>
+	<TD>{if $debet > 0}п·я│я┌п╟я┌п╬п╨ п╫п╟ я│я┤п╣я┌п╣:{else}п≈п╟п╢п╬п╩п╤п╣п╫п╫п╬я│я┌я▄ п╨п╩п╦п╣п╫я┌п╟:{/if}<b><FONT color="Red">{$debet}</FONT></b></TD>
+	<TD>п▒п╟п╩п╟п╫я│: <b><font color=red>{$balance}</font></b></TD>
 </tr>
 </table>
 
 <form action="/modules/accounts/add_payment.php" method="POST">
 <table align="center">
 	<tr>
-		<TD>Сумма платежа</TD><td><INPUT type="text" name="pay_sum" value="0000.00"></td>
-		<TD>Платежное поручение</TD><td><INPUT type="text" name="pay_pp" value="000"></td>
-		<TD>Дата платежа</TD><td><INPUT type="text" name="pay_date" value="ГГГГ-ММ-ДД"></td>
+		<TD>п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟</TD><td><INPUT type="text" name="pay_sum" value="0000.00"></td>
+		<TD>п÷п╩п╟я┌п╣п╤п╫п╬п╣ п©п╬я─я┐я┤п╣п╫п╦п╣</TD><td><INPUT type="text" name="pay_pp" value="000"></td>
+		<TD>п■п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟</TD><td><INPUT type="text" name="pay_date" value="п⌠п⌠п⌠п⌠-п°п°-п■п■"></td>
 		<TD></TD>
 	</tr>
 
@@ -26,9 +26,9 @@
 	<table align="center">
 	<tr>
 		<td></td>
-		<td>Сумма платежа</td>
-		<td>Номер платежного поручения</td>
-		<td>Дата платежа</td>
+		<td>п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟</td>
+		<td>п²п╬п╪п╣я─ п©п╩п╟я┌п╣п╤п╫п╬пЁп╬ п©п╬я─я┐я┤п╣п╫п╦я▐</td>
+		<td>п■п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟</td>
 	</tr>
 	{foreach from=$payments item=payment key=key}
         <tr>
@@ -50,9 +50,9 @@
 	<table align="center">
 	<tr>
 		<td></td>
-		<td>Счет номер</td>
-		<td>Сумма</td>
-		<td>Дата</td>
+		<td>п║я┤п╣я┌ п╫п╬п╪п╣я─</td>
+		<td>п║я┐п╪п╪п╟</td>
+		<td>п■п╟я┌п╟</td>
 		<TD></TD>
 	</tr>
 	{foreach from=$bills item=bill key=key}
@@ -61,7 +61,7 @@
         	<td>{$bill.bill_no}</td> 
         	<td>{$bill.sum}</a></td> 
         	<td>{$bill.bill_date}</td>
-        	<td><a href="/modules/accounts/make_invoices.php" target="_blank">Провести счет</a></td>
+        	<td><a href="/modules/accounts/make_invoices.php" target="_blank">п÷я─п╬п╡п╣я│я┌п╦ я│я┤п╣я┌</a></td>
         	
         </tr>
 

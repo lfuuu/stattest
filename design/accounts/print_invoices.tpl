@@ -1,28 +1,28 @@
-<h1>Печать счетов фактур, актов и конвертов</h1>
+<h1>п÷п╣я┤п╟я┌я▄ я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─, п╟п╨я┌п╬п╡ п╦ п╨п╬п╫п╡п╣я─я┌п╬п╡</h1>
 <br>
 <TABLE  align="center" cellspacing="10">
   <TR bgcolor="#eee0b9">
-    <TD>Печать счетов фактур</TD>
-    <TD>Печать актов</TD>
-    <TD>Печать конвертов</TD>
+    <TD>п÷п╣я┤п╟я┌я▄ я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─</TD>
+    <TD>п÷п╣я┤п╟я┌я▄ п╟п╨я┌п╬п╡</TD>
+    <TD>п÷п╣я┤п╟я┌я▄ п╨п╬п╫п╡п╣я─я┌п╬п╡</TD>
   </TR>
   <tr>
   	<TD bgcolor="#eee0b9">
   		<form action="modules/accounts/print_invoices.php?todo=print_invoices" method="POST" target="_blank">
-  			c<INPUT size="12" value="{$now}" name="start" type="text"> до<INPUT size="12" value="{$now}" name="finish" type="text"><br>
-        		<INPUT value="Подготовить Печать" name="submit" type="submit">
+  			c<INPUT size="12" value="{$now}" name="start" type="text"> п╢п╬<INPUT size="12" value="{$now}" name="finish" type="text"><br>
+        		<INPUT value="п÷п╬п╢пЁп╬я┌п╬п╡п╦я┌я▄ п÷п╣я┤п╟я┌я▄" name="submit" type="submit">
       		</form>
   	</TD>
   	<TD bgcolor="#eee0b9">
   		<form action="modules/accounts/print_invoices.php?todo=print_akt" method="POST" target="_blank">
-  			c<INPUT size="12" value="{$now}" name="start" type="text"> до<INPUT size="12" value="{$now}" name="finish" type="text"><br>
-        		<INPUT value="Подготовить Печать" name="submit" type="submit">
+  			c<INPUT size="12" value="{$now}" name="start" type="text"> п╢п╬<INPUT size="12" value="{$now}" name="finish" type="text"><br>
+        		<INPUT value="п÷п╬п╢пЁп╬я┌п╬п╡п╦я┌я▄ п÷п╣я┤п╟я┌я▄" name="submit" type="submit">
       		</form>
   	</TD>
   	<TD bgcolor="#eee0b9">
   		<form action="modules/accounts/print_invoices.php?todo=print_envelopes" method="POST" target="_blank">
-  			c<INPUT size="12" value="{$now}" name="start" type="text"> до<INPUT size="12" value="{$now}" name="finish" type="text"><br>
-        		<INPUT value="Подготовить Печать" name="submit" type="submit">
+  			c<INPUT size="12" value="{$now}" name="start" type="text"> п╢п╬<INPUT size="12" value="{$now}" name="finish" type="text"><br>
+        		<INPUT value="п÷п╬п╢пЁп╬я┌п╬п╡п╦я┌я▄ п÷п╣я┤п╟я┌я▄" name="submit" type="submit">
       		</form>
   	</TD>
   </tr>

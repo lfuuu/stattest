@@ -1,12 +1,12 @@
-<h2>Счета</h2>
+<h2>п║я┤п╣я┌п╟</h2>
 <table  class="menu2" cellpadding="10" cellspacing="0" border="1">
  <tr class="trmenu2">
- 	<td>Выставить новые счета</td>
- 	<td>Показать счета</td>
+ 	<td>п▓я▀я│я┌п╟п╡п╦я┌я▄ п╫п╬п╡я▀п╣ я│я┤п╣я┌п╟</td>
+ 	<td>п÷п╬п╨п╟п╥п╟я┌я▄ я│я┤п╣я┌п╟</td>
  	
  </tr>
  <tr>
- 	<td colspan="2">Счета клиента: &nbsp;&nbsp;<b>{$customer}</b></td>
+ 	<td colspan="2">п║я┤п╣я┌п╟ п╨п╩п╦п╣п╫я┌п╟: &nbsp;&nbsp;<b>{$customer}</b></td>
  </tr>
 <tr class="trmenu2">
  	<td>
@@ -14,20 +14,20 @@
          		<table cellpadding="0" cellspacing="0" border="0">
          			
          			<tr>
-         				<td>Период оплаты по факту</td>
-         				<td>С <input type="text" name="fact_from" value="{$fact_from}" size="10" maxlength="10">
+         				<td>п÷п╣я─п╦п╬п╢ п╬п©п╩п╟я┌я▀ п©п╬ я└п╟п╨я┌я┐</td>
+         				<td>п║ <input type="text" name="fact_from" value="{$fact_from}" size="10" maxlength="10">
          				-<input type="text" name="fact_to" value="{$fact_to}" size="10" maxlength="10">
          				</td>
          			</tr>
          			<tr>
-         				<td>Период по предоплате </td>
-         				<td>С <input type="text" name="pre_from" value="{$pre_from}" size="10" maxlength="10">
+         				<td>п÷п╣я─п╦п╬п╢ п©п╬ п©я─п╣п╢п╬п©п╩п╟я┌п╣ </td>
+         				<td>п║ <input type="text" name="pre_from" value="{$pre_from}" size="10" maxlength="10">
          				-<input type="text" name="pre_to" value="{$pre_to}" size="10" maxlength="10">
          				</td>
          			</tr>
          			<tr>
          				<td colspan=2>
-         					<input type="submit" vALUE="Выписать счета">
+         					<input type="submit" vALUE="п▓я▀п©п╦я│п╟я┌я▄ я│я┤п╣я┌п╟">
          				</td>
          			</tr>
          		</table>
@@ -39,27 +39,27 @@
  		<form action="?module=accounts&action=accounts_bills&todo=showbills" method="post">
          		<table cellpadding="0" cellspacing="0" border="0">
          			<tr>
-         				<td>Найти счет номер</td>
+         				<td>п²п╟п╧я┌п╦ я│я┤п╣я┌ п╫п╬п╪п╣я─</td>
          				<td><input type="text" name="bill_no" size="10"></td>
          			</tr>
          			<tr>
-         				<td>Найти счета за период</td>
-         				<td>Год:<input type="text" name="year" size="4" value="{$this_year}">
-         				Месяц:<input type="text" name="month" size="4" value="{$this_month}"></td>
+         				<td>п²п╟п╧я┌п╦ я│я┤п╣я┌п╟ п╥п╟ п©п╣я─п╦п╬п╢</td>
+         				<td>п⌠п╬п╢:<input type="text" name="year" size="4" value="{$this_year}">
+         				п°п╣я│я▐я├:<input type="text" name="month" size="4" value="{$this_month}"></td>
          			
          			</tr>
          			<tr>
          				
-         				<td>Только неоплаченные:</td><td><input type="checkbox" name="notpaied"></td>
+         				<td>п╒п╬п╩я▄п╨п╬ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣:</td><td><input type="checkbox" name="notpaied"></td>
          				
          				
          			</tr>
          			<tr>
-         				<td>Счета колллективной точки:</td><td><input type="text" name="router"></td>
+         				<td>п║я┤п╣я┌п╟ п╨п╬п╩п╩п╩п╣п╨я┌п╦п╡п╫п╬п╧ я┌п╬я┤п╨п╦:</td><td><input type="text" name="router"></td>
          			</tr>
          			<tr>
          				<td colspan=2>
-         					<input type="submit" vALUE="Показать счета">
+         					<input type="submit" vALUE="п÷п╬п╨п╟п╥п╟я┌я▄ я│я┤п╣я┌п╟">
          				</td>
          			</tr>
          			

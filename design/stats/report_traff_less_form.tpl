@@ -4,29 +4,29 @@
             <input type=hidden name=module value=stats>
             <input type=hidden name=action value=report_traff_less>
         <TR>
-          <TD class=left>Отчёт за период</TD>
+          <TD class=left>п·я┌я┤я▒я┌ п╥п╟ п©п╣я─п╦п╬п╢</TD>
           <TD>
 
-           с: <input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
-По: <input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
+           я│: <input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
+п÷п╬: <input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
         </TD></TR>
         <TR>
-            <TD class=left>Суммарный трафик меньше: </TD>
-            <TD><input class=text name=traf_less value="{$traf_less}"> Мб/день</td>
+            <TD class=left>п║я┐п╪п╪п╟я─п╫я▀п╧ я┌я─п╟я└п╦п╨ п╪п╣п╫я▄я┬п╣: </TD>
+            <TD><input class=text name=traf_less value="{$traf_less}"> п°п╠/п╢п╣п╫я▄</td>
 		</TR>
 		<TR>
-            <TD class=left>Менеджер: </TD>
+            <TD class=left>п°п╣п╫п╣п╢п╤п╣я─: </TD>
             <TD>
 				<select name='manager'>
 					{html_options options=$managers selected=$manager}
 				</select>
 			</TD>
 		</TR>
-		<tr><td class=left>Включать клиентов, отключенных в отчетный период:</td><td><input type='checkbox' {if $offclients}checked='checked'{/if} name='offclients' /></td></tr>
+		<tr><td class=left>п▓п╨п╩я▌я┤п╟я┌я▄ п╨п╩п╦п╣п╫я┌п╬п╡, п╬я┌п╨п╩я▌я┤п╣п╫п╫я▀я┘ п╡ п╬я┌я┤п╣я┌п╫я▀п╧ п©п╣я─п╦п╬п╢:</td><td><input type='checkbox' {if $offclients}checked='checked'{/if} name='offclients' /></td></tr>
         </TBODY></TABLE>
       <HR>
 
-<DIV align=center><INPUT class=button type=submit name=make_report value="Сформировать отчёт"></DIV></FORM>
+<DIV align=center><INPUT class=button type=submit name=make_report value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV></FORM>
 <script>
 optools.DatePickerInit();
 </script>

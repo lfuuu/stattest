@@ -1,46 +1,46 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Заказ &#8470;{$bill.bill_no}</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<TITLE>п≈п╟п╨п╟п╥ &#8470;{$bill.bill_no}</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 <LINK title=default href="{$PATH_TO_ROOT}bill.css" type="text/css" rel="stylesheet">
 </HEAD>
 <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
-	<center><h2>Заказ &#8470;{$cli.req_no}/{$bill.bill_no}</h2></center>
-	<center><h4>{if !isset($without_date) || !$without_date}{$bill.ts|mdate:"от d.m.Y г."}{else}{$without_date_date}{/if}</h4></center>
+	<center><h2>п≈п╟п╨п╟п╥ &#8470;{$cli.req_no}/{$bill.bill_no}</h2></center>
+	<center><h4>{if !isset($without_date) || !$without_date}{$bill.ts|mdate:"п╬я┌ d.m.Y пЁ."}{else}{$without_date_date}{/if}</h4></center>
 
 	<table border="1" align="center" width="100%">
 		<tr style="text-align: center">
 			<td>&#8470;</td>
-			<td>Артикул</td>
-			<td>Наименование</td>
-			<td>Количество</td>
-			<td>Цена за шт. с НДС</td>
-			<td>Сумма с НДС</td>
+			<td>п░я─я┌п╦п╨я┐п╩</td>
+			<td>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣</td>
+			<td>п п╬п╩п╦я┤п╣я│я┌п╡п╬</td>
+			<td>п╕п╣п╫п╟ п╥п╟ я┬я┌. я│ п²п■п║</td>
+			<td>п║я┐п╪п╪п╟ я│ п²п■п║</td>
 		</tr>
 		{foreach from=$bill_lines item='l' key='k'}{assign var='k' value=$k+1}
 		<tr>
 			<td align="center">{$k}</td>
 			<td align="left">{if isset($1c_lines[$k])}{$1c_lines[$k].articul}{/if}&nbsp;</td>
 			<td align="left">{$l.item}&nbsp;</td>
-			<td align="center">{$l.amount|round:0} шт.</td>
-			<td align="center">{$l.price*1.18|round:2} руб.</td>
-			<td align="center">{$l.sum*1.18|round:2} руб.</td>
+			<td align="center">{$l.amount|round:0} я┬я┌.</td>
+			<td align="center">{$l.price*1.18|round:2} я─я┐п╠.</td>
+			<td align="center">{$l.sum*1.18|round:2} я─я┐п╠.</td>
 		</tr>
 		{/foreach}
 	</table>
 	<br />
-	<p>Сумма: {$bill.tsum|round:2} руб. (сумма прописью: {$bill.tsum|wordify:'RUR'})</p>
-	<p><br>Агент: ____________________/{$cli_doer|default:"____________________"}/<br>
-    <span style="padding-left: 170px;">(Ф.И.О.)</span>
+	<p>п║я┐п╪п╪п╟: {$bill.tsum|round:2} я─я┐п╠. (я│я┐п╪п╪п╟ п©я─п╬п©п╦я│я▄я▌: {$bill.tsum|wordify:'RUR'})</p>
+	<p><br>п░пЁп╣п╫я┌: ____________________/{$cli_doer|default:"____________________"}/<br>
+    <span style="padding-left: 170px;">(п╓.п≤.п·.)</span>
     </p>
 	<br /><br />
 	<br /><br />
 	<br /><br />
-	<p>Товар получил.<br />Претензий по количеству и качеству не имею.<br /><br />
+	<p>п╒п╬п╡п╟я─ п©п╬п╩я┐я┤п╦п╩.<br />п÷я─п╣я┌п╣п╫п╥п╦п╧ п©п╬ п╨п╬п╩п╦я┤п╣я│я┌п╡я┐ п╦ п╨п╟я┤п╣я│я┌п╡я┐ п╫п╣ п╦п╪п╣я▌.<br /><br />
     </br>
-	Клиент Заказчика: ____________________/____________________/<br>
-    <span style="padding-left: 260px;">(Ф.И.О.)</span>
+	п п╩п╦п╣п╫я┌ п≈п╟п╨п╟п╥я┤п╦п╨п╟: ____________________/____________________/<br>
+    <span style="padding-left: 260px;">(п╓.п≤.п·.)</span>
     </p>
 </body>
 </html>

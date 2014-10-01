@@ -1,10 +1,10 @@
-<h2>Импорт платежей</h2>
+<h2>п≤п╪п©п╬я─я┌ п©п╩п╟я┌п╣п╤п╣п╧</h2>
 <form action='?' method=post>
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=pi_apply>
 <input type=hidden name=file value='{$file}'>
 <input type=hidden name=bank value='citi'>
-<input type='checkbox' id='check_all' style='margin-left:4px' onclick='optools.pays.sel_all_pay_radio(event)'> Выбрать всех<br />
+<input type='checkbox' id='check_all' style='margin-left:4px' onclick='optools.pays.sel_all_pay_radio(event)'> п▓я▀п╠я─п╟я┌я▄ п╡я│п╣я┘<br />
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0 id="pays_tbl">
 {foreach from=$pays item=pay name=outer}
 <tr bgcolor=#fffff5><td colspan='4'>
@@ -17,28 +17,28 @@
         {/foreach}
     {/if}
 	{if !$pay.imported}
-		<input type=radio name=pay[{$pay.no}][client] value=''>не вносить
+		<input type=radio name=pay[{$pay.no}][client] value=''>п╫п╣ п╡п╫п╬я│п╦я┌я▄
 	{/if}
 </td>
 </tr>
-<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}Платеж &#8470;{$pay.noref} от {$pay.date}
-{if $pay.inn}<br><span style="color: #aaa;">ИНН {$pay.inn}</span>{/if}
-    {if $pay.to_check}<div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания платильшик и компания, вледелец счета не совпадаю!</div>{/if}
-    {if $pay.to_check_bill_only}<br><br><div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания&nbsp;найдена&nbsp;по&nbsp;счету</div>{/if}
+<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}п÷п╩п╟я┌п╣п╤ &#8470;{$pay.noref} п╬я┌ {$pay.date}
+{if $pay.inn}<br><span style="color: #aaa;">п≤п²п² {$pay.inn}</span>{/if}
+    {if $pay.to_check}<div style="color:#c40000;font: bold 8pt sans-serif;">п▓п╫п╦п╪п╟п╫п╦п╣! п п╬п╪п©п╟п╫п╦я▐ п©п╩п╟я┌п╦п╩я▄я┬п╦п╨ п╦ п╨п╬п╪п©п╟п╫п╦я▐, п╡п╩п╣п╢п╣п╩п╣я├ я│я┤п╣я┌п╟ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌!</div>{/if}
+    {if $pay.to_check_bill_only}<br><br><div style="color:#c40000;font: bold 8pt sans-serif;">п▓п╫п╦п╪п╟п╫п╦п╣! п п╬п╪п©п╟п╫п╦я▐&nbsp;п╫п╟п╧п╢п╣п╫п╟&nbsp;п©п╬&nbsp;я│я┤п╣я┌я┐</div>{/if}
     {if !$pay.clients || $pay.to_check_bill_only}
-{if !$pay.to_check_bill_only}<br/><br/>{/if}<span style="color: gray;">р/с: {$pay.from.account}
-        <br/>бик: {$pay.from.bik}</span>
+{if !$pay.to_check_bill_only}<br/><br/>{/if}<span style="color: gray;">я─/я│: {$pay.from.account}
+        <br/>п╠п╦п╨: {$pay.from.bik}</span>
     {/if}
 <br><br><br><span style="font-size:7pt;" title="{$pay.company|escape}">{$pay.company|truncate:35}</span>
 <input type=hidden name=pay[{$pay.no}][pay] value='{$pay.noref}'>
 <input type=hidden name=pay[{$pay.no}][date] value='{$pay.date}'>
 <input type=hidden name=pay[{$pay.no}][oper_date] value='{$pay.oper_date}'>
 <input type=hidden name=pay[{$pay.no}][sum_rub] value='{$pay.sum}'></td>
-<td><b>{$pay.sum}</b> р.</td><td>
+<td><b>{$pay.sum}</b> я─.</td><td>
 
 {if $pay.clients}
 	<select name=pay[{$pay.no}][bill_no] id=bills_{$pay.no}{if $pay.to_check_bill_only} disabled='disabled'{/if}>
-		<option value=''>(без привязки)</option>
+		<option value=''>(п╠п╣п╥ п©я─п╦п╡я▐п╥п╨п╦)</option>
 		{assign var='is_select' value=false}
 		{foreach from=$pay.clients_bills item=bill name=inner2}
 			{if $bill.is_group}
@@ -65,7 +65,7 @@
 		{/foreach}
 		{if !$is_select && $pay.bill_no}
 			</optgroup>
-			<optgroup label="Вне списка">
+			<optgroup label="п▓п╫п╣ я│п©п╦я│п╨п╟">
 				<option value={$pay.bill_no} selected>{$pay.bill_no}{if !$pay.imported} !?{/if} ??</option>
 			</optgroup>
 		{/if}
@@ -74,21 +74,21 @@
 	<input type=text class=text name=pay[{$pay.no}][bill_no] style='width:100px'>
 {/if}
 <input type=text class=text name=pay[{$pay.no}][usd_rate] style='width:60px' value={$pay.usd_rate}>
-{if $pay.clients && !$is_select && $pay.bill_no && !$pay.imported}<div style="color:#c40000; font: bold 8pt sans-serif;">Внимание!!! Счет в комментариях не найден в счетах клиентов.</div>{/if}
+{if $pay.clients && !$is_select && $pay.bill_no && !$pay.imported}<div style="color:#c40000; font: bold 8pt sans-serif;">п▓п╫п╦п╪п╟п╫п╦п╣!!! п║я┤п╣я┌ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐я┘ п╫п╣ п╫п╟п╧п╢п╣п╫ п╡ я│я┤п╣я┌п╟я┘ п╨п╩п╦п╣п╫я┌п╬п╡.</div>{/if}
 </td><td width=50%>
 {$pay.description|escape:"html"}<br>
 <textarea name=pay[{$pay.no}][comment] class=text style='width:100%;font-size:85%'>{$pay.comment}</textarea>
 </td></tr>
 {/foreach}
 </TABLE>
-<br><b>Сумма занесенных: </b>{$sum.imported} руб.<br>
-<br><b>Сумма +/-: </b>{$sum.plus} / {$sum.minus} руб.<br>
-<br><b>Сумма итого: </b>{$sum.all} руб.<br>
-<DIV align=center><INPUT class=button type=submit value="Внести платежи"></DIV></FORM>
+<br><b>п║я┐п╪п╪п╟ п╥п╟п╫п╣я│п╣п╫п╫я▀я┘: </b>{$sum.imported} я─я┐п╠.<br>
+<br><b>п║я┐п╪п╪п╟ +/-: </b>{$sum.plus} / {$sum.minus} я─я┐п╠.<br>
+<br><b>п║я┐п╪п╪п╟ п╦я┌п╬пЁп╬: </b>{$sum.all} я─я┐п╠.<br>
+<DIV align=center><INPUT class=button type=submit value="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤п╦"></DIV></FORM>
 
 {if $bills}
 <hr>
-Печать сопроводительного письма, счета и акт-1(2):
+п÷п╣я┤п╟я┌я▄ я│п╬п©я─п╬п╡п╬п╢п╦я┌п╣п╩я▄п╫п╬пЁп╬ п©п╦я│я▄п╪п╟, я│я┤п╣я┌п╟ п╦ п╟п╨я┌-1(2):
 
 {assign var="cc" value=0}
 {assign var="cp" value=1}
@@ -109,7 +109,7 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF п╬п╢п╫п╦п╪ я└п╟п╧п╩п╬п╪" style="padding: 0; margin: 0;">
 </form>
 </td>
 </tr></table>
@@ -121,7 +121,7 @@
 
 
 <hr>
-Печать с/ф-1:
+п÷п╣я┤п╟я┌я▄ я│/я└-1:
 {assign var="cc" value=0}
 {assign var="cp" value=1}
 <table border=0>
@@ -141,7 +141,7 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF п╬п╢п╫п╦п╪ я└п╟п╧п╩п╬п╪" style="padding: 0; margin: 0;">
 </form>
 </td>
 </tr></table>
@@ -150,7 +150,7 @@
 
 
 <hr>
-Печать сопроводительного письма, счета:
+п÷п╣я┤п╟я┌я▄ я│п╬п©я─п╬п╡п╬п╢п╦я┌п╣п╩я▄п╫п╬пЁп╬ п©п╦я│я▄п╪п╟, я│я┤п╣я┌п╟:
 
 {assign var="cc" value=0}
 {assign var="cp" value=1}
@@ -171,13 +171,13 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF п╬п╢п╫п╦п╪ я└п╟п╧п╩п╬п╪" style="padding: 0; margin: 0;">
 </form>
 </td>
 </tr></table>
 
 <hr>
-Печать УПД:
+п÷п╣я┤п╟я┌я▄ пёп÷п■:
 {assign var="cc" value=0}
 {assign var="cp" value=1}
 <table border=0>
@@ -197,13 +197,13 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF п╬п╢п╫п╦п╪ я└п╟п╧п╩п╬п╪" style="padding: 0; margin: 0;">
 </form>
 </td>
 </tr></table>
 
 <hr>
-Регистрация почтового реестра:
+п═п╣пЁп╦я│я┌я─п╟я├п╦я▐ п©п╬я┤я┌п╬п╡п╬пЁп╬ я─п╣п╣я│я┌я─п╟:
 {assign var="cc" value=0}
 {assign var="cp" value=1}
 <table border=0>

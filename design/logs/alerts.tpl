@@ -2,7 +2,7 @@
 	{capture name="pagination"}
 	
 	<div class="pagination">
-		Страница: 
+		п║я┌я─п╟п╫п╦я├п╟: 
 		{section name=foo start=1 loop=$pages+1 step=1}
 		{if $page == $smarty.section.foo.index}
 			{assign var="selected" value=true}
@@ -27,14 +27,14 @@
 	<TBODY>
 		<TR>
 			{if !$fixclient}
-				<TD colspan="2"  class=header vAlign=bottom width="20%" >Клиент</TD>
+				<TD colspan="2"  class=header vAlign=bottom width="20%" >п п╩п╦п╣п╫я┌</TD>
 			{/if}
-			<TD  class=header vAlign=bottom width="18%">Дата/время</TD>
-			<TD  class=header vAlign=bottom width="18%">Событие</TD>
-			<TD  class=header vAlign=bottom width="11%">Контакт</TD>
-			<TD  class=header vAlign=bottom width="11%">Баланс</TD>
-			<TD  class=header vAlign=bottom width="11%">Лимит</TD>
-			<TD  class=header vAlign=bottom width="11%">Значение</TD>
+			<TD  class=header vAlign=bottom width="18%">п■п╟я┌п╟/п╡я─п╣п╪я▐</TD>
+			<TD  class=header vAlign=bottom width="18%">п║п╬п╠я▀я┌п╦п╣</TD>
+			<TD  class=header vAlign=bottom width="11%">п п╬п╫я┌п╟п╨я┌</TD>
+			<TD  class=header vAlign=bottom width="11%">п▒п╟п╩п╟п╫я│</TD>
+			<TD  class=header vAlign=bottom width="11%">п⌡п╦п╪п╦я┌</TD>
+			<TD  class=header vAlign=bottom width="11%">п≈п╫п╟я┤п╣п╫п╦п╣</TD>
 		</TR>
 
 		{foreach from=$logs item=item key=key name=outer}
@@ -43,10 +43,10 @@
 					<TD align=left>{$item.client_id}</TD>
 					<TD align=left><a href="index.php?module=clients&id={$item.client_id}">{$item.client}</a></TD>
 				{/if}
-				<TD align=left>{$item.timestamp|mdate:"d месяца Y H:i:s"}</TD>
+				<TD align=left>{$item.timestamp|mdate:"d п╪п╣я│я▐я├п╟ Y H:i:s"}</TD>
 				<TD align=left>
 					{if !$item.is_set && $item.event != 'add_pay_notif' && $item.event != 'prebil_prepayers_notif'}
-						Снято: 
+						п║п╫я▐я┌п╬: 
 					{/if}
 					{$events_description[$item.event]}
 				</TD>

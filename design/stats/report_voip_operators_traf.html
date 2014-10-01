@@ -3,21 +3,21 @@
 	<input type="hidden" name="action" value="report_voip_operators_traf" />
 	<table>
 		<tr>
-			<td>С</td>
+			<td>п║</td>
 			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_yy}</select></td>
 			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_mm}</select></td>
 			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_dd}</select></td>
 			<td>&nbsp;</td>
-			<td>По</td>
+			<td>п÷п╬</td>
 			<td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_yy}</select></td>
 			<td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_mm}</select></td>
 			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select></td>
 		</tr>
 		<tr>
-			<td>Оператор</td>
+			<td>п·п©п╣я─п╟я┌п╬я─</td>
 			<td colspan="8">
 				<select name="operator">
-					<option value="all">Все</option>
+					<option value="all">п▓я│п╣</option>
 					{foreach from=$operators item='o'}
 						{if $o.group_id==1 or $o.group_id==2}
 						<option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.fullname}</option>
@@ -27,40 +27,40 @@
 			</td>
 		</tr>
 		<tr>
-			<td>Направление</td>
+			<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
 			<td colspan="8">
 				<select name="destination">
 					<!-- 1-MSK,2-MSK_MOB,3-RUSSIA,4-WORLD,9-INCALL -->
-					<option value="all" {if $destination eq 'all'} selected='selected'{/if}>Все</option>
-                    <option value="99"{if $destination eq '9'} selected='selected'{/if}>Местные</option>
-                    <option value="10"{if $destination eq '10'} selected='selected'{/if}>Зона стационарные</option>
-					<option value="11"{if $destination eq '11'} selected='selected'{/if}>Зона мобильные</option>
-					<option value="101"{if $destination eq '101'} selected='selected'{/if}>Россия</option>
-					<option value="102"{if $destination eq '102'} selected='selected'{/if}>Международное</option>
-					<option value="103"{if $destination eq '103'} selected='selected'{/if}>СНГ</option>
+					<option value="all" {if $destination eq 'all'} selected='selected'{/if}>п▓я│п╣</option>
+                    <option value="99"{if $destination eq '9'} selected='selected'{/if}>п°п╣я│я┌п╫я▀п╣</option>
+                    <option value="10"{if $destination eq '10'} selected='selected'{/if}>п≈п╬п╫п╟ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
+					<option value="11"{if $destination eq '11'} selected='selected'{/if}>п≈п╬п╫п╟ п╪п╬п╠п╦п╩я▄п╫я▀п╣</option>
+					<option value="101"{if $destination eq '101'} selected='selected'{/if}>п═п╬я│я│п╦я▐</option>
+					<option value="102"{if $destination eq '102'} selected='selected'{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣</option>
+					<option value="103"{if $destination eq '103'} selected='selected'{/if}>п║п²п⌠</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td>Входящие/Исходящие</td>
+			<td>п▓я┘п╬п╢я▐я┴п╦п╣/п≤я│я┘п╬п╢я▐я┴п╦п╣</td>
 			<td colspan="8">
 				<select name="direction">
-					<option value="both">Все</option>
-					<option value="in"{if $direction eq 'in'} selected='selected'{/if}>Входящие</option>
-					<option value="out"{if $direction eq 'out'} selected='selected'{/if}>Исходящие</option>
+					<option value="both">п▓я│п╣</option>
+					<option value="in"{if $direction eq 'in'} selected='selected'{/if}>п▓я┘п╬п╢я▐я┴п╦п╣</option>
+					<option value="out"{if $direction eq 'out'} selected='selected'{/if}>п≤я│я┘п╬п╢я▐я┴п╦п╣</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td>Группировка</td>
+			<td>п⌠я─я┐п©п©п╦я─п╬п╡п╨п╟</td>
 			<td colspan="8">
 				<select name="groupp">
-					<option value="0">По оператору</option>
-					<option value="1"{if $groupp==1} selected='selected'{/if}>По дням</option>
-					<option value="2"{if $groupp==2} selected='selected'{/if}>По месяцам</option>
+					<option value="0">п÷п╬ п╬п©п╣я─п╟я┌п╬я─я┐</option>
+					<option value="1"{if $groupp==1} selected='selected'{/if}>п÷п╬ п╢п╫я▐п╪</option>
+					<option value="2"{if $groupp==2} selected='selected'{/if}>п÷п╬ п╪п╣я│я▐я├п╟п╪</option>
 				</select>
 			</td>
-			<td>Регион</td>
+			<td>п═п╣пЁп╦п╬п╫</td>
 			<td colspan="8">
                 <select name="region">
                     {foreach from=$regions item='r'}
@@ -77,12 +77,12 @@
 {assign var='bg' value='#40c0ff'}{assign var='fg' value='black'}
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
 	<tr>
-		{if $groupp}<td class='header' vAlign='bottom' width="100">Дата</td>{/if}
+		{if $groupp}<td class='header' vAlign='bottom' width="100">п■п╟я┌п╟</td>{/if}
         <td class='header' vAlign='bottom'>ID</td>
-		<td class='header' vAlign='bottom' width="110">Оператор</td>
+		<td class='header' vAlign='bottom' width="110">п·п©п╣я─п╟я┌п╬я─</td>
 		{foreach from=$report_dest item='dd' key='d'}
 		{if $d<>'sum'}
-		<td class='header' vAlign='bottom'  width="110">{if $d==9}Местные{elseif $d==10}Зона ст.{elseif $d==11}Зона моб.{elseif $d==100}7800{elseif $d==101}Россия{elseif $d==102}Международные{elseif $d==103}СНГ{elseif $d==900}Сумма</td><td class='header' vAlign='bottom' width="110">Входящие{/if}</td>
+		<td class='header' vAlign='bottom'  width="110">{if $d==9}п°п╣я│я┌п╫я▀п╣{elseif $d==10}п≈п╬п╫п╟ я│я┌.{elseif $d==11}п≈п╬п╫п╟ п╪п╬п╠.{elseif $d==100}7800{elseif $d==101}п═п╬я│я│п╦я▐{elseif $d==102}п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫я▀п╣{elseif $d==103}п║п²п⌠{elseif $d==900}п║я┐п╪п╪п╟</td><td class='header' vAlign='bottom' width="110">п▓я┘п╬п╢я▐я┴п╦п╣{/if}</td>
 		{/if}
 		{/foreach}
 	</tr>
@@ -92,19 +92,19 @@
 	{if $co<>'0'}
 	<tr>
         {assign var='idregion' value="`$co`_`$region`"}
-		<td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$idregion].name}:</td>
+		<td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">п≤я┌п╬пЁп╬ п©п╬ п╬п©п╣я─п╟я┌п╬я─я┐ {$operators[$idregion].name}:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if isset($report_oper[$co][$dkey])}
 			{if $dkey<>900}
 				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>
-					{"`$report_oper[$co][$dkey].clean/60`"|round:2} минут<br />{$report_oper[$co][$dkey].human}<br />стоимость: {$report_oper[$co][$dkey].price}</td>
+					{"`$report_oper[$co][$dkey].clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co][$dkey].human}<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co][$dkey].price}</td>
 			{else}
-				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} минут<br />{$report_oper[$co].sum.human}<br />стоимость: {$report_oper[$co].sum.price}</td>
-                <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co][$dkey].clean/60`"|round:2} минут<br />{$report_oper[$co][$dkey].human}<br />стоимость: {$report_oper[$co][$dkey].price}</td>
+				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co].sum.human}<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co].sum.price}</td>
+                <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co][$dkey].clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co][$dkey].human}<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co][$dkey].price}</td>
 			{/if}
 		{elseif $dkey==900}
-			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} минут<br />{$report_oper[$co].sum.human}<br />стоимость: {$report_oper[$co].sum.price}</td><td>&mdash;</td>
+			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co].sum.human}<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co].sum.price}</td><td>&mdash;</td>
 		{else}
 			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>&mdash;</td>
 		{/if}
@@ -125,13 +125,13 @@
 	{if $dkey<>'sum'}
 	{if isset($d[$dkey])}
 		{if $dkey<>900}
-			<td>{"`$d[$dkey].clean/60`"|round:2} минут<br />{$d[$dkey].human} часов<br /><!-- <br />стоимость: {$d[$dkey].price}<br />возврат: {"`$d[$dkey].clean*$op.term_out_cost/60`"|round:2}<br />выручка: {$d[$dkey].price_mcn} --></td>
+			<td>{"`$d[$dkey].clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$d[$dkey].human} я┤п╟я│п╬п╡<br /><!-- <br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$d[$dkey].price}<br />п╡п╬п╥п╡я─п╟я┌: {"`$d[$dkey].clean*$op.term_out_cost/60`"|round:2}<br />п╡я▀я─я┐я┤п╨п╟: {$d[$dkey].price_mcn} --></td>
 		{else}
-			<td>{"`$d.sum.clean/60`"|round:2} минут<br />{$d.sum.human} часов<br /><!-- <br />стоимость: {$d.sum.price}<br />возврат: {"`$d.sum.clean*$op.term_out_cost/60`"|round:2}<br />выручка: {$d.sum.price_mcn} --></td>
-            <td>{"`$d[$dkey].clean/60`"|round:2} минут<br />{$d[$dkey].human} часов<br /><!-- <br />стоимость: {$d[$dkey].price}<br />возврат: {"`$d[$dkey].clean*$op.term_in_cost/60`"|round:2}<br />выручка: {$d[$dkey].price_mcn} --></td>
+			<td>{"`$d.sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$d.sum.human} я┤п╟я│п╬п╡<br /><!-- <br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$d.sum.price}<br />п╡п╬п╥п╡я─п╟я┌: {"`$d.sum.clean*$op.term_out_cost/60`"|round:2}<br />п╡я▀я─я┐я┤п╨п╟: {$d.sum.price_mcn} --></td>
+            <td>{"`$d[$dkey].clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$d[$dkey].human} я┤п╟я│п╬п╡<br /><!-- <br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$d[$dkey].price}<br />п╡п╬п╥п╡я─п╟я┌: {"`$d[$dkey].clean*$op.term_in_cost/60`"|round:2}<br />п╡я▀я─я┐я┤п╨п╟: {$d[$dkey].price_mcn} --></td>
 		{/if}
 	{elseif $dkey==900}
-		<td>{"`$d.sum.clean/60`"|round:2} минут<br />{$d.sum.human} часов<br /><!-- <br />стоимость: {$d.sum.price}<br />возврат: {"`$d.sum.clean*$op.term_out_cost/60`"|round:2}<br />выручка: {$d.sum.price_mcn} --></td><td>&mdash;</td>
+		<td>{"`$d.sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$d.sum.human} я┤п╟я│п╬п╡<br /><!-- <br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$d.sum.price}<br />п╡п╬п╥п╡я─п╟я┌: {"`$d.sum.clean*$op.term_out_cost/60`"|round:2}<br />п╡я▀я─я┐я┤п╨п╟: {$d.sum.price_mcn} --></td><td>&mdash;</td>
 	{else}
 		<td>&mdash;</td>
 	{/if}
@@ -143,18 +143,18 @@
 	{if $groupp && count($report)>1}
 	<tr>
         {assign var='idregion' value="`$co`_`$region`"}
-        <td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">Итого по оператору {$operators[$idregion].name}:</td>
+        <td colspan="3" class="header" style="background-color: {$bg}; color: {$fg};">п≤я┌п╬пЁп╬ п©п╬ п╬п©п╣я─п╟я┌п╬я─я┐ {$operators[$idregion].name}:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if isset($report_oper[$co][$dkey])}
 			{if $dkey<>900}
-				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co][$dkey].clean/60`"|round:2} минут<br />{$report_oper[$co][$dkey].human} часов<br />стоимость: {$report_oper[$co][$dkey].price}</td>
+				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co][$dkey].clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co][$dkey].human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co][$dkey].price}</td>
 			{else}
-				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} минут<br />{$report_oper[$co].sum.human} часов<br />стоимость: {$report_oper[$co].sum.price}</td>
-        <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co][$dkey].clean/60`"|round:2} минут<br />{$report_oper[$co][$dkey].human} часов<br />стоимость: {$report_oper[$co][$dkey].price}</td>
+				<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co].sum.human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co].sum.price}</td>
+        <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co][$dkey].clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co][$dkey].human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co][$dkey].price}</td>
 			{/if}
 		{elseif $dkey==900}
-			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} минут<br />{$report_oper[$co].sum.human} часов<br />стоимость: {$report_oper[$co].sum.price}</td><td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>&mdash;</td>
+			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_oper[$co].sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_oper[$co].sum.human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_oper[$co].sum.price}</td><td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>&mdash;</td>
 		{else}
 			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>&mdash;</td>
 		{/if}
@@ -163,14 +163,14 @@
 	</tr>
 	{/if}
 	<tr>
-		<td class="header" style="background-color: {$bg}; color: {$fg};" colspan="{if $groupp}3{else}2{/if}" vAlign='bottom'>Итого по всем операторам:</td>
+		<td class="header" style="background-color: {$bg}; color: {$fg};" colspan="{if $groupp}3{else}2{/if}" vAlign='bottom'>п≤я┌п╬пЁп╬ п©п╬ п╡я│п╣п╪ п╬п©п╣я─п╟я┌п╬я─п╟п╪:</td>
 		{foreach from=$report_dest item='rd' key='dkey'}
 		{if $dkey<>'sum'}
 		{if $dkey<>900}
-			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} минут<br />{$rd.human} часов<br />стоимость: {$rd.price}</td>
+			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$rd.human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$rd.price}</td>
 		{else}
-			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_dest.sum.clean/60`"|round:2} минут<br />{$report_dest.sum.human} часов<br />стоимость: {$report_dest.sum.price}</td>
-      <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} минут<br />{$rd.human} часов<br />стоимость: {$rd.price}</td>
+			<td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$report_dest.sum.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$report_dest.sum.human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$report_dest.sum.price}</td>
+      <td class='header' style="background-color: {$bg}; color: {$fg};" vAlign='bottom'>{"`$rd.clean/60`"|round:2} п╪п╦п╫я┐я┌<br />{$rd.human} я┤п╟я│п╬п╡<br />я│я┌п╬п╦п╪п╬я│я┌я▄: {$rd.price}</td>
 		{/if}
 		{/if}
 		{/foreach}

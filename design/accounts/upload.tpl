@@ -1,27 +1,27 @@
-<h1>Выгрузки из банк-клиента</h1>
+<h1>п▓я▀пЁя─я┐п╥п╨п╦ п╦п╥ п╠п╟п╫п╨-п╨п╩п╦п╣п╫я┌п╟</h1>
 
-<h2>Загрузить</h2>
+<h2>п≈п╟пЁя─я┐п╥п╦я┌я▄</h2>
 
 <form enctype="multipart/form-data" action="?module=accounts&action=accounts_import_payments" method="post">
  <input type="hidden" name="MAX_FILE_SIZE" value="3000000" />
  <input type="hidden" name="todo" value="import" />
- Отправить этот файл: <input name="payments" type="file" />
- <input type="submit" value="Загрузить" />
+ п·я┌п©я─п╟п╡п╦я┌я▄ я█я┌п╬я┌ я└п╟п╧п╩: <input name="payments" type="file" />
+ <input type="submit" value="п≈п╟пЁя─я┐п╥п╦я┌я▄" />
 </form>
 <br>
 <hr>
 <br>
-<h2>Смотреть выгрузки</h2>
-Имя файла начинается на:<br>
-<li><b>mar</b>  - выгрузка по маркомнет</li>
-<li><b>mcn</b>  - выгрузка по mcn</li>
+<h2>п║п╪п╬я┌я─п╣я┌я▄ п╡я▀пЁя─я┐п╥п╨п╦</h2>
+п≤п╪я▐ я└п╟п╧п╩п╟ п╫п╟я┤п╦п╫п╟п╣я┌я│я▐ п╫п╟:<br>
+<li><b>mar</b>  - п╡я▀пЁя─я┐п╥п╨п╟ п©п╬ п╪п╟я─п╨п╬п╪п╫п╣я┌</li>
+<li><b>mcn</b>  - п╡я▀пЁя─я┐п╥п╨п╟ п©п╬ mcn</li>
 
 
 <form  action='?module=accounts&action=accounts_import_payments&todo=search' method="POST">
-  День:<INPUT maxlength="2" size="2" value="{$day}" name="day" type="text">
-  Месяц:<INPUT maxlength="2" size="2" value="{$month}" name="month" type="text">
-  Год:<INPUT maxlength="4" size="4" value="{$year}" name="year" type="text">
-  <INPUT value="Найти" name="submit" type="submit">
+  п■п╣п╫я▄:<INPUT maxlength="2" size="2" value="{$day}" name="day" type="text">
+  п°п╣я│я▐я├:<INPUT maxlength="2" size="2" value="{$month}" name="month" type="text">
+  п⌠п╬п╢:<INPUT maxlength="4" size="4" value="{$year}" name="year" type="text">
+  <INPUT value="п²п╟п╧я┌п╦" name="submit" type="submit">
 </form>
 
 <table border="0"  cellpadding="5" >

@@ -1,10 +1,10 @@
-      <H2>Устройство &#8470;{$device.id}</H2>
-      <H3>Информация об устройстве</H3>
-Клиент: {$device.client}<br>
-Устройство: {$device.manufacturer} {$device.model} {$device.serial}<br>
+      <H2>пёя│я┌я─п╬п╧я│я┌п╡п╬ &#8470;{$device.id}</H2>
+      <H3>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬п╠ я┐я│я┌я─п╬п╧я│я┌п╡п╣</H3>
+п п╩п╦п╣п╫я┌: {$device.client}<br>
+пёя│я┌я─п╬п╧я│я┌п╡п╬: {$device.manufacturer} {$device.model} {$device.serial}<br>
 MAC: {$device.mac}<br>
-IP сети: {$device.ip}<br>
-Номера: {$device.numbers}<br>
+IP я│п╣я┌п╦: {$device.ip}<br>
+п²п╬п╪п╣я─п╟: {$device.numbers}<br>
 <br>{if access('routers_devices','edit')}
-<a href='{$LINK_START}module=routers&action=d_edit&id={$device.id}'>Редактировать</a><br>
+<a href='{$LINK_START}module=routers&action=d_edit&id={$device.id}'>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄</a><br>
 {/if}
