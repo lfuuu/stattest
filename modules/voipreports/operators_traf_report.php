@@ -170,7 +170,7 @@ class m_voipreports_operators_traf
                 //$h = (int)($report_dest[$row['dest2']]['clean']/3600);
                 //$m = (int)(($report_dest[$row['dest2']]['clean']-($h*3600))/60);
                 //$s = $report_dest[$row['dest2']]['clean'] - ($m*60+$h*3600);
-                $report_dest[$row['dest2']]['human'] = round($report_dest[$row['dest2']]['clean']/3600,2);//$h.'Ş '.$m.'Í '.$s.'Ó';
+                $report_dest[$row['dest2']]['human'] = round($report_dest[$row['dest2']]['clean']/3600,2);//$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ';
 
                 $row['length'] = (int)$row['length'];
                 //$h = (int)($row['length']/3600);
@@ -182,14 +182,14 @@ class m_voipreports_operators_traf
                 if($row['dest2']==900){
                     $r[900] = array(
                         'clean'=>$row['length'],
-                        'human'=> round($row['length']/3600,2), //$h.'Ş '.$m.'Í '.$s.'Ó',
+                        'human'=> round($row['length']/3600,2), //$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ',
                         'price'=>$row['price'],
                         'price_mcn'=>$row['price_mcn']
                     );
                 }else{
                     $r[$row['dest2']] = array(
                         'clean'=>$row['length'],
-                        'human'=>round($row['length']/3600,2), //$h.'Ş '.$m.'Í '.$s.'Ó',
+                        'human'=>round($row['length']/3600,2), //$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ',
                         'price'=>$row['price'],
                         'price_mcn'=>$row['price_mcn']
                     );
@@ -215,7 +215,7 @@ class m_voipreports_operators_traf
                     //$h = (int)($r['sum']['clean']/3600);
                     //$m = (int)(($r['sum']['clean']-($h*3600))/60);
                     //$s = $r['sum']['clean'] - ($m*60+$h*3600);
-                    $r['sum']['human'] = round($r['sum']['clean']/3600,2);//$h.'Ş '.$m.'Í '.$s.'Ó';
+                    $r['sum']['human'] = round($r['sum']['clean']/3600,2);//$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ';
 
                     $report_dest['sum']['clean'] += $row['length'];
                     $report_dest['sum']['price'] += $row['price'];
@@ -223,7 +223,7 @@ class m_voipreports_operators_traf
                     //$h = (int)($report_dest['sum']['clean']/3600);
                     //$m = (int)(($report_dest['sum']['clean']-($h*3600))/60);
                     //$s = $report_dest['sum']['clean'] - ($m*60+$h*3600);
-                    $report_dest['sum']['human'] = round($report_dest['sum']['clean']/3600,2); //$h.'Ş '.$m.'Í '.$s.'Ó';
+                    $report_dest['sum']['human'] = round($report_dest['sum']['clean']/3600,2); //$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ';
                 }
                 ksort($r);
             }
@@ -242,12 +242,12 @@ class m_voipreports_operators_traf
                     //$h = (int)($report_oper[$op][$dk]['clean']/3600);
                     //$m = (int)(($report_oper[$op][$dk]['clean']-($h*3600))/60);
                     //$s = $report_oper[$op][$dk]['clean'] - ($m*60+$h*3600);
-                    $report_oper[$op][$dk]['human'] = round($report_oper[$op][$dk]['clean']/3600,2);//$h.'Ş '.$m.'Í '.$s.'Ó';
+                    $report_oper[$op][$dk]['human'] = round($report_oper[$op][$dk]['clean']/3600,2);//$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ';
                 }
                 //$h = (int)($report_oper[$op]['sum']['clean']/3600);
                 //$m = (int)(($report_oper[$op]['sum']['clean']-($h*3600))/60);
                 //$s = $report_oper[$op]['sum']['clean'] - ($m*60+$h*3600);
-                $report_oper[$op]['sum']['human'] = round($report_oper[$op]['sum']['clean']/3600,2);//$h.'Ş '.$m.'Í '.$s.'Ó';
+                $report_oper[$op]['sum']['human'] = round($report_oper[$op]['sum']['clean']/3600,2);//$h.'Ñ‡ '.$m.'Ğ¼ '.$s.'Ñ';
             }
             $design->assign('report_oper',$report_oper);
             $design->assign('report_dest',$report_dest);

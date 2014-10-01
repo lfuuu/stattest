@@ -99,7 +99,7 @@ class aVirtPbx
             list($numberId, ) = explode("=", $fNumber);
 
             if (isset($numbers[$numberId]))
-                throw new exception("ïÄÉÎ ÉÚ ÎÏÍÅÒÁ ÕÖÅ ÉÓĞÏÌØÚÕÅÔÓÑ");
+                throw new exception("ĞĞ´Ğ¸Ğ½ Ğ¸Ğ· Ğ½Ğ¾Ğ¼ĞµÑ€Ğ° ÑƒĞ¶Ğµ Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒĞµÑ‚ÑÑ");
         }
 
     }
@@ -111,7 +111,7 @@ class aVirtPbx
         $virtPbxId = self::getVirtPbxId();
 
         if (!$virtPbxId)
-            throw new Exception("÷ÉÒÔÕÁÌØÎÁÑ áôó ÎÅ ÎÁÊÄÅÎÁ Õ ËÌÉÅÎÔÁ!");
+            throw new Exception("Ğ’Ğ¸Ñ€Ñ‚ÑƒĞ°Ğ»ÑŒĞ½Ğ°Ñ ĞĞ¢Ğ¡ Ğ½Ğµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½Ğ° Ñƒ ĞºĞ»Ğ¸ĞµĞ½Ñ‚Ğ°!");
 
         $vpbx = virtPbx::getList();
 
@@ -230,7 +230,7 @@ class aVirtPbx
                 );
 
         $map["numbers"] = array(
-                "title" => "îÏÍÅÒÁ",
+                "title" => "ĞĞ¾Ğ¼ĞµÑ€Ğ°",
                 "type" => "sort_list",
                 "data_all" => $sqlNumbers
                 );

@@ -1,10 +1,10 @@
 <?php
 class m_ats_head extends IModuleHead{
 	public $module_name = 'ats';
-	public $module_title = 'õÐÒÁ×ÌÅÎÉÅ ATC';
+	public $module_title = 'Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ ATC';
 
 	public $rights=array(
-		'ats'=>array('õÐÒÁ×ÌÅÎÉÅ ATC','access,support','ÄÏÓÔÕÐ,ÏÇÒÁÎÉÞÅÎÎÙÊ ÄÏÓÔÕÐ')
+		'ats'=>array('Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ ATC','access,support','Ð´Ð¾ÑÑ‚ÑƒÐ¿,Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð½Ñ‹Ð¹ Ð´Ð¾ÑÑ‚ÑƒÐ¿')
 	);
 
     public $actions=array(
@@ -30,12 +30,12 @@ class m_ats_head extends IModuleHead{
             );
 
 	public $menu=array(
-		array('õÞÅÔÎÙÅ ÚÁÐÉÓÉ É ÎÏÍÅÒÁ','sip_users'),
-		array('íÕÌØÔÉÔÒÁÎËÉ','mt'),
-		array('ëÌÉÅÎÔÙ','test1'),
-		array('ðÒÉ×ÅÔÓÔ×ÉÑ','anonses'),
-		array('óÈÅÍÙ','schema'),
-		array('ðÅÒÅÈÏÄ × ìÉÞÎÙÊ ëÁÂÉÎÅÔ','to_lk'),
+		array('Ð£Ñ‡ÐµÑ‚Ð½Ñ‹Ðµ Ð·Ð°Ð¿Ð¸ÑÐ¸ Ð¸ Ð½Ð¾Ð¼ÐµÑ€Ð°','sip_users'),
+		array('ÐœÑƒÐ»ÑŒÑ‚Ð¸Ñ‚Ñ€Ð°Ð½ÐºÐ¸','mt'),
+		array('ÐšÐ»Ð¸ÐµÐ½Ñ‚Ñ‹','test1'),
+		array('ÐŸÑ€Ð¸Ð²ÐµÑ‚ÑÑ‚Ð²Ð¸Ñ','anonses'),
+		array('Ð¡Ñ…ÐµÐ¼Ñ‹','schema'),
+		array('ÐŸÐµÑ€ÐµÑ…Ð¾Ð´ Ð² Ð›Ð¸Ñ‡Ð½Ñ‹Ð¹ ÐšÐ°Ð±Ð¸Ð½ÐµÑ‚','to_lk'),
 	);
 }
 ?>

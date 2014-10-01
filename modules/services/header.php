@@ -1,21 +1,21 @@
 <?
 class m_services_head extends IModuleHead {
 	public $module_name	= 'services';
-	public $module_title = 'Услуги';
+	public $module_title = 'пёя│п╩я┐пЁп╦';
     public $rights=array(
             'services_internet'   => array(
-                "Интернет", 
+                "п≤п╫я┌п╣я─п╫п╣я┌", 
                 'r,edit,addnew,activate,close,full,edit_off,tarif',
-                'просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)'),
-            'services_collocation'=>array("Collocation", 'r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение'),
-            'services_voip'=>array("IP Телефония", 'r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del2029','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера'),
-            'services_domains'=>array("Доменные имена", 'r,edit,addnew,close','просмотр,редактирование,добавление,отключение'),
-            'services_mail'=>array("E-mail", 'r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список'),
-            'services_ppp'=>array("PPP-логины", 'r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение'),
-            'services_additional'=>array("Дополнительные услуги", 'r,r_old,edit,addnew,full,activate,close','просмотр,просмотр старых,редактирование,добавление,доступ ко всем полям,активирование,отключение'),
-            'services_welltime'=>array('WellTime','full,docs','полный доступ,документы'),
-            'services_wellsystem'=>array('WellSystem','full','полный доступ'),
-            'services_itpark'=>array('Услуги IT Park\'а','full','полный доступ')
+                'п©я─п╬я│п╪п╬я┌я─,п╦п╥п╪п╣п╫п╣п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╦п╣,п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣,п©п╬п╩п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ я│п╣я┌я▐п╪ (п╬п╠я┴п╣п╣ я│ collocation),я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╨п╩я▌я┤п╣п╫п╫я▀я┘ я│п╣я┌п╣п╧ (п╬п╠я┴п╣п╣ я│ collocation),п╦п╥п╪п╣п╫п╣п╫п╦п╣ я┌п╟я─п╦я└п╟ (п╬п╠я┴п╣п╣ я│ collocation)'),
+            'services_collocation'=>array("Collocation", 'r,edit,addnew,activate,close','п©я─п╬я│п╪п╬я┌я─,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╦п╣,п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣'),
+            'services_voip'=>array("IP п╒п╣п╩п╣я└п╬п╫п╦я▐", 'r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del2029','п©я─п╬я│п╪п╬я┌я─,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╢п╬я│я┌я┐п© п╨п╬ п╡я│п╣п╪ п©п╬п╩я▐п╪,п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╦п╣,п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣,п©я─п╬я│п╪п╬я┌я─ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦,п╬я┌п╬п╠я─п╟п╤п╣п╫п╦п╣ п©п╟я─п╬п╩я▐,п╡я▀я│п╩п╟я┌я▄ п╫п╟я│я┌я─п╬п╧п╨п╦,п╫п╬п╪п╣я─п╫я▀п╣ п╣п╪п╨п╬я│я┌п╦,я┐п╢п╟п╩я▐я┌я▄ п╫п╣п╡п╨п╩я▌я┤п╣п╫п╫я▀п╣ п╫п╬п╪п╣я─п╟'),
+            'services_domains'=>array("п■п╬п╪п╣п╫п╫я▀п╣ п╦п╪п╣п╫п╟", 'r,edit,addnew,close','п©я─п╬я│п╪п╬я┌я─,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣'),
+            'services_mail'=>array("E-mail", 'r,edit,addnew,full,activate,chpass,whitelist','п©я─п╬я│п╪п╬я┌я─,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╢п╬я│я┌я┐п© п╨п╬ п╡я│п╣п╪ п©п╬п╩я▐п╪,п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╦п╣,я│п╪п╣п╫п╟ п©п╟я─п╬п╩я▐,п╠п╣п╩я▀п╧ я│п©п╦я│п╬п╨'),
+            'services_ppp'=>array("PPP-п╩п╬пЁп╦п╫я▀", 'r,edit,addnew,full,activate,chpass,close','п©я─п╬я│п╪п╬я┌я─,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╢п╬я│я┌я┐п© п╨п╬ п╡я│п╣п╪ п©п╬п╩я▐п╪,п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╦п╣,я│п╪п╣п╫п╟ п©п╟я─п╬п╩я▐,п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣'),
+            'services_additional'=>array("п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я┐я│п╩я┐пЁп╦", 'r,r_old,edit,addnew,full,activate,close','п©я─п╬я│п╪п╬я┌я─,п©я─п╬я│п╪п╬я┌я─ я│я┌п╟я─я▀я┘,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣,п╢п╬я│я┌я┐п© п╨п╬ п╡я│п╣п╪ п©п╬п╩я▐п╪,п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╦п╣,п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣'),
+            'services_welltime'=>array('WellTime','full,docs','п©п╬п╩п╫я▀п╧ п╢п╬я│я┌я┐п©,п╢п╬п╨я┐п╪п╣п╫я┌я▀'),
+            'services_wellsystem'=>array('WellSystem','full','п©п╬п╩п╫я▀п╧ п╢п╬я│я┌я┐п©'),
+            'services_itpark'=>array('пёя│п╩я┐пЁп╦ IT Park\'п╟','full','п©п╬п╩п╫я▀п╧ п╢п╬я│я┌я┐п©')
             );
 	public $actions=array(
 					'default'			=> array('',''),
@@ -68,7 +68,7 @@ class m_services_head extends IModuleHead {
 //E-Mails
 					'em_view'				=> array('services_mail','r'),
 					'em_add'				=> array('services_mail','addnew'),
-					'em_apply'				=> array('services_mail','r'),		//проверка внутри
+					'em_apply'				=> array('services_mail','r'),		//п©я─п╬п╡п╣я─п╨п╟ п╡п╫я┐я┌я─п╦
 					'em_toggle'				=> array('services_mail','edit'),
 					'em_activate'			=> array('services_mail','activate'),
 					'em_chpass'				=> array('services_mail','chpass'),
@@ -78,7 +78,7 @@ class m_services_head extends IModuleHead {
 					'em_whitelist_delete'	=> array('services_mail','whitelist'),
 					'em_whitelist_toggle'	=> array('services_mail','whitelist'),
 
-//EXtra - дополнительные услуги (новые)
+//EXtra - п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я┐я│п╩я┐пЁп╦ (п╫п╬п╡я▀п╣)
 					'ex_view'			=> array('services_additional','r'),
 					'ex_act'			=> array('services_additional','edit'),
 					'ex_add'			=> array('services_additional','addnew'),
@@ -95,7 +95,7 @@ class m_services_head extends IModuleHead {
 					'welltime_view'			=> array('services_welltime','full'),
 					'welltime_add'			=> array('services_welltime','full'),
 					'welltime_apply'			=> array('services_welltime','full'),
-//Виртуальная АТС
+//п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║
 					'virtpbx_view'			=> array('services_welltime','full'),
 					'virtpbx_add'			=> array('services_welltime','full'),
 					'virtpbx_apply'			=> array('services_welltime','full'),
@@ -116,17 +116,17 @@ class m_services_head extends IModuleHead {
 					'wellsystem_view'			=> array('services_wellsystem','full'),
 					'wellsystem_add'			=> array('services_wellsystem','full'),
 
-//PPP-логины
+//PPP-п╩п╬пЁп╦п╫я▀
 					'ppp_view'			=> array('services_ppp','r'),
 					'ppp_add'			=> array('services_ppp','addnew'),
-					'ppp_apply'			=> array('services_ppp','r'),		//проверка внутри
+					'ppp_apply'			=> array('services_ppp','r'),		//п©я─п╬п╡п╣я─п╨п╟ п╡п╫я┐я┌я─п╦
 					'ppp_append'		=> array('services_ppp','full'),
 					'ppp_activate'		=> array('services_ppp','activate'),
 					'ppp_activateall'	=> array('services_ppp','activate'),
 					'ppp_chpass'		=> array('services_ppp','chpass'),
 					'ppp_chreal'		=> array('services_ppp','chpass'),
 
-//дополнительные услуги (старые)
+//п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я┐я│п╩я┐пЁп╦ (я│я┌п╟я─я▀п╣)
 					'ad_view'			=> array('services_additional','r_old'),
 					'ad_act'			=> array('services_additional','r_old'),
 					'ad_add'			=> array('services_additional','addnew'),
@@ -134,19 +134,19 @@ class m_services_head extends IModuleHead {
 					'ad_close'			=> array('services_additional','close'),
 				);
 	public $menu=array(
-		array('IP Телефония',			'vo_view'),
+		array('IP п╒п╣п╩п╣я└п╬п╫п╦я▐',			'vo_view'),
 		array('Welltime',				'welltime_view'),
-        array('Виртуальная АТС',		'virtpbx_view'),
+        array('п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║',		'virtpbx_view'),
         array('8800',	                '8800_view'),
-        array('СМС',	                'sms_view'),
-		array('Интернет',				'in_view'),
+        array('п║п°п║',	                'sms_view'),
+		array('п≤п╫я┌п╣я─п╫п╣я┌',				'in_view'),
 		array('Collocation',			'co_view'),
 		array('WellSystem',				'wellsystem_view'),
-		array('Номерные ёмкости',	    'e164'),
-		array('Доменные имена',			'dn_view'),
+		array('п²п╬п╪п╣я─п╫я▀п╣ я▒п╪п╨п╬я│я┌п╦',	    'e164'),
+		array('п■п╬п╪п╣п╫п╫я▀п╣ п╦п╪п╣п╫п╟',			'dn_view'),
 		array('E-Mail',					'em_view'),
-		array('PPP-логины',				'ppp_view'),
-		array('Доп. услуги',			'ex_view'),
+		array('PPP-п╩п╬пЁп╦п╫я▀',				'ppp_view'),
+		array('п■п╬п©. я┐я│п╩я┐пЁп╦',			'ex_view'),
 		array('IT Park',				'it_view'),
 	);
 }

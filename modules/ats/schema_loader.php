@@ -26,11 +26,11 @@ class schemaLoader
 
             if($tt["status"] == "alltime")
             {
-                $tt["title"] = $tt["is_alltime"] == "no" ? helper_schedule::timesToText($tt["times"]) : "Все время";
+                $tt["title"] = $tt["is_alltime"] == "no" ? helper_schedule::timesToText($tt["times"]) : "п▓я│п╣ п╡я─п╣п╪я▐";
             }else{
                 $tt["title"] = $aStatus[$tt["status"]];
             }
-            $tt["title"] = iconv("koi8-r", "utf-8", $tt["title"]);
+            $tt["title"] = $tt["title"];
 
             $rr = array();
             foreach($aAction as $a)

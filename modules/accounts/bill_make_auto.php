@@ -68,12 +68,12 @@ function get_param_protected($name,$default = '') {
 	    if (!($result2 = mysql_query($req2,$GLOBALS['dbh'])))
         	{echo "can't read from database!<br>$req2"; exit;}
 	    if(($row2 = mysql_fetch_assoc($result2))&&$client==$row2['client']){
-		echo "счет за $period_f уже есть - пропущено\n";
+		echo "я│я┤п╣я┌ п╥п╟ $period_f я┐п╤п╣ п╣я│я┌я▄ - п©я─п╬п©я┐я┴п╣п╫п╬\n";
 	    }else{
 	        $bill_no=do_make_bill($client,$date,$period_f,$period_pre,$comp,'default',$must_pay);
-		echo "счет $bill_no выставлен\n";
+		echo "я│я┤п╣я┌ $bill_no п╡я▀я│я┌п╟п╡п╩п╣п╫\n";
 		if (!$bill_no) {
-			echo "проблема с выставлением счета";
+			echo "п©я─п╬п╠п╩п╣п╪п╟ я│ п╡я▀я│я┌п╟п╡п╩п╣п╫п╦п╣п╪ я│я┤п╣я┌п╟";
 			exit;
 		};
 		$where.="or bill_no='$bill_no'";
@@ -117,7 +117,7 @@ $res=mysql_query($query) or die ("<br>cannot do request $query <br>".mysql_error
 
 
         
-        echo "<h1>Нулевые Счета</h1>";
+        echo "<h1>п²я┐п╩п╣п╡я▀п╣ п║я┤п╣я┌п╟</h1>";
         foreach ($bills_zerro as $bill){
         	?>
         	<a href="../../index.php?module=clients&id=<?=$bill['client'];?>&clients_client=<?=$bill['client'];?>" target="_blank">
@@ -126,7 +126,7 @@ $res=mysql_query($query) or die ("<br>cannot do request $query <br>".mysql_error
         	<?php
         };
         
-        echo "<h1>Счета c телефонией</h1>";
+        echo "<h1>п║я┤п╣я┌п╟ c я┌п╣п╩п╣я└п╬п╫п╦п╣п╧</h1>";
         foreach ($bills_voip as $bill){
         	?>
         	<a href="../../index.php?module=clients&id=<?=$bill['client'];?>&clients_client=<?=$bill['client'];?>" target="_blank">
@@ -147,7 +147,7 @@ db_open();
 	$r=mysql_fetch_assoc($res) or die("test: fetch <br>".mysql_error());
 	$ret['sum']=$r['sum'];
 	
-	$query="SELECT count(*) as c  from bill_bill_lines where bill_no='$bill_no' and item like 'Услуги IP%'";
+	$query="SELECT count(*) as c  from bill_bill_lines where bill_no='$bill_no' and item like 'пёя│п╩я┐пЁп╦ IP%'";
 	$res=mysql_query($query) or die("test: $query <br>".mysql_error());
 	$r=mysql_fetch_assoc($res) or die("test: fetch <br>".mysql_error());
 	$ret['voip']=false;
@@ -158,5 +158,5 @@ db_open();
 
 ?>
 <a href="../../index.php?module=accounts&action=accounts_bills&todo=auto_bills_print">
-печать счетов
+п©п╣я┤п╟я┌я▄ я│я┤п╣я┌п╬п╡
 </a>

@@ -1,7 +1,7 @@
 <?
 class m_send {	
 	var $rights=array(
-					'send'		=>array('Массовая отправка счетов','r,send','просмотр состояния,отправка')
+					'send'		=>array('п°п╟я│я│п╬п╡п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡','r,send','п©я─п╬я│п╪п╬я┌я─ я│п╬я│я┌п╬я▐п╫п╦я▐,п╬я┌п©я─п╟п╡п╨п╟')
 				);
 	var $actions=array(
 					'default'		=> array('send','r'),
@@ -10,9 +10,9 @@ class m_send {
 					'process'		=> array('send','send'),
 				);
 
-	//содержимое левого меню. array(название; действие (для проверки прав доступа); доп. параметры - строкой, начинающейся с & (при необходимости); картиночка ; доп. текст)
+	//я│п╬п╢п╣я─п╤п╦п╪п╬п╣ п╩п╣п╡п╬пЁп╬ п╪п╣п╫я▌. array(п╫п╟п╥п╡п╟п╫п╦п╣; п╢п╣п╧я│я┌п╡п╦п╣ (п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п©я─п╟п╡ п╢п╬я│я┌я┐п©п╟); п╢п╬п©. п©п╟я─п╟п╪п╣я┌я─я▀ - я│я┌я─п╬п╨п╬п╧, п╫п╟я┤п╦п╫п╟я▌я┴п╣п╧я│я▐ я│ & (п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦); п╨п╟я─я┌п╦п╫п╬я┤п╨п╟ ; п╢п╬п©. я┌п╣п╨я│я┌)
 	var $menu=array(
-					array('Состояние',	'default',	''),
+					array('п║п╬я│я┌п╬я▐п╫п╦п╣',	'default',	''),
 				);
 
 	function m_send(){	
@@ -31,7 +31,7 @@ class m_send {
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=send&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (count($R)>0){
-			$design->AddMenu('Отправка счетов',$R);
+			$design->AddMenu('п·я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡',$R);
 		}
 	}
 
@@ -112,8 +112,8 @@ class m_send {
 		$design->assign('send_clients',$R);
 		$design->assign('refresh',30*$cont);
 		if ($cont) {
-			trigger_error('Отправка следующих 5ти счетов произойдёт через 30 секунд');
-			trigger_error('<a href="?module=send">Остановить отправку</a>');
+			trigger_error('п·я┌п©я─п╟п╡п╨п╟ я│п╩п╣п╢я┐я▌я┴п╦я┘ 5я┌п╦ я│я┤п╣я┌п╬п╡ п©я─п╬п╦п╥п╬п╧п╢я▒я┌ я┤п╣я─п╣п╥ 30 я│п╣п╨я┐п╫п╢');
+			trigger_error('<a href="?module=send">п·я│я┌п╟п╫п╬п╡п╦я┌я▄ п╬я┌п©я─п╟п╡п╨я┐</a>');
 		}
 		$design->AddMain('send/main.tpl');
 	}
@@ -127,15 +127,15 @@ class m_send {
 		$db->Query($sql);
 		$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
 		
-		$subj="яВЕРЮ";
-		$body="сБЮФЮЕЛШЕ цНЯОНДЮ!" . "\n" . "нРОПЮБКЪЕЛ бЮЛ ЯВЕРЮ МЮ НОКЮРС СЯКСЦ:" . "\n";
+		$subj="я▐п▓п∙п═п╝";
+		$body="я│п▒п╝п╓п╝п∙п⌡п╗п∙ я├п²п╞п·п²п■п╝!" . "\n" . "п╫п═п·п÷п╝п▒п п╙п∙п⌡ п╠п╝п⌡ п╞п▓п∙п═п╝ п°п╝ п²п·п п╝п═п║ п║п╞п п║п╕:" . "\n";
 		foreach ($R as $r){
 			$bill = new Bill($r['bill_no']);
 			$R=array('obj'=>'bill','source'=>2,'curr'=>'USD','bill'=>$r['bill_no']);
 			$R['client']=$bill->Get('client_id');
 			$body.=LK_PATH.'docs/?bill='.udata_encode_arr($R)."\n";
 		}
-		$body.="\n оПНЯХЛ ЯБНЕБПЕЛЕММН ХУ НОКЮРХРЭ.\n\n";
+		$body.="\n п╬п÷п²п╞п╔п⌡ п╞п▒п²п∙п▒п÷п∙п⌡п∙п°п°п² п╔пё п²п·п п╝п═п╔п═п╜.\n\n";
 		
 		$sql='select * from clients where client="'.$client.'"';
 		$db->Query($sql);
@@ -150,8 +150,8 @@ class m_send {
 
 		error_close();
 		ob_start();
-		$msg='Адрес получателя: '.$r['email'].'<br>';
-		if (!$r['email']) $msg='Адрес получателя не указан<br>';
+		$msg='п░п╢я─п╣я│ п©п╬п╩я┐я┤п╟я┌п╣п╩я▐: '.$r['email'].'<br>';
+		if (!$r['email']) $msg='п░п╢я─п╣я│ п©п╬п╩я┐я┤п╟я┌п╣п╩я▐ п╫п╣ я┐п╨п╟п╥п╟п╫<br>';
 		
 		if ($r['email'] && (mail ($r['email'],$subj,$body,$headers))){
 			$sql='update newbill_send set state="sent",last_send=NOW(),message="'.$msg.'" where

@@ -1,10 +1,10 @@
 <?
 class m_clientaccounts_head extends IModuleHead{
 	public $module_name = 'clientaccounts';
-	public $module_title = 'óÞÅÔÁ';
+	public $module_title = 'Ð¡Ñ‡ÐµÑ‚Ð°';
 
 	public $rights=array(
-					'clientaccounts_bills'			=>array("óÞÅÔÁ",'read','ÐÒÏÓÍÏÔÒ'),
+					'clientaccounts_bills'			=>array("Ð¡Ñ‡ÐµÑ‚Ð°",'read','Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€'),
 				);
 	public $actions=array(
 					'bill_list'			=> array('clientaccounts_bills','read'),
@@ -16,9 +16,9 @@ class m_clientaccounts_head extends IModuleHead{
 					'details'		=> array('clientaccounts_bills','read'),
 	);
 	public $menu=array(
-					array('óÞÅÔÁ',				'bill_list'),
-					array('ðÏÐÏÌÎÉÔØ ÂÁÌÁÎÓ',	'pay'),
-					array('ïÐÌÁÔÙ ÐÏ ËÁÒÔÁÍ',	'rawpayments'),
+					array('Ð¡Ñ‡ÐµÑ‚Ð°',				'bill_list'),
+					array('ÐŸÐ¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÑŒ Ð±Ð°Ð»Ð°Ð½Ñ',	'pay'),
+					array('ÐžÐ¿Ð»Ð°Ñ‚Ñ‹ Ð¿Ð¾ ÐºÐ°Ñ€Ñ‚Ð°Ð¼',	'rawpayments'),
 					);
 }
 ?>

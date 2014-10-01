@@ -33,7 +33,7 @@
 	}
 
 	$invoice_no=get_param_protected("invoice_no",$invoice_no);
-	if ($invoice_no=="") die("Не определен номер счета-фактуры");
+	if ($invoice_no=="") die("п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟-я└п╟п╨я┌я┐я─я▀");
 
 	$query="SELECT * from bill_invoices WHERE invoice_no='$invoice_no'";
 	$db->Query($query);
@@ -45,13 +45,13 @@
 	$tax_sum_in_words=spell_number($row['tax_sum'],"RUR");
 	$design->assign("tax_sum_in_words",$tax_sum_in_words);
 
-// проверяем даты до конвертации	
+// п©я─п╬п╡п╣я─я▐п╣п╪ п╢п╟я┌я▀ п╢п╬ п╨п╬п╫п╡п╣я─я┌п╟я├п╦п╦	
 	$invoice_date=$row['invoice_date'];
 	$pay_date=$row['pay_date'];
 	$pay_no=$row['pay_no'];
 	$print_pay=true;
 //	echo "$pay_date > $invoice_date <br>";
-	if (($pay_date>$invoice_date) or ($pay_no == "Платеж из переплаты")) $print_pay=false;
+	if (($pay_date>$invoice_date) or ($pay_no == "п÷п╩п╟я┌п╣п╤ п╦п╥ п©п╣я─п╣п©п╩п╟я┌я▀")) $print_pay=false;
 	$design->assign("print_pay",$print_pay);
 	
 
@@ -76,20 +76,20 @@
 	$row['contract_date']=convert_date($row['contract_date']);
 /*
 //**********************************
-// Всегда печатаем счета от МСН
+// п▓я│п╣пЁп╢п╟ п©п╣я┤п╟я┌п╟п╣п╪ я│я┤п╣я┌п╟ п╬я┌ п°п║п²
 	$row['firma']='mcn';
 //***************************
 */
 	$design->assign("client",$row);
-	$z=false;//флаг означающий что это залог 
-	$query="SELECT * from bill_invoice_lines where invoice_no='$invoice_no' and not (item like '*Всего%') ORDER BY line ";
+	$z=false;//я└п╩п╟пЁ п╬п╥п╫п╟я┤п╟я▌я┴п╦п╧ я┤я┌п╬ я█я┌п╬ п╥п╟п╩п╬пЁ 
+	$query="SELECT * from bill_invoice_lines where invoice_no='$invoice_no' and not (item like '*п▓я│п╣пЁп╬%') ORDER BY line ";
 	$db->Query($query);
 	$modem=array();
 	$kol=array();
 	while ($row=$db->NextRecord()){
 		$row=round_dig($row);
 		$lines[]=$row;
-		if (strpos($row['item'],'Залог')!==false){ 
+		if (strpos($row['item'],'п≈п╟п╩п╬пЁ')!==false){ 
 			$z=true;
 			$modem[]=trim(substr($row['item'],8,strlen($row['item'])));
 			$kol[]=$row['amount'];

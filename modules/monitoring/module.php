@@ -1,8 +1,8 @@
 <?
-//вывод данных мониторинга
+//п╡я▀п╡п╬п╢ п╢п╟п╫п╫я▀я┘ п╪п╬п╫п╦я┌п╬я─п╦п╫пЁп╟
 class m_monitoring {
 	var $rights=array(
-					'monitoring'		=>array('Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики')
+					'monitoring'		=>array('п÷я─п╬я│п╪п╬я┌я─ п╢п╟п╫п╫я▀я┘ п╪п╬п╫п╦я┌п╬я─п╦п╫пЁп╟','view,top,edit,graphs','п©я─п╬я│п╪п╬я┌я─,п©п╟п╫п╣п╩я▄п╨п╟ я│п╡п╣я─я┘я┐,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│п©п╦я│п╨п╟ VIP-п╨п╩п╦п╣п╫я┌п╬п╡,п©я─п╬я│п╪п╬я┌я─ пЁя─п╟я└п╦п╨п╬п╡ п╢п╦п╫п╟п╪п╦п╨п╦')
 				);
 	var $actions=array(
 					'default'			=> array('monitoring','view'),
@@ -14,9 +14,9 @@ class m_monitoring {
 					'report_bill_graph' 		=> array('monitoring','graphs'),
 				);
 	var $menu=array(
-					array('VIP-клиенты',			'default'),
-					array('Отчет: Динамика звоноков',	'report_voip_graph'),
-					array('Отчет: Динамика счетов',	'report_bill_graph'),
+					array('VIP-п╨п╩п╦п╣п╫я┌я▀',			'default'),
+					array('п·я┌я┤п╣я┌: п■п╦п╫п╟п╪п╦п╨п╟ п╥п╡п╬п╫п╬п╨п╬п╡',	'report_voip_graph'),
+					array('п·я┌я┤п╣я┌: п■п╦п╫п╟п╪п╦п╨п╟ я│я┤п╣я┌п╬п╡',	'report_bill_graph'),
 				);
 	function m_monitoring(){	
 		
@@ -38,7 +38,7 @@ class m_monitoring {
 			}
 		}
 		if (count($R)>$p){
-			$design->AddMenu('Мониторинг',$R);
+			$design->AddMenu('п°п╬п╫п╦я┌п╬я─п╦п╫пЁ',$R);
 		}
 	}
 	function GetMain($action,$fixclient){
@@ -64,14 +64,14 @@ class m_monitoring {
                 if ($result=='delete') {
                         header('Location: ?module=monitoring');
                         $design->ProcessX('empty.tpl');
-		} else $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>$id),'Мониторинг',$id?'Редактирование':'Добавление');
+		} else $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>$id),'п°п╬п╫п╦я┌п╬я─п╦п╫пЁ',$id?'п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣':'п■п╬п╠п╟п╡п╩п╣п╫п╦п╣');
 	}
 	function monitoring_add($fixclient) {
 		include INCLUDE_PATH.'db_view.php';
 		$dbf = new DbFormMonitorClients();
 		$dbf->SetDefault('client',$fixclient);
 		$dbf->Process();
-                $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>0),'Мониторинг','Добавление');
+                $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>0),'п°п╬п╫п╦я┌п╬я─п╦п╫пЁ','п■п╬п╠п╟п╡п╩п╣п╫п╦п╣');
 	}
 	function monitoring_top($fixclient){
 		global $design,$db,$user;
@@ -90,7 +90,7 @@ class m_monitoring {
 		$design->assign('d',$d=get_param_protected('d',date('d')));
 		$design->assign('y',$y=get_param_protected('y',date('Y')));
 		$design->assign('curdate',mktime(0,0,0,$m,$d,$y));
-		//необязательные данные, нужны для отладки и для удобства
+		//п╫п╣п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫я▀п╣ п╢п╟п╫п╫я▀п╣, п╫я┐п╤п╫я▀ п╢п╩я▐ п╬я┌п╩п╟п╢п╨п╦ п╦ п╢п╩я▐ я┐п╢п╬п╠я│я┌п╡п╟
 		$r=$db->GetRow('select min(time300)*300 as A,max(time300)*300 as B,count(*) as C from monitor_5min where ip_int=INET_ATON("'.$ip.'")');
 		$d=1+($r['B']-$r['A'])/300; $r['C']=$r['C']/$d;
 		$design->assign('data1',$r);
@@ -106,7 +106,7 @@ class m_monitoring {
 		$design->assign('ip',$ip=get_param_protected('ip'));
 		if (!$ip) return $this->monitoring_default($fixclient);
 		
-		//необязательные данные, нужны для отладки и для удобства
+		//п╫п╣п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫я▀п╣ п╢п╟п╫п╫я▀п╣, п╫я┐п╤п╫я▀ п╢п╩я▐ п╬я┌п╩п╟п╢п╨п╦ п╦ п╢п╩я▐ я┐п╢п╬п╠я│я┌п╡п╟
 		$r=$db->GetRow('select min(time300)*300 as A,max(time300)*300 as B,count(*) as C from monitor_5min where ip_int=INET_ATON("'.$ip.'")');
 		$d=1+($r['B']-$r['A'])/300; $r['C']=$r['C']/$d;
 		$design->assign('data1',$r);
@@ -218,11 +218,11 @@ class m_monitoring {
 	}
 	
 	/**
-	 * Функция возвращает обобщенную статистику по региону.
+	 * п╓я┐п╫п╨я├п╦я▐ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╬п╠п╬п╠я┴п╣п╫п╫я┐я▌ я│я┌п╟я┌п╦я│я┌п╦п╨я┐ п©п╬ я─п╣пЁп╦п╬п╫я┐.
 	 *
-	 * @param $regionId int ид региона
-	 * @param $from int(unix_timestamp) дата начала выборки
-	 * @param $to   int(unix_timestamp) дата окончания выборки
+	 * @param $regionId int п╦п╢ я─п╣пЁп╦п╬п╫п╟
+	 * @param $from int(unix_timestamp) п╢п╟я┌п╟ п╫п╟я┤п╟п╩п╟ п╡я▀п╠п╬я─п╨п╦
+	 * @param $to   int(unix_timestamp) п╢п╟я┌п╟ п╬п╨п╬п╫я┤п╟п╫п╦я▐ п╡я▀п╠п╬я─п╨п╦
 	 * @return array
 	 */
 	function getVoipSummaryRegionStatistic($regionId, $from, $to)
@@ -304,7 +304,7 @@ class m_monitoring {
 		{
 			foreach ($data as $k=>$v)
 			{
-				//понедельная статистика
+				//п©п╬п╫п╣п╢п╣п╩я▄п╫п╟я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╟
 				if ($week_num != date('W', $k))
 				{
 					if (isset($week_stats[$week_num])) 
@@ -345,7 +345,7 @@ class m_monitoring {
 				$week_stats[$week_num]['count_in_week']++;
 				$week_stats[$week_num]['week_end'] = $k;
 				
-				//данные для графиков
+				//п╢п╟п╫п╫я▀п╣ п╢п╩я▐ пЁя─п╟я└п╦п╨п╬п╡
 				$f_day = null;
 				if (!isset($month_num) || $month_num != date('n', $k))
 				{
@@ -409,8 +409,8 @@ class m_monitoring {
 				$week_stats[$week_num]['diff'] = $week_stats[$week_num]['count'] - $week_stats[$week_num-1]['count'];
 				$week_stats[$week_num]['len_diff'] = $week_stats[$week_num]['len'] - $week_stats[$week_num-1]['len'];
 			}
-			$graph_count = JpGraphsInit::getLineGraph('Количество звонков, шт x 1000');
-			$graph_duration = JpGraphsInit::getLineGraph('Продолжительность звонков, час');
+			$graph_count = JpGraphsInit::getLineGraph('п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╡п╬п╫п╨п╬п╡, я┬я┌ x 1000');
+			$graph_duration = JpGraphsInit::getLineGraph('п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄ п╥п╡п╬п╫п╨п╬п╡, я┤п╟я│');
 			
 			JpGraphsInit::setLines($graph_count,$g_data['count'], $week_start);
 			JpGraphsInit::setLines($graph_duration,$g_data['len'], $week_start);
@@ -457,13 +457,13 @@ class m_monitoring {
 		
 	}
 	/**
-	 * Функция возвращает обобщенную статистику счетов.
+	 * п╓я┐п╫п╨я├п╦я▐ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╬п╠п╬п╠я┴п╣п╫п╫я┐я▌ я│я┌п╟я┌п╦я│я┌п╦п╨я┐ я│я┤п╣я┌п╬п╡.
 	 *
-	 * @param $regionId int ид региона
-	 *	если задан то берется информация по заданому региону
-	 *	иначе берется информация по всем регионам кроме Москвы
-	 * @param $from int(unix_timestamp) дата начала выборки
-	 * @param $to   int(unix_timestamp) дата окончания выборки
+	 * @param $regionId int п╦п╢ я─п╣пЁп╦п╬п╫п╟
+	 *	п╣я│п╩п╦ п╥п╟п╢п╟п╫ я┌п╬ п╠п╣я─п╣я┌я│я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ п╥п╟п╢п╟п╫п╬п╪я┐ я─п╣пЁп╦п╬п╫я┐
+	 *	п╦п╫п╟я┤п╣ п╠п╣я─п╣я┌я│я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ п╡я│п╣п╪ я─п╣пЁп╦п╬п╫п╟п╪ п╨я─п╬п╪п╣ п°п╬я│п╨п╡я▀
+	 * @param $from int(unix_timestamp) п╢п╟я┌п╟ п╫п╟я┤п╟п╩п╟ п╡я▀п╠п╬я─п╨п╦
+	 * @param $to   int(unix_timestamp) п╢п╟я┌п╟ п╬п╨п╬п╫я┤п╟п╫п╦я▐ п╡я▀п╠п╬я─п╨п╦
 	 * @return array
 	 */
 	function getBillsStatistic($regionId, $from, $to)
@@ -604,12 +604,12 @@ class m_monitoring {
 				$data = $region_data['bills'];
 				if (!empty($data_by_month))
 				{
-					$graph = JpGraphsInit::getBarGraph('Подробная информация по счетам, тыс. рублей');
+					$graph = JpGraphsInit::getBarGraph('п÷п╬п╢я─п╬п╠п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ я│я┤п╣я┌п╟п╪, я┌я▀я│. я─я┐п╠п╩п╣п╧');
 					$graph->xaxis->SetTickLabels(array(
-						Encoding::toUtf8('абонентская плата'),
-						Encoding::toUtf8('Превышение'),
-						Encoding::toUtf8('Товары'),
-						Encoding::toUtf8('Остальное')
+						'п╟п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟',
+						'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣',
+						'п╒п╬п╡п╟я─я▀',
+						'п·я│я┌п╟п╩я▄п╫п╬п╣'
 					));
 					$colors = array('#0000CD','#B0C4DE','#8B008B', 'yellow', 'red', 'green');
 					$bplots = array();
@@ -624,7 +624,7 @@ class m_monitoring {
 						}
 						
 						$bplot = new BarPlot($data_by_month[$month_key]);
-						$bplot->SetLegend(Encoding::toUtf8(mdate('Месяц', $ts)));
+						$bplot->SetLegend(mdate('п°п╣я│я▐я├', $ts));
 						$bplots[] = $bplot;
 					}
 
@@ -644,24 +644,24 @@ class m_monitoring {
 				}
 				if (!empty($data))
 				{
-					$graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей');
+					$graph = JpGraphsInit::getBarGraph('п≤п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ я│я┤п╣я┌п╟п╪, я┌я▀я│. я─я┐п╠п╩п╣п╧');
 					
 					$ts = $from;
 					for ($i=0;$i<=5;$i++)
 					{
 						if ($i) $ts = strtotime('+1 month', $ts);
-						$xaxis[] = Encoding::toUtf8(mdate('Месяц', $ts));
+						$xaxis[] = mdate('п°п╣я│я▐я├', $ts);
 					}
 					
 					$graph->xaxis->SetTickLabels($xaxis);
 					$colors = array('#0000CD','#B0C4DE','#8B008B', '#000000');
-					$legends = array('abons'=>'Абоненская плата', 'overruns'=>'Превышение', 'goods'=>'Товары', 'diff'=>'Остальное');
+					$legends = array('abons'=>'п░п╠п╬п╫п╣п╫я│п╨п╟я▐ п©п╩п╟я┌п╟', 'overruns'=>'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣', 'goods'=>'п╒п╬п╡п╟я─я▀', 'diff'=>'п·я│я┌п╟п╩я▄п╫п╬п╣');
 					$bplots = array();
 					$i=0;
 					foreach ($data as $k=>$v)
 					{
 						$bplot = new BarPlot($v);
-						$bplot->SetLegend(Encoding::toUtf8($legends[$k]));
+						$bplot->SetLegend($legends[$k]);
 						$bplots[] = $bplot;
 						$i++;
 					}

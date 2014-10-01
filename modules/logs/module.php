@@ -22,15 +22,15 @@ class m_logs extends IModule{
 		$inheritance->module = $this;
 	}
 	/**
-	 * Action по умолчанию
-	 * @param string $fixclient - имя клиента
+	 * Action п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌
+	 * @param string $fixclient - п╦п╪я▐ п╨п╩п╦п╣п╫я┌п╟
 	 */
 	function logs_default($fixclient){
 		$this->logs_alerts($fixclient);
 	}
 	/**
-	 * Отображение логов оповещений
-	 * @param string $fixclient - имя клиента
+	 * п·я┌п╬п╠я─п╟п╤п╣п╫п╦п╣ п╩п╬пЁп╬п╡ п╬п©п╬п╡п╣я┴п╣п╫п╦п╧
+	 * @param string $fixclient - п╦п╪я▐ п╨п╩п╦п╣п╫я┌п╟
 	 */
 	function logs_alerts($fixclient){
 		global $db,$design;
@@ -80,11 +80,11 @@ class m_logs extends IModule{
 		$design->assign('url', '?' . $url . '&');
 
 		$events_description = array(
-				'min_balance' => 'Критический остаток',
-				'zero_balance' => 'Финансовая блокировка',
-				'day_limit' => 'Суточный лимит',
-				'add_pay_notif' => 'Зачисление средств',
-				'prebil_prepayers_notif' => 'Списание абонентской платы авансовым клиентам'
+				'min_balance' => 'п я─п╦я┌п╦я┤п╣я│п╨п╦п╧ п╬я│я┌п╟я┌п╬п╨',
+				'zero_balance' => 'п╓п╦п╫п╟п╫я│п╬п╡п╟я▐ п╠п╩п╬п╨п╦я─п╬п╡п╨п╟',
+				'day_limit' => 'п║я┐я┌п╬я┤п╫я▀п╧ п╩п╦п╪п╦я┌',
+				'add_pay_notif' => 'п≈п╟я┤п╦я│п╩п╣п╫п╦п╣ я│я─п╣п╢я│я┌п╡',
+				'prebil_prepayers_notif' => 'п║п©п╦я│п╟п╫п╦п╣ п╟п╠п╬п╫п╣п╫я┌я│п╨п╬п╧ п©п╩п╟я┌я▀ п╟п╡п╟п╫я│п╬п╡я▀п╪ п╨п╩п╦п╣п╫я┌п╟п╪'
 				
 			);
 		$design->assign('events_description', $events_description);
@@ -95,12 +95,12 @@ class m_logs extends IModule{
 		
 	}
 	/**
-	 * Возвращает логи оповещений
-	 * @param int $client_id - id клиента
-	 * @param int $from - timestamp начала выборки
-	 * @param int $to - timestamp конца выборки
-	 * @param array $events - список событий, которые будут отображены в отчете
-	 * @param int $page - номер страницы отчета
+	 * п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╩п╬пЁп╦ п╬п©п╬п╡п╣я┴п╣п╫п╦п╧
+	 * @param int $client_id - id п╨п╩п╦п╣п╫я┌п╟
+	 * @param int $from - timestamp п╫п╟я┤п╟п╩п╟ п╡я▀п╠п╬я─п╨п╦
+	 * @param int $to - timestamp п╨п╬п╫я├п╟ п╡я▀п╠п╬я─п╨п╦
+	 * @param array $events - я│п©п╦я│п╬п╨ я│п╬п╠я▀я┌п╦п╧, п╨п╬я┌п╬я─я▀п╣ п╠я┐п╢я┐я┌ п╬я┌п╬п╠я─п╟п╤п╣п╫я▀ п╡ п╬я┌я┤п╣я┌п╣
+	 * @param int $page - п╫п╬п╪п╣я─ я│я┌я─п╟п╫п╦я├я▀ п╬я┌я┤п╣я┌п╟
 	 */
 	function getLogs($client_id, $from, $to, $events, $manager, $page)
 	{

@@ -38,7 +38,7 @@ class m_yandex extends IModule{
 	        foreach($hist['operations'] as $op){
 	        	$r = array();
 	        	//$op = new ZenYandexOperation();
-	        	$r['title'] = iconv('utf-8','koi8-r',$op->getTitle());
+	        	$r['title'] = $op->getTitle();
 	        	$r['sum'] = number_format($op->getAmount(), 2);
 	        	$r['date'] = date('d.m.Y H:i', $op->getDateTime());
 	        	$history[] = $r;	
@@ -73,7 +73,7 @@ class m_yandex extends IModule{
 //	        	'<?php global $ya_stat_token; $ya_stat_token = "'.$access_token.'";');
 	
 	    echo "$access_token";
-	    echo "<br><br><a href='/operator/index.php?module=yandex&action=history'>Перейти в историю</a>";
+	    echo "<br><br><a href='/operator/index.php?module=yandex&action=history'>п÷п╣я─п╣п╧я┌п╦ п╡ п╦я│я┌п╬я─п╦я▌</a>";
 	    die();
 	    //header('location: /operator/index.php?module=yandex&action=history');
 	}
@@ -85,7 +85,7 @@ class m_yandex extends IModule{
 //	        	'<?php global $ya_stat_token; $ya_stat_token = "'.$access_token.'";');
 	
 	    echo "$access_token";
-	    echo "<br><br><a href='/operator/index.php?module=yandex&action=history'>Перейти в историю</a>";
+	    echo "<br><br><a href='/operator/index.php?module=yandex&action=history'>п÷п╣я─п╣п╧я┌п╦ п╡ п╦я│я┌п╬я─п╦я▌</a>";
 	    die();
 	    //header('location: /operator/index.php?module=yandex&action=history');
     		
@@ -115,7 +115,7 @@ class m_yandex extends IModule{
 		        	$res2 = $ya->processPayment($res1['request_id']);
 		        	if ($res2['status']=='success'){
 						$db->Query("update newbills set payed_ya=payed_ya+'".$sum."' where bill_no = '".$bill."'");
-						$db->QueryInsert("log_newbills",array('bill_no'=>$bill,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Оплата YM $sum / COMSTAR {$bill} {$comstar}"));
+						$db->QueryInsert("log_newbills",array('bill_no'=>$bill,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"п·п©п╩п╟я┌п╟ YM $sum / COMSTAR {$bill} {$comstar}"));
 		        		$res = 'success';
 		        	}else{
 		        		$res = $res2['error'];

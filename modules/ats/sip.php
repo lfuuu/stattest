@@ -172,7 +172,7 @@ class sip
 
                 if(isset($gData["password"]))
                 {
-                    if($gData["password"] == "********") // ÎÅ ÉÚÍÅÎÑÅÍ ÐÁÒÏÌØ, ÅÓÌÉ ÏÎ ÎÅ ÐÏÍÅÎÑÌÓÑ
+                    if($gData["password"] == "********") // Ð½Ðµ Ð¸Ð·Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ, ÐµÑÐ»Ð¸ Ð¾Ð½ Ð½Ðµ Ð¿Ð¾Ð¼ÐµÐ½ÑÐ»ÑÑ
                     {
                         unset($gData["password"]);
                     }elseif($data["id"] != 0){
@@ -192,7 +192,7 @@ class sip
             }
         }else{
 
-            if($data["password"] && $id != 0) // ÓËÒÙ×ÁÅÍ ÐÁÒÏÌØ, ÅÓÌÉ ÎÅ ÄÏÂÁ×ÌÅÎÉÅ
+            if($data["password"] && $id != 0) // ÑÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ, ÐµÑÐ»Ð¸ Ð½Ðµ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ
                 $data["password"] = "********";
 
             $data["key"] = self::cryptId($data["id"]);
@@ -217,7 +217,7 @@ class sip
     {
         global $db;
 
-        // ÅÓÌÉ ÓÏÚÄÁÅÍ ÐÒÉ×ÑÚËÕ Ë ÍÕÌØÔÉÔÒÁÎËÕ, Á ÐÒÉ×ÑÚËÁ ÕÖÅ ÅÓÔØ.
+        // ÐµÑÐ»Ð¸ ÑÐ¾Ð·Ð´Ð°ÐµÐ¼ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ Ðº Ð¼ÑƒÐ»ÑŒÑ‚Ð¸Ñ‚Ñ€Ð°Ð½ÐºÑƒ, Ð° Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÐ° ÑƒÐ¶Ðµ ÐµÑÑ‚ÑŒ.
         if($d["id"] == 0 && $d["type"] == "link")
         {
             $sipId = $db->GetValue($q=
@@ -392,7 +392,7 @@ class sip
 
         if($od["id"] > 0 && $od["atype"] == "link" || (isset($data["type"]) && $data["type"] == "link")) 
         {
-            checker::isEmpty($data["numbers_mt"], "îÅ ÚÁÄÁÎÎÙ ÎÏÍÅÒÁ!");
+            checker::isEmpty($data["numbers_mt"], "ÐÐµ Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹ Ð½Ð¾Ð¼ÐµÑ€Ð°!");
             return;
         }
 
@@ -402,42 +402,42 @@ class sip
             if($od["id"] == 0 || $od["atype"] != "link")
             {
                 if($data["host_type"] != "static")
-                    checker::isEmpty($data["password"], "ðÁÒÏÌØ ÎÅ ÚÁÄÁÎ!");
+                    checker::isEmpty($data["password"], "ÐŸÐ°Ñ€Ð¾Ð»ÑŒ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½!");
             }
         }
 
         if($od["atype"] == "number" && $od["id"] == 0)
         {
-            checker::isEmpty($data["number"], "îÏÍÅÒ ÎÅ ÚÁÄÁÎ!");
-            checker::isDigits($data["number"], "îÏÍÅÒ ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
-            checker::isUsed($data["number"], "number", "v_sip", $data["id"], "äÁÎÎÙÊ ÎÏÍÅÒ ÕÖÅ ÉÓÐÏÌØÚÕÅÔÓÑ");
+            checker::isEmpty($data["number"], "ÐÐ¾Ð¼ÐµÑ€ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½!");
+            checker::isDigits($data["number"], "ÐÐ¾Ð¼ÐµÑ€ Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
+            checker::isUsed($data["number"], "number", "v_sip", $data["id"], "Ð”Ð°Ð½Ð½Ñ‹Ð¹ Ð½Ð¾Ð¼ÐµÑ€ ÑƒÐ¶Ðµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ");
         }
 
         if($od["atype"] == "number" && $od["type"] == "cpe")
         {
-            checker::isDigits($data["lines"], "ëÏÌÉÞÅÓÔ×Ï ÌÉÎÉÊ ÚÁÄÁÎÏ ÎÅ ×ÅÒÎÏ!");
-            checker::number_isBetween($data["lines"], 1,100, "ëÏÌÉÞÅÓÔ×Ï ÌÉÎÉÊ ÚÁÄÁÎÏ ÎÅ ×ÅÒÎÏ!");
+            checker::isDigits($data["lines"], "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð»Ð¸Ð½Ð¸Ð¹ Ð·Ð°Ð´Ð°Ð½Ð¾ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
+            checker::number_isBetween($data["lines"], 1,100, "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð»Ð¸Ð½Ð¸Ð¹ Ð·Ð°Ð´Ð°Ð½Ð¾ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
         }
 
         if($od["atype"] == "number" && $od["id"] == 0)
         {
             if($data["line_mask"])
             {
-                //checker::isEmpty($data["line_mask"], "íÁÓËÁ ÌÉÎÉÉ ÄÏÌÖÎÁ ÂÙÔØ ÏÂÑÚÁÔÅÌØÎÏ");
-                checker::isAlnum($data["line_mask"], "ðÒÏ×ÅÒÔÅ ÐÒÁ×ÉÌØÎÏÓÔØ ××ÅÄÅÎÎÏÊ ÍÁÓËÉ");
+                //checker::isEmpty($data["line_mask"], "ÐœÐ°ÑÐºÐ° Ð»Ð¸Ð½Ð¸Ð¸ Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾");
+                checker::isAlnum($data["line_mask"], "ÐŸÑ€Ð¾Ð²ÐµÑ€Ñ‚Ðµ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾ÑÑ‚ÑŒ Ð²Ð²ÐµÐ´ÐµÐ½Ð½Ð¾Ð¹ Ð¼Ð°ÑÐºÐ¸");
             }
         }
 
         if(isset($map["host_type"]))
             if($data["host_type"] == "static")
             {
-                checker::isEmpty($data["host_static"], "îÅ ÚÁÄÁÎ ÓÔÁÔÉÞÅÓËÉÊ host!");
-                checker::isValideIp($data["host_static"], "óÔÁÔÉÞÅÓËÉÊ host ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
+                checker::isEmpty($data["host_static"], "ÐÐµ Ð·Ð°Ð´Ð°Ð½ ÑÑ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ host!");
+                checker::isValideIp($data["host_static"], "Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ host Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
 
                 if($data["atype"] == "line")
                 {
-                    checker::isDigits($data["host_port_static"], "óÔÁÔÉÞÅÓËÉÊ ÐÏÒÔ ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
-                    checker::number_isBetween($data["host_port_static"], 1, 65536, "óÔÁÔÉÞÅÓËÉÊ ÐÏÒÔ ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
+                    checker::isDigits($data["host_port_static"], "Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð¿Ð¾Ñ€Ñ‚ Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
+                    checker::number_isBetween($data["host_port_static"], 1, 65536, "Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð¿Ð¾Ñ€Ñ‚ Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
                 }
 
                 if($od["id"] == 0 && $data["permit_on"] == "yes")
@@ -447,19 +447,19 @@ class sip
                         $data["permit"] .= ($data["permit"] ? "," : "").$data["host_static"]."/32";
                     }
                 }else{
-                    //checker::isEmpty($data["permit"], "åÓÌÉ ÚÁÄÁÎ ÓÔÁÔÉÞÅÓËÉÊ Host IP, ÎÅÏÂÈÏÄÉÍÏ ÓÄÅÌÁÔØ ÐÒÉ×ÑÚËÕ");
+                    //checker::isEmpty($data["permit"], "Ð•ÑÐ»Ð¸ Ð·Ð°Ð´Ð°Ð½ ÑÑ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Host IP, Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ");
                 }
             }
 
         if(isset($map["permit_on"]))
             if($data["permit_on"] == "yes" && $data["host_type"] != "static")
-                checker::isEmpty($data["permit"], "ðÒÉ×ÑÚËÁ ×ËÌÀÞÅÎÁ, ÎÏ ÎÅ ÚÁÄÁÎÁ!");
+                checker::isEmpty($data["permit"], "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ° Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½Ð°, Ð½Ð¾ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½Ð°!");
 
         if(isset($map["codec"]))
-            checker::isEmpty($data["codec"], "úÁÄÁÊÔÅ ËÏÄÅËÉ!");
+            checker::isEmpty($data["codec"], "Ð—Ð°Ð´Ð°Ð¹Ñ‚Ðµ ÐºÐ¾Ð´ÐµÐºÐ¸!");
 
         if(isset($map["context"]))
-            checker::isEmpty($data["context"], "ëÏÎÔÅËÓÔ ÎÅ ÚÁÄÁÎ!");
+            checker::isEmpty($data["context"], "ÐšÐ¾Ð½Ñ‚ÐµÐºÑÑ‚ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½!");
     }
 
     private function getMap($atype, $type, $id)
@@ -512,7 +512,7 @@ class sip
         $design->assign("direction", $vs["direction"]["array"]);
 
         /* conditions */
-        $dYesNo  = array("type" => "array", "array" => array("yes" => "äÁ","no" => "îÅÔ"));
+        $dYesNo  = array("type" => "array", "array" => array("yes" => "Ð”Ð°","no" => "ÐÐµÑ‚"));
         $dcYesNo = array("type" => "array", "array" => array("yes" => ""));
 
         $types = array(
@@ -522,7 +522,7 @@ class sip
                 );
 
         if($multitrunks || $trunks)
-                $types["link"] = "ðÒÉ×ÑÚËÁ";
+                $types["link"] = "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ°";
 
         $codecs = array("alaw" => "alaw", "g729" => "g729", "gsm" => "GSM", "ulaw" => "ulaw");
 
@@ -533,7 +533,7 @@ class sip
             if($id == 0)
             {
                 $m["type"] = array(
-                        "title" => "ôÉÐ ÕÓÔÒÏÊÓÔ×Á",
+                        "title" => "Ð¢Ð¸Ð¿ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°",
                         "type" => "radio",
                         "data" => array(array("type" => "array", "array" => $types))
                         );
@@ -543,7 +543,7 @@ class sip
                         );
             }else{
                 $m["type"] = array(
-                        "title" => "ôÉÐ ÕÓÔÒÏÊÓÔ×Á",
+                        "title" => "Ð¢Ð¸Ð¿ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°",
                         "type" => "info",
                         );
             }
@@ -552,7 +552,7 @@ class sip
         if($atype == "number" && $id == 0)
         {
             $m["number"] = array(
-                    "title" => "îÏÍÅÒ",
+                    "title" => "ÐÐ¾Ð¼ÐµÑ€",
                     "mask" => "number",
                     "type" => "number_lines_select",
                     "condition" => array("nq", "type" , "link"),
@@ -563,7 +563,7 @@ class sip
 
             /*
                $m["number_mt"] = array(
-               "title" => "îÁÚ×ÁÎÉÅ ÔÒÁÎËÁ",
+               "title" => "ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ Ñ‚Ñ€Ð°Ð½ÐºÐ°",
                "type" => "info",
                "condition" => array("eq", "type" , "multitrunk")
                );
@@ -577,7 +577,7 @@ class sip
                 if($multitrunks || $trunks)
                 {
                     $m["link_type"] = array(
-                            "title" => "ðÒÉ×ÑÚÁÔØ Ë",
+                            "title" => "ÐŸÑ€Ð¸Ð²ÑÐ·Ð°Ñ‚ÑŒ Ðº",
                             "type" => "select",
                             "data" => array(
                                 array("type" => "array", "array" => array())
@@ -595,7 +595,7 @@ class sip
                 }
             }else{
                 $m["link_type"] = array(
-                        "title" => "ðÒÉ×ÑÚÁÎ Ë",
+                        "title" => "ÐŸÑ€Ð¸Ð²ÑÐ·Ð°Ð½ Ðº",
                         "type" => "info"
                         );
             }
@@ -605,7 +605,7 @@ class sip
                 if($multitrunks)
                 {
                     $m["parent_id_multitrunk"] = array(
-                            "title" => "íÕÌØÔÉÔÒÁÎË",
+                            "title" => "ÐœÑƒÐ»ÑŒÑ‚Ð¸Ñ‚Ñ€Ð°Ð½Ðº",
                             "type" => "select",
                             "data" => array(
                                 array("type" => "array", "array" => $multitrunks)
@@ -615,7 +615,7 @@ class sip
                 }
             }elseif($atype == "multitrunk"){
                 $m["parent_id_multitrunk"] = array(
-                        "title" => "íÕÌØÔÉÔÒÁÎË",
+                        "title" => "ÐœÑƒÐ»ÑŒÑ‚Ð¸Ñ‚Ñ€Ð°Ð½Ðº",
                         "type" => "info"
                         );
             }
@@ -625,7 +625,7 @@ class sip
                 if($trunks)
                 {
                     $m["parent_id_trunk"] = array(
-                            "title" => "ôÒÁÎË",
+                            "title" => "Ð¢Ñ€Ð°Ð½Ðº",
                             "type" => "select",
                             "data" => array(
                                 array(
@@ -638,7 +638,7 @@ class sip
                 }
             }elseif($atype == "trunk"){
                 $m["parent_id_trunk"] = array(
-                        "title" => "ôÒÁÎË",
+                        "title" => "Ð¢Ñ€Ð°Ð½Ðº",
                         "type" => "info"
                         );
             }
@@ -649,8 +649,8 @@ class sip
             if($id != 0 && $type != "link")
             {
                 $m["call_count"] = array(
-                        "title" => "ïÄÎÏ×ÒÅÍ. ÒÁÚÇÏ×ÏÒÏ×",
-                        "hint" => "ëÏÌÉÞÅÓÔ×Ï ÏÄÎÏ×ÒÅÍÅÎÎÏ ÉÄÕÝÉÈ ÒÁÚÇÏ×ÏÒÏ×",
+                        "title" => "ÐžÐ´Ð½Ð¾Ð²Ñ€ÐµÐ¼. Ñ€Ð°Ð·Ð³Ð¾Ð²Ð¾Ñ€Ð¾Ð²",
+                        "hint" => "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¾Ð´Ð½Ð¾Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾ Ð¸Ð´ÑƒÑ‰Ð¸Ñ… Ñ€Ð°Ð·Ð³Ð¾Ð²Ð¾Ñ€Ð¾Ð²",
                         "type" => "info",
                         );
             }
@@ -658,7 +658,7 @@ class sip
             if($type == "cpe" || $type == "line")
             {
                 $m["lines"] = array(
-                        "title" => "ëÏÌ-×Ï ÌÉÎÉÊ",
+                        "title" => "ÐšÐ¾Ð»-Ð²Ð¾ Ð»Ð¸Ð½Ð¸Ð¹",
                         "type" => "text",
                         );
                 if($id == 0)
@@ -668,7 +668,7 @@ class sip
             if($type == "line" || $id == 0)
             {
                 $m["line_mask"] = array(
-                        "title" => "ðÒÅÆÉËÓ ÌÏÇÉÎÁ",
+                        "title" => "ÐŸÑ€ÐµÑ„Ð¸ÐºÑ Ð»Ð¾Ð³Ð¸Ð½Ð°",
                         "type" => $id == 0 ? "text" : "info"
                         );
                 if($id == 0)
@@ -678,9 +678,9 @@ class sip
             if($type == "cpe" || $type == "line")
             {
                 $m["delimeter"] = array(
-                        "title" => "òÁÚÄÅÌÉÔÅÌØ",
+                        "title" => "Ð Ð°Ð·Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»ÑŒ",
                         "type" => "select",
-                        "data" => array(array("type" => "array", "array" => array("+" => "+", "*" => "*","" => "îÅÔ"))),
+                        "data" => array(array("type" => "array", "array" => array("+" => "+", "*" => "*","" => "ÐÐµÑ‚"))),
                         "default" => "+"
                         );
                 if($id == 0)
@@ -724,7 +724,7 @@ class sip
         if($id == 0 || $atype != "link")
         {
             $m["password"] =array(
-                    "title" => "ðÁÒÏÌØ",
+                    "title" => "ÐŸÐ°Ñ€Ð¾Ð»ÑŒ",
                     "type" => "password_ats",
                     "condition" => array("nq", "host_type", "static")
                     );
@@ -756,7 +756,7 @@ class sip
 
         /*
            $m["connect_type"] = array(
-           "title" => "ôÉÐ",
+           "title" => "Ð¢Ð¸Ð¿",
            "type" => "radio",
            "data" => array(array("type" => "array", "array" => array("friend" => "Friend", "peer" => "Peer")))
            );
@@ -765,13 +765,13 @@ class sip
         if($id == 0 || $atype != "link")
         {
            $m["insecure"] = array(
-           "title" => "á×ÔÏÒÉÚÁÃÉÑ",
-           "hint" => "ÏÐÃÉÑ: insecure",
+           "title" => "ÐÐ²Ñ‚Ð¾Ñ€Ð¸Ð·Ð°Ñ†Ð¸Ñ",
+           "hint" => "Ð¾Ð¿Ñ†Ð¸Ñ: insecure",
            "type" => "select",
            "data" => array(array("type" => "array", "array" => array(
-                       "" => "ðÏÌÎÁÑ",
-                       "invite,port" => "ðÏ IP É ÐÏÒÔÕ",
-                       "port" => "ôÏÌØËÏ ÐÏ IP"
+                       "" => "ÐŸÐ¾Ð»Ð½Ð°Ñ",
+                       "invite,port" => "ÐŸÐ¾ IP Ð¸ Ð¿Ð¾Ñ€Ñ‚Ñƒ",
+                       "port" => "Ð¢Ð¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾ IP"
                        )))
            );
         }
@@ -779,9 +779,9 @@ class sip
         if($id == 0 || $atype != "link")
         {
             $m["permit_on"] = array(
-                    "title" => "ðÒÉ×ÑÚËÁ",
+                    "title" => "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ°",
                     "type" => "select",
-                    "data" => array(array("type" => "array", "array" => array("yes" => "äÁ", "no" => "îÅÔ", "auto" => "á×ÔÏ"))),
+                    "data" => array(array("type" => "array", "array" => array("yes" => "Ð”Ð°", "no" => "ÐÐµÑ‚", "auto" => "ÐÐ²Ñ‚Ð¾"))),
                     "condition" => array("nq", "host_type", "static")
                     );
 
@@ -790,7 +790,7 @@ class sip
 
 
             $m["permit"] = array(
-                    "title" => "ðÒÉ×ÑÚËÁ Ë IP",
+                    "title" => "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ° Ðº IP",
                     "type" => "permit_net",
                     "condition" => array("and", array("eq", "permit_on", "yes"),array("nq", "host_type", "static"))
                     );
@@ -803,7 +803,7 @@ class sip
         if($id == 0 || ($id != 0 && $atype != "link"))
         {
             $m["codec"] = array(
-                    "title" => "ëÏÄÅËÉ",
+                    "title" => "ÐšÐ¾Ð´ÐµÐºÐ¸",
                     "type" => "sort_list",
                     "data_all" => array(array("type" => "array", "array" => $codecs)),
                     );
@@ -820,11 +820,11 @@ class sip
            );
          */
 
-        // × ÄÏÂÁ×ÌÅÎÉÉ, ÎÅ × ÒÅÄÁËÔÉÒÏ×ÁÎÉÉ ÓÁÍÏÊ ÌÉÎÉÉ, ÎÅ × link'Å
+        // Ð² Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ð¸, Ð½Ðµ Ð² Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ð¸ ÑÐ°Ð¼Ð¾Ð¹ Ð»Ð¸Ð½Ð¸Ð¸, Ð½Ðµ Ð² link'Ðµ
         if($id == 0 || $atype != "link" )
         {
             $m["direction"] = array(
-                    "title" => "òÁÚÒÅÛÅÎÎÙÅ ÎÁÐÒÁ×ÌÅÎÉÑ",
+                    "title" => "Ð Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð½Ñ‹Ðµ Ð½Ð°Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ñ",
                     "type" => "select",
                     "data" => array($vs["direction"])
                     );
@@ -837,7 +837,7 @@ class sip
         if($id == 0 || $atype != "link")
         {
             $m["context"] = array(
-                    "title" => "ëÏÎÔÅËÓÔ",
+                    "title" => "ÐšÐ¾Ð½Ñ‚ÐµÐºÑÑ‚",
                     "type" => "text"
                     );
             if($id == 0)
@@ -847,7 +847,7 @@ class sip
         if($id == 0 || $atype == "link")
         {
             $m["numbers_mt"] = array(
-                    "title" => "îÏÍÅÒÁ",
+                    "title" => "ÐÐ¾Ð¼ÐµÑ€Ð°",
                     "type" => "multitrunk_numbers",
                     "data_all" => array(array("type" => "query", "query" => "
                             select id, concat(number,'x', `call_count`) as l from `v_number` 

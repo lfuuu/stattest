@@ -14,14 +14,14 @@ function get_free_nets($type,$node){
  if ($type==='K')
  {
  
-   // printdbg("Ищем IP");
+   // printdbg("п≤я┴п╣п╪ IP");
     $query="SELECT net, type, client 
 	    FROM `routes`
             WHERE node='$node'
             AND  actual_to>NOW()
 	    ORDER BY INET_ATON(LEFT(net, LENGTH(net)-3)), RIGHT(net,2)";
 	    
-    $res=mysql_query($query) or die("Нет коннетка с базой");
+    $res=mysql_query($query) or die("п²п╣я┌ п╨п╬п╫п╫п╣я┌п╨п╟ я│ п╠п╟п╥п╬п╧");
 
     $count=mysql_num_rows($res)-1;
    // printdbg($count);
@@ -62,7 +62,7 @@ function get_free_nets($type,$node){
     	}
     	
     };
-  //printdbg(count($nets),"кол-во подсетей");
+  //printdbg(count($nets),"п╨п╬п╩-п╡п╬ п©п╬п╢я│п╣я┌п╣п╧");
    
    foreach($nets as $net)
    {
@@ -92,7 +92,7 @@ function get_free_nets($type,$node){
             		
             		if ($ip_long_finish_i+1<$ip_long_start_n)
             		{
-            			//echo "<br>Свободные IP <br>";
+            			//echo "<br>п║п╡п╬п╠п╬п╢п╫я▀п╣ IP <br>";
             			for($k=$ip_long_finish_i+1;$k<$ip_long_start_n;$k++)
             			{
             				$IPs[]=long2ip($k);
@@ -110,7 +110,7 @@ function get_free_nets($type,$node){
         		
            	if ($ip_long_finish_i+1<$ip_long_finish)
             		{
-            			//echo "<br>Свободные IP <br>";
+            			//echo "<br>п║п╡п╬п╠п╬п╢п╫я▀п╣ IP <br>";
             			for($k=$ip_long_finish_i+1;$k<$ip_long_finish;$k++)
             			{
             				$IPs[]=long2ip($k);
@@ -125,7 +125,7 @@ function get_free_nets($type,$node){
        // printdbg($num_ips,'num_ips');
     	$ip_long_start=ip2long($ip_[0]);
     	$ip_long_finish=$ip_long_start+$num_ips;
-    	//echo "<br>Свободные IP <br>";
+    	//echo "<br>п║п╡п╬п╠п╬п╢п╫я▀п╣ IP <br>";
     	for($k=$ip_long_start;$k<=$ip_long_finish;$k++)
     	{
     		$IPs[]=long2ip($k);	

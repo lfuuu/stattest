@@ -74,10 +74,10 @@ class account
                 return $r;
 
             }else{
-                throw new Exception("Ошибка добавления аккаунта");
+                throw new Exception("п·я┬п╦п╠п╨п╟ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ п╟п╨п╨п╟я┐п╫я┌п╟");
             }
         }else{
-            throw new Exception("Ошибка добавления аккаунта");
+            throw new Exception("п·я┬п╦п╠п╨п╟ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ п╟п╨п╨п╟я┐п╫я┌п╟");
         }
     }
 

@@ -284,7 +284,7 @@ class m_newaccounts extends IModule
         foreach ($R2 as $r) {
             $balance = $balance + $r['sum'];
         }
-        // Цикл оплачивает минусовые счета
+        // п╕п╦п╨п╩ п╬п©п╩п╟я┤п╦п╡п╟п╣я┌ п╪п╦п╫я┐я│п╬п╡я▀п╣ я│я┤п╣я┌п╟
         foreach ($R2 as $kp => $r) {
             if ($r['sum'] >= 0) continue;
 
@@ -310,7 +310,7 @@ class m_newaccounts extends IModule
             $R2[$kp]['sum'] = 0;
         }
 
-        // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета
+        // п╕п╦п╨п╩ п╬п©п╩п╟я┤п╦п╡п╟п╣я┌ я│я┤п╣я┌п╟ п╢п╩я▐ п╨п╬я┌п╬я─я▀я┘ я│я┐я┴п╣я│я┌п╡я┐п╣я┌ п╬п©п╩п╟я┌п╟ я│ п╤п╣я│я┌п╨п╬ я┐п╨п╟п╥п╟п╫п╫я▀п╪ п╫п╬п╪п╣я─п╬п╪ я│я┤п╣я┌п╟
         foreach ($R2 as $kp => $r) {
             if ($r['sum'] < 0.01) {continue;}
 
@@ -383,7 +383,7 @@ class m_newaccounts extends IModule
             }
         }
 
-        // если счет оплатили и столько же списали - считать не оплаченным
+        // п╣я│п╩п╦ я│я┤п╣я┌ п╬п©п╩п╟я┌п╦п╩п╦ п╦ я│я┌п╬п╩я▄п╨п╬ п╤п╣ я│п©п╦я│п╟п╩п╦ - я│я┤п╦я┌п╟я┌я▄ п╫п╣ п╬п©п╩п╟я┤п╣п╫п╫я▀п╪
         foreach($R1 as $k => $r)
         {
             if($r["new_is_payed"] == 2 && $r["inv_rur"] == 0)
@@ -392,8 +392,8 @@ class m_newaccounts extends IModule
             }
         }
 
-        // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
-        // Новых счетов с привязкой не будет. Нужно для совместимости
+        // п╕п╦п╨п╩ п╬п©п╩п╟я┤п╦п╡п╟п╣я┌ я│я┤п╣я┌п╟ п╢п╩я▐ п╨п╬я┌п╬я─я▀я┘ я│я┐я┴п╣я│я┌п╡я┐п╣я┌ п╬п©п╩п╟я┌п╟ я│ п╤п╣я│я┌п╨п╬ я┐п╨п╟п╥п╟п╫п╫я▀п╪ п╫п╬п╪п╣я─п╬п╪ я│я┤п╣я┌п╟ п÷п═п≤п▓п╞п≈п п≤.
+        // п²п╬п╡я▀я┘ я│я┤п╣я┌п╬п╡ я│ п©я─п╦п╡я▐п╥п╨п╬п╧ п╫п╣ п╠я┐п╢п╣я┌. п²я┐п╤п╫п╬ п╢п╩я▐ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦
         foreach ($R2 as $kp => $r) {
             if ($r['sum'] < 0.01) continue;
 
@@ -464,9 +464,9 @@ class m_newaccounts extends IModule
 
         //print_r($R2);
 
-        if ($fixclient_data["type"] != "multi"){ // не магазин
+        if ($fixclient_data["type"] != "multi"){ // п╫п╣ п╪п╟пЁп╟п╥п╦п╫
 
-            // Раскидываем остатки оплаты по неоплаченным счетам
+            // п═п╟я│п╨п╦п╢я▀п╡п╟п╣п╪ п╬я│я┌п╟я┌п╨п╦ п╬п©п╩п╟я┌я▀ п©п╬ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╪ я│я┤п╣я┌п╟п╪
             foreach ($R2 as $kp => $r) {
                 if ($r['sum'] < 0.01) continue;
 
@@ -541,7 +541,7 @@ class m_newaccounts extends IModule
             }
 
 
-            // Если все счета оплачены и осталась лишняя оплата то в любом случае закидываем ее на последний счет, даже если будет переплата.
+            // п∙я│п╩п╦ п╡я│п╣ я│я┤п╣я┌п╟ п╬п©п╩п╟я┤п╣п╫я▀ п╦ п╬я│я┌п╟п╩п╟я│я▄ п╩п╦я┬п╫я▐я▐ п╬п©п╩п╟я┌п╟ я┌п╬ п╡ п╩я▌п╠п╬п╪ я│п╩я┐я┤п╟п╣ п╥п╟п╨п╦п╢я▀п╡п╟п╣п╪ п╣п╣ п╫п╟ п©п╬я│п╩п╣п╢п╫п╦п╧ я│я┤п╣я┌, п╢п╟п╤п╣ п╣я│п╩п╦ п╠я┐п╢п╣я┌ п©п╣я─п╣п©п╩п╟я┌п╟.
 
             $last_payment = null;
             foreach ($R1 as $k => $r) {
@@ -577,7 +577,7 @@ class m_newaccounts extends IModule
                 }
             }
 
-        } // не магазин
+        } // п╫п╣ п╪п╟пЁп╟п╥п╦п╫
 
         $db->Query('START TRANSACTION');
 
@@ -649,7 +649,7 @@ class m_newaccounts extends IModule
             where
                     client_id = '".$fixclient_data["id"]."'
                 and b.bill_no = l.bill_no
-                and state_1c != 'Отказ'
+                and state_1c != 'п·я┌п╨п╟п╥'
             group by l.type, b.currency") as $s)
                 $sum_l[$s["type"]][$s["currency"]] = $s["sum"];
 
@@ -1136,7 +1136,7 @@ class m_newaccounts extends IModule
         $bill = new Bill(null,$fixclient_data,time(),0,$currency);
         $no = $bill->GetNo();
         unset($bill);
-        $db->QueryInsert("log_newbills",array('bill_no'=>$no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Счет создан'));
+        $db->QueryInsert("log_newbills",array('bill_no'=>$no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'п║я┤п╣я┌ я│п╬п╥п╢п╟п╫'));
         if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$no);
     }
 
@@ -1153,7 +1153,7 @@ class m_newaccounts extends IModule
                 $db->Query("select name from courier where id=".$d);
                 $row = $db->NextRecord(MYSQL_ASSOC);
                 $db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
-                $db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
+                $db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─ ".$row['name']."'");
                 unset($row);
             }elseif(isset($_POST['select_nal'])){
                 $n = addcslashes($_POST['nal'],"\\'");
@@ -1167,7 +1167,7 @@ class m_newaccounts extends IModule
 				$db->Query("select name from courier where id=".$d);
 				$row = $db->NextRecord(MYSQL_ASSOC);
 				$db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
-				$db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
+				$db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─ ".$row['name']."'");
 				unset($row);
 			}elseif(isset($_POST['select_nal'])){
 				$n = addcslashes($_POST['nal'],"\\\\'");
@@ -1187,7 +1187,7 @@ class m_newaccounts extends IModule
                    );
 
            if (!$order)
-               die("Неизвестный тип документа");
+               die("п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я┌п╦п© п╢п╬п╨я┐п╪п╣п╫я┌п╟");
 
             header("Location: ./?module=incomegoods&action=order_view&id=".urlencode($order->id));
             exit();
@@ -1196,7 +1196,7 @@ class m_newaccounts extends IModule
         }elseif(preg_match("/\d{6}-\d{4}/", $_GET["bill"])){
             //nothing
         }else{
-            die("Неизвестный тип документа");
+            die("п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я┌п╦п© п╢п╬п╨я┐п╪п╣п╫я┌п╟");
         }
 
         $bill_no=get_param_protected("bill");
@@ -1204,7 +1204,7 @@ class m_newaccounts extends IModule
             return;
         $bill = new Bill($bill_no);
         if(get_param_raw('err')==1)
-            trigger_error('Невозможно добавить строки из-за несовпадния валют');
+            trigger_error('п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╢п╬п╠п╟п╡п╦я┌я▄ я│я┌я─п╬п╨п╦ п╦п╥-п╥п╟ п╫п╣я│п╬п╡п©п╟п╢п╫п╦я▐ п╡п╟п╩я▌я┌');
         $design->assign('bgen_psum',$this->do_generate($bill,'invoice','psum',array(),false));
         $design->assign('bgen_rate',array(
             $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>1),false),
@@ -1235,17 +1235,17 @@ class m_newaccounts extends IModule
         $design->assign('bill_bonus',$bill->GetBonus());
 
         /*
-           счет-фактура(1)-абонен.плата
-           счет-фактура(2)-превышение
-           счет-фктура (3)-если есть товар, тоесть тов.накладная
-           Счет-фактура(4)-авансовая
+           я│я┤п╣я┌-я└п╟п╨я┌я┐я─п╟(1)-п╟п╠п╬п╫п╣п╫.п©п╩п╟я┌п╟
+           я│я┤п╣я┌-я└п╟п╨я┌я┐я─п╟(2)-п©я─п╣п╡я▀я┬п╣п╫п╦п╣
+           я│я┤п╣я┌-я└п╨я┌я┐я─п╟ (3)-п╣я│п╩п╦ п╣я│я┌я▄ я┌п╬п╡п╟я─, я┌п╬п╣я│я┌я▄ я┌п╬п╡.п╫п╟п╨п╩п╟п╢п╫п╟я▐
+           п║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟(4)-п╟п╡п╟п╫я│п╬п╡п╟я▐
 
-           Акт (1) - абонен.плата
-           Акт (2) - превышение
-           Акт (3) - залог
+           п░п╨я┌ (1) - п╟п╠п╬п╫п╣п╫.п©п╩п╟я┌п╟
+           п░п╨я┌ (2) - п©я─п╣п╡я▀я┬п╣п╫п╦п╣
+           п░п╨я┌ (3) - п╥п╟п╩п╬пЁ
            
-           счет-фактура-акт(1)-абонен.плата
-           счет-фактура-акт(2)-превышение
+           я│я┤п╣я┌-я└п╟п╨я┌я┐я─п╟-п╟п╨я┌(1)-п╟п╠п╬п╫п╣п╫.п©п╩п╟я┌п╟
+           я│я┤п╣я┌-я└п╟п╨я┌я┐я─п╟-п╟п╨я┌(2)-п©я─п╣п╡я▀я┬п╣п╫п╦п╣
            
          */
 
@@ -1295,7 +1295,7 @@ class m_newaccounts extends IModule
 
         if(access("clients", "read_multy"))
             if($r["type"] != "multi"){
-            trigger_error('Доступ к клиенту ограничен');
+            trigger_error('п■п╬я│я┌я┐п© п╨ п╨п╩п╦п╣п╫я┌я┐ п╬пЁя─п╟п╫п╦я┤п╣п╫');
             return;
         }
 
@@ -1326,7 +1326,7 @@ class m_newaccounts extends IModule
             ')
         );
 
-        $design->assign("is_set_date", $bill->is1CBill() || $bill->isOneTimeService()); //дату документа можно установить в 1Сных счетах и счетах, с разовыми услугами
+        $design->assign("is_set_date", $bill->is1CBill() || $bill->isOneTimeService()); //п╢п╟я┌я┐ п╢п╬п╨я┐п╪п╣п╫я┌п╟ п╪п╬п╤п╫п╬ я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п╡ 1п║п╫я▀я┘ я│я┤п╣я┌п╟я┘ п╦ я│я┤п╣я┌п╟я┘, я│ я─п╟п╥п╬п╡я▀п╪п╦ я┐я│п╩я┐пЁп╟п╪п╦
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
@@ -1441,7 +1441,7 @@ class m_newaccounts extends IModule
             $bill = new Bill($bill_no);
 
             $bill->Set('postreg',$option?'':date('Y-m-d'));
-            $db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$option?'Удаление из почтового реестра':('Почтовый реестр '.date('Y-m-d').($isImport ? " (из импорта платежей)" : ""))));
+            $db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$option?'пёп╢п╟п╩п╣п╫п╦п╣ п╦п╥ п©п╬я┤я┌п╬п╡п╬пЁп╬ я─п╣п╣я│я┌я─п╟':('п÷п╬я┤я┌п╬п╡я▀п╧ я─п╣п╣я│я┌я─ '.date('Y-m-d').($isImport ? " (п╦п╥ п╦п╪п©п╬я─я┌п╟ п©п╩п╟я┌п╣п╤п╣п╧)" : ""))));
             unset($bill);
         }
         if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
@@ -1545,15 +1545,15 @@ class m_newaccounts extends IModule
         if(!$bill->CheckForAdmin())
             return;
         $L=array('USD'=>array(
-                    'avans' =>            array("Аванс за подключение интернет-канала",1,500/27,'zadatok'),
-                    'deposit' =>        array("Задаток за подключение интернет-канала",1,SUM_ADVANCE,'zadatok'),
-                    'deposit_back' =>    array("Возврат задатка за подключение интернет-канала",1,-SUM_ADVANCE,'zadatok'),
-                    'deposit_sub' =>    array("За вычетом ранее оплаченного задатка",1,-SUM_ADVANCE,'zadatok'),
+                    'avans' =>            array("п░п╡п╟п╫я│ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟",1,500/27,'zadatok'),
+                    'deposit' =>        array("п≈п╟п╢п╟я┌п╬п╨ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟",1,SUM_ADVANCE,'zadatok'),
+                    'deposit_back' =>    array("п▓п╬п╥п╡я─п╟я┌ п╥п╟п╢п╟я┌п╨п╟ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟",1,-SUM_ADVANCE,'zadatok'),
+                    'deposit_sub' =>    array("п≈п╟ п╡я▀я┤п╣я┌п╬п╪ я─п╟п╫п╣п╣ п╬п©п╩п╟я┤п╣п╫п╫п╬пЁп╬ п╥п╟п╢п╟я┌п╨п╟",1,-SUM_ADVANCE,'zadatok'),
                 ),'RUR'=>array(
-                    'avans' =>            array("Аванс за подключение интернет-канала",1,500,'zadatok'),
-                    'deposit' =>        array("Задаток за подключение интернет-канала",1,SUM_ADVANCE*27,'zadatok'),
-                    'deposit_back' =>    array("Возврат задатка за подключение интернет-канала",1,-SUM_ADVANCE*27,'zadatok'),
-                    'deposit_sub' =>    array("За вычетом ранее оплаченного задатка",1,-SUM_ADVANCE*27,'zadatok'),
+                    'avans' =>            array("п░п╡п╟п╫я│ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟",1,500,'zadatok'),
+                    'deposit' =>        array("п≈п╟п╢п╟я┌п╬п╨ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟",1,SUM_ADVANCE*27,'zadatok'),
+                    'deposit_back' =>    array("п▓п╬п╥п╡я─п╟я┌ п╥п╟п╢п╟я┌п╨п╟ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟",1,-SUM_ADVANCE*27,'zadatok'),
+                    'deposit_sub' =>    array("п≈п╟ п╡я▀я┤п╣я┌п╬п╪ я─п╟п╫п╣п╣ п╬п©п╩п╟я┤п╣п╫п╫п╬пЁп╬ п╥п╟п╢п╟я┌п╨п╟",1,-SUM_ADVANCE*27,'zadatok'),
                 ));
         $err=0;
         if ($obj=='connecting' || $obj=='connecting_ab') {
@@ -1572,7 +1572,7 @@ class m_newaccounts extends IModule
         } elseif ($obj=='regular') {
             ClientCS::getClientClient($fixclient);
             $services = get_all_services($fixclient,$fixclient_data['id']);
-            $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
+            $time = $bill->GetTs(); //п╠п╣я─п╣п╪ п╢п╟я┌я┐ я│я┤п╣я┌п╟, п╟ п╫п╣ п╢п╟я┌я┐ п╫п╟п╤п╟я┌п╦я▐ п╨п╫п╬п©п╨п╦
             
             $client = ClientCard::first($fixclient_data['id']);
             if ($client->status == "operator" && $client->is_bill_with_refund)
@@ -1581,7 +1581,7 @@ class m_newaccounts extends IModule
 		$client = ClientCard::first($fixclient_data['id']);
             }
             foreach ($services as $service){
-                // если у нас телефония, или интернет, и канал уже закрыт прошлым числом - все равно надо предъявлять превышение лимита
+                // п╣я│п╩п╦ я┐ п╫п╟я│ я┌п╣п╩п╣я└п╬п╫п╦я▐, п╦п╩п╦ п╦п╫я┌п╣я─п╫п╣я┌, п╦ п╨п╟п╫п╟п╩ я┐п╤п╣ п╥п╟п╨я─я▀я┌ п©я─п╬я┬п╩я▀п╪ я┤п╦я│п╩п╬п╪ - п╡я│п╣ я─п╟п╡п╫п╬ п╫п╟п╢п╬ п©я─п╣п╢я┼я▐п╡п╩я▐я┌я▄ п©я─п╣п╡я▀я┬п╣п╫п╦п╣ п╩п╦п╪п╦я┌п╟
                 if(!in_array($service['service'],array('usage_voip','usage_ip_ports')) && (unix_timestamp($service['actual_from']) > $time || unix_timestamp($service['actual_to']) < $time))
                     continue;
                 $s=ServiceFactory::Get($service,$bill);
@@ -1649,7 +1649,7 @@ class m_newaccounts extends IModule
                     $s=ServiceFactory::Get($service,$bill);
                     $s->SetMonth(time());
                     $R=$s->GetLinesMonth();
-                    if(!$bill->AddLines($R)){    //1 - не все строки добавлены из-за расхождения валют
+                    if(!$bill->AddLines($R)){    //1 - п╫п╣ п╡я│п╣ я│я┌я─п╬п╨п╦ п╢п╬п╠п╟п╡п╩п╣п╫я▀ п╦п╥-п╥п╟ я─п╟я│я┘п╬п╤п╢п╣п╫п╦я▐ п╡п╟п╩я▌я┌
                         if(!$bill2)
                             $bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUR'?'USD':'RUR'), false);
                         $bill2->AddLines($R);
@@ -1664,7 +1664,7 @@ class m_newaccounts extends IModule
                     $no=$bill2->GetNo();
                     $v=$bill2->Save(1);
                     if($v)
-                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен<br>");
+                        echo("&nbsp; п║я┤я▒я┌ <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> п╢п╩я▐ п╨п╩п╦п╣п╫я┌п╟ <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> п╡я▀я│я┌п╟п╡п╩п╣п╫<br>");
                     unset($bill2);
                 }
                 $no=$bill->GetNo();
@@ -1682,7 +1682,7 @@ class m_newaccounts extends IModule
                 }
                 unset($bill);
                 if($v==1){
-                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен".$p."<br>");
+                    echo("&nbsp; п║я┤я▒я┌ <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> п╢п╩я▐ п╨п╩п╦п╣п╫я┌п╟ <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> п╡я▀я│я┌п╟п╡п╩п╣п╫".$p."<br>");
                     flush();
                 }
             }
@@ -1773,7 +1773,7 @@ class m_newaccounts extends IModule
 
         $r = $db->Query("update newbills set is_lk_show =1 where bill_no like '".date("Ym")."-%' and !is_lk_show");
 
-        trigger_error("<font style=\"color: green;\">Опубликованно счетов: ".mysql_affected_rows()."</font>");
+        trigger_error("<font style=\"color: green;\">п·п©я┐п╠п╩п╦п╨п╬п╡п╟п╫п╫п╬ я│я┤п╣я┌п╬п╡: ".mysql_affected_rows()."</font>");
 
         return;
     }
@@ -1785,17 +1785,17 @@ class m_newaccounts extends IModule
         $bill = new Bill($bill_no);
         $is_pdf = get_param_raw('is_pdf', 0);
 
-        $template = 'Уважаемые господа!<br>Отправляем Вам следующие документы:<br>';
+        $template = 'пёп╡п╟п╤п╟п╣п╪я▀п╣ пЁп╬я│п©п╬п╢п╟!<br>п·я┌п©я─п╟п╡п╩я▐п╣п╪ п▓п╟п╪ я│п╩п╣п╢я┐я▌я┴п╦п╣ п╢п╬п╨я┐п╪п╣п╫я┌я▀:<br>';
         $template = array($template,$template);
         $D = array(
-                    'Конверт: '=>array('envelope'),
-                    'Счет: '=>array('bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR'),
-                    'Счет-фактура: '=>array('invoice-1','invoice-2','invoice-3','invoice-4'),
-                    'Акт: '=>array('akt-1','akt-2','akt-3'),
-                    'Накладная: '=>array('lading'),
-                    'Приказ о назначении: ' => array("order"),
-                    'Уведомление о назначении: ' => array("notice"),
-                    'УПД: ' => array('upd-1', 'upd-2', 'upd-3')
+                    'п п╬п╫п╡п╣я─я┌: '=>array('envelope'),
+                    'п║я┤п╣я┌: '=>array('bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR'),
+                    'п║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟: '=>array('invoice-1','invoice-2','invoice-3','invoice-4'),
+                    'п░п╨я┌: '=>array('akt-1','akt-2','akt-3'),
+                    'п²п╟п╨п╩п╟п╢п╫п╟я▐: '=>array('lading'),
+                    'п÷я─п╦п╨п╟п╥ п╬ п╫п╟п╥п╫п╟я┤п╣п╫п╦п╦: ' => array("order"),
+                    'пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ п╬ п╫п╟п╥п╫п╟я┤п╣п╫п╦п╦: ' => array("notice"),
+                    'пёп÷п■: ' => array('upd-1', 'upd-2', 'upd-3')
         );
 
         foreach ($D as $k=>$rs) {
@@ -1824,11 +1824,11 @@ class m_newaccounts extends IModule
 
         $cs=new ClientCS($bill->Client('id'));
         $contact = $cs->GetContact();
-        $this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
-        $this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
-        echo "<hr><br>Шаблон с печатью <br><br>";
+        $this->_bill_email_ShowMessageForm('я│ п©п╣я┤п╟я┌я▄я▌',$contact['email'],"п║я┤п╣я┌ п╥п╟ я┌п╣п╩п╣п╨п╬п╪п╪я┐п╫п╦п╨п╟я├п╦п╬п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦",$template[0]);
+        $this->_bill_email_ShowMessageForm('п╠п╣п╥ п©п╣я┤п╟я┌п╦',$contact['email'],"п║я┤п╣я┌ п╥п╟ я┌п╣п╩п╣п╨п╬п╪п╪я┐п╫п╦п╨п╟я├п╦п╬п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦",$template[1]);
+        echo "<hr><br>п╗п╟п╠п╩п╬п╫ я│ п©п╣я┤п╟я┌я▄я▌ <br><br>";
         echo $template[0];
-        echo "<br><hr><br>\n\n Шаблон без печати <br><br>";
+        echo "<br><hr><br>\n\n п╗п╟п╠п╩п╬п╫ п╠п╣п╥ п©п╣я┤п╟я┌п╦ <br><br>";
         echo $template[1];
         $design->ProcessEx('errors.tpl');
     }
@@ -1836,7 +1836,7 @@ class m_newaccounts extends IModule
     function _bill_email_ShowMessageForm($submit,$to,$subject,$msg) {
         global $design,$user;
 
-        // Исключения для пользователей, у которые отправляет почту из стата не с ящика по умолчанию
+        // п≤я│п╨п╩я▌я┤п╣п╫п╦я▐ п╢п╩я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧, я┐ п╨п╬я┌п╬я─я▀п╣ п╬я┌п©я─п╟п╡п╩я▐п╣я┌ п©п╬я┤я┌я┐ п╦п╥ я│я┌п╟я┌п╟ п╫п╣ я│ я▐я┴п╦п╨п╟ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌
         $_SPECIAL_USERS = array(
                 "istomina" => 191 /* help@mcn.ru */
                 );
@@ -1844,8 +1844,8 @@ class m_newaccounts extends IModule
                
 
 
-        $design->assign('subject',iconv("KOI8-R","UTF-8",$subject));
-        $design->assign('new_msg',iconv("KOI8-R","UTF-8",$msg));
+        $design->assign('subject',$subject);
+        $design->assign('new_msg',$msg);
         if (is_array($to)) {
             $s = "";
             foreach ($to as $r) {
@@ -1858,7 +1858,7 @@ class m_newaccounts extends IModule
 
         $design->assign('mail_trunk_id', isset($_SPECIAL_USERS[$userLogin]) ? $_SPECIAL_USERS[$userLogin] : $_DEFAULT_MAIL_TRUNK_ID);
         $design->assign('user',$userLogin);
-        $design->assign('to',iconv("KOI8-R","UTF-8",$s));
+        $design->assign('to',$s);
         $design->assign('submit',$submit);
         $design->ProcessEx('comcenter_msg.tpl');
     }
@@ -1898,7 +1898,7 @@ class m_newaccounts extends IModule
             $bb = $bill->GetBill();
 
 
-            // установка/удаление даты документа
+            // я┐я│я┌п╟п╫п╬п╡п╨п╟/я┐п╢п╟п╩п╣п╫п╦п╣ п╢п╟я┌я▀ п╢п╬п╨я┐п╪п╣п╫я┌п╟
             if (isset($_REQUEST['without_date']) && ($bill->is1CBill() || $bill->isOneTimeService()))
             {
                 $wDate = get_param_raw("without_date_date", "");
@@ -1911,13 +1911,13 @@ class m_newaccounts extends IModule
 
                     $utDate = @mktime(0,0,0, $m, $d, $y);
 
-                    // дата корректная
+                    // п╢п╟я┌п╟ п╨п╬я─я─п╣п╨я┌п╫п╟я▐
                     if($utDate)
                     {
                         if($bb["doc_ts"] != $utDate)
                         {
                             $bill->SetDocDate($utDate);
-                            $bb = $bill->GetBill(); // обновляем счет
+                            $bb = $bill->GetBill(); // п╬п╠п╫п╬п╡п╩я▐п╣п╪ я│я┤п╣я┌
                         }
                     }else{
                         $toDelDate = true;
@@ -1926,7 +1926,7 @@ class m_newaccounts extends IModule
                     $toDelDate = true;
                 }
 
-                // удалить дату
+                // я┐п╢п╟п╩п╦я┌я▄ п╢п╟я┌я┐
                 if($toDelDate)
                 {
                     $bill->SetDocDate(0);
@@ -1994,7 +1994,7 @@ class m_newaccounts extends IModule
                     if($reCode)
                         $r = $reCode;
 
-                    // при импорте клиентов с долларами, печатать долларовые счета
+                    // п©я─п╦ п╦п╪п©п╬я─я┌п╣ п╨п╩п╦п╣п╫я┌п╬п╡ я│ п╢п╬п╩п╩п╟я─п╟п╪п╦, п©п╣я┤п╟я┌п╟я┌я▄ п╢п╬п╩п╩п╟я─п╬п╡я▀п╣ я│я┤п╣я┌п╟
                     if($isFromImport && $c["currency"] == "USD" && $r == "bill-2-RUR") $r = "bill-2-USD";
                     if (isset($h[$r]))
                     {
@@ -2148,7 +2148,7 @@ class m_newaccounts extends IModule
         Bill::RemoveBill($bill_no);
         if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
     }
-    //эта функция готовит счёт к печати. ФОРМИРОВАНИЕ СЧЁТА
+    //я█я┌п╟ я└я┐п╫п╨я├п╦я▐ пЁп╬я┌п╬п╡п╦я┌ я│я┤я▒я┌ п╨ п©п╣я┤п╟я┌п╦. п╓п·п═п°п≤п═п·п▓п░п²п≤п∙ п║п╖п│п╒п░
     function newaccounts_bill_print($fixclient, $params = array()){
         global $design,$db,$user;
         $this->do_include();
@@ -2233,9 +2233,9 @@ class m_newaccounts extends IModule
         if(in_array($obj, array("order","notice")))
         {
             $t = ($obj == "order" ?
-                    "Приказ (Телеком)":
+                    "п÷я─п╦п╨п╟п╥ (п╒п╣п╩п╣п╨п╬п╪)":
                     ($obj == "notice" ?
-                        "Уведомление (Телеком)":""));
+                        "пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ (п╒п╣п╩п╣п╨п╬п╪)":""));
                         
             if($user->Get('id'))
             $db->QueryInsert(
@@ -2244,7 +2244,7 @@ class m_newaccounts extends IModule
                     'bill_no'=>$bill_no,
                     'ts'=>array('NOW()'),
                     'user_id'=>$user->Get('id'),
-                    'comment'=>'Печать '.$t
+                    'comment'=>'п÷п╣я┤п╟я┌я▄ '.$t
                 )
             );
 
@@ -2252,7 +2252,7 @@ class m_newaccounts extends IModule
 
         if($obj == "new_director_info")
         {
-            $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
+            $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "п║п╪п╣п╫п╟ п╢п╦я─п╣п╨я┌п╬я─п╟.pdf");
             exit();
         }
             
@@ -2278,7 +2278,7 @@ class m_newaccounts extends IModule
                             'bill_no'=>$bill_no,
                             'ts'=>array('NOW()'),
                             'user_id'=>$user->Get('id'),
-                            'comment'=>'Печать с/ф &#8470;'.$source
+                            'comment'=>'п÷п╣я┤п╟я┌я▄ я│/я└ &#8470;'.$source
                         )
                     );
                     
@@ -2302,7 +2302,7 @@ class m_newaccounts extends IModule
                         $serials[$s->code_1c][] = $s->serial;
                     }
 
-                    // для onlime'а показываются номера купонов, если таковые есть
+                    // п╢п╩я▐ onlime'п╟ п©п╬п╨п╟п╥я▀п╡п╟я▌я┌я│я▐ п╫п╬п╪п╣я─п╟ п╨я┐п©п╬п╫п╬п╡, п╣я│п╩п╦ я┌п╟п╨п╬п╡я▀п╣ п╣я│я┌я▄
                     if($bill->Get("client_id") == "18042")
                     {
                         $oo = OnlimeOrder::find_by_bill_no($bill->GetNo());
@@ -2379,7 +2379,7 @@ class m_newaccounts extends IModule
             }
         }else{
             if ($only_html == '1') return '';
-            trigger_error('Документ не готов');
+            trigger_error('п■п╬п╨я┐п╪п╣п╫я┌ п╫п╣ пЁп╬я┌п╬п╡');
         }
         $design->ProcessEx('errors.tpl');
     }
@@ -2452,7 +2452,7 @@ class m_newaccounts extends IModule
             $idx = "other";
 
             if(eregi("w300", $l["item"])) $idx = "w300";
-            if(eregi("декодер", $l["item"])) $idx = "decoder";
+            if(eregi("п╢п╣п╨п╬п╢п╣я─", $l["item"])) $idx = "decoder";
             if($l["num_id"] == 11243) $idx = "cii";
             if($l["num_id"] == 11241) $idx = "fonera";
 
@@ -2470,7 +2470,7 @@ class m_newaccounts extends IModule
     {
         global $db;
         $a=$db->GetRow("select * from newbills_add_info where bill_no='".$bill_no."'");
-        $t= $db->GetRow("SELECT item FROM newbill_lines where bill_no = '".$bill_no."' and price != 0 and type = 'service' and item like 'МТС%'");
+        $t= $db->GetRow("SELECT item FROM newbill_lines where bill_no = '".$bill_no."' and price != 0 and type = 'service' and item like 'п°п╒п║%'");
         $tarif = $t ? $t["item"] : "";
         include "report.stream.blank.php";
     }
@@ -2810,7 +2810,7 @@ class m_newaccounts extends IModule
 
                 $R = array();
                 foreach($L as $item){
-                    if(preg_match("/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС|^\s*Перенос|^\s*Выезд|^\s*Сервисное\s+обслуживание|^\s*Хостинг|^\s*Подключение|^\s*Внутренняя\s+линия|^\s*Абонентское\s+обслуживание|^\s*Услуга\s+доставки|^\s*Виртуальный\s+почтовый|^\s*Размещение\s+сервера|^\s*Настройка[0-9a-zA-Zа-яА-Я]+АТС|^Дополнительный\sIP[\s\-]адрес|^Поддержка\sпервичного\sDNS|^Поддержка\sвторичного\sDNS|^Аванс\sза\sподключение\sинтернет-канала|^Администрирование\sсервер|^Обслуживание\sрабочей\sстанции|^Оптимизация\sсайта/",$item['item']))
+                    if(preg_match("/^\s*п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐\s+п©п╩п╟я┌п╟|^\s*п÷п╬п╢п╢п╣я─п╤п╨п╟\s+п©п╬я┤я┌п╬п╡п╬пЁп╬\s+я▐я┴п╦п╨п╟|^\s*п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐\s+п░п╒п║|^\s*п÷п╣я─п╣п╫п╬я│|^\s*п▓я▀п╣п╥п╢|^\s*п║п╣я─п╡п╦я│п╫п╬п╣\s+п╬п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣|^\s*п╔п╬я│я┌п╦п╫пЁ|^\s*п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣|^\s*п▓п╫я┐я┌я─п╣п╫п╫я▐я▐\s+п╩п╦п╫п╦я▐|^\s*п░п╠п╬п╫п╣п╫я┌я│п╨п╬п╣\s+п╬п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣|^\s*пёя│п╩я┐пЁп╟\s+п╢п╬я│я┌п╟п╡п╨п╦|^\s*п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧\s+п©п╬я┤я┌п╬п╡я▀п╧|^\s*п═п╟п╥п╪п╣я┴п╣п╫п╦п╣\s+я│п╣я─п╡п╣я─п╟|^\s*п²п╟я│я┌я─п╬п╧п╨п╟[0-9a-zA-Zп╟-я▐п░-п╞]+п░п╒п║|^п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╧\sIP[\s\-]п╟п╢я─п╣я│|^п÷п╬п╢п╢п╣я─п╤п╨п╟\sп©п╣я─п╡п╦я┤п╫п╬пЁп╬\sDNS|^п÷п╬п╢п╢п╣я─п╤п╨п╟\sп╡я┌п╬я─п╦я┤п╫п╬пЁп╬\sDNS|^п░п╡п╟п╫я│\sп╥п╟\sп©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣\sп╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟|^п░п╢п╪п╦п╫п╦я│я┌я─п╦я─п╬п╡п╟п╫п╦п╣\sя│п╣я─п╡п╣я─|^п·п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣\sя─п╟п╠п╬я┤п╣п╧\sя│я┌п╟п╫я├п╦п╦|^п·п©я┌п╦п╪п╦п╥п╟я├п╦я▐\sя│п╟п╧я┌п╟/",$item['item']))
                         $R[] = $item;
                 }
                 return $R;
@@ -2862,8 +2862,8 @@ class m_newaccounts extends IModule
                             $li['sum']!=0 || 
                             $li["item"] == "S" || 
                             ($origObj == "gds" && $source == 2) || 
-                            eregi("^Аренд", $li["item"]) ||
-                            ($li["sum"] == 0 && eregi("^МГТС/МТС", $li["item"]))
+                            eregi("^п░я─п╣п╫п╢", $li["item"]) ||
+                            ($li["sum"] == 0 && eregi("^п°п⌠п╒п║/п°п╒п║", $li["item"]))
                             ) {
                         $R[]=&$li;
                     }
@@ -2922,15 +2922,15 @@ class m_newaccounts extends IModule
         $bdata=$bill->GetBill();
 
 
-        // Если счет 1С, на товар, 
+        // п∙я│п╩п╦ я│я┤п╣я┌ 1п║, п╫п╟ я┌п╬п╡п╟я─, 
         if($bill->is1CBill())
         {
-            //то доступны только счета (в RUR || USD)
+            //я┌п╬ п╢п╬я│я┌я┐п©п╫я▀ я┌п╬п╩я▄п╨п╬ я│я┤п╣я┌п╟ (п╡ RUR || USD)
             if($obj == "bill" && in_array($source, array('1','2')))
             {
                 $inv_date = $bill->GetTs();
             }else{
-                // остальные документы после отггрузки
+                // п╬я│я┌п╟п╩я▄п╫я▀п╣ п╢п╬п╨я┐п╪п╣п╫я┌я▀ п©п╬я│п╩п╣ п╬я┌пЁпЁя─я┐п╥п╨п╦
 
                 if($bdata["doc_ts"])
                 {
@@ -2940,12 +2940,12 @@ class m_newaccounts extends IModule
                     {
                         $inv_date = $shipDate;
                     }else{
-                        return ; //Документ не готов
+                        return ; //п■п╬п╨я┐п╪п╣п╫я┌ п╫п╣ пЁп╬я┌п╬п╡
                     }
                 }
             }
             $period_date = get_inv_period($inv_date);;
-        }elseif($bill->isOneTimeService())// или разовая услуга
+        }elseif($bill->isOneTimeService())// п╦п╩п╦ я─п╟п╥п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟
         {
             if($bdata["doc_ts"])
             {
@@ -2954,7 +2954,7 @@ class m_newaccounts extends IModule
             }else{
                 list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
             }
-        }else{ // статовские переодичекские счета
+        }else{ // я│я┌п╟я┌п╬п╡я│п╨п╦п╣ п©п╣я─п╣п╬п╢п╦я┤п╣п╨я│п╨п╦п╣ я│я┤п╣я┌п╟
             list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
         }
 
@@ -2981,7 +2981,7 @@ class m_newaccounts extends IModule
 
 
 
-        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
+        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//п©я─п╦п╡я▐п╥п╟п╫п╫я▀п╧ п╨ я└п╟п╨я┌я┐я─п╣ я│я┤п╣я┌
             /*$W = array('AND');
             $W[] = 'payment_no!=""';
             $W[] = '(bill_no="'.$bdata['bill_no'].'") OR (bill_vis_no="'.$bdata['bill_no'].'")';
@@ -2994,7 +2994,7 @@ class m_newaccounts extends IModule
                     newbills
                 WHERE
                     newbills.bill_no = newpayments.bill_no)";*/
-            //не отображать если оплата позже счета-фактуры
+            //п╫п╣ п╬я┌п╬п╠я─п╟п╤п╟я┌я▄ п╣я│п╩п╦ п╬п©п╩п╟я┌п╟ п©п╬п╥п╤п╣ я│я┤п╣я┌п╟-я└п╟п╨я┌я┐я─я▀
             $query = "
                 SELECT
                     *,
@@ -3067,7 +3067,7 @@ class m_newaccounts extends IModule
         }
 
 
-        $L_prev=$bill->GetLines($usd_rate,((preg_match('/bill-\d/',self::$object))?'order':false));//2 для фактур значит за прошлый период
+        $L_prev=$bill->GetLines($usd_rate,((preg_match('/bill-\d/',self::$object))?'order':false));//2 п╢п╩я▐ я└п╟п╨я┌я┐я─ п╥п╫п╟я┤п╦я┌ п╥п╟ п©я─п╬я┬п╩я▀п╧ п©п╣я─п╦п╬п╢
 
 
         if(in_array($obj, array("invoice","upd")))
@@ -3079,7 +3079,7 @@ class m_newaccounts extends IModule
         $isNdsZero = $bill->Client("nds_zero");
         $nds = $bill->Client("nds_zero") ? 1 : 1.18;
 
-        $design->assign_by_ref('negative_balance', $bill->negative_balance); // если баланс отрицательный - говорим, что недостаточно средств для проведения авансовых платежей
+        $design->assign_by_ref('negative_balance', $bill->negative_balance); // п╣я│п╩п╦ п╠п╟п╩п╟п╫я│ п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╧ - пЁп╬п╡п╬я─п╦п╪, я┤я┌п╬ п╫п╣п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ я│я─п╣п╢я│я┌п╡ п╢п╩я▐ п©я─п╬п╡п╣п╢п╣п╫п╦я▐ п╟п╡п╟п╫я│п╬п╡я▀я┘ п©п╩п╟я┌п╣п╤п╣п╧
         $bdata['tax']=0;
         $bdata['tsum']=0;
 
@@ -3117,7 +3117,7 @@ class m_newaccounts extends IModule
         $L = self::do_print_prepare_filter($obj,$source,$L_prev,$period_date,(($obj == "invoice" || $obj == "upd") && $source == 3), $isSellBook ? true : false, $origObj);
 
 
-        if ($sum_rur!=0) { //расчет долларовых счетов
+        if ($sum_rur!=0) { //я─п╟я│я┤п╣я┌ п╢п╬п╩п╩п╟я─п╬п╡я▀я┘ я│я┤п╣я┌п╬п╡
 
             if($bill->GetTs() < 1351713600)  // 2012-11-01 00:00:00
             {
@@ -3169,7 +3169,7 @@ class m_newaccounts extends IModule
 			$L_prev = array(array(
 				'bill_no'=>$bdata['bill_no'],
 				'sort'=>1,
-				'item'=>'Авансовый платеж за доступ в интернет',
+				'item'=>'п░п╡п╟п╫я│п╬п╡я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╢п╬я│я┌я┐п© п╡ п╦п╫я┌п╣я─п╫п╣я┌',
 				'amount'=>1,
 				'price'=>0,
 				'all4net_price'=>0,
@@ -3195,7 +3195,7 @@ class m_newaccounts extends IModule
 			$L =& $L_prev;
 		}
 
-		//подсчёт итоговых сумм, получить данные по оборудованию для акта-3
+		//п©п╬п╢я│я┤я▒я┌ п╦я┌п╬пЁп╬п╡я▀я┘ я│я┐п╪п╪, п©п╬п╩я┐я┤п╦я┌я▄ п╢п╟п╫п╫я▀п╣ п©п╬ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦я▌ п╢п╩я▐ п╟п╨я┌п╟-3
 
 		$cpe = array();
 		$bdata['tax']=0; $bdata['tsum']=0; $bdata["sum"] = 0;
@@ -3215,7 +3215,7 @@ class m_newaccounts extends IModule
             $bdata['tsum']+=$li['tsum'];
             $bdata['sum']+=round($li['sum'],2);
 
-            if ($obj=='akt' && $source==3 && $do_assign) {			//связь строчка>устройство или строчка>подключение>устройство
+            if ($obj=='akt' && $source==3 && $do_assign) {			//я│п╡я▐п╥я▄ я│я┌я─п╬я┤п╨п╟>я┐я│я┌я─п╬п╧я│я┌п╡п╬ п╦п╩п╦ я│я┌я─п╬я┤п╨п╟>п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣>я┐я│я┌я─п╬п╧я│я┌п╡п╬
                 $id = null;
                 if ($li['service']=='tech_cpe') {
                     $id = $li['id_service'];
@@ -3242,7 +3242,7 @@ class m_newaccounts extends IModule
             }
         }
 
-        //каст! 200909-1868
+        //п╨п╟я│я┌! 200909-1868
         $bdata['tax'] = $isNdsZero ? 0 : $bdata['tax'];//round($bdata['tsum']/($nds)*($nds-1),2);
 
         //$bdata['sum'] = $bdata['tsum']-$bdata['tax'];
@@ -3270,8 +3270,8 @@ class m_newaccounts extends IModule
                 $design->assign('inv_is_new2',($inv_date>=mktime(0,0,0,6,1,2009)));
                 $design->assign('inv_is_new3', ($inv_date>=mktime(0,0,0,1,24,2012)));
                 $design->assign('inv_is_new4', ($inv_date>=mktime(0,0,0,2,13,2012)));
-                $design->assign('inv_is_new5', ($inv_date>=mktime(0,0,0,10,1,2012))); // доработки в акте и сф, собственные (акциз, шт => -) + увеличен шрифт в шапке
-                $design->assign('inv_is_new6', ($inv_date>=mktime(0,0,0,1,1,2013))); // 3 (объем), 5 всего, 6 сумма, 8 предъявлен покупателю, 8 всего
+                $design->assign('inv_is_new5', ($inv_date>=mktime(0,0,0,10,1,2012))); // п╢п╬я─п╟п╠п╬я┌п╨п╦ п╡ п╟п╨я┌п╣ п╦ я│я└, я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╣ (п╟п╨я├п╦п╥, я┬я┌ => -) + я┐п╡п╣п╩п╦я┤п╣п╫ я┬я─п╦я└я┌ п╡ я┬п╟п©п╨п╣
+                $design->assign('inv_is_new6', ($inv_date>=mktime(0,0,0,1,1,2013))); // 3 (п╬п╠я┼п╣п╪), 5 п╡я│п╣пЁп╬, 6 я│я┐п╪п╪п╟, 8 п©я─п╣п╢я┼я▐п╡п╩п╣п╫ п©п╬п╨я┐п©п╟я┌п╣п╩я▌, 8 п╡я│п╣пЁп╬
             }
             $design->assign('opener','interface');
             $design->assign('bill',$bdata);
@@ -3354,10 +3354,10 @@ class m_newaccounts extends IModule
         $design->assign('payments',$data);
 
         $design->assign("l1", array(
-                    "mcn" => array("title" => "Эм Си Эн", "colspan" => 2),
+                    "mcn" => array("title" => "п╜п╪ п║п╦ п╜п╫", "colspan" => 2),
                     "all4net" => array("title" => "All4Net", "colspan" => 3),
-                    "cmc" => array( "title" => "Си Эм Си", "colspan" => 1),
-                    "telekom" => array( "title" => "МСН Телеком", "colspan" => 1)
+                    "cmc" => array( "title" => "п║п╦ п╜п╪ п║п╦", "colspan" => 1),
+                    "telekom" => array( "title" => "п°п║п² п╒п╣п╩п╣п╨п╬п╪", "colspan" => 1)
                     )
                 );
 
@@ -3429,9 +3429,9 @@ class m_newaccounts extends IModule
 
     function getPaymentInfoDate($h)
     {
-        @preg_match_all("/БИК \d{9}\s+(\d{2}) ([^ ]+) (\d{4})\s+ПРОВЕДЕНО/", iconv("cp1251", "koi8-r//translit", $h), $o, PREG_SET_ORDER);
+        @preg_match_all("/п▒п≤п  \d{9}\s+(\d{2}) ([^ ]+) (\d{4})\s+п÷п═п·п▓п∙п■п∙п²п·/", iconv("cp1251", "utf-8//translit", $h), $o, PREG_SET_ORDER);
 
-        $month = "янв фев мар апр май июн июл авг сен окт ноя дек";
+        $month = "я▐п╫п╡ я└п╣п╡ п╪п╟я─ п╟п©я─ п╪п╟п╧ п╦я▌п╫ п╦я▌п╩ п╟п╡пЁ я│п╣п╫ п╬п╨я┌ п╫п╬я▐ п╢п╣п╨";
 
         $m = array_search($o[0][2], explode(" ",$month))+1;
         $m .= "";
@@ -3442,14 +3442,14 @@ class m_newaccounts extends IModule
 
     function isPaymentInfo($fheader)
     {
-        @preg_match_all("/ПОРУЧЕНИЕ/",iconv("cp1251", "koi8-r//translit", $fheader), $f);
+        @preg_match_all("/п÷п·п═пёп╖п∙п²п≤п∙/",iconv("cp1251", "utf-8//translit", $fheader), $f);
         return isset($f[0][0]);
     }
 
     function getUralSibPLDate($h)
     {
-        $h = iconv("cp1251", "koi8-r", $h);
-        preg_match_all("@ДатаНачала=(.+)\r?\n@", $h, $o);
+        $h = iconv("cp1251", "utf-8", $h);
+        preg_match_all("@п■п╟я┌п╟п²п╟я┤п╟п╩п╟=(.+)\r?\n@", $h, $o);
         return str_replace("\r", "",$o[1][0]);
     }
 
@@ -3602,7 +3602,7 @@ class m_newaccounts extends IModule
 
 
 
-            // если счет и клиент различаются
+            // п╣я│п╩п╦ я│я┤п╣я┌ п╦ п╨п╩п╦п╣п╫я┌ я─п╟п╥п╩п╦я┤п╟я▌я┌я│я▐
             if ($clientId2 && $clientId && array_search($clientId[0], $clientId2) === false) {
                 $pay["to_check"] = 1;
             }
@@ -3616,7 +3616,7 @@ class m_newaccounts extends IModule
                 $pay["clients_bills"] = $this->getClientBills($clientIdSum, $billNo);
                 if($pay["sum"] < 0)
                 {
-                    $pay["clients_bills"][]  =array("bill_no" => "--Минус счета--", "is_payed" => -1, "is_group"=> 1);
+                    $pay["clients_bills"][]  =array("bill_no" => "--п°п╦п╫я┐я│ я│я┤п╣я┌п╟--", "is_payed" => -1, "is_group"=> 1);
 
                     foreach($this->getClientMinusBills($clientIdSum, $billNo) as $p)
                         if($this->notInBillList($pay["clients_bills"], $p))
@@ -3805,7 +3805,7 @@ class m_newaccounts extends IModule
 
         $v = array();
 
-        // все неоплаченные, и последний оплаченный
+        // п╡я│п╣ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣, п╦ п©п╬я│п╩п╣п╢п╫п╦п╧ п╬п©п╩п╟я┤п╣п╫п╫я▀п╧
         foreach($db->AllRecords("
         (select b.bill_no, b.sum, b.bill_no_ext, UNIX_TIMESTAMP(b.bill_no_ext_date) as bill_no_ext_date, if((select count(*) from newpayments p where p.bill_no = b.bill_no)>=1,1,0) as is_payed1
             from newbills b where ".$where." having is_payed1 = 0)
@@ -3930,7 +3930,7 @@ class m_newaccounts extends IModule
 
         $file=str_replace(array('/',"\\"),array('',''),$file);
         if(!file_exists(PAYMENTS_FILES_PATH.$file)){
-            //trigger_error('Файл не существует');
+            //trigger_error('п╓п╟п╧п╩ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
             return;
         }
 
@@ -4003,7 +4003,7 @@ class m_newaccounts extends IModule
                 foreach ($p['clients'] as $cl) {
                     if (!isset($C[$cl['id']])) {
 
-                        // показываем не оплаченные счета и последний оплаченный, если все счета оплачены
+                        // п©п╬п╨п╟п╥я▀п╡п╟п╣п╪ п╫п╣ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟ п╦ п©п╬я│п╩п╣п╢п╫п╦п╧ п╬п©п╩п╟я┤п╣п╫п╫я▀п╧, п╣я│п╩п╦ п╡я│п╣ я│я┤п╣я┌п╟ п╬п©п╩п╟я┤п╣п╫я▀
                         $C[$cl['id']]=$db->AllRecords('
                                 (select bill_no, is_payed from newbills n2
                                     where n2.client_id="'.$cl["id"].'" and n2.is_payed=1 and
@@ -4071,14 +4071,14 @@ class m_newaccounts extends IModule
                 $bill = $db->QuerySelectRow("newbills", array("bill_no" => $P["bill_no"]));
 
                 if($bill["client_id"] != $client["id"]) {
-                    trigger_error("<br>Платеж #".$P["pay"].", на сумму:".$P["sum_rub"]." не внесен, проверте, что бы счет принадлежал этой компании");
+                    trigger_error("<br>п÷п╩п╟я┌п╣п╤ #".$P["pay"].", п╫п╟ я│я┐п╪п╪я┐:".$P["sum_rub"]." п╫п╣ п╡п╫п╣я│п╣п╫, п©я─п╬п╡п╣я─я┌п╣, я┤я┌п╬ п╠я▀ я│я┤п╣я┌ п©я─п╦п╫п╟п╢п╩п╣п╤п╟п╩ я█я┌п╬п╧ п╨п╬п╪п©п╟п╫п╦п╦");
                     continue;
                 }
 
                 $CL[$client['id']]=$client['currency'];
                 $A = array();
                 $curr='';
-                $b=0; //вносить ли; 0=нет курса
+                $b=0; //п╡п╫п╬я│п╦я┌я▄ п╩п╦; 0=п╫п╣я┌ п╨я┐я─я│п╟
                 $r2 = $db->GetRow('select sum,currency from newbills where bill_no="'.$P['bill_no'].'"');
                 $bill_sum = $r2['sum'];
                 if ($r2['currency']) $curr=$r2['currency'];
@@ -4127,19 +4127,19 @@ class m_newaccounts extends IModule
                 }
                 if ($b) {
                     //$CL[$client['id']]=$client['currency'];
-                    echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' внесён';
+                    echo '<br>п÷п╩п╟я┌п╣п╤ '.$P['pay'].' п╨п╩п╦п╣п╫я┌п╟ '.$client['client'].' п╡п╫п╣я│я▒п╫';
                  } else {
-                    echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' не внесён, так как на '.$P['date'].' отсутствует курс доллара';
+                    echo '<br>п÷п╩п╟я┌п╣п╤ '.$P['pay'].' п╨п╩п╦п╣п╫я┌п╟ '.$client['client'].' п╫п╣ п╡п╫п╣я│я▒п╫, я┌п╟п╨ п╨п╟п╨ п╫п╟ '.$P['date'].' п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌ п╨я┐я─я│ п╢п╬п╩п╩п╟я─п╟';
                 }
             }
         }
 #            if ($P['bill_no'] && $bill_sum && ($curr=='USD')) {
 
-        //foreach ($CL as $cl_id=>$curr) $this->update_balance($cl_id,$curr); // обновление баланса делается после занесения платежа.
+        //foreach ($CL as $cl_id=>$curr) $this->update_balance($cl_id,$curr); // п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ п╠п╟п╩п╟п╫я│п╟ п╢п╣п╩п╟п╣я┌я│я▐ п©п╬я│п╩п╣ п╥п╟п╫п╣я│п╣п╫п╦я▐ п©п╩п╟я┌п╣п╤п╟.
 
 
         //$this->newaccounts_bill_balance_mass($fixclient);
-        trigger_error("<br>Баланс обновлён");
+        trigger_error("<br>п▒п╟п╩п╟п╫я│ п╬п╠п╫п╬п╡п╩я▒п╫");
         if ($b && $design->ProcessEx('errors.tpl')) {
             header('Location: ?module=newaccounts&action=pi_process&file='.$file);
         } else return $this->newaccounts_pi_process($fixclient);
@@ -4162,11 +4162,11 @@ class m_newaccounts extends IModule
 	$date_to=$dateTo->getDay();
     
     $design->assign("l_status", $lStatus = array(
-                "work" => "Включенные",
-                "income" => "Входящие",
-                "once" => "Разовые",
-                "work" => "Включенные",
-                "closed" => "Отключенные"
+                "work" => "п▓п╨п╩я▌я┤п╣п╫п╫я▀п╣",
+                "income" => "п▓я┘п╬п╢я▐я┴п╦п╣",
+                "once" => "п═п╟п╥п╬п╡я▀п╣",
+                "work" => "п▓п╨п╩я▌я┤п╣п╫п╫я▀п╣",
+                "closed" => "п·я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣"
                 ));
 
     $design->assign('cl_status',$cl_status=get_param_protected('cl_status', array()));
@@ -4343,8 +4343,8 @@ $sql .= "    order by client, bill_no";
     function newaccounts_debt_report($fixclient) {
     global $design,$db;
 
-        $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Bill::GetCouriers());
-        $design->assign("l_metro", array("all" => "--- Все ---") + ClientCS::GetMetroList());
+        $design->assign("l_couriers", array("all" => "--- п▓я│п╣ ---","checked"=>"--- пёя│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╣ --") + Bill::GetCouriers());
+        $design->assign("l_metro", array("all" => "--- п▓я│п╣ ---") + ClientCS::GetMetroList());
         $design->assign('courier',$courier=get_param_protected('courier',"all"));
         $design->assign('metro',$metro=get_param_protected('metro',"all"));
         $design->assign('manager',$manager=get_param_protected('manager'));
@@ -4513,7 +4513,7 @@ $sql .= "    order by client, bill_no";
         $m=array();
         $GLOBALS['module_users']->d_users_get($m,'manager');
 
-        $R=array("all" =>array("name" => "Все", "user" => "all"));
+        $R=array("all" =>array("name" => "п▓я│п╣", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
         if (isset($R[$manager])) $R[$manager]['selected']=' selected';
         $design->assign('users_manager',$R);
@@ -4555,7 +4555,7 @@ $sql .= "    order by client, bill_no";
                         ORDER BY c.client, b.bill_no LIMIT 1000');
             }
 
-            if (count($R)==1000) trigger_error('Ограничьте условия поиска. Показаны первые 1000 вариантов');
+            if (count($R)==1000) trigger_error('п·пЁя─п╟п╫п╦я┤я▄я┌п╣ я┐я│п╩п╬п╡п╦я▐ п©п╬п╦я│п╨п╟. п÷п╬п╨п╟п╥п╟п╫я▀ п©п╣я─п╡я▀п╣ 1000 п╡п╟я─п╦п╟п╫я┌п╬п╡');
             if (count($R) == 1){
                 header("Location: ./?module=newaccounts&action=bill_view&bill=".$R[0]["bill_no"]);
                 exit();
@@ -4631,7 +4631,7 @@ $sql .= "    order by client, bill_no";
     function newaccounts_balance_check($fixclient) {
         global $design,$db,$user,$fixclient_data;
 
-        if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+        if (!$fixclient) {trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟'); return;}
 
 	$dateFrom = new DatePickerValues('date_from', 'first');
 	$dateTo= new DatePickerValues('date_to', 'last');
@@ -4830,10 +4830,10 @@ $sql .= "    order by client, bill_no";
 
             //Create file
             $V = array(
-                    'name'=>str_replace(array('"'), "", $period_client_data["company_full"]).' Акт сверки (на '.$date_to.').pdf',
+                    'name'=>str_replace(array('"'), "", $period_client_data["company_full"]).' п░п╨я┌ я│п╡п╣я─п╨п╦ (п╫п╟ '.$date_to.').pdf',
                     'ts'=>array('NOW()'),
                     'client_id'=>$fixclient_data['id'],
-                    'comment'=>$period_client_data["company_full"].' Акт сверки (на '.$date_to.')',
+                    'comment'=>$period_client_data["company_full"].' п░п╨я┌ я│п╡п╣я─п╨п╦ (п╫п╟ '.$date_to.')',
                     'user_id'=>$user->Get('id')
                 );
             $id = $db->QueryInsert('client_files',$V);
@@ -4940,7 +4940,7 @@ $sql .= "    order by client, bill_no";
                                 FROM tt_troubles t , `tt_stages` s  
                                 WHERE t.bill_no = B.bill_no 
                                     and t.id = s.trouble_id 
-                                    and state_id in (select id from tt_states where state_1c = 'Отгружен'))) as shipment_date,
+                                    and state_id in (select id from tt_states where state_1c = 'п·я┌пЁя─я┐п╤п╣п╫'))) as shipment_date,
                         C.kpp,
                         C.type,
                         max(P.payment_date) as payment_date,
@@ -4957,7 +4957,7 @@ $sql .= "    order by client, bill_no";
                     (
                         SELECT DISTINCT bill_no 
                         FROM newbills 
-                        WHERE doc_date BETWEEN '".$date_from."' and '".$date_to."'  #выбор счетов-фактур с утановленной датой документа
+                        WHERE doc_date BETWEEN '".$date_from."' and '".$date_to."'  #п╡я▀п╠п╬я─ я│я┤п╣я┌п╬п╡-я└п╟п╨я┌я┐я─ я│ я┐я┌п╟п╫п╬п╡п╩п╣п╫п╫п╬п╧ п╢п╟я┌п╬п╧ п╢п╬п╨я┐п╪п╣п╫я┌п╟
                         
                         UNION 
                         
@@ -4965,7 +4965,7 @@ $sql .= "    order by client, bill_no";
                         FROM tt_stages s, tt_troubles t 
                         WHERE s.trouble_id = t.id 
                             and date_start between '".$date_from."' and '".$date_to."' 
-                            and state_id in (select id from tt_states where state_1c = 'Отгружен') #выбор счетов-фактур по дате отгрузки
+                            and state_id in (select id from tt_states where state_1c = 'п·я┌пЁя─я┐п╤п╣п╫') #п╡я▀п╠п╬я─ я│я┤п╣я┌п╬п╡-я└п╟п╨я┌я┐я─ п©п╬ п╢п╟я┌п╣ п╬я┌пЁя─я┐п╥п╨п╦
                             and t.bill_no is not NULL
                     )t, 
                         newbills B
@@ -4973,7 +4973,7 @@ $sql .= "    order by client, bill_no";
                     INNER JOIN clients as C ON (C.id = B.client_id)
                     where
                         t.bill_no = B.bill_no and
-                        B.bill_no like '20____/____' and  #только счета с товарами (выставленные через 1С)
+                        B.bill_no like '20____/____' and  #я┌п╬п╩я▄п╨п╬ я│я┤п╣я┌п╟ я│ я┌п╬п╡п╟я─п╟п╪п╦ (п╡я▀я│я┌п╟п╡п╩п╣п╫п╫я▀п╣ я┤п╣я─п╣п╥ 1п║)
 
                         ".MySQLDatabase::Generate($W_gds)."
 
@@ -4984,7 +4984,7 @@ $sql .= "    order by client, bill_no";
 
                         )a 
                         where 
-                            (min_nds is null or  min_nds > 0)  ###исключить счета, с товарами без НДС 
+                            (min_nds is null or  min_nds > 0)  ###п╦я│п╨п╩я▌я┤п╦я┌я▄ я│я┤п╣я┌п╟, я│ я┌п╬п╡п╟я─п╟п╪п╦ п╠п╣п╥ п²п■п║ 
                             and shipment_date between '".$date_from."' and '".$date_to."'";
 
 
@@ -5176,7 +5176,7 @@ $sql .= "    order by client, bill_no";
             $_SESSION['clients_client'] = $oBill->Get("client_id");
             $fixclient_data = ClientCS::FetchClient($oBill->Get("client_id"));
         }elseif (!$fixclient) {
-            trigger_error('Зафиксируйте клиента'); return;
+            trigger_error('п≈п╟я└п╦п╨я│п╦я─я┐п╧я┌п╣ п╨п╩п╦п╣п╫я┌п╟'); return;
         }
         $dbf = new DbFormNewpayments();
         $dbf->SetDefault('client_id',$fixclient_data['id']);
@@ -5189,28 +5189,28 @@ $sql .= "    order by client, bill_no";
             $dbf->SetDefault("type", "prov");
         }
 
-        $dbf->Display(array('module'=>'newaccounts','action'=>'pay_apply'),'Платежи','Ручной ввод платежа');
+        $dbf->Display(array('module'=>'newaccounts','action'=>'pay_apply'),'п÷п╩п╟я┌п╣п╤п╦','п═я┐я┤п╫п╬п╧ п╡п╡п╬п╢ п©п╩п╟я┌п╣п╤п╟');
         $design->AddMain('newaccounts/pay_add.tpl');
     }
     function newaccounts_pay_apply($fixclient){
         global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error('Не выбран клиент'); return;}
+        if (!$fixclient) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $bill_no = $_POST['dbform']['bill_no'];
-        if ($bill_no==''){trigger_error('Не выбран счет'); return;}
+        if ($bill_no==''){trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ я│я┤п╣я┌'); return;}
 
 
         $b = bill::getDocument($bill_no, $_POST['dbform']['client_id']);
 
-        // каст для БИЛАЙНА
+        // п╨п╟я│я┌ п╢п╩я▐ п▒п≤п⌡п░п≥п²п░
 
         if(false && $b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0 && $b->sum > 0) {
-            trigger_error("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
+            trigger_error("п║я┤п╣я┌ ".$bill_no." п╬п©п╩п╟я┤п╣п╫ п©п╬п╩я▄п╫п╬я│я┌я▄я▌! <br>п²п╣ я─п╟п╥я─п╣я┬п╣п╫п╬ п╡п╫п╣я│п╣п╫п╦п╣ я─я┐я┤п╫п╬п╧ п╬п©п╩п╟я┌я▀ п©п╬п╩п╫п╬я│я┌я▄я▌ п╬п©п╩п╟я┤п╣п╫п╫я▀я┘ я│я┤п╣я┌п╬п╡.");
             return;
         }elseif($b->is_payed == 0){
             $r = $db->GetValue("select client_id from newpayments where bill_no = '".$bill_no."'");
             if($r)
             {
-                mail("dga@mcn.ru", "stat", "Оплата счета ".$bill_no.", оплаченного, но is_payed = 0<br>".var_export($_SESSION,true)."<br>".var_export($fixclient_data, true));
+                mail("dga@mcn.ru", "stat", "п·п©п╩п╟я┌п╟ я│я┤п╣я┌п╟ ".$bill_no.", п╬п©п╩п╟я┤п╣п╫п╫п╬пЁп╬, п╫п╬ is_payed = 0<br>".var_export($_SESSION,true)."<br>".var_export($fixclient_data, true));
                 $c = ClientCS::FetchClient($r);
                 $this->update_balance($c["id"], $c["currency"]);
                 //header('Location: ?module=newaccounts');
@@ -5232,10 +5232,10 @@ $sql .= "    order by client, bill_no";
             $clS = new \_1c\clientSyncer($db);
             $f = null;
             if(!$clS->pushClientPayment($dbf->data['id'],$f)){
-                echo "Не удалось синхронизировать платеж в 1С!<br />";
+                echo "п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╦п╫я┘я─п╬п╫п╦п╥п╦я─п╬п╡п╟я┌я▄ п©п╩п╟я┌п╣п╤ п╡ 1п║!<br />";
                 if($f)
-                    echo "Ошибка: ".\_1c\getFaultMessage($f);
-                echo "<br /><br /><a href='?module=newaccounts'>Баланс</a>";
+                    echo "п·я┬п╦п╠п╨п╟: ".\_1c\getFaultMessage($f);
+                echo "<br /><br /><a href='?module=newaccounts'>п▒п╟п╩п╟п╫я│</a>";
                 exit();
             }
         }
@@ -5245,7 +5245,7 @@ $sql .= "    order by client, bill_no";
     }
     function newaccounts_pay_rate($fixclient) {
         global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error('Не выбран клиент'); return;}
+        if (!$fixclient) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         $rate=floatval(get_param_raw('rate',''));
         if (!$id) return;
@@ -5256,7 +5256,7 @@ $sql .= "    order by client, bill_no";
     }
     function newaccounts_pay_rebill($fixclient) {
         global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error('Не выбран клиент'); return;}
+        if (!$fixclient) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $pay=get_param_integer('pay');
         $bill=get_param_protected('bill');
         if ($bill) {
@@ -5267,10 +5267,10 @@ $sql .= "    order by client, bill_no";
             $clS = new \_1c\clientSyncer($db);
             $f = null;
             if(!$clS->pushClientPayment($pay,$f)){
-                echo "Не удалось синхронизировать платеж в 1С!<br />";
+                echo "п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╦п╫я┘я─п╬п╫п╦п╥п╦я─п╬п╡п╟я┌я▄ п©п╩п╟я┌п╣п╤ п╡ 1п║!<br />";
                 if($f)
-                    echo "Ошибка: ".\_1c\getFaultMessage($f);
-                echo "<br /><br /><a href='?module=newaccounts'>Баланс</a>";
+                    echo "п·я┬п╦п╠п╨п╟: ".\_1c\getFaultMessage($f);
+                echo "<br /><br /><a href='?module=newaccounts'>п▒п╟п╩п╟п╫я│</a>";
                 exit();
             }
         }
@@ -5285,7 +5285,7 @@ $sql .= "    order by client, bill_no";
             return;
 
         $pay = Payment::find($id);
-        LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum_rub);
+        LogBill::log($pay->bill_no, "пёп╢п╟п╩п╣п╫п╦п╣ п©п╩п╟я┌п╣п╤п╟ (".$pay->id."), п╫п╟ я│я┐п╪п╪я┐: ".$pay->sum_rub);
         $pay->delete();
 
         $this->update_balance($fixclient_data['id'], $fixclient_data['currency']);
@@ -5293,7 +5293,7 @@ $sql .= "    order by client, bill_no";
         if(include(INCLUDE_PATH."1c_integration.php")){
             $clS = new \_1c\clientSyncer($db);
             if(!$clS->deletePayment($id)){
-                trigger_error("Не удалось удалить платеж из 1С!<br /><a href='?module=newaccounts'>Баланс</a>");
+                trigger_error("п²п╣ я┐п╢п╟п╩п╬я│я▄ я┐п╢п╟п╩п╦я┌я▄ п©п╩п╟я┌п╣п╤ п╦п╥ 1п║!<br /><a href='?module=newaccounts'>п▒п╟п╩п╟п╫я│</a>");
                 exit();
             }
         }
@@ -5322,7 +5322,7 @@ $sql .= "    order by client, bill_no";
             foreach($query as $row) $usersData[$row['user']] = $row['name'];
 
             $channels=array(); $query=$db->AllRecords("select * from sale_channels ORDER BY id");
-            $channels[''] = 'не определено';
+            $channels[''] = 'п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬';
             foreach($query as $key => $value) $channels[$value['id']] = $value['name'];
 
             $query1 = $db->AllRecords("
@@ -5345,8 +5345,8 @@ $sql .= "    order by client, bill_no";
             foreach($uniqData as $client => $row) {
                 $query2 = $db->AllRecords("SELECT count(*) as count FROM newpayments WHERE payment_date < '".$from."' and client_id='".$row['client_id']."' ORDER BY payment_date LIMIT 1");
                 if($query2[0]['count'] == 0) {
-                    $row['telemark'] = "Телемаркетинг";
-                    $row['channel'] = "Канал #1";
+                    $row['telemark'] = "п╒п╣п╩п╣п╪п╟я─п╨п╣я┌п╦п╫пЁ";
+                    $row['channel'] = "п п╟п╫п╟п╩ #1";
                     $row['organisation'] = $row['company'];
                     $row['first_pay_data'] = $row['payment_date'];
                     $sortedArray[$client] = $row;
@@ -5405,9 +5405,9 @@ $sql .= "    order by client, bill_no";
         $design->assign('rates',$db->AllRecords('select * from bill_currency_rate order by date desc limit 30'));
         if (($date=get_param_protected('date')) && ($rate=get_param_protected('rate'))) {
             if ($db->QuerySelectRow('bill_currency_rate',array('date'=>$date,'currency'=>'USD'))) {
-                trigger_error('Курс на эту дату уже введён');
+                trigger_error('п я┐я─я│ п╫п╟ я█я┌я┐ п╢п╟я┌я┐ я┐п╤п╣ п╡п╡п╣п╢я▒п╫');
             } else {
-                trigger_error('Курс занесён');
+                trigger_error('п я┐я─я│ п╥п╟п╫п╣я│я▒п╫');
                 $db->QueryInsert('bill_currency_rate',array('date'=>$date,'currency'=>'USD','rate'=>$rate));
             }
         }
@@ -5522,7 +5522,7 @@ $sql .= "    order by client, bill_no";
         $R = $db->AllRecords('select B.*,C.company,C.address_post_real from newbills as B inner join clients as C ON C.id=B.client_id where postreg = "'.date('Y-m-d',$from).'" group by C.id order by B.bill_no');
         foreach ($R as &$r) {
             $r['ord'] = ++$ord;
-            if (!preg_match('|^([^,]+),([^,]+),(.+)$|',$r['address_post_real'],$m)) $m = array('','','Москва',$r['address_post_real']);
+            if (!preg_match('|^([^,]+),([^,]+),(.+)$|',$r['address_post_real'],$m)) $m = array('','','п°п╬я│п╨п╡п╟',$r['address_post_real']);
             $r['_zip'] = $m[1];
             $r['_city'] = $m[2];
             $r['_addr'] = $m[3];
@@ -5579,7 +5579,7 @@ $sql .= "    order by client, bill_no";
                 ob_start();
                 $db->Query($query);
 
-                //Обновление списка документов
+                //п·п╠п╫п╬п╡п╩п╣п╫п╦п╣ я│п©п╦я│п╨п╟ п╢п╬п╨я┐п╪п╣п╫я┌п╬п╡
                 $b = new Bill($_REQUEST['bill_no']);
                 $b->updateBill2Doctypes(null, false);
 
@@ -5602,13 +5602,13 @@ $sql .= "    order by client, bill_no";
 
         $bill = null;
 
-        // направляем на нужную страницу редактирования счета
+        // п╫п╟п©я─п╟п╡п╩я▐п╣п╪ п╫п╟ п╫я┐п╤п╫я┐я▌ я│я┌я─п╟п╫п╦я├я┐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ я│я┤п╣я┌п╟
         if(eregi("20[0-9]{4}-[0-9]{4}", $bill_no)) {
             header("Location: ./?module=newaccounts&action=bill_edit&bill=".$bill_no);
             exit();
         }
 
-        //устанавливаем клиента
+        //я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪ п╨п╩п╦п╣п╫я┌п╟
         if($bill_no) {
             $bill = new Bill($bill_no);
             if(!$bill)
@@ -5620,10 +5620,10 @@ $sql .= "    order by client, bill_no";
                 exit();
             }
         }else{
-            // если форма пересылается
+            // п╣я│п╩п╦ я└п╬я─п╪п╟ п©п╣я─п╣я│я▀п╩п╟п╣я┌я│я▐
             if(isset($_POST['action']) && $_POST['action'] == 'make_1c_bill'){
                 $client_id = urldecode(get_param_raw("client_id"));
-                // открывается
+                // п╬я┌п╨я─я▀п╡п╟п╣я┌я│я▐
             }else{
                 $client_id = $client_tid;
             }
@@ -5632,7 +5632,7 @@ $sql .= "    order by client, bill_no";
         ClientCS::getClientClient($client_id);
         $_SESSION['clients_client'] = $client_id;
 
-        // инициализация
+        // п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐
         $lMetro = ClientCS::GetList("metro","std");
         $lLogistic = ClientCS::GetList("logistic");
         $design->assign("l_metro", $lMetro);
@@ -5668,9 +5668,9 @@ $sql .= "    order by client, bill_no";
         $isToRecalc = false;
 
 
-        /** блок загрузки данных::старт **/
-        // загружаем данные о позиция заказа
-        // из _POST +удаление
+        /** п╠п╩п╬п╨ п╥п╟пЁя─я┐п╥п╨п╦ п╢п╟п╫п╫я▀я┘::я│я┌п╟я─я┌ **/
+        // п╥п╟пЁя─я┐п╤п╟п╣п╪ п╢п╟п╫п╫я▀п╣ п╬ п©п╬п╥п╦я├п╦я▐ п╥п╟п╨п╟п╥п╟
+        // п╦п╥ _POST +я┐п╢п╟п╩п╣п╫п╦п╣
         if(isset($_POST['pos'])){
             foreach($_POST['pos'] as $id=>$varr){
                 if($_POST["pos"][$id]["quantity"] != $_POST["pos"][$id]["quantity_saved"])
@@ -5681,7 +5681,7 @@ $sql .= "    order by client, bill_no";
                 }
             }
 
-        // или из базы
+        // п╦п╩п╦ п╦п╥ п╠п╟п╥я▀
         }elseif(isset($_GET['bill_no'])){
             $positions = $bm->getStatOrder($_GET['bill_no']);
             if($positions['is_rollback'] && !isset($_GET['is_rollback'])){
@@ -5692,7 +5692,7 @@ $sql .= "    order by client, bill_no";
             $_POST = $db->GetRow("select * from newbills_add_info where bill_no = '".$_GET["from_order"]."'");
         }
 
-        // добавление новой позиции
+        // п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╫п╬п╡п╬п╧ п©п╬п╥п╦я├п╦п╦
         if(isset($_POST['append'])){
             $isToRecalc = true;
             if(!trim($_POST['new']['quantity']) || !is_numeric($_POST['new']['quantity']))
@@ -5721,9 +5721,9 @@ $sql .= "    order by client, bill_no";
             unset($buf);
         }
 
-        /** блок загрузки данных::конец **/
+        /** п╠п╩п╬п╨ п╥п╟пЁя─я┐п╥п╨п╦ п╢п╟п╫п╫я▀я┘::п╨п╬п╫п╣я├ **/
 
-        // расчет
+        // я─п╟я│я┤п╣я┌
         if($isToRecalc && !$isRollback) {
             $positions = $bm->calcOrder($client_id, $positions, $pt);
         }elseif($isRollback){
@@ -5734,26 +5734,26 @@ $sql .= "    order by client, bill_no";
 
 
 
-        // данные заказа (add_info)
+        // п╢п╟п╫п╫я▀п╣ п╥п╟п╨п╟п╥п╟ (add_info)
 
-        //список полей
+        //я│п©п╦я│п╬п╨ п©п╬п╩п╣п╧
         $adds = array(
-            'ФИО'=>'fio','Адрес'=>'address','НомерЗаявки'=>'req_no','ЛицевойСчет'=>'acc_no',
-            'НомерПодключения'=>'connum','Комментарий1'=>'comment1','Комментарий2'=>'comment2',
-            'ПаспортСерия'=>'passp_series','ПаспортНомер'=>'passp_num','ПаспортКемВыдан'=>'passp_whos_given',
-            'ПаспортКогдаВыдан'=>'passp_when_given','ПаспортКодПодразделения'=>'passp_code',
-            'ПаспортДатаРождения'=>'passp_birthday','ПаспортГород'=>'reg_city',
-            'ПаспортУлица'=>'reg_street','ПаспортДом'=>'reg_house','ПаспортКорпус'=>'reg_housing',
-            'ПаспортСтроение'=>'reg_build','ПаспортКвартира'=>'reg_flat','Email'=>'email',
-            'ПроисхождениеЗаказа'=>'order_given','КонтактныйТелефон'=>'phone'
+            'п╓п≤п·'=>'fio','п░п╢я─п╣я│'=>'address','п²п╬п╪п╣я─п≈п╟я▐п╡п╨п╦'=>'req_no','п⌡п╦я├п╣п╡п╬п╧п║я┤п╣я┌'=>'acc_no',
+            'п²п╬п╪п╣я─п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐'=>'connum','п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧1'=>'comment1','п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧2'=>'comment2',
+            'п÷п╟я│п©п╬я─я┌п║п╣я─п╦я▐'=>'passp_series','п÷п╟я│п©п╬я─я┌п²п╬п╪п╣я─'=>'passp_num','п÷п╟я│п©п╬я─я┌п п╣п╪п▓я▀п╢п╟п╫'=>'passp_whos_given',
+            'п÷п╟я│п©п╬я─я┌п п╬пЁп╢п╟п▓я▀п╢п╟п╫'=>'passp_when_given','п÷п╟я│п©п╬я─я┌п п╬п╢п÷п╬п╢я─п╟п╥п╢п╣п╩п╣п╫п╦я▐'=>'passp_code',
+            'п÷п╟я│п©п╬я─я┌п■п╟я┌п╟п═п╬п╤п╢п╣п╫п╦я▐'=>'passp_birthday','п÷п╟я│п©п╬я─я┌п⌠п╬я─п╬п╢'=>'reg_city',
+            'п÷п╟я│п©п╬я─я┌пёп╩п╦я├п╟'=>'reg_street','п÷п╟я│п©п╬я─я┌п■п╬п╪'=>'reg_house','п÷п╟я│п©п╬я─я┌п п╬я─п©я┐я│'=>'reg_housing',
+            'п÷п╟я│п©п╬я─я┌п║я┌я─п╬п╣п╫п╦п╣'=>'reg_build','п÷п╟я│п©п╬я─я┌п п╡п╟я─я┌п╦я─п╟'=>'reg_flat','Email'=>'email',
+            'п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟'=>'order_given','п п╬п╫я┌п╟п╨я┌п╫я▀п╧п╒п╣п╩п╣я└п╬п╫'=>'phone'
 
             ,
-            'Метро' => 'metro_id',
-            'Логистика' => 'logistic',
-            "ВладелецЛинии" => 'line_owner'
+            'п°п╣я┌я─п╬' => 'metro_id',
+            'п⌡п╬пЁп╦я│я┌п╦п╨п╟' => 'logistic',
+            "п▓п╩п╟п╢п╣п╩п╣я├п⌡п╦п╫п╦п╦" => 'line_owner'
         );
 
-        // инициализация из _POST
+        // п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╦п╥ _POST
         $add = array();
         $addcnt = 0;
         foreach($adds as $add_key){
@@ -5765,7 +5765,7 @@ $sql .= "    order by client, bill_no";
         }
 
 
-        // инициализация из базы
+        // п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╦п╥ п╠п╟п╥я▀
         if(isset($_GET['bill_no'])) {
             if(!$addcnt){
                 $adds_data = $db->GetRow($q="select * from newbills_add_info where bill_no='".addcslashes($_GET['bill_no'], "\\'")."'");
@@ -5806,9 +5806,9 @@ $sql .= "    order by client, bill_no";
         else
             $positions['is_rollback'] = false;
 
-        // оформить заказ
+        // п╬я└п╬я─п╪п╦я┌я▄ п╥п╟п╨п╟п╥
         if(isset($_POST['make'])){
-            // сохранение в 1с
+            // я│п╬я┘я─п╟п╫п╣п╫п╦п╣ п╡ 1я│
             $add_info = array();
             foreach($adds as $add_rkey=>$add_ekey){
                 if(isset($_POST[$add_ekey])){
@@ -5820,10 +5820,10 @@ $sql .= "    order by client, bill_no";
                 $add_info = null;
 
             #$ret = $bm->saveOrder($client_tid,$positions['number'],$positions['list'],$positions['comment'],$positions['is_rollback'],$fault);
-            $saveIds = array("metro_id" => $add_info["Метро"], "logistic" => $add_info["Логистика"]);
+            $saveIds = array("metro_id" => $add_info["п°п╣я┌я─п╬"], "logistic" => $add_info["п⌡п╬пЁп╦я│я┌п╦п╨п╟"]);
 
-            $add_info["Метро"] = ($add_info["Метро"] == 0 ? "" : $lMetro[$add_info["Метро"]]);
-            $add_info["Логистика"] = ($add_info["Логистика"] == "none" ? "" : $lLogistic[$add_info["Логистика"]]);
+            $add_info["п°п╣я┌я─п╬"] = ($add_info["п°п╣я┌я─п╬"] == 0 ? "" : $lMetro[$add_info["п°п╣я┌я─п╬"]]);
+            $add_info["п⌡п╬пЁп╦я│я┌п╦п╨п╟"] = ($add_info["п⌡п╬пЁп╦я│я┌п╦п╨п╟"] == "none" ? "" : $lLogistic[$add_info["п⌡п╬пЁп╦я│я┌п╦п╨п╟"]]);
 
             $this->compareForChanges($positions, $bm->getStatOrder($positions['bill_no']));
 
@@ -5841,14 +5841,14 @@ $sql .= "    order by client, bill_no";
             $ret = $bm->saveOrder($a,$fault);
 
             if($ret){
-                //сохранение заказа в стате
+                //я│п╬я┘я─п╟п╫п╣п╫п╦п╣ п╥п╟п╨п╟п╥п╟ п╡ я│я┌п╟я┌п╣
                 $error = '';
                 $cl = new stdClass();
                 $cl->order = $ret;
                 $cl->isRollback = $isRollback;
 
 
-                $bill_no = $ret->{\_1c\tr('Номер')};
+                $bill_no = $ret->{\_1c\tr('п²п╬п╪п╣я─')};
 
                 if(!$bill){
                     $bill = new Bill($bill_no);
@@ -5865,11 +5865,11 @@ $sql .= "    order by client, bill_no";
                         $bill->SetManager($user->Get("id"));
                     }
                     if(!$positions['comment']){
-                        $comment = $add_info['ПроисхождениеЗаказа']."<br />
-                            Телефон: ".$_POST['phone']."<br />
-                            Адрес доставки: ".$_POST['address']."<br />
-                            Комментарий1: ".$_POST['comment1']."<br />
-                            Комментарий2: ".$_POST['comment2'];
+                        $comment = $add_info['п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟']."<br />
+                            п╒п╣п╩п╣я└п╬п╫: ".$_POST['phone']."<br />
+                            п░п╢я─п╣я│ п╢п╬я│я┌п╟п╡п╨п╦: ".$_POST['address']."<br />
+                            п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧1: ".$_POST['comment1']."<br />
+                            п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧2: ".$_POST['comment2'];
                     }else{
                         $comment = $positions['comment'];
                     }
@@ -5890,18 +5890,18 @@ $sql .= "    order by client, bill_no";
                 if(!$ttt && $bill)
                     $bill->SetManager($user->Get("id"));
 
-                trigger_error("Счет #".$bill_no." успешно ".($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан")."!");
-                $db->QueryInsert("log_newbills", array( 'bill_no'=>$bill_no, 'ts'=>array('NOW()'), 'user_id'=>$user->Get('id'), 'comment'=>'Создание заказа'));
+                trigger_error("п║я┤п╣я┌ #".$bill_no." я┐я│п©п╣я┬п╫п╬ ".($_POST["order_bill_no"] == $bill_no ? "я│п╬я┘я─п╟п╫п╣п╫" : "я│п╬п╥п╢п╟п╫")."!");
+                $db->QueryInsert("log_newbills", array( 'bill_no'=>$bill_no, 'ts'=>array('NOW()'), 'user_id'=>$user->Get('id'), 'comment'=>'п║п╬п╥п╢п╟п╫п╦п╣ п╥п╟п╨п╟п╥п╟'));
                 header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
                 exit();
             }else{
-                trigger_error("Не удалось создать заказ в 1С");
+                trigger_error("п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╬п╥п╢п╟я┌я▄ п╥п╟п╨п╟п╥ п╡ 1п║");
             }
         }
 
 
         $R=array(); $GLOBALS['module_users']->d_users_get($R,array('manager','marketing'));
-        $userSelect = array(0 => "--- Не установлен ---");
+        $userSelect = array(0 => "--- п²п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ ---");
         foreach($R as $u) {
             $userSelect[$u["id"]] = $u["name"]." (".$u["user"].")";
         }
@@ -5985,7 +5985,6 @@ $sql .= "    order by client, bill_no";
 
             $pt = ClientCS::getPriceType($fixclient);
 
-            $prod = iconv("utf-8", "koi8-r", $prod);
             $ret = "";
             $prod = str_replace(array("*","%%"), array("%","%"), mysql_escape_string($prod));
 
@@ -6043,7 +6042,7 @@ $sql .= "    order by client, bill_no";
                            LIMIT 50
                            "*/) as $good)
                     {
-                        if(strpos($good["name"], "(Архив)")!==false) continue;
+                        if(strpos($good["name"], "(п░я─я┘п╦п╡)")!==false) continue;
 
                     $ret .= "{".
                     "id:'".addcslashes($good['id'],"\\'")."',".
@@ -6069,7 +6068,7 @@ $sql .= "    order by client, bill_no";
         /*
         if(include_once(INCLUDE_PATH."1c_integration.php")){
             $bm = new \_1c\billMaker($db);
-            $prods_list = $bm->findProduct(iconv('utf8','koi8r',trim($_GET['findProduct'])), iconv('utf8','koi8r',trim($_GET['priceType'])));
+            $prods_list = $bm->findProduct(trim($_GET['findProduct']), trim($_GET['priceType']));
 
             $ret = '[';
             for($i=0;$i<count($prods_list);$i++){
@@ -6086,7 +6085,7 @@ $sql .= "    order by client, bill_no";
             $ret = 'false';
         }
         */
-        header('Content-Type: text/plain; charset="koi8-r"');
+        header('Content-Type: text/plain; charset="utf-8"');
         echo $ret;
         exit();
     }
@@ -6163,15 +6162,15 @@ $sql .= "    order by client, bill_no";
         global $db;
 
         if(!defined("SCAN_DOC_DIR"))
-            throw new Exception("Директория с отсканированными документами не задана");
+            throw new Exception("п■п╦я─п╣п╨я┌п╬я─п╦я▐ я│ п╬я┌я│п╨п╟п╫п╦я─п╬п╡п╟п╫п╫я▀п╪п╦ п╢п╬п╨я┐п╪п╣п╫я┌п╟п╪п╦ п╫п╣ п╥п╟п╢п╟п╫п╟");
 
         $dir = SCAN_DOC_DIR;
 
         if(!is_dir($dir))
-            throw new Exception("Директория с отсканированными документами задана не верно (".SCAN_DOC_DIR.")");
+            throw new Exception("п■п╦я─п╣п╨я┌п╬я─п╦я▐ я│ п╬я┌я│п╨п╟п╫п╦я─п╬п╡п╟п╫п╫я▀п╪п╦ п╢п╬п╨я┐п╪п╣п╫я┌п╟п╪п╦ п╥п╟п╢п╟п╫п╟ п╫п╣ п╡п╣я─п╫п╬ (".SCAN_DOC_DIR.")");
 
         if(!is_readable($dir))
-            throw new Exception("В директорию с документами доступ запрещен");
+            throw new Exception("п▓ п╢п╦я─п╣п╨я┌п╬я─п╦я▌ я│ п╢п╬п╨я┐п╪п╣п╫я┌п╟п╪п╦ п╢п╬я│я┌я┐п© п╥п╟п©я─п╣я┴п╣п╫");
 
 
         $d = dir($dir);
@@ -6227,10 +6226,10 @@ $sql .= "    order by client, bill_no";
         $dirPath = STORE_PATH."documents/unrecognized/";
 
         if(!is_dir($dirPath))
-            throw new Exception("Директория с нераспознаными документами задана не верно (".$dirPath.")");
+            throw new Exception("п■п╦я─п╣п╨я┌п╬я─п╦я▐ я│ п╫п╣я─п╟я│п©п╬п╥п╫п╟п╫я▀п╪п╦ п╢п╬п╨я┐п╪п╣п╫я┌п╟п╪п╦ п╥п╟п╢п╟п╫п╟ п╫п╣ п╡п╣я─п╫п╬ (".$dirPath.")");
 
         if(!is_readable($dirPath))
-            throw new Exception("В директорию с нераспознаными документами доступ запрещен");
+            throw new Exception("п▓ п╢п╦я─п╣п╨я┌п╬я─п╦я▌ я│ п╫п╣я─п╟я│п©п╬п╥п╫п╟п╫я▀п╪п╦ п╢п╬п╨я┐п╪п╣п╫я┌п╟п╪п╦ п╢п╬я│я┌я┐п© п╥п╟п©я─п╣я┴п╣п╫");
 
         if(($delFile = get_param_raw("del", "")) !== "")
         {
@@ -6275,13 +6274,13 @@ $sql .= "    order by client, bill_no";
         $dirUnrec = $dirDoc."unrecognized/";
 
         $file = get_param_raw("file", "");
-        if(!file_exists($dirUnrec.$file)) {trigger_error("Файл не найден!"); return;}
+        if(!file_exists($dirUnrec.$file)) {trigger_error("п╓п╟п╧п╩ п╫п╣ п╫п╟п╧п╢п╣п╫!"); return;}
 
         $type = get_param_raw("type", "");
-        if(!isset(QRCode::$codes[$type])) {trigger_error("Ошибка в типе!"); return;}
+        if(!isset(QRCode::$codes[$type])) {trigger_error("п·я┬п╦п╠п╨п╟ п╡ я┌п╦п©п╣!"); return;}
 
         $number = get_param_raw("number", "");
-        if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error("Ошибка в номере!"); return;}
+        if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error("п·я┬п╦п╠п╨п╟ п╡ п╫п╬п╪п╣я─п╣!"); return;}
 
         global $db;
 
@@ -6341,12 +6340,12 @@ $sql .= "    order by client, bill_no";
         {
             header("Content-Type:application/pdf");
             header('Content-Transfer-Encoding: binary');
-            header('Content-Disposition: attachment; filename="'.iconv("KOI8-R","CP1251",$fileName).'"');
+            header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$fileName).'"');
             header("Content-Length: " . filesize($fPath));
             echo file_get_contents($fPath);
             exit();
         }else{
-            trigger_error("Файл не найден!");
+            trigger_error("п╓п╟п╧п╩ п╫п╣ п╫п╟п╧п╢п╣п╫!");
         }
         //
     }
@@ -6363,10 +6362,10 @@ $sql .= "    order by client, bill_no";
             {
                 if (file_exists($dirPath.$id.".pdf")) unlink($dirPath.$id.".pdf");
                 echo 'ok';
-            } else echo 'Ошибка удаления!';
+            } else echo 'п·я┬п╦п╠п╨п╟ я┐п╢п╟п╩п╣п╫п╦я▐!';
 
 
-        } else echo 'Файл не задан!';
+        } else echo 'п╓п╟п╧п╩ п╫п╣ п╥п╟п╢п╟п╫!';
 
         exit();
     }

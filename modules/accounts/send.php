@@ -2,7 +2,7 @@
 	define("PATH_TO_ROOT",'../../');
 	include "../../conf.php";
 	include INCLUDE_ARCHAIC_PATH."lib.php";
-//аутентификация
+//п╟я┐я┌п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐
 	$module=get_param_raw('module','');
 	$action=get_param_raw('action','default');
 	$user->DoAction($action);
@@ -10,26 +10,26 @@
 	
 
 	$bill_no=get_param_protected("bill_no");
-	if ($bill_no=="") die("Не определен номер счета");
+	if ($bill_no=="") die("п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟");
 	$client=get_param_protected("client");
-	if ($client=="") die("Не определен клиент");
+	if ($client=="") die("п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╨п╩п╦п╣п╫я┌");
 	$bill_date=get_param_protected("date");
 
 	$db->Query('select * from clients where client="'.$client.'" limit 1');
 	if (!($r=$db->NextRecord())){
-		trigger_error('Такого клиента не существует');
+		trigger_error('п╒п╟п╨п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 	} else {
 		$mail=$r['email'];
 		$p=udata_encode($bill_no.','.$client);
 		$adr=PROTOCOL_STRING.$_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']).'/view.php?code='.$p;
 
-		$body="Уважаемые Господа!" . "\n" . "Отправляем Вам счет на оплату услуг:" . "\n";
-		$body.=$adr."\n\n Просим своевременно оплатить счет. \n\n";
-		echo "<a href='mailto:".$mail."?subject=".rawurlencode ("Счет за интернет")."&body=".rawurlencode ($body)."'>Отправить</a> - koi8<br>";
+		$body="пёп╡п╟п╤п╟п╣п╪я▀п╣ п⌠п╬я│п©п╬п╢п╟!" . "\n" . "п·я┌п©я─п╟п╡п╩я▐п╣п╪ п▓п╟п╪ я│я┤п╣я┌ п╫п╟ п╬п©п╩п╟я┌я┐ я┐я│п╩я┐пЁ:" . "\n";
+		$body.=$adr."\n\n п÷я─п╬я│п╦п╪ я│п╡п╬п╣п╡я─п╣п╪п╣п╫п╫п╬ п╬п©п╩п╟я┌п╦я┌я▄ я│я┤п╣я┌. \n\n";
+		echo "<a href='mailto:".$mail."?subject=".rawurlencode ("п║я┤п╣я┌ п╥п╟ п╦п╫я┌п╣я─п╫п╣я┌")."&body=".rawurlencode ($body)."'>п·я┌п©я─п╟п╡п╦я┌я▄</a> - utf8<br>";
 
-		$body="сБЮФЮЕЛШЕ цНЯОНДЮ!" . "\n" . "нРОПЮБКЪЕЛ бЮЛ ЯВЕР МЮ НОКЮРС СЯКСЦ:" . "\n";
-		$body.=$adr."\n\n оПНЯХЛ ЯБНЕБПЕЛЕММН НОКЮРХРЭ ЯВЕР.";
-		echo "<a href='mailto:".$mail."?subject=".rawurlencode ("яВЕР ГЮ ХМРЕПМЕР")."&body=".rawurlencode ($body)."'>нРОПЮБХРЭ</a> - windows<br>";
+		$body="я│п▒п╝п╓п╝п∙п⌡п╗п∙ я├п²п╞п·п²п■п╝!" . "\n" . "п╫п═п·п÷п╝п▒п п╙п∙п⌡ п╠п╝п⌡ п╞п▓п∙п═ п°п╝ п²п·п п╝п═п║ п║п╞п п║п╕:" . "\n";
+		$body.=$adr."\n\n п╬п÷п²п╞п╔п⌡ п╞п▒п²п∙п▒п÷п∙п⌡п∙п°п°п² п²п·п п╝п═п╔п═п╜ п╞п▓п∙п═.";
+		echo "<a href='mailto:".$mail."?subject=".rawurlencode ("я▐п▓п∙п═ п⌠п╝ п╔п°п═п∙п÷п°п∙п═")."&body=".rawurlencode ($body)."'>п╫п═п·п÷п╝п▒п╔п═п╜</a> - windows<br>";
 		$design->ProcessEx('empty.tpl');
 	}
 ?>

@@ -23,16 +23,16 @@
 	$bank=fgets($f);
 	printdbg($bank);
 	if (stripos($bank,"1CClientBankExchange")!==false){
-	//Маркомнет
+	//п°п╟я─п╨п╬п╪п╫п╣я┌
 	printdbg("Markomnet");
 	$payments=array();
 	while (!feof($f)){
 		$line=fgets($f);
 		$line=convert_cyr_string($line,'w','k');
-		if ((stripos($line,"Платежное поручение") !==false) ){
+		if ((stripos($line,"п÷п╩п╟я┌п╣п╤п╫п╬п╣ п©п╬я─я┐я┤п╣п╫п╦п╣") !==false) ){
 			//echo "$line<br>";
 			$pay=array();
-			while (!feof($f) and ((stripos($line,"КонецДокумента")===false) )){
+			while (!feof($f) and ((stripos($line,"п п╬п╫п╣я├п■п╬п╨я┐п╪п╣п╫я┌п╟")===false) )){
 				$line=fgets($f);
 				$line=convert_cyr_string($line,'w','k');
 				//echo "$line<br>";
@@ -48,23 +48,23 @@
 //printdbg($payments,"payments");	
 foreach ($payments as $pay){
 	
-	$sum_rub=$pay['Сумма'];
-	$payment_date=$pay['Дата'];
-	$payment_pp=$pay['Номер'];
-	$comments=$pay['НазначениеПлатежа'];
+	$sum_rub=$pay['п║я┐п╪п╪п╟'];
+	$payment_date=$pay['п■п╟я┌п╟'];
+	$payment_pp=$pay['п²п╬п╪п╣я─'];
+	$comments=$pay['п²п╟п╥п╫п╟я┤п╣п╫п╦п╣п÷п╩п╟я┌п╣п╤п╟'];
 	
-	$company=$pay['Плательщик1'];
-	$client=find_client($pay['ПлательщикИНН']);
-	$inn=$pay['ПлательщикИНН'];
-	$bill_no=find_bill($pay['НазначениеПлатежа']);
+	$company=$pay['п÷п╩п╟я┌п╣п╩я▄я┴п╦п╨1'];
+	$client=find_client($pay['п÷п╩п╟я┌п╣п╩я▄я┴п╦п╨п≤п²п²']);
+	$inn=$pay['п÷п╩п╟я┌п╣п╩я▄я┴п╦п╨п≤п²п²'];
+	$bill_no=find_bill($pay['п²п╟п╥п╫п╟я┤п╣п╫п╦п╣п÷п╩п╟я┌п╣п╤п╟']);
 	
 	$valid=true;
-	// проверяем есть ли такой счет заданного клиента и не оплачен ли он
+	// п©я─п╬п╡п╣я─я▐п╣п╪ п╣я│я┌я▄ п╩п╦ я┌п╟п╨п╬п╧ я│я┤п╣я┌ п╥п╟п╢п╟п╫п╫п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╦ п╫п╣ п╬п©п╩п╟я┤п╣п╫ п╩п╦ п╬п╫
 	if(!validate($bill_no,$client)) $valid=false;
 	$other_bills=get_bills($client);
 	
 	
-	// преобразование даты
+	// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╢п╟я┌я▀
 	$p_=explode('.',$payment_date);
 	$payment_date=substr($p_[2],0,4)."-$p_[1]-$p_[0]";
 		
@@ -79,7 +79,7 @@ foreach ($payments as $pay){
 			'bills'=>$other_bills,
 			'comments'=>$comments,
 			'inn'=>$inn);
-	if (stripos($company,"МАРКОМНЕТ")===false) $end_paymnets[]=$end_pay;
+	if (stripos($company,"п°п░п═п п·п°п²п∙п╒")===false) $end_paymnets[]=$end_pay;
 	
 }
 }elseif(stripos($bank,'$OPERS_LIST')!==false){
@@ -118,12 +118,12 @@ foreach ($payments as $pay){
 	$bill_no=find_bill($pay['OPER_DETAILS']);
 	
 	$valid=true;
-	// проверяем есть ли такой счет заданного клиента и не оплачен ли он
+	// п©я─п╬п╡п╣я─я▐п╣п╪ п╣я│я┌я▄ п╩п╦ я┌п╟п╨п╬п╧ я│я┤п╣я┌ п╥п╟п╢п╟п╫п╫п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╦ п╫п╣ п╬п©п╩п╟я┤п╣п╫ п╩п╦ п╬п╫
 	if(!validate($bill_no,$client)) $valid=false;
 	$other_bills=get_bills($client);
 	
 	
-	// преобразование даты
+	// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╢п╟я┌я▀
 	$p_=explode('.',$payment_date);
 	$payment_date=substr($p_[2],0,4)."-$p_[1]-$p_[0]";
 		
@@ -138,7 +138,7 @@ foreach ($payments as $pay){
 			'bills'=>$other_bills,
 			'comments'=>$comments,
 			'inn'=>$inn);
-	if (stripos($company,"МАРКОМНЕТ")===false) $end_paymnets[]=$end_pay;
+	if (stripos($company,"п°п░п═п п·п°п²п∙п╒")===false) $end_paymnets[]=$end_pay;
 
 }
 }
@@ -148,7 +148,7 @@ $design->assign('payments',$end_paymnets);
 $design->display("accounts/auto_pays.tpl");
 
 
-//printdbg($end_paymnets,"платежи");
+//printdbg($end_paymnets,"п©п╩п╟я┌п╣п╤п╦");
 
 function validate($bill_no,$client){
 	GLOBAL $db;
@@ -196,7 +196,7 @@ function find_client($inn){
 }	
 
 function find_bill($m){
-// получает строку "назначение платежа" иногда там есть номер счета
+// п©п╬п╩я┐я┤п╟п╣я┌ я│я┌я─п╬п╨я┐ "п╫п╟п╥п╫п╟я┤п╣п╫п╦п╣ п©п╩п╟я┌п╣п╤п╟" п╦п╫п╬пЁп╢п╟ я┌п╟п╪ п╣я│я┌я▄ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟
 //echo $m."<br>";
 $reg="|20\d{4}-\d{1,4}|";
 $out=array();

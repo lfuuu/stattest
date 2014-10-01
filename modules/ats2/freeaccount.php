@@ -20,7 +20,7 @@ class freeAccount
             {
                 if($inMiss)
                 {
-                    // поиск пропущенных
+                    // п©п╬п╦я│п╨ п©я─п╬п©я┐я┴п╣п╫п╫я▀я┘
                     $serialMiss = self::getNextMissedAccount($serial);
 
                     //echo "<br>serialMiss=".$serialMiss." (".$serial.")";
@@ -31,7 +31,7 @@ class freeAccount
                 if($inMiss && !$serialMiss) 
                     $inMiss = false;
 
-                // поиск максимального
+                // п©п╬п╦я│п╨ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬
                 if(!$inMiss)
                 {
                     $serialMax = self::getMaxSerial();

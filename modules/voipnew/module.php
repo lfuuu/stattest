@@ -223,7 +223,7 @@ class m_voipnew extends IModule
             $req = $pg_db->QueryUpdate('voip.raw_file', 'id', array('id' => $id, 'active' => 0));
         }
         if (!$req) {
-            trigger_error('Ошибка Активации/Деактивации');
+            trigger_error('п·я┬п╦п╠п╨п╟ п░п╨я┌п╦п╡п╟я├п╦п╦/п■п╣п╟п╨я┌п╦п╡п╟я├п╦п╦');
         } else {
             header('location: index.php?module=voipnew&action=view_raw_file&id=' . $id);
         }
@@ -238,7 +238,7 @@ class m_voipnew extends IModule
 
         $req = $pg_db->QueryUpdate('voip.raw_file', 'id', array('id' => $id, 'startdate' => $startDate));
         if (!$req) {
-            trigger_error('Ошибка: Не удалось изменить дату начала действия');
+            trigger_error('п·я┬п╦п╠п╨п╟: п²п╣ я┐п╢п╟п╩п╬я│я▄ п╦п╥п╪п╣п╫п╦я┌я▄ п╢п╟я┌я┐ п╫п╟я┤п╟п╩п╟ п╢п╣п╧я│я┌п╡п╦я▐');
         } else {
             header('location: index.php?module=voipnew&action=view_raw_file&id=' . $id);
         }
@@ -312,10 +312,10 @@ class m_voipnew extends IModule
         set_time_limit(0);
         if (isset($_POST['step']) && $_POST['step'] == 'upfile') {
             if (!$_FILES['upfile']) {
-                trigger_error('Пожалуйста, загрузите файл для обработки');
+                trigger_error('п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п╥п╟пЁя─я┐п╥п╦я┌п╣ я└п╟п╧п╩ п╢п╩я▐ п╬п╠я─п╟п╠п╬я┌п╨п╦');
                 return;
             } elseif ($_FILES['upfile']['error']) {
-                trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз' . $_FILES['upfile']['error']);
+                trigger_error('п÷я─п╦ п╥п╟пЁя─я┐п╥п╨п╣ я└п╟п╧п╩п╟ п©я─п╬п╦п╥п╬я┬п╩п╟ п╬я┬п╦п╠п╨п╟. п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п©п╬п©я─п╬п╠я┐п╧я┌п╣ п╣я┴п╣ я─п╟п╥' . $_FILES['upfile']['error']);
                 return;
             }
 
@@ -324,7 +324,7 @@ class m_voipnew extends IModule
                 &&
                 $f['type'] <> 'application/vnd.ms-excel'
             ) {
-                trigger_error('Формат файла указан не правильно');
+                trigger_error('п╓п╬я─п╪п╟я┌ я└п╟п╧п╩п╟ я┐п╨п╟п╥п╟п╫ п╫п╣ п©я─п╟п╡п╦п╩я▄п╫п╬');
                 return;
             }
 
@@ -369,7 +369,7 @@ class m_voipnew extends IModule
             }
 
             if ($defs === false) {
-                trigger_error('Ошибка чтения файла');
+                trigger_error('п·я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ я└п╟п╧п╩п╟');
                 return;
             }
             
@@ -738,7 +738,7 @@ class m_voipnew extends IModule
 
             function defs_cmp($a, $b)
             {
-                return strcmp(iconv('koi8-r', 'windows-1251', $a["destination"]) . $a["defcode"], iconv('koi8-r', 'windows-1251', $b["destination"]) . $b["defcode"]);
+                return strcmp(iconv('utf-8', 'windows-1251', $a["destination"]) . $a["defcode"], iconv('utf-8', 'windows-1251', $b["destination"]) . $b["defcode"]);
             }
 
             usort($res, "defs_cmp");
@@ -776,7 +776,7 @@ class m_voipnew extends IModule
 
             ob_start();
 
-            echo '"Префикс";"Цена";"Направление";"Направление";"Fix / Mоb";' . "\n";
+            echo '"п÷я─п╣я└п╦п╨я│";"п╕п╣п╫п╟";"п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣";"п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣";"Fix / Mп╬b";' . "\n";
             foreach ($res as $r) {
                 echo '"' . $r['defcode'] . (isset($r['defcode2']) ? ' (' . $r['defcode2'] . ')' : '') . '";';
                 echo '"' . str_replace('.', ',', $r['price']) . '";';
@@ -786,7 +786,7 @@ class m_voipnew extends IModule
                 echo "\n";
             }
 
-            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            echo iconv('utf-8', 'windows-1251', ob_get_clean());
             exit;
         }
 

@@ -1,26 +1,26 @@
 <?
 class m_letters {
 	var $rights=array(
-					'letters'		=>	array('Рассылка','w','работа с рассылкой'),
+					'letters'		=>	array('п═п╟я│я│я▀п╩п╨п╟','w','я─п╟п╠п╬я┌п╟ я│ я─п╟я│я│я▀п╩п╨п╬п╧'),
 				);
 	var $actions=array(
 					'default'		=> array('letters','w'),
-					'filter'		=> array('letters','w'),	//список клиентов
-					'assign'		=> array('letters','w'),	//назначение клиентов письмам
-					'unassign'		=> array('letters','w'),	//удаление клиентов
+					'filter'		=> array('letters','w'),	//я│п©п╦я│п╬п╨ п╨п╩п╦п╣п╫я┌п╬п╡
+					'assign'		=> array('letters','w'),	//п╫п╟п╥п╫п╟я┤п╣п╫п╦п╣ п╨п╩п╦п╣п╫я┌п╬п╡ п©п╦я│я▄п╪п╟п╪
+					'unassign'		=> array('letters','w'),	//я┐п╢п╟п╩п╣п╫п╦п╣ п╨п╩п╦п╣п╫я┌п╬п╡
 					'fupload'		=> array('letters','w'),
 					'fdelete'		=> array('letters','w'),
-					'fassign'		=> array('letters','w'),	//назначение
-					'funassign'		=> array('letters','w'),	//назначение
-					'lview'			=> array('letters','w'),	//просмотр-редактирование письма
-					'lapply'		=> array('letters','w'),	//собственно изменение письма
-					'ldelete'		=> array('letters','w'),	//удаление
+					'fassign'		=> array('letters','w'),	//п╫п╟п╥п╫п╟я┤п╣п╫п╦п╣
+					'funassign'		=> array('letters','w'),	//п╫п╟п╥п╫п╟я┤п╣п╫п╦п╣
+					'lview'			=> array('letters','w'),	//п©я─п╬я│п╪п╬я┌я─-я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©п╦я│я▄п╪п╟
+					'lapply'		=> array('letters','w'),	//я│п╬п╠я│я┌п╡п╣п╫п╫п╬ п╦п╥п╪п╣п╫п╣п╫п╦п╣ п©п╦я│я▄п╪п╟
+					'ldelete'		=> array('letters','w'),	//я┐п╢п╟п╩п╣п╫п╦п╣
 					'process'		=> array('letters','w'),
 		
 				);
 
 	var $menu=array(
-					array('Рассылка',	'default',	''),
+					array('п═п╟я│я│я▀п╩п╨п╟',	'default',	''),
 				);
 
 	function m_letters(){
@@ -36,7 +36,7 @@ class m_letters {
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=letters&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (count($R)>0){
-			$design->AddMenu('Рассылка',$R);
+			$design->AddMenu('п═п╟я│я│я▀п╩п╨п╟',$R);
 		}
 	}
 	
@@ -155,7 +155,7 @@ class m_letters {
 				if (isset($F[$r[0]])) {
 					$LF[]=$F[$r[0]];
 				} else {
-					$LF[]=array($r[0],'файл не существует');	
+					$LF[]=array($r[0],'я└п╟п╧п╩ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');	
 				}
 			}
 			$design->assign('letter_files',$LF);
@@ -166,7 +166,7 @@ class m_letters {
 			}
 			$design->assign('letter_assigns',$LA);
 		} else {
-			$design->assign('letter',array('body'=>'Текст письма','subject'=>'Тема письма','id'=>0));
+			$design->assign('letter',array('body'=>'п╒п╣п╨я│я┌ п©п╦я│я▄п╪п╟','subject'=>'п╒п╣п╪п╟ п©п╦я│я▄п╪п╟','id'=>0));
 			$design->assign('letter_files',array());
 		}
 
@@ -283,7 +283,7 @@ class m_letters {
 
 				$Mail = new PHPMailer();
 				$Mail->SetLanguage("ru","include/");
-				$Mail->CharSet = "koi8-r";
+				$Mail->CharSet = "utf-8";
 				$Mail->From = "info@mcn.ru";
 				$Mail->FromName="Markomnet";
 				$Mail->Mailer='smtp';
@@ -305,12 +305,12 @@ class m_letters {
 				$Mail->Body = $L['body'];
 				$Mail->Subject = $L['subject'];
 				if (!($Mail->Send())) {
-					$msg=$Mail->ErrorInfo.'<br>'.'Адрес: '.$C['email'];
+					$msg=$Mail->ErrorInfo.'<br>'.'п░п╢я─п╣я│: '.$C['email'];
 					$db->Query('update send_assigns set state="error",last_send=NOW(),message="'.AddSlashes($msg).'" where (id_letter='.$letter.') and (client="'.$client.'")');
 					$LA[$client]['state']='error';
 					$LA[$client]['message']=$msg;
 				} else {
-					$msg='Адрес: '.$C['email'];
+					$msg='п░п╢я─п╣я│: '.$C['email'];
 					$db->Query('update send_assigns set state="sent",last_send=NOW(),message="'.AddSlashes($msg).'" where (id_letter='.$letter.') and (client="'.$client.'")');
 					$LA[$client]['state']='sent';
 					$LA[$client]['message']=$msg;
@@ -320,8 +320,8 @@ class m_letters {
 
 		$design->assign('refresh',10*$cont);
 		if ($cont) {
-			trigger_error('Отправка следующих 5ти писем произойдёт через 10 секунд');
-			trigger_error('<a href="?module=letters&action=lview&letter='.$letter.'">Остановить отправку</a>');
+			trigger_error('п·я┌п©я─п╟п╡п╨п╟ я│п╩п╣п╢я┐я▌я┴п╦я┘ 5я┌п╦ п©п╦я│п╣п╪ п©я─п╬п╦п╥п╬п╧п╢я▒я┌ я┤п╣я─п╣п╥ 10 я│п╣п╨я┐п╫п╢');
+			trigger_error('<a href="?module=letters&action=lview&letter='.$letter.'">п·я│я┌п╟п╫п╬п╡п╦я┌я▄ п╬я┌п©я─п╟п╡п╨я┐</a>');
 		}
 		return $this->letters_lview($fixclient,$letter,$LA);
 	}
@@ -334,7 +334,7 @@ class m_letters {
 				$R[$entry]=array($entry,filesize(LETTER_FILES_PATH.$entry));
 			}
 			$d->close();
-		} else trigger_error("Ошибка работы с директорией ".LETTER_FILES_PATH);
+		} else trigger_error("п·я┬п╦п╠п╨п╟ я─п╟п╠п╬я┌я▀ я│ п╢п╦я─п╣п╨я┌п╬я─п╦п╣п╧ ".LETTER_FILES_PATH);
 		return $R;
 	}
 	
@@ -351,15 +351,15 @@ class m_letters {
 		$design->assign("letter",str_replace("\n","<br>",$letter));
 
 		$from="support@mcn.ru";
-		$subject="MCN (Предупреждение о перерыве в услуге доступа в интернет)";
+		$subject="MCN (п÷я─п╣п╢я┐п©я─п╣п╤п╢п╣п╫п╦п╣ п╬ п©п╣я─п╣я─я▀п╡п╣ п╡ я┐я│п╩я┐пЁп╣ п╢п╬я│я┌я┐п©п╟ п╡ п╦п╫я┌п╣я─п╫п╣я┌)";
 		$report='';
 		
 		if ($todo=="send"){
 			foreach($emails as $email){
 				if (mail("$email", "$subject", $letter,"From: $from\r\n")){
-					$report.="Письмо отправлено $email <br>";
+					$report.="п÷п╦я│я▄п╪п╬ п╬я┌п©я─п╟п╡п╩п╣п╫п╬ $email <br>";
 				} else {
-					$report.= "Письмо <b>НЕ</b> отправлено $email <br>";
+					$report.= "п÷п╦я│я▄п╪п╬ <b>п²п∙</b> п╬я┌п©я─п╟п╡п╩п╣п╫п╬ $email <br>";
 				}
 			}
 			$design->assign('report',$report);

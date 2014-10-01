@@ -2,7 +2,7 @@
 define('UC_IMAGESIZE',250);
 class m_usercontrol {	
 	var $rights=array(
-					'usercontrol'		=>array('О пользователе','r,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля, изменение всех данных, настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список')
+					'usercontrol'		=>array('п· п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣','r,edit_pass,edit_full,edit_panels,edit_flags,dealer','я┤я┌п╣п╫п╦п╣,я│п╪п╣п╫п╟ п©п╟я─п╬п╩я▐, п╦п╥п╪п╣п╫п╣п╫п╦п╣ п╡я│п╣я┘ п╢п╟п╫п╫я▀я┘, п╫п╟я│я┌я─п╬п╧п╨п╟ я│п╨я─я▀я┌я▀я┘/п╬я┌п╨я─я▀я┌я▀я┘ п©п╟п╫п╣п╩п╣п╧ (sys),п╫п╟я│я┌я─п╬п╧п╨п╟ я└п╩п╟пЁп╬п╡ (sys),п╢п╦п╩п╣я─я│п╨п╦п╧ я│п©п╦я│п╬п╨')
 				);
 	var $actions=array(
 					'default'			=> array('usercontrol','r'),
@@ -15,11 +15,11 @@ class m_usercontrol {
 					'ex_flag'			=> array('',''),
 				);
 
-	//содержимое левого меню. array(название; действие (для проверки прав доступа); доп. параметры - строкой, начинающейся с & (при необходимости); картиночка ; доп. текст)
+	//я│п╬п╢п╣я─п╤п╦п╪п╬п╣ п╩п╣п╡п╬пЁп╬ п╪п╣п╫я▌. array(п╫п╟п╥п╡п╟п╫п╦п╣; п╢п╣п╧я│я┌п╡п╦п╣ (п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п©я─п╟п╡ п╢п╬я│я┌я┐п©п╟); п╢п╬п©. п©п╟я─п╟п╪п╣я┌я─я▀ - я│я┌я─п╬п╨п╬п╧, п╫п╟я┤п╦п╫п╟я▌я┴п╣п╧я│я▐ я│ & (п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦); п╨п╟я─я┌п╦п╫п╬я┤п╨п╟ ; п╢п╬п©. я┌п╣п╨я│я┌)
 	var $menu=array(
-					array('Информация',			'default'),
-					array('Изменение пароля',	'edit_pass'),
-					array('Изменение профайла', 'edit'),
+					array('п≤п╫я└п╬я─п╪п╟я├п╦я▐',			'default'),
+					array('п≤п╥п╪п╣п╫п╣п╫п╦п╣ п©п╟я─п╬п╩я▐',	'edit_pass'),
+					array('п≤п╥п╪п╣п╫п╣п╫п╦п╣ п©я─п╬я└п╟п╧п╩п╟', 'edit'),
 				);
 
 	function m_usercontrol(){	
@@ -38,7 +38,7 @@ class m_usercontrol {
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=usercontrol&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (count($R)>0){
-			$design->AddMenu('О пользователе',$R);
+			$design->AddMenu('п· п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣',$R);
 		}
 	}
 
@@ -51,7 +51,7 @@ class m_usercontrol {
 		call_user_func(array($this,'usercontrol_'.$action),$fixclient);
 	}
 	
-	//просмотр списка пользователей
+	//п©я─п╬я│п╪п╬я┌я─ я│п©п╦я│п╨п╟ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧
 	function usercontrol_default() {
 		global $design,$db,$user;
 		$c=$user->GetAsClient();
@@ -67,7 +67,7 @@ class m_usercontrol {
 			$C = array();
 			if (access('usercontrol','dealer')) {
 				$sc = $db->getRow('select * from sale_channels where dealer_id = '.$r['id']);
-				$T = array('usage_ip_ports'=>'Интернет','usage_voip'=>'IP-телефония','bill_monthlyadd'=>'Доп. услуги','usage_extra'=>'Доп. услуги','emails'=>'Почта');
+				$T = array('usage_ip_ports'=>'п≤п╫я┌п╣я─п╫п╣я┌','usage_voip'=>'IP-я┌п╣п╩п╣я└п╬п╫п╦я▐','bill_monthlyadd'=>'п■п╬п©. я┐я│п╩я┐пЁп╦','usage_extra'=>'п■п╬п©. я┐я│п╩я┐пЁп╦','emails'=>'п÷п╬я┤я┌п╟');
 				foreach ($db->AllRecords('select * from clients where sale_channel = '.$sc['id'].' order by id') as $r2) {
 					$s = $db->getRow("select * from client_statuses where (id_client='".$r2['id']."') and status!='' order by ts desc limit 1");
 					$r2['status_name'] = (isset(ClientCS::$statuses[$s['status']]) ? ClientCS::$statuses[$s['status']]['name'] : $s['status']);
@@ -89,7 +89,7 @@ class m_usercontrol {
 		}
 	}
 
-	//работа со одним пользователем
+	//я─п╟п╠п╬я┌п╟ я│п╬ п╬п╢п╫п╦п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪
 	function usercontrol_edit() {
 		global $design,$db,$user;
 		$design->AddMain('usercontrol/edit.tpl');
@@ -107,7 +107,7 @@ class m_usercontrol {
 		$this->usercontrol_edit();
 	}
 
-	//работа с пользователями и с клиентами	
+	//я─п╟п╠п╬я┌п╟ я│ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐п╪п╦ п╦ я│ п╨п╩п╦п╣п╫я┌п╟п╪п╦	
 	function usercontrol_edit_pass() {
 		global $design,$db,$user;
 		$design->AddMain('usercontrol/chpass.tpl');
@@ -119,10 +119,10 @@ class m_usercontrol {
 		$pass2=get_param_protected('pass2');
 		$password=get_param_protected('password');
 		if (!$pass && !$pass2){
-			trigger_error('Пароль не изменился');
+			trigger_error('п÷п╟я─п╬п╩я▄ п╫п╣ п╦п╥п╪п╣п╫п╦п╩я│я▐');
 			$this->usercontrol_default();
 		} else if ($pass!=$pass2){
-			trigger_error('Пароли не совпадают');
+			trigger_error('п÷п╟я─п╬п╩п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌');
 			$this->usercontrol_edit_pass();
 		} else {
 			if ($c=$user->GetAsClient()){
@@ -132,7 +132,7 @@ class m_usercontrol {
 
 			$r=$db->NextRecord();
 			if ($r[0]==1){
-				trigger_error('Ваш новый пароль - '.$pass);
+				trigger_error('п▓п╟я┬ п╫п╬п╡я▀п╧ п©п╟я─п╬п╩я▄ - '.$pass);
 				$c=$user->GetAsClient();
 				if ($c){
 					$db->Query('select * from user_users where user="'.$user->Get('user').'"');
@@ -141,21 +141,21 @@ class m_usercontrol {
 				}
 				$r=$db->NextRecord();
 
-				$message = "Вы изменили пароль на сервере ".PROTOCOL_STRING.$_SERVER['HTTP_HOST']."\n";
-				$message.= "Ваш новый пароль - ".$pass."\n";
-				$message.= "Запишите его в надёжном месте (лучше всего - в голове) и постарайтесь не забывать" . "\n";
+				$message = "п▓я▀ п╦п╥п╪п╣п╫п╦п╩п╦ п©п╟я─п╬п╩я▄ п╫п╟ я│п╣я─п╡п╣я─п╣ ".PROTOCOL_STRING.$_SERVER['HTTP_HOST']."\n";
+				$message.= "п▓п╟я┬ п╫п╬п╡я▀п╧ п©п╟я─п╬п╩я▄ - ".$pass."\n";
+				$message.= "п≈п╟п©п╦я┬п╦я┌п╣ п╣пЁп╬ п╡ п╫п╟п╢я▒п╤п╫п╬п╪ п╪п╣я│я┌п╣ (п╩я┐я┤я┬п╣ п╡я│п╣пЁп╬ - п╡ пЁп╬п╩п╬п╡п╣) п╦ п©п╬я│я┌п╟я─п╟п╧я┌п╣я│я▄ п╫п╣ п╥п╟п╠я▀п╡п╟я┌я▄" . "\n";
 				$message.= "\n\n\n";
 				$message.= "You have changed password at ".PROTOCOL_STRING.$_SERVER['HTTP_HOST']." server\n";
 				$message.= "Your new password is ".$pass."\n";
 				$message.= "Please, write it in private place and try not to forget." . "\n";
 				$message.= "\n\n\n";
 				
-				$b=@mail($r['email'],'MCN.ru - ваш новый пароль | your new password',$message,"Reply-To: support@mcn.ru\nFrom: support@mcn.ru\nContent-Type: plain/text; charset=koi8r\n");
+				$b=@mail($r['email'],'MCN.ru - п╡п╟я┬ п╫п╬п╡я▀п╧ п©п╟я─п╬п╩я▄ | your new password',$message,"Reply-To: support@mcn.ru\nFrom: support@mcn.ru\nContent-Type: plain/text; charset=utf-8\n");
 				if ($b){
-					trigger_error('Письмо с уведомлением отправлено на '.$r['email']);
-					trigger_error('В случае возникновения проблем обращайтесь в службу поддержки');
+					trigger_error('п÷п╦я│я▄п╪п╬ я│ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╣п╪ п╬я┌п©я─п╟п╡п╩п╣п╫п╬ п╫п╟ '.$r['email']);
+					trigger_error('п▓ я│п╩я┐я┤п╟п╣ п╡п╬п╥п╫п╦п╨п╫п╬п╡п╣п╫п╦я▐ п©я─п╬п╠п╩п╣п╪ п╬п╠я─п╟я┴п╟п╧я┌п╣я│я▄ п╡ я│п╩я┐п╤п╠я┐ п©п╬п╢п╢п╣я─п╤п╨п╦');
 				} else {
-					trigger_error('Письмо с уведомлением на '.$r['email'].' отправить не удалось. Обратитесь в службу поддержки');
+					trigger_error('п÷п╦я│я▄п╪п╬ я│ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╣п╪ п╫п╟ '.$r['email'].' п╬я┌п©я─п╟п╡п╦я┌я▄ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·п╠я─п╟я┌п╦я┌п╣я│я▄ п╡ я│п╩я┐п╤п╠я┐ п©п╬п╢п╢п╣я─п╤п╨п╦');
 				}
 				
 				if ($c=$user->GetAsClient()){
@@ -165,7 +165,7 @@ class m_usercontrol {
 				}
 				$this->usercontrol_default();
 			} else {
-				trigger_error('Вы ошиблись в наборе старого пароля.');
+				trigger_error('п▓я▀ п╬я┬п╦п╠п╩п╦я│я▄ п╡ п╫п╟п╠п╬я─п╣ я│я┌п╟я─п╬пЁп╬ п©п╟я─п╬п╩я▐.');
 				$this->usercontrol_edit_pass();
 			}
 		}
@@ -195,7 +195,7 @@ class m_usercontrol {
 						ImageJpeg($im2,IMAGES_PATH.'users/'.$id.'.jpg',65);
 						$q_photo=',photo="jpg"';
 						$moved=1;
-					} else trigger_error('Невозможно изменить размер картинки.');
+					} else trigger_error('п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╦п╥п╪п╣п╫п╦я┌я▄ я─п╟п╥п╪п╣я─ п╨п╟я─я┌п╦п╫п╨п╦.');
 				}
 				if (!$moved) {
 					move_uploaded_file($photo['tmp_name'],IMAGES_PATH.'users/'.$id.'.'.$m[1]);

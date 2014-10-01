@@ -220,12 +220,12 @@ class MT
         $m = array();
 
         $m["number"] = array(
-                "title" => "Название транка",
+                "title" => "п²п╟п╥п╡п╟п╫п╦п╣ я┌я─п╟п╫п╨п╟",
                 "type" => "text",
                 );
 
         $m["client"] = array(
-                "title" => "Клиент",
+                "title" => "п п╩п╦п╣п╫я┌",
                 "type" => "text",
                 );
 
@@ -244,7 +244,7 @@ class MT
                 );
 
         $m["password"] =array(
-                "title" => "Пароль",
+                "title" => "п÷п╟я─п╬п╩я▄",
                 "type" => "text",
                 "condition" => array("nq", "host_type", "static")
                 );
@@ -259,14 +259,14 @@ class MT
 
 
         $m["permit_on"] = array(
-                "title" => "Привязка",
+                "title" => "п÷я─п╦п╡я▐п╥п╨п╟",
                 "type" => "select",
-                "data" => array(array("type" => "array", "array" => array("yes" => "Да", "no" => "Нет", "auto" => "Авто"))),
+                "data" => array(array("type" => "array", "array" => array("yes" => "п■п╟", "no" => "п²п╣я┌", "auto" => "п░п╡я┌п╬"))),
                 "condition" => array("nq", "host_type", "static")
                 );
 
         $m["permit"] = array(
-                "title" => "Привязка к IP",
+                "title" => "п÷я─п╦п╡я▐п╥п╨п╟ п╨ IP",
                 "type" => "permit_net",
                 "condition" => array("and", array("eq", "permit_on", "yes"),array("nq", "host_type", "static"))
                 );
@@ -276,18 +276,18 @@ class MT
                 );
 
         $m["codec"] = array(
-                "title" => "Кодеки",
+                "title" => "п п╬п╢п╣п╨п╦",
                 "type" => "sort_list",
                 "data_all" => array(array("type" => "array", "array" => $codecs)),
                 );
 
         $m["context"] = array(
-                "title" => "Контекст",
+                "title" => "п п╬п╫я┌п╣п╨я│я┌",
                 "type" => "text"
                 );
 
         $m["is_pool"] = array(
-                "title" => "Объединить счетчик звонков",
+                "title" => "п·п╠я┼п╣п╢п╦п╫п╦я┌я▄ я│я┤п╣я┌я┤п╦п╨ п╥п╡п╬п╫п╨п╬п╡",
                 "type" => "is_pool",
                 "data" => array($dcYesNo)
                 );
@@ -307,22 +307,22 @@ class MT
 
         include INCLUDE_PATH."checker.php";
 
-        checker::isEmpty($data["number"], "Название транка не задано!");
-        checker::isEmpty($data["client"], "Клиент не задан!");
+        checker::isEmpty($data["number"], "п²п╟п╥п╡п╟п╫п╦п╣ я┌я─п╟п╫п╨п╟ п╫п╣ п╥п╟п╢п╟п╫п╬!");
+        checker::isEmpty($data["client"], "п п╩п╦п╣п╫я┌ п╫п╣ п╥п╟п╢п╟п╫!");
 
         if(!$db->GetValue("select id from `".SQL_DB."`.clients where client='".mysql_escape_string($data["client"])."'"))
-            throw new Exception("Клиент не найден!");
+            throw new Exception("п п╩п╦п╣п╫я┌ п╫п╣ п╫п╟п╧п╢п╣п╫!");
 
         if($data["host_type"] != "static")
-            checker::isEmpty($data["password"], "Пароль не задан!");
+            checker::isEmpty($data["password"], "п÷п╟я─п╬п╩я▄ п╫п╣ п╥п╟п╢п╟п╫!");
 
         if($db->GetValue("select id from v_sip where number = '".$data["number"]."' and type='multitrunk' and atype = 'multitrunk' and id != '".$id."'"))
-            throw new Exception("Транк с таким названием уже используется");
+            throw new Exception("п╒я─п╟п╫п╨ я│ я┌п╟п╨п╦п╪ п╫п╟п╥п╡п╟п╫п╦п╣п╪ я┐п╤п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐");
 
         if($data["host_type"] == "static")
         {
-            checker::isEmpty($data["host_static"], "Не задан статический host!");
-            checker::isValideIp($data["host_static"], "Статический host задан не верно!");
+            checker::isEmpty($data["host_static"], "п²п╣ п╥п╟п╢п╟п╫ я│я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ host!");
+            checker::isValideIp($data["host_static"], "п║я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ host п╥п╟п╢п╟п╫ п╫п╣ п╡п╣я─п╫п╬!");
 
             if($id == 0 && $data["permit_on"] == "yes")
             {
@@ -331,17 +331,17 @@ class MT
                     $data["permit"] .= ($data["permit"] ? "," : "").$data["host_static"]."/32";
                 }
             }else{
-                //checker::isEmpty($data["permit"], "Если задан статический Host IP, необходимо сделать привязку");
+                //checker::isEmpty($data["permit"], "п∙я│п╩п╦ п╥п╟п╢п╟п╫ я│я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ Host IP, п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ я│п╢п╣п╩п╟я┌я▄ п©я─п╦п╡я▐п╥п╨я┐");
             }
         }
 
         if($data["permit_on"] == "yes" && $data["host_type"] == "static")
         {
-            checker::isEmpty($data["permit"], "Привязка включена, но не задана!");
+            checker::isEmpty($data["permit"], "п÷я─п╦п╡я▐п╥п╨п╟ п╡п╨п╩я▌я┤п╣п╫п╟, п╫п╬ п╫п╣ п╥п╟п╢п╟п╫п╟!");
         }
 
-        checker::isEmpty($data["codec"], "Задайте кодеки!");
-        checker::isEmpty($data["context"], "Контекст не задан!");
+        checker::isEmpty($data["codec"], "п≈п╟п╢п╟п╧я┌п╣ п╨п╬п╢п╣п╨п╦!");
+        checker::isEmpty($data["context"], "п п╬п╫я┌п╣п╨я│я┌ п╫п╣ п╥п╟п╢п╟п╫!");
     }
 }
 

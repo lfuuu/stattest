@@ -1,8 +1,8 @@
 <?
 class m_pay_head extends IModuleHead{
 	public $module_name = 'pay';
-	public $module_title = 'Платежи';
-	public $rights = array('info,yandex,demoyandex,webmoney','Информация,Яндекс-деньги,Яндекс-демоденьги,Webmoney');
+	public $module_title = 'п÷п╩п╟я┌п╣п╤п╦';
+	public $rights = array('info,yandex,demoyandex,webmoney','п≤п╫я└п╬я─п╪п╟я├п╦я▐,п╞п╫п╢п╣п╨я│-п╢п╣п╫я▄пЁп╦,п╞п╫п╢п╣п╨я│-п╢п╣п╪п╬п╢п╣п╫я▄пЁп╦,Webmoney');
 	public $actions=array(
 					'default'			=> 'info',
 					'yandex'			=> 'yandex',
@@ -10,8 +10,8 @@ class m_pay_head extends IModuleHead{
 					'webmoney'			=> 'webmoney',
 				);
 	public $menu=array(
-					array('Яндекс.деньги',			'yandex'),
-					array('Яндекс.деньги - демо',	'demoyandex'),
+					array('п╞п╫п╢п╣п╨я│.п╢п╣п╫я▄пЁп╦',			'yandex'),
+					array('п╞п╫п╢п╣п╨я│.п╢п╣п╫я▄пЁп╦ - п╢п╣п╪п╬',	'demoyandex'),
 					array('Webmoney',				'webmoney'),
 				);
 }

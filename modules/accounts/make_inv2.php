@@ -12,14 +12,14 @@ db_open();
 	
 	$bill_no=get_param_protected('bill_no');
 	if ($bill_no==''){
-		echo "не определен номер счета";
+		echo "п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟";
 		exit;
 	};
 	
 	$client=get_param_protected('client');
 	
 	if ($client==''){
-		echo "не определен номер счета";
+		echo "п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟";
 		exit;
 	};
 //echo "bill='$bill_no' client=$client";
@@ -37,12 +37,12 @@ db_open();
 	$res1=mysql_query($query) or die(mysql_error());
 	//echo "mysql_num_rows(res)=".mysql_num_rows($res1)."<br>";
 	if (mysql_num_rows($res1)==0){
-		$pay_pp="Платеж из переплаты";
-//		echo "Платежей нет";
+		$pay_pp="п÷п╩п╟я┌п╣п╤ п╦п╥ п©п╣я─п╣п©п╩п╟я┌я▀";
+//		echo "п÷п╩п╟я┌п╣п╤п╣п╧ п╫п╣я┌";
 		$flag=false;
 		$query="select * from bill_currency_rate where date=NOW()";
-		$res=mysql_query($query) or die("нет курса доллара");
-		if (mysql_num_rows($res)==0){die("нет курса доллара");};
+		$res=mysql_query($query) or die("п╫п╣я┌ п╨я┐я─я│п╟ п╢п╬п╩п╩п╟я─п╟");
+		if (mysql_num_rows($res)==0){die("п╫п╣я┌ п╨я┐я─я│п╟ п╢п╬п╩п╩п╟я─п╟");};
 		$r=mysql_fetch_array($res);
 		$rate=$r['rate'];
 		$rate_now=$rate;
@@ -52,7 +52,7 @@ db_open();
 		$query="insert into bill_payments 
 			(client,payment_no, payment_date, sum_rub, sum_usd,rate,bill_no,type) 
 			values ('$client','$pay_pp',NOW(),0,0,$rate,'$bill',2)";
-		mysql_query($query) or die("Немогу внести платеж<br>".$query."<br>".mysql_error());
+		mysql_query($query) or die("п²п╣п╪п╬пЁя┐ п╡п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤<br>".$query."<br>".mysql_error());
 		
 		$query="select * from bill_payments 
 			where 	client='$client' 
@@ -64,11 +64,11 @@ db_open();
 			
 	}
 	if (mysql_num_rows($res1)>0){
-//		echo "Платежи есть ";
+//		echo "п÷п╩п╟я┌п╣п╤п╦ п╣я│я┌я▄ ";
 		$flag=true;
 		$pays=array();
 		while (($r=mysql_fetch_array($res1))){
-//			echo "вошли в цикл<br>";
+//			echo "п╡п╬я┬п╩п╦ п╡ я├п╦п╨п╩<br>";
 			$sum_pay_rub+=$r['sum_rub'];
 			$sum_pay_usd+=$r['sum_usd'];
 			$pays[]=$r;
@@ -88,13 +88,13 @@ db_open();
 	
 	$query="select * from bill_bills where bill_no='$bill_no' and client='$client'";
 	$res=mysql_query($query) or die(mysql_error());
-	if (!($r=mysql_fetch_array($res))) die("Нет такого $bill_no счета для $client ");
+	if (!($r=mysql_fetch_array($res))) die("п²п╣я┌ я┌п╟п╨п╬пЁп╬ $bill_no я│я┤п╣я┌п╟ п╢п╩я▐ $client ");
 	
 	$bill_sum=$r['sum'];
 	
 	$query="select * from saldo where client='$client'";
 	$res=mysql_query($query) or die(mysql_error());
-	if (!($r=mysql_fetch_array($res))) die("сальдо для  $client ");
+	if (!($r=mysql_fetch_array($res))) die("я│п╟п╩я▄п╢п╬ п╢п╩я▐  $client ");
 	$saldo=$r['saldo'];
 	
 //	echo "Saldo=$saldo<br>";
@@ -102,10 +102,10 @@ db_open();
 /*	
 	echo "bill_sum-$bill_sum  sum_pay_usd-$sum_pay_usd<br>";
 	echo "k=".(abs($bill_sum-$sum_pay_usd)/$bill_sum*100)."<br>";
-	echo "k с сальдо".($sum_pay_usd-$bill_sum+$saldo)."<br>";
+	echo "k я│ я│п╟п╩я▄п╢п╬".($sum_pay_usd-$bill_sum+$saldo)."<br>";
 */	
 	if (abs($bill_sum-$sum_pay_usd)/$bill_sum*100<3){
-		// платежи с точностью до 3 процентов равны сумме счета
+		// п©п╩п╟я┌п╣п╤п╦ я│ я┌п╬я┤п╫п╬я│я┌я▄я▌ п╢п╬ 3 п©я─п╬я├п╣п╫я┌п╬п╡ я─п╟п╡п╫я▀ я│я┐п╪п╪п╣ я│я┤п╣я┌п╟
 //		echo "1.payments enough<br>";
 //		echo "$bill_sum --- $sum_pay_usd<br>";
 		$pay_sum=$sum_pay_rub;
@@ -116,15 +116,15 @@ db_open();
 		
 	}elseif(((abs($sum_pay_usd-$bill_sum+$saldo)/$bill_sum)<=1.03) or 
 		($saldo>0 and $flag) or ($saldo>=$bill_sum)){
-		// платим используя переплату 
-		// вносим нулевой платеж 
-		//mysql_query("Insert into bill_payments values(NULL,'п',NOW(),'$client','$bill',0,0,'0000-00-00',2)") or die(mysql_error());
+		// п©п╩п╟я┌п╦п╪ п╦я│п©п╬п╩я▄п╥я┐я▐ п©п╣я─п╣п©п╩п╟я┌я┐ 
+		// п╡п╫п╬я│п╦п╪ п╫я┐п╩п╣п╡п╬п╧ п©п╩п╟я┌п╣п╤ 
+		//mysql_query("Insert into bill_payments values(NULL,'п©',NOW(),'$client','$bill',0,0,'0000-00-00',2)") or die(mysql_error());
 		$delta=$bill_sum-$sum_pay_usd;
-//		echo "payments enouph with saldo <br>старое сальдо $saldo берем -.$delta<br>";
+//		echo "payments enouph with saldo <br>я│я┌п╟я─п╬п╣ я│п╟п╩я▄п╢п╬ $saldo п╠п╣я─п╣п╪ -.$delta<br>";
 		$saldo-=$delta;
 		if (!$flag){
 			$query="Update saldo set saldo=$saldo where client='$client'";
-//			echo "изменяем сальдо $query";
+//			echo "п╦п╥п╪п╣п╫я▐п╣п╪ я│п╟п╩я▄п╢п╬ $query";
 			$res=mysql_query($query)or die(musql_error());
 		}
 		$pay_sum_usd=$bill_sum;
@@ -133,7 +133,7 @@ db_open();
 		$rate=$pay_sum/$pay_sum_usd;
 //		echo "pay_sum_usd-$pay_sum_usd sum_pay_rub-$sum_pay_rub<br>";
 	}else {
-		echo "провести счет невозможно ";
+		echo "п©я─п╬п╡п╣я│я┌п╦ я│я┤п╣я┌ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬ ";
 		exit;
 	}
 /*	

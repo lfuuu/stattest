@@ -116,12 +116,6 @@ class m_voipreports_analyze_pricelist_report
 
         }
 
-        if (isset($_GET['export'])) {
-            foreach ($report as $k => $r) {
-                $report[$k]['destination'] = iconv('koi8-r', 'utf-8', $r['destination']);
-            }
-        }
-
         if ($f_short != '') {
             $report = $this->reduceCodes($report);
         }
@@ -139,18 +133,6 @@ class m_voipreports_analyze_pricelist_report
         $design->assign('f_short', $f_short);
         $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
-
-        if (isset($_GET['export'])) {
-            foreach ($pricelists as $r) {
-                $r->name = iconv('koi8-r', 'utf-8', $r->name);
-            }
-            foreach ($regions as $r) {
-                $r->name = iconv('koi8-r', 'utf-8', $r->name);
-            }
-            foreach ($operators as &$r) {
-                $r = iconv('koi8-r', 'utf-8', $r);
-            }
-        }
 
         $design->assign('pricelists', $pricelists);
         $design->assign('regions', $regions);

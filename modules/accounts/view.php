@@ -37,7 +37,7 @@
 	$show_advance=get_param_integer("show_advance",0);
 	$design->assign('show_advance',$show_advance);
 	$bill_no=get_param_protected("bill_no",$bill_no);
-	if ($bill_no=="") die("îÅ ÏÐÒÅÄÅÌÅÎ ÎÏÍÅÒ ÓÞÅÔÁ");
+	if ($bill_no=="") die("ÐÐµ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½ Ð½Ð¾Ð¼ÐµÑ€ ÑÑ‡ÐµÑ‚Ð°");
 	$design->assign("bill_no",$bill_no);
 
 	$query="SELECT bill_date, client,type,sum_virtual from bill_bills where bill_no='$bill_no'";
@@ -60,17 +60,17 @@
 	$totals=array();
 	while ($row=$db->NextRecord()) {
 		switch ($row['item']) {
-			case "*éÔÏÇÏ :": $totals[1]=$row;break;
-			case "*îäó 18% :":$totals[2]=$row;break; 
-			case "*÷ÓÅÇÏ Ó îäó :": $totals[3]=$row; $total_sum=$row['sum'];break;
+			case "*Ð˜Ñ‚Ð¾Ð³Ð¾ :": $totals[1]=$row;break;
+			case "*ÐÐ”Ð¡ 18% :":$totals[2]=$row;break; 
+			case "*Ð’ÑÐµÐ³Ð¾ Ñ ÐÐ”Ð¡ :": $totals[3]=$row; $total_sum=$row['sum'];break;
 			default: 
 				if ($bill_type=='advance') {
 					$row['sum']=$drow['sum_virtual'];
 					$row['price']=$drow['sum_virtual'];
 					$lines[]=$row;
-					$totals[1]=array('item'=>'*éÔÏÇÏ :','sum'=>$drow['sum_virtual']);
-					$totals[2]=array('item'=>'*îäó 18% :','sum'=>round(0.18*$drow['sum_virtual'],2));
-					$totals[3]=array('item'=>'*÷ÓÅÇÏ Ó îäó :','sum'=>round(1.18*$drow['sum_virtual'],2));
+					$totals[1]=array('item'=>'*Ð˜Ñ‚Ð¾Ð³Ð¾ :','sum'=>$drow['sum_virtual']);
+					$totals[2]=array('item'=>'*ÐÐ”Ð¡ 18% :','sum'=>round(0.18*$drow['sum_virtual'],2));
+					$totals[3]=array('item'=>'*Ð’ÑÐµÐ³Ð¾ Ñ ÐÐ”Ð¡ :','sum'=>round(1.18*$drow['sum_virtual'],2));
 					$total_sum=$totals[3]['sum'];
 					break 2;
 				} else {
@@ -80,7 +80,7 @@
 		}
 	}
 	if ($show_advance) {
-		$lines[]=array('item'=>'úÁ ×ÙÞÅÔÏÍ ÒÁÎÅÅ ÏÐÌÁÞÅÎÎÏÇÏ ÚÁÄÁÔËÁ','price'=>-$drow['sum_virtual'],'sum'=>-$drow['sum_virtual'],'amount'=>1);
+		$lines[]=array('item'=>'Ð—Ð° Ð²Ñ‹Ñ‡ÐµÑ‚Ð¾Ð¼ Ñ€Ð°Ð½ÐµÐµ Ð¾Ð¿Ð»Ð°Ñ‡ÐµÐ½Ð½Ð¾Ð³Ð¾ Ð·Ð°Ð´Ð°Ñ‚ÐºÐ°','price'=>-$drow['sum_virtual'],'sum'=>-$drow['sum_virtual'],'amount'=>1);
 		$totals[1]['sum']-=$drow['sum_virtual'];
 		$totals[2]['sum']-=0.18*$drow['sum_virtual'];
 		$totals[3]['sum']-=1.18*$drow['sum_virtual'];
@@ -122,12 +122,12 @@
 	};
 /*
 //******************************************
-// ×ÓÅÇÄÁ ÐÅÞÁÔÁÅÍ ÏÔ ÍÓÎ
+// Ð²ÑÐµÐ³Ð´Ð° Ð¿ÐµÑ‡Ð°Ñ‚Ð°ÐµÐ¼ Ð¾Ñ‚ Ð¼ÑÐ½
 $design->display("accounts/mcn_bill.tpl");
 //******************************************
 */
 /*
-//	ÓÔÒÁÎÎÙÅ ÏÛÍÅÔËÉ ËÏÄÁ 
+//	ÑÑ‚Ñ€Ð°Ð½Ð½Ñ‹Ðµ Ð¾ÑˆÐ¼ÐµÑ‚ÐºÐ¸ ÐºÐ¾Ð´Ð° 
 
 	$query="SELECT bill_date from bill_bills where bill_no='$bill_no'";
 	$db->Query($query);

@@ -12,9 +12,9 @@
 	$period=date("Y-m");
 	$bill_date=date("Y-m-d");
     $bill_no=do_make_bill_generate_number(substr($period,0,4).substr($period,5,2));
-	do_make_add_line($bill_no,"ðÏÄËÌÀÞÅÎÉÅ ÔÅÌÅÆÏÎÎÏÇÏ ÎÏÍÅÒÁ",1,199,"${period}-01");
-	do_make_add_line($bill_no,"ðÏÄËÌÀÞÅÎÉÅ ÔÅÌÅÆÏÎÎÏÊ ÌÉÎÉÉ",1,99,"${period}-01");
-	do_make_add_line($bill_no,"úÁÌÏÇ ÚÁ VoIP ÛÌÀÚ",1,SUM_PHONE_ADVANCE,"${period}-01");
+	do_make_add_line($bill_no,"ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¾Ð³Ð¾ Ð½Ð¾Ð¼ÐµÑ€Ð°",1,199,"${period}-01");
+	do_make_add_line($bill_no,"ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¾Ð¹ Ð»Ð¸Ð½Ð¸Ð¸",1,99,"${period}-01");
+	do_make_add_line($bill_no,"Ð—Ð°Ð»Ð¾Ð³ Ð·Ð° VoIP ÑˆÐ»ÑŽÐ·",1,SUM_PHONE_ADVANCE,"${period}-01");
     do_make_bill_register($bill_no,$bill_date,$client,SUM_PHONE_ADVANCE,'connection',0);
-	echo "óÞ£Ô ×ÙÓÔÁ×ÌÅÎ";
+	echo "Ð¡Ñ‡Ñ‘Ñ‚ Ð²Ñ‹ÑÑ‚Ð°Ð²Ð»ÐµÐ½";
 ?>

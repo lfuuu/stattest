@@ -1,10 +1,10 @@
 <?php
 class m_ats2_head extends IModuleHead{
 	public $module_name = 'ats2';
-	public $module_title = 'õÐÒÁ×ÌÅÎÉÅ ÔÅÌÅÆÏÎÉÅÊ';
+	public $module_title = 'Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½Ð¸ÐµÐ¹';
 
 	public $rights=array(
-		'ats2'=>array('õÞÅÔÎÙÅ ÚÁÐÉÓÉ SIP','access','ÄÏÓÔÕÐ')
+		'ats2'=>array('Ð£Ñ‡ÐµÑ‚Ð½Ñ‹Ðµ Ð·Ð°Ð¿Ð¸ÑÐ¸ SIP','access','Ð´Ð¾ÑÑ‚ÑƒÐ¿')
 	);
 
     public $actions=array(
@@ -29,8 +29,8 @@ class m_ats2_head extends IModuleHead{
             );
 
 	public $menu=array(
-		array('õÞÅÔÎÙÅ ÚÁÐÉÓÉ','accounts'),
-		array('íÕÌØÔÉÔÒÁÎËÉ','mt')
+		array('Ð£Ñ‡ÐµÑ‚Ð½Ñ‹Ðµ Ð·Ð°Ð¿Ð¸ÑÐ¸','accounts'),
+		array('ÐœÑƒÐ»ÑŒÑ‚Ð¸Ñ‚Ñ€Ð°Ð½ÐºÐ¸','mt')
 	);
 }
 ?>

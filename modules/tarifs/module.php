@@ -1,6 +1,6 @@
 <?php
 class m_tarifs{
-    var $rights=array('tarifs'    =>array('Работа с тарифами','read,edit','чтение,изменение'));
+    var $rights=array('tarifs'    =>array('п═п╟п╠п╬я┌п╟ я│ я┌п╟я─п╦я└п╟п╪п╦','read,edit','я┤я┌п╣п╫п╦п╣,п╦п╥п╪п╣п╫п╣п╫п╦п╣'));
     var $actions=array(
             'default'            => array('tarifs','read'),
             'view'                => array('tarifs','read'),
@@ -20,25 +20,25 @@ class m_tarifs{
         );
 
     var $menu=array(
-            array('IP-телефония',            'voip'),
-            array('Интернет',                'view','&m=internet'),
+            array('IP-я┌п╣п╩п╣я└п╬п╫п╦я▐',            'voip'),
+            array('п≤п╫я┌п╣я─п╫п╣я┌',                'view','&m=internet'),
             array('Collocation',            'view','&m=collocation'),
             array('VPN',                    'view','&m=vpn'),
-//            array('Хостинг',                'view','&m=hosting'),
-//             array('Междугородняя связь',    'view','&m=russia'),
-//             array('Международная связь',    'view','&m=world'),
-            array('Дополнительные услуги',    'view','&m=extra'),
+//            array('п╔п╬я│я┌п╦п╫пЁ',                'view','&m=hosting'),
+//             array('п°п╣п╤п╢я┐пЁп╬я─п╬п╢п╫я▐я▐ я│п╡я▐п╥я▄',    'view','&m=russia'),
+//             array('п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╟я▐ я│п╡я▐п╥я▄',    'view','&m=world'),
+            array('п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я┐я│п╩я┐пЁп╦',    'view','&m=extra'),
             //array('IT Park',                'view','&m=itpark'),
             array('IT Park',                'itpark',''),
             array('Welltime',                'welltime',''),
-            array('Виртуальная АТС',        'virtpbx',''),
+            array('п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║',        'virtpbx',''),
             array('8800',                   '8800',''),
-            array('СМС',                   'sms',''),
+            array('п║п°п║',                   'sms',''),
             array('WellSystem',                'wellsystem',''),
-//            array('Старые доп.услуги',        'view','&m=add'),
-            array('Пакетная загрузка тарифов','csv_upload'),
-            array('Договора',            'contracts',''),
-            array('Договор-Прайс-Телефония',            'price_tel',''),
+//            array('п║я┌п╟я─я▀п╣ п╢п╬п©.я┐я│п╩я┐пЁп╦',        'view','&m=add'),
+            array('п÷п╟п╨п╣я┌п╫п╟я▐ п╥п╟пЁя─я┐п╥п╨п╟ я┌п╟я─п╦я└п╬п╡','csv_upload'),
+            array('п■п╬пЁп╬п╡п╬я─п╟',            'contracts',''),
+            array('п■п╬пЁп╬п╡п╬я─-п÷я─п╟п╧я│-п╒п╣п╩п╣я└п╬п╫п╦я▐',            'price_tel',''),
         );
     function m_tarifs(){
     }
@@ -59,7 +59,7 @@ class m_tarifs{
             }
         }
         if (count($R)>$p){
-            $design->AddMenu('Тарифы',$R);
+            $design->AddMenu('п╒п╟я─п╦я└я▀',$R);
         }
     }
 
@@ -126,7 +126,7 @@ class m_tarifs{
                 'id'=>$id
             ),
             $view->Headers[$view->fieldset],
-            $id ?'Редактирование' :'Добавление'
+            $id ?'п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣' :'п■п╬п╠п╟п╡п╩п╣п╫п╦п╣'
         );
     }
     function tarifs_view(){
@@ -174,7 +174,7 @@ class m_tarifs{
         $design->assign('tarifs_by_dest',$tarifs_by_dest);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists', $pg_db->AllRecords("select p.id, p.name from voip.pricelist p", 'id'));
-        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
+        $design->assign('dests',array('4'=>'п°п╣я│я┌п╫я▀п╣ п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣','5'=>'п°п╣я│я┌п╫я▀п╣ п°п╬п╠п╦п╩я▄п╫я▀п╣','1'=>'п═п╬я│я│п╦я▐','2'=>'п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟','3'=>'п║п²п⌠'));
         $design->AddMain('tarifs/voip_list.tpl');
     }
     function tarifs_voip_edit(){
@@ -227,7 +227,7 @@ class m_tarifs{
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where operator_id=999"));
         $design->assign('id',$id);
-        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
+        $design->assign('dests',array('4'=>'п°п╣я│я┌п╫я▀п╣ п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣','5'=>'п°п╣я│я┌п╫я▀п╣ п°п╬п╠п╦п╩я▄п╫я▀п╣','1'=>'п═п╬я│я│п╦я▐','2'=>'п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟','3'=>'п║п²п⌠'));
         $design->AddMain('tarifs/voip_edit.tpl');
     }
     function tarifs_delete(){
@@ -257,10 +257,10 @@ class m_tarifs{
         if(get_param_raw("new", "") == "true")
         {
             if(!$contract){
-                trigger_error("Имя не должно быть пустым. Только цифры, латинские буквы, и _");
+                trigger_error("п≤п╪я▐ п╫п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪. п╒п╬п╩я▄п╨п╬ я├п╦я└я─я▀, п╩п╟я┌п╦п╫я│п╨п╦п╣ п╠я┐п╨п╡я▀, п╦ _");
                 return;
             }else{
-                if(file_put_contents($filePath, "договор ".$group.": ".$contract))
+                if(file_put_contents($filePath, "п╢п╬пЁп╬п╡п╬я─ ".$group.": ".$contract))
                 $db->QueryInsert("log_contract_template_edit", array(
                             "group" => $group,
                             "contract" => $contract,
@@ -302,9 +302,9 @@ class m_tarifs{
             $l =$db->GetRow("select u.name,l.* from user_users u, (SELECT * FROM `log_contract_template_edit` where `group` = '".$group."' and contract='".$contract."' order by date desc limit 1) l where l.user = u.id");
 
             if($l){
-                $info = "Договор ".$group." ".$contract." сохранен ".$l["date"]." пользователем: ".$l["name"];
+                $info = "п■п╬пЁп╬п╡п╬я─ ".$group." ".$contract." я│п╬я┘я─п╟п╫п╣п╫ ".$l["date"]." п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪: ".$l["name"];
             }else{
-                $info = "Договор ".$group." ".$contract." сохранен ".date("Y-m-d H:i:s", filemtime($filePath));
+                $info = "п■п╬пЁп╬п╡п╬я─ ".$group." ".$contract." я│п╬я┘я─п╟п╫п╣п╫ ".date("Y-m-d H:i:s", filemtime($filePath));
             }
 
         }
@@ -444,8 +444,8 @@ class m_tarifs{
                     $defs = array();
                     switch($_POST['file_format']){
                         case 'mtt1':{
-                            $str = iconv($_POST['encoding'],'koi8r',file_get_contents($file['tmp_name']));
-                            $pattern = '#^([^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})(?:с.(\d+?))\s+(?:по\s+(\d+?))#imU';
+                            $str = iconv($_POST['encoding'],'utf-8',file_get_contents($file['tmp_name']));
+                            $pattern = '#^([^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})(?:я│.(\d+?))\s+(?:п©п╬\s+(\d+?))#imU';
                             preg_match_all($pattern,$str,$matches,PREG_SET_ORDER);
                             foreach($matches as $match){
                                 $lines[] = array(
@@ -478,7 +478,7 @@ class m_tarifs{
                                 if($usd_cur == 0)$usd_cur = 1;
                             }else
                                 $usd_cur = 1;
-                            $str = iconv($_POST['encoding'],'koi8r',file_get_contents($file['tmp_name']));
+                            $str = iconv($_POST['encoding'],'utf-8',file_get_contents($file['tmp_name']));
                             $pattern = '#^([^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})([^\t]+?)#imU';
                             preg_match_all($pattern,$str,$matches,PREG_SET_ORDER);
                             foreach($matches as $match){
@@ -507,7 +507,7 @@ class m_tarifs{
             foreach($defs as $def){
                 foreach($def as $idx){
                     if($_POST['dgroup']=='0' && $_POST['dsubgroup']=='2'){
-                        $lines[$idx]['region'] = preg_replace('/^Москва$/i','Москва (моб.)',trim($lines[$idx]['region']));
+                        $lines[$idx]['region'] = preg_replace('/^п°п╬я│п╨п╡п╟$/i','п°п╬я│п╨п╡п╟ (п╪п╬п╠.)',trim($lines[$idx]['region']));
                     }
                     if(is_array($lines[$idx]['prefixes']['range'])){
                         $lines[$idx]['find'] = true;
@@ -619,7 +619,7 @@ class m_tarifs{
             }
             $db->Lock('price_voip');
             if(mysql_errno()){
-                $design->assign('error','Не удалось заблокировать таблицу! '.mysql_error());
+                $design->assign('error','п²п╣ я┐п╢п╟п╩п╬я│я▄ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄ я┌п╟п╠п╩п╦я├я┐! '.mysql_error());
                 $design->assign('upload_lines',$lines);
                 $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
                 return;
@@ -694,8 +694,8 @@ class PriceTel
         global $design, $db;
 
         $data = array(
-                "990" => array("city" => "Москва (старый прайс)", "time" => false),
-                "991" => array("city" => "Присоединение сетей", "time" => false),
+                "990" => array("city" => "п°п╬я│п╨п╡п╟ (я│я┌п╟я─я▀п╧ п©я─п╟п╧я│)", "time" => false),
+                "991" => array("city" => "п÷я─п╦я│п╬п╣п╢п╦п╫п╣п╫п╦п╣ я│п╣я┌п╣п╧", "time" => false),
                 );
 
         foreach($db->AllRecords('select id, name from regions order by id desc', 'id') as $r)
@@ -722,7 +722,7 @@ class PriceTel
         $region = get_param_integer("region", 0);
 
         if(!$region) 
-            die("Ошибка");
+            die("п·я┬п╦п╠п╨п╟");
 
         $pp = array();
         foreach(array(5,4,3,2,1) as $p)
@@ -737,16 +737,16 @@ class PriceTel
 
         if($region != 990 && $region != 991)
         {
-            self::__addTitle("Местные стационарные", $d);
+            self::__addTitle("п°п╣я│я┌п╫я▀п╣ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣", $d);
             self::__parsePrice($pp[4], $d);
-            self::__addTitle("Местные мобильные", $d);
+            self::__addTitle("п°п╣я│я┌п╫я▀п╣ п╪п╬п╠п╦п╩я▄п╫я▀п╣", $d);
             self::__parsePrice($pp[5], $d);
         }
-        self::__addTitle("Россия", $d);
+        self::__addTitle("п═п╬я│я│п╦я▐", $d);
         self::__parsePrice($pp[1], $d);
-        self::__addTitle("Ближнее зарубежье", $d);
+        self::__addTitle("п▒п╩п╦п╤п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣", $d);
         self::__parsePrice($pp[3], $d);
-        self::__addTitle("Дальнее зарубежье", $d);
+        self::__addTitle("п■п╟п╩я▄п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣", $d);
         self::__parsePrice($pp[2], $d);
 
         $design->assign("d", $d);
@@ -762,16 +762,16 @@ class PriceTel
         $region = get_param_integer("region", 0);
         if(!$region)
         {
-            echo "Ошибка";
+            echo "п·я┬п╦п╠п╨п╟";
             exit();
         }
 
 
-        if(file_put_contents(STORE_PATH."contracts/region_".$region.".html", iconv("utf-8", "koi8-r", $_POST["html"])))
+        if(file_put_contents(STORE_PATH."contracts/region_".$region.".html", $_POST["html"]))
         {
             echo "ok";
         }else{
-            echo "Ошибка сохранения";
+            echo "п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐";
         }
         exit();
     }
@@ -789,7 +789,6 @@ class PriceTel
             if($idx == 0) continue;
 
             $c = trim($c);
-            $c = iconv("utf8", "koi8r", $c);
 
             $aa = explode(";", $c);
             foreach($aa as &$a)

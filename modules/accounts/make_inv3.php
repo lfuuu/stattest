@@ -20,7 +20,7 @@ function get_param_protected($name,$default = '') {
 	return str_protect($t);
 };
 function str_protect($str){
-	//вроде как, те 2 строчки лишние
+	//п╡я─п╬п╢п╣ п╨п╟п╨, я┌п╣ 2 я│я┌я─п╬я┤п╨п╦ п╩п╦я┬п╫п╦п╣
 	$str=str_replace("\\","\\\\",$str);
 	$str=str_replace("\"","\\\"",$str);
 	return $str;
@@ -29,14 +29,14 @@ function str_protect($str){
 //echo "<h1>make_inv2</h1><br>";
 	$bill_no=get_param_protected('bill_no');
 	if ($bill_no==''){
-		echo "не определен номер счета";
+		echo "п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟";
 		exit;
 	};
 	
 	$client=get_param_protected('client');
 	
 	if ($client==''){
-		echo "не определен номер счета";
+		echo "п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟";
 		exit;
 	};
 	
@@ -44,17 +44,17 @@ function str_protect($str){
 	$todo=get_param_protected('todo');
 	if ($todo==''){
 	?>
-		<h1>Пересчет счетов фактур</h1>
+		<h1>п÷п╣я─п╣я│я┤п╣я┌ я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─</h1>
 		<form method="POST" action="?todo=make"> 
 		<table>
 			<TR>
-				<TD>Сумма Платежа рублях</TD>
-				<td>Сумма платежа в долларах</td>
-				<td>Курс</td>
-				<TD>Дата платежа</TD>
-				<TD>Номер платежного поручения</TD>
-				<TD>Номер счета </TD>
-				<TD>Клиент</TD>
+				<TD>п║я┐п╪п╪п╟ п÷п╩п╟я┌п╣п╤п╟ я─я┐п╠п╩я▐я┘</TD>
+				<td>п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟ п╡ п╢п╬п╩п╩п╟я─п╟я┘</td>
+				<td>п я┐я─я│</td>
+				<TD>п■п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟</TD>
+				<TD>п²п╬п╪п╣я─ п©п╩п╟я┌п╣п╤п╫п╬пЁп╬ п©п╬я─я┐я┤п╣п╫п╦я▐</TD>
+				<TD>п²п╬п╪п╣я─ я│я┤п╣я┌п╟ </TD>
+				<TD>п п╩п╦п╣п╫я┌</TD>
 			</TR>
 			<TR>
 				<TD><INPUT maxlength="20" size="10" value="0.00" name="pay_sum" type="text"></TD>
@@ -66,7 +66,7 @@ function str_protect($str){
 				<TD><INPUT maxlength="20" size="10" value="<?=$client;?>" name="client" type="text" readonly="true"></TD>
 			</TR>
 			<TR>
-				<TD colspan="6"><INPUT value="Сформировать" type="submit"></TD>
+				<TD colspan="6"><INPUT value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄" type="submit"></TD>
 			</TR>
 		</table>
 		

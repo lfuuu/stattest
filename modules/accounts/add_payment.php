@@ -3,7 +3,7 @@
 	include "../../conf.php";
 	include  "../../include_archaic/lib.php";
 	require_once("make_inv.php");
-//аутентификация
+//п╟я┐я┌п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐
 	$module=get_param_raw('module','');
 	$action=get_param_raw('action','default');
 	$user->DoAction($action);
@@ -12,7 +12,7 @@
 	$client=get_param_protected('clients_client','');
 	if ($client=="") 
 	{
-		echo("Не выбран клиент");
+		echo("п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌");
 		exit;
 		
 	};
@@ -38,8 +38,8 @@
 			$db->Query("SELECT * from bill_currency_rate where date='$pay_date'");
 			
 			if(!($r=$db->NextRecord())){
-				$message="На <b>$pay_date</b> не установлен курс доллара.
-				Устновите его <a href='../../index.php?modules=accounts&action=accounts_add_usd_rate' target='_blank'>здесь</a> и внесите платеж еще раз.";
+				$message="п²п╟ <b>$pay_date</b> п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╨я┐я─я│ п╢п╬п╩п╩п╟я─п╟.
+				пёя│я┌п╫п╬п╡п╦я┌п╣ п╣пЁп╬ <a href='../../index.php?modules=accounts&action=accounts_add_usd_rate' target='_blank'>п╥п╢п╣я│я▄</a> п╦ п╡п╫п╣я│п╦я┌п╣ п©п╩п╟я┌п╣п╤ п╣я┴п╣ я─п╟п╥.";
 				break;
 				
 			}
@@ -49,17 +49,17 @@
 			$db->Query($query);
 			if (!$r=$db->NextRecord())
 			{
-				$message="Ошибка при обращении к базе $query <br>".mysql_error()."<br>";
+				$message="п·я┬п╦п╠п╨п╟ п©я─п╦ п╬п╠я─п╟я┴п╣п╫п╦п╦ п╨ п╠п╟п╥п╣ $query <br>".mysql_error()."<br>";
 				break;
 			};
 			
 			$delta_pr=abs($r['sum']-$sum_usd)/$r['sum']*100;
 			$delta=abs($r['sum']-$sum_usd);
-//			echo "платеж-$sum_usd счет-{$r['sum']} saldo-$saldo delta_pr=$delta_pr flag=$flag<br> ";
+//			echo "п©п╩п╟я┌п╣п╤-$sum_usd я│я┤п╣я┌-{$r['sum']} saldo-$saldo delta_pr=$delta_pr flag=$flag<br> ";
 			
 			if ($delta_pr<=3 && ($r['sum']!=0)){
-				// платеж отличается от суммы меньше чем 3% 
-//			echo "<br>Платеж отличается меньше чем на 3 %<br>";	
+				// п©п╩п╟я┌п╣п╤ п╬я┌п╩п╦я┤п╟п╣я┌я│я▐ п╬я┌ я│я┐п╪п╪я▀ п╪п╣п╫я▄я┬п╣ я┤п╣п╪ 3% 
+//			echo "<br>п÷п╩п╟я┌п╣п╤ п╬я┌п╩п╦я┤п╟п╣я┌я│я▐ п╪п╣п╫я▄я┬п╣ я┤п╣п╪ п╫п╟ 3 %<br>";	
 				$bill_sum=$r['sum'];
 				$pay_rate=$pay_sum/$bill_sum;
 				$sum_usd=$bill_sum;
@@ -67,51 +67,51 @@
 				$query = "insert into bill_payments (client,payment_no, payment_date, sum_rub, sum_usd,rate,bill_no,type,comment) 
 					  values ('$client','$pay_pp','$pay_date','$pay_sum','$bill_sum','$pay_rate','$bill','$type','$comment')";
 				$db->Query($query);
-				$message="Платеж на сумму <b>$pay_sum</b> по счету &#035; <b>$bill</b>внесен. ";
-				if ($db->mErrno>0) $message="Внести платеж не удалось. Ошибка с базой<br>".mysql_error();
+				$message="п÷п╩п╟я┌п╣п╤ п╫п╟ я│я┐п╪п╪я┐ <b>$pay_sum</b> п©п╬ я│я┤п╣я┌я┐ &#035; <b>$bill</b>п╡п╫п╣я│п╣п╫. ";
+				if ($db->mErrno>0) $message="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·я┬п╦п╠п╨п╟ я│ п╠п╟п╥п╬п╧<br>".mysql_error();
 			
 				make_invoice($pay_pp,$pay_sum,$sum_usd,$pay_rate,$bill,$pay_date);
 				break;
 			}
-			// переплата 
+			// п©п╣я─п╣п©п╩п╟я┌п╟ 
 			
-//			echo "<br>переплата".(($sum_usd-$r['sum'])*100/$r['sum'])."<br>";
+//			echo "<br>п©п╣я─п╣п©п╩п╟я┌п╟".(($sum_usd-$r['sum'])*100/$r['sum'])."<br>";
 			if (
 					((($sum_usd-$r['sum'])*100/$r['sum']>3) && ($flag =="1"))
 				|| ($r['sum']==0)
 				){
-//			echo "переплата<br>";
-				$message="Сумма платежа отличается от суммы счета более чем на 3%, <b>переплата</b> составляет <b>".abs($sum_usd-$r['sum'])."</b><br>";
+//			echo "п©п╣я─п╣п©п╩п╟я┌п╟<br>";
+				$message="п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟ п╬я┌п╩п╦я┤п╟п╣я┌я│я▐ п╬я┌ я│я┐п╪п╪я▀ я│я┤п╣я┌п╟ п╠п╬п╩п╣п╣ я┤п╣п╪ п╫п╟ 3%, <b>п©п╣я─п╣п©п╩п╟я┌п╟</b> я│п╬я│я┌п╟п╡п╩я▐п╣я┌ <b>".abs($sum_usd-$r['sum'])."</b><br>";
 				
 				make_balance_correction_db($client,$sum_usd);
 				$query = "insert into bill_payments (client,payment_no, payment_date, sum_rub, sum_usd,rate,bill_no,type,comment) values ('$client','$pay_pp','$pay_date',$pay_sum,$sum_usd,$rate,'$bill',$type,'$comment')";
 				$db->Query($query);
-				$message="Платеж на сумму <b>$pay_sum</b> по счету &#035; <b>$bill</b>внесен. ";
-				if ($db->mErrno>0) $message="Внести платеж не удалось. Ошибка с базой<br>".mysql_error();
+				$message="п÷п╩п╟я┌п╣п╤ п╫п╟ я│я┐п╪п╪я┐ <b>$pay_sum</b> п©п╬ я│я┤п╣я┌я┐ &#035; <b>$bill</b>п╡п╫п╣я│п╣п╫. ";
+				if ($db->mErrno>0) $message="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·я┬п╦п╠п╨п╟ я│ п╠п╟п╥п╬п╧<br>".mysql_error();
 				
 				$query="UPDATE saldo set saldo=saldo+$delta where client='$client'";
 				$db->Query($query);
 				make_invoice($pay_pp,$pay_sum,$sum_usd,$pay_rate,$bill,$pay_date);
 				break;
 			};
-			// недоплата но есть положительное сальдо которое покрывает недоплату
+			// п╫п╣п╢п╬п©п╩п╟я┌п╟ п╫п╬ п╣я│я┌я▄ п©п╬п╩п╬п╤п╦я┌п╣п╩я▄п╫п╬п╣ я│п╟п╩я▄п╢п╬ п╨п╬я┌п╬я─п╬п╣ п©п╬п╨я─я▀п╡п╟п╣я┌ п╫п╣п╢п╬п©п╩п╟я┌я┐
 /*			printdbg ($sum_usd,"sum_usd");
 			printdbg($saldo,'saldo');
 			printdbg($r['sum'], 'Bill_sum');
-			printdbg(($sum_usd+$saldo-$r['sum']),'если учитывать сальдо');
+			printdbg(($sum_usd+$saldo-$r['sum']),'п╣я│п╩п╦ я┐я┤п╦я┌я▀п╡п╟я┌я▄ я│п╟п╩я▄п╢п╬');
 			printdbg((($r['sum']-$sum_usd-$saldo)/$r['sum']),"% esli i saldo ne pokrivaet");
 */
 			if(($sum_usd+$saldo-$r['sum']>0) or 
 				((($r['sum']-$sum_usd-$saldo)/$r['sum'])<1.03) ){
-//				echo "недоплата но сальдо хватает чтоб провести этот счет<br>";
+//				echo "п╫п╣п╢п╬п©п╩п╟я┌п╟ п╫п╬ я│п╟п╩я▄п╢п╬ я┘п╡п╟я┌п╟п╣я┌ я┤я┌п╬п╠ п©я─п╬п╡п╣я│я┌п╦ я█я┌п╬я┌ я│я┤п╣я┌<br>";
 				make_balance_correction_db($client,$sum_usd);
 				$query = "insert into bill_payments 
 					(client,payment_no, payment_date, sum_rub, sum_usd,rate,bill_no,type,comment) 
 					values ('$client','$pay_pp','$pay_date',$pay_sum,$sum_usd,$rate,'$bill',$type,'$comment')";
 				$db->Query($query);
 
-				$message="Платеж на сумму <b>$pay_sum</b> по счету &#035; <b>$bill</b>внесен. ";
-				if ($db->mErrno>0) $message="Внести платеж не удалось. Ошибка с базой<br>".mysql_error();
+				$message="п÷п╩п╟я┌п╣п╤ п╫п╟ я│я┐п╪п╪я┐ <b>$pay_sum</b> п©п╬ я│я┤п╣я┌я┐ &#035; <b>$bill</b>п╡п╫п╣я│п╣п╫. ";
+				if ($db->mErrno>0) $message="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·я┬п╦п╠п╨п╟ я│ п╠п╟п╥п╬п╧<br>".mysql_error();
 				
 				$delta_saldo=$r['sum']-$sum_usd;
 				$saldo-=$delta_saldo;
@@ -130,13 +130,13 @@
 				
 				
 			}
-			//недоплата и сальдо не хватает чтоб провести счет
+			//п╫п╣п╢п╬п©п╩п╟я┌п╟ п╦ я│п╟п╩я▄п╢п╬ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ я┤я┌п╬п╠ п©я─п╬п╡п╣я│я┌п╦ я│я┤п╣я┌
 			if ($sum_usd+$saldo-$r['sum']<0){
 				make_balance_correction_db($client,$sum_usd);
 				$query = "insert into bill_payments (client,payment_no, payment_date, sum_rub, sum_usd,rate,bill_no,type,comment) values ('$client','$pay_pp','$pay_date',$pay_sum,$sum_usd,$rate,'$bill',$type,'$comment')";
 				$db->Query($query);
-				$message="Платеж на сумму <b>$pay_sum</b> по счету &#035; <b>$bill</b>внесен. ";
-				if ($db->mErrno>0) $message="Внести платеж не удалось. Ошибка с базой<br>".mysql_error();
+				$message="п÷п╩п╟я┌п╣п╤ п╫п╟ я│я┐п╪п╪я┐ <b>$pay_sum</b> п©п╬ я│я┤п╣я┌я┐ &#035; <b>$bill</b>п╡п╫п╣я│п╣п╫. ";
+				if ($db->mErrno>0) $message="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·я┬п╦п╠п╨п╟ я│ п╠п╟п╥п╬п╧<br>".mysql_error();
 				$query="UPDATE saldo set saldo=saldo+$sum_usd where client='$client'";
 				$db->Query($query);
 				break;

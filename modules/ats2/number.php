@@ -10,10 +10,10 @@ class aNumber
         global $design;
 
         $id = get_param_integer("id", 0);
-        if(!$id) {trigger_error("îÏÍÅÒ ÎÅ ÎÁÊÄÅÎ"); return;}
+        if(!$id) {trigger_error("ĞĞ¾Ğ¼ĞµÑ€ Ğ½Ğµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½"); return;}
 
         $n = self::getNumber($id);
-        if(!$n) {trigger_error("îÏÍÅÒ ÎÅ ÎÁÊÄÅÎ"); return;}
+        if(!$n) {trigger_error("ĞĞ¾Ğ¼ĞµÑ€ Ğ½Ğµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½"); return;}
 
         list($isEdit, $l) = self::getNumberLink($id);
 
@@ -83,7 +83,7 @@ class aNumber
             global $db_ats;
             if ($db_ats->GetValue("select count(*) from a_link where c_id in ('".implode("','", $numbers)."') and c_type in ('line', 'trunk') and number_id != '".self::getNumberId($gData["number"])."'"))
             {
-                throw new Exception("ğÒÉËÒÅĞÌÑÅÍÁÑ ÌÉÎÉÑ ÕÖÅ ĞÒÉËÒÅĞÌÅÎÁ Õ ÄÒÕÇÏÍÕ ÎÏÍÅÒÕ");
+                throw new Exception("ĞŸÑ€Ğ¸ĞºÑ€ĞµĞ¿Ğ»ÑĞµĞ¼Ğ°Ñ Ğ»Ğ¸Ğ½Ğ¸Ñ ÑƒĞ¶Ğµ Ğ¿Ñ€Ğ¸ĞºÑ€ĞµĞ¿Ğ»ĞµĞ½Ğ° Ñƒ Ğ´Ñ€ÑƒĞ³Ğ¾Ğ¼Ñƒ Ğ½Ğ¾Ğ¼ĞµÑ€Ñƒ");
             }
         }
     }
@@ -168,7 +168,7 @@ class aNumber
 
         if(!$numberId || !$number) 
         {
-            trigger_error("ïÛÉÂËÁ ÕÄÁÌÅÎÉÑ"); 
+            trigger_error("ĞÑˆĞ¸Ğ±ĞºĞ° ÑƒĞ´Ğ°Ğ»ĞµĞ½Ğ¸Ñ"); 
             return;
         }
         
@@ -176,7 +176,7 @@ class aNumber
 
         if(!$isEdit)
         {
-            trigger_error("ïÛÉÂËÁ ÕÄÁÌÅÎÉÑ"); 
+            trigger_error("ĞÑˆĞ¸Ğ±ĞºĞ° ÑƒĞ´Ğ°Ğ»ĞµĞ½Ğ¸Ñ"); 
             return;
         }
 
@@ -195,7 +195,7 @@ class aNumber
 		$number = self::getNumber($numberId);
 		if (self::delete_alink_rows($numberId, $number, $c_ids) === false)
 		{
-			trigger_error("ïÛÉÂËÁ ÕÄÁÌÅÎÉÑ"); 
+			trigger_error("ĞÑˆĞ¸Ğ±ĞºĞ° ÑƒĞ´Ğ°Ğ»ĞµĞ½Ğ¸Ñ"); 
 			continue;
 		}
         }
@@ -270,19 +270,19 @@ class aNumber
     {
         $map = array();
 
-        $map["number"] = array("title" => "îÏÍÅÒ", "type" => "info");
+        $map["number"] = array("title" => "ĞĞ¾Ğ¼ĞµÑ€", "type" => "info");
 
         if($isEdit)
         {
             $map["c_type"] = array(
-                    "title" => "ôÉĞ ÓÏÅÄÉÎÅÎÉÑ",
+                    "title" => "Ğ¢Ğ¸Ğ¿ ÑĞ¾ĞµĞ´Ğ¸Ğ½ĞµĞ½Ğ¸Ñ",
                     "type" => "info",
                     );
         }else{
             $map["c_type"] = array(
-                    "title" => "ôÉĞ ÓÏÅÄÉÎÅÎÉÑ",
+                    "title" => "Ğ¢Ğ¸Ğ¿ ÑĞ¾ĞµĞ´Ğ¸Ğ½ĞµĞ½Ğ¸Ñ",
                     "type" => "radio",
-                    "data" => array(array("type" => "array", "array" => array("line" => "ìÉÎÉÑ", "trunk" => "ôÒÁÎË"))),
+                    "data" => array(array("type" => "array", "array" => array("line" => "Ğ›Ğ¸Ğ½Ğ¸Ñ", "trunk" => "Ğ¢Ñ€Ğ°Ğ½Ğº"))),
                     );
         }
 
@@ -320,7 +320,7 @@ class aNumber
 
                 
         $map["c_id_trunk"] = array(
-                "title" => "ôÒÁÎË",
+                "title" => "Ğ¢Ñ€Ğ°Ğ½Ğº",
                 "type" => "select",
                 "data" => $sqlAccounts,
                 "condition" => array("eq", "c_type", "trunk")
@@ -337,7 +337,7 @@ class aNumber
                             and l.number_id = ".$numberId : "")*/
 
         $map["c_id_line"] = array(
-                "title" => "ìÉÎÉÉ",
+                "title" => "Ğ›Ğ¸Ğ½Ğ¸Ğ¸",
                 "type" => "sort_list",
                 "data_all" => $sqlAccounts,
                 "condition" => array("eq", "c_type", "line")

@@ -1,10 +1,10 @@
 <?
 class m_yandex_head extends IModuleHead{
 	public $module_name = 'yandex';
-	public $module_title = 'ðÌÁÔÅÖÉ ñÎÄÅËÓ';
+	public $module_title = 'ÐŸÐ»Ð°Ñ‚ÐµÐ¶Ð¸ Ð¯Ð½Ð´ÐµÐºÑ';
 
 	public $rights=array(
-					'yandex'			=>array("ñÎÄÅËÓ",'history,payment','ÉÓÔÏÒÉÑ ÐÌÁÔÅÖÅÊ,ÐÒÏ×ÅÄÅÎÉÅ ÐÌÁÔÅÖÅÊ')
+					'yandex'			=>array("Ð¯Ð½Ð´ÐµÐºÑ",'history,payment','Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ñ Ð¿Ð»Ð°Ñ‚ÐµÐ¶ÐµÐ¹,Ð¿Ñ€Ð¾Ð²ÐµÐ´ÐµÐ½Ð¸Ðµ Ð¿Ð»Ð°Ñ‚ÐµÐ¶ÐµÐ¹')
 				);
 	public $actions=array(
 					'authorize'	=> array('yandex','payment'),
@@ -15,7 +15,7 @@ class m_yandex_head extends IModuleHead{
 					'pay_compapa'		=> array('yandex','payment'),
 				);
 	public $menu=array(
-					array('éÓÔÏÒÉÑ ÐÌÁÔÅÖÅÊ',	'history'),
+					array('Ð˜ÑÑ‚Ð¾Ñ€Ð¸Ñ Ð¿Ð»Ð°Ñ‚ÐµÐ¶ÐµÐ¹',	'history'),
 				);
 }
 ?>

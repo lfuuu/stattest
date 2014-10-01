@@ -10,18 +10,18 @@ function month2days($period)
 };
 
 class m_accounts{
-    var $actions=array('accounts_bills'=>array("Счета", "n,r,w,auto_bills",""),
-               'accounts_invoices'=>array("Счета фактур", "n,r,w",""),
-               'accounts_payments'=>array("Платежи", "n,r,w,delete,edit_saldo,correct",""),
-               'accounts_report_balance'=>array("Баланс с клиентами","n,r",""),
-               'accounts_view_balance'=>array("Просмотр таблицы баланса","n,r",""),
-//               'accounts_account'=>array("Текущий баланс", "n,r,w",""),
+    var $actions=array('accounts_bills'=>array("п║я┤п╣я┌п╟", "n,r,w,auto_bills",""),
+               'accounts_invoices'=>array("п║я┤п╣я┌п╟ я└п╟п╨я┌я┐я─", "n,r,w",""),
+               'accounts_payments'=>array("п÷п╩п╟я┌п╣п╤п╦", "n,r,w,delete,edit_saldo,correct",""),
+               'accounts_report_balance'=>array("п▒п╟п╩п╟п╫я│ я│ п╨п╩п╦п╣п╫я┌п╟п╪п╦","n,r",""),
+               'accounts_view_balance'=>array("п÷я─п╬я│п╪п╬я┌я─ я┌п╟п╠п╩п╦я├я▀ п╠п╟п╩п╟п╫я│п╟","n,r",""),
+//               'accounts_account'=>array("п╒п╣п╨я┐я┴п╦п╧ п╠п╟п╩п╟п╫я│", "n,r,w",""),
 
-               'accounts_not_paied_bills'=>array("Неоплаченные счета", "n,r,w",""),
-               'accounts_reports'=>array("Бухгалтерские отчеты", "n,r,w",""),
-               'accounts_del_payment'=>array("Удаление платежей", "n,r,w",""),
-               'accounts_add_usd_rate'=>array("Ввод курса доллара","n,r,w",""),
-               'accounts_import_payments'=>array("Импорт платежей","n,r,w",""),
+               'accounts_not_paied_bills'=>array("п²п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟", "n,r,w",""),
+               'accounts_reports'=>array("п▒я┐я┘пЁп╟п╩я┌п╣я─я│п╨п╦п╣ п╬я┌я┤п╣я┌я▀", "n,r,w",""),
+               'accounts_del_payment'=>array("пёп╢п╟п╩п╣п╫п╦п╣ п©п╩п╟я┌п╣п╤п╣п╧", "n,r,w",""),
+               'accounts_add_usd_rate'=>array("п▓п╡п╬п╢ п╨я┐я─я│п╟ п╢п╬п╩п╩п╟я─п╟","n,r,w",""),
+               'accounts_import_payments'=>array("п≤п╪п©п╬я─я┌ п©п╩п╟я┌п╣п╤п╣п╧","n,r,w",""),
     			);
 
     function m_accounts(){
@@ -32,30 +32,30 @@ class m_accounts{
     function GetPanel(){
         global $design,$user;
         $R=array();
-        //добавляем в массив только те действия к которым есть права у юзера
+        //п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╡ п╪п╟я│я│п╦п╡ я┌п╬п╩я▄п╨п╬ я┌п╣ п╢п╣п╧я│я┌п╡п╦я▐ п╨ п╨п╬я┌п╬я─я▀п╪ п╣я│я┌я▄ п©я─п╟п╡п╟ я┐ я▌п╥п╣я─п╟
         foreach($this->actions as $key=>$val){
             if (access($key,"r")){
               $R[]=array($val[0],'module=accounts&action='.$key);
             }
         }
-        // Если нет доступа ни к одному действию то эту панель и выводить не требуется
+        // п∙я│п╩п╦ п╫п╣я┌ п╢п╬я│я┌я┐п©п╟ п╫п╦ п╨ п╬п╢п╫п╬п╪я┐ п╢п╣п╧я│я┌п╡п╦я▌ я┌п╬ я█я┌я┐ п©п╟п╫п╣п╩я▄ п╦ п╡я▀п╡п╬п╢п╦я┌я▄ п╫п╣ я┌я─п╣п╠я┐п╣я┌я│я▐
         if (count($R)>0){
-            // добавляем разделители
+            // п╢п╬п╠п╟п╡п╩я▐п╣п╪ я─п╟п╥п╢п╣п╩п╦я┌п╣п╩п╦
             array_splice($R,5,0,'');
-            // выводим панель
-            $design->AddMenu('Бухгалтерия',$R);
+            // п╡я▀п╡п╬п╢п╦п╪ п©п╟п╫п╣п╩я▄
+            $design->AddMenu('п▒я┐я┘пЁп╟п╩я┌п╣я─п╦я▐',$R);
 
         }
     }
     function GetMain($action,$fixclient){
         global $design;
         if ($action=="default"){
-            $action='accounts_payments';// действие по умолчанию
+            $action='accounts_payments';// п╢п╣п╧я│я┌п╡п╦п╣ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌
         }
         if (!access($action,'r')) return;
         call_user_func(array($this,$action),$fixclient);
-        // Временно вызывам функцию отсюда? а вообще говоря каждая функция будет
-        // иметь свой шаблон
+        // п▓я─п╣п╪п╣п╫п╫п╬ п╡я▀п╥я▀п╡п╟п╪ я└я┐п╫п╨я├п╦я▌ п╬я┌я│я▌п╢п╟? п╟ п╡п╬п╬п╠я┴п╣ пЁп╬п╡п╬я─я▐ п╨п╟п╤п╢п╟я▐ я└я┐п╫п╨я├п╦я▐ п╠я┐п╢п╣я┌
+        // п╦п╪п╣я┌я▄ я│п╡п╬п╧ я┬п╟п╠п╩п╬п╫
 
     }
     function accounts_bills($fixclient){
@@ -73,7 +73,7 @@ class m_accounts{
 
         default:
             $customer=get_param_protected('clients_client','');
-            if ($customer=="" ) $customer="Для всех клиентов";
+            if ($customer=="" ) $customer="п■п╩я▐ п╡я│п╣я┘ п╨п╩п╦п╣п╫я┌п╬п╡";
             $design->assign("customer",$customer);
 
             $this_year=date("Y");
@@ -116,7 +116,7 @@ class m_accounts{
     }
     function accounts_invoices($fixclient){
         global $design,$db;
-        // вывод счетов фактур
+        // п╡я▀п╡п╬п╢ я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─
         //$todo=get_param_protected("todo","");
         $customer=get_param_protected('clients_client','');
         if (!$customer) {
@@ -152,7 +152,7 @@ class m_accounts{
     function accounts_payments($fixclient){
         global $db,$design;
         $client=get_param_protected('clients_client',$fixclient);
-        if (!$client) {trigger_error("Не выбран клиент");return;}
+        if (!$client) {trigger_error("п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌");return;}
         $design->assign('client',$client);
         $todo=get_param_protected('todo');
         if ($todo == "rerate") {
@@ -172,7 +172,7 @@ class m_accounts{
             $pay_date=get_param_protected('pay_date');
             $db->Query("SELECT * from bill_currency_rate where date='$pay_date'");
             if ($db->mErrno != 0) {
-				trigger_error("не установлен курс на $pay_date");
+				trigger_error("п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╨я┐я─я│ п╫п╟ $pay_date");
 				return;
             }
             $r=$db->NextRecord();
@@ -235,8 +235,8 @@ class m_accounts{
 		$r=$db->NextRecord();
 		$design->assign('balance',$r['sum']);
 
-        //получаем инфу из таблицы сальдо
-        //выводим базу сальдо
+        //п©п╬п╩я┐я┤п╟п╣п╪ п╦п╫я└я┐ п╦п╥ я┌п╟п╠п╩п╦я├я▀ я│п╟п╩я▄п╢п╬
+        //п╡я▀п╡п╬п╢п╦п╪ п╠п╟п╥я┐ я│п╟п╩я▄п╢п╬
         $query="select * from saldo where client='$client'";
         $db->Query($query);
         if ($db->NumRows()==0){
@@ -248,7 +248,7 @@ class m_accounts{
         $design->assign("saldo",$saldo);
         extract($r);
 
-        //выбираем все счета этого клиента
+        //п╡я▀п╠п╦я─п╟п╣п╪ п╡я│п╣ я│я┤п╣я┌п╟ я█я┌п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟
         $query="SELECT * from bill_bills
             where client='$client' and NOT(state ='cancelled')
             order by bill_date desc";
@@ -261,14 +261,14 @@ class m_accounts{
             $tmp_date=$r['bill_date'];
             $r['bill_date']=convert_date($r['bill_date']);
             $bills[]=$r;
-            // суммируем счета только с даты последней сверки
+            // я│я┐п╪п╪п╦я─я┐п╣п╪ я│я┤п╣я┌п╟ я┌п╬п╩я▄п╨п╬ я│ п╢п╟я┌я▀ п©п╬я│п╩п╣п╢п╫п╣п╧ я│п╡п╣я─п╨п╦
             if($tmp_date>=$date_of_last_saldo){
                 $bill_sum_usd+=$r['sum'];
             };
         };
 
     //  printdbg($saldo,'saldo3');
-        // все платежи клиента
+        // п╡я│п╣ п©п╩п╟я┌п╣п╤п╦ п╨п╩п╦п╣п╫я┌п╟
         $query="SELECT * from bill_payments
             where client='$client'
             order by payment_date";
@@ -280,7 +280,7 @@ class m_accounts{
             $tmp_date=$r['payment_date'];
             $r['payment_date']=convert_date($r['payment_date']);
             $payment[$r['bill_no']][]=$r;
-            // суммируем только платежи с даты последней сверки
+            // я│я┐п╪п╪п╦я─я┐п╣п╪ я┌п╬п╩я▄п╨п╬ п©п╩п╟я┌п╣п╤п╦ я│ п╢п╟я┌я▀ п©п╬я│п╩п╣п╢п╫п╣п╧ я│п╡п╣я─п╨п╦
             if($tmp_date>=$date_of_last_saldo){
                 $payments_sum_usd+=$r['sum_usd'];
             }
@@ -292,13 +292,13 @@ class m_accounts{
             $bill_no=$bills[$i]['bill_no'];
             if (isset($payment[$bill_no])){
                 $bills[$i]['payments']=$payment[$bill_no];
-                // посчитаем общую сумму платежей по этому счету вычисляем переплату-недоплату
+                // п©п╬я│я┤п╦я┌п╟п╣п╪ п╬п╠я┴я┐я▌ я│я┐п╪п╪я┐ п©п╩п╟я┌п╣п╤п╣п╧ п©п╬ я█я┌п╬п╪я┐ я│я┤п╣я┌я┐ п╡я▀я┤п╦я│п╩я▐п╣п╪ п©п╣я─п╣п©п╩п╟я┌я┐-п╫п╣п╢п╬п©п╩п╟я┌я┐
                 $sum_pays_for_bill=0;
                 foreach( $payment[$bill_no] as $pays){
                     $sum_pays_for_bill+=$pays['sum_usd'];
                 }
                 $delta_sum=$sum_pays_for_bill-$bills[$i]['sum'];
-                // если дельта ментше 3% то считаем ее нулевой
+                // п╣я│п╩п╦ п╢п╣п╩я▄я┌п╟ п╪п╣п╫я┌я┬п╣ 3% я┌п╬ я│я┤п╦я┌п╟п╣п╪ п╣п╣ п╫я┐п╩п╣п╡п╬п╧
                 if ($bills[$i]['sum']!=0 && (abs($delta_sum)/$bills[$i]['sum'])<=0.03) $delta_sum=0;
                 $bills[$i]['payments_sum']=$sum_pays_for_bill;
                 $bills[$i]['delta_sum']=round($delta_sum,2);
@@ -317,14 +317,14 @@ class m_accounts{
 			$bills[$i]['payments']=$pay;
 			$i++;
 		}
-        // если мы удаляли платежи то надо правильно обновить сальдо - непроведенных платежей
-        // или у нас задана функция пересчитать переплаты
+        // п╣я│п╩п╦ п╪я▀ я┐п╢п╟п╩я▐п╩п╦ п©п╩п╟я┌п╣п╤п╦ я┌п╬ п╫п╟п╢п╬ п©я─п╟п╡п╦п╩я▄п╫п╬ п╬п╠п╫п╬п╡п╦я┌я▄ я│п╟п╩я▄п╢п╬ - п╫п╣п©я─п╬п╡п╣п╢п╣п╫п╫я▀я┘ п©п╩п╟я┌п╣п╤п╣п╧
+        // п╦п╩п╦ я┐ п╫п╟я│ п╥п╟п╢п╟п╫п╟ я└я┐п╫п╨я├п╦я▐ п©п╣я─п╣я│я┤п╦я┌п╟я┌я▄ п©п╣я─п╣п©п╩п╟я┌я▀
         if ($made_cancel_payment==1 or $todo="over_pays"){
-            //обновляем сальдо
+            //п╬п╠п╫п╬п╡п╩я▐п╣п╪ я│п╟п╩я▄п╢п╬
             $query="Update saldo set saldo=$total_delta where client='$client'";
             $db->Query($query);
 
-            //повторно получаем инфу из таблицы сальдо
+            //п©п╬п╡я┌п╬я─п╫п╬ п©п╬п╩я┐я┤п╟п╣п╪ п╦п╫я└я┐ п╦п╥ я┌п╟п╠п╩п╦я├я▀ я│п╟п╩я▄п╢п╬
             $query="select * from saldo where client='$client'";
             $db->Query($query);
             if(!($r=$db->NextRecord())){ trigger_error("cannot connect to database".mysql_error());}
@@ -409,7 +409,7 @@ class m_accounts{
         $date_balanceT=get_param_protected('date_balanceT',date('Y-m-d'));
 
         foreach ($clients as $client){
-            // получаем дату сверки баланса и сальдо на эту дату
+            // п©п╬п╩я┐я┤п╟п╣п╪ п╢п╟я┌я┐ я│п╡п╣я─п╨п╦ п╠п╟п╩п╟п╫я│п╟ п╦ я│п╟п╩я▄п╢п╬ п╫п╟ я█я┌я┐ п╢п╟я┌я┐
             $query="SELECT * from saldo where client='$client'";
             $db->Query($query);
             if ($db->NumRows()==0){
@@ -420,7 +420,7 @@ class m_accounts{
             $date_saldo=$saldo['date_of_last_saldo'];
             $fix_saldo=$saldo['fix_saldo'];
 
-            // все счета клиента начиная с даты последней сверки
+            // п╡я│п╣ я│я┤п╣я┌п╟ п╨п╩п╦п╣п╫я┌п╟ п╫п╟я┤п╦п╫п╟я▐ я│ п╢п╟я┌я▀ п©п╬я│п╩п╣п╢п╫п╣п╧ я│п╡п╣я─п╨п╦
             $query="SELECT * from bill_bills
                     where client='$client' and NOT(state ='cancelled')
                     and bill_date>='$date_balanceF'
@@ -436,7 +436,7 @@ class m_accounts{
                 $bills[]=$r;
                 $bill_sum_usd+=$r['sum'];
             };
-            // все платежи клиента по счетам с момента последней сверки
+            // п╡я│п╣ п©п╩п╟я┌п╣п╤п╦ п╨п╩п╦п╣п╫я┌п╟ п©п╬ я│я┤п╣я┌п╟п╪ я│ п╪п╬п╪п╣п╫я┌п╟ п©п╬я│п╩п╣п╢п╫п╣п╧ я│п╡п╣я─п╨п╦
             $query="SELECT * from bill_payments
                     where client='$client'
                     and payment_date>='$date_balanceF'
@@ -514,7 +514,7 @@ class m_accounts{
         $provod=get_param_protected('provod');
         $provod_where='';
         switch ($provod){
-            case 'pr': $provod_where='((b.type in (0,3)) and (b.payment_no not like "п%"))';
+            case 'pr': $provod_where='((b.type in (0,3)) and (b.payment_no not like "п©%"))';
                 break;
             case 'all':
             default: $provod_where='(b.type in (0,1,2,3))';
@@ -523,7 +523,7 @@ class m_accounts{
         }
 
         if ($firma == "mcn" or $firma=='markomnet' or $firma=='all'){
-            // выбираем работающих клиентов
+            // п╡я▀п╠п╦я─п╟п╣п╪ я─п╟п╠п╬я┌п╟я▌я┴п╦я┘ п╨п╩п╦п╣п╫я┌п╬п╡
             $firma_where=" and c.firma='$firma' ";
             if ($firma=='all') $firma_where =' ';
             $period=get_param_protected('period');
@@ -549,7 +549,7 @@ class m_accounts{
                 $total_sum+=$r['sum_rub'];
 
             }
-            // теперь к каждолму платежу находим счета фактур
+            // я┌п╣п©п╣я─я▄ п╨ п╨п╟п╤п╢п╬п╩п╪я┐ п©п╩п╟я┌п╣п╤я┐ п╫п╟я┘п╬п╢п╦п╪ я│я┤п╣я┌п╟ я└п╟п╨я┌я┐я─
             foreach ($payments as $key=>&$pay){
                     $query="SELECT * from bill_invoices
                         where bill_no='{$pay['bill_no']}'
@@ -586,7 +586,7 @@ class m_accounts{
         $clients=array();
         $total_payments=0;
         $total_services=0;
-        //echo "вошли в сервисес репорт $report<br>";
+        //echo "п╡п╬я┬п╩п╦ п╡ я│п╣я─п╡п╦я│п╣я│ я─п╣п©п╬я─я┌ $report<br>";
         //printdbg($_POST);
         $firma=get_param_protected('firma');
         $firma_where=" and c.firma='$firma' ";
@@ -596,7 +596,7 @@ class m_accounts{
         $provod=get_param_protected('provod');
         $provod_where='';
         switch ($provod){
-            case 'pr': $provod_where='((b.type in (0,3)) and (b.payment_no not like "п%"))';
+            case 'pr': $provod_where='((b.type in (0,3)) and (b.payment_no not like "п©%"))';
                 break;
             case 'all':
             default: $provod_where='(b.type in (0,1,2,3))';
@@ -667,12 +667,12 @@ class m_accounts{
             $client['invoice']=$invoices;
             $client['sum']=$sum;
 
-            // считаем залоги
+            // я│я┤п╦я┌п╟п╣п╪ п╥п╟п╩п╬пЁп╦
             if ($invoice_numbers<>"()"){
             $query="SELECT sum(sum_plus_tax) as zalog
                 FROM    bill_invoice_lines
                 WHERE   invoice_no in $invoice_numbers
-                    AND item LIKE 'Залог%'";
+                    AND item LIKE 'п≈п╟п╩п╬пЁ%'";
             $db->Query($query);
             $z=$db->NextRecord();
             if (!isset($z['zalog'])) $z['zalog']=0;
@@ -682,7 +682,7 @@ class m_accounts{
 
 
 
-        // платежи
+        // п©п╩п╟я┌п╣п╤п╦
             $query="SELECT payment_no, payment_date, sum_rub
                 from bill_payments as b
                 where   b.payment_date>='$period_from'
@@ -732,7 +732,7 @@ class m_accounts{
         $clients=array();
         $total_payments=0;
         $total_services=0;
-        //echo "вошли в сервисес репорт $report<br>";
+        //echo "п╡п╬я┬п╩п╦ п╡ я│п╣я─п╡п╦я│п╣я│ я─п╣п©п╬я─я┌ $report<br>";
         //printdbg($_POST);
         $firma=get_param_protected('firma');
         $firma_where=" and c.firma='$firma' ";
@@ -742,7 +742,7 @@ class m_accounts{
         $provod=get_param_protected('provod');
         $provod_where='';
         switch ($provod){
-            case 'pr': $provod_where='((b.type in (0,3)) and (b.payment_no not like "п%"))';
+            case 'pr': $provod_where='((b.type in (0,3)) and (b.payment_no not like "п©%"))';
                 break;
             case 'all':
             default: $provod_where='(b.type in (0,1,2,3))';
@@ -760,7 +760,7 @@ $db->Connect();
         $db->Query($sql);
         $r=$db->NextRecord();
         if (!isset($r['rate']) or $r['rate']==0){
-            trigger_error("НЕ установлен курс доллара на $period_to");
+            trigger_error("п²п∙ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╨я┐я─я│ п╢п╬п╩п╩п╟я─п╟ п╫п╟ $period_to");
             return;
         };
         $rate=$r['rate'];
@@ -818,11 +818,11 @@ $db->Connect();
             $services['else']=0;
             while ($r=$db->NextRecord()){
       //      printdbg($r);
-      //      printdbg(strpos($r['item'],'Абонентская'),'strpos');
-                if (strpos($r['item'],'Залог')!==FALSE)$services['zalog']+=$r['sum'];
-                elseif (strpos($r['item'],'Подключение')!==FALSE)$services['new']+=$r['sum'];
-                elseif (strpos($r['item'],'Превышение')!==FALSE)  $services['traff']+=$r['sum'];
-                elseif (strpos($r['item'],'Абонентская')!==FALSE) $services['ab']+=$r['sum'];
+      //      printdbg(strpos($r['item'],'п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐'),'strpos');
+                if (strpos($r['item'],'п≈п╟п╩п╬пЁ')!==FALSE)$services['zalog']+=$r['sum'];
+                elseif (strpos($r['item'],'п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣')!==FALSE)$services['new']+=$r['sum'];
+                elseif (strpos($r['item'],'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣')!==FALSE)  $services['traff']+=$r['sum'];
+                elseif (strpos($r['item'],'п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐')!==FALSE) $services['ab']+=$r['sum'];
                 else $services['else']+=$r['sum'];
 
             };
@@ -896,7 +896,7 @@ $balance=$total['payments']['total']-$total['total'];
     }
     function accounts_add_usd_rate($fixclient){
         global $db,$design;
-        //echo "вошли в функцию ввода курса<br>";
+        //echo "п╡п╬я┬п╩п╦ п╡ я└я┐п╫п╨я├п╦я▌ п╡п╡п╬п╢п╟ п╨я┐я─я│п╟<br>";
         $todo=get_param_protected('todo');
         $date=get_param_protected('date');
         $rate=get_param_protected('rate');
@@ -904,8 +904,8 @@ $balance=$total['payments']['total']-$total['total'];
         if($todo=="add_rate")
         {
             if (!is_numeric($rate)){
-             //echo"не число '$rate'";
-             trigger_error("Введено не числовое значение курса доллара");
+             //echo"п╫п╣ я┤п╦я│п╩п╬ '$rate'";
+             trigger_error("п▓п╡п╣п╢п╣п╫п╬ п╫п╣ я┤п╦я│п╩п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╨я┐я─я│п╟ п╢п╬п╩п╩п╟я─п╟");
              return;
             };
             $query="SELECT * from bill_currency_rate where date='$date'";
@@ -914,14 +914,14 @@ $balance=$total['payments']['total']-$total['total'];
             if ($db->NumRows()>0)
             {
                 $r=$db->NextRecord();
-                $error="на $date уже установлен курс доллара<b> ${r['rate']} </b><br>";
+                $error="п╫п╟ $date я┐п╤п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╨я┐я─я│ п╢п╬п╩п╩п╟я─п╟<b> ${r['rate']} </b><br>";
             }else{
                 $query="INSERT into bill_currency_rate values(NULL,'$date','USD',$rate)";
                 $db->Query($query);
                 if ($db->mErrno>0)
                 {
-                    $error="Ошибка вставки в базу<br>$query<br>".mysql_error();
-                }else $error="Курс на <b>$date</b> установлен, и равен <b>$rate</b><br>";
+                    $error="п·я┬п╦п╠п╨п╟ п╡я│я┌п╟п╡п╨п╦ п╡ п╠п╟п╥я┐<br>$query<br>".mysql_error();
+                }else $error="п я┐я─я│ п╫п╟ <b>$date</b> я┐я│я┌п╟п╫п╬п╡п╩п╣п╫, п╦ я─п╟п╡п╣п╫ <b>$rate</b><br>";
             }
         };
         $design->assign('message',$error);
@@ -943,7 +943,7 @@ $balance=$total['payments']['total']-$total['total'];
             $newname="$path"."/modules/accounts/1c/".$payments['name'];
         //  echo "<br>".$newname."<br>";
             if (!move_uploaded_file($payments['tmp_name'], $newname)){
-              trigger_error("Не могу переместить файл".$payments['error']."<br>");
+              trigger_error("п²п╣ п╪п╬пЁя┐ п©п╣я─п╣п╪п╣я│я┌п╦я┌я▄ я└п╟п╧п╩".$payments['error']."<br>");
               return false;
             };
             //$design->assign('filename',$payments['name']);
@@ -1000,7 +1000,7 @@ $balance=$total['payments']['total']-$total['total'];
 
 
     }
-// Дополнительные функции которых нет в меню
+// п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я└я┐п╫п╨я├п╦п╦ п╨п╬я┌п╬я─я▀я┘ п╫п╣я┌ п╡ п╪п╣п╫я▌
 
     //
 
@@ -1031,7 +1031,7 @@ $balance=$total['payments']['total']-$total['total'];
 
 
     }
-    function new_bill(){}//новый счет
+    function new_bill(){}//п╫п╬п╡я▀п╧ я│я┤п╣я┌
     function bill_for_new_connection(){}
     function bill_for_new_phone(){}//
     function edit_bill(){}//

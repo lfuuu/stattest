@@ -35,7 +35,7 @@ class m_incomegoods extends IModule{
             $whereData[] = $filter['manager'];
         }
 
-        $statusCounter = array('all' => array('name' => '÷ÓÅ', 'count' => 0));
+        $statusCounter = array('all' => array('name' => 'Ð’ÑÐµ', 'count' => 0));
         foreach(GoodsIncomeOrder::$statuses as $key => $name)
             $statusCounter[$key] = array('name' => $name, 'count' => 0);
 
@@ -112,7 +112,7 @@ class m_incomegoods extends IModule{
 
         if ($_GET['id'] == '') {
             if (!isset($fixclient_data['id'])) {
-                trigger_error('÷ÙÂÅÒÉÔÅ ËÌÉÅÎÔÁ...'); return;
+                trigger_error('Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°...'); return;
             }
             $order = new GoodsIncomeOrder();
             $order->active = true;
@@ -142,8 +142,6 @@ class m_incomegoods extends IModule{
         if (!isset($_POST) || !isset($_POST['id']) || !isset($_POST['item']))
             throw new IncorrectRequestParametersException();
 
-        $_POST = Encoding::toKoi8r($_POST);
-
         $list = array();
         foreach($_POST['item'] as $line) {
             if ($incoming_date = DateTime::createFromFormat('d.m.Y', $line['incoming_date']))
@@ -152,11 +150,11 @@ class m_incomegoods extends IModule{
                 $incoming_date = '0001-01-01T00:00:00';
 
             $list[] = array(
-                'îÏÍÅÎËÌÁÔÕÒÁ' => $line['good_id'],
-                'ëÏÌÉÞÅÓÔ×Ï' => str_replace(",", ".", $line['amount']),
-                'ãÅÎÁ' => str_replace(",", ".", $line['price']),
-                'ëÏÄóÔÒÏËÉ' => $line['line_code'],
-                'äÁÔÁðÏÓÔÕÐÌÅÎÉÑ' => $incoming_date,
+                'ÐÐ¾Ð¼ÐµÐ½ÐºÐ»Ð°Ñ‚ÑƒÑ€Ð°' => $line['good_id'],
+                'ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾' => str_replace(",", ".", $line['amount']),
+                'Ð¦ÐµÐ½Ð°' => str_replace(",", ".", $line['price']),
+                'ÐšÐ¾Ð´Ð¡Ñ‚Ñ€Ð¾ÐºÐ¸' => $line['line_code'],
+                'Ð”Ð°Ñ‚Ð°ÐŸÐ¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ' => $incoming_date,
             );
         }
 
@@ -165,21 +163,21 @@ class m_incomegoods extends IModule{
         else
             $external_date = '0001-01-01T00:00:00';
 
-        if(!isset($_POST["status"])) $_POST['status'] = 'óÏÇÌÁÓÏ×ÁÎ';
+        if(!isset($_POST["status"])) $_POST['status'] = 'Ð¡Ð¾Ð³Ð»Ð°ÑÐ¾Ð²Ð°Ð½';
         if(!isset($_POST["active"])) $_POST['active'] = 1;
 
         if($_POST["id"]) // add new
         {
             $gio = GoodsIncomeOrder::find($_POST['id']);
             if(!$gio)
-                throw new Exception("úÁËÁÚ ÎÅ ÎÁÊÄÅÎ!");
+                throw new Exception("Ð—Ð°ÐºÐ°Ð· Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½!");
 
             $status = $gio->status;
             $active = $gio->active;
             $organizationId = $gio->organization_id;
 
         }else{
-            $status = 'óÏÇÌÁÓÏ×ÁÎ';
+            $status = 'Ð¡Ð¾Ð³Ð»Ð°ÑÐ¾Ð²Ð°Ð½';
             $active = 1;
             $organizationId = $_POST["organization_id"];
         }
@@ -187,18 +185,18 @@ class m_incomegoods extends IModule{
 
 
         $data = array(
-            'ëÏÄ1ó' => $_POST['id'],
-            'ðÒÏ×ÅÄÅÎ' => (bool)$active,
-            'ëÏÄëÏÎÔÒÁÇÅÎÔÁ' => $_POST['client_card_id'],
-            'îÏÍÅÒðÏäÁÎÎÙÍðÏÓÔÁ×ÝÉËÁ' => $_POST['external_number'],
-            'äÁÔÁðÏäÁÎÎÙÍðÏÓÔÁ×ÝÉËÁ' => $external_date,
-            'óÔÁÔÕÓ' => $status,
-            'ïÒÇÁÎÉÚÁÃÉÑ' => $organizationId,
-            'óËÌÁÄ' => $_POST['store_id'],
-            '÷ÁÌÀÔÁ' => $_POST['currency'],
-            'ãÅÎÁ÷ËÌÀÞÁÅÔîäó' => (bool)$_POST['price_includes_nds'],
-            'íÅÎÅÄÖÅÒ' => $_POST['manager_id'],
-            'óÐÉÓÏËðÏÚÉÃÉÊ' => $list,
+            'ÐšÐ¾Ð´1Ð¡' => $_POST['id'],
+            'ÐŸÑ€Ð¾Ð²ÐµÐ´ÐµÐ½' => (bool)$active,
+            'ÐšÐ¾Ð´ÐšÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ð°' => $_POST['client_card_id'],
+            'ÐÐ¾Ð¼ÐµÑ€ÐŸÐ¾Ð”Ð°Ð½Ð½Ñ‹Ð¼ÐŸÐ¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÐ°' => $_POST['external_number'],
+            'Ð”Ð°Ñ‚Ð°ÐŸÐ¾Ð”Ð°Ð½Ð½Ñ‹Ð¼ÐŸÐ¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÐ°' => $external_date,
+            'Ð¡Ñ‚Ð°Ñ‚ÑƒÑ' => $status,
+            'ÐžÑ€Ð³Ð°Ð½Ð¸Ð·Ð°Ñ†Ð¸Ñ' => $organizationId,
+            'Ð¡ÐºÐ»Ð°Ð´' => $_POST['store_id'],
+            'Ð’Ð°Ð»ÑŽÑ‚Ð°' => $_POST['currency'],
+            'Ð¦ÐµÐ½Ð°Ð’ÐºÐ»ÑŽÑ‡Ð°ÐµÑ‚ÐÐ”Ð¡' => (bool)$_POST['price_includes_nds'],
+            'ÐœÐµÐ½ÐµÐ´Ð¶ÐµÑ€' => $_POST['manager_id'],
+            'Ð¡Ð¿Ð¸ÑÐ¾ÐºÐŸÐ¾Ð·Ð¸Ñ†Ð¸Ð¹' => $list,
         );
 
 
@@ -259,24 +257,22 @@ class m_incomegoods extends IModule{
 
     public function incomegoods_document_save()
     {
-        $_POST = Encoding::toKoi8r($_POST);
-
         $list = array();
         foreach($_POST['item'] as $line) {
             $list[] = array(
-                'îÏÍÅÎËÌÁÔÕÒÁ' => $line['good_id'],
-                'ëÏÌÉÞÅÓÔ×Ï' => $line['amount'],
-                'ãÅÎÁ' => $line['price'],
-                'ëÏÄóÔÒÏËÉ' => $line['line_code'],
-                'ëÏÄîÏÍÅÒçôä' => $line['gtd_id'],
+                'ÐÐ¾Ð¼ÐµÐ½ÐºÐ»Ð°Ñ‚ÑƒÑ€Ð°' => $line['good_id'],
+                'ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾' => $line['amount'],
+                'Ð¦ÐµÐ½Ð°' => $line['price'],
+                'ÐšÐ¾Ð´Ð¡Ñ‚Ñ€Ð¾ÐºÐ¸' => $line['line_code'],
+                'ÐšÐ¾Ð´ÐÐ¾Ð¼ÐµÑ€Ð“Ð¢Ð”' => $line['gtd_id'],
             );
         }
 
         $data = array(
-            'ëÏÄ1ó' => $_POST['id'],
-            'úÁËÁÚëÏÄ1ó' => $_POST['order_id'],
-            'ðÒÏ×ÅÄÅÎ' => (bool)$_POST['active'],
-            'óÐÉÓÏËðÏÚÉÃÉÊ' => $list,
+            'ÐšÐ¾Ð´1Ð¡' => $_POST['id'],
+            'Ð—Ð°ÐºÐ°Ð·ÐšÐ¾Ð´1Ð¡' => $_POST['order_id'],
+            'ÐŸÑ€Ð¾Ð²ÐµÐ´ÐµÐ½' => (bool)$_POST['active'],
+            'Ð¡Ð¿Ð¸ÑÐ¾ÐºÐŸÐ¾Ð·Ð¸Ñ†Ð¸Ð¹' => $list,
         );
 
         $document = Sync1C::getClient()->saveGoodsIncomeDocument($data);
@@ -306,9 +302,9 @@ class m_incomegoods extends IModule{
         }
 
         $data = array(
-            'ëÏÄ1ó' => '',
-            'ëÏÄ' => $code,
-            'óÔÒÁÎÁ' => $country,
+            'ÐšÐ¾Ð´1Ð¡' => '',
+            'ÐšÐ¾Ð´' => $code,
+            'Ð¡Ñ‚Ñ€Ð°Ð½Ð°' => $country,
         );
         $gtd = Sync1C::getClient()->saveGtd($data);
 
@@ -316,7 +312,7 @@ class m_incomegoods extends IModule{
         die(json_encode(array(
             'id' => $gtd->id,
             'code' => $gtd->code,
-            'country' => iconv('koi8-r', 'utf-8', $gtd->country->name),
+            'country' => $gtd->country->name,
         )));
     }
 

@@ -1,11 +1,11 @@
 <?
 class m_routers {
     var $rights=array(
-        'routers_routers'        => array('òÏÕÔÅÒÙ','r,edit,add,delete','ÞÔÅÎÉÅ,ÒÅÄÁËÔÉÒÏ×ÁÎÉÅ,ÄÏÂÁ×ÌÅÎÉÅ,ÕÄÁÌÅÎÉÅ'),
-        'routers_devices'        => array('ëÌÉÅÎÔÓËÉÅ ÕÓÔÒÏÊÓÔ×Á','r,edit,add,delete','ÞÔÅÎÉÅ,ÒÅÄÁËÔÉÒÏ×ÁÎÉÅ,ÄÏÂÁ×ÌÅÎÉÅ,ÕÄÁÌÅÎÉÅ'),
-//        'routers_modems'        => array('ëÁÎÁÌÙ','r','ÞÔÅÎÉÅ'),
-        'routers_models'        => array('íÏÄÅÌÉ ËÌÉÅÎÔÓËÉÈ ÕÓÔÒÏÊÓÔ×','r,w','ÞÔÅÎÉÅ,ÒÅÄÁËÔÉÒÏ×ÁÎÉÅ'),
-        'routers_nets'            => array('óÅÔÉ','r','ÄÏÓÔÕÐ'),
+        'routers_routers'        => array('Ð Ð¾ÑƒÑ‚ÐµÑ€Ñ‹','r,edit,add,delete','Ñ‡Ñ‚ÐµÐ½Ð¸Ðµ,Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ,Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ,ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ'),
+        'routers_devices'        => array('ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°','r,edit,add,delete','Ñ‡Ñ‚ÐµÐ½Ð¸Ðµ,Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ,Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ,ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ'),
+//        'routers_modems'        => array('ÐšÐ°Ð½Ð°Ð»Ñ‹','r','Ñ‡Ñ‚ÐµÐ½Ð¸Ðµ'),
+        'routers_models'        => array('ÐœÐ¾Ð´ÐµÐ»Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ñ… ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²','r,w','Ñ‡Ñ‚ÐµÐ½Ð¸Ðµ,Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ'),
+        'routers_nets'            => array('Ð¡ÐµÑ‚Ð¸','r','Ð´Ð¾ÑÑ‚ÑƒÐ¿'),
     );
     var $actions=array(
         'default'                => array('',''),
@@ -52,15 +52,15 @@ class m_routers {
         'ports_names'            =>array('routers_devices','delete')
 */    );
     var $menu=array(
-        array('ôÅÈ. ÐÌÏÝÁÄËÁ',            'datacenter_list'),
-        array('óÅÒ×ÅÒÁ áôó',            'server_pbx_list'),
-        array('òÏÕÔÅÒÙ',                'r_list'),
-        array('ëÌÉÅÎÔÓËÉÅ ÕÓÔÒÏÊÓÔ×Á',    'd_list'),
-        array('SNMP ÕÓÔÒÏÊÓÔ×Á',        'd_snmp'),
-        array('íÏÄÅÌÉ CPE-ÕÓÔÒÏÊÓÔ×',    'm_list'),
-//        array('ðÏÒÔÙ',                    'ports'),
-//        array('ëÁÎÁÌÙ',                    'modem_list'),
-        array('óÅÔÉ',                    'n_list'),
+        array('Ð¢ÐµÑ…. Ð¿Ð»Ð¾Ñ‰Ð°Ð´ÐºÐ°',            'datacenter_list'),
+        array('Ð¡ÐµÑ€Ð²ÐµÑ€Ð° ÐÐ¢Ð¡',            'server_pbx_list'),
+        array('Ð Ð¾ÑƒÑ‚ÐµÑ€Ñ‹',                'r_list'),
+        array('ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°',    'd_list'),
+        array('SNMP ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°',        'd_snmp'),
+        array('ÐœÐ¾Ð´ÐµÐ»Ð¸ CPE-ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²',    'm_list'),
+//        array('ÐŸÐ¾Ñ€Ñ‚Ñ‹',                    'ports'),
+//        array('ÐšÐ°Ð½Ð°Ð»Ñ‹',                    'modem_list'),
+        array('Ð¡ÐµÑ‚Ð¸',                    'n_list'),
     );
     var $routers;
     var $devices;
@@ -146,7 +146,7 @@ class m_routers {
             }
         }
         if (count($R)>$p){
-            $design->AddMenu('áÐÐÁÒÁÔÕÒÁ',$R);
+            $design->AddMenu('ÐÐ¿Ð¿Ð°Ñ€Ð°Ñ‚ÑƒÑ€Ð°',$R);
         }
     }
 
@@ -286,7 +286,7 @@ class m_routers {
                         $json = substr($json,0,strlen($json)-1).'},';
                     }
                     $json = substr($json, 0, strlen($json)-1).'}';
-                    header("Content-Type: text/plain; charset=koi8-r");
+                    header("Content-Type: text/plain; charset=utf-8");
                     echo $json;
                     exit();
                 }
@@ -347,7 +347,7 @@ class m_routers {
         global $db,$design;
         $this->load_routers($fixclient);
         $id = get_param_protected('id' , '');
-        if (!isset($this->routers[$id])) {trigger_error('ôÁËÏÇÏ ÒÏÕÔÅÒÁ ÎÅ ÓÕÝÅÓÔ×ÕÅÔ'); return; }
+        if (!isset($this->routers[$id])) {trigger_error('Ð¢Ð°ÐºÐ¾Ð³Ð¾ Ñ€Ð¾ÑƒÑ‚ÐµÑ€Ð° Ð½Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚'); return; }
 
         $so = get_param_integer ('so', 0);
         $order = $so ? 'desc' : 'asc';
@@ -436,7 +436,7 @@ class m_routers {
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormTechCPE();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'ëÌÉÅÎÔÓËÉÅ ÕÓÔÒÏÊÓÔ×Á','îÏ×ÏÅ ÕÓÔÒÏÊÓÔ×Ï');
+        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°','ÐÐ¾Ð²Ð¾Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð¾');
     }
     function routers_d_edit($fixclient){
         global $design,$db;
@@ -446,7 +446,7 @@ class m_routers {
         if ($id) $dbf->Load($id);
         $dbf->SetDefault('client',$fixclient);
         $design->assign('client',$r);
-        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'ëÌÉÅÎÔÓËÉÅ ÕÓÔÒÏÊÓÔ×Á','òÅÄÁËÔÉÒÏ×ÁÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°','Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ');
     }
     function routers_d_apply($fixclient){
         global $design,$db;
@@ -458,13 +458,13 @@ class m_routers {
             header('Location: ?module=routers&action=d_list');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'ëÌÉÅÎÔÓËÉÅ ÕÓÔÒÏÊÓÔ×Á','òÅÄÁËÔÉÒÏ×ÁÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°','Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ');
     }
     function routers_d_async($fixclient) {
         global $db,$design,$_RESULT,$user;
         include INCLUDE_PATH."JsHttpRequest.php";
         $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("koi8-r");
+        $JsHttpRequest->setEncoding("utf-8");
 
         $id_model=get_param_integer('id_model',0);
         $res=get_param_protected('res');
@@ -548,7 +548,7 @@ class m_routers {
         global $design,$db;
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormTechCPEModels();
-        $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'íÏÄÅÌÉ ËÌÉÅÎÔÓËÉÈ ÕÓÔÒÏÊÓÔ×','îÏ×ÏÅ ÕÓÔÒÏÊÓÔ×Ï');
+        $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'ÐœÐ¾Ð´ÐµÐ»Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ñ… ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²','ÐÐ¾Ð²Ð¾Ðµ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð¾');
     }
     function routers_m_apply($fixclient){
         global $design,$db;
@@ -560,7 +560,7 @@ class m_routers {
             header('Location: ?module=devices&action=m_list');
             $design->ProcessEx('empty.tpl');
         }
-        $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'íÏÄÅÌÉ ËÌÉÅÎÔÓËÉÈ ÕÓÔÒÏÊÓÔ×','òÅÄÁËÔÉÒÏ×ÁÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'ÐœÐ¾Ð´ÐµÐ»Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ñ… ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²','Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ');
     }
     function routers_n_list() {
         global $design;
@@ -575,7 +575,7 @@ class m_routers {
         $dbf=new DbFormTechNets();
         if (($id=get_param_integer('id')) && !($dbf->Load($id))) return;
         $dbf->Process();
-        $dbf->Display(array('module'=>'routers','action'=>'n_edit','id'=>$id),'óÅÔÉ',$id?'òÅÄÁËÔÉÒÏ×ÁÎÉÅ':'äÏÂÁ×ÌÅÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'n_edit','id'=>$id),'Ð¡ÐµÑ‚Ð¸',$id?'Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ':'Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ');
     }
     function routers_n_report() {
         global $design,$db;
@@ -590,7 +590,7 @@ class m_routers {
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
         $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("KOI8-R");
+        $JsHttpRequest->setEncoding("UTF-8");
         $L = new IPList();
         $R = $L->getByType();
         $net = get_param_integer('query',31);
@@ -646,7 +646,7 @@ class m_routers {
     function routers_datacenter_add($fixclient){
         global $design, $db;
         $dbf = new DbFormDataCenter();
-        $dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'), 'ôÅÈÎÉÞÅÓËÁÑ ÐÌÏÝÁÄËÁ', 'îÏ×ÁÑ ÐÌÏÝÁÄËÁ');
+        $dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'), 'Ð¢ÐµÑ…Ð½Ð¸Ñ‡ÐµÑÐºÐ°Ñ Ð¿Ð»Ð¾Ñ‰Ð°Ð´ÐºÐ°', 'ÐÐ¾Ð²Ð°Ñ Ð¿Ð»Ð¾Ñ‰Ð°Ð´ÐºÐ°');
     }
 
     function routers_datacenter_apply($fixclient){
@@ -660,7 +660,7 @@ class m_routers {
             header("Location: ./?module=routers&action=datacenter_list");
             exit();
         }
-        $dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'), 'ôÅÈÎÉÞÅÓËÉÅ ÐÌÏÝÁÄËÉ', 'òÅÄÁËÔÉÒÏ×ÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'datacenter_apply'), 'Ð¢ÐµÑ…Ð½Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ Ð¿Ð»Ð¾Ñ‰Ð°Ð´ÐºÐ¸', 'Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð½Ð¸Ðµ');
     }
 
     function routers_server_pbx_list($fixclient){
@@ -685,7 +685,7 @@ class m_routers {
 
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormServerPbx();
-        $dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'óÅÒ×ÅÒÁ áôó','äÏÂÁ×ÌÅÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Ð¡ÐµÑ€Ð²ÐµÑ€Ð° ÐÐ¢Ð¡','Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ');
     }
 
     function routers_server_pbx_apply($fixclient)
@@ -704,7 +704,7 @@ class m_routers {
             header("Location: ./?module=routers&action=server_pbx_list");
             exit();
         }
-        $dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'óÅÒ×ÅÒÁ áôó','òÅÄÁËÔÉÒÏ×ÁÎÉÅ');
+        $dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Ð¡ÐµÑ€Ð²ÐµÑ€Ð° ÐÐ¢Ð¡','Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ');
     }
 }
 ?>

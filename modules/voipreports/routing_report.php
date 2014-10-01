@@ -118,11 +118,11 @@ class m_voipreports_routing_report
 
             ob_start();
 
-            echo '"Префикс";"Направление";"Лучшая цена";';
+            echo '"п÷я─п╣я└п╦п╨я│";"п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣";"п⌡я┐я┤я┬п╟я▐ я├п╣п╫п╟";';
             foreach ($rep->pricelist_ids as $pl) {
                 echo '"' . $pricelists[$pl]['operator'] . '";';
             }
-            echo '"Порядок"' . "\n";
+            echo '"п÷п╬я─я▐п╢п╬п╨"' . "\n";
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
                 echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'')  . '";';
@@ -138,7 +138,7 @@ class m_voipreports_routing_report
                 echo '"' . "\n";
             }
 
-            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            echo iconv('utf-8', 'windows-1251', ob_get_clean());
             exit;
         }
     }

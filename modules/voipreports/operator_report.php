@@ -187,14 +187,14 @@ class m_voipreports_operator_report
 
             ob_start();
 
-            echo ';;"Итого";;;;';
+            echo ';;"п≤я┌п╬пЁп╬";;;;';
             foreach ($rep->pricelist_ids as $i => $p) {
                 echo '"' . $pricelists[$p]['operator'] . '";;;;';
             }
             echo "\n";
-            echo '"Префикс номера";"Назначение";"Факт. Стоимость";"Кол-во";"Объем";"Стоимость";';
+            echo '"п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟";"п²п╟п╥п╫п╟я┤п╣п╫п╦п╣";"п╓п╟п╨я┌. п║я┌п╬п╦п╪п╬я│я┌я▄";"п п╬п╩-п╡п╬";"п·п╠я┼п╣п╪";"п║я┌п╬п╦п╪п╬я│я┌я▄";';
             foreach ($rep->pricelist_ids as $i => $p) {
-                echo '"Цена";"Кол-во";"Объем";"Стоимость";';
+                echo '"п╕п╣п╫п╟";"п п╬п╩-п╡п╬";"п·п╠я┼п╣п╪";"п║я┌п╬п╦п╪п╬я│я┌я▄";';
             }
             echo "\n";
             foreach ($report as $r) {
@@ -214,7 +214,7 @@ class m_voipreports_operator_report
             }
 
 
-            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            echo iconv('utf-8', 'windows-1251', ob_get_clean());
             exit;
 
         }

@@ -1,13 +1,13 @@
 <?
 /*
-# 1 | открыт
-# 2 | закрыт
-  3 | трабл УСПД
-# 4 | на выезде
-  5 | коллекТрабл
-  6 | массТрабл
-  7 | выполнен
-  8 | отработано
+# 1 | п╬я┌п╨я─я▀я┌
+# 2 | п╥п╟п╨я─я▀я┌
+  3 | я┌я─п╟п╠п╩ пёп║п÷п■
+# 4 | п╫п╟ п╡я▀п╣п╥п╢п╣
+  5 | п╨п╬п╩п╩п╣п╨п╒я─п╟п╠п╩
+  6 | п╪п╟я│я│п╒я─п╟п╠п╩
+  7 | п╡я▀п©п╬п╩п╫п╣п╫
+  8 | п╬я┌я─п╟п╠п╬я┌п╟п╫п╬
 */
 
 class m_tt extends IModule{
@@ -21,7 +21,7 @@ class m_tt extends IModule{
     var $dont_filters = null;
     var $cur_trouble_id = 0;
 
-    //список прав.
+    //я│п©п╦я│п╬п╨ п©я─п╟п╡.
 
     function InitDbMap(){
         if (isset($this->dbmap)) return;
@@ -66,7 +66,7 @@ class m_tt extends IModule{
         $R['trouble_subtype'] = get_param_protected('trouble_subtype' , '');
         #if (!in_array($R['trouble_type'],array('task', 'out', 'trouble'))) $R['trouble_type'] = 'trouble';
         $R['client'] = get_param_protected('client' , null);
-        if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error('Такого клиента не существует'); return;}
+        if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error('п╒п╟п╨п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌'); return;}
         $R['time']=get_param_integer('time',null);
         $R['date_start'] = get_param_protected('date_start',null);
         $R['date_finish_desired']=get_param_protected('date_finish_desired',null);
@@ -83,7 +83,7 @@ class m_tt extends IModule{
         global $db,$design,$user;
         $id = get_param_integer('id',0);
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
-        if (!count($R)) {trigger_error('Такой заявки у клиента '.$fixclient.' не существует'); return;}
+        if (!count($R)) {trigger_error('п╒п╟п╨п╬п╧ п╥п╟я▐п╡п╨п╦ я┐ п╨п╩п╦п╣п╫я┌п╟ '.$fixclient.' п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌'); return;}
         $trouble = $R[0];
         if (!$this->checkTroubleAccess($trouble)) return;
 
@@ -108,7 +108,7 @@ class m_tt extends IModule{
         $id = get_param_integer('id',0);
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
         if(!count($R)){
-            trigger_error('Такой заявки у клиента '.$fixclient.' не существует');
+            trigger_error('п╒п╟п╨п╬п╧ п╥п╟я▐п╡п╨п╦ я┐ п╨п╩п╦п╣п╫я┌п╟ '.$fixclient.' п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
             return;
         }
         $trouble = $R[0];
@@ -166,7 +166,7 @@ class m_tt extends IModule{
                 )
             );
             $db->Query("update newbills set editor='admin' where bill_no = '".$trouble['bill_no']."'");
-            $comment .= "\n<hr>Завака передана в admin.markomnet";
+            $comment .= "\n<hr>п≈п╟п╡п╟п╨п╟ п©п╣я─п╣п╢п╟п╫п╟ п╡ admin.markomnet";
         }
 
         // to edit
@@ -191,13 +191,13 @@ class m_tt extends IModule{
                 $fault = null;
                 $f = $bs->setOrderStatus($bill['bill_no'], $newstate['state_1c'], $fault);
                 if(!$f){
-                    echo "Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />";
+                    echo "п²п╣ я┐п╢п╟п╩п╬я│я▄ п╬п╠п╫п╬п╡п╦я┌я▄ я│я┌п╟я┌я┐я│ п╥п╟п╨п╟п╥п╟:<br /> ".\_1c\getFaultMessage($fault)."<br />";
                     echo "<br /><br />";
-                    echo "<a href='index.php?module=tt&action=view&id=".$trouble['id']."'>Вернуться к заявке</a>";
+                    echo "<a href='index.php?module=tt&action=view&id=".$trouble['id']."'>п▓п╣я─п╫я┐я┌я▄я│я▐ п╨ п╥п╟я▐п╡п╨п╣</a>";
                     exit();
                 }
                 if($f){
-                    if (strcmp($newstate['state_1c'],'Отказ') == 0){
+                    if (strcmp($newstate['state_1c'],'п·я┌п╨п╟п╥') == 0){
                         $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
                         event::setReject($bill, $newstate);
                     }else{
@@ -223,7 +223,7 @@ class m_tt extends IModule{
 
             $new_state = TroubleState::find($R["state_id"]);
 
-            if($new_state->name == "Отказ")
+            if($new_state->name == "п·я┌п╨п╟п╥")
             {
                 $gio->setStatusAndSave($cur_state->state_1c, false);
             }else
@@ -242,13 +242,13 @@ class m_tt extends IModule{
             )
         );
 
-        // новый - 15
+        // п╫п╬п╡я▀п╧ - 15
 
-        // если заявка уходит со стадии "новый", кто уводит - тот и менеджер счета (получает бонусы)
-        // даже если переход с новой на новую
+        // п╣я│п╩п╦ п╥п╟я▐п╡п╨п╟ я┐я┘п╬п╢п╦я┌ я│п╬ я│я┌п╟п╢п╦п╦ "п╫п╬п╡я▀п╧", п╨я┌п╬ я┐п╡п╬п╢п╦я┌ - я┌п╬я┌ п╦ п╪п╣п╫п╣п╢п╤п╣я─ я│я┤п╣я┌п╟ (п©п╬п╩я┐я┤п╟п╣я┌ п╠п╬п╫я┐я│я▀)
+        // п╢п╟п╤п╣ п╣я│п╩п╦ п©п╣я─п╣я┘п╬п╢ я│ п╫п╬п╡п╬п╧ п╫п╟ п╫п╬п╡я┐я▌
 
 
-// todo: переделать на bill::getDocumentType
+// todo: п©п╣я─п╣п╢п╣п╩п╟я┌я▄ п╫п╟ bill::getDocumentType
 
 
         if($trouble["bill_no"] && ($trouble["trouble_type"] == "shop_orders" || $trouble["trouble_type"] == "shop" || $trouble["trouble_type"] == "mounting_orders"))
@@ -261,7 +261,7 @@ class m_tt extends IModule{
                 $oBill->SetManager($user->Get("id"));
             }
 
-            // проводим если новая стадия: закрыт, отгружен, к отгрузке
+            // п©я─п╬п╡п╬п╢п╦п╪ п╣я│п╩п╦ п╫п╬п╡п╟я▐ я│я┌п╟п╢п╦я▐: п╥п╟п╨я─я▀я┌, п╬я┌пЁя─я┐п╤п╣п╫, п╨ п╬я┌пЁя─я┐п╥п╨п╣
             if(in_array($R['state_id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
                 $oBill->SetCleared();
             }else{
@@ -453,7 +453,7 @@ class m_tt extends IModule{
             }
         }
 
-        $design->assign('tt_wo_explain',true); # убрать заголовок
+        $design->assign('tt_wo_explain',true); # я┐п╠я─п╟я┌я▄ п╥п╟пЁп╬п╩п╬п╡п╬п╨
         $design->assign('tt_type',$type);
         $design->assign('tt_folder',$folder);
         $design->assign('tt_folders',$folders);
@@ -511,7 +511,7 @@ class m_tt extends IModule{
         $R = $db->AllRecords('select V.user_main as user '.
                         $S.' FROM tt_troubles as T '.
                         'INNER JOIN tt_stages as S ON S.stage_id = T.cur_stage_id '.
-                        'INNER JOIN tt_stages as V ON V.trouble_id = T.id '.            //все этапы
+                        'INNER JOIN tt_stages as V ON V.trouble_id = T.id '.            //п╡я│п╣ я█я┌п╟п©я▀
                         'WHERE '.MySQLDatabase::Generate($W).' GROUP BY V.user_main HAVING V.user_main!=""');
 
         /*
@@ -555,7 +555,7 @@ class m_tt extends IModule{
         $design->AddMain('tt/report_form.tpl');
     }
 
-    //всякие функции
+    //п╡я│я▐п╨п╦п╣ я└я┐п╫п╨я├п╦п╦
     function tt_view($fixclient){
         global $db,$design,$user;
         $this->curclient = $fixclient;
@@ -568,7 +568,7 @@ class m_tt extends IModule{
 
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
         if(!count($R)){
-            trigger_error('Такой заявки не существует');
+            trigger_error('п╒п╟п╨п╬п╧ п╥п╟я▐п╡п╨п╦ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
             return;
         }
         $trouble = $R[0];
@@ -670,7 +670,7 @@ class m_tt extends IModule{
             }
         }
 
-        $trouble["problem"] = html_entity_decode($trouble["problem"], ENT_QUOTES, 'KOI8-R');
+        $trouble["problem"] = html_entity_decode($trouble["problem"], ENT_QUOTES, 'UTF-8');
 
         //printdbg($trouble);
 
@@ -699,15 +699,15 @@ class m_tt extends IModule{
             $list[$l["change_id"]]["fields"][] = $l;
 
         $strs = array();
-        $fields = array("amount" => "кол-во","dispatch"=> "отгружено");
+        $fields = array("amount" => "п╨п╬п╩-п╡п╬","dispatch"=> "п╬я┌пЁя─я┐п╤п╣п╫п╬");
         foreach($list as $l){
             $a = "";
             switch($l["action"]){
-               case "change" : $a = "Изменена"; break;
-               case "add" : $a = "Добавлена"; break;
-               case "delete" : $a = "Удалена"; break;
+               case "change" : $a = "п≤п╥п╪п╣п╫п╣п╫п╟"; break;
+               case "add" : $a = "п■п╬п╠п╟п╡п╩п╣п╫п╟"; break;
+               case "delete" : $a = "пёп╢п╟п╩п╣п╫п╟"; break;
             }
-            $s = $l["date"].": ".$a." позиция: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
+            $s = $l["date"].": ".$a." п©п╬п╥п╦я├п╦я▐: <span title='".htmlspecialchars_($l["item"])."'>".(strlen($l["item"])>30 ? substr($l["item"],0,30)."...": $l["item"])."</span>";
             $ff = array();
             if($l["action"] == "change"){
                 foreach($l["fields"] as $f)
@@ -744,12 +744,12 @@ class m_tt extends IModule{
         $design->assign($prefix."_y", $y);
     }
 
-    // если передан клиент, то добавляется фильтр по клиенту; если передана услуга, то и по услуге.
+    // п╣я│п╩п╦ п©п╣я─п╣п╢п╟п╫ п╨п╩п╦п╣п╫я┌, я┌п╬ п╢п╬п╠п╟п╡п╩я▐п╣я┌я│я▐ я└п╦п╩я▄я┌я─ п©п╬ п╨п╩п╦п╣п╫я┌я┐; п╣я│п╩п╦ п©п╣я─п╣п╢п╟п╫п╟ я┐я│п╩я┐пЁп╟, я┌п╬ п╦ п©п╬ я┐я│п╩я┐пЁп╣.
     //flags:
-    //    1 = присваивать design:service=..,service_id=..,tt_client=client
-    //    2 = присваивать design:troubles
-    //  4 = возвращать список
-    //    8 = был ли я ответственным
+    //    1 = п©я─п╦я│п╡п╟п╦п╡п╟я┌я▄ design:service=..,service_id=..,tt_client=client
+    //    2 = п©я─п╦я│п╡п╟п╦п╡п╟я┌я▄ design:troubles
+    //  4 = п╡п╬п╥п╡я─п╟я┴п╟я┌я▄ я│п©п╦я│п╬п╨
+    //    8 = п╠я▀п╩ п╩п╦ я▐ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╪
 
     function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null)
     {
@@ -1099,7 +1099,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $lLogistic = ClientCS::GetList("logistic");
 
         foreach($R as $k=>$r){
-            $R[$k]["trouble_name"] = str_replace(array("заказы"), array("Заказ"), mb_strtoupper($r["trouble_name"]));
+            $R[$k]["trouble_name"] = str_replace(array("п╥п╟п╨п╟п╥я▀"), array("п≈п╟п╨п╟п╥"), mb_strtoupper($r["trouble_name"]));
             if($r['time_pass'])
                 $R[$k]['time_pass'] = time_period($r['time_pass']);
             if($r['time_start'])
@@ -1153,7 +1153,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $design->assign('tt_service',$service);
             $design->assign('tt_service_id',$service_id);
             $db->Query('select u.usergroup, user, name,g.comment as ugroup from user_users u , user_groups  g
-                    where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,convert(name using koi8r)');
+                    where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,name');
             $U=array();
             while($r=$db->NextRecord()){
                 if(!isset($usergroup) || $usergroup!=$r['usergroup']){
@@ -1204,17 +1204,17 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
 
     //tt_design:
-    //    full - при просмотре траблов
-    //    client - из клиента
-    //    service - из услуги
-    //    top - сверху
+    //    full - п©я─п╦ п©я─п╬я│п╪п╬я┌я─п╣ я┌я─п╟п╠п╩п╬п╡
+    //    client - п╦п╥ п╨п╩п╦п╣п╫я┌п╟
+    //    service - п╦п╥ я┐я│п╩я┐пЁп╦
+    //    top - я│п╡п╣я─я┘я┐
 
     //mode:
-    // 0 = все запросы, в т.ч. закрытые. состояние не открывать
-    // 1 = все открытые
-    // 2 = открытые, активные, ответственный - я.
-    // 3 = открытые, активные, автор - я.
-    // 4 = открытые, менеджер клиента - я.
+    // 0 = п╡я│п╣ п╥п╟п©я─п╬я│я▀, п╡ я┌.я┤. п╥п╟п╨я─я▀я┌я▀п╣. я│п╬я│я┌п╬я▐п╫п╦п╣ п╫п╣ п╬я┌п╨я─я▀п╡п╟я┌я▄
+    // 1 = п╡я│п╣ п╬я┌п╨я─я▀я┌я▀п╣
+    // 2 = п╬я┌п╨я─я▀я┌я▀п╣, п╟п╨я┌п╦п╡п╫я▀п╣, п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧ - я▐.
+    // 3 = п╬я┌п╨я─я▀я┌я▀п╣, п╟п╨я┌п╦п╡п╫я▀п╣, п╟п╡я┌п╬я─ - я▐.
+    // 4 = п╬я┌п╨я─я▀я┌я▀п╣, п╪п╣п╫п╣п╢п╤п╣я─ п╨п╩п╦п╣п╫я┌п╟ - я▐.
 
     function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null){
 
@@ -1238,7 +1238,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         else{
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
 
-            // фильтр по этапам
+            // я└п╦п╩я▄я┌я─ п©п╬ я█я┌п╟п©п╟п╪
             //$sql_select_states = " select * from `tt_states` order by `order` ";
             $sql_select_clients = " select tt_troubles.client from tt_troubles inner join clients on clients.client = tt_troubles.client and status='work' group by tt_troubles.client order by client ";
             $sql_select_responsibles = " select user_main resp from tt_stages group by user_main having user_main<>'' order by user_main ";
@@ -1259,12 +1259,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
 
         switch ($mode){
-            case 0: $t='Все заявки'; break;
-            case 1: $t='Открытые заявки'; break;
-            case 2: $t='Активные заявки, порученные мне'; break;
-            case 3: $t='Активные заявки, созданные мной'; break;
-            case 4: $t='Запросы моих клиентов'; break;
-            case 5: $t='Заявки с закрытым мною этапом, но не закрытые полностью'; break;
+            case 0: $t='п▓я│п╣ п╥п╟я▐п╡п╨п╦'; break;
+            case 1: $t='п·я┌п╨я─я▀я┌я▀п╣ п╥п╟я▐п╡п╨п╦'; break;
+            case 2: $t='п░п╨я┌п╦п╡п╫я▀п╣ п╥п╟я▐п╡п╨п╦, п©п╬я─я┐я┤п╣п╫п╫я▀п╣ п╪п╫п╣'; break;
+            case 3: $t='п░п╨я┌п╦п╡п╫я▀п╣ п╥п╟я▐п╡п╨п╦, я│п╬п╥п╢п╟п╫п╫я▀п╣ п╪п╫п╬п╧'; break;
+            case 4: $t='п≈п╟п©я─п╬я│я▀ п╪п╬п╦я┘ п╨п╩п╦п╣п╫я┌п╬п╡'; break;
+            case 5: $t='п≈п╟я▐п╡п╨п╦ я│ п╥п╟п╨я─я▀я┌я▀п╪ п╪п╫п╬я▌ я█я┌п╟п©п╬п╪, п╫п╬ п╫п╣ п╥п╟п╨я─я▀я┌я▀п╣ п©п╬п╩п╫п╬я│я┌я▄я▌'; break;
             default: trigger_error("mode = ".$mode);
         }
         $design->assign('tt_header',$t);
@@ -1327,26 +1327,26 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($typePk == 1 || $typePk == 3 || $isAll)
         {
-            $a["trouble"] = "Трабл";
-            $a["consultation"] = "Консультация";
-            $a["monitoring"] = "Мониторинг";
+            $a["trouble"] = "п╒я─п╟п╠п╩";
+            $a["consultation"] = "п п╬п╫я│я┐п╩я▄я┌п╟я├п╦я▐";
+            $a["monitoring"] = "п°п╬п╫п╦я┌п╬я─п╦п╫пЁ";
         }
 
         if($typePk == 2 || $typePk == 5 || $isAll)
         {
-            $a["task"] = "Задание";
-            $a["reminder"] = "Напоминание";
+            $a["task"] = "п≈п╟п╢п╟п╫п╦п╣";
+            $a["reminder"] = "п²п╟п©п╬п╪п╦п╫п╟п╫п╦п╣";
         }
 
         if($typePk == 5 || $isAll)
-            $a["prospecting"] = "Разведка";
+            $a["prospecting"] = "п═п╟п╥п╡п╣п╢п╨п╟";
 
         if($typePk == 7 || $isAll)
-            $a["incomegoods"] = "Заказ поставщику";
+            $a["incomegoods"] = "п≈п╟п╨п╟п╥ п©п╬я│я┌п╟п╡я┴п╦п╨я┐";
 
 
         if($isAll){
-            $a["shop"] = "Заказ"; // possible: type_pk == 6
+            $a["shop"] = "п≈п╟п╨п╟п╥"; // possible: type_pk == 6
             $a[""] = "";
         }
 
@@ -1447,7 +1447,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $user_main = $R['user_author'];
         } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
             if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
-        } else {trigger_error('неверный пользователь'); return;}
+        } else {trigger_error('п╫п╣п╡п╣я─п╫я▀п╧ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄'); return;}
 
         if(isset($R['date_finish_desired']))
             $R2['date_finish_desired']=$R['date_finish_desired'];
@@ -1503,7 +1503,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
 
     /**
-    * Установлен ли рейтинг на текущей стадии заявки
+    * пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п╩п╦ я─п╣п╧я┌п╦п╫пЁ п╫п╟ я┌п╣п╨я┐я┴п╣п╧ я│я┌п╟п╢п╦п╦ п╥п╟я▐п╡п╨п╦
     */
     function isRated($trouble)
     {
@@ -1543,7 +1543,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         return false;
     }
 
-    function get_counters($client){        //сколько траблов всего / сколько открытых
+    function get_counters($client){        //я│п╨п╬п╩я▄п╨п╬ я┌я─п╟п╠п╩п╬п╡ п╡я│п╣пЁп╬ / я│п╨п╬п╩я▄п╨п╬ п╬я┌п╨я─я▀я┌я▀я┘
         global $db,$design,$user;
         $r = $db->GetRow('select sum(1) as A,sum(IF(S.state_id!=2,1,0)) as B FROM tt_troubles as T INNER JOIN tt_stages as S ON S.stage_id = cur_stage_id '.
                         'WHERE client="'.addslashes($client).'"');
@@ -1777,7 +1777,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             where a.s_id = s.stage_id and t.id = s.trouble_id and bill_no is not null and d.stage_id = s.stage_id
             group by doer_id)a
             left join courier c on c.id = doer_id
-            where depart != 'Инженер'
+            where depart != 'п≤п╫п╤п╣п╫п╣я─'
             order by count desc";
 
         $design->assign("data", $db->AllRecords($q));
@@ -1806,19 +1806,19 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             left join courier c on c.id = doer_id
             left join user_users u on a.user_author = u.user
             left join user_departs d on u.depart_id = d.id
-            where depart != 'Инженер'
+            where depart != 'п≤п╫п╤п╣п╫п╣я─'
             group by client, doer_id, user_author
             order by c.name, d.name desc
             ";
 
-        $departs = array("Витрины" => array(), "Отделы" => array("-" => "-"));
+        $departs = array("п▓п╦я┌я─п╦п╫я▀" => array(), "п·я┌п╢п╣п╩я▀" => array("-" => "-"));
         $doers = array();
         $d = array();
         $total = array();
 
         foreach($db->AllRecords($q) as $l)
         {
-            $isVitrina = $l["user_author"] == "1c-vitrina" ? "Витрины" : "Отделы";
+            $isVitrina = $l["user_author"] == "1c-vitrina" ? "п▓п╦я┌я─п╦п╫я▀" : "п·я┌п╢п╣п╩я▀";
 
             if($l["user_author"] == "1c-vitrina" && stripos($l["client"], "id") === 0) $l["client"] = "WellTime";
             $l["depart_name"] = $l["user_author"] == "1c-vitrina" ? $l["client"] : $l["depart_name"];
@@ -1836,7 +1836,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         }
 
         //printdbg($d);
-        $design->assign("departs_info", array("Витрины" => count($departs["Витрины"]), "Отделы" => count($departs["Отделы"]), "all" => count($departs["Отделы"]) + count($departs["Витрины"])));
+        $design->assign("departs_info", array("п▓п╦я┌я─п╦п╫я▀" => count($departs["п▓п╦я┌я─п╦п╫я▀"]), "п·я┌п╢п╣п╩я▀" => count($departs["п·я┌п╢п╣п╩я▀"]), "all" => count($departs["п·я┌п╢п╣п╩я▀"]) + count($departs["п▓п╦я┌я─п╦п╫я▀"])));
 
         $design->assign("data", $d);
         $design->assign("departs", $departs);
@@ -1921,7 +1921,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
                         INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
-                            AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                            AND `ln`.`comment` = CONCAT('п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─',' ',`cr`.`name`)
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
@@ -1933,7 +1933,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                                 select `id`
                                 from `log_newbills`
                                 where `bill_no` = `nb`.`bill_no`
-                                    AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                                    AND `comment` = CONCAT('п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─',' ',`cr`.`name`)
                                 order by id desc
                                 limit 1
                             )
@@ -2001,7 +2001,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         FROM `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
                         INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
-                                    AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                                    AND `ln`.`comment` = CONCAT('п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─',' ',`cr`.`name`)
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                                     AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
@@ -2014,7 +2014,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                                 select `id`
                                 from `log_newbills`
                                 where `bill_no` = `nb`.`bill_no`
-                                AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                                AND `comment` = CONCAT('п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─',' ',`cr`.`name`)
                                 order by id desc
                                 limit 1
                             )
@@ -2110,7 +2110,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
                         INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
-                            AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                            AND `ln`.`comment` = CONCAT('п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─',' ',`cr`.`name`)
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
@@ -2122,7 +2122,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                                 select `id`
                                 from `log_newbills`
                                 where `bill_no` = `nb`.`bill_no`
-                                    AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                                    AND `comment` = CONCAT('п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─',' ',`cr`.`name`)
                                 order by id desc
                                 limit 1
                             )
@@ -2251,7 +2251,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     (($state_filter_<>'null')?'&state_filter='.$state_filter_:'')
                 );
 
-            $dDoers = array('null' => 'Все');
+            $dDoers = array('null' => 'п▓я│п╣');
             foreach($db->AllRecords("
                         SELECT
                             `id`,
@@ -2273,7 +2273,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $design->assign(
                 'doer_filter',
                 array_merge(
-                    array(array('id'=>'null','name'=>'Все','depart'=>'')),
+                    array(array('id'=>'null','name'=>'п▓я│п╣','depart'=>'')),
                     $db->AllRecords("
                         SELECT
                             `id`,
@@ -2294,7 +2294,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 'l_state_filter',
                 array_merge(
                     array(
-                        array('id'=>'null','name'=>'Все (кроме: закрыт, отказ)'),
+                        array('id'=>'null','name'=>'п▓я│п╣ (п╨я─п╬п╪п╣: п╥п╟п╨я─я▀я┌, п╬я┌п╨п╟п╥)'),
                     ),
                     $db->AllRecords("
                         SELECT
@@ -2437,10 +2437,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($user && $p["user_author"] != "1c-vitrina")
         {
             sender::sendICQMsg($user,
-                    "Заявка #".$tId." (клиент ".$p["client"].") назначен: ".$user.($userFrom ? " (был ".$userFrom.")" : "")."\n".
-                    "Создатель: ".$p["user_author"]."\n".
-                    "Проблема: ".$p["problem"]."\n\n".
-                    ($comment ? "Последний коментарий: ".$comment."\n\n" : "").
+                    "п≈п╟я▐п╡п╨п╟ #".$tId." (п╨п╩п╦п╣п╫я┌ ".$p["client"].") п╫п╟п╥п╫п╟я┤п╣п╫: ".$user.($userFrom ? " (п╠я▀п╩ ".$userFrom.")" : "")."\n".
+                    "п║п╬п╥п╢п╟я┌п╣п╩я▄: ".$p["user_author"]."\n".
+                    "п÷я─п╬п╠п╩п╣п╪п╟: ".$p["problem"]."\n\n".
+                    ($comment ? "п÷п╬я│п╩п╣п╢п╫п╦п╧ п╨п╬п╪п╣п╫я┌п╟я─п╦п╧: ".$comment."\n\n" : "").
                     "https://stat.mcn.ru/operator/?search=".$tId
                     );
         }
@@ -2549,19 +2549,19 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $fault = null;
         $f = $bs->setOrderStatus($bill, $state, $fault);
         if(!$f){
-            trigger_error("Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />");
+            trigger_error("п²п╣ я┐п╢п╟п╩п╬я│я▄ п╬п╠п╫п╬п╡п╦я┌я▄ я│я┌п╟я┌я┐я│ п╥п╟п╨п╟п╥п╟:<br /> ".\_1c\getFaultMessage($fault)."<br />");
             echo "<br /><br />";
-            echo "<a href='index.php?module=tt&action=view&id=".$_POST['id']."'>Вернуться к заявке</a>";
+            echo "<a href='index.php?module=tt&action=view&id=".$_POST['id']."'>п▓п╣я─п╫я┐я┌я▄я│я▐ п╨ п╥п╟я▐п╡п╨п╣</a>";
             exit();
         }
         if($f){
-            if (strcmp($state,'Отказ') == 0){
+            if (strcmp($state,'п·я┌п╨п╟п╥') == 0){
                 $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
                event::setReject($bill, $state);
             }else{
                 $db->Query($q="update newbills set state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
             }
-            $db->QueryInsert("log_newbills",array('bill_no'=>$_POST['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Статус заказа: '.$_POST['state']));
+            $db->QueryInsert("log_newbills",array('bill_no'=>$_POST['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'п║я┌п╟я┌я┐я│ п╥п╟п╨п╟п╥п╟: '.$_POST['state']));
         }
         header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
         exit();

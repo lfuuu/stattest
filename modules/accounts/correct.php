@@ -22,7 +22,7 @@
 				$query="UPDATE bill_invoices SET sum=sum{$sum1},sum_plus_tax=sum_plus_tax{$sum2},tax_sum=tax_sum{$sum3} WHERE (invoice_no='{$r['invoice_no']}') AND (client='{$client}')";
 				$db->Query($query);
 			}
-			echo "Счёт откорректирован<br>";
+			echo "п║я┤я▒я┌ п╬я┌п╨п╬я─я─п╣п╨я┌п╦я─п╬п╡п╟п╫<br>";
 		} else if ($cr1){
 			$sum=$sum2;
 			$query="SELECT * from bill_invoices where (invoice_no LIKE '{$bill_no}-%') AND (client='$client')";
@@ -41,10 +41,10 @@
 			$query="INSERT INTO bill_invoices (invoice_date,".implode(",",array_keys($v)).") VALUES (NOW(),'".implode("','",array_values($v))."')";
 			$db->Query($query);
 			$query="INSERT INTO bill_invoice_lines (invoice_no,line,item,ediz,amount,price,sum,tax,tax_sum,sum_plus_tax,price_usd,sum_usd,tax_sum_usd,sum_plus_tax_usd) ".
-							"VALUES ('{$v['invoice_no']}',1,'Суммовая разница','??.',1,$sum,$sum,0,0,$sum,0,0,0,0)";
+							"VALUES ('{$v['invoice_no']}',1,'п║я┐п╪п╪п╬п╡п╟я▐ я─п╟п╥п╫п╦я├п╟','??.',1,$sum,$sum,0,0,$sum,0,0,0,0)";
 			$db->Query($query);
-			echo "Создана дополнительная счёт-фактура<br>";	
-		} else echo "Не скоррктировано расхождение в копейках<br>";
+			echo "п║п╬п╥п╢п╟п╫п╟ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╟я▐ я│я┤я▒я┌-я└п╟п╨я┌я┐я─п╟<br>";	
+		} else echo "п²п╣ я│п╨п╬я─я─п╨я┌п╦я─п╬п╡п╟п╫п╬ я─п╟я│я┘п╬п╤п╢п╣п╫п╦п╣ п╡ п╨п╬п©п╣п╧п╨п╟я┘<br>";
 	}
 	
 	$action=get_param_raw('action','default');
@@ -54,7 +54,7 @@
 	$bill_no=get_param_protected("bill_no");
 	$client=get_param_protected("client");
 	$sum=floatval(get_param_protected("sum"));
-	if (!$bill_no || !$client) die("Не определен счет");
+	if (!$bill_no || !$client) die("п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ я│я┤п╣я┌");
 
 	$db->Query("SELECT * from bill_bills where bill_no='{$bill_no}' and client='{$client}'");
 	$bill=$db->NextRecord();
