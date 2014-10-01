@@ -8,18 +8,18 @@ function printdbg1($param,$s=''){
 require_once("../include_archaic/lib_billing.php");
 function do_make_bill($client,$bill_date,$period_f,$period_pre){
 
-echo"вошли в процедуру выставления счета";
+echo"п╡п╬я┬п╩п╦ п╡ п©я─п╬я├п╣п╢я┐я─я┐ п╡я▀я│я┌п╟п╡п╩п╣п╫п╦я▐ я│я┤п╣я┌п╟";
     $bill_no=do_make_bill_generate_number(substr($period_f,0,4).substr($period_f,5,2));
     $sum=0;
     $free_emails=0;
     //networks
-    //do_make_bill_conn_enum теперь возвращает id  порта 
+    //do_make_bill_conn_enum я┌п╣п©п╣я─я▄ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ id  п©п╬я─я┌п╟ 
     foreach (do_make_bill_conn_enum($client,$period_f) as $net_id){
-    echo "<br>Вошли в основной цикл<br>";
+    echo "<br>п▓п╬я┬п╩п╦ п╡ п╬я│п╫п╬п╡п╫п╬п╧ я├п╦п╨п╩<br>";
     		//printdbg1($net_id,'net_id');
         	$tarif_f=do_make_bill_get_tarif_by_net_id($net_id,$period_f,1);
         	$tarif_pre=do_make_bill_get_tarif_by_net_id($net_id,$period_pre,2);
-        echo "<br>Получили таривы$tarif_f ---- $tarif_pre<br>";
+        echo "<br>п÷п╬п╩я┐я┤п╦п╩п╦ я┌п╟я─п╦п╡я▀$tarif_f ---- $tarif_pre<br>";
         	$tarif_f_=explode("-",$tarif_f);
         	$tarif_pre_=explode("-",$tarif_pre);
         	if (strcmp($tarif_f_[0],"C")==0)
@@ -27,25 +27,25 @@ echo"вошли в процедуру выставления счета";
         	else
         	    {$trafcount="12F";}
         	$trafs=do_make_bill_conn_count($client,$net_id,$trafcount,$period_f);
-        	//printdbg1($trafs,'trafic из основной программы');
+        	//printdbg1($trafs,'trafic п╦п╥ п╬я│п╫п╬п╡п╫п╬п╧ п©я─п╬пЁя─п╟п╪п╪я▀');
         	if ((strcmp($tarif_f_[0],"C")==0) || ($trafs['MBin']>=$trafs['MBout'])){
         	    $traf_dir_e='in';
-        	    $traf_dir_r='входящий';
+        	    $traf_dir_r='п╡я┘п╬п╢я▐я┴п╦п╧';
         	}else{
         	    $traf_dir_e='out';
-        	    $traf_dir_r='исходящий';
+        	    $traf_dir_r='п╦я│я┘п╬п╢я▐я┴п╦п╧';
         	}
         	$traf_to_bill=$trafs['MB'.$traf_dir_e];
-        	// вычисляем коэыффициент если клиент в рассматриваемый период подключился или отключился 
+        	// п╡я▀я┤п╦я│п╩я▐п╣п╪ п╨п╬я█я▀я└я└п╦я├п╦п╣п╫я┌ п╣я│п╩п╦ п╨п╩п╦п╣п╫я┌ п╡ я─п╟я│я│п╪п╟я┌я─п╦п╡п╟п╣п╪я▀п╧ п©п╣я─п╦п╬п╢ п©п╬п╢п╨п╩я▌я┤п╦п╩я│я▐ п╦п╩п╦ п╬я┌п╨п╩я▌я┤п╦п╩я│я▐ 
         	$k_pre=get_procent_time($net_id,$period_pre);
         	$k_f=get_procent_time($net_id,$period_f);
-        	// надо отсортировать тех кто был отключен в периоде $период_ф 
+        	// п╫п╟п╢п╬ п╬я┌я│п╬я─я┌п╦я─п╬п╡п╟я┌я▄ я┌п╣я┘ п╨я┌п╬ п╠я▀п╩ п╬я┌п╨п╩я▌я┤п╣п╫ п╡ п©п╣я─п╦п╬п╢п╣ $п©п╣я─п╦п╬п╢_я└ 
         	if (closed_connection($period_pre,$net_id)){
         	// MYSQL 4 problems with date change 200507 to 2005-07 
-                	$sum+=do_make_add_line($bill_no,"Абонентская плата за ".month_num2name(substr($period_pre,5,2))." ".substr($period_pre,0,4) ." года (тариф $tarif_pre, подключение $net_id)",1,$tarif_pre_[2]*$k_pre,"${period_pre}-01");
-        	      	$sum+=do_make_add_line($bill_no,"Трафик, включенный в абонентскую плату за ".month_num2name(substr($period_f,5,2))." ".substr($period_f,0,4) ." года (тариф $tarif_f, подключение $net_id), Мб",min($traf_to_bill*$k_pre,$tarif_f_[1]*$k_pre),0,"${period_f}-01");
+                	$sum+=do_make_add_line($bill_no,"п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ ".month_num2name(substr($period_pre,5,2))." ".substr($period_pre,0,4) ." пЁп╬п╢п╟ (я┌п╟я─п╦я└ $tarif_pre, п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ $net_id)",1,$tarif_pre_[2]*$k_pre,"${period_pre}-01");
+        	      	$sum+=do_make_add_line($bill_no,"п╒я─п╟я└п╦п╨, п╡п╨п╩я▌я┤п╣п╫п╫я▀п╧ п╡ п╟п╠п╬п╫п╣п╫я┌я│п╨я┐я▌ п©п╩п╟я┌я┐ п╥п╟ ".month_num2name(substr($period_f,5,2))." ".substr($period_f,0,4) ." пЁп╬п╢п╟ (я┌п╟я─п╦я└ $tarif_f, п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ $net_id), п°п╠",min($traf_to_bill*$k_pre,$tarif_f_[1]*$k_pre),0,"${period_f}-01");
         	      	if ($traf_to_bill>$tarif_f_[1]){
-                	    $sum+=do_make_add_line($bill_no,"Превышение траффика за ".month_num2name(substr($period_f,5,2))." ".substr($period_f,0,4) ." года (тариф $tarif_f,подключение $net_id), Мб",($traf_to_bill-$tarif_f_[1]*$k_f),$tarif_f_[3],"${period_f}-01");
+                	    $sum+=do_make_add_line($bill_no,"п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ я┌я─п╟я└я└п╦п╨п╟ п╥п╟ ".month_num2name(substr($period_f,5,2))." ".substr($period_f,0,4) ." пЁп╬п╢п╟ (я┌п╟я─п╦я└ $tarif_f,п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ $net_id), п°п╠",($traf_to_bill-$tarif_f_[1]*$k_f),$tarif_f_[3],"${period_f}-01");
 	        	}
         	};
         	
@@ -54,23 +54,23 @@ echo"вошли в процедуру выставления счета";
 
     }
   
-  // вставляем абонентскую плату и оплату трафика телефонных переговоров  за IP telephon
+  // п╡я│я┌п╟п╡п╩я▐п╣п╪ п╟п╠п╬п╫п╣п╫я┌я│п╨я┐я▌ п©п╩п╟я┌я┐ п╦ п╬п©п╩п╟я┌я┐ я┌я─п╟я└п╦п╨п╟ я┌п╣п╩п╣я└п╬п╫п╫я▀я┘ п©п╣я─п╣пЁп╬п╡п╬я─п╬п╡  п╥п╟ IP telephon
    $r=do_monthly_pay_VoIP($client,$period_pre,$period_f);
     if($r!==false){
         foreach($r as $r_) {
-            $sum+=do_make_add_line($bill_no,$r_[3]. 'за '.month_num2name(substr($r_[2],5,2))." ".substr($r_[2],0,4) ." года",$r_[5], $r_[4]," ${period_pre}-01");
+            $sum+=do_make_add_line($bill_no,$r_[3]. 'п╥п╟ '.month_num2name(substr($r_[2],5,2))." ".substr($r_[2],0,4) ." пЁп╬п╢п╟",$r_[5], $r_[4]," ${period_pre}-01");
         };
     };
 
     $r=do_summ_VoIP($client,$period_f);
     if($r!==false){
         foreach($r as $r_) {
-            $sum+=do_make_add_line($bill_no,$r_[3]. ' за '.month_num2name(substr($r_[2],5,2))." ".substr($r_[2],0,4) ." года",1, $r_[1]," ${period_pre}-01");
+            $sum+=do_make_add_line($bill_no,$r_[3]. ' п╥п╟ '.month_num2name(substr($r_[2],5,2))." ".substr($r_[2],0,4) ." пЁп╬п╢п╟",1, $r_[1]," ${period_pre}-01");
         };
     };
 
 
-   // конец IP телефонии :)
+   // п╨п╬п╫п╣я├ IP я┌п╣п╩п╣я└п╬п╫п╦п╦ :)
     foreach (do_make_bill_monthlyadd_enum($client,$period_pre) as $id){
 	$req="select description, actual_from, amount,price from bill_monthlyadd where id='$id';";
 	if (!($result = mysql_query($req,$GLOBALS['dbh'])))
@@ -85,7 +85,7 @@ echo"вошли в процедуру выставления счета";
     foreach (do_make_bill_emails_enum($client,$period_pre) as $email_id){
 	$this_email_price=0;
 	if ($free_emails--<=0){$this_email_price=1;}
-        $sum+=do_make_add_line($bill_no,"Поддержка почтового ящика ".do_make_bill_get_emails_by_id($email_id)." за ".month_num2name(substr($period_pre,5,2))." ".substr($period_pre,0,4) ." года",1,$this_email_price,"${period_pre}-01");
+        $sum+=do_make_add_line($bill_no,"п÷п╬п╢п╢п╣я─п╤п╨п╟ п©п╬я┤я┌п╬п╡п╬пЁп╬ я▐я┴п╦п╨п╟ ".do_make_bill_get_emails_by_id($email_id)." п╥п╟ ".month_num2name(substr($period_pre,5,2))." ".substr($period_pre,0,4) ." пЁп╬п╢п╟",1,$this_email_price,"${period_pre}-01");
     }
 
     do_make_bill_register($bill_no,$bill_date,$client,$sum);
@@ -110,13 +110,13 @@ function do_make_bill_monthlyadd_enum($client,$period){
 
 function do_make_bill_emails_enum($client,$period){
     $cnt=0;
-     // Проверяем нет ли у клиента услуги виртуального почтового сервера
-     // если есть то счет на почтовые ящики не выставляем 
+     // п÷я─п╬п╡п╣я─я▐п╣п╪ п╫п╣я┌ п╩п╦ я┐ п╨п╩п╦п╣п╫я┌п╟ я┐я│п╩я┐пЁп╦ п╡п╦я─я┌я┐п╟п╩я▄п╫п╬пЁп╬ п©п╬я┤я┌п╬п╡п╬пЁп╬ я│п╣я─п╡п╣я─п╟
+     // п╣я│п╩п╦ п╣я│я┌я▄ я┌п╬ я│я┤п╣я┌ п╫п╟ п©п╬я┤я┌п╬п╡я▀п╣ я▐я┴п╦п╨п╦ п╫п╣ п╡я▀я│я┌п╟п╡п╩я▐п╣п╪ 
     $query="SELECT * FROM bill_monthlyadd
     	     WHERE client='$client'
     	     AND actual_from<='${period}-31' 
     	     AND  actual_to>='${period}-01'
-    	     AND description='Виртуальный почтовый сервер'";
+    	     AND description='п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п©п╬я┤я┌п╬п╡я▀п╧ я│п╣я─п╡п╣я─'";
     
     if (!($res = mysql_query($query,$GLOBALS['dbh'])))
         {echo "can't read from database!<br>$query"; exit;}
@@ -149,7 +149,7 @@ function do_make_bill_get_emails_by_id($id){
 /***/
 
 function do_make_bill_get_tarif_by_net_id($net_id,$period,$flag){
-//теперь net_id  это порт id
+//я┌п╣п©п╣я─я▄ net_id  я█я┌п╬ п©п╬я─я┌ id
 
 $req="SELECT id_tarif from log_tarif where id_service=$net_id and service='usage_ip_ports' order by ts desc LIMIT 1";
 if (!($result = mysql_query($req,$GLOBALS['dbh'])))
@@ -171,7 +171,7 @@ return $tarif;
 
 function do_make_bill_conn_count($client,$net_id,$trafcount,$period){
 
-// net_id - теперь port_id  надо по нему получить все активные сети
+// net_id - я┌п╣п©п╣я─я▄ port_id  п╫п╟п╢п╬ п©п╬ п╫п╣п╪я┐ п©п╬п╩я┐я┤п╦я┌я▄ п╡я│п╣ п╟п╨я┌п╦п╡п╫я▀п╣ я│п╣я┌п╦
 
    $query="select id from routes 
     	where client='$client' 
@@ -181,7 +181,7 @@ function do_make_bill_conn_count($client,$net_id,$trafcount,$period){
     	if (!($result = mysql_query($query,$GLOBALS['dbh'])))
         {echo "can't read from database!<br>$query"; exit;};
         if (mysql_num_rows($result)<=0){
-        	echo "В подключении $net_id нет рабочих сетей";
+        	echo "п▓ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╦ $net_id п╫п╣я┌ я─п╟п╠п╬я┤п╦я┘ я│п╣я┌п╣п╧";
         	$r=array(0,0);
         	return $r;
         	
@@ -193,20 +193,20 @@ function do_make_bill_conn_count($client,$net_id,$trafcount,$period){
     };
         
    
-   // старая часть
+   // я│я┌п╟я─п╟я▐ я┤п╟я│я┌я▄
 //    $net_ids[0]=$net_id;
    //echo "<br>net_id=$net_id";
- //  printdbg1($net_id,"из счетчика трафика");
+ //  printdbg1($net_id,"п╦п╥ я│я┤п╣я┌я┤п╦п╨п╟ я┌я─п╟я└п╦п╨п╟");
     /*$cnt=1;
     $req="select id from routes where secondary_to_net='$net_id';";
-  printdbg1($req,"запрос на поиск вторичной сети");
+  printdbg1($req,"п╥п╟п©я─п╬я│ п╫п╟ п©п╬п╦я│п╨ п╡я┌п╬я─п╦я┤п╫п╬п╧ я│п╣я┌п╦");
     if (!($result = mysql_query($req,$GLOBALS['dbh'])))
         {echo "can't read from database!<br>$req"; exit;}
     while($row = mysql_fetch_assoc($result)){
 	$net_ids[$cnt++]=$row['id'];
     }
     */
-    // правка Андрей Сылка вставляю поиск подсетей из подключений 
+    // п©я─п╟п╡п╨п╟ п░п╫п╢я─п╣п╧ п║я▀п╩п╨п╟ п╡я│я┌п╟п╡п╩я▐я▌ п©п╬п╦я│п╨ п©п╬п╢я│п╣я┌п╣п╧ п╦п╥ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╧ 
     
     if (strcmp($trafcount,"2F")==0){
 	$what="(sum(in_r2)+sum(in_f))/1024/1024 as MBin, ".
@@ -225,7 +225,7 @@ function do_make_bill_conn_count($client,$net_id,$trafcount,$period){
 }
 
 function do_make_bill_conn_enum($client,$period){
-    // клиент и периао на выходе список Id всех подключений 
+    // п╨п╩п╦п╣п╫я┌ п╦ п©п╣я─п╦п╟п╬ п╫п╟ п╡я▀я┘п╬п╢п╣ я│п©п╦я│п╬п╨ Id п╡я│п╣я┘ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╧ 
     $query="SELECT id from usage_ip_ports where client='$client'";
  //   echo $query."<br>";
     if (!($res = mysql_query($query,$GLOBALS['dbh'])))
@@ -234,13 +234,13 @@ function do_make_bill_conn_enum($client,$period){
         	exit;
         }
     $ids=array();
-    echo "подключений=".mysql_num_rows($res)."<br>";
+    echo "п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╧=".mysql_num_rows($res)."<br>";
     while($r=mysql_fetch_assoc($res)){
     	$ids[]=$r['id'];
     };
-  //  printdbg1($ids,"все подключения");
+  //  printdbg1($ids,"п╡я│п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐");
     $ports=array();
-    //проверяем есть ли в данном подключении активные сети
+    //п©я─п╬п╡п╣я─я▐п╣п╪ п╣я│я┌я▄ п╩п╦ п╡ п╢п╟п╫п╫п╬п╪ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╦ п╟п╨я┌п╦п╡п╫я▀п╣ я│п╣я┌п╦
     foreach($ids as $port){
    // 	echo "<br>port- $port";
     	$query="select id from usage_ip_routes
@@ -256,7 +256,7 @@ function do_make_bill_conn_enum($client,$period){
         }
     }
     return $ports;
-/* Старя процедура 
+/* п║я┌п╟я─я▐ п©я─п╬я├п╣п╢я┐я─п╟ 
     $cnt=0;
     //FIXME: select only those in period correctly
     $req="select id from routes where client='$client' and secondary_to_net='' and actual_from<='${period}-31' and actual_to>='${period}-01';";
@@ -278,9 +278,9 @@ function do_make_bill_register($bill_no,$bill_date,$client,$sum){
         {echo "can't read from database!<br>$req"; exit;}
     if(!($row = mysql_fetch_assoc($result)))
         {echo "no data in database!<br>$req"; exit;}
-    do_make_add_line($bill_no,"*Итого :",1,$sum,'0000-00-00');
-    $sum+=do_make_add_line($bill_no,"*НДС 18% :",1,$sum*0.18,'0000-00-00');
-    do_make_add_line($bill_no,"*Всего с НДС :",1,$sum,'0000-00-00');
+    do_make_add_line($bill_no,"*п≤я┌п╬пЁп╬ :",1,$sum,'0000-00-00');
+    $sum+=do_make_add_line($bill_no,"*п²п■п║ 18% :",1,$sum*0.18,'0000-00-00');
+    do_make_add_line($bill_no,"*п▓я│п╣пЁп╬ я│ п²п■п║ :",1,$sum,'0000-00-00');
     $req="insert into bill_bills ".
 	"(client,company_full,address_post,bill_no,bill_date,sum,usd_rate_percent,state,fax)".
 	"values".
@@ -373,7 +373,7 @@ function construct_where_by_net_list_parse_or_block($where_ip,$from,$to,$ip_bloc
 }//end function
 
 function month_num2name($num) {
-    $nbm = array('','январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь');
+    $nbm = array('','я▐п╫п╡п╟я─я▄','я└п╣п╡я─п╟п╩я▄','п╪п╟я─я┌','п╟п©я─п╣п╩я▄','п╪п╟п╧','п╦я▌п╫я▄','п╦я▌п╩я▄','п╟п╡пЁя┐я│я┌','я│п╣п╫я┌я▐п╠я─я▄','п╬п╨я┌я▐п╠я─я▄','п╫п╬я▐п╠я─я▄','п╢п╣п╨п╟п╠я─я▄');
     return ($nbm[(int)($num+0)]);
 }
 function inside_per($period, $p){
@@ -410,7 +410,7 @@ extract($row);
 
 $pf="$period-01";
 $d=month2days($period);
-echo "период:$period   --- дней:$d<br>";
+echo "п©п╣я─п╦п╬п╢:$period   --- п╢п╫п╣п╧:$d<br>";
 $pt="$period-$d";
 echo "$afrom --- $ato<br>";
 
@@ -427,7 +427,7 @@ if (($delta[3]+1)<$d){
 	$k=($delta[3]+1)/$d;
 }else $k=1;
 
-echo "коэффициент - $k<br>";
+echo "п╨п╬я█я└я└п╦я├п╦п╣п╫я┌ - $k<br>";
 return $k;
 
 

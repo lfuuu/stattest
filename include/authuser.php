@@ -105,7 +105,7 @@ class AuthUser {
         $pass=get_param_raw('password');
         $data = $db->GetRow($q = 'select * from '.USER_TABLE.' where '.USER_FIELD_LOGIN.'="' . $user . '" and enabled="yes"');
         if (!$data){
-            //‡ ‚ÓÚ ÚÛÚ ÔÓ‚ÂËÏ - ‚‰Û„ ˝ÚÓ ÍÎËÂÌÚ?
+            //–Æ –ë–ù–† –†–°–† –û–ü–ù–ë–ï–ü–•–õ - –ë–î–ü–°–¶ –©–†–ù –ô–ö–•–ï–ú–†?
             $db->Query('select * from clients where client="'.$user.'"');
             if (!($data2=$db->NextRecord()) || ($data2['password']!=$pass)) {
                 sleep(3);
@@ -117,7 +117,7 @@ class AuthUser {
             $data=$db->NextRecord();
             if (!$data) {
                 sleep(1);
-                trigger_error('˜Ÿ Œ≈ –“œ€Ã… ◊¡Ã…ƒ¡√…¿');
+                trigger_error('–í—ã –Ω–µ –ø—Ä–æ—à–ª–∏ –≤–∞–ª–∏–¥–∞—Ü–∏—é');
                 return 0;
             }
             $pass=''; $data[USER_FIELD_PASSWORD]=password::hash('');

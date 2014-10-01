@@ -14,8 +14,6 @@
 	        foreach ($arrObjData as $index => $value) {
 	            if (is_object($value) || is_array($value)) {
 	                $value = objectsIntoArray($value, $arrSkipIndices); // recursive call
-	            }else{
-	            	$value = iconv('utf-8', 'koi8-r', $value);
 	            }
 	            if (in_array($index, $arrSkipIndices)) {
 	                continue;

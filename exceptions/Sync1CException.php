@@ -5,7 +5,7 @@ class Sync1CException extends Exception
 	public function triggerError()
 	{
 		trigger_error(
-			'Ошибка синхронизации с 1С<br/>' . str_replace("\n\n", '<br/>', $this->getMessage())
+			'п·я┬п╦п╠п╨п╟ я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╦ я│ 1п║<br/>' . str_replace("\n\n", '<br/>', $this->getMessage())
 		);
 	}
 }

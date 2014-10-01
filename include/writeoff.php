@@ -53,7 +53,7 @@ abstract class ServicePrototype {
             $this->date_from_prev=0;
         }
 
-        if($this->tarif_std==1){    //берутся ли тарифы из log_tarif_.. и tarifs_..?
+        if($this->tarif_std==1){    //п╠п╣я─я┐я┌я│я▐ п╩п╦ я┌п╟я─п╦я└я▀ п╦п╥ log_tarif_.. п╦ tarifs_..?
             if($this->date_from){
                 $this->tarifs = get_tarif_history($this->service['service'],$this->service['id'],'FROM_UNIXTIME('.$this->date_from.')');
                 foreach($this->tarifs as $t)
@@ -75,7 +75,7 @@ abstract class ServicePrototype {
     {
 	return 0;
     }
-    public function LoadTarif() {}    //тело в потомке, если нужно
+    public function LoadTarif() {}    //я┌п╣п╩п╬ п╡ п©п╬я┌п╬п╪п╨п╣, п╣я│п╩п╦ п╫я┐п╤п╫п╬
     public function SetMonth($month) {
         $d=getdate($month);
         $d2=$d;
@@ -96,8 +96,8 @@ abstract class ServicePrototype {
         if(false)
         foreach ($this->devices as $d) {
             $t=$d['vendor'].' '.$d['model'];
-            if ($d['serial']) $t.=' (серийный номер '.$d['serial'].')';
-            $R[]=array($this->tarif_current['currency'],'Залог за '.$t,1,$d['deposit_sum'.$this->tarif_current['currency']],'zalog','tech_cpe',$d['id'],$this->service['actual_from'],$this->service['actual_from']);
+            if ($d['serial']) $t.=' (я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ '.$d['serial'].')';
+            $R[]=array($this->tarif_current['currency'],'п≈п╟п╩п╬пЁ п╥п╟ '.$t,1,$d['deposit_sum'.$this->tarif_current['currency']],'zalog','tech_cpe',$d['id'],$this->service['actual_from'],$this->service['actual_from']);
         }
         return $R;
     }
@@ -135,7 +135,7 @@ abstract class ServicePrototype {
         if (!$this->date_from_prev || !$this->date_to_prev) return 0;
         $d1=getdate($this->date_from_prev);
         $d2=getdate($this->date_to_prev);
-        //нужно учесть период услуги
+        //п╫я┐п╤п╫п╬ я┐я┤п╣я│я┌я▄ п©п╣я─п╦п╬п╢ я┐я│п╩я┐пЁп╦
         $v=($d2['mday']-$d1['mday']+1)/cal_days_in_month(CAL_GREGORIAN, $d1['mon'], $d1['year']);
         if ($d1['year']==$d2['year'] && $d1['mon']==$d2['mon']) return $v;
         return 1;
@@ -225,7 +225,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
         $R = ServicePrototype::GetLinesConnect();
         $R[] = array(
             $this->tarif_current['currency'],
-            'Подключение к интернет по тарифу '.$this->tarif_current['name'],
+            'п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╨ п╦п╫я┌п╣я─п╫п╣я┌ п©п╬ я┌п╟я─п╦я└я┐ '.$this->tarif_current['name'],
             1,
             $this->tarif_current['pay_once'],
             'service',
@@ -343,7 +343,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
         if($this->date_from && $this->date_to){
             $R[] = array(
                 $this->tarif_current['currency'],
-                'Абонентская плата за доступ в интернет (подключение '.$this->service['id'].', тариф '.$this->tarif_current['name'].') с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to),
+                'п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ п╢п╬я│я┌я┐п© п╡ п╦п╫я┌п╣я─п╫п╣я┌ (п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ '.$this->service['id'].', я┌п╟я─п╦я└ '.$this->tarif_current['name'].') я│ '.date('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to),
                 $this->GetDatePercent(),
                 $this->tarif_current['pay_month'],
                 'service',
@@ -364,7 +364,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $mb=max($S['in'],$S['out']);
                 if($mb > $this->tarif_previous['mb_month']*$this->GetDatePercentPrev()){
                     $TrafficOver[] = array(
-                        ($S['in']>$S['out']?'входящего':'исходящего').' трафика',
+                        ($S['in']>$S['out']?'п╡я┘п╬п╢я▐я┴п╣пЁп╬':'п╦я│я┘п╬п╢я▐я┴п╣пЁп╬').' я┌я─п╟я└п╦п╨п╟',
                         $mb-$this->tarif_previous['mb_month']*$this->GetDatePercentPrev(),
                         $this->tarif_previous['pay_mb'],
                         array(array(
@@ -389,14 +389,14 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 if($this->tarif_previous['type_count']=='r2_f'){
                     $S['in_f'] += $S['in_r2'];
                     $S['in_r2'] = 0;
-                    $N = array('бесплатного входящего трафика','','платного входящего трафика');
+                    $N = array('п╠п╣я│п©п╩п╟я┌п╫п╬пЁп╬ п╡я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─п╟я└п╦п╨п╟','','п©п╩п╟я┌п╫п╬пЁп╬ п╡я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─п╟я└п╦п╨п╟');
                 }elseif($this->tarif_previous['type_count'] == 'all_f'){
                     $S['in_f'] += $S['in_r'] + $S['in_r2'];
                     $S['in_r'] = 0;
                     $S['in_r2'] = 0;
-                    $N = array('','','платного входящего трафика');
+                    $N = array('','','п©п╩п╟я┌п╫п╬пЁп╬ п╡я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─п╟я└п╦п╨п╟');
                 }else{
-                    $N = array('входящего трафика "Россия"','входящего трафика "Россия-2"','входящего трафика "Иностранный"');
+                    $N = array('п╡я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─п╟я└п╦п╨п╟ "п═п╬я│я│п╦я▐"','п╡я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─п╟я└п╦п╨п╟ "п═п╬я│я│п╦я▐-2"','п╡я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─п╟я└п╦п╨п╟ "п≤п╫п╬я│я┌я─п╟п╫п╫я▀п╧"');
                 }
                 if($this->tarif_previous['pay_r'] && $S['in_r']>$this->tarif_previous['month_r']*$this->GetDatePercentPrev()){
                     $TrafficOver[] = array(
@@ -466,7 +466,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $mb = max($S['in'],$S['out']);
                 if($mb>$this->tarif_previous['mb_month']*$this->GetDatePercentPrev()){
                     $TrafficOver[] = array(
-                        ($S['in']>$S['out']?'входящего':'исходящего').' трафика',
+                        ($S['in']>$S['out']?'п╡я┘п╬п╢я▐я┴п╣пЁп╬':'п╦я│я┘п╬п╢я▐я┴п╣пЁп╬').' я┌я─п╟я└п╦п╨п╟',
                         $mb-$this->tarif_previous['mb_month']*$this->GetDatePercentPrev(),
                         $this->tarif_previous['pay_mb'],
                         array(array(
@@ -489,13 +489,13 @@ class ServiceUsageIpPorts extends ServicePrototype {
             foreach($TrafficOver as $T){
                 $R[] = array(
                     $this->tarif_previous['currency'],
-                    'Превышение лимита '.
+                    'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ п╩п╦п╪п╦я┌п╟ '.
                     $T[0].
-                    ', включенного в абонентскую плату (подключение '.
+                    ', п╡п╨п╩я▌я┤п╣п╫п╫п╬пЁп╬ п╡ п╟п╠п╬п╫п╣п╫я┌я│п╨я┐я▌ п©п╩п╟я┌я┐ (п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ '.
                     $this->service['id'].
-                    ', тариф '.
+                    ', я┌п╟я─п╦я└ '.
                     $this->tarif_previous['name'].
-                    ') с '.date('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev),
+                    ') я│ '.date('d',$this->date_from_prev).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to_prev),
                     $T[1],
                     $T[2],
                     'service',
@@ -512,14 +512,14 @@ class ServiceUsageIpPorts extends ServicePrototype {
         if($this->client["bill_rename1"] == "yes")
         foreach($R as &$l)
         {
-            if(strpos($l[1], "бонентская плата за доступ в интернет") !== false)
+            if(strpos($l[1], "п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ п╢п╬я│я┌я┐п© п╡ п╦п╫я┌п╣я─п╫п╣я┌") !== false)
             {
                 $clientId = $this->service["client_id"];
                 if($clientId)
                 {
                     if($str = BillContract::getBillItemString($clientId))
                     {
-                        $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".substr($l[1],strpos($l[1], "("));
+                        $l[1] = "п·п╨п╟п╥п╟п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦ п©п╬ п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦я▌ п╢п╬я│я┌я┐п©п╟ п╡ п╦п╫я┌п╣я─п╫п╣я┌ ".substr($l[1],strpos($l[1], "("));
                         $l[1] .= $str;
                     }
                 }
@@ -540,7 +540,7 @@ class BillContract
         $contract = self::getString($clientId, $date);
 
         if($contract)
-            return ", согласно Договора ".$contract;
+            return ", я│п╬пЁп╩п╟я│п╫п╬ п■п╬пЁп╬п╡п╬я─п╟ ".$contract;
 
         return "";
     }
@@ -549,7 +549,7 @@ class BillContract
         $contract = self::getLastContract($clientId, $date);
 
         if($contract)
-            return $contract["no"]." от ".mdate("d месяца Y г.",$contract["date"]);
+            return $contract["no"]." п╬я┌ ".mdate("d п╪п╣я│я▐я├п╟ Y пЁ.",$contract["date"]);
 
         return "";
     }
@@ -584,7 +584,7 @@ class ServiceUsageVoip extends ServicePrototype {
         $p=($this->service['no_of_lines']-1)*$this->tarif_current['once_line'];
         if ($p<0) $p=0;
         $p+=$this->tarif_current['once_number'];
-        $R[]=array($this->tarif_current['currency'],'Подключение к IP-телефонии по тарифу '.$this->tarif_current['name'],1,$p,'service',$this->service['service'],$this->service['id'],$this->service['actual_from'],$this->service['actual_to']);
+        $R[]=array($this->tarif_current['currency'],'п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╨ IP-я┌п╣п╩п╣я└п╬п╫п╦п╦ п©п╬ я┌п╟я─п╦я└я┐ '.$this->tarif_current['name'],1,$p,'service',$this->service['service'],$this->service['id'],$this->service['actual_from'],$this->service['actual_to']);
         return $R;
     }
     private function get_traffic_categories_list(){
@@ -684,8 +684,8 @@ class ServiceUsageVoip extends ServicePrototype {
         if($this->date_from && $this->date_to){
             $R[] = array(
                 $this->tarif_current['currency'],
-                'Абонентская плата за телефонный номер '.$this->service['E164'].
-                ' с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to),
+                'п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ я┌п╣п╩п╣я└п╬п╫п╫я▀п╧ п╫п╬п╪п╣я─ '.$this->service['E164'].
+                ' я│ '.date('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to),
                 $this->GetDatePercent(),
                 $this->tarif_current['month_number'],
                 'service',
@@ -698,8 +698,8 @@ class ServiceUsageVoip extends ServicePrototype {
                 $c=intval($this->service['no_of_lines']-1);
                 $R[] = array(
                     $this->tarif_current['currency'],
-                    'Абонентская плата за '.$c.' телефонн'.rus_fin($c,'ую','ые','ых').
-                    ' лин'.rus_fin($c,'ию','ии','ий').' к номеру '.$this->service['E164'],
+                    'п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ '.$c.' я┌п╣п╩п╣я└п╬п╫п╫'.rus_fin($c,'я┐я▌','я▀п╣','я▀я┘').
+                    ' п╩п╦п╫'.rus_fin($c,'п╦я▌','п╦п╦','п╦п╧').' п╨ п╫п╬п╪п╣я─я┐ '.$this->service['E164'],
                     $this->GetDatePercent()*($this->service['no_of_lines']-1),
                     $this->tarif_current['month_line'],
                     'service',
@@ -721,57 +721,57 @@ class ServiceUsageVoip extends ServicePrototype {
                 $name = '';
                 $percent = 1;
                 if ($dest == '4'){
-                    $name = 'Превышение лимита, включенного в абонентскую плату по номеру %NUM% (местные вызовы) %PERIOD%';
+                    $name = 'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ п╩п╦п╪п╦я┌п╟, п╡п╨п╩я▌я┤п╣п╫п╫п╬пЁп╬ п╡ п╟п╠п╬п╫п╣п╫я┌я│п╨я┐я▌ п©п╩п╟я┌я┐ п©п╬ п╫п╬п╪п╣я─я┐ %NUM% (п╪п╣я│я┌п╫я▀п╣ п╡я▀п╥п╬п╡я▀) %PERIOD%';
                 }elseif($dest == '5'){
 
                     if ($this->tarif_previous['minpayment_local_mob'] > $price)
                     {
                         $price = $this->tarif_previous['minpayment_local_mob'];
-                        $name = 'Минимальный платеж за звонки на местные мобильные с номера %NUM% %PERIOD%';
+                        $name = 'п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╥п╡п╬п╫п╨п╦ п╫п╟ п╪п╣я│я┌п╫я▀п╣ п╪п╬п╠п╦п╩я▄п╫я▀п╣ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
                     }else
-                        $name = 'Плата за звонки на местные мобильные с номера %NUM% %PERIOD%';
+                        $name = 'п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п╫п╟ п╪п╣я│я┌п╫я▀п╣ п╪п╬п╠п╦п╩я▄п╫я▀п╣ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
                     
                 }elseif($dest == '1'){
 
                     if ($this->tarif_previous['minpayment_russia'] > $price)
                     {
                         $price = $this->tarif_previous['minpayment_russia'];
-                        $name = 'Минимальный платеж за междугородные звонки с номера %NUM% %PERIOD%';
+                        $name = 'п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╪п╣п╤п╢я┐пЁп╬я─п╬п╢п╫я▀п╣ п╥п╡п╬п╫п╨п╦ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
                     }else
-                        $name = 'Плата за междугородные звонки с номера %NUM% %PERIOD%';
+                        $name = 'п÷п╩п╟я┌п╟ п╥п╟ п╪п╣п╤п╢я┐пЁп╬я─п╬п╢п╫я▀п╣ п╥п╡п╬п╫п╨п╦ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
 
                 }elseif($dest == '2'){
 
                     if ($this->tarif_previous['minpayment_intern'] > $price)
                     {
                         $price = $this->tarif_previous['minpayment_intern'];
-                        $name = 'Минимальный платеж за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╥п╡п╬п╫п╨п╦ п╡ п╢п╟п╩я▄п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
                     }else
-                        $name = 'Плата за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п╡ п╢п╟п╩я▄п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
 
                 }elseif($dest == '3'){
 
                     if ($this->tarif_previous['minpayment_sng'] > $price)
                     {
                         $price = $this->tarif_previous['minpayment_sng'];
-                        $name = 'Минимальный платеж за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╥п╡п╬п╫п╨п╦ п╡ п╠п╩п╦п╤п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
                     }else
-                        $name = 'Плата за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п╡ п╠п╩п╦п╤п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣ я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%';
 
                 }elseif($dest == '100'){
 
                     $group = array();
-                    if (strpos($this->tarif_previous['dest_group'], '5') !== FALSE) $group[]='местные мобильные';
-                    if (strpos($this->tarif_previous['dest_group'], '1') !== FALSE) $group[]='междугородные';
-                    if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE) $group[]='дальнее зарубежье';
-                    if (strpos($this->tarif_previous['dest_group'], '3') !== FALSE) $group[]='ближнее зарубежье';
+                    if (strpos($this->tarif_previous['dest_group'], '5') !== FALSE) $group[]='п╪п╣я│я┌п╫я▀п╣ п╪п╬п╠п╦п╩я▄п╫я▀п╣';
+                    if (strpos($this->tarif_previous['dest_group'], '1') !== FALSE) $group[]='п╪п╣п╤п╢я┐пЁп╬я─п╬п╢п╫я▀п╣';
+                    if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE) $group[]='п╢п╟п╩я▄п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣';
+                    if (strpos($this->tarif_previous['dest_group'], '3') !== FALSE) $group[]='п╠п╩п╦п╤п╫п╣п╣ п╥п╟я─я┐п╠п╣п╤я▄п╣';
                     $group = implode(', ', $group);
                     if ($this->tarif_previous['minpayment_group'] > $price)
                     {
                         $price = $this->tarif_previous['minpayment_group'];
-                        $name = "Минимальный платеж за набор ($group) с номера %NUM% %PERIOD%";
+                        $name = "п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╫п╟п╠п╬я─ ($group) я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%";
                     }else
-                        $name = "Плата за звонки в наборе ($group) с номера %NUM% %PERIOD%";
+                        $name = "п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п╡ п╫п╟п╠п╬я─п╣ ($group) я│ п╫п╬п╪п╣я─п╟ %NUM% %PERIOD%";
 
                 }elseif($dest == '900'){
 
@@ -780,22 +780,22 @@ class ServiceUsageVoip extends ServicePrototype {
                         $minPayment = $this->tarif_current["month_min_payment"];
                         if ($price <= $minPayment)
                         {
-                            $name = "Минимальный платеж за звонки по номеру %NUM% %PERIOD%";
+                            $name = "п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ п╥п╡п╬п╫п╨п╦ п©п╬ п╫п╬п╪п╣я─я┐ %NUM% %PERIOD%";
                             $price = $minPayment;
                         } else {
-                            $name = "Плата за звонки по номеру %NUM% %PERIOD%";
+                            $name = "п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п©п╬ п╫п╬п╪п╣я─я┐ %NUM% %PERIOD%";
                         }
                     } else {
-                        $name = "Плата за звонки по номеру %NUM% (местные, междугородные, международные) %PERIOD%";
+                        $name = "п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п©п╬ п╫п╬п╪п╣я─я┐ %NUM% (п╪п╣я│я┌п╫я▀п╣, п╪п╣п╤п╢я┐пЁп╬я─п╬п╢п╫я▀п╣, п╪п╣п╤п╢я┐п╫п╟я─п╬п╢п╫я▀п╣) %PERIOD%";
                     }
 
                 }
 
                 $name = str_replace('%NUM%', $this->service['E164'], $name);
-                $name = str_replace('%PERIOD%', 'с '.date('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev), $name);
+                $name = str_replace('%PERIOD%', 'я│ '.date('d',$this->date_from_prev).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to_prev), $name);
 
-                // минимальный платеж должен выставляться пропорционально использованию услуги
-                if(strpos($name, "Минимальный ") !== false)
+                // п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п©п╩п╟я┌п╣п╤ п╢п╬п╩п╤п╣п╫ п╡я▀я│я┌п╟п╡п╩я▐я┌я▄я│я▐ п©я─п╬п©п╬я─я├п╦п╬п╫п╟п╩я▄п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▌ я┐я│п╩я┐пЁп╦
+                if(strpos($name, "п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ ") !== false)
                 {
                     $percent = $this->GetDatePercent($this->date_from_prev, $this->date_to_prev);
                 }
@@ -819,25 +819,25 @@ class ServiceUsageVoip extends ServicePrototype {
         if($this->client["bill_rename1"] == "yes")
         foreach($R as &$l)
         {
-            //Абонентская плата за телефонный номер 74956385213 с 01 по 31 января 
-            //Оказанные услуги за телефонный номер 74956385213 с 01 по 30 июня, согласно Договора ??? 4743-08 от 01.10.2008 г. 
+            //п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ я┌п╣п╩п╣я└п╬п╫п╫я▀п╧ п╫п╬п╪п╣я─ 74956385213 я│ 01 п©п╬ 31 я▐п╫п╡п╟я─я▐ 
+            //п·п╨п╟п╥п╟п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦ п╥п╟ я┌п╣п╩п╣я└п╬п╫п╫я▀п╧ п╫п╬п╪п╣я─ 74956385213 я│ 01 п©п╬ 30 п╦я▌п╫я▐, я│п╬пЁп╩п╟я│п╫п╬ п■п╬пЁп╬п╡п╬я─п╟ ??? 4743-08 п╬я┌ 01.10.2008 пЁ. 
 
-            if(strpos($l[1], "бонентская плата за") !== false)
+            if(strpos($l[1], "п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟") !== false)
             {
                 $contractStr = BillContract::getBillItemString($this->service["client_id"]);
                 if($contractStr)
                 {
-                    $l[1] = "Оказанные услуги за ".substr($l[1],strpos($l[1], "за ")+3).$contractStr;
+                    $l[1] = "п·п╨п╟п╥п╟п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦ п╥п╟ ".substr($l[1],strpos($l[1], "п╥п╟ ")+3).$contractStr;
                 }
 
             }
 
-            if(strpos($l[1], "Плата за звонки по номеру") !== false)
+            if(strpos($l[1], "п÷п╩п╟я┌п╟ п╥п╟ п╥п╡п╬п╫п╨п╦ п©п╬ п╫п╬п╪п╣я─я┐") !== false)
             {
-                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"]);
+                $l[1] = str_replace("п÷п╩п╟я┌п╟", "п·п╨п╟п╥п╟п╫п╫я▀п╣ я┐я│п╩я┐пЁп╦", $l[1]).BillContract::getBillItemString($this->service["client_id"]);
             }
 
-            if(strpos($l[1], "Услуга местного завершения вызо") !== false)
+            if(strpos($l[1], "пёя│п╩я┐пЁп╟ п╪п╣я│я┌п╫п╬пЁп╬ п╥п╟п╡п╣я─я┬п╣п╫п╦я▐ п╡я▀п╥п╬") !== false)
             {
                 $l[1] .= BillContract::getBillItemString($this->service["client_id"]);
             }
@@ -860,10 +860,10 @@ class ServiceBillMonthlyadd extends ServicePrototype {
         $R[]=array(
             0=>$this->service['currency'],
             1=>$this->service['description'].
-                ' с '.
+                ' я│ '.
                 date('d',$this->date_from).
-                ' по '.
-                mdate('d месяца',$this->date_to),
+                ' п©п╬ '.
+                mdate('d п╪п╣я│я▐я├п╟',$this->date_to),
             2=>$this->service['amount']*$this->GetDatePercent(),
             3=>$this->service['price'],
             4=>'service',
@@ -969,7 +969,7 @@ class ServiceUsageExtra extends ServicePrototype {
                 foreach($db->AllRecords($q="
                         select 
                             unix_timestamp(contract_date) as date,
-                            if(contract_no regexp '^[0-9]+', concat('А/',contract_no),contract_no) c_no,
+                            if(contract_no regexp '^[0-9]+', concat('п░/',contract_no),contract_no) c_no,
                             comment
                         from 
                             client_contracts 
@@ -980,9 +980,9 @@ class ServiceUsageExtra extends ServicePrototype {
                         
                         having 
                             (
-                                c_no like 'А/%' 
-                                and comment like '%оговор%'
-                            ) or c_no not like 'А/%'
+                                c_no like 'п░/%' 
+                                and comment like '%п╬пЁп╬п╡п╬я─%'
+                            ) or c_no not like 'п░/%'
                             
                         order by id
                             ") as $l)
@@ -990,10 +990,10 @@ class ServiceUsageExtra extends ServicePrototype {
 
                     $type="arenda";
 
-                    if(strpos($l["c_no"], "П/") !== false)
+                    if(strpos($l["c_no"], "п÷/") !== false)
                     {
                        $type = "post" ;
-                    }elseif(strpos($l["c_no"], "Т/") !== false || strpos($l["c_no"], "T/") !== false )
+                    }elseif(strpos($l["c_no"], "п╒/") !== false || strpos($l["c_no"], "T/") !== false )
                     {
                         $type = "parking";
                     }
@@ -1008,8 +1008,8 @@ class ServiceUsageExtra extends ServicePrototype {
 
 
             if(
-                    strpos($this->tarif_current["description"], "ренда") !== false
-                &&  strpos($this->tarif_current["description"], "помещений") !== false
+                    strpos($this->tarif_current["description"], "я─п╣п╫п╢п╟") !== false
+                &&  strpos($this->tarif_current["description"], "п©п╬п╪п╣я┴п╣п╫п╦п╧") !== false
                 )
             {
                 global $db;
@@ -1017,32 +1017,32 @@ class ServiceUsageExtra extends ServicePrototype {
                 if(isset($contracts["arenda"]))
                 {
                     $c = $contracts["arenda"]["c_no"];
-                    $v[1] .= " по Договору ".
-                        (strpos($c, "A/") !== false || strpos($c, "А/") !== false ? "" : "А/").$c." от ".mdate('d месяца Y', $contracts["arenda"]["date"])."г.";
+                    $v[1] .= " п©п╬ п■п╬пЁп╬п╡п╬я─я┐ ".
+                        (strpos($c, "A/") !== false || strpos($c, "п░/") !== false ? "" : "п░/").$c." п╬я┌ ".mdate('d п╪п╣я│я▐я├п╟ Y', $contracts["arenda"]["date"])."пЁ.";
                 }
             }
 
             if(
                 
-                    strpos($this->tarif_current["description"], "очтовое") !== false
-                &&  strpos($this->tarif_current["description"], "бслуживание") !== false
+                    strpos($this->tarif_current["description"], "п╬я┤я┌п╬п╡п╬п╣") !== false
+                &&  strpos($this->tarif_current["description"], "п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣") !== false
                 )
             {
                 if(isset($contracts["post"]))
                 {
-                    $v[1] .= " по Договору ".$contracts["post"]["c_no"]." от ".mdate('d месяца Y', $contracts["post"]["date"])."г.";
+                    $v[1] .= " п©п╬ п■п╬пЁп╬п╡п╬я─я┐ ".$contracts["post"]["c_no"]." п╬я┌ ".mdate('d п╪п╣я│я▐я├п╟ Y', $contracts["post"]["date"])."пЁ.";
                 }
             }
 
             if(
                 
-                    strpos($this->tarif_current["description"], "онтрол") !== false
-                &&  strpos($this->tarif_current["description"], "территории") !== false
+                    strpos($this->tarif_current["description"], "п╬п╫я┌я─п╬п╩") !== false
+                &&  strpos($this->tarif_current["description"], "я┌п╣я─я─п╦я┌п╬я─п╦п╦") !== false
                 )
             {
                 if(isset($contracts["parking"]))
                 {
-                    $v[1] .= " по Договору ".$contracts["parking"]["c_no"]." от ".mdate('d месяца Y', $contracts["parking"]["date"])."г.";
+                    $v[1] .= " п©п╬ п■п╬пЁп╬п╡п╬я─я┐ ".$contracts["parking"]["c_no"]." п╬я┌ ".mdate('d п╪п╣я│я▐я├п╟ Y', $contracts["parking"]["date"])."пЁ.";
                 }
             }
         }
@@ -1053,9 +1053,9 @@ class ServiceUsageExtra extends ServicePrototype {
         if($this->tarif_current['period']=='once'){
             $v[1] .= ', '.mdate('d',$this->date_from);
         }elseif($this->tarif_current['period']=='month'){
-            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            $v[1].=' я│ '.mdate('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to);
         } elseif ($this->tarif_current['period']=='year') {
-            $v[1].=' с '.mdate('d месяца Y',$this->date_from).' по '.mdate('d месяца Y',$this->date_to);
+            $v[1].=' я│ '.mdate('d п╪п╣я│я▐я├п╟ Y',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟ Y',$this->date_to);
         }
         
         if($this->client["bill_rename1"] == "yes")
@@ -1145,9 +1145,9 @@ class ServiceUsageWelltime extends ServicePrototype {
         if($this->tarif_current['period']=='once'){
             $v[1] .= ', '.mdate('d',$this->date_from);
         }elseif($this->tarif_current['period']=='month'){
-            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            $v[1].=' я│ '.mdate('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to);
         } elseif ($this->tarif_current['period']=='year') {
-            $v[1].=' с '.mdate('d месяца Y',$this->date_from).' по '.mdate('d месяца Y',$this->date_to);
+            $v[1].=' я│ '.mdate('d п╪п╣я│я▐я├п╟ Y',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟ Y',$this->date_to);
         }
         $R[]=$v;
         return $R;
@@ -1186,7 +1186,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
         );
 
         //by month
-        $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+        $v[1].=' я│ '.mdate('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to);
 
         $R[]=$v;
         return $R;
@@ -1225,7 +1225,7 @@ class ServiceUsage8800 extends ServicePrototype {
         );
 
         //by month
-        $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+        $v[1].=' я│ '.mdate('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to);
 
         $R[]=$v;
 
@@ -1262,7 +1262,7 @@ class ServiceUsageSms extends ServicePrototype {
         {
             $v=array(
                     $this->tarif_current['currency'],
-                    "Абонентская плата за СМС рассылки, ".$this->tarif_current['description'],
+                    "п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ п║п°п║ я─п╟я│я│я▀п╩п╨п╦, ".$this->tarif_current['description'],
                     1*$this->GetDatePercent(),
                     $this->tarif_current['per_month_price']/1.18,
                     'service',
@@ -1272,7 +1272,7 @@ class ServiceUsageSms extends ServicePrototype {
                     date('Y-m-d',$this->date_to)
                     );
 
-            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            $v[1].=' я│ '.mdate('d',$this->date_from).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to);
             $R[]=$v;
         }
 
@@ -1281,7 +1281,7 @@ class ServiceUsageSms extends ServicePrototype {
         {
             $v=array(
                     $this->tarif_current['currency'],
-                    "СМС рассылка, ".$this->tarif_current['description'],
+                    "п║п°п║ я─п╟я│я│я▀п╩п╨п╟, ".$this->tarif_current['description'],
                     $count,
                     $this->tarif_current['per_sms_price']/1.18,
                     'service',
@@ -1291,7 +1291,7 @@ class ServiceUsageSms extends ServicePrototype {
                     date('Y-m-d',$this->date_to_prev)
                     );
 
-            $v[1].=' с '.mdate('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev);
+            $v[1].=' я│ '.mdate('d',$this->date_from_prev).' п©п╬ '.mdate('d п╪п╣я│я▐я├п╟',$this->date_to_prev);
             $R[]=$v;
         }
 
@@ -1339,7 +1339,7 @@ class ServiceEmails extends ServicePrototype {
                 from
                     bill_monthlyadd as U
                 where
-                    description LIKE "Виртуальный почтовый сервер%"
+                    description LIKE "п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п©п╬я┤я┌п╬п╡я▀п╧ я│п╣я─п╡п╣я─%"
                 and
                     U.actual_from<=FROM_UNIXTIME('.$this->date_from.')
                 and
@@ -1348,7 +1348,7 @@ class ServiceEmails extends ServicePrototype {
                     U.client="'.$this->service['client'].'"
             ');
             
-            if(!$b) // тут косяк. T.code не всегда адекватные
+            if(!$b) // я┌я┐я┌ п╨п╬я│я▐п╨. T.code п╫п╣ п╡я│п╣пЁп╢п╟ п╟п╢п╣п╨п╡п╟я┌п╫я▀п╣
                 $b = $db->getRow($q='
                     select
                         MAX(
@@ -1390,14 +1390,14 @@ class ServiceEmails extends ServicePrototype {
 
         $R[] = array(
             0=>$this->client['currency'],
-            1=>'Поддержка почтового ящика '.
+            1=>'п÷п╬п╢п╢п╣я─п╤п╨п╟ п©п╬я┤я┌п╬п╡п╬пЁп╬ я▐я┴п╦п╨п╟ '.
                 $this->service['local_part'].
                 '@'.
                 $this->service['domain'].
-                ' с '.
+                ' я│ '.
                 date('d',$this->date_from).
-                ' по '.
-                mdate('d месяца',$this->date_to),        
+                ' п©п╬ '.
+                mdate('d п╪п╣я│я▐я├п╟',$this->date_to),        
             2=>$this->getDatePercent(),
             3=>$price,
             4=>'service',
@@ -1415,7 +1415,7 @@ class ServiceEmails extends ServicePrototype {
     }
 }
 
-function get_all_services($client,$client_id,$filter_connecting=0,$S = array()) {        //S - ЛЮЯЯХБ ХЯЙКЧВЕМХИ.
+function get_all_services($client,$client_id,$filter_connecting=0,$S = array()) {        //S - п⌡п╝п╞п╞п╔п▒ п╔п╞п≥п п╖п▓п∙п°п╔п≤.
     global $db,$writeoff_services;
     $R=array();
     foreach($writeoff_services as $service)
@@ -1555,7 +1555,7 @@ function get_cpe_history($service,$param) {
             id','');
 }
 
-//текущий тариф
+//я┌п╣п╨я┐я┴п╦п╧ я┌п╟я─п╦я└
 function get_tarif_current($service,$param){
     global $db;
     if($service=="usage_ip_ports"){
@@ -1614,7 +1614,7 @@ function get_tarif_current($service,$param){
         return null;
     return $r;
 }
-//будущий тариф
+//п╠я┐п╢я┐я┴п╦п╧ я┌п╟я─п╦я└
 function get_tarif_next($service,$param) {
     global $db;
     if ($service=="usage_ip_ports") {

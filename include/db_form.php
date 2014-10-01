@@ -130,12 +130,12 @@ class DbForm {
                     }
                     $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
                     $p='edit';
-                    trigger_error('Запись обновлена');
+                    trigger_error('п≈п╟п©п╦я│я▄ п╬п╠п╫п╬п╡п╩п╣п╫п╟');
                 } else {
                     $db->Query('insert into '.$this->table.' SET '.$s);
                     $this->dbform['id']=$db->GetInsertId();
                     $p='add';
-                    trigger_error('Запись добавлена');
+                    trigger_error('п≈п╟п©п╦я│я▄ п╢п╬п╠п╟п╡п╩п╣п╫п╟');
                 }
                 $this->Load($this->dbform['id']);
             } else {
@@ -252,22 +252,22 @@ class HelpDbForm {
     public static function _log_history__getFieldName($fld = '') 
     {
         $names = array(
-            'address'=>'адрес',
-            'no_of_lines'=>'число линий',
-            'allowed_direction'=>'Разрешенные направления',
-            'region'=>'Регион',
-            'actual_from'=>'активна с',
-            'actual_to'=>'активна до',
-            'E164'=>'номер телефона',
-            'status'=>'состояние',
-            'is_trunk'=>'Транк',
-            'one_sip'=>'Одна SIP-учетка',
+            'address'=>'п╟п╢я─п╣я│',
+            'no_of_lines'=>'я┤п╦я│п╩п╬ п╩п╦п╫п╦п╧',
+            'allowed_direction'=>'п═п╟п╥я─п╣я┬п╣п╫п╫я▀п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐',
+            'region'=>'п═п╣пЁп╦п╬п╫',
+            'actual_from'=>'п╟п╨я┌п╦п╡п╫п╟ я│',
+            'actual_to'=>'п╟п╨я┌п╦п╡п╫п╟ п╢п╬',
+            'E164'=>'п╫п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟',
+            'status'=>'я│п╬я│я┌п╬я▐п╫п╦п╣',
+            'is_trunk'=>'п╒я─п╟п╫п╨',
+            'one_sip'=>'п·п╢п╫п╟ SIP-я┐я┤п╣я┌п╨п╟',
             'param_value'=>'param_value',
-            'comment'=>'комментарий',
+            'comment'=>'п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧',
             'ip'=>'ip',
-            'router'=>'роутер',
-            'amount'=>'количество',
-            'server_pbx_id'=>'Сервер АТС',
+            'router'=>'я─п╬я┐я┌п╣я─',
+            'amount'=>'п╨п╬п╩п╦я┤п╣я│я┌п╡п╬',
+            'server_pbx_id'=>'п║п╣я─п╡п╣я─ п░п╒п║',
         );
         return isset($names[$fld]) ? $names[$fld] : $fld;
     }
@@ -414,8 +414,8 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['line7800_id']=array("assoc_enum" => array());
         $this->fields['allowed_direction']=array('assoc_enum' => $allowedDirection, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
-        $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
-        $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
+        $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"п²п╣я┌","1"=>"п■п╟"));
+        $this->fields['one_sip']=array("assoc_enum" => array("0"=>"п²п╣я┌","1"=>"п■п╟"));
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
 
@@ -449,7 +449,7 @@ class DbFormUsageVoip extends DbForm {
             ", "id", "E164")?:array();
 
 
-        $line7800_default = array("0" => "Не задано");
+        $line7800_default = array("0" => "п²п╣ п╥п╟п╢п╟п╫п╬");
 
         $this->fields["line7800_id"]["assoc_enum"] = $line7800_default + $lines7800;
 
@@ -492,10 +492,10 @@ class DbFormUsageVoip extends DbForm {
             
             if(preg_match("/^8/", $this->dbform["E164"], $o))
             {
-                die("<font style='color:red'><b>Номер начинается на 8-ку!</b></font>");
+                die("<font style='color:red'><b>п²п╬п╪п╣я─ п╫п╟я┤п╦п╫п╟п╣я┌я│я▐ п╫п╟ 8-п╨я┐!</b></font>");
             }elseif(strlen($this->dbform["E164"]) > 5 && strlen($this->dbform["E164"]) != 11) // if not line_without_number
             {
-                die("<font style='color:red'><b>Номер задан не верно!</b></font>");
+                die("<font style='color:red'><b>п²п╬п╪п╣я─ п╥п╟п╢п╟п╫ п╫п╣ п╡п╣я─п╫п╬!</b></font>");
             }else
             if ($b)
             {
@@ -565,7 +565,7 @@ class DbFormUsageVoip extends DbForm {
                 }
 
             }else{
-                trigger_error("Не сохранено! Выберите тариф");
+                trigger_error("п²п╣ я│п╬я┘я─п╟п╫п╣п╫п╬! п▓я▀п╠п╣я─п╦я┌п╣ я┌п╟я─п╦я└");
             }
         }
         voipNumbers::check();
@@ -586,7 +586,7 @@ class DbFormUsageVoip extends DbForm {
 
             if($c)
             {
-                trigger_error("Введенный номер пересекается с id:".$c["id"].", клиент:".$c["client"].", c ".$c["actual_from"]." по ".$c["actual_to"].")");
+                trigger_error("п▓п╡п╣п╢п╣п╫п╫я▀п╧ п╫п╬п╪п╣я─ п©п╣я─п╣я│п╣п╨п╟п╣я┌я│я▐ я│ id:".$c["id"].", п╨п╩п╦п╣п╫я┌:".$c["client"].", c ".$c["actual_from"]." п©п╬ ".$c["actual_to"].")");
                 return false;
             }
         }
@@ -666,7 +666,7 @@ class DbFormEmails extends DbForm {
                 and
                     local_part='".addslashes($this->dbform['local_part'])."'";
             if($db->GetRow($query)) {
-                trigger_error('Такой адрес уже занят');
+                trigger_error('п╒п╟п╨п╬п╧ п╟п╢я─п╣я│ я┐п╤п╣ п╥п╟п╫я▐я┌');
                 return '';
             }
         }
@@ -808,7 +808,7 @@ class DbFormUsageIpRoutes extends DbForm{
         $this->fields['flows_node']=array('default'=>'rubicon');
         $this->fields['up_node']=array();
         $this->fields['comment']=array();
-        $this->fields['gpon_reserv']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
+        $this->fields['gpon_reserv']=array("assoc_enum" => array("0"=>"п²п╣я┌","1"=>"п■п╟"));
         $this->includesPost =array('dbform_internet_route_history.tpl');
     }
     public function Display($form_params = array(),$h2='',$h3='') {
@@ -817,7 +817,7 @@ class DbFormUsageIpRoutes extends DbForm{
             $design->assign('dbform_f_route',$db->AllRecords('select log_usage_ip_routes.*,user_users.user from log_usage_ip_routes inner join user_users ON user_users.id=log_usage_ip_routes.user_id where usage_ip_routes_id='.$this->data['id'].' order by ts desc'));
         } elseif (isset($this->fields['port_id']['default'])) {
             $this->fields['actual_from']['default']=date('Y-m-d');
-            $this->fields['net']['comment'] = ' &nbsp; <select id="getnet_size"><option value="29">/29 (8 ip-адресов)<option value="30">/30 (4 ip-адреса)</select><input type=button onclick="doGetNet()" value="выделить сеть" class=button id=getnet_button>';
+            $this->fields['net']['comment'] = ' &nbsp; <select id="getnet_size"><option value="29">/29 (8 ip-п╟п╢я─п╣я│п╬п╡)<option value="30">/30 (4 ip-п╟п╢я─п╣я│п╟)</select><input type=button onclick="doGetNet()" value="п╡я▀п╢п╣п╩п╦я┌я▄ я│п╣я┌я▄" class=button id=getnet_button>';
         }
         DbForm::Display($form_params,$h2,$h3);
     }
@@ -829,7 +829,7 @@ class DbFormUsageIpRoutes extends DbForm{
         $p=0;
         if($this->dbform_action=='save' && !$this->dbform['net']){
             $p=1;
-            trigger_error('Адрес сети отсутствует');
+            trigger_error('п░п╢я─п╣я│ я│п╣я┌п╦ п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌');
         }
         $v=(
                 $this->dbform_action=='save'
@@ -853,7 +853,7 @@ class DbFormUsageIpRoutes extends DbForm{
                         id!="'.addslashes($this->dbform['id']).'"')
         );
 
-        if ($v) {$this->dbform['net']=''; trigger_error('Сеть уже занята');}
+        if ($v) {$this->dbform['net']=''; trigger_error('п║п╣я┌я▄ я┐п╤п╣ п╥п╟п╫я▐я┌п╟');}
         $current = $db->GetRow("select * from usage_ip_routes where id = '".$this->dbform["id"]."'");
         $action=DbForm::Process($p);
 
@@ -935,13 +935,13 @@ class DbFormUsageExtra extends DbForm{
 
             $this->fields['code']['assoc_enum']=array(
                     ''=>'',
-                    'domain'=>'Домен',
+                    'domain'=>'п■п╬п╪п╣п╫',
                     'ip'=>'IP',
-                    'mailserver'=>'Почтовый сервер',
-                    'phone_ats'=>'АТС',
-                    'site'=>'Сайт',
+                    'mailserver'=>'п÷п╬я┤я┌п╬п╡я▀п╧ я│п╣я─п╡п╣я─',
+                    'phone_ats'=>'п░п╒п║',
+                    'site'=>'п║п╟п╧я┌',
                     'sms_gate'=>'SMS Gate', 
-                    'uspd' => "УСПД",
+                    'uspd' => "пёп║п÷п■",
                     //'welltime'=>'WellTime',
                     'wellsystems'=>'WellSystems'
                     );//$groups;
@@ -1226,7 +1226,7 @@ class DbFormUsageVirtpbx extends DbForm{
 
         if($c)
         {
-            trigger_error("На указанные даты виртуальная АТС, у этого клиента, уже работает");
+            trigger_error("п²п╟ я┐п╨п╟п╥п╟п╫п╫я▀п╣ п╢п╟я┌я▀ п╡п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║, я┐ я█я┌п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟, я┐п╤п╣ я─п╟п╠п╬я┌п╟п╣я┌");
             return false;
         }
 
@@ -1541,7 +1541,7 @@ class DbFormUsageIPPPP extends DbForm{
         if ($v=='add' || $v=='edit') {
             HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_ip_ppp');
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
-            $text = ' (скорость вх - '.$this->dbform['limit_kbps_in'].',  - '.$this->dbform['limit_kbps_out'].')';
+            $text = ' (я│п╨п╬я─п╬я│я┌я▄ п╡я┘ - '.$this->dbform['limit_kbps_in'].',  - '.$this->dbform['limit_kbps_out'].')';
             HelpDbForm::save_block('usage_ip_ppp',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment'].$text);
         }
         return $v;
@@ -1568,7 +1568,7 @@ class DbFormTechCPE extends DbForm{
         $this->fields['ip_nat']=array();
         $this->fields['ip_cidr']=array();
         $this->fields['ip_gw']=array();
-        $this->fields['snmp']=array('assoc_enum'=>array('0'=>'&ndash; не опрашивать','1'=>'+ опрашивать'));
+        $this->fields['snmp']=array('assoc_enum'=>array('0'=>'&ndash; п╫п╣ п╬п©я─п╟я┬п╦п╡п╟я┌я▄','1'=>'+ п╬п©я─п╟я┬п╦п╡п╟я┌я▄'));
         $this->fields['admin_login']=array();
         $this->fields['admin_pass']=array();
         $this->fields['numbers']=array();
@@ -1576,7 +1576,7 @@ class DbFormTechCPE extends DbForm{
         $this->fields['owner']=array('enum'=>array('', 'mcn', 'client', 'mgts','synterra'),'default'=>'mgts');
         $this->fields['tech_support']=array('enum'=>array('', 'mcn', 'client', 'mgts','synterra'),'default'=>'mcn');
 
-        $this->fields['ast_autoconf']=array('assoc_enum'=>array('0'=>'ручной (старый) режим','1'=>'автоматический режим'),'default'=>'0');
+        $this->fields['ast_autoconf']=array('assoc_enum'=>array('0'=>'я─я┐я┤п╫п╬п╧ (я│я┌п╟я─я▀п╧) я─п╣п╤п╦п╪','1'=>'п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦п╧ я─п╣п╤п╦п╪'),'default'=>'0');
         $this->includesPre = array('dbform_cpe_add.tpl');
         $this->includesPost =array('dbform_cpe_add2.tpl','dbform_changelog.tpl');
     }
@@ -1609,7 +1609,7 @@ class DbFormTechCPE extends DbForm{
 
         if($v){
             $this->dbform['serial']='';
-            trigger_error('Такой серийный номер занят');
+            trigger_error('п╒п╟п╨п╬п╧ я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ п╥п╟п╫я▐я┌');
         }
 
         $this->dbform['service'] = 'usage_ip_ports';
@@ -1690,9 +1690,9 @@ class DbFormNewpayments extends DbForm{
         $this->fields['oper_date']=array('type'=>'text','default'=>date('Y-m-d'));
         $this->fields['payment_no']=array('type'=>'text','default'=>'0');
         $this->fields['payment_rate']=array('type'=>'text');
-        $this->fields['type']=array('assoc_enum'=>array('bank'=>'b bank','prov'=>'p prov', 'neprov'=>'n neprov', 'ecash' => "Электронные деньги"),'default'=>'bank', 'add'=>' onchange=form_newpayments_hide();');
-        $this->fields['bank']=array('assoc_enum'=>array('citi'=>'CitiBank','mos'=>'Банк Москвы','ural'=>'УралСиб','sber'=>'Сбербанк'),'default'=>'mos');
-        $this->fields['ecash_operator']=array('assoc_enum'=>array('Cyberplat'=>'Cyberplat','Yandex'=>'Яндекс.Деньги','Uniteller'=>'Uniteller'),'default'=>'');
+        $this->fields['type']=array('assoc_enum'=>array('bank'=>'b bank','prov'=>'p prov', 'neprov'=>'n neprov', 'ecash' => "п╜п╩п╣п╨я┌я─п╬п╫п╫я▀п╣ п╢п╣п╫я▄пЁп╦"),'default'=>'bank', 'add'=>' onchange=form_newpayments_hide();');
+        $this->fields['bank']=array('assoc_enum'=>array('citi'=>'CitiBank','mos'=>'п▒п╟п╫п╨ п°п╬я│п╨п╡я▀','ural'=>'пёя─п╟п╩п║п╦п╠','sber'=>'п║п╠п╣я─п╠п╟п╫п╨'),'default'=>'mos');
+        $this->fields['ecash_operator']=array('assoc_enum'=>array('Cyberplat'=>'Cyberplat','Yandex'=>'п╞п╫п╢п╣п╨я│.п■п╣п╫я▄пЁп╦','Uniteller'=>'Uniteller'),'default'=>'');
         $this->fields['comment']=array('default'=>'');
         $this->fields['bill_no']=array('type'=>'text');
     }
@@ -1730,7 +1730,7 @@ class DbFormNewpayments extends DbForm{
 
             $R=array();
 
-            //добавляем не оплаченные счета
+            //п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╫п╣ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟
             $billsNoPayed = array();
             foreach(NewBill::find('all', array(
                             'select' => 'bill_no',
@@ -1744,11 +1744,11 @@ class DbFormNewpayments extends DbForm{
             if($billsNoPayed) 
             {
                 $R[] = '';
-                $R[] = 'счета не оплаченые';
+                $R[] = 'я│я┤п╣я┌п╟ п╫п╣ п╬п©п╩п╟я┤п╣п╫я▀п╣';
                 $R = array_merge($R, $billsNoPayed);
             }
 
-            // добавляем оплаченные счета
+            // п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟
             $billsPayed = array();
             foreach(NewBill::find('all', array(
                             'select' => 'bill_no',
@@ -1762,12 +1762,12 @@ class DbFormNewpayments extends DbForm{
             if($billsPayed)
             {
                 $R[] = '';
-                $R[] = 'счета оплаченые';
+                $R[] = 'я│я┤п╣я┌п╟ п╬п©п╩п╟я┤п╣п╫я▀п╣';
                 $R = array_merge($R, $billsPayed);
             }
 
 
-            // добавляем не полаченые заказы поставщикам
+            // п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╫п╣ п©п╬п╩п╟я┤п╣п╫я▀п╣ п╥п╟п╨п╟п╥я▀ п©п╬я│я┌п╟п╡я┴п╦п╨п╟п╪
             $incomeGoodsNoPayed = array();
             foreach(GoodsIncomeOrder::find('all', array(
                         'select' => 'number',
@@ -1781,7 +1781,7 @@ class DbFormNewpayments extends DbForm{
             if($incomeGoodsNoPayed)
             {
                 $R[]='';
-                $R[]='заказы не оплаченые';
+                $R[]='п╥п╟п╨п╟п╥я▀ п╫п╣ п╬п©п╩п╟я┤п╣п╫я▀п╣';
                 $R = array_merge($R, $incomeGoodsNoPayed);
             }
 
@@ -1851,7 +1851,7 @@ class DbFormServerPbx extends DbForm{
 
         $this->fields['datacenter_id'] = array("assoc_enum" => $db->AllRecordsAssoc("select name,id from datacenter order by name desc", "id", "name"));
 
-        $trunks = array(0 => "-- Не установленно --");
+        $trunks = array(0 => "-- п²п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╫п╬ --");
 
         foreach ($db_ats->AllRecordsAssoc("select name,id from a_multitrunk where parent_id = 0 order by name desc", "id", "name")as $id => $name)
             $trunks[$id] = $name;
@@ -1897,187 +1897,187 @@ class DbFormFactory {
 }
 
 $GLOBALS['translate_arr']=array(
-    '*.actual_from'            => 'активна с',
-    '*.actual_to'            => 'активна до',
-    '*.net'                    => 'IP-адрес сети',
-    '*.client'                => 'клиент',
-    '*.address'                => 'адрес',
-    '*.node'                => 'роутер',
-    '*.port'                => 'порт',
-    'routes.type'            => 'тип сети',
-    '*.port_type'            => 'тип порта',
-    '*.tarif'                => 'тариф',
-    '*.trafcounttype'        => 'тип учёта траффика',
-    '*.description'            => 'описание',
-    '*.price'                => 'стоимость',
-    '*.amount'                => 'количество',
-    '*.period'                => 'период',
-    '*.domain'                => 'домен',
-    '*.password'            => 'пароль',
-    '*.last_modified'        => 'дата последней модификации',
-    '*.router'                => 'роутер',
-    '*.phone'                => 'телефон',
-    '*.location'            => 'местоположение',
-    '*.reboot_contact'        => 'данные ответственного за перезагрузку',
-    '*.adsl_modem_serial'    => 'серийный номер модема',
-    '*.manufacturer'        => 'производитель',
-    '*.model'                => 'модель',
-    '*.serial'                => 'серийный номер',
-    '*.location'            => 'местоположение',
-    'usage_voip.E164'                => 'номер телефона',
-    '*.ClientIPAddress'        => 'IP-адрес',
-    '*.enabled'                => 'включено',
-    '*.date_last_writeoff'    => 'дата последнего списания',
-    '*.status'                => 'состояние',
-    'usage_voip.is_trunk'              => 'Оператор',
-    'usage_voip.one_sip'              => 'Одна SIP-учетка',
-    'usage_voip.allowed_direction'      => 'Разрешенные направления',
+    '*.actual_from'            => 'п╟п╨я┌п╦п╡п╫п╟ я│',
+    '*.actual_to'            => 'п╟п╨я┌п╦п╡п╫п╟ п╢п╬',
+    '*.net'                    => 'IP-п╟п╢я─п╣я│ я│п╣я┌п╦',
+    '*.client'                => 'п╨п╩п╦п╣п╫я┌',
+    '*.address'                => 'п╟п╢я─п╣я│',
+    '*.node'                => 'я─п╬я┐я┌п╣я─',
+    '*.port'                => 'п©п╬я─я┌',
+    'routes.type'            => 'я┌п╦п© я│п╣я┌п╦',
+    '*.port_type'            => 'я┌п╦п© п©п╬я─я┌п╟',
+    '*.tarif'                => 'я┌п╟я─п╦я└',
+    '*.trafcounttype'        => 'я┌п╦п© я┐я┤я▒я┌п╟ я┌я─п╟я└я└п╦п╨п╟',
+    '*.description'            => 'п╬п©п╦я│п╟п╫п╦п╣',
+    '*.price'                => 'я│я┌п╬п╦п╪п╬я│я┌я▄',
+    '*.amount'                => 'п╨п╬п╩п╦я┤п╣я│я┌п╡п╬',
+    '*.period'                => 'п©п╣я─п╦п╬п╢',
+    '*.domain'                => 'п╢п╬п╪п╣п╫',
+    '*.password'            => 'п©п╟я─п╬п╩я▄',
+    '*.last_modified'        => 'п╢п╟я┌п╟ п©п╬я│п╩п╣п╢п╫п╣п╧ п╪п╬п╢п╦я└п╦п╨п╟я├п╦п╦',
+    '*.router'                => 'я─п╬я┐я┌п╣я─',
+    '*.phone'                => 'я┌п╣п╩п╣я└п╬п╫',
+    '*.location'            => 'п╪п╣я│я┌п╬п©п╬п╩п╬п╤п╣п╫п╦п╣',
+    '*.reboot_contact'        => 'п╢п╟п╫п╫я▀п╣ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬пЁп╬ п╥п╟ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨я┐',
+    '*.adsl_modem_serial'    => 'я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ п╪п╬п╢п╣п╪п╟',
+    '*.manufacturer'        => 'п©я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄',
+    '*.model'                => 'п╪п╬п╢п╣п╩я▄',
+    '*.serial'                => 'я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─',
+    '*.location'            => 'п╪п╣я│я┌п╬п©п╬п╩п╬п╤п╣п╫п╦п╣',
+    'usage_voip.E164'                => 'п╫п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟',
+    '*.ClientIPAddress'        => 'IP-п╟п╢я─п╣я│',
+    '*.enabled'                => 'п╡п╨п╩я▌я┤п╣п╫п╬',
+    '*.date_last_writeoff'    => 'п╢п╟я┌п╟ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ я│п©п╦я│п╟п╫п╦я▐',
+    '*.status'                => 'я│п╬я│я┌п╬я▐п╫п╦п╣',
+    'usage_voip.is_trunk'              => 'п·п©п╣я─п╟я┌п╬я─',
+    'usage_voip.one_sip'              => 'п·п╢п╫п╟ SIP-я┐я┤п╣я┌п╨п╟',
+    'usage_voip.allowed_direction'      => 'п═п╟п╥я─п╣я┬п╣п╫п╫я▀п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐',
         
-    'emails.local_part'        => 'почтовый ящик',
-    'emails.box_size'        => 'занято, Kb',
-    'emails.box_quota'        => 'размер ящика',
+    'emails.local_part'        => 'п©п╬я┤я┌п╬п╡я▀п╧ я▐я┴п╦п╨',
+    'emails.box_size'        => 'п╥п╟п╫я▐я┌п╬, Kb',
+    'emails.box_quota'        => 'я─п╟п╥п╪п╣я─ я▐я┴п╦п╨п╟',
 
-    'newpayments.type'                    => 'тип платежа',
-    'newpayments.bank'                    => 'Банк',
-    'newpayments.bill_no'                => 'номер счёта',
-    'newpayments.sum_rub'                => 'сумма в рублях',
-    'newpayments.payment_date'            => 'дата платежа',
-    'newpayments.payment_rate'            => 'курс доллара',
+    'newpayments.type'                    => 'я┌п╦п© п©п╩п╟я┌п╣п╤п╟',
+    'newpayments.bank'                    => 'п▒п╟п╫п╨',
+    'newpayments.bill_no'                => 'п╫п╬п╪п╣я─ я│я┤я▒я┌п╟',
+    'newpayments.sum_rub'                => 'я│я┐п╪п╪п╟ п╡ я─я┐п╠п╩я▐я┘',
+    'newpayments.payment_date'            => 'п╢п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟',
+    'newpayments.payment_rate'            => 'п╨я┐я─я│ п╢п╬п╩п╩п╟я─п╟',
 
-    '*.nat_net'                            => 'IP-адрес внутренней сети (via NAT)',
+    '*.nat_net'                            => 'IP-п╟п╢я─п╣я│ п╡п╫я┐я┌я─п╣п╫п╫п╣п╧ я│п╣я┌п╦ (via NAT)',
     '*.dnat'                            => 'dnat',
     '*.up_node'                            => 'up_node',
     '*.flows_node'                        => 'flows_node',
-    '*.tarif_type'                        => 'тип тарифа',
-    'routes.port_id'                    => 'подключение',
-    'routes.comment'                    => 'комментарий',
-    'routes.tarif_lastmonth'            => 'прошлый тариф',
+    '*.tarif_type'                        => 'я┌п╦п© я┌п╟я─п╦я└п╟',
+    'routes.port_id'                    => 'п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣',
+    'routes.comment'                    => 'п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧',
+    'routes.tarif_lastmonth'            => 'п©я─п╬я┬п╩я▀п╧ я┌п╟я─п╦я└',
 
-    'usage_ip_ports.test_lines'            => 'test_lines Тестируемые линии',
-    'usage_ip_ports.test_req_no'        => 'test_req_no Заявка в МГТС',
+    'usage_ip_ports.test_lines'            => 'test_lines п╒п╣я│я┌п╦я─я┐п╣п╪я▀п╣ п╩п╦п╫п╦п╦',
+    'usage_ip_ports.test_req_no'        => 'test_req_no п≈п╟я▐п╡п╨п╟ п╡ п°п⌠п╒п║',
 
-    'usage_voip.no_of_lines'            => 'число линий',
-    'usage_voip.tech_voip_device_id'    => 'устройство',
-    'usage_voip.tarif'                    => 'тариф',
+    'usage_voip.no_of_lines'            => 'я┤п╦я│п╩п╬ п╩п╦п╫п╦п╧',
+    'usage_voip.tech_voip_device_id'    => 'я┐я│я┌я─п╬п╧я│я┌п╡п╬',
+    'usage_voip.tarif'                    => 'я┌п╟я─п╦я└',
         
-    'clients_vip.num_unsucc'            => 'Текущее число неудачных попыток',
-    'clients_vip.email'                    => 'Адрес e-mail',
-    'clients_vip.phone'                    => 'Номер телефона',
-    'clients_vip.important_period'        => 'В какое время отслеживать',
-    'clients_vip.router'                => 'Роутер',
-    'clients.with_base'                    => 'На основании',
-    'clients.corr_acc'                    => 'К/С',
-    'clients.pay_acc'                    => 'Р/С',
-    'clients.bank_name'                    => 'Банк',
-    'clients.bank_city'                    => 'Город Банка',
+    'clients_vip.num_unsucc'            => 'п╒п╣п╨я┐я┴п╣п╣ я┤п╦я│п╩п╬ п╫п╣я┐п╢п╟я┤п╫я▀я┘ п©п╬п©я▀я┌п╬п╨',
+    'clients_vip.email'                    => 'п░п╢я─п╣я│ e-mail',
+    'clients_vip.phone'                    => 'п²п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟',
+    'clients_vip.important_period'        => 'п▓ п╨п╟п╨п╬п╣ п╡я─п╣п╪я▐ п╬я┌я│п╩п╣п╤п╦п╡п╟я┌я▄',
+    'clients_vip.router'                => 'п═п╬я┐я┌п╣я─',
+    'clients.with_base'                    => 'п²п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦',
+    'clients.corr_acc'                    => 'п /п║',
+    'clients.pay_acc'                    => 'п═/п║',
+    'clients.bank_name'                    => 'п▒п╟п╫п╨',
+    'clients.bank_city'                    => 'п⌠п╬я─п╬п╢ п▒п╟п╫п╨п╟',
 
-    'tech_cpe.type'            => 'тип устройства',
-    'tech_cpe.service'        => 'связанная услуга',
-    'tech_cpe.id_service'    => 'связанное подключение',
-    'tech_cpe.mac'            => 'MAC-адрес',
-    'tech_cpe.ip'            => 'IP-адрес',
-    'tech_cpe.ip_nat'        => 'IP-адрес NAT',
-    'tech_cpe.ip_cidr'        => 'IP-адрес CIDR',
-    'tech_cpe.ip_gw'        => 'IP-адрес GW',
-    'tech_cpe.admin_login'    => 'адмниский логин',
-    'tech_cpe.admin_pass'    => 'адмниский пароль',
-    'tech_cpe.numbers'        => array('номера','и, вроде бы, комментарий'),
-    'tech_cpe.logins'        => 'логины',
-    'tech_cpe.owner'        => 'владелец',
-    'tech_cpe.tech_support'    => 'тех. поддержка',
-    'tech_cpe.deposit_sumUSD'    => 'сумма залога в USD',
-    'tech_cpe.deposit_sumRUR'    => 'сумма залога в RUR',
-    'tech_cpe_models.type'    => 'тип устройства',
-    'tech_cpe_models.default_deposit_sumUSD'    => 'сумма залога в USD по умолчанию',
-    'tech_cpe_models.default_deposit_sumRUR'    => 'сумма залога в RUR по умолчанию',
-    '*.vendor'                                => 'вендор',
-    'tech_cpe_models.part_no'                => 'парт. номер',
-    'tech_cpe.id_model'                        => 'модель устройства',
-    '*.comment'                    =>    'комментарий',        
-    '*.t_comment'                    =>    'комментарий',        
+    'tech_cpe.type'            => 'я┌п╦п© я┐я│я┌я─п╬п╧я│я┌п╡п╟',
+    'tech_cpe.service'        => 'я│п╡я▐п╥п╟п╫п╫п╟я▐ я┐я│п╩я┐пЁп╟',
+    'tech_cpe.id_service'    => 'я│п╡я▐п╥п╟п╫п╫п╬п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣',
+    'tech_cpe.mac'            => 'MAC-п╟п╢я─п╣я│',
+    'tech_cpe.ip'            => 'IP-п╟п╢я─п╣я│',
+    'tech_cpe.ip_nat'        => 'IP-п╟п╢я─п╣я│ NAT',
+    'tech_cpe.ip_cidr'        => 'IP-п╟п╢я─п╣я│ CIDR',
+    'tech_cpe.ip_gw'        => 'IP-п╟п╢я─п╣я│ GW',
+    'tech_cpe.admin_login'    => 'п╟п╢п╪п╫п╦я│п╨п╦п╧ п╩п╬пЁп╦п╫',
+    'tech_cpe.admin_pass'    => 'п╟п╢п╪п╫п╦я│п╨п╦п╧ п©п╟я─п╬п╩я▄',
+    'tech_cpe.numbers'        => array('п╫п╬п╪п╣я─п╟','п╦, п╡я─п╬п╢п╣ п╠я▀, п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧'),
+    'tech_cpe.logins'        => 'п╩п╬пЁп╦п╫я▀',
+    'tech_cpe.owner'        => 'п╡п╩п╟п╢п╣п╩п╣я├',
+    'tech_cpe.tech_support'    => 'я┌п╣я┘. п©п╬п╢п╢п╣я─п╤п╨п╟',
+    'tech_cpe.deposit_sumUSD'    => 'я│я┐п╪п╪п╟ п╥п╟п╩п╬пЁп╟ п╡ USD',
+    'tech_cpe.deposit_sumRUR'    => 'я│я┐п╪п╪п╟ п╥п╟п╩п╬пЁп╟ п╡ RUR',
+    'tech_cpe_models.type'    => 'я┌п╦п© я┐я│я┌я─п╬п╧я│я┌п╡п╟',
+    'tech_cpe_models.default_deposit_sumUSD'    => 'я│я┐п╪п╪п╟ п╥п╟п╩п╬пЁп╟ п╡ USD п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌',
+    'tech_cpe_models.default_deposit_sumRUR'    => 'я│я┐п╪п╪п╟ п╥п╟п╩п╬пЁп╟ п╡ RUR п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌',
+    '*.vendor'                                => 'п╡п╣п╫п╢п╬я─',
+    'tech_cpe_models.part_no'                => 'п©п╟я─я┌. п╫п╬п╪п╣я─',
+    'tech_cpe.id_model'                        => 'п╪п╬п╢п╣п╩я▄ я┐я│я┌я─п╬п╧я│я┌п╡п╟',
+    '*.comment'                    =>    'п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧',        
+    '*.t_comment'                    =>    'п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧',        
     
-    'usage_phone_redir_conditions.type'        => 'тип условия',
-    'usage_phone_redir_conditions.title'    => 'название условия',
+    'usage_phone_redir_conditions.type'        => 'я┌п╦п© я┐я│п╩п╬п╡п╦я▐',
+    'usage_phone_redir_conditions.title'    => 'п╫п╟п╥п╡п╟п╫п╦п╣ я┐я│п╩п╬п╡п╦я▐',
     
-    '*.currency'    => 'валюта',
-    '*.name'        => 'название',
-    '*.pay_once'    => 'плата за подключение',
-    '*.pay_month'    => 'ежемесячная плата',
-    '*.mb_month'    => 'мегабайт в месяц',
-    '*.pay_mb'        => 'плата за мегабайт сверх лимита',
-    '*.pay_mb'        => 'плата за мегабайт сверх лимита',
-    '*.type_count'    => 'какой-то тип подсчёта',
-    '*.type'        => 'тип тарифа',
-    '*.month_unit'    => 'ежемесячно за Unit',
-    '*.month_case'    => 'ежемесячно за Case',
-    '*.month_r'        => 'Мб траффика Russia в месяц',
-    '*.month_r2'    => 'Мб траффика Russia2 в месяц',
-    '*.month_f'        => 'Мб траффика Foreign в месяц',
-    '*.pay_r'        => 'цена за Мб превышения Russia',
-    '*.pay_r2'        => 'цена за Мб превышения Russia2',
-    '*.pay_f'        => 'цена за Мб превышения Foreign',
-    '*.mb_disk'        => 'дисковое пространство',
-    '*.has_dns'        => 'наличие DNS',
-    '*.has_ftp'        => 'наличие FTP',
-    '*.has_ssh'        => 'наличие SSH',
-    '*.has_ssi'        => 'наличие SSI',
-    '*.has_php'        => 'наличие PHP',
-    '*.has_perl'    => 'наличие Perl',
-    '*.has_mysql'    => 'наличие MySQL',
-    '*.destination_name'    => 'название зоны назначения',
-    '*.destination_prefix'    => 'префикс зоны назначения',
-    '*.rate_USD'    => 'цена за минуту в USD',
-    '*.rate_RUR'    => 'цена за минуту в рублях',
-    '*.priceid'        => 'ID тарифной группы',        
+    '*.currency'    => 'п╡п╟п╩я▌я┌п╟',
+    '*.name'        => 'п╫п╟п╥п╡п╟п╫п╦п╣',
+    '*.pay_once'    => 'п©п╩п╟я┌п╟ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣',
+    '*.pay_month'    => 'п╣п╤п╣п╪п╣я│я▐я┤п╫п╟я▐ п©п╩п╟я┌п╟',
+    '*.mb_month'    => 'п╪п╣пЁп╟п╠п╟п╧я┌ п╡ п╪п╣я│я▐я├',
+    '*.pay_mb'        => 'п©п╩п╟я┌п╟ п╥п╟ п╪п╣пЁп╟п╠п╟п╧я┌ я│п╡п╣я─я┘ п╩п╦п╪п╦я┌п╟',
+    '*.pay_mb'        => 'п©п╩п╟я┌п╟ п╥п╟ п╪п╣пЁп╟п╠п╟п╧я┌ я│п╡п╣я─я┘ п╩п╦п╪п╦я┌п╟',
+    '*.type_count'    => 'п╨п╟п╨п╬п╧-я┌п╬ я┌п╦п© п©п╬п╢я│я┤я▒я┌п╟',
+    '*.type'        => 'я┌п╦п© я┌п╟я─п╦я└п╟',
+    '*.month_unit'    => 'п╣п╤п╣п╪п╣я│я▐я┤п╫п╬ п╥п╟ Unit',
+    '*.month_case'    => 'п╣п╤п╣п╪п╣я│я▐я┤п╫п╬ п╥п╟ Case',
+    '*.month_r'        => 'п°п╠ я┌я─п╟я└я└п╦п╨п╟ Russia п╡ п╪п╣я│я▐я├',
+    '*.month_r2'    => 'п°п╠ я┌я─п╟я└я└п╦п╨п╟ Russia2 п╡ п╪п╣я│я▐я├',
+    '*.month_f'        => 'п°п╠ я┌я─п╟я└я└п╦п╨п╟ Foreign п╡ п╪п╣я│я▐я├',
+    '*.pay_r'        => 'я├п╣п╫п╟ п╥п╟ п°п╠ п©я─п╣п╡я▀я┬п╣п╫п╦я▐ Russia',
+    '*.pay_r2'        => 'я├п╣п╫п╟ п╥п╟ п°п╠ п©я─п╣п╡я▀я┬п╣п╫п╦я▐ Russia2',
+    '*.pay_f'        => 'я├п╣п╫п╟ п╥п╟ п°п╠ п©я─п╣п╡я▀я┬п╣п╫п╦я▐ Foreign',
+    '*.mb_disk'        => 'п╢п╦я│п╨п╬п╡п╬п╣ п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬',
+    '*.has_dns'        => 'п╫п╟п╩п╦я┤п╦п╣ DNS',
+    '*.has_ftp'        => 'п╫п╟п╩п╦я┤п╦п╣ FTP',
+    '*.has_ssh'        => 'п╫п╟п╩п╦я┤п╦п╣ SSH',
+    '*.has_ssi'        => 'п╫п╟п╩п╦я┤п╦п╣ SSI',
+    '*.has_php'        => 'п╫п╟п╩п╦я┤п╦п╣ PHP',
+    '*.has_perl'    => 'п╫п╟п╩п╦я┤п╦п╣ Perl',
+    '*.has_mysql'    => 'п╫п╟п╩п╦я┤п╦п╣ MySQL',
+    '*.destination_name'    => 'п╫п╟п╥п╡п╟п╫п╦п╣ п╥п╬п╫я▀ п╫п╟п╥п╫п╟я┤п╣п╫п╦я▐',
+    '*.destination_prefix'    => 'п©я─п╣я└п╦п╨я│ п╥п╬п╫я▀ п╫п╟п╥п╫п╟я┤п╣п╫п╦я▐',
+    '*.rate_USD'    => 'я├п╣п╫п╟ п╥п╟ п╪п╦п╫я┐я┌я┐ п╡ USD',
+    '*.rate_RUR'    => 'я├п╣п╫п╟ п╥п╟ п╪п╦п╫я┐я┌я┐ п╡ я─я┐п╠п╩я▐я┘',
+    '*.priceid'        => 'ID я┌п╟я─п╦я└п╫п╬п╧ пЁя─я┐п©п©я▀',        
     '*.dgroup'        => 'DGroup',
     '*.dsubgroup'    => 'DSubGroup',
-    '*.month_line'    => 'ежемесячная плата за линию',
-    '*.month_number'=> 'ежемесячная плата за номер',
-    '*.once_line'    => 'плата за подключение линии',
-    '*.once_number'    => 'плата за подключение номера',
-    '*.adsl_speed'    => 'Скорость ADSL',
-    '*.free_local_min'        => 'бесплатных местных минут',
-    '*.edit_user'            => 'пользователь, изменивший тариф последний раз',
-    '*.edit_time'            => 'время последнего изменения тарифа',
-    '*.type_internet'        =>'тип интернет-тарифа',
-    '*.param_name'            => array('Пояснение к параметру <b style="background:#F0F0F0">%</b>','(при необходимости)'),
-    '*.code'            => 'Группа услуг',
-    '*.tarif_id'            => 'услуга',
-    '*.tarif_str'            => 'услуга',
-    '*.async_price'            => 'стоимость',
-    '*.async_period'        => 'период',
-    '*.okvd_code'           => 'Единица измерения',
-    'tarifs_extra.code'        => 'код услуги',
-    'monitor_clients.allow_bad'                    => 'разрешенное число плохих пингов',
-    'monitor_clients.period_mail'                => 'период между письмами, мин',
-    'domains.registrator'                        => 'регистратор',
-    'domains.paid_till'                            => 'оплачен до',
-    'domains.rucenter_form_no'                    => 'номер клиента в RuCenter',
-    '*.ast_autoconf'        => 'режим конфигурирования asteriskа',
-    '*.is_countable'        => 'ограничение на количество',
-    '*.dealer_id'        => 'ID дилера',
-    '*.is_agent'        => 'Агент',
-    '*.interest'        => 'Вознаграждение',
-    '*.courier_id' => 'Курьер',
-    'price_voip.operator' => 'Оператор',
-    'price_voip.dgroup' => 'Направление',
-    'price_voip.dsubgroup' => 'Подгруппа',
-    'tarifs_voip.tarif_group' => 'Тарифная группа',
-    '*.num_ports' => 'Количество портов',
-    '*.overrun_per_port' => 'Превышение за порт',
-    '*.space' => 'Пространство Мб',
-    '*.overrun_per_mb' => 'Превышение за Мб',
-    '*.is_record' => 'Запись звонков',
-    '*.is_fax' => 'Факс',
-    '*.datacenter_id' => 'Тех. площадка',
-    '*.server_pbx_id' => 'Сервер АТС',
-    '*.number' => 'Номер',
-    '*.per_month_price' => 'Абонентская плата (с НДС)',
-    '*.per_sms_price' => 'за 1 СМС (с НДС)',
-    '*.gpon_reserv' => 'Сеть под GPON',
-    '*.trunk_vpbx_id' => 'Транк на VPBX',
-    'newpayments.ecash_operator' => "Оператор платежа",
-    'usage_voip.region' => 'Регион',
-    'usage_voip.line7800_id' => 'Линия без номера для номера 8800'
+    '*.month_line'    => 'п╣п╤п╣п╪п╣я│я▐я┤п╫п╟я▐ п©п╩п╟я┌п╟ п╥п╟ п╩п╦п╫п╦я▌',
+    '*.month_number'=> 'п╣п╤п╣п╪п╣я│я▐я┤п╫п╟я▐ п©п╩п╟я┌п╟ п╥п╟ п╫п╬п╪п╣я─',
+    '*.once_line'    => 'п©п╩п╟я┌п╟ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╩п╦п╫п╦п╦',
+    '*.once_number'    => 'п©п╩п╟я┌п╟ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╫п╬п╪п╣я─п╟',
+    '*.adsl_speed'    => 'п║п╨п╬я─п╬я│я┌я▄ ADSL',
+    '*.free_local_min'        => 'п╠п╣я│п©п╩п╟я┌п╫я▀я┘ п╪п╣я│я┌п╫я▀я┘ п╪п╦п╫я┐я┌',
+    '*.edit_user'            => 'п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄, п╦п╥п╪п╣п╫п╦п╡я┬п╦п╧ я┌п╟я─п╦я└ п©п╬я│п╩п╣п╢п╫п╦п╧ я─п╟п╥',
+    '*.edit_time'            => 'п╡я─п╣п╪я▐ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п╦п╥п╪п╣п╫п╣п╫п╦я▐ я┌п╟я─п╦я└п╟',
+    '*.type_internet'        =>'я┌п╦п© п╦п╫я┌п╣я─п╫п╣я┌-я┌п╟я─п╦я└п╟',
+    '*.param_name'            => array('п÷п╬я▐я│п╫п╣п╫п╦п╣ п╨ п©п╟я─п╟п╪п╣я┌я─я┐ <b style="background:#F0F0F0">%</b>','(п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦)'),
+    '*.code'            => 'п⌠я─я┐п©п©п╟ я┐я│п╩я┐пЁ',
+    '*.tarif_id'            => 'я┐я│п╩я┐пЁп╟',
+    '*.tarif_str'            => 'я┐я│п╩я┐пЁп╟',
+    '*.async_price'            => 'я│я┌п╬п╦п╪п╬я│я┌я▄',
+    '*.async_period'        => 'п©п╣я─п╦п╬п╢',
+    '*.okvd_code'           => 'п∙п╢п╦п╫п╦я├п╟ п╦п╥п╪п╣я─п╣п╫п╦я▐',
+    'tarifs_extra.code'        => 'п╨п╬п╢ я┐я│п╩я┐пЁп╦',
+    'monitor_clients.allow_bad'                    => 'я─п╟п╥я─п╣я┬п╣п╫п╫п╬п╣ я┤п╦я│п╩п╬ п©п╩п╬я┘п╦я┘ п©п╦п╫пЁп╬п╡',
+    'monitor_clients.period_mail'                => 'п©п╣я─п╦п╬п╢ п╪п╣п╤п╢я┐ п©п╦я│я▄п╪п╟п╪п╦, п╪п╦п╫',
+    'domains.registrator'                        => 'я─п╣пЁп╦я│я┌я─п╟я┌п╬я─',
+    'domains.paid_till'                            => 'п╬п©п╩п╟я┤п╣п╫ п╢п╬',
+    'domains.rucenter_form_no'                    => 'п╫п╬п╪п╣я─ п╨п╩п╦п╣п╫я┌п╟ п╡ RuCenter',
+    '*.ast_autoconf'        => 'я─п╣п╤п╦п╪ п╨п╬п╫я└п╦пЁя┐я─п╦я─п╬п╡п╟п╫п╦я▐ asteriskп╟',
+    '*.is_countable'        => 'п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬',
+    '*.dealer_id'        => 'ID п╢п╦п╩п╣я─п╟',
+    '*.is_agent'        => 'п░пЁп╣п╫я┌',
+    '*.interest'        => 'п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣',
+    '*.courier_id' => 'п я┐я─я▄п╣я─',
+    'price_voip.operator' => 'п·п©п╣я─п╟я┌п╬я─',
+    'price_voip.dgroup' => 'п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣',
+    'price_voip.dsubgroup' => 'п÷п╬п╢пЁя─я┐п©п©п╟',
+    'tarifs_voip.tarif_group' => 'п╒п╟я─п╦я└п╫п╟я▐ пЁя─я┐п©п©п╟',
+    '*.num_ports' => 'п п╬п╩п╦я┤п╣я│я┌п╡п╬ п©п╬я─я┌п╬п╡',
+    '*.overrun_per_port' => 'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ п╥п╟ п©п╬я─я┌',
+    '*.space' => 'п÷я─п╬я│я┌я─п╟п╫я│я┌п╡п╬ п°п╠',
+    '*.overrun_per_mb' => 'п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ п╥п╟ п°п╠',
+    '*.is_record' => 'п≈п╟п©п╦я│я▄ п╥п╡п╬п╫п╨п╬п╡',
+    '*.is_fax' => 'п╓п╟п╨я│',
+    '*.datacenter_id' => 'п╒п╣я┘. п©п╩п╬я┴п╟п╢п╨п╟',
+    '*.server_pbx_id' => 'п║п╣я─п╡п╣я─ п░п╒п║',
+    '*.number' => 'п²п╬п╪п╣я─',
+    '*.per_month_price' => 'п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ (я│ п²п■п║)',
+    '*.per_sms_price' => 'п╥п╟ 1 п║п°п║ (я│ п²п■п║)',
+    '*.gpon_reserv' => 'п║п╣я┌я▄ п©п╬п╢ GPON',
+    '*.trunk_vpbx_id' => 'п╒я─п╟п╫п╨ п╫п╟ VPBX',
+    'newpayments.ecash_operator' => "п·п©п╣я─п╟я┌п╬я─ п©п╩п╟я┌п╣п╤п╟",
+    'usage_voip.region' => 'п═п╣пЁп╦п╬п╫',
+    'usage_voip.line7800_id' => 'п⌡п╦п╫п╦я▐ п╠п╣п╥ п╫п╬п╪п╣я─п╟ п╢п╩я▐ п╫п╬п╪п╣я─п╟ 8800'
     );
 ?>

@@ -58,7 +58,7 @@ class all4net_integration{
 		return true;
 	}
 	/**
-	 * @return boolean успешно ли соединение с сервером
+	 * @return boolean я┐я│п©п╣я┬п╫п╬ п╩п╦ я│п╬п╣п╢п╦п╫п╣п╫п╦п╣ я│ я│п╣я─п╡п╣я─п╬п╪
 	 */
 	public static function chconn(){
 		if(!is_null(self::$db_connection) && self::$db_local)
@@ -288,7 +288,7 @@ class all4net_integration{
 		";
 		$query_update = "update clients set id_all4net=%d where id=%d";
 
-		mysql_query(iconv('koi8r','cp1251',$query_insert),self::$db_connection);
+		mysql_query(iconv('utf-8','cp1251',$query_insert),self::$db_connection);
 		if(mysql_errno()){
 			throw new ErrorException(
 				"MySQL error: ".mysql_error(),
@@ -307,7 +307,7 @@ class all4net_integration{
 				__FILE__,
 				__LINE__
 			);
-		self::$db_local->Query(iconv('koi8r','cp1251',sprintf($query_update,$id_remote,$this->client['stat']['id'])));
+		self::$db_local->Query(iconv('utf-8','cp1251',sprintf($query_update,$id_remote,$this->client['stat']['id'])));
 		if(mysql_errno()){
 			$err = mysql_error();
 			mysql_query("delete from users where id=".$id_remote,self::$db_connection);
@@ -329,7 +329,7 @@ class all4net_integration{
 			);
 		}
 		$this->client['stat']['id_all4net'] = $id_remote;
-		mysql_query(iconv('koi8r','cp1251',sprintf($query_insert_reqs,$id_remote)),self::$db_connection);
+		mysql_query(iconv('utf-8','cp1251',sprintf($query_insert_reqs,$id_remote)),self::$db_connection);
 		if(mysql_errno()){
 			throw new ErrorException(
 				"MySQL statement error: ".mysql_error(),
@@ -445,7 +445,7 @@ class all4net_integration{
 				`fax` = '".addcslashes($this->client['stat']['fax'],"\\\\'")."',
 				`id_all4net` = ".$this->client['stat']['id_all4net'];
 
-		mysql_query(iconv('koi8r','cp1251',$query_update_u),self::$db_connection);
+		mysql_query(iconv('utf-8','cp1251',$query_update_u),self::$db_connection);
 		if(mysql_errno()){
 			throw new ErrorException(
 				"Can't modify client information at all4net backend. MySQL error: ".mysql_error(),
@@ -455,7 +455,7 @@ class all4net_integration{
 				__LINE__
 			);
 		}
-		mysql_query(iconv('koi8r','cp1251',$query_update_c),self::$db_connection);
+		mysql_query(iconv('utf-8','cp1251',$query_update_c),self::$db_connection);
 		if(mysql_errno()){
 			throw new ErrorException(
 				"Can't modify client information at all4net backend. MySQL error: ".mysql_error(),
@@ -469,7 +469,7 @@ class all4net_integration{
 			$query_select_c = "select id from clients where id_all4net=".$this->client['stat']['id_all4net'];
 			$res = mysql_query($query_select_c,self::$db_connection);
 			if(!mysql_fetch_assoc($res)){
-				mysql_query(iconv('koi8r','cp1251',$insert_c),self::$db_connection);
+				mysql_query(iconv('utf-8','cp1251',$insert_c),self::$db_connection);
 				if(mysql_errno()){
 					throw new ErrorException(
 						"Can't modify client information at all4net backend. MySQL error: ".mysql_error(),
@@ -618,13 +618,13 @@ class all4net_integration{
 			}else{
 				$price = $item['item_total_price']*(($item['item_price_rate']==0) ? 1 : $item['item_price_rate'])/1.18;
 			}
-			if($order_data['order_status'] == 50){ // если отказ
+			if($order_data['order_status'] == 50){ // п╣я│п╩п╦ п╬я┌п╨п╟п╥
 				$price = 0;
 				$item['item_total_price'] = 0;
 			}
 			$data[] = array(
 				0=>$order_data['bill_currency'],
-				1=>iconv('cp1251','koi8r',$item['item_name']),
+				1=>iconv('cp1251','utf-8',$item['item_name']),
 				2=>$item['item_count'],
 				3=> $price,
 				4=>$item['item_type'],
@@ -635,7 +635,7 @@ class all4net_integration{
 				9=>($order_data['bill_currency']=='USD')?$item['item_total_price']/$order_data['current_rate']:$item['item_total_price']
 			);
 
-			if($order_data['order_status'] == 40){ // если выполнен
+			if($order_data['order_status'] == 40){ // п╣я│п╩п╦ п╡я▀п©п╬п╩п╫п╣п╫
 				$bill_sum_rur += $item['item_total_price']*$item['item_count'];
 				$bill_sum += $price*$item['item_count']*1.18;
 			}else{
@@ -755,7 +755,7 @@ class all4net_integration{
 		";
 
 		$r = self::$db_local->GetRow($query);
-		$r = iconv('koi8r','cp1251',addcslashes($r['comm'],"\\'"));
+		$r = iconv('utf-8','cp1251',addcslashes($r['comm'],"\\'"));
 
 		$query_all4net = "
 			update
