@@ -33,7 +33,7 @@ try {
 
         $client = $db->GetRow("select client from clients where id='".$r['client_id']."'");
         if ($client) {
-            //Создаем запись услуги
+            //п║п╬п╥п╢п╟п╣п╪ п╥п╟п©п╦я│я▄ я┐я│п╩я┐пЁп╦
             $usageVoipId = $db->QueryInsert("usage_voip", array(
                             "client"        => $client["client"],
                             "region"        => $r['region'],
@@ -44,7 +44,7 @@ try {
                             "status"        => "connecting"
                             )
                         );
-            //Создаем запись тарифов
+            //п║п╬п╥п╢п╟п╣п╪ п╥п╟п©п╦я│я▄ я┌п╟я─п╦я└п╬п╡
             $db->QueryInsert("log_tarif", array(
                     "service"             => "usage_voip",
                     "id_service"          => $usageVoipId,
@@ -63,7 +63,7 @@ try {
                     "minpayment_sng"      => '0'
                     )
                 );
-            //Освобождаем номер
+            //п·я│п╡п╬п╠п╬п╤п╢п╟п╣п╪ п╫п╬п╪п╣я─
             $db->Query($q = "
                     update
                         `voip_numbers`
@@ -112,7 +112,7 @@ function getDefaultTarifs()
                                     status='public' and
                                     region='".$region_id."' and
                                     currency='RUR'
-                                " . (($region_id == '99') ? "AND name LIKE('%".Encoding::toKOI8R('Базовый')."%')" : '')
+                                " . (($region_id == '99') ? "AND name LIKE('%".'п▒п╟п╥п╬п╡я▀п╧'."%')" : '')
         );
         foreach ($tarifs as $r) {
             switch ($r['dest']) {

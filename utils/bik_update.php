@@ -20,10 +20,10 @@
 			$toScreen = true;
 			break;
 		default: 
-			echo "\n" . Encoding::toUtf8("Параметр =  get - загрузка нового файла\n\n");
-			echo Encoding::toUtf8("Параметр = send - отправка email с diff-файлом\n");
-			echo Encoding::toUtf8("Параметр = show - вывод на экран разницы\n");
-			echo Encoding::toUtf8("Параметр = update - вывод на экран разницы и внести изменения в БД \n\n");
+			echo "\n" . "п÷п╟я─п╟п╪п╣я┌я─ =  get - п╥п╟пЁя─я┐п╥п╨п╟ п╫п╬п╡п╬пЁп╬ я└п╟п╧п╩п╟\n\n";
+			echo "п÷п╟я─п╟п╪п╣я┌я─ = send - п╬я┌п©я─п╟п╡п╨п╟ email я│ diff-я└п╟п╧п╩п╬п╪\n";
+			echo "п÷п╟я─п╟п╪п╣я┌я─ = show - п╡я▀п╡п╬п╢ п╫п╟ я█п╨я─п╟п╫ я─п╟п╥п╫п╦я├я▀\n";
+			echo "п÷п╟я─п╟п╪п╣я┌я─ = update - п╡я▀п╡п╬п╢ п╫п╟ я█п╨я─п╟п╫ я─п╟п╥п╫п╦я├я▀ п╦ п╡п╫п╣я│я┌п╦ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╡ п▒п■ \n\n";
 			exit;
 	}
 
@@ -32,10 +32,10 @@
 		$file_path = LoadBikFile::getBikFile('http://www.cbr.ru/mcirabis/PluginInterface/GetBicCatalog.aspx');
 		if ($file_path === false)
 		{
-			echo "\n" . Encoding::toUtf8("Файл не был обновлен\n\n");
+			echo "\n" . "п╓п╟п╧п╩ п╫п╣ п╠я▀п╩ п╬п╠п╫п╬п╡п╩п╣п╫\n\n";
 			exit;
 		} else {
-			echo "\n" . Encoding::toUtf8("Файл был обновлен\n\n");
+			echo "\n" . "п╓п╟п╧п╩ п╠я▀п╩ п╬п╠п╫п╬п╡п╩п╣п╫\n\n";
 			exit;
 		}
 	} else {
@@ -55,7 +55,7 @@
 	{
 		if ($BikUpdaterDBF->sendLogs()) 
 		{
-			echo "\n" . Encoding::toUtf8("Файл был отправлен\n\n");
+			echo "\n" . "п╓п╟п╧п╩ п╠я▀п╩ п╬я┌п©я─п╟п╡п╩п╣п╫\n\n";
 		}
 	}
 	
