@@ -32,7 +32,7 @@ $user = new UserWimax();
     $db2		= new MySQLDatabase("85.94.32.194", "b_wificomstar", "90516ac423d", "welltone_new3");
     //$db	= new MySQLDatabase("localhost", "latyntsev", "kxpyLNJ", "test_operator");
     $db	= new MySQLDatabase("localhost", "latyntsev", "kxpyLNJ", "nispd");
-    $db->Query("set names koi8r");
+    $db->Query("set names utf8");
 
 	$bm = new \_1c\billMaker($db);
 /*

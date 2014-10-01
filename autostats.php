@@ -15,7 +15,7 @@
 	$month=$def['mon'];
 	$clear=1;
 	$day=31;
-	$i=0; while (!checkdate($month,$day,$year) && ($i<4)) {$day--; $i++;}	//ÞÔÏÂÙ ÎÅ ÂÙÌÏ 30ÇÏ ÆÅ×ÒÁÌÑ
+	$i=0; while (!checkdate($month,$day,$year) && ($i<4)) {$day--; $i++;}	//Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð±Ñ‹Ð»Ð¾ 30Ð³Ð¾ Ñ„ÐµÐ²Ñ€Ð°Ð»Ñ
 	$from=mktime(0,0,0,$month,1,$year);
 	$to=mktime(0,0,0,$month,$day,$year);
 
@@ -29,7 +29,7 @@
 		$db->Query('delete from stats_report where client="'.$client.'" AND (month='.$month.') AND (year='.$year.')');
 
 		$b=0;
-		foreach ($R2 as $v){		//ïî âñåì ïîäêëþ÷åíèÿì êëèåíòà
+		foreach ($R2 as $v){		//ÐžÐ Ð‘Ð¯Ð•Ð› ÐžÐÐ”Ð™ÐšÐ§Ð’Ð•ÐœÐ¥ÐªÐ› Ð™ÐšÐ¥Ð•ÐœÐ Ð®
 			$T=get_tarif_current('usage_ip_ports',$v['id']);
 			$port_id=$v['id'];
 			$db->Query('select mb_month from tarifs_internet where id="'.$v['tarif_id'].'"');

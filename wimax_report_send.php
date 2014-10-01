@@ -1,11 +1,11 @@
 <?php
-	//этот файл может использоваться для аяксовых вызовов. и всё.
+	//я█я┌п╬я┌ я└п╟п╧п╩ п╪п╬п╤п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ п╢п╩я▐ п╟я▐п╨я│п╬п╡я▀я┘ п╡я▀п╥п╬п╡п╬п╡. п╦ п╡я│я▒.
 	define("PATH_TO_ROOT",'./');
 	define('NO_WEB',1);
 	include PATH_TO_ROOT."conf.php";
     require_once 'Spreadsheet/Excel/Writer.php';
 
-    //echo "<table border=1><tr><td>#заявки</td><td>заказ</td><td>статус</td><td>итог</td><td>коментарий</td></tr>";
+    //echo "<table border=1><tr><td>#п╥п╟я▐п╡п╨п╦</td><td>п╥п╟п╨п╟п╥</td><td>я│я┌п╟я┌я┐я│</td><td>п╦я┌п╬пЁ</td><td>п╨п╬п╪п╣п╫я┌п╟я─п╦п╧</td></tr>";
 
     $filePath = '/tmp/wimax_mcn_report'.date("Y-m-d").'.xls';
     $fileName = 'wimax_mcn_report_'.date("Y-m-d").'.xls';
@@ -15,7 +15,7 @@
 $workbook = new Spreadsheet_Excel_Writer($filePath);
 $workbook->setVersion(8);
 $sheet =& $workbook->addWorksheet();
-$sheet->setInputEncoding('koi8-r');
+$sheet->setInputEncoding('utf-8');
 
 $fHeader =& $workbook->addFormat();
 $fHeader->setHAlign('center');
@@ -28,11 +28,11 @@ $fData =& $workbook->addFormat();
 $fData->setSize(8);
 $fData->setBorder(1);
 
-    $sheet->write(2, 0, "#заявки", $fHeader);
-    $sheet->write(2, 1, "заказ", $fHeader);
-    $sheet->write(2, 2, "текущий статус", $fHeader);
-    $sheet->write(2, 3, "итог", $fHeader);
-    $sheet->write(2, 4, "комментарии", $fHeader);
+    $sheet->write(2, 0, "#п╥п╟я▐п╡п╨п╦", $fHeader);
+    $sheet->write(2, 1, "п╥п╟п╨п╟п╥", $fHeader);
+    $sheet->write(2, 2, "я┌п╣п╨я┐я┴п╦п╧ я│я┌п╟я┌я┐я│", $fHeader);
+    $sheet->write(2, 3, "п╦я┌п╬пЁ", $fHeader);
+    $sheet->write(2, 4, "п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦", $fHeader);
 
     $is29459 = false;
 
@@ -47,13 +47,13 @@ $fData->setBorder(1);
                 ) as param,
                 (select sum(if(type='service',1,0)) from newbill_lines where bill_no  = i.bill_no) as is_service_in,
                 st.name as state_name, 
-                convert((
+                (
                         select group_concat( concat(date_edit, ' ', st.name,' ',comment) SEPARATOR ' // ')  
                         from tt_troubles tr2 
                         left join tt_stages ts2 on (tr2.id = ts2.trouble_id)
                         left  join tt_states st2 on st2.id = ts2.state_id
                         where tr2.bill_no = i.bill_no
-                        ) using koi8r) as comment
+                        ) as comment
                 FROM newbills as b
                 inner join `newbills_add_info` i using (bill_no)
                 left join tt_troubles tr using (bill_no)
@@ -73,15 +73,15 @@ $fData->setBorder(1);
 
     //echo "<tr>";
 
-    if($q["state_name"] == "WiMax") $q["state_name"] = "Новая";
-    if($q["state_name"] == "К отгрузке") $q["state_name"] = "Выезд";
-    if($q["state_name"] == "Отгружен") $q["state_name"] = "Выезд совершен";
+    if($q["state_name"] == "WiMax") $q["state_name"] = "п²п╬п╡п╟я▐";
+    if($q["state_name"] == "п  п╬я┌пЁя─я┐п╥п╨п╣") $q["state_name"] = "п▓я▀п╣п╥п╢";
+    if($q["state_name"] == "п·я┌пЁя─я┐п╤п╣п╫") $q["state_name"] = "п▓я▀п╣п╥п╢ я│п╬п╡п╣я─я┬п╣п╫";
 
-    $statusTotal = "В работе";
+    $statusTotal = "п▓ я─п╟п╠п╬я┌п╣";
 
-    if($q["state_name"] == "Отказ") $statusTotal = "Отказ";
-    if($q["state_name"] == "Закрыт")
-        $statusTotal = $q["is_service_in"] ? "активирован" : "выезд совершен";
+    if($q["state_name"] == "п·я┌п╨п╟п╥") $statusTotal = "п·я┌п╨п╟п╥";
+    if($q["state_name"] == "п≈п╟п╨я─я▀я┌")
+        $statusTotal = $q["is_service_in"] ? "п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫" : "п╡я▀п╣п╥п╢ я│п╬п╡п╣я─я┬п╣п╫";
 
     $sheet->write(3+$no, 0, $q["req_no"], $fData);
     $sheet->write(3+$no, 1, $q["param"], $fData);
@@ -104,7 +104,7 @@ $fData->setBorder(1);
     $no++;
     }
 
-echo "\n".date("r")." заказов отослано: ".$no;
+echo "\n".date("r")." п╥п╟п╨п╟п╥п╬п╡ п╬я┌п╬я│п╩п╟п╫п╬: ".$no;
 
 $workbook->close();
 
@@ -114,9 +114,9 @@ $workbook->close();
 
 		$Mail = new PHPMailer();
 		$Mail->SetLanguage("ru","include/");
-		$Mail->CharSet = "koi8-r";
+		$Mail->CharSet = "utf-8";
 		$Mail->From = "wimax-comstar@mcn.ru";
-		$Mail->FromName="МАРКОМНЕТ";
+		$Mail->FromName="п°п░п═п п·п°п²п∙п╒";
 		$Mail->Mailer='smtp';
 		$Mail->Host="mail.mcn.ru";
 
@@ -131,8 +131,8 @@ $workbook->close();
         
         
 		$Mail->ContentType='text/plain';
-		$Mail->Subject = "MCN - Заявки wimax на ".date("Y-m-d");
-		$Mail->Body = "MCN - Заявки wimax на ".date("Y-m-d");
+		$Mail->Subject = "MCN - п≈п╟я▐п╡п╨п╦ wimax п╫п╟ ".date("Y-m-d");
+		$Mail->Body = "MCN - п≈п╟я▐п╡п╨п╦ wimax п╫п╟ ".date("Y-m-d");
 
         $Mail->AddAttachment($filePath, $fileName, "base64", "application/vnd.ms-excel");
 

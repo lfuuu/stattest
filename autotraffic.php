@@ -37,7 +37,7 @@ try{
 	}else
 		define('log',false);
 
-	$ntime=time(); // текущее время
+	$ntime=time(); // я┌п╣п╨я┐я┴п╣п╣ п╡я─п╣п╪я▐
 	if(in_array('--now',$argv))
 		$time = $ntime;
 	elseif(in_array('--yesterday',$argv)){
@@ -56,7 +56,7 @@ try{
 			echo "Please, give me a year by flag '-y'\n";
 			exit();
 		}
-		$time =mktime(0, 0, 0, $argv[array_search('-m', $argv)+1], $argv[array_search('-d', $argv)+1], $argv[array_search('-y', $argv)+1]); // время текущего шага
+		$time =mktime(0, 0, 0, $argv[array_search('-m', $argv)+1], $argv[array_search('-d', $argv)+1], $argv[array_search('-y', $argv)+1]); // п╡я─п╣п╪я▐ я┌п╣п╨я┐я┴п╣пЁп╬ я┬п╟пЁп╟
 
 		if(in_array('--eop-yesterday',$argv)||in_array('-ey',$argv)){
 			$ntime = time()-3600*24;

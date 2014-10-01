@@ -28,7 +28,7 @@ $user = new UserUtilDelOrder();
 
 
     $db	= new MySQLDatabase("localhost", "latyntsev", "kxpyLNJ", "nispd");
-    $db->Query("set names koi8r");
+    $db->Query("set names utf8");
 
     /*
     foreach($db->AllRecords("SELECT bill_no FROM `newbills_add_info` where req_no = '29459' and bill_no != '201011/0447'") as $b)
