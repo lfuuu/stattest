@@ -15,16 +15,16 @@ class Sync1CServer
         if (method_exists($this->handler, $method)) {
             try {
 
-                $translated_args = Encoding::toKoi8r($args);
+                $translated_args = $args;
 
                 $result = call_user_func_array(array($this->handler, $method), $translated_args);
 
-                return Encoding::toUtf8($result);
+                return $result;
 
             } catch (SoapFault $e) {
                 throw $e;
             } catch (Exception $e) {
-                throw new SoapFault('error', Encoding::toUtf8($e->getMessage()));
+                throw new SoapFault('error', $e->getMessage());
             }
         }
 

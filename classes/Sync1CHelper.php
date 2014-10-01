@@ -13,18 +13,18 @@ class Sync1CHelper
             throw new Exception('Client not found');
 
         $clientCardData = array(
-            'éÄëÌÉÅÎÔÁóÔÁÔ' => $client->client,
-            'éÄëÁÒÔÏŞËÉëÌÉÅÎÔÁóÔÁÔ' => $clientCard->client,
-            'ëÏÄëÌÉÅÎÔÁóÔÁÔ' => $client->id,
-            'ëÏÄëÁÒÔÏŞËÉëÌÉÅÎÔÁóÔÁÔ' => $clientCard->id,
-            'îÁÉÍÅÎÏ×ÁÎÉÅëÏÍĞÁÎÉÉ' => $clientCard->company,
-            'ğÏÌÎÏÅîÁÉÍÅÎÏ×ÁÎÉÅëÏÍĞÁÎÉÉ' => $clientCard->company_full,
-            'éîî' => $clientCard->inn,
-            'ëğğ' => $clientCard->kpp,
-            'ğÒÁ×Ï×ÁÑæÏÒÍÁ' => $clientCard->type == 'org' ? 'àÒìÉÃÏ' : 'æÉÚìÉÃÏ',
-            'ïÒÇÁÎÉÚÁÃÉÑ' => $clientCard->firma,
-            '÷ÁÌÀÔÁòÁÓŞÅÔÏ×' => $clientCard->currency,
-            '÷ÉÄãÅÎ' => $clientCard->price_type ? $clientCard->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
+            'Ğ˜Ğ´ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $client->client,
+            'Ğ˜Ğ´ĞšĞ°Ñ€Ñ‚Ğ¾Ñ‡ĞºĞ¸ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $clientCard->client,
+            'ĞšĞ¾Ğ´ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $client->id,
+            'ĞšĞ¾Ğ´ĞšĞ°Ñ€Ñ‚Ğ¾Ñ‡ĞºĞ¸ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $clientCard->id,
+            'ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸ĞµĞšĞ¾Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¸' => $clientCard->company,
+            'ĞŸĞ¾Ğ»Ğ½Ğ¾ĞµĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸ĞµĞšĞ¾Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¸' => $clientCard->company_full,
+            'Ğ˜ĞĞ' => $clientCard->inn,
+            'ĞšĞŸĞŸ' => $clientCard->kpp,
+            'ĞŸÑ€Ğ°Ğ²Ğ¾Ğ²Ğ°ÑĞ¤Ğ¾Ñ€Ğ¼Ğ°' => $clientCard->type == 'org' ? 'Ğ®Ñ€Ğ›Ğ¸Ñ†Ğ¾' : 'Ğ¤Ğ¸Ğ·Ğ›Ğ¸Ñ†Ğ¾',
+            'ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ' => $clientCard->firma,
+            'Ğ’Ğ°Ğ»ÑÑ‚Ğ°Ğ Ğ°ÑÑ‡ĞµÑ‚Ğ¾Ğ²' => $clientCard->currency,
+            'Ğ’Ğ¸Ğ´Ğ¦ĞµĞ½' => $clientCard->price_type ? $clientCard->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
         );
 
         return $clientCardData;
@@ -35,7 +35,7 @@ class Sync1CHelper
 
     public function throw1CException($e)
     {
-        $messages = explode("|||",Encoding::toKoi8r($e->getMessage()));
+        $messages = explode("|||",$e->getMessage());
         throw new Sync1CException(count($messages) > 1 ? $messages[1] : $messages[0]);
     }
 

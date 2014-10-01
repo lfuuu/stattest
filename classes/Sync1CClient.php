@@ -45,21 +45,21 @@ class Sync1CClient
         try {
             $params = array(
                 'contract' => array(
-                    'éÄëÌÉÅÎÔÁóÔÁÔ' => $client->client,
-                    'ëÏÄëÌÉÅÎÔÁóÔÁÔ' => $client->id,
-                    'éÄëÁÒÔÏŞËÉëÌÉÅÎÔÁóÔÁÔ' => $clientCard->client,
-                    'ëÏÄëÁÒÔÏŞËÉëÌÉÅÎÔÁóÔÁÔ' => $clientCard->id,
-                    'îÁÉÍÅÎÏ×ÁÎÉÅëÏÍĞÁÎÉÉ' => $clientCard->company,
-                    'ğÏÌÎÏÅîÁÉÍÅÎÏ×ÁÎÉÅëÏÍĞÁÎÉÉ' => $clientCard->company_full,
-                    'éîî' => $clientCard->inn,
-                    'ëğğ' => $clientCard->kpp,
-                    'àÒÉÄÉŞÅÓËÉÊáÄÒÅÓ' => $clientCard->address_jur,
-                    'ğÒÁ×Ï×ÁÑæÏÒÍÁ' => $clientCard->type,
-                    'ïÒÇÁÎÉÚÁÃÉÑ' => $clientCard->firma,
-                    '÷ÁÌÀÔÁòÁÓŞÅÔÏ×' => $clientCard->currency,
-                    '÷ÉÄãÅÎ' => $clientCard->price_type ? $clientCard->price_type : '739a53ba-8389-11df-9af5-001517456eb1',
+                    'Ğ˜Ğ´ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $client->client,
+                    'ĞšĞ¾Ğ´ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $client->id,
+                    'Ğ˜Ğ´ĞšĞ°Ñ€Ñ‚Ğ¾Ñ‡ĞºĞ¸ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $clientCard->client,
+                    'ĞšĞ¾Ğ´ĞšĞ°Ñ€Ñ‚Ğ¾Ñ‡ĞºĞ¸ĞšĞ»Ğ¸ĞµĞ½Ñ‚Ğ°Ğ¡Ñ‚Ğ°Ñ‚' => $clientCard->id,
+                    'ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸ĞµĞšĞ¾Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¸' => $clientCard->company,
+                    'ĞŸĞ¾Ğ»Ğ½Ğ¾ĞµĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸ĞµĞšĞ¾Ğ¼Ğ¿Ğ°Ğ½Ğ¸Ğ¸' => $clientCard->company_full,
+                    'Ğ˜ĞĞ' => $clientCard->inn,
+                    'ĞšĞŸĞŸ' => $clientCard->kpp,
+                    'Ğ®Ñ€Ğ¸Ğ´Ğ¸Ñ‡ĞµÑĞºĞ¸Ğ¹ĞĞ´Ñ€ĞµÑ' => $clientCard->address_jur,
+                    'ĞŸÑ€Ğ°Ğ²Ğ¾Ğ²Ğ°ÑĞ¤Ğ¾Ñ€Ğ¼Ğ°' => $clientCard->type,
+                    'ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ' => $clientCard->firma,
+                    'Ğ’Ğ°Ğ»ÑÑ‚Ğ°Ğ Ğ°ÑÑ‡ĞµÑ‚Ğ¾Ğ²' => $clientCard->currency,
+                    'Ğ’Ğ¸Ğ´Ğ¦ĞµĞ½' => $clientCard->price_type ? $clientCard->price_type : '739a53ba-8389-11df-9af5-001517456eb1',
                 ),
-                'ğÏÌØÚÏ×ÁÔÅÌØ' => $user->Get("user")
+                'ĞŸĞ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ĞµĞ»ÑŒ' => $user->Get("user")
             );
 
             $this->soap->utSaveClientContract($params);

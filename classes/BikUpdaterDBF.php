@@ -173,7 +173,7 @@ class BikUpdaterDBF
 					$first = false;
 				}
 				$log .= "<tr>";
-				foreach ($d as $k=>$v) $log .= '<td>' .  Encoding::toUtf8($v) . '</td> ';
+				foreach ($d as $k=>$v) $log .= '<td>' .  $v . '</td> ';
 				$log .= "</tr>";
 			}
 		}
@@ -184,11 +184,11 @@ class BikUpdaterDBF
 			$log .= "<tr><td>bik</td><td>bank_name (new)</td><td>bank_city (new)</td><td>corr_acc (new)</td></tr>";
 			foreach ($this->log['update'] as $bik=>$d) {
 				$log .= '<tr><td>' . $bik . "</td>";
-				$text = (empty($d['bank_name'])) ? '---' : Encoding::toUtf8($d['bank_name'][0]) . ' ('.Encoding::toUtf8($d['bank_name'][1]).')';
+				$text = (empty($d['bank_name'])) ? '---' : $d['bank_name'][0] . ' ('.$d['bank_name'][1].')';
 				$log .= '<td>' . $text . '</td>';
-				$text = (empty($d['bank_city'])) ? '---' : Encoding::toUtf8($d['bank_city'][0]) . ' ('.Encoding::toUtf8($d['bank_city'][1]).')';
+				$text = (empty($d['bank_city'])) ? '---' : $d['bank_city'][0] . ' ('.$d['bank_city'][1].')';
 				$log .= '<td>' . $text . '</td>';
-				$text = (empty($d['corr_acc'])) ? '---' : Encoding::toUtf8($d['corr_acc'][0]) . ' ('.Encoding::toUtf8($d['corr_acc'][1]).')';
+				$text = (empty($d['corr_acc'])) ? '---' : $d['corr_acc'][0] . ' ('.$d['corr_acc'][1].')';
 				$log .= '<td>' . $text . '</td></tr>';
 			}
 		}
@@ -210,7 +210,7 @@ class BikUpdaterDBF
 		{
 			foreach ($this->log['insert'] as $d) 
 			{
-				foreach ($d as $k=>$v) echo $k . ': ' . Encoding::toUtf8($v) . '; ';
+				foreach ($d as $k=>$v) echo $k . ': ' . $v . '; ';
 				echo "\n";
 			}
 		}
@@ -221,7 +221,7 @@ class BikUpdaterDBF
 			foreach ($this->log['update'] as $bik=>$d) 
 			{
 				echo 'bik - ' . $bik . ":\n";
-				foreach ($d as $k=>$v) echo $k . ': ' . Encoding::toUtf8($v[0]) . ' ('.Encoding::toUtf8($v[1]).'); ';
+				foreach ($d as $k=>$v) echo $k . ': ' . $v[0] . ' ('.$v[1].'); ';
 				echo "\n";
 			}
 		}

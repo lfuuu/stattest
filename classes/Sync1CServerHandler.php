@@ -18,27 +18,27 @@ class Sync1CServerHandler
         $data = $data->clientInfo;
 
         $clientCard = new ClientCard();
-        $clientCard->company = $data->îÁÉÍÅÎÏ×ÁÎÉÅ;
-        $clientCard->company_full = $data->îÁÉÍÅÎÏ×ÁÎÉÅ;
-        $clientCard->inn = $data->éîî;
-        $clientCard->type = $data->àÒìÉÃÏ ? 'org' : 'priv';
+        $clientCard->company = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸Ğµ;
+        $clientCard->company_full = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸Ğµ;
+        $clientCard->inn = $data->Ğ˜ĞĞ;
+        $clientCard->type = $data->Ğ®Ñ€Ğ›Ğ¸Ñ†Ğ¾ ? 'org' : 'priv';
         $clientCard->save();
 
-        if ($data->üÌÅËÔÒÏÎÎÁÑğÏŞÔÁ) {
+        if ($data->Ğ­Ğ»ĞµĞºÑ‚Ñ€Ğ¾Ğ½Ğ½Ğ°ÑĞŸĞ¾Ñ‡Ñ‚Ğ°) {
             $contactEmail = new ClientContact();
             $contactEmail->type = 'email';
             $contactEmail->client_id = $clientCard->id;
-            $contactEmail->data = $data->üÌÅËÔÒÏÎÎÁÑğÏŞÔÁ;
+            $contactEmail->data = $data->Ğ­Ğ»ĞµĞºÑ‚Ñ€Ğ¾Ğ½Ğ½Ğ°ÑĞŸĞ¾Ñ‡Ñ‚Ğ°;
             $contactEmail->is_active = 1;
             $contactEmail->is_official = 1;
             $contactEmail->save();
         }
 
-        if ($data->ôÅÌÅÆÏÎïÒÇÁÎÉÚÁÃÉÉ) {
+        if ($data->Ğ¢ĞµĞ»ĞµÑ„Ğ¾Ğ½ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ğ¸) {
             $contactPhone = new ClientContact();
             $contactPhone->type = 'phone';
             $contactPhone->client_id = $clientCard->id;
-            $contactPhone->data = $data->ôÅÌÅÆÏÎïÒÇÁÎÉÚÁÃÉÉ;
+            $contactPhone->data = $data->Ğ¢ĞµĞ»ĞµÑ„Ğ¾Ğ½ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ğ¸;
             $contactPhone->is_active = 1;
             $contactPhone->is_official = 1;
             $contactPhone->save();
@@ -58,13 +58,13 @@ class Sync1CServerHandler
     public function parseGtd($data)
     {
         try {
-            $gtd = Gtd::find($data->ëÏÄ1ó);
+            $gtd = Gtd::find($data->ĞšĞ¾Ğ´1Ğ¡);
         } catch (RecordNotFound $e) {
             $gtd = new Gtd();
-            $gtd->id = $data->ëÏÄ1ó;
+            $gtd->id = $data->ĞšĞ¾Ğ´1Ğ¡;
         }
-        $gtd->code = $data->ëÏÄ;
-        $gtd->country_id = $data->óÔÒÁÎÁ;
+        $gtd->code = $data->ĞšĞ¾Ğ´;
+        $gtd->country_id = $data->Ğ¡Ñ‚Ñ€Ğ°Ğ½Ğ°;
         $gtd->save();
 
         return $gtd;
@@ -74,13 +74,13 @@ class Sync1CServerHandler
     {
         $data = $data->store;
         try {
-            $store = Store::find($data->ëÏÄ1ó);
+            $store = Store::find($data->ĞšĞ¾Ğ´1Ğ¡);
         } catch (RecordNotFound $e) {
             $store = new Store();
-            $store->id = $data->ëÏÄ1ó;
+            $store->id = $data->ĞšĞ¾Ğ´1Ğ¡;
         }
-        $store->name = $data->îÁÉÍÅÎÏ×ÁÎÉÅ;
-        $store->deleted = $data->õÄÁÌÅÎ;
+        $store->name = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸Ğµ;
+        $store->deleted = $data->Ğ£Ğ´Ğ°Ğ»ĞµĞ½;
         $store->save();
 
         return array('return'=>true);
@@ -90,12 +90,12 @@ class Sync1CServerHandler
     {
         $data = $data->currency;
         try {
-            $currency = Currency::find($data->ëÏÄ);
+            $currency = Currency::find($data->ĞšĞ¾Ğ´);
         } catch (RecordNotFound $e) {
             $currency = new Currency();
-            $currency->id = $data->ëÏÄ;
+            $currency->id = $data->ĞšĞ¾Ğ´;
         }
-        $currency->name = $data->îÁÉÍÅÎÏ×ÁÎÉÅ;
+        $currency->name = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸Ğµ;
         $currency->save();
 
         return array('return'=>true);
@@ -106,14 +106,14 @@ class Sync1CServerHandler
     {
         $data = $data->organization;
         try {
-            $organization = Organization::find($data->ëÏÄ1ó);
+            $organization = Organization::find($data->ĞšĞ¾Ğ´1Ğ¡);
         } catch (RecordNotFound $e) {
             $organization = new Organization();
-            $organization->id = $data->ëÏÄ1ó;
+            $organization->id = $data->ĞšĞ¾Ğ´1Ğ¡;
         }
-        $organization->name = $data->îÁÉÍÅÎÏ×ÁÎÉÅ;
-        $organization->jur_name = $data->îÁÉÍÅÎÏ×ÁÎÉÅóÏËÒÁİÅÎÎÏÅ;
-        $organization->jur_name_full = $data->îÁÉÍÅÎÏ×ÁÎÉÅğÏÌÎÏÅ;
+        $organization->name = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸Ğµ;
+        $organization->jur_name = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸ĞµĞ¡Ğ¾ĞºÑ€Ğ°Ñ‰ĞµĞ½Ğ½Ğ¾Ğµ;
+        $organization->jur_name_full = $data->ĞĞ°Ğ¸Ğ¼ĞµĞ½Ğ¾Ğ²Ğ°Ğ½Ğ¸ĞµĞŸĞ¾Ğ»Ğ½Ğ¾Ğµ;
         $organization->save();
 
         return array('return'=>true);
@@ -130,43 +130,43 @@ class Sync1CServerHandler
         global $user;
 
         try {
-            $order = GoodsIncomeOrder::find($data->ëÏÄ1ó);
+            $order = GoodsIncomeOrder::find($data->ĞšĞ¾Ğ´1Ğ¡);
         } catch (RecordNotFound $e) {
             $order = new GoodsIncomeOrder();
-            $order->id = $data->ëÏÄ1ó;
+            $order->id = $data->ĞšĞ¾Ğ´1Ğ¡;
         }
-        $order->active = $data->ğÒÏ×ÅÄÅÎ;
-        $order->deleted = $data->õÄÁÌÅÎ;
-        $order->number = $data->îÏÍÅÒ;
-        $order->date = $data->äÁÔÁ;
-        $order->client_card_id = $data->ëÏÄëÏÎÔÒÁÇÅÎÔÁ;
-        $order->external_number = $data->îÏÍÅÒğÏäÁÎÎÙÍğÏÓÔÁ×İÉËÁ;
-        $order->external_date = $data->äÁÔÁğÏäÁÎÎÙÍğÏÓÔÁ×İÉËÁ != '0001-01-01T00:00:00' ? $data->äÁÔÁğÏäÁÎÎÙÍğÏÓÔÁ×İÉËÁ : null;
-        $order->status = $data->óÔÁÔÕÓ;
-        $order->organization_id = $data->ïÒÇÁÎÉÚÁÃÉÑ;
-        $order->store_id = $data->óËÌÁÄ;
-        $order->currency = $data->÷ÁÌÀÔÁ;
-        $order->price_includes_nds = $data->ãÅÎÁ÷ËÌÀŞÁÅÔîäó;
-        $order->sum = $data->óÕÍÍÁäÏËÕÍÅÎÔÁ;
-        $order->manager_id = $data->íÅÎÅÄÖÅÒ ?: null;
-        $order->comment = $data->ëÏÍÍÅÎÔÁÒÉÊ;
+        $order->active = $data->ĞŸÑ€Ğ¾Ğ²ĞµĞ´ĞµĞ½;
+        $order->deleted = $data->Ğ£Ğ´Ğ°Ğ»ĞµĞ½;
+        $order->number = $data->ĞĞ¾Ğ¼ĞµÑ€;
+        $order->date = $data->Ğ”Ğ°Ñ‚Ğ°;
+        $order->client_card_id = $data->ĞšĞ¾Ğ´ĞšĞ¾Ğ½Ñ‚Ñ€Ğ°Ğ³ĞµĞ½Ñ‚Ğ°;
+        $order->external_number = $data->ĞĞ¾Ğ¼ĞµÑ€ĞŸĞ¾Ğ”Ğ°Ğ½Ğ½Ñ‹Ğ¼ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ñ‰Ğ¸ĞºĞ°;
+        $order->external_date = $data->Ğ”Ğ°Ñ‚Ğ°ĞŸĞ¾Ğ”Ğ°Ğ½Ğ½Ñ‹Ğ¼ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ñ‰Ğ¸ĞºĞ° != '0001-01-01T00:00:00' ? $data->Ğ”Ğ°Ñ‚Ğ°ĞŸĞ¾Ğ”Ğ°Ğ½Ğ½Ñ‹Ğ¼ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ñ‰Ğ¸ĞºĞ° : null;
+        $order->status = $data->Ğ¡Ñ‚Ğ°Ñ‚ÑƒÑ;
+        $order->organization_id = $data->ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ;
+        $order->store_id = $data->Ğ¡ĞºĞ»Ğ°Ğ´;
+        $order->currency = $data->Ğ’Ğ°Ğ»ÑÑ‚Ğ°;
+        $order->price_includes_nds = $data->Ğ¦ĞµĞ½Ğ°Ğ’ĞºĞ»ÑÑ‡Ğ°ĞµÑ‚ĞĞ”Ğ¡;
+        $order->sum = $data->Ğ¡ÑƒĞ¼Ğ¼Ğ°Ğ”Ğ¾ĞºÑƒĞ¼ĞµĞ½Ñ‚Ğ°;
+        $order->manager_id = $data->ĞœĞµĞ½ĞµĞ´Ğ¶ĞµÑ€ ?: null;
+        $order->comment = $data->ĞšĞ¾Ğ¼Ğ¼ĞµĞ½Ñ‚Ğ°Ñ€Ğ¸Ğ¹;
         $order->save();
 
         GoodsIncomeOrderLine::table()->delete(array('order_id' => $order->id));
 
-        $lines = $data->óĞÉÓÏËğÏÚÉÃÉÊ;
+        $lines = $data->Ğ¡Ğ¿Ğ¸ÑĞ¾ĞºĞŸĞ¾Ğ·Ğ¸Ñ†Ğ¸Ğ¹;
         $lines = is_array($lines) ? $lines : array($lines);
         foreach($lines as $line) {
             $item = new GoodsIncomeOrderLine();
             $item->order_id = $order->id;
-            $item->good_id = $line->îÏÍÅÎËÌÁÔÕÒÁ;
-            $item->good_ext_id = $line->èÁÒÁËÔÅÒÉÓÔÉËÁ;
-            $item->price = $line->ãÅÎÁ;
-            $item->amount = $line->ëÏÌÉŞÅÓÔ×Ï;
-            $item->sum = $line->óÕÍÍÁ;
-            $item->sum_nds= $line->óÕÍÍÁîäó;
-            $item->incoming_date = $line->äÁÔÁğÏÓÔÕĞÌÅÎÉÑ;
-            $item->line_code = $line->ëÏÄóÔÒÏËÉ;
+            $item->good_id = $line->ĞĞ¾Ğ¼ĞµĞ½ĞºĞ»Ğ°Ñ‚ÑƒÑ€Ğ°;
+            $item->good_ext_id = $line->Ğ¥Ğ°Ñ€Ğ°ĞºÑ‚ĞµÑ€Ğ¸ÑÑ‚Ğ¸ĞºĞ°;
+            $item->price = $line->Ğ¦ĞµĞ½Ğ°;
+            $item->amount = $line->ĞšĞ¾Ğ»Ğ¸Ñ‡ĞµÑÑ‚Ğ²Ğ¾;
+            $item->sum = $line->Ğ¡ÑƒĞ¼Ğ¼Ğ°;
+            $item->sum_nds= $line->Ğ¡ÑƒĞ¼Ğ¼Ğ°ĞĞ”Ğ¡;
+            $item->incoming_date = $line->Ğ”Ğ°Ñ‚Ğ°ĞŸĞ¾ÑÑ‚ÑƒĞ¿Ğ»ĞµĞ½Ğ¸Ñ;
+            $item->line_code = $line->ĞšĞ¾Ğ´Ğ¡Ñ‚Ñ€Ğ¾ĞºĞ¸;
             $item->save();
         }
 
@@ -227,10 +227,10 @@ class Sync1CServerHandler
 
                 if(in_array($cur_state->state_1c, $statuses))
                 {
-                    // ğÒÉÛÅÄÛÉÊ É ÔÅËÕİÉÊ ÓÔÁÔÕÓ ÏÄÉÎÁËÏ×Ù
+                    // ĞŸÑ€Ğ¸ÑˆĞµĞ´ÑˆĞ¸Ğ¹ Ğ¸ Ñ‚ĞµĞºÑƒÑ‰Ğ¸Ğ¹ ÑÑ‚Ğ°Ñ‚ÑƒÑ Ğ¾Ğ´Ğ¸Ğ½Ğ°ĞºĞ¾Ğ²Ñ‹
                     // nothing
                 }else{
-                    // ÎÕÖÎÁ ÎÏ×ÁÑ ÓÔÁÄÉÑ
+                    // Ğ½ÑƒĞ¶Ğ½Ğ° Ğ½Ğ¾Ğ²Ğ°Ñ ÑÑ‚Ğ°Ğ´Ğ¸Ñ
                     $to_state = $states[0];
 
                     $now = new ActiveRecord\DateTime();
@@ -277,41 +277,41 @@ class Sync1CServerHandler
     public function parseGoodsIncomeDocument($data)
     {
         try {
-            $document = GoodsIncomeDocument::find($data->ëÏÄ1ó);
+            $document = GoodsIncomeDocument::find($data->ĞšĞ¾Ğ´1Ğ¡);
         } catch (RecordNotFound $e) {
             $document = new GoodsIncomeDocument();
-            $document->id = $data->ëÏÄ1ó;
+            $document->id = $data->ĞšĞ¾Ğ´1Ğ¡;
         }
-        $document->order_id = $data->úÁËÁÚëÏÄ1ó;
-        $document->active = $data->ğÒÏ×ÅÄÅÎ;
-        $document->deleted = $data->õÄÁÌÅÎ;
-        $document->number = $data->îÏÍÅÒ;
-        $document->date = $data->äÁÔÁ;
-        $document->client_card_id = $data->ëÏÄëÏÎÔÒÁÇÅÎÔÁ;
-        $document->organization_id = $data->ïÒÇÁÎÉÚÁÃÉÑ;
-        $document->store_id = $data->óËÌÁÄ;
-        $document->currency = $data->÷ÁÌÀÔÁ;
-        $document->price_includes_nds = $data->ãÅÎÁ÷ËÌÀŞÁÅÔîäó;
-        $document->sum = $data->óÕÍÍÁäÏËÕÍÅÎÔÁ;
-        $document->comment = $data->ëÏÍÍÅÎÔÁÒÉÊ;
+        $document->order_id = $data->Ğ—Ğ°ĞºĞ°Ğ·ĞšĞ¾Ğ´1Ğ¡;
+        $document->active = $data->ĞŸÑ€Ğ¾Ğ²ĞµĞ´ĞµĞ½;
+        $document->deleted = $data->Ğ£Ğ´Ğ°Ğ»ĞµĞ½;
+        $document->number = $data->ĞĞ¾Ğ¼ĞµÑ€;
+        $document->date = $data->Ğ”Ğ°Ñ‚Ğ°;
+        $document->client_card_id = $data->ĞšĞ¾Ğ´ĞšĞ¾Ğ½Ñ‚Ñ€Ğ°Ğ³ĞµĞ½Ñ‚Ğ°;
+        $document->organization_id = $data->ĞÑ€Ğ³Ğ°Ğ½Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ;
+        $document->store_id = $data->Ğ¡ĞºĞ»Ğ°Ğ´;
+        $document->currency = $data->Ğ’Ğ°Ğ»ÑÑ‚Ğ°;
+        $document->price_includes_nds = $data->Ğ¦ĞµĞ½Ğ°Ğ’ĞºĞ»ÑÑ‡Ğ°ĞµÑ‚ĞĞ”Ğ¡;
+        $document->sum = $data->Ğ¡ÑƒĞ¼Ğ¼Ğ°Ğ”Ğ¾ĞºÑƒĞ¼ĞµĞ½Ñ‚Ğ°;
+        $document->comment = $data->ĞšĞ¾Ğ¼Ğ¼ĞµĞ½Ñ‚Ğ°Ñ€Ğ¸Ğ¹;
         $document->save();
 
         GoodsIncomeDocumentLine::table()->delete(array('document_id' => $document->id));
 
-        $lines = $data->óĞÉÓÏËğÏÚÉÃÉÊ;
+        $lines = $data->Ğ¡Ğ¿Ğ¸ÑĞ¾ĞºĞŸĞ¾Ğ·Ğ¸Ñ†Ğ¸Ğ¹;
         $lines = is_array($lines) ? $lines : array($lines);
         foreach($lines as $line) {
             $item = new GoodsIncomeDocumentLine();
             $item->document_id = $document->id;
             $item->order_id = $document->order_id;
-            $item->good_id = $line->îÏÍÅÎËÌÁÔÕÒÁ?: 0;
-            $item->good_ext_id = $line->èÁÒÁËÔÅÒÉÓÔÉËÁ ?: '00000000-0000-0000-0000-000000000000';
-            $item->price = $line->ãÅÎÁ?: 0.00;
-            $item->amount = $line->ëÏÌÉŞÅÓÔ×Ï?: 0;
-            $item->sum = $line->óÕÍÍÁ ?: 0.00;
-            $item->sum_nds= $line->óÕÍÍÁîäó ?: 0.00;
-            $item->line_code = $line->ëÏÄóÔÒÏËÉ?: 0;
-            $item->gtd_id = $line->ëÏÄîÏÍÅÒçôä ?: null;
+            $item->good_id = $line->ĞĞ¾Ğ¼ĞµĞ½ĞºĞ»Ğ°Ñ‚ÑƒÑ€Ğ°?: 0;
+            $item->good_ext_id = $line->Ğ¥Ğ°Ñ€Ğ°ĞºÑ‚ĞµÑ€Ğ¸ÑÑ‚Ğ¸ĞºĞ° ?: '00000000-0000-0000-0000-000000000000';
+            $item->price = $line->Ğ¦ĞµĞ½Ğ°?: 0.00;
+            $item->amount = $line->ĞšĞ¾Ğ»Ğ¸Ñ‡ĞµÑÑ‚Ğ²Ğ¾?: 0;
+            $item->sum = $line->Ğ¡ÑƒĞ¼Ğ¼Ğ° ?: 0.00;
+            $item->sum_nds= $line->Ğ¡ÑƒĞ¼Ğ¼Ğ°ĞĞ”Ğ¡ ?: 0.00;
+            $item->line_code = $line->ĞšĞ¾Ğ´Ğ¡Ñ‚Ñ€Ğ¾ĞºĞ¸?: 0;
+            $item->gtd_id = $line->ĞšĞ¾Ğ´ĞĞ¾Ğ¼ĞµÑ€Ğ“Ğ¢Ğ” ?: null;
             $item->save();
         }
 
@@ -328,35 +328,35 @@ class Sync1CServerHandler
     public function parseGoodsIncomeStore($data)
     {
         try {
-            $document = GoodsIncomeStore::find($data->ëÏÄ1ó);
+            $document = GoodsIncomeStore::find($data->ĞšĞ¾Ğ´1Ğ¡);
         } catch (RecordNotFound $e) {
             $document = new GoodsIncomeStore();
-            $document->id = $data->ëÏÄ1ó;
+            $document->id = $data->ĞšĞ¾Ğ´1Ğ¡;
         }
-        $document->order_id = $data->òÁÓĞÏÒÑÖÅÎÉÅëÏÄ1ó;
-        $document->active = $data->ğÒÏ×ÅÄÅÎ;
-        $document->deleted = $data->õÄÁÌÅÎ;
-        $document->number = $data->îÏÍÅÒ;
-        $document->date = $data->äÁÔÁ;
-        $document->status = $data->óÔÁÔÕÓ;
-        $document->store_id = $data->óËÌÁÄ;
-        $document->responsible = $data->ïÔ×ÅÔÓÔ×ÅÎÎÙÊ;
-        $document->comment = $data->ëÏÍÍÅÎÔÁÒÉÊ;
+        $document->order_id = $data->Ğ Ğ°ÑĞ¿Ğ¾Ñ€ÑĞ¶ĞµĞ½Ğ¸ĞµĞšĞ¾Ğ´1Ğ¡;
+        $document->active = $data->ĞŸÑ€Ğ¾Ğ²ĞµĞ´ĞµĞ½;
+        $document->deleted = $data->Ğ£Ğ´Ğ°Ğ»ĞµĞ½;
+        $document->number = $data->ĞĞ¾Ğ¼ĞµÑ€;
+        $document->date = $data->Ğ”Ğ°Ñ‚Ğ°;
+        $document->status = $data->Ğ¡Ñ‚Ğ°Ñ‚ÑƒÑ;
+        $document->store_id = $data->Ğ¡ĞºĞ»Ğ°Ğ´;
+        $document->responsible = $data->ĞÑ‚Ğ²ĞµÑ‚ÑÑ‚Ğ²ĞµĞ½Ğ½Ñ‹Ğ¹;
+        $document->comment = $data->ĞšĞ¾Ğ¼Ğ¼ĞµĞ½Ñ‚Ğ°Ñ€Ğ¸Ğ¹;
         $document->save();
 
         GoodsIncomeStoreLine::table()->delete(array('document_id' => $document->id));
 
-        $lines = $data->óĞÉÓÏËğÏÚÉÃÉÊ;
+        $lines = $data->Ğ¡Ğ¿Ğ¸ÑĞ¾ĞºĞŸĞ¾Ğ·Ğ¸Ñ†Ğ¸Ğ¹;
         $lines = is_array($lines) ? $lines : array($lines);
         foreach($lines as $line) {
             $item = new GoodsIncomeStoreLine();
             $item->document_id = $document->id;
             $item->order_id = $document->order_id;
-            $item->good_id = $line->îÏÍÅÎËÌÁÔÕÒÁ;
-            $item->good_ext_id = $line->èÁÒÁËÔÅÒÉÓÔÉËÁ;
-            $item->amount = $line->ëÏÌÉŞÅÓÔ×Ï;
+            $item->good_id = $line->ĞĞ¾Ğ¼ĞµĞ½ĞºĞ»Ğ°Ñ‚ÑƒÑ€Ğ°;
+            $item->good_ext_id = $line->Ğ¥Ğ°Ñ€Ğ°ĞºÑ‚ĞµÑ€Ğ¸ÑÑ‚Ğ¸ĞºĞ°;
+            $item->amount = $line->ĞšĞ¾Ğ»Ğ¸Ñ‡ĞµÑÑ‚Ğ²Ğ¾;
 
-            $serialNumbers = $line->óÅÒÉÊÎÙÅîÏÍÅÒÁ;
+            $serialNumbers = $line->Ğ¡ĞµÑ€Ğ¸Ğ¹Ğ½Ñ‹ĞµĞĞ¾Ğ¼ĞµÑ€Ğ°;
             if (!$serialNumbers) $serialNumbers = array();
             $serialNumbers = is_array($serialNumbers) ? $serialNumbers : array($serialNumbers);
             $item->serial_numbers = implode("\n", $serialNumbers);
