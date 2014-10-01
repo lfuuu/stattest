@@ -42,7 +42,7 @@
 		</tr>
 		<tr>
 			<td style="vertical-align: middle;">
-				<img src="{$g.bill_totals}" {if $region == 0}width=460px height=480px{/if}>
+				<img src="{$g.bill_totals}">
 			</td>
 			{if $region != 0}
 				</tr>
