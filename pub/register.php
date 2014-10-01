@@ -9,6 +9,6 @@
 	//$modules->GetMain($module,$action,null);
 	$reg = new m_register();
 	$reg->GetMain($action);
-	header('Content-Type: text/html; charset=koi8-r');
+	header('Content-Type: text/html; charset=utf-8');
 	$design->Process();
 ?>

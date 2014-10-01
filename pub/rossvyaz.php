@@ -30,8 +30,8 @@ function parse_rossvyaz($filename)
 
       if (strlen($r[6]) > $l) $l = strlen($r[6]);
 
-      $r[5] = pg_escape_string(iconv('windows-1251', 'koi8-r', $r[5]));
-      $r[6] = pg_escape_string(iconv('windows-1251', 'koi8-r', $r[6]));
+      $r[5] = pg_escape_string(iconv('windows-1251', 'utf-8', $r[5]));
+      $r[6] = pg_escape_string(iconv('windows-1251', 'utf-8', $r[6]));
 
       $q .= "('{$r[1]}','{$r[2]}','{$r[3]}','{$r[4]}','{$r[5]}','{$r[6]}')";
     }

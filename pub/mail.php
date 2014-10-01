@@ -1,5 +1,5 @@
 <?
-	//для просмотра клиентами того, что было отправлено через модуль mail
+	//РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР° РєР»РёРµРЅС‚Р°РјРё С‚РѕРіРѕ, С‡С‚Рѕ Р±С‹Р»Рѕ РѕС‚РїСЂР°РІР»РµРЅРѕ С‡РµСЂРµР· РјРѕРґСѓР»СЊ mail
 
 	define("PATH_TO_ROOT",'../');
 	include PATH_TO_ROOT."conf.php";
@@ -18,7 +18,7 @@
 
 		$design->assign('emailed',1);
 		$_GET = $R; $module_newaccounts->newaccounts_bill_print('');
-		header('Content-Type: text/html; charset=koi8-r');
+		header('Content-Type: text/html; charset=utf-8');
 		$design->Process();
 	}
 ?>

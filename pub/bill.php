@@ -20,7 +20,7 @@
 	{
 		header('Content-Type: application/pdf');
 	}else {
-		header('Content-Type: text/html; charset=koi8-r');
+		header('Content-Type: text/html; charset=utf-8');
 	}
 	$design->Process();
 ?>

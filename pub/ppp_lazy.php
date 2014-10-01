@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>stat.mcn.ru/operator :: добавление PPPOE логина</title>
+<title>stat.mcn.ru/operator :: п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ PPPOE п╩п╬пЁп╦п╫п╟</title>
 <script language="JavaScript" type="text/javascript" src="/js/popup.js"></script>
 <style type="text/css">
 <!--
@@ -50,21 +50,21 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
     $login=$client.$affix;
     if(strcmp($ip,"")==0)
     {
-	echo "У клиента $client нет ни одного PPPOE логина.<br>";
-	echo "Обратитесь к администратору для заведения нового логина.<br>";
+	echo "пё п╨п╩п╦п╣п╫я┌п╟ $client п╫п╣я┌ п╫п╦ п╬п╢п╫п╬пЁп╬ PPPOE п╩п╬пЁп╦п╫п╟.<br>";
+	echo "п·п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─я┐ п╢п╩я▐ п╥п╟п╡п╣п╢п╣п╫п╦я▐ п╫п╬п╡п╬пЁп╬ п╩п╬пЁп╦п╫п╟.<br>";
 	exit;
     }
     $sip=explode(".",$ip);
     if($sip[3]>=254)
     {
-	echo "Невозможно выделить следующий IP адрес для клиента $client.<br>";
-	echo "Обратитесь к администратору для заведения нового логина.<br>";
+	echo "п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╡я▀п╢п╣п╩п╦я┌я▄ я│п╩п╣п╢я┐я▌я┴п╦п╧ IP п╟п╢я─п╣я│ п╢п╩я▐ п╨п╩п╦п╣п╫я┌п╟ $client.<br>";
+	echo "п·п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─я┐ п╢п╩я▐ п╥п╟п╡п╣п╢п╣п╫п╦я▐ п╫п╬п╡п╬пЁп╬ п╩п╬пЁп╦п╫п╟.<br>";
 	exit;
     }
     $sip[3]++;
     $ip=implode(".",$sip);
 ?>
-<center><b>новое подключение PPPOE</b></center>
+<center><b>п╫п╬п╡п╬п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ PPPOE</b></center>
 <form method=GET action=ppp_lazy.php>
 <input type=hidden name='action' value='do_add'>
 <input type=hidden name='client' value='<? echo $client ?>'>
@@ -90,7 +90,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    IP-адрес
+	    IP-п╟п╢я─п╣я│
 	</td>
 	<td BGCOLOR="#C5D6E3">
 	    <?php echo $ip ?>
@@ -107,7 +107,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 </table>
 <br>
 <center>
-<input type=submit value='Добавить'>
+<input type=submit value='п■п╬п╠п╟п╡п╦я┌я▄'>
 </center>
 </form>
 <?
@@ -125,11 +125,11 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 	if (!($result = mysql_query($req,$GLOBALS['dbh'])))
     	    {echo "can't write to database!<br>$req"; exit;}
 ?>
-Новое PPPOE подключение зарегистрировано.<br>
-Клиент: <B><? echo $client ?></B><BR>
-Логин: <B><? echo $login ?></B><BR>
-Пароль: <B><? echo $password ?></B><BR>
-<a href='javascript:self.close()';>закрыть окно</a>
+п²п╬п╡п╬п╣ PPPOE п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫п╬.<br>
+п п╩п╦п╣п╫я┌: <B><? echo $client ?></B><BR>
+п⌡п╬пЁп╦п╫: <B><? echo $login ?></B><BR>
+п÷п╟я─п╬п╩я▄: <B><? echo $password ?></B><BR>
+<a href='javascript:self.close()';>п╥п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a>
 <?
     }
 ?>

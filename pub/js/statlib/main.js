@@ -34,7 +34,7 @@ statlib.modules.clients.create.findByInn = function(ev){
 						document.getElementsByName(i)[0].parentNode.previousSibling.firstChild.setAttribute('color', 'gray')
 				}
 			}
-			document.getElementsByName('bank_properties')[0].value = 'р/с '+cl['pay_acc']+' '+cl['bank_name']+' '+cl['bank_city']+', к/с '+cl['corr_acc']
+			document.getElementsByName('bank_properties')[0].value = 'я─/я│ '+cl['pay_acc']+' '+cl['bank_name']+' '+cl['bank_city']+', п╨/я│ '+cl['corr_acc']
 
 			el = document.getElementsByName('type')[0].firstChild
 			while(true){
@@ -63,10 +63,10 @@ statlib.modules.clients.create.findByBik = function(ev){
 			var cl,i
 			eval('cl = '+data)
 			if(!cl){
-				$(target.parentNode.previousSibling).css('color', 'red').css("font-weight", "bold").attr("title", "БИК не найден!");
+				$(target.parentNode.previousSibling).css('color', 'red').css("font-weight", "bold").attr("title", "п▒п≤п  п╫п╣ п╫п╟п╧п╢п╣п╫!");
 				return false
 			}
-		    $(target.parentNode.previousSibling).css('color', 'black').attr("title", "БИК найден!");
+		    $(target.parentNode.previousSibling).css('color', 'black').attr("title", "п▒п≤п  п╫п╟п╧п╢п╣п╫!");
 			for(i in cl){
 				if(document.getElementsByName(i)){
 					document.getElementsByName(i)[0].value = cl[i]
@@ -74,13 +74,13 @@ statlib.modules.clients.create.findByBik = function(ev){
 			}
       var pay_acc = document.getElementsByName('pay_acc')[0].value.trim();
       if (pay_acc == '')pay_acc = '__________________';
-			document.getElementsByName('bank_properties')[0].value = 'р/с '+pay_acc+' '+cl['bank_name']+' '+cl['bank_city']+', к/с '+cl['corr_acc']
+			document.getElementsByName('bank_properties')[0].value = 'я─/я│ '+pay_acc+' '+cl['bank_name']+' '+cl['bank_city']+', п╨/я│ '+cl['corr_acc']
 		})
 	}, 700, e, e.target)
 }
 statlib.modules.clients.create.findByBik.Timer = null
 
-//проверка ИНН КПП и Типа клиента
+//п©я─п╬п╡п╣я─п╨п╟ п≤п²п² п п÷п÷ п╦ п╒п╦п©п╟ п╨п╩п╦п╣п╫я┌п╟
 statlib.modules.clients.create.checkTIK = function(){
 	var inn, kpp, t
 	t = document.getElementById('cl_type_org').selected
@@ -93,7 +93,7 @@ statlib.modules.clients.create.checkTIK = function(){
 
     if (company.value.trim() == "")
     {
-        alert("Название компании обязательно!");
+        alert("п²п╟п╥п╡п╟п╫п╦п╣ п╨п╬п╪п©п╟п╫п╦п╦ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╬!");
         company.focus();
         return false;
     }
@@ -103,7 +103,7 @@ statlib.modules.clients.create.checkTIK = function(){
 	var kpp = document.getElementById('cl_kpp');
 
 	if(!inn.value || !kpp.value){
-		alert('При типе организации ЮрЛицо(org) необходимо указать ИНН и КПП');
+		alert('п÷я─п╦ я┌п╦п©п╣ п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦ п╝я─п⌡п╦я├п╬(org) п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ я┐п╨п╟п╥п╟я┌я▄ п≤п²п² п╦ п п÷п÷');
 
         if (!inn.value)
         {
@@ -154,35 +154,35 @@ statlib.modules.newaccounts.mk1cBill.findProduct = function(ev){
 			thead.appendChild(th)
 
 			th = document.createElement('th')
-			th.appendChild(document.createTextNode('ОтвОтдел'))
-            th.setAttribute("title", "Ответственный отдел");
+			th.appendChild(document.createTextNode('п·я┌п╡п·я┌п╢п╣п╩'))
+            th.setAttribute("title", "п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧ п╬я┌п╢п╣п╩");
 			thead.appendChild(th)
 
 			th = document.createElement('th')
-			th.appendChild(document.createTextNode('Артикул'))
+			th.appendChild(document.createTextNode('п░я─я┌п╦п╨я┐п╩'))
 			thead.appendChild(th)
 
 			th = document.createElement('th')
 			th.appendChild(document.createTextNode('**'))
-            th.setAttribute("title", "Характеристика товара");
+            th.setAttribute("title", "п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟ я┌п╬п╡п╟я─п╟");
 			thead.appendChild(th)
 
 			th = document.createElement('th')
-			th.appendChild(document.createTextNode('Наименование'))
+			th.appendChild(document.createTextNode('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣'))
 			thead.appendChild(th)
 
 			th = document.createElement('th')
-            var tn = document.createTextNode('Количество*');
-            th.setAttribute("title", "доступно / склад / дальний склад");
+            var tn = document.createTextNode('п п╬п╩п╦я┤п╣я│я┌п╡п╬*');
+            th.setAttribute("title", "п╢п╬я│я┌я┐п©п╫п╬ / я│п╨п╩п╟п╢ / п╢п╟п╩я▄п╫п╦п╧ я│п╨п╩п╟п╢");
 			th.appendChild(tn);
 			thead.appendChild(th)
 
 			th = document.createElement('th')
-            var tn = document.createTextNode('Склад');
+            var tn = document.createTextNode('п║п╨п╩п╟п╢');
 			thead.appendChild(th)
 
 			th = document.createElement('th')
-			th.appendChild(document.createTextNode('Цена за единицу'))
+			th.appendChild(document.createTextNode('п╕п╣п╫п╟ п╥п╟ п╣п╢п╦п╫п╦я├я┐'))
 			thead.appendChild(th)
 
 			tbody = document.createElement('tbody')
@@ -228,7 +228,7 @@ statlib.modules.newaccounts.mk1cBill.findProduct = function(ev){
 				a.appendChild(document.createTextNode(d[i]['name']))
 				a.onclick = statlib.modules.newaccounts.mk1cBill.findProduct.fixProd(i,d)
 
-                // товары с нулевой ценой можно теперь выбирать
+                // я┌п╬п╡п╟я─я▀ я│ п╫я┐п╩п╣п╡п╬п╧ я├п╣п╫п╬п╧ п╪п╬п╤п╫п╬ я┌п╣п©п╣я─я▄ п╡я▀п╠п╦я─п╟я┌я▄
 				//if(parseInt(d[i]['price'])) // && (d[i]['is_service'] || parseInt(d[i]['quantity'])))
 					td.appendChild(a)
 				//else
@@ -252,19 +252,19 @@ statlib.modules.newaccounts.mk1cBill.findProduct = function(ev){
 
 				td = document.createElement('td');
                 if(d[i]['store'] == "yes"){
-                    td.innerHTML = '<b style="color: green;">Склад</b>';
+                    td.innerHTML = '<b style="color: green;">п║п╨п╩п╟п╢</b>';
                 }else
                     if(d[i]['store'] == "no"){
-                        td.innerHTML = '<b style="color: blue;">Заказ</b>';
+                        td.innerHTML = '<b style="color: blue;">п≈п╟п╨п╟п╥</b>';
                     }else
                     if(d[i]['store'] == "remote"){
-                        td.innerHTML = '<b style="color: #c40000;">ДалСклад</b>';
+                        td.innerHTML = '<b style="color: #c40000;">п■п╟п╩п║п╨п╩п╟п╢</b>';
                     }
 				tr.appendChild(td)
 
 				td = document.createElement('td')
 				td.style.textAlign = "left"
-				td.appendChild(document.createTextNode(d[i]['price']+'р'))
+				td.appendChild(document.createTextNode(d[i]['price']+'я─'))
 				tr.appendChild(td)
 				if(parseInt(d[i]['price'])) // && (parseInt(document.getElementsByName('is_rollback')[0].value) || d[i]['is_service'] || parseInt(d[i]['quantity'])))
 					td.onclick = statlib.modules.newaccounts.mk1cBill.findProduct.fixProd(i,d)
@@ -292,7 +292,7 @@ statlib.modules.newaccounts.bill_list_full.simple_tooltip = function (target_ite
 	$(target_items).each(function(i){
 		var id = $(this).attr('id');
 		var timeout = null;
-		$("body").append('<div class="'+name+'" id="tt_'+id+'"><p><img src="images/icons/delete.gif" alt="Удалить" ></p></div>');
+		$("body").append('<div class="'+name+'" id="tt_'+id+'"><p><img src="images/icons/delete.gif" alt="пёп╢п╟п╩п╦я┌я▄" ></p></div>');
 		var my_tooltip = $("#tt_"+id);
 
 		$(this).removeAttr("title").mouseover(function(){
@@ -306,7 +306,7 @@ statlib.modules.newaccounts.bill_list_full.simple_tooltip = function (target_ite
 		});
 
 		my_tooltip.click(function(){
-			if (confirm("Вы уверены, что хотите удалить документ?")) {
+			if (confirm("п▓я▀ я┐п╡п╣я─п╣п╫я▀, я┤я┌п╬ я┘п╬я┌п╦я┌п╣ я┐п╢п╟п╩п╦я┌я▄ п╢п╬п╨я┐п╪п╣п╫я┌?")) {
 				$.ajax({
 					type:"GET",
 					url:"./",
@@ -362,7 +362,7 @@ statlib.prepareAjaxSubmittingForm = function(formId, buttonId) {
 					showErrorModal(responce);
 				}
 			}).fail(function(responce){
-				showErrorModal('Ошибка при отправке формы');
+				showErrorModal('п·я┬п╦п╠п╨п╟ п©я─п╦ п╬я┌п©я─п╟п╡п╨п╣ я└п╬я─п╪я▀');
 			});
 	});
 }

@@ -93,7 +93,7 @@ function options_waiting(id,add_first) {
 	}
 	if (add_first) {
 		var opt = document.createElement("OPTION");
-		opt.innerHTML = "загрузка...";
+		opt.innerHTML = "п╥п╟пЁя─я┐п╥п╨п╟...";
 		opt.value = "";
 		obj.appendChild(opt);
 	}
@@ -219,8 +219,8 @@ function form_ip_ports_get_ports() {
 
 function form_cpe_get_clients(first_load) { 
 	var id_modelval=document.getElementById('id_model').value;
-	document.getElementById('deposit_sumRUR').title='загрузка...';
-	document.getElementById('deposit_sumUSD').title='загрузка...';
+	document.getElementById('deposit_sumRUR').title='п╥п╟пЁя─я┐п╥п╨п╟...';
+	document.getElementById('deposit_sumUSD').title='п╥п╟пЁя─я┐п╥п╨п╟...';
 	options_waiting('client',id_modelval);
 	var req = new Subsys_JsHttpRequest_Js();
 	req.onreadystatechange = function() {
@@ -326,7 +326,7 @@ function __form_get(id, tarif_table) {
 		var id=document.getElementById('tarif_id').value;
 	}
 	if (!id) return;
-	document.getElementById('async_price').value='загрузка...';
+	document.getElementById('async_price').value='п╥п╟пЁя─я┐п╥п╨п╟...';
 	var req = new Subsys_JsHttpRequest_Js();
 	req.onreadystatechange = function() {
 		if (req.readyState == 4 && req.responseJS) {
