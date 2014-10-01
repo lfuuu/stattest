@@ -81,7 +81,7 @@ foreach ($db_ats->AllRecords("SELECT client_id FROM `a_virtpbx` where is_started
 
         } catch (Exception $exc)
         {
-            echo "*******Error: ".$exc->getCode().": ".Encoding::toUTF8($exc->getMessage());
+            echo "*******Error: ".$exc->getCode().": ".$exc->getMessage();
             break;
         }
 

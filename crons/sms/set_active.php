@@ -1,5 +1,5 @@
 <?php
-define('QUERY_PACKET_SIZE_LIMIT', (1024*1024)*15 ); //15íÂ
+define('QUERY_PACKET_SIZE_LIMIT', (1024*1024)*15 ); //15ÐœÐ±
 define('PATH_TO_ROOT','../../');
 include PATH_TO_ROOT."conf.php";
 
@@ -20,7 +20,7 @@ echo "\n".date("r");
         if (!$res)
             throw new Exception(mysql_error());
 
-        $res = mysql_query("set names koi8r",$thiamis);
+        $res = mysql_query("set names utf8",$thiamis);
         if (!$res)
             throw new Exception(mysql_error());
 
