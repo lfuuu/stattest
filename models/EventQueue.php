@@ -5,7 +5,11 @@ class EventQueue extends ActiveRecord\Model
 
     public function getUnhandledEvents()
     {
-        return self::find("all", array("conditions" => array("is_handled" => 0, "is_stoped" => 0)));
+        return self::find("all", array(
+            "conditions" => array("is_handled" => 0, "is_stoped" => 0),
+            "order" => "id"
+            )
+        );
     }
 
     public function setHandled()

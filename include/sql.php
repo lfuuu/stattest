@@ -55,6 +55,7 @@ class MySQLDatabase {
                 echo "can't use database"; exit;
                 return 0;
             }
+            $this->Query("set names utf8");
 
 		}
         return $this->_LinkId;
