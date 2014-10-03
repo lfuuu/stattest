@@ -1,17 +1,17 @@
 <?
 class m_employeers {	
 	var $rights=array(
-					'employeers'		=>array('Сотрудники','r','чтение')
+					'employeers'		=>array('п║п╬я┌я─я┐п╢п╫п╦п╨п╦','r','я┤я┌п╣п╫п╦п╣')
 				);
 	var $actions=array(
 					'default'		=> array('employeers','r'),
 					'couriers'		=> array('employeers','r'),
 				);
 
-	//содержимое левого меню. array(название; действие (для проверки прав доступа); доп. параметры - строкой, начинающейся с & (при необходимости); картиночка ; доп. текст)
+	//я│п╬п╢п╣я─п╤п╦п╪п╬п╣ п╩п╣п╡п╬пЁп╬ п╪п╣п╫я▌. array(п╫п╟п╥п╡п╟п╫п╦п╣; п╢п╣п╧я│я┌п╡п╦п╣ (п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п©я─п╟п╡ п╢п╬я│я┌я┐п©п╟); п╢п╬п©. п©п╟я─п╟п╪п╣я┌я─я▀ - я│я┌я─п╬п╨п╬п╧, п╫п╟я┤п╦п╫п╟я▌я┴п╣п╧я│я▐ я│ & (п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦); п╨п╟я─я┌п╦п╫п╬я┤п╨п╟ ; п╢п╬п©. я┌п╣п╨я│я┌)
 	var $menu=array(
-					array('Сотрудники',		'default',	''),
-					array('Курьеры',		'couriers',	''),
+					array('п║п╬я┌я─я┐п╢п╫п╦п╨п╦',		'default',	''),
+					array('п я┐я─я▄п╣я─я▀',		'couriers',	''),
 				);
 
 	function m_employeers(){	
@@ -30,7 +30,7 @@ class m_employeers {
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=employeers&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (count($R)>0){
-			$design->AddMenu('Сотрудники',$R);
+			$design->AddMenu('п║п╬я┌я─я┐п╢п╫п╦п╨п╦',$R);
 		}
 	}
 
@@ -49,13 +49,13 @@ class m_employeers {
 		$cuser=get_param_protected('user');
 		if ($cuser) {
 			$db->Query('select * from user_users where user="'.$cuser.'"');
-			if (!($r=$db->NextRecord())) trigger_error("Такого пользователя не существует");
+			if (!($r=$db->NextRecord())) trigger_error("п╒п╟п╨п╬пЁп╬ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
 			$cgroup=$r['usergroup'];	
 			$design->assign('emp_user',$r);
 		}
 		if ($cgroup){
 			$db->Query('select * from user_groups where usergroup="'.$cgroup.'"');
-			if (!($r=$db->NextRecord())) trigger_error("Такой группы не существует");
+			if (!($r=$db->NextRecord())) trigger_error("п╒п╟п╨п╬п╧ пЁя─я┐п©п©я▀ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
 			$design->assign('emp_group',$r);
 			
  			$db->Query('select * from user_users where usergroup="'.$cgroup.'"');
@@ -123,13 +123,13 @@ class m_employeers {
             if (empty($getName))
             {
                 $error = true;
-                trigger_error("Имя не должно быть пустым");
+                trigger_error("п≤п╪я▐ п╫п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪");
             }else{
                 $db->Query("select id from courier where name = '".$getName."' and id != '".$getId."'");
                 $r=$db->NextRecord();
                 if ($r){
                     $error = true;
-                    trigger_error("Такое имя уже есть");
+                    trigger_error("п╒п╟п╨п╬п╣ п╦п╪я▐ я┐п╤п╣ п╣я│я┌я▄");
                 }
             }
 
@@ -138,13 +138,13 @@ class m_employeers {
                 if($r = $db->GetValue("select name from courier where all4geo ='".$getAll4geo."' and id != '".$getId."' and enabled='yes'"))
                 {
                     $error = true;
-                    trigger_error("Введенный All4Geo Ид используется у: ".$r);
+                    trigger_error("п▓п╡п╣п╢п╣п╫п╫я▀п╧ All4Geo п≤п╢ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┐: ".$r);
                 }
             }
 
             if($getPhone && !ereg("^79[0-9]{9}$", $getPhone)){
                 $error = true;
-                trigger_error("Не верный формат телефонного номера (79ххххххххх)");
+                trigger_error("п²п╣ п╡п╣я─п╫я▀п╧ я└п╬я─п╪п╟я┌ я┌п╣п╩п╣я└п╬п╫п╫п╬пЁп╬ п╫п╬п╪п╣я─п╟ (79я┘я┘я┘я┘я┘я┘я┘я┘я┘)");
             }
 
             if ($error)

@@ -1,5 +1,5 @@
-<H2>Группы</H2>
-<H3>Изменение группы {$usergroup.usergroup}:</H3>
+<H2>п⌠я─я┐п©п©я▀</H2>
+<H3>п≤п╥п╪п╣п╫п╣п╫п╦п╣ пЁя─я┐п©п©я▀ {$usergroup.usergroup}:</H3>
 <FORM action="?" method=post>
 <input type=hidden name=action value=edit>
 <input type=hidden name=module value=users>
@@ -9,7 +9,7 @@
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TR><TD class=left>Группа:</TD><TD>
+          <TR><TD class=left>п⌠я─я┐п©п©п╟:</TD><TD>
 {if access('users','change')}
           <input name=newusergroup class=text value='{$usergroup.usergroup}'>
 {else}
@@ -17,7 +17,7 @@
 {/if}
           </TD></TR>
           
-          <TR><TD class=left>Комментарий:</TD><TD>
+          <TR><TD class=left>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧:</TD><TD>
 {if access('users','change')}
           <input name=comment class=text value='{$usergroup.comment}'>
 {else}
@@ -28,7 +28,7 @@
           </TBODY></TABLE>
 
 {if access('users','grant')}
-<H2>Права доступа</H2>
+<H2>п÷я─п╟п╡п╟ п╢п╬я│я┌я┐п©п╟</H2>
       <TABLE cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
 {foreach from=$rights item=supitem key=supkey name=outer}
@@ -63,6 +63,6 @@
 {/if}
 
 {if access('users','change')}
-<DIV align=center><INPUT class=button type=submit value="Изменить"></DIV>
+<DIV align=center><INPUT class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 {/if}
 </FORM>

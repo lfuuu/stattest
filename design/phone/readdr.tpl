@@ -1,15 +1,15 @@
-<H2>Виртуальная АТС</H2>
-<H3>Переадресация</H3>
-В выбранное время звонки будут направляться на указанный Вами номер.<br>
+<H2>п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║</H2>
+<H3>п÷п╣я─п╣п╟п╢я─п╣я│п╟я├п╦я▐</H3>
+п▓ п╡я▀п╠я─п╟п╫п╫п╬п╣ п╡я─п╣п╪я▐ п╥п╡п╬п╫п╨п╦ п╠я┐п╢я┐я┌ п╫п╟п©я─п╟п╡п╩я▐я┌я▄я│я▐ п╫п╟ я┐п╨п╟п╥п╟п╫п╫я▀п╧ п▓п╟п╪п╦ п╫п╬п╪п╣я─.<br>
 
 {if count($phone_readdr)}
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
-<TR><td colspan=2 style='background:none'>&nbsp;</td><td class=header colspan=7>Дни недели</td>
-		<td class=header colspan=2>Время</td>
+<TR><td colspan=2 style='background:none'>&nbsp;</td><td class=header colspan=7>п■п╫п╦ п╫п╣п╢п╣п╩п╦</td>
+		<td class=header colspan=2>п▓я─п╣п╪я▐</td>
 		<td colspan=1 style='background:none'>&nbsp;</td></TR>
-<TR><td>&nbsp;</TD><td class=header>Номер</td><td class=header>пн</td><td class=header>вт</td><td class=header>ср</td><td class=header>чт</td><td class=header>пт</td><td class=header>сб</td><td class=header>вс</td>
-		<td class=header>От</td>
-		<td class=header>До</td>
+<TR><td>&nbsp;</TD><td class=header>п²п╬п╪п╣я─</td><td class=header>п©п╫</td><td class=header>п╡я┌</td><td class=header>я│я─</td><td class=header>я┤я┌</td><td class=header>п©я┌</td><td class=header>я│п╠</td><td class=header>п╡я│</td>
+		<td class=header>п·я┌</td>
+		<td class=header>п■п╬</td>
 		<td>&nbsp;</TD></TR>
 {foreach from=$phone_readdr item=item name=outer}
 <TR class={cycle values="even,odd"}><FORM action="?" method=post name=form>
@@ -27,21 +27,21 @@
 <td><input type=checkbox name=day6 value=1{if $item.day6} checked{/if}></td>
 <TD><input style='width:60px' type=text class=text name=time_from value="{$item.time_from}"></td>
 <TD><input style='width:60px' type=text class=text name=time_to value="{$item.time_to}"></td>
-<td><a href='#' onclick='if (this.parentNode.parentNode.nodeName=="FORM") this.parentNode.parentNode.submit(); else this.parentNode.parentNode.childNodes[0].submit();'>изменить</a> <a href='?module=phone&action=readdr_del&id={$item.id}'>удалить</a></td>
+<td><a href='#' onclick='if (this.parentNode.parentNode.nodeName=="FORM") this.parentNode.parentNode.submit(); else this.parentNode.parentNode.childNodes[0].submit();'>п╦п╥п╪п╣п╫п╦я┌я▄</a> <a href='?module=phone&action=readdr_del&id={$item.id}'>я┐п╢п╟п╩п╦я┌я▄</a></td>
 </form>
 </tr>
 {/foreach}
 </table>
 {/if}
 
-<h3>Добавить</h3>
+<h3>п■п╬п╠п╟п╡п╦я┌я▄</h3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
-<TR><td colspan=2 style='background:none'>&nbsp;</td><td class=header colspan=7>Дни недели</td>
-		<td class=header colspan=2>Время</td>
+<TR><td colspan=2 style='background:none'>&nbsp;</td><td class=header colspan=7>п■п╫п╦ п╫п╣п╢п╣п╩п╦</td>
+		<td class=header colspan=2>п▓я─п╣п╪я▐</td>
 		<td colspan=1 style='background:none'>&nbsp;</td></TR>
-<TR><td>&nbsp;</TD><td class=header>Номер</td><td class=header>пн</td><td class=header>вт</td><td class=header>ср</td><td class=header>чт</td><td class=header>пт</td><td class=header>сб</td><td class=header>вс</td>
-		<td class=header>От</td>
-		<td class=header>До</td>
+<TR><td>&nbsp;</TD><td class=header>п²п╬п╪п╣я─</td><td class=header>п©п╫</td><td class=header>п╡я┌</td><td class=header>я│я─</td><td class=header>я┤я┌</td><td class=header>п©я┌</td><td class=header>я│п╠</td><td class=header>п╡я│</td>
+		<td class=header>п·я┌</td>
+		<td class=header>п■п╬</td>
 		<td>&nbsp;</TD></TR>
 <TR class=odd>
 <FORM action="?" method=post>
@@ -59,7 +59,7 @@
 <td><input type=checkbox name=day6 value=1 checked></td>
 <TD><input style='width:60px' type=text class=text name=time_from value=""></td>
 <TD><input style='width:60px' type=text class=text name=time_to value=""></td>
-<td><input type=submit class=button value='Добавить'></td>
+<td><input type=submit class=button value='п■п╬п╠п╟п╡п╦я┌я▄'></td>
 </form>
 </tr>
 </table>

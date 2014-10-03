@@ -1,11 +1,11 @@
-<center><h1>Пересчет звонков клиента {$client}</h1></center>
+<center><h1>п÷п╣я─п╣я│я┤п╣я┌ п╥п╡п╬п╫п╨п╬п╡ п╨п╩п╦п╣п╫я┌п╟ {$client}</h1></center>
 
 <form action="" method="get">
 	<input type="hidden" name="module" value="stats" />
 	<input type="hidden" name="action" value="recalcalls" />
 	<table>
 		<tr>
-			<td>Дата</td>
+			<td>п■п╟я┌п╟</td>
 			<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$checks.dates.from_y}</select></td>
 			<td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$checks.dates.from_m}</select></td>
 			<td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$checks.dates.from_d}</select></td>
@@ -15,7 +15,7 @@
 			<td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$checks.dates.to_d}</select></td>
 		</tr>
 		<tr>
-			<td>Подключения</td>
+			<td>п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</td>
 			<td colspan="7">
 				<select name="conns[]" multiple="multiple" size="{$conns_count}">
 				{foreach from=$conns item='c'}
@@ -36,26 +36,26 @@
 		<td colspan="8">
 			<input type="hidden" name="u_{$usage_id}_freesec" value="{$ucalls.free.diftime}" />
 			<input type="hidden" name="u_{$usage_id}_addsum" value="{$ucalls.free.difsum}" />
-			Подключение: {$usage_id}<br />
-			Номер телефона: {$connections[$usage_id].e164}<br />
-			Количество линий: {$connections[$usage_id].no_of_lines}<br />
-			Время действия: {$connections[$usage_id].actual_from} - {$connections[$usage_id].actual_to}<br />
-			Количество бесплатных секунд: {$connections[$usage_id].free_sec}<br />
-			Использовано бесплатных секунд: {$connections[$usage_id].msk_length} / {$ucalls.free.retime}<br />
-			Сумма разговоров: {$connections[$usage_id].all_cost} / {$ucalls.free.resum|round:2} = {$ucalls.free.difsum|round:2}<br />
-			Валюта:	{if $connections[$usage_id].currency=='RUR'}рубли{else}usd{/if}<br />
-			Количество звонков с новой тарификацией: {$ucalls.free.recalc_count}
+			п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣: {$usage_id}<br />
+			п²п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟: {$connections[$usage_id].e164}<br />
+			п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╩п╦п╫п╦п╧: {$connections[$usage_id].no_of_lines}<br />
+			п▓я─п╣п╪я▐ п╢п╣п╧я│я┌п╡п╦я▐: {$connections[$usage_id].actual_from} - {$connections[$usage_id].actual_to}<br />
+			п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╠п╣я│п©п╩п╟я┌п╫я▀я┘ я│п╣п╨я┐п╫п╢: {$connections[$usage_id].free_sec}<br />
+			п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╬ п╠п╣я│п©п╩п╟я┌п╫я▀я┘ я│п╣п╨я┐п╫п╢: {$connections[$usage_id].msk_length} / {$ucalls.free.retime}<br />
+			п║я┐п╪п╪п╟ я─п╟п╥пЁп╬п╡п╬я─п╬п╡: {$connections[$usage_id].all_cost} / {$ucalls.free.resum|round:2} = {$ucalls.free.difsum|round:2}<br />
+			п▓п╟п╩я▌я┌п╟:	{if $connections[$usage_id].currency=='RUR'}я─я┐п╠п╩п╦{else}usd{/if}<br />
+			п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╡п╬п╫п╨п╬п╡ я│ п╫п╬п╡п╬п╧ я┌п╟я─п╦я└п╦п╨п╟я├п╦п╣п╧: {$ucalls.free.recalc_count}
 		</td>
 	</tr>
 	<tr>
-		<td>Идентификатор разговора</td>
-		<td>Длина разговора</td>
-		<td>Телефон</td>
-		<td>Дата и время</td>
-		<td>Сумма разговора</td>
-		<td>DEF код</td>
-		<td>Направление, группа</td>
-		<td>Направление, подгруппа</td>
+		<td>п≤п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ я─п╟п╥пЁп╬п╡п╬я─п╟</td>
+		<td>п■п╩п╦п╫п╟ я─п╟п╥пЁп╬п╡п╬я─п╟</td>
+		<td>п╒п╣п╩п╣я└п╬п╫</td>
+		<td>п■п╟я┌п╟ п╦ п╡я─п╣п╪я▐</td>
+		<td>п║я┐п╪п╪п╟ я─п╟п╥пЁп╬п╡п╬я─п╟</td>
+		<td>DEF п╨п╬п╢</td>
+		<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣, пЁя─я┐п©п©п╟</td>
+		<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣, п©п╬п╢пЁя─я┐п©п©п╟</td>
 	</tr>
 	{foreach from=$ucalls key='uid' item='call'}{if $uid<>'free'}
 	<tr>
@@ -76,38 +76,38 @@
 		</td>
 		<td>
 			<input type="hidden" name="s_{$uid}_dgroup" value="{$call.newdgroup}" />
-			{if $call.dgroup==0}Москва{elseif $call.dgroup==1}Россия{elseif $call.dgroup==3}Международное{else}{$call.dgroup}{/if}
+			{if $call.dgroup==0}п°п╬я│п╨п╡п╟{elseif $call.dgroup==1}п═п╬я│я│п╦я▐{elseif $call.dgroup==3}п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣{else}{$call.dgroup}{/if}
 			/
-			{if $call.newdgroup==0}Москва{elseif $call.newdgroup==1}Россия{elseif $call.newdgroup==3}Международное{else}{$call.newdgroup}{/if}
+			{if $call.newdgroup==0}п°п╬я│п╨п╡п╟{elseif $call.newdgroup==1}п═п╬я│я│п╦я▐{elseif $call.newdgroup==3}п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣{else}{$call.newdgroup}{/if}
 		</td>
 		<td>
 			<input type="hidden" name="s_{$uid}_dsubgroup" value="{$call.newdsubgroup}" />
 			{if $call.dsubgroup==0}
-				Мобильные
+				п°п╬п╠п╦п╩я▄п╫я▀п╣
 			{elseif $call.dsubgroup==1}
-				Стационарные/1 зона
+				п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣/1 п╥п╬п╫п╟
 			{elseif $call.dsubgroup==99}
-				Другие
+				п■я─я┐пЁп╦п╣
 			{elseif $call.dsubgroup==98}
-				Россия Фрифон
+				п═п╬я│я│п╦я▐ п╓я─п╦я└п╬п╫
 			{elseif $call.dsubgroup==97}
-				Международное Фрифон
+				п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣ п╓я─п╦я└п╬п╫
 			{else}
-				{$call.dsubgroup} зона
+				{$call.dsubgroup} п╥п╬п╫п╟
 			{/if}
 			/
 			{if $call.newdsubgroup==0}
-				Мобильные
+				п°п╬п╠п╦п╩я▄п╫я▀п╣
 			{elseif $call.newdsubgroup==1}
-				Стационарные/1 зона
+				п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣/1 п╥п╬п╫п╟
 			{elseif $call.newdsubgroup==99}
-				Другие
+				п■я─я┐пЁп╦п╣
 			{elseif $call.newdsubgroup==98}
-				Россия Фрифон
+				п═п╬я│я│п╦я▐ п╓я─п╦я└п╬п╫
 			{elseif $call.newdsubgroup==97}
-				Международное Фрифон
+				п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣ п╓я─п╦я└п╬п╫
 			{else}
-				{$call.newdsubgroup} зона
+				{$call.newdsubgroup} п╥п╬п╫п╟
 			{/if}
 		</td>
 	</tr>

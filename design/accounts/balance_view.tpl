@@ -1,7 +1,7 @@
-<h1>Просмотр таблицы баланса</h1>
+<h1>п÷я─п╬я│п╪п╬я┌я─ я┌п╟п╠п╩п╦я├я▀ п╠п╟п╩п╟п╫я│п╟</h1>
 
 <table border=1 cellspacing=0 cellpadding=4>
-	<tr><td>клиент</td><td>компания</td><td>сумма</td></tr>
+	<tr><td>п╨п╩п╦п╣п╫я┌</td><td>п╨п╬п╪п©п╟п╫п╦я▐</td><td>я│я┐п╪п╪п╟</td></tr>
 	{foreach from=$balance item=item key=key}
 	<TR>
 		<TD><A href="?module=accounts&action=accounts_report_balance&client={$item.client}&todo=show_payments" 

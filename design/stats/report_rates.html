@@ -5,11 +5,11 @@
 		<td align="center" colspan="3">
 			<table align="center">
 				<tr>
-					<td>Фильтры</td>
+					<td>п╓п╦п╩я▄я┌я─я▀</td>
 					<td>&nbsp;</td>
 					<td>
-						<div style="display:none;font-weight:bold" title="Свернуть" id="report_rate_filters_collapse"><a href="#" style="text-decoration:none" onclick="filters_folding(0);return false">&laquo;Свернуть&raquo;</a></div>
-						<div style="display:none;font-weight:bold" title="Развернуть" id="report_rate_filters_expand"><a href="#" style="text-decoration:none" onclick="filters_folding(1);return false">&laquo;Развернуть&raquo;</a></div>
+						<div style="display:none;font-weight:bold" title="п║п╡п╣я─п╫я┐я┌я▄" id="report_rate_filters_collapse"><a href="#" style="text-decoration:none" onclick="filters_folding(0);return false">&laquo;п║п╡п╣я─п╫я┐я┌я▄&raquo;</a></div>
+						<div style="display:none;font-weight:bold" title="п═п╟п╥п╡п╣я─п╫я┐я┌я▄" id="report_rate_filters_expand"><a href="#" style="text-decoration:none" onclick="filters_folding(1);return false">&laquo;п═п╟п╥п╡п╣я─п╫я┐я┌я▄&raquo;</a></div>
 					</td>
 				</tr>
 			</table>
@@ -18,12 +18,12 @@
 	</thead>
 	<tbody id="report_rate_filters_pane">
 	<tr class="odd">
-		<td>Дата</td>
+		<td>п■п╟я┌п╟</td>
 		<td colspan="2">
 			<table class="table_style">
 				<tr class="title">
-					<td colspan="3">С</td>
-					<td colspan="3">По</td>
+					<td colspan="3">п║</td>
+					<td colspan="3">п÷п╬</td>
 				</tr>
 				<tr>
 					<td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_y}</select></td>
@@ -38,30 +38,30 @@
 		</td>
 	</tr>
 	<tr class="even">
-		<td>Клиенты</td>
+		<td>п п╩п╦п╣п╫я┌я▀</td>
 		<td>
 			<table class="table_style" align="center">
-				<tr><td colspan="2">Строка поиска</td></tr>
+				<tr><td colspan="2">п║я┌я─п╬п╨п╟ п©п╬п╦я│п╨п╟</td></tr>
 				<tr><td colspan="2">
 					<input type="text" name="fclient[search]" value="{$client.search}" style="width:100%" />
 				</td></tr>
 				<tr>
-					<td>Точное совпадение:</td>
+					<td>п╒п╬я┤п╫п╬п╣ я│п╬п╡п©п╟п╢п╣п╫п╦п╣:</td>
 					<td><input type="checkbox" name="client_search[restrict]" value="1"{if $client.client_search.restrict eq 1} checked='checked'{/if} /></td>
 				</tr>
 				<tr>
-					<td>Поиск по Id клиента</td>
+					<td>п÷п╬п╦я│п╨ п©п╬ Id п╨п╩п╦п╣п╫я┌п╟</td>
 					<td><input type="radio" name="client_search[field]" value="client"{if !$client.client_search.field or $client.client_search.field eq 'client'} checked='checked'{/if} /></td>
 				</tr>
 				<tr>
-					<td>Поиск по названию компании клиента</td>
+					<td>п÷п╬п╦я│п╨ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ п╨п╬п╪п©п╟п╫п╦п╦ п╨п╩п╦п╣п╫я┌п╟</td>
 					<td><input type="radio" name="client_search[field]" value="company"{if $client.client_search.field eq 'company'} checked='checked'{/if} /></td>
 				</tr>
 			</table>
 		</td>
 		<td>
 			<table>
-				<tr><td>Статус</td></tr>
+				<tr><td>п║я┌п╟я┌я┐я│</td></tr>
 				<tr><td>
 					<select name="statuses[]" multiple>
 					{foreach from=$statuses item='s_ru' key='s_en'}
@@ -73,23 +73,23 @@
 		</td>
 	</tr>
 	<tr class="odd">
-		<td><a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');optools.friendly.checkAllInSelect('rates_voip[special][rur][]');optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');optools.friendly.checkAllInSelect('rates_voip[public][usd][]');optools.friendly.checkAllInSelect('rates_voip[special][usd][]');optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">Тарифы телефонии</a></td>
+		<td><a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');optools.friendly.checkAllInSelect('rates_voip[special][rur][]');optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');optools.friendly.checkAllInSelect('rates_voip[public][usd][]');optools.friendly.checkAllInSelect('rates_voip[special][usd][]');optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">п╒п╟я─п╦я└я▀ я┌п╣п╩п╣я└п╬п╫п╦п╦</a></td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');optools.friendly.checkAllInSelect('rates_voip[special][rur][]');optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');optools.friendly.checkAllInSelect('rates_voip[special][rur][]');optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');return false">п═я┐п╠п╩п╣п╡я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[special][rur][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -121,18 +121,18 @@
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][usd][]');optools.friendly.checkAllInSelect('rates_voip[special][usd][]');optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">Валютные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][usd][]');optools.friendly.checkAllInSelect('rates_voip[special][usd][]');optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">п▓п╟п╩я▌я┌п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][usd][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][usd][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[special][usd][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[special][usd][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -163,24 +163,24 @@
 	</tr>
 	<tr class="even">
 		<td>
-			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');optools.friendly.checkAllInSelect('rates_internet[special][rur][]');optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');optools.friendly.checkAllInSelect('rates_internet[public][usd][]');optools.friendly.checkAllInSelect('rates_internet[special][usd][]');optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">Тарифы интернет</a>
+			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');optools.friendly.checkAllInSelect('rates_internet[special][rur][]');optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');optools.friendly.checkAllInSelect('rates_internet[public][usd][]');optools.friendly.checkAllInSelect('rates_internet[special][usd][]');optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">п╒п╟я─п╦я└я▀ п╦п╫я┌п╣я─п╫п╣я┌</a>
 		</td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');optools.friendly.checkAllInSelect('rates_internet[special][rur][]');optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');optools.friendly.checkAllInSelect('rates_internet[special][rur][]');optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');return false">п═я┐п╠п╩п╣п╡я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[special][rur][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -212,18 +212,18 @@
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][usd][]');optools.friendly.checkAllInSelect('rates_internet[special][usd][]');optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">Валютные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][usd][]');optools.friendly.checkAllInSelect('rates_internet[special][usd][]');optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">п▓п╟п╩я▌я┌п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][usd][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][usd][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[special][usd][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[special][usd][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -254,24 +254,24 @@
 	</tr>
 	<tr class="odd">
 		<td>
-			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">Тарифы collocation</a>
+			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">п╒п╟я─п╦я└я▀ collocation</a>
 		</td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');return false">п═я┐п╠п╩п╣п╡я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -303,18 +303,18 @@
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">Валютные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">п▓п╟п╩я▌я┌п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -345,24 +345,24 @@
 	</tr>
 	<tr class="even">
 		<td>
-			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">Тарифы VPN</a>
+			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">п╒п╟я─п╦я└я▀ VPN</a>
 		</td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');return false">п═я┐п╠п╩п╣п╡я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -394,18 +394,18 @@
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">Валютные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">п▓п╟п╩я▌я┌п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');return false">п÷я┐п╠п╩п╦я┤п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');return false">п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">п░я─я┘п╦п╡п╫я▀п╣</a>
 					</td>
 				</tr>
 				<tr class="even">
@@ -435,15 +435,15 @@
 		</td>
 	</tr>
 	<tr class="odd">
-		<td>Дополнительно</td>
+		<td>п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬</td>
 		<td colspan="2">
 			<table class="table_style">
 				<tr>
-					<td>Суммы с НДС</td>
+					<td>п║я┐п╪п╪я▀ я│ п²п■п║</td>
 					<td><input type="checkbox" name="with_nds"{if $selected.with_nds} checked='checked'{/if} /></td>
 				</tr>
 				<tr>
-					<td>Группировать тарифы клиента в счет</td>
+					<td>п⌠я─я┐п©п©п╦я─п╬п╡п╟я┌я▄ я┌п╟я─п╦я└я▀ п╨п╩п╦п╣п╫я┌п╟ п╡ я│я┤п╣я┌</td>
 					<td><input type="checkbox" name="group_bill"{if $selected.group_bill} checked='checked'{/if} /></td>
 				</tr>
 			</table>

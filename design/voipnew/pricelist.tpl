@@ -7,32 +7,32 @@
 	{/foreach}
 	</select>
 	<select name="f_dest_group">
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-	<option value="0" {if $f_dest_group eq '0'} selected{/if}>Москва</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+	<option value="0" {if $f_dest_group eq '0'} selected{/if}>п°п╬я│п╨п╡п╟</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
 	</select>
 	<select name="f_country_id">
-	<option value="0">-- Все страны --</option>
+	<option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
 	{foreach from=$countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 	<select name="f_region_id">
-	<option value="0">-- Все регионы --</option>
+	<option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
 	{foreach from=$regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 
 
-	<input type=submit name="make" value="Сформировать"/>
-	<input type=submit name="export" value="Выгрузить"/>
+	<input type=submit name="make" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
+	<input type=submit name="export" value="п▓я▀пЁя─я┐п╥п╦я┌я▄"/>
 	
 	<div style="margin-bottom:5px;margin-left:700px;">
-	<label><input type=radio name=f_profit value=1 {if $f_profit eq '1'} checked{/if} />за 1 месяц</label>
-	<label><input type=radio name=f_profit value=6 {if $f_profit eq '6'} checked{/if} />за 6 месяцев</label>
+	<label><input type=radio name=f_profit value=1 {if $f_profit eq '1'} checked{/if} />п╥п╟ 1 п╪п╣я│я▐я├</label>
+	<label><input type=radio name=f_profit value=6 {if $f_profit eq '6'} checked{/if} />п╥п╟ 6 п╪п╣я│я▐я├п╣п╡</label>
 	</div>
 </form>
 
@@ -40,26 +40,26 @@
 
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-<tr><td class=header rowspan=2>Префикс номера</td><td class=header rowspan=2>Назначение</td>
+<tr><td class=header rowspan=2>п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟</td><td class=header rowspan=2>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</td>
 	{foreach from=$operators item='o'}
-		<td class=header colspan=3>Цена <b>{$o.name}</b></td>
+		<td class=header colspan=3>п╕п╣п╫п╟ <b>{$o.name}</b></td>
 	{/foreach}
-	<td class=header rowspan=2>Лучшая цена</td>
-	<td class=header rowspan=2>Объем<br/>(мин)</td>
-	<td class=header colspan=2>Прибыль</td>
-	<td class=header colspan=3><b>Наша цена</b></td>
+	<td class=header rowspan=2>п⌡я┐я┤я┬п╟я▐ я├п╣п╫п╟</td>
+	<td class=header rowspan=2>п·п╠я┼п╣п╪<br/>(п╪п╦п╫)</td>
+	<td class=header colspan=2>п÷я─п╦п╠я▀п╩я▄</td>
+	<td class=header colspan=3><b>п²п╟я┬п╟ я├п╣п╫п╟</b></td>
 </tr>
 <tr>
 	{foreach from=$operators item='o'}
-		<td class=header>прошл.</td>
-		<td class=header>тек.</td>
-		<td class=header>буд.</td>
+		<td class=header>п©я─п╬я┬п╩.</td>
+		<td class=header>я┌п╣п╨.</td>
+		<td class=header>п╠я┐п╢.</td>
 	{/foreach}
-		<td class=header>прошл.</td>
-		<td class=header>буд.</td>
-		<td class=header>прошл.</td>
-		<td class=header>тек.</td>
-		<td class=header>буд.</td>
+		<td class=header>п©я─п╬я┬п╩.</td>
+		<td class=header>п╠я┐п╢.</td>
+		<td class=header>п©я─п╬я┬п╩.</td>
+		<td class=header>я┌п╣п╨.</td>
+		<td class=header>п╠я┐п╢.</td>
 </tr>
 {foreach from=$report item='rd'}
 {if $rd.operators[999].price_before != '' && $rd.operators[999].price_before != $rd.operators[999].price }

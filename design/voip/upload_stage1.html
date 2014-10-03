@@ -5,15 +5,15 @@
 <input type="hidden" name="operator_id" value="{$operator_id}" />
 <table border="1">
 	<tr>
-		<td>DEF код</td>
-		<td>Пункт назначения</td>
-		<td>Направление, группа</td>
-		<td>Направление, подгруппа</td>
-		<td>Стац./Моб.</td>
-		<td>Цена</td>
-		<td>Валюта</td>
-		<td>Дата активации</td>
-		<td>доб./удал.</td>
+		<td>DEF п╨п╬п╢</td>
+		<td>п÷я┐п╫п╨я┌ п╫п╟п╥п╫п╟я┤п╣п╫п╦я▐</td>
+		<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣, пЁя─я┐п©п©п╟</td>
+		<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣, п©п╬п╢пЁя─я┐п©п©п╟</td>
+		<td>п║я┌п╟я├./п°п╬п╠.</td>
+		<td>п╕п╣п╫п╟</td>
+		<td>п▓п╟п╩я▌я┌п╟</td>
+		<td>п■п╟я┌п╟ п╟п╨я┌п╦п╡п╟я├п╦п╦</td>
+		<td>п╢п╬п╠./я┐п╢п╟п╩.</td>
 	</tr>
 	{foreach from=$defs item='d'}
 	<tr>
@@ -21,11 +21,11 @@
 		<td><input type="text" name="{$d.def}[dest]" value="{$d.dest}" /></td>
 		<td>
 			<select name="{$d.def}[dgroup]">
-				<option value="-1"{if $d.dgroup==-1} selected='selected'{/if}>Не определено</option>
-				<option value="0"{if $d.dgroup==0} selected='selected'{/if}>Москва</option>
-				<option value="1"{if $d.dgroup==1} selected='selected'{/if}>Россия</option>
-				<option value="2"{if $d.dgroup==2} selected='selected'{/if}>Зарубежное</option>
-				<option value="3"{if $d.dgroup==3} selected='selected'{/if}>СНГ</option>
+				<option value="-1"{if $d.dgroup==-1} selected='selected'{/if}>п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬</option>
+				<option value="0"{if $d.dgroup==0} selected='selected'{/if}>п°п╬я│п╨п╡п╟</option>
+				<option value="1"{if $d.dgroup==1} selected='selected'{/if}>п═п╬я│я│п╦я▐</option>
+				<option value="2"{if $d.dgroup==2} selected='selected'{/if}>п≈п╟я─я┐п╠п╣п╤п╫п╬п╣</option>
+				<option value="3"{if $d.dgroup==3} selected='selected'{/if}>п║п²п⌠</option>
 			</select>
 		</td>
 		<td>
@@ -35,13 +35,13 @@
 				{/foreach}
 			</select>
 		</td>
-		<td><input type="hidden" name="{$d.def}[fixormob]" value="{$d.fixormob}" />{if $d.fixormob == 'mob'}Мобильные{else}Стационарные{/if}</td>
+		<td><input type="hidden" name="{$d.def}[fixormob]" value="{$d.fixormob}" />{if $d.fixormob == 'mob'}п°п╬п╠п╦п╩я▄п╫я▀п╣{else}п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣{/if}</td>
 		<td><input type="hidden" name="{$d.def}[price]" value="{$d.price}" />{$d.price}</td>
 		<td><input type="hidden" name="{$d.def}[currency]" value="{$d.currency}" />{$d.currency}</td>
 		<td><input type="hidden" name="{$d.def}[activation]" value="{$d.activation}" />{$d.activation}</td>
-		<td><input type="hidden" name="{$d.def}[active]" value="{$d.active}" />{if $d.active=='Y'}Доб.{else}Удал.{/if}</td>
+		<td><input type="hidden" name="{$d.def}[active]" value="{$d.active}" />{if $d.active=='Y'}п■п╬п╠.{else}пёп╢п╟п╩.{/if}</td>
 	</tr>
 	{/foreach}
 </table>
-<input type="submit" name="submit" value="Загрузить" />
+<input type="submit" name="submit" value="п≈п╟пЁя─я┐п╥п╦я┌я▄" />
 </form>

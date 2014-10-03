@@ -47,7 +47,6 @@ $config = array(
     'SERVER'            =>    'tiberis',
     'PLATFORM'            =>    'unix',
     'DEBUG_LEVEL'        =>    1,
-    'DB_SETUP_COLLATES'    =>    1,
     'SMTP_SERVER'        =>     'smtp.mcn.ru',
     'MAIL_TEST_ONLY'    =>    0,
     
@@ -59,7 +58,7 @@ $config = array(
 $config = array_merge($config, require(dirname(__FILE__).'/local.conf.php'));
 
 if(!defined("NO_WEB")) {
-    header("Content-type:text/html; charset=koi8-r");
+    header("Content-type:text/html; charset=utf-8");
     header("X-XSS-Protection: 0");
 }
 
@@ -80,11 +79,8 @@ foreach ($config as $config_key=>$config_value) {
 }
 unset($config_key); unset($config_value);
 
-if (PLATFORM=="windows") {
-    setlocale(LC_CTYPE,'Russian_Russia.866');
-} else {
-    setlocale(LC_CTYPE,'ru_RU.koi8-r');
-}
+setlocale(LC_CTYPE,'ru_RU.utf-8');
+
 date_default_timezone_set("Asia/Dubai");
 
 ini_set('SMTP',SMTP_SERVER);
@@ -156,8 +152,8 @@ if (!defined('NO_INCLUDE')){
 
 ActiveRecord\Config::initialize(function($cfg) {
     $connections = array(
-        'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . '/' . SQL_DB . '?charset=koi8r',
-        'voip' => 'pgsql://' . PGSQL_USER . ':' . PGSQL_PASS . '@' . PGSQL_HOST . '/' . PGSQL_DB . '?charset=koi8r',
+        'db' => 'mysql://' . SQL_USER . ':' . SQL_PASS . '@' . SQL_HOST . '/' . SQL_DB . '?charset=utf8',
+        'voip' => 'pgsql://' . PGSQL_USER . ':' . PGSQL_PASS . '@' . PGSQL_HOST . '/' . PGSQL_DB . '?charset=utf8',
     );
 
     $cfg->set_model_directory(MODELS_PATH);

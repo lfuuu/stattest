@@ -1,7 +1,7 @@
 
 <div id='log_usage_history'>
 	<table cellpadding=4 cellspasing=4>
-		<tr><td>Дата/время</td><td>Пользователь</td><td>Изменение</td></tr>
+		<tr><td>п■п╟я┌п╟/п╡я─п╣п╪я▐</td><td>п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄</td><td>п≤п╥п╪п╣п╫п╣п╫п╦п╣</td></tr>
 		{foreach from=$dbform_log_usage_history item='log_rec'}
 			<tr>
 				<td><b>{$log_rec.ts}</b></td>

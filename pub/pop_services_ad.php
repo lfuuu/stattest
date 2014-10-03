@@ -2,7 +2,7 @@
 	define("PATH_TO_ROOT",'../');
 	include PATH_TO_ROOT."conf.php";
 	
-//ÁÕÔÅÎÔÉÆÉËÁÃÉÑ
+//Ð°ÑƒÑ‚ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ
 	$module=get_param_raw('module', 'users');
 	$action=get_param_raw('action',$module.'_default');
 	$user->DoAction($action);

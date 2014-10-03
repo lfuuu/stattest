@@ -1,8 +1,8 @@
 <form action="
 http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5" method=post target=_blank>
-<h2>Отослать файл "{$file_name}"</h2>
+<h2>п·я┌п╬я│п╩п╟я┌я▄ я└п╟п╧п╩ "{$file_name}"</h2>
 <table border=0>
-<tr><td>На адрес:</td><td>{html_options name=to options=$emails}</td></tr>
+<tr><td>п²п╟ п╟п╢я─п╣я│:</td><td>{html_options name=to options=$emails}</td></tr>
 </table>
 <input type=hidden name=file_content value="{$file_content}">
 <input type=hidden name=file_name value="{$file_name_send}">

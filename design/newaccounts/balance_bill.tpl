@@ -1,39 +1,39 @@
-<h2>Баланс по счетам</h2>
+<h2>п▒п╟п╩п╟п╫я│ п©п╬ я│я┤п╣я┌п╟п╪</h2>
 <form action='?' method=get>
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value="{$action}">
-<label for="r1">По менеджеру: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=radio name="user_type" id="r1" value="manager"{if $user_type == 'manager'} checked{/if}><br />
-<label for="r2">По создателю счета: </label><input type=radio name="user_type" id="r2" value="creator"{if $user_type != 'manager'} checked{/if}><font style="font-size: 8pt;">(так же последний редактировавший)</font><br />
-<label for="r3">Сводный: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><input type=radio name="user_type" id="r3" value="union"{if $user_type == 'union'} checked{/if}><font style="font-size: 8pt;">(по менеджеру+по создателю счета)</font><br />
+<label for="r1">п÷п╬ п╪п╣п╫п╣п╢п╤п╣я─я┐: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=radio name="user_type" id="r1" value="manager"{if $user_type == 'manager'} checked{/if}><br />
+<label for="r2">п÷п╬ я│п╬п╥п╢п╟я┌п╣п╩я▌ я│я┤п╣я┌п╟: </label><input type=radio name="user_type" id="r2" value="creator"{if $user_type != 'manager'} checked{/if}><font style="font-size: 8pt;">(я┌п╟п╨ п╤п╣ п©п╬я│п╩п╣п╢п╫п╦п╧ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╡я┬п╦п╧)</font><br />
+<label for="r3">п║п╡п╬п╢п╫я▀п╧: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><input type=radio name="user_type" id="r3" value="union"{if $user_type == 'union'} checked{/if}><font style="font-size: 8pt;">(п©п╬ п╪п╣п╫п╣п╢п╤п╣я─я┐+п©п╬ я│п╬п╥п╢п╟я┌п╣п╩я▌ я│я┤п╣я┌п╟)</font><br />
 
-<SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select>
-От <input type=text class=text name='date_from' id='date_from' value='{$date_from}'> до <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
-<input type=checkbox{if $b_nedopay} checked{/if} name=b_nedopay value=1>Оплаченные не полностью счета |
-Недоплата больше, чем рублей: <input type='text' name='p_nedopay' size=5 value='{if $p_nedopay}{$p_nedopay}{else}1{/if}'><br>
-<input type=checkbox{if $b_pay0} checked{/if} name=b_pay0 value=1>Показывать неоплаченные счета<br>
-<input type=checkbox{if $b_pay1} checked{/if} name=b_pay1 value=1>Показывать оплаченные счета<br>
+<SELECT name=manager><option value=''>п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select>
+п·я┌ <input type=text class=text name='date_from' id='date_from' value='{$date_from}'> п╢п╬ <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>
+<input type=checkbox{if $b_nedopay} checked{/if} name=b_nedopay value=1>п·п©п╩п╟я┤п╣п╫п╫я▀п╣ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌ я│я┤п╣я┌п╟ |
+п²п╣п╢п╬п©п╩п╟я┌п╟ п╠п╬п╩я▄я┬п╣, я┤п╣п╪ я─я┐п╠п╩п╣п╧: <input type='text' name='p_nedopay' size=5 value='{if $p_nedopay}{$p_nedopay}{else}1{/if}'><br>
+<input type=checkbox{if $b_pay0} checked{/if} name=b_pay0 value=1>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟<br>
+<input type=checkbox{if $b_pay1} checked{/if} name=b_pay1 value=1>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟<br>
 <br><br>
-<input type=checkbox{if $b_show_bonus} checked{/if} name=b_show_bonus value=1>Расчет бонусов<br>
+<input type=checkbox{if $b_show_bonus} checked{/if} name=b_show_bonus value=1>п═п╟я│я┤п╣я┌ п╠п╬п╫я┐я│п╬п╡<br>
 <br><br>
 
-Статусы клиентов:<br>
+п║я┌п╟я┌я┐я│я▀ п╨п╩п╦п╣п╫я┌п╬п╡:<br>
 {html_checkboxes name="cl_status" options=$l_status selected=$cl_status separator="<br />"}
-<input type=submit class=button value='Просмотр'>
+<input type=submit class=button value='п÷я─п╬я│п╪п╬я┌я─'>
 </form>
 {if isset($bills)}
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-<tr><th>&nbsp;</th><th>клиент</th><th>компания</th><th>дата/н счёта</th><th>счёт</th><th>сумма платежей</th>{if $b_show_bonus}<th>бонус</th>{/if}<th title="Менеджер клиента">М. клиента</th><th title="Менеджер счета">М. счета</th><th>&nbsp;</th></tr>
+<tr><th>&nbsp;</th><th>п╨п╩п╦п╣п╫я┌</th><th>п╨п╬п╪п©п╟п╫п╦я▐</th><th>п╢п╟я┌п╟/п╫ я│я┤я▒я┌п╟</th><th>я│я┤я▒я┌</th><th>я│я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╣п╧</th>{if $b_show_bonus}<th>п╠п╬п╫я┐я│</th>{/if}<th title="п°п╣п╫п╣п╢п╤п╣я─ п╨п╩п╦п╣п╫я┌п╟">п°. п╨п╩п╦п╣п╫я┌п╟</th><th title="п°п╣п╫п╣п╢п╤п╣я─ я│я┤п╣я┌п╟">п°. я│я┤п╣я┌п╟</th><th>&nbsp;</th></tr>
 {foreach from=$bills item=item key=key name=outer}<tr class={cycle values="even,odd"}>
 <td>{$smarty.foreach.outer.iteration}</td>
 <td{if $item.nal=='nal'} bgcolor='#FFC0C0'{else}{if $item.nal=='prov'} bgcolor='#C0C0FF'{/if}{/if}><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.client}'>{$item.client}</a></td>
 <td style='font-size:85%'>{$item.company}</td>
 <td{if !$item.f_currency} style="background-color: #c0ffc0;"{/if}>{$item.bill_date} - <a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$item.bill_no}'>{$item.bill_no}</a></td>
 <td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$
-{if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rur} р</span>{/if}{else}р{/if}</td>
+{if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='п║я┐п╪п╪п╟ я│я┤я▒я┌п╟, {$item.gen_bill_date}'>b {$item.gen_bill_rur} я─</span>{/if}{else}я─{/if}</td>
 <td align=center>{if $item.currency=='USD'}
-	{if $item.pay_sum_usd}{$item.pay_sum_usd} $ = {$item.pay_sum_rur} р{/if}
+	{if $item.pay_sum_usd}{$item.pay_sum_usd} $ = {$item.pay_sum_rur} я─{/if}
 {else}
-	{if $item.pay_sum_rur}{$item.pay_sum_rur} р{/if}
+	{if $item.pay_sum_rur}{$item.pay_sum_rur} я─{/if}
 {/if}</td>
 {if $b_show_bonus}<td title="{$item.bonus_info|escape}">{$item.bonus}</td>{/if}
 <td>{$item.client_manager}</td>
@@ -42,17 +42,17 @@
 </tr>{/foreach}
 
 <tr style='background:#FFFFFF'>
-<td colspan=2 align=left><b>Всего клиентов:</b></td>
+<td colspan=2 align=left><b>п▓я│п╣пЁп╬ п╨п╩п╦п╣п╫я┌п╬п╡:</b></td>
 <td align=left>{$clients_count}</td>
-<td align=right><b>Всего по долларовым счетам:</b></td>
+<td align=right><b>п▓я│п╣пЁп╬ п©п╬ п╢п╬п╩п╩п╟я─п╬п╡я▀п╪ я│я┤п╣я┌п╟п╪:</b></td>
 <td align=right>{$bills_total_USD.sum} $</td>
-<td align=center>{$bills_total_USD.pay_sum_usd} $ = {$bills_total_USD.pay_sum_rur} р</td>
+<td align=center>{$bills_total_USD.pay_sum_usd} $ = {$bills_total_USD.pay_sum_rur} я─</td>
 </tr>
 <tr style='background:#FFFFFF'>
-<td colspan=4 align=right><b>Всего по рублёвым счетам:</b></td>
-<td align=right>{$bills_total_RUR.sum} р</td>
-<td align=center>{$bills_total_RUR.pay_sum_rur} р</td>
-{if $b_show_bonus}<td align=center>{$bills_total_RUR.bonus} р</td>{/if}
+<td colspan=4 align=right><b>п▓я│п╣пЁп╬ п©п╬ я─я┐п╠п╩я▒п╡я▀п╪ я│я┤п╣я┌п╟п╪:</b></td>
+<td align=right>{$bills_total_RUR.sum} я─</td>
+<td align=center>{$bills_total_RUR.pay_sum_rur} я─</td>
+{if $b_show_bonus}<td align=center>{$bills_total_RUR.bonus} я─</td>{/if}
 </tr>
 </TABLE>
 {/if}

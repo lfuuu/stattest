@@ -100,7 +100,7 @@ class m_ats extends IModule
             //nothing
         }else
         {
-            trigger_error("îÁÓÔÒÏÊËÉ ÕÞÅÔÎÙÈ ÚÁÐÉÓÅÊ SIP ÄÌÑ ÄÁÎÎÏÇÏ ÒÅÇÉÏÎÁ ÎÅÄÏÓÔÕÐÎÙ");
+            trigger_error("ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ ÑƒÑ‡ÐµÑ‚Ð½Ñ‹Ñ… Ð·Ð°Ð¿Ð¸ÑÐµÐ¹ SIP Ð´Ð»Ñ Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ñ€ÐµÐ³Ð¸Ð¾Ð½Ð° Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹");
             return;
         }
 
@@ -245,7 +245,7 @@ class m_ats extends IModule
     {
         global $db;
 
-        if(!isset($_SESSION["clients_client"]) || !$_SESSION["clients_client"]) trigger_error("ëÌÉÅÎÔ ÎÅ ÕÓÔÁÎÏ×ÌÅÎ!");
+        if(!isset($_SESSION["clients_client"]) || !$_SESSION["clients_client"]) trigger_error("ÐšÐ»Ð¸ÐµÐ½Ñ‚ Ð½Ðµ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½!");
         else{
 
         $client = $db->GetValue("select client from ".SQL_DB.".clients where client='".$_SESSION["clients_client"]."'");

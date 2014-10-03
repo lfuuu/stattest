@@ -48,12 +48,7 @@ class PgSQLDatabase {
                 
 				throw new Exception("can't connect postgres");
             }
-            
-            
 
-            if ($this->_LinkId && defined('DB_SETUP_COLLATES') && (DB_SETUP_COLLATES==1)){
-				pg_query($this->_LinkId, "SET CLIENT_ENCODING TO 'KOI8'");
-			}
 		}
         return $this->_LinkId;
     }

@@ -1,9 +1,9 @@
-<h2>Выслать настройки SIP-аккаунта</h2>
+<h2>п▓я▀я│п╩п╟я┌я▄ п╫п╟я│я┌я─п╬п╧п╨п╦ SIP-п╟п╨п╨п╟я┐п╫я┌п╟</h2>
 {if $isSent}
 {if $error}
 <h3><b style="color: #c40000;">{$error}</b></h3>
 {else}
-<h3>Информация выслана</h3>
+<h3>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╡я▀я│п╩п╟п╫п╟</h3>
 {/if}
 {else}
 <div style="width: 500px;float: left;">
@@ -15,19 +15,19 @@
 <div  style="width: 250px;float: left;">
 {html_checkboxes options=$emails name="email" separator="<br />"}
 </div>
-<input type="submit" value="Выслать" name="do_send">
+<input type="submit" value="п▓я▀я│п╩п╟я┌я▄" name="do_send">
 
 </form>
 </div>
 {if $log}
 <div  style="width: 500px;float: left;">
-<b>История: </b>
+<b>п≤я│я┌п╬я─п╦я▐: </b>
 <table>
 <tr style="font-size: 8pt;">
-<th>Дата</th>
-<th>Пользователь</th>
+<th>п■п╟я┌п╟</th>
+<th>п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄</th>
 <th>Email</th>
-<th>Номера</th>
+<th>п²п╬п╪п╣я─п╟</th>
 </tr>
 {foreach from=$log item=l}
 <tr>

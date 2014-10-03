@@ -1,25 +1,25 @@
-<h2>Продажи менеджера "{if $res.0.sale_channel}{$res.0.sale_channel}{elseif $res_vpbx.0.sale_channel}{$res_vpbx.0.sale_channel}{else}??????{/if}" за {$ts|mdate:"месяц Y"} года</h2>
+<h2>п÷я─п╬п╢п╟п╤п╦ п╪п╣п╫п╣п╢п╤п╣я─п╟ "{if $res.0.sale_channel}{$res.0.sale_channel}{elseif $res_vpbx.0.sale_channel}{$res_vpbx.0.sale_channel}{else}??????{/if}" п╥п╟ {$ts|mdate:"п╪п╣я│я▐я├ Y"} пЁп╬п╢п╟</h2>
 {if $res}
-	<h3>Номера</h3>
+	<h3>п²п╬п╪п╣я─п╟</h3>
 	<table class="price">
 		<tr>
 			<th colspan=2>
-				Клиент
+				п п╩п╦п╣п╫я┌
 			</th>
 			<th>
-				Номер
+				п²п╬п╪п╣я─
 			</th>
 			<th>
-				Количество линий
+				п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╩п╦п╫п╦п╧
 			</th>
 			<th>
-				Тариф
+				п╒п╟я─п╦я└
 			</th>
 			<th>
-				Работает с
+				п═п╟п╠п╬я┌п╟п╣я┌ я│
 			</th>
 			<th>
-				Работает по
+				п═п╟п╠п╬я┌п╟п╣я┌ п©п╬
 			</th>
 		</tr>
 		{assign var="total" value=0}
@@ -27,14 +27,14 @@
 		{assign var="is_new" value=$res.0.is_new}
 		<tr>
 			<td colspan=7 align="center">
-				<b>{if $is_new}Новые{else}Допродажи{/if}</b>
+				<b>{if $is_new}п²п╬п╡я▀п╣{else}п■п╬п©я─п╬п╢п╟п╤п╦{/if}</b>
 			</td>
 		</tr>
 		{foreach from=$res item="p" name="outer"}
 			{if $is_new && !$p.is_new}
 				<tr>
 					<th colspan=2>
-						<b>Всего новых</b>
+						<b>п▓я│п╣пЁп╬ п╫п╬п╡я▀я┘</b>
 					</th>
 					<td align="right">
 						{$total}
@@ -48,7 +48,7 @@
 				<tr>
 				<tr>
 					<td colspan=7 align="center">
-						<b>Допродажи</b>
+						<b>п■п╬п©я─п╬п╢п╟п╤п╦</b>
 					</td>
 				</tr>
 				{assign var="is_new" value=0}
@@ -73,16 +73,16 @@
 					{$p.tarif}
 				</td>
 				<td>
-					{$p.actual_from|mdate:"d месяца Y"}
+					{$p.actual_from|mdate:"d п╪п╣я│я▐я├п╟ Y"}
 				</td>
 				<td>
-					{if $p.actual_to == "--"}{$p.actual_to}{else}{$p.actual_to|mdate:"d месяца Y"}{/if}
+					{if $p.actual_to == "--"}{$p.actual_to}{else}{$p.actual_to|mdate:"d п╪п╣я│я▐я├п╟ Y"}{/if}
 				</td>
 			</tr>
 		{/foreach}
 		<tr>
 			<th colspan=2>
-				<b>Всего {if !$is_new}допродаж{else}новых{/if}</b>
+				<b>п▓я│п╣пЁп╬ {if !$is_new}п╢п╬п©я─п╬п╢п╟п╤{else}п╫п╬п╡я▀я┘{/if}</b>
 			</th>
 			<td align="right">
 				{$total}
@@ -97,37 +97,37 @@
 	</table>
 {/if}
 {if $res_vpbx}
-	<h3>ВАТС</h3>
+	<h3>п▓п░п╒п║</h3>
 	<table class="price">
 		<tr>
 			<th colspan=2>
-				Клиент
+				п п╩п╦п╣п╫я┌
 			</th>
 			<th>
-				ВАТС ID
+				п▓п░п╒п║ ID
 			</th>
 			<th>
-				Тариф
+				п╒п╟я─п╦я└
 			</th>
 			<th>
-				Работает с
+				п═п╟п╠п╬я┌п╟п╣я┌ я│
 			</th>
 			<th>
-				Работает по
+				п═п╟п╠п╬я┌п╟п╣я┌ п©п╬
 			</th>
 		</tr>
 		{assign var="total" value=0}
 		{assign var="is_new" value=$res_vpbx.0.is_new}
 		<tr>
 			<td colspan=6 align="center">
-				<b>{if $is_new}Новые{else}Допродажи{/if}</b>
+				<b>{if $is_new}п²п╬п╡я▀п╣{else}п■п╬п©я─п╬п╢п╟п╤п╦{/if}</b>
 			</td>
 		</tr>
 		{foreach from=$res_vpbx item="p" name="outer"}
 			{if $is_new && !$p.is_new}
 				<tr>
 					<th colspan=2>
-						<b>Всего новых</b>
+						<b>п▓я│п╣пЁп╬ п╫п╬п╡я▀я┘</b>
 					</th>
 					<td align="right">
 						{$total}
@@ -137,7 +137,7 @@
 					</td>
 					<tr>
 						<td colspan=6 align="center">
-							<b>Допродажи</b>
+							<b>п■п╬п©я─п╬п╢п╟п╤п╦</b>
 						</td>
 					</tr>
 				<tr>
@@ -159,16 +159,16 @@
 					{$p.tarif}
 				</td>
 				<td>
-					{$p.actual_from|mdate:"d месяца Y"}
+					{$p.actual_from|mdate:"d п╪п╣я│я▐я├п╟ Y"}
 				</td>
 				<td>
-					{if $p.actual_to == "--"}{$p.actual_to}{else}{$p.actual_to|mdate:"d месяца Y"}{/if}
+					{if $p.actual_to == "--"}{$p.actual_to}{else}{$p.actual_to|mdate:"d п╪п╣я│я▐я├п╟ Y"}{/if}
 				</td>
 			</tr>
 		{/foreach}
 		<tr>
 			<th colspan=2>
-				<b>Всего {if !$is_new}допродаж{else}новых{/if}</b>
+				<b>п▓я│п╣пЁп╬ {if !$is_new}п╢п╬п©я─п╬п╢п╟п╤{else}п╫п╬п╡я▀я┘{/if}</b>
 			</th>
 			<td align="right">
 				{$total}
@@ -180,23 +180,23 @@
 	</table>
 {/if}
 {if $visits}
-	<h3>Выезды</h3>
+	<h3>п▓я▀п╣п╥п╢я▀</h3>
 	<table class="price">
 		<tr>
 			<th>
-				Дата визита
+				п■п╟я┌п╟ п╡п╦п╥п╦я┌п╟
 			</th>
 			<th>
-				К кому
+				п  п╨п╬п╪я┐
 			</th>
 			<th>
-				Заявка
+				п≈п╟я▐п╡п╨п╟
 			</th>
 		</tr>
 		{foreach from=$visits item=v}
 			<tr>
 				<td>
-					{$v.date|mdate:"d месяца Y"}
+					{$v.date|mdate:"d п╪п╣я│я▐я├п╟ Y"}
 				</td>
 				<td>
 					<a href="?module=clients&id={$v.client}">{$v.client}</a>

@@ -1,5 +1,5 @@
-<H2>Мониторинг</H2>
-<H3>Добавление VIP-клиента:</H3>
+<H2>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</H2>
+<H3>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ VIP-п╨п╩п╦п╣п╫я┌п╟:</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=apply>
 <input type=hidden name=module value=monitoring>
@@ -15,5 +15,5 @@
 {/foreach}
 
 </TBODY></TABLE>
-<DIV align=center><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 </form>

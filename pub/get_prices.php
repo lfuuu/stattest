@@ -33,7 +33,7 @@
         $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>43,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>4,'pricelist_id'=>45,'param'=>'d1', 'date'=>date('Y-m-d'));
 
-    //áÒÈÉ×ÎÙÅ ÔÁÒÉÆÙ ÄÌÑ íÏÓË×Ù
+    //ÐÑ€Ñ…Ð¸Ð²Ð½Ñ‹Ðµ Ñ‚Ð°Ñ€Ð¸Ñ„Ñ‹ Ð´Ð»Ñ ÐœÐ¾ÑÐºÐ²Ñ‹
     }elseif ($p_region == 990 && $p_dest == 1){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
@@ -47,7 +47,7 @@
             $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
             $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
 
-    //ôÁÒÉÆÙ ÄÌÑ ÄÏÇÏ×ÏÒÁ ÐÒÉÓÏÅÄÉÎÅÎÉÑ ÓÅÔÅÊ
+    //Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð´Ð»Ñ Ð´Ð¾Ð³Ð¾Ð²Ð¾Ñ€Ð° Ð¿Ñ€Ð¸ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð¸Ñ ÑÐµÑ‚ÐµÐ¹
     }elseif ($p_region == 991 && in_array($p_dest, array(1,2,3))){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
@@ -213,7 +213,7 @@
                                              ");
     foreach($data as $r){
         if (!isset($report[$r['defcode']])){
-            $report[$r['defcode']] = array('defcode'=>$r['defcode'], 'zone'=>$r['zone'], 'mob'=>$r['mob'], 'dgroup'=>$r['dgroup'], 'destination'=>iconv('koi8-r','utf-8',$r['destination']), 'parts'=>array(), );
+            $report[$r['defcode']] = array('defcode'=>$r['defcode'], 'zone'=>$r['zone'], 'mob'=>$r['mob'], 'dgroup'=>$r['dgroup'], 'destination'=>$r['destination'], 'parts'=>array(), );
         }
 
         if (!isset($report[$r['defcode']]['parts'][$r['position']]))
@@ -329,7 +329,7 @@
         }
         $data[] = array(    'code1'=>$resgroup['defcode'],
                             'code2'=>$defs,
-                            'name'=>str_replace('"','""',$resgroup['destination']) . ($resgroup['mob']=='t' ? ' (Ð¼Ð¾Ð±.)' : ''),
+                            'name'=>str_replace('"','""',$resgroup['destination']) . ($resgroup['mob']=='t' ? ' (Ð¿â•ªÐ¿â•¬Ð¿â• .)' : ''),
                             'zone'=>$resgroup['zone'],
                             'price1'=>str_replace('.',',',$resgroup['parts'][1]['d1']['price']),
                             'price2'=>str_replace('.',',',$resgroup['parts'][2]['d1']['price']),

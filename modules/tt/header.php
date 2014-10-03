@@ -1,12 +1,12 @@
 <?
 class m_tt_head extends IModuleHead{
 	public $module_name = 'tt';
-	public $module_title = 'Заявки';
+	public $module_title = 'п≈п╟я▐п╡п╨п╦';
 	var $rights=array(
 		'tt'=>array(
-			'Работа с заявками',
+			'п═п╟п╠п╬я┌п╟ я│ п╥п╟я▐п╡п╨п╟п╪п╦',
 			'view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating',
-			'просмотр,показывать "Запросы клиентов",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки'
+			'п©я─п╬я│п╪п╬я┌я─,п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ "п≈п╟п©я─п╬я│я▀ п╨п╩п╦п╣п╫я┌п╬п╡",п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣,я┐п©я─п╟п╡п╩п╣п╫п╦п╣ п╡я─п╣п╪п╣п╫п╣п╪,п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─я│п╨п╦п╧ п╢п╬я│я┌я┐п©,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│п╬я│я┌п╬я▐п╫п╦п╧,п╬я┌я┤я▒я┌,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╦я│п©п╬п╩п╫п╦я┌п╣п╩п╣п╧,п╥п╟п╨п╟п╥я▀ п╪п╟пЁп╟п╥п╦п╫п╟,п╨п╬п╪п╣п╫я┌п╟я─п╦п╦ п╢п╩я▐ п╫п╣ я│п╡п╬п╦я┘ п╥п╟я▐п╡п╬п╨,п╬я├п╣п╫п╨п╟ п╥п╟я▐п╡п╨п╦'
 		),
 	);
 	var $actions=array(
@@ -15,8 +15,8 @@ class m_tt_head extends IModuleHead{
 					'list_cl'		=> array('tt','view_cl'),
 					'list2'			=> array('tt','use'),
 					'view'			=> array('tt','view'),
-					'add'			=> array('tt','use'),		//новый трабл
-					'move'			=> array('tt','use'),		//новый этап
+					'add'			=> array('tt','use'),		//п╫п╬п╡я▀п╧ я┌я─п╟п╠п╩
+					'move'			=> array('tt','use'),		//п╫п╬п╡я▀п╧ я█я┌п╟п©
 					'refix_doers'	=> array('tt','use'),
 					'list_types'	=> array('tt','use'),
 					'view_type'		=> array('tt','use'),
@@ -35,34 +35,34 @@ class m_tt_head extends IModuleHead{
 					'rpc_setState1c'=> array('tt','use')
 				);
 	var $menu=array(
-		array('Тех поддержка MCN','view_type', '&type_pk=1'),
-		array('Задания MCN','view_type','&type_pk=2'),
-		array('Тех поддержка WellTime', 'view_type', '&type_pk=3'),
-		array('Заказы Магазина', 'view_type', '&type_pk=4'),
-		array('Установка и Монтаж', 'view_type', '&type_pk=5'),
-		array('Заказы Welltime', 'view_type', '&type_pk=6'),
-		array('Заказы поставщику', 'view_type', '&type_pk=7'),
+		array('п╒п╣я┘ п©п╬п╢п╢п╣я─п╤п╨п╟ MCN','view_type', '&type_pk=1'),
+		array('п≈п╟п╢п╟п╫п╦я▐ MCN','view_type','&type_pk=2'),
+		array('п╒п╣я┘ п©п╬п╢п╢п╣я─п╤п╨п╟ WellTime', 'view_type', '&type_pk=3'),
+		array('п≈п╟п╨п╟п╥я▀ п°п╟пЁп╟п╥п╦п╫п╟', 'view_type', '&type_pk=4'),
+		array('пёя│я┌п╟п╫п╬п╡п╨п╟ п╦ п°п╬п╫я┌п╟п╤', 'view_type', '&type_pk=5'),
+		array('п≈п╟п╨п╟п╥я▀ Welltime', 'view_type', '&type_pk=6'),
+		array('п≈п╟п╨п╟п╥я▀ п©п╬я│я┌п╟п╡я┴п╦п╨я┐', 'view_type', '&type_pk=7'),
 		array('','view_type'),
-		#array('Список типов', 'list_types'),
-		array('Расписание',				'timetable'),
-		array('Список открытых заявок', 'list','&mode=1'),
-		array('Список всех заявок', 	'list','&mode=0'),
+		#array('п║п©п╦я│п╬п╨ я┌п╦п©п╬п╡', 'list_types'),
+		array('п═п╟я│п©п╦я│п╟п╫п╦п╣',				'timetable'),
+		array('п║п©п╦я│п╬п╨ п╬я┌п╨я─я▀я┌я▀я┘ п╥п╟я▐п╡п╬п╨', 'list','&mode=1'),
+		array('п║п©п╦я│п╬п╨ п╡я│п╣я┘ п╥п╟я▐п╡п╬п╨', 	'list','&mode=0'),
 		array(
-			'Откр. Тех.Поддержка',
+			'п·я┌п╨я─. п╒п╣я┘.п÷п╬п╢п╢п╣я─п╤п╨п╟',
 			'list',
 			"&mode=0&state_filter=1&resp=SUPPORT&date_from=prev_mon"
 		),
-		array('Мне поручили',	 		'list2','&mode=2'),
-		array('Я поручил',	 			'list2','&mode=3'),
-		array('Запросы моих клиентов', 	'list_cl','&mode=4'),			//mode=4
-		array('Под контролем',			'list','&mode=5'),
-		#array('Отчёт', 					'report'),
-		#array('Состояния',				'slist'),
+		array('п°п╫п╣ п©п╬я─я┐я┤п╦п╩п╦',	 		'list2','&mode=2'),
+		array('п╞ п©п╬я─я┐я┤п╦п╩',	 			'list2','&mode=3'),
+		array('п≈п╟п©я─п╬я│я▀ п╪п╬п╦я┘ п╨п╩п╦п╣п╫я┌п╬п╡', 	'list_cl','&mode=4'),			//mode=4
+		array('п÷п╬п╢ п╨п╬п╫я┌я─п╬п╩п╣п╪',			'list','&mode=5'),
+		#array('п·я┌я┤я▒я┌', 					'report'),
+		#array('п║п╬я│я┌п╬я▐п╫п╦я▐',				'slist'),
 		array('','view_type'),
-		array('Исполнители',			'doers'),
-		array('Отчет Абон. отдела',		'doers_list'),
-		array('Загрузка логистики',		'courier_report'),
-		array('Загрузка логистики2',		'courier_report2'),
+		array('п≤я│п©п╬п╩п╫п╦я┌п╣п╩п╦',			'doers'),
+		array('п·я┌я┤п╣я┌ п░п╠п╬п╫. п╬я┌п╢п╣п╩п╟',		'doers_list'),
+		array('п≈п╟пЁя─я┐п╥п╨п╟ п╩п╬пЁп╦я│я┌п╦п╨п╦',		'courier_report'),
+		array('п≈п╟пЁя─я┐п╥п╨п╟ п╩п╬пЁп╦я│я┌п╦п╨п╦2',		'courier_report2'),
 	);
 	function GetPanel($fixclient){
 		global $design,$user,$db,$module;

@@ -1,14 +1,14 @@
-      <H2>SNMP-устройства</H2>
+      <H2>SNMP-я┐я│я┌я─п╬п╧я│я┌п╡п╟</H2>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom>клиент</TD>
-          <TD class=header vAlign=bottom>подключение</a></TD>
-          <TD class=header vAlign=bottom>порт</TD>
-          <TD class=header vAlign=bottom>адрес</TD>
-          <TD class=header vAlign=bottom>устройство</TD>
-          <TD class=header vAlign=bottom>IP адрес / IP_nat</TD>
-          <TD class=header vAlign=bottom>серийный номер</TD>
+          <TD class=header vAlign=bottom>п╨п╩п╦п╣п╫я┌</TD>
+          <TD class=header vAlign=bottom>п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</a></TD>
+          <TD class=header vAlign=bottom>п©п╬я─я┌</TD>
+          <TD class=header vAlign=bottom>п╟п╢я─п╣я│</TD>
+          <TD class=header vAlign=bottom>я┐я│я┌я─п╬п╧я│я┌п╡п╬</TD>
+          <TD class=header vAlign=bottom>IP п╟п╢я─п╣я│ / IP_nat</TD>
+          <TD class=header vAlign=bottom>я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─</TD>
 		</TR>
 {foreach from=$devices item=item name=outer}
 <TR bgcolor="{if $item.actual}#EEDCA9{else}#fffff5{/if}">

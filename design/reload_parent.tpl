@@ -5,6 +5,6 @@ opener.location.reload();
 //-->
 </script>
 {/literal}
-Изменения внесены.<br>
-<a href='javascript:opener.location.reload();window.close();'>Закрыть окно</a>
+п≤п╥п╪п╣п╫п╣п╫п╦я▐ п╡п╫п╣я│п╣п╫я▀.<br>
+<a href='javascript:opener.location.reload();window.close();'>п≈п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a>
 &nbsp;

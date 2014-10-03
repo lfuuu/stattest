@@ -141,13 +141,13 @@ class DbViewCommonTarif extends DbView {
 		$this->SQLFilters['su']='status="adsl_su"';
 		$this->SQLFilters['USD']='currency="USD"';
 		$this->SQLFilters['RUR']='currency="RUR"';
-		$this->SQLFilterNames['p']='ÐÕÂÌÉÞÎÙÊ';
-		$this->SQLFilterNames['a']='ÁÒÈÉ×ÎÙÊ';
-		$this->SQLFilterNames['s']='ÓÐÅÃÉÁÌØÎÙÊ';
+		$this->SQLFilterNames['p']='Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['a']='Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['s']='ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹';
 		$this->SQLFilterNames['su']='adsl.su';
 		$this->SQLFilterNames['USD']='USD';
 		$this->SQLFilterNames['RUR']='RUR';
-		$this->SQLFilterGroups=array('ôÉÐ ÔÁÒÉÆÁ'=>array('p','a','s','su'),'÷ÁÌÀÔÁ ÔÁÒÉÆÁ'=>array('USD','RUR'));
+		$this->SQLFilterGroups=array('Ð¢Ð¸Ð¿ Ñ‚Ð°Ñ€Ð¸Ñ„Ð°'=>array('p','a','s','su'),'Ð’Ð°Ð»ÑŽÑ‚Ð° Ñ‚Ð°Ñ€Ð¸Ñ„Ð°'=>array('USD','RUR'));
 		$this->filters=array('p','USD');
 		$this->constructChild();
 	}
@@ -156,18 +156,18 @@ class DbViewCommonTarif extends DbView {
 class DbViewTarifsInternet extends DbViewCommonTarif {	
 	public function constructChild() {
 		$this->table='tarifs_internet';
-		$this->Headers['i']='ôÁÒÉÆÙ ÎÁ ÉÎÔÅÒÎÅÔ';
-		$this->Headers['v']='ôÁÒÉÆÙ ÎÁ VPN';
-		$this->Headers['c']='ôÁÒÉÆÙ ÎÁ Collocation';
-		$this->FieldSets['i']=array('name'=>'îÁÚ×ÁÎÉÅ','pay_once'=>'ðÏÄËÌÀÞÅÎÉÅ','åÖÅÍÅÓÑÞÎÏ'=>array('pay_month'=>'ÓÕÍÍÁ','mb_month'=>'íÂ'),'pay_mb'=>'ÓÕÍÍÁ/ÍÂ','comment'=>'ËÏÍÍÅÎÔÁÒÉÊ');
-		$this->FieldSets['v']=array('name'=>'îÁÚ×ÁÎÉÅ','pay_once'=>'ðÏÄËÌÀÞÅÎÉÅ','åÖÅÍÅÓÑÞÎÏ'=>array('pay_month'=>'ÓÕÍÍÁ','mb_month'=>'íÂ'),'pay_mb'=>'ÓÕÍÍÁ/ÍÂ','comment'=>'ËÏÍÍÅÎÔÁÒÉÊ');
-		$this->FieldSets['c']=array('name'=>'îÁÚ×ÁÎÉÅ',
-							'pay_once'=>'ðÏÄËÌÀÞÅÎÉÅ',
-							'pay_month'=>'áÂ. ÐÌÁÔÁ',
-							'íÂ × ÍÅÓÑÃ'=>array('month_r'=>'R','month_r2'=>'R2','month_f'=>'F'),
-							'ðÌÁÔÁ ÚÁ íÂ'=>array('pay_r'=>'R','pay_r2'=>'R2','pay_f'=>'F'),
-							'pay_once'=>'ðÏÄËÌÀÞÅÎÉÅ',
-							'comment'=>'ËÏÍÍÅÎÔÁÒÉÊ'
+		$this->Headers['i']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ð¸Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚';
+		$this->Headers['v']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° VPN';
+		$this->Headers['c']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Collocation';
+		$this->FieldSets['i']=array('name'=>'ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ','pay_once'=>'ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ','Ð•Ð¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾'=>array('pay_month'=>'ÑÑƒÐ¼Ð¼Ð°','mb_month'=>'ÐœÐ±'),'pay_mb'=>'ÑÑƒÐ¼Ð¼Ð°/Ð¼Ð±','comment'=>'ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹');
+		$this->FieldSets['v']=array('name'=>'ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ','pay_once'=>'ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ','Ð•Ð¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾'=>array('pay_month'=>'ÑÑƒÐ¼Ð¼Ð°','mb_month'=>'ÐœÐ±'),'pay_mb'=>'ÑÑƒÐ¼Ð¼Ð°/Ð¼Ð±','comment'=>'ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹');
+		$this->FieldSets['c']=array('name'=>'ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ',
+							'pay_once'=>'ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ',
+							'pay_month'=>'ÐÐ±. Ð¿Ð»Ð°Ñ‚Ð°',
+							'ÐœÐ± Ð² Ð¼ÐµÑÑÑ†'=>array('month_r'=>'R','month_r2'=>'R2','month_f'=>'F'),
+							'ÐŸÐ»Ð°Ñ‚Ð° Ð·Ð° ÐœÐ±'=>array('pay_r'=>'R','pay_r2'=>'R2','pay_f'=>'F'),
+							'pay_once'=>'ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ',
+							'comment'=>'ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹'
 							);
 		$this->filters[]='std';
 		$this->SetFieldSet('i');
@@ -177,10 +177,10 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
 			$this->SQLFilters['std']='type_internet="standard"';
 			$this->SQLFilters['wm']='type_internet="wimax"';
 			$this->SQLFilters['col']='type_internet="collective"';
-			$this->SQLFilterNames['std']='ÏÂÙÞÎÙÊ';
+			$this->SQLFilterNames['std']='Ð¾Ð±Ñ‹Ñ‡Ð½Ñ‹Ð¹';
 			$this->SQLFilterNames['wm']='WiMAX';
-			$this->SQLFilterNames['col']='ËÏÌÌÅËÔÉ×ÎÙÊ';
-			$this->SQLFilterGroups['ôÉÐ ÉÎÔÅÒÎÅÔ-ÔÁÒÉÆÁ']=array('std','wm','col');
+			$this->SQLFilterNames['col']='ÐºÐ¾Ð»Ð»ÐµÐºÑ‚Ð¸Ð²Ð½Ñ‹Ð¹';
+			$this->SQLFilterGroups['Ð¢Ð¸Ð¿ Ð¸Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚-Ñ‚Ð°Ñ€Ð¸Ñ„Ð°']=array('std','wm','col');
 		} else if ($n!='i' && $this->fieldset=='i') {
 			unset($this->SQLFilters['std']);
 			unset($this->SQLFilters['wm']);
@@ -188,7 +188,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
 			unset($this->SQLFilterNames['std']);
 			unset($this->SQLFilterNames['wm']);
 			unset($this->SQLFilterNames['col']);
-			unset($this->SQLFilterGroups['ôÉÐ ÉÎÔÅÒÎÅÔ-ÔÁÒÉÆÁ']);
+			unset($this->SQLFilterGroups['Ð¢Ð¸Ð¿ Ð¸Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚-Ñ‚Ð°Ñ€Ð¸Ñ„Ð°']);
 		}
 		$this->fieldset=$n;
 	}
@@ -197,9 +197,9 @@ class DbFormTarifsInternet extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_internet');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','special'=>'ÓÐÅÃÉÁÌØÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ','adsl_su'=>'adsl.su'));
-		$this->fields['type']=array('assoc_enum'=>array('I'=>'éÎÔÅÒÎÅÔ (I)','V'=>'VPN (V)','C'=>'Collocation (C)'));
-		$this->fields['type_internet']=array('assoc_enum'=>array('standard'=>'ïÂÙÞÎÙÊ','wimax'=>'WiMAX','collective'=>'ëÏÌÌÅËÔÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','special'=>'ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹','adsl_su'=>'adsl.su'));
+		$this->fields['type']=array('assoc_enum'=>array('I'=>'Ð˜Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚ (I)','V'=>'VPN (V)','C'=>'Collocation (C)'));
+		$this->fields['type_internet']=array('assoc_enum'=>array('standard'=>'ÐžÐ±Ñ‹Ñ‡Ð½Ñ‹Ð¹','wimax'=>'WiMAX','collective'=>'ÐšÐ¾Ð»Ð»ÐµÐºÑ‚Ð¸Ð²Ð½Ñ‹Ð¹'));
         global $db;
         $a = array();
         $R = $db->AllRecords("select name from adsl_speed");
@@ -212,7 +212,7 @@ class DbFormTarifsInternet extends DbFormSimpleLog {
 		$this->fields['mb_month']=array('default'=>'0');
 		$this->fields['pay_mb']=array('default'=>'0.00');
 		$this->fields['sum_deposit']=array();
-		$this->fields['type_count']=array('assoc_enum'=>array('all'=>'×Ó£ ÒÁÚÄÅÌØÎÏ', 'r2_f'=>'óÞÉÔÁÔØ òÏÓÓÉÀ-2 ËÁË ÉÎÏÓÔÒÁÎÎÙÊ', 'all_f'=>'óÞÉÔÁÔØ ×Ó£ ËÁË ÉÎÏÓÔÒÁÎÎÙÊ'));
+		$this->fields['type_count']=array('assoc_enum'=>array('all'=>'Ð²ÑÑ‘ Ñ€Ð°Ð·Ð´ÐµÐ»ÑŒÐ½Ð¾', 'r2_f'=>'Ð¡Ñ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð Ð¾ÑÑÐ¸ÑŽ-2 ÐºÐ°Ðº Ð¸Ð½Ð¾ÑÑ‚Ñ€Ð°Ð½Ð½Ñ‹Ð¹', 'all_f'=>'Ð¡Ñ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð²ÑÑ‘ ÐºÐ°Ðº Ð¸Ð½Ð¾ÑÑ‚Ñ€Ð°Ð½Ð½Ñ‹Ð¹'));
 		$this->fields['comment']=array();
 	}
 }
@@ -220,8 +220,8 @@ class DbFormTarifsCollocation extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_internet');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','special'=>'ÓÐÅÃÉÁÌØÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
-		$this->fields['type']=array('assoc_enum'=>array('I'=>'éÎÔÅÒÎÅÔ (I)','V'=>'VPN (V)','C'=>'Collocation (C)'),'default'=>'C');
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','special'=>'ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
+		$this->fields['type']=array('assoc_enum'=>array('I'=>'Ð˜Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚ (I)','V'=>'VPN (V)','C'=>'Collocation (C)'),'default'=>'C');
 		$this->fields['name']=array();
 		$this->fields['pay_once']=array('default'=>'0.00');
 		$this->fields['pay_month']=array('default'=>'0.00');
@@ -231,7 +231,7 @@ class DbFormTarifsCollocation extends DbFormSimpleLog {
 		$this->fields['pay_r']=array('default'=>'0.00');
 		$this->fields['pay_r2']=array('default'=>'0.00');
 		$this->fields['pay_f']=array('default'=>'0.00');
-		$this->fields['type_count']=array('assoc_enum'=>array('sep'=>'×Ó£ ÒÁÚÄÅÌØÎÏ', 'r2_f'=>'óÞÉÔÁÔØ òÏÓÓÉÀ-2 ËÁË ÉÎÏÓÔÒÁÎÎÙÊ', 'all_f'=>'óÞÉÔÁÔØ ×Ó£ ËÁË ÉÎÏÓÔÒÁÎÎÙÊ'));
+		$this->fields['type_count']=array('assoc_enum'=>array('sep'=>'Ð²ÑÑ‘ Ñ€Ð°Ð·Ð´ÐµÐ»ÑŒÐ½Ð¾', 'r2_f'=>'Ð¡Ñ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð Ð¾ÑÑÐ¸ÑŽ-2 ÐºÐ°Ðº Ð¸Ð½Ð¾ÑÑ‚Ñ€Ð°Ð½Ð½Ñ‹Ð¹', 'all_f'=>'Ð¡Ñ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð²ÑÑ‘ ÐºÐ°Ðº Ð¸Ð½Ð¾ÑÑ‚Ñ€Ð°Ð½Ð½Ñ‹Ð¹'));
 		$this->fields['comment']=array();
 	}
 }
@@ -239,12 +239,12 @@ class DbFormTarifsCollocation extends DbFormSimpleLog {
 class DbViewTarifsHosting extends DbViewCommonTarif {	
 	public function constructChild() {
 		$this->table='tarifs_hosting';
-		$this->Headers['z']='ôÁÒÉÆÙ ÎÁ ÈÏÓÔÉÎÇ';
-		$this->FieldSets['z']=array('name'=>'îÁÚ×ÁÎÉÅ',
-							'pay_once'=>'ðÏÄËÌÀÞÅÎÉÅ',
-							'pay_month'=>'áÂ. ÐÌÁÔÁ',
-							'mb_disk'=>'äÉÓË, ÍÂ',
-							'îÁÌÉÞÉÅ'=>array('has_dns'=>'DNS','has_ftp'=>'FTP','has_ssh'=>'SSH','has_ssi'=>'SSI','has_php'=>'PHP','has_perl'=>'Perl','has_mysql'=>'MySQL'),
+		$this->Headers['z']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ñ…Ð¾ÑÑ‚Ð¸Ð½Ð³';
+		$this->FieldSets['z']=array('name'=>'ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ',
+							'pay_once'=>'ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ',
+							'pay_month'=>'ÐÐ±. Ð¿Ð»Ð°Ñ‚Ð°',
+							'mb_disk'=>'Ð”Ð¸ÑÐº, Ð¼Ð±',
+							'ÐÐ°Ð»Ð¸Ñ‡Ð¸Ðµ'=>array('has_dns'=>'DNS','has_ftp'=>'FTP','has_ssh'=>'SSH','has_ssi'=>'SSI','has_php'=>'PHP','has_perl'=>'Perl','has_mysql'=>'MySQL'),
 							);
 		$this->fieldset='z';
 	}
@@ -253,7 +253,7 @@ class DbFormTarifsHosting extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_hosting');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','special'=>'ÓÐÅÃÉÁÌØÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','special'=>'ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		$this->fields['name']=array();
 		$this->fields['pay_once']=array('default'=>'0');
 		$this->fields['pay_month']=array();
@@ -273,26 +273,26 @@ class DbViewPriceVoip extends DbViewCommonTarif {
 	public function constructChild() {
 		global $db;
 		$this->table='price_voip';
-		$this->Headers['r']='ôÁÒÉÆÙ ÎÁ ÍÅÖÄÕÇÏÒÏÄÎÉÅ Ú×ÏÎËÉ';
-		$this->Headers['w']='ôÁÒÉÆÙ ÎÁ ÍÅÖÄÕÎÁÒÏÄÎÙÅ Ú×ÏÎËÉ';
+		$this->Headers['r']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ð¼ÐµÐ¶Ð´ÑƒÐ³Ð¾Ñ€Ð¾Ð´Ð½Ð¸Ðµ Ð·Ð²Ð¾Ð½ÐºÐ¸';
+		$this->Headers['w']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ð¼ÐµÐ¶Ð´ÑƒÐ½Ð°Ñ€Ð¾Ð´Ð½Ñ‹Ðµ Ð·Ð²Ð¾Ð½ÐºÐ¸';
 		$this->FieldSets['r'] = array(
-			'destination_name'=>'ðÕÎËÔ',
-			'destination_prefix'=>'ðÒÅÆÉËÓ',
-			'óÔÏÉÍÏÓÔØ ÍÉÎÕÔÙ'=>array(
-				'rate_USD'=>'÷ ÄÏÌÌÁÒÁÈ',
-				'rate_RUR'=>'÷ ÒÕÂÌÑÈ'
+			'destination_name'=>'ÐŸÑƒÐ½ÐºÑ‚',
+			'destination_prefix'=>'ÐŸÑ€ÐµÑ„Ð¸ÐºÑ',
+			'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ Ð¼Ð¸Ð½ÑƒÑ‚Ñ‹'=>array(
+				'rate_USD'=>'Ð’ Ð´Ð¾Ð»Ð»Ð°Ñ€Ð°Ñ…',
+				'rate_RUR'=>'Ð’ Ñ€ÑƒÐ±Ð»ÑÑ…'
 			),
-			'îÁÐÒÁ×ÌÅÎÉÅ'=>array(
-				'dgroup'=>'çÒÕÐÐÁ',
-				'dsubgroup'=>'ðÏÄÇÒÕÐÐÁ'
+			'ÐÐ°Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ'=>array(
+				'dgroup'=>'Ð“Ñ€ÑƒÐ¿Ð¿Ð°',
+				'dsubgroup'=>'ÐŸÐ¾Ð´Ð³Ñ€ÑƒÐ¿Ð¿Ð°'
 			),
 		);
 		$this->FieldSets['w']=$this->FieldSets['r'];
 		$this->SQLFilters['r']='dgroup IN (0,1)';
 		$this->SQLFilters['w']='dgroup IN (2)';
 		$this->SQLFieldsReplacement = array(
-			'dgroup'=>array(0=>'íÏÓË×Á',1=>'òÏÓÓÉÑ',2=>'íÅÖÄÕÎÁÒÏÄÎÏÅ'),
-			'dsubgroup'=>array(0=>'íÏÂÉÌØÎÙÅ',1=>'1 úÏÎÁ/óÔÁÃÉÏÎÁÒÎÙÅ',2=>'2 úÏÎÁ',3=>'3 úÏÎÁ',4=>'4 úÏÎÁ',5=>'5 úÏÎÁ',6=>'6 úÏÎÁ',97=>'íÅÖÄÕÎÁÒÏÄÎÏÅ æÒÉÆÏÎ',98=>'òÏÓÓÉÑ æÒÉÆÏÎ',99=>'äÒÕÇÏÅ')
+			'dgroup'=>array(0=>'ÐœÐ¾ÑÐºÐ²Ð°',1=>'Ð Ð¾ÑÑÐ¸Ñ',2=>'ÐœÐµÐ¶Ð´ÑƒÐ½Ð°Ñ€Ð¾Ð´Ð½Ð¾Ðµ'),
+			'dsubgroup'=>array(0=>'ÐœÐ¾Ð±Ð¸Ð»ÑŒÐ½Ñ‹Ðµ',1=>'1 Ð—Ð¾Ð½Ð°/Ð¡Ñ‚Ð°Ñ†Ð¸Ð¾Ð½Ð°Ñ€Ð½Ñ‹Ðµ',2=>'2 Ð—Ð¾Ð½Ð°',3=>'3 Ð—Ð¾Ð½Ð°',4=>'4 Ð—Ð¾Ð½Ð°',5=>'5 Ð—Ð¾Ð½Ð°',6=>'6 Ð—Ð¾Ð½Ð°',97=>'ÐœÐµÐ¶Ð´ÑƒÐ½Ð°Ñ€Ð¾Ð´Ð½Ð¾Ðµ Ð¤Ñ€Ð¸Ñ„Ð¾Ð½',98=>'Ð Ð¾ÑÑÐ¸Ñ Ð¤Ñ€Ð¸Ñ„Ð¾Ð½',99=>'Ð”Ñ€ÑƒÐ³Ð¾Ðµ')
 		);
 		$this->order = array('dgroup'=>'asc','dsubgroup'=>'asc','destination_name'=>'asc');
 		$r=$db->GetRow('select max(priceid) as A from price_voip');
@@ -302,7 +302,7 @@ class DbViewPriceVoip extends DbViewCommonTarif {
 			$this->SQLFilterNames['g'.$i]=$i;
 			$R[]='g'.$i;
 		}
-		$this->SQLFilterGroups=array('çÒÕÐÐÁ'=>$R);
+		$this->SQLFilterGroups=array('Ð“Ñ€ÑƒÐ¿Ð¿Ð°'=>$R);
 		$this->filters=array('g0');
 		$this->fieldset='r';
 	}
@@ -319,19 +319,19 @@ class DbFormPriceVoip extends DbFormSimpleLog {
 			$this->fields['rate_RUR']=array('default'=>'0.00');
 			$this->fields['priceid']=array('default'=>'0');
 		}
-		$this->fields['dgroup']=array('default'=>0,'assoc_enum'=>array(0=>'íÏÓË×Á',1=>'òÏÓÓÉÑ',2=>'íÅÖÄÕÎÁÒÏÄÎÏÅ'));
-		$this->fields['dsubgroup']=array('default'=>0,'assoc_enum'=>array(0=>'íÏÂÉÌØÎÙÅ',1=>'1 úÏÎÁ/óÔÁÃÉÏÎÁÒÎÙÅ',2=>'2 úÏÎÁ',3=>'3 úÏÎÁ',4=>'4 úÏÎÁ',5=>'5 úÏÎÁ',6=>'6 úÏÎÁ',97=>'íÅÖÄÕÎÁÒÏÄÎÏÅ æÒÉÆÏÎ',98=>'òÏÓÓÉÑ æÒÉÆÏÎ',99=>'äÒÕÇÏÅ'));
+		$this->fields['dgroup']=array('default'=>0,'assoc_enum'=>array(0=>'ÐœÐ¾ÑÐºÐ²Ð°',1=>'Ð Ð¾ÑÑÐ¸Ñ',2=>'ÐœÐµÐ¶Ð´ÑƒÐ½Ð°Ñ€Ð¾Ð´Ð½Ð¾Ðµ'));
+		$this->fields['dsubgroup']=array('default'=>0,'assoc_enum'=>array(0=>'ÐœÐ¾Ð±Ð¸Ð»ÑŒÐ½Ñ‹Ðµ',1=>'1 Ð—Ð¾Ð½Ð°/Ð¡Ñ‚Ð°Ñ†Ð¸Ð¾Ð½Ð°Ñ€Ð½Ñ‹Ðµ',2=>'2 Ð—Ð¾Ð½Ð°',3=>'3 Ð—Ð¾Ð½Ð°',4=>'4 Ð—Ð¾Ð½Ð°',5=>'5 Ð—Ð¾Ð½Ð°',6=>'6 Ð—Ð¾Ð½Ð°',97=>'ÐœÐµÐ¶Ð´ÑƒÐ½Ð°Ñ€Ð¾Ð´Ð½Ð¾Ðµ Ð¤Ñ€Ð¸Ñ„Ð¾Ð½',98=>'Ð Ð¾ÑÑÐ¸Ñ Ð¤Ñ€Ð¸Ñ„Ð¾Ð½',99=>'Ð”Ñ€ÑƒÐ³Ð¾Ðµ'));
 	}
 }
 class DbViewTarifsExtra extends DbViewCommonTarif {
 	public function constructChild() {
 		$this->table='tarifs_extra';
-		$this->Headers['z']='ôÁÒÉÆÙ ÎÁ ÄÏÐÏÌÎÉÔÅÌØÎÙÅ ÕÓÌÕÇÉ';
+		$this->Headers['z']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ðµ ÑƒÑÐ»ÑƒÐ³Ð¸';
 		$this->FieldSets['z']=array(
-							'description'=>'ïÐÉÓÁÎÉÅ',
-							'code' => 'ëÏÄ',
-							'price'=>'óÔÏÉÍÏÓÔØ',
-							'period' => 'ðÅÒÉÏÄ',
+							'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+							'code' => 'ÐšÐ¾Ð´',
+							'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+							'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 							);
 		$this->fieldset='z';
 
@@ -341,13 +341,13 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
 		$this->SQLFilters['po']='period="once" and code not in ("welltime","wellsystem")';
 		$this->SQLFilters['p3']='period="3mon" and code not in ("welltime","wellsystem")';
 		$this->SQLFilters['p6']='period="6mon" and code not in ("welltime","wellsystem")';
-		$this->SQLFilterNames['pa']='ÌÀÂÏÊ';
-		$this->SQLFilterNames['pm']='ÅÖÅÍÅÓÑÞÎÙÊ';
-		$this->SQLFilterNames['py']='ÅÖÅÇÏÄÎÙÊ';
-		$this->SQLFilterNames['po']='ÒÁÚÏ×ÙÊ';
-		$this->SQLFilterNames['p3']='3 ÍÅÓÑÃÁ';
-		$this->SQLFilterNames['p6']='6 ÍÅÓÑÃÅ×';
-		$this->SQLFilterGroups['ðÅÒÉÏÄ ÔÁÒÉÆÁ']=array('pa','pm','py','po','p3','p6');
+		$this->SQLFilterNames['pa']='Ð»ÑŽÐ±Ð¾Ð¹';
+		$this->SQLFilterNames['pm']='ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['py']='ÐµÐ¶ÐµÐ³Ð¾Ð´Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['po']='Ñ€Ð°Ð·Ð¾Ð²Ñ‹Ð¹';
+		$this->SQLFilterNames['p3']='3 Ð¼ÐµÑÑÑ†Ð°';
+		$this->SQLFilterNames['p6']='6 Ð¼ÐµÑÑÑ†ÐµÐ²';
+		$this->SQLFilterGroups['ÐŸÐµÑ€Ð¸Ð¾Ð´ Ñ‚Ð°Ñ€Ð¸Ñ„Ð°']=array('pa','pm','py','po','p3','p6');
 		$this->filters[]='pa';
 	}
 }
@@ -355,45 +355,45 @@ class DbFormTarifsExtra extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','special'=>'ÓÐÅÃÉÁÌØÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','special'=>'ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		$this->fields['description']=array();
 		$this->fields['code']=array('assoc_enum'=>array(
                     ''=>'',
 
-                    //'confroom' => 'ëÏÎÆÅÒÅÎÃ-ÚÁÌ',
-                    'domain'=>'äÏÍÅÎ',
+                    //'confroom' => 'ÐšÐ¾Ð½Ñ„ÐµÑ€ÐµÐ½Ñ†-Ð·Ð°Ð»',
+                    'domain'=>'Ð”Ð¾Ð¼ÐµÐ½',
                     'ip'=>'IP',
-                    'mailserver'=>'ðÏÞÔÏ×ÙÊ ÓÅÒ×ÅÒ',
-                    'phone_ats'=>'áôó',
-                    'site'=>'óÁÊÔ',
+                    'mailserver'=>'ÐŸÐ¾Ñ‡Ñ‚Ð¾Ð²Ñ‹Ð¹ ÑÐµÑ€Ð²ÐµÑ€',
+                    'phone_ats'=>'ÐÐ¢Ð¡',
+                    'site'=>'Ð¡Ð°Ð¹Ñ‚',
                     'sms_gate'=>'SMS Gate', 
-                    'uspd' => "õóðä",
+                    'uspd' => "Ð£Ð¡ÐŸÐ”",
                     //'welltime'=>'WellTime',
                     //'wellsystems'=>'WellSystems'
                     ));
 		$this->fields['param_name']=array();
-		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'ÌÀÂÏÅ', 0=>'×ÓÅÇÄÁ 1'));
+		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'Ð»ÑŽÐ±Ð¾Ðµ', 0=>'Ð²ÑÐµÐ³Ð´Ð° 1'));
 		$this->fields['price']=array();
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ', 'year'=>'ÅÖÅÇÏÄÎÏ','once'=>'ÒÁÚÏ×Ï', '3mon'=>'ÒÁÚ × 3 ÍÅÓÑÃÁ','6mon'=>'ÒÁÚ × 6 ÍÅÓÑÃÅ×'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾', 'year'=>'ÐµÐ¶ÐµÐ³Ð¾Ð´Ð½Ð¾','once'=>'Ñ€Ð°Ð·Ð¾Ð²Ð¾', '3mon'=>'Ñ€Ð°Ð· Ð² 3 Ð¼ÐµÑÑÑ†Ð°','6mon'=>'Ñ€Ð°Ð· Ð² 6 Ð¼ÐµÑÑÑ†ÐµÐ²'));
 	}
 }
 
 class DbViewTarifsITPark extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
-		$this->Headers['z'] = 'ôÁÒÉÆÙ ITPark';
+		$this->Headers['z'] = 'Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ ITPark';
 		$this->FieldSets['z']=array(
-			'description'=>'ïÐÉÓÁÎÉÅ',
-			'price'=>'óÔÏÉÍÏÓÔØ',
-			'period' => 'ðÅÒÉÏÄ',
+			'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+			'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+			'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 		);
 		$this->fieldset = 'z';
 
-		$this->SQLFilterGroups = array('çÒÕÐÐÁ ÔÁÒÉÆÏ×'=>array('itpark'));
-		$this->SQLFilterGroups['ôÉÐ ÔÁÒÉÆÁ'] = array('once','periodical');
+		$this->SQLFilterGroups = array('Ð“Ñ€ÑƒÐ¿Ð¿Ð° Ñ‚Ð°Ñ€Ð¸Ñ„Ð¾Ð²'=>array('itpark'));
+		$this->SQLFilterGroups['Ð¢Ð¸Ð¿ Ñ‚Ð°Ñ€Ð¸Ñ„Ð°'] = array('once','periodical');
 		$this->SQLFilterNames['itpark'] = 'IT Park';
-		$this->SQLFilterNames['once'] = 'ÒÁÚÏ×ÙÊ';
-		$this->SQLFilterNames['periodical'] = 'ÐÅÒÉÏÄÉÞÅÓËÉÊ';
+		$this->SQLFilterNames['once'] = 'Ñ€Ð°Ð·Ð¾Ð²Ñ‹Ð¹';
+		$this->SQLFilterNames['periodical'] = 'Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹';
 		$this->SQLFilters['once'] = 'period="once"';
 		$this->SQLFilters['periodical'] = 'period<>"once"';
 		$this->SQLFilters['itpark'] = 'status="itpark"';
@@ -404,32 +404,32 @@ class DbViewTarifsITPark extends DbView{
 class DbViewTarifsWelltime extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
-		$this->Headers['z'] = 'ôÁÒÉÆÙ Welltime';
+		$this->Headers['z'] = 'Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Welltime';
 		$this->FieldSets['z']=array(
-			'description'=>'ïÐÉÓÁÎÉÅ',
-			'price'=>'óÔÏÉÍÏÓÔØ',
-			'period' => 'ðÅÒÉÏÄ',
+			'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+			'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+			'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 		);
 		$this->fieldset = 'z';
 
-		//$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','special'=>'ÓÐÅÃÉÁÌØÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ','adsl_su'=>'adsl.su'));
+		//$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','special'=>'ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹','adsl_su'=>'adsl.su'));
 
-		$this->SQLFilterGroups = array('çÒÕÐÐÁ ÔÁÒÉÆÏ×'=>array('welltime'));
-		$this->SQLFilterGroups['óÏÓÔÏÑÎÉÅ'] = array('public', 'archive');
-		$this->SQLFilterGroups['ôÉÐ ÔÁÒÉÆÁ'] = array('once','periodical');
+		$this->SQLFilterGroups = array('Ð“Ñ€ÑƒÐ¿Ð¿Ð° Ñ‚Ð°Ñ€Ð¸Ñ„Ð¾Ð²'=>array('welltime'));
+		$this->SQLFilterGroups['Ð¡Ð¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ'] = array('public', 'archive');
+		$this->SQLFilterGroups['Ð¢Ð¸Ð¿ Ñ‚Ð°Ñ€Ð¸Ñ„Ð°'] = array('once','periodical');
 
 
 		$this->SQLFilterNames['welltime'] = 'Welltime';
-		$this->SQLFilterNames['once'] = 'ÒÁÚÏ×ÙÊ';
-		$this->SQLFilterNames['periodical'] = 'ÐÅÒÉÏÄÉÞÅÓËÉÊ';
+		$this->SQLFilterNames['once'] = 'Ñ€Ð°Ð·Ð¾Ð²Ñ‹Ð¹';
+		$this->SQLFilterNames['periodical'] = 'Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹';
 		$this->SQLFilters['once'] = 'period="once"';
 		$this->SQLFilters['periodical'] = 'period<>"once" and period <>"archive"';
 		$this->SQLFilters['welltime'] = 'code="welltime"';
 
 		$this->SQLFilters['public']='status="public"';
 		$this->SQLFilters['archive']='status="archive"';
-		$this->SQLFilterNames['public']='ÐÕÂÌÉÞÎÙÊ';
-		$this->SQLFilterNames['archive']='ÁÒÈÉ×ÎÙÊ';
+		$this->SQLFilterNames['public']='Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['archive']='Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹';
 
 
 
@@ -440,21 +440,21 @@ class DbViewTarifsWelltime extends DbView{
 class DbViewTarifsVirtpbx extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_virtpbx';
-		$this->Headers['z'] = 'ôÁÒÉÆÙ ÷ÉÒÔÕÁÌØÎÁÑ áôó';
+		$this->Headers['z'] = 'Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð’Ð¸Ñ€Ñ‚ÑƒÐ°Ð»ÑŒÐ½Ð°Ñ ÐÐ¢Ð¡';
 		$this->FieldSets['z']=array(
-			'description'=>'ïÐÉÓÁÎÉÅ',
-			'price'=>'óÔÏÉÍÏÓÔØ',
-			'period' => 'ðÅÒÉÏÄ',
+			'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+			'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+			'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 		);
 		$this->fieldset = 'z';
 
-		$this->SQLFilterGroups['óÏÓÔÏÑÎÉÅ'] = array('public', 'archive');
+		$this->SQLFilterGroups['Ð¡Ð¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ'] = array('public', 'archive');
 
 
 		$this->SQLFilters['public']='status="public"';
 		$this->SQLFilters['archive']='status="archive"';
-		$this->SQLFilterNames['public']='ÐÕÂÌÉÞÎÙÊ';
-		$this->SQLFilterNames['archive']='ÁÒÈÉ×ÎÙÊ';
+		$this->SQLFilterNames['public']='Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['archive']='Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹';
 
 
 
@@ -465,21 +465,21 @@ class DbViewTarifsVirtpbx extends DbView{
 class DbViewTarifs8800 extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_8800';
-		$this->Headers['z'] = 'ôÁÒÉÆÙ ÎÁ ÎÏÍÅÒÁ 8800';
+		$this->Headers['z'] = 'Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ð½Ð¾Ð¼ÐµÑ€Ð° 8800';
 		$this->FieldSets['z']=array(
-			'description'=>'ïÐÉÓÁÎÉÅ',
-			'price'=>'óÔÏÉÍÏÓÔØ',
-			'period' => 'ðÅÒÉÏÄ',
+			'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+			'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+			'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 		);
 		$this->fieldset = 'z';
 
-		$this->SQLFilterGroups['óÏÓÔÏÑÎÉÅ'] = array('public', 'archive');
+		$this->SQLFilterGroups['Ð¡Ð¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ'] = array('public', 'archive');
 
 
 		$this->SQLFilters['public']='status="public"';
 		$this->SQLFilters['archive']='status="archive"';
-		$this->SQLFilterNames['public']='ÐÕÂÌÉÞÎÙÊ';
-		$this->SQLFilterNames['archive']='ÁÒÈÉ×ÎÙÊ';
+		$this->SQLFilterNames['public']='Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['archive']='Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹';
 
 
 
@@ -490,21 +490,21 @@ class DbViewTarifs8800 extends DbView{
 class DbViewTarifsSms extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_sms';
-		$this->Headers['z'] = 'ôÁÒÉÆÙ ÎÁ SMS';
+		$this->Headers['z'] = 'Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° SMS';
 		$this->FieldSets['z']=array(
-			'description'=>'ïÐÉÓÁÎÉÅ',
-			'per_month_price'=>'áÂÏÎÅÎÔÓËÁÑ ÐÌÁÔÁ, ÒÕÂ. Ó îäó',
-			'per_sms_price'=>'ÚÁ 1 óíó, ÒÕÂ Ó îäó',
+			'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+			'per_month_price'=>'ÐÐ±Ð¾Ð½ÐµÐ½Ñ‚ÑÐºÐ°Ñ Ð¿Ð»Ð°Ñ‚Ð°, Ñ€ÑƒÐ±. Ñ ÐÐ”Ð¡',
+			'per_sms_price'=>'Ð·Ð° 1 Ð¡ÐœÐ¡, Ñ€ÑƒÐ± Ñ ÐÐ”Ð¡',
 		);
 		$this->fieldset = 'z';
 
-		$this->SQLFilterGroups['óÏÓÔÏÑÎÉÅ'] = array('public', 'archive');
+		$this->SQLFilterGroups['Ð¡Ð¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ'] = array('public', 'archive');
 
 
 		$this->SQLFilters['public']='status="public"';
 		$this->SQLFilters['archive']='status="archive"';
-		$this->SQLFilterNames['public']='ÐÕÂÌÉÞÎÙÊ';
-		$this->SQLFilterNames['archive']='ÁÒÈÉ×ÎÙÊ';
+		$this->SQLFilterNames['public']='Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹';
+		$this->SQLFilterNames['archive']='Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹';
 
 
 
@@ -515,19 +515,19 @@ class DbViewTarifsSms extends DbView{
 class DbViewTarifsWellSystem extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_extra';
-		$this->Headers['z'] = 'ôÁÒÉÆÙ WellSystem';
+		$this->Headers['z'] = 'Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ WellSystem';
 		$this->FieldSets['z']=array(
-			'description'=>'ïÐÉÓÁÎÉÅ',
-			'price'=>'óÔÏÉÍÏÓÔØ',
-			'period' => 'ðÅÒÉÏÄ',
+			'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+			'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+			'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 		);
 		$this->fieldset = 'z';
 
-		$this->SQLFilterGroups = array('çÒÕÐÐÁ ÔÁÒÉÆÏ×'=>array('wellsystem'));
-		$this->SQLFilterGroups['ôÉÐ ÔÁÒÉÆÁ'] = array('once','periodical');
+		$this->SQLFilterGroups = array('Ð“Ñ€ÑƒÐ¿Ð¿Ð° Ñ‚Ð°Ñ€Ð¸Ñ„Ð¾Ð²'=>array('wellsystem'));
+		$this->SQLFilterGroups['Ð¢Ð¸Ð¿ Ñ‚Ð°Ñ€Ð¸Ñ„Ð°'] = array('once','periodical');
 		$this->SQLFilterNames['wellsystem'] = 'WellSystem';
-		$this->SQLFilterNames['once'] = 'ÒÁÚÏ×ÙÊ';
-		$this->SQLFilterNames['periodical'] = 'ÐÅÒÉÏÄÉÞÅÓËÉÊ';
+		$this->SQLFilterNames['once'] = 'Ñ€Ð°Ð·Ð¾Ð²Ñ‹Ð¹';
+		$this->SQLFilterNames['periodical'] = 'Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹';
 		$this->SQLFilters['once'] = 'period="once"';
 		$this->SQLFilters['periodical'] = 'period<>"once"';
 		$this->SQLFilters['wellsystem'] = 'code="wellsystem"';
@@ -541,9 +541,9 @@ class DbFormTarifsITPark extends DbFormSimpleLog {
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
 		$this->fields['status']=array('enum'=>array('itpark'),'type'=>'hidden','default'=>'itpark');
 		$this->fields['description']=array();
-		$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'ëÏÎÆÅÒÅÎÃ-ÚÁÌ','workingtable'=>'òÁÂÏÞÅÅ ÍÅÓÔÏ'));
+		$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'ÐšÐ¾Ð½Ñ„ÐµÑ€ÐµÐ½Ñ†-Ð·Ð°Ð»','workingtable'=>'Ð Ð°Ð±Ð¾Ñ‡ÐµÐµ Ð¼ÐµÑÑ‚Ð¾'));
 		$this->fields['param_name']=array();
-		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'ÌÀÂÏÅ', 0=>'×ÓÅÇÄÁ ÏÄÉÎ'));
+		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'Ð»ÑŽÐ±Ð¾Ðµ', 0=>'Ð²ÑÐµÐ³Ð´Ð° Ð¾Ð´Ð¸Ð½'));
 		$this->fields['price']=array();
 
         global $db;
@@ -554,7 +554,7 @@ class DbFormTarifsITPark extends DbFormSimpleLog {
         }
 
 		$this->fields['okvd_code']=array('assoc_enum' => $okvd);
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ', 'year'=>'ÅÖÅÇÏÄÎÏ','once'=>'ÒÁÚÏ×Ï', '3mon'=>'ÒÁÚ × 3 ÍÅÓÑÃÁ','6mon'=>'ÒÁÚ × 6 ÍÅÓÑÃÅ×'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾', 'year'=>'ÐµÐ¶ÐµÐ³Ð¾Ð´Ð½Ð¾','once'=>'Ñ€Ð°Ð·Ð¾Ð²Ð¾', '3mon'=>'Ñ€Ð°Ð· Ð² 3 Ð¼ÐµÑÑÑ†Ð°','6mon'=>'Ñ€Ð°Ð· Ð² 6 Ð¼ÐµÑÑÑ†ÐµÐ²'));
 	}
 }
 
@@ -563,15 +563,15 @@ class DbFormTarifsWelltime extends DbFormSimpleLog {
 		DbForm::__construct('tarifs_extra');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
 		//$this->fields['status']=array('enum'=>array('public'),'type'=>'hidden','default'=>'public');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		//$this->fields['status']=array('enum'=>array('itpark'),'type'=>'hidden','default'=>'itpark');
 		$this->fields['description']=array();
 		$this->fields['code']=array('enum'=>array('welltime'),'type'=>'hidden','default'=>'welltime');
-		//$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'ëÏÎÆÅÒÅÎÃ-ÚÁÌ','workingtable'=>'òÁÂÏÞÅÅ ÍÅÓÔÏ'));
+		//$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'ÐšÐ¾Ð½Ñ„ÐµÑ€ÐµÐ½Ñ†-Ð·Ð°Ð»','workingtable'=>'Ð Ð°Ð±Ð¾Ñ‡ÐµÐµ Ð¼ÐµÑÑ‚Ð¾'));
 		$this->fields['param_name']=array();
-		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'ÌÀÂÏÅ', 0=>'×ÓÅÇÄÁ ÏÄÉÎ'));
+		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'Ð»ÑŽÐ±Ð¾Ðµ', 0=>'Ð²ÑÐµÐ³Ð´Ð° Ð¾Ð´Ð¸Ð½'));
 		$this->fields['price']=array();
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ', 'year'=>'ÅÖÅÇÏÄÎÏ','once'=>'ÒÁÚÏ×Ï', '3mon'=>'ÒÁÚ × 3 ÍÅÓÑÃÁ','6mon'=>'ÒÁÚ × 6 ÍÅÓÑÃÅ×'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾', 'year'=>'ÐµÐ¶ÐµÐ³Ð¾Ð´Ð½Ð¾','once'=>'Ñ€Ð°Ð·Ð¾Ð²Ð¾', '3mon'=>'Ñ€Ð°Ð· Ð² 3 Ð¼ÐµÑÑÑ†Ð°','6mon'=>'Ñ€Ð°Ð· Ð² 6 Ð¼ÐµÑÑÑ†ÐµÐ²'));
 	}
 }
 
@@ -579,16 +579,16 @@ class DbFormTarifsVirtpbx extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_virtpbx');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		$this->fields['description']=array();
 		$this->fields['price']=array('default'=>0);
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾'));
         $this->fields['num_ports']=array('default'=>50);
         $this->fields['overrun_per_port']=array('default'=>1);
         $this->fields['space']=array('default'=>100);
         $this->fields['overrun_per_mb']=array('default'=>1);
-        $this->fields['is_record']=array('assoc_enum' => array('1' => 'äÁ', '0' => 'îÅÔ'), 'default'=>1);
-        $this->fields['is_fax']=array('assoc_enum' => array('1' => 'äÁ', '0' => 'îÅÔ'), 'default'=>1);
+        $this->fields['is_record']=array('assoc_enum' => array('1' => 'Ð”Ð°', '0' => 'ÐÐµÑ‚'), 'default'=>1);
+        $this->fields['is_fax']=array('assoc_enum' => array('1' => 'Ð”Ð°', '0' => 'ÐÐµÑ‚'), 'default'=>1);
 	}
 }
 
@@ -596,10 +596,10 @@ class DbFormTarifs8800 extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_8800');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		$this->fields['description']=array();
 		$this->fields['price']=array('default'=>0);
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾'));
 	}
 }
 
@@ -607,11 +607,11 @@ class DbFormTarifsSms extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_sms');
 		$this->fields['currency']=array('type' => 'hidden', 'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		$this->fields['description']=array();
 		$this->fields['per_month_price']=array('default'=>0);
 		$this->fields['per_sms_price']=array('default'=>0);
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾'));
 	}
 }
 
@@ -623,21 +623,21 @@ class DbFormTarifsWellSystem extends DbFormSimpleLog {
 		//$this->fields['status']=array('enum'=>array('itpark'),'type'=>'hidden','default'=>'itpark');
 		$this->fields['description']=array();
 		$this->fields['code']=array('enum'=>array('wellsystem'),'type'=>'hidden','default'=>'wellsystem');
-		//$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'ëÏÎÆÅÒÅÎÃ-ÚÁÌ','workingtable'=>'òÁÂÏÞÅÅ ÍÅÓÔÏ'));
+		//$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'ÐšÐ¾Ð½Ñ„ÐµÑ€ÐµÐ½Ñ†-Ð·Ð°Ð»','workingtable'=>'Ð Ð°Ð±Ð¾Ñ‡ÐµÐµ Ð¼ÐµÑÑ‚Ð¾'));
 		$this->fields['param_name']=array();
-		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'ÌÀÂÏÅ', 0=>'×ÓÅÇÄÁ ÏÄÉÎ'));
+		$this->fields['is_countable']=array('assoc_enum'=>array('1'=>'Ð»ÑŽÐ±Ð¾Ðµ', 0=>'Ð²ÑÐµÐ³Ð´Ð° Ð¾Ð´Ð¸Ð½'));
 		$this->fields['price']=array();
-		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÅÖÅÍÅÓÑÞÎÏ', 'year'=>'ÅÖÅÇÏÄÎÏ','once'=>'ÒÁÚÏ×Ï', '3mon'=>'ÒÁÚ × 3 ÍÅÓÑÃÁ','6mon'=>'ÒÁÚ × 6 ÍÅÓÑÃÅ×'));
+		$this->fields['period']=array('assoc_enum'=>array('month'=>'ÐµÐ¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾', 'year'=>'ÐµÐ¶ÐµÐ³Ð¾Ð´Ð½Ð¾','once'=>'Ñ€Ð°Ð·Ð¾Ð²Ð¾', '3mon'=>'Ñ€Ð°Ð· Ð² 3 Ð¼ÐµÑÑÑ†Ð°','6mon'=>'Ñ€Ð°Ð· Ð² 6 Ð¼ÐµÑÑÑ†ÐµÐ²'));
 	}
 }
 class DbViewBillMonthlyaddReference extends DbViewCommonTarif {
 	public function constructChild() {
 		$this->table='bill_monthlyadd_reference';
-		$this->Headers['z']='ôÁÒÉÆÙ ÎÁ ÄÏÐÏÌÎÉÔÅÌØÎÙÅ ÕÓÌÕÇÉ';
+		$this->Headers['z']='Ð¢Ð°Ñ€Ð¸Ñ„Ñ‹ Ð½Ð° Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ðµ ÑƒÑÐ»ÑƒÐ³Ð¸';
 		$this->FieldSets['z']=array(
-							'description'=>'ïÐÉÓÁÎÉÅ',
-							'price'=>'óÔÏÉÍÏÓÔØ',
-							'period' => 'ðÅÒÉÏÄ',
+							'description'=>'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+							'price'=>'Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ',
+							'period' => 'ÐŸÐµÑ€Ð¸Ð¾Ð´',
 							);
 		$this->fieldset='z';
 	}
@@ -646,10 +646,10 @@ class DbFormBillMonthlyaddReference extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('bill_monthlyadd_reference');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'ÐÕÂÌÉÞÎÙÊ','special'=>'ÓÐÅÃÉÁÌØÎÙÊ','archive'=>'ÁÒÈÉ×ÎÙÊ'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'Ð¿ÑƒÐ±Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹','special'=>'ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹','archive'=>'Ð°Ñ€Ñ…Ð¸Ð²Ð½Ñ‹Ð¹'));
 		$this->fields['description']=array();
 		$this->fields['price']=array();
-		$this->fields['period']=array('assoc_enum'=>array('day'=>'åÖÅÄÎÅ×ÎÏ', 'month'=>'åÖÅÍÅÓÑÞÎÏ', 'year'=>'åÖÅÇÏÄÎÏ', 'once'=>'òÁÚÏ×ÁÑ ÕÓÌÕÇÁ'));
+		$this->fields['period']=array('assoc_enum'=>array('day'=>'Ð•Ð¶ÐµÐ´Ð½ÐµÐ²Ð½Ð¾', 'month'=>'Ð•Ð¶ÐµÐ¼ÐµÑÑÑ‡Ð½Ð¾', 'year'=>'Ð•Ð¶ÐµÐ³Ð¾Ð´Ð½Ð¾', 'once'=>'Ð Ð°Ð·Ð¾Ð²Ð°Ñ ÑƒÑÐ»ÑƒÐ³Ð°'));
 	}
 }
 
@@ -660,13 +660,13 @@ class DbViewMonitorClients extends DbView {
 		$this->SQLFilterNames=array();
 		$this->SQLFilterGroups=array();
 		$this->table='monitor_clients';
-		$this->Headers['z']='íÏÎÉÔÏÒÉÎÇ';
+		$this->Headers['z']='ÐœÐ¾Ð½Ð¸Ñ‚Ð¾Ñ€Ð¸Ð½Ð³';
 		$this->FieldSets['z']=array(
-							'client'=>'ëÌÉÅÎÔ',
+							'client'=>'ÐšÐ»Ð¸ÐµÐ½Ñ‚',
 							'email'=>'E-Mail',
-							'allow_bad' => 'ðÏÒÏÇÏ×ÏÅ ÞÉÓÌÏ ÐÌÏÈÉÈ ÐÉÎÇÏ×',
-							'period_mail' => '÷ÒÅÍÑ ÍÅÖÄÕ ÐÉÓØÍÁÍÉ, ÍÉÎ',
-							'IP-ÁÄÒÅÓÁ'=>array('ips'=>'IP','bad'=>'ÐÌÏÈÉÈ ÐÉÎÇÏ×'),
+							'allow_bad' => 'ÐŸÐ¾Ñ€Ð¾Ð³Ð¾Ð²Ð¾Ðµ Ñ‡Ð¸ÑÐ»Ð¾ Ð¿Ð»Ð¾Ñ…Ð¸Ñ… Ð¿Ð¸Ð½Ð³Ð¾Ð²',
+							'period_mail' => 'Ð’Ñ€ÐµÐ¼Ñ Ð¼ÐµÐ¶Ð´Ñƒ Ð¿Ð¸ÑÑŒÐ¼Ð°Ð¼Ð¸, Ð¼Ð¸Ð½',
+							'IP-Ð°Ð´Ñ€ÐµÑÐ°'=>array('ips'=>'IP','bad'=>'Ð¿Ð»Ð¾Ñ…Ð¸Ñ… Ð¿Ð¸Ð½Ð³Ð¾Ð²'),
 							);
 		$this->fieldset='z';
 	}
@@ -761,8 +761,8 @@ class DbViewUsagePhoneRedirConditions extends DbView {
 		$this->table='usage_phone_redir_conditions';
 		$this->Headers['z']='Time Conditions';
 		$this->FieldSets['z']=array(
-							'title' => 'îÁÚ×ÁÎÉÅ ÐÒÁ×ÉÌÁ',
-							'type' => 'ôÉÐ',
+							'title' => 'ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°',
+							'type' => 'Ð¢Ð¸Ð¿',
 							);
 		$this->fieldset='z';
 	}
@@ -774,13 +774,13 @@ class DbViewSaleChannels extends DbView {
 		$this->SQLFilterNames=array();
 		$this->SQLFilterGroups=array();
 		$this->table='sale_channels';
-		$this->Headers['z']='ëÁÎÁÌÙ ÐÒÏÄÁÖ';
+		$this->Headers['z']='ÐšÐ°Ð½Ð°Ð»Ñ‹ Ð¿Ñ€Ð¾Ð´Ð°Ð¶';
 		$this->FieldSets['z']=array(
-							'name' => 'îÁÚ×ÁÎÉÅ',
-							'dealer_id' => 'ID ÄÉÌÅÒÁ',
-							'is_agent' => 'áÇÅÎÔ',
-							'interest' => '÷ÏÚÎÁÇÒÁÖÄÅÎÉÅ',
-							'courier_id' => 'ëÕÒØÅÒ',
+							'name' => 'ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ',
+							'dealer_id' => 'ID Ð´Ð¸Ð»ÐµÑ€Ð°',
+							'is_agent' => 'ÐÐ³ÐµÐ½Ñ‚',
+							'interest' => 'Ð’Ð¾Ð·Ð½Ð°Ð³Ñ€Ð°Ð¶Ð´ÐµÐ½Ð¸Ðµ',
+							'courier_id' => 'ÐšÑƒÑ€ÑŒÐµÑ€',
 		);
 		$this->fieldset='z';
 	}
@@ -790,11 +790,11 @@ class DbFormSaleChannels extends DbForm{
 		DbForm::__construct('sale_channels');
 		$this->fields['name']=array();
 		$this->fields['dealer_id']=array();
-		$this->fields['is_agent']=array('assoc_enum'=>array('0'=>'îÅÔ', '1'=>'äÁ'));
+		$this->fields['is_agent']=array('assoc_enum'=>array('0'=>'ÐÐµÑ‚', '1'=>'Ð”Ð°'));
 		$this->fields['interest']=array();
         global $db;
         $couriers = array("0" => "-");
-        foreach($db->AllRecords("select id, name from courier where depart='òÅÇÉÏÎÁÌØÎÙÊ ÐÒÅÄÓÔÁ×ÉÔÅÌØ'") as $o)
+        foreach($db->AllRecords("select id, name from courier where depart='Ð ÐµÐ³Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ð¿Ñ€ÐµÐ´ÑÑ‚Ð°Ð²Ð¸Ñ‚ÐµÐ»ÑŒ'") as $o)
         {
             $couriers[$o["id"]] = $o["name"];
         }
@@ -808,10 +808,10 @@ class DbViewTechNets extends DbView {
 		$this->SQLFilterNames=array();
 		$this->SQLFilterGroups=array();
 		$this->table='tech_nets';
-		$this->Headers['z']='óÅÔÉ';
+		$this->Headers['z']='Ð¡ÐµÑ‚Ð¸';
 		$this->FieldSets['z']=array(
 							'id' => 'ID',
-							'net' => 'óÅÔØ',
+							'net' => 'Ð¡ÐµÑ‚ÑŒ',
 							);
 		$this->fieldset='z';
 	}

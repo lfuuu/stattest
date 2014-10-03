@@ -10,7 +10,7 @@
 	{/foreach}
 	<br>
 {/foreach}
-<a href='{$LINK_START}{$dbview_link_edit}'>Добавить</a>
+<a href='{$LINK_START}{$dbview_link_edit}'>п■п╬п╠п╟п╡п╦я┌я▄</a>
 <TABLE class=price cellSpacing=2 cellPadding=1 width="100%" border=0>
 {if count($dbview_fieldgroups)}
 <TR>{foreach from=$dbview_fieldgroups item=item key=key}<TD colspan={$item.0} {if $item.1}class=header style='font-weight:bold'{else}style='background:none'{/if}>{$item.1}</TD>{/foreach}</TR>

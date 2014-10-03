@@ -1,1 +1,1 @@
-<br><a href="{$LINK_START}module=routers&action=n_report" target=_blank>Ô‘ﬁ£‘ –œ ”≈‘—Õ</a><br>
+<br><a href="{$LINK_START}module=routers&action=n_report" target=_blank>–û—Ç—á—ë—Ç –ø–æ —Å–µ—Ç—è–º</a><br>

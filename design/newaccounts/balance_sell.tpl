@@ -2,8 +2,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Книга продаж</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<TITLE>п п╫п╦пЁп╟ п©я─п╬п╢п╟п╤</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 {literal}<STYLE>
 .price {
 	font-size:14px;
@@ -26,66 +26,66 @@ h3 {
 
 
 <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
-<h2>КНИГА ПРОДАЖ</h2>
-Продавец     __________________________________________________________________________________________________________<br>
-Идентификационный номер и код причины постановки на учет налогоплательщика-продавца     __________________________________________________________________________________________________________<br>
-Продажа за период с {$date_from_val|mdate:"d месяца Y г."} по {$date_to_val|mdate:"d месяца Y г."}<br>
+<h2>п п²п≤п⌠п░ п÷п═п·п■п░п√</h2>
+п÷я─п╬п╢п╟п╡п╣я├     __________________________________________________________________________________________________________<br>
+п≤п╢п╣п╫я┌п╦я└п╦п╨п╟я├п╦п╬п╫п╫я▀п╧ п╫п╬п╪п╣я─ п╦ п╨п╬п╢ п©я─п╦я┤п╦п╫я▀ п©п╬я│я┌п╟п╫п╬п╡п╨п╦ п╫п╟ я┐я┤п╣я┌ п╫п╟п╩п╬пЁп╬п©п╩п╟я┌п╣п╩я▄я┴п╦п╨п╟-п©я─п╬п╢п╟п╡я├п╟     __________________________________________________________________________________________________________<br>
+п÷я─п╬п╢п╟п╤п╟ п╥п╟ п©п╣я─п╦п╬п╢ я│ {$date_from_val|mdate:"d п╪п╣я│я▐я├п╟ Y пЁ."} п©п╬ {$date_to_val|mdate:"d п╪п╣я│я▐я├п╟ Y пЁ."}<br>
 
 <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
 {else}
 <form style='display:inline' action='?'>
 	<input type=hidden name=module value=newaccounts>
 	<input type=hidden name=action value=balance_sell>
-От:	<input id=date_from type=text name=date_from value='{$date_from}' class=text>
-До:	<input id=date_to type=text name=date_to value='{$date_to}' class=text><br>
-Метод оплаты: <select name=paymethod>
+п·я┌:	<input id=date_from type=text name=date_from value='{$date_from}' class=text>
+п■п╬:	<input id=date_to type=text name=date_to value='{$date_to}' class=text><br>
+п°п╣я┌п╬п╢ п╬п©п╩п╟я┌я▀: <select name=paymethod>
 	<option value=beznal{if $paymethod=='beznal'} selected{/if}>beznal</option>
 	<option value=nal{if $paymethod=='nal'} selected{/if}>nal</option>
 	<option value=prov{if $paymethod=='prov'} selected{/if}>prov</option>
 	</select><br>
-Компания:<select class="text" name="firma">
-        <option value="mcn_telekom"{if $firma == "mcn_telekom"} selected{/if}>ООО "МСН Телеком"</option>
-        <option value="all4geo"{if $firma == "all4geo"} selected{/if}>ООО "Олфогео"</option>
-        <option value="mcn"{if $firma == "mcn"} selected{/if}>ООО "Эм Си Эн"</option>
-        <option value="markomnet_new"{if $firma == "markomnet_new"} selected{/if}>ООО "МАРКОМНЕТ"</option>
-        <option value="markomnet"{if $firma == "markomnet"} selected{/if}>ООО "МАРКОМНЕТ" (старый)</option>
-        <option value="ooomcn"{if $firma == "ooomcn"} selected{/if}>ООО "МСН"</option>
-        <option value="all4net"{if $firma == "all4net"} selected{/if}>ООО "ОЛФОНЕТ"</option>
-        <option value="ooocmc"{if $firma == "ooocmc"} selected{/if}>ООО "Си Эм Си"</option>
+п п╬п╪п©п╟п╫п╦я▐:<select class="text" name="firma">
+        <option value="mcn_telekom"{if $firma == "mcn_telekom"} selected{/if}>п·п·п· "п°п║п² п╒п╣п╩п╣п╨п╬п╪"</option>
+        <option value="all4geo"{if $firma == "all4geo"} selected{/if}>п·п·п· "п·п╩я└п╬пЁп╣п╬"</option>
+        <option value="mcn"{if $firma == "mcn"} selected{/if}>п·п·п· "п╜п╪ п║п╦ п╜п╫"</option>
+        <option value="markomnet_new"{if $firma == "markomnet_new"} selected{/if}>п·п·п· "п°п░п═п п·п°п²п∙п╒"</option>
+        <option value="markomnet"{if $firma == "markomnet"} selected{/if}>п·п·п· "п°п░п═п п·п°п²п∙п╒" (я│я┌п╟я─я▀п╧)</option>
+        <option value="ooomcn"{if $firma == "ooomcn"} selected{/if}>п·п·п· "п°п║п²"</option>
+        <option value="all4net"{if $firma == "all4net"} selected{/if}>п·п·п· "п·п⌡п╓п·п²п∙п╒"</option>
+        <option value="ooocmc"{if $firma == "ooocmc"} selected{/if}>п·п·п· "п║п╦ п╜п╪ п║п╦"</option>
         </select>
 
-Полный экран: <input type=checkbox name=fullscreen value='1'><br>
-Счета: <select name=payfilter><option value='1'{if $payfilter=='1'} selected{/if}>полностью оплаченные</option>
-<option value='3'{if $payfilter=='3'} selected{/if}>полностью или частично оплаченные</option>
-<option value='0'{if $payfilter=='0'} selected{/if}>все</option></select>
-<input type=submit value='Показать' class=button name="do">
+п÷п╬п╩п╫я▀п╧ я█п╨я─п╟п╫: <input type=checkbox name=fullscreen value='1'><br>
+п║я┤п╣я┌п╟: <select name=payfilter><option value='1'{if $payfilter=='1'} selected{/if}>п©п╬п╩п╫п╬я│я┌я▄я▌ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣</option>
+<option value='3'{if $payfilter=='3'} selected{/if}>п©п╬п╩п╫п╬я│я┌я▄я▌ п╦п╩п╦ я┤п╟я│я┌п╦я┤п╫п╬ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣</option>
+<option value='0'{if $payfilter=='0'} selected{/if}>п╡я│п╣</option></select>
+<input type=submit value='п÷п╬п╨п╟п╥п╟я┌я▄' class=button name="do">
 </form>
-<h2>Книга продаж</h2>
+<h2>п п╫п╦пЁп╟ п©я─п╬п╢п╟п╤</h2>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 {/if}
 <thead><tr>
-	<td width=10% rowspan=4 class=s>Дата и номер счета-фактуры продавца</td>
-	<td width=* rowspan=4>Наименование покупателя</td>
-	<td width=5% rowspan=4>ИНН покупателя</td>
-	<td width=5% rowspan=4>КПП покупателя</td>
-	<td width=5% rowspan=4 class=s>Дата оплаты счета-фактуры продавца</td>
-	<td width=5% rowspan=4>Всего продаж, включая НДС</td>
-	<td width=40% colspan=8>В том числе</td>
+	<td width=10% rowspan=4 class=s>п■п╟я┌п╟ п╦ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟-я└п╟п╨я┌я┐я─я▀ п©я─п╬п╢п╟п╡я├п╟</td>
+	<td width=* rowspan=4>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п©п╬п╨я┐п©п╟я┌п╣п╩я▐</td>
+	<td width=5% rowspan=4>п≤п²п² п©п╬п╨я┐п©п╟я┌п╣п╩я▐</td>
+	<td width=5% rowspan=4>п п÷п÷ п©п╬п╨я┐п©п╟я┌п╣п╩я▐</td>
+	<td width=5% rowspan=4 class=s>п■п╟я┌п╟ п╬п©п╩п╟я┌я▀ я│я┤п╣я┌п╟-я└п╟п╨я┌я┐я─я▀ п©я─п╬п╢п╟п╡я├п╟</td>
+	<td width=5% rowspan=4>п▓я│п╣пЁп╬ п©я─п╬п╢п╟п╤, п╡п╨п╩я▌я┤п╟я▐ п²п■п║</td>
+	<td width=40% colspan=8>п▓ я┌п╬п╪ я┤п╦я│п╩п╣</td>
 </tr><tr>
-	<td width=53% colspan=7>продажи, облагаемые налогом по ставке</td>
-	<td width=5% rowspan=3 class=s>продажи, освобождаемые от налога</td>
+	<td width=53% colspan=7>п©я─п╬п╢п╟п╤п╦, п╬п╠п╩п╟пЁп╟п╣п╪я▀п╣ п╫п╟п╩п╬пЁп╬п╪ п©п╬ я│я┌п╟п╡п╨п╣</td>
+	<td width=5% rowspan=3 class=s>п©я─п╬п╢п╟п╤п╦, п╬я│п╡п╬п╠п╬п╤п╢п╟п╣п╪я▀п╣ п╬я┌ п╫п╟п╩п╬пЁп╟</td>
 </tr><tr>
-	<td colspan=2 class=s>18 процентов (5)</td>
-	<td colspan=2 class=s>10 процентов (6)</td>
-	<td rowspan=2 class=s>0 процентов</td>
-	<td colspan=2 class=s>20 процентов* (8)</td>
+	<td colspan=2 class=s>18 п©я─п╬я├п╣п╫я┌п╬п╡ (5)</td>
+	<td colspan=2 class=s>10 п©я─п╬я├п╣п╫я┌п╬п╡ (6)</td>
+	<td rowspan=2 class=s>0 п©я─п╬я├п╣п╫я┌п╬п╡</td>
+	<td colspan=2 class=s>20 п©я─п╬я├п╣п╫я┌п╬п╡* (8)</td>
 </tr><tr>
-	<td class=s>стоимость продаж<br>без НДС</td>
-	<td class=s>сумма НДС</td>
-	<td class=s>стоимость продаж<br>без НДС</td>
-	<td class=s>сумма НДС</td>
-	<td class=s>стоимость продаж<br>без НДС</td>
-	<td class=s>сумма НДС</td>
+	<td class=s>я│я┌п╬п╦п╪п╬я│я┌я▄ п©я─п╬п╢п╟п╤<br>п╠п╣п╥ п²п■п║</td>
+	<td class=s>я│я┐п╪п╪п╟ п²п■п║</td>
+	<td class=s>я│я┌п╬п╦п╪п╬я│я┌я▄ п©я─п╬п╢п╟п╤<br>п╠п╣п╥ п²п■п║</td>
+	<td class=s>я│я┐п╪п╪п╟ п²п■п║</td>
+	<td class=s>я│я┌п╬п╦п╪п╬я│я┌я▄ п©я─п╬п╢п╟п╤<br>п╠п╣п╥ п²п■п║</td>
+	<td class=s>я│я┐п╪п╪п╟ п²п■п║</td>
 </tr></thead><tbody>
 {foreach from=$data item=r name=outer}
 <tr class={cycle values="even,odd"}>
@@ -106,7 +106,7 @@ h3 {
 </tr>
 {/foreach}
 <tr class={cycle values="even,odd"}>
-	<td colspan=5 align=right>Всего:</td>
+	<td colspan=5 align=right>п▓я│п╣пЁп╬:</td>
 	<td>{$sum.tsum|round:2|replace:".":","}</td>
 	<td>{$sum.sum|round:2}</td>
 	<td>{$sum.tax|round:2}</td>

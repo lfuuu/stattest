@@ -29,7 +29,7 @@ class m_stats extends IModule{
 	function stats_internet($fixclient){
 		global $db,$design;
 		if(!$fixclient){
-			trigger_error('Выберите клиента');
+			trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟');
 			return;
 		}
 		
@@ -52,12 +52,12 @@ class m_stats extends IModule{
 
 		list($routes_all,$routes_allB)=$this->get_routes_list($fixclient);
 
-		//если сеть не задана, выводим все подсети клиента.
+		//п╣я│п╩п╦ я│п╣я┌я▄ п╫п╣ п╥п╟п╢п╟п╫п╟, п╡я▀п╡п╬п╢п╦п╪ п╡я│п╣ п©п╬п╢я│п╣я┌п╦ п╨п╩п╦п╣п╫я┌п╟.
 		if($route){
 			if(isset($routes_all[$route])){
 				$routes=array($routes_all[$route]);
 			}else{
-				trigger_error('Выбрана неправильная сеть');
+				trigger_error('п▓я▀п╠я─п╟п╫п╟ п╫п╣п©я─п╟п╡п╦п╩я▄п╫п╟я▐ я│п╣я┌я▄');
 				return;
 			}
 		}else{
@@ -89,7 +89,7 @@ class m_stats extends IModule{
 
 	function stats_vpn($fixclient) {
 		global $db,$design;
-		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+		if (!$fixclient) {trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟'); return;}
 		$ip=get_param_raw('ip','');
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
@@ -137,7 +137,7 @@ class m_stats extends IModule{
 		while ($r=$db->NextRecord()) $IPs[$r['ip']]=$r;
 
 		if ($ip){
-			if (!isset($IPs[$ip])) {trigger_error('Выбрана неправильная сеть'); return;}
+			if (!isset($IPs[$ip])) {trigger_error('п▓я▀п╠я─п╟п╫п╟ п╫п╣п©я─п╟п╡п╦п╩я▄п╫п╟я▐ я│п╣я┌я▄'); return;}
 			$IPs=array($IPs[$ip]);
 		}
 		$stats=$this->GetStatsVPN($fixclient,$from,$to,$detality,$IPs);
@@ -152,7 +152,7 @@ class m_stats extends IModule{
 
 	function stats_rtsaldo($fixclient) {
 		global $db,$design,$fixclient_data;
-		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+		if (!$fixclient) {trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟'); return;}
 		$def=getdate();
 		$def['mday']=1; $from=param_load_date('from_',$def);
 		$def['mday']=31; $to=param_load_date('to_',$def);
@@ -173,11 +173,11 @@ class m_stats extends IModule{
 		global $db,$design;
 
 		$login=get_param_integer('login',0);
-		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+		if (!$fixclient) {trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟'); return;}
 
 		if ($login){
 			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (id="'.$login.'")');
-			if (!($r=$db->NextRecord())) {trigger_error('Логин не существует'); return; }
+			if (!($r=$db->NextRecord())) {trigger_error('п⌡п╬пЁп╦п╫ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌'); return; }
 			$logins=array($r['login']);
 
 			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
@@ -186,7 +186,7 @@ class m_stats extends IModule{
 				$logins_all[]=$r;
 			}
 		} else {
-			//список всех сетей, нужен для вывода их списка.
+			//я│п©п╦я│п╬п╨ п╡я│п╣я┘ я│п╣я┌п╣п╧, п╫я┐п╤п╣п╫ п╢п╩я▐ п╡я▀п╡п╬п╢п╟ п╦я┘ я│п©п╦я│п╨п╟.
 			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
 			$logins_all=array(); $logins=array();
 			while ($r=$db->NextRecord()){
@@ -319,7 +319,7 @@ class m_stats extends IModule{
     function stats_voip($fixclient){
         global $db,$design;
         if(!$fixclient){
-            trigger_error('Клиент не выбран');
+            trigger_error('п п╩п╦п╣п╫я┌ п╫п╣ п╡я▀п╠я─п╟п╫');
             return;
         }
 
@@ -331,7 +331,7 @@ class m_stats extends IModule{
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
         if (!$usages) {
-            trigger_error("У клиента нет подключенных телефонных номеров!");
+            trigger_error("пё п╨п╩п╦п╣п╫я┌п╟ п╫п╣я┌ п©п╬п╢п╨п╩я▌я┤п╣п╫п╫я▀я┘ я┌п╣п╩п╣я└п╬п╫п╫я▀я┘ п╫п╬п╪п╣я─п╬п╡!");
             return;
         }
 
@@ -366,7 +366,7 @@ class m_stats extends IModule{
             }
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
-                $phones[$r['region']] = $r['region_name'].' (все номера)';
+                $phones[$r['region']] = $r['region_name'].' (п╡я│п╣ п╫п╬п╪п╣я─п╟)';
                 $last_region = $r['region'];
             }
             $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
@@ -412,8 +412,8 @@ class m_stats extends IModule{
         $design->AddMain('stats/voip.tpl');
 	}
 
-    /*функция формирует единый массив для разных регионов,
-     * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
+    /*я└я┐п╫п╨я├п╦я▐ я└п╬я─п╪п╦я─я┐п╣я┌ п╣п╢п╦п╫я▀п╧ п╪п╟я│я│п╦п╡ п╢п╩я▐ я─п╟п╥п╫я▀я┘ я─п╣пЁп╦п╬п╫п╬п╡,
+     * п╡я┘п╬п╢п╫п╬п╧ п╪п╟я│я│п╦п╡ п╡п╦п╢п╟: array('region_id1'=>array(), 'region_id2'=>array(), ...);
     */
     function prepareStatArray($data = array(), $detality = '', $all_regions = array()) {
 
@@ -442,10 +442,10 @@ class m_stats extends IModule{
                         }
                     }
                 }
-                $rt['tsf1']='Итого';
+                $rt['tsf1']='п≤я┌п╬пЁп╬';
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - п║я┐п╪п╪п╟ я│ п²п■п║</b>)';
 
                 break;
             case 'call':
@@ -464,13 +464,13 @@ class m_stats extends IModule{
                 }
                 array_multisort($Res);
 
-                $rt['ts1']='Итого';
-                $rt['tsf1']='Итого';
+                $rt['ts1']='п≤я┌п╬пЁп╬';
+                $rt['tsf1']='п≤я┌п╬пЁп╬';
                 $rt['num_to']='&nbsp;';
                 $rt['num_from']='&nbsp;';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - п║я┐п╪п╪п╟ я│ п²п■п║</b>)';
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -504,10 +504,10 @@ class m_stats extends IModule{
                 }
                 ksort($Res);
 
-                $rt['tsf1']='Итого';
+                $rt['tsf1']='п≤я┌п╬пЁп╬';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-               $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+               $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - п║я┐п╪п╪п╟ я│ п²п■п║</b>)';
             break;
         }
 
@@ -522,11 +522,11 @@ class m_stats extends IModule{
 
         
         $ns = array();
-        $groups = array("used" => "Используется", "free" => "Свободный", "our" => "ЭмСиЭн", "reserv" => "Резерв", "stop" => "Отстойник");
-        $beautys = array("0" => "Стандартные", "4" => "Бронза", "3" => "Серебро", "2" => "Золото", "1" => "Платина (договорная цена)");
+        $groups = array("used" => "п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐", "free" => "п║п╡п╬п╠п╬п╢п╫я▀п╧", "our" => "п╜п╪п║п╦п╜п╫", "reserv" => "п═п╣п╥п╣я─п╡", "stop" => "п·я┌я│я┌п╬п╧п╫п╦п╨");
+        $beautys = array("0" => "п║я┌п╟п╫п╢п╟я─я┌п╫я▀п╣", "4" => "п▒я─п╬п╫п╥п╟", "3" => "п║п╣я─п╣п╠я─п╬", "2" => "п≈п╬п╩п╬я┌п╬", "1" => "п÷п╩п╟я┌п╦п╫п╟ (п╢п╬пЁп╬п╡п╬я─п╫п╟я▐ я├п╣п╫п╟)");
 
         $numberRanges = array(
-                "74996850000" => array("74996850000", "74996850199", "Москва"),
+                "74996850000" => array("74996850000", "74996850199", "п°п╬я│п╨п╡п╟"),
                 "74996851000" => array("74996851000", "74996851999", ""),
                 "74992130000" => array("74992130000", "74992130499", ""),
                 "74992133000" => array("74992133000", "74992133999", ""),
@@ -535,14 +535,14 @@ class m_stats extends IModule{
                 "74959500000" => array("74959500000", "74959509999", ""),
                 "74951059000" => array("74951059000", "74951059999", ""),
 
-                "78612040000" => array("78612040000", "78612040499", "Краснодар"), //КРАСНОДАР
-                "78123726500" => array("78123726500", "78123726999", "Санкт-Петербург"), //САНКТ-ПЕТЕРБУРГ
-                "78462150000" => array("78462150000", "78462150499", "Самара"), //САМАРА
-                "73433020000" => array("73433020000", "73433022999", "Екатеринбург"), //ЕКАТЕРИНБУРГ
-                "73833120000" => array("73833120000", "73833120499", "Новосибирск"), //НОВОСИБИРСК
-                "78633090000" => array("78633090000", "78633090499", "Ростов-на-дону"), //РОСТОВ-НА-ДОНУ
-                "78432070000" => array("78432070000", "78432070499", "Казань"), //КАЗАНЬ
-                "74232060000" => array("74232060000", "74232060499", "Владивосток"), //ВЛАДИВОСТОК
+                "78612040000" => array("78612040000", "78612040499", "п я─п╟я│п╫п╬п╢п╟я─"), //п п═п░п║п²п·п■п░п═
+                "78123726500" => array("78123726500", "78123726999", "п║п╟п╫п╨я┌-п÷п╣я┌п╣я─п╠я┐я─пЁ"), //п║п░п²п п╒-п÷п∙п╒п∙п═п▒пёп═п⌠
+                "78462150000" => array("78462150000", "78462150499", "п║п╟п╪п╟я─п╟"), //п║п░п°п░п═п░
+                "73433020000" => array("73433020000", "73433022999", "п∙п╨п╟я┌п╣я─п╦п╫п╠я┐я─пЁ"), //п∙п п░п╒п∙п═п≤п²п▒пёп═п⌠
+                "73833120000" => array("73833120000", "73833120499", "п²п╬п╡п╬я│п╦п╠п╦я─я│п╨"), //п²п·п▓п·п║п≤п▒п≤п═п║п 
+                "78633090000" => array("78633090000", "78633090499", "п═п╬я│я┌п╬п╡-п╫п╟-п╢п╬п╫я┐"), //п═п·п║п╒п·п▓-п²п░-п■п·п²пё
+                "78432070000" => array("78432070000", "78432070499", "п п╟п╥п╟п╫я▄"), //п п░п≈п░п²п╛
+                "74232060000" => array("74232060000", "74232060499", "п▓п╩п╟п╢п╦п╡п╬я│я┌п╬п╨"), //п▓п⌡п░п■п≤п▓п·п║п╒п·п 
                 );
 
         $rangeFrom = get_param_raw("range_from", '74996850000');
@@ -558,7 +558,7 @@ class m_stats extends IModule{
         $design->assign("beauty", $beauty);
         $design->assign("beautys", $beautys);
 
-        $design->assign("minCalls", 10); //минимальное среднее кол-во звоноков за 3 месяца в месяц, для возможности публиковать номер минуя "отстойник"
+        $design->assign("minCalls", 10); //п╪п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ я│я─п╣п╢п╫п╣п╣ п╨п╬п╩-п╡п╬ п╥п╡п╬п╫п╬п╨п╬п╡ п╥п╟ 3 п╪п╣я│я▐я├п╟ п╡ п╪п╣я│я▐я├, п╢п╩я▐ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ п©я┐п╠п╩п╦п╨п╬п╡п╟я┌я▄ п╫п╬п╪п╣я─ п╪п╦п╫я┐я▐ "п╬я┌я│я┌п╬п╧п╫п╦п╨"
 
 
         $unsetPublish = array();
@@ -707,7 +707,7 @@ class m_stats extends IModule{
     }
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
-		if (!$fixclient) {trigger_error('Выберите клиента');return;}
+		if (!$fixclient) {trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟');return;}
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
@@ -740,22 +740,22 @@ class m_stats extends IModule{
 		if($detality=='year'){
 			$tbl='traf_flows_1d';
 			$group=' group by YEAR(time)';
-			$format='Y г.';
+			$format='Y пЁ.';
 			$order='time';
 		}elseif($detality=='month'){
 			$tbl='traf_flows_1d';
 			$group=' group by YEAR(time), MONTH(time)';
-			$format='Месяц Y г.';
+			$format='п°п╣я│я▐я├ Y пЁ.';
 			$order='time';
 		}elseif($detality=='day'){
 			$tbl='traf_flows_1d';
 			$group=' group by time';
-			$format='d месяца Y г.';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ.';
 			$order='time';
 		}elseif($detality=='hour'){
 			$tbl='traf_flows_1h';
 			$group=' group by time';
-			$format='d месяца Y г. H:i';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ. H:i';
 			$order='time';
 		}elseif($detality=='ip'){
 			$tbl='traf_flows_1d';
@@ -888,7 +888,7 @@ class m_stats extends IModule{
 			}
 
 			//printdbg($db->NumRows(), $q);
-			if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+			if ($db->NumRows()==5000) trigger_error('п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╬я┌п╬п╠я─п╟п╤п╟п╣я┌я│я▐ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌. п║п╢п╣п╩п╟п╧я┌п╣ п╣п╣ п╪п╣п╫п╣п╣ п╢п╣я┌п╟п╩я▄п╫п╬п╧ п╦п╩п╦ я│я┐п╥я▄я┌п╣ п╡я─п╣п╪п╣п╫п╫п╬п╧ п©п╣я─п╦п╬п╢');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
 				$R[]=$r;
@@ -908,8 +908,8 @@ class m_stats extends IModule{
 				}
 			}
 		}
-		$T['ts']='<b>Итого</b>';
-		$T['tsf']='<b>Итого</b>';
+		$T['ts']='<b>п≤я┌п╬пЁп╬</b>';
+		$T['tsf']='<b>п≤я┌п╬пЁп╬</b>';
 		$T['ip']='&nbsp;';
 		$R[]=$T;
 		return $R;
@@ -924,22 +924,22 @@ class m_stats extends IModule{
 		if ($detality=='year'){
 			$tbl='mod_traf_1d';
 			$group=' group by YEAR(datetime)';
-			$format='Y г.';
+			$format='Y пЁ.';
 			$order='datetime';
 		} elseif ($detality=='month'){
 			$tbl='mod_traf_1d';
 			$group=' group by MONTH(datetime)';
-			$format='Месяц Y г.';
+			$format='п°п╣я│я▐я├ Y пЁ.';
 			$order='datetime';
 		} elseif ($detality=='day'){
 			$tbl='mod_traf_1d';
 			$group=' group by datetime';
-			$format='d месяца Y г.';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ.';
 			$order='datetime';
 		} elseif ($detality=='hour'){
 			$tbl='mod_traf_5m';
 			$group=' group by DATE(datetime),HOUR(datetime)';
-			$format='d месяца Y г. H:i';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ. H:i';
 			$order='datetime';
 		} elseif ($detality=='ip'){
 			$tbl='mod_traf_1d';
@@ -966,7 +966,7 @@ class m_stats extends IModule{
 			$whsql= '(datetime>=FROM_UNIXTIME('.$from.') AND datetime<FROM_UNIXTIME('.$to.'+86400)) AND ('.$whsql.')';
 			$db->Query("select inet_ntoa(ip_int) as ip,sum(transfer_rx) as in_bytes,sum(transfer_tx) as out_bytes,UNIX_TIMESTAMP(datetime) as ts from $tbl where ".$whsql.$group." ORDER by ".$order." ASC LIMIT 5000");
 
-			if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+			if ($db->NumRows()==5000) trigger_error('п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╬я┌п╬п╠я─п╟п╤п╟п╣я┌я│я▐ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌. п║п╢п╣п╩п╟п╧я┌п╣ п╣п╣ п╪п╣п╫п╣п╣ п╢п╣я┌п╟п╩я▄п╫п╬п╧ п╦п╩п╦ я│я┐п╥я▄я┌п╣ п╡я─п╣п╪п╣п╫п╫п╬п╧ п©п╣я─п╦п╬п╢');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
 				$R[]=$r;
@@ -974,8 +974,8 @@ class m_stats extends IModule{
 				$rt['out_bytes']+=$r['out_bytes'];
 			}
 		}
-		$rt['ts']='<b>Итого</b>';
-		$rt['tsf']='<b>Итого</b>';
+		$rt['ts']='<b>п≤я┌п╬пЁп╬</b>';
+		$rt['tsf']='<b>п≤я┌п╬пЁп╬</b>';
 		$rt['ip']='&nbsp;';
 		$R[]=$rt;
 		return $R;
@@ -994,7 +994,7 @@ class m_stats extends IModule{
                   AND operator_id < 50
                   LIMIT 1000") as $l)
         {
-          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["time"]));
+          $l["time"] = mdate("d п╪п╣я│я▐я├п╟ Y пЁ. H:i:s", strtotime($l["time"]));
 
           if ($l['len']>=24*60*60) $d=floor($l['len']/(24*60*60)); else $d=0;
           $l["len"]=($d?($d.'d '):'').gmdate("H:i:s",$l['len']-$d*24*60*60);
@@ -1032,19 +1032,19 @@ class m_stats extends IModule{
 
         if ($detality=='call'){
             $group='';
-            $format='d месяца Y г. H:i:s';
+            $format='d п╪п╣я│я▐я├п╟ Y пЁ. H:i:s';
         } elseif ($detality=='year'){
             $group=" group by date_trunc('year',month)";
-            $format='Y г.';
+            $format='Y пЁ.';
         } elseif ($detality=='month'){
             $group=" group by date_trunc('month',month)";
-            $format='Месяц Y г.';
+            $format='п°п╣я│я▐я├ Y пЁ.';
         } elseif ($detality=='day'){
             $group=' group by day';
-            $format='d месяца Y г.';
+            $format='d п╪п╣я│я▐я├п╟ Y пЁ.';
         } else {
             $group='';
-            $format='d месяца Y г. H:i:s';
+            $format='d п╪п╣я│я▐я├п╟ Y пЁ. H:i:s';
         }
         $W=array('AND');
 
@@ -1084,7 +1084,7 @@ class m_stats extends IModule{
 
         global $db;
 
-        //если у клиента есть хоть один номера с поминутной тарификацией - то всё считаем поминутно
+        //п╣я│п╩п╦ я┐ п╨п╩п╦п╣п╫я┌п╟ п╣я│я┌я▄ я┘п╬я┌я▄ п╬п╢п╦п╫ п╫п╬п╪п╣я─п╟ я│ п©п╬п╪п╦п╫я┐я┌п╫п╬п╧ я┌п╟я─п╦я└п╦п╨п╟я├п╦п╣п╧ - я┌п╬ п╡я│я▒ я│я┤п╦я┌п╟п╣п╪ п©п╬п╪п╦п╫я┐я┌п╫п╬
         $isByMins = $db->GetValue(
             $q = "
                 SELECT 
@@ -1152,7 +1152,7 @@ class m_stats extends IModule{
 
             $pg_db->Query($sql);
 
-            if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+            if ($pg_db->NumRows()==5000) trigger_error('п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╬я┌п╬п╠я─п╟п╤п╟п╣я┌я│я▐ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌. п║п╢п╣п╩п╟п╧я┌п╣ п╣п╣ п╪п╣п╫п╣п╣ п╢п╣я┌п╟п╩я▄п╫п╬п╧ п╦п╩п╦ я│я┐п╥я▄я┌п╣ п╡я─п╣п╪п╣п╫п╫п╬п╧ п©п╣я─п╦п╬п╢');
             $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0,'is_total'=>true);
             $geo = array();
 
@@ -1188,13 +1188,13 @@ class m_stats extends IModule{
                 $rt['cnt']+=$r['cnt'];
                 $rt['ts2']+=$r['ts2'];
             }
-            $rt['ts1']= 'Итого';
-            $rt['tsf1']='<b>Итого</b>';
+            $rt['ts1']= 'п≤я┌п╬пЁп╬';
+            $rt['tsf1']='<b>п≤я┌п╬пЁп╬</b>';
             $rt['num_to']='&nbsp;';
             $rt['num_from']='&nbsp;';
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
-            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - п║я┐п╪п╪п╟ я│ п²п■п║</b>)';
 
             $R['total']=$rt;
         }else{
@@ -1202,11 +1202,11 @@ class m_stats extends IModule{
                             from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
-            $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
-                            'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
+            $R = array(     'mos_loc'=>  array('tsf1'=>'п°п╣я│я┌п╫я▀п╣ п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'mos_mob'=> array('tsf1'=>'п°п╣я│я┌п╫я▀п╣ п°п╬п╠п╦п╩я▄п╫я▀п╣','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'rus_fix'=> array('tsf1'=>'п═п╬я│я│п╦я▐ п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'rus_mob'=> array('tsf1'=>'п═п╬я│я│п╦я▐ п°п╬п╠п╦п╩я▄п╫я▀п╣','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
+                            'int'=>     array('tsf1'=>'п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
             //$db_calls->Query($sql);
             $pg_db->Query($sql);
             //while ($r=$db_calls->NextRecord()){
@@ -1243,10 +1243,10 @@ class m_stats extends IModule{
                 $R[$k]['price'] = number_format($r['price'], 2, '.','');
             }
             $rt['is_total']=true;
-            $rt['tsf1']='<b>Итого</b>';
+            $rt['tsf1']='<b>п≤я┌п╬пЁп╬</b>';
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
-            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - п║я┐п╪п╪п╟ я│ п²п■п║</b>)';
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
         }
@@ -1261,16 +1261,16 @@ class m_stats extends IModule{
 			$format='';
 		} else if ($detality=='year'){
 			$group=' group by YEAR(ts)';
-			$format='Y г.';
+			$format='Y пЁ.';
 		} elseif ($detality=='month'){
 			$group=' group by MONTH(ts)';
-			$format='Месяц Y г.';
+			$format='п°п╣я│я▐я├ Y пЁ.';
 		} elseif ($detality=='day'){
 			$group=' group by DATE(ts)';
-			$format='d месяца Y г.';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ.';
 		} else {
 			$group='';
-			$format='d месяца Y г. H:i:s';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ. H:i:s';
 		}
 		$groupQ=$group?'sum':'';
 		$whsql='(C.ts>=FROM_UNIXTIME('.$from.')) AND (C.ts<FROM_UNIXTIME('.$to.'+86400)) AND (client_id='.$client_id.')';
@@ -1287,7 +1287,7 @@ class m_stats extends IModule{
 				"INNER JOIN usage_nvoip_phone as PB ON PB.phone_id=B.phone_id ".
 				"where ".$whsql.$group." ORDER by C.ts ASC LIMIT 5000";
 		$db->Query($sql);
-		if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+		if ($db->NumRows()==5000) trigger_error('п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╬я┌п╬п╠я─п╟п╤п╟п╣я┌я│я▐ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌. п║п╢п╣п╩п╟п╧я┌п╣ п╣п╣ п╪п╣п╫п╣п╣ п╢п╣я┌п╟п╩я▄п╫п╬п╧ п╦п╩п╦ я│я┐п╥я▄я┌п╣ п╡я─п╣п╪п╣п╫п╫п╬п╧ п©п╣я─п╦п╬п╢');
 		$rt=array('price'=>0,'priceFrom'=>0,'priceTo'=>0, 'ts2'=>0);
 		while ($r=$db->NextRecord()){
 			$r['tsf1']=mdate($format,$r['ts1']);
@@ -1299,8 +1299,8 @@ class m_stats extends IModule{
 			$rt['priceTo']+=$r['priceTo'];
 			$rt['ts2']+=$r['ts2'];
 		}
-		$rt['ts1']='Итого';
-		$rt['tsf1']='<b>Итого</b>';
+		$rt['ts1']='п≤я┌п╬пЁп╬';
+		$rt['tsf1']='<b>п≤я┌п╬пЁп╬</b>';
 		$rt['price']='<b>'.$rt['price'].'</b>';
 		$rt['num_to']='&nbsp;';
 		$rt['num_from']='&nbsp;';
@@ -1315,19 +1315,19 @@ class m_stats extends IModule{
 		$group='';
 		if ($detality=='year'){
 			$group=' group by YEAR(AcctStartTime)';
-			$format='Y г.';
+			$format='Y пЁ.';
 		} elseif ($detality=='month'){
 			$group=' group by MONTH(AcctStartTime)';
-			$format='Месяц Y г.';
+			$format='п°п╣я│я▐я├ Y пЁ.';
 		} elseif ($detality=='day'){
 			$group=' group by DATE(AcctStartTime)';
-			$format='d месяца Y';
+			$format='d п╪п╣я│я▐я├п╟ Y';
 		} elseif ($detality=='login') {
 			$group=' group by UserName';
 			$format='&\nb\sp;';
 		} else {
 			$group='';
-			$format='d месяца Y г. H:i:s';
+			$format='d п╪п╣я│я▐я├п╟ Y пЁ. H:i:s';
 		}
 
 		$whsql='(AcctStartTime>=FROM_UNIXTIME('.$from.')) AND (AcctStartTime<FROM_UNIXTIME('.$to.'+86400))';
@@ -1349,7 +1349,7 @@ class m_stats extends IModule{
 					($group?'sum':'')."(AcctSessionTime) as ts2 ".
 					"from radacct where ".$whsql.$group." ORDER by AcctStartTime ASC LIMIT 5000";
 		$db->Query($sql);
-		if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+		if ($db->NumRows()==5000) trigger_error('п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╬я┌п╬п╠я─п╟п╤п╟п╣я┌я│я▐ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌. п║п╢п╣п╩п╟п╧я┌п╣ п╣п╣ п╪п╣п╫п╣п╣ п╢п╣я┌п╟п╩я▄п╫п╬п╧ п╦п╩п╦ я│я┐п╥я▄я┌п╣ п╡я─п╣п╪п╣п╫п╫п╬п╧ п©п╣я─п╦п╬п╢');
 		$rt=array('ts2'=>0,'in_bytes'=>0,'out_bytes'=>0);
 		while ($r=$db->NextRecord()){
 			$r['tsf1']=mdate($format,$r['ts1']);
@@ -1360,8 +1360,8 @@ class m_stats extends IModule{
 			$rt['out_bytes']+=$r['out_bytes'];
 			$rt['ts2']+=$r['ts2'];
 		}
-		$rt['ts1']='Итого';
-		$rt['tsf1']='<b>Итого</b>';
+		$rt['ts1']='п≤я┌п╬пЁп╬';
+		$rt['tsf1']='<b>п≤я┌п╬пЁп╬</b>';
 		$rt['login']='&nbsp;';
 		if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
 		$rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
@@ -1410,7 +1410,7 @@ class m_stats extends IModule{
 	function get_routes_list($client){
 		global $db;
 		$routes_all=array();
-		//список всех сетей, нужен для вывода их списка.
+		//я│п©п╦я│п╬п╨ п╡я│п╣я┘ я│п╣я┌п╣п╧, п╫я┐п╤п╣п╫ п╢п╩я▐ п╡я▀п╡п╬п╢п╟ п╦я┘ я│п©п╦я│п╨п╟.
 		$db->Query('
 			select
 				*
@@ -1488,7 +1488,7 @@ class m_stats extends IModule{
 		$design->assign('send_clients',$R);
 		$design->assign('refresh',30*$cont);
 		if ($cont) {
-			trigger_error('Отправка следующих 5ти уведомлений произойдёт через 30 секунд');
+			trigger_error('п·я┌п©я─п╟п╡п╨п╟ я│п╩п╣п╢я┐я▌я┴п╦я┘ 5я┌п╦ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╧ п©я─п╬п╦п╥п╬п╧п╢я▒я┌ я┤п╣я─п╣п╥ 30 я│п╣п╨я┐п╫п╢');
 		}
 		$design->AddMain('stats/send.tpl');
 	}
@@ -1513,8 +1513,8 @@ class m_stats extends IModule{
 		$db->Query('select * from clients where client="'.$client.'"');
 		$C=$db->NextRecord();
 
-		$subj="оПЕБШЬЕМХЕ РПЮТТХЙЮ";
-		$body="сБЮФЮЕЛШЕ цНЯОНДЮ!" . "\n" . "яННАЫЮЕЛ бЮЛ, ВРН бШ ОПЕБШЯХКХ РПЮТТХЙ МЮ НДМНЛ ХГ БЮЬХУ ХМРЕПМЕР-ОНДЙКЧВЕМХИ.\nоН ЙЮФДНЛС ХГ ОНДЙКЧВЕМХИ РПЮТТХЙ ЯНЯРЮБКЪЕР:\n";
+		$subj="п╬п÷п∙п▒п╗п╛п∙п°п╔п∙ п═п÷п╝п╒п╒п╔п≥п╝";
+		$body="я│п▒п╝п╓п╝п∙п⌡п╗п∙ я├п²п╞п·п²п■п╝!" . "\n" . "я▐п²п²п░п╚п╝п∙п⌡ п╠п╝п⌡, п▓п═п² п╠п╗ п·п÷п∙п▒п╗п╞п╔п п╔ п═п÷п╝п╒п╒п╔п≥ п°п╝ п²п■п°п²п⌡ п╔п⌠ п▒п╝п╛п╔пё п╔п°п═п∙п÷п°п∙п═-п·п²п■п≥п п╖п▓п∙п°п╔п≤.\nп╬п² п≥п╝п╓п■п²п⌡п║ п╔п⌠ п·п²п■п≥п п╖п▓п∙п°п╔п≤ п═п÷п╝п╒п╒п╔п≥ п╞п²п╞п═п╝п▒п п╙п∙п═:\n";
 		foreach ($R as $r) {
 			$body.=$r['mbytes'].' / '.$r['mmax'].'\n';
 		}
@@ -1527,8 +1527,8 @@ class m_stats extends IModule{
 
 		error_close();
 		ob_start();
-		$msg='Адрес получателя: '.$C['email'].'<br>';
-		if (!$C['email']) $msg='Адрес получателя не указан<br>';
+		$msg='п░п╢я─п╣я│ п©п╬п╩я┐я┤п╟я┌п╣п╩я▐: '.$C['email'].'<br>';
+		if (!$C['email']) $msg='п░п╢я─п╣я│ п©п╬п╩я┐я┤п╟я┌п╣п╩я▐ п╫п╣ я┐п╨п╟п╥п╟п╫<br>';
 
 		if ($C['email'] && (mail ($C['email'],$subj,$body,$headers))){
 			$db->Query('update stats_send set state="sent",last_send=NOW(),message="'.$msg.'" where (client="'.$client.'") and (state!="sent")');
@@ -1541,7 +1541,7 @@ class m_stats extends IModule{
 
 	function stats_report_traff_less() {
 		global $db,$design;
-		$managers=array('anyone'=>'Все');
+		$managers=array('anyone'=>'п▓я│п╣');
 		$mtmp = array();
 		$GLOBALS['module_users']->d_users_get($mtmp,'manager');
 		foreach($mtmp as $key=>$val){
@@ -1610,7 +1610,7 @@ class m_stats extends IModule{
 				AND
 					ti.name NOT LIKE 'cdma%'
 				AND
-					ti.name NOT LIKE 'Резервирование%'
+					ti.name NOT LIKE 'п═п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╦п╣%'
 				AND
 					ti.type_internet <> 'wimax'
 				LEFT JOIN
@@ -1727,7 +1727,7 @@ class m_stats extends IModule{
             foreach($T as $r){
 				$r['tarif'] = get_tarif_current('usage_ip_ports',$r['id']);
 				if(!$show_unlim){
-					if(preg_match('/Безлимитный/',$r['tarif']['name']))
+					if(preg_match('/п▒п╣п╥п╩п╦п╪п╦я┌п╫я▀п╧/',$r['tarif']['name']))
 						continue;
 				}
                 $traf = ($r['in_bytes']+$r['out_bytes'])/(1024*1024);
@@ -1767,11 +1767,11 @@ class m_stats extends IModule{
         }*/
 
 			/**
-			 * Устанавливаем флаги.
-			 * Не показываем клиентов, трафик которых меньше 10 мегабайт, но только
-			 * если не установлен флаг $isTrafLess.
+			 * пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪ я└п╩п╟пЁп╦.
+			 * п²п╣ п©п╬п╨п╟п╥я▀п╡п╟п╣п╪ п╨п╩п╦п╣п╫я┌п╬п╡, я┌я─п╟я└п╦п╨ п╨п╬я┌п╬я─я▀я┘ п╪п╣п╫я▄я┬п╣ 10 п╪п╣пЁп╟п╠п╟п╧я┌, п╫п╬ я┌п╬п╩я▄п╨п╬
+			 * п╣я│п╩п╦ п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ я└п╩п╟пЁ $isTrafLess.
 			 */
-			if($show_unlim){ // показывать ли безлимитные тарифы
+			if($show_unlim){ // п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╩п╦ п╠п╣п╥п╩п╦п╪п╦я┌п╫я▀п╣ я┌п╟я─п╦я└я▀
 				$unlim_flag = 'AND ti.pay_mb = 0';
 			}else{
 				$unlim_flag = "AND ti.pay_mb > 0";
@@ -1779,14 +1779,14 @@ class m_stats extends IModule{
 
 			$flags = array();
 
-			if($isOver){ // превышение трафика в "небезлимитных" тарифах
+			if($isOver){ // п©я─п╣п╡я▀я┬п╣п╫п╦п╣ я┌я─п╟я└п╦п╨п╟ п╡ "п╫п╣п╠п╣п╥п╩п╦п╪п╦я┌п╫я▀я┘" я┌п╟я─п╦я└п╟я┘
 				$flags['over_flag'] = "
 						(
 							((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) > 10
 						AND
 							(((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) * ".$over.") > ti.mb_month
 						AND
-							ti.name NOT LIKE 'Безлимитный%'
+							ti.name NOT LIKE 'п▒п╣п╥п╩п╦п╪п╦я┌п╫я▀п╧%'
 						)";
 			}
 
@@ -1819,7 +1819,7 @@ class m_stats extends IModule{
 						AND
 							(((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) * ".$over.") > ti.mb_month
 						AND
-							ti.name NOT LIKE 'Безлимитный%'
+							ti.name NOT LIKE 'п▒п╣п╥п╩п╦п╪п╦я┌п╫я▀п╧%'
 					),'Y','N') over_flag,
 					IF((
 							((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) > 10
@@ -2489,14 +2489,14 @@ class m_stats extends IModule{
 		'prebills' => 
 			array(
 				'all' => array(
-					'name' => '% абон.',
+					'name' => '% п╟п╠п╬п╫.',
 					'field_name' => 'per_abon' 
 				),
 			), 
 		'bills' => 
 			array(
 				'all' => array(
-					'name' => '% счет.',
+					'name' => '% я│я┤п╣я┌.',
 					'field_name' => 'per_bill_sum' 
 				),
 			),
@@ -2533,7 +2533,7 @@ class m_stats extends IModule{
         $cur_y = get_param_raw("from_y", date('Y'));
 
         $mm = array();
-        for($i=1;$i<=12;$i++) $mm[date('m', mktime(0,0,0,$i,1,date('Y')))] = mdate('Месяц', mktime(0,0,0,$i,1,date('Y')));
+        for($i=1;$i<=12;$i++) $mm[date('m', mktime(0,0,0,$i,1,date('Y')))] = mdate('п°п╣я│я▐я├', mktime(0,0,0,$i,1,date('Y')));
         $yy = array(date('Y'), date('Y')-1);
 
         $from = date("01.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
@@ -2547,11 +2547,11 @@ class m_stats extends IModule{
 
             ob_start();
             
-            echo 'Агент:;'.$agent['name'].';Расчетный период с;'.$from.'г.;по;'.$to.'г.;';
+            echo 'п░пЁп╣п╫я┌:;'.$agent['name'].';п═п╟я│я┤п╣я┌п╫я▀п╧ п©п╣я─п╦п╬п╢ я│;'.$from.'пЁ.;п©п╬;'.$to.'пЁ.;';
             echo "\n";
             echo ';;;;;;';
             echo "\n";
-            echo 'Компания;Абон плата, с учетом НДС;оплаченный период (мес.);Сумма полученных платежей;Тип вознаграждения;%;Сумма вознаграждения;';
+            echo 'п п╬п╪п©п╟п╫п╦я▐;п░п╠п╬п╫ п©п╩п╟я┌п╟, я│ я┐я┤п╣я┌п╬п╪ п²п■п║;п╬п©п╩п╟я┤п╣п╫п╫я▀п╧ п©п╣я─п╦п╬п╢ (п╪п╣я│.);п║я┐п╪п╪п╟ п©п╬п╩я┐я┤п╣п╫п╫я▀я┘ п©п╩п╟я┌п╣п╤п╣п╧;п╒п╦п© п╡п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦я▐;%;п║я┐п╪п╪п╟ п╡п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦я▐;';
             echo "\n";
             foreach ($R as $r) {
 		foreach ($interests as $v) {
@@ -2566,11 +2566,11 @@ class m_stats extends IModule{
 			echo "\n";
                 }
             }
-            echo '"Итого";;;';
+            echo '"п≤я┌п╬пЁп╬";;;';
             echo '"' . number_format($T['psum'], 2, ',', '') . '";;;';
             echo '"' . number_format($T['fsum'], 2, ',', '') . '";';
             echo "\n";
-            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            echo iconv('utf-8', 'windows-1251', ob_get_clean());
             exit;
         } else {
             $params = array(
@@ -2601,7 +2601,7 @@ class m_stats extends IModule{
         $design->assign('doer_filter_selected',$doer_filter);
         
         $all_doers = array();
-        $dDoers = array('null' => 'Все');
+        $dDoers = array('null' => 'п▓я│п╣');
         foreach($db->AllRecords("
                         SELECT
                             `id`,
@@ -2610,7 +2610,7 @@ class m_stats extends IModule{
                         FROM
                             `courier`
                         WHERE
-                            `enabled`='yes' and `depart`='Региональный представитель'
+                            `enabled`='yes' and `depart`='п═п╣пЁп╦п╬п╫п╟п╩я▄п╫я▀п╧ п©я─п╣п╢я│я┌п╟п╡п╦я┌п╣п╩я▄'
                         ORDER BY
                             `depart`,
                             `name`
@@ -2754,7 +2754,7 @@ class m_stats extends IModule{
                     'l_state_filter',
                     array_merge(
                             array(
-                                array('id'=>'null','name'=>'Все (кроме: закрыт, отказ)'),
+                                array('id'=>'null','name'=>'п▓я│п╣ (п╨я─п╬п╪п╣: п╥п╟п╨я─я▀я┌, п╬я┌п╨п╟п╥)'),
                             ),
                             $db->AllRecords("
                         SELECT
@@ -2781,14 +2781,14 @@ class m_stats extends IModule{
     {
 	if (!$fixclient) 
 	{
-		trigger_error('Выберите клиента');
+		trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟');
 		return;
 	}
 	global $design,$fixclient_data,$db;
 	
 	if ($fixclient_data['is_agent'] != "Y")
 	{
-		trigger_error('Клиент не является агентом');
+		trigger_error('п п╩п╦п╣п╫я┌ п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐ п╟пЁп╣п╫я┌п╬п╪');
 		return;
 	}
 	$interest = null;
@@ -2803,22 +2803,22 @@ class m_stats extends IModule{
 	$interests_types = array(
 		'prebills' => 
 			array(
-				'name' => '% от абонентских плат',
+				'name' => '% п╬я┌ п╟п╠п╬п╫п╣п╫я┌я│п╨п╦я┘ п©п╩п╟я┌',
 				'subtypes' => 
 					array(
 						'all' => array(
-							'name' => 'Все',
+							'name' => 'п▓я│п╣',
 							'field_name' => 'per_abon'
 						),
 					),
 			), 
 		'bills' => 
 			array(
-				'name' => '% от суммы счетов',
+				'name' => '% п╬я┌ я│я┐п╪п╪я▀ я│я┤п╣я┌п╬п╡',
 				'subtypes' => 
 					array(
 						'all' => array(
-							'name' => 'Все',
+							'name' => 'п▓я│п╣',
 							'field_name' => 'per_bill_sum'
 						),
 					),
@@ -2833,14 +2833,14 @@ class m_stats extends IModule{
     {
 	if (!$fixclient) 
 	{
-		trigger_error('Выберите клиента');
+		trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟');
 		header('Location: ?module=stats&action=agent_settings');
 	}
 	global $fixclient_data;
 	
 	if ($fixclient_data['is_agent'] != "Y")
 	{
-		trigger_error('Клиент не является агентом');
+		trigger_error('п п╩п╦п╣п╫я┌ п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐ п╟пЁп╣п╫я┌п╬п╪');
 		header('Location: ?module=stats&action=agent_settings');
 	}
 	
@@ -2987,8 +2987,8 @@ class m_stats extends IModule{
             }
         }
         $total['nds'] = round($total['fsum']*(18/118), 2);
-        $total['fsum_str'] = floor($total['fsum']) . ' руб. ' . floor(round(100*($total['fsum'] - floor($total['fsum'])), 5)) . ' коп.';
-        $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(round(100*($total['nds'] - floor($total['nds'])), 5)) . ' коп.';
+        $total['fsum_str'] = floor($total['fsum']) . ' я─я┐п╠. ' . floor(round(100*($total['fsum'] - floor($total['fsum'])), 5)) . ' п╨п╬п©.';
+        $total['nds_str'] = floor($total['nds']) . ' я─я┐п╠. ' . floor(round(100*($total['nds'] - floor($total['nds'])), 5)) . ' п╨п╬п©.';
         return array($ret, $total);
     }
 
@@ -3446,7 +3446,7 @@ function make_calend($date, $data)
 
     $cStart = $sd_offset > 0 ? strtotime("- ".$sd_offset." days", $d) : 0;
     $o .=  "<table valign=top border=1 style='border-collapse:collapse;'>";
-    $o .= "<tr><td>ПН</td><td>ВТ</td><td>СР</td><td>ЧТ</td><td>ПТ</td><td>СБ</td><td>ВС</td></tr>";
+    $o .= "<tr><td>п÷п²</td><td>п▓п╒</td><td>п║п═</td><td>п╖п╒</td><td>п÷п╒</td><td>п║п▒</td><td>п▓п║</td></tr>";
     $o .= "<tr>";
     for($i = 0; $i < $days; $i++)
     {
@@ -3503,7 +3503,7 @@ function stats_report_wimax($fixclient, $genReport = false){
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
 	$d1 = $d2 = $dateFrom->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$date = $d1 == $d2 ? 'п╥п╟ '.$d1 : 'я│ '.$d1.' п©п╬ '.$d2;
 	$dateFrom->format = 'Y-m-d';
 	$d1 = $d2 = $dateFrom->getDay();
     }else{
@@ -3511,7 +3511,7 @@ function stats_report_wimax($fixclient, $genReport = false){
 	$dateTo = new DatePickerValues('date_to', 'today');
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$date = $d1 == $d2 ? 'п╥п╟ '.$d1 : 'я│ '.$d1.' п©п╬ '.$d2;
 	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
@@ -3568,7 +3568,7 @@ function stats_courier_sms($fixclient, $genReport = false){
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
 	$d1 = $d2 = $dateFrom->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$date = $d1 == $d2 ? 'п╥п╟ '.$d1 : 'я│ '.$d1.' п©п╬ '.$d2;
 	$dateFrom->format = 'Y-m-d';
 	$d1 = $d2 = $dateFrom->getDay();
     }else{
@@ -3576,7 +3576,7 @@ function stats_courier_sms($fixclient, $genReport = false){
 	$dateTo = new DatePickerValues('date_to', 'today');
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$date = $d1 == $d2 ? 'п╥п╟ '.$d1 : 'я│ '.$d1.' п©п╬ '.$d2;
 	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
@@ -3618,11 +3618,11 @@ function stats_support_efficiency($fixclient)
     $date = "";
 
     $usages = array(
-            "" => "Без услуги",
-            "usage_extra" => "Доп услуги",
-            "usage_ip_ports" => "Интернет",
-            "usage_voip" => "Телефония",
-            "usage_virtpbx" => "Виртуальная АТС",
+            "" => "п▒п╣п╥ я┐я│п╩я┐пЁп╦",
+            "usage_extra" => "п■п╬п© я┐я│п╩я┐пЁп╦",
+            "usage_ip_ports" => "п≤п╫я┌п╣я─п╫п╣я┌",
+            "usage_voip" => "п╒п╣п╩п╣я└п╬п╫п╦я▐",
+            "usage_virtpbx" => "п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║",
             "usage_welltime" => "Welltime"
             );
     $usage = array_keys($usages);
@@ -3630,7 +3630,7 @@ function stats_support_efficiency($fixclient)
 	$date_from = new DatePickerValues('date_from', 'first');
 	$date_to = new DatePickerValues('date_to', 'last');
 	$dateFrom = $date_from->getDay();$dateTo = $date_to->getDay();
-	$date = $dateFrom == $dateTo ? 'за '.$dateFrom : 'с '.$dateFrom.' по '.$dateTo;
+	$date = $dateFrom == $dateTo ? 'п╥п╟ '.$dateFrom : 'я│ '.$dateFrom.' п©п╬ '.$dateTo;
 	$date_from->format = 'Y-m-d';$date_to->format = 'Y-m-d';
 	$dateFrom = $date_from->getDay();$dateTo = $date_to->getDay();
 
@@ -4056,7 +4056,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     $stateId = $db->GetValue("select state_id from tt_stages where stage_id = '".$curStageId."'");
 
                     if($isNewDateDeliv)
-                        $a["comment"] .= "\nДоставка на: ".$a["date_deliv"];
+                        $a["comment"] .= "\nп■п╬я│я┌п╟п╡п╨п╟ п╫п╟: ".$a["date_deliv"];
 
                     $tsid = $db->QueryInsert('tt_stages',array(
                                 'trouble_id'=>$tId,
@@ -4097,7 +4097,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         $design->assign("qtys", $qtys);
         $design->assign("once", 4);
 
-        $design->assign("deliv_type", array("moskow" => "По Москве","mkad" => "За МКАД"));
+        $design->assign("deliv_type", array("moskow" => "п÷п╬ п°п╬я│п╨п╡п╣","mkad" => "п≈п╟ п°п п░п■"));
         $design->assign("onlime_info", $db->GetValue("select value from params where param='onlime_info'"));
 
         $design->AddMain("stats/".$reports[$client]."_add.html");
@@ -4108,7 +4108,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
 	$d1 = $d2 = $dateFrom->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$date = $d1 == $d2 ? 'п╥п╟ '.$d1 : 'я│ '.$d1.' п©п╬ '.$d2;
 	$dateFrom->format = 'Y-m-d';
 	$d1 = $d2 = $dateFrom->getDay();
     }else{
@@ -4116,12 +4116,12 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 	$dateTo = new DatePickerValues('date_to', 'last');
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+	$date = $d1 == $d2 ? 'п╥п╟ '.$d1 : 'я│ '.$d1.' п©п╬ '.$d2;
 	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
 	$d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
 
-        $filterPromoAll = array("all"=> "Все заявки", "promo" => "По акции", "no_promo" => "Не по акции");
+        $filterPromoAll = array("all"=> "п▓я│п╣ п╥п╟я▐п╡п╨п╦", "promo" => "п÷п╬ п╟п╨я├п╦п╦", "no_promo" => "п²п╣ п©п╬ п╟п╨я├п╦п╦");
     	$filterPromo = get_param_raw("filter_promo", "all");
 
         $design->assign("filter_promo_all", $filterPromoAll);
@@ -4203,26 +4203,26 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
         unset($l);
 
-        $list[] = $total+array("date_creation" => "Итого:");
+        $list[] = $total+array("date_creation" => "п≤я┌п╬пЁп╬:");
 
         $this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
                 array(
-                    "Оператор" => "fio_oper",
-                    "Номер счета OnLime" => "req_no",
-                    "Номер счета Маркомнет Сервис" => "bill_no",
-                    "Дата создания заказа" => "date_creation",
-                    "Кол-во Onlime-Telecard" => "count_3",
-                    "Кол-во HD-ресивер OnLime" => "count_9",
-                    "Кол-во HD-ресивер с диском" => "count_11",
-                    "NetGear Беспроводной роутер, JNR3210-1NNRUS" => "count_12",
-                    "Серийные номера" => "serials",
-                    "Номер купона" => "coupon",
-                    "ФИО клиента" => "fio",
-                    "Телефон клиента" => "phone",
-                    "Адрес" => "address",
-                    "Дата доставки желаемая" => "date_deliv",
-                    "Дата доставки фактическа" => "date_delivered",
-                    "Этапы" => "stages_text"
+                    "п·п©п╣я─п╟я┌п╬я─" => "fio_oper",
+                    "п²п╬п╪п╣я─ я│я┤п╣я┌п╟ OnLime" => "req_no",
+                    "п²п╬п╪п╣я─ я│я┤п╣я┌п╟ п°п╟я─п╨п╬п╪п╫п╣я┌ п║п╣я─п╡п╦я│" => "bill_no",
+                    "п■п╟я┌п╟ я│п╬п╥п╢п╟п╫п╦я▐ п╥п╟п╨п╟п╥п╟" => "date_creation",
+                    "п п╬п╩-п╡п╬ Onlime-Telecard" => "count_3",
+                    "п п╬п╩-п╡п╬ HD-я─п╣я│п╦п╡п╣я─ OnLime" => "count_9",
+                    "п п╬п╩-п╡п╬ HD-я─п╣я│п╦п╡п╣я─ я│ п╢п╦я│п╨п╬п╪" => "count_11",
+                    "NetGear п▒п╣я│п©я─п╬п╡п╬п╢п╫п╬п╧ я─п╬я┐я┌п╣я─, JNR3210-1NNRUS" => "count_12",
+                    "п║п╣я─п╦п╧п╫я▀п╣ п╫п╬п╪п╣я─п╟" => "serials",
+                    "п²п╬п╪п╣я─ п╨я┐п©п╬п╫п╟" => "coupon",
+                    "п╓п≤п· п╨п╩п╦п╣п╫я┌п╟" => "fio",
+                    "п╒п╣п╩п╣я└п╬п╫ п╨п╩п╦п╣п╫я┌п╟" => "phone",
+                    "п░п╢я─п╣я│" => "address",
+                    "п■п╟я┌п╟ п╢п╬я│я┌п╟п╡п╨п╦ п╤п╣п╩п╟п╣п╪п╟я▐" => "date_deliv",
+                    "п■п╟я┌п╟ п╢п╬я│я┌п╟п╡п╨п╦ я└п╟п╨я┌п╦я┤п╣я│п╨п╟" => "date_delivered",
+                    "п╜я┌п╟п©я▀" => "stages_text"
                     ),
                 $list);
 
@@ -4246,7 +4246,7 @@ private function GenerateExcel($title, $head, $list)
     $workbook->setVersion(8);
     $workbook->send($title);
     $sheet =& $workbook->addWorksheet();
-    $sheet->setInputEncoding('koi8-r');
+    $sheet->setInputEncoding('utf-8');
 
     $fHeader =& $workbook->addFormat();
     $fHeader->setHAlign('center');
@@ -4296,12 +4296,12 @@ private function report_plusopers__addressToStr($l)
 	{
 		list($street, $home, $bild, $porch, $floor, $flat, $intercom) = explode(" ^ ", $l["address"]." ^  ^  ^  ^  ^  ^  ^  ^ ");
 		$a = $street;
-		if($home) $a .= ", д.".$home;
-		if($bild) $a .= " стр.".$bild;
-		if($porch) $a .= ", подъезд ".$porch;
-		if($floor) $a .= ", этаж ".$floor;
-		if($flat)  $a .= ", кв.".$flat;
-		if($intercom) $a .= " (домофон: ".$intercom.")";
+		if($home) $a .= ", п╢.".$home;
+		if($bild) $a .= " я│я┌я─.".$bild;
+		if($porch) $a .= ", п©п╬п╢я┼п╣п╥п╢ ".$porch;
+		if($floor) $a .= ", я█я┌п╟п╤ ".$floor;
+		if($flat)  $a .= ", п╨п╡.".$flat;
+		if($intercom) $a .= " (п╢п╬п╪п╬я└п╬п╫: ".$intercom.")";
 
 		return $a;
 	}else{
@@ -4316,9 +4316,9 @@ private function report_plusopers__phoneToStr($l)
 		list($home, $mob, $work) = explode(" ^ ", $l["phone"]." ^  ^  ^ ");
 		$p = array();
 
-		if($home) $p[] = "Домашний: ".$home;
-		if($mob) $p[] = "Сотовый: ".$mob;
-		if($work) $p[] = "Рабочий: ".$work;
+		if($home) $p[] = "п■п╬п╪п╟я┬п╫п╦п╧: ".$home;
+		if($mob) $p[] = "п║п╬я┌п╬п╡я▀п╧: ".$mob;
+		if($work) $p[] = "п═п╟п╠п╬я┤п╦п╧: ".$work;
 
 		return implode("<br/>", $p);
 	}else{
@@ -4331,20 +4331,20 @@ private function report_plusopers__getFields_and_check($client, $a)
 	$fields = array();
 	$error = "";
 
-	$fields["fio"] = "ФИО";
+	$fields["fio"] = "п╓п≤п·";
 
 	if($client == "nbn")
 	{
-		$fields["req"] = "Номер заявки";
-		$fields["address"] = "Адресс";
-		$fields["phone"] = "Контактный телефон";
+		$fields["req"] = "п²п╬п╪п╣я─ п╥п╟я▐п╡п╨п╦";
+		$fields["address"] = "п░п╢я─п╣я│я│";
+		$fields["phone"] = "п п╬п╫я┌п╟п╨я┌п╫я▀п╧ я┌п╣п╩п╣я└п╬п╫";
 	}
 
 
 	if($client == "onlime" || $client == "onlime2") // need check
 	{
-		$fields["fio_oper"] = "ФИО оператора";
-		$fields["date_deliv"] = "Желаемая дата и время заказа";
+		$fields["fio_oper"] = "п╓п≤п· п╬п©п╣я─п╟я┌п╬я─п╟";
+		$fields["date_deliv"] = "п√п╣п╩п╟п╣п╪п╟я▐ п╢п╟я┌п╟ п╦ п╡я─п╣п╪я▐ п╥п╟п╨п╟п╥п╟";
 	}
 
 	foreach($fields as $k => $v)
@@ -4352,13 +4352,13 @@ private function report_plusopers__getFields_and_check($client, $a)
 		$a[$k] = trim(get_param_raw($k, ""));
 		if(empty($a[$k]) && !$error)
 		{
-			$error = "Поле \"".$v."\" не заполненно";
+			$error = "п÷п╬п╩п╣ \"".$v."\" п╫п╣ п╥п╟п©п╬п╩п╫п╣п╫п╫п╬";
 		}
 	}
 
 	if(isset($fields["date_deliv"]) && !$error && !strtotime($a["date_deliv"]))
 	{
-		$error = "Неверная дата доставки заказа!";
+		$error = "п²п╣п╡п╣я─п╫п╟я▐ п╢п╟я┌п╟ п╢п╬я│я┌п╟п╡п╨п╦ п╥п╟п╨п╟п╥п╟!";
     }
 
 
@@ -4366,7 +4366,7 @@ private function report_plusopers__getFields_and_check($client, $a)
 
 	if(!$error && $a["qty"] == 0)
 	{
-		$error = "Позиции заказа не выбранны";
+		$error = "п÷п╬п╥п╦я├п╦п╦ п╥п╟п╨п╟п╥п╟ п╫п╣ п╡я▀п╠я─п╟п╫п╫я▀";
 	}
 
 
@@ -4591,17 +4591,17 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
         $sTypes = array(
                 "work"   => array("sql" => "is_rollback =0 and state_id not in (2,20,21)",
-                                  "title" => ($client == "nbn" ? "в работе" : "В Обработке")),
+                                  "title" => ($client == "nbn" ? "п╡ я─п╟п╠п╬я┌п╣" : "п▓ п·п╠я─п╟п╠п╬я┌п╨п╣")),
                 "close"  => array("sql" => "is_rollback =0 and state_id in (2,20)",
-                                  "title" => ($client == "nbn" ? "закрытые" : "Доставлен")),
+                                  "title" => ($client == "nbn" ? "п╥п╟п╨я─я▀я┌я▀п╣" : "п■п╬я│я┌п╟п╡п╩п╣п╫")),
                 "reject" => array("sql" => "is_rollback =0 and state_id = 21",
-                                  "title" => ($client == "nbn" ? "в отказе" : "Отказ")),
-                "delivery" => array(                            "title" => "доставка")
+                                  "title" => ($client == "nbn" ? "п╡ п╬я┌п╨п╟п╥п╣" : "п·я┌п╨п╟п╥")),
+                "delivery" => array(                            "title" => "п╢п╬я│я┌п╟п╡п╨п╟")
                 );
 
         if($client != "nbn")  // onlime
         {
-            $sTypes["rollback"] = array("sql" => "is_rollback =1", "title" => "Возврат");
+            $sTypes["rollback"] = array("sql" => "is_rollback =1", "title" => "п▓п╬п╥п╡я─п╟я┌");
         }
 
         if(isset($sTypes[$listType]))
@@ -4791,7 +4791,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	ORDER BY
 		region DESC
     ", 'region', 'clients');
-    $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
+    $month_list = array('п╞п╫п╡п╟я─я▄','п╓п╣п╡я─п╟п╩я▄','п°п╟я─я┌','п░п©я─п╣п╩я▄','п°п╟п╧','п≤я▌п╫я▄','п≤я▌п╩я▄','п░п╡пЁя┐я│я┌','п║п╣п╫я┌я▐п╠я─я▄','п·п╨я┌я▐п╠я─я▄','п²п╬я▐п╠я─я▄','п■п╣п╨п╟п╠я─я▄');
     $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
     $m = date('n');
@@ -4888,7 +4888,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       foreach($res as $r)
       {
           $client_ids[$r['client_id']] = 0;
-        if (strlen($r['phone']) > 4) //номера
+        if (strlen($r['phone']) > 4) //п╫п╬п╪п╣я─п╟
         {
 		if (strpos($r['phone'], '7800') === 0)
 		{
@@ -4923,7 +4923,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			$sale_nums['all']['all'] += 1;
 		}
 
-        }else{ //линия без номера
+        }else{ //п╩п╦п╫п╦я▐ п╠п╣п╥ п╫п╬п╪п╣я─п╟
 
           if (!isset($sale_nonums[$r['region']])) 
               $sale_nonums[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
@@ -4939,7 +4939,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           $sale_nonums['all']['all'] += 1;
         }
 
-        //линии
+        //п╩п╦п╫п╦п╦
         if (!isset($sale_lines[$r['region']]))
           $sale_lines[$r['region']] = array('new'=>0,'old'=>0,'all'=>0);
 
@@ -5038,7 +5038,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         }
       }
 /*
-      //Выезды
+      //п▓я▀п╣п╥п╢я▀
       $res = $db->AllRecords("
               select
                 count(*) as cnt, 
@@ -5063,7 +5063,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         }
       }
 */
-      //Выезды
+      //п▓я▀п╣п╥п╢я▀
       foreach($sale_channels["managers"] as $manager => &$d)
       {
         if ($d['courier_id'] > 0) {
@@ -5314,13 +5314,13 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		$design->AddMain('stats/vpbx_stat_space.tpl');
 	}
 	/** 
-	 *	Получение данных о использование дискового пространства и внутренних номерах
-	 *	@param string $fixclient имя клиент
-	 *		если задан, статистика берется только по ВАТС данного клиента
-	 *	@param int $vpbx_id ВАТС ID
-	 *		если задан, то функция дополнительно возвращает детализацию по текущему ВАТС
-	 *	@param int $from timestamp начала периода
-	 *	@param int $to timestamp конца периода
+	 *	п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╢п╟п╫п╫я▀я┘ п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╢п╦я│п╨п╬п╡п╬пЁп╬ п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╟ п╦ п╡п╫я┐я┌я─п╣п╫п╫п╦я┘ п╫п╬п╪п╣я─п╟я┘
+	 *	@param string $fixclient п╦п╪я▐ п╨п╩п╦п╣п╫я┌
+	 *		п╣я│п╩п╦ п╥п╟п╢п╟п╫, я│я┌п╟я┌п╦я│я┌п╦п╨п╟ п╠п╣я─п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©п╬ п▓п░п╒п║ п╢п╟п╫п╫п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟
+	 *	@param int $vpbx_id п▓п░п╒п║ ID
+	 *		п╣я│п╩п╦ п╥п╟п╢п╟п╫, я┌п╬ я└я┐п╫п╨я├п╦я▐ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╢п╣я┌п╟п╩п╦п╥п╟я├п╦я▌ п©п╬ я┌п╣п╨я┐я┴п╣п╪я┐ п▓п░п╒п║
+	 *	@param int $from timestamp п╫п╟я┤п╟п╩п╟ п©п╣я─п╦п╬п╢п╟
+	 *	@param int $to timestamp п╨п╬п╫я├п╟ п©п╣я─п╦п╬п╢п╟
 	 */
 	function getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to) 
 	{
@@ -5467,7 +5467,7 @@ class requestPlusOper
         //if($count++ > 0) break;
 
         $metro = "";
-        if(preg_match_all("/м\.(.*)$/six",$d['address'], $o ))
+        if(preg_match_all("/п╪\.(.*)$/six",$d['address'], $o ))
             $metro = $o[1][0];
 
         if($metro == "-")
@@ -5475,31 +5475,31 @@ class requestPlusOper
 
 
         $ai = array (
-                'ФИО' => $d['fio'],
-                'Адрес' => $d['address'],
-                'НомерЗаявки' => isset($d["req"]) ? $d["req"] : "",
-                'ЛицевойСчет' => '',
-                'НомерПодключения' => '',
-                'Комментарий1' => (isset($d["date_deliv"]) ? "Доставка на: ".$d["date_deliv"] : ""),
-                'Комментарий2' => (isset($d["fio_oper"]) ? "Оператор: ".$d["fio_oper"] : ""),
-                'ПаспортСерия' => '',
-                'ПаспортНомер' => '',
-                'ПаспортКемВыдан' => '',
-                'ПаспортКогдаВыдан' => '',
-                'ПаспортКодПодразделения' => '',
-                'ПаспортДатаРождения' => '',
-                'ПаспортГород' => '',
-                'ПаспортУлица' => '',
-                'ПаспортДом' => '',
-                'ПаспортКорпус' => '',
-                'ПаспортСтроение' => '',
-                'ПаспортКвартира' => '',
+                'п╓п≤п·' => $d['fio'],
+                'п░п╢я─п╣я│' => $d['address'],
+                'п²п╬п╪п╣я─п≈п╟я▐п╡п╨п╦' => isset($d["req"]) ? $d["req"] : "",
+                'п⌡п╦я├п╣п╡п╬п╧п║я┤п╣я┌' => '',
+                'п²п╬п╪п╣я─п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐' => '',
+                'п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧1' => (isset($d["date_deliv"]) ? "п■п╬я│я┌п╟п╡п╨п╟ п╫п╟: ".$d["date_deliv"] : ""),
+                'п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧2' => (isset($d["fio_oper"]) ? "п·п©п╣я─п╟я┌п╬я─: ".$d["fio_oper"] : ""),
+                'п÷п╟я│п©п╬я─я┌п║п╣я─п╦я▐' => '',
+                'п÷п╟я│п©п╬я─я┌п²п╬п╪п╣я─' => '',
+                'п÷п╟я│п©п╬я─я┌п п╣п╪п▓я▀п╢п╟п╫' => '',
+                'п÷п╟я│п©п╬я─я┌п п╬пЁп╢п╟п▓я▀п╢п╟п╫' => '',
+                'п÷п╟я│п©п╬я─я┌п п╬п╢п÷п╬п╢я─п╟п╥п╢п╣п╩п╣п╫п╦я▐' => '',
+                'п÷п╟я│п©п╬я─я┌п■п╟я┌п╟п═п╬п╤п╢п╣п╫п╦я▐' => '',
+                'п÷п╟я│п©п╬я─я┌п⌠п╬я─п╬п╢' => '',
+                'п÷п╟я│п©п╬я─я┌пёп╩п╦я├п╟' => '',
+                'п÷п╟я│п©п╬я─я┌п■п╬п╪' => '',
+                'п÷п╟я│п©п╬я─я┌п п╬я─п©я┐я│' => '',
+                'п÷п╟я│п©п╬я─я┌п║я┌я─п╬п╣п╫п╦п╣' => '',
+                'п÷п╟я│п©п╬я─я┌п п╡п╟я─я┌п╦я─п╟' => '',
                 'Email' => '',
-                'ПроисхождениеЗаказа' => '',
-                'КонтактныйТелефон' => $d["phone"],
-                'Метро' => $metro,
-                'Логистика' => '',
-                'ВладелецЛинии' => '',
+                'п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟' => '',
+                'п п╬п╫я┌п╟п╨я┌п╫я▀п╧п╒п╣п╩п╣я└п╬п╫' => $d["phone"],
+                'п°п╣я┌я─п╬' => $metro,
+                'п⌡п╬пЁп╦я│я┌п╦п╨п╟' => '',
+                'п▓п╩п╟п╢п╣п╩п╣я├п⌡п╦п╫п╦п╦' => '',
                 );
         $aii = array();
         foreach($ai as $k => $v)
@@ -5572,7 +5572,7 @@ class requestPlusOper
         $cl->order = $ret;
         $cl->isRollback = false;
 
-        $bill_no = $ret->{\_1c\tr('Номер')};
+        $bill_no = $ret->{\_1c\tr('п²п╬п╪п╣я─')};
 
         $sh = new \_1c\SoapHandler();
         $sh->statSaveOrder($cl, $bill_no, $c1error);

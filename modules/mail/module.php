@@ -2,7 +2,7 @@
 class m_mail{
 	var $is_active = 0;
 	var $rights=array(
-		'mail' => array('Письма клиентам','w,r','работа с рассылкой,просмотр PM'),
+		'mail' => array('п÷п╦я│я▄п╪п╟ п╨п╩п╦п╣п╫я┌п╟п╪','w,r','я─п╟п╠п╬я┌п╟ я│ я─п╟я│я│я▀п╩п╨п╬п╧,п©я─п╬я│п╪п╬я┌я─ PM'),
 	);
 	var $actions=array(
 		'default'		=> array('mail','r'),
@@ -19,8 +19,8 @@ class m_mail{
 	);
 
 	var $menu=array(
-		array('Почтовые задания',	'list',		''),
-		array('Просмотр сообщений',	'default',	''),
+		array('п÷п╬я┤я┌п╬п╡я▀п╣ п╥п╟п╢п╟п╫п╦я▐',	'list',		''),
+		array('п÷я─п╬я│п╪п╬я┌я─ я│п╬п╬п╠я┴п╣п╫п╦п╧',	'default',	''),
 	);
 
 	function m_mail(){}
@@ -37,11 +37,11 @@ class m_mail{
 		if (!count($R)) return;
 		if (access('mail','r') && !access('mail','w') && isset($fixclient_data)) {
 			if ($this->is_active==0 && $db->GetRow('select * from mail_object where client_id="'.$fixclient_data['id'].'" AND object_type="PM" AND view_count=0 LIMIT 1')){
-				trigger_error('<a href="?module=mail">У вас есть непросмотренные сообщения</a>');
+				trigger_error('<a href="?module=mail">пё п╡п╟я│ п╣я│я┌я▄ п╫п╣п©я─п╬я│п╪п╬я┌я─п╣п╫п╫я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</a>');
 			}
-			$design->AddMenu('Просмотр сообщений',$R);
+			$design->AddMenu('п÷я─п╬я│п╪п╬я┌я─ я│п╬п╬п╠я┴п╣п╫п╦п╧',$R);
 		} else {
-			$design->AddMenu('Письма клиентам',$R);
+			$design->AddMenu('п÷п╦я│я▄п╪п╟ п╨п╩п╦п╣п╫я┌п╟п╪',$R);
 		}
 	}
 
@@ -118,8 +118,8 @@ class m_mail{
 			$design->assign(
 				'template',
 				array(
-					'template_body'=>'Текст письма',
-					'template_subject'=>'Тема письма',
+					'template_body'=>'п╒п╣п╨я│я┌ п©п╦я│я▄п╪п╟',
+					'template_subject'=>'п╒п╣п╪п╟ п©п╦я│я▄п╪п╟',
 					'job_id'=>null
 				)
 			);
@@ -414,7 +414,7 @@ class m_mail{
 			header("Pragma: ");
 			header("Cache-Control: ");
 			header('Content-Transfer-Encoding: binary');
-			header('Content-Disposition: attachment; filename="'.iconv("KOI8-R","CP1251",$f['name']).'"');
+			header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$f['name']).'"');
 			header("Content-Length: " . filesize($f['path']));
 			readfile($f['path']);
 			$design->ProcessEx();
@@ -435,7 +435,7 @@ class m_mail{
 		$state = get_param_raw('state');
 		$db->Query('update mail_job set job_state="'.$state.'" where job_id='.$id);
 
-        if($state == "ready") //реальная отправка писем
+        if($state == "ready") //я─п╣п╟п╩я▄п╫п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ п©п╦я│п╣п╪
         {
             $this->_publishClientBills($id);
         }
@@ -515,7 +515,7 @@ class m_mail{
 class MailJob {
 	public $data = array();
 	public $client = array();
-	public $encoding = 'koi8-r';
+	public $encoding = 'utf-8';
 	public $emails = array();
 	private static $prepared = 0;
 
@@ -612,18 +612,18 @@ class MailJob {
 	        if($db->GetValue("select id from test_operator.mcn_client where id = '".$this->client["id"]."'"))
 	        {
 				$T =
-					"Соглашение о передаче прав и обязанностей: ".
+					"п║п╬пЁп╩п╟я┬п╣п╫п╦п╣ п╬ п©п╣я─п╣п╢п╟я┤п╣ п©я─п╟п╡ п╦ п╬п╠я▐п╥п╟п╫п╫п╬я│я┌п╣п╧: ".
 					$this->get_object_link('assignment', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"), (isset($match[2]) && $match[2] ? $match[2] : 4));
 	        }
         }elseif($match[1] == "ORDER"){
-        	$T = "Приказ о назначении: ".
+        	$T = "п÷я─п╦п╨п╟п╥ п╬ п╫п╟п╥п╫п╟я┤п╣п╫п╦п╦: ".
         	$this->get_object_link('order', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
        	}elseif($match[1] == "NOTICE"){
-        	$T = "Уведомление о назначении: ".
+        	$T = "пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ п╬ п╫п╟п╥п╫п╟я┤п╣п╫п╦п╦: ".
         	$this->get_object_link('notice', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
        	}elseif($match[1] == "DIRECTOR")
         {
-        	$T = "Информационное письмо о смене генерального директора: ".
+        	$T = "п≤п╫я└п╬я─п╪п╟я├п╦п╬п╫п╫п╬п╣ п©п╦я│я▄п╪п╬ п╬ я│п╪п╣п╫п╣ пЁп╣п╫п╣я─п╟п╩я▄п╫п╬пЁп╬ п╢п╦я─п╣п╨я┌п╬я─п╟: ".
         	$this->get_object_link('new_director_info', $db->GetValue("select bill_no from newbills where client_id = '".$this->client["id"]."' order by bill_date desc limit 1"));
         }elseif($match[1] == "DOGOVOR") {
 		$T = BillContract::getString($this->client["id"], time());
@@ -644,12 +644,12 @@ class MailJob {
 		$W[] = 'client_id = '.$this->client['id'];*/
 
 		$T = '';
-		if($this->encoding=='koi8-r'){
-			$s1 = ' от ';
-			$s2 = ' г.: ';
+		if($this->encoding=='utf-8'){
+			$s1 = ' п╬я┌ ';
+			$s2 = ' пЁ.: ';
 		}else{
-			$s1 = ' НР ';
-			$s2 = ' Ц.: ';
+			$s1 = ' п²п═ ';
+			$s2 = ' п╕.: ';
 		}
 
 		if($match[1]=='U')
@@ -682,30 +682,30 @@ class MailJob {
 			if(strlen($T)>0)
 				$T .= "\n";
 			$T .=
-				"Счет ".$r['bill_no']. // номер счета
-				$s1. // от
-				date('d.m.Y',strtotime($r['bill_date'])). // дата счета
-				$s2. // г.
-				$this->get_object_link('bill',$r['bill_no']); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
+				"п║я┤п╣я┌ ".$r['bill_no']. // п╫п╬п╪п╣я─ я│я┤п╣я┌п╟
+				$s1. // п╬я┌
+				date('d.m.Y',strtotime($r['bill_date'])). // п╢п╟я┌п╟ я│я┤п╣я┌п╟
+				$s2. // пЁ.
+				$this->get_object_link('bill',$r['bill_no']); // п╡п╬я┌ я┌я┐я┌ п╨п╬я│я▐п╨. п≈п╢п╣я┬п╫я▐я▐ п╠п╦п╠п╩п╦п╬я┌п╣п╨п╟ sql п╫п╣ пЁп╬я┌п╬п╡п╟ п╨ я┌п╟п╨п╦п╪ п╥п╦пЁп╥п╟пЁп╟п╪. п∙я│п╩п╦ я│я┤п╣я┌п╬п╡ п╠п╬п╩я▄я┬п╣ я┤п╣п╪ 1 - п╠я┐п╢п╣я┌ п╡я▀я┘п╬п╢ п╦п╥ я├п╦п╨п╩п╟.
 
             $bill = new Bill($r["bill_no"]);
             list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs($bill);
             /*
-            if($b_sf[1]) $T .="\nСчет-фактура ".$r['bill_no']."-1: ".$this->get_object_link('invoice',$r['bill_no'],1);
-            if($b_sf[2]) $T .="\nСчет-фактура ".$r['bill_no']."-2: ".$this->get_object_link('invoice',$r['bill_no'],2);
-            if($b_sf[3]) $T .="\nСчет-фактура ".$r['bill_no']."-3: ".$this->get_object_link('invoice',$r['bill_no'],3);
-            if($b_sf[5]) $T .="\nСчет-фактура ".$r['bill_no']."-4: ".$this->get_object_link('invoice',$r['bill_no'],5);
-            if($b_sf[6]) $T .="\nСчет-фактура ".$r['bill_no']."-5: ".$this->get_object_link('invoice',$r['bill_no'],6);
+            if($b_sf[1]) $T .="\nп║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟ ".$r['bill_no']."-1: ".$this->get_object_link('invoice',$r['bill_no'],1);
+            if($b_sf[2]) $T .="\nп║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟ ".$r['bill_no']."-2: ".$this->get_object_link('invoice',$r['bill_no'],2);
+            if($b_sf[3]) $T .="\nп║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟ ".$r['bill_no']."-3: ".$this->get_object_link('invoice',$r['bill_no'],3);
+            if($b_sf[5]) $T .="\nп║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟ ".$r['bill_no']."-4: ".$this->get_object_link('invoice',$r['bill_no'],5);
+            if($b_sf[6]) $T .="\nп║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟ ".$r['bill_no']."-5: ".$this->get_object_link('invoice',$r['bill_no'],6);
 
-            if($b_akt[1]) $T .="\nАкт ".$r['bill_no']."-1: ".$this->get_object_link('akt',$r['bill_no'],1);
-            if($b_akt[2]) $T .="\nАкт ".$r['bill_no']."-2: ".$this->get_object_link('akt',$r['bill_no'],2);
-            if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
+            if($b_akt[1]) $T .="\nп░п╨я┌ ".$r['bill_no']."-1: ".$this->get_object_link('akt',$r['bill_no'],1);
+            if($b_akt[2]) $T .="\nп░п╨я┌ ".$r['bill_no']."-2: ".$this->get_object_link('akt',$r['bill_no'],2);
+            if($b_akt[3]) $T .="\nп░п╨я┌ ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
              */
 
-            if($b_upd[1]) $T .="\nУПД ".$r['bill_no']."-1: ".$this->get_object_link('upd',$r['bill_no'],1);
-            if($b_upd[2]) $T .="\nУПД ".$r['bill_no']."-2: ".$this->get_object_link('upd',$r['bill_no'],2);
+            if($b_upd[1]) $T .="\nпёп÷п■ ".$r['bill_no']."-1: ".$this->get_object_link('upd',$r['bill_no'],1);
+            if($b_upd[2]) $T .="\nпёп÷п■ ".$r['bill_no']."-2: ".$this->get_object_link('upd',$r['bill_no'],2);
 
-            if($b_sf[4]) $T .="\nТоварная накладная ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no']);
+            if($b_sf[4]) $T .="\nп╒п╬п╡п╟я─п╫п╟я▐ п╫п╟п╨п╩п╟п╢п╫п╟я▐ ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no']);
 
             $T .="\n";
 		}
@@ -717,7 +717,7 @@ class MailJob {
 
 
 		$text = $this->data[$str];
-		if($this->encoding!='koi8-r')
+		if($this->encoding!='utf-8')
 			$text = convert_cyr_string($text,'k','w');
 		$text = str_replace(
 			array('%CLIENT%','%CLIENT_NAME%'),
@@ -772,7 +772,7 @@ class MailJob {
 		{
 			foreach ($files as $v)
 			{
-                $Mail->AddAttachment($v['path'], "=?koi8-r?B?".base64_encode($v['name'])."?=", "base64", $v['type']);
+                $Mail->AddAttachment($v['path'], "=?utf-8?B?".base64_encode($v['name'])."?=", "base64", $v['type']);
 			}
 		}
 		

@@ -1,4 +1,4 @@
-<H2>Отправка информации о превышении траффика</H2>
+<H2>п·я┌п©я─п╟п╡п╨п╟ п╦п╫я└п╬я─п╪п╟я├п╦п╦ п╬ п©я─п╣п╡я▀я┬п╣п╫п╦п╦ я┌я─п╟я└я└п╦п╨п╟</H2>
 {if isset($refresh) && ($refresh!=0)}{literal}
 <script language=javascript>
 function refrfunc(){
@@ -8,21 +8,21 @@ window.setTimeout("javscript:refrfunc()",{/literal}{$refresh}{literal}000);
 	
 </script>
 {/literal}{else}
-<a href='{$LINK_START}module=stats&action=send_process&test=1'>Тестовая отправка счетов (5 штук)</a><br><br>
-<a href='{$LINK_START}module=stats&action=send_process&test=0'>Реальная отправка счетов (5 штук)</a><br>
-<a href='{$LINK_START}module=stats&action=send_process&test=0&cont=1'>Реальная отправка счетов (все)</a><br>
+<a href='{$LINK_START}module=stats&action=send_process&test=1'>п╒п╣я│я┌п╬п╡п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡ (5 я┬я┌я┐п╨)</a><br><br>
+<a href='{$LINK_START}module=stats&action=send_process&test=0'>п═п╣п╟п╩я▄п╫п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡ (5 я┬я┌я┐п╨)</a><br>
+<a href='{$LINK_START}module=stats&action=send_process&test=0&cont=1'>п═п╣п╟п╩я▄п╫п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ я│я┤п╣я┌п╬п╡ (п╡я│п╣)</a><br>
 <br>
 {/if}
-<H3>Состояние</H3>
+<H3>п║п╬я│я┌п╬я▐п╫п╦п╣</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
 <TR>
-  <TD class=header vAlign=bottom width="20%">Клиент</TD>
-  <TD class=header vAlign=bottom width="20%">Скачано</TD>
-  <TD class=header vAlign=bottom width="20%">Дата отчёта</TD>
-  <TD class=header vAlign=bottom width="10%">Состояние</TD>
-  <TD class=header vAlign=bottom width="15%">Дата отправки</TD>
-  <TD class=header valign=bottom>Сообщение об ошибке, если есть</td>
+  <TD class=header vAlign=bottom width="20%">п п╩п╦п╣п╫я┌</TD>
+  <TD class=header vAlign=bottom width="20%">п║п╨п╟я┤п╟п╫п╬</TD>
+  <TD class=header vAlign=bottom width="20%">п■п╟я┌п╟ п╬я┌я┤я▒я┌п╟</TD>
+  <TD class=header vAlign=bottom width="10%">п║п╬я│я┌п╬я▐п╫п╦п╣</TD>
+  <TD class=header vAlign=bottom width="15%">п■п╟я┌п╟ п╬я┌п©я─п╟п╡п╨п╦</TD>
+  <TD class=header valign=bottom>п║п╬п╬п╠я┴п╣п╫п╦п╣ п╬п╠ п╬я┬п╦п╠п╨п╣, п╣я│п╩п╦ п╣я│я┌я▄</td>
   </TR>
 {foreach from=$send_clients item=send_client name=outer}
 {foreach from=$send_client item=item name=inner}

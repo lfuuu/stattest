@@ -27,15 +27,15 @@ if (count($err_log) == 0)
 
     print_r($str);
 
-    $headers = "Content-type: text/html; charset=koi8-r";
-    mail(ADMIN_EMAIL, "[stat/voip/check_traf] VOIP трафик в регионах", "Статистика по телефонии за прошедшие сутки недоступна в следующих регионах: <br>".implode(", ", $str), $headers);
+    $headers = "Content-type: text/html; charset=utf-8";
+    mail(ADMIN_EMAIL, "[stat/voip/check_traf] VOIP я┌я─п╟я└п╦п╨ п╡ я─п╣пЁп╦п╬п╫п╟я┘", "п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п©п╬ я┌п╣п╩п╣я└п╬п╫п╦п╦ п╥п╟ п©я─п╬я┬п╣п╢я┬п╦п╣ я│я┐я┌п╨п╦ п╫п╣п╢п╬я│я┌я┐п©п╫п╟ п╡ я│п╩п╣п╢я┐я▌я┴п╦я┘ я─п╣пЁп╦п╬п╫п╟я┘: <br>".implode(", ", $str), $headers);
 }
 
-/** Функция проверяет, 
- * есть ли статистика в заданном регионе
+/** п╓я┐п╫п╨я├п╦я▐ п©я─п╬п╡п╣я─я▐п╣я┌, 
+ * п╣я│я┌я▄ п╩п╦ я│я┌п╟я┌п╦я│я┌п╦п╨п╟ п╡ п╥п╟п╢п╟п╫п╫п╬п╪ я─п╣пЁп╦п╬п╫п╣
  * 
- * @param string $region идентификатор региона
- * @return integer количество записей
+ * @param string $region п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ я─п╣пЁп╦п╬п╫п╟
+ * @return integer п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╟п©п╦я│п╣п╧
  **/
 function checkRegionStat($region = '')
 {
@@ -60,9 +60,9 @@ function checkRegionStat($region = '')
     return 1;
 }
 
-/** Функция получения регионов
+/** п╓я┐п╫п╨я├п╦я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ я─п╣пЁп╦п╬п╫п╬п╡
  *
- * @return array массив регионов
+ * @return array п╪п╟я│я│п╦п╡ я─п╣пЁп╦п╬п╫п╬п╡
  **/
 function getVoipRegions()
 {

@@ -1,17 +1,17 @@
-<p xmlns="http://www.w3.org/1999/html">Сеть: <b>{$networkConfig->name}</b> <a href="index.php?module=voipnew&action=network_list">Назад</a></p>
+<p xmlns="http://www.w3.org/1999/html">п║п╣я┌я▄: <b>{$networkConfig->name}</b> <a href="index.php?module=voipnew&action=network_list">п²п╟п╥п╟п╢</a></p>
 <form action="index.php" method="post" enctype='multipart/form-data'>
     <input type="hidden" name="module" value="voipnew" />
     <input type="hidden" name="action" value="network_file_upload" />
     <input type="hidden" name="network_config_id" value="{$networkConfig->id}" />
-    Загрузка файла: <br/>
-    Начало действия: <input id="startdate" class="datepicker" name="startdate" value="{$currentDate}">
+    п≈п╟пЁя─я┐п╥п╨п╟ я└п╟п╧п╩п╟: <br/>
+    п²п╟я┤п╟п╩п╬ п╢п╣п╧я│я┌п╡п╦я▐: <input id="startdate" class="datepicker" name="startdate" value="{$currentDate}">
     <input type="file" name="file" />
-    <input type="submit" value="Загрузить" />
+    <input type="submit" value="п≈п╟пЁя─я┐п╥п╦я┌я▄" />
 </form>
 <p>&nbsp;</p>
-<p>Загруженные файлы:</p>
+<p>п≈п╟пЁя─я┐п╤п╣п╫п╫я▀п╣ я└п╟п╧п╩я▀:</p>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-    <tr><td class=header>Начало&nbsp;действия</td><td class=header>Имя&nbsp;файла</td><td class=header>Дата&nbsp;загрузки</td><td class=header>Количество&nbsp;строк</td></tr>
+    <tr><td class=header>п²п╟я┤п╟п╩п╬&nbsp;п╢п╣п╧я│я┌п╡п╦я▐</td><td class=header>п≤п╪я▐&nbsp;я└п╟п╧п╩п╟</td><td class=header>п■п╟я┌п╟&nbsp;п╥п╟пЁя─я┐п╥п╨п╦</td><td class=header>п п╬п╩п╦я┤п╣я│я┌п╡п╬&nbsp;я│я┌я─п╬п╨</td></tr>
     {foreach from=$files item='f'}
     {if $f->active eq 't'}
     <tr class="{cycle values='even_g,odd_g'}"><td><a href='index.php?module=voipnew&action=network_file_show&id={$f->id}'>{$f->startdate}</a></td><td><a href='index.php?module=voipnew&action=network_file_show&id={$f->id}'>{$f->file_name}</a></td><td align=center>{$f->created_at}</td><td align=center>{$f->rows}</td></tr>

@@ -1,8 +1,8 @@
-<H2>Виртуальная АТС</H2>
-<H3>Переадресация</H3>
+<H2>п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║</H2>
+<H3>п÷п╣я─п╣п╟п╢я─п╣я│п╟я├п╦я▐</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
-<TR><td class=header>Откуда</td><td class=header>Куда</td><td class=header>Когда</td><TD>&nbsp;</TD></TR>
+<TR><td class=header>п·я┌п╨я┐п╢п╟</td><td class=header>п я┐п╢п╟</td><td class=header>п п╬пЁп╢п╟</td><TD>&nbsp;</TD></TR>
 {foreach from=$voips item=voip name=outer2}
 {foreach from=$redirs item=item name=outer}{if $item.voip_id==$voip.id}
 <FORM action="?" id=form{$smarty.foreach.outer.iteration} name=form{$smarty.foreach.outer.iteration} method=get><input type=hidden name=module value=phone>
@@ -17,14 +17,14 @@
 {/foreach}
   	</SELECT></TD>
 	<TD>
-		<a href='#' onclick='form{$smarty.foreach.outer.iteration}.submit(); return false;'>изменить</a> 
-		<a href='{$LINK_START}module=phone&action=redir_del&id={$item.id}'>удалить</a>
+		<a href='#' onclick='form{$smarty.foreach.outer.iteration}.submit(); return false;'>п╦п╥п╪п╣п╫п╦я┌я▄</a> 
+		<a href='{$LINK_START}module=phone&action=redir_del&id={$item.id}'>я┐п╢п╟п╩п╦я┌я▄</a>
 	</TD>
 </TR></FORM>
 {/if}{/foreach}
 {/foreach}
 
-<TR><TD colspan=4><H3>Добавить</H3></TD></TR>
+<TR><TD colspan=4><H3>п■п╬п╠п╟п╡п╦я┌я▄</H3></TD></TR>
 
 <FORM action="?" id=form_new name=form_new method=get><input type=hidden name=module value=phone>
 <input type=hidden name=action value=redir_save>
@@ -41,7 +41,7 @@
 {/foreach}
   	</SELECT></TD>
 	<TD>
-		<input type=submit class=button value='Добавить' style='width:100%'>
+		<input type=submit class=button value='п■п╬п╠п╟п╡п╦я┌я▄' style='width:100%'>
 	</TD>
 </TR></FORM>
 

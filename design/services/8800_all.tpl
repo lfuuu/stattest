@@ -1,12 +1,12 @@
 
 
-<H2>Услуги</H2>
+<H2>пёя│п╩я┐пЁп╦</H2>
 <H3>8800</H3>
 
 <form action="./?module=services&action=8800_view" id="form_filter_8800" method="post">
 <table>
-<TR><TD>Менеджер</TD><TD>
-<select name='filter_manager' onchange="$('#form_filter_8800').submit();"><option value=''>(без фильтра)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$filter_manager} selected{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
+<TR><TD>п°п╣п╫п╣п╢п╤п╣я─</TD><TD>
+<select name='filter_manager' onchange="$('#form_filter_8800').submit();"><option value=''>(п╠п╣п╥ я└п╦п╩я▄я┌я─п╟)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$filter_manager} selected{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
 </td></tr>
 </table>
 </form>
@@ -15,12 +15,12 @@
 <TBODY>
 <TR>
     <TD style='background-color:#FFFFD8' class=header vAlign=bottom >id</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Клиент</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Номер</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >Описание</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >дата c</TD>
-    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >дата по</TD>
-	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >Стоимость, без НДС</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п п╩п╦п╣п╫я┌</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п²п╬п╪п╣я─</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п·п©п╦я│п╟п╫п╦п╣</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п╢п╟я┌п╟ c</TD>
+    <TD style='background-color:#FFFFD8' class=header vAlign=bottom >п╢п╟я┌п╟ п©п╬</TD>
+	<TD style='background-color:#FFFFD8' class=header vAlign=bottom >п║я┌п╬п╦п╪п╬я│я┌я▄, п╠п╣п╥ п²п■п║</TD>
 </TR>
 {foreach from=$services_8800 item=item name=outer}
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">

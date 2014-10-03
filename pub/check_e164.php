@@ -1,7 +1,7 @@
 <?php
 	define("PATH_TO_ROOT",'../');
 	include PATH_TO_ROOT."conf.php";
-	//ÁÕÔÅÎÔÉÆÉËÁÃÉÑ
+	//Ð°ÑƒÑ‚ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ
 	$action=get_param_raw('action','default');
 	$user->DoAction($action);
 	if(!$user->IsAuthorized()){

@@ -1,4 +1,4 @@
-<h2>{if $data.id == 0}Добавление{else}Редактироване{/if} {if $data.is_group}группового {/if}аккаунта {$data.account}{if $data.id != 0 && !$data.is_group}, подключение {$data.sequence}{/if}</h2>
+<h2>{if $data.id == 0}п■п╬п╠п╟п╡п╩п╣п╫п╦п╣{else}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╣{/if} {if $data.is_group}пЁя─я┐п©п©п╬п╡п╬пЁп╬ {/if}п╟п╨п╨п╟я┐п╫я┌п╟ {$data.account}{if $data.id != 0 && !$data.is_group}, п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ {$data.sequence}{/if}</h2>
 
 {if $error}
 <span style="color: #c40000; font-weight: bold;font-size: 8pt; border-bottom: 1px solid red;">{$error}</span>
@@ -6,7 +6,7 @@
 <br>
 {/if}
 {if $isSaved}
-<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">Данные сохранены</span>
+<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">п■п╟п╫п╫я▀п╣ я│п╬я┘я─п╟п╫п╣п╫я▀</span>
 {else}
 <br>
 {/if}
@@ -30,18 +30,18 @@
     <td align=left>
 
 
-    <input type=button value="Сохранить" name="apply" onclick="{literal}
+    <input type=button value="п║п╬я┘я─п╟п╫п╦я┌я▄" name="apply" onclick="{literal}
         if(
                 ($('#send_members_c_id_line').length == 0 || ($('#send_members_c_id_line').length && prepareData('c_id_line'))) 
              && ($('#permit_net_true').length == 0 || ($('#permit_net_true').length && prepareIpNet('permit')))) 
     {
-        getE('save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+        getE('save_form').submit();}else{alert('п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐!');}{/literal}">
 
-{if ($data.id > 0 && $data.is_group) }<select name=type_save style="font-size:11pt;"><option value="changes">Изменения</option><option value="all">Все</option></select>{/if}
+{if ($data.id > 0 && $data.is_group) }<select name=type_save style="font-size:11pt;"><option value="changes">п≤п╥п╪п╣п╫п╣п╫п╦я▐</option><option value="all">п▓я│п╣</option></select>{/if}
 
 
     </td><td>
-    <input type=submit value="Отмена" name="cancel"></td>
+    <input type=submit value="п·я┌п╪п╣п╫п╟" name="cancel"></td>
     </tr>
     </table>
     </div>

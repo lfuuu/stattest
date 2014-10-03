@@ -213,7 +213,7 @@ class MT
 
     private function apply(&$data)
     {
-        if($data["password"] == "********") // не изменяем пароль, если он не поменялся
+        if($data["password"] == "********") // п╫п╣ п╦п╥п╪п╣п╫я▐п╣п╪ п©п╟я─п╬п╩я▄, п╣я│п╩п╦ п╬п╫ п╫п╣ п©п╬п╪п╣п╫я▐п╩я│я▐
         {
             if($data["id"] == 0)
             {
@@ -262,12 +262,12 @@ class MT
         $m = array();
 
         $m["name"] = array(
-                "title" => "Название транка",
+                "title" => "п²п╟п╥п╡п╟п╫п╦п╣ я┌я─п╟п╫п╨п╟",
                 "type" => "text",
                 );
 
         $m["client"] = array(
-                "title" => "Клиент",
+                "title" => "п п╩п╦п╣п╫я┌",
                 "type" => "text",
                 );
 
@@ -292,7 +292,7 @@ class MT
                 );
 
         $m["password"] =array(
-                "title" => "Пароль",
+                "title" => "п÷п╟я─п╬п╩я▄",
                 "type" => "password_ats2"
                 );
 
@@ -307,24 +307,24 @@ class MT
                 );
 
         $m["insecure"] = array(
-                "title" => "Авторизация",
-                "hint" => "опция: insecure",
+                "title" => "п░п╡я┌п╬я─п╦п╥п╟я├п╦я▐",
+                "hint" => "п╬п©я├п╦я▐: insecure",
                 "type" => "select",
                 "data" => array(array("type" => "array", "array" => array(
-                            "" => "Полная",
-                            "invite" => "По IP и порту",
-                            "invite,port" => "Только по IP"
+                            "" => "п÷п╬п╩п╫п╟я▐",
+                            "invite" => "п÷п╬ IP п╦ п©п╬я─я┌я┐",
+                            "invite,port" => "п╒п╬п╩я▄п╨п╬ п©п╬ IP"
                             )))
                 );
 
         $m["permit_on"] = array(
-                "title" => "Привязка",
+                "title" => "п÷я─п╦п╡я▐п╥п╨п╟",
                 "type" => "select",
-                "data" => array(array("type" => "array", "array" => array("yes" => "Да", "no" => "Нет", "auto" => "Авто")))
+                "data" => array(array("type" => "array", "array" => array("yes" => "п■п╟", "no" => "п²п╣я┌", "auto" => "п░п╡я┌п╬")))
                 );
 
         $m["permit"] = array(
-                "title" => "Привязка к IP",
+                "title" => "п÷я─п╦п╡я▐п╥п╨п╟ п╨ IP",
                 "type" => "permit_net",
                 "condition" => array("eq", "permit_on", "yes")
                 );
@@ -334,18 +334,18 @@ class MT
                 );
 
         $m["codec"] = array(
-                "title" => "Кодеки",
+                "title" => "п п╬п╢п╣п╨п╦",
                 "type" => "sort_list",
                 "data_all" => array(array("type" => "array", "array" => $codecs)),
                 );
 
         $m["context"] = array(
-                "title" => "Контекст",
+                "title" => "п п╬п╫я┌п╣п╨я│я┌",
                 "type" => "text"
                 );
 
         $m["is_pool"] = array(
-                "title" => "Объединить счетчик звонков",
+                "title" => "п·п╠я┼п╣п╢п╦п╫п╦я┌я▄ я│я┤п╣я┌я┤п╦п╨ п╥п╡п╬п╫п╨п╬п╡",
                 "type" => "is_pool",
                 "data" => array($dcYesNo)
                 );
@@ -364,41 +364,41 @@ class MT
 
         include INCLUDE_PATH."checker.php";
 
-        checker::isEmpty($data["name"], "Название транка не задано!");
-        checker::isEmpty($data["client"], "Клиент не задан!");
+        checker::isEmpty($data["name"], "п²п╟п╥п╡п╟п╫п╦п╣ я┌я─п╟п╫п╨п╟ п╫п╣ п╥п╟п╢п╟п╫п╬!");
+        checker::isEmpty($data["client"], "п п╩п╦п╣п╫я┌ п╫п╣ п╥п╟п╢п╟п╫!");
 
-        checker::isEmpty(getClient($data["client"]), "Клиент не найден!");
+        checker::isEmpty(getClient($data["client"]), "п п╩п╦п╣п╫я┌ п╫п╣ п╫п╟п╧п╢п╣п╫!");
 
         if($data["host_type"] != "static")
-            checker::isEmpty($data["password"], "Пароль не задан!");
+            checker::isEmpty($data["password"], "п÷п╟я─п╬п╩я▄ п╫п╣ п╥п╟п╢п╟п╫!");
 
         if($db_ats->GetValue("select id from a_multitrunk where name = '".$data["name"]."' and parent_id = 0 and id != '".$id."'"))
-            throw new Exception("Транк с таким названием уже используется");
+            throw new Exception("п╒я─п╟п╫п╨ я│ я┌п╟п╨п╦п╪ п╫п╟п╥п╡п╟п╫п╦п╣п╪ я┐п╤п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐");
 
         if($data["host_type"] == "static")
         {
-            checker::isEmpty($data["host_static"], "Не задан статический host!");
-            checker::isValideIp($data["host_static"], "Статический host задан не верно!");
+            checker::isEmpty($data["host_static"], "п²п╣ п╥п╟п╢п╟п╫ я│я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ host!");
+            checker::isValideIp($data["host_static"], "п║я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ host п╥п╟п╢п╟п╫ п╫п╣ п╡п╣я─п╫п╬!");
 
-            checker::isDigits($data["host_port_static"], "Статический порт задан не верно!");
-            checker::number_isBetween($data["host_port_static"], 1, 65536, "Статический порт задан не верно!");
+            checker::isDigits($data["host_port_static"], "п║я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ п©п╬я─я┌ п╥п╟п╢п╟п╫ п╫п╣ п╡п╣я─п╫п╬!");
+            checker::number_isBetween($data["host_port_static"], 1, 65536, "п║я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ п©п╬я─я┌ п╥п╟п╢п╟п╫ п╫п╣ п╡п╣я─п╫п╬!");
 
             if($id == 0 && $data["permit_on"] == "yes")
             {
                 if(strpos($data["permit"], $data["host_static"]) === false)
                     $data["permit"] .= ($data["permit"] ? "," : "").$data["host_static"]."/32";
             }else{
-                //checker::isEmpty($data["permit"], "Если задан статический Host IP, необходимо сделать привязку");
+                //checker::isEmpty($data["permit"], "п∙я│п╩п╦ п╥п╟п╢п╟п╫ я│я┌п╟я┌п╦я┤п╣я│п╨п╦п╧ Host IP, п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ я│п╢п╣п╩п╟я┌я▄ п©я─п╦п╡я▐п╥п╨я┐");
             }
         }
 
         if($data["permit_on"] == "yes" && $data["host_type"] == "static")
         {
-            checker::isEmpty($data["permit"], "Привязка включена, но не задана!");
+            checker::isEmpty($data["permit"], "п÷я─п╦п╡я▐п╥п╨п╟ п╡п╨п╩я▌я┤п╣п╫п╟, п╫п╬ п╫п╣ п╥п╟п╢п╟п╫п╟!");
         }
 
-        checker::isEmpty($data["codec"], "Задайте кодеки!");
-        checker::isEmpty($data["context"], "Контекст не задан!");
+        checker::isEmpty($data["codec"], "п≈п╟п╢п╟п╧я┌п╣ п╨п╬п╢п╣п╨п╦!");
+        checker::isEmpty($data["context"], "п п╬п╫я┌п╣п╨я│я┌ п╫п╣ п╥п╟п╢п╟п╫!");
     }
 }
 

@@ -81,7 +81,7 @@ function getPass(len)
             <b></b>
 	    {elseif $item.type == "password"}
             <INPUT type="text" style="width:150px;" id="{$name}" name="{$name}" value="{$data[$name]}"{if isset($item.check_change)} onChange="_check()"{/if}>
-            <input type="button" style="width:80px; font: normal 6pt sans-serif; height:25px;" value="Сгенерировать" onclick="genPass();">
+            <input type="button" style="width:80px; font: normal 6pt sans-serif; height:25px;" value="п║пЁп╣п╫п╣я─п╦я─п╬п╡п╟я┌я▄" onclick="genPass();">
 	    {elseif $item.type == "password_ats"}
             {include file="ats/FormConctructor_password_ats.htm"}
 	    {elseif $item.type == "password_ats2"}
@@ -138,21 +138,21 @@ function _nl_check(obj,name)
 <INPUT type="hidden" id="send_members_{$name}" name="send_members_{$name}" value="">
 <script language="JavaScript" src="{$PATH_TO_ROOT}js/manager.js"></script>
 	<table border=0><tr><td valign=top>
-	<i>Включенные:</i><br>
+	<i>п▓п╨п╩я▌я┤п╣п╫п╫я▀п╣:</i><br>
 	<select id=members_{$name} size="{$constructor.list[$name].count}" style="width:120px;border: 1px solid gray;">
 {html_options options=$constructor.list[$name].used}
 </select>
 </td><td valign=top>
 
 <table>
-<tr><td><input type=button value="Вверх" onClick="upMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
-<tr><td><input type=button value="Вниз" onClick="downMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
-<tr><td><input type=button value="Добавить" onClick="inMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
-<tr><td><input type=button value="Убрать" onClick="outMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
+<tr><td><input type=button value="п▓п╡п╣я─я┘" onClick="upMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
+<tr><td><input type=button value="п▓п╫п╦п╥" onClick="downMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
+<tr><td><input type=button value="п■п╬п╠п╟п╡п╦я┌я▄" onClick="inMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
+<tr><td><input type=button value="пёп╠я─п╟я┌я▄" onClick="outMember('{$name}')" style="width:80px;border: 1px solid gray;"></td></tr>
 </table>
 
 </td><td valign=top>
-<i>Возможные:</i><br>
+<i>п▓п╬п╥п╪п╬п╤п╫я▀п╣:</i><br>
 <select id="no_members_{$name}" size="{$constructor.list[$name].count}" style="width:120px;border: 1px solid gray;">
 {html_options options=$constructor.list[$name].noused}
 </select>
@@ -165,8 +165,8 @@ function _nl_check(obj,name)
     {if $name == "numbers_mt"}<script>var is_{$name}_number = true;</script>{/if}
     <input type=hidden id="permit_net_true" name="permit_net_true" value="true">
     <input type=hidden id="permit_net_save_{$name}" name="permit_net_save_{$name}" value="">
-        <select name="{$name}" size=6 id="permit_net_{$name}" style="height: 70px; width: 200px;">{html_options options=$data[$name]}</select><input type=button value="Удалить" onclick="doDellIpNet('{$name}');"><br>
-        <input type="text" id="permit_add_addr_{$name}" style="width: 120px;"> / <input type="text" id="permit_add_net_{$name}" style="width: 30px;" value="32"> <input type="button" value="Добавить" onclick="doAddIpNet('{$name}')">
+        <select name="{$name}" size=6 id="permit_net_{$name}" style="height: 70px; width: 200px;">{html_options options=$data[$name]}</select><input type=button value="пёп╢п╟п╩п╦я┌я▄" onclick="doDellIpNet('{$name}');"><br>
+        <input type="text" id="permit_add_addr_{$name}" style="width: 120px;"> / <input type="text" id="permit_add_net_{$name}" style="width: 30px;" value="32"> <input type="button" value="п■п╬п╠п╟п╡п╦я┌я▄" onclick="doAddIpNet('{$name}')">
     {elseif $item.type == "multitrunk_numbers"}
     <script src="js/multitrunk.js"></script>
     <input type=hidden id="mtn_save" name="mtn_save" value="">
@@ -177,8 +177,8 @@ function _nl_check(obj,name)
         </td>
         <td>
         <div id="mtn_keys">
-        <input type=button value="Редактировать" onclick="doEditMTN();"><br><br>
-        <input type=button value="Удалить" onclick="doDellMTN();">
+        <input type=button value="п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄" onclick="doEditMTN();"><br><br>
+        <input type=button value="пёп╢п╟п╩п╦я┌я▄" onclick="doDellMTN();">
         </div>
         </td>
         </tr>
@@ -186,13 +186,13 @@ function _nl_check(obj,name)
         <div id="mtn_add"{if !$constructor.list[$name].noused} style="display: none;"{/if}>
         <select id="mtn_numbers" style="width: 120px;">{html_options options=$constructor.list[$name].noused}</select>
         <select id="mtn_direction">{html_options options=$direction}</select>
-        <input type="button" value="Добавить" onclick="doAddMTN();">
+        <input type="button" value="п■п╬п╠п╟п╡п╦я┌я▄" onclick="doAddMTN();">
         </div>
         <div id="mtn_edit" style="display: none";>
         <input type=text id="mtn_edit_number" style="width: 120px;" readonly>
         <select id="mtn_edit_direction">{html_options options=$direction}</select>
-        <input type="button" value="Изменить" onclick="doApplyMTN();">
-        <input type="button" value="Отмена" onclick="doCancelMTN();">
+        <input type="button" value="п≤п╥п╪п╣п╫п╦я┌я▄" onclick="doApplyMTN();">
+        <input type="button" value="п·я┌п╪п╣п╫п╟" onclick="doCancelMTN();">
         </div>
     {elseif $item.type == "is_pool"}
             <table>
@@ -201,7 +201,7 @@ function _nl_check(obj,name)
 	            <input type="checkbox" id="is_pool" value="yes" name="{$name}[]" onclick="_is_pool_check(this)"{if $data[$name]=="yes"} checked{/if}>
                 </td>
                 <td>
-                <div id="is_pool_div" style="display: none;"><input type=text readonly id='is_pool_pool' style="width: 35px;"> - одновременных звонков</div>
+                <div id="is_pool_div" style="display: none;"><input type=text readonly id='is_pool_pool' style="width: 35px;"> - п╬п╢п╫п╬п╡я─п╣п╪п╣п╫п╫я▀я┘ п╥п╡п╬п╫п╨п╬п╡</div>
                 </td>
                 </tr>
                 </table>

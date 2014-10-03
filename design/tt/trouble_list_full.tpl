@@ -1,12 +1,12 @@
 {if !isset($hide_tts)}{if !isset($tt_wo_explain) && $tt_design=='full'}<H2>{$tt_header}
-	{if $fixclient_data}(клиент <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
+	{if $fixclient_data}(п╨п╩п╦п╣п╫я┌ <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
 	</H2>
 {elseif $tt_design=='client'}
 	<H3><a href='{$LINK_START}module=tt&action=list&mode=1'>{$tt_header}</a></H3>
 {/if}
-Найдено {$pager_all} заявок<br>
+п²п╟п╧п╢п╣п╫п╬ {$pager_all} п╥п╟я▐п╡п╬п╨<br>
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+п║я┌я─п╟п╫п╦я├я▀: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 <style>
 {literal}
@@ -33,7 +33,7 @@
         <br>
         
         <br><br>
-            <span title="заявка в работе">{$r.time_start}</span>{if $r.state_id != 2} / <span title="на текушей стадии">{$r.time_pass}</span>{/if}
+            <span title="п╥п╟я▐п╡п╨п╟ п╡ я─п╟п╠п╬я┌п╣">{$r.time_start}</span>{if $r.state_id != 2} / <span title="п╫п╟ я┌п╣п╨я┐я┬п╣п╧ я│я┌п╟п╢п╦п╦">{$r.time_pass}</span>{/if}
         </td>
         <td>
         
@@ -82,16 +82,16 @@
 		{mformat param=$r.date_start format='Y.m.d H:i'}<br>
 		{mformat param=$r.date_edit format='Y.m.d H:i'}
 	{elseif $r.state_id==4}
-			выезд {mformat param=$r.date_start format='Y.m.d H:i'}<br>
+			п╡я▀п╣п╥п╢ {mformat param=$r.date_start format='Y.m.d H:i'}<br>
 			{if $r.is_active}
-				прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
+				п©я─п╬я┬п╩п╬ <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 			{/if}
 	{else}
 		{mformat param=$r.date_start format='Y.m.d H:i'}<br>
 		{if $r.is_active}
-			прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
+			п©я─п╬я┬п╩п╬ <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 		{else}
-			неактивна / {$r.time_pass}
+			п╫п╣п╟п╨я┌п╦п╡п╫п╟ / {$r.time_pass}
 		{/if}
 	{/if}</TD>
 </TR>
@@ -100,7 +100,7 @@
 </TBODY></TABLE>
 
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
+п║я┌я─п╟п╫п╦я├я▀: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&filtred=true&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 
 

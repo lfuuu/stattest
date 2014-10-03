@@ -38,16 +38,16 @@ class OnlimeRequest
         //echo file_get_contents($url."?".$data);
 
         //return;
-        $ch = curl_init(); // инициализируем сессию curl
-        curl_setopt($ch, CURLOPT_URL,$url); // указываем URL, куда отправлять POST-запрос
+        $ch = curl_init(); // п╦п╫п╦я├п╦п╟п╩п╦п╥п╦я─я┐п╣п╪ я│п╣я│я│п╦я▌ curl
+        curl_setopt($ch, CURLOPT_URL,$url); // я┐п╨п╟п╥я▀п╡п╟п╣п╪ URL, п╨я┐п╢п╟ п╬я┌п©я─п╟п╡п╩я▐я┌я▄ POST-п╥п╟п©я─п╬я│
         curl_setopt($ch, CURLOPT_FAILONERROR, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// разрешаем перенаправление
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); // указываем, что результат запроса следует передать в переменную, а не вывести на экран
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3); // таймаут соединения
-        curl_setopt($ch, CURLOPT_POST, 1); // указываем, что данные надо передать именно методом POST
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data); // добавляем данные POST-запроса
-        $result = curl_exec($ch); // выполняем запрос
-        curl_close($ch); // завершаем сессию
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// я─п╟п╥я─п╣я┬п╟п╣п╪ п©п╣я─п╣п╫п╟п©я─п╟п╡п╩п╣п╫п╦п╣
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); // я┐п╨п╟п╥я▀п╡п╟п╣п╪, я┤я┌п╬ я─п╣п╥я┐п╩я▄я┌п╟я┌ п╥п╟п©я─п╬я│п╟ я│п╩п╣п╢я┐п╣я┌ п©п╣я─п╣п╢п╟я┌я▄ п╡ п©п╣я─п╣п╪п╣п╫п╫я┐я▌, п╟ п╫п╣ п╡я▀п╡п╣я│я┌п╦ п╫п╟ я█п╨я─п╟п╫
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3); // я┌п╟п╧п╪п╟я┐я┌ я│п╬п╣п╢п╦п╫п╣п╫п╦я▐
+        curl_setopt($ch, CURLOPT_POST, 1); // я┐п╨п╟п╥я▀п╡п╟п╣п╪, я┤я┌п╬ п╢п╟п╫п╫я▀п╣ п╫п╟п╢п╬ п©п╣я─п╣п╢п╟я┌я▄ п╦п╪п╣п╫п╫п╬ п╪п╣я┌п╬п╢п╬п╪ POST
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data); // п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╢п╟п╫п╫я▀п╣ POST-п╥п╟п©я─п╬я│п╟
+        $result = curl_exec($ch); // п╡я▀п©п╬п╩п╫я▐п╣п╪ п╥п╟п©я─п╬я│
+        curl_close($ch); // п╥п╟п╡п╣я─я┬п╟п╣п╪ я│п╣я│я│п╦я▌
         return $result;
     }
 

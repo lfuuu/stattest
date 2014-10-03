@@ -4,7 +4,7 @@
 <table class='mform' cellSpacing='4' cellPadding='2' width="100%" border='0'>
 <tbody>
 <tr>
-	<td class='left'>Дата начала отчёта</td>
+	<td class='left'>п■п╟я┌п╟ п╫п╟я┤п╟п╩п╟ п╬я┌я┤я▒я┌п╟</td>
 	<td>
 		<select name='from_d'>
 		{generate_sequence_options_select start=1 end=31 mode='d' selected=$from_d}
@@ -18,7 +18,7 @@
 	</td>
 </tr>
 <tr>
-  <td class='left'>По какую дату</td>
+  <td class='left'>п÷п╬ п╨п╟п╨я┐я▌ п╢п╟я┌я┐</td>
   <td>
 		<select name='to_d'>
 			{generate_sequence_options_select start=1 end=31 mode='d' selected=$to_d}
@@ -35,48 +35,48 @@
 </table>
 <HR>
 
-<DIV align=center><INPUT class=button type=submit name="go_report" value="Сформировать отчёт"></DIV></FORM>
+<DIV align=center><INPUT class=button type=submit name="go_report" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV></FORM>
 
 {if $report}
 <table class='price' cellSpacing='4' cellPadding='2' width='100%' border='0'>
 	<tr>
-		<td rowspan="2" class='header' valign='bottom'>Клиент\Тариф</td>
+		<td rowspan="2" class='header' valign='bottom'>п п╩п╦п╣п╫я┌\п╒п╟я─п╦я└</td>
 		{foreach from=$tarifs item='t'}
 		<td colspan="6" class='header' valign='bottom'>{$t}</td>
 		{/foreach}
 	</tr>
 	<tr>
 		{foreach from=$tarifs item='t'}
-		<td title="Москва стационарные" class='header' valign='bottom'>МСК/fix</td>
-		<td title="Москва мобильные" class='header' valign='bottom'>МСК/mob</td>
-		<td title="Россия" class='header' valign='bottom'>Р</td>
-		<td title="СНГ" class='header' valign='bottom'>СНГ</td>
-		<td title="Международные" class='header' valign='bottom'>МН</td>
-		<td title="Общая сумма" class='header' valign='bottom'>СУМ</td>
+		<td title="п°п╬я│п╨п╡п╟ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣" class='header' valign='bottom'>п°п║п /fix</td>
+		<td title="п°п╬я│п╨п╡п╟ п╪п╬п╠п╦п╩я▄п╫я▀п╣" class='header' valign='bottom'>п°п║п /mob</td>
+		<td title="п═п╬я│я│п╦я▐" class='header' valign='bottom'>п═</td>
+		<td title="п║п²п⌠" class='header' valign='bottom'>п║п²п⌠</td>
+		<td title="п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫я▀п╣" class='header' valign='bottom'>п°п²</td>
+		<td title="п·п╠я┴п╟я▐ я│я┐п╪п╪п╟" class='header' valign='bottom'>п║пёп°</td>
 		{/foreach}
 	</tr>
 	{foreach from=$report item='ts' key='cl'}
 	<tr class='{cycle values="even,odd"}'>
 		<td>{$cl}</td>
 		{foreach from=$tarifs item='t'}
-		<td title="Москва стационарные '{$t}'" align="right">{$ts[$t].0fix}</td>
-		<td title="Москва мобильные '{$t}'" align="right">{$ts[$t].0mob}</td>
-		<td title="Россия '{$t}'" align="right">{$ts[$t][1]}</td>
-		<td title="СНГ '{$t}'" align="right">{$ts[$t][3]}</td>
-		<td title="Международные '{$t}'" align="right">{$ts[$t][2]}</td>
-		<td title="Общая сумма '{$t}'" align="right" style="font-weight: bold">{$ts[$t].sum}</td>
+		<td title="п°п╬я│п╨п╡п╟ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣ '{$t}'" align="right">{$ts[$t].0fix}</td>
+		<td title="п°п╬я│п╨п╡п╟ п╪п╬п╠п╦п╩я▄п╫я▀п╣ '{$t}'" align="right">{$ts[$t].0mob}</td>
+		<td title="п═п╬я│я│п╦я▐ '{$t}'" align="right">{$ts[$t][1]}</td>
+		<td title="п║п²п⌠ '{$t}'" align="right">{$ts[$t][3]}</td>
+		<td title="п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫я▀п╣ '{$t}'" align="right">{$ts[$t][2]}</td>
+		<td title="п·п╠я┴п╟я▐ я│я┐п╪п╪п╟ '{$t}'" align="right" style="font-weight: bold">{$ts[$t].sum}</td>
 		{/foreach}
 	</tr>
 	{/foreach}
 	<tr style="font-weight: bold">
-		<td>Итого:</td>
+		<td>п≤я┌п╬пЁп╬:</td>
 		{foreach from=$tarifs item='t'}
-		<td title="Москва стационарные '{$t}'" align="right">{$tsum[$t].0fix}</td>
-		<td title="Москва мобильные '{$t}'" align="right">{$tsum[$t].0mob}</td>
-		<td title="Россия '{$t}'" align="right">{$tsum[$t][1]}</td>
-		<td title="СНГ '{$t}'" align="right">{$tsum[$t][3]}</td>
-		<td title="Международные '{$t}'" align="right">{$tsum[$t][2]}</td>
-		<td title="Общая сумма '{$t}'" align="right">{$tsum[$t].sum}</td>
+		<td title="п°п╬я│п╨п╡п╟ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣ '{$t}'" align="right">{$tsum[$t].0fix}</td>
+		<td title="п°п╬я│п╨п╡п╟ п╪п╬п╠п╦п╩я▄п╫я▀п╣ '{$t}'" align="right">{$tsum[$t].0mob}</td>
+		<td title="п═п╬я│я│п╦я▐ '{$t}'" align="right">{$tsum[$t][1]}</td>
+		<td title="п║п²п⌠ '{$t}'" align="right">{$tsum[$t][3]}</td>
+		<td title="п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫я▀п╣ '{$t}'" align="right">{$tsum[$t][2]}</td>
+		<td title="п·п╠я┴п╟я▐ я│я┐п╪п╪п╟ '{$t}'" align="right">{$tsum[$t].sum}</td>
 		{/foreach}
 	</tr>
 </table>

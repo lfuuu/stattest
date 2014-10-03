@@ -1,14 +1,14 @@
 {if count($devices) || !isset($is_secondary_output)}
-      <H2>Модели клиентских устройств</H2>
-{if access('routers_devices','edit')}<a href='{$LINK_START}module=routers&action=m_add'><img class=icon src='{$IMAGES_PATH}icons/add.gif'>Добавить модель</a><br>{/if}
+      <H2>п°п╬п╢п╣п╩п╦ п╨п╩п╦п╣п╫я┌я│п╨п╦я┘ я┐я│я┌я─п╬п╧я│я┌п╡</H2>
+{if access('routers_devices','edit')}<a href='{$LINK_START}module=routers&action=m_add'><img class=icon src='{$IMAGES_PATH}icons/add.gif'>п■п╬п╠п╟п╡п╦я┌я▄ п╪п╬п╢п╣п╩я▄</a><br>{/if}
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
           <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="11%">id</TD>
-          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="25%">Производитель</TD>
-          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">Модель</TD>
-          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">Тип</TD>
-          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="14%">Сумма залога</TD>
+          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="25%">п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄</TD>
+          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">п°п╬п╢п╣п╩я▄</TD>
+          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">п╒п╦п©</TD>
+          <TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="14%">п║я┐п╪п╪п╟ п╥п╟п╩п╬пЁп╟</TD>
           <TD width="10%">&nbsp;</TD>
 		</TR>
 {foreach from=$models item=item name=outer}
@@ -18,7 +18,7 @@
           <td><a href='{$LINK_START}module=routers&action=m_apply&id={$item.id}'>{$item.model}</a></td>
           <TD>{$item.type}</TD>
           <TD>{$item.default_deposit_sum}</TD>
-          <TD><a href='{$LINK_START}module=routers&action=m_apply&id={$item.id}&dbform_action=delete'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>удалить</a></TD>
+          <TD><a href='{$LINK_START}module=routers&action=m_apply&id={$item.id}&dbform_action=delete'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>я┐п╢п╟п╩п╦я┌я▄</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>

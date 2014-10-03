@@ -85,12 +85,12 @@ class MTLink
 
         $m["multitrunk_id"] = array(
                 "type" => "select",
-                "title" => "Мультитранк",
+                "title" => "п°я┐п╩я▄я┌п╦я┌я─п╟п╫п╨",
                 "data" => array(array("type" => "query", "query" => "select id, name from a_multitrunk where parent_id = 0 order by name", "db" => "db_ats"))
                 );
 
         $m["numbers_mt"] = array(
-                "title" => "Номера",
+                "title" => "п²п╬п╪п╣я─п╟",
                 "type" => "sort_list",
                 "data_all" => array(array("type" => "query", "query" => "
                         select id, concat(number, 'x', call_count) as number 
@@ -122,12 +122,12 @@ class MTLink
 
     private function check(&$data, $id)
     {
-        // пррверка возможна только на номера клиента, но так же возмодно использование транка по другому, без номеров...
+        // п©я─я─п╡п╣я─п╨п╟ п╡п╬п╥п╪п╬п╤п╫п╟ я┌п╬п╩я▄п╨п╬ п╫п╟ п╫п╬п╪п╣я─п╟ п╨п╩п╦п╣п╫я┌п╟, п╫п╬ я┌п╟п╨ п╤п╣ п╡п╬п╥п╪п╬п╢п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ я┌я─п╟п╫п╨п╟ п©п╬ п╢я─я┐пЁп╬п╪я┐, п╠п╣п╥ п╫п╬п╪п╣я─п╬п╡...
         return ;
 
 
         include INCLUDE_PATH."checker.php";
-        checker::isEmpty($data["numbers_mt"], "Номера не заданы!");
+        checker::isEmpty($data["numbers_mt"], "п²п╬п╪п╣я─п╟ п╫п╣ п╥п╟п╢п╟п╫я▀!");
     }
 
     private function setUpdateClientsByMultitrunkId($id)

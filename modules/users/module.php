@@ -1,7 +1,7 @@
 <?php
 class m_users {
 	var $rights=array(
-					'users'		=>array('òÁÂÏÔÁ Ó ĞÏÌØÚÏ×ÁÔÅÌÑÍÉ','r,change,grant','ŞÔÅÎÉÅ,ÉÚÍÅÎÅÎÉÅ,ÒÁÚÄÁŞÁ ĞÒÁ×')
+					'users'		=>array('Ğ Ğ°Ğ±Ğ¾Ñ‚Ğ° Ñ Ğ¿Ğ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ĞµĞ»ÑĞ¼Ğ¸','r,change,grant','Ñ‡Ñ‚ĞµĞ½Ğ¸Ğµ,Ğ¸Ğ·Ğ¼ĞµĞ½ĞµĞ½Ğ¸Ğµ,Ñ€Ğ°Ğ·Ğ´Ğ°Ñ‡Ğ° Ğ¿Ñ€Ğ°Ğ²')
 				);
 	var $actions=array(
 					'default'		=> array('users','r'),
@@ -10,11 +10,11 @@ class m_users {
 					'delete'		=> array('users','change'),
 				);
 
-	//ÓÏÄÅÒÖÉÍÏÅ ÌÅ×ÏÇÏ ÍÅÎÀ. array(ÎÁÚ×ÁÎÉÅ; ÄÅÊÓÔ×ÉÅ (ÄÌÑ ĞÒÏ×ÅÒËÉ ĞÒÁ× ÄÏÓÔÕĞÁ); ÄÏĞ. ĞÁÒÁÍÅÔÒÙ - ÓÔÒÏËÏÊ, ÎÁŞÉÎÁÀİÅÊÓÑ Ó & (ĞÒÉ ÎÅÏÂÈÏÄÉÍÏÓÔÉ); ËÁÒÔÉÎÏŞËÁ ; ÄÏĞ. ÔÅËÓÔ)
+	//ÑĞ¾Ğ´ĞµÑ€Ğ¶Ğ¸Ğ¼Ğ¾Ğµ Ğ»ĞµĞ²Ğ¾Ğ³Ğ¾ Ğ¼ĞµĞ½Ñ. array(Ğ½Ğ°Ğ·Ğ²Ğ°Ğ½Ğ¸Ğµ; Ğ´ĞµĞ¹ÑÑ‚Ğ²Ğ¸Ğµ (Ğ´Ğ»Ñ Ğ¿Ñ€Ğ¾Ğ²ĞµÑ€ĞºĞ¸ Ğ¿Ñ€Ğ°Ğ² Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ğ°); Ğ´Ğ¾Ğ¿. Ğ¿Ğ°Ñ€Ğ°Ğ¼ĞµÑ‚Ñ€Ñ‹ - ÑÑ‚Ñ€Ğ¾ĞºĞ¾Ğ¹, Ğ½Ğ°Ñ‡Ğ¸Ğ½Ğ°ÑÑ‰ĞµĞ¹ÑÑ Ñ & (Ğ¿Ñ€Ğ¸ Ğ½ĞµĞ¾Ğ±Ñ…Ğ¾Ğ´Ğ¸Ğ¼Ğ¾ÑÑ‚Ğ¸); ĞºĞ°Ñ€Ñ‚Ğ¸Ğ½Ğ¾Ñ‡ĞºĞ° ; Ğ´Ğ¾Ğ¿. Ñ‚ĞµĞºÑÑ‚)
 	var $menu=array(
-					array('ïĞÅÒÁÔÏÒÙ',	'default',	'&m=users'),
-					array('çÒÕĞĞÙ',		'default',	'&m=groups'),
-					array('ïÔÄÅÌÙ',		'default',	'&m=departs'),
+					array('ĞĞ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€Ñ‹',	'default',	'&m=users'),
+					array('Ğ“Ñ€ÑƒĞ¿Ğ¿Ñ‹',		'default',	'&m=groups'),
+					array('ĞÑ‚Ğ´ĞµĞ»Ñ‹',		'default',	'&m=departs'),
 				);
 
 	function m_users(){
@@ -33,7 +33,7 @@ class m_users {
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=users&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (count($R)>0){
-			$design->AddMenu('õĞÒÁ×ÌÅÎÉÅ ÄÏÓÔÕĞÏÍ',$R);
+			$design->AddMenu('Ğ£Ğ¿Ñ€Ğ°Ğ²Ğ»ĞµĞ½Ğ¸Ğµ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ğ¾Ğ¼',$R);
 		}
 	}
 
@@ -47,14 +47,14 @@ class m_users {
 		if (!in_array($m,array('users','user','groups','group','depart','departs'))) return;
 		$design->assign('CUR','?module=users&m='.$m);
 
-		//×ÎÉÍÁÎÉÅ! - ÎÅ .$action, Á .$m, ÄÌÑ ÔÏÇÏ, ŞÔÏÂÙ ÎÅ ËÏĞÉÒÏ×ÁÔØ ÏÂİÉÊ ËÏÄ
-		//ĞÒÏ×ÅÒËÁ ÎÁ ÄÏÓÔÕĞ Ë ÔÁËÏÍÕ action Õ ÎÁÓ ÕÖÅ ×ÓÔÁ×ÌÅÎÁ ×ÙÛÅ
-		//ÏÓÏÂÅÎÎÏÓÔØ - ÄÌÑ ÒÁÚÎÙÈ m ÏÄÉÎÁËÏ×ÙÅ action ÄÏÌÖÎÙ ÉÓĞÏÌØÚÏ×ÁÔØ ÏÄÉÎÁËÏ×ÙÅ rights
+		//Ğ²Ğ½Ğ¸Ğ¼Ğ°Ğ½Ğ¸Ğµ! - Ğ½Ğµ .$action, Ğ° .$m, Ğ´Ğ»Ñ Ñ‚Ğ¾Ğ³Ğ¾, Ñ‡Ñ‚Ğ¾Ğ±Ñ‹ Ğ½Ğµ ĞºĞ¾Ğ¿Ğ¸Ñ€Ğ¾Ğ²Ğ°Ñ‚ÑŒ Ğ¾Ğ±Ñ‰Ğ¸Ğ¹ ĞºĞ¾Ğ´
+		//Ğ¿Ñ€Ğ¾Ğ²ĞµÑ€ĞºĞ° Ğ½Ğ° Ğ´Ğ¾ÑÑ‚ÑƒĞ¿ Ğº Ñ‚Ğ°ĞºĞ¾Ğ¼Ñƒ action Ñƒ Ğ½Ğ°Ñ ÑƒĞ¶Ğµ Ğ²ÑÑ‚Ğ°Ğ²Ğ»ĞµĞ½Ğ° Ğ²Ñ‹ÑˆĞµ
+		//Ğ¾ÑĞ¾Ğ±ĞµĞ½Ğ½Ğ¾ÑÑ‚ÑŒ - Ğ´Ğ»Ñ Ñ€Ğ°Ğ·Ğ½Ñ‹Ñ… m Ğ¾Ğ´Ğ¸Ğ½Ğ°ĞºĞ¾Ğ²Ñ‹Ğµ action Ğ´Ğ¾Ğ»Ğ¶Ğ½Ñ‹ Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ÑŒ Ğ¾Ğ´Ğ¸Ğ½Ğ°ĞºĞ¾Ğ²Ñ‹Ğµ rights
 		call_user_func(array($this,'users_'.$m),$action);
-//		call_user_func(array($this,'tt_'.$action),$fixclient) - ÔÁË ×ÙÇÌÑÄÉÔ ÏÂÙŞÎÁÑ ÓÔÒÏËÁ ×ÙÚÏ×Á, ×ÚÑÔÁÑ ÉÚ ÍÏÄÕÌÑ tt
+//		call_user_func(array($this,'tt_'.$action),$fixclient) - Ñ‚Ğ°Ğº Ğ²Ñ‹Ğ³Ğ»ÑĞ´Ğ¸Ñ‚ Ğ¾Ğ±Ñ‹Ñ‡Ğ½Ğ°Ñ ÑÑ‚Ñ€Ğ¾ĞºĞ° Ğ²Ñ‹Ğ·Ğ¾Ğ²Ğ°, Ğ²Ğ·ÑÑ‚Ğ°Ñ Ğ¸Ğ· Ğ¼Ğ¾Ğ´ÑƒĞ»Ñ tt
 	}
 
-	//ĞÒÏÓÍÏÔÒ ÓĞÉÓËÁ ĞÏÌØÚÏ×ÁÔÅÌÅÊ
+	//Ğ¿Ñ€Ğ¾ÑĞ¼Ğ¾Ñ‚Ñ€ ÑĞ¿Ğ¸ÑĞºĞ° Ğ¿Ğ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ĞµĞ»ĞµĞ¹
 	function users_users($action) {
 		global $design,$db,$user;
 		$this->d_users_get($d_users);
@@ -64,10 +64,10 @@ class m_users {
 
 		if ($action=='delete'){
 			if (!isset($d_users[$id])) {
-				trigger_error('ôÁËÏÇÏ ÏĞÅÒÁÔÏÒÁ ÎÅ ÓÕİÅÓÔ×ÕÅÔ');
+				trigger_error('Ğ¢Ğ°ĞºĞ¾Ğ³Ğ¾ Ğ¾Ğ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€Ğ° Ğ½Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚');
 			} else {
 				$db->Query('delete from user_users where user="'.$id.'"');
-				trigger_error('ïĞÅÒÁÔÏÒ '.$id.' ÕÄÁÌ£Î');
+				trigger_error('ĞĞ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ '.$id.' ÑƒĞ´Ğ°Ğ»Ñ‘Ğ½');
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -75,7 +75,7 @@ class m_users {
 		$design->AddMain('users/main_users.tpl');
 	}
 
-	//ÒÁÂÏÔÁ ÓÏ ÏÄÎÉÍ ĞÏÌØÚÏ×ÁÔÅÌÅÍ
+	//Ñ€Ğ°Ğ±Ğ¾Ñ‚Ğ° ÑĞ¾ Ğ¾Ğ´Ğ½Ğ¸Ğ¼ Ğ¿Ğ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ĞµĞ»ĞµĞ¼
 	function users_user($action) {
 		global $design,$db,$user;
 		$this->d_users_get($d_users);
@@ -84,16 +84,16 @@ class m_users {
 		$this->d_departs_get($d_depart);
 		$id=get_param_protected('id');
 		$Firms = array(
-		                'mcn_telekom'=>'ïïï &laquo;íóî ôÅÌÅËÏÍ&raquo;',
-		                'mcn'=>'ïïï &laquo;üÍ óÉ üÎ&raquo;',
-		                'markomnet_new'=>'ïïï &laquo;íáòëïíîåô&raquo;',
-		                'markomnet_service'=>'ïïï &laquo;íáòëïíîåô ÓÅÒ×ÉÓ&raquo;',
-		                'ooomcn'=>'ïïï &laquo;íóî&raquo;',
-		                'all4net'=>'ïïï &laquo;ïìæïîåô&raquo;',
-		                'ooocmc'=>'ïïï &laquo;óÉ üÍ óÉ&raquo;',
-		                'mcm'=>'ïïï &laquo;íóí&raquo;',
-		                'all4geo'=>'ïïï &laquo;ïÌÆÏÇÅÏ&raquo;',
-		                'wellstart'=>'ïïï &laquo;÷ÅÌÌÓÔÁÒÔ&raquo;'
+		                'mcn_telekom'=>'ĞĞĞ &laquo;ĞœĞ¡Ğ Ğ¢ĞµĞ»ĞµĞºĞ¾Ğ¼&raquo;',
+		                'mcn'=>'ĞĞĞ &laquo;Ğ­Ğ¼ Ğ¡Ğ¸ Ğ­Ğ½&raquo;',
+		                'markomnet_new'=>'ĞĞĞ &laquo;ĞœĞĞ ĞšĞĞœĞĞ•Ğ¢&raquo;',
+		                'markomnet_service'=>'ĞĞĞ &laquo;ĞœĞĞ ĞšĞĞœĞĞ•Ğ¢ ÑĞµÑ€Ğ²Ğ¸Ñ&raquo;',
+		                'ooomcn'=>'ĞĞĞ &laquo;ĞœĞ¡Ğ&raquo;',
+		                'all4net'=>'ĞĞĞ &laquo;ĞĞ›Ğ¤ĞĞĞ•Ğ¢&raquo;',
+		                'ooocmc'=>'ĞĞĞ &laquo;Ğ¡Ğ¸ Ğ­Ğ¼ Ğ¡Ğ¸&raquo;',
+		                'mcm'=>'ĞĞĞ &laquo;ĞœĞ¡Ğœ&raquo;',
+		                'all4geo'=>'ĞĞĞ &laquo;ĞĞ»Ñ„Ğ¾Ğ³ĞµĞ¾&raquo;',
+		                'wellstart'=>'ĞĞĞ &laquo;Ğ’ĞµĞ»Ğ»ÑÑ‚Ğ°Ñ€Ñ‚&raquo;'
 		);
 		
 		if ($action=='add'){
@@ -109,16 +109,16 @@ class m_users {
 			$f['pass']=password::hash($f['pass_text']);
 			$id=$f['user'];
 			if (!$id) {
-				trigger_error('ïĞÅÒÁÔÏÒ ÄÏÌÖÅÎ ÉÍÅÔØ ÉÍÑ');
+				trigger_error('ĞĞ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ Ğ´Ğ¾Ğ»Ğ¶ĞµĞ½ Ğ¸Ğ¼ĞµÑ‚ÑŒ Ğ¸Ğ¼Ñ');
 			} else if (isset($d_users[$id])) {
-				trigger_error('ôÁËÏÊ ÏĞÅÒÁÔÏÒ ÕÖÅ ÓÕİÅÓÔ×ÕÅÔ');
+				trigger_error('Ğ¢Ğ°ĞºĞ¾Ğ¹ Ğ¾Ğ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ ÑƒĞ¶Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚');
 			} else {
 				$db->Query('insert into user_users (user,usergroup,name,pass,depart_id) values ("' . $id . '","' . $f['usergroup'] . '","' . $f['name'] . '","'.$f['pass'].'","'.$f["depart_id"].'")');
-				trigger_error('ïĞÅÒÁÔÏÒ '.$id.' ÓÏÚÄÁÎ. ğÁÒÏÌØ: '.$f['pass_text']);
+				trigger_error('ĞĞ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ '.$id.' ÑĞ¾Ğ·Ğ´Ğ°Ğ½. ĞŸĞ°Ñ€Ğ¾Ğ»ÑŒ: '.$f['pass_text']);
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 
-                //äÏÓÔÕĞ ĞÏ ÆÉÒÍÁÍ
+                //Ğ”Ğ¾ÑÑ‚ÑƒĞ¿ Ğ¿Ğ¾ Ñ„Ğ¸Ñ€Ğ¼Ğ°Ğ¼
                 $f['firms'] = (is_array($f['firms']) && count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
                 if ($f['firms'] != implode(',', array_keys($Firms)))
                     $db->Query('insert into user_grant_users (name,resource,access) values ("'.$id.'","firms","'.$f['firms'].'")');
@@ -151,20 +151,20 @@ class m_users {
 			if(!$f["enabled"]) $f["enabled"] = "no";
 
 			if (!$f['user']) {
-				trigger_error('ïĞÅÒÁÔÏÒ ÄÏÌÖÅÎ ÉÍÅÔØ ÉÍÑ');
+				trigger_error('ĞĞ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ Ğ´Ğ¾Ğ»Ğ¶ĞµĞ½ Ğ¸Ğ¼ĞµÑ‚ÑŒ Ğ¸Ğ¼Ñ');
 			} else if (($f['user']!=$id) && isset($d_users[$f['user']])){
-				trigger_error('ôÁËÏÊ ÏĞÅÒÁÔÏÒ ÕÖÅ ÓÕİÅÓÔ×ÕÅÔ');
+				trigger_error('Ğ¢Ğ°ĞºĞ¾Ğ¹ Ğ¾Ğ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ ÑƒĞ¶Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚');
 			} else {
 				$add='';
 				if ($f['pass']) {
 					if ($f['pass1']==$f['pass2']){
 						$add='pass="'.$f['pass1'].'",';
-						trigger_error('ğÁÒÏÌØ ÉÚÍÅÎ£Î');
-					} else trigger_error('ğÁÒÏÌÉ ÎÅ ÓÏ×ĞÁÄÁÀÔ');
+						trigger_error('ĞŸĞ°Ñ€Ğ¾Ğ»ÑŒ Ğ¸Ğ·Ğ¼ĞµĞ½Ñ‘Ğ½');
+					} else trigger_error('ĞŸĞ°Ñ€Ğ¾Ğ»Ğ¸ Ğ½Ğµ ÑĞ¾Ğ²Ğ¿Ğ°Ğ´Ğ°ÑÑ‚');
 				}
 				global $module_usercontrol;
 				if (!isset($module_usercontrol)){
-					trigger_error('íÏÄÕÌØ usercontrol ÎÅ ÕÓÔÁÎÏ×ÌÅÎ - ÆÏÔÏÇÒÁÆÉÑ ÍÅÎÑÔØÓÑ ÎÅ ÂÕÄÅÔ');
+					trigger_error('ĞœĞ¾Ğ´ÑƒĞ»ÑŒ usercontrol Ğ½Ğµ ÑƒÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ»ĞµĞ½ - Ñ„Ğ¾Ñ‚Ğ¾Ğ³Ñ€Ğ°Ñ„Ğ¸Ñ Ğ¼ĞµĞ½ÑÑ‚ÑŒÑÑ Ğ½Ğµ Ğ±ÑƒĞ´ĞµÑ‚');
 					$q_photo='';
 				} else $q_photo=$module_usercontrol->process_photo($id);
 
@@ -188,10 +188,10 @@ class m_users {
 						$R[$r['resource']]=$r['access'];
 					}
 
-                    //äÏÓÔÕĞ ĞÏ ÆÉÒÍÁÍ
+                    //Ğ”Ğ¾ÑÑ‚ÑƒĞ¿ Ğ¿Ğ¾ Ñ„Ğ¸Ñ€Ğ¼Ğ°Ğ¼
                     $f['firms'] = (is_array($f['firms']) && count($f['firms']) > 0) ? implode(',', array_keys($f['firms'])) : '';
                     if ($f['firms'] == implode(',', array_keys($Firms))) {
-                        //åÓÌÉ ×ÙÂÒÁÎÙ ×ÓÅ É ÂÙÌÁ ÚÁĞÉÓØ × ÔÁÂÌÉÃÅ - ÕÄÁÌÉÍ ÚÁĞÉÓØ ÉÚ ÔÁÂÌÉÃÙ
+                        //Ğ•ÑĞ»Ğ¸ Ğ²Ñ‹Ğ±Ñ€Ğ°Ğ½Ñ‹ Ğ²ÑĞµ Ğ¸ Ğ±Ñ‹Ğ»Ğ° Ğ·Ğ°Ğ¿Ğ¸ÑÑŒ Ğ² Ñ‚Ğ°Ğ±Ğ»Ğ¸Ñ†Ğµ - ÑƒĞ´Ğ°Ğ»Ğ¸Ğ¼ Ğ·Ğ°Ğ¿Ğ¸ÑÑŒ Ğ¸Ğ· Ñ‚Ğ°Ğ±Ğ»Ğ¸Ñ†Ñ‹
                         if (isset($R['firms'])) 
                             $db->Query('delete from user_grant_users where (name="'.$id.'") and (resource="firms")');
                     } else {
@@ -216,7 +216,7 @@ class m_users {
 						}
 					}
 				}
-				trigger_error('ïĞÅÒÁÔÏÒ '.$id.' ÉÚÍÅÎ£Î');
+				trigger_error('ĞĞ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€ '.$id.' Ğ¸Ğ·Ğ¼ĞµĞ½Ñ‘Ğ½');
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -265,7 +265,7 @@ class m_users {
 		$design->AddMain('users/main_user.tpl');
 	}
 
-	//ÒÁÂÏÔÁ ÓÏ ÓĞÉÓËÏÍ ÇÒÕĞĞ
+	//Ñ€Ğ°Ğ±Ğ¾Ñ‚Ğ° ÑĞ¾ ÑĞ¿Ğ¸ÑĞºĞ¾Ğ¼ Ğ³Ñ€ÑƒĞ¿Ğ¿
 	function users_groups($action){
 		global $design,$db,$user;
 		$this->d_groups_get($d_groups);
@@ -273,10 +273,10 @@ class m_users {
 
 		if ($action=='delete'){
 			if (!isset($d_groups[$id])) {
-				trigger_error('ôÁËÏÇÏ ÏĞÅÒÁÔÏÒÁ ÎÅ ÓÕİÅÓÔ×ÕÅÔ');
+				trigger_error('Ğ¢Ğ°ĞºĞ¾Ğ³Ğ¾ Ğ¾Ğ¿ĞµÑ€Ğ°Ñ‚Ğ¾Ñ€Ğ° Ğ½Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚');
 			} else {
 				$db->Query('delete from user_groups where usergroup="'.$id.'"');
-				trigger_error('çÒÕĞĞÁ '.$id.' ÕÄÁÌ£ÎÁ');
+				trigger_error('Ğ“Ñ€ÑƒĞ¿Ğ¿Ğ° '.$id.' ÑƒĞ´Ğ°Ğ»Ñ‘Ğ½Ğ°');
 				$this->d_users_get($d_groups);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -285,7 +285,7 @@ class m_users {
 		$design->AddMain('users/main_groups.tpl');
 	}
 
-	//ÒÁÂÏÔÁ Ó ×ÙÂÒÁÎÎÏÊ ÇÒÕĞĞÏÊ
+	//Ñ€Ğ°Ğ±Ğ¾Ñ‚Ğ° Ñ Ğ²Ñ‹Ğ±Ñ€Ğ°Ğ½Ğ½Ğ¾Ğ¹ Ğ³Ñ€ÑƒĞ¿Ğ¿Ğ¾Ğ¹
 	function users_group($action) {
 		global $design,$db,$user;
 		$this->d_groups_get($d_groups);
@@ -297,12 +297,12 @@ class m_users {
 				);
 			$id=$f['usergroup'];
 			if (!$id) {
-				trigger_error('çÒÕĞĞÁ ÄÏÌÖÎÁ ÉÍÅÔØ ÉÍÑ');
+				trigger_error('Ğ“Ñ€ÑƒĞ¿Ğ¿Ğ° Ğ´Ğ¾Ğ»Ğ¶Ğ½Ğ° Ğ¸Ğ¼ĞµÑ‚ÑŒ Ğ¸Ğ¼Ñ');
 			} else if (isset($d_groups[$id])) {
-				trigger_error('ôÁËÁÑ ÇÒÕĞĞÁ ÕÖÅ ÓÕİÅÓÔ×ÕÅÔ');
+				trigger_error('Ğ¢Ğ°ĞºĞ°Ñ Ğ³Ñ€ÑƒĞ¿Ğ¿Ğ° ÑƒĞ¶Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚');
 			} else {
 				$db->Query('insert into user_groups (usergroup,comment) values ("' . $id . '","' . $f['comment'] . '")');
-				trigger_error('çÒÕĞĞÁ '.$id.' ÓÏÚÄÁÎÁ');
+				trigger_error('Ğ“Ñ€ÑƒĞ¿Ğ¿Ğ° '.$id.' ÑĞ¾Ğ·Ğ´Ğ°Ğ½Ğ°');
 				$this->d_groups_get($d_groups);
 			}
 		} else if ($action=='edit'){
@@ -317,9 +317,9 @@ class m_users {
 				}
 				unset($v);
 			if (!$f['usergroup']) {
-				trigger_error('çÒÕĞĞÁ ÄÏÌÖÎÁ ÉÍÅÔØ ÉÍÑ');
+				trigger_error('Ğ“Ñ€ÑƒĞ¿Ğ¿Ğ° Ğ´Ğ¾Ğ»Ğ¶Ğ½Ğ° Ğ¸Ğ¼ĞµÑ‚ÑŒ Ğ¸Ğ¼Ñ');
 			} else if (($f['usergroup']!=$id) && isset($d_users[$f['usergroup']])){
-				trigger_error('ôÁËÁÑ ÇÒÕĞĞÁ ÕÖÅ ÓÕİÅÓÔ×ÕÅÔ');
+				trigger_error('Ğ¢Ğ°ĞºĞ°Ñ Ğ³Ñ€ÑƒĞ¿Ğ¿Ğ° ÑƒĞ¶Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚');
 			} else {
 				$db->Query('update user_groups set usergroup="'.$f['usergroup'].'",comment="'.$f['comment'].'" where usergroup="'.$id.'"');
 				if (access('users','grant')){
@@ -340,7 +340,7 @@ class m_users {
 						} else if (isset($R[$i])) $db->Query('delete from user_grant_groups where (name="'.$id.'") and (resource="'.$i.'")');
 					}
 				}
-				trigger_error('çÒÕĞĞÁ '.$id.' ÉÚÍÅÎÅÎÁ');
+				trigger_error('Ğ“Ñ€ÑƒĞ¿Ğ¿Ğ° '.$id.' Ğ¸Ğ·Ğ¼ĞµĞ½ĞµĞ½Ğ°');
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -364,7 +364,7 @@ class m_users {
 	}
 
 
-	//ÒÁÂÏÔÁ ÓÏ ÓĞÉÓËÏÍ ÏÔÄÅÌÏ×
+	//Ñ€Ğ°Ğ±Ğ¾Ñ‚Ğ° ÑĞ¾ ÑĞ¿Ğ¸ÑĞºĞ¾Ğ¼ Ğ¾Ñ‚Ğ´ĞµĞ»Ğ¾Ğ²
 	function users_departs($action){
 		global $design,$db,$user;
 
@@ -387,12 +387,12 @@ class m_users {
                 unset($d_departs);
                 if($isSet)
                 {
-                    trigger_error('ïÔÄÅÌ '.$name.' ÕÖÅ ÓÕİÅÓÔ×ÕÅÔ!');
+                    trigger_error('ĞÑ‚Ğ´ĞµĞ» '.$name.' ÑƒĞ¶Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚!');
                 }else{
                     $db->Query("insert into user_departs set name = '".$name."'");
                 }
             }else{
-				trigger_error('ïÔÄÅÌ ÎÅ ÚÁÄÁÎ!');
+				trigger_error('ĞÑ‚Ğ´ĞµĞ» Ğ½Ğµ Ğ·Ğ°Ğ´Ğ°Ğ½!');
             }
 
         }
@@ -402,7 +402,7 @@ class m_users {
             if ($id) {
                 $db->Query('update user_users set depart_id = 0 where depart_id = "'.$id.'"');
                 $db->Query('delete from user_departs where id="'.$id.'"');
-                trigger_error('ïÔÄÅÌ  ÕÄÁÌ£Î');
+                trigger_error('ĞÑ‚Ğ´ĞµĞ»  ÑƒĞ´Ğ°Ğ»Ñ‘Ğ½');
             }
         }
 		$this->d_departs_get($d_departs, false);

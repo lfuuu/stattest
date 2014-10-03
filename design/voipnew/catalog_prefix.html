@@ -1,6 +1,6 @@
 <h1>
     <small>
-        Префиксы
+        п÷я─п╣я└п╦п╨я│я▀
     </small>
 </h1>
 
@@ -8,49 +8,49 @@
     <input type="hidden" name="module" value="voipnew" />
     <input type="hidden" name="action" value="catalog_prefix" />
     <select name="f_dest_group">
-        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-        <option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+        <option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+        <option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+        <option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
     </select>
     <select name="f_country_id">
-        <option value="0">-- Все страны --</option>
+        <option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
         {foreach from=$countries item='g'}
         <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
     <select name="f_region_id">
-        <option value="0">-- Все регионы --</option>
+        <option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
         {foreach from=$geo_regions item='g'}
         <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
 
     <select name="f_city_geo_id">
-        <option value="0">-- Все города --</option>
+        <option value="0">-- п▓я│п╣ пЁп╬я─п╬п╢п╟ --</option>
         {foreach from=$cities item='g'}
         <option value="{$g.id}" {if $g.id eq $f_city_geo_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
 
     <select name="f_mob">
-        <option value="0">-- Моб/Стац --</option>
-        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
-        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+        <option value="0">-- п°п╬п╠/п║я┌п╟я├ --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
     </select>
 
     <br/>
-    <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
+    <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- п÷я─п╣я└п╦п╨я│ --"/>
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <input type=submit name="make" value="Сформировать"/>
+    <input type=submit name="make" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
-        <td class=header>Префикс номера</td>
-        <td class=header>Назначение</td>
-        <td class=header>Моб.</td>
-        <td class=header>Оператор</td>
+        <td class=header>п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟</td>
+        <td class=header>п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</td>
+        <td class=header>п°п╬п╠.</td>
+        <td class=header>п·п©п╣я─п╟я┌п╬я─</td>
     </tr>
 
     {foreach from=$report item='rd'}

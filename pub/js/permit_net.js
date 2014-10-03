@@ -60,9 +60,9 @@ function doAddIpNet(name)
     eval("var isNumber = typeof(is_"+name+"_number) != 'undefined';");
     if(!isNumber)
     {
-        alert("Маска сети задана не верно!");
+        alert("п°п╟я│п╨п╟ я│п╣я┌п╦ п╥п╟п╢п╟п╫п╟ п╫п╣ п╡п╣я─п╫п╬!");
     }else{
-        alert("Количество линий задано не верно!");
+        alert("п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╩п╦п╫п╦п╧ п╥п╟п╢п╟п╫п╬ п╫п╣ п╡п╣я─п╫п╬!");
     }
     netElem.focus();
     return false;
@@ -89,12 +89,12 @@ function doAddIpNet(name)
                 return ipElem.value;
             }
         }
-        alert("Невправильный IP адрес! ");
+        alert("п²п╣п╡п©я─п╟п╡п╦п╩я▄п╫я▀п╧ IP п╟п╢я─п╣я│! ");
         ipElem.focus();
         return false;
     }
 
-    alert("IP адрес не задан!");
+    alert("IP п╟п╢я─п╣я│ п╫п╣ п╥п╟п╢п╟п╫!");
     ipElem.focus();
     return false;
 }

@@ -3,7 +3,7 @@
 	include PATH_TO_ROOT."conf.php";
 	if (sendBadStat())
 	{
-		echo "\n" . Encoding::toUtf8("æÁÊÌ ÂÙÌ ÏÔĞÒÁ×ÌÅÎ\n\n");
+		echo "\n" . "Ğ¤Ğ°Ğ¹Ğ» Ğ±Ñ‹Ğ» Ğ¾Ñ‚Ğ¿Ñ€Ğ°Ğ²Ğ»ĞµĞ½\n\n";
 	}
 	function sendBadStat() 
 	{
@@ -13,7 +13,7 @@
 		$data = VirtpbxStat::getBadStat($from, $to);
 		if (empty($data))
 		{
-			echo "\n" . Encoding::toUtf8("÷ÓÅ ÄÁÎÎÙÅ ÂÙÌÉ ĞÏÌÕŞÅÎÙ\n\n");
+			echo "\n" . "Ğ’ÑĞµ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ±Ñ‹Ğ»Ğ¸ Ğ¿Ğ¾Ğ»ÑƒÑ‡ĞµĞ½Ñ‹\n\n";
 			return false;
 		}
 		$design->assign('data', $data);
@@ -26,12 +26,12 @@
 		$Mail->CharSet = "utf-8";
 		$Mail->IsHTML(true);
 		$Mail->From = "info@mcn.ru";
-		$Mail->FromName="íóî ôÅÌÅËÏÍ";
+		$Mail->FromName="ĞœĞ¡Ğ Ğ¢ĞµĞ»ĞµĞºĞ¾Ğ¼";
 		$Mail->Mailer='mail';
 		$Mail->Host=SMTP_SERVER;
 		$Mail->AddAddress(ADMIN_EMAIL);
-		$Mail->Body = Encoding::toUtf8($message);
-		$subject = Encoding::toUtf8('îÅ ĞÏÌÕŞÅÎÎÙÅ ÄÁÎÎÙÅ × ĞÅÒÉÏÄ c ' . date("d-m-Y", $from) . ' ĞÏ ' .  date("d-m-Y", $to));
+		$Mail->Body = $message;
+		$subject = 'ĞĞµ Ğ¿Ğ¾Ğ»ÑƒÑ‡ĞµĞ½Ğ½Ñ‹Ğµ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ² Ğ¿ĞµÑ€Ğ¸Ğ¾Ğ´ c ' . date("d-m-Y", $from) . ' Ğ¿Ğ¾ ' .  date("d-m-Y", $to);
 		$Mail->Subject = $subject;
 		return $Mail->Send();
 	}

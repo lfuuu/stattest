@@ -1,8 +1,8 @@
 <?
 class m_phone_head extends IModuleHead{
 	public $module_name = 'phone';
-	public $module_title = '÷ÉÒÔÕÁÌØÎÁÑ áôó';
-	public $rights = array('readdr,tc,callback,short,report,mail,voip_view,voip_edit,asterisk','ÎÁÓÔÒÏÊËÁ ÐÅÒÅÁÄÒÅÓÁÃÉÉ,ÒÅÄÁËÔÉÒÏ×ÁÎÉÅ Time Conditions,ÎÁÓÔÒÏÊËÁ Call-back,ÎÁÓÔÒÏÊËÁ ËÏÒÏÔËÉÈ ÎÏÍÅÒÏ×,ÐÒÏÐÕÝÅÎÎÙÅ Ú×ÏÎËÉ,ÎÁÓÔÒÏÊËÁ ÇÏÌÏÓÏ×ÏÊ ÐÏÞÔÙ,ÐÒÏÓÍÏÔÒ VoIP,ÎÁÓÔÒÏÊËÁ VoIP,ÏÂÎÏ×ÌÅÎÉÅ ËÏÎÆÉÇÕÒÁÃÉÉ AsteriskÁ');
+	public $module_title = 'Ð’Ð¸Ñ€Ñ‚ÑƒÐ°Ð»ÑŒÐ½Ð°Ñ ÐÐ¢Ð¡';
+	public $rights = array('readdr,tc,callback,short,report,mail,voip_view,voip_edit,asterisk','Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Ð¿ÐµÑ€ÐµÐ°Ð´Ñ€ÐµÑÐ°Ñ†Ð¸Ð¸,Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Time Conditions,Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Call-back,Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° ÐºÐ¾Ñ€Ð¾Ñ‚ÐºÐ¸Ñ… Ð½Ð¾Ð¼ÐµÑ€Ð¾Ð²,Ð¿Ñ€Ð¾Ð¿ÑƒÑ‰ÐµÐ½Ð½Ñ‹Ðµ Ð·Ð²Ð¾Ð½ÐºÐ¸,Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Ð³Ð¾Ð»Ð¾ÑÐ¾Ð²Ð¾Ð¹ Ð¿Ð¾Ñ‡Ñ‚Ñ‹,Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€ VoIP,Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° VoIP,Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ðµ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸ AsteriskÐ°');
 	public $actions=array(
 					'default'			=> array('',''),
 					'redir'				=> 'readdr',
@@ -31,13 +31,13 @@ class m_phone_head extends IModuleHead{
 				);
 	public $menu=array(
 					array('Asterisk',					'asterisk',''),
-					array('ðÅÒÅÁÄÒÅÓÁÃÉÑ',				'redir',	''),
+					array('ÐŸÐµÑ€ÐµÐ°Ð´Ñ€ÐµÑÐ°Ñ†Ð¸Ñ',				'redir',	''),
 					array('TimeConditions',				'tc',		''),
 					array('Callback',					'callback',	''),
-					array('âÙÓÔÒÙÊ ×ÙÚÏ×',				'short',	''),
-					array('ðÒÏÐÕÝÅÎÎÙÅ Ú×ÏÎËÉ',			'report',	''),
-					array('IP-ôÅÌÅÆÏÎÉÑ',				'voip',	''),
-//					array('çÏÌÏÓÏ×ÁÑ ÐÏÞÔÁ',			'mail',		''),
+					array('Ð‘Ñ‹ÑÑ‚Ñ€Ñ‹Ð¹ Ð²Ñ‹Ð·Ð¾Ð²',				'short',	''),
+					array('ÐŸÑ€Ð¾Ð¿ÑƒÑ‰ÐµÐ½Ð½Ñ‹Ðµ Ð·Ð²Ð¾Ð½ÐºÐ¸',			'report',	''),
+					array('IP-Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð¸Ñ',				'voip',	''),
+//					array('Ð“Ð¾Ð»Ð¾ÑÐ¾Ð²Ð°Ñ Ð¿Ð¾Ñ‡Ñ‚Ð°',			'mail',		''),
 				);
 }
 ?>

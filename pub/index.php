@@ -4,7 +4,7 @@
 
 	include PATH_TO_ROOT."include/MyDBG.php";
 
-//ÁÕÔÅÎÔÉÆÉËÁÃÉÑ
+//Ð°ÑƒÑ‚ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ
 	$action=get_param_raw('action','default');
     $user->DoAction($action); if ($action=='login') {
         $action=get_param_raw('action','default');
@@ -54,6 +54,6 @@
 	$module_clients->clients_headers();
 	$design->AddTop('search.tpl');
 	$modules->GetPanels($fixclient);
-	header('Content-Type: text/html; charset=koi8-r');
+	header('Content-Type: text/html; charset=utf-8');
 	$design->Process();
 ?>

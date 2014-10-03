@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 	require_once("make_inv.php");
 	
 
-//аутентификация
+//п╟я┐я┌п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐
 	$module=get_param_raw('module','clients');
 	$action=get_param_raw('action','default');
 	$user->DoAction($action); if ($action=='login') $action='default';
@@ -24,11 +24,11 @@ error_reporting(E_ALL);
 	if (!validate($bill_no,$client)) {
 		?>
 			<a href="../../index.php?module=accounts&action=accounts_payments&clients_client=<?=$client;?>" target="_blank">
-			Платежи клиента</a><br>
+			п÷п╩п╟я┌п╣п╤п╦ п╨п╩п╦п╣п╫я┌п╟</a><br>
 		<?php
-		die("Не верная пара $client - $bill_no<br>");
+		die("п²п╣ п╡п╣я─п╫п╟я▐ п©п╟я─п╟ $client - $bill_no<br>");
 	};
-	// получаем сумму по счету 
+	// п©п╬п╩я┐я┤п╟п╣п╪ я│я┐п╪п╪я┐ п©п╬ я│я┤п╣я┌я┐ 
 	$query="SELECT * from bill_bills where bill_no='$bill_no'";
 	$db->Connect();
 	$db->Query($query);
@@ -36,11 +36,11 @@ error_reporting(E_ALL);
 	$bill_sum=$r['sum'];
 	printdbg($bill_sum,"bill_sum");
 
-	// получаем курс на день платежа
+	// п©п╬п╩я┐я┤п╟п╣п╪ п╨я┐я─я│ п╫п╟ п╢п╣п╫я▄ п©п╩п╟я┌п╣п╤п╟
 	$db->Query("SELECT * from bill_currency_rate where date='$payment_date'");
 	if(!($r=$db->NextRecord())){
-		echo "На <b>$pay_date</b> не установлен курс доллара.
-		Устновите его <a href='../../index.php?module=accounts&action=accounts_add_usd_rate' target='_blank'>здесь</a> и внесите платеж еще раз.";
+		echo "п²п╟ <b>$pay_date</b> п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╨я┐я─я│ п╢п╬п╩п╩п╟я─п╟.
+		пёя│я┌п╫п╬п╡п╦я┌п╣ п╣пЁп╬ <a href='../../index.php?module=accounts&action=accounts_add_usd_rate' target='_blank'>п╥п╢п╣я│я▄</a> п╦ п╡п╫п╣я│п╦я┌п╣ п©п╩п╟я┌п╣п╤ п╣я┴п╣ я─п╟п╥.";
 		echo "SELECT * from bill_currency_rate where date='$payment_date'"; 
 		exit;
 	}
@@ -49,22 +49,22 @@ error_reporting(E_ALL);
 		
 	if ($delta<0.03 ){
 		$real_rate=$sum_rub/$bill_sum;
-		// вносим платеж
+		// п╡п╫п╬я│п╦п╪ п©п╩п╟я┌п╣п╤
 		make_balance_correction_db($client,$bill_sum);
 		$query = "insert into bill_payments 
 			(client,payment_no, payment_date, sum_rub, sum_usd,rate,bill_no,type) 
 			values ('$client','$payment_pp','$payment_date',
 				$sum_rub,$bill_sum,$real_rate,'$bill_no',0)";
 		$db->Query($query);
-		if ($db->$mErrno>0) die("Внести платеж не удалось. Ошибка с базой<br>".mysql_error());		
-		echo "Платеж на сумму <b>$sum_rub</b> по счету &#035; <b>$bill_no</b>внесен. <br>";
+		if ($db->$mErrno>0) die("п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·я┬п╦п╠п╨п╟ я│ п╠п╟п╥п╬п╧<br>".mysql_error());		
+		echo "п÷п╩п╟я┌п╣п╤ п╫п╟ я│я┐п╪п╪я┐ <b>$sum_rub</b> п©п╬ я│я┤п╣я┌я┐ &#035; <b>$bill_no</b>п╡п╫п╣я│п╣п╫. <br>";
 		
-		// делаем счета фактур
+		// п╢п╣п╩п╟п╣п╪ я│я┤п╣я┌п╟ я└п╟п╨я┌я┐я─
 		make_invoice($payment_pp,$sum_rub,$bill_sum,$real_rate,$bill_no,$payment_date);
 		?>
 		<br>
 		<a href="../../index.php?module=accounts&action=accounts_invoices&clients_client=<?=$client;?>" target="_blank">
-			Счета фактур</a> подготовлены <br>
+			п║я┤п╣я┌п╟ я└п╟п╨я┌я┐я─</a> п©п╬п╢пЁп╬я┌п╬п╡п╩п╣п╫я▀ <br>
 		<?php
 		
 		
@@ -76,16 +76,16 @@ error_reporting(E_ALL);
 			values ('$client','$payment_pp','$payment_date',
 				$sum_rub,$sum_usd,$rate_day,'$bill_no',0)";
 		$db->Query($query);
-		if ($db->$mErrno>0) die("Внести платеж не удалось. Ошибка с базой<br>".mysql_error());		
-		echo "Платеж на сумму <b>$sum_rub</b> по счету &#035; <b>$bill_no</b>внесен. <br>";
+		if ($db->$mErrno>0) die("п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╫п╣ я┐п╢п╟п╩п╬я│я▄. п·я┬п╦п╠п╨п╟ я│ п╠п╟п╥п╬п╧<br>".mysql_error());		
+		echo "п÷п╩п╟я┌п╣п╤ п╫п╟ я│я┐п╪п╪я┐ <b>$sum_rub</b> п©п╬ я│я┤п╣я┌я┐ &#035; <b>$bill_no</b>п╡п╫п╣я│п╣п╫. <br>";
 		
-		echo "<h2>Платеж отличается от суммы счета более чем на 3 процента</h2>";
+		echo "<h2>п÷п╩п╟я┌п╣п╤ п╬я┌п╩п╦я┤п╟п╣я┌я│я▐ п╬я┌ я│я┐п╪п╪я▀ я│я┤п╣я┌п╟ п╠п╬п╩п╣п╣ я┤п╣п╪ п╫п╟ 3 п©я─п╬я├п╣п╫я┌п╟</h2>";
 		?>
 			
-			<br>Счета фактур по данному платежу не выставлялись.
-			<br> Провести платеж вы можете 
+			<br>п║я┤п╣я┌п╟ я└п╟п╨я┌я┐я─ п©п╬ п╢п╟п╫п╫п╬п╪я┐ п©п╩п╟я┌п╣п╤я┐ п╫п╣ п╡я▀я│я┌п╟п╡п╩я▐п╩п╦я│я▄.
+			<br> п÷я─п╬п╡п╣я│я┌п╦ п©п╩п╟я┌п╣п╤ п╡я▀ п╪п╬п╤п╣я┌п╣ 
 			<a href="../../index.php?module=accounts&action=accounts_payments&clients_client=<?=$client;?>" target="_blank">
-			здесь</a><br>
+			п╥п╢п╣я│я▄</a><br>
 		<?php
 
 
@@ -96,7 +96,7 @@ error_reporting(E_ALL);
 
 ?>
 	
-	<a href='javascript:self.close();'>закрыть окно</a>
+	<a href='javascript:self.close();'>п╥п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a>
 <?php	
 
 
@@ -157,7 +157,7 @@ function find_client($inn){
 }	
 
 function find_bill($m){
-// получает строку "назначение платежа" иногда там есть номер счета
+// п©п╬п╩я┐я┤п╟п╣я┌ я│я┌я─п╬п╨я┐ "п╫п╟п╥п╫п╟я┤п╣п╫п╦п╣ п©п╩п╟я┌п╣п╤п╟" п╦п╫п╬пЁп╢п╟ я┌п╟п╪ п╣я│я┌я▄ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟
 //echo $m."<br>";
 $reg="|20\d{4}-\d{1,4}|";
 $out=array();

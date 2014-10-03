@@ -1,8 +1,8 @@
-<H2>Тарифы</H2>
+<H2>п╒п╟я─п╦я└я▀</H2>
 <H3>{$tarifs_title}:</H3>
-Показывать: <a href='{$LINK_START}&module=tarifs&m={$m}&filter=public'>общие</a> / <a href='{$LINK_START}&module=tarifs&m={$m}&filter=special'>специальные</a>  / <a href='{$LINK_START}&module=tarifs&m={$m}&filter=archive'>архивные</a><br>
+п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄: <a href='{$LINK_START}&module=tarifs&m={$m}&filter=public'>п╬п╠я┴п╦п╣</a> / <a href='{$LINK_START}&module=tarifs&m={$m}&filter=special'>я│п©п╣я├п╦п╟п╩я▄п╫я▀п╣</a>  / <a href='{$LINK_START}&module=tarifs&m={$m}&filter=archive'>п╟я─я┘п╦п╡п╫я▀п╣</a><br>
 {if access('tarifs','edit')}
-<a href='{$LINK_START}&module=tarifs&m={$m}&action=add'>Добавить</a>
+<a href='{$LINK_START}&module=tarifs&m={$m}&action=add'>п■п╬п╠п╟п╡п╦я┌я▄</a>
 {/if}<TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY><TR>
 {foreach from=$tarifs_fields item=item name=outer}

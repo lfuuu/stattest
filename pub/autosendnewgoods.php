@@ -31,7 +31,7 @@
 			else 
 				$order = array();
 				
-			$order[] = array('good'=>iconv('koi8-r','utf-8',$r['good']),'need'=>intval($r['amount']),'free'=>$r['free']);
+			$order[] = array('good'=>$r['good'],'need'=>intval($r['amount']),'free'=>$r['free']);
 			$mail[$r['bill_no']] = $order;
 			$mails[$r['email']] = $mail;
 			 

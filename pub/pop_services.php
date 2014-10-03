@@ -60,7 +60,7 @@
 	$design->display('pop_header.tpl');
 	$dbf->nodesign=1;
 	HelpDbForm::assign_log_history($table,$id);
-	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'òÅÄÁËÔÉÒÏ×ÁÎÉÅ'.' id='.$id);
+	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ'.' id='.$id);
 	$design->display('errors.tpl');
 	$design->display('dbform.tpl');
 	$design->display('errors.tpl');

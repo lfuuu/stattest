@@ -1,14 +1,14 @@
-Дата {$date_from}<br>
-<H1>РЕЕСТР</H1>
-<h2>заказных почтовых отправлений</h2>
+п■п╟я┌п╟ {$date_from}<br>
+<H1>п═п∙п∙п║п╒п═</H1>
+<h2>п╥п╟п╨п╟п╥п╫я▀я┘ п©п╬я┤я┌п╬п╡я▀я┘ п╬я┌п©я─п╟п╡п╩п╣п╫п╦п╧</h2>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom>&#8470; п/п</TD>
-          <TD class=header vAlign=bottom>Индекс</TD>
-          <TD class=header vAlign=bottom>Адрес</TD>
-          <TD class=header vAlign=bottom>Кому</TD>
-          <TD class=header vAlign=bottom>Куда (город)</TD>
+          <TD class=header vAlign=bottom>&#8470; п©/п©</TD>
+          <TD class=header vAlign=bottom>п≤п╫п╢п╣п╨я│</TD>
+          <TD class=header vAlign=bottom>п░п╢я─п╣я│</TD>
+          <TD class=header vAlign=bottom>п п╬п╪я┐</TD>
+          <TD class=header vAlign=bottom>п я┐п╢п╟ (пЁп╬я─п╬п╢)</TD>
         </TR>
 
 {foreach from=$postregs item=item}<tr>

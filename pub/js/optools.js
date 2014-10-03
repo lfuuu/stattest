@@ -15,7 +15,7 @@ var optools = {
 	},
 	check_submit:function(){
 		if ($('select[name="dbform[t_id_tarif]"]').val() == '0') {
-			alert("Тариф не выбран!");
+			alert("п╒п╟я─п╦я└ п╫п╣ п╡я▀п╠я─п╟п╫!");
 			return false;
 		}
 
@@ -23,7 +23,7 @@ var optools = {
         
         if (e164.length == 1 && e164.val().substr(0,4) == "7800") {
             if ($('select#line7800_id').val() == 0) {
-                alert('Выберите линию без номера, связанную с номеров 8800');
+                alert('п▓я▀п╠п╣я─п╦я┌п╣ п╩п╦п╫п╦я▌ п╠п╣п╥ п╫п╬п╪п╣я─п╟, я│п╡я▐п╥п╟п╫п╫я┐я▌ я│ п╫п╬п╪п╣я─п╬п╡ 8800');
                 return false;
             }
         }
@@ -34,7 +34,7 @@ var optools = {
 	},
 	check_vpbx_submit:function(){
 		if ($('select[name="dbform[t_id_tarif]"]').val() == '0') {
-			alert("Тариф не выбран!");
+			alert("п╒п╟я─п╦я└ п╫п╣ п╡я▀п╠я─п╟п╫!");
 			return false;
 		}
 
@@ -82,7 +82,7 @@ var optools = {
 				}
 
 				var rd
-				if(optools.friendly.dates.leap_years.inArray(YSel) && parseInt(mSel)==2) // високосный год
+				if(optools.friendly.dates.leap_years.inArray(YSel) && parseInt(mSel)==2) // п╡п╦я│п╬п╨п╬я│п╫я▀п╧ пЁп╬п╢
 					rd = 29
 				else
 					rd = optools.friendly.dates.mon_right_days[mSel-1]
@@ -253,13 +253,13 @@ var optools = {
 
                 if(oActualFrom && oE164 && oActualFrom.value != "2029-01-01" && oE164.value == "7495")
                 {
-                    alert("Нельзя изменить дату, не установив номер линии!");
+                    alert("п²п╣п╩я▄п╥я▐ п╦п╥п╪п╣п╫п╦я┌я▄ п╢п╟я┌я┐, п╫п╣ я┐я│я┌п╟п╫п╬п╡п╦п╡ п╫п╬п╪п╣я─ п╩п╦п╫п╦п╦!");
                     return false;
                 }
 				if(optools.voip.check_e164.is_valid)
 					return true;
 				else{
-					alert('Пожалуйста, укажите корректный номер.\n1. Номер должен присутствовать в базе\n2. Номер не должен быть закреплен за другим пользователем в настоящее время.\n3. Номер находится в выбранном регионе');
+					alert('п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, я┐п╨п╟п╤п╦я┌п╣ п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╫п╬п╪п╣я─.\n1. п²п╬п╪п╣я─ п╢п╬п╩п╤п╣п╫ п©я─п╦я│я┐я┌я│я┌п╡п╬п╡п╟я┌я▄ п╡ п╠п╟п╥п╣\n2. п²п╬п╪п╣я─ п╫п╣ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╥п╟п╨я─п╣п©п╩п╣п╫ п╥п╟ п╢я─я┐пЁп╦п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ п╡ п╫п╟я│я┌п╬я▐я┴п╣п╣ п╡я─п╣п╪я▐.\n3. п²п╬п╪п╣я─ п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡ п╡я▀п╠я─п╟п╫п╫п╬п╪ я─п╣пЁп╦п╬п╫п╣');
 					return false;
 				}
 			}
@@ -277,7 +277,7 @@ var optools = {
 			curday:null,
 			curmonth:null,
 			curyear:null,
-			months:['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек']
+			months:['п╞п╫п╡','п╓п╣п╡','п°п╟я─','п░п©я─','п°п╟п╧','п≤я▌п╫','п≤я▌п╩','п░п╡пЁ','п║п╣п╫','п·п╨я┌','п²п╬я▐','п■п╣п╨']
 		},
 
 		doers_buffer:{
@@ -299,7 +299,7 @@ var optools = {
 				month:dateObj.getMonth(),
 				flag:true,
 				week_flag:true,
-				append_html:'<tr  style="background-color:lightgray" align="center"><td>Пн</td><td>Вт</td><td>Ср</td><td>Чт</td><td>Пт</td><td>Сб</td><td>Вс</td></tr>',
+				append_html:'<tr  style="background-color:lightgray" align="center"><td>п÷п╫</td><td>п▓я┌</td><td>п║я─</td><td>п╖я┌</td><td>п÷я┌</td><td>п║п╠</td><td>п▓я│</td></tr>',
 				now_day:null,
 				href:'?'
 			}
@@ -560,10 +560,10 @@ var optools = {
 				success:function(data){
 					switch(data.err){
 						case 'ok':{
-							alert('Фиксирование успешно завершено.\nGood luck!');
+							alert('п╓п╦п╨я│п╦я─п╬п╡п╟п╫п╦п╣ я┐я│п©п╣я┬п╫п╬ п╥п╟п╡п╣я─я┬п╣п╫п╬.\nGood luck!');
 							break;
 						}default:{
-							alert('Ошибка!\nПожалуйста попробуйте еще раз, либо обратитесь к программисту\nКод ошибки: '+data.err);
+							alert('п·я┬п╦п╠п╨п╟!\nп÷п╬п╤п╟п╩я┐п╧я│я┌п╟ п©п╬п©я─п╬п╠я┐п╧я┌п╣ п╣я┴п╣ я─п╟п╥, п╩п╦п╠п╬ п╬п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п©я─п╬пЁя─п╟п╪п╪п╦я│я┌я┐\nп п╬п╢ п╬я┬п╦п╠п╨п╦: '+data.err);
 							break;
 						}
 					}
@@ -719,14 +719,14 @@ var optools = {
 					async:false,
 					success:function(data){
 						if(data == 'Ok'){
-							alert('Дата успешно изменена!')
+							alert('п■п╟я┌п╟ я┐я│п©п╣я┬п╫п╬ п╦п╥п╪п╣п╫п╣п╫п╟!')
 							location.reload()
 							return
 						}else if(data == 'MySQLErr'){
-							alert('Произошла ошибка на стороне сервера!\nНе удалось изменить дату.')
+							alert('п÷я─п╬п╦п╥п╬я┬п╩п╟ п╬я┬п╦п╠п╨п╟ п╫п╟ я│я┌п╬я─п╬п╫п╣ я│п╣я─п╡п╣я─п╟!\nп²п╣ я┐п╢п╟п╩п╬я│я▄ п╦п╥п╪п╣п╫п╦я┌я▄ п╢п╟я┌я┐.')
 							return
 						}else if(data == 'InvalidFormat'){
-							alert('Неправильный формат даты.\nВерный формат: гггг-мм-дд')
+							alert('п²п╣п©я─п╟п╡п╦п╩я▄п╫я▀п╧ я└п╬я─п╪п╟я┌ п╢п╟я┌я▀.\nп▓п╣я─п╫я▀п╧ я└п╬я─п╪п╟я┌: пЁпЁпЁпЁ-п╪п╪-п╢п╢')
 							return
 						}
 					}
@@ -884,11 +884,11 @@ $(document).ready(function() {
 			$('#get_free_e164, #e164_flag_image, #e164_flag_letter').hide();
 			optools.voip.check_e164.get_free_e164_trunk();
 			$('#s_tarif_type').val('special').change();
-			$('#tr_E164 td:first-child').html('номер транка');
+			$('#tr_E164 td:first-child').html('п╫п╬п╪п╣я─ я┌я─п╟п╫п╨п╟');
 		} else {
 			$('#get_free_e164, #e164_flag_image, #e164_flag_letter').show();
 			$('#s_tarif_type').val('public').change();
-			$('#tr_E164 td:first-child').html('номер телефона');
+			$('#tr_E164 td:first-child').html('п╫п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟');
 		}
 	});
 });

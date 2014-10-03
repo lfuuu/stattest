@@ -31,17 +31,17 @@
 <form style='display:inline' action='?' id="f_send">
 <table>
 	<tr>
-		<td>От:<br><input type=text id="date_from" name=date_from value='{$date_from}' class=text style="width:100px;"></td>
-		<td>До:<br><input type=text id="date_to" name=date_to value='{$date_to}' class=text style="width:100px;"></td>
-		<td>Начальное сальдо:<br><input type=text name=saldo value='{$saldo}' class=text style='width:100px'></td>
-		<td>Подпись:<br><select name='sign'>
-			<option value=''>Без подписи</option>
-			<option value='istomina'{if $sign == 'istomina'} selected{/if}>Истомина И.В.</option>
-			<option value='director'{if $sign == 'director'} selected{/if}>Директор</option>
+		<td>п·я┌:<br><input type=text id="date_from" name=date_from value='{$date_from}' class=text style="width:100px;"></td>
+		<td>п■п╬:<br><input type=text id="date_to" name=date_to value='{$date_to}' class=text style="width:100px;"></td>
+		<td>п²п╟я┤п╟п╩я▄п╫п╬п╣ я│п╟п╩я▄п╢п╬:<br><input type=text name=saldo value='{$saldo}' class=text style='width:100px'></td>
+		<td>п÷п╬п╢п©п╦я│я▄:<br><select name='sign'>
+			<option value=''>п▒п╣п╥ п©п╬п╢п©п╦я│п╦</option>
+			<option value='istomina'{if $sign == 'istomina'} selected{/if}>п≤я│я┌п╬п╪п╦п╫п╟ п≤.п▓.</option>
+			<option value='director'{if $sign == 'director'} selected{/if}>п■п╦я─п╣п╨я┌п╬я─</option>
 		</select></td>
-		<td>Действие:<br><select id='act' onchange="onchange_act(this);"><option value='none'>Пересчет</option><option value='html'>HTML</option><option value='pdf'>PDF</option></select></td>
-		<td><div id="ptp" style="display:none;">Верхний отступ:<br><input type='text' name='pdf_top_padding' value='2' style="width:100px;" /></div></td>
-		<td><br><input type=button value='Поехали' class=button onclick=sendForm();></td>
+		<td>п■п╣п╧я│я┌п╡п╦п╣:<br><select id='act' onchange="onchange_act(this);"><option value='none'>п÷п╣я─п╣я│я┤п╣я┌</option><option value='html'>HTML</option><option value='pdf'>PDF</option></select></td>
+		<td><div id="ptp" style="display:none;">п▓п╣я─я┘п╫п╦п╧ п╬я┌я│я┌я┐п©:<br><input type='text' name='pdf_top_padding' value='2' style="width:100px;" /></div></td>
+		<td><br><input type=button value='п÷п╬п╣я┘п╟п╩п╦' class=button onclick=sendForm();></td>
 	</tr>
 </table>
 	<input type=hidden name=module value=newaccounts>
@@ -49,7 +49,7 @@
 
 
 
-<!--Полный экран: <input type=checkbox name=fullscreen value='1'>-->
+<!--п÷п╬п╩п╫я▀п╧ я█п╨я─п╟п╫: <input type=checkbox name=fullscreen value='1'>-->
 
 
 
@@ -57,30 +57,30 @@
 <input type=hidden name=is_pdf value='0' id="i_pdf" />
 
 </form>
-<h2>Акт сверки по клиенту {$fixclient_data.client}</h2>
+<h2>п░п╨я┌ я│п╡п╣я─п╨п╦ п©п╬ п╨п╩п╦п╣п╫я┌я┐ {$fixclient_data.client}</h2>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <thead>
-<tr ><td width=50% colspan=4>По данным {$firma.name}, руб.</td><td width=50% colspan=4>По данным {$company_full}, руб.</td></tr>
-<tr><td width=4%>&#8470; п/п</td><td width=36%>Наименование операции,<br>документы</td><td width=5%>Дебет</td><td width=5%>Кредит</td>
-<td width=4%>&#8470; п/п</td><td width=24%>Наименование операции,<br>документы</td><td width=11%>Дебет</td><td width=11%>Кредит</td></tr></thead><tbody>
+<tr ><td width=50% colspan=4>п÷п╬ п╢п╟п╫п╫я▀п╪ {$firma.name}, я─я┐п╠.</td><td width=50% colspan=4>п÷п╬ п╢п╟п╫п╫я▀п╪ {$company_full}, я─я┐п╠.</td></tr>
+<tr><td width=4%>&#8470; п©/п©</td><td width=36%>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п╬п©п╣я─п╟я├п╦п╦,<br>п╢п╬п╨я┐п╪п╣п╫я┌я▀</td><td width=5%>п■п╣п╠п╣я┌</td><td width=5%>п я─п╣п╢п╦я┌</td>
+<td width=4%>&#8470; п©/п©</td><td width=24%>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п╬п©п╣я─п╟я├п╦п╦,<br>п╢п╬п╨я┐п╪п╣п╫я┌я▀</td><td width=11%>п■п╣п╠п╣я┌</td><td width=11%>п я─п╣п╢п╦я┌</td></tr></thead><tbody>
 {foreach from=$data item=item name=outer}
 <tr{if !$fullscreen} class={cycle values="even,odd"}{/if}>
 	<td>{$smarty.foreach.outer.iteration}</td>
 	<td>{if $item.type=='saldo'}
-		Сальдо на {$item.date|mdate:"d.m.Y"}
+		п║п╟п╩я▄п╢п╬ п╫п╟ {$item.date|mdate:"d.m.Y"}
 {elseif $item.type=='inv'}
 	{if $item.inv_num == 3}
-		Акт передачи оборудования под залог{else}
+		п░п╨я┌ п©п╣я─п╣п╢п╟я┤п╦ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦я▐ п©п╬п╢ п╥п╟п╩п╬пЁ{else}
 		{if $item.inv_num!=4}
-			Акт
+			п░п╨я┌
 		{else}
-			Накладная
+			п²п╟п╨п╩п╟п╢п╫п╟я▐
 		{/if}
 	{/if} <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.inv_no})</nobr>
 {elseif $item.type=='pay'}
-	Оплата <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.pay_no})</nobr>
+	п·п©п╩п╟я┌п╟ <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.pay_no})</nobr>
 {elseif $item.type=='total'}
-	Обороты за период
+	п·п╠п╬я─п╬я┌я▀ п╥п╟ п©п╣я─п╦п╬п╢
 {/if}
 </td>
 	<td align=right>{if isset($item.sum_income)}{$item.sum_income|round:2|replace:".":","}{else}&nbsp;{/if}</td>
@@ -93,12 +93,12 @@
 {/foreach}
 </tbody></table>
 
-<font style="color: black;">По данным  {$firma.name} на {$date_to_val|mdate:"d.m.Y г."},
+<font style="color: black;">п÷п╬ п╢п╟п╫п╫я▀п╪  {$firma.name} п╫п╟ {$date_to_val|mdate:"d.m.Y пЁ."},
 
-{if $zalog} с учетом платежей полученных в обеспечение исполнения обязательств по договору:
+{if $zalog} я│ я┐я┤п╣я┌п╬п╪ п©п╩п╟я┌п╣п╤п╣п╧ п©п╬п╩я┐я┤п╣п╫п╫я▀я┘ п╡ п╬п╠п╣я│п©п╣я┤п╣п╫п╦п╣ п╦я│п©п╬п╩п╫п╣п╫п╦я▐ п╬п╠я▐п╥п╟я┌п╣п╩я▄я│я┌п╡ п©п╬ п╢п╬пЁп╬п╡п╬я─я┐:
 <table>
 {foreach from=$zalog item=z name=zalog}
-<tr><td>{$smarty.foreach.zalog.iteration}.&nbsp;</td><td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td><td>{$z.sum_income|round:2|replace:".":","} рубл{$z.sum_income|rus_fin:'ь':'я':'ей'}</td></tr>
+<tr><td>{$smarty.foreach.zalog.iteration}.&nbsp;</td><td>{$z.date|mdate:"d.m.Y"}, &#8470;{$z.inv_no} ({$z.items})</td><td>{$z.sum_income|round:2|replace:".":","} я─я┐п╠п╩{$z.sum_income|rus_fin:'я▄':'я▐':'п╣п╧'}</td></tr>
 {/foreach}
 </table>
 
@@ -106,13 +106,13 @@
 
 {/if}
 
-&nbsp;задолженность
+&nbsp;п╥п╟п╢п╬п╩п╤п╣п╫п╫п╬я│я┌я▄
 {if $ressaldo.sum_income>0.0001}
-	в пользу {$firma.name} составляет {$ressaldo.sum_income|round:2|replace:".":","} рубл{$ressaldo.sum_income|rus_fin:'ь':'я':'ей'}
+	п╡ п©п╬п╩я▄п╥я┐ {$firma.name} я│п╬я│я┌п╟п╡п╩я▐п╣я┌ {$ressaldo.sum_income|round:2|replace:".":","} я─я┐п╠п╩{$ressaldo.sum_income|rus_fin:'я▄':'я▐':'п╣п╧'}
 {elseif $ressaldo.sum_outcome>0.0001}
-	в пользу {$company_full} составляет {$ressaldo.sum_outcome|round:2|replace:".":","} рубл{$ressaldo.sum_outcome|rus_fin:'ь':'я':'ей'}
+	п╡ п©п╬п╩я▄п╥я┐ {$company_full} я│п╬я│я┌п╟п╡п╩я▐п╣я┌ {$ressaldo.sum_outcome|round:2|replace:".":","} я─я┐п╠п╩{$ressaldo.sum_outcome|rus_fin:'я▄':'я▐':'п╣п╧'}
 {else}
-	отсутствует
+	п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌
 {/if}
 </font>
 <script>

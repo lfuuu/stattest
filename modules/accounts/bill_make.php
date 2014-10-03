@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>stat.mcn.ru/operator :: счета</title>
+<title>stat.mcn.ru/operator :: я│я┤п╣я┌п╟</title>
 <script language="JavaScript" type="text/javascript" src="/js/popup.js"></script>
 <style type="text/css">
 <!--
@@ -33,7 +33,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
     if (strcmp($what,'bill')==0){
 	if (strcmp($action,'make')==0){
 ?>
-<center><b>выставить счет</b></center>
+<center><b>п╡я▀я│я┌п╟п╡п╦я┌я▄ я│я┤п╣я┌</b></center>
 <form>
 <input type=hidden name='action' value='do_make'>
 <input type=hidden name='what' value='bill'>
@@ -49,7 +49,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    Дата
+	    п■п╟я┌п╟
 	</td>
 	<td BGCOLOR="#C5D6E3">
 	    <input type=text name='date_d' value='1' size=2 maxlength=2>/
@@ -59,7 +59,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    Период по факту
+	    п÷п╣я─п╦п╬п╢ п©п╬ я└п╟п╨я┌я┐
 	</td>
 	<td BGCOLOR="#C5D6E3">
 	    <input type=text name='period_f_m' value='<?echo date("m",mktime(0, 0, 0, date("m")-1, date("d"),  date("Y")));?>' size=2 maxlength=2>/
@@ -68,7 +68,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    Период по предоплате
+	    п÷п╣я─п╦п╬п╢ п©п╬ п©я─п╣п╢п╬п©п╩п╟я┌п╣
 	</td>
 	<td BGCOLOR="#C5D6E3">
 	    <input type=text name='period_pre_m' value='<?echo date("m");?>' size=2 maxlength=2>/
@@ -76,16 +76,16 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 	</td>
     </tr>
     <tr>
-    	<td>Компенсация за непредоставление услуг, часы</td>
+    	<td>п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ, я┤п╟я│я▀</td>
     	<td><INPUT type="text" name="comp" value="0" size="3" maxlength="3"></td>
     </tr>
     <tr>
-    	<td colspan=2><input type=checkbox name=must_pay value=1 checked>Обязателен к оплате</td>
+    	<td colspan=2><input type=checkbox name=must_pay value=1 checked>п·п╠я▐п╥п╟я┌п╣п╩п╣п╫ п╨ п╬п©п╩п╟я┌п╣</td>
 	</tr>    	
 </table>
 <br>
 <center>
-<input type=submit value='Выставить'>
+<input type=submit value='п▓я▀я│я┌п╟п╡п╦я┌я▄'>
 </center>
 </form>
 <?
@@ -93,17 +93,17 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 print "...";
 	$date=sprintf("%04d-%02d-%02d",$_GET['date_y'],$_GET['date_m'],$_GET['date_d']);
 	
-	// вставил значек "-" для исправления ошибки перехода на 4 версию mysql 
+	// п╡я│я┌п╟п╡п╦п╩ п╥п╫п╟я┤п╣п╨ "-" п╢п╩я▐ п╦я│п©я─п╟п╡п╩п╣п╫п╦я▐ п╬я┬п╦п╠п╨п╦ п©п╣я─п╣я┘п╬п╢п╟ п╫п╟ 4 п╡п╣я─я│п╦я▌ mysql 
 	$period_f=sprintf("%04d-%02d",$_GET['period_f_y'],$_GET['period_f_m']);
 	$period_pre=sprintf("%04d-%02d",$_GET['period_pre_y'],$_GET['period_pre_m']);
-	// конец блока правок 
+	// п╨п╬п╫п╣я├ п╠п╩п╬п╨п╟ п©я─п╟п╡п╬п╨ 
 	$comp=(int)$_GET['comp'];
 	if (!isset($_GET['$must_pay'])) $must_pay=0; else $must_pay=(int)$_GET['must_pay'];
 	$bill_no=do_make_bill($client,$date,$period_f,$period_pre,$comp,'default',$must_pay);
 ?>
-Cчет номер <?echo $bill_no ?> выставлен
+Cя┤п╣я┌ п╫п╬п╪п╣я─ <?echo $bill_no ?> п╡я▀я│я┌п╟п╡п╩п╣п╫
 <br>
-<a href='javascript:opener.location.reload(); self.close()';>закрыть окно</a>
+<a href='javascript:opener.location.reload(); self.close()';>п╥п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a>
 <?
 	}
     }

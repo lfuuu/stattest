@@ -43,11 +43,11 @@ class VoipStatus {
 
   public function showCountersWarning()
   {
-    if ($this->counters['error']) trigger_error("óÅÒ×ÅÒ ÓÔÁÔÉÓÔÉËÉ ÎÅÄÏÓÔÕĞÅÎ. äÁÎÎÙÅ Ï ÂÁÌÁÎÓÅ É ÓŞÅÔŞÉËÁÈ ÍÏÇÕÔ ÂÙÔØ ÎÅ ×ÅÒÎÙÍÉ");
-    if ($this->counters['auto_disabled_local']) trigger_error("ôåìåæïîéñ úáâìïëéòï÷áîá (íÅÓÔÎÁÑ Ó×ÑÚØ)");
-    if ($this->counters['auto_disabled']) trigger_error("ôåìåæïîéñ úáâìïëéòï÷áîá (íç, íî, íÅÓÔÎÙÅ ÍÏÂÉÌØÎÙÅ)");
-    if ($this->counters['need_lock_limit_day']) trigger_error('ğÒÅ×ÙÛÅÎ ÄÎÅ×ÎÏÊ ÌÉÍÉÔ: '.$this->counters['amount_day_sum'].' > '.$this->counters['voip_credit_limit_day']);
-    if ($this->counters['need_lock_limit_month']) trigger_error('ğÒÅ×ÙÛÅÎ ÍÅÓÑŞÎÙÊ ÌÉÍÉÔ: '.$this->counters['amount_month_sum'].' > '.$this->counters['voip_credit_limit']);
-    if ($this->counters['need_lock_credit']) trigger_error('ğÒÅ×ÙÛÅÎ ÌÉÍÉÔ ËÒÅÄÉÔÁ: '.$this->counters['balance'].' < -'.$this->counters['credit']);
+    if ($this->counters['error']) trigger_error("Ğ¡ĞµÑ€Ğ²ĞµÑ€ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºĞ¸ Ğ½ĞµĞ´Ğ¾ÑÑ‚ÑƒĞ¿ĞµĞ½. Ğ”Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ¾ Ğ±Ğ°Ğ»Ğ°Ğ½ÑĞµ Ğ¸ ÑÑ‡ĞµÑ‚Ñ‡Ğ¸ĞºĞ°Ñ… Ğ¼Ğ¾Ğ³ÑƒÑ‚ Ğ±Ñ‹Ñ‚ÑŒ Ğ½Ğµ Ğ²ĞµÑ€Ğ½Ñ‹Ğ¼Ğ¸");
+    if ($this->counters['auto_disabled_local']) trigger_error("Ğ¢Ğ•Ğ›Ğ•Ğ¤ĞĞĞ˜Ğ¯ Ğ—ĞĞ‘Ğ›ĞĞšĞ˜Ğ ĞĞ’ĞĞĞ (ĞœĞµÑÑ‚Ğ½Ğ°Ñ ÑĞ²ÑĞ·ÑŒ)");
+    if ($this->counters['auto_disabled']) trigger_error("Ğ¢Ğ•Ğ›Ğ•Ğ¤ĞĞĞ˜Ğ¯ Ğ—ĞĞ‘Ğ›ĞĞšĞ˜Ğ ĞĞ’ĞĞĞ (ĞœĞ“, ĞœĞ, ĞœĞµÑÑ‚Ğ½Ñ‹Ğµ Ğ¼Ğ¾Ğ±Ğ¸Ğ»ÑŒĞ½Ñ‹Ğµ)");
+    if ($this->counters['need_lock_limit_day']) trigger_error('ĞŸÑ€ĞµĞ²Ñ‹ÑˆĞµĞ½ Ğ´Ğ½ĞµĞ²Ğ½Ğ¾Ğ¹ Ğ»Ğ¸Ğ¼Ğ¸Ñ‚: '.$this->counters['amount_day_sum'].' > '.$this->counters['voip_credit_limit_day']);
+    if ($this->counters['need_lock_limit_month']) trigger_error('ĞŸÑ€ĞµĞ²Ñ‹ÑˆĞµĞ½ Ğ¼ĞµÑÑÑ‡Ğ½Ñ‹Ğ¹ Ğ»Ğ¸Ğ¼Ğ¸Ñ‚: '.$this->counters['amount_month_sum'].' > '.$this->counters['voip_credit_limit']);
+    if ($this->counters['need_lock_credit']) trigger_error('ĞŸÑ€ĞµĞ²Ñ‹ÑˆĞµĞ½ Ğ»Ğ¸Ğ¼Ğ¸Ñ‚ ĞºÑ€ĞµĞ´Ğ¸Ñ‚Ğ°: '.$this->counters['balance'].' < -'.$this->counters['credit']);
   }
 }

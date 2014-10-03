@@ -1,5 +1,5 @@
-<H2>Рассылки</H2>
-<H3>Добавление клиентов</H3>
+<H2>п═п╟я│я│я▀п╩п╨п╦</H2>
+<H3>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╨п╩п╦п╣п╫я┌п╬п╡</H3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0 style='width:*' width="*">
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=assign>
@@ -7,7 +7,7 @@
 <input type=hidden name=module value=letters>
 <TBODY>
 <TR>
-  <TD class=header vAlign=bottom>Клиент</TD>
+  <TD class=header vAlign=bottom>п п╩п╦п╣п╫я┌</TD>
   <TD class=header valign=bottom><input type=checkbox id='allconfirm' onclick='javascript:check_all()'></td>
   <TD>&nbsp;</TD>
   </TR>
@@ -19,7 +19,7 @@
 </TR>
 {/foreach}
 </TBODY></TABLE>
-<INPUT id=submit class=button type=submit value="Подтвердить">
+<INPUT id=submit class=button type=submit value="п÷п╬п╢я┌п╡п╣я─п╢п╦я┌я▄">
 </FORM>
 <script>
 function check_all(){ldelim}

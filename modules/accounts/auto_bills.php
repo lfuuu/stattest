@@ -40,12 +40,12 @@ error_reporting(E_ALL);
 	    		if (!($result2 = mysql_query($req2)))
         		{trigger_error("can't read from database!<br>$req2"); break;}
 	    		if(($row2 = mysql_fetch_assoc($result2))&&$client==$row2['client']){
-			trigger_error("счет за $period_f уже есть - пропущено<br>");
+			trigger_error("я│я┤п╣я┌ п╥п╟ $period_f я┐п╤п╣ п╣я│я┌я▄ - п©я─п╬п©я┐я┴п╣п╫п╬<br>");
 	    		}else{
 	        		$bill_no=do_make_bill($client,$bill_date,$period_f,$period_pre,$comp);
-				trigger_error("счет $bill_no выставлен<br>");
+				trigger_error("я│я┤п╣я┌ $bill_no п╡я▀я│я┌п╟п╡п╩п╣п╫<br>");
 				if (!$bill_no) {
-					trigger_error("проблема с выставлением счета<br>");
+					trigger_error("п©я─п╬п╠п╩п╣п╪п╟ я│ п╡я▀я│я┌п╟п╡п╩п╣п╫п╦п╣п╪ я│я┤п╣я┌п╟<br>");
 					break;
 				};
 				$where.="or bill_no='$bill_no'";

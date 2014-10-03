@@ -1,33 +1,33 @@
-      <H2>Роутер {$router.router}</H2>
-      <H3>Информация о роутере</H3>
-Телефон: {$router.phone}<br>
-Местонахождение: {$router.location}<br>
-Контактное лицо для перезагрузок: {$router.reboot_contact}<br>
-IP сети: {$router.net}<br>
-Серийный номер ADSL-модема: {$router.adsl_modem_serial}<br>
-<a href='{$LINK_START}module=services&action=in_view_routed&router={$router.router}'>Перейти к подключениям</a><br>
+      <H2>п═п╬я┐я┌п╣я─ {$router.router}</H2>
+      <H3>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ я─п╬я┐я┌п╣я─п╣</H3>
+п╒п╣п╩п╣я└п╬п╫: {$router.phone}<br>
+п°п╣я│я┌п╬п╫п╟я┘п╬п╤п╢п╣п╫п╦п╣: {$router.location}<br>
+п п╬п╫я┌п╟п╨я┌п╫п╬п╣ п╩п╦я├п╬ п╢п╩я▐ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╬п╨: {$router.reboot_contact}<br>
+IP я│п╣я┌п╦: {$router.net}<br>
+п║п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ ADSL-п╪п╬п╢п╣п╪п╟: {$router.adsl_modem_serial}<br>
+<a href='{$LINK_START}module=services&action=in_view_routed&router={$router.router}'>п÷п╣я─п╣п╧я┌п╦ п╨ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐п╪</a><br>
 {if access('routers_routers','edit')}
-<a href='{$LINK_START}module=routers&action=r_edit&router={$router.router}'>Редактировать</a><br>
+<a href='{$LINK_START}module=routers&action=r_edit&router={$router.router}'>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄</a><br>
 {/if}
 <br>
-<h3>Сети</h3>
+<h3>п║п╣я┌п╦</h3>
 <table class=price cellSpacing=4 cellPadding=2 border=0 width='60%'>
-<tr><td class=header>Сеть</td><td class=header>клиент</td><td class=header>подключение</td></tr>
+<tr><td class=header>п║п╣я┌я▄</td><td class=header>п╨п╩п╦п╣п╫я┌</td><td class=header>п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</td></tr>
 {foreach from=$nets item=r}
 <TR bgcolor="{if $r.active}#EEDCA9{else}#fffff5{/if}"><td align=right>{$r.net}</td><td><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></td><td><a href='pop_services.php?table=usage_ip_ports&id={$r.id}'>{$r.id}</a></td></tr>
 {/foreach}
 </table>
 
-      <H3>Клиенты</H3>
+      <H3>п п╩п╦п╣п╫я┌я▀</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="15%">{sort_link sort=1 text='Клиент' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
-          <TD class=header vAlign=bottom width="15%">{sort_link sort=2 text='Интерфейс' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
-          <TD class=header vAlign=bottom width="20%">{sort_link sort=3 text='Дата/Время' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
-          <TD class=header vAlign=bottom width="15%">Подсеть</TD>
-          <TD class=header vAlign=bottom width="15%">PPP-логины</TD>
-          <TD class=header vAlign=bottom width="20%">{sort_link sort=4 text='Адрес' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
+          <TD class=header vAlign=bottom width="15%">{sort_link sort=1 text='п п╩п╦п╣п╫я┌' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
+          <TD class=header vAlign=bottom width="15%">{sort_link sort=2 text='п≤п╫я┌п╣я─я└п╣п╧я│' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
+          <TD class=header vAlign=bottom width="20%">{sort_link sort=3 text='п■п╟я┌п╟/п▓я─п╣п╪я▐' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
+          <TD class=header vAlign=bottom width="15%">п÷п╬п╢я│п╣я┌я▄</TD>
+          <TD class=header vAlign=bottom width="15%">PPP-п╩п╬пЁп╦п╫я▀</TD>
+          <TD class=header vAlign=bottom width="20%">{sort_link sort=4 text='п░п╢я─п╣я│' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
         </TR>
 <?
 {foreach from=$router_clients item=item name=outer}

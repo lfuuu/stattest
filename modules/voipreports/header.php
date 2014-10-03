@@ -2,10 +2,10 @@
 class m_voipreports_head extends IModuleHead
 {
     public $module_name = 'voipreports';
-    public $module_title = 'IP Телефония (Отчеты)';
+    public $module_title = 'IP п╒п╣п╩п╣я└п╬п╫п╦я▐ (п·я┌я┤п╣я┌я▀)';
 
     public $rights = array(
-        'voipreports' => array('Отчеты', 'access,admin', 'доступ,администрирование')
+        'voipreports' => array('п·я┌я┤п╣я┌я▀', 'access,admin', 'п╢п╬я│я┌я┐п©,п╟п╢п╪п╦п╫п╦я│я┌я─п╦я─п╬п╡п╟п╫п╦п╣')
     );
 
     public $actions = array(
@@ -34,19 +34,19 @@ class m_voipreports_head extends IModuleHead
     );
 
     public $menu = array(
-        array('Анализ прайс-листов', 'pricelist_report_analyze_list'),
-        array('Сравнение операторов', 'pricelist_report_operator_list'),
-        array('По маршрутизации', 'pricelist_report_routing_list'),
-        array('Себестоимость', 'cost_report'),
-        array('Отчет для сверок', 'reconciliation_report'),
+        array('п░п╫п╟п╩п╦п╥ п©я─п╟п╧я│-п╩п╦я│я┌п╬п╡', 'pricelist_report_analyze_list'),
+        array('п║я─п╟п╡п╫п╣п╫п╦п╣ п╬п©п╣я─п╟я┌п╬я─п╬п╡', 'pricelist_report_operator_list'),
+        array('п÷п╬ п╪п╟я─я┬я─я┐я┌п╦п╥п╟я├п╦п╦', 'pricelist_report_routing_list'),
+        array('п║п╣п╠п╣я│я┌п╬п╦п╪п╬я│я┌я▄', 'cost_report'),
+        array('п·я┌я┤п╣я┌ п╢п╩я▐ я│п╡п╣я─п╬п╨', 'reconciliation_report'),
         array('', 'voip_7800_report'),
         array('Voip 7800', 'voip_7800_report'),
-        array('Voip Местные', 'voip_local_report'),
-        array('Voip МГМН', 'voip_mgmn_report'),
-        array('Отчет по звонкам', 'calls_report'),
-        array('На кого ушли звонки', 'by_dest_operator'),
-        array('От кого пришли звонки', 'by_source_operator'),
-        array('Отчет по операторскому трафику voip', 'operators_traf'),
-        array('Не распознанные вызовы', 'unrecognized'),
+        array('Voip п°п╣я│я┌п╫я▀п╣', 'voip_local_report'),
+        array('Voip п°п⌠п°п²', 'voip_mgmn_report'),
+        array('п·я┌я┤п╣я┌ п©п╬ п╥п╡п╬п╫п╨п╟п╪', 'calls_report'),
+        array('п²п╟ п╨п╬пЁп╬ я┐я┬п╩п╦ п╥п╡п╬п╫п╨п╦', 'by_dest_operator'),
+        array('п·я┌ п╨п╬пЁп╬ п©я─п╦я┬п╩п╦ п╥п╡п╬п╫п╨п╦', 'by_source_operator'),
+        array('п·я┌я┤п╣я┌ п©п╬ п╬п©п╣я─п╟я┌п╬я─я│п╨п╬п╪я┐ я┌я─п╟я└п╦п╨я┐ voip', 'operators_traf'),
+        array('п²п╣ я─п╟я│п©п╬п╥п╫п╟п╫п╫я▀п╣ п╡я▀п╥п╬п╡я▀', 'unrecognized'),
     );
 }

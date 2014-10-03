@@ -15,21 +15,21 @@ class Db_map {
 	var $translate;
 	
 	function SetErrorMode($echo,$quit){
-		//echo 0 - не выводить, 1 - вывод через echo, 2 - trigger_error
-		//quit 0 - только return, 1 - halt
+		//echo 0 - п╫п╣ п╡я▀п╡п╬п╢п╦я┌я▄, 1 - п╡я▀п╡п╬п╢ я┤п╣я─п╣п╥ echo, 2 - trigger_error
+		//quit 0 - я┌п╬п╩я▄п╨п╬ return, 1 - halt
 		$this->error_mode_echo=$echo;
 		$this->error_mode_quit=$quit;
-		//вид обработки ошибок
+		//п╡п╦п╢ п╬п╠я─п╟п╠п╬я┌п╨п╦ п╬я┬п╦п╠п╬п╨
 	}
 	
-	//$keys - ассоциированный массив всех ключевых полей/наборов полей
-	//$links - массив всех связей один-ко-многим. циклов быть не должно! дополнительно - 3е поле - действия при добавлении
-	//$types - ассоциированный массив полей к типам и действиям по их контролю: array(type, action_control, params_for_checker..)
-	//visible - какие поля показывать в раскрывающемся списке
-	//dblecho - поля с двойным выбором (список+"использовать поле")
-	//variants - варианты для списков без связей
-	//hidden - скрывать
-	//translate - отображение из "таблица.поле" в человеческое название и комментарий
+	//$keys - п╟я│я│п╬я├п╦п╦я─п╬п╡п╟п╫п╫я▀п╧ п╪п╟я│я│п╦п╡ п╡я│п╣я┘ п╨п╩я▌я┤п╣п╡я▀я┘ п©п╬п╩п╣п╧/п╫п╟п╠п╬я─п╬п╡ п©п╬п╩п╣п╧
+	//$links - п╪п╟я│я│п╦п╡ п╡я│п╣я┘ я│п╡я▐п╥п╣п╧ п╬п╢п╦п╫-п╨п╬-п╪п╫п╬пЁп╦п╪. я├п╦п╨п╩п╬п╡ п╠я▀я┌я▄ п╫п╣ п╢п╬п╩п╤п╫п╬! п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬ - 3п╣ п©п╬п╩п╣ - п╢п╣п╧я│я┌п╡п╦я▐ п©я─п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦
+	//$types - п╟я│я│п╬я├п╦п╦я─п╬п╡п╟п╫п╫я▀п╧ п╪п╟я│я│п╦п╡ п©п╬п╩п╣п╧ п╨ я┌п╦п©п╟п╪ п╦ п╢п╣п╧я│я┌п╡п╦я▐п╪ п©п╬ п╦я┘ п╨п╬п╫я┌я─п╬п╩я▌: array(type, action_control, params_for_checker..)
+	//visible - п╨п╟п╨п╦п╣ п©п╬п╩я▐ п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╡ я─п╟я│п╨я─я▀п╡п╟я▌я┴п╣п╪я│я▐ я│п©п╦я│п╨п╣
+	//dblecho - п©п╬п╩я▐ я│ п╢п╡п╬п╧п╫я▀п╪ п╡я▀п╠п╬я─п╬п╪ (я│п©п╦я│п╬п╨+"п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п©п╬п╩п╣")
+	//variants - п╡п╟я─п╦п╟п╫я┌я▀ п╢п╩я▐ я│п©п╦я│п╨п╬п╡ п╠п╣п╥ я│п╡я▐п╥п╣п╧
+	//hidden - я│п╨я─я▀п╡п╟я┌я▄
+	//translate - п╬я┌п╬п╠я─п╟п╤п╣п╫п╦п╣ п╦п╥ "я┌п╟п╠п╩п╦я├п╟.п©п╬п╩п╣" п╡ я┤п╣п╩п╬п╡п╣я┤п╣я│п╨п╬п╣ п╫п╟п╥п╡п╟п╫п╦п╣ п╦ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧
 	function Db_map($keys,$links,$types,$visible,$dblecho,$variants,$hidden,$translate,$postactions,$readonly,$order) {
 		$this->links=array();
 		foreach ($links as $v){
@@ -43,7 +43,7 @@ class Db_map {
 		foreach ($keys as $t=>$k){
 			if (!is_array($keys[$t])) $keys[$t]=array($keys[$t]);
 		}
-		//из формата A[$table.'.'.$field] делаем A[$table][$field]
+		//п╦п╥ я└п╬я─п╪п╟я┌п╟ A[$table.'.'.$field] п╢п╣п╩п╟п╣п╪ A[$table][$field]
 		$this->variants=array();
 		foreach ($variants as $k=>$v){
 			if (!preg_match('/([^.]+)\.([^.]+)/',$k,$m)) {echo 'Variants parse error'; exit;}
@@ -68,7 +68,7 @@ class Db_map {
 	function rset($k,$val){
 		if (!isset($this->_curignore[$k])) $this->_currow[$k]=$val;
 	}
-	//эта функция выполняет проверку значения
+	//я█я┌п╟ я└я┐п╫п╨я├п╦я▐ п╡я▀п©п╬п╩п╫я▐п╣я┌ п©я─п╬п╡п╣я─п╨я┐ п╥п╫п╟я┤п╣п╫п╦я▐
 	function CheckValue($table,$field,$value,&$row,&$ignore,&$old){
 		global $db;
 		if (!isset($this->types[$table.'.'.$field])) return;
@@ -77,12 +77,12 @@ class Db_map {
 		for ($i=2;isset($t[$i]);$i++) $P[]=$t[$i];
 		if (isset($t[1]) && $t[1]){
 			$v=eval($t[1]);
-			if ($v) if ($e=$this->_error('Ошибка в поле '.$field.': '.$v.'<br>')) return $e;
+			if ($v) if ($e=$this->_error('п·я┬п╦п╠п╨п╟ п╡ п©п╬п╩п╣ '.$field.': '.$v.'<br>')) return $e;
 		}
-		if (!($this->CheckType($value,$t[0],$P))) if ($e=$this->_error('Ошибка в поле '.$field."<br>")) return $e;
+		if (!($this->CheckType($value,$t[0],$P))) if ($e=$this->_error('п·я┬п╦п╠п╨п╟ п╡ п©п╬п╩п╣ '.$field."<br>")) return $e;
 	}
 	
-	//добавляет запись в таблицу
+	//п╢п╬п╠п╟п╡п╩я▐п╣я┌ п╥п╟п©п╦я│я▄ п╡ я┌п╟п╠п╩п╦я├я┐
 	function AddRow($table,$row){
 		global $db;
 		$ignore=array();
@@ -96,7 +96,7 @@ class Db_map {
 			$db->Query('select count(*) from '.$v[0].' where `'.$v[1].'`="'.$row[$f].'"');
 			if (!($r=$db->NextRecord())) if ($e=$this->_error('AddRow strange error')) return $e;
 			$r=$r[0];
-			if ($r!=1) if ($e=$this->_error('Ошибка при добавлении записи - нет соответствующей записи в связаной таблице (AddRow: '.$table.'.'.$f.'="'.$row[$f].'" maps with '.$r.' rows on '.$v[0].'.'.$v[1].')<br>')) return $e;
+			if ($r!=1) if ($e=$this->_error('п·я┬п╦п╠п╨п╟ п©я─п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦ п╥п╟п©п╦я│п╦ - п╫п╣я┌ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╣п╧ п╥п╟п©п╦я│п╦ п╡ я│п╡я▐п╥п╟п╫п╬п╧ я┌п╟п╠п╩п╦я├п╣ (AddRow: '.$table.'.'.$f.'="'.$row[$f].'" maps with '.$r.' rows on '.$v[0].'.'.$v[1].')<br>')) return $e;
 			if (isset($v[2]) && $v[2]){
 				$db->Query('select * from '.$v[0].' where `'.$v[1].'`="'.$row[$f].'"');
 				$r=$db->NextRecord();
@@ -113,7 +113,7 @@ class Db_map {
 		}
 		$db->Query('insert into '.$table.' ('.$list.')'.' values ('.$values.')');
 	}
-	//изменяет запись
+	//п╦п╥п╪п╣п╫я▐п╣я┌ п╥п╟п©п╦я│я▄
 	function UpdateRow($table,$row,$old){
 		global $db;
 		$ignore=array();
@@ -132,7 +132,7 @@ class Db_map {
 			if (!($r=$db->NextRecord())) if ($e=$this->_error('UpdateRow strange error')) return $e;
 			$r=$r[0];
 //			if ($r!=1) if ($e=$this->_error('UpdateRow: '.$table.'.'.$f.'="'.$row[$f].'" maps with '.$r.' rows on '.$v[0].'.'.$v[1])) return $e;
-			if ($r!=1) if ($e=$this->_error('Ошибка при изменении записи - нет соответствующей записи в связаной таблице (UpdateRow: '.$table.'.'.$f.'="'.$row[$f].'" maps with '.$r.' rows on '.$v[0].'.'.$v[1].')<br>')) return $e;
+			if ($r!=1) if ($e=$this->_error('п·я┬п╦п╠п╨п╟ п©я─п╦ п╦п╥п╪п╣п╫п╣п╫п╦п╦ п╥п╟п©п╦я│п╦ - п╫п╣я┌ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╣п╧ п╥п╟п©п╦я│п╦ п╡ я│п╡я▐п╥п╟п╫п╬п╧ я┌п╟п╠п╩п╦я├п╣ (UpdateRow: '.$table.'.'.$f.'="'.$row[$f].'" maps with '.$r.' rows on '.$v[0].'.'.$v[1].')<br>')) return $e;
 			if (isset($v[2]) && $v[2]){
 				$db->Query('select * from '.$v[0].' where `'.$v[1].'`="'.$row[$f].'"');
 				$r=$db->NextRecord();
@@ -197,7 +197,7 @@ class Db_map {
 			$db->Query('select count(*) from '.$v[0].' where `'.$v[1].'`="'.$row[$f].'"');
 			if (!($r=$db->NextRecord())) if ($e=$this->_error('AddRow strange error')) return $e;
 			$r=$r[0];
-			if (($r!=0) && (!$delete_linked)) if ($e=$this->_error('Ошибка при удалении записи - некоторые записи в других таблицах ссылаются на удаляемую. DeleteRow: '.$table.'.'.$f.'="'.$row[$f].'" is mapped with '.$r.' rows on '.$v[0].'.'.$v[1])) return $e;
+			if (($r!=0) && (!$delete_linked)) if ($e=$this->_error('п·я┬п╦п╠п╨п╟ п©я─п╦ я┐п╢п╟п╩п╣п╫п╦п╦ п╥п╟п©п╦я│п╦ - п╫п╣п╨п╬я┌п╬я─я▀п╣ п╥п╟п©п╦я│п╦ п╡ п╢я─я┐пЁп╦я┘ я┌п╟п╠п╩п╦я├п╟я┘ я│я│я▀п╩п╟я▌я┌я│я▐ п╫п╟ я┐п╢п╟п╩я▐п╣п╪я┐я▌. DeleteRow: '.$table.'.'.$f.'="'.$row[$f].'" is mapped with '.$r.' rows on '.$v[0].'.'.$v[1])) return $e;
 			if ($r!=0) {
 				if (isset($this->linksF[$v[0]])) {
 					$this->DeleteRows($v[0],$v[1].'="'.$row[$f].'"',1);
@@ -209,7 +209,7 @@ class Db_map {
 		if ($delete_really) $db->Query('delete from '.$table.' where '.$this->GetWhere($table,$row));
 	}
 	
-	//типы полей для проверки типов
+	//я┌п╦п©я▀ п©п╬п╩п╣п╧ п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ я┌п╦п©п╬п╡
 	function CheckType($value,$type,$params){
 		switch ($type) {
 		case 'ip':
@@ -250,7 +250,7 @@ class Db_map {
 			else exit;
 	}
 	
-	//отображение
+	//п╬я┌п╬п╠я─п╟п╤п╣п╫п╦п╣
 	function ShowEditForm($table, $query, $row=array(),$apply_hide=0,$apply_readonly=1,$apply_readonly2=0) {
 		global $db,$design;
 		if ($query) $data=$this->SelectRow($table,$query,0); else $data=array();
@@ -277,7 +277,7 @@ class Db_map {
 			}
 			if (!count($R)) $R[]=array('key'=>'','show'=>'');
 			
-			$data[$f]['variants']=$R; //над variants нужно ещё поработать. ключевые поля есть. список полей для вывода - в одной таблице при инициализации.
+			$data[$f]['variants']=$R; //п╫п╟п╢ variants п╫я┐п╤п╫п╬ п╣я┴я▒ п©п╬я─п╟п╠п╬я┌п╟я┌я▄. п╨п╩я▌я┤п╣п╡я▀п╣ п©п╬п╩я▐ п╣я│я┌я▄. я│п©п╦я│п╬п╨ п©п╬п╩п╣п╧ п╢п╩я▐ п╡я▀п╡п╬п╢п╟ - п╡ п╬п╢п╫п╬п╧ я┌п╟п╠п╩п╦я├п╣ п©я─п╦ п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦п╦.
 			if (isset($this->dblecho[$table]) && in_array($f,$this->dblecho[$table])) {
 				$data[$f]['show']|=2;
 			} else $data[$f]['show']=2;
@@ -351,7 +351,7 @@ class Db_map {
 				$p=array();
 				if (in_array($ri,$this->keys[$table])) $p['key']=1; else $p['key']=0;
 				if (isset($this->linksF[$table][$ri])){
-					$v=$this->linksF[$table][$ri][0];	//вывод только первой связанной таблицы
+					$v=$this->linksF[$table][$ri][0];	//п╡я▀п╡п╬п╢ я┌п╬п╩я▄п╨п╬ п©п╣я─п╡п╬п╧ я│п╡я▐п╥п╟п╫п╫п╬п╧ я┌п╟п╠п╩п╦я├я▀
 					$p['link_table']=$v[0];
 					$p['link_field']=$v[1];
 					
@@ -364,7 +364,7 @@ class Db_map {
 		$design->assign('query_query',$query);
 		$design->assign('query_data',$R);
 	}
-	//разбор параметров, выполнение операций
+	//я─п╟п╥п╠п╬я─ п©п╟я─п╟п╪п╣я┌я─п╬п╡, п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ п╬п©п╣я─п╟я├п╦п╧
 	function ApplyChanges($def_table='') {
 		global $db,$design;
 		$action=get_param_protected('dbaction','');
@@ -396,9 +396,9 @@ class Db_map {
 				if (!$old[$k]) $new=1;
 			}
 			if ($new) {
-				if (!($e=$this->AddRow($table,$row))) trigger_error('Удалено'); else return $e;
+				if (!($e=$this->AddRow($table,$row))) trigger_error('пёп╢п╟п╩п╣п╫п╬'); else return $e;
 			} else {
-				if (!($e=$this->UpdateRow($table,$row,$old))) trigger_error('Изменено'); else return $e;
+				if (!($e=$this->UpdateRow($table,$row,$old))) trigger_error('п≤п╥п╪п╣п╫п╣п╫п╬'); else return $e;
 			}
 		} else if ($action=='delete'){
 			$linked=get_param_integer('linked','');
@@ -423,7 +423,7 @@ class Db_map {
 
 class Db_map_nispd extends Db_map {
 	function Db_map_nispd(){
-		//ключевые поля. для каждой используемой таблицы обязательно указывать
+		//п╨п╩я▌я┤п╣п╡я▀п╣ п©п╬п╩я▐. п╢п╩я▐ п╨п╟п╤п╢п╬п╧ п╦я│п©п╬п╩я▄п╥я┐п╣п╪п╬п╧ я┌п╟п╠п╩п╦я├я▀ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╬ я┐п╨п╟п╥я▀п╡п╟я┌я▄
 		$keys=array(
 				'usage_ip_ports'		=> 'id',
 				'routes'				=> 'id',
@@ -442,12 +442,12 @@ class Db_map_nispd extends Db_map {
 				'usage_ip_ppp'			=> 'id',
 			);
 		
-		//связи между таблицами. например, array('routes.client','clients.client') - связь по клиенту
-		//3ий параметр - операции, выполняемые при переходе от 1го (связывающего) поля ко 2му (в связанной таблице). автозаполнение полей делается именно здесь
-		//4ый - фильтр для вариантов связаной таблицы - часть запроса, которую нужно положить в $wh_add
+		//я│п╡я▐п╥п╦ п╪п╣п╤п╢я┐ я┌п╟п╠п╩п╦я├п╟п╪п╦. п╫п╟п©я─п╦п╪п╣я─, array('routes.client','clients.client') - я│п╡я▐п╥я▄ п©п╬ п╨п╩п╦п╣п╫я┌я┐
+		//3п╦п╧ п©п╟я─п╟п╪п╣я┌я─ - п╬п©п╣я─п╟я├п╦п╦, п╡я▀п©п╬п╩п╫я▐п╣п╪я▀п╣ п©я─п╦ п©п╣я─п╣я┘п╬п╢п╣ п╬я┌ 1пЁп╬ (я│п╡я▐п╥я▀п╡п╟я▌я┴п╣пЁп╬) п©п╬п╩я▐ п╨п╬ 2п╪я┐ (п╡ я│п╡я▐п╥п╟п╫п╫п╬п╧ я┌п╟п╠п╩п╦я├п╣). п╟п╡я┌п╬п╥п╟п©п╬п╩п╫п╣п╫п╦п╣ п©п╬п╩п╣п╧ п╢п╣п╩п╟п╣я┌я│я▐ п╦п╪п╣п╫п╫п╬ п╥п╢п╣я│я▄
+		//4я▀п╧ - я└п╦п╩я▄я┌я─ п╢п╩я▐ п╡п╟я─п╦п╟п╫я┌п╬п╡ я│п╡я▐п╥п╟п╫п╬п╧ я┌п╟п╠п╩п╦я├я▀ - я┤п╟я│я┌я▄ п╥п╟п©я─п╬я│п╟, п╨п╬я┌п╬я─я┐я▌ п╫я┐п╤п╫п╬ п©п╬п╩п╬п╤п╦я┌я▄ п╡ $wh_add
 		$links=array(
 				array('routes.port_id',					'usage_ip_ports.id',	'$this->rset("node",$r["node"]); if (!$row["address"]) $this->rset("address",$r["address"]);'),
-				array('routes.node',					'tech_routers.router'),					//это поле мы будем заполнять автоматически
+				array('routes.node',					'tech_routers.router'),					//я█я┌п╬ п©п╬п╩п╣ п╪я▀ п╠я┐п╢п╣п╪ п╥п╟п©п╬п╩п╫я▐я┌я▄ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦
 				array('usage_ip_ports.node',			'tech_routers.router'),
 				array('routes.client',					'clients.client'),
 				array('usage_ip_ports.client',			'clients.client',		'if (!$row["address"]) $this->rset("address",$r["address_post_real"]);'),
@@ -464,7 +464,7 @@ class Db_map_nispd extends Db_map {
 								}
 							} else {
 								if (isset($old["tarif_id"]) && ($row["tarif_id"]!=$old["tarif_id"])) {
-									echo "Нет доступа к изменению тарифа<BR>";
+									echo "п²п╣я┌ п╢п╬я│я┌я┐п©п╟ п╨ п╦п╥п╪п╣п╫п╣п╫п╦я▌ я┌п╟я─п╦я└п╟<BR>";
 								}
 								$row["tarif_id"]=$old["tarif_id"];
 								$row["tarif_old_id"]=$old["tarif_old_id"];
@@ -480,11 +480,11 @@ class Db_map_nispd extends Db_map {
 
 				array('usage_ip_ppp.port_id',			'usage_ip_ports.id'),
 			);
-		//типы полей и проверка правильности значений
+		//я┌п╦п©я▀ п©п╬п╩п╣п╧ п╦ п©я─п╬п╡п╣я─п╨п╟ п©я─п╟п╡п╦п╩я▄п╫п╬я│я┌п╦ п╥п╫п╟я┤п╣п╫п╦п╧
 		$types=array(
 				'routes.net'						=> array('ip_net',		'return; if (CheckNet($value)) return; else return "Invalid network ".$value;'),
 				'routes.type'						=> array('no',			'if (in_array($value,array("aggregate","reserved","uplink"))) {if ($row["client"]) return "Client must be empty"; else $ignore["client"]=true;}'),
-				'routes.port'						=> array('no',			'if ($value=="mgts"){$ignore["node"]=true;if (preg_match("/^\d+$/",$row["node"])) return; else return "В node должен быть телефонный номер";}'),
+				'routes.port'						=> array('no',			'if ($value=="mgts"){$ignore["node"]=true;if (preg_match("/^\d+$/",$row["node"])) return; else return "п▓ node п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ я┌п╣п╩п╣я└п╬п╫п╫я▀п╧ п╫п╬п╪п╣я─";}'),
 				'routes.tarif_type'					=> array('no',			'if ($value=="c" && $row["type"]!="separate") return "Type must be \"separate\"";'),
 
 				'usage_voip.tech_voip_device_id'	=> array('no',			'if (!$value) $ignore["tech_voip_device_id"]=true;'),
@@ -503,7 +503,7 @@ class Db_map_nispd extends Db_map {
 				'usage_ip_ppp.ip'					=> array('ip'),
 				'usage_ip_ppp.port_id'				=> array('no',			'if (!$value) $ignore["port_id"]=true;'), 
 			);
-		//какие поля показывать в раскрывающихся списках
+		//п╨п╟п╨п╦п╣ п©п╬п╩я▐ п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╡ я─п╟я│п╨я─я▀п╡п╟я▌я┴п╦я┘я│я▐ я│п©п╦я│п╨п╟я┘
 		$visible_in_list=array(
 				'usage_ip_ports'		=> array('client','address','type','node'),
 				'routes'				=> array('node','net','client'),
@@ -514,12 +514,12 @@ class Db_map_nispd extends Db_map {
 				'domains'				=> array('domain'),
 				);
 		
-		//"двойной" вывод - текстовое поле и список
+		//"п╢п╡п╬п╧п╫п╬п╧" п╡я▀п╡п╬п╢ - я┌п╣п╨я│я┌п╬п╡п╬п╣ п©п╬п╩п╣ п╦ я│п©п╦я│п╬п╨
 		$dblecho=array(
 				'routes'				=> array('node'),
 				'usage_ip_ports'		=> array('node'),
 				);
-		//варианты значений, поле будет выведено в виде списка.
+		//п╡п╟я─п╦п╟п╫я┌я▀ п╥п╫п╟я┤п╣п╫п╦п╧, п©п╬п╩п╣ п╠я┐п╢п╣я┌ п╡я▀п╡п╣п╢п╣п╫п╬ п╡ п╡п╦п╢п╣ я│п©п╦я│п╨п╟.
 		$variants=array(
 				'routes.type'						=> array('client', 'unused', 'uplink', 'uplink+pool',  'client-nat', 'pool', 'aggregate'),
 				'routes.port_type'					=> array('dedicated', 'unused',  'pppoe', 'pptp', 'hub', 'mgts'),
@@ -537,26 +537,26 @@ class Db_map_nispd extends Db_map {
 				'usage_voip.DialPlan'				=> array('E164','city'),
 				'usage_voip.tech_voip_device_id'	=> array(array('0','')),
 				
-				'bill_monthlyadd.period'			=> array(array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('year','раз в год'),array('once','единожды')),
+				'bill_monthlyadd.period'			=> array(array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('year','я─п╟п╥ п╡ пЁп╬п╢'),array('once','п╣п╢п╦п╫п╬п╤п╢я▀')),
 
 				'emails.spam_act'					=> array('pass','mask','discard'),
 					
-				'usage_ip_ports.period'				=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
-				'usage_voip.period'					=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
-				'domains.period'					=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
-				'emails.period'						=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
-				'usage_phone_callback.period'		=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
-				'bill_monthlyadd.period'			=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
+				'usage_ip_ports.period'				=> array(array('immediately','п╪пЁп╫п╬п╡п╣п╫п╫п╬'),array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('6months','я─п╟п╥ п╡ п©п╬п╩пЁп╬п╢п╟'),array('year','я─п╟п╥ п╡ пЁп╬п╢')),
+				'usage_voip.period'					=> array(array('immediately','п╪пЁп╫п╬п╡п╣п╫п╫п╬'),array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('6months','я─п╟п╥ п╡ п©п╬п╩пЁп╬п╢п╟'),array('year','я─п╟п╥ п╡ пЁп╬п╢')),
+				'domains.period'					=> array(array('immediately','п╪пЁп╫п╬п╡п╣п╫п╫п╬'),array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('6months','я─п╟п╥ п╡ п©п╬п╩пЁп╬п╢п╟'),array('year','я─п╟п╥ п╡ пЁп╬п╢')),
+				'emails.period'						=> array(array('immediately','п╪пЁп╫п╬п╡п╣п╫п╫п╬'),array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('6months','я─п╟п╥ п╡ п©п╬п╩пЁп╬п╢п╟'),array('year','я─п╟п╥ п╡ пЁп╬п╢')),
+				'usage_phone_callback.period'		=> array(array('immediately','п╪пЁп╫п╬п╡п╣п╫п╫п╬'),array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('6months','я─п╟п╥ п╡ п©п╬п╩пЁп╬п╢п╟'),array('year','я─п╟п╥ п╡ пЁп╬п╢')),
+				'bill_monthlyadd.period'			=> array(array('immediately','п╪пЁп╫п╬п╡п╣п╫п╫п╬'),array('day','я─п╟п╥ п╡ п╢п╣п╫я▄'),array('week','я─п╟п╥ п╡ п╫п╣п╢п╣п╩я▌'),array('month','я─п╟п╥ п╡ п╪п╣я│я▐я├'),array('6months','я─п╟п╥ п╡ п©п╬п╩пЁп╬п╢п╟'),array('year','я─п╟п╥ п╡ пЁп╬п╢')),
 
-				'usage_ip_ports.status'				=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
-				'usage_voip.status'					=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
-				'domains.status'					=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
-				'emails.status'						=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
-				'usage_phone_callback.status'		=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
-				'bill_monthlyadd.status'			=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
+				'usage_ip_ports.status'				=> array(array('working','п╡ я─п╟п╠п╬я┌п╣'),array('connecting','п╫п╟ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐, п╢п╬ п╡я▀п©п╦я│п╨п╦ я│я┤я▒я┌п╟')),
+				'usage_voip.status'					=> array(array('working','п╡ я─п╟п╠п╬я┌п╣'),array('connecting','п╫п╟ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐, п╢п╬ п╡я▀п©п╦я│п╨п╦ я│я┤я▒я┌п╟')),
+				'domains.status'					=> array(array('working','п╡ я─п╟п╠п╬я┌п╣'),array('connecting','п╫п╟ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐, п╢п╬ п╡я▀п©п╦я│п╨п╦ я│я┤я▒я┌п╟')),
+				'emails.status'						=> array(array('working','п╡ я─п╟п╠п╬я┌п╣'),array('connecting','п╫п╟ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐, п╢п╬ п╡я▀п©п╦я│п╨п╦ я│я┤я▒я┌п╟')),
+				'usage_phone_callback.status'		=> array(array('working','п╡ я─п╟п╠п╬я┌п╣'),array('connecting','п╫п╟ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐, п╢п╬ п╡я▀п©п╦я│п╨п╦ я│я┤я▒я┌п╟')),
+				'bill_monthlyadd.status'			=> array(array('working','п╡ я─п╟п╠п╬я┌п╣'),array('connecting','п╫п╟ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐, п╢п╬ п╡я▀п©п╦я│п╨п╦ я│я┤я▒я┌п╟')),
 
 				);
-		//скрытые поля
+		//я│п╨я─я▀я┌я▀п╣ п©п╬п╩я▐
 		$hidden=array(
 				'usage_ip_ports'		=> array ('client','id','tarif'),
 				'routes'				=> array ('id','client','port_id','tarif','tarif_lastmonth','tarif_type','test_lines','test_req_no','adsl_modem_serial'),
@@ -570,77 +570,77 @@ class Db_map_nispd extends Db_map {
 				'tech_routers'			=> array ('id'),
 				'usage_ip_ppp'			=> array ('client','port_id','user_editable','enabled','mtu','send_nispd_vsa','enabled_local_ports','enabled_remote_ports','limit_cps_in','limit_cps_out','day_quota_in','day_quota_in_used','day_quota_out','day_quota_out_used','month_quota_in','month_quota_in_used','month_quota_out','month_quota_out_used'),
 				);
-		//перевод
+		//п©п╣я─п╣п╡п╬п╢
 		$translate=array(
-				'*.actual_from'			=> 'активна с',
-				'*.actual_to'			=> 'активна до',
-				'*.net'					=> 'IP-адрес сети',
-				'*.client'				=> 'клиент',
-				'*.address'				=> 'адрес',
-				'*.node'				=> 'роутер или телефон клиента ',
-				'*.port'				=> 'порт если индивидуал то ставится mgts',
-				'*.type'				=> 'тип обычно надо ставить client',
-				'*.port_type'			=> array('тип порта','обычно dedicated'),
-				'*.tarif'				=> 'тариф',
-				'*.trafcounttype'		=> 'тип учёта траффика всегда agrigate',
-				'*.description'			=> 'описание',
-				'*.price'				=> 'стоимость',
-				'*.amount'				=> 'количество',
-				'*.period'				=> 'период',
-				'*.domain'				=> 'домен',
-				'*.password'			=> 'пароль',
-				'*.last_modified'		=> 'дата последней модификации',
-				'*.router'				=> 'роутер',
-				'*.phone'				=> 'телефон',
-				'*.location'			=> 'местоположение',
-				'*.reboot_contact'		=> 'данные ответственного за перезагрузку',
-				'*.adsl_modem_serial'	=> 'серийный номер модема<a name="serial" style="display:none"></a>',
-				'*.manufacturer'		=> 'производитель',
-				'*.model'				=> 'модель',
-				'*.serial'				=> 'серийный номер',
-				'*.location'			=> 'местоположение',
-				'*.E164'				=> 'номер телефона',
-				'*.ClientIPAddress'		=> 'IP-адрес',
-				'*.enabled'				=> 'включено',
-				'*.date_last_writeoff'	=> 'дата последнего списания',
-				'*.status'				=> 'состояние',
-				'tech_cpe.numbers'	=> 'телефонные номера',
-				'tech_cpe.logins'	=> 'логины',
-				'tech_cpe.owner'	=> 'владелец',
+				'*.actual_from'			=> 'п╟п╨я┌п╦п╡п╫п╟ я│',
+				'*.actual_to'			=> 'п╟п╨я┌п╦п╡п╫п╟ п╢п╬',
+				'*.net'					=> 'IP-п╟п╢я─п╣я│ я│п╣я┌п╦',
+				'*.client'				=> 'п╨п╩п╦п╣п╫я┌',
+				'*.address'				=> 'п╟п╢я─п╣я│',
+				'*.node'				=> 'я─п╬я┐я┌п╣я─ п╦п╩п╦ я┌п╣п╩п╣я└п╬п╫ п╨п╩п╦п╣п╫я┌п╟ ',
+				'*.port'				=> 'п©п╬я─я┌ п╣я│п╩п╦ п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩ я┌п╬ я│я┌п╟п╡п╦я┌я│я▐ mgts',
+				'*.type'				=> 'я┌п╦п© п╬п╠я▀я┤п╫п╬ п╫п╟п╢п╬ я│я┌п╟п╡п╦я┌я▄ client',
+				'*.port_type'			=> array('я┌п╦п© п©п╬я─я┌п╟','п╬п╠я▀я┤п╫п╬ dedicated'),
+				'*.tarif'				=> 'я┌п╟я─п╦я└',
+				'*.trafcounttype'		=> 'я┌п╦п© я┐я┤я▒я┌п╟ я┌я─п╟я└я└п╦п╨п╟ п╡я│п╣пЁп╢п╟ agrigate',
+				'*.description'			=> 'п╬п©п╦я│п╟п╫п╦п╣',
+				'*.price'				=> 'я│я┌п╬п╦п╪п╬я│я┌я▄',
+				'*.amount'				=> 'п╨п╬п╩п╦я┤п╣я│я┌п╡п╬',
+				'*.period'				=> 'п©п╣я─п╦п╬п╢',
+				'*.domain'				=> 'п╢п╬п╪п╣п╫',
+				'*.password'			=> 'п©п╟я─п╬п╩я▄',
+				'*.last_modified'		=> 'п╢п╟я┌п╟ п©п╬я│п╩п╣п╢п╫п╣п╧ п╪п╬п╢п╦я└п╦п╨п╟я├п╦п╦',
+				'*.router'				=> 'я─п╬я┐я┌п╣я─',
+				'*.phone'				=> 'я┌п╣п╩п╣я└п╬п╫',
+				'*.location'			=> 'п╪п╣я│я┌п╬п©п╬п╩п╬п╤п╣п╫п╦п╣',
+				'*.reboot_contact'		=> 'п╢п╟п╫п╫я▀п╣ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬пЁп╬ п╥п╟ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨я┐',
+				'*.adsl_modem_serial'	=> 'я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ п╪п╬п╢п╣п╪п╟<a name="serial" style="display:none"></a>',
+				'*.manufacturer'		=> 'п©я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄',
+				'*.model'				=> 'п╪п╬п╢п╣п╩я▄',
+				'*.serial'				=> 'я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─',
+				'*.location'			=> 'п╪п╣я│я┌п╬п©п╬п╩п╬п╤п╣п╫п╦п╣',
+				'*.E164'				=> 'п╫п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟',
+				'*.ClientIPAddress'		=> 'IP-п╟п╢я─п╣я│',
+				'*.enabled'				=> 'п╡п╨п╩я▌я┤п╣п╫п╬',
+				'*.date_last_writeoff'	=> 'п╢п╟я┌п╟ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ я│п©п╦я│п╟п╫п╦я▐',
+				'*.status'				=> 'я│п╬я│я┌п╬я▐п╫п╦п╣',
+				'tech_cpe.numbers'	=> 'я┌п╣п╩п╣я└п╬п╫п╫я▀п╣ п╫п╬п╪п╣я─п╟',
+				'tech_cpe.logins'	=> 'п╩п╬пЁп╦п╫я▀',
+				'tech_cpe.owner'	=> 'п╡п╩п╟п╢п╣п╩п╣я├',
 					
-				'emails.local_part'		=> 'локальная часть e-mail-адреса',
-				'emails.box_size'		=> 'занято',
-				'emails.box_quota'		=> 'размер ящика',
+				'emails.local_part'		=> 'п╩п╬п╨п╟п╩я▄п╫п╟я▐ я┤п╟я│я┌я▄ e-mail-п╟п╢я─п╣я│п╟',
+				'emails.box_size'		=> 'п╥п╟п╫я▐я┌п╬',
+				'emails.box_quota'		=> 'я─п╟п╥п╪п╣я─ я▐я┴п╦п╨п╟',
 			
-				'*.nat_net'							=> 'внутренняя сеть через NAT',
-				'*.dnat'							=> 'dnat поле редактируется только администратором',
-				'*.up_node'							=> 'up_node поле редактируется только администратором',
-				'*.flows_node'						=> 'flows_node поле редактируется только администратором',
-				'*.secondary_to_net'				=> 'вторична к сети',
-				'*.tarif_type'						=> array('тип тарифа',' K-коллективный,I - индивидуал С - CoLocation'),
-				'routes.port_id'					=> 'подключение',
-				'routes.comment'					=> 'комментарий',
-				'routes.tarif_lastmonth'			=> 'прошлый тариф',
+				'*.nat_net'							=> 'п╡п╫я┐я┌я─п╣п╫п╫я▐я▐ я│п╣я┌я▄ я┤п╣я─п╣п╥ NAT',
+				'*.dnat'							=> 'dnat п©п╬п╩п╣ я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─п╬п╪',
+				'*.up_node'							=> 'up_node п©п╬п╩п╣ я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─п╬п╪',
+				'*.flows_node'						=> 'flows_node п©п╬п╩п╣ я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─п╬п╪',
+				'*.secondary_to_net'				=> 'п╡я┌п╬я─п╦я┤п╫п╟ п╨ я│п╣я┌п╦',
+				'*.tarif_type'						=> array('я┌п╦п© я┌п╟я─п╦я└п╟',' K-п╨п╬п╩п╩п╣п╨я┌п╦п╡п╫я▀п╧,I - п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩ п║ - CoLocation'),
+				'routes.port_id'					=> 'п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣',
+				'routes.comment'					=> 'п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧',
+				'routes.tarif_lastmonth'			=> 'п©я─п╬я┬п╩я▀п╧ я┌п╟я─п╦я└',
 
-				'usage_ip_ports.tarif_id'			=> 'тариф<a name="tarif" style="display:none"></a>',
-				'usage_ip_ports.tarif_old_id'		=> array('старый тариф','Устанавливается автоматически'),
-				'usage_ip_ports.tarif_change'		=> 'дата изменения тарифа',
-				'usage_ip_ports.tarif_type'			=> array('тип тарифа',"K-коллективный <br>,I - индивидуал С - CoLocation"),
-				'usage_ip_ports.adsl_modem_serial'	=> 'серийный номер модема<a name="serial" style="display:none"></a>',
-				'usage_ip_ports.test_lines'			=> 'test_lines Тестируемые линии',
-				'usage_ip_ports.test_req_no'		=> 'test_req_no Заявка в МГТС',
+				'usage_ip_ports.tarif_id'			=> 'я┌п╟я─п╦я└<a name="tarif" style="display:none"></a>',
+				'usage_ip_ports.tarif_old_id'		=> array('я│я┌п╟я─я▀п╧ я┌п╟я─п╦я└','пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌я│я▐ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦'),
+				'usage_ip_ports.tarif_change'		=> 'п╢п╟я┌п╟ п╦п╥п╪п╣п╫п╣п╫п╦я▐ я┌п╟я─п╦я└п╟',
+				'usage_ip_ports.tarif_type'			=> array('я┌п╦п© я┌п╟я─п╦я└п╟',"K-п╨п╬п╩п╩п╣п╨я┌п╦п╡п╫я▀п╧ <br>,I - п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩ п║ - CoLocation"),
+				'usage_ip_ports.adsl_modem_serial'	=> 'я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ п╪п╬п╢п╣п╪п╟<a name="serial" style="display:none"></a>',
+				'usage_ip_ports.test_lines'			=> 'test_lines п╒п╣я│я┌п╦я─я┐п╣п╪я▀п╣ п╩п╦п╫п╦п╦',
+				'usage_ip_ports.test_req_no'		=> 'test_req_no п≈п╟я▐п╡п╨п╟ п╡ п°п⌠п╒п║',
 				
-				'usage_voip.no_of_lines'			=> 'число линий',
-				'usage_voip.tech_voip_device_id'	=> array('устройство','<a href="index.php?module=routers&action=d_add" target=_blank>Добавить устройство</a> (после добавления придётся вручную обновить страницу)'),
-				'usage_voip.tarif'					=> array('тариф','Взять из окошка: <select onchange="javscript:form.row_tarif.value=this.value;"><option value="V095-29-29-A">V095-29-29-A</option><option value="V-0-0-0">V-0-0-0</option></select>'),
+				'usage_voip.no_of_lines'			=> 'я┤п╦я│п╩п╬ п╩п╦п╫п╦п╧',
+				'usage_voip.tech_voip_device_id'	=> array('я┐я│я┌я─п╬п╧я│я┌п╡п╬','<a href="index.php?module=routers&action=d_add" target=_blank>п■п╬п╠п╟п╡п╦я┌я▄ я┐я│я┌я─п╬п╧я│я┌п╡п╬</a> (п©п╬я│п╩п╣ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ п©я─п╦п╢я▒я┌я│я▐ п╡я─я┐я┤п╫я┐я▌ п╬п╠п╫п╬п╡п╦я┌я▄ я│я┌я─п╟п╫п╦я├я┐)'),
+				'usage_voip.tarif'					=> array('я┌п╟я─п╦я└','п▓п╥я▐я┌я▄ п╦п╥ п╬п╨п╬я┬п╨п╟: <select onchange="javscript:form.row_tarif.value=this.value;"><option value="V095-29-29-A">V095-29-29-A</option><option value="V-0-0-0">V-0-0-0</option></select>'),
 					
-				'clients_vip.num_unsucc'			=> array('Текущее число неудачных попыток','вряд ли в нормальной ситуации потребуется изменять это поле'),
-				'clients_vip.email'					=> 'Адрес e-mail',
-				'clients_vip.phone'					=> 'Номер телефона',
-				'clients_vip.important_period'		=> 'В какое время отслеживать',
-				'clients_vip.router'				=> array('Роутер','вводите <b>или</b> клиента, или роутер'),
+				'clients_vip.num_unsucc'			=> array('п╒п╣п╨я┐я┴п╣п╣ я┤п╦я│п╩п╬ п╫п╣я┐п╢п╟я┤п╫я▀я┘ п©п╬п©я▀я┌п╬п╨','п╡я─я▐п╢ п╩п╦ п╡ п╫п╬я─п╪п╟п╩я▄п╫п╬п╧ я│п╦я┌я┐п╟я├п╦п╦ п©п╬я┌я─п╣п╠я┐п╣я┌я│я▐ п╦п╥п╪п╣п╫я▐я┌я▄ я█я┌п╬ п©п╬п╩п╣'),
+				'clients_vip.email'					=> 'п░п╢я─п╣я│ e-mail',
+				'clients_vip.phone'					=> 'п²п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟',
+				'clients_vip.important_period'		=> 'п▓ п╨п╟п╨п╬п╣ п╡я─п╣п╪я▐ п╬я┌я│п╩п╣п╤п╦п╡п╟я┌я▄',
+				'clients_vip.router'				=> array('п═п╬я┐я┌п╣я─','п╡п╡п╬п╢п╦я┌п╣ <b>п╦п╩п╦</b> п╨п╩п╦п╣п╫я┌п╟, п╦п╩п╦ я─п╬я┐я┌п╣я─'),
 				);
-		//действия, которые выполняются после добавления или изменения записи
+		//п╢п╣п╧я│я┌п╡п╦я▐, п╨п╬я┌п╬я─я▀п╣ п╡я▀п©п╬п╩п╫я▐я▌я┌я│я▐ п©п╬я│п╩п╣ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ п╦п╩п╦ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╥п╟п©п╦я│п╦
 		$postactions=array(
 				'usage_ip_ports'	=>	'
 						$db->Query("update routes set tarif_type=\"{$row["tarif_type"]}\",adsl_modem_serial=\"{$row["adsl_modem_serial"]}\",test_lines=\"{$row["test_lines"]}\",test_req_no=\"{$row["test_req_no"]}\" where port_id={$row["id"]}");
@@ -659,29 +659,29 @@ class Db_map_nispd extends Db_map {
 							$db->Query("select count(*) from routes where (actual_from<=NOW()) and (actual_to>=NOW()) and (client=\"{$row["client"]}\")");
 							$r=$db->NextRecord();
 							if (isset($r[0]) && (!$r[0])){
-								echo "Клиент отключен<br>";
+								echo "п п╩п╦п╣п╫я┌ п╬я┌п╨п╩я▌я┤п╣п╫<br>";
 								$db->Query("update clients set status=\"closed\" where client=\"{$row["client"]}\"");
 								$db->Query("select count(*) from usage_voip where (actual_from<=NOW()) and (actual_to>=NOW()) and (client=\"{$row["client"]}\")");
 								$r=$db->NextRecord();
-								if (isset($r[0]) && ($r[0])) echo "<font color=red>Внимание!</font> У клиента осталась IP-телефония.<br>";
+								if (isset($r[0]) && ($r[0])) echo "<font color=red>п▓п╫п╦п╪п╟п╫п╦п╣!</font> пё п╨п╩п╦п╣п╫я┌п╟ п╬я│я┌п╟п╩п╟я│я▄ IP-я┌п╣п╩п╣я└п╬п╫п╦я▐.<br>";
 							} else {
 								$db->Query("select status from clients where client=\"{$row["client"]}\"");
 								$r=$db->NextRecord();
 								if ($r[0]!="work") {
-									echo "Клиент включен<br>";
+									echo "п п╩п╦п╣п╫я┌ п╡п╨п╩я▌я┤п╣п╫<br>";
 									$db->Query("update clients set status=\"work\" where client=\"{$row["client"]}\"");
 								}
 							}
 						}
 					',
 				);
-		//readonly-поля. поля, недоступные менеджерам, прописываются здесь.
+		//readonly-п©п╬п╩я▐. п©п╬п╩я▐, п╫п╣п╢п╬я│я┌я┐п©п╫я▀п╣ п╪п╣п╫п╣п╢п╤п╣я─п╟п╪, п©я─п╬п©п╦я│я▀п╡п╟я▌я┌я│я▐ п╥п╢п╣я│я▄.
 		$readonly=array(
 				'usage_ip_ports'	=> array('type','port_type','trafcounttype','trafcounttype','tarif'),
 				'routes'			=> array('nat_net','dnat','up_node','flows_node','trafcounttype','secondary_to_net','port_type'),
 				'usage_voip'		=> array('switch_type','switch_ip','forward_condition','forward_address_type','forward_address','DialPlan'),
 				);
-		//порядок вывода полей. те поля, которые не указаны в списке, выведутся в конце
+		//п©п╬я─я▐п╢п╬п╨ п╡я▀п╡п╬п╢п╟ п©п╬п╩п╣п╧. я┌п╣ п©п╬п╩я▐, п╨п╬я┌п╬я─я▀п╣ п╫п╣ я┐п╨п╟п╥п╟п╫я▀ п╡ я│п©п╦я│п╨п╣, п╡я▀п╡п╣п╢я┐я┌я│я▐ п╡ п╨п╬п╫я├п╣
 		$order=array(
 				'usage_ip_ports'	=> array('address','tarif_id','tarif_old_id','tarif_change','tarif_type','node','port','test_lines','test_req_no','adsl_modem_serial'),
 				'routes'			=> array('actual_from','actual_to','net','address','comment','node','port','type'),

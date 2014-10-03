@@ -57,7 +57,7 @@ class lineDB
         foreach(array("parent_id", "account", "serial", "sequence", "is_group", "client_id", "c_id") as $l)
             unset($d[$l]);
 
-        if(count($d) <= 1) return; // если есть только id, то ничего не делаем
+        if(count($d) <= 1) return; // п╣я│п╩п╦ п╣я│я┌я▄ я┌п╬п╩я▄п╨п╬ id, я┌п╬ п╫п╦я┤п╣пЁп╬ п╫п╣ п╢п╣п╩п╟п╣п╪
 
         $d["id"] = self::getConnectId($d["id"]);
 

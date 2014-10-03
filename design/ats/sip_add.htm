@@ -1,7 +1,7 @@
-<h1>{if $data.id == 0}Добавление{else}Редактирование 
-{if $data.atype == "link"}привязки к {$data.link_type}'у{/if} 
-{if $data.atype == "number"}{if $data.type=="line"}линии{elseif $data.type == "trunk"}транка{/if}{/if} 
-{if $data.atype == "line"}линии{/if} 
+<h1>{if $data.id == 0}п■п╬п╠п╟п╡п╩п╣п╫п╦п╣{else}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ 
+{if $data.atype == "link"}п©я─п╦п╡я▐п╥п╨п╦ п╨ {$data.link_type}'я┐{/if} 
+{if $data.atype == "number"}{if $data.type=="line"}п╩п╦п╫п╦п╦{elseif $data.type == "trunk"}я┌я─п╟п╫п╨п╟{/if}{/if} 
+{if $data.atype == "line"}п╩п╦п╫п╦п╦{/if} 
 
 {$data.number}{/if}
 
@@ -15,10 +15,10 @@ color:green;
 }
 {/literal}
 </style>
-<a id="number_open_form" style="cursor: pointer;text-decoration: underline;{if $is_form_open} display: none;{/if}" onclick="$('#number_edit_form').toggle();$('#number_open_form').toggle();">Открыть редактирование группы</a><br>
+<a id="number_open_form" style="cursor: pointer;text-decoration: underline;{if $is_form_open} display: none;{/if}" onclick="$('#number_edit_form').toggle();$('#number_open_form').toggle();">п·я┌п╨я─я▀я┌я▄ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ пЁя─я┐п©п©я▀</a><br>
 <div id="number_edit_form" {if !$is_form_open}style=" display: none;"{/if}>
 {if $show_hide_key}
-<a id="number_key_hide" style="cursor: pointer;text-decoration: underline;" onclick="$('#number_edit_form').toggle();$('#number_open_form').toggle();">Скрыть</a><br>
+<a id="number_key_hide" style="cursor: pointer;text-decoration: underline;" onclick="$('#number_edit_form').toggle();$('#number_open_form').toggle();">п║п╨я─я▀я┌я▄</a><br>
 {/if}
 {if $error}
 <span style="color: #c40000; font-weight: bold;font-size: 8pt; border-bottom: 1px solid red;">{$error}</span>
@@ -26,7 +26,7 @@ color:green;
 <br>
 {/if}
 {if $isSaved}
-<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">Данные сохранены</span>
+<span style="color: #15a415; font-weight: bold;font-size: 8pt; ">п■п╟п╫п╫я▀п╣ я│п╬я┘я─п╟п╫п╣п╫я▀</span>
 {else}
 <br>
 {/if}
@@ -54,20 +54,20 @@ color:green;
 {if ($data.id == 0 || $data.type != "link") && $data.atype != "link"}
 
 
-    <input type=button value="Сохранить" name="apply" onclick="{literal}
+    <input type=button value="п║п╬я┘я─п╟п╫п╦я┌я▄" name="apply" onclick="{literal}
         if(
                 ($('#send_members_codec').length == 0 || ($('#send_members_codec').length && prepareData('codec'))) 
-             && ($('#permit_net_true').length == 0 || ($('#permit_net_true').length && prepareIpNet('permit'))){/literal}{if $data.id ==0} && prepareMTN(){/if}{literal}) {getE('sip_save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+             && ($('#permit_net_true').length == 0 || ($('#permit_net_true').length && prepareIpNet('permit'))){/literal}{if $data.id ==0} && prepareMTN(){/if}{literal}) {getE('sip_save_form').submit();}else{alert('п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐!');}{/literal}">
 {else}
-    <input type=button value="Сохранить" name="apply" onclick="{literal}if(prepareMTN()) {getE('sip_save_form').submit();}else{alert('Ошибка сохранения!');}{/literal}">
+    <input type=button value="п║п╬я┘я─п╟п╫п╦я┌я▄" name="apply" onclick="{literal}if(prepareMTN()) {getE('sip_save_form').submit();}else{alert('п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐!');}{/literal}">
 {/if}
 
 
-{if $data.id > 0 && $data.atype == "number" && ($data.type == "cpe" || $data.type == "line")}<select name=type_save style="font-size:11pt;"><option value="changes">Изменения</option><option value="all">Все</option></select>{/if}
+{if $data.id > 0 && $data.atype == "number" && ($data.type == "cpe" || $data.type == "line")}<select name=type_save style="font-size:11pt;"><option value="changes">п≤п╥п╪п╣п╫п╣п╫п╦я▐</option><option value="all">п▓я│п╣</option></select>{/if}
 
 
     </td><td>
-    <input type=submit value="Отмена" name="cancel"></td>
+    <input type=submit value="п·я┌п╪п╣п╫п╟" name="cancel"></td>
     </tr>
     </table>
     </div>

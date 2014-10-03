@@ -11,10 +11,10 @@ namespace clCards;
 	}
 
 	/**
-	 * óÉÎËÁÅÔ ÒÅË×ÉÚÉÔÙ ×ÓÅÈ ËÁÒÔÏÞËÅË ËÌÉÅÎÔÁ
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param string $cl_tid ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÁÒÔÏÞËÉ ËÌÉÅÎÔÁ - clients.client
-	 * @param bool $from_main ÅÓÌÉ true, ÔÏ ×ÙÞÉÓÌÑÅÔÓÑ ÇÌÁ×ÎÁÑ ËÁÒÔÏÞËÁ ËÌÉÅÎÔÁ, É ×ÓÅ ÓÉÎËÁÀÔÓÑ Ó ÎÅÅ, ÉÎÁÞÅ ÇÌÁ×ÎÁÑ ÓÉÎËÁÅÔÓÑ ×ÍÅÓÔÅ Ó ÏÓÔÁÌØÎÙÍÉ Ó ÐÅÒÅÄÁÎÎÏÊ
+	 * Ð¡Ð¸Ð½ÐºÐ°ÐµÑ‚ Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ñ‹ Ð²ÑÐµÑ… ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐµÐº ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param string $cl_tid Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° - clients.client
+	 * @param bool $from_main ÐµÑÐ»Ð¸ true, Ñ‚Ð¾ Ð²Ñ‹Ñ‡Ð¸ÑÐ»ÑÐµÑ‚ÑÑ Ð³Ð»Ð°Ð²Ð½Ð°Ñ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°, Ð¸ Ð²ÑÐµ ÑÐ¸Ð½ÐºÐ°ÑŽÑ‚ÑÑ Ñ Ð½ÐµÐµ, Ð¸Ð½Ð°Ñ‡Ðµ Ð³Ð»Ð°Ð²Ð½Ð°Ñ ÑÐ¸Ð½ÐºÐ°ÐµÑ‚ÑÑ Ð²Ð¼ÐµÑÑ‚Ðµ Ñ Ð¾ÑÑ‚Ð°Ð»ÑŒÐ½Ñ‹Ð¼Ð¸ Ñ Ð¿ÐµÑ€ÐµÐ´Ð°Ð½Ð½Ð¾Ð¹
 	 */
 	function SyncAdditionCards($db,$cl_tid,$from_main=true){
 		$cl_main_tid = '';
@@ -65,12 +65,12 @@ namespace clCards;
 	}
 
 	/**
-	 * ðÅÒÅËÉÄÙ×ÁÅÔ ÔÅËÕÝÉÅ ÕÓÌÕÇÉ Ó ÏÄÎÏÊ ËÁÒÔÏÞËÉ ÎÁ ÄÒÕÇÕÀ
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param User $user ËÌÁÓÓ ÓÕÝÎÏÓÔÉ ÔÅËÕÝÅÇÏ ÐÏÌØÚÏ×ÁÔÅÌÑ-ÍÅÎÅÄÖÅÒÁ
-	 * @param int $from_id ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÁÒÔÏÞËÉ ËÌÉÅÎÔÁ clients.id
-	 * @param string $to ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÁÒÔÏÞËÉ ËÌÉÅÎÔÁ clients.client
-	 * @return bool ÒÅÚÕÌØÔÁÔ ×ÙÐÏÌÎÅÎÉÑ - ÕÄÁÌÏÓØ ÌÉ ÚÁ×ÅÒÛÉÔØ ÔÒÁÎÚÁËÃÉÀ ÐÅÒÅÎÏÓÁ
+	 * ÐŸÐµÑ€ÐµÐºÐ¸Ð´Ñ‹Ð²Ð°ÐµÑ‚ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ðµ ÑƒÑÐ»ÑƒÐ³Ð¸ Ñ Ð¾Ð´Ð½Ð¾Ð¹ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ Ð½Ð° Ð´Ñ€ÑƒÐ³ÑƒÑŽ
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param User $user ÐºÐ»Ð°ÑÑ ÑÑƒÑ‰Ð½Ð¾ÑÑ‚Ð¸ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ-Ð¼ÐµÐ½ÐµÐ´Ð¶ÐµÑ€Ð°
+	 * @param int $from_id Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° clients.id
+	 * @param string $to Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° clients.client
+	 * @return bool Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ - ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð»Ð¸ Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚ÑŒ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑŽ Ð¿ÐµÑ€ÐµÐ½Ð¾ÑÐ°
 	 */
 	function moveUsages($db,$user,$from_id,$to){
 		$from = (int)$from_id;
@@ -96,7 +96,7 @@ namespace clCards;
 					'.((int)$_POST['id']).',
 					"'.$user->Get('id').'",
 					NOW(),
-					concat("ðÏÌÕÞÅÎÙ ÕÓÌÕÇÉ ËÌÉÅÎÔÁ ",(select client from clients where id='.((int)$_POST['move_usages']).'))
+					concat("ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ñ‹ ÑƒÑÐ»ÑƒÐ³Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° ",(select client from clients where id='.((int)$_POST['move_usages']).'))
 				)
 			');
 			$db->Query('
@@ -106,7 +106,7 @@ namespace clCards;
 					'.((int)$_POST['move_usages']).',
 					"'.$user->Get('id').'",
 					NOW(),
-					"ôÅËÕÝÉÅ ÕÓÌÕÇÉ ÐÅÒÅÄÁÎÙ ËÌÉÅÎÔÕ '.addcslashes($_POST['client'],"\\'").'"
+					"Ð¢ÐµÐºÑƒÑ‰Ð¸Ðµ ÑƒÑÐ»ÑƒÐ³Ð¸ Ð¿ÐµÑ€ÐµÐ´Ð°Ð½Ñ‹ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ñƒ '.addcslashes($_POST['client'],"\\'").'"
 				)
 			');
 			return true;
@@ -114,12 +114,12 @@ namespace clCards;
 	}
 
 	/**
-	 * õÓÔÁÎÁ×ÌÉ×ÁÅÔ ÄÌÑ ×ÓÅÈ ËÁÒÔÏÞÅË (É ÐÉÛÅÔ ÌÏÇÉ) ÐÒÅÄÙÄÕÝÉÅ ÒÅË×ÉÚÉÔÙ ËÌÉÅÎÔÁ - clients.previous_reincarnation
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param User $user ËÌÁÓÓ ÓÕÝÎÏÓÔÉ ÔÅËÕÝÅÇÏ ÐÏÌØÚÏ×ÁÔÅÌÑ-ÍÅÎÅÄÖÅÒÁ
-	 * @param int $parent_id ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÁÒÔÏÞËÉ Ó ÐÒÅÄÙÄÕÝÉÍÉ ÒÅË×ÉÚÉÔÁÍÉ - clients.id
-	 * @param string $cl_tid ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÁÒÔÏÞËÉ ËÌÉÅÎÔÁ ÄÌÑ ËÏÔÏÒÏÇÏ ÕÓÔÁÎÁ×ÌÉ×ÁÀÔÓÑ ÐÒÅÄÙÄÕÝÉÅ - clients.client
-	 * @return bool ÒÅÚÕÌØÔÁÔ ×ÙÐÏÌÎÅÎÉÑ
+	 * Ð£ÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÑ‚ Ð´Ð»Ñ Ð²ÑÐµÑ… ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐµÐº (Ð¸ Ð¿Ð¸ÑˆÐµÑ‚ Ð»Ð¾Ð³Ð¸) Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ðµ Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ñ‹ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° - clients.previous_reincarnation
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param User $user ÐºÐ»Ð°ÑÑ ÑÑƒÑ‰Ð½Ð¾ÑÑ‚Ð¸ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ-Ð¼ÐµÐ½ÐµÐ´Ð¶ÐµÑ€Ð°
+	 * @param int $parent_id Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ Ñ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¼Ð¸ Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ð°Ð¼Ð¸ - clients.id
+	 * @param string $cl_tid Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° Ð´Ð»Ñ ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð³Ð¾ ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÑŽÑ‚ÑÑ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ðµ - clients.client
+	 * @return bool Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
 	 */
 	function setParent($db,$user,$parent_id,$cl_tid){
 		$nr_id = (!$parent_id)?'null':(int)$parent_id;
@@ -134,7 +134,7 @@ namespace clCards;
 					'.$nr_id.',
 					"'.$user->Get('id').'",
 					NOW(),
-					"õÓÔÁÎÏ×ÌÅÎ ËÁË ÐÒÅÄÙÄÕÝÉÊ ÄÌÑ '.addcslashes($cl_tid,"\\'").'"
+					"Ð£ÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½ ÐºÐ°Ðº Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ Ð´Ð»Ñ '.addcslashes($cl_tid,"\\'").'"
 				)
 			');
 			$db->Query('
@@ -144,7 +144,7 @@ namespace clCards;
 					'.$cli['id'].',
 					"'.$user->Get('id').'",
 					NOW(),
-					concat("õÓÔÁÎÏ×ÌÅÎ ÐÒÅÄÙÄÕÝÉÊ ËÌÉÅÎÔ ",(select client from clients where id='.$nr_id.'))
+					concat("Ð£ÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ ÐºÐ»Ð¸ÐµÐ½Ñ‚ ",(select client from clients where id='.$nr_id.'))
 				)
 			');
 		}else{
@@ -156,7 +156,7 @@ namespace clCards;
 						'.$cli['id'].',
 						"'.$user->Get('id').'",
 						NOW(),
-						concat("óÂÒÏÛÅÎ ÐÒÅÄÙÄÕÝÉÊ ËÌÉÅÎÔ ",(select client from clients where id='.$cli['previous_reincarnation'].'))
+						concat("Ð¡Ð±Ñ€Ð¾ÑˆÐµÐ½ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ ÐºÐ»Ð¸ÐµÐ½Ñ‚ ",(select client from clients where id='.$cli['previous_reincarnation'].'))
 					)
 				');
 		}
@@ -165,7 +165,7 @@ namespace clCards;
 	}
 
 	/**
-	 * ÓÕÝÎÏÓÔØ ÒÅË×ÉÚÉÔÏ× ËÌÉÅÎÔÁ
+	 * ÑÑƒÑ‰Ð½Ð¾ÑÑ‚ÑŒ Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ð¾Ð² ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
 	 */
 	class struct_cardDetails{
 		const client = 1;
@@ -480,10 +480,10 @@ namespace clCards;
 	}
 
 	/**
-	 * ×ÏÚ×ÒÁÝÁÅÔ ÉÎÉÃÉÁÌÉÚÉÒÏ×ÁÎÎÕÀ ÓÕÝÎÏÓÔØ ËÌÉÅÎÔÁ
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param string $client_tid ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÌÉÅÎÔÁ - clients.client
-	 * @return struct_cardDetails ÓÔÒÕËÔÕÒÁ ËÌÉÅÎÔÓËÉÈ ÒÅË×ÉÚÉÔÏ×
+	 * Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½ÑƒÑŽ ÑÑƒÑ‰Ð½Ð¾ÑÑ‚ÑŒ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param string $client_tid Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° - clients.client
+	 * @return struct_cardDetails ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ñ… Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ð¾Ð²
 	 */
 	function getCard($db,$client_tid){
 		if(!$client_tid)
@@ -513,10 +513,10 @@ namespace clCards;
 	}
 
 	/**
-	 * ×ÏÚ×ÒÁÝÁÅÔ ÉÎÉÃÉÁÌÉÚÉÒÏ×ÁÎÎÕÀ ÓÕÝÎÏÓÔØ ËÌÉÅÎÔÁ
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param string $cli_1c ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ÄÏÇÏ×ÏÒÁ 1Ó - clients.cli_1c
-	 * @return struct_cardDetails ÓÔÒÕËÔÕÒÁ ËÌÉÅÎÔÓËÉÈ ÒÅË×ÉÚÉÔÏ×
+	 * Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½ÑƒÑŽ ÑÑƒÑ‰Ð½Ð¾ÑÑ‚ÑŒ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param string $cli_1c Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð´Ð¾Ð³Ð¾Ð²Ð¾Ñ€Ð° 1Ñ - clients.cli_1c
+	 * @return struct_cardDetails ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ñ… Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ð¾Ð²
 	 */
 	function getCli1c($db,$cli_1c){
 		$cl = $db->GetRow("select * from clients where cli_1c='".addcslashes($cli_1c,"\\'")."' order by client limit 1");
@@ -544,10 +544,10 @@ namespace clCards;
 	}
 
 	/**
-	 * ×ÏÚ×ÒÁÝÁÅÔ ÉÎÉÃÉÁÌÉÚÉÒÏ×ÁÎÎÕÀ ÓÕÝÎÏÓÔØ ËÌÉÅÎÔÁ
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param string $con_1c ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ÄÏÇÏ×ÏÒÁ 1Ó - clients.con_1c
-	 * @return struct_cardDetails ÓÔÒÕËÔÕÒÁ ËÌÉÅÎÔÓËÉÈ ÒÅË×ÉÚÉÔÏ×
+	 * Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½ÑƒÑŽ ÑÑƒÑ‰Ð½Ð¾ÑÑ‚ÑŒ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param string $con_1c Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð´Ð¾Ð³Ð¾Ð²Ð¾Ñ€Ð° 1Ñ - clients.con_1c
+	 * @return struct_cardDetails ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ñ… Ñ€ÐµÐºÐ²Ð¸Ð·Ð¸Ñ‚Ð¾Ð²
 	 */
 	function getCard1c($db,$con_1c){
 		$cl = $db->GetRow("select * from clients where con_1c='".addcslashes($con_1c,"\\'")."'");
@@ -575,10 +575,10 @@ namespace clCards;
 	}
 
 	/**
-	 * ÓÏÈÒÁÎÑÅÔ ÉÚÍÅÎÅÎÉÑ ËÁÒÔÏÞËÉ ËÌÉÅÎÔÁ, ÉÌÉ ÚÁ×ÏÄÉÔ ÎÏ×ÕÀ
-	 * @param MySQLDatabase $db ÐÒÉÂÌÕÄÁ ÄÌÑ ÒÁÂÏÔÙ Ó ÂÁÚÏÊ
-	 * @param struct_cardDetails $cli ÓÔÒÕËÔÕÒÁ ËÌÉÅÎÔÁ
-	 * @return bool ÒÅÚÕÌØÔÁÔ ×ÙÐÏÌÎÅÎÉÑ. ÅÓÌÉ ÐÏÌÑ ÎÅ ÉÚÍÅÎÉÌÉÓØ - false
+	 * ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÑ‚ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ ÐºÐ°Ñ€Ñ‚Ð¾Ñ‡ÐºÐ¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°, Ð¸Ð»Ð¸ Ð·Ð°Ð²Ð¾Ð´Ð¸Ñ‚ Ð½Ð¾Ð²ÑƒÑŽ
+	 * @param MySQLDatabase $db Ð¿Ñ€Ð¸Ð±Ð»ÑƒÐ´Ð° Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð±Ð°Ð·Ð¾Ð¹
+	 * @param struct_cardDetails $cli ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+	 * @return bool Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ. ÐµÑÐ»Ð¸ Ð¿Ð¾Ð»Ñ Ð½Ðµ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð»Ð¸ÑÑŒ - false
 	 */
 	function saveCard($db, struct_cardDetails $cli){
         /*
@@ -626,11 +626,11 @@ namespace clCards;
 	}
 
 	/**
-	 * ÉÝÅÔ ÒÁÓÞÅÔÎÙÊ ÓÞÅÔ × ÐÏÌÅ clients.bank_properties, ÏÔÂÒÁËÏ×Ù×ÁÑ ÚÎÁÞÅÎÉÅ clients.corr_acc
+	 * Ð¸Ñ‰ÐµÑ‚ Ñ€Ð°ÑÑ‡ÐµÑ‚Ð½Ñ‹Ð¹ ÑÑ‡ÐµÑ‚ Ð² Ð¿Ð¾Ð»Ðµ clients.bank_properties, Ð¾Ñ‚Ð±Ñ€Ð°ÐºÐ¾Ð²Ñ‹Ð²Ð°Ñ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ clients.corr_acc
 	 * @param MySQLDatabase $db
-	 * @param string $client ÔÅËÓÔÏ×ÙÊ ÉÄÅÎÔÉÆÉËÁÔÏÒ ËÌÉÅÎÔÁ - clients.client
-	 * @param bool $update ÆÌÁÇ ÏÂÎÏ×ÌÅÎÉÑ. åÓÌÉ true - ÏÂÎÏ×ÌÑÅÔ ÚÎÁÞÅÎÉÅ ÂÁÚÙ clients.pay_acc ÎÁÊÄÅÎÎÙÍ
-	 * @return mixed false ÅÓÌÉ ÎÅ ÕÄÁÌÏÓØ ÎÁÊÔÉ, ÌÉÂÏ string ÓÏ ÚÎÁÞÅÎÉÅÍ ÓÞÅÔÁ
+	 * @param string $client Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° - clients.client
+	 * @param bool $update Ñ„Ð»Ð°Ð³ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ñ. Ð•ÑÐ»Ð¸ true - Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÐµÑ‚ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð±Ð°Ð·Ñ‹ clients.pay_acc Ð½Ð°Ð¹Ð´ÐµÐ½Ð½Ñ‹Ð¼
+	 * @return mixed false ÐµÑÐ»Ð¸ Ð½Ðµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð½Ð°Ð¹Ñ‚Ð¸, Ð»Ð¸Ð±Ð¾ string ÑÐ¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÐµÐ¼ ÑÑ‡ÐµÑ‚Ð°
 	 */
 	function findPayAcc($db, $client,$update=false){
 		$c = $db->GetRow("select bank_properties,corr_acc from clients where client='".addcslashes($client, "\\'")."'");

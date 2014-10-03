@@ -18,11 +18,11 @@ class SyncCoreHelper
         $main_card = "";
         $main_card_id = 0;
 
-        $data = array("client" => array("id" => $super["id"], "name" => Encoding::toUtf8($super["name"])), "contragents" => array());
+        $data = array("client" => array("id" => $super["id"], "name" => $super["name"]), "contragents" => array());
 
         foreach($db->AllRecords("select id, name from client_contragent where super_id = '".$superId."'")as $contr)
         {
-            $dataContragent = array("id" => $contr["id"], "name" => Encoding::toUtf8($contr["name"]), "accounts" => array());
+            $dataContragent = array("id" => $contr["id"], "name" => $contr["name"], "accounts" => array());
 
             foreach($db->AllRecords("select id, client, password, status  from clients where contragent_id = '".$contr["id"]."'") as $c)
             {

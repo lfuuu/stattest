@@ -1,9 +1,9 @@
 <?
 class m_stats_head extends IModuleHead{
 	public $module_name = 'stats';
-	public $module_title = 'óÔÁÔÉÓÔÉËÁ';
+	public $module_title = 'Ð¡Ñ‚Ð°Ñ‚Ð¸ÑÑ‚Ð¸ÐºÐ°';
 	var $rights=array(
-		'stats'=>array("óÔÁÔÉÓÔÉËÁ", 'r,report,vip_report,voip_recognition,sale_channel_report','ÐÒÏÓÍÏÔÒ,ÏÔÞÅÔ,vip report,ÔÅÌÅÆÏÎÉÑ-ÎÅÒÁÓÐÏÚÎÁÎÙÅ,ÒÅÇÉÏÎÁÌØÎÙÅ ÐÒÅÄÓÔÁ×ÉÔÅÌÉ'),
+		'stats'=>array("Ð¡Ñ‚Ð°Ñ‚Ð¸ÑÑ‚Ð¸ÐºÐ°", 'r,report,vip_report,voip_recognition,sale_channel_report','Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€,Ð¾Ñ‚Ñ‡ÐµÑ‚,vip report,Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½Ð¸Ñ-Ð½ÐµÑ€Ð°ÑÐ¿Ð¾Ð·Ð½Ð°Ð½Ñ‹Ðµ,Ñ€ÐµÐ³Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ñ€ÐµÐ´ÑÑ‚Ð°Ð²Ð¸Ñ‚ÐµÐ»Ð¸'),
 	);
 	var $actions=array(
 		'default'			=> array('stats','r'),
@@ -42,36 +42,36 @@ class m_stats_head extends IModuleHead{
         'save_agent_settings' => array('stats', 'vip_report'),
 	);
 	var $menu=array(
-		array('ôÅÌÅÆÏÎÉÑ',              'voip'),
-		array('éÎÔÅÒÎÅÔ',		'internet'),
+		array('Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð¸Ñ',              'voip'),
+		array('Ð˜Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚',		'internet'),
 		array('Collocation',	'internet','&is_coll=1'),
 		array('PPP',			'ppp'),
-		array('óÏÓÔÏÑÎÉÅ ÎÏÍÅÒÏ×',		'voip_free_stat'),
-//		array('ðÅÒÅÓÞÉÔÁÔØ Ú×ÏÎËÉ','recalcalls'),
-		array('ôÅÌÅÆÏÎÉÑ ÐÒÏÄ.','voip_sell'),
+		array('Ð¡Ð¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð½Ð¾Ð¼ÐµÑ€Ð¾Ð²',		'voip_free_stat'),
+//		array('ÐŸÐµÑ€ÐµÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð·Ð²Ð¾Ð½ÐºÐ¸','recalcalls'),
+		array('Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð¸Ñ Ð¿Ñ€Ð¾Ð´.','voip_sell'),
 		array('Callback',		'callback'),
 		array('VPN',			'vpn'),
-		array('òÁÓÓÙÌËÁ',		'send_view'),
-		array('ïÔÞ£Ô',			'report'),
-		array('ïÔÞ£Ô ÐÏ ÍÉÎ. ÔÒÁÆÉËÕ',	'report_traff_less'),
-		array('ó×ÏÂÏÄÎÙÅ ÎÏÍÅÒÁ', 'report_voip_e164_free'),
+		array('Ð Ð°ÑÑÑ‹Ð»ÐºÐ°',		'send_view'),
+		array('ÐžÑ‚Ñ‡Ñ‘Ñ‚',			'report'),
+		array('ÐžÑ‚Ñ‡Ñ‘Ñ‚ Ð¿Ð¾ Ð¼Ð¸Ð½. Ñ‚Ñ€Ð°Ñ„Ð¸ÐºÑƒ',	'report_traff_less'),
+		array('Ð¡Ð²Ð¾Ð±Ð¾Ð´Ð½Ñ‹Ðµ Ð½Ð¾Ð¼ÐµÑ€Ð°', 'report_voip_e164_free'),
 		array('SMS Gate',		'report_sms_gate'),
-		array('ïÔÞÅÔ ÐÏ ÕÓÌÕÇÁÍ', 'report_services'),
-		array('ïÔÞÅÔ ÐÏ WiMax', 'report_wimax'),
-		//array('ïÔÞÅÔ ÐÏ WiMax (test)', 'report_wimax_test'),
-		array('ïÔÞÅÔ ÐÏ ëÕÒØÅÒÁÍ(SMS)', 'courier_sms'),
-		array('ïÔÞÅÔ ÐÏ ôÅÈðÏÄÄÅÒÖËÅ', 'support_efficiency'),
-		array('ïÔÞÅÔ ÐÏ NetByNet', 'report_netbynet'),
-		array('ïÔÞÅÔ ÐÏ OnLime', 'report_onlime'),
-		array('ïÔÞÅÔ ÐÏ OnLime2', 'report_onlime2'),
-		array('ïÔÞÅÔ ÐÏ OnLime 1+2', 'report_onlime_all'),
-		array('ïÔÞÅÔ: ðÒÏÄÁÖÉ ÎÏÍÅÒÏ×', 'report_phone_sales'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ ÑƒÑÐ»ÑƒÐ³Ð°Ð¼', 'report_services'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ WiMax', 'report_wimax'),
+		//array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ WiMax (test)', 'report_wimax_test'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ ÐšÑƒÑ€ÑŒÐµÑ€Ð°Ð¼(SMS)', 'courier_sms'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ Ð¢ÐµÑ…ÐŸÐ¾Ð´Ð´ÐµÑ€Ð¶ÐºÐµ', 'support_efficiency'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ NetByNet', 'report_netbynet'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ OnLime', 'report_onlime'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ OnLime2', 'report_onlime2'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ OnLime 1+2', 'report_onlime_all'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚: ÐŸÑ€Ð¾Ð´Ð°Ð¶Ð¸ Ð½Ð¾Ð¼ÐµÑ€Ð¾Ð²', 'report_phone_sales'),
 
-		array('ïÔÞÅÔ: éîî', 'report_inn'),
-		array('ïÔÞÅÔ ÐÏ áÇÅÎÔÁÍ', 'report_agent'),
-        array('îÁÓÔÒÏÊËÁ áÇÅÎÔÁ', 'agent_settings'),
-		array('òÅÇÉÏÎÁÌØÎÙÅ ÐÒÅÄÓÔÁ×ÉÔÅÌÉ', 'report_sale_channel'),
-		array('÷áôó: Ó×ÏÂÏÄÎÏÅ ÐÒÏ-×Ï', 'report_vpbx_stat_space'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚: Ð˜ÐÐ', 'report_inn'),
+		array('ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ ÐÐ³ÐµÐ½Ñ‚Ð°Ð¼', 'report_agent'),
+        array('ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° ÐÐ³ÐµÐ½Ñ‚Ð°', 'agent_settings'),
+		array('Ð ÐµÐ³Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ñ€ÐµÐ´ÑÑ‚Ð°Ð²Ð¸Ñ‚ÐµÐ»Ð¸', 'report_sale_channel'),
+		array('Ð’ÐÐ¢Ð¡: ÑÐ²Ð¾Ð±Ð¾Ð´Ð½Ð¾Ðµ Ð¿Ñ€Ð¾-Ð²Ð¾', 'report_vpbx_stat_space'),
 	);
 }
 ?>

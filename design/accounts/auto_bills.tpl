@@ -1,30 +1,30 @@
-<h2>Автоматическое выставление счетов</h2>
+<h2>п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╣ п╡я▀я│я┌п╟п╡п╩п╣п╫п╦п╣ я│я┤п╣я┌п╬п╡</h2>
 <table border="1">
 <tr>
 <TD>
 <a href="modules/accounts/print_bills.php?i=0&t=all">
-Все счета
+п▓я│п╣ я│я┤п╣я┌п╟
 </a>
 </TD>
 <TD>
 <a href="modules/accounts/print_bills.php?i=0&t=pma">
-Pma счета
+Pma я│я┤п╣я┌п╟
 </a>
 </TD>
 <TD>
 <a href="modules/accounts/print_bills.php?i=0&t=bnv">
-Bnv счета
+Bnv я│я┤п╣я┌п╟
 </a>
 </TD>
 <TD>
 <a href="modules/accounts/print_bills.php?i=0&t=voip">
-VoIP счета
+VoIP я│я┤п╣я┌п╟
 </a>
 </TD>
 </tr>
 </table>
 
-<h2>Печать счетов с помощью фреймов</h2>
+<h2>п÷п╣я┤п╟я┌я▄ я│я┤п╣я┌п╬п╡ я│ п©п╬п╪п╬я┴я▄я▌ я└я─п╣п╧п╪п╬п╡</h2>
 <table border="1" cellpadding="10">
 <TD>
 {foreach from=$managers item=m key=key}
@@ -32,7 +32,7 @@ VoIP счета
 	<b>{$key}</b><br>
 	{foreach from=$m item=item key=k}
 	<a href="modules/accounts/print_bills_fr.php?i=0&t={$key}&limit_from={$item}">
-		Счета_Партия_{$k}
+		п║я┤п╣я┌п╟_п÷п╟я─я┌п╦я▐_{$k}
 	</a><br>
 	{/foreach}
 </TD>

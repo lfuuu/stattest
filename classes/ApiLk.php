@@ -192,7 +192,7 @@ class ApiLk
         foreach($b->lines as $l)
         {
             $lines[] = array(
-                            "item"      => Encoding::toUtf8($l->item),
+                            "item"      => $l->item,
                             "date_from" => $l->date_from ? $l->date_from->format("d-m-Y") : "",
                             "amount"    => $l->amount,
                             "price"     => number_format($l->price, 2, '.',''),
@@ -640,7 +640,7 @@ class ApiLk
                 `currency` = ?
             AND `status` = ?
             AND `code` = ?
-            AND `description` LIKE('".Encoding::toKOI8R('Хостинг\_')."%')
+            AND `description` LIKE('".'Хостинг\_'."%')
             ORDER BY
                 `id`
             ", array($currency, $status, $code)) as $service)
@@ -843,12 +843,12 @@ class ApiLk
 
         $reserNumber = VoipReservNumber::reserv($number, $client_id, $lines_cnt, $tarif_id);
     
-        $message = Encoding::toKOI8R("Заказ услуги IP Телефония из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: ".$client_id.")\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . "\n";
-        $message .= Encoding::toKOI8R('Номер: ') . $number . "\n";
-        $message .= Encoding::toKOI8R('Кол-во линий: ') . $lines_cnt . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $reserNumber["tarif"]["name"];
+        $message = "Заказ услуги IP Телефония из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: ".$client_id.")\n";
+        $message .= 'Регион: ' . $region['name'] . "\n";
+        $message .= 'Номер: ' . $number . "\n";
+        $message .= 'Кол-во линий: ' . $lines_cnt . "\n";
+        $message .= 'Тарифный план: ' . $reserNumber["tarif"]["name"];
     
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager']), "usage_voip", $reserNumber["usage_id"]) > 0)
@@ -873,10 +873,10 @@ class ApiLk
         if (!$client || !$region || !$tarif)
             throw new Exception("Ошибка в данных!");
     
-        $message = Encoding::toKOI8R("Заказ услуги Виртуальная АТС из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif["name"];
+        $message = "Заказ услуги Виртуальная АТС из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Регион: ' . $region['name'] . "\n";
+        $message .= 'Тарифный план: ' . $tarif["name"];
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
                             "client"        => $client["client"],
@@ -914,10 +914,10 @@ class ApiLk
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
     
-        $message = Encoding::toKOI8R("Заказ услуги Домен из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Регион: ') . $region['name'] . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif;
+        $message = "Заказ услуги Домен из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Регион: ' . $region['name'] . "\n";
+        $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -964,10 +964,10 @@ class ApiLk
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
         $tarif = $db->GetValue("select name from tarifs_internet where id='".$tarif_id."'");
     
-        $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги Интернет из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Адрес: ') . $address . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif;
+        $message = "Заказ изменения тарифного плана услуги Интернет из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Адрес: ' . $address . "\n";
+        $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -984,10 +984,10 @@ class ApiLk
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
     
-        $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги Collocation из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Адрес: ') . $address . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif;
+        $message = "Заказ изменения тарифного плана услуги Collocation из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Адрес: ' . $address . "\n";
+        $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -1004,14 +1004,14 @@ class ApiLk
         $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
         $tarif = $db->GetValue("select name from tarifs_voip where id='".$tarif_id."'");
     
-        $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги IP Телефония из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Номер: ') . $voip['E164'] . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif;
+        $message = "Заказ изменения тарифного плана услуги IP Телефония из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Номер: ' . $voip['E164'] . "\n";
+        $message .= 'Тарифный план: ' . $tarif;
     
         if ($voip['actual_from'] == '2029-01-01') {
             $db->QueryUpdate("log_tarif", array("id_service", "service"), array("service" => "usage_voip", "id_service"=>$service_id, "id_tarif" => $tarif_id));
-            $message .= Encoding::toKOI8R("\n\nтариф сменен, т.к. подключения не было");
+            $message .= "\n\nтариф сменен, т.к. подключения не было";
         }
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -1030,9 +1030,9 @@ class ApiLk
         if (!$client || !$tarif)
             throw new Exception("Ошибка в данных!");
     
-        $message = Encoding::toKOI8R("Заказ изменения тарифного плана услуги Виртуальная АТС из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Новый тарифный план: ') . $tarif;
+        $message = "Заказ изменения тарифного плана услуги Виртуальная АТС из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Новый тарифный план: ' . $tarif;
     
         $vpbx = $db->GetRow($q = "select * from usage_virtpbx where id=".$service_id." and client = '".$client["client"]."'");
     
@@ -1049,7 +1049,7 @@ class ApiLk
                             )
                         );
 
-            $message .= Encoding::toKOI8R("\n\nтариф изменен из личного кабинета");
+            $message .= "\n\nтариф изменен из личного кабинета";
 
             if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
                 return array('status'=>'ok','message'=>'Заявка принята');
@@ -1067,10 +1067,10 @@ class ApiLk
         $domain = $db->GetValue("select domain from domains where id='".$service_id."'");
         $tarif = $db->GetValue("select description from tarifs_extra where id='".$tarif_id."'");
     
-        $message = Encoding::toKOI8R("Заказ на изменение услуги Домен из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Домен: ') . $domain . "\n";
-        $message .= Encoding::toKOI8R('Тарифный план: ') . $tarif;
+        $message = "Заказ на изменение услуги Домен из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Домен: ' . $domain . "\n";
+        $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -1139,9 +1139,9 @@ class ApiLk
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
     
-        $message = Encoding::toKOI8R("Заказ на отключение услуги Интернет из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Адрес: ') . $address;
+        $message = "Заказ на отключение услуги Интернет из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Адрес: ' . $address;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -1157,9 +1157,9 @@ class ApiLk
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $address = $db->GetValue("select address from usage_ip_ports where id='".$service_id."'");
     
-        $message = Encoding::toKOI8R("Заказ на отключение услуги Collocation из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Адрес: ') . $address;
+        $message = "Заказ на отключение услуги Collocation из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Адрес: ' . $address;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -1175,14 +1175,14 @@ class ApiLk
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $voip = $db->GetRow("select E164, status, actual_from from usage_voip where id='".$service_id."' AND client='".$client["client"]."'");
     
-        $message = Encoding::toKOI8R("Заказ на отключение услуги IP Телефония из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Номер: ') . $voip['E164'];
+        $message = "Заказ на отключение услуги IP Телефония из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Номер: ' . $voip['E164'];
     
         if ($voip['actual_from'] == '2029-01-01') {
             $db->QueryDelete('log_tarif', array("service" => "usage_voip", 'id_service'=>$service_id));
             $db->QueryDelete('usage_voip', array('id'=>$service_id));
-            $message .= Encoding::toKOI8R("\n\номер удален, т.к. подключения не было");
+            $message .= "\n\nномер удален, т.к. подключения не было";
         }
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
@@ -1197,9 +1197,9 @@ class ApiLk
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
 
-        $message = Encoding::toKOI8R("Заказ на отключение услуги Виртуальная АТС из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Услуга: ') . $service_id . " (Id: $service_id)\n";
+        $message = "Заказ на отключение услуги Виртуальная АТС из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Услуга: ' . $service_id . " (Id: $service_id)\n";
 
         $vpbx = $db->GetRow($q = "select id, actual_from from usage_virtpbx where id=".$service_id." and client = '".$client["client"]."'");
 
@@ -1210,7 +1210,7 @@ class ApiLk
                 $db->QueryDelete("log_tarif", array("id_service" => $vpbx["id"]));
                 $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
     
-                $message .= Encoding::toKOI8R("\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было");
+                $message .= "\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было";
             }
     
             if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
@@ -1227,9 +1227,9 @@ class ApiLk
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $domain = $db->GetRow("select domain from domains where id='".$service_id."'");
     
-        $message = Encoding::toKOI8R("Заказ на отключение услуги Домен из Личного Кабинета. \n");
-        $message .= Encoding::toKOI8R('Клиент: ') . $client['company'] . " (Id: $client_id)\n";
-        $message .= Encoding::toKOI8R('Домен: ') . $domain;
+        $message = "Заказ на отключение услуги Домен из Личного Кабинета. \n";
+        $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
+        $message .= 'Домен: ' . $domain;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
             return array('status'=>'ok','message'=>'Заявка принята');
@@ -1367,7 +1367,7 @@ class ApiLk
             }
             if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
             if ($last_region != $r['region']){
-                $phones[$r['region']] = Encoding::toUTF8($r['region_name']).' (все номера)';
+                $phones[$r['region']] = $r['region_name'].' (все номера)';
                 $last_region = $r['region'];
             }
             $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
@@ -1418,16 +1418,16 @@ class ApiLk
     
             $ar = array();
             $all_regions = $db->AllRecords('select id, name from regions');
-            foreach ($all_regions as $reg) $ar[$reg['id']] =  Encoding::toUTF8($reg['name']);
+            foreach ($all_regions as $reg) $ar[$reg['id']] =  $reg['name'];
             $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
         } else {
             $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), $isFull);
         }
         foreach ($stats as $k=>$r) {
-            $stats[$k]["ts1"] = Encoding::toUTF8($stats[$k]["ts1"]);
-            $stats[$k]["tsf1"] = Encoding::toUTF8($stats[$k]["tsf1"]);
-            $stats[$k]["price"] = Encoding::toUTF8($stats[$k]["price"]);
-            $stats[$k]["geo"] = Encoding::toUTF8($stats[$k]["geo"]);
+            $stats[$k]["ts1"] = $stats[$k]["ts1"];
+            $stats[$k]["tsf1"] = $stats[$k]["tsf1"];
+            $stats[$k]["price"] = $stats[$k]["price"];
+            $stats[$k]["geo"] = $stats[$k]["geo"];
         }
         return $stats;
     }
@@ -1473,8 +1473,8 @@ class ApiLk
     
         $stats = $module_stats->GetStatsInternet($client['client'],$from,$to,$detality,$routes,$is_coll);
         foreach ($stats as $k=>$r) {
-            $stats[$k]["tsf"] = Encoding::toUTF8($stats[$k]["tsf"]);
-            $stats[$k]["ts"] = Encoding::toUTF8($stats[$k]["ts"]);
+            $stats[$k]["tsf"] = $stats[$k]["tsf"];
+            $stats[$k]["ts"] = $stats[$k]["ts"];
         }
         return $stats;
     }
@@ -1849,8 +1849,8 @@ class ApiLk
             $message = $design->fetch('letters/notification/approve.tpl');
             $params = array(
                             'data'=>$data,
-                            'subject'=>Encoding::toKoi8r('Подтверждение Email адреса для уведомлений'),
-                            'message'=>Encoding::toKoi8r($message),
+                            'subject'=>'Подтверждение Email адреса для уведомлений',
+                            'message'=>$message,
                             'type'=>'email',
                             'contact_id'=>$contact_id
                         );
@@ -1866,7 +1866,7 @@ class ApiLk
                     );
             $params = array(
                             'data'=>$data,
-                            'message'=>Encoding::toKoi8r('Код активации: ' . $code),
+                            'message'=>'Код активации: ' . $code,
                             'type'=>'phone',
                             'contact_id'=>$contact_id
                         );
@@ -1976,7 +1976,7 @@ class ApiLk
         $line = array();
         foreach ($fields as $field)
         {
-            $line[$field] = Encoding::toUtf8(preg_replace($spec_chars,' ',$row->{$field}));
+            $line[$field] = preg_replace($spec_chars,' ',$row->{$field});
         }
         return $line;
     }
@@ -1985,7 +1985,7 @@ class ApiLk
     {
         foreach ($fields as $k=>$v)
         {
-            $fields[$k] = Encoding::toKOI8R($v);
+            $fields[$k] = $v;
         }
         return $fields;
     }

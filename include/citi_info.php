@@ -6,9 +6,9 @@ class citiPaymentsInfoParser
     function parse($f)
     {
 
-        $f = iconv("cp1251","koi8-r//translit", $f);
+        $f = iconv("cp1251","utf-8//translit", $f);
 
-        $a = explode("πςοχεδεξο", $f);
+        $a = explode("ΠΠ ΠΠ’Π•Π”Π•ΠΠ", $f);
 
         //$a = array($a[4]);
         //printdbg($a);
@@ -18,19 +18,19 @@ class citiPaymentsInfoParser
         foreach($a as $idd => $b)
         {
             $d = array();
-            preg_match_all("/σΥΝΝΑ[^\d]+(?P<sum>\d+-\d+) (?P<company>.*)/", $b, $o);
+            preg_match_all("/Π΅ΡƒΠΌΠΌΠ°[^\d]+(?P<sum>\d+-\d+) (?P<company>.*)/", $b, $o);
             $d["sum"] = (float)str_replace("-", ".", $o["sum"][0]);
             $d["company"] = trim($o["company"][0]);
-            preg_match_all("/Cή.[^\d]+(?P<account>[\d]+)/", $b, $o);
+            preg_match_all("/CΡ‡.[^\d]+(?P<account>[\d]+)/", $b, $o);
             if($o["account"][0] == 30101810300000000202) $idx = 1; else $idx =0;
 
-            preg_match_all("/ιξξ (?P<inn>[\d]+)/", $b, $o);
+            preg_match_all("/ΠΠΠ (?P<inn>[\d]+)/", $b, $o);
             $d["inn"] = trim($o["inn"][$idx]);
 
-            preg_match_all("/Cή.[^\d]+(?P<account>[\d]+)/", $b, $o);
+            preg_match_all("/CΡ‡.[^\d]+(?P<account>[\d]+)/", $b, $o);
             $d["account"] = $o["account"][$idx];
 
-            preg_match_all("/πματεφξοε ποςυώεξιε[^\d]+(?P<payment_no>\d+)/", $b, $o);
+            preg_match_all("/ΠΠ›ΠΠΆΠ•Π–ΠΠΠ• ΠΠΠ Π£Π§Π•ΠΠΠ•[^\d]+(?P<payment_no>\d+)/", $b, $o);
             $d["payment_no"] = (int)$o["payment_no"][0];
 
             preg_match_all("/(\d\d\.\d\d.\d\d\d\d)\s+(\d\d\.\d\d.\d\d\d\d)\s+/", $b, $o);

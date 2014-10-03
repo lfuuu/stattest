@@ -153,16 +153,16 @@ class m_voipreports_voip_local_report
                     if ($columns[$r['prefix_op']] == '') {
                         $columns[$r['prefix_op']] = 'unknown';
                     } elseif($columns[$r['prefix_op']] == '8000') {
-                        $columns[$r['prefix_op']] = 'È‘œ«œ';
+                        $columns[$r['prefix_op']] = '–ò—Ç–æ–≥–æ';
                     } elseif($columns[$r['prefix_op']] == 'special') {
-                        $columns[$r['prefix_op']] = 'Û–≈√. ”Ã’÷¬Ÿ';
+                        $columns[$r['prefix_op']] = '–°–ø–µ—Ü. —Å–ª—É–∂–±—ã';
                     } elseif($columns[$r['prefix_op']] == '9000') {
-                        $columns[$r['prefix_op']] = '˜»œƒ—›…≈';
+                        $columns[$r['prefix_op']] = '–í—Ö–æ–¥—è—â–∏–µ';
                     }
                 }
             }
 
-            $columns['8000'] = '<b>È‘œ«œ</b>';
+            $columns['8000'] = '<b>–ò—Ç–æ–≥–æ</b>';
 
             $design->assign('report',$report);
             ksort($columns);

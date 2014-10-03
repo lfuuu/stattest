@@ -1,35 +1,35 @@
 {if !isset($hide_tt_list) || $hide_tt_list == 0}
 {if !isset($hide_tts)}{if !isset($tt_wo_explain) && $tt_design=='full'}<H2>{$tt_header}
-	{if $fixclient_data}(клиент <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
+	{if $fixclient_data}(п╨п╩п╦п╣п╫я┌ <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
 	</H2>
 {elseif $tt_design=='client'}
 	<H3><a href='{$LINK_START}module=tt&action=list&mode=1'>{$tt_header}</a></H3>
 {/if}
 
 {if $tt_design == "full"}
-Найдено {$pager_all} заявок<br>
+п²п╟п╧п╢п╣п╫п╬ {$pager_all} п╥п╟я▐п╡п╬п╨<br>
     {if count($pager_pages)>1}
-        Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
+        п║я┌я─п╟п╫п╦я├я▀: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
     {/if}
 {else}
-    {if $pager_all}Показано заявок: {if $pager_all > $pager_page_size}{$pager_page_size} из {$pager_all}{else} {$pager_all}{/if}{/if}
+    {if $pager_all}п÷п╬п╨п╟п╥п╟п╫п╬ п╥п╟я▐п╡п╬п╨: {if $pager_all > $pager_page_size}{$pager_page_size} п╦п╥ {$pager_all}{else} {$pager_all}{/if}{/if}
 {/if}
 <TABLE class={if $tt_design=='service'}insblock{else}price{/if} cellSpacing=2 cellPadding=2 width="{if $tt_design=='service'}700px{else}100%{/if}" border=0>
 <TBODY>
 {if $tt_design == "full"}
 <tr>
     <td class=header>{sort_link sort=1 text='&#8470;' link=$CUR sort_cur=$sort so_cur=$so}</td>
-    <td class=header>Дата создания</td>
-    <td class=header>{sort_link sort=3 text='Этап' link=$CUR sort_cur=$sort so_cur=$so}</td>
-    <td class=header>{sort_link sort=3 text='Ответ.' link=$CUR sort_cur=$sort so_cur=$so}</td>
-    <td class=header>Проблема</td>
+    <td class=header>п■п╟я┌п╟ я│п╬п╥п╢п╟п╫п╦я▐</td>
+    <td class=header>{sort_link sort=3 text='п╜я┌п╟п©' link=$CUR sort_cur=$sort so_cur=$so}</td>
+    <td class=header>{sort_link sort=3 text='п·я┌п╡п╣я┌.' link=$CUR sort_cur=$sort so_cur=$so}</td>
+    <td class=header>п÷я─п╬п╠п╩п╣п╪п╟</td>
 </tr>
 <tr>
-    <td class=header nowrap>Тип заявки</td>
-    <td class=header>в работе</td>
-    <td class=header>{sort_link sort=2 text='Клиент' link=$CUR sort_cur=$sort so_cur=$so}</td>
-    <td class=header>Услуга</td>
-    <td class=header>Последний коментарий</td>
+    <td class=header nowrap>п╒п╦п© п╥п╟я▐п╡п╨п╦</td>
+    <td class=header>п╡ я─п╟п╠п╬я┌п╣</td>
+    <td class=header>{sort_link sort=2 text='п п╩п╦п╣п╫я┌' link=$CUR sort_cur=$sort so_cur=$so}</td>
+    <td class=header>пёя│п╩я┐пЁп╟</td>
+    <td class=header>п÷п╬я│п╩п╣п╢п╫п╦п╧ п╨п╬п╪п╣п╫я┌п╟я─п╦п╧</td>
 </tr>
 {/if}
 {if false}
@@ -37,24 +37,24 @@
 	{if $tt_design=='full'}
 		<TD class=header vAlign=bottom>{sort_link sort=1 text='&#8470;' link=$CUR sort_cur=$sort so_cur=$so}</TD>
 		{if $tt_subject<2}
-			{if $tt_subject<1}<TD class=header vAlign=bottom>{sort_link sort=2 text='Клиент' link=$CUR sort_cur=$sort so_cur=$so}</TD>{/if}
-			<TD class=header vAlign=bottom>Услуга</TD>
+			{if $tt_subject<1}<TD class=header vAlign=bottom>{sort_link sort=2 text='п п╩п╦п╣п╫я┌' link=$CUR sort_cur=$sort so_cur=$so}</TD>{/if}
+			<TD class=header vAlign=bottom>пёя│п╩я┐пЁп╟</TD>
 
 		{/if}
-		<TD class=header vAlign=bottom>Тип заявки</TD>
-		<TD class=header vAlign=bottom>{sort_link sort=3 text='Этап' link=$CUR sort_cur=$sort so_cur=$so}</TD>
-		<TD class=header vAlign=bottom>{sort_link sort=4 text='Ответ.' link=$CUR sort_cur=$sort so_cur=$so}</TD>
+		<TD class=header vAlign=bottom>п╒п╦п© п╥п╟я▐п╡п╨п╦</TD>
+		<TD class=header vAlign=bottom>{sort_link sort=3 text='п╜я┌п╟п©' link=$CUR sort_cur=$sort so_cur=$so}</TD>
+		<TD class=header vAlign=bottom>{sort_link sort=4 text='п·я┌п╡п╣я┌.' link=$CUR sort_cur=$sort so_cur=$so}</TD>
 	{else}
 		{if $tt_subject<2}
-			{if $tt_subject<1}<TD class=header vAlign=bottom><a href="./?module=tt&action=list&mode=0&sort=2&so=1">клиент</a></TD>{/if}
-			<TD class=header vAlign=bottom>услуга</TD>
+			{if $tt_subject<1}<TD class=header vAlign=bottom><a href="./?module=tt&action=list&mode=0&sort=2&so=1">п╨п╩п╦п╣п╫я┌</a></TD>{/if}
+			<TD class=header vAlign=bottom>я┐я│п╩я┐пЁп╟</TD>
 		{/if}
-		<TD class=header vAlign=bottom>Тип заявки</TD>
-		<TD class=header vAlign=bottom><a href="./?module=tt&action=list&mode=0&sort=3&so=0">этап</a></TD>
-		<TD class=header vAlign=bottom>ответ.</TD>
+		<TD class=header vAlign=bottom>п╒п╦п© п╥п╟я▐п╡п╨п╦</TD>
+		<TD class=header vAlign=bottom><a href="./?module=tt&action=list&mode=0&sort=3&so=0">я█я┌п╟п©</a></TD>
+		<TD class=header vAlign=bottom>п╬я┌п╡п╣я┌.</TD>
 	{/if}
-	<TD class=header vAlign=bottom width=45%>проблема</TD>
-	<TD class=header vAlign=bottom>сроки</TD>
+	<TD class=header vAlign=bottom width=45%>п©я─п╬п╠п╩п╣п╪п╟</TD>
+	<TD class=header vAlign=bottom>я│я─п╬п╨п╦</TD>
 </TR>
 {/if}
 {foreach from=$tt_troubles item=r name=outer}
@@ -95,16 +95,16 @@
 		{mformat param=$r.date_start format='Y.m.d H:i'}<br>
 		{mformat param=$r.date_edit format='Y.m.d H:i'}
 	{elseif $r.state_id==4}
-			выезд {mformat param=$r.date_start format='Y.m.d H:i'}<br>
+			п╡я▀п╣п╥п╢ {mformat param=$r.date_start format='Y.m.d H:i'}<br>
 			{if $r.is_active}
-				прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
+				п©я─п╬я┬п╩п╬ <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 			{/if}
 	{else}
 		{mformat param=$r.date_start format='Y.m.d H:i'}<br>
 		{if $r.is_active}
-			прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
+			п©я─п╬я┬п╩п╬ <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 		{else}
-			неактивна / {$r.time_pass}
+			п╫п╣п╟п╨я┌п╦п╡п╫п╟ / {$r.time_pass}
 		{/if}
 	{/if}</TD>
 </TR>
@@ -113,11 +113,11 @@
 	<TR class=odd {if !isset($bill) || $r.bill_no<>$bill.bill_no}style='display:none'{/if} id='tt_main{$smarty.foreach.outer.iteration}'><TD colspan=6>
 	<TABLE class={if $tt_design=='service'}insblock{else}price{/if} cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
 	<TR>
-		<TD class=header vAlign=bottom width="9%">Состояние</TD>
-		<TD class=header vAlign=bottom width="8%">Ответственный</TD>
-		<TD class=header vAlign=bottom width="60%">Комментарий</TD>
-		<TD class=header vAlign=bottom width="8%">кто</TD>
-		<TD class=header vAlign=bottom width="15%">когда</TD>
+		<TD class=header vAlign=bottom width="9%">п║п╬я│я┌п╬я▐п╫п╦п╣</TD>
+		<TD class=header vAlign=bottom width="8%">п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧</TD>
+		<TD class=header vAlign=bottom width="60%">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</TD>
+		<TD class=header vAlign=bottom width="8%">п╨я┌п╬</TD>
+		<TD class=header vAlign=bottom width="15%">п╨п╬пЁп╢п╟</TD>
 	</TR>
 	{foreach from=$r.stages item=r2 name=inner}
 	<TR class={if $smarty.foreach.inner.iteration%2==count($r.stages)%2}even{else}odd{/if}>
@@ -135,7 +135,7 @@
 
 {if $tt_design == "full"}
 {if count($pager_pages)>1}
-Страницы: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
+п║я┌я─п╟п╫п╦я├я▀: {foreach from=$pager_pages item=i} {if $pager_page == $i} {$i} {else} <a href='{$pager_url}&page={$i}&filtred=true'>{$i}</a>{/if} {/foreach}<br>
 {/if}
 {/if}
 

@@ -18,14 +18,14 @@
 
 		$Mail = new PHPMailer();
 		$Mail->SetLanguage("ru","include/");
-		$Mail->CharSet = "koi8-r";
+		$Mail->CharSet = "utf-8";
 		$Mail->From = "info@mcn.ru";
 		$Mail->FromName="MCN";
 		$Mail->Mailer='smtp';
 		$Mail->Host=SMTP_SERVER;
 		$Mail->AddAddress("dga@mcn.ru");
 		$Mail->ContentType='text/html';
-		$Mail->Subject = "ïÔÞÅÔ ÐÏ WiMax ÏÔ MCN ".$date;
+		$Mail->Subject = "ÐžÑ‚Ñ‡ÐµÑ‚ Ð¿Ð¾ WiMax Ð¾Ñ‚ MCN ".$date;
 		$Mail->Body = $r;
 
 		echo "\n".date("r").": ".($Mail->Send() ? "ok" : "error");

@@ -29,51 +29,51 @@ $(document).ready(function() {
 <input type="hidden" name="fix" value="yes" />
 <table border="1" align="center">
 	<tr>
-		<td>Услуга</td>
-		<td>Фильтр</td>
-		<td>Статус</td>
+		<td>пёя│п╩я┐пЁп╟</td>
+		<td>п╓п╦п╩я▄я┌я─</td>
+		<td>п║я┌п╟я┌я┐я│</td>
 	</tr>
 	<tr>
-		<td>Интернет</td>
+		<td>п≤п╫я┌п╣я─п╫п╣я┌</td>
 		<td>
 			<table>
-				<tr><td>Присутствует</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="on"{if isset($s_i) && $s_i} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="off"{if isset($s_i) && !$s_i} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="unset"{if !isset($s_i)} checked{/if} /></td></tr>
-				<tr><td colspan="3"><div id="d_s_i" style="display: {if isset($s_i) && $s_i}block;{else}none;{/if}">Тариф:<br><select name="s_s_i" style="width: 120px;"><option value="0">Любой</option>{foreach from=$i_tarifs item='t'}<option value="{$t.id}" {if $s_s_i == $t.id}selected{/if}>{$t.name}</option>{/foreach}</select></div></td></tr>
+				<tr><td>п÷я─п╦я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="on"{if isset($s_i) && $s_i} checked{/if} /></td></tr>
+				<tr><td>п·я┌я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="off"{if isset($s_i) && !$s_i} checked{/if} /></td></tr>
+				<tr><td>п²п╣ п╥п╟п╢п╟п╫п╬</td><td>-</td><td><input class="i_s_i" type="radio" name="s_i" value="unset"{if !isset($s_i)} checked{/if} /></td></tr>
+				<tr><td colspan="3"><div id="d_s_i" style="display: {if isset($s_i) && $s_i}block;{else}none;{/if}">п╒п╟я─п╦я└:<br><select name="s_s_i" style="width: 120px;"><option value="0">п⌡я▌п╠п╬п╧</option>{foreach from=$i_tarifs item='t'}<option value="{$t.id}" {if $s_s_i == $t.id}selected{/if}>{$t.name}</option>{/foreach}</select></div></td></tr>
 			</table>
 		</td>
 		<td rowspan="5">
-		  <input type="checkbox" name="status[]" value="negotiations" {if in_array('negotiations', $statuses)}checked{/if} /> В стадии переговоров<br />
-		  <input type="checkbox" name="status[]" value="testing" {if in_array('testing', $statuses)}checked{/if} /> Тестируемые<br />
-		  <input type="checkbox" name="status[]" value="connecting" {if in_array('connecting', $statuses)}checked{/if} /> Подключаемые<br />
-		  <input type="checkbox" name="status[]" value="work" {if in_array('work', $statuses)}checked{/if} /> Включенные<br />
-		  <input type="checkbox" name="status[]" value="closed" {if in_array('closed', $statuses)}checked{/if} /> Отключенные<br />
-		  <input type="checkbox" name="status[]" value="tech_deny" {if in_array('tech_deny', $statuses)}checked{/if} /> С тех. отказом<br />
+		  <input type="checkbox" name="status[]" value="negotiations" {if in_array('negotiations', $statuses)}checked{/if} /> п▓ я│я┌п╟п╢п╦п╦ п©п╣я─п╣пЁп╬п╡п╬я─п╬п╡<br />
+		  <input type="checkbox" name="status[]" value="testing" {if in_array('testing', $statuses)}checked{/if} /> п╒п╣я│я┌п╦я─я┐п╣п╪я▀п╣<br />
+		  <input type="checkbox" name="status[]" value="connecting" {if in_array('connecting', $statuses)}checked{/if} /> п÷п╬п╢п╨п╩я▌я┤п╟п╣п╪я▀п╣<br />
+		  <input type="checkbox" name="status[]" value="work" {if in_array('work', $statuses)}checked{/if} /> п▓п╨п╩я▌я┤п╣п╫п╫я▀п╣<br />
+		  <input type="checkbox" name="status[]" value="closed" {if in_array('closed', $statuses)}checked{/if} /> п·я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣<br />
+		  <input type="checkbox" name="status[]" value="tech_deny" {if in_array('tech_deny', $statuses)}checked{/if} /> п║ я┌п╣я┘. п╬я┌п╨п╟п╥п╬п╪<br />
 		  <input type="checkbox" name="status[]" value="telemarketing" {if in_array('telemarketing', $statuses)}checked{/if} /> telemarketing<br />
 		  <input type="checkbox" name="status[]" value="income" {if in_array('income', $statuses)}checked{/if} /> income<br />
-		  <input type="checkbox" name="status[]" value="deny" {if in_array('deny', $statuses)}checked{/if} /> Отказ<br />
-		  <input type="checkbox" name="status[]" value="debt" {if in_array('debt', $statuses)}checked{/if} /> Отключенные за долги<br />
-		  <input type="checkbox" name="status[]" value="double" {if in_array('double', $statuses)}checked{/if} /> Дубликаты<br />
-		  <input type="checkbox" name="status[]" value="trash" {if in_array('trash', $statuses)}checked{/if} /> Мусор<br />
+		  <input type="checkbox" name="status[]" value="deny" {if in_array('deny', $statuses)}checked{/if} /> п·я┌п╨п╟п╥<br />
+		  <input type="checkbox" name="status[]" value="debt" {if in_array('debt', $statuses)}checked{/if} /> п·я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣ п╥п╟ п╢п╬п╩пЁп╦<br />
+		  <input type="checkbox" name="status[]" value="double" {if in_array('double', $statuses)}checked{/if} /> п■я┐п╠п╩п╦п╨п╟я┌я▀<br />
+		  <input type="checkbox" name="status[]" value="trash" {if in_array('trash', $statuses)}checked{/if} /> п°я┐я│п╬я─<br />
 		  <input type="checkbox" name="status[]" value="move" {if in_array('move', $statuses)}checked{/if} /> move<br />
 		  <input type="checkbox" name="status[]" value="already" {if in_array('already', $statuses)}checked{/if} /> already<br />
-		  <input type="checkbox" name="status[]" value="denial" {if in_array('denial', $statuses)}checked{/if} /> Отказ/задаток<br />
-		  <input type="checkbox" name="status[]" value="once" {if in_array('once', $statuses)}checked{/if} /> Интернет Магазин<br />
+		  <input type="checkbox" name="status[]" value="denial" {if in_array('denial', $statuses)}checked{/if} /> п·я┌п╨п╟п╥/п╥п╟п╢п╟я┌п╬п╨<br />
+		  <input type="checkbox" name="status[]" value="once" {if in_array('once', $statuses)}checked{/if} /> п≤п╫я┌п╣я─п╫п╣я┌ п°п╟пЁп╟п╥п╦п╫<br />
 		  <input type="checkbox" name="status[]" value="reserved" {if in_array('reserved', $statuses)}checked{/if} /> reserved<br />
-		  <input type="checkbox" name="status[]" value="suspended" {if in_array('suspended', $statuses)}checked{/if} /> Приостановленные<br />
-		  <input type="checkbox" name="status[]" value="operator" {if in_array('operator', $statuses)}checked{/if} /> Операторы<br />
-		  <input type="checkbox" name="status[]" value="distr" {if in_array('distr', $statuses)}checked{/if} /> Поставщики<br />
-		  <input type="checkbox" name="status[]" value="blocked" {if in_array('blocked', $statuses)}checked{/if} /> Временно заблокирован<br />
+		  <input type="checkbox" name="status[]" value="suspended" {if in_array('suspended', $statuses)}checked{/if} /> п÷я─п╦п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╣<br />
+		  <input type="checkbox" name="status[]" value="operator" {if in_array('operator', $statuses)}checked{/if} /> п·п©п╣я─п╟я┌п╬я─я▀<br />
+		  <input type="checkbox" name="status[]" value="distr" {if in_array('distr', $statuses)}checked{/if} /> п÷п╬я│я┌п╟п╡я┴п╦п╨п╦<br />
+		  <input type="checkbox" name="status[]" value="blocked" {if in_array('blocked', $statuses)}checked{/if} /> п▓я─п╣п╪п╣п╫п╫п╬ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫<br />
 		</td>
 	</tr>
 	<tr>
-		<td>Телефония</td>
+		<td>п╒п╣п╩п╣я└п╬п╫п╦я▐</td>
 		<td>
 			<table>
-				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_p" value="on"{if isset($s_p) && $s_p} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_p" value="off"{if isset($s_p) && !$s_p} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_p" value="unset"{if !isset($s_p)} checked{/if} /></td></tr>
+				<tr><td>п÷я─п╦я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input type="radio" name="s_p" value="on"{if isset($s_p) && $s_p} checked{/if} /></td></tr>
+				<tr><td>п·я┌я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input type="radio" name="s_p" value="off"{if isset($s_p) && !$s_p} checked{/if} /></td></tr>
+				<tr><td>п²п╣ п╥п╟п╢п╟п╫п╬</td><td>-</td><td><input type="radio" name="s_p" value="unset"{if !isset($s_p)} checked{/if} /></td></tr>
 			</table>
 		</td>
 	</tr>
@@ -81,9 +81,9 @@ $(document).ready(function() {
 		<td>VPN</td>
 		<td>
 			<table>
-				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_v" value="on"{if isset($s_v) && $s_v} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_v" value="off"{if isset($s_v) && !$s_v} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_v" value="unset"{if !isset($s_v)} checked{/if} /></td></tr>
+				<tr><td>п÷я─п╦я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input type="radio" name="s_v" value="on"{if isset($s_v) && $s_v} checked{/if} /></td></tr>
+				<tr><td>п·я┌я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input type="radio" name="s_v" value="off"{if isset($s_v) && !$s_v} checked{/if} /></td></tr>
+				<tr><td>п²п╣ п╥п╟п╢п╟п╫п╬</td><td>-</td><td><input type="radio" name="s_v" value="unset"{if !isset($s_v)} checked{/if} /></td></tr>
 			</table>
 		</td>
 	</tr>
@@ -91,23 +91,23 @@ $(document).ready(function() {
 		<td>Collocation</td>
 		<td>
 			<table>
-				<tr><td>Присутствует</td><td>-</td><td><input type="radio" name="s_c" value="on"{if isset($s_c) && $s_c} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input type="radio" name="s_c" value="off"{if isset($s_c) && !$s_c} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input type="radio" name="s_c" value="unset"{if !isset($s_c)} checked{/if} /></td></tr>
+				<tr><td>п÷я─п╦я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input type="radio" name="s_c" value="on"{if isset($s_c) && $s_c} checked{/if} /></td></tr>
+				<tr><td>п·я┌я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input type="radio" name="s_c" value="off"{if isset($s_c) && !$s_c} checked{/if} /></td></tr>
+				<tr><td>п²п╣ п╥п╟п╢п╟п╫п╬</td><td>-</td><td><input type="radio" name="s_c" value="unset"{if !isset($s_c)} checked{/if} /></td></tr>
 			</table>
 		</td>
 	</tr>
 	<tr>
-		<td>Дополнительные услуги</td>
+		<td>п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я┐я│п╩я┐пЁп╦</td>
 		<td>
 			<table>
-				<tr><td>Присутствуют</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="on"{if isset($s_e) && $s_e} checked{/if} /></td></tr>
-				<tr><td>Отсутствует</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="off"{if isset($s_e) && !$s_e} checked{/if} /></td></tr>
-				<tr><td>Не задано</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="unset"{if !isset($s_e)} checked{/if} /></td></tr>
+				<tr><td>п÷я─п╦я│я┐я┌я│я┌п╡я┐я▌я┌</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="on"{if isset($s_e) && $s_e} checked{/if} /></td></tr>
+				<tr><td>п·я┌я│я┐я┌я│я┌п╡я┐п╣я┌</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="off"{if isset($s_e) && !$s_e} checked{/if} /></td></tr>
+				<tr><td>п²п╣ п╥п╟п╢п╟п╫п╬</td><td>-</td><td><input class="i_s_e" type="radio" name="s_e" value="unset"{if !isset($s_e)} checked{/if} /></td></tr>
 				<tr><td colspan="3">
-				    <div id="d_s_e" style="display: {if isset($s_e) && $s_e}block;{else}none;{/if}">Тариф:<br>
+				    <div id="d_s_e" style="display: {if isset($s_e) && $s_e}block;{else}none;{/if}">п╒п╟я─п╦я└:<br>
 				        <select name="s_s_e" style="width: 120px;">
-				            <option value="0">Любой</option>
+				            <option value="0">п⌡я▌п╠п╬п╧</option>
 				            {foreach from=$e_tarifs item='t'}<option value="{$t.id}" {if $s_s_e == $t.id}selected{/if}>{if strlen($t.code)}({$t.code}) {/if}{$t.description} &nbsp;&nbsp;&nbsp;({$t.price} {$t.currency})</option>{/foreach}
 				        </select>
 				    </div>
@@ -123,15 +123,15 @@ $(document).ready(function() {
 {assign var='section_title' value='#bcbcbc'}
 {assign var='cycvals' value='#dfdfdf,white'}
 <table align="center" cellpadding="0" cellspacing="2">
-	<tr align="center" style="background-color:{$total_title}"><td colspan="3">Всего клиентов: {$scount}</td></tr>
+	<tr align="center" style="background-color:{$total_title}"><td colspan="3">п▓я│п╣пЁп╬ п╨п╩п╦п╣п╫я┌п╬п╡: {$scount}</td></tr>
 	<tr align="center" style="background-color:{$total_title}">
-		<td colspan="2">Тариф</td>
-		<td>Клиент</td>
+		<td colspan="2">п╒п╟я─п╦я└</td>
+		<td>п п╩п╦п╣п╫я┌</td>
 	</tr>
 	{if $icount}
 	<tr align="center" style="background-color:{$section_title}">
-		<td colspan="2">Интернет</td>
-		<td>Общее число: {$icount}</td>
+		<td colspan="2">п≤п╫я┌п╣я─п╫п╣я┌</td>
+		<td>п·п╠я┴п╣п╣ я┤п╦я│п╩п╬: {$icount}</td>
 	</tr>
 	{assign var='cnt' value='0'}
 	{foreach from=$tarifs_map.I item='t' key='k'}
@@ -144,8 +144,8 @@ $(document).ready(function() {
 	{/if}
 	{if $pcount}
 	<tr align="center" style="background-color:{$section_title}">
-		<td colspan="2">Телефония</td>
-		<td>Общее число: {$pcount}</td>
+		<td colspan="2">п╒п╣п╩п╣я└п╬п╫п╦я▐</td>
+		<td>п·п╠я┴п╣п╣ я┤п╦я│п╩п╬: {$pcount}</td>
 	</tr>
 	{assign var='cnt' value='0'}
 	{foreach from=$tarifs_map.P item='t' key='k'}
@@ -159,7 +159,7 @@ $(document).ready(function() {
 	{if $vcount}
 	<tr align="center" style="background-color:{$section_title}">
 		<td colspan="2">VPN</td>
-		<td>Общее число: {$vcount}</td>
+		<td>п·п╠я┴п╣п╣ я┤п╦я│п╩п╬: {$vcount}</td>
 	</tr>
 	{assign var='cnt' value='0'}
 	{foreach from=$tarifs_map.V item='t' key='k'}
@@ -173,7 +173,7 @@ $(document).ready(function() {
 	{if $ccount>0}
 	<tr align="center" style="background-color:{$section_title}">
 		<td colspan="2">Collocation</td>
-		<td>Общее число: {$ccount}</td>
+		<td>п·п╠я┴п╣п╣ я┤п╦я│п╩п╬: {$ccount}</td>
 	</tr>
 	{assign var='cnt' value='0'}
 	{foreach from=$tarifs_map.C item='t' key='k'}
@@ -186,8 +186,8 @@ $(document).ready(function() {
 	{/if}
 	{if $ecount}
 	<tr align="center" style="background-color:{$section_title}">
-		<td colspan="2">Дополнительные услуги</td>
-		<td>Общее число: {$ecount}</td>
+		<td colspan="2">п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ я┐я│п╩я┐пЁп╦</td>
+		<td>п·п╠я┴п╣п╣ я┤п╦я│п╩п╬: {$ecount}</td>
 	</tr>
 	{assign var='cnt' value='0'}
 	{foreach from=$tarifs_map.E item='t' key='k'}
@@ -200,8 +200,8 @@ $(document).ready(function() {
 	{/if}
 	{if $scount}
 	<tr align="center" style="background-color:{$section_title}">
-		<td colspan="2">Все</td>
-		<td>Общее число: {$scount}</td>
+		<td colspan="2">п▓я│п╣</td>
+		<td>п·п╠я┴п╣п╣ я┤п╦я│п╩п╬: {$scount}</td>
 	</tr>
 	{assign var='cnt' value='0'}
 	{foreach from=$show item='t' key='k'}

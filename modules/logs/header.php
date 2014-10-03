@@ -1,16 +1,16 @@
 <?
 class m_logs_head extends IModuleHead{
 	public $module_name = 'logs';
-	public $module_title = 'ìÏÇÉ';
+	public $module_title = 'Ð›Ð¾Ð³Ð¸';
 	var $rights=array(
-		'logs'=>array("ìÏÇÉ", 'read', 'ÐÒÏÓÍÏÔÒ'),
+		'logs'=>array("Ð›Ð¾Ð³Ð¸", 'read', 'Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€'),
 	);
 	var $actions=array(
 		'default'			=> array('logs','read'),
 		'alerts'			=> array('logs','read'),
 	);
 	var $menu=array(
-		array('ïÐÏ×ÅÝÅÎÉÑ',		'alerts'),
+		array('ÐžÐ¿Ð¾Ð²ÐµÑ‰ÐµÐ½Ð¸Ñ',		'alerts'),
 	);
 }
 ?>

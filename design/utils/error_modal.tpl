@@ -4,7 +4,7 @@
 
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h3 id="errorModalLabel">Ошибка</h3>
+				<h3 id="errorModalLabel">п·я┬п╦п╠п╨п╟</h3>
 			</div>
 
 			<div class="modal-body" id="errorModalText">
@@ -12,7 +12,7 @@
 			</div>
 
 			<div class="modal-footer">
-				<button class="btn btn-default" data-dismiss="modal">Закрыть</button>
+				<button class="btn btn-default" data-dismiss="modal">п≈п╟п╨я─я▀я┌я▄</button>
 			</div>
 
 		</div><!-- /.modal-content -->
@@ -23,7 +23,7 @@
 <script>
 	function showErrorModal(error, label)
 	{
-		if (!label) label = 'Ошибка';
+		if (!label) label = 'п·я┬п╦п╠п╨п╟';
 		$('#errorModalLabel').html(label);
 
 		error = '<p>' + error.replace(/\n\n/g, '</p><p>') + '</p>';

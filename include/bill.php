@@ -9,7 +9,7 @@ class Bill{
 	private $max_sort;
 	private $_comment = null;
     private $bill_courier;
-	public $negative_balance=false; //для 4й счет-фактуры - если недостаточно средств для проведения авансовых платежей
+	public $negative_balance=false; //п╢п╩я▐ 4п╧ я│я┤п╣я┌-я└п╟п╨я┌я┐я─я▀ - п╣я│п╩п╦ п╫п╣п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ я│я─п╣п╢я│я┌п╡ п╢п╩я▐ п©я─п╬п╡п╣п╢п╣п╫п╦я▐ п╟п╡п╟п╫я│п╬п╡я▀я┘ п©п╩п╟я┌п╣п╤п╣п╧
 
 	public function SetComment($s) {
 		$this->_comment=$s;
@@ -106,8 +106,8 @@ class Bill{
         // rename if rollback
         if($this->bill["is_rollback"]){
             switch($this->bill["state_1c"]) {
-                case 'КОтгрузке': $this->bill["state_1c"] = "К поступлению"; break;
-                case 'Отгружен': $this->bill["state_1c"] = "Принят"; break;
+                case 'п п·я┌пЁя─я┐п╥п╨п╣': $this->bill["state_1c"] = "п  п©п╬я│я┌я┐п©п╩п╣п╫п╦я▌"; break;
+                case 'п·я┌пЁя─я┐п╤п╣п╫': $this->bill["state_1c"] = "п÷я─п╦п╫я▐я┌"; break;
             }
         }
 		$this->bill_ts=$this->bill['ts'];
@@ -170,7 +170,7 @@ class Bill{
 				$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8]);
 			$b=$b && $b1;
 			if(!$b1)
-				trigger_error('<font color=green>Невозможно добавить '.$r[1].'-'.$r[3].$r[0].'x'.$r[2].'</font>');
+				trigger_error('<font color=green>п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╢п╬п╠п╟п╡п╦я┌я▄ '.$r[1].'-'.$r[3].$r[0].'x'.$r[2].'</font>');
 		}
 		return $b;
 	}
@@ -179,7 +179,7 @@ class Bill{
         if ($this->bill["nal"] != $nal && in_array($nal, array("nal", "beznal","prov"))) {
             global $db,$user;
             $this->Set("nal", $nal);
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен предпологаемый тип платежа на ".$nal));
+			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"п≤п╪п╣п╫п╣п╫ п©я─п╣п╢п©п╬п╩п╬пЁп╟п╣п╪я▀п╧ я┌п╦п© п©п╩п╟я┌п╣п╤п╟ п╫п╟ ".$nal));
         }
     }
     public function SetExtNo($bill_no_ext)
@@ -187,7 +187,7 @@ class Bill{
         if ($this->bill["bill_no_ext"] != $bill_no_ext) {
             global $db,$user;
             $this->Set("bill_no_ext", $bill_no_ext);
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен внешний номер на ".$bill_no_ext));
+			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"п≤п╪п╣п╫п╣п╫ п╡п╫п╣я┬п╫п╦п╧ п╫п╬п╪п╣я─ п╫п╟ ".$bill_no_ext));
         }
     }
     public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
@@ -195,7 +195,7 @@ class Bill{
         if ($this->bill["bill_no_ext_date"] != $bill_no_ext_date) {
             global $db,$user;
             $this->Set("bill_no_ext_date", $bill_no_ext_date . ' 00:00:00');
-            $comment = ($bill_no_ext_date) ? "Именена дата внешнего счета на ". $bill_no_ext_date : 'Удаление даты внешнего счета';
+            $comment = ($bill_no_ext_date) ? "п≤п╪п╣п╫п╣п╫п╟ п╢п╟я┌п╟ п╡п╫п╣я┬п╫п╣пЁп╬ я│я┤п╣я┌п╟ п╫п╟ ". $bill_no_ext_date : 'пёп╢п╟п╩п╣п╫п╦п╣ п╢п╟я┌я▀ п╡п╫п╣я┬п╫п╣пЁп╬ я│я┤п╣я┌п╟';
 			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$comment));
         }
     }
@@ -205,7 +205,7 @@ class Bill{
             global $db,$user;
             $this->Set("courier_id", $courierId);
             $db->QueryUpdate("courier", array("id"), array("id" => $courierId, "is_used" => "1"));
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Назначен курьер ".Bill::GetCourierName($courierId)));
+			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"п²п╟п╥п╫п╟я┤п╣п╫ п╨я┐я─я▄п╣я─ ".Bill::GetCourierName($courierId)));
         }
     }
 	public function EditLine($sort,$title,$amount,$price,$type) {
@@ -235,7 +235,7 @@ class Bill{
 		if(include_once(INCLUDE_PATH."1c_integration.php")){
 			$clS = new \_1c\clientSyncer($db);
 			if(!$clS->deleteBill($bill_no,$f)){
-				trigger_error("Внимание! Не удалось синхронизировать счет с 1С.");
+				trigger_error("п▓п╫п╦п╪п╟п╫п╦п╣! п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╦п╫я┘я─п╬п╫п╦п╥п╦я─п╬п╡п╟я┌я▄ я│я┤п╣я┌ я│ 1п║.");
 				MyDBG::fout($f);
                 return;
 			}
@@ -255,7 +255,7 @@ class Bill{
     		$db->Query("delete from tt_stages where trouble_id = '.$troubleId.'");
 
 		$db->QueryDelete('tt_troubles',array('bill_no'=>$bill_no));
-		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Удаление"));
+		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"пёп╢п╟п╩п╣п╫п╦п╣"));
 		//$db->QueryDelete('log_newbills',array('bill_no'=>$bill_no));
 		$db->Query("update log_newbills set bill_no = '".$bill_no.date('dHs')."' where bill_no='".$bill_no."'");
 		$db->QueryDelete('newbills_documents',array('bill_no'=>$bill_no));
@@ -278,7 +278,7 @@ class Bill{
                     'bill_no'=>$this->bill['bill_no'],
                     'ts'=>array('NOW()'),
                     'user_id'=>(is_object($user) ? $user->Get('id') : AuthUser::getSystemUserId()),
-                    'comment'=>($this->_comment?$this->_comment:'Сумма: '.$this->bill['sum'])));
+                    'comment'=>($this->_comment?$this->_comment:'п║я┐п╪п╪п╟: '.$this->bill['sum'])));
 			}
 			if(!$this->bill['cleared_flag']){
 				$this->bill['cleared_sum'] = $this->bill['sum'];
@@ -319,12 +319,12 @@ class Bill{
         $s = "";
         if($mId == 0){
             $db->Query("delete from `newbill_owner` where  bill_no = '".$this->bill_no."'");
-            $s = "Удален менеджер";
+            $s = "пёп╢п╟п╩п╣п╫ п╪п╣п╫п╣п╢п╤п╣я─";
         }elseif($getedId == 0){
             $db->Query("insert into `newbill_owner` set owner_id ='".$mId."', bill_no = '".$this->bill_no."'");
-            $s = "Установлен менеджер";
+            $s = "пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п╪п╣п╫п╣п╢п╤п╣я─";
         }elseif($getedId != $mId){
-            $s = "Изменен менеджер на";
+            $s = "п≤п╥п╪п╣п╫п╣п╫ п╪п╣п╫п╣п╢п╤п╣я─ п╫п╟";
             $db->Query("update `newbill_owner` set owner_id ='".$mId."' where bill_no = '".$this->bill_no."'");
         }else return;
 
@@ -465,26 +465,26 @@ class Bill{
 		}
 
 		foreach($ret as $key=>&$item){
-			if($item['outprice']>0 && preg_match('/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС|^\s*Перенос|^\s*Выезд|^\s*Сервисное\s+обслуживание|^\s*Хостинг|^\s*Подключение|^\s*Внутренняя\s+линия|^\s*Абонентское\s+обслуживание|^\s*Услуга\s+доставки|^\s*Виртуальный\s+почтовый|^\s*Размещение\s+сервера|^\s*Настройка[0-9a-zA-Zа-яА-Я]+АТС|^Дополнительный\sIP[\s\-]адрес|^Поддержка\sпервичного\sDNS|^Поддержка\sвторичного\sDNS|^Аванс\sза\sподключение\sинтернет-канала|^Администрирование\sсервер|^Обслуживание\sрабочей\sстанции|^Оптимизация\sсайта|^Неснижаемый\sостаток/',$item['item'])){
+			if($item['outprice']>0 && preg_match('/^\s*п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐\s+п©п╩п╟я┌п╟|^\s*п÷п╬п╢п╢п╣я─п╤п╨п╟\s+п©п╬я┤я┌п╬п╡п╬пЁп╬\s+я▐я┴п╦п╨п╟|^\s*п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐\s+п░п╒п║|^\s*п÷п╣я─п╣п╫п╬я│|^\s*п▓я▀п╣п╥п╢|^\s*п║п╣я─п╡п╦я│п╫п╬п╣\s+п╬п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣|^\s*п╔п╬я│я┌п╦п╫пЁ|^\s*п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣|^\s*п▓п╫я┐я┌я─п╣п╫п╫я▐я▐\s+п╩п╦п╫п╦я▐|^\s*п░п╠п╬п╫п╣п╫я┌я│п╨п╬п╣\s+п╬п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣|^\s*пёя│п╩я┐пЁп╟\s+п╢п╬я│я┌п╟п╡п╨п╦|^\s*п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧\s+п©п╬я┤я┌п╬п╡я▀п╧|^\s*п═п╟п╥п╪п╣я┴п╣п╫п╦п╣\s+я│п╣я─п╡п╣я─п╟|^\s*п²п╟я│я┌я─п╬п╧п╨п╟[0-9a-zA-Zп╟-я▐п░-п╞]+п░п╒п║|^п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╧\sIP[\s\-]п╟п╢я─п╣я│|^п÷п╬п╢п╢п╣я─п╤п╨п╟\sп©п╣я─п╡п╦я┤п╫п╬пЁп╬\sDNS|^п÷п╬п╢п╢п╣я─п╤п╨п╟\sп╡я┌п╬я─п╦я┤п╫п╬пЁп╬\sDNS|^п░п╡п╟п╫я│\sп╥п╟\sп©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣\sп╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟|^п░п╢п╪п╦п╫п╦я│я┌я─п╦я─п╬п╡п╟п╫п╦п╣\sя│п╣я─п╡п╣я─|^п·п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣\sя─п╟п╠п╬я┤п╣п╧\sя│я┌п╟п╫я├п╦п╦|^п·п©я┌п╦п╪п╦п╥п╟я├п╦я▐\sя│п╟п╧я┌п╟|^п²п╣я│п╫п╦п╤п╟п╣п╪я▀п╧\sп╬я│я┌п╟я┌п╬п╨/',$item['item'])){
 				//$item['item']=&$item['2'];
-				$item['item'] = str_replace('Абонентская','абонентскую',str_replace('плата','плату',$item['item']));
-				$item['item'] = str_replace('Поддержка','поддержку',$item['item']);
-				$item['item'] = str_replace('Виртуальная','виртуальную',$item['item']);
-				$item['item'] = str_replace('Перенос','перенос',$item['item']);
-				$item['item'] = str_replace('Выезд','выезд',$item['item']);
-				$item['item'] = str_replace('Сервисное','сервисное',$item['item']);
-				$item['item'] = str_replace('Хостинг','хостинг',$item['item']);
-				$item['item'] = str_replace('Подключение','подключение',$item['item']);
-				$item['item'] = str_replace('Внутренняя линия','внутреннюю линию',$item['item']);
-				$item['item'] = str_replace('Услуга','услугу',$item['item']);
-				$item['item'] = str_replace('Виртуальный','виртуальный',$item['item']);
-				$item['item'] = str_replace('Размещение','размещение',$item['item']);
-				$item['item'] = str_replace('Аванс за','',$item['item']);
-				$item['item'] = str_replace('Оптимизация','оптимизацию',$item['item']);
-				$item['item'] = str_replace('Обслуживание','обслуживание',$item['item']);
-				$item['item'] = str_replace('Администрирование','администрирование',$item['item']);
+				$item['item'] = str_replace('п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐','п╟п╠п╬п╫п╣п╫я┌я│п╨я┐я▌',str_replace('п©п╩п╟я┌п╟','п©п╩п╟я┌я┐',$item['item']));
+				$item['item'] = str_replace('п÷п╬п╢п╢п╣я─п╤п╨п╟','п©п╬п╢п╢п╣я─п╤п╨я┐',$item['item']);
+				$item['item'] = str_replace('п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐','п╡п╦я─я┌я┐п╟п╩я▄п╫я┐я▌',$item['item']);
+				$item['item'] = str_replace('п÷п╣я─п╣п╫п╬я│','п©п╣я─п╣п╫п╬я│',$item['item']);
+				$item['item'] = str_replace('п▓я▀п╣п╥п╢','п╡я▀п╣п╥п╢',$item['item']);
+				$item['item'] = str_replace('п║п╣я─п╡п╦я│п╫п╬п╣','я│п╣я─п╡п╦я│п╫п╬п╣',$item['item']);
+				$item['item'] = str_replace('п╔п╬я│я┌п╦п╫пЁ','я┘п╬я│я┌п╦п╫пЁ',$item['item']);
+				$item['item'] = str_replace('п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣','п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣',$item['item']);
+				$item['item'] = str_replace('п▓п╫я┐я┌я─п╣п╫п╫я▐я▐ п╩п╦п╫п╦я▐','п╡п╫я┐я┌я─п╣п╫п╫я▌я▌ п╩п╦п╫п╦я▌',$item['item']);
+				$item['item'] = str_replace('пёя│п╩я┐пЁп╟','я┐я│п╩я┐пЁя┐',$item['item']);
+				$item['item'] = str_replace('п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧','п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧',$item['item']);
+				$item['item'] = str_replace('п═п╟п╥п╪п╣я┴п╣п╫п╦п╣','я─п╟п╥п╪п╣я┴п╣п╫п╦п╣',$item['item']);
+				$item['item'] = str_replace('п░п╡п╟п╫я│ п╥п╟','',$item['item']);
+				$item['item'] = str_replace('п·п©я┌п╦п╪п╦п╥п╟я├п╦я▐','п╬п©я┌п╦п╪п╦п╥п╟я├п╦я▌',$item['item']);
+				$item['item'] = str_replace('п·п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣','п╬п╠я│п╩я┐п╤п╦п╡п╟п╫п╦п╣',$item['item']);
+				$item['item'] = str_replace('п░п╢п╪п╦п╫п╦я│я┌я─п╦я─п╬п╡п╟п╫п╦п╣','п╟п╢п╪п╦п╫п╦я│я┌я─п╦я─п╬п╡п╟п╫п╦п╣',$item['item']);
 
-				$item['item'] = 'Авансовый платеж за '.$item['item'];
+				$item['item'] = 'п░п╡п╟п╫я│п╬п╡я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ '.$item['item'];
 
 				$ret_x['item'] .= $item['item'].";<br />";
 				$ret_x['bill_no'] = $item['bill_no'];
@@ -525,12 +525,12 @@ class Bill{
 			$date = explode("-",$item['date_from']);
 			$now = (int)date('Ym');
 			$bda = (int)date('Ym',mktime(0, 0, 0, $date[1], $date[2], $date[0]));
-			if($now <= $bda && preg_match('/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС/',$item['item'])){
+			if($now <= $bda && preg_match('/^\s*п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐\s+п©п╩п╟я┌п╟|^\s*п÷п╬п╢п╢п╣я─п╤п╨п╟\s+п©п╬я┤я┌п╬п╡п╬пЁп╬\s+я▐я┴п╦п╨п╟|^\s*п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐\s+п░п╒п║/',$item['item'])){
 				//$item['item']=&$item['2'];
-				$item['item'] = str_replace('Абонентская','абонентскую',str_replace('плата','плату',$item['item']));
-				$item['item'] = str_replace('Поддержка','поддержку',$item['item']);
-				$item['item'] = str_replace('Виртуальная','виртуальную',$item['item']);
-				$item['item'] = 'Авансовый платеж за '.$item['item'];
+				$item['item'] = str_replace('п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐','п╟п╠п╬п╫п╣п╫я┌я│п╨я┐я▌',str_replace('п©п╩п╟я┌п╟','п©п╩п╟я┌я┐',$item['item']));
+				$item['item'] = str_replace('п÷п╬п╢п╢п╣я─п╤п╨п╟','п©п╬п╢п╢п╣я─п╤п╨я┐',$item['item']);
+				$item['item'] = str_replace('п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐','п╡п╦я─я┌я┐п╟п╩я▄п╫я┐я▌',$item['item']);
+				$item['item'] = 'п░п╡п╟п╫я│п╬п╡я▀п╧ п©п╩п╟я┌п╣п╤ п╥п╟ '.$item['item'];
 			}
 		}
 	}
@@ -618,7 +618,7 @@ class Bill{
             $r["amount"] = round($r["amount"],6);
             $r["country_name"] = $this->getCountryName($r["country_id"]);
 
-            // если услуга, прописанная через 1с, услуга с датой. Для выписки документов (акт1)
+            // п╣я│п╩п╦ я┐я│п╩я┐пЁп╟, п©я─п╬п©п╦я│п╟п╫п╫п╟я▐ я┤п╣я─п╣п╥ 1я│, я┐я│п╩я┐пЁп╟ я│ п╢п╟я┌п╬п╧. п■п╩я▐ п╡я▀п©п╦я│п╨п╦ п╢п╬п╨я┐п╪п╣п╫я┌п╬п╡ (п╟п╨я┌1)
             if($r["service"] == "1C" && $r["type"] == "service")
             {
                 $billDate = $this->getShipmentDate();
@@ -632,10 +632,10 @@ class Bill{
 
 		if($mode !== false){
 			switch($mode){
-				case 4:{//каст для счета 4й фактуры
+				case 4:{//п╨п╟я│я┌ п╢п╩я▐ я│я┤п╣я┌п╟ 4п╧ я└п╟п╨я┌я┐я─я▀
 					$this->refactLinesWithFourOrderFacure($ret);
 					break;
-				}case 'order':{//каст для счета
+				}case 'order':{//п╨п╟я│я┌ п╢п╩я▐ я│я┤п╣я┌п╟
 					$this->refactLinesWithOrder($ret);
 					break;
 				}
@@ -681,7 +681,7 @@ class Bill{
 
         if (empty($R))
         {
-            $R[0] = "--- Не установлен ---";
+            $R[0] = "--- п²п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ ---";
             $db->Query("select id, name from courier where enabled='yes' order by name");
             while($r = $db->NextRecord()) $R[$r["id"]] = $r["name"];
         }
@@ -692,7 +692,7 @@ class Bill{
     {
         $c = Bill::GetCouriers();
 
-        if (!isset($c[$id])) {/*trigger_error("Установленный курьер не найден!");*/ return "";}
+        if (!isset($c[$id])) {/*trigger_error("пёя│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╧ п╨я┐я─я▄п╣я─ п╫п╣ п╫п╟п╧п╢п╣п╫!");*/ return "";}
         return str_replace("-","", $c[$id]);
     }
 
@@ -725,7 +725,7 @@ class Bill{
                     "bill_no" => $this->bill_no,
                     "doc_date" => $wDate));
 
-        $this->addLog($utDate ? "Дата документ установлена: ".mdate("d месяца Y г.", $utDate) : "Дата документа убрана");
+        $this->addLog($utDate ? "п■п╟я┌п╟ п╢п╬п╨я┐п╪п╣п╫я┌ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╟: ".mdate("d п╪п╣я│я▐я├п╟ Y пЁ.", $utDate) : "п■п╟я┌п╟ п╢п╬п╨я┐п╪п╣п╫я┌п╟ я┐п╠я─п╟п╫п╟");
 
         $this->bill["doc_date"] = $wDate;
         $this->bill["doc_ts"] = $utDate;
@@ -765,7 +765,7 @@ class Bill{
                      WHERE 
                             t.bill_no = '".$this->bill_no."'
                         and t.id = s.trouble_id 
-                        and state_id in (select id from tt_states where state_1c = 'Отгружен')
+                        and state_id in (select id from tt_states where state_1c = 'п·я┌пЁя─я┐п╤п╣п╫')
                      ");
     }
 
@@ -817,11 +817,11 @@ class Bill{
         {
             $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
         }else{
-            die("Неизвестный тип документа!");
+            die("п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я┌п╦п© п╢п╬п╨я┐п╪п╣п╫я┌п╟!");
         }
 
         if(!$doc)
-            throw new Exception("Документ не найден");
+            throw new Exception("п■п╬п╨я┐п╪п╣п╫я┌ п╫п╣ п╫п╟п╧п╢п╣п╫");
 
         return $doc;
     }
@@ -953,7 +953,7 @@ class Bill{
 	return $R;
     }
     /**
-     *	Предназнеачена для изменения "линий" в счетах, при вызове все линии счета удаляются и заменяются одной обобщенной
+     *	п÷я─п╣п╢п╫п╟п╥п╫п╣п╟я┤п╣п╫п╟ п╢п╩я▐ п╦п╥п╪п╣п╫п╣п╫п╦я▐ "п╩п╦п╫п╦п╧" п╡ я│я┤п╣я┌п╟я┘, п©я─п╦ п╡я▀п╥п╬п╡п╣ п╡я│п╣ п╩п╦п╫п╦п╦ я│я┤п╣я┌п╟ я┐п╢п╟п╩я▐я▌я┌я│я▐ п╦ п╥п╟п╪п╣п╫я▐я▌я┌я│я▐ п╬п╢п╫п╬п╧ п╬п╠п╬п╠я┴п╣п╫п╫п╬п╧
      */
     public function changeToOnlyContract()
     {
@@ -979,7 +979,7 @@ class Bill{
 				}
 				unset($v);
 			} else {
-				$v->item = 'Услуги связи по договору '.BillContract::getString($this->client_id, $ts);
+				$v->item = 'пёя│п╩я┐пЁп╦ я│п╡я▐п╥п╦ п©п╬ п╢п╬пЁп╬п╡п╬я─я┐ '.BillContract::getString($this->client_id, $ts);
 				$v->amount = 1;
 				$v->type = 'service';
 				$v->service = "";
@@ -988,7 +988,7 @@ class Bill{
 			}
 		}
 		BillLines::delete_all(array('conditions'=>array('bill_no = ? AND sort > ?', $this->bill_no, 1)));
-		$date_string = ' за период c ' . date('d', $min_ts) . ' по ' . mdate('t месяца', $min_ts);
+		$date_string = ' п╥п╟ п©п╣я─п╦п╬п╢ c ' . date('d', $min_ts) . ' п©п╬ ' . mdate('t п╪п╣я│я▐я├п╟', $min_ts);
 		$first->item .= $date_string;
 		$first->date_from = date('Y-m-d', $min_ts);
 		$first->date_to = date('Y-m-t', $min_ts);
@@ -996,9 +996,9 @@ class Bill{
 	}
     }
     /**
-     *	Предназнеачена для добавления "линии" переплата
-     *	@param int $balance текущий баланс клиента
-     *	@param bool $nds_zero флаг, приминять НДС или нет 
+     *	п÷я─п╣п╢п╫п╟п╥п╫п╣п╟я┤п╣п╫п╟ п╢п╩я▐ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ "п╩п╦п╫п╦п╦" п©п╣я─п╣п©п╩п╟я┌п╟
+     *	@param int $balance я┌п╣п╨я┐я┴п╦п╧ п╠п╟п╩п╟п╫я│ п╨п╩п╦п╣п╫я┌п╟
+     *	@param bool $nds_zero я└п╩п╟пЁ, п©я─п╦п╪п╦п╫я▐я┌я▄ п²п■п║ п╦п╩п╦ п╫п╣я┌ 
      */
     public function applyRefundOverpay($balance, $nds_zero)
     {
@@ -1011,7 +1011,7 @@ class Bill{
 		$new_line = new BillLines();
 		$new_line->bill_no = $this->bill_no;
 		$new_line->sort = $lines_info->max_sort + 1;
-		$new_line->item = 'Переплата';
+		$new_line->item = 'п÷п╣я─п╣п©п╩п╟я┌п╟';
 		$new_line->amount = 1;
 		$new_line->type = 'zadatok';
 		$new_line->price = -$balance/$nds;

@@ -58,7 +58,7 @@
 	$id++;
 	$design->assign('id',$id);
 	
-	if ($bill_no=="") die("Не определен номер счета");
+	if ($bill_no=="") die("п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟");
 	
 	$design->assign("bill_no",$bill_no);
 
@@ -72,7 +72,7 @@
 	$design->assign("bill_date_f", $bill_date);
 
 	$client=$drow['client'];
-	if ($client=="") die("Не определен клиент");
+	if ($client=="") die("п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫ п╨п╩п╦п╣п╫я┌");
 
 	$query="SELECT * FROM bill_bill_lines WHERE bill_no='$bill_no' order by line";
 	$db->Query($query);
@@ -80,9 +80,9 @@
 	$totals=array();
 	while ($row=$db->NextRecord()) {
 		switch ($row['item']) {
-			case "*Итого :": $totals[1]=$row;break;
-			case "*НДС 18% :":$totals[2]=$row;break; 
-			case "*Всего с НДС :": $totals[3]=$row; $total_sum=$row['sum'];break;
+			case "*п≤я┌п╬пЁп╬ :": $totals[1]=$row;break;
+			case "*п²п■п║ 18% :":$totals[2]=$row;break; 
+			case "*п▓я│п╣пЁп╬ я│ п²п■п║ :": $totals[3]=$row; $total_sum=$row['sum'];break;
 			default: $lines[]=$row;break;
 		}
 	}

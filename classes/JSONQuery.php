@@ -65,7 +65,7 @@ class JSONQuery
             {
                 $msg = "Текст ошибки не найден! <br>".var_export($result['errors'][0], true);
             }
-            throw new Exception(Encoding::toKoi8r($msg ?: $result["errors"][0]["message"]), $result["errors"][0]["code"]);
+            throw new Exception($msg ?: $result["errors"][0]["message"], $result["errors"][0]["code"]);
         }
 
         return $result;

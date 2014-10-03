@@ -1,4 +1,4 @@
-<h3>Назначения номеров (tech, для автоматического режима)</h3>
+<h3>п²п╟п╥п╫п╟я┤п╣п╫п╦я▐ п╫п╬п╪п╣я─п╬п╡ (tech, п╢п╩я▐ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬пЁп╬ я─п╣п╤п╦п╪п╟)</h3>
 <TABLE class=price cellSpacing=2 cellPadding=1 border=0>
 {foreach from=$dbform_f_C2U item=o_ports key=o_phone name=outer}
 <tr class={cycle values='even,odd'}><td>{$o_phone}</td><td>{foreach from=$o_ports item=v key=i name=inner}{if $i!==0}

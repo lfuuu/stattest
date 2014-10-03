@@ -1,12 +1,12 @@
 <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 
 <h4>
-	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
-	<small>Заказ
+	<small><a href="?module=incomegoods&action=order_list">п≈п╟п╨п╟п╥я▀</a> - </small>
+	<small>п≈п╟п╨п╟п╥
 		<a href="?module=incomegoods&action=order_view&id={$document->order->id}"><span class="{if $document->order->active}icon_active{elseif $document->order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 			{$document->order->number}</a> -
 	</small>
-	Приходный ордер на товары
+	п÷я─п╦я┘п╬п╢п╫я▀п╧ п╬я─п╢п╣я─ п╫п╟ я┌п╬п╡п╟я─я▀
 	<a href="?module=incomegoods&action=document_view&id={$document->id}"><span class="{if $document->active}icon_active{elseif $document->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 		{$document->number}</a>
 </h4>
@@ -14,54 +14,54 @@
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
 	<tr>
-		<th>Статус 1С</th>
+		<th>п║я┌п╟я┌я┐я│ 1п║</th>
 		<td><strong>{$document->status}</strong></td>
 	</tr>
 	<tr>
-		<th>Номер, Дата</th>
-		<td>{$document->number} от {$document->date->format('d.m.Y H:i:s')}</td>
+		<th>п²п╬п╪п╣я─, п■п╟я┌п╟</th>
+		<td>{$document->number} п╬я┌ {$document->date->format('d.m.Y H:i:s')}</td>
 	</tr>
 	<tr>
-		<th>Склад</th>
+		<th>п║п╨п╩п╟п╢</th>
 		<td>{$document->store->name}</td>
 	</tr>
 	<tr>
-		<th>Ответственный</th>
+		<th>п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧</th>
 		<td>{$document->responsible}</td>
 	</tr>
 	{if $document->comment}
 		<tr>
-			<th>Комментарий</th>
+			<th>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</th>
 			<td>{$document->comment}</td>
 		</tr>
 	{/if}
 </table>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px; margin-right: 10px;">
-	<caption><h5 class="text-left">Документы поступления:</h5></caption>
+	<caption><h5 class="text-left">п■п╬п╨я┐п╪п╣п╫я┌я▀ п©п╬я│я┌я┐п©п╩п╣п╫п╦я▐:</h5></caption>
 	{foreach from=$document->order->documents item=item}
 		<tr>
 			<td><a href="?module=incomegoods&action=document_view&id={$item->id}">
 					<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-					{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+					{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 			</a></td>
 		</tr>
 	{/foreach}
 </table>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px">
-	<caption><h5 class="text-left">Приходные ордера:</h5></caption>
+	<caption><h5 class="text-left">п÷я─п╦я┘п╬п╢п╫я▀п╣ п╬я─п╢п╣я─п╟:</h5></caption>
 	{foreach from=$document->order->stores item=item}
 		<tr>
 			{if $document->id != $item->id}
 				<td><a href="?module=incomegoods&action=store_view&id={$item->id}">
 						<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-						{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+						{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 				</a></td>
 			{else}
 				<td>
 					<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-					{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+					{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 				</td>
 			{/if}
 		</tr>
@@ -74,12 +74,12 @@
 
 <table class="table table-bordered table-condensed table-hover">
 	<thead>
-	<caption><h5 class="text-left">Товары:</h5></caption>
+	<caption><h5 class="text-left">п╒п╬п╡п╟я─я▀:</h5></caption>
 	<tr>
-		<th>Код</th>
-		<th>Наименование</th>
-		<th>Количество</th>
-		<th>Серийные номера</th>
+		<th>п п╬п╢</th>
+		<th>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣</th>
+		<th>п п╬п╩п╦я┤п╣я│я┌п╡п╬</th>
+		<th>п║п╣я─п╦п╧п╫я▀п╣ п╫п╬п╪п╣я─п╟</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -90,8 +90,8 @@
 			<td>{$item->amount}</td>
 			<td>
 				{if $item->serial_numbers}
-					<a href="#" onclick="$(this).parent().children().toggle(); return false;" style="display: block">Показать</a>
-					<a href="#" onclick="$(this).parent().children().toggle(); return false;" style="display: none">Скрыть</a>
+					<a href="#" onclick="$(this).parent().children().toggle(); return false;" style="display: block">п÷п╬п╨п╟п╥п╟я┌я▄</a>
+					<a href="#" onclick="$(this).parent().children().toggle(); return false;" style="display: none">п║п╨я─я▀я┌я▄</a>
 					<pre style="display: none">{$item->serial_numbers}</pre>
 				{/if}
 			</td>

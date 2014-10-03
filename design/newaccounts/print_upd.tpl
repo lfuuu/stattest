@@ -2,9 +2,9 @@
 <html>
 
 <head>
-<meta http-equiv=Content-Type content="text/html; charset=koi8-r">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
 
-<title>Универсальный передаточный документ N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
+<title>пёп╫п╦п╡п╣я─я│п╟п╩я▄п╫я▀п╧ п©п╣я─п╣п╢п╟я┌п╬я┤п╫я▀п╧ п╢п╬п╨я┐п╪п╣п╫я┌ N {$bill.bill_no}{$inv_no} п╬я┌ {$inv_date|mdate:"d.m.Y пЁ."}</title>
 
 
 <style>
@@ -53,15 +53,15 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td colspan="2" style='border-right:solid windowtext 1.5pt;'>
 			<table border=0 cellspacing=0 cellpadding=0>
 				<tr>
-					<td colspan="3" nowrap><p><span>Универсальный<br>передаточный<br>документ<br><br></span></p></td>
+					<td colspan="3" nowrap><p><span>пёп╫п╦п╡п╣я─я│п╟п╩я▄п╫я▀п╧<br>п©п╣я─п╣п╢п╟я┌п╬я┤п╫я▀п╧<br>п╢п╬п╨я┐п╪п╣п╫я┌<br><br></span></p></td>
 				</tr>
 				<tr>
-					<td style="text-align: left;"><p  style='text-align:center'><span>Статус:</span></p></td>
+					<td style="text-align: left;"><p  style='text-align:center'><span>п║я┌п╟я┌я┐я│:</span></p></td>
 					<td style='border:solid windowtext 2.0pt;'><p style='text-align:center'><span>1</span></p></td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="3" valign=top><p><span style='font-size:6.5pt;'><br><br>1 - счет-фактура<br>и передаточный документ<br>(акт)<br> 2 - передаточный<br>документ (акт)</span></p></td>
+					<td colspan="3" valign=top><p><span style='font-size:6.5pt;'><br><br>1 - я│я┤п╣я┌-я└п╟п╨я┌я┐я─п╟<br>п╦ п©п╣я─п╣п╢п╟я┌п╬я┤п╫я▀п╧ п╢п╬п╨я┐п╪п╣п╫я┌<br>(п╟п╨я┌)<br> 2 - п©п╣я─п╣п╢п╟я┌п╬я┤п╫я▀п╧<br>п╢п╬п╨я┐п╪п╣п╫я┌ (п╟п╨я┌)</span></p></td>
 				</tr>
 			</table>
 		</td>
@@ -73,84 +73,84 @@ padding:0cm 2.4pt 0cm 2.4pt;
                             <table border=0 cellspacing=0 cellpadding=0>
                                 <tr>
                                     <td colspan=6><p style='text-align:right'><span style='font-size:6.5pt;'>
-                                    Приложение N 1 к письму ФНС России от 21.10.2013 N ММВ-20-3/96@</span></p></td>
+                                    п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ N 1 п╨ п©п╦я│я▄п╪я┐ п╓п²п║ п═п╬я│я│п╦п╦ п╬я┌ 21.10.2013 N п°п°п▓-20-3/96@</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
+                                    <td style='width:100pt;'><p><span>п║я┤п╣я┌-я└п╟п╨я┌я┐я─п╟ N</span></p></td>
                                     <td style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>{$bill.bill_no}{$inv_no}</span></p></td>
-                                    <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>от</span></p></td>
+                                    <td valign=bottom style='width:20pt;'><p style='text-align:center'><span>п╬я┌</span></p></td>
                                     <td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>
                                 {if !$without_date_date}
                                     {if $is_four_order && isset($inv_pays)}
-                                        {$inv_pays[0].payment_date_ts|mdate:"d месяца Y г."}
+                                        {$inv_pays[0].payment_date_ts|mdate:"d п╪п╣я│я▐я├п╟ Y пЁ."}
                                     {else}
-                                        {$inv_date|mdate:"d месяца Y г."}
+                                        {$inv_date|mdate:"d п╪п╣я│я▐я├п╟ Y пЁ."}
                                     {/if}
                                 {else} 
-                                    {$without_date_date|mdate:"d месяца Y г."}
+                                    {$without_date_date|mdate:"d п╪п╣я│я▐я├п╟ Y пЁ."}
                                 {/if}
                                     </span></p></td>
                                     <td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
                                     <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>
-                                    Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
+                                    п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ N 1<br>п╨ п©п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦я▌ п÷я─п╟п╡п╦я┌п╣п╩я▄я│я┌п╡п╟ п═п╬я│я│п╦п╧я│п╨п╬п╧ п╓п╣п╢п╣я─п╟я├п╦п╦<br>п╬я┌ 26 п╢п╣п╨п╟п╠я─я▐ 2011 пЁ. N 1137</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>Исправление N</span></p></td>
+                                    <td><p><span>п≤я│п©я─п╟п╡п╩п╣п╫п╦п╣ N</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
-                                    <td><p  style='text-align:center'><span>от</span></p></td>
+                                    <td><p  style='text-align:center'><span>п╬я┌</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p style='text-align:center'><span>--</span></p></td>
-                                    <td><p style='text-align:center'><span>(1а)</span></p></td>
+                                    <td><p style='text-align:center'><span>(1п╟)</span></p></td>
                                 </tr>
                             </table>
                             <table border=0 cellspacing=0 cellpadding=0>
                                 <tr>
-                                    <td style='width:155pt;'><p><b><span >Продавец:</span></b></p></td>
+                                    <td style='width:155pt;'><p><b><span >п÷я─п╬п╢п╟п╡п╣я├:</span></b></p></td>
                                     <td style='width:635pt;border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.name}</span></p></td>
                                     <td><p style='width:20pt;text-align:right'><span>(2)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>Адрес:</span></p></td>
+                                    <td><p><span>п░п╢я─п╣я│:</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.address}</span></p></td>
-                                    <td><p style='text-align:right'><span>(2а)</span></p></td>
+                                    <td><p style='text-align:right'><span>(2п╟)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>ИНН/КПП продавца:</span></p></td>
+                                    <td><p><span>п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟:</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p></td>
-                                    <td><p style='text-align:right'><span>(2б)</span></p></td>
+                                    <td><p style='text-align:right'><span>(2п╠)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>Грузоотправитель и его адрес:</span></p></td>
+                                    <td><p><span>п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│:</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$firm.name} {$firm.address}{/if}</span></p></td>
                                     <td><p style='text-align:right'><span>(3)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>Грузополучатель и его адрес:</span></p></td>
+                                    <td><p><span>п⌠я─я┐п╥п╬п©п╬п╩я┐я┤п╟я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│:</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}{$bill_client.consignee}{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}{/if}</span></p></td>
                                     <td><p style='text-align:right'><span>(4)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>К платежно-расчетному документу N</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</span></p></td>
+                                    <td><p><span>п  п©п╩п╟я┌п╣п╤п╫п╬-я─п╟я│я┤п╣я┌п╫п╬п╪я┐ п╢п╬п╨я┐п╪п╣п╫я┌я┐ N</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} п╬я┌ {$inv_pay.payment_date_ts|mdate:"d.m.Y пЁ."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}</span></p></td>
                                     <td><p style='text-align:right'><span>(5)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span><b>Покупатель:</b></span></p></td>
+                                    <td><p><span><b>п÷п╬п╨я┐п©п╟я┌п╣п╩я▄:</b></span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</span></p></td>
                                     <td><p style='text-align:right'><span>(6)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>Адрес:</span></p></td>
+                                    <td><p><span>п░п╢я─п╣я│:</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</span></p></td>
-                                    <td><p style='text-align:right'><span>(6а)</span></p></td>
+                                    <td><p style='text-align:right'><span>(6п╟)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>ИНН/КПП покупателя:</span></p></td>
+                                    <td><p><span>п≤п²п²/п п÷п÷ п©п╬п╨я┐п©п╟я┌п╣п╩я▐:</span></p></td>
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</span></p></td>
-                                    <td><p style='text-align:right'><span>(6б)</span></p></td>
+                                    <td><p style='text-align:right'><span>(6п╠)</span></p></td>
                                 </tr>
                                 <tr>
-                                    <td><p><span>Валюта: наименование, код</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>Российский рубль, 643</span></p></td>
+                                    <td><p><span>п▓п╟п╩я▌я┌п╟: п╫п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣, п╨п╬п╢</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>п═п╬я│я│п╦п╧я│п╨п╦п╧ я─я┐п╠п╩я▄, 643</span></p></td>
                                     <td><p style='text-align:right'><span>(7)</span></p></td>
                                 </tr>
                             </table>
@@ -165,65 +165,65 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h30'>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>N<br>п/п</span></p>
+			<p style='text-align:center'><span>N<br>п©/п©</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
-			<p style='text-align:center'><span>Код<br>товара/<br>работ,<br>услуг</span></p>
+			<p style='text-align:center'><span>п п╬п╢<br>я┌п╬п╡п╟я─п╟/<br>я─п╟п╠п╬я┌,<br>я┐я│п╩я┐пЁ</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;mso-border-left-alt: solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</span></p>
+			<p style='text-align:center'><span>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ я┌п╬п╡п╟я─п╟ (п╬п©п╦я│п╟п╫п╦п╣ п╡я▀п©п╬п╩п╫п╣п╫п╫я▀я┘ я─п╟п╠п╬я┌, п╬п╨п╟п╥п╟п╫п╫я▀я┘ я┐я│п╩я┐пЁ), п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫п╬пЁп╬ п©я─п╟п╡п╟</span></p>
 		</td>
 		<td colspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Единица<br>измерения</span></p>
+			<p style='text-align:center'><span>п∙п╢п╦п╫п╦я├п╟<br>п╦п╥п╪п╣я─п╣п╫п╦я▐</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>Коли-<br>чество<br>(объем)</span></p>
+			<p style='text-align:center'><span>п п╬п╩п╦-<br>я┤п╣я│я┌п╡п╬<br>(п╬п╠я┼п╣п╪)</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>Цена (тариф)<br>за<br>единицу<br>измерения</span></p>
+			<p style='text-align:center'><span>п╕п╣п╫п╟ (я┌п╟я─п╦я└)<br>п╥п╟<br>п╣п╢п╦п╫п╦я├я┐<br>п╦п╥п╪п╣я─п╣п╫п╦я▐</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных<br>прав без<br>налога - всего</span></p>
+			<p style='text-align:center'><span>п║я┌п╬п╦п╪п╬я│я┌я▄ я┌п╬п╡п╟я─п╬п╡<br>(я─п╟п╠п╬я┌, я┐я│п╩я┐пЁ),<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫я▀я┘<br>п©я─п╟п╡ п╠п╣п╥<br>п╫п╟п╩п╬пЁп╟ - п╡я│п╣пЁп╬</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>В том<br>числе<br>сумма <br>акциза</span></p>
+			<p style='text-align:center'><span>п▓ я┌п╬п╪<br>я┤п╦я│п╩п╣<br>я│я┐п╪п╪п╟ <br>п╟п╨я├п╦п╥п╟</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Нало-<br>говая ставка</span></p>
+			<p style='text-align:center'><span>п²п╟п╩п╬-<br>пЁп╬п╡п╟я▐ я│я┌п╟п╡п╨п╟</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Сумма налога, предъяв-<br>ляемая покупателю</span></p>
+			<p style='text-align:center'><span>п║я┐п╪п╪п╟ п╫п╟п╩п╬пЁп╟, п©я─п╣п╢я┼я▐п╡-<br>п╩я▐п╣п╪п╟я▐ п©п╬п╨я┐п©п╟я┌п╣п╩я▌</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Стоимость товаров<br>(работ, услуг),<br>имущественных прав<br>с налогом - всего</span></p>
+			<p style='text-align:center'><span>п║я┌п╬п╦п╪п╬я│я┌я▄ я┌п╬п╡п╟я─п╬п╡<br>(я─п╟п╠п╬я┌, я┐я│п╩я┐пЁ),<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫я▀я┘ п©я─п╟п╡<br>я│ п╫п╟п╩п╬пЁп╬п╪ - п╡я│п╣пЁп╬</span></p>
 		</td>
 		<td colspan="2" style='border:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>Страна<br> происхождения товара</span></p>
+			<p style='text-align:center'><span>п║я┌я─п╟п╫п╟<br> п©я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦я▐ я┌п╬п╡п╟я─п╟</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>Номер<br>таможен<br>ной<br>декла<br>рации</span></p>
+			<p style='text-align:center'><span>п²п╬п╪п╣я─<br>я┌п╟п╪п╬п╤п╣п╫<br>п╫п╬п╧<br>п╢п╣п╨п╩п╟<br>я─п╟я├п╦п╦</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h50'>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>к<br>о<br>д</span></p>
+			<p style='text-align:center'><span>п╨<br>п╬<br>п╢</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>условное обозна-<br>чение (нацио-<br>нальное)</span></p>
+			<p style='text-align:center'><span>я┐я│п╩п╬п╡п╫п╬п╣ п╬п╠п╬п╥п╫п╟-<br>я┤п╣п╫п╦п╣ (п╫п╟я├п╦п╬-<br>п╫п╟п╩я▄п╫п╬п╣)</span></p>
 		</td>
 		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>циф-<br>ро-<br>вой код</span></p>
+			<p style='text-align:center'><span>я├п╦я└-<br>я─п╬-<br>п╡п╬п╧ п╨п╬п╢</span></p>
 		</td>
 		<td style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>краткое наиме-<br>нование</span></p>
+			<p style='text-align:center'><span>п╨я─п╟я┌п╨п╬п╣ п╫п╟п╦п╪п╣-<br>п╫п╬п╡п╟п╫п╦п╣</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h11'>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>А</span></p>
+			<p style='text-align:center'><span>п░</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
-			<p style='text-align:center'><span>Б</span></p>
+			<p style='text-align:center'><span>п▒</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>1</span></p>
@@ -232,7 +232,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>2</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>2а</span></p>
+			<p style='text-align:center'><span>2п╟</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>3</span></p>
@@ -259,7 +259,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>10</span></p>
 		</td>
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span>10а</span></p>
+			<p style='text-align:center'><span>10п╟</span></p>
 		</td>
 		<td style='border:solid windowtext 1.0pt;' >
 			<p style='text-align:center'><span>11</span></p>
@@ -313,11 +313,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
                         {if $row.type == "service"}
                             --
                         {else}
-                            шт.
+                            я┬я┌.
                         {/if}
                     {/if}
                 {else}
-                    шт.
+                    я┬я┌.
                 {/if}
             {/if}</span></p>
 		</td>
@@ -378,10 +378,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
             {/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' nowrap>
-			<p ><span>{if $inv_is_new4}без акциза{else}--{/if}</span></p>
+			<p ><span>{if $inv_is_new4}п╠п╣п╥ п╟п╨я├п╦п╥п╟{else}--{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $row.tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</span></p>
+			<p ><span>{if $row.tax == 0}п╠п╣п╥ п²п■п║{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>
@@ -419,13 +419,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p  align=right style='text-align:right'><span>&nbsp;</span></p>
 		</td>
 		<td colspan=5 valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><b><span>Всего к оплате</span></b></p>
+			<p ><b><span>п▓я│п╣пЁп╬ п╨ п╬п©п╩п╟я┌п╣</span></b></p>
 		</td>
 		<td valign=bottom style='border:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum|round:2}{/if}</span></p>
 		</td>
 		<td colspan=2 valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
-			<p style='text-align:center'><span><b>Х</b></span></p>
+			<p style='text-align:center'><span><b>п╔</b></span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>
@@ -447,13 +447,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />Документ<br>составлен на<br>{if $print_upd.pages == 1}1 листе{else}{$print_upd.pages} листах{/if}</span></p></td>
+		<td colspan="2" valign="top" style='border-right:solid windowtext 1.5pt;'><p ><span><br />п■п╬п╨я┐п╪п╣п╫я┌<br>я│п╬я│я┌п╟п╡п╩п╣п╫ п╫п╟<br>{if $print_upd.pages == 1}1 п╩п╦я│я┌п╣{else}{$print_upd.pages} п╩п╦я│я┌п╟я┘{/if}</span></p></td>
 		<td colspan="13"  style='border-bottom:solid windowtext 1.5pt;'>
 			<div style="padding-bottom:4px;">
 	<table border=0 cellspacing=0 cellpadding=0>
 	<tr class='tr_h20'>
 		<td valign=bottom style='width:160pt;'>
-			<p ><span>Руководитель организации<br>или иное уполномоченное лицо</span></p>
+			<p ><span>п═я┐п╨п╬п╡п╬п╢п╦я┌п╣п╩я▄ п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦<br>п╦п╩п╦ п╦п╫п╬п╣ я┐п©п╬п╩п╫п╬п╪п╬я┤п╣п╫п╫п╬п╣ п╩п╦я├п╬</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span style="position: relative;">{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
@@ -468,7 +468,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:160pt;'>
-			<p ><span>Главный бухгалтер<br>или иное уполномоченное лицо</span></p>
+			<p ><span>п⌠п╩п╟п╡п╫я▀п╧ п╠я┐я┘пЁп╟п╩я┌п╣я─<br>п╦п╩п╦ п╦п╫п╬п╣ я┐п©п╬п╩п╫п╬п╪п╬я┤п╣п╫п╫п╬п╣ п╩п╦я├п╬</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span style="position: relative;">{if isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -25px;">{else}&nbsp;{/if}</span></p>
@@ -485,13 +485,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(подпись)</span></p>
+			<p style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
@@ -500,18 +500,18 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(подпись)</span></p>
+			<p style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h20'>
 		<td valign=bottom>
-			<p ><span>Индивидуальный предприниматель</span></p>
+			<p ><span>п≤п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫я▀п╧ п©я─п╣п╢п©я─п╦п╫п╦п╪п╟я┌п╣п╩я▄</span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>
@@ -534,19 +534,19 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p  style='text-align:center'><span>(подпись)</span></p>
+			<p  style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p  style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p  style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td colspan=4 valign=top>
-			<p style='text-align:center'><span>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</span></p>
+			<p style='text-align:center'><span>(я─п╣п╨п╡п╦п╥п╦я┌я▀ я│п╡п╦п╢п╣я┌п╣п╩я▄я│я┌п╡п╟ п╬ пЁп╬я│я┐п╢п╟я─я│я┌п╡п╣п╫п╫п╬п╧ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦ п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫п╬пЁп╬ п©я─п╣п╢п©я─п╦п╫п╦п╪п╟я┌п╣п╩я▐)</span></p>
 		</td>
 	</tr>
 	</table>
@@ -558,10 +558,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
 <table border=0 cellspacing=0 cellpadding=0 style='width:100%;'>
 	<tr class='tr_h15'>
 		<td valign=bottom nowrap>
-			<p ><span>Основание передачи (сдачи) / получения (приемки)</span></p>
+			<p ><span>п·я│п╫п╬п╡п╟п╫п╦п╣ п©п╣я─п╣п╢п╟я┤п╦ (я│п╢п╟я┤п╦) / п©п╬п╩я┐я┤п╣п╫п╦я▐ (п©я─п╦п╣п╪п╨п╦)</span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;width:100%;'>
-			<p ><span>&nbsp;{if isset($client_contract)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; договор N{$client_contract}{/if}</span></p>
+			<p ><span>&nbsp;{if isset($client_contract)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; п╢п╬пЁп╬п╡п╬я─ N{$client_contract}{/if}</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>[8]</span></p>
@@ -572,7 +572,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom>
-			<p style='text-align:center'><span>(договор; доверенность и др.)</span></p>
+			<p style='text-align:center'><span>(п╢п╬пЁп╬п╡п╬я─; п╢п╬п╡п╣я─п╣п╫п╫п╬я│я┌я▄ п╦ п╢я─.)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
@@ -582,7 +582,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 <table border=0 cellspacing=0 cellpadding=0 style='width:100%;'>
 	<tr class='tr_h15'>
 		<td valign=bottom nowrap>
-			<p><span>Данные о транспортировке и грузе</span></p>
+			<p><span>п■п╟п╫п╫я▀п╣ п╬ я┌я─п╟п╫я│п©п╬я─я┌п╦я─п╬п╡п╨п╣ п╦ пЁя─я┐п╥п╣</span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;width:100%;'>
 			<p><span>&nbsp;</span></p>
@@ -596,7 +596,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom nowrap>
-			<p style='text-align:center;'><span>(транспортная накладная, поручение экспедитору, экспедиторская/складская расписка и др./масса нетто/брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</span></p>
+			<p style='text-align:center;'><span>(я┌я─п╟п╫я│п©п╬я─я┌п╫п╟я▐ п╫п╟п╨п╩п╟п╢п╫п╟я▐, п©п╬я─я┐я┤п╣п╫п╦п╣ я█п╨я│п©п╣п╢п╦я┌п╬я─я┐, я█п╨я│п©п╣п╢п╦я┌п╬я─я│п╨п╟я▐/я│п╨п╩п╟п╢я│п╨п╟я▐ я─п╟я│п©п╦я│п╨п╟ п╦ п╢я─./п╪п╟я│я│п╟ п╫п╣я┌я┌п╬/п╠я─я┐я┌я┌п╬ пЁя─я┐п╥п╟, п╣я│п╩п╦ п╫п╣ п©я─п╦п╡п╣п╢п╣п╫я▀ я│я│я▀п╩п╨п╦ п╫п╟ я┌я─п╟п╫я│п©п╬я─я┌п╫я▀п╣ п╢п╬п╨я┐п╪п╣п╫я┌я▀, я│п╬п╢п╣я─п╤п╟я┴п╦п╣ я█я┌п╦ я│п╡п╣п╢п╣п╫п╦я▐)</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>&nbsp;</span></p>
@@ -607,18 +607,18 @@ padding:0cm 2.4pt 0cm 2.4pt;
 <table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;width:100%;'>
 	<tr class='tr_h15'>
 		<td colspan="6" nowrap>
-			<p ><span>Товар (груз) передал / услуги, результаты работ, права сдал</span></p>
+			<p ><span>п╒п╬п╡п╟я─ (пЁя─я┐п╥) п©п╣я─п╣п╢п╟п╩ / я┐я│п╩я┐пЁп╦, я─п╣п╥я┐п╩я▄я┌п╟я┌я▀ я─п╟п╠п╬я┌, п©я─п╟п╡п╟ я│п╢п╟п╩</span></p>
 		</td>
 		<td rowspan="14" style='width:4.0pt;border-left: solid windowtext 1.0pt;'>
 			<p ><span style='font-size:1.0pt;'>&nbsp;</span></p>
 		</td>
 		<td colspan="6" nowrap>
-			<p ><span>Товар (груз) получил / услуги, результаты работ, права принял</span></p>
+			<p ><span>п╒п╬п╡п╟я─ (пЁя─я┐п╥) п©п╬п╩я┐я┤п╦п╩ / я┐я│п╩я┐пЁп╦, я─п╣п╥я┐п╩я▄я┌п╟я┌я▀ я─п╟п╠п╬я┌, п©я─п╟п╡п╟ п©я─п╦п╫я▐п╩</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h15'>
 		<td style='width:140pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>Генеральный директор</span></p>
+			<p ><span>п⌠п╣п╫п╣я─п╟п╩я▄п╫я▀п╧ п╢п╦я─п╣п╨я┌п╬я─</span></p>
 		</td>
 		<td>
 			<p ><span style="position: relative;">{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
@@ -656,37 +656,37 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h8'>
 		<td valign=top>
-			<p style='text-align:center'><span>(должность)</span></p>
+			<p style='text-align:center'><span>(п╢п╬п╩п╤п╫п╬я│я┌я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(подпись)</span></p>
+			<p style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(должность)</span></p>
+			<p style='text-align:center'><span>(п╢п╬п╩п╤п╫п╬я│я┌я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(подпись)</span></p>
+			<p style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -694,7 +694,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td nowrap>
-			<p ><span>Дата отгрузки, передачи (сдачи)</span></p>
+			<p ><span>п■п╟я┌п╟ п╬я┌пЁя─я┐п╥п╨п╦, п©п╣я─п╣п╢п╟я┤п╦ (я│п╢п╟я┤п╦)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -703,12 +703,12 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>
                 {if !$without_date_date}
                     {if $is_four_order && isset($inv_pays)}
-                        {$inv_pays[0].payment_date_ts|mdate:"d месяца Y года"}
+                        {$inv_pays[0].payment_date_ts|mdate:"d п╪п╣я│я▐я├п╟ Y пЁп╬п╢п╟"}
                     {else}
-                        {$inv_date|mdate:"d месяца Y года"}
+                        {$inv_date|mdate:"d п╪п╣я│я▐я├п╟ Y пЁп╬п╢п╟"}
                     {/if}
                 {else} 
-                    {$without_date_date|mdate:"d месяца Y года"}
+                    {$without_date_date|mdate:"d п╪п╣я│я▐я├п╟ Y пЁп╬п╢п╟"}
                 {/if}</span></p>
 		</td>
 		<td>
@@ -721,13 +721,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>[11]</span></p>
 		</td>
 		<td nowrap>
-			<p ><span>Дата получения (приемки)</span></p>
+			<p ><span>п■п╟я┌п╟ п©п╬п╩я┐я┤п╣п╫п╦я▐ (п©я─п╦п╣п╪п╨п╦)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='border-bottom:solid windowtext 1.0pt;'>
-			<p><span>"{section loop="6" name="mysec"}&nbsp;{/section}"{section loop="21" name="mysec"}&nbsp;{/section}20{section loop="7" name="mysec"}&nbsp;{/section}года</span></p>
+			<p><span>"{section loop="6" name="mysec"}&nbsp;{/section}"{section loop="21" name="mysec"}&nbsp;{/section}20{section loop="7" name="mysec"}&nbsp;{/section}пЁп╬п╢п╟</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -741,10 +741,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td colspan="6" nowrap>
-			<p ><span>Иные сведения об отгрузке, передаче</span></p>
+			<p ><span>п≤п╫я▀п╣ я│п╡п╣п╢п╣п╫п╦я▐ п╬п╠ п╬я┌пЁя─я┐п╥п╨п╣, п©п╣я─п╣п╢п╟я┤п╣</span></p>
 		</td>
 		<td colspan="6" nowrap>
-			<p ><span>Иные сведения о получении, приемке</span></p>
+			<p ><span>п≤п╫я▀п╣ я│п╡п╣п╢п╣п╫п╦я▐ п╬ п©п╬п╩я┐я┤п╣п╫п╦п╦, п©я─п╦п╣п╪п╨п╣</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h15'>
@@ -763,13 +763,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h8'>
 		<td colspan="5" valign=top nowrap>
-			<p style='text-align:center'><span>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</span></p>
+			<p style='text-align:center'><span>(я│я│я▀п╩п╨п╦ п╫п╟ п╫п╣п╬я┌я┼п╣п╪п╩п╣п╪я▀п╣ п©я─п╦п╩п╬п╤п╣п╫п╦я▐, я│п╬п©я┐я┌я│я┌п╡я┐я▌я┴п╦п╣ п╢п╬п╨я┐п╪п╣п╫я┌я▀, п╦п╫я▀п╣ п╢п╬п╨я┐п╪п╣п╫я┌я▀ п╦ я┌.п©.)</span></p>
 		</td>
 		<td valign=top>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td colspan="5" valign=top nowrap>
-			<p style='text-align:center'><span>(информация о наличии/отсутствии претензии; ссылки на неотъемлемые приложения, и другие документы и т.п.)</span></p>
+			<p style='text-align:center'><span>(п╦п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п╫п╟п╩п╦я┤п╦п╦/п╬я┌я│я┐я┌я│я┌п╡п╦п╦ п©я─п╣я┌п╣п╫п╥п╦п╦; я│я│я▀п╩п╨п╦ п╫п╟ п╫п╣п╬я┌я┼п╣п╪п╩п╣п╪я▀п╣ п©я─п╦п╩п╬п╤п╣п╫п╦я▐, п╦ п╢я─я┐пЁп╦п╣ п╢п╬п╨я┐п╪п╣п╫я┌я▀ п╦ я┌.п©.)</span></p>
 		</td>
 		<td valign=top>
 			<p ><span>&nbsp;</span></p>
@@ -777,10 +777,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td colspan="6" nowrap>
-			<p ><span>Ответственный за правильность оформления факта хозяйственной жизни</span></p>
+			<p ><span>п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧ п╥п╟ п©я─п╟п╡п╦п╩я▄п╫п╬я│я┌я▄ п╬я└п╬я─п╪п╩п╣п╫п╦я▐ я└п╟п╨я┌п╟ я┘п╬п╥я▐п╧я│я┌п╡п╣п╫п╫п╬п╧ п╤п╦п╥п╫п╦</span></p>
 		</td>
 		<td colspan="6" nowrap>
-			<p ><span>Ответственный за правильность оформления факта хозяйственной жизни</span></p>
+			<p ><span>п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧ п╥п╟ п©я─п╟п╡п╦п╩я▄п╫п╬я│я┌я▄ п╬я└п╬я─п╪п╩п╣п╫п╦я▐ я└п╟п╨я┌п╟ я┘п╬п╥я▐п╧я│я┌п╡п╣п╫п╫п╬п╧ п╤п╦п╥п╫п╦</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h15'>
@@ -823,37 +823,37 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h8'>
 		<td valign=top>
-			<p style='text-align:center'><span>(должность)</span></p>
+			<p style='text-align:center'><span>(п╢п╬п╩п╤п╫п╬я│я┌я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(подпись)</span></p>
+			<p style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(должность)</span></p>
+			<p style='text-align:center'><span>(п╢п╬п╩п╤п╫п╬я│я┌я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(подпись)</span></p>
+			<p style='text-align:center'><span>(п©п╬п╢п©п╦я│я▄)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=top>
-			<p style='text-align:center'><span>(ф.и.о.)</span></p>
+			<p style='text-align:center'><span>(я└.п╦.п╬.)</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -861,21 +861,21 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td colspan="6" nowrap>
-			<p ><span>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</span></p>
+			<p ><span>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ я█п╨п╬п╫п╬п╪п╦я┤п╣я│п╨п╬пЁп╬ я│я┐п╠я┼п╣п╨я┌п╟ - я│п╬я│я┌п╟п╡п╦я┌п╣п╩я▐ п╢п╬п╨я┐п╪п╣п╫я┌п╟ (п╡ я┌.я┤. п╨п╬п╪п╦я│я│п╦п╬п╫п╣я─п╟ / п╟пЁп╣п╫я┌п╟)</span></p>
 		</td>
 		<td colspan="6" nowrap>
-			<p ><span>Наименование экономического субъекта - составителя документа</span></p>
+			<p ><span>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ я█п╨п╬п╫п╬п╪п╦я┤п╣я│п╨п╬пЁп╬ я│я┐п╠я┼п╣п╨я┌п╟ - я│п╬я│я┌п╟п╡п╦я┌п╣п╩я▐ п╢п╬п╨я┐п╪п╣п╫я┌п╟</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h15'>
 		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm.name}, ИНН/КПП {$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p>
+			<p ><span>{$firm.name}, п≤п²п²/п п÷п÷ {$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>[14]</span></p>
 		</td>
 		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}, ИНН/КПП {$bill_client.inn}&nbsp;/&nbsp;{$bill_client.kpp}</span></p>
+			<p ><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}, п≤п²п²/п п÷п÷ {$bill_client.inn}&nbsp;/&nbsp;{$bill_client.kpp}</span></p>
 		</td>
 		<td>
 			<p ><span>[19]</span></p>
@@ -883,13 +883,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h8'>
 		<td colspan="5" valign=top nowrap>
-			<p style='text-align:center'><span>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</span></p>
+			<p style='text-align:center'><span>(п╪п╬п╤п╣я┌ п╫п╣ п╥п╟п©п╬п╩п╫я▐я┌я▄я│я▐ п©я─п╦ п©я─п╬я│я┌п╟п╡п╩п╣п╫п╦п╦ п©п╣я┤п╟я┌п╦ п╡ п°.п÷., п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┐п╨п╟п╥п╟п╫ п≤п²п² / п п÷п÷)</span></p>
 		</td>
 		<td valign=top>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td colspan="5" valign=top nowrap>
-			<p style='text-align:center'><span>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</span></p>
+			<p style='text-align:center'><span>(п╪п╬п╤п╣я┌ п╫п╣ п╥п╟п©п╬п╩п╫я▐я┌я▄я│я▐ п©я─п╦ п©я─п╬я│я┌п╟п╡п╩п╣п╫п╦п╦ п©п╣я┤п╟я┌п╦ п╡ п°.п÷., п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┐п╨п╟п╥п╟п╫ п≤п²п² / п п÷п÷)</span></p>
 		</td>
 		<td valign=top>
 			<p ><span>&nbsp;</span></p>
@@ -897,13 +897,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td valign=bottom>
-			<p style='text-align:center'><span>МП</span></p>
+			<p style='text-align:center'><span>п°п÷</span></p>
 		</td>
 		<td colspan="5">
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom>
-			<p style='text-align:center'><span>МП</span></p>
+			<p style='text-align:center'><span>п°п÷</span></p>
 		</td>
 		<td colspan="5">
 			<p ><span>&nbsp;</span></p>

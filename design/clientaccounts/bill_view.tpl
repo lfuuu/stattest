@@ -4,17 +4,17 @@
 		<td colspan="1">
 {assign var="isClosed" value="0"}{if $tt_trouble && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
 {*if !$isClosed*}
-{if $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}{if $bill.is_rollback}-<b><u>возврат</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}</b> 
+{if $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}п≈п╟п╨п╟п╥{/if}{if $bill.is_rollback}-<b><u>п╡п╬п╥п╡я─п╟я┌</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}</b> 
  </H3>
 
 
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-<tr class=even style='font-weight:bold'><!--td>&nbsp;</td--><td width="1%">артикул</td><td>что</td><td>период</td><td>сколько{if $cur_state && $cur_state == 17}/отгружено{/if}</td><td>цена</td><td>сумма</td><td>тип</td></tr>
+<tr class=even style='font-weight:bold'><!--td>&nbsp;</td--><td width="1%">п╟я─я┌п╦п╨я┐п╩</td><td>я┤я┌п╬</td><td>п©п╣я─п╦п╬п╢</td><td>я│п╨п╬п╩я▄п╨п╬{if $cur_state && $cur_state == 17}/п╬я┌пЁя─я┐п╤п╣п╫п╬{/if}</td><td>я├п╣п╫п╟</td><td>я│я┐п╪п╪п╟</td><td>я┌п╦п©</td></tr>
 {foreach from=$bill_lines item=item key=key name=outer}
 <tr class='{cycle values="odd,even"}'>
 <!-- td>
 	{*if !$all4net_order_number}<a href='{$LINK_START}module=newaccounts&action=line_delete&bill={$bill.bill_no}&sort={$item.sort}'>
-		<img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt='Удалить строку'>
+		<img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt='пёп╢п╟п╩п╦я┌я▄ я│я┌я─п╬п╨я┐'>
 	</a>{/if*}
 </td-->
 <td align=left><span title="{$item.art|escape}">{$item.art|truncate:10}<br>
@@ -32,5 +32,5 @@
 <td>{$item.type}</td>
 </tr>
 {/foreach}
-<tr>&nbsp;</td><td colspan=5 align=right><b>Итого: </b>&nbsp; </td><td align=right><b>{$bill.sum|round:2}</b></td></tr>
+<tr>&nbsp;</td><td colspan=5 align=right><b>п≤я┌п╬пЁп╬: </b>&nbsp; </td><td align=right><b>{$bill.sum|round:2}</b></td></tr>
 </TABLE>

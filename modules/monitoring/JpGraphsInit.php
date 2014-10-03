@@ -1,15 +1,15 @@
 <?php
 /**
- * ëÌÁÓÓ ĞÒÅÄÎÁÚÎÁŞÅÎ ÄÌÑ ÉÎÉÃÉÁÌÉÚÁÃÉÉ ÏÂßÅËÔÏ× ÂÉÂÌÉÏÔÅËÉ jpgraph
+ * ĞšĞ»Ğ°ÑÑ Ğ¿Ñ€ĞµĞ´Ğ½Ğ°Ğ·Ğ½Ğ°Ñ‡ĞµĞ½ Ğ´Ğ»Ñ Ğ¸Ğ½Ğ¸Ñ†Ğ¸Ğ°Ğ»Ğ¸Ğ·Ğ°Ñ†Ğ¸Ğ¸ Ğ¾Ğ±ÑŠĞµĞºÑ‚Ğ¾Ğ² Ğ±Ğ¸Ğ±Ğ»Ğ¸Ğ¾Ñ‚ĞµĞºĞ¸ jpgraph
  */
 class JpGraphsInit
 {
 	/**
-	 * óÏÚÄÁÅÔ ÜËÚÅÍĞÌÑÒ ËÌÁÓÓÁ Graph ÄÌÑ "ÌÉÎÅÊÎÙÈ" ÇÒÁÆÉËÏ× 
-	 * @param string $title îÁÚ×ÁÎÉÅ ÇÒÁÆÉËÁ
-	 * @param int $size_x ÛÉÒÉÎÁ ËÁÒÔÉÎËÉ
-	 * @param int $size_y ×ÙÓÏÔÁ ËÁÒÔÉÎËÉ
-	 * @param string $type ĞÁÒÁÍÅÔÒ Scale ÄÌÑ ÜËÚÅÍĞÌÑÒÁ ËÌÁÓÓÁ Graph
+	 * Ğ¡Ğ¾Ğ·Ğ´Ğ°ĞµÑ‚ ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€ ĞºĞ»Ğ°ÑÑĞ° Graph Ğ´Ğ»Ñ "Ğ»Ğ¸Ğ½ĞµĞ¹Ğ½Ñ‹Ñ…" Ğ³Ñ€Ğ°Ñ„Ğ¸ĞºĞ¾Ğ² 
+	 * @param string $title ĞĞ°Ğ·Ğ²Ğ°Ğ½Ğ¸Ğµ Ğ³Ñ€Ğ°Ñ„Ğ¸ĞºĞ°
+	 * @param int $size_x ÑˆĞ¸Ñ€Ğ¸Ğ½Ğ° ĞºĞ°Ñ€Ñ‚Ğ¸Ğ½ĞºĞ¸
+	 * @param int $size_y Ğ²Ñ‹ÑĞ¾Ñ‚Ğ° ĞºĞ°Ñ€Ñ‚Ğ¸Ğ½ĞºĞ¸
+	 * @param string $type Ğ¿Ğ°Ñ€Ğ°Ğ¼ĞµÑ‚Ñ€ Scale Ğ´Ğ»Ñ ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€Ğ° ĞºĞ»Ğ°ÑÑĞ° Graph
 	 */
 	public static function getLineGraph($title, $size_x = 640, $size_y = 480, $type = 'textlin')
 	{
@@ -20,7 +20,7 @@ class JpGraphsInit
 
 		$graph->SetTheme($theme_class);
 		$graph->img->SetAntiAliasing(false);
-		$graph->title->Set(Encoding::toUtf8($title));
+		$graph->title->Set($title);
 		$graph->SetBox(false);
 
 		$graph->img->SetAntiAliasing();
@@ -35,10 +35,10 @@ class JpGraphsInit
 		return $graph;
 	}
 	/**
-	 * äÏÂÁ×ÌÅÎÉÅ ÇÒÁÆÉËÏ× Ú×ÏÎËÏ× 
-	 * @param Graph $graph ÜËÚÅÍĞÌÑÒ ËÌÁÓÓÁ Graph
-	 * @param array $data ÍÁÓÓÉ× Ó ÄÁÎÎÙÍÉ Ï ËÏÌÉŞÅÓÔ×Å ÉÌÉ ĞÒÏÄÏÌÖÉÔÅÌØÎÏÓÔÉ Ú×ÏÎËÏ× ĞÏ ÄÎÑÍ
-	 * @param int $week_start ÍÉÎÉÍÁÌØÎÏÅ ŞÉÓÌÏ×ÏÅ ÚÎÁŞÅÎÉÅ ÄÎÑ ÎÅÄÅÌÉ ÎÁŞÁÌÁ ÍÅÓÑÃÁ ÓÒÅÄÉ ĞÏÓÌÅÄÎÉÈ 3 ÍÅÓÑÃÅ× 
+	 * Ğ”Ğ¾Ğ±Ğ°Ğ²Ğ»ĞµĞ½Ğ¸Ğµ Ğ³Ñ€Ğ°Ñ„Ğ¸ĞºĞ¾Ğ² Ğ·Ğ²Ğ¾Ğ½ĞºĞ¾Ğ² 
+	 * @param Graph $graph ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€ ĞºĞ»Ğ°ÑÑĞ° Graph
+	 * @param array $data Ğ¼Ğ°ÑÑĞ¸Ğ² Ñ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğ¼Ğ¸ Ğ¾ ĞºĞ¾Ğ»Ğ¸Ñ‡ĞµÑÑ‚Ğ²Ğµ Ğ¸Ğ»Ğ¸ Ğ¿Ñ€Ğ¾Ğ´Ğ¾Ğ»Ğ¶Ğ¸Ñ‚ĞµĞ»ÑŒĞ½Ğ¾ÑÑ‚Ğ¸ Ğ·Ğ²Ğ¾Ğ½ĞºĞ¾Ğ² Ğ¿Ğ¾ Ğ´Ğ½ÑĞ¼
+	 * @param int $week_start Ğ¼Ğ¸Ğ½Ğ¸Ğ¼Ğ°Ğ»ÑŒĞ½Ğ¾Ğµ Ñ‡Ğ¸ÑĞ»Ğ¾Ğ²Ğ¾Ğµ Ğ·Ğ½Ğ°Ñ‡ĞµĞ½Ğ¸Ğµ Ğ´Ğ½Ñ Ğ½ĞµĞ´ĞµĞ»Ğ¸ Ğ½Ğ°Ñ‡Ğ°Ğ»Ğ° Ğ¼ĞµÑÑÑ†Ğ° ÑÑ€ĞµĞ´Ğ¸ Ğ¿Ğ¾ÑĞ»ĞµĞ´Ğ½Ğ¸Ñ… 3 Ğ¼ĞµÑÑÑ†ĞµĞ² 
 	 */
 	public static function setLines($graph, $data, $week_start)
 	{
@@ -54,15 +54,15 @@ class JpGraphsInit
 			$$name = new LinePlot($v);
 			$graph->Add($$name);
 			$$name->SetColor($colors[$i]);
-			$$name->SetLegend(Encoding::toUtf8(mdate('ÍÅÓÑÃ',$ts)));
+			$$name->SetLegend(mdate('Ğ¼ĞµÑÑÑ†',$ts));
 			$i++;
 		}
 	}
 	/**
-	 * äÏÂÁ×ÌÅÎÉÅ ÇÒÁÆÉËÏ× ÏÔÓÕÔÓÔ×ÉÑ Ú×ÏÎËÏ× 
-	 * @param Graph $graph ÜËÚÅÍĞÌÑÒ ËÌÁÓÓÁ Graph
-	 * @param array $data ÍÁÓÓÉ× Ó ÄÁÎÎÙÍÉ Ï ÄÎÑÈ ËÏÇÄÁ ÎÅ ÂÙÌÏ Ú×ÏÎËÏ×
-	 * @param int $week_start ÍÉÎÉÍÁÌØÎÏÅ ŞÉÓÌÏ×ÏÅ ÚÎÁŞÅÎÉÅ ÄÎÑ ÎÅÄÅÌÉ ÎÁŞÁÌÁ ÍÅÓÑÃÁ ÓÒÅÄÉ ĞÏÓÌÅÄÎÉÈ 3 ÍÅÓÑÃÅ× 
+	 * Ğ”Ğ¾Ğ±Ğ°Ğ²Ğ»ĞµĞ½Ğ¸Ğµ Ğ³Ñ€Ğ°Ñ„Ğ¸ĞºĞ¾Ğ² Ğ¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ğ²Ğ¸Ñ Ğ·Ğ²Ğ¾Ğ½ĞºĞ¾Ğ² 
+	 * @param Graph $graph ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€ ĞºĞ»Ğ°ÑÑĞ° Graph
+	 * @param array $data Ğ¼Ğ°ÑÑĞ¸Ğ² Ñ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğ¼Ğ¸ Ğ¾ Ğ´Ğ½ÑÑ… ĞºĞ¾Ğ³Ğ´Ğ° Ğ½Ğµ Ğ±Ñ‹Ğ»Ğ¾ Ğ·Ğ²Ğ¾Ğ½ĞºĞ¾Ğ²
+	 * @param int $week_start Ğ¼Ğ¸Ğ½Ğ¸Ğ¼Ğ°Ğ»ÑŒĞ½Ğ¾Ğµ Ñ‡Ğ¸ÑĞ»Ğ¾Ğ²Ğ¾Ğµ Ğ·Ğ½Ğ°Ñ‡ĞµĞ½Ğ¸Ğµ Ğ´Ğ½Ñ Ğ½ĞµĞ´ĞµĞ»Ğ¸ Ğ½Ğ°Ñ‡Ğ°Ğ»Ğ° Ğ¼ĞµÑÑÑ†Ğ° ÑÑ€ĞµĞ´Ğ¸ Ğ¿Ğ¾ÑĞ»ĞµĞ´Ğ½Ğ¸Ñ… 3 Ğ¼ĞµÑÑÑ†ĞµĞ² 
 	 */
 	public static function setNoCallLines($graph, $data, $week_start)
 	{
@@ -90,15 +90,15 @@ class JpGraphsInit
 				$plot->mark->setColor($colors[$i]);
 				$plot->mark->setFillColor($colors[$i]);
 			}
-			$plot->SetLegend(Encoding::toUtf8('ÎÅÔ Ú×ÏÎËÏ× × '. mdate('ÍÅÓÑÃÅ',$ts)));
+			$plot->SetLegend('Ğ½ĞµÑ‚ Ğ·Ğ²Ğ¾Ğ½ĞºĞ¾Ğ² Ğ² '. mdate('Ğ¼ĞµÑÑÑ†Ğµ',$ts));
 			$i++;
 		}
 	}
 	/**
-	 * óÄ×ÉÇ ×ĞÒÁ×Ï ÇÒÁÆÉËÏ× 
-	 * @param array $_data ÜËÚÅÍĞÌÑÒ ËÌÁÓÓÁ Graph
-	 * @param int $week_start ÍÉÎÉÍÁÌØÎÏÅ ŞÉÓÌÏ×ÏÅ ÚÎÁŞÅÎÉÅ ÄÎÑ ÎÅÄÅÌÉ ÎÁŞÁÌÁ ÍÅÓÑÃÁ ÓÒÅÄÉ ĞÏÓÌÅÄÎÉÈ 3 ÍÅÓÑÃÅ× 
-	 * @param int $ts  timestamp ÎÁŞÁÌÁ ÍÅÓÑÃÁ
+	 * Ğ¡Ğ´Ğ²Ğ¸Ğ³ Ğ²Ğ¿Ñ€Ğ°Ğ²Ğ¾ Ğ³Ñ€Ğ°Ñ„Ğ¸ĞºĞ¾Ğ² 
+	 * @param array $_data ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€ ĞºĞ»Ğ°ÑÑĞ° Graph
+	 * @param int $week_start Ğ¼Ğ¸Ğ½Ğ¸Ğ¼Ğ°Ğ»ÑŒĞ½Ğ¾Ğµ Ñ‡Ğ¸ÑĞ»Ğ¾Ğ²Ğ¾Ğµ Ğ·Ğ½Ğ°Ñ‡ĞµĞ½Ğ¸Ğµ Ğ´Ğ½Ñ Ğ½ĞµĞ´ĞµĞ»Ğ¸ Ğ½Ğ°Ñ‡Ğ°Ğ»Ğ° Ğ¼ĞµÑÑÑ†Ğ° ÑÑ€ĞµĞ´Ğ¸ Ğ¿Ğ¾ÑĞ»ĞµĞ´Ğ½Ğ¸Ñ… 3 Ğ¼ĞµÑÑÑ†ĞµĞ² 
+	 * @param int $ts  timestamp Ğ½Ğ°Ñ‡Ğ°Ğ»Ğ° Ğ¼ĞµÑÑÑ†Ğ°
 	 */
 	private static function prepareLines($_data, $week_start, $ts)
 	{
@@ -120,11 +120,11 @@ class JpGraphsInit
 		return $data;
 	}
 	/**
-	 * óÏÚÄÁÅÔ ÜËÚÅÍĞÌÑÒ ËÌÁÓÓÁ Graph ÄÌÑ "ÓÔÏÌÂŞÁÔÙÈ" ÄÉÁÇÒÁÍÍ 
-	 * @param string $title îÁÚ×ÁÎÉÅ ÇÒÁÆÉËÁ
-	 * @param int $size_x ÛÉÒÉÎÁ ËÁÒÔÉÎËÉ
-	 * @param int $size_y ×ÙÓÏÔÁ ËÁÒÔÉÎËÉ
-	 * @param string $type ĞÁÒÁÍÅÔÒ Scale ÄÌÑ ÜËÚÅÍĞÌÑÒÁ ËÌÁÓÓÁ Graph
+	 * Ğ¡Ğ¾Ğ·Ğ´Ğ°ĞµÑ‚ ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€ ĞºĞ»Ğ°ÑÑĞ° Graph Ğ´Ğ»Ñ "ÑÑ‚Ğ¾Ğ»Ğ±Ñ‡Ğ°Ñ‚Ñ‹Ñ…" Ğ´Ğ¸Ğ°Ğ³Ñ€Ğ°Ğ¼Ğ¼ 
+	 * @param string $title ĞĞ°Ğ·Ğ²Ğ°Ğ½Ğ¸Ğµ Ğ³Ñ€Ğ°Ñ„Ğ¸ĞºĞ°
+	 * @param int $size_x ÑˆĞ¸Ñ€Ğ¸Ğ½Ğ° ĞºĞ°Ñ€Ñ‚Ğ¸Ğ½ĞºĞ¸
+	 * @param int $size_y Ğ²Ñ‹ÑĞ¾Ñ‚Ğ° ĞºĞ°Ñ€Ñ‚Ğ¸Ğ½ĞºĞ¸
+	 * @param string $type Ğ¿Ğ°Ñ€Ğ°Ğ¼ĞµÑ‚Ñ€ Scale Ğ´Ğ»Ñ ÑĞºĞ·ĞµĞ¼Ğ¿Ğ»ÑÑ€Ğ° ĞºĞ»Ğ°ÑÑĞ° Graph
 	 */
 	public static function getBarGraph($title, $size_x = 640, $size_y = 480, $type = 'textlin')
 	{
@@ -151,7 +151,7 @@ class JpGraphsInit
 		$band->SetOrder(DEPTH_BACK);
 		$graph->Add($band);
 
-		$graph->title->Set(Encoding::toUtf8($title));
+		$graph->title->Set($title);
 		return $graph;
 	}
 }

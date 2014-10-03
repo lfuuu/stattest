@@ -1,18 +1,18 @@
-      <H2>Статистика</H2>
-      <H3>Списание средств</H3>
+      <H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</H2>
+      <H3>п║п©п╦я│п╟п╫п╦п╣ я│я─п╣п╢я│я┌п╡</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom>Дата</TD>
-          <TD class=header vAlign=bottom>Изменение</TD>
-          <TD class=header vAlign=bottom>Получившаяся сумма</TD>
+          <TD class=header vAlign=bottom>п■п╟я┌п╟</TD>
+          <TD class=header vAlign=bottom>п≤п╥п╪п╣п╫п╣п╫п╦п╣</TD>
+          <TD class=header vAlign=bottom>п÷п╬п╩я┐я┤п╦п╡я┬п╟я▐я│я▐ я│я┐п╪п╪п╟</TD>
         </TR>
 
 {foreach from=$stats item=item key=key name=outer}
 	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-		<TD>{$item.ts|mdate:'d месяца Y'}</TD>
-		<TD>{$item.delta_USD}$, {$item.delta_RUR}р</TD>
-		<TD>{$item.sum_USD}$, {$item.sum_RUR}р</TD>
+		<TD>{$item.ts|mdate:'d п╪п╣я│я▐я├п╟ Y'}</TD>
+		<TD>{$item.delta_USD}$, {$item.delta_RUR}я─</TD>
+		<TD>{$item.sum_USD}$, {$item.sum_RUR}я─</TD>
 	</TR>
 {/foreach}
 </TBODY></TABLE>

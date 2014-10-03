@@ -1,4 +1,4 @@
-<H2>·––¡“¡‘’“¡</H2>
+<H2>–ê–ø–ø–∞—Ä–∞—Ç—É—Ä–∞</H2>
 <H3>{$query_table}:</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=r_edit>
@@ -11,11 +11,11 @@
 {/foreach}
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
-<TR><TD class=left>Úœ’‘≈“:</TD><TD>{$router}</td></Tr>
+<TR><TD class=left>–†–æ—É—Ç–µ—Ä:</TD><TD>{$router}</td></Tr>
 {foreach from=$row item=item key=key name=outer}
 {dbmap_element}
 {/foreach}
 
 </TBODY></TABLE>
-{if access('routers_routers','edit')}<DIV align=center><INPUT id=submit class=button type=submit value="È⁄Õ≈Œ…‘ÿ"></DIV>{/if}
+{if access('routers_routers','edit')}<DIV align=center><INPUT id=submit class=button type=submit value="–ò–∑–º–µ–Ω–∏—Ç—å"></DIV>{/if}
 </form>

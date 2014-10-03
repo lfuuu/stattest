@@ -1,14 +1,14 @@
-<h2>Бухгалтерия {$fixclient} &nbsp;&nbsp;&nbsp;<span style='font-size:10px'>(<a href='?module=newaccounts&simple=0'>посложнее</a>{if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}{if $fixclient_data.type == 'multi'} | <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">{if $view_canceled}Скрыть{else}Показать{/if} отказные счета</a>{/if})</span></h2>
+<h2>п▒я┐я┘пЁп╟п╩я┌п╣я─п╦я▐ {$fixclient} &nbsp;&nbsp;&nbsp;<span style='font-size:10px'>(<a href='?module=newaccounts&simple=0'>п©п╬я│п╩п╬п╤п╫п╣п╣</a>{if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}{if $fixclient_data.type == 'multi'} | <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">{if $view_canceled}п║п╨я─я▀я┌я▄{else}п÷п╬п╨п╟п╥п╟я┌я▄{/if} п╬я┌п╨п╟п╥п╫я▀п╣ я│я┤п╣я┌п╟</a>{/if})</span></h2>
 
-<a href='{$LINK_START}module=newaccounts&action=bill_create'>Создать счёт</a> /
-<a href='{$LINK_START}module=newaccounts&action=bill_balance'>Обновить баланс</a> <br><br>
-<span title='Клиент должен нам'>Входящее сальдо</span>: <form style='display:inline' action='?' method=post><input type=hidden name=module value=newaccounts>
-<input type=hidden name=action value=saldo><input type=text class=text style='width:70px;border:0;text-align:center' name=saldo value="{$sum_cur.saldo}"><input type=text class=text style='width:12px;border:0' readonly=1 value="{if $fixclient_data.currency=='USD'}${else}р{/if}">
- на дату <input type=text class=text style='width:85px;border:0' name=date value="{$sum_cur.ts}"><input type=submit class=button value='ok'></form> &nbsp; <a href='javascript:toggle2(document.getElementById("saldo_history"))'>&raquo;</a><br>
+<a href='{$LINK_START}module=newaccounts&action=bill_create'>п║п╬п╥п╢п╟я┌я▄ я│я┤я▒я┌</a> /
+<a href='{$LINK_START}module=newaccounts&action=bill_balance'>п·п╠п╫п╬п╡п╦я┌я▄ п╠п╟п╩п╟п╫я│</a> <br><br>
+<span title='п п╩п╦п╣п╫я┌ п╢п╬п╩п╤п╣п╫ п╫п╟п╪'>п▓я┘п╬п╢я▐я┴п╣п╣ я│п╟п╩я▄п╢п╬</span>: <form style='display:inline' action='?' method=post><input type=hidden name=module value=newaccounts>
+<input type=hidden name=action value=saldo><input type=text class=text style='width:70px;border:0;text-align:center' name=saldo value="{$sum_cur.saldo}"><input type=text class=text style='width:12px;border:0' readonly=1 value="{if $fixclient_data.currency=='USD'}${else}я─{/if}">
+ п╫п╟ п╢п╟я┌я┐ <input type=text class=text style='width:85px;border:0' name=date value="{$sum_cur.ts}"><input type=submit class=button value='ok'></form> &nbsp; <a href='javascript:toggle2(document.getElementById("saldo_history"))'>&raquo;</a><br>
 <table style='display:none;margin-left:20px' class=price id=saldo_history>
-<TR><TD class=header>Дата изменения</td><TD class=header>Пользователь</td><TD class=header>Сальдо</td><TD class=header>Дата сальдо</td></TR>
+<TR><TD class=header>п■п╟я┌п╟ п╦п╥п╪п╣п╫п╣п╫п╦я▐</td><TD class=header>п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄</td><TD class=header>п║п╟п╩я▄п╢п╬</td><TD class=header>п■п╟я┌п╟ я│п╟п╩я▄п╢п╬</td></TR>
 {foreach from=$saldo_history item=item}
-<TR class=even><td>{$item.edit_time}</td><td>{$item.user_name}</td><td>{$item.saldo} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts}</td></tr>
+<TR class=even><td>{$item.edit_time}</td><td>{$item.user_name}</td><td>{$item.saldo} {if $item.currency=='USD'}${else}я─{/if}</td><td>{$item.ts}</td></tr>
 {/foreach}
 </table>
 
@@ -18,36 +18,36 @@
 
 <Table width=100% border=0>
 <tr style="background-color: #eaeaea;">
-	<td>Всего залогов:</td>
-	<td align=right> <b>{$sum_l.zalog.RUR|round:2} р.</b> </td>
+	<td>п▓я│п╣пЁп╬ п╥п╟п╩п╬пЁп╬п╡:</td>
+	<td align=right> <b>{$sum_l.zalog.RUR|round:2} я─.</b> </td>
 	<td>/</td>
 	<td align=right> <b>{$sum_l.zalog.USD|round:2} $</b> </td>
 </tr>
 
 <!--tr style="background-color: #eaeaea;">
-	<td>Всего услуг и товаров:</td>
-	<td align=right> <b>{$sum_l.service_and_goods.RUR|round:2} р.</b> </td>
+	<td>п▓я│п╣пЁп╬ я┐я│п╩я┐пЁ п╦ я┌п╬п╡п╟я─п╬п╡:</td>
+	<td align=right> <b>{$sum_l.service_and_goods.RUR|round:2} я─.</b> </td>
 	<td>/</td>
 	<td align=right> <b>{$sum_l.service_and_goods.USD|round:2} $</b></td>
 </tr-->
 <tr>
-	<td>Всего платежей:</td>
-	<td align=right> <b>{$sum_l.payments|round:2|default:'0.00'} р.</b></td>
+	<td>п▓я│п╣пЁп╬ п©п╩п╟я┌п╣п╤п╣п╧:</td>
+	<td align=right> <b>{$sum_l.payments|round:2|default:'0.00'} я─.</b></td>
 	<td></td>
 	<td></td>
 </tr>
 
 <tr  style="background-color: #eaeaea;">
-	<td>Общая сумма оказанных услуг:</td>
-	<td align=right> <b> {if $fixclient_data.currency=='USD'} {$sum.RUR.bill|round:2} р.{else}{$sum_cur.bill|round:2} р. {/if}</td>
+	<td>п·п╠я┴п╟я▐ я│я┐п╪п╪п╟ п╬п╨п╟п╥п╟п╫п╫я▀я┘ я┐я│п╩я┐пЁ:</td>
+	<td align=right> <b> {if $fixclient_data.currency=='USD'} {$sum.RUR.bill|round:2} я─.{else}{$sum_cur.bill|round:2} я─. {/if}</td>
 	<td>/</td>
 	<td align=right>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|round:2} ${else} <b>{$sum.USD.bill|round:2} $</b>{/if}</td>
 </tr>
 
 
 <tr>
-	<td>Общая сумма <span title='Клиент должен нам'>долга</span> (с учётом сальдо):</td>
-	<td align=right> <b>{if $fixclient_data.currency!='USD'} {$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum.RUR.delta+$sum.RUR.saldo|round:2}{/if} р.</b>
+	<td>п·п╠я┴п╟я▐ я│я┐п╪п╪п╟ <span title='п п╩п╦п╣п╫я┌ п╢п╬п╩п╤п╣п╫ п╫п╟п╪'>п╢п╬п╩пЁп╟</span> (я│ я┐я┤я▒я┌п╬п╪ я│п╟п╩я▄п╢п╬):</td>
+	<td align=right> <b>{if $fixclient_data.currency!='USD'} {$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum.RUR.delta+$sum.RUR.saldo|round:2}{/if} я─.</b>
 	<td>/</td>
 	<td align=right><b>{if $fixclient_data.currency=='USD'}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum.USD.delta+$sum.USD.saldo|round:2}{/if} $</b></td>
 </tr>
@@ -61,10 +61,10 @@
 <table>
 <tr>
     <td>
-        <b>IP-Телефония:</b><br/>
-        Расход за день: <b>{$counters.amount_day_sum}</b><br/>
-        Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-        Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
+        <b>IP-п╒п╣п╩п╣я└п╬п╫п╦я▐:</b><br/>
+        п═п╟я│я┘п╬п╢ п╥п╟ п╢п╣п╫я▄: <b>{$counters.amount_day_sum}</b><br/>
+        п═п╟я│я┘п╬п╢ п╥п╟ п╪п╣я│я▐я├: <b>{$counters.amount_month_sum}</b><br/>
+        п╒п╣п╨я┐я┴п╦п╧ п╠п╟п╩п╟п╫я│: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
     </td>
 </tr>
 </table>
@@ -74,18 +74,18 @@
 </table>
 
 <TABLE class=price cellSpacing=3 cellPadding=1 border=0 width=100%><TR>
-	<TD class=header vAlign=bottom colspan=3>Счёт</td>
+	<TD class=header vAlign=bottom colspan=3>п║я┤я▒я┌</td>
 	<TD class=header vAlign=bottom>&nbsp;</td>
-	<TD class=header vAlign=bottom colspan=4>Платёж</td>
+	<TD class=header vAlign=bottom colspan=4>п÷п╩п╟я┌я▒п╤</td>
 </TR><TR>
-	<TD class=header vAlign=bottom>Дата</TD>
-	<TD class=header vAlign=bottom>Номер</TD>
-	<TD class=header vAlign=bottom>Сумма</TD>
-	<TD class=header vAlign=bottom title='положительные числа - мы должны клиенту, отрицательные - клиент нам'>разница</TD>
-	<TD class=header vAlign=bottom>Сумма</TD>
-	<TD class=header vAlign=bottom>Дата</TD>
-	<TD class=header vAlign=bottom>Курс</TD>
-	<TD class=header vAlign=bottom>Кто</TD>
+	<TD class=header vAlign=bottom>п■п╟я┌п╟</TD>
+	<TD class=header vAlign=bottom>п²п╬п╪п╣я─</TD>
+	<TD class=header vAlign=bottom>п║я┐п╪п╪п╟</TD>
+	<TD class=header vAlign=bottom title='п©п╬п╩п╬п╤п╦я┌п╣п╩я▄п╫я▀п╣ я┤п╦я│п╩п╟ - п╪я▀ п╢п╬п╩п╤п╫я▀ п╨п╩п╦п╣п╫я┌я┐, п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╣ - п╨п╩п╦п╣п╫я┌ п╫п╟п╪'>я─п╟п╥п╫п╦я├п╟</TD>
+	<TD class=header vAlign=bottom>п║я┐п╪п╪п╟</TD>
+	<TD class=header vAlign=bottom>п■п╟я┌п╟</TD>
+	<TD class=header vAlign=bottom>п я┐я─я│</TD>
+	<TD class=header vAlign=bottom>п я┌п╬</TD>
 </TR>
 {foreach from=$billops item=op key=key name=outer}
 {count_comments v=$op}
@@ -100,8 +100,8 @@
 	<TD rowspan={$rowspan} class=pay{$op.bill.is_payed}>
 		<a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}</a>
 	</TD>
-	<TD rowspan={$rowspan} align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}р{/if}
-	{if $op.bill.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$op.bill.gen_bill_date}'>{$op.bill.gen_bill_rur} р</span>{/if}
+	<TD rowspan={$rowspan} align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}я─{/if}
+	{if $op.bill.gen_bill_rur!=0}<br><span style='font-size:85%' title='п║я┐п╪п╪п╟ я│я┤я▒я┌п╟, {$op.bill.gen_bill_date}'>{$op.bill.gen_bill_rur} я─</span>{/if}
 	</TD>
 {else}
 	<TD colspan=3 rowspan={$rowspan}>&nbsp;</TD>
@@ -138,7 +138,7 @@
 </TR>
 {if $op.switch_to_mcn }
 <tr>
-    <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">Мсн Телеком</td>
+    <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">п°я│п╫ п╒п╣п╩п╣п╨п╬п╪</td>
 </tr>
 {/if}
 

@@ -39,8 +39,8 @@
                     echo "\n".date("r").": sent - ".$r["user"]." ";
 
 
-                    echo "\n".iconv("koi8r", "utf8", $r["text"]);
-                    if(!$icq->sendMessage($uin, iconv("koi8r", "cp1251//translit", strim($r["text"]))))
+                    echo "\n".$r["text"];
+                    if(!$icq->sendMessage($uin, iconv("utf-8", "cp1251//translit", strim($r["text"]))))
                     {
                         echo "error: ".$icq->error;
                     }else{

@@ -1,10 +1,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<TITLE>/ MCN | Маркомнет {ldelim}MCN | Маркомнет{rdelim}
+<TITLE>/ MCN | п°п╟я─п╨п╬п╪п╫п╣я┌ {ldelim}MCN | п°п╟я─п╨п╬п╪п╫п╣я┌{rdelim}
 </TITLE>
-<meta http-equiv="Content-Type" content="text/html; charset=koi8-r">
-<META content="&#10;/ MCN | Маркомнет&#10;{ldelim}MCN | Маркомнет{rdelim}&#10;" name=title>
-<META content="Компания MCN. Быстрый интернет по технологии ADSL. IP-телефония, VoIP. Хостинг. Collocation. Подключение под ключ, выезд специалистов, оплата после подключения." name=description>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<META content="&#10;/ MCN | п°п╟я─п╨п╬п╪п╫п╣я┌&#10;{ldelim}MCN | п°п╟я─п╨п╬п╪п╫п╣я┌{rdelim}&#10;" name=title>
+<META content="п п╬п╪п©п╟п╫п╦я▐ MCN. п▒я▀я│я┌я─я▀п╧ п╦п╫я┌п╣я─п╫п╣я┌ п©п╬ я┌п╣я┘п╫п╬п╩п╬пЁп╦п╦ ADSL. IP-я┌п╣п╩п╣я└п╬п╫п╦я▐, VoIP. п╔п╬я│я┌п╦п╫пЁ. Collocation. п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п©п╬п╢ п╨п╩я▌я┤, п╡я▀п╣п╥п╢ я│п©п╣я├п╦п╟п╩п╦я│я┌п╬п╡, п╬п©п╩п╟я┌п╟ п©п╬я│п╩п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐." name=description>
 <LINK title=default href="{$PATH_TO_ROOT}main.css" type=text/css rel=stylesheet>
 <LINK media=print href="{$PATH_TO_ROOT}print.css" type=text/css rel=stylesheet>
 <LINK href="/favicon.ico" rel="SHORTCUT ICON">
@@ -12,19 +12,19 @@
 
 <BODY text=#404040 vLink=#000099 aLink=#000000 link=#000099 bgColor=#efefef>
 
-<h1>Добавление платежей</h1>
+<h1>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п©п╩п╟я┌п╣п╤п╣п╧</h1>
 <p>{$error_message}</p>
-<a href="#" onclick="javascript:opener.location.reload(); self.close()">Закрыть окно</a><br><br>
+<a href="#" onclick="javascript:opener.location.reload(); self.close()">п≈п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a><br><br>
 
 <form action="?client={$client}&todo=add_payment" method="POST">
 <table align="left" border="1" bgcolor="#c5d6e3"   cellpadding="5">
 	<tr>
-		<TD>Сумма платежа</TD>
-		<TD>Платежное поручение</TD>
-		<TD>Дата платежа(ГГГГ-ММ-ДД)</TD>
-		<td>Счет</td>
-		<td>Провести по курсу <br>на день оплаты, <br>в случае переплаты</td>
-		<td>Тип платежа</td>
+		<TD>п║я┐п╪п╪п╟ п©п╩п╟я┌п╣п╤п╟</TD>
+		<TD>п÷п╩п╟я┌п╣п╤п╫п╬п╣ п©п╬я─я┐я┤п╣п╫п╦п╣</TD>
+		<TD>п■п╟я┌п╟ п©п╩п╟я┌п╣п╤п╟(п⌠п⌠п⌠п⌠-п°п°-п■п■)</TD>
+		<td>п║я┤п╣я┌</td>
+		<td>п÷я─п╬п╡п╣я│я┌п╦ п©п╬ п╨я┐я─я│я┐ <br>п╫п╟ п╢п╣п╫я▄ п╬п©п╩п╟я┌я▀, <br>п╡ я│п╩я┐я┤п╟п╣ п©п╣я─п╣п©п╩п╟я┌я▀</td>
+		<td>п╒п╦п© п©п╩п╟я┌п╣п╤п╟</td>
 
 
 		
@@ -42,19 +42,19 @@
         	<td><INPUT type="checkbox" name="flag" value='1' checked="true"></td>
         	<TD>
         		<SELECT name="type">
-        		<option  value="0">Безнал</option>
-        		<option value="1">Непроводной нал USD</option>
-        		<option value="2">Непроводной нал РУБ</option>
-        		<option value="3">Проводной нал</option>
+        		<option  value="0">п▒п╣п╥п╫п╟п╩</option>
+        		<option value="1">п²п╣п©я─п╬п╡п╬п╢п╫п╬п╧ п╫п╟п╩ USD</option>
+        		<option value="2">п²п╣п©я─п╬п╡п╬п╢п╫п╬п╧ п╫п╟п╩ п═пёп▒</option>
+        		<option value="3">п÷я─п╬п╡п╬п╢п╫п╬п╧ п╫п╟п╩</option>
          		</SELECT>
         	</TD>
 	</tr>
-		<td> Комментарий к платежу </td>
+		<td> п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ п©п╩п╟я┌п╣п╤я┐ </td>
 		<td colspan="5"><textarea name="comment" cols="100" rows="3"></textarea></td>
 	<tr>
 	</tr>
 	<tr>
-		<TD colspan="6"><INPUT type="submit" name="payment" value="Внести платеж"></TD>
+		<TD colspan="6"><INPUT type="submit" name="payment" value="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤"></TD>
 		
 	</tr>
 

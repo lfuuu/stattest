@@ -1,18 +1,18 @@
-<H2>Сотрудники</H2>
+<H2>п║п╬я┌я─я┐п╢п╫п╦п╨п╦</H2>
 {if isset($emp_user)}
 <h3>{$emp_user.name}</h3>
 <TABLE class=mform cellSpacing=4 cellPadding=2 width=80% border=0>
 <TBODY>
-	<TR><TD class=left>Логин:</TD><TD>
+	<TR><TD class=left>п⌡п╬пЁп╦п╫:</TD><TD>
 	{$emp_user.user}
 	</TD></TR>
-	<TR><TD class=left>Группа:</TD><TD>
+	<TR><TD class=left>п⌠я─я┐п©п©п╟:</TD><TD>
 	{$emp_user.usergroup}
 	</TD></TR>
-	<TR><TD class=left>Полное имя:</TD><TD>
+	<TR><TD class=left>п÷п╬п╩п╫п╬п╣ п╦п╪я▐:</TD><TD>
 	{$emp_user.name}
 	</TD></TR>
-	<TR><TD class=left>Перенаправление траблов:</TD><TD>
+	<TR><TD class=left>п÷п╣я─п╣п╫п╟п©я─п╟п╡п╩п╣п╫п╦п╣ я┌я─п╟п╠п╩п╬п╡:</TD><TD>
 	{$emp_user.trouble_redirect}
 	</TD></TR>
 	<TR><TD class=left>e-mail:</TD><TD>
@@ -34,15 +34,15 @@
 <option value="{$item.usergroup}"{if isset($emp_group) && ($emp_group.usergroup==$item.usergroup)} selected{/if}>{$item.comment} - {$item.usergroup}</option>
 {/foreach}
 </select>
-<input type=submit value='Посмотреть' class=button>
+<input type=submit value='п÷п╬я│п╪п╬я┌я─п╣я┌я▄' class=button>
 </form>
 
 {if isset($emp_group)}
 <h3>{$emp_group.usergroup}</h3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
-<TR><TD class=header vAlign=bottom>Login<br>Полное имя</TD>
-<TD class=header vAlign=bottom>Фото?</TD></TR>
+<TR><TD class=header vAlign=bottom>Login<br>п÷п╬п╩п╫п╬п╣ п╦п╪я▐</TD>
+<TD class=header vAlign=bottom>п╓п╬я┌п╬?</TD></TR>
 
 {foreach from=$emp_users item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>

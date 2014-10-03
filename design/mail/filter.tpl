@@ -1,5 +1,5 @@
-<H2>Письма клиентам. <a href='{$LINK_START}&module=mail&action=view&id={$mail_id}'>Письмо &#8470;{$mail_id}</a></H2>
-<H3>Добавление клиентов в очередь на отправку писем</H3>
+<H2>п÷п╦я│я▄п╪п╟ п╨п╩п╦п╣п╫я┌п╟п╪. <a href='{$LINK_START}&module=mail&action=view&id={$mail_id}'>п÷п╦я│я▄п╪п╬ &#8470;{$mail_id}</a></H2>
+<H3>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╨п╩п╦п╣п╫я┌п╬п╡ п╡ п╬я┤п╣я─п╣п╢я▄ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п©п╦я│п╣п╪</H3>
 {if count($mail_clients)}
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0 style='width:*' width="*">
 <FORM action="?" method=post id=form name=form>
@@ -23,7 +23,7 @@
 
 <TBODY>
 <TR>
-  <TD class=header vAlign=bottom>Клиент</TD>
+  <TD class=header vAlign=bottom>п п╩п╦п╣п╫я┌</TD>
   <TD class=header valign=bottom><input type=checkbox id='allconfirm' {if !$disable_filter}checked{/if} onclick='javascript:check_all()'></td>
   <TD class=header valign=bottom><input type=checkbox id='allconfirm2' checked onclick='javascript:check_all2()'></td>
   <TD>&nbsp;</TD>
@@ -37,7 +37,7 @@
 </TR>
 {/if}{/foreach}
 </TBODY></TABLE>
-<INPUT id=submit class=button type=submit value="Добавить всех этих клиентов в список на отправку">
+<INPUT id=submit class=button type=submit value="п■п╬п╠п╟п╡п╦я┌я▄ п╡я│п╣я┘ я█я┌п╦я┘ п╨п╩п╦п╣п╫я┌п╬п╡ п╡ я│п©п╦я│п╬п╨ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐">
 </FORM>
 <script>
 function check_all(){ldelim}
@@ -62,36 +62,36 @@ function check_all2(){ldelim}
 <input type=hidden name=module value=mail>
 <input type=hidden name=ack value=1>
 <tbody>
-<TR><TD>Статус клиента</TD><TD>
-<select name='filter[status][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_status item=r key=k}<option value={$k} {if $mail_filter.status.0 == $k}selected="selected"{/if}>{$r.name}</option>{/foreach}</select>
+<TR><TD>п║я┌п╟я┌я┐я│ п╨п╩п╦п╣п╫я┌п╟</TD><TD>
+<select name='filter[status][0]'><option value='NO'>(п╫п╣ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ я█я┌п╬п╪я┐ п©п╬п╩я▌)</option>{foreach from=$f_status item=r key=k}<option value={$k} {if $mail_filter.status.0 == $k}selected="selected"{/if}>{$r.name}</option>{/foreach}</select>
 </td></tr>
-<TR><TD>Менеджер</TD><TD>
-<select name='filter[manager][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$mail_filter.manager.0} selected="selected"{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
+<TR><TD>п°п╣п╫п╣п╢п╤п╣я─</TD><TD>
+<select name='filter[manager][0]'><option value='NO'>(п╫п╣ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ я█я┌п╬п╪я┐ п©п╬п╩я▌)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$mail_filter.manager.0} selected="selected"{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
 </td></tr>
-<tr><td>Счета</TD><TD>
-<select name='filter[bill][0]'><option value='NO'>(не фильтровать по этому полю)</option>
-<option value='1' {if $mail_filter.bill.0 == 1}selected{/if}>любые</option>
-<option value='2' {if $mail_filter.bill.0 == 2}selected{/if}>полностью неоплаченные(красные)</option>
-<option value='3' {if $mail_filter.bill.0 == 3}selected{/if}>оплаченные не полностью(желтые)</option>
-<option value='4' {if $mail_filter.bill.0 == 4}selected{/if}>не полностью оплаченные(красные и желтые)</option>
+<tr><td>п║я┤п╣я┌п╟</TD><TD>
+<select name='filter[bill][0]'><option value='NO'>(п╫п╣ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ я█я┌п╬п╪я┐ п©п╬п╩я▌)</option>
+<option value='1' {if $mail_filter.bill.0 == 1}selected{/if}>п╩я▌п╠я▀п╣</option>
+<option value='2' {if $mail_filter.bill.0 == 2}selected{/if}>п©п╬п╩п╫п╬я│я┌я▄я▌ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣(п╨я─п╟я│п╫я▀п╣)</option>
+<option value='3' {if $mail_filter.bill.0 == 3}selected{/if}>п╬п©п╩п╟я┤п╣п╫п╫я▀п╣ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌(п╤п╣п╩я┌я▀п╣)</option>
+<option value='4' {if $mail_filter.bill.0 == 4}selected{/if}>п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣(п╨я─п╟я│п╫я▀п╣ п╦ п╤п╣п╩я┌я▀п╣)</option>
 </select>
 </option></select>
-с <input type=text name='date_from' id="date_from" value='{$date_from}'>
-по <input type=text name='date_to' id="date_to" value='{$date_to}'>
+я│ <input type=text name='date_from' id="date_from" value='{$date_from}'>
+п©п╬ <input type=text name='date_to' id="date_to" value='{$date_to}'>
 </td></tr>
-<tr><td>Услуга: 8800</TD><TD>
-<select name='filter[s8800][0]'><option value='NO'>(не фильтровать по этому полю)</option>
-<option value='with'{if $mail_filter.s8800.0 == 'with'} selected{/if}>с услугой</option>
-<option value='without'{if $mail_filter.s8800.0 == 'without'} selected{/if}>без услуги</option>
+<tr><td>пёя│п╩я┐пЁп╟: 8800</TD><TD>
+<select name='filter[s8800][0]'><option value='NO'>(п╫п╣ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ я█я┌п╬п╪я┐ п©п╬п╩я▌)</option>
+<option value='with'{if $mail_filter.s8800.0 == 'with'} selected{/if}>я│ я┐я│п╩я┐пЁп╬п╧</option>
+<option value='without'{if $mail_filter.s8800.0 == 'without'} selected{/if}>п╠п╣п╥ я┐я│п╩я┐пЁп╦</option>
 </select>
 </option></select>
 </td></tr>
 
-<tr><td>Регионы:</TD><TD>
+<tr><td>п═п╣пЁп╦п╬п╫я▀:</TD><TD>
 <select name="filter[region_for][0]" onchange="show_all_regions(this.value);">
-	<option value="NO" {if !$mail_filter.region_for.0 || $mail_filter.region_for.0 == 'NO'} selected="selected"{/if}>не фильтровать по этому полю</option>
-	<option value="client" {if $mail_filter.region_for.0 == 'client'} selected="selected"{/if}>Регионы для клиентов</option>
-	<option id="for_tarifs" value="tarif" {if $mail_filter.region_for.0 == 'tarif'} selected="selected"{/if}>Регионы для номеров</option>
+	<option value="NO" {if !$mail_filter.region_for.0 || $mail_filter.region_for.0 == 'NO'} selected="selected"{/if}>п╫п╣ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ я█я┌п╬п╪я┐ п©п╬п╩я▌</option>
+	<option value="client" {if $mail_filter.region_for.0 == 'client'} selected="selected"{/if}>п═п╣пЁп╦п╬п╫я▀ п╢п╩я▐ п╨п╩п╦п╣п╫я┌п╬п╡</option>
+	<option id="for_tarifs" value="tarif" {if $mail_filter.region_for.0 == 'tarif'} selected="selected"{/if}>п═п╣пЁп╦п╬п╫я▀ п╢п╩я▐ п╫п╬п╪п╣я─п╬п╡</option>
 </select>
 </td></tr>
 
@@ -116,7 +116,7 @@ function check_all2(){ldelim}
 </tr>
 
 <tr id="tr_tarifs" {if $mail_filter.region_for.0 != 'tarif'}style="display: none;"{/if}>
-	<td>Тарифы:</TD>
+	<td>п╒п╟я─п╦я└я▀:</TD>
 	<TD>
 		{foreach from=$f_tarifs item="reg" key="k"}
 		{assign var="selected_region" value=false}
@@ -143,7 +143,7 @@ function check_all2(){ldelim}
 </tr>
 
 <tr><td colspan=2>
-<INPUT id=submit class=button type=submit value="Фильтр">
+<INPUT id=submit class=button type=submit value="п╓п╦п╩я▄я┌я─">
 </td></tr>
 </tbody></form></table>
 <script>

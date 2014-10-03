@@ -119,7 +119,7 @@ function __dbmap_prefilter($source,&$smarty) {
 			<option value={$i_item.key}{if $item.value==$i_item.key} selected{/if}>{$i_item.show}</option>
 		{/foreach}
 		{if $item.show==3}
-			<option value=nouse selected>использовать текстовое поле</option>
+			<option value=nouse selected>п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┌п╣п╨я│я┌п╬п╡п╬п╣ п©п╬п╩п╣</option>
 		{/if}
 	</SELECT>
 {/if}
@@ -151,23 +151,23 @@ function __get_region_by_dgroups($params){
 	$ret = '';
 	if($g == 0){
 		if($s == 0)
-			$ret = 'Москва (моб)';
+			$ret = 'п°п╬я│п╨п╡п╟ (п╪п╬п╠)';
 		elseif($s==1)
-			$ret = 'Москва (стац)';
+			$ret = 'п°п╬я│п╨п╡п╟ (я│я┌п╟я├)';
 		elseif($s==96)
-			$ret = 'Москва (абон)';
+			$ret = 'п°п╬я│п╨п╡п╟ (п╟п╠п╬п╫)';
 		else
-			$ret = 'Москва (др)';
+			$ret = 'п°п╬я│п╨п╡п╟ (п╢я─)';
 	}elseif($g == 1){
 		if($s == 98)
-			$ret = 'Россия Фрифон';
+			$ret = 'п═п╬я│я│п╦я▐ п╓я─п╦я└п╬п╫';
 		else
-			$ret = 'Россия';
+			$ret = 'п═п╬я│я│п╦я▐';
 	}else{
 		if($s == 97)
-			$ret = 'Международное Фрифон';
+			$ret = 'п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣ п╓я─п╦я└п╬п╫';
 		else
-			$ret = 'Международное';
+			$ret = 'п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╣';
 	}
 	return $ret;
 }
@@ -292,20 +292,20 @@ function smarty_function_objCurrency($params,&$smarty) {
 	if ($obj=='delta') {
 		$curr = (isset($op['bill']) ? $op['bill']['currency'] : $params['currency']);
 		$sum = sprintf("%0.2f",$op['delta']);
-		if ($curr=='RUR') return $sum.' р';
+		if ($curr=='RUR') return $sum.' я─';
 		
 		if (!$simple && count($op['pays'])>=1 && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
-			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta']*$op['pays'][0]['payment_rate']).' р</span>';
+			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta']*$op['pays'][0]['payment_rate']).' я─</span>';
 		} else {
 			return $sum.' $';
 		}
 	} elseif ($obj=='delta2') {
 		$curr = (isset($op['bill']) ? $op['bill']['currency'] : $params['currency']);
 		$sum = sprintf("%0.2f",$op['delta2']);
-		if ($curr=='RUR') return $sum.' р';
+		if ($curr=='RUR') return $sum.' я─';
 		
 		if (!$simple && count($op['pays'])>=1 && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
-			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta2']*$op['pays'][0]['payment_rate']).' р</span>';
+			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta2']*$op['pays'][0]['payment_rate']).' я─</span>';
 		} else {
 			return $sum.' $';
 		}
@@ -314,25 +314,25 @@ function smarty_function_objCurrency($params,&$smarty) {
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_rub_full']);
 		$curr = $params['pay']['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
-		if ($one) return $sum.' р';
+		if ($one) return $sum.' я─';
 		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rur.' р = '.$sum.' $';
+		return $sum_rur.' я─ = '.$sum.' $';
 	} elseif ($obj=='pay2') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_pay']);
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_pay_rub']);
 		$curr = $params['pay']['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
-		if ($one) return $sum.' р';
+		if ($one) return $sum.' я─';
 		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rur.' р = '.$sum.' $';
+		return $sum_rur.' я─ = '.$sum.' $';
 	} elseif ($obj=='pay') {
 		$sum = sprintf("%0.2f",$params['pay']['sum']);
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_rub']);
 		$curr = $params['pay']['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
-		if ($one) return $sum.' р';
+		if ($one) return $sum.' я─';
 		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rur.' р = '.$sum.' $';
+		return $sum_rur.' я─ = '.$sum.' $';
 	}
 }
 

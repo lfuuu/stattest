@@ -1,7 +1,7 @@
 <?php
 
     /** 
-    * Отдает файл уведомления
+    * п·я┌п╢п╟п╣я┌ я└п╟п╧п╩ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦я▐
     */
 function get_file($filePath)
 {
@@ -20,7 +20,7 @@ function get_file($filePath)
         echo system("cat ".$filePath.$file.".mp3");
         exit();
     }else{
-        die("<b style=\"color: #c40000;\">Файл не найден!</b>");
+        die("<b style=\"color: #c40000;\">п╓п╟п╧п╩ п╫п╣ п╫п╟п╧п╢п╣п╫!</b>");
     }
 }
 
@@ -41,15 +41,15 @@ function anonses_edit($filePath)
         $error = false;
 
         if (empty($rGet["name"])) {
-            $msg[] = "Введите название!";
+            $msg[] = "п▓п╡п╣п╢п╦я┌п╣ п╫п╟п╥п╡п╟п╫п╦п╣!";
             $error = true;
         } else {
 
             try{
-                //checker::isUsed($rGet["name"], "name", "files", $id, "Уведомление с таким именем уже используется!");
+                //checker::isUsed($rGet["name"], "name", "files", $id, "пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ я│ я┌п╟п╨п╦п╪ п╦п╪п╣п╫п╣п╪ я┐п╤п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐!");
             }catch(Exception $e){
                 $error = true;
-                $msg[] = "Уведомление с таким именем уже используется!";
+                $msg[] = "пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ я│ я┌п╟п╨п╦п╪ п╦п╪п╣п╫п╣п╪ я┐п╤п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐!";
             }
         }
 
@@ -83,11 +83,11 @@ function anonses_edit($filePath)
 
         }else{
             $error = true;
-            $msg[] = "Необходимо загрузить файл";
+            $msg[] = "п²п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╥п╟пЁя─я┐п╥п╦я┌я▄ я└п╟п╧п╩";
         }
 
 
-        // выводим список уведомлений если нет ошибки
+        // п╡я▀п╡п╬п╢п╦п╪ я│п©п╦я│п╬п╨ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╧ п╣я│п╩п╦ п╫п╣я┌ п╬я┬п╦п╠п╨п╦
         if (!$error) {
             header("Location: ./?module=ats&action=anonses");
             exit();
@@ -95,16 +95,16 @@ function anonses_edit($filePath)
     }
 
     /*
-       выводим форму для обновления
+       п╡я▀п╡п╬п╢п╦п╪ я└п╬я─п╪я┐ п╢п╩я▐ п╬п╠п╫п╬п╡п╩п╣п╫п╦я▐
      */
 
     $f = array();
     $r = array("name" => "", "id" => 0);
 
     if ($id == 0) {
-        $title= "Добавление приветствия";
+        $title= "п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п©я─п╦п╡п╣я┌я│я┌п╡п╦я▐";
     } else {
-        $title= "Редактирование приветствия";
+        $title= "п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╦п╡п╣я┌я│я┌п╡п╦я▐";
 
         $r = $db->GetRow("SELECT * from anonses WHERE id='".$id."' and ".sqlClient());
     }
@@ -114,9 +114,9 @@ function anonses_edit($filePath)
     $design->assign("uplink", 
             ( $id!=0 && file_exists($filePath.$id.".mp3") 
               ? 
-              "<a href=\"./?module=ats&action=anonses&file=".$id."\">[Скачать]</a>" 
+              "<a href=\"./?module=ats&action=anonses&file=".$id."\">[п║п╨п╟я┤п╟я┌я▄]</a>" 
               : 
-              "[Нет файла]")
+              "[п²п╣я┌ я└п╟п╧п╩п╟]")
             );
 
     $design->assign("msg",implode("<br>", $msg));
@@ -146,7 +146,7 @@ function saveFile(&$error, &$msg, $id, $filePath)
     {
         rename($fileName.".tmp", $fileName.".tmp.wav");
     }else{
-        $error[] = "Неизвестный формат. Можно MP3 или WAV.";
+        $error[] = "п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я└п╬я─п╪п╟я┌. п°п╬п╤п╫п╬ MP3 п╦п╩п╦ WAV.";
         $error = true;
         @unlink($fileName.".tmp");
         return false;

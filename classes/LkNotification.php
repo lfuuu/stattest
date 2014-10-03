@@ -111,8 +111,8 @@ class LkNotification {
     {
         global $db;
 
-        $subject = Encoding::toKoi8r($this->getSubject());
-        $msg = Encoding::toKoi8r($this->getMessage());
+        $subject = $this->getSubject();
+        $msg = $this->getMessage();
 
         if (defined("TEST_NOTICE") && defined("ADMIN_EMAIL"))
         {
@@ -152,7 +152,7 @@ class LkNotification {
         {
             $params = array(
                     'data'=> ADMIN_PHONE,
-                    'message'=>$phoneNumber.Encoding::toKoi8r($this->getMessage()),
+                    'message'=>$this->getMessage(),
                     'type'=>'phone',
                     'contact_id'=>$this->Contact->id
                     );
@@ -162,7 +162,7 @@ class LkNotification {
 
         $params = array(
                     'data'=> $phoneNumber,
-                    'message'=> Encoding::toKoi8r($this->getMessage()),
+                    'message'=> $this->getMessage(),
                     'type'=>'phone',
                     'contact_id'=>$this->Contact->id
                 );

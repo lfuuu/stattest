@@ -3,21 +3,21 @@
     <input type="hidden" name="action" value="voip_local_report" />
     <table>
         <tr>
-            <td>С</td>
+            <td>п║</td>
             <td><select name="date_from_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=2003 selected=$date_from_yy}</select></td>
             <td><select name="date_from_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_from_mm}</select></td>
             <td><select name="date_from_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_from_y','date_from_m','date_from_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_from_dd}</select></td>
             <td>&nbsp;</td>
-            <td>По</td>
+            <td>п÷п╬</td>
             <td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_yy}</select></td>
             <td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_mm}</select></td>
             <td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select></td>
         </tr>
         <tr>
-            <td>Оператор</td>
+            <td>п·п©п╣я─п╟я┌п╬я─</td>
             <td colspan="8">
                 <select name="operator">
-                    <option value="all">Все</option>
+                    <option value="all">п▓я│п╣</option>
                     {foreach from=$operators item='o'}
                     <option value="{$o.id}"{if $operator eq $o.id} selected='selected'{/if}>{$o.name} ({$o.id})</option>
                     {/foreach}
@@ -25,33 +25,33 @@
             </td>
         </tr>
         <tr>
-            <td>Группировка</td>
+            <td>п⌠я─я┐п©п©п╦я─п╬п╡п╨п╟</td>
             <td colspan="8">
                 <select name="groupp">
-                    <option value="0">Нет</option>
-                    <option value="1"{if $groupp==1} selected='selected'{/if}>По дням</option>
-                    <option value="2"{if $groupp==2} selected='selected'{/if}>По месяцам</option>
+                    <option value="0">п²п╣я┌</option>
+                    <option value="1"{if $groupp==1} selected='selected'{/if}>п÷п╬ п╢п╫я▐п╪</option>
+                    <option value="2"{if $groupp==2} selected='selected'{/if}>п÷п╬ п╪п╣я│я▐я├п╟п╪</option>
                 </select>
             </td>
-            <td>Регион</td>
+            <td>п═п╣пЁп╦п╬п╫</td>
             <td colspan="8">
                 <select name="region">
-                    <option value="0">Все</option>
+                    <option value="0">п▓я│п╣</option>
                     {foreach from=$regions item='r'}
                     <option value="{$r.id}"{if $r.id eq $region} selected{/if}>{$r.name}</option>
                     {/foreach}
                 </select>
             </td>
         </tr>
-        <tr><td colspan="9"><label><input type="checkbox" name="details" value="1" {if $details > 0}checked{/if}>подробности</label> <input type="submit" name="get" value="Сформировать" /></td></tr>
+        <tr><td colspan="9"><label><input type="checkbox" name="details" value="1" {if $details > 0}checked{/if}>п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦</label> <input type="submit" name="get" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄" /></td></tr>
     </table>
 </form>
 
 {if isset($report)}
 <table class='price' cellSpacing='4' cellPadding='2'  border='0'>
     <tr>
-        {if $groupp}<td class='header'>Дата</td>{/if}
-        <td class='header'>Оператор</td>
+        {if $groupp}<td class='header'>п■п╟я┌п╟</td>{/if}
+        <td class='header'>п·п©п╣я─п╟я┌п╬я─</td>
         {foreach from=$columns item='n'}
         <td class='header'>{$n}</td>
         {/foreach}
@@ -63,17 +63,17 @@
         {foreach from=$columns key='k' item='n'}
         <td>{if $r[$k]}
                 {if $details}
-                    Длительность (мин):<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r[$k].len|round:2}</b><br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r[$k].len_op|round:2}<br />
+                    п■п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄ (п╪п╦п╫):<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;я└п╟п╨я┌ <b>{$r[$k].len|round:2}</b><br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;п╬п©п╣я─п╟я┌п╬я─ {$r[$k].len_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].len_mcn|round:2}<br />
-                    Стоимость:<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор    {$r[$k].amount_op|round:2}<br />
+                    п║я┌п╬п╦п╪п╬я│я┌я▄:<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;п╬п©п╣я─п╟я┌п╬я─    {$r[$k].amount_op|round:2}<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].amount_mcn|round:2}<br />
-                    Количество: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
+                    п п╬п╩п╦я┤п╣я│я┌п╡п╬: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
                 {else}
-                    Минут: <b>{$r[$k].len|round:2}</b><br />
-                    Количество: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
+                    п°п╦п╫я┐я┌: <b>{$r[$k].len|round:2}</b><br />
+                    п п╬п╩п╦я┤п╣я│я┌п╡п╬: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
                 {/if}
             {/if}
         </td>

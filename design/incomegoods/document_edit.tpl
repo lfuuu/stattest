@@ -3,17 +3,17 @@
 {include file='utils/error_modal.tpl'}
 
 <h4>
-	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
-	<small>Заказ
+	<small><a href="?module=incomegoods&action=order_list">п≈п╟п╨п╟п╥я▀</a> - </small>
+	<small>п≈п╟п╨п╟п╥
 		<a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 			{$order->number}</a> -
 	</small>
-	Поступление товаров
+	п÷п╬я│я┌я┐п©п╩п╣п╫п╦п╣ я┌п╬п╡п╟я─п╬п╡
 	<a href="?module=incomegoods&action=document_view&id={$document->id}"><span class="{if $document->active}icon_active{elseif $document->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 		{$document->number}</a>
 
 	<small><a href="?module=incomegoods&action=document_edit&id={$document->id}"><span class="icon_edit"></span>
-			<span style="color: darkred">{if $document->id}Редактирование{else}Создание{/if}</span></a></small>
+			<span style="color: darkred">{if $document->id}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣{else}п║п╬п╥п╢п╟п╫п╦п╣{/if}</span></a></small>
 </h4>
 
 <form id="ajaxForm" action="?module=incomegoods&action=document_save" method="POST">
@@ -22,61 +22,61 @@
 
 	<table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
 		<tr>
-			<th>Проведение</th>
+			<th>п÷я─п╬п╡п╣п╢п╣п╫п╦п╣</th>
 			<td>
 				<select name="active" class="form-control input-sm">
-					<option value="1" {if $document->active==1}selected{/if}>Проведен</option>
-					<option value="0" {if $document->active==0}selected{/if}>Не проведен</option>
+					<option value="1" {if $document->active==1}selected{/if}>п÷я─п╬п╡п╣п╢п╣п╫</option>
+					<option value="0" {if $document->active==0}selected{/if}>п²п╣ п©я─п╬п╡п╣п╢п╣п╫</option>
 				</select>
 			</td>
 		</tr>
 		{if !$document->is_new_record()}
 		<tr>
-			<th>Номер, Дата</th>
-			<td>{$document->number} от {$document->date->format('d.m.Y H:i:s')}</td>
+			<th>п²п╬п╪п╣я─, п■п╟я┌п╟</th>
+			<td>{$document->number} п╬я┌ {$document->date->format('d.m.Y H:i:s')}</td>
 		</tr>
 		{/if}
 		<tr>
-			<th>Поставщик</th>
+			<th>п÷п╬я│я┌п╟п╡я┴п╦п╨</th>
 			<td>{$document->client_card->company}</td>
 		</tr>
 		<tr>
-			<th>Организация</th>
+			<th>п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐</th>
 			<td>{$document->organization->name}</td>
 		</tr>
 		<tr>
-			<th>Склад</th>
+			<th>п║п╨п╩п╟п╢</th>
 			<td>{$document->store->name}</td>
 		</tr>
 		<tr>
-			<th>Валюта</th>
+			<th>п▓п╟п╩я▌я┌п╟</th>
 			<td>{$document->currency}</td>
 		</tr>
 		<tr>
-			<th>Сумма Итого</th>
+			<th>п║я┐п╪п╪п╟ п≤я┌п╬пЁп╬</th>
 			<th class="sum_itog">{$document->sum}</th>
 		</tr>
 		{if $document->comment}
 			<tr>
-				<th>Комментарий</th>
+				<th>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</th>
 				<td>{$document->comment}</td>
 			</tr>
 		{/if}
 	</table>
 
 	<table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px; margin-right: 10px;">
-		<caption><h5 class="text-left">Документы поступления:</h5></caption>
+		<caption><h5 class="text-left">п■п╬п╨я┐п╪п╣п╫я┌я▀ п©п╬я│я┌я┐п©п╩п╣п╫п╦я▐:</h5></caption>
 		{foreach from=$order->documents item=item}
 			<tr>
 				{if $document->id != $item->id}
 					<td><a href="?module=incomegoods&action=document_view&id={$item->id}">
 							<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-							{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+							{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 						</a></td>
 				{else}
 					<td>
 						<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-						{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+						{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 					</td>
 				{/if}
 			</tr>
@@ -84,12 +84,12 @@
 	</table>
 
 	<table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px">
-		<caption><h5 class="text-left">Приходные ордера:</h5></caption>
+		<caption><h5 class="text-left">п÷я─п╦я┘п╬п╢п╫я▀п╣ п╬я─п╢п╣я─п╟:</h5></caption>
 		{foreach from=$order->stores item=item}
 			<tr>
 				<td><a href="?module=incomegoods&action=store_view&id={$item->id}">
 						<span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-						{$item->number} от {$item->date->format('d.m.Y H:i:s')}
+						{$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
 					</a></td>
 			</tr>
 		{/foreach}
@@ -99,18 +99,18 @@
 
 	<table class="table table-bordered table-condensed table-hover">
 		<thead>
-		<caption><h5 class="text-left">Товары:</h5></caption>
+		<caption><h5 class="text-left">п╒п╬п╡п╟я─я▀:</h5></caption>
 		<tr>
-			<th>Код</th>
-			<th>Наименование</th>
-			<th>Заказано</th>
-			<th>Поступило</th>
-			<th>Оприходовано</th>
-			<th>Количество</th>
-			<th>Цена</th>
-			<th>Сумма <small>{if $document->price_includes_nds}(Вкл. НДС){else}(Без НДС){/if}</small></th>
-			<th>Сумма НДС</th>
-			<th>Номер ГТД</th>
+			<th>п п╬п╢</th>
+			<th>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣</th>
+			<th>п≈п╟п╨п╟п╥п╟п╫п╬</th>
+			<th>п÷п╬я│я┌я┐п©п╦п╩п╬</th>
+			<th>п·п©я─п╦я┘п╬п╢п╬п╡п╟п╫п╬</th>
+			<th>п п╬п╩п╦я┤п╣я│я┌п╡п╬</th>
+			<th>п╕п╣п╫п╟</th>
+			<th>п║я┐п╪п╪п╟ <small>{if $document->price_includes_nds}(п▓п╨п╩. п²п■п║){else}(п▒п╣п╥ п²п■п║){/if}</small></th>
+			<th>п║я┐п╪п╪п╟ п²п■п║</th>
+			<th>п²п╬п╪п╣я─ п⌠п╒п■</th>
 		</tr>
 		</thead>
 		<tbody id="goods_body">
@@ -121,7 +121,7 @@
 					<input type="hidden" name="item[{$item.pos}][good_id]" value="{$item.good_id}" />
 				</td>
 				<td>
-					{if $item.line_code == 0}<b>(Позиция отсутствует в заказе)</b><br/>{/if}
+					{if $item.line_code == 0}<b>(п÷п╬п╥п╦я├п╦я▐ п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌ п╡ п╥п╟п╨п╟п╥п╣)</b><br/>{/if}
 					{$item.good_name}
 				</td>
 				<td>{if $item.order_line}{$item.order_line->amount}{/if}</td>
@@ -146,7 +146,7 @@
 		</tbody>
 		<tfoot id="goods_foot">
 		<tr>
-			<th colspan="7">Итого</th>
+			<th colspan="7">п≤я┌п╬пЁп╬</th>
 			<th class="sum">0</th>
 			<th class="sum_nds">0</th>
 			<th>&nbsp;</th>
@@ -154,7 +154,7 @@
 		</tfoot>
 	</table>
 
-	<input id="ajaxFormSubmit" type="button" class="btn btn-primary" value="Сохранить">
+	<input id="ajaxFormSubmit" type="button" class="btn btn-primary" value="п║п╬я┘я─п╟п╫п╦я┌я▄">
 </form>
 
 <div id="addGtdModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addGtdModalLabel" aria-hidden="true">
@@ -163,21 +163,21 @@
 
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h3 id="addGtdModalLabel">Добавление Номера ГТД</h3>
+				<h3 id="addGtdModalLabel">п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п²п╬п╪п╣я─п╟ п⌠п╒п■</h3>
 			</div>
 			<div class="modal-body">
-				<p>Номер ГТД не найден. Добавить Его?</p>
+				<p>п²п╬п╪п╣я─ п⌠п╒п■ п╫п╣ п╫п╟п╧п╢п╣п╫. п■п╬п╠п╟п╡п╦я┌я▄ п∙пЁп╬?</p>
 				<input type="text" id="add_gtd_code" class="form-control input-sm" value="" /> <br/><br/>
 				<select id="add_gtd_country" class="form-control input-sm">
-					<option value="">----- Выберите страну -----</option>
+					<option value="">----- п▓я▀п╠п╣я─п╦я┌п╣ я│я┌я─п╟п╫я┐ -----</option>
 					{foreach from=$countries item=country}
 						<option value="{$country->code}">{$country->name}</option>
 					{/foreach}
 				</select>
 			</div>
 			<div class="modal-footer">
-				<button id="add_gtd_button" class="btn btn-primary">Добавить</button>
-				<button class="btn btn-default" data-dismiss="modal">Закрыть</button>
+				<button id="add_gtd_button" class="btn btn-primary">п■п╬п╠п╟п╡п╦я┌я▄</button>
+				<button class="btn btn-default" data-dismiss="modal">п≈п╟п╨я─я▀я┌я▄</button>
 			</div>
 
 		</div><!-- /.modal-content -->
@@ -285,7 +285,7 @@ var price_includes_nds = {if $document->price_includes_nds}true{else}false{/if};
 				modal.$gtd_country.text(data.country);
 			}
 		}).fail(function(data) {
-			showErrorModal('Не удалось создать ГТД');
+			showErrorModal('п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╬п╥п╢п╟я┌я▄ п⌠п╒п■');
 		}).always(function(data) {
 			$('#add_gtd_button').removeAttr('disabled');
 			$('#addGtdModal').modal('hide');

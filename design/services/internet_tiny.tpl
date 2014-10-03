@@ -6,10 +6,10 @@
 
 {if count($services_conn) || !isset($is_secondary_output)}
 {if !isset($is_secondary_output)}
-<H2>Услуги</H2>
-<H3>{if $internet_suffix!="collocation"}Интернет{else}Collocation{/if} подключения</H3>
+<H2>пёя│п╩я┐пЁп╦</H2>
+<H3>{if $internet_suffix!="collocation"}п≤п╫я┌п╣я─п╫п╣я┌{else}Collocation{/if} п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</H3>
 {else}
-<H3><a href='?module=services&action={$actprefix}_view'>{if $internet_suffix!="collocation"}Интернет{else}Collocation{/if} подключения</a></H3>
+<H3><a href='?module=services&action={$actprefix}_view'>{if $internet_suffix!="collocation"}п≤п╫я┌п╣я─п╫п╣я┌{else}Collocation{/if} п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</a></H3>
 {/if}
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
@@ -17,13 +17,13 @@
 <tr>
 	<TD style='background-color:#FFFFD8' class=header vAlign=bottom width="3%">&nbsp;</TD>
 {if isset($show_client)}
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="13%">клиент</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="13%">п╨п╩п╦п╣п╫я┌</TD>
 {/if}
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="6%">подключение</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="30%">адрес</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="9%">узел::порт</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="13%">тариф</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="16%">сети</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="6%">п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="30%">п╟п╢я─п╣я│</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="9%">я┐п╥п╣п╩::п©п╬я─я┌</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="13%">я┌п╟я─п╦я└</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="16%">я│п╣я┌п╦</TD>
 </tr>
 {foreach from=$services_conn item=conn name=outer}{if $conn.data.client}
 <TR bgcolor="{if $conn.data.status=='working'}{if $conn.data.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
@@ -56,9 +56,9 @@
 {if !isset($is_secondary_output)}
 <br><br>
 {if $internet_suffix=="collocation"}
-{if access_action('services','co_add')}<a href='{$LINK_START}module=services&action={$actprefix}_add'>Добавить подключение</a>{/if}
+{if access_action('services','co_add')}<a href='{$LINK_START}module=services&action={$actprefix}_add'>п■п╬п╠п╟п╡п╦я┌я▄ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</a>{/if}
 {else}
-{if access_action('services','in_add')}<a href='{$LINK_START}module=services&action={$actprefix}_add'>Добавить подключение</a>{/if}
+{if access_action('services','in_add')}<a href='{$LINK_START}module=services&action={$actprefix}_add'>п■п╬п╠п╟п╡п╦я┌я▄ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</a>{/if}
 {/if}
 
 {/if}

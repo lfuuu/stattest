@@ -1,4 +1,4 @@
-<H2>Статистика звонков</H2>
+<H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╥п╡п╬п╫п╨п╬п╡</H2>
 
 <FORM action="?" method=get>
 	<input type=hidden name=module value=monitoring>
@@ -7,7 +7,7 @@
 		<TBODY>
 			<TR>
 				<TD class=left>
-					<label for="region">Регион:</label>
+					<label for="region">п═п╣пЁп╦п╬п╫:</label>
 				</TD>
 				<TD>
 					<select name="region" id="region">
@@ -24,7 +24,7 @@
        </TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV>
+      <DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV>
 </FORM>
 <div>
 	<img src="{$graph_count}">
@@ -34,29 +34,29 @@
 </div>
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <tr>
-	<td class="header" rowspan=2 vAlign=bottom>Неделя (кол-во учтенных дней)</td>
-	<td class="header" colspan=2 vAlign=bottom>Характеристики звонков</td>
-	<td class="header" colspan=2 vAlign=bottom>Максимум за неделю</td>
-	<td class="header" colspan=2 vAlign=bottom>Минимум за неделю</td>
-	<td class="header" colspan=2 vAlign=bottom>Среднее за неделю</td>
-	<td class="header" colspan=2 vAlign=bottom>Разница с прошлой неделей</td>
+	<td class="header" rowspan=2 vAlign=bottom>п²п╣п╢п╣п╩я▐ (п╨п╬п╩-п╡п╬ я┐я┤я┌п╣п╫п╫я▀я┘ п╢п╫п╣п╧)</td>
+	<td class="header" colspan=2 vAlign=bottom>п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╥п╡п╬п╫п╨п╬п╡</td>
+	<td class="header" colspan=2 vAlign=bottom>п°п╟п╨я│п╦п╪я┐п╪ п╥п╟ п╫п╣п╢п╣п╩я▌</td>
+	<td class="header" colspan=2 vAlign=bottom>п°п╦п╫п╦п╪я┐п╪ п╥п╟ п╫п╣п╢п╣п╩я▌</td>
+	<td class="header" colspan=2 vAlign=bottom>п║я─п╣п╢п╫п╣п╣ п╥п╟ п╫п╣п╢п╣п╩я▌</td>
+	<td class="header" colspan=2 vAlign=bottom>п═п╟п╥п╫п╦я├п╟ я│ п©я─п╬я┬п╩п╬п╧ п╫п╣п╢п╣п╩п╣п╧</td>
 </tr>
 <tr>
-	<td class="header" vAlign=bottom>Кол-во</td>
-	<td class="header" vAlign=bottom>Продолжительность</td>
-	<td class="header" vAlign=bottom>Кол-во</td>
-	<td class="header" vAlign=bottom>Продолжительность</td>
-	<td class="header" vAlign=bottom>Кол-во</td>
-	<td class="header" vAlign=bottom>Продолжительность</td>
-	<td class="header" vAlign=bottom>Кол-во</td>
-	<td class="header" vAlign=bottom>Продолжительность</td>
-	<td class="header" vAlign=bottom>Кол-во</td>
-	<td class="header" vAlign=bottom>Продолжительность</td>
+	<td class="header" vAlign=bottom>п п╬п╩-п╡п╬</td>
+	<td class="header" vAlign=bottom>п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄</td>
+	<td class="header" vAlign=bottom>п п╬п╩-п╡п╬</td>
+	<td class="header" vAlign=bottom>п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄</td>
+	<td class="header" vAlign=bottom>п п╬п╩-п╡п╬</td>
+	<td class="header" vAlign=bottom>п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄</td>
+	<td class="header" vAlign=bottom>п п╬п╩-п╡п╬</td>
+	<td class="header" vAlign=bottom>п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄</td>
+	<td class="header" vAlign=bottom>п п╬п╩-п╡п╬</td>
+	<td class="header" vAlign=bottom>п÷я─п╬п╢п╬п╩п╤п╦я┌п╣п╩я▄п╫п╬я│я┌я▄</td>
 </tr>
 {foreach from=$week_stats item="w" key="k" name="week"}
 	<tr class={if $smarty.foreach.week.iteration%2==0}even{else}odd{/if}>
 		<td>
-			{$w.week_start|mdate:"d месяца"} - {$w.week_end|mdate:"d месяца"}{if $w.count_in_week != 7}({$w.count_in_week}){/if} 
+			{$w.week_start|mdate:"d п╪п╣я│я▐я├п╟"} - {$w.week_end|mdate:"d п╪п╣я│я▐я├п╟"}{if $w.count_in_week != 7}({$w.count_in_week}){/if} 
 		</td>
 		<td align=right>
 			{$w.count|num_format:true}
@@ -92,7 +92,7 @@
 {/foreach}
 </table>
 {if $no_calls_periods}
-	<h2>Даты, когда не было звонков</h2>
+	<h2>п■п╟я┌я▀, п╨п╬пЁп╢п╟ п╫п╣ п╠я▀п╩п╬ п╥п╡п╬п╫п╨п╬п╡</h2>
 	<ul>
 		{foreach from=$no_calls_periods item=c}
 			<li>
@@ -106,7 +106,7 @@
 						,
 					{/if}
 				{/foreach}
-				{$d.start|mdate:" месяца Y"}
+				{$d.start|mdate:" п╪п╣я│я▐я├п╟ Y"}
 			</li>
 		{/foreach}
 	</ul>

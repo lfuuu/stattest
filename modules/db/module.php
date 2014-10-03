@@ -2,7 +2,7 @@
 require_once INCLUDE_PATH.'db_map.php';
 class m_db{
 	var $rights=array(
-					'db'			=>array('òÁÂÏÔÁ Ó ÂÁÚÏÊ','all','ðÏÌÎÙÊ ÄÏÓÔÕÐ')
+					'db'			=>array('Ð Ð°Ð±Ð¾Ñ‚Ð° Ñ Ð±Ð°Ð·Ð¾Ð¹','all','ÐŸÐ¾Ð»Ð½Ñ‹Ð¹ Ð´Ð¾ÑÑ‚ÑƒÐ¿')
 				);
 	var $actions=array(
 					'default'		=> array('db','all'),
@@ -27,7 +27,7 @@ class m_db{
 		foreach ($this->tables as $t){
 			$R[]=array($t,'module=db&table='.$t,'','','');
 		}
-		$design->AddMenu('âÁÚÁ ÄÁÎÎÙÈ',$R);
+		$design->AddMenu('Ð‘Ð°Ð·Ð° Ð´Ð°Ð½Ð½Ñ‹Ñ…',$R);
 	}
 
 	function GetMain($action,$fixclient){

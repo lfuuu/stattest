@@ -5,7 +5,7 @@
 <input type=hidden name={$key} value='{$item}'>
 {/foreach}
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
-<TBODY>{if isset($smarty.session.trash) && $smarty.session.trash.price_voip}<tr><td><a href='?module=tarifs&action=csv_upload' target='_blank' style='text-decoration:none'>Пакетная заливка</a></td><td>&nbsp;</td></tr>{/if}
+<TBODY>{if isset($smarty.session.trash) && $smarty.session.trash.price_voip}<tr><td><a href='?module=tarifs&action=csv_upload' target='_blank' style='text-decoration:none'>п÷п╟п╨п╣я┌п╫п╟я▐ п╥п╟п╩п╦п╡п╨п╟</a></td><td>&nbsp;</td></tr>{/if}
 {foreach from=$dbform_data item=item key=key name=outer}{if $item.type=='include'}{include file=$item.file}
 {elseif $item.type=='no'}
 {elseif $item.type=='hidden'}
@@ -22,11 +22,11 @@
 
 {if $key eq "E164"}
 	<img src="{$PATH_TO_ROOT}images/icons/disable.gif" id="e164_flag_image" style="visibility:hidden" />
-	<span style="visibility:hidden" id="e164_flag_letter">Используется!</span>
+	<span style="visibility:hidden" id="e164_flag_letter">п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐!</span>
 	<script type='text/javascript'>optools.voip.check_e164.old_number='{$item.value}';</script>
-	<select id='get_free_e164' alt='Получить свободный номер' onchange='optools.voip.check_e164.get_free_e164(this)'>
-		<option value='null'>Cвободный номер</option>
-		<option value='short'>Короткий номер</option>
+	<select id='get_free_e164' alt='п÷п╬п╩я┐я┤п╦я┌я▄ я│п╡п╬п╠п╬п╢п╫я▀п╧ п╫п╬п╪п╣я─' onchange='optools.voip.check_e164.get_free_e164(this)'>
+		<option value='null'>Cп╡п╬п╠п╬п╢п╫я▀п╧ п╫п╬п╪п╣я─</option>
+		<option value='short'>п п╬я─п╬я┌п╨п╦п╧ п╫п╬п╪п╣я─</option>
         {if $region eq '99'}
             <option value='7499685'>7(499) 685</option>
             <option value='7499213'>7(499) 213</option>
@@ -52,8 +52,8 @@
 	</select>
 {/if}
 {if $key == "actual_from" || $key == "actual_to"}
-    <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("Y-m-d");{/php}"'>
-    <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="2029-01-01"' style="">
+    <input type=button value="п║" title="п║п╣п╧я┤п╟я│" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("Y-m-d");{/php}"'>
+    <input type=button value="&#8734;" title="пёя│п╩я┐пЁп╟ п╬я┌п╨я─я▀я┌п╟" onclick='document.getElementById("{$key}").value="2029-01-01"' style="">
 {/if}
 </TD></TR>
 {elseif $item.type=='first_text'}
@@ -96,7 +96,7 @@
 {/if}
 {foreach from=$dbform_includesPre item=item name=outer}{include file=$item}{/foreach}
 
-<DIV align=center><INPUT id=b_submit class=button {if $dbform_table=="usage_voip"} type=button onclick="if(optools.check_submit()) document.getElementById('dbform').submit();"{elseif $dbform_table=="usage_virtpbx"} type=button onclick="if(optools.check_vpbx_submit()) document.getElementById('dbform').submit();"{else} type=submit{/if} value="{if $dbform_btn_new}Добавить{else}Изменить{/if}"></DIV>
+<DIV align=center><INPUT id=b_submit class=button {if $dbform_table=="usage_voip"} type=button onclick="if(optools.check_submit()) document.getElementById('dbform').submit();"{elseif $dbform_table=="usage_virtpbx"} type=button onclick="if(optools.check_vpbx_submit()) document.getElementById('dbform').submit();"{else} type=submit{/if} value="{if $dbform_btn_new}п■п╬п╠п╟п╡п╦я┌я▄{else}п≤п╥п╪п╣п╫п╦я┌я▄{/if}"></DIV>
 
 {foreach from=$dbform_includesPost item=item name=outer}{include file=$item}{/foreach}
 </form>
@@ -104,7 +104,7 @@
 
 {if count($dbform_log_usage_history) > 0}
 	<br />
-	<h3>История изменений услуги</h3>
+	<h3>п≤я│я┌п╬я─п╦я▐ п╦п╥п╪п╣п╫п╣п╫п╦п╧ я┐я│п╩я┐пЁп╦</h3>
 	{include file='log_usage_history.inc'}
 {/if}
 

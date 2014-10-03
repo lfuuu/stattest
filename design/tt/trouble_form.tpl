@@ -1,7 +1,7 @@
 {if $fixclient}
-<div id="trouble_to_add"{if $tt_show_add} style="display:none;"{/if}><div onclick="$('#trouble_to_add').toggle();$('#trouble_add').toggle();" style="cursor: pointer;"><img border="0" src="./images/icons/add.gif"><u>Добавить заявку</u></div></div>
+<div id="trouble_to_add"{if $tt_show_add} style="display:none;"{/if}><div onclick="$('#trouble_to_add').toggle();$('#trouble_add').toggle();" style="cursor: pointer;"><img border="0" src="./images/icons/add.gif"><u>п■п╬п╠п╟п╡п╦я┌я▄ п╥п╟я▐п╡п╨я┐</u></div></div>
 <div id="trouble_add"{if !$tt_show_add} style="display:none;"{/if}>
-<div onclick="$('#trouble_add').toggle();$('#trouble_to_add').toggle();" style="cursor: pointer;"><img border="0" src="./images/icons/add.gif"><u>Добавить заявку (спрятать)</u></div>
+<div onclick="$('#trouble_add').toggle();$('#trouble_to_add').toggle();" style="cursor: pointer;"><img border="0" src="./images/icons/add.gif"><u>п■п╬п╠п╟п╡п╦я┌я▄ п╥п╟я▐п╡п╨я┐ (я│п©я─я▐я┌п╟я┌я▄)</u></div>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=add>	
 <input type=hidden name=module value=tt>
@@ -10,37 +10,37 @@
 {/if}
 <TABLE class=mform cellSpacing=4 cellPadding=2 border=0>
 {if !$curtype}<TR>
-	<TD class=left width=30%>Тип заявки</TD>
+	<TD class=left width=30%>п╒п╦п© п╥п╟я▐п╡п╨п╦</TD>
 	<TD><SELECT name=type class=text style='width:300px' onclick = 'if (this.selectedIndex==null) return; eval("tt_"+this.options[this.selectedIndex].getAttribute("value")+"()");'>
 		{foreach from=$ttypes item='t'}
 		<option value="{$t.code}">{$t.name}</option>
 		{/foreach}
 	</SELECT></TD>
 </TR>{/if}<TR>
-	<TD class=left>Клиент</TD>
+	<TD class=left>п п╩п╦п╣п╫я┌</TD>
 	<TD><input name=client readonly="readonly" value='{if $fixclient}{$fixclient_data.client}{/if}' class=text style='width:300px'></TD>
 </TR>{if $tt_service}<TR>	
-	<TD class=left>Услуга</TD>
+	<TD class=left>пёя│п╩я┐пЁп╟</TD>
 	<TD><a href='pop_services.php?table={$tt_service}&id={$tt_service_id}'>{$tt_service} #{$tt_service_id}</a></TD>
 	<input type=hidden name=service value='{$tt_service}'>
 	<input type=hidden name=service_id value='{$tt_service_id}'>
 </TR>{/if}<TR id=dt_C1 style='display:none'>
-	<TD class=left id=dt_C1_capt>Показывать с</TD>
+	<TD class=left id=dt_C1_capt>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я│</TD>
 	<TD><input type=textbox id=date_start name=date_start value="{0|mdate:'Y-m-d H:i:s'}" class=text style='width:300px'></TD>
 </TR><TR id=dt_A1>
-	<TD class=left>Время на устранение</TD>
-	<TD><input type=radio id=radiostart1 name=A checked onclick='start1.disabled=false; start2.disabled=true'><input id=start1 type=textbox name=time value=1 class=text style='text-align:right;width:180px'> час</TD>
+	<TD class=left>п▓я─п╣п╪я▐ п╫п╟ я┐я│я┌я─п╟п╫п╣п╫п╦п╣</TD>
+	<TD><input type=radio id=radiostart1 name=A checked onclick='start1.disabled=false; start2.disabled=true'><input id=start1 type=textbox name=time value=1 class=text style='text-align:right;width:180px'> я┤п╟я│</TD>
 </TR><TR id=dt_A2>
-	<TD class=left>Дата желаемого окончания</TD>
+	<TD class=left>п■п╟я┌п╟ п╤п╣п╩п╟п╣п╪п╬пЁп╬ п╬п╨п╬п╫я┤п╟п╫п╦я▐</TD>
 	<TD><input type=radio id=radiostart2 name=A onclick='start1.disabled=true; start2.disabled=false'><input id=start2 disabled type=textbox name=date_finish_desired value="{0|mdate:'Y-m-d H:i:s'}" class=text style='width:180px'></TD>
 </TR>
 <tr>
-<td class=left>Тип заявки:</td>
+<td class=left>п╒п╦п© п╥п╟я▐п╡п╨п╦:</td>
 <td>{html_options options=$trouble_subtypes name="trouble_subtype"}</td>
 </tr>
 
 <tr id="bills_list" style="display: none">
-	<td>Заказ/Счет</td>
+	<td>п≈п╟п╨п╟п╥/п║я┤п╣я┌</td>
 	<td>
 		<select name="bill_no">
 			<option value="null"></option>
@@ -50,9 +50,9 @@
 		</select>
 	</td>
 </tr><TR><TD colspan=2>
-Текст проблемы:<br><textarea name=problem class=textarea></textarea>
+п╒п╣п╨я│я┌ п©я─п╬п╠п╩п╣п╪я▀:<br><textarea name=problem class=textarea></textarea>
 </TD></TR><TR>
-	<TD class=left>Ответственный</TD>
+	<TD class=left>п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧</TD>
 	<TD>
 		  <SELECT name=user>{foreach from=$tt_users item=item}
                 {if $item.user}
@@ -66,21 +66,21 @@
     </TD>
 </TR>
 <tr>
-<td class=left>Важная заявка</td>
+<td class=left>п▓п╟п╤п╫п╟я▐ п╥п╟я▐п╡п╨п╟</td>
 <td><input type=checkbox name="is_important" value=1></td>
 </tr>
 <TR>
-	<TD colspan=2><INPUT id=submit class=button type=submit value="Завести заявку"></TD>
+	<TD colspan=2><INPUT id=submit class=button type=submit value="п≈п╟п╡п╣я│я┌п╦ п╥п╟я▐п╡п╨я┐"></TD>
 </TR>
 </TABLE>
 </form>
 </div>
 <script language=javascript>{literal}
 function tt_trouble(){
-	dt_C1.style.display="none";		//дата начала			date_start
-	dt_A1.style.display="";			//время на устранение	date_finish_desired
-	dt_A2.style.display="";			//дата жел. окончания	date_finish_desired
-	//dt_B1.style.display="none";		//расписание
+	dt_C1.style.display="none";		//п╢п╟я┌п╟ п╫п╟я┤п╟п╩п╟			date_start
+	dt_A1.style.display="";			//п╡я─п╣п╪я▐ п╫п╟ я┐я│я┌я─п╟п╫п╣п╫п╦п╣	date_finish_desired
+	dt_A2.style.display="";			//п╢п╟я┌п╟ п╤п╣п╩. п╬п╨п╬п╫я┤п╟п╫п╦я▐	date_finish_desired
+	//dt_B1.style.display="none";		//я─п╟я│п©п╦я│п╟п╫п╦п╣
 	document.getElementById('bills_list').style.display = "none"
 	form.radiostart2.style.display='';
 	form.radiostart1.checked=true;
@@ -90,7 +90,7 @@ function tt_trouble(){
 }
 function tt_task(){
 	dt_C1.style.display="";
-	dt_C1_capt.innerHTML="Показывать с";
+	dt_C1_capt.innerHTML="п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я│";
 	dt_A1.style.display="none";
 	dt_A2.style.display="";
 	//dt_B1.style.display="none";
@@ -119,7 +119,7 @@ function tt_orders_kp(){
 }
 function tt_out(){
 	dt_C1.style.display="";
-	dt_C1_capt.innerHTML="Дата выезда";
+	dt_C1_capt.innerHTML="п■п╟я┌п╟ п╡я▀п╣п╥п╢п╟";
 	dt_A1.style.display="";
 	dt_A2.style.display="none";
 	//dt_B1.style.display="";

@@ -11,29 +11,29 @@
 {/literal}
 </style>
 
-<H2>Отчет по Агентам</H2>
+<H2>п·я┌я┤п╣я┌ п©п╬ п░пЁп╣п╫я┌п╟п╪</H2>
 
 <form action="./?module=stats&action=report_agent" method=post>
 
 	<table border=0 cellpadding=3>
 		<tr>
-			<td>Агент</td>
+			<td>п░пЁп╣п╫я┌</td>
 			<td>
 				{if count($agents) > 0}
 					<select name='agent'>
-						<option value=''> Выберите агента</option>
+						<option value=''> п▓я▀п╠п╣я─п╦я┌п╣ п╟пЁп╣п╫я┌п╟</option>
 						{foreach from=$agents item=item}
 							<option value='{$item.id}' {if isset($agent) && $agent.id == $item.id}selected='selected'{/if}> {$item.name}</option>
 						{/foreach}
 					</select>
 					{if $default_interest}
-						<span style="color: red;">Поощрения агента не заданы</span>
+						<span style="color: red;">п÷п╬п╬я┴я─п╣п╫п╦я▐ п╟пЁп╣п╫я┌п╟ п╫п╣ п╥п╟п╢п╟п╫я▀</span>
 					{/if}
 				{/if}
 			</td>
 		</tr>
 		<tr>
-			<td>Расчетный период</td>
+			<td>п═п╟я│я┤п╣я┌п╫я▀п╧ п©п╣я─п╦п╬п╢</td>
 			<td><select name='from_m'>{foreach from=$mm item='m' key='key'}<option value='{$key}' {if $key == $cur_m}selected='selected'{/if}>{$m}</option>{/foreach}</select>
 			<select name='from_y'>{foreach from=$yy item='y'}<option value='{$y}' {if $y == $cur_y}selected='selected'{/if}>{$y}</option>{/foreach}</select></td>
 			
@@ -41,16 +41,16 @@
 		
 		<tr>
 			<td colspan="2">
-				<input type=submit value="Найти" />
+				<input type=submit value="п²п╟п╧я┌п╦" />
 			</td>
 		</tr>
         </table>
 
 {if count($inns)}
-<input type=submit value="Экспорт в CSV" name="export" />
+<input type=submit value="п╜п╨я│п©п╬я─я┌ п╡ CSV" name="export" />
 <div class='tbl_legend'>
-	Агент: <b>{$agent.name}</b><br />
-	Расчетный период с <b>{$from}</b> г. по <b>{$to}</b> г.
+	п░пЁп╣п╫я┌: <b>{$agent.name}</b><br />
+	п═п╟я│я┤п╣я┌п╫я▀п╧ п©п╣я─п╦п╬п╢ я│ <b>{$from}</b> пЁ. п©п╬ <b>{$to}</b> пЁ.
 </div>
 <div border="1">
 
@@ -59,20 +59,20 @@
         <TR>
             {assign var="rowspan" value="2"}
             
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Компания</TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Абон плата, с учетом НДС</TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">оплаченный период (мес.)</TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Сумма полученных платежей</TD>
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">п п╬п╪п©п╟п╫п╦я▐</TD>
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">п░п╠п╬п╫ п©п╩п╟я┌п╟, я│ я┐я┤п╣я┌п╬п╪ п²п■п║</TD>
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">п╬п©п╩п╟я┤п╣п╫п╫я▀п╧ п©п╣я─п╦п╬п╢ (п╪п╣я│.)</TD>
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">п║я┐п╪п╪п╟ п©п╬п╩я┐я┤п╣п╫п╫я▀я┘ п©п╩п╟я┌п╣п╤п╣п╧</TD>
 
             <TD style='background-color:#FFFFD8' class=header vAlign=bottom colspan="2">
-		Вознаграждение
+		п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣
             </TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Сумма вознаграждения</TD>
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">п║я┐п╪п╪п╟ п╡п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦я▐</TD>
         </TR>
         
 	<tr>
 		<td style='background-color:#FFFFD8' class=header vAlign=bottom >
-			Тип
+			п╒п╦п©
 		</td>
 		<td style='background-color:#FFFFD8' class=header vAlign=bottom >
 			%
@@ -100,7 +100,7 @@
 		{/foreach}
         {/foreach}
         <tr style='font-size: 12px; font-weight: bold'>
-            <td colspan='3'>Итого</td>
+            <td colspan='3'>п≤я┌п╬пЁп╬</td>
             <td align='right'>{$total.psum|string_format:"%.2f"}</td>
             <td align='right' colspan="2"></td>
             <td align='right'>{$total.fsum|string_format:"%.2f"}</td>
@@ -109,8 +109,8 @@
     </table>
 </div>
 <div class='tbl_legend'>
-	Вознаграждение агента в Расчетном периоде составляет {$total.fsum_str} в том числе НДС (18%) {$total.nds_str}<br />
-	Прописью: {$total.fsum|wordify:'RUR'}
+	п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣ п╟пЁп╣п╫я┌п╟ п╡ п═п╟я│я┤п╣я┌п╫п╬п╪ п©п╣я─п╦п╬п╢п╣ я│п╬я│я┌п╟п╡п╩я▐п╣я┌ {$total.fsum_str} п╡ я┌п╬п╪ я┤п╦я│п╩п╣ п²п■п║ (18%) {$total.nds_str}<br />
+	п÷я─п╬п©п╦я│я▄я▌: {$total.fsum|wordify:'RUR'}
 </div>
 {/if}
 </form>

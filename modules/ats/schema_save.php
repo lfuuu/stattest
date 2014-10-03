@@ -1,7 +1,7 @@
 <?php
 
 $d = $_POST["data"];
-$schemaName = iconv("utf-8", "koi8-r", $_POST["schema_name"]);
+$schemaName = $_POST["schema_name"];
 $schemaId = $_POST["schema_id"];
 
 /*

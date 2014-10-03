@@ -2,8 +2,8 @@
 
 <head>
 <LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
-<title>СЧЕТ-ФАКТУРА N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<title>п║п╖п∙п╒-п╓п░п п╒пёп═п░ N {$bill.bill_no}{$inv_no} п╬я┌ {$inv_date|mdate:"d.m.Y пЁ."}</title>
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
 <style>
 @page {literal}{size: landscape;}
 @page rotated {size: landscape;}{/literal}
@@ -18,215 +18,215 @@
 
 <body bgcolor="#FFFFFF" text="#000000">
 
-{if $negative_balance}<h2 style="color:red">Внимание! Не достаточно средств для проведения авансовых платежей!</h2>{/if}
+{if $negative_balance}<h2 style="color:red">п▓п╫п╦п╪п╟п╫п╦п╣! п²п╣ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ я│я─п╣п╢я│я┌п╡ п╢п╩я▐ п©я─п╬п╡п╣п╢п╣п╫п╦я▐ п╟п╡п╟п╫я│п╬п╡я▀я┘ п©п╩п╟я┌п╣п╤п╣п╧!</h2>{/if}
 <div align="center"><center>
 <table border="0" cellpadding="0" cellspacing="15">
 {if $inv_is_new3}
 <tr><td colspan="2"><p align="center">
-<strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
+<strong>п║п╖п∙п╒-п╓п░п п╒пёп═п░ N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
         {if !$without_date_date} 
-            от {if $is_four_order && isset($inv_pays)}
-                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
+            п╬я┌ {if $is_four_order && isset($inv_pays)}
+                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y пЁ."}
                {else}
-                    {$inv_date|mdate:"d.m.Y г."}
+                    {$inv_date|mdate:"d.m.Y пЁ."}
                 {/if}
         {else} 
-            {$without_date_date|mdate:"от d.m.Y г."}
+            {$without_date_date|mdate:"п╬я┌ d.m.Y пЁ."}
         {/if}<br>
-ИСПРАВЛЕНИЕ N ----- от -----</strong></p></tr>
+п≤п║п÷п═п░п▓п⌡п∙п²п≤п∙ N ----- п╬я┌ -----</strong></p></tr>
 {/if}
   <tr>
     {if $bill_client.firma=='all4geo'}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>
-          Общество с ограниченной ответственностью "Олфогео"
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>
+          п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п·п╩я└п╬пЁп╣п╬"
             </strong><br>
-      Адрес: <strong>115487, г. Москва, Нагатинский 2-й проезд, дом 2, строение 8</strong><br>
-      ИНН/КПП продавца: <strong>7727752091 / 772401001</strong><br>
-      Грузоотправитель и его адрес:
-      <strong>ООО "Олфогео"</strong><br>
-        <strong>115487, г. Москва, Нагатинский 2-й проезд, дом 2, строение 8</strong><br>
+      п░п╢я─п╣я│: <strong>115487, пЁ. п°п╬я│п╨п╡п╟, п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ 2-п╧ п©я─п╬п╣п╥п╢, п╢п╬п╪ 2, я│я┌я─п╬п╣п╫п╦п╣ 8</strong><br>
+      п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727752091 / 772401001</strong><br>
+      п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│:
+      <strong>п·п·п· "п·п╩я└п╬пЁп╣п╬"</strong><br>
+        <strong>115487, пЁ. п°п╬я│п╨п╡п╟, п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ 2-п╧ п©я─п╬п╣п╥п╢, п╢п╬п╪ 2, я│я┌я─п╬п╣п╫п╦п╣ 8</strong><br>
 
 
 {elseif $bill_client.firma=='ooomcn'}
-	<td valign="top" width="55%" class="ht">Продавец: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "МСН" {if $bill.bill_date < '2012-01-24'}(ООО "МСН"){/if}{else}ООО "МСН"{/if}</strong><br>
-    Адрес: <strong>117574 г. Москва, Одоевского пр-д., д. 3, кор. 7</strong><br>
-    ИНН/КПП продавца: <strong>7728638151 / 772801001</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН"</strong><br>
-    <strong>117574 г. Москва, Одоевского пр-д., д. 3, кор. 7</strong><br>{/if}
+	<td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п°п║п²" {if $bill.bill_date < '2012-01-24'}(п·п·п· "п°п║п²"){/if}{else}п·п·п· "п°п║п²"{/if}</strong><br>
+    п░п╢я─п╣я│: <strong>117574 пЁ. п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─-п╢., п╢. 3, п╨п╬я─. 7</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7728638151 / 772801001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п°п║п²"</strong><br>
+    <strong>117574 пЁ. п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─-п╢., п╢. 3, п╨п╬я─. 7</strong><br>{/if}
 {elseif $bill_client.firma=='ooocmc'}
-	<td valign="top" width="55%" class="ht">Продавец: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Си Эм Си"{if $bill.bill_date < '2012-01-24'} (ООО "Си Эм Си"){/if}{else}ООО "Си Эм Си"{/if}</strong><br>
-    Адрес: <strong>117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97</strong><br>
-    ИНН/КПП продавца: <strong>7727701308 / 772701001</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Си Эм Си"</strong><br>
-    <strong>117218, г. Москва, ул. Большая Черемушкинская, д. 25, стр. 97</strong><br>{/if}
+	<td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п║п╦ п╜п╪ п║п╦"{if $bill.bill_date < '2012-01-24'} (п·п·п· "п║п╦ п╜п╪ п║п╦"){/if}{else}п·п·п· "п║п╦ п╜п╪ п║п╦"{/if}</strong><br>
+    п░п╢я─п╣я│: <strong>117218, пЁ. п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐, п╢. 25, я│я┌я─. 97</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727701308 / 772701001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п║п╦ п╜п╪ п║п╦"</strong><br>
+    <strong>117218, пЁ. п°п╬я│п╨п╡п╟, я┐п╩. п▒п╬п╩я▄я┬п╟я▐ п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐, п╢. 25, я│я┌я─. 97</strong><br>{/if}
 {elseif $bill_client.firma=='all4net'}
-	<td valign="top" width="55%" class="ht">Продавец: {if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Олфонет"{if $bill.bill_date < '2012-01-24'} (ООО "Олфонет"){/if}{else}ООО "Олфонет"{/if}</strong><br>
+	<td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: {if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п·п╩я└п╬п╫п╣я┌"{if $bill.bill_date < '2012-01-24'} (п·п·п· "п·п╩я└п╬п╫п╣я┌"){/if}{else}п·п·п· "п·п╩я└п╬п╫п╣я┌"{/if}</strong><br>
     
     
 {if $bill.ts >= strtotime("2013-08-13")}
-    Адрес: <strong>117452, г. Москва, Балаклавский проспект, д.20, к.4 кв.130</strong><br>
+    п░п╢я─п╣я│: <strong>117452, пЁ. п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─п╬я│п©п╣п╨я┌, п╢.20, п╨.4 п╨п╡.130</strong><br>
 {else}
-    Адрес: <strong>117218, Москва г, Черемушкинская Б. ул, дом 25, строение 97</strong><br>
+    п░п╢я─п╣я│: <strong>117218, п°п╬я│п╨п╡п╟ пЁ, п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ п▒. я┐п╩, п╢п╬п╪ 25, я│я┌я─п╬п╣п╫п╦п╣ 97</strong><br>
 {/if}
-    ИНН/КПП продавца: <strong>7727731060 / 772701001</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Олфонет"</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727731060 / 772701001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п·п╩я└п╬п╫п╣я┌"</strong><br>
 
     {if $bill.ts >= strtotime("2013-08-13")}
-        Адрес: <strong>117452, г. Москва, Балаклавский проспект, д.20, к.4 кв.130</strong><br>
+        п░п╢я─п╣я│: <strong>117452, пЁ. п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─п╬я│п©п╣п╨я┌, п╢.20, п╨.4 п╨п╡.130</strong><br>
     {else}
-        Адрес: <strong>117218, Москва г, Черемушкинская Б. ул, дом 25, строение 97</strong><br>
+        п░п╢я─п╣я│: <strong>117218, п°п╬я│п╨п╡п╟ пЁ, п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ п▒. я┐п╩, п╢п╬п╪ 25, я│я┌я─п╬п╣п╫п╦п╣ 97</strong><br>
     {/if}
 {/if}
 
 {elseif $bill_client.firma == "markomnet"}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МАРКОМНЕТ"</strong><br>
-    Адрес: <strong>123458, г. Москва, Таллинская ул., д.2, кв. 282</strong><br>
-    Телефон: <strong>(095) 950-5678</strong><br>
-    ИНН/КПП продавца: <strong>7734246040&nbsp;/&nbsp;773401001</strong><br>
-    Грузоотправитель и его адрес: {if ('2009-06-01' <= $bill.bill_date && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МАРКОМНЕТ"</strong><br>
-    <strong>123458, г. Москва, Таллинская ул., д.2/282</strong><br>{/if}
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>п·п·п· "п°п░п═п п·п°п²п∙п╒"</strong><br>
+    п░п╢я─п╣я│: <strong>123458, пЁ. п°п╬я│п╨п╡п╟, п╒п╟п╩п╩п╦п╫я│п╨п╟я▐ я┐п╩., п╢.2, п╨п╡. 282</strong><br>
+    п╒п╣п╩п╣я└п╬п╫: <strong>(095) 950-5678</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7734246040&nbsp;/&nbsp;773401001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if ('2009-06-01' <= $bill.bill_date && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п°п░п═п п·п°п²п∙п╒"</strong><br>
+    <strong>123458, пЁ. п°п╬я│п╨п╡п╟, п╒п╟п╩п╩п╦п╫я│п╨п╟я▐ я┐п╩., п╢.2/282</strong><br>{/if}
 {elseif $bill_client.firma == "mcn_telekom"}
 
-    <td valign="top" width="55%" class="ht">Продавец: <strong>{$firm.name}</strong><br>
-    Адрес: <strong>{$firm.address}</strong><br>
-    Телефон: <strong>{$firm.phone}</strong><br>
-    ИНН/КПП продавца: <strong>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>{$firm.name}</strong><br>
+    п░п╢я─п╣я│: <strong>{$firm.address}</strong><br>
+    п╒п╣п╩п╣я└п╬п╫: <strong>{$firm.phone}</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п°п║п² п╒п╣п╩п╣п╨п╬п╪"</strong><br>
     <strong>{$firm.address}</strong><br>{/if}
 
 {if false}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
-    Адрес: <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>
-    Телефон: <strong>(495) 950-56-78</strong><br>
-    ИНН/КПП продавца: <strong>7727752084&nbsp;/&nbsp;772401001</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
-    <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>{/if}
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>п·п·п· "п°п║п² п╒п╣п╩п╣п╨п╬п╪"</strong><br>
+    п░п╢я─п╣я│: <strong>115487, пЁ. п°п╬я│п╨п╡п╟, 2-п╧ п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ п©я─-п╢, п╢.2, я│я┌я─.8</strong><br>
+    п╒п╣п╩п╣я└п╬п╫: <strong>(495) 950-56-78</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727752084&nbsp;/&nbsp;772401001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п°п║п² п╒п╣п╩п╣п╨п╬п╪"</strong><br>
+    <strong>115487, пЁ. п°п╬я│п╨п╡п╟, 2-п╧ п²п╟пЁп╟я┌п╦п╫я│п╨п╦п╧ п©я─-п╢, п╢.2, я│я┌я─.8</strong><br>{/if}
     {/if}
 
 {elseif $bill_client.firma == "markomnet_service"}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "Маркомнет сервис"</strong><br>
-    Адрес: <strong>117574, Москва, Одоевского проезд, д.3, к.7</strong><br>
-    Телефон: <strong>(495) 638-63-84</strong><br>
-    ИНН/КПП продавца: <strong>7728802130&nbsp;/&nbsp;772801001</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Маркомнет сервис"</strong><br>
-    <strong>117574, Москва, Одоевского проезд, д.3, к.7</strong><br>{/if}
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>п·п·п· "п°п╟я─п╨п╬п╪п╫п╣я┌ я│п╣я─п╡п╦я│"</strong><br>
+    п░п╢я─п╣я│: <strong>117574, п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─п╬п╣п╥п╢, п╢.3, п╨.7</strong><br>
+    п╒п╣п╩п╣я└п╬п╫: <strong>(495) 638-63-84</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7728802130&nbsp;/&nbsp;772801001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п°п╟я─п╨п╬п╪п╫п╣я┌ я│п╣я─п╡п╦я│"</strong><br>
+    <strong>117574, п°п╬я│п╨п╡п╟, п·п╢п╬п╣п╡я│п╨п╬пЁп╬ п©я─п╬п╣п╥п╢, п╢.3, п╨.7</strong><br>{/if}
 {elseif $bill_client.firma == "mcm"}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСМ"</strong><br>
-    Адрес: <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
-    Телефон: <strong>(495) 950-58-41</strong><br>
-    ИНН/КПП продавца: <strong>7727667833&nbsp;/&nbsp;772701001</strong><br>
-    Грузоотправитель и его адрес: <strong>ООО "МСМ"</strong><br>
-    <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>п·п·п· "п°п║п°"</strong><br>
+    п░п╢я─п╣я│: <strong>117218, пЁ. п°п╬я│п╨п╡п╟, п▒.п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ я┐п╩., п╢.25, я│я┌я─.97</strong><br>
+    п╒п╣п╩п╣я└п╬п╫: <strong>(495) 950-58-41</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727667833&nbsp;/&nbsp;772701001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: <strong>п·п·п· "п°п║п°"</strong><br>
+    <strong>117218, пЁ. п°п╬я│п╨п╡п╟, п▒.п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ я┐п╩., п╢.25, я│я┌я─.97</strong><br>
 {elseif $bill_client.firma == "markomnet_new"}
-    <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МАРКОМНЕТ"</strong><br>
-    Адрес: <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
-    Телефон: <strong>638-638-4</strong><br>
-    ИНН/КПП продавца: <strong>7727702076&nbsp;/&nbsp;772701001</strong><br>
-    Грузоотправитель и его адрес: <strong>ООО "МАРКОМНЕТ"</strong><br>
-    <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
-{elseif $bill_client.firma=='mcn'}{* || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")*}
-  <td valign="top" width="55%" class="ht">Продавец: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}Общество с ограниченной ответственностью "Эм Си Эн"{if $bill.bill_date < '2012-01-24'} (ООО "Эм Си Эн"){/if}{else}ООО "Эм Си Эн"{/if}</strong><br>
-    Адрес: <strong>113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130</strong><br>
-    ИНН/КПП продавца: <strong>7727508671 / 772701001</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Эм Си Эн"</strong><br>
-    <strong>113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130</strong><br>{/if}
+    <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>п·п·п· "п°п░п═п п·п°п²п∙п╒"</strong><br>
+    п░п╢я─п╣я│: <strong>117218, пЁ. п°п╬я│п╨п╡п╟, п▒.п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ я┐п╩., п╢.25, я│я┌я─.97</strong><br>
+    п╒п╣п╩п╣я└п╬п╫: <strong>638-638-4</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727702076&nbsp;/&nbsp;772701001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: <strong>п·п·п· "п°п░п═п п·п°п²п∙п╒"</strong><br>
+    <strong>117218, пЁ. п°п╬я│п╨п╡п╟, п▒.п╖п╣я─п╣п╪я┐я┬п╨п╦п╫я│п╨п╟я▐ я┐п╩., п╢.25, я│я┌я─.97</strong><br>
+{elseif $bill_client.firma=='mcn'}{* || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="я─п╟п╥п╠п╦п╡п╨п╟ Markomnet")*}
+  <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}п·п╠я┴п╣я│я┌п╡п╬ я│ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬п╧ п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬я│я┌я▄я▌ "п╜п╪ п║п╦ п╜п╫"{if $bill.bill_date < '2012-01-24'} (п·п·п· "п╜п╪ п║п╦ п╜п╫"){/if}{else}п·п·п· "п╜п╪ п║п╦ п╜п╫"{/if}</strong><br>
+    п░п╢я─п╣я│: <strong>113452 пЁ. п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─-я┌., п╢. 20, п╨п╬я─. 4 п╨п╡. 130</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>7727508671 / 772701001</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>п·п·п· "п╜п╪ п║п╦ п╜п╫"</strong><br>
+    <strong>113452 пЁ. п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─-я┌., п╢. 20, п╨п╬я─. 4 п╨п╡. 130</strong><br>{/if}
 {else}
-  <td valign="top" width="55%" class="ht">Продавец: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}{$firm.name_full}{if $bill.bill_date < '2012-01-24'} ({$firm.name}){/if}{else}{$firm.name}{/if}</strong><br>
-    Адрес: <strong>{$firm.address}</strong><br>
-    ИНН/КПП продавца: <strong>{$firm.inn} / {$firm.kpp}</strong><br>
-    Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$firm.name}</strong><br>
+  <td valign="top" width="55%" class="ht">п÷я─п╬п╢п╟п╡п╣я├: <strong>{if '2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)}{$firm.name_full}{if $bill.bill_date < '2012-01-24'} ({$firm.name}){/if}{else}{$firm.name}{/if}</strong><br>
+    п░п╢я─п╣я│: <strong>{$firm.address}</strong><br>
+    п≤п²п²/п п÷п÷ п©я─п╬п╢п╟п╡я├п╟: <strong>{$firm.inn} / {$firm.kpp}</strong><br>
+    п⌠я─я┐п╥п╬п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$firm.name}</strong><br>
     <strong>{$firm.address}</strong><br>{/if}
 {/if}
-    Грузополучатель и его адрес: {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
+    п⌠я─я┐п╥п╬п©п╬п╩я┐я┤п╟я┌п╣п╩я▄ п╦ п╣пЁп╬ п╟п╢я─п╣я│: {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}<strong>{$bill_client.consignee}</strong><br>{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>{$bill_client.company_full}</strong><br>
     <strong>{$bill_client.address_post}</strong><br>{/if}{/if}
-К платежно-расчетному документу{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} от {$inv_pay.payment_date_ts|mdate:"d.m.Y г."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}<br>
-    Покупатель: <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong><br>
-    Адрес: <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong><br>
-    ИНН/КПП покупателя: <strong>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</strong><br>
-    Дополнение: <strong>к счету N: {$bill.bill_no}</strong><br>
-    {if $inv_is_new3}Валюта: наименование Российский рубль, код 643{/if}</td>
+п  п©п╩п╟я┌п╣п╤п╫п╬-я─п╟я│я┤п╣я┌п╫п╬п╪я┐ п╢п╬п╨я┐п╪п╣п╫я┌я┐{if isset($inv_pays)} {foreach from=$inv_pays item=inv_pay name=outer}N{$inv_pay.payment_no} п╬я┌ {$inv_pay.payment_date_ts|mdate:"d.m.Y пЁ."}{if !$smarty.foreach.outer.last}, {/if}{/foreach}{/if}<br>
+    п÷п╬п╨я┐п©п╟я┌п╣п╩я▄: <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong><br>
+    п░п╢я─п╣я│: <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong><br>
+    п≤п²п²/п п÷п÷ п©п╬п╨я┐п©п╟я┌п╣п╩я▐: <strong>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</strong><br>
+    п■п╬п©п╬п╩п╫п╣п╫п╦п╣: <strong>п╨ я│я┤п╣я┌я┐ N: {$bill.bill_no}</strong><br>
+    {if $inv_is_new3}п▓п╟п╩я▌я┌п╟: п╫п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п═п╬я│я│п╦п╧я│п╨п╦п╧ я─я┐п╠п╩я▄, п╨п╬п╢ 643{/if}</td>
 
     <td align=right valign="top" width="45%">
-    <small>    Приложение N1<br>
-    {if $inv_is_new3}к постановлению Правительства<br>Российской Федерации<br>
-		от 26 декабря 2011 г. N 1137{else}к Правилам ведения журналов учета полученных и выставленных счетов-фактур,<br>
-    книг покупок и книг продаж при расчетах но налогу на добавленную стоимость,<br>
-    утвержденным постановлением правительства Российской Федерации от 2 декабря 2000 г. N 914<br>
-    (в редакции постановлений Правительства Российской Федерации<br>
-    от 10 марта 2001 г. N 189, от 27 июля 2002 г. N 575, от 16 февраля 2004 г. N 84{if $inv_is_new}, от 11 мая 2006 г. N 283{/if}{if $inv_is_new2}, от 26 мая 2009 г. N 451{/if}{if $inv_is_new3}, от 26 декабря 2011 г. N 1137{/if}){/if}
+    <small>    п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ N1<br>
+    {if $inv_is_new3}п╨ п©п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦я▌ п÷я─п╟п╡п╦я┌п╣п╩я▄я│я┌п╡п╟<br>п═п╬я│я│п╦п╧я│п╨п╬п╧ п╓п╣п╢п╣я─п╟я├п╦п╦<br>
+		п╬я┌ 26 п╢п╣п╨п╟п╠я─я▐ 2011 пЁ. N 1137{else}п╨ п÷я─п╟п╡п╦п╩п╟п╪ п╡п╣п╢п╣п╫п╦я▐ п╤я┐я─п╫п╟п╩п╬п╡ я┐я┤п╣я┌п╟ п©п╬п╩я┐я┤п╣п╫п╫я▀я┘ п╦ п╡я▀я│я┌п╟п╡п╩п╣п╫п╫я▀я┘ я│я┤п╣я┌п╬п╡-я└п╟п╨я┌я┐я─,<br>
+    п╨п╫п╦пЁ п©п╬п╨я┐п©п╬п╨ п╦ п╨п╫п╦пЁ п©я─п╬п╢п╟п╤ п©я─п╦ я─п╟я│я┤п╣я┌п╟я┘ п╫п╬ п╫п╟п╩п╬пЁя┐ п╫п╟ п╢п╬п╠п╟п╡п╩п╣п╫п╫я┐я▌ я│я┌п╬п╦п╪п╬я│я┌я▄,<br>
+    я┐я┌п╡п╣я─п╤п╢п╣п╫п╫я▀п╪ п©п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣п╪ п©я─п╟п╡п╦я┌п╣п╩я▄я│я┌п╡п╟ п═п╬я│я│п╦п╧я│п╨п╬п╧ п╓п╣п╢п╣я─п╟я├п╦п╦ п╬я┌ 2 п╢п╣п╨п╟п╠я─я▐ 2000 пЁ. N 914<br>
+    (п╡ я─п╣п╢п╟п╨я├п╦п╦ п©п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╧ п÷я─п╟п╡п╦я┌п╣п╩я▄я│я┌п╡п╟ п═п╬я│я│п╦п╧я│п╨п╬п╧ п╓п╣п╢п╣я─п╟я├п╦п╦<br>
+    п╬я┌ 10 п╪п╟я─я┌п╟ 2001 пЁ. N 189, п╬я┌ 27 п╦я▌п╩я▐ 2002 пЁ. N 575, п╬я┌ 16 я└п╣п╡я─п╟п╩я▐ 2004 пЁ. N 84{if $inv_is_new}, п╬я┌ 11 п╪п╟я▐ 2006 пЁ. N 283{/if}{if $inv_is_new2}, п╬я┌ 26 п╪п╟я▐ 2009 пЁ. N 451{/if}{if $inv_is_new3}, п╬я┌ 26 п╢п╣п╨п╟п╠я─я▐ 2011 пЁ. N 1137{/if}){/if}
     </small></td>
 
   </tr>
   <tr>
 
     <td colspan="2">
-    {if !$inv_is_new3}<p align="center"><strong>СЧЕТ-ФАКТУРА N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
+    {if !$inv_is_new3}<p align="center"><strong>п║п╖п∙п╒-п╓п░п п╒пёп═п░ N&nbsp;{if $is_four_order eq true}AB-{/if}{$bill.bill_no}{$inv_no}
         {if !$without_date_date}
-            от  {if $is_four_order && isset($inv_pays)}
-                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y г."}
+            п╬я┌  {if $is_four_order && isset($inv_pays)}
+                    {$inv_pays[0].payment_date_ts|mdate:"d.m.Y пЁ."}
                 {else}
-                    {$inv_date|mdate:"d.m.Y г."}
+                    {$inv_date|mdate:"d.m.Y пЁ."}
                 {/if}
         {else} 
-            {$without_date_date|mdate:"от d.m.Y г."}
+            {$without_date_date|mdate:"п╬я┌ d.m.Y пЁ."}
         {/if}</strong></p>{/if}
-{if !$bill.tax}Для официальных нужд международной организации.<br>{/if}
-{if !$inv_is_new3}Валюта: руб.{/if}
-{*if !$inv_is_new3}Наименование и код валюты: руб. (643){/if*}
+{if !$bill.tax}п■п╩я▐ п╬я└п╦я├п╦п╟п╩я▄п╫я▀я┘ п╫я┐п╤п╢ п╪п╣п╤п╢я┐п╫п╟я─п╬п╢п╫п╬п╧ п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦.<br>{/if}
+{if !$inv_is_new3}п▓п╟п╩я▌я┌п╟: я─я┐п╠.{/if}
+{*if !$inv_is_new3}п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ п╦ п╨п╬п╢ п╡п╟п╩я▌я┌я▀: я─я┐п╠. (643){/if*}
     <div align="center"><center><table border="1" cellpadding="3" cellspacing="0" width="100%">
       <tr>
-        <th{if $inv_is_new3} rowspan=2{/if}>Наименование<br>товара<br>(описание выполненных работ, оказанных услуг){if $inv_is_new},<br>имущественного права{/if}</th>
-        {if !$inv_is_new3}<th>Еди-<br>ница<br>изме-<br>рения</th>{else}<th colspan=2>Единица<br>измерения</th>{/if}
+        <th{if $inv_is_new3} rowspan=2{/if}>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣<br>я┌п╬п╡п╟я─п╟<br>(п╬п©п╦я│п╟п╫п╦п╣ п╡я▀п©п╬п╩п╫п╣п╫п╫я▀я┘ я─п╟п╠п╬я┌, п╬п╨п╟п╥п╟п╫п╫я▀я┘ я┐я│п╩я┐пЁ){if $inv_is_new},<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫п╬пЁп╬ п©я─п╟п╡п╟{/if}</th>
+        {if !$inv_is_new3}<th>п∙п╢п╦-<br>п╫п╦я├п╟<br>п╦п╥п╪п╣-<br>я─п╣п╫п╦я▐</th>{else}<th colspan=2>п∙п╢п╦п╫п╦я├п╟<br>п╦п╥п╪п╣я─п╣п╫п╦я▐</th>{/if}
         <th{if $inv_is_new3} rowspan=2{/if}>
-            Коли-<br>чество{if $inv_is_new6}<br>(объем){/if}
+            п п╬п╩п╦-<br>я┤п╣я│я┌п╡п╬{if $inv_is_new6}<br>(п╬п╠я┼п╣п╪){/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
             {if $inv_is_new6}
-            Цена<br>(тариф)<br>за еди-<br>ницу изме-<br>рения
+            п╕п╣п╫п╟<br>(я┌п╟я─п╦я└)<br>п╥п╟ п╣п╢п╦-<br>п╫п╦я├я┐ п╦п╥п╪п╣-<br>я─п╣п╫п╦я▐
             {else}
-            Цена<br>(та-<br>риф)<br>за еди-<br>ницу изме-<br>рения{if $inv_is_new3}<br>руб{/if}
+            п╕п╣п╫п╟<br>(я┌п╟-<br>я─п╦я└)<br>п╥п╟ п╣п╢п╦-<br>п╫п╦я├я┐ п╦п╥п╪п╣-<br>я─п╣п╫п╦я▐{if $inv_is_new3}<br>я─я┐п╠{/if}
             {/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
             {if $inv_is_new6}
-                Стоимость<br>товаров (работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if} без налога-<br>всего
+                п║я┌п╬п╦п╪п╬я│я┌я▄<br>я┌п╬п╡п╟я─п╬п╡ (я─п╟п╠п╬я┌,<br>я┐я│п╩я┐пЁ){if $inv_is_new},<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫я▀я┘<br>п©я─п╟п╡{/if} п╠п╣п╥ п╫п╟п╩п╬пЁп╟-<br>п╡я│п╣пЁп╬
             {else}
-                Стои-<br>мость<br>товаров<br>(работ,<br>услуг){if $inv_is_new},<br>имущественных<br>прав{/if}, всего без<br>налога{if $inv_is_new3}<br>руб{/if}
+                п║я┌п╬п╦-<br>п╪п╬я│я┌я▄<br>я┌п╬п╡п╟я─п╬п╡<br>(я─п╟п╠п╬я┌,<br>я┐я│п╩я┐пЁ){if $inv_is_new},<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫я▀я┘<br>п©я─п╟п╡{/if}, п╡я│п╣пЁп╬ п╠п╣п╥<br>п╫п╟п╩п╬пЁп╟{if $inv_is_new3}<br>я─я┐п╠{/if}
             {/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
-            в том<br>чис-<br>ле<br>{if $inv_is_new6}сумма<br>{/if}акциз{if $inv_is_new6}а{/if}
+            п╡ я┌п╬п╪<br>я┤п╦я│-<br>п╩п╣<br>{if $inv_is_new6}я│я┐п╪п╪п╟<br>{/if}п╟п╨я├п╦п╥{if $inv_is_new6}п╟{/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
-            Нало-<br>говая<br>ставка
+            п²п╟п╩п╬-<br>пЁп╬п╡п╟я▐<br>я│я┌п╟п╡п╨п╟
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
-            Сумма{if $inv_is_new6} налога,<br> предъявляемая<br>покупателю{else}<br>нало-<br>га,{if $inv_is_new3}<br>руб{/if}{/if}
+            п║я┐п╪п╪п╟{if $inv_is_new6} п╫п╟п╩п╬пЁп╟,<br> п©я─п╣п╢я┼я▐п╡п╩я▐п╣п╪п╟я▐<br>п©п╬п╨я┐п©п╟я┌п╣п╩я▌{else}<br>п╫п╟п╩п╬-<br>пЁп╟,{if $inv_is_new3}<br>я─я┐п╠{/if}{/if}
         </th>
         <th{if $inv_is_new3} rowspan=2{/if}>
             {if $inv_is_new6}
-                Стоимость товаров<br>(работ, услуг),<br>имущественных <br>прав с налогом-<br>всего
+                п║я┌п╬п╦п╪п╬я│я┌я▄ я┌п╬п╡п╟я─п╬п╡<br>(я─п╟п╠п╬я┌, я┐я│п╩я┐пЁ),<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫я▀я┘ <br>п©я─п╟п╡ я│ п╫п╟п╩п╬пЁп╬п╪-<br>п╡я│п╣пЁп╬
             {else}
-                Стоимость<br>товаров<br>(работ,<br>услуг)
-                    {if $inv_is_new},<br>имущественных прав{/if}
-                ,<br>всего с<br>учетом<br>налога
-                    {if $inv_is_new3}<br>руб
+                п║я┌п╬п╦п╪п╬я│я┌я▄<br>я┌п╬п╡п╟я─п╬п╡<br>(я─п╟п╠п╬я┌,<br>я┐я│п╩я┐пЁ)
+                    {if $inv_is_new},<br>п╦п╪я┐я┴п╣я│я┌п╡п╣п╫п╫я▀я┘ п©я─п╟п╡{/if}
+                ,<br>п╡я│п╣пЁп╬ я│<br>я┐я┤п╣я┌п╬п╪<br>п╫п╟п╩п╬пЁп╟
+                    {if $inv_is_new3}<br>я─я┐п╠
             {/if}
 
         {/if}</th>
-        {if !$inv_is_new3}<th>Стра-<br>на проис-<br> хожде-<br> ния</th>{else}<th colspan=2>Страна<br>происхождения<br>товара</th>{/if}
-        <th{if $inv_is_new3} rowspan=2{/if}>Номер<br> тамо-<br> женной<br> декла-<br> рации</th>
+        {if !$inv_is_new3}<th>п║я┌я─п╟-<br>п╫п╟ п©я─п╬п╦я│-<br> я┘п╬п╤п╢п╣-<br> п╫п╦я▐</th>{else}<th colspan=2>п║я┌я─п╟п╫п╟<br>п©я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦я▐<br>я┌п╬п╡п╟я─п╟</th>{/if}
+        <th{if $inv_is_new3} rowspan=2{/if}>п²п╬п╪п╣я─<br> я┌п╟п╪п╬-<br> п╤п╣п╫п╫п╬п╧<br> п╢п╣п╨п╩п╟-<br> я─п╟я├п╦п╦</th>
       </tr>
       {if $inv_is_new3}<tr>
-      	<th>к<br>о<br>д</th>
-      	<th>условное<br>обозначение<br>(национальное)</th>
-      	<th>цифровой<br>код</th>
-      	<th>краткое<br>наимено-<br>вание</th>
+      	<th>п╨<br>п╬<br>п╢</th>
+      	<th>я┐я│п╩п╬п╡п╫п╬п╣<br>п╬п╠п╬п╥п╫п╟я┤п╣п╫п╦п╣<br>(п╫п╟я├п╦п╬п╫п╟п╩я▄п╫п╬п╣)</th>
+      	<th>я├п╦я└я─п╬п╡п╬п╧<br>п╨п╬п╢</th>
+      	<th>п╨я─п╟я┌п╨п╬п╣<br>п╫п╟п╦п╪п╣п╫п╬-<br>п╡п╟п╫п╦п╣</th>
       </tr>{/if}
       <tr>
         <td align="center">1</td>
         <td align="center">2</td>
-        {if $inv_is_new3}<td align="center">2а</td>{/if}
+        {if $inv_is_new3}<td align="center">2п╟</td>{/if}
         <td align="center">3</td>
         <td align="center">4</td>
         <td align="center">5</td>
@@ -235,7 +235,7 @@
         <td align="center">8</td>
         <td align="center">9</td>
         <td align="center">10</td>
-        {if $inv_is_new3}<td align="center">10а</td>{/if}
+        {if $inv_is_new3}<td align="center">10п╟</td>{/if}
         <td align="center">11</td>
       </tr>
 {foreach from=$bill_lines item=row key=key}
@@ -244,16 +244,16 @@
         {if $inv_is_new3}
         <td align="center">
 
-        {*if $inv_is_new4 && $line.type == "service"}-{else}ЫФ.{/if*}
+        {*if $inv_is_new4 && $line.type == "service"}-{else}п╚п╓.{/if*}
 
                 {*if $inv_is_new4}
                     {if $row.type == "service"}
                         -
                     {else}
-                        {if $row.okvd_code}{$row.okvd}{else}шт.{/if}
+                        {if $row.okvd_code}{$row.okvd}{else}я┬я┌.{/if}
                     {/if}
                 {else}
-                   шт.
+                   я┬я┌.
                 {/if*}
 
             {if $is_four_order}
@@ -288,14 +288,14 @@
                         {if $row.type == "service"}
                             -
                         {else}
-                            шт.
+                            я┬я┌.
                         {/if}
                     {/if}
                 {else}
-                    шт.
+                    я┬я┌.
                 {/if}
             {/if}
-{*if $row.okvd_code && !$is_four_order}{$row.okvd}{else}{if $is_four_order || ($row.type == "service")}-{else}шт.{/if}{/if*}</td>
+{*if $row.okvd_code && !$is_four_order}{$row.okvd}{else}{if $is_four_order || ($row.type == "service")}-{else}я┬я┌.{/if}{/if*}</td>
 
       <td align="center">
 {if $bill.bill_date < "2012-01-01"}{$row.amount|round:4}{else}
@@ -356,8 +356,8 @@
                 {/if}
                     
             {/if}</td>
-        <td align="center" nowrap>{if $inv_is_new4}без акциза{else}-{/if}</td>
-        <td align="center">{if $row.tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</td>
+        <td align="center" nowrap>{if $inv_is_new4}п╠п╣п╥ п╟п╨я├п╦п╥п╟{else}-{/if}</td>
+        <td align="center">{if $row.tax == 0}п╠п╣п╥ п²п■п║{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</td>
         <!--td align="center">{if $row.tax == 0 && $bill.tax == 0 && $bill.sum}-{else}{$row.tax|round:4}{/if}</td-->
         <td align="center">
             {if $bill_client.nds_calc_method != 1}
@@ -383,12 +383,12 @@
 {/foreach}
      <tr>
      	{if $inv_is_new4}
-     	<td colspan={if $inv_is_new3}5{else}4{/if}><b>Всего к оплате<b></td>
+     	<td colspan={if $inv_is_new3}5{else}4{/if}><b>п▓я│п╣пЁп╬ п╨ п╬п©п╩п╟я┌п╣<b></td>
      	<td align="center">{if $is_four_order}-{else}{$bill.sum|round:2}{*$bill.tsum/1.18|round:2*}{/if}</td>
      	<td>&nbsp;</td>
      	<td>&nbsp;</td>
      	{else}
-        <td colspan={if $inv_is_new3}8{else}7{/if}><b>Всего к оплате<b></td>
+        <td colspan={if $inv_is_new3}8{else}7{/if}><b>п▓я│п╣пЁп╬ п╨ п╬п©п╩п╟я┌п╣<b></td>
         {/if}
         <td align="center">
             {if $bill_client.nds_calc_method != 1}
@@ -408,12 +408,12 @@
     </center></div>
 <br>
 {if $inv_is_new3}
-Итого: {$bill.tsum|wordify:'RUR'}
+п≤я┌п╬пЁп╬: {$bill.tsum|wordify:'RUR'}
 {/if}
     <div align="center">
     <table border="0" cellpadding="0" cellspacing="5" align="left">
       <tr >
-        <td><p align="right">Руководитель&nbsp;организации{if $inv_is_new4}<br>или иное уполномоченное лицо{/if}:</td>
+        <td><p align="right">п═я┐п╨п╬п╡п╬п╢п╦я┌п╣п╩я▄&nbsp;п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦{if $inv_is_new4}<br>п╦п╩п╦ п╦п╫п╬п╣ я┐п©п╬п╩п╫п╬п╪п╬я┤п╣п╫п╫п╬п╣ п╩п╦я├п╬{/if}:</td>
         <td>
         {if (isset($emailed) && $emailed == 1) || $invoice_source eq 5}
 
@@ -424,7 +424,7 @@
     <td nowrap>/ {$firm_director.name} /</td>
 
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><p align="right">&nbsp;Главный&nbsp;бухгалтер{if $inv_is_new4}<br>или иное уполномоченное лицо{/if}:</td>
+        <td><p align="right">&nbsp;п⌠п╩п╟п╡п╫я▀п╧&nbsp;п╠я┐я┘пЁп╟п╩я┌п╣я─{if $inv_is_new4}<br>п╦п╩п╦ п╦п╫п╬п╣ я┐п©п╬п╩п╫п╬п╪п╬я┤п╣п╫п╫п╬п╣ п╩п╦я├п╬{/if}:</td>
     <td>{if (isset($emailed) && $emailed == 1) || $invoice_source eq 5}
 
             {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
@@ -438,23 +438,23 @@
 
       <tr>
         <td></td>
-        <td align="center"><small>(подпись)</small></td>
-        <td align="center"><small>(ф.и.о.)</small></td>
+        <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
+        <td align="center"><small>(я└.п╦.п╬.)</small></td>
     <td></td>
         <td></td>
-        <td align="center"><small>(подпись)</small></td>
-        <td align="center"><small>(ф.и.о.)</small></td>
+        <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
+        <td align="center"><small>(я└.п╦.п╬.)</small></td>
       </tr>
 
     {if $inv_is_new5}
       <tr >
-        <td><p align="right">За генерального директора:</td>
+        <td><p align="right">п≈п╟ пЁп╣п╫п╣я─п╟п╩я▄п╫п╬пЁп╬ п╢п╦я─п╣п╨я┌п╬я─п╟:</td>
         <td>
         <br>________________________________<br><br></td>
     <td></td>
 
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-        <td><p align="right">За главного&nbsp;бухгалтер:</td>
+        <td><p align="right">п≈п╟ пЁп╩п╟п╡п╫п╬пЁп╬&nbsp;п╠я┐я┘пЁп╟п╩я┌п╣я─:</td>
     <td>
 
 <br>________________________________<br><br></td>
@@ -465,26 +465,26 @@
 
       <tr>
         <td></td>
-        <td align="center"><small>(подпись)</small></td>
+        <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
         <td align="center"></td>
     <td></td>
         <td></td>
-        <td align="center"><small>(подпись)</small></td>
+        <td align="center"><small>(п©п╬п╢п©п╦я│я▄)</small></td>
         <td align="center"></td>
       </tr>
 
 {/if}{*if $inv_is_new5*}
       <tr>
-        <td colspan=4><p><br>Индивидуальный предприниматель ___________________&nbsp;&nbsp;&nbsp;&nbsp; _______________________</p>
+        <td colspan=4><p><br>п≤п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫я▀п╧ п©я─п╣п╢п©я─п╦п╫п╦п╪п╟я┌п╣п╩я▄ ___________________&nbsp;&nbsp;&nbsp;&nbsp; _______________________</p>
     </td>
 	<td colspan=3><p><br>&nbsp; &nbsp;____________________________________________________________________</p></td>
       </tr>
 
 	<tr>
-<td></td><td align=center><small>(подпись)</small></td>
-<td align=center><small>(ф.и.о.)</small></td>
+<td></td><td align=center><small>(п©п╬п╢п©п╦я│я▄)</small></td>
+<td align=center><small>(я└.п╦.п╬.)</small></td>
 <td></td>
-<td align=center colspan=3><small>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</small></td>
+<td align=center colspan=3><small>(я─п╣п╨п╡п╦п╥п╦я┌я▀ я│п╡п╦п╢п╣я┌п╣п╩я▄я│я┌п╡п╟ п╬ пЁп╬я│я┐п╢п╟я─я│я┌п╡п╣п╫п╫п╬п╧ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦ п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫п╬пЁп╬ п©я─п╣п╢п©я─п╦п╫п╦п╪п╟я┌п╣п╩я▐)</small></td>
 </tr>
     </table>
     </div>
@@ -492,7 +492,7 @@
   </tr>
 </table>
 </center></div>
-<small>Примечание: Первый экземпляр - покупателю, второй экземпляр - продавцу.</small>
+<small>п÷я─п╦п╪п╣я┤п╟п╫п╦п╣: п÷п╣я─п╡я▀п╧ я█п╨п╥п╣п╪п©п╩я▐я─ - п©п╬п╨я┐п©п╟я┌п╣п╩я▌, п╡я┌п╬я─п╬п╧ я█п╨п╥п╣п╪п©п╩я▐я─ - п©я─п╬п╢п╟п╡я├я┐.</small>
 
 {if $stamp == "solop_nm"}
 <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_nm.png" 

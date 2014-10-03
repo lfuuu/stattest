@@ -1,4 +1,4 @@
-<H2>Почтовый реестр</H2>
+<H2>п÷п╬я┤я┌п╬п╡я▀п╧ я─п╣п╣я│я┌я─</H2>
 
       <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
@@ -6,14 +6,14 @@
             <input type=hidden name=module value=newaccounts>
             <input type=hidden name=action value=postreg_report_do>
         <TR>
-          <TD class=left>Дата реестра</TD>
+          <TD class=left>п■п╟я┌п╟ я─п╣п╣я│я┌я─п╟</TD>
           <TD>
           <input type="text" value="{$date_from}" id="date_from" name="date_from" class="text">
           </TD></TR>
         </TBODY></TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сформировать"></DIV></FORM>
+      <DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"></DIV></FORM>
       <script>
       optools.DatePickerInit();
       </script>

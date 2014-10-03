@@ -48,7 +48,7 @@ runChecker::run();
                         "action" => "send",
                         "client" => $client,
                         "phone"  => $email["data"],
-                        "message" => Encoding::toUtf8($email["message"]),
+                        "message" => $email["message"],
                         );
                 
                 $data["sign"] = md5($data["action"]."|".$data["client"]."|".$data["message"]."|".$data["phone"]."|".$password);

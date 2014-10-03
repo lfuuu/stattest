@@ -1,4 +1,4 @@
-      <H2>Статистика</H2>
+      <H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</H2>
       <H3>Callback</H3>
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
@@ -9,17 +9,17 @@
 <TD style='background:none'>&nbsp;</TD>
 {/if}
 <TD style='background:none'>&nbsp;</TD>
-<TD class=header vAlign=bottom style='font-weight:bold' colspan=3>Стоимость разговора</TD>
+<TD class=header vAlign=bottom style='font-weight:bold' colspan=3>п║я┌п╬п╦п╪п╬я│я┌я▄ я─п╟п╥пЁп╬п╡п╬я─п╟</TD>
         </TR><TR>
-          <TD class=header vAlign=bottom>Дата/время</TD>
+          <TD class=header vAlign=bottom>п■п╟я┌п╟/п╡я─п╣п╪я▐</TD>
 {if $detality=='call'}
-          <TD class=header vAlign=bottom>Кто звонил</TD>
-          <TD class=header vAlign=bottom>Кому звонил</TD>
+          <TD class=header vAlign=bottom>п я┌п╬ п╥п╡п╬п╫п╦п╩</TD>
+          <TD class=header vAlign=bottom>п п╬п╪я┐ п╥п╡п╬п╫п╦п╩</TD>
 {/if}
-          <TD class=header vAlign=bottom>Время разговора</TD>
-          <TD class=header vAlign=bottom>Кто</TD>
-          <TD class=header vAlign=bottom>Кому</TD>
-          <TD class=header vAlign=bottom>Итог</TD>
+          <TD class=header vAlign=bottom>п▓я─п╣п╪я▐ я─п╟п╥пЁп╬п╡п╬я─п╟</TD>
+          <TD class=header vAlign=bottom>п я┌п╬</TD>
+          <TD class=header vAlign=bottom>п п╬п╪я┐</TD>
+          <TD class=header vAlign=bottom>п≤я┌п╬пЁ</TD>
         </TR>
 
 {foreach from=$stats item=item key=key name=outer}

@@ -19,11 +19,11 @@ $action=get_param_raw('action','');
 if ($action=='add_client') {
 	$V = array('company','fio', 'contact','email','phone','fax','address','market_chanel','client_comment', 'phone_connect');
 	$P = array();
-	foreach ($V as $k) @$P[$k] = iconv('UTF-8','KOI8-R',trim(get_param_raw($k)));
+	foreach ($V as $k) @$P[$k] = trim(get_param_raw($k));
 
 	if(empty($P["company"]))
 	{
-		die("error: ".iconv('KOI8-R','UTF-8',"��� �������� �� ������!"));
+		die("error: ��� �������� �� ������!");
 	}
 
     $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_escape_string($P["company"])."'");
@@ -198,14 +198,6 @@ if ($action=='add_client') {
     
     $a = $s->GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction);
 
-    foreach($a as &$vv)
-    {
-        foreach($vv as &$v)
-        {
-            $v = iconv("koi8-r", "utf-8", $v);
-        }
-    }
-
     echo serialize($a);
 
 
@@ -223,14 +215,6 @@ if ($action=='add_client') {
     list($region,$from,$to,$find) = $d;
     
     $a = $s->FindByNumber($region,$from,$to,$find);
-
-    foreach($a as &$vv)
-    {
-        foreach($vv as &$v)
-        {
-            $v = iconv("koi8-r", "utf-8", $v);
-        }
-    }
 
     echo serialize($a);
 }

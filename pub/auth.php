@@ -1,5 +1,5 @@
 <?
-	//ÜÔÏÔ ÆÁÊÌ ÍÏÖÅÔ ÉÓÐÏÌØÚÏ×ÁÔØÓÑ ÄÌÑ ÁÑËÓÏ×ÙÈ ×ÙÚÏ×Ï×. É ×Ó£.
+	//ÑÑ‚Ð¾Ñ‚ Ñ„Ð°Ð¹Ð» Ð¼Ð¾Ð¶ÐµÑ‚ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒÑÑ Ð´Ð»Ñ Ð°ÑÐºÑÐ¾Ð²Ñ‹Ñ… Ð²Ñ‹Ð·Ð¾Ð²Ð¾Ð². Ð¸ Ð²ÑÑ‘.
 	define("PATH_TO_ROOT",'../');
 	define('NO_WEB',1);
 	include PATH_TO_ROOT."conf.php";
@@ -15,7 +15,7 @@
     if($u)
     {
         $e = $db->GetRow("select data from client_contacts where client_id = '".$u["id"]."' and type='email' order by  is_active desc, is_official desc, id desc limit 1");
-    echo iconv("koi8-r", "utf-8", $u["id"]."|||".$u["company"]."|||".($e?$e["data"]: ""));
+    echo $u["id"]."|||".$u["company"]."|||".($e?$e["data"]: "");
     exit();
     }
 }

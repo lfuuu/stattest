@@ -1,15 +1,15 @@
-<p><b>Инсталляции:</b></p>
+<p><b>п≤п╫я│я┌п╟п╩п╩я▐я├п╦п╦:</b></p>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
         <td class=header>id</td>
-        <td class=header colspan="2">Город</td>
-        <td class=header colspan="2">Регион</td>
+        <td class=header colspan="2">п⌠п╬я─п╬п╢</td>
+        <td class=header colspan="2">п═п╣пЁп╦п╬п╫</td>
     </tr>
     {foreach from=$instances item='r'}
     <tr class="{cycle values='even,odd'}">
         <td>{$r.id}</td>
         <td>{$r.city_name}</td>
-        <td><a href="index.php?module=voipnew&action=catalog_prefix&f_city_geo_id={$r.city_geo_id}" target="_blank">префиксы</a></td>
+        <td><a href="index.php?module=voipnew&action=catalog_prefix&f_city_geo_id={$r.city_geo_id}" target="_blank">п©я─п╣я└п╦п╨я│я▀</a></td>
         <td>
             {foreach from=$r.regions key='region_id' item='region_name'}
                 {$region_name}
@@ -18,7 +18,7 @@
         </td>
         <td>
             {foreach from=$r.regions key='region_id' item='region_name'}
-            <a href="index.php?module=voipnew&action=catalog_prefix&f_region_id={$region_id}" target="_blank">префиксы</a>
+            <a href="index.php?module=voipnew&action=catalog_prefix&f_region_id={$region_id}" target="_blank">п©я─п╣я└п╦п╨я│я▀</a>
             <br/>
             {/foreach}
         </td>

@@ -1,9 +1,9 @@
-<h2>Импорт платежей</h2>
+<h2>п≤п╪п©п╬я─я┌ п©п╩п╟я┌п╣п╤п╣п╧</h2>
 <form action="?" method="get">
  <input type="hidden" name="module" value="newaccounts" />
  <input type="hidden" name="action" value="pi_list" />
- Показать за           <SELECT name=filter[d]>
- <option value=''{if $filter.d==''} selected{/if}>(любой день месяца)</OPTION>
+ п÷п╬п╨п╟п╥п╟я┌я▄ п╥п╟           <SELECT name=filter[d]>
+ <option value=''{if $filter.d==''} selected{/if}>(п╩я▌п╠п╬п╧ п╢п╣п╫я▄ п╪п╣я│я▐я├п╟)</OPTION>
 			<OPTION value='01'{if $filter.d==1} selected{/if}>01</OPTION>
 			<OPTION value='02'{if $filter.d==2} selected{/if}>02</OPTION>
 			<OPTION value='03'{if $filter.d==3} selected{/if}>03</OPTION>
@@ -37,24 +37,24 @@
 			<OPTION value=31{if $filter.d==31} selected{/if}>31</OPTION>
 		</SELECT>
 		<SELECT name=filter[m]>
-<option value=''{if $filter.m==''} selected{/if}>(любой месяц)</OPTION>
-			<OPTION value='01'{if $filter.m==1} selected{/if}>янв</OPTION>
-			<OPTION value='02'{if $filter.m==2} selected{/if}>фев</OPTION>
-			<OPTION value='03'{if $filter.m==3} selected{/if}>мар</OPTION>
-			<OPTION value='04'{if $filter.m==4} selected{/if}>апр</OPTION>
-			<OPTION value='05'{if $filter.m==5} selected{/if}>мая</OPTION>
-			<OPTION value='06'{if $filter.m==6} selected{/if}>июн</OPTION>
-			<OPTION value='07'{if $filter.m==7} selected{/if}>июл</OPTION>
-			<OPTION value='08'{if $filter.m==8} selected{/if}>авг</OPTION>
-			<OPTION value='09'{if $filter.m==9} selected{/if}>сен</OPTION>
-			<OPTION value=10{if $filter.m==10} selected{/if}>окт</OPTION>
-			<OPTION value=11{if $filter.m==11} selected{/if}>ноя</OPTION>
-			<OPTION value=12{if $filter.m==12} selected{/if}>дек</OPTION>
+<option value=''{if $filter.m==''} selected{/if}>(п╩я▌п╠п╬п╧ п╪п╣я│я▐я├)</OPTION>
+			<OPTION value='01'{if $filter.m==1} selected{/if}>я▐п╫п╡</OPTION>
+			<OPTION value='02'{if $filter.m==2} selected{/if}>я└п╣п╡</OPTION>
+			<OPTION value='03'{if $filter.m==3} selected{/if}>п╪п╟я─</OPTION>
+			<OPTION value='04'{if $filter.m==4} selected{/if}>п╟п©я─</OPTION>
+			<OPTION value='05'{if $filter.m==5} selected{/if}>п╪п╟я▐</OPTION>
+			<OPTION value='06'{if $filter.m==6} selected{/if}>п╦я▌п╫</OPTION>
+			<OPTION value='07'{if $filter.m==7} selected{/if}>п╦я▌п╩</OPTION>
+			<OPTION value='08'{if $filter.m==8} selected{/if}>п╟п╡пЁ</OPTION>
+			<OPTION value='09'{if $filter.m==9} selected{/if}>я│п╣п╫</OPTION>
+			<OPTION value=10{if $filter.m==10} selected{/if}>п╬п╨я┌</OPTION>
+			<OPTION value=11{if $filter.m==11} selected{/if}>п╫п╬я▐</OPTION>
+			<OPTION value=12{if $filter.m==12} selected{/if}>п╢п╣п╨</OPTION>
 		</SELECT>
 		<SELECT name=filter[y]>
-<option value=''{if $filter.y==''} selected{/if}>(любой год)</OPTION>
+<option value=''{if $filter.y==''} selected{/if}>(п╩я▌п╠п╬п╧ пЁп╬п╢)</OPTION>
 			{generate_sequence_options_select start=2003 selected=$filter.y}
-		</SELECT><input type="submit" class=button value="Показать" />
+		</SELECT><input type="submit" class=button value="п÷п╬п╨п╟п╥п╟я┌я▄" />
 </form><br>
 
 <table style="text-align: center;border-collapse: collapse;" border=1 colspan=1 cellspacing=0 width=60%>
@@ -69,7 +69,7 @@
 <td><b>{$date|mdate:"d-m-Y"}</b></td>
 {foreach from=$companyes key=k item=i}
 {foreach from=$i.acc item=a}
-<td style="padding: 3px 3px 3px 3px;background-color: {if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};">{if $di[$k][$a]}<a href=".?module=newaccounts&action=pi_process&file={$di[$k][$a]}">{$a}</a>{else}&nbsp;{/if}{if $a == "citi" && $di[$k].citi_info}<sup title="Дополнительная информация к платежам загруженна" style="color:#20a420; font-size: 7pt;">+info</sup>{/if}</td>
+<td style="padding: 3px 3px 3px 3px;background-color: {if $k=="mcn"}#f5e1e1{elseif $k == "all4net"}#fbfbdd{else}#f0fff0{/if};">{if $di[$k][$a]}<a href=".?module=newaccounts&action=pi_process&file={$di[$k][$a]}">{$a}</a>{else}&nbsp;{/if}{if $a == "citi" && $di[$k].citi_info}<sup title="п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐ п╨ п©п╩п╟я┌п╣п╤п╟п╪ п╥п╟пЁя─я┐п╤п╣п╫п╫п╟" style="color:#20a420; font-size: 7pt;">+info</sup>{/if}</td>
 {/foreach}
 {/foreach}
 </tr>
@@ -83,6 +83,6 @@
 <form enctype="multipart/form-data" action="?" method="post">
  <input type="hidden" name="module" value="newaccounts" />
  <input type="hidden" name="action" value="pi_upload" />
- Выберите файл с платежами: <input class=text name="file" type="file" />
- <input type="submit" class=button value="Загрузить" />
+ п▓я▀п╠п╣я─п╦я┌п╣ я└п╟п╧п╩ я│ п©п╩п╟я┌п╣п╤п╟п╪п╦: <input class=text name="file" type="file" />
+ <input type="submit" class=button value="п≈п╟пЁя─я┐п╥п╦я┌я▄" />
 </form>

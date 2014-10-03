@@ -1,15 +1,15 @@
-<h2>Счета</h2>
-Счета клиента: &nbsp;&nbsp;<b>{$customer}</b>
+<h2>п║я┤п╣я┌п╟</h2>
+п║я┤п╣я┌п╟ п╨п╩п╦п╣п╫я┌п╟: &nbsp;&nbsp;<b>{$customer}</b>
 <form action="?module=accounts&action=accounts_bills&todo=showbills" method="post">
 <table cellspacing=0 cellpadding=10 border=1><tr>
-<th>Найти счет номер</th>
-<th>Найти счета за период</th>
+<th>п²п╟п╧я┌п╦ я│я┤п╣я┌ п╫п╬п╪п╣я─</th>
+<th>п²п╟п╧я┌п╦ я│я┤п╣я┌п╟ п╥п╟ п©п╣я─п╦п╬п╢</th>
 </tr><tr><td>
 			<input type="text" name="bill_no" size="10">
 </td><td>
 	<table cellpadding="0" cellspacing="0" border="0">
 		<tr>
-			<td>Период:</td><td>
+			<td>п÷п╣я─п╦п╬п╢:</td><td>
 				<select name=year>
 					<option value=''{if $this_year==''} selected{/if}></option>
 					<option value=2003{if $this_year==2003} selected{/if}>2003</option>
@@ -20,29 +20,29 @@
 				</select>
 				<select name=month>
 					<option value=''{if $this_month==''} selected{/if}></option>
-					<option value=1{if $this_month==1} selected{/if}>январь</option>	
-					<option value=2{if $this_month==2} selected{/if}>февраль</option>	
-					<option value=3{if $this_month==3} selected{/if}>март</option>	
-					<option value=4{if $this_month==4} selected{/if}>апрель</option>	
-					<option value=5{if $this_month==5} selected{/if}>май</option>	
-					<option value=6{if $this_month==6} selected{/if}>июнь</option>	
-					<option value=7{if $this_month==7} selected{/if}>июль</option>	
-					<option value=8{if $this_month==8} selected{/if}>август</option>	
-					<option value=9{if $this_month==9} selected{/if}>сентябрь</option>	
-					<option value=10{if $this_month==10} selected{/if}>октябрь</option>	
-					<option value=11{if $this_month==11} selected{/if}>ноябрь</option>	
-					<option value=12{if $this_month==12} selected{/if}>декабрь</option>
+					<option value=1{if $this_month==1} selected{/if}>я▐п╫п╡п╟я─я▄</option>	
+					<option value=2{if $this_month==2} selected{/if}>я└п╣п╡я─п╟п╩я▄</option>	
+					<option value=3{if $this_month==3} selected{/if}>п╪п╟я─я┌</option>	
+					<option value=4{if $this_month==4} selected{/if}>п╟п©я─п╣п╩я▄</option>	
+					<option value=5{if $this_month==5} selected{/if}>п╪п╟п╧</option>	
+					<option value=6{if $this_month==6} selected{/if}>п╦я▌п╫я▄</option>	
+					<option value=7{if $this_month==7} selected{/if}>п╦я▌п╩я▄</option>	
+					<option value=8{if $this_month==8} selected{/if}>п╟п╡пЁя┐я│я┌</option>	
+					<option value=9{if $this_month==9} selected{/if}>я│п╣п╫я┌я▐п╠я─я▄</option>	
+					<option value=10{if $this_month==10} selected{/if}>п╬п╨я┌я▐п╠я─я▄</option>	
+					<option value=11{if $this_month==11} selected{/if}>п╫п╬я▐п╠я─я▄</option>	
+					<option value=12{if $this_month==12} selected{/if}>п╢п╣п╨п╟п╠я─я▄</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td>Только неоплаченные:</td><td><input type="checkbox" name="notpaid" value="1"></td>
+			<td>п╒п╬п╩я▄п╨п╬ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣:</td><td><input type="checkbox" name="notpaid" value="1"></td>
 		</tr>
 		<tr>
-			<td>Показывать удалённые счета:</td><td><input type="checkbox" name="cancelled" value="1"></td>
+			<td>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я┐п╢п╟п╩я▒п╫п╫я▀п╣ я│я┤п╣я┌п╟:</td><td><input type="checkbox" name="cancelled" value="1"></td>
 		</tr>
 		<tr>
-			<td>Счета колллективной точки:</td><td>
+			<td>п║я┤п╣я┌п╟ п╨п╬п╩п╩п╩п╣п╨я┌п╦п╡п╫п╬п╧ я┌п╬я┤п╨п╦:</td><td>
 			<select name=router>
 				<option value='' selected></option>
 {foreach from=$routers item=item name=outer}
@@ -51,17 +51,17 @@
 			</select>			
 		</tr>
 		<tr>
-			<td>Менеджер:</td><td>
+			<td>п°п╣п╫п╣п╢п╤п╣я─:</td><td>
 			<select name=manager>
 {foreach from=$managers item=item name=outer}
 				<option value='{$item.user}'{if $item.user==$manager} selected{/if}>{$item.name} ({$item.user})</option>
 {/foreach}
-				<option value=''{if !$manager} selected{/if}>любой</option>
+				<option value=''{if !$manager} selected{/if}>п╩я▌п╠п╬п╧</option>
 			</select>			
 		</tr>
 	</table>
 </td></tr><tr>
-<td colspan=2 align=center><input type="submit" vALUE="Показать счета"></td>
+<td colspan=2 align=center><input type="submit" vALUE="п÷п╬п╨п╟п╥п╟я┌я▄ я│я┤п╣я┌п╟"></td>
 </tr></table>
 </form>
  		
@@ -72,11 +72,11 @@
 <br> <hr>
 <table >
     <tr>
-	<td colspan="2" bgcolor="Red" align="center"><b>Выставление счетов  всем клиентам</b></td>
+	<td colspan="2" bgcolor="Red" align="center"><b>п▓я▀я│я┌п╟п╡п╩п╣п╫п╦п╣ я│я┤п╣я┌п╬п╡  п╡я│п╣п╪ п╨п╩п╦п╣п╫я┌п╟п╪</b></td>
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    Дата
+	    п■п╟я┌п╟
 	</td>
 
 	<td BGCOLOR="#C5D6E3">
@@ -87,7 +87,7 @@
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    Период по факту
+	    п÷п╣я─п╦п╬п╢ п©п╬ я└п╟п╨я┌я┐
 	</td>
 
 	<td BGCOLOR="#C5D6E3">
@@ -97,7 +97,7 @@
     </tr>
     <tr>
 	<td BGCOLOR="#C5D6E3" align=right>
-	    Период по предоплате
+	    п÷п╣я─п╦п╬п╢ п©п╬ п©я─п╣п╢п╬п©п╩п╟я┌п╣
 	</td>
 	<td BGCOLOR="#C5D6E3">
 
@@ -106,20 +106,20 @@
 	</td>
     </tr>
     <tr>
-    	<td>Компенсация за непредоставление услуг, часы</td>
+    	<td>п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ, я┤п╟я│я▀</td>
     	<td><INPUT type="text" name="comp" value="0" size="3" maxlength="3"></td>
     </tr>
     <tr>
-    	<td colspan=2><input type=checkbox name=must_pay value=1 checked>Обязателен к оплате</td>
+    	<td colspan=2><input type=checkbox name=must_pay value=1 checked>п·п╠я▐п╥п╟я┌п╣п╩п╣п╫ п╨ п╬п©п╩п╟я┌п╣</td>
 	</tr>   
 </table>
 
 <br>
 <center>
-<input type=submit value='Выставить'>
+<input type=submit value='п▓я▀я│я┌п╟п╡п╦я┌я▄'>
 </center>
 </form><br>
 <a href="?module=accounts&action=accounts_bills&todo=auto_bills_print" target="_blank">
-печать счетов
+п©п╣я┤п╟я┌я▄ я│я┤п╣я┌п╬п╡
 </a>
 {/if}

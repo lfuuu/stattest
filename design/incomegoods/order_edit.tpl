@@ -4,13 +4,13 @@
 
 
 <h4>
-    <small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
-    Заказ поставщику
+    <small><a href="?module=incomegoods&action=order_list">п≈п╟п╨п╟п╥я▀</a> - </small>
+    п≈п╟п╨п╟п╥ п©п╬я│я┌п╟п╡я┴п╦п╨я┐
     <a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
         {$order->number}</a>
 
     <small><a href="?module=incomegoods&action=order_edit&id={$order->id}"><span class="icon_edit"></span>
-            <span style="color: darkred">{if $order->id}Редактирование{else}Создание{/if}</span></a></small>
+            <span style="color: darkred">{if $order->id}п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣{else}п║п╬п╥п╢п╟п╫п╦п╣{/if}</span></a></small>
 </h4>
 
 <form id="ajaxForm" action="?module=incomegoods&action=order_save" method="POST">
@@ -19,16 +19,16 @@
 
     <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
         <!--tr>
-            <th>Проведение</th>
+            <th>п÷я─п╬п╡п╣п╢п╣п╫п╦п╣</th>
             <td>
                 <select name="active" class="form-control input-sm">
-                    <option value="1" {if $order->active==1}selected{/if}>Проведен</option>
-                    <option value="0" {if $order->active==0}selected{/if}>Не проведен</option>
+                    <option value="1" {if $order->active==1}selected{/if}>п÷я─п╬п╡п╣п╢п╣п╫</option>
+                    <option value="0" {if $order->active==0}selected{/if}>п²п╣ п©я─п╬п╡п╣п╢п╣п╫</option>
                 </select>
             </td>
         </tr>
         <tr>
-            <th>Статус 1С</th>
+            <th>п║я┌п╟я┌я┐я│ 1п║</th>
             <td>
                 <select name="status" class="form-control input-sm">
                 {foreach from=$statuses key=status_id item=status_name}
@@ -39,27 +39,27 @@
         </tr-->
         {if !$order->is_new_record()}
         <tr>
-            <th>Номер, Дата</th>
-            <td>{$order->number} от {$order->date->format('d.m.Y H:i:s')}</td>
+            <th>п²п╬п╪п╣я─, п■п╟я┌п╟</th>
+            <td>{$order->number} п╬я┌ {$order->date->format('d.m.Y H:i:s')}</td>
         </tr>
         {/if}
         <tr>
-            <th>Поставщик</th>
+            <th>п÷п╬я│я┌п╟п╡я┴п╦п╨</th>
             <td>
                 {$order->client_card->company}
                 <input type="hidden" name="client_card_id" value="{$order->client_card_id}" />
             </td>
         </tr>
         <tr>
-            <th>Номер поставщика</th>
+            <th>п²п╬п╪п╣я─ п©п╬я│я┌п╟п╡я┴п╦п╨п╟</th>
             <td><input type="text" class="form-control input-sm" name="external_number" value="{$order->external_number}" /></td>
         </tr>
         <tr>
-            <th>Дата поставщика</th>
+            <th>п■п╟я┌п╟ п©п╬я│я┌п╟п╡я┴п╦п╨п╟</th>
             <td><input type="text" class="form-control input-sm datepicker" name="external_date" value="{if $order->external_date}{$order->external_date->format('d.m.Y')}{/if}" /></td>
         </tr>
         <tr>
-            <th>Организация</th>
+            <th>п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐</th>
             <td>
                 {if !$order->is_new_record()}
                     {$order->organization->name}
@@ -74,7 +74,7 @@
             </td>
         </tr>
         <tr>
-            <th>Менеджер</th>
+            <th>п°п╣п╫п╣п╢п╤п╣я─</th>
             <td>
                 <select name="manager_id" class="form-control input-sm">
                     {foreach from=$users item=user}
@@ -84,7 +84,7 @@
             </td>
         </tr>
         <tr>
-            <th>Склад</th>
+            <th>п║п╨п╩п╟п╢</th>
             <td>
                 <select name="store_id" class="form-control input-sm">
                     {foreach from=$stores item=store}
@@ -94,7 +94,7 @@
             </td>
         </tr>
         <tr>
-            <th>Валюта</th>
+            <th>п▓п╟п╩я▌я┌п╟</th>
             <td>
                 <select name="currency" class="form-control input-sm">
                     {foreach from=$currencies item=currency}
@@ -104,36 +104,36 @@
             </td>
         </tr>
         <tr>
-            <th>Цена включает НДС</th>
+            <th>п╕п╣п╫п╟ п╡п╨п╩я▌я┤п╟п╣я┌ п²п■п║</th>
             <td>
                 <input type="checkbox" name="price_includes_nds" {if $order->price_includes_nds}checked{/if}>
             </td>
         </tr>
         <tr>
-            <th>Сумма Итого</th>
+            <th>п║я┐п╪п╪п╟ п≤я┌п╬пЁп╬</th>
             <th class="sum_itog">{$order->sum}</th>
         </tr>
     </table>
 
     <table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px; margin-right: 10px;">
-        <caption><h5 class="text-left">Документы поступления:</h5></caption>
+        <caption><h5 class="text-left">п■п╬п╨я┐п╪п╣п╫я┌я▀ п©п╬я│я┌я┐п©п╩п╣п╫п╦я▐:</h5></caption>
         {foreach from=$order->documents item=item}
             <tr>
                 <td><a href="?module=incomegoods&action=document_view&id={$item->id}">
                         <span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-                        {$item->number} от {$item->date->format('d.m.Y H:i:s')}
+                        {$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
                     </a></td>
             </tr>
         {/foreach}
     </table>
 
     <table class="table table-bordered table-condensed table-hover pull-left" style="width: 250px">
-        <caption><h5 class="text-left">Приходные ордера:</h5></caption>
+        <caption><h5 class="text-left">п÷я─п╦я┘п╬п╢п╫я▀п╣ п╬я─п╢п╣я─п╟:</h5></caption>
         {foreach from=$order->stores item=item}
             <tr>
                 <td><a href="?module=incomegoods&action=store_view&id={$item->id}">
                         <span class="{if $item->deleted}icon_deleted_disabled{elseif $item->active}icon_active{else}icon_disabled{/if}"></span>
-                        {$item->number} от {$item->date->format('d.m.Y H:i:s')}
+                        {$item->number} п╬я┌ {$item->date->format('d.m.Y H:i:s')}
                     </a></td>
             </tr>
         {/foreach}
@@ -143,18 +143,18 @@
 
     <table class="table table-bordered table-condensed table-hover">
         <thead>
-        <caption><h5 class="text-left">Товары:</h5></caption>
+        <caption><h5 class="text-left">п╒п╬п╡п╟я─я▀:</h5></caption>
         <tr>
-            <th>Код</th>
-            <th>Наименование</th>
-            <th colspan=2>Ед.измерения</th>
-            <th>Заказано</th>
-            <th>Поступило</th>
-            <th>Оприходовано</th>
-            <th>Цена</th>
-            <th>Сумма <small>{if $order->price_includes_nds}(Вкл. НДС){else}(Без НДС){/if}</small></th>
-            <th>Сумма НДС</th>
-            <th>Ожидаемая<br/>дата поступления</th>
+            <th>п п╬п╢</th>
+            <th>п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣</th>
+            <th colspan=2>п∙п╢.п╦п╥п╪п╣я─п╣п╫п╦я▐</th>
+            <th>п≈п╟п╨п╟п╥п╟п╫п╬</th>
+            <th>п÷п╬я│я┌я┐п©п╦п╩п╬</th>
+            <th>п·п©я─п╦я┘п╬п╢п╬п╡п╟п╫п╬</th>
+            <th>п╕п╣п╫п╟</th>
+            <th>п║я┐п╪п╪п╟ <small>{if $order->price_includes_nds}(п▓п╨п╩. п²п■п║){else}(п▒п╣п╥ п²п■п║){/if}</small></th>
+            <th>п║я┐п╪п╪п╟ п²п■п║</th>
+            <th>п·п╤п╦п╢п╟п╣п╪п╟я▐<br/>п╢п╟я┌п╟ п©п╬я│я┌я┐п©п╩п╣п╫п╦я▐</th>
         </tr>
         </thead>
         <tbody id="goods_body">
@@ -185,7 +185,7 @@
         </tbody>
         <tfoot id="goods_foot">
         <tr>
-            <th colspan="6">Итого</th>
+            <th colspan="6">п≤я┌п╬пЁп╬</th>
             <th class="sum">0</th>
             <th class="sum_nds">0</th>
             <th>&nbsp;</th>
@@ -196,13 +196,13 @@
 
     <table class="table table-bordered table-condensed table-hover" id="searchGoods">
         <thead>
-        <caption><input type="text" class="form-control input-sm good_search_field" placeholder="Добавить товар..." value="" /></caption>
+        <caption><input type="text" class="form-control input-sm good_search_field" placeholder="п■п╬п╠п╟п╡п╦я┌я▄ я┌п╬п╡п╟я─..." value="" /></caption>
         </thead>
         <tbody class="good_search_body">
         </tbody>
     </table>
 
-    <input id="ajaxFormSubmit" type="button" class="btn btn-primary" value="Сохранить">
+    <input id="ajaxFormSubmit" type="button" class="btn btn-primary" value="п║п╬я┘я─п╟п╫п╦я┌я▄">
 </form>
 
 <script>

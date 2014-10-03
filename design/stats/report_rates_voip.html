@@ -1,13 +1,13 @@
 <table border="0" align="center" class="table_style">
 	<tr class="title">
-		<td colspan="5" align="center">Телефония</td>
+		<td colspan="5" align="center">п╒п╣п╩п╣я└п╬п╫п╦я▐</td>
 	</tr>
 	<tr class="title">
-		{if !$selected.group_bill}<td>Тариф</td>{/if}
-		<td>Клиент &laquo;статус&raquo;</td>
-		<td>Счет &laquo;валюта&raquo; &laquo;дата&raquo;</td>
-		<td>Сумма превышения</td>
-		<td>Превышения</td>
+		{if !$selected.group_bill}<td>п╒п╟я─п╦я└</td>{/if}
+		<td>п п╩п╦п╣п╫я┌ &laquo;я│я┌п╟я┌я┐я│&raquo;</td>
+		<td>п║я┤п╣я┌ &laquo;п╡п╟п╩я▌я┌п╟&raquo; &laquo;п╢п╟я┌п╟&raquo;</td>
+		<td>п║я┐п╪п╪п╟ п©я─п╣п╡я▀я┬п╣п╫п╦я▐</td>
+		<td>п÷я─п╣п╡я▀я┬п╣п╫п╦я▐</td>
 	</tr>
 	{foreach from=$v_r item='rate' key='rate_id'}
 	{foreach from=$rate.clients item='client' key='client_id'}
@@ -19,12 +19,12 @@
 		<td>{if $selected.with_nds}{$bill.overt.sum}{else}{$bill.overt.sum|div:1.18:2}{/if}</td>
 		<td>
 			<table>
-				<tr><td>Тип</td><td>Реал. Кол-во</td><td>Кол-во</td><td>Сумма</td></tr>
+				<tr><td>п╒п╦п©</td><td>п═п╣п╟п╩. п п╬п╩-п╡п╬</td><td>п п╬п╩-п╡п╬</td><td>п║я┐п╪п╪п╟</td></tr>
 				{foreach from=$bill.overt.groups item='g' key='dgs'}
 				<tr>
 					<td>{get_region_by_dgroups dgs=$dgs}</td>
-					<td>{get_minutes_by_seconds sec=$g.rti} мин.</td>
-					<td>{get_minutes_by_seconds sec=$g.qty} мин.</td>
+					<td>{get_minutes_by_seconds sec=$g.rti} п╪п╦п╫.</td>
+					<td>{get_minutes_by_seconds sec=$g.qty} п╪п╦п╫.</td>
 					<td>{if $selected.with_nds}{$g.pry}{else}{$g.pry|div:1.18:2}{/if}</td>
 				</tr>
 				{/foreach}

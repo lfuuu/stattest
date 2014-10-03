@@ -1,4 +1,4 @@
-<H2>Настройки агента <b style="color: blue;">{$sale_channel}</b></H2>
+<H2>п²п╟я│я┌я─п╬п╧п╨п╦ п╟пЁп╣п╫я┌п╟ <b style="color: blue;">{$sale_channel}</b></H2>
 <FORM action="?" method=post>
 	<input type=hidden name=module value=stats>
 	<input type=hidden name=action value=save_agent_settings>
@@ -6,7 +6,7 @@
 		<TBODY>
 			<TR>
 				<TD class=left>
-					Вид вознагрождения
+					п▓п╦п╢ п╡п╬п╥п╫п╟пЁя─п╬п╤п╢п╣п╫п╦я▐
 				</TD>
 				<td>
 					{foreach from=$interests_types item="i" key="k"}
@@ -19,7 +19,7 @@
 			</tr>
 			<tr>
 				<td class="left">
-					Вознагождение в %
+					п▓п╬п╥п╫п╟пЁп╬п╤п╢п╣п╫п╦п╣ п╡ %
 				</td>
 				<td>
 					{foreach from=$interests_types item="i" key="k"}
@@ -40,7 +40,7 @@
        </TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сохранить"></DIV>
+      <DIV align=center><INPUT class=button type=submit value="п║п╬я┘я─п╟п╫п╦я┌я▄"></DIV>
 </FORM>
 {literal}
 	<script>

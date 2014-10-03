@@ -1,5 +1,5 @@
-<H2>Операторы</H2>
-<H3>Изменение оператора {$user.user}:</H3>
+<H2>п·п©п╣я─п╟я┌п╬я─я▀</H2>
+<H3>п≤п╥п╪п╣п╫п╣п╫п╦п╣ п╬п©п╣я─п╟я┌п╬я─п╟ {$user.user}:</H3>
 <FORM action="?" method=post id=form name=form enctype="multipart/form-data">
 <input type=hidden name=action value=edit>
 <input type=hidden name=module value=users>
@@ -13,52 +13,52 @@
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 	<TBODY>
 {if access('users','change')}
-		<TR><TD class=left>Логин:</TD><TD>
+		<TR><TD class=left>п⌡п╬пЁп╦п╫:</TD><TD>
 		<input name=newuser class=text value='{$user.user}'>
 		</TD></TR>
-		<TR><TD class=left>Группа:</TD><TD>
+		<TR><TD class=left>п⌠я─я┐п©п©п╟:</TD><TD>
 		<SELECT name=usergroup>{foreach from=$groups item=item}<option value='{$item.usergroup}'{$item.selected}>{$item.usergroup} - {$item.comment}</option>{/foreach}</select>
 		</TD></TR>
-		<TR><TD class=left>Отдел:</TD><TD>
+		<TR><TD class=left>п·я┌п╢п╣п╩:</TD><TD>
 		<SELECT name=depart_id>{foreach from=$departs item=item}<option value='{$item.id}'{if $item.id==$user.depart_id} selected{/if}>{$item.name}</option>{/foreach}</select>
 		</TD></TR>
-		<TR><TD class=left>Полное имя:</TD><TD>
+		<TR><TD class=left>п÷п╬п╩п╫п╬п╣ п╦п╪я▐:</TD><TD>
 		<input name=name class=text value='{$user.name}'>
 		</TD></TR>
-		<TR><TD class=left>Перенаправление траблов:</TD><TD>
+		<TR><TD class=left>п÷п╣я─п╣п╫п╟п©я─п╟п╡п╩п╣п╫п╦п╣ я┌я─п╟п╠п╩п╬п╡:</TD><TD>
 		<SELECT name=trouble_redirect><option value=''{if !$user.trouble_redirect} selected{/if}></option>{foreach from=$users item=item}<option value='{$item.user}'{if $user.trouble_redirect==$item.user} selected{/if}>{$item.user} - {$item.name}</option>{/foreach}</select>
 		</TD></TR>
 		<TR><TD class=left>e-mail:</TD><TD>
-		<input name=email class=text value='{$user.email}'> (<a href='mailto:{$user.email}'>написать</a>)
+		<input name=email class=text value='{$user.email}'> (<a href='mailto:{$user.email}'>п╫п╟п©п╦я│п╟я┌я▄</a>)
 		</TD></TR>
-		<TR><TD class=left>Внутренний номер (логин в comcenter):</TD><TD>
+		<TR><TD class=left>п▓п╫я┐я┌я─п╣п╫п╫п╦п╧ п╫п╬п╪п╣я─ (п╩п╬пЁп╦п╫ п╡ comcenter):</TD><TD>
 		<input name=phone_work class=text value='{$user.phone_work}'>
 		</TD></TR>
-		<TR><TD class=left>Телефон мобильный:</TD><TD>
+		<TR><TD class=left>п╒п╣п╩п╣я└п╬п╫ п╪п╬п╠п╦п╩я▄п╫я▀п╧:</TD><TD>
 		<input name=phone_mobile class=text value='{$user.phone_mobile}'>
 		</TD></TR>
 		<TR><TD class=left>ICQ:</TD><TD>
 		<input name=icq class=text value='{$user.icq}' autocomplete="off">
 		</TD></TR>
 
-		<TR><TD class=left>Фотография:</TD><TD>
+		<TR><TD class=left>п╓п╬я┌п╬пЁя─п╟я└п╦я▐:</TD><TD>
 		<input style='width:60%' name=photo class=text type=file value='' onchange='javscript:photo_change.checked=true;'><input id=file_change value=1 class=text type=checkbox name=photo_change>
 		</TD></TR>
 		
-		<TR><TD class=left>Пароль: (если оставить пустым - не изменится)</TD><TD>
+		<TR><TD class=left>п÷п╟я─п╬п╩я▄: (п╣я│п╩п╦ п╬я│я┌п╟п╡п╦я┌я▄ п©я┐я│я┌я▀п╪ - п╫п╣ п╦п╥п╪п╣п╫п╦я┌я│я▐)</TD><TD>
 		<input name=pass1 class=text type=password value='' autocomplete="off">
 		</TD></TR>
-		<TR><TD class=left>Пароль ещё раз:</TD><TD>
+		<TR><TD class=left>п÷п╟я─п╬п╩я▄ п╣я┴я▒ я─п╟п╥:</TD><TD>
 		<input name=pass2 class=text type=password value='' autocomplete="off">
 		</TD></TR>  
 
-		<TR><TD class=left>Пользователь активен:</TD><TD>
+		<TR><TD class=left>п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄ п╟п╨я┌п╦п╡п╣п╫:</TD><TD>
 		<input type=checkbox value="yes" name=enabled{if $user.enabled=='yes'} checked{/if}>
 		</TD></TR>  
 
-		<TR><TD class=left>Привязка к курьеру:</TD><TD>
+		<TR><TD class=left>п÷я─п╦п╡я▐п╥п╨п╟ п╨ п╨я┐я─я▄п╣я─я┐:</TD><TD>
 		<select name='courier_id'>
-			<option value="0">Нет</option>
+			<option value="0">п²п╣я┌</option>
             {foreach from=$couriers item='cs' key='depart'}
 				<optgroup label="{$depart}">
 				{foreach from=$cs item='name' key='id'}<option value='{$id}'{if $user.courier_id == $id} selected{/if}>{$name}</option>{/foreach}
@@ -67,20 +67,20 @@
 		</select>
 		</TD></TR>  
 {else}
-		<TR><TD class=left>Логин:</TD><TD>
+		<TR><TD class=left>п⌡п╬пЁп╦п╫:</TD><TD>
 			{$user.user}
 		</TD></TR>
-		<TR><TD class=left>Группа:</TD><TD>
+		<TR><TD class=left>п⌠я─я┐п©п©п╟:</TD><TD>
 			{$user.usergroup} - {$rights.$group.comment}
 		</TD></TR>
-		<TR><TD class=left>Полное имя:</TD><TD>
+		<TR><TD class=left>п÷п╬п╩п╫п╬п╣ п╦п╪я▐:</TD><TD>
 			{$user.name}
 		</TD></TR>
-		<TR><TD class=left>Перенаправление траблов:</TD><TD>
+		<TR><TD class=left>п÷п╣я─п╣п╫п╟п©я─п╟п╡п╩п╣п╫п╦п╣ я┌я─п╟п╠п╩п╬п╡:</TD><TD>
 			{$user.trouble_redirect}
 		</TD></TR>
 		<TR><TD class=left>e-mail:</TD><TD>
-			{$user.email} (<a href="mailto: {$user.email}">написать</a>)
+			{$user.email} (<a href="mailto: {$user.email}">п╫п╟п©п╦я│п╟я┌я▄</a>)
 		</TD></TR>
 		<TR><TD class=left>ICQ:</TD><TD>
 			{$user.icq}
@@ -92,10 +92,10 @@
 {/if}
 
 <hr />
-<H3>Фирмы</H3>
+<H3>п╓п╦я─п╪я▀</H3>
 <table cellSpacing=4 cellPadding=2 border=0>
 	<thead>
-		<tr><th>Фирма</th><th><input id="check_all" type="checkbox" value="1" /> Доступ</th></tr>
+		<tr><th>п╓п╦я─п╪п╟</th><th><input id="check_all" type="checkbox" value="1" /> п■п╬я│я┌я┐п©</th></tr>
 	</thead>
 	<tbody>
 		{foreach from=$firms item='firma' key='key'}
@@ -106,7 +106,7 @@
 <hr />
 
 {if access('users','grant')}
-<H2>Права доступа</H2>
+<H2>п÷я─п╟п╡п╟ п╢п╬я│я┌я┐п©п╟</H2>
       <TABLE cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
 {counter start=0 assign=CNT}
@@ -124,9 +124,9 @@
 			<TD vAlign=top>
 				<div style="margin-bottom: 10px;">
 				<input name=rights_radio[{$right}] id="{$right}_0" type=radio onchange="javascript:set_disable('{$right}')" value=0 {if !isset($rights_user.$right)}checked{/if}>
-				<label for='{$right}_0' style="font-size: 9px;vertical-align: top; line-height: 18px;">Стандартный</label> 
+				<label for='{$right}_0' style="font-size: 9px;vertical-align: top; line-height: 18px;">п║я┌п╟п╫п╢п╟я─я┌п╫я▀п╧</label> 
 				<input name=rights_radio[{$right}] id="{$right}_1" type=radio onchange="javascript:set_enable('{$right}')" value=1 {if isset($rights_user.$right)}checked{/if}>
-				<label for='{$right}_1' style="font-size: 9px;vertical-align: top; line-height: 18px;">Особый</label>
+				<label for='{$right}_1' style="font-size: 9px;vertical-align: top; line-height: 18px;">п·я│п╬п╠я▀п╧</label>
 				</div>
 				{assign var="applied_rights" value=","|explode:$rights_real.$right}
 				{foreach from=$item.values item=item2 key=key2 name=inner}
@@ -209,6 +209,6 @@ $(function(){
 {/if}
 
 {if access('users','change')}
-<DIV align=center><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 {/if}
 </FORM>

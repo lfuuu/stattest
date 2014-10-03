@@ -1,5 +1,5 @@
-<meta http-equiv="Content-Type" content="text/html; charset=koi8-r">
-<H3>PPP-логин:</H3>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<H3>PPP-п╩п╬пЁп╦п╫:</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=apply>
 <input type=hidden name=id value={$id}>
@@ -13,7 +13,7 @@
 {dbmap_element}
 {/foreach}
 
-<TR><TD class=left>Подключение:</TD><TD>
+<TR><TD class=left>п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣:</TD><TD>
 <SELECT name="row[port_id]">
 {foreach from=$ports key=key item=item}
 <option value="{$item.id}"{if $row.port_id.value==$item.id} selected{/if}>{$item.id} | {$item.address} | {$item.node}</option>
@@ -21,5 +21,5 @@
 </SELECT></TD></TR>
 
 </TBODY></TABLE>
-<DIV align=center><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 </form>

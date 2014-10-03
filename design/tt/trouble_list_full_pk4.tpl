@@ -1,5 +1,5 @@
 {if !isset($hide_tts)}{if !isset($tt_wo_explain) && $tt_design=='full'}<H2>{$tt_header}
-	{if $fixclient_data}(клиент <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
+	{if $fixclient_data}(п╨п╩п╦п╣п╫я┌ <a href='{$LINK_START}module=clients&id={$fixclient_data.client}'>{$fixclient_data.client}</a>){/if}
 	</H2>
 {elseif $tt_design=='client'}
 	<H3><a href='{$LINK_START}module=tt&action=list&mode=1'>{$tt_header}</a></H3>
@@ -10,22 +10,22 @@
 	{if $tt_design=='full'}
 		<TD class=header vAlign=bottom>{sort_link sort=1 text='&#8470;' link=$CUR sort_cur=$sort so_cur=$so}</TD>
 		{if $tt_subject<2}
-			{if $tt_subject<1}<TD class=header vAlign=bottom>{sort_link sort=2 text='Клиент' link=$CUR sort_cur=$sort so_cur=$so}</TD>{/if}
-			<TD class=header vAlign=bottom>Услуга</TD>
+			{if $tt_subject<1}<TD class=header vAlign=bottom>{sort_link sort=2 text='п п╩п╦п╣п╫я┌' link=$CUR sort_cur=$sort so_cur=$so}</TD>{/if}
+			<TD class=header vAlign=bottom>пёя│п╩я┐пЁп╟</TD>
 
 		{/if}
-		<TD class=header vAlign=bottom>{sort_link sort=3 text='Этап' link=$CUR sort_cur=$sort so_cur=$so}</TD>
-		<TD class=header vAlign=bottom>{sort_link sort=4 text='Ответ.' link=$CUR sort_cur=$sort so_cur=$so}</TD>
+		<TD class=header vAlign=bottom>{sort_link sort=3 text='п╜я┌п╟п©' link=$CUR sort_cur=$sort so_cur=$so}</TD>
+		<TD class=header vAlign=bottom>{sort_link sort=4 text='п·я┌п╡п╣я┌.' link=$CUR sort_cur=$sort so_cur=$so}</TD>
 	{else}
 		{if $tt_subject<2}
-			{if $tt_subject<1}<TD class=header vAlign=bottom>клиент</TD>{/if}
-			<TD class=header vAlign=bottom>услуга</TD>
+			{if $tt_subject<1}<TD class=header vAlign=bottom>п╨п╩п╦п╣п╫я┌</TD>{/if}
+			<TD class=header vAlign=bottom>я┐я│п╩я┐пЁп╟</TD>
 		{/if}
-		<TD class=header vAlign=bottom>этап</TD>
-		<TD class=header vAlign=bottom>ответ.</TD>
+		<TD class=header vAlign=bottom>я█я┌п╟п©</TD>
+		<TD class=header vAlign=bottom>п╬я┌п╡п╣я┌.</TD>
 	{/if}
-	<TD class=header vAlign=bottom width=45%>проблема</TD>
-	<TD class=header vAlign=bottom>сроки</TD>
+	<TD class=header vAlign=bottom width=45%>п©я─п╬п╠п╩п╣п╪п╟</TD>
+	<TD class=header vAlign=bottom>я│я─п╬п╨п╦</TD>
 </TR>
 {foreach from=$tt_troubles item=r name=outer}
 <tr>
@@ -39,23 +39,23 @@
         {else}&nbsp;{/if}<br>
             {$r.user_main} / <a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'>{$r.state_name}</a>
             <br>{if $r.add_info.logistic == 'none'}
-                Логистика не установленна
+                п⌡п╬пЁп╦я│я┌п╦п╨п╟ п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╫п╟
                 {else}
                     {$r.add_info.logistic_name}
                     {if $r.add_info.logistic == "auto" || $r.add_info.logistic == "courier"}
-                        <br>м. {$r.add_info.metro_name}
+                        <br>п╪. {$r.add_info.metro_name}
                     {/if}
                 {/if}
         </td>
         <td>
             <a href='{$LINK_START}module=clients&id={$r.client_orig}'>{$r.client}{if $r.client != $r.client_orig} ({$r.client_orig}){/if}</a>
-        {if $r.add_info.phone}, Телефон: {$r.add_info.phone}{/if}
+        {if $r.add_info.phone}, п╒п╣п╩п╣я└п╬п╫: {$r.add_info.phone}{/if}
         {if $r.add_info.email}, E-mail: {$r.add_info.email}{/if}
         </td>
         <!--TD rowspan=3 style='font-size:85%'>{$r.problem}</TD-->
     </tr>
     <tr><td>
-        {if $r.add_info.metro_id}м. {$r.add_info.metro_name}, {/if}Адрес: {$r.add_info.address}<br>
+        {if $r.add_info.metro_id}п╪. {$r.add_info.metro_name}, {/if}п░п╢я─п╣я│: {$r.add_info.address}<br>
         {$r.add_info.comment1} {if $r.add_info.comment2}// {$r.add_info.comment2}{/if}
         </td></tr>
     <tr>
@@ -86,16 +86,16 @@
 		{mformat param=$r.date_start format='Y.m.d H:i'}<br>
 		{mformat param=$r.date_edit format='Y.m.d H:i'}
 	{elseif $r.state_id==4}
-			выезд {mformat param=$r.date_start format='Y.m.d H:i'}<br>
+			п╡я▀п╣п╥п╢ {mformat param=$r.date_start format='Y.m.d H:i'}<br>
 			{if $r.is_active}
-				прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
+				п©я─п╬я┬п╩п╬ <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 			{/if}
 	{else}
 		{mformat param=$r.date_start format='Y.m.d H:i'}<br>
 		{if $r.is_active}
-			прошло <font color=red>{$r.time_pass} / {$r.time_limit}</span>
+			п©я─п╬я┬п╩п╬ <font color=red>{$r.time_pass} / {$r.time_limit}</span>
 		{else}
-			неактивна / {$r.time_pass}
+			п╫п╣п╟п╨я┌п╦п╡п╫п╟ / {$r.time_pass}
 		{/if}
 	{/if}</TD>
 </TR>
@@ -104,11 +104,11 @@
 	<TR class=odd {if !isset($bill) || $r.bill_no<>$bill.bill_no}style='display:none'{/if} id='tt_main{$smarty.foreach.outer.iteration}'><TD colspan=6>
 	<TABLE class={if $tt_design=='service'}insblock{else}price{/if} cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
 	<TR>
-		<TD class=header vAlign=bottom width="9%">Состояние</TD>
-		<TD class=header vAlign=bottom width="8%">Ответственный</TD>
-		<TD class=header vAlign=bottom width="60%">Комментарий</TD>
-		<TD class=header vAlign=bottom width="8%">кто</TD>
-		<TD class=header vAlign=bottom width="15%">когда</TD>
+		<TD class=header vAlign=bottom width="9%">п║п╬я│я┌п╬я▐п╫п╦п╣</TD>
+		<TD class=header vAlign=bottom width="8%">п·я┌п╡п╣я┌я│я┌п╡п╣п╫п╫я▀п╧</TD>
+		<TD class=header vAlign=bottom width="60%">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</TD>
+		<TD class=header vAlign=bottom width="8%">п╨я┌п╬</TD>
+		<TD class=header vAlign=bottom width="15%">п╨п╬пЁп╢п╟</TD>
 	</TR>
 	{foreach from=$r.stages item=r2 name=inner}
 	<TR class={if $smarty.foreach.inner.iteration%2==count($r.stages)%2}even{else}odd{/if}>

@@ -50,7 +50,7 @@ class prices_parser
     public static function &xls_read($fname)
     {
         require_once INCLUDE_PATH . 'exel/excel_reader2.php';
-        @$xlsreader = new Spreadsheet_Excel_Reader($fname, false, 'koi8-r');
+        @$xlsreader = new Spreadsheet_Excel_Reader($fname, false, 'utf-8');
         return $xlsreader;
     }
 
@@ -359,8 +359,8 @@ class prices_parser
         $objWorksheet = self::open_file($filename, 'Excel5', 0);
         if ($objWorksheet === false) return false;
         $fields = array(
-            'defcode2' => array('t' => 'S', 'v' => 'ëÏÄÙ á÷ó abx'),
-            'price' => array('t' => 'F', 'v' => 'òô, ÒÕÂ./ÍÉÎ.'),
+            'defcode2' => array('t' => 'S', 'v' => 'ÐšÐ¾Ð´Ñ‹ ÐÐ’Ð¡ abx'),
+            'price' => array('t' => 'F', 'v' => 'Ð Ð¢, Ñ€ÑƒÐ±./Ð¼Ð¸Ð½.'),
         );
         $table = self::read_table($objWorksheet, $fields);
         if ($table === false) return false;
@@ -368,9 +368,9 @@ class prices_parser
         $objWorksheet = self::open_file($filename, 'Excel5', 1);
         if ($objWorksheet === false) return false;
         $fields = array(
-            'defcode1' => array('t' => 'S', 'v' => 'ëÏÄÙ á÷ó'),
-            'defcode2' => array('t' => 'S', 'v' => 'ëÏÄÙ á÷ó abx'),
-            'price' => array('t' => 'F', 'v' => 'òô, ÒÕÂ./ÍÉÎ.'),
+            'defcode1' => array('t' => 'S', 'v' => 'ÐšÐ¾Ð´Ñ‹ ÐÐ’Ð¡'),
+            'defcode2' => array('t' => 'S', 'v' => 'ÐšÐ¾Ð´Ñ‹ ÐÐ’Ð¡ abx'),
+            'price' => array('t' => 'F', 'v' => 'Ð Ð¢, Ñ€ÑƒÐ±./Ð¼Ð¸Ð½.'),
         );
         $table2 = self::read_table($objWorksheet, $fields);
         if ($table2 === false) return false;
@@ -455,7 +455,7 @@ class prices_parser
                 $cellIterator = $row->getCellIterator();
                 $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
                 foreach ($cellIterator as $cell) {
-                    if (strip_tags(trim($cell->getValue())) == "îÏ×ÁÑ  ÃÅÎÁ") {
+                    if (strip_tags(trim($cell->getValue())) == "ÐÐ¾Ð²Ð°Ñ  Ñ†ÐµÐ½Ð°") {
                         $price_column = $cellIterator->key();
                         break;
                     }
@@ -610,7 +610,7 @@ class prices_parser
                 $cellIterator = $row->getCellIterator();
                 $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
                 foreach ($cellIterator as $cell) {
-                    if (strip_tags(trim($cell->getValue())) == "ëõ-72") {
+                    if (strip_tags(trim($cell->getValue())) == "ÐšÐ£-72") {
                         $isFindHeader = true;
                         $column = $cellIterator->key();
                         break;
@@ -666,7 +666,7 @@ class prices_parser
     {
         $objWorksheet = self::open_file($filename);
         if ($objWorksheet === false) return false;
-        $fields = array('defcode' => array('t' => 'S', 'v' => 'ëïä'),
+        $fields = array('defcode' => array('t' => 'S', 'v' => 'ÐšÐžÐ”'),
             'price' => array('t' => 'F', 'v' => 'Tariff, RuR /min'),
         );
         $table = self::read_table($objWorksheet, $fields);

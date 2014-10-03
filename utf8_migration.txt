@@ -1,0 +1,1253 @@
+﻿изменение кодировки договоров
+find ./ -type f -exec enconv -L ru -x UTF-8 {} \;
+find ./ -type f -exec sed -i -r 's/KOI8-R/UTF-8/gi' {} \;
+
+design/ats/schema.htm
+design/newaccounts/nbn_deliv.html # не менял
+design/newaccounts/nbn_modem.html # не менял
+design/include/db_map.html # был в windows-1251, перевел в utf-8
+modules/phone/module.php # не менял
+pub/service.php # не менял
+
+
+ALTER TABLE `currency`
+MODIFY COLUMN `id`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ;
+
+ALTER TABLE `g_income_document`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `organization_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `client_card_id`,
+MODIFY COLUMN `store_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `organization_id`,
+MODIFY COLUMN `currency`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `store_id`;
+
+ALTER TABLE `g_income_document_lines`
+MODIFY COLUMN `document_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`;
+
+ALTER TABLE `g_income_order`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST;
+
+ALTER TABLE `g_income_order_lines`
+MODIFY COLUMN `order_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`;
+
+ALTER TABLE `g_income_order_lines`
+MODIFY COLUMN `order_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`;
+
+ALTER TABLE `g_income_store`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `order_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`,
+MODIFY COLUMN `store_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `status`;
+
+ALTER TABLE `g_income_store_lines`
+MODIFY COLUMN `document_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`;
+
+ALTER TABLE `g_store`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST;
+
+ALTER TABLE `newbills`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST;
+
+ALTER TABLE `newbills_add_info`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST;
+
+ALTER TABLE `organization`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+
+
+
+
+
+
+ALTER TABLE `adsl_speed`
+MODIFY COLUMN `value`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `name`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `value`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `agent_interests`
+MODIFY COLUMN `interest`  enum('bills','prebills') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `client_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `bik`
+MODIFY COLUMN `bik`  varchar(9) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `corr_acc`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bik`,
+MODIFY COLUMN `bank_name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `corr_acc`,
+MODIFY COLUMN `bank_city`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bank_name`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `bill_currency_rate`
+MODIFY COLUMN `currency`  enum('USD','EUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `date`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `bill_monthlyadd`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `client`
+MODIFY COLUMN `amount`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `description`,
+MODIFY COLUMN `price`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `amount`,
+MODIFY COLUMN `period`  enum('day','week','month','year','once') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'day' AFTER `price`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `credit_usd`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `status`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `bill_monthlyadd`
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`;
+
+ALTER TABLE `bill_monthlyadd_log`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `amount`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `description`,
+MODIFY COLUMN `price`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `amount`,
+MODIFY COLUMN `period`  enum('day','week','month','year','once') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'day' AFTER `price`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `credit_usd_del`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `ts`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `bill_monthlyadd_log`
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`;
+
+ALTER TABLE `bill_monthlyadd_reference`
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `price`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `description`,
+MODIFY COLUMN `period`  enum('day','week','month','year','once') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'day' AFTER `only_one_time`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `period`,
+MODIFY COLUMN `status`  enum('public','special','archive') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `edit_time`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_bin;
+
+ALTER TABLE `bill_monthlyadd_reference`
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`;
+
+
+ALTER TABLE `client_contacts`
+MODIFY COLUMN `type`  enum('email','phone','fax','sms') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `client_id`,
+MODIFY COLUMN `data`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `type`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ts`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `client_contracts`
+MODIFY COLUMN `contract_no`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `client_id`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ts`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `client_contragent`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `super_id`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `client_counters`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `client_files`
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ts`,
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `comment`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `client_inn`
+MODIFY COLUMN `inn`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `client_id`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ts`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `client_pay_acc`
+MODIFY COLUMN `pay_acc`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `client_id`,
+MODIFY COLUMN `who`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `date`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `client_statuses`
+MODIFY COLUMN `status`  enum('negotiations','testing','connecting','work','closed','tech_deny','telemarketing','income','deny','debt','double','trash','move','already','denial','once','reserved','suspended','operator','distr','blocked','') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id_client`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `status`,
+MODIFY COLUMN `user`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `comment`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `client_sum_traf`
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL FIRST ,
+MODIFY COLUMN `currency`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `client`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `client_super`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+
+ALTER TABLE `clients`
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`,
+MODIFY COLUMN `password`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `contragent_id`,
+MODIFY COLUMN `password_type`  enum('plaintext','MD5') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'plaintext' AFTER `password`,
+MODIFY COLUMN `company`  varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `password_type`,
+MODIFY COLUMN `comment`  varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `company`,
+MODIFY COLUMN `address_jur`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `comment`,
+MODIFY COLUMN `status`  enum('negotiations','testing','connecting','work','closed','tech_deny','telemarketing','income','deny','debt','double','trash','move','already','denial','once','reserved','suspended','operator','distr','blocked') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'income' AFTER `address_jur`,
+MODIFY COLUMN `company_full`  varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `usd_rate_percent`,
+MODIFY COLUMN `address_post`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `company_full`,
+MODIFY COLUMN `address_post_real`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `address_post`,
+MODIFY COLUMN `type`  enum('org','priv','office','multi','distr','operator') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'org' AFTER `address_post_real`,
+MODIFY COLUMN `manager`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `type`,
+MODIFY COLUMN `support`  varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `manager`,
+MODIFY COLUMN `login`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `support`,
+MODIFY COLUMN `inn`  varchar(12) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `login`,
+MODIFY COLUMN `kpp`  varchar(12) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `inn`,
+MODIFY COLUMN `bik`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `kpp`,
+MODIFY COLUMN `bank_properties`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bik`,
+MODIFY COLUMN `signer_name`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bank_properties`,
+MODIFY COLUMN `signer_position`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `signer_name`,
+MODIFY COLUMN `signer_nameV`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `signer_position`,
+MODIFY COLUMN `firma`  varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'mcn' AFTER `signer_nameV`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `firma`,
+MODIFY COLUMN `currency_bill`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `currency`,
+MODIFY COLUMN `stamp`  enum('0','1') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0' AFTER `currency_bill`,
+MODIFY COLUMN `nal`  enum('nal','beznal','prov') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'beznal' AFTER `stamp`,
+MODIFY COLUMN `telemarketing`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `nal`,
+MODIFY COLUMN `uid`  varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `sale_channel`,
+MODIFY COLUMN `site_req_no`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `uid`,
+MODIFY COLUMN `signer_positionV`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `site_req_no`,
+MODIFY COLUMN `user_impersonate`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'client' AFTER `credit`,
+MODIFY COLUMN `address_connect`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `user_impersonate`,
+MODIFY COLUMN `phone_connect`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `address_connect`,
+MODIFY COLUMN `dealer_comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id_all4net`,
+MODIFY COLUMN `form_type`  enum('manual','payment','bill') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'manual' AFTER `dealer_comment`,
+MODIFY COLUMN `payment_comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `metro_id`,
+MODIFY COLUMN `cli_1c`  varchar(36) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `previous_reincarnation`,
+MODIFY COLUMN `con_1c`  varchar(36) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `cli_1c`,
+MODIFY COLUMN `corr_acc`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `con_1c`,
+MODIFY COLUMN `pay_acc`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `corr_acc`,
+MODIFY COLUMN `bank_name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `pay_acc`,
+MODIFY COLUMN `bank_city`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `bank_name`,
+MODIFY COLUMN `sync_1c`  enum('no','yes') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no' AFTER `bank_city`,
+MODIFY COLUMN `price_type`  varchar(60) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' AFTER `sync_1c`,
+MODIFY COLUMN `mail_print`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT 'yes' AFTER `last_payed_voip_month`,
+MODIFY COLUMN `mail_who`  varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `mail_print`,
+MODIFY COLUMN `head_company_address_jur`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `head_company`,
+MODIFY COLUMN `okpo`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `head_company_address_jur`,
+MODIFY COLUMN `bill_rename1`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no' AFTER `created`,
+MODIFY COLUMN `account_manager`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `admin_is_active`,
+MODIFY COLUMN `is_agent`  varchar(1) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'N' AFTER `account_manager`,
+MODIFY COLUMN `consignee`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `is_with_consignee`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+
+ALTER TABLE `clients_contracts_yota`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `country`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `code`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `courier`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `name`,
+MODIFY COLUMN `all4geo`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `phone`,
+MODIFY COLUMN `enabled`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'yes' AFTER `is_used`,
+MODIFY COLUMN `depart`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'Курьер' COMMENT 'отдел Курьер/Инженер' AFTER `enabled`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `currency`
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `datacenter`
+MODIFY COLUMN `name`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `id`,
+MODIFY COLUMN `address`  varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `name`,
+MODIFY COLUMN `comment`  varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `address`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `domains`
+MODIFY COLUMN `domain`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `domain`,
+MODIFY COLUMN `primary_mx`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `registrator`  enum('','RUCENTER-REG-RIPN') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `primary_mx`,
+MODIFY COLUMN `dns`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `rucenter_form_no`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `e164_stat`
+MODIFY COLUMN `e164`  varchar(11) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `pk`,
+MODIFY COLUMN `action`  enum('create','fix','unfix','invertReserved','invertSpecial','invertOur','nullCall') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `e164`,
+MODIFY COLUMN `addition`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `time`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `email_whitelist`
+MODIFY COLUMN `local_part`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `domain`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `local_part`,
+MODIFY COLUMN `sender_address`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `domain`,
+MODIFY COLUMN `sender_address_domain`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `sender_address`,
+MODIFY COLUMN `sender_host_address`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `sender_address_domain`,
+MODIFY COLUMN `comment`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `sender_host_address`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `emailaliases`
+MODIFY COLUMN `local_part`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `domain`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `local_part`,
+MODIFY COLUMN `to_local_part`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `domain`,
+MODIFY COLUMN `to_domain`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `to_local_part`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `emails`
+MODIFY COLUMN `local_part`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `domain`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `local_part`,
+MODIFY COLUMN `password`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `domain`,
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `password`,
+MODIFY COLUMN `spam_act`  enum('pass','mark','discard') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'pass' AFTER `enabled`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'working' AFTER `smtp_auth`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `event_queue`
+MODIFY COLUMN `event`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `date`,
+MODIFY COLUMN `param`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `event`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `firma_pay_account`
+MODIFY COLUMN `pay_acc`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `firma`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `pay_acc`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `g_bonus`
+MODIFY COLUMN `good_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `group`  enum('telemarketing','marketing','manager') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'telemarketing' AFTER `good_id`,
+MODIFY COLUMN `type`  enum('fix','%') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '%' AFTER `value`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_division`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_good_description`
+MODIFY COLUMN `id`  char(40) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `good_id`  char(40) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `name`  varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `good_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_good_price`
+MODIFY COLUMN `good_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `descr_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `good_id`,
+MODIFY COLUMN `price_type_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `descr_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_good_store`
+MODIFY COLUMN `good_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `descr_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `good_id`,
+MODIFY COLUMN `store_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '8e5c7b22-8385-11df-9af5-001517456eb1' AFTER `qty_wait`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `g_goods`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `name`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `num_id`,
+MODIFY COLUMN `name_full`  varchar(4096) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `name`,
+MODIFY COLUMN `art`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `name_full`,
+MODIFY COLUMN `description`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `producer_id`,
+MODIFY COLUMN `store`  enum('','yes','no','remote') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `is_allowpricechange`,
+MODIFY COLUMN `unit_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `nds`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `g_groups`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_gtd`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `code`  char(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_income_document`
+MODIFY COLUMN `order_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `id`,
+MODIFY COLUMN `number`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `deleted`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `sum`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `g_income_document_lines`
+MODIFY COLUMN `good_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `line_code`,
+MODIFY COLUMN `good_ext_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `good_id`,
+MODIFY COLUMN `gtd_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `sum_nds`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `g_income_order`
+MODIFY COLUMN `number`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `deleted`,
+MODIFY COLUMN `external_number`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client_card_id`,
+MODIFY COLUMN `status`  varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `external_date`,
+MODIFY COLUMN `organization_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `status`,
+MODIFY COLUMN `store_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `organization_id`,
+MODIFY COLUMN `currency`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `store_id`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `manager_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_income_order_lines`
+MODIFY COLUMN `good_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `line_code`,
+MODIFY COLUMN `good_ext_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `good_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_income_store`
+MODIFY COLUMN `number`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `deleted`,
+MODIFY COLUMN `status`  varchar(25) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `date`,
+MODIFY COLUMN `responsible`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `store_id`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `responsible`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_income_store_lines`
+MODIFY COLUMN `order_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `document_id`,
+MODIFY COLUMN `good_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `order_id`,
+MODIFY COLUMN `good_ext_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `good_id`,
+MODIFY COLUMN `serial_numbers`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `amount`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_order_free_goods`
+MODIFY COLUMN `bill_no`  varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `good_id`  varchar(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `bill_no`,
+MODIFY COLUMN `descr_id`  varchar(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `good_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_price_type`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_producers`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `g_serials`
+MODIFY COLUMN `bill_no`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `code_1c`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bill_no`,
+MODIFY COLUMN `serial`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `code_1c`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_store`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `is_show`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes' AFTER `deleted`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `g_unit`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `name`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+MODIFY COLUMN `okei`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `name`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `log`
+MODIFY COLUMN `message`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `time`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_block`
+MODIFY COLUMN `service`  varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `ts`,
+MODIFY COLUMN `fields_changes`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' AFTER `comment`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_client`
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ts`,
+MODIFY COLUMN `type`  enum('msg','fields','company_name') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'msg' AFTER `comment`,
+MODIFY COLUMN `is_overwrited`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT 'no' AFTER `apply_ts`,
+MODIFY COLUMN `is_apply_set`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes' AFTER `is_overwrited`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_client_fields`
+MODIFY COLUMN `field`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `ver_id`,
+MODIFY COLUMN `value_from`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' AFTER `field`,
+MODIFY COLUMN `value_to`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `value_from`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_contract_template_edit`
+MODIFY COLUMN `group`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `contract`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `group`,
+MODIFY COLUMN `action`  varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `contract`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_newbills`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `id`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `user_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_send_voip_settings`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `user`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `date`,
+MODIFY COLUMN `email`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `user`,
+MODIFY COLUMN `phones`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `email`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_tarif`
+MODIFY COLUMN `service`  varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `ts`,
+MODIFY COLUMN `dest_group`  varchar(5) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `date_activation`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_tech_cpe`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_usage_history`
+MODIFY COLUMN `service`  varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `ts`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_usage_history_fields`
+MODIFY COLUMN `field`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `log_usage_history_id`,
+MODIFY COLUMN `value_from`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' AFTER `field`,
+MODIFY COLUMN `value_to`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `value_from`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `log_usage_ip_routes`
+MODIFY COLUMN `net`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `actual_to`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `mail_files`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `job_id`,
+MODIFY COLUMN `type`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `name`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `mail_job`
+MODIFY COLUMN `template_subject`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `job_id`,
+MODIFY COLUMN `template_body`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `template_subject`,
+MODIFY COLUMN `user_edit`  varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `date_edit`,
+MODIFY COLUMN `job_state`  enum('stop','ready','test','news','PM') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'stop' AFTER `user_edit`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `mail_letter`
+MODIFY COLUMN `client`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `job_id`,
+MODIFY COLUMN `send_message`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `send_date`,
+MODIFY COLUMN `letter_state`  enum('error','ready','sent') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'ready' AFTER `send_message`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `mail_object`
+MODIFY COLUMN `object_type`  enum('bill','PM','assignment','order','notice','invoice','akt','new_director_info','upd','lading') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bill' AFTER `client_id`,
+MODIFY COLUMN `object_param`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `object_type`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `mcn_client_may`
+MODIFY COLUMN `client`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `metro`
+MODIFY COLUMN `name`  varchar(35) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `mod_traf_1d`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `modules`
+MODIFY COLUMN `module`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `monitor_5min_ins`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `monitor_clients`
+MODIFY COLUMN `client`  varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`,
+MODIFY COLUMN `email`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `client`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `monitor_ips`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `nbn_mail`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_change_log`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `action`  enum('add','delete','change') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'add' AFTER `stage_id`,
+MODIFY COLUMN `code_1c`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `action`,
+MODIFY COLUMN `item`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `code_1c`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_change_log_fields`
+MODIFY COLUMN `field`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `change_id`,
+MODIFY COLUMN `from`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `field`,
+MODIFY COLUMN `to`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `from`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_lines`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `item`  varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `sort`,
+MODIFY COLUMN `item_id`  varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' AFTER `item`,
+MODIFY COLUMN `descr_id`  varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `code_1c`,
+MODIFY COLUMN `service`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `all4net_price`,
+MODIFY COLUMN `type`  enum('service','zalog','zadatok','good','all4net') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'service' AFTER `date_to`,
+MODIFY COLUMN `gtd`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `pk`,
+MODIFY COLUMN `contry_maker`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `gtd`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_owner`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_send`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `state`  enum('error','ready','viewed','sent') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'ready' AFTER `client`,
+MODIFY COLUMN `bill_no`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `state`,
+MODIFY COLUMN `message`  text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `last_send`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_sms`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `sms_sender`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bill_no`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbill_wimax_orders`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `order_mail_id`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bill_no`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbills`
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `client_id`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `inv2to1`,
+MODIFY COLUMN `nal`  enum('beznal','nal','prov') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `courier_id`,
+MODIFY COLUMN `sync_1c`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT 'no' AFTER `cleared_flag`,
+MODIFY COLUMN `push_1c`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT 'yes' AFTER `sync_1c`,
+MODIFY COLUMN `state_1c`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'Новый' AFTER `push_1c`,
+MODIFY COLUMN `editor`  enum('stat','admin') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'stat' AFTER `payed_ya`,
+MODIFY COLUMN `bill_no_ext`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `is_user_prepay`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbills_add_info`
+MODIFY COLUMN `fio`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `order_mail_id`,
+MODIFY COLUMN `address`  varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `fio`,
+MODIFY COLUMN `req_no`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Номер заявки' AFTER `address`,
+MODIFY COLUMN `acc_no`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Лицевой счет' AFTER `req_no`,
+MODIFY COLUMN `connum`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Номер подключения' AFTER `acc_no`,
+MODIFY COLUMN `comment1`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `connum`,
+MODIFY COLUMN `comment2`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `comment1`,
+MODIFY COLUMN `passp_series`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `comment2`,
+MODIFY COLUMN `passp_num`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_series`,
+MODIFY COLUMN `passp_whos_given`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_num`,
+MODIFY COLUMN `passp_when_given`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_whos_given`,
+MODIFY COLUMN `passp_code`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_when_given`,
+MODIFY COLUMN `passp_birthday`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_code`,
+MODIFY COLUMN `reg_city`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_birthday`,
+MODIFY COLUMN `reg_street`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_city`,
+MODIFY COLUMN `reg_house`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_street`,
+MODIFY COLUMN `reg_housing`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_house`,
+MODIFY COLUMN `reg_build`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_housing`,
+MODIFY COLUMN `reg_flat`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_build`,
+MODIFY COLUMN `email`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_flat`,
+MODIFY COLUMN `order_given`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `email`,
+MODIFY COLUMN `phone`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `order_given`,
+MODIFY COLUMN `sms_sender`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `sms_send`,
+MODIFY COLUMN `line_owner`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `sms_get_time`,
+MODIFY COLUMN `logistic`  enum('none','selfdeliv','courier','auto','tk') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'none' AFTER `metro_id`,
+MODIFY COLUMN `store_id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '8e5c7b22-8385-11df-9af5-001517456eb1' AFTER `logistic`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbills_documents`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbills_overprice_additions`
+MODIFY COLUMN `key`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `overprice_pk`,
+MODIFY COLUMN `value`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `key`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `newbills_overprice_aggregate`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'Номер счета' AFTER `pk`,
+MODIFY COLUMN `rate_currency`  enum('RUR','USD') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'Валюта тарифа' AFTER `rate_id`,
+MODIFY COLUMN `index`  enum('voip','internet') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'Тип тарифа - телефония/интернет' AFTER `bill_price`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newbills_rtsaldo_changes`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newpayments`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `payment_no`,
+MODIFY COLUMN `bill_vis_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bill_no`,
+MODIFY COLUMN `type`  enum('bank','prov','ecash','neprov') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bank' AFTER `payment_rate`,
+MODIFY COLUMN `ecash_operator`  enum('uniteller','cyberplat','yandex') CHARACTER SET utf8 NULL DEFAULT NULL AFTER `type`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `sum_rub`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `currency`,
+MODIFY COLUMN `push_1c`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT 'yes' AFTER `add_user`,
+MODIFY COLUMN `sync_1c`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'no' AFTER `push_1c`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newpayments_orders`
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `payment_id`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `bill_no`,
+MODIFY COLUMN `currency`  enum('RUR','USD') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `sum`,
+MODIFY COLUMN `sync_1c`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no' AFTER `sum_rub`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newpayments_webmoney`
+MODIFY COLUMN `keyword`  varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`,
+MODIFY COLUMN `status`  enum('reserved','check','payed','error_payed','error') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'reserved' AFTER `client_id`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `sum`,
+MODIFY COLUMN `extra`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `payment_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `newsaldo`
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `saldo`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `okvd`
+MODIFY COLUMN `name`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '-' AFTER `code`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `onlime_delivery`
+MODIFY COLUMN `bill_no`  char(11) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `onlime_order`
+MODIFY COLUMN `order_serialize`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `external_id`,
+MODIFY COLUMN `error`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `status`,
+MODIFY COLUMN `bill_no`  char(11) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `error`,
+MODIFY COLUMN `stage`  enum('answer','add','new') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `bill_no`,
+MODIFY COLUMN `coupon`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `stage`,
+MODIFY COLUMN `seccode`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0' AFTER `coupon`,
+MODIFY COLUMN `vercode`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `seccode`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `organization`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+MODIFY COLUMN `jur_name`  varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `name`,
+MODIFY COLUMN `jur_name_full`  varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `jur_name`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `organizations`
+MODIFY COLUMN `id`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `params`
+MODIFY COLUMN `param`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `value`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `param`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `payments_orders`
+MODIFY COLUMN `type`  enum('card') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `datecancel`,
+MODIFY COLUMN `status`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'Created' AFTER `sum`,
+MODIFY COLUMN `details`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `status`,
+MODIFY COLUMN `bill_no`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `details`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phisclients`
+MODIFY COLUMN `fio`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `pk`,
+MODIFY COLUMN `currency`  enum('RUR','USD') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `fio`,
+MODIFY COLUMN `phone`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `currency`,
+MODIFY COLUMN `email`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `phone`,
+MODIFY COLUMN `phone_connect`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `email`,
+MODIFY COLUMN `contact_info`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `phone_connect`,
+MODIFY COLUMN `phone_owner`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `contact_info`,
+MODIFY COLUMN `address_single_string`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `phone_owner`,
+MODIFY COLUMN `addr_city`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `address_single_string`,
+MODIFY COLUMN `addr_street`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_city`,
+MODIFY COLUMN `addr_house`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_street`,
+MODIFY COLUMN `addr_housing`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_house`,
+MODIFY COLUMN `addr_build`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_housing`,
+MODIFY COLUMN `addr_flat`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_build`,
+MODIFY COLUMN `addr_porch`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_flat`,
+MODIFY COLUMN `addr_floor`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_porch`,
+MODIFY COLUMN `addr_intercom`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_floor`,
+MODIFY COLUMN `passp_series`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `addr_intercom`,
+MODIFY COLUMN `passp_num`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_series`,
+MODIFY COLUMN `passp_whos_given`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_num`,
+MODIFY COLUMN `passp_when_given`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_whos_given`,
+MODIFY COLUMN `passp_code`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_when_given`,
+MODIFY COLUMN `passp_birthday`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_code`,
+MODIFY COLUMN `reg_city`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `passp_birthday`,
+MODIFY COLUMN `reg_street`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_city`,
+MODIFY COLUMN `reg_house`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_street`,
+MODIFY COLUMN `reg_housing`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_house`,
+MODIFY COLUMN `reg_build`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_housing`,
+MODIFY COLUMN `reg_flat`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `reg_build`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phone_mail`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `phone_listen`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `phone`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phone_mail_files`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `size`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phone_readdr`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phone_readdr_time`
+MODIFY COLUMN `client`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`,
+MODIFY COLUMN `days`  varchar(7) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `enabled`,
+MODIFY COLUMN `time_from`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `days`,
+MODIFY COLUMN `time_to`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `time_from`,
+MODIFY COLUMN `phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `time_to`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phone_report`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `email`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `period`  enum('0','5m','30m','1h','6h','1d') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0' AFTER `email`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `phone_short`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `phone_short`  varchar(3) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `phone`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `phone_short`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `product_state`
+MODIFY COLUMN `product`  enum('vpbx','phone') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'phone' FIRST ,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8;
+
+ALTER TABLE `qr_code`
+MODIFY COLUMN `file`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `date`,
+MODIFY COLUMN `code`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `file`,
+MODIFY COLUMN `bill_no`  char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `client_id`,
+MODIFY COLUMN `doc_type`  char(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `bill_no`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `regions`
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+MODIFY COLUMN `short_name`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `name`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `saldo`
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' FIRST ,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `sale_channels`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `send_assigns`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `state`  enum('error','ready','sent') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'error' AFTER `last_send`,
+MODIFY COLUMN `message`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `state`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `send_assigns`
+MODIFY COLUMN `message`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `state`;
+
+
+ALTER TABLE `send_client`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `state`  enum('error','ready','viewed','sent') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'ready' AFTER `client`,
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `state`,
+MODIFY COLUMN `message`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `last_send`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `send_client`
+MODIFY COLUMN `message`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `last_send`;
+
+
+ALTER TABLE `send_files`
+MODIFY COLUMN `filename`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `send_letters`
+MODIFY COLUMN `subject`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `id`,
+MODIFY COLUMN `body`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `subject`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `send_letters`
+MODIFY COLUMN `subject`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+MODIFY COLUMN `body`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `subject`;
+
+
+ALTER TABLE `server_pbx`
+MODIFY COLUMN `name`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+MODIFY COLUMN `ip`  varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `name`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `sms_stat`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `stats_send`
+MODIFY COLUMN `client`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `state`  enum('error','ready','sent') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'ready' AFTER `month`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `store`
+MODIFY COLUMN `id`  char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `name`  varchar(150) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `sync_welltime_stages`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_8800`
+MODIFY COLUMN `status`  enum('public','archive') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `id`,
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `period`  enum('month') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'month' AFTER `description`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `period`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_extra`
+MODIFY COLUMN `code`  varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `id`,
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `code`,
+MODIFY COLUMN `param_name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `description`,
+MODIFY COLUMN `period`  enum('month','year','once','3mon','6mon') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `is_countable`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `price`,
+MODIFY COLUMN `status`  enum('public','special','archive','itpark') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `currency`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_hosting`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_internet`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `pay_mb`,
+MODIFY COLUMN `type`  enum('I','C','V') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'I' AFTER `comment`,
+MODIFY COLUMN `type_internet`  enum('standard','wimax','collective') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'standard' AFTER `type`,
+MODIFY COLUMN `type_count`  enum('sep','r2_f','all_f') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'sep' AFTER `sum_deposit`,
+MODIFY COLUMN `status`  enum('public','special','archive','adsl_su') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `type_count`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `pay_f`,
+MODIFY COLUMN `adsl_speed`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '768/6144' AFTER `edit_time`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_saas`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_sms`
+MODIFY COLUMN `status`  enum('public','archive') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `id`,
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `period`  enum('month') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'month' AFTER `description`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `period`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_virtpbx`
+MODIFY COLUMN `status`  enum('public','archive') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `id`,
+MODIFY COLUMN `description`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `period`  enum('month') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'month' AFTER `description`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUR' AFTER `period`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tarifs_voip`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `name_short`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `name`,
+MODIFY COLUMN `type_count`  enum('all','unlim_r','unlim_all') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `once_number`,
+MODIFY COLUMN `status`  enum('public','special','archive','operator') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `type_count`,
+MODIFY COLUMN `period`  enum('immediately','day','week','month','6months','year') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'month' AFTER `status`,
+MODIFY COLUMN `currency`  enum('USD','RUR') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `dest`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_cpe`
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id_model`,
+MODIFY COLUMN `serial`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `mac`  varchar(12) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `serial`,
+MODIFY COLUMN `ip`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `mac`,
+MODIFY COLUMN `ip_nat`  varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip`,
+MODIFY COLUMN `ip_cidr`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip_nat`,
+MODIFY COLUMN `ip_gw`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip_cidr`,
+MODIFY COLUMN `admin_login`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip_gw`,
+MODIFY COLUMN `admin_pass`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `admin_login`,
+MODIFY COLUMN `numbers`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `admin_pass`,
+MODIFY COLUMN `logins`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `numbers`,
+MODIFY COLUMN `owner`  enum('','mcn','client','mgts') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `logins`,
+MODIFY COLUMN `tech_support`  enum('','mcn','client','mgts') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `owner`,
+MODIFY COLUMN `node`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `tech_support`,
+MODIFY COLUMN `service`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `node`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_cpe_models`
+MODIFY COLUMN `vendor`  varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `model`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `vendor`,
+MODIFY COLUMN `type`  enum('','voip','router','adsl','wireless','pon') CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '' AFTER `default_deposit_sumRUR`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_cpe2voip`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_devices`
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `manufacturer`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `model`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `manufacturer`,
+MODIFY COLUMN `serial`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `model`,
+MODIFY COLUMN `mac`  varchar(12) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `serial`,
+MODIFY COLUMN `ip`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `mac`,
+MODIFY COLUMN `ip_nat`  varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip`,
+MODIFY COLUMN `ip_cidr`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip_nat`,
+MODIFY COLUMN `ip_gw`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip_cidr`,
+MODIFY COLUMN `admin_login`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip_gw`,
+MODIFY COLUMN `admin_pass`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `admin_login`,
+MODIFY COLUMN `numbers`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `admin_pass`,
+MODIFY COLUMN `logins`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `numbers`,
+MODIFY COLUMN `type`  enum('','voip','router') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `logins`,
+MODIFY COLUMN `owner`  enum('','mcn','client','mgts') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `type`,
+MODIFY COLUMN `node`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `owner`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_nets`
+MODIFY COLUMN `net`  varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_ports`
+MODIFY COLUMN `node`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `port_name`  varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `node`,
+MODIFY COLUMN `port_type`  enum('backbone','dedicated','pppoe','pptp','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota','GPON') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'dedicated' AFTER `port_name`,
+MODIFY COLUMN `trafcounttype`  enum('','flows','counter_smnp','counter_web') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'flows' AFTER `port_type`,
+MODIFY COLUMN `address`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `trafcounttype`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_routers`
+MODIFY COLUMN `router`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `phone`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `router`,
+MODIFY COLUMN `location`  varchar(128) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `phone`,
+MODIFY COLUMN `reboot_contact`  varchar(100) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `location`,
+MODIFY COLUMN `net`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `reboot_contact`,
+MODIFY COLUMN `adsl_modem_serial`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `net`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tech_routers`
+MODIFY COLUMN `location`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `phone`,
+MODIFY COLUMN `reboot_contact`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `location`;
+
+ALTER TABLE `tech_voip_numbers`
+MODIFY COLUMN `type`  enum('public','provider','private') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public' AFTER `number`,
+MODIFY COLUMN `client`  varchar(16) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `type`,
+MODIFY COLUMN `remark`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_doer_stages`
+MODIFY COLUMN `all4geo_id`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `status`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `date`,
+MODIFY COLUMN `status_text`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `status_text`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_doers`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_folders`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `pk`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_send`
+MODIFY COLUMN `user`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `trouble_id`,
+MODIFY COLUMN `text`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `user`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_send_count`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_stages`
+MODIFY COLUMN `user_main`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `state_id`,
+MODIFY COLUMN `user_edit`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `date_edit`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `user_edit`,
+MODIFY COLUMN `uspd`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `comment`,
+MODIFY COLUMN `user_rating`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `rating`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_states`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `pk`,
+MODIFY COLUMN `state_1c`  varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `deny`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_states_o`
+MODIFY COLUMN `name`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_troubles`
+MODIFY COLUMN `trouble_type`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'trouble' AFTER `id`,
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `trouble_type`,
+MODIFY COLUMN `user_author`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `client`,
+MODIFY COLUMN `problem`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `date_creation`,
+MODIFY COLUMN `service`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `problem`,
+MODIFY COLUMN `bill_no`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `is_important`,
+MODIFY COLUMN `bill_id`  varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `bill_no`,
+MODIFY COLUMN `doer_comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `folder`,
+MODIFY COLUMN `trouble_subtype`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `all4geo_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `tt_types`
+MODIFY COLUMN `code`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `pk`,
+MODIFY COLUMN `name`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `code`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_8800`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `amount`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `number`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '7800' AFTER `tarif_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+ALTER TABLE `usage_callback_sess`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_extra`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `param_value`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `amount`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `code`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `tarif_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_ip_ports`
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `address`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `date_last_writeoff`,
+MODIFY COLUMN `speed_mgts`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_ip_ppp`
+MODIFY COLUMN `login`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `port_id`,
+MODIFY COLUMN `password`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `login`,
+MODIFY COLUMN `ip`  varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `nat_to_ip`  varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `ip`,
+MODIFY COLUMN `enabled_local_ports`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `nat_to_ip`,
+MODIFY COLUMN `enabled_remote_ports`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '*' AFTER `enabled_local_ports`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_ip_routes`
+MODIFY COLUMN `net`  varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `port_id`,
+MODIFY COLUMN `nat_net`  varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `net`,
+MODIFY COLUMN `dnat`  varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `nat_net`,
+MODIFY COLUMN `type`  enum('unused','uplink','uplink+pool','client','client-nat','pool','aggregate','reserved','gpon') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'unused' AFTER `dnat`,
+MODIFY COLUMN `up_node`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `type`,
+MODIFY COLUMN `flows_node`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'rubicon' AFTER `up_node`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `flows_node`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_sms`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `actual_to`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `status`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_sms`
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`;
+
+ALTER TABLE `usage_virtpbx`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `amount`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `status`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_virtpbx`
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`;
+
+ALTER TABLE `usage_voip`
+MODIFY COLUMN `tarif`  varchar(100) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `client`  varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `E164`  varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `date_last_writeoff`,
+MODIFY COLUMN `address`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `status`,
+MODIFY COLUMN `is_trunk`  enum('0','1') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0' AFTER `edit_user_id`,
+MODIFY COLUMN `allowed_direction`  enum('full','russia','localmob','local') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'full' AFTER `created`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `usage_welltime`
+MODIFY COLUMN `client`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `ip`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `actual_to`,
+MODIFY COLUMN `status`  enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working' AFTER `amount`,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `status`,
+MODIFY COLUMN `router`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `tarif_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_departs`
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_grant_groups`
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `resource`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `name`,
+MODIFY COLUMN `access`  varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `resource`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_grant_users`
+MODIFY COLUMN `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `resource`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `name`,
+MODIFY COLUMN `access`  varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `resource`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_groups`
+MODIFY COLUMN `usergroup`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL DEFAULT '' AFTER `usergroup`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_groups`
+MODIFY COLUMN `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `usergroup`;
+
+ALTER TABLE `user_rights`
+MODIFY COLUMN `resource`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `comment`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `resource`,
+MODIFY COLUMN `values`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `comment`,
+MODIFY COLUMN `values_desc`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `values`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_rights`
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `resource`,
+MODIFY COLUMN `values_desc`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `values`;
+
+ALTER TABLE `user_users`
+MODIFY COLUMN `user`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `pass`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `user`,
+MODIFY COLUMN `usergroup`  varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'client' AFTER `pass`,
+MODIFY COLUMN `name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `usergroup`,
+MODIFY COLUMN `color`  varchar(7) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `name`,
+MODIFY COLUMN `trouble_redirect`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `color`,
+MODIFY COLUMN `email`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `trouble_redirect`,
+MODIFY COLUMN `icq`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `email`,
+MODIFY COLUMN `photo`  varchar(4) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `icq`,
+MODIFY COLUMN `data_panel`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `photo`,
+MODIFY COLUMN `phone_work`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL AFTER `data_panel`,
+MODIFY COLUMN `phone_mobile`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `phone_work`,
+MODIFY COLUMN `data_flags`  text CHARACTER SET koi8r COLLATE koi8r_general_ci NOT NULL AFTER `phone_mobile`,
+MODIFY COLUMN `enabled`  enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes' AFTER `depart_id`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `user_users`
+MODIFY COLUMN `data_panel`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `photo`,
+MODIFY COLUMN `data_flags`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `phone_mobile`;
+
+ALTER TABLE `virtpbx_stat`
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `voip_numbers`
+MODIFY COLUMN `number`  varchar(11) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ;
+
+ALTER TABLE `voip_permit`
+MODIFY COLUMN `client`  varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' FIRST ,
+MODIFY COLUMN `callerid`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `client`,
+MODIFY COLUMN `permit`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' AFTER `callerid`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `vpbx_numbers`
+MODIFY COLUMN `number`  varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `client_id`,
+ENGINE=InnoDB,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `z_sync_1c`
+MODIFY COLUMN `tname`  enum('clientCard') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `z_sync_admin`
+MODIFY COLUMN `bill_no`  varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' AFTER `id`,
+MODIFY COLUMN `event`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'create' AFTER `bill_no`,
+MODIFY COLUMN `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `event`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `z_sync_postgres`
+MODIFY COLUMN `tbase`  enum('nispd','auth','nispd_dev') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ,
+MODIFY COLUMN `tname`  enum('clients','usage_voip','tarifs_voip','log_tarif') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL AFTER `tbase`,
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+
+
+

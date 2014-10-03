@@ -84,10 +84,10 @@ class Sync1CClientSoapHandler
     }
 
     public function __call($method, $args){
-        $translated_args = Encoding::toUtf8($args);
+        $translated_args = $args;
 
         $result = call_user_func_array(array($this->soap, $method), $translated_args);
 
-        return Encoding::toKoi8r($result);
+        return $result;
     }
 }

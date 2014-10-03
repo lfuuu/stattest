@@ -1,18 +1,18 @@
-    <br><div style="font-size: 8pt;">{if $voip_permit_filtred}<span style="font-size:10pt;">Фильтр по номеру: <b>{$voip_permit_filtred}</b></span><br><a href="./?module=services&action=vo_view">Все регистрации клиента</a>{else}&nbsp;{/if}</div>
+    <br><div style="font-size: 8pt;">{if $voip_permit_filtred}<span style="font-size:10pt;">п╓п╦п╩я▄я┌я─ п©п╬ п╫п╬п╪п╣я─я┐: <b>{$voip_permit_filtred}</b></span><br><a href="./?module=services&action=vo_view">п▓я│п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦ п╨п╩п╦п╣п╫я┌п╟</a>{else}&nbsp;{/if}</div>
     <table width=95% class="price">
         <tr>
             <td class="header">PBX</td>
-            <td class="header">Имя</td>
+            <td class="header">п≤п╪я▐</td>
             <td class="header">CallerID</td>
-            <td class="header">IP-адрес <br>(инвайт)</td>
-            <td class="header">Разрешения</td>
-            <td class="header">Зарегестрирован</td>
-            <td class="header">Время&nbsp;регегистрации</td>
+            <td class="header">IP-п╟п╢я─п╣я│ <br>(п╦п╫п╡п╟п╧я┌)</td>
+            <td class="header">п═п╟п╥я─п╣я┬п╣п╫п╦я▐</td>
+            <td class="header">п≈п╟я─п╣пЁп╣я│я┌я─п╦я─п╬п╡п╟п╫</td>
+            <td class="header">п▓я─п╣п╪я▐&nbsp;я─п╣пЁп╣пЁп╦я│я┌я─п╟я├п╦п╦</td>
             <td class="header">UserAgent</td>
-            <td class="header">Контакт <br>(инвайта)</td>
-            <td class="header">Направление</td>
+            <td class="header">п п╬п╫я┌п╟п╨я┌ <br>(п╦п╫п╡п╟п╧я┌п╟)</td>
+            <td class="header">п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
             {if false && access('services_voip','view_regpass')}
-            <td class="header">Пароль</td>
+            <td class="header">п÷п╟я─п╬п╩я▄</td>
             {/if}
         </tr>
         {foreach from=$voip_permit item=i}
@@ -35,6 +35,6 @@
             {/if}
         </tr>
     {foreachelse}
-        <td colspan=8 align=center>Записей не найдено</td>
+        <td colspan=8 align=center>п≈п╟п©п╦я│п╣п╧ п╫п╣ п╫п╟п╧п╢п╣п╫п╬</td>
         {/foreach}
     </table>

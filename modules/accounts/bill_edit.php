@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>stat.mcn.ru/operator :: услуги</title>
+<title>stat.mcn.ru/operator :: я┐я│п╩я┐пЁп╦</title>
 <script language="JavaScript" type="text/javascript" src="/js/popup.js"></script>
 <style type="text/css">
 <!--
@@ -38,7 +38,7 @@ function make_balance_correction_nodb($client,$sum){
     $error_flag=false;
      $bill_no=$_GET['bill'];
      if (!isset($bill_no)) {
-         echo "Неизвестный номер счета";
+         echo "п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ п╫п╬п╪п╣я─ я│я┤п╣я┌п╟";
          exit;
      };
     $action=(isset($_GET['action'])?$_GET['action']:'');
@@ -90,15 +90,15 @@ function make_balance_correction_nodb($client,$sum){
          $query1="UPDATE bill_bill_lines
                     SET sum=$sum_total
                     WHERE bill_no='$bill_no'
-                        AND item='*Итого :'";
+                        AND item='*п≤я┌п╬пЁп╬ :'";
          $query2="UPDATE bill_bill_lines
                     SET sum=$nds
                     WHERE bill_no='$bill_no'
-                        AND item='*НДС 18% :'";
+                        AND item='*п²п■п║ 18% :'";
          $query3="UPDATE bill_bill_lines
                     SET sum=$total
                     WHERE bill_no='$bill_no'
-                        AND item='*Всего с НДС :'";
+                        AND item='*п▓я│п╣пЁп╬ я│ п²п■п║ :'";
          
          $q=mysql_query("select sum,client from bill_bills WHERE bill_no='$bill_no'");
          $r=mysql_fetch_array($q);
@@ -114,17 +114,17 @@ function make_balance_correction_nodb($client,$sum){
          $res4=mysql_query($query4) or  mysql_error();
         // echo $error_flag."<br>";
          if (!$res1 or !$res2 or !$res3 or !$res4) $error_flag=true;
-         if (!$error_flag) {echo"<h1>Изменения внесены. Вы можете или закрыть окно или внести новые изменения в счет</h1><br><p> Для удаления позиции из счета укажите количестко равное 0</p>";
+         if (!$error_flag) {echo"<h1>п≤п╥п╪п╣п╫п╣п╫п╦я▐ п╡п╫п╣я│п╣п╫я▀. п▓я▀ п╪п╬п╤п╣я┌п╣ п╦п╩п╦ п╥п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬ п╦п╩п╦ п╡п╫п╣я│я┌п╦ п╫п╬п╡я▀п╣ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╡ я│я┤п╣я┌</h1><br><p> п■п╩я▐ я┐п╢п╟п╩п╣п╫п╦я▐ п©п╬п╥п╦я├п╦п╦ п╦п╥ я│я┤п╣я┌п╟ я┐п╨п╟п╤п╦я┌п╣ п╨п╬п╩п╦я┤п╣я│я┌п╨п╬ я─п╟п╡п╫п╬п╣ 0</p>";
                // echo "<br>$query1  - $res1 ;<br> $query2  - $res2 ;<br> $query3  - $res3 ;<br> $query4  - $res4  <br>";
          };
      };
     if ($error_flag) {
-	    echo"<h1> Некоторые строки в счете не были обновлены</h1>";
+	    echo"<h1> п²п╣п╨п╬я┌п╬я─я▀п╣ я│я┌я─п╬п╨п╦ п╡ я│я┤п╣я┌п╣ п╫п╣ п╠я▀п╩п╦ п╬п╠п╫п╬п╡п╩п╣п╫я▀</h1>";
        echo "<br>$query1  - $res1 ;<br> $query2  - $res2 ;<br> $query3  - $res3 ;<br> $query4  - $res4  <br>";
 	 };
         
     
-    // Выводим форму для редактирования счета 
+    // п▓я▀п╡п╬п╢п╦п╪ я└п╬я─п╪я┐ п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ я│я┤п╣я┌п╟ 
     $req="select bill_no,client,company_full,address_post,fax,DATE_FORMAT(bill_date,'%d.%m.%Y') as bill_date_f,sum,usd_rate_percent,state,must_pay from bill_bills ".
         "where bill_no='$bill_no'";
     if (!($result = mysql_query($req,$GLOBALS['dbh'])))
@@ -143,25 +143,25 @@ function make_balance_correction_nodb($client,$sum){
         {echo "can't read from database!<br>$req"; exit;}
     $lines="";
     ?>
-    <h1>Изменение Счета</h1>
+    <h1>п≤п╥п╪п╣п╫п╣п╫п╦п╣ п║я┤п╣я┌п╟</h1>
 
     <FORM  name="f" action="bill_edit.php?action=update&bill=<?=$bill_no;?>" method="POST">
     <table border=1>
     <tr>
-        <td> Счет номер:</td><td colspan=4><b><?=$bill_no;?></b></td>
+        <td> п║я┤п╣я┌ п╫п╬п╪п╣я─:</td><td colspan=4><b><?=$bill_no;?></b></td>
     </tr>
     <tr>
-    <td>Клиент:</td><td colspan=4><b><?=$company_full;?></b></td>
+    <td>п п╩п╦п╣п╫я┌:</td><td colspan=4><b><?=$company_full;?></b></td>
     </tr>
     <tr>
-    <td><input type=checkbox value=1 name=must_pay<?if($must_pay)echo " checked";?>></td><td colspan=4>Обязателен к оплате</td>
+    <td><input type=checkbox value=1 name=must_pay<?if($must_pay)echo " checked";?>></td><td colspan=4>п·п╠я▐п╥п╟я┌п╣п╩п╣п╫ п╨ п╬п©п╩п╟я┌п╣</td>
     </tr>
     <tr>
-        <td>п/п</td>
-        <td>Предмет счета</td>
-        <td>Количество</td>
-        <td>Стоимость</td>
-        <td>Сумма</td>
+        <td>п©/п©</td>
+        <td>п÷я─п╣п╢п╪п╣я┌ я│я┤п╣я┌п╟</td>
+        <td>п п╬п╩п╦я┤п╣я│я┌п╡п╬</td>
+        <td>п║я┌п╬п╦п╪п╬я│я┌я▄</td>
+        <td>п║я┐п╪п╪п╟</td>
 
     </tr>
     <?
@@ -198,8 +198,8 @@ function make_balance_correction_nodb($client,$sum){
     ?>
     <tr>
     <td colspan=5 aligne="right">
-      <INPUT TYPE="button" name="submit1" value="Внести изменения" onClick="this.form.submit();">
-      <a href='?action=addempty&bill=<?=$bill_no;?>'>Добавить пустую строчку</a>
+      <INPUT TYPE="button" name="submit1" value="п▓п╫п╣я│я┌п╦ п╦п╥п╪п╣п╫п╣п╫п╦я▐" onClick="this.form.submit();">
+      <a href='?action=addempty&bill=<?=$bill_no;?>'>п■п╬п╠п╟п╡п╦я┌я▄ п©я┐я│я┌я┐я▌ я│я┌я─п╬я┤п╨я┐</a>
     </td>
     </tr>
     </table>

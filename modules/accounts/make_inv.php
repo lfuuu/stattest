@@ -1,11 +1,11 @@
 <?php
 error_reporting(E_ALL);
-// номер платежки
+// п╫п╬п╪п╣я─ п©п╩п╟я┌п╣п╤п╨п╦
 //
 function make_invoice($pay_no, $pay_sum_rub, $pay_sum_usd,$pay_rate,$bill,$pay_date, $fb=0){
-//echo "начинаем делать счета фактур<br>";	
+//echo "п╫п╟я┤п╦п╫п╟п╣п╪ п╢п╣п╩п╟я┌я▄ я│я┤п╣я┌п╟ я└п╟п╨я┌я┐я─<br>";	
 if (!($pay_sum_rub>0 and $pay_sum_usd >0)){
-	echo "Неверные данные";
+	echo "п²п╣п╡п╣я─п╫я▀п╣ п╢п╟п╫п╫я▀п╣";
 	return false;
 	
 }
@@ -14,7 +14,7 @@ if (!($pay_sum_rub>0 and $pay_sum_usd >0)){
 $pay_rate=$pay_sum_rub/$pay_sum_usd;
 
 //echo "<h1>Function make_invoice</h1>";
-/*printdbg($pay_no,"платежка номер");
+/*printdbg($pay_no,"п©п╩п╟я┌п╣п╤п╨п╟ п╫п╬п╪п╣я─");
 printdbg($pay_sum_rub,"pay_sum_rub");
 printdbg($pay_sum_usd,"pay_sum_usd");
 printdbg($pay_rate,"pay_rate");
@@ -22,12 +22,12 @@ printdbg($bill,"bill");
 printdbg($pay_date,"pay_date");
 */
 
-$tax=18; /* НДС NDS 18% */
+$tax=18; /* п²п■п║ NDS 18% */
 set_magic_quotes_runtime(0);
 //require_once("include/lib.php");
-//echo "перед открытием базы<br>";
+//echo "п©п╣я─п╣п╢ п╬я┌п╨я─я▀я┌п╦п╣п╪ п╠п╟п╥я▀<br>";
 db_open();
-//echo "после  открытия базы<br>";
+//echo "п©п╬я│п╩п╣  п╬я┌п╨я─я▀я┌п╦я▐ п╠п╟п╥я▀<br>";
 
 //echo "bill='$bill'";
 
@@ -44,8 +44,8 @@ if (!($result = mysql_query($req,$GLOBALS['dbh'])))
 	{echo "can't read from database!<br>$req"; exit;}
 if(!($client_row = mysql_fetch_array($result)))
 	{echo "no data in database for client $client!<br>"; exit;}
-echo 'Счет N '.$bill_row['bill_no'].' от '.$bill_row['date_f'].' на сумму $'.$bill_row['sum']."\n<br>\n";
-echo 'Плательщик:'.$bill_row['company_full'];
+echo 'п║я┤п╣я┌ N '.$bill_row['bill_no'].' п╬я┌ '.$bill_row['date_f'].' п╫п╟ я│я┐п╪п╪я┐ $'.$bill_row['sum']."\n<br>\n";
+echo 'п÷п╩п╟я┌п╣п╩я▄я┴п╦п╨:'.$bill_row['company_full'];
 	
 	/**** register invoice */
 	/* clear old invoices on this bill */
@@ -61,7 +61,7 @@ echo 'Плательщик:'.$bill_row['company_full'];
 	if (!($tmp1_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 	$tmp1_row = mysql_fetch_array($tmp1_result);
 	$bill_sum = $tmp1_row['sum'];
-	$req="select sum from bill_bill_lines where bill_no='${bill_row['bill_no']}' and item='*Всего с НДС :'";
+	$req="select sum from bill_bill_lines where bill_no='${bill_row['bill_no']}' and item='*п▓я│п╣пЁп╬ я│ п²п■п║ :'";
 	if (!($tmp1_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 	$tmp1_row = mysql_fetch_array($tmp1_result);
 	$bill_sum_plus_tax = $tmp1_row['sum'];
@@ -71,7 +71,7 @@ echo 'Плательщик:'.$bill_row['company_full'];
 	$inv_no_suffix=1; /* invoice number */
 	$req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and item not like '*%' group by item_date";
 	if (!($bill_line_group_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
-	// формируем обычние счета но без залога
+	// я└п╬я─п╪п╦я─я┐п╣п╪ п╬п╠я▀я┤п╫п╦п╣ я│я┤п╣я┌п╟ п╫п╬ п╠п╣п╥ п╥п╟п╩п╬пЁп╟
 	while(($bill_line_group_row = mysql_fetch_array($bill_line_group_result))){
 		$inv_item_date=$bill_line_group_row['item_date'];
 		$inv_no=$bill_row['bill_no'].'-'.$inv_no_suffix;
@@ -87,7 +87,7 @@ echo 'Плательщик:'.$bill_row['company_full'];
 		if (!($bill_line_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 		while(($bill_line_row = mysql_fetch_array($bill_line_result))){
 		$item=$bill_line_row['item'];
-		$ediz='шт.';
+		$ediz='я┬я┌.';
 		$amount=$bill_line_row['amount'];
 		/* usd */
 		$price_usd=$bill_line_row['price'];
@@ -104,8 +104,8 @@ echo 'Плательщик:'.$bill_row['company_full'];
 		/* rub - totals */
 		$sum_plus_tax_total+=$sum_plus_tax;
 		/* ajust item name for the fucked compensation */
-		if (strstr($item, "Компенсация за непредоставление услуг") !== FALSE ) {
-			$item='Компенсация за непредоставление услуг, часы';
+		if (strstr($item, "п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ") !== FALSE ) {
+			$item='п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ, я┤п╟я│я▀';
 		}
 
 		/* do the ,2 5/4 rounding to sum+tax only before db write*/
@@ -124,14 +124,14 @@ echo 'Плательщик:'.$bill_row['company_full'];
 			"'$inv_no','$inv_line','$item','$ediz','$amount',".
 			"'$price','$sum','$tax','$tax_sum','$sum_plus_tax',".
 			"'$price_usd','$sum_usd','$tax_sum_usd','$sum_plus_tax_usd')";
-	// тестовый блок
-	if (strstr($item, 'Возврат задатка')!== FALSE)
+	// я┌п╣я│я┌п╬п╡я▀п╧ п╠п╩п╬п╨
+	if (strstr($item, 'п▓п╬п╥п╡я─п╟я┌ п╥п╟п╢п╟я┌п╨п╟')!== FALSE)
 	{
 		//  echo "<br> price= ".$price."<br>";
 		// echo"<br> $req" ;
 	};
-	//конец тестового блока
-	if(strstr($item,"Залог")===false){
+	//п╨п╬п╫п╣я├ я┌п╣я│я┌п╬п╡п╬пЁп╬ п╠п╩п╬п╨п╟
+	if(strstr($item,"п≈п╟п╩п╬пЁ")===false){
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
 		$inv_line++;
 	}else {
@@ -158,7 +158,7 @@ echo 'Плательщик:'.$bill_row['company_full'];
 			"sum,tax_sum,sum_plus_tax,".
 			"sum_usd,tax_sum_usd,sum_plus_tax_usd".
 			") values (".
-			"'$inv_no','$inv_line','*Всего к оплате',".
+			"'$inv_no','$inv_line','*п▓я│п╣пЁп╬ п╨ п╬п©п╩п╟я┌п╣',".
 			"'$sum_total','$tax_sum_total','$sum_plus_tax_total',".
 			"'$sum_usd_total','$tax_sum_usd_total','$sum_plus_tax_usd_total')";
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
@@ -176,7 +176,7 @@ echo 'Плательщик:'.$bill_row['company_full'];
 		"'$sum_total','$tax_sum_total','$sum_plus_tax_total',".
 		"'$sum_usd_total','$tax_sum_usd_total','$sum_plus_tax_usd_total')";
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
-	}// конец формирование  счетов фактур без залога
+	}// п╨п╬п╫п╣я├ я└п╬я─п╪п╦я─п╬п╡п╟п╫п╦п╣  я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─ п╠п╣п╥ п╥п╟п╩п╬пЁп╟
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -184,15 +184,15 @@ echo 'Плательщик:'.$bill_row['company_full'];
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	
-//	echo "<h1>Делаем залог</h1>"  ;
+//	echo "<h1>п■п╣п╩п╟п╣п╪ п╥п╟п╩п╬пЁ</h1>"  ;
 //GLOBAL  $inv_no_suffix ,$bill_row, $tax_with_bill_rounding_error, $usd_rate_ajusted, $tax, $pay_date,$pay_no, $client, $client_row ;
 // echo  $inv_no_suffix."<br>" ;
-$req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'Залог') group by item_date";
+$req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'п≈п╟п╩п╬пЁ') group by item_date";
 
 	if (!($bill_line_group_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 
-//   echo $bill_line_group_result."<br> выполнили запрос $req<br>".mysql_num_rows($bill_line_group_result);
-	// формируем обычние счета для  залога
+//   echo $bill_line_group_result."<br> п╡я▀п©п╬п╩п╫п╦п╩п╦ п╥п╟п©я─п╬я│ $req<br>".mysql_num_rows($bill_line_group_result);
+	// я└п╬я─п╪п╦я─я┐п╣п╪ п╬п╠я▀я┤п╫п╦п╣ я│я┤п╣я┌п╟ п╢п╩я▐  п╥п╟п╩п╬пЁп╟
 	while(($bill_line_group_row = mysql_fetch_array($bill_line_group_result))){
 		$inv_item_date=$bill_line_group_row['item_date'];
 		$inv_no=$bill_row['bill_no'].'-'.$inv_no_suffix;
@@ -204,12 +204,12 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 		$tax_sum_usd_total=0;
 		$sum_plus_tax_total=0;
 		$sum_plus_tax_usd_total=0;
-		$req="select * from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'Залог') and item_date='$inv_item_date'";
+		$req="select * from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'п≈п╟п╩п╬пЁ') and item_date='$inv_item_date'";
 // echo $req."<br>";
 		if (!($bill_line_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 		while(($bill_line_row = mysql_fetch_array($bill_line_result))){
 		$item=$bill_line_row['item'];
-		$ediz='шт.';
+		$ediz='я┬я┌.';
 		$amount=$bill_line_row['amount'];
 		/* usd */
 		$price_usd=$bill_line_row['price'];
@@ -226,8 +226,8 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 		/* rub - totals */
 		$sum_plus_tax_total+=$sum_plus_tax;
 		/* ajust item name for the fucked compensation */
-		if (strstr($item, "Компенсация за непредоставление услуг") !== FALSE ) {
-			$item='Компенсация за непредоставление услуг, часы';
+		if (strstr($item, "п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ") !== FALSE ) {
+			$item='п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ, я┤п╟я│я▀';
 		}
 
 		/* do the ,2 5/4 rounding to sum+tax only before db write*/
@@ -247,13 +247,13 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 			"'$price','$sum','$tax','$tax_sum','$sum_plus_tax',".
 			"'$price_usd','$sum_usd','$tax_sum_usd','$sum_plus_tax_usd')";
 	//   echo "$req<br>" ;
-	// тестовый блок
-	if (strstr($item, 'Возврат задатка')!== FALSE)
+	// я┌п╣я│я┌п╬п╡я▀п╧ п╠п╩п╬п╨
+	if (strstr($item, 'п▓п╬п╥п╡я─п╟я┌ п╥п╟п╢п╟я┌п╨п╟')!== FALSE)
 	{
 		//  echo "<br> price= ".$price."<br>";
 		// echo"<br> $req" ;
 	};
-	//конец тестового блока
+	//п╨п╬п╫п╣я├ я┌п╣я│я┌п╬п╡п╬пЁп╬ п╠п╩п╬п╨п╟
 
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
 		$inv_line++;
@@ -278,7 +278,7 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 			"sum,tax_sum,sum_plus_tax,".
 			"sum_usd,tax_sum_usd,sum_plus_tax_usd".
 			") values (".
-			"'$inv_no','$inv_line','*Всего к оплате',".
+			"'$inv_no','$inv_line','*п▓я│п╣пЁп╬ п╨ п╬п©п╩п╟я┌п╣',".
 			"'$sum_total','$tax_sum_total','$sum_plus_tax_total',".
 			"'$sum_usd_total','$tax_sum_usd_total','$sum_plus_tax_usd_total')";
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
@@ -298,13 +298,13 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 
 	// echo "<br><br>$req" ;
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
-	// конец формирование  счетов фактур  залога
+	// п╨п╬п╫п╣я├ я└п╬я─п╪п╦я─п╬п╡п╟п╫п╦п╣  я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─  п╥п╟п╩п╬пЁп╟
 
 	
 	
 	
 	
-//	echo "Закончили залоги";
+//	echo "п≈п╟п╨п╬п╫я┤п╦п╩п╦ п╥п╟п╩п╬пЁп╦";
 	
 	////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////
@@ -321,9 +321,9 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 	if ($fb==0){
 		$req="update bill_bills set state='payed' where bill_no='$bill'";
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
-		echo "Счет проведен как оплаченный<br>";
+		echo "п║я┤п╣я┌ п©я─п╬п╡п╣п╢п╣п╫ п╨п╟п╨ п╬п©п╩п╟я┤п╣п╫п╫я▀п╧<br>";
 	}
-	echo "<a href='javascript:self.close()';>закрыть окно</a>";
+	echo "<a href='javascript:self.close()';>п╥п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a>";
 	
 
 
@@ -345,14 +345,14 @@ return $return_result;
 }
 
 function do_inv_zalog(){
-  echo "<h1>Делаем залог</h1>"  ;
+  echo "<h1>п■п╣п╩п╟п╣п╪ п╥п╟п╩п╬пЁ</h1>"  ;
 GLOBAL  $inv_no_suffix ,$bill_row, $tax_with_bill_rounding_error, $usd_rate_ajusted, $tax, $pay_date,$pay_no, $client, $client_row ;
  echo  $inv_no_suffix."<br>" ;
-$req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'Залог') group by item_date";
+$req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'п≈п╟п╩п╬пЁ') group by item_date";
 
 	if (!($bill_line_group_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 //   echo $bill_line_group_result."<br>";
-	// формируем обычние счета для  залога
+	// я└п╬я─п╪п╦я─я┐п╣п╪ п╬п╠я▀я┤п╫п╦п╣ я│я┤п╣я┌п╟ п╢п╩я▐  п╥п╟п╩п╬пЁп╟
 	while(($bill_line_group_row = mysql_fetch_array($bill_line_group_result))){
 		$inv_item_date=$bill_line_group_row['item_date'];
 		$inv_no=$bill_row['bill_no'].'-'.$inv_no_suffix;
@@ -364,12 +364,12 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 		$tax_sum_usd_total=0;
 		$sum_plus_tax_total=0;
 		$sum_plus_tax_usd_total=0;
-		$req="select * from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'Залог') and item_date='$inv_item_date'";
+		$req="select * from bill_bill_lines  where bill_no='${bill_row['bill_no']}' and instr(item, 'п≈п╟п╩п╬пЁ') and item_date='$inv_item_date'";
 // echo $req."<br>";
 		if (!($bill_line_result = mysql_query($req,$GLOBALS['dbh']))) {echo "can't read from database!<br>$req"; exit;}
 		while(($bill_line_row = mysql_fetch_array($bill_line_result))){
 		$item=$bill_line_row['item'];
-		$ediz='шт.';
+		$ediz='я┬я┌.';
 		$amount=$bill_line_row['amount'];
 		/* usd */
 		$price_usd=$bill_line_row['price'];
@@ -386,8 +386,8 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 		/* rub - totals */
 		$sum_plus_tax_total+=$sum_plus_tax;
 		/* ajust item name for the fucked compensation */
-		if (strstr($item, "Компенсация за непредоставление услуг") !== FALSE ) {
-			$item='Компенсация за непредоставление услуг, часы';
+		if (strstr($item, "п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ") !== FALSE ) {
+			$item='п п╬п╪п©п╣п╫я│п╟я├п╦я▐ п╥п╟ п╫п╣п©я─п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я┐я│п╩я┐пЁ, я┤п╟я│я▀';
 		}
 
 		/* do the ,2 5/4 rounding to sum+tax only before db write*/
@@ -407,12 +407,12 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 			"'$price','$sum','$tax','$tax_sum','$sum_plus_tax',".
 			"'$price_usd','$sum_usd','$tax_sum_usd','$sum_plus_tax_usd')";
 	//   echo "$req<br>" ;
-	// тестовый блок
-	if (strstr($item, 'Возврат задатка')!== FALSE){
+	// я┌п╣я│я┌п╬п╡я▀п╧ п╠п╩п╬п╨
+	if (strstr($item, 'п▓п╬п╥п╡я─п╟я┌ п╥п╟п╢п╟я┌п╨п╟')!== FALSE){
 		//  echo "<br> price= ".$price."<br>";
 		// echo"<br> $req" ;
 	};
-	//конец тестового блока
+	//п╨п╬п╫п╣я├ я┌п╣я│я┌п╬п╡п╬пЁп╬ п╠п╩п╬п╨п╟
 
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
 		$inv_line++;
@@ -437,7 +437,7 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 			"sum,tax_sum,sum_plus_tax,".
 			"sum_usd,tax_sum_usd,sum_plus_tax_usd".
 			") values (".
-			"'$inv_no','$inv_line','*Всего к оплате',".
+			"'$inv_no','$inv_line','*п▓я│п╣пЁп╬ п╨ п╬п©п╩п╟я┌п╣',".
 			"'$sum_total','$tax_sum_total','$sum_plus_tax_total',".
 			"'$sum_usd_total','$tax_sum_usd_total','$sum_plus_tax_usd_total')";
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
@@ -457,7 +457,7 @@ $req="select item_date from bill_bill_lines  where bill_no='${bill_row['bill_no'
 
 	// echo "<br><br>$req" ;
 		if (!($result = mysql_query($req,$GLOBALS['dbh'])))	{echo "can't write to database!<br>$req"; exit;}
-	// конец формирование  счетов фактур  залога
+	// п╨п╬п╫п╣я├ я└п╬я─п╪п╦я─п╬п╡п╟п╫п╦п╣  я│я┤п╣я┌п╬п╡ я└п╟п╨я┌я┐я─  п╥п╟п╩п╬пЁп╟
 
 };
 };

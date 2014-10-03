@@ -1,31 +1,31 @@
 <?
-//установка/удаление других модулей
+//я┐я│я┌п╟п╫п╬п╡п╨п╟/я┐п╢п╟п╩п╣п╫п╦п╣ п╢я─я┐пЁп╦я┘ п╪п╬п╢я┐п╩п╣п╧
 class m_modules {
 
 	function m_modules(){
 	}
 	function Install($p){
 		global $db;
-		return array('modules'=>array('Работа с модулями','r,w','чтение,изменение'));
+		return array('modules'=>array('п═п╟п╠п╬я┌п╟ я│ п╪п╬п╢я┐п╩я▐п╪п╦','r,w','я┤я┌п╣п╫п╦п╣,п╦п╥п╪п╣п╫п╣п╫п╦п╣'));
 	}
 
 	function GetPanel($fixclient){
 		global $design,$user,$db;
 		if (!access('modules','r')) return;
-		$design->AddMenu('Модули',array(
-					array('Список модулей','module=modules'),
+		$design->AddMenu('п°п╬п╢я┐п╩п╦',array(
+					array('п║п©п╦я│п╬п╨ п╪п╬п╢я┐п╩п╣п╧','module=modules'),
 				));
 	}
 	function GetMain($action,$fixclient){
 		global $design,$db,$user;
 		if (!access('modules','r')) return;
 
-		//получаем список установленных модулей
+		//п©п╬п╩я┐я┤п╟п╣п╪ я│п©п╦я│п╬п╨ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀я┘ п╪п╬п╢я┐п╩п╣п╧
 		$modules=array();
 		$db->Query('select * from modules order by load_order');
 		while ($r=$db->NextRecord()) $modules[$r['module']]=$r;
 
-		//получаем список не установленных модулей
+		//п©п╬п╩я┐я┤п╟п╣п╪ я│п©п╦я│п╬п╨ п╫п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀я┘ п╪п╬п╢я┐п╩п╣п╧
 		$R = $db->GetRow('select max(load_order) as M from modules where is_installed IN (0,1)');
 		$d=dir(MODULES_PATH);
 		while ($r=$d->read()){
@@ -39,7 +39,7 @@ class m_modules {
 		}
 		$d->close();
 
-		//защита от ../ и других возможных фокусов
+		//п╥п╟я┴п╦я┌п╟ п╬я┌ ../ п╦ п╢я─я┐пЁп╦я┘ п╡п╬п╥п╪п╬п╤п╫я▀я┘ я└п╬п╨я┐я│п╬п╡
 		$id = get_param_raw('id' , '');
 		$id=str_replace('"','',$id);
 		$id=str_replace('.','',$id);
@@ -50,30 +50,30 @@ class m_modules {
 		$id=str_replace("\0",'',$id);
 		
 		if ($id && preg_match('/^([\d\w_\-]+)$/',$id)){
-			if (!isset($modules[$id])) {trigger_error('Такого модуля не существует'); return; }
+			if (!isset($modules[$id])) {trigger_error('п╒п╟п╨п╬пЁп╬ п╪п╬п╢я┐п╩я▐ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌'); return; }
 			if (!access('modules','w')) return;
 			
-			$inst=2; 	//не делать действий по установке
+			$inst=2; 	//п╫п╣ п╢п╣п╩п╟я┌я▄ п╢п╣п╧я│я┌п╡п╦п╧ п©п╬ я┐я│я┌п╟п╫п╬п╡п╨п╣
 			
 			if ($action=='install'){
 				if ($modules[$id]['is_installed']==1){
-					trigger_error('Модуль уже установлен');
+					trigger_error('п°п╬п╢я┐п╩я▄ я┐п╤п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫');
 					return;	
 				}
 				$inst=1;
-				$instW1='Модуль установлен';
-				$instW2='Модуль не установился';
+				$instW1='п°п╬п╢я┐п╩я▄ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫';
+				$instW2='п°п╬п╢я┐п╩я▄ п╫п╣ я┐я│я┌п╟п╫п╬п╡п╦п╩я│я▐';
 			} else if ($action=='uninstall'){
 				if (!isset($modules[$id]) || ($modules[$id]['is_installed']==0)){
-					trigger_error('Модуль уже удалён');
+					trigger_error('п°п╬п╢я┐п╩я▄ я┐п╤п╣ я┐п╢п╟п╩я▒п╫');
 					return;	
 				}
 				$inst=0;
-				$instW1='Модуль удалён';
-				$instW2='Модуль не удалился';
+				$instW1='п°п╬п╢я┐п╩я▄ я┐п╢п╟п╩я▒п╫';
+				$instW2='п°п╬п╢я┐п╩я▄ п╫п╣ я┐п╢п╟п╩п╦п╩я│я▐';
 			} else if ($action=='up'){
 				if (!isset($modules[$id])){
-					trigger_error('Модуль не существует');
+					trigger_error('п°п╬п╢я┐п╩я▄ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 					return;	
 				}
 				$db->Query('select module,load_order from modules where load_order<'.$modules[$id]['load_order'].' order by load_order desc');
@@ -86,7 +86,7 @@ class m_modules {
 				while ($r=$db->NextRecord()) $modules[$r['module']]=$r;
 			} else if ($action=='down'){
 				if (!isset($modules[$id])){
-					trigger_error('Модуль не существует');
+					trigger_error('п°п╬п╢я┐п╩я▄ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 					return;	
 				}
 				$db->Query('select module,load_order from modules where load_order>'.$modules[$id]['load_order'].' order by load_order asc');
@@ -101,7 +101,7 @@ class m_modules {
 				while ($r=$db->NextRecord()) $modules[$r['module']]=$r;
 			}
 			
-			if ($inst!=2){		//просто, чтобы не копировать код кусками. на самом деле - объединение install & uninstall
+			if ($inst!=2){		//п©я─п╬я│я┌п╬, я┤я┌п╬п╠я▀ п╫п╣ п╨п╬п©п╦я─п╬п╡п╟я┌я▄ п╨п╬п╢ п╨я┐я│п╨п╟п╪п╦. п╫п╟ я│п╟п╪п╬п╪ п╢п╣п╩п╣ - п╬п╠я┼п╣п╢п╦п╫п╣п╫п╦п╣ install & uninstall
 				$modules[$id]['is_installed']=$inst;
 				$classname = Modules::IncludeFile($id);
 				if ($classname) {

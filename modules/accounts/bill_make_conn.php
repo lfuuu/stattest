@@ -16,9 +16,9 @@
 		exit;
     }
     if (get_param_raw('go')!=1) {
-		echo "<form action='?go=1&client=".$client."' method=post>Размер задатка: <input type=text name=sum_virtual value='".SUM_ADVANCE."'>";
-		echo "(он понадобится, если вы захотите потом отобразить счёт с пунктом 'за вычетом ранее оплаченного задатка')<br>";
-		echo "<input type=submit value='выставить'></form><br>";
+		echo "<form action='?go=1&client=".$client."' method=post>п═п╟п╥п╪п╣я─ п╥п╟п╢п╟я┌п╨п╟: <input type=text name=sum_virtual value='".SUM_ADVANCE."'>";
+		echo "(п╬п╫ п©п╬п╫п╟п╢п╬п╠п╦я┌я│я▐, п╣я│п╩п╦ п╡я▀ п╥п╟я┘п╬я┌п╦я┌п╣ п©п╬я┌п╬п╪ п╬я┌п╬п╠я─п╟п╥п╦я┌я▄ я│я┤я▒я┌ я│ п©я┐п╫п╨я┌п╬п╪ 'п╥п╟ п╡я▀я┤п╣я┌п╬п╪ я─п╟п╫п╣п╣ п╬п©п╩п╟я┤п╣п╫п╫п╬пЁп╬ п╥п╟п╢п╟я┌п╨п╟')<br>";
+		echo "<input type=submit value='п╡я▀я│я┌п╟п╡п╦я┌я▄'></form><br>";
 		return;
 	}
 	$sum_virtual=floatval(get_param_raw('sum_virtual'));
@@ -38,7 +38,7 @@
 			$ts=strtotime($r['actual_from']);
 			$d=getdate($ts);
 			$c=cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']);
-			$d['mday']--;	//ГЮ РЕЙСЫХИ ДЕМЭ
+			$d['mday']--;	//п⌠п╝ п═п∙п≥п║п╚п╔п≤ п■п∙п°п╜
 			$V=call_user_func("conn_calc_".$service,$r,$T,$c-$d['mday'],$c);
 			if (is_array($V)){
 		   		if ($V[1]!=0 || $V[0]) {
@@ -46,18 +46,18 @@
 		   			do_make_add_line($bill_no,$V[0],$V[2],$V[1],"${period}-01",$service,$r['id']);
 					$sum+=$V[1]*$V[2];	//$V[2] = amount
 					if ($T['deposit_sum']) {
-			   			do_make_add_line($bill_no,'Залог за оборудование',$V[2],$T['deposit_sum'],"${period}-01",$service,$r['id']);
+			   			do_make_add_line($bill_no,'п≈п╟п╩п╬пЁ п╥п╟ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦п╣',$V[2],$T['deposit_sum'],"${period}-01",$service,$r['id']);
 			   			$sum+=$V[2]*$T['deposit_sum'];
 					}
 				}
 		   		if (isset($V[3]) && $V[3]>0) {
 					$bool=1;
 			   		$am=round(($c-$d['mday'])/$c,2);
-			   		$str='Абонентская плата за '.mdate('месяц Y года',$ts);
+			   		$str='п░п╠п╬п╫п╣п╫я┌я│п╨п╟я▐ п©п╩п╟я┌п╟ п╥п╟ '.mdate('п╪п╣я│я▐я├ Y пЁп╬п╢п╟',$ts);
 			   		if ($service=='usage_ip_ports') {
-						$str.=' (тариф K-'.$T['mb_month'].'-'.$T['pay_month'].'-'.$T['pay_mb'].', подключение '.$r['id'].')';
+						$str.=' (я┌п╟я─п╦я└ K-'.$T['mb_month'].'-'.$T['pay_month'].'-'.$T['pay_mb'].', п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ '.$r['id'].')';
 			   		} elseif ($service=='usage_voip') {
-			   			$str.=' за телефонию ('.$r['no_of_lines'].' линий)';
+			   			$str.=' п╥п╟ я┌п╣п╩п╣я└п╬п╫п╦я▌ ('.$r['no_of_lines'].' п╩п╦п╫п╦п╧)';
 			   		}
 		   			do_make_add_line($bill_no,$str,$am*$V[2],$V[3],"${period}-01",$service,$r['id']);
 					$sum+=$am*$V[3];
@@ -68,8 +68,8 @@
     }
 	if ($bool) {
 		do_make_bill_register($bill_no,$bill_date,$client,$sum,'connection',1,$sum_virtual);
-		echo "Счёт $bill_no выставлен";
+		echo "п║я┤я▒я┌ $bill_no п╡я▀я│я┌п╟п╡п╩п╣п╫";
 	} else {
-		echo "Нечего выставлять";	
+		echo "п²п╣я┤п╣пЁп╬ п╡я▀я│я┌п╟п╡п╩я▐я┌я▄";	
 	}
 ?>

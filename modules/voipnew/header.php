@@ -2,10 +2,10 @@
 class m_voipnew_head extends IModuleHead
 {
     public $module_name = 'voipnew';
-    public $module_title = 'IP Телефония';
+    public $module_title = 'IP п╒п╣п╩п╣я└п╬п╫п╦я▐';
 
     public $rights = array(
-        'voip' => array('Список операторов', 'access,admin,catalog', 'доступ,администрирование,справочники')
+        'voip' => array('п║п©п╦я│п╬п╨ п╬п©п╣я─п╟я┌п╬я─п╬п╡', 'access,admin,catalog', 'п╢п╬я│я┌я┐п©,п╟п╢п╪п╦п╫п╦я│я┌я─п╦я─п╬п╡п╟п╫п╦п╣,я│п©я─п╟п╡п╬я┤п╫п╦п╨п╦')
     );
 
     public $actions = array(
@@ -47,16 +47,16 @@ class m_voipnew_head extends IModuleHead
     );
 
     public $menu = array(
-        array('Справочники', 'catalogs'),
-        array('Операторы', 'operators'),
-        array('Клиенстские прайслисты', 'client_pricelists'),
-        array('Операторские прайслисты', 'operator_pricelists'),
-//        array('Операторские сети', 'operator_networks'),
+        array('п║п©я─п╟п╡п╬я┤п╫п╦п╨п╦', 'catalogs'),
+        array('п·п©п╣я─п╟я┌п╬я─я▀', 'operators'),
+        array('п п╩п╦п╣п╫я│я┌я│п╨п╦п╣ п©я─п╟п╧я│п╩п╦я│я┌я▀', 'client_pricelists'),
+        array('п·п©п╣я─п╟я┌п╬я─я│п╨п╦п╣ п©я─п╟п╧я│п╩п╦я│я┌я▀', 'operator_pricelists'),
+//        array('п·п©п╣я─п╟я┌п╬я─я│п╨п╦п╣ я│п╣я┌п╦', 'operator_networks'),
         array('', 'catalogs'),
-        array('Местные префиксы', 'network_list'),
-        array('Местные цены', 'network_prices'),
+        array('п°п╣я│я┌п╫я▀п╣ п©я─п╣я└п╦п╨я│я▀', 'network_list'),
+        array('п°п╣я│я┌п╫я▀п╣ я├п╣п╫я▀', 'network_prices'),
         array('', 'catalogs'),
-        array('Пересчет звонков', 'calls_recalc'),
-        array('Приоритеты', 'priority_list'),
+        array('п÷п╣я─п╣я│я┤п╣я┌ п╥п╡п╬п╫п╨п╬п╡', 'calls_recalc'),
+        array('п÷я─п╦п╬я─п╦я┌п╣я┌я▀', 'priority_list'),
     );
 }

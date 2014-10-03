@@ -1,4 +1,4 @@
-      <H2>Смена пароля на PPP-логин</H2>
+      <H2>п║п╪п╣п╫п╟ п©п╟я─п╬п╩я▐ п╫п╟ PPP-п╩п╬пЁп╦п╫</H2>
       <H3>{$ppp.login}</H3>
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
@@ -7,15 +7,15 @@
 <input type=hidden name=module value=services>
 <input type=hidden name=id value={$ppp.id}>
 <TR>
-	<TD class=left>Пароль:</TD>
+	<TD class=left>п÷п╟я─п╬п╩я▄:</TD>
 	<TD><input name=pass1 class=text type=password></td>
 </TR>
 <TR>
-	<TD class=left>Пароль (ещё раз):</TD>
+	<TD class=left>п÷п╟я─п╬п╩я▄ (п╣я┴я▒ я─п╟п╥):</TD>
 	<TD><input name=pass2 class=text type=password></td>
 </TR>
 <tr>
 	<td class=left>&nbsp;</td>
-	<td><INPUT class=button type=submit value="Установить пароль"></td>
+	<td><INPUT class=button type=submit value="пёя│я┌п╟п╫п╬п╡п╦я┌я▄ п©п╟я─п╬п╩я▄"></td>
 </FORM>
 </TBODY></TABLE>

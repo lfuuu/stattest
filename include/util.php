@@ -3,10 +3,10 @@ define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
 
 $allowedDirection = array(
-            "full"   => "Все",
-            "russia" => "Россия",
-            "localmob" => "Местные (мобильные)",
-            "local"    => "Местные (все)"
+            "full"   => "п▓я│п╣",
+            "russia" => "п═п╬я│я│п╦я▐",
+            "localmob" => "п°п╣я│я┌п╫я▀п╣ (п╪п╬п╠п╦п╩я▄п╫я▀п╣)",
+            "local"    => "п°п╣я│я┌п╫я▀п╣ (п╡я│п╣)"
         );
 
 function get_payment_rate_by_bill($payment_date,$payment_sum = null,$bill_no = null) {
@@ -79,9 +79,6 @@ function printdbgu($param, $s="")
     $s = ob_get_contents();
     ob_end_clean();
 
-    $s = iconv("utf-8", "koi8-r//ignore", $s);
-
-
     echo "<br><pre>(<i> printdbg _utf8() </i>) ".$s."=";
     echo htmlspecialchars_($s);
     echo "</pre><br>";
@@ -91,8 +88,8 @@ function printdbgu($param, $s="")
 function print1Cerror(&$e)
 {
     $a = explode("|||",$e->getMessage());
-    trigger_error("<br><font style='color: black;'>1C: <font style='font-weight: normal;'>".iconv("utf-8", "koi8-r//ignore", $a[0])."</font></font>");
-    trigger_error("<font style='color: black; font-weight: normal;font-size: 8pt;'>".iconv("utf-8", "koi8-r//ignore", $a[1])."</font>");
+    trigger_error("<br><font style='color: black;'>1C: <font style='font-weight: normal;'>".$a[0]."</font></font>");
+    trigger_error("<font style='color: black; font-weight: normal;font-size: 8pt;'>".$a[1]."</font>");
 }
 
 function trigger_array($p,$s='') {
@@ -104,7 +101,7 @@ function trigger_string($p) {
 }
 function str_protect($str){
     if(is_array($str)) return $str;
-    //вроде как, те 2 строчки лишние
+    //п╡я─п╬п╢п╣ п╨п╟п╨, я┌п╣ 2 я│я┌я─п╬я┤п╨п╦ п╩п╦я┬п╫п╦п╣
     $str=str_replace("\\","\\\\",$str);
     $str=str_replace("\"","\\\"",$str);
     return mysql_escape_string($str);
@@ -302,8 +299,8 @@ function day_norm($m,$d,$y){
 function get_rus_date($date=0){
     if ($date==0) $date=time();
     $d=getdate($date);
-    $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
-    return $d['mday'].' '.$p[$d['mon']-1].' '.$d['year'].' г.';
+    $p=array('я▐п╫п╡п╟я─я▐','я└п╣п╡я─п╟п╩я▐','п╪п╟я─я┌п╟','п╟п©я─п╣п╩я▐','п╪п╟я▐','п╦я▌п╫я▐','п╦я▌п╩я▐','п╟п╡пЁя┐я│я┌п╟','я│п╣п╫я┌я▐п╠я─я▐','п╬п╨я┌я▐п╠я─я▐','п╫п╬я▐п╠я─я▐','п╢п╣п╨п╟п╠я─я▐');
+    return $d['mday'].' '.$p[$d['mon']-1].' '.$d['year'].' пЁ.';
 }
 
 function password_gen($len = 15, $isStrong = true){
@@ -354,7 +351,7 @@ function bytes_to_kb($v){
 function convert_date($date){
 
 $date_=explode("-",$date);
-$date=$date_[2].".".$date_[1].".".$date_[0]."г.";
+$date=$date_[2].".".$date_[1].".".$date_[0]."пЁ.";
 return $date;
 }
 function round_dig($row)
@@ -467,14 +464,14 @@ function mask_match($ip,$mask){
 function mdate($format,$ts=0){
     if ($ts) $s=date($format,$ts); else $s=date($format);
     if ($ts) $d=getdate($ts); else $d=getdate();
-    $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
-    $s=str_replace('месяца',$p[$d['mon']-1],$s);
-    $p=array('январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре');
-    $s=str_replace('месяце',$p[$d['mon']-1],$s);
-    $p=array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
-    $s=str_replace('Месяц',$p[$d['mon']-1],$s);
-    $p=array('январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь');
-    $s=str_replace('месяц',$p[$d['mon']-1],$s);
+    $p=array('я▐п╫п╡п╟я─я▐','я└п╣п╡я─п╟п╩я▐','п╪п╟я─я┌п╟','п╟п©я─п╣п╩я▐','п╪п╟я▐','п╦я▌п╫я▐','п╦я▌п╩я▐','п╟п╡пЁя┐я│я┌п╟','я│п╣п╫я┌я▐п╠я─я▐','п╬п╨я┌я▐п╠я─я▐','п╫п╬я▐п╠я─я▐','п╢п╣п╨п╟п╠я─я▐');
+    $s=str_replace('п╪п╣я│я▐я├п╟',$p[$d['mon']-1],$s);
+    $p=array('я▐п╫п╡п╟я─п╣','я└п╣п╡я─п╟п╩п╣','п╪п╟я─я┌п╣','п╟п©я─п╣п╩п╣','п╪п╟п╣','п╦я▌п╫п╣','п╦я▌п╩п╣','п╟п╡пЁя┐я│я┌п╣','я│п╣п╫я┌я▐п╠я─п╣','п╬п╨я┌я▐п╠я─п╣','п╫п╬я▐п╠я─п╣','п╢п╣п╨п╟п╠я─п╣');
+    $s=str_replace('п╪п╣я│я▐я├п╣',$p[$d['mon']-1],$s);
+    $p=array('п╞п╫п╡п╟я─я▄','п╓п╣п╡я─п╟п╩я▄','п°п╟я─я┌','п░п©я─п╣п╩я▄','п°п╟п╧','п≤я▌п╫я▄','п≤я▌п╩я▄','п░п╡пЁя┐я│я┌','п║п╣п╫я┌я▐п╠я─я▄','п·п╨я┌я▐п╠я─я▄','п²п╬я▐п╠я─я▄','п■п╣п╨п╟п╠я─я▄');
+    $s=str_replace('п°п╣я│я▐я├',$p[$d['mon']-1],$s);
+    $p=array('я▐п╫п╡п╟я─я▄','я└п╣п╡я─п╟п╩я▄','п╪п╟я─я┌','п╟п©я─п╣п╩я▄','п╪п╟п╧','п╦я▌п╫я▄','п╦я▌п╩я▄','п╟п╡пЁя┐я│я┌','я│п╣п╫я┌я▐п╠я─я▄','п╬п╨я┌я▐п╠я─я▄','п╫п╬я▐п╠я─я▄','п╢п╣п╨п╟п╠я─я▄');
+    $s=str_replace('п╪п╣я│я▐я├',$p[$d['mon']-1],$s);
     return $s;
 }
 function rus_fin($v,$s1,$s2,$s3){
@@ -557,14 +554,14 @@ class util{
 
 
 class Wordifier {
-    private static $curBig=array('USD'=>array('доллар США','доллара США','долларов США'),'RUR'=>array('рубль','рубля','рублей'));
-    private static $curSmall=array('USD'=>array('цент','цента','центов'),'RUR'=>array('копейка','копейки','копеек'));
-    private static $num10 = array("","один ","два ","три ","четыре ","пять ","шесть ","семь ","восемь ","девять ",);
-    private static $num10x = array("","одна ","две ","три ","четыре ","пять ","шесть ","семь ","восемь ","девять ",);
-    private static $num20 = array("десять ","одиннадцать ","двенадцать ","тринадцать ","четырнадцать ","пятнадцать ","шестнадцать ","семнадцать ","восемнадцать ","девятнадцать ");
-    private static $num100 = array("","","двадцать ","тридцать ","сорок ","пятьдесят ","шестьдесят ","семьдесят ","восемьдесят ","девяносто ");
-    private static $num1000 = array("","сто ","двести ","триста ","четыреста ","пятьсот ","шестьсот ","семьсот ","восемьсот ","девятьсот " );
-    private static $sections = array(array(' ',' ',' '),array('тысяча','тысячи','тысяч'),array("миллион","миллиона","миллионов"),array("миллиард","миллиарда","миллиардов"));
+    private static $curBig=array('USD'=>array('п╢п╬п╩п╩п╟я─ п║п╗п░','п╢п╬п╩п╩п╟я─п╟ п║п╗п░','п╢п╬п╩п╩п╟я─п╬п╡ п║п╗п░'),'RUR'=>array('я─я┐п╠п╩я▄','я─я┐п╠п╩я▐','я─я┐п╠п╩п╣п╧'));
+    private static $curSmall=array('USD'=>array('я├п╣п╫я┌','я├п╣п╫я┌п╟','я├п╣п╫я┌п╬п╡'),'RUR'=>array('п╨п╬п©п╣п╧п╨п╟','п╨п╬п©п╣п╧п╨п╦','п╨п╬п©п╣п╣п╨'));
+    private static $num10 = array("","п╬п╢п╦п╫ ","п╢п╡п╟ ","я┌я─п╦ ","я┤п╣я┌я▀я─п╣ ","п©я▐я┌я▄ ","я┬п╣я│я┌я▄ ","я│п╣п╪я▄ ","п╡п╬я│п╣п╪я▄ ","п╢п╣п╡я▐я┌я▄ ",);
+    private static $num10x = array("","п╬п╢п╫п╟ ","п╢п╡п╣ ","я┌я─п╦ ","я┤п╣я┌я▀я─п╣ ","п©я▐я┌я▄ ","я┬п╣я│я┌я▄ ","я│п╣п╪я▄ ","п╡п╬я│п╣п╪я▄ ","п╢п╣п╡я▐я┌я▄ ",);
+    private static $num20 = array("п╢п╣я│я▐я┌я▄ ","п╬п╢п╦п╫п╫п╟п╢я├п╟я┌я▄ ","п╢п╡п╣п╫п╟п╢я├п╟я┌я▄ ","я┌я─п╦п╫п╟п╢я├п╟я┌я▄ ","я┤п╣я┌я▀я─п╫п╟п╢я├п╟я┌я▄ ","п©я▐я┌п╫п╟п╢я├п╟я┌я▄ ","я┬п╣я│я┌п╫п╟п╢я├п╟я┌я▄ ","я│п╣п╪п╫п╟п╢я├п╟я┌я▄ ","п╡п╬я│п╣п╪п╫п╟п╢я├п╟я┌я▄ ","п╢п╣п╡я▐я┌п╫п╟п╢я├п╟я┌я▄ ");
+    private static $num100 = array("","","п╢п╡п╟п╢я├п╟я┌я▄ ","я┌я─п╦п╢я├п╟я┌я▄ ","я│п╬я─п╬п╨ ","п©я▐я┌я▄п╢п╣я│я▐я┌ ","я┬п╣я│я┌я▄п╢п╣я│я▐я┌ ","я│п╣п╪я▄п╢п╣я│я▐я┌ ","п╡п╬я│п╣п╪я▄п╢п╣я│я▐я┌ ","п╢п╣п╡я▐п╫п╬я│я┌п╬ ");
+    private static $num1000 = array("","я│я┌п╬ ","п╢п╡п╣я│я┌п╦ ","я┌я─п╦я│я┌п╟ ","я┤п╣я┌я▀я─п╣я│я┌п╟ ","п©я▐я┌я▄я│п╬я┌ ","я┬п╣я│я┌я▄я│п╬я┌ ","я│п╣п╪я▄я│п╬я┌ ","п╡п╬я│п╣п╪я▄я│п╬я┌ ","п╢п╣п╡я▐я┌я▄я│п╬я┌ " );
+    private static $sections = array(array(' ',' ',' '),array('я┌я▀я│я▐я┤п╟','я┌я▀я│я▐я┤п╦','я┌я▀я│я▐я┤'),array("п╪п╦п╩п╩п╦п╬п╫","п╪п╦п╩п╩п╦п╬п╫п╟","п╪п╦п╩п╩п╦п╬п╫п╬п╡"),array("п╪п╦п╩п╩п╦п╟я─п╢","п╪п╦п╩п╩п╦п╟я─п╢п╟","п╪п╦п╩п╩п╦п╟я─п╢п╬п╡"));
 
     private static function MakeSections($num,$sect){
 
@@ -605,17 +602,17 @@ class Wordifier {
 
 
         if(floor($num)==0)
-            $v = array('ноль ',0);
+            $v = array('п╫п╬п╩я▄ ',0);
         else
             $v = Wordifier::MakeSections(floor($num),0);
         $s=$v[0];
 
         if($isMinus)
         {
-            $s = "минус ".$s;
+            $s = "п╪п╦п╫я┐я│ ".$s;
         }
 
-        $s=strtr(substr($s,0,1),"мнодтчпшсв","МНОДТЧПШСВ").substr($s,1);
+        $s=strtr(substr($s,0,1),"п╪п╫п╬п╢я┌я┤п©я┬я│п╡","п°п²п·п■п╒п╖п÷п╗п║п▓").substr($s,1);
         $s.=rus_fin($v[1],Wordifier::$curBig[$currency][0],Wordifier::$curBig[$currency][1],Wordifier::$curBig[$currency][2]);
         $c=round(($num-floor($num))*100);
         $s.=' '.sprintf("%02d", $c).' '.rus_fin($c,Wordifier::$curSmall[$currency][0],Wordifier::$curSmall[$currency][1],Wordifier::$curSmall[$currency][2]);
@@ -666,7 +663,7 @@ function param_load_date($prefix,$default_date,$returnString = false){
     $m=get_param_integer($prefix.'m',$default_date['mon']);
     $y=get_param_integer($prefix.'y',$default_date['year']);
 
-    $i=0; while (!checkdate($m,$d,$y) && ($i<4)) {$d--; $i++;}    //ВРНАШ МЕ АШКН 30ЦН ТЕБПЮКЪ
+    $i=0; while (!checkdate($m,$d,$y) && ($i<4)) {$d--; $i++;}    //п▓п═п²п░п╗ п°п∙ п░п╗п п² 30п╕п² п╒п∙п▒п÷п╝п п╙
 
     $design->assign($prefix.'d',$d);
     $design->assign($prefix.'m',$m);
@@ -684,15 +681,15 @@ function time_period($v) {
     $m=floor($v/60);
     $v=$v%60;
     if ($d) {
-        return sprintf('%dд %02d:%02d',$d,$h,$m);
+        return sprintf('%dп╢ %02d:%02d',$d,$h,$m);
     } elseif ($h && $m) {
         return sprintf('%02d:%02d',$h,$m);
     } elseif ($h && !$m) {
-        return $h.' час'.rus_fin($h,'','а','ов');
+        return $h.' я┤п╟я│'.rus_fin($h,'','п╟','п╬п╡');
     } else {
         return     sprintf('0:%02d',$m);
     }
-    $s.=sprintf('%02d',floor($v/60)).($s?'':' мин');
+    $s.=sprintf('%02d',floor($v/60)).($s?'':' п╪п╦п╫');
     return $s;
 }
 function debug_table($str) {
@@ -739,28 +736,28 @@ class ClientCS {
     public $F = array();
     public $D;
     public static $statuses = array(
-                'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
-                'testing'             => array('name'=>'тестируемый','color'=>'#6DCFF6'),
-                'connecting'          => array('name'=>'подключаемый','color'=>'#F49AC1'),
-                'work'                => array('name'=>'включенный','color'=>''),
-                'closed'              => array('name'=>'отключенный','color'=>'#FFFFCC'),
-                'tech_deny'           => array('name'=>'тех. отказ','color'=>'#996666'),
-                'telemarketing'       => array('name'=>'телемаркетинг','color'=>'#A0FFA0'),
-                'income'              => array('name'=>'входящие','color'=>'#CCFFFF'),
-                'deny'                => array('name'=>'отказ','color'=>'#A0A0A0'),
-                'debt'                => array('name'=>'отключен за долги','color'=>'#C00000'),
-                'double'              => array('name'=>'дубликат','color'=>'#60a0e0'),
-                'trash'               => array('name'=>'мусор','color'=>'#a5e934'),
-                'move'                => array('name'=>'переезд','color'=>'#f590f3'),
-                'suspended'           => array('name'=>'приостановленные','color'=>'#C4a3C0'),
-                'denial'              => array('name'=>'отказ/задаток','color'=>'#00C0C0'),
-                'once'                => array('name'=>'Интернет Магазин','color'=>'silver'),
-                'reserved'            => array('name'=>'резервирование канала','color'=>'silver'),
-                'blocked'             => array('name'=>'временно заблокирован','color'=>'silver'),
-                'distr'               => array('name'=>'Поставщик','color'=>'yellow'),
-                'operator'            => array('name'=>'Оператор','color'=>'lightblue')
+                'negotiations'        => array('name'=>'п╡ я│я┌п╟п╢п╦п╦ п©п╣я─п╣пЁп╬п╡п╬я─п╬п╡','color'=>'#C4DF9B'),
+                'testing'             => array('name'=>'я┌п╣я│я┌п╦я─я┐п╣п╪я▀п╧','color'=>'#6DCFF6'),
+                'connecting'          => array('name'=>'п©п╬п╢п╨п╩я▌я┤п╟п╣п╪я▀п╧','color'=>'#F49AC1'),
+                'work'                => array('name'=>'п╡п╨п╩я▌я┤п╣п╫п╫я▀п╧','color'=>''),
+                'closed'              => array('name'=>'п╬я┌п╨п╩я▌я┤п╣п╫п╫я▀п╧','color'=>'#FFFFCC'),
+                'tech_deny'           => array('name'=>'я┌п╣я┘. п╬я┌п╨п╟п╥','color'=>'#996666'),
+                'telemarketing'       => array('name'=>'я┌п╣п╩п╣п╪п╟я─п╨п╣я┌п╦п╫пЁ','color'=>'#A0FFA0'),
+                'income'              => array('name'=>'п╡я┘п╬п╢я▐я┴п╦п╣','color'=>'#CCFFFF'),
+                'deny'                => array('name'=>'п╬я┌п╨п╟п╥','color'=>'#A0A0A0'),
+                'debt'                => array('name'=>'п╬я┌п╨п╩я▌я┤п╣п╫ п╥п╟ п╢п╬п╩пЁп╦','color'=>'#C00000'),
+                'double'              => array('name'=>'п╢я┐п╠п╩п╦п╨п╟я┌','color'=>'#60a0e0'),
+                'trash'               => array('name'=>'п╪я┐я│п╬я─','color'=>'#a5e934'),
+                'move'                => array('name'=>'п©п╣я─п╣п╣п╥п╢','color'=>'#f590f3'),
+                'suspended'           => array('name'=>'п©я─п╦п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╣','color'=>'#C4a3C0'),
+                'denial'              => array('name'=>'п╬я┌п╨п╟п╥/п╥п╟п╢п╟я┌п╬п╨','color'=>'#00C0C0'),
+                'once'                => array('name'=>'п≤п╫я┌п╣я─п╫п╣я┌ п°п╟пЁп╟п╥п╦п╫','color'=>'silver'),
+                'reserved'            => array('name'=>'я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╦п╣ п╨п╟п╫п╟п╩п╟','color'=>'silver'),
+                'blocked'             => array('name'=>'п╡я─п╣п╪п╣п╫п╫п╬ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫','color'=>'silver'),
+                'distr'               => array('name'=>'п÷п╬я│я┌п╟п╡я┴п╦п╨','color'=>'yellow'),
+                'operator'            => array('name'=>'п·п©п╣я─п╟я┌п╬я─','color'=>'lightblue')
             );
-    //вернёт название статуса
+    //п╡п╣я─п╫я▒я┌ п╫п╟п╥п╡п╟п╫п╦п╣ я│я┌п╟я┌я┐я│п╟
     public static function translate($status_code){
         if (!isset(self::$statuses[$status_code])) return $status_code;
         return self::$statuses[$status_code]['name'];
@@ -912,15 +909,15 @@ class ClientCS {
     {
         $f = array(
                 "MCN" => "mcn",
-                "MCN-СПб" => "mcn98",
-                "MCN-Краснодар" => "mcn97",
-                "MCN-Самара" => "mcn96",
-                "MCN-Екатеринбург" => "mcn95",
-                "MCN-Новосибирск" => "mcn94",
-                "MCN-Ростов-на-Дону" => "mcn87",
-                "MCN-НижнийНовгород" => "mcn88",
-                "MCN-Казань" => "mcn93",
-                "MCN-Владивосток" => "mcn89",
+                "MCN-п║п÷п╠" => "mcn98",
+                "MCN-п я─п╟я│п╫п╬п╢п╟я─" => "mcn97",
+                "MCN-п║п╟п╪п╟я─п╟" => "mcn96",
+                "MCN-п∙п╨п╟я┌п╣я─п╦п╫п╠я┐я─пЁ" => "mcn95",
+                "MCN-п²п╬п╡п╬я│п╦п╠п╦я─я│п╨" => "mcn94",
+                "MCN-п═п╬я│я┌п╬п╡-п╫п╟-п■п╬п╫я┐" => "mcn87",
+                "MCN-п²п╦п╤п╫п╦п╧п²п╬п╡пЁп╬я─п╬п╢" => "mcn88",
+                "MCN-п п╟п╥п╟п╫я▄" => "mcn93",
+                "MCN-п▓п╩п╟п╢п╦п╡п╬я│я┌п╬п╨" => "mcn89",
                 "WellTime" => "welltime",
                 "IT-Park" => "itpark",
                 "Arhiv" => "arhiv"
@@ -968,7 +965,7 @@ class ClientCS {
         global $db;
         if($this->client!=""){
             if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_escape_string($this->F['client'])."'"))
-                return false;    //дубликат
+                return false;    //п╢я┐п╠п╩п╦п╨п╟я┌
         }
         $q1 = '';
         $q2 = '';
@@ -1125,7 +1122,7 @@ class ClientCS {
                         );
 
 
-        if(get_param_raw("deferred", "")) // берем клиента без изменений с начала периода
+        if(get_param_raw("deferred", "")) // п╠п╣я─п╣п╪ п╨п╩п╦п╣п╫я┌п╟ п╠п╣п╥ п╦п╥п╪п╣п╫п╣п╫п╦п╧ я│ п╫п╟я┤п╟п╩п╟ п©п╣я─п╦п╬п╢п╟
         {
             $dd = get_param_raw("deferred_date", "");
             $applyTS = date("Y-m-01", $deffers[$dd]["d"]);
@@ -1176,7 +1173,7 @@ class ClientCS {
                             $inFuture = true;
                         }
 
-                        // помечаем изменения, как перезаписанные
+                        // п©п╬п╪п╣я┤п╟п╣п╪ п╦п╥п╪п╣п╫п╣п╫п╦я▐, п╨п╟п╨ п©п╣я─п╣п╥п╟п©п╦я│п╟п╫п╫я▀п╣
                         /*
                         $db->Query($sql ="update log_client
                                     set is_overwrited = 'yes'
@@ -1185,7 +1182,7 @@ class ClientCS {
                                             and ((ts > '".$applyTS."' and apply_ts = '0000-00-00') or apply_ts = '".$applyTS."')");
                                             */
 
-                        if($dd < 4) //изменения применям сейчас (для установок в предыдущее время)
+                        if($dd < 4) //п╦п╥п╪п╣п╫п╣п╫п╦я▐ п©я─п╦п╪п╣п╫я▐п╪ я│п╣п╧я┤п╟я│ (п╢п╩я▐ я┐я│я┌п╟п╫п╬п╡п╬п╨ п╡ п©я─п╣п╢я▀п╢я┐я┴п╣п╣ п╡я─п╣п╪я▐)
                         {
                             $db->Query($qq='update clients set '.$q.' where id="'.$this->id.'"');
                             $this->exportClient(self::findClient($this->id));
@@ -1263,7 +1260,7 @@ class ClientCS {
     function __unset($k) { unset($this->F[$k]); }
 
 
-    function Add($status,$comment) {        //добавляет статус
+    function Add($status,$comment) {        //п╢п╬п╠п╟п╡п╩я▐п╣я┌ я│я┌п╟я┌я┐я│
         global $db,$user;
         $db->Query("select status from clients where id=".$this->id);
         $r=$db->NextRecord();
@@ -1338,11 +1335,11 @@ class ClientCS {
             case 'metro': return self::_GetList("metro",$zero); break;
             case 'price_type': return self::_GetList("g_price_type"); break;
             case 'logistic': return array(
-                                     "none" => "--- Не установленно ---",
-                                     "selfdeliv" => "Самовывоз",
-                                     "courier" => "Доставка курьером",
-                                     "auto" => "Доставка авто",
-                                     "tk" => "Доставка ТК",
+                                     "none" => "--- п²п╣ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╫п╬ ---",
+                                     "selfdeliv" => "п║п╟п╪п╬п╡я▀п╡п╬п╥",
+                                     "courier" => "п■п╬я│я┌п╟п╡п╨п╟ п╨я┐я─я▄п╣я─п╬п╪",
+                                     "auto" => "п■п╬я│я┌п╟п╡п╨п╟ п╟п╡я┌п╬",
+                                     "tk" => "п■п╬я│я┌п╟п╡п╨п╟ п╒п ",
                                      ); break;
             default: return array();
         }
@@ -1359,7 +1356,7 @@ class ClientCS {
 
             if($zero == "std")
             {
-                $list[$table][0] = "--- Не определено ---";
+                $list[$table][0] = "--- п²п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬ ---";
             }elseif($zero !== false)
             {
                 $list[$table][0] = $zero;
@@ -1422,7 +1419,7 @@ class ClientCS {
     public function GetPriceType($client)
     {
         $d = ClientCS::FetchClient($client);
-        return $d["price_type"] ? $d["price_type"] : ClientCS::getIdByName("price_type", "Розница");
+        return $d["price_type"] ? $d["price_type"] : ClientCS::getIdByName("price_type", "п═п╬п╥п╫п╦я├п╟");
     }
 
     public function getClientLog($id, $types = array('msg','fields'))
@@ -1452,7 +1449,7 @@ class ClientCS {
                 //nothing :)
             }elseif($l["type"] == "fields")
             {
-                $l["comment"] = "Изменены поля: ".self::_resolveFields($l["comment"]);
+                $l["comment"] = "п≤п╥п╪п╣п╫п╣п╫я▀ п©п╬п╩я▐: ".self::_resolveFields($l["comment"]);
             }elseif($l["type"] == "company_name")
             {
                 $l["company"] = unserialize($l["comment"]);
@@ -1538,8 +1535,8 @@ class ClientCS {
 
     private function sendBillingCountersNotification($clientId)
     {
-        $subj = Encoding::toUtf8('[stat/include/util] База биллинга телефонии не доступна');
-        $body = Encoding::toUtf8('Клиент ' . ClientCard::find($clientId)->client . ' не получил информацию по биллингу');
+        $subj = '[stat/include/util] п▒п╟п╥п╟ п╠п╦п╩п╩п╦п╫пЁп╟ я┌п╣п╩п╣я└п╬п╫п╦п╦ п╫п╣ п╢п╬я│я┌я┐п©п╫п╟';
+        $body = 'п п╩п╦п╣п╫я┌ ' . ClientCard::find($clientId)->client . ' п╫п╣ п©п╬п╩я┐я┤п╦п╩ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п©п╬ п╠п╦п╩п╩п╦п╫пЁя┐';
         mail(ADMIN_EMAIL, $subj, $body);
     }
     public function getBillingCounters($clientId, $silent_mode = false)
@@ -1559,7 +1556,7 @@ class ClientCS {
         {
             if (!$silent_mode)
             {
-                trigger_error("База биллинга телефонии не доступна");
+                trigger_error("п▒п╟п╥п╟ п╠п╦п╩п╩п╦п╫пЁп╟ я┌п╣п╩п╣я└п╬п╫п╦п╦ п╫п╣ п╢п╬я│я┌я┐п©п╫п╟");
             }
             self::sendBillingCountersNotification($clientId);
         }
@@ -1707,7 +1704,7 @@ class IPList{
                         die("usage_ip_routes id=".$r['id']." is WROONG!");
                     for($i = $v[0];$i<$v[0]+$v[1];$i++){
 
-                        //cast - если была введена сеть в техотказ, а потоом она выдалась, и их даты совапдают, то сеть из техотказа не уходит.
+                        //cast - п╣я│п╩п╦ п╠я▀п╩п╟ п╡п╡п╣п╢п╣п╫п╟ я│п╣я┌я▄ п╡ я┌п╣я┘п╬я┌п╨п╟п╥, п╟ п©п╬я┌п╬п╬п╪ п╬п╫п╟ п╡я▀п╢п╟п╩п╟я│я▄, п╦ п╦я┘ п╢п╟я┌я▀ я│п╬п╡п╟п©п╢п╟я▌я┌, я┌п╬ я│п╣я┌я▄ п╦п╥ я┌п╣я┘п╬я┌п╨п╟п╥п╟ п╫п╣ я┐я┘п╬п╢п╦я┌.
                         if(isset($this->data[$i]) && $this->data[$i][0] == "tech" && ($r["status"] == "work" || $r["status"] == "testing") &&
                                 $this->data[$i][1]==$r['actual_to'])
                             $this->data[$i][1]--;
@@ -1845,7 +1842,7 @@ class all4geo
             $pFile = fopen("/home/httpd/stat.mcn.ru/test/log.all4geo.errors", "a+");
             fwrite($pFile, date("r").":".$u." => ".$comment." => ".$f."\n");
             fclose($pFile);
-            echo "Данные сохранены, но возникла ошибка передачи данных в all4geo.";
+            echo "п■п╟п╫п╫я▀п╣ я│п╬я┘я─п╟п╫п╣п╫я▀, п╫п╬ п╡п╬п╥п╫п╦п╨п╩п╟ п╬я┬п╦п╠п╨п╟ п©п╣я─п╣п╢п╟я┤п╦ п╢п╟п╫п╫я▀я┘ п╡ all4geo.";
             mail("dga@mcn.ru", "stat error: stat.all4geo", date("r").":".$u." => ".$comment." => ".$f);
             exit();
         }
@@ -1942,7 +1939,7 @@ class send
         $icq = new WebIcqLite();
         if($icq->connect("415601006", 'iddqd111'))
         {
-            if(!$icq->send_message($uin, iconv("koi8-r", "cp1251", $msg)))
+            if(!$icq->send_message($uin, iconv("utf-8", "cp1251", $msg)))
             {
                 echo $icq->error;
             }else{
@@ -1976,9 +1973,9 @@ class event
         {
             global $db;
 
-            mail("dga@mcn.ru", "MCN заявака в отказ", "Заявка #".$db->GetValue("select concat(req_no,'/',bill_no) from newbills_add_info  where bill_no = '".$bill["bill_no"]."'")." переведенна на этап \"отказ\"","Content-Type: text/plain; charset = \"koi8-r\"\nFrom: info@mcn.ru");
+            mail("dga@mcn.ru", "MCN п╥п╟я▐п╡п╟п╨п╟ п╡ п╬я┌п╨п╟п╥", "п≈п╟я▐п╡п╨п╟ #".$db->GetValue("select concat(req_no,'/',bill_no) from newbills_add_info  where bill_no = '".$bill["bill_no"]."'")." п©п╣я─п╣п╡п╣п╢п╣п╫п╫п╟ п╫п╟ я█я┌п╟п© \"п╬я┌п╨п╟п╥\"","Content-Type: text/plain; charset = \"utf-8\"\nFrom: info@mcn.ru");
 
-            mail("shop@nbn-holding.ru", "MCN заявака в отказ", "Заявка #".$db->GetValue("select concat(req_no,'/',bill_no) from newbills_add_info  where bill_no = '".$bill["bill_no"]."'")." переведенна на этап \"отказ\"","Content-Type: text/plain; charset = \"koi8-r\"\nFrom: info@mcn.ru");
+            mail("shop@nbn-holding.ru", "MCN п╥п╟я▐п╡п╟п╨п╟ п╡ п╬я┌п╨п╟п╥", "п≈п╟я▐п╡п╨п╟ #".$db->GetValue("select concat(req_no,'/',bill_no) from newbills_add_info  where bill_no = '".$bill["bill_no"]."'")." п©п╣я─п╣п╡п╣п╢п╣п╫п╫п╟ п╫п╟ я█я┌п╟п© \"п╬я┌п╨п╟п╥\"","Content-Type: text/plain; charset = \"utf-8\"\nFrom: info@mcn.ru");
         }
     }
 }
@@ -1986,7 +1983,7 @@ class event
 function htmlspecialchars_($s)
 {
     // migration php 5.3 => 5.5
-    return htmlspecialchars($s, ENT_COMPAT, "KOI8-R");
+    return htmlspecialchars($s, ENT_COMPAT, "UTF-8");
 }
 
 

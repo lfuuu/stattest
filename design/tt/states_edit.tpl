@@ -1,4 +1,4 @@
-<H2>Заявки</H2>
+<H2>п≈п╟я▐п╡п╨п╦</H2>
 <H3>{$query_table}:</H3>
 <FORM action="?" method=post id=form name=form>
 <input type=hidden name=action value=sapply>
@@ -12,9 +12,9 @@
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 <TR><TD width=50% class=left>id:</TD><td>{$id}</td></tr>
-<TR><TD class=left>Название:</TD><td><input type=text value='{$row.name.value}' name=row[name]></td></tr>
-<TR><TD class=left>Порядок (используется только при выводе списка):</TD><td><input type=text value='{$row.order.value}' name=row[order]></td></tr>
-<TR><TD class=left>Увеличивать время трабла на (в часах; отрицательное число - для уменьшения):</TD><td><input type=text value='{$row.time_delta.value}' name=row[approx]></td></tr>
+<TR><TD class=left>п²п╟п╥п╡п╟п╫п╦п╣:</TD><td><input type=text value='{$row.name.value}' name=row[name]></td></tr>
+<TR><TD class=left>п÷п╬я─я▐п╢п╬п╨ (п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©я─п╦ п╡я▀п╡п╬п╢п╣ я│п©п╦я│п╨п╟):</TD><td><input type=text value='{$row.order.value}' name=row[order]></td></tr>
+<TR><TD class=left>пёп╡п╣п╩п╦я┤п╦п╡п╟я┌я▄ п╡я─п╣п╪я▐ я┌я─п╟п╠п╩п╟ п╫п╟ (п╡ я┤п╟я│п╟я┘; п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬п╣ я┤п╦я│п╩п╬ - п╢п╩я▐ я┐п╪п╣п╫я▄я┬п╣п╫п╦я▐):</TD><td><input type=text value='{$row.time_delta.value}' name=row[approx]></td></tr>
 </TBODY></TABLE>
-<DIV align=center><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+<DIV align=center><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 </form>

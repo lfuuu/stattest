@@ -3,18 +3,18 @@
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
 
 
-<p style="font-weight: bold">Рассчет объемов звонков:</p>
+<p style="font-weight: bold">п═п╟я│я│я┤п╣я┌ п╬п╠я┼п╣п╪п╬п╡ п╥п╡п╬п╫п╨п╬п╡:</p>
 <p>
   {if $volume.calc_date}
-  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to}
+  п·п╠я┼п╣п╪я▀ п╥п╡п╬п╫п╨п╬п╡ я─п╟я│я│я┤п╦я┌п╟п╫я▀ я│ {$volume.date_from} п©п╬ {$volume.date_to}
   {if $volume.need_recalc == 't'}
-    <b>(требуется пересчет)</b>
+    <b>(я┌я─п╣п╠я┐п╣я┌я│я▐ п©п╣я─п╣я│я┤п╣я┌)</b>
   {/if}
   {else}
-    Объемы не рассчитаны
+    п·п╠я┼п╣п╪я▀ п╫п╣ я─п╟я│я│я┤п╦я┌п╟п╫я▀
   {/if}
   {if $volume.calc_running == 't'}
-    <b>(идет расчет)</b>
+    <b>(п╦п╢п╣я┌ я─п╟я│я┤п╣я┌)</b>
   {/if}
 </p>
 {if $volume.calc_running != 't'}
@@ -25,20 +25,20 @@
   <input type="hidden" name="report_id" value="{$volume.report_id}" />
   <input type="hidden" name="calc" value="run" />
   C <input id=volume_date_from name=volume_date_from class="datepicker" readonly type=text value="{$volume.date_from}"/>
-  По <input id=volume_date_to name=volume_date_to class="datepicker" readonly type=text value="{$volume.date_to}"/>
+  п÷п╬ <input id=volume_date_to name=volume_date_to class="datepicker" readonly type=text value="{$volume.date_to}"/>
     <select name="region_id">
-        <option value="0">-- Все регионы --</option>
+        <option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
         {foreach from=$regions item='g'}
         <option value="{$g.id}" {if $g.id eq $volume.region_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
-  <button>Запустить расчет</button>
+  <button>п≈п╟п©я┐я│я┌п╦я┌я▄ я─п╟я│я┤п╣я┌</button>
 </form>
 {/if}
 
 <br/><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="?module=voipnew&action=pricelist_report_show&id={$volume.report_id}">Просмотр отчета</a>
+<a href="?module=voipnew&action=pricelist_report_show&id={$volume.report_id}">п÷я─п╬я│п╪п╬я┌я─ п╬я┌я┤п╣я┌п╟</a>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="?module=voipnew&action=pricelist_report_edit&id={$volume.report_id}">Настройка отчета</a>
+<a href="?module=voipnew&action=pricelist_report_edit&id={$volume.report_id}">п²п╟я│я┌я─п╬п╧п╨п╟ п╬я┌я┤п╣я┌п╟</a>

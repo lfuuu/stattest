@@ -126,16 +126,16 @@ function notifyManagers($data = array())
     if (count($data) == 0) return;
 
     foreach($data as $clientId => $r) {
-        $message = "Снятие номера с резерва произойдет через 3 дня\n";
-        $message .= 'Клиент: ' . $r['company'] . ' (id: '.$clientId.', '.$r['client'].')'."\n";
-        $message .= 'Номер'.(count($r["E164s"]) > 1 ? 'а' : '').': ' . implode(", ", $r['E164s']) . "\n";
+        $message = "п║п╫я▐я┌п╦п╣ п╫п╬п╪п╣я─п╟ я│ я─п╣п╥п╣я─п╡п╟ п©я─п╬п╦п╥п╬п╧п╢п╣я┌ я┤п╣я─п╣п╥ 3 п╢п╫я▐\n";
+        $message .= 'п п╩п╦п╣п╫я┌: ' . $r['company'] . ' (id: '.$clientId.', '.$r['client'].')'."\n";
+        $message .= 'п²п╬п╪п╣я─'.(count($r["E164s"]) > 1 ? 'п╟' : '').': ' . implode(", ", $r['E164s']) . "\n";
 
         echo "\n\n".$message;
 
         if (!strlen($r['manager'])) $r['manager'] = 'ava';
 
-        mail(ADMIN_EMAIL, "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"]);
-        mail("ava@mcn.ru", "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"]);
+        mail(ADMIN_EMAIL, "[stat] unreserv voip numbers", $message."п°п╣п╫п╣п╢п╤п╣я─: ".$r["manager"]);
+        mail("ava@mcn.ru", "[stat] unreserv voip numbers", $message."п°п╣п╫п╣п╢п╤п╣я─: ".$r["manager"]);
 
         ApiLk::createTT($message, $r['client'], $r['manager']);
     }

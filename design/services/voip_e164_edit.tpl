@@ -1,46 +1,46 @@
 <table align='center'>
-    <tr style='background-color:lightgreen;text-align:center'><td>Номер</td><td>{$e164}</td></tr>
-    <tr style='background-color:lightgreen;text-align:center'><td>Характеристика</td><td>
+    <tr style='background-color:lightgreen;text-align:center'><td>п²п╬п╪п╣я─</td><td>{$e164}</td></tr>
+    <tr style='background-color:lightgreen;text-align:center'><td>п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟</td><td>
         <table>
 
-            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>{if $is_using}Используется{else}Свободен{/if}</td></tr>
-            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>{if $client_id==764}Наш номер{else}Арендуемый{/if}</td></tr>
+            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>{if $is_using}п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐{else}п║п╡п╬п╠п╬п╢п╣п╫{/if}</td></tr>
+            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>{if $client_id==764}п²п╟я┬ п╫п╬п╪п╣я─{else}п░я─п╣п╫п╢я┐п╣п╪я▀п╧{/if}</td></tr>
             {if $beauty_level == 0}
-                <tr style='background-color:lightblue;text-align:right'><td><b>Не красивый</b></td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td><b>п²п╣ п╨я─п╟я│п╦п╡я▀п╧</b></td></tr>
             {elseif $beauty_level == 4}
-                <tr style='background-color:lightblue;text-align:right'><td><b>Красивый</b> (Бронзовый)</td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td><b>п я─п╟я│п╦п╡я▀п╧</b> (п▒я─п╬п╫п╥п╬п╡я▀п╧)</td></tr>
             {elseif $beauty_level == 3}
-                <tr style='background-color:lightblue;text-align:right'><td><b>Красивый</b> (Серебряный)</td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td><b>п я─п╟я│п╦п╡я▀п╧</b> (п║п╣я─п╣п╠я─я▐п╫я▀п╧)</td></tr>
             {elseif $beauty_level == 2}
-                <tr style='background-color:lightblue;text-align:right'><td><b>Красивый</b> (Золотой)</td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td><b>п я─п╟я│п╦п╡я▀п╧</b> (п≈п╬п╩п╬я┌п╬п╧)</td></tr>
             {elseif $beauty_level == 1}
-                <tr style='background-color:lightblue;text-align:right'><td><b>Красивый</b> (Платиновый)</td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td><b>п я─п╟я│п╦п╡я▀п╧</b> (п÷п╩п╟я┌п╦п╫п╬п╡я▀п╧)</td></tr>
             {/if}
             {if $is_using == false and $is_reserved}
-            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>Зарезервирован</td></tr>
+            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫</td></tr>
             {/if}
             {if $count_calls}
-            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>Звонков за 2 дня: {$count_calls}</td></tr>
+            <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>п≈п╡п╬п╫п╨п╬п╡ п╥п╟ 2 п╢п╫я▐: {$count_calls}</td></tr>
             {/if}
             {if $client_id and ($is_using or $client_id != 764)}
-                <tr style='background-color:lightblue;text-align:right'><td>Клиент: <a href='?module=clients&id={$client_id}' target='_blank'>{$client} {$company}</a></td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td>п п╩п╦п╣п╫я┌: <a href='?module=clients&id={$client_id}' target='_blank'>{$client} {$company}</a></td></tr>
             {/if}
         </table>
     </td></tr>
-    <tr style='background-color:lightgreen'><td style='text-align:center'>Действия</td><td>
+    <tr style='background-color:lightgreen'><td style='text-align:center'>п■п╣п╧я│я┌п╡п╦я▐</td><td>
 
-    Дейсвтия не доступны
+    п■п╣п╧я│п╡я┌п╦я▐ п╫п╣ п╢п╬я│я┌я┐п©п╫я▀
     {if false}
         <ul>
             {if $is_using == false}
                 {if $client_id==764}
-                    <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>Сделать арендуемым</a></li>
+                    <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>п║п╢п╣п╩п╟я┌я▄ п╟я─п╣п╫п╢я┐п╣п╪я▀п╪</a></li>
                 {else}
                     {if $is_reserved}
-                        <!-- li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>Снять резерв</a></li -->
+                        <!-- li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=0'>п║п╫я▐я┌я▄ я─п╣п╥п╣я─п╡</a></li -->
                     {elseif $current_client_id}
-                        <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve={$current_client_id}'>Зарезервировать за клиентом {$current_client}</a></li>
-                        <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=764'>Сделать своим</a></li>
+                        <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve={$current_client_id}'>п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟я┌я▄ п╥п╟ п╨п╩п╦п╣п╫я┌п╬п╪ {$current_client}</a></li>
+                        <li><a href='?module=services&action=e164_edit&e164={$e164}&reserve=764'>п║п╢п╣п╩п╟я┌я▄ я│п╡п╬п╦п╪</a></li>
                     {/if}
                 {/if}
             {/if}
@@ -51,17 +51,17 @@
 
 {if count($logs)>0}
 <table align='center'>
-    <tr><td colspan='2' style='text-align:center'>Операции с номером</td></tr>
+    <tr><td colspan='2' style='text-align:center'>п·п©п╣я─п╟я├п╦п╦ я│ п╫п╬п╪п╣я─п╬п╪</td></tr>
     {foreach from=$logs item='record'}
         <tr><td style='text-align:center;font-weight:bolder;color:#555'>{$record.human_time}</td><td>
         {if $record.action eq 'fix'}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>зафиксирован</b> за клиентом <a style='text-decoration:none;font-weight:bold' href='?module=clients&id={$record.client_id}'>{$record.client}</a>
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>п╥п╟я└п╦п╨я│п╦я─п╬п╡п╟п╫</b> п╥п╟ п╨п╩п╦п╣п╫я┌п╬п╪ <a style='text-decoration:none;font-weight:bold' href='?module=clients&id={$record.client_id}'>{$record.client}</a>
         {elseif $record.action eq 'unfix'}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>снят</b> с клиента <a href='?module=clients&id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>я│п╫я▐я┌</b> я│ п╨п╩п╦п╣п╫я┌п╟ <a href='?module=clients&id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
         {elseif $record.action eq 'invertReserved' and $record.client_id == 764}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>Сделан Своим</b>{else}<b>Сделан Арендуемым</b>{/if}
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>п║п╢п╣п╩п╟п╫ п║п╡п╬п╦п╪</b>{else}<b>п║п╢п╣п╩п╟п╫ п░я─п╣п╫п╢я┐п╣п╪я▀п╪</b>{/if}
         {elseif $record.action eq 'invertReserved'}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>Зарезервирован</b> за клиентом{else}<b>Снят резерв</b> с клиента{/if} <a href='?module=clients&id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫</b> п╥п╟ п╨п╩п╦п╣п╫я┌п╬п╪{else}<b>п║п╫я▐я┌ я─п╣п╥п╣я─п╡</b> я│ п╨п╩п╦п╣п╫я┌п╟{/if} <a href='?module=clients&id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
         {/if}
         </td></tr>
     {/foreach}

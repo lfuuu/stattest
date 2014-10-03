@@ -97,10 +97,10 @@ class Schema
         {
             try{
                 if(!$name) 
-                    throw new Exception("éÍÑ ÎÅ ÚÁÄÁÎÏ");
+                    throw new Exception("Ð˜Ð¼Ñ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½Ð¾");
                 if($db->GetRow("select * from r_schema where name ='".mysql_escape_string($name)."' and client_id = '".$clientId."'"))
                 {
-                    throw new Exception("óÈÅÍÁ Ó ÔÁËÉÍ ÉÍÅÎÅÍ ÕÖÅ ÓÕÝÅÓÔ×ÕÅÔ");
+                    throw new Exception("Ð¡Ñ…ÐµÐ¼Ð° Ñ Ñ‚Ð°ÐºÐ¸Ð¼ Ð¸Ð¼ÐµÐ½ÐµÐ¼ ÑƒÐ¶Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚");
                 }
                 
             }catch(Exception $e)
@@ -126,7 +126,7 @@ class Schema
     {
         include "schema_loader.php";
 
-        $aStatus = array("" => "", "busy" => "úÁÎÑÔ", "not_avail" => "îÅÄÏÓÔÕÐÅÎ","not_answer" => "îÅÔ ÏÔ×ÅÔÁ");
+        $aStatus = array("" => "", "busy" => "Ð—Ð°Ð½ÑÑ‚", "not_avail" => "ÐÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿ÐµÐ½","not_answer" => "ÐÐµÑ‚ Ð¾Ñ‚Ð²ÐµÑ‚Ð°");
 
         global $db, $design;
         $schemaId = $id;
@@ -164,16 +164,16 @@ class helper_schedule
     public function timesToText($v)
     {
         $arrDays = array(
-                "8" => array("title" => "÷ÓÅ ÄÎÉ", "smalltitle" => "÷ÓÅ ÄÎÉ"),
-                "1" => array("title" => "ðÏÎÅÄÅÌØÎÉË", "smalltitle" => "ðî"),
-                "2" => array("title" => "÷ÔÏÒÎÉË", "smalltitle" => "÷ô"),
-                "3" => array("title" => "óÒÅÄÁ", "smalltitle" => "óò"),
-                "4" => array("title" => "þÅÔ×ÅÒÇ", "smalltitle" => "þô"),
-                "5" => array("title" => "ðÑÔÎÉÃÁ", "smalltitle" => "ðô"),
-                "6" => array("title" => "óÕÂÂÏÔÁ", "smalltitle" => "óâ"),
-                "7" => array("title" => "÷ÏÓËÒÅÓÅÎØÅ", "smalltitle" => "÷ó"),
-                "9" => array("title" => "òÁÂÏÞÉÅ ÄÎÉ", "smalltitle" => "òÁÂÏÞÉÅ ÄÎÉ"),
-                "10" => array("title" => "÷ÙÈÏÄÎÙÅ", "smalltitle" => "÷ÙÈÏÄÎÙÅ")
+                "8" => array("title" => "Ð’ÑÐµ Ð´Ð½Ð¸", "smalltitle" => "Ð’ÑÐµ Ð´Ð½Ð¸"),
+                "1" => array("title" => "ÐŸÐ¾Ð½ÐµÐ´ÐµÐ»ÑŒÐ½Ð¸Ðº", "smalltitle" => "ÐŸÐ"),
+                "2" => array("title" => "Ð’Ñ‚Ð¾Ñ€Ð½Ð¸Ðº", "smalltitle" => "Ð’Ð¢"),
+                "3" => array("title" => "Ð¡Ñ€ÐµÐ´Ð°", "smalltitle" => "Ð¡Ð "),
+                "4" => array("title" => "Ð§ÐµÑ‚Ð²ÐµÑ€Ð³", "smalltitle" => "Ð§Ð¢"),
+                "5" => array("title" => "ÐŸÑÑ‚Ð½Ð¸Ñ†Ð°", "smalltitle" => "ÐŸÐ¢"),
+                "6" => array("title" => "Ð¡ÑƒÐ±Ð±Ð¾Ñ‚Ð°", "smalltitle" => "Ð¡Ð‘"),
+                "7" => array("title" => "Ð’Ð¾ÑÐºÑ€ÐµÑÐµÐ½ÑŒÐµ", "smalltitle" => "Ð’Ð¡"),
+                "9" => array("title" => "Ð Ð°Ð±Ð¾Ñ‡Ð¸Ðµ Ð´Ð½Ð¸", "smalltitle" => "Ð Ð°Ð±Ð¾Ñ‡Ð¸Ðµ Ð´Ð½Ð¸"),
+                "10" => array("title" => "Ð’Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ðµ", "smalltitle" => "Ð’Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ðµ")
                 );
 
         $cc = self::compactTimes($v);

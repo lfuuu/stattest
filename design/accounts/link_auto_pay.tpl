@@ -1,3 +1,3 @@
 
 <a href="importpayments.php?file={$filename}" target="_blank">
-	Обработать выписку по банку</a>
+	п·п╠я─п╟п╠п╬я┌п╟я┌я▄ п╡я▀п©п╦я│п╨я┐ п©п╬ п╠п╟п╫п╨я┐</a>

@@ -50,7 +50,7 @@ foreach(Trouble::find_by_sql(
                     "state_id" => $newStateId
                     ),
                 array(
-                    'comment'=> Encoding::toKoi8r("Заказ снят автоматически с резерва по истечении 7 дней"),
+                    'comment'=> "Заказ снят автоматически с резерва по истечении 7 дней",
                     'stage_id'=>$t->cur_stage_id
                     ),
                 "sys"

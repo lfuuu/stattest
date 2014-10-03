@@ -1,50 +1,50 @@
-<H2>Письма клиентам</H2>
-<H3>Редактирование письма</H3>
+<H2>п÷п╦я│я▄п╪п╟ п╨п╩п╦п╣п╫я┌п╟п╪</H2>
+<H3>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©п╦я│я▄п╪п╟</H3>
 <TABLE cellspacing=5 cellpadding=2 border=0 width=100%><FORM action="?" method=post id=form name=form><TR><TD width=85%>
 	<input type=hidden name=module value=mail>
 	<input type=hidden name=action value=edit>
 	<input type=hidden name=id value='{$template.job_id}'>
 	<input type=text name=subject style='width:100%' value='{$template.template_subject}'><br>
 	<textarea name=body id=body style='width:100%;height:250px'>{$template.template_body}</textarea><br>
-	<DIV align=center ><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+	<DIV align=center ><INPUT id=submit class=button type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄"></DIV>
 </TD><TD valign=top>
-<a href='#' onclick='form.body.value+="\n%CLIENT%";return false;'>логин клиента</a><br><br>
-<a href='#' onclick='form.body.value+="\n%CLIENT_NAME%";return false;'>полное название компании</a><br><br>
-<a href='#' onclick='form.body.value+="\n%ABILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>счета клиента за месяц</a><br><br>
-<a href='#' onclick='form.body.value+="\n%UBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%PBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%NBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Не полностью оплаченные(красные и желтые)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%SOGL_TELEKOM"+prompt("месяц","{$smarty.now|date_format:"%m"}")+"%";return false;'>Соглашение о передаче прав (Телеком)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>Приказ (Телеком)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>Уведомление (Телеком)</a><br><br>
-<a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>Новый директор Надточеева</a><br><br>
-<a href='#' onclick='form.body.value+="\n%DOGOVOR_TELEKOM%";return false;'>Договор</a><br><br>
+<a href='#' onclick='form.body.value+="\n%CLIENT%";return false;'>п╩п╬пЁп╦п╫ п╨п╩п╦п╣п╫я┌п╟</a><br><br>
+<a href='#' onclick='form.body.value+="\n%CLIENT_NAME%";return false;'>п©п╬п╩п╫п╬п╣ п╫п╟п╥п╡п╟п╫п╦п╣ п╨п╬п╪п©п╟п╫п╦п╦</a><br><br>
+<a href='#' onclick='form.body.value+="\n%ABILL"+prompt("п⌠п╬п╢-п╪п╣я│я▐я├","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>я│я┤п╣я┌п╟ п╨п╩п╦п╣п╫я┌п╟ п╥п╟ п╪п╣я│я▐я├</a><br><br>
+<a href='#' onclick='form.body.value+="\n%UBILL"+prompt("п⌠п╬п╢-п╪п╣я│я▐я├","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>п÷п╬п╩п╫п╬я│я┌я▄я▌ п╫п╣п╬п©п╩п╟я┤п╣п╫п╫я▀п╣(п╨я─п╟я│п╫я▀п╣)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%PBILL"+prompt("п⌠п╬п╢-п╪п╣я│я▐я├","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>п·п©п╩п╟я┤п╣п╫п╫я▀п╣ п╫п╣ п©п╬п╩п╫п╬я│я┌я▄я▌(п╤п╣п╩я┌я▀п╣)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%NBILL"+prompt("п⌠п╬п╢-п╪п╣я│я▐я├","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>п²п╣ п©п╬п╩п╫п╬я│я┌я▄я▌ п╬п©п╩п╟я┤п╣п╫п╫я▀п╣(п╨я─п╟я│п╫я▀п╣ п╦ п╤п╣п╩я┌я▀п╣)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%SOGL_TELEKOM"+prompt("п╪п╣я│я▐я├","{$smarty.now|date_format:"%m"}")+"%";return false;'>п║п╬пЁп╩п╟я┬п╣п╫п╦п╣ п╬ п©п╣я─п╣п╢п╟я┤п╣ п©я─п╟п╡ (п╒п╣п╩п╣п╨п╬п╪)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%ORDER_TELEKOM%";return false;'>п÷я─п╦п╨п╟п╥ (п╒п╣п╩п╣п╨п╬п╪)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%NOTICE_TELEKOM%";return false;'>пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ (п╒п╣п╩п╣п╨п╬п╪)</a><br><br>
+<a href='#' onclick='form.body.value+="\n%DIRECTOR_TELEKOM%";return false;'>п²п╬п╡я▀п╧ п╢п╦я─п╣п╨я┌п╬я─ п²п╟п╢я┌п╬я┤п╣п╣п╡п╟</a><br><br>
+<a href='#' onclick='form.body.value+="\n%DOGOVOR_TELEKOM%";return false;'>п■п╬пЁп╬п╡п╬я─</a><br><br>
 </TD></TR></FORM></TABLE>
 
 {if $template.job_id}
-<H3>Отправка письма</H3>
+<H3>п·я┌п©я─п╟п╡п╨п╟ п©п╦я│я▄п╪п╟</H3>
 {if $template.job_state=='PM'}
-Это - сообщение.<br>
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>Сделать письмом</a><br>
+п╜я┌п╬ - я│п╬п╬п╠я┴п╣п╫п╦п╣.<br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>п║п╢п╣п╩п╟я┌я▄ п©п╦я│я▄п╪п╬п╪</a><br>
 {elseif $template.job_state=='stop'}
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=test'>Тестовая отправка писем</a><br>
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=ready'>Реальная отправка писем</a><br>
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=PM'>Сделать сообщением</a><br><br>
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=news'>Отправка новостей</a><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=test'>п╒п╣я│я┌п╬п╡п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ п©п╦я│п╣п╪</a><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=ready'>п═п╣п╟п╩я▄п╫п╟я▐ п╬я┌п©я─п╟п╡п╨п╟ п©п╦я│п╣п╪</a><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=PM'>п║п╢п╣п╩п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣п╪</a><br><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=news'>п·я┌п©я─п╟п╡п╨п╟ п╫п╬п╡п╬я│я┌п╣п╧</a><br>
 {else}
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>Запретить отправку</a><br>
+<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>п≈п╟п©я─п╣я┌п╦я┌я▄ п╬я┌п©я─п╟п╡п╨я┐</a><br>
 {/if}
 <br>
-<a onclick="$('#mail_files').toggle();"><img class="icon" alt="Изменить" src="{$IMAGES_PATH}icons/edit.gif"></a> <span>Прикрепить файл</span>
+<a onclick="$('#mail_files').toggle();"><img class="icon" alt="п≤п╥п╪п╣п╫п╦я┌я▄" src="{$IMAGES_PATH}icons/edit.gif"></a> <span>п÷я─п╦п╨я─п╣п©п╦я┌я▄ я└п╟п╧п╩</span>
 <div id="mail_files" style="{if !$count_files}display: none;{/if}font-size: 10px;">
 	<table cellspacing=4 cellpadding=2 border=0>
-	<tr><th>имя файла</th><th>&nbsp;</th></tr>
+	<tr><th>п╦п╪я▐ я└п╟п╧п╩п╟</th><th>&nbsp;</th></tr>
 	{foreach from=$files item=item}<tr>
 		<td style="font-size: 10px;">
 			<a href='{$LINK_START}module=mail&file_id={$item.id}&action=file_get&job_id={$job_id}'>{$item.name}</a> 
 		</td>
 		<td style="font-size: 10px;">
-			<a href='{$LINK_START}module=mail&action=file_del&file_id={$item.id}&job_id={$job_id}' onclick="return confirm('Вы уверены, что хотите удалить файл {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>
+			<a href='{$LINK_START}module=mail&action=file_del&file_id={$item.id}&job_id={$job_id}' onclick="return confirm('п▓я▀ я┐п╡п╣я─п╣п╫я▀, я┤я┌п╬ я┘п╬я┌п╦я┌п╣ я┐п╢п╟п╩п╦я┌я▄ я└п╟п╧п╩ {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="пёп╢п╟п╩п╦я┌я▄"></a>
 		</td>
 	</tr>{/foreach}
 	<FORM action="?" method=post enctype="multipart/form-data"><tr>
@@ -52,23 +52,23 @@
 		<input type=hidden name="action" value="file_put">
 		<input type=hidden name="job_id" value="{$job_id}">
 		<td><input style="font-size: 10px;" type=file name=file></td>
-		<td><input style="font-size: 10px;" class=button type=submit value="загрузить"></td>
+		<td><input style="font-size: 10px;" class=button type=submit value="п╥п╟пЁя─я┐п╥п╦я┌я▄"></td>
 	</tr></form>
 	</table>
 </div>
 <br><br>
-<a href='{$LINK_START}module=mail&action=client&id={$template.job_id}'>Добавить клиентов</a>
+<a href='{$LINK_START}module=mail&action=client&id={$template.job_id}'>п■п╬п╠п╟п╡п╦я┌я▄ п╨п╩п╦п╣п╫я┌п╬п╡</a>
 
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
 <TR>
   <TD class=header vAlign=bottom>&nbsp;</TD>
   <TD class=header vAlign=bottom>&nbsp;</TD>
-  <TD class=header vAlign=bottom>Клиент</TD>
-  <TD class=header vAlign=bottom>Объекты</TD>
-  <TD class=header vAlign=bottom>Состояние</TD>
-  <TD class=header vAlign=bottom>Дата отправки</TD>
-  <TD class=header valign=bottom>Сообщение об ошибке, если есть</TD>
+  <TD class=header vAlign=bottom>п п╩п╦п╣п╫я┌</TD>
+  <TD class=header vAlign=bottom>п·п╠я┼п╣п╨я┌я▀</TD>
+  <TD class=header vAlign=bottom>п║п╬я│я┌п╬я▐п╫п╦п╣</TD>
+  <TD class=header vAlign=bottom>п■п╟я┌п╟ п╬я┌п©я─п╟п╡п╨п╦</TD>
+  <TD class=header valign=bottom>п║п╬п╬п╠я┴п╣п╫п╦п╣ п╬п╠ п╬я┬п╦п╠п╨п╣, п╣я│п╩п╦ п╣я│я┌я▄</TD>
 </TR>
 {foreach from=$mail_letter item=r name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}{if $r.letter_state=='sent'} style='color:gray'{/if}>

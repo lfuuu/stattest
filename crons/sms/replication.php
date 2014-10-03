@@ -1,5 +1,5 @@
 <?php
-define('QUERY_PACKET_SIZE_LIMIT', (1024*1024)*15 ); //15íÂ
+define('QUERY_PACKET_SIZE_LIMIT', (1024*1024)*15 ); //15ÐœÐ±
 define('PATH_TO_ROOT','../../');
 include PATH_TO_ROOT."conf.php";
 

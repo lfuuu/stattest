@@ -1,10 +1,10 @@
 <?php
 class m_incomegoods_head extends IModuleHead{
 	public $module_name = 'incomegoods';
-	public $module_title = 'úÁËÕÐËÉ';
+	public $module_title = 'Ð—Ð°ÐºÑƒÐ¿ÐºÐ¸';
 
 	public $rights=array(
-		'incomegoods'=>array('úÁËÕÐËÉ','access,admin','ÄÏÓÔÕÐ,ÁÄÍÉÎÉÓÔÒÉÒÏ×ÁÎÉÅ')
+		'incomegoods'=>array('Ð—Ð°ÐºÑƒÐ¿ÐºÐ¸','access,admin','Ð´Ð¾ÑÑ‚ÑƒÐ¿,Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ')
 	);
 
 	public $actions=array(
@@ -21,7 +21,7 @@ class m_incomegoods_head extends IModuleHead{
 	);
 
 	public $menu=array(
-		array('úÁËÁÚÙ ÐÏÓÔÁ×ÝÉËÕ','order_list'),
+		array('Ð—Ð°ÐºÐ°Ð·Ñ‹ Ð¿Ð¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÑƒ','order_list'),
 	);
 }
 ?>

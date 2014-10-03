@@ -1,37 +1,37 @@
-<h1>Бухгалтерские отчеты</h1>
+<h1>п▒я┐я┘пЁп╟п╩я┌п╣я─я│п╨п╦п╣ п╬я┌я┤п╣я┌я▀</h1>
 
 <form action="?module=accounts&action=accounts_reports" method="POST">
 <table align="center" border="1">
 <tr>
-	<TD><INPUT type="radio" name="report" value="sale_book">книга продаж</td>
-	<td><INPUT type="radio" name="report" value="services_month">отчет по услугам за месяц</TD>
-	<td><INPUT type="radio" name="report" value="services_quartal">отчет по услугам за период</TD>
-	<TD><INPUT type="radio" name="report" value="report_month">отчет за месяц(новый)</TD>
+	<TD><INPUT type="radio" name="report" value="sale_book">п╨п╫п╦пЁп╟ п©я─п╬п╢п╟п╤</td>
+	<td><INPUT type="radio" name="report" value="services_month">п╬я┌я┤п╣я┌ п©п╬ я┐я│п╩я┐пЁп╟п╪ п╥п╟ п╪п╣я│я▐я├</TD>
+	<td><INPUT type="radio" name="report" value="services_quartal">п╬я┌я┤п╣я┌ п©п╬ я┐я│п╩я┐пЁп╟п╪ п╥п╟ п©п╣я─п╦п╬п╢</TD>
+	<TD><INPUT type="radio" name="report" value="report_month">п╬я┌я┤п╣я┌ п╥п╟ п╪п╣я│я▐я├(п╫п╬п╡я▀п╧)</TD>
 	
 </tr>
 <tr>
-<td>Компания:</td><td>
+<td>п п╬п╪п©п╟п╫п╦я▐:</td><td>
 <SELECT name="firma">
-  <option value="mcn">ООО MCN</option>
-  <option value="markomnet">МАРКОМНЕТ</option>
-  <option value="all">Все</option>
+  <option value="mcn">п·п·п· MCN</option>
+  <option value="markomnet">п°п░п═п п·п°п²п∙п╒</option>
+  <option value="all">п▓я│п╣</option>
 </SELECT>
 </td>
 </tr>
 <tr>
-<td>Период</td>
+<td>п÷п╣я─п╦п╬п╢</td>
 	<TD><INPUT type="text" name="period" value="2005-01" size="10">
 	</TD>
 	<TD><INPUT type="text" name="period_to" value="2005-03" size="10">
 	</TD>
 </tr>
 <tr>
-	<TD>Проводные <INPUT type="radio" name="provod" value="pr"></td>
-	<td>Все<INPUT type="radio" name="provod" value="all"></TD>
+	<TD>п÷я─п╬п╡п╬п╢п╫я▀п╣ <INPUT type="radio" name="provod" value="pr"></td>
+	<td>п▓я│п╣<INPUT type="radio" name="provod" value="all"></TD>
 </tr>
 
 <tr>
-<TD colspan="2"><INPUT type="submit" value="Сформировать отчет">
+<TD colspan="2"><INPUT type="submit" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤п╣я┌">
 </TD>
 </tr>
 

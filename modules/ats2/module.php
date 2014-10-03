@@ -51,7 +51,7 @@ function sqlClient($fixClient = null)
     $c = getClientId($fixClient);
 
     if(!$c) {
-        die("ëÌÉÅÎÔ ÎÅ ×ÙÂÒÁÎ");
+        die("ÐšÐ»Ð¸ÐµÐ½Ñ‚ Ð½Ðµ Ð²Ñ‹Ð±Ñ€Ð°Ð½");
         return "true = false";
     }
     return "client_id = ".$c;
@@ -73,7 +73,7 @@ class m_ats2 extends IModule
 
 		if (!access($act[0],$act[1])) return;
 
-        if(!$fixclient) {trigger_error("ëÌÉÅÎÔ ÎÅ ×ÙÂÒÁÎ"); return;}
+        if(!$fixclient) {trigger_error("ÐšÐ»Ð¸ÐµÐ½Ñ‚ Ð½Ðµ Ð²Ñ‹Ð±Ñ€Ð°Ð½"); return;}
 
         try{
             /*
@@ -282,7 +282,7 @@ class m_ats2 extends IModule
         include_once INCLUDE_PATH."formconstructor.php";
 
         if(!$a){
-            trigger_error("áËËÁÕÎÔ ÎÅ ÎÁÊÄÅÎ");
+            trigger_error("ÐÐºÐºÐ°ÑƒÐ½Ñ‚ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½");
             return;
         }
 
@@ -338,7 +338,7 @@ class m_ats2 extends IModule
 
     private function save($d)
     {
-        if($d["password"] == "********") // ÎÅ ÉÚÍÅÎÑÅÍ ÐÁÒÏÌØ, ÅÓÌÉ ÏÎ ÎÅ ÐÏÍÅÎÑÌÓÑ
+        if($d["password"] == "********") // Ð½Ðµ Ð¸Ð·Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ, ÐµÑÐ»Ð¸ Ð¾Ð½ Ð½Ðµ Ð¿Ð¾Ð¼ÐµÐ½ÑÐ»ÑÑ
         {
             if($d["id"] == 0)
             {
@@ -399,25 +399,25 @@ class m_ats2 extends IModule
             $this->check_account($d);
 
         if($d["host_type"] != "static")
-            checker::isEmpty($d["password"], "ðÁÒÏÌØ ÎÅ ÚÁÄÁÎ!");
+            checker::isEmpty($d["password"], "ÐŸÐ°Ñ€Ð¾Ð»ÑŒ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½!");
 
 
         if(isset($map["subaccount_count"]))
         {
-            checker::isDigits($d["subaccount_count"], "ëÏÌÉÞÅÓÔ×Ï ÌÉÎÉÊ ÚÁÄÁÎÏ ÎÅ ×ÅÒÎÏ!");
-            checker::number_isBetween($d["subaccount_count"], 0,99, "ëÏÌÉÞÅÓÔ×Ï ÌÉÎÉÊ ÚÁÄÁÎÏ ÎÅ ×ÅÒÎÏ!");
+            checker::isDigits($d["subaccount_count"], "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð»Ð¸Ð½Ð¸Ð¹ Ð·Ð°Ð´Ð°Ð½Ð¾ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
+            checker::number_isBetween($d["subaccount_count"], 0,99, "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð»Ð¸Ð½Ð¸Ð¹ Ð·Ð°Ð´Ð°Ð½Ð¾ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
         }
 
         if(isset($map["host_type"]))
             if($d["host_type"] == "static")
             {
-                checker::isEmpty($d["host_static"], "îÅ ÚÁÄÁÎ ÓÔÁÔÉÞÅÓËÉÊ host!");
-                checker::isValideIp($d["host_static"], "óÔÁÔÉÞÅÓËÉÊ host ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
+                checker::isEmpty($d["host_static"], "ÐÐµ Ð·Ð°Ð´Ð°Ð½ ÑÑ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ host!");
+                checker::isValideIp($d["host_static"], "Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ host Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
 
                 if(!$d["is_group"])
                 {
-                    checker::isDigits($d["host_port_static"], "óÔÁÔÉÞÅÓËÉÊ ÐÏÒÔ ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
-                    checker::number_isBetween($d["host_port_static"], 1, 65536, "óÔÁÔÉÞÅÓËÉÊ ÐÏÒÔ ÚÁÄÁÎ ÎÅ ×ÅÒÎÏ!");
+                    checker::isDigits($d["host_port_static"], "Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð¿Ð¾Ñ€Ñ‚ Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
+                    checker::number_isBetween($d["host_port_static"], 1, 65536, "Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð¿Ð¾Ñ€Ñ‚ Ð·Ð°Ð´Ð°Ð½ Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾!");
                 }
 
                 if($d["id"] == 0 && $d["permit_on"] == "yes")
@@ -425,17 +425,17 @@ class m_ats2 extends IModule
                     if(strpos($d["permit"], $d["host_static"]) === false)
                         $d["permit"] .= ($d["permit"] ? "," : "").$d["host_static"]."/32";
                 }else{
-                    //checker::isEmpty($data["permit"], "åÓÌÉ ÚÁÄÁÎ ÓÔÁÔÉÞÅÓËÉÊ Host IP, ÎÅÏÂÈÏÄÉÍÏ ÓÄÅÌÁÔØ ÐÒÉ×ÑÚËÕ");
+                    //checker::isEmpty($data["permit"], "Ð•ÑÐ»Ð¸ Ð·Ð°Ð´Ð°Ð½ ÑÑ‚Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Host IP, Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ");
                 }
             }
 
         if(isset($map["permit_on"]))
             if($d["permit_on"] == "yes" && $d["host_type"] != "static")
-                checker::isEmpty($d["permit"], "ðÒÉ×ÑÚËÁ ×ËÌÀÞÅÎÁ, ÎÏ ÎÅ ÚÁÄÁÎÁ!");
+                checker::isEmpty($d["permit"], "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ° Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½Ð°, Ð½Ð¾ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½Ð°!");
 
-        checker::isEmpty($d["codec"], "úÁÄÁÊÔÅ ËÏÄÅËÉ!");
+        checker::isEmpty($d["codec"], "Ð—Ð°Ð´Ð°Ð¹Ñ‚Ðµ ÐºÐ¾Ð´ÐµÐºÐ¸!");
 
-        checker::isEmpty($d["context"], "ëÏÎÔÅËÓÔ ÎÅ ÚÁÄÁÎ!");
+        checker::isEmpty($d["context"], "ÐšÐ¾Ð½Ñ‚ÐµÐºÑÑ‚ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½!");
     }
 
     private function check_account(&$d)
@@ -448,7 +448,7 @@ class m_ats2 extends IModule
                     where 
                             serial='".$d["serial"]."' 
                         and sequence='".$d["sequence"]."'"))
-            throw new Exception("áËËÁÕÎÔ ÕÖÅ ÓÕÝÅÓÔ×ÕÅÔ");
+            throw new Exception("ÐÐºÐºÐ°ÑƒÐ½Ñ‚ ÑƒÐ¶Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚");
     }
 
 
@@ -456,12 +456,12 @@ class m_ats2 extends IModule
     {
         $map = array();
 
-        $map["account"] = array("title" => "áËËÁÕÎÔ", "type" => "info");
+        $map["account"] = array("title" => "ÐÐºÐºÐ°ÑƒÐ½Ñ‚", "type" => "info");
 
         if($isGroup)
             $map["subaccount_count"] = array(
                     "type" => "text",
-                    "title" => "ëÏÌ-×Ï ÐÏÄËÌÀÞÅÎÉÊ"
+                    "title" => "ÐšÐ¾Ð»-Ð²Ð¾ Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ð¹"
                     );
 
         $map["host_type"] = array(
@@ -483,7 +483,7 @@ class m_ats2 extends IModule
                 );
 
         $map["password"] =array(
-                "title" => "ðÁÒÏÌØ",
+                "title" => "ÐŸÐ°Ñ€Ð¾Ð»ÑŒ",
                 "type" => "password_ats2"
                 );
         $map["dtmf"] = array(
@@ -497,22 +497,22 @@ class m_ats2 extends IModule
                 );
 
         $map["insecure"] = array(
-                "title" => "á×ÔÏÒÉÚÁÃÉÑ",
-                "hint" => "ÏÐÃÉÑ: insecure",
+                "title" => "ÐÐ²Ñ‚Ð¾Ñ€Ð¸Ð·Ð°Ñ†Ð¸Ñ",
+                "hint" => "Ð¾Ð¿Ñ†Ð¸Ñ: insecure",
                 "type" => "select",
                 "data" => array(array("type" => "array", "array" => array(
-                            "" => "ðÏÌÎÁÑ",
-                            "invite" => "ðÏ IP É ÐÏÒÔÕ",
-                            "invite,port" => "ôÏÌØËÏ ÐÏ IP"
+                            "" => "ÐŸÐ¾Ð»Ð½Ð°Ñ",
+                            "invite" => "ÐŸÐ¾ IP Ð¸ Ð¿Ð¾Ñ€Ñ‚Ñƒ",
+                            "invite,port" => "Ð¢Ð¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾ IP"
                             )))
                 );
         $map["permit_on"] = array(
-                "title" => "ðÒÉ×ÑÚËÁ",
+                "title" => "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ°",
                 "type" => "select",
-                "data" => array(array("type" => "array", "array" => array("yes" => "äÁ", "no" => "îÅÔ", "auto" => "á×ÔÏ")))
+                "data" => array(array("type" => "array", "array" => array("yes" => "Ð”Ð°", "no" => "ÐÐµÑ‚", "auto" => "ÐÐ²Ñ‚Ð¾")))
                 );
         $map["permit"] = array(
-                "title" => "ðÒÉ×ÑÚËÁ Ë IP",
+                "title" => "ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ° Ðº IP",
                 "type" => "permit_net",
                 "condition" => array("eq", "permit_on", "yes")
                 );
@@ -520,14 +520,14 @@ class m_ats2 extends IModule
                 "type" => "break"
                 );
         $map["codec"] = array(
-                "title" => "ëÏÄÅËÉ",
+                "title" => "ÐšÐ¾Ð´ÐµÐºÐ¸",
                 "type" => "sort_list",
                 "data_all" => array(array("type" => "array", "array" => 
                         array("alaw" => "alaw", "g729" => "g729", "gsm" => "GSM", "ulaw" => "ulaw")
                         )),
                 );
         $map["context"] = array(
-                "title" => "ëÏÎÔÅËÓÔ",
+                "title" => "ÐšÐ¾Ð½Ñ‚ÐµÐºÑÑ‚",
                 "type" => "text"
                 );
 

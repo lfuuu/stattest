@@ -1,13 +1,13 @@
-      <H2>Технические площадки</H2>
+      <H2>п╒п╣я┘п╫п╦я┤п╣я│п╨п╦п╣ п©п╩п╬я┴п╟п╢п╨п╦</H2>
 {if access('routers_routers','add')}
-<a href='{$LINK_START}module=routers&action=datacenter_add'>Добавить</a><br>
+<a href='{$LINK_START}module=routers&action=datacenter_add'>п■п╬п╠п╟п╡п╦я┌я▄</a><br>
 {/if}
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="15%">Название</TD>
-          <TD class=header vAlign=bottom width="15%">Адрес</TD>
-          <TD class=header vAlign=bottom width="15%">Комментарий</TD>
+          <TD class=header vAlign=bottom width="15%">п²п╟п╥п╡п╟п╫п╦п╣</TD>
+          <TD class=header vAlign=bottom width="15%">п░п╢я─п╣я│</TD>
+          <TD class=header vAlign=bottom width="15%">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</TD>
           <TD class=header vAlign=bottom width="15%">&nbsp;</TD>
 		</TR>
 {foreach from=$ds item=item name=outer}
@@ -15,7 +15,7 @@
           <TD><a href='{$LINK_START}module=routers&action=datacenter_apply&id={$item.id}'>{$item.name}</a></TD>
           <TD>{$item.address}</TD>
           <TD>{$item.comment}</TD>
-          <TD>{if $item.count == 0}<a href='{$LINK_START}module=routers&action=datacenter_apply&dbform_action=delete&dbform[id]={$item.id}'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>удалить</a>{else}&nbsp;{/if}</TD>
+          <TD>{if $item.count == 0}<a href='{$LINK_START}module=routers&action=datacenter_apply&dbform_action=delete&dbform[id]={$item.id}'><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>я┐п╢п╟п╩п╦я┌я▄</a>{else}&nbsp;{/if}</TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>

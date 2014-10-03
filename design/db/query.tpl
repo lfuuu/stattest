@@ -1,4 +1,4 @@
-<H2>База данных</H2>
+<H2>п▒п╟п╥п╟ п╢п╟п╫п╫я▀я┘</H2>
 <H3>{$query_table}:</H3>
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY><TR>
@@ -23,4 +23,4 @@
 {/foreach}
 
 </TBODY></TABLE>
-<a href='{$LINK_START}&module=db&table={$query_table}&action=edit'>Добавить</a>
+<a href='{$LINK_START}&module=db&table={$query_table}&action=edit'>п■п╬п╠п╟п╡п╦я┌я▄</a>

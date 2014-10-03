@@ -1,15 +1,15 @@
-<H2>Мониторинг</H2>
-<H3>Список VIP-клиентов</H3>
+<H2>п°п╬п╫п╦я┌п╬я─п╦п╫пЁ</H2>
+<H3>п║п©п╦я│п╬п╨ VIP-п╨п╩п╦п╣п╫я┌п╬п╡</H3>
 {if access('monitoring','edit')}
-	<a href='{$LINK_START}module=monitoring&action=add'>Добавить</a>
+	<a href='{$LINK_START}module=monitoring&action=add'>п■п╬п╠п╟п╡п╦я┌я▄</a>
 {/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 <TR>
-	<TD class=header vAlign=bottom>клиент/роутер</TD>
-	<TD class=header vAlign=bottom><b>число неудачных пингов</b></TD>
+	<TD class=header vAlign=bottom>п╨п╩п╦п╣п╫я┌/я─п╬я┐я┌п╣я─</TD>
+	<TD class=header vAlign=bottom><b>я┤п╦я│п╩п╬ п╫п╣я┐п╢п╟я┤п╫я▀я┘ п©п╦п╫пЁп╬п╡</b></TD>
 	<TD class=header vAlign=bottom>e-mail</TD>
-	<TD class=header vAlign=bottom>телефон</TD>
+	<TD class=header vAlign=bottom>я┌п╣п╩п╣я└п╬п╫</TD>
 	<TD class=header vAlign=bottom>&nbsp;</TD>
 </TR>
 {foreach from=$monitoring item=item name=outer}
@@ -17,15 +17,15 @@
 {if $item.client}
 	<TD vAlign=middle><a href="{$LINK_START}module=clients&id={$item.client}">{$item.client}</a></TD>
 {else}
-	<TD vAlign=middle><a href="{$LINK_START}module=routers&id={$item.router}">{$item.router}</a> (роутер)</TD>
+	<TD vAlign=middle><a href="{$LINK_START}module=routers&id={$item.router}">{$item.router}</a> (я─п╬я┐я┌п╣я─)</TD>
 {/if}
 	<TD vAlign=middle>{$item.num_unsucc}</TD>
 	<TD vAlign=middle>{$item.email}</TD>
 	<TD vAlign=middle>{$item.phone}</TD>
 	<TD vAlign=middle>
 {if access('monitoring','edit')}
-	<a href='{$LINK_START}module=monitoring&action=edit&id={$item.id}'>редактировать</a>
-	<a href='{$LINK_START}module=monitoring&action=apply&dbaction=delete&keys[id]={$item.id}'>удалить</a>
+	<a href='{$LINK_START}module=monitoring&action=edit&id={$item.id}'>я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄</a>
+	<a href='{$LINK_START}module=monitoring&action=apply&dbaction=delete&keys[id]={$item.id}'>я┐п╢п╟п╩п╦я┌я▄</a>
 {/if}
 	
 	&nbsp;</TD>

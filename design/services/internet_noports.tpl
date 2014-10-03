@@ -1,15 +1,15 @@
-<H2>Услуги</H2>
-<H3>Интернет подключения с непрописанным (или несуществующим) портом</H3>
+<H2>пёя│п╩я┐пЁп╦</H2>
+<H3>п≤п╫я┌п╣я─п╫п╣я┌ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐ я│ п╫п╣п©я─п╬п©п╦я│п╟п╫п╫я▀п╪ (п╦п╩п╦ п╫п╣я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╪) п©п╬я─я┌п╬п╪</H3>
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
 
 <TR><TR><TD colspan="5"></TD></TR>
 <TR>
-	<TD class=header vAlign=bottom width="10%">клиент</TD>
-	<TD class=header vAlign=bottom width="17%">дата подкл./откл.</TD>
-	<TD class=header vAlign=bottom width="12%">узел :: порт</TD>
-	<TD class=header vAlign=bottom width="14%">сеть</TD>
+	<TD class=header vAlign=bottom width="10%">п╨п╩п╦п╣п╫я┌</TD>
+	<TD class=header vAlign=bottom width="17%">п╢п╟я┌п╟ п©п╬п╢п╨п╩./п╬я┌п╨п╩.</TD>
+	<TD class=header vAlign=bottom width="12%">я┐п╥п╣п╩ :: п©п╬я─я┌</TD>
+	<TD class=header vAlign=bottom width="14%">я│п╣я┌я▄</TD>
 </TR>
 	{foreach from=$services_nets item=net name=inner}
 		<tr>
@@ -18,7 +18,7 @@
 			{$net.actual_from}/{$net.actual_to}</a></td>
 			<td>{if $net.port=='mgts'}{$net.node}{else}<a href='{$LINK_START}module=routers&id={$net.node}'>{$net.node}</a>{/if}::{$net.port}</td>
 			<td>{ipstat net=$net.net}</td>
-			<td><a href="create_port.php?client={$net.client}&net_id={$net.id}" target="_blank">создать</a></td>
+			<td><a href="create_port.php?client={$net.client}&net_id={$net.id}" target="_blank">я│п╬п╥п╢п╟я┌я▄</a></td>
 		</tr>	
 	{/foreach}
 </tbody>

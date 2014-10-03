@@ -106,7 +106,7 @@ class Modules {
 				$this->modules[$m]=$m;
 				$GLOBALS['module_'.$m] = new $classname();
 			} else {
-				trigger_error("Невозможно подключить модуль ".$m);
+				trigger_error("п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п©п╬п╢п╨п╩я▌я┤п╦я┌я▄ п╪п╬п╢я┐п╩я▄ ".$m);
 			}
 		}
 	}	
@@ -126,7 +126,7 @@ class Modules {
 		global $$v;
 		if (isset($$v)) {
 			$$v->GetMain($action,$fixclient);
-		} else trigger_error("Модуль не существует");
+		} else trigger_error("п°п╬п╢я┐п╩я▄ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
 	}
 }
 	

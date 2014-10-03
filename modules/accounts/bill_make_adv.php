@@ -10,9 +10,9 @@
 		exit;
     }
     if (!isset($_GET['go'])) {
-		echo "<form action='?go=1&client=".$client."' method=post>Размер задатка: <input type=text name=sum_virtual value='".SUM_ADVANCE."'>";
-		echo "<br>Текст: <input type=text name=text value='Задаток за подключение интернет-канала'><br>";
-		echo "<input type=submit value='выставить'></form><br>";
+		echo "<form action='?go=1&client=".$client."' method=post>п═п╟п╥п╪п╣я─ п╥п╟п╢п╟я┌п╨п╟: <input type=text name=sum_virtual value='".SUM_ADVANCE."'>";
+		echo "<br>п╒п╣п╨я│я┌: <input type=text name=text value='п≈п╟п╢п╟я┌п╬п╨ п╥п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╦п╫я┌п╣я─п╫п╣я┌-п╨п╟п╫п╟п╩п╟'><br>";
+		echo "<input type=submit value='п╡я▀я│я┌п╟п╡п╦я┌я▄'></form><br>";
 		return;
 	}
 	$sum_virtual=floatval($_POST['sum_virtual']);
@@ -22,5 +22,5 @@
 	$bill_no=do_make_bill_generate_number(substr($period,0,4).substr($period,5,2));
 	do_make_add_line($bill_no,$text,1,0,"${period}-01");
 	do_make_bill_register($bill_no,$bill_date,$client,0,'advance',0,$sum_virtual);
-	echo "Счёт выставлен";
+	echo "п║я┤я▒я┌ п╡я▀я│я┌п╟п╡п╩п╣п╫";
 ?>

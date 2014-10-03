@@ -1,10 +1,10 @@
 <?php
 class m_data_head extends IModuleHead{
 	public $module_name = 'data';
-	public $module_title = 'Данные справочников';
+	public $module_title = 'п■п╟п╫п╫я▀п╣ я│п©я─п╟п╡п╬я┤п╫п╦п╨п╬п╡';
 
 	public $rights=array(
-		'data'=>array('Данные справочников','access','доступ')
+		'data'=>array('п■п╟п╫п╫я▀п╣ я│п©я─п╟п╡п╬я┤п╫п╦п╨п╬п╡','access','п╢п╬я│я┌я┐п©')
 	);
 
 	public $actions=array(

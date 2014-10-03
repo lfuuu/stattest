@@ -1,15 +1,15 @@
-      <H2>Список роутеров</H2>
+      <H2>п║п©п╦я│п╬п╨ я─п╬я┐я┌п╣я─п╬п╡</H2>
 {if access('routers_routers','add')}
-<a href='{$LINK_START}module=routers&action=r_add'>Добавить роутер</a><br>
+<a href='{$LINK_START}module=routers&action=r_add'>п■п╬п╠п╟п╡п╦я┌я▄ я─п╬я┐я┌п╣я─</a><br>
 {/if}
       <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
         <TBODY>
         <TR>
-          <TD class=header vAlign=bottom width="15%">Роутер</TD>
-          <TD class=header vAlign=bottom width="15%">Телефон</TD>
-          <TD class=header vAlign=bottom width="25%">Адрес</TD>
-          <TD class=header vAlign=bottom width="20%">IP сети</TD>
-          <TD class=header vAlign=bottom width="15%">Номер модема</TD>
+          <TD class=header vAlign=bottom width="15%">п═п╬я┐я┌п╣я─</TD>
+          <TD class=header vAlign=bottom width="15%">п╒п╣п╩п╣я└п╬п╫</TD>
+          <TD class=header vAlign=bottom width="25%">п░п╢я─п╣я│</TD>
+          <TD class=header vAlign=bottom width="20%">IP я│п╣я┌п╦</TD>
+          <TD class=header vAlign=bottom width="15%">п²п╬п╪п╣я─ п╪п╬п╢п╣п╪п╟</TD>
           <TD class=header vAlign=bottom width="10%">&nbsp;</TD>
 		</TR>
 {foreach from=$routers item=item name=outer}
@@ -19,7 +19,7 @@
           <TD>{$item.location}</TD>
           <TD>{ipstat net=$item.net}</TD>
           <TD>{$item.adsl_modem_serial}</TD>
-          <TD><a href='{$LINK_START}module=routers&action=r_apply&dbaction=delete&keys[router]={$item.router}'>удалить</a></TD>
+          <TD><a href='{$LINK_START}module=routers&action=r_apply&dbaction=delete&keys[router]={$item.router}'>я┐п╢п╟п╩п╦я┌я▄</a></TD>
 </TR>
 {/foreach}
 </TBODY></TABLE>

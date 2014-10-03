@@ -1,13 +1,13 @@
 <H2>Asterisk</H2>
-<h3>Перезагрузка конфигов</h3>
-<a href='{$LINK_START}module=phone&action=asterisk_reload'>Перезагрузить</a><br>
+<h3>п÷п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╟ п╨п╬п╫я└п╦пЁп╬п╡</h3>
+<a href='{$LINK_START}module=phone&action=asterisk_reload'>п÷п╣я─п╣п╥п╟пЁя─я┐п╥п╦я┌я▄</a><br>
 <br><br>
 <hr>
-<h3>extensions.conf (первые 1024 байта)</h3>
+<h3>extensions.conf (п©п╣я─п╡я▀п╣ 1024 п╠п╟п╧я┌п╟)</h3>
 <pre>{$conf_ext}</pre>
 <br><br>
 <hr>
-<h3>sip.conf (первые 1024 байта)</h3>
+<h3>sip.conf (п©п╣я─п╡я▀п╣ 1024 п╠п╟п╧я┌п╟)</h3>
 <pre>{$conf_sip}</pre>
 <br><br>
 

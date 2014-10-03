@@ -1,24 +1,24 @@
 <html>
   <head>
    
-    <title>Акт N {$invoice.invoice_no} от {$invoice.invoice_date}</title>
+    <title>п░п╨я┌ N {$invoice.invoice_no} п╬я┌ {$invoice.invoice_date}</title>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
-    <strong> {if $client.firma eq "mcn"}OOO "Эм Си Эн" {else}ООО "МАРКОМНЕТ" {/if}</strong>
+    <strong> {if $client.firma eq "mcn"}OOO "п╜п╪ п║п╦ п╜п╫" {else}п·п·п· "п°п░п═п п·п°п²п∙п╒" {/if}</strong>
     <br>
-     Адрес:<strong>{if $client.firma eq "mcn"}113452 г. Москва, Балаклавский пр-т., д. 20, кор. 4 кв. 130{else}123458, г. Москва, Таллинская ул., д.2/282{/if}</strong>
+     п░п╢я─п╣я│:<strong>{if $client.firma eq "mcn"}113452 пЁ. п°п╬я│п╨п╡п╟, п▒п╟п╩п╟п╨п╩п╟п╡я│п╨п╦п╧ п©я─-я┌., п╢. 20, п╨п╬я─. 4 п╨п╡. 130{else}123458, пЁ. п°п╬я│п╨п╡п╟, п╒п╟п╩п╩п╦п╫я│п╨п╟я▐ я┐п╩., п╢.2/282{/if}</strong>
     <br>
-     Телефон:<strong>950-56-78</strong>
+     п╒п╣п╩п╣я└п╬п╫:<strong>950-56-78</strong>
     <br>
     <br>
   
     <div align="center">
       <center>
         <h2>
-           АКТ ПРИЕМА-ПЕРЕДАЧИ
+           п░п п╒ п÷п═п≤п∙п°п░-п÷п∙п═п∙п■п░п╖п≤
         </h2>
         <br>
-         по Договору <b>{$contract.contract_no}</b> от <b>{$contract.contract_date}</b>
+         п©п╬ п■п╬пЁп╬п╡п╬я─я┐ <b>{$contract.contract_no}</b> п╬я┌ <b>{$contract.contract_date}</b>
         <br>
         <table border="0" cellpadding="0" cellspacing="15">
           <tr>
@@ -27,14 +27,14 @@
                 <table border="0" cellpadding="3" cellspacing="0" width="100%">
                   <tr>
                     <td align="left">
-                       Мы, нижеподписавшиеся, {if $client.firma == 'mcn'}генеральный{/if} директор Мельников А.К. {if $client.firma != 'mcn'} ООО "Маркомнет"
-			{else}OOO "Эм Си Эн"{/if} и представитель <strong>{$client.company_full},</strong> 
-			{if $client.singer_name == ""}___________________________________________{else}{$client.singer_name}{/if}, произвели акт приема - 
-			передачи во временное пользование следующего оборудования:<b> 
+                       п°я▀, п╫п╦п╤п╣п©п╬п╢п©п╦я│п╟п╡я┬п╦п╣я│я▐, {if $client.firma == 'mcn'}пЁп╣п╫п╣я─п╟п╩я▄п╫я▀п╧{/if} п╢п╦я─п╣п╨я┌п╬я─ п°п╣п╩я▄п╫п╦п╨п╬п╡ п░.п . {if $client.firma != 'mcn'} п·п·п· "п°п╟я─п╨п╬п╪п╫п╣я┌"
+			{else}OOO "п╜п╪ п║п╦ п╜п╫"{/if} п╦ п©я─п╣п╢я│я┌п╟п╡п╦я┌п╣п╩я▄ <strong>{$client.company_full},</strong> 
+			{if $client.singer_name == ""}___________________________________________{else}{$client.singer_name}{/if}, п©я─п╬п╦п╥п╡п╣п╩п╦ п╟п╨я┌ п©я─п╦п╣п╪п╟ - 
+			п©п╣я─п╣п╢п╟я┤п╦ п╡п╬ п╡я─п╣п╪п╣п╫п╫п╬п╣ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ я│п╩п╣п╢я┐я▌я┴п╣пЁп╬ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦я▐:<b> 
 			{foreach from=$modem item=m key=key}
-				{if $m == 'модем'} ADSL модем{else}{$m}{/if} кол-во {$k[$key]}шт.
+				{if $m == 'п╪п╬п╢п╣п╪'} ADSL п╪п╬п╢п╣п╪{else}{$m}{/if} п╨п╬п╩-п╡п╬ {$k[$key]}я┬я┌.
 			{/foreach}</b>
-			<br> Получен залог в сумме <b>{$invoice.sum_plus_tax}</b> рублей.
+			<br> п÷п╬п╩я┐я┤п╣п╫ п╥п╟п╩п╬пЁ п╡ я│я┐п╪п╪п╣ <b>{$invoice.sum_plus_tax}</b> я─я┐п╠п╩п╣п╧.
                	    </td>
                	   </tr>
                	   </table>
@@ -57,7 +57,7 @@
                           <tr>
                             <td>
                               <p align="right">
-                                 Сдал
+                                 п║п╢п╟п╩
                             
                             </td>
                             <td>
@@ -74,7 +74,7 @@
                             </td>
                             <td>
                               <p align="right">
-                                 Принял
+                                 п÷я─п╦п╫я▐п╩
                             
                             </td>
                             <td>
@@ -85,14 +85,14 @@
                             <td>
                             </td>
                             <td align="center">
-                              <small>(подпись)</small>
+                              <small>(п©п╬п╢п©п╦я│я▄)</small>
                             </td>
                             <td>
                             </td>
                             <td>
                             </td>
                             <td align="center">
-                              <small>(подпись)</small>
+                              <small>(п©п╬п╢п©п╦я│я▄)</small>
                             </td>
                           </tr>
                           <tr>
@@ -101,7 +101,7 @@
                             <td align="center">
                               <br>
                               <br>
-                               М.П.
+                               п°.п÷.
                             </td>
                             <td>
                             </td>
@@ -110,7 +110,7 @@
                             <td align="center">
                               <br>
                               <br>
-                               М.П.
+                               п°.п÷.
                             </td>
                           </tr>
                         </table>

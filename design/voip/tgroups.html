@@ -4,13 +4,13 @@
 <input type="hidden" name="uploadnew" value="yes" />
 <table>
 	<tr>
-		<td colspan="2">Создать новую группу</td>
+		<td colspan="2">п║п╬п╥п╢п╟я┌я▄ п╫п╬п╡я┐я▌ пЁя─я┐п©п©я┐</td>
 	</tr>
 	<tr>
-		<td>Название</td><td><input type="text" name="gname" /></td>
+		<td>п²п╟п╥п╡п╟п╫п╦п╣</td><td><input type="text" name="gname" /></td>
 	</tr>
 	<tr>
-		<td>Файл</td><td><input type="file" name="upfile" /></td>
+		<td>п╓п╟п╧п╩</td><td><input type="file" name="upfile" /></td>
 	</tr>
 	<tr>
 		<td colspan="2"><input type="submit" name="cgroup" value="ok" /></td>
@@ -24,7 +24,7 @@
 			<a href="?module=voip&action=tgroups&tgroup={$g.pk}">{$g.name}</a>
 		</td>
 		<td>
-			<a href="#" onclick='if(confirm("Уверены, что хотите удалить тарифную группу \"{$g.name}\"?"))document.location.href="?module=voip&action=tgroups&tgroup={$g.pk}&delflag=1";return false'>Удалить</a>
+			<a href="#" onclick='if(confirm("пёп╡п╣я─п╣п╫я▀, я┤я┌п╬ я┘п╬я┌п╦я┌п╣ я┐п╢п╟п╩п╦я┌я▄ я┌п╟я─п╦я└п╫я┐я▌ пЁя─я┐п©п©я┐ \"{$g.name}\"?"))document.location.href="?module=voip&action=tgroups&tgroup={$g.pk}&delflag=1";return false'>пёп╢п╟п╩п╦я┌я▄</a>
 		</td>
 	</tr>
 	{/foreach}
@@ -35,13 +35,13 @@
 <input type="hidden" name="module" value="voip" />
 <input type="hidden" name="action" value="tgroup" />
 <table>
-	<tr><td>Курс USD</td><td colspan="4"><input type="text" name="usd_rate" value="{$usd_rate}" size="7" /></td></tr>
+	<tr><td>п я┐я─я│ USD</td><td colspan="4"><input type="text" name="usd_rate" value="{$usd_rate}" size="7" /></td></tr>
 	<tr>
-		<td>Номер</td>
-		<td>Направление</td>
-		<td>Префикс</td>
-		<td>Цена</td>
-		<td>Цена usd</td>
+		<td>п²п╬п╪п╣я─</td>
+		<td>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td>
+		<td>п÷я─п╣я└п╦п╨я│</td>
+		<td>п╕п╣п╫п╟</td>
+		<td>п╕п╣п╫п╟ usd</td>
 	</tr>
 	{foreach from=$prices item='p' key='num'}
 	<tr>

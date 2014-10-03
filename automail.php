@@ -12,7 +12,7 @@ define("print_sql", 1);
 		date("H:i")<="04:00"
 	)exit();
 
-	$db->getRow('select * from mail_letter limit 1;');	//чтоб удостовериться, что всё работает
+	$db->getRow('select * from mail_letter limit 1;');	//я┤я┌п╬п╠ я┐п╢п╬я│я┌п╬п╡п╣я─п╦я┌я▄я│я▐, я┤я┌п╬ п╡я│я▒ я─п╟п╠п╬я┌п╟п╣я┌
 	$FN = PATH_TO_ROOT."automail.running";
 	if(file_exists($FN))
 		exit;

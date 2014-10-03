@@ -1,9 +1,9 @@
 {if count($services_conn) || !isset($is_secondary_output)}
 {if !isset($is_secondary_output)}
-<H2>Услуги</H2>
-<H3>Collocation подключения</H3>
+<H2>пёя│п╩я┐пЁп╦</H2>
+<H3>Collocation п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</H3>
 {else}
-<H3><a href='?module=services&action=co_view'>Collocation подключения</a></H3>
+<H3><a href='?module=services&action=co_view'>Collocation п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</a></H3>
 {/if}
 <div border="1">
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
@@ -12,11 +12,11 @@
 <TR><TR><TD colspan="5"></TD></TR>
 <TR>
 {if isset($show_client)}
-	<TD class=header vAlign=bottom width="10%">клиент</TD>
+	<TD class=header vAlign=bottom width="10%">п╨п╩п╦п╣п╫я┌</TD>
 {/if}
-	<TD class=header vAlign=bottom width="17%">дата подкл./откл.</TD>
-	<TD class=header vAlign=bottom width="12%">узел :: порт</TD>
-	<TD class=header vAlign=bottom width="14%">сеть</TD>
+	<TD class=header vAlign=bottom width="17%">п╢п╟я┌п╟ п©п╬п╢п╨п╩./п╬я┌п╨п╩.</TD>
+	<TD class=header vAlign=bottom width="12%">я┐п╥п╣п╩ :: п©п╬я─я┌</TD>
+	<TD class=header vAlign=bottom width="14%">я│п╣я┌я▄</TD>
 	<td class=header valign=bottom width="15%">
 			<a href='{$LINK_START}module=tarifs&m=internet&action=edit&id={$conn.data.tarif_id}' title='{if isset($conn.data.tarif.name)}{$conn.data.tarif.name}{/if}'>{if isset($conn.data.tarif.name)}{$conn.data.tarif.mb_month}-{$conn.data.tarif.pay_month}-{$conn.data.tarif.pay_mb}{/if}</a><br>
 			{if $conn.data.tarif_old_id}
@@ -25,10 +25,10 @@
 	
 	</td>
 	<td class=header align=right>
-		{if ($conn.data.actual)}Активное подключение. {else}Неактивное подключение. {/if}<br>
-		<a href="modules/services/pop_services_internet_ports.php?id={$conn.data.id}" target="_blank">редактировать</a>
-		<a href="{$LINK_START}module=services&action=co_add2&id={$conn.data.id}">добавить сеть</a>
-		<a href="{$LINK_START}module=services&action=co_close&id={$conn.data.id}">отключить</a>
+		{if ($conn.data.actual)}п░п╨я┌п╦п╡п╫п╬п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣. {else}п²п╣п╟п╨я┌п╦п╡п╫п╬п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣. {/if}<br>
+		<a href="modules/services/pop_services_internet_ports.php?id={$conn.data.id}" target="_blank">я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄</a>
+		<a href="{$LINK_START}module=services&action=co_add2&id={$conn.data.id}">п╢п╬п╠п╟п╡п╦я┌я▄ я│п╣я┌я▄</a>
+		<a href="{$LINK_START}module=services&action=co_close&id={$conn.data.id}">п╬я┌п╨п╩я▌я┤п╦я┌я▄</a>
 	</td>
 </TR>
 	{foreach from=$conn.nets item=net name=inner}
@@ -40,12 +40,12 @@
 			<td>{ipstat net=$net.net}</td>
 			<td>{$conn.data.address}</td>
 			<td>{if $net.actual}
-				<a target="_blank"  href="{$LINK_START}module=services&action=co_act&id={$net.id}">выписать акт</a>
-				<a href='{$LINK_START}module=services&action=co_close2&id={$net.id}'>отключить</a>
+				<a target="_blank"  href="{$LINK_START}module=services&action=co_act&id={$net.id}">п╡я▀п©п╦я│п╟я┌я▄ п╟п╨я┌</a>
+				<a href='{$LINK_START}module=services&action=co_close2&id={$net.id}'>п╬я┌п╨п╩я▌я┤п╦я┌я▄</a>
 				{else}
-				Сеть отключена. Выписка акта и отключение невозможны.<br>
+				п║п╣я┌я▄ п╬я┌п╨п╩я▌я┤п╣п╫п╟. п▓я▀п©п╦я│п╨п╟ п╟п╨я┌п╟ п╦ п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣ п╫п╣п╡п╬п╥п╪п╬п╤п╫я▀.<br>
 				{/if}
-				<a href='{$LINK_START}module=stats&action=internet&route={$net.net}'>статистика</a>
+				<a href='{$LINK_START}module=stats&action=internet&route={$net.net}'>я│я┌п╟я┌п╦я│я┌п╦п╨п╟</a>
 			</td>
 		</tr>	
 	{/foreach}
@@ -55,6 +55,6 @@
 </div>
 {if !isset($is_secondary_output)}
 <br><br>
-{if access_action('services','co_add')}<a href='{$LINK_START}module=services&action=co_add'>Добавить подключение</a>{/if}
+{if access_action('services','co_add')}<a href='{$LINK_START}module=services&action=co_add'>п■п╬п╠п╟п╡п╦я┌я▄ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣</a>{/if}
 {/if}
 {/if}

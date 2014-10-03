@@ -7,36 +7,36 @@
 	<input type="hidden" name="is_rollback" value="{if $is_rollback}1{/if}" />
 <table width="100%">
 	{if $positions.number}
-	<tr><td colspan="6"><b>Номер счета: <a href="?module=newaccounts&action=bill_view&bill={$positions.bill_no}">{$positions.bill_no}</a></b></td></tr>
+	<tr><td colspan="6"><b>п²п╬п╪п╣я─ я│я┤п╣я┌п╟: <a href="?module=newaccounts&action=bill_view&bill={$positions.bill_no}">{$positions.bill_no}</a></b></td></tr>
 	{/if}
-	<tr><td colspan="6">Заявка{if $is_rollback}-<b><u>возврат</u></b>{/if} на выполнение заказа:</td></tr>
+	<tr><td colspan="6">п≈п╟я▐п╡п╨п╟{if $is_rollback}-<b><u>п╡п╬п╥п╡я─п╟я┌</u></b>{/if} п╫п╟ п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ п╥п╟п╨п╟п╥п╟:</td></tr>
 	<tr><td colspan="6"><textarea name="order_comment" style="width: 100%">{$positions.comment}</textarea></td></tr>
 	<tr><td colspan="6">&nbsp;</td></tr>
-	<tr><td colspan="6" align=right>&nbsp;{*Менеджер счета: {html_options name="bill_manager" options=$managers selected=$bill_manager*}</td></tr>
+	<tr><td colspan="6" align=right>&nbsp;{*п°п╣п╫п╣п╢п╤п╣я─ я│я┤п╣я┌п╟: {html_options name="bill_manager" options=$managers selected=$bill_manager*}</td></tr>
 	<tr>
 		<td colspan="6">
 			<table width="100%" border="0" cellpadding="1" cellspacing="1">
-				<tr align="center"><td colspan="2">Контактное лицо</td><td colspan="1">Контактный Телефон</td><td colspan="1">Телефон подключения</td><td colspan="2">Email</td></tr>
+				<tr align="center"><td colspan="2">п п╬п╫я┌п╟п╨я┌п╫п╬п╣ п╩п╦я├п╬</td><td colspan="1">п п╬п╫я┌п╟п╨я┌п╫я▀п╧ п╒п╣п╩п╣я└п╬п╫</td><td colspan="1">п╒п╣п╩п╣я└п╬п╫ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</td><td colspan="2">Email</td></tr>
 				<tr align="center"><td colspan="2"><input type="text" name="fio" value="{$add.fio}" style="width: 100%" /></td><td colspan="1"><input type="text" name="phone" value="{$add.phone}" style="width: 100%" /></td><td colspan="1"><input type="text" name="connum" value="{$add.connum}" style="width: 100%" /></td><td colspan="2"><input type="text" name="email" value="{$add.email}" style="width: 100%" /></td></tr>
-				<tr align="center"><td colspan="2">Адрес доставки</td><td colspan="2">Номер заявки</td><td colspan="2">Лицевой Счет</td></tr>
+				<tr align="center"><td colspan="2">п░п╢я─п╣я│ п╢п╬я│я┌п╟п╡п╨п╦</td><td colspan="2">п²п╬п╪п╣я─ п╥п╟я▐п╡п╨п╦</td><td colspan="2">п⌡п╦я├п╣п╡п╬п╧ п║я┤п╣я┌</td></tr>
 				<tr align="center"><td colspan="2"><input type="text" name="address" value="{$add.address}" style="width: 100%" /></td><td colspan="2"><input type="text" name="req_no" value="{$add.req_no}" style="width: 100%" /></td><td colspan="2"><input type="text" name="acc_no" value="{$add.acc_no}" style="width: 100%" /></td></tr>
-				<tr align="center"><td colspan="2">Владелец линии</td><td colspan="2">Метро</td><td colspan="2">Логистика</td></tr>
+				<tr align="center"><td colspan="2">п▓п╩п╟п╢п╣п╩п╣я├ п╩п╦п╫п╦п╦</td><td colspan="2">п°п╣я┌я─п╬</td><td colspan="2">п⌡п╬пЁп╦я│я┌п╦п╨п╟</td></tr>
 				<tr align="center"><td colspan="2"><input type="text" name="line_owner" value="{$add.line_owner}" style="width: 100%" /></td><td colspan="2"><select name="metro_id" style="width: 100%">{html_options selected=$add.metro_id options=$l_metro}</select></td><td colspan="2"><select name="logistic" style="width: 100%"{if !$enable_logistic} disabled readonly{/if}>{html_options selected=$add.logistic options=$l_logistic}</select></td></tr>
 				{if $show_adds}
-                <tr align="center"><td colspan="6"><b>Паспортные данные:</b></td></tr>
-				<tr align="center"><td>Серия</td><td>Номер</td><td>Кем выдан</td><td>Когда выдан</td><td>Код подразделения</td><td>Дата рождения</td></tr>
+                <tr align="center"><td colspan="6"><b>п÷п╟я│п©п╬я─я┌п╫я▀п╣ п╢п╟п╫п╫я▀п╣:</b></td></tr>
+				<tr align="center"><td>п║п╣я─п╦я▐</td><td>п²п╬п╪п╣я─</td><td>п п╣п╪ п╡я▀п╢п╟п╫</td><td>п п╬пЁп╢п╟ п╡я▀п╢п╟п╫</td><td>п п╬п╢ п©п╬п╢я─п╟п╥п╢п╣п╩п╣п╫п╦я▐</td><td>п■п╟я┌п╟ я─п╬п╤п╢п╣п╫п╦я▐</td></tr>
 				<tr align="center"><td><input type="text" name="passp_series" value="{$add.passp_series}" style="width: 100%" /></td><td><input type="text" name="passp_num" value="{$add.passp_num}" style="width: 100%" /></td><td><input type="text" name="passp_whos_given" value="{$add.passp_whos_given|escape}" style="width: 100%" /></td><td><input type="text" name="passp_when_given" value="{$add.passp_when_given}" style="width: 100%" /></td><td><input type="text" name="passp_code" value="{$add.passp_code}" style="width: 100%" /></td><td><input type="text" name="passp_birthday" value="{$add.passp_birthday}" style="width: 100%" /></td></tr>
                 {/if}
-				<tr align="center"><td colspan="6"><b>Регистрация:</b></td></tr>
-				<tr align="center"><td>Город</td><td>Улица</td><td>Дом</td><td>Корпус</td><td>Строение</td><td>Квартира</td></tr>
+				<tr align="center"><td colspan="6"><b>п═п╣пЁп╦я│я┌я─п╟я├п╦я▐:</b></td></tr>
+				<tr align="center"><td>п⌠п╬я─п╬п╢</td><td>пёп╩п╦я├п╟</td><td>п■п╬п╪</td><td>п п╬я─п©я┐я│</td><td>п║я┌я─п╬п╣п╫п╦п╣</td><td>п п╡п╟я─я┌п╦я─п╟</td></tr>
 				<tr align="center"><td><input type="text" name="reg_city" value="{$add.reg_city}" style="width: 100%" /></td><td><input type="text" name="reg_street" value="{$add.reg_street}" style="width: 100%" /></td><td><input type="text" name="reg_house" value="{$add.reg_house}" style="width: 100%" /></td><td><input type="text" name="reg_housing" value="{$add.reg_housing}" style="width: 100%" /></td><td><input type="text" name="reg_build" value="{$add.reg_build}" style="width: 100%" /></td><td><input type="text" name="reg_flat" value="{$add.reg_flat}" style="width: 100%" /></td></tr>
-				<tr align="center"><td colspan="3">Комментарий 1</td><td colspan="3">Комментарий 2</td></tr>
+				<tr align="center"><td colspan="3">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ 1</td><td colspan="3">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ 2</td></tr>
 				<tr align="center"><td colspan="3"><input type="text" name="comment1" value="{$add.comment1}" style="width: 100%" /></td><td colspan="3"><input type="text" name="comment2" value="{$add.comment2}" style="width: 100%" /></td></tr>
 			</table>
 		</td>
 	</tr>
 	<tr><td colspan="6">&nbsp;</td></tr>
-	<tr><td colspan="6">Склад: {if !count($positions.list)}<select name="store_id" id="store_id" 
+	<tr><td colspan="6">п║п╨п╩п╟п╢: {if !count($positions.list)}<select name="store_id" id="store_id" 
     onChange="statlib.modules.newaccounts.mk1cBill.findProduct(event)"
     onKeyUp="statlib.modules.newaccounts.mk1cBill.findProduct(event)"
     >{html_options options=$store_list selected=$store_id}</select>
@@ -45,14 +45,14 @@
                 {/if}
                 </td></tr>
 	<tr align="center">
-		<td width="10%">Артикл</td>
-		<td width="50%">Наименование товара</td>
-		<td width="5%">Количество</td>
-		<td width="12%">Цена</td>
-		<td width="13%">Сумма</td>
-		{if !$is_rollback}<td width="5%">Скидка ручная</td>
-		<td width="5%">авто</td>{/if}
-		<td width="5%">Удалить</td>
+		<td width="10%">п░я─я┌п╦п╨п╩</td>
+		<td width="50%">п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣ я┌п╬п╡п╟я─п╟</td>
+		<td width="5%">п п╬п╩п╦я┤п╣я│я┌п╡п╬</td>
+		<td width="12%">п╕п╣п╫п╟</td>
+		<td width="13%">п║я┐п╪п╪п╟</td>
+		{if !$is_rollback}<td width="5%">п║п╨п╦п╢п╨п╟ я─я┐я┤п╫п╟я▐</td>
+		<td width="5%">п╟п╡я┌п╬</td>{/if}
+		<td width="5%">пёп╢п╟п╩п╦я┌я▄</td>
 	</tr>
 	{foreach from=$positions.list item='p' key='k' name=list}
 	<tr align="center">
@@ -70,12 +70,12 @@
 		<td><input type="checkbox" name="pos[{$k}][del]" value="1" onclick="this.checked = true;document.getElementById('mk_recount').click()" /></td>
 	</tr>
 	{/foreach}
-	<tr><td colspan="5" style="text-align: right;font-weight: bold">Итого:</td><td>{$positions.sum}</td></tr>
+	<tr><td colspan="5" style="text-align: right;font-weight: bold">п≤я┌п╬пЁп╬:</td><td>{$positions.sum}</td></tr>
 	<tr><td colspan="6">&nbsp;</td></tr>
 	<tr>
 		<td colspan="6" style="text-align: center">
-        <input type="submit" id="mk_recount" name="recount" value="Пересчитать" style="display: none;"/>
-        <input type="submit" style="width:90%;" name="make" value="Оформить"/>
+        <input type="submit" id="mk_recount" name="recount" value="п÷п╣я─п╣я│я┤п╦я┌п╟я┌я▄" style="display: none;"/>
+        <input type="submit" style="width:90%;" name="make" value="п·я└п╬я─п╪п╦я┌я▄"/>
         </td>
 	</tr>
 </table>
@@ -83,7 +83,7 @@
 <table width="100%">
 	<tr>
 		<td>
-			Добавить позицию
+			п■п╬п╠п╟п╡п╦я┌я▄ п©п╬п╥п╦я├п╦я▌
 		</td>
 	</tr>
 	<tr>

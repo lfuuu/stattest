@@ -1,15 +1,15 @@
 <h1>
     <small>
-    <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+    <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">п·я┌я┤п╣я┌я▀</a>
     </small>
 
-    {if $rep->id==0}Новый отчет{else}Изменить отчет{/if}
+    {if $rep->id==0}п²п╬п╡я▀п╧ п╬я┌я┤п╣я┌{else}п≤п╥п╪п╣п╫п╦я┌я▄ п╬я┌я┤п╣я┌{/if}
     {if $rep->report_type_id==1}
-    По маршрутизации
+    п÷п╬ п╪п╟я─я┬я─я┐я┌п╦п╥п╟я├п╦п╦
     {elseif $rep->report_type_id==2}
-    Сравнение операторов
+    п║я─п╟п╡п╫п╣п╫п╦п╣ п╬п©п╣я─п╟я┌п╬я─п╬п╡
     {elseif $rep->report_type_id==3}
-    Анализ прайслистов
+    п░п╫п╟п╩п╦п╥ п©я─п╟п╧я│п╩п╦я│я┌п╬п╡
     {/if}
 </h1>
 <script type="text/javascript">
@@ -37,13 +37,13 @@
         tr.append($('<td class="header" style="cursor: pointer">'+option.val()+'</td>'));
         tr.append($('<td>' + name + pricelist + '</td>'));
         var date;var btncl;
-        date = $('<input readonly type=text name="dates[]" value="" placeholder="Текущая дата"/>').datepicker(datepicker_ru).datepicker('setDate', conf.date);
+        date = $('<input readonly type=text name="dates[]" value="" placeholder="п╒п╣п╨я┐я┴п╟я▐ п╢п╟я┌п╟"/>').datepicker(datepicker_ru).datepicker('setDate', conf.date);
         btncl = $('<a href="#" onclick="this.date.datepicker(\'setDate\',\'\');return false">[x]</a>')
         btncl[0].date = date;
         tr[0]._conf.datepicker = date;
         tr.append($('<td>').append(date).append(btncl));
 
-        var btndel = $('<a href="#" onclick="this.tr.remove();return false">Удалить</a>')
+        var btndel = $('<a href="#" onclick="this.tr.remove();return false">пёп╢п╟п╩п╦я┌я▄</a>')
         btndel[0].tr = tr;
         tr.append($('<td>').append(btndel));
         $('#selprices tbody').append(tr);
@@ -64,23 +64,23 @@
     <input type=hidden name='report_id' value='{$rep->id}' />
     <input type=hidden name='report_type_id' value='{$rep->report_type_id}' />
 
-    Наименование: <input type=text name='name' value='{$rep->name}' size="50" /><br/>
+    п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣: <input type=text name='name' value='{$rep->name}' size="50" /><br/>
 
-    Регион: <select name="instance_id" class="select2" style="width: 250px">
-        <option value="">--- Все регионы --- </option>
+    п═п╣пЁп╦п╬п╫: <select name="instance_id" class="select2" style="width: 250px">
+        <option value="">--- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --- </option>
         {foreach from=$regions item='r'}
         <option value="{$r->id}" {if $rep->instance_id==$r->id}selected{/if} >{$r->name}</option>
         {/foreach}
     </select><br/>
 
 
-    <label><input type=checkbox name='use_rossvyaz_codes' value='1' {if $rep->use_rossvyaz_codes}checked{/if} /> Развернуть мобильные коды региона</label><br/>
+    <label><input type=checkbox name='use_rossvyaz_codes' value='1' {if $rep->use_rossvyaz_codes}checked{/if} /> п═п╟п╥п╡п╣я─п╫я┐я┌я▄ п╪п╬п╠п╦п╩я▄п╫я▀п╣ п╨п╬п╢я▀ я─п╣пЁп╦п╬п╫п╟</label><br/>
 
     <br/>
 
-    Добавить клиентский прайс:
+    п■п╬п╠п╟п╡п╦я┌я▄ п╨п╩п╦п╣п╫я┌я│п╨п╦п╧ п©я─п╟п╧я│:
     <select id="addClientPrice" class="select2" style="width: 400px">
-        <option value="">--- выберите прайслист --- </option>
+        <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п©я─п╟п╧я│п╩п╦я│я┌ --- </option>
         {foreach from=$pricelists item='r'}
             {if $r->operator_id == 999}
             <option value="{$r->id}">
@@ -91,11 +91,11 @@
             {/if}
         {/foreach}
     </select>
-    <input type="button" value="Добавить" onclick="add_client_price()">
+    <input type="button" value="п■п╬п╠п╟п╡п╦я┌я▄" onclick="add_client_price()">
     <br/>
-    Добавить операторский прайс:
+    п■п╬п╠п╟п╡п╦я┌я▄ п╬п©п╣я─п╟я┌п╬я─я│п╨п╦п╧ п©я─п╟п╧я│:
     <select id="addOperatorPrice" class="select2" style="width: 400px">
-        <option value="">--- выберите прайслист --- </option>
+        <option value="">--- п╡я▀п╠п╣я─п╦я┌п╣ п©я─п╟п╧я│п╩п╦я│я┌ --- </option>
         {foreach from=$pricelists key='i' item='r'}
         {if $r->operator_id != 999}
         <option value="{$r->id}">
@@ -106,14 +106,14 @@
         {/if}
         {/foreach}
     </select>
-    <input type="button" value="Добавить" onclick="add_operator_price()">
+    <input type="button" value="п■п╬п╠п╟п╡п╦я┌я▄" onclick="add_operator_price()">
     <br/><br/>
 
-    Выбранные прайсы: <small>(поддерживается сортировка перетаскиванием)</small>
+    п▓я▀п╠я─п╟п╫п╫я▀п╣ п©я─п╟п╧я│я▀: <small>(п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌я│я▐ я│п╬я─я┌п╦я─п╬п╡п╨п╟ п©п╣я─п╣я┌п╟я│п╨п╦п╡п╟п╫п╦п╣п╪)</small>
     <table id="selprices" class=price cellSpacing=2 cellPadding=4 border=0>
         <thead>
             <tr>
-                <td class=header>ID</td><td class=header>Прайслист</td><td class=header>Дата</td><td class=header>&nbsp;</td>
+                <td class=header>ID</td><td class=header>п÷я─п╟п╧я│п╩п╦я│я┌</td><td class=header>п■п╟я┌п╟</td><td class=header>&nbsp;</td>
             </tr>
         </thead>
         <tbody>
@@ -122,13 +122,13 @@
     </table>
 
     <br/><br/>
-    <input type=submit value="Сохранить" />
+    <input type=submit value="п║п╬я┘я─п╟п╫п╦я┌я▄" />
 
     {if $rep->id > 0}
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="?module=voipreports&action=pricelist_report_show&id={$rep->id}">Просмотр отчета</a>
+        <a href="?module=voipreports&action=pricelist_report_show&id={$rep->id}">п÷я─п╬я│п╪п╬я┌я─ п╬я┌я┤п╣я┌п╟</a>
 
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}">Рассчет объемов</a>
+        <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}">п═п╟я│я│я┤п╣я┌ п╬п╠я┼п╣п╪п╬п╡</a>
     {/if}
 </form>

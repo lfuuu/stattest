@@ -1,41 +1,41 @@
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <tr>
-	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">АТС</td>
+	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">п░п╒п║</td>
 	{if !$fixclient}
-		<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Клиент</td>
+		<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">п п╩п╦п╣п╫я┌</td>
 	{/if}
-	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Работатет с</td>
-	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Тариф</td>
-	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Максимум за период</td>
-	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Минимум за период</td>
-	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Среднее за период</td>
-	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Суммарный рост</td>
-	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Суммарное падение</td>
+	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">п═п╟п╠п╬я┌п╟я┌п╣я┌ я│</td>
+	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">п╒п╟я─п╦я└</td>
+	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п°п╟п╨я│п╦п╪я┐п╪ п╥п╟ п©п╣я─п╦п╬п╢</td>
+	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п°п╦п╫п╦п╪я┐п╪ п╥п╟ п©п╣я─п╦п╬п╢</td>
+	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п║я─п╣п╢п╫п╣п╣ п╥п╟ п©п╣я─п╦п╬п╢</td>
+	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п║я┐п╪п╪п╟я─п╫я▀п╧ я─п╬я│я┌</td>
+	<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п║я┐п╪п╪п╟я─п╫п╬п╣ п©п╟п╢п╣п╫п╦п╣</td>
 </tr>
 <tr>
-	<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-	<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+	<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
 </tr>
 {if $stats}
 	{foreach from=$stats item="s" name=outer key="k"}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td style="text-align: center;">
-					<a href="?module=stats&action=report_vpbx_stat_space&client_id={$s->client_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
+					<a href="?module=stats&action=report_vpbx_stat_space&client_id={$s->client_id}&date_from={$date_from}&date_to={$date_to}">п░п╒п║ {$s->client_id}</a>
 				</td>
 				{if !$fixclient}
 					<td style="text-align: center;">
 						<a href="?module=clients&id={$s->client}">{$s->client}</a>
 					</td>
 				{/if}
-				<td style="text-align: center;">{$s->actual|mdate:"j месяца Y"}</td>
+				<td style="text-align: center;">{$s->actual|mdate:"j п╪п╣я│я▐я├п╟ Y"}</td>
 				<td style="text-align: center;">{$s->tarif}</td>
 				<td style="text-align: center;">{$s->max|bytesize:"b"}</td>
 				<td style="text-align: center;">{$s->max_number}</td>
@@ -50,7 +50,7 @@
 			</tr>
 	{/foreach}
 {else}
-	<tr><td colspan="7" style="text-align: center;">Нет информации</td></tr>
+	<tr><td colspan="7" style="text-align: center;">п²п╣я┌ п╦п╫я└п╬я─п╪п╟я├п╦п╦</td></tr>
 {/if}
 </table>
 {assign var="details" value=$stat_detailed.0}
@@ -58,32 +58,32 @@
 {if $details}
 	<TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 		<tr>
-			<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Дата</td>
-			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Показатель</td>
-			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">Изменение за день</td>
-			<td style="text-align: center;" class="header" vAlign=bottom colspan="3">Сумма за день</td>
+			<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">п■п╟я┌п╟</td>
+			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п÷п╬п╨п╟п╥п╟я┌п╣п╩я▄</td>
+			<td style="text-align: center;" class="header" vAlign=bottom colspan="2">п≤п╥п╪п╣п╫п╣п╫п╦п╣ п╥п╟ п╢п╣п╫я▄</td>
+			<td style="text-align: center;" class="header" vAlign=bottom colspan="3">п║я┐п╪п╪п╟ п╥п╟ п╢п╣п╫я▄</td>
 		</tr>
 		<tr>
-			<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-			<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-			<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-			<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-			<td style="text-align: center;" class="header" vAlign=bottom>Дисковое<br/>пространство</td>
-			<td style="text-align: center;" class="header" vAlign=bottom>Внутренние<br/>номера</td>
-			<td style="text-align: center;" class="header" vAlign=bottom>Итого</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п■п╦я│п╨п╬п╡п╬п╣<br/>п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╬</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣<br/>п╫п╬п╪п╣я─п╟</td>
+			<td style="text-align: center;" class="header" vAlign=bottom>п≤я┌п╬пЁп╬</td>
 		</tr>
 		{foreach from=$details item="data" name=outer}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-				<td style="text-align: center;">{$data->mdate|mdate:"j месяца Y"}</td>
+				<td style="text-align: center;">{$data->mdate|mdate:"j п╪п╣я│я▐я├п╟ Y"}</td>
 				<td style="text-align: center;">{$data->use_space|bytesize:"b"}</td>
 				<td style="text-align: center;">{$data->numbers}</td>
 				<td style="text-align: center;color: {if $data->diff > 0}#000033{elseif $data->diff < 0}#663300{else}#C0C0C0{/if};">{if $data->diff > 0}+{/if}{$data->diff|bytesize:"b"}</td>
 				<td style="text-align: center;color: {if $data->diff_number > 0}#000033{elseif $data->diff_number < 0}#663300{else}#C0C0C0{/if}">{if $data->diff_number > 0}+{/if}{$data->diff_number}</td>
 				<td style="text-align: right;">
-						{$data->sum_space|num_format:true:2}{if $data->sum_space}<sup><small>за {$data->for_space|bytesize:"Gb"}</small></sup>{/if}
+						{$data->sum_space|num_format:true:2}{if $data->sum_space}<sup><small>п╥п╟ {$data->for_space|bytesize:"Gb"}</small></sup>{/if}
 				</td>
 				<td style="text-align: right;">
-					{$data->sum_number|num_format:true:2}{if $data->sum_number}<sup><small>за {$data->for_number} порт(ов)</small></sup>{/if}
+					{$data->sum_number|num_format:true:2}{if $data->sum_number}<sup><small>п╥п╟ {$data->for_number} п©п╬я─я┌(п╬п╡)</small></sup>{/if}
 				</td>
 				<td style="text-align: right;">
 					{$data->sum|num_format:true:2}
@@ -93,7 +93,7 @@
 		<tr>
 			<td colspan=4></td>
 			<td>
-				<b>Итого</b>
+				<b>п≤я┌п╬пЁп╬</b>
 			</td>
 			<td style="text-align: right;">
 				{$totals.sum_space|num_format:true:2}

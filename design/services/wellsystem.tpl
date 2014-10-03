@@ -1,8 +1,8 @@
 {if count($services_wellsystem) || !isset($is_secondary_output)}
 {if !isset($is_secondary_output)}
-<H2>Услуги</H2>
+<H2>пёя│п╩я┐пЁп╦</H2>
 <H3>WellSystem</H3>
-{if access_action('services','wellsystem_add')}<a href='{$LINK_START}module=services&action=wellsystem_add'>Добавить услугу</a>{/if}
+{if access_action('services','wellsystem_add')}<a href='{$LINK_START}module=services&action=wellsystem_add'>п■п╬п╠п╟п╡п╦я┌я▄ я┐я│п╩я┐пЁя┐</a>{/if}
 {else}
 <H3><a href='?module=services&action=wellsystem_view'>WellSystem</a></H3>
 {/if}
@@ -10,12 +10,12 @@
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
 <TR>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">дата</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="35%">Описание</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="10%">Параметр</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">Количество</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="15%">Период</TD>
-	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">Стоимость</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="20%">п╢п╟я┌п╟</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="35%">п·п©п╦я│п╟п╫п╦п╣</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="10%">п÷п╟я─п╟п╪п╣я┌я─</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">п п╬п╩п╦я┤п╣я│я┌п╡п╬</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="15%">п÷п╣я─п╦п╬п╢</TD>
+	<TD onmouseover="javascript: menu_item(this,1);" onmouseout="javascript: menu_item(this,0);" style='background-color:#FFFFD8' class=header vAlign=bottom width="5%">п║я┌п╬п╦п╪п╬я│я┌я▄</TD>
 	<td>&nbsp;</td>
 </TR>
 {foreach from=$services_wellsystem item=item name=outer}
@@ -27,8 +27,8 @@
 	<td>{$item.period_rus}</td>
 	<td>{$item.price}</td>
 	<td>
-	{if $item.actual}<a href="{$LINK_START}module=services&action=wellsystem_close&id={$item.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Отключить"></a>{/if}
-		<a href='index.php?module=tt&clients_client={$item.client}&service=usage_extra&service_id={$item.id}&action=view_type&type_pk=1&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
+	{if $item.actual}<a href="{$LINK_START}module=services&action=wellsystem_close&id={$item.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="п·я┌п╨п╩я▌я┤п╦я┌я▄"></a>{/if}
+		<a href='index.php?module=tt&clients_client={$item.client}&service=usage_extra&service_id={$item.id}&action=view_type&type_pk=1&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="п║п╬п╥п╢п╟я┌я▄ п╥п╟я▐п╡п╨я┐"></a>
 	</td>
 </tr>	
 {/foreach}

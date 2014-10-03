@@ -1,16 +1,16 @@
-<h2>Счета-фактуры  для клиента {$customer}</h2>
-Общая сумма: <b>{$acc_sum}</b>
+<h2>п║я┤п╣я┌п╟-я└п╟п╨я┌я┐я─я▀  п╢п╩я▐ п╨п╩п╦п╣п╫я┌п╟ {$customer}</h2>
+п·п╠я┴п╟я▐ я│я┐п╪п╪п╟: <b>{$acc_sum}</b>
 <table cellpadding="10" cellspacing="0" border="1">
 <tr>
 	<td rowspan=2></td>
-	<td rowspan=2>Номер счета-фактуры</td>
-	<td rowspan=2>Дата</td>
-	<td colspan=3>Сумма</td>
-	<td rowspan=2>По счету N</td>
-	<td rowspan=2>Платеж</td>
+	<td rowspan=2>п²п╬п╪п╣я─ я│я┤п╣я┌п╟-я└п╟п╨я┌я┐я─я▀</td>
+	<td rowspan=2>п■п╟я┌п╟</td>
+	<td colspan=3>п║я┐п╪п╪п╟</td>
+	<td rowspan=2>п÷п╬ я│я┤п╣я┌я┐ N</td>
+	<td rowspan=2>п÷п╩п╟я┌п╣п╤</td>
 	<td rowspan=2></td>
 </tr>
-<tr><td>по с/ф</td><td>по платежам</td><td>разница</td></tr>
+<tr><td>п©п╬ я│/я└</td><td>п©п╬ п©п╩п╟я┌п╣п╤п╟п╪</td><td>я─п╟п╥п╫п╦я├п╟</td></tr>
 {assign var=key value=1}
 {foreach name=invoices from=$inv item=bitem}
 	{cycle values="#E4E3D2,#CFD8DF" assign="color"}
@@ -18,7 +18,7 @@
         <tr bgcolor="{$color}">
         	<td>{$key}</td>
         	<td>
-        		<a href="modules/{$module}/view_inv.php?invoice_no={$item.invoice_no}&todo=invoice" target="_blank">{$item.invoice_no}</a> (<a href="modules/{$module}/view_inv.php?invoice_no={$item.invoice_no}&todo=akt" target="_blank">акт</a>)
+        		<a href="modules/{$module}/view_inv.php?invoice_no={$item.invoice_no}&todo=invoice" target="_blank">{$item.invoice_no}</a> (<a href="modules/{$module}/view_inv.php?invoice_no={$item.invoice_no}&todo=akt" target="_blank">п╟п╨я┌</a>)
         	</td>
         	<td>{$item.invoice_date}</td>
         	{if $smarty.foreach.inner.iteration == 1}
@@ -30,16 +30,16 @@
         			<form style='padding:0 0 0 0;margin:0 0 0 0' target="_blank" action='modules/{$module}/correct.php'>
         			<input type=hidden name=bill_no value='{$item.bill_no}'><input type=hidden name=client value='{$item.client}'>
         			<input type=textbox name=sum value="{$bitem.sum-$item.sum_pay|round:10}" class=text style='width:100px'>
-        			<input type=submit class=button value='исправить' style='width:70px'>
+        			<input type=submit class=button value='п╦я│п©я─п╟п╡п╦я┌я▄' style='width:70px'>
         			</form>
         		{else}
         			{$bitem.sum-$item.sum_pay|round:10}
         		{/if}
         			</td>
         	<td rowspan={$bitem.count}><a href="modules/{$module}/view.php?bill_no={$item.bill_no}&client={$item.client}" target="_blank">{$item.bill_no}</a></td>
-        	<td rowspan={$bitem.count}>N{$item.pay_no} от {$item.pay_date}</td>
+        	<td rowspan={$bitem.count}>N{$item.pay_no} п╬я┌ {$item.pay_date}</td>
         	{/if}
-        	<td><a href="modules/{$module}/send_inv.php?invoice_no={$item.invoice_no}" target="_blank">Отправить</a></td>
+        	<td><a href="modules/{$module}/send_inv.php?invoice_no={$item.invoice_no}" target="_blank">п·я┌п©я─п╟п╡п╦я┌я▄</a></td>
         </tr>
 	{assign var=key value=$key+1}
 	{/foreach}

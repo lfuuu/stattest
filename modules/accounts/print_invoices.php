@@ -8,13 +8,13 @@
 	$user->DenyInauthorized();
 	
 	
-	//ÏĞÒÅÄÅÌÑÅÍ ĞÅÒÉÏÄ
+	//Ğ¾Ğ¿Ñ€ĞµĞ´ĞµĞ»ÑĞµĞ¼ Ğ¿ĞµÑ€Ğ¸Ğ¾Ğ´
 	$todo=get_param_protected('todo');
 	
 	$start=get_param_protected('start',date("Y-m-d"));
 	$finish=get_param_protected('finish',date("Y-m-d"));
 	
-	// ĞÏÌÕŞÁÅÍ ×ÓÅ ĞÌÁÔÅÖÉ ÚÁ ÄÁÎÎÙÊ ĞÅÒÉÏÄ É ×ÓÅ ÓŞÅÔÁ 
+	// Ğ¿Ğ¾Ğ»ÑƒÑ‡Ğ°ĞµĞ¼ Ğ²ÑĞµ Ğ¿Ğ»Ğ°Ñ‚ĞµĞ¶Ğ¸ Ğ·Ğ° Ğ´Ğ°Ğ½Ğ½Ñ‹Ğ¹ Ğ¿ĞµÑ€Ğ¸Ğ¾Ğ´ Ğ¸ Ğ²ÑĞµ ÑÑ‡ĞµÑ‚Ğ° 
 	$query="SELECT i.invoice_no as no, i.client as client from bill_invoices as i, bill_payments as p
 	where p.payment_date >='$start' and p.payment_date<='$finish'
 	and i.bill_no=p.bill_no 

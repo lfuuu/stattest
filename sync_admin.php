@@ -24,7 +24,7 @@ echo date("r")."\n";
 
 		    if(preg_match("/^\d{6,7}$/", $s["bill_no"]))
 		    {
-                    $s["comment"] = iconv("koi8r","cp1251", $s["comment"]);
+                    $s["comment"] = iconv("utf8","cp1251", $s["comment"]);
 
                 if($s["event"] == "create")
                 {

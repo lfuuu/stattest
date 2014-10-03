@@ -3,12 +3,12 @@
 class QRCode
 {
     public static $codes = array(
-            "bill"  => array("code" => "01", "c" => "bill",          "name" => "óÞÅÔ"),
-            "akt-1" => array("code" => "11", "c" => "akt", "s" => 1, "name" => "áËÔ 1"),
-            "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "áËÔ 2"),
-            "upd-1" => array("code" => "21", "c" => "upd", "s" => 1, "name" => "õðä 1"),
-            "upd-2" => array("code" => "22", "c" => "upd", "s" => 2, "name" => "õðä 2"),
-            "upd-3" => array("code" => "23", "c" => "upd", "s" => 3, "name" => "õðä ô"),
+            "bill"  => array("code" => "01", "c" => "bill",          "name" => "Ð¡Ñ‡ÐµÑ‚"),
+            "akt-1" => array("code" => "11", "c" => "akt", "s" => 1, "name" => "ÐÐºÑ‚ 1"),
+            "akt-2" => array("code" => "12", "c" => "akt", "s" => 2, "name" => "ÐÐºÑ‚ 2"),
+            "upd-1" => array("code" => "21", "c" => "upd", "s" => 1, "name" => "Ð£ÐŸÐ” 1"),
+            "upd-2" => array("code" => "22", "c" => "upd", "s" => 2, "name" => "Ð£ÐŸÐ” 2"),
+            "upd-3" => array("code" => "23", "c" => "upd", "s" => 3, "name" => "Ð£ÐŸÐ” Ð¢"),
             );
 
     public function encode($docType, $billNo)

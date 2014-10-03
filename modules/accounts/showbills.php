@@ -9,7 +9,7 @@ $where="WHERE 1 ";
 $join=" INNER JOIN clients ON clients.client=bill_bills.client ";
 
 if ($customer=="" ) { 
-	$customer="Для всех клиентов";
+	$customer="п■п╩я▐ п╡я│п╣я┘ п╨п╩п╦п╣п╫я┌п╬п╡";
 }else {
 	$where.=" and bill_bills.client='$customer' ";
 }
@@ -37,7 +37,7 @@ if ($bill_no!="") {
 
 	if ($router!=""){
 		//TODO9
-		echo "Извините, показ счетов определённой коллективной точки пока невозможен";
+		echo "п≤п╥п╡п╦п╫п╦я┌п╣, п©п╬п╨п╟п╥ я│я┤п╣я┌п╬п╡ п╬п©я─п╣п╢п╣п╩я▒п╫п╫п╬п╧ п╨п╬п╩п╩п╣п╨я┌п╦п╡п╫п╬п╧ я┌п╬я┤п╨п╦ п©п╬п╨п╟ п╫п╣п╡п╬п╥п╪п╬п╤п╣п╫";
 /*		$query="SELECT bill_bills.bill_no as bill_no, 
 				bill_bills.sum as sum, bill_bills.bill_date as date, 
 				bill_bills.client as client, 

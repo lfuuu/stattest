@@ -1,10 +1,10 @@
-<H2>Виртуальная АТС</H2>
-<H3>Callback (обратный вызов)</H3>
-Необходимо ввести номера, с которых возможен обратный звонок.<br>
+<H2>п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║</H2>
+<H3>Callback (п╬п╠я─п╟я┌п╫я▀п╧ п╡я▀п╥п╬п╡)</H3>
+п²п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╡п╡п╣я│я┌п╦ п╫п╬п╪п╣я─п╟, я│ п╨п╬я┌п╬я─я▀я┘ п╡п╬п╥п╪п╬п╤п╣п╫ п╬п╠я─п╟я┌п╫я▀п╧ п╥п╡п╬п╫п╬п╨.<br>
 {if count($phones_callback)}
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
-<TR><td class=header>Дата подключения</td><td class=header>Номер</td><td class=header>Тип обратного вызова</td><TD class=header>План доступных звонков</TD><TD class=header>Комментарии</TD><td>&nbsp;</TD></tr>
+<TR><td class=header>п■п╟я┌п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐</td><td class=header>п²п╬п╪п╣я─</td><td class=header>п╒п╦п© п╬п╠я─п╟я┌п╫п╬пЁп╬ п╡я▀п╥п╬п╡п╟</td><TD class=header>п÷п╩п╟п╫ п╢п╬я│я┌я┐п©п╫я▀я┘ п╥п╡п╬п╫п╨п╬п╡</TD><TD class=header>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</TD><td>&nbsp;</TD></tr>
 {foreach from=$phones_callback item=item name=outer}
 <FORM action="?" id=form{$smarty.foreach.outer.iteration} name=form{$smarty.foreach.outer.iteration} method=get>
 <input type=hidden name=action value=callback_change>
@@ -14,52 +14,52 @@
 	<TD>{$item.actual_from}/</TD>
 	<TD><input class=text type=text value='{$item.phone}' readonly="true" style='color:#808080'></TD>
 	<TD><SELECT name="type_phone" class=text>
-		<option value="dial_from_city"{if $item.type_phone == "dial_from_city"} selected{/if}>Входящие с городского номера</option>
-    	<option value="dial_from_mobile"{if $item.type_phone == "dial_from_mobile"} selected{/if}>Входящие с мобильного номера</option>
+		<option value="dial_from_city"{if $item.type_phone == "dial_from_city"} selected{/if}>п▓я┘п╬п╢я▐я┴п╦п╣ я│ пЁп╬я─п╬п╢я│п╨п╬пЁп╬ п╫п╬п╪п╣я─п╟</option>
+    	<option value="dial_from_mobile"{if $item.type_phone == "dial_from_mobile"} selected{/if}>п▓я┘п╬п╢я▐я┴п╦п╣ я│ п╪п╬п╠п╦п╩я▄п╫п╬пЁп╬ п╫п╬п╪п╣я─п╟</option>
 	</SELECT></TD>
 	<TD><SELECT name="type_dialplan" class=text>
-    			<option value="local"{if $item.type_dialplan == "internal"} selected{/if}>Внутренние</option>
-    			<option value="city"{if $item.type_dialplan == "city"} selected{/if}>Местные</option>
-    			<option value="russia"{if $item.type_dialplan == "russia"} selected{/if}>Российские</option>
-    			<option value="full"{if $item.type_dialplan == "full"} selected{/if}>Все</option>
+    			<option value="local"{if $item.type_dialplan == "internal"} selected{/if}>п▓п╫я┐я┌я─п╣п╫п╫п╦п╣</option>
+    			<option value="city"{if $item.type_dialplan == "city"} selected{/if}>п°п╣я│я┌п╫я▀п╣</option>
+    			<option value="russia"{if $item.type_dialplan == "russia"} selected{/if}>п═п╬я│я│п╦п╧я│п╨п╦п╣</option>
+    			<option value="full"{if $item.type_dialplan == "full"} selected{/if}>п▓я│п╣</option>
   	</SELECT></TD>
 	<TD><input type=text class=text style='width:100%' name=comment value="{$item.comment|htmlspecialchars}"></TD>
 	<TD>
-		<a href='#' onclick='form{$smarty.foreach.outer.iteration}.submit(); return false;'>изменить</a> 
-		<a href='{$LINK_START}module=phone&action=callback_del&id={$item.id}'>удалить</a>
+		<a href='#' onclick='form{$smarty.foreach.outer.iteration}.submit(); return false;'>п╦п╥п╪п╣п╫п╦я┌я▄</a> 
+		<a href='{$LINK_START}module=phone&action=callback_del&id={$item.id}'>я┐п╢п╟п╩п╦я┌я▄</a>
 	</TD>
 </TR></FORM>
 {/foreach}
 </TBODY></TABLE><HR>
 {/if}
-<h2>Новые номера</h2>
+<h2>п²п╬п╡я▀п╣ п╫п╬п╪п╣я─п╟</h2>
 <table class=price cellSpacing=4 cellPadding=2 border=0>
 <FORM action="?" method=get id=form name=form>
 <input type=hidden name=action value=callback_add>	
 <input type=hidden name=module value=phone>
-<TR><td class=header>Номер</td>
-<td class=header>Тип обратного вызова</td><TD class=header>План доступных звонков</TD>
-<TD class=header>Коментарий</TD><td>&nbsp;</TD></tr>
+<TR><td class=header>п²п╬п╪п╣я─</td>
+<td class=header>п╒п╦п© п╬п╠я─п╟я┌п╫п╬пЁп╬ п╡я▀п╥п╬п╡п╟</td><TD class=header>п÷п╩п╟п╫ п╢п╬я│я┌я┐п©п╫я▀я┘ п╥п╡п╬п╫п╨п╬п╡</TD>
+<TD class=header>п п╬п╪п╣п╫я┌п╟я─п╦п╧</TD><td>&nbsp;</TD></tr>
 <tr>
 	<TD><input name=phone class=text value=''></TD>
 	<TD>
 		<SELECT name="type_phone" >
-    			<option value="dial_from_city"  selected="selected" >Входящие с городского номера</option>
-    			<option value="dial_from_mobile" >Входящие с мобильного номера</option>
+    			<option value="dial_from_city"  selected="selected" >п▓я┘п╬п╢я▐я┴п╦п╣ я│ пЁп╬я─п╬п╢я│п╨п╬пЁп╬ п╫п╬п╪п╣я─п╟</option>
+    			<option value="dial_from_mobile" >п▓я┘п╬п╢я▐я┴п╦п╣ я│ п╪п╬п╠п╦п╩я▄п╫п╬пЁп╬ п╫п╬п╪п╣я─п╟</option>
   		</SELECT>
 		
 	</TD>
 	<TD>
 		<SELECT name="type_dialplan" >
-    			<option value="internal" selected="selected" >Внутренние</option>
-    			<option value="city" >Местные</option>
-    			<option value="russia" >Российские</option>
-    			<option value="full" >Все</option>
+    			<option value="internal" selected="selected" >п▓п╫я┐я┌я─п╣п╫п╫п╦п╣</option>
+    			<option value="city" >п°п╣я│я┌п╫я▀п╣</option>
+    			<option value="russia" >п═п╬я│я│п╦п╧я│п╨п╦п╣</option>
+    			<option value="full" >п▓я│п╣</option>
   		</SELECT>		
 		
 	</TD>
 	<TD><textarea name="comment"  rows="1" cols="35"></textarea></TD>
-	<TD><INPUT id=submit class=button type=submit value="Добавить"></TD>
+	<TD><INPUT id=submit class=button type=submit value="п■п╬п╠п╟п╡п╦я┌я▄"></TD>
 
 </tr> <br>
 <br>
@@ -68,12 +68,12 @@
 
 {if count($del_phones)}
 <hr>
-<h3>Удаленные, отключенные номера</h3>
+<h3>пёп╢п╟п╩п╣п╫п╫я▀п╣, п╬я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣ п╫п╬п╪п╣я─п╟</h3>
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0>
 <TBODY>
-<TR><td class=header>Дата подключения/ отключения</td><td class=header>Номер</td>
-<td class=header>Тип обратного вызова</td><TD class=header>План доступных звонков</TD>
-<TD class=header>Комментарии</TD><td>&nbsp;</TD></tr>
+<TR><td class=header>п■п╟я┌п╟ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐/ п╬я┌п╨п╩я▌я┤п╣п╫п╦я▐</td><td class=header>п²п╬п╪п╣я─</td>
+<td class=header>п╒п╦п© п╬п╠я─п╟я┌п╫п╬пЁп╬ п╡я▀п╥п╬п╡п╟</td><TD class=header>п÷п╩п╟п╫ п╢п╬я│я┌я┐п©п╫я▀я┘ п╥п╡п╬п╫п╨п╬п╡</TD>
+<TD class=header>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</TD><td>&nbsp;</TD></tr>
 
 {foreach from=$del_phones item=item name=outer}
 <TR class="{cycle values='even,odd'}">

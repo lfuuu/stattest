@@ -2,7 +2,7 @@
 	define("PATH_TO_ROOT",'../../');
 	include "../../conf.php";
 	
-//аутентификация
+//п╟я┐я┌п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐
 	$module=get_param_raw('module','');
 	$action=get_param_raw('action','default');
 	$user->DoAction($action);
@@ -11,7 +11,7 @@
 	$client=get_param_protected('clients_client','');
 	if ($client=="") 
 	{
-		echo("Не выбран клиент");
+		echo("п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌");
 		exit;
 		
 	};
@@ -24,11 +24,11 @@
 		where client='$client'";
 	$db->Connect();
 	$db->Query($query);
-	if($db->mErrno>0) echo "Ошибка обновления базы, $query";
+	if($db->mErrno>0) echo "п·я┬п╦п╠п╨п╟ п╬п╠п╫п╬п╡п╩п╣п╫п╦я▐ п╠п╟п╥я▀, $query";
 	
 		
 ?>
-<a href="#" onclick="window.close();">Закрыть окно</a>
+<a href="#" onclick="window.close();">п≈п╟п╨я─я▀я┌я▄ п╬п╨п╫п╬</a>
 
 
 

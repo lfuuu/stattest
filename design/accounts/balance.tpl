@@ -1,14 +1,14 @@
-<h1>Отчет по балансу с клиентами</h1>
+<h1>п·я┌я┤п╣я┌ п©п╬ п╠п╟п╩п╟п╫я│я┐ я│ п╨п╩п╦п╣п╫я┌п╟п╪п╦</h1>
 
 <form action="?" method="GET" name="balanceform">
 <SELECT name="manager">
   <option value="pma">pma</option>
   <option value="bnv">bnv</option>
-  <option value="all">Все</option>
+  <option value="all">п▓я│п╣</option>
 </SELECT>
-От <INPUT type="text" name="date_balanceF" value="{$date_balanceF}" size="10">
-До <INPUT type="text" name="date_balanceT" value="{$date_balanceT}" size="10">
-<INPUT type="submit" value="Показать">
+п·я┌ <INPUT type="text" name="date_balanceF" value="{$date_balanceF}" size="10">
+п■п╬ <INPUT type="text" name="date_balanceT" value="{$date_balanceT}" size="10">
+<INPUT type="submit" value="п÷п╬п╨п╟п╥п╟я┌я▄">
 <INPUT type="hidden" name="module" value="accounts">
 <INPUT type="hidden" name="action" value="accounts_report_balance">
 <INPUT type="hidden" name="client" value="{$client}">
@@ -17,24 +17,24 @@
 
 <table border="1">
  <tr bgcolor="#CFD8DF">
- 	<TD><b>Общий баланс</b></TD>
+ 	<TD><b>п·п╠я┴п╦п╧ п╠п╟п╩п╟п╫я│</b></TD>
  	<TD colspan="4"><font color="Red">{$total_balance}</font></TD>
  </tr>
  <tr bgcolor="#CFD8DF">
- 	<TD><b>Общий долг</b></TD>
+ 	<TD><b>п·п╠я┴п╦п╧ п╢п╬п╩пЁ</b></TD>
  	<TD colspan="4"><font color="Red">{$total_debet}</font></TD>
  </tr>
 	<TR bgcolor="#CFD8DF">
 		<TD></TD>
-		<TD>Клиент</TD>
-		<td>Название компании</td>
-		<TD>Баланс по таблице</TD>
-		<TD>Баланс клиента</TD>
+		<TD>п п╩п╦п╣п╫я┌</TD>
+		<td>п²п╟п╥п╡п╟п╫п╦п╣ п╨п╬п╪п©п╟п╫п╦п╦</td>
+		<TD>п▒п╟п╩п╟п╫я│ п©п╬ я┌п╟п╠п╩п╦я├п╣</TD>
+		<TD>п▒п╟п╩п╟п╫я│ п╨п╩п╦п╣п╫я┌п╟</TD>
 		<TD>
 		<TABLE cellspacing="0" border="0" cellpadding="0">
 		<tr>
-			<td width="100">Дата последней сверки</td>
-			<TD width="50">Баланс на дату сверки</TD>
+			<td width="100">п■п╟я┌п╟ п©п╬я│п╩п╣п╢п╫п╣п╧ я│п╡п╣я─п╨п╦</td>
+			<TD width="50">п▒п╟п╩п╟п╫я│ п╫п╟ п╢п╟я┌я┐ я│п╡п╣я─п╨п╦</TD>
 			<TD width="100"></TD>
 		</tr>
 		</table>
@@ -62,7 +62,7 @@
   					<INPUT type="text" name="sum" value="{$client.data.sum}" size="10">
   				</TD>
   				<TD width="100">
-  					<INPUT type="submit" name="submit" value="Обновить сальдо">
+  					<INPUT type="submit" name="submit" value="п·п╠п╫п╬п╡п╦я┌я▄ я│п╟п╩я▄п╢п╬">
   				</TD>
   			</tr>
     

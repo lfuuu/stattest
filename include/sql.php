@@ -55,19 +55,7 @@ class MySQLDatabase {
                 echo "can't use database"; exit;
                 return 0;
             }
-            if ($this->_LinkId && defined('DB_SETUP_COLLATES') && (DB_SETUP_COLLATES==1)){
-				mysql_query("SET SESSION character_set_connection = 'koi8r'",$this->_LinkId);
-				echo mysql_error();
-				mysql_query("SET SESSION character_set_client = 'koi8r'",$this->_LinkId);
-				echo mysql_error();
-				mysql_query("SET SESSION character_set_results = NULL",$this->_LinkId);
-				echo mysql_error();
 
-                /*
-				mysql_query("SET time_zone='+4:00'",$this->_LinkId);
-				echo mysql_error();
-                */
-			}
 		}
         return $this->_LinkId;
     }

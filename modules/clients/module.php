@@ -1,16 +1,16 @@
 <?php
-//просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
+//п©я─п╬я│п╪п╬я┌я─ я│п©п╦я│п╨п╟ п╨п╩п╦п╣п╫я┌п╬п╡ я│ я└п╦п╩я▄я┌я─п╟п╪п╦ п╦ п©п╬п╦я│п╨п╬п╪ / п©я─п╬я│п╪п╬я┌я─ п╦п╫я└п╬я─п╪п╟я├п╦п╦ п╬ п╨п╬п╫п╨я─п╣я┌п╫п╬п╪ п╨п╩п╦п╣п╫я┌п╣
 class m_clients {
 	var $rights=array(
 					'clients'		=>array(
-						'Работа с клиентами',
+						'п═п╟п╠п╬я┌п╟ я│ п╨п╩п╦п╣п╫я┌п╟п╪п╦',
 							'read,read_filter,read_all,new,edit,restatus,credit,credit_all,edit_tele,sale_channels,file,inn_double,all4net,history_edit',
-							'просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,установка кредита,установка кредита всем сразу,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории'),
+							'п©я─п╬я│п╪п╬я┌я─ п╡п╬п╬п╠я┴п╣,п©я─п╬я│п╪п╬я┌я─ я│ я└п╦п╩я▄я┌я─п╟п╪п╦,п©я─п╬я│п╪п╬я┌я─ п╡я│п╣я┘,я│п╬п╥п╢п╟п╫п╦п╣,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣,п╦п╥п╪п╣п╫п╣п╫п╦п╣ я│я┌п╟я┌я┐я│п╟,я┐я│я┌п╟п╫п╬п╡п╨п╟ п╨я─п╣п╢п╦я┌п╟,я┐я│я┌п╟п╫п╬п╡п╨п╟ п╨я─п╣п╢п╦я┌п╟ п╡я│п╣п╪ я│я─п╟п╥я┐,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╢п╩я▐ я┌п╣п╩п╣п╪п╟я─п╨п╣я┌п╦п╫пЁп╟,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╨п╟п╫п╟п╩п╬п╡ п©я─п╬п╢п╟п╤,п╢п╬я│я┌я┐п© п╨ я└п╟п╧п╩п╟п╪,п╥п╟п╡п╣п╢п╣п╫п╦п╣ я│п╬п╡п©п╟п╢п╟я▌я┴п╦я┘ п≤п²п²,я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦я▐ я│ all4net,я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╦я│я┌п╬я─п╦п╦'),
 				);
 	var $actions=array(
 					'default'		=> array('clients','read'),
 					'search_as'		=> array('clients','read'),
-					'edit'			=> array('',''),					//права проверяются потом
+					'edit'			=> array('',''),					//п©я─п╟п╡п╟ п©я─п╬п╡п╣я─я▐я▌я┌я│я▐ п©п╬я┌п╬п╪
 					'restatus'		=> array('clients','restatus'),
 					'recontact'		=> array('',''),
                     'recontactLK'   => array('',''),
@@ -18,7 +18,7 @@ class m_clients {
 					'recontract'	=> array('',''),
 					'recontract2'	=> array('',''),
 					'edit_pop'		=> array('',''),
-					'apply'			=> array('',''),				//собственно редактирование
+					'apply'			=> array('',''),				//я│п╬п╠я│я┌п╡п╣п╫п╫п╬ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣
 					'apply_pop'		=> array('',''),
 					'mkcontract'	=> array('clients','new'),
 					'contract_edit' => array('clients','edit'),
@@ -26,7 +26,7 @@ class m_clients {
 					'print'			=> array('clients','read'),
 					'send'			=> array('clients','read'),
 					'new'			=> array('clients','new'),
-					'create'		=> array('clients','new'),					//собственно добавление
+					'create'		=> array('clients','new'),					//я│п╬п╠я│я┌п╡п╣п╫п╫п╬ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣
 					'all'			=> array('clients','read_all'),
 					'my'			=> array('clients','read_filter'),
 					'show'			=> array('clients','read_filter'),
@@ -50,36 +50,36 @@ class m_clients {
 					'p_edit' => array('clients','edit')
 				);
 
-	//содержимое левого меню. array(название; действие (для проверки прав доступа); доп. параметры - строкой, начинающейся с & (при необходимости); картиночка ; доп. текст)
+	//я│п╬п╢п╣я─п╤п╦п╪п╬п╣ п╩п╣п╡п╬пЁп╬ п╪п╣п╫я▌. array(п╫п╟п╥п╡п╟п╫п╦п╣; п╢п╣п╧я│я┌п╡п╦п╣ (п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п©я─п╟п╡ п╢п╬я│я┌я┐п©п╟); п╢п╬п©. п©п╟я─п╟п╪п╣я┌я─я▀ - я│я┌я─п╬п╨п╬п╧, п╫п╟я┤п╦п╫п╟я▌я┴п╣п╧я│я▐ я│ & (п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦); п╨п╟я─я┌п╦п╫п╬я┤п╨п╟ ; п╢п╬п©. я┌п╣п╨я│я┌)
 	var $menu=array(
-//					array('Мои клиенты',			'my'),
-//					array('Все клиенты',			'all'),
-					array('Новый клиент',			'new'),
-					#array('ФизЛицо',				'p_edit'),
-// 					array('Кредит',					'credit'),
-					array('',						'show'),	//чтобы пробел не показывался, если read_filter отключен
-					array('Телемаркетинг',			'show','&subj=telemarketing'),
-					array('Входящие',				'show','&subj=income'),
-					array('В стадии переговоров',	'show','&subj=negotiations'),
-					array('Тестируемые',			'show','&subj=testing'),
-					array('Подключаемые',			'show','&subj=connecting'),
-					array('Включенные',				'show','&subj=work'),
-					array('Отключенные',			'show','&subj=closed'),
-					array('С тех. отказом',			'show','&subj=tech_deny'),
-					array('Отказ',					'show','&subj=deny'),
-					array('Отключенные за долги',	'show','&subj=debt'),
-                    array('Дубликаты',              'show','&subj=double'),
-				    array('Мусор',                  'show','&subj=trash'),
-				    array('Поставщики',             'show','&subj=distr'),
-				    array('Приостановленные',       'show','&subj=suspended'),
-				    array('Отказ/задаток',          'show','&subj=denial'),
-					array('Интернет Магазин',		'show','&subj=once'),
-					array('Операторы',	            'show','&subj=operator'),
-					array('Телефония отключена',	'show','&subj=voip_disabled'),
-					array('Временно заблокирован',	'show','&subj=blocked'),
+//					array('п°п╬п╦ п╨п╩п╦п╣п╫я┌я▀',			'my'),
+//					array('п▓я│п╣ п╨п╩п╦п╣п╫я┌я▀',			'all'),
+					array('п²п╬п╡я▀п╧ п╨п╩п╦п╣п╫я┌',			'new'),
+					#array('п╓п╦п╥п⌡п╦я├п╬',				'p_edit'),
+// 					array('п я─п╣п╢п╦я┌',					'credit'),
+					array('',						'show'),	//я┤я┌п╬п╠я▀ п©я─п╬п╠п╣п╩ п╫п╣ п©п╬п╨п╟п╥я▀п╡п╟п╩я│я▐, п╣я│п╩п╦ read_filter п╬я┌п╨п╩я▌я┤п╣п╫
+					array('п╒п╣п╩п╣п╪п╟я─п╨п╣я┌п╦п╫пЁ',			'show','&subj=telemarketing'),
+					array('п▓я┘п╬п╢я▐я┴п╦п╣',				'show','&subj=income'),
+					array('п▓ я│я┌п╟п╢п╦п╦ п©п╣я─п╣пЁп╬п╡п╬я─п╬п╡',	'show','&subj=negotiations'),
+					array('п╒п╣я│я┌п╦я─я┐п╣п╪я▀п╣',			'show','&subj=testing'),
+					array('п÷п╬п╢п╨п╩я▌я┤п╟п╣п╪я▀п╣',			'show','&subj=connecting'),
+					array('п▓п╨п╩я▌я┤п╣п╫п╫я▀п╣',				'show','&subj=work'),
+					array('п·я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣',			'show','&subj=closed'),
+					array('п║ я┌п╣я┘. п╬я┌п╨п╟п╥п╬п╪',			'show','&subj=tech_deny'),
+					array('п·я┌п╨п╟п╥',					'show','&subj=deny'),
+					array('п·я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣ п╥п╟ п╢п╬п╩пЁп╦',	'show','&subj=debt'),
+                    array('п■я┐п╠п╩п╦п╨п╟я┌я▀',              'show','&subj=double'),
+				    array('п°я┐я│п╬я─',                  'show','&subj=trash'),
+				    array('п÷п╬я│я┌п╟п╡я┴п╦п╨п╦',             'show','&subj=distr'),
+				    array('п÷я─п╦п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╣',       'show','&subj=suspended'),
+				    array('п·я┌п╨п╟п╥/п╥п╟п╢п╟я┌п╬п╨',          'show','&subj=denial'),
+					array('п≤п╫я┌п╣я─п╫п╣я┌ п°п╟пЁп╟п╥п╦п╫',		'show','&subj=once'),
+					array('п·п©п╣я─п╟я┌п╬я─я▀',	            'show','&subj=operator'),
+					array('п╒п╣п╩п╣я└п╬п╫п╦я▐ п╬я┌п╨п╩я▌я┤п╣п╫п╟',	'show','&subj=voip_disabled'),
+					array('п▓я─п╣п╪п╣п╫п╫п╬ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫',	'show','&subj=blocked'),
 					array('',						'sc'),
-					array('Каналы продаж',			'sc'),
-					array('Отчёт по файлам',		'files_report'),
+					array('п п╟п╫п╟п╩я▀ п©я─п╬п╢п╟п╤',			'sc'),
+					array('п·я┌я┤я▒я┌ п©п╬ я└п╟п╧п╩п╟п╪',		'files_report'),
 				);
 //###################################################################
 	var $statuses;
@@ -119,7 +119,7 @@ class m_clients {
 			}
 		}
 		if (count($R)>$p){
-			$design->AddMenu('Клиенты',$R);
+			$design->AddMenu('п п╩п╦п╣п╫я┌я▀',$R);
 		}
 	}
 
@@ -135,7 +135,7 @@ class m_clients {
 		global $db,$design,$_RESULT;
 		include INCLUDE_PATH."JsHttpRequest.php";
 		$JsHttpRequest = new Subsys_JsHttpRequest_Php();
-		$JsHttpRequest->setEncoding("KOI8-R");
+		$JsHttpRequest->setEncoding("UTF-8");
 		if (isset($_POST['query'])) $_POST['search']=$_POST['query'];
 		$design->assign('clients',array());
 		$this->clients_list(false,5,20);
@@ -147,17 +147,17 @@ class m_clients {
 
 	function clients_my($fixclient) {
 		global $design,$user;
-		// запоминаем что дальше всех клиентов надо фильтровать по менеджеру
+		// п╥п╟п©п╬п╪п╦п╫п╟п╣п╪ я┤я┌п╬ п╢п╟п╩я▄я┬п╣ п╡я│п╣я┘ п╨п╩п╦п╣п╫я┌п╬п╡ п╫п╟п╢п╬ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ п╪п╣п╫п╣п╢п╤п╣я─я┐
 		$_SESSION['clients_my'] = $user->_Login;
 		$this->clients_headers('my');
 		$this->clients_list(true);
-		$design->assign('name_of_action', 'Мои клиенты');
+		$design->assign('name_of_action', 'п°п╬п╦ п╨п╩п╦п╣п╫я┌я▀');
 		$design->AddMain('clients/main_clients.tpl');
 	}
 
 	function client_unfix(){
-		// фильтр по менеджеру обнуляем
-		// Фильтр по типу клиента обнуляем
+		// я└п╦п╩я▄я┌я─ п©п╬ п╪п╣п╫п╣п╢п╤п╣я─я┐ п╬п╠п╫я┐п╩я▐п╣п╪
+		// п╓п╦п╩я▄я┌я─ п©п╬ я┌п╦п©я┐ п╨п╩п╦п╣п╫я┌п╟ п╬п╠п╫я┐п╩я▐п╣п╪
 		$_SESSION['clients_filter'] = '';
 		$_SESSION['clients_my'] = '';
 		$_SESSION['clients_client'] = '';
@@ -184,13 +184,13 @@ class m_clients {
 
 	function clients_all($fixclient){
 		global $design,$user;
-		// запоминаем что дальше надо показывать всех клиентов
+		// п╥п╟п©п╬п╪п╦п╫п╟п╣п╪ я┤я┌п╬ п╢п╟п╩я▄я┬п╣ п╫п╟п╢п╬ п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╡я│п╣я┘ п╨п╩п╦п╣п╫я┌п╬п╡
 		$this->client_unfix();
 
 		$this->clients_headers('all');
 		$this->clients_list(true);
 
-		$design->assign('name_of_action','Все клиенты');
+		$design->assign('name_of_action','п▓я│п╣ п╨п╩п╦п╣п╫я┌я▀');
 		$design->AddMain('clients/main_clients.tpl');
 	}
 
@@ -248,7 +248,7 @@ class m_clients {
 	    	} else if (access('clients','credit_all')){
 	    		$db->Query("select * from clientsw where client!=''");
 	    		$C=array(); while ($c=$db->NextRecord()) $C[]=$c['client'];
-			} else {trigger_error("Выберите клиента"); return;}
+			} else {trigger_error("п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟"); return;}
 
     		foreach ($C as $client) {
 //    			$sum=$this->get_credit_sum($client);
@@ -260,10 +260,10 @@ class m_clients {
 					}
 				}
     		}
-			trigger_error("Кредит установлен");
+			trigger_error("п я─п╣п╢п╦я┌ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫");
 		}
 		if ($fixclient) $design->assign('credit_sum',$this->get_credit_sum($fixclient));
-		if (!$fixclient && !access('clients','credit_all')) {trigger_error('Выберите клиента'); return; }
+		if (!$fixclient && !access('clients','credit_all')) {trigger_error('п▓я▀п╠п╣я─п╦я┌п╣ п╨п╩п╦п╣п╫я┌п╟'); return; }
 		$W=$writeoff_services;
 		$W = array_unshift( $W,"");
 		$design->assign('services',$W);
@@ -281,27 +281,27 @@ class m_clients {
 		$this->clients_headers('show', $subj);
 
 		switch($subj) {
-			case 'telemarketing': $design->assign('name_of_action','Телемаркетинг'); break;
-			case 'income':		$design->assign('name_of_action','Входящие'); break;
-			case 'testing':		$design->assign('name_of_action','Тестируемые клиенты'); break;
-			case 'negotiations':	$design->assign('name_of_action','В стадии переговоров'); break;
-			case 'connecting':	$design->assign('name_of_action','В стадии подключения'); break;
-			case 'work':			$design->assign('name_of_action','Включенные'); break;
-			case 'tech_deny':	$design->assign('name_of_action','С тех. отказом'); break;
-			case 'closed':		$design->assign('name_of_action','Отключенные'); break;
-			case 'deny':			$design->assign('name_of_action','Отказ'); break;
-			case 'debt':			$design->assign('name_of_action','Отключен за долги'); break;
-            case 'double':   $design->assign('name_of_action','Дубликаты');break;
-            case 'trash': $design->assign('name_of_action','Мусор');break;
-            case 'move':  $design->assign('name_of_action','Переезд');break;
-            case 'suspended': $design->assign('name_of_action','Приостановленные');break;
-			case 'denial':  $design->assign('name_of_action','Отказ/задаток');break;
-			case 'reserved': $design->assign('name_of_action','Резервирование канала');break;
-			case 'voip_disabled': $design->assign('name_of_action', 'Телефония отключена');break;
-			case 'blocked': $design->assign('name_of_action', 'Временно заблокирован');break;
-			case 'once': $design->assign('name_of_action', 'Интернет Магазин');break;
-			case 'distr': $design->assign('name_of_action', 'Поставщики');break;
-			case 'operator': $design->assign('name_of_action', 'Операторы');break;
+			case 'telemarketing': $design->assign('name_of_action','п╒п╣п╩п╣п╪п╟я─п╨п╣я┌п╦п╫пЁ'); break;
+			case 'income':		$design->assign('name_of_action','п▓я┘п╬п╢я▐я┴п╦п╣'); break;
+			case 'testing':		$design->assign('name_of_action','п╒п╣я│я┌п╦я─я┐п╣п╪я▀п╣ п╨п╩п╦п╣п╫я┌я▀'); break;
+			case 'negotiations':	$design->assign('name_of_action','п▓ я│я┌п╟п╢п╦п╦ п©п╣я─п╣пЁп╬п╡п╬я─п╬п╡'); break;
+			case 'connecting':	$design->assign('name_of_action','п▓ я│я┌п╟п╢п╦п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐'); break;
+			case 'work':			$design->assign('name_of_action','п▓п╨п╩я▌я┤п╣п╫п╫я▀п╣'); break;
+			case 'tech_deny':	$design->assign('name_of_action','п║ я┌п╣я┘. п╬я┌п╨п╟п╥п╬п╪'); break;
+			case 'closed':		$design->assign('name_of_action','п·я┌п╨п╩я▌я┤п╣п╫п╫я▀п╣'); break;
+			case 'deny':			$design->assign('name_of_action','п·я┌п╨п╟п╥'); break;
+			case 'debt':			$design->assign('name_of_action','п·я┌п╨п╩я▌я┤п╣п╫ п╥п╟ п╢п╬п╩пЁп╦'); break;
+            case 'double':   $design->assign('name_of_action','п■я┐п╠п╩п╦п╨п╟я┌я▀');break;
+            case 'trash': $design->assign('name_of_action','п°я┐я│п╬я─');break;
+            case 'move':  $design->assign('name_of_action','п÷п╣я─п╣п╣п╥п╢');break;
+            case 'suspended': $design->assign('name_of_action','п÷я─п╦п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╣');break;
+			case 'denial':  $design->assign('name_of_action','п·я┌п╨п╟п╥/п╥п╟п╢п╟я┌п╬п╨');break;
+			case 'reserved': $design->assign('name_of_action','п═п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╦п╣ п╨п╟п╫п╟п╩п╟');break;
+			case 'voip_disabled': $design->assign('name_of_action', 'п╒п╣п╩п╣я└п╬п╫п╦я▐ п╬я┌п╨п╩я▌я┤п╣п╫п╟');break;
+			case 'blocked': $design->assign('name_of_action', 'п▓я─п╣п╪п╣п╫п╫п╬ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫');break;
+			case 'once': $design->assign('name_of_action', 'п≤п╫я┌п╣я─п╫п╣я┌ п°п╟пЁп╟п╥п╦п╫');break;
+			case 'distr': $design->assign('name_of_action', 'п÷п╬я│я┌п╟п╡я┴п╦п╨п╦');break;
+			case 'operator': $design->assign('name_of_action', 'п·п©п╣я─п╟я┌п╬я─я▀');break;
 			default: return;
 		};
 
@@ -315,7 +315,7 @@ class m_clients {
 		$password=substr(md5(md5(md5(mt_rand(0,1000)).mt_rand(0,1000)).mt_rand(0,1000)),0,8);
 		if (is_numeric($id)) {
 			$db->Query('update clients set password="'.$password.'" where id='.$id);
-			trigger_error('Клиенту установлен пароль '.$password);
+			trigger_error('п п╩п╦п╣п╫я┌я┐ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╬п╩я▄ '.$password);
 			return $this->client_view($id);
 		}
 	}
@@ -334,67 +334,67 @@ class m_clients {
 			}
 		}
 	}
-	// функция получения заголовка таблицы клиентов
+	// я└я┐п╫п╨я├п╦я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ п╥п╟пЁп╬п╩п╬п╡п╨п╟ я┌п╟п╠п╩п╦я├я▀ п╨п╩п╦п╣п╫я┌п╬п╡
 	function clients_headers($action = '',$subj='') {
 
 		global $design,$db,$user;
-		$L=array("" => "***нет***");
-    $LR = array("any" => "***Любой***");
+		$L=array("" => "***п╫п╣я┌***");
+    $LR = array("any" => "***п⌡я▌п╠п╬п╧***");
 		//$L['1'] = '1';
 		//for ($i = ord('a');$i<=ord('z');$i++) $L[chr($i)] = chr($i);
 		//ksort($L);
 		$L['*'] = '*';
 		$L['@'] = '@';
-		$L['!'] = 'Клиенты ItPark';
-		$L['+'] = 'Тип: Дистрибютор';
-		$L['-'] = 'Тип: Оператор';
+		$L['!'] = 'п п╩п╦п╣п╫я┌я▀ ItPark';
+		$L['+'] = 'п╒п╦п©: п■п╦я│я┌я─п╦п╠я▌я┌п╬я─';
+		$L['-'] = 'п╒п╦п©: п·п©п╣я─п╟я┌п╬я─';
 		if (isset($user->_Priveleges['firms']) && count($user->_Priveleges['firms']) > 0) {
 			foreach ($user->_Priveleges['firms'] as $firm=>$v) {
 				switch ($firm) {
 					case 'mcn_telekom':
-					    $L['firma:mcn_telekom'] = 'ООО "МСН Телеком"';
+					    $L['firma:mcn_telekom'] = 'п·п·п· "п°п║п² п╒п╣п╩п╣п╨п╬п╪"';
 					break;
 					case 'mcn':
-					    $L['firma:mcn'] = 'ООО "Эм Си Эн"';
+					    $L['firma:mcn'] = 'п·п·п· "п╜п╪ п║п╦ п╜п╫"';
 					break;
 					case 'markomnet_new':
-					    $L['firma:markomnet_new'] = 'ООО "МАРКОМНЕТ"';
+					    $L['firma:markomnet_new'] = 'п·п·п· "п°п░п═п п·п°п²п∙п╒"';
 					break;
 					case 'markomnet_service':
-					    $L['firma:markomnet_service'] = 'ООО "МАРКОМНЕТ сервис"';
+					    $L['firma:markomnet_service'] = 'п·п·п· "п°п░п═п п·п°п²п∙п╒ я│п╣я─п╡п╦я│"';
 					break;
 					case 'ooomcn':
-					    $L['firma:ooomcn'] = 'ООО "МСН"';
+					    $L['firma:ooomcn'] = 'п·п·п· "п°п║п²"';
 					break;
 					case 'all4net':
-					    $L['firma:all4net'] = 'ООО "ОЛФОНЕТ"';
+					    $L['firma:all4net'] = 'п·п·п· "п·п⌡п╓п·п²п∙п╒"';
 					break;
 					case 'ooocmc':
-					    $L['firma:ooocmc'] = 'ООО "Си Эм Си"';
+					    $L['firma:ooocmc'] = 'п·п·п· "п║п╦ п╜п╪ п║п╦"';
 					break;
 					case 'mcm':
-					    $L['firma:mcm'] = 'ООО "МСМ"';
+					    $L['firma:mcm'] = 'п·п·п· "п°п║п°"';
 					break;
 					case 'all4geo':
-					    $L['firma:all4geo'] = 'ООО "Олфогео"';
+					    $L['firma:all4geo'] = 'п·п·п· "п·п╩я└п╬пЁп╣п╬"';
 					break;
 					case 'wellstart':
-					    $L['firma:wellstart'] = 'ООО "Веллстарт"';
+					    $L['firma:wellstart'] = 'п·п·п· "п▓п╣п╩п╩я│я┌п╟я─я┌"';
 					break;
 				}
 			}
 		} else {
-            $L['firma:mcn_telekom'] = 'ООО "МСН Телеком"';
-            $L['firma:mcn'] = 'ООО "Эм Си Эн"';
-            $L['firma:markomnet_new'] = 'ООО "МАРКОМНЕТ"';
-            $L['firma:markomnet_service'] = 'ООО "МАРКОМНЕТ сервис"';
-            //$L['firma:markomnet'] = 'ООО "МАРКОМНЕТ (старый)"';
-            $L['firma:ooomcn'] = 'ООО "МСН"';
-            $L['firma:all4net'] = 'ООО "ОЛФОНЕТ"';
-            $L['firma:ooocmc'] = 'ООО "Си Эм Си"';
-            $L['firma:mcm'] = 'ООО "МСМ"';
-            $L['firma:all4geo'] = 'ООО "Олфогео"';
-            $L['firma:wellstart'] = 'ООО "Веллстарт"';
+            $L['firma:mcn_telekom'] = 'п·п·п· "п°п║п² п╒п╣п╩п╣п╨п╬п╪"';
+            $L['firma:mcn'] = 'п·п·п· "п╜п╪ п║п╦ п╜п╫"';
+            $L['firma:markomnet_new'] = 'п·п·п· "п°п░п═п п·п°п²п∙п╒"';
+            $L['firma:markomnet_service'] = 'п·п·п· "п°п░п═п п·п°п²п∙п╒ я│п╣я─п╡п╦я│"';
+            //$L['firma:markomnet'] = 'п·п·п· "п°п░п═п п·п°п²п∙п╒ (я│я┌п╟я─я▀п╧)"';
+            $L['firma:ooomcn'] = 'п·п·п· "п°п║п²"';
+            $L['firma:all4net'] = 'п·п·п· "п·п⌡п╓п·п²п∙п╒"';
+            $L['firma:ooocmc'] = 'п·п·п· "п║п╦ п╜п╪ п║п╦"';
+            $L['firma:mcm'] = 'п·п·п· "п°п║п°"';
+            $L['firma:all4geo'] = 'п·п·п· "п·п╩я└п╬пЁп╣п╬"';
+            $L['firma:wellstart'] = 'п·п·п· "п▓п╣п╩п╩я│я┌п╟я─я┌"';
 		}
       foreach($db->AllRecords("select id, name from regions order by if(id = 99, '!!!', name)", "id") as $r => $n)
         $LR[$r] = $n["name"];
@@ -796,13 +796,13 @@ class m_clients {
 				)
 			where
 				";
-		// если нет никаких ограничений, то печатаем только список букв
+		// п╣я│п╩п╦ п╫п╣я┌ п╫п╦п╨п╟п╨п╦я┘ п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╧, я┌п╬ п©п╣я┤п╟я┌п╟п╣п╪ я┌п╬п╩я▄п╨п╬ я│п©п╦я│п╬п╨ п╠я┐п╨п╡
 
 		if($where==="1 and (cl.status NOT IN ('deny','tech_deny','closed','debt') )")
 			return;
 		$query.=$where;
 
-		// Сортировка результата по указанному полю
+		// п║п╬я─я┌п╦я─п╬п╡п╨п╟ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟ п©п╬ я┐п╨п╟п╥п╟п╫п╫п╬п╪я┐ п©п╬п╩я▌
 		$so = get_param_integer ('so', 1);
 		$order = $so ? 'asc' : 'desc';
 		$sort=get_param_integer('sort',1);
@@ -901,7 +901,7 @@ class m_clients {
 		if (!($id=get_param_integer('id'))) return;
 
 		$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
-		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error('Такого клиента не существует');return;}
+		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error('п╒п╟п╨п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');return;}
 
         $email = "";
         if (($em = $db->GetRow('SELECT data FROM `client_contacts` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
@@ -912,11 +912,11 @@ class m_clients {
 		$p=data_encode($c['id'].'-'.$c['client_id']);
 		$adr=LK_PATH."docs/?code=".str_replace('=','%%3D',$p);
 
-		$body="Уважаемые Господа!" . "<br><br>" . "Отправляем Вам договор:" . "<br>";
+		$body="пёп╡п╟п╤п╟п╣п╪я▀п╣ п⌠п╬я│п©п╬п╢п╟!" . "<br><br>" . "п·я┌п©я─п╟п╡п╩я▐п╣п╪ п▓п╟п╪ п╢п╬пЁп╬п╡п╬я─:" . "<br>";
 		$body.="<a href=\"".$adr."\">".$adr."</a><br><br>";
 
-        //echo "<html><meta http-equiv=\"refresh\" content=\"0;url=http://85.94.32.194/welltime/?module=com_agent_panel&set_action=new_msg&subject=".rawurlencode (iconv("koi8-r", "utf-8", "MCN - договор"))."&new_msg=".rawurlencode (iconv("koi8-r", "utf-8", $body)).(!empty($email) ? "&to=".$email: "" )."\"/><body></body></html>";
-        echo "<html><meta http-equiv=\"refresh\" content=\"0;url=http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&subject=".rawurlencode (iconv("koi8-r", "utf-8", "MCN - договор"))."&new_msg=".rawurlencode (iconv("koi8-r", "utf-8", $body)).(!empty($email) ? "&to=".$email: "" )."\"/><body></body></html>";
+        //echo "<html><meta http-equiv=\"refresh\" content=\"0;url=http://85.94.32.194/welltime/?module=com_agent_panel&set_action=new_msg&subject=".rawurlencode ("MCN - п╢п╬пЁп╬п╡п╬я─")."&new_msg=".rawurlencode ($body).(!empty($email) ? "&to=".$email: "" )."\"/><body></body></html>";
+        echo "<html><meta http-equiv=\"refresh\" content=\"0;url=http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&subject=".rawurlencode ("MCN - п╢п╬пЁп╬п╡п╬я─")."&new_msg=".rawurlencode ($body).(!empty($email) ? "&to=".$email: "" )."\"/><body></body></html>";
 
 		$design->ProcessEx('empty.tpl');
 	}
@@ -931,12 +931,12 @@ class m_clients {
 			return true;
 
 		if (!($c = $db->GetRow('select * from client_contracts where id="'.intval($contractId).'"'))) {
-			trigger_error('Такого договора не существует');
+			trigger_error('п╒п╟п╨п╬пЁп╬ п╢п╬пЁп╬п╡п╬я─п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 			return;
 		}
 		
 		if (!($r = ClientCS::getOnDate(intval($clientId), $c['contract_date']))) {
-			trigger_error('Такого клиента не существует');
+			trigger_error('п╒п╟п╨п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 			return;
 		}
 
@@ -976,7 +976,7 @@ class m_clients {
 			$r = $db->GetRow('select * from clients where (id="'.$id.'") limit 1');
 		}
 		if (!$r) {
-			trigger_error('Такого клиента не существует');
+			trigger_error('п╒п╟п╨п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 			return;
 		}
 
@@ -993,7 +993,7 @@ class m_clients {
             }
 
             if (!file_exists(STORE_PATH.$fileTemplate)) {
-            	echo "Ошибка";
+            	echo "п·я┬п╦п╠п╨п╟. п╓п╟п╧п╩ п╫п╣ п╫п╟п╧п╢п╣п╫ " . STORE_PATH . $fileTemplate;
             	exit();
             }
 
@@ -1087,14 +1087,14 @@ class m_clients {
 
 
 		if(!$r){
-			trigger_error('Такого клиента не существует');
+			trigger_error('п╒п╟п╨п╬пЁп╬ п╨п╩п╦п╣п╫я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌');
 			return;
 		}
 
 
         if(access("clients", "read_multy"))
                 if($r["type"] != "multi"){
-                trigger_error('Доступ к клиенту ограничен');
+                trigger_error('п■п╬я│я┌я┐п© п╨ п╨п╩п╦п╣п╫я┌я┐ п╬пЁя─п╟п╫п╦я┤п╣п╫');
                 return;
             }
 
@@ -1131,7 +1131,7 @@ class m_clients {
 
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
 		$r['status_color'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['color'] : '');
-        $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
+        $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "п═п╬п╥п╫п╦я├п╟");
         $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
 
 		$design->assign('fixclient',$id);
@@ -1293,7 +1293,7 @@ class m_clients {
             header("Location: ./?module=clients&id=".$clientId);
             exit();
         } else {
-            trigger_error("Контрагент не найден!");
+            trigger_error("п п╬п╫я┌я─п╟пЁп╣п╫я┌ п╫п╣ п╫п╟п╧п╢п╣п╫!");
         }
     }
 
@@ -1329,7 +1329,7 @@ class m_clients {
                     "client"=>"idNNNN",
                     "credit"=>-1,
                     "firma" => "mcn_telekom",
-                    "price_type" => ClientCS::GetIdByName("price_type", "Розница"),
+                    "price_type" => ClientCS::GetIdByName("price_type", "п═п╬п╥п╫п╦я├п╟"),
                     "password" => substr(md5(time()+rand(1,1000)*rand(10000,10000)), 3, 8),
                     "voip_credit_limit_day" => 1000
                     ));
@@ -1399,7 +1399,7 @@ class m_clients {
 
 		$C = new ClientCS(get_param_protected('id'),true);
 
-		if(isset($_POST['cl_cards_operations'])){ // привязать к истории
+		if(isset($_POST['cl_cards_operations'])){ // п©я─п╦п╡я▐п╥п╟я┌я▄ п╨ п╦я│я┌п╬я─п╦п╦
 			$cli = $db->GetRow("select * from clients where id=".((int)$_POST['id']));
 			if(
 				isset($_POST['previous_reincarnation'])
@@ -1408,15 +1408,15 @@ class m_clients {
 			&& !( !$cli['previous_reincarnation'] && !$_POST['previous_reincarnation'])
 			){
 				if(clCards\setParent($db, $user, $_POST['previous_reincarnation'], $cli['client']))
-					trigger_error("Предыдущие реквизиты успешно установлены");
+					trigger_error("п÷я─п╣п╢я▀п╢я┐я┴п╦п╣ я─п╣п╨п╡п╦п╥п╦я┌я▀ я┐я│п©п╣я┬п╫п╬ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫я▀");
 				else
-					trigger_error("Не удалось установить предыдущие реквизиты");
+					trigger_error("п²п╣ я┐п╢п╟п╩п╬я│я▄ я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╣п╢я▀п╢я┐я┴п╦п╣ я─п╣п╨п╡п╦п╥п╦я┌я▀");
 			}
 			if($_POST['move_usages'] && $_POST['move_usages']<>$_POST['id'] && $user->HasPrivelege('clients','moveUsages')){
 				if(clCards\moveUsages($db, $user, $_POST['move_usages'], $_POST['client']))
-					trigger_error("Услуги перенесены");
+					trigger_error("пёя│п╩я┐пЁп╦ п©п╣я─п╣п╫п╣я│п╣п╫я▀");
 				else
-					trigger_error("Перенести услуги не удалось");
+					trigger_error("п÷п╣я─п╣п╫п╣я│я┌п╦ я┐я│п╩я┐пЁп╦ п╫п╣ я┐п╢п╟п╩п╬я│я▄");
 			}
 			return false;
 		}
@@ -1433,13 +1433,13 @@ class m_clients {
 			$cl_main_card = $C->F['client'];
 
 
-        //inn в карточке
+        //inn п╡ п╨п╟я─я┌п╬я┤п╨п╣
 		if( $inn!=$inn2 &&
 			$r = $db->getRow('select client from clients where inn="'.$inn.'" and client not like "'.addcslashes($cl_main_card,"\\'").'%"')
 		)
 			$dbl = $r['client'];
 
-        //в дополнительных inn
+        //п╡ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀я┘ inn
 		if(
 				$inn!=$inn2
 			&&
@@ -1468,17 +1468,17 @@ class m_clients {
         $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
 
         if(!access('clients','inn_double') && $dbl){
-			trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
+			trigger_error('п╒п╟п╨п╬п╧ п╤п╣ п≤п²п² п╣я│я┌я▄, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪, я┐ п╨п╩п╦п╣п╫я┌п╟ '.$dbl.'. п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬');
 		}else{
 			if($dbl)
-				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
+				trigger_error('п╒п╟п╨п╬п╧ п╤п╣ п≤п²п² п╣я│я┌я▄, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪, я┐ п╨п╩п╦п╣п╫я┌п╟ '.$dbl.'. п≤п╪п╣п╧я┌п╣ п╡ п╡п╦п╢я┐');
 			if($C->Apply()){
 				clCards\SyncAdditionCards($db, $cl_main_card);
 
 				try {
 					if (($Client = Sync1C::getClient())!==false)
 					   $Client->saveClientCards($cl_main_card);
-					else trigger_error('Ошибка синхронизации с 1С.');
+					else trigger_error('п·я┬п╦п╠п╨п╟ я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╦ я│ 1п║.');
 				} catch (Sync1CException $e) {
 					$e->triggerError();
 				}
@@ -1492,7 +1492,7 @@ class m_clients {
 				}
 				return true;
 			}else{
-				trigger_error("Клиент с таким кодом уже есть.");
+				trigger_error("п п╩п╦п╣п╫я┌ я│ я┌п╟п╨п╦п╪ п╨п╬п╢п╬п╪ я┐п╤п╣ п╣я│я┌я▄.");
 			}
 		}
 		$design->assign('client',$C->F);
@@ -1536,7 +1536,7 @@ class m_clients {
 				$nc = $cl_main_card.'/a';
             } elseif ($last_pf == 'z')
             {
-				trigger_error("Количество договоров клиента достигло максимального кол-ва");
+				trigger_error("п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╢п╬пЁп╬п╡п╬я─п╬п╡ п╨п╩п╦п╣п╫я┌п╟ п╢п╬я│я┌п╦пЁп╩п╬ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬ п╨п╬п╩-п╡п╟");
 				return;
 			} else {
 				$nc = $cl_main_card.'/'.chr(ord($last_pf)+1);
@@ -1672,7 +1672,7 @@ class m_clients {
 			header("Pragma: ");
 			header("Cache-Control: ");
 		    header('Content-Transfer-Encoding: binary');
-			header('Content-Disposition: attachment; filename="'.iconv("KOI8-R","CP1251",$f['name']).'"');
+			header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$f['name']).'"');
 			header("Content-Length: " . filesize($f['path']));
 			readfile($f['path']);
 			$design->ProcessEx();
@@ -1695,7 +1695,7 @@ class m_clients {
         if(!$f) return;
 
         $design->assign("file_name", $f['name']);
-        $design->assign("file_name_send", iconv("koi8-r", "utf8", $f['name']));
+        $design->assign("file_name_send", $f['name']);
         $design->assign("file_content", base64_encode(file_get_contents($f["path"])));
         $design->assign("msg_session", md5(rand()+time()));
         $design->assign("file_mime", $this->getMime($f["name"]));
@@ -1791,11 +1791,11 @@ class m_clients {
 			if (access('clients','inn_double') || !$dbl) {
 				$db->QueryInsert('client_inn',array('ts'=>array('NOW()'),'client_id'=>$id,'user_id'=>$user->Get('id'),'inn'=>$inn,'comment'=>$comment));
 				if ($dbl) {
-					trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
+					trigger_error('п╒п╟п╨п╬п╧ п╤п╣ п≤п²п² п╣я│я┌я▄, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪, я┐ п╨п╩п╦п╣п╫я┌п╟ '.$dbl.'. п≤п╪п╣п╧я┌п╣ п╡ п╡п╦п╢я┐');
 					return $this->client_view($id,1);
 				}
 			} else {
-				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
+				trigger_error('п╒п╟п╨п╬п╧ п╤п╣ п≤п²п² п╣я│я┌я▄, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪, я┐ п╨п╩п╦п╣п╫я┌п╟ '.$dbl.'. п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬');
 				return $this->client_view($id,1);
 			}
 		} else {
@@ -1914,10 +1914,10 @@ class m_clients {
                 $isInnDbl = $r["client"]." (id:".$r["id"].")";
 
 		if($isInnDbl && !access('clients','inn_double')){
-			trigger_error('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Добавление невозможно');
+			trigger_error('п╒п╟п╨п╬п╧ п╤п╣ п≤п²п² п╣я│я┌я▄, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪, я┐ п╨п╩п╦п╣п╫я┌п╟ '.$isInnDbl.'. п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬');
 		}else{
 			if($isInnDbl)
-				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Имейте в виду');
+				trigger_error('п╒п╟п╨п╬п╧ п╤п╣ п≤п²п² п╣я│я┌я▄, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪, я┐ п╨п╩п╦п╣п╫я┌п╟ '.$isInnDbl.'. п≤п╪п╣п╧я┌п╣ п╡ п╡п╦п╢я┐');
 
             if ($C->Create()){
 
@@ -1932,7 +1932,7 @@ class m_clients {
                 $this->client_view($C->id,1);
                 return ;
             }else{
-                trigger_error("Такой клиент уже существует.");
+                trigger_error("п╒п╟п╨п╬п╧ п╨п╩п╦п╣п╫я┌ я┐п╤п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.");
             }
         }
         $design->assign('client',$C->F);
@@ -1960,7 +1960,7 @@ class m_clients {
 		$dbf=new DbFormSaleChannels();
 		if (($id=get_param_integer('id')) && !($dbf->Load($id))) return;
 		$dbf->Process();
-		$dbf->Display(array('module'=>'clients','action'=>'sc_edit','id'=>$id),$view->Headers[$view->fieldset],$id?'Редактирование':'Добавление');
+		$dbf->Display(array('module'=>'clients','action'=>'sc_edit','id'=>$id),$view->Headers[$view->fieldset],$id?'п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣':'п■п╬п╠п╟п╡п╩п╣п╫п╦п╣');
 	}
 
 	function clients_print_yota_contract($fixclient){
@@ -1988,7 +1988,7 @@ class m_clients {
 			exit();
 		}elseif(isset($_REQUEST['get_vals'])){
 			Header('Content-type: text/plain; charset=utf8');
-			$db->Query('set names koi8r');
+			$db->Query('set names utf8');
 			$db->Query("select json_data from clients_contracts_yota where client_id = (select id from clients where client='".addcslashes($fixclient,"\\\\'")."' limit 1)");
 			$json = $db->NextRecord(MYSQL_ASSOC);
 			if($json)
@@ -2033,9 +2033,9 @@ DBG::sql_out($select_client_data);
 				}
 
 				$bp = escape_html_to_svg(trim($row['bank_properties']));
-				preg_match('|р/сч?[\s]*([0-9]+)|i',$bp,$mats_rs);
-				preg_match('|к/сч?[\s]*([0-9]+)|i',$bp,$mats_ks);
-				preg_match('|р/сч?[\s]*[0-9]+(.+?)к/сч?[\s]*[0-9]+|i',$bp,$mats_ab);
+				preg_match('|я─/я│я┤?[\s]*([0-9]+)|i',$bp,$mats_rs);
+				preg_match('|п╨/я│я┤?[\s]*([0-9]+)|i',$bp,$mats_ks);
+				preg_match('|я─/я│я┤?[\s]*[0-9]+(.+?)п╨/я│я┤?[\s]*[0-9]+|i',$bp,$mats_ab);
 				$bank = array(
 					'pay_account'=>$mats_rs[1],
 					'cor_account'=>$mats_ks[1],
@@ -2044,10 +2044,10 @@ DBG::sql_out($select_client_data);
 				unset($bp,$mats_rs,$mats_ks,$mats_ab);
 				$add = escape_html_to_svg(trim($row['address_jur']));
 				preg_match('/^[0-9]+/',$add,$mats_zip);
-				preg_match('/(?:г.|^[0-9]+[\s,]+)([^,]+)/',$add,$mats_city);
-				preg_match('/ул.[^,]+/',$add,$mats_street);
-				preg_match('/д.[^,]+/',$add,$mats_housenum);
-				preg_match('/стр.[^,]/',$add,$mats_housebuild);
+				preg_match('/(?:пЁ.|^[0-9]+[\s,]+)([^,]+)/',$add,$mats_city);
+				preg_match('/я┐п╩.[^,]+/',$add,$mats_street);
+				preg_match('/п╢.[^,]+/',$add,$mats_housenum);
+				preg_match('/я│я┌я─.[^,]/',$add,$mats_housebuild);
 				$address_jur = array(
 					'zip'=>$mats_zip[0],
 					'city'=>trim($mats_city[1]),
@@ -2058,10 +2058,10 @@ DBG::sql_out($select_client_data);
 				unset($mats_zip,$mats_city,$mats_street,$mats_housenum,$mats_housebuild);
 				$add = escape_html_to_svg(trim($row['address_post_real']));
 				preg_match('/^[0-9]+/',$add,$mats_zip);
-				preg_match('/(?:г.|^[0-9]+[\s,]+)([^,]+)/',$add,$mats_city);
-				preg_match('/ул.[^,]+/',$add,$mats_street);
-				preg_match('/д.[^,]+/',$add,$mats_housenum);
-				preg_match('/с(тр)?\.[^,]/',$add,$mats_housebuild);
+				preg_match('/(?:пЁ.|^[0-9]+[\s,]+)([^,]+)/',$add,$mats_city);
+				preg_match('/я┐п╩.[^,]+/',$add,$mats_street);
+				preg_match('/п╢.[^,]+/',$add,$mats_housenum);
+				preg_match('/я│(я┌я─)?\.[^,]/',$add,$mats_housebuild);
 				$address_post = array(
 					'zip'=>$mats_zip[0],
 					'city'=>trim($mats_city[1]),
@@ -2071,20 +2071,20 @@ DBG::sql_out($select_client_data);
 				);
 				unset($mats_zip,$mats_city,$mats_street,$mats_housenum,$mats_housebuild);
 
-				$design->assign('client_company',iconv('koi8r','utf8',escape_html_to_svg($row['company_full'])));
+				$design->assign('client_company',escape_html_to_svg($row['company_full']));
 				$design->assign('page1',array(
-					'city'=>iconv('koi8r','utf8','Москва'),
+					'city'=>'п°п╬я│п╨п╡п╟',
 					'year_single_digit'=>substr(date('Y'),3),
-					'in_face'=>iconv('koi8r','utf8',$row['signer_positionV'].' '.$row['signer_nameV']),
-					'with_base'=>iconv('koi8r','utf8',($row['with_base']=='')?'устава':$row['with_base'])
+					'in_face'=>$row['signer_positionV'].' '.$row['signer_nameV'],
+					'with_base'=>$row['with_base']==''?'я┐я│я┌п╟п╡п╟':$row['with_base']
 				));
 				$design->assign('page6',array(
 					'address_jur_zip'=>$address_jur['zip'],
-					'address_jur_city'=>iconv('koi8r','utf8',$address_jur['city']),
-					'address_jur_other'=>iconv('koi8r','utf8',$address_jur['street'].' '.$address_jur['housenum'].' '.$address_jur['housebuild']),
+					'address_jur_city'=>$address_jur['city'],
+					'address_jur_other'=>$address_jur['street'].' '.$address_jur['housenum'].' '.$address_jur['housebuild'],
 					'address_post_zip'=>$address_post['zip'],
-					'address_post_city'=>iconv('koi8r','utf8',$address_post['city']),
-					'address_post_other'=>iconv('koi8r','utf8',$address_post['street'].' '.$address_post['housenum'].' '.$address_post['housebuild']),
+					'address_post_city'=>$address_post['city'],
+					'address_post_other'=>$address_post['street'].' '.$address_post['housenum'].' '.$address_post['housebuild'],
 					'phone'=>$row['phone'],
 					'fax'=>$row['fax'],
 					'phone_fax_separator'=>($row['phone'] && $row['fax'])?' / ':'',
@@ -2093,22 +2093,22 @@ DBG::sql_out($select_client_data);
 					'kpp'=>$row['kpp'],
 					'bik'=>$row['bik'],
 					'bank_pay_acc'=>$bank['pay_account'],
-					'bank_address'=>iconv('koi8r','utf8',$bank['address']),
+					'bank_address'=>$bank['address'],
 					'bank_cor_acc'=>$bank['cor_account'],
-					'client_name'=>iconv('koi8r','utf8',$row['signer_name'])
+					'client_name'=>$row['signer_name']
 				));
 
 				$design->assign('page7',array(
-					'in_face'=>iconv('koi8r','utf8',$row['signer_positionV'].' '.$row['signer_nameV'])
+					'in_face'=>$row['signer_positionV'].' '.$row['signer_nameV']
 				));
 
 				$design->assign('page8',array(
-					'address_street'=>iconv('koi8r','utf8',$address_jur['street']),
-					'address_housenum'=>iconv('koi8r','utf8',$address_jur['housenum']),
-					'address_housebuild'=>iconv('koi8r','utf8',$address_jur['housebuild']),
-					'client_position'=>iconv('koi8r','utf8',$row['signer_position']),
-					'partner'=>iconv('koi8r','utf8','ООО "Эм Си Эн"'),
-					'contact'=>iconv('koi8r','utf8',$row['contact_name'])
+					'address_street'=>$address_jur['street'],
+					'address_housenum'=>$address_jur['housenum'],
+					'address_housebuild'=>$address_jur['housebuild'],
+					'client_position'=>$row['signer_position'],
+					'partner'=>'п·п·п· "п╜п╪ п║п╦ п╜п╫"',
+					'contact'=>$row['contact_name']
 				));
 
 				$content = $design->fetch("../store/yota/page".((int)$_GET['print_page']).".svg.tpl");
@@ -2166,7 +2166,7 @@ DBG::sql_out($select_client_data);
                         FROM `usage_extra` u , tarifs_extra t
                         where client = '".$client."'
                         and u.tarif_id = t.id
-                        and t.status ='itpark' and (description like 'Аренда%' or description like 'аренда%')
+                        and t.status ='itpark' and (description like 'п░я─п╣п╫п╢п╟%' or description like 'п╟я─п╣п╫п╢п╟%')
                         and actual_from < '2029-01-01' and unix_timestamp(u.actual_to) > ".time()."
                         order by  actual_from desc, u.id desc");
 
@@ -2179,14 +2179,14 @@ DBG::sql_out($select_client_data);
                         "floor" => $a["floor"],
                         "office" => $a["office"],
                         "amount" => round($a["amount"],4),
-                        "is_store" => strpos(strtolower($a["office"]), "склад") !== false
+                        "is_store" => strpos(strtolower($a["office"]), "я│п╨п╩п╟п╢") !== false
                         );
             }
             $rr["s"] = $s;
 
 
 
-            $design->assign("contract_date", $db->GetValue("select contract_date from client_contracts where client_id = '".$clientId."' and comment like '%огово%' order by id desc limit 1"));
+            $design->assign("contract_date", $db->GetValue("select contract_date from client_contracts where client_id = '".$clientId."' and comment like '%п╬пЁп╬п╡п╬%' order by id desc limit 1"));
 
 
             //printdbg($r);
@@ -2196,7 +2196,7 @@ DBG::sql_out($select_client_data);
         }
 
 		if(strpos($content, '{*#mcm#*}')!==false){
-            //Услуги по обеспечению контроля территории
+            //пёя│п╩я┐пЁп╦ п©п╬ п╬п╠п╣я│п©п╣я┤п╣п╫п╦я▌ п╨п╬п╫я┌я─п╬п╩я▐ я┌п╣я─я─п╦я┌п╬я─п╦п╦
             $design->assign("mcm", $db->GetRow(
                         "select actual_from, actual_to, amount, price 
                         from usage_extra u, tarifs_extra t 
@@ -2205,7 +2205,7 @@ DBG::sql_out($select_client_data);
 
 		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
 			$repl = '';
-			// москва(моб.)
+			// п╪п╬я│п╨п╡п╟(п╪п╬п╠.)
 			$query = "
 				select
 					`destination_name`,
@@ -2269,7 +2269,7 @@ DBG::sql_out($select_client_data);
 		if(!$cl)
 			echo "false";
 		else{
-			Header('Contetn-Type: plain/text; charset="koi8-r"');
+			Header('Contetn-Type: plain/text; charset="utf-8"');
 			$attrs = $cl->getDetailsArr("\\'");
 			echo "{
 				company:'".$attrs['company']."',
@@ -2297,7 +2297,7 @@ DBG::sql_out($select_client_data);
 		if(!$bik)
 			echo "false";
 		else{
-			Header('Contetn-Type: plain/text; charset="koi8-r"');
+			Header('Contetn-Type: plain/text; charset="utf-8"');
 			echo "{
 				bik:'".$bik['bik']."',
 				corr_acc:'".$bik['corr_acc']."',
@@ -2312,8 +2312,8 @@ DBG::sql_out($select_client_data);
 	{
 		global $db;
 
-		$past = date("Y-m-01"); // с начала текущего месяца
-		$future = date("Y-m-01", strtotime("+1 month", strtotime(date("Y-m-01")))); // с начала следующего месяца
+		$past = date("Y-m-01"); // я│ п╫п╟я┤п╟п╩п╟ я┌п╣п╨я┐я┴п╣пЁп╬ п╪п╣я│я▐я├п╟
+		$future = date("Y-m-01", strtotime("+1 month", strtotime(date("Y-m-01")))); // я│ п╫п╟я┤п╟п╩п╟ я│п╩п╣п╢я┐я▌я┴п╣пЁп╬ п╪п╣я│я▐я├п╟
 
 		static $a = array();
 		$a = array("d_past" => $past, "d_future" => $future, "past" => 0, "future" => 0,
@@ -2341,7 +2341,7 @@ DBG::sql_out($select_client_data);
 									and is_overwrited='no'"
 			);
 
-			$a["m"][$idx]["n"] = mdate("месяца", $a["m"][$idx]["d"]);
+			$a["m"][$idx]["n"] = mdate("п╪п╣я│я▐я├п╟", $a["m"][$idx]["d"]);
 
 		}
 		$a["is_set"] = true;
@@ -2376,9 +2376,9 @@ DBG::sql_out($select_client_data);
 
 		foreach($log as $idx => $l)
 		{
-			$log[$idx]["ts"] = mdate("d месяца Y", $log[$idx]["ts"])." ".date("H:i:s",$log[$idx]["ts"]);
+			$log[$idx]["ts"] = mdate("d п╪п╣я│я▐я├п╟ Y", $log[$idx]["ts"])." ".date("H:i:s",$log[$idx]["ts"]);
 			$log[$idx]["apply"] = $l["apply_ts"] ? array((int)date("Y", $l["apply_ts"]), (int)date("m", $l["apply_ts"]), (int)date("d", $l["apply_ts"])): false;
-			$log[$idx]["apply_ts"] = $l["apply_ts"]  ? mdate("d месяца Y", $l["apply_ts"]) : false;
+			$log[$idx]["apply_ts"] = $l["apply_ts"]  ? mdate("d п╪п╣я│я▐я├п╟ Y", $l["apply_ts"]) : false;
 			$log[$idx]["fields"] = array();
 
 			foreach($db->AllRecords("select * from log_client_fields where ver_id = '".$l["id"]."'") as $f)
@@ -2394,7 +2394,7 @@ DBG::sql_out($select_client_data);
 
 			if(!$log[$idx]["fields"])
 			{
-				$log[$idx]["fields"][] = array("name" => "Изменены поля", "value_from" => $l["comment"], "value_to" => false);
+				$log[$idx]["fields"][] = array("name" => "п≤п╥п╪п╣п╫п╣п╫я▀ п©п╬п╩я▐", "value_from" => $l["comment"], "value_to" => false);
 			}
 		}
 
@@ -2408,54 +2408,54 @@ DBG::sql_out($select_client_data);
 	function _view_history__getFieldName($l)
 	{
 		$f = array(
-			"company" => "Компания",
-			"company_full" => "Полное название компании",
-			"address_jur" => "Юридический адрес",
-			"address_post" => "Почтовый адрес",
-			"address_post_real" => "Действительный почтовый адрес",
-			"address_connect" => "Предполагаемый адрес подключения",
-			"phone_connect" => "Предполагаемый телефон подключения",
-			"metro_id" => "Станция метро",
-			"payment_comment" => "Комментарии к платежу",
-			"sale_channel" => "Канал продаж",
-			"telemarketing" => "Телемаркетинг",
-			"manager" => "Менеджер",
-	        "support" => "Техподдержка",
-	        "bank_properties" => "Банковские реквизиты",
-	        "inn" => "ИНН",
-	        "kpp" => "КПП",
-	        "bik" => "БИК",
-	        "corr_acc" => "К/С",
-	        "pay_acc" => "Р/С",
-	        "bank_name" => "Название банка",
-	        "bank_city" => "Город банка",
-	        "signer_position" => "Должность подписывающего лица",
-	        "signer_name" => "ФИО подписывающего лица",
-	        "signer_positionV" => "Должность подписывающего лица, в вин. падеже",
-	        "signer_nameV" => "ФИО подписывающего лица, в вин. падеже",
-	        "firma" => "Фирма",
-	        "stamp" => "Печатать штамп",
-	        "nds_zero" => "НДС 0%",
-	        "nal" => "Нал",
-	        "currency" => "Валюта",
-	        "credit" => "Кредит",
-	        "voip_credit_limit" => "Телефония, лимит использования (месяц)",
-	        "voip_credit_limit_day" => "Телефония, лимит использования (день)",
-	        "voip_disabled" => "- Выключить телефонию,",
-	        "voip_is_day_calc" => "- Включить пересчет дневного лимита",
-	        "password" => "Пароль",
-	        "usd_rate_percent" => "USD уровень в процентах",
-	        "type" => "Тип",
-	        "id_all4net" => "ID в All4Net",
-	        "user_impersonate" => "Наследовать права пользователя",
-	        "dealer_comment" => "Комментарий для дилера",
-	        "form_type" => "Формирование с/ф",
-	        "price_type" => "Тип цены",
-	        "mail_print" => "Печать писем",
-			"mail_who" => "Кому письмо",
-			"head_company" => "Головная компания",
-			"head_company_address_jur" => "Юр. адрес головной компании",
-            "nds_calc_method" => "Метод расчета НДС"
+			"company" => "п п╬п╪п©п╟п╫п╦я▐",
+			"company_full" => "п÷п╬п╩п╫п╬п╣ п╫п╟п╥п╡п╟п╫п╦п╣ п╨п╬п╪п©п╟п╫п╦п╦",
+			"address_jur" => "п╝я─п╦п╢п╦я┤п╣я│п╨п╦п╧ п╟п╢я─п╣я│",
+			"address_post" => "п÷п╬я┤я┌п╬п╡я▀п╧ п╟п╢я─п╣я│",
+			"address_post_real" => "п■п╣п╧я│я┌п╡п╦я┌п╣п╩я▄п╫я▀п╧ п©п╬я┤я┌п╬п╡я▀п╧ п╟п╢я─п╣я│",
+			"address_connect" => "п÷я─п╣п╢п©п╬п╩п╟пЁп╟п╣п╪я▀п╧ п╟п╢я─п╣я│ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐",
+			"phone_connect" => "п÷я─п╣п╢п©п╬п╩п╟пЁп╟п╣п╪я▀п╧ я┌п╣п╩п╣я└п╬п╫ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐",
+			"metro_id" => "п║я┌п╟п╫я├п╦я▐ п╪п╣я┌я─п╬",
+			"payment_comment" => "п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ п©п╩п╟я┌п╣п╤я┐",
+			"sale_channel" => "п п╟п╫п╟п╩ п©я─п╬п╢п╟п╤",
+			"telemarketing" => "п╒п╣п╩п╣п╪п╟я─п╨п╣я┌п╦п╫пЁ",
+			"manager" => "п°п╣п╫п╣п╢п╤п╣я─",
+	        "support" => "п╒п╣я┘п©п╬п╢п╢п╣я─п╤п╨п╟",
+	        "bank_properties" => "п▒п╟п╫п╨п╬п╡я│п╨п╦п╣ я─п╣п╨п╡п╦п╥п╦я┌я▀",
+	        "inn" => "п≤п²п²",
+	        "kpp" => "п п÷п÷",
+	        "bik" => "п▒п≤п ",
+	        "corr_acc" => "п /п║",
+	        "pay_acc" => "п═/п║",
+	        "bank_name" => "п²п╟п╥п╡п╟п╫п╦п╣ п╠п╟п╫п╨п╟",
+	        "bank_city" => "п⌠п╬я─п╬п╢ п╠п╟п╫п╨п╟",
+	        "signer_position" => "п■п╬п╩п╤п╫п╬я│я┌я▄ п©п╬п╢п©п╦я│я▀п╡п╟я▌я┴п╣пЁп╬ п╩п╦я├п╟",
+	        "signer_name" => "п╓п≤п· п©п╬п╢п©п╦я│я▀п╡п╟я▌я┴п╣пЁп╬ п╩п╦я├п╟",
+	        "signer_positionV" => "п■п╬п╩п╤п╫п╬я│я┌я▄ п©п╬п╢п©п╦я│я▀п╡п╟я▌я┴п╣пЁп╬ п╩п╦я├п╟, п╡ п╡п╦п╫. п©п╟п╢п╣п╤п╣",
+	        "signer_nameV" => "п╓п≤п· п©п╬п╢п©п╦я│я▀п╡п╟я▌я┴п╣пЁп╬ п╩п╦я├п╟, п╡ п╡п╦п╫. п©п╟п╢п╣п╤п╣",
+	        "firma" => "п╓п╦я─п╪п╟",
+	        "stamp" => "п÷п╣я┤п╟я┌п╟я┌я▄ я┬я┌п╟п╪п©",
+	        "nds_zero" => "п²п■п║ 0%",
+	        "nal" => "п²п╟п╩",
+	        "currency" => "п▓п╟п╩я▌я┌п╟",
+	        "credit" => "п я─п╣п╢п╦я┌",
+	        "voip_credit_limit" => "п╒п╣п╩п╣я└п╬п╫п╦я▐, п╩п╦п╪п╦я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ (п╪п╣я│я▐я├)",
+	        "voip_credit_limit_day" => "п╒п╣п╩п╣я└п╬п╫п╦я▐, п╩п╦п╪п╦я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ (п╢п╣п╫я▄)",
+	        "voip_disabled" => "- п▓я▀п╨п╩я▌я┤п╦я┌я▄ я┌п╣п╩п╣я└п╬п╫п╦я▌,",
+	        "voip_is_day_calc" => "- п▓п╨п╩я▌я┤п╦я┌я▄ п©п╣я─п╣я│я┤п╣я┌ п╢п╫п╣п╡п╫п╬пЁп╬ п╩п╦п╪п╦я┌п╟",
+	        "password" => "п÷п╟я─п╬п╩я▄",
+	        "usd_rate_percent" => "USD я┐я─п╬п╡п╣п╫я▄ п╡ п©я─п╬я├п╣п╫я┌п╟я┘",
+	        "type" => "п╒п╦п©",
+	        "id_all4net" => "ID п╡ All4Net",
+	        "user_impersonate" => "п²п╟я│п╩п╣п╢п╬п╡п╟я┌я▄ п©я─п╟п╡п╟ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐",
+	        "dealer_comment" => "п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╢п╩я▐ п╢п╦п╩п╣я─п╟",
+	        "form_type" => "п╓п╬я─п╪п╦я─п╬п╡п╟п╫п╦п╣ я│/я└",
+	        "price_type" => "п╒п╦п© я├п╣п╫я▀",
+	        "mail_print" => "п÷п╣я┤п╟я┌я▄ п©п╦я│п╣п╪",
+			"mail_who" => "п п╬п╪я┐ п©п╦я│я▄п╪п╬",
+			"head_company" => "п⌠п╬п╩п╬п╡п╫п╟я▐ п╨п╬п╪п©п╟п╫п╦я▐",
+			"head_company_address_jur" => "п╝я─. п╟п╢я─п╣я│ пЁп╬п╩п╬п╡п╫п╬п╧ п╨п╬п╪п©п╟п╫п╦п╦",
+            "nds_calc_method" => "п°п╣я┌п╬п╢ я─п╟я│я┤п╣я┌п╟ п²п■п║"
 
 		);
 		return isset($f[$l]) ? $f[$l] : $l;

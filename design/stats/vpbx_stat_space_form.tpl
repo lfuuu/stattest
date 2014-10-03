@@ -1,7 +1,7 @@
-<H2>Статистика использования дискового пространства виртуальными АТС</H2>
-<H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$prev_date_from}&date_to={$prev_date_to}">прошлый месяц</a>,
-      								за <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$cur_date_from}&date_to={$cur_date_to}">текущий месяц</a>,
-      								за <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$today}&date_to={$today}">текущий день</a>)</H3>
+<H2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ п╢п╦я│п╨п╬п╡п╬пЁп╬ п©я─п╬я│я┌я─п╟п╫я│я┌п╡п╟ п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╪п╦ п░п╒п║</H2>
+<H3>п║п╬п╥п╢п╟п╧я┌п╣ п╬я┌я┤я▒я┌ я│п╟п╪п╦: (п╦п╩п╦ - п©п╬я│п╪п╬я┌я─п╦я┌п╣ п╬я┌я┤я▒я┌я▀ п╥п╟ <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$prev_date_from}&date_to={$prev_date_to}">п©я─п╬я┬п╩я▀п╧ п╪п╣я│я▐я├</a>,
+      								п╥п╟ <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$cur_date_from}&date_to={$cur_date_to}">я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├</a>,
+      								п╥п╟ <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$today}&date_to={$today}">я┌п╣п╨я┐я┴п╦п╧ п╢п╣п╫я▄</a>)</H3>
 <FORM action="?" method=get>
 	<input type=hidden name=module value=stats>
 	<input type=hidden name=action value=report_vpbx_stat_space>
@@ -10,14 +10,14 @@
 			{if !$fixclient}
 				<TR>
 					<TD class=left>
-						<label for="vpbx">Виртуальная АТС:</label>
+						<label for="vpbx">п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║:</label>
 					</TD>
 					<TD>
 						<select name="client_id" id="vpbx">
-							<option value="0" {if $client_id == 0}selected="selected"{/if}>Все</option>
+							<option value="0" {if $client_id == 0}selected="selected"{/if}>п▓я│п╣</option>
 							{foreach from=$vpbxs item="vpbx"}
 								<option value="{$vpbx->client_id}" {if $client_id == $vpbx->client_id}selected="selected"{/if}>
-									ВАТС {if !$fixclient}{$vpbx->client} {/if} {$vpbx->tarif} с {$vpbx->actual|mdate:"j месяца Y"}
+									п▓п░п╒п║ {if !$fixclient}{$vpbx->client} {/if} {$vpbx->tarif} я│ {$vpbx->actual|mdate:"j п╪п╣я│я▐я├п╟ Y"}
 								</option>
 							{/foreach}
 						</select>
@@ -26,17 +26,17 @@
 				</TR>
 			{/if}
 			<tr>
-				<td class=left>С:</td>
+				<td class=left>п║:</td>
 				<td>
 					<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
-					По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
+					п÷п╬:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
 				</td>
 			</tr>
 		</TBODY>
        </TABLE>
       <HR>
 
-      <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV></FORM>
+      <DIV align=center><INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌"></DIV></FORM>
 <script>
 	optools.DatePickerInit();
 </script>

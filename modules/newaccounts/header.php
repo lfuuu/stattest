@@ -1,21 +1,21 @@
 <?
 class m_newaccounts_head extends IModuleHead{
 	public $module_name = 'newaccounts';
-	public $module_title = 'âÕÈÇÁÌÔÅÒÉÑ';
+	public $module_title = 'Ð‘ÑƒÑ…Ð³Ð°Ð»Ñ‚ÐµÑ€Ð¸Ñ';
 
 	public $rights=array(
-					'newaccounts_bills'			=>array("óÞÅÔÁ",'read,edit,delete,admin,del_docs,edit_ext','ÐÒÏÓÍÏÔÒ,ÉÚÍÅÎÅÎÉÅ,ÕÄÁÌÅÎÉÅ,ÉÚÍÅÎÅÎÉÅ ÓÞÅÔÁ × ÌÀÂÏÅ ×ÒÅÍÑ,õÄÁÌÅÎÉÅ ÏÔÓËÁÎÉÒÏ×ÁÎÎÙÈ ÁËÔÏ×,òÅÄÁËÔÉÒÏ×ÁÎÉÅ ÎÏÍÅÒÁ ×ÎÅÛÎÅÇÏ ÓÞÅÔÁ'),
-					'newaccounts_payments'		=>array("ðÌÁÔÅÖÉ",'read,edit,delete','ÐÒÏÓÍÏÔÒ,ÒÅÄÁËÔÉÒÏ×ÁÎÉÅ,ÕÄÁÌÅÎÉÅ'),
-					'newaccounts_mass'			=>array("íÁÓÓÏ×ÙÅ ÏÐÅÒÁÃÉÉ",'access','ÄÏÓÔÕÐ'),
-					'newaccounts_balance'		=>array("âÁÌÁÎÓ",'read','ÐÒÏÓÍÏÔÒ'),
-					'newaccounts_usd'			=>array("ëÕÒÓ ÄÏÌÌÁÒÁ",'access','ÄÏÓÔÕÐ')
+					'newaccounts_bills'			=>array("Ð¡Ñ‡ÐµÑ‚Ð°",'read,edit,delete,admin,del_docs,edit_ext','Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€,Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ,ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ,Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ ÑÑ‡ÐµÑ‚Ð° Ð² Ð»ÑŽÐ±Ð¾Ðµ Ð²Ñ€ÐµÐ¼Ñ,Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ÑÐºÐ°Ð½Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ… Ð°ÐºÑ‚Ð¾Ð²,Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð½Ð¾Ð¼ÐµÑ€Ð° Ð²Ð½ÐµÑˆÐ½ÐµÐ³Ð¾ ÑÑ‡ÐµÑ‚Ð°'),
+					'newaccounts_payments'		=>array("ÐŸÐ»Ð°Ñ‚ÐµÐ¶Ð¸",'read,edit,delete','Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€,Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ,ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ'),
+					'newaccounts_mass'			=>array("ÐœÐ°ÑÑÐ¾Ð²Ñ‹Ðµ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸",'access','Ð´Ð¾ÑÑ‚ÑƒÐ¿'),
+					'newaccounts_balance'		=>array("Ð‘Ð°Ð»Ð°Ð½Ñ",'read','Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€'),
+					'newaccounts_usd'			=>array("ÐšÑƒÑ€Ñ Ð´Ð¾Ð»Ð»Ð°Ñ€Ð°",'access','Ð´Ð¾ÑÑ‚ÑƒÐ¿')
 	);
 	public $actions=array(
 					'bill_list'			=> array('newaccounts_bills','read'),
 					'bill_create'		=> array('newaccounts_bills','edit'),
 					'bill_view'			=> array('newaccounts_bills','read'),
 					'bill_edit'			=> array('newaccounts_bills','edit'),
-					'bill_add'			=> array('newaccounts_bills','edit'),	//ÄÏÂÁ×ÌÅÎÉÅ ÞÅÇÏ-ÎÉÂÕÄØ × ÓÞÅÔÁ, ÔÉÐÁ ÔÁÍ "×ÓÅÈ ÐÏÄËÌÀÞÅÎÉÊ" ÉÌÉ "ÁÂÏÎÐÌÁÔÁ" ÉÌÉ "ÚÁÌÏÇ"
+					'bill_add'			=> array('newaccounts_bills','edit'),	//Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ‡ÐµÐ³Ð¾-Ð½Ð¸Ð±ÑƒÐ´ÑŒ Ð² ÑÑ‡ÐµÑ‚Ð°, Ñ‚Ð¸Ð¿Ð° Ñ‚Ð°Ð¼ "Ð²ÑÐµÑ… Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ð¹" Ð¸Ð»Ð¸ "Ð°Ð±Ð¾Ð½Ð¿Ð»Ð°Ñ‚Ð°" Ð¸Ð»Ð¸ "Ð·Ð°Ð»Ð¾Ð³"
 					'bill_apply'		=> array('newaccounts_bills','edit'),
 					'bill_comment'		=> array('newaccounts_bills','edit'),
 					'bill_delete'		=> array('newaccounts_bills','delete'),
@@ -76,24 +76,24 @@ class m_newaccounts_head extends IModuleHead{
 
 				);
 	public $menu=array(
-					array('óÞÅÔÁ',				'bill_list'),
-					array('áËÔ Ó×ÅÒËÉ',			'balance_check'),
-					array('÷ÎÅÓÔÉ ÐÌÁÔ£Ö',		'pay_add'),
+					array('Ð¡Ñ‡ÐµÑ‚Ð°',				'bill_list'),
+					array('ÐÐºÑ‚ ÑÐ²ÐµÑ€ÐºÐ¸',			'balance_check'),
+					array('Ð’Ð½ÐµÑÑ‚Ð¸ Ð¿Ð»Ð°Ñ‚Ñ‘Ð¶',		'pay_add'),
 					array('',					'balance_client'),
-					array('âÁÌÁÎÓ ÐÏ ËÌÉÅÎÔÁÍ',	'balance_client'),
-					array('âÁÌÁÎÓ ÐÏ ÓÞÅÔÁÍ',	'balance_bill'),
-					array('ðÅÒ×ÙÅ ÐÌÁÔÅÖÉ',		'first_pay'),
-					array('ëÕÒÓ ÄÏÌÌÁÒÁ',		'usd'),
+					array('Ð‘Ð°Ð»Ð°Ð½Ñ Ð¿Ð¾ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°Ð¼',	'balance_client'),
+					array('Ð‘Ð°Ð»Ð°Ð½Ñ Ð¿Ð¾ ÑÑ‡ÐµÑ‚Ð°Ð¼',	'balance_bill'),
+					array('ÐŸÐµÑ€Ð²Ñ‹Ðµ Ð¿Ð»Ð°Ñ‚ÐµÐ¶Ð¸',		'first_pay'),
+					array('ÐšÑƒÑ€Ñ Ð´Ð¾Ð»Ð»Ð°Ñ€Ð°',		'usd'),
 					array('',					'pi_list'),
-					array('éÍÐÏÒÔ ÐÌÁÔÅÖÅÊ',	'pi_list'),
-					array('íÁÓÓÏ×ÙÅ ÓÞÅÔÁ',		'bill_mass'),
-					array('ëÎÉÇÁ ÐÒÏÄÁÖ',		'balance_sell'),
-					array('ïÔÞ£Ô ÐÏ ÐÌÁÔÅÖÁÍ',	'pay_report'),
-					array('ïÔÞ£Ô ÐÏ ÄÏÌÇÁÍ',	'debt_report'),
-					array('ðÏÞÔÏ×ÙÊ ÒÅÅÓÔÒ',	'postreg_report'),
+					array('Ð˜Ð¼Ð¿Ð¾Ñ€Ñ‚ Ð¿Ð»Ð°Ñ‚ÐµÐ¶ÐµÐ¹',	'pi_list'),
+					array('ÐœÐ°ÑÑÐ¾Ð²Ñ‹Ðµ ÑÑ‡ÐµÑ‚Ð°',		'bill_mass'),
+					array('ÐšÐ½Ð¸Ð³Ð° Ð¿Ñ€Ð¾Ð´Ð°Ð¶',		'balance_sell'),
+					array('ÐžÑ‚Ñ‡Ñ‘Ñ‚ Ð¿Ð¾ Ð¿Ð»Ð°Ñ‚ÐµÐ¶Ð°Ð¼',	'pay_report'),
+					array('ÐžÑ‚Ñ‡Ñ‘Ñ‚ Ð¿Ð¾ Ð´Ð¾Ð»Ð³Ð°Ð¼',	'debt_report'),
+					array('ÐŸÐ¾Ñ‡Ñ‚Ð¾Ð²Ñ‹Ð¹ Ñ€ÐµÐµÑÑ‚Ñ€',	'postreg_report'),
 					array('',					'pi_list'),
-					array('äÏËÕÍÅÎÔÙ: ÉÓÔÏÒÉÑ',	'docs'),
-					array('äÏËÕÍÅÎÔÙ: îÅÒÁÓÐÏÚÎÁÎÎÏÅ',	'docs_unrec'),
+					array('Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹: Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ñ',	'docs'),
+					array('Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹: ÐÐµÑ€Ð°ÑÐ¿Ð¾Ð·Ð½Ð°Ð½Ð½Ð¾Ðµ',	'docs_unrec'),
 				);
 }
 ?>

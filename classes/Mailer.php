@@ -7,13 +7,13 @@ class Mailer
 {
     private $doer = null;
 
-    public function __construct($fromName = "íóî ôÅÌÅËÏÍ", $fromEmail = "info@mcn.ru")
+    public function __construct($fromName = "ÐœÐ¡Ð Ð¢ÐµÐ»ÐµÐºÐ¾Ð¼", $fromEmail = "info@mcn.ru")
     {
         $this->doer = new PHPMailer();
         $this->doer->SetLanguage("en",INCLUDE_PATH);
-        $this->doer->CharSet = "koi8-r";
+        $this->doer->CharSet = "utf-8";
         $this->doer->From = $fromEmail;
-        $this->doer->FromName = $FromName;
+        $this->doer->FromName = $fromName;
         $this->doer->Mailer='smtp';
         $this->doer->Host=SMTP_SERVER;
     }

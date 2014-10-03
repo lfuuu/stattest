@@ -9,37 +9,37 @@ function mark_del(){
 }
 </script>
 {/literal}
-<h2>Бухгалтерия {$fixclient}</h2>
-<H3>Редактирование проводки</H3>
+<h2>п▒я┐я┘пЁп╟п╩я┌п╣я─п╦я▐ {$fixclient}</h2>
+<H3>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╬п╡п╬п╢п╨п╦</H3>
 <form action="?" method=post id=form name=form>
 	<input type=hidden name=module value=newaccounts>
 	<input type=hidden name=bill value={$bill.bill_no}>
 	<input type=hidden name=action value=bill_apply>
 	<input type=hidden name=client_id value={$bill.client_id}>
-Дата проводки: <input type=text name=bill_date value="{$bill.bill_date}">
-Валюта проводки: <b style='color:blue'>{$bill.currency}</b><br>
-Исполнитель: {html_options name='courier' options=$l_couriers selected=$bill.courier_id}<br>
-Предпологаемый тип платежа: <select name="nal">
-<option value="beznal"{if $bill.nal=="beznal"} selected{/if}>безнал</option>
-<option value="nal"{if $bill.nal=="nal"} selected{/if}>нал</option>
-<option value="prov"{if $bill.nal=="prov"} selected{/if}>пров</option>
+п■п╟я┌п╟ п©я─п╬п╡п╬п╢п╨п╦: <input type=text name=bill_date value="{$bill.bill_date}">
+п▓п╟п╩я▌я┌п╟ п©я─п╬п╡п╬п╢п╨п╦: <b style='color:blue'>{$bill.currency}</b><br>
+п≤я│п©п╬п╩п╫п╦я┌п╣п╩я▄: {html_options name='courier' options=$l_couriers selected=$bill.courier_id}<br>
+п÷я─п╣п╢п©п╬п╩п╬пЁп╟п╣п╪я▀п╧ я┌п╦п© п©п╩п╟я┌п╣п╤п╟: <select name="nal">
+<option value="beznal"{if $bill.nal=="beznal"} selected{/if}>п╠п╣п╥п╫п╟п╩</option>
+<option value="nal"{if $bill.nal=="nal"} selected{/if}>п╫п╟п╩</option>
+<option value="prov"{if $bill.nal=="prov"} selected{/if}>п©я─п╬п╡</option>
 </select><br>
 {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-Внешний счет: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}">
+п▓п╫п╣я┬п╫п╦п╧ я│я┤п╣я┌: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}">
 <br>
-Дата внешнего счета: <input {if !$bill.bill_no_ext_date} disabled="disabled"{/if} id=date_from  type=text name=bill_no_ext_date value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
+п■п╟я┌п╟ п╡п╫п╣я┬п╫п╣пЁп╬ я│я┤п╣я┌п╟: <input {if !$bill.bill_no_ext_date} disabled="disabled"{/if} id=date_from  type=text name=bill_no_ext_date value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
 <input type="checkbox" value="Y" name="date_from_active" {if $bill.bill_no_ext_date} checked="checked"{/if} onchange="activateDatePicker(this);"> 
 <br>
 {/if}
 <table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <tr>
 	<td width=1%>&#8470;</td>
-	<td width=80%>что</td>
-	<td>сколько</td>
-	<td>цена</td>
-	<td>тип строчки</td>
-	<!-- td>пере-<br>нос</td -->
-	<td><input type="checkbox" id="mark_del" onchange="if (this.checked) $('input.mark_del').attr('checked','checked'); else $('input.mark_del').removeAttr('checked');" />Уда-<br>ление</td>
+	<td width=80%>я┤я┌п╬</td>
+	<td>я│п╨п╬п╩я▄п╨п╬</td>
+	<td>я├п╣п╫п╟</td>
+	<td>я┌п╦п© я│я┌я─п╬я┤п╨п╦</td>
+	<!-- td>п©п╣я─п╣-<br>п╫п╬я│</td -->
+	<td><input type="checkbox" id="mark_del" onchange="if (this.checked) $('input.mark_del').attr('checked','checked'); else $('input.mark_del').removeAttr('checked');" />пёп╢п╟-<br>п╩п╣п╫п╦п╣</td>
 </tr>
 {foreach from=$bill_lines item=item key=key name=outer}
 <tr>
@@ -49,10 +49,10 @@ function mark_del(){
 	<td><input class=text type=text value="{$item.price}" name=price[{$key}] style='width:80px;'></td>
 	<td>
 		<select name=type[{$key}]  style='width:70px;'>
-			<option value='service'{if $item.type=='service'} selected{/if}>услуга &nbsp; &nbsp; &nbsp;обычная</option>
-			<option value='zalog'{if $item.type=='zalog'} selected{/if}>залог &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;(попадает в с/ф-3)</option>
-			<option value='zadatok'{if $item.type=='zadatok'} selected{/if}>задаток &nbsp; (не попадает в с/ф)</option>
-			<option value='good'{if $item.type=='good'} selected{/if}>товар</option>
+			<option value='service'{if $item.type=='service'} selected{/if}>я┐я│п╩я┐пЁп╟ &nbsp; &nbsp; &nbsp;п╬п╠я▀я┤п╫п╟я▐</option>
+			<option value='zalog'{if $item.type=='zalog'} selected{/if}>п╥п╟п╩п╬пЁ &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;(п©п╬п©п╟п╢п╟п╣я┌ п╡ я│/я└-3)</option>
+			<option value='zadatok'{if $item.type=='zadatok'} selected{/if}>п╥п╟п╢п╟я┌п╬п╨ &nbsp; (п╫п╣ п©п╬п©п╟п╢п╟п╣я┌ п╡ я│/я└)</option>
+			<option value='good'{if $item.type=='good'} selected{/if}>я┌п╬п╡п╟я─</option>
 		</select>
 	</td>
 	<!-- td><input type="checkbox" name="move[{$key}]" value="1" /></td-->
@@ -71,7 +71,7 @@ function mark_del(){
 </tr>
 </table>
 <div align=center>
-	<input id='submit' class='button' type='submit' value="Изменить">
+	<input id='submit' class='button' type='submit' value="п≤п╥п╪п╣п╫п╦я┌я▄">
 </div>
 </form>
 <script>

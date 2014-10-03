@@ -1,17 +1,17 @@
-<p>Приоритеты:</p>
+<p>п÷я─п╦п╬я─п╦я┌п╣я┌я▀:</p>
 <table class=price cellSpacing=2 cellPadding=4 border=0>
-  <tr><td class=header>Регион</td><td class=header>Оператор</td><td class=header>Префикс</td><td class=header>Направление</td><td class=header>Приоритет</td><td class=header>Дата создания</td><td class=header width="100%"></td></tr>
+  <tr><td class=header>п═п╣пЁп╦п╬п╫</td><td class=header>п·п©п╣я─п╟я┌п╬я─</td><td class=header>п÷я─п╣я└п╦п╨я│</td><td class=header>п²п╟п©я─п╟п╡п╩п╣п╫п╦п╣</td><td class=header>п÷я─п╦п╬я─п╦я┌п╣я┌</td><td class=header>п■п╟я┌п╟ я│п╬п╥п╢п╟п╫п╦я▐</td><td class=header width="100%"></td></tr>
   {foreach from=$list item='r'}
   <tr class="{cycle values='even,odd'}">
     <td nowrap>{$regions[$r.region_id].name}</td>
     <td nowrap>{$r.operator}</td>
     <td nowrap>{$r.prefix}</td>
-    <td nowrap>{$r.geo}{if $r.mob=='t'} (моб.){/if}</td>
+    <td nowrap>{$r.geo}{if $r.mob=='t'} (п╪п╬п╠.){/if}</td>
     <td nowrap>{$r.priority}</td>
     <td nowrap>{$r.created}</td>
     <td>
       {if access('voip','admin')}
-      <a onclick="return confirm('Удалить запись ориоритета?')" href="./index.php?module=voipnew&action=priority_list&del_code={$r.region_id}_{$r.operator_id}_{$r.prefix}">Удалить</a>
+      <a onclick="return confirm('пёп╢п╟п╩п╦я┌я▄ п╥п╟п©п╦я│я▄ п╬я─п╦п╬я─п╦я┌п╣я┌п╟?')" href="./index.php?module=voipnew&action=priority_list&del_code={$r.region_id}_{$r.operator_id}_{$r.prefix}">пёп╢п╟п╩п╦я┌я▄</a>
       {/if}
     </td>
   </tr>
@@ -22,27 +22,27 @@
 <form action="./index.php" method="POST">
   <input type="hidden" name="module" value="voipnew" />
   <input type="hidden" name="action" value="priority_list" />
-  <p>Добавить приоритет:</p>
+  <p>п■п╬п╠п╟п╡п╦я┌я▄ п©я─п╦п╬я─п╦я┌п╣я┌:</p>
   <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr class="even">
       <td>
         <select name="region_operator_id">
-          <option value="">--- Регион / Оператор ---</option>
+          <option value="">--- п═п╣пЁп╦п╬п╫ / п·п©п╣я─п╟я┌п╬я─ ---</option>
           {foreach from=$operators item='r'}
           <option value="{$r.region}_{$r.id}">{$regions[$r.region].name} / {$r.name}</option>
           {/foreach}
         </select>
       </td>
       <td>
-        <input type="text" name="prefix" placeholder="--- Префикс ---"/>
+        <input type="text" name="prefix" placeholder="--- п÷я─п╣я└п╦п╨я│ ---"/>
       </td>
       <td>
-        <input type="text" name="priority" placeholder="--- Приоритет ---"/>
+        <input type="text" name="priority" placeholder="--- п÷я─п╦п╬я─п╦я┌п╣я┌ ---"/>
       </td>
       <td width="100%">
-        <input type="submit" name="add_priority" value="Добавить"/>
+        <input type="submit" name="add_priority" value="п■п╬п╠п╟п╡п╦я┌я▄"/>
       </td>
   </table>
-  <p><i>Приоритет: от -10 до +10:</i></p>
+  <p><i>п÷я─п╦п╬я─п╦я┌п╣я┌: п╬я┌ -10 п╢п╬ +10:</i></p>
 </form>
 {/if}

@@ -201,14 +201,14 @@ class m_voipreports_cost_report
 
             ob_start();
 
-            echo ';;МСN Telecom;;;';
+            echo ';;п°п║N Telecom;;;';
             foreach ($reportOperators as $k => $op) {
                 echo '"' . $op->short_name . ' (' . $k . ')";;;';
             }
             echo "\n";
-            echo '"Префикс номера";"Назначение";"Кол.";"Мин.";"Руб.";';
+            echo '"п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟";"п²п╟п╥п╫п╟я┤п╣п╫п╦п╣";"п п╬п╩.";"п°п╦п╫.";"п═я┐п╠.";';
             foreach ($reportOperators as $k => $op) {
-                echo '"Кол.";"Мин.";"Руб.";';
+                echo '"п п╬п╩.";"п°п╦п╫.";"п═я┐п╠.";';
             }
             echo "\n";
             foreach ($report as $r) {
@@ -225,7 +225,7 @@ class m_voipreports_cost_report
                 echo "\n";
             }
 
-            echo iconv('koi8-r', 'windows-1251', ob_get_clean());
+            echo iconv('utf-8', 'windows-1251', ob_get_clean());
             exit;
         }
     }

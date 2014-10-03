@@ -2,10 +2,10 @@
 <html>
 <head>
   <base href="{$PATH_TO_ROOT}">
-  <TITLE>stat - MCN Телеком</TITLE>
-  <meta http-equiv="Content-Type" content="text/html; charset=koi8-r" />
-  <META content="&#10;/ MCN | Маркомнет&#10;{ldelim}MCN | Маркомнет{rdelim}&#10;" name=title>
-  <META content="Компания MCN. Быстрый интернет по технологии ADSL. IP-телефония, VoIP. Хостинг. Collocation. Подключение под ключ, выезд специалистов, оплата после подключения." name=description>
+  <TITLE>stat - MCN п╒п╣п╩п╣п╨п╬п╪</TITLE>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <META content="&#10;/ MCN | п°п╟я─п╨п╬п╪п╫п╣я┌&#10;{ldelim}MCN | п°п╟я─п╨п╬п╪п╫п╣я┌{rdelim}&#10;" name=title>
+  <META content="п п╬п╪п©п╟п╫п╦я▐ MCN. п▒я▀я│я┌я─я▀п╧ п╦п╫я┌п╣я─п╫п╣я┌ п©п╬ я┌п╣я┘п╫п╬п╩п╬пЁп╦п╦ ADSL. IP-я┌п╣п╩п╣я└п╬п╫п╦я▐, VoIP. п╔п╬я│я┌п╦п╫пЁ. Collocation. п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п©п╬п╢ п╨п╩я▌я┤, п╡я▀п╣п╥п╢ я│п©п╣я├п╦п╟п╩п╦я│я┌п╬п╡, п╬п©п╩п╟я┌п╟ п©п╬я│п╩п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐." name=description>
   <LINK title=default href="main.css" type=text/css rel=stylesheet>
   <script>var LOADED=0;</script>
   <script>var PATH_TO_ROOT="";</script>
@@ -32,9 +32,9 @@
   <TR>
     <TD class=logo-main vAlign=top align=middle width=250><A 
       href="https://lk.mcn.ru/" onclick="this.href=location.protocol+'//'+location.host+location.pathname;"><IMG height=42
-      alt="MCN: Internet Service Provider. ISP. ADSL. Hosting. Colocation. IP-телефония" 
+      alt="MCN: Internet Service Provider. ISP. ADSL. Hosting. Colocation. IP-я┌п╣п╩п╣я└п╬п╫п╦я▐" 
       src="{$IMAGES_PATH}logo2.gif" width=113 border=0></A><BR><SPAN 
-      class=z10>Сервер статистики</SPAN> 
+      class=z10>п║п╣я─п╡п╣я─ я│я┌п╟я┌п╦я│я┌п╦п╨п╦</SPAN> 
 {if isset($authuser)}<br>{include file="fixclient.tpl"}{/if}
     </TD>
     <TD vAlign=bottom width=15>&nbsp;</TD>
@@ -63,18 +63,18 @@ cellPadding=0 width="100%" border=0>
   <TR>
     <TD vAlign=top align=left width="50%"><A href="http://www.mcn.ru/"><IMG 
       height=16 
-      alt="MCN: Internet Service Provider. ISP. ADSL. Hosting. Colocation. IP-телефония" 
+      alt="MCN: Internet Service Provider. ISP. ADSL. Hosting. Colocation. IP-я┌п╣п╩п╣я└п╬п╫п╦я▐" 
       src="{$IMAGES_PATH}logo_msn_s.gif" width=58 border=0></A> <BR><FONT 
-class=z10 color=#666666>&#0169;2013 MCN. тел. (495) 950&#8211;5678 
-(отдел продаж), (495) 950&#8211;5679 (техподдержка)<BR></FONT></TD>
+class=z10 color=#666666>&#0169;2013 MCN. я┌п╣п╩. (495) 950&#8211;5678 
+(п╬я┌п╢п╣п╩ п©я─п╬п╢п╟п╤), (495) 950&#8211;5679 (я┌п╣я┘п©п╬п╢п╢п╣я─п╤п╨п╟)<BR></FONT></TD>
     <TD vAlign=top width="25%">&nbsp;</TD>
     <TD class=z10 vAlign=top align=right width="25%"><A 
       onclick="scrollTo(0,0); return false;" 
-      href="https://lk.mcn.ru/" onclick="this.href=location.protocol+'//'+location.host+location.pathname+'#top';">В начало страницы</A>&nbsp;&#8226;<BR><A
-      href="http://www.mcn.ru/">На главную страницу</A>&nbsp;&#8226;<BR><A 
+      href="https://lk.mcn.ru/" onclick="this.href=location.protocol+'//'+location.host+location.pathname+'#top';">п▓ п╫п╟я┤п╟п╩п╬ я│я┌я─п╟п╫п╦я├я▀</A>&nbsp;&#8226;<BR><A
+      href="http://www.mcn.ru/">п²п╟ пЁп╩п╟п╡п╫я┐я▌ я│я┌я─п╟п╫п╦я├я┐</A>&nbsp;&#8226;<BR><A 
       onclick="if (document.all) {ldelim}window.external.AddFavorite(location.href,document.title); return false;{rdelim}" 
-      href="https://lk.mcn.ru/">Добавить в
-    избранное</A>&nbsp;&#8226;<BR></FONT></TD></TR></TBODY></TABLE>
+      href="https://lk.mcn.ru/">п■п╬п╠п╟п╡п╦я┌я▄ п╡
+    п╦п╥п╠я─п╟п╫п╫п╬п╣</A>&nbsp;&#8226;<BR></FONT></TD></TR></TBODY></TABLE>
 <DIV style="WIDTH: 1px; HEIGHT: 15px"><IMG height=15 alt="" 
 src="{$IMAGES_PATH}1.gif" width=1></DIV>
 <script language=JavaScript>LOADED=1;</script>
@@ -82,18 +82,18 @@ src="{$IMAGES_PATH}1.gif" width=1></DIV>
 <script type="text/javascript">
     {literal}
     var datepicker_ru = {
-        closeText: 'Закрыть',
-        prevText: '&#x3c;Пред',
-        nextText: 'След&#x3e;',
-        currentText: 'Сегодня',
-        monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
-            'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
-        monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
-            'Июл','Авг','Сен','Окт','Ноя','Дек'],
-        dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
-        dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
-        dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
-        weekHeader: 'Не',
+        closeText: 'п≈п╟п╨я─я▀я┌я▄',
+        prevText: '&#x3c;п÷я─п╣п╢',
+        nextText: 'п║п╩п╣п╢&#x3e;',
+        currentText: 'п║п╣пЁп╬п╢п╫я▐',
+        monthNames: ['п╞п╫п╡п╟я─я▄','п╓п╣п╡я─п╟п╩я▄','п°п╟я─я┌','п░п©я─п╣п╩я▄','п°п╟п╧','п≤я▌п╫я▄',
+            'п≤я▌п╩я▄','п░п╡пЁя┐я│я┌','п║п╣п╫я┌я▐п╠я─я▄','п·п╨я┌я▐п╠я─я▄','п²п╬я▐п╠я─я▄','п■п╣п╨п╟п╠я─я▄'],
+        monthNamesShort: ['п╞п╫п╡','п╓п╣п╡','п°п╟я─','п░п©я─','п°п╟п╧','п≤я▌п╫',
+            'п≤я▌п╩','п░п╡пЁ','п║п╣п╫','п·п╨я┌','п²п╬я▐','п■п╣п╨'],
+        dayNames: ['п╡п╬я│п╨я─п╣я│п╣п╫я▄п╣','п©п╬п╫п╣п╢п╣п╩я▄п╫п╦п╨','п╡я┌п╬я─п╫п╦п╨','я│я─п╣п╢п╟','я┤п╣я┌п╡п╣я─пЁ','п©я▐я┌п╫п╦я├п╟','я│я┐п╠п╠п╬я┌п╟'],
+        dayNamesShort: ['п╡я│п╨','п©п╫п╢','п╡я┌я─','я│я─п╢','я┤я┌п╡','п©я┌п╫','я│п╠я┌'],
+        dayNamesMin: ['п▓я│','п÷п╫','п▓я┌','п║я─','п╖я┌','п÷я┌','п║п╠'],
+        weekHeader: 'п²п╣',
         dateFormat: 'yy-mm-dd',
         firstDay: 1,
         showMonthAfterYear: false,

@@ -14,7 +14,7 @@ class VoipReservNumber
         $region = $db->GetValue("select region from voip_numbers where number = '".$number."'");
 
         if (!$region)
-            throw new Exception("Номер не найден");
+            throw new Exception("п²п╬п╪п╣я─ п╫п╣ п╫п╟п╧п╢п╣п╫");
 
 
         $u = $db->GetValue("select id from usage_voip where 
@@ -24,13 +24,13 @@ class VoipReservNumber
                 ) and E164 = '".$number."'");
 
         if ($u)
-            throw new Exception("Номер уже используется");
+            throw new Exception("п²п╬п╪п╣я─ я┐п╤п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐");
 
 
         $client = $db->GetValue("select client from clients where id='".$clientId."'");
 
         if (!$client)
-            throw new Exception("Клиент не найден");
+            throw new Exception("п п╩п╦п╣п╫я┌ п╫п╣ п╫п╟п╧п╢п╣п╫");
 
         $tarifs = self::getDefaultTarifs();
 
@@ -40,10 +40,10 @@ class VoipReservNumber
         $tarif = $db->GetRow("select * from tarifs_voip where id = '".$tarifId."' and region = '".$region."'");
 
         if (!$tarif)
-            throw new Exception("Тариф не найден");
+            throw new Exception("п╒п╟я─п╦я└ п╫п╣ п╫п╟п╧п╢п╣п╫");
 
 
-        //Создаем запись услуги
+        //п║п╬п╥п╢п╟п╣п╪ п╥п╟п©п╦я│я▄ я┐я│п╩я┐пЁп╦
         $usageVoipId = $db->QueryInsert("usage_voip", array(
                     "client"        => $client,
                     "region"        => $region,
@@ -55,7 +55,7 @@ class VoipReservNumber
                     )
                 );
 
-        //Создаем запись тарифов
+        //п║п╬п╥п╢п╟п╣п╪ п╥п╟п©п╦я│я▄ я┌п╟я─п╦я└п╬п╡
         $db->QueryInsert("log_tarif", array(
                     "service"             => "usage_voip",
                     "id_service"          => $usageVoipId,
@@ -102,7 +102,7 @@ class VoipReservNumber
                         status='public' and
                         region='".$region_id."' and
                         currency='RUR'
-                    " . (($region_id == '99') ? "AND name LIKE('%Базовый%')" : '')
+                    " . (($region_id == '99') ? "AND name LIKE('%п▒п╟п╥п╬п╡я▀п╧%')" : '')
                     );
             foreach ($tarifs as $r) {
                 switch ($r['dest']) {

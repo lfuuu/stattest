@@ -1,10 +1,10 @@
 <h1>
     <small>
-        <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
+        <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">п·я┌я┤п╣я┌я▀</a>
     </small>
 
-    Отчет по маршрутизации:
-    <small>{if $rep->instance_id}{$regions[$rep->instance_id].name}{else}Все регионы{/if}
+    п·я┌я┤п╣я┌ п©п╬ п╪п╟я─я┬я─я┐я┌п╦п╥п╟я├п╦п╦:
+    <small>{if $rep->instance_id}{$regions[$rep->instance_id].name}{else}п▓я│п╣ я─п╣пЁп╦п╬п╫я▀{/if}
 
     (  {foreach from=$rep->pricelist_ids key='i' item='pl'}
     {if $i > 0},{/if}
@@ -15,28 +15,28 @@
 
 <p>
   {if $volume.calc_date}
-  Объемы звонков рассчитаны с {$volume.date_from} по {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id].name}{else}Все регионы{/if})
+  п·п╠я┼п╣п╪я▀ п╥п╡п╬п╫п╨п╬п╡ я─п╟я│я│я┤п╦я┌п╟п╫я▀ я│ {$volume.date_from} п©п╬ {$volume.date_to} ({if $volume.region_id}{$regions[$volume.region_id].name}{else}п▓я│п╣ я─п╣пЁп╦п╬п╫я▀{/if})
   {if $volume.need_recalc == 't'}
-  <b>(требуется пересчет)</b>
+  <b>(я┌я─п╣п╠я┐п╣я┌я│я▐ п©п╣я─п╣я│я┤п╣я┌)</b>
   {/if}
   {else}
-  Объемы не рассчитаны
+  п·п╠я┼п╣п╪я▀ п╫п╣ я─п╟я│я│я┤п╦я┌п╟п╫я▀
   {/if}
   {if $volume.calc_running == 't'}
-  <b>(идет расчет)</b>
+  <b>(п╦п╢п╣я┌ я─п╟я│я┤п╣я┌)</b>
   {else}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">Рассчет объемов</a>
+    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">п═п╟я│я│я┤п╣я┌ п╬п╠я┼п╣п╪п╬п╡</a>
   {/if}
 
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-    <a href="?module=voipreports&action=pricelist_report_edit&id={$rep->id}">Настройка отчета</a>
+    <a href="?module=voipreports&action=pricelist_report_edit&id={$rep->id}">п²п╟я│я┌я─п╬п╧п╨п╟ п╬я┌я┤п╣я┌п╟</a>
 </p>
 
 {if $rep->generated_at}
 <p>
-  Отчет расчитан {$rep->generated_at}
+  п·я┌я┤п╣я┌ я─п╟я│я┤п╦я┌п╟п╫ {$rep->generated_at}
 </p>
 {/if}
 
@@ -87,17 +87,17 @@ td.lock_default {
       if (td_value == '')
       {
         td.className = 'lock_default';
-        td.innerHTML = 'Поумолчанию';
+        td.innerHTML = 'п÷п╬я┐п╪п╬п╩я┤п╟п╫п╦я▌';
       }
       else if (td_value == 't')
       {
         td.className = 'lock_lock';
-        td.innerHTML = 'Заблокирован';
+        td.innerHTML = 'п≈п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫';
       }
       else if (td_value == 'f')
       {
         td.className = 'lock_unlock';
-        td.innerHTML = 'Разблокирован';
+        td.innerHTML = 'п═п╟п╥п╠п╩п╬п╨п╦я─п╬п╡п╟п╫';
       }
       $(td).attr('value',td_value);
     });
@@ -105,7 +105,7 @@ td.lock_default {
 
   function lock_by_price()
   {
-    var price=parseInt(prompt("Заблокировать все что дороже",'10'));
+    var price=parseInt(prompt("п≈п╟п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄ п╡я│п╣ я┤я┌п╬ п╢п╬я─п╬п╤п╣",'10'));
     if (price > 0)
     {
       $.post('./index.php?module=voipnew&action=lock_by_price', {report_id:{/literal}{$report_id}{literal},price:price},function(){
@@ -120,52 +120,52 @@ td.lock_default {
 	<input type="hidden" name="action" value="pricelist_report_show" />
 	<input type="hidden" name="id" value="{$report_id}" />
 	<select name="f_dest_group">
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+	<option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+	<option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+	<option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
 	</select>
 	<select name="f_country_id" class="select2" style="width: 250px">
-	<option value="0">-- Все страны --</option>
+	<option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
 	{foreach from=$geo_countries item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 	<select name="f_region_id" class="select2" style="width: 300px">
-	<option value="0">-- Все регионы --</option>
+	<option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
 	{foreach from=$geo_regions item='g'}
 	<option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
 	{/foreach}
 	</select>
 
     <select name="f_mob">
-        <option value="0">-- Моб/Стац --</option>
-        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
-        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+        <option value="0">-- п°п╬п╠/п║я┌п╟я├ --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
     </select>
 
-  <input type="checkbox" name="f_locks" {if $f_locks != ''} checked{/if}>Блокировки
+  <input type="checkbox" name="f_locks" {if $f_locks != ''} checked{/if}>п▒п╩п╬п╨п╦я─п╬п╡п╨п╦
   <br/>
-  <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
-  <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- Объем --"/>
+  <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- п÷я─п╣я└п╦п╨я│ --"/>
+  <input type="text" name="f_volume" value="{$f_volume}" placeholder="-- п·п╠я┼п╣п╪ --"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <input type=submit name="make" id="make_report" value="Сформировать"/>
-  <input type=submit name="calc" value="Пересчитать"/>
-  <input type=submit name="export" value="Экспорт CSV"/>
-  <input type=button value="Заблокировать дорогие коды" onclick="lock_by_price()"/>
+  <input type=submit name="make" id="make_report" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
+  <input type=submit name="calc" value="п÷п╣я─п╣я│я┤п╦я┌п╟я┌я▄"/>
+  <input type=submit name="export" value="п╜п╨я│п©п╬я─я┌ CSV"/>
+  <input type=button value="п≈п╟п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄ п╢п╬я─п╬пЁп╦п╣ п╨п╬п╢я▀" onclick="lock_by_price()"/>
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr>
-  <td nowrap class=header style="min-width: 100px;">Префикс номера</td>
-  <td class=header style="min-width: 100px;">Назначение</td>
-  <td nowrap class=header style="min-width: 100px;text-align: center">Лучшая цена</td>
+  <td nowrap class=header style="min-width: 100px;">п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟</td>
+  <td class=header style="min-width: 100px;">п²п╟п╥п╫п╟я┤п╣п╫п╦п╣</td>
+  <td nowrap class=header style="min-width: 100px;text-align: center">п⌡я┐я┤я┬п╟я▐ я├п╣п╫п╟</td>
   {foreach from=$rep->pricelist_ids item='p'}
     <td nowrap class=header align=center style="min-width: 100px;text-align: center">{$pricelists[$p].operator}</td>
 	{/foreach}
-  {if $volume.calc_date}<td nowrap class=header style="text-align: center">Объем<br/>(мин)</td>{/if}
-  <td nowrap class=header style="min-width: 100px;text-align: center">Порядок</td>
-  <td nowrap class=header style="min-width: 100px;text-align: center">Блокировка</td>
+  {if $volume.calc_date}<td nowrap class=header style="text-align: center">п·п╠я┼п╣п╪<br/>(п╪п╦п╫)</td>{/if}
+  <td nowrap class=header style="min-width: 100px;text-align: center">п÷п╬я─я▐п╢п╬п╨</td>
+  <td nowrap class=header style="min-width: 100px;text-align: center">п▒п╩п╬п╨п╦я─п╬п╡п╨п╟</td>
 </tr>
 {foreach from=$report item='rd'}
 
@@ -184,9 +184,9 @@ td.lock_default {
   {/foreach}
   </td>
   <td nowrap align=center prefix="{$rd.prefix}" value="{$rd.locked_raw}" onclick="lock_click(this);"
-    {if $rd.locked_raw == 't'} class="lock_lock">Заблокирован
-    {elseif $rd.locked_raw == 'f'} class="lock_unlock">Разблокирован
-    {else} class="lock_default">Поумолчанию
+    {if $rd.locked_raw == 't'} class="lock_lock">п≈п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫
+    {elseif $rd.locked_raw == 'f'} class="lock_unlock">п═п╟п╥п╠п╩п╬п╨п╦я─п╬п╡п╟п╫
+    {else} class="lock_default">п÷п╬я┐п╪п╬п╩я┤п╟п╫п╦я▌
     {/if}
   </td>
 </tr>

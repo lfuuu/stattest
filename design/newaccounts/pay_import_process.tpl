@@ -1,10 +1,10 @@
-<h2>Импорт платежей</h2>
+<h2>п≤п╪п©п╬я─я┌ п©п╩п╟я┌п╣п╤п╣п╧</h2>
 <form action='?' method=post>
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=pi_apply>
 <input type=hidden name=file value='{$file}'>
 <input type=hidden name=bank value='{$bank}'>
-<input type='checkbox' id='check_all' style='margin-left:4px' onclick='optools.pays.sel_all_pay_radio(event)'> Выбрать всех<br />
+<input type='checkbox' id='check_all' style='margin-left:4px' onclick='optools.pays.sel_all_pay_radio(event)'> п▓я▀п╠я─п╟я┌я▄ п╡я│п╣я┘<br />
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0 id="pays_tbl">
 {foreach from=$payments item=pay name=outer}
 <tr bgcolor=#fffff5><td colspan='4'>
@@ -13,27 +13,27 @@
 		<input type=radio name=pay[{$pay.id}][client] value='{$i.client}'{if $pay.imported} disabled='disabled'{/if} onclick = "filterBills('bills_{$pay.id}',GBILLS[{$i.id}],'{$pay.bill_no}')">
 			<a href='{$LINK_START}module=clients&id={$i.id}'>{$i.client}</a> - 
 			<span style='font-size:85%'>{$i.company_full} ({$i.manager})
-			{if $i.is_ext} - {$i.comment}{else} - основной ИНН{/if}</span><br>
+			{if $i.is_ext} - {$i.comment}{else} - п╬я│п╫п╬п╡п╫п╬п╧ п≤п²п²{/if}</span><br>
 	{/foreach}
 	{if !$pay.imported}
-		<input type=radio name=pay[{$pay.id}][client] value=''>не вносить
+		<input type=radio name=pay[{$pay.id}][client] value=''>п╫п╣ п╡п╫п╬я│п╦я┌я▄
 	{/if}
 {else}
-	ИНН: {$pay.inn}<br>
+	п≤п²п²: {$pay.inn}<br>
 {/if}
 </td>
 </tr>
-<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum_rub > 0}<br><br>{/if}Платеж &#8470;{$pay.pp} от {$pay.date}
+<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum_rub > 0}<br><br>{/if}п÷п╩п╟я┌п╣п╤ &#8470;{$pay.pp} п╬я┌ {$pay.date}
 {if $pay.sum_rub > 0}<br><br><br><span style="font-size:7pt;" title="{$pay.payer|escape}">{$pay.payer|truncate:35}</span>{/if}
 <input type=hidden name=pay[{$pay.id}][pay] value='{$pay.pp}'>
 <input type=hidden name=pay[{$pay.id}][date] value='{$pay.date}'>
 <input type=hidden name=pay[{$pay.id}][oper_date] value='{$pay.oper_date}'>
 <input type=hidden name=pay[{$pay.id}][sum_rub] value='{$pay.sum_rub}'></td>
-<td><b>{$pay.sum_rub}</b> р.</td><td>
+<td><b>{$pay.sum_rub}</b> я─.</td><td>
     
 {if $pay.client.client}
 	<select name=pay[{$pay.id}][bill_no] id=bills_{$pay.id}>
-	<option value=''>(без привязки)</option>
+	<option value=''>(п╠п╣п╥ п©я─п╦п╡я▐п╥п╨п╦)</option>
     {assign var='is_select' value=false}
 	{foreach from=$clients_bills[$pay.client.id] item=bill name=inner2}
 	<option value={$bill.bill_no}{if $pay.bill_no==$bill.bill_no} selected{assign var='is_select' value=true}{/if}>{$bill.bill_no}{if $bill.is_payed}+{/if}</option>
@@ -50,10 +50,10 @@
 </td></tr>
 {/foreach}
 </TABLE>
-<br><b>Сумма занесенных: </b>{$payments_imported} руб.<br>
-<br><b>Сумма +/-: </b>{$payments_plus} / {$payments_minus} руб.<br>
-<br><b>Сумма итого: </b>{$payments_sum} руб.<br>
-<DIV align=center><INPUT class=button type=submit value="Внести платежи"></DIV></FORM>
+<br><b>п║я┐п╪п╪п╟ п╥п╟п╫п╣я│п╣п╫п╫я▀я┘: </b>{$payments_imported} я─я┐п╠.<br>
+<br><b>п║я┐п╪п╪п╟ +/-: </b>{$payments_plus} / {$payments_minus} я─я┐п╠.<br>
+<br><b>п║я┐п╪п╪п╟ п╦я┌п╬пЁп╬: </b>{$payments_sum} я─я┐п╠.<br>
+<DIV align=center><INPUT class=button type=submit value="п▓п╫п╣я│я┌п╦ п©п╩п╟я┌п╣п╤п╦"></DIV></FORM>
 <script language=javascript>
 {literal}
 var GBILLS = {};
@@ -70,7 +70,7 @@ function filterBills(bid, data, billno) {
 	}
 	{
 		var opt = document.createElement("OPTION");
-		opt.innerHTML = "(без привязки)";
+		opt.innerHTML = "(п╠п╣п╥ п©я─п╦п╡я▐п╥п╨п╦)";
 		opt.value = "";
 		obj.appendChild(opt);
 	}

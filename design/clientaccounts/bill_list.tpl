@@ -1,20 +1,20 @@
-<h2>Счета {$fixclient}</h2>
-Баланс RUR: <b>{$client.balance|round:2}</b><br>
-Баланс USD: <b>{$client.balance_usd|round:2}</b><br>
-Общая сумма оказанных услуг: <b>{$sum_cur.bill|round:2} {if $fixclient_data.currency=='USD'}$ {$sum.RUR.bill|round:2} р{else}р {$sum.USD.bill|round:2} ${/if}</b><br>
-Общая сумма <span title='Клиент должен нам'>долга</span>: <b>{$sum_cur.delta+$sum_cur.saldo|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUR.delta+$sum.RUR.saldo|round:2} р{else}р</b> и <b>{$sum.USD.delta+$sum.USD.saldo|round:2} ${/if}</b> (с учётом сальдо)<br>
-Real-time сальдо: <b>{if $fixclient_data.currency=='RUR'}{$saldo_rt.RUR|round:2} р{else}{$saldo_rt.USD|round:2} ${/if}</b><br>
+<h2>п║я┤п╣я┌п╟ {$fixclient}</h2>
+п▒п╟п╩п╟п╫я│ RUR: <b>{$client.balance|round:2}</b><br>
+п▒п╟п╩п╟п╫я│ USD: <b>{$client.balance_usd|round:2}</b><br>
+п·п╠я┴п╟я▐ я│я┐п╪п╪п╟ п╬п╨п╟п╥п╟п╫п╫я▀я┘ я┐я│п╩я┐пЁ: <b>{$sum_cur.bill|round:2} {if $fixclient_data.currency=='USD'}$ {$sum.RUR.bill|round:2} я─{else}я─ {$sum.USD.bill|round:2} ${/if}</b><br>
+п·п╠я┴п╟я▐ я│я┐п╪п╪п╟ <span title='п п╩п╦п╣п╫я┌ п╢п╬п╩п╤п╣п╫ п╫п╟п╪'>п╢п╬п╩пЁп╟</span>: <b>{$sum_cur.delta+$sum_cur.saldo|round:2} {if $fixclient_data.currency=='USD'}$</b> п╦ <b>{$sum.RUR.delta+$sum.RUR.saldo|round:2} я─{else}я─</b> п╦ <b>{$sum.USD.delta+$sum.USD.saldo|round:2} ${/if}</b> (я│ я┐я┤я▒я┌п╬п╪ я│п╟п╩я▄п╢п╬)<br>
+Real-time я│п╟п╩я▄п╢п╬: <b>{if $fixclient_data.currency=='RUR'}{$saldo_rt.RUR|round:2} я─{else}{$saldo_rt.USD|round:2} ${/if}</b><br>
 <TABLE class=price cellSpacing=3 cellPadding=1 border=0 width=100%><TR>
-	<TD class=header vAlign=bottom colspan=3>Счёт</td>
+	<TD class=header vAlign=bottom colspan=3>п║я┤я▒я┌</td>
 	<TD class=header vAlign=bottom>&nbsp;</td>
-	<TD class=header vAlign=bottom colspan=4>Платёж</td>
+	<TD class=header vAlign=bottom colspan=4>п÷п╩п╟я┌я▒п╤</td>
 </TR><TR>
-	<TD class=header vAlign=bottom>Дата</TD>
-	<TD class=header vAlign=bottom>Номер</TD>
-	<TD class=header vAlign=bottom>Сумма</TD>
-	<TD class=header vAlign=bottom title='положительные числа - мы должны клиенту, отрицательные - клиент нам'>разница</TD>
-	<TD class=header vAlign=bottom>Сумма</TD>
-	<TD class=header vAlign=bottom>Дата</TD>
+	<TD class=header vAlign=bottom>п■п╟я┌п╟</TD>
+	<TD class=header vAlign=bottom>п²п╬п╪п╣я─</TD>
+	<TD class=header vAlign=bottom>п║я┐п╪п╪п╟</TD>
+	<TD class=header vAlign=bottom title='п©п╬п╩п╬п╤п╦я┌п╣п╩я▄п╫я▀п╣ я┤п╦я│п╩п╟ - п╪я▀ п╢п╬п╩п╤п╫я▀ п╨п╩п╦п╣п╫я┌я┐, п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╣ - п╨п╩п╦п╣п╫я┌ п╫п╟п╪'>я─п╟п╥п╫п╦я├п╟</TD>
+	<TD class=header vAlign=bottom>п║я┐п╪п╪п╟</TD>
+	<TD class=header vAlign=bottom>п■п╟я┌п╟</TD>
 </TR>
 {foreach from=$billops item=op key=key name=outer}
 {count_comments v=$op}
@@ -29,8 +29,8 @@ Real-time сальдо: <b>{if $fixclient_data.currency=='RUR'}{$saldo_rt.RUR|round:2}
 	<TD class=pay{$op.bill.is_payed}>
 		<a href='{$LINK_START}module=clientaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}</a>
 	</TD>
-	<TD align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}р{/if}
-	{if $op.bill.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$op.bill.gen_bill_date}'>{$op.bill.gen_bill_rur} р</span>{/if}
+	<TD align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}я─{/if}
+	{if $op.bill.gen_bill_rur!=0}<br><span style='font-size:85%' title='п║я┐п╪п╪п╟ я│я┤я▒я┌п╟, {$op.bill.gen_bill_date}'>{$op.bill.gen_bill_rur} я─</span>{/if}
 	</TD>
 {else}
 	<TD colspan=3 rowspan={$rowspan}>&nbsp;</TD>

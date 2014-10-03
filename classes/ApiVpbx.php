@@ -4,10 +4,10 @@ class ApiVpbx
 {
 
     /**
-    * ÷ÏÚ×ÒÁİÁÅÔ ×ÓÅ ÁËÔÉ×ÎÙÅ ÎÏÍÅÒÁ ÌÉÃÅ×ÏÇÏ ÓŞÅÔÁ
+    * Ğ’Ğ¾Ğ·Ğ²Ñ€Ğ°Ñ‰Ğ°ĞµÑ‚ Ğ²ÑĞµ Ğ°ĞºÑ‚Ğ¸Ğ²Ğ½Ñ‹Ğµ Ğ½Ğ¾Ğ¼ĞµÑ€Ğ° Ğ»Ğ¸Ñ†ĞµĞ²Ğ¾Ğ³Ğ¾ ÑÑ‡ĞµÑ‚Ğ°
     *
-    * @param int $clientId id ÌÉÃÅ×ÏÇÏ ÓŞÅÔÁ
-    * @param bool ×ÙÄÁÔØ ĞÒÏÓÔÏÊ ÍÁÓÓÉ× Ó ÎÏÍÅÒÁÍÉ, ÉÌÉ ĞÏÌÎÙÊ, Ó ÄÅÔÁÌØÎÏÊ ÉÎÆÏÒÍÁÃÉÅÊ
+    * @param int $clientId id Ğ»Ğ¸Ñ†ĞµĞ²Ğ¾Ğ³Ğ¾ ÑÑ‡ĞµÑ‚Ğ°
+    * @param bool Ğ²Ñ‹Ğ´Ğ°Ñ‚ÑŒ Ğ¿Ñ€Ğ¾ÑÑ‚Ğ¾Ğ¹ Ğ¼Ğ°ÑÑĞ¸Ğ² Ñ Ğ½Ğ¾Ğ¼ĞµÑ€Ğ°Ğ¼Ğ¸, Ğ¸Ğ»Ğ¸ Ğ¿Ğ¾Ğ»Ğ½Ñ‹Ğ¹, Ñ Ğ´ĞµÑ‚Ğ°Ğ»ÑŒĞ½Ğ¾Ğ¹ Ğ¸Ğ½Ñ„Ğ¾Ñ€Ğ¼Ğ°Ñ†Ğ¸ĞµĞ¹
     * @return array
     */
     public static function getClientPhoneNumbers($clientId, $isSimple = false)
@@ -17,7 +17,7 @@ class ApiVpbx
         $clientId = (int)$clientId;
 
         if (!$clientId)
-            throw new Exception("ìÉÃÅ×ÏÊ ÓŞÅÔ ÎÅ ÎÁÊÄÅÎ!");
+            throw new Exception("Ğ›Ğ¸Ñ†ĞµĞ²Ğ¾Ğ¹ ÑÑ‡ĞµÑ‚ Ğ½Ğµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½!");
 
         $data = array();
         foreach($db_ats->AllRecords("SELECT number, call_count from a_number where client_id = '".$clientId."' and enabled = 'yes'") as $l)
@@ -40,7 +40,7 @@ class ApiVpbx
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
         if (!isset($clientNumbers[$phone])) 
         {
-            throw new Exception("îÅÉÚ×ÅÓÔÎÙÊ ÎÏÍÅÒ", 501);
+            throw new Exception("ĞĞµĞ¸Ğ·Ğ²ĞµÑÑ‚Ğ½Ñ‹Ğ¹ Ğ½Ğ¾Ğ¼ĞµÑ€", 501);
         }
 
         //already added => answer: ok
@@ -60,7 +60,7 @@ class ApiVpbx
             $r = SyncVirtPbx::addDid($clientId, $phone);
         }catch(Exception $e)
         {
-            if ($e->getCode() != 514) // îÏÍÅÒ "7499xxxxxxx" ÕÖÅ ÉÓĞÏÌØÚÕÅÔÓÑ
+            if ($e->getCode() != 514) // ĞĞ¾Ğ¼ĞµÑ€ "7499xxxxxxx" ÑƒĞ¶Ğµ Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒĞµÑ‚ÑÑ
             {
                 throw $e;
             }
@@ -88,7 +88,7 @@ class ApiVpbx
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
         if (!isset($clientNumbers[$phone])) 
         {
-            throw new Exception("îÅÉÚ×ÅÓÔÎÙÊ ÎÏÍÅÒ");
+            throw new Exception("ĞĞµĞ¸Ğ·Ğ²ĞµÑÑ‚Ğ½Ñ‹Ğ¹ Ğ½Ğ¾Ğ¼ĞµÑ€");
         }
 
         $isDeleted = true;
@@ -109,7 +109,7 @@ class ApiVpbx
             $r = SyncVirtPbx::delDid($clientId, $phone);
         }catch(Exception $e)
         {
-            if ($e->getCode() != 514) // îÏÍÅÒ "7xxxxxxxxxx" ÎÅ ÓÕİÅÓÔ×ÕÅÔ
+            if ($e->getCode() != 514) // ĞĞ¾Ğ¼ĞµÑ€ "7xxxxxxxxxx" Ğ½Ğµ ÑÑƒÑ‰ĞµÑÑ‚Ğ²ÑƒĞµÑ‚
             {
                 throw $e;
             }
@@ -127,11 +127,11 @@ class ApiVpbx
     }
 
     /**
-    * ğÏÌÕŞÁÅÍ ÓÔÁÔÉÓÔÉËÕ ĞÏ ÚÁÎÑÔÏÍÕ ĞÒÏÓÔÒÁÎÓÔ×Õ
+    * ĞŸĞ¾Ğ»ÑƒÑ‡Ğ°ĞµĞ¼ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºÑƒ Ğ¿Ğ¾ Ğ·Ğ°Ğ½ÑÑ‚Ğ¾Ğ¼Ñƒ Ğ¿Ñ€Ğ¾ÑÑ‚Ñ€Ğ°Ğ½ÑÑ‚Ğ²Ñƒ
     *
-    * @param $clientId int id ÌÉÃÅ×ÏÇÏ ÓŞÅÔÁ
-    * @param $data array ÄÁÎÎÙÅ ÚÁĞÒÏÓÁ, ÄÌÑ ÆÏÒÉÒÏ×ÁÎÉÑ ÓÔÁÔÉÓÔÉËÉ
-    * @return int ÚÁÎÑÔÏÅ ĞÒÏÓÔÏÒÁÎÓÔ×Ï
+    * @param $clientId int id Ğ»Ğ¸Ñ†ĞµĞ²Ğ¾Ğ³Ğ¾ ÑÑ‡ĞµÑ‚Ğ°
+    * @param $data array Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ·Ğ°Ğ¿Ñ€Ğ¾ÑĞ°, Ğ´Ğ»Ñ Ñ„Ğ¾Ñ€Ğ¸Ñ€Ğ¾Ğ²Ğ°Ğ½Ğ¸Ñ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºĞ¸
+    * @return int Ğ·Ğ°Ğ½ÑÑ‚Ğ¾Ğµ Ğ¿Ñ€Ğ¾ÑÑ‚Ğ¾Ñ€Ğ°Ğ½ÑÑ‚Ğ²Ğ¾
     */
     public static function getUsageSpaceStatistic($clientId, $data)
     {
@@ -139,11 +139,11 @@ class ApiVpbx
     }
 
     /**
-    * ğÏÌÕŞÁÅÍ ÓÔÁÔÉÓÔÉËÕ ĞÏ ËÏÌÉŞÅÓÔ×Õ ÉÓĞÏÌØÚÕÅÍÙÈ ĞÏÒÔÏ×
+    * ĞŸĞ¾Ğ»ÑƒÑ‡Ğ°ĞµĞ¼ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºÑƒ Ğ¿Ğ¾ ĞºĞ¾Ğ»Ğ¸Ñ‡ĞµÑÑ‚Ğ²Ñƒ Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒĞµĞ¼Ñ‹Ñ… Ğ¿Ğ¾Ñ€Ñ‚Ğ¾Ğ²
     *
-    * @param $clientId int id ÌÉÃÅ×ÏÇÏ ÓŞÅÔÁ
-    * @param $data array ÄÁÎÎÙÅ ÚÁĞÒÏÓÁ, ÄÌÑ ÆÏÒÉÒÏ×ÁÎÉÑ ÓÔÁÔÉÓÔÉËÉ
-    * @return int ËÏÌ-×Ï ÉÓĞÏÌØÚÕÅÍÙÈ ĞÏÒÔÏ×
+    * @param $clientId int id Ğ»Ğ¸Ñ†ĞµĞ²Ğ¾Ğ³Ğ¾ ÑÑ‡ĞµÑ‚Ğ°
+    * @param $data array Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ·Ğ°Ğ¿Ñ€Ğ¾ÑĞ°, Ğ´Ğ»Ñ Ñ„Ğ¾Ñ€Ğ¸Ñ€Ğ¾Ğ²Ğ°Ğ½Ğ¸Ñ ÑÑ‚Ğ°Ñ‚Ğ¸ÑÑ‚Ğ¸ĞºĞ¸
+    * @return int ĞºĞ¾Ğ»-Ğ²Ğ¾ Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒĞµĞ¼Ñ‹Ñ… Ğ¿Ğ¾Ñ€Ñ‚Ğ¾Ğ²
     */
     public static function getUsageNumbersStatistic($clientId, $data)
     {
@@ -151,10 +151,10 @@ class ApiVpbx
     }
 
     /**
-    * õÓÔÁÎÁ×ÌÉ×ÁÅÔ, ËÁËÉÅ ÎÏÍÅÒÁ ÉÓĞÏÌØÚÕÀÔÓÑ × vpbx'Å
+    * Ğ£ÑÑ‚Ğ°Ğ½Ğ°Ğ²Ğ»Ğ¸Ğ²Ğ°ĞµÑ‚, ĞºĞ°ĞºĞ¸Ğµ Ğ½Ğ¾Ğ¼ĞµÑ€Ğ° Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒÑÑ‚ÑÑ Ğ² vpbx'Ğµ
     *
-    * @param int id ÌÉÃÅ×ÏÇÏ ÓŞÅÔÁ
-    * @param array ÍÁÓÓÉ× ÎÏÍÅÒÏ×
+    * @param int id Ğ»Ğ¸Ñ†ĞµĞ²Ğ¾Ğ³Ğ¾ ÑÑ‡ĞµÑ‚Ğ°
+    * @param array Ğ¼Ğ°ÑÑĞ¸Ğ² Ğ½Ğ¾Ğ¼ĞµÑ€Ğ¾Ğ²
     * @return bool
     */
     public static function ______setClientVatsPhoneNumbers($clientId, $numbers)
@@ -164,7 +164,7 @@ class ApiVpbx
         $clientId = (int)$clientId;
 
         if (!$clientId)
-            throw new Exception("ìÉÃÅ×ÏÊ ÓŞÅÔ ÎÅ ÎÁÊÄÅÎ!");
+            throw new Exception("Ğ›Ğ¸Ñ†ĞµĞ²Ğ¾Ğ¹ ÑÑ‡ĞµÑ‚ Ğ½Ğµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½!");
 
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
 
@@ -178,7 +178,7 @@ class ApiVpbx
             if (!$number || !isset($clientNumbers[$number]))
             {
                 $db->Query("rollback");
-                throw new Exception("îÏÍÅÒ \"".$number."\" ÎÅ ÎÁÊÄÅÎ × ÎÏÍÅÒÁÈ ËÌÉÅÎÔÁ!");
+                throw new Exception("ĞĞ¾Ğ¼ĞµÑ€ \"".$number."\" Ğ½Ğµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½ Ğ² Ğ½Ğ¾Ğ¼ĞµÑ€Ğ°Ñ… ĞºĞ»Ğ¸ĞµĞ½Ñ‚Ğ°!");
             }
             $db->QueryInsert("vpbx_numbers", array("client_id" => $clientId, "number" => $number));
         }

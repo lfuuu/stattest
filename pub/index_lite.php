@@ -1,5 +1,5 @@
 <?
-	//ÜÔÏÔ ÆÁÊÌ ÍÏÖÅÔ ÉÓÐÏÌØÚÏ×ÁÔØÓÑ ÄÌÑ ÁÑËÓÏ×ÙÈ ×ÙÚÏ×Ï×. É ×Ó£.
+	//ÑÑ‚Ð¾Ñ‚ Ñ„Ð°Ð¹Ð» Ð¼Ð¾Ð¶ÐµÑ‚ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒÑÑ Ð´Ð»Ñ Ð°ÑÐºÑÐ¾Ð²Ñ‹Ñ… Ð²Ñ‹Ð·Ð¾Ð²Ð¾Ð². Ð¸ Ð²ÑÑ‘.
 	define("PATH_TO_ROOT",'../');
 	include PATH_TO_ROOT."conf.php";
 	require_once(INCLUDE_PATH.'authuser.php');
@@ -22,6 +22,6 @@
 	}
 	if (!$c) exit;
 	$$v = new $c();
-	header('Content-Type: text/html; charset=koi8-r');
+	header('Content-Type: text/html; charset=utf-8');
 	$$v->GetMain($action,$fixclient);
 ?>

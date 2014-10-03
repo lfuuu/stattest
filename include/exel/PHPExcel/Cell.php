@@ -221,7 +221,7 @@ class PHPExcel_Cell
 		// set the value according to data type
 		switch ($pDataType) {
 			case PHPExcel_Cell_DataType::TYPE_STRING:
-				$this->_value = iconv('UTF-8','KOI8-R', PHPExcel_Cell_DataType::checkString($pValue) );
+				$this->_value = PHPExcel_Cell_DataType::checkString($pValue);
 				break;
 			case PHPExcel_Cell_DataType::TYPE_NULL:
 			case PHPExcel_Cell_DataType::TYPE_INLINE:

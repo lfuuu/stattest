@@ -1,11 +1,11 @@
-<p>Сеть: <b>{$networkConfig->name}</b>. Файл: {$file->file_name} <a href="index.php?module=voipnew&action=network_config_show&id={$networkConfig->id}">Назад</a>
+<p>п║п╣я┌я▄: <b>{$networkConfig->name}</b>. п╓п╟п╧п╩: {$file->file_name} <a href="index.php?module=voipnew&action=network_config_show&id={$networkConfig->id}">п²п╟п╥п╟п╢</a>
 <div style="position:relative;left:50;">
     <table>
         <tr>
             <td valign=top>
-                файл: {$file->file_name}<br>
-                дата загрузки: {$file->created_at}<br>
-                количество строк: {$file->rows}<br>
+                я└п╟п╧п╩: {$file->file_name}<br>
+                п╢п╟я┌п╟ п╥п╟пЁя─я┐п╥п╨п╦: {$file->created_at}<br>
+                п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я│я┌я─п╬п╨: {$file->rows}<br>
             </td>
             <td valign=top>
                 <form action="./index.php" method="post" style="margin-left:30px">
@@ -13,10 +13,10 @@
                     <input type="hidden" name="action" value="network_file_activatedeactivate" />
                     <input type="hidden" name="id" value="{$file->id}" />
                     {if $file->active eq 't'}
-                    <b>Активирован</b><br>
-                    <input type="submit" name="deactivate" value="Деактивировать" />
+                    <b>п░п╨я┌п╦п╡п╦я─п╬п╡п╟п╫</b><br>
+                    <input type="submit" name="deactivate" value="п■п╣п╟п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄" />
                     {else}
-                    <input type="submit" name="activate" value="Активировать" />
+                    <input type="submit" name="activate" value="п░п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄" />
                     {/if}
                 </form>
             </td>
@@ -26,9 +26,9 @@
                     <input type="hidden" name="action" value="delete_raw_file" />
                     <input type="hidden" name="id" value="{$file->id}" />
                     {if $file->active neq 't'}
-                    <input type="submit" value="Удалить" />
+                    <input type="submit" value="пёп╢п╟п╩п╦я┌я▄" />
                     {else}
-                    <input type="submit" value="Удалить" />
+                    <input type="submit" value="пёп╢п╟п╩п╦я┌я▄" />
                     {/if}
                 </form>
             </td>
@@ -39,8 +39,8 @@
                     <input type="hidden" name="module" value="voipnew" />
                     <input type="hidden" name="action" value="network_file_change_start_date" />
                     <input type="hidden" name="id" value="{$file->id}" />
-                    начало действия: <input id="startdate" class="datepicker" name="startdate" value="{$file->startdate}"></b>
-                    <input type="submit" value="Изменить дату начала действия" />
+                    п╫п╟я┤п╟п╩п╬ п╢п╣п╧я│я┌п╡п╦я▐: <input id="startdate" class="datepicker" name="startdate" value="{$file->startdate}"></b>
+                    <input type="submit" value="п≤п╥п╪п╣п╫п╦я┌я▄ п╢п╟я┌я┐ п╫п╟я┤п╟п╩п╟ п╢п╣п╧я│я┌п╡п╦я▐" />
                 </form>
             </td>
         </tr>
@@ -52,21 +52,21 @@
     <input type="hidden" name="action" value="network_file_show" />
     <input type="hidden" name="id" value="{$file->id}" />
 
-    <input name="f_prefix" value="{$f_prefix}" placeholder="Префикс"/>
+    <input name="f_prefix" value="{$f_prefix}" placeholder="п÷я─п╣я└п╦п╨я│"/>
     <select name="f_network_type_id">
-        <option value="0">-- Все группы --</option>
+        <option value="0">-- п▓я│п╣ пЁя─я┐п©п©я▀ --</option>
         {foreach from=$network_types key='k' item='g'}
         <option value="{$g->id}" {if $g->id eq $f_network_type_id} selected{/if}>{$g->id}. {$g->name}</option>
         {/foreach}
     </select>
 
-    <input type=submit value="Сформировать"/>
+    <input type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
 </form>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
     <tr>
-        <td class=header>Префикс номера</td>
-        <td class=header>Группа</td>
+        <td class=header>п÷я─п╣я└п╦п╨я│ п╫п╬п╪п╣я─п╟</td>
+        <td class=header>п⌠я─я┐п©п©п╟</td>
     </tr>
     {foreach from=$prefixes item='r'}
     <tr class="{cycle values='even,odd'}">

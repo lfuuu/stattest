@@ -1,18 +1,18 @@
-<h2>Выставленные счета за {$ts|mdate:"месяц Y"} года по региону {$region_name}</h2>
+<h2>п▓я▀я│я┌п╟п╡п╩п╣п╫п╫я▀п╣ я│я┤п╣я┌п╟ п╥п╟ {$ts|mdate:"п╪п╣я│я▐я├ Y"} пЁп╬п╢п╟ п©п╬ я─п╣пЁп╦п╬п╫я┐ {$region_name}</h2>
 <br/>
 <table class="price">
 	<tr>
 		<th colspan=2>
-			Клиент
+			п п╩п╦п╣п╫я┌
 		</th>
 		<th>
-			Номер счета
+			п²п╬п╪п╣я─ я│я┤п╣я┌п╟
 		</th>
 		<th>
-			Сумма
+			п║я┐п╪п╪п╟
 		</th>
 		<th>
-			Дата
+			п■п╟я┌п╟
 		</th>
 	</tr>
 	{if $bills}
@@ -31,13 +31,13 @@
 					{$p.sum|number_format:2:",":" "} {$p.currency}
 				</td>
 				<td>
-					{$p.bill_date|mdate:"d месяца Y"}
+					{$p.bill_date|mdate:"d п╪п╣я│я▐я├п╟ Y"}
 				</td>
 			</tr>
 		{/foreach}
 		<tr>
 			<th colspan=3>
-				Всего
+				п▓я│п╣пЁп╬
 			</th>
 			<td align="right">
 				{$total|number_format:2:",":" "}
@@ -45,7 +45,7 @@
 		</tr>
 	{else}
 		<tr>
-			<td colspan="5">Нет данных</td>
+			<td colspan="5">п²п╣я┌ п╢п╟п╫п╫я▀я┘</td>
 		</tr>
 	{/if}
 </table>

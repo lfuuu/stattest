@@ -1,6 +1,6 @@
 <?php
 
-	//ÜÔÏÔ ÆÁÊÌ ÍÏÖÅÔ ÉÓĞÏÌØÚÏ×ÁÔØÓÑ ÄÌÑ ÁÑËÓÏ×ÙÈ ×ÙÚÏ×Ï×. É ×Ó£.
+	//ÑÑ‚Ğ¾Ñ‚ Ñ„Ğ°Ğ¹Ğ» Ğ¼Ğ¾Ğ¶ĞµÑ‚ Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ÑŒÑÑ Ğ´Ğ»Ñ Ğ°ÑĞºÑĞ¾Ğ²Ñ‹Ñ… Ğ²Ñ‹Ğ·Ğ¾Ğ²Ğ¾Ğ². Ğ¸ Ğ²ÑÑ‘.
 	define("PATH_TO_ROOT",'../');
 	define('NO_WEB',1);
 	include PATH_TO_ROOT."conf.php";
@@ -20,7 +20,7 @@
                 where b.client_id = '".$id."' and bill_date > '".$dateFrom."' and bill_date <='".$dateTo."' 
                 and l.bill_no = b.bill_no and g.id = l.item_id
                 and c.id = b.client_id and c.company like '%D_%'") as $u)
-    echo iconv("koi8-r", "utf-8", $u["bill_no"]."\t".$u["bill_date"]."\t".$u["dispatch"]."\t".$u["num_id"]."\t".($u["payment"]?$u["payment"]:0))."\n";
+    echo $u["bill_no"]."\t".$u["bill_date"]."\t".$u["dispatch"]."\t".$u["num_id"]."\t".($u["payment"]?$u["payment"]:0)."\n";
 }
 
 

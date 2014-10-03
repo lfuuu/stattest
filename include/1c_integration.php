@@ -6,11 +6,9 @@ function trr($var){
     if(!is_string($var)) return $var;
 
     $tr_anslation = array(
-        'org'=>'ЮрЛицо',
-        'priv'=>'ФизЛицо'
+        'org'=>'п╝я─п⌡п╦я├п╬',
+        'priv'=>'п╓п╦п╥п⌡п╦я├п╬'
     );
-
-    $var = @iconv('UTF-8','KOI8-R//TRANSLIT',$var);
 
     if($k=array_search($var, $tr_anslation))
         return $k;
@@ -19,12 +17,12 @@ function trr($var){
 
 function tr($var){
     $tr_anslation = array(
-        'org'=>'ЮрЛицо',
-        'priv'=>'ФизЛицо'
+        'org'=>'п╝я─п⌡п╦я├п╬',
+        'priv'=>'п╓п╦п╥п⌡п╦я├п╬'
     );
     if(isset($tr_anslation[$var]))
         $var = $tr_anslation[$var];
-    return iconv('KOI8-R','UTF-8',$var);
+    return $var;
 }
 
 function getFaultMessage(\SoapFault &$f){
@@ -56,8 +54,8 @@ class clientSyncer{
     {
         return $this->soap->utDelete(
             array('param'=>array(
-                tr('ИдКонтрагента')=>$uidCli,
-                tr('ИдСоглашения1С')=>$uidCon
+                tr('п≤п╢п п╬п╫я┌я─п╟пЁп╣п╫я┌п╟')=>$uidCli,
+                tr('п≤п╢п║п╬пЁп╩п╟я┬п╣п╫п╦я▐1п║')=>$uidCon
             ))
         );
     }
@@ -72,26 +70,26 @@ class clientSyncer{
         try{
             $a =
                 array('contract'=>array(
-                    tr('ИдКлиентаСтат')=>tr($cli['client']),
-                    tr('ИдКарточкиКлиентаСтат')=>tr($cli['card_id']),
-                    tr('ИдКонтрагента')=>tr($cli['cli_1c']),
-                    tr('ИдСоглашения1С')=>tr($cli['con_1c']),
-                    tr('НаименованиеКомпании')=>tr($cli['company']),
-                    tr('ПолноеНаименованиеКомпании')=>tr($cli['company_full']),
-                    tr('ИНН')=>tr($cli['inn']),
-                    tr('КПП')=>tr($cli['kpp']),
-                    tr('БИК')=>tr($cli['bik']),
-                    tr('РC')=>tr($cli['pay_acc']),
-                    tr('КС')=>tr($cli['corr_acc']),
-                    tr('НазваниеБанка')=>tr($cli['bank_name']),
-                    tr('ГородБанка')=>tr($cli['bank_city']),
-                    tr('ЮридическийАдрес')=>tr($cli['address_jur']),
-                    tr('ПравоваяФорма')=>tr($cli['type']),
-                    tr('Организация')=>tr($cli['firma']),
-                    tr('ВалютаРасчетов')=>tr($cli['currency']),
-                    tr('ВидЦен')=>tr($cli["price_type"])
+                    tr('п≤п╢п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($cli['client']),
+                    tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($cli['card_id']),
+                    tr('п≤п╢п п╬п╫я┌я─п╟пЁп╣п╫я┌п╟')=>tr($cli['cli_1c']),
+                    tr('п≤п╢п║п╬пЁп╩п╟я┬п╣п╫п╦я▐1п║')=>tr($cli['con_1c']),
+                    tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п п╬п╪п©п╟п╫п╦п╦')=>tr($cli['company']),
+                    tr('п÷п╬п╩п╫п╬п╣п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п п╬п╪п©п╟п╫п╦п╦')=>tr($cli['company_full']),
+                    tr('п≤п²п²')=>tr($cli['inn']),
+                    tr('п п÷п÷')=>tr($cli['kpp']),
+                    tr('п▒п≤п ')=>tr($cli['bik']),
+                    tr('п═C')=>tr($cli['pay_acc']),
+                    tr('п п║')=>tr($cli['corr_acc']),
+                    tr('п²п╟п╥п╡п╟п╫п╦п╣п▒п╟п╫п╨п╟')=>tr($cli['bank_name']),
+                    tr('п⌠п╬я─п╬п╢п▒п╟п╫п╨п╟')=>tr($cli['bank_city']),
+                    tr('п╝я─п╦п╢п╦я┤п╣я│п╨п╦п╧п░п╢я─п╣я│')=>tr($cli['address_jur']),
+                    tr('п÷я─п╟п╡п╬п╡п╟я▐п╓п╬я─п╪п╟')=>tr($cli['type']),
+                    tr('п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐')=>tr($cli['firma']),
+                    tr('п▓п╟п╩я▌я┌п╟п═п╟я│я┤п╣я┌п╬п╡')=>tr($cli['currency']),
+                    tr('п▓п╦п╢п╕п╣п╫')=>tr($cli["price_type"])
                 ),
-                    tr('Пользователь')=>$user->Get("user")
+                    tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>$user->Get("user")
                 );
 
             //file_put_contents("/tmp/pushClientCard", var_export($a,true));
@@ -124,9 +122,9 @@ class clientSyncer{
         }
 
         $cg = new \clCards\struct_cardDetails();
-        $cg->setCorrAcc(trr($resp->return->{tr('КС')}));
-        $cg->setBankName(trr($resp->return->{tr('НазваниеБанка')}));
-        $cg->setBankCity(trr($resp->return->{tr('ГородБанка')}));
+        $cg->setCorrAcc(trr($resp->return->{tr('п п║')}));
+        $cg->setBankName(trr($resp->return->{tr('п²п╟п╥п╡п╟п╫п╦п╣п▒п╟п╫п╨п╟')}));
+        $cg->setBankCity(trr($resp->return->{tr('п⌠п╬я─п╬п╢п▒п╟п╫п╨п╟')}));
 
         if($cc->hasAnotherFields($cg) && $cc->merge($cg))
             return \clCards\saveCard($this->db, $cc);
@@ -145,10 +143,10 @@ class clientSyncer{
         }
 
         $cc = new \clCards\struct_cardDetails();
-        $cc->setBankCity(trr($ret->{tr('ГородБанка')}));
-        $cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
-        $cc->setBik(trr($ret->{tr('БИК')}));
-        $cc->setCorrAcc(trr($ret->{tr('КС')}));
+        $cc->setBankCity(trr($ret->{tr('п⌠п╬я─п╬п╢п▒п╟п╫п╨п╟')}));
+        $cc->setBankName(trr($ret->{tr('п²п╟п╥п╡п╟п╫п╦п╣п▒п╟п╫п╨п╟')}));
+        $cc->setBik(trr($ret->{tr('п▒п≤п ')}));
+        $cc->setCorrAcc(trr($ret->{tr('п п║')}));
 
         return $cc;
     }
@@ -160,28 +158,28 @@ class clientSyncer{
 
         try{
             $ret = $this->soap->utGetClient(array(
-                tr('ИдКарточкиКлиентаСтат')=>tr($con_1c),
-                tr('ИдКлиентаСтат')=>tr($cli_1c),
-                tr('ИНН')=>tr($inn)
+                tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($con_1c),
+                tr('п≤п╢п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($cli_1c),
+                tr('п≤п²п²')=>tr($inn)
             ))->return;
         }catch(\SoapFault $e){
             return false;
         }
 
         $cc = new \clCards\struct_cardDetails();
-        $cc->setAddressJur(trr($ret->{tr('ЮридическийАдрес')}));
-        $cc->setBankCity(trr($ret->{tr('ГородБанка')}));
-        $cc->setBankName(trr($ret->{tr('НазваниеБанка')}));
-        $cc->setBik(trr($ret->{tr('БИК')}));
-        $cc->setCompany(trr($ret->{tr('НаименованиеКомпании')}));
-        $cc->setCompanyFull(trr($ret->{tr('ПолноеНаименованиеКомпании')}));
-        $cc->setCorrAcc(trr($ret->{tr('КС')}));
-        $cc->setCurrency(trr($ret->{tr('ВалютаРасчетов')}));
-        $cc->setFirma(trr($ret->{tr('Организация')}));
-        $cc->setInn(trr($ret->{tr('ИНН')}));
-        $cc->setKpp(trr($ret->{tr('КПП')}));
-        $cc->setPayAcc(trr($ret->{tr('РC')}));
-        $cc->setType(trr($ret->{tr('ПравоваяФорма')}));
+        $cc->setAddressJur(trr($ret->{tr('п╝я─п╦п╢п╦я┤п╣я│п╨п╦п╧п░п╢я─п╣я│')}));
+        $cc->setBankCity(trr($ret->{tr('п⌠п╬я─п╬п╢п▒п╟п╫п╨п╟')}));
+        $cc->setBankName(trr($ret->{tr('п²п╟п╥п╡п╟п╫п╦п╣п▒п╟п╫п╨п╟')}));
+        $cc->setBik(trr($ret->{tr('п▒п≤п ')}));
+        $cc->setCompany(trr($ret->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п п╬п╪п©п╟п╫п╦п╦')}));
+        $cc->setCompanyFull(trr($ret->{tr('п÷п╬п╩п╫п╬п╣п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п п╬п╪п©п╟п╫п╦п╦')}));
+        $cc->setCorrAcc(trr($ret->{tr('п п║')}));
+        $cc->setCurrency(trr($ret->{tr('п▓п╟п╩я▌я┌п╟п═п╟я│я┤п╣я┌п╬п╡')}));
+        $cc->setFirma(trr($ret->{tr('п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐')}));
+        $cc->setInn(trr($ret->{tr('п≤п²п²')}));
+        $cc->setKpp(trr($ret->{tr('п п÷п÷')}));
+        $cc->setPayAcc(trr($ret->{tr('п═C')}));
+        $cc->setType(trr($ret->{tr('п÷я─п╟п╡п╬п╡п╟я▐п╓п╬я─п╪п╟')}));
 
         return $cc;
     }
@@ -236,18 +234,18 @@ class clientSyncer{
 
         try{
             $ret = $this->soap->utSaveOrderService(array(
-                tr('ЗаказУслуги')=>array(
-                    tr('ИдКарточкиКлиентаСтат')=>tr($cl->getAtMask(\clCards\struct_cardDetails::card)),
-                    tr('Номер')=>tr($bill['bill_no']),
-                    tr('Дата')=>tr($bill['bill_date']),
-                    tr('ИдСоглашения1С')=>tr($cl->getAtMask(\clCards\struct_cardDetails::con_1c)),
-                    tr('Валюта')=>tr($bill['currency']),
-                    tr('СуммаВРублях')=>($bill['sum_rur']),
-                    tr('Сумма')=>tr($bill['sum']),
-                    tr('Комментарий')=>tr($bill['comment']),
-                    tr('Закрыт')=>((int)$bill['is_payed'])>0
+                tr('п≈п╟п╨п╟п╥пёя│п╩я┐пЁп╦')=>array(
+                    tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($cl->getAtMask(\clCards\struct_cardDetails::card)),
+                    tr('п²п╬п╪п╣я─')=>tr($bill['bill_no']),
+                    tr('п■п╟я┌п╟')=>tr($bill['bill_date']),
+                    tr('п≤п╢п║п╬пЁп╩п╟я┬п╣п╫п╦я▐1п║')=>tr($cl->getAtMask(\clCards\struct_cardDetails::con_1c)),
+                    tr('п▓п╟п╩я▌я┌п╟')=>tr($bill['currency']),
+                    tr('п║я┐п╪п╪п╟п▓п═я┐п╠п╩я▐я┘')=>($bill['sum_rur']),
+                    tr('п║я┐п╪п╪п╟')=>tr($bill['sum']),
+                    tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧')=>tr($bill['comment']),
+                    tr('п≈п╟п╨я─я▀я┌')=>((int)$bill['is_payed'])>0
                 ),
-                tr('Пользователь')=>$user->Get("user")
+                tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>$user->Get("user")
             ))->return;
         }catch(\SoapFault $e){
             $fault = $e;
@@ -294,23 +292,23 @@ class clientSyncer{
 
         try{
             $ret = $this->soap->utSavePayment(array(
-                tr('ОплатаУслуги')=>array(
-                    tr('ИдПлатежаСтат')=>$pay['id'],
-                    tr('НомерСчетаСтат')=>tr($pay['bill_no']),
-                    tr('НомерСчетаПривязкиСтат')=>tr($pay['bill_vis_no']),
-                    tr('ИдПлатежа')=>'',
-                    tr('ИдЗаказа')=>'',
-                    tr('ИдЗаказаПривязка')=>'',
-                    tr('ДатаДокумента')=>tr($pay['pdate']),
-                    tr('НомерДокумента')=>tr($pay['payment_no']),
-                    tr('ДатаОперации')=>tr($pay['odate']),
-                    tr('Тип')=>tr($pay['type']),
-                    tr('СуммаВРублях')=>tr($pay['sum_rub']),
-                    tr('Валюта')=>tr($pay['currency']),
-                    tr('Курс')=>tr($pay['payment_rate']),
-                    tr('Комментарий')=>tr($pay['comment'])
+                tr('п·п©п╩п╟я┌п╟пёя│п╩я┐пЁп╦')=>array(
+                    tr('п≤п╢п÷п╩п╟я┌п╣п╤п╟п║я┌п╟я┌')=>$pay['id'],
+                    tr('п²п╬п╪п╣я─п║я┤п╣я┌п╟п║я┌п╟я┌')=>tr($pay['bill_no']),
+                    tr('п²п╬п╪п╣я─п║я┤п╣я┌п╟п÷я─п╦п╡я▐п╥п╨п╦п║я┌п╟я┌')=>tr($pay['bill_vis_no']),
+                    tr('п≤п╢п÷п╩п╟я┌п╣п╤п╟')=>'',
+                    tr('п≤п╢п≈п╟п╨п╟п╥п╟')=>'',
+                    tr('п≤п╢п≈п╟п╨п╟п╥п╟п÷я─п╦п╡я▐п╥п╨п╟')=>'',
+                    tr('п■п╟я┌п╟п■п╬п╨я┐п╪п╣п╫я┌п╟')=>tr($pay['pdate']),
+                    tr('п²п╬п╪п╣я─п■п╬п╨я┐п╪п╣п╫я┌п╟')=>tr($pay['payment_no']),
+                    tr('п■п╟я┌п╟п·п©п╣я─п╟я├п╦п╦')=>tr($pay['odate']),
+                    tr('п╒п╦п©')=>tr($pay['type']),
+                    tr('п║я┐п╪п╪п╟п▓п═я┐п╠п╩я▐я┘')=>tr($pay['sum_rub']),
+                    tr('п▓п╟п╩я▌я┌п╟')=>tr($pay['currency']),
+                    tr('п я┐я─я│')=>tr($pay['payment_rate']),
+                    tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧')=>tr($pay['comment'])
                 ),
-                tr('Пользователь')=>$user->Get("user"),
+                tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>$user->Get("user"),
             ))->return;
         }catch(\SoapFault $e){
             $fault = $e;
@@ -335,7 +333,7 @@ class clientSyncer{
         try{
             $resp = $this->soap->utDeleteOrder(array(
                 'number'=>$bill_no,
-                tr('Пользователь')=>$user->Get("user"),
+                tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>$user->Get("user"),
                 'isRollback'=>(bool)$bill['is_rollback']
             ))->return;
         }catch(\SoapFault $e){
@@ -351,8 +349,8 @@ class clientSyncer{
     {
         global $user;
         $resp = $this->soap->utDeletePayment(array(
-            tr('ИдПлатежаСтат')=>$payment_no,
-            tr('Пользователь')=>$user->Get("user")
+            tr('п≤п╢п÷п╩п╟я┌п╣п╤п╟п║я┌п╟я┌')=>$payment_no,
+            tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>$user->Get("user")
         ))->return;
         return $resp;
     }
@@ -379,9 +377,9 @@ class reports{
     {
         try{
             $q = array(
-                tr('КодТовара')=>$goodNum,
-                tr('НачалоПериода')=>tr($from),
-                tr('КонецПериода')=>tr($to)
+                tr('п п╬п╢п╒п╬п╡п╟я─п╟')=>$goodNum,
+                tr('п²п╟я┤п╟п╩п╬п÷п╣я─п╦п╬п╢п╟')=>tr($from),
+                tr('п п╬п╫п╣я├п÷п╣я─п╦п╬п╢п╟')=>tr($to)
             );
 
             $resp = $this->soap->utGetStoreAmount($q)->return;
@@ -396,28 +394,28 @@ class reports{
 
         $data = array();
 
-        if(isset($resp->{tr("ПоДням")}))
+        if(isset($resp->{tr("п÷п╬п■п╫я▐п╪")}))
         {
-            foreach($resp->{tr("ПоДням")} as $r)
+            foreach($resp->{tr("п÷п╬п■п╫я▐п╪")} as $r)
             {
-                $p = $r->{tr("Период")};
+                $p = $r->{tr("п÷п╣я─п╦п╬п╢")};
 
                 if(!isset($data[$p]))
                 {
                     $data[$p] = array(
-                        "start" => $r->{tr("ОстатокНаНачало")},
+                        "start" => $r->{tr("п·я│я┌п╟я┌п╬п╨п²п╟п²п╟я┤п╟п╩п╬")},
                         "income" => 0,
                         "outlay" => 0,
                         "end" => 0,
                         "orders" => array()
                     );
                 }
-                $data[$p]["income"] += $r->{tr("Приход")};
-                $data[$p]["outlay"] += $r->{tr("Расход")};
-                $data[$p]["end"] = $r->{tr("ОстатокНаКонец")};
+                $data[$p]["income"] += $r->{tr("п÷я─п╦я┘п╬п╢")};
+                $data[$p]["outlay"] += $r->{tr("п═п╟я│я┘п╬п╢")};
+                $data[$p]["end"] = $r->{tr("п·я│я┌п╟я┌п╬п╨п²п╟п п╬п╫п╣я├")};
 
-                if(isset($r->{tr("НомерЗаказа")}))
-                    $data[$p]["orders"][] = $r->{tr("НомерЗаказа")};
+                if(isset($r->{tr("п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟")}))
+                    $data[$p]["orders"][] = $r->{tr("п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟")};
             }
         }
 
@@ -447,18 +445,18 @@ class billMaker{
     {
         try{
             $resp = $this->soap->utGetPriceTypes(array(
-                tr('ИдКарточкиКлиентаСтат')=>$client_tid
+                tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>$client_tid
             ))->return;
         }catch(\SoapFault $e){
             return false;
         }
 
         $ret = array();
-        $ret['default'] = trr($resp->{tr('ИдВидаЦенПоумолчанию')});
+        $ret['default'] = trr($resp->{tr('п≤п╢п▓п╦п╢п╟п╕п╣п╫п÷п╬я┐п╪п╬п╩я┤п╟п╫п╦я▌')});
         $ret['list'] = array();
 
-        foreach($resp->{tr('СписокВидовЦен')} as $p){
-            $ret['list'][trr($p->{tr('ИдВидаЦен')})] = trr($p->{tr('Наименвоание')});
+        foreach($resp->{tr('п║п©п╦я│п╬п╨п▓п╦п╢п╬п╡п╕п╣п╫')} as $p){
+            $ret['list'][trr($p->{tr('п≤п╢п▓п╦п╢п╟п╕п╣п╫')})] = trr($p->{tr('п²п╟п╦п╪п╣п╫п╡п╬п╟п╫п╦п╣')});
         }
         asort($ret['list']);
         return $ret;
@@ -468,8 +466,8 @@ class billMaker{
     {
         try{
             $resp = $this->soap->utFindProduct(array(
-                tr('Поиск')=>tr($find_string),
-                tr('ИдВидаЦен')=>tr($id_price_type)
+                tr('п÷п╬п╦я│п╨')=>tr($find_string),
+                tr('п≤п╢п▓п╦п╢п╟п╕п╣п╫')=>tr($id_price_type)
             ))->return;
         }catch(\SoapFault $e){
             $fault = $e;
@@ -478,23 +476,23 @@ class billMaker{
 
         $ret = array();
 
-        if(is_array($resp->{tr('Список')}))
-            foreach($resp->{tr('Список')} as $pos){
+        if(is_array($resp->{tr('п║п©п╦я│п╬п╨')}))
+            foreach($resp->{tr('п║п©п╦я│п╬п╨')} as $pos){
                 $ret[] = array(
-                    'id'=>trr($pos->{tr('ИдТовара1С')}),
-                    'name'=>trr($pos->{tr('Наименование')}),
-                    'price'=>trr($pos->{tr('Цена')}),
-                    'quantity'=>trr($pos->{tr('КоличествоНаСкладе')}),
-                    'is_service'=>$pos->{tr('ЭтоУслуга')}
+                    'id'=>trr($pos->{tr('п≤п╢п╒п╬п╡п╟я─п╟1п║')}),
+                    'name'=>trr($pos->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣')}),
+                    'price'=>trr($pos->{tr('п╕п╣п╫п╟')}),
+                    'quantity'=>trr($pos->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬п²п╟п║п╨п╩п╟п╢п╣')}),
+                    'is_service'=>$pos->{tr('п╜я┌п╬пёя│п╩я┐пЁп╟')}
                 );
             }
         else
             $ret[] = array(
-                'id'=>trr($resp->{tr('Список')}->{tr('ИдТовара1С')}),
-                'name'=>trr($resp->{tr('Список')}->{tr('Наименование')}),
-                'price'=>trr($resp->{tr('Список')}->{tr('Цена')}),
-                'quantity'=>trr($resp->{tr('Список')}->{tr('КоличествоНаСкладе')}),
-                'is_service'=>$resp->{tr('Список')}->{tr('ЭтоУслуга')}
+                'id'=>trr($resp->{tr('п║п©п╦я│п╬п╨')}->{tr('п≤п╢п╒п╬п╡п╟я─п╟1п║')}),
+                'name'=>trr($resp->{tr('п║п©п╦я│п╬п╨')}->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣')}),
+                'price'=>trr($resp->{tr('п║п©п╦я│п╬п╨')}->{tr('п╕п╣п╫п╟')}),
+                'quantity'=>trr($resp->{tr('п║п©п╦я│п╬п╨')}->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬п²п╟п║п╨п╩п╟п╢п╣')}),
+                'is_service'=>$resp->{tr('п║п©п╦я│п╬п╨')}->{tr('п╜я┌п╬пёя│п╩я┐пЁп╟')}
             );
 
         return $ret;
@@ -523,24 +521,24 @@ class billMaker{
             if(!$p["descr_id"])
                 $p["descr_id"] = "00000000-0000-0000-0000-000000000000";
             $s[] = array(
-                tr('КодНоменклатура1С')=>$p['id'],
-                tr('КодХарактеристика1С')=>$p["descr_id"],
-                tr('Количество')=>$p['quantity'],
-                tr('КодСтроки')=>$p['code_1c'],
-                tr('Цена')=>$p["price"],
-                tr('СуммаРучнойСкидки') => 0,
-                tr('СуммаАвтоматическойСкидки') => 0,
+                tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')=>$p['id'],
+                tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')=>$p["descr_id"],
+                tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')=>$p['quantity'],
+                tr('п п╬п╢п║я┌я─п╬п╨п╦')=>$p['code_1c'],
+                tr('п╕п╣п╫п╟')=>$p["price"],
+                tr('п║я┐п╪п╪п╟п═я┐я┤п╫п╬п╧п║п╨п╦п╢п╨п╦') => 0,
+                tr('п║я┐п╪п╪п╟п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╧п║п╨п╦п╢п╨п╦') => 0,
 
             );
         }
 
         try{
             $a = array(
-                tr('ИдКарточкиКлиентаСтат')=>tr($client_card_tid),
-                tr('НомерЗаказа') => tr($structFull["bill_no"]),
-                tr('СуммаИтого')=>$structFull["sum"],
-                tr('СписокПозиций')=>array(
-                    tr('Список')=>$s
+                tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($client_card_tid),
+                tr('п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟') => tr($structFull["bill_no"]),
+                tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬')=>$structFull["sum"],
+                tr('п║п©п╦я│п╬п╨п÷п╬п╥п╦я├п╦п╧')=>array(
+                    tr('п║п©п╦я│п╬п╨')=>$s
                 )
             );
 
@@ -555,16 +553,16 @@ class billMaker{
         //file_put_contents("/tmp/calcOrder1", var_export($resp, true));
         $ret = array(
             'list'=>array(),
-            'sum'=>$resp->{tr('СуммаИтого')}
+            'sum'=>$resp->{tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬')}
         );
 
-        if(!is_array($resp->{tr('Список')})){
-            $resp->{tr('Список')} = array($resp->{tr('Список')});
+        if(!is_array($resp->{tr('п║п©п╦я│п╬п╨')})){
+            $resp->{tr('п║п©п╦я│п╬п╨')} = array($resp->{tr('п║п©п╦я│п╬п╨')});
         }
 
-        foreach($resp->{tr('Список')} as $pos){
-            $id = trr($pos->{tr('КодНоменклатура1С')});
-            $descrId = trr($pos->{tr('КодХарактеристика1С')});
+        foreach($resp->{tr('п║п©п╦я│п╬п╨')} as $pos){
+            $id = trr($pos->{tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')});
+            $descrId = trr($pos->{tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')});
             if($descrId == "00000000-0000-0000-0000-000000000000")
                 $descrId = "";
 
@@ -573,12 +571,12 @@ class billMaker{
             $ret['list'][] = array(
                 'id'=>$id,
                 'name'=>\Good::GetName($id),
-                'quantity'=>trr($pos->{tr('Количество')}),
-                'price'=>trr($pos->{tr('Цена')}),
-                'discount_set' => trr($pos->{tr('СуммаРучнойСкидки')}),
-                'discount_auto' => trr($pos->{tr('СуммаАвтоматическойСкидки')}),
-                'sum'=>trr($pos->{tr('Сумма')}),
-                'code_1c'=>trr($pos->{tr('КодСтроки')})
+                'quantity'=>trr($pos->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')}),
+                'price'=>trr($pos->{tr('п╕п╣п╫п╟')}),
+                'discount_set' => trr($pos->{tr('п║я┐п╪п╪п╟п═я┐я┤п╫п╬п╧п║п╨п╦п╢п╨п╦')}),
+                'discount_auto' => trr($pos->{tr('п║я┐п╪п╪п╟п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╧п║п╨п╦п╢п╨п╦')}),
+                'sum'=>trr($pos->{tr('п║я┐п╪п╪п╟')}),
+                'code_1c'=>trr($pos->{tr('п п╬п╢п║я┌я─п╬п╨п╦')})
             );
         }
 
@@ -614,13 +612,13 @@ class billMaker{
                 if(!$i["descr_id"])
                     $i["descr_id"] = "00000000-0000-0000-0000-000000000000";
                 $buf = array(
-                    tr('КодНоменклатура1С')=>$i['id'],
-                    tr('КодХарактеристика1С')=>$i['descr_id'],
-                    tr('Количество')=>$i['quantity'],
-                    tr('КодСтроки')=>(int)$i['code_1c'],
+                    tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')=>$i['id'],
+                    tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')=>$i['descr_id'],
+                    tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')=>$i['quantity'],
+                    tr('п п╬п╢п║я┌я─п╬п╨п╦')=>(int)$i['code_1c'],
                 );
                 //if($is_rollback)
-                $buf[tr('Цена')]=$i['price'];
+                $buf[tr('п╕п╣п╫п╟')]=$i['price'];
                 $il[] = $buf;
             }
         }
@@ -628,38 +626,38 @@ class billMaker{
         global $user;
         try{
             $q=array(
-                tr('НомерЗаказа')=>tr($order_number),
-                tr('ИдКарточкиКлиентаСтат')=>tr($client_tid),
-                tr('Комментарий')=>tr($order_comment),
-                tr('ЭтоВозврат')=>(bool)$is_rollback,
-                tr('Пользователь')=>($user ? $user->Get("user") : "system"),
-                tr('ДопИнформацияЗаказа')=>$add_info,
-                tr('КодСклад1С') => $storeId
+                tr('п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟')=>tr($order_number),
+                tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')=>tr($client_tid),
+                tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧')=>tr($order_comment),
+                tr('п╜я┌п╬п▓п╬п╥п╡я─п╟я┌')=>(bool)$is_rollback,
+                tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>($user ? $user->Get("user") : "system"),
+                tr('п■п╬п©п≤п╫я└п╬я─п╪п╟я├п╦я▐п≈п╟п╨п╟п╥п╟')=>$add_info,
+                tr('п п╬п╢п║п╨п╩п╟п╢1п║') => $storeId
             );
 
             if($items_list !== false)
-                $q[tr('СписокПозиций')]= array(tr('Список')=>$il);
+                $q[tr('п║п©п╦я│п╬п╨п÷п╬п╥п╦я├п╦п╧')]= array(tr('п║п©п╦я│п╬п╨')=>$il);
 
             //printdbgu($q);
 
             $resp = $this->soap->utSaveOrder($q);
 
             $result = $resp->return;
-            if(!$result) {throw new \Exception(trr($resp->{tr("СообщениеОбОшибке")}), 1000);}
-            $resp = $resp->{tr("ЗаказТовара")};
+            if(!$result) {throw new \Exception(trr($resp->{tr("п║п╬п╬п╠я┴п╣п╫п╦п╣п·п╠п·я┬п╦п╠п╨п╣")}), 1000);}
+            $resp = $resp->{tr("п≈п╟п╨п╟п╥п╒п╬п╡п╟я─п╟")};
 
 
         }catch(\Exception $e){
 
-            echo "Ошибка 1с: ".str_replace("|||", "", $e->getMessage());
+            echo "п·я┬п╦п╠п╨п╟ 1я│: ".str_replace("|||", "", $e->getMessage());
             exit();
             \MyDBG::fout(trr(print_r($e,true)),true);
             $fault = $e;
             return false;
         }
 
-        if(!isset($resp->{tr('ДопИнформацияЗаказа')}))
-            $resp->{tr('ДопИнформацияЗаказа')} = null;
+        if(!isset($resp->{tr('п■п╬п©п≤п╫я└п╬я─п╪п╟я├п╦я▐п≈п╟п╨п╟п╥п╟')}))
+            $resp->{tr('п■п╬п©п≤п╫я└п╬я─п╪п╟я├п╦я▐п≈п╟п╨п╟п╥п╟')} = null;
 
         return $resp;
     }
@@ -671,7 +669,7 @@ class billMaker{
         $bill = $db->GetRow("select * from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
         if(!$bill)
         {
-            trigger_error("getStatOrder: счет не найден:". $bill_no);
+            trigger_error("getStatOrder: я│я┤п╣я┌ п╫п╣ п╫п╟п╧п╢п╣п╫:". $bill_no);
             return false;
         }
 
@@ -680,8 +678,8 @@ class billMaker{
         /*
         try{
             $q = array(
-                tr('НомерЗаказа')=>$bill_no,
-                tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
+                tr('п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟')=>$bill_no,
+                tr('п╜я┌п╬п▓п╬п╥п╡я─п╟я┌')=>(bool)$bill['is_rollback']
             );
             $resp = $this->soap->utGetOrder($q)->return;
         }catch(\SoapFault $e){
@@ -712,14 +710,14 @@ class billMaker{
         /*
         foreach($bLines as $p){
             $ret['list'][] = array(
-                'id'=>trr($p->{tr('ИдТовара1С')}),
-                'name'=>trr($p->{tr('НаименованиеТовара')}),
-                'quantity'=>trr($p->{tr('Количество')}),
-                'price'=>trr($p->{tr('Цена')}),
-                'discount'=>trr($p->{tr('Скидка')}),
-                'sum'=>trr($p->{tr('СуммаИтого')}),
-                'strCode'=>trr($p->{tr('КодСтроки')}),
-                'articul'=>trr($p->{tr('АртикулТовара')})
+                'id'=>trr($p->{tr('п≤п╢п╒п╬п╡п╟я─п╟1п║')}),
+                'name'=>trr($p->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п╒п╬п╡п╟я─п╟')}),
+                'quantity'=>trr($p->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')}),
+                'price'=>trr($p->{tr('п╕п╣п╫п╟')}),
+                'discount'=>trr($p->{tr('п║п╨п╦п╢п╨п╟')}),
+                'sum'=>trr($p->{tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬')}),
+                'strCode'=>trr($p->{tr('п п╬п╢п║я┌я─п╬п╨п╦')}),
+                'articul'=>trr($p->{tr('п░я─я┌п╦п╨я┐п╩п╒п╬п╡п╟я─п╟')})
             );
         }
         */
@@ -735,8 +733,8 @@ class billMaker{
             $bill = array('is_rollback'=>0);
         try{
             $q = array(
-                tr('НомерЗаказа')=>$bill_no,
-                tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
+                tr('п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟')=>$bill_no,
+                tr('п╜я┌п╬п▓п╬п╥п╡я─п╟я┌')=>(bool)$bill['is_rollback']
             );
             $resp = $this->soap->utGetOrder($q)->return;
         }catch(\SoapFault $e){
@@ -746,28 +744,28 @@ class billMaker{
 
         $ret = array(
             'bill_no'=>$bill_no,
-            'number'=>trr($resp->{tr('ИдЗаказа1С')}),
-            'comment'=>trr($resp->{tr('Комментарий')}),
-            'sum'=>trr($resp->{tr('СуммаИтого')}),
-            'state_1c'=>trr($resp->{tr('СтатусЗаказа')}),
+            'number'=>trr($resp->{tr('п≤п╢п≈п╟п╨п╟п╥п╟1п║')}),
+            'comment'=>trr($resp->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧')}),
+            'sum'=>trr($resp->{tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬')}),
+            'state_1c'=>trr($resp->{tr('п║я┌п╟я┌я┐я│п≈п╟п╨п╟п╥п╟')}),
             'is_rollback'=>(bool)$bill['is_rollback'],
             'list'=>array()
         );
 
-        $l = $resp->{tr('Список')};
+        $l = $resp->{tr('п║п©п╦я│п╬п╨')};
         if(!is_array($l))
             $l = array($l);
 
         foreach($l as $p){
             $ret['list'][] = array(
-                'id'=>trr($p->{tr('ИдТовара1С')}),
-                'name'=>trr($p->{tr('НаименованиеТовара')}),
-                'quantity'=>trr($p->{tr('Количество')}),
-                'price'=>trr($p->{tr('Цена')}),
-                'discount'=>trr($p->{tr('Скидка')}),
-                'sum'=>trr($p->{tr('СуммаИтого')}),
-                'strCode'=>trr($p->{tr('КодСтроки')}),
-                'articul'=>trr($p->{tr('АртикулТовара')})
+                'id'=>trr($p->{tr('п≤п╢п╒п╬п╡п╟я─п╟1п║')}),
+                'name'=>trr($p->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п╒п╬п╡п╟я─п╟')}),
+                'quantity'=>trr($p->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')}),
+                'price'=>trr($p->{tr('п╕п╣п╫п╟')}),
+                'discount'=>trr($p->{tr('п║п╨п╦п╢п╨п╟')}),
+                'sum'=>trr($p->{tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬')}),
+                'strCode'=>trr($p->{tr('п п╬п╢п║я┌я─п╬п╨п╦')}),
+                'articul'=>trr($p->{tr('п░я─я┌п╦п╨я┐п╩п╒п╬п╡п╟я─п╟')})
             );
         }
         return $ret;
@@ -779,10 +777,10 @@ class billMaker{
         $bill = $db->GetRow("select is_rollback from newbills where bill_no='".addcslashes($bill_no,"\\'")."'");
         try{
             $resp = $this->soap->utSetOrderStatus(array(
-                tr('НомерЗаказа')=>tr($bill_no),
-                tr('Статус')=>tr($state),
-                tr('Пользователь')=>$user->Get("user"),
-                tr('ЭтоВозврат')=>(bool)$bill['is_rollback']
+                tr('п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟')=>tr($bill_no),
+                tr('п║я┌п╟я┌я┐я│')=>tr($state),
+                tr('п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄')=>$user->Get("user"),
+                tr('п╜я┌п╬п▓п╬п╥п╡я─п╟я┌')=>(bool)$bill['is_rollback']
             ))->return;
         }catch(\SoapFault $e){
             $fault = $e;
@@ -807,9 +805,9 @@ class SoapHandler{
         $str .= serialize($data);
         //file_put_contents("/tmp/statSaveClientContract.".date("Y-m-d_H:i:s").".".rand(1,1000), serialize($data));
 
-        $cname = $cc->{tr('ИдКарточкиКлиентаСтат')}?$cc->{tr('ИдКарточкиКлиентаСтат')}:$cc->{tr('ИдКлиентаСтат')};
+        $cname = $cc->{tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')}?$cc->{tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')}:$cc->{tr('п≤п╢п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')};
 
-        $isIdCard = isset($cc->{tr('ИдКарточкиКлиентаСтат')});
+        $isIdCard = isset($cc->{tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')});
 
         $str .= " cname: ".$cname;
         $str .= " isIdCard: ".$isIdCard;
@@ -822,22 +820,22 @@ class SoapHandler{
 
         if(!$isIdCard)
         {
-            $cg->setCon1c(trr($cc->{tr('ИдСоглашения1С')}));
-            $cg->setCompany(trr($cc->{tr('НаименованиеКомпании')}));
-            $cg->setCompanyFull(trr($cc->{tr('ПолноеНаименованиеКомпании')}));
-            $cg->setInn(trr($cc->{tr('ИНН')}));
-            $cg->setKpp(trr($cc->{tr('КПП')}));
-            $cg->setBik(trr($cc->{tr('БИК')}));
-            $cg->setPayAcc(trr($cc->{tr('РC')}));
-            $cg->setCorrAcc(trr($cc->{tr('КС')}));
-            $cg->setBankName(trr($cc->{tr('НазваниеБанка')}));
-            $cg->setBankCity(trr($cc->{tr('ГородБанка')}));
-            $cg->setAddressJur(trr($cc->{tr('ЮридическийАдрес')}));
-            $cg->setType(trr($cc->{tr('ПравоваяФорма')}));
+            $cg->setCon1c(trr($cc->{tr('п≤п╢п║п╬пЁп╩п╟я┬п╣п╫п╦я▐1п║')}));
+            $cg->setCompany(trr($cc->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п п╬п╪п©п╟п╫п╦п╦')}));
+            $cg->setCompanyFull(trr($cc->{tr('п÷п╬п╩п╫п╬п╣п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п п╬п╪п©п╟п╫п╦п╦')}));
+            $cg->setInn(trr($cc->{tr('п≤п²п²')}));
+            $cg->setKpp(trr($cc->{tr('п п÷п÷')}));
+            $cg->setBik(trr($cc->{tr('п▒п≤п ')}));
+            $cg->setPayAcc(trr($cc->{tr('п═C')}));
+            $cg->setCorrAcc(trr($cc->{tr('п п║')}));
+            $cg->setBankName(trr($cc->{tr('п²п╟п╥п╡п╟п╫п╦п╣п▒п╟п╫п╨п╟')}));
+            $cg->setBankCity(trr($cc->{tr('п⌠п╬я─п╬п╢п▒п╟п╫п╨п╟')}));
+            $cg->setAddressJur(trr($cc->{tr('п╝я─п╦п╢п╦я┤п╣я│п╨п╦п╧п░п╢я─п╣я│')}));
+            $cg->setType(trr($cc->{tr('п÷я─п╟п╡п╬п╡п╟я▐п╓п╬я─п╪п╟')}));
         }else{
-            $cg->setCurrency(trr($cc->{tr('ВалютаРасчетов')}));
-            $cg->setPriceType(trr($cc->{tr('ВидЦен')}));
-            $cg->setFirma(trim(trr($cc->{tr('Организация')})));
+            $cg->setCurrency(trr($cc->{tr('п▓п╟п╩я▌я┌п╟п═п╟я│я┤п╣я┌п╬п╡')}));
+            $cg->setPriceType(trr($cc->{tr('п▓п╦п╢п╕п╣п╫')}));
+            $cg->setFirma(trim(trr($cc->{tr('п·я─пЁп╟п╫п╦п╥п╟я├п╦я▐')})));
         }
 
         $str .= " cg: ".serialize($cg);
@@ -848,11 +846,11 @@ class SoapHandler{
 
         if($cname){
             if(!$c)
-                return new \SoapFault('client',tr('Контрагент не найден в стате'));
+                return new \SoapFault('client',tr('п п╬п╫я┌я─п╟пЁп╣п╫я┌ п╫п╣ п╫п╟п╧п╢п╣п╫ п╡ я│я┌п╟я┌п╣'));
 
             if($c->eq($cg, true))
             {
-                return array('return'=>true, tr('ИдКарточкиКлиентаСтат') => $cname);
+                return array('return'=>true, tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌') => $cname);
             }
 
             //$c->set($cg);
@@ -864,18 +862,18 @@ class SoapHandler{
             $cId = "id".$cId;
         }
 
-        if(isset($cc->{tr("ЭлектроннаяПочта")}))
-            $this->addClientContact($cId, "email", trr($cc->{tr("ЭлектроннаяПочта")}));
+        if(isset($cc->{tr("п╜п╩п╣п╨я┌я─п╬п╫п╫п╟я▐п÷п╬я┤я┌п╟")}))
+            $this->addClientContact($cId, "email", trr($cc->{tr("п╜п╩п╣п╨я┌я─п╬п╫п╫п╟я▐п÷п╬я┤я┌п╟")}));
 
-        if(isset($cc->{tr("ТелефонОрганизации")}))
-            $this->addClientContact($cId, "phone", trr($cc->{tr("ТелефонОрганизации")}));
+        if(isset($cc->{tr("п╒п╣п╩п╣я└п╬п╫п·я─пЁп╟п╫п╦п╥п╟я├п╦п╦")}))
+            $this->addClientContact($cId, "phone", trr($cc->{tr("п╒п╣п╩п╣я└п╬п╫п·я─пЁп╟п╫п╦п╥п╟я├п╦п╦")}));
 
         if(!$f)
-            return new \SoapFault('client',tr('Не удалось сохранить изменения'));
+            return new \SoapFault('client',tr('п²п╣ я┐п╢п╟п╩п╬я│я▄ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐'));
 
         //file_put_contents("/tmp/clCards", var_export($cg->getAtMask(\clCards\struct_cardDetails::client),true));
 
-        return array('return'=>$f, tr('ИдКарточкиКлиентаСтат') => $cId);
+        return array('return'=>$f, tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌') => $cId);
     }
 
     private function addClientContact($client, $type, $value)
@@ -925,17 +923,17 @@ class SoapHandler{
         $o = $data->order;
         $is_rollback = $data->isRollback;
 
-        $bill_no = trr($o->{tr('Номер')});
-        $bill_date = trr($o->{tr('Дата')});
-        $client = trr($o->{tr('ИдКарточкиКлиентаСтат')});
-        $currency = trr($o->{tr('Валюта')});
-        $sum = trr($o->{tr('СуммаИтого')});
-        $comment = trr($o->{tr('Комментарий')});
-        $state_1c = trr($o->{tr('СтатусЗаказа')});
-        $add_info = $o->{tr('ДопИнформацияЗаказа')};
-        $storeId = $o->{tr('КодСклад1С')};
+        $bill_no = trr($o->{tr('п²п╬п╪п╣я─')});
+        $bill_date = trr($o->{tr('п■п╟я┌п╟')});
+        $client = trr($o->{tr('п≤п╢п п╟я─я┌п╬я┤п╨п╦п п╩п╦п╣п╫я┌п╟п║я┌п╟я┌')});
+        $currency = trr($o->{tr('п▓п╟п╩я▌я┌п╟')});
+        $sum = trr($o->{tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬')});
+        $comment = trr($o->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧')});
+        $state_1c = trr($o->{tr('п║я┌п╟я┌я┐я│п≈п╟п╨п╟п╥п╟')});
+        $add_info = $o->{tr('п■п╬п©п≤п╫я└п╬я─п╪п╟я├п╦я▐п≈п╟п╨п╟п╥п╟')};
+        $storeId = $o->{tr('п п╬п╢п║п╨п╩п╟п╢1п║')};
 
-        if (strcmp($state_1c, 'Отказ')==0) {
+        if (strcmp($state_1c, 'п·я┌п╨п╟п╥')==0) {
             $sum = 0;
         }
 
@@ -971,18 +969,18 @@ class SoapHandler{
         if($curtt && $curtt["client"] != $client)
             $db->Query("update tt_troubles set client='".$client."' where id=".$curtt['id']);
 
-        $l = $o->{tr('Список')};
+        $l = $o->{tr('п║п©п╦я│п╬п╨')};
         $list = array();
         if(!is_array($l))
             $l = array($l);
         /*
-        s:20:"Количество";s:2:"20";
-        s:8:"Цена";s:2:"30";
-        s:16:"СуммаНДС";s:5:"91.53";
-        s:34:"СуммаРучнойСкидки";s:1:"0";
-        s:50:"СуммаАвтоматическойСкидки";s:1:"0";
-        s:10:"Сумма";s:3:"600";
-        s:18:"ЭтоУслуга";b:0;
+        s:20:"п п╬п╩п╦я┤п╣я│я┌п╡п╬";s:2:"20";
+        s:8:"п╕п╣п╫п╟";s:2:"30";
+        s:16:"п║я┐п╪п╪п╟п²п■п║";s:5:"91.53";
+        s:34:"п║я┐п╪п╪п╟п═я┐я┤п╫п╬п╧п║п╨п╦п╢п╨п╦";s:1:"0";
+        s:50:"п║я┐п╪п╪п╟п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╧п║п╨п╦п╢п╨п╦";s:1:"0";
+        s:10:"п║я┐п╪п╪п╟";s:3:"600";
+        s:18:"п╜я┌п╬пёя│п╩я┐пЁп╟";b:0;
           */
         /*
           +---------+--------+
@@ -994,21 +992,21 @@ class SoapHandler{
 
         foreach($l as $p){
             $list[] = array(
-                'item_id'=>trr($p->{tr('КодНоменклатура1С')}),
-                'descr_id'=>trr($p->{tr('КодХарактеристика1С')}),
-                'item' => \Good::GetName(trr($p->{tr('КодНоменклатура1С')}).":".trr($p->{tr('КодХарактеристика1С')})),
-                'amount'=>$p->{tr('Количество')},
-                'dispatch' => $p->{tr('КоличествоОтгружено')},
-                'discount_set' => $p->{tr('СуммаРучнойСкидки')},
-                'discount_auto' => $p->{tr('СуммаАвтоматическойСкидки')},
-                //'price'=>round(($p->{tr('СуммаИтогоБезНДС')}+$p->{tr('СуммаНДС')})/$p->{tr('Количество')}/1.18,4),
-                'price'=>round($p->{tr('Цена')}/1.18,4),
-                'sum'=>$p->{tr('Сумма')},
-                'type'=>$p->{tr('ЭтоУслуга')}?'service':'good',
-                'code_1c'=>$p->{tr('КодСтроки')},
-                "serial" => (isset($p->{tr('СерийныеНомера')}) ? $p->{tr('СерийныеНомера')}: false),
-                "gtd" => trr($p->{tr('НомерГТД')}),
-                "country_id" => trr($p->{tr('СтранаПроизводитель')}),
+                'item_id'=>trr($p->{tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')}),
+                'descr_id'=>trr($p->{tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')}),
+                'item' => \Good::GetName(trr($p->{tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')}).":".trr($p->{tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')})),
+                'amount'=>$p->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')},
+                'dispatch' => $p->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬п·я┌пЁя─я┐п╤п╣п╫п╬')},
+                'discount_set' => $p->{tr('п║я┐п╪п╪п╟п═я┐я┤п╫п╬п╧п║п╨п╦п╢п╨п╦')},
+                'discount_auto' => $p->{tr('п║я┐п╪п╪п╟п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╧п║п╨п╦п╢п╨п╦')},
+                //'price'=>round(($p->{tr('п║я┐п╪п╪п╟п≤я┌п╬пЁп╬п▒п╣п╥п²п■п║')}+$p->{tr('п║я┐п╪п╪п╟п²п■п║')})/$p->{tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬')}/1.18,4),
+                'price'=>round($p->{tr('п╕п╣п╫п╟')}/1.18,4),
+                'sum'=>$p->{tr('п║я┐п╪п╪п╟')},
+                'type'=>$p->{tr('п╜я┌п╬пёя│п╩я┐пЁп╟')}?'service':'good',
+                'code_1c'=>$p->{tr('п п╬п╢п║я┌я─п╬п╨п╦')},
+                "serial" => (isset($p->{tr('п║п╣я─п╦п╧п╫я▀п╣п²п╬п╪п╣я─п╟')}) ? $p->{tr('п║п╣я─п╦п╧п╫я▀п╣п²п╬п╪п╣я─п╟')}: false),
+                "gtd" => trr($p->{tr('п²п╬п╪п╣я─п⌠п╒п■')}),
+                "country_id" => trr($p->{tr('п║я┌я─п╟п╫п╟п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄')}),
             );
         }
 
@@ -1112,35 +1110,35 @@ class SoapHandler{
         if(!$err && !is_null($add_info)){
             //if($_SESSION["_mcn_user_login_stat.mcn.ru"] == "adima")
 
-            $idMetro = \ClientCS::GetIdByName("metro",trr($add_info->{tr('Метро')}), 0);
-            $idLogistic = \ClientCS::GetIdByName("logistic",trr($add_info->{tr('Логистика')}), "none");
+            $idMetro = \ClientCS::GetIdByName("metro",trr($add_info->{tr('п°п╣я┌я─п╬')}), 0);
+            $idLogistic = \ClientCS::GetIdByName("logistic",trr($add_info->{tr('п⌡п╬пЁп╦я│я┌п╦п╨п╟')}), "none");
 
             $db->QueryDelete("newbills_add_info", array("bill_no" => $bill_no));
             $db->QueryInsert('newbills_add_info',$add_info_koi8r = array(
                 'bill_no'=>trr($bill_no),
-                'fio'=>trr($add_info->{tr('ФИО')}),
-                'address'=>trr($add_info->{tr('Адрес')}),
-                'req_no'=>trr($add_info->{tr('НомерЗаявки')}),
-                'acc_no'=>trr($add_info->{tr('ЛицевойСчет')}),
-                'connum'=>trr($add_info->{tr('НомерПодключения')}),
-                'phone'=>trr($add_info->{tr('КонтактныйТелефон')}),
-                'comment1'=>trr($add_info->{tr('Комментарий1')}),
-                'comment2'=>trr($add_info->{tr('Комментарий2')}),
-                'passp_series'=>trr($add_info->{tr('ПаспортСерия')}),
-                'passp_num'=>trr($add_info->{tr('ПаспортНомер')}),
-                'passp_whos_given'=>trr($add_info->{tr('ПаспортКемВыдан')}),
-                'passp_when_given'=>trr($add_info->{tr('ПаспортКогдаВыдан')}),
-                'passp_code'=>trr($add_info->{tr('ПаспортКодПодразделения')}),
-                'passp_birthday'=>trr($add_info->{tr('ПаспортДатаРождения')}),
-                'reg_city'=>trr($add_info->{tr('ПаспортГород')}),
-                'reg_street'=>trr($add_info->{tr('ПаспортУлица')}),
-                'reg_house'=>trr($add_info->{tr('ПаспортДом')}),
-                'reg_housing'=>trr($add_info->{tr('ПаспортКорпус')}),
-                'reg_build'=>trr($add_info->{tr('ПаспортСтроение')}),
-                'reg_flat'=>trr($add_info->{tr('ПаспортКвартира')}),
+                'fio'=>trr($add_info->{tr('п╓п≤п·')}),
+                'address'=>trr($add_info->{tr('п░п╢я─п╣я│')}),
+                'req_no'=>trr($add_info->{tr('п²п╬п╪п╣я─п≈п╟я▐п╡п╨п╦')}),
+                'acc_no'=>trr($add_info->{tr('п⌡п╦я├п╣п╡п╬п╧п║я┤п╣я┌')}),
+                'connum'=>trr($add_info->{tr('п²п╬п╪п╣я─п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐')}),
+                'phone'=>trr($add_info->{tr('п п╬п╫я┌п╟п╨я┌п╫я▀п╧п╒п╣п╩п╣я└п╬п╫')}),
+                'comment1'=>trr($add_info->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧1')}),
+                'comment2'=>trr($add_info->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧2')}),
+                'passp_series'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п║п╣я─п╦я▐')}),
+                'passp_num'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п²п╬п╪п╣я─')}),
+                'passp_whos_given'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п п╣п╪п▓я▀п╢п╟п╫')}),
+                'passp_when_given'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п п╬пЁп╢п╟п▓я▀п╢п╟п╫')}),
+                'passp_code'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п п╬п╢п÷п╬п╢я─п╟п╥п╢п╣п╩п╣п╫п╦я▐')}),
+                'passp_birthday'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п■п╟я┌п╟п═п╬п╤п╢п╣п╫п╦я▐')}),
+                'reg_city'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п⌠п╬я─п╬п╢')}),
+                'reg_street'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌пёп╩п╦я├п╟')}),
+                'reg_house'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п■п╬п╪')}),
+                'reg_housing'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п п╬я─п©я┐я│')}),
+                'reg_build'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п║я┌я─п╬п╣п╫п╦п╣')}),
+                'reg_flat'=>trr($add_info->{tr('п÷п╟я│п©п╬я─я┌п п╡п╟я─я┌п╦я─п╟')}),
                 'email'=>trr($add_info->{tr('Email')}),
-                'order_given'=>trr($add_info->{tr('ПроисхождениеЗаказа')}),
-                'line_owner'=>trr($add_info->{tr('ВладелецЛинии')}),
+                'order_given'=>trr($add_info->{tr('п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟')}),
+                'line_owner'=>trr($add_info->{tr('п▓п╩п╟п╢п╣п╩п╣я├п⌡п╦п╫п╦п╦')}),
                 'metro_id'=>$idMetro,
                 'logistic'=>$idLogistic,
                 "store_id" => $storeId
@@ -1167,7 +1165,7 @@ class SoapHandler{
                         state_1c='".addcslashes($state_1c,"\\'")."'
                         ".
                 /*($client == "DostavkaMTS" ? " and name = 'MTS'" :*/
-                ($state_1c == "Новый" ?
+                ($state_1c == "п²п╬п╡я▀п╧" ?
                     ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
                         ($client == "nbn" ? " and name = 'NetByNet'" :
                             ($client == "onlime" ? " and name = 'OnLime'" :
@@ -1187,12 +1185,12 @@ class SoapHandler{
                 if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
                     $q = "update tt_stages set comment='".mysql_escape_string(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
 
-                if($state_1c == 'Отгружен')
-                    $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
-                elseif($state_1c == 'КОтгрузке')
-                    $q = "update tt_stages set comment='Возврат товара: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                if($state_1c == 'п·я┌пЁя─я┐п╤п╣п╫')
+                    $q = "update tt_stages set comment='п╒п╬п╡п╟я─ п·я┌пЁя─я┐п╤п╣п╫: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧п║п╨п╩п╟п╢п╟')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
+                elseif($state_1c == 'п п·я┌пЁя─я┐п╥п╨п╣')
+                    $q = "update tt_stages set comment='п▓п╬п╥п╡я─п╟я┌ я┌п╬п╡п╟я─п╟: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧п║п╨п╩п╟п╢п╟')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
                 else{
-                    $comment = isset($o->{tr('КомментарийСклада')}) ? nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'"))) : "";
+                    $comment = isset($o->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧п║п╨п╩п╟п╢п╟')}) ? nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧п║п╨п╩п╟п╢п╟')}), "\\'"))) : "";
                     $q = "update tt_stages set comment='".$comment."', date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
                 }
 
@@ -1209,7 +1207,7 @@ class SoapHandler{
                 if(!$err){
                     unset($curts['stage_id'],$curts['date_edit']);
 
-                    // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
+                    // п©я─п╬п╡п╬п╢п╦п╪ п╣п╩п╦ п╫п╬п╟п╡я▐ я│я┌п╟п╢п╦я▐ п╥п╟п╨я─я▀я┌, п╬я┌пЁя─я┐п╤п╣п╫, п╨ п╬я┌пЁя─я┐п╥п╨п╣
                     include_once INCLUDE_PATH.'bill.php';
                     $oBill = new \Bill($bill_no);
                     if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
@@ -1249,11 +1247,11 @@ class SoapHandler{
         }elseif(
             !$err && !$curtt && (
                 in_array($client,array('all4net','All4Net_new', 'wellconnect','WiMaxComstar','ComPapa','Compapa','nbn','onlime','onlime2', 'DostavkaMTS'))
-                ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "welltime"
-                ||  strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')})) == "all4net"
+                ||  strtolower(trr($add_info->{tr('п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟')})) == "welltime"
+                ||  strtolower(trr($add_info->{tr('п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟')})) == "all4net"
             )){
 
-            $from = strtolower(trr($add_info->{tr('ПроисхождениеЗаказа')}));
+            $from = strtolower(trr($add_info->{tr('п÷я─п╬п╦я│я┘п╬п╤п╢п╣п╫п╦п╣п≈п╟п╨п╟п╥п╟')}));
 
 #1c-vitrina
 
@@ -1261,7 +1259,7 @@ class SoapHandler{
                 $newstate = $db->GetRow("select * from tt_states where pk & (select states from tt_types where code='shop_orders')
                         ".
                 ($client == "DostavkaMTS" ? " and name = 'MTS'" :
-                    ($state_1c == "Новый" ?
+                    ($state_1c == "п²п╬п╡я▀п╧" ?
                         ($client == "WiMaxComstar" ? " and name = 'WiMax'" :
                             ($client == "nbn" ? " and name = 'NetByNet'" :
                                 ($client == "onlime" ? " and name = 'OnLime'" :
@@ -1281,7 +1279,7 @@ class SoapHandler{
                     {
                         if(isset($oo->coupon) && trim($oo->coupon))
                         {
-                            $orig_comment .= "<br /><b>Акция!!</b> Купон: ".$oo->coupon." / ".$oo->seccode." / ".$oo->vercode;
+                            $orig_comment .= "<br /><b>п░п╨я├п╦я▐!!</b> п я┐п©п╬п╫: ".$oo->coupon." / ".$oo->seccode." / ".$oo->vercode;
                         }
                     }
                 }
@@ -1289,11 +1287,11 @@ class SoapHandler{
 
                 $comment = "
                         %s<hr />
-                        Телефон: %s<br />
-                        Адрес доставки: %s<br />
-                        Комментарий1: %s<br />
-                        Комментарий2: %s<br />
-                        Комментарий к заказу: %s
+                        п╒п╣п╩п╣я└п╬п╫: %s<br />
+                        п░п╢я─п╣я│ п╢п╬я│я┌п╟п╡п╨п╦: %s<br />
+                        п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧1: %s<br />
+                        п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧2: %s<br />
+                        п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ п╥п╟п╨п╟п╥я┐: %s
                         ";
                 $comment = sprintf(
                     $comment,
@@ -1331,7 +1329,7 @@ class SoapHandler{
 
                     if(!$err){
 
-                        // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
+                        // п©я─п╬п╡п╬п╢п╦п╪ п╣п╩п╦ п╫п╬п╟п╡я▐ я│я┌п╟п╢п╦я▐ п╥п╟п╨я─я▀я┌, п╬я┌пЁя─я┐п╤п╣п╫, п╨ п╬я┌пЁя─я┐п╥п╨п╣
                         include_once INCLUDE_PATH.'bill.php';
                         $oBill = new \Bill($bill_no);
                         if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
@@ -1380,8 +1378,8 @@ class SoapHandler{
     public function statSetOrderStatus($data)
     {
         global $db;
-        $bill_no = $data->{tr('НомерЗаказа')};
-        $state = trr($data->{tr('Статус')});
+        $bill_no = $data->{tr('п²п╬п╪п╣я─п≈п╟п╨п╟п╥п╟')};
+        $state = trr($data->{tr('п║я┌п╟я┌я┐я│')});
 
         $db->Query("update newbills set state_1c='".addcslashes($state,"\\'")."' where bill_no='".addcslashes($bill_no, "\\'")."'");
         return array('return'=>!mysql_errno());
@@ -1390,9 +1388,9 @@ class SoapHandler{
     public function statSaveBrend($data)
     {
         global $db;
-        $code = $data->{tr('Производитель')}->{tr('Код')};
-        $name = trr($data->{tr('Производитель')}->{tr('Наименование')});
-        $isDel = $data->{tr('Производитель')}->{tr('Удален')};
+        $code = $data->{tr('п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄')}->{tr('п п╬п╢')};
+        $name = trr($data->{tr('п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄')}->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣')});
+        $isDel = $data->{tr('п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄')}->{tr('пёп╢п╟п╩п╣п╫')};
 
         if($isDel)
         {
@@ -1408,9 +1406,9 @@ class SoapHandler{
     {
         global $db;
 
-        $code = $data->{tr('ВидЦен')}->{tr('Код1С')};
-        $name = trr($data->{tr('ВидЦен')}->{tr('Наименование')});
-        $isDel = $data->{tr('ВидЦен')}->{tr('Удален')};
+        $code = $data->{tr('п▓п╦п╢п╕п╣п╫')}->{tr('п п╬п╢1п║')};
+        $name = trr($data->{tr('п▓п╦п╢п╕п╣п╫')}->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣')});
+        $isDel = $data->{tr('п▓п╦п╢п╕п╣п╫')}->{tr('пёп╢п╟п╩п╣п╫')};
 
         $db->QueryDelete("g_price_type", array("id" => $code));
         if(!$isDel)
@@ -1422,7 +1420,7 @@ class SoapHandler{
         }
         $err = mysql_errno();
         if($err) {
-            return new \SoapFault('statSavePriceType',tr('ошибка создания типа цены: '.mysql_error()));
+            return new \SoapFault('statSavePriceType',tr('п╬я┬п╦п╠п╨п╟ я│п╬п╥п╢п╟п╫п╦я▐ я┌п╦п©п╟ я├п╣п╫я▀: '.mysql_error()));
         }
         return array('return'=>true);
     }
@@ -1431,10 +1429,10 @@ class SoapHandler{
     {
         global $db;
 
-        $code = $data->{tr('ЕдиницаИзмерения')}->{tr('Код1С')};
-        $okei = $data->{tr('ЕдиницаИзмерения')}->{tr('Код')};
-        $name = trr($data->{tr('ЕдиницаИзмерения')}->{tr('Наименование')});
-        $isDel = $data->{tr('ЕдиницаИзмерения')}->{tr('Удален')};
+        $code = $data->{tr('п∙п╢п╦п╫п╦я├п╟п≤п╥п╪п╣я─п╣п╫п╦я▐')}->{tr('п п╬п╢1п║')};
+        $okei = $data->{tr('п∙п╢п╦п╫п╦я├п╟п≤п╥п╪п╣я─п╣п╫п╦я▐')}->{tr('п п╬п╢')};
+        $name = trr($data->{tr('п∙п╢п╦п╫п╦я├п╟п≤п╥п╪п╣я─п╣п╫п╦я▐')}->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣')});
+        $isDel = $data->{tr('п∙п╢п╦п╫п╦я├п╟п≤п╥п╪п╣я─п╣п╫п╦я▐')}->{tr('пёп╢п╟п╩п╣п╫')};
 
         $db->QueryDelete("g_unit", array("id" => $code));
         if(!$isDel)
@@ -1448,7 +1446,7 @@ class SoapHandler{
         }
         $err = mysql_errno();
         if($err) {
-            return new \SoapFault('statSaveUnit',tr('ошибка создания Единица Измерения: '.mysql_error()));
+            return new \SoapFault('statSaveUnit',tr('п╬я┬п╦п╠п╨п╟ я│п╬п╥п╢п╟п╫п╦я▐ п∙п╢п╦п╫п╦я├п╟ п≤п╥п╪п╣я─п╣п╫п╦я▐: '.mysql_error()));
         }
         return array('return'=>true);
     }
@@ -1460,23 +1458,23 @@ class SoapHandler{
         //return new \SoapFault('statSavePriceList', "test error");
         //file_put_contents("/tmp/statSavePriceList_test", var_export($data,true));
 
-        if(!isset($data->{\_1c\tr('ЦеныТовара')}))
-            return new \SoapFault('statSavePriceList',\_1c\tr('неожидаемые данные'));
-        if(!isset($data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')}))
+        if(!isset($data->{\_1c\tr('п╕п╣п╫я▀п╒п╬п╡п╟я─п╟')}))
+            return new \SoapFault('statSavePriceList',\_1c\tr('п╫п╣п╬п╤п╦п╢п╟п╣п╪я▀п╣ п╢п╟п╫п╫я▀п╣'));
+        if(!isset($data->{\_1c\tr('п╕п╣п╫я▀п╒п╬п╡п╟я─п╟')}->{\_1c\tr('п║п©п╦я│п╬п╨')}))
             return array('return'=>true);
 
 
-        $l = $data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')};
+        $l = $data->{\_1c\tr('п╕п╣п╫я▀п╒п╬п╡п╟я─п╟')}->{\_1c\tr('п║п©п╦я│п╬п╨')};
         if(!is_array($l))
             $l = array($l);
 
         $d = array();
         foreach($l as $i){
-            $goodId = $i->{tr('КодНоменклатура1С')};
-            $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
-            $priceId = $i->{\_1c\tr('КодВидЦен1С')};
-            $cost = $i->{\_1c\tr('Цена')};
-            $isDel  = $i->{\_1c\tr('Удален')};
+            $goodId = $i->{tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')};
+            $descrId = $i->{\_1c\tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')};
+            $priceId = $i->{\_1c\tr('п п╬п╢п▓п╦п╢п╕п╣п╫1п║')};
+            $cost = $i->{\_1c\tr('п╕п╣п╫п╟')};
+            $isDel  = $i->{\_1c\tr('пёп╢п╟п╩п╣п╫')};
 
             if(!isset($d[$goodId])) $d[$goodId] = array();
             if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
@@ -1527,24 +1525,24 @@ class SoapHandler{
         //return array('return'=>true);
 
         if(!(
-            isset($data->{tr('ОстаткиТовара')}) &&
-            isset($data->{tr('ОстаткиТовара')}->{tr('Список')})))
-            return new \SoapFault('statSaveStoreBalance',tr('неожидаемые данные'));
+            isset($data->{tr('п·я│я┌п╟я┌п╨п╦п╒п╬п╡п╟я─п╟')}) &&
+            isset($data->{tr('п·я│я┌п╟я┌п╨п╦п╒п╬п╡п╟я─п╟')}->{tr('п║п©п╦я│п╬п╨')})))
+            return new \SoapFault('statSaveStoreBalance',tr('п╫п╣п╬п╤п╦п╢п╟п╣п╪я▀п╣ п╢п╟п╫п╫я▀п╣'));
 
-        $l = $data->{tr('ОстаткиТовара')}->{tr('Список')};
+        $l = $data->{tr('п·я│я┌п╟я┌п╨п╦п╒п╬п╡п╟я─п╟')}->{tr('п║п©п╦я│п╬п╨')};
         if(!is_array($l)) {
             $l = array($l);
         }
 
         $d = array();
         foreach($l as $i){
-            $goodId = $i->{tr('КодНоменклатура1С')};
-            $storeId = $i->{tr('КодСклад1С')};
-            $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
-            $qty = array($i->{\_1c\tr('КоличествоДоступно')},
-                $i->{\_1c\tr('КоличествоНаСкладе')},
-                $i->{\_1c\tr('КоличествоОжидается')});
-            $isDel  = $i->{\_1c\tr('Удален')};
+            $goodId = $i->{tr('п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║')};
+            $storeId = $i->{tr('п п╬п╢п║п╨п╩п╟п╢1п║')};
+            $descrId = $i->{\_1c\tr('п п╬п╢п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟1п║')};
+            $qty = array($i->{\_1c\tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬п■п╬я│я┌я┐п©п╫п╬')},
+                $i->{\_1c\tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬п²п╟п║п╨п╩п╟п╢п╣')},
+                $i->{\_1c\tr('п п╬п╩п╦я┤п╣я│я┌п╡п╬п·п╤п╦п╢п╟п╣я┌я│я▐')});
+            $isDel  = $i->{\_1c\tr('пёп╢п╟п╩п╣п╫')};
 
             if(!isset($d[$goodId])) $d[$goodId] = array();
             if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
@@ -1595,35 +1593,35 @@ class SoapHandler{
         global $db;
 
         $f= array(
-            "id" => "Код1С",
-            "num_id" => "Код",
-            "name" => "Наименование",
-            "name_full" => "НаименованиеПолное",
-            "art" => "Артикул",
-            "price" => "Цена",
-            "quantity" => "Количество",
-            "quantity_store" => "КоличествоНаСкладе",
-            "producer_id" =>  "Производитель",
-            "description" => "Описание",
-            "is_service" => "ЭтоУслуга",
-            "group_id" => "КодГруппы",
-            "is_allowpricezero" => "РазрешитьПродажуПоНулевойЦене",
-            "is_allowpricechange" => "РазрешитьПроизвольныеЦены",
-            "division_id" => "ОтвПодразделение",
-            "store" => "ТипЗапаса",
-            "nds" => "СтавкаНДС",
-            "unit_id" => "КодЕдиницыИзмерения"
+            "id" => "п п╬п╢1п║",
+            "num_id" => "п п╬п╢",
+            "name" => "п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣",
+            "name_full" => "п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣п÷п╬п╩п╫п╬п╣",
+            "art" => "п░я─я┌п╦п╨я┐п╩",
+            "price" => "п╕п╣п╫п╟",
+            "quantity" => "п п╬п╩п╦я┤п╣я│я┌п╡п╬",
+            "quantity_store" => "п п╬п╩п╦я┤п╣я│я┌п╡п╬п²п╟п║п╨п╩п╟п╢п╣",
+            "producer_id" =>  "п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄",
+            "description" => "п·п©п╦я│п╟п╫п╦п╣",
+            "is_service" => "п╜я┌п╬пёя│п╩я┐пЁп╟",
+            "group_id" => "п п╬п╢п⌠я─я┐п©п©я▀",
+            "is_allowpricezero" => "п═п╟п╥я─п╣я┬п╦я┌я▄п÷я─п╬п╢п╟п╤я┐п÷п╬п²я┐п╩п╣п╡п╬п╧п╕п╣п╫п╣",
+            "is_allowpricechange" => "п═п╟п╥я─п╣я┬п╦я┌я▄п÷я─п╬п╦п╥п╡п╬п╩я▄п╫я▀п╣п╕п╣п╫я▀",
+            "division_id" => "п·я┌п╡п÷п╬п╢я─п╟п╥п╢п╣п╩п╣п╫п╦п╣",
+            "store" => "п╒п╦п©п≈п╟п©п╟я│п╟",
+            "nds" => "п║я┌п╟п╡п╨п╟п²п■п║",
+            "unit_id" => "п п╬п╢п∙п╢п╦п╫п╦я├я▀п≤п╥п╪п╣я─п╣п╫п╦я▐"
         );
         $d = array();
         foreach($f as $field => $_1cname) {
-            $d[$field] = trr($data->{tr("Товар")}->{tr($_1cname)});
+            $d[$field] = trr($data->{tr("п╒п╬п╡п╟я─")}->{tr($_1cname)});
         }
 
         switch($d["store"])
         {
-            case "Наш склад": $v = "yes";break;
-            case "Дальний склад": $v = "remote"; break;
-            case "Под заказ": $v = "no"; break;
+            case "п²п╟я┬ я│п╨п╩п╟п╢": $v = "yes";break;
+            case "п■п╟п╩я▄п╫п╦п╧ я│п╨п╩п╟п╢": $v = "remote"; break;
+            case "п÷п╬п╢ п╥п╟п╨п╟п╥": $v = "no"; break;
             default: $v= "";
         }
         $d["store"] = $v;
@@ -1638,33 +1636,33 @@ class SoapHandler{
         $err = mysql_errno();
         if($err)
         {
-            return new \SoapFault('goods',tr('ошибка создания товара: '.$err));
+            return new \SoapFault('goods',tr('п╬я┬п╦п╠п╨п╟ я│п╬п╥п╢п╟п╫п╦я▐ я┌п╬п╡п╟я─п╟: '.$err));
         }
 
-        if(isset($data->{tr("Товар")}->{tr("СписокХарактеристик")})) {
-            $hs = &$data->{tr("Товар")}->{tr("СписокХарактеристик")};
+        if(isset($data->{tr("п╒п╬п╡п╟я─")}->{tr("п║п©п╦я│п╬п╨п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨")})) {
+            $hs = &$data->{tr("п╒п╬п╡п╟я─")}->{tr("п║п©п╦я│п╬п╨п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨")};
             if(!is_array($hs)) {
                 $hs = array($hs);
             }
 
             foreach($hs as $h){
                 $dscr = array(
-                    "id" => $h->{tr("Код1С")},
-                    "good_id" => $h->{tr("КодНоменклатура1С")},
-                    "name" => \_1c\trr($h->{tr("Наименование")})
+                    "id" => $h->{tr("п п╬п╢1п║")},
+                    "good_id" => $h->{tr("п п╬п╢п²п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╟1п║")},
+                    "name" => \_1c\trr($h->{tr("п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣")})
                 );
 
                 $db->QueryInsert("g_good_description", $dscr);
                 $err = mysql_errno();
                 if($err)
                 {
-                    return new \SoapFault('goods',tr('ошибка создания характеристики товара: '.mysql_error()));
+                    return new \SoapFault('goods',tr('п╬я┬п╦п╠п╨п╟ я│п╬п╥п╢п╟п╫п╦я▐ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ я┌п╬п╡п╟я─п╟: '.mysql_error()));
                 }
             }
         }
 
-        if(isset($data->{tr("Товар")}->{tr("СписокБонусов")})) {
-            $bs = &$data->{tr("Товар")}->{tr("СписокБонусов")};
+        if(isset($data->{tr("п╒п╬п╡п╟я─")}->{tr("п║п©п╦я│п╬п╨п▒п╬п╫я┐я│п╬п╡")})) {
+            $bs = &$data->{tr("п╒п╬п╡п╟я─")}->{tr("п║п©п╦я│п╬п╨п▒п╬п╫я┐я│п╬п╡")};
             if(!is_array($bs)) {
                 $bs = array($bs);
             }
@@ -1674,31 +1672,31 @@ class SoapHandler{
 
                 /*
                 stdClass::__set_state(array(
-                            'ГруппаПользователей' => 'Менеджер',
-                            'ТипВознаграждения' => 'Фиксированное',
-                            'Вознаграждение' => '10',
+                            'п⌠я─я┐п©п©п╟п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧' => 'п°п╣п╫п╣п╢п╤п╣я─',
+                            'п╒п╦п©п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦я▐' => 'п╓п╦п╨я│п╦я─п╬п╡п╟п╫п╫п╬п╣',
+                            'п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣' => '10',
                             )),
                             stdClass::__set_state(array(
-                            'ГруппаПользователей' => 'Маркетинг',
-                            'ТипВознаграждения' => 'Процент',
-                            'Вознаграждение' => '20',
+                            'п⌠я─я┐п©п©п╟п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧' => 'п°п╟я─п╨п╣я┌п╦п╫пЁ',
+                            'п╒п╦п©п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦я▐' => 'п÷я─п╬я├п╣п╫я┌',
+                            'п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣' => '20',
                             )),
                                                              */
 
                 $group = "";
-                switch(trr($b->{tr("ГруппаПользователей")})){
-                    case 'Менеджер': $group = "manager"; break;
-                    case 'Маркетинг': $group = "marketing"; break;
+                switch(trr($b->{tr("п⌠я─я┐п©п©п╟п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧")})){
+                    case 'п°п╣п╫п╣п╢п╤п╣я─': $group = "manager"; break;
+                    case 'п°п╟я─п╨п╣я┌п╦п╫пЁ': $group = "marketing"; break;
                 }
                 if(!$group) continue;
 
-                $type = trr($b->{tr("ТипВознаграждения")}) == "Фиксированное" ? "fix" : "%";
+                $type = trr($b->{tr("п╒п╦п©п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦я▐")}) == "п╓п╦п╨я│п╦я─п╬п╡п╟п╫п╫п╬п╣" ? "fix" : "%";
 
                 $db->QueryInsert("g_bonus", array(
                         "good_id" => $d["id"],
                         "group" => $group,
                         "type" => $type,
-                        "value" => $b->{tr("Вознаграждение")}
+                        "value" => $b->{tr("п▓п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣")}
                     )
                 );
             }
@@ -1729,9 +1727,9 @@ class SoapHandler{
     {
         global $db;
 
-        $code = $data->{tr('ГруппаТовара')}->{tr('Код')};
-        $name = trr($data->{tr('ГруппаТовара')}->{tr('Наименование')});
-        $parentCode = $data->{tr('ГруппаТовара')}->{tr('КодГруппы')};
+        $code = $data->{tr('п⌠я─я┐п©п©п╟п╒п╬п╡п╟я─п╟')}->{tr('п п╬п╢')};
+        $name = trr($data->{tr('п⌠я─я┐п©п©п╟п╒п╬п╡п╟я─п╟')}->{tr('п²п╟п╦п╪п╣п╫п╬п╡п╟п╫п╦п╣')});
+        $parentCode = $data->{tr('п⌠я─я┐п©п©п╟п╒п╬п╡п╟я─п╟')}->{tr('п п╬п╢п⌠я─я┐п©п©я▀')};
 
 
         $db->Query("insert into g_groups set id='".$code."', name='".mysql_escape_string($name)."', parent_id = '".$parentCode."'
@@ -1759,12 +1757,12 @@ function checkLogisticItems(&$items_list, &$add_info, $from1cInt = true)
 
     $aLogisticType =
         array(
-            "6b6709aa-8a8b-11df-866d-001517456eb1" => array("Доставка авто", "auto"),
-            "132c7b5d-8a6c-11df-866d-001517456eb1" => array("Доставка ТК", "tk"),
-            "132c7b5b-8a6c-11df-866d-001517456eb1" => array("Доставка курьером", "courier")
+            "6b6709aa-8a8b-11df-866d-001517456eb1" => array("п■п╬я│я┌п╟п╡п╨п╟ п╟п╡я┌п╬", "auto"),
+            "132c7b5d-8a6c-11df-866d-001517456eb1" => array("п■п╬я│я┌п╟п╡п╨п╟ п╒п ", "tk"),
+            "132c7b5b-8a6c-11df-866d-001517456eb1" => array("п■п╬я│я┌п╟п╡п╨п╟ п╨я┐я─я▄п╣я─п╬п╪", "courier")
         );
 
-    $logistic = $from1cInt ? $add_info->{tr('Логистика')} : $add_info["logistic"];
+    $logistic = $from1cInt ? $add_info->{tr('п⌡п╬пЁп╦я│я┌п╦п╨п╟')} : $add_info["logistic"];
 
     foreach($items_list as $i)
     {
@@ -1772,7 +1770,7 @@ function checkLogisticItems(&$items_list, &$add_info, $from1cInt = true)
         if(in_array($id , array_keys($aLogisticType)))
         {
             if($from1cInt){
-                $add_info->{tr('Логистика')} = tr($aLogisticType[$id][0]);
+                $add_info->{tr('п⌡п╬пЁп╦я│я┌п╦п╨п╟')} = tr($aLogisticType[$id][0]);
             }else{
                 $add_info["logistic"] = $aLogisticType[$id][1];
             }

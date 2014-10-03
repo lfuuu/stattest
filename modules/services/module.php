@@ -22,7 +22,7 @@ class m_services extends IModule{
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
         $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("koi8-r");
+        $JsHttpRequest->setEncoding("utf-8");
         $node=get_param_protected('node');
         $port_type=get_param_protected('port_type');
         if ($port_type=="pppoe") $port_type='pppoe","dedicated';
@@ -88,9 +88,9 @@ class m_services extends IModule{
             $fil .= ' AND (`ti`.`adsl_speed` IS NULL or substr(`ti`.`adsl_speed` from instr(`ti`.`adsl_speed`,"/")+1) not in ("128","256"))';
         }
         if($unlim){
-            // только безлимитные
-            // downstream(вторая часть скорости, после /) у mgts не равна той, которая у adsl_speed
-            $fil .= " AND IF(`ti`.`id` is null,1,`ti`.`name` like '%безлимитный%' collate koi8r_general_ci
+            // я┌п╬п╩я▄п╨п╬ п╠п╣п╥п╩п╦п╪п╦я┌п╫я▀п╣
+            // downstream(п╡я┌п╬я─п╟я▐ я┤п╟я│я┌я▄ я│п╨п╬я─п╬я│я┌п╦, п©п╬я│п╩п╣ /) я┐ mgts п╫п╣ я─п╟п╡п╫п╟ я┌п╬п╧, п╨п╬я┌п╬я─п╟я▐ я┐ adsl_speed
+            $fil .= " AND IF(`ti`.`id` is null,1,`ti`.`name` like '%п╠п╣п╥п╩п╦п╪п╦я┌п╫я▀п╧%'
                     AND substring(`uip`.`speed_mgts` from instr(`uip`.`speed_mgts`,'/')+1 for instr(substr(`uip`.`speed_mgts` from instr(`uip`.`speed_mgts`,'/')+1),'.')-1) <> substring(`ti`.`adsl_speed` from instr(`ti`.`adsl_speed`,'/')+1))";
         }
         if($show_off){
@@ -251,13 +251,13 @@ class m_services extends IModule{
 
             if($unlim && $toAdd && isset($p["tarif"]))
             {
-                 if(!eregi("Безлимитный", $p["tarif"]["name"]))
+                 if(!eregi("п▒п╣п╥п╩п╦п╪п╦я┌п╫я▀п╧", $p["tarif"]["name"]))
                  {
                      $toAdd = false;
                  }
             }
 
-            if($unlim && isset($p["tarif"])){ // не показываем, если downsteram равен
+            if($unlim && isset($p["tarif"])){ // п╫п╣ п©п╬п╨п╟п╥я▀п╡п╟п╣п╪, п╣я│п╩п╦ downsteram я─п╟п╡п╣п╫
                 $adsl_speed = $p['tarif']['adsl_speed'];
                 $mgts_speed = $p['speed_mgts'];
                 $as = explode('/',$adsl_speed);
@@ -321,12 +321,12 @@ class m_services extends IModule{
         $design->assign('show_client',1);
         $design->assign('internet_suffix','internet');
         $design->AddMain('services/internet_tiny.tpl'); */
-        trigger_error('TODO9 - временно отключено');
+        trigger_error('TODO9 - п╡я─п╣п╪п╣п╫п╫п╬ п╬я┌п╨п╩я▌я┤п╣п╫п╬');
     }
     function services_in_view_routed($fixclient){
 /*        global $design;
         $router=get_param_protected('router','');
-        if (!$router) {trigger_error('Не выбран роутер'); return;}
+        if (!$router) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ я─п╬я┐я┌п╣я─'); return;}
         $connections=array();
         $ports=$this->get_ports($fixclient,0,'(usage_ip_ports.node="'.$router.'") and (usage_ip_ports.port!="mgts")');
         foreach ($ports as $id_port=>$port) if ($port['actual2']){
@@ -338,13 +338,13 @@ class m_services extends IModule{
         $design->assign('show_client',1);
         $design->assign('internet_suffix','internet');
         $design->AddMain('services/internet_tiny.tpl'); */
-        trigger_error('TODO9 - временно отключено');
+        trigger_error('TODO9 - п╡я─п╣п╪п╣п╫п╫п╬ п╬я┌п╨п╩я▌я┤п╣п╫п╬');
     }
 
     function services_in_add($fixclient,$suffix="internet",$tarif_type=""){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
 
@@ -359,13 +359,13 @@ class m_services extends IModule{
                 'module'=>'services',
                 'action'=>'in_apply'
             ),
-            'Услуги',
-            'Новое подключение'
+            'пёя│п╩я┐пЁп╦',
+            'п²п╬п╡п╬п╣ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣'
         );
     }
     function services_in_apply($fixclient,$suffix='internet',$suffix2='in'){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageIpPorts();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -374,12 +374,12 @@ class m_services extends IModule{
             header('Location: ?module=services&action='.$suffix2.'_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'in_apply'),'Услуги','Редактировать подключение');
+        $dbf->Display(array('module'=>'services','action'=>'in_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣');
     }
     function services_in_add2($fixclient,$id='',$suffix="internet"){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         if(!$id)
@@ -396,14 +396,14 @@ class m_services extends IModule{
                 'module'=>'services',
                 'action'=>'in_apply2'
             ),
-            'Услуги',
-            'Новая сеть'
+            'пёя│п╩я┐пЁп╦',
+            'п²п╬п╡п╟я▐ я│п╣я┌я▄'
         );
     }
 
     function services_in_apply2($fixclient,$suffix='internet',$suffix2='in'){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageIpRoutes();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -411,7 +411,7 @@ class m_services extends IModule{
         if ($result=='delete') {
             header('Location: ?module=services&action=in_view');    
         } else {
-            $dbf->Display(array('module'=>'services','action'=>'in_apply2'),'Услуги','Редактировать сеть');
+            $dbf->Display(array('module'=>'services','action'=>'in_apply2'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ я│п╣я┌я▄');
         }
     }
     
@@ -431,7 +431,7 @@ class m_services extends IModule{
             $r['gate']=implode(".",$t);
             $routes[]=$r;    
         }
-        //if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
+        //if (!$routes || !$conn) {trigger_error('п║п╣я┌я▄ п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐ п╫п╣ п╫п╟п╧п╢п╣п╫я▀'); return; }
         //$conn['actual_from']=convert_date($conn['actual_from']);
         $design->assign('conn',$conn);
         $design->assign('port',$db->GetRow("select * from tech_ports where id='".$conn['port_id']."'"));
@@ -450,8 +450,8 @@ class m_services extends IModule{
             $design->clear_all_assign();
             $design->assign('content_encode','base64');
             $design->assign('emails',$mails);
-            $design->assign('subject',iconv('koi8r','utf8','Акт'));
-            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            $design->assign('subject','п░п╨я┌');
+            $design->assign('message',base64_encode(str_replace('&nbsp;',' ',$msg)));
             echo $design->fetch('wellsend.html');
             exit();
         }
@@ -474,7 +474,7 @@ class m_services extends IModule{
             $r['gate']=implode(".",$t);
             $routes[]=$r;
         }
-        //if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
+        //if (!$routes || !$conn) {trigger_error('п║п╣я┌я▄ п╦ п©п╬п╢п╨п╩я▌я┤п╣п╫п╦я▐ п╫п╣ п╫п╟п╧п╢п╣п╫я▀'); return; }
         //$conn['actual_from']=convert_date($conn['actual_from']);
         $design->assign('conn',$conn);
         $design->assign('port',$db->GetRow("select * from tech_ports where id='".$conn['port_id']."'"));
@@ -493,8 +493,8 @@ class m_services extends IModule{
             $design->clear_all_assign();
             $design->assign('content_encode','base64');
             $design->assign('emails',$mails);
-            $design->assign('subject',iconv('koi8r','utf8','Акт'));
-            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            $design->assign('subject','п░п╨я┌');
+            $design->assign('message',base64_encode(str_replace('&nbsp;',' ',$msg)));
             echo $design->fetch('wellsend.html');
             exit();
         }
@@ -504,12 +504,12 @@ class m_services extends IModule{
     function services_in_close($fixclient,$suffix='internet'){
         global $design,$db;
 
-        trigger_error("<h1><b>Вы сделали недопустимое действие! За вами выехали!</b></h1>");
+        trigger_error("<h1><b>п▓я▀ я│п╢п╣п╩п╟п╩п╦ п╫п╣п╢п╬п©я┐я│я┌п╦п╪п╬п╣ п╢п╣п╧я│я┌п╡п╦п╣! п≈п╟ п╡п╟п╪п╦ п╡я▀п╣я┘п╟п╩п╦!</b></h1>");
         mail("dga@mcn.ru","error in_close","error in_close\n look logs");
 
         if(false)
         {
-            if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+            if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
             $id=get_param_integer('id','');
             if (!$id) return;
             $db->Query('select usage_ip_ports.*,tech_ports.port_name from usage_ip_ports LEFT JOIN tech_ports on tech_ports.id=usage_ip_ports.port_id where usage_ip_ports.id='.$id);
@@ -561,7 +561,7 @@ class m_services extends IModule{
     
     function services_co_add($fixclient){
         global $design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $this->services_in_add($fixclient,'collocation','C');
     }
     function services_co_add2($fixclient,$id=''){
@@ -909,7 +909,7 @@ class m_services extends IModule{
         if (!$conn)
         {
             $reg = Region::first(array("id" => $region));
-            trigger_error("Ошибка соединения с сервером регистрации SIP в регионе \"".$reg->name."\" (id: ".$reg->id.")");
+            trigger_error("п·я┬п╦п╠п╨п╟ я│п╬п╣п╢п╦п╫п╣п╫п╦я▐ я│ я│п╣я─п╡п╣я─п╬п╪ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦ SIP п╡ я─п╣пЁп╦п╬п╫п╣ \"".$reg->name."\" (id: ".$reg->id.")");
             return array();    
         }
 
@@ -966,14 +966,14 @@ class m_services extends IModule{
         }
 
 
-        $dirs = array("my-full-out" => "Всё",
-                "my-russia-out" => "Россия",
-                "my-mskmob-out" => "МоскваМобил",
-                "my-msk-out" => "Москва",
+        $dirs = array("my-full-out" => "п▓я│я▒",
+                "my-russia-out" => "п═п╬я│я│п╦я▐",
+                "my-mskmob-out" => "п°п╬я│п╨п╡п╟п°п╬п╠п╦п╩",
+                "my-msk-out" => "п°п╬я│п╨п╡п╟",
 
-                "my-local-out" => "Местные стационарные",
-                "my-local-mobile-out" => "Местный мобильные",
-                "my-full-russia-out" => "Россия"
+                "my-local-out" => "п°п╣я│я┌п╫я▀п╣ я│я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣",
+                "my-local-mobile-out" => "п°п╣я│я┌п╫я▀п╧ п╪п╬п╠п╦п╩я▄п╫я▀п╣",
+                "my-full-russia-out" => "п═п╬я│я│п╦я▐"
                 );
 
         $pbx = array(
@@ -989,7 +989,7 @@ class m_services extends IModule{
                 "reg93" => "37.228.84.6",
                 "reg87" => "37.228.86.6",
                 "reg88" => "37.228.87.6",
-                "reg89" => "176.227.177.6" // Заявка 178491: Нужно добавить Владивосток в "просмотр регистраций". PBX = 176.227.177.6
+                "reg89" => "176.227.177.6" // п≈п╟я▐п╡п╨п╟ 178491: п²я┐п╤п╫п╬ п╢п╬п╠п╟п╡п╦я┌я▄ п▓п╩п╟п╢п╦п╡п╬я│я┌п╬п╨ п╡ "п©я─п╬я│п╪п╬я┌я─ я─п╣пЁп╦я│я┌я─п╟я├п╦п╧". PBX = 176.227.177.6
                 );
 
 
@@ -1002,7 +1002,7 @@ class m_services extends IModule{
 
             $permit = preg_replace('/;/', '<br>', $l['permit']);
             if (($permit == '0.0.0.0/0.0.0.0') and ($l['deny'] == '')) {
-                $perm = 'любой IP';
+                $perm = 'п╩я▌п╠п╬п╧ IP';
             } elseif ($l['deny'] == '0.0.0.0/0.0.0.0') {
                 $perm = $permit;
             } elseif (($permit == '') and ($l['deny'] == '')) {
@@ -1010,15 +1010,15 @@ class m_services extends IModule{
                 {
                     if ($l["autolink_ip"] == "t")
                     {
-                        $perm = 'Автопривязка: еще не привязан';
+                        $perm = 'п░п╡я┌п╬п©я─п╦п╡я▐п╥п╨п╟: п╣я┴п╣ п╫п╣ п©я─п╦п╡я▐п╥п╟п╫';
                     } else {
-                        $perm = "Любой IP";
+                        $perm = "п⌡я▌п╠п╬п╧ IP";
                     }
                 } else {
-                $perm = 'Автопривязка: еще не привязан';
+                $perm = 'п░п╡я┌п╬п©я─п╦п╡я▐п╥п╨п╟: п╣я┴п╣ п╫п╣ п©я─п╦п╡я▐п╥п╟п╫';
                 }
             } else {
-                $perm = 'разрешено: '.$permit.'<br>запрещено: '.$l['deny'];
+                $perm = 'я─п╟п╥я─п╣я┬п╣п╫п╬: '.$permit.'<br>п╥п╟п©я─п╣я┴п╣п╫п╬: '.$l['deny'];
             }
             $l["permit"] = $perm;
 
@@ -1100,26 +1100,26 @@ class m_services extends IModule{
 
             try{
                 if(!$_e164s || !$_emails)
-                    throw new Exception("Не выбраны номера или email'ы");
+                    throw new Exception("п²п╣ п╡я▀п╠я─п╟п╫я▀ п╫п╬п╪п╣я─п╟ п╦п╩п╦ email'я▀");
 
                 foreach($_e164s as $e)
                     if(!isset($e164s[$e]))
-                        throw new Exception("Не выбраны номера или email'ы");
+                        throw new Exception("п²п╣ п╡я▀п╠я─п╟п╫я▀ п╫п╬п╪п╣я─п╟ п╦п╩п╦ email'я▀");
 
                 foreach($_emails as $_email)
                     if(!isset($emails[$_email]))
-                        throw new Exception("Не выбраны номера или email'ы");
+                        throw new Exception("п²п╣ п╡я▀п╠я─п╟п╫я▀ п╫п╬п╪п╣я─п╟ п╦п╩п╦ email'я▀");
 
                 $msg = voipRegion::getEmailMsg($c["id"], $_e164s);
 
                 if(!$msg)
                 {
-                    voipRegion::getClientE164s($c); //для заполнения массива номер=>регион (voipRegion::$e164Region)
+                    voipRegion::getClientE164s($c); //п╢п╩я▐ п╥п╟п©п╬п╩п╫п╣п╫п╦я▐ п╪п╟я│я│п╦п╡п╟ п╫п╬п╪п╣я─=>я─п╣пЁп╦п╬п╫ (voipRegion::$e164Region)
                     $msg = voipRegion::_getEmailMsg($c, $_e164s);
                 }
 
                 if(!$msg)
-                    throw new Exception("Информация не найдена!");
+                    throw new Exception("п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╫п╣ п╫п╟п╧п╢п╣п╫п╟!");
 
             }catch(Exception $e)
             {
@@ -1138,8 +1138,8 @@ class m_services extends IModule{
                             )
                         );
 
-                mail(trim($_email), "[MCN] Настройки SIP", $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
-                //mail("adima123@yandex.ru", "[MCN] Настройки SIP - ".$_email, $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=koi8-r");
+                mail(trim($_email), "[MCN] п²п╟я│я┌я─п╬п╧п╨п╦ SIP", $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=utf-8");
+                //mail("adima123@yandex.ru", "[MCN] п²п╟я│я┌я─п╬п╧п╨п╦ SIP - ".$_email, $msg, "From: \"Support MCN\" <noreply@mcn.ru>\nContent-Type: text/plain; charset=utf-8");
             }
         }
 
@@ -1152,7 +1152,7 @@ class m_services extends IModule{
 
     function services_vo_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
 
         $id=get_param_integer('id','');
 
@@ -1188,8 +1188,8 @@ class m_services extends IModule{
             $design->clear_all_assign();
             $design->assign('content_encode','base64');
             $design->assign('emails',$mails);
-            $design->assign('subject',iconv('koi8r','utf8','Акт'));
-            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            $design->assign('subject','п░п╨я┌');
+            $design->assign('message',base64_encode(str_replace('&nbsp;',' ',$msg)));
             echo $design->fetch('wellsend.html');
             exit();
         }
@@ -1199,7 +1199,7 @@ class m_services extends IModule{
 
     function services_vo_act_trunk($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
     
         $id=get_param_integer('id','');
     
@@ -1213,7 +1213,7 @@ class m_services extends IModule{
 
     function services_in_dev_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         $client=get_param_raw('client','');
         $db->Query('select * from tech_cpe where (client="'.$client.'") 
@@ -1240,7 +1240,7 @@ class m_services extends IModule{
             {
                 $item = "(495) ".$match[1]."-".$match[2]."-".$match[3];
             }
-            $newItemsArray[] = $item.($count > 1 ? " на ".$count." лииях" : "");    
+            $newItemsArray[] = $item.($count > 1 ? " п╫п╟ ".$count." п╩п╦п╦я▐я┘" : "");    
         }
         $R[0]['numbers'] = '';
         foreach($newItemsArray as $item)
@@ -1254,7 +1254,7 @@ class m_services extends IModule{
 
     function services_vo_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormUsageVoip();
         $dbf->SetDefault('client',$fixclient);
@@ -1263,11 +1263,11 @@ class m_services extends IModule{
         }else{
             $dbf->SetDefault('region',$r['region']);
         }
-        $dbf->Display(array('module'=>'services','action'=>'vo_apply'),'Услуги','Новое VoIP-подключение');
+        $dbf->Display(array('module'=>'services','action'=>'vo_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╬п╣ VoIP-п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣');
     }
     function services_vo_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageVoip();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1278,12 +1278,12 @@ class m_services extends IModule{
             $design->ProcessX('empty.tpl');
         }
         $dbf->nodesign = true;
-        $dbf->Display(array('module'=>'services','action'=>'vo_apply'),'Услуги','Редактировать VoIP-подключение');
+        $dbf->Display(array('module'=>'services','action'=>'vo_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ VoIP-п©п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣');
         $design->AddMain('phone/voip_edit.tpl');
     }
     function services_vo_close($fixclient){
         global $design,$db, $user;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from usage_voip where id='.$id);
@@ -1296,11 +1296,11 @@ class m_services extends IModule{
                     "id_service" => $id, 
                     "id_user" => $user->Get("id"),
                     "ts" => array("now()"),
-                    "comment" => "Подключение закрыто"
+                    "comment" => "п÷п╬п╢п╨п╩я▌я┤п╣п╫п╦п╣ п╥п╟п╨я─я▀я┌п╬"
                     )
                 );
         voipNumbers::check();
-        trigger_error('Номер отключен, создайте заявку на отключение');
+        trigger_error('п²п╬п╪п╣я─ п╬я┌п╨п╩я▌я┤п╣п╫, я│п╬п╥п╢п╟п╧я┌п╣ п╥п╟я▐п╡п╨я┐ п╫п╟ п╬я┌п╨п╩я▌я┤п╣п╫п╦п╣');
 
         $this->services_vo_view($fixclient);
     }
@@ -1330,15 +1330,15 @@ class m_services extends IModule{
     }
     function services_dn_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormDomains();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'dn_apply'),'Услуги','Новое доменное имя');
+        $dbf->Display(array('module'=>'services','action'=>'dn_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╬п╣ п╢п╬п╪п╣п╫п╫п╬п╣ п╦п╪я▐');
     }
     function services_dn_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormDomains();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1347,11 +1347,11 @@ class m_services extends IModule{
             header('Location: ?module=services&action=dn_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'dn_apply'),'Услуги','Редактировать доменное имя');
+        $dbf->Display(array('module'=>'services','action'=>'dn_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╢п╬п╪п╣п╫п╫п╬п╣ п╦п╪я▐');
     }
     function services_dn_close($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from domains where id='.$id);
@@ -1365,7 +1365,7 @@ class m_services extends IModule{
     function services_em_view($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
 
@@ -1414,7 +1414,7 @@ class m_services extends IModule{
             where
                 (client="'.$fixclient.'")
             and
-                (description LIKE "Виртуальный почтовый сервер%")
+                (description LIKE "п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п©п╬я┤я┌п╬п╡я▀п╧ я│п╣я─п╡п╣я─%")
         ');
 
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
@@ -1426,7 +1426,7 @@ class m_services extends IModule{
             from
                 bill_monthlyadd_reference
             where
-                (description LIKE "Виртуальный почтовый сервер%")
+                (description LIKE "п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п©п╬я┤я┌п╬п╡я▀п╧ я│п╣я─п╡п╣я─%")
         ');
         $r=$db->NextRecord();
         $design->assign('mailservers_id',$r['id']);
@@ -1436,7 +1436,7 @@ class m_services extends IModule{
     
     function whitelist_load($fixclient,$filter,&$domains,&$mails,&$MCN,&$whlist){
         global $db,$design;
-        $M=array(/*0=>'Доставлять всё',*/1=>'Добавлять в тему письма метку ---SPAM---',2=>'Уничтожать');
+        $M=array(/*0=>'п■п╬я│я┌п╟п╡п╩я▐я┌я▄ п╡я│я▒',*/1=>'п■п╬п╠п╟п╡п╩я▐я┌я▄ п╡ я┌п╣п╪я┐ п©п╦я│я▄п╪п╟ п╪п╣я┌п╨я┐ ---SPAM---',2=>'пёп╫п╦я┤я┌п╬п╤п╟я┌я▄');
         $design->assign('em_options',$M);
         
         if ($filter){
@@ -1480,7 +1480,7 @@ class m_services extends IModule{
     }
     function services_em_whitelist_toggle($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer("id",0);
         $mode=get_param_integer("mode",0);
         if (!$id) return;
@@ -1500,7 +1500,7 @@ class m_services extends IModule{
                 $db->Query('select count(*) from email_whitelist where (local_part="") and (domain="'.$r['domain'].'") AND (email_whitelist.sender_address="") AND (email_whitelist.sender_address_domain="")');
                 $r2=$db->NextRecord();
                 if ($r2[0]!=0){
-                    trigger_error("На, домене, которому принадлежит этот e-mail, отключена фильрация спама. Сначала включите её вручную.");
+                    trigger_error("п²п╟, п╢п╬п╪п╣п╫п╣, п╨п╬я┌п╬я─п╬п╪я┐ п©я─п╦п╫п╟п╢п╩п╣п╤п╦я┌ я█я┌п╬я┌ e-mail, п╬я┌п╨п╩я▌я┤п╣п╫п╟ я└п╦п╩я▄я─п╟я├п╦я▐ я│п©п╟п╪п╟. п║п╫п╟я┤п╟п╩п╟ п╡п╨п╩я▌я┤п╦я┌п╣ п╣я▒ п╡я─я┐я┤п╫я┐я▌.");
                 } else {
                     $db->Query('delete from email_whitelist where (local_part="'.$r['local_part'].'") and (domain="'.$r['domain'].'") AND (email_whitelist.sender_address="") AND (email_whitelist.sender_address_domain="")');
                     $db->Query('update emails set spam_act="mark" where (client="'.$fixclient.'") and (id='.$id.')');
@@ -1514,21 +1514,21 @@ class m_services extends IModule{
 
     function services_em_whitelist($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         
         $filter=get_param_integer("filter","");
         $domains=array();
         $mails=array();
-        $MCN=array();    //ящики с mcn.ru
+        $MCN=array();    //я▐я┴п╦п╨п╦ я│ mcn.ru
         $whlist=array();
         $this->whitelist_load($fixclient,$filter,$domains,$mails,$MCN,$whlist);
 
-        if (!count($mails)) {trigger_error('У вас нет ни одного почтового ящика'); return;}
+        if (!count($mails)) {trigger_error('пё п╡п╟я│ п╫п╣я┌ п╫п╦ п╬п╢п╫п╬пЁп╬ п©п╬я┤я┌п╬п╡п╬пЁп╬ я▐я┴п╦п╨п╟'); return;}
         $design->AddMain('services/mail_wh_list.tpl'); 
     }
     function services_em_whitelist_delete($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         
         $id=get_param_integer("id",0);
         if (!$id) return;
@@ -1536,7 +1536,7 @@ class m_services extends IModule{
         $filter=get_param_integer("filter","");
         $domains=array();
         $mails=array();
-        $MCN=array();    //ящики с mcn.ru
+        $MCN=array();    //я▐я┴п╦п╨п╦ я│ mcn.ru
         $whlist=array();
         $this->whitelist_load($fixclient,$filter,$domains,$mails,$MCN,$whlist);
                 
@@ -1548,7 +1548,7 @@ class m_services extends IModule{
     function services_em_whitelist_add($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
 
@@ -1562,7 +1562,7 @@ class m_services extends IModule{
         $filter=get_param_integer("filter","");
         $domains=array();
         $mails=array();
-        $MCN=array();    //ящики с mcn.ru
+        $MCN=array();    //я▐я┴п╦п╨п╦ я│ mcn.ru
         $whlist=array();
         $this->whitelist_load($fixclient,$filter,$domains,$mails,$MCN,$whlist);
 
@@ -1577,7 +1577,7 @@ class m_services extends IModule{
             $q2[]='"'.$mails[$mail0]['domain'].'"';
         }else{
             if(!$domain0){
-                trigger_error('Неправильный адрес');
+                trigger_error('п²п╣п©я─п╟п╡п╦п╩я▄п╫я▀п╧ п╟п╢я─п╣я│');
                 return;
             }
             $q1[]='domain';
@@ -1586,7 +1586,7 @@ class m_services extends IModule{
         if($adr_radio1==0){
             $v=explode('@',$mail1);
             if(count($v)!=2){
-                trigger_error('Неправильный адрес');
+                trigger_error('п²п╣п©я─п╟п╡п╦п╩я▄п╫я▀п╧ п╟п╢я─п╣я│');
                 return;
             }
             $q1[]='sender_address';
@@ -1612,7 +1612,7 @@ class m_services extends IModule{
                 empty($q2[array_search('sender_host_address',$q1)])
             )
         ){
-            trigger_error("<script type='text/javascript'>alert('Ошибка! Попробуйте снова. Если ошибка будет повторяться - обратитесь к программисту.')</script>");
+            trigger_error("<script type='text/javascript'>alert('п·я┬п╦п╠п╨п╟! п÷п╬п©я─п╬п╠я┐п╧я┌п╣ я│п╫п╬п╡п╟. п∙я│п╩п╦ п╬я┬п╦п╠п╨п╟ п╠я┐п╢п╣я┌ п©п╬п╡я┌п╬я─я▐я┌я▄я│я▐ - п╬п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п©я─п╬пЁя─п╟п╪п╪п╦я│я┌я┐.')</script>");
         }else
             $db->Query('insert into email_whitelist ('.implode(',',$q1).') values ('.implode(',',$q2).')');
         trigger_error('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
@@ -1620,7 +1620,7 @@ class m_services extends IModule{
     
 /*    function services_em_add($fixclient){
         global $design,$db,$user;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
     
         if (!access('services_mail','full')){
             $this->dbmap->hidden['emails'][]='enabled';
@@ -1641,7 +1641,7 @@ class m_services extends IModule{
     function services_em_apply($fixclient){
         global $design,$db;
         if (!access('services_mail','addnew') && !access('services_mail','edit')) return;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         if (!access('services_mail','edit') &&  get_param_raw('dbaction')!='add') {
             trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
             return;
@@ -1665,7 +1665,7 @@ class m_services extends IModule{
                 $headers.= "Content-Type: text/plain; charset=windows-1251\n";
                 $r['email']=$r['local_part'].'@'.$r['domain'];
                 if (defined('MAIL_TEST_ONLY') && (MAIL_TEST_ONLY==1)) $r['email']='andreys75@mcn.ru, shepik@yandex.ru';
-                mail($r['email'],"дНАПН ОНФЮКНБЮРЭ!",$data,$headers);
+                mail($r['email'],"п╢п²п░п÷п² п·п²п╓п╝п п²п▒п╝п═п╜!",$data,$headers);
             }
             trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
         }
@@ -1675,7 +1675,7 @@ class m_services extends IModule{
     function services_em_add($fixclient){
         global $design,$db,$user;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -1691,14 +1691,14 @@ class m_services extends IModule{
                 'module'=>'services',
                 'action'=>'em_apply'
             ),
-            'Услуги',
-            'Новый e-mail ящик'
+            'пёя│п╩я┐пЁп╦',
+            'п²п╬п╡я▀п╧ e-mail я▐я┴п╦п╨'
         );
     }
     function services_em_apply($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $dbf = new DbFormEmails();
@@ -1718,12 +1718,12 @@ class m_services extends IModule{
         if($result=='delete' || $result=='add') {
             header('Location: ?module=services&action=em_view');
             $design->ProcessX('empty.tpl');
-        } else $dbf->Display(array('module'=>'services','action'=>'em_apply'),'Услуги','Редактировать e-mail ящик');
+        } else $dbf->Display(array('module'=>'services','action'=>'em_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ e-mail я▐я┴п╦п╨');
     }
     
     function services_em_chpass($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from emails where id='.$id);
@@ -1733,16 +1733,16 @@ class m_services extends IModule{
     }
     function services_em_chreal($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $pass1=get_param_protected('pass1','');
         $pass2=get_param_protected('pass2','');
         $db->Query('select * from emails where id='.$id);
         if (!($r=$db->NextRecord())) return;
-        if ($r['client']!=$fixclient) {trigger_error('Клиенты не совпадают'); return; }
+        if ($r['client']!=$fixclient) {trigger_error('п п╩п╦п╣п╫я┌я▀ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌'); return; }
         if ($pass1!=$pass2) {
-            trigger_error('Пароли не совпадают');
+            trigger_error('п÷п╟я─п╬п╩п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌');
             $this->services_em_chpass($fixclient);
 //            trigger_error('<script language=javascript>window.location.href="?module=services&action=em_chpass&id='.$id.'";</script>');
             return;
@@ -1752,7 +1752,7 @@ class m_services extends IModule{
     }
     function services_em_activate($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,(actual_from<=NOW()) as save_from from emails where id='.$id);
@@ -1783,7 +1783,7 @@ class m_services extends IModule{
     }
 /*    function services_em_toggle($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from emails where id='.$id);
@@ -1797,7 +1797,7 @@ class m_services extends IModule{
 // =========================================================================================================================================
     function services_ex_view($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $R=array();
         $db->Query($q='
             select
@@ -1819,8 +1819,8 @@ class m_services extends IModule{
 
         while ($r=$db->NextRecord()) {
             if ($r['param_name']) $r['description']=str_replace('%','<i>'.$r['param_value'].'</i>',$r['description']);
-            if ($r['period']=='month') $r['period_rus']='ежемесячно'; else
-            if ($r['period']=='year') $r['period_rus']='ежегодно';
+            if ($r['period']=='month') $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬'; else
+            if ($r['period']=='year') $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
             $R[]=$r;
         }
 
@@ -1829,27 +1829,27 @@ class m_services extends IModule{
     }
     function services_ex_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id',0);
         $db->Query('select S.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,T.* from usage_extra as S inner join tarifs_extra as T ON T.id=S.tarif_id where (S.id="'.$id.'") and (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return;
-        if ($r['period']=='month') $r['period_rus']='ежемесячно'; else
-        if ($r['period']=='year') $r['period_rus']='ежегодно';
+        if ($r['period']=='month') $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬'; else
+        if ($r['period']=='year') $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
         $design->assign('ad_item',$r);
         ClientCS::Fetch($r['client']);
         $design->ProcessEx('../store/acts/ex_act.tpl'); 
     }
     function services_ex_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageExtra();
         $dbf->SetDefault('client',$fixclient);
 
-        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Новая дополнительная услуга');
+        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╟я▐ я┐я│п╩я┐пЁп╟');
     }
     function services_ex_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageExtra();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1858,13 +1858,13 @@ class m_services extends IModule{
             header('Location: ?module=services&action=ex_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Редактировать дополнительную услугу');
+        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я┐я▌ я┐я│п╩я┐пЁя┐');
     }
     function services_ex_async($fixclient) {
         global $db,$design,$_RESULT;
         include INCLUDE_PATH."JsHttpRequest.php";
         $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("koi8-r");
+        $JsHttpRequest->setEncoding("utf-8");
         $id=get_param_integer('id');
         $tarif_table = get_param_protected('tarif_table', 'extra');
 
@@ -1880,7 +1880,7 @@ class m_services extends IModule{
     }
     function services_ex_close($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('update usage_extra set actual_to=NOW() where id='.$id);
@@ -1889,15 +1889,15 @@ class m_services extends IModule{
 
     function services_ad_view($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $R=array();
         $db->Query('select bill_monthlyadd.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d from bill_monthlyadd where client="'.$fixclient.'"');
         while ($r=$db->NextRecord()) {
-            if ($r['period']=='day') $r['period_rus']='каждый день'; else
-            if ($r['period']=='week') $r['period_rus']='каждую неделю'; else
-            if ($r['period']=='month') $r['period_rus']='каждый месяц'; else
-            if ($r['period']=='year') $r['period_rus']='каждый год'; else
-            if ($r['period']=='once') $r['period_rus']='единожды';
+            if ($r['period']=='day') $r['period_rus']='п╨п╟п╤п╢я▀п╧ п╢п╣п╫я▄'; else
+            if ($r['period']=='week') $r['period_rus']='п╨п╟п╤п╢я┐я▌ п╫п╣п╢п╣п╩я▌'; else
+            if ($r['period']=='month') $r['period_rus']='п╨п╟п╤п╢я▀п╧ п╪п╣я│я▐я├'; else
+            if ($r['period']=='year') $r['period_rus']='п╨п╟п╤п╢я▀п╧ пЁп╬п╢'; else
+            if ($r['period']=='once') $r['period_rus']='п╣п╢п╦п╫п╬п╤п╢я▀';
             $R[]=$r;
         }
         $design->assign('adds',$R);
@@ -1905,15 +1905,15 @@ class m_services extends IModule{
     }
     function services_ad_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id',0);
         $db->Query('select bill_monthlyadd.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from bill_monthlyadd where (id="'.$id.'") and (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return;
-        if ($r['period']=='day') $r['period_rus']='каждый день'; else
-        if ($r['period']=='week') $r['period_rus']='каждую неделю'; else
-        if ($r['period']=='month') $r['period_rus']='каждый месяц'; else
-        if ($r['period']=='year') $r['period_rus']='каждый год'; else
-        if ($r['period']=='once') $r['period_rus']='единожды';
+        if ($r['period']=='day') $r['period_rus']='п╨п╟п╤п╢я▀п╧ п╢п╣п╫я▄'; else
+        if ($r['period']=='week') $r['period_rus']='п╨п╟п╤п╢я┐я▌ п╫п╣п╢п╣п╩я▌'; else
+        if ($r['period']=='month') $r['period_rus']='п╨п╟п╤п╢я▀п╧ п╪п╣я│я▐я├'; else
+        if ($r['period']=='year') $r['period_rus']='п╨п╟п╤п╢я▀п╧ пЁп╬п╢'; else
+        if ($r['period']=='once') $r['period_rus']='п╣п╢п╦п╫п╬п╤п╢я▀';
         $design->assign('ad_item',$r);
         $design->assign('client',$db->GetRow('select * from clients where client="'.$r['client'].'"'));
         $design->ProcessEx('../store/acts/ad_act.tpl'); 
@@ -1921,15 +1921,15 @@ class m_services extends IModule{
     
     function services_ad_add($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormBillMonthlyadd();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'Услуги','Доп. услуги лучше заводить <a href="?module=services&action=ex_add">нового образца</a>');    //'Новая доп. услуга'
+        $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'пёя│п╩я┐пЁп╦','п■п╬п©. я┐я│п╩я┐пЁп╦ п╩я┐я┤я┬п╣ п╥п╟п╡п╬п╢п╦я┌я▄ <a href="?module=services&action=ex_add">п╫п╬п╡п╬пЁп╬ п╬п╠я─п╟п╥я├п╟</a>');    //'п²п╬п╡п╟я▐ п╢п╬п©. я┐я│п╩я┐пЁп╟'
     }
 
     function services_ad_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormBillMonthlyadd();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1937,12 +1937,12 @@ class m_services extends IModule{
         if ($result=='delete') {
             header('Location: ?module=services&action=in_view');    
         } else {
-            $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'Услуги','Редактировать доп. услугу');
+            $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╢п╬п©. я┐я│п╩я┐пЁя┐');
         }
     }
 /*    function services_ad_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $copyid=get_param_integer('copyid',0);
         
         $R=array(''); $db->Query('select * from bill_monthlyadd_reference');
@@ -1963,7 +1963,7 @@ class m_services extends IModule{
     }
     function services_ad_apply($fixclient){
         global $design,$db,$_POST;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         if ($this->dbmap->ApplyChanges('bill_monthlyadd')!="ok") {
             $this->dbmap->ShowEditForm('bill_monthlyadd','',get_param_raw('row',array()));
             $design->AddMain('services/ad_add.tpl');
@@ -1977,7 +1977,7 @@ class m_services extends IModule{
     }*/
     function services_ad_close($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from bill_monthlyadd where id='.$id);
@@ -1988,7 +1988,7 @@ class m_services extends IModule{
     }
     function services_ad_activate($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from bill_monthlyadd where id='.$id);
@@ -2009,7 +2009,7 @@ class m_services extends IModule{
     function services_it_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $R=array();
@@ -2034,9 +2034,9 @@ class m_services extends IModule{
             if($r['param_name'])
                 $r['description']=str_replace('%','<i>'.$r['param_value'].'</i>',$r['description']);
             if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
+                $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
             elseif($r['period']=='year')
-                $r['period_rus']='ежегодно';
+                $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
             $R[]=$r;
         }
 
@@ -2046,14 +2046,14 @@ class m_services extends IModule{
     function services_it_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
         $r=$db->NextRecord();
         $dbf = new DbFormUsageITPark();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Новая услуга ITPark');
+        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟ ITPark');
     }
 
 // =========================================================================================================================================
@@ -2085,16 +2085,16 @@ class m_services extends IModule{
                 $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
                 if($r['tarif']['period']=='month')
-                    $r['period_rus']='ежемесячно';
+                    $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
                 elseif($r['tarif']['period']=='year')
-                    $r['period_rus']='ежегодно';
+                    $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
                 $R[]=$r;
             }
 
             $design->assign('services_virtpbx',$R);
             $design->AddMain('services/virtpbx_all.tpl');
 
-            //trigger_error('Не выбран клиент');
+            //trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
 
@@ -2118,10 +2118,10 @@ class m_services extends IModule{
         foreach($vpbxs as $r){
             $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
             if($r['tarif']['period']=='month')
-                $r['period_rus']='ежемесячно';
+                $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
             $R[]=$r;
 
-            if($r["actual"] && (strpos($r["tarif"]["description"], "Виртуальная АТС пакет") !== false || strpos($r["tarif"]["description"], "ВАТС ") !== false))
+            if($r["actual"] && (strpos($r["tarif"]["description"], "п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п░п╒п║ п©п╟п╨п╣я┌") !== false || strpos($r["tarif"]["description"], "п▓п░п╒п║ ") !== false))
             {
                 $isViewAkt = $r;
             }
@@ -2134,18 +2134,18 @@ class m_services extends IModule{
     function services_virtpbx_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
         $r=$db->NextRecord();
         $dbf = new DbFormUsageVirtpbx();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Новая услуга Виртальная АТС');
+        $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟ п▓п╦я─я┌п╟п╩я▄п╫п╟я▐ п░п╒п║');
     }
     function services_virtpbx_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageVirtpbx();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2154,16 +2154,16 @@ class m_services extends IModule{
             header('Location: ?module=services&action=virtpbx_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Редактировать дополнительную услугу');
+        $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я┐я▌ я┐я│п╩я┐пЁя┐');
     }
 
     function services_virtpbx_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
 
         $id=get_param_integer('id',0);
 
-        if(!$id) {trigger_error('Ошибка в данных'); return;}
+        if(!$id) {trigger_error('п·я┬п╦п╠п╨п╟ п╡ п╢п╟п╫п╫я▀я┘'); return;}
 
         $r = $db->GetRow('select * from usage_virtpbx where (client="'.$fixclient.'") and id ="'.$id.'"');
 
@@ -2194,8 +2194,8 @@ class m_services extends IModule{
             $design->clear_all_assign();
             $design->assign('content_encode','base64');
             $design->assign('emails',$mails);
-            $design->assign('subject',iconv('koi8r','utf8','Акт'));
-            $design->assign('message',base64_encode(iconv('koi8r','utf8',str_replace('&nbsp;',' ',$msg))));
+            $design->assign('subject','п░п╨я┌');
+            $design->assign('message',base64_encode(str_replace('&nbsp;',' ',$msg)));
             echo $design->fetch('wellsend.html');
             exit();
         }
@@ -2249,7 +2249,7 @@ class m_services extends IModule{
             while($r=$db->NextRecord()){
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
                 if($r['period']=='month')
-                    $r['period_rus']='ежемесячно';
+                    $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
                 $R[]=$r;
             }
 
@@ -2283,7 +2283,7 @@ class m_services extends IModule{
         $isViewAkt = false;
         while($r=$db->NextRecord()){
             if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
+                $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
             $R[]=$r;
         }
 
@@ -2293,18 +2293,18 @@ class m_services extends IModule{
     function services_8800_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
         $r=$db->NextRecord();
         $dbf = new DbFormUsage8800();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Новая услуга 8800');
+        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟ 8800');
     }
     function services_8800_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsage8800();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2313,7 +2313,7 @@ class m_services extends IModule{
             header('Location: ?module=services&action=8800_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Редактировать услугу 8800');
+        $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ я┐я│п╩я┐пЁя┐ 8800');
     }
 
 // =========================================================================================================================================
@@ -2343,7 +2343,7 @@ class m_services extends IModule{
             while($r=$db->NextRecord()){
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
                 if($r['period']=='month')
-                    $r['period_rus']='ежемесячно';
+                    $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
                 $R[]=$r;
             }
 
@@ -2377,7 +2377,7 @@ class m_services extends IModule{
         $isViewAkt = false;
         while($r=$db->NextRecord()){
             if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
+                $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
             $R[]=$r;
         }
 
@@ -2387,18 +2387,18 @@ class m_services extends IModule{
     function services_sms_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
         $r=$db->NextRecord();
         $dbf = new DbFormUsageSms();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Новая услуга CMC');
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟ CMC');
     }
     function services_sms_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageSms();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2407,7 +2407,7 @@ class m_services extends IModule{
             header('Location: ?module=services&action=sms_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Редактировать услугу CMC');
+        $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ я┐я│п╩я┐пЁя┐ CMC');
     }
 
 // =========================================================================================================================================
@@ -2443,16 +2443,16 @@ class m_services extends IModule{
             while($r=$db->NextRecord()){
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
                 if($r['period']=='month')
-                    $r['period_rus']='ежемесячно';
+                    $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
                 elseif($r['period']=='year')
-                    $r['period_rus']='ежегодно';
+                    $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
                 $R[]=$r;
             }
 
             $design->assign('services_welltime',$R);
             $design->AddMain('services/welltime_all.tpl');
 
-            //trigger_error('Не выбран клиент');
+            //trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $R=array();
@@ -2498,9 +2498,9 @@ class m_services extends IModule{
         $isViewAkt = false;
         while($r=$db->NextRecord()){
             if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
+                $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
             elseif($r['period']=='year')
-                $r['period_rus']='ежегодно';
+                $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
             $R[]=$r;
 
         }
@@ -2511,18 +2511,18 @@ class m_services extends IModule{
     function services_welltime_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
         $r=$db->NextRecord();
         $dbf = new DbFormUsageWelltime();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'Услуги','Новая услуга Welltime');
+        $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟ Welltime');
     }
     function services_welltime_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageWelltime();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2531,13 +2531,13 @@ class m_services extends IModule{
             header('Location: ?module=services&action=welltime_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'Услуги','Редактировать дополнительную услугу');
+        $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я┐я▌ я┐я│п╩я┐пЁя┐');
     }
 // =========================================================================================================================================
     function services_wellsystem_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $R=array();
@@ -2563,9 +2563,9 @@ class m_services extends IModule{
             if($r['param_name'])
                 $r['description']=str_replace('%','<i>'.$r['param_value'].'</i>',$r['description']);
             if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
+                $r['period_rus']='п╣п╤п╣п╪п╣я│я▐я┤п╫п╬';
             elseif($r['period']=='year')
-                $r['period_rus']='ежегодно';
+                $r['period_rus']='п╣п╤п╣пЁп╬п╢п╫п╬';
             $R[]=$r;
         }
 
@@ -2575,20 +2575,20 @@ class m_services extends IModule{
     function services_wellsystem_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
         $r=$db->NextRecord();
         $dbf = new DbFormUsageWellSystem();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Новая услуга WellSystem');
+        $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡п╟я▐ я┐я│п╩я┐пЁп╟ WellSystem');
     }
 // =========================================================================================================================================
     function services_ppp_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
         $R = array();
@@ -2614,15 +2614,15 @@ class m_services extends IModule{
     }
     function services_ppp_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormUsageExtra();
         $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'ppp_apply'),'Услуги','Новый ppp-логин');
+        $dbf->Display(array('module'=>'services','action'=>'ppp_apply'),'пёя│п╩я┐пЁп╦','п²п╬п╡я▀п╧ ppp-п╩п╬пЁп╦п╫');
     }
     function services_ppp_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $dbf = new DbFormUsageExtra();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2631,15 +2631,15 @@ class m_services extends IModule{
             header('Location: ?module=services&action=ppp_view');
             $design->ProcessX('empty.tpl');
         }
-        $dbf->Display(array('module'=>'services','action'=>'ppp_apply'),'Услуги','Редактировать ppp-логин');
+        $dbf->Display(array('module'=>'services','action'=>'ppp_apply'),'пёя│п╩я┐пЁп╦','п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ ppp-п╩п╬пЁп╦п╫');
     }
     function services_ppp_append($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌');
             return;
         }
-        $ass = array(); //бгг
+        $ass = array(); //п╠пЁпЁ
         $client = addcslashes($fixclient, "\\'");
         if(isset($_POST['append_ppp_ok'])){
             $query_ins = "
@@ -2655,7 +2655,7 @@ class m_services extends IModule{
                     `actual_to` = now()
             ";
             $db->Query($query_ins);
-            trigger_error('Логин успешно добавлен!');
+            trigger_error('п⌡п╬пЁп╦п╫ я┐я│п©п╣я┬п╫п╬ п╢п╬п╠п╟п╡п╩п╣п╫!');
             return;
         }
         $query = "
@@ -2675,7 +2675,7 @@ class m_services extends IModule{
             $ppps[] = $row;
         }
         if(!count($ppps)){
-            trigger_error('У пользователя нет ни одного ppp логина.');
+            trigger_error('пё п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ п╫п╣я┌ п╫п╦ п╬п╢п╫п╬пЁп╬ ppp п╩п╬пЁп╦п╫п╟.');
             return;
         }
         $ppp_last = $ppps[count($ppps)-1];
@@ -2696,7 +2696,7 @@ class m_services extends IModule{
     }
 /*function services_ppp_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
 
         $R=array('id'=>0); $db->Query('select * from usage_ip_ports where client="'.$fixclient.'"');
         while ($r=$db->NextRecord()) $R[$r['id']]=$r;
@@ -2711,7 +2711,7 @@ class m_services extends IModule{
     function services_ppp_apply($fixclient){
         global $design,$db,$_POST;
         if (!access('services_ppp','addnew') && !access('services_ppp','edit')) return;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         if (!access('services_ppp','edit') &&  get_param_raw('dbaction')!='add') {
             trigger_error('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
             return;
@@ -2737,7 +2737,7 @@ class m_services extends IModule{
 
     function services_ppp_chpass($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from usage_ip_ppp where id='.$id);
@@ -2747,16 +2747,16 @@ class m_services extends IModule{
     }
     function services_ppp_chreal($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $pass1=get_param_protected('pass1','');
         $pass2=get_param_protected('pass2','');
         $db->Query('select * from usage_ip_ppp where id='.$id);
         if (!($r=$db->NextRecord())) return;
-        if ($r['client']!=$fixclient) {trigger_error('Клиенты не совпадают'); return; }
+        if ($r['client']!=$fixclient) {trigger_error('п п╩п╦п╣п╫я┌я▀ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌'); return; }
         if ($pass1!=$pass2) {
-            trigger_error('Пароли не совпадают');
+            trigger_error('п÷п╟я─п╬п╩п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌');
             $this->services_ppp_chpass($fixclient);
             return;
         }
@@ -2766,7 +2766,7 @@ class m_services extends IModule{
     
     function services_ppp_activate($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from usage_ip_ppp where (id='.$id.') and (client="'.$fixclient.'")');
@@ -2782,7 +2782,7 @@ class m_services extends IModule{
 
     function services_ppp_activateall($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error('п²п╣ п╡я▀п╠я─п╟п╫ п╨п╩п╦п╣п╫я┌'); return;}
         $value=get_param_integer('value',0); if ($value) $value=1;
         if ($value==0){
             $db->Query('update usage_ip_ppp set enabled=0 where (client="'.$fixclient.'")');
@@ -2898,16 +2898,16 @@ class m_services extends IModule{
         $db->Query("select count(*) from usage_ip_ports where (actual_to>NOW()) and (client=\"{$client}\")");
         $r=$db->NextRecord();
         if (isset($r[0]) && $r[0]=="0"){
-            trigger_error("Клиенту установлен статус \"отключен\"");
+            trigger_error("п п╩п╦п╣п╫я┌я┐ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ я│я┌п╟я┌я┐я│ \"п╬я┌п╨п╩я▌я┤п╣п╫\"");
             $db->Query("update clients set status=\"disabled\" where client=\"{$client}\"");
             $db->Query("select count(*) from usage_voip where (actual_from<=NOW()) and (actual_to>=NOW()) and (client=\"{$client}\")");
             $r=$db->NextRecord();
-            if (isset($r[0]) && ($r[0])) trigger_error("Внимание! У клиента осталась IP-телефония.");
+            if (isset($r[0]) && ($r[0])) trigger_error("п▓п╫п╦п╪п╟п╫п╦п╣! пё п╨п╩п╦п╣п╫я┌п╟ п╬я│я┌п╟п╩п╟я│я▄ IP-я┌п╣п╩п╣я└п╬п╫п╦я▐.");
         } else {
             $db->Query("select status from clients where client=\"{$client}\"");
             $r=$db->NextRecord();
             if ($r[0]!="work") {
-            trigger_error("Клиенту установлен статус \"включен\"");
+            trigger_error("п п╩п╦п╣п╫я┌я┐ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ я│я┌п╟я┌я┐я│ \"п╡п╨п╩я▌я┤п╣п╫\"");
                 $db->Query("update clients set status=\"work\" where client=\"{$client}\"");
             }
         }
@@ -3068,7 +3068,7 @@ class m_services extends IModule{
             $reserve = (int)$reserve;
             if ($reserve == 0) $reserve = 'NULL';
 
-            /* резерв переведен на новую схему */
+            /* я─п╣п╥п╣я─п╡ п©п╣я─п╣п╡п╣п╢п╣п╫ п╫п╟ п╫п╬п╡я┐я▌ я│я┘п╣п╪я┐ */
             header('location: ?module=services&action=e164_edit&e164='.$e164); 
             exit();
 
@@ -3157,7 +3157,7 @@ class m_services extends IModule{
         foreach ($R as $r) {
             $Res[$r['id']] = array(
                             'id'=>$r['id'],
-                            'name'=>Encoding::toUtf8($r['name']),
+                            'name'=>$r['name'],
                             'month_number'=>$r['month_number'], 
                             'month_line'=>$r['month_line'], 
                             'status'=>$r['status'], 
@@ -3188,17 +3188,17 @@ class m_services extends IModule{
                 unset($lastLog["id"]);
                 $lastLog["ts"] = date("Y-m-d H:i:s");
                 $lastLog["id_user"] = $user->Get("id");
-                $lastLog["comment"] = "продление резерва";
+                $lastLog["comment"] = "п©я─п╬п╢п╩п╣п╫п╦п╣ я─п╣п╥п╣я─п╡п╟";
 
                 $db->QueryInsert("log_tarif", $lastLog);
 
                 echo "ok";
                 exit();
             } else {
-                echo "Ошибка!";
+                echo "п·я┬п╦п╠п╨п╟!";
             }
         } else {
-            echo "Ошибка!";
+            echo "п·я┬п╦п╠п╨п╟!";
         }
         exit();
     }
@@ -3291,7 +3291,7 @@ class voipRegion
         }
 
 
-        $msgHeader = "Здравствуйте!\n";
+        $msgHeader = "п≈п╢я─п╟п╡я│я┌п╡я┐п╧я┌п╣!\n";
 
         $msg = "";
         foreach($a as $region => $numbers)
@@ -3302,7 +3302,7 @@ class voipRegion
 
     static public function getEmailMsg($clientId, $needSendE164)
     {
-        $msgHeader = "Здравствуйте!\n";
+        $msgHeader = "п≈п╢я─п╟п╡я│я┌п╡я┐п╧я┌п╣!\n";
         $msg = "";
 
         foreach($needSendE164 as $n)
@@ -3353,20 +3353,20 @@ class voipRegion
 
                         if ($a["permit_on"] == "auto")
                         {
-                            $permit = "автоматическая привязка при первой регистрации";
+                            $permit = "п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╟я▐ п©я─п╦п╡я▐п╥п╨п╟ п©я─п╦ п©п╣я─п╡п╬п╧ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦";
                         } elseif ($a["permit_on"] == "no") {
-                            $permit = "любой адрес";
+                            $permit = "п╩я▌п╠п╬п╧ п╟п╢я─п╣я│";
                         } elseif ($a["permit_on"] == "yes"){
-                            $permit = "разрешено: ".str_replace(",", " ", $a["permit"]);
+                            $permit = "я─п╟п╥я─п╣я┬п╣п╫п╬: ".str_replace(",", " ", $a["permit"]);
                         }
 
                         $msg .= "\n-----------------------------------------\n".
-                            "Номер телефона: ".$number["number"]."\n".//($l["callerid"]? $l["callerid"]: "***trunk***")."\n".
+                            "п²п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟: ".$number["number"]."\n".//($l["callerid"]? $l["callerid"]: "***trunk***")."\n".
                             "SIP proxy: ".$pbx[$number["region"]]."\n".
-                            ($a["host_type"] == "dynamic" ? "register: Да\n" : "").
+                            ($a["host_type"] == "dynamic" ? "register: п■п╟\n" : "").
                             "username: ".$a["account"]."\n".
                             "password: ".$a["password"]."\n".
-                            "привязка: ".$permit."\n";
+                            "п©я─п╦п╡я▐п╥п╨п╟: ".$permit."\n";
                     }
                 }
             }
@@ -3391,7 +3391,7 @@ class voipRegion
                 "reg93" => "37.228.84.6",
                 "reg87" => "37.228.86.6",
                 "reg88" => "37.228.87.6",
-                "reg89" => "176.227.177.6" // Заявка 178491: Нужно добавить Владивосток в "просмотр регистраций". PBX = 176.227.177.6
+                "reg89" => "176.227.177.6" // п≈п╟я▐п╡п╨п╟ 178491: п²я┐п╤п╫п╬ п╢п╬п╠п╟п╡п╦я┌я▄ п▓п╩п╟п╢п╦п╡п╬я│я┌п╬п╨ п╡ "п©я─п╬я│п╪п╬я┌я─ я─п╣пЁп╦я│я┌я─п╟я├п╦п╧". PBX = 176.227.177.6
                 );
 
         $callerids = $names = array();
@@ -3426,33 +3426,33 @@ class voipRegion
         while($l = pg_fetch_assoc($result))
         {
             if(isset($pbx[$l["ippbx"]])) $l["ippbx"] = $pbx[$l["ippbx"]];
-            else die("Неизветсный IPPBX, обратитесь к программисту");
+            else die("п²п╣п╦п╥п╡п╣я┌я│п╫я▀п╧ IPPBX, п╬п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п©я─п╬пЁя─п╟п╪п╪п╦я│я┌я┐");
 
             $permit = preg_replace('/;/', ' ', $l['permit']);
             if (($permit == '0.0.0.0/0.0.0.0') and ($l['deny'] == '')) {
-                $perm = 'любой IP';
+                $perm = 'п╩я▌п╠п╬п╧ IP';
             } elseif ($l['deny'] == '0.0.0.0/0.0.0.0') {
                 $perm = $permit;
             } elseif (($permit == '') and ($l['deny'] == '')) {
-                $perm = 'автоматическая привязка при первой регистрации';
+                $perm = 'п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╟я▐ п©я─п╦п╡я▐п╥п╨п╟ п©я─п╦ п©п╣я─п╡п╬п╧ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦';
             } else {
-                $perm = 'разрешено: '.$permit.'; запрещено: '.$l['deny'];
+                $perm = 'я─п╟п╥я─п╣я┬п╣п╫п╬: '.$permit.'; п╥п╟п©я─п╣я┴п╣п╫п╬: '.$l['deny'];
             }
             $l["permit"] = $perm;
             $regs[] = $l;
 
             if(strpos($l["callerid"], "74959505680*") !== false)
             {
-                $l["callerid"] = "линия без номера (".str_replace("74959505680*", "", $l["callerid"]).")";
+                $l["callerid"] = "п╩п╦п╫п╦я▐ п╠п╣п╥ п╫п╬п╪п╣я─п╟ (".str_replace("74959505680*", "", $l["callerid"]).")";
             }
 
             $msg .= "\n-----------------------------------------\n".
-                "Номер телефона: ".($l["callerid"]? $l["callerid"]: (strpos($l["name"], "7800") !== false ? preg_replace("@\+\d+@", "", $l["name"]) : "***trunk***"))."\n".
+                "п²п╬п╪п╣я─ я┌п╣п╩п╣я└п╬п╫п╟: ".($l["callerid"]? $l["callerid"]: (strpos($l["name"], "7800") !== false ? preg_replace("@\+\d+@", "", $l["name"]) : "***trunk***"))."\n".
                 "SIP proxy: ".$l["ippbx"]."\n".
                 "register: YES\n".
                 "username: ".$l["name"]."\n".
                 "password: ".$l["secret"]."\n".
-                "привязка: ".$l["permit"]."\n";
+                "п©я─п╦п╡я▐п╥п╨п╟: ".$l["permit"]."\n";
         }
         return $msg;
     }

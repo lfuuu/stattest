@@ -1,4 +1,4 @@
-<h1>От кого пришли звонки:</h1>
+<h1>п·я┌ п╨п╬пЁп╬ п©я─п╦я┬п╩п╦ п╥п╡п╬п╫п╨п╦:</h1>
 
 <form action="./index.php" method="get" style="display:inline">
 	<input type="hidden" name="module" value="voipreports" />
@@ -9,9 +9,9 @@
         {/foreach}
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    через
+    я┤п╣я─п╣п╥
     <select class="select2" name="f_operator_id" style="width: 300px">
-        <option value="0">-- Все операторы --</option>
+        <option value="0">-- п▓я│п╣ п╬п©п╣я─п╟я┌п╬я─я▀ --</option>
         {foreach from=$operators key='id' item='name'}
         <option value="{$id}" {if $id eq $f_operator_id} selected{/if}>{$name} ({$id})</option>
         {/foreach}
@@ -21,50 +21,50 @@
 
 
     <select name="f_dest_group">
-        <option value="" {if $f_dest_group eq ''} selected{/if}>-- Все направления --</option>
-        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>Местные</option>
-        <option value="0" {if $f_dest_group eq '0'} selected{/if}>Зона</option>
-        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-        <option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
+        <option value="" {if $f_dest_group eq ''} selected{/if}>-- п▓я│п╣ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ --</option>
+        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>п°п╣я│я┌п╫я▀п╣</option>
+        <option value="0" {if $f_dest_group eq '0'} selected{/if}>п≈п╬п╫п╟</option>
+        <option value="1" {if $f_dest_group eq '1'} selected{/if}>п═п╬я│я│п╦я▐</option>
+        <option value="2" {if $f_dest_group eq '2'} selected{/if}>п°п╣п╤п╢я┐п╫п╟я─п╬п╢п╨п╟</option>
+        <option value="3" {if $f_dest_group eq '3'} selected{/if}>п║п²п⌠</option>
     </select>
     <select class="select2" name="f_country_id" style="width: 250px">
-        <option value="0">-- Все страны --</option>
+        <option value="0">-- п▓я│п╣ я│я┌я─п╟п╫я▀ --</option>
         {foreach from=$geo_countries item='g'}
         <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
     <select class="select2" name="f_region_id" style="width: 300px">
-        <option value="0">-- Все регионы --</option>
+        <option value="0">-- п▓я│п╣ я─п╣пЁп╦п╬п╫я▀ --</option>
         {foreach from=$geo_regions item='g'}
         <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
 
     <select name="f_mob">
-        <option value="0">-- Моб/Стац --</option>
-        <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
-        <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
+        <option value="0">-- п°п╬п╠/п║я┌п╟я├ --</option>
+        <option value="t" {if $f_mob eq 't'} selected{/if}>п°п╬п╠п╦п╩я▄п╫я▀п╣</option>
+        <option value="f" {if $f_mob eq 'f'} selected{/if}>п║я┌п╟я├п╦п╬п╫п╟я─п╫я▀п╣</option>
     </select>
 
 
     <div style="height: 5px"></div>
 
-    С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
+    п║: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
+    п÷п╬: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type=submit name="make" id="make_report" value="Сформировать"/>
+    <input type=submit name="make" id="make_report" value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄"/>
 </form>
 <br/><br/>
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <thead>
 <tr>
-    <td class=header>Оператор</td>
-    <td class=header>Кол-во звонков</td>
-    <td class=header>Кол-во минут</td>
-    <td class=header>Сумма оператора</td>
+    <td class=header>п·п©п╣я─п╟я┌п╬я─</td>
+    <td class=header>п п╬п╩-п╡п╬ п╥п╡п╬п╫п╨п╬п╡</td>
+    <td class=header>п п╬п╩-п╡п╬ п╪п╦п╫я┐я┌</td>
+    <td class=header>п║я┐п╪п╪п╟ п╬п©п╣я─п╟я┌п╬я─п╟</td>
 </tr>
 </thead>
 <tbody>

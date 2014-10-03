@@ -1,16 +1,16 @@
 <TR><TD class=left width=40%>{$tarifs_translate.period}</TD>
 <TD><select class=text name=period>
-<option value='month'{if $tarifs_data.period=='month'} selected{/if}>ежемесячно</option>
-<option value='day'{if $tarifs_data.period=='day'} selected{/if}>ежедневно</option>
-<option value='year'{if $tarifs_data.period=='year'} selected{/if}>ежегодно</option>
-<option value='immediately'{if $tarifs_data.period=='immediately'} selected{/if}>немедленно</option>
+<option value='month'{if $tarifs_data.period=='month'} selected{/if}>п╣п╤п╣п╪п╣я│я▐я┤п╫п╬</option>
+<option value='day'{if $tarifs_data.period=='day'} selected{/if}>п╣п╤п╣п╢п╫п╣п╡п╫п╬</option>
+<option value='year'{if $tarifs_data.period=='year'} selected{/if}>п╣п╤п╣пЁп╬п╢п╫п╬</option>
+<option value='immediately'{if $tarifs_data.period=='immediately'} selected{/if}>п╫п╣п╪п╣п╢п╩п╣п╫п╫п╬</option>
 </select></TD></TR>
 <TR><TD class=left width=40%>{$tarifs_translate.status}</TD>
 <TD><select class=text name=status>
-<option value='public'{if $tarifs_data.status=='public'} selected{/if}>публичный</option>
-<option value='special'{if $tarifs_data.status=='special'} selected{/if}>специальный</option>
-<option value='archive'{if $tarifs_data.status=='archive'} selected{/if}>архивный</option>
-<option value='operator'{if $tarifs_data.status=='operator'} selected{/if}>оператор</option>
+<option value='public'{if $tarifs_data.status=='public'} selected{/if}>п©я┐п╠п╩п╦я┤п╫я▀п╧</option>
+<option value='special'{if $tarifs_data.status=='special'} selected{/if}>я│п©п╣я├п╦п╟п╩я▄п╫я▀п╧</option>
+<option value='archive'{if $tarifs_data.status=='archive'} selected{/if}>п╟я─я┘п╦п╡п╫я▀п╧</option>
+<option value='operator'{if $tarifs_data.status=='operator'} selected{/if}>п╬п©п╣я─п╟я┌п╬я─</option>
 </select></TD></TR>
 <TR><TD class=left width=40%>{$tarifs_translate.currency}</TD>
 <TD><select class=text name=currency>

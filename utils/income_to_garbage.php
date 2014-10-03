@@ -15,7 +15,7 @@ foreach ($ids as $r) {
     $cnt++;
     $id = $r['id'];
     $status = 'trash';
-    $comment = 'á×ÔÏÍÁÔÉŞÅÓËÁÑ ŞÉÓÔËÁ';
+    $comment = 'ĞĞ²Ñ‚Ğ¾Ğ¼Ğ°Ñ‚Ğ¸Ñ‡ĞµÑĞºĞ°Ñ Ñ‡Ğ¸ÑÑ‚ĞºĞ°';
     $cs = new ClientCS($id);
     $cs->Add($status,$comment);
     event::go("client_set_status", $id);
