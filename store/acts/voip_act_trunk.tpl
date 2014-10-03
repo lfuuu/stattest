@@ -5,33 +5,33 @@
 </head>
 <body lang=RU style='tab-interval:35.4pt'>
 <div class=Section1>
-    <h2 align=center style='text-align:center'>АКТ &#8470; 4-{$client.id}</h2>
-    <h3 align=center style='text-align:center'>сдачи-приемки работ</h3>
+    <h2 align=center style='text-align:center'>п░п п╒ &#8470; 4-{$client.id}</h2>
+    <h3 align=center style='text-align:center'>я│п╢п╟я┤п╦-п©я─п╦п╣п╪п╨п╦ я─п╟п╠п╬я┌</h3>
     <div align=center>
         <table border=0 cellpadding=0 width="96%">
             <tr>
-                <td width="38%"><p>г. Москва </p></td>
-                <td><p align=right>__________<span>  </span>2014 г.</p></td>
+                <td width="38%"><p>пЁ. п°п╬я│п╨п╡п╟ </p></td>
+                <td><p align=right>__________<span>б═ </span>2014 пЁ.</p></td>
             </tr>
         </table>
     </div>
-    <p>Настоящий акт составлен в том, что {$firma.name}, в&nbsp;лице
-        {$firm_director.position_} {$firm_director.name_} и Оператор {$client.company_full},
-        в&nbsp;лице {$client.signer_positionV} {$client.signer_nameV}, выполнили работы по организации Услуги
-        присоединения в соответствии с Договором &#8470;&nbsp;{$contract.contract_no}&nbsp;<span>&nbsp;от&nbsp;{$contract.contract_date|mdate:'"d" месяца Y'} г.</span>.</p>
-    <p>Работы по организации Услуги присоединения удовлетворяют условиям Договора и
-        выполнены с надлежащим качеством. </p>
-    <p>Настоящий Акт составлен в двух экземплярах (по одному экземпляру для каждой
-        из сторон)<span style='mso-spacerun:yes'>  </span>и является основанием для
-        проведения расчетов между {$firma.name} и Оператором. </p>
-    <h5>Информация для получения статистики</h5>
-    <p>Страница просмотра: <i>https://lk.mcn.ru/</i><br>
+    <p>п²п╟я│я┌п╬я▐я┴п╦п╧ п╟п╨я┌ я│п╬я│я┌п╟п╡п╩п╣п╫ п╡ я┌п╬п╪, я┤я┌п╬ {$firma.name}, п╡&nbsp;п╩п╦я├п╣
+        {$firm_director.position_} {$firm_director.name_} п╦ п·п©п╣я─п╟я┌п╬я─ {$client.company_full},
+        п╡&nbsp;п╩п╦я├п╣ {$client.signer_positionV} {$client.signer_nameV}, п╡я▀п©п╬п╩п╫п╦п╩п╦ я─п╟п╠п╬я┌я▀ п©п╬ п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦ пёя│п╩я┐пЁп╦
+        п©я─п╦я│п╬п╣п╢п╦п╫п╣п╫п╦я▐ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ п■п╬пЁп╬п╡п╬я─п╬п╪ &#8470;&nbsp;{$contract.contract_no}&nbsp;<span>&nbsp;п╬я┌&nbsp;{$contract.contract_date|mdate:'"d" п╪п╣я│я▐я├п╟ Y'} пЁ.</span>.</p>
+    <p>п═п╟п╠п╬я┌я▀ п©п╬ п╬я─пЁп╟п╫п╦п╥п╟я├п╦п╦ пёя│п╩я┐пЁп╦ п©я─п╦я│п╬п╣п╢п╦п╫п╣п╫п╦я▐ я┐п╢п╬п╡п╩п╣я┌п╡п╬я─я▐я▌я┌ я┐я│п╩п╬п╡п╦я▐п╪ п■п╬пЁп╬п╡п╬я─п╟ п╦
+        п╡я▀п©п╬п╩п╫п╣п╫я▀ я│ п╫п╟п╢п╩п╣п╤п╟я┴п╦п╪ п╨п╟я┤п╣я│я┌п╡п╬п╪. </p>
+    <p>п²п╟я│я┌п╬я▐я┴п╦п╧ п░п╨я┌ я│п╬я│я┌п╟п╡п╩п╣п╫ п╡ п╢п╡я┐я┘ я█п╨п╥п╣п╪п©п╩я▐я─п╟я┘ (п©п╬ п╬п╢п╫п╬п╪я┐ я█п╨п╥п╣п╪п©п╩я▐я─я┐ п╢п╩я▐ п╨п╟п╤п╢п╬п╧
+        п╦п╥ я│я┌п╬я─п╬п╫)<span style='mso-spacerun:yes'>б═ </span>п╦ я▐п╡п╩я▐п╣я┌я│я▐ п╬я│п╫п╬п╡п╟п╫п╦п╣п╪ п╢п╩я▐
+        п©я─п╬п╡п╣п╢п╣п╫п╦я▐ я─п╟я│я┤п╣я┌п╬п╡ п╪п╣п╤п╢я┐ {$firma.name} п╦ п·п©п╣я─п╟я┌п╬я─п╬п╪. </p>
+    <h5>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╢п╩я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╦</h5>
+    <p>п║я┌я─п╟п╫п╦я├п╟ п©я─п╬я│п╪п╬я┌я─п╟: <i>https://lk.mcn.ru/</i><br>
 {if $main_client}
-        Логин: <span><b>{$main_client.id}</b></span><br />
-        Пароль: <b>{$main_client.password}</b>
+        п⌡п╬пЁп╦п╫: <span><b>{$main_client.id}</b></span><br />
+        п÷п╟я─п╬п╩я▄: <b>{$main_client.password}</b>
 {else}
-        Логин: <span><b>{$client.id}</b></span><br />
-        Пароль: <b>{$client.password}</b>
+        п⌡п╬пЁп╦п╫: <span><b>{$client.id}</b></span><br />
+        п÷п╟я─п╬п╩я▄: <b>{$client.password}</b>
 {/if}
     </p>
     <p>
@@ -42,8 +42,8 @@
     </p>
     <table border=0 cellspacing=0 cellpadding=0 width="100%">
         <tr>
-            <td><p>МСН Телеком: {$firma.name}</p></td>
-            <td><p>Оператор: {$client.company_full}</p></td>
+            <td><p>п°п║п² п╒п╣п╩п╣п╨п╬п╪: {$firma.name}</p></td>
+            <td><p>п·п©п╣я─п╟я┌п╬я─: {$client.company_full}</p></td>
         </tr>
         <tr>
             <td><p><br>
