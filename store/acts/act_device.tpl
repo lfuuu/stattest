@@ -2,30 +2,30 @@
 <HTML>
 <HEAD>
 <TITLE></TITLE>
-<META http-equiv=Content-Type content="text/html; charset=koi8-r">
+<META http-equiv=Content-Type content="text/html; charset=UTF-8">
 <LINK href="{$PATH_TO_ROOT}print.css" type=text/css rel=stylesheet>
 </HEAD>
 <BODY text="#404040" vLink="#000099" aLink="#000000" link="#000099" bgColor="#EFEFEF">
-<h2 align=center>АКТ ПРИЕМА ПЕРЕДАЧИ </h2>
-<h3 align=center>по&nbsp;договору &#8470; {$contract.contract_no} от {$contract.contract_date|mdate:"d.m.Y г."}</h3>
-<table align=center width=90%><tr><td align=left>г. Москва </td><td align=right>{if $cpe.actual_from<=date('Y-m-d')}<b>{$cpe.actual_from|mdate:"d.m.Y г."}</b>{else}&nbsp;{/if}</td></tr></table>
+<h2 align=center>п░п п╒ п÷п═п≤п∙п°п░ п÷п∙п═п∙п■п░п╖п≤ </h2>
+<h3 align=center>п©п╬&nbsp;п╢п╬пЁп╬п╡п╬я─я┐ &#8470; {$contract.contract_no} п╬я┌ {$contract.contract_date|mdate:"d.m.Y пЁ."}</h3>
+<table align=center width=90%><tr><td align=left>пЁ. п°п╬я│п╨п╡п╟ </td><td align=right>{if $cpe.actual_from<=date('Y-m-d')}<b>{$cpe.actual_from|mdate:"d.m.Y пЁ."}</b>{else}&nbsp;{/if}</td></tr></table>
 <br>
 <br>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-     Мы, нижеподписавшиеся, {$firm_director.position} {$firm_director.name} {$firma.name}
-	 и представитель <b>{$client.company_full}</b>, в&nbsp;лице <b>{$client.signer_positionV} {$client.signer_nameV}</b>, произвели акт приема-передачи во временное пользование следующего оборудования: 
+     п°я▀, п╫п╦п╤п╣п©п╬п╢п©п╦я│п╟п╡я┬п╦п╣я│я▐, {$firm_director.position} {$firm_director.name} {$firma.name}
+	 п╦ п©я─п╣п╢я│я┌п╟п╡п╦я┌п╣п╩я▄ <b>{$client.company_full}</b>, п╡&nbsp;п╩п╦я├п╣ <b>{$client.signer_positionV} {$client.signer_nameV}</b>, п©я─п╬п╦п╥п╡п╣п╩п╦ п╟п╨я┌ п©я─п╦п╣п╪п╟-п©п╣я─п╣п╢п╟я┤п╦ п╡п╬ п╡я─п╣п╪п╣п╫п╫п╬п╣ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ я│п╩п╣п╢я┐я▌я┴п╣пЁп╬ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦я▐: 
 </p>
-		<ul> <li>{$cpe.type|upper}-модем {$cpe.vendor} {$cpe.model}, серийный номер {$cpe.serial|upper}, 1 шт.</li></ul><br>
-	 Получен залог в сумме {$cpe.deposit_rur*1.18|round:2} рублей</p>
+		<ul> <li>{$cpe.type|upper}-п╪п╬п╢п╣п╪ {$cpe.vendor} {$cpe.model}, я│п╣я─п╦п╧п╫я▀п╧ п╫п╬п╪п╣я─ {$cpe.serial|upper}, 1 я┬я┌.</li></ul><br>
+	 п÷п╬п╩я┐я┤п╣п╫ п╥п╟п╩п╬пЁ п╡ я│я┐п╪п╪п╣ {$cpe.deposit_rur*1.18|round:2} я─я┐п╠п╩п╣п╧</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 
 <TABLE cellSpacing=0 cellPadding=0 border=0 width="100%"><TBODY><TR><TD>
-	Оператор: {$firma.name}
+	п·п©п╣я─п╟я┌п╬я─: {$firma.name}
 </td><td>
-	Абонент: <b>{$client.company_full}</b>
+	п░п╠п╬п╫п╣п╫я┌: <b>{$client.company_full}</b>
 </td></tr><tr><td>
 	<br><br><p>
 {$firm_director.position}  ___________ /{$firm_director.name}/ 

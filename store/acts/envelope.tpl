@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=koi8-r">
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=UTF-8">
 	<TITLE>      </TITLE>
 
 {literal}
@@ -27,8 +27,8 @@
 
  <div class="envelope_to">
  <table border="0" style="font-size: 12pt" cellpadding="3">
- <tr><td valign=top><b>Куда:</b></td><td style="font-size: 12pt">{$client.address_post_real}</td></tr>
- <tr><td valign=top><b> Кому:</b> </td><td style="font-size: 12pt">{if $client.mail_who}{$client.mail_who}{else}{$client.company_full}{/if}</td> </tr>
+ <tr><td valign=top><b>п я┐п╢п╟:</b></td><td style="font-size: 12pt">{$client.address_post_real}</td></tr>
+ <tr><td valign=top><b> п п╬п╪я┐:</b> </td><td style="font-size: 12pt">{if $client.mail_who}{$client.mail_who}{else}{$client.company_full}{/if}</td> </tr>
  </table>
 
  </div>
