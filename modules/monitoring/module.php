@@ -604,7 +604,12 @@ class m_monitoring {
 				$data = $region_data['bills'];
 				if (!empty($data_by_month))
 				{
-					$graph = JpGraphsInit::getBarGraph('Подробная информация по счетам, тыс. рублей');
+					if ($regionId)
+					{
+                                            $graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей', 800);
+					} else {
+                                            $graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей', 480, 480);
+					}
 					$graph->xaxis->SetTickLabels(array(
 						'абонентская плата',
 						'Превышение',
@@ -644,8 +649,13 @@ class m_monitoring {
 				}
 				if (!empty($data))
 				{
-					$graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей');
-					
+					if ($regionId)
+					{
+                                            $graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей', 800);
+					} else {
+                                            $graph = JpGraphsInit::getBarGraph('Информация по счетам, тыс. рублей', 480, 480);
+					}
+
 					$ts = $from;
 					for ($i=0;$i<=5;$i++)
 					{
