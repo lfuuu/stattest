@@ -5982,19 +5982,26 @@ $sql .= "    order by client, bill_no";
         $prod = get_param_raw('findProduct');
         if(strlen($prod) >= 1)
         {
-
-            $pt = ClientCS::getPriceType($fixclient);
-
             $ret = "";
             $prod = str_replace(array("*","%%"), array("%","%"), mysql_escape_string($prod));
 
             $storeId = get_param_protected("store_id", "8e5c7b22-8385-11df-9af5-001517456eb1");
+            
+            if (get_param_raw('priceType', 'NO') != 'NO')
+            {
+                $pt = ClientCS::getPriceType($fixclient);
+                $pt_condition = " where  price_type_id = '".$pt."' #or g.is_allowpricezero ";
+            } else {
+                $pt_condition = '';
+                $store_info = $db->GetRow('SELECT id, name FROM g_store WHERE id = "'. $storeId.'"');
+            }
 
             foreach($db->AllRecords($q =
                         "
                         select * from (
                         (
                         SELECT if(d.name is null, concat(g.id,':'), concat(g.id,':',p.descr_id)) as id,
+                        g.id as good_id,
                         g.name as name,
                         if(d.name is not null,d.name ,'') as description,
                         g.group_id, p.descr_id as descr_id,  p.price, d.name as descr_name, qty_free, qty_store, qty_wait, is_service,
@@ -6009,12 +6016,13 @@ $sql .= "    order by client, bill_no";
                         left join g_good_store s on (s.good_id = g.id and s.descr_id = p.descr_id and s.store_id = '".$storeId."')
                         left join g_division dv on (g.division_id = dv.id)
 
-                        where price_type_id = '".$pt."' #or g.is_allowpricezero
+                        ".$pt_condition."
                         order by length(g.name)
                         limit 50 )
                         union
                         (
                          SELECT  if(d.name is null, concat(g.id,':'), concat(g.id,':',s.descr_id)) as id,
+                         g.id as good_id,
                         g.name as name,
                         if(d.name is not null,d.name ,'') as description,
                          g.group_id, '' as descr_id,   '--- ' as price, null as descr_name, qty_free, qty_store, qty_wait, is_service,
@@ -6043,9 +6051,20 @@ $sql .= "    order by client, bill_no";
                            "*/) as $good)
                     {
                         if(strpos($good["name"], "(Архив)")!==false) continue;
+                    if (!$pt_condition && !empty($store_info))
+                    {
+                        $add_fields = "store_id:'".addcslashes($store_info['id'],"\\'")."',".
+                        "store_name:'".addcslashes($store_info['name'],"\\'")."',";
+                    } elseif (!$pt_condition) {
+                        $add_fields = "store_id:'',".
+                        "store_name:'',";
+                    } else {
+                        $add_fields = '';
+                    }
 
                     $ret .= "{".
                     "id:'".addcslashes($good['id'],"\\'")."',".
+                    "good_id:'".addcslashes($good['good_id'],"\\'")."',".
                     "name:'".str_replace(array("\r", "\n"), "", addcslashes($good['name'],"\\'"))."',".
                     "description:'".addcslashes($good['description'],"\\'")."',".
                     "division:'".addcslashes($good['division'],"\\'")."',".
@@ -6056,6 +6075,7 @@ $sql .= "    order by client, bill_no";
                     "art:'".addcslashes($good['art'],"\\'")."',".
                     "code:'".addcslashes($good['code'],"\\'")."',".
                     "store:'".addcslashes($good['store'],"\\'")."',".
+                    $add_fields . 
                     "is_service:".($good['is_service']?'true':'false').
                     "},";
                     }
