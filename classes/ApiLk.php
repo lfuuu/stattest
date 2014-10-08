@@ -205,12 +205,14 @@ class ApiLk
         $curr_bill = new Bill($billNo);
         $dt = $curr_bill->getBill2Doctypes();
 
+
         $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
 
         if (strtotime($curr_bill->Get("bill_date")) >= strtotime("2014-07-01"))
         {
             $types["u1"] = $dt["a1"];
             $types["u2"] = $dt["a2"];
+            $types["ut"] = $dt["i3"];
         } else {
             $types["a1"] = $dt["a1"];
             $types["a2"] = $dt["a2"];
@@ -219,7 +221,7 @@ class ApiLk
         }
 
 
-        return array(
+        $ret = array(
                         "bill" => array(
                                         "bill_no" => $b->bill_no,
                                         "is_rollback" => $b->is_rollback,
@@ -236,8 +238,11 @@ class ApiLk
                                         "akt2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-2", "client" => $clientId)),
                                         "upd1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-1", "client" => $clientId)),
                                         "upd2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-2", "client" => $clientId)),
+                                        "updt" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"upd-3", "client" => $clientId)),
                         ),
         );
+
+        return $ret;
     }
 
     public function getDomainList($clientId)
