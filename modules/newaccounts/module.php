@@ -149,69 +149,70 @@ class m_newaccounts extends IModule
         if ($W_add) {$W[] = $W_add; $W2[] = $W_add;}
 
 	$r = $db->AllRecords($q =
-		'select '.$select.' from newpayments as P
+		'select '.$select.', 0 as is_billpay  from newpayments as P
 		left join newbills as B ON (P.client_id = B.client_id)
 		where '.MySQLDatabase::Generate($W).
 		" UNION ".
-		'select '.$select.' from newpayments as P
+		'select '.$select.', 0 as is_billpay from newpayments as P
 		left join newbills as B ON (P.client_id = B.client_id)
 		where '.MySQLDatabase::Generate($W2).
 
 		($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
 		
-	$bill_payments = $db->AllRecords($q = "
-					SELECT B.* 
-					FROM newbills as B 
-					LEFT JOIN clients as C ON C.id = B.client_id 
-					WHERE 
-						B.bill_date>='" . $saldo_ts . "' AND 
-						B.client_id = ". $client_id . " AND 
-						B.sum < 0 AND 
-						B.currency = 'RUR' AND 
-						C.status NOT IN ('operator', 'distr') 
-						
-	");
-	$old_schema_payments = array();
-	foreach ($r as $v)
-	{
-		foreach ($r as $v2)
-		{
-			if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] == -$v2['sum']) 
-			{
-				$old_schema_payments[$v['bill_no']] = 1;
-			}
-		}
-	}
+        $bill_payments = $db->AllRecords($q = "
+                        SELECT B.* 
+                        FROM newbills as B 
+                        LEFT JOIN clients as C ON C.id = B.client_id 
+                        WHERE 
+                            B.bill_date>='" . $saldo_ts . "' AND 
+                            B.client_id = ". $client_id . " AND 
+                            B.sum < 0 AND 
+                            B.currency = 'RUR' AND 
+                            C.status NOT IN ('operator', 'distr') 
+                            
+        ");
+        $old_schema_payments = array();
+        foreach ($r as $v)
+        {
+            foreach ($r as $v2)
+            {
+                if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] == -$v2['sum']) 
+                {
+                    $old_schema_payments[$v['bill_no']] = 1;
+                }
+            }
+        }
 
-	foreach ($bill_payments as $v) 
-	{
-		if (!isset($old_schema_payments[$v['bill_no']])) 
-		{
-			foreach ($r as $v2)
-			{
-				if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) 
-				{
-					$v['sum'] -= $v2['sum'];
-				}
-			}
-			if ($v['sum'] < 0)
-			{
-				$pay = array (
-					'id' => $v['bill_no'],
-					'client_id' => $v['client_id'],
-					'payment_date' => $v['bill_date'],
-					'payment_rate' => 1,
-					'payment_id' => $v['bill_no'],
-					'sum_rub' => -$v['sum'],
-					'currency' => $v['currency'],
-					'sum' => -$v['sum'],
-					'bill_no' => '',
-					'bill_vis_no' => ''
-				);
-				$r[$v['bill_no']] = $pay;
-			}
-		}
-	}
+        foreach ($bill_payments as $v) 
+        {
+            if (!isset($old_schema_payments[$v['bill_no']])) 
+            {
+                foreach ($r as $v2)
+                {
+                    if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) 
+                    {
+                        $v['sum'] -= $v2['sum'];
+                    }
+                }
+                if ($v['sum'] < 0)
+                {
+                    $pay = array (
+                        'id' => $v['bill_no'],
+                        'client_id' => $v['client_id'],
+                        'payment_date' => $v['bill_date'],
+                        'payment_rate' => 1,
+                        'payment_id' => $v['bill_no'],
+                        'sum_rub' => -$v['sum'],
+                        'currency' => $v['currency'],
+                        'sum' => -$v['sum'],
+                        'bill_no' => '',
+                        'bill_vis_no' => '',
+                        "is_billpay" => 1
+                    );
+                    $r[$v['bill_no']] = $pay;
+                }
+            }
+        }
         return $r;
     }
     function update_balance($client_id,$currency) {
@@ -281,9 +282,14 @@ class m_newaccounts extends IModule
         foreach ($R1 as $r) {
             $balance = $balance - $r['sum'];
         }
+
         foreach ($R2 as $r) {
-            $balance = $balance + $r['sum'];
+            if (!$r["is_billpay"])
+            {
+                $balance = $balance + $r['sum'];
+            }
         }
+
         // Цикл оплачивает минусовые счета
         foreach ($R2 as $kp => $r) {
             if ($r['sum'] >= 0) continue;
@@ -484,7 +490,8 @@ class m_newaccounts extends IModule
                             $sum_rub = $rb['sum'] * $rb['inv_rur'] / $sum;
 
                         if (abs($sum) >= 0.01){
-                            $PaymentsOrders[] = array(    'payment_id' => $r['id'],
+                            $PaymentsOrders[] = array(
+                                    'payment_id' => $r['id'],
                                     'bill_no'=>$rb['bill_no'],
                                     'sum'=>$sum,
                                     'currency'=>$currency,
@@ -567,8 +574,9 @@ class m_newaccounts extends IModule
                     $sum_rub = $last_payment['sum'] * $last_payment['inv_rur'] / $sum;
 
                 if (abs($sum) >= 0.01){
-                    $PaymentsOrders[] = array(    'payment_id' => $v['id'],
-                            'bill_no'=>$last_payment['bill_no'],
+                    $PaymentsOrders[] = array(
+                            'payment_id' => $v['id'],
+                            'bill_no'=>$last_payment['bill_no']."111",
                             'sum'=>$sum,
                             'currency'=>$currency,
                             'sum_rub'=>$sum_rub,
