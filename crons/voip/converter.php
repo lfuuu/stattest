@@ -438,16 +438,16 @@ function loadRedirectSettings($clientId)
 	               number_id=n.id
 	          and s.number_id = n.id
 	          and enabled='yes'
-	          ".($clientId ? " and n.client_id =  ".$clientId : "")) as $v)
-	{
-		foreach(array("from", "to") as $f)
-		{
-            if ($f == "to" && $v[$f] == "00:00") 
-                $v[$f] = "24:00";
+	          ".($clientId ? " and n.client_id =  ".$clientId : "").
+              " order by s.from") as $v)
+    {
+        if ($v["to"] == "00:00") 
+        {
+            $v["to"] = "24:00";
+        }
 
-			$all[$v["number"]]["redirif"]["weekday"][$v["day"]][$f] = $v[$f];
-		}
-	}
+        $all[$v["number"]]["redirif"]["weekday"][$v["day"]][] = array("from" => $v["from"], "to" => $v["to"]);
+    }
 
 
 	foreach($mDB->AllRecords("
@@ -964,25 +964,28 @@ function _getTime(&$s)
 
 function _makeTime__weekdays(&$times, $weekday)
 {
-	$days = array(
-		"all" => "*",
-		"holiday" => "hol",
-		"workday" => "wrk",
-		"d1" => "mon",
-		"d2" => "tue",
-		"d3" => "wed",
-		"d4" => "thu",
-		"d5" => "fri",
-		"d6" => "sat",
-		"d7" => "sun"
-	);
+    $days = array(
+            "all" => "*",
+            "holiday" => "hol",
+            "workday" => "wrk",
+            "d1" => "mon",
+            "d2" => "tue",
+            "d3" => "wed",
+            "d4" => "thu",
+            "d5" => "fri",
+            "d6" => "sat",
+            "d7" => "sun"
+            );
 
-	foreach($days as $n => $m)
-	{
-		if(!isset($weekday[$n])) continue;
+    foreach($days as $n => $m)
+    {
+        if(!isset($weekday[$n])) continue;
 
-		$times[] = $weekday[$n]["from"]."-".$weekday[$n]["to"].",".$m;
-	}
+        foreach($weekday[$n] as $d)
+        {
+            $times[] = $d["from"]."-".$d["to"].",".$m;
+        }
+    }
 }
 
 function getSipType(&$v)
