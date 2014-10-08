@@ -184,7 +184,7 @@ class m_ats2 extends IModule
                         account, c_type, n.direction, n.enabled, 
                         m.name, m.parent_id as trunk_id,
                         (
-                            select 
+                            select distinct
                                 v.id 
                             from 
                                 a_virtpbx_link l, a_virtpbx v 

@@ -134,8 +134,8 @@ function notifyManagers($data = array())
 
         if (!strlen($r['manager'])) $r['manager'] = 'ava';
 
-        mail(ADMIN_EMAIL, "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"]);
-        mail("ava@mcn.ru", "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"]);
+        mail(ADMIN_EMAIL, "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"], "Content-Type: text/plain; charset=\"utf-8\"");
+        mail("ava@mcn.ru", "[stat] unreserv voip numbers", $message."Менеджер: ".$r["manager"], "Content-Type: text/plain; charset=\"utf-8\"");
 
         ApiLk::createTT($message, $r['client'], $r['manager']);
     }

@@ -58,7 +58,8 @@ class PaymentParser {
 		while (!feof($f)) {
 			$line=fgets($f);
 			$line=str_replace(array("\r","\n"),array("",""),$line);
-			$line=convert_cyr_string($line,'w','k');
+			//$line=convert_cyr_string($line,'w','k');
+			$line=iconv("windows-1251", "utf-8", $line);
 //			$l=explode('=',$line);
 
             switch ($mode) {

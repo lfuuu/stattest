@@ -1,7 +1,7 @@
-<H2>Логи оповeщений{if $fixclient} клиента <span style="font-size:21px;font-weight:bold;color: blue;">{$fixclient}{/if}</H2>
-      <H3>Создайте отчёт сами: (или - посмотрите логи за <a href="?module=logs&action=alerts&date_from={$prev_date_from}&date_to={$prev_date_to}">прошлый месяц</a>,
-      								за <a href="?module=logs&action=alerts&date_from={$cur_date_from}&date_to={$cur_date_to}">текущий месяц</a>,
-      								за <a href="?module=logs&action=alerts&date_from={$today}&date_to={$today}">текущий день</a>)</H3>
+<H2>п⌡п╬пЁп╦ п╬п©п╬п╡eя┴п╣п╫п╦п╧{if $fixclient} п╨п╩п╦п╣п╫я┌п╟ <span style="font-size:21px;font-weight:bold;color: blue;">{$fixclient}{/if}</H2>
+      <H3>п║п╬п╥п╢п╟п╧я┌п╣ п╬я┌я┤я▒я┌ я│п╟п╪п╦: (п╦п╩п╦ - п©п╬я│п╪п╬я┌я─п╦я┌п╣ п╩п╬пЁп╦ п╥п╟ <a href="?module=logs&action=alerts&date_from={$prev_date_from}&date_to={$prev_date_to}">п©я─п╬я┬п╩я▀п╧ п╪п╣я│я▐я├</a>,
+      								п╥п╟ <a href="?module=logs&action=alerts&date_from={$cur_date_from}&date_to={$cur_date_to}">я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├</a>,
+      								п╥п╟ <a href="?module=logs&action=alerts&date_from={$today}&date_to={$today}">я┌п╣п╨я┐я┴п╦п╧ п╢п╣п╫я▄</a>)</H3>
 <FORM action="?" method=get>
 
 <input type=hidden name=module value=logs>
@@ -10,15 +10,15 @@
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 	<TBODY>
 		<tr>
-			<td class=left>С:</td>
+			<td class=left>п║:</td>
 			<td>
 				<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
-				По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
+				п÷п╬:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
 			</td>
 		</tr>
 		<TR>
 			<TD class=left>
-				Событие:
+				п║п╬п╠я▀я┌п╦п╣:
 			</TD>
 			<TD>
 				{foreach from=$events_description item="event" key="key"}
@@ -33,11 +33,11 @@
 		{if !$fixclient}
 			<tr>
 				<td class="left">
-					Менеджер:
+					п°п╣п╫п╣п╢п╤п╣я─:
 				</td>
 				<td>
 					<select name='manager'>
-						<option value=''>(не фильтровать по этому полю)</option>
+						<option value=''>(п╫п╣ я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄ п©п╬ я█я┌п╬п╪я┐ п©п╬п╩я▌)</option>
 						{foreach from=$f_manager item=r}
 							<option value='{$r.user}'{if $r.user==$manager} selected="selected"{/if}>{$r.name} ({$r.user})</option>
 						{/foreach}
@@ -50,7 +50,7 @@
 <HR>
 
 	<DIV align=center>
-		<INPUT class=button type=submit value="Сформировать отчёт">
+		<INPUT class=button type=submit value="п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ п╬я┌я┤я▒я┌">
 	</DIV>
 </FORM>
 <script>
