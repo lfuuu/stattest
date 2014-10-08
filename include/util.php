@@ -612,7 +612,9 @@ class Wordifier {
             $s = "минус ".$s;
         }
 
-        $s=strtr(substr($s,0,1),"мнодтчпшсв","МНОДТЧПШСВ").substr($s,1);
+        $s=strtr(mb_substr($s,0,1,'utf-8'),"мнодтчпшсв","МНОДТЧПШСВ").mb_substr($s,1,-1,'utf-8');
+        //$s=mb_strtoupper(mb_substr($s,0,1)).mb_substr($s,1);
+        //$s=mb_strtoupper(mb_substr($s,0,1,'utf-8'),'utf-8').mb_substr($s,1,-1,'utf-8');
         $s.=rus_fin($v[1],Wordifier::$curBig[$currency][0],Wordifier::$curBig[$currency][1],Wordifier::$curBig[$currency][2]);
         $c=round(($num-floor($num))*100);
         $s.=' '.sprintf("%02d", $c).' '.rus_fin($c,Wordifier::$curSmall[$currency][0],Wordifier::$curSmall[$currency][1],Wordifier::$curSmall[$currency][2]);

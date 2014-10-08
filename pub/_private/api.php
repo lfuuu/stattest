@@ -29,8 +29,8 @@ function say($status, $data)
 	}else{
 		$say["error"] = $data;
 	}
-	//echo json_encode($say);
-	echo array_to_json($say);
+	echo json_encode($say);
+	//echo array_to_json($say);
 	exit();
 }
 		
