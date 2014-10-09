@@ -329,7 +329,7 @@
         }
         $data[] = array(    'code1'=>$resgroup['defcode'],
                             'code2'=>$defs,
-                            'name'=>str_replace('"','""',$resgroup['destination']) . ($resgroup['mob']=='t' ? ' (п╪п╬п╠.)' : ''),
+                            'name'=>str_replace('"','""',$resgroup['destination']) . ($resgroup['mob']=='t' ? ' (моб.)' : ''),
                             'zone'=>$resgroup['zone'],
                             'price1'=>str_replace('.',',',$resgroup['parts'][1]['d1']['price']),
                             'price2'=>str_replace('.',',',$resgroup['parts'][2]['d1']['price']),
