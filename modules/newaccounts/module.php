@@ -5995,12 +5995,12 @@ $sql .= "    order by client, bill_no";
 
             $storeId = get_param_protected("store_id", "8e5c7b22-8385-11df-9af5-001517456eb1");
             
+            $priceType = '739a53ba-8389-11df-9af5-001517456eb1';
+
             if (get_param_raw('priceType', 'NO') != 'NO')
             {
-                $pt = ClientCS::getPriceType($fixclient);
-                $pt_condition = " where  price_type_id = '".$pt."' #or g.is_allowpricezero ";
+                $priceType = ClientCS::getPriceType($fixclient);
             } else {
-                $pt_condition = '';
                 $store_info = $db->GetRow('SELECT id, name FROM g_store WHERE id = "'. $storeId.'"');
             }
 
@@ -6024,7 +6024,8 @@ $sql .= "    order by client, bill_no";
                         left join g_good_store s on (s.good_id = g.id and s.descr_id = p.descr_id and s.store_id = '".$storeId."')
                         left join g_division dv on (g.division_id = dv.id)
 
-                        ".$pt_condition."
+                        where price_type_id = '".$priceType."'
+
                         order by length(g.name)
                         limit 50 )
                         union
