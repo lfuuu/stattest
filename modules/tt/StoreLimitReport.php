@@ -36,6 +36,7 @@ class StoreLimitReport
 
         $design->AddMain('tt/store_limit.tpl');
     }
+
     public static function saveData()
     {
         global $design;
@@ -44,7 +45,6 @@ class StoreLimitReport
         if (!User::exists($user_id))
         {
             trigger_error('Выбранный пользователь не существует');
-            $design->ProcessEx('errors.tpl');
             exit();
         }
         
