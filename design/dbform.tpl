@@ -1,5 +1,6 @@
 {if $dbform_h2}<h2>{$dbform_h2}</h2>{/if}
 {if $dbform_h3}<h3>{$dbform_h3}</h3>{/if}
+{assign var="use_datepicker" value="false"}
 <FORM action="?" method=post id=dbform name=dbform>
 {foreach from=$dbform_params item=item key=key}
 <input type=hidden name={$key} value='{$item}'>
@@ -18,7 +19,7 @@
 <TR id=tr_{$key}>
     <TD class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</TD>
     <TD{if $hl==$key} style="background-color: #EEE0B9"{/if}>
-        <input class=text type={$item.type} name=dbform[{$key}] id={$key} {if $key eq "E164"}onchange='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();' onkeyup='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();'{/if} value='{$item.value}'{$item.add}>{$item.comment}
+        <input class=text type={$item.type} {if $key == "actual_from" || $key == "actual_to"}readonly{/if} name=dbform[{$key}] id={$key} {if $key eq "E164"}onchange='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();' onkeyup='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();'{/if} value='{$item.value}'{$item.add}>{$item.comment}
 
 {if $key eq "E164"}
 	<img src="{$PATH_TO_ROOT}images/icons/disable.gif" id="e164_flag_image" style="visibility:hidden" />
@@ -52,8 +53,9 @@
 	</select>
 {/if}
 {if $key == "actual_from" || $key == "actual_to"}
-    <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("Y-m-d");{/php}"'>
-    <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="2029-01-01"' style="">
+    <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("d-m-Y");{/php}";change_datepicker_option("{$key}");'>
+    <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="01-01-2029";change_datepicker_option("{$key}");' style="">
+    {assign var="use_datepicker" value="true"}
 {/if}
 </TD></TR>
 {elseif $item.type=='first_text'}
@@ -108,5 +110,20 @@
 	{include file='log_usage_history.inc'}
 {/if}
 
-
+{if $use_datepicker}
+<script>
+    optools.DatePickerInit('', 'actual');
+    {literal}
+    function change_datepicker_option(key)
+    {
+        if (key == 'actual_to')
+        {
+            $('#actual_from').datepicker( 'option', 'maxDate', $('#actual_to').val() );
+        } else {
+            $('#actual_to').datepicker( 'option', 'minDate', $('#actual_from').val() );
+        }
+    }
+    {/literal}
+</script>
+{/if}
 

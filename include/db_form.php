@@ -78,11 +78,34 @@ class DbForm {
         if (!$this->dbform_action || !$this->dbform)  {
             $this->dbform=get_param_raw('dbform',array());
             $this->dbform_action=get_param_raw('dbform_action','save');
+            if (isset($this->dbform['actual_from']) && isset($this->dbform['actual_to'])) 
+            {
+                global $db;
+                $ts = strtotime($this->dbform['actual_from']);
+                if ($ts !== false)
+                {
+                    $this->dbform['actual_from'] = date('Y-m-d', $ts);
+                } else {
+                    $this->dbform['actual_from'] = $db->GetValue('SELECT actual_from FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
+                }
+                $ts = strtotime($this->dbform['actual_to']);
+                if ($ts !== false)
+                {
+                    $this->dbform['actual_to'] = date('Y-m-d', $ts);
+                } else {
+                    $this->dbform['actual_to'] = $db->GetValue('SELECT actual_to FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
+                }
+            }
         }
     }
     public function Load($id) {
         global $db;
-        $db->Query('select * from '.$this->table.' where id='.$id);
+        $add_select = '';
+        if (isset($this->fields['actual_from']) && isset($this->fields['actual_to'])) 
+        {
+            $add_select = ',DATE_FORMAT(actual_from, "%d-%m-%Y") as actual_from,DATE_FORMAT(actual_to, "%d-%m-%Y") as actual_to';
+        }
+        $db->Query('select *'.$add_select.' from '.$this->table.' where id='.$id);
         return ($this->data=$db->NextRecord());
     }
     public function Process($no_real_update = 0){
