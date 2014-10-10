@@ -803,23 +803,24 @@ var optools = {
 			last = 0
 		return string.substring(first,string.length-last)
 	},
-	DatePickerInit: function(prefix){
-		prefix = prefix || '';
-		$( '#' + prefix + 'date_from' ).datepicker({
-			dateFormat: 'dd-mm-yy',
-			maxDate: $( '#' + prefix + 'date_to' ).val(),
-			onClose: function( selectedDate ) {
-				$( '#' + prefix + 'date_to' ).datepicker( 'option', 'minDate', selectedDate );
-			}
-		});
-		$( '#' + prefix + 'date_to' ).datepicker({
-			dateFormat: 'dd-mm-yy',
-			minDate: $( '#' + prefix + 'date_from' ).val(),
-			onClose: function( selectedDate ) {
-				$( '#' + prefix + 'date_from' ).datepicker( 'option', 'maxDate', selectedDate );
-			}
-		});
-	}
+	DatePickerInit: function(prefix, name){
+                name = name || 'date';
+                prefix = prefix || '';
+                $( '#' + prefix + name + '_from' ).datepicker({
+                        dateFormat: 'dd-mm-yy',
+                        maxDate: $( '#' + prefix + name + '_to' ).val(),
+                        onClose: function( selectedDate ) {
+                                $( '#' + prefix + name + '_to' ).datepicker( 'option', 'minDate', selectedDate );
+                        }
+                });
+                $( '#' + prefix + name + '_to' ).datepicker({
+                        dateFormat: 'dd-mm-yy',
+                        minDate: $( '#' + prefix + name + '_from' ).val(),
+                        onClose: function( selectedDate ) {
+                                $( '#' + prefix + name + '_from' ).datepicker( 'option', 'maxDate', selectedDate );
+                        }
+                });
+        }
 }
 optools.friendly.dates.mon_right_days.inArray = optools.friendly.dates.leap_years.inArray = optools.inArray
 
