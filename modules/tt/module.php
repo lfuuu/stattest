@@ -2566,5 +2566,16 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
         exit();
     }
+    function tt_store_limit($fixclient)
+    {
+        include 'StoreLimitReport.php';
+        StoreLimitReport::getData();
+        
+    }
+    function tt_save_limits($fixclient)
+    {
+        include 'StoreLimitReport.php';
+        StoreLimitReport::saveData();
+    }
 }
 ?>

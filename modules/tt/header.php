@@ -4,10 +4,10 @@ class m_tt_head extends IModuleHead{
 	public $module_title = 'Заявки';
 	var $rights=array(
 		'tt'=>array(
-			'Работа с заявками',
-			'view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating',
-			'просмотр,показывать "Запросы клиентов",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки'
-		),
+                        'Работа с заявками',
+                        'view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit',
+                        'просмотр,показывать "Запросы клиентов",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков'
+                ),
 	);
 	var $actions=array(
 					'default'		=> array('tt','view'),
@@ -32,7 +32,9 @@ class m_tt_head extends IModuleHead{
 					'courier_report'	=> array('tt','view'),
 					'courier_report2'	=> array('tt','view'),
 					'doers'			=> array('tt','doers_edit'),
-					'rpc_setState1c'=> array('tt','use')
+					'rpc_setState1c'=> array('tt','use'),
+					'store_limit'          => array('tt','limit'),
+					'save_limits'          => array('tt','limit'),
 				);
 	var $menu=array(
 		array('Тех поддержка MCN','view_type', '&type_pk=1'),
@@ -63,6 +65,7 @@ class m_tt_head extends IModuleHead{
 		array('Отчет Абон. отдела',		'doers_list'),
 		array('Загрузка логистики',		'courier_report'),
 		array('Загрузка логистики2',		'courier_report2'),
+		array('Оповещение о мин.остатке на складе',             'store_limit'),
 	);
 	function GetPanel($fixclient){
 		global $design,$user,$db,$module;
