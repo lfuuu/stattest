@@ -436,7 +436,7 @@ class DbFormUsageVoip extends DbForm {
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>" onkeyup='optools.voip.check_e164.move_checking();' onchange='optools.voip.check_e164.move_checking();' ");
+        $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>"onchange='change_datepicker_value();' ");
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['E164']=array("add" => " onchange='form_usagevoip_hide()'");
         $this->fields['no_of_lines']=array('default'=>1);
@@ -1227,7 +1227,7 @@ class DbFormUsageVirtpbx extends DbForm{
 
         DbForm::__construct('usage_virtpbx');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>" onkeyup='optools.voip.check_e164.move_checking();' onchange='optools.voip.check_e164.move_checking();' ");
+        $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>"onchange='optools.voip.check_e164.move_checking();' ");
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         //$this->fields['tarif_id']=array('type'=>'hidden');
         //$this->fields['tarif_str']=array('db_ignore'=>1);

@@ -34,18 +34,21 @@ class UsageVoip extends ActiveRecord\Model
      */
     public static function checkNumberWasMoved($usage_id)
     {
-        $current = UsageVoip::find($usage_id);
         $check_move = null;
-        $options = array();
-        $options['select'] = '*,UNIX_TIMESTAMP(actual_from) as from_ts,UNIX_TIMESTAMP(actual_to) as to_ts';
-        $options['conditions'] = array(
-            'e164 = ? AND id <> ? AND actual_from = DATE_ADD(?, INTERVAL 1 DAY) AND is_moved = ?', 
-            $current->e164, 
-            $current->id, 
-            $current->actual_to,
-            1
-        );
-        $check_move = UsageVoip::first($options);
+        if ($usage_id && UsageVoip::exists($usage_id))
+        {
+            $current = UsageVoip::find($usage_id);
+            $options = array();
+            $options['select'] = '*,UNIX_TIMESTAMP(actual_from) as from_ts,UNIX_TIMESTAMP(actual_to) as to_ts';
+            $options['conditions'] = array(
+                'e164 = ? AND id <> ? AND actual_from = DATE_ADD(?, INTERVAL 1 DAY) AND is_moved = ?', 
+                $current->e164, 
+                $current->id, 
+                $current->actual_to,
+                1
+            );
+            $check_move = UsageVoip::first($options);
+        }
         return $check_move;
     }
     

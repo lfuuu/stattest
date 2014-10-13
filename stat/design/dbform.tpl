@@ -135,8 +135,19 @@
             $('#actual_from').datepicker( 'option', 'maxDate', $('#actual_to').val() );
         } else {
             $('#actual_to').datepicker( 'option', 'minDate', $('#actual_from').val() );
-            optools.voip.check_e164.move_checking();
         }
+        {/literal}
+        {if $dbform_table == "usage_voip"}
+            change_datepicker_value();
+        {elseif $dbform_table == "usage_virtpbx"}
+            optools.voip.check_e164.move_checking();
+        {/if}
+        {literal}
+    }
+    function change_datepicker_value()
+    {
+        el = document.getElementById('E164');
+        optools.voip.check_e164.set_timeout_check(el);
     }
     {/literal}
 </script>
