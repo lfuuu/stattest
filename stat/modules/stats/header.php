@@ -40,7 +40,8 @@ class m_stats_head extends IModuleHead{
 		'phone_sales_details' => array('stats','report'),
         'agent_settings' => array('stats', 'vip_report'),
         'save_agent_settings' => array('stats', 'vip_report'),
-                'report_agent_details' => array('stats','vip_report'),
+        'report_agent_details' => array('stats','vip_report'),
+        'report_reserve' => array('stats', 'r'),
 	);
 	var $menu=array(
 		array('Телефония',              'voip'),
@@ -73,6 +74,7 @@ class m_stats_head extends IModuleHead{
         array('Настройка Агента', 'agent_settings'),
 		array('Региональные представители', 'report_sale_channel'),
 		array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
+		array('Номера в резерве', 'report_reserve'),
 	);
 }
 ?>
