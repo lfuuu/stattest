@@ -60,10 +60,16 @@
             {assign var="rowspan" value="2"}
             
             <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Компания</TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Абон плата, с учетом НДС</TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">оплаченный период (мес.)</TD>
-            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Сумма полученных платежей</TD>
-
+            {if $interest_type == 'prebills'}
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">Абон плата,<br>с учетом НДС</TD>
+            {/if}
+            <TD style='background-color:#FFFFD8' class=header vAlign=bottom rowspan="{$rowspan}">
+                {if $interest_type == 'bills'}
+                    Сумма полученных<br>платежей
+                {else}
+                    Сумма оплаченных<br>счетов
+                {/if}
+            </TD>
             <TD style='background-color:#FFFFD8' class=header vAlign=bottom colspan="2">
 		Вознаграждение
             </TD>
@@ -78,32 +84,38 @@
 			%
 		</td>
 	</tr>
-        
+        {assign var="iteration" value=1}
         {foreach from=$inns item=item}
 		{foreach from=$interests item="i"}
-			<TR>
-				<td>{$item.company}</td>
-				<td align='right'>{$item.isum|number_format:"2":",":" "}</td>
-				<td align='right'>{$item.period}</td>
-				<td align='right'>{$item.psum|number_format:"2":",":" "}</td>
+			<TR class={if $iteration%2==0}even{else}odd{/if}>
+				<td>
+                                    <a style="text-decoration: underline; cursor:pointer;" onclick="agent_details('{$interest_type}', '{$item.id}', '{$cur_m}', '{$cur_y}')">
+                                        {$item.company}
+                                    </a>
+                                </td>
+                                {if $interest_type == 'prebills'}
+                                    <td align='right'>{$item.isum|num_format:"true":"2"}</td>
+                                {/if}
+				<td align='right'>{$item.psum|num_format:"true":"2"}</td>
 				<td align='right'>
 					{$interests_types.$i.name}
 				</td>
 				
 				<td align='right'>
-					{$agent_interests.$i|number_format:"2":",":" "}%
+					{$agent_interests.$i|num_format:"true":"2"}%
 				</td>
 					
 				{assign var="key" value="`$interest_type`_`$i`"}
-				<td align='right'>{$item.fsums.$key|number_format:"2":",":" "}</td>
+				<td align='right'>{$item.fsums.$key|num_format:"true":"2"}</td>
 			</tr>
+			{assign var="iteration" value=$iteration+1}
 		{/foreach}
         {/foreach}
-        <tr style='font-size: 12px; font-weight: bold'>
-            <td colspan='3'>Итого</td>
-            <td align='right'>{$total.psum|string_format:"%.2f"}</td>
-            <td align='right' colspan="2"></td>
-            <td align='right'>{$total.fsum|string_format:"%.2f"}</td>
+        <tr style='font-size: 12px; font-weight: bold' >
+            <td {if $interest_type == 'prebills'}colspan=2{/if}>Итого</td>
+            <td align='right'>{$total.psum|num_format:"true":"2"}</td>
+            <td align='right' colspan="2">&nbsp;</td>
+            <td align='right'>{$total.fsum|num_format:"true":"2"}</td>
         </tr>
         </tbody>
     </table>
@@ -112,5 +124,24 @@
 	Вознаграждение агента в Расчетном периоде составляет {$total.fsum_str} в том числе НДС (18%) {$total.nds_str}<br />
 	Прописью: {$total.fsum|wordify:'RUR'}
 </div>
+<div id="report_details" title="Подробная информация" style="display: none;"></div>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script>
+{literal}
+        function agent_details(type, client_id, month, year)
+        {
+                $('a.ui-dialog-titlebar-close').click();
+                $("#report_details").html('');
+                $("#report_details").dialog(
+                {
+                        width: 850,
+                        height: 400,
+                        open: function(){
+                                $(this).load('./index_lite.php?module=stats&action=report_agent_details&type=' + type + '&client_id=' + client_id + '&month=' + month + '&year=' + year);
+                        }
+                });
+        }
+{/literal}
+</script>
 {/if}
 </form>

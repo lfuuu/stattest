@@ -2474,120 +2474,8 @@ class m_stats extends IModule{
 
     function stats_report_agent()
     {
-        global $db;
-        global $design,$fixclient_data;
-
-        $agents = array();
-        $agent = false;
-        $agent_id = get_param_raw("agent", false);
-        $export = get_param_raw("export", false);
-        
-        $agents = $db->AllRecords('SELECT id, name FROM sale_channels WHERE is_agent=1');
-        if ($agent_id && $agent_id > 0) $agent = $db->GetRow('SELECT * FROM sale_channels WHERE id=' . $agent_id);
-        
-        $interests_types = array(
-		'prebills' => 
-			array(
-				'all' => array(
-					'name' => '% абон.',
-					'field_name' => 'per_abon' 
-				),
-			), 
-		'bills' => 
-			array(
-				'all' => array(
-					'name' => '% счет.',
-					'field_name' => 'per_bill_sum' 
-				),
-			),
-	);
-        $interest_type = false;
-        $agent_interests = array();
-	$interests = array();
-	if ($agent)
-	{
-		$row_exists = AgentInterests::exists($agent['dealer_id']);
-		if ($row_exists)
-		{
-			$_agent_interests = AgentInterests::find($agent['dealer_id']);
-			$interest_type = $_agent_interests->interest;
-			foreach ($interests_types[$interest_type] as $k => $v)
-			{
-				$agent_interests[$k] = $_agent_interests->$v['field_name'];
-			}
-			$interests=array_keys($interests_types[$interest_type]);
-		} else {
-			$interests = array('all');
-			$design->assign('default_interest', true);
-			$interest_type = 'prebills';
-			$agent_interests = array('all' => 20);
-		}
-		$interests_types = $interests_types[$interest_type];
-		
-		$design->assign('interests', $interests);
-		$design->assign('interests_types', $interests_types);
-		$design->assign('interest_type', $interest_type);
-		$design->assign('agent_interests', $agent_interests);
-        }
-        $cur_m = get_param_raw("from_m", date('m'));
-        $cur_y = get_param_raw("from_y", date('Y'));
-
-        $mm = array();
-        for($i=1;$i<=12;$i++) $mm[date('m', mktime(0,0,0,$i,1,date('Y')))] = mdate('Месяц', mktime(0,0,0,$i,1,date('Y')));
-        $yy = array(date('Y'), date('Y')-1);
-
-        $from = date("01.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
-        $to = date("t.m.Y", mktime(0,0,0,$cur_m,1,$cur_y));
-
-        list($R, $T) = $this->_stat_report_agent($agent, $from, $to, $interest_type, $agent_interests, $interests);
-
-        if ($export) {
-            header('Content-type: application/csv');
-            header('Content-Disposition: attachment; filename="agent_report_'.date("01mY", mktime(0,0,0,$cur_m,1,$cur_y)).'_'.date("tmY", mktime(0,0,0,$cur_m,1,$cur_y)).'.csv"');
-
-            ob_start();
-            
-            echo 'Агент:;'.$agent['name'].';Расчетный период с;'.$from.'г.;по;'.$to.'г.;';
-            echo "\n";
-            echo ';;;;;;';
-            echo "\n";
-            echo 'Компания;Абон плата, с учетом НДС;оплаченный период (мес.);Сумма полученных платежей;Тип вознаграждения;%;Сумма вознаграждения;';
-            echo "\n";
-            foreach ($R as $r) {
-		foreach ($interests as $v) {
-			echo '"' . $r['company'] . '";';
-			echo '"' . number_format($r['isum'], 2, ',', '') . '";';
-			echo '"' . $r['period'] . '";';
-			echo '"' . number_format($r['psum'], 2, ',', '') . '";';
-			echo '"' . $interests_types[$v] . '";';
-			echo '"' . $agent_interests[$v] . ' %";';
-			$key = $interest_type . '_' . $v;
-			echo '"' . number_format($r['fsums'][$key], 2, ',', '') . '";';
-			echo "\n";
-                }
-            }
-            echo '"Итого";;;';
-            echo '"' . number_format($T['psum'], 2, ',', '') . '";;;';
-            echo '"' . number_format($T['fsum'], 2, ',', '') . '";';
-            echo "\n";
-            echo iconv('utf-8', 'windows-1251', ob_get_clean());
-            exit;
-        } else {
-            $params = array(
-                            'mm'=>$mm,
-                            'yy'=>$yy,
-                            'inns'=>$R,
-                            'agent'=>$agent,
-                            'agents'=>$agents,
-                            'cur_m'=>$cur_m,
-                            'cur_y'=>$cur_y,
-                            'total'=>$T,
-                            'from'=>$from,
-                            'to'=>$to
-            );
-            $design->assign($params);
-            $design->AddMain("stats/report_agent.tpl");
-        }
+        include_once 'AgentReport.php';
+        AgentReport::getReport();
     }
 
     function stats_report_sale_channel($fixclient)
@@ -2867,131 +2755,6 @@ class m_stats extends IModule{
 	header('Location: ?module=stats&action=agent_settings');
 
     }
-    function _stat_report_agent($agent = false, $from = false, $to = false, $interest_type = false, $agent_interests = false, $interests = array())
-    {
-        if ($agent === false) return array(array(),array());
-        global $db;
-        $ret = array(); $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
-
-        $from = date("Y-m-d", strtotime($from));
-        $to = date("Y-m-d", strtotime($to));
-        $prev_from = date("Y-m-01", mktime(0,0,0,date('m', strtotime($from))-3,1,date('Y', strtotime($from))));
-
-	$interests_types = array();
-	foreach ($interests as $v)
-        {
-		$interests_types[$interest_type .'_' . $v] = 0;
-		$agent_interests[$interest_type .'_' . $v] = $agent_interests[$v];
-        }
-        
-        $interests_fields = array(
-		'prebills' => 
-			array(
-				'all' => "sum(if (
-					l.type = 'service' AND 
-					DATE_FORMAT(l.date_from, '%m') = DATE_FORMAT(b.bill_date, '%m') AND 
-					DATE_FORMAT(l.date_to, '%m') = DATE_FORMAT(b.bill_date, '%m')  
-					, l.sum, 0))",
-			), 
-		'bills' => 
-			array(
-				'all' => 'sum(l.sum)',
-			)
-	);
-	$fields = '';
-	foreach ($interests as $v) 
-	{
-		$fields .= $interests_fields[$interest_type][$v] . ' as ' . $interest_type . '_' . $v . ', ';
-	}
-
-        $R = $db->AllRecords($q = "
-                SELECT " . $fields . " 
-                    c.id, c.client, c.company, 
-                    sum(l.sum) as bills,
-                    sum(if (
-			l.type = 'service' AND 
-			DATE_FORMAT(l.date_from, '%m') = DATE_FORMAT(b.bill_date, '%m') AND 
-			DATE_FORMAT(l.date_to, '%m') = DATE_FORMAT(b.bill_date, '%m')  
-			, l.sum, 0)) as prebills 
-                FROM
-                    clients c
-                LEFT JOIN newbills b ON (b.client_id = c.id)
-                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
-                WHERE
-                    c.sale_channel = ".$agent['id']."
-                AND b.bill_date >= '".date("Y-m-d", strtotime($from))."'
-                AND b.bill_date <= '".date("Y-m-d", strtotime($to))."' 
-                AND l.sum > 0 
-                GROUP BY c.id
-             ");
-        foreach ($R as $r) {
-            $ret[$r['id']] = array(
-		'id'=>$r['id'],
-		'client'=>$r['client'],
-		'company'=>$r['company'],
-		'isum'=>$r['prebills'],
-		'psum'=>0,
-		'fsum'=>0, 
-		'period'=>0,
-		'fsums' => $interests_types);
-        }
-
-        $R2 = $db->AllRecords($q = "
-                SELECT " . $fields . " 
-                    c.id, 
-                    sum(
-			if (l.type = 'service' AND 
-			DATE_FORMAT(l.date_from, '%m') = DATE_FORMAT(b.bill_date, '%m') AND 
-			DATE_FORMAT(l.date_to, '%m') = DATE_FORMAT(b.bill_date, '%m'), l.sum, 0)
-                    ) as prebills,
-                    sum(l.sum) as bills, (MONTH(p.payment_date)-MONTH(b.bill_date)+1) AS period
-                FROM
-                    clients c
-                LEFT JOIN newbills b ON (b.client_id = c.id)
-                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
-                LEFT JOIN newpayments p ON (b.bill_no = p.bill_no)
-                WHERE
-                    c.sale_channel = ".$agent['id']."
-                AND
-                (
-                    (
-                        p.payment_date >= '".$from."' AND
-                        p.payment_date <= '".$to."' AND
-                        b.bill_date >= '".$from."' AND
-                        b.bill_date <= '".$to."')
-                    OR
-                    (
-                        (
-                            p.payment_date >= '".$from."' AND
-                            p.payment_date <= '".$to."'
-                        )
-                        AND
-                        (
-                            b.bill_date >= '".$prev_from."' AND b.bill_date < '".$from."'
-                        )
-                    )
-                )
-                AND l.sum > 0 
-                GROUP BY c.id
-                ");
-
-        foreach ($R2 as $r) {
-            $ret[$r['id']]['psum'] += $r['bills'];
-            $total['psum'] += $ret[$r['id']]['psum'];
-            $ret[$r['id']]['period'] = $r['period'];
-            foreach ($interests_types as $k => $v) {
-			$sum = round($r[$k]*$agent_interests[$k]/100, 2);
-			$ret[$r['id']]['fsums'][$k] += $sum;
-			$ret[$r['id']]['fsum'] += $sum;
-			$total['fsum'] += $ret[$r['id']]['fsum'];
-            }
-        }
-        $total['nds'] = round($total['fsum']*(18/118), 2);
-        $total['fsum_str'] = floor($total['fsum']) . ' руб. ' . floor(round(100*($total['fsum'] - floor($total['fsum'])), 5)) . ' коп.';
-        $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(round(100*($total['nds'] - floor($total['nds'])), 5)) . ' коп.';
-        return array($ret, $total);
-    }
-
 	function stats_report_rates(){
 		global $db,$design;
 
@@ -5448,6 +5211,11 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		include_once 'PhoneSalesDetails.php';
 		PhoneSalesDetails::getDetails();
 	}
+	function stats_report_agent_details($fixclient)
+        {
+                include_once 'AgentReport.php';
+                AgentReport::getDetails();
+        }
 }
 
 
