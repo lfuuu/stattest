@@ -12,11 +12,13 @@ class m_monitoring {
 					'top'				=> array('monitoring','top'),
 					'report_voip_graph' 		=> array('monitoring','graphs'),
 					'report_bill_graph' 		=> array('monitoring','graphs'),
+					'report_move_numbers'           => array('services_voip','edit'),
 				);
 	var $menu=array(
 					array('VIP-клиенты',			'default'),
 					array('Отчет: Динамика звоноков',	'report_voip_graph'),
 					array('Отчет: Динамика счетов',	'report_bill_graph'),
+					array('Перемещаемые услуги',    'report_move_numbers'),
 				);
 	function m_monitoring(){	
 		
@@ -697,5 +699,10 @@ class m_monitoring {
 		$design->assign('graphs', $graphs);
 		$design->AddMain('monitoring/report_bill_graph.tpl');
 	}
+	function monitoring_report_move_numbers($fixclient)
+        {
+            include 'ReportMovedNumbers.php';
+            ReportMovedNumbers::getReport();
+        }
 }
 ?>

@@ -78,6 +78,7 @@ class DbForm {
         if (!$this->dbform_action || !$this->dbform)  {
             $this->dbform=get_param_raw('dbform',array());
             $this->dbform_action=get_param_raw('dbform_action','save');
+            
             if (isset($this->dbform['actual_from']) && isset($this->dbform['actual_to'])) 
             {
                 global $db;
@@ -85,15 +86,20 @@ class DbForm {
                 if ($ts !== false)
                 {
                     $this->dbform['actual_from'] = date('Y-m-d', $ts);
-                } else {
+                } elseif ($this->dbform['id']) {
                     $this->dbform['actual_from'] = $db->GetValue('SELECT actual_from FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
-                }
+                } else {
+                    $this->dbform['actual_from'] = '2029-01-01';
+                } 
+                
                 $ts = strtotime($this->dbform['actual_to']);
                 if ($ts !== false)
                 {
                     $this->dbform['actual_to'] = date('Y-m-d', $ts);
-                } else {
+                } elseif ($this->dbform['id']) {
                     $this->dbform['actual_to'] = $db->GetValue('SELECT actual_to FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
+                } else {
+                    $this->dbform['actual_to'] = '2029-01-01';
                 }
             }
         }
@@ -300,8 +306,8 @@ class DbFormUsageIpPorts extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_ip_ports');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['address']=array();
         
         $this->fields['port_type']=array('db_ignore'=>1,'enum'=>array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota','GPON'),'default'=>'adsl','add'=>' onchange=form_ip_ports_hide()');
@@ -430,8 +436,8 @@ class DbFormUsageVoip extends DbForm {
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>" onkeyup='optools.voip.check_e164.move_checking();' onchange='optools.voip.check_e164.move_checking();' ");
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['E164']=array("add" => " onchange='form_usagevoip_hide()'");
         $this->fields['no_of_lines']=array('default'=>1);
         $this->fields['line7800_id']=array("assoc_enum" => array());
@@ -441,15 +447,47 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
+        $this->fields['is_moved']=array("type" => 'checkbox', 'visible' => false);
+        $this->fields['is_moved_with_pbx']=array("type" => 'checkbox', 'visible' => false);
 
         $this->includesPreL = array('dbform_voip_tarif.tpl');
         $this->includesPreR = array('dbform_block.tpl');
         $this->includesPre=array('dbform_tt.tpl');
         $this->includesPost =array('dbform_voip_tarif_history.tpl','dbform_block_history.tpl');
     }
+    /**
+     *  Проверяет возможно ли перемещение данной услуги
+     */
+    private function prepareMovedFieldsForDispaly()
+    {
+        $check_move = UsageVoip::checkNumberIsMoved($this->data['E164'],$this->data['actual_from']);
+        if (!empty($check_move))
+        {
+            $this->fields['is_moved']['visible'] = true;
+            if ($this->data['is_moved'])
+            {
+                $this->fields['moved_from']=array("type" => "label");
+                $this->data['moved_from'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+            }
+            $check_move_with_pbx = UsageVirtpbx::checkNumberIsMovedWithPbx( $check_move->client, $this->data['client'],$this->data['actual_from']);
+            if (!empty($check_move_with_pbx))
+            {
+                $this->fields['is_moved_with_pbx']['visible'] = true;
+            }
+            
+        }
+        $check_move = UsageVoip::checkNumberWasMoved($this->data['id']);
+        if (!empty($check_move))
+        {
+            $this->fields['moved_to']=array("type" => "label");
+            $this->data['moved_to'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+        }
+    }
     public function Display($form_params = array(),$h2='',$h3='') {
         global $db,$design,$fixclient_data;
+        $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_voip');
         if ($this->isData('id')) {
+            $this->prepareMovedFieldsForDispaly();
             HelpDbForm::assign_tarif('usage_voip',$this->data['id']);
             HelpDbForm::assign_tarif('usage_voip',$this->data['id'],'_sng');
             HelpDbForm::assign_tarif('usage_voip2',$this->data['id'],'2');
@@ -485,6 +523,25 @@ class DbFormUsageVoip extends DbForm {
         $design->assign('region',$region);
         DbForm::Display($form_params,$h2,$h3);
     }
+   /**
+     *  Изменяет флаг перемещения вместе у номера, на который был перенесен данный номер
+     *  @param array $current актуальная информация о номере
+     */
+    private function updateMovedFieldsBeforeSave($current)
+    {
+        if (!$this->dbform['is_moved'])
+        {
+            $this->dbform['is_moved_with_pbx'] = 0;
+        }
+        
+        $check_move = UsageVoip::checkNumberWasMoved($this->data['id']);
+        if (!empty($check_move) && $this->dbform['actual_to'] != $current['actual_to'])
+        {
+            $to_number = UsageVoip::first($check_move->id);
+            $to_number->is_moved = 0;
+            $to_number->save();
+        }
+    }
     public function Process($no_real_update = 0){
         global $db,$user;
         $this->Get();
@@ -495,6 +552,9 @@ class DbFormUsageVoip extends DbForm {
 
         $this->dbform['edit_user_id'] = $user->Get('id');
         $current = $db->GetRow("select * from usage_voip where id = '".$this->dbform["id"]."'");
+        
+        $this->updateMovedFieldsBeforeSave($current);
+        
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_voip');
         $v=DbForm::Process();
         if ($v=='add' || $v=='edit') {
@@ -623,8 +683,8 @@ class DbFormEmails extends DbForm {
     public function __construct() {
         DbForm::__construct('emails');
         $this->fields['client']=array('type'=>'label','default'=>'');
-        $this->fields['actual_from']=array('default'=>date('Y-m-d'));
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>date('d-m-Y'));
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['local_part']=array('type'=>'text');
         $this->fields['domain']=array('type'=>'include','file'=>'dbform_emails_domain.tpl','add'=>'');
         $this->fields['password']=array("type" => "password");
@@ -709,8 +769,8 @@ class DbFormEmailsSimple extends DbForm {
     public function __construct() {
         DbForm::__construct('emails');
         $this->fields['client']=array('type'=>'label','default'=>'');
-        $this->fields['actual_from']=array('type'=>'hidden','default'=>date('Y-m-d'));
-        $this->fields['actual_to']=array('type'=>'hidden','default'=>'2029-01-01');
+        $this->fields['actual_from']=array('type'=>'hidden','default'=>date('d-m-Y'));
+        $this->fields['actual_to']=array('type'=>'hidden','default'=>'01-01-2029');
         $this->fields['local_part']=array('type'=>'text');
         $this->fields['domain']=array('type'=>'include','file'=>'dbform_emails_domain.tpl','add'=>'');
         $this->fields['password']=array();
@@ -732,8 +792,8 @@ class DbFormDomains extends DbForm {
     public function __construct() {
         DbForm::__construct('domains');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['domain']=array();
         $this->fields['primary_mx']=array();
         $this->fields['registrator']=array('default'=>'RUCENTER-REG-RIPN');
@@ -770,8 +830,8 @@ class DbFormDomains extends DbForm {
 class DbFormBillMonthlyadd extends DbForm {
     public function __construct() {
         DbForm::__construct('bill_monthlyadd');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['client']=array('type'=>'label');
         $this->fields['amount']=array('default'=>'1');
         $this->fields['description']=array();
@@ -822,8 +882,8 @@ class DbFormUsageIpRoutes extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_ip_routes');
         $this->fields['port_id']=array('type'=>'hidden');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['type']=array('enum'=>array('unused', 'uplink', 'uplink+pool', 'client', 'client-nat', 'pool', 'aggregate', 'reserved', 'gpon'),'default'=>'aggregate');
         $this->fields['net']=array();
         $this->fields['nat_net']=array();
@@ -839,7 +899,7 @@ class DbFormUsageIpRoutes extends DbForm{
         if ($this->isData('id') && $this->data['id']) {
             $design->assign('dbform_f_route',$db->AllRecords('select log_usage_ip_routes.*,user_users.user from log_usage_ip_routes inner join user_users ON user_users.id=log_usage_ip_routes.user_id where usage_ip_routes_id='.$this->data['id'].' order by ts desc'));
         } elseif (isset($this->fields['port_id']['default'])) {
-            $this->fields['actual_from']['default']=date('Y-m-d');
+            $this->fields['actual_from']['default']=date('d-m-Y');
             $this->fields['net']['comment'] = ' &nbsp; <select id="getnet_size"><option value="29">/29 (8 ip-адресов)<option value="30">/30 (4 ip-адреса)</select><input type=button onclick="doGetNet()" value="выделить сеть" class=button id=getnet_button>';
         }
         DbForm::Display($form_params,$h2,$h3);
@@ -900,8 +960,8 @@ class DbFormUsageExtra extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['code']=array('type'=>'hidden');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
@@ -992,8 +1052,8 @@ class DbFormUsageITPark extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['param_value']=array();
@@ -1073,8 +1133,8 @@ class DbFormUsageWelltime extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_welltime');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['ip']=array();
@@ -1167,26 +1227,70 @@ class DbFormUsageVirtpbx extends DbForm{
 
         DbForm::__construct('usage_virtpbx');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>" onkeyup='optools.voip.check_e164.move_checking();' onchange='optools.voip.check_e164.move_checking();' ");
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         //$this->fields['tarif_id']=array('type'=>'hidden');
         //$this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"));
         $this->fields['amount']=array("default" => 1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
+        $this->fields['is_moved']=array("type" => 'checkbox', 'visible' => false);
+        
         $this->includesPre=array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
         $this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
         $this->includesPreL = array('dbform_vpbx_tarif.tpl');
         $this->includesPost =array('dbform_vpbx_tarif_history.tpl','dbform_block_history.tpl');
     }
+    /**
+     *  Проверяет возможно ли перемещение данной услуги
+     */
+    private function prepareMovedFieldsForDispaly()
+    {
+        $check_move = UsageVirtpbx::checkVpbxIsMoved($this->data['actual_from']);
+        if (!empty($check_move))
+        {
+            $this->fields['is_moved']['visible'] = true;
+            if ($this->data['is_moved'])
+            {
+                $this->fields['moved_from']=array("type" => "label");
+                $this->data['moved_from'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+        
+                $moved_numbers = UsageVoip::getMovedNumber($check_move->client, $this->data['client'], $this->data['actual_from']);
+                if (!empty($moved_numbers))
+                {
+                    $this->fields['moved_numbers']=array("type" => "label");
+                    $str = '';
+                    foreach ($moved_numbers as $k=>$v)
+                    {
+                        $str .= $v->number . ': ';
+                        $str .= '<a target="_blank" href="pop_services.php?table=usage_voip&id='. $v->from_id . '">' .  $v->from_client . '</a> => ';
+                        $str .= '<a target="_blank" href="pop_services.php?table=usage_voip&id='. $v->to_id . '">' . $v->to_client . '</a>';
+                        if ($k+1 != count($moved_numbers))
+                        {
+                            $str .= '<br/>';
+                        }
+                    }
+                    $this->data['moved_numbers'] = $str;
+                }
+            }
+        }
+        $check_move = UsageVirtpbx::checkVpbxWasMoved($this->data['id']);
+        if (!empty($check_move))
+        {
+            $this->fields['moved_to']=array("type" => "label");
+            $this->data['moved_to'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+        }
+    }
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design, $fixclient_data;
 
+        $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_virtpbx');
         if(!isset($fixclient_data))
             $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
         if ($this->isData('id')) {
+            $this->prepareMovedFieldsForDispaly();
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
             HelpDbForm::assign_tt('usage_virtpbx',$this->data['id'],$this->data['client']);
             HelpDbForm::assign_tarif('usage_virtpbx',$this->data['id']);
@@ -1195,6 +1299,43 @@ class DbFormUsageVirtpbx extends DbForm{
         $design->assign('dbform_f_tarifs',$db->AllRecords('select id, description, price, currency, status from tarifs_virtpbx'));
 
         DbForm::Display($form_params,$h2,$h3);
+    }
+    /**
+     *  Изменяет флаг перемещения вместе с АТС у номеров, при изменение АТС
+     *  @param array $current актуальная информация об АТС внесения изменений
+     */
+    private function updateMovedFieldsBeforeSave($current)
+    {
+        $moved_numbers = array();
+        
+        $check_move = UsageVirtpbx::checkVpbxWasMoved($this->data['id']);
+        if (!empty($check_move) && $this->dbform['actual_to'] != $current['actual_to'])
+        {
+            $to_vpbx = UsageVirtpbx::first($check_move->id);
+            $to_vpbx->is_moved = 0;
+            $to_vpbx->save();
+            
+            $moved_numbers = UsageVoip::getMovedNumber($current['client'], $check_move->client, $check_move->actual_from);
+        }
+        
+        if (!$this->dbform['is_moved'] && $current['is_moved'])
+        {
+            $check_move = UsageVirtpbx::checkVpbxIsMoved($current['actual_from']);
+            if (!empty($check_move))
+            {
+                $moved_numbers = UsageVoip::getMovedNumber($check_move->client, $current['client'], $current['actual_from']);
+            }
+        }
+        
+        if (!empty($moved_numbers))
+        {
+            $moved_ids = array();
+            foreach ($moved_numbers as $k=>$v)
+            {
+                $moved_ids[] = $v->to_id;
+            }
+            UsageVoip::update_all(array('set'=>array('is_moved_with_pbx' => 0), 'conditions' => array('id IN (?)', $moved_ids)));
+        }
     }
     public function Process($no_real_update = 0){
         global $db,$user,$design;
@@ -1220,6 +1361,9 @@ class DbFormUsageVirtpbx extends DbForm{
         }
 
         $current = $db->GetRow("select * from usage_virtpbx where id = '".$this->dbform["id"]."'");
+       
+        $this->updateMovedFieldsBeforeSave($current);
+        
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_virtpbx');
 
         $cur_tarif = get_tarif_current('usage_virtpbx',$this->dbform['id']);
@@ -1263,8 +1407,8 @@ class DbFormUsage8800 extends DbForm{
 
         DbForm::__construct('usage_8800');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['number']=array("default" => "7800");
@@ -1347,8 +1491,8 @@ class DbFormUsageSms extends DbForm{
 
         DbForm::__construct('usage_sms');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
@@ -1428,8 +1572,8 @@ class DbFormUsageWellSystem extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['param_value']=array();
@@ -1510,8 +1654,8 @@ class DbFormUsageIPPPP extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_ip_ppp');
         $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['login']=array();
         $this->fields['password']=array();
         $this->fields['enabled']=array('enum'=>array('0','1'));
@@ -1574,8 +1718,8 @@ class DbFormUsageIPPPP extends DbForm{
 class DbFormTechCPE extends DbForm{
     public function __construct() {
         DbForm::__construct('tech_cpe');
-        $this->fields['actual_from']=array('default'=>'2029-01-01');
-        $this->fields['actual_to']=array('default'=>'2029-01-01');
+        $this->fields['actual_from']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-2029');
 
         $this->fields['id_model']=array('type'=>'enum','add'=>' onchange=form_cpe_get_clients()','assoc_enum'=>array());
         $this->fields['client']=array('in_tag'=>1,'add'=>' onchange=form_cpe_get_services()','enum'=>array());
@@ -2101,6 +2245,12 @@ $GLOBALS['translate_arr']=array(
     '*.trunk_vpbx_id' => 'Транк на VPBX',
     'newpayments.ecash_operator' => "Оператор платежа",
     'usage_voip.region' => 'Регион',
-    'usage_voip.line7800_id' => 'Линия без номера для номера 8800'
+    'usage_voip.line7800_id' => 'Линия без номера для номера 8800',
+    'usage_voip.is_moved' => 'Перемещенный номер',
+    'usage_voip.is_moved_with_pbx' => 'Перемещен вместе с АТС',
+    'usage_virtpbx.is_moved' => 'Перемещенная АТС',
+    'usage_virtpbx.moved_numbers' => 'Номера перемещенные с АТС',
+    '*.moved_from' => 'Перемещен с ',
+    '*.moved_to' => 'Перемещен на ',
     );
 ?>

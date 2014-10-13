@@ -3202,6 +3202,213 @@ class m_services extends IModule{
         }
         exit();
     }
+    
+     /**
+     * Функция проверяет, есть ли у данного сервиса сервис, с которой возможно был осуществлен переход
+     */
+    function services_rpc_check_move()
+    {
+        $table = isset($_REQUEST['table']) ? $_REQUEST['table'] : '';
+        $result = array('is_moved' => false, 'is_moved_with_pbx' => false);
+        if ($table == 'usage_voip')
+        {
+            $number = isset($_REQUEST['number']) ? $_REQUEST['number'] : '';
+            $actual_from = isset($_REQUEST['actual_from']) ? date('Y-m-d', strtotime($_REQUEST['actual_from'])) : '';
+            if ($number && $actual_from)
+            {
+                $check_move = UsageVoip::checkNumberIsMoved($number, $actual_from);
+                if (!empty($check_move))
+                {
+                    $result['is_moved'] = true;
+                    $options = array();
+                    $options['select'] = 'client';
+                    $options['conditions'] = array('E164 = ? AND actual_from = ?', $number, $actual_from);
+                    $client = UsageVoip::first($options)->client;
+                    $check_move_with_pbx = UsageVirtpbx::checkNumberIsMovedWithPbx( $check_move->client, $client, $actual_from);
+                    if (!empty($check_move_with_pbx))
+                    {
+                        $result['is_moved_with_pbx'] = true;
+                    }
+                }
+            }
+        } elseif ($table == 'usage_virtpbx') {
+            $actual_from = isset($_REQUEST['actual_from']) ? date('Y-m-d', strtotime($_REQUEST['actual_from'])) : '';
+            $result['is_moved_with_pbx'] = 'NO';
+            if ($actual_from)
+            {
+                $check_move = UsageVirtpbx::checkVpbxIsMoved($actual_from);
+                $result['is_moved'] = !empty($check_move);
+            }
+        }
+
+        return $result;
+    }
+    
+    /**
+     * Функция проверяет, можно ли использовать введенный номер
+     */
+    function services_rpc_check_e164()
+    {
+        global $db;
+        $spec_numbers = array('9999', '7495', '7499', '', '0', '101');
+
+        if ($_GET['e164'] == 'TRUNK') {
+            $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)=3";
+            if (($res=$db->GetValue($query)) !== false) {
+                return $res;
+            } else 
+                return "FAIL";
+        }
+
+        if(preg_match('/^FREE:(\d{4,7}|short)?/',$_GET['e164'],$m)){
+            if(isset($m[1]) && $m[1] != 'short'){
+                $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
+                $ann_ = "substring(`e164` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
+            } elseif ($m[1] == 'short') {
+                $query = "select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)<6 and e164 not in ('".implode("','", $spec_numbers)."')";
+                if (($res=$db->GetValue($query)) !== false) {
+                    while (in_array($res, $spec_numbers)) $res++;
+                    return $res;
+                } else 
+                    return "FAIL";
+            }else{
+                $ann = '';
+                $ann_ = '';
+            }
+
+            $actual_from = date('Y-m-d', strtotime($_GET['actual_from']));
+            $actual_to = date('Y-m-d', strtotime($_GET['actual_to']));
+
+            $query = "
+                select `vn`.`number`, (select max(actual_to) from usage_voip uv where uv.e164 = vn.number) as actual_to
+                from `voip_numbers` `vn`
+                where `vn`.`beauty_level` = '0'
+                and vn.client_id is null
+                ".$ann."
+
+                having date_add(ifnull(actual_to,'2000-01-01'), interval 6 month) <= now()
+                order by
+                ifnull(actual_to, '2000-01-01') asc , rand()
+                limit 1
+            ";
+
+            $ret = $db->AllRecords($query);
+            //printdbg($ret);
+            if(count($ret) == 1)
+                return $ret[0]['number'];
+            else
+                return "FAIL";
+        }elseif(preg_match('/^isset:(\d+)?/',$_GET['e164'],$m)){
+            $e164 = $m[1];
+            if(!$e164){
+                return '';
+            }
+            $query = "select number from voip_numbers where number='".($e164)."'";
+            $ret = $db->AllRecords($query);
+            if(count($ret)>0)
+                return "is";
+            return '';
+        }
+
+        $number = preg_replace('/[^0-9]+/','',$_GET['e164']);
+        if(strlen($number)<4){
+            return "false";
+        }
+
+        if(strlen($number)>5)
+        {
+            if(!preg_match("/^7[0-9]+$/", $_GET["e164"]))
+            {
+                return "false";
+            }
+        }
+
+        if (in_array($number, $spec_numbers)) {
+            return 'true';
+        }
+
+        $region = mysql_escape_string(get_param_raw("region", 0));
+        
+        if (strlen($number) > 5 && substr($number, 0, 4) != '7800') {
+            $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'" and region = "'.$region.'"';
+            $res = $db->getRow($q);
+            if (!$res) {
+                return "false";
+            }
+        }
+
+        $actual_from = date('Y-m-d', strtotime($_GET['actual_from']));
+        $actual_to = date('Y-m-d', strtotime($_GET['actual_to']));
+
+        $query = "
+            SELECT
+                *
+            FROM
+                `usage_voip`
+            WHERE
+                `E164` = '".$number."'
+            AND
+                (
+                    (
+                        `actual_to` BETWEEN '".$actual_from."' AND '".$actual_to."'
+                    and
+                        (`actual_to` <> '2029-01-01' or `status` = 'connection')
+                    )
+                or
+                    (
+                        `actual_from` BETWEEN '".$actual_from."' AND '".$actual_to."'
+                    and
+                        (`actual_from` <> '2029-01-01' or `status` = 'connection')
+                    )
+                or
+                    (
+                        '".$actual_from."' BETWEEN `actual_from` AND `actual_to`
+                    and
+                        ('".$actual_from."' <> '2029-01-01' or `status` = 'connection')
+                    )
+                )
+        ";
+
+        $res = $db->AllRecords($query);
+        if(count($res)>0) {
+            return "false";
+        }else{
+            $query = "
+                SELECT
+                    *
+                FROM
+                    `usage_voip`
+                WHERE
+                    `E164` = '".$number."'
+                AND
+                    now() between `actual_from` and `actual_to`
+            ";
+
+            $res = $db->AllRecords($query);
+            if(count($res)>0){
+                return "true_but";
+            }else
+                return "true";
+        }
+    }
+    
+    function services_check_pop_services($fixclient)
+    {
+        header('Content-Type: application/json');
+        $data = array();
+        $data['e164'] = $this->services_rpc_check_e164();
+        $data['move'] = $this->services_rpc_check_move();
+        echo json_encode($data);
+        exit();
+    }
+    
+    function services_check_services_move($fixclient)
+    {
+        header('Content-Type: application/json');
+        $data = $this->services_rpc_check_move();
+        echo json_encode($data);
+        exit();
+    }
 }
 
 class voipRegion
