@@ -57,7 +57,9 @@ class m_services_head extends IModuleHead {
                     'e164_edit'			=> array('services_voip','e164'),
                     'vo_settings_send'	=> array('services_voip','send_settings'),
 					'vo_delete'			=> array('services_voip','del2029'),
-	                'get_tarifs'        =>array('services_voip','r'),
+                                       'get_tarifs'        =>array('services_voip','r'),
+                                       'check_pop_services' => array('services_voip','edit'),
+                                       'check_services_move' => array('services_voip','edit'),
 					
 //Domain Names
 					'dn_view'			=> array('services_domains','r'),

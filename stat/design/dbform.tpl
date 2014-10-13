@@ -9,6 +9,14 @@
 <TBODY>{if isset($smarty.session.trash) && $smarty.session.trash.price_voip}<tr><td><a href='?module=tarifs&action=csv_upload' target='_blank' style='text-decoration:none'>Пакетная заливка</a></td><td>&nbsp;</td></tr>{/if}
 {foreach from=$dbform_data item=item key=key name=outer}{if $item.type=='include'}{include file=$item.file}
 {elseif $item.type=='no'}
+{elseif $item.type=='checkbox'}
+<TR id=tr_{$key} {if !$item.visible}style="display:none;"{/if}><TD class=left width=40%>{$item.caption}</TD>
+
+<TD>
+<input type=hidden name=dbform[{$key}] value='0' id="hidden_{$key}">
+<input type=checkbox name=dbform[{$key}] value='1' id={$key} {if $item.value==1}checked{/if}>
+</TD></TR>
+
 {elseif $item.type=='hidden'}
 <input type=hidden name=dbform[{$key}] value='{$item.value}' id={$key}>
 {elseif $item.type=='label'}
@@ -53,8 +61,8 @@
 	</select>
 {/if}
 {if $key == "actual_from" || $key == "actual_to"}
-    <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("d-m-Y");{/php}";change_datepicker_option("{$key}");'>
-    <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="01-01-2029";change_datepicker_option("{$key}");' style="">
+    <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("d-m-Y");{/php}";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip"  || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}'>
+    <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="01-01-2029";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}' style="">
     {assign var="use_datepicker" value="true"}
 {/if}
 </TD></TR>
@@ -84,6 +92,12 @@
 {if $dbform_table == "usage_voip"}
 <script>
     form_usagevoip_hide();
+</script>
+{/if}
+
+{if $dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx"}
+<script>
+        optools.voip.check_e164.move_checking(1);
 </script>
 {/if}
 
@@ -121,6 +135,7 @@
             $('#actual_from').datepicker( 'option', 'maxDate', $('#actual_to').val() );
         } else {
             $('#actual_to').datepicker( 'option', 'minDate', $('#actual_from').val() );
+            optools.voip.check_e164.move_checking();
         }
     }
     {/literal}

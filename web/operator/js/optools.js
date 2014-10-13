@@ -112,7 +112,26 @@ var optools = {
 			old_number:'',
             region: '',
 			is_valid:true,
-
+                        move_checking:function(first){
+                                first = first | 0;
+                                var table = document.getElementById("table_name").value;
+                                var number = 0;
+                                if (table == 'usage_voip')
+                                {
+                                        var number = document.getElementById("E164").value;
+                                }
+                                $.get(
+                                                "index_lite.php?module=services&action=check_services_move",
+                                                {
+                                                        number: number,
+                                                        table: table,
+                                                        actual_from: document.getElementById("actual_from").value
+                                                },
+                                                function(data){
+                                                        optools.voip.check_e164.parse_move(data, first);
+                                                }
+                                        )
+                        },
 			checkIsset:function(e164,imgEl){
 				var imgEl = document.getElementById(imgEl)
 				if(e164=='0000'){
@@ -121,16 +140,22 @@ var optools = {
 
 				}else
 					$.get(
-						"check_e164.php",
-						{e164:'isset:'+e164},
-						function(data){
-							if(data == 'is')
-								imgEl.src="images/icons/delete.gif";
-							else
-								imgEl.src="images/icons/add.gif";
-							imgEl.style.visibility = "visible"
-						}
-					)
+                                                "index_lite.php?module=services&action=check_pop_services",
+                                                {
+                                                        e164:'isset:'+e164,
+                                                        number: document.getElementById("E164").value,
+                                                        table: document.getElementById("table_name").value,
+                                                        actual_from: document.getElementById("actual_from").value
+                                                },
+                                                function(data){
+                                                        optools.voip.check_e164.parse_move(data.move);
+                                                        if(data.e164 == 'is')
+                                                                imgEl.src="images/icons/delete.gif";
+                                                        else
+                                                                imgEl.src="images/icons/add.gif";
+                                                        imgEl.style.visibility = "visible"
+                                                }
+                                        )
 			},
 
 			coloring:function(noncheck,inputEl,flags){
@@ -185,67 +210,102 @@ var optools = {
 					return
 				}
 				$.get(
-					'check_e164.php',
-					{
-						e164:optools.voip.check_e164.inputElement.value,
-						region:optools.voip.check_e164.region,
-						actual_from:document.getElementById('actual_from').value,
-						actual_to:document.getElementById('actual_to').value
-					},
-					optools.voip.check_e164.result_parser
-				);
+                                        'index_lite.php?module=services&action=check_pop_services',
+                                        {
+                                                e164:optools.voip.check_e164.inputElement.value,
+                                                region:optools.voip.check_e164.region,
+                                                actual_from:document.getElementById('actual_from').value,
+                                                actual_to:document.getElementById('actual_to').value,
+                                                number: document.getElementById("E164").value,
+                                                table: document.getElementById("table_name").value,
+                                        },
+                                        optools.voip.check_e164.result_parser
+                                );
 			},
+                        parse_move:function(data, first){
+                                first = first | 0;
+                                if (data.is_moved)
+                                {
+                                        if (!first) $('#is_moved').attr('checked', false);
+                                        $('#is_moved').attr('disabled', false);
+                                        $('#tr_is_moved').show();
+                                } else {
+                                        $('#is_moved').attr('disabled', true);
+                                        $('#tr_is_moved').hide();
+                                        $('#tr_moved_from').hide();
+                                }
+                                if (data.is_moved_with_pbx != 'NO')
+                               {
+                                    if (data.is_moved_with_pbx)
+                                    {
+                                        if (!first) $('#is_moved_with_pbx').attr('checked', false);
+                                        $('#is_moved_with_pbx').attr('disabled', false);
+                                        $('#tr_is_moved_with_pbx').show();
+                                    } else {
+                                        $('#is_moved_with_pbx').attr('disabled', true);
+                                        $('#tr_is_moved_with_pbx').hide();
+                                    }
+                               }
+                        },
 			result_parser:function(data){
-				var img = document.getElementById('e164_flag_image');
-				var img_els = img.src.split("/");
-				img.style.visibility = "visible";
-				if(data == 'true'){
-					optools.voip.check_e164.is_valid = true;
-					img_els[img_els.length-1] = "enable.gif";
-					img.src = img_els.join("/");
-					document.getElementById('e164_flag_letter').style.visibility = "hidden"
-				}else if(data == 'true_but'){
-					optools.voip.check_e164.is_valid = true
-					img_els[img_els.length-1] = "enable.gif"
-					img.src = img_els.join("/")
-					document.getElementById('e164_flag_letter').style.visibility = "visible"
-				}else{
-					optools.voip.check_e164.is_valid = false;
-					img_els[img_els.length-1] = "disable.gif";
-					img.src = img_els.join("/");
-					document.getElementById('e164_flag_letter').style.visibility = "hidden"
-				}
-			},
+                                var img = document.getElementById('e164_flag_image');
+                                var img_els = img.src.split("/");
+                                img.style.visibility = "visible";
+                                if(data.e164 == 'true'){
+                                        optools.voip.check_e164.is_valid = true;
+                                        img_els[img_els.length-1] = "enable.gif";
+                                        img.src = img_els.join("/");
+                                        document.getElementById('e164_flag_letter').style.visibility = "hidden"
+                                }else if(data.e164 == 'true_but'){
+                                        optools.voip.check_e164.is_valid = true
+                                        img_els[img_els.length-1] = "enable.gif"
+                                        img.src = img_els.join("/")
+                                        document.getElementById('e164_flag_letter').style.visibility = "visible"
+                                }else{
+                                        optools.voip.check_e164.is_valid = false;
+                                        img_els[img_els.length-1] = "disable.gif";
+                                        img.src = img_els.join("/");
+                                        document.getElementById('e164_flag_letter').style.visibility = "hidden"
+                                }
+                                optools.voip.check_e164.parse_move(data.move);
+                        },
 			get_free_e164:function(el){
-				document.getElementById('actual_from').onkeyup = function(){document.getElementById('E164').onkeyup();return true}
-				document.getElementById('actual_to').onkeyup = function(){document.getElementById('E164').onkeyup();return true}
-				$.get(
-					'check_e164.php',
-					{
-						e164:'FREE:'+el.value,
-						actual_from:document.getElementById('actual_from').value,
-						actual_to:document.getElementById('actual_to').value
-					},
-					function(data){
-						document.getElementById('E164').value = data
-						document.getElementById('E164').onkeyup()
-					}
-				);
-				return false
-			},
-			get_free_e164_trunk:function(){
-				$.get(
-					'check_e164.php',
-					{
-						e164:'TRUNK'
-					},
-					function(data){
-						document.getElementById('E164').value = data
-						document.getElementById('E164').onkeyup()
-					}
-				);
-				return false
-			},
+                                document.getElementById('actual_from').onkeyup = function(){document.getElementById('E164').onkeyup();return true}
+                                document.getElementById('actual_to').onkeyup = function(){document.getElementById('E164').onkeyup();return true}
+                                $.get(
+                                        'index_lite.php?module=services&action=check_pop_services',
+                                        {
+                                                e164:'FREE:'+el.value,
+                                                actual_from:document.getElementById('actual_from').value,
+                                                actual_to:document.getElementById('actual_to').value,
+                                                number: document.getElementById("E164").value,
+                                                table: document.getElementById("table_name").value,
+                                        },
+                                        function(data){
+                                                optools.voip.check_e164.parse_move(data.move);
+                                                document.getElementById('E164').value = data.e164
+                                                document.getElementById('E164').onkeyup()
+                                        }
+                                );
+                                return false
+                        },
+                        get_free_e164_trunk:function(){
+                                $.get(
+                                        'index_lite.php?module=services&action=check_pop_services',
+                                        {
+                                                e164:'TRUNK',
+                                                actual_from:document.getElementById('actual_from').value,
+                                                number: document.getElementById("E164").value,
+                                                table: document.getElementById("table_name").value,
+                                        },
+                                        function(data){
+                                                optools.voip.check_e164.parse_move(data.move);
+                                                document.getElementById('E164').value = data.e164
+                                                document.getElementById('E164').onkeyup()
+                                        }
+                                );
+                                return false
+                        },
 			isValid:function(){
 
                 var oActualFrom = document.getElementById("actual_from");
@@ -804,22 +864,22 @@ var optools = {
 		return string.substring(first,string.length-last)
 	},
 	DatePickerInit: function(prefix, name){
-                name = name || 'date';
-                prefix = prefix || '';
-                $( '#' + prefix + name + '_from' ).datepicker({
-                        dateFormat: 'dd-mm-yy',
-                        maxDate: $( '#' + prefix + name + '_to' ).val(),
-                        onClose: function( selectedDate ) {
-                                $( '#' + prefix + name + '_to' ).datepicker( 'option', 'minDate', selectedDate );
-                        }
-                });
-                $( '#' + prefix + name + '_to' ).datepicker({
-                        dateFormat: 'dd-mm-yy',
-                        minDate: $( '#' + prefix + name + '_from' ).val(),
-                        onClose: function( selectedDate ) {
-                                $( '#' + prefix + name + '_from' ).datepicker( 'option', 'maxDate', selectedDate );
-                        }
-                });
+            name = name || 'date';
+            prefix = prefix || '';
+            $( '#' + prefix + name + '_from' ).datepicker({
+                dateFormat: 'dd-mm-yy',
+                maxDate: $( '#' + prefix + name + '_to' ).val(),
+                onClose: function( selectedDate ) {
+                    $( '#' + prefix + name + '_to' ).datepicker( 'option', 'minDate', selectedDate );
+                }
+            });
+            $( '#' + prefix + name + '_to' ).datepicker({
+                dateFormat: 'dd-mm-yy',
+                minDate: $( '#' + prefix + name + '_from' ).val(),
+                onClose: function( selectedDate ) {
+                    $( '#' + prefix + name + '_from' ).datepicker( 'option', 'maxDate', selectedDate );
+                }
+            });
         }
 }
 optools.friendly.dates.mon_right_days.inArray = optools.friendly.dates.leap_years.inArray = optools.inArray
