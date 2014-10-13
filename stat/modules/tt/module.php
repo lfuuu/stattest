@@ -367,71 +367,14 @@ class m_tt extends IModule{
             exit();
         }
 
-        if($fixclient)
-        {
-            $fixclient_data = ClientCS::FetchClient($fixclient);
-            if (!empty($fixclient_data))
-            {
-		$fixclient = $fixclient_data['client'];
-            } 
-            $folders = $db->AllRecords($q="
-                select
-                    tf.pk,
-                    tf.name,
-                    (
-                        select
-                            count(*)
-                        from
-                            tt_troubles
-                        where
-                            trouble_type='".$type['code']."'
-                        and
-                            client='".addcslashes($fixclient, "\\'")."'
-                        and
-                            folder & tf.pk
-                    ) cnt
-                from
-                    tt_folders tf
-                where
-                    tf.pk & ".$type['folders']."
-                order by
-                    `tf`.`order`",
-                'pk',
-                MYSQL_ASSOC
-            );
-        }
-        else
-            $folders = $db->AllRecords($q="
-                select
-                    tf.pk,
-                    tf.name,
-                    (
-                        select
-                            count(*)
-                        from
-                            tt_troubles
-                        where
-                            trouble_type='".$type['code']."'
-                        and
-                            folder & tf.pk
-                    ) cnt
-                from
-                    tt_folders tf
-                where
-                    tf.pk & ".$type['folders']."
-                order by
-                    `tf`.`order`",
-                'pk',
-                MYSQL_ASSOC
-            );
-
+        $_SESSION['get_folders'] = true;
         $folder = 0;
 
         if(isset($_REQUEST['folder']))
             $folder = (int)$_REQUEST['folder'];
 
         if(!$folder && !$user->Flag('tt_'.$type['code'].'_folder')){
-            $folder = array_shift(array_keys($folders));
+            $folder = $db->GetValue("select pk from tt_folders where pk & ".$type['folders']." order by `order` LIMIT 0,1");
             $user->SetFlag('tt_'.$type['code'].'_folder',$folder);
         }elseif(!$folder){
             $folder = $user->Flag('tt_'.$type['code'].'_folder');
@@ -456,8 +399,6 @@ class m_tt extends IModule{
         $design->assign('tt_wo_explain',true); # убрать заголовок
         $design->assign('tt_type',$type);
         $design->assign('tt_folder',$folder);
-        $design->assign('tt_folders',$folders);
-        $design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
 
         $this->curtype = $type;
         $this->curfolder = $folder;
@@ -770,7 +711,7 @@ class m_tt extends IModule{
 
         $execFilter = false;
 
-        if(get_param_raw("filter_set", "") !== "" || get_param_raw("date_from", "") == "prev_mon")
+        if(get_param_raw("filter_set", "") !== "" || get_param_raw("create_date_from", "") == "prev_mon")
         {
             //clear
             unset($_SESSION["trouble_filter"]);
@@ -803,14 +744,14 @@ class m_tt extends IModule{
             }else
                 $subtype = false;
 
-            $dateFrom = new DatePickerValues('date_from', 'today');
-            $dateTo = new DatePickerValues('date_to', 'today');
+            $dateFrom = new DatePickerValues('create_date_from', 'today');
+            $dateTo = new DatePickerValues('create_date_to', 'today');
             $create_date_from = $dateFrom->getTimestamp();
             $create_date_to = $dateTo->getTimestamp();
 
-            if(isset($_REQUEST['date_from']) && $_REQUEST['date_from']=='prev_mon')
+            if(isset($_REQUEST['create_date_from']) && $_REQUEST['create_date_from']=='prev_mon')
             {
-                $dateFrom = new DatePickerValues('date_from', '-1 month');
+                $dateFrom = new DatePickerValues('create_date_from', '-1 month');
                 $create_date_from = $dateFrom->getTimestamp();
                 $_POST["is_create"] = "on";
             }
@@ -861,33 +802,39 @@ class m_tt extends IModule{
                 {
                     $create_date_from = $dates["create"][0];
                     $create_date_to = $dates["create"][1];
+                    $design->assign('create_date_from', date('d-m-Y', $create_date_from));
+                    $design->assign('create_date_to', date('d-m-Y', $create_date_to));
                 }else{
-			$dateFrom = new DatePickerValues('date_from', 'today');
-			$dateTo = new DatePickerValues('date_to', 'today');
-			$create_date_from = $dateFrom->getTimestamp();
-			$create_date_to = $dateTo->getTimestamp();
+                        $dateFrom = new DatePickerValues('create_date_from', 'today');
+                        $dateTo = new DatePickerValues('create_date_to', 'today');
+                        $create_date_from = $dateFrom->getTimestamp();
+                        $create_date_to = $dateTo->getTimestamp();
                 }
 
                 if($ons["active"])
                 {
                     $active_date_from = $dates["active"][0];
                     $active_date_to = $dates["active"][1];
+                    $design->assign('active_date_from', date('d-m-Y', $active_date_from));
+                    $design->assign('active_date_to', date('d-m-Y', $active_date_to));
                 }else{
-			$dateFrom = new DatePickerValues('active_date_from', 'today');
-			$dateTo = new DatePickerValues('active_date_to', 'today');
-			$active_date_from = $dateFrom->getTimestamp();
-			$active_date_to = $dateTo->getTimestamp();
+                        $dateFrom = new DatePickerValues('active_date_from', 'today');
+                        $dateTo = new DatePickerValues('active_date_to', 'today');
+                        $active_date_from = $dateFrom->getTimestamp();
+                        $active_date_to = $dateTo->getTimestamp();
                 }
 
                 if($ons["close"])
                 {
                     $close_date_from = $dates["close"][0];
                     $close_date_to = $dates["close"][1];
+                    $design->assign('close_date_from', date('d-m-Y', $close_date_from));
+                    $design->assign('close_date_to', date('d-m-Y', $close_date_to));
                 }else{
-			$dateFrom = new DatePickerValues('close_date_from', 'today');
-			$dateTo = new DatePickerValues('close_date_to', 'today');
-			$close_date_from = $dateFrom->getTimestamp();
-			$close_date_to = $dateTo->getTimestamp();
+                        $dateFrom = new DatePickerValues('close_date_from', 'today');
+                        $dateTo = new DatePickerValues('close_date_to', 'today');
+                        $close_date_from = $dateFrom->getTimestamp();
+                        $close_date_to = $dateTo->getTimestamp();
                 }
 
                 $_SESSION["trouble_filter"]["time_set"] = time();
@@ -899,17 +846,17 @@ class m_tt extends IModule{
                 $prefixs = array('create_', 'active_', 'close_');
                 foreach ($prefixs as $prefix) 
                 {
-			$var_name = $prefix . 'date_to';
-			$mTime = new DatePickerValues($var_name, 'now');
-			$$var_name = $mTime->getTimestamp();
-			$var_name = $prefix . 'date_from';
-			$mTime = new DatePickerValues($var_name, 'now');
-			$$var_name = $mTime->getTimestamp();
+                        $var_name = $prefix . 'date_to';
+                        $mTime = new DatePickerValues($var_name, 'now');
+                        $$var_name = $mTime->getTimestamp();
+                        $var_name = $prefix . 'date_from';
+                        $mTime = new DatePickerValues($var_name, 'now');
+                        $$var_name = $mTime->getTimestamp();
                 }
 
-                if(isset($_REQUEST['date_from']) && $_REQUEST['date_from']=='prev_mon')
+                if(isset($_REQUEST['create_date_from']) && $_REQUEST['create_date_from']=='prev_mon')
                 {
-                    $dateFrom = new DatePickerValues('date_from', '-1 month');
+                    $dateFrom = new DatePickerValues('create_date_from', '-1 month');
                     $create_date_from = $dateFrom->getTimestamp();
                 }
             }
@@ -924,34 +871,53 @@ class m_tt extends IModule{
 
         $design->assign("tt_show_add", get_param_raw("show_add_form", "") != "");
 
-            $min_time = mktime(0, 0, 0, 1, 1, 2001);
+            $min_time = strtotime('first day of this month');
+            $min_time = strtotime('-1 year', $min_time);
 
             if($create_date_from < $min_time)
-                $create_date_from = false;
-            else
-                $create_date_from = date('Y-m-d',$create_date_from);
+            {
+                $create_date_from = $min_time;
+                $design->assign('create_date_from', date('d-m-Y', $create_date_from));
+            }
+            $create_date_from = date('Y-m-d',$create_date_from);
+
             if($create_date_to < $min_time)
+            {
                 $create_date_to = false;
-            else
+                $design->assign('create_date_to', date('d-m-Y'));
+            } else {
                 $create_date_to = date('Y-m-d',$create_date_to).' 23:59:59';
+            }
 
             if($active_date_from < $min_time)
-                $active_date_from = false;
-            else
-                $active_date_from = date('Y-m-d',$active_date_from);
+            {
+                $active_date_from = $min_time;
+                $design->assign('active_date_from', date('d-m-Y', $active_date_from));
+            }
+            $active_date_from = date('Y-m-d',$active_date_from);
+            
             if($active_date_to < $min_time)
+            {
                 $active_date_to = false;
-            else
+                $design->assign('active_date_to', date('d-m-Y'));
+            } else {
                 $active_date_to = date('Y-m-d',$active_date_to).' 23:59:59';
+            }
 
             if($close_date_from < $min_time)
-                $close_date_from = false;
-            else
-                $close_date_from = date('Y-m-d',$close_date_from);
+            {
+                $close_date_from = $min_time;
+                $design->assign('close_date_from', date('d-m-Y', $close_date_from));
+            }
+            $close_date_from = date('Y-m-d',$close_date_from);
+                
             if($close_date_to < $min_time)
+            {
                 $close_date_to = false;
-            else
+                $design->assign('close_date_to', date('d-m-Y'));
+            } else {
                 $close_date_to = date('Y-m-d',$close_date_to).' 23:59:59';
+            }
 
         $design->assign("filter",$filter);
         $design->assign("filter_head", array("action" => get_param_raw("action", "view_type"), "mode" => get_param_raw("mode", 0)));
@@ -963,18 +929,22 @@ class m_tt extends IModule{
         $W = array('AND');
         $join = '';
         $select = '';
-
+        $use_stages = false;
 
         //if($mode == 0){
             if($state !== false)
                 $W[] = 'S.state_id = '.((int)$state);
             if($editor !== false)
+            {
                 $W[] = "S.user_edit = '".addcslashes($editor,"\\\\'")."'";
+                $use_stages = true;
+            }
             if($resp !== false){
                 if($resp == 'SUPPORT')
                     $W[] = "`S`.`user_main` in (select `user` from `user_users` where `usergroup`='support')";
                 else
                     $W[] = "S.user_main = '".addcslashes($resp, "\\\\'")."'";
+                $use_stages = true;
             }
 
             if($owner !== false)
@@ -989,9 +959,15 @@ class m_tt extends IModule{
                 $W[] = "T.date_creation <= '".$create_date_to."'";
 
             if($active_date_from !== false && $ons["active"])
+            {
                 $W[] = "S.date_start >= '".$active_date_from."'";
+                $use_stages = true;
+            }
             if($active_date_to !== false && $ons["active"])
+            {
                 $W[] = "S.date_start <= '".$active_date_to."'";
+                $use_stages = true;
+            }
 
             if($close_date_from !== false && $ons["close"])
                 $W[] = "T.date_close >= '".$close_date_from."'";
@@ -1011,9 +987,15 @@ class m_tt extends IModule{
         $showStages = ($mode>=1 || $client || $service || $service_id || $t_id);
 
         if($mode>=1)
+        {
             $W[]='S.state_id not in (2,20,21,39,40)';
+            $use_stages = true;
+        }
         if($mode==2 || $mode==3)
+        {
             $W[]='S.date_start<=NOW()';
+            $use_stages = true;
+        }
         if($mode==2)
             $W[] = 'S.user_main="'.addslashes($user->Get('user')).'"';
         if($mode==3)
@@ -1024,6 +1006,9 @@ class m_tt extends IModule{
         }if($mode==5){
             $W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
         }
+        
+        $folders_join = $join;
+
         if (($flags&8)!=8) {
             $join.='LEFT JOIN tt_stages as S2 ON S2.trouble_id = T.id AND S2.user_main = "'.addslashes($user->Get('user')).'" ';
             $select = 'IF(S2.stage_id IS NULL,0,1) AS is_editableByMe,';
@@ -1031,6 +1016,9 @@ class m_tt extends IModule{
 
         if($this->curtype)
             $W[] = "T.trouble_type = '".$this->curtype['code']."'";
+            
+        $W_folders = $W;
+        
         if($this->curfolder)
             $W[] = "T.folder&".$this->curfolder;
 
@@ -1153,7 +1141,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $design->assign('tt_service',$service);
             $design->assign('tt_service_id',$service_id);
             $db->Query('select u.usergroup, user, name,g.comment as ugroup from user_users u , user_groups  g
-                    where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,name');
+                    where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,convert(name using koi8r)');
             $U=array();
             while($r=$db->NextRecord()){
                 if(!isset($usergroup) || $usergroup!=$r['usergroup']){
@@ -1198,6 +1186,52 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if(($flags&2)!=0){
             $design->assign('tt_troubles',$R);
         }
+        
+        if (isset($_SESSION['get_folders']) && $_SESSION['get_folders'])
+        {
+            
+            unset($_SESSION['get_folders']);
+            $W_folders[] = "tf.pk & ".$this->curtype['folders'];
+            if ($use_stages)
+            {
+                 $folders_join .= ' left join tt_stages as S ON T.id = S.trouble_id  ';
+                 $W_folders[] = 'S.stage_id = T.cur_stage_id';
+            }
+
+            $folders = $db->AllRecords($q="
+                SELECT  
+                    tf.pk, tf.name, COUNT(DISTINCT(T.id)) as cnt
+                FROM
+                    tt_troubles as T
+                LEFT JOIN 
+                    tt_folders as tf ON T.folder & tf.pk 
+                     ".$folders_join."
+                WHERE 
+                    ".MySQLDatabase::Generate($W_folders)."
+                GROUP BY 
+                    tf.pk 
+                ORDER BY
+                    `tf`.`order`",
+                'pk',
+                MYSQL_ASSOC
+            );
+            $all_folders = $db->AllRecords("
+                select 
+                    pk, name 
+                from 
+                    tt_folders 
+                where 
+                    pk & ".$this->curtype['folders']." 
+                order by 
+                    `order`", 
+                'pk'
+            );
+ 
+            $design->assign('tt_all_folders',$all_folders);
+            $design->assign('tt_folders',$folders);
+            $design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
+         }
+        
         if(($flags&4)!=0)
             return $R;
         return count($R);

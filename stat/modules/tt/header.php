@@ -52,7 +52,7 @@ class m_tt_head extends IModuleHead{
 		array(
 			'Откр. Тех.Поддержка',
 			'list',
-			"&mode=0&state_filter=1&resp=SUPPORT&date_from=prev_mon"
+			"&mode=0&state_filter=1&resp=SUPPORT&create_date_from=prev_mon"
 		),
 		array('Мне поручили',	 		'list2','&mode=2'),
 		array('Я поручил',	 			'list2','&mode=3'),
