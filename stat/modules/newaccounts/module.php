@@ -4903,6 +4903,29 @@ $sql .= "    order by client, bill_no";
         $W[] = "C.type in ('org', 'priv')";
 
         $W_gds = $W;
+        
+        $payment_condition = '';
+        if ($paymethod == 'beznal') {
+            $payment_condition = '0, 1';
+        } elseif ($paymethod) {
+            $payment_condition = '1, 0';
+        }
+        if ($payment_condition)
+        {
+            $W_gds[] = 'IF (B.bill_no like "20____/____",
+                                IF ( (SELECT 
+                                    COUNT(*) 
+                                FROM 
+                                    newpayments_orders as NO 
+                                LEFT JOIN 
+                                    newpayments as NP ON NO.payment_id = NP.id 
+                                WHERE 
+                                        NO.bill_no = B.bill_no 
+                                    AND (NP.type = "prov" OR NP.type = "neprov")
+                                ) > 0, '.$payment_condition.'),
+                                C.nal="'.$paymethod.'"
+                        )'; 
+        }
 
         if($date_from)          $W[] = 'B.bill_date>="'.$date_from.'"-INTERVAL 1 MONTH';
         if($date_to)            $W[] = 'B.bill_date<="'.$date_to.'"+INTERVAL 1 MONTH';
