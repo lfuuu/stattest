@@ -40,6 +40,7 @@ class m_stats_head extends IModuleHead{
 		'phone_sales_details' => array('stats','report'),
         'agent_settings' => array('stats', 'vip_report'),
         'save_agent_settings' => array('stats', 'vip_report'),
+                'report_agent_details' => array('stats','vip_report'),
 	);
 	var $menu=array(
 		array('Телефония',              'voip'),
