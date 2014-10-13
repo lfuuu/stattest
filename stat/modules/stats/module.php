@@ -5448,6 +5448,31 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		include_once 'PhoneSalesDetails.php';
 		PhoneSalesDetails::getDetails();
 	}
+	function stats_report_reserve($fixclient)
+        {
+            global $design;
+            $options = array();
+            $options['select'] = '
+                UNIX_TIMESTAMP(MAX(LT.ts)) as max_ts, 
+                UNIX_TIMESTAMP(MIN(LT.ts)) as min_ts, 
+                U.id, 
+                U.client, 
+                U.E164 as number,
+                DATEDIFF(NOW(), MAX(LT.ts)) as diff';
+            $options['from'] = 'log_tarif as LT';
+            $options['joins'] = "LEFT JOIN usage_voip as U ON U.id = LT.id_service";
+            $options['conditions'] = array(
+                'U.actual_from = ? AND U.actual_to = ? AND LT.service = ?',
+                '2029-01-01',
+                '2029-01-01',
+                'usage_voip'
+            );
+            $options['order'] = 'max_ts asc';
+            $options['group'] = 'LT.id_service';
+            $data = LogTarif::find('all', $options);
+            $design->assign('data', $data);
+            $design->AddMain('stats/report_reserve.tpl');
+        }
 }
 
 
