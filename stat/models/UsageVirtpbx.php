@@ -32,16 +32,19 @@ class UsageVirtpbx extends ActiveRecord\Model
      */
     public static function checkVpbxWasMoved($usage_id)
     {
-        $current = UsageVirtpbx::find($usage_id);
         $check_move = null;
-        $options = array();
-        $options['select'] = '*,UNIX_TIMESTAMP(actual_from) as from_ts,UNIX_TIMESTAMP(actual_to) as to_ts';
-        $options['conditions'] = array(
-                'actual_from = DATE_ADD(?, INTERVAL 1 DAY) AND is_moved = ?', 
-                $current->actual_to,
-                1
-        );
-        $check_move = UsageVirtpbx::first($options);
+        if ($usage_id && UsageVirtpbx::exists($usage_id))
+        {
+            $current = UsageVirtpbx::find($usage_id);
+            $options = array();
+            $options['select'] = '*,UNIX_TIMESTAMP(actual_from) as from_ts,UNIX_TIMESTAMP(actual_to) as to_ts';
+            $options['conditions'] = array(
+                    'actual_from = DATE_ADD(?, INTERVAL 1 DAY) AND is_moved = ?', 
+                    $current->actual_to,
+                    1
+            );
+            $check_move = UsageVirtpbx::first($options);
+        }
         return $check_move;
     }
     
