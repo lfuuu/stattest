@@ -10,8 +10,23 @@ class DbView {
 	public $SQLFilterGroups = array();
 	public $order = array('id'=>'asc');
 	protected $SQLFieldsReplacement = array();
+	protected $SQLQuery = '';
 	
 	public function __construct() {
+            $P=array('AND');
+            $order='';
+            foreach($this->order as $k=>$v)
+                    $order .= ($order?',':' order by ').$k.' '.$v;
+
+            foreach($this->filters as $f)
+                    if(isset($this->SQLFilters[$f]))
+                            $P[]=$this->SQLFilters[$f];
+
+            if(isset($this->SQLFilters[$this->fieldset]))
+                    $P[] = $this->SQLFilters[$this->fieldset];
+
+            $query_start = ($this->SQLQuery) ? $this->SQLQuery : 'select * from '.$this->table;
+            $this->SQLQuery = $query_start . ' where '.MySQLDatabase::Generate($P).$order;
 	}
 	public function SetFilters($n) {
 		if (is_array($n) && count($n)) $this->filters=$n;
@@ -23,22 +38,8 @@ class DbView {
 		global $db,$design;
 		$design->assign('dbview_headers',$this->Headers[$this->fieldset]);
 
-		$P=array('AND');
-		$order='';
-		foreach($this->order as $k=>$v)
-			$order .= ($order?',':' order by ').$k.' '.$v;
-
-		foreach($this->filters as $f)
-			if(isset($this->SQLFilters[$f]))
-				$P[]=$this->SQLFilters[$f];
-
-		if(isset($this->SQLFilters[$this->fieldset]))
-			$P[] = $this->SQLFilters[$this->fieldset];
-
-
-		//$design->assign('dbview_data',$r = $db->AllRecords('select * from '.$this->table.' where '.MySQLDatabase::Generate($P).$order));
 		$dbview_data = array();
-		$db->Query('select * from '.$this->table.' where '.MySQLDatabase::Generate($P).$order);
+		$db->Query($this->SQLQuery);
 		while($row=$db->NextRecord(MYSQL_ASSOC)){
 			foreach($this->SQLFieldsReplacement as $key=>&$field){
 				if(isset($row[$key]) && is_array($field) && array_key_exists($row[$key],$field)){
@@ -150,6 +151,7 @@ class DbViewCommonTarif extends DbView {
 		$this->SQLFilterGroups=array('Тип тарифа'=>array('p','a','s','su'),'Валюта тарифа'=>array('USD','RUR'));
 		$this->filters=array('p','USD');
 		$this->constructChild();
+		parent::__construct();
 	}
 }
 
@@ -669,6 +671,7 @@ class DbViewMonitorClients extends DbView {
 							'IP-адреса'=>array('ips'=>'IP','bad'=>'плохих пингов'),
 							);
 		$this->fieldset='z';
+		parent::__construct();
 	}
 	public function Display($a,$b) {
 		global $db,$design;
@@ -765,6 +768,7 @@ class DbViewUsagePhoneRedirConditions extends DbView {
 							'type' => 'Тип',
 							);
 		$this->fieldset='z';
+		parent::__construct();
 	}
 }
 class DbViewSaleChannels extends DbView {
@@ -780,9 +784,11 @@ class DbViewSaleChannels extends DbView {
 							'dealer_id' => 'ID дилера',
 							'is_agent' => 'Агент',
 							'interest' => 'Вознаграждение',
-							'courier_id' => 'Курьер',
+							'courier_name' => 'Курьер',
 		);
 		$this->fieldset='z';
+		$this->SQLQuery = 'select a.*, b.name as courier_name from '.$this->table.' as a LEFT JOIN courier as b ON b.id = a.courier_id';
+		parent::__construct();
 	}
 }
 class DbFormSaleChannels extends DbForm{
@@ -814,6 +820,7 @@ class DbViewTechNets extends DbView {
 							'net' => 'Сеть',
 							);
 		$this->fieldset='z';
+		parent::__construct();
 	}
 }
 class DbFormTechNets extends DbForm {
