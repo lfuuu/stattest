@@ -5,7 +5,7 @@ echo date("r")."\n";
 	define('NO_WEB',1);
 	define('PATH_TO_ROOT','./');
     define('DEBUG_LEVEL', 0);
-    require_once(PATH_TO_ROOT.'conf.php');
+    require_once(PATH_TO_ROOT.'conf_yii.php');
 
 
 

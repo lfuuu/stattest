@@ -112,6 +112,8 @@ if (DEBUG_LEVEL!=0) ini_set ("display_errors", "On");
 
 require_once(CLASSES_PATH . 'Autoload.php');
 
+global $db, $pg_db, $db_ats, $design, $user, $modules;
+
 if (!defined('NO_INCLUDE')){
     if (defined('NO_WEB') || defined('ERROR_NO_WEB')){
         require_once(INCLUDE_PATH.'error_noweb.php');
@@ -137,7 +139,9 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'modules.php');
 
     if (!defined('NO_WEB')){
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
 
         require_once(INCLUDE_PATH.'mysmarty.php');
         $design = new MySmarty();

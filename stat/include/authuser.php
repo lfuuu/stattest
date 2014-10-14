@@ -89,6 +89,24 @@ class AuthUser {
             return 1;
         } else return 0;
     }
+    function AuthorizeByUserId($userId){
+        global $db;
+        $db->Query('select * from '.USER_TABLE.' where id="' . $userId . '" and enabled="yes"');
+        $this->_Data = $db->NextRecord();
+        $this->_Login = $this->_Data['user'];
+        if (isset($this->_Data['data_panel'])){
+            $this->_Data['data_panel']=unserialize($this->_Data['data_panel']);
+        } else {
+            $this->_Data['data_panel']=array();
+        }
+        if (isset($this->_Data['data_flags'])){
+            $this->_Data['data_flags']=unserialize($this->_Data['data_flags']);
+        } else {
+            $this->_Data['data_flags']=array();
+        }
+        $this->_IsAuthorized=1;
+        return 1;
+    }
     function DoAction($action){
         if ($action=='logout')
             $this->Logout();

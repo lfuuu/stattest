@@ -28,7 +28,7 @@ class m_mail{
 		return $this->rights;
 	}
 	function GetPanel(){
-		global $design,$user,$fixclient_data,$db;
+		global $fixclient_data,$db;
 		$R=array();
 		foreach($this->menu as $val){
 			$act=$this->actions[$val[1]];
@@ -39,9 +39,9 @@ class m_mail{
 			if ($this->is_active==0 && $db->GetRow('select * from mail_object where client_id="'.$fixclient_data['id'].'" AND object_type="PM" AND view_count=0 LIMIT 1')){
 				trigger_error('<a href="?module=mail">У вас есть непросмотренные сообщения</a>');
 			}
-			$design->AddMenu('Просмотр сообщений',$R);
+			return array('Просмотр сообщений',$R);
 		} else {
-			$design->AddMenu('Письма клиентам',$R);
+            return array('Письма клиентам',$R);
 		}
 	}
 

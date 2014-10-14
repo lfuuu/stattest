@@ -7,7 +7,7 @@ define("voip_debug", 1);
 define("exception_sql", 1);
 
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 include INCLUDE_PATH."runChecker.php";
 
 

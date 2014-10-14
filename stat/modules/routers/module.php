@@ -134,7 +134,6 @@ class m_routers {
         call_user_func(array($this,'routers_'.$action),$fixclient);
     }
     function GetPanel($fixclient){
-        global $design,$user;
         $R=array(); $p=0;
         foreach($this->menu as $val){
             if ($val=='') {
@@ -146,7 +145,7 @@ class m_routers {
             }
         }
         if (count($R)>$p){
-            $design->AddMenu('Аппаратура',$R);
+            return array('Аппаратура',$R);
         }
     }
 

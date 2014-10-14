@@ -236,7 +236,6 @@ class Bill{
 			$clS = new \_1c\clientSyncer($db);
 			if(!$clS->deleteBill($bill_no,$f)){
 				trigger_error("Внимание! Не удалось синхронизировать счет с 1С.");
-				MyDBG::fout($f);
                 return;
 			}
 		}

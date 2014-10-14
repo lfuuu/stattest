@@ -26,14 +26,13 @@ class m_users {
 	}
 
 	function GetPanel($fixclient){
-		global $design,$user;
 		$R=array();
 		foreach($this->menu as $val){
 			$act=$this->actions[$val[1]];
 			if (access($act[0],$act[1])) $R[]=array($val[0],'module=users&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 		}
 		if (count($R)>0){
-			$design->AddMenu('Управление доступом',$R);
+            return array('Управление доступом',$R);
 		}
 	}
 

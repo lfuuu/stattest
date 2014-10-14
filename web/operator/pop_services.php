@@ -1,9 +1,10 @@
 <?php
 	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
+
+    $user->AuthorizeByUserId(Yii::$app->user->id);
 
 	$action=get_param_raw('action');
-	$user->DoAction($action); $user->DenyInauthorized();
 
 	$table=get_param_raw('table'); if (!$table) return;
 	$id=get_param_integer('id'); if (!$id) return;

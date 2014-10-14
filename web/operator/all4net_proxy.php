@@ -17,7 +17,7 @@
 
 	$on = $var['order_number'];
 	define('PATH_TO_ROOT',dirname(__FILE__).'/../');
-	include(dirname(__FILE__)."/../../stat/conf.php");
+	include(dirname(__FILE__)."/../../stat/conf_yii.php");
 	include INCLUDE_PATH."bill.php";
 	include INCLUDE_PATH."all4net_integration.php";
 

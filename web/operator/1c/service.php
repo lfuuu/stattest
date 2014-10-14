@@ -1,6 +1,6 @@
 <?php
 define("PATH_TO_ROOT",'../../../stat/');
-require_once "../../../stat/conf.php";
+require_once "../../../stat/conf_yii.php";
 
 Header('Content-type: text/xml; charset="UTF-8"');
 

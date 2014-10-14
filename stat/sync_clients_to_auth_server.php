@@ -2,7 +2,7 @@
 define('NO_WEB',1);
 define('PATH_TO_ROOT','./');
 $_SERVER['SERVER_NAME'] = "stat.mcn.ru";
-include PATH_TO_ROOT . "conf.php";
+include PATH_TO_ROOT . "conf_yii.php";
 
 set_time_limit(0);
 

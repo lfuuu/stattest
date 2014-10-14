@@ -8,7 +8,7 @@ echo date("r")."\n";
     require_once(PATH_TO_ROOT.'include/runChecker.php');
     if(runChecker::isRun())
         die("already run\n");
-    require_once('conf.php');
+    require_once('conf_yii.php');
 
 
     runChecker::run();

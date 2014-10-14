@@ -1,6 +1,6 @@
 <?
 	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 	$code=get_param_raw('code','');
 	$p=data_decode($code);
 	$p = explode('-',$p);

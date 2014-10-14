@@ -28,7 +28,6 @@ class m_monitoring {
 		return $this->rights;
 	}
 	function GetPanel($fixclient){
-		global $design,$user;
 		$R=array(); $p=0;
 		foreach($this->menu as $val){
 			if ($val=='') {
@@ -40,7 +39,7 @@ class m_monitoring {
 			}
 		}
 		if (count($R)>$p){
-			$design->AddMenu('Мониторинг',$R);
+            return array('Мониторинг',$R);
 		}
 	}
 	function GetMain($action,$fixclient){

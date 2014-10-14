@@ -2,7 +2,7 @@
 	//этот файл может использоваться для аяксовых вызовов. и всё.
 	define("PATH_TO_ROOT",'./');
 	define('NO_WEB',1);
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
     require_once 'Spreadsheet/Excel/Writer.php';
 
     //echo "<table border=1><tr><td>#заявки</td><td>заказ</td><td>статус</td><td>итог</td><td>коментарий</td></tr>";

@@ -1,6 +1,6 @@
 <?php
 	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 
 	$IP = array(
 			'MCN-NET'		=> array('85.94.32.0','85.94.51.255'),
