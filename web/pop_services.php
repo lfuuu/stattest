@@ -1,6 +1,6 @@
 <?php
-	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf_yii.php";
+	define("PATH_TO_ROOT",'../stat/');
+	include PATH_TO_ROOT . "conf_yii.php";
 
     $user->AuthorizeByUserId(Yii::$app->user->id);
 

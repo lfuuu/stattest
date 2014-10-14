@@ -141,6 +141,9 @@ class m_clients {
 
 	function clients_my($fixclient) {
 		global $design,$user;
+
+        $this->client_unfix();
+
 		// запоминаем что дальше всех клиентов надо фильтровать по менеджеру
 		$_SESSION['clients_my'] = $user->_Login;
 		$this->clients_headers('my');
