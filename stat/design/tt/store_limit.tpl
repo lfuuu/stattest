@@ -53,7 +53,17 @@
                     <td>{$d->art}</td>
                     <td>{$d->name}</td>
                     <td>{$d->store_name}</td>
-                    <td>{if $d->qty_free}{$d->qty_free}{else}0{/if}</td>
+                    <td>
+                        {if $d->qty_free < $d->limit_value}
+                            <span style="font-weight: bold; color: red;">
+                        {elseif $d->qty_free < $d->limit_value*1.1}
+                            <span style="font-weight: bold; color: blue;">
+                        {/if}
+                        {if $d->qty_free}{$d->qty_free}{else}0{/if}
+                        {if $d->qty_free < $d->limit_value*1.1}
+                            </span>
+                        {/if}
+                    </td>
                     <td><input type="text" class="text" size=5 value="{$d->limit_value}" name="products[{$d->good_id}][{$d->store_id}]"></td>
                     <td>
                         <a onclick="$('#product_{$d->good_id}_{$d->store_id}').remove();document.forms['post_store_limit'].submit();">
