@@ -3209,9 +3209,10 @@ class m_services extends IModule{
     function services_rpc_check_move()
     {
         $table = isset($_REQUEST['table']) ? $_REQUEST['table'] : '';
-        $result = array('is_moved' => false, 'is_moved_with_pbx' => false);
+        $result = array('is_moved' => false, 'is_moved_with_pbx' => false, 'posible_pbx' => false);
         if ($table == 'usage_voip')
         {
+            $result['posible_pbx'] = 'NO';
             $number = isset($_REQUEST['number']) ? $_REQUEST['number'] : '';
             $actual_from = isset($_REQUEST['actual_from']) ? date('Y-m-d', strtotime($_REQUEST['actual_from'])) : '';
             if ($number && $actual_from)
@@ -3233,11 +3234,14 @@ class m_services extends IModule{
             }
         } elseif ($table == 'usage_virtpbx') {
             $actual_from = isset($_REQUEST['actual_from']) ? date('Y-m-d', strtotime($_REQUEST['actual_from'])) : '';
+            $client = isset($_REQUEST['client']) ? $_REQUEST['client'] : '';
             $result['is_moved_with_pbx'] = 'NO';
-            if ($actual_from)
+            if ($actual_from && $client)
             {
-                $check_move = UsageVirtpbx::checkVpbxIsMoved($actual_from);
+                $check_move = UsageVirtpbx::getAllPosibleMovedPbx($actual_from, $client);
                 $result['is_moved'] = !empty($check_move);
+                
+                $result['posible_pbx'] = $check_move;
             }
         }
 

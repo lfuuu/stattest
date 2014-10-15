@@ -265,7 +265,7 @@ $(document).ready(function(){
 <div id="div_extend_reserv" style="display: none;"><input type=button id="extend_reserv" value="Продлить резерв" class="button" style="margin-left: 10%;"></div>
 <script>
     {literal}
-        if ($("#actual_from").val() == "2029-01-01" && $("#actual_to").val() == "2029-01-01")
+        if ($("#actual_from").val() == "01-01-2029" && $("#actual_to").val() == "01-01-2029")
         {
             $("#div_extend_reserv").show();
             $("#div_extend_reserv").click(function(){ 

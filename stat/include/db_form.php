@@ -1,4 +1,4 @@
-<?
+<?php
 class DbForm {
     protected $table;
     protected $fields=array();
@@ -1236,6 +1236,7 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
         $this->fields['is_moved']=array("type" => 'checkbox', 'visible' => false);
+        $this->fields['moved_from']=array('type' => 'select', 'visible' => false, 'with_hidden' => true);
         
         $this->includesPre=array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
@@ -1248,16 +1249,16 @@ class DbFormUsageVirtpbx extends DbForm{
      */
     private function prepareMovedFieldsForDispaly()
     {
-        $check_move = UsageVirtpbx::checkVpbxIsMoved($this->data['actual_from']);
+        $check_move = UsageVirtpbx::getAllPosibleMovedPbx($this->data['actual_from'], $this->data['client']);
         if (!empty($check_move))
         {
             $this->fields['is_moved']['visible'] = true;
+            $this->fields['moved_from']['visible'] = true;
+            $this->fields['moved_from']['assoc_enum'] = $check_move;
+            
             if ($this->data['is_moved'])
             {
-                $this->fields['moved_from']=array("type" => "label");
-                $this->data['moved_from'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
-        
-                $moved_numbers = UsageVoip::getMovedNumber($check_move->client, $this->data['client'], $this->data['actual_from']);
+                $moved_numbers = UsageVoip::getMovedNumber($check_move[$this->data['moved_from']], $this->data['client'], $this->data['actual_from']);
                 if (!empty($moved_numbers))
                 {
                     $this->fields['moved_numbers']=array("type" => "label");
@@ -1335,6 +1336,11 @@ class DbFormUsageVirtpbx extends DbForm{
                 $moved_ids[] = $v->to_id;
             }
             UsageVoip::update_all(array('set'=>array('is_moved_with_pbx' => 0), 'conditions' => array('id IN (?)', $moved_ids)));
+        }
+        
+        if (!$this->dbform['is_moved'])
+        {
+            $this->dbform['moved_from'] = '';
         }
     }
     public function Process($no_real_update = 0){
