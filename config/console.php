@@ -8,6 +8,11 @@ $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.local.php')
 );
 
+$log = ArrayHelper::merge(
+    require(__DIR__ . '/log.php'),
+    include(__DIR__ . '/log.local.php')
+);
+
 $params = require(__DIR__ . '/params.php');
 
 return [
@@ -19,14 +24,7 @@ return [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
-        'log' => [
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
-        ],
+        'log' => $log,
         'db' => $db,
     ],
     'params' => $params,

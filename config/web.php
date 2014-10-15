@@ -6,6 +6,11 @@ $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.local.php')
 );
 
+$log = ArrayHelper::merge(
+    require(__DIR__ . '/log.php'),
+    include(__DIR__ . '/log.local.php')
+);
+
 $params = require(__DIR__ . '/params.php');
 
 $config = [
@@ -37,15 +42,7 @@ $config = [
             // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
-        'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
-        ],
+        'log' => $log,
         'db' => $db,
         'urlManager' => [
             'enablePrettyUrl' => true,
