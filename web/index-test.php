@@ -23,4 +23,4 @@ require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 
 $config = require(__DIR__ . '/../tests/codeception/config/acceptance.php');
 
-(new yii\web\Application($config))->run();
+(new app\classes\Application($config))->run();

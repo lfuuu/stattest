@@ -1,6 +1,8 @@
 <?php
 use \yii\helpers\ArrayHelper;
 
+Yii::setAlias('@app', dirname(__DIR__));
+
 $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.php'),
     require(__DIR__ . '/db_stat.local.php')
