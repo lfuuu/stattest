@@ -5,7 +5,9 @@
 return [
     'components' => [
         'db' => [
-            'dsn' => 'mysql:host=localhost;dbname=yii2_basic_tests',
+            'dsn' => 'mysql:host=10.0.3.91;dbname=nispd_test',
+            'username' => 'root',
+            'password' => 'root',
         ],
         'mailer' => [
             'useFileTransport' => true,
