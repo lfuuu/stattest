@@ -210,6 +210,7 @@ class m_tarifs{
             }
             //header('location: index.php?module=tarifs&action=voip_edit&id='.$id);
             header('location: index.php?module=tarifs&action=voip&f_region='.$_POST['region']);
+            exit;
         }
 
         $data = $db->AllRecords("select t.*, u.name as user from tarifs_voip t left join user_users u on u.id=t.edit_user where t.id=".$id);
