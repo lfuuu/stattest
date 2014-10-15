@@ -10,7 +10,7 @@ global $module;
                 <?=$module == $panel['module'] || $user->isPanelVisible($panel['module']) ? '&laquo;' : '&raquo;'?>
             </a>
         </div>
-        <div class="group" id='panel_id<?=$panel['module']?>' style='display: <?=$module == $panel['module'] || $user->isPanelVisible($panel['module']) ? 'inline' : 'none'?>' >
+        <div class="group" id='panel_id<?=$panel['module']?>' style='display: <?=$module == $panel['module'] || $user->isPanelVisible($panel['module']) ? 'inline-block' : 'none'?>' >
             <?php foreach ($panel['items'] as $item): ?>
                 <div class="item">
                     <?php if ($item[0]) { ?>

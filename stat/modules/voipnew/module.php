@@ -226,6 +226,7 @@ class m_voipnew extends IModule
             trigger_error('Ошибка Активации/Деактивации');
         } else {
             header('location: index.php?module=voipnew&action=view_raw_file&id=' . $id);
+            exit;
         }
 
     }
