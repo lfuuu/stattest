@@ -219,6 +219,7 @@ $(function(){
 	<TR>
 		<TD class=left>Грузополучатель:</TD><TD>
 			<input style='width:65%' name=consignee class=text value='{$client.consignee}'{if $card_type=='addition'}readonly='readonly'{/if}>
+			<input type="hidden" value="0" name="is_with_consignee">
 			<input type="checkbox" name=is_with_consignee value=1 {if $client.is_with_consignee} checked{/if}{if $card_type=='addition'} readonly='readonly'{/if}>-Использовать грузополучателя
 		</TD>
 	</TR>
@@ -300,6 +301,8 @@ $(function(){
 	<TR><TD class=left>Пароль:</TD><TD><input style='width:100%' name=password class=text value='{$client.password}'></td></tr>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left> "Абонентская плата по" на "Оказанные услуги по Договору"</TD><TD><input type=checkbox name="bill_rename1" value="yes"{if $client.bill_rename1 == "yes"} checked{/if}></td></tr>
+	<input type="hidden" value="0" name="is_bill_with_refund">
+	<input type="hidden" value="0" name="is_bill_only_contract">
 	{if $client.status == "operator"}
 		<TR>
 			<TD class=left>Возврат переплаты:</TD>
@@ -337,6 +340,7 @@ $(function(){
 	<TR>
 		<TD class=left>Агент:</TD>
 		<TD>
+			<input type="hidden" value="N" name="is_agent">
 			<input type="checkbox" value="Y" name="is_agent" {if $client.is_agent == "Y"}checked="checked"{/if}>
 		</TD>
 	</TR>
