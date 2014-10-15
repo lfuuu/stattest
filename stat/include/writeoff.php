@@ -1,4 +1,5 @@
 <?
+global $writeoff_services;
 $writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails", "usage_8800","usage_sms");
 
 function Underscore2Caps($s) {
@@ -1418,6 +1419,7 @@ class ServiceEmails extends ServicePrototype {
 function get_all_services($client,$client_id,$filter_connecting=0,$S = array()) {        //S - ЛЮЯЯХБ ХЯЙКЧВЕМХИ.
     global $db,$writeoff_services;
     $R=array();
+
     foreach($writeoff_services as $service)
         if(!isset($S[$service])){
             $db->Query($q="

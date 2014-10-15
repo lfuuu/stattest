@@ -14,7 +14,7 @@
 {foreach from=$voip_conn item=item name=outer}
 <tr>
 	<td><a href="{$LINK_START}module=clients&id={$item.client}">{$item.client}</a></td>
-	<td><a href="{$PATH_TO_ROOT}pop_services_voip.php?id={$item.id}" target="_blank">{$item.actual_from} - {if !$item.actual}{$item.actual_to}{/if}</a></td>
+	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from} - {if !$item.actual}{$item.actual_to}{/if}</a></td>
 	<td>{$item.E164}</td>
 	<td>{$item.no_of_lines}</td>
 	<td>{if ($item.actual)}<a href="{$LINK_START}module=services&action=vo_close&id={$item.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif'>отключить</a>{/if}

@@ -11,6 +11,7 @@ class DbView {
 	public $order = array('id'=>'asc');
 	protected $SQLFieldsReplacement = array();
 	protected $SQLQuery = '';
+	private $rawQuery = '';
 	
 	public function __construct() {
             $P=array('AND');
@@ -25,11 +26,14 @@ class DbView {
             if(isset($this->SQLFilters[$this->fieldset]))
                     $P[] = $this->SQLFilters[$this->fieldset];
 
-            $query_start = ($this->SQLQuery) ? $this->SQLQuery : 'select * from '.$this->table;
-            $this->SQLQuery = $query_start . ' where '.MySQLDatabase::Generate($P).$order;
+            $this->rawQuery = $this->SQLQuery;
+
+            $query_start = ($this->rawQuery) ? $this->rawQuery : 'select * from '.$this->table;
+            $this->rawQuery = $query_start . ' where '.MySQLDatabase::Generate($P).$order;
 	}
 	public function SetFilters($n) {
 		if (is_array($n) && count($n)) $this->filters=$n;
+        self::__construct();
 	}
 	public function SetFieldSet($n) {
 		$this->fieldset=$n;
@@ -39,7 +43,7 @@ class DbView {
 		$design->assign('dbview_headers',$this->Headers[$this->fieldset]);
 
 		$dbview_data = array();
-		$db->Query($this->SQLQuery);
+		$db->Query($this->rawQuery);
 		while($row=$db->NextRecord(MYSQL_ASSOC)){
 			foreach($this->SQLFieldsReplacement as $key=>&$field){
 				if(isset($row[$key]) && is_array($field) && array_key_exists($row[$key],$field)){
@@ -156,6 +160,10 @@ class DbViewCommonTarif extends DbView {
 }
 
 class DbViewTarifsInternet extends DbViewCommonTarif {	
+	public function __construct() {
+		parent::__construct();
+	}
+
 	public function constructChild() {
 		$this->table='tarifs_internet';
 		$this->Headers['i']='Тарифы на интернет';

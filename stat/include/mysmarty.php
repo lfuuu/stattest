@@ -355,7 +355,7 @@ class MySmarty extends Smarty {
 	var $LINK_START;
 	var $ignore=0;
 	function MySmarty(){
-		global $G;
+		global $G, $fixclient_data, $module, $fixclient, $user;
         $this->Smarty();
 		$this->template_dir = DESIGN_PATH;
 	   	$this->compile_dir  = DESIGNC_PATH;
@@ -396,6 +396,10 @@ class MySmarty extends Smarty {
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);
 		$this->assign('PATH_TO_ROOT',WEB_PATH);
 		$this->assign('SUM_ADVANCE',SUM_ADVANCE);
+		$this->assign_by_ref('fixclient_data', $fixclient_data);
+		$this->assign_by_ref('user', $user);
+		$this->assign_by_ref('fixclient', $fixclient);
+		$this->assign_by_ref('module', $module);
 		$this->assign_by_ref('errors',$G['errors']);
 		$this->assign_by_ref('notices',$G['notices']);
 		$this->LINK_START='index.php?';

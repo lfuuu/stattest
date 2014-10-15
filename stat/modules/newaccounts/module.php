@@ -29,13 +29,19 @@ class m_newaccounts extends IModule
         $db->Query('update newsaldo set is_history=1 where client_id='.$fixclient_data['id']);
         $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].','.$saldo.',"'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
         $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+            exit();
+        }
     }
     function newaccounts_bill_balance($fixclient){
         global $design,$db,$user,$fixclient_data;
         $client_id=$fixclient_data['id'];
         $this->update_balance($client_id,$fixclient_data['currency']);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+            exit();
+        }
     }
     function newaccounts_bill_balance_mass($fixclient){
         global $design,$db,$user,$fixclient;
@@ -780,6 +786,7 @@ class m_newaccounts extends IModule
 	global $design;
 	$_SESSION['get_income_goods_on_bill_list'] = get_param_raw('show', 'N') == "Y";
 	header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+    exit();
     }
     function newaccounts_bill_list_full($get_sum=false)
     {
@@ -1134,6 +1141,7 @@ class m_newaccounts extends IModule
             ')
         );
 
+        //$design->assign("fixclient_data", $fixclient_data);
         $design->AddMain('newaccounts/bill_list_full.tpl');
     }
 
@@ -1145,7 +1153,11 @@ class m_newaccounts extends IModule
         $no = $bill->GetNo();
         unset($bill);
         $db->QueryInsert("log_newbills",array('bill_no'=>$no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Счет создан'));
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$no);
+
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$no); 
+            exit();
+            }
     }
 
     function newaccounts_bill_view($fixclient){
@@ -1432,7 +1444,10 @@ class m_newaccounts extends IModule
         $bill = new Bill($bill_no);
         $bill->Set('comment',get_param_raw("comment"));
         unset($bill);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+            exit();
+        }
     }
     function newaccounts_bill_postreg($fixclient) {
         global $design,$db,$user,$fixclient_data;
@@ -1452,7 +1467,10 @@ class m_newaccounts extends IModule
             $db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$option?'Удаление из почтового реестра':('Почтовый реестр '.date('Y-m-d').($isImport ? " (из импорта платежей)" : ""))));
             unset($bill);
         }
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+            exit();
+        }
     }
     function newaccounts_bill_apply($fixclient) {
         global $design,$db,$user,$fixclient_data;
@@ -1538,7 +1556,10 @@ class m_newaccounts extends IModule
         */
         $this->update_balance($bill->Client('id'),$bill->Get('currency'));
         unset($bill);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ?module=newaccounts&action=bill_view&bill=".$bill_no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ?module=newaccounts&action=bill_view&bill=".$bill_no);
+            exit();
+        }
     }
 
     function newaccounts_bill_add($fixclient){
@@ -1628,6 +1649,7 @@ class m_newaccounts extends IModule
 
         if (!$err && $design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&err=".$err."&bill=".$bill_no);
+            exit();
         } else return $this->newaccounts_bill_list($client);
     }
     function newaccounts_bill_mass($fixclient) {
@@ -2132,7 +2154,10 @@ class m_newaccounts extends IModule
         $db->Query('delete from newbill_lines where bill_no="'.$bill_no.'"');
         ServicePrototype::CleanOverprice($bill_no);
         $bill->Save(0,0);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+            exit();
+        }
     }
     function newaccounts_line_delete($fixclient) {
         global $design,$db;
@@ -2141,7 +2166,10 @@ class m_newaccounts extends IModule
         if (!$bill->CheckForAdmin()) return;
         $sort=get_param_integer("sort"); if (!$sort) return;
         $bill->RemoveLine($sort);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+            exit();
+        }
     }
     function newaccounts_bill_delete($fixclient) {
         global $design,$db;
@@ -2154,7 +2182,10 @@ class m_newaccounts extends IModule
         }
 
         Bill::RemoveBill($bill_no);
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
+            exit();
+        }
     }
     //эта функция готовит счёт к печати. ФОРМИРОВАНИЕ СЧЁТА
     function newaccounts_bill_print($fixclient, $params = array()){
@@ -2500,7 +2531,10 @@ class m_newaccounts extends IModule
             $P['rate'] = floatval(get_param_raw('rate'));
             $this->do_generate($bill,$obj,$type,$P,true);
         }
-        if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+        if ($design->ProcessEx('errors.tpl')) {
+            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
+            exit();
+        }
     }
 
     //obj:        invoice, bill
@@ -3432,7 +3466,10 @@ class m_newaccounts extends IModule
                 }
             }
         }
-        if ($design->ProcessEx('errors.tpl')) header('Location: ?module=newaccounts&action=pi_list');
+        if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=newaccounts&action=pi_list');
+            exit();
+        }
     }
 
     function getPaymentInfoDate($h)
@@ -4150,6 +4187,7 @@ class m_newaccounts extends IModule
         trigger_error("<br>Баланс обновлён");
         if ($b && $design->ProcessEx('errors.tpl')) {
             header('Location: ?module=newaccounts&action=pi_process&file='.$file);
+            exit();
         } else return $this->newaccounts_pi_process($fixclient);
     }
 
@@ -5272,6 +5310,7 @@ $sql .= "    order by client, bill_no";
         }
         */
         header('Location: ?module=newaccounts');
+        exit();
         $design->ProcessX();
     }
     function newaccounts_pay_rate($fixclient) {
@@ -5283,6 +5322,7 @@ $sql .= "    order by client, bill_no";
         $db->Query('update newpayments set payment_rate="'.$rate.'" where id='.$id);
         $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
         header('Location: ?module=newaccounts');
+        exit();
         $design->ProcessX();
     }
     function newaccounts_pay_rebill($fixclient) {
@@ -5307,6 +5347,7 @@ $sql .= "    order by client, bill_no";
         }
         */
         header('Location: ?module=newaccounts');
+        exit();
         $design->ProcessX();
     }
     function newaccounts_pay_delete($fixclient){
@@ -5330,6 +5371,7 @@ $sql .= "    order by client, bill_no";
         }
 
         header('Location: ?module=newaccounts');
+        exit();
         $design->ProcessX();
     }
 
