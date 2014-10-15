@@ -48,19 +48,24 @@ class CompatibilityController extends BaseController
             $fixclient_data = $module_clients->get_client_info($fixclient);
 
         if (access('tt','view')) {
-            if (!($fixclient && $module == 'clients')) {
+            if ((!$fixclient || $module != 'clients') && $module != 'tt') {
                 $tt = new \m_tt();
-                $tt->showTroubleList(2,'top',$fixclient);
+                $tt->showTroubleList(2, 'top', $fixclient);
             }
         }
 
         ob_start();
-        $design->ProcessEx('index_lite.tpl');
+        $alreadyRendered = $design->ignore > 0;
+
+        if (!$alreadyRendered) {
+            $design->ProcessEx('index_lite.tpl');
+        }
+
         $output = ob_get_clean();
 
 
         $layoutFile = $this->findLayoutFile($this->getView());
-        if ($lite === false && $layoutFile !== false) {
+        if (!$alreadyRendered && $lite === false && $layoutFile !== false) {
             return $this->getView()->renderFile($layoutFile, ['content' => $output], $this);
         } else {
             return $output;
