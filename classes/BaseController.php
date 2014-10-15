@@ -36,7 +36,7 @@ class BaseController extends Controller
     public function getPanelsData()
     {
         if (!function_exists('access')) {
-            include_once Yii::$app->basePath . '/include/compatibility.php';
+            include_once Yii::$app->basePath . '/classes/compatibility.php';
         }
 
         $panelsData = [];

@@ -85,25 +85,18 @@ function print_bt()
 	print "</code>\n";
 }
 
-function _die( $str )
-{
-	print "Выполнение скрипта остановлено по причине: $str<br>\n";
-	print_bt();
-	exit();
-}
-
 class DebugOut
 {
 
-var $priorities = array(ABC_CRITICAL    => 'Критический',
-                        ABC_ERROR       => 'Ошибка',
-                        ABC_ALERT       => 'Предупреждение',
-                        ABC_WARNING     => 'Внимание',
-                        ABC_NOTICE      => 'Уведомление',
-                        ABC_INFO        => 'Информация',
-                        ABC_DEBUG       => 'Отладка',
-                        ABC_TRACE       => 'Трассировка',
-                        ABC_VAR_DUMP        => 'Дамп'
+var $priorities = array(ABC_CRITICAL    => 'п я─п╦я┌п╦я┤п╣я│п╨п╦п╧',
+                        ABC_ERROR       => 'п·я┬п╦п╠п╨п╟',
+                        ABC_ALERT       => 'п÷я─п╣п╢я┐п©я─п╣п╤п╢п╣п╫п╦п╣',
+                        ABC_WARNING     => 'п▓п╫п╦п╪п╟п╫п╦п╣',
+                        ABC_NOTICE      => 'пёп╡п╣п╢п╬п╪п╩п╣п╫п╦п╣',
+                        ABC_INFO        => 'п≤п╫я└п╬я─п╪п╟я├п╦я▐',
+                        ABC_DEBUG       => 'п·я┌п╩п╟п╢п╨п╟',
+                        ABC_TRACE       => 'п╒я─п╟я│я│п╦я─п╬п╡п╨п╟',
+                        ABC_VAR_DUMP        => 'п■п╟п╪п©'
                         );
 var $_ready = false;
 
@@ -124,18 +117,18 @@ var  $_logger_name;
         $this->_openfile();
      }
 
-     /*Регистрация деструктора*/
+     /*п═п╣пЁп╦я│я┌я─п╟я├п╦я▐ п╢п╣я│я┌я─я┐п╨я┌п╬я─п╟*/
      register_shutdown_function(array($this,"close"));
  }
 
 
 
  function log($message, $priority = ABC_INFO) {
-        // Прерывает обработку если $priority выше максимального уровня.
+        // п÷я─п╣я─я▀п╡п╟п╣я┌ п╬п╠я─п╟п╠п╬я┌п╨я┐ п╣я│п╩п╦ $priority п╡я▀я┬п╣ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬ я┐я─п╬п╡п╫я▐.
         if ($priority > $this->_currentPriority) {
             return false;
         }
-        // Добавьте к массиву loglines
+        // п■п╬п╠п╟п╡я▄я┌п╣ п╨ п╪п╟я│я│п╦п╡я┐ loglines
         return $this->_writeLine($message, $priority, strftime('%b %d %H:%M:%S'));
  }
 
@@ -183,11 +176,11 @@ var  $_logger_name;
 
 
  /**
-  * Пишет линию в  logfile
+  * п÷п╦я┬п╣я┌ п╩п╦п╫п╦я▌ п╡  logfile
   *
-  * @param  string $line      Линия, чтобы писать
-  * @param  integer $priority Приоритет этой линии / сообщения
-  * @return integer           НЧисло записанных байтов или -1 если ошибка
+  * @param  string $line      п⌡п╦п╫п╦я▐, я┤я┌п╬п╠я▀ п©п╦я│п╟я┌я▄
+  * @param  integer $priority п÷я─п╦п╬я─п╦я┌п╣я┌ я█я┌п╬п╧ п╩п╦п╫п╦п╦ / я│п╬п╬п╠я┴п╣п╫п╦я▐
+  * @return integer           п²п╖п╦я│п╩п╬ п╥п╟п©п╦я│п╟п╫п╫я▀я┘ п╠п╟п╧я┌п╬п╡ п╦п╩п╦ -1 п╣я│п╩п╦ п╬я┬п╦п╠п╨п╟
   * @access private
   */
  function _writeLine($message, $priority, $time) {
@@ -207,13 +200,13 @@ var  $_logger_name;
 
  function close(){
     if($this->_currentPriority != ABC_NO_LOG){
-        $this->info("Logger остановлен");
+        $this->info("Logger п╬я│я┌п╟п╫п╬п╡п╩п╣п╫");
         return fclose($this->_fp);
     }
  }
 
  /*
-  * Организаторские Функции.
+  * п·я─пЁп╟п╫п╦п╥п╟я┌п╬я─я│п╨п╦п╣ п╓я┐п╫п╨я├п╦п╦.
   *
   */
 
@@ -257,14 +250,14 @@ class ExcelDateUtil{
 
 
 /*
- * Возвращение 1900 года как целое число TIMESTAMP.
- * используется для UNIX 
+ * п▓п╬п╥п╡я─п╟я┴п╣п╫п╦п╣ 1900 пЁп╬п╢п╟ п╨п╟п╨ я├п╣п╩п╬п╣ я┤п╦я│п╩п╬ TIMESTAMP.
+ * п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╢п╩я▐ UNIX 
  *
  */
 
 function xls2tstamp($date) {
 	$date=$date>25568?$date:25569;
-	/*Существовала ошибка при Преобразовании даты меньшей чем 1-1-1970 (tstamp 0) */
+	/*п║я┐я┴п╣я│я┌п╡п╬п╡п╟п╩п╟ п╬я┬п╦п╠п╨п╟ п©я─п╦ п÷я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╦ п╢п╟я┌я▀ п╪п╣п╫я▄я┬п╣п╧ я┤п╣п╪ 1-1-1970 (tstamp 0) */
    		$ofs=(70 * 365 + 17+2) * 86400;
   		 return ($date * 86400) - $ofs;
 }
@@ -272,7 +265,7 @@ function xls2tstamp($date) {
 function getDateArray($xls_date){
     $ret = array();
 
-    // Ошибка высокосного года
+    // п·я┬п╦п╠п╨п╟ п╡я▀я│п╬п╨п╬я│п╫п╬пЁп╬ пЁп╬п╢п╟
     if ($xls_date == 60) {
 
         $ret['day']   = 29;
@@ -281,11 +274,11 @@ function getDateArray($xls_date){
         return $ret;
 
     } else if ($xls_date < 60) {
-        // 29-02-1900 ошибка
+        // 29-02-1900 п╬я┬п╦п╠п╨п╟
         $xls_date++;
     }
 
-    // Изменения к Юлианскому  DMY вычислению с дополнением 2415019
+    // п≤п╥п╪п╣п╫п╣п╫п╦я▐ п╨ п╝п╩п╦п╟п╫я│п╨п╬п╪я┐  DMY п╡я▀я┤п╦я│п╩п╣п╫п╦я▌ я│ п╢п╬п©п╬п╩п╫п╣п╫п╦п╣п╪ 2415019
     $l = $xls_date + 68569 + 2415019;
     $n = (int)(( 4 * $l ) / 146097);
     $l = $l - (int)(( 146097 * $n + 3 ) / 4);
@@ -306,7 +299,7 @@ function isInternalDateFormat($format) {
     $retval =false;
 
     switch(format) {
-    // Внутренние Форматы Даты как описано на странице 427 в
+    // п▓п╫я┐я┌я─п╣п╫п╫п╦п╣ п╓п╬я─п╪п╟я┌я▀ п■п╟я┌я▀ п╨п╟п╨ п╬п©п╦я│п╟п╫п╬ п╫п╟ я│я┌я─п╟п╫п╦я├п╣ 427 п╡
     // Microsoft Excel Dev's Kit...
         case 0x0e:
         case 0x0f:
@@ -320,8 +313,8 @@ function isInternalDateFormat($format) {
         case 0x2d:
         case 0x2e:
         case 0x2f:
-        // Дополнительные внутренние форматы даты, найденные при
-        // использовании Excel v. X 10.1.0 (Mac)
+        // п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п╡п╫я┐я┌я─п╣п╫п╫п╦п╣ я└п╬я─п╪п╟я┌я▀ п╢п╟я┌я▀, п╫п╟п╧п╢п╣п╫п╫я▀п╣ п©я─п╦
+        // п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╦ Excel v. X 10.1.0 (Mac)
         case 0xa4:
         case 0xa5:
         case 0xa6:
@@ -401,9 +394,9 @@ class ExcelFont {
 
     $length = ord($wb[$ptr+14]);
     if($length >0) {
-        if(ord($wb[$ptr+15]) == 0) { // Сжатие Unicode
+        if(ord($wb[$ptr+15]) == 0) { // п║п╤п╟я┌п╦п╣ Unicode
             $retval['name'] = substr($wb,$ptr+16,$length);
-        } else { // Без сжатия Unicode
+        } else { // п▒п╣п╥ я│п╤п╟я┌п╦я▐ Unicode
             $retval['name'] = ExcelFont::getUnicodeString($wb,$ptr+15,$length);
         }
 
@@ -414,7 +407,7 @@ class ExcelFont {
  }
 
  function toString(&$record,$index) {
-    $retval = sprintf("Индекс Шрифта = %d \nРазмер шрифта =%d\nКурсив = %s\nЗачеркнутый=%s\nPalete=%s\nЖирность = %s Полужирный=%s\n Script = %d\n Подчеркивание = %d\n Имя шрифта=%s<hr>",
+    $retval = sprintf("п≤п╫п╢п╣п╨я│ п╗я─п╦я└я┌п╟ = %d \nп═п╟п╥п╪п╣я─ я┬я─п╦я└я┌п╟ =%d\nп я┐я─я│п╦п╡ = %s\nп≈п╟я┤п╣я─п╨п╫я┐я┌я▀п╧=%s\nPalete=%s\nп√п╦я─п╫п╬я│я┌я▄ = %s п÷п╬п╩я┐п╤п╦я─п╫я▀п╧=%s\n Script = %d\n п÷п╬п╢я┤п╣я─п╨п╦п╡п╟п╫п╦п╣ = %d\n п≤п╪я▐ я┬я─п╦я└я┌п╟=%s<hr>",
                 $index,
                 $record['size'],
                 $record['italic']    == true?"true":"false",
@@ -434,7 +427,7 @@ class ExcelFont {
 
  function getUnicodeString(&$string,$offset,$length) {
         $bstring = "";
-        $index   = $offset + 1;   // Начало с младших битов.
+        $index   = $offset + 1;   // п²п╟я┤п╟п╩п╬ я│ п╪п╩п╟п╢я┬п╦я┘ п╠п╦я┌п╬п╡.
 
         for ($k = 0; $k < $length; $k++)
         {
@@ -494,14 +487,14 @@ class DataProvider
 				return;
 			$this->_size = @filesize( $data );
 			if( !$this->_size )
-				_die("Невозможно определить размер файла.");
+				$this->_die("п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╬п©я─п╣п╢п╣п╩п╦я┌я▄ я─п╟п╥п╪п╣я─ я└п╟п╧п╩п╟.");
 			break;
 		case DP_STRING_SOURCE:
 			$this->_data = $data;
 			$this->_size = strlen( $data );
 			break;
 		default:
-			_die("Обнаружен недопустимый тип данных.");
+            $this->_die("п·п╠п╫п╟я─я┐п╤п╣п╫ п╫п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╧ я┌п╦п© п╢п╟п╫п╫я▀я┘.");
 		}
 		
 		$this->_type = $dataType;		
@@ -511,16 +504,16 @@ class DataProvider
 	function get( $offset, $length )
 	{
 		if( !$this->isValid() )
-			_die("В источнике нет данных - пусто.");
+            $this->_die("п▓ п╦я│я┌п╬я┤п╫п╦п╨п╣ п╫п╣я┌ п╢п╟п╫п╫я▀я┘ - п©я┐я│я┌п╬.");
 		if( $this->_baseOfs + $offset + $length > $this->_size )
-			_die("Недопустимое смещение/длина.");
+            $this->_die("п²п╣п╢п╬п©я┐я│я┌п╦п╪п╬п╣ я│п╪п╣я┴п╣п╫п╦п╣/п╢п╩п╦п╫п╟.");
 			
 		switch( $this->_type )
 		{
 		case DP_FILE_SOURCE:
 		{
 			if( @fseek( $this->_data, $this->_baseOfs + $offset, SEEK_SET ) == -1 )
-				_die("Неудалось найти позицию в файле указанную в смещении.");
+                $this->_die("п²п╣я┐п╢п╟п╩п╬я│я▄ п╫п╟п╧я┌п╦ п©п╬п╥п╦я├п╦я▌ п╡ я└п╟п╧п╩п╣ я┐п╨п╟п╥п╟п╫п╫я┐я▌ п╡ я│п╪п╣я┴п╣п╫п╦п╦.");
 			return @fread( $this->_data, $length );
 		}
 		case DP_STRING_SOURCE:
@@ -529,7 +522,7 @@ class DataProvider
 			return $rc;
 		}
 		default:
-			_die("Недопустимый тип данных или класс не был инициализирован.");
+            $this->_die("п²п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╧ я┌п╦п© п╢п╟п╫п╫я▀я┘ п╦п╩п╦ п╨п╩п╟я│я│ п╫п╣ п╠я▀п╩ п╦п╫п╦я├п╦п╟п╩п╦п╥п╦я─п╬п╡п╟п╫.");
 		}
 	}
 	
@@ -552,14 +545,14 @@ class DataProvider
 	function getSize()
 	{
 		if( !$this->isValid() )
-			_die("Источник данных пуст.");
+            $this->_die("п≤я│я┌п╬я┤п╫п╦п╨ п╢п╟п╫п╫я▀я┘ п©я┐я│я┌.");
 		return $this->_size;
 	}
 	
 	function getBlocks()
 	{
 		if( !$this->isValid() )
-			_die("Источник данных пуст.");
+            $this->_die("п≤я│я┌п╬я┤п╫п╦п╨ п╢п╟п╫п╫я▀я┘ п©я┐я│я┌.");
 		return (int)(($this->_size - 1) / 0x200) - 1;
 	}
 	
@@ -589,6 +582,13 @@ class DataProvider
 	{
 		return $this->_type != DP_EMPTY;
 	}
+
+    private function _die($str)
+    {
+        print "п▓я▀п©п╬п╩п╫п╣п╫п╦п╣ я│п╨я─п╦п©я┌п╟ п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╬ п©п╬ п©я─п╦я┤п╦п╫п╣: $str<br>\n";
+        print_bt();
+        exit();
+    }
 	
 	var $_type = DP_EMPTY;
 	var $_data = null;
@@ -603,12 +603,12 @@ class ExcelFileParser {
 	var $max_blocks;
 	var $max_sblocks;
 	
-	// Внутренние переменные
+	// п▓п╫я┐я┌я─п╣п╫п╫п╦п╣ п©п╣я─п╣п╪п╣п╫п╫я▀п╣
 	var $fat;
 	var $sfat;
 	
-	// Удаленный: var $sbd;
-	//Удаленный: var $syear;
+	// пёп╢п╟п╩п╣п╫п╫я▀п╧: var $sbd;
+	//пёп╢п╟п╩п╣п╫п╫я▀п╧: var $syear;
 	
 	var $formats;
 	var $xf;
@@ -619,7 +619,7 @@ class ExcelFileParser {
 
     function ExcelFileParser($logfile="",$level=ABC_NO_LOG) {
 		$this->dbglog = &DebugOut::getWriterSingleton($logfile,"",$level);
-        $this->dbglog->info("Logger запущен");
+        $this->dbglog->info("Logger п╥п╟п©я┐я┴п╣п╫");
     }
 
 	function populateFormat() {
@@ -650,7 +650,7 @@ class ExcelFileParser {
         	0x15=> "h:mm:ss",
         	0x16=> "m/d/yy h:mm",
 
-        	// 0x17 - 0x24 Зарезервировано
+        	// 0x17 - 0x24 п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╬
         	0x17=> "0x17",
         	0x18=> "0x18",
         	0x19=> "0x19",
@@ -666,7 +666,7 @@ class ExcelFileParser {
 	        0x23=> "0x23",
 	        0x24=> "0x24",
 
-        	// 0x17 - 0x24 Зарезервировано
+        	// 0x17 - 0x24 п≈п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╫п╬
         	0x25=> "(#,##0_);(#,##0)",
         	0x26=> "(#,##0_);[Red](#,##0)",
         	0x27=> "(#,##0.00_);(#,##0.00)",
@@ -690,7 +690,7 @@ class ExcelFileParser {
 
 	function xls2tstamp($date) {
 	$date=$date>25568?$date:25569;
-	/*Раньше существовала ошибка в преобразовании даты 1-1-1970 (tstamp 0)*/
+	/*п═п╟п╫я▄я┬п╣ я│я┐я┴п╣я│я┌п╡п╬п╡п╟п╩п╟ п╬я┬п╦п╠п╨п╟ п╡ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╦ п╢п╟я┌я▀ 1-1-1970 (tstamp 0)*/
    		$ofs=(70 * 365 + 17+2) * 86400;
   		 return ($date * 86400) - $ofs;
 	}
@@ -748,7 +748,7 @@ class ExcelFileParser {
 
 
 	/*
-	 * Получение цепочек данных
+	 * п÷п╬п╩я┐я┤п╣п╫п╦п╣ я├п╣п©п╬я┤п╣п╨ п╢п╟п╫п╫я▀я┘
 	 */
 	function get_blocks_chain($start,$small_fat=false) {
 
@@ -782,7 +782,7 @@ class ExcelFileParser {
 		return $chain;
 	}
 
-	/* Поиcк потока по имени
+	/* п÷п╬п╦cп╨ п©п╬я┌п╬п╨п╟ п©п╬ п╦п╪п╣п╫п╦
 	 *
 	 */
 
@@ -838,7 +838,7 @@ class ExcelFileParser {
 //	    $this->dbglog->trace("rk_decode(".var_export($rk,true).") function call");
 		$res = array();
 		if( $rk & 2 ) {
-			//целое
+			//я├п╣п╩п╬п╣
 			$val = ($rk & 0xfffffffc) >> 2;
 			if( $rk & 1 ) $val = $val / 100;
 			if (((float)$val) == floor((float)$val)){
@@ -850,7 +850,7 @@ class ExcelFileParser {
 			}
 
 		} else {
-			//вещественное
+			//п╡п╣я┴п╣я│я┌п╡п╣п╫п╫п╬п╣
 			$res['type'] = 2;
 			$frk = $rk;
 
@@ -878,7 +878,7 @@ class ExcelFileParser {
 		return $res;
 	}
 
-	// Анализ рабочих листов
+	// п░п╫п╟п╩п╦п╥ я─п╟п╠п╬я┤п╦я┘ п╩п╦я│я┌п╬п╡
 	//-----------------
 
 	function parse_worksheet($ws) {
@@ -893,7 +893,7 @@ class ExcelFileParser {
 		    return 6;
 		}
 
-		//анализ заголовка рабочей книги
+		//п╟п╫п╟п╩п╦п╥ п╥п╟пЁп╬п╩п╬п╡п╨п╟ я─п╟п╠п╬я┤п╣п╧ п╨п╫п╦пЁп╦
 		if( strlen($ws) < 256*ord($ws[3])+ord($ws[2]) ) return 6;
 
 		if( ord($ws[0]) != 0x09 ) return 6;
@@ -914,18 +914,18 @@ class ExcelFileParser {
 					 case 2412:
 					 case 3218:
 					 case 3321:
-/*dbg*/ 	            $this->dbglog->debug("Анализатор BIFF версия - 5");
+/*dbg*/ 	            $this->dbglog->debug("п░п╫п╟п╩п╦п╥п╟я┌п╬я─ BIFF п╡п╣я─я│п╦я▐ - 5");
 						$biff_ver = 5;
 						 break;
 					 default:
-					    $this->dbglog->debug("Анализатор BIFF версия 7");
+					    $this->dbglog->debug("п░п╫п╟п╩п╦п╥п╟я┌п╬я─ BIFF п╡п╣я─я│п╦я▐ 7");
 						$biff_ver = 7;
 						break;
 					}
 				}
 				break;
 			case 0x0600:
-/*DBG*/		    $this->dbglog->debug("Анализатор BIFF версия 8");
+/*DBG*/		    $this->dbglog->debug("п░п╫п╟п╩п╦п╥п╟я┌п╬я─ BIFF п╡п╣я─я│п╦я▐ 8");
 				$biff_ver = 8;
 				break;
 			default:
@@ -945,8 +945,8 @@ class ExcelFileParser {
 		 switch (ord($ws[$ptr])+256*ord($ws[$ptr+1])) {
 			
 		 
-		  // Формула
-		  //Номер
+		  // п╓п╬я─п╪я┐п╩п╟
+		  //п²п╬п╪п╣я─
 		  
 		  case 0x0203:
 		  case 0x0006:
@@ -1074,7 +1074,7 @@ class ExcelFileParser {
 
 			break;
 
-		  // МЕТКИ
+		  // п°п∙п╒п п≤
 		  case 0x0204:
 /*DBG*/  $this->dbglog->trace("found LABEL");
 			if( ($biff_ver < 3) ){
@@ -1102,7 +1102,7 @@ class ExcelFileParser {
 			$data['cell'][$row][$col]['font'] = $fonti;
 
 /*			echo str_replace("\n","<br>\n", ExcelFont::toString($font,$fonti));
-		    echo "Шрифт строки записи ".$this->sst['data'][$sst_ind]."<br>";*/
+		    echo "п╗я─п╦я└я┌ я│я┌я─п╬п╨п╦ п╥п╟п©п╦я│п╦ ".$this->sst['data'][$sst_ind]."<br>";*/
 
 			if( !isset($data['max_row']) ||
 			    ($data['max_row'] < $row) )
@@ -1116,7 +1116,7 @@ class ExcelFileParser {
 
 			break;
 
-		  // Метки ОСТ-SST
+		  // п°п╣я┌п╨п╦ п·п║п╒-SST
 		  case 0x00fd:
 			if( $biff_ver < 8 ) break;
 			if( (ord($ws[$ptr+2])+256*ord($ws[$ptr+3])) < 0x0a )
@@ -1132,7 +1132,7 @@ class ExcelFileParser {
 			$data['cell'][$row][$col]['data'] = $sst_ind;
 			$data['cell'][$row][$col]['font'] = $fonti;
 
-/*            echo "Шрифт записи для строки  $row,$col<br>";
+/*            echo "п╗я─п╦я└я┌ п╥п╟п©п╦я│п╦ п╢п╩я▐ я│я┌я─п╬п╨п╦  $row,$col<br>";
 			echo str_replace("\n","<br>\n", ExcelFont::toString($font,$fonti));*/
 
 			if( !isset($data['max_row']) ||
@@ -1145,7 +1145,7 @@ class ExcelFileParser {
 
 			break;
 
-		  // Неизвестный, неподдерживаемый или неиспользованный код
+		  // п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧, п╫п╣п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╧ п╦п╩п╦ п╫п╣п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╫я▀п╧ п╨п╬п╢
 		  default:
 			break;
 		 }
@@ -1158,7 +1158,7 @@ class ExcelFileParser {
 
 	}
 
-	// Анализатор рабочей книги
+	// п░п╫п╟п╩п╦п╥п╟я┌п╬я─ я─п╟п╠п╬я┤п╣п╧ п╨п╫п╦пЁп╦
 	//----------------
 
 	function parse_workbook( $f_header, $dp ) {
@@ -1168,7 +1168,7 @@ class ExcelFileParser {
 		$root_entry_block = $f_header->getLong(0x30);
 		$num_fat_blocks = $f_header->getLong(0x2c);
 
-/*TRC*/ $this->dbglog->trace("Анализ заголовка");
+/*TRC*/ $this->dbglog->trace("п░п╫п╟п╩п╦п╥ п╥п╟пЁп╬п╩п╬п╡п╨п╟");
 
 		$this->fat = array();
 		for( $i = 0; $i < $num_fat_blocks; $i++ ){
@@ -1207,7 +1207,7 @@ class ExcelFileParser {
 			
 			$root_entry_index = $this->find_stream( $dir, 'Root Entry');
 			
-			// Удалено для совместимости МАС
+			// пёп╢п╟п╩п╣п╫п╬ п╢п╩я▐ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦ п°п░п║
 			
 			//if( $root_entry_index < 0 ) {
 /*DBG*/    		//$this->dbglog->debug("parse_workbook() function dont found Root Entry returns 6");
@@ -1285,7 +1285,7 @@ class ExcelFileParser {
 		    return 6;
 		}
 			
-		//анализатор заголовка книги
+		//п╟п╫п╟п╩п╦п╥п╟я┌п╬я─ п╥п╟пЁп╬п╩п╬п╡п╨п╟ п╨п╫п╦пЁп╦
 		if( strlen($wb) < 256*ord($wb[3])+ord($wb[2]) ){
 /*DBG*/ 	$this->dbglog->debug("parse_workbook() function workbook found (strlen($wb) < 256*ord($wb[3])+ord($wb[2])) < 4) returns 6");
 			return 6;
@@ -1394,7 +1394,7 @@ class ExcelFileParser {
 					return $pws;
 				break;
 
-		 	// Формат
+		 	// п╓п╬я─п╪п╟я┌
 		  	case 0x041e:
 	 		  	$fidx = ord($wb[$ptr+4])+256*ord($wb[$ptr+5]);
 			  	if($fidx<0x31 ||$fidx==0x31 )
@@ -1403,12 +1403,12 @@ class ExcelFileParser {
 			  	  	$this->format[$fidx] = $this->getUnicodeString($wb,$ptr+6);
 		        break;
 
-		 	// Шрифт 0x31
+		 	// п╗я─п╦я└я┌ 0x31
 		   	case EXCEL_FONT_RID:
                 $rec = ExcelFont::getFontRecord($wb,$ptr+4);
                 $this->fonts[count($this->fonts)] = $rec;
 /*echo str_replace("\n","<br>\n",ExcelFont::toString($rec,count($this->fonts)-1));
-echo "Шрифт записи<br>" */;
+echo "п╗я─п╦я└я┌ п╥п╟п©п╦я│п╦<br>" */;
 		        break;
 
 		 	// XF
@@ -1532,7 +1532,7 @@ echo "Шрифт записи<br>" */;
 						$sptr += $slen*$char_bytes+7;
 						break;
 		
-					  // Сжатый или несжатый unicode
+					  // п║п╤п╟я┌я▀п╧ п╦п╩п╦ п╫п╣я│п╤п╟я┌я▀п╧ unicode
 					  case 0:
 						if( $sptr+3+$slen*$char_bytes > $ptr+4+$sbuflen )
 							$slen = ($ptr+$sbuflen-$sptr+1)/$char_bytes;
@@ -1559,13 +1559,13 @@ echo "Шрифт записи<br>" */;
 				break;
 		 	} // switch
 			
-			// !!! Оптимизация:
+			// !!! п·п©я┌п╦п╪п╦п╥п╟я├п╦я▐:
 			//  $this->wsb[] = substr($wb,$ptr,4+256*ord($wb[$ptr+3])+ord($wb[$ptr+2]));
 			
 			$ptr += 4+256*ord($wb[$ptr+3])+ord($wb[$ptr+2]);
 		} // while
 
-		// !!! Оптимизация:
+		// !!! п·п©я┌п╦п╪п╦п╥п╟я├п╦я▐:
 		//  $this->workbook = $wb;
 		$this->biff_version = $biff_ver;
 /*DBG*/ $this->dbglog->debug("parse_workbook() function returns 0");
@@ -1575,20 +1575,20 @@ echo "Шрифт записи<br>" */;
 	// ParseFromString & ParseFromFile
 	//---------------------------------
 	//
-	// В:
-	//	Содержание строки - содержание Файла
-	//	Имя файла строки - Имя файла существующего файла Excel.
+	// п▓:
+	//	п║п╬п╢п╣я─п╤п╟п╫п╦п╣ я│я┌я─п╬п╨п╦ - я│п╬п╢п╣я─п╤п╟п╫п╦п╣ п╓п╟п╧п╩п╟
+	//	п≤п╪я▐ я└п╟п╧п╩п╟ я│я┌я─п╬п╨п╦ - п≤п╪я▐ я└п╟п╧п╩п╟ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╣пЁп╬ я└п╟п╧п╩п╟ Excel.
 	//
-	// ИЗ:
-	//	0 - Успешно
-	//	1 - невозможно открыть файл
-	//	2 - Файл, слишком маленький чтобы быть файлом Excel
-	//	3 - Ошибка при чтении заголовка
-	//	4 - ошибка при чтении файла
-	//	5 - Это - не файл Excel или файл, сохраненный в < Excel 5.0
-	//	6 - битый файл
-	//	7 - данные не найдены
-	//	8 - Неподдерживаемая версия файла
+	// п≤п≈:
+	//	0 - пёя│п©п╣я┬п╫п╬
+	//	1 - п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩
+	//	2 - п╓п╟п╧п╩, я│п╩п╦я┬п╨п╬п╪ п╪п╟п╩п╣п╫я▄п╨п╦п╧ я┤я┌п╬п╠я▀ п╠я▀я┌я▄ я└п╟п╧п╩п╬п╪ Excel
+	//	3 - п·я┬п╦п╠п╨п╟ п©я─п╦ я┤я┌п╣п╫п╦п╦ п╥п╟пЁп╬п╩п╬п╡п╨п╟
+	//	4 - п╬я┬п╦п╠п╨п╟ п©я─п╦ я┤я┌п╣п╫п╦п╦ я└п╟п╧п╩п╟
+	//	5 - п╜я┌п╬ - п╫п╣ я└п╟п╧п╩ Excel п╦п╩п╦ я└п╟п╧п╩, я│п╬я┘я─п╟п╫п╣п╫п╫я▀п╧ п╡ < Excel 5.0
+	//	6 - п╠п╦я┌я▀п╧ я└п╟п╧п╩
+	//	7 - п╢п╟п╫п╫я▀п╣ п╫п╣ п╫п╟п╧п╢п╣п╫я▀
+	//	8 - п²п╣п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪п╟я▐ п╡п╣я─я│п╦я▐ я└п╟п╧п╩п╟
 
 	function ParseFromString( $contents )
 	{
@@ -1622,7 +1622,7 @@ echo "Шрифт записи<br>" */;
 
 		$this->max_blocks = $this->dp->getBlocks();
 		
-		// чтение заголовка файла
+		// я┤я┌п╣п╫п╦п╣ п╥п╟пЁп╬п╩п╬п╡п╨п╟ я└п╟п╧п╩п╟
 		$hdrbuf = $this->dp->get( 0, 0x200 );
 		if( strlen( $hdrbuf ) < 0x200 )
 		{
@@ -1631,7 +1631,7 @@ echo "Шрифт записи<br>" */;
 			return 3;
 		}
 	
-		// проверка заголовка файла
+		// п©я─п╬п╡п╣я─п╨п╟ п╥п╟пЁп╬п╩п╬п╡п╨п╟ я└п╟п╧п╩п╟
 		$header_sig = array(0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1);
 		for( $i = 0; $i < count($header_sig); $i++ )
 			if( $header_sig[$i] != ord( $hdrbuf[$i] ) ){
