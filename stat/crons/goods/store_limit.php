@@ -4,7 +4,7 @@ define("PATH_TO_ROOT", "../../");
 define("NO_WEB", 1);
 
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 $users = GoodNotificationLimits::getAllLimits();
 

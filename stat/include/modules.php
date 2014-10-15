@@ -27,8 +27,7 @@ abstract class IModuleHead {
 		}
 	}
 	public function Install(){ return $this->rights; }
-	public function GetPanel(){
-		global $design,$user;
+	public function GetPanel($fixclient){
 		$R=array(); $p=0;
 		foreach($this->menu as $val){
 			if ($val=='') {
@@ -40,7 +39,7 @@ abstract class IModuleHead {
 			}
 		}
 		if (count($R)>$p){
-			$design->AddMenu($this->module_title,$R);
+            return array($this->module_title,$R);
 		}
 	}
 	public final function __get($k) {
@@ -116,7 +115,12 @@ class Modules {
 		foreach ($this->modules as $m){
 			eval('global $module_'.$m.';');
 			$design->assign('panel_module',$m);
-			eval('$module_'.$m.'->GetPanel($fixclient);');
+            $panel = null;
+            eval('$panel = $module_'.$m.'->GetPanel($fixclient);');
+            if ($panel) {
+                list($title, $items) = $panel;
+                $design->AddMenu($title, $items);
+            }
 		}
 	}	
 	function GetMain($m,$action,$fixclient) {

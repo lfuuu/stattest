@@ -30,7 +30,6 @@ class m_accounts{
         return $this->actions;
     }
     function GetPanel(){
-        global $design,$user;
         $R=array();
         //добавляем в массив только те действия к которым есть права у юзера
         foreach($this->actions as $key=>$val){
@@ -43,7 +42,7 @@ class m_accounts{
             // добавляем разделители
             array_splice($R,5,0,'');
             // выводим панель
-            $design->AddMenu('Бухгалтерия',$R);
+            return array('Бухгалтерия',$R);
 
         }
     }

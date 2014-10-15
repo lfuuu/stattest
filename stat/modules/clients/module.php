@@ -82,14 +82,9 @@ class m_clients {
 					array('Отчёт по файлам',		'files_report'),
 				);
 //###################################################################
-	var $statuses;
-
-	function __construct() {
-		$this->statuses = ClientCS::$statuses;
-	}
 	function color_status($status_code){
-		if (!isset($this->statuses[$status_code])) return '';
-		return $this->statuses[$status_code]['color'];
+		if (!isset(ClientCS::$statuses[$status_code])) return '';
+		return ClientCS::$statuses[$status_code]['color'];
 	}
 
 	function m_clients(){
@@ -107,7 +102,6 @@ class m_clients {
 	}
 
 	function GetPanel($fixclient){
-		global $design,$user;
 		$R=array(); $p=0;
 		foreach($this->menu as $val){
 			if ($val=='') {
@@ -119,7 +113,7 @@ class m_clients {
 			}
 		}
 		if (count($R)>$p){
-			$design->AddMenu('Клиенты',$R);
+            return array('Клиенты',$R);
 		}
 	}
 
@@ -147,6 +141,9 @@ class m_clients {
 
 	function clients_my($fixclient) {
 		global $design,$user;
+
+        $this->client_unfix();
+
 		// запоминаем что дальше всех клиентов надо фильтровать по менеджеру
 		$_SESSION['clients_my'] = $user->_Login;
 		$this->clients_headers('my');
@@ -840,9 +837,9 @@ class m_clients {
 
 		$R=array();
 		while($r=$db->NextRecord()){
-			if(isset($this->statuses[$r['status']])){
-				$r['status_name']=$this->statuses[$r['status']]['name'];
-				$r['status_color']=$this->statuses[$r['status']]['color'];
+			if(isset(ClientCS::$statuses[$r['status']])){
+				$r['status_name']=ClientCS::$statuses[$r['status']]['name'];
+				$r['status_color']=ClientCS::$statuses[$r['status']]['color'];
 			}
 			if(isset($SC[$r['sale_channel']]))
 				$r['sale_channel'] = $SC[$r['sale_channel']]['name'];
@@ -1141,8 +1138,8 @@ class m_clients {
 		if(isset($module_tt))
 			$module_tt->get_counters($id);
 
-		$this->statuses[$r['status']]['selected'] = ' selected';
-		$design->assign_by_ref('statuses',$this->statuses);
+		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
+		$design->assign_by_ref('statuses',ClientCS::$statuses);
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());

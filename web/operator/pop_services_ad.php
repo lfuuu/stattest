@@ -1,12 +1,13 @@
 <?php
 	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf.php";
-	
+	include PATH_TO_ROOT."conf_yii.php";
+
+    $user->AuthorizeByUserId(Yii::$app->user->id);
+
 //аутентификация
 	$module=get_param_raw('module', 'users');
 	$action=get_param_raw('action',$module.'_default');
-	$user->DoAction($action);
-	$user->DenyInauthorized();
+
 	$design->assign_by_ref('authuser',$user->_Data);
 	if (!access('services_additional','edit')) exit;	
 	

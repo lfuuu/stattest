@@ -2,7 +2,7 @@
 
 define("PATH_TO_ROOT", "../../");
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 /*
 $f = file_get_contents("http://www.onlime.ru/shop_xml_export.php");

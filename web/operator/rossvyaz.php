@@ -2,7 +2,7 @@
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
 header("Content-Type: text/html; charset=UTF-8");
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 function clear_raw_table()
 {

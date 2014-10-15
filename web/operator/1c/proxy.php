@@ -32,8 +32,7 @@ if(isset($_GET['wsdl'])){
 error_reporting(E_ALL);
 ini_set('soap.wsdl_cache_enabled', '0');
 
-require_once "../../../stat/conf.php";
-require_once INCLUDE_PATH."MyDBG.php";
+require_once "../../../stat/conf_yii.php";
 require_once INCLUDE_PATH."1c_integration.php";
 
 if(isset($_GET["service"]))

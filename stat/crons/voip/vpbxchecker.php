@@ -10,7 +10,7 @@ define("print_sql", 1);
 
 //$_SERVER['SERVER_NAME'] = "89.235.136.20";
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 define("log_path", "../../");
 

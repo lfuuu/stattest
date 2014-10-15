@@ -12,7 +12,7 @@ class m_modules {
 	function GetPanel($fixclient){
 		global $design,$user,$db;
 		if (!access('modules','r')) return;
-		$design->AddMenu('Модули',array(
+        return array('Модули',array(
 					array('Список модулей','module=modules'),
 				));
 	}

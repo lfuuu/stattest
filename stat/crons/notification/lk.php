@@ -1,6 +1,6 @@
 <?php
 define("PATH_TO_ROOT", "../../");
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 $contacts = LkNotificationContact::getList();
 

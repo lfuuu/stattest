@@ -4,7 +4,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 define("PATH_TO_ROOT", "../../../stat/");
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 
 $function = get_param_raw("function");

@@ -6,7 +6,6 @@ echo date("r")."\n";
 	define('PATH_TO_ROOT','./');
 	define('INCLUDE_PATH','./include/');
     define('DEBUG_LEVEL', 0);
-    require_once('./include/MyDBG.php');
     require_once('./include/sql.php');
     require_once('./include/util.php');
     require_once('./include/bill.php');

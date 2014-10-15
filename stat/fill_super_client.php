@@ -6,7 +6,7 @@ echo date("r")."\n";
 	define('NUM',20);
 	define('PATH_TO_ROOT','./');
     define('DEBUG_LEVEL', 0);
-    require_once('./conf.php');
+    require_once('./conf_yii.php');
     require_once('./include/sql.php');
 
 

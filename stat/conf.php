@@ -87,22 +87,22 @@ ini_set('SMTP',SMTP_SERVER);
 
 define('PAGE_OBJ_COUNT',	50);
 
-define('INCLUDE_PATH',        PATH_TO_ROOT.'include/');
-define('MODELS_PATH',        PATH_TO_ROOT.'models/');
-define('CLASSES_PATH',        PATH_TO_ROOT.'classes/');
-define('MODULES_PATH',        PATH_TO_ROOT.'modules/');
-define('INCLUDE_ARCHAIC_PATH',    PATH_TO_ROOT.'include_archaic/');
-define('DESIGN_PATH',        PATH_TO_ROOT.'design/');
-define('DESIGNC_PATH',        PATH_TO_ROOT.'design_c/');
-define('LETTER_FILES_PATH',    PATH_TO_ROOT.'store/letters/');
+define('INCLUDE_PATH',          realpath(PATH_TO_ROOT) . '/include/');
+define('MODELS_PATH',           realpath(PATH_TO_ROOT) . '/models/');
+define('CLASSES_PATH',          realpath(PATH_TO_ROOT) . '/classes/');
+define('MODULES_PATH',          realpath(PATH_TO_ROOT) . '/modules/');
+define('INCLUDE_ARCHAIC_PATH',  realpath(PATH_TO_ROOT) . '/include_archaic/');
+define('DESIGN_PATH',           realpath(PATH_TO_ROOT) . '/design/');
+define('DESIGNC_PATH',          realpath(PATH_TO_ROOT) . '/design_c/');
+define('LETTER_FILES_PATH',     realpath(PATH_TO_ROOT) . '/store/letters/');
 
 if(!defined("PAYMENTS_FILES_PATH"))
-    define('PAYMENTS_FILES_PATH',    PATH_TO_ROOT.'store/payments/');
-define('STORE_PATH',            PATH_TO_ROOT.'store/');
-define('SOUND_PATH',            PATH_TO_ROOT.'sound/');
+    define('PAYMENTS_FILES_PATH', realpath(PATH_TO_ROOT) . '/store/payments/');
+define('STORE_PATH',            realpath(PATH_TO_ROOT) . '/store/');
+define('SOUND_PATH',            realpath(PATH_TO_ROOT) . '/sound/');
 
-define('WEB_IMAGES_PATH',        WEB_PATH.'images/');
-define('WEB_SOUND_PATH',        WEB_PATH.'sound/');
+define('WEB_IMAGES_PATH',       WEB_PATH . 'images/');
+define('WEB_SOUND_PATH',        WEB_PATH . 'sound/');
 
 //define('SUM_ADVANCE',199);
 define('SUM_ADVANCE',100);
@@ -111,6 +111,8 @@ define('SUM_PHONE_ADVANCE',79.67);
 if (DEBUG_LEVEL!=0) ini_set ("display_errors", "On");
 
 require_once(CLASSES_PATH . 'Autoload.php');
+
+global $db, $pg_db, $db_ats, $design, $user, $modules;
 
 if (!defined('NO_INCLUDE')){
     if (defined('NO_WEB') || defined('ERROR_NO_WEB')){
@@ -137,7 +139,9 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'modules.php');
 
     if (!defined('NO_WEB')){
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
 
         require_once(INCLUDE_PATH.'mysmarty.php');
         $design = new MySmarty();

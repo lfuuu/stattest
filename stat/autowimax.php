@@ -2,7 +2,7 @@
 // this line has to be modified for each server
 	define('NO_WEB',1);
 	define('PATH_TO_ROOT','./');
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 	
 	set_time_limit(0);
 	require_once(INCLUDE_PATH.'mysmarty.php');

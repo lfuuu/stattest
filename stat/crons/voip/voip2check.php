@@ -9,7 +9,7 @@ define("print_sql", 1);
 define("log_path", "./");
 
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 echo "
 ".date("r").":";

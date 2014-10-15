@@ -3,7 +3,7 @@
 	//этот файл может использоваться для аяксовых вызовов. и всё.
 	define("PATH_TO_ROOT",'../../stat/');
 	define('NO_WEB',1);
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 
     $id = get_param_protected("client_id","0");
     $dateFrom = get_param_protected("date_from","2000-01-01");

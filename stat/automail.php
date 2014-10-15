@@ -4,7 +4,7 @@ define("print_sql", 1);
 	define('NO_WEB',1);
 	define('NUM',35);
 	define('PATH_TO_ROOT','./');
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 	include MODULES_PATH.'mail/module.php';
 	if(
 		date("H:i")>="02:10"

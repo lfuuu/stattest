@@ -2,7 +2,7 @@
 	//этот файл может использоваться для аяксовых вызовов. и всё.
 	define("PATH_TO_ROOT",'../../stat/');
 	define('NO_WEB',1);
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 
     $login = get_param_protected("login","");
     $pwd = get_param_protected("pwd", "");

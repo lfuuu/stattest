@@ -1,6 +1,6 @@
 <?php
 	define("PATH_TO_ROOT",'../../stat/');
-	include PATH_TO_ROOT."conf.php";
+	include PATH_TO_ROOT."conf_yii.php";
 	//аутентификация
 	$action=get_param_raw('action','default');
 	$user->DoAction($action);

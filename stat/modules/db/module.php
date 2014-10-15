@@ -1,5 +1,4 @@
 <?php
-require_once INCLUDE_PATH.'db_map.php';
 class m_db{
 	var $rights=array(
 					'db'			=>array('Работа с базой','all','Полный доступ')
@@ -13,7 +12,7 @@ class m_db{
 	var $tables=array('routes','usage_ip_ports','tech_routers','tech_devices','clients');
 				   
 	function m_db(){
-	}
+    }
 
 
 	function Install($p){
@@ -21,18 +20,18 @@ class m_db{
 	}
 	
 	function GetPanel(){
-		global $design,$user;
 		$R=array(); $p=0;
 		if (!access('db','all')) return;
 		foreach ($this->tables as $t){
 			$R[]=array($t,'module=db&table='.$t,'','','');
 		}
-		$design->AddMenu('База данных',$R);
+        return array('База данных',$R);
 	}
 
 	function GetMain($action,$fixclient){
 		global $design,$db,$user,$dbmap;
 		if (!isset($this->actions[$action])) return;
+        require_once INCLUDE_PATH.'db_map.php';
 		$dbmap=new Db_map_nispd();
 		$dbmap->SetErrorMode(2,0);
 		$act=$this->actions[$action];

@@ -3,7 +3,7 @@
 define('NO_WEB',1);
 define('NUM',20);
 define('PATH_TO_ROOT','./');
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 for($i=1,$work_days=0,$time = time();$i<=30;$i++)
 {

@@ -67,13 +67,5 @@ class m_tt_head extends IModuleHead{
 		array('Загрузка логистики2',		'courier_report2'),
 		array('Оповещение о мин.остатке на складе',             'store_limit'),
 	);
-	function GetPanel($fixclient){
-		global $design,$user,$db,$module;
-		if (!access('tt','view')) return;
-		if ($this->is_active==0 && !($fixclient && $module=='clients')) {
-			$this->showTroubleList(2,'top',$fixclient);
-		}
-		parent::GetPanel($fixclient);
-	}
 }
 ?>

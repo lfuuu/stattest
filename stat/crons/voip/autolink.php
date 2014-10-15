@@ -7,7 +7,7 @@ define("print_sql", 1);
 define("exception_sql", 1);
 
 
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 $mDB = $db_ats;
 

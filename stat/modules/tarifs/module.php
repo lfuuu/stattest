@@ -47,7 +47,6 @@ class m_tarifs{
     }
     
     function GetPanel($fixclient){
-        global $design,$user;
         $R=array(); $p=0;
         foreach($this->menu as $val){
             if ($val=='') {
@@ -59,7 +58,7 @@ class m_tarifs{
             }
         }
         if (count($R)>$p){
-            $design->AddMenu('Тарифы',$R);
+            return array('Тарифы',$R);
         }
     }
 

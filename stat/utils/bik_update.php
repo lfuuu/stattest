@@ -1,8 +1,7 @@
 <?php
 	define("PATH_TO_ROOT",'../');
 	include PATH_TO_ROOT."conf.php";
-	include PATH_TO_ROOT."include/MyDBG.php";
-	
+
 	$loadFile = $sendDiff = $toScreen = $isUpdate = false;
 	
 	switch ($_SERVER['argv'][1]) {

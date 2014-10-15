@@ -545,7 +545,7 @@ class billMaker{
             //file_put_contents("/tmp/calcOrder", var_export($a, true));
             $resp = $this->soap->utCalcOrder($a)->return;
         }catch(\SoapFault $e){
-            \MyDBG::fout(trr(print_r($e,true)),true);
+            printdbgu($e);
             $fault = $e;
             return false;
         }
@@ -651,7 +651,7 @@ class billMaker{
 
             echo "Ошибка 1с: ".str_replace("|||", "", $e->getMessage());
             exit();
-            \MyDBG::fout(trr(print_r($e,true)),true);
+            printdbgu($e);
             $fault = $e;
             return false;
         }
