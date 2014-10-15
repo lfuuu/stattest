@@ -8,7 +8,7 @@ if ($debugLogging) {
     return [
         'targets' => [
             [
-                'class' => 'app\classes\GraylogTarget',
+                'class' => 'welltime\graylog\GraylogTarget',
                 'levels' => ['error', 'warning', 'info', 'trace'],
                 'host' => $graylogHost,
                 'source' => $source,
@@ -19,13 +19,13 @@ if ($debugLogging) {
     return [
         'targets' => [
             [
-                'class' => 'app\classes\GraylogTarget',
+                'class' => 'welltime\graylog\GraylogTarget',
                 'levels' => ['error', 'warning'],
                 'host' => $graylogHost,
                 'source' => $source,
             ],
             [
-                'class' => 'app\classes\GraylogTarget',
+                'class' => 'welltime\graylog\GraylogTarget',
                 'levels' => ['info', 'trace'],
                 'categories' => ['application'],
                 'host' => $graylogHost,
