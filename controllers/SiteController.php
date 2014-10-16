@@ -6,7 +6,6 @@ use Yii;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
 use app\models\LoginForm;
-use yii\helpers\Url;
 
 class SiteController extends BaseController
 {
