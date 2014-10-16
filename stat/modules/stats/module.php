@@ -5228,7 +5228,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             U.id, 
             U.client, 
             U.E164 as number,
-            DATEDIFF(NOW(), MAX(LT.ts)) as diff';
+            U.status, 
+            DATEDIFF(NOW(), MAX(LT.ts))-1 as diff';
         $options['from'] = 'log_tarif as LT';
         $options['joins'] = "LEFT JOIN usage_voip as U ON U.id = LT.id_service";
         $options['conditions'] = array(

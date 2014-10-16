@@ -13,11 +13,11 @@
 
 {if $data}
     {foreach from=$data item="s" name=outer key="k"}
-        <tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
+        <tr bgcolor="{if $s->status == "working"}#fffff5{else}#ffe0e0{/if}">
             <td>
                 <a href="./?module=clients&id={$s->client}">{$s->client}</a>
             </td>
-            <td>
+            <td style="font-weight: bold;">
                 <a target="_blank" href="{$PATH_TO_ROOT}pop_services.php?&table=usage_voip&id={$s->id}">{$s->number}</a>
             </td>
             <td align=right>
@@ -30,7 +30,7 @@
                 {/if}
                 <span {if $color}style="color: {$color};"{/if}>{$s->max_ts|mdate:"d месяца Y г."}</span>
             </td>
-            <td align=right>
+            <td align=center style=" font-weight: bold;">
                 {assign var="color" value=""}
                 {if $s->diff >= 27 && $s->diff < 30}
                     {assign var="color" value="blue"}
