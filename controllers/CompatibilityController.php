@@ -55,17 +55,16 @@ class CompatibilityController extends BaseController
         }
 
         ob_start();
-        $alreadyRendered = $design->ignore > 0;
 
-        if (!$alreadyRendered) {
+        $renderLayout = $lite === false && !$design->ignore;
+
+        if (!$design->ignore) {
             $design->ProcessEx('index_lite.tpl');
         }
 
         $output = ob_get_clean();
 
-
-        $layoutFile = $this->findLayoutFile($this->getView());
-        if (!$alreadyRendered && $lite === false && $layoutFile !== false) {
+        if ($renderLayout && ($layoutFile = $this->findLayoutFile($this->getView())) !== false) {
             return $this->getView()->renderFile($layoutFile, ['content' => $output], $this);
         } else {
             return $output;
