@@ -4995,7 +4995,7 @@ $sql .= "    order by client, bill_no";
                         SELECT DISTINCT bill_no 
                         FROM tt_stages s, tt_troubles t 
                         WHERE s.trouble_id = t.id 
-                            and date_start between '".$date_from."' and '".$date_to."' 
+                            and date_start between '".$date_from." 00:00:00' and '".$date_to." 23:59:59' 
                             and state_id in (select id from tt_states where state_1c = 'Отгружен') #выбор счетов-фактур по дате отгрузки
                             and t.bill_no is not NULL
                     )t, 
