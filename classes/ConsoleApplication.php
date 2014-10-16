@@ -22,13 +22,23 @@ class ConsoleApplication extends \yii\console\Application
                 $messageData .= "\n\n";
             }
 
+            $argv = isset($_SERVER['argv']) ? implode(' ', $_SERVER['argv']) : '';
+
+            if (isset($_SERVER['USER'])) {
+                $username = $_SERVER['USER'];
+            } elseif (isset($_SERVER['USERNAME'])) {
+                $username = $_SERVER['USERNAME'];
+            } else {
+                $username = '';
+            }
+
             Yii::info(
                 GelfMessage::create()
                     ->setTimestamp(YII_BEGIN_TIME)
-                    ->setShortMessage('CONSOLE ' . implode(' ', $_SERVER['argv']))
+                    ->setShortMessage('CONSOLE ' . $argv)
                     ->setFullMessage($messageData)
                     ->setAdditional('route', $route)
-                    ->setAdditional('username', $_SERVER['USERNAME'])
+                    ->setAdditional('username', $username)
                     ->setAdditional('duration' , microtime(true) - YII_BEGIN_TIME),
                 'request'
             );
