@@ -397,7 +397,6 @@ class MySmarty extends Smarty {
 		$this->assign('PATH_TO_ROOT',WEB_PATH);
 		$this->assign('SUM_ADVANCE',SUM_ADVANCE);
 		$this->assign_by_ref('fixclient_data', $fixclient_data);
-		$this->assign_by_ref('user', $user);
 		$this->assign_by_ref('fixclient', $fixclient);
 		$this->assign_by_ref('module', $module);
 		$this->assign_by_ref('errors',$G['errors']);
