@@ -3,24 +3,24 @@
 use tests\codeception\_pages\LoginPage;
 
 $I = new _FunctionalTester($scenario);
-$I->wantTo('ensure that login works');
+$I->wantTo('проверить что работает логин');
 
 $loginPage = LoginPage::openBy($I);
 
-$I->see('Login', 'h1');
+$I->see('Введите логин и пароль');
 
-$I->amGoingTo('try to login with empty credentials');
+$I->amGoingTo('пробую войти без логина и пароля');
 $loginPage->login('', '');
-$I->expectTo('see validations errors');
-$I->see('Username cannot be blank.');
-$I->see('Password cannot be blank.');
+$I->expectTo('увидеть ошибки валидации');
+$I->see('Необходимо заполнить «Username».');
+$I->see('Необходимо заполнить «Password».');
 
-$I->amGoingTo('try to login with wrong credentials');
+$I->amGoingTo('пробую войти с неправильным паролем');
 $loginPage->login('admin', 'wrong');
-$I->expectTo('see validations errors');
-$I->see('Incorrect username or password.');
+$I->expectTo('увидеть ошибки валидации');
+$I->see('Не правильный логин или пароль');
 
-$I->amGoingTo('try to login with correct credentials');
+$I->amGoingTo('пробую войти с правильными логином и паролем');
 $loginPage->login('admin', 'admin');
-$I->expectTo('see user info');
-$I->see('Logout (admin)');
+$I->expectTo('увидеть ссылку на выход');
+$I->see('Logout');

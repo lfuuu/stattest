@@ -16,6 +16,11 @@ class WebApplication extends \yii\web\Application
             $request = Yii::$app->request;
             list($route, $params) = $request->resolve();
 
+            $messageData .= "PATH:\n";
+            $messageData .= json_encode($request->getPathInfo(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            $messageData .= "\n\n";
+
+
             if ($params) {
                 $messageData .= "PARAMS:\n";
                 $messageData .= json_encode($params, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

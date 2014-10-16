@@ -57,6 +57,13 @@ $config = array(
 
 $config = array_merge($config, require(dirname(__FILE__).'/local.conf.php'));
 
+if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->db->dsn, $matches)) {
+    $config['SQL_HOST'] = $matches[1][0];
+    $config['SQL_DB'] = $matches[2][0];
+    $config['SQL_USER'] = Yii::$app->db->username;
+    $config['SQL_PASS'] = Yii::$app->db->password;
+}
+
 if(!defined("NO_WEB")) {
     header("Content-type:text/html; charset=utf-8");
     header("X-XSS-Protection: 0");

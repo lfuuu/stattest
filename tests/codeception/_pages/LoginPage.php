@@ -20,6 +20,10 @@ class LoginPage extends BasePage
     {
         $this->actor->fillField('input[name="LoginForm[username]"]', $username);
         $this->actor->fillField('input[name="LoginForm[password]"]', $password);
-        $this->actor->click('login-button');
+        $this->actor->click('Войти');
+
+        if (method_exists($this->actor, 'wait')) {
+            $this->actor->wait(3); // only for selenium
+        }
     }
 }

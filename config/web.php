@@ -22,6 +22,7 @@ $config = [
     'language' => 'ru',
     'components' => [
         'request' => [
+            'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',
         ],
         'cache' => [
