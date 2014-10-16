@@ -1,9 +1,3 @@
-This directory contains various tests for the basic application.
-
-Tests in `codeception` directory are developed with [Codeception PHP Testing Framework](http://codeception.com/).
-
-After creating the basic application, follow these steps to prepare for the tests:
-
 1. Install Codeception if it's not yet installed:
 
 ```
@@ -27,37 +21,34 @@ line globally.
 composer require --dev yiisoft/yii2-faker:*
 ```
 
-3. Create `yii2_basic_tests` database and update it by applying migrations:
+3. Создать бау данных для тестов:
 
 ```
-codeception/bin/yii migrate
+./migration stat-nispd-test/recreate-db
 ```
 
-4. Build the test suites:
-
-```
-codecept build
-```
-
-5. In order to be able to run acceptance tests you need to start a webserver. The simplest way is to use PHP built in
+4. In order to be able to run acceptance tests you need to start a webserver. The simplest way is to use PHP built in
 webserver. In the `web` directory execute the following:
 
 ```
-php -S localhost:8080
+env YII_ENV=test php -S 0.0.0.0:8080
 ```
 
-6. Now you can run the tests with the following commands:
+5. Тесты запускаются следующими коммандами:
 
 ```
-# run all available tests
+# запустить все доступные тесты
 codecept run
-# run acceptance tests
-codecept run acceptance
-# run functional tests
-codecept run functional
-# run unit tests
-codecept run unit
-```
 
-Please refer to [Codeception tutorial](http://codeception.com/docs/01-Introduction) for
-more details about writing and running acceptance, functional and unit tests.
+# запустить юнит тесты
+codecept run unit
+
+# запустить функциональные тесты
+codecept run func
+
+# запустить приемочные тесты через php браузер
+codecept run web
+
+# запустить приемочные тесты через silenium
+codecept run browser
+```
