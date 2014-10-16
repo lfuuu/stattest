@@ -3,32 +3,48 @@
 {$title.period}</h3>
 <br/>
 <table class="price" width=100%>
+    {assign var="payment" value=""}
     {assign var="bill" value=""}
     <tr>
-        <th class="header">Счет</th>
+        <th class="header">ID платежа</th>
         <th class="header">Дата</th>
         <th class="header">Сумма</th>
     </tr>
     {if $data}
         {foreach from=$data item="d" name="outer"}
+            {if $payment != $d.id}
+                {if $payment}
+                    <tr>
+                        <td colspan=3><hr/></td>
+                    </tr>
+                {/if}
+                {assign var="payment" value=$d.id}
+                {assign var="bill" value=""}
+                <tr style="background-color: #FFFFCC; font-weight: bold; font-size: 16px;">
+                    <td>
+                        {$d.id}
+                    </td>
+                    <td>
+                        {$d.ts|mdate:"d месяца Y г"}
+                    </td>
+                    <td align=right>
+                        {$d.sum_rub|num_format:"true":"2"} p.
+                    </td>
+                </tr>
+                
+            {/if}
             {if $bill != $d.bill_no}
                 {assign var="bill" value=$d.bill_no}
                 <tr style="background-color: #CCFFFF; font-weight: bold; font-size: 14px;">
-                    <td>
-                        {$bill}
-                    </td>
-                    <td>
-                        {$d.ts|mdate:"d месяц Y г"}
-                        {if $d.is_payed != 1}
-                            <span style="color: red;">Не оплачен</span>
-                        {/if}
+                    <td colspan=2 align=center>
+                        Счет {$bill}
                     </td>
                     <td align=right>
-                        <span {if $d.is_payed != 1}style="text-decoration: line-through;"{/if}>{$d.b_sum|num_format:"true":"2"} p.</span>
+                        {$d.p_sum|num_format:"true":"2"} p.
                     </td>
                 </tr>
             {/if}
-            <tr  {if !$d.is_abon}style="color: #CCCCCC;"{/if}>
+            <tr  {if !$d.is_tel}style="color: #CCCCCC;"{/if}>
                 <td>&nbsp;</td>
                 <td>{$d.item}</td>
                 <td align=right>{$d.sum|num_format:"true":"2"} p.</td>
@@ -37,10 +53,10 @@
         <tr><td colspan=3 style="color: black;"><hr/></td></tr>
         <tr>
                 <td colspan=2 align="right">
-                        <b>Всего оплаченно счетов на сумму</b>
+                        <b>Всего платежей</b>
                 </td>
                 <td align="right">
-                        <b>{$totals.bills|num_format:"true":"2"} p.</b>
+                        <b>{$totals.bills_all|num_format:"true":"2"} p.</b>
                 </td>
         </tr>
         <tr>
@@ -48,7 +64,7 @@
                         <b>Сумма позиций не относящиеся к телефонии</b>
                 </td>
                 <td align="right">
-                        <b>{$totals.bills-$totals.prebills|num_format:"true":"2"} p.</b>
+                        <b>{$totals.no_tel_sum|num_format:"true":"2"} p.</b>
                 </td>
         </tr>
         <tr>
@@ -56,7 +72,7 @@
                         <b>Итого</b>
                 </td>
                 <td align="right">
-                        <b>{$totals.prebills|num_format:"true":"2"} p.</b>
+                        <b>{$totals.bills_all-$totals.no_tel_sum|num_format:"true":"2"} p.</b>
                 </td>
         </tr>
     {else}
