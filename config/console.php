@@ -1,6 +1,7 @@
 <?php
 use \yii\helpers\ArrayHelper;
 
+Yii::setAlias('@app', dirname(__DIR__));
 Yii::setAlias('@tests', dirname(__DIR__) . '/tests');
 
 $db = ArrayHelper::merge(
