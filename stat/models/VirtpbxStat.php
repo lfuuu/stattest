@@ -85,7 +85,15 @@ class VirtpbxStat extends ActiveRecord\Model
 	public static function getVpbxStatDetails($client_id, $from, $to, $tarif_id = false)
 	{
 		$options = array();
-		$totals = array('sum' => 0, 'for_space' => 0, 'for_number' => 0, 'sum_number' => 0, 'sum_space' => 0);
+		$totals = array(
+                    'sum' => 0, 
+                    'for_space' => 0, 
+                    'for_number' => 0, 
+                    'sum_number' => 0, 
+                    'sum_space' => 0, 
+                    'overrun_per_mb' => 0, 
+                    'overrun_per_port' => 0
+                );
 		$options['select'] = '
 					UNIX_TIMESTAMP(date) as mdate, 
 					use_space, 
@@ -123,6 +131,8 @@ class VirtpbxStat extends ActiveRecord\Model
 			}
 			$v->sum = $v->sum_space + $v->sum_number;
 			$totals['sum'] +=  $v->sum;
+			$totals['overrun_per_mb'] = $tarif_info->overrun_per_mb;
+			$totals['overrun_per_port'] = $tarif_info->overrun_per_port;
 			if (isset($stat_detailed[$k-1])) 
 			{
 				$v->diff = $v->use_space -$stat_detailed[$k-1]->use_space;

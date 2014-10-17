@@ -1590,7 +1590,7 @@ class m_newaccounts extends IModule
             }
             foreach ($services as $service){
                 // если у нас телефония, или интернет, и канал уже закрыт прошлым числом - все равно надо предъявлять превышение лимита
-                if(!in_array($service['service'],array('usage_voip','usage_ip_ports')) && (unix_timestamp($service['actual_from']) > $time || unix_timestamp($service['actual_to']) < $time))
+                if(!in_array($service['service'],array('usage_voip','usage_ip_ports', 'usage_virtpbx')) && (unix_timestamp($service['actual_from']) > $time || unix_timestamp($service['actual_to']) < $time))
                     continue;
                 $s=ServiceFactory::Get($service,$bill);
                 $s->SetMonth($bill->GetTs());
