@@ -42,6 +42,13 @@ class CompatibilityController extends BaseController
         if (isset($module_clients) && $module != 'clients' && $fixclient)
             $fixclient_data = $module_clients->get_client_info($fixclient);
 
+        $design->assign('authuser', $user->_Data);
+        $design->assign('user', $user);
+        $design->assign('fixclient_data', $fixclient_data);
+        $design->assign('fixclient', $fixclient);
+        $design->assign('module', $module);
+
+
         $modules->GetMain($module, $action, $fixclient);
 
         if ($fixclient)
