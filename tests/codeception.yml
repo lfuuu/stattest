@@ -11,6 +11,4 @@ settings:
     log: true
     colors: true
 config:
-    # the entry script URL (without host info) for functional and acceptance tests
-    # PLEASE ADJUST IT TO THE ACTUAL ENTRY SCRIPT URL
     test_entry_url: /index.php
