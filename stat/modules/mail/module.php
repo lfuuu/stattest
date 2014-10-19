@@ -109,8 +109,10 @@ class m_mail{
 			$db->Query($query);
 			$id = $db->GetInsertId();
 		}
-		if($design->ProcessEx('errors.tpl'))
-			header('Location: ?module=mail&action=view&id='.$id);
+		if($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=mail&action=view&id=' . $id);
+            exit;
+        }
 	}
 	function mail_view($fixclient){
 		global $db,$design;
@@ -175,7 +177,10 @@ class m_mail{
 		$id=get_param_integer('id');
 		$db->Query('delete from mail_job where job_id='.$id);
 		$db->Query('delete from mail_letter where job_id='.$id);
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail');
+		if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=mail');
+            exit;
+        }
 	}
 	function mail_client(){
 		global $db,$design;
@@ -401,7 +406,10 @@ class m_mail{
 
 		$Files=new mailFiles($job_id);
 		$Files->putFile();
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail&action=view&id='.$job_id);
+		if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=mail&action=view&id='.$job_id);
+            exit;
+        }
 	}
 	function mail_file_get($fixclient) {
 		require_once('mailFiles.php');
@@ -418,6 +426,7 @@ class m_mail{
 			header("Content-Length: " . filesize($f['path']));
 			readfile($f['path']);
 			$design->ProcessEx();
+            exit;
 		}
 	}
 	function mail_file_del($fixclient) {
@@ -427,7 +436,10 @@ class m_mail{
 		if (!$job_id) return;
 		$Files=new mailFiles($job_id);
 		$Files->deleteFile(get_param_protected('file_id'));
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail&action=view&id='.$job_id);
+		if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=mail&action=view&id='.$job_id);
+            exit;
+        }
 	}
 	function mail_state($fixclient) {
 		global $db,$design;
@@ -462,7 +474,10 @@ class m_mail{
             }
 
 		}
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=mail&action=view&id='.$id);
+		if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=mail&action=view&id='.$id);
+            exit;
+        }
 	}
 
     function _publishClientBills($jobId)

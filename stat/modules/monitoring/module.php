@@ -64,6 +64,7 @@ class m_monitoring {
 		$result=$dbf->Process();
                 if ($result=='delete') {
                         header('Location: ?module=monitoring');
+                    exit;
                         $design->ProcessX('empty.tpl');
 		} else $dbf->Display(array('module'=>'monitoring','action'=>'edit','id'=>$id),'Мониторинг',$id?'Редактирование':'Добавление');
 	}

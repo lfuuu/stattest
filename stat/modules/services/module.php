@@ -372,6 +372,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action='.$suffix2.'_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'in_apply'),'Услуги','Редактировать подключение');
@@ -409,7 +410,8 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
         if ($result=='delete') {
-            header('Location: ?module=services&action=in_view');    
+            header('Location: ?module=services&action=in_view');
+            exit;
         } else {
             $dbf->Display(array('module'=>'services','action'=>'in_apply2'),'Услуги','Редактировать сеть');
         }
@@ -1275,6 +1277,7 @@ class m_services extends IModule{
         voipNumbers::check();
         if ($result=='delete') {
             header('Location: ?module=services&action=vo_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->nodesign = true;
@@ -1345,6 +1348,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=dn_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'dn_apply'),'Услуги','Редактировать доменное имя');
@@ -1717,6 +1721,7 @@ class m_services extends IModule{
         }
         if($result=='delete' || $result=='add') {
             header('Location: ?module=services&action=em_view');
+            exit;
             $design->ProcessX('empty.tpl');
         } else $dbf->Display(array('module'=>'services','action'=>'em_apply'),'Услуги','Редактировать e-mail ящик');
     }
@@ -1856,6 +1861,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=ex_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Редактировать дополнительную услугу');
@@ -1935,7 +1941,8 @@ class m_services extends IModule{
         if ($id) $dbf->Load($id);
         $result=$dbf->Process();
         if ($result=='delete') {
-            header('Location: ?module=services&action=in_view');    
+            header('Location: ?module=services&action=in_view');
+            exit;
         } else {
             $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'Услуги','Редактировать доп. услугу');
         }
@@ -2152,6 +2159,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=virtpbx_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Редактировать дополнительную услугу');
@@ -2311,6 +2319,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=8800_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'8800_apply'),'Услуги','Редактировать услугу 8800');
@@ -2405,6 +2414,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=sms_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'sms_apply'),'Услуги','Редактировать услугу CMC');
@@ -2529,6 +2539,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=welltime_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'welltime_apply'),'Услуги','Редактировать дополнительную услугу');
@@ -2629,6 +2640,7 @@ class m_services extends IModule{
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=services&action=ppp_view');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'services','action'=>'ppp_apply'),'Услуги','Редактировать ppp-логин');

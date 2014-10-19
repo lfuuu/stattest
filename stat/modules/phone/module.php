@@ -72,6 +72,7 @@ class m_phone extends IModule {
 			$db->QueryUpdate('usage_phone_redir','id',$R);
 		}
 		header("Location: ".$design->LINK_START."module=phone&action=redir");
+        exit;
 		$design->ProcessEx('errors.tpl');
 	}
 	function phone_redir_del($fixclient) {
@@ -80,6 +81,7 @@ class m_phone extends IModule {
 		if (!$db->GetRow('select 1 from usage_phone_redir INNER JOIN usage_voip ON usage_voip.id=usage_phone_redir.voip_id where usage_phone_redir.id="'.$id.'" and client="'.$fixclient.'"')) return;
 		$db->Query('delete from usage_phone_redir where id="'.$id.'"');
 		header("Location: ".$design->LINK_START."module=phone&action=redir");
+        exit;
 		$design->ProcessEx('errors.tpl');
 	}
 	function phone_callback($fixclient){
@@ -269,15 +271,24 @@ class m_phone extends IModule {
 			if ($id) {
 				$db->QueryUpdate('usage_phone_redir_condition_data','id',array('id'=>$id,'period'=>$period));
 				$r = $db->GetRow('select * from usage_phone_redir_condition_data where id='.$id);
-				if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=phone&action=tc_edit&id=".$r['condition_id']);
+				if ($design->ProcessEx('errors.tpl')) {
+                    header("Location: ".$design->LINK_START."module=phone&action=tc_edit&id=".$r['condition_id']);
+                    exit;
+                }
 			} else {
 				$db->QueryInsert('usage_phone_redir_condition_data',array('condition_id'=>$condition_id,'period'=>$period));
-				if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=phone&action=tc_edit&id=".$condition_id);
+				if ($design->ProcessEx('errors.tpl')) {
+                    header("Location: ".$design->LINK_START."module=phone&action=tc_edit&id=".$condition_id);
+                    exit;
+                }
 			}
 		} elseif ($id) {
 			$r = $db->GetRow('select * from usage_phone_redir_condition_data where id='.$id);
 			$db->Query('delete from usage_phone_redir_condition_data where id='.$id);
-			if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=phone&action=tc_edit&id=".$r['condition_id']);
+			if ($design->ProcessEx('errors.tpl')) {
+                header("Location: ".$design->LINK_START."module=phone&action=tc_edit&id=".$r['condition_id']);
+                exit;
+            }
 		}
 	}
 	
@@ -379,7 +390,10 @@ class m_phone extends IModule {
 		if (!$fixclient) return;
 		$F = $this->voipGetData($fixclient,$this->getAccess(),get_param_integer('id'),get_param_raw('f',null));
 		if ($id = $this->voipSaveData($F)) {
-			if ($design->ProcessEx('errors.tpl')) header("Location: ".$design->LINK_START."module=phone&action=voip_edit&id=".$id);
+			if ($design->ProcessEx('errors.tpl')) {
+                header("Location: ".$design->LINK_START."module=phone&action=voip_edit&id=".$id);
+                exit;
+            }
 			return;
 		}
 		$T = get_tarif_history('usage_voip',$F['id']);

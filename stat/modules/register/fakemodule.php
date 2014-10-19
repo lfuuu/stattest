@@ -66,7 +66,10 @@ class m_register extends IModule {
 				trigger_error('Регистрация не удалась. Лучше всего - обратитесь к нам по телефону.');
 				$db->Query('delete from clients where id='.$id);
 			} else {
-				if ($design->ProcessEx('errors.tpl')) header("Location: register.php?action=success&login=".$regform['user']);
+				if ($design->ProcessEx('errors.tpl')) {
+                    header("Location: register.php?action=success&login=".$regform['user']);
+                    exit;
+                }
 			}
 		}
 	}

@@ -242,6 +242,7 @@ class m_voipnew extends IModule
             trigger_error('Ошибка: Не удалось изменить дату начала действия');
         } else {
             header('location: index.php?module=voipnew&action=view_raw_file&id=' . $id);
+            exit;
         }
 
     }
@@ -957,6 +958,7 @@ class m_voipnew extends IModule
             }
 
             header('Location: ?module=voipnew&action=calls_recalc');
+            exit;
         }
 
         $servers = $pg_db->AllRecords('select id, name from billing.instance_settings where active = true order by id desc');

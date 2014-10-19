@@ -2723,6 +2723,7 @@ class m_stats extends IModule{
 	{
 		trigger_error('Выберите клиента');
 		header('Location: ?module=stats&action=agent_settings');
+        exit;
 	}
 	global $fixclient_data;
 	
@@ -2730,6 +2731,7 @@ class m_stats extends IModule{
 	{
 		trigger_error('Клиент не является агентом');
 		header('Location: ?module=stats&action=agent_settings');
+        exit;
 	}
 	
 	$interests = get_param_raw('interest', array());
