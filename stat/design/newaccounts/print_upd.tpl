@@ -47,7 +47,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 <body marginwidth=5 marginheight=5>
 
 <div align="center"><center>
-
+{include file="newaccounts/details_for_print.tpl"}
 <table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;'>
 	<tr valign='top'>
 		<td colspan="2" style='border-right:solid windowtext 1.5pt;'>
@@ -105,27 +105,27 @@ padding:0cm 2.4pt 0cm 2.4pt;
                             <table border=0 cellspacing=0 cellpadding=0>
                                 <tr>
                                     <td style='width:155pt;'><p><b><span >Продавец:</span></b></p></td>
-                                    <td style='width:635pt;border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.name}</span></p></td>
+                                    <td style='width:635pt;border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.seller}</span></p></td>
                                     <td><p style='width:20pt;text-align:right'><span>(2)</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>Адрес:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.address}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.seller_address}</span></p></td>
                                     <td><p style='text-align:right'><span>(2а)</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>ИНН/КПП продавца:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.seller_inn}</span></p></td>
                                     <td><p style='text-align:right'><span>(2б)</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>Грузоотправитель и его адрес:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$firm.name} {$firm.address}{/if}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.consignor}</span></p></td>
                                     <td><p style='text-align:right'><span>(3)</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>Грузополучатель и его адрес:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}{$bill_client.consignee}{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}{/if}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.consignee}</span></p></td>
                                     <td><p style='text-align:right'><span>(4)</span></p></td>
                                 </tr>
                                 <tr>
@@ -135,17 +135,17 @@ padding:0cm 2.4pt 0cm 2.4pt;
                                 </tr>
                                 <tr>
                                     <td><p><span><b>Покупатель:</b></span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.customer}</span></p></td>
                                     <td><p style='text-align:right'><span>(6)</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>Адрес:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.customer_address}</span></p></td>
                                     <td><p style='text-align:right'><span>(6а)</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>ИНН/КПП покупателя:</span></p></td>
-                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</span></p></td>
+                                    <td style='border-bottom:solid windowtext 1.0pt;'><p><span>{$smarty.capture.customer_inn}</span></p></td>
                                     <td><p style='text-align:right'><span>(6б)</span></p></td>
                                 </tr>
                                 <tr>
@@ -456,13 +456,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Руководитель организации<br>или иное уполномоченное лицо</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span style="position: relative;">{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm_director.name}</span></p>
+			<p ><span>{if $bill.is_rollback != 1}{$firm_director.name}{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
@@ -471,13 +471,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Главный бухгалтер<br>или иное уполномоченное лицо</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span style="position: relative;">{if isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -25px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -25px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm_buh.name}</span></p>
+			<p ><span>{if $bill.is_rollback != 1}{$firm_buh.name}{/if}</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h8'>
@@ -618,10 +618,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td style='width:140pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>Генеральный директор</span></p>
+			<p ><span>{$smarty.capture.seller_head_position}</span></p>
 		</td>
 		<td>
-			<p ><span style="position: relative;">{if isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>
@@ -630,13 +630,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm_director.name}</span></p>
+			<p ><span>{$smarty.capture.seller_head_name}</span></p>
 		</td>
 		<td style='width:20pt;'>
 			<p ><span>[10]</span></p>
 		</td>
 		<td style='width:140pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>{$smarty.capture.customer_head_position}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -648,7 +648,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>{$smarty.capture.customer_head_name}</span></p>
 		</td>
 		<td style='width:20pt;'>
 			<p ><span>[15]</span></p>
@@ -785,25 +785,25 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm_buh.position}</span></p>
+			<p ><span>{$smarty.capture.seller_buh_position}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span style="position: relative;">{if isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -22px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -22px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm_buh.name}</span></p>
+			<p ><span>{$smarty.capture.seller_buh_name}</span></p>
 		</td>
 		<td>
 			<p ><span>[13]</span></p>
 		</td>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>{$smarty.capture.customer_buh_position}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -815,7 +815,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>&nbsp;</span></p>
+			<p ><span>{$smarty.capture.customer_buh_name}</span></p>
 		</td>
 		<td>
 			<p ><span>[18]</span></p>
@@ -869,13 +869,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h15'>
 		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{$firm.name}, ИНН/КПП {$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</span></p>
+			<p ><span>{$smarty.capture.seller_firm_info}</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>[14]</span></p>
 		</td>
 		<td colspan="5" style='border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}, ИНН/КПП {$bill_client.inn}&nbsp;/&nbsp;{$bill_client.kpp}</span></p>
+			<p ><span>{$smarty.capture.customer_firm_info}</span></p>
 		</td>
 		<td>
 			<p ><span>[19]</span></p>
