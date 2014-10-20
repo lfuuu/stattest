@@ -198,9 +198,8 @@ class AgentReport
         
     }
     
-    
     /** 
-     * Получение данных при вознагрождение "% от счета"
+     * Получение данных при вознагрождение "% от счета" при подсчете от "Счетов"
      * @param array $agent информация об агенте
      * @param string $fields  доп поля для запроса
      * @param string $from  начало периода
@@ -209,6 +208,83 @@ class AgentReport
      * @param array $agent_interests данные о возможных поощрениях агента
      */
     private static function getReportDataBills($agent, $fields, $from, $to, $interests_types, $agent_interests)
+    {
+        global $db;
+        $ret = array(); 
+        $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
+        $R = $db->AllRecords($q = "
+                SELECT " . $fields . " 
+                    c.id, c.client, c.company, 
+                    sum(l.sum) as bills
+                FROM
+                    clients c
+                LEFT JOIN newbills b ON (b.client_id = c.id)
+                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
+                WHERE
+                    c.sale_channel = ".$agent['id']."
+                AND b.bill_date >= '".$from."'
+                AND b.bill_date <= '".$to."' 
+                AND l.sum > 0 
+                GROUP BY c.id
+             ");
+             
+        foreach ($R as $r) {
+            $ret[$r['id']] = array(
+                'id'=>$r['id'],
+                'client'=>$r['client'],
+                'company'=>$r['company'],
+                'psum'=>0,
+                'fsum'=>0, 
+                'period'=>0,
+                'fsums' => $interests_types);
+        }
+
+        $R2 = $db->AllRecords($q = "
+            SELECT 
+                c.id, 
+                sum(if(l.item LIKE '%номер%' OR l.item LIKE '%ВАТС%', l.sum, 0)) as  bills_all 
+            FROM
+                clients c
+            LEFT JOIN 
+                newbills b  ON (b.client_id = c.id)
+            LEFT JOIN 
+                newbill_lines l ON (l.bill_no = b.bill_no)
+            WHERE
+                    c.sale_channel = ".$agent['id']."
+                AND b.bill_date >= '".$from."' 
+                AND b.bill_date <= '".$to."' 
+                AND b.bill_no NOT LIKE '%/%'
+                AND b.is_payed = 1  
+                    
+            GROUP BY c.id
+        ");
+
+        foreach ($R2 as $r) 
+        {
+            $r['bills'] = $r['bills_all'];
+            $ret[$r['id']]['psum'] += $r['bills'];
+            $total['psum'] += $ret[$r['id']]['psum'];
+            foreach ($interests_types as $k => $v) {
+                        $sum = round($r[$k]*$agent_interests[$k]/100, 2);
+                        $ret[$r['id']]['fsums'][$k] += $sum;
+                        $ret[$r['id']]['fsum'] += $sum;
+                        $total['fsum'] += $ret[$r['id']]['fsum'];
+            }
+        }
+        $total = AgentReport::prepareTotals($total);
+        return array($ret, $total);
+    }
+    
+    /** 
+     * Получение данных при вознагрождение "% от счета" при подсчете от "Платежей"
+     * @param array $agent информация об агенте
+     * @param string $fields  доп поля для запроса
+     * @param string $from  начало периода
+     * @param string $to  конец периода
+     * @param string $interests_types данные о подтипах поощрений агента
+     * @param array $agent_interests данные о возможных поощрениях агента
+     */
+    private static function old_getReportDataBills($agent, $fields, $from, $to, $interests_types, $agent_interests)
     {
         global $db;
         $ret = array(); 
@@ -288,7 +364,8 @@ class AgentReport
 
         foreach ($R2 as $r) 
         {
-            $r['bills'] = $r['bills_all'] - $r['no_tel_sum'];
+            $r['bills_all'] -= $r['no_tel_sum'];
+            $r['bills'] = $r['bills_all'];
             $ret[$r['id']]['psum'] += $r['bills'];
             $total['psum'] += $ret[$r['id']]['psum'];
             foreach ($interests_types as $k => $v) {
@@ -545,14 +622,88 @@ class AgentReport
         $design->ProcessEx('stats/agent_details_prebills.tpl');
     }
     
-    
     /** 
-     * Получение детализации о полученных платежах
+     * Получение детализации об оплаченных счетах
      * @param int $client_id ID клиента по которому идет детализация
      * @param int $month месяц по которому идет детализация
      * @param int $year год по которому идет детализация
      */
     private static function getBillsDetails($client_id, $month, $year)
+    {
+        global $db,$design;
+        $from = mktime(0,0,0,$month,1,$year);
+        $to = strtotime('last day of this month', $from);
+        
+        $title = array();
+        $title['period'] = ' в период с 1 по ' . mdate('d месяца Y ',$to);
+        $title['title'] = ClientCard::first($client_id)->company;
+        $title['client_id'] = $client_id;
+        
+        $from = date('Y-m-d', $from);
+        $to = date('Y-m-d', $to);
+        
+        $data = $db->AllRecords($q = "
+            SELECT 
+                b.bill_no, 
+                UNIX_TIMESTAMP(b.bill_date) as ts,
+                b.sum as b_sum, 
+                l.sum, 
+                l.item, 
+                IF(
+                    l.item like '%номер%' OR l.item like '%ВАТС%',
+                    1,
+                    0
+                ) as is_abon,
+                b.is_payed
+            FROM 
+                newbills as b 
+            LEFT JOIN 
+                newbill_lines as l ON b.bill_no = l.bill_no 
+            WHERE 
+                    b.client_id = ".$client_id." 
+                AND b.bill_date >= '".$from."' 
+                AND b.bill_date <= '".$to."' 
+                AND b.bill_no NOT LIKE '%/%' 
+            ORDER BY 
+                b.bill_no, l.sort
+        ");
+        
+        $totals = $db->GetRow($q = "
+            SELECT 
+                sum(
+                    IF(
+                        l.item like '%номер%' OR l.item like '%ВАТС%', 
+                        l.sum,
+                        0
+                    )
+                ) as prebills,
+                sum(l.sum) as bills 
+            FROM
+                newbills b 
+            LEFT JOIN 
+                newbill_lines l ON (b.bill_no = l.bill_no)
+            WHERE
+                    b.client_id = ".$client_id."
+                AND b.bill_date >= '".$from."' 
+                AND b.bill_date <= '".$to."' 
+                AND b.is_payed = 1
+                AND l.sum > 0 
+        ");
+        
+        $design->assign('totals', $totals);
+        $design->assign('title', $title);
+        $design->assign('data', $data);
+        $design->ProcessEx('errors.tpl');
+        $design->ProcessEx('stats/agent_details_bills.tpl');
+    }
+    
+    /** 
+     * Получение детализации о полученных платежах 
+     * @param int $client_id ID клиента по которому идет детализация
+     * @param int $month месяц по которому идет детализация
+     * @param int $year год по которому идет детализация
+     */
+    private static function old_getBillsDetails($client_id, $month, $year)
     {
         global $db,$design;
         $from = mktime(0,0,0,$month,1,$year);
