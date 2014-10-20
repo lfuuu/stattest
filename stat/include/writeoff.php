@@ -1171,25 +1171,76 @@ class ServiceUsageVirtpbx extends ServicePrototype {
 	return $this->service['amount']*$this->GetDatePercent()*$this->tarif_current['price'];
     }
     public function GetLinesMonth(){
-        if(!$this->date_from || !$this->date_to)
-            return array();
+        
         $R=ServicePrototype::GetLinesMonth();
-        $v=array(
-            $this->tarif_current['currency'],
-            $this->tarif_current['description'],
-            $this->service['amount']*$this->GetDatePercent(),
-            $this->tarif_current['price'],
-            'service',
-            $this->service['service'],
-            $this->service['id'],
-            date('Y-m-d',$this->date_from),
-            date('Y-m-d',$this->date_to)
-        );
+        if($this->date_from && $this->date_to){
+            $v=array(
+                $this->tarif_current['currency'],
+                $this->tarif_current['description'],
+                $this->service['amount']*$this->GetDatePercent(),
+                $this->tarif_current['price'],
+                'service',
+                $this->service['service'],
+                $this->service['id'],
+                date('Y-m-d',$this->date_from),
+                date('Y-m-d',$this->date_to)
+            );
 
-        //by month
-        $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            //by month
+            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
 
-        $R[]=$v;
+            $R[]=$v;
+        }
+        if($this->date_from_prev && $this->date_to_prev){
+            list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->date_from_prev, $this->date_to_prev);
+            
+            if ($overrun_prev_month['sum_space'] > 0)
+            {
+                $price = $overrun_prev_month['overrun_per_mb'];
+                if ($this->client['nds_zero'])
+                {
+                    $amount = $overrun_prev_month['sum_space']/$overrun_prev_month['overrun_per_mb'];
+                } else {
+                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_mb']*1.18);
+                }
+                
+                $v=array(
+                    $this->tarif_current['currency'],
+                    'Превышение дискового пространства с '.mdate('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev),
+                    $amount,
+                    $price,
+                    'service',
+                    $this->service['service'],
+                    $this->service['id'],
+                    date('Y-m-d',$this->date_from_prev),
+                    date('Y-m-d',$this->date_to_prev)
+                );
+                $R[]=$v;
+            }
+            if ($overrun_prev_month['sum_number'] > 0)
+            {
+                $price = $overrun_prev_month['overrun_per_port'];
+                if ($this->client['nds_zero'])
+                {
+                    $amount = $overrun_prev_month['sum_number']/$overrun_prev_month['overrun_per_port'];
+                } else {
+                    $amount = ($overrun_prev_month['sum_number']/($overrun_prev_month['overrun_per_port']*1.18));
+                }
+                
+                $v=array(
+                    $this->tarif_current['currency'],
+                    'Превышение количества портов с '.mdate('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev),
+                    $amount,
+                    $price,
+                    'service',
+                    $this->service['service'],
+                    $this->service['id'],
+                    date('Y-m-d',$this->date_from_prev),
+                    date('Y-m-d',$this->date_to_prev)
+                );
+                $R[]=$v;
+            }
+        }
         return $R;
     }
 }
