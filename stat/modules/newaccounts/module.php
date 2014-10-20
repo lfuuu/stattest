@@ -582,7 +582,7 @@ class m_newaccounts extends IModule
                 if (abs($sum) >= 0.01){
                     $PaymentsOrders[] = array(
                             'payment_id' => $v['id'],
-                            'bill_no'=>$last_payment['bill_no']."111",
+                            'bill_no'=>$last_payment['bill_no'],
                             'sum'=>$sum,
                             'currency'=>$currency,
                             'sum_rub'=>$sum_rub,
