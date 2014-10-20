@@ -35,6 +35,8 @@ class CompatibilityController extends BaseController
         $design->assign('module', $module);
         $design->AddMain('errors.tpl');
 
+        if ($newClient = get_param_raw("clients_client"))
+            $_SESSION["clients_client"] = $newClient;
 
         $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
         $fixclient_data = array();
