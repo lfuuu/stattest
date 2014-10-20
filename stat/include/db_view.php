@@ -14,33 +14,40 @@ class DbView {
 	private $rawQuery = '';
 	
 	public function __construct() {
-            $P=array('AND');
-            $order='';
-            foreach($this->order as $k=>$v)
-                    $order .= ($order?',':' order by ').$k.' '.$v;
+    }
 
-            foreach($this->filters as $f)
-                    if(isset($this->SQLFilters[$f]))
-                            $P[]=$this->SQLFilters[$f];
-
-            if(isset($this->SQLFilters[$this->fieldset]))
-                    $P[] = $this->SQLFilters[$this->fieldset];
-
-            $this->rawQuery = $this->SQLQuery;
-
-            $query_start = ($this->rawQuery) ? $this->rawQuery : 'select * from '.$this->table;
-            $this->rawQuery = $query_start . ' where '.MySQLDatabase::Generate($P).$order;
-	}
 	public function SetFilters($n) {
 		if (is_array($n) && count($n)) $this->filters=$n;
         self::__construct();
 	}
 	public function SetFieldSet($n) {
 		$this->fieldset=$n;
-	}
+    }
+
+    private function makeSQLString() {
+        $P=array('AND');
+        $order='';
+        foreach($this->order as $k=>$v)
+                $order .= ($order?',':' order by ').$k.' '.$v;
+
+        foreach($this->filters as $f)
+                if(isset($this->SQLFilters[$f]))
+                        $P[]=$this->SQLFilters[$f];
+
+        if(isset($this->SQLFilters[$this->fieldset]))
+                $P[] = $this->SQLFilters[$this->fieldset];
+
+        $this->rawQuery = $this->SQLQuery;
+
+        $query_start = ($this->rawQuery) ? $this->rawQuery : 'select * from '.$this->table;
+        $this->rawQuery = $query_start . ' where '.MySQLDatabase::Generate($P).$order;
+    }
+
 	public function Display($link_read,$link_edit,$add = 1) {
 		global $db,$design;
-		$design->assign('dbview_headers',$this->Headers[$this->fieldset]);
+        $design->assign('dbview_headers',$this->Headers[$this->fieldset]);
+
+        $this->makeSQLString();
 
 		$dbview_data = array();
 		$db->Query($this->rawQuery);
@@ -702,6 +709,7 @@ class DbViewMonitorClients extends DbView {
 	}
 }
 
+/*
 class DbFormMonitorClients extends DbForm {
 	public function __construct() {
 		DbForm::__construct('monitor_clients');
@@ -729,6 +737,7 @@ class DbFormMonitorClients extends DbForm {
 		DbForm::Display($form_params,$h2,$h3);
 	}
 }
+ */
 
 class DbViewFactory {
 	public static function Get($v) {
