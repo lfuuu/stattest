@@ -378,7 +378,7 @@ class m_accounts{
                 $_SESSION['clients_client'] = $client;
             };
             header("Location: index.php?module=accounts&action=accounts_payments");
-            return;
+            exit;
         }
 
         $manager=get_param_protected('manager');

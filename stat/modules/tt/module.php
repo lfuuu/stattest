@@ -77,7 +77,10 @@ class m_tt extends IModule{
         $R['bill_no'] = get_param_protected('bill_no','null');
         $R['service_id']=get_param_integer('service_id');
         $id = $this->createTrouble($R,$user_main);
-        if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$id);
+        if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=tt&action=view&id='.$id);
+            exit;
+        }
     }
     function tt_time($fixclient) {
         global $db,$design,$user;
@@ -99,7 +102,10 @@ class m_tt extends IModule{
             }
 
         }
-        if ($design->ProcessEx('errors.tpl')) header('Location: ?module=tt&action=view&id='.$trouble['id']);
+        if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=tt&action=view&id='.$trouble['id']);
+            exit;
+        }
     }
     function tt_move($fixclient)
     {
@@ -329,6 +335,7 @@ class m_tt extends IModule{
         if($design->ProcessEx('errors.tpl'))
         {
             header('Location: ?module=tt&action=view&id='.$trouble['id']);
+            exit;
         }
 	}
 

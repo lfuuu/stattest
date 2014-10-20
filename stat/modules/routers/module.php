@@ -455,6 +455,7 @@ class m_routers {
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=routers&action=d_list');
+            exit;
             $design->ProcessX('empty.tpl');
         }
         $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'Клиентские устройства','Редактирование');
@@ -557,6 +558,7 @@ class m_routers {
         $result=$dbf->Process();
         if ($result=='delete') {
             header('Location: ?module=devices&action=m_list');
+            exit;
             $design->ProcessEx('empty.tpl');
         }
         $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'Модели клиентских устройств','Редактирование');
