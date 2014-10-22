@@ -1,7 +1,7 @@
 <?
 	//для просмотра клиентами того, что было отправлено через модуль mail
 
-	define("PATH_TO_ROOT",'../../stat/');
+	define("PATH_TO_ROOT",'../stat/');
 	include PATH_TO_ROOT."conf_yii.php";
 	$o = MailJob::GetObjectP();
 	$db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id='.$o['object_id']);
