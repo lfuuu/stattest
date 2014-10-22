@@ -1306,7 +1306,6 @@ class ClientCS {
         }
 
         $V = array('name'=>$name,'ts'=>array('NOW()'),'client_id'=>$this->id,'comment'=>$comment,'user_id'=>$user->Get('id'));
-        printdbg($V);
         $id = $db->QueryInsert('client_files',$V);
         move_uploaded_file($_FILES['file']['tmp_name'],STORE_PATH.'files/'.$id);
     }
