@@ -1,5 +1,5 @@
 <?php
-	define("PATH_TO_ROOT",'../../stat/');
+	define("PATH_TO_ROOT",'../stat/');
 	include PATH_TO_ROOT."conf_yii.php";
 	if (!($R=udata_decode_arr(get_param_raw('bill')))) return;
     if($R["object"] != "receipt-2-RUR")

@@ -1,5 +1,5 @@
 <?
-	define('PATH_TO_ROOT','../../stat/');
+	define('PATH_TO_ROOT','../stat/');
 	define('ERROR_NO_WEB',1);
 	include PATH_TO_ROOT."conf_yii.php";
     $user->AuthorizeByUserId(Yii::$app->user->id);
