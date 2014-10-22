@@ -457,7 +457,7 @@ class DbViewTarifsWelltime extends DbView{
 class DbViewTarifsVirtpbx extends DbView{
 	public function __construct(){
 		$this->table = 'tarifs_virtpbx';
-		$this->Headers['z'] = 'Тарифы Виртуальная АТС';
+		$this->Headers['z'] = 'Тарифы на виртуальную АТС';
 		$this->FieldSets['z']=array(
 			'description'=>'Описание',
 			'price'=>'Стоимость',
@@ -603,7 +603,7 @@ class DbFormTarifsVirtpbx extends DbFormSimpleLog {
         $this->fields['num_ports']=array('default'=>50);
         $this->fields['overrun_per_port']=array('default'=>1);
         $this->fields['space']=array('default'=>100);
-        $this->fields['overrun_per_mb']=array('default'=>1);
+        $this->fields['overrun_per_gb']=array('default'=>1);
         $this->fields['is_record']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
         $this->fields['is_fax']=array('assoc_enum' => array('1' => 'Да', '0' => 'Нет'), 'default'=>1);
 	}

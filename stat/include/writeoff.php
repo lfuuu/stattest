@@ -1196,12 +1196,12 @@ class ServiceUsageVirtpbx extends ServicePrototype {
             
             if ($overrun_prev_month['sum_space'] > 0)
             {
-                $price = $overrun_prev_month['overrun_per_mb'];
+                $price = $overrun_prev_month['overrun_per_gb'];
                 if ($this->client['nds_zero'])
                 {
-                    $amount = $overrun_prev_month['sum_space']/$overrun_prev_month['overrun_per_mb'];
+                    $amount = $overrun_prev_month['sum_space']/$overrun_prev_month['overrun_per_gb'];
                 } else {
-                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_mb']*1.18);
+                    $amount = $overrun_prev_month['sum_space']/($overrun_prev_month['overrun_per_gb']*1.18);
                 }
                 
                 $v=array(

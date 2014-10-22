@@ -91,7 +91,7 @@ class VirtpbxStat extends ActiveRecord\Model
                     'for_number' => 0, 
                     'sum_number' => 0, 
                     'sum_space' => 0, 
-                    'overrun_per_mb' => 0, 
+                    'overrun_per_gb' => 0, 
                     'overrun_per_port' => 0
                 );
 		$options['select'] = '
@@ -120,7 +120,7 @@ class VirtpbxStat extends ActiveRecord\Model
 			if ($mb > $tarif_info->space)
 			{
 				$v->for_space = ceil(($mb - $tarif_info->space)/1024);
-				$v->sum_space = $nds * ($v->for_space*$tarif_info->overrun_per_mb)/date('t', $v->mdate);
+				$v->sum_space = $nds * ($v->for_space*$tarif_info->overrun_per_gb)/date('t', $v->mdate);
 				$totals['sum_space'] +=  $v->sum_space;
 			}
 			if ($v->numbers > $tarif_info->num_ports)
@@ -131,7 +131,7 @@ class VirtpbxStat extends ActiveRecord\Model
 			}
 			$v->sum = $v->sum_space + $v->sum_number;
 			$totals['sum'] +=  $v->sum;
-			$totals['overrun_per_mb'] = $tarif_info->overrun_per_mb;
+			$totals['overrun_per_gb'] = $tarif_info->overrun_per_gb;
 			$totals['overrun_per_port'] = $tarif_info->overrun_per_port;
 			if (isset($stat_detailed[$k-1])) 
 			{
