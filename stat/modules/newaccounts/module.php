@@ -6303,9 +6303,9 @@ $sql .= "    order by client, bill_no";
                             "doc_type"  => $type
                             ));
 
-                exec("mv ".$dir.$e." ../store/documents/".$id.".pdf");
+                exec("mv ".$dir.$e." ".STORE_PATH."documents/".$id.".pdf");
             }else{
-                exec("mv ".$dir.$e." ../store/documents/unrecognized/".$e);
+                exec("mv ".$dir.$e." ".STORE_PATH."documents/unrecognized/".$e);
             }
 
 
