@@ -341,11 +341,18 @@ class ServiceUsageIpPorts extends ServicePrototype {
     public function GetLinesMonth(){
         $R = ServicePrototype::GetLinesMonth();
         $O = array();
+
         if($this->date_from && $this->date_to){
+
+            $itemName = (
+                $this->tarif_current["type"] == "C" ? 
+                $this->tarif_current['name'].' с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to) :
+                'Абонентская плата за доступ в интернет (подключение '.$this->service['id'].', тариф '.$this->tarif_current['name'].') с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to));
+
             $R[] = array(
                 $this->tarif_current['currency'],
-                'Абонентская плата за доступ в интернет (подключение '.$this->service['id'].', тариф '.$this->tarif_current['name'].') с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to),
-                $this->GetDatePercent(),
+                $itemName,
+                $this->GetDatePercent()*$this->service['amount'],
                 $this->tarif_current['pay_month'],
                 'service',
                 $this->service['service'],

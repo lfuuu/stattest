@@ -317,6 +317,7 @@ class DbFormUsageIpPorts extends DbForm{
         $this->fields['port']=array('db_ignore'=>1,'enum'=>array());
 
         $this->fields['port_id']=array('type'=>'hidden');
+        $this->fields['amount']=array('default'=>'1');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         
         $this->includesPreL = array('dbform_internet_tarif.tpl');
