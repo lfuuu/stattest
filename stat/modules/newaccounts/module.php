@@ -1602,35 +1602,48 @@ class m_newaccounts extends IModule
             ClientCS::getClientClient($fixclient);
             $services = get_all_services($fixclient,$fixclient_data['id']);
             $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
-            
+
             $client = ClientCard::first($fixclient_data['id']);
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
-		$this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
-		$client = ClientCard::first($fixclient_data['id']);
+                $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
+                $client = ClientCard::first($fixclient_data['id']);
             }
+
+            $_R = [];
             foreach ($services as $service){
                 // если у нас телефония, или интернет, и канал уже закрыт прошлым числом - все равно надо предъявлять превышение лимита
                 if(!in_array($service['service'],array('usage_voip','usage_ip_ports', 'usage_virtpbx')) && (unix_timestamp($service['actual_from']) > $time || unix_timestamp($service['actual_to']) < $time))
                     continue;
                 $s=ServiceFactory::Get($service,$bill);
                 $s->SetMonth($bill->GetTs());
-                $R=$s->GetLinesMonth();
-                if(empty($R[0][0]))
+                $R_line=$s->GetLinesMonth();
+                if(empty($R_line[0][0]))
                     continue;
-                if(!$bill->AddLines($R))
-                    $err=1;
+
+                $_R[] = $R_line;
             }
+
+            if ($_R)
+            {
+                $RS = $bill->CombineRows($_R);
+                foreach($RS as $R)
+                {
+                    if(!$bill->AddLines($R))
+                        $err=1;
+                }
+            }
+
             if ($client->status == "operator")
             {
-		if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
-		{
-			$bill->changeToOnlyContract();
-		}
-		if ($client->is_bill_with_refund && $client->balance > 0)
-		{
-			$bill->applyRefundOverpay($client->balance, $client->nds_zero);
-		}
+                if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
+                {
+                    $bill->changeToOnlyContract();
+                }
+                if ($client->is_bill_with_refund && $client->balance > 0)
+                {
+                    $bill->applyRefundOverpay($client->balance, $client->nds_zero);
+                }
             }
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
@@ -1675,10 +1688,16 @@ class m_newaccounts extends IModule
                 	$this->update_balance($c['id'],$c['currency']);
                 	$client = ClientCard::first($c['id']);
                 }
+
+                $RS = [];
                 foreach($services as $service){
                     $s=ServiceFactory::Get($service,$bill);
                     $s->SetMonth(time());
-                    $R=$s->GetLinesMonth();
+                    $RS[]=$s->GetLinesMonth();
+                }
+
+                $RS = $bill->CombineRows($RS);
+                foreach($RS as $R) {
                     if(!$bill->AddLines($R)){    //1 - не все строки добавлены из-за расхождения валют
                         if(!$bill2)
                             $bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUR'?'USD':'RUR'), false);

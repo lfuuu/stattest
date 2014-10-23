@@ -39,7 +39,7 @@
 	<td><b>{$conn.data.port_type}, {if $conn.data.port=='mgts'}{$conn.data.node}{else}<a href='{$LINK_START}module=routers&id={$conn.data.node}'>{$conn.data.node}</a>::{$conn.data.port}{/if}</b></td>
 	<td>
 	{if isset($conn.data.tarif.name)}<img alt='Текущий тариф' class=icon src='{$IMAGES_PATH}icons/tarif.gif' alt="{$conn.data.tarif.mb_month}-{$conn.data.tarif.pay_month}-{$conn.data.tarif.pay_mb}">
-		<span style='color:#0000C0' title='Текущий тариф: {$conn.data.tarif.mb_month}-{$conn.data.tarif.pay_month}-{$conn.data.tarif.pay_mb}'>{$conn.data.tarif.name}</span><br>{/if}
+		<span style='color:#0000C0' title='Текущий тариф: {$conn.data.tarif.mb_month}-{$conn.data.tarif.pay_month}-{$conn.data.tarif.pay_mb}'>{$conn.data.tarif.name}{if $conn.data.amount > 1} x {$conn.data.amount}{/if}</span><br>{/if}
 	{if isset($conn.data.tarif_previous.name) && $conn.data.tarif_previous.id!=$conn.data.tarif.id}
 		<span style='color:#C00000' title='Предыдущий тариф: {$conn.data.tarif_previous.mb_month}-{$conn.data.tarif_previous.pay_month}-{$conn.data.tarif_previous.pay_mb}'>{$conn.data.tarif_previous.name}</span><br>{/if}
 	{if isset($conn.data.tarif_next.name)}
