@@ -13,9 +13,9 @@
 	{foreach from=$rate.clients item='client' key='client_id'}
 	{foreach from=$client.bills item='bill' key='bill_no'}
 	<tr class="{cycle values='even,odd'}">
-		{if !$selected.group_bill}<td><a href="/operator/index.php?module=tarifs&action=edit&m=voip&id={$rate_id}" target="_blank">{$rate.name}</a></td>{/if}
-		<td><a href="/operator/index.php?module=clients&id={$client.client}" target="_blank">{$client.client}</a> &laquo;{$client.status}&raquo;</td>
-		<td><a href="/operator/index.php?module=newaccounts&action=bill_view&bill={$bill_no}" target="_blank">{$bill_no}</a> &laquo;{$bill.overt.cur}&raquo; &laquo;{$bill.date}&raquo;</td>
+		{if !$selected.group_bill}<td><a href="index.php?module=tarifs&action=edit&m=voip&id={$rate_id}" target="_blank">{$rate.name}</a></td>{/if}
+		<td><a href="index.php?module=clients&id={$client.client}" target="_blank">{$client.client}</a> &laquo;{$client.status}&raquo;</td>
+		<td><a href="index.php?module=newaccounts&action=bill_view&bill={$bill_no}" target="_blank">{$bill_no}</a> &laquo;{$bill.overt.cur}&raquo; &laquo;{$bill.date}&raquo;</td>
 		<td>{if $selected.with_nds}{$bill.overt.sum}{else}{$bill.overt.sum|div:1.18:2}{/if}</td>
 		<td>
 			<table>

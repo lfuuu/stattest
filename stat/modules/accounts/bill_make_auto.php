@@ -3,7 +3,7 @@
     set_magic_quotes_runtime(0);
     include  "../../include_archaic/lib.php";
     include  "bill_make_lib.php";
- //   define ("PATH_TO_ROOT",$_SERVER['DOCUMENT_ROOT'].'/operator/');
+ //   define ("PATH_TO_ROOT",$_SERVER['DOCUMENT_ROOT']);
 //   require_once("../../include/util.php");
 
 function str_protect($str){

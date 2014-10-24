@@ -1,7 +1,7 @@
 <?php
 
 error_reporting(E_ALL);
-	define ("PATH_TO_ROOT",$_SERVER['DOCUMENT_ROOT'].'/operator/');
+	define ("PATH_TO_ROOT",$_SERVER['DOCUMENT_ROOT']);
 		require_once("../../conf.php");
 		include  "../../include_archaic/lib.php";
     		include  "bill_make_lib.php";
