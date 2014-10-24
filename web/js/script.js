@@ -213,7 +213,7 @@ function form_ip_ports_get_ports() {
 		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
 	} 
 	req.caching = false; 
-	req.open('GET', PATH_TO_ROOT+'index_lite.php?module=services&action=in_async&node='+nodeval+'&port_type='+porttypeval, true); 
+	req.open('GET', './index_lite.php?module=services&action=in_async&node='+nodeval+'&port_type='+porttypeval, true); 
 	req.send();			
 }
 
@@ -240,7 +240,7 @@ function form_cpe_get_clients(first_load) {
 		}
 	} 
 	req.caching = false;
-	req.open('GET', PATH_TO_ROOT+'index_lite.php?module=routers&action=d_async&res=client&id_model='+id_modelval+'&client='+document.getElementById('client').getAttribute('tag'), true); 
+	req.open('GET', './index_lite.php?module=routers&action=d_async&res=client&id_model='+id_modelval+'&client='+document.getElementById('client').getAttribute('tag'), true); 
 	req.send();
 } 
 
@@ -254,7 +254,7 @@ function form_cpe_get_services(first_load) {
 		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
 	}
 	req.caching = false; 
-	req.open('GET', PATH_TO_ROOT+'index_lite.php?module=routers&action=d_async&res=service&id_model='+id_modelval+'&client='+clientval+'&id='+document.getElementById('id_service').getAttribute('tag'), true);
+	req.open('GET', './index_lite.php?module=routers&action=d_async&res=service&id_model='+id_modelval+'&client='+clientval+'&id='+document.getElementById('id_service').getAttribute('tag'), true);
 	req.send();
 } 
 
@@ -347,7 +347,7 @@ function __form_get(id, tarif_table) {
 		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
 	}
 	req.caching = false; 
-	req.open('GET', PATH_TO_ROOT+'index_lite.php?module=services&action=ex_async&tarif_table='+tarif_table+'&id='+id, true);
+	req.open('GET', './index_lite.php?module=services&action=ex_async&tarif_table='+tarif_table+'&id='+id, true);
 	req.send();
 } 
 
