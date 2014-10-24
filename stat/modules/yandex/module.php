@@ -60,7 +60,7 @@ class m_yandex extends IModule{
 			if ($k == 'compapa') $ya = ZenYandexClient::setClientId('7C084C6C621A3C4639641299B1396C6AB70269CD8B69A5717CA1E57CAFED67E6');
 	
 			$scope = 'operation-history account-info operation-details payment-shop';
-			ZenYandexClient::authorize($scope, 'https://' . $_SERVER['SERVER_NAME'] . '/operator/index.php?module=yandex&action=authorize_callback'.$k.'&x=2');
+			ZenYandexClient::authorize($scope, 'https://' . $_SERVER['SERVER_NAME'] . '/index.php?module=yandex&action=authorize_callback'.$k.'&x=2');
 			
 		}else{
 			$design->AddMain('yandex/authorize.html');
@@ -73,9 +73,9 @@ class m_yandex extends IModule{
 //	        	'<?php global $ya_stat_token; $ya_stat_token = "'.$access_token.'";');
 	
 	    echo "$access_token";
-	    echo "<br><br><a href='/operator/index.php?module=yandex&action=history'>Перейти в историю</a>";
+	    echo "<br><br><a href='index.php?module=yandex&action=history'>Перейти в историю</a>";
 	    die();
-	    //header('location: /operator/index.php?module=yandex&action=history');
+	    //header('location: index.php?module=yandex&action=history');
 	}
 	function yandex_authorize_callbackcompapa(){
 
@@ -85,9 +85,9 @@ class m_yandex extends IModule{
 //	        	'<?php global $ya_stat_token; $ya_stat_token = "'.$access_token.'";');
 	
 	    echo "$access_token";
-	    echo "<br><br><a href='/operator/index.php?module=yandex&action=history'>Перейти в историю</a>";
+	    echo "<br><br><a href='index.php?module=yandex&action=history'>Перейти в историю</a>";
 	    die();
-	    //header('location: /operator/index.php?module=yandex&action=history');
+	    //header('location: index.php?module=yandex&action=history');
     		
 	}	
 	
