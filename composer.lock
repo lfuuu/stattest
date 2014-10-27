@@ -267,12 +267,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bzikarsky/gelf-php.git",
-                "reference": "a507e322fcd5487d410001dfd04cb15c88ba8974"
+                "reference": "8dbe99771168371341a6b09ba18aca27cb3fdbb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/a507e322fcd5487d410001dfd04cb15c88ba8974",
-                "reference": "a507e322fcd5487d410001dfd04cb15c88ba8974",
+                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/8dbe99771168371341a6b09ba18aca27cb3fdbb5",
+                "reference": "8dbe99771168371341a6b09ba18aca27cb3fdbb5",
                 "shasum": ""
             },
             "require": {
@@ -280,8 +280,8 @@
                 "psr/log": "~1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.3.1",
-                "squizlabs/php_codesniffer": "1.5.5"
+                "phpunit/phpunit": "~4.3",
+                "squizlabs/php_codesniffer": "~1.5"
             },
             "type": "library",
             "autoload": {
@@ -300,7 +300,7 @@
                 }
             ],
             "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2.",
-            "time": "2014-10-16 07:40:20"
+            "time": "2014-10-20 07:01:45"
         },
         {
             "name": "psr/log",
@@ -388,12 +388,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "3f99dfdc358ffe79f31fd1d3d039e5031616f221"
+                "reference": "a3a6e388d6494d829bf80274af455a834ade07f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/3f99dfdc358ffe79f31fd1d3d039e5031616f221",
-                "reference": "3f99dfdc358ffe79f31fd1d3d039e5031616f221",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/a3a6e388d6494d829bf80274af455a834ade07f6",
+                "reference": "a3a6e388d6494d829bf80274af455a834ade07f6",
                 "shasum": ""
             },
             "require": {
@@ -468,7 +468,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2014-10-16 12:13:31"
+            "time": "2014-10-20 13:46:44"
         },
         {
             "name": "yiisoft/yii2-composer",
