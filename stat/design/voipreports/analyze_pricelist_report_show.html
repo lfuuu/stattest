@@ -87,6 +87,9 @@
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr><td class=header colspan=3>&nbsp;</td>
+    {if $showOperator}
+    <td class=header>&nbsp;</td>
+    {/if}
     <td nowrap class=header align=center>Лучшая цена</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$pricelists[$p]->name}</td>
@@ -102,6 +105,9 @@
     {/if}
 </tr>
 <tr><td class=header>Префикс номера</td><td class=header>Зона</td><td class=header>Назначение</td>
+    {if $showOperator}
+        <td class=header>Оператор</td>
+    {/if}
     <td nowrap class=header align=center>{php}echo $this->_tpl_vars['regions'][$this->_tpl_vars['rep']->instance_id]->name;{/php}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td class=header align=center>{$rep->dates[$i]}</td>
@@ -122,6 +128,16 @@
 	<td>{$rd.prefix}</td>
 	<td align=center>{$rd.zone}</td>
 	<td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
+    {if $showOperator}
+    <td>{if $rd.operator_id}
+            {if $geoOperators[$rd.operator_id]}
+                {$geoOperators[$rd.operator_id]}
+            {else}
+                Другой оператор
+            {/if}
+        {/if}
+    </td>
+    {/if}
     <td  align=center>{$rd.best_price|replace:'.':','}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td align=center class="{if $rd.best_index == $i}best{/if}">{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>
