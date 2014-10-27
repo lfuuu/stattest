@@ -5684,6 +5684,7 @@ $sql .= "    order by client, bill_no";
                 break;
             }
         }
+        exit();
     }
 
     function newaccounts_make_1c_bill($client_tid){
