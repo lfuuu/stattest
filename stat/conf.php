@@ -88,8 +88,6 @@ unset($config_key); unset($config_value);
 
 setlocale(LC_CTYPE,'ru_RU.utf-8');
 
-date_default_timezone_set("Asia/Dubai");
-
 ini_set('SMTP',SMTP_SERVER);
 
 define('PAGE_OBJ_COUNT',	50);
