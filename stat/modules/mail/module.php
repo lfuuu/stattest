@@ -325,7 +325,7 @@ class m_mail{
 			$m
 		);
 
-		$design->assign('f_status',$GLOBALS['module_clients']->statuses);
+		$design->assign('f_status', ClientCS::$statuses);
 		$f_regions = $db->AllRecords("select id, short_name, name from regions order by id desc", 'id');
 		$f_tarifs = array();
 		foreach ($f_regions as $v) {
