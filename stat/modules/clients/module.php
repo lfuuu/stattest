@@ -1657,7 +1657,10 @@ class m_clients {
 
 		$cs=new ClientCS($client['id']);
 		$cs->AddFile(get_param_protected('name'),get_param_protected('comment'));
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=clients&action=files');
+		if ($design->ProcessEx('errors.tpl')) {
+            header('Location: ?module=clients&action=files');
+            exit();
+        }
 	}
 	function clients_file_get($fixclient) {
 		global $design;
@@ -1673,6 +1676,7 @@ class m_clients {
 			header("Content-Length: " . filesize($f['path']));
 			readfile($f['path']);
 			$design->ProcessEx();
+            exit();
 		}
 	}
 
