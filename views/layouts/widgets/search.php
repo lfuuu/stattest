@@ -6,9 +6,9 @@ extract($this->context->getSearchData());
 
 <div style="display: inline-block;">
     <?php if ($module == 'clients' && !$clients_my && !$currentFilter): ?>
-    <span style='color:red;font-weight:bold'>Все клиенты</span> |
+        <a href='?module=clients&action=all&letter=&region=any' style='color:red;font-weight:bold'>Все клиенты</a> |
     <?php else: ?>
-    <a href='?module=clients&action=all&letter=&region=any'>Все клиенты</a> |
+        <a href='?module=clients&action=all&letter=&region=any'>Все клиенты</a> |
     <?php endif; ?>
 </div>
 
@@ -50,9 +50,9 @@ extract($this->context->getSearchData());
 
 <div style="display: inline-block;">
     <?php if ($module == 'clients' && $clients_my): ?>
-    | <span style='color:red;font-weight:bold'>Мои клиенты</span>
+        | <a href='?module=clients&subj=<?=Html::encode($client_subj)?>&action=my' style='color:red;font-weight:bold'>Мои клиенты</a>
     <?php else: ?>
-    | <a href='?module=clients&subj=<?=Html::encode($client_subj)?>&action=my'>Мои клиенты</a>
+        | <a href='?module=clients&subj=<?=Html::encode($client_subj)?>&action=my'>Мои клиенты</a>
     <?php endif; ?>
 </div>
 
