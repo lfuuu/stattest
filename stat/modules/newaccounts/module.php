@@ -2173,6 +2173,10 @@ class m_newaccounts extends IModule
         $db->Query('delete from newbill_lines where bill_no="'.$bill_no.'"');
         ServicePrototype::CleanOverprice($bill_no);
         $bill->Save(0,0);
+        
+        $client = $bill->Client();
+        $this->update_balance($client['id'], $client['currency']);
+        
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
             exit();
@@ -2201,6 +2205,10 @@ class m_newaccounts extends IModule
         }
 
         Bill::RemoveBill($bill_no);
+        
+        $client = $bill->Client();
+        $this->update_balance($client['id'], $client['currency']);
+        
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
