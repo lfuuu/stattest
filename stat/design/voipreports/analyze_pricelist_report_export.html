@@ -5,6 +5,9 @@
 <body>
 <table border=1>
 <tr><td colspan=4>&nbsp;</td>
+    {if $showOperator}
+    <td>&nbsp;</td>
+    {/if}
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td align=center><b>{$pricelists[$p]->name}</b></td>
 	{/foreach}
@@ -19,6 +22,9 @@
     {/if}
 </tr>
 <tr><td><b>Префикс номера</b></td><td><b>Зона</b></td><td><b>Назначение</b></td>
+    {if $showOperator}
+    <td><b>Оператор</b></td>
+    {/if}
     <td><b>Лучшая цена</b></td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
         <td align=center>{$rep->dates[$i]}</td>
@@ -39,6 +45,16 @@
 	<td>{$rd.prefix}</td>
 	<td>{$rd.zone}</td>
 	<td>{$rd.destination}</td>
+    {if $showOperator}
+    <td>{if $rd.operator_id}
+        {if $geoOperators[$rd.operator_id]}
+        {$geoOperators[$rd.operator_id]}
+        {else}
+        Другой оператор
+        {/if}
+        {/if}
+    </td>
+    {/if}
     <td>{$rd.best_price|replace:'.':','}</td>
     {foreach from=$rep->pricelist_ids key='i' item='p'}
 		<td>{if $rd.prices[$i] != 'NULL'}{$rd.prices[$i]|replace:'.':','}{/if}</td>

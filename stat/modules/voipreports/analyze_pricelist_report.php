@@ -29,6 +29,7 @@ class m_voipreports_analyze_pricelist_report
             $volume_task_id = 0;
         $volumes = array();
         $volumesByOper = array();
+        $showOperator = false;
 
         $pricelists = Pricelist::getListAssoc();
         $regions = Region::getListAssoc();
@@ -53,6 +54,39 @@ class m_voipreports_analyze_pricelist_report
                 $where .= " and d.mob=true ";
             if ($f_mob == 'f')
                 $where .= " and d.mob=false ";
+
+            $showOperator = $f_mob == 't' && $f_dest_group == 1;
+
+            $sql = "
+                    select r.prefix, r.prices, r.locked, r.orders, round(v.seconds/60.0) as volume,
+                              g.name as destination,
+                              " . ($showOperator ? 'pp.operator_id,' :'' ) . "
+                              d.mob, g.zone
+                    from voip.select_pricelist_report({$report_id}, {$recalc}) r
+                            LEFT JOIN voip_destinations d ON r.prefix=d.defcode
+                            LEFT JOIN geo.geo g ON g.id=d.geo_id
+                            LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.operator_id=0 and v.prefix=d.defcode
+                            " . ($showOperator ? 'left join geo.prefix pp on pp.prefix=r.prefix' :'' ) . "
+                            where true {$where}
+                            order by g.name, r.prefix
+                     ";
+            $report = $pg_db->AllRecords($sql);
+
+            foreach ($report as $k => $r) {
+                $orders = substr($r['orders'], 1, strlen($r['orders']) - 2);
+                $orders = $orders != '' ? explode(',', $orders) : array();
+                $prices = substr($r['prices'], 1, strlen($r['prices']) - 2);
+                $prices = $prices != '' ? explode(',', $prices) : array();
+
+                $report[$k]['prices'] = $prices;
+                if (count($orders) > 0) {
+                    $report[$k]['best_index'] = $orders[0];
+                    $report[$k]['best_price'] = $prices[$orders[0]];
+                } else {
+                    $report[$k]['best_index'] = -1;
+                    $report[$k]['best_price'] = '';
+                }
+            }
 
 
             $res_volumes = $pg_db->AllRecords("
@@ -86,39 +120,17 @@ class m_voipreports_analyze_pricelist_report
                 $volumesByOper[$r['operator_id']][$r['prefix']] = $r;
             }
 
-            $report = $pg_db->AllRecords("
-                                        select r.prefix, r.prices, r.locked, r.orders, round(v.seconds/60.0) as volume,
-                                                  g.name as destination, d.mob, g.zone
-                                        from voip.select_pricelist_report({$report_id}, {$recalc}) r
-                                                LEFT JOIN voip_destinations d ON r.prefix=d.defcode
-                                                LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                                LEFT JOIN voip.volume_calc_data v on v.task_id={$volume_task_id} and v.instance_id=0 and v.operator_id=0 and v.prefix=d.defcode
-                                                where true {$where}
-                                                order by g.name, r.prefix
-                                         ");
-
-            foreach ($report as $k => $r) {
-                $orders = substr($r['orders'], 1, strlen($r['orders']) - 2);
-                $orders = $orders != '' ? explode(',', $orders) : array();
-                $prices = substr($r['prices'], 1, strlen($r['prices']) - 2);
-                $prices = $prices != '' ? explode(',', $prices) : array();
-
-                $report[$k]['prices'] = $prices;
-                if (count($orders) > 0) {
-                    $report[$k]['best_index'] = $orders[0];
-                    $report[$k]['best_price'] = $prices[$orders[0]];
-                } else {
-                    $report[$k]['best_index'] = -1;
-                    $report[$k]['best_price'] = '';
-                }
-
-            }
-
         }
 
         if ($f_short != '') {
             $report = $this->reduceCodes($report);
         }
+
+        $geoOperators = [
+            '5000585' => 'МТС',
+            '5000610' => 'МегаФон',
+            '5001095' => 'Билайн',
+        ];
 
         $design->assign('rep', $rep);
         $design->assign('volume', $volume);
@@ -126,6 +138,7 @@ class m_voipreports_analyze_pricelist_report
         $design->assign('volumesByOper', $volumesByOper);
         $design->assign('report', $report);
         $design->assign('report_id', $report_id);
+        $design->assign('showOperator', $showOperator);
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
         $design->assign('f_mob', $f_mob);
@@ -137,6 +150,7 @@ class m_voipreports_analyze_pricelist_report
         $design->assign('pricelists', $pricelists);
         $design->assign('regions', $regions);
         $design->assign('operators', $operators);
+        $design->assign('geoOperators', $geoOperators);
 
         if (!isset($_GET['export'])) {
 
