@@ -762,7 +762,10 @@ function convertSip(&$a, &$inss, &$peers)
 		$name = ($v["type"] == "trunk" ? $v["account"] : ($v["type"] == "multitrunk" || $v["type"] == "line" ? $v["account"] : ""));
 
         list($sipType_type, $sipType_fake) = getSipType($v);
-		$peers[$v["number"]] = array_merge($peers[$v["number"]], array(
+
+		$peers[$v["number"]] = array_merge(
+            (isset($peers[$v["number"]]) ?  $peers[$v["number"]]: array())
+            , array(
               "type"      => $sipType_type,
               "_type"     => $v["type"],
               "delimeter" => ($v["format"] == "ats2" ? "" : $v["format"]),
