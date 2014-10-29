@@ -9,79 +9,108 @@ include INCLUDE_PATH."class.smtp.php";
 
 $db->Query("set names utf8");
 
+$prevMonthStart = strtotime("first day of previous month, 00:00:00");
+
 
 echo "\n".date("r").":\n";
 
 
 $R = array();
-foreach($db->AllRecords("select id, client, credit from clients where credit > -1 and status='work' ") as $l)
+foreach($db->AllRecords("SELECT id, client, credit FROM clients WHERE credit > -1 AND status='work'") as $l)
 {
-
-    echo "\n".$l["client"].": (".$l["credit"].")";
+    echo "\n";
+    echoCell($l['client'], 15);
+    echoCell("credit: ".$l["credit"]."");
 
     $usages = array();
-    foreach($db->AllRecords("select id from usage_voip where client = '".$l["client"]."'") as $u)
+    foreach($db->AllRecords(
+        "SELECT 
+            id
+        FROM 
+            usage_voip 
+        WHERE 
+                client = '".$l["client"]."' 
+            AND actual_to > '".date("Y-m-d", $prevMonthStart)."' 
+            AND actual_from < '2029-01-01'") as $u)
+    {
         $usages[] = $u["id"];
+    }
+
+
+    $isSayFirstCell = false;
+    $monthCallSum = $monthCallSumRound = $callSumPerDay = 0 ;
 
     if (!$usages) 
     {
-        echo " no usages";
-        continue;
+        echoCell("no usages", 19);
+        $isSayFirstCell = true;
+    } else {
+        $r = $pg_db->GetRow(
+                "SELECT 
+                    cast(sum(amount)/100.0 as numeric(10,2)) as sum, 
+                    min(time) as min, 
+                    max(time) as max 
+                FROM 
+                    calls.calls 
+                WHERE 
+                        time > '".date("Y-m-d", $prevMonthStart)." 00:00:00' 
+                    AND usage_id IN (".implode(", ", $usages).")
+                ");
+
+
+        $r["min"] = strtotime($r["min"]);
+        $r["max"] = strtotime($r["max"]);
+
+        $days = round(($r["max"] - $r["min"])/86400);
+
+        if (!$days)
+        {
+            echoCell("no calls", 19);
+            $isSayFirstCell = true;
+            $monthCallSum = $monthCallSumReal = $callSumPerDay = 0 ;
+        } else {
+            $callSumPerDay = $r["sum"] / $days;
+            $monthCallSum = round(date("t")*$callSumPerDay*1.1); //прогноз, +10%
+            $monthCallSumRound = round($monthCallSum < 100 ? 100 : $monthCallSum,  -2);
+        }
     }
 
-    $r = $pg_db->GetRow("SELECT cast(sum(amount)/100.0 as numeric(10,2))as sum, min(time) as min, max(time) as max FROM calls.calls WHERE time > '2013-09-01 00:00:00' AND usage_id IN (".implode(", ", $usages).") LIMIT 1000 OFFSET 0");
 
-    $r["min"] = strtotime($r["min"]);
-    $r["max"] = strtotime($r["max"]);
-
-    $days = round(($r["max"] - $r["min"])/86400);
-
-    if (!$days) 
+    if ($monthCallSum)
     {
-        echo "no calls";
-        continue;
+        echoCell("perDay: ".round($callSumPerDay, 2), 19);
+        echoCell("month Call Sum: ".$monthCallSum, 25);
+        echoCell("rounded: ".$monthCallSumRound, 20);
+    } else {
+        if( !$isSayFirstCell)
+            echoCell("", 19);
+
+        echoCell("", 45);
     }
-
-    $perDay = round($r["sum"] / $days, 2);
-
-    $limit = $perDay * 30.41 *0.10;
-
-    $realLimit = round($limit, -2);
-
-    $realLimit = $realLimit < 100 ? 100 : $realLimit;
-
-    echo ", real limit: ".$realLimit;
-
-    if($realLimit < 100) continue;
-
 
     $balance = Api::getBalance($l["id"]);
+    $abon = Bill::getPreBillAmount($l["id"]);
+    $forecastBalance = $balance - $monthCallSumRound - $abon;
 
-    $lastAbon = Bill::getPreBillAmount($l["id"]);
+    $isNeedSend = -$l["credit"] > $forecastBalance;
 
-    if (!($lastAbon > 0)) continue;
+    echoCell("balance: ".$balance, 23);
+    echoCell("abon: ".$abon, 17);
+    echoCell("forecastBalance: ".$forecastBalance, 28);
+    echoCell("is need send: ".(-$isNeedSend ? "yes": "no"));
 
-    echo ", last abon: ".$lastAbon;
-
-    $a = array( 
-        "days"      => $days,
-        "perday"    => $perDay,
-        "limit"     => $limit, 
-        "reallimit" => $realLimit,
-        "balance"   => round($balance, 2),
-        "days2"     => ($balance != 0 && $perDay != 0 ? round($balance/$perDay) : 0),
-        "---"       => ($balance < $realLimit ? "!!!" : "----"),
-        "client" => $l["client"],
-        "abon"      => $lastAbon,
-        "str"       => "На ваше"
-        );
-    $a["real_balance"] = $balance-$a["abon"];
-
-    $R[$l["id"]] = $a;
+    if ($isNeedSend)
+    {
+        $R[$l["id"]] = array(
+            "client" => $l["client"],
+            "balance" => $balance,
+            "abon" => $abon
+            );
+    }
 }
 
-
-if (!$R) exit();
+if (!$R) 
+    exit();
 
 $Mail = new PHPMailer();
 $Mail->SetLanguage("ru",PATH_TO_ROOT."include/");
@@ -99,14 +128,12 @@ $template = file_get_contents("./mail.before_billing");
 
 foreach ($R as $clientId => $a)
 {
-    if ($a["abon"] <= 0 || ($a["balance"]-($a["abon"]*2)) > 0 ) continue;
-
     $emails = getContactsForSend($clientId);
 
-    if (!$emails) continue;
-
-    echo "\n ".$clientId." abon: ".$a["abon"].", balance: ".$a["balance"].", real balance: ".$a["real_balance"].",emails: ".implode(", ", $emails);
-
+    if (!$emails) {
+        echo "\t no contacts";
+        continue;
+    }
 
     foreach ($emails as $contactId => $email)
     {
@@ -133,18 +160,6 @@ function template($t, $a)
 }
 
 
-function getLastMonthSumAbon($clientId)
-{
-    global $db;
-
-
-    $prevMonth = strtotime("first day of previous month, midnight");
-
-    $r = $db->GetValue($sql = "SELECT sum(l.sum) FROM `newbills` b, newbill_lines l where b.bill_no = l.bill_no and client_id = '".$clientId."' and b.bill_no like '".date("Ym", $prevMonth)."-%' and item like 'Абонен%'");
-
-    return $r;
-}
-
 function getContactsForSend($clientId)
 {
     global $db;
@@ -157,5 +172,11 @@ function getContactsForSend($clientId)
     }
 
     return $a;
+}
+
+function echoCell($str, $len=15)
+{
+    $str = " ".$str;
+    echo $str.(strlen < $len ? str_pad(" ", $len-strlen($str)) : "");
 }
 
