@@ -187,7 +187,7 @@ abstract class ServicePrototype {
             $row['quantity_by_rate'],
             $row['msk_length'],
             $row['total_price'],
-            $row['bill_price'],
+            @$row['bill_price'],
             $row['index']
         ));
         $pk = $db->GetInsertId();

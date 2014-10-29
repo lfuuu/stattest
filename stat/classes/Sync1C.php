@@ -25,8 +25,8 @@ class Sync1C
             : '';
         $this->utWsdlUrl = str_replace('://', '://' . $auth, $this->utSoapUrl . '?wsdl');
 
-        $this->statSoapUrl = WEB_ADDRESS . WEB_PATH . "1c/service.php?token=" . $this->statToken;
-        $this->statWsdlUrl = WEB_ADDRESS . WEB_PATH . "1c/service.php?wsdl&amp;token=" . $this->statToken;
+        $this->statSoapUrl = WEB_ADDRESS . WEB_PATH . "operator/1c/service.php?token=" . $this->statToken;
+        $this->statWsdlUrl = WEB_ADDRESS . WEB_PATH . "operator/1c/service.php?wsdl&amp;token=" . $this->statToken;
     }
 
     /**
