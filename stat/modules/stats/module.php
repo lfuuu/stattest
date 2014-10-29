@@ -2046,79 +2046,36 @@ class m_stats extends IModule{
 				}
 			}
 		}
-
-		$def_statuses = array('work','negotiations','testing','connecting','debt','suspended','operator','distr','blocked');
+                
+                $def_statuses = array('work','negotiations','testing','connecting','debt','suspended','operator','distr','blocked');
 		$tarif_extra_id = get_param_raw("s_s_e", 0);
 		$tarif_internet_id = get_param_raw("s_s_i", 0);
 		$statuses = get_param_raw("status", $def_statuses);
 		$design->assign("s_s_e", $tarif_extra_id);
 		$design->assign("s_s_i", $tarif_internet_id);
 		$design->assign("statuses", $statuses);
-
-		$query = "
-			select
-				`c`.`id`,
-				`c`.`client`,
-				`uip`.`id` `iport_id`,
-				`uv`.`id` `voip_id`,
-				`ue`.`id` `extra_id`,
-				`ti`.`id` `itarif_id`,
+                
+                $fields = '';
+                $W = array("AND");
+                $W[] = "`c`.`status` IN ('".implode("','", $statuses)."')";
+                $join = '';
+                $group ='';
+                
+                if (isset($s_i) || isset($s_v) || isset($s_c))
+                {
+                    $fields .= "`uip`.`id` `iport_id`,
+                                `ti`.`id` `itarif_id`,
 				`ti`.`name` `itarif`,
-				`ti`.`type` `itype`,
-				`tv`.`id` `ptarif_id`,
-				`tv`.`name` `ptarif`,
-				`te`.`id` `etarif_id`,
-				`te`.`description` `etarif`
-			from
-				`clients` `c`
-			left join
-				`usage_ip_ports` `uip`
-			on
-				`uip`.`client` = `c`.`client`
-			and
-				now() between `uip`.`actual_from` and `uip`.`actual_to`
-			left join
-				`log_tarif` `lti`
-			on
-				`lti`.`id_service` = `uip`.`id`
-			and
-				`lti`.`service` = 'usage_ip_ports'
-			left join
-				`tarifs_internet` `ti`
-			on
-				`ti`.`id` = `lti`.`id_tarif`
-			left join
-				`usage_voip` `uv`
-			on
-				`uv`.`client` = `c`.`client`
-			and
-				now() between `uv`.`actual_from` and `uv`.`actual_to`
-			left join
-				`log_tarif` `ltv`
-			on
-				`ltv`.`id_service` = `uv`.`id`
-			and
-				`ltv`.`service` = 'usage_voip'
-			left join
-				`tarifs_voip` `tv`
-			on
-				`tv`.`id` = `ltv`.`id_tarif`
-			left join
-				`usage_extra` `ue`
-			on
-				`ue`.`client` = `c`.`client`
-			and
-				now() between `ue`.`actual_from` and `ue`.`actual_to`
-			left join
-				`tarifs_extra` `te`
-			on
-				`te`.`id` = `ue`.`tarif_id`
-			where
-				`c`.`status` IN ('".implode("','", $statuses)."')
-		        ".(($tarif_extra_id > 0) ? ' and `te`.`id`=' . $tarif_extra_id : '') . "
-		        ".(($tarif_internet_id > 0) ? ' and `ti`.`id`=' . $tarif_internet_id : '') . "
-			and
-				(`lti`.`id` is null or `lti`.`id` = (
+				`ti`.`type` `itype`,";
+                    $group .=",`uip`.`id`,
+                             `ti`.`id`,
+                             `ti`.`name`,
+                             `ti`.`type`";
+                    $join .= "
+                        LEFT JOIN `usage_ip_ports` `uip` ON (`uip`.`client` = `c`.`client` AND NOW() BETWEEN `uip`.`actual_from` AND `uip`.`actual_to`) 
+			LEFT JOIN `log_tarif` `lti` ON (`lti`.`id_service` = `uip`.`id` AND `lti`.`service` = 'usage_ip_ports')
+			LEFT JOIN `tarifs_internet` `ti` ON (`ti`.`id` = `lti`.`id_tarif`)";
+                    $W[] = "(`lti`.`id` is null or `lti`.`id` = (
 					SELECT
 						`id`
 					FROM
@@ -2134,9 +2091,25 @@ class m_stats extends IModule{
 						`ts` desc,
 						`id` desc
 					LIMIT 1
-				))
-			and
-				(`ltv`.`id` is null or `ltv`.`id` = (
+				))";
+                    if ($tarif_internet_id > 0)
+                    {
+                        $W[] = '`ti`.`id`=' . $tarif_internet_id;
+                    }
+                }
+                if (isset($s_p))
+                {
+                    $fields .= "`uv`.`id` `voip_id`,
+                                `tv`.`id` `ptarif_id`,
+				`tv`.`name` `ptarif`,";
+                    $group .= " ,`uv`.`id`,
+                                `tv`.`id`,
+				`tv`.`name`";
+                    $join .= "
+                        LEFT JOIN `usage_voip` `uv` ON (`uv`.`client` = `c`.`client` AND NOW() BETWEEN `uv`.`actual_from` AND `uv`.`actual_to`)
+			LEFT JOIN `log_tarif` `ltv` ON (`ltv`.`id_service` = `uv`.`id` AND `ltv`.`service` = 'usage_voip')
+			LEFT JOIN `tarifs_voip` `tv` ON (`tv`.`id` = `ltv`.`id_tarif`)";
+                    $W[] = "(`ltv`.`id` is null or `ltv`.`id` = (
 					SELECT
 						`id`
 					FROM
@@ -2152,20 +2125,54 @@ class m_stats extends IModule{
 						`ts` desc,
 						`id` desc
 					LIMIT 1
-				))
+				))";
+                }
+                if (isset($s_e))
+                {
+                    $fields .= "`ue`.`id` `extra_id`,
+				`te`.`id` `etarif_id`,
+				`te`.`description` `etarif`,";
+                    $group .= ",`ue`.`id`,
+				`te`.`id`,
+				`te`.`description`";
+                    $join .= "
+                        LEFT JOIN 
+				(
+                                    (
+                                        SELECT 
+                                            id,client,actual_from,actual_to,status,tarif_id
+                                        FROM 
+                                            `usage_extra` 
+                                    )
+                                    union
+                                    (
+                                        SELECT 
+                                            id,client,actual_from,actual_to,status,tarif_id
+                                        FROM 
+                                            `usage_welltime` 
+                                    )
+                                ) `ue` ON (`ue`.`client` = `c`.`client` AND NOW() BETWEEN `ue`.`actual_from` AND `ue`.`actual_to`)
+			LEFT JOIN `tarifs_extra` `te` ON (`te`.`id` = `ue`.`tarif_id`)";
+                    if ($tarif_extra_id)
+                    {
+                        $W[] = '`te`.`id`=' . $tarif_extra_id;
+                    }
+                }
+
+		$query = "
+			SELECT
+                                ".$fields."
+				`c`.`id`,
+				`c`.`client`
+			FROM
+				`clients` `c`
+                        ".$join."
+			WHERE 
+                            ".MySQLDatabase::Generate($W)."
 			group by
 				`c`.`id`,
-				`c`.`client`,
-				`uip`.`id`,
-				`uv`.`id`,
-				`ue`.`id`,
-				`ti`.`id`,
-				`ti`.`name`,
-				`ti`.`type`,
-				`tv`.`id`,
-				`tv`.`name`,
-				`te`.`id`,
-				`te`.`description`
+				`c`.`client`
+                                ".$group."
 			order by
 				`c`.`client`
 		";
