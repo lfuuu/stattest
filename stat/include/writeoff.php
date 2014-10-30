@@ -1,4 +1,4 @@
-<?
+<?php
 global $writeoff_services;
 $writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails", "usage_8800","usage_sms");
 
@@ -1163,7 +1163,7 @@ class ServiceUsageWelltime extends ServicePrototype {
 }
 
 class ServiceUsageVirtpbx extends ServicePrototype {
-    var $tarif_std = 0;
+    var $tarif_std = 1;
     public function LoadTarif() {
         global $db;
         //$this->tarif_current=$db->GetRow('select * from tarifs_virtpbx where id='.$this->service['tarif_id']);
