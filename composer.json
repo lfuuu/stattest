@@ -4,7 +4,8 @@
     "require": {
         "php": ">=5.4.0",
         "yiisoft/yii2": "*",
-        "welltime/graylog-target": "*"
+        "welltime/graylog-target": "*",
+        "aferrandini/phpqrcode": "1.0.1"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

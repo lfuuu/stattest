@@ -156,7 +156,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
                             </table>
                         </td>
                         <td align=center style="width: 100pt;">
-                            {if $bill_no_qr}<img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}get_qr.php?data={$bill_no_qr.upd[$source]}">{else}&nbsp;{/if}</td>
+                            {if $bill_no_qr}<img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}utils/qr-code/get?data={$bill_no_qr.upd[$source]}">{else}&nbsp;{/if}</td>
                         </td>
                     </tr>
                 </table>
