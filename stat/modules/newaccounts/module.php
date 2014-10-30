@@ -3778,7 +3778,7 @@ class m_newaccounts extends IModule
 
         foreach($d as $p)
         {
-            if($p["bill_no"] && substr($p["bill_no"], 6,1) == "-")
+            if(isset($p["imported"]) && $p["imported"] && $p["bill_no"] && substr($p["bill_no"], 6,1) == "-")
             {
                 $bill = new Bill($p["bill_no"]);
 
