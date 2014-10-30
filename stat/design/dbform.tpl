@@ -7,10 +7,16 @@
 {/foreach}
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>{if isset($smarty.session.trash) && $smarty.session.trash.price_voip}<tr><td><a href='?module=tarifs&action=csv_upload' target='_blank' style='text-decoration:none'>Пакетная заливка</a></td><td>&nbsp;</td></tr>{/if}
-{foreach from=$dbform_data item=item key=key name=outer}{if $item.type=='include'}{include file=$item.file}
+{foreach from=$dbform_data item=item key=key name=outer}
+{if isset($item.visible)}
+    {assign var="visible" value=$item.visible}
+{else}
+    {assign var="visible" value=1}
+{/if}
+{if $item.type=='include'}{include file=$item.file}
 {elseif $item.type=='no'}
 {elseif $item.type=='checkbox'}
-<TR id=tr_{$key} {if !$item.visible}style="display:none;"{/if}><TD class=left width=40%>{$item.caption}</TD>
+<TR id=tr_{$key} {if !$visible}style="display:none;"{/if}><TD class=left width=40%>{$item.caption}</TD>
 
 <TD>
 <input type=hidden name=dbform[{$key}] value='0' id="hidden_{$key}">
@@ -74,7 +80,11 @@
 <TR id=tr_{$key}><TD class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</TD><TD{if $hl==$key} style="background-color: #EEE0B9"{/if}><input class=text type=text name=dbform[{$key}] id={$key} value='{$item.value}'{$item.add}>{$item.comment}</TD></TR>
 {/if}
 {elseif $item.type=='select'}
-<TR id=tr_{$key}><TD class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</TD><TD{if $hl==$key} style="background-color: #EEE0B9"{/if}><select id={$key} name=dbform[{$key}]{$item.add}>
+<TR id=tr_{$key} {if !$visible}style="display:none;"{/if}><TD class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</TD><TD{if $hl==$key} style="background-color: #EEE0B9"{/if}>
+{if isset($item.with_hidden) && $item.with_hidden}
+    <input type="hidden" name="dbform[{$key}]" value="">
+{/if}
+<select id={$key} name=dbform[{$key}]{$item.add} {if !$visible}disabled{/if}>
 {foreach from=$item.enum item=var name=inner}
 <option value='{$var}'{if $item.value==$var} selected{/if}>{$var}</option>
 {/foreach}{foreach from=$item.assoc_enum item=var key=vkey name=inner}

@@ -38,6 +38,12 @@ var optools = {
 			return false;
 		}
 
+                if ($('#is_moved').attr('checked') == 'checked' && !$('select[name="dbform[moved_from]"]').val())
+                {
+                    alert("Не выбран клиент, с которого осуществляется переход!");
+                    return false;
+                }
+
 		return true;
 	},
 	friendly:{
@@ -125,6 +131,7 @@ var optools = {
                                                 {
                                                         number: number,
                                                         table: table,
+                                                        client: document.getElementById("client").value,
                                                         actual_from: document.getElementById("actual_from").value
                                                 },
                                                 function(data){
@@ -145,6 +152,7 @@ var optools = {
                                                         e164:'isset:'+e164,
                                                         number: document.getElementById("E164").value,
                                                         table: document.getElementById("table_name").value,
+                                                        client: document.getElementById("client").value,
                                                         actual_from: document.getElementById("actual_from").value
                                                 },
                                                 function(data){
@@ -218,6 +226,7 @@ var optools = {
                                                 actual_to:document.getElementById('actual_to').value,
                                                 number: document.getElementById("E164").value,
                                                 table: document.getElementById("table_name").value,
+                                                client: document.getElementById("client").value,
                                         },
                                         optools.voip.check_e164.result_parser
                                 );
@@ -235,17 +244,39 @@ var optools = {
                                         $('#tr_moved_from').hide();
                                 }
                                 if (data.is_moved_with_pbx != 'NO')
-                               {
-                                    if (data.is_moved_with_pbx)
-                                    {
-                                        if (!first) $('#is_moved_with_pbx').attr('checked', false);
-                                        $('#is_moved_with_pbx').attr('disabled', false);
-                                        $('#tr_is_moved_with_pbx').show();
-                                    } else {
-                                        $('#is_moved_with_pbx').attr('disabled', true);
-                                        $('#tr_is_moved_with_pbx').hide();
-                                    }
-                               }
+                                {
+                                        if (data.is_moved_with_pbx)
+                                        {
+                                            if (!first) $('#is_moved_with_pbx').attr('checked', false);
+                                            $('#is_moved_with_pbx').attr('disabled', false);
+                                            $('#tr_is_moved_with_pbx').show();
+                                        } else {
+                                            $('#is_moved_with_pbx').attr('disabled', true);
+                                            $('#tr_is_moved_with_pbx').hide();
+                                        }
+                                }
+                                if (data.posible_pbx != 'NO')
+                                {
+                                        if (data.is_moved)
+                                        {
+                                            if (!first) {
+                                                var sel = document.getElementById('moved_from');
+                                                sel.innerHTML = '';
+                                                
+                                                for (var i in data.posible_pbx)
+                                                {
+                                                    op = document.createElement('option');
+                                                    op.value = data.posible_pbx[i];
+                                                    op.appendChild(document.createTextNode(data.posible_pbx[i]));
+                                                    sel.appendChild(op);
+                                                }
+                                            } 
+                                            $('#moved_from').attr('disabled', false);
+                                            $('#tr_moved_from').show();
+                                        } else {
+                                            $('#moved_from').attr('disabled', true);
+                                        }
+                                }
                         },
 			result_parser:function(data){
                                 var img = document.getElementById('e164_flag_image');
@@ -280,6 +311,7 @@ var optools = {
                                                 actual_to:document.getElementById('actual_to').value,
                                                 number: document.getElementById("E164").value,
                                                 table: document.getElementById("table_name").value,
+                                                client: document.getElementById("client").value,
                                         },
                                         function(data){
                                                 optools.voip.check_e164.parse_move(data.move);
@@ -297,6 +329,7 @@ var optools = {
                                                 actual_from:document.getElementById('actual_from').value,
                                                 number: document.getElementById("E164").value,
                                                 table: document.getElementById("table_name").value,
+                                                client: document.getElementById("client").value,
                                         },
                                         function(data){
                                                 optools.voip.check_e164.parse_move(data.move);
