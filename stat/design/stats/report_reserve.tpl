@@ -37,7 +37,13 @@
                 {elseif $s->diff >= 30}
                     {assign var="color" value="red"}
                 {/if}
-                <span {if $color}style="color: {$color};"{/if}>{math equation="x-y" x="30" y=$s->diff}</span>
+                {if $s->diff > 0}
+                    {assign var="eq" value="x-y"}
+                {else}
+                    {assign var="eq" value="abs(y-x)"}
+                {/if}
+                {$y}
+                <span {if $color}style="color: {$color};"{/if}>{math equation=$eq x="30" y=$s->diff}</span>
             </td>
         </tr>
     {/foreach}
