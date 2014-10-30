@@ -88,7 +88,7 @@
 <br>
 Заказчик: <strong style="font-size: 10pt;">{if $bill_client.head_company}{$bill_client.head_company}, {/if}{$bill_client.company_full}</strong>
 </td> {if $bill_no_qr}
-  <td align="right"><br><img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}get_qr.php?data={$bill_no_qr.akt[$source]}"></td>
+  <td align="right"><br><img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}utils/qr-code/get?data={$bill_no_qr.akt[$source]}"></td>
 {/if}
   </tr>
   </table>

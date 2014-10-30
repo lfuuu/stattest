@@ -163,7 +163,7 @@ www.mcntelecom.ru
         <td width="50">{$bill_client.manager_name|replace:" ":"&nbsp;"}</td>
       </tr>
       <tr>
-        <td colspan=2 align="center">{if $bill_no_qr}<img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}get_qr.php?data={$bill_no_qr.bill}">{else}&nbsp;{/if}</td>
+        <td colspan=2 align="center">{if $bill_no_qr}<img src="{if $is_pdf == '1'}{$WEB_PATH}{else}./{/if}utils/qr-code/get?data={$bill_no_qr.bill}">{else}&nbsp;{/if}</td>
       </tr>
     </table>
   {/if}
