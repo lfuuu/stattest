@@ -5113,7 +5113,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		
 		$options['joins'] = 
 			'LEFT JOIN clients as C ON C.id = stat.client_id ' . 
-			'LEFT JOIN usage_virtpbx as UV ON UV.client = C.client ' . 
+                        'LEFT JOIN usage_virtpbx as UV ON UV.client = C.client and UV.actual_to>="' . $from  . '" and UV.actual_from <= "' . $to . '" ' .
 			'LEFT JOIN log_tarif as LT ON UV.id = LT.id_service  ' . 
 			'LEFT JOIN tarifs_virtpbx as T ON LT.id_tarif = T.id '
 			;
