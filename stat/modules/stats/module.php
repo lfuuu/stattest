@@ -5062,11 +5062,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				ORDER BY
 						ts desc
 				LIMIT 0,1
-			) AND 
-			LT.service = ?";
+			) 
+                        AND LT.service = ? 
+                        AND UV.actual_from <= ? 
+                        AND UV.actual_to >= ?";
 			
 		$condition_values = array(
-			'usage_virtpbx'
+			'usage_virtpbx',
+                        $to,
+                        $from
 		);
 		if ($fixclient)
 		{
@@ -5144,15 +5148,19 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				ORDER BY
 						ts desc
 				LIMIT 0,1
-			) AND 
-			stat.date >= ? AND 
-			stat.date <= ? AND 
-			LT.service = ?";
+			) 
+                        AND stat.date >= ? 
+                        AND stat.date <= ? 
+                        AND LT.service = ? 
+                        AND UV.actual_from <= ? 
+                        AND UV.actual_to >= ?";
 			
 		$condition_values = array(
 			$from,
 			$to,
-			'usage_virtpbx'
+			'usage_virtpbx',
+                        $to,
+                        $from
 		);
 		if ($vpbx_id)
 		{

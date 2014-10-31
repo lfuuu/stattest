@@ -34,9 +34,10 @@ class TarifVirtpbx extends ActiveRecord\Model
 			ORDER BY
 					ts desc
 			LIMIT 0,1
-		) AND 
-		C.id = ? AND 
-		LT.service = ?";
+		) 
+                AND C.id = ? 
+                AND LT.service = ?
+                AND '" . date('Y-m-d', $time) . "' BETWEEN UV.actual_from AND UV.actual_to";
 		
 	$condition_values = array(
 		$client_id,
