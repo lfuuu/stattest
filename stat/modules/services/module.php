@@ -593,7 +593,7 @@ class m_services extends IModule{
 
 // =========================================================================================================================================
     function services_vo_view($fixclient){
-        global $db,$design, $allowedDirection;
+        global $db,$design;
 
         $so = get_param_integer ('so', 1);
         $order = $so ? 'asc' : 'desc';
@@ -708,7 +708,7 @@ class m_services extends IModule{
 
             $design->assign('ats_schema', $this->whereNumber($actualNumbers));
 
-            $design->assign('allowed_direction', $allowedDirection);
+            $design->assign('allowed_direction', UsageVoip::$allowedDirection);
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
             $design->assign('voip_conn_permit',$notAcos);
