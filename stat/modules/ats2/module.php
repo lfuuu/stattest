@@ -24,7 +24,7 @@ function getClient($fixClient = null )
     static $cach = array();
     if(!isset($cach[$fixClient]))
     {
-        $cach[$fixClient] = $db->GetRow("select * from clients where client = '".mysql_escape_string($fixClient)."'");
+        $cach[$fixClient] = $db->GetRow("select * from clients where client = '".mysql_real_escape_string($fixClient)."'");
     }
 
     return $cach[$fixClient];
@@ -73,7 +73,7 @@ class m_ats2 extends IModule
 
 		if (!access($act[0],$act[1])) return;
 
-        if(!$fixclient) {trigger_error("Клиент не выбран"); return;}
+        if(!$fixclient) {trigger_error2("Клиент не выбран"); return;}
 
         try{
             /*
@@ -282,7 +282,7 @@ class m_ats2 extends IModule
         include_once INCLUDE_PATH."formconstructor.php";
 
         if(!$a){
-            trigger_error("Аккаунт не найден");
+            trigger_error2("Аккаунт не найден");
             return;
         }
 

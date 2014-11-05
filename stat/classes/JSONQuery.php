@@ -33,7 +33,7 @@ class JSONQuery
         curl_setopt_array($ch, $defaults); 
         if( ! $result = curl_exec($ch)) 
         { 
-            trigger_error(curl_error($ch)); 
+            throw new Exception(curl_error($ch));
         } 
 
         self::log("answer: ", $result);

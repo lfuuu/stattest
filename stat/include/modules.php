@@ -52,19 +52,7 @@ abstract class IModuleHead {
 	}
 	public final function __call($k,$param) {
 		if (!$this->obj) $this->load();
-		try {
-			return call_user_func_array(array($this->obj,$k),$param);
-		} catch (Sync1CException $e) {
-			echo htmlspecialchars_($e->getMessage());
-			exit;
-		} catch (Exception $e) {
-			echo "<h1>" . htmlspecialchars_($e->getMessage()) . "</h1>\n";
-			echo "<pre>\n";
-			echo htmlspecialchars_($e->getTraceAsString());
-			echo "</pre>\n";
-			exit;
-		}
-
+        return call_user_func_array(array($this->obj,$k),$param);
 	}
 }
 abstract class IModule {
@@ -74,11 +62,12 @@ abstract class IModule {
 	public $rights = null;
 	public $actions = null;
 	public $menu = null;
-	public function GetMain($action,$fixclient = null) {
+	public function GetMain($action,$fixclient) {
 		if (!$action) $action='default';
 		if (!isset($this->actions[$action])) return;
 		$act=$this->actions[$action];
 		if ($act!=='' && !access($act[0],$act[1])) return;
+
 		if ($this->callStyle=='old') {
 			call_user_func(array($this,$this->module_name.'_'.$action),$fixclient);
 		} else call_user_func(array($this,'action_'.$action),$fixclient);
@@ -105,7 +94,7 @@ class Modules {
 				$this->modules[$m]=$m;
 				$GLOBALS['module_'.$m] = new $classname();
 			} else {
-				trigger_error("Невозможно подключить модуль ".$m);
+				trigger_error2("Невозможно подключить модуль ".$m);
 			}
 		}
 	}	
@@ -130,7 +119,7 @@ class Modules {
 		global $$v;
 		if (isset($$v)) {
 			$$v->GetMain($action,$fixclient);
-		} else trigger_error("Модуль не существует");
+		} else trigger_error2("Модуль не существует");
 	}
 }
 	

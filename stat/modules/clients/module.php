@@ -169,8 +169,8 @@ class m_clients {
 
             if(
                     !(
-                    ($d["module"] == "clients" && $d["id"]) ||
-                    ($d["module"] == "newaccounts" && $d["action"] == "make_1c_bill")
+                    (isset($d["module"]) && $d["module"] == "clients" && $d["id"]) ||
+                    (isset($d["module"]) && $d["module"] == "newaccounts" && $d["action"] == "make_1c_bill")
                     )
               ){
                 header("Location: ".$rf);
@@ -245,7 +245,7 @@ class m_clients {
 	    	} else if (access('clients','credit_all')){
 	    		$db->Query("select * from clientsw where client!=''");
 	    		$C=array(); while ($c=$db->NextRecord()) $C[]=$c['client'];
-			} else {trigger_error("Выберите клиента"); return;}
+			} else {trigger_error2("Выберите клиента"); return;}
 
     		foreach ($C as $client) {
 //    			$sum=$this->get_credit_sum($client);
@@ -257,10 +257,10 @@ class m_clients {
 					}
 				}
     		}
-			trigger_error("Кредит установлен");
+			trigger_error2("Кредит установлен");
 		}
 		if ($fixclient) $design->assign('credit_sum',$this->get_credit_sum($fixclient));
-		if (!$fixclient && !access('clients','credit_all')) {trigger_error('Выберите клиента'); return; }
+		if (!$fixclient && !access('clients','credit_all')) {trigger_error2('Выберите клиента'); return; }
 		$W=$writeoff_services;
 		$W = array_unshift( $W,"");
 		$design->assign('services',$W);
@@ -859,7 +859,7 @@ class m_clients {
         }
         // posible bill
         if(!count($R) && strlen($search) > 4){
-            if($db->GetRow("select bill_no from `newbills` where bill_no = '".mysql_escape_string($search)."'")){
+            if($db->GetRow("select bill_no from `newbills` where bill_no = '".mysql_real_escape_string($search)."'")){
                 Header("Location: ./?module=newaccounts&action=search&search=".urlencode($search));
                 exit;
             }
@@ -898,7 +898,7 @@ class m_clients {
 		if (!($id=get_param_integer('id'))) return;
 
 		$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
-		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error('Такого клиента не существует');return;}
+		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error2('Такого клиента не существует');return;}
 
         $email = "";
         if (($em = $db->GetRow('SELECT data FROM `client_contacts` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
@@ -928,12 +928,12 @@ class m_clients {
 			return true;
 
 		if (!($c = $db->GetRow('select * from client_contracts where id="'.intval($contractId).'"'))) {
-			trigger_error('Такого договора не существует');
+			trigger_error2('Такого договора не существует');
 			return;
 		}
 		
 		if (!($r = ClientCS::getOnDate(intval($clientId), $c['contract_date']))) {
-			trigger_error('Такого клиента не существует');
+			trigger_error2('Такого клиента не существует');
 			return;
 		}
 
@@ -973,7 +973,7 @@ class m_clients {
 			$r = $db->GetRow('select * from clients where (id="'.$id.'") limit 1');
 		}
 		if (!$r) {
-			trigger_error('Такого клиента не существует');
+			trigger_error2('Такого клиента не существует');
 			return;
 		}
 
@@ -1084,14 +1084,14 @@ class m_clients {
 
 
 		if(!$r){
-			trigger_error('Такого клиента не существует');
+			trigger_error2('Такого клиента не существует');
 			return;
 		}
 
 
         if(access("clients", "read_multy"))
                 if($r["type"] != "multi"){
-                trigger_error('Доступ к клиенту ограничен');
+                trigger_error2('Доступ к клиенту ограничен');
                 return;
             }
 
@@ -1290,7 +1290,7 @@ class m_clients {
             header("Location: ./?module=clients&id=".$clientId);
             exit();
         } else {
-            trigger_error("Контрагент не найден!");
+            trigger_error2("Контрагент не найден!");
         }
     }
 
@@ -1339,7 +1339,8 @@ class m_clients {
         $design->assign("history_flags", $this->get_history_flags(0));
 
 		$design->AddMain('clients/main_edit.tpl');
-	}
+
+    }
 	function clients_edit_pop($v){ $this->clients_edit($v,true); exit; }
 	function clients_edit($v,$pop = false) {
 		global $design, $db;
@@ -1405,15 +1406,15 @@ class m_clients {
 			&& !( !$cli['previous_reincarnation'] && !$_POST['previous_reincarnation'])
 			){
 				if(clCards\setParent($db, $user, $_POST['previous_reincarnation'], $cli['client']))
-					trigger_error("Предыдущие реквизиты успешно установлены");
+					trigger_error2("Предыдущие реквизиты успешно установлены");
 				else
-					trigger_error("Не удалось установить предыдущие реквизиты");
+					trigger_error2("Не удалось установить предыдущие реквизиты");
 			}
 			if($_POST['move_usages'] && $_POST['move_usages']<>$_POST['id'] && $user->HasPrivelege('clients','moveUsages')){
 				if(clCards\moveUsages($db, $user, $_POST['move_usages'], $_POST['client']))
-					trigger_error("Услуги перенесены");
+					trigger_error2("Услуги перенесены");
 				else
-					trigger_error("Перенести услуги не удалось");
+					trigger_error2("Перенести услуги не удалось");
 			}
 			return false;
 		}
@@ -1465,17 +1466,17 @@ class m_clients {
         $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
 
         if(!access('clients','inn_double') && $dbl){
-			trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
+			trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
 		}else{
 			if($dbl)
-				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
+				trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
 			if($C->Apply()){
 				clCards\SyncAdditionCards($db, $cl_main_card);
 
 				try {
 					if (($Client = Sync1C::getClient())!==false)
 					   $Client->saveClientCards($cl_main_card);
-					else trigger_error('Ошибка синхронизации с 1С.');
+					else trigger_error2('Ошибка синхронизации с 1С.');
 				} catch (Sync1CException $e) {
 					$e->triggerError();
 				}
@@ -1489,7 +1490,7 @@ class m_clients {
 				}
 				return true;
 			}else{
-				trigger_error("Клиент с таким кодом уже есть.");
+				trigger_error2("Клиент с таким кодом уже есть.");
 			}
 		}
 		$design->assign('client',$C->F);
@@ -1533,7 +1534,7 @@ class m_clients {
 				$nc = $cl_main_card.'/a';
             } elseif ($last_pf == 'z')
             {
-				trigger_error("Количество договоров клиента достигло максимального кол-ва");
+				trigger_error2("Количество договоров клиента достигло максимального кол-ва");
 				return;
 			} else {
 				$nc = $cl_main_card.'/'.chr(ord($last_pf)+1);
@@ -1792,11 +1793,11 @@ class m_clients {
 			if (access('clients','inn_double') || !$dbl) {
 				$db->QueryInsert('client_inn',array('ts'=>array('NOW()'),'client_id'=>$id,'user_id'=>$user->Get('id'),'inn'=>$inn,'comment'=>$comment));
 				if ($dbl) {
-					trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
+					trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
 					return $this->client_view($id,1);
 				}
 			} else {
-				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
+				trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
 				return $this->client_view($id,1);
 			}
 		} else {
@@ -1915,10 +1916,11 @@ class m_clients {
                 $isInnDbl = $r["client"]." (id:".$r["id"].")";
 
 		if($isInnDbl && !access('clients','inn_double')){
-			trigger_error('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Добавление невозможно');
+			trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Добавление невозможно');
 		}else{
-			if($isInnDbl)
-				trigger_error('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Имейте в виду');
+			if($isInnDbl) {
+                trigger_error2('Такой же ИНН есть, как минимум, у клиента ' . $isInnDbl . '. Имейте в виду');
+            }
 
             if ($C->Create()){
 
@@ -1933,7 +1935,7 @@ class m_clients {
                 $this->client_view($C->id,1);
                 return ;
             }else{
-                trigger_error("Такой клиент уже существует.");
+                trigger_error2("Такой клиент уже существует.");
             }
         }
         $design->assign('client',$C->F);
@@ -2395,7 +2397,7 @@ DBG::sql_out($select_client_data);
 
 			if(!$log[$idx]["fields"])
 			{
-				$log[$idx]["fields"][] = array("name" => "Изменены поля", "value_from" => $l["comment"], "value_to" => false);
+				$log[$idx]["fields"][] = array("name" => "Изменены поля", "value_from" => isset($l["comment"]) ?: '', "value_to" => false);
 			}
 		}
 

@@ -261,13 +261,28 @@ class Smarty_Compiler extends Smarty {
         $this->_folded_blocks = $match;
         reset($this->_folded_blocks);
 
+
+
+
         /* replace special blocks by "{php}" */
+        /*
         $source_content = preg_replace($search.'e', "'"
                                        . $this->_quote_replace($this->left_delimiter) . 'php'
                                        . "' . str_repeat(\"\n\", substr_count('\\0', \"\n\")) .'"
                                        . $this->_quote_replace($this->right_delimiter)
                                        . "'"
                                        , $source_content);
+        */
+
+        $me = $this;
+        $source_content = preg_replace_callback($search, function ($matches) use ($me) {
+            return
+                $this->_quote_replace($this->left_delimiter)
+                . 'php'
+                . str_repeat("\n", substr_count($matches[0], "\n"))
+                . $this->_quote_replace($this->right_delimiter)
+            ;
+        }, $source_content);
 
         /* Gather all template tags. */
         preg_match_all("~{$ldq}\s*(.*?)\s*{$rdq}~s", $source_content, $_match);
@@ -726,7 +741,8 @@ class Smarty_Compiler extends Smarty {
         if ($start_tag) {
             $output = '<?php ' . $this->_push_cacheable_state('block', $tag_command);
             $attrs = $this->_parse_attrs($tag_args);
-            $arg_list = $this->_compile_arg_list('block', $tag_command, $attrs, $_cache_attrs='');
+            $_cache_attrs='';
+            $arg_list = $this->_compile_arg_list('block', $tag_command, $attrs, $_cache_attrs);
             $output .= "$_cache_attrs\$this->_tag_stack[] = array('$tag_command', array(".implode(',', $arg_list).')); ';
             $output .= $this->_compile_plugin_call('block', $tag_command).'($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);';
             $output .= 'while ($_block_repeat) { ob_start(); ?>';
@@ -801,7 +817,8 @@ class Smarty_Compiler extends Smarty {
 
         $_cacheable_state = $this->_push_cacheable_state('function', $tag_command);
         $attrs = $this->_parse_attrs($tag_args);
-        $arg_list = $this->_compile_arg_list('function', $tag_command, $attrs, $_cache_attrs='');
+        $_cache_attrs='';
+        $arg_list = $this->_compile_arg_list('function', $tag_command, $attrs, $_cache_attrs);
 
         $output = $this->_compile_plugin_call('function', $tag_command).'(array('.implode(',', $arg_list)."), \$this)";
         if($tag_modifier != '') {

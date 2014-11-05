@@ -63,10 +63,10 @@ class m_voipnew_network
         global $pg_db;
 
         if (!isset($_FILES['file'])) {
-            trigger_error('Пожалуйста, загрузите файл для обработки');
+            trigger_error2('Пожалуйста, загрузите файл для обработки');
             return;
         } elseif ($_FILES['file']['error']) {
-            trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз ' . $_FILES['file']['error']);
+            trigger_error2('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз ' . $_FILES['file']['error']);
             return;
         }
 
@@ -157,7 +157,7 @@ class m_voipnew_network
 
         $file = VoipNetworkFile::find($id);
         if (!$file) {
-            trigger_error('network file #' . $id . ' not found');
+            trigger_error2('network file #' . $id . ' not found');
         }
 
         set_time_limit(0);
@@ -180,7 +180,7 @@ class m_voipnew_network
 
         $file = VoipNetworkFile::find($id);
         if (!$file) {
-            trigger_error('network file #' . $id . ' not found');
+            trigger_error2('network file #' . $id . ' not found');
         }
 
         $file->startdate = $startDate;

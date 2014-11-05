@@ -13,7 +13,7 @@
 <h3>Новый платёж</h3>
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><tbody>
 <form method="POST" action="https://merchant.webmoney.ru/lmi/payment.asp">
-<input type="hidden" name="LMI_PAYMENT_DESC" value="{"платеж на счет"|koi2win} {$fixclient_data.company_full|escape|koi2win} ({$fixclient_data.client}-{$fixclient_data.id})">
+<input type="hidden" name="LMI_PAYMENT_DESC" value="{"платеж на счет"} {$fixclient_data.company_full|escape} ({$fixclient_data.client}-{$fixclient_data.id})">
 <input type="hidden" name="LMI_SIM_MODE" value="0">
 
 <tr><td class=left>Клиент:</td><td>{$fixclient_data.company_full} ({$fixclient_data.client}-{$fixclient_data.id})

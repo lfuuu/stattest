@@ -66,7 +66,7 @@ class m_tt extends IModule{
         $R['trouble_subtype'] = get_param_protected('trouble_subtype' , '');
         #if (!in_array($R['trouble_type'],array('task', 'out', 'trouble'))) $R['trouble_type'] = 'trouble';
         $R['client'] = get_param_protected('client' , null);
-        if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error('Такого клиента не существует'); return;}
+        if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error2('Такого клиента не существует'); return;}
         $R['time']=get_param_integer('time',null);
         $R['date_start'] = get_param_protected('date_start',null);
         $R['date_finish_desired']=get_param_protected('date_finish_desired',null);
@@ -86,7 +86,7 @@ class m_tt extends IModule{
         global $db,$design,$user;
         $id = get_param_integer('id',0);
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
-        if (!count($R)) {trigger_error('Такой заявки у клиента '.$fixclient.' не существует'); return;}
+        if (!count($R)) {trigger_error2('Такой заявки у клиента '.$fixclient.' не существует'); return;}
         $trouble = $R[0];
         if (!$this->checkTroubleAccess($trouble)) return;
 
@@ -114,7 +114,7 @@ class m_tt extends IModule{
         $id = get_param_integer('id',0);
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
         if(!count($R)){
-            trigger_error('Такой заявки у клиента '.$fixclient.' не существует');
+            trigger_error2('Такой заявки у клиента '.$fixclient.' не существует');
             return;
         }
         $trouble = $R[0];
@@ -516,7 +516,7 @@ class m_tt extends IModule{
 
         $R = $this->makeTroubleList(0,null,5,null,null,null,$id);
         if(!count($R)){
-            trigger_error('Такой заявки не существует');
+            trigger_error2('Такой заявки не существует');
             return;
         }
         $trouble = $R[0];
@@ -642,7 +642,7 @@ class m_tt extends IModule{
         $list = $db->QuerySelectAll("newbill_change_log", array("bill_no" => $billNo));
         $_list = array(); foreach($list as $l) $_list[$l["id"]] = $l;
         $list = $_list;
-        $fList = $db->AllRecords("SELECT f.* FROM `newbill_change_log` l , `newbill_change_log_fields` f where l.id = f.change_id and bill_no = '".mysql_escape_string($billNo)."'");
+        $fList = $db->AllRecords("SELECT f.* FROM `newbill_change_log` l , `newbill_change_log_fields` f where l.id = f.change_id and bill_no = '".mysql_real_escape_string($billNo)."'");
         foreach($fList as $l)
             $list[$l["change_id"]]["fields"][] = $l;
 
@@ -1306,7 +1306,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             case 3: $t='Активные заявки, созданные мной'; break;
             case 4: $t='Запросы моих клиентов'; break;
             case 5: $t='Заявки с закрытым мною этапом, но не закрытые полностью'; break;
-            default: trigger_error("mode = ".$mode);
+            default: trigger_error2("mode = ".$mode);
         }
         $design->assign('tt_header',$t);
 
@@ -1488,7 +1488,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $user_main = $R['user_author'];
         } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
             if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
-        } else {trigger_error('неверный пользователь'); return;}
+        } else {trigger_error2('неверный пользователь'); return;}
 
         if(isset($R['date_finish_desired']))
             $R2['date_finish_desired']=$R['date_finish_desired'];
@@ -2590,7 +2590,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $fault = null;
         $f = $bs->setOrderStatus($bill, $state, $fault);
         if(!$f){
-            trigger_error("Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />");
+            trigger_error2("Не удалось обновить статус заказа:<br /> ".\_1c\getFaultMessage($fault)."<br />");
             echo "<br /><br />";
             echo "<a href='index.php?module=tt&action=view&id=".$_POST['id']."'>Вернуться к заявке</a>";
             exit();

@@ -69,7 +69,7 @@ class DatePickerPeriods
 	 * @param DateTime $date экземпляр класса DateTime
 	 * @param int $day - день месяца
 	 */
-	private function moveToDay(DateTime $date, $day)
+	private static function moveToDay(DateTime $date, $day)
 	{
 		$year = $date->format('Y');
 		$month = $date->format('m');
@@ -90,7 +90,7 @@ class DatePickerPeriods
 	 * @param DateTime $date экземпляр класса DateTime
 	 * @param string $interval - Строка даты/времени
 	 */
-	private function moveDate(DateTime $date, $interval)
+	private static function moveDate(DateTime $date, $interval)
 	{
 		$_date = clone $date;
 		$interval = DateInterval::createFromDateString($interval);
@@ -101,7 +101,7 @@ class DatePickerPeriods
 	 * Передает в Smarty значение $day, отформатированную согласно свойству $format
 	 * @param string $var_name имя переменной в Smarty
 	 */
-	private function assignVar(DateTime $date, $var_name)
+	private static function assignVar(DateTime $date, $var_name)
 	{
 		global $design;
 		$design->assign($var_name, $date->format(self::$format));

@@ -151,7 +151,7 @@ class m_accounts{
     function accounts_payments($fixclient){
         global $db,$design;
         $client=get_param_protected('clients_client',$fixclient);
-        if (!$client) {trigger_error("Не выбран клиент");return;}
+        if (!$client) {trigger_error2("Не выбран клиент");return;}
         $design->assign('client',$client);
         $todo=get_param_protected('todo');
         if ($todo == "rerate") {
@@ -171,7 +171,7 @@ class m_accounts{
             $pay_date=get_param_protected('pay_date');
             $db->Query("SELECT * from bill_currency_rate where date='$pay_date'");
             if ($db->mErrno != 0) {
-				trigger_error("не установлен курс на $pay_date");
+				trigger_error2("не установлен курс на $pay_date");
 				return;
             }
             $r=$db->NextRecord();
@@ -181,7 +181,7 @@ class m_accounts{
             $query = "insert into bill_payments (client,payment_no, payment_date, sum_rub, sum_usd,rate) values ('$client','$pay_pp','$pay_date',$pay_sum,$sum_usd,{$r['rate']})";
             $db->Query($query);
             if ($db->mErrno != 0) {
-				trigger_error(mysql_error());
+				trigger_error2(mysql_error());
 				return;
             }
 
@@ -195,7 +195,7 @@ class m_accounts{
             $query="Update bill_bills set state='cancelled' where bill_no='$bill_no'";
             $db->Query($query);
             if ($db->mErrno != 0) {
-             trigger_error(mysql_error());
+             trigger_error2(mysql_error());
              return;
             }
         };
@@ -210,7 +210,7 @@ class m_accounts{
 	            $query="update bill_bills set state='ready' where bill_no='$bill_no' and client='$client'";
 	            $db->Query($query);
     	        if ($db->mErrno != 0) {
-        	    	trigger_error(mysql_error());
+        	    	trigger_error2(mysql_error());
             		return;
             	}
 	            make_balance_correction_db($client,-$r['sum_usd']);
@@ -218,7 +218,7 @@ class m_accounts{
             $query="delete from bill_payments where id=$id and client='$client'";
             $db->Query($query);
             if ($db->mErrno != 0) {
-             trigger_error(mysql_error());
+             trigger_error2(mysql_error());
              return;
             }
             $made_cancel_payment=1;
@@ -242,7 +242,7 @@ class m_accounts{
                 $db->Query("INSERT into saldo values ('$client','2001-01-01',0,0,0,0,'')");
                 $db->Query($query);
         }
-        if(!($r=$db->NextRecord())){ trigger_error("cannot connect to database".mysql_error());}
+        if(!($r=$db->NextRecord())){ trigger_error2("cannot connect to database".mysql_error());}
         $saldo=$r;
         $design->assign("saldo",$saldo);
         extract($r);
@@ -326,7 +326,7 @@ class m_accounts{
             //повторно получаем инфу из таблицы сальдо
             $query="select * from saldo where client='$client'";
             $db->Query($query);
-            if(!($r=$db->NextRecord())){ trigger_error("cannot connect to database".mysql_error());}
+            if(!($r=$db->NextRecord())){ trigger_error2("cannot connect to database".mysql_error());}
             $saldo=$r;
             $design->assign("saldo",$r);
             extract($r);
@@ -759,7 +759,7 @@ $db->Connect();
         $db->Query($sql);
         $r=$db->NextRecord();
         if (!isset($r['rate']) or $r['rate']==0){
-            trigger_error("НЕ установлен курс доллара на $period_to");
+            trigger_error2("НЕ установлен курс доллара на $period_to");
             return;
         };
         $rate=$r['rate'];
@@ -904,7 +904,7 @@ $balance=$total['payments']['total']-$total['total'];
         {
             if (!is_numeric($rate)){
              //echo"не число '$rate'";
-             trigger_error("Введено не числовое значение курса доллара");
+             trigger_error2("Введено не числовое значение курса доллара");
              return;
             };
             $query="SELECT * from bill_currency_rate where date='$date'";
@@ -942,7 +942,7 @@ $balance=$total['payments']['total']-$total['total'];
             $newname="$path"."/modules/accounts/1c/".$payments['name'];
         //  echo "<br>".$newname."<br>";
             if (!move_uploaded_file($payments['tmp_name'], $newname)){
-              trigger_error("Не могу переместить файл".$payments['error']."<br>");
+              trigger_error2("Не могу переместить файл".$payments['error']."<br>");
               return false;
             };
             //$design->assign('filename',$payments['name']);

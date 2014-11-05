@@ -180,7 +180,7 @@ class m_monitoring {
 			$this->dbmap->ShowEditForm('clients_vip','',get_param_raw('row',array()));
 			$design->AddMain('monitoring/db_add.tpl');
 		} else {
-			trigger_error('<script language=javascript>window.location.href="?module=monitoring";</script>');
+			trigger_error2('<script language=javascript>window.location.href="?module=monitoring";</script>');
 		}
 	}
 */

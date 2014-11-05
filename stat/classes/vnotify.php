@@ -3,14 +3,14 @@
 class vNotify
 {
     static $c = array();
-    function anonse($n)
+    static function anonse($n)
     {
         vNotifier::notify($n, false);
 
         self::$c[$n] = 1;
     }
 
-    function send()
+    static function send()
     {
         foreach(self::$c as $k => $v)
         {
@@ -35,7 +35,7 @@ $_vNotifyWatcher = new vNotifyWatcher();
 
 class vNotifier
 {
-    function notify($n, $r = true)
+    static function notify($n, $r = true)
     {
         $fp = fopen("/tmp/notify".($r ? "" : "_r"), "a+");
         fwrite($fp, "\n".date("r").": ".$n);

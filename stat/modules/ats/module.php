@@ -16,7 +16,7 @@
         static $c = array();
 
         if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".mysql_escape_string($client)."'");
+            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".mysql_real_escape_string($client)."'");
 
         return $c[$client];
     }
@@ -100,7 +100,7 @@ class m_ats extends IModule
             //nothing
         }else
         {
-            trigger_error("Настройки учетных записей SIP для данного региона недоступны");
+            trigger_error2("Настройки учетных записей SIP для данного региона недоступны");
             return;
         }
 
@@ -148,11 +148,6 @@ class m_ats extends IModule
     }
     //////////////// external numbsers
 
-
-    public function generateClient($client)
-    {
-        //exec("/usr/bin/php /var/www/stat/revert.php ".$client." > /var/www/stat/log.revert", $o);
-    }
 
     public function ats_test1($fixclient)
     {
@@ -245,7 +240,7 @@ class m_ats extends IModule
     {
         global $db;
 
-        if(!isset($_SESSION["clients_client"]) || !$_SESSION["clients_client"]) trigger_error("Клиент не установлен!");
+        if(!isset($_SESSION["clients_client"]) || !$_SESSION["clients_client"]) trigger_error2("Клиент не установлен!");
         else{
 
         $client = $db->GetValue("select client from ".SQL_DB.".clients where client='".$_SESSION["clients_client"]."'");

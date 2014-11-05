@@ -111,7 +111,7 @@ class DbFormSimpleLog extends DbForm {
 		$this->fields['edit_user']=array('type'=>'label');
 		$this->fields['edit_time']=array('type'=>'label');
 	}
-	public function Display($form_params,$h2,$h3) {
+	public function Display($form_params = array(),$h2='',$h3='') {
 		global $db;
 		if(
 			$this->isData('edit_user')
@@ -130,9 +130,9 @@ class DbFormSimpleLog extends DbForm {
 			)
 		) $this->data['edit_user'] = $t['name'];
 
-		return DbForm::Display($form_params,$h2,$h3);
+		return parent::Display($form_params,$h2,$h3);
 	}
-	public function Process() {
+	public function Process($no_real_update = 0) {
 		global $db,$user;
 		$this->Get();
 		if(!isset($this->dbform['id']))
@@ -688,9 +688,9 @@ class DbViewMonitorClients extends DbView {
 		$this->fieldset='z';
 		parent::__construct();
 	}
-	public function Display($a,$b) {
+	public function Display($link_read,$link_edit,$add = 1) {
 		global $db,$design;
-		parent::Display($a,$b,0);
+		parent::Display($link_read,$link_edit,0);
 		$v=&$design->_tpl_vars['dbview_data'];
 		foreach ($v as &$k) {
 			$R=$db->AllRecords('select INET_NTOA(ip_int),count from monitor_ips where monitor_id='.$k['id']);

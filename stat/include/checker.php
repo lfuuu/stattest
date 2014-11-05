@@ -5,21 +5,21 @@
  */
 class checker 
 {
-    public function isEmpty($value, $error)
+    public static function isEmpty($value, $error)
     {
         if (empty($value)) {
             throw new Exception($error);
         }
     }
 
-    public function isUsed($value, $field, $table, $id, $error)
+    public static function isUsed($value, $field, $table, $id, $error)
     {
         global $db;
 
         if (
                 count($db->AllRecords(
                     "select id from `".$table."` " .
-                    "where `".$field."` = '".mysql_escape_string($value)."' " .
+                    "where `".$field."` = '".mysql_real_escape_string($value)."' " .
                     "and id != '".$id."'"
                     )) > 0
            ) {
@@ -27,7 +27,7 @@ class checker
         }
     }
 
-    public function isDigits($value, $error)
+    public static function isDigits($value, $error)
     {
         if (preg_match_all("/^[0-9]+$/", $value, $o))
         {
@@ -36,7 +36,7 @@ class checker
         throw new Exception($error);
     }
 
-    public function isZero($value, $error)
+    public static function isZero($value, $error)
     {
         if ($value == 0)
         {
@@ -44,7 +44,7 @@ class checker
         }
     }
 
-    public function isValideIp(&$ip, $error)
+    public static function isValideIp(&$ip, $error)
     {
         $ip = trim($ip);
         if (!preg_match_all("/^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/", $ip, $out)) {
@@ -63,7 +63,7 @@ class checker
         }
     }
 
-    public function number_isBetween($num, $valFrom, $valTo, $errorMsg)
+    public static function number_isBetween($num, $valFrom, $valTo, $errorMsg)
     {
         $num = (float)$num;
         if ($num < $valFrom || $num > $valTo)
@@ -72,7 +72,7 @@ class checker
         }
     }
 
-    public function isAlnum($value, $errorStr)
+    public static function isAlnum($value, $errorStr)
     {
         if(!preg_match_all("/^[0-9a-zA-Z]+$/", $value, $o))
         {

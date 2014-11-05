@@ -251,7 +251,7 @@ class m_services extends IModule{
 
             if($unlim && $toAdd && isset($p["tarif"]))
             {
-                 if(!eregi("Безлимитный", $p["tarif"]["name"]))
+                 if(!preg_match("/Безлимитный/i", $p["tarif"]["name"]))
                  {
                      $toAdd = false;
                  }
@@ -321,12 +321,12 @@ class m_services extends IModule{
         $design->assign('show_client',1);
         $design->assign('internet_suffix','internet');
         $design->AddMain('services/internet_tiny.tpl'); */
-        trigger_error('TODO9 - временно отключено');
+        trigger_error2('TODO9 - временно отключено');
     }
     function services_in_view_routed($fixclient){
 /*        global $design;
         $router=get_param_protected('router','');
-        if (!$router) {trigger_error('Не выбран роутер'); return;}
+        if (!$router) {trigger_error2('Не выбран роутер'); return;}
         $connections=array();
         $ports=$this->get_ports($fixclient,0,'(usage_ip_ports.node="'.$router.'") and (usage_ip_ports.port!="mgts")');
         foreach ($ports as $id_port=>$port) if ($port['actual2']){
@@ -338,13 +338,13 @@ class m_services extends IModule{
         $design->assign('show_client',1);
         $design->assign('internet_suffix','internet');
         $design->AddMain('services/internet_tiny.tpl'); */
-        trigger_error('TODO9 - временно отключено');
+        trigger_error2('TODO9 - временно отключено');
     }
 
     function services_in_add($fixclient,$suffix="internet",$tarif_type=""){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
 
@@ -365,7 +365,7 @@ class m_services extends IModule{
     }
     function services_in_apply($fixclient,$suffix='internet',$suffix2='in'){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageIpPorts();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -380,7 +380,7 @@ class m_services extends IModule{
     function services_in_add2($fixclient,$id='',$suffix="internet"){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         if(!$id)
@@ -404,7 +404,7 @@ class m_services extends IModule{
 
     function services_in_apply2($fixclient,$suffix='internet',$suffix2='in'){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageIpRoutes();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -433,7 +433,7 @@ class m_services extends IModule{
             $r['gate']=implode(".",$t);
             $routes[]=$r;    
         }
-        //if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
+        //if (!$routes || !$conn) {trigger_error2('Сеть и подключения не найдены'); return; }
         //$conn['actual_from']=convert_date($conn['actual_from']);
         $design->assign('conn',$conn);
         $design->assign('port',$db->GetRow("select * from tech_ports where id='".$conn['port_id']."'"));
@@ -476,7 +476,7 @@ class m_services extends IModule{
             $r['gate']=implode(".",$t);
             $routes[]=$r;
         }
-        //if (!$routes || !$conn) {trigger_error('Сеть и подключения не найдены'); return; }
+        //if (!$routes || !$conn) {trigger_error2('Сеть и подключения не найдены'); return; }
         //$conn['actual_from']=convert_date($conn['actual_from']);
         $design->assign('conn',$conn);
         $design->assign('port',$db->GetRow("select * from tech_ports where id='".$conn['port_id']."'"));
@@ -506,12 +506,12 @@ class m_services extends IModule{
     function services_in_close($fixclient,$suffix='internet'){
         global $design,$db;
 
-        trigger_error("<h1><b>Вы сделали недопустимое действие! За вами выехали!</b></h1>");
+        trigger_error2("<h1><b>Вы сделали недопустимое действие! За вами выехали!</b></h1>");
         mail("dga@mcn.ru","error in_close","error in_close\n look logs");
 
         if(false)
         {
-            if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+            if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
             $id=get_param_integer('id','');
             if (!$id) return;
             $db->Query('select usage_ip_ports.*,tech_ports.port_name from usage_ip_ports LEFT JOIN tech_ports on tech_ports.id=usage_ip_ports.port_id where usage_ip_ports.id='.$id);
@@ -563,7 +563,7 @@ class m_services extends IModule{
     
     function services_co_add($fixclient){
         global $design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $this->services_in_add($fixclient,'collocation','C');
     }
     function services_co_add2($fixclient,$id=''){
@@ -796,7 +796,7 @@ class m_services extends IModule{
                 unset($checkNumbers[$number]);
             }
         } catch(Exception $e) {
-            trigger_error($e->getMessage());
+            trigger_error2($e->getMessage());
         }
 
         try{
@@ -807,7 +807,7 @@ class m_services extends IModule{
                     unset($checkNumbers[$number]);
                 }
         } catch(Exception $e) {
-            trigger_error($e->getMessage());
+            trigger_error2($e->getMessage());
         }
 
         return $outNumbers;
@@ -911,7 +911,8 @@ class m_services extends IModule{
         if (!$conn)
         {
             $reg = Region::first(array("id" => $region));
-            trigger_error("Ошибка соединения с сервером регистрации SIP в регионе \"".$reg->name."\" (id: ".$reg->id.")");
+            $regionInfo = $reg ? '"' . $reg->name . '" (id: ' . $reg->id . ')' : '';
+            trigger_error2("Ошибка соединения с сервером регистрации SIP в регионе " . $regionInfo);
             return array();    
         }
 
@@ -1056,7 +1057,7 @@ class m_services extends IModule{
             {
                 $db->Query("delete from usage_voip where id = '".$id."' and client='".$fixclient."'");
             }else{
-                trigger_error("unknown error");
+                trigger_error2("unknown error");
             }
         }
     }
@@ -1154,7 +1155,7 @@ class m_services extends IModule{
 
     function services_vo_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
 
         $id=get_param_integer('id','');
 
@@ -1201,7 +1202,7 @@ class m_services extends IModule{
 
     function services_vo_act_trunk($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
     
         $id=get_param_integer('id','');
     
@@ -1215,7 +1216,7 @@ class m_services extends IModule{
 
     function services_in_dev_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         $client=get_param_raw('client','');
         $db->Query('select * from tech_cpe where (client="'.$client.'") 
@@ -1238,7 +1239,7 @@ class m_services extends IModule{
             } else {
                 $count = 1;
             }
-            if(eregi("([0-9]{3})([0-9]{2})([0-9]{2})", $item, $match))
+            if(preg_match("/([0-9]{3})([0-9]{2})([0-9]{2})/i", $item, $match))
             {
                 $item = "(495) ".$match[1]."-".$match[2]."-".$match[3];
             }
@@ -1256,7 +1257,7 @@ class m_services extends IModule{
 
     function services_vo_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormUsageVoip();
         $dbf->SetDefault('client',$fixclient);
@@ -1269,7 +1270,7 @@ class m_services extends IModule{
     }
     function services_vo_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageVoip();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1286,7 +1287,7 @@ class m_services extends IModule{
     }
     function services_vo_close($fixclient){
         global $design,$db, $user;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from usage_voip where id='.$id);
@@ -1303,7 +1304,7 @@ class m_services extends IModule{
                     )
                 );
         voipNumbers::check();
-        trigger_error('Номер отключен, создайте заявку на отключение');
+        trigger_error2('Номер отключен, создайте заявку на отключение');
 
         $this->services_vo_view($fixclient);
     }
@@ -1333,7 +1334,7 @@ class m_services extends IModule{
     }
     function services_dn_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormDomains();
         $dbf->SetDefault('client',$fixclient);
@@ -1341,7 +1342,7 @@ class m_services extends IModule{
     }
     function services_dn_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormDomains();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1355,7 +1356,7 @@ class m_services extends IModule{
     }
     function services_dn_close($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from domains where id='.$id);
@@ -1369,7 +1370,7 @@ class m_services extends IModule{
     function services_em_view($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
 
@@ -1484,7 +1485,7 @@ class m_services extends IModule{
     }
     function services_em_whitelist_toggle($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer("id",0);
         $mode=get_param_integer("mode",0);
         if (!$id) return;
@@ -1504,7 +1505,7 @@ class m_services extends IModule{
                 $db->Query('select count(*) from email_whitelist where (local_part="") and (domain="'.$r['domain'].'") AND (email_whitelist.sender_address="") AND (email_whitelist.sender_address_domain="")');
                 $r2=$db->NextRecord();
                 if ($r2[0]!=0){
-                    trigger_error("На, домене, которому принадлежит этот e-mail, отключена фильрация спама. Сначала включите её вручную.");
+                    trigger_error2("На, домене, которому принадлежит этот e-mail, отключена фильрация спама. Сначала включите её вручную.");
                 } else {
                     $db->Query('delete from email_whitelist where (local_part="'.$r['local_part'].'") and (domain="'.$r['domain'].'") AND (email_whitelist.sender_address="") AND (email_whitelist.sender_address_domain="")');
                     $db->Query('update emails set spam_act="mark" where (client="'.$fixclient.'") and (id='.$id.')');
@@ -1518,7 +1519,7 @@ class m_services extends IModule{
 
     function services_em_whitelist($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         
         $filter=get_param_integer("filter","");
         $domains=array();
@@ -1527,12 +1528,12 @@ class m_services extends IModule{
         $whlist=array();
         $this->whitelist_load($fixclient,$filter,$domains,$mails,$MCN,$whlist);
 
-        if (!count($mails)) {trigger_error('У вас нет ни одного почтового ящика'); return;}
+        if (!count($mails)) {trigger_error2('У вас нет ни одного почтового ящика'); return;}
         $design->AddMain('services/mail_wh_list.tpl'); 
     }
     function services_em_whitelist_delete($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         
         $id=get_param_integer("id",0);
         if (!$id) return;
@@ -1547,12 +1548,12 @@ class m_services extends IModule{
         if (!isset($whlist[$id])) return;
         $db->Query('delete from email_whitelist where id='.$id);
         
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
     }
     function services_em_whitelist_add($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
 
@@ -1581,7 +1582,7 @@ class m_services extends IModule{
             $q2[]='"'.$mails[$mail0]['domain'].'"';
         }else{
             if(!$domain0){
-                trigger_error('Неправильный адрес');
+                trigger_error2('Неправильный адрес');
                 return;
             }
             $q1[]='domain';
@@ -1590,7 +1591,7 @@ class m_services extends IModule{
         if($adr_radio1==0){
             $v=explode('@',$mail1);
             if(count($v)!=2){
-                trigger_error('Неправильный адрес');
+                trigger_error2('Неправильный адрес');
                 return;
             }
             $q1[]='sender_address';
@@ -1616,15 +1617,15 @@ class m_services extends IModule{
                 empty($q2[array_search('sender_host_address',$q1)])
             )
         ){
-            trigger_error("<script type='text/javascript'>alert('Ошибка! Попробуйте снова. Если ошибка будет повторяться - обратитесь к программисту.')</script>");
+            trigger_error2("<script type='text/javascript'>alert('Ошибка! Попробуйте снова. Если ошибка будет повторяться - обратитесь к программисту.')</script>");
         }else
             $db->Query('insert into email_whitelist ('.implode(',',$q1).') values ('.implode(',',$q2).')');
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_whitelist&filter='.$filter.'";</script>');
     }
     
 /*    function services_em_add($fixclient){
         global $design,$db,$user;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
     
         if (!access('services_mail','full')){
             $this->dbmap->hidden['emails'][]='enabled';
@@ -1645,9 +1646,9 @@ class m_services extends IModule{
     function services_em_apply($fixclient){
         global $design,$db;
         if (!access('services_mail','addnew') && !access('services_mail','edit')) return;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         if (!access('services_mail','edit') &&  get_param_raw('dbaction')!='add') {
-            trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+            trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
             return;
         }
 
@@ -1671,7 +1672,7 @@ class m_services extends IModule{
                 if (defined('MAIL_TEST_ONLY') && (MAIL_TEST_ONLY==1)) $r['email']='andreys75@mcn.ru, shepik@yandex.ru';
                 mail($r['email'],"дНАПН ОНФЮКНБЮРЭ!",$data,$headers);
             }
-            trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+            trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
         }
     }*/
     
@@ -1679,7 +1680,7 @@ class m_services extends IModule{
     function services_em_add($fixclient){
         global $design,$db,$user;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -1702,7 +1703,7 @@ class m_services extends IModule{
     function services_em_apply($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $dbf = new DbFormEmails();
@@ -1728,7 +1729,7 @@ class m_services extends IModule{
     
     function services_em_chpass($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from emails where id='.$id);
@@ -1738,26 +1739,26 @@ class m_services extends IModule{
     }
     function services_em_chreal($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $pass1=get_param_protected('pass1','');
         $pass2=get_param_protected('pass2','');
         $db->Query('select * from emails where id='.$id);
         if (!($r=$db->NextRecord())) return;
-        if ($r['client']!=$fixclient) {trigger_error('Клиенты не совпадают'); return; }
+        if ($r['client']!=$fixclient) {trigger_error2('Клиенты не совпадают'); return; }
         if ($pass1!=$pass2) {
-            trigger_error('Пароли не совпадают');
+            trigger_error2('Пароли не совпадают');
             $this->services_em_chpass($fixclient);
-//            trigger_error('<script language=javascript>window.location.href="?module=services&action=em_chpass&id='.$id.'";</script>');
+//            trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_chpass&id='.$id.'";</script>');
             return;
         }
         $db->Query('update emails set password="'.$pass1.'" where id='.$id);
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
     }
     function services_em_activate($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,(actual_from<=NOW()) as save_from from emails where id='.$id);
@@ -1784,25 +1785,25 @@ class m_services extends IModule{
                 $db->Query('update emails set actual_from=NOW(),actual_to="2029-12-31",enabled=1 where id='.$id);
             }
         }
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
     }
 /*    function services_em_toggle($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from emails where id='.$id);
         if (!($r=$db->NextRecord())) return;
         if ($r['actual']==0) $r['enabled']=0; else $r['enabled']=1-$r['enabled'];
         $db->Query('update emails set enabled='.$r['enabled'].' where id='.$id);
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
     }*/
 
 
 // =========================================================================================================================================
     function services_ex_view($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $R=array();
         $db->Query($q='
             select
@@ -1834,7 +1835,7 @@ class m_services extends IModule{
     }
     function services_ex_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id',0);
         $db->Query('select S.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,T.* from usage_extra as S inner join tarifs_extra as T ON T.id=S.tarif_id where (S.id="'.$id.'") and (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return;
@@ -1846,7 +1847,7 @@ class m_services extends IModule{
     }
     function services_ex_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageExtra();
         $dbf->SetDefault('client',$fixclient);
 
@@ -1854,7 +1855,7 @@ class m_services extends IModule{
     }
     function services_ex_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageExtra();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1886,16 +1887,16 @@ class m_services extends IModule{
     }
     function services_ex_close($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('update usage_extra set actual_to=NOW() where id='.$id);
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=ex_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ex_view";</script>');
     }
 
     function services_ad_view($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $R=array();
         $db->Query('select bill_monthlyadd.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d from bill_monthlyadd where client="'.$fixclient.'"');
         while ($r=$db->NextRecord()) {
@@ -1911,7 +1912,7 @@ class m_services extends IModule{
     }
     function services_ad_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id',0);
         $db->Query('select bill_monthlyadd.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from bill_monthlyadd where (id="'.$id.'") and (client="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return;
@@ -1927,7 +1928,7 @@ class m_services extends IModule{
     
     function services_ad_add($fixclient){
         global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormBillMonthlyadd();
         $dbf->SetDefault('client',$fixclient);
         $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'Услуги','Доп. услуги лучше заводить <a href="?module=services&action=ex_add">нового образца</a>');    //'Новая доп. услуга'
@@ -1935,7 +1936,7 @@ class m_services extends IModule{
 
     function services_ad_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormBillMonthlyadd();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -1949,7 +1950,7 @@ class m_services extends IModule{
     }
 /*    function services_ad_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $copyid=get_param_integer('copyid',0);
         
         $R=array(''); $db->Query('select * from bill_monthlyadd_reference');
@@ -1970,7 +1971,7 @@ class m_services extends IModule{
     }
     function services_ad_apply($fixclient){
         global $design,$db,$_POST;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         if ($this->dbmap->ApplyChanges('bill_monthlyadd')!="ok") {
             $this->dbmap->ShowEditForm('bill_monthlyadd','',get_param_raw('row',array()));
             $design->AddMain('services/ad_add.tpl');
@@ -1979,23 +1980,23 @@ class m_services extends IModule{
                 if (!get_param_raw('id','')) $id=$db->GetInsertId();
                 $r=$this->dbmap->SelectRow('bill_monthlyadd','id='.$id);
             }
-            trigger_error('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
+            trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
         }
     }*/
     function services_ad_close($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from bill_monthlyadd where id='.$id);
         if (!($r=$db->NextRecord())) return;
         $db->Query('update bill_monthlyadd set actual_to=NOW() where id='.$id);
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
 //        $this->services_ad_view($fixclient);
     }
     function services_ad_activate($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from bill_monthlyadd where id='.$id);
@@ -2008,7 +2009,7 @@ class m_services extends IModule{
             $block=0;
             $db->Query('update bill_monthlyadd set actual_from=NOW(),actual_to="2029-01-01" where id='.$id);
         }
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
 //        $this->services_ad_view($fixclient);
     }
 
@@ -2016,7 +2017,7 @@ class m_services extends IModule{
     function services_it_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $R=array();
@@ -2053,7 +2054,7 @@ class m_services extends IModule{
     function services_it_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -2101,7 +2102,7 @@ class m_services extends IModule{
             $design->assign('services_virtpbx',$R);
             $design->AddMain('services/virtpbx_all.tpl');
 
-            //trigger_error('Не выбран клиент');
+            //trigger_error2('Не выбран клиент');
             return;
         }
 
@@ -2141,7 +2142,7 @@ class m_services extends IModule{
     function services_virtpbx_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -2152,7 +2153,7 @@ class m_services extends IModule{
     }
     function services_virtpbx_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageVirtpbx();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2167,11 +2168,11 @@ class m_services extends IModule{
 
     function services_virtpbx_act($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
 
         $id=get_param_integer('id',0);
 
-        if(!$id) {trigger_error('Ошибка в данных'); return;}
+        if(!$id) {trigger_error2('Ошибка в данных'); return;}
 
         $r = $db->GetRow('select * from usage_virtpbx where (client="'.$fixclient.'") and id ="'.$id.'"');
 
@@ -2301,7 +2302,7 @@ class m_services extends IModule{
     function services_8800_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -2312,7 +2313,7 @@ class m_services extends IModule{
     }
     function services_8800_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsage8800();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2396,7 +2397,7 @@ class m_services extends IModule{
     function services_sms_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -2407,7 +2408,7 @@ class m_services extends IModule{
     }
     function services_sms_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageSms();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2462,7 +2463,7 @@ class m_services extends IModule{
             $design->assign('services_welltime',$R);
             $design->AddMain('services/welltime_all.tpl');
 
-            //trigger_error('Не выбран клиент');
+            //trigger_error2('Не выбран клиент');
             return;
         }
         $R=array();
@@ -2521,7 +2522,7 @@ class m_services extends IModule{
     function services_welltime_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -2532,7 +2533,7 @@ class m_services extends IModule{
     }
     function services_welltime_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageWelltime();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2548,7 +2549,7 @@ class m_services extends IModule{
     function services_wellsystem_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $R=array();
@@ -2586,7 +2587,7 @@ class m_services extends IModule{
     function services_wellsystem_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $db->Query('select * from clients where client="'.$fixclient.'"');
@@ -2599,7 +2600,7 @@ class m_services extends IModule{
     function services_ppp_view($fixclient){
         global $db,$design;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $R = array();
@@ -2625,7 +2626,7 @@ class m_services extends IModule{
     }
     function services_ppp_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormUsageExtra();
         $dbf->SetDefault('client',$fixclient);
@@ -2633,7 +2634,7 @@ class m_services extends IModule{
     }
     function services_ppp_apply($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageExtra();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -2648,7 +2649,7 @@ class m_services extends IModule{
     function services_ppp_append($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
-            trigger_error('Не выбран клиент');
+            trigger_error2('Не выбран клиент');
             return;
         }
         $ass = array(); //бгг
@@ -2667,7 +2668,7 @@ class m_services extends IModule{
                     `actual_to` = now()
             ";
             $db->Query($query_ins);
-            trigger_error('Логин успешно добавлен!');
+            trigger_error2('Логин успешно добавлен!');
             return;
         }
         $query = "
@@ -2687,7 +2688,7 @@ class m_services extends IModule{
             $ppps[] = $row;
         }
         if(!count($ppps)){
-            trigger_error('У пользователя нет ни одного ppp логина.');
+            trigger_error2('У пользователя нет ни одного ppp логина.');
             return;
         }
         $ppp_last = $ppps[count($ppps)-1];
@@ -2708,7 +2709,7 @@ class m_services extends IModule{
     }
 /*function services_ppp_add($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
 
         $R=array('id'=>0); $db->Query('select * from usage_ip_ports where client="'.$fixclient.'"');
         while ($r=$db->NextRecord()) $R[$r['id']]=$r;
@@ -2723,9 +2724,9 @@ class m_services extends IModule{
     function services_ppp_apply($fixclient){
         global $design,$db,$_POST;
         if (!access('services_ppp','addnew') && !access('services_ppp','edit')) return;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         if (!access('services_ppp','edit') &&  get_param_raw('dbaction')!='add') {
-            trigger_error('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
+            trigger_error2('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
             return;
         }
         require_once INCLUDE_PATH.'db_map.php';
@@ -2743,13 +2744,13 @@ class m_services extends IModule{
                 if (!get_param_raw('id','')) $id=$db->GetInsertId();
                 $r=$this->dbmap->SelectRow('usage_ip_ppp','id='.$id);
             }
-            trigger_error('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
+            trigger_error2('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
         }
     }*/
 
     function services_ppp_chpass($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from usage_ip_ppp where id='.$id);
@@ -2759,26 +2760,26 @@ class m_services extends IModule{
     }
     function services_ppp_chreal($fixclient){
         global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $pass1=get_param_protected('pass1','');
         $pass2=get_param_protected('pass2','');
         $db->Query('select * from usage_ip_ppp where id='.$id);
         if (!($r=$db->NextRecord())) return;
-        if ($r['client']!=$fixclient) {trigger_error('Клиенты не совпадают'); return; }
+        if ($r['client']!=$fixclient) {trigger_error2('Клиенты не совпадают'); return; }
         if ($pass1!=$pass2) {
-            trigger_error('Пароли не совпадают');
+            trigger_error2('Пароли не совпадают');
             $this->services_ppp_chpass($fixclient);
             return;
         }
         $db->Query('update usage_ip_ppp set password="'.$pass1.'" where id='.$id);
-        trigger_error('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
+        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ppp_view";</script>');
     }
     
     function services_ppp_activate($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('select * from usage_ip_ppp where (id='.$id.') and (client="'.$fixclient.'")');
@@ -2794,7 +2795,7 @@ class m_services extends IModule{
 
     function services_ppp_activateall($fixclient){
         global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error('Не выбран клиент'); return;}
+        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $value=get_param_integer('value',0); if ($value) $value=1;
         if ($value==0){
             $db->Query('update usage_ip_ppp set enabled=0 where (client="'.$fixclient.'")');
@@ -2910,16 +2911,16 @@ class m_services extends IModule{
         $db->Query("select count(*) from usage_ip_ports where (actual_to>NOW()) and (client=\"{$client}\")");
         $r=$db->NextRecord();
         if (isset($r[0]) && $r[0]=="0"){
-            trigger_error("Клиенту установлен статус \"отключен\"");
+            trigger_error2("Клиенту установлен статус \"отключен\"");
             $db->Query("update clients set status=\"disabled\" where client=\"{$client}\"");
             $db->Query("select count(*) from usage_voip where (actual_from<=NOW()) and (actual_to>=NOW()) and (client=\"{$client}\")");
             $r=$db->NextRecord();
-            if (isset($r[0]) && ($r[0])) trigger_error("Внимание! У клиента осталась IP-телефония.");
+            if (isset($r[0]) && ($r[0])) trigger_error2("Внимание! У клиента осталась IP-телефония.");
         } else {
             $db->Query("select status from clients where client=\"{$client}\"");
             $r=$db->NextRecord();
             if ($r[0]!="work") {
-            trigger_error("Клиенту установлен статус \"включен\"");
+            trigger_error2("Клиенту установлен статус \"включен\"");
                 $db->Query("update clients set status=\"work\" where client=\"{$client}\"");
             }
         }
@@ -3344,7 +3345,7 @@ class m_services extends IModule{
             return 'true';
         }
 
-        $region = mysql_escape_string(get_param_raw("region", 0));
+        $region = mysql_real_escape_string(get_param_raw("region", 0));
         
         if (strlen($number) > 5 && substr($number, 0, 4) != '7800') {
             $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'" and region = "'.$region.'"';

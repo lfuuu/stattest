@@ -21,7 +21,7 @@ error_reporting(E_ALL);
 		
 		$comp=get_param_protected('comp');
 
-		trigger_error("period_f=$period_f<br>period_pre=$period_pre<br> bill_date=$bill_date<br>comp=$comp");
+		trigger_error2("period_f=$period_f<br>period_pre=$period_pre<br> bill_date=$bill_date<br>comp=$comp");
 		$design->AddMain('accounts/auto_bills.tpl');
 		
 
@@ -35,17 +35,17 @@ error_reporting(E_ALL);
             
         	while($row = $db->NextRecord()){
 	    		$client=$row['client'];
-	    		trigger_error( "$client: ");
+	    		trigger_error2( "$client: ");
 	    		$req2="select client from bill_bills where client='$client' and bill_no like '$period_f%'";
 	    		if (!($result2 = mysql_query($req2)))
-        		{trigger_error("can't read from database!<br>$req2"); break;}
+        		{trigger_error2("can't read from database!<br>$req2"); break;}
 	    		if(($row2 = mysql_fetch_assoc($result2))&&$client==$row2['client']){
-			trigger_error("счет за $period_f уже есть - пропущено<br>");
+			trigger_error2("счет за $period_f уже есть - пропущено<br>");
 	    		}else{
 	        		$bill_no=do_make_bill($client,$bill_date,$period_f,$period_pre,$comp);
-				trigger_error("счет $bill_no выставлен<br>");
+				trigger_error2("счет $bill_no выставлен<br>");
 				if (!$bill_no) {
-					trigger_error("проблема с выставлением счета<br>");
+					trigger_error2("проблема с выставлением счета<br>");
 					break;
 				};
 				$where.="or bill_no='$bill_no'";

@@ -8,7 +8,7 @@
 	include MODULES_PATH.'register/fakemodule.php';
 	//$modules->GetMain($module,$action,null);
 	$reg = new m_register();
-	$reg->GetMain($action);
+	$reg->GetMain($action, null);
 	header('Content-Type: text/html; charset=utf-8');
 	$design->Process();
 ?>

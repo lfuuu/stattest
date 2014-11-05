@@ -82,15 +82,15 @@ function printdbgu($param, $s="")
 function print1Cerror(&$e)
 {
     $a = explode("|||",$e->getMessage());
-    trigger_error("<br><font style='color: black;'>1C: <font style='font-weight: normal;'>".$a[0]."</font></font>");
-    trigger_error("<font style='color: black; font-weight: normal;font-size: 8pt;'>".$a[1]."</font>");
+    trigger_error2("<br><font style='color: black;'>1C: <font style='font-weight: normal;'>".$a[0]."</font></font>");
+    trigger_error2("<font style='color: black; font-weight: normal;font-size: 8pt;'>".$a[1]."</font>");
 }
 
 function trigger_array($p,$s='') {
-    trigger_error($s.'<pre>'.htmlspecialchars_(print_r($p,1)).'</pre>');
+    trigger_error2($s.'<pre>'.htmlspecialchars_(print_r($p,1)).'</pre>');
 }
 function trigger_string($p) {
-    trigger_error(htmlspecialchars_(print_r($p,1)));
+    trigger_error2(htmlspecialchars_(print_r($p,1)));
        return $p;
 }
 function str_protect($str){
@@ -98,7 +98,7 @@ function str_protect($str){
     //вроде как, те 2 строчки лишние
     $str=str_replace("\\","\\\\",$str);
     $str=str_replace("\"","\\\"",$str);
-    return mysql_escape_string($str);
+    return mysql_real_escape_string($str);
 };
 function str_normalize($str){
     $str=str_replace(array("\r","&"),array("","&amp;"),$str);
@@ -480,7 +480,7 @@ function rus_fin($v,$s1,$s2,$s3){
     return $s3;
 }
 class util{
-    public function pager($pref = "")
+    public static function pager($pref = "")
     {
         global $db, $design;
         $page = get_param_integer("page", 1);
@@ -797,7 +797,9 @@ class ClientCS {
         global $db;
         $V = $this->GetContacts(null,true,$onlyOfficial);
         $R = array('fax'=>array(),'phone'=>array(),'email'=>array());
-        foreach ($V as $v) $R[$v['type']][] = $v;
+        if ($V) {
+            foreach ($V as $v) $R[$v['type']][] = $v;
+        }
         return $R;
     }
 
@@ -901,7 +903,7 @@ class ClientCS {
         return $mix;
     }
 
-    public function contract_getFolder($folder = null)
+    public static function contract_getFolder($folder = null)
     {
         $f = array(
                 "MCN" => "mcn",
@@ -960,7 +962,7 @@ class ClientCS {
 
         global $db;
         if($this->client!=""){
-            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_escape_string($this->F['client'])."'"))
+            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_real_escape_string($this->F['client'])."'"))
                 return false;    //дубликат
         }
         $q1 = '';
@@ -1322,7 +1324,7 @@ class ClientCS {
             unlink($f['path']);
         }
     }
-    public function GetList($listName, $zero = false)
+    public static function GetList($listName, $zero = false)
     {
 
         switch($listName)
@@ -1340,7 +1342,7 @@ class ClientCS {
         }
     }
 
-    private function _GetList($table, $zero = false)
+    private static function _GetList($table, $zero = false)
     {
         global $db;
         static $list = array();
@@ -1364,21 +1366,21 @@ class ClientCS {
         return $list[$table];
     }
 
-    public function GetSaleChannelsList()
+    public static function GetSaleChannelsList()
     {
         return self::_GetList("sale_channels", "std");
     }
 
-    public function GetPriceTypeList($val = false)
+    public static function GetPriceTypeList($val = false)
     {
         return self::GetList("price_type");
     }
 
-    public function GetMetroList()
+    public static function GetMetroList()
     {
         return self::_GetList("metro", 'std');
     }
-    public function GetName($type, $id)
+    public static function GetName($type, $id)
     {
         $list = self::GetList($type);
         if(isset($list[$id]))
@@ -1388,7 +1390,7 @@ class ClientCS {
             return false;
         }
     }
-    public function GetIdByName($type, $name, $default = false)
+    public static function GetIdByName($type, $name, $default = false)
     {
         foreach(self::GetList($type) as $id => $_name)
         {
@@ -1397,7 +1399,7 @@ class ClientCS {
         return $default;
     }
 
-    public function GetMetroName($mId)
+    public static function GetMetroName($mId)
     {
         $list = ClientCS::GetMetroList();
         if (isset($list[$mId]))
@@ -1411,13 +1413,13 @@ class ClientCS {
         }
     }
 
-    public function GetPriceType($client)
+    public static function GetPriceType($client)
     {
         $d = ClientCS::FetchClient($client);
         return $d["price_type"] ? $d["price_type"] : ClientCS::getIdByName("price_type", "Розница");
     }
 
-    public function getClientLog($id, $types = array('msg','fields'))
+    public static function getClientLog($id, $types = array('msg','fields'))
     {
         global $db;
 
@@ -1457,12 +1459,12 @@ class ClientCS {
         return $log;
     }
 
-    private function _resolveFields($f)
+    private static function _resolveFields($f)
     {
         return str_replace(",", ", ",$f);
     }
 
-    public function getOnDate($clientId, $date)
+    public static function getOnDate($clientId, $date)
     {
         global $db;
         //echo "<br>".$date."|".$clientId;
@@ -1478,8 +1480,8 @@ class ClientCS {
 
         if($dNow >= $date)
         {
-            foreach($db->AllRecords($sql =
-                        "select *
+            $rows = $db->AllRecords("
+                        select *
                         from log_client lc, log_client_fields lf
                         where client_id = ".$c["id"]." and
                             if(apply_ts = '0000-00-00', ts >= '".$date." 23:59:59', apply_ts > '".$date."')
@@ -1488,36 +1490,41 @@ class ClientCS {
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
                             and is_apply_set = 'yes'
-                        order by lf.id desc ") as $l)
-            {
-                $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
-                $c[$l["field"]] = $l["value_from"];
+                        order by lf.id desc ");
+            if ($rows) {
+                foreach ($rows as $l) {
+                    $c[$l["field"]] = $l["value_from"];
+                }
             }
         }
         if ($dNow <= $date)
         {
-            foreach($db->AllRecords($sql =
-                        "select *
+            $rows = $db->AllRecords("
+                        select *
                         from log_client lc, log_client_fields lf
-                        where client_id = ".$c["id"]." 
-                            and apply_ts BETWEEN  '".$dNow."' AND '".$date."' 
-                            and type='fields' 
-                            and lc.id = lf.ver_id 
-                            and is_apply_set = 'no' 
-                        order by lf.id") as $l)
-            {
-                $ts = strtotime($l["apply_ts"] == "0000-00-00" ? $l["ts"] : $l["apply_ts"]);
-                $c[$l["field"]] = $l["value_to"];
+                        where client_id = ".$c["id"]."
+                            and apply_ts BETWEEN  '".$dNow."' AND '".$date."'
+                            and type='fields'
+                            and lc.id = lf.ver_id
+                            and is_apply_set = 'no'
+                        order by lf.id");
+            if ($rows) {
+                foreach ($rows as $l) {
+                    $c[$l["field"]] = $l["value_to"];
+                }
             }
         }
 
-        foreach($trasitFields as $f)
-            $c[$f] = $transit[$f];
+        foreach($trasitFields as $f) {
+            if (isset($transit[$f])) {
+                $c[$f] = $transit[$f];
+            }
+        }
 
         return $c;
     }
 
-    public function getManagerName($manager)
+    public static function getManagerName($manager)
     {
         global $db;
 
@@ -1528,13 +1535,13 @@ class ClientCS {
         
     }
 
-    private function sendBillingCountersNotification($clientId)
+    private static function sendBillingCountersNotification($clientId)
     {
         $subj = '[stat/include/util] База биллинга телефонии не доступна';
         $body = 'Клиент ' . ClientCard::find($clientId)->client . ' не получил информацию по биллингу';
         mail(ADMIN_EMAIL, $subj, $body);
     }
-    public function getBillingCounters($clientId, $silent_mode = false)
+    public static function getBillingCounters($clientId, $silent_mode = false)
     {
         global $pg_db,$db;
 
@@ -1551,7 +1558,7 @@ class ClientCS {
         {
             if (!$silent_mode)
             {
-                trigger_error("База биллинга телефонии не доступна");
+                trigger_error2("База биллинга телефонии не доступна");
             }
             self::sendBillingCountersNotification($clientId);
         }
@@ -1573,7 +1580,7 @@ class ClientCS {
         return $counters;
     }
 
-    public function getVoipPrefix($regionId = 0)
+    public static function getVoipPrefix($regionId = 0)
     {
         switch($regionId) {
             case '99':
@@ -1832,7 +1839,7 @@ class all4geo
         if(strpos($f,"ok") !== false){
             list($ok, $aId) = explode(",", $f);
 
-            $db->Query($z= "update tt_troubles set doer_comment = '".mysql_escape_string($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
+            $db->Query($z= "update tt_troubles set doer_comment = '".mysql_real_escape_string($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
         }else{
             $pFile = fopen("/home/httpd/stat.mcn.ru/test/log.all4geo.errors", "a+");
             fwrite($pFile, date("r").":".$u." => ".$comment." => ".$f."\n");

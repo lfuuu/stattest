@@ -29,7 +29,7 @@ class m_stats extends IModule{
 	function stats_internet($fixclient){
 		global $db,$design;
 		if(!$fixclient){
-			trigger_error('Выберите клиента');
+			trigger_error2('Выберите клиента');
 			return;
 		}
 		
@@ -57,7 +57,7 @@ class m_stats extends IModule{
 			if(isset($routes_all[$route])){
 				$routes=array($routes_all[$route]);
 			}else{
-				trigger_error('Выбрана неправильная сеть');
+				trigger_error2('Выбрана неправильная сеть');
 				return;
 			}
 		}else{
@@ -89,7 +89,7 @@ class m_stats extends IModule{
 
 	function stats_vpn($fixclient) {
 		global $db,$design;
-		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
 		$ip=get_param_raw('ip','');
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
@@ -137,7 +137,7 @@ class m_stats extends IModule{
 		while ($r=$db->NextRecord()) $IPs[$r['ip']]=$r;
 
 		if ($ip){
-			if (!isset($IPs[$ip])) {trigger_error('Выбрана неправильная сеть'); return;}
+			if (!isset($IPs[$ip])) {trigger_error2('Выбрана неправильная сеть'); return;}
 			$IPs=array($IPs[$ip]);
 		}
 		$stats=$this->GetStatsVPN($fixclient,$from,$to,$detality,$IPs);
@@ -152,7 +152,7 @@ class m_stats extends IModule{
 
 	function stats_rtsaldo($fixclient) {
 		global $db,$design,$fixclient_data;
-		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
 		$def=getdate();
 		$def['mday']=1; $from=param_load_date('from_',$def);
 		$def['mday']=31; $to=param_load_date('to_',$def);
@@ -173,11 +173,11 @@ class m_stats extends IModule{
 		global $db,$design;
 
 		$login=get_param_integer('login',0);
-		if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
 
 		if ($login){
 			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (id="'.$login.'")');
-			if (!($r=$db->NextRecord())) {trigger_error('Логин не существует'); return; }
+			if (!($r=$db->NextRecord())) {trigger_error2('Логин не существует'); return; }
 			$logins=array($r['login']);
 
 			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (login!="") order by login');
@@ -319,7 +319,7 @@ class m_stats extends IModule{
     function stats_voip($fixclient){
         global $db,$design;
         if(!$fixclient){
-            trigger_error('Клиент не выбран');
+            trigger_error2('Клиент не выбран');
             return;
         }
 
@@ -331,7 +331,7 @@ class m_stats extends IModule{
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
         if (!$usages) {
-            trigger_error("У клиента нет подключенных телефонных номеров!");
+            trigger_error2("У клиента нет подключенных телефонных номеров!");
             return;
         }
 
@@ -707,7 +707,7 @@ class m_stats extends IModule{
     }
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
-		if (!$fixclient) {trigger_error('Выберите клиента');return;}
+		if (!$fixclient) {trigger_error2('Выберите клиента');return;}
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
@@ -888,7 +888,7 @@ class m_stats extends IModule{
 			}
 
 			//printdbg($db->NumRows(), $q);
-			if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
 				$R[]=$r;
@@ -966,7 +966,7 @@ class m_stats extends IModule{
 			$whsql= '(datetime>=FROM_UNIXTIME('.$from.') AND datetime<FROM_UNIXTIME('.$to.'+86400)) AND ('.$whsql.')';
 			$db->Query("select inet_ntoa(ip_int) as ip,sum(transfer_rx) as in_bytes,sum(transfer_tx) as out_bytes,UNIX_TIMESTAMP(datetime) as ts from $tbl where ".$whsql.$group." ORDER by ".$order." ASC LIMIT 5000");
 
-			if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
 				$R[]=$r;
@@ -1152,7 +1152,7 @@ class m_stats extends IModule{
 
             $pg_db->Query($sql);
 
-            if ($pg_db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+            if ($pg_db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
             $rt=array('price'=>0, 'ts2'=>0,'cnt'=>0,'is_total'=>true);
             $geo = array();
 
@@ -1287,7 +1287,7 @@ class m_stats extends IModule{
 				"INNER JOIN usage_nvoip_phone as PB ON PB.phone_id=B.phone_id ".
 				"where ".$whsql.$group." ORDER by C.ts ASC LIMIT 5000";
 		$db->Query($sql);
-		if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+		if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 		$rt=array('price'=>0,'priceFrom'=>0,'priceTo'=>0, 'ts2'=>0);
 		while ($r=$db->NextRecord()){
 			$r['tsf1']=mdate($format,$r['ts1']);
@@ -1349,7 +1349,7 @@ class m_stats extends IModule{
 					($group?'sum':'')."(AcctSessionTime) as ts2 ".
 					"from radacct where ".$whsql.$group." ORDER by AcctStartTime ASC LIMIT 5000";
 		$db->Query($sql);
-		if ($db->NumRows()==5000) trigger_error('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
+		if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 		$rt=array('ts2'=>0,'in_bytes'=>0,'out_bytes'=>0);
 		while ($r=$db->NextRecord()){
 			$r['tsf1']=mdate($format,$r['ts1']);
@@ -1488,7 +1488,7 @@ class m_stats extends IModule{
 		$design->assign('send_clients',$R);
 		$design->assign('refresh',30*$cont);
 		if ($cont) {
-			trigger_error('Отправка следующих 5ти уведомлений произойдёт через 30 секунд');
+			trigger_error2('Отправка следующих 5ти уведомлений произойдёт через 30 секунд');
 		}
 		$design->AddMain('stats/send.tpl');
 	}
@@ -1925,7 +1925,7 @@ class m_stats extends IModule{
 						`usage_voip` `uv`
 					WHERE
 						`e164` NOT IN (
-							SELECT SQL_CACHE
+							SELECT
 								`e164`
 							FROM
 								`usage_voip`
@@ -2676,14 +2676,14 @@ class m_stats extends IModule{
     {
 	if (!$fixclient) 
 	{
-		trigger_error('Выберите клиента');
+		trigger_error2('Выберите клиента');
 		return;
 	}
 	global $design,$fixclient_data,$db;
 	
 	if ($fixclient_data['is_agent'] != "Y")
 	{
-		trigger_error('Клиент не является агентом');
+		trigger_error2('Клиент не является агентом');
 		return;
 	}
 	$interest = null;
@@ -2728,7 +2728,7 @@ class m_stats extends IModule{
     {
 	if (!$fixclient) 
 	{
-		trigger_error('Выберите клиента');
+		trigger_error2('Выберите клиента');
 		header('Location: ?module=stats&action=agent_settings');
         exit;
 	}
@@ -2736,7 +2736,7 @@ class m_stats extends IModule{
 	
 	if ($fixclient_data['is_agent'] != "Y")
 	{
-		trigger_error('Клиент не является агентом');
+		trigger_error2('Клиент не является агентом');
 		header('Location: ?module=stats&action=agent_settings');
         exit;
 	}
@@ -3809,7 +3809,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             if(!$error)
             {
 
-                $i = $db->GetRow("select * from newbills_add_info where bill_no = '".mysql_escape_string($a["bill_no"])."'");
+                $i = $db->GetRow("select * from newbills_add_info where bill_no = '".mysql_real_escape_string($a["bill_no"])."'");
 
                 $rNBN = new requestPlusOper();
                 $info = $rNBN->create($client, $a);
@@ -4176,10 +4176,10 @@ private function report_plusopers__Load($client, $billNo)
 	global $db;
 	$a = array();
 
-	if($billNo && $a = $db->GetRow("select * from newbills_add_info where bill_no = '".mysql_escape_string($billNo)."'"))
+	if($billNo && $a = $db->GetRow("select * from newbills_add_info where bill_no = '".mysql_real_escape_string($billNo)."'"))
 	{
 		$a["req"] = $a["req_no"];
-		$a["comment"] = $db->GetValue("select comment from newbills where bill_no = '".mysql_escape_string($billNo)."'");
+		$a["comment"] = $db->GetValue("select comment from newbills where bill_no = '".mysql_real_escape_string($billNo)."'");
 
 		if($a["comment1"])
 		{

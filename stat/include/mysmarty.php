@@ -231,9 +231,6 @@ function smarty_modifier_wordify($val,$curr) {
 function smarty_modifier_mdate($value,$format) {
 	return mdate($format,is_numeric($value)?$value:strtotime($value));	
 }
-function smarty_modifier_koi2win($value,$format) {
-	return convert_cyr_string($value,'k','w');	
-}
 /**
  * Smarty bytesize modifier plugin
  *
@@ -390,14 +387,11 @@ class MySmarty extends Smarty {
 		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');
 		$this->register_modifier('rus_fin','rus_fin');
-		$this->register_modifier('koi2win','smarty_modifier_koi2win');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);
 		$this->assign('PATH_TO_ROOT',WEB_PATH);
 		$this->assign('SUM_ADVANCE',SUM_ADVANCE);
-		$this->assign_by_ref('errors',$G['errors']);
-		$this->assign_by_ref('notices',$G['notices']);
 		$this->LINK_START='index.php?';
 		$this->assign_by_ref('LINK_START',$this->LINK_START);
 	}

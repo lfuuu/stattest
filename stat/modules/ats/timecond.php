@@ -185,7 +185,7 @@
                             $sqlArray['insert_names']	=	'INSERT INTO
                                 time_cond
                                 VALUES
-                                (NULL,"'.mysql_escape_string($fixclient).'",[!@name])
+                                (NULL,"'.mysql_real_escape_string($fixclient).'",[!@name])
                                 ';
                             /*************************_Список новых расписаний_*********************************/
                             $sqlArray['insert_schedules']	=	'INSERT INTO

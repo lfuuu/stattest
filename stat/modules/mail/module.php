@@ -37,7 +37,7 @@ class m_mail{
 		if (!count($R)) return;
 		if (access('mail','r') && !access('mail','w') && isset($fixclient_data)) {
 			if ($this->is_active==0 && $db->GetRow('select * from mail_object where client_id="'.$fixclient_data['id'].'" AND object_type="PM" AND view_count=0 LIMIT 1')){
-				trigger_error('<a href="?module=mail">У вас есть непросмотренные сообщения</a>');
+				trigger_error2('<a href="?module=mail">У вас есть непросмотренные сообщения</a>');
 			}
 			return array('Просмотр сообщений',$R);
 		} else {
@@ -92,8 +92,8 @@ class m_mail{
 				UPDATE
 					`mail_job` `mj`
 				SET
-					`mj`.`template_body` = "'.mysql_escape_string($R['template_body']).'",
-					`mj`.`template_subject` = "'.mysql_escape_string($R['template_subject']).'",
+					`mj`.`template_body` = "'.mysql_real_escape_string($R['template_body']).'",
+					`mj`.`template_subject` = "'.mysql_real_escape_string($R['template_subject']).'",
 					`mj`.`date_edit` = NOW(),
 					`mj`.`user_edit` = "'.$R['user_edit'].'"
 				WHERE
@@ -104,7 +104,7 @@ class m_mail{
 				INSERT INTO	`mail_job`
 					(`template_subject`,`template_body`,`date_edit`,`user_edit`)
 				VALUES
-					("'.mysql_escape_string($R['template_subject']).'","'.mysql_escape_string($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
+					("'.mysql_real_escape_string($R['template_subject']).'","'.mysql_real_escape_string($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
 			';
 			$db->Query($query);
 			$id = $db->GetInsertId();

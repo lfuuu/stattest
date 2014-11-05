@@ -59,10 +59,8 @@ class PgSQLDatabase {
         $this->_QueryId = 0;
     }
     function QueryX($query) {
-    	global $G;
-    	trigger_error(htmlspecialchars_($query));
-//		$G['notices'][]=array($query,__FILE__,__LINE__,'');
-    	$this->Query($query);	
+    	trigger_error2(htmlspecialchars_($query));
+    	$this->Query($query);
     }
 
     function Query($query, $saveDefault = 1) {
@@ -80,7 +78,7 @@ class PgSQLDatabase {
         }
 
         if ($query == '') return 0;
-		if (DEBUG_LEVEL>=2) trigger_error(htmlspecialchars_($query));
+		if (DEBUG_LEVEL>=2) trigger_error2(htmlspecialchars_($query));
 
 		if (!$this->Connect()) return 0;
         if ($saveDefault) {
@@ -89,7 +87,7 @@ class PgSQLDatabase {
         }
 		if (DEBUG_LEVEL>=3) time_start("sql");
         $req = pg_query($this->_LinkId, $query);
-		if (DEBUG_LEVEL>=3) trigger_error("it took ".time_finish("sql")." seconds");
+		if (DEBUG_LEVEL>=3) trigger_error2("it took ".time_finish("sql")." seconds");
 
 
       $this->mErrno = 0;
@@ -249,8 +247,8 @@ class PgSQLDatabase {
         if(defined("exception_sql")){
             throw new Exception($this->mError);
         }
-		trigger_error('Database error: ' . $msg, E_USER_NOTICE);
-		trigger_error('PgSQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
+		trigger_error2('Database error: ' . $msg, E_USER_NOTICE);
+		trigger_error2('PgSQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
     }
 
     function QueryInsert($table,$data, $getid=true) {

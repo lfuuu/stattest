@@ -23,7 +23,7 @@
 <input type="hidden" name="PaymentTypeCD" value="PC"> {*тип платежа: по технологии PayCash *}
 
 <table>
-<tr><td>Номер заказа:</td><td>{CustomerNumber}
+<tr><td>Номер заказа:</td><td>{$CustomerNumber}
 {$fixclient_data.id} ({$fixclient_data.company_full}, {$fixclient_data.client})
 <input type=hidden name="CustomerNumber" size="20" value="{$fixclient_data.id}">
 {* ключевая информация платежа: номер заказа в интернет-магазине, лицевой счет у провайдера услуг (если данное поле не заполнено платеж в ЦПП не пройдет)  *}

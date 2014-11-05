@@ -26,7 +26,7 @@ if ($action=='add_client') {
 		die("error: ��� �������� �� ������!");
 	}
 
-    $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_escape_string($P["company"])."'");
+    $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_real_escape_string($P["company"])."'");
     $cid2 = $db->GetValue(
         "SELECT 
             client_id 
@@ -34,7 +34,7 @@ if ($action=='add_client') {
             `client_contacts` 
         WHERE 
                 type='email' 
-            and `data` = '".mysql_escape_string($P["email"])."' 
+            and `data` = '".mysql_real_escape_string($P["email"])."'
         ORDER BY if(is_active = 1, if(is_official = 1, 2, 1), 0) desc, `id` DESC limit 1");
 
     $id = ($cid2 ? $cid2 : ($cid1 ? $cid1 : false));
@@ -83,7 +83,7 @@ if ($action=='add_client') {
 
     $bill_no = get_param_raw("bill_no", "");
 
-    if($b = $db->GetValue("select bill_no from newbills where bill_no = '".mysql_escape_string($bill_no)."'"))
+    if($b = $db->GetValue("select bill_no from newbills where bill_no = '".mysql_real_escape_string($bill_no)."'"))
     {
         $db->Query("update newbills set editor = 'stat' where bill_no = '".$b."'");
         $t = $db->GetRow("select id, cur_stage_id from tt_troubles where bill_no = '".$b."'");
@@ -158,7 +158,7 @@ if ($action=='add_client') {
 }elseif($action == "reserve_number")
 {
     $client_id = get_param_integer("client_id", 0);
-	$numbers = mysql_escape_string( get_param_raw("number","") );
+	$numbers = mysql_real_escape_string( get_param_raw("number","") );
 	$numbers = $_numbers = explode(',', $numbers);
 	$numbers = "'".implode("','", $numbers)."'";
 

@@ -2,7 +2,7 @@
 
 class numberMT
 {
-    public function load($id, $struct = false)
+    public static function load($id, $struct = false)
     {
         global $db;
 
@@ -19,7 +19,7 @@ class numberMT
         return $struct ? $sa : $s;
     }
 
-    public function _parse($numbers)
+    public static function _parse($numbers)
     {
         $mt = array();
         if(!$numbers) return $mt;
@@ -31,7 +31,7 @@ class numberMT
         return $mt;
     }
 
-    public function save($id, $numbers)
+    public static function save($id, $numbers)
     {
         global $db;
 
@@ -48,7 +48,7 @@ class numberMT
         }
     }
 
-    public function getCallCount($s)
+    public static function getCallCount($s)
     {
         global $db;
         if($s)

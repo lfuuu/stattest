@@ -8,10 +8,12 @@ class m_phone extends IModule {
 		global $db;
 		$A=$db->AllRecords('select * from usage_phone_redir_conditions');
 		$R=array();
-		foreach ($A as $r) {
-			$r['data']=$db->AllRecords('select * from usage_phone_redir_condition_data where condition_id='.$r['id']);
-			$R[$r['id']]=$r;
-		}
+        if ($A) {
+            foreach ($A as $r) {
+                $r['data'] = $db->AllRecords('select * from usage_phone_redir_condition_data where condition_id=' . $r['id']);
+                $R[$r['id']] = $r;
+            }
+        }
 		return $R;
 	}
 	function _has_conflict($a,$b) {
@@ -47,10 +49,12 @@ class m_phone extends IModule {
 		global $db,$design;
 		$design->assign('conditions',$C=$this->_get_conditions());
 		$R=$db->AllRecords('select usage_phone_redir.*,usage_voip.E164 from usage_phone_redir INNER JOIN usage_voip ON usage_voip.id=usage_phone_redir.voip_id AND usage_voip.client="'.$fixclient.'"');
-		foreach ($R as &$r) {
-			$r['conditions']=array();
-			foreach ($C as $v) if (!$this->_has_conflict($v,$C[$r['condition_id']])) $r['conditions'][]=$v;
-		}
+        if ($R) {
+            foreach ($R as &$r) {
+                $r['conditions'] = array();
+                foreach ($C as $v) if (!$this->_has_conflict($v, $C[$r['condition_id']])) $r['conditions'][] = $v;
+            }
+        }
 		unset($r);
 
 		$V=$db->AllRecords('select * from usage_voip where client="'.$fixclient.'" and actual_from<=NOW() and actual_to>=NOW()');
@@ -86,7 +90,7 @@ class m_phone extends IModule {
 	}
 	function phone_callback($fixclient){
 		global $db,$design;
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$db->Query('select * from usage_phone_callback where client="'.$fixclient.'" and actual_to>NOW()');
 		$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
 		$design->assign('phones_callback',$R);
@@ -98,7 +102,7 @@ class m_phone extends IModule {
 	}
 	function phone_callback_add($fixclient){
 		global $db,$design;
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$phone=digits(get_param_protected('phone'));
 		$type_phone=get_param_protected('type_phone');
 		$type_dialplan=get_param_protected("type_dialplan");
@@ -110,21 +114,21 @@ class m_phone extends IModule {
 			values ('$fixclient','$phone','$type_phone','$type_dialplan','$actual_from','$actual_to','$comment')";
 			
 		$db->Query($sql);
-		trigger_error('<script language=javascript>window.location.href="?module=phone&action=callback";</script>');
+		trigger_error2('<script language=javascript>window.location.href="?module=phone&action=callback";</script>');
 	}
 	function phone_callback_del($fixclient){
 		global $db,$design;
 		if (!$fixclient) {
-			trigger_error('�������� �������'); 
+			trigger_error2('�������� �������');
 			return;
 	}
 		$id=get_param_protected('id');
 		$db->Query('update usage_phone_callback set actual_to=NOW() where id='.$id.' and client="'.$fixclient.'"');
-		trigger_error('<script language=javascript>window.location.href="?module=phone&action=callback";</script>');
+		trigger_error2('<script language=javascript>window.location.href="?module=phone&action=callback";</script>');
 	}
 	function phone_callback_change($fixclient){
 		global $db,$design;
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$type_phone=get_param_protected('type_phone');
 		$type_dialplan=get_param_protected("type_dialplan");
 		$comment=get_param_protected("comment");
@@ -136,7 +140,7 @@ class m_phone extends IModule {
 	
 	function phone_short($fixclient){
 		global $db,$design;
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$db->Query('select * from phone_short where client="'.$fixclient.'"');
 		$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
 		$design->assign('phones_short',$R);
@@ -144,17 +148,17 @@ class m_phone extends IModule {
 	}
 	function phone_short_add($fixclient){
 		global $db,$design;
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$phone=digits(get_param_protected('phone'));
 		$phone_short=digits(get_param_protected('phone_short'));
 		if (strlen($phone_short)!=3){
-			trigger_error('����� ������� �ң�������� �������� �����');
+			trigger_error2('����� ������� �ң�������� �������� �����');
 			$design->assign('phone_short',$phone_short);
 			$design->assign('phone',$phone);
 			$this->phone_short($fixclient);	
 		} else {
 			$db->Query('insert into phone_short (client,phone_short,phone) values ("'.$fixclient.'","'.$phone_short.'","'.$phone.'")');
-			trigger_error('<script language=javascript>window.location.href="?module=phone&action=short";</script>');
+			trigger_error2('<script language=javascript>window.location.href="?module=phone&action=short";</script>');
 		}
 	}
 	function phone_short_del($fixclient){
@@ -162,15 +166,15 @@ class m_phone extends IModule {
 		if (!$fixclient) {trigger_error('�������� �������'); return;}
 		$phone_short=digits(get_param_protected('phone_short'));
 		$db->Query('delete from phone_short where client="'.$fixclient.'" and phone_short="'.$phone_short.'"');
-		trigger_error('<script language=javascript>window.location.href="?module=phone&action=short";</script>');
+		trigger_error2('<script language=javascript>window.location.href="?module=phone&action=short";</script>');
 	}
 	function phone_report($fixclient){
 		global $db,$design;
 		global $db,$design;
-		if (!$fixclient) {trigger_error('������ �� ������'); return;}
+		if (!$fixclient) {trigger_error2('������ �� ������'); return;}
 
 		$usage_voip=$db->AllRecords('select * from usage_voip where client="'.$fixclient.'" order by id');
-		if (!count($usage_voip)){ trigger_error('������ '.$fixclient.' �� ���������� VoIP'); return; }
+		if (!count($usage_voip)){ trigger_error2('������ '.$fixclient.' �� ���������� VoIP'); return; }
 		$design->assign('phone',$phone=get_param_protected('phone',''));
 		$phones = array();
 		$phones_sel = array();
@@ -200,7 +204,7 @@ class m_phone extends IModule {
 
 	function phone_mail($fixclient){
 		global $db,$design;	
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$db->Query('select usage_voip.*,phone_mail.phone_listen as phone_listen from usage_voip LEFT JOIN phone_mail ON (phone_mail.client="'.$fixclient.'") AND (phone_mail.phone=usage_voip.E164) where (usage_voip.client="'.$fixclient.'") and (usage_voip.DialPlan="city") and (usage_voip.actual_from<=NOW()) and (usage_voip.actual_to>NOW())');
 		$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
 		$design->assign('phones_mail',$R);
@@ -211,7 +215,7 @@ class m_phone extends IModule {
 	}
 	function phone_mail_save($fixclient){
 		global $db,$design;	
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		$phone_listen=get_param_raw('phone_listen',array());
 		$db->Query('select usage_voip.*,phone_mail.phone_listen as phone_listen from usage_voip LEFT JOIN phone_mail ON (phone_mail.client="'.$fixclient.'") AND (phone_mail.phone=usage_voip.E164) where (usage_voip.client="'.$fixclient.'") and (usage_voip.DialPlan="city") and (usage_voip.actual_from<=NOW()) and (usage_voip.actual_to>NOW())');
 		$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
@@ -229,11 +233,11 @@ class m_phone extends IModule {
 				}
 			}
 		}
-		trigger_error('<script language=javascript>window.location.href="?module=phone&action=mail";</script>');
+		trigger_error2('<script language=javascript>window.location.href="?module=phone&action=mail";</script>');
 	}
 	function phone_mail_file($fixclient){
 		global $db,$design;	
-		if (!$fixclient) {trigger_error('�������� �������'); return;}
+		if (!$fixclient) {trigger_error2('�������� �������'); return;}
 		if (!isset($_FILES['sound'])) return $this->phone_mail($fixclient);
 		$sound=$_FILES['sound'];
 		$comment=get_param_protected('comment');
@@ -245,7 +249,7 @@ class m_phone extends IModule {
 		} else {
 			$db->Query('insert into phone_mail_files (client,comment,size) values ("'.$fixclient.'","'.$comment.'","'.filesize(SOUND_PATH.$fixclient.'.wav').'")');
 		}
-		trigger_error('<script language=javascript>window.location.href="?module=phone&action=mail";</script>');
+		trigger_error2('<script language=javascript>window.location.href="?module=phone&action=mail";</script>');
 	}
 	function phone_tc() {
 		global $db,$design;	

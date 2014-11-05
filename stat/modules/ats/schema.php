@@ -28,7 +28,6 @@ class Schema
                 if(get_param_raw("do", "") == "save")
                 {
                     $this->saveShema($fixclient, $clientId, $id);
-                    $modObj->generateClient($fixclient);
                     exit();
                 }
                 $this->editSchema($fixclient, $clientId, $id);
@@ -98,7 +97,7 @@ class Schema
             try{
                 if(!$name) 
                     throw new Exception("Имя не задано");
-                if($db->GetRow("select * from r_schema where name ='".mysql_escape_string($name)."' and client_id = '".$clientId."'"))
+                if($db->GetRow("select * from r_schema where name ='".mysql_real_escape_string($name)."' and client_id = '".$clientId."'"))
                 {
                     throw new Exception("Схема с таким именем уже существует");
                 }

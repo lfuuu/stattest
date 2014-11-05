@@ -10,10 +10,10 @@ class aNumber
         global $design;
 
         $id = get_param_integer("id", 0);
-        if(!$id) {trigger_error("Номер не найден"); return;}
+        if(!$id) {trigger_error2("Номер не найден"); return;}
 
         $n = self::getNumber($id);
-        if(!$n) {trigger_error("Номер не найден"); return;}
+        if(!$n) {trigger_error2("Номер не найден"); return;}
 
         list($isEdit, $l) = self::getNumberLink($id);
 
@@ -168,7 +168,7 @@ class aNumber
 
         if(!$numberId || !$number) 
         {
-            trigger_error("Ошибка удаления"); 
+            trigger_error2("Ошибка удаления");
             return;
         }
         
@@ -176,7 +176,7 @@ class aNumber
 
         if(!$isEdit)
         {
-            trigger_error("Ошибка удаления"); 
+            trigger_error2("Ошибка удаления");
             return;
         }
 
@@ -195,7 +195,7 @@ class aNumber
 		$number = self::getNumber($numberId);
 		if (self::delete_alink_rows($numberId, $number, $c_ids) === false)
 		{
-			trigger_error("Ошибка удаления"); 
+			trigger_error2("Ошибка удаления");
 			continue;
 		}
         }

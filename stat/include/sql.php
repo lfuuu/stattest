@@ -76,10 +76,8 @@ class MySQLDatabase {
         $this->_QueryId = 0;
     }
     function QueryX($query) {
-    	global $G;
-    	trigger_error(htmlspecialchars_($query));
-//		$G['notices'][]=array($query,__FILE__,__LINE__,'');
-    	$this->Query($query);	
+    	trigger_error2(htmlspecialchars_($query));
+    	$this->Query($query);
     }
 
     function Query($query, $saveDefault = 1) {
@@ -94,20 +92,26 @@ class MySQLDatabase {
 
         if(defined("save_sql"))
         {
-            $pFile = fopen("/tmp/log.save", "a+");
-            fwrite($pFile, "\n------------------------------------\n".date("r").": ".$query);
-            fclose($pFile);
+            $logFile = '/tmp/log.save';
+            if (is_writeable($logFile)) {
+                $pFile = fopen($logFile, "a+");
+                fwrite($pFile, "\n------------------------------------\n" . date("r") . ": " . $query);
+                fclose($pFile);
+            }
         }
 
         if(stripos($query, "usage_ip_") !== false && stripos($query, "select") === false)
         {
-            $pFile = fopen("/var/log/nispd/log.usage_ip", "a+");
-            fwrite($pFile, "\n------------------------------------\n".date("r").": ".$query."\n".str_replace(array("\r", "\n"), "", print_r($_SESSION,true)));
-            fclose($pFile);
+            $logFile = '/var/log/nispd/log.usage_ip';
+            if (is_writeable($logFile)) {
+                $pFile = fopen($logFile, "a+");
+                fwrite($pFile, "\n------------------------------------\n" . date("r") . ": " . $query . "\n" . str_replace(array("\r", "\n"), "", print_r($_SESSION, true)));
+                fclose($pFile);
+            }
         }
 
         if ($query == '') return 0;
-		if (DEBUG_LEVEL>=2) trigger_error(htmlspecialchars_($query));
+		if (DEBUG_LEVEL>=2) trigger_error2(htmlspecialchars_($query));
         
         if (!$this->Connect()) return 0;
         if ($saveDefault) {
@@ -116,7 +120,7 @@ class MySQLDatabase {
         }
 		if (DEBUG_LEVEL>=3) time_start("sql");
         $req = @mysql_query($query, $this->_LinkId);
-		if (DEBUG_LEVEL>=3) trigger_error("it took ".time_finish("sql")." seconds");
+		if (DEBUG_LEVEL>=3) trigger_error2("it took ".time_finish("sql")." seconds");
 
         /*
 		if(mysql_errno()>0){
@@ -270,8 +274,8 @@ class MySQLDatabase {
         if(defined("exception_sql")){
             throw new Exception($this->mError);
         }
-		trigger_error('Database error: ' . $msg, E_USER_NOTICE);
-		trigger_error('MySQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
+		trigger_error2('Database error: ' . $msg, E_USER_NOTICE);
+		trigger_error2('MySQL Error: ' . $this->mErrno . ' (' . $this->mError . ')', E_USER_NOTICE);
     }
 
     function QueryInsert($table,$data, $get_new_id=true) {
@@ -281,7 +285,7 @@ class MySQLDatabase {
           $V[]=$v[0];
         else
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
           $V[]=$v;
         }
     	$res = $this->Query('insert into '.$table.' (`'.implode('`,`',array_keys($data)).'`) '.
@@ -298,7 +302,7 @@ class MySQLDatabase {
 	    	if ($str) $s = ',('; else $s = '(';
 	    	foreach ($data as $k=>$v)
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
           $s.=($k?',':'').$v;
         }
     		$str.=$s.')';
@@ -321,7 +325,7 @@ class MySQLDatabase {
           $V[]=$k.'='.addslashes($v[0]);
         else
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
           $V[]=$k.'='.$v;
         }
     	if (!$x) return $this->Query('select * from '.$table.' where ('.implode(') AND (',$V).')');
@@ -340,7 +344,7 @@ class MySQLDatabase {
           $V[]=$k.'='.addslashes($v[0]);
         else
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
           $V[]=$k.'='.$v;
         }
     	return $this->Query('delete from '.$table.' where ('.implode(') AND (',$V).')');
@@ -351,12 +355,12 @@ class MySQLDatabase {
     	foreach ($data as $k=>$v)
     		if (in_array($k,$keys))
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
     			$V2[]='`'.$k.'`='.$v;
         }
     		elseif (!is_array($v))
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
     			$V1[]='`'.$k.'`='.$v;
         }
     		else $V1[]='`'.$k.'`='.$v[0];
@@ -395,7 +399,7 @@ class MySQLDatabase {
     	}
     }
     function escape($str) {
-        return mysql_escape_string($str);
+        return mysql_real_escape_string($str);
     }
 
 

@@ -319,8 +319,8 @@ class m_letters {
 
 		$design->assign('refresh',10*$cont);
 		if ($cont) {
-			trigger_error('Отправка следующих 5ти писем произойдёт через 10 секунд');
-			trigger_error('<a href="?module=letters&action=lview&letter='.$letter.'">Остановить отправку</a>');
+			trigger_error2('Отправка следующих 5ти писем произойдёт через 10 секунд');
+			trigger_error2('<a href="?module=letters&action=lview&letter='.$letter.'">Остановить отправку</a>');
 		}
 		return $this->letters_lview($fixclient,$letter,$LA);
 	}
@@ -333,7 +333,7 @@ class m_letters {
 				$R[$entry]=array($entry,filesize(LETTER_FILES_PATH.$entry));
 			}
 			$d->close();
-		} else trigger_error("Ошибка работы с директорией ".LETTER_FILES_PATH);
+		} else trigger_error2("Ошибка работы с директорией ".LETTER_FILES_PATH);
 		return $R;
 	}
 	

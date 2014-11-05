@@ -73,9 +73,9 @@ class m_db{
 			if (!$old[$k]) $new=1;
 		}
 		if ($new) {
-			if (!$dbmap->AddRow($table,$row)) trigger_error('added');
+			if (!$dbmap->AddRow($table,$row)) trigger_error2('added');
 		} else {
-			if (!$dbmap->UpdateRow($table,$row,$old)) trigger_error('altered');
+			if (!$dbmap->UpdateRow($table,$row,$old)) trigger_error2('altered');
 		}
 		$dbmap->ShowEditForm($table,$dbmap->GetWhere($table,$row),$row);
 		$design->AddMain('db/edit.tpl');

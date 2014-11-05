@@ -147,7 +147,7 @@
 {$item.item}
 {if $item.service}</a>{/if}
 </td>
-<td>{if access('newaccounts_bills','edit')}<a href='#' onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false' style='text-decoration:none;color:#333333;'>{/if}<nobr>{$item.date_from}</nobr><br><nobr>{$item.date_to}</nobr>{if access('newaccounts_bills')}</a>{/if}</td>
+<td>{if access('newaccounts_bills','edit')}<a href='#' onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false' style='text-decoration:none;color:#333333;'>{/if}<nobr>{$item.date_from}</nobr><br><nobr>{$item.date_to}</nobr>{if access('newaccounts_bills', 'edit')}</a>{/if}</td>
 <td>{$item.amount}{if $cur_state && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
 <td align=right>{$item.price}</td>
 <td align=right>{if $item.all4net_price<>0}{$item.all4net_price*$item.amount|round:2}{else}{if $bill_client.nds_zero}{$item.sum|round:2}{else}{$item.sum*1.18|round:2}{/if}{/if}</td>

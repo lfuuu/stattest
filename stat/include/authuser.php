@@ -135,7 +135,7 @@ class AuthUser {
             $data=$db->NextRecord();
             if (!$data) {
                 sleep(1);
-                trigger_error('Вы не прошли валидацию');
+                trigger_error2('Вы не прошли валидацию');
                 return 0;
             }
             $pass=''; $data[USER_FIELD_PASSWORD]=password::hash('');

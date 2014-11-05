@@ -23,14 +23,14 @@ class m_register extends IModule {
 		$r = $db->GetRow('select * from clients where id='.$id);
 		if ($r['user_impersonate']=='client_autoreg_unvalidated') {
 			if (self::ValidationCode($r['id'],$r['client'])==$code) {
-				trigger_error('Спасибо, ваш e-mail подтверждён.');
+				trigger_error2('Спасибо, ваш e-mail подтверждён.');
 				global $module_phone;
 				$F = $module_phone->voipGetData($r['client'],true,null,false);
 				$r = $db->GetRow('select id from tarifs_voip where is_clientSelectable=1 and status="public" order by month_number asc');
 				$F['new_tarif_id'] = $r['id'];
 				$module_phone->voipSaveData($F);
 				$db->QueryUpdate('clients','id',array('id'=>$id,'user_impersonate'=>'client_autoreg'));
-			} else trigger_error('Неверный код');
+			} else trigger_error2('Неверный код');
 		}
 		$design->AddMain('login.tpl');
 	}
@@ -43,14 +43,14 @@ class m_register extends IModule {
 			'name'		=> get_param_protected('name'),
 			);
 		$err=0;
-		if ($regform['pass']!=$regform['pass2']) {$err=1; trigger_error('Пароли не совпадают');}
-		if (strlen($regform['pass'])<3) {$err=1; trigger_error('Введите пароль в 3 символа или длиннее');}
-		if (preg_match('/[^\d\w]\_\-]/',$regform['user'])) {$err=1; trigger_error('Допустимые символы в поле "Логин" - цифры, английские и русские буквы, знаки _-');}
+		if ($regform['pass']!=$regform['pass2']) {$err=1; trigger_error2('Пароли не совпадают');}
+		if (strlen($regform['pass'])<3) {$err=1; trigger_error2('Введите пароль в 3 символа или длиннее');}
+		if (preg_match('/[^\d\w]\_\-]/',$regform['user'])) {$err=1; trigger_error2('Допустимые символы в поле "Логин" - цифры, английские и русские буквы, знаки _-');}
 		$r=$db->GetRow('select count(*) as C from user_users where user="'.$regform['user'].'"');
-		if ($r['C']!=0) {$err=1; trigger_error('Такой пользователь уже существует');}
+		if ($r['C']!=0) {$err=1; trigger_error2('Такой пользователь уже существует');}
 		$r=$db->GetRow('select count(*) as C from clients where client="'.$regform['user'].'"');
-		if ($r['C']!=0) {$err=1; trigger_error('Такой пользователь уже существует');}
-		if (!$regform['name']) {$err=1; trigger_error('Заполните поле "Полное имя" (хоть чем-нибудь)');}
+		if ($r['C']!=0) {$err=1; trigger_error2('Такой пользователь уже существует');}
+		if (!$regform['name']) {$err=1; trigger_error2('Заполните поле "Полное имя" (хоть чем-нибудь)');}
 		if ($err){
 			$design->assign('regform',$regform);
 			$design->AddMain('m_register_form.tpl');	
@@ -63,7 +63,7 @@ class m_register extends IModule {
 			$headers = "From: MCN Info <info@mcn.ru>\n";
 			$headers.= "Content-Type: text/plain; charset=windows-1251\n";
 			if (!mail($regform['user'],$subj,$body,$headers)) {
-				trigger_error('Регистрация не удалась. Лучше всего - обратитесь к нам по телефону.');
+				trigger_error2('Регистрация не удалась. Лучше всего - обратитесь к нам по телефону.');
 				$db->Query('delete from clients where id='.$id);
 			} else {
 				if ($design->ProcessEx('errors.tpl')) {

@@ -170,7 +170,7 @@ class Bill{
 				$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8]);
 			$b=$b && $b1;
 			if(!$b1)
-				trigger_error('<font color=green>Невозможно добавить '.$r[1].'-'.$r[3].$r[0].'x'.$r[2].'</font>');
+				trigger_error2('Невозможно добавить '.$r[1].'-'.$r[3].$r[0].'x'.$r[2]);
 		}
 		return $b;
 	}
@@ -235,7 +235,7 @@ class Bill{
 		if(include_once(INCLUDE_PATH."1c_integration.php")){
 			$clS = new \_1c\clientSyncer($db);
 			if(!$clS->deleteBill($bill_no,$f)){
-				trigger_error("Внимание! Не удалось синхронизировать счет с 1С.");
+				trigger_error2("Внимание! Не удалось синхронизировать счет с 1С.");
                 return;
 			}
 		}
@@ -691,7 +691,7 @@ class Bill{
     {
         $c = Bill::GetCouriers();
 
-        if (!isset($c[$id])) {/*trigger_error("Установленный курьер не найден!");*/ return "";}
+        if (!isset($c[$id])) {/*trigger_error2("Установленный курьер не найден!");*/ return "";}
         return str_replace("-","", $c[$id]);
     }
 

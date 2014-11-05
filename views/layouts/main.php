@@ -85,7 +85,8 @@ $user = Yii::$app->user->identity;
 </div>
 
 <div class="layout_main">
-    <div id=div_errors></div>
+
+    <?= $this->render('widgets/messages') ?>
 
     <?= $content ?>
 

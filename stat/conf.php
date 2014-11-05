@@ -117,14 +117,9 @@ if (DEBUG_LEVEL!=0) ini_set ("display_errors", "On");
 
 require_once(CLASSES_PATH . 'Autoload.php');
 
-global $db, $pg_db, $db_ats, $design, $user, $modules;
+global $db, $pg_db, $db_ats;
 
 if (!defined('NO_INCLUDE')){
-    if (defined('NO_WEB') || defined('ERROR_NO_WEB')){
-        require_once(INCLUDE_PATH.'error_noweb.php');
-    } else {
-        require_once(INCLUDE_PATH.'error.php');
-    }
     require_once(INCLUDE_PATH.'util.php');
     require_once(INCLUDE_PATH.'clCards.php');
 
@@ -149,12 +144,8 @@ if (!defined('NO_INCLUDE')){
         }
 
         require_once(INCLUDE_PATH.'mysmarty.php');
-        $design = new MySmarty();
 
         require_once(INCLUDE_PATH.'authuser.php');
-        $user    = new AuthUser();
-
-        $modules= new Modules();
     }
     require_once(INCLUDE_PATH.'writeoff.php');
 }
@@ -168,3 +159,7 @@ ActiveRecord\Config::initialize(function($cfg) {
     $cfg->set_model_directory(MODELS_PATH);
     $cfg->set_connections($connections, 'db');
 });
+
+function trigger_error2($string) {
+    Yii::$app->session->addFlash('error', $string);
+}

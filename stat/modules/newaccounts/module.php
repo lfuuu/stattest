@@ -680,7 +680,7 @@ class m_newaccounts extends IModule
             $billingCounter = ClientCS::getBillingCounters($fixclient_data["id"]);
         }catch(Exception $e)
         {
-            trigger_error($e->getMessage());
+            trigger_error2($e->getMessage());
         }
 
         $design->assign("counters", $billingCounter);
@@ -1224,7 +1224,7 @@ class m_newaccounts extends IModule
             return;
         $bill = new Bill($bill_no);
         if(get_param_raw('err')==1)
-            trigger_error('Невозможно добавить строки из-за несовпадния валют');
+            trigger_error2('Невозможно добавить строки из-за несовпадния валют');
         $design->assign('bgen_psum',$this->do_generate($bill,'invoice','psum',array(),false));
         $design->assign('bgen_rate',array(
             $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>1),false),
@@ -1310,21 +1310,23 @@ class m_newaccounts extends IModule
         $r = $bill->Client();
         ClientCS::Fetch($r);
 
+        if ($r) {
+            $r["client_orig"] = $r["client"];
 
-        $r["client_orig"] = $r["client"];
+            if (access("clients", "read_multy"))
+                if ($r["type"] != "multi") {
+                    trigger_error2('Доступ к клиенту ограничен');
+                    return;
+                }
 
-        if(access("clients", "read_multy"))
-            if($r["type"] != "multi"){
-            trigger_error('Доступ к клиенту ограничен');
-            return;
-        }
-
-        if($r["type"] == "multi" && isset($_GET["bill"])){
-            $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '".$_GET["bill"]."'");
-            if($ai){
-                $r["client"] = $ai["fio"]." (".$r["client"].")";
+            if ($r["type"] == "multi" && isset($_GET["bill"])) {
+                $ai = $db->GetRow("select fio from newbills_add_info where bill_no = '" . $_GET["bill"] . "'");
+                if ($ai) {
+                    $r["client"] = $ai["fio"] . " (" . $r["client"] . ")";
+                }
             }
         }
+
         $design->assign('bill_client',$r);
         $design->assign('bill_history',
             $db->AllRecords('
@@ -1411,7 +1413,7 @@ class m_newaccounts extends IModule
         if(!$bill_no)
             return;
 
-        if(!eregi("20[0-9]{4}-[0-9]{4}", $bill_no)) {
+        if(!preg_match("/20[0-9]{4}-[0-9]{4}/i", $bill_no)) {
             header("Location: ./?module=newaccounts&action=make_1c_bill&bill_no=".$bill_no);
             exit();
         }
@@ -1822,7 +1824,7 @@ class m_newaccounts extends IModule
 
         $r = $db->Query("update newbills set is_lk_show =1 where bill_no like '".date("Ym")."-%' and !is_lk_show");
 
-        trigger_error("<font style=\"color: green;\">Опубликованно счетов: ".mysql_affected_rows()."</font>");
+        trigger_error2("Опубликованно счетов: ".mysql_affected_rows());
 
         return;
     }
@@ -2263,7 +2265,7 @@ class m_newaccounts extends IModule
         if(in_array($obj,array('nbn_deliv', 'nbn_modem','nbn_gds'))){
             $this->do_print_prepare($bill,'bill',1,'RUR');
             $design->assign('cli',$cli=$db->GetRow("select * from newbills_add_info where bill_no='".$bill_no."'"));
-            if(ereg("([0-9]{2})\.([0-9]{2})\.([0-9]{4})",$cli["passp_birthday"], $out))
+            if(preg_match("/([0-9]{2})\.([0-9]{2})\.([0-9]{4})/i",$cli["passp_birthday"], $out))
                     $cli["passp_birthday"] = $out[1]."-".$out[2]."-".$out[3];
 
             $lastDoer = $db->GetValue("select name from tt_doers d , courier c where stage_id in (select stage_id from tt_stages where trouble_id = (SELECT id FROM `tt_troubles` where bill_no ='".$cli["bill_no"]."')) and d.doer_id = c.id order by d.id desc");
@@ -2445,7 +2447,7 @@ class m_newaccounts extends IModule
             }
         }else{
             if ($only_html == '1') return '';
-            trigger_error('Документ не готов');
+            trigger_error2('Документ не готов');
         }
         $design->ProcessEx('errors.tpl');
     }
@@ -2517,8 +2519,8 @@ class m_newaccounts extends IModule
         foreach($db->AllRecords("SELECT num_id, item, serial FROM newbill_lines l, g_serials s, g_goods g  where l.bill_no = '".$billNo."' and l.bill_no = s.bill_no and l.code_1c = s.code_1c and g.id = l.item_id") as $l){
             $idx = "other";
 
-            if(eregi("w300", $l["item"])) $idx = "w300";
-            if(eregi("декодер", $l["item"])) $idx = "decoder";
+            if(preg_match("/w300/i", $l["item"])) $idx = "w300";
+            if(preg_match("/декодер/i", $l["item"])) $idx = "decoder";
             if($l["num_id"] == 11243) $idx = "cii";
             if($l["num_id"] == 11241) $idx = "fonera";
 
@@ -2930,9 +2932,9 @@ class m_newaccounts extends IModule
                     if(
                             $li['sum']!=0 || 
                             $li["item"] == "S" || 
-                            ($origObj == "gds" && $source == 2) || 
-                            eregi("^Аренд", $li["item"]) ||
-                            ($li["sum"] == 0 && eregi("^МГТС/МТС", $li["item"]))
+                            ($origObj == "gds" && $source == 2) ||
+                            preg_match("/^Аренд/i", $li["item"]) ||
+                            ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"]))
                             ) {
                         $R[]=&$li;
                     }
@@ -4002,7 +4004,7 @@ class m_newaccounts extends IModule
 
         $file=str_replace(array('/',"\\"),array('',''),$file);
         if(!file_exists(PAYMENTS_FILES_PATH.$file)){
-            //trigger_error('Файл не существует');
+            //trigger_error2('Файл не существует');
             return;
         }
 
@@ -4143,7 +4145,7 @@ class m_newaccounts extends IModule
                 $bill = $db->QuerySelectRow("newbills", array("bill_no" => $P["bill_no"]));
 
                 if($bill["client_id"] != $client["id"]) {
-                    trigger_error("<br>Платеж #".$P["pay"].", на сумму:".$P["sum_rub"]." не внесен, проверте, что бы счет принадлежал этой компании");
+                    trigger_error2("Платеж #".$P["pay"].", на сумму:".$P["sum_rub"]." не внесен, проверте, что бы счет принадлежал этой компании");
                     continue;
                 }
 
@@ -4211,7 +4213,7 @@ class m_newaccounts extends IModule
 
 
         //$this->newaccounts_bill_balance_mass($fixclient);
-        trigger_error("<br>Баланс обновлён");
+        trigger_error2("Баланс обновлён");
         if ($b && $design->ProcessEx('errors.tpl')) {
             header('Location: ?module=newaccounts&action=pi_process&file='.$file);
             exit();
@@ -4628,7 +4630,7 @@ $sql .= "    order by client, bill_no";
                         ORDER BY c.client, b.bill_no LIMIT 1000');
             }
 
-            if (count($R)==1000) trigger_error('Ограничьте условия поиска. Показаны первые 1000 вариантов');
+            if (count($R)==1000) trigger_error2('Ограничьте условия поиска. Показаны первые 1000 вариантов');
             if (count($R) == 1){
                 header("Location: ./?module=newaccounts&action=bill_view&bill=".$R[0]["bill_no"]);
                 exit();
@@ -4704,7 +4706,7 @@ $sql .= "    order by client, bill_no";
     function newaccounts_balance_check($fixclient) {
         global $design,$db,$user,$fixclient_data;
 
-        if (!$fixclient) {trigger_error('Выберите клиента'); return;}
+        if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
 
 	$dateFrom = new DatePickerValues('date_from', 'first');
 	$dateTo= new DatePickerValues('date_to', 'last');
@@ -5272,7 +5274,7 @@ $sql .= "    order by client, bill_no";
             $_SESSION['clients_client'] = $oBill->Get("client_id");
             $fixclient_data = ClientCS::FetchClient($oBill->Get("client_id"));
         }elseif (!$fixclient) {
-            trigger_error('Зафиксируйте клиента'); return;
+            trigger_error2('Зафиксируйте клиента'); return;
         }
         $dbf = new DbFormNewpayments();
         $dbf->SetDefault('client_id',$fixclient_data['id']);
@@ -5290,9 +5292,9 @@ $sql .= "    order by client, bill_no";
     }
     function newaccounts_pay_apply($fixclient){
         global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error('Не выбран клиент'); return;}
+        if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
         $bill_no = $_POST['dbform']['bill_no'];
-        if ($bill_no==''){trigger_error('Не выбран счет'); return;}
+        if ($bill_no==''){trigger_error2('Не выбран счет'); return;}
 
 
         $b = bill::getDocument($bill_no, $_POST['dbform']['client_id']);
@@ -5300,7 +5302,7 @@ $sql .= "    order by client, bill_no";
         // каст для БИЛАЙНА
 
         if(false && $b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0 && $b->sum > 0) {
-            trigger_error("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
+            trigger_error2("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
             return;
         }elseif($b->is_payed == 0){
             $r = $db->GetValue("select client_id from newpayments where bill_no = '".$bill_no."'");
@@ -5342,7 +5344,7 @@ $sql .= "    order by client, bill_no";
     }
     function newaccounts_pay_rate($fixclient) {
         global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error('Не выбран клиент'); return;}
+        if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         $rate=floatval(get_param_raw('rate',''));
         if (!$id) return;
@@ -5354,7 +5356,7 @@ $sql .= "    order by client, bill_no";
     }
     function newaccounts_pay_rebill($fixclient) {
         global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error('Не выбран клиент'); return;}
+        if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
         $pay=get_param_integer('pay');
         $bill=get_param_protected('bill');
         if ($bill) {
@@ -5392,7 +5394,7 @@ $sql .= "    order by client, bill_no";
         if(include(INCLUDE_PATH."1c_integration.php")){
             $clS = new \_1c\clientSyncer($db);
             if(!$clS->deletePayment($id)){
-                trigger_error("Не удалось удалить платеж из 1С!<br /><a href='?module=newaccounts'>Баланс</a>");
+                trigger_error2("Не удалось удалить платеж из 1С!<br /><a href='?module=newaccounts'>Баланс</a>");
                 exit();
             }
         }
@@ -5505,9 +5507,9 @@ $sql .= "    order by client, bill_no";
         $design->assign('rates',$db->AllRecords('select * from bill_currency_rate order by date desc limit 30'));
         if (($date=get_param_protected('date')) && ($rate=get_param_protected('rate'))) {
             if ($db->QuerySelectRow('bill_currency_rate',array('date'=>$date,'currency'=>'USD'))) {
-                trigger_error('Курс на эту дату уже введён');
+                trigger_error2('Курс на эту дату уже введён');
             } else {
-                trigger_error('Курс занесён');
+                trigger_error2('Курс занесён');
                 $db->QueryInsert('bill_currency_rate',array('date'=>$date,'currency'=>'USD','rate'=>$rate));
             }
         }
@@ -5704,7 +5706,7 @@ $sql .= "    order by client, bill_no";
         $bill = null;
 
         // направляем на нужную страницу редактирования счета
-        if(eregi("20[0-9]{4}-[0-9]{4}", $bill_no)) {
+        if(preg_match("/20[0-9]{4}-[0-9]{4}/i", $bill_no)) {
             header("Location: ./?module=newaccounts&action=bill_edit&bill=".$bill_no);
             exit();
         }
@@ -5991,12 +5993,12 @@ $sql .= "    order by client, bill_no";
                 if(!$ttt && $bill)
                     $bill->SetManager($user->Get("id"));
 
-                trigger_error("Счет #".$bill_no." успешно ".($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан")."!");
+                trigger_error2("Счет #".$bill_no." успешно ".($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан")."!");
                 $db->QueryInsert("log_newbills", array( 'bill_no'=>$bill_no, 'ts'=>array('NOW()'), 'user_id'=>$user->Get('id'), 'comment'=>'Создание заказа'));
                 header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
                 exit();
             }else{
-                trigger_error("Не удалось создать заказ в 1С");
+                trigger_error2("Не удалось создать заказ в 1С");
             }
         }
 
@@ -6084,7 +6086,7 @@ $sql .= "    order by client, bill_no";
         if(strlen($prod) >= 1)
         {
             $ret = "";
-            $prod = str_replace(array("*","%%"), array("%","%"), mysql_escape_string($prod));
+            $prod = str_replace(array("*","%%"), array("%","%"), mysql_real_escape_string($prod));
 
             $storeId = get_param_protected("store_id", "8e5c7b22-8385-11df-9af5-001517456eb1");
             
@@ -6396,13 +6398,13 @@ $sql .= "    order by client, bill_no";
         $dirUnrec = $dirDoc."unrecognized/";
 
         $file = get_param_raw("file", "");
-        if(!file_exists($dirUnrec.$file)) {trigger_error("Файл не найден!"); return;}
+        if(!file_exists($dirUnrec.$file)) {trigger_error2("Файл не найден!"); return;}
 
         $type = get_param_raw("type", "");
-        if(!isset(QRCode::$codes[$type])) {trigger_error("Ошибка в типе!"); return;}
+        if(!isset(QRCode::$codes[$type])) {trigger_error2("Ошибка в типе!"); return;}
 
         $number = get_param_raw("number", "");
-        if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error("Ошибка в номере!"); return;}
+        if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error2("Ошибка в номере!"); return;}
 
         global $db;
 
@@ -6467,7 +6469,7 @@ $sql .= "    order by client, bill_no";
             echo file_get_contents($fPath);
             exit();
         }else{
-            trigger_error("Файл не найден!");
+            trigger_error2("Файл не найден!");
         }
         //
     }

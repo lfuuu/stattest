@@ -24,7 +24,7 @@ class m_voipnew extends IModule
         }
     }
 
-    protected function _addInheritance(Inheritance $inheritance)
+    protected function _addInheritance($inheritance)
     {
         $this->_inheritances[get_class($inheritance)] = $inheritance;
         $inheritance->module = $this;
@@ -223,7 +223,7 @@ class m_voipnew extends IModule
             $req = $pg_db->QueryUpdate('voip.raw_file', 'id', array('id' => $id, 'active' => 0));
         }
         if (!$req) {
-            trigger_error('Ошибка Активации/Деактивации');
+            trigger_error2('Ошибка Активации/Деактивации');
         } else {
             header('location: index.php?module=voipnew&action=view_raw_file&id=' . $id);
             exit;
@@ -239,7 +239,7 @@ class m_voipnew extends IModule
 
         $req = $pg_db->QueryUpdate('voip.raw_file', 'id', array('id' => $id, 'startdate' => $startDate));
         if (!$req) {
-            trigger_error('Ошибка: Не удалось изменить дату начала действия');
+            trigger_error2('Ошибка: Не удалось изменить дату начала действия');
         } else {
             header('location: index.php?module=voipnew&action=view_raw_file&id=' . $id);
             exit;
@@ -314,10 +314,10 @@ class m_voipnew extends IModule
         set_time_limit(0);
         if (isset($_POST['step']) && $_POST['step'] == 'upfile') {
             if (!$_FILES['upfile']) {
-                trigger_error('Пожалуйста, загрузите файл для обработки');
+                trigger_error2('Пожалуйста, загрузите файл для обработки');
                 return;
             } elseif ($_FILES['upfile']['error']) {
-                trigger_error('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз' . $_FILES['upfile']['error']);
+                trigger_error2('При загрузке файла произошла ошибка. Пожалуйста, попробуйте еще раз' . $_FILES['upfile']['error']);
                 return;
             }
 
@@ -326,7 +326,7 @@ class m_voipnew extends IModule
                 &&
                 $f['type'] <> 'application/vnd.ms-excel'
             ) {
-                trigger_error('Формат файла указан не правильно');
+                trigger_error2('Формат файла указан не правильно');
                 return;
             }
 
@@ -371,7 +371,7 @@ class m_voipnew extends IModule
             }
 
             if ($defs === false) {
-                trigger_error('Ошибка чтения файла');
+                trigger_error2('Ошибка чтения файла');
                 return;
             }
             
@@ -558,7 +558,7 @@ class m_voipnew extends IModule
             exit;
         }
 
-        trigger_error('bad parameters');
+        trigger_error2('bad parameters');
     }
 
     public function voipnew_mass_activate()

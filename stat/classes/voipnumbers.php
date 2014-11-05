@@ -2,7 +2,7 @@
 
 class voipNumbersChecker
 {
-    public function check()
+    public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
         global $db;
@@ -15,7 +15,7 @@ class voipNumbersChecker
         $db->SwitchDB(SQL_DB);
     }
 
-    private function sqlClient($client = null)
+    private static function sqlClient($client = null)
     {
         global $db;
         if($client == null)
@@ -26,7 +26,7 @@ class voipNumbersChecker
         static $c = array();
 
         if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".mysql_escape_string($client)."'");
+            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".mysql_real_escape_string($client)."'");
 
         return "client_id='".$c[$client]."'";
     }
@@ -51,7 +51,7 @@ class voipNumbersChecker
         # and client='id9011'
         order by id";
 
-    private function load($type)
+    private static function load($type)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
         global $db;
@@ -66,8 +66,10 @@ class voipNumbersChecker
         }
 
         $d = array();
-        foreach($db->AllRecords($sql) as $l)
-            $d[$l["e164"]] = $l;
+        if ($rows = $db->AllRecords($sql)) {
+            foreach ($rows as $l)
+                $d[$l["e164"]] = $l;
+        }
 
         if (!$d)
             throw new Exception("Data not load");
@@ -75,7 +77,7 @@ class voipNumbersChecker
         return $d;
     }
 
-    private function diff(&$saved, &$actual)
+    private static function diff(&$saved, &$actual)
     {
         l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
 
@@ -113,7 +115,7 @@ class voipNumbersChecker
         return false;
     }
 
-    private function save(&$actual)
+    private static function save(&$actual)
     {
         l::ll(__CLASS__,__FUNCTION__,"..."/*, $actual*/);
         global $db;
@@ -128,7 +130,7 @@ class voipNumbersChecker
 
 class voipNumbers
 {
-    public function check()
+    public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
         voipNumbersChecker::check();
@@ -137,7 +139,7 @@ class voipNumbers
         //ats2Numbers::check();
     }
 
-    public function getNumberId($l)
+    public static function getNumberId($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
@@ -154,7 +156,7 @@ class voipNumbers
         return $c[$key];
     }
     
-    public function isUsed($l, $lookInDeleted = false)
+    public static function isUsed($l, $lookInDeleted = false)
     {
         l::ll(__CLASS__,__FUNCTION__,$l, $lookInDeleted);
         global $db;
@@ -180,7 +182,7 @@ class voipNumbers
     }
 
 
-    public function isMarkedForDelet($l)
+    public static function isMarkedForDelet($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
@@ -190,7 +192,7 @@ class voipNumbers
         return $db->GetValue("select enabled from v_number where id = ".$numberId) == "no";
     }
 
-    public function add($l)
+    public static function add($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
@@ -203,7 +205,7 @@ class voipNumbers
                 );
     }
 
-    public function delet($l)
+    public static function delet($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
@@ -215,7 +217,7 @@ class voipNumbers
                 );
     }
 
-    public function unMarkDelet($l)
+    public static function unMarkDelet($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
@@ -240,7 +242,7 @@ class voipNumbers
     }
 
 
-    public function markDelete($l)
+    public static function markDelete($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -268,7 +270,7 @@ class voipNumbers
         }
     }
 
-    public function archiveFromMT($l, $id)
+    public static function archiveFromMT($l, $id)
     {
         l::ll(__CLASS__,__FUNCTION__, $l, $id);
         global $db;
@@ -286,7 +288,7 @@ class voipNumbers
         vSip::recalcCallCount($id);
     }
 
-    public function recoverInMT($numberId, $sipId)
+    public static function recoverInMT($numberId, $sipId)
     {
         l::ll(__CLASS__,__FUNCTION__, $numberId, $sipId);
         global $db;
@@ -302,7 +304,7 @@ class voipNumbers
 
     }
 
-    public function markDeletSIP($id)
+    public static function markDeletSIP($id)
     {
         l::ll(__CLASS__,__FUNCTION__, $id);
        global $db;
@@ -320,7 +322,7 @@ class voipNumbers
                );
     }
 
-    public function unMarkDeletSIP($id)
+    public static function unMarkDeletSIP($id)
     {
         l::ll(__CLASS__,__FUNCTION__, $id);
        global $db;
@@ -339,7 +341,7 @@ class voipNumbers
     }
 
 
-    public function delIfUsedOftherClient($l)
+    public static function delIfUsedOftherClient($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db;
@@ -357,7 +359,7 @@ class voipNumbers
 
 class voipDiff
 {
-    public function apply(&$diff)
+    public static function apply(&$diff)
     {
         global $db;
         l::ll(__CLASS__,__FUNCTION__,$diff);
@@ -380,7 +382,7 @@ class voipDiff
             self::clientChanged($diff["new_client"]);
     }
 
-    private function add(&$d)
+    private static function add(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -388,7 +390,7 @@ class voipDiff
             voipNumberAction::add($l);
     }
 
-    private function del(&$d)
+    private static function del(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -396,7 +398,7 @@ class voipDiff
             voipNumberAction::del($l);
     }
 
-    private function numOfLineChanged(&$d)
+    private static function numOfLineChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -404,7 +406,7 @@ class voipDiff
             voipNumberAction::numOfLineChanged($l);
     }
 
-    private function numOfCallFwdChanged(&$d)
+    private static function numOfCallFwdChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -412,7 +414,7 @@ class voipDiff
             voipNumberAction::numOfCallFwdChanged($l);
     }
 
-    private function clientChanged(&$d)
+    private static function clientChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -423,7 +425,7 @@ class voipDiff
 
 class voipNumberAction
 {
-    public function add(&$l)
+    public static function add(&$l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -440,7 +442,7 @@ class voipNumberAction
         voipNumbers::delIfUsedOftherClient($l);
     }
 
-    public function del(&$l, $lookInDeleted = false)
+    public static function del(&$l, $lookInDeleted = false)
     {
         l::ll(__CLASS__,__FUNCTION__, $l, var_export($lookInDeleted, true));
 
@@ -453,7 +455,7 @@ class voipNumberAction
         }
     }
 
-    public function delFull($l)
+    public static function delFull($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -470,7 +472,7 @@ class voipNumberAction
         voipNumbers::delet($l);
     }
 
-    public function numOfLineChanged($l)
+    public static function numOfLineChanged($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -486,7 +488,7 @@ class voipNumberAction
             vSip::recalcCallCount($n["id"]);
     }
     
-    public function numOfCallFwdChanged($l)
+    public static function numOfCallFwdChanged($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -499,7 +501,7 @@ class voipNumberAction
                 );
     }
 
-    public function clientChanged($l)
+    public static function clientChanged($l)
     {
         global $db;
 

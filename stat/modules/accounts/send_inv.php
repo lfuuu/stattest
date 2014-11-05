@@ -19,7 +19,7 @@
 	
 	$db->Query('select * from clients where client="'.$client.'" limit 1');
 	if (!($r=$db->NextRecord())){
-		trigger_error('Такого клиента не существует');
+		trigger_error2('Такого клиента не существует');
 	} else {
 		$mail=$r['email'];
 		$p=udata_encode($invoice_no);

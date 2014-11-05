@@ -46,7 +46,7 @@ class m_voipreports extends IModule
         }
     }
 
-    protected function _addInheritance(Inheritance $inheritance)
+    protected function _addInheritance($inheritance)
     {
         $this->_inheritances[get_class($inheritance)] = $inheritance;
         $inheritance->module = $this;
