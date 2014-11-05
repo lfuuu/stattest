@@ -527,7 +527,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 {
                     if($str = BillContract::getBillItemString($clientId))
                     {
-                        $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".substr($l[1],strpos($l[1], "("));
+                        $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".mb_substr($l[1], mb_strpos($l[1], "(", 0, 'utf-8'), null, 'utf-8');
                         $l[1] .= $str;
                     }
                 }
@@ -835,7 +835,7 @@ class ServiceUsageVoip extends ServicePrototype {
                 $contractStr = BillContract::getBillItemString($this->service["client_id"]);
                 if($contractStr)
                 {
-                    $l[1] = "Оказанные услуги за ".substr($l[1],strpos($l[1], "за ")+3).$contractStr;
+                    $l[1] = "Оказанные услуги за ".mb_substr($l[1], mb_strpos($l[1], "за ", 0, 'utf-8')+3, null, 'utf-8').$contractStr;
                 }
 
             }
