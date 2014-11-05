@@ -3179,6 +3179,7 @@ class m_services extends IModule{
         }
 
         echo json_encode($Res);
+        exit();
     }
 
     public function services_rpc_extendReserv($fixclient)
