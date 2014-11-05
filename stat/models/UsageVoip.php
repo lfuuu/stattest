@@ -4,6 +4,13 @@ class UsageVoip extends ActiveRecord\Model
 {
     static $table_name = "usage_voip";
     static $private_key = 'id';
+
+    static $allowedDirection = array(
+        "full"     => "Все",
+        "russia"   => "Россия",
+        "localmob" => "Местные (мобильные)",
+        "local"    => "Местные (все)"
+    );
     
      /**
      *  Возвращает информацию о номере, с которого осуществился переход, если такой существует

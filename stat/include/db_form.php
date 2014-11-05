@@ -426,8 +426,7 @@ class DbFormUsageIpPorts extends DbForm{
 
 class DbFormUsageVoip extends DbForm {
     public function __construct() {
-        global $db, $allowedDirection, $fixclient_data;
-
+        global $db, $fixclient_data;
 
         $regions = array();
         foreach($db->AllRecords('select * from regions') as $item)
@@ -442,7 +441,7 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['E164']=array("add" => " onchange='form_usagevoip_hide()'");
         $this->fields['no_of_lines']=array('default'=>1);
         $this->fields['line7800_id']=array("assoc_enum" => array());
-        $this->fields['allowed_direction']=array('assoc_enum' => $allowedDirection, 'default'=>'full');
+        $this->fields['allowed_direction']=array('assoc_enum' => UsageVoip::$allowedDirection, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
