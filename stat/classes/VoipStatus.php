@@ -43,11 +43,11 @@ class VoipStatus {
 
   public function showCountersWarning()
   {
-    if ($this->counters['error']) trigger_error("Сервер статистики недоступен. Данные о балансе и счетчиках могут быть не верными");
-    if ($this->counters['auto_disabled_local']) trigger_error("ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Местная связь)");
-    if ($this->counters['auto_disabled']) trigger_error("ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)");
-    if ($this->counters['need_lock_limit_day']) trigger_error('Превышен дневной лимит: '.$this->counters['amount_day_sum'].' > '.$this->counters['voip_credit_limit_day']);
-    if ($this->counters['need_lock_limit_month']) trigger_error('Превышен месячный лимит: '.$this->counters['amount_month_sum'].' > '.$this->counters['voip_credit_limit']);
-    if ($this->counters['need_lock_credit']) trigger_error('Превышен лимит кредита: '.$this->counters['balance'].' < -'.$this->counters['credit']);
+    if ($this->counters['error']) trigger_error2("Сервер статистики недоступен. Данные о балансе и счетчиках могут быть не верными");
+    if ($this->counters['auto_disabled_local']) trigger_error2("ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (Местная связь)");
+    if ($this->counters['auto_disabled']) trigger_error2("ТЕЛЕФОНИЯ ЗАБЛОКИРОВАНА (МГ, МН, Местные мобильные)");
+    if ($this->counters['need_lock_limit_day']) trigger_error2('Превышен дневной лимит: '.$this->counters['amount_day_sum'].' > '.$this->counters['voip_credit_limit_day']);
+    if ($this->counters['need_lock_limit_month']) trigger_error2('Превышен месячный лимит: '.$this->counters['amount_month_sum'].' > '.$this->counters['voip_credit_limit']);
+    if ($this->counters['need_lock_credit']) trigger_error2('Превышен лимит кредита: '.$this->counters['balance'].' < -'.$this->counters['credit']);
   }
 }

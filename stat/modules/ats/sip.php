@@ -4,7 +4,7 @@
 class sip
 {
 
-	public function view($fixClient, $view = "number", $parentId = 0)
+	public static function view($fixClient, $view = "number", $parentId = 0)
     {
 		global $db, $design;
 
@@ -83,7 +83,7 @@ class sip
 	}
 
 
-    public function modify($fixClient)
+    public static function modify($fixClient)
     {
         global $db, $design;
         include_once INCLUDE_PATH."formconstructor.php";
@@ -213,7 +213,7 @@ class sip
         }
     }
 
-    private function apply(&$d, &$s) //(to save, in db)
+    private static function apply(&$d, &$s) //(to save, in db)
     {
         global $db;
 
@@ -253,7 +253,6 @@ class sip
 
             vSip::add($d);
 
-            $this->generateClient($d["client"]);
             return true;
         }else{ // edit
 
@@ -264,12 +263,11 @@ class sip
 
             $r = vSip::apply($d, $s, get_param_raw("type_save", "") == "all");
 
-            $this->generateClient($s["client"]);
             return $r;
         }
     }
 
-    private function lookDiffInLines(&$map, $id, &$data)
+    private static function lookDiffInLines(&$map, $id, &$data)
     {
         global $db;
 
@@ -303,7 +301,7 @@ class sip
         }
     }
 
-    private function preparaGet(&$d)
+    private static function preparaGet(&$d)
     {
         foreach(array("enabled", /*"t38", "nat", */"is_pool"/*, "permit_on"*/) as $v)
         {
@@ -313,7 +311,7 @@ class sip
         if(isset($d["host_type"]) && $d["host_type"] == "static") $d["password"] = "";
     }
 
-    public function action($fixclient)
+    public static function action($fixclient)
     {
         global $db;
 
@@ -354,8 +352,6 @@ class sip
             }
         }
 
-        $this->generateClient($fixclient);
-
         if($superId == 0)
         {
             header("Location: ./?module=ats&action=sip_users");
@@ -365,7 +361,7 @@ class sip
         exit();
     }
 
-    private function _markDisabledinDB($number)
+    private static function _markDisabledinDB($number)
     {
         static $conn = null;
 
@@ -386,7 +382,7 @@ class sip
         }
     }
 
-    private function check(&$data, &$od, &$map)
+    private static function check(&$data, &$od, &$map)
     {
         include INCLUDE_PATH."checker.php";
 
@@ -462,7 +458,7 @@ class sip
             checker::isEmpty($data["context"], "Контекст не задан!");
     }
 
-    private function getMap($atype, $type, $id)
+    private static function getMap($atype, $type, $id)
     {
         global $db, $user, $fixclient;
 
@@ -861,12 +857,12 @@ class sip
         return $m;
     }
 
-    private function isAllowAdd()
+    private static function isAllowAdd()
     {
         return count(vNumber::getFree()) > 0;
     }
 
-    public function getInfo($id, $fixclient)
+    public static function getInfo($id, $fixclient)
     {
         global $db;
         $data = $db->GetRow("select * from v_sip where id ='".$id."' and ".sqlClient());

@@ -82,7 +82,7 @@ class m_send {
 						("'.$bill_client[$i].'","'.$bill_no[$i].'","ready","'.$bill_email[$i].'")';
 			$db->Query($sql);
 		}
-		trigger_error('<script language=javascript>window.location.href="?module=send";</script>');
+		trigger_error2('<script language=javascript>window.location.href="?module=send";</script>');
 	}
 	function send_process($fixclient){
 		global $design,$db;
@@ -111,8 +111,8 @@ class m_send {
 		$design->assign('send_clients',$R);
 		$design->assign('refresh',30*$cont);
 		if ($cont) {
-			trigger_error('Отправка следующих 5ти счетов произойдёт через 30 секунд');
-			trigger_error('<a href="?module=send">Остановить отправку</a>');
+			trigger_error2('Отправка следующих 5ти счетов произойдёт через 30 секунд');
+			trigger_error2('<a href="?module=send">Остановить отправку</a>');
 		}
 		$design->AddMain('send/main.tpl');
 	}

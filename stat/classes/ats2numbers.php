@@ -30,7 +30,7 @@ class ats2NumbersChecker
         static $c = array();
 
         if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from clients where client = '".mysql_escape_string($client)."'");
+            $c[$client] = $db->GetValue("select id from clients where client = '".mysql_real_escape_string($client)."'");
 
         return "client_id='".$c[$client]."'";
     }
@@ -563,7 +563,7 @@ class ats2Helper
             throw new Exception("Usage voip с id=".$usageId." не найден!");
         }
 
-        $clientId = $db->GetValue("select id from clients where client = '".mysql_escape_string($usage["client"])."'");
+        $clientId = $db->GetValue("select id from clients where client = '".mysql_real_escape_string($usage["client"])."'");
 
         if (!$clientId) {
             throw new Exception("Клиент не найден");

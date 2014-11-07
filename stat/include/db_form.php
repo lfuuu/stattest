@@ -159,12 +159,12 @@ class DbForm {
                     }
                     $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
                     $p='edit';
-                    trigger_error('Запись обновлена');
+                    trigger_error2('Запись обновлена');
                 } else {
                     $db->Query('insert into '.$this->table.' SET '.$s);
                     $this->dbform['id']=$db->GetInsertId();
                     $p='add';
-                    trigger_error('Запись добавлена');
+                    trigger_error2('Запись добавлена');
                 }
                 $this->Load($this->dbform['id']);
             } else {
@@ -648,7 +648,7 @@ class DbFormUsageVoip extends DbForm {
                 }
 
             }else{
-                trigger_error("Не сохранено! Выберите тариф");
+                trigger_error2("Не сохранено! Выберите тариф");
             }
         }
         voipNumbers::check();
@@ -669,7 +669,7 @@ class DbFormUsageVoip extends DbForm {
 
             if($c)
             {
-                trigger_error("Введенный номер пересекается с id:".$c["id"].", клиент:".$c["client"].", c ".$c["actual_from"]." по ".$c["actual_to"].")");
+                trigger_error2("Введенный номер пересекается с id:".$c["id"].", клиент:".$c["client"].", c ".$c["actual_from"]." по ".$c["actual_to"].")");
                 return false;
             }
         }
@@ -749,7 +749,7 @@ class DbFormEmails extends DbForm {
                 and
                     local_part='".addslashes($this->dbform['local_part'])."'";
             if($db->GetRow($query)) {
-                trigger_error('Такой адрес уже занят');
+                trigger_error2('Такой адрес уже занят');
                 return '';
             }
         }
@@ -912,7 +912,7 @@ class DbFormUsageIpRoutes extends DbForm{
         $p=0;
         if($this->dbform_action=='save' && !$this->dbform['net']){
             $p=1;
-            trigger_error('Адрес сети отсутствует');
+            trigger_error2('Адрес сети отсутствует');
         }
         $v=(
                 $this->dbform_action=='save'
@@ -936,7 +936,7 @@ class DbFormUsageIpRoutes extends DbForm{
                         id!="'.addslashes($this->dbform['id']).'"')
         );
 
-        if ($v) {$this->dbform['net']=''; trigger_error('Сеть уже занята');}
+        if ($v) {$this->dbform['net']=''; trigger_error2('Сеть уже занята');}
         $current = $db->GetRow("select * from usage_ip_routes where id = '".$this->dbform["id"]."'");
         $action=DbForm::Process($p);
 
@@ -1399,7 +1399,7 @@ class DbFormUsageVirtpbx extends DbForm{
 
         if($c)
         {
-            trigger_error("На указанные даты виртуальная АТС, у этого клиента, уже работает");
+            trigger_error2("На указанные даты виртуальная АТС, у этого клиента, уже работает");
             return false;
         }
 
@@ -1782,7 +1782,7 @@ class DbFormTechCPE extends DbForm{
 
         if($v){
             $this->dbform['serial']='';
-            trigger_error('Такой серийный номер занят');
+            trigger_error2('Такой серийный номер занят');
         }
 
         $this->dbform['service'] = 'usage_ip_ports';

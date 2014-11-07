@@ -110,7 +110,7 @@ function delOrder($bill_no)
     $f = $bm->setOrderStatus($bill_no, \_1c\trr("Отказ"), $fault);
 		if(!$f){
             $msg = explode('|||',$fault->getMessage(),3);
-			trigger_error("Не удалось обновить статус заказа:".$bill_no."\n ".$msg[1]);
+			trigger_error2("Не удалось обновить статус заказа:".$bill_no."\n ".$msg[1]);
 			exit();
 		}
 }
@@ -235,7 +235,7 @@ function delOrder($bill_no)
         $d["req_no"] = $z;
 
         print_r($d);
-        if($metro = $db->GetRow("select id from metro where name = '".mysql_escape_string(trim($d["comment2"]))."'")) {
+        if($metro = $db->GetRow("select id from metro where name = '".mysql_real_escape_string(trim($d["comment2"]))."'")) {
             $d["metro_id"] = $metro["id"];
         }
         $dFull = $d;

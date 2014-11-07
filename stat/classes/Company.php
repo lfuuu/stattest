@@ -2,7 +2,7 @@
 
 class Company
 {
-    public function getProperty($firma, $time = null)
+    public static function getProperty($firma, $time = null)
     {
 
         $billDate = self::_resolveDate($time);
@@ -191,7 +191,7 @@ class Company
         return $firms[$firma];
     }
 
-    public function getDetail($firma)
+    public static function getDetail($firma)
     {
         $f = self::getProperty($firma);
 
@@ -202,7 +202,7 @@ class Company
         return $d;
     }
 
-    private function _resolveDate($bill_or_time)
+    private static function _resolveDate($bill_or_time)
     {
 
         if ($bill_or_time === null)
@@ -222,7 +222,7 @@ class Company
     }
 
 
-    public function setResidents($firma, $bill_or_time = null)
+    public static function setResidents($firma, $bill_or_time = null)
     {
 
         if(!$firma)

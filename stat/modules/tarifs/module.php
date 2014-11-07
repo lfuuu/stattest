@@ -250,14 +250,14 @@ class m_tarifs{
         $group = get_param_raw("contract_template_group", "MCN");
         $contract = get_param_raw("contract_template", get_param_raw("contract_template_add", "default"));
 
-        $contract = ereg_replace("[^a-zA-Z0-9_]", "", $contract);
+        $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
         $filePath = STORE_PATH."contracts/template_".clientCS::contract_getFolder($group)."_".$contract.".html";
 
         if(get_param_raw("new", "") == "true")
         {
             if(!$contract){
-                trigger_error("Имя не должно быть пустым. Только цифры, латинские буквы, и _");
+                trigger_error2("Имя не должно быть пустым. Только цифры, латинские буквы, и _");
                 return;
             }else{
                 if(file_put_contents($filePath, "договор ".$group.": ".$contract))
@@ -689,7 +689,7 @@ class m_tarifs{
 
 class PriceTel
 {
-    function view()
+    static function view()
     {
         global $design, $db;
 
@@ -715,7 +715,7 @@ class PriceTel
         $design->AddMain('tarifs/price_tel.htm');
     }
 
-    function gen()
+    static function gen()
     {
         global $design;
 
@@ -727,7 +727,19 @@ class PriceTel
         $pp = array();
         foreach(array(5,4,3,2,1) as $p)
         {
-            $pp[$p] = file("https://stat.mcn.ru/operator/get_prices.php?region=".$region."&dest=".$p);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://stat.mcn.ru/operator/get_prices.php?region=$region&dest=$p");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $result = curl_exec($ch);
+            if ($result === false) {
+                $error = curl_error($ch);
+                curl_close($ch);
+                throw new \yii\base\Exception($error);
+            }
+            curl_close($ch);
+
+            $pp[$p] = explode("\n", $result);
 
             //file_put_contents("/tmp/a".$p.".dat", serialize($pp[$p]));
             //$pp[$p] = unserialize(file_get_contents("/tmp/a".$p.".dat"));
@@ -757,7 +769,7 @@ class PriceTel
 
     }
 
-    function save()
+    static function save()
     {
         $region = get_param_integer("region", 0);
         if(!$region)
@@ -776,19 +788,19 @@ class PriceTel
         exit();
     }
 
-    function __addTitle($title, &$d)
+    static function __addTitle($title, &$d)
     {
         $d[] = array("type" => "title", "title" => $title);
     }
 
-
-    function __parsePrice(&$cc, &$d)
+    static function __parsePrice(&$cc, &$d)
     {
         foreach($cc as $idx => $c)
         {
             if($idx == 0) continue;
 
             $c = trim($c);
+            if ($c == '') continue;
 
             $aa = explode(";", $c);
             foreach($aa as &$a)

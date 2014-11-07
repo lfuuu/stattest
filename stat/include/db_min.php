@@ -60,12 +60,12 @@ class minDB
 
     function Param(&$s, $name, $value)
     {
-        $s = str_replace("?".$name, "\"".mysql_escape_string($value)."\"", $s);
+        $s = str_replace("?".$name, "\"".mysql_real_escape_string($value)."\"", $s);
     }
 
     function escape($t)
     {
-        return mysql_escape_string($t);
+        return mysql_real_escape_string($t);
     }
 
     function q($q)

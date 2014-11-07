@@ -78,7 +78,7 @@ function anonses_edit($filePath)
             if(saveFile($error, $msg, $id, $filePath))
             {
                 $fn = $_FILES['upfile']["name"];
-                $db->Query("update anonses set file ='".mysql_escape_string(substr($fn,0,strrpos($fn, ".")))."' where id = '".$id."' and ".sqlClient());
+                $db->Query("update anonses set file ='".mysql_real_escape_string(substr($fn,0,strrpos($fn, ".")))."' where id = '".$id."' and ".sqlClient());
             }
 
         }else{

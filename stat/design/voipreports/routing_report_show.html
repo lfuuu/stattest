@@ -1,10 +1,11 @@
+{assign var="instance_id" value=$rep->instance_id}
 <h1>
     <small>
         <a href="?module=voipreports&action=pricelist_report_list&report_type_id={$rep->report_type_id}">Отчеты</a>
     </small>
 
     Отчет по маршрутизации:
-    <small>{if $rep->instance_id}{$regions[$rep->instance_id].name}{else}Все регионы{/if}
+    <small>{if $instance_id}{$regions[$instance_id].name}{else}Все регионы{/if}
 
     (  {foreach from=$rep->pricelist_ids key='i' item='pl'}
     {if $i > 0},{/if}

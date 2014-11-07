@@ -3,7 +3,7 @@
 class vSip
 {
 
-    public function get($id, $withFixClient = true)
+    public static function get($id, $withFixClient = true)
     {
         $sqlClient = $withFixClient ? " and s.".sqlClient() : "";
 
@@ -85,7 +85,7 @@ class vSip
         return $data;
     }
 
-    public function add(&$d)
+    public static function add(&$d)
     {
         global $db;
 
@@ -134,8 +134,6 @@ class vSip
                     // установленна - берем ее, нет - начинт номер и "+"
                     $d1["number"] = $d["line_mask"].$d["delimeter"].(++$maxLinePref);
                     $d1["line_pref"] = $maxLinePref;
-                }else{
-                    $d1["number"] = $number["number"].$d["delimeter"].($i+1);
                 }
 
                 //$d1["number"] =$number["number"].$d["delimeter"].($i+1);
@@ -149,7 +147,7 @@ class vSip
 
     }
 
-    public function del($id)
+    public static function del($id)
     {
         global $db;
 
@@ -169,7 +167,7 @@ class vSip
         }
     }
 
-    private function _delNumber($id)
+    private static function _delNumber($id)
     {
         global $db;
 
@@ -191,7 +189,7 @@ class vSip
         $db->Commit();
         vNotify::anonse("sip:del:".$id);
     }
-    private function _delLine($id)
+    private static function _delLine($id)
     {
         global $db;
 
@@ -204,7 +202,7 @@ class vSip
         vNotify::anonse("sip:del_line:".$id);
     }
 
-    public function setEnabled($info, $isEnable)
+    public static function setEnabled($info, $isEnable)
     {
         global $db;
 
@@ -254,7 +252,7 @@ class vSip
 
 
 
-    public function apply($d, $s, $isAllSave)
+    public static function apply($d, $s, $isAllSave)
     {
         global $db;
 
@@ -405,7 +403,7 @@ class vSip
     }
 
 
-    public function recalcCallCount($id, $upId = null)
+    public static function recalcCallCount($id, $upId = null)
     {
         //define("voip_debug", 1);
 
@@ -438,14 +436,14 @@ class vSip
 
         //exit();
     }
-    private function _getParentId($id)
+    private static function _getParentId($id)
     {
         l::ll(__CLASS__,__FUNCTION__, $id);
         global $db;
         return $db->GetValue("select parent_id from v_sip where id ='".$id."'");
     }
 
-    private function _getDepTrunks($id)
+    private static function _getDepTrunks($id)
     {
         l::ll(__CLASS__,__FUNCTION__, $id);
         global $db;
@@ -457,7 +455,7 @@ class vSip
         return $d;
     }
 
-    private function _getTrunkNumbers($id)
+    private static function _getTrunkNumbers($id)
     {
         l::ll(__CLASS__,__FUNCTION__, $id);
         global $db;
@@ -475,14 +473,14 @@ class vSip
         }
     }
 
-    private function _getCallCountInNumbers($ns)
+    private static function _getCallCountInNumbers($ns)
     {
         l::ll(__CLASS__,__FUNCTION__, $ns);
         global $db;
         return $db->GetValue("select sum(call_count) from v_number where id in ('".implode("','", $ns)."') and enabled='yes'");
     }
 
-    private function _saveCallCount($id, $cc, $widthParent = true)
+    private static function _saveCallCount($id, $cc, $widthParent = true)
     {
         l::ll(__CLASS__,__FUNCTION__, $id, $cc, $widthParent);
         global $db;
@@ -503,7 +501,7 @@ class vSip
         
 
 
-    private function passGen()
+    private static function passGen()
     {
         $s = "";
         for($i=1;$i<=12;$i++)
@@ -514,7 +512,7 @@ class vSip
         return $s;
     }
 
-    private function normalizeClient($fixclient)
+    private static function normalizeClient($fixclient)
     {
         $numberMT = $fixclient;
         if(preg_match_all("@^([a-z0-9A-Z]+)/\d+$@", $fixclient, $o))
@@ -524,7 +522,7 @@ class vSip
         return $numberMT;
     }
 
-    private function getMaxLinePrefInClient($mask)
+    private static function getMaxLinePrefInClient($mask)
     {
         global $db;
 
@@ -532,14 +530,14 @@ class vSip
     }
 
 
-    private function getMaxLinePref($parentId)
+    private static function getMaxLinePref($parentId)
     {
         global $db;
 
         return $db->GetValue("select max(line_pref) from v_sip where parent_id = '".$parentId."'");
     }
 
-    public function logPasswordView($s, $event = "view")
+    public static function logPasswordView($s, $event = "view")
     {
             global $user, $db;
 

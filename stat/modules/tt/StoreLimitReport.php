@@ -9,7 +9,7 @@ class StoreLimitReport
         
         if (!User::exists($selected_user))
         {
-            trigger_error('Выбранный пользователь не существует');
+            trigger_error2('Выбранный пользователь не существует');
             return;
         }
         
@@ -44,7 +44,7 @@ class StoreLimitReport
         
         if (!User::exists($user_id))
         {
-            trigger_error('Выбранный пользователь не существует');
+            trigger_error2('Выбранный пользователь не существует');
             exit();
         }
         

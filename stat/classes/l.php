@@ -12,10 +12,12 @@ class l
         if(defined("voip_debug"))
             echo "\n".$l;
 
-        if($fp = fopen("/var/log/nispd/voipcheck.log", "a+"))
-        {
-            fwrite($fp, "\n".date("r").": ".$l);
-            fclose($fp);
+        $logFile = '/var/log/nispd/voipcheck.log';
+        if (is_writeable($logFile)) {
+            if($fp = fopen($logFile, "a+")) {
+                fwrite($fp, "\n".date("r").": ".$l);
+                fclose($fp);
+            }
         }
     }
 }

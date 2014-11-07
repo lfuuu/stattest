@@ -346,7 +346,7 @@ class m_routers {
         global $db,$design;
         $this->load_routers($fixclient);
         $id = get_param_protected('id' , '');
-        if (!isset($this->routers[$id])) {trigger_error('Такого роутера не существует'); return; }
+        if (!isset($this->routers[$id])) {trigger_error2('Такого роутера не существует'); return; }
 
         $so = get_param_integer ('so', 0);
         $order = $so ? 'desc' : 'asc';
@@ -406,7 +406,7 @@ class m_routers {
             $this->dbmap->ShowEditForm('tech_routers','',get_param_raw('row',array()));
             $design->AddMain('routers/db_r_add.tpl');
         } else {
-            trigger_error('<script language=javascript>window.location.href="?module=routers&action=r_list";</script>');
+            trigger_error2('<script language=javascript>window.location.href="?module=routers&action=r_list";</script>');
         }
     }
 

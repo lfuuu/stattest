@@ -1,8 +1,8 @@
 <?
 class m_pay extends IModule {
 	var $config_webmoney = array(
-			'Z370744040471'		=> array('currency'=>'USD','title'=>'WMZ - ������� ���','secret'=>'Tx$U=/%iOJ${9b','server'=>array('shepik','minho','tiberis')),
-			'R440114909513'		=> array('currency'=>'RUR','title'=>'WMR - �����','secret'=>'Tx$U=/%iOJ${9b','server'=>array('shepik','minho','tiberis')),
+			'Z370744040471'		=> array('currency'=>'USD','title'=>'WMZ - Доллары США','secret'=>'Tx$U=/%iOJ${9b','server'=>array('shepik','minho','tiberis')),
+			'R440114909513'		=> array('currency'=>'RUR','title'=>'WMR - Рубли','secret'=>'Tx$U=/%iOJ${9b','server'=>array('shepik','minho','tiberis')),
 			);
 		
 	function getWebmoneyConfig($purse) {

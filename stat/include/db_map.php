@@ -245,7 +245,7 @@ class Db_map {
 	}
 	function _error($text){
 		if ($this->error_mode_echo==1) echo $text;
-			else if ($this->error_mode_echo==2) trigger_error($text); //else do nothing;
+			else if ($this->error_mode_echo==2) trigger_error2($text); //else do nothing;
 		if ($this->error_mode_quit==0) return $text;
 			else exit;
 	}
@@ -396,9 +396,9 @@ class Db_map {
 				if (!$old[$k]) $new=1;
 			}
 			if ($new) {
-				if (!($e=$this->AddRow($table,$row))) trigger_error('Удалено'); else return $e;
+				if (!($e=$this->AddRow($table,$row))) trigger_error2('Удалено'); else return $e;
 			} else {
-				if (!($e=$this->UpdateRow($table,$row,$old))) trigger_error('Изменено'); else return $e;
+				if (!($e=$this->UpdateRow($table,$row,$old))) trigger_error2('Изменено'); else return $e;
 			}
 		} else if ($action=='delete'){
 			$linked=get_param_integer('linked','');

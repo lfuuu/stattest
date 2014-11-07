@@ -283,7 +283,7 @@ class m_clientaccounts extends IModule{
 			return;
 		$bill = new Bill($bill_no);
 		if(get_param_raw('err')==1)
-			trigger_error('���������� �������� ������ ��-�� ����������� �����');	
+			trigger_error2('���������� �������� ������ ��-�� ����������� �����');
 
 		$design->assign('bill',$bill->GetBill());
 		$design->assign('bill_lines',$L = $bill->GetLines());
@@ -299,7 +299,7 @@ class m_clientaccounts extends IModule{
         /*
         if(access("clients", "read_multy")) 
             if($r["type"] != "multi"){
-			trigger_error('������ � ������� ���������');
+			trigger_error2('������ � ������� ���������');
 			return;
         }
         */

@@ -22,10 +22,19 @@ class CompatibilityController extends BaseController
 
     private function runOldStat($lite = false)
     {
-        define("PATH_TO_ROOT", Yii::$app->basePath . '/stat/');
+        if (!defined('PATH_TO_ROOT'))
+        {
+            define("PATH_TO_ROOT", Yii::$app->basePath . '/stat/');
+        }
+
         require_once PATH_TO_ROOT . 'conf.php';
 
         global $user, $module, $modules, $design, $fixclient, $fixclient_data, $module_clients;
+
+        $design  = new \MySmarty();
+        $user    = new \AuthUser();
+        $modules = new \Modules();
+
 
         $user->AuthorizeByUserId(Yii::$app->user->id);
 
@@ -66,6 +75,10 @@ class CompatibilityController extends BaseController
         ob_start();
 
         $renderLayout = $lite === false && !$design->ignore;
+
+        if ($lite) {
+            echo $this->view->render('/layouts/widgets/messages', [], $this);
+        }
 
         if (!$design->ignore) {
             $design->ProcessEx('index_lite.tpl');

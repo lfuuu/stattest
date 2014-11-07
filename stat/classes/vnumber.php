@@ -3,7 +3,7 @@
 class vNumber
 {
 
-    public function getAll()
+    public static function getAll()
     {
         global $db;
         $rr = $db->AllRecords($q ="select * from v_number where ".sqlClient()." order by enabled, number");
@@ -15,7 +15,7 @@ class vNumber
         return $rr;
     }
 
-    public function getFree($id = false)
+    public static function getFree($id = false)
     {
         global $db;
         

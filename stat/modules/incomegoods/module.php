@@ -112,7 +112,7 @@ class m_incomegoods extends IModule{
 
         if ($_GET['id'] == '') {
             if (!isset($fixclient_data['id'])) {
-                trigger_error('Выберите клиента...'); return;
+                trigger_error2('Выберите клиента...'); return;
             }
             $order = new GoodsIncomeOrder();
             $order->active = true;

@@ -50,14 +50,14 @@ class m_modules {
 		$id=str_replace("\0",'',$id);
 		
 		if ($id && preg_match('/^([\d\w_\-]+)$/',$id)){
-			if (!isset($modules[$id])) {trigger_error('Такого модуля не существует'); return; }
+			if (!isset($modules[$id])) {trigger_error2('Такого модуля не существует'); return; }
 			if (!access('modules','w')) return;
 			
 			$inst=2; 	//не делать действий по установке
 			
 			if ($action=='install'){
 				if ($modules[$id]['is_installed']==1){
-					trigger_error('Модуль уже установлен');
+					trigger_error2('Модуль уже установлен');
 					return;	
 				}
 				$inst=1;
@@ -65,7 +65,7 @@ class m_modules {
 				$instW2='Модуль не установился';
 			} else if ($action=='uninstall'){
 				if (!isset($modules[$id]) || ($modules[$id]['is_installed']==0)){
-					trigger_error('Модуль уже удалён');
+					trigger_error2('Модуль уже удалён');
 					return;	
 				}
 				$inst=0;
@@ -73,7 +73,7 @@ class m_modules {
 				$instW2='Модуль не удалился';
 			} else if ($action=='up'){
 				if (!isset($modules[$id])){
-					trigger_error('Модуль не существует');
+					trigger_error2('Модуль не существует');
 					return;	
 				}
 				$db->Query('select module,load_order from modules where load_order<'.$modules[$id]['load_order'].' order by load_order desc');
@@ -86,7 +86,7 @@ class m_modules {
 				while ($r=$db->NextRecord()) $modules[$r['module']]=$r;
 			} else if ($action=='down'){
 				if (!isset($modules[$id])){
-					trigger_error('Модуль не существует');
+					trigger_error2('Модуль не существует');
 					return;	
 				}
 				$db->Query('select module,load_order from modules where load_order>'.$modules[$id]['load_order'].' order by load_order asc');
@@ -125,8 +125,8 @@ class m_modules {
 							}*/
 						}
 					}
-					trigger_error($instW1);
-				} else trigger_error($instW2);
+					trigger_error2($instW1);
+				} else trigger_error2($instW2);
 			}
 		}
 		

@@ -48,13 +48,13 @@ class m_employeers {
 		$cuser=get_param_protected('user');
 		if ($cuser) {
 			$db->Query('select * from user_users where user="'.$cuser.'"');
-			if (!($r=$db->NextRecord())) trigger_error("Такого пользователя не существует");
+			if (!($r=$db->NextRecord())) trigger_error2("Такого пользователя не существует");
 			$cgroup=$r['usergroup'];	
 			$design->assign('emp_user',$r);
 		}
 		if ($cgroup){
 			$db->Query('select * from user_groups where usergroup="'.$cgroup.'"');
-			if (!($r=$db->NextRecord())) trigger_error("Такой группы не существует");
+			if (!($r=$db->NextRecord())) trigger_error2("Такой группы не существует");
 			$design->assign('emp_group',$r);
 			
  			$db->Query('select * from user_users where usergroup="'.$cgroup.'"');
@@ -122,13 +122,13 @@ class m_employeers {
             if (empty($getName))
             {
                 $error = true;
-                trigger_error("Имя не должно быть пустым");
+                trigger_error2("Имя не должно быть пустым");
             }else{
                 $db->Query("select id from courier where name = '".$getName."' and id != '".$getId."'");
                 $r=$db->NextRecord();
                 if ($r){
                     $error = true;
-                    trigger_error("Такое имя уже есть");
+                    trigger_error2("Такое имя уже есть");
                 }
             }
 
@@ -137,13 +137,13 @@ class m_employeers {
                 if($r = $db->GetValue("select name from courier where all4geo ='".$getAll4geo."' and id != '".$getId."' and enabled='yes'"))
                 {
                     $error = true;
-                    trigger_error("Введенный All4Geo Ид используется у: ".$r);
+                    trigger_error2("Введенный All4Geo Ид используется у: ".$r);
                 }
             }
 
-            if($getPhone && !ereg("^79[0-9]{9}$", $getPhone)){
+            if($getPhone && !preg_match("/^79[0-9]{9}$/", $getPhone)){
                 $error = true;
-                trigger_error("Не верный формат телефонного номера (79ххххххххх)");
+                trigger_error2("Не верный формат телефонного номера (79ххххххххх)");
             }
 
             if ($error)
@@ -153,7 +153,7 @@ class m_employeers {
                 $cPhone = $getPhone;
                 $cAll4geo = $getAll4geo;
             }else{
-                $sql = "set name = '".mysql_escape_string($getName)."', phone = '".$getPhone."', all4geo = '".$getAll4geo."'";
+                $sql = "set name = '".mysql_real_escape_string($getName)."', phone = '".$getPhone."', all4geo = '".$getAll4geo."'";
                 if ($getId) {
                     $db->Query("update courier ".$sql." where id = '".$getId."'");
                 }else{

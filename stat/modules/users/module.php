@@ -63,10 +63,10 @@ class m_users {
 
 		if ($action=='delete'){
 			if (!isset($d_users[$id])) {
-				trigger_error('Такого оператора не существует');
+				trigger_error2('Такого оператора не существует');
 			} else {
 				$db->Query('delete from user_users where user="'.$id.'"');
-				trigger_error('Оператор '.$id.' удалён');
+				trigger_error2('Оператор '.$id.' удалён');
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -108,12 +108,12 @@ class m_users {
 			$f['pass']=password::hash($f['pass_text']);
 			$id=$f['user'];
 			if (!$id) {
-				trigger_error('Оператор должен иметь имя');
+				trigger_error2('Оператор должен иметь имя');
 			} else if (isset($d_users[$id])) {
-				trigger_error('Такой оператор уже существует');
+				trigger_error2('Такой оператор уже существует');
 			} else {
 				$db->Query('insert into user_users (user,usergroup,name,pass,depart_id) values ("' . $id . '","' . $f['usergroup'] . '","' . $f['name'] . '","'.$f['pass'].'","'.$f["depart_id"].'")');
-				trigger_error('Оператор '.$id.' создан. Пароль: '.$f['pass_text']);
+				trigger_error2('Оператор '.$id.' создан. Пароль: '.$f['pass_text']);
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 
@@ -150,20 +150,20 @@ class m_users {
 			if(!$f["enabled"]) $f["enabled"] = "no";
 
 			if (!$f['user']) {
-				trigger_error('Оператор должен иметь имя');
+				trigger_error2('Оператор должен иметь имя');
 			} else if (($f['user']!=$id) && isset($d_users[$f['user']])){
-				trigger_error('Такой оператор уже существует');
+				trigger_error2('Такой оператор уже существует');
 			} else {
 				$add='';
 				if ($f['pass']) {
 					if ($f['pass1']==$f['pass2']){
 						$add='pass="'.$f['pass1'].'",';
-						trigger_error('Пароль изменён');
-					} else trigger_error('Пароли не совпадают');
+						trigger_error2('Пароль изменён');
+					} else trigger_error2('Пароли не совпадают');
 				}
 				global $module_usercontrol;
 				if (!isset($module_usercontrol)){
-					trigger_error('Модуль usercontrol не установлен - фотография меняться не будет');
+					trigger_error2('Модуль usercontrol не установлен - фотография меняться не будет');
 					$q_photo='';
 				} else $q_photo=$module_usercontrol->process_photo($id);
 
@@ -215,7 +215,7 @@ class m_users {
 						}
 					}
 				}
-				trigger_error('Оператор '.$id.' изменён');
+				trigger_error2('Оператор '.$id.' изменён');
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -272,10 +272,10 @@ class m_users {
 
 		if ($action=='delete'){
 			if (!isset($d_groups[$id])) {
-				trigger_error('Такого оператора не существует');
+				trigger_error2('Такого оператора не существует');
 			} else {
 				$db->Query('delete from user_groups where usergroup="'.$id.'"');
-				trigger_error('Группа '.$id.' удалёна');
+				trigger_error2('Группа '.$id.' удалёна');
 				$this->d_users_get($d_groups);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -296,12 +296,12 @@ class m_users {
 				);
 			$id=$f['usergroup'];
 			if (!$id) {
-				trigger_error('Группа должна иметь имя');
+				trigger_error2('Группа должна иметь имя');
 			} else if (isset($d_groups[$id])) {
-				trigger_error('Такая группа уже существует');
+				trigger_error2('Такая группа уже существует');
 			} else {
 				$db->Query('insert into user_groups (usergroup,comment) values ("' . $id . '","' . $f['comment'] . '")');
-				trigger_error('Группа '.$id.' создана');
+				trigger_error2('Группа '.$id.' создана');
 				$this->d_groups_get($d_groups);
 			}
 		} else if ($action=='edit'){
@@ -316,9 +316,9 @@ class m_users {
 				}
 				unset($v);
 			if (!$f['usergroup']) {
-				trigger_error('Группа должна иметь имя');
+				trigger_error2('Группа должна иметь имя');
 			} else if (($f['usergroup']!=$id) && isset($d_users[$f['usergroup']])){
-				trigger_error('Такая группа уже существует');
+				trigger_error2('Такая группа уже существует');
 			} else {
 				$db->Query('update user_groups set usergroup="'.$f['usergroup'].'",comment="'.$f['comment'].'" where usergroup="'.$id.'"');
 				if (access('users','grant')){
@@ -339,7 +339,7 @@ class m_users {
 						} else if (isset($R[$i])) $db->Query('delete from user_grant_groups where (name="'.$id.'") and (resource="'.$i.'")');
 					}
 				}
-				trigger_error('Группа '.$id.' изменена');
+				trigger_error2('Группа '.$id.' изменена');
 				$this->d_users_get($d_users);
 				$design->assign_by_ref("users",$d_users);
 			}
@@ -386,12 +386,12 @@ class m_users {
                 unset($d_departs);
                 if($isSet)
                 {
-                    trigger_error('Отдел '.$name.' уже существует!');
+                    trigger_error2('Отдел '.$name.' уже существует!');
                 }else{
                     $db->Query("insert into user_departs set name = '".$name."'");
                 }
             }else{
-				trigger_error('Отдел не задан!');
+				trigger_error2('Отдел не задан!');
             }
 
         }
@@ -401,7 +401,7 @@ class m_users {
             if ($id) {
                 $db->Query('update user_users set depart_id = 0 where depart_id = "'.$id.'"');
                 $db->Query('delete from user_departs where id="'.$id.'"');
-                trigger_error('Отдел  удалён');
+                trigger_error2('Отдел  удалён');
             }
         }
 		$this->d_departs_get($d_departs, false);

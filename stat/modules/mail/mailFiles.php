@@ -20,7 +20,7 @@
 		{
 			$this->job_id = $job_id;
 			$this->files_path = PATH_TO_ROOT.'store/mail/attachments/' . $job_id . '/';
-			if (!file_exists($this->files_path))
+			if (!file_exists($this->files_path) && is_writeable($this->files_path))
 			{
 				mkdir($this->files_path, 0777, true);
 			}
