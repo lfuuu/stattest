@@ -196,6 +196,10 @@ class AuthUser {
     }
 
     function _ParsePriveleges($str){
+
+        if (!$str)
+            return false;
+
         $r=explode(',',$str);
         $R=array();
         foreach ($r as $v) {
@@ -220,9 +224,13 @@ class AuthUser {
         while ($r=$db->NextRecord()) {
             $ac = $this->_ParsePriveleges($r['access']);
             $this->_Priveleges[$r['resource']] = array();
-            foreach($ac as $key=>$val)
-                $this->_Priveleges[$r['resource']][$key]=$val;
+            if ($ac) {
+                foreach($ac as $key=>$val) {
+                    $this->_Priveleges[$r['resource']][$key]=$val;
+                }
+            }
         }
+
     }
 
     function HasPrivelege($resource,$desired_access){

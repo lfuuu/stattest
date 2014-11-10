@@ -3977,6 +3977,16 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
         $list[] = $total+array("date_creation" => "Итого:");
 
+        $sTypes = array(
+                "work"   => array("sql" => "is_rollback =0 and state_id not in (2,20,21)",
+                                  "title" => ($client == "nbn" ? "в работе" : "В Обработке")),
+                "close"  => array("sql" => "is_rollback =0 and state_id in (2,20)",
+                                  "title" => ($client == "nbn" ? "закрытые" : "Доставлен")),
+                "reject" => array("sql" => "is_rollback =0 and state_id = 21",
+                                  "title" => ($client == "nbn" ? "в отказе" : "Отказ")),
+                "delivery" => array(                            "title" => "доставка")
+                );
+
         $this->GenerateExcel("OnLime__".str_replace(" ", "_", $sTypes[$listType]["title"])."__".$d1."__".$d2,
                 array(
                     "Оператор" => "fio_oper",

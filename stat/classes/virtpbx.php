@@ -141,13 +141,13 @@ class virtPbxStatus
 
 class virtPbx
 {
-    public function check()
+    public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
         virtPbxChecker::check();
     }
 
-    public function getList($clientId = null)
+    public static function getList($clientId = null)
     {
         global $db_ats;
 
@@ -200,7 +200,7 @@ class virtPbx
                 );
     }
 
-    public function number_isOnVpbx($clientId, $number)
+    public static function number_isOnVpbx($clientId, $number)
     {
         global $db_ats;
 
@@ -220,7 +220,7 @@ class virtPbx
     }
 
 
-    public function getStatus($l)
+    public static function getStatus($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -237,7 +237,7 @@ class virtPbx
         return new virtPbxStatus($r["status"], $r["is_started"]);
     }
 
-    public function addNumber($clientId, $number)
+    public static function addNumber($clientId, $number)
     {
         global $db_ats;
 
@@ -262,7 +262,7 @@ class virtPbx
     }
 
 
-    public function delNumber($clientId, $number)
+    public static function delNumber($clientId, $number)
     {
         global $db_ats;
 
@@ -287,7 +287,7 @@ class virtPbx
     }
 
 
-    public function add($l)
+    public static function add($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -300,7 +300,7 @@ class virtPbx
                 );
     }
 
-    public function delet($l)
+    public static function delet($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -311,7 +311,7 @@ class virtPbx
                 );
     }
 
-    public function unMarkDelet($l)
+    public static function unMarkDelet($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -325,7 +325,7 @@ class virtPbx
     }
 
 
-    public function markDelete($l)
+    public static function markDelete($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -342,7 +342,7 @@ class virtPbx
 
     }
 
-    public function setStarted($clientId)
+    public static function setStarted($clientId)
     {
         l::ll(__CLASS__,__FUNCTION__, $clientId);
 
@@ -357,7 +357,7 @@ class virtPbx
                 );
     }
 
-    public function setStoped($clientId)
+    public static function setStoped($clientId)
     {
         l::ll(__CLASS__,__FUNCTION__, $clientId);
 
