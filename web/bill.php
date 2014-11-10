@@ -9,6 +9,12 @@
         $db->Query('update newbill_send set state="viewed" where bill_no="'.$R['bill'].'"');
     }
 	$_GET=$R;
+	if (isset($R['is_pdf']) && $R['is_pdf'] == 1) 
+	{
+		header('Content-Type: application/pdf');
+	}else {
+		header('Content-Type: text/html; charset=utf-8');
+	}
 	if(isset($_REQUEST['dbg']))
 		$design->assign('dbg',true);
 	else
@@ -16,11 +22,5 @@
 
 	$design->assign('emailed',$v=get_param_raw('emailed',1));
 	$module_newaccounts->newaccounts_bill_print('');
-	if (isset($R['is_pdf']) && $R['is_pdf'] == 1) 
-	{
-		header('Content-Type: application/pdf');
-	}else {
-		header('Content-Type: text/html; charset=utf-8');
-	}
 	$design->Process();
 ?>

@@ -4,7 +4,7 @@ class runChecker
 {
 	protected static $pidFile = "";//"/var/run//".$_SERVER["PHP_SELF"].".running";
 
-	function isRun()
+	public static function isRun()
 	{
 		self::$pidFile = "/tmp/".$_SERVER["PHP_SELF"].".pid";
 
@@ -30,7 +30,7 @@ class runChecker
 		return false;
 	}
 
-	function run()
+	public static function run()
 	{
 		$out = array();
 
@@ -48,7 +48,7 @@ class runChecker
 		file_put_contents(self::$pidFile, implode($a,","));
 	}
 
-	function stop()
+	public static function stop()
 	{
 		unlink(self::$pidFile);
 	}

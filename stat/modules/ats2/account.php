@@ -3,7 +3,7 @@
 
 class account
 {
-    public function get($id = 0, $clientId = null)
+    public static function get($id = 0, $clientId = null)
     {
         global $db_ats;
             
@@ -51,14 +51,14 @@ class account
         return $r;
     }
 
-    public function make(&$l)
+    public static function make(&$l)
     {
         return 
             sprintf("%06d", $l["serial"]).
             (!isset($l["is_group"]) ||  $l["is_group"] ? "" : sprintf("%02d", $l["sequence"]));
     }
 
-    public function parse($acc)
+    public static function parse($acc)
     {
         $acc = trim($acc);
 
@@ -81,7 +81,7 @@ class account
         }
     }
 
-    public function getSubaccounts($id)
+    public static function getSubaccounts($id)
     {
         global $db_ats;
 
@@ -93,7 +93,7 @@ class account
 
     }
 
-    public function getMaxSequence(&$d)
+    public static function getMaxSequence(&$d)
     {
         global $db_ats;
 
@@ -109,7 +109,7 @@ class account
         return $r;
     }
 
-    public function change_subaccount(&$d, $to)
+    public static function change_subaccount(&$d, $to)
     {
         $from = count(self::getSubaccounts($d["id"]));
         if($from >= $to)

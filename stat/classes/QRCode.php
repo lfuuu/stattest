@@ -11,7 +11,7 @@ class QRCode
             "upd-3" => array("code" => "23", "c" => "upd", "s" => 3, "name" => "УПД Т"),
             );
 
-    public function encode($docType, $billNo)
+    public static function encode($docType, $billNo)
     {
         self::_prepareBillNo($billNo);
 
@@ -20,13 +20,13 @@ class QRCode
         return self::$codes[$docType]["code"].$billNo;
     }
 
-    private function _prepareBillNo(&$billNo)
+    private static function _prepareBillNo(&$billNo)
     {
         $billNo = str_replace("-", "1", $billNo);
         $billNo = str_replace("/", "2", $billNo);
     }
 
-    public function getNo($billNo)
+    public static function getNo($billNo)
     {
         $billNo = str_replace("-", "1", $billNo);
         $billNo = str_replace("/", "2", $billNo);
@@ -44,7 +44,7 @@ class QRCode
         return $r;
     }
 
-    public function decodeNo($no)
+    public static function decodeNo($no)
     {
         if(strlen($no) == 13)
         {
@@ -59,7 +59,7 @@ class QRCode
         return false;
     }
 
-    private function _getType($t)
+    private static function _getType($t)
     {
         foreach(self::$codes as $c)
         {
@@ -69,7 +69,7 @@ class QRCode
         return false;
     }
 
-    private function _getNumber($no)
+    private static function _getNumber($no)
     {
         switch($no[6])
         {
@@ -81,7 +81,7 @@ class QRCode
         return $no;
     }
 
-    public function decodeFile($file)
+    public static function decodeFile($file)
     {
         exec("zbarimg -q ".$file, $o);
 
