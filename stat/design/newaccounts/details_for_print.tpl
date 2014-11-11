@@ -27,13 +27,21 @@
         Генеральный директор
     {/capture}
     {capture name=seller_head_name}
-        {$firm.director}
+        {if !$client.is_upd_without_sign}
+            {$firm.director}
+        {else}
+            &nbsp;
+        {/if}
     {/capture}
     {capture name=seller_buh_position}
         {$firm_buh.position}
     {/capture}
     {capture name=seller_buh_name}
-        {$firm_buh.name}
+        {if !$client.is_upd_without_sign}
+            {$firm_buh.name}
+        {else}
+            &nbsp;
+        {/if}
     {/capture}
     {capture name=customer_head_position}
         &nbsp;
@@ -94,13 +102,21 @@
         Генеральный директор
     {/capture}
     {capture name=customer_head_name}
-        {$firm.director}
+        {if !$client.is_upd_without_sign}
+            {$firm.director}
+        {else}
+            &nbsp;
+        {/if}
     {/capture}
     {capture name=customer_buh_position}
         {$firm_buh.position}
     {/capture}
     {capture name=customer_buh_name}
-        {$firm_buh.name}
+        {if !$client.is_upd_without_sign}
+            {$firm_buh.name}
+        {else}
+            &nbsp;
+        {/if}
     {/capture}
     {capture name=seller_firm_info}
         {if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}, ИНН/КПП {$bill_client.inn}&nbsp;/&nbsp;{$bill_client.kpp}
