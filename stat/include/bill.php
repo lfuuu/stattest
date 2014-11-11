@@ -286,6 +286,7 @@ class Bill{
 			$bSave = $this->bill;
 			unset($bSave["doc_ts"]);
 			$db->QueryUpdate("newbills","bill_no",$bSave);
+                        $this->bill_ts = unix_timestamp($this->Get('bill_date'));
 			$this->updateBill2Doctypes(null, false);
             /*
 			if(include_once(INCLUDE_PATH."1c_integration.php")){
