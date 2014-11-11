@@ -4740,10 +4740,19 @@ $sql .= "    order by client, bill_no";
                 order by P.id');
 
         foreach ($P as &$A) {
-            //$R[$A['payment_date'].'-'.($Rc++)] = 
+
+            $sum_outcome = $A['sum_rub'];
+            if ($sum_outcome < 0) {
+                $sum_income = - $sum_outcome;
+                $sum_outcome = 0;
+                $S_b+=$sum_income;
+            } else {
+                $sum_income = 0;
+                $S_p+=$sum_outcome;
+            }
+
             $R[$A['payment_date']+($Rc++)] = 
-                array('type'=>'pay','date'=>$A['payment_date'],'sum_outcome'=>$A['sum_rub'],'pay_no'=>$A['payment_no'],'bill_no'=>$A['bill_no']);
-            $S_p+=$A['sum_rub'];
+                array('type'=>'pay','date'=>$A['payment_date'],'sum_outcome'=>$sum_outcome,'sum_income'=>$sum_income, 'pay_no'=>$A['payment_no'],'bill_no'=>$A['bill_no']);
             $B[$A['bill_no']]=1;
         }
         unset($A);
@@ -4780,51 +4789,25 @@ $sql .= "    order by client, bill_no";
                     $A['inv_date'] = ($A1)?$A1['inv_date']:$d;
                     $A['inv_no'] = $A['bill']['bill_no'];
                 }
-                if(is_array($A) && $A['bill']['tsum']){
+                if($I != 3 && is_array($A) && $A['bill']['tsum']){
                     $k=date('Y-m-d',$A['inv_date']);
                     if(
                         (!$date_from || $k>=$date_from)
                     &&
                         (!$date_to || $k<=$date_to)
                     ){
-                        if($I == 3)
-                        {
-                            /*
-                            $iNames = array();
-                            foreach($A["bill_lines"] as $l)
-                            {
-                                $iNames[] = $l["item"];
-                            }
-
-                            $zalog[$A['inv_date'].'-'.($Rc++)] = array(
-                                'type'       => 'inv',
-                                'date'       => $A['inv_date'],
-                                'sum_income' => $A['bill']['tsum'],
-                                'inv_no'     => $A['inv_no'],
-                                'bill_no'    => $A['bill']['bill_no'],
-                                'items'      => implode(", ", $iNames),
-                                'inv_num'    => $I,
-                            );
-                            $S_zalog += $A['bill']['tsum'];
-                            */
-                        //}
-                        }else{
-                            //$R[$A['inv_date'].'-'.($Rc++)] = array(
-                            $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['tsum'];
-                            $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['tsum'] : 0;
-                            $R[$A['inv_date']+($Rc++)] = array(
-                                'type'       => 'inv',
-                                'date'       => $A['inv_date'],
-                                'sum_income' => $sum_in,
-                                'sum_outcome' => $sum_out,
-                                'inv_no'     => $A['inv_no'],
-                                'bill_no'    => $A['bill']['bill_no'],
-                                'inv_num'    => $I
-                            );
-                            $S_b+=$sum_in-$sum_out;
-                        }
-                    } else if (isset($B[$A['bill']['bill_no']])) {
-
+                        $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['tsum'];
+                        $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['tsum'] : 0;
+                        $R[$A['inv_date']+($Rc++)] = array(
+                            'type'       => 'inv',
+                            'date'       => $A['inv_date'],
+                            'sum_income' => $sum_in,
+                            'sum_outcome' => $sum_out,
+                            'inv_no'     => $A['inv_no'],
+                            'bill_no'    => $A['bill']['bill_no'],
+                            'inv_num'    => $I,
+                        );
+                        $S_b+=$sum_in-$sum_out;
                     }
                 }
             }
@@ -4845,11 +4828,11 @@ $sql .= "    order by client, bill_no";
                 and b.bill_date<='".$date_to."'") as $z)
         {
             $z["sum_income"] = (
-                    $z["currency"] == "USD" ? 
+                    $z["currency"] == "USD" ?
                         ($z["inv3_rate"] > 0 ?$z["inv3_rate"] :
                             ($z["gen_bill_rate"] > 0 ? $z["gen_bill_rate"] : ($z["inv_rur"] > 0 ? $z["inv_rur"]/$z["b_sum"] :
                              (99900000+$z["sum_income"]) / $z["sum_income"]) )
-                        )*$z["sum_income"]: 
+                        )*$z["sum_income"]:
                     $z["sum_income"]);
 
             $zalog[$z["date"]."-".count($zalog)] = $z;
@@ -4894,13 +4877,13 @@ $sql .= "    order by client, bill_no";
             /*wkhtmltopdf*/
             $options = ' --quiet -L 10 -R 10 -T '.get_param_protected('pdf_top_padding', 10).' -B 10';
             $content = $design->fetch('newaccounts/print_balance_check.tpl');
-            $file_name = '/tmp/' . mktime().$user->_Data['id'];
+            $file_name = '/tmp/' . time().$user->_Data['id'];
             $file_html = $file_name.'.html';
             $file_pdf = $file_name.'.pdf';
 
             file_put_contents($file_name . '.html', $content);
 
-            passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+            exec("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
             $pdf = file_get_contents($file_pdf);
 
             //Create file
