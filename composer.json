@@ -5,7 +5,8 @@
         "php": ">=5.4.0",
         "yiisoft/yii2": "*",
         "welltime/graylog-target": "*",
-        "aferrandini/phpqrcode": "1.0.1"
+        "aferrandini/phpqrcode": "1.0.1",
+        "phpoffice/phpexcel": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
