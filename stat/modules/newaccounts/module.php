@@ -1428,9 +1428,11 @@ class m_newaccounts extends IModule
         $fixclient_data = ClientCS::FetchClient($bill->Get("client_id"));
         if(!$bill->CheckForAdmin())
             return;
+        
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
+        $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('l_couriers',$bill->GetCouriers());
         $V = $bill->GetLines();
         $V[$bill->GetMaxSort()+1] = array();
@@ -1495,19 +1497,18 @@ class m_newaccounts extends IModule
         if(!$type)
             return;
         $del = get_param_raw("del",array());
-        $bill_date = get_param_raw("bill_date");
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
         $date_from_active = get_param_raw("date_from_active", 'N');
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
-        $dateFrom->format = 'Y-m-d';
-        $bill_no_ext_date = $dateFrom->getDay();
+        $bill_no_ext_date = $dateFrom->getSqlDay();
         
         $bill = new Bill($bill_no);
         if(!$bill->CheckForAdmin())
             return;
-        $bill->Set('bill_date',$bill_date);
+        $bill_date = new DatePickerValues('bill_date', $bill->Get('bill_date'));
+        $bill->Set('bill_date',$bill_date->getSqlDay());
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);
