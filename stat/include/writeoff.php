@@ -785,7 +785,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
                     if ($is7800)
                     {
-                        $minPayment = $this->tarif_current["month_min_payment"];
+                        $minPayment = $this->tarif_previous["month_min_payment"];
                         if ($price <= $minPayment)
                         {
                             $name = "Минимальный платеж за звонки по номеру %NUM% %PERIOD%";
