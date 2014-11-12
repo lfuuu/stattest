@@ -1549,11 +1549,15 @@ class ClientCS {
 
         try{
 
-        $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
+            $counters_reg = $pg_db->GetRow("SELECT  CAST(amount_sum as NUMERIC(8,2)) as amount_sum,
                                                 CAST(amount_day_sum as NUMERIC(8,2)) as amount_day_sum,
                                                 CAST(amount_month_sum as NUMERIC(8,2)) as amount_month_sum
                                         FROM billing.counters
                                         WHERE client_id='".$clientId."'");
+
+            $db->Query('INSERT INTO client_counters VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].')
+                        ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
+
         }catch(Exception $e)
         {
             if (!$silent_mode)
@@ -1561,18 +1565,14 @@ class ClientCS {
                 trigger_error2("База биллинга телефонии не доступна");
             }
             self::sendBillingCountersNotification($clientId);
-        }
-        if (isset($counters_reg) && !empty($counters_reg))
-        {
-            $db->Query('INSERT INTO client_counters VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].') 
-            ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
-        } else {
+
             $counters_reg = $db->GetRow('SELECT * FROM client_counters WHERE client_id = ' . $clientId);
             if (empty($counters_reg))
             {
                 $counters_reg = array('amount_sum'=>0, 'amount_day_sum'=>0,'amount_month_sum'=>0);
             }
         }
+
         $counters['amount_sum'] = $counters_reg['amount_sum'];
         $counters['amount_day_sum'] = $counters_reg['amount_day_sum'];
         $counters['amount_month_sum'] = $counters_reg['amount_month_sum'];
