@@ -540,7 +540,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
 
 class BillContract
 {
-    public function getBillItemString($clientId, $date = null)
+    public static function getBillItemString($clientId, $date = null)
     {
         if ( $date === null)
             $date = time();
@@ -552,7 +552,7 @@ class BillContract
 
         return "";
     }
-    public function getString($clientId, $date)
+    public static function getString($clientId, $date)
     {
         $contract = self::getLastContract($clientId, $date);
 
@@ -561,7 +561,7 @@ class BillContract
 
         return "";
     }
-    private function getLastContract($clientId, $dateTs)
+    private static function getLastContract($clientId, $dateTs)
     {
         global $db;
         return $db->GetRow("

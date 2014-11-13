@@ -924,7 +924,7 @@ class m_newaccounts extends IModule
         $R2 = $db->AllRecords('
 
             select
-                P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.currency, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
+                P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
                 P.sum_rub as sum_rub_full,
                 U.user as user_name,
                 '.(
@@ -937,12 +937,12 @@ class m_newaccounts extends IModule
                 P.sum_pay,
                 P.sum_pay_rub,
                 P.bank
-            from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.currency, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
+            from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
                         L.payment_id, L.bill_no, L.sum as sum_pay, L.sum_rub as sum_pay_rub, P.bank
                     FROM newpayments P LEFT JOIN newpayments_orders L ON L.client_id='.$fixclient_data['id'].' and P.id=L.payment_id
                     WHERE P.client_id='.$fixclient_data['id'].'
                     UNION
-                    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.currency, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
+                    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
                         L.payment_id, L.bill_no, L.sum as sum_pay, L.sum_rub as sum_pay_rub, P.bank
                     FROM newpayments P RIGHT JOIN newpayments_orders L ON P.client_id='.$fixclient_data['id'].' and P.id=L.payment_id
                     WHERE L.client_id='.$fixclient_data['id'].'

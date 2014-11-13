@@ -69,7 +69,6 @@ class uniteller {
 														'payment_rate'=>'1',
 														'type'=>'bank',
 														'sum_rub'=>$order2['sum'],
-														'currency'=>'RUR',
 														'sync_1c'=>'yes',
 												));
 												
