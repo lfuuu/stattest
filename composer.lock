@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f2ec6b5e8c3d132f18408f5e76bac2cc",
+    "hash": "39d5c59affb84bacf03f9e0e416cc285",
     "packages": [
         {
             "name": "aferrandini/phpqrcode",
@@ -95,16 +95,16 @@
         },
         {
             "name": "bower-asset/jquery.inputmask",
-            "version": "3.1.34",
+            "version": "3.1.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/RobinHerbots/jquery.inputmask.git",
-                "reference": "f48d10463039a23469e65cc4b5c0b4409e8fb596"
+                "reference": "464cddbdea65411896468f40321e68abcc75a34c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/RobinHerbots/jquery.inputmask/zipball/f48d10463039a23469e65cc4b5c0b4409e8fb596",
-                "reference": "f48d10463039a23469e65cc4b5c0b4409e8fb596",
+                "url": "https://api.github.com/repos/RobinHerbots/jquery.inputmask/zipball/464cddbdea65411896468f40321e68abcc75a34c",
+                "reference": "464cddbdea65411896468f40321e68abcc75a34c",
                 "shasum": ""
             },
             "require": {
@@ -206,12 +206,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cebe/markdown.git",
-                "reference": "c024d958e072a1ae988686a2b2fe86dcde174282"
+                "reference": "77ba2daada49fc851b397028d26fb2078ec4a3cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cebe/markdown/zipball/c024d958e072a1ae988686a2b2fe86dcde174282",
-                "reference": "c024d958e072a1ae988686a2b2fe86dcde174282",
+                "url": "https://api.github.com/repos/cebe/markdown/zipball/77ba2daada49fc851b397028d26fb2078ec4a3cf",
+                "reference": "77ba2daada49fc851b397028d26fb2078ec4a3cf",
                 "shasum": ""
             },
             "require": {
@@ -258,7 +258,7 @@
                 "markdown",
                 "markdown-extra"
             ],
-            "time": "2014-10-25 17:42:20"
+            "time": "2014-11-07 12:53:11"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -311,12 +311,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bzikarsky/gelf-php.git",
-                "reference": "b6f306e1b36b718aaf03b59563f4d6389e92cead"
+                "reference": "6206cf51934e42941c7e0bf8589cb686ca151e81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/b6f306e1b36b718aaf03b59563f4d6389e92cead",
-                "reference": "b6f306e1b36b718aaf03b59563f4d6389e92cead",
+                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/6206cf51934e42941c7e0bf8589cb686ca151e81",
+                "reference": "6206cf51934e42941c7e0bf8589cb686ca151e81",
                 "shasum": ""
             },
             "require": {
@@ -344,7 +344,64 @@
                 }
             ],
             "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2.",
-            "time": "2014-10-23 05:32:34"
+            "time": "2014-11-07 10:25:55"
+        },
+        {
+            "name": "phpoffice/phpexcel",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PHPExcel.git",
+                "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
+                "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPExcel": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Balliauw",
+                    "homepage": "http://blog.maartenballiauw.be"
+                },
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://blog.rootslabs.net"
+                },
+                {
+                    "name": "Erik Tilt"
+                }
+            ],
+            "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+            "homepage": "http://phpexcel.codeplex.com",
+            "keywords": [
+                "OpenXML",
+                "excel",
+                "php",
+                "spreadsheet",
+                "xls",
+                "xlsx"
+            ],
+            "time": "2014-03-02 15:22:49"
         },
         {
             "name": "psr/log",
@@ -432,12 +489,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "6c040790282103d656fe405addd9fdff38e46ce1"
+                "reference": "36ae6c7c32420ef7ddd551497e08a8f0cf31c67c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/6c040790282103d656fe405addd9fdff38e46ce1",
-                "reference": "6c040790282103d656fe405addd9fdff38e46ce1",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/36ae6c7c32420ef7ddd551497e08a8f0cf31c67c",
+                "reference": "36ae6c7c32420ef7ddd551497e08a8f0cf31c67c",
                 "shasum": ""
             },
             "require": {
@@ -512,7 +569,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2014-10-29 14:50:00"
+            "time": "2014-11-12 11:06:39"
         },
         {
             "name": "yiisoft/yii2-composer",
@@ -520,12 +577,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-composer.git",
-                "reference": "73ad236be1bf7cf4415559a4b592dd5b9cb4b288"
+                "reference": "0ed315f4b450604d5c2fa5fcacaf27fdde73d062"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-composer/zipball/73ad236be1bf7cf4415559a4b592dd5b9cb4b288",
-                "reference": "73ad236be1bf7cf4415559a4b592dd5b9cb4b288",
+                "url": "https://api.github.com/repos/yiisoft/yii2-composer/zipball/0ed315f4b450604d5c2fa5fcacaf27fdde73d062",
+                "reference": "0ed315f4b450604d5c2fa5fcacaf27fdde73d062",
                 "shasum": ""
             },
             "require": {
@@ -559,7 +616,7 @@
                 "extension installer",
                 "yii2"
             ],
-            "time": "2014-10-12 20:44:45"
+            "time": "2014-11-07 16:17:16"
         }
     ],
     "packages-dev": [
@@ -569,12 +626,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "0cc304ac4870fed7ea61d9b32b0c954f25d4ce37"
+                "reference": "bd8e63631145016cfdf26e658b4a8a2a393698c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/0cc304ac4870fed7ea61d9b32b0c954f25d4ce37",
-                "reference": "0cc304ac4870fed7ea61d9b32b0c954f25d4ce37",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/bd8e63631145016cfdf26e658b4a8a2a393698c2",
+                "reference": "bd8e63631145016cfdf26e658b4a8a2a393698c2",
                 "shasum": ""
             },
             "require": {
@@ -591,9 +648,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Faker": "src/",
-                    "Faker\\PHPUnit": "test/"
+                "psr-4": {
+                    "Faker\\": "src/Faker/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -611,7 +667,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2014-10-29 09:35:45"
+            "time": "2014-11-10 16:46:22"
         },
         {
             "name": "yiisoft/yii2-codeception",
@@ -708,7 +764,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "phpoffice/phpexcel": 20
+    },
     "prefer-stable": false,
     "platform": {
         "php": ">=5.4.0"

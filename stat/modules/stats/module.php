@@ -4020,55 +4020,41 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 }
 
 
-private function GenerateExcel($title, $head, $list)
+private function GenerateExcel($workSheetTitle, $head, $list)
 {
-    require_once 'Spreadsheet/Excel/Writer.php';
+    $objPHPExcel = new PHPExcel();
 
-    $workbook = new Spreadsheet_Excel_Writer();
-    $workbook->setVersion(8);
-    $workbook->send($title);
-    $sheet =& $workbook->addWorksheet();
-    $sheet->setInputEncoding('utf-8');
+    $objPHPExcel->setActiveSheetIndex(0);
 
-    $fHeader =& $workbook->addFormat();
-    $fHeader->setHAlign('center');
-    $fHeader->setSize(10);
-    $fHeader->setBorder(1);
-    $fHeader->setBold();
+    $sheet = $objPHPExcel->getActiveSheet();
 
-
-    $fData =& $workbook->addFormat();
-    $fData->setSize(8);
-    $fData->setBorder(1);
-	$fData->setVAlign('top');
-
-	$fDataText =$fData;
-	$fDataText->setVAlign('vjustify');
-
-
-	foreach(array(10, 12, 21, 11, 29, 35, 33, 14, 14, 88) as $idx => $width)
-	    $sheet->setColumn($idx, $idx, $width);
+    
+	foreach(array(10, 12, 21, 11, 29, 35, 33, 14, 14, 88) as $columnIndex => $width)
+		$sheet->getColumnDimensionByColumn($columnIndex+1)->setWidth($width);
 
     $idx = 0;
     foreach($head as $title => $field)
-    {
-        $sheet->write(2, $idx++, $title, $fHeader);
-    }
+        $sheet->setCellValueByColumnAndRow($idx++, 2, $title);//, $fHeader);
 
     foreach($list as $rowIdx => $l)
     {
         $colIdx = 0;
         foreach($head as $title => $field)
         {
-            $sheet->write(3+$rowIdx, $colIdx++, strip_tags($l[$field]), $idx == 9 ? $fDataText : $fData);
+            $sheet->setCellValueByColumnAndRow(
+                $colIdx++, 
+                3+$rowIdx, 
+                isset($l[$field]) ?  strip_tags($l[$field]) : ""
+            );
         }
-        $c = count(explode("\n", $l[$field]));
-        $sheet->setRow(3+$rowIdx, ($c < 2 ? 2 : $c)*12);
     }
 
-    $workbook->close();
-    exit();
+    $oeWriter = new PHPExcel_Writer_Excel5($objPHPExcel);
 
+    header("Content-type: application/vnd.ms-excel");
+    header('Content-Disposition: attachment; filename="'.$workSheetTitle.'.xls"');
+    $oeWriter->save('php://output');
+    exit();
 }
 
 
