@@ -101,10 +101,17 @@ foreach($db->AllRecords("SELECT id, client, credit FROM clients WHERE credit > -
 
     if ($isNeedSend)
     {
+        if ($l["credit"] > 0)
+        {
+            $credit_text = 'Допустимый кредитный лимит ' . $l["credit"] . ' рублей';
+        } else {
+            $credit_text = 'Обращаем Ваше внимание, что при достижении нулевого баланса лицевого счета услуги будут автоматически заблокированы';
+        }
         $R[$l["id"]] = array(
             "client" => $l["client"],
             "balance" => $balance,
-            "abon" => $abon
+            "abon" => $abon,
+            "credit" => $credit_text
             );
     }
 }
@@ -177,6 +184,6 @@ function getContactsForSend($clientId)
 function echoCell($str, $len=15)
 {
     $str = " ".$str;
-    echo $str.(strlen < $len ? str_pad(" ", $len-strlen($str)) : "");
+    echo $str.(strlen($str) < $len ? str_pad(" ", $len-strlen($str)) : "");
 }
 
