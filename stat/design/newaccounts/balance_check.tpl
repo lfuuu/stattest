@@ -83,8 +83,8 @@
 	Обороты за период
 {/if}
 </td>
-	<td align=right>{if isset($item.sum_income)}{$item.sum_income|round:2|replace:".":","}{else}&nbsp;{/if}</td>
-	<td align=right>{if isset($item.sum_outcome) && ($item.sum_outcome != 0 || $item.type =='saldo')}{$item.sum_outcome|round:2|replace:".":","}{else}&nbsp;{/if}</td>
+	<td align=right>{if isset($item.sum_income) && ($item.sum_income || $item.type =='saldo')}{$item.sum_income|round:2|replace:".":","}{else}&nbsp;{/if}</td>
+	<td align=right>{if isset($item.sum_outcome) && ($item.sum_outcome || $item.type =='saldo')}{$item.sum_outcome|round:2|replace:".":","}{else}&nbsp;{/if}</td>
 	<td>&nbsp;</td>
 	<td>&nbsp;</td>
 	<td>&nbsp;</td>
