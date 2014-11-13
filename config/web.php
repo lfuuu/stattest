@@ -36,6 +36,7 @@ $config = [
             'class' => 'app\classes\AuthManager',
         ],
         'errorHandler' => [
+            'class' => 'app\classes\ErrorHandler',
             'errorAction' => 'site/error',
         ],
         'mailer' => [
