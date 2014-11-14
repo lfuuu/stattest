@@ -6,7 +6,7 @@ class NewBill extends ActiveRecord\Model
     static $private_key = 'bill_no';
 
     static $belongs_to = array(
-        array('client', 'class_name' => 'ClientCard')
+        array('client', 'class_name' => 'ClientCard', 'foreign_key' => 'client_id')
     );
 
     static $has_one = array(
