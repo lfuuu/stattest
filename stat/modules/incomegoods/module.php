@@ -27,12 +27,15 @@ class m_incomegoods extends IModule{
             $whereData[] = $fixclient_data['id'];
         }
 
-        
 
-
-        if ($filter['manager'] != 'all') {
+        if (isset($filter['manager']) && $filter['manager'] && $filter['manager'] != 'all') {
             $where .= ' and manager_id=? ';
             $whereData[] = $filter['manager'];
+        }
+
+        if (isset($filter['organization']) && $filter['organization'] && $filter['organization'] != 'all') {
+            $where .= ' and organization_id=? ';
+            $whereData[] = $filter['organization'];
         }
 
         $statusCounter = array('all' => array('name' => 'Все', 'count' => 0));
@@ -68,8 +71,11 @@ class m_incomegoods extends IModule{
             )
         );
 
+        $organizations = Organization::all(['order' => 'name']);
+
         $design->assign('list', $list);
         $design->assign('statusCounter', $statusCounter);
+        $design->assign('organizations', $organizations);
         $design->assign('qfilter', $filter);
         $design->assign('users', User::find('all', array('order' => 'name', 'conditions' => array("enabled='yes'"))));
         $design->AddMain('incomegoods/order_list.tpl');
