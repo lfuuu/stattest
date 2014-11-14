@@ -19,7 +19,7 @@ class ErrorHandler extends \yii\web\ErrorHandler
             $category = get_class($exception) . ':' . $exception->getSeverity();
             Yii::warning('Warning: ' . (string) $exception, $category);
 
-            return false;
+            return true;
         }
 
         return parent::handleError($code, $message, $file, $line);
