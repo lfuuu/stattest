@@ -333,20 +333,6 @@ function smarty_function_objCurrency($params,&$smarty) {
 	}
 }
 
-function __get_item_price($v, &$smarty) 
-{
-    $price = $v["item"]["sum"];
-    $nds = $v["item"]["line_nds"];
-    $sum = $price*1.18;
-    $price = (((18-$nds)/100*$price)+$price);
-
-    $round = isset($v["round"]) ? $v["round"] : 4;
-    $amount = isset($v["amount"]) ? $v["amount"] : 1;
-
-    return sprintf("%.".$round."f", $price*$amount);
-}
-
-
 class MySmarty extends Smarty {
 	var $cid=0;
 	var $LINK_START;
@@ -376,7 +362,6 @@ class MySmarty extends Smarty {
 		$this->register_function('get_region_by_dgroups','__get_region_by_dgroups');
 		$this->register_function('get_minutes_by_seconds','__get_minutes_by_seconds');
 		$this->register_function('get_time','__get_time');
-		$this->register_function('get_item_price','__get_item_price');
 		$this->register_modifier('time_period','time_period');
 		$this->register_modifier('hl','smarty_modifier_hl');
 		$this->register_modifier('wordify','smarty_modifier_wordify');

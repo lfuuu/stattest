@@ -553,13 +553,8 @@ class Bill{
 	public function GetLines($rate = 1,$mode=false){
 		global $db;
 		$nds = $this->Client("nds_zero") ? "1" : "1.18";
-		$fields = '';
-		$joins = '';
-		if (strpos($this->bill_no, '/') !== false)
-		{
-			$fields = '  gu.name, ';
-			$joins = ' LEFT JOIN g_unit as gu ON g.unit_id = gu.id ';
-		}
+
+
 		$ret =
 			$db->AllRecords($q='
 				select
@@ -605,8 +600,6 @@ class Bill{
 					sort
 				','id');
 
-
-		$countryMaker = array();
 
         foreach($ret as &$r)
         {
