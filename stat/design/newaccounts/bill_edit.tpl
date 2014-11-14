@@ -16,7 +16,7 @@ function mark_del(){
 	<input type=hidden name=bill value={$bill.bill_no}>
 	<input type=hidden name=action value=bill_apply>
 	<input type=hidden name=client_id value={$bill.client_id}>
-Дата проводки: <input type=text name=bill_date value="{$bill.bill_date}">
+Дата проводки: <input type=text id=bill_date_from name=bill_date value="{$bill_date}">
 Валюта проводки: <b style='color:blue'>{$bill.currency}</b><br>
 Исполнитель: {html_options name='courier' options=$l_couriers selected=$bill.courier_id}<br>
 Предпологаемый тип платежа: <select name="nal">
@@ -76,6 +76,7 @@ function mark_del(){
 </form>
 <script>
 	optools.DatePickerInit();
+        optools.DatePickerInit('bill_');
 	{literal}
 	function activateDatePicker(elm)
 	{
