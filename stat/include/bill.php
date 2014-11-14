@@ -791,7 +791,7 @@ class Bill{
         return $ls[0]["type"] == "zadatok";
     }
 
-    public function getDocumentType($bill_no)
+    public static function getDocumentType($bill_no)
     {
         if(preg_match("/\d{2}-\d{8}/", $bill_no))
         {
@@ -806,7 +806,7 @@ class Bill{
         return array("type" => "unknown");
     }
 
-    public function getDocument($docId, $clientId = false)
+    public static function getDocument($docId, $clientId = false)
     {
         $docType = self::getDocumentType($docId);
 
