@@ -3,7 +3,7 @@
 global $module;
 ?>
 <?php foreach ($this->context->getPanelsData() as $panel): ?>
-    <div class="panel">
+    <div class="menupanel">
         <div class="title">
             <a href="?module=<?=$panel['module']?>"><?=$panel['title']?></a>
             <a href='javascript:toggle(document.getElementById("panel_id<?=$panel['module']?>"),link<?=$panel['module']?>,"<?=$panel['module']?>");' id='link<?=$panel['module']?>'>

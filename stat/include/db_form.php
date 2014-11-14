@@ -1231,7 +1231,7 @@ class DbFormUsageVirtpbx extends DbForm{
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         //$this->fields['tarif_id']=array('type'=>'hidden');
         //$this->fields['tarif_str']=array('db_ignore'=>1);
-        $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"));
+        $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"), 'default' => 2);
         $this->fields['amount']=array("default" => 1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();

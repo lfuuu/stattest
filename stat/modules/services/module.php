@@ -59,8 +59,6 @@ class m_services extends IModule{
             foreach($_REQUEST['port_type'] as $tp){
                 $port_type[] = addcslashes($tp, "\\'");
             }
-        else
-            $port_type = false;
         $design->assign('port_type',$port_type);
         $manager = get_param_protected('manager');
         $design->assign('manager',$manager);

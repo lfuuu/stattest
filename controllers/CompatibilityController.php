@@ -31,10 +31,11 @@ class CompatibilityController extends BaseController
 
         global $user, $module, $modules, $design, $fixclient, $fixclient_data, $module_clients;
 
+        ob_start();
+
         $design  = new \MySmarty();
         $user    = new \AuthUser();
         $modules = new \Modules();
-
 
         $user->AuthorizeByUserId(Yii::$app->user->id);
 
@@ -42,7 +43,6 @@ class CompatibilityController extends BaseController
         $action = get_param_raw('action','default');
 
         $design->assign('module', $module);
-        $design->AddMain('errors.tpl');
 
         if ($newClient = get_param_raw("clients_client"))
             $_SESSION["clients_client"] = $newClient;
@@ -72,6 +72,8 @@ class CompatibilityController extends BaseController
             }
         }
 
+        $preOutput = ob_get_clean();
+
         ob_start();
 
         $renderLayout = $lite === false && !$design->ignore;
@@ -87,9 +89,9 @@ class CompatibilityController extends BaseController
         $output = ob_get_clean();
 
         if ($renderLayout && ($layoutFile = $this->findLayoutFile($this->getView())) !== false) {
-            return $this->getView()->renderFile($layoutFile, ['content' => $output], $this);
+            return $this->getView()->renderFile($layoutFile, ['content' => $preOutput . $output], $this);
         } else {
-            return $output;
+            return $preOutput . $output;
         }
     }
 }

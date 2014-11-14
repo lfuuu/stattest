@@ -29,7 +29,7 @@ $user = Yii::$app->user->identity;
     <iframe src='?module=monitoring&action=top' width=100% height=17 style='border:0; padding:0 0 0 0;margin:-15 0 0 0;'></iframe>
 <?php endif; ?>
 
-<div class="layout_top">
+<div class="layout_left">
     <div class="site_caption">
         <a href="/" class="logo"></a>
         <div class="message">Сервер статистики</div>
@@ -44,12 +44,12 @@ $user = Yii::$app->user->identity;
             <?php else: ?>
                 <div style="padding: 2px">
                     <b><a href="?module=clients&id=<?=$fixclient_data['client']?>">
-                        <?=
+                            <?=
                             $fixclient_data['client']
                                 ? Html::encode($fixclient_data['client'])
                                 : '<font color=red>id=</font>' . Html::encode($fixclient_data['id'])
-                        ?>
-                    </a></b>
+                            ?>
+                        </a></b>
                     (<b><a href='?module=clients&unfix=1'>снять</a></b>)
                 </div>
                 <div style="padding: 2px">
@@ -71,20 +71,16 @@ $user = Yii::$app->user->identity;
 
         <iframe id=toggle_frame src='?module=usercontrol&action=ex_toggle' height=1 width=1 style='display:none'></iframe>
     </div>
-    <div class="panel">
-        <?php if (Yii::$app->user->can('clients.read')): ?>
-            <?= $this->render('widgets/search') ?>
-        <?php endif; ?>
-    </div>
-</div>
 
-<div style="clear: left"></div>
-
-<div class="layout_left">
     <?= $this->render('widgets/left_menu', ['user' => $user]); ?>
 </div>
 
 <div class="layout_main">
+    <div style="margin-top: 15px; margin-bottom: 40px">
+        <?php if (Yii::$app->user->can('clients.read')): ?>
+            <?= $this->render('widgets/search') ?>
+        <?php endif; ?>
+    </div>
 
     <?= $this->render('widgets/messages') ?>
 
