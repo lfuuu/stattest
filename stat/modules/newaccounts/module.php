@@ -3128,14 +3128,17 @@ class m_newaccounts extends IModule
         $bdata['ts']=$bill->GetTs();
 
         if(!$usd_rate){
-            $s = $bill->CalculateSum(1,$obj=='bill'?'A':'B');
-            if($s>0)
-            {
-                $usd_rate=$sum_rur/$bill->CalculateSum(1,$obj=='bill'?'A':'B');
-            }else{
-                $usd_rate=0;
-            }
-            unset($s);
+            $sum = $bill->CalculateSum();
+            $sum =
+                $obj == 'bill'
+                    ? $sum['sum_with_zadatok']
+                    : $sum['sum'];
+
+            $usd_rate =
+                $sum > 0
+                    ? $sum_rur / $sum
+                    : 0;
+            unset($sum);
         }
 
 

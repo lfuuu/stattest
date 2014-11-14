@@ -1007,6 +1007,11 @@ class SoapHandler{
                 "serial" => (isset($p->{tr('СерийныеНомера')}) ? $p->{tr('СерийныеНомера')}: false),
                 "gtd" => trr($p->{tr('НомерГТД')}),
                 "country_id" => trr($p->{tr('СтранаПроизводитель')}),
+                'is_price_includes_tax' => 0,
+                'tax_type_id' => 18,
+                'sum_without_tax' => $p->{tr('СуммаИтогоБезНДС')},
+                'sum_tax' => $p->{tr('СуммаНДС')},
+                'sum_with_tax' => $p->{tr('Сумма')},
             );
         }
 
@@ -1058,7 +1063,8 @@ class SoapHandler{
             $err_msg = mysql_error();
 
 
-        $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id) values";
+        $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
+                                        "sum_without_tax, sum_tax, sum_with_tax) values";
 
         $qSerials = "";
 
@@ -1080,7 +1086,10 @@ class SoapHandler{
                 "'".$item["sum"]."',".
                 "'".$item["dispatch"]."',".
                 "'".$item["gtd"]."',".
-                "'".$item["country_id"]."'".
+                "'".$item["country_id"]."',".
+                "'".$item["country_id"]."',".
+                "'".$item["country_id"]."',".
+                "'".$item["country_id"]."',".
                 "),";
 
             if($item["serial"]) {

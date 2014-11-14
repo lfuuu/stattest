@@ -13,7 +13,7 @@ use yii\db\ActiveRecord;
  * @property int    $code_1c        код строки счета в 1с
  * @property string $descr_id       идентификатор характеристики товара в 1с. ссылка на g_good_description
  * @property float  $amount         количество
- * @property int    $dispatch       ??
+ * @property int    $dispatch       количество отгружено
  * @property float  $price          цена за единицу. без ндс для счетов стата. с ндс для счетов 1с.
  * @property float  $sum            сумма строки счета. цена * количество
  * @property float  $discount       ??
