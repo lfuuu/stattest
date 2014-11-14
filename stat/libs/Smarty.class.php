@@ -579,15 +579,27 @@ class Smarty
      */
     function assign($tpl_var, $value = null)
     {
-        //printdbg($value, $tpl_var);
+        $print_var = false;
+        if (isset($_REQUEST['show_vars']) && $_REQUEST['show_vars'] == 1)
+        {
+            $print_var = true;
+        }
         if (is_array($tpl_var)){
             foreach ($tpl_var as $key => $val) {
                 if ($key != '') {
+                    if ($print_var)
+                    {
+                        printdbg($val, $key);
+                    }
                     $this->_tpl_vars[$key] = $val;
                 }
             }
         } else {
             if ($tpl_var != '')
+                if ($print_var)
+                {
+                    printdbg($value, $tpl_var);
+                }
                 $this->_tpl_vars[$tpl_var] = $value;
         }
     }
