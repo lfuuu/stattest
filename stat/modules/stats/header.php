@@ -1,4 +1,4 @@
-<?
+<?php
 class m_stats_head extends IModuleHead{
 	public $module_name = 'stats';
 	public $module_title = 'Статистика';
@@ -42,6 +42,7 @@ class m_stats_head extends IModuleHead{
         'save_agent_settings' => array('stats', 'vip_report'),
         'report_agent_details' => array('stats','vip_report'),
         'report_reserve' => array('stats', 'r'),
+		'onlime_details'	    => array('stats','report'),
 	);
 	var $menu=array(
 		array('Телефония',              'voip'),
