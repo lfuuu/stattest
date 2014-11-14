@@ -44,7 +44,8 @@ a:hover { color: #43657d; text-decoration: none; }
     left: 225px;
     top: 0;
     bottom: 0;
-    right: 10px;
+    right: 0px;
+    padding-right: 10px;
     overflow-y: auto;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
