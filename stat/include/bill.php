@@ -812,7 +812,7 @@ class Bill{
 
         if($docType["type"] == "bill")
         {
-            $doc = NewBill::find($docId);
+            $doc = NewBill::find_by_bill_no($docId);
         }elseif($docType["type"] == "incomegood")
         {
             $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
