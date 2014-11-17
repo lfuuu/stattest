@@ -62,6 +62,7 @@ function do_events()
                 case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();
                                  virtPbx::check();
+                                 EventHandler::updateSubscribeMass();
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
                                  }

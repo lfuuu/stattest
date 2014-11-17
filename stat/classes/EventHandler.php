@@ -1,5 +1,5 @@
 <?php
-
+use app\dao\BillDao;
 
 class EventHandler
 {
@@ -25,4 +25,10 @@ class EventHandler
             $GLOBALS['module_newaccounts']->update_balance($card->id, $card->currency);
         }
     }
+
+    public function updateSubscribeMass()
+    {
+        BillDao::me()->updateSubscriptionForAllClientAccounts();
+    }
+
 }

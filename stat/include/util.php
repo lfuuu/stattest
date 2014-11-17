@@ -1568,7 +1568,13 @@ class ClientCS {
                 trigger_error2("База биллинга телефонии не доступна");
             }
             self::sendBillingCountersNotification($clientId);
+        }
 
+        if (isset($counters_reg) && !empty($counters_reg))
+        {
+            $db->Query('INSERT INTO client_counters(client_id, amount_sum, amount_day_sum, amount_month_sum) VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].')
+            ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
+        } else {
             $counters_reg = $db->GetRow('SELECT * FROM client_counters WHERE client_id = ' . $clientId);
             if (empty($counters_reg))
             {

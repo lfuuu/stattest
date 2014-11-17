@@ -72,10 +72,15 @@ abstract class ServicePrototype {
             }
         }
     }
+
     public function getServicePreBillAmount()
     {
-	return 0;
+        return 
+            isset($this->service['amount']) && isset($this->tarif_current['price']) ? 
+            $this->service['amount']*$this->GetDatePercent()*$this->tarif_current['price'] : 
+            0;
     }
+
     public function LoadTarif() {}    //тело в потомке, если нужно
     public function SetMonth($month) {
         $d=getdate($month);
@@ -334,10 +339,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 '.MySQLDatabase::Generate($W)
         );
     }
-    public function getServicePreBillAmount()
-    {
-	return $this->tarif_current['pay_month']*$this->GetDatePercent();
-    }
+
     public function GetLinesMonth(){
         $R = ServicePrototype::GetLinesMonth();
         $O = array();
@@ -536,6 +538,11 @@ class ServiceUsageIpPorts extends ServicePrototype {
         }
         return $R;
     }
+
+    public function getServicePreBillAmount()
+    {
+        return $this->tarif_current['pay_month']*$this->GetDatePercent();
+    }
 }
 
 class BillContract
@@ -676,14 +683,6 @@ class ServiceUsageVoip extends ServicePrototype {
         return $lines;
     }
 
-    public function getServicePreBillAmount()
-    {
-	$val = $this->tarif_current['month_number']*$this->GetDatePercent();
-	if($this->service['no_of_lines']>1){
-		$val += $this->tarif_current['month_line']*$this->GetDatePercent()*($this->service['no_of_lines']-1);
-	}
-	return $val;
-    }
     public function GetLinesMonth(){
         $R=ServicePrototype::GetLinesMonth();
 
@@ -853,14 +852,19 @@ class ServiceUsageVoip extends ServicePrototype {
         }
         return $R;
     }
+
+    public function getServicePreBillAmount()
+    {
+        $val = $this->tarif_current['month_number']*$this->GetDatePercent();
+        if($this->service['no_of_lines']>1) {
+            $val += $this->tarif_current['month_line']*$this->GetDatePercent()*($this->service['no_of_lines']-1);
+        }
+        return $val;
+    }
 }
 
 
 class ServiceBillMonthlyadd extends ServicePrototype {
-    public function getServicePreBillAmount()
-    {
-	return $this->service['amount']*$this->GetDatePercent()*$this->service['price'];
-    }
     public function GetLinesMonth() {
         if(!$this->date_from || !$this->date_to)
             return array();
@@ -882,7 +886,9 @@ class ServiceBillMonthlyadd extends ServicePrototype {
         );
         return $R;
     }
+
 }
+
 class ServiceUsageExtra extends ServicePrototype {
     var $tarif_std = 0;
     public function LoadTarif() {
@@ -938,10 +944,7 @@ class ServiceUsageExtra extends ServicePrototype {
             } else return;
         } else return parent::SetMonth($month);
     }
-    public function getServicePreBillAmount()
-    {
-	return $this->service['amount']*$this->GetDatePercent()*$this->tarif_current['price'];
-    }
+    
     public function GetLinesMonth(){
         global $db;
 
@@ -1131,10 +1134,7 @@ class ServiceUsageWelltime extends ServicePrototype {
             } else return;
         } else return parent::SetMonth($month);
     }
-    public function getServicePreBillAmount()
-    {
-	return $this->service['amount']*$this->GetDatePercent()*$this->tarif_current['price'];
-    }
+
     public function GetLinesMonth(){
         if(!$this->date_from || !$this->date_to)
             return array();
@@ -1173,10 +1173,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
     public function SetMonth($month) {
         return parent::SetMonth($month);
     }
-    public function getServicePreBillAmount()
-    {
-	return $this->service['amount']*$this->GetDatePercent()*$this->tarif_current['price'];
-    }
+
     public function GetLinesMonth(){
         
         $R=ServicePrototype::GetLinesMonth();
@@ -1250,6 +1247,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
         }
         return $R;
     }
+
 }
 
 class ServiceUsage8800 extends ServicePrototype {
@@ -1262,10 +1260,7 @@ class ServiceUsage8800 extends ServicePrototype {
     public function SetMonth($month) {
         return parent::SetMonth($month);
     }
-    public function getServicePreBillAmount()
-    {
-	return $this->service['amount']*$this->GetDatePercent()*$this->tarif_current['price'];
-    }
+
     public function GetLinesMonth(){
         if(!$this->date_from || !$this->date_to)
             return array();
@@ -1303,10 +1298,6 @@ class ServiceUsageSms extends ServicePrototype {
         return parent::SetMonth($month);
     }
 
-    public function getServicePreBillAmount()
-    {
-	return $this->tarif_current['per_month_price']*$this->GetDatePercent()/1.18;
-    }
     public function GetLinesMonth(){
 
         global $db;
@@ -1358,19 +1349,14 @@ class ServiceUsageSms extends ServicePrototype {
 
         return $R;
     }
+
+    public function getServicePreBillAmount()
+    {
+        return $this->tarif_current['per_month_price']*$this->GetDatePercent()/1.18;
+    }
 }
 
 class ServiceEmails extends ServicePrototype {
-    public function getServicePreBillAmount()
-    {
-	$R = self::GetLinesMonth();
-	if (!empty($R))
-	{
-		return $R[0][2]*$R[0][3];
-	} 
-	
-	return 0;
-    }
     public function GetLinesMonth(){
         global $db;
         static $service_data = array();
@@ -1471,6 +1457,17 @@ class ServiceEmails extends ServicePrototype {
                 $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
 
         return $R;
+    }
+
+    public function getServicePreBillAmount()
+    {
+        $R = self::GetLinesMonth();
+        if (!empty($R) && isset($R[0][2]) && isset($R[0][3]))
+        {
+            return $R[0][2]*$R[0][3];
+        } 
+
+        return 0;
     }
 }
 
