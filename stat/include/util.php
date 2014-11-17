@@ -1555,8 +1555,11 @@ class ClientCS {
                                         FROM billing.counters
                                         WHERE client_id='".$clientId."'");
 
-            $db->Query('INSERT INTO client_counters VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].')
-                        ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
+            if (isset($counters_reg) && !empty($counters_reg))
+            {
+                $db->Query('INSERT INTO client_counters VALUES ('.$clientId.', '.$counters_reg['amount_sum'].','.$counters_reg['amount_day_sum'].','.$counters_reg['amount_month_sum'].')
+                            ON DUPLICATE KEY UPDATE amount_sum = '.$counters_reg['amount_sum'].', amount_day_sum = '.$counters_reg['amount_day_sum'].', amount_month_sum = '.$counters_reg['amount_month_sum']);
+            }
 
         }catch(Exception $e)
         {
