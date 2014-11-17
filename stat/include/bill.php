@@ -847,7 +847,7 @@ class Bill{
 
         if($docType["type"] == "bill")
         {
-            $doc = NewBill::find($docId);
+            $doc = NewBill::find_by_bill_no($docId);
         }elseif($docType["type"] == "incomegood")
         {
             $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
@@ -952,40 +952,40 @@ class Bill{
 
     public static function getPreBillAmount($client_id)
     {
-	global $db;
-	if (!$client_id) 
-	{
-		return 0;
-	}
-	$client_data = $db->GetRow('
-		SELECT * 
-		FROM clients 
-		WHERE 
-			id = ' . $client_id
-	);
-	if (empty($client_data)) 
-	{
-		return 0;
-	}
-	$services = get_all_services($client_data['client'],$client_id);
+        global $db;
+        if (!$client_id) 
+        {
+            return 0;
+        }
+        $client_data = $db->GetRow('
+            SELECT * 
+            FROM clients 
+            WHERE 
+            id = ' . $client_id
+        );
+        if (empty($client_data)) 
+        {
+            return 0;
+        }
+        $services = get_all_services($client_data['client'],$client_id);
 
-	$time_from = strtotime('first day of next month 00:00:00');
-	$time_to = strtotime('last day of next month 23:59:59');
-	$nds = ((!$client_data['nds_zero'])) ? 1.18 : 1;
-	$R = 0;
-	foreach ($services as $service){
-		if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))
-		{
-			continue;
-		}
-		$s=ServiceFactory::Get($service,$client_data);
-		
-		$s->SetMonth($time_from);
-		
-		$R+=round($s->getServicePreBillAmount()*$nds, 2);
-	}
-	
-	return $R;
+        $time_from = strtotime('first day of next month 00:00:00');
+        $time_to = strtotime('last day of next month 23:59:59');
+        $nds = ((!$client_data['nds_zero'])) ? 1.18 : 1;
+        $R = 0;
+        foreach ($services as $service){
+            if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))
+            {
+                continue;
+            }
+            $s=ServiceFactory::Get($service,$client_data);
+
+            $s->SetMonth($time_from);
+
+            $R+=round($s->getServicePreBillAmount()*$nds, 2);
+        }
+
+        return $R;
     }
     /**
      *	Предназнеачена для изменения "линий" в счетах, при вызове все линии счета удаляются и заменяются одной обобщенной

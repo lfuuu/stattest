@@ -142,7 +142,7 @@ class MySQLDatabase {
         $this->mErrno = mysql_errno();
         $this->mError = mysql_error();
        	if (!$req) $this->_Halt("Invalid SQL: " . htmlspecialchars_($query));
-        if ($saveDefault) $this->_QueryId = $req;
+        if ($saveDefault && is_resource($req)) $this->_QueryId = $req;
        	return $req;
     }
     function GetInsertId() {

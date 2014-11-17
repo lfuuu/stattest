@@ -1,4 +1,9 @@
 <?php
+use app\models\ClientAccount;
+use app\models\ClientCounter;
+use app\dao\BillDao;
+use app\classes\bill\SubscriptionCalculator;
+
 class m_newaccounts extends IModule
 {
     private static $object;
@@ -46,17 +51,18 @@ class m_newaccounts extends IModule
     function newaccounts_bill_balance_mass($fixclient){
         global $design,$db,$user,$fixclient;
         $design->ProcessEx('errors.tpl');
-        //$R=$db->AllRecords('select client,id,currency from clients order by client');
-/*        $R=$db->AllRecords("select c.id, c.currency from clients c where id in (SELECT distinct b.client_id FROM `newbills` b, `newpayments` p  where is_payed != 1 and p.bill_no = b.bill_no and sum = sum_rub and
-            (b.bill_no like '201%') )
-                ");*/
-        $R=$db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash') ");
+        $R=$db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash', 'once', 'tech_deny', 'double', 'deny') ");
         set_time_limit(0);
         session_write_close();
         foreach ($R as $r) {
             echo $r['client']."<br>\n";flush();
             $this->update_balance($r['id'],$r['currency']);
         }
+    }
+
+    function newaccounts_subscribe_mass($fixclient)
+    {
+        BillDao::me()->updateSubscriptionForAllClientAccounts();
     }
 
     function sum_more($pay,$bill,$currency, $diff=0.01) {
@@ -221,7 +227,7 @@ class m_newaccounts extends IModule
         }
         return $r;
     }
-    function update_balance($client_id,$currency) {
+    function update_balance($client_id,$currency, $isCalcSubscription = 1) {
         global $db, $fixclient_data;
         set_time_limit(120);
         $saldo=$this->getClientSaldo($client_id,$currency,get_param_raw('nosaldo'));
@@ -614,26 +620,21 @@ class m_newaccounts extends IModule
                     ON DUPLICATE KEY UPDATE `sum`=`sum`+"'.$r['sum'].'", sum_rub=sum_rub+"'.$r['sum_rub'].'"');
             //echo "<br>".$q;
         }
-        //$db->Query("UPDATE clients SET balance='{$balance}' WHERE id={$client_id}");
+
+        $lastBillDate = ClientAccount::dao()->getLastBillDate($client_id);
+        $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($client_id);
+        
         $db->Query("
-              UPDATE clients
-                    SET balance='{$balance}',
-                              last_account_date=(
-                      select b.bill_date
-                      from newbills b left join newbill_lines bl on b.bill_no=bl.bill_no
-                      where b.client_id={$client_id} and bl.service = 'usage_voip'
-                      group by b.bill_date
-                      order by b.bill_date desc
-                      limit 1),
-                                last_payed_voip_month=(
-                      select b.bill_date - interval day(b.bill_date)-1 day
-                      from newbills b left join newbill_lines bl on b.bill_no=bl.bill_no
-                      where b.client_id={$client_id} and bl.service = 'usage_voip' and b.is_payed=1
-                      group by b.bill_date
-                      order by b.bill_date desc
-                                    limit 1)
-                    WHERE id={$client_id}");
+                UPDATE clients
+                SET balance = '{$balance}',
+                    last_account_date = " . ($lastBillDate ? "'$lastBillDate'" : 'null') . ",
+                    last_payed_voip_month = " . ($lastPayedBillMonth ? "'$lastPayedBillMonth'" : 'null') . "
+                WHERE id = {$client_id}");
         $db->Query('COMMIT');
+
+        if ($isCalcSubscription) {
+            BillDao::me()->updateSubscription($client_id);
+        }
     }
 
     function newaccounts_bill_list($fixclient,$get_sum=false){
@@ -684,6 +685,7 @@ class m_newaccounts extends IModule
         }
 
         $design->assign("counters", $billingCounter);
+        $design->assign("subscr_counter", ClientCounter::dao()->getOrCreateCounter($fixclient_data["id"]));
 
 
 

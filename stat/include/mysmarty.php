@@ -1,4 +1,4 @@
-<?
+<?php
 require PATH_TO_ROOT.'libs/Smarty.class.php';
 
 function __count_rows_func($params,&$smarty){
@@ -281,6 +281,11 @@ function smarty_modifier_bytesize($number, $esc_type = 'Mb')
     
     return $sign . round($number, 2) . ' ' . $step[$st];
 }
+function smarty_modifier_find_urls($text)
+{
+    $text = preg_replace('#((http|https)?://(\S)+[\.](\S)*[^\s.,> )\];\'\"!?])#is', "<a target='_blank' href='\\1'>\\1</a>", $text);
+    return $text;
+}
 function smarty_function_objCurrency($params,&$smarty) {
 	$op = &$params['op'];
 	$obj = $params['obj'];
@@ -371,6 +376,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('num_format','smarty_modifier_num_format');
 		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');
+                $this->register_modifier('find_urls','smarty_modifier_find_urls');
 		$this->register_modifier('rus_fin','rus_fin');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);

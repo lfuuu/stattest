@@ -465,12 +465,14 @@ class DbViewTarifsVirtpbx extends DbView{
 		);
 		$this->fieldset = 'z';
 
-		$this->SQLFilterGroups['Состояние'] = array('public', 'archive');
+		$this->SQLFilterGroups['Состояние'] = array('public', 'special', 'archive');
 
 
 		$this->SQLFilters['public']='status="public"';
+		$this->SQLFilters['special']='status="special"';
 		$this->SQLFilters['archive']='status="archive"';
 		$this->SQLFilterNames['public']='публичный';
+		$this->SQLFilterNames['special']='специальный';
 		$this->SQLFilterNames['archive']='архивный';
 
 
@@ -596,7 +598,7 @@ class DbFormTarifsVirtpbx extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_virtpbx');
 		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','archive'=>'архивный'));
+		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['description']=array();
 		$this->fields['price']=array('default'=>0);
 		$this->fields['period']=array('assoc_enum'=>array('month'=>'ежемесячно'));

@@ -47,13 +47,6 @@ class prices_parser
         }
     }
 
-    public static function &xls_read($fname)
-    {
-        require_once INCLUDE_PATH . 'exel/excel_reader2.php';
-        @$xlsreader = new Spreadsheet_Excel_Reader($fname, false, 'utf-8');
-        return $xlsreader;
-    }
-
     public static function &csv_read($fname)
     {
         $f = fopen($fname, 'r');
@@ -67,8 +60,6 @@ class prices_parser
 
     public static function &open_file($filename, $format = 'Excel5', $sheet = -1)
     {
-        require_once INCLUDE_PATH . 'exel/PHPExcel.php';
-        require_once INCLUDE_PATH . 'exel/PHPExcel/IOFactory.php';
         $excelReader = PHPExcel_IOFactory::createReader($format);
         $excelReader->setReadDataOnly(true);
 

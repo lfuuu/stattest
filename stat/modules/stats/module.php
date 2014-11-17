@@ -1084,42 +1084,6 @@ class m_stats extends IModule{
 
         global $db;
 
-        //если у клиента есть хоть один номера с поминутной тарификацией - то всё считаем поминутно
-        $isByMins = $db->GetValue(
-            $q = "
-                SELECT 
-                    lt.id_service 
-                FROM 
-                    log_tarif lt, 
-                    tarifs_voip tv, 
-                    usage_voip uv , 
-                    (
-                        SELECT 
-                            id_service, 
-                            MAX(lt.id) max_log 
-                        FROM 
-                            log_tarif lt, 
-                            usage_voip uv, 
-                            clients c 
-                        WHERE 
-                                uv.id = id_service 
-                            AND lt.service ='usage_voip' 
-                            AND CAST(NOW() AS date) BETWEEN uv.actual_from AND uv.actual_to 
-                            AND uv.client=c.client 
-                            AND c.id = '".$client_id."'
-                        GROUP BY 
-                            id_service
-                    ) a 
-                WHERE 
-                        tv.id = lt.id_tarif 
-                    AND uv.id = lt.id_service 
-                    AND a.id_service = uv.id 
-                    AND a.max_log = lt.id 
-                    AND tariffication_by_minutes = 1 
-                LIMIT 1");
-        
-        $lenSql = $isByMins ? "case direction_out='f' and len_mcn>0 when true then ((len_mcn-len_mcn%60)+60) else len_mcn end" : "len_mcn";
-
         if ($detality != 'dest') {
             $R=array();
             $sql="
@@ -1141,7 +1105,7 @@ class m_stats extends IModule{
 
             $sql .=
             'cast('.($group?'sum':'').'(amount)/100.0 as NUMERIC(10,2)) as price,
-                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then '.$lenSql.' else 0 end':$lenSql).') as ts2,
+                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len_mcn else 0 end':'len_mcn').') as ts2,
                                     '.($group?'sum('.($paidonly?'case amount>0 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
                                     calls.calls_'.intval($region).'
@@ -1198,7 +1162,7 @@ class m_stats extends IModule{
 
             $R['total']=$rt;
         }else{
-            $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(".$lenSql.") as len, sum(1) as cnt
+            $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(len_mcn) as len, sum(1) as cnt
                             from calls.calls_".intval($region)."
                             where ".MySQLDatabase::Generate($W)."
                             GROUP BY dest, mob";
@@ -4019,7 +3983,34 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     }
 }
 
-
+function stats_onlime_details($fixclient)
+{
+    global $design;
+    $order_id = get_param_integer('order_id', '');
+    $data = array();
+    if ($order_id && OnlimeOrder::exists($order_id))
+    {
+        $order = OnlimeOrder::find($order_id);
+        $data = unserialize($order->order_serialize);
+        if (isset($data['id']))
+        {
+            $data['id'] = $order_id;
+        }
+        if (isset($data['date']))
+        {
+            $data['date'] = strtotime($data['date']);
+        }
+        if (isset($data['delivery']['date']))
+        {
+            $data['delivery']['date'] = strtotime($data['delivery']['date']);
+        }
+    }
+    $design->assign('data', $data);
+    $design->ProcessEx('errors.tpl');
+    $design->ProcessEx('stats/onlime_details.tpl');
+    return;
+    
+}
 private function GenerateExcel($workSheetTitle, $head, $list)
 {
     $objPHPExcel = new PHPExcel();

@@ -7,12 +7,19 @@
 		<input type="hidden" name="module" value="incomegoods"/>
 		<input type="hidden" name="action" value="order_list"/>
 		<input id="filter_status" type="hidden" name="filter[status]" value="{$qfilter.status}"/>
-		<select class="form-control input-sm" name="filter[manager]" onchange="$('#filter').submit(); return false;">
-			<option value="all">--- Фильтр по менеджеру ---</option>
+		<select class="select2" name="filter[manager]" onchange="$('#filter').submit(); return false;" style="width: 250px">
+			<option value="all">--- Менеджер ---</option>
 			{foreach from=$users item=user}
 				<option value="{$user->id}" {if $user->id==$qfilter.manager}selected{/if}>{$user->name}</option>
 			{/foreach}
 		</select>
+        &nbsp;&nbsp;
+        <select class="select2" name="filter[organization]" onchange="$('#filter').submit(); return false;" style="width: 170px">
+            <option value="all">--- Организация ---</option>
+            {foreach from=$organizations item=org}
+                <option value="{$org->id}" {if $org->id==$qfilter.organization}selected{/if}>{$org->name}</option>
+            {/foreach}
+        </select>
 	</form>
 
 	{foreach from=$statusCounter key=key item=status}

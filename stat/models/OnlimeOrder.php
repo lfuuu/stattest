@@ -10,7 +10,7 @@ class OnlimeOrder extends ActiveRecord\Model
 
     public function saveOrder($order, $error)
     {
-        if($error["status"] == "ignore" || (isset($error["possible_save"]) && !$error["possible_save"])) return null;
+        if((isset($error["status"]) && $error["status"] == "ignore") || (isset($error["possible_save"]) && !$error["possible_save"])) return null;
 
         $o = new OnlimeOrder();
         $o->external_id = $order["id"];
