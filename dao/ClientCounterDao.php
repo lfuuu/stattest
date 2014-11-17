@@ -19,6 +19,8 @@ class ClientCounterDao extends Singleton
             $counter = new ClientCounter();
             $counter->client_id = $clientAccountId;
             $counter->save();
+
+            $counter = ClientCounter::findOne($clientAccountId);
         }
 
         return $counter;
