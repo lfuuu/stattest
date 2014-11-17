@@ -35,6 +35,11 @@
     		<td>по </td>
     		<td><input class="datepicker-input" type=text value="{$date_to}"  id=date_to name=date_to></td>
     		<td><input type=submit value="OK"></td>
+                <td style="width: 100px;">&nbsp;</td>
+                <td>
+                    <input type="text" value="" id="order_id">
+                    <input type=button value="Проверить заказ" onclick="show_order_info();return false;">
+                </td>
     	</tr>
         <tr>
             <td colspan=5>Показать: {html_options options=$filter_promo_all selected=$filter_promo name="filter_promo"}</td>
@@ -130,3 +135,21 @@ $("div.to_view").click(function(e){
 {/literal}
 </script>
 {/if}
+<div id="order_details" title="Подробная информация" style="display: none;"></div>
+<script>
+{literal}
+    function show_order_info()
+    {
+        $('a.ui-dialog-titlebar-close').click();
+        $("#order_details").html('');
+        $("#order_details").dialog(
+        {
+            width: 850,
+            height: 400,
+            open: function(){
+                $(this).load('./index_lite.php?module=stats&action=onlime_details&order_id=' + $('#order_id').val());
+            }
+        });
+    }
+{/literal}
+</script>

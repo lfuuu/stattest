@@ -4019,7 +4019,34 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
     }
 }
 
-
+function stats_onlime_details($fixclient)
+{
+    global $design;
+    $order_id = get_param_integer('order_id', '');
+    $data = array();
+    if ($order_id && OnlimeOrder::exists($order_id))
+    {
+        $order = OnlimeOrder::find($order_id);
+        $data = unserialize($order->order_serialize);
+        if (isset($data['id']))
+        {
+            $data['id'] = $order_id;
+        }
+        if (isset($data['date']))
+        {
+            $data['date'] = strtotime($data['date']);
+        }
+        if (isset($data['delivery']['date']))
+        {
+            $data['delivery']['date'] = strtotime($data['delivery']['date']);
+        }
+    }
+    $design->assign('data', $data);
+    $design->ProcessEx('errors.tpl');
+    $design->ProcessEx('stats/onlime_details.tpl');
+    return;
+    
+}
 private function GenerateExcel($workSheetTitle, $head, $list)
 {
     $objPHPExcel = new PHPExcel();
