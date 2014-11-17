@@ -1,4 +1,6 @@
 <?php
+
+define("NO_WEB", 1);
 define('QUERY_PACKET_SIZE_LIMIT', (1024*1024)*15 ); //15Мб
 define('PATH_TO_ROOT','../../');
 include PATH_TO_ROOT."conf_yii.php";

@@ -1,6 +1,7 @@
 <?
 	//для просмотра клиентами того, что было отправлено через модуль mail
 
+    header('Content-Type: text/html; charset=utf-8');
 	define("PATH_TO_ROOT",'../stat/');
 	include PATH_TO_ROOT."conf_yii.php";
 	$o = MailJob::GetObjectP();
@@ -18,7 +19,6 @@
 
 		$design->assign('emailed',1);
 		$_GET = $R; $module_newaccounts->newaccounts_bill_print('');
-		header('Content-Type: text/html; charset=utf-8');
 		$design->Process();
 	}
 ?>
