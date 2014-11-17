@@ -39,9 +39,8 @@ use yii\db\ActiveRecord;
  * @property int    $is_user_prepay ??
  * @property string $bill_no_ext        ??
  * @property string $bill_no_ext_date   ??
- * @property string $sum_without_tax    сумма без налогов
- * @property string $sum_tax            сумма налогов
- * @property string $sum_with_tax       сумма с налогами
+ * @property string $sum_with_tax       сумма с налогами. не включает задаток
+ * @property string $sum_total          итоговая сумма, влияющая на баланс. не включает задаток и не проведенные строки
  * @property
  */
 class Bill extends ActiveRecord

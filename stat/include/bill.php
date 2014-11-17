@@ -139,28 +139,28 @@ class Bill{
         $sumTax = round($sumWithoutTax * $taxType->rate, 2);
         $sumWithTax = $sumWithoutTax + $sumTax;
 
-		$lpk = $db->QueryInsert(
-			"newbill_lines",
-			array(
-				"bill_no"=>$this->bill_no,
-				"sort"=>$this->max_sort,
-				"item"=>$title,
-				"amount"=>$amount,
-				"price"=>$price,
+        $lpk = $db->QueryInsert(
+            "newbill_lines",
+            array(
+                "bill_no"=>$this->bill_no,
+                "sort"=>$this->max_sort,
+                "item"=>$title,
+                "amount"=>$amount,
+                "price"=>$price,
                 "sum" => $sumWithTax,
-				"type"=>$type,
-				"service"=>$service,
-				"id_service"=>$id_service,
-				'date_from'=>$date_from,
-				'date_to'=>$date_to,
-				'all4net_price'=>$all4net_price,
+                "type"=>$type,
+                "service"=>$service,
+                "id_service"=>$id_service,
+                'date_from'=>$date_from,
+                'date_to'=>$date_to,
+                'all4net_price'=>$all4net_price,
                 'is_price_includes_tax' => 0,
                 'tax_type_id' => $taxTypeId,
                 'sum_without_tax' => $sumWithoutTax,
                 'sum_tax' => $sumTax,
                 'sum_with_tax' => $sumWithTax,
-			)
-		,1);
+            )
+        ,1);
 		if($overprice && count($overprice)){
 			foreach($overprice as $v){
 				$v['bill_line_pk'] = $lpk;
@@ -292,7 +292,6 @@ class Bill{
 			Bill::RemoveBill($this->bill_no);
 			return 2;
 		} else {
-            Yii::error($r);
 			if($this->bill['sum'] != $r['sum']) {
 				$this->bill['sum'] = $r['sum'];
 				$db->QueryInsert("log_newbills",array(
@@ -302,8 +301,6 @@ class Bill{
                     'comment'=>($this->_comment?$this->_comment:'Сумма: '.$this->bill['sum'])));
 			}
             $this->bill['sum_total'] = $r['sum'];
-            $this->bill['sum_without_tax'] = $r['sum_without_tax'];
-            $this->bill['sum_tax'] = $r['sum_tax'];
             $this->bill['sum_with_tax'] = $r['sum_with_tax'];
 			if(!$this->bill['cleared_flag']){
 				$this->bill['cleared_sum'] = $this->bill['sum'];
@@ -311,7 +308,6 @@ class Bill{
 			}
 			$bSave = $this->bill;
 			unset($bSave["doc_ts"]);
-            Yii::error($bSave);
 			$db->QueryUpdate("newbills","bill_no",$bSave);
                         $this->bill_ts = unix_timestamp($this->Get('bill_date'));
 			$this->updateBill2Doctypes(null, false);
@@ -682,8 +678,6 @@ class Bill{
                         count(*) as lines_count,
                         sum(round(' . (1 + $taxType->rate) . ' * price * amount, 2)) as sum_with_zadatok,
                         sum(round(' . (1 + $taxType->rate) . ' * price * amount * IF(type="zadatok",0,1),2)) as sum,
-                        sum(sum_without_tax * IF(type="zadatok",0,1)) as sum_without_tax,
-                        sum(sum_tax * IF(type="zadatok",0,1)) as sum_tax,
                         sum(sum_with_tax * IF(type="zadatok",0,1)) as sum_with_tax
                 from newbill_lines where bill_no="'.$this->bill_no.'"');
 
@@ -692,8 +686,6 @@ class Bill{
                 'lines_count' => 0,
                 'sum_with_zadatok' => 0,
                 'sum' => 0,
-                'sum_without_tax' => 0,
-                'sum_tax' => 0,
                 'sum_with_tax' => 0,
             ];
         }

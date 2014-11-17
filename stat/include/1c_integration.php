@@ -1051,6 +1051,8 @@ class SoapHandler{
                         client_id = (select id from clients where client='".addcslashes($client, "\\'")."'),
                         currency = '".(($currency=='RUR')?'RUR':'USD')."',
                         `sum` = '".addcslashes($sum, "\\'")."',
+                        `sum_with_tax` = '".addcslashes($sum, "\\'")."',
+                        `sum_total` = '".addcslashes($sum, "\\'")."',
                         comment = '".addcslashes($comment, "\\'")."',
                         sync_1c = 'yes',
                         `state_1c` = '".addcslashes($state_1c, "\\'")."',
@@ -1064,7 +1066,7 @@ class SoapHandler{
 
 
         $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
-                                        "sum_without_tax, sum_tax, sum_with_tax) values";
+                                        "is_price_includes_tax, tax_type_id, sum_without_tax, sum_tax, sum_with_tax) values";
 
         $qSerials = "";
 
@@ -1086,10 +1088,11 @@ class SoapHandler{
                 "'".$item["sum"]."',".
                 "'".$item["dispatch"]."',".
                 "'".$item["gtd"]."',".
-                "'".$item["country_id"]."',".
-                "'".$item["country_id"]."',".
-                "'".$item["country_id"]."',".
-                "'".$item["country_id"]."',".
+                "'".$item["is_price_includes_tax"]."',".
+                "'".$item["tax_type_id"]."',".
+                "'".$item["sum_without_tax"]."',".
+                "'".$item["sum_tax"]."',".
+                "'".$item["sum_with_tax"]."',".
                 "),";
 
             if($item["serial"]) {
