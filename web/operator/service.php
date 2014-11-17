@@ -3,6 +3,9 @@ define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
 header("Content-Type: text/html; charset=UTF-8");
 include PATH_TO_ROOT."conf_yii.php";
+
+$db->Connect();
+
 class UserService
 {
 	function Get($field)
@@ -26,7 +29,7 @@ if ($action=='add_client') {
 		die("error: ��� �������� �� ������!");
 	}
 
-    $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_real_escape_string($P["company"])."'");
+    $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_real_escape_string($P["company"], $db->_LinkId)."'");
     $cid2 = $db->GetValue(
         "SELECT 
             client_id 
