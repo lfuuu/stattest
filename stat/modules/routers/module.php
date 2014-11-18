@@ -502,8 +502,8 @@ class m_routers {
                     'data'            => $R,
                     'depositUSD'    => $model['default_deposit_sumUSD'],
                     'depositRUR'    => $model['default_deposit_sumRUR'],
-                    );
-        if (isset($design)) $design->ProcessEx('errors.tpl');
+                );
+        exit();
     }
 
     function routers_d_act($fixclient)    {
@@ -631,7 +631,7 @@ class m_routers {
             'data'=> $res
         );
 
-        $design->ProcessEx('errors.tpl');
+        exit();
     }
 
     function routers_datacenter_list($fixclient){
