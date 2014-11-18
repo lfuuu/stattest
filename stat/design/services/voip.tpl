@@ -65,7 +65,7 @@
 		{if strpos($item.tarif.dest_group, '3') === false}
 		/ СНГ {$item.tarif.tarif_sng_name} {if $item.tarif.minpayment_sng > 0}({$item.tarif.minpayment_sng}){/if}
 		{/if}
-		{if $item.permit}<br><span style="font-size: 7pt;">{$item.permit}</span>{/if}</td>
+		{if isset($item.permit)}<br><span style="font-size: 7pt;">{$item.permit}</span>{/if}</td>
         <td style="font-size: 8pt;">{$allowed_direction[$item.allowed_direction]}</td>
 </tr>
 

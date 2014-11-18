@@ -209,7 +209,7 @@ function togglecs() {
 <input style='width:100%' type=hidden name=module value=clients>
 <input style='width:100%' type=hidden name=action value=restatus>
 <input style='width:100%' type=hidden name=id value='{$client.id}'>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2><TD class=left>Статус:</TD><TD><SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}'{$item.selected}>{$item.name}</option>{/foreach}</select></TD></TR>
+<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2><TD class=left>Статус:</TD><TD><SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select></TD></TR>
 <TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4><TD class=left>Комментарий:</TD><TD><textarea style='width:100%;height:100px' name=comment class=text></textarea></TD></TR>
 <TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3><TD class=left style='border-bottom:1 solid red'>&nbsp;</TD><TD style='border-bottom:1 solid red'><input class=text value='Изменить' type=submit></TD></TR>
 </form>
@@ -238,7 +238,7 @@ function togglecs() {
 </TD></TR>
 {/if}
 
-{if count($contact.sms)}
+{if isset($contact.sms) && count($contact.sms)}
 <TR><TD class=left>СМС:</TD><TD colspan=2>{foreach from=$contact.sms item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
 <span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
 {/foreach}
