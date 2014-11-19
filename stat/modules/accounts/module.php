@@ -1,4 +1,5 @@
 <?php
+die('This function marked for deleting');
 
 function month2days($period)
 {

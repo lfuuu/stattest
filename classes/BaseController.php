@@ -1,11 +1,14 @@
 <?php
 namespace app\classes;
 
+use app\models\Bill;
 use Yii;
 use yii\filters\AccessControl;
+use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use app\models\Module;
 use app\models\Region;
+use yii\web\NotFoundHttpException;
 
 class BaseController extends Controller
 {
@@ -65,6 +68,27 @@ class BaseController extends Controller
             'module' => Yii::$app->request->get('module', 'clients'),
             'client_subj' => Yii::$app->request->get('subj', ''),
         ];
+    }
+
+    /**
+     * @param $id
+     * @return Bill
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
+     */
+    public function getBillOr404($id)
+    {
+        if (!$id) {
+            throw new BadRequestHttpException();
+        }
+
+        $result = Bill::findOne($id);
+
+        if ($result === null) {
+            throw new NotFoundHttpException();
+        }
+
+        return $result;
     }
 
     private function getSearchDataFilter()

@@ -1,4 +1,5 @@
 <?php
+die('This function marked for deleting');
 error_reporting(E_ALL);
 	
 	define("PATH_TO_ROOT",'../../');

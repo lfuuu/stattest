@@ -1,6 +1,3 @@
-<?php
-use \yii\helpers\Html;
-?>
 <?php if (Yii::$app->session->hasFlash('error')): ?>
     <?php foreach(Yii::$app->session->getFlash('error') as $message): ?>
         <div style="color:#ff0000; font-weight: bold"><?= $message ?></div>

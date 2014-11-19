@@ -14,6 +14,8 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 </style>
 </head>
 <?php
+die('This function marked for deleting');
+
     error_reporting(E_ALL);
     set_magic_quotes_runtime(0);
     include  "../../include_archaic/lib.php";

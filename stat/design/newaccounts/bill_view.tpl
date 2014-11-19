@@ -1,4 +1,3 @@
-<H3 style='font-size:110%;margin: 0px'>
 <table border=0 width=100%>
 	<tr>
 		<td colspan="1">
@@ -207,15 +206,15 @@
 {*<input type=checkbox value=1 name="bill-1-RUR" id=cb4><label for=cb4>Счет в RUR</label><br>*}
 <input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if $client.mail_print =="no"} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
 
-<input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1)</label><br>
-<input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2)</label><br>
-<input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3] || $deinv3} style='color:#C0C0C0'{/if}>Счёт-фактура (3)</label><br>
-<input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4)</label><br>
+<input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1 абонентка)</label><br>
+<input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2 превышение)</label><br>
+<input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3] || $deinv3} style='color:#C0C0C0'{/if}>Счёт-фактура (3 оборудование)</label><br>
+<input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4 аванс)</label><br>
 <input type=checkbox value=1 name="invoice-5" id=cb10><label for=cb10{if !$bill_invoices[6]} style='color:#C0C0C0'{/if}>Счёт-фактура (5)</label><br>
 
-<input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1)</label><br>
-<input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2)</label><br>
-<input type=checkbox value=1 name="upd-3" id="updt"><label for="updt"{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>УПД (T)</label><br>
+<input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1 абонентка)</label><br>
+<input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2 превышение)</label><br>
+<input type=checkbox value=1 name="upd-3" id="updt"><label for="updt"{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>УПД (Т оборудование)</label><br>
 
 Действие: <select name=action id="action">
 <option value="bill_mprint">печать</option>
@@ -230,9 +229,9 @@ PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 
 </td><td valign=top style='border-width:1 1 1 0; border-style:solid;border-color:#808080'>
 
-<input type=checkbox value=1 name="akt-1" id=cb8><label for=cb8{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Акт (1)</label><br>
-<input type=checkbox value=1 name="akt-2" id=cb9><label for=cb9{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Акт (2)</label><br>
-<input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3)</label><br>
+<input type=checkbox value=1 name="akt-1" id=cb8><label for=cb8{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Акт (1 абонентка)</label><br>
+<input type=checkbox value=1 name="akt-2" id=cb9><label for=cb9{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Акт (2 превышение)</label><br>
+<input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3 оборудование)</label><br>
 <input type=checkbox value=1 name="lading" id=cbb><label for=cbb{if !$bill_invoices[4]} style='color:#C0C0C0'{/if}>Накладная</label><br>
 <input type="checkbox" value="1" name="gds" id="gds" /><label for=gds{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек</label><br>
 <input type="checkbox" value="1" name="gds-serial" id="gds_serial" /><label for=gds_serial{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек (с серийными номерами)</label><br>
@@ -254,7 +253,9 @@ PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
 <a href='{$LINK_START}module=newaccounts&action=bill_postreg&bill={$bill.bill_no}'>зарегистрировать</a><br>
 <a href='{$LINK_START}module=newaccounts&action=bill_postreg&option=1&bill={$bill.bill_no}'>удалить</a><br>
 <br><br>
-Счёт-фактура (2): {if $bill.inv2to1==1}<a href='{$LINK_START}module=newaccounts&action=bill_generate&obj=inv2to1&bill={$bill.bill_no}&inv2to1=0'>как обычно</a>{else}как обычно{/if} / {if $bill.inv2to1==0}<a href='{$LINK_START}module=newaccounts&action=bill_generate&obj=inv2to1&bill={$bill.bill_no}&inv2to1=1'>по дате первой</a>{else}по дате первой{/if}<br>
+Счёт-фактура (2):
+            {if $bill.inv2to1==1}<a href='/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=0'>как обычно</a>{else}как обычно{/if} /
+            {if $bill.inv2to1==0}<a href='/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=1'>по дате первой</a>{else}по дате первой{/if}<br>
 </td></tr></table>
 
 </form>
@@ -294,49 +295,44 @@ function doFormSend()
 </td><td style='padding-top:0px;border:0 solid #808080;border-left-width:1' valign=top>
 <h3>Формирование:</h3><br>
 По сумме:<br>
-<form style='display:inline' name=formgen id=formgen>
-<input type=hidden name=module value=newaccounts>
-<input type=hidden name=action value=bill_generate>
-<input type=hidden name=bill value="{$bill.bill_no}">
-<input type=hidden name=type value=vsum>
-<input type=hidden id=obj name=obj value=''>
-<input type=text name=sum class=text value='{$bgen_psum[0]}'>
-<input type=button class=button value='Счёт-фактура и акт (1,2,3)' onclick="formgen['obj'].value='invoice'; formgen.submit(); ">
-<input type=button class=button value='Счет' onclick="formgen['obj'].value='bill'; formgen.submit(); ">
-</form><br>
+        <form action="/bill/bill/set-invoice-sum-rub" method="post" style='display:inline'>
+            <input type=hidden name=billId value="{$bill.id}">
+            <input type=text name=sumRub class=text value='{$bgen_psum}'>
+            <input type=submit class=button value='Счёт-фактура и акт (1,2,3)'>
+            <em>сумма всех платежей в рублях</em>
+        </form><br>
+        <form action="/bill/bill/set-bill-sum-rub" method="post" style='display:inline'>
+            <input type=hidden name=billId value="{$bill.id}">
+            <input type=text name=sumRub class=text value='{$bgen_psum}'>
+            <input type=submit class=button value='Счет'>
+            <em>сумма всех платежей в рублях</em>
+        </form><br>
 <br>
 По курсу:<br>
-<form style='display:inline'><input type=hidden name=module value=newaccounts><input type=hidden name=action value=bill_generate>
-<input type=hidden name=type value=rate>
-<input type=hidden name=bill value="{$bill.bill_no}">
-<input type=hidden name=obj value='invoice'>
-<input type=hidden name=inv_num value='1'>
-<input type=text name=rate class=text value='{$bgen_rate.0[1]}'>
-<input type=submit class=button value='Счёт-фактура и акт (1)'>
-</form><br>
-<form style='display:inline'><input type=hidden name=module value=newaccounts><input type=hidden name=action value=bill_generate>
-<input type=hidden name=type value=rate>
-<input type=hidden name=bill value="{$bill.bill_no}">
-<input type=hidden name=obj value='invoice'>
-<input type=hidden name=inv_num value='2'>
-<input type=text name=rate class=text value='{$bgen_rate.1[1]}'>
-<input type=submit class=button value='Счёт-фактура и акт (2)'>
-</form><br>
-<form style='display:inline'><input type=hidden name=module value=newaccounts><input type=hidden name=action value=bill_generate>
-<input type=hidden name=type value=rate>
-<input type=hidden name=bill value="{$bill.bill_no}">
-<input type=hidden name=obj value='invoice'>
-<input type=hidden name=inv_num value='3'>
-<input type=text name=rate class=text value='{$bgen_rate.2[1]}'>
-<input type=submit class=button value='Счёт-фактура и акт (3)'>
-</form><br>
-<form style='display:inline'><input type=hidden name=module value=newaccounts><input type=hidden name=action value=bill_generate>
-<input type=hidden name=type value=rate>
-<input type=hidden name=bill value="{$bill.bill_no}">
-<input type=hidden name=obj value='bill'>
-<input type=text name=rate class=text value='{$bgen_rate.3[1]}'>
-<input type=submit class=button value='Счет'>
-</form><br>
+        <form action="/bill/bill/set-invoice1-rate" method="post" style="display:inline">
+            <input type=hidden name=billId value="{$bill.id}">
+            <input type=text name=rate class=text value='{$bgen_rate.invoice1}'>
+            <input type=submit class=button value='Счёт-фактура и акт (1)'>
+            <em>курс на конец месяца</em>
+        </form><br>
+        <form action="/bill/bill/set-invoice2-rate" method="post" style="display:inline">
+            <input type=hidden name=billId value="{$bill.id}">
+            <input type=text name=rate class=text value='{$bgen_rate.invoice2}'>
+            <input type=submit class=button value='Счёт-фактура и акт (2)'>
+            <em>курс на конец предыдущего месяца</em>
+        </form><br>
+        <form action="/bill/bill/set-invoice3-rate" method="post" style="display:inline">
+            <input type=hidden name=billId value="{$bill.id}">
+            <input type=text name=rate class=text value='{$bgen_rate.invoice3}'>
+            <input type=submit class=button value='Счёт-фактура и акт (3)'>
+            <em>курс на дату счета</em>
+        </form><br>
+        <form action="/bill/bill/set-bill-rate" method="post" style="display:inline">
+            <input type=hidden name=billId value="{$bill.id}">
+            <input type=text name=rate class=text value='{$bgen_rate.bill}'>
+            <input type=submit class=button value='Счет'>
+            <em>курс на дату счета</em>
+        </form><br>
 </td></tr></table>
 {/if}
 

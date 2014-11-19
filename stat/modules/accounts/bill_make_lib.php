@@ -1,4 +1,5 @@
 <?php
+die('This function marked for deleting');
 function printdbg1($param,$s=''){
  //     echo "<br><pre>$s=";print_r($param);echo "</pre><br>";
 

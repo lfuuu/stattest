@@ -91,7 +91,7 @@ class CompatibilityController extends BaseController
         if ($renderLayout && ($layoutFile = $this->findLayoutFile($this->getView())) !== false) {
             return $this->getView()->renderFile($layoutFile, ['content' => $preOutput . $output], $this);
         } else {
-            return $preOutput . $output;
+            return $preOutput . $this->renderPartial('/layouts/widgets/messages') . $output;
         }
     }
 }

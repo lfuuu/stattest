@@ -22,7 +22,7 @@
 {foreach from=$cpe item=r}
 		 <li>{if $r.type && $r.vendor}{$r.type|upper}-модем {$r.vendor} {/if}{if $r.model eq 'Залог за модем'}Модем{else}{$r.model}{/if}{if $r.serial}, серийный номер {$r.serial|upper}{/if}, {$r.amount} шт.</li>
 {/foreach}
-	 </ul><p>Получен залог в сумме {$bill.tsum|round:2} рублей</p>
+	 </ul><p>Получен залог в сумме {$bill.tsum|round:2} | {$bill.sum_with_tax|round:2} рублей</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>

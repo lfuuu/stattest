@@ -24,6 +24,8 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt; background-colo
 </head>
 <body onunload="javascript: opener.location.reload(); ">
 <?php
+die('This function marked for deleting');
+
     set_magic_quotes_runtime(0);
     require "../../include_archaic/lib.php";
 

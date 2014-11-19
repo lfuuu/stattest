@@ -1,4 +1,5 @@
 <?php
+die('This function marked for deleting');
 $customer=get_param_protected('clients_client','');
 $query="SELECT clients.company, bill_bills.bill_no as bill_no, 
 	bill_bills.must_pay as must_pay,

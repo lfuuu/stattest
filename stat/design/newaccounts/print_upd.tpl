@@ -369,12 +369,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
             {if $is_four_order}
                 --
             {else}
-                {if $bill_client.nds_calc_method != 1}
-                    {$row.sum|mround:2:2}
-                {else}
-                    {$row.sum|mround:2:2}
-                {/if}
-                    
+                {$row.sum|mround:2:2} | {$row.sum_without_tax|round:2}
             {/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' nowrap>
@@ -393,15 +388,18 @@ padding:0cm 2.4pt 0cm 2.4pt;
                 {else}
                     {$row.tsum/1.18*0.18|round:2}
                 {/if}
-            {/if}</span></p>
+            {/if}
+                    |
+            {if $row.sum_tax == 0 && $row.line_nds == 0}
+                --
+            {else}
+                {$row.sum_tax|round:2}
+            {/if}
+                </span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>
-            {if $bill_client.nds_calc_method != 1}
-                {$row.tsum|round:2}
-            {else}
-                {$row.tsum|round:2}
-            {/if}</span></p>
+            {$row.tsum|round:2} | {$row.sum_with_tax|round:2}
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>{if $row.country_id == 0}--{else}{$row.country_id}{/if}</span></p>
@@ -422,7 +420,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><b><span>Всего к оплате</span></b></p>
 		</td>
 		<td valign=bottom style='border:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum|round:2}{/if}</span></p>
+			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum|round:2} | {$bill.sum_without_tax|round:2}{/if}</span></p>
 		</td>
 		<td colspan=2 valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span><b>Х</b></span></p>
@@ -437,10 +435,17 @@ padding:0cm 2.4pt 0cm 2.4pt;
                 {else}
                     {$bill.tsum/1.18*0.18|round:2}
                 {/if}
-            {/if}</span></p>
+            {/if}
+                    |
+            {if $bill.sum_tax == 0 && $bill.sum_with_tax}
+                --
+            {else}
+                {$bill.sum_tax|round:2}
+            {/if}
+                </span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>{$bill.tsum|round:2}</span></p>
+			<p  align=right style='text-align:right'><span>{$bill.tsum|round:2} | {$bill.sum_with_tax|round:2}</span></p>
 		</td>
 		<td colspan="3" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>

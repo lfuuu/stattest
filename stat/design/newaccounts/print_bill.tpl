@@ -218,9 +218,9 @@ www.mcntelecom.ru
 		<td align="center">{$line.amount|mround:4:6}</td>
         <td align="center">{if $line.okvd_code}{$line.okvd_code|okei_name}{else}{if $line.type == "service"}-{else}шт.{/if}{/if}</td>
         <td align="center">{$line.outprice|round:4}</td>
-        <td align="center">{$line.sum|round:2}</td>
-        <td align="center">{if $bill_client.nds_zero || $line.line_nds == 0}без НДС{else}{$line.tax|round:2}{/if}</td>
-        <td align="center">{$line.tsum|round:2}</td>
+        <td align="center">{$line.sum|round:2} | {$line.sum_without_tax|round:2}</td>
+        <td align="center">{if $bill_client.nds_zero || $line.line_nds == 0}без НДС{else}{$line.tax|round:2} | {$line.sum_tax|round:2}{/if}</td>
+        <td align="center">{$line.tsum|round:2} | {$line.sum_with_tax|round:2}</td>
         {if $isDiscount}
             <td align="center">{$discount|round:2}</td>
         {assign var=line_sum value=`$line.tsum-$discount`}
@@ -232,10 +232,10 @@ www.mcntelecom.ru
 <tr>
     <td colspan="5">
 	<p align="right"><b>Итого:</b></p></td>
-	<td align="center">{$bill.sum|round:2}</td>
+	<td align="center">{$bill.sum|round:2} | {$bill.sum_without_tax|round:2}</td>
     <td align="center">
         {if !$isDiscount}
-            {if $bill_client.nds_zero}без НДС{else}{if $bill.sum == $bill.tsum}0.00{else}{$bill.tax|round:2}{/if}{/if}
+            {if $bill_client.nds_zero}без НДС{else}{if $bill.sum == $bill.tsum}0.00{else}{$bill.tax|round:2}{/if}{/if} | {$bill.sum_tax|round:2}
         {else}
             &nbsp;
         {/if}
@@ -244,16 +244,16 @@ www.mcntelecom.ru
             <td align="center">&nbsp;</td>
             <td align="center">{$isDiscount|round:2}</td>
         {/if}
-    <td align="center">{$bill.tsum-$isDiscount|round:2}</td>
+    <td align="center">{$bill.tsum-$isDiscount|round:2} | {$bill.sum_with_tax|round:2}</td>
 </tr>
 
 </tbody></table>
 <br>
 {if $curr=='USD'}
-<p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'USD'}</i></p>
+<p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'USD'} | {$bill.sum_with_tax|wordify:'USD'}</i></p>
 <p style="font-size:11px">Оплата производится в рублях по курсу ЦБ РФ на день платежа плюс {if $bill_client.usd_rate_percent}{$bill_client.usd_rate_percent}{else}0{/if}%</p>
 {else}
-<p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'RUR'}</i></p>
+<p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'RUR'} | {$bill.sum_with_tax|wordify:'RUR'}</i></p>
 {/if}
 
 <table border="0" align=center cellspacing="1" cellpadding="0"><tbody>

@@ -136,7 +136,7 @@ class m_clients {
 		$_RESULT=array(
 					'data'		=> $design->fetch('clients/as_search.tpl'),
 					);
-		$design->ProcessEx('errors.tpl');
+        exit;
 	}
 
 	function clients_my($fixclient) {

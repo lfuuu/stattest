@@ -70,7 +70,8 @@
 		Сальдо на {$item.date|mdate:"d.m.Y"}
 {elseif $item.type=='inv'}
 	{if $item.inv_num == 3}
-		Акт передачи оборудования под залог{else}
+		Акт передачи оборудования под залог
+    {else}
 		{if $item.inv_num!=4}
 			Акт
 		{else}

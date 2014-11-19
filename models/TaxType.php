@@ -1,18 +1,36 @@
 <?php
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use yii\base\Exception;
 
-/**
- * @property int    $id             идентификатор налога (0, 10, 18, 10110, 18118)
- * @property string $name           текстовое представление для отчетов
- * @property string $rate           коэффициект на который нужно умножить чтобы получить сумму налога
- * @property
- */
-class TaxType extends ActiveRecord
+class TaxType
 {
-    public static function tableName()
+    private static $types = [
+        '0'     => ['name' => 'Без НДС',    'rate' => 0             ],
+        '18'    => ['name' => '18%',        'rate' => 0.18          ],
+        '18118' => ['name' => '18%/118%',   'rate' => 0.15254237    ],
+        '10'    => ['name' => '10%',        'rate' => 0.10          ],
+        '10110' => ['name' => '10%/110%',   'rate' => 0.09090909    ],
+    ];
+
+    public static function rate($id)
     {
-        return 'tax_type';
+        $id = (string) $id;
+        if (!isset(self::$types[$id])) {
+            throw new Exception('Не известный идентификатор налога "' . $id . '"');
+        }
+
+        return self::$types[$id]['rate'];
     }
+
+    public static function name($id)
+    {
+        $id = (string) $id;
+        if (!isset(self::$types[$id])) {
+            throw new Exception('Не известный идентификатор налога "' . $id . '"');
+        }
+
+        return self::$types[$id]['name'];
+    }
+
 }

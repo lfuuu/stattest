@@ -1,4 +1,6 @@
 <?php
+die('This function marked for deleting');
+
 	define("PATH_TO_ROOT",'../../');
 	include "../../conf.php";
 	include INCLUDE_ARCHAIC_PATH."lib.php";

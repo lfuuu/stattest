@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\dao\BillDao;
 use yii\db\ActiveRecord;
 
 /**
@@ -39,8 +40,8 @@ use yii\db\ActiveRecord;
  * @property int    $is_user_prepay ??
  * @property string $bill_no_ext        ??
  * @property string $bill_no_ext_date   ??
- * @property string $sum_with_tax       сумма с налогами. не включает задаток
- * @property string $sum_total          итоговая сумма, влияющая на баланс. не включает задаток и не проведенные строки
+ * @property string $sum_total      итоговая сумма, влияющая на баланс. не включает задаток. не включает не проведенные строки
+ * @property string $sum_total_with_unapproved  итоговая сумма. не включает задаток. включает не проведенный строки
  * @property
  */
 class Bill extends ActiveRecord
@@ -49,4 +50,67 @@ class Bill extends ActiveRecord
     {
         return 'newbills';
     }
+
+    public static function dao()
+    {
+        return BillDao::me();
+    }
+
+    public function getLines()
+    {
+        return $this->hasMany(BillLine::className(), ['bill_no' => 'bill_no']);
+    }
+
+    public function setRateForInvoice1($rate)
+    {
+        $this->inv_rur = null;
+        $this->inv1_rate = $rate;
+        $this->inv1_date = date('Y-m-d');
+        return $this;
+    }
+
+    public function setRateForInvoice2($rate)
+    {
+        $this->inv_rur = null;
+        $this->inv2_rate = $rate;
+        $this->inv2_date = date('Y-m-d');
+        return $this;
+    }
+
+    public function setRateForInvoice3($rate)
+    {
+        $this->inv_rur = null;
+        $this->inv3_rate = $rate;
+        $this->inv3_date = date('Y-m-d');
+        return $this;
+    }
+
+    public function setRateForBill($rate)
+    {
+        $this->gen_bill_rur = null;
+        $this->gen_bill_rate = $rate;
+        $this->gen_bill_date = date('Y-m-d');
+        return $this;
+    }
+
+    public function setSumRubForInvoice($sumRub)
+    {
+        $this->inv_rur = round($sumRub, 2);
+        $this->inv1_date = date('Y-m-d');
+        $this->inv2_date = date('Y-m-d');
+        $this->inv3_date = date('Y-m-d');
+        $this->inv1_rate = null;
+        $this->inv2_rate = null;
+        $this->inv3_rate = null;
+        return $this;
+    }
+
+    public function setSumRubForBill($sumRub)
+    {
+        $this->gen_bill_rur = $sumRub;
+        $this->gen_bill_date = date('Y-m-d');
+        $this->gen_bill_rate = null;
+        return $this;
+    }
+
 }

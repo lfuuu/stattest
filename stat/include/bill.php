@@ -134,9 +134,8 @@ class Bill{
 		$this->changed = 1;
 
         $taxTypeId = $this->Client("nds_zero") ? 0 : 18;
-        $taxType = TaxType::findOne($taxTypeId);
         $sumWithoutTax = round($amount * $price, 2);
-        $sumTax = round($sumWithoutTax * $taxType->rate, 2);
+        $sumTax = round($sumWithoutTax * TaxType::rate($taxTypeId), 2);
         $sumWithTax = $sumWithoutTax + $sumTax;
 
         $lpk = $db->QueryInsert(
@@ -224,9 +223,8 @@ class Bill{
 		$this->changed = 1;
 
         $taxTypeId = $this->Client("nds_zero") ? 0 : 18;
-        $taxType = TaxType::findOne($taxTypeId);
         $sumWithoutTax = round($amount * $price, 2);
-        $sumTax = round($sumWithoutTax * $taxType->rate, 2);
+        $sumTax = round($sumWithoutTax * TaxType::rate($taxTypeId), 2);
         $sumWithTax = $sumWithoutTax + $sumTax;
 
         $db->QueryUpdate("newbill_lines",array('bill_no','sort'),array(
@@ -300,8 +298,6 @@ class Bill{
                     'user_id'=>(is_object($user) ? $user->Get('id') : AuthUser::getSystemUserId()),
                     'comment'=>($this->_comment?$this->_comment:'Сумма: '.$this->bill['sum'])));
 			}
-            $this->bill['sum_total'] = $r['sum'];
-            $this->bill['sum_with_tax'] = $r['sum_with_tax'];
 			if(!$this->bill['cleared_flag']){
 				$this->bill['cleared_sum'] = $this->bill['sum'];
 				$this->bill['sum'] = 0;
@@ -309,7 +305,9 @@ class Bill{
 			$bSave = $this->bill;
 			unset($bSave["doc_ts"]);
 			$db->QueryUpdate("newbills","bill_no",$bSave);
-                        $this->bill_ts = unix_timestamp($this->Get('bill_date'));
+            $bill = \app\models\Bill::findOne(['bill_no' => $this->bill_no]);
+            $bill->dao()->recalcBill($bill);
+            $this->bill_ts = unix_timestamp($this->Get('bill_date'));
 			$this->updateBill2Doctypes(null, false);
             /*
 			if(include_once(INCLUDE_PATH."1c_integration.php")){
@@ -423,40 +421,34 @@ class Bill{
 	public function refactLinesWithFourOrderFacure(&$ret){
 		global $db;
 		$ret_x = array(
-			'is_four_order'=>true,
+            'is_four_order'=>true,
 
-			'0' => '',			'bill_no' => '',
-			'1' => 1, 			'sort' => 1,
-			'2' => '', 			'item' => '',
-			'3' => 1,			'amount' => 1,
-			'4' => '',			'price' => '',
-			'5' => 'usage_ip_ports',			'service' => 'usage_ip_ports',
-			'6' => 2945,			'id_service' => 2945,
-			'7' => '',			'date_from' => '',
-			'8' => '',			'date_to' => '',
-			'9' => 'service',	'type' => 'service',
-			'10' => '',			'outprice' => '',
-			'11' => '',			'sum' => '',
-			'12' => '',			'id' => '',
-			'13' => '',			'ts_from' => '',
-			'14' => '',			'ts_to' => '',
-								'tsum'=>0,
-								'tax'=>0,
-								'country_id' => 0,
-                                'okvd_code' => 0,
-                                'okvd' => ""
-		);
-		$ret_x[2] =& $ret_x['item'];
-		$ret_x[0] =& $ret_x['bill_no'];
-		$ret_x[4] =& $ret_x['price'];
-		$ret_x[10] =& $ret_x['outprice'];
-		$ret_x[11] =& $ret_x['sum'];
-		$ret_x[7] =& $ret_x['date_from'];
-		$ret_x[8] =& $ret_x['date_to'];
-		$ret_x[12] =& $ret_x['id'];
-		$ret_x[13] =& $ret_x['ts_from'];
-		$ret_x[14] =& $ret_x['ts_to'];
-		$diff = 0;
+            'bill_no' => '',
+            'sort' => 1,
+            'item' => '',
+            'amount' => 1,
+            'price' => '',
+            'service' => 'usage_ip_ports',
+            'id_service' => 2945,
+            'date_from' => '',
+            'date_to' => '',
+            'type' => 'service',
+            'outprice' => '',
+            'sum' => '',
+            'id' => '',
+            'ts_from' => '',
+            'ts_to' => '',
+            'tsum'=>0,
+            'tax'=>0,
+            'country_id' => 0,
+            'okvd_code' => 0,
+            'okvd' => "",
+            'is_price_includes_tax' => 0,
+            'tax_type_id' => null,
+            'sum_without_tax' => 0,
+            'sum_tax' => 0,
+            'sum_with_tax' => 0,
+        );
 
 		$query = "
 			SELECT
@@ -523,8 +515,8 @@ class Bill{
 				if($pay['type'] == 'BILL'){
 					$ret_x['tsum'] += $item['outprice']*$item['amount']*1.18;
 					$ret_x['tax']  += $item['outprice']*$item['amount']*0.18;
-				}
-			}else{
+                }
+            }else{
 				if($pay['type'] == 'PAY' && $item['type']<>'zalog'){
 					$ret_x['tsum']-=$item['tsum'];
 					$ret_x['tax'] -=$item['tax'];
@@ -540,8 +532,10 @@ class Bill{
 		if($ret_x['tsum']<0)
 			$this->negative_balance = true;
 
+        $ret_x['doc_sum_with_tax'] = round($ret_x['tsum'], 2);
+        $ret_x['doc_sum_tax'] = round($ret_x['tax'], 2);
+        $ret_x['doc_sum_without_tax'] = $ret_x['sum_with_tax'] - $ret_x['sum_tax'];
 		$ret = array($ret_x);
-
 	}
 	public function refactLinesWithOrder(&$ret){
 		foreach($ret as &$item){
@@ -584,7 +578,7 @@ class Bill{
 					nl.*,
 					art,
 					round(nl.price*'.$rate.',4) as outprice,
-					if(sum is null,round(nl.price*amount*'.$rate.',4),sum/'.$nds.') as sum,
+					sum/'.$nds.' as sum,
 					sort as id,
 					UNIX_TIMESTAMP(date_from) as ts_from,
 					UNIX_TIMESTAMP(date_to) as ts_to,
@@ -609,8 +603,15 @@ class Bill{
 							WHERE 
 								id = g.unit_id
 							), "")
-					) okvd_code
-
+					) okvd_code,
+					is_price_includes_tax,
+					tax_type_id,
+					sum_without_tax,
+					sum_tax,
+					sum_with_tax,
+					doc_sum_without_tax,
+					doc_sum_tax,
+					doc_sum_with_tax
 				from
 					newbill_lines nl
 				left join 
@@ -648,10 +649,7 @@ class Bill{
 
 		if($mode !== false){
 			switch($mode){
-				case 4:{//каст для счета 4й фактуры
-					$this->refactLinesWithFourOrderFacure($ret);
-					break;
-				}case 'order':{//каст для счета
+				case 'order':{//каст для счета
 					$this->refactLinesWithOrder($ret);
 					break;
 				}
@@ -670,23 +668,20 @@ class Bill{
 		global $db;
 
         $taxTypeId = $this->Client("nds_zero") ? 0 : 18;
-        $taxType = TaxType::findOne($taxTypeId);
 
 		$result =
             $db->GetRow($q=
                 'select
                         count(*) as lines_count,
-                        sum(round(' . (1 + $taxType->rate) . ' * price * amount, 2)) as sum_with_zadatok,
-                        sum(round(' . (1 + $taxType->rate) . ' * price * amount * IF(type="zadatok",0,1),2)) as sum,
-                        sum(sum_with_tax * IF(type="zadatok",0,1)) as sum_with_tax
+                        sum(round(' . (1 + TaxType::rate($taxTypeId)) . ' * price * amount, 2)) as sum_with_zadatok,
+                        sum(round(' . (1 + TaxType::rate($taxTypeId)) . ' * price * amount * IF(type="zadatok",0,1),2)) as sum
                 from newbill_lines where bill_no="'.$this->bill_no.'"');
 
 		if (!$result) {
             $result = [
                 'lines_count' => 0,
                 'sum_with_zadatok' => 0,
-                'sum' => 0,
-                'sum_with_tax' => 0,
+                'sum' => 0
             ];
         }
         return $result;
@@ -1035,12 +1030,11 @@ class Bill{
         if ($lines_info->sum)
         {
             $taxTypeId = $nds_zero ? 0 : 18;
-            $taxType = TaxType::findOne($taxTypeId);
 
             $balance = min($lines_info->sum, $balance);
 
             $sumWithTax = -$balance;
-            $sumTax = round($sumWithTax / $taxType->rate, 2);
+            $sumTax = round($sumWithTax / TaxType::rate($taxTypeId), 2);
             $sumWithoutTax = $sumWithTax - $sumTax;
 
 

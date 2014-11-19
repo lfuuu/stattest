@@ -1,6 +1,6 @@
 <?
+die('This function marked for deleting');
 
-	
 class m_clientaccounts extends IModule{
 	private static $object;
 	function do_include() {
@@ -12,7 +12,8 @@ class m_clientaccounts extends IModule{
 		//include_once INCLUDE_PATH.'payments.php';
 	}
 	function GetMain($action,$fixclient){
-		$this->do_include();
+
+        $this->do_include();
 		if (!$action || $action=='default') $action='bill_list';
 		if (!isset($this->actions[$action])) return;
 		$act=$this->actions[$action];

@@ -1,4 +1,5 @@
 <?php
+die('This function marked for deleting');
 	define("PATH_TO_ROOT",'../../');
 	include "../../conf.php";
 

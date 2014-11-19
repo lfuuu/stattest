@@ -354,8 +354,9 @@
                 {else}
                     {$row.sum|mround:4:4}
                 {/if}
-                    
-            {/if}</td>
+                | {$row.doc_sum_without_tax|round:2}
+            {/if}
+        </td>
         <td align="center" nowrap>{if $inv_is_new4}без акциза{else}-{/if}</td>
         <td align="center">{if $row.tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</td>
         <!--td align="center">{if $row.tax == 0 && $bill.tax == 0 && $bill.sum}-{else}{$row.tax|round:4}{/if}</td-->
@@ -368,13 +369,21 @@
                 {else}
                     {$row.tsum/1.18*0.18|round:4}
                 {/if}
-            {/if}</td>
+            {/if}
+            |
+            {if $row.doc_sum_tax == 0 && $row.line_nds == 0}
+                -
+            {else}
+                {$row.doc_sum_tax|round:2}
+            {/if}
+        </td>
         <td align="center">
             {if $bill_client.nds_calc_method != 1}
                 {$row.tsum|round:2}
             {else}
                 {$row.tsum|round:4}
             {/if}
+            | {$row.doc_sum_with_tax|round:2}
             </td>
         {if $inv_is_new3}<td align="center">{if $row.country_id == 0}-{else}{$row.country_id}{/if}</td>{/if}
         <td align="center">{$row.country_name|default:"-"}</td>
@@ -384,7 +393,7 @@
      <tr>
      	{if $inv_is_new4}
      	<td colspan={if $inv_is_new3}5{else}4{/if}><b>Всего к оплате<b></td>
-     	<td align="center">{if $is_four_order}-{else}{$bill.sum|round:2}{*$bill.tsum/1.18|round:2*}{/if}</td>
+     	<td align="center">{if $is_four_order}-{else}{$bill.sum|round:2} | {$bill.doc_sum_without_tax|round:2}{/if}</td>
      	<td>&nbsp;</td>
      	<td>&nbsp;</td>
      	{else}
@@ -399,8 +408,11 @@
                 {else}
                     {$bill.tsum/1.18*0.18|round:2}
                 {/if}
-            {/if}</td>
-        <td align="center">{$bill.tsum|round:2}</td>
+            {/if}
+            |
+            {$bill.doc_sum_tax|round:2}
+        </td>
+        <td align="center">{$bill.tsum|round:2} | {$bill.doc_sum_with_tax|round:2}</td>
         <td colspan={if $inv_is_new3}3{else}2{/if}>&nbsp;</td>
       </tr>
 
@@ -408,7 +420,7 @@
     </center></div>
 <br>
 {if $inv_is_new3}
-Итого: {$bill.tsum|wordify:'RUR'}
+Итого: {$bill.tsum|wordify:'RUR'} | {$bill.doc_sum_with_tax|wordify:'RUR'}
 {/if}
     <div align="center">
     <table border="0" cellpadding="0" cellspacing="5" align="left">

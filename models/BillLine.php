@@ -30,9 +30,12 @@ use yii\db\ActiveRecord;
  * @property int    $country_id     Сумма не проведенного счета. Для проведенных счетов 0.
  * @property string $is_price_includes_tax  1 - цена включает налоги, 0 - цена указана без налогов
  * @property string $tax_type_id            идентификатор ставки налога. Ссылка на tax_type
- * @property float  $sum_without_tax        сумма без налогов
- * @property float  $sum_tax                сумма налогов
- * @property float  $sum_with_tax           сумма с налогами
+ * @property float  $sum_without_tax        сумма без налогов в валюте счета
+ * @property float  $sum_tax                сумма налогов в валюте счета
+ * @property float  $sum_with_tax           сумма с налогами в валюте счета
+ * @property float  $doc_sum_without_tax        сумма без налогов для документов (в рублях)
+ * @property float  $doc_sum_tax                сумма налогов для документов (в рублях)
+ * @property float  $doc_sum_with_tax           сумма с налогами для документов (в рублях)
  * @property
  */
 class BillLine extends ActiveRecord
@@ -41,4 +44,61 @@ class BillLine extends ActiveRecord
     {
         return 'newbill_lines';
     }
+
+    public function calcSum(Bill $bill)
+    {
+//        if ($bill->bill_date < '2014-11-01') {
+//            $this->calcSumCompatibility($bill);
+//            return;
+//        }
+
+        $this->sum_without_tax = round($this->price * $this->amount, 2);
+        $this->sum_tax = round($this->sum_without_tax * TaxType::rate($this->tax_type_id), 2);
+        $this->sum_with_tax = $this->sum_without_tax + $this->sum_tax;
+
+        $rate = $this->getRate($bill);
+
+        $this->doc_sum_without_tax = round($this->sum_without_tax * $rate, 2);
+        $this->doc_sum_tax = round($this->doc_sum_without_tax * TaxType::rate($this->tax_type_id), 2);;
+        $this->doc_sum_with_tax = $this->doc_sum_without_tax + $this->doc_sum_tax;
+    }
+
+    public function calcSumCompatibility(Bill $bill)
+    {
+        $this->sum_without_tax = round($this->price * $this->amount, 2);
+        $this->sum_tax = round($this->sum_without_tax * TaxType::rate($this->tax_type_id), 2);
+        $this->sum_with_tax = round($this->sum_without_tax + $this->sum_tax, 2);
+
+        $rate = $this->getRate($bill);
+
+        $this->doc_sum_without_tax = $this->price * $this->amount * $rate;
+        $this->doc_sum_tax = $this->doc_sum_without_tax * TaxType::rate($this->tax_type_id);
+        $this->doc_sum_with_tax = $this->doc_sum_without_tax + $this->doc_sum_tax;
+
+        $this->doc_sum_without_tax = round($this->doc_sum_without_tax, 2);
+        $this->doc_sum_tax = round($this->doc_sum_tax, 2);
+        $this->doc_sum_with_tax = round($this->doc_sum_with_tax, 2);
+    }
+
+    private function getRate(Bill $bill)
+    {
+        if ($bill->currency == 'USD') {
+            if ($this->date_from >= $bill->bill_date) {
+                if ($bill->inv1_rate) {
+                    return $bill->inv1_rate;
+                } elseif ($bill->inv_rur && $bill->sum) {
+                    return $bill->inv_rur / $bill->sum;
+                }
+            } else {
+                if ($bill->inv2_rate) {
+                    return $bill->inv2_rate;
+                } elseif ($bill->inv_rur && $bill->sum) {
+                    return $bill->inv_rur / $bill->sum;
+                }
+            }
+            return 0;
+        }
+        return 1;
+    }
+
 }
