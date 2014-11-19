@@ -73,9 +73,12 @@ $user = Yii::$app->user->identity;
     </div>
 
     <?= $this->render('widgets/left_menu', ['user' => $user]); ?>
+
+    <div style="height: 100px;"></div>
 </div>
 
 <div class="layout_main">
+    <div style="min-height: 70%">
     <div style="margin-top: 15px; margin-bottom: 40px">
         <?php if (Yii::$app->user->can('clients.read')): ?>
             <?= $this->render('widgets/search') ?>
@@ -86,9 +89,18 @@ $user = Yii::$app->user->identity;
 
     <?= $content ?>
 
-</div>
+    </div>
 
-<div style="clear: left"></div>
+    <table style="padding: 25px; margin-top: 100px" width="100%" border=0>
+        <tr>
+            <td valign=top align=left>
+                <a href="http://www.mcn.ru/"><img height=16 src="images/logo_msn_s.gif" width=58 border=0/></a><br/>
+                <span class=z10 style="color: #666666">&#0169;2013 MCN. тел. (495) 950&#8211;5678 (отдел продаж), (495) 950&#8211;5679 (техподдержка)</span>
+            </td>
+        </tr>
+    </table>
+
+</div>
 
 <?php $this->endBody() ?>
 
