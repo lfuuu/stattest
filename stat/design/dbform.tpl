@@ -1,6 +1,9 @@
 {if $dbform_h2}<h2>{$dbform_h2}</h2>{/if}
 {if $dbform_h3}<h3>{$dbform_h3}</h3>{/if}
 {assign var="use_datepicker" value="false"}
+{if !isset($hl)}
+    {assign var="hl" value=''}
+{/if}
 <FORM action="?" method=post id=dbform name=dbform>
 {foreach from=$dbform_params item=item key=key}
 <input type=hidden name={$key} value='{$item}'>

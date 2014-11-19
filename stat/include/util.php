@@ -894,7 +894,7 @@ class ClientCS {
         return $cno;
     }
 
-    public function getClientClient(&$mix)
+    public static function getClientClient(&$mix)
     {
         global $db;
         $c = $db->GetRow("select id,client from clients where '".$mix."' in (client, id) limit 1");

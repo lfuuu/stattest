@@ -178,7 +178,9 @@ $(function(){
 		<td>
 			<select name="previous_reincarnation">
 				<option value="0"></option>
+                                {if isset($all_cls) && $all_cls}
 				{foreach from=$all_cls item='c'}<option value="{$c.id}"{if $c.id==$client.previous_reincarnation} selected='selected'{/if}>{$c.client}</option>{/foreach}
+                                {/if}
 			</select>
 		</td>
 	</tr>{/if}{if access('clients','moveUsages')}<tr>
@@ -186,7 +188,9 @@ $(function(){
 		<td>
 			<select name="move_usages">
 				<option value=""></option>
+                                {if isset($all_cls) && $all_cls}
 				{foreach from=$all_cls item='c'}{if $client.client<>$c.client}<option value="{$c.id}">{$c.client}{/if}</option>{/foreach}
+                                {/if}
 			</select>
 		</td>
 	</tr>{/if}{if access('clients','new') || access('clients','moveUsages')}
@@ -232,10 +236,10 @@ $(function(){
 	<TR><TD class=left>Комментарии к платежу:</TD><TD><input style='width:100%' name=payment_comment class=text value='{$client.payment_comment}'></TD></TR>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Канал продаж:</TD><TD>{html_options name=sale_channel options=$sale_channels selected=$selected_channel}</TD></TR>
-	<TR><TD class=left>Телемаркетинг:</TD><TD><SELECT name=telemarketing><option value=''>не определено</option>{foreach from=$users_telemarketing item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
-	<TR><TD class=left>Аккаунт менеджер:</TD><TD><SELECT name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
-	<TR><TD class=left>Менеджер:</TD><TD><SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
-	<TR><TD class=left>Техподдержка:</TD><TD><SELECT name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}'{$item.selected}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
+	<TR><TD class=left>Телемаркетинг:</TD><TD><SELECT name=telemarketing><option value=''>не определено</option>{foreach from=$users_telemarketing item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
+	<TR><TD class=left>Аккаунт менеджер:</TD><TD><SELECT name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
+	<TR><TD class=left>Менеджер:</TD><TD><SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
+	<TR><TD class=left>Техподдержка:</TD><TD><SELECT name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></TD></TR>
 	<TR><TD style='visibility:hidden;font-size:4px' colspan=2>&nbsp;</TD></TR>
 	<TR><TD class=left>Банковские реквизиты:</TD><TD><input style='width:100%' name=bank_properties class=text value='{$client.bank_properties}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>
 	<TR><TD class=left>{if isset($mode_new)}<font color="blue"><b>(1) {/if}ИНН:{if isset($mode_new)}</b></font>{/if}</TD><TD><input id="cl_inn" style='width:100%' {if isset($mode_new)}onKeyUp="statlib.modules.clients.create.findByInn(event)"{/if} name=inn class=text value='{$client.inn}'{if $card_type=='addition'}readonly='readonly'{/if}></TD></TR>

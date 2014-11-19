@@ -559,7 +559,7 @@ class BillContract
 
         return "";
     }
-    public function getString($clientId, $date)
+    public static function getString($clientId, $date)
     {
         $contract = self::getLastContract($clientId, $date);
 
@@ -568,7 +568,7 @@ class BillContract
 
         return "";
     }
-    private function getLastContract($clientId, $dateTs)
+    private static function getLastContract($clientId, $dateTs)
     {
         global $db;
         return $db->GetRow("

@@ -7,11 +7,13 @@
             <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
 				{$bill_client.client}
 			</a>
-{assign var="isClosed" value="0"}{if $tt_trouble && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
+{assign var="isClosed" value="0"}{if isset($tt_trouble) && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
 {*if !$isClosed*}
-{if $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}{if $bill.is_rollback}-<b><u>возврат</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
+{if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}{if $bill.is_rollback}-<b><u>возврат</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
 
-
+{if !isset($1c_bill_flag)}
+    {assign var="1c_bill_flag" value=0}
+{/if}
 {if !$all4net_order_number && !$1c_bill_flag}
 {if !$isClosed}<a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
 <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
@@ -125,7 +127,7 @@
 <br>Склад:  <b>{$store}</b>
 {/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
-<tr class=even style='font-weight:bold'><td>&#8470;</td><td width="1%">артикул</td><td>что</td><td>период</td><td>сколько{if $cur_state && $cur_state == 17}/отгружено{/if}</td><td>цена</td><td>сумма</td>{if $bill_bonus}<td>бонус</td>{/if}<td>тип</td></tr>
+<tr class=even style='font-weight:bold'><td>&#8470;</td><td width="1%">артикул</td><td>что</td><td>период</td><td>сколько{if isset($cur_state) && $cur_state == 17}/отгружено{/if}</td><td>цена</td><td>сумма</td>{if $bill_bonus}<td>бонус</td>{/if}<td>тип</td></tr>
 {assign var="bonus_sum" value=0}
 {foreach from=$bill_lines item=item key=key name=outer}
 <tr class='{cycle values="odd,even"}'>
@@ -148,7 +150,7 @@
 {if $item.service}</a>{/if}
 </td>
 <td>{if access('newaccounts_bills','edit')}<a href='#' onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false' style='text-decoration:none;color:#333333;'>{/if}<nobr>{$item.date_from}</nobr><br><nobr>{$item.date_to}</nobr>{if access('newaccounts_bills', 'edit')}</a>{/if}</td>
-<td>{$item.amount}{if $cur_state && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
+<td>{$item.amount}{if isset($cur_state) && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
 <td align=right>{$item.price}</td>
 <td align=right>{if $item.all4net_price<>0}{$item.all4net_price*$item.amount|round:2}{else}{if $bill_client.nds_zero}{$item.sum|round:2}{else}{$item.sum*1.18|round:2}{/if}{/if}</td>
 {if $bill_bonus}<td align=right>{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>{/if}
