@@ -95,7 +95,7 @@ $user = Yii::$app->user->identity;
         <tr>
             <td valign=top align=left>
                 <a href="http://www.mcn.ru/"><img height=16 src="images/logo_msn_s.gif" width=58 border=0/></a><br/>
-                <span class=z10 style="color: #666666">&#0169;2013 MCN. тел. (495) 950&#8211;5678 (отдел продаж), (495) 950&#8211;5679 (техподдержка)</span>
+                <span class=z10 style="color: #666666">&#0169;2014 MCN. тел. (495) 105&#8211;9999 (отдел продаж), (495) 105&#8211;9995 (техподдержка)</span>
             </td>
         </tr>
     </table>
