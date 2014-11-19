@@ -3,12 +3,12 @@
 <a href='{$LINK_START}module=newaccounts&action=bill_create'>Создать счёт</a> /
 <a href='{$LINK_START}module=newaccounts&action=bill_balance'>Обновить баланс</a> <br><br>
 <span title='Клиент должен нам'>Входящее сальдо</span>: <form style='display:inline' action='?' method=post><input type=hidden name=module value=newaccounts>
-<input type=hidden name=action value=saldo><input type=text class=text style='width:70px;border:0;text-align:center' name=saldo value="{$sum_cur.saldo}"><input type=text class=text style='width:12px;border:0' readonly=1 value="{if $fixclient_data.currency=='USD'}${else}р{/if}">
+<input type=hidden name=action value=saldo><input type=text class=text style='width:70px;border:0;text-align:center' name=saldo value="{if isset($sum_cur.saldo)}{$sum_cur.saldo}{/if}"><input type=text class=text style='width:12px;border:0' readonly=1 value="{if $fixclient_data.currency=='USD'}${else}р{/if}">
  на дату <input type=text class=text style='width:85px;border:0' name=date value="{$sum_cur.ts}"><input type=submit class=button value='ok'></form> &nbsp; <a href='javascript:toggle2(document.getElementById("saldo_history"))'>&raquo;</a><br>
 <table style='display:none;margin-left:20px' class=price id=saldo_history>
 <TR><TD class=header>Дата изменения</td><TD class=header>Пользователь</td><TD class=header>Сальдо</td><TD class=header>Дата сальдо</td></TR>
 {foreach from=$saldo_history item=item}
-<TR class=even><td>{$item.edit_time}</td><td>{$item.user_name}</td><td>{$item.saldo} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts}</td></tr>
+<TR class=even><td>{$item.edit_time}</td><td>{$item.user_name}</td><td>{if isset($item.saldo)}{$item.saldo}{/if} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts}</td></tr>
 {/foreach}
 </table>
 
@@ -136,7 +136,7 @@
 	{/if}
 {/if}
 </TR>
-{if $op.switch_to_mcn }
+{if isset($op.switch_to_mcn) && $op.switch_to_mcn}
 <tr>
     <td colspan=12 style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0;font-size: 8pt; text-align: center;">Мсн Телеком</td>
 </tr>

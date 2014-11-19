@@ -2421,7 +2421,7 @@ class m_newaccounts extends IModule
                         break;
                     }
                     $content = $design->fetch('newaccounts/print_'.$obj.'.tpl');
-                    $file_name = '/tmp/' . mktime().$user->_Data['id'];
+                    $file_name = '/tmp/' . time().$user->_Data['id'];
                     $file_html = $file_name.'.html';
                     $file_pdf = $file_name.'.pdf';
 
