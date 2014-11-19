@@ -76,7 +76,7 @@ $user = Yii::$app->user->identity;
 </div>
 
 <div class="layout_main">
-    <div style="margin-top: 15px; margin-bottom: 40px">
+    <div id="top_search" style="margin-top: 15px; margin-bottom: 40px">
         <?php if (Yii::$app->user->can('clients.read')): ?>
             <?= $this->render('widgets/search') ?>
         <?php endif; ?>
