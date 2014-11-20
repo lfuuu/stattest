@@ -1565,7 +1565,7 @@ class SoapHandler{
                                                 );
                                         */
 
-                    if(!$q["id_del"])
+                    if(!isset($q["id_del"]) || !$q["id_del"])
                         $s[] = "('".$goodId."', '".$descrId."', '".$q["qty"][0]."', '".$q["qty"][1]."', '".$q["qty"][2]."','".$storeId."')";
                 }
             }
