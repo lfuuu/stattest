@@ -6141,13 +6141,10 @@ $sql .= "    order by client, bill_no";
                            "*/) as $good)
                     {
                         if(strpos($good["name"], "(Архив)")!==false) continue;
-                    if (!$pt_condition && !empty($store_info))
+                    if (!empty($store_info))
                     {
                         $add_fields = "store_id:'".addcslashes($store_info['id'],"\\'")."',".
                         "store_name:'".addcslashes($store_info['name'],"\\'")."',";
-                    } elseif (!$pt_condition) {
-                        $add_fields = "store_id:'',".
-                        "store_name:'',";
                     } else {
                         $add_fields = '';
                     }
