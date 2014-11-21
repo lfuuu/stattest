@@ -310,7 +310,7 @@ class m_incomegoods extends IModule{
         $data = array(
             'Код1С' => '',
             'Код' => $code,
-            'Страна' => $country,
+            'Страна' => str_pad($country, 3, '0', STR_PAD_LEFT),
         );
         $gtd = Sync1C::getClient()->saveGtd($data);
 
