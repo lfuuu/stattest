@@ -64,14 +64,14 @@ class BikUpdaterDBF
 	private function parseRow($d = array())
 	{
 		$res = array(
-			'bank_city'=>convert_cyr_string(trim($d['NNP']), 'm', 'k'), 
-			'bank_name'=>convert_cyr_string(trim($d['NAMEP']), 'm', 'k'), 
-			'bik'=>convert_cyr_string(trim($d['NEWNUM']), 'm', 'k'), 
-			'corr_acc'=>convert_cyr_string(trim($d['KSNP']), 'm', 'k'),
-			'date_in'=>convert_cyr_string(trim($d['DATE_IN']), 'm', 'k'),
-			'date_izm'=>convert_cyr_string(trim($d['DATE_IZM']), 'm', 'k')
+			'bank_city' => iconv("cp866", "utf-8", trim($d['NNP'])),
+			'bank_name' => iconv("cp866", "utf-8", trim($d['NAMEP'])),
+			'bik'       => iconv("cp866", "utf-8", trim($d['NEWNUM'])),
+			'corr_acc'  => iconv("cp866", "utf-8", trim($d['KSNP'])),
+			'date_in'   => iconv("cp866", "utf-8", trim($d['DATE_IN'])),
+			'date_izm'  => iconv("cp866", "utf-8", trim($d['DATE_IZM']))
 		);
-		
+
 		return $res;
 	}
 	/** 
