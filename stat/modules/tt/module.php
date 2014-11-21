@@ -213,6 +213,7 @@ class m_tt extends IModule{
             }
         }
 
+        $cur_stage_id = 0;
         if($trouble["bill_no"] && $trouble["trouble_type"] == "incomegoods")
         {
             // find last income order. Number mast by repeated.
@@ -229,13 +230,13 @@ class m_tt extends IModule{
 
             $new_state = TroubleState::find($R["state_id"]);
 
-            if($new_state->name == "Отказ")
-            {
-                $gio->setStatusAndSave($cur_state->state_1c, false);
-            }else
             if($new_state->state_1c != $cur_state->state_1c)
             {
-                $gio->setStatusAndSave($new_state->state_1c);
+                $isActive = $new_state->name != "Отказ";
+                $gio->setStatusAndSave($new_state->state_1c, $isActive);
+
+                $gio_trouble = Trouble::find_by_bill_id($trouble["bill_id"]);
+                $cur_stage_id = $gio_trouble->current_stage->id;
             }
         }
 
@@ -247,6 +248,16 @@ class m_tt extends IModule{
                 'stage_id'=>$trouble['stage_id']
             )
         );
+
+        //remote 1c stages in incomgoods, to avoid duplication
+        if ($cur_stage_id)
+        {
+            $stage = TroubleStage::find_by_stage_id($cur_stage_id);
+            if ($stage)
+            {
+                $stage->delete();
+            }
+        }
 
         // новый - 15
 
