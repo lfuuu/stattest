@@ -59,10 +59,10 @@ function do_events()
                                        LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); break;
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
-                case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
-                                 ats2Numbers::check();
-                                 virtPbx::check();
-                                 EventHandler::updateSubscribeMass();
+                case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
+                                 ats2Numbers::check();echo "...ats2Numbers::check()";
+                                 virtPbx::check();echo "...virtPbx::check()";
+                                 EventHandler::updateSubscribeMass();echo "...EventHandler::updateSubscribeMass()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
                                  }
@@ -71,7 +71,7 @@ function do_events()
                                      echo " exec: ".$execStr;
                                      exec($execStr);
                                  }
-                                 EventQueue::clean();
+                                 EventQueue::clean();echo "...EventQueue::clean()";
                                  break;
 
                 case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;

@@ -2,7 +2,7 @@
 
 class ApiLk
 {
-    public function getBalanceList($clientId)
+    public static function getBalanceList($clientId)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -69,7 +69,7 @@ class ApiLk
         return array("bills" => $bills, "sums" => $nSum);
     }
 
-    public function getUserBillOnSum($clientId, $sum)
+    public static function getUserBillOnSum($clientId, $sum)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -102,7 +102,7 @@ class ApiLk
         return $bill;
     }
 
-	public function getBillUrl($billNo)
+	public static function getBillUrl($billNo)
 	{
 		$bill = NewBill::first(array("bill_no" => $billNo));
 		if(!$bill)
@@ -115,7 +115,7 @@ class ApiLk
 		return API__print_bill_url.udata_encode_arr($R);
 	}
 
-    public function getReceiptURL($clientId, $sum)
+    public static function getReceiptURL($clientId, $sum)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -134,7 +134,7 @@ class ApiLk
         return API__print_bill_url.udata_encode_arr($R);
     }
 
-    public function getPropertyPaymentOnCard($clientId, $sum)
+    public static function getPropertyPaymentOnCard($clientId, $sum)
     {
         global $db;
     
@@ -168,13 +168,13 @@ class ApiLk
         return array("sum" => $sum, "order" => $orderId, "signature" => $signature);
     }
 
-    public function updateUnitellerOrder($orderId)
+    public static function updateUnitellerOrder($orderId)
     {
         return true;
         exit();
     }
 
-    public function getBill($clientId, $billNo)
+    public static function getBill($clientId, $billNo)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -245,7 +245,7 @@ class ApiLk
         return $ret;
     }
 
-    public function getDomainList($clientId)
+    public static function getDomainList($clientId)
     {
         $ret = array();
 
@@ -271,11 +271,9 @@ class ApiLk
         }
     
         return $ret;
-    
-    
     }
 
-    public function getEmailList($clientId)
+    public static function getEmailList($clientId)
     {
     
         $ret = array();
@@ -312,9 +310,9 @@ class ApiLk
         return $ret;
     }
 
-    public function getVoipList($clientId, $isSimple = false)
+    public static function getVoipList($clientId, $isSimple = false)
     {
-        global $db_ats;
+        global $db, $db_ats;
         $ret = array();
     
         $card = ClientCard::first(array("id" => $clientId));
@@ -392,7 +390,7 @@ class ApiLk
         return $ret;
     }
 
-    public function getVpbxList($clientId)
+    public static function getVpbxList($clientId)
     {
         $ret = array();
     
@@ -2086,6 +2084,4 @@ class ApiLk
 
         return true;
     }
-
-
 }
