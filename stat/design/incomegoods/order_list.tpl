@@ -6,7 +6,7 @@
 	<form id="filter" action="" method="GET" class="navbar-form pull-left" style="margin-right: 15px;">
 		<input type="hidden" name="module" value="incomegoods"/>
 		<input type="hidden" name="action" value="order_list"/>
-		<input id="filter_status" type="hidden" name="filter[status]" value="{$qfilter.status}"/>
+		<input id="filter_state" type="hidden" name="filter[state]" value="{$qfilter.state}"/>
 		<select class="select2" name="filter[manager]" onchange="$('#filter').submit(); return false;" style="width: 250px">
 			<option value="all">--- Менеджер ---</option>
 			{foreach from=$users item=user}
@@ -22,9 +22,9 @@
         </select>
 	</form>
 
-	{foreach from=$statusCounter key=key item=status}
-		{if $status.count > 0}
-		<li {if $key==$qfilter.status}class="active"{/if}><a href="#filter" onclick="$('#filter_status').val('{$key}');$('#filter').submit(); return false;">{$status.name} <span class="badge">{$status.count}</span></a></li>
+	{foreach from=$statesCounter key=key item=state}
+		{if $state.count > 0}
+		<li {if $key==$qfilter.state}class="active"{/if}><a href="#filter" onclick="$('#filter_state').val('{$key}');$('#filter').submit(); return false;">{$state.name} <span class="badge">{$state.count}</span></a></li>
 		{/if}
 	{/foreach}
 </ul>
@@ -50,7 +50,7 @@
 					{$item->number}
 			</a></td>
 			<td><a href="?module=incomegoods&action=order_view&id={$item->id}">{$item->date->format('d.m.Y')}</a></td>
-			<td>{$item->status}</td>
+			<td>{$item->state_name}</td>
 			<td>{if $item->external_number}{$item->external_number}{if $item->external_date} от {$item->external_date->format('d.m.Y')}{/if}{else}&nbsp;{/if}</td>
 			<td>{$item->sum}</td>
 			<td>{$item->currency}</td>
