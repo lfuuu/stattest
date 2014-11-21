@@ -17,8 +17,8 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 
     const STATUS_NOT_AGREED    = 'Не согласован';
     const STATUS_AGREED        = 'Согласован';
-    const STATUS_CONFIRMED    = 'Подтвержден';
-    const STATUS_ENTERING    = 'К поступлению';
+    const STATUS_CONFIRMED     = 'Подтвержден';
+    const STATUS_ENTERING      = 'К поступлению';
     const STATUS_CLOSED        = 'Закрыт';
 
 	const STATUS_STAT_ENTERING	= 'Поступление';
