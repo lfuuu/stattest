@@ -262,7 +262,7 @@ var price_includes_nds = {if $document->price_includes_nds}true{else}false{/if};
 				modal.$gtd_code = $gtd_code;
 				modal.$gtd_country = $gtd_country;
 				$('#add_gtd_code').val(gtd_code);
-				$('#addGtdModal').modal();
+				$('#addGtdModal').appendTo(document.body).modal();
 			}
 		});
 
