@@ -42,7 +42,6 @@
                 {else}
                     {assign var="eq" value="abs(y-x)"}
                 {/if}
-                {$y}
                 <span {if $color}style="color: {$color};"{/if}>{math equation=$eq x="30" y=$s->diff}</span>
             </td>
         </tr>

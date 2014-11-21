@@ -35,7 +35,7 @@
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
 	<td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
     <td>
-        {if $ats_schema[$item.E164]}
+        {if isset($ats_schema[$item.E164]) && $ats_schema[$item.E164]}
             {if $ats_schema[$item.E164] == "new"}<span style="color: green;" title="Новая схема">Новая</span>
             {elseif $ats_schema[$item.E164] == "old"}<span style="color: gray;" title="Старая схема">Старая</span>
             {/if}

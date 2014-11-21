@@ -10,18 +10,18 @@
 <tr bgcolor=#fffff5><td colspan='4'>
     {if $pay.clients}
         {foreach from=$pay.clients item=client}
- <input type=radio name=pay[{$pay.no}][client] value='{$client.client}'{if $pay.imported || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled='disabled'{/if}>
+ <input type=radio name=pay[{$pay.no}][client] value='{$client.client}'{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled='disabled'{/if}>
                 <a href='./?module=newaccounts&action=bill_list&clients_client={if $client.client}{$client.client|escape:'url'}{else}{$client.id}{/if}'>{$client.client}{if $client.currency == "USD"}<font style="color:green;"> ($)</font>{/if}</a> -
                 <span style='font-size:85%'>{$client.full_name} ({$client.manager})
                 </span><br>
         {/foreach}
     {/if}
-	{if !$pay.imported}
+	{if !isset($pay.imported) || !$pay.imported}
 		<input type=radio name=pay[{$pay.no}][client] value=''>не вносить
 	{/if}
 </td>
 </tr>
-<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}Платеж &#8470;{$pay.noref} от {$pay.date}
+<tr bgcolor={if isset($pay.imported) && $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}Платеж &#8470;{$pay.noref} от {$pay.date}
 {if $pay.inn}<br><span style="color: #aaa;">ИНН {$pay.inn}</span>{/if}
     {if isset($pay.to_check) && $pay.to_check}<div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания платильшик и компания, вледелец счета не совпадаю!</div>{/if}
     {if isset($pay.to_check_bill_only) && $pay.to_check_bill_only}<br><br><div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания&nbsp;найдена&nbsp;по&nbsp;счету</div>{/if}
@@ -66,7 +66,7 @@
 		{if !$is_select && $pay.bill_no}
 			</optgroup>
 			<optgroup label="Вне списка">
-				<option value={$pay.bill_no} selected>{$pay.bill_no}{if !$pay.imported} !?{/if} ??</option>
+				<option value={$pay.bill_no} selected>{$pay.bill_no}{if !isset($pay.imported) || !$pay.imported} !?{/if} ??</option>
 			</optgroup>
 		{/if}
 	</select>
@@ -74,10 +74,10 @@
 	<input type=text class=text name=pay[{$pay.no}][bill_no] style='width:100px'>
 {/if}
 <input type=text class=text name=pay[{$pay.no}][usd_rate] style='width:60px' value={if isset($pay.usd_rate)}{$pay.usd_rate}{/if}>
-{if $pay.clients && !$is_select && $pay.bill_no && !$pay.imported}<div style="color:#c40000; font: bold 8pt sans-serif;">Внимание!!! Счет в комментариях не найден в счетах клиентов.</div>{/if}
+{if $pay.clients && !$is_select && $pay.bill_no && (!isset($pay.imported) || !$pay.imported)}<div style="color:#c40000; font: bold 8pt sans-serif;">Внимание!!! Счет в комментариях не найден в счетах клиентов.</div>{/if}
 </td><td width=50%>
 {$pay.description|escape:"html"}<br>
-<textarea name=pay[{$pay.no}][comment] class=text style='width:100%;font-size:85%'>{$pay.comment}</textarea>
+<textarea name=pay[{$pay.no}][comment] class=text style='width:100%;font-size:85%'>{if isset($pay.comment)}{$pay.comment}{/if}</textarea>
 </td></tr>
 {/foreach}
 </TABLE>

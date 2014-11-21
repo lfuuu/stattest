@@ -26,7 +26,7 @@
 							<option value='{$item.id}' {if isset($agent) && $agent.id == $item.id}selected='selected'{/if}> {$item.name}</option>
 						{/foreach}
 					</select>
-					{if $default_interest}
+					{if isset($default_interest) && $default_interest}
 						<span style="color: red;">Поощрения агента не заданы</span>
 					{/if}
 				{/if}

@@ -1,5 +1,5 @@
 {if !$tt_trouble.bill_no}<H2><a href='{$LINK_START}module=tt&action=list&mode=1&clients_client={$tt_client.client}'>Заявки</a></H2>{/if}
-<H3>Заявка {$tt_trouble.type}{$tt_trouble.id}{if $tt_trouble.bill_no} <span style='font-size:11px'>{mformat param=$tt_trouble.date_creation format='Y.m.d H:i:s'}</span>{/if}</H3>
+<H3>Заявка {if isset($tt_trouble.type)}{$tt_trouble.type}{/if}{$tt_trouble.id}{if $tt_trouble.bill_no} <span style='font-size:11px'>{mformat param=$tt_trouble.date_creation format='Y.m.d H:i:s'}</span>{/if}</H3>
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 {if !$tt_trouble.bill_no}<TR>
@@ -80,7 +80,7 @@
 			</tr>
 		</table>
 	{/if}
-    {if $item.doer_stages}
+    {if isset($item.doer_stages) && $item.doer_stages}
     <table border=0 colspan=0 rowspan=0>
         {foreach from=$item.doer_stages item=ds}<tr><td>{$ds.date}</td><td>{$ds.status_text}({$ds.status})</td><td>{$ds.comment}</td></tr>{/foreach}
     </table>
@@ -112,7 +112,7 @@
 	      <TBODY>
 	      <TR>
 	        <TR><TD class=left>Комментарий:</TD><TD>
-	        <textarea name=comment class=textarea>{$stage.comment}</textarea>
+	        <textarea name=comment class=textarea>{if isset($stage.comment)}{$stage.comment}{/if}</textarea>
 	        </TD></TR>
 
 {if $tt_write}
@@ -192,7 +192,7 @@ function onChangeSelectState(o)
 {/if}
 
 			</TD></TR>
-			{if $bill}
+			{if isset($bill) && $bill}
 			<tr>
 				<td class="left">Статус заказа в 1С: </td>
 				<td>

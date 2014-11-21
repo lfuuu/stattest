@@ -688,7 +688,7 @@ class Bill{
         return $R;
     }
 
-    public function GetCourierName($id)
+    public static function GetCourierName($id)
     {
         $c = Bill::GetCouriers();
 

@@ -17,7 +17,7 @@
         <select class="select2" name="filter[organization]" onchange="$('#filter').submit(); return false;" style="width: 170px">
             <option value="all">--- Организация ---</option>
             {foreach from=$organizations item=org}
-                <option value="{$org->id}" {if $org->id==$qfilter.organization}selected{/if}>{$org->name}</option>
+                <option value="{$org->id}" {if isset($qfilter.organization) && $org->id==$qfilter.organization}selected{/if}>{$org->name}</option>
             {/foreach}
         </select>
 	</form>

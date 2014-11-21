@@ -53,8 +53,16 @@
 	<tr><td colspan="7" style="text-align: center;">Нет информации</td></tr>
 {/if}
 </table>
-{assign var="details" value=$stat_detailed.0}
-{assign var="totals" value=$stat_detailed.1}
+{if isset($stat_detailed.0)}
+    {assign var="details" value=$stat_detailed.0}
+{else}
+    {assign var="details" value=''}
+{/if}
+{if isset($stat_detailed.1)}
+    {assign var="totals" value=$stat_detailed.1}
+{else}
+    {assign var="totals" value=''}
+{/if}
 {if $details}
 	<TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 		<tr>

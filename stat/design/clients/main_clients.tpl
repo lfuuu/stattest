@@ -1,10 +1,15 @@
 <h2>{$name_of_action}</h2>
-Найдено: {$cl_pager_all} клиентов<br>
-{if count($cl_pager_pages)>1}
+Найдено: {if isset($cl_pager_all)}{$cl_pager_all}{else}0{/if} клиентов<br>
+{if isset($cl_pager_pages) && count($cl_pager_pages)>1}
 Страницы: 
 {foreach from=$cl_pager_pages item=i} {if $cl_pager_page == $i} {$i} {else} <a href='{$cl_pager_url}&page={$i}'>{$i}</a>{/if} {/foreach}<br>
 {/if}
-
+{if !isset($search)}
+    {assign var="search" value=""}
+{/if}
+{if !isset($client_subj)}
+    {assign var="client_subj" value=""}
+{/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
 <TR>
@@ -40,7 +45,7 @@
 			<td><select name='filter_clients_date_from_m'>{generate_sequence_options_select start='1' end='12' mode='m' selected=$filter_clients_date_from_m}</select></td>
 			<td><select name='filter_clients_date_from_d'>{generate_sequence_options_select start='1' end='31' mode='d' selected=$filter_clients_date_from_d}</select></td>
 			<td>по</td>
-			<td><select name='filter_clients_date_to_y'>{generate_sequence_options_select start='2003' mode='Y' selected=$fitlter_clients_date_to_y}</select></td>
+			<td><select name='filter_clients_date_to_y'>{generate_sequence_options_select start='2003' mode='Y' selected=$filter_clients_date_to_y}</select></td>
 			<td><select name='filter_clients_date_to_m'>{generate_sequence_options_select start='1' end='12' mode='m' selected=$filter_clients_date_to_m}</select></td>
 			<td><select name='filter_clients_date_to_d'>{generate_sequence_options_select start='1' end='31' mode='d' selected=$filter_clients_date_to_d}</select></td>
 			<td><input type='submit' value='Выбрать' /></td>
