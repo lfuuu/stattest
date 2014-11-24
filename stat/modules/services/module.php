@@ -19,10 +19,7 @@ class m_services extends IModule{
 
 // ==========================================================================================================================================
     function services_in_async($fixclient) {
-        global $db,$design,$_RESULT;
-        include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("utf-8");
+        global $db;
         $node=get_param_protected('node');
         $port_type=get_param_protected('port_type');
         if ($port_type=="pppoe") $port_type='pppoe","dedicated';
@@ -31,7 +28,7 @@ class m_services extends IModule{
         $_RESULT=array(
                     'ports'        => $R,
                     );
-        if (isset($design)) $design->ProcessEx('errors.tpl');
+        echo json_encode($_RESULT);
     }
     function services_in_report(){
         global $design,$db,$user,$module_users;
@@ -1866,14 +1863,11 @@ class m_services extends IModule{
         $dbf->Display(array('module'=>'services','action'=>'ex_apply'),'Услуги','Редактировать дополнительную услугу');
     }
     function services_ex_async($fixclient) {
-        global $db,$design,$_RESULT;
-        include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("utf-8");
+        global $db;
         $id=get_param_integer('id');
         $tarif_table = get_param_protected('tarif_table', 'extra');
 
-        $R=array(); $db->Query('select * from tarifs_'.$tarif_table.' where id='.$id);
+        $db->Query('select * from tarifs_'.$tarif_table.' where id='.$id);
         $r=$db->NextRecord();
         $_RESULT=array(
                     'async_price'        => $r['price'].' '.$r['currency'],
@@ -1881,7 +1875,7 @@ class m_services extends IModule{
                     'param_name'        => $r['param_name'],
                     'is_countable'        => $r['is_countable'],
                     );
-        if (isset($design)) $design->ProcessEx('errors.tpl');
+        echo json_encode($_RESULT);
     }
     function services_ex_close($fixclient){
         global $design,$db;
