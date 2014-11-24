@@ -12,7 +12,7 @@ class m_incomegoods extends IModule{
         global $design, $user, $fixclient_data;
 
         $filter = array(
-            'status' => 'all',
+            'state' => 'all',
             'manager' => $user->Get('id'),
         );
 
@@ -38,43 +38,58 @@ class m_incomegoods extends IModule{
             $whereData[] = $filter['organization'];
         }
 
-        $statusCounter = array('all' => array('name' => 'Все', 'count' => 0));
-        foreach(GoodsIncomeOrder::$statuses as $key => $name)
-            $statusCounter[$key] = array('name' => $name, 'count' => 0);
+        $statesCounter = array('all' => array('name' => 'Все', 'count' => 0));
+        foreach(GoodsIncomeOrder::$stat_states as $key => $name)
+            $statesCounter[$key] = array('name' => $name, 'count' => 0);
 
-        $statuses =
-            GoodsIncomeOrder::find_by_sql("
-                select `status`, count(*) as count from g_income_order
-                where {$where}
-                group by `status`
+        $sqlBody = "
+            FROM 
+                g_income_order gio, 
+                tt_troubles t, 
+                tt_stages s, 
+                tt_states st
+            WHERE 
+                    gio.id = t.bill_id
+                AND s.stage_id = t.cur_stage_id
+                AND st.id = s.state_id
+                ";
+
+
+        $states = GoodsIncomeOrder::find_by_sql($q = "
+            SELECT 
+                st.`name`, 
+                st.`id`,
+                st.id, COUNT(*) AS count 
+            ".$sqlBody."
+                AND {$where}
+            GROUP BY st.`name`
+                ", $whereData);
+
+        foreach($states as $state) {
+            $statesCounter['all']['count'] += $state->count;
+            if (!isset($statesCounter[$state->id])) continue;
+            $statesCounter[$state->id]['count'] += $state->count;
+        }
+
+        if ($filter['state'] != 'all') {
+            $where .= ' and s.state_id=? ';
+            $whereData[] = $filter['state'];
+        }
+
+        $list = GoodsIncomeOrder::find_by_sql($q = "
+            SELECT 
+                gio.*,
+                st.name as state_name
+            ".$sqlBody."
+                AND {$where}
+            order by date desc
+            limit 100
             ", $whereData);
-
-        foreach($statuses as $status) {
-            $statusCounter['all']['count'] += $status->count;
-            if (!isset($statusCounter[$status->status])) continue;
-            $statusCounter[$status->status]['count'] += $status->count;
-        }
-
-        if ($filter['status'] != 'all') {
-            $where .= ' and status=? ';
-            $whereData[] = $filter['status'];
-        }
-
-
-        array_unshift($whereData, $where);
-
-        $list = GoodsIncomeOrder::all(
-            array(
-                'order' => 'date desc',
-                'limit' => 100,
-                'conditions' => $whereData,
-            )
-        );
 
         $organizations = Organization::all(['order' => 'name']);
 
         $design->assign('list', $list);
-        $design->assign('statusCounter', $statusCounter);
+        $design->assign('statesCounter', $statesCounter);
         $design->assign('organizations', $organizations);
         $design->assign('qfilter', $filter);
         $design->assign('users', User::find('all', array('order' => 'name', 'conditions' => array("enabled='yes'"))));

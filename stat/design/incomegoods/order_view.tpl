@@ -45,6 +45,10 @@
 		<td>{$order->manager->name}</td>
 	</tr>
 	<tr>
+		<th>Статус 1С/стат</th>
+		<td>{$order->status} / {$order->trouble->current_stage->state->name}</td>
+	</tr>
+	<tr>
 		<th>Склад</th>
 		<td>{$order->store->name}</td>
 	</tr>
