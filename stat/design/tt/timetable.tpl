@@ -1,8 +1,8 @@
-{if $BIG_ERROR}
+{if isset($BIG_ERROR) && $BIG_ERROR}
 <script type='text/javascript'>
 alert('Возникла ошибка. Если у вас проблема, обратитесь к программисту.');
 </script>
-{elseif $BIG_VICTORY}
+{elseif isset($BIG_VICTORY) && $BIG_VICTORY}
 <script type='text/javascript'>
 alert('Фиксирование успешно завершено.\nGood Luck!');
 </script>

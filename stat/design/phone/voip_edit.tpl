@@ -7,7 +7,7 @@
 <TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 <TBODY>
 <TR><TD class=left width=40%>Подключение активно с</TD><TD>{$r.actual_from}</TD></TR>
-{if $voip_access}
+{if isset($voip_access) && $voip_access}
 	<TR><TD class=left width=40%>Подключение активно по</TD><TD><input type=text name=f[actual_to] value="{$r.actual_to}"></TD></TR>
 {else}
 	<TR><TD class=left width=40%>Подключение активно по</TD><TD>{$r.actual_to}</TD></TR>
@@ -26,8 +26,8 @@
 	{/foreach}</select></TD></TR>
 {/if}
 
-<TR><TD class=left width=40%>Логин</TD><TD>{$secret.username}</TD></TR>
-<TR><TD class=left width=40%>Пароль</TD><TD>{$secret.secret}</TD></TR>
+<TR><TD class=left width=40%>Логин</TD><TD>{if isset($secret.username)}{$secret.username}{/if}</TD></TR>
+<TR><TD class=left width=40%>Пароль</TD><TD>{if isset($secret.secret)}{$secret.secret}{/if}</TD></TR>
 
 {*<TR><TD class=left width=40%>Количество линий</TD><TD><input type=text name=f[no_of_lines] value="{$r.no_of_lines}"></TD></TR>*}
 </TBODY></TABLE>

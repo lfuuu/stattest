@@ -117,7 +117,7 @@
 
 {if $tt_write}
 	        <TR><TD class=left>Новый ответственный:</TD><TD>
-	        {if $admin_order && $order_editor != "stat"}
+	        {if isset($admin_order) && $admin_order && $order_editor != "stat"}
 		        {foreach from=$tt_users item=item}
 		        	{if $tt_trouble.user_main==$item.user}
 		        		<input type=hidden name=user value={$item.user}>{$item.name} ({$item.user})
@@ -142,7 +142,7 @@
 {/if}
 	        <TR><TD class=left>Новое состояние:</TD><TD>
 
-{if $admin_order && $order_editor != "stat"}
+{if isset($admin_order) && $admin_order && $order_editor != "stat"}
 
 	{foreach from=$tt_states item=item}
 		{if $tt_trouble.state_id==$item.id}{$item.name}
@@ -158,7 +158,7 @@
 				<option id='state_{$item.id}' data-id="{$item.id}" value='{$item.id}'{if $tt_trouble.state_id==$item.id} selected{/if}>{$item.name}</option>
 			{/if}
 			{/foreach}</select>
-			{if $admin_order}
+			{if isset($admin_order) && $admin_order}
 				<input type=submit value="Предать в admin.markomnet" name="to_admin" class=button>
 			{/if}
 {/if}
