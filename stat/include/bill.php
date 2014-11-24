@@ -673,7 +673,7 @@ class Bill{
 		return true;
 	}
 
-    public function GetCouriers()
+    public static function GetCouriers()
     {
         global $db;
 

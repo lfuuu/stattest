@@ -67,8 +67,9 @@ class Subsys_JsHttpRequest_Php
     {
         // Parse encoding.
         preg_match('/^(\S*)(?:\s+(\S*))$/', $enc, $p);
-        $this->SCRIPT_ENCODING    = strtolower(@$p[1]? $p[1] : $enc);
-        $this->SCRIPT_DECODE_MODE = @$p[2]? $p[2] : '';
+        $encoding = isset($p[1])? $p[1] : $enc;
+        $this->SCRIPT_ENCODING    = strtolower($encoding);
+        $this->SCRIPT_DECODE_MODE = isset($p[2]) ? $p[2] : '';
         // Manually parse QUERY_STRING because of damned Unicode's %uXXXX.
         $this->_correctQueryString();
     }
