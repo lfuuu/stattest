@@ -4362,7 +4362,7 @@ $sql .= "    order by client, bill_no";
             }else{
                 $s_RUR['pay_sum_rur'] += $r['pay_sum_rur'];
                 $s_RUR['sum'] += $r['sum'];
-                @$s_RUR['bonus'] += $r['bonus'];
+                @$s_RUR['bonus'] += isset($r['bonus']) ? $r['bonus'] : 0;
             }
         }
         $design->assign('clients_count', count($clients));

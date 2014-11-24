@@ -1,4 +1,4 @@
-<?
+<?php
 class Graphic2 {
 	var $im = null;
 	var $x_scale;
@@ -97,7 +97,7 @@ class Graphic2 {
 				ImageLine($this->im,$x,$this->pict_margin[1],$x,$dy+3,$this->c_axis);
 			}
 		}
-
+                $M=0;
 		for ($i=0;$i<=$maxval[0];$i+=round($maxval[0]/10)) if ($i!=0){
 			$y=$dy-($i/$maxval[0])*$this->pict_height;
 			$w=ImageFontWidth(1)*strlen($i);
