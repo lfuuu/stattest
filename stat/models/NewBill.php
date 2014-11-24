@@ -17,7 +17,7 @@ class NewBill extends ActiveRecord\Model
         array("lines", "class_name" => "BillLines", "foreign_key" => "bill_no")
         );
 
-    public function getLastUnpayedBill($clientId)
+    public static function getLastUnpayedBill($clientId)
     {
         $fromDate = "2000-01-01";
         if($lastSaldo = Saldo::getLastSaldo($clientId))
@@ -55,7 +55,7 @@ class NewBill extends ActiveRecord\Model
         return strpos("/", $this->bill_no) !== false;
     }
 
-    public function setLkShowForAll()
+    public static function setLkShowForAll()
     {
         foreach(self::find('all', array("conditions" => array('is_lk_show' => 0))) as $b)
         {
@@ -72,7 +72,7 @@ class NewBill extends ActiveRecord\Model
      *
      * @return ActiveRecord//Model//NewBill
      */
-    public function createBillOnPay($clientId, $paySum, $createAutoLkLog = false)
+    public static function createBillOnPay($clientId, $paySum, $createAutoLkLog = false)
     {
         $currency = "RUR";
         $bill = new Bill(null,$clientId,time(),0,$currency, true, true);

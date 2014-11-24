@@ -117,7 +117,7 @@
 
 {if $tt_write}
 	        <TR><TD class=left>Новый ответственный:</TD><TD>
-	        {if $admin_order && $order_editor != "stat"}
+	        {if isset($admin_order) && $admin_order && $order_editor != "stat"}
 		        {foreach from=$tt_users item=item}
 		        	{if $tt_trouble.user_main==$item.user}
 		        		<input type=hidden name=user value={$item.user}>{$item.name} ({$item.user})
@@ -142,7 +142,7 @@
 {/if}
 	        <TR><TD class=left>Новое состояние:</TD><TD>
 
-{if $admin_order && $order_editor != "stat"}
+{if isset($admin_order) && $admin_order && $order_editor != "stat"}
 
 	{foreach from=$tt_states item=item}
 		{if $tt_trouble.state_id==$item.id}{$item.name}
@@ -158,7 +158,7 @@
 				<option id='state_{$item.id}' data-id="{$item.id}" value='{$item.id}'{if $tt_trouble.state_id==$item.id} selected{/if}>{$item.name}</option>
 			{/if}
 			{/foreach}</select>
-			{if $admin_order}
+			{if isset($admin_order) && $admin_order}
 				<input type=submit value="Предать в admin.markomnet" name="to_admin" class=button>
 			{/if}
 {/if}
@@ -214,7 +214,7 @@ function onChangeSelectState(o)
 	        {*<TR id=tout{if $tt_trouble.state_id!=4} style='display:none'{/if}><TD class=left>Новая дата выезда:</TD><TD>
 		  <input type=text class=text name=date_start style='width:200px' value="{0|mdate:'Y-m-d H:i:s'}">
 	        </TD></TR>*}
-	        {if !$admin_order || $order_editor == "stat"}
+	        {if !(isset($admin_order) && $admin_order) || $order_editor == "stat"}
 			<tr><td class="left">Выбрать исполнителя</td>
 				<td><input type="checkbox" name="showTimeTable"{if isset($timetableShow)} checked='checked'{/if}
 						onclick="if(timetable_pane.style.display=='none')timetable_pane.style.display='block';else timetable_pane.style.display='none'" /></td></tr>

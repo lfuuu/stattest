@@ -1,5 +1,5 @@
 <h3>История тарифов:</h3>
-{if count($dbform_f_tarif)}
+{if isset($dbform_f_tarif) && count($dbform_f_tarif)}
 	{foreach from=$dbform_f_tarif item=T key=key name=tarif_1}
 	{if $T.is_current}<span style='color:#0000C0'>{elseif $T.is_previous}<span style='color:#C00000'>{elseif $T.is_next}<span style='color:#00C000'>{/if}
 	<b>{$T.ts} - {$T.user}</b>:
@@ -33,7 +33,7 @@
 {/foreach}
 {else}тариф ни разу не был выбран{/if}
 <h3>История тарификации:</h3>
-{if count($dbform_f_tarif2)}
+{if isset($dbform_f_tarif2) && count($dbform_f_tarif2)}
 	{foreach from=$dbform_f_tarif2 item=T key=key name=tarif_1}
 	{if $T.is_current}<span style='color:#0000C0'>{elseif $T.is_previous}<span style='color:#C00000'>{elseif $T.is_next}<span style='color:#00C000'>{/if}
 	<b>{$T.ts} - {$T.user}</b>: смена на группу {$T.id_tarif}, дата активации {$T.date_activation}<br>

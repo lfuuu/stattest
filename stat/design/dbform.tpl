@@ -131,7 +131,7 @@
 </form>
 {foreach from=$dbform_includesPost2 item=item name=outer}{include file=$item}{/foreach}
 
-{if count($dbform_log_usage_history) > 0}
+{if isset($dbform_log_usage_history) && count($dbform_log_usage_history) > 0}
 	<br />
 	<h3>История изменений услуги</h3>
 	{include file='log_usage_history.inc'}

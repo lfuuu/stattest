@@ -125,7 +125,9 @@ class Subsys_JsHttpRequest_Php
         // is NOT default "application/x-www-form-urlencoded"!!!
         // Library frontend sets "application/octet-stream" for that purpose,
         // see JavaScript code.
-        foreach (array('_GET'=>$_SERVER['QUERY_STRING'], '_POST'=>@$GLOBALS['HTTP_RAW_POST_DATA']) as $dst=>$src) {
+        $X_GET = $_SERVER['QUERY_STRING'];
+        $X_POST = isset($GLOBALS['HTTP_RAW_POST_DATA']) ? $GLOBALS['HTTP_RAW_POST_DATA'] : '';
+        foreach (array('_GET'=>$X_GET, '_POST'=>$X_POST) as $dst=>$src) {
             if (isset($GLOBALS[$dst])) {
                 // First correct all 2-byte entities.
                 $s = preg_replace('/%(?!5B)(?!5D)([0-9a-f]{2})/si', '%u00\\1', $src);

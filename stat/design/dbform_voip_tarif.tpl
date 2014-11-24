@@ -98,10 +98,10 @@ $(document).ready(function(){
 	<tr>
 		<td>Тип тарифа:</td>
 		<td><select onchange="optools.friendly.voip.change_type(this)" id="s_tarif_type">
-			<option value='public'{if $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>Публичный</option>
-			<option value='archive'{if $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>Архивный</option>
-			<option value='special'{if $dbform_f_tarif_current.status eq 'special'} selected='selected'{/if}>Специальный</option>
-			<option value='operator'{if $dbform_f_tarif_current.status eq 'operator'} selected='selected'{/if}>Оператор</option>
+			<option value='public'{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current.status eq 'public'} selected='selected'{/if}>Публичный</option>
+			<option value='archive'{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current.status eq 'archive'} selected='selected'{/if}>Архивный</option>
+			<option value='special'{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current.status eq 'special'} selected='selected'{/if}>Специальный</option>
+			<option value='operator'{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current.status eq 'operator'} selected='selected'{/if}>Оператор</option>
 		</select></td>
 		<td colspan="2">
 		</td>
@@ -167,7 +167,7 @@ $(document).ready(function(){
 			</select>
 		</td>
 		<td><input id="local_mob_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
-		<td><input id="minpayment_local_mob" type="hidden" name="dbform[t_minpayment_local_mob]" value="{$dbform_f_tarif_current.minpayment_local_mob}"/></td>
+		<td><input id="minpayment_local_mob" type="hidden" name="dbform[t_minpayment_local_mob]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_local_mob}{/if}"/></td>
 	</tr>
 	<tr>
 		<td nowrap>Тариф Россия:</td>
@@ -183,7 +183,7 @@ $(document).ready(function(){
 			</select>
 		</td>
 		<td><input id="russia_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
-		<td><input id="minpayment_russia" type="hidden" name="dbform[t_minpayment_russia]" value="{$dbform_f_tarif_current.minpayment_russia}"/></td>
+		<td><input id="minpayment_russia" type="hidden" name="dbform[t_minpayment_russia]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_russia}{/if}"/></td>
 	</tr>
     <tr>
         <td nowrap>Тариф Россия (моб.):</td>
@@ -215,7 +215,7 @@ $(document).ready(function(){
 			</select>
 		</td>
 		<td><input id="intern_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
-		<td><input id="minpayment_intern" type="hidden" name="dbform[t_minpayment_intern]" value="{$dbform_f_tarif_current.minpayment_intern}"/></td>
+		<td><input id="minpayment_intern" type="hidden" name="dbform[t_minpayment_intern]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_intern}{/if}"/></td>
 	</tr>
 	<tr>
 		<td nowrap>Тариф СНГ:</td>
@@ -231,29 +231,29 @@ $(document).ready(function(){
 			</select>
 		</td>
 		<td><input id="sng_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
-		<td><input id="minpayment_sng" type="hidden" name="dbform[t_minpayment_sng]" value="{$dbform_f_tarif_current.minpayment_sng}"/></td>
+		<td><input id="minpayment_sng" type="hidden" name="dbform[t_minpayment_sng]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_sng}{/if}"/></td>
 	</tr>
 	<tr id="tr_group">
 		<td colspan="2"></td>
 		<td>Набор:</td>
 		<td>
-			<input id="dest_group" type="hidden" name="dbform[t_dest_group]" value="{$dbform_f_tarif_current.dest_group}"/>
-			<input id="minpayment_group" type="text" name="dbform[t_minpayment_group]" value="{$dbform_f_tarif_current.minpayment_group}"/>
+			<input id="dest_group" type="hidden" name="dbform[t_dest_group]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.dest_group}{/if}"/>
+			<input id="minpayment_group" type="text" name="dbform[t_minpayment_group]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_group}{/if}"/>
 		</td>
 	</tr>
 	<tr>
 		<td>Дата активации:</td>
 		<td>
-			<input type=text class=text name=dbform[t_date_activation] value={if $dbform_f_tarif_current}{$dbform_f_tarif_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}>
+			<input type=text class=text name=dbform[t_date_activation] value={if isset($dbform_f_tarif_current) && $dbform_f_tarif_current}{$dbform_f_tarif_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}>
 		</td>
 		<td сщдызфт=Э2Э></td>
 	</tr>
-	<tr><td colspan="4"><input type="checkbox" name="dbform[t_apply_for_all_tarif_id]" value="{$dbform_f_tarif_current.id_tarif}"/>Применить для всех услуг с тарифом "{$dbform_f_tarifs[$dbform_f_tarif_current.id_tarif].name}"</td></tr>
+	<tr><td colspan="4"><input type="checkbox" name="dbform[t_apply_for_all_tarif_id]" value="{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current}{$dbform_f_tarif_current.id_tarif}{/if}"/>{if isset($dbform_f_tarif_current)}Применить для всех услуг с тарифом "{$dbform_f_tarifs[$dbform_f_tarif_current.id_tarif].name}"{/if}</td></tr>
 </table><br>
 <h3>Группа тарификации (priceId):</h3>
 <table width=400>
 <tr><td width=120>priceId:</td><td><input style='width:40px' type=text class=text name=dbform[t2_priceid] value="{if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.id_tarif}{/if}"></td></tr>
-{if $dbform_f_tarif_current}
+{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current}
 <tr><td>priceId в тарифе:</td><td><input style='width:40px' disabled type=text class=text value="{$dbform_f_tarif_current.priceid}"></td></tr>
 {/if}
 <tr><td>Дата активации:</td><td><input type=text class=text name=dbform[t2_date_activation] value={if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}></td></tr>
