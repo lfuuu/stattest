@@ -296,7 +296,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 		$sum = sprintf("%0.2f",$op['delta']);
 		if ($curr=='RUR') return $sum.' р';
 		
-		if (!$simple && count($op['pays'])>=1 && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
+		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
 			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta']*$op['pays'][0]['payment_rate']).' р</span>';
 		} else {
 			return $sum.' $';
@@ -306,7 +306,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 		$sum = sprintf("%0.2f",$op['delta2']);
 		if ($curr=='RUR') return $sum.' р';
 		
-		if (!$simple && count($op['pays'])>=1 && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
+		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
 			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta2']*$op['pays'][0]['payment_rate']).' р</span>';
 		} else {
 			return $sum.' $';
@@ -314,7 +314,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 	} elseif ($obj=='pay_full') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_full']);
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_rub_full']);
-		$curr = $params['pay']['currency'];
+		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';
@@ -322,7 +322,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 	} elseif ($obj=='pay2') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_pay']);
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_pay_rub']);
-		$curr = $params['pay']['currency'];
+		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';

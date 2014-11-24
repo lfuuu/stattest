@@ -327,14 +327,18 @@
         foreach($resgroup['defs'] as $d){
             if ($defs == '') { $defs .= $d; } else { $defs .= ', '.$d; }
         }
+        $price1 = isset($resgroup['parts'][1]['d1']['price']) ? str_replace('.',',',$resgroup['parts'][1]['d1']['price']) : '';
+        $price2 = isset($resgroup['parts'][2]['d1']['price']) ? str_replace('.',',',$resgroup['parts'][2]['d1']['price']) : '';
+        $price3 = isset($resgroup['parts'][3]['d1']['price']) ? str_replace('.',',',$resgroup['parts'][3]['d1']['price']) : '';
+        $price4 = isset($resgroup['parts'][4]['d1']['price']) ? str_replace('.',',',$resgroup['parts'][4]['d1']['price']) : '';
         $data[] = array(    'code1'=>$resgroup['defcode'],
                             'code2'=>$defs,
                             'name'=>str_replace('"','""',$resgroup['destination']) . ($resgroup['mob']=='t' ? ' (моб.)' : ''),
                             'zone'=>$resgroup['zone'],
-                            'price1'=>str_replace('.',',',$resgroup['parts'][1]['d1']['price']),
-                            'price2'=>str_replace('.',',',$resgroup['parts'][2]['d1']['price']),
-                            'price3'=>str_replace('.',',',$resgroup['parts'][3]['d1']['price']),
-                            'price4'=>str_replace('.',',',(isset($resgroup['parts'][4]['d1']['price'])?$resgroup['parts'][4]['d1']['price']:'') )
+                            'price1'=>$price1,
+                            'price2'=>$price2,
+                            'price3'=>$price3,
+                            'price4'=>$price4
                     );
     }
 

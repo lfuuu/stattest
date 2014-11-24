@@ -117,13 +117,13 @@
 </TR>
 {foreach from=$billops item=op key=key name=outer}
 {count_comments v=$op}
-{if ($op.bill && $op.bill.currency!=$fixclient_data.currency) || (!$op.bill && (count($op.pays)==1) && !$op.pays.0.in_sum)}
+{if isset($op.bill) && (($op.bill && $op.bill.currency!=$fixclient_data.currency) || (!$op.bill && (count($op.pays)==1) && !$op.pays.0.in_sum))}
 {assign var=class value=other}
 {else}
 {cycle values="even,odd" assign=class}
 {/if}
 <TR class={$class}>
-{if $op.bill}
+{if isset($op.bill) && $op.bill}
 	<TD rowspan={$rowspan}{if $op.bill.postreg!="0000-00-00"} style='background-color:#FFFFD0'{/if}>{$op.bill.bill_date}</TD>
 	<TD rowspan={$rowspan} class=pay{$op.bill.is_payed}><a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br>({$op.bill.bill_no_ext}){/if}</a></TD>
 	<TD rowspan={$rowspan} align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}р{/if}
@@ -138,7 +138,7 @@
 {if count($op.pays)}
 	{foreach from=$op.pays item=pay key=keyin name=inner}
 	{if $smarty.foreach.inner.iteration!=1}</TR><TR class={$class}>{/if}
-	{if $pay.p_bill_no==$op.bill.bill_no}
+	{if isset($pay.p_bill_no) && isset($op.bill.bill_no) && $pay.p_bill_no==$op.bill.bill_no}
 	<TD>{objCurrency op=$op obj='pay_full' pay=$pay currency=$fixclient_data.currency}</TD>
 	<TD style='font-size:85%'>{$pay.payment_date} - &#8470;{$pay.payment_no} /
 		{if $pay.type=='bank'}b{elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
@@ -161,7 +161,7 @@
  	<TD rowspan={$rowspan} align=right>{objCurrency op=$op obj='delta2' currency=$fixclient_data.currency}</TD>
  	{/if}
 
-	{if $pay.bill_no==$op.bill.bill_no}
+	{if isset($op.bill.bill_no) && isset($pay.bill_no) && $pay.bill_no==$op.bill.bill_no}
 	{if $pay.payment_id|strpos:"-"}
 		<TD style='{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>{objCurrency op=$op obj='pay2' pay=$pay currency=$fixclient_data.currency}</TD>
 		<TD style='font-size:85%;{if $pay.p_bill_no!=$pay.bill_no}background:#e0e0ff;{/if}'>&#8470;{$pay.payment_id}</TD>
@@ -181,18 +181,18 @@
 		<input type=hidden name=pay value={$pay.id}>
 		<select name=bill onchange='paybill{$pay.id}.submit()' class=text style='border:0;padding:0;margin:0;width:""'>
 			<option></option>
-{foreach from=$billops item=sop key=key name=innerselect}{if ($sop.bill) && ($sop.delta<0)}
+{foreach from=$billops item=sop key=key name=innerselect}{if isset($sop.bill) && $sop.bill && ($sop.delta<0)}
 			<option value='{$sop.bill.bill_no}'{if $pay.p_bill_vis_no==$sop.bill.bill_no} selected{/if}>{$sop.bill.bill_no}</option>
 {/if}{/foreach}
 		</select>
 		</form>{/if}
 	</TD>
     <td>
-	{if isset($qrs[$op.bill.bill_no].11) && $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="Акт-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].11}"></a>А1<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].12) && $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="Акт-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].12}"></a>A2<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].21) && $qrs[$op.bill.bill_no].21}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].21}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].21}" target=_blank title="УПД-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].21}"></a>У1<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].22) && $qrs[$op.bill.bill_no].22}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].22}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].22}" target=_blank title="УПД-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].22}"></a>У2<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].23) && $qrs[$op.bill.bill_no].23}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].23}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].23}" target=_blank title="УПД-3"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].23}"></a>У3{/if}
+	{if isset($qrs[$op.bill.bill_no].11) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="Акт-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].11}"></a>А1<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].12) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="Акт-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].12}"></a>A2<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].21) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].21}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].21}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].21}" target=_blank title="УПД-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].21}"></a>У1<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].22) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].22}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].22}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].22}" target=_blank title="УПД-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].22}"></a>У2<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].23) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].23}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].23}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].23}" target=_blank title="УПД-3"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].23}"></a>У3{/if}
     </td>
 	{if $pay.comment}
 	</TR><TR class={$class}><TD colspan=4 class=comment>{$pay.comment|escape:"html"}</TD><TD colspan=2>&nbsp;</TD>{/if}
@@ -203,14 +203,14 @@
 {else}
         <TD colspan=8 rowspan=1>&nbsp;</TD>
     <td>
-	{if isset($qrs[$op.bill.bill_no].11) && $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="Акт-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].11}"></a>А1<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].12) && $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="Акт-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].12}"></a>A2<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].21) && $qrs[$op.bill.bill_no].21}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].21}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].21}" target=_blank title="УПД-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].21}"></a>У1<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].22) && $qrs[$op.bill.bill_no].22}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].22}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].22}" target=_blank title="УПД-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].22}"></a>У2<br/>{/if}
-	{if isset($qrs[$op.bill.bill_no].23) && $qrs[$op.bill.bill_no].23}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].23}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].23}" target=_blank title="УПД-3"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].23}"></a>У3{/if}
+	{if isset($qrs[$op.bill.bill_no].11) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].11}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].11}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].11}" target=_blank title="Акт-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].11}"></a>А1<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].12) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].12}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].12}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].12}" target=_blank title="Акт-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].12}"></a>A2<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].21) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].21}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].21}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].21}" target=_blank title="УПД-1"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].21}"></a>У1<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].22) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].22}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].22}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].22}" target=_blank title="УПД-2"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].22}"></a>У2<br/>{/if}
+	{if isset($qrs[$op.bill.bill_no].23) && isset($op.bill.bill_no) && $qrs[$op.bill.bill_no].23}<a {if access('newaccounts_bills','del_docs')}class="del_doc"{/if} id="{$qrs[$op.bill.bill_no].23}" href="./?module=newaccounts&action=doc_file&id={$qrs[$op.bill.bill_no].23}" target=_blank title="УПД-3"><img border=0 src="images/icons/act.gif" title="{$qrs_date[$op.bill.bill_no].23}"></a>У3{/if}
     </td>
 
-    {if $op.bill.comment}
+    {if isset($op.bill.comment) && $op.bill.comment}
         </TR>
         <TR class={$class}><TD colspan=6 class=comment>{$op.bill.comment|escape:"html"}</TD>
     {/if}

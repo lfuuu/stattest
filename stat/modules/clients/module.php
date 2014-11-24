@@ -473,10 +473,17 @@ class m_clients {
 			$design->assign('filter_clients_date_from_m',$_POST['filter_clients_date_from_m']);
 			$design->assign('filter_clients_date_from_d',$_POST['filter_clients_date_from_d']);
 			$design->assign('filter_clients_date_to_y',$_POST['filter_clients_date_to_y']);
-			$design->assign('filter_clietns_date_to_m',$_POST['filter_clients_date_to_m']);
+			$design->assign('filter_clients_date_to_m',$_POST['filter_clients_date_to_m']);
 			$design->assign('filter_clients_date_to_d',$_POST['filter_clients_date_to_d']);
-		}else
+		}else {
 			$date_from = $date_to = null;
+			$design->assign('filter_clients_date_from_y','');
+                        $design->assign('filter_clients_date_from_m','');
+                        $design->assign('filter_clients_date_from_d','');
+                        $design->assign('filter_clients_date_to_y','');
+                        $design->assign('filter_clients_date_to_m','');
+                        $design->assign('filter_clients_date_to_d','');
+                }
 
 		if ($smode && $smode!=1 && $smode!=5){
 			$my = '';
