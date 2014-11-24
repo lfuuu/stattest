@@ -321,6 +321,13 @@ $(function(){
 			</TD>
 		</TR>
 	{/if}
+        <TR>
+		<TD class=left>Печать УПД без подписей</TD>
+		<TD>
+			<input type="hidden" value="0" name="is_upd_without_sign">
+			<input type="checkbox" value="1" name="is_upd_without_sign" {if $client.is_upd_without_sign == "1"}checked="checked"{/if}>
+		</TD>
+	</TR>
 	<TR><TD class=left>USD уровень в процентах:</TD><TD><input style='width:100%' name=usd_rate_percent class=text value='{$client.usd_rate_percent}'></td></tr>
 	<TR><TD class=left>Тип:</TD>
 		<TD><select name=type class=text>
