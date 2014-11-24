@@ -126,17 +126,13 @@ class m_clients {
 	}
 
 	function clients_search_as($fixclient) {
-		global $db,$design,$_RESULT;
-		include INCLUDE_PATH."JsHttpRequest.php";
-		$JsHttpRequest = new Subsys_JsHttpRequest_Php();
-		$JsHttpRequest->setEncoding("UTF-8");
-		if (isset($_POST['query'])) $_POST['search']=$_POST['query'];
+		global $design;
+		if (isset($_GET['query'])) $_GET['search']=$_GET['query'];
 		$design->assign('clients',array());
 		$this->clients_list(false,5,20);
-		$_RESULT=array(
+		echo json_encode(array(
 					'data'		=> $design->fetch('clients/as_search.tpl'),
-					);
-		exit;
+					));
 	}
 
 	function clients_my($fixclient) {

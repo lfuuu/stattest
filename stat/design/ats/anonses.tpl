@@ -1,6 +1,5 @@
 {include file="widget/panel.tpl"}
 <!--h2>{$title}</h2-->
-<script src="js/JsHttpRequest.js"></script>
 <script src="js/configTableDelete.js"></script>
 <link title="default" href="css/edit.css" type="text/css" rel="stylesheet">
 <form method="POST" action="" id="edit_form" enctype="multipart/form-data">
