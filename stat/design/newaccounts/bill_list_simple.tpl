@@ -47,9 +47,21 @@
 
 <tr>
 	<td>Общая сумма <span title='Клиент должен нам'>долга</span> (с учётом сальдо):</td>
-	<td align=right> <b>{if $fixclient_data.currency!='USD'} {$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum.RUR.delta+$sum.RUR.saldo|round:2}{/if} р.</b>
-	<td>/</td>
-	<td align=right><b>{if $fixclient_data.currency=='USD'}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum.USD.delta+$sum.USD.saldo|round:2}{/if} $</b></td>
+    <td align=right> <b>
+            {if $fixclient_data.currency!='USD'}
+                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum_cur.delta|round:2}{/if}
+            {else}
+                {if isset($sum.RUR.saldo)}{$sum.RUR.delta+$sum.RUR.saldo|round:2}{else}{$sum.RUR.delta|round:2}{/if}
+            {/if} р.</b>
+    </td>
+    <td></td>
+    <td align=right><b>
+            {if $fixclient_data.currency=='USD'}
+                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum_cur.delta|round:2}{/if}
+            {else}
+                {if isset($sum.USD.saldo)}{$sum.USD.delta+$sum.USD.saldo|round:2}{else}{$sum.USD.delta|round:2}{/if}
+            {/if} $</b>
+    </td>
 </tr>
 
 
