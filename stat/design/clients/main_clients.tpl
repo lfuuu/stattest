@@ -24,6 +24,7 @@
 	<TD class=header vAlign=bottom width="10%">{sort_link sort=7 text='TM' link='?module=clients&action=' link2=$action link3='&subj=' link4=$client_subj link5='&search=' link6=$search link7='&letter=' link8=$letter sort_cur=$sort so_cur=$so}</TD>
 
 </TR>
+{if isset($clients)}
 {foreach from=$clients item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==count($clients)%2}even{else}odd{/if}>
 	<TD {if $item.status_color}style='background-color:{$item.status_color}'{/if}><a href='{$LINK_START}module=clients&id={$item.id}'>{if $item.client==""}Заявка {$item.id|hl:$search}{else}{$item.client|hl:$search}{/if}</a></TD>
@@ -36,6 +37,7 @@
 	<TD><a href='{$LINK_START}module=users&m=user&id={$item.support}'>{$item.telemarketing|hl:$search}</a></TD>
 </TR>
 {/foreach}
+{/if}
 <tr><td colspan='8'>Фильтры:<br>
 	<form method='POST'>
 	<table>

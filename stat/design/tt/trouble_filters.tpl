@@ -7,7 +7,7 @@
 	<input type='hidden' name='module' value='tt' />
 	<input type='hidden' name='action' value='{$filter_head.action}' />
 	<input type='hidden' name='mode' value='{$filter_head.mode}' />
-	<input type='hidden' name='type_pk' value='{$tt_type.pk}' />
+	<input type='hidden' name='type_pk' value='{if isset($tt_type)}{$tt_type.pk}{/if}' />
 	<input type='hidden' name='filters_flag' value='true'/>
 	<input type='hidden' name='filter_set' value='true'/>
 

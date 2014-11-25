@@ -11,7 +11,6 @@
 <LINK href="/favicon.ico" rel="SHORTCUT ICON">
 <script language=JavaScript>var PATH_TO_ROOT="{$PATH_TO_ROOT}";</script>
 <script language=JavaScript>var LOADED=0;</script>
-<script language="JavaScript" src="{$PATH_TO_ROOT}js/JsHttpRequest.js"></script> 
 <script language="JavaScript" src="{$PATH_TO_ROOT}js/script.js"></script>
 <script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}js/jquery.js"></script>
 <script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}js/optools.js"></script>

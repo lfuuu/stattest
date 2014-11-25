@@ -456,13 +456,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Руководитель организации<br>или иное уполномоченное лицо</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if !$client.is_upd_without_sign && $bill.is_rollback != 1 && isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $bill.is_rollback != 1}{$firm_director.name}{/if}</span></p>
+			<p ><span>{if !$client.is_upd_without_sign && $bill.is_rollback != 1}{$firm_director.name}{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
@@ -471,13 +471,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Главный бухгалтер<br>или иное уполномоченное лицо</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -25px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if !$client.is_upd_without_sign && $bill.is_rollback != 1 && isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -25px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $bill.is_rollback != 1}{$firm_buh.name}{/if}</span></p>
+			<p ><span>{if !$client.is_upd_without_sign && $bill.is_rollback != 1}{$firm_buh.name}{/if}</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h8'>
@@ -621,7 +621,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>{$smarty.capture.seller_head_position}</span></p>
 		</td>
 		<td>
-			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if !$client.is_upd_without_sign && $bill.is_rollback != 1 && isset($firm_director.sign) && $firm_director.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if} style="position: absolute; top: -40px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td style='width:110pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>
@@ -791,7 +791,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td style='width:100pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span style="position: relative;">{if $bill.is_rollback != 1 && isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -22px;">{else}&nbsp;{/if}</span></p>
+			<p ><span style="position: relative;">{if !$client.is_upd_without_sign && $bill.is_rollback != 1 && isset($firm_buh.sign) && $firm_buh.sign && isset($emailed) && $emailed==1} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if} style="position: absolute; top: -22px;">{else}&nbsp;{/if}</span></p>
 		</td>
 		<td>
 			<p ><span>&nbsp;</span></p>
@@ -911,7 +911,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 </table>
 </center></div>
-{if isset($emailed) && $emailed==1}
+{if isset($emailed) && $emailed==1 && !$client.is_upd_without_sign && $bill.is_rollback != 1}
 	{if $firma && isset($firma.src) && $firma.src}
 	<div style="position: relative; top: -50;left: 140px;">
 	<img class="sign_main" style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>

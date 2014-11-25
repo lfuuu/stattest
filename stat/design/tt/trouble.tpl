@@ -214,7 +214,7 @@ function onChangeSelectState(o)
 	        {*<TR id=tout{if $tt_trouble.state_id!=4} style='display:none'{/if}><TD class=left>Новая дата выезда:</TD><TD>
 		  <input type=text class=text name=date_start style='width:200px' value="{0|mdate:'Y-m-d H:i:s'}">
 	        </TD></TR>*}
-	        {if !$admin_order || $order_editor == "stat"}
+	        {if !(isset($admin_order) && $admin_order) || $order_editor == "stat"}
 			<tr><td class="left">Выбрать исполнителя</td>
 				<td><input type="checkbox" name="showTimeTable"{if isset($timetableShow)} checked='checked'{/if}
 						onclick="if(timetable_pane.style.display=='none')timetable_pane.style.display='block';else timetable_pane.style.display='none'" /></td></tr>

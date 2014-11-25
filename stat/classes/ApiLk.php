@@ -1907,7 +1907,7 @@ class ApiLk
     }
 
 
-    private function _getPaymentTypeName($pay)
+    private static function _getPaymentTypeName($pay)
     {
         switch ($pay["type"])
         {
@@ -1928,7 +1928,7 @@ class ApiLk
         return $v;
     }
 
-    private function _getCutOffDate($clientId)
+    private static function _getCutOffDate($clientId)
     {
         global $db;
     
@@ -1956,7 +1956,7 @@ class ApiLk
         return $dateStart;
     }
 
-    private function _getUserBillOnSum_fromDB($clientId, $sum)
+    private static function _getUserBillOnSum_fromDB($clientId, $sum)
     {
         global $db;
     
@@ -2042,7 +2042,7 @@ class ApiLk
         return $tt->createTrouble($R, $user);
     }
 
-    private function _getUserForTrounble($manager)
+    private static function _getUserForTrounble($manager)
     {
         $default_manager = "ava";
     
@@ -2051,7 +2051,7 @@ class ApiLk
         else return $default_manager;
     }
 
-    private function _getUserLK()
+    private static function _getUserLK()
     {
         global $db;
         $default_user = 48;

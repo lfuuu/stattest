@@ -62,10 +62,12 @@ class CompatibilityController extends BaseController
 
         $modules->GetMain($module, $action, $fixclient);
 
+        $renderLayout = $lite === false && !$design->ignore;
+
         if ($fixclient)
             $fixclient_data = $module_clients->get_client_info($fixclient);
 
-        if (access('tt','view')) {
+        if ($renderLayout && access('tt','view')) {
             if ((!$fixclient || $module != 'clients') && $module != 'tt') {
                 $tt = new \m_tt();
                 $tt->showTroubleList(2, 'top', $fixclient);
@@ -75,8 +77,6 @@ class CompatibilityController extends BaseController
         $preOutput = ob_get_clean();
 
         ob_start();
-
-        $renderLayout = $lite === false && !$design->ignore;
 
         if ($lite) {
             echo $this->view->render('/layouts/widgets/messages', [], $this);
