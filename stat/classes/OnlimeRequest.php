@@ -7,7 +7,7 @@ class OnlimeRequest
     const STATUS_NOT_DELIVERY = 2;
     const STATUS_REJECT = 3;
 
-    public function post($order_id, $delivery_id, $status, $status_text)
+    public static function post($order_id, $delivery_id, $status, $status_text)
     {
         $data = "";
         $_data = "";
@@ -31,7 +31,7 @@ class OnlimeRequest
         return $answer;
     }
 
-    private function _post($data)
+    private static function _post($data)
     {
         $url = "http://www.onlime.ru/shop_xml_reply.php";
         //$url = "http://teststat.mcn.ru/test.php";
@@ -51,7 +51,7 @@ class OnlimeRequest
         return $result;
     }
 
-    private function _log($str)
+    private static function _log($str)
     {
         $pFile = fopen(LOG_DIR."onlime.log", "a+");
         fwrite($pFile, "\n".date("r").": ".$str);

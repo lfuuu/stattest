@@ -1824,7 +1824,7 @@ function unix_timestamp($Ymd=null){
 
 class all4geo
 {
-    function getId($billNo, $doerId, $comment, $isTrouble = false)
+    static function getId($billNo, $doerId, $comment, $isTrouble = false)
     {
 
         return false;
