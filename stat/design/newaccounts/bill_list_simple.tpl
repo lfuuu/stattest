@@ -101,13 +101,13 @@
 </TR>
 {foreach from=$billops item=op key=key name=outer}
 {count_comments v=$op}
-{if ($op.bill && $op.bill.currency!=$fixclient_data.currency) || (!$op.bill && (count($op.pays)==1) && !$op.pays.0.in_sum)}
+{if (isset($op.bill) && $op.bill && $op.bill.currency!=$fixclient_data.currency) || ((!isset($op.bill) || !$op.bill) && (count($op.pays)==1) && !$op.pays.0.in_sum)}
 {assign var=class value=other}
 {else}
 {cycle values="even,odd" assign=class}
 {/if}
 <TR class={$class}>
-{if $op.bill}
+{if isset($op.bill) && $op.bill}
 	<TD rowspan={$rowspan}{if $op.bill.postreg!="0000-00-00"} style='background-color:#FFFFD0'{/if}>{$op.bill.bill_date}</TD>
 	<TD rowspan={$rowspan} class=pay{$op.bill.is_payed}>
 		<a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}</a>
@@ -131,16 +131,16 @@
 		{if $pay.type=='bank'}b({$pay.bank}){elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
 		{if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}
 	</TD>
-	<TD style='padding:0 0 0 0;'>{if $op.bill.currency=='USD'}{$pay.payment_rate}{else}&nbsp;{/if}</TD>
+	<TD style='padding:0 0 0 0;'>{if isset($op.bill) && $op.bill.currency=='USD'}{$pay.payment_rate}{else}&nbsp;{/if}</TD>
 	<TD><span title="{$pay.add_date}">{$pay.user_name}</span></TD>
 
 	{if $pay.comment}</TR><TR class={$class}><TD colspan=4 class=comment>{$pay.comment|escape:"html"}</TD>{/if}
 	{/foreach}
-	{if $op.bill.comment}
+	{if isset($op.bill) && $op.bill.comment}
 	</TR><TR class={$class}><TD colspan=4 class=comment>{$op.bill.comment|escape:"html"}</TD><TD colspan=4>&nbsp;</TD>
 	{/if}
 {else}
-	{if $op.bill.comment}
+	{if isset($op.bill) && $op.bill.comment}
 		<TD colspan=4 rowspan=2>&nbsp;</TD>
 		</TR><TR class={$class}><TD colspan=4 class=comment>{$op.bill.comment|escape:"html"}</TD>
 	{else}

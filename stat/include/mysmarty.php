@@ -51,8 +51,8 @@ function __fsize($params,&$smarty){
 	$v=$params['value'];
 	$v=round($v/(1024*10.24))/100;
 	$p=explode('.',$v);
-	if (strlen($p[1])<1) $v.='.0';
-	if (strlen($p[1])<2) $v.='0';
+	if (!isset($p[1]) || strlen($p[1])<1) $v.='.0';
+	if (!isset($p[1]) || strlen($p[1])<2) $v.='0';
 	return $v;
 }
 function __fsizeKB($params,&$smarty){

@@ -1917,7 +1917,7 @@ class welltime{
 
 class sender
 {
-    function sendICQMsg($user, $msg)
+    static function sendICQMsg($user, $msg)
     {
         global $db;
 

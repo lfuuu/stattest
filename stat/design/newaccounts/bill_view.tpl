@@ -171,7 +171,7 @@
 		<td>Услуги со статусом connecting: <a href='{$LINK_START}module=newaccounts&action=bill_add&bill={$bill.bill_no}&obj=connecting'>всё</a> <a href='{$LINK_START}module=newaccounts&action=bill_add&bill={$bill.bill_no}&obj=connecting_ab'>только абонентку</a></td>
 		<td>
 			<a href='{$LINK_START}module=newaccounts&action=bill_add&bill={$bill.bill_no}&obj=regular'>Ежемесячное</a>
-			{if $fixclient_data.is_bill_only_contract}
+			{if isset($fixclient_data.is_bill_only_contract) && $fixclient_data.is_bill_only_contract}
 			(<a href='{$LINK_START}module=newaccounts&action=bill_add&bill={$bill.bill_no}&obj=regular&unite=N'>Без объединения</a>)
 			{/if}
 		
