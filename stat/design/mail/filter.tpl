@@ -14,12 +14,16 @@
 <input type="hidden" name="date_to" value="{$date_to}">
 <input type="hidden" name="filter[s8800][0]" value="{$mail_filter.s8800.0}">
 <input type="hidden" name="disable_filter" value="Y">
+{if isset($mail_filter.regions)}
 {foreach from=$mail_filter.regions item="r"}
 	<input type="hidden" name="filter[regions][]" value="{$r}">
 {/foreach}
+{/if}
+{if isset($mail_filter.tarifs)}
 {foreach from=$mail_filter.tarifs item="t"}
 	<input type="hidden" name="filter[tarifs][]" value="{$t}">
 {/foreach}
+{/if}
 
 <TBODY>
 <TR>
@@ -28,12 +32,12 @@
   <TD class=header valign=bottom><input type=checkbox id='allconfirm2' checked onclick='javascript:check_all2()'></td>
   <TD>&nbsp;</TD>
   </TR>
-{foreach from=$mail_clients item=r name=outer}{if $r.letter_state!="sent"}
+{foreach from=$mail_clients item=r name=outer}{if !isset($r.letter_state) || $r.letter_state!="sent"}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 	<TD><input type=hidden value='{$r.client}' name='clients[{$smarty.foreach.outer.iteration}]'><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></TD>
 	<TD><input type=checkbox value=1 name='flag[{$smarty.foreach.outer.iteration}]' id='flag_{$smarty.foreach.outer.iteration}'{if $r.filtered && !$disable_filter} checked{/if}></TD>
 	<TD><input type=checkbox value=1 name='flag2[{$smarty.foreach.outer.iteration}]' id='flag2_{$smarty.foreach.outer.iteration}'{if $r.selected} checked{/if}></TD>
-	<TD><input type=hidden value='{$r.email}' name='emails[{$smarty.foreach.outer.iteration}]'>{$r.email}</TD>
+	<TD><input type=hidden value='{if isset($r.email)}{$r.email}{/if}' name='emails[{$smarty.foreach.outer.iteration}]'>{if isset($r.email)}{$r.email}{/if}</TD>
 </TR>
 {/if}{/foreach}
 </TBODY></TABLE>
@@ -42,13 +46,13 @@
 <script>
 function check_all(){ldelim}
 	v=form.allconfirm.checked;
-{foreach from=$mail_clients item=r name=outer}{if $r.filtered && $r.letter_state!="sent"}
+{foreach from=$mail_clients item=r name=outer}{if $r.filtered && (!isset($r.letter_state) || $r.letter_state!="sent")}
 	form.flag_{$smarty.foreach.outer.iteration}.checked=v;
 {/if}{/foreach}
 {rdelim}
 function check_all2(){ldelim}
 	v=form.allconfirm2.checked;
-{foreach from=$mail_clients item=r name=outer}{if $r.selected && $r.letter_state!="sent"}
+{foreach from=$mail_clients item=r name=outer}{if $r.selected && (!isset($r.letter_state) || $r.letter_state!="sent")}
 	form.flag2_{$smarty.foreach.outer.iteration}.checked=v;
 {/if}{/foreach}
 {rdelim}
@@ -105,7 +109,7 @@ function check_all2(){ldelim}
 					<div>{$r.name}</div>
 				{/capture}
 				<div>
-					<input onchange="show_regions_tarifs('{$r.id}');" id="region_{$r.id}" type="checkbox" name='filter[regions][]' value="{$r.id}" {if $r.id|in_array:$mail_filter.regions}checked="checked"{/if}>
+					<input onchange="show_regions_tarifs('{$r.id}');" id="region_{$r.id}" type="checkbox" name='filter[regions][]' value="{$r.id}" {if isset($mail_filter.regions) && $r.id|in_array:$mail_filter.regions}checked="checked"{/if}>
 					<label for="region_{$r.id}">{$r.name}</option>
 				</div>
 			{/foreach}
@@ -120,7 +124,7 @@ function check_all2(){ldelim}
 	<TD>
 		{foreach from=$f_tarifs item="reg" key="k"}
 		{assign var="selected_region" value=false}
-		{if $k|in_array:$mail_filter.regions && $mail_filter.region_for.0 == 'tarif'}
+		{if isset($mail_filter.regions) && $k|in_array:$mail_filter.regions && $mail_filter.region_for.0 == 'tarif'}
 			{assign var="selected_region" value=true}
 		{/if}
 		<div id="tarifs_for_{$k}" style="margin-bottom: 10px; {if !$selected_region}display:none;{/if}">
@@ -130,7 +134,7 @@ function check_all2(){ldelim}
 				<div style="float: left; margin-right: 15px; ">
 				{foreach from=$r item="t"}
 					<div style="font-size: 11px;">
-						<input {if !$selected_region}disabled="disabled"{/if} id="tarif_{$t.id}" type="checkbox" name='filter[tarifs][]' value="{$t.id}" {if $t.id|in_array:$mail_filter.tarifs}checked="checked"{/if}>
+						<input {if !$selected_region}disabled="disabled"{/if} id="tarif_{$t.id}" type="checkbox" name='filter[tarifs][]' value="{$t.id}" {if isset($mail_filter.tarifs) && $t.id|in_array:$mail_filter.tarifs}checked="checked"{/if}>
 						<label for="tarif_{$t.id}">{$t.name}</option>
 					</div>
 				{/foreach}
