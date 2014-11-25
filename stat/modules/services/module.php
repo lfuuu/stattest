@@ -1,5 +1,5 @@
 <?php
-
+use app\classes\StatModule;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -31,7 +31,7 @@ class m_services extends IModule{
         echo json_encode($_RESULT);
     }
     function services_in_report(){
-        global $design,$db,$user,$module_users;
+        global $design,$db;
         $def=getdate();
         $from=param_load_date('from_',$def);
         $to=param_load_date('to_',$def);
@@ -67,7 +67,7 @@ class m_services extends IModule{
         $design->assign('show_off',$show_off);
 
         $R=array();
-        $module_users->d_users_get($R,'manager');
+        StatModule::users()->d_users_get($R,'manager');
         $design->assign('managers',$R);
 
         $connections=array();
@@ -2255,7 +2255,7 @@ class m_services extends IModule{
             }
 
             $m=array();
-            $GLOBALS['module_users']->d_users_get($m,'manager');
+            StatModule::users()->d_users_get($m,'manager');
 
             $design->assign(
                 'f_manager',
@@ -2350,7 +2350,7 @@ class m_services extends IModule{
             }
 
             $m=array();
-            $GLOBALS['module_users']->d_users_get($m,'manager');
+            StatModule::users()->d_users_get($m,'manager');
 
             $design->assign(
                 'f_manager',

@@ -13,6 +13,7 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 -->
 </style>
 </head>
+<body>
 <?php
     set_magic_quotes_runtime(0);
     require "../../include_archaic/lib.php";
@@ -133,3 +134,5 @@ font-family: Tahoma, Sans-serif, Tahoma, Arial; font-size: 10pt;}
 <?
     }
 ?>
+</body>
+</html>

@@ -1,4 +1,5 @@
 <?php
+use app\classes\StatModule;
 
 class m_stats extends IModule{
 
@@ -1507,7 +1508,7 @@ class m_stats extends IModule{
 		global $db,$design;
 		$managers=array('anyone'=>'Все');
 		$mtmp = array();
-		$GLOBALS['module_users']->d_users_get($mtmp,'manager');
+        StatModule::users()->d_users_get($mtmp,'manager');
 		foreach($mtmp as $key=>$val){
 			$managers[$key] = $val['name']." (".$key.")";
 		}

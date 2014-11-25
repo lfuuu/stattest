@@ -35,23 +35,7 @@ class BaseController extends Controller
 
     public function getPanelsData()
     {
-        if (!function_exists('access')) {
-            include_once Yii::$app->basePath . '/classes/compatibility.php';
-        }
-
-        $panelsData = [];
-        $modules =
-            Module::find()
-                ->installed()
-                ->orderByLoadOrder()
-                ->all();
-        foreach ($modules as $module) {
-            $panelData = $module->getPanelData();
-            if ($panelData) {
-                $panelsData[] = $panelData;
-            }
-        }
-        return $panelsData;
+        return Navigation::create()->getPanelsData();
     }
 
     public function getSearchData()

@@ -75,7 +75,6 @@ function __ipstat($params, &$smarty){
 	else
 		$c='';
 
-	global $module_monitoring;
 	$data = isset($params['data'])
 		  ? $params['data']
 		  : array();
@@ -94,7 +93,7 @@ function __ipstat($params, &$smarty){
 		$R = array("{$m[1]}.{$m[2]}.{$m[3]}.".($m[4]+1),"{$m[1]}.{$m[2]}.{$m[3]}.".($m[4]+2));
 		$ip="{$m[1]}.{$m[2]}.{$m[3]}.{$m[4]}";
 	}
-	return '<table cellspacing=0 cellpadding=0 border=0><tr><td valign=middle>'.$module_monitoring->get_image($R).'</td><td valign=middle'.$c.'>'.
+	return '<table cellspacing=0 cellpadding=0 border=0><tr><td valign=middle>'.\app\classes\StatModule::monitoring()->get_image($R).'</td><td valign=middle'.$c.'>'.
 					'<a href="?module=monitoring&ip='.$R[0].'"'.$c.'>'.$ip.'</a>'.
 					(isset($R[1])?'/<a href="?module=monitoring&ip='.$R[1].'"'.$c.'>'.$m[6].'</a>':'').' </td></tr></table>';
 }

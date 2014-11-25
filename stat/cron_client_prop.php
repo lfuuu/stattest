@@ -7,8 +7,6 @@
 
     //echo $db->GetValue("select database()");
 
-	//$modules= new Modules();//array('users','clients','tt','routers','monitoring'));
-
     $data = date("Y-m-d");
     //$data = "2012-04-01";
 

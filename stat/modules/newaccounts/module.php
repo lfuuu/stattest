@@ -2,7 +2,7 @@
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 use app\dao\BillDao;
-use app\classes\bill\SubscriptionCalculator;
+use app\classes\StatModule;
 
 class m_newaccounts extends IModule
 {
@@ -1358,11 +1358,11 @@ class m_newaccounts extends IModule
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
         if($tt){
-            $GLOBALS['module_tt']->dont_filters = true;
+            StatModule::tt()->dont_filters = true;
             #$GLOBALS['module_tt']->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
-            $GLOBALS['module_tt']->cur_trouble_id = $tt['id'];
-            $GLOBALS['module_tt']->tt_view($fixclient);
-            $GLOBALS['module_tt']->dont_again = true;
+            StatModule::tt()->cur_trouble_id = $tt['id'];
+            StatModule::tt()->tt_view($fixclient);
+            StatModule::tt()->dont_again = true;
         }
     }
 
@@ -4371,7 +4371,7 @@ $sql .= "    order by client, bill_no";
         $design->assign('bills_total_RUR',$s_RUR);
     }
 
-    $R=array(); $GLOBALS['module_users']->d_users_get($R,array('manager','marketing'));
+    $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
     if (isset($R[$manager])) $R[$manager]['selected']=' selected';
     $design->assign('users_manager',$R);
     $design->assign('action',$_GET["action"]);
@@ -4589,7 +4589,7 @@ $sql .= "    order by client, bill_no";
             $design->assign('bills_total_RUR',$s_RUR);
         }
         $m=array();
-        $GLOBALS['module_users']->d_users_get($m,'manager');
+        StatModule::users()->d_users_get($m,'manager');
 
         $R=array("all" =>array("name" => "Все", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
@@ -4701,7 +4701,7 @@ $sql .= "    order by client, bill_no";
             }
             $design->assign('balance',$balance);
         }
-        $R=array(); $GLOBALS['module_users']->d_users_get($R,'manager');
+        $R=array(); StatModule::users()->d_users_get($R,'manager');
         if (isset($R[$manager])) $R[$manager]['selected']=' selected';
         $design->assign('users_manager',$R);
         $design->AddMain('newaccounts/balance_client.tpl');
@@ -5966,7 +5966,7 @@ $sql .= "    order by client, bill_no";
                         $db->QueryUpdate("tt_troubles", "bill_no", array( "problem" =>$comment, "bill_no"=>$ttt['bill_no']));
 
                 }elseif(isset($_GET['tty']) && in_array($_GET['tty'],array('shop_orders','mounting_orders','orders_kp'))){
-                    $GLOBALS['module_tt']->createTrouble(array(
+                    StatModule::tt()->createTrouble(array(
                                 'trouble_type'=>$_GET['tty'],
                                 'trouble_subtype' => 'shop',
                                 'client'=>$client_id,
@@ -5989,7 +5989,7 @@ $sql .= "    order by client, bill_no";
         }
 
 
-        $R=array(); $GLOBALS['module_users']->d_users_get($R,array('manager','marketing'));
+        $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
         $userSelect = array(0 => "--- Не установлен ---");
         foreach($R as $u) {
             $userSelect[$u["id"]] = $u["name"]." (".$u["user"].")";

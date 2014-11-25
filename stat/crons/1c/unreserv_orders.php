@@ -43,7 +43,8 @@ foreach(Trouble::find_by_sql(
             }
         }
 
-        $GLOBALS['module_tt']->createStage(
+        \app\classes\StatModule::tt()
+            ->createStage(
                 $t->id,
                 array(
                     "user_main" => $t->user_main,

@@ -161,11 +161,8 @@ class m_users {
 						trigger_error2('Пароль изменён');
 					} else trigger_error2('Пароли не совпадают');
 				}
-				global $module_usercontrol;
-				if (!isset($module_usercontrol)){
-					trigger_error2('Модуль usercontrol не установлен - фотография меняться не будет');
-					$q_photo='';
-				} else $q_photo=$module_usercontrol->process_photo($id);
+
+				$q_photo=\app\classes\StatModule::usercontrol()->process_photo($id);
 
 				$db->Query('update user_users set '.$add.
 								'user="'.$f['user'].'",' .

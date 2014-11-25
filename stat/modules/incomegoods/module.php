@@ -1,4 +1,5 @@
 <?php
+use app\classes\StatModule;
 
 class m_incomegoods extends IModule{
 
@@ -116,11 +117,11 @@ class m_incomegoods extends IModule{
         {
             $trouble  = Trouble::find_by_bill_id($order->id);
             if($trouble){
-                $GLOBALS['module_tt']->dont_filters = true;
-                #$GLOBALS['module_tt']->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
-                $GLOBALS['module_tt']->cur_trouble_id = $trouble->id;
-                $GLOBALS['module_tt']->tt_view($trouble->client);
-                $GLOBALS['module_tt']->dont_again = true;
+                StatModule::tt()->dont_filters = true;
+                #StatModule::tt()->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
+                StatModule::tt()->cur_trouble_id = $trouble->id;
+                StatModule::tt()->tt_view($trouble->client);
+                StatModule::tt()->dont_again = true;
             }
         }
     }
