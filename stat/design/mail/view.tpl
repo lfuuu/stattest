@@ -75,7 +75,7 @@
 	<TD>{$smarty.foreach.outer.iteration}</TD>
 	<TD><a href='{$LINK_START}module=mail&action=preview&id={$template.job_id}&client={$r.client}'>pre</a></TD>
 	<TD><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></TD>
-	<TD>{if count($r.objects)}
+	<TD>{if isset($r.objects) && count($r.objects)}
 		<table cellspacing=2 cellpadding=1 border=0 class=mform>
 		{foreach from=$r.objects item=obj name=inner}
 			<tr><td>{$obj.object_type}</td><td>{$obj.object_param}</td><td>{if ($obj.view_count)}{$obj.view_ts}{else}&nbsp;&nbsp;&nbsp;&nbsp;{/if}</td></tr>

@@ -20,13 +20,13 @@
 {foreach from=$stats item=item key=key name=outer}
 	<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 		<TD>
-{if $item.flags.in_less_out || ($newgen && $item.less_out_flag eq 'Y')}
+{if (isset($item.flags.in_less_out) && $item.flags.in_less_out) || ($newgen && $item.less_out_flag eq 'Y')}
          <span style="background-color:red;  display:inline; padding: 3px;">&nbsp;</span>
 {/if}</td><td>
-{if $item.flags.over || ($newgen && $item.over_flag eq 'Y')}
+{if (isset($item.flags.over) && $item.flags.over) || ($newgen && $item.over_flag eq 'Y')}
          <span style="background-color:blue;  display:inline; padding: 3px;">&nbsp;</span>
 {/if}</td><td>
-{if $item.flags.traf_less || ($newgen && $item.traf_less_flag eq 'Y')}
+{if (isset($item.flags.traf_less) && $item.flags.traf_less) || ($newgen && $item.traf_less_flag eq 'Y')}
          <span style="background-color:magenta;  display:inline; padding: 3px;">&nbsp;</span>
 {/if}
         </TD>
