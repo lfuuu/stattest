@@ -527,7 +527,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $clientId = $this->service["client_id"];
                 if($clientId)
                 {
-                    if($str = BillContract::getBillItemString($clientId))
+                    if($str = BillContract::getBillItemString($clientId, $this->date_from))
                     {
                         $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".mb_substr($l[1], mb_strpos($l[1], "(", 0, 'utf-8'), null, 'utf-8');
                         $l[1] .= $str;
@@ -580,7 +580,7 @@ class BillContract
             where 
                     client_id = ".$clientId." 
                 and contract_date <= FROM_UNIXTIME('".$dateTs."')
-            order by is_active desc, id desc 
+            order by is_active desc, contract_date desc, id desc 
             limit 1");
     }
 }
@@ -831,7 +831,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "бонентская плата за") !== false)
             {
-                $contractStr = BillContract::getBillItemString($this->service["client_id"]);
+                $contractStr = BillContract::getBillItemString($this->service["client_id"], $this->date_from);
                 if($contractStr)
                 {
                     $l[1] = "Оказанные услуги за ".mb_substr($l[1], mb_strpos($l[1], "за ", 0, 'utf-8')+3, null, 'utf-8').$contractStr;
@@ -841,12 +841,12 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "Плата за звонки по номеру") !== false)
             {
-                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"]);
+                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"], $this->date_from_prev);
             }
 
             if(strpos($l[1], "Услуга местного завершения вызо") !== false)
             {
-                $l[1] .= BillContract::getBillItemString($this->service["client_id"]);
+                $l[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
             }
 
         }
@@ -1071,7 +1071,7 @@ class ServiceUsageExtra extends ServicePrototype {
         
         if($this->client["bill_rename1"] == "yes")
         {
-            $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
+            $v[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
         }
 
         $R[]=$v;
@@ -1454,7 +1454,7 @@ class ServiceEmails extends ServicePrototype {
 
         if($this->client["bill_rename1"] == "yes")
             foreach($R as &$v)
-                $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
+                $v[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
 
         return $R;
     }
