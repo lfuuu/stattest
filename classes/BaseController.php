@@ -4,7 +4,6 @@ namespace app\classes;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use app\models\Module;
 use app\models\Region;
 
 class BaseController extends Controller
