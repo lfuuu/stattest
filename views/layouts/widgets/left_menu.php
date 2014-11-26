@@ -6,7 +6,7 @@ $blocks = $this->context->getNavigationBlocks();
 ?>
 <?php foreach ($blocks as $block): ?>
     <div id="navigation-block-<?=$block->id?>" class="menupanel">
-        <div class="title" onclick="toogleNavigationBlock('navigation-block-<?=$block->id?>')">
+        <div class="title" onclick="toggleNavigationBlock('navigation-block-<?=$block->id?>')">
             <span class="title">
                 <?=$block->title?>
                 <span class="arrow-open">&nbsp;»&nbsp;</span>
@@ -23,7 +23,7 @@ $blocks = $this->context->getNavigationBlocks();
             <?php endforeach; ?>
         </div>
     </div>
-    <?php if ($block->id == $module):?>
+    <?php if (false && $block->id == $module):?>
         <script>openNavigationBlock('navigation-block-<?=$block->id?>')</script>
     <?php endif; ?>
 <?php endforeach; ?>

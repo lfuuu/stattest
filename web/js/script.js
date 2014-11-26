@@ -40,19 +40,6 @@ function doLoad() {
         })
 } 
 
-function toggleNavigationBlock(id){
-    var block = $('#' + id);
-    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
-    if (block.hasClass('opened')) {
-        block.removeClass('opened');
-        delete openedBlocks[id];
-    } else {
-        block.addClass('opened');
-        openedBlocks[id] = true;
-    }
-    localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
-}
-
 function openNavigationBlock(id){
     var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
     $('#' + id).addClass('opened');
@@ -67,7 +54,7 @@ function closeNavigationBlock(id){
     localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
 
-function toogleNavigationBlock(id){
+function toggleNavigationBlock(id){
     if ($('#' + id).hasClass('opened')) {
         closeNavigationBlock(id);
     } else {
