@@ -285,7 +285,7 @@ class MySQLDatabase {
           $V[]=$v[0];
         else
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
           $V[]=$v;
         }
     	$res = $this->Query('insert into '.$table.' (`'.implode('`,`',array_keys($data)).'`) '.
@@ -302,7 +302,7 @@ class MySQLDatabase {
 	    	if ($str) $s = ',('; else $s = '(';
 	    	foreach ($data as $k=>$v)
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
           $s.=($k?',':'').$v;
         }
     		$str.=$s.')';
@@ -325,9 +325,10 @@ class MySQLDatabase {
           $V[]=$k.'='.addslashes($v[0]);
         else
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
           $V[]=$k.'='.$v;
         }
+
     	if (!$x) return $this->Query('select * from '.$table.' where ('.implode(') AND (',$V).')');
     		else return $this->QueryX('select * from '.$table.' where ('.implode(') AND (',$V).')');
     }
@@ -344,7 +345,7 @@ class MySQLDatabase {
           $V[]=$k.'='.addslashes($v[0]);
         else
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
           $V[]=$k.'='.$v;
         }
     	return $this->Query('delete from '.$table.' where ('.implode(') AND (',$V).')');
@@ -355,12 +356,12 @@ class MySQLDatabase {
     	foreach ($data as $k=>$v)
     		if (in_array($k,$keys))
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
     			$V2[]='`'.$k.'`='.$v;
         }
     		elseif (!is_array($v))
         {
-          if (gettype($v) != 'integer') $v = '\''.mysql_real_escape_string($v).'\'';
+          if (gettype($v) != 'integer') $v = '\''.$this->escape($v).'\'';
     			$V1[]='`'.$k.'`='.$v;
         }
     		else $V1[]='`'.$k.'`='.$v[0];
@@ -399,6 +400,9 @@ class MySQLDatabase {
     	}
     }
     function escape($str) {
+        if (!$this->_LinkId)
+            $this->Connect();
+
         return mysql_real_escape_string($str);
     }
 
