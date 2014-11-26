@@ -17,7 +17,7 @@
 		}
 	} else {
 		$design->assign('code',$code);
-		$module_clients->clients_print($r['id'],'contract');
+		\app\classes\StatModule::clients()->clients_print($r['id'],'contract');
 		$design->Process();
 	}
 ?>

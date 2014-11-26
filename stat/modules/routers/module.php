@@ -499,6 +499,7 @@ class m_routers {
                     'depositUSD'    => $model['default_deposit_sumUSD'],
                     'depositRUR'    => $model['default_deposit_sumRUR'],
                 ));
+        exit();
     }
 
     function routers_d_act($fixclient)    {
@@ -621,6 +622,7 @@ class m_routers {
         echo json_encode(array(
             'data'=> $res
         ));
+        exit();
     }
 
     function routers_datacenter_list($fixclient){
