@@ -22,9 +22,6 @@
   <LINK href="/favicon.ico" rel="SHORTCUT ICON">
 </HEAD>
 <BODY text=#404040 vLink=#000099 aLink=#000000 link=#000099 bgColor=#efefef>
-{if isset($authuser)}
-<iframe id=toggle_frame src='?module=usercontrol&action=ex_toggle' height=1 width=1 style='display:none'></iframe>{if access('monitoring','top')}<iframe src='?module=monitoring&action=top' width=100% height=17 style='border:0; padding:0 0 0 0;margin:-15 0 0 0;'></iframe>{/if}
-{/if}
 <A style="DISPLAY: none" name=top></A><!-- ######## /Header ######## -->
 <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
   <TBODY>

@@ -190,7 +190,7 @@ function togglecs() {
 	} else {
 		value = '0';
 	}
-	document.getElementById("toggle_frame").src=("?module=usercontrol&action=ex_flag&flag=statusbox&value="+value);
+    $.get("?module=usercontrol&action=ex_flag&flag=statusbox&value="+value);
 }
 {/literal}
 </script>

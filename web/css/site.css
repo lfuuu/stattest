@@ -8,8 +8,7 @@ body {
 
 
 a { color: #43657d; }
-a:visited { color: #0d7aae; }
-a:hover { color: #43657d; text-decoration: none; }
+a:hover { color: #0d7aae; }
 
 .site_caption {
     text-align: center;
@@ -62,22 +61,42 @@ a:hover { color: #43657d; text-decoration: none; }
     }
 
     .layout_left .menupanel {
-        border-right: #dddddd 1px solid;
-        border-top: #ffffff 2px solid;
+        border-top: #f9f9f9 2px solid;
         font-size: 11px;
     }
 
-    .layout_left .menupanel .title {
+    .layout_left .menupanel > .title {
         font-weight: bold;
+        color: #43657d;
+        cursor: pointer;
         padding-top: 3px;
         padding-bottom: 3px;
     }
+    .layout_left .menupanel > .title:hover {
+        background-color: #e0e0e0;
+    }
 
-    .layout_left .menupanel .group { padding-bottom: 10px; }
+    .layout_left .menupanel > .title > .title {
+        border-bottom: 1px dotted #43657d;
+    }
+
+    .layout_left .menupanel > .title > .title > .arrow-close, .layout_left .menupanel.opened > .title > .title > .arrow-open { display: none; }
+    .layout_left .menupanel > .title > .title > .arrow-open, .layout_left .menupanel.opened > .title > .title > .arrow-close { display: inline; }
+
+    .layout_left .menupanel > .group { display: none; }
+    .layout_left .menupanel.opened > .group {
+        display: block;
+        padding-top: 3px;
+        padding-bottom: 10px;
+    }
 
     .layout_left .menupanel .item {
+        display: block;
         padding-left: 10px;
         padding-top: 2px;
         padding-bottom: 2px;
+    }
+    .layout_left .menupanel .item:hover {
+        background-color: #e0e0e0;
     }
 }

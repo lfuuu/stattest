@@ -6,30 +6,30 @@ use Yii;
 
 class Navigation
 {
-    private $panelsData = [];
+    private $blocks = [];
 
     private function __construct()
     {
-        $this->addStatModule('clients');
-        $this->addStatModule('services');
-        $this->addStatModule('newaccounts');
-        $this->addStatModule('tarifs');
-        $this->addStatModule('tt');
-        $this->addStatModule('stats');
-        $this->addStatModule('routers');
-        $this->addStatModule('monitoring');
-        $this->addStatModule('users');
-        $this->addStatModule('usercontrol');
-        $this->addStatModule('send');
-        $this->addStatModule('employeers');
-        $this->addStatModule('mail');
-        $this->addStatModule('voipnew');
-        $this->addStatModule('voipreports');
-        $this->addStatModule('ats');
-        $this->addStatModule('data');
-        $this->addStatModule('incomegoods');
-        $this->addStatModule('ats2');
-        $this->addStatModule('logs');
+        $this->addBlockForStatModule('clients');
+        $this->addBlockForStatModule('services');
+        $this->addBlockForStatModule('newaccounts');
+        $this->addBlockForStatModule('tarifs');
+        $this->addBlockForStatModule('tt');
+        $this->addBlockForStatModule('stats');
+        $this->addBlockForStatModule('routers');
+        $this->addBlockForStatModule('monitoring');
+        $this->addBlockForStatModule('users');
+        $this->addBlockForStatModule('usercontrol');
+        $this->addBlockForStatModule('send');
+        $this->addBlockForStatModule('employeers');
+        $this->addBlockForStatModule('mail');
+        $this->addBlockForStatModule('voipnew');
+        $this->addBlockForStatModule('voipreports');
+        $this->addBlockForStatModule('ats');
+        $this->addBlockForStatModule('data');
+        $this->addBlockForStatModule('incomegoods');
+        $this->addBlockForStatModule('ats2');
+        $this->addBlockForStatModule('logs');
     }
 
     /**
@@ -43,36 +43,30 @@ class Navigation
         return new self();
     }
 
-    public function getPanelsData()
+    /**
+     * @return NavigationBlock[]
+     */
+    public function getBlocks()
     {
-        return $this->panelsData;
+        return $this->blocks;
     }
 
-    private function addStatModule($moduleName)
-    {
-        $panelData = $this->getStatModulePanelData($moduleName);
-        if ($panelData) {
-            $this->panelsData[] = $panelData;
-        }
-    }
-
-
-    private function getStatModulePanelData($moduleName)
+    private function addBlockForStatModule($moduleName)
     {
         $statModule = StatModule::getHeadOrModule($moduleName);
 
-        $panelData = $statModule->GetPanel(null);
-        if (!$panelData) {
+        list($title, $items) = $statModule->GetPanel(null);
+
+        if (!$title || !$items) {
             return null;
         }
 
-        list($title, $items) = $panelData;
+        $block = new NavigationBlock();
+        $block->id = $moduleName;
+        $block->title = $title;
+        $block->items = $items;
 
-        return array(
-            'module' => $moduleName,
-            'title' => $title,
-            'items' => $items,
-        );
+        $this->blocks[] = $block;
     }
 
 }

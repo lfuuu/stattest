@@ -8,7 +8,6 @@ class m_usercontrol {
 					'edit'				=> array('usercontrol','edit_full'),
 					'apply'				=> array('usercontrol','edit_full'),
 
-					'ex_toggle'			=> array('',''),
 					'ex_flag'			=> array('',''),
 				);
 
@@ -200,18 +199,7 @@ class m_usercontrol {
 		}
 		return $q_photo;
 	}
-	
-	function usercontrol_ex_toggle(){
-		global $db,$user;
-		if (!access('usercontrol','edit_panels')) exit;
-		$panel=get_param_protected('panel'); if (!$panel) exit;
-		$value=get_param_integer('value');
-		$data=$user->Get('data_panel');
-		if (!is_array($data)) $data=array();
-		$data[$panel]=$value;
-		$db->Query('update user_users set data_panel="'.AddSlashes(serialize($data)).'" where id='.$user->Get('id'));
-		exit;
-	}
+
 	function usercontrol_ex_flag(){
 		global $db,$user;
 		if (!access('usercontrol','edit_flags')) exit;
