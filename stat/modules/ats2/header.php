@@ -3,10 +3,6 @@ class m_ats2_head extends IModuleHead{
 	public $module_name = 'ats2';
 	public $module_title = 'Управление телефонией';
 
-	public $rights=array(
-		'ats2'=>array('Учетные записи SIP','access','доступ')
-	);
-
     public $actions=array(
             'default'=>array('ats2','access'),
             'accounts'=>array('ats2','access'),

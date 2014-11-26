@@ -1,9 +1,6 @@
 <?
 define('UC_IMAGESIZE',250);
 class m_usercontrol {	
-	var $rights=array(
-					'usercontrol'		=>array('О пользователе','r,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля, изменение всех данных, настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список')
-				);
 	var $actions=array(
 					'default'			=> array('usercontrol','r'),
 					'edit_pass'			=> array('usercontrol','edit_pass'),
@@ -26,10 +23,7 @@ class m_usercontrol {
 		
 	
 	}
-	function Install($p){
-		return $this->rights;
-	}
-	
+
 	function GetPanel($fixclient){
 		$R=array();
 		foreach($this->menu as $val){

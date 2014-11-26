@@ -2,7 +2,6 @@
 abstract class IModuleHead {
 	public $module_name = '';
 	public $module_title = '';
-	public $rights = array();
 	public $actions = array();
 	public $menu = array();
 	private $obj = null;
@@ -12,21 +11,16 @@ abstract class IModuleHead {
 		$this->obj = new $c();
 		$this->obj->module_name = & $this->module_name;
 		$this->obj->module_title = & $this->module_title;
-		$this->obj->rights = & $this->rights;
 		$this->obj->actions = & $this->actions;
 		$this->obj->menu = & $this->menu;
 	}
 	public function __construct() {
-		if (count($this->rights)==2 && isset($this->rights[0]) && isset($this->rights[1]) && is_string($this->rights[0]) && is_string($this->rights[1])) {
-			$this->rights = array($this->module_name => array($this->module_title,$this->rights[0],$this->rights[1]));
-		}
 		if (count($this->actions)) {
 			foreach ($this->actions as $k=>&$v) {
 				if (!is_array($v)) $v = array($this->module_name,$v);
 			} unset($v);
 		}
 	}
-	public function Install(){ return $this->rights; }
 	public function GetPanel($fixclient){
 		$R=array(); $p=0;
 		foreach($this->menu as $val){
@@ -59,7 +53,6 @@ abstract class IModule {
 	public $callStyle = 'old';
 	public $module_name = null;
 	public $module_title = null;
-	public $rights = null;
 	public $actions = null;
 	public $menu = null;
 	public function GetMain($action,$fixclient) {

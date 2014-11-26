@@ -56,11 +56,6 @@
 class m_ats extends IModule
 {
 
-	function Install($p)
-    {
-		return $this->rights;
-	}
-
 	function GetMain($action,$fixclient){
 		global $design,$db,$user;
 		if (!isset($this->actions[$action])) return;

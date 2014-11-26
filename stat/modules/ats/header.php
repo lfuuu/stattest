@@ -3,10 +3,6 @@ class m_ats_head extends IModuleHead{
 	public $module_name = 'ats';
 	public $module_title = 'Управление ATC';
 
-	public $rights=array(
-		'ats'=>array('Управление ATC','access,support','доступ,ограниченный доступ')
-	);
-
     public $actions=array(
             'default'=>array('ats','access'),
             'sip_users'=>array('ats','access'),

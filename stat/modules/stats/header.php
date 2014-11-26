@@ -2,9 +2,6 @@
 class m_stats_head extends IModuleHead{
 	public $module_name = 'stats';
 	public $module_title = 'Статистика';
-	var $rights=array(
-		'stats'=>array("Статистика", 'r,report,vip_report,voip_recognition,sale_channel_report','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители'),
-	);
 	var $actions=array(
 		'default'			=> array('stats','r'),
 		'internet'			=> array('stats','r'),

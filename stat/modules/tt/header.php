@@ -2,13 +2,6 @@
 class m_tt_head extends IModuleHead{
 	public $module_name = 'tt';
 	public $module_title = 'Заявки';
-	var $rights=array(
-		'tt'=>array(
-                        'Работа с заявками',
-                        'view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit',
-                        'просмотр,показывать "Запросы клиентов",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков'
-                ),
-	);
 	var $actions=array(
 					'default'		=> array('tt','view'),
 					'list'			=> array('tt','view'),

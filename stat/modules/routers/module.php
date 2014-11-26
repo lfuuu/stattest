@@ -1,12 +1,5 @@
 <?
 class m_routers {
-    var $rights=array(
-        'routers_routers'        => array('Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление'),
-        'routers_devices'        => array('Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление'),
-//        'routers_modems'        => array('Каналы','r','чтение'),
-        'routers_models'        => array('Модели клиентских устройств','r,w','чтение,редактирование'),
-        'routers_nets'            => array('Сети','r','доступ'),
-    );
     var $actions=array(
         'default'                => array('',''),
         'r_list'                => array('routers_routers','r'),
@@ -119,9 +112,6 @@ class m_routers {
     }
 
     function m_routers(){}
-    function Install($p){
-        return $this->rights;
-    }
 
     function GetMain($action,$fixclient){
         if (!isset($this->actions[$action])) return;

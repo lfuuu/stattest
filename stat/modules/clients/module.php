@@ -2,12 +2,6 @@
 use app\classes\StatModule;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
-	var $rights=array(
-					'clients'		=>array(
-						'Работа с клиентами',
-							'read,read_filter,read_all,new,edit,restatus,credit,credit_all,edit_tele,sale_channels,file,inn_double,all4net,history_edit',
-							'просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,установка кредита,установка кредита всем сразу,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории'),
-				);
 	var $actions=array(
 					'default'		=> array('clients','read'),
 					'search_as'		=> array('clients','read'),
@@ -96,10 +90,6 @@ class m_clients {
 		$design->assign('clients_my','');
 		$design->assign('search','');
     */
-	}
-
-	function Install($p){
-		return $this->rights;
 	}
 
 	function GetPanel($fixclient){

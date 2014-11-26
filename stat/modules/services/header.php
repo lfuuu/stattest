@@ -2,21 +2,6 @@
 class m_services_head extends IModuleHead {
 	public $module_name	= 'services';
 	public $module_title = 'Услуги';
-    public $rights=array(
-            'services_internet'   => array(
-                "Интернет", 
-                'r,edit,addnew,activate,close,full,edit_off,tarif',
-                'просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)'),
-            'services_collocation'=>array("Collocation", 'r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение'),
-            'services_voip'=>array("IP Телефония", 'r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del2029','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера'),
-            'services_domains'=>array("Доменные имена", 'r,edit,addnew,close','просмотр,редактирование,добавление,отключение'),
-            'services_mail'=>array("E-mail", 'r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список'),
-            'services_ppp'=>array("PPP-логины", 'r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение'),
-            'services_additional'=>array("Дополнительные услуги", 'r,r_old,edit,addnew,full,activate,close','просмотр,просмотр старых,редактирование,добавление,доступ ко всем полям,активирование,отключение'),
-            'services_welltime'=>array('WellTime','full,docs','полный доступ,документы'),
-            'services_wellsystem'=>array('WellSystem','full','полный доступ'),
-            'services_itpark'=>array('Услуги IT Park\'а','full','полный доступ')
-            );
 	public $actions=array(
 					'default'			=> array('',''),
 
