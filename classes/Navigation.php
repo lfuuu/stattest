@@ -29,7 +29,7 @@ class Navigation
         $this->addStatModule('clients');
         $this->addStatModule('services');
         $this->addStatModule('newaccounts');
-        $this->addStatModule('newaccounts');
+        $this->addStatModule('tarifs');
         $this->addStatModule('tt');
         $this->addStatModule('stats');
         $this->addStatModule('routers');
