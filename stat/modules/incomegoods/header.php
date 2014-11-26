@@ -3,10 +3,6 @@ class m_incomegoods_head extends IModuleHead{
 	public $module_name = 'incomegoods';
 	public $module_title = 'Закупки';
 
-	public $rights=array(
-		'incomegoods'=>array('Закупки','access,admin','доступ,администрирование')
-	);
-
 	public $actions=array(
         'default'=> array('incomegoods','access'),
 		'order_list' => array('incomegoods','access'),

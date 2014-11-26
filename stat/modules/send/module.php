@@ -1,8 +1,5 @@
 <?
 class m_send {	
-	var $rights=array(
-					'send'		=>array('Массовая отправка счетов','r,send','просмотр состояния,отправка')
-				);
 	var $actions=array(
 					'default'		=> array('send','r'),
 					'send'			=> array('send','send'),
@@ -19,10 +16,7 @@ class m_send {
 		
 	
 	}
-	function Install($p){
-		return $this->rights;
-	}
-	
+
 	function GetPanel($fixclient){
 		$R=array();
 		foreach($this->menu as $val){

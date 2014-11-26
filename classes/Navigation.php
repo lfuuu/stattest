@@ -8,22 +8,6 @@ class Navigation
 {
     private $panelsData = [];
 
-    /**
-     * @return Navigation
-     */
-    public static function create()
-    {
-        if (!function_exists('access')) {
-            include_once Yii::$app->basePath . '/classes/compatibility.php';
-        }
-        return new self();
-    }
-
-    public function getPanelsData()
-    {
-        return $this->panelsData;
-    }
-
     private function __construct()
     {
         $this->addStatModule('clients');
@@ -46,6 +30,22 @@ class Navigation
         $this->addStatModule('incomegoods');
         $this->addStatModule('ats2');
         $this->addStatModule('logs');
+    }
+
+    /**
+     * @return Navigation
+     */
+    public static function create()
+    {
+        if (!function_exists('access')) {
+            include_once Yii::$app->basePath . '/classes/compatibility.php';
+        }
+        return new self();
+    }
+
+    public function getPanelsData()
+    {
+        return $this->panelsData;
     }
 
     private function addStatModule($moduleName)

@@ -1,8 +1,5 @@
 <?
 class m_employeers {	
-	var $rights=array(
-					'employeers'		=>array('Сотрудники','r','чтение')
-				);
 	var $actions=array(
 					'default'		=> array('employeers','r'),
 					'couriers'		=> array('employeers','r'),
@@ -18,10 +15,6 @@ class m_employeers {
 		
 	
 	}
-	function Install($p){
-		return $this->rights;
-	}
-	
 	function GetPanel($fixclient){
 		$R=array();
 		foreach($this->menu as $val){

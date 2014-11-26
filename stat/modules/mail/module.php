@@ -3,9 +3,6 @@ use app\classes\StatModule;
 
 class m_mail{
 	var $is_active = 0;
-	var $rights=array(
-		'mail' => array('Письма клиентам','w,r','работа с рассылкой,просмотр PM'),
-	);
 	var $actions=array(
 		'default'		=> array('mail','r'),
 		'list'			=> array('mail','w'),
@@ -26,9 +23,6 @@ class m_mail{
 	);
 
 	function m_mail(){}
-	function Install(){
-		return $this->rights;
-	}
 	function GetPanel(){
 		global $fixclient_data,$db;
 		$R=array();
