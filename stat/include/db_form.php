@@ -981,11 +981,13 @@ class DbFormUsageExtra extends DbForm{
         global $fixclient_data;
         if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
+
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
 
-            $db->Query('select id,description,price,currency from tarifs_extra where 1 '.(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').'and id='.$this->data['tarif_id']);
+            $db->Query('select id,description,price,currency from tarifs_extra where 1 './*(isset($fixclient_data['currency'])?'and currency="'.$fixclient_data['currency'].'" ':'').*/'and id='.$this->data['tarif_id']);
             $r=$db->NextRecord();
+
             $this->fields['tarif_str']['type']='label';
             $design->assign('tarif_real_id',$r['id']);
             $this->data['tarif_str']=$r['description'];
