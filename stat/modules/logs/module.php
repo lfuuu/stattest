@@ -1,4 +1,5 @@
 <?php
+use app\classes\StatModule;
 
 class m_logs extends IModule{
 
@@ -61,7 +62,7 @@ class m_logs extends IModule{
 		$manager = get_param_raw('manager', '');
 		$design->assign('manager', $manager);
 		$m=array();
-		$GLOBALS['module_users']->d_users_get($m,'manager');
+        StatModule::users()->d_users_get($m,'manager');
 		$design->assign('f_manager', $m);
 		
 		list($logs, $pages) = $this->getLogs($client_id, $from, $to, $events, $manager, $page);

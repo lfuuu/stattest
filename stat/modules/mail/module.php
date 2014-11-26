@@ -1,4 +1,6 @@
-<?
+<?php
+use app\classes\StatModule;
+
 class m_mail{
 	var $is_active = 0;
 	var $rights=array(
@@ -318,7 +320,7 @@ class m_mail{
 		$design->assign('mail_id',$id);
 
 		$m=array();
-		$GLOBALS['module_users']->d_users_get($m,'manager');
+        StatModule::users()->d_users_get($m,'manager');
 
 		$design->assign(
 			'f_manager',

@@ -1,4 +1,6 @@
 <?php
+use app\classes\StatModule;
+
 class DbForm {
     protected $table;
     protected $fields=array();
@@ -193,8 +195,7 @@ class HelpDbForm {
         $design->assign('dbform_f_cpe',get_cpe_history($service,$id));
     }
     public static function assign_tt($service,$service_id,$client) {
-        global $design,$module_tt;
-        $module_tt->makeTroubleList(1,'service',3,$client,$service,$service_id);
+        StatModule::tt()->makeTroubleList(1,'service',3,$client,$service,$service_id);
     }
     public static function save_block($service,$id,$block,$comment, $fieldsChanges = "") {
         global $db,$user;
@@ -351,7 +352,7 @@ class DbFormUsageIpPorts extends DbForm{
             $this->fields['port']['enum'][] = $row['port_name'];
         }
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         $R=$db->AllRecords('select * from tarifs_internet '.(isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').'order by status,type_internet,name');
         $design->assign('dbform_f_tarifs',$R);
         $R = array();
@@ -515,7 +516,7 @@ class DbFormUsageVoip extends DbForm {
         $this->fields["line7800_id"]["assoc_enum"] = $line7800_default + $lines7800;
 
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         $R=$db->AllRecords('select * from tarifs_voip '.
                             (isset($fixclient_data['currency'])?'where currency="'.$fixclient_data['currency'].'" ':'').' and region="'.$region.'" '.
                             'order by status, month_line, month_min_payment', 'id');
@@ -978,7 +979,7 @@ class DbFormUsageExtra extends DbForm{
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design;
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1070,7 +1071,7 @@ class DbFormUsageITPark extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1155,7 +1156,7 @@ class DbFormUsageWelltime extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_welltime',$this->data['id']);
             HelpDbForm::assign_tt('usage_welltime',$this->data['id'],$this->data['client']);
@@ -1289,7 +1290,7 @@ class DbFormUsageVirtpbx extends DbForm{
 
         $this->fields['table_name']=array("type" => 'hidden', 'value' => 'usage_virtpbx');
         if(!isset($fixclient_data))
-            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             $this->prepareMovedFieldsForDispaly();
             HelpDbForm::assign_block('usage_virtpbx',$this->data['id']);
@@ -1429,7 +1430,7 @@ class DbFormUsage8800 extends DbForm{
          global $db,$design, $fixclient_data;
 
         if(!isset($fixclient_data))
-            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_8800',$this->data['id']);
             HelpDbForm::assign_tt('usage_8800',$this->data['id'],$this->data['client']);
@@ -1511,7 +1512,7 @@ class DbFormUsageSms extends DbForm{
          global $db,$design, $fixclient_data;
 
         if(!isset($fixclient_data))
-            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
 
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_sms',$this->data['id']);
@@ -1596,7 +1597,7 @@ class DbFormUsageWellSystem extends DbForm{
          global $db,$design;
         global $fixclient_data;
         if(!isset($fixclient_data))
-            $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_extra',$this->data['id']);
             HelpDbForm::assign_tt('usage_extra',$this->data['id'],$this->data['client']);
@@ -1685,7 +1686,7 @@ class DbFormUsageIPPPP extends DbForm{
     public function Display($form_params = array(),$h2='',$h3='') {
          global $db,$design;
         global $fixclient_data;
-        if (!isset($fixclient_data)) $fixclient_data=$GLOBALS['module_clients']->get_client_info($this->data['client']);
+        if (!isset($fixclient_data)) $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
         if ($this->isData('id')) {
             HelpDbForm::assign_block('usage_ip_ppp',$this->data['id']);
             HelpDbForm::assign_tt('usage_ip_ppp',$this->data['id'],$this->data['client']);

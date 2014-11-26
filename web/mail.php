@@ -18,7 +18,7 @@
 		$R['source'] = $o["source"];
 
 		$design->assign('emailed',1);
-		$_GET = $R; $module_newaccounts->newaccounts_bill_print('');
+		$_GET = $R; \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
 		$design->Process();
 	}
 ?>

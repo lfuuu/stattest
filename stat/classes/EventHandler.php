@@ -1,5 +1,6 @@
 <?php
 use app\dao\BillDao;
+use app\classes\StatModule;
 
 class EventHandler
 {
@@ -22,7 +23,7 @@ class EventHandler
 
         $card = ClientCard::find($clientId);
         if ($card) {
-            $GLOBALS['module_newaccounts']->update_balance($card->id, $card->currency);
+            StatModule::newaccounts()->update_balance($card->id, $card->currency);
         }
     }
 

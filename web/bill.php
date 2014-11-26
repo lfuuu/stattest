@@ -21,6 +21,6 @@
 		$design->assign('dbg',false);
 
 	$design->assign('emailed',$v=get_param_raw('emailed',1));
-	$module_newaccounts->newaccounts_bill_print('');
+    \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
 	$design->Process();
 ?>

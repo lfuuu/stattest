@@ -356,7 +356,7 @@ class Bill{
         if($this->bill["cleared_flag"] == 1){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
             if(!defined("NO_WEB"))
-			$GLOBALS['module_newaccounts']->update_balance($this->bill['client_id'], $this->bill["currency"]);
+                \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
         }
     }
 
@@ -367,7 +367,7 @@ class Bill{
         if($this->bill["cleared_flag"] == 0){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
             if(!defined("NO_WEB"))
-			$GLOBALS['module_newaccounts']->update_balance($this->bill['client_id'], $this->bill["currency"]);
+                \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
         }
     }
     public function GetStaticComment()

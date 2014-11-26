@@ -1,4 +1,5 @@
 <?php
+use app\classes\StatModule;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $rights=array(
@@ -1043,11 +1044,7 @@ class m_clients {
 	}
 	function client_view($id,$show_edit = 0,$design_echo = 1){
 
-		global
-			$design,
-			$db,
-			$module_tt,
-			$module_users, $user;
+		global $design, $db, $user;
 
     $voip = new VoipStatus;
     $voip->loadClient($id);
@@ -1138,8 +1135,7 @@ class m_clients {
 		$GLOBALS['fixclient'] = $id;
 		$design->assign('request_uri',str_replace('&id='.$id,'',$_SERVER['REQUEST_URI']));
 
-		if(isset($module_tt))
-			$module_tt->get_counters($id);
+        StatModule::tt()->get_counters($id);
 
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
 		$design->assign_by_ref('statuses',ClientCS::$statuses);
@@ -1183,22 +1179,22 @@ class m_clients {
 
 			if($r['client']){
 				$design->assign('is_secondary_output',1);
-				$GLOBALS['module_tt']->showTroubleList(1,'client',$r['client']);
-				$GLOBALS['module_services']->services_in_view($r['client']);
-				$GLOBALS['module_services']->services_co_view($r['client']);
-				$GLOBALS['module_services']->services_ppp_view($r['client']);
-				$GLOBALS['module_services']->services_vo_view($r['client']);
-				$GLOBALS['module_routers']->routers_d_list($r['client'],1);
-				//$GLOBALS['module_routers']->routers_d_list($r['client']);
-				$GLOBALS['module_services']->services_em_view($r['client']);
-				$GLOBALS['module_services']->services_ex_view($r['client']);
-				$GLOBALS['module_services']->services_it_view($r['client']);
-				$GLOBALS['module_services']->services_welltime_view($r['client']);
-				$GLOBALS['module_services']->services_virtpbx_view($r['client']);
-				$GLOBALS['module_services']->services_8800_view($r['client']);
-				$GLOBALS['module_services']->services_sms_view($r['client']);
-				$GLOBALS['module_services']->services_wellsystem_view($r['client']);
-				$GLOBALS['module_services']->services_ad_view($r['client']);
+                StatModule::tt()->showTroubleList(1,'client',$r['client']);
+                StatModule::services()->services_in_view($r['client']);
+                StatModule::services()->services_co_view($r['client']);
+                StatModule::services()->services_ppp_view($r['client']);
+                StatModule::services()->services_vo_view($r['client']);
+                StatModule::routers()->routers_d_list($r['client'],1);
+				//StatModule::routers()->routers_d_list($r['client']);
+                StatModule::services()->services_em_view($r['client']);
+                StatModule::services()->services_ex_view($r['client']);
+                StatModule::services()->services_it_view($r['client']);
+                StatModule::services()->services_welltime_view($r['client']);
+                StatModule::services()->services_virtpbx_view($r['client']);
+                StatModule::services()->services_8800_view($r['client']);
+                StatModule::services()->services_sms_view($r['client']);
+                StatModule::services()->services_wellsystem_view($r['client']);
+                StatModule::services()->services_ad_view($r['client']);
 				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
 			}
 
@@ -1210,26 +1206,26 @@ class m_clients {
             $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
 
 			$R=array();
-			$module_users->d_users_get($R,'telemarketing');
+            StatModule::users()->d_users_get($R,'telemarketing');
 			if(isset($R[$r['telemarketing']]))
 				$R[$r['telemarketing']]['selected']=' selected';
 
 			$design->assign('users_telemarketing',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'account_managers');
+            StatModule::users()->d_users_get($R,'account_managers');
 			if(isset($R[$r['account_manager']]))
 				$R[$r['account_manager']]['selected']=' selected';
 			$design->assign('account_managers',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'manager');
+            StatModule::users()->d_users_get($R,'manager');
 			if(isset($R[$r['manager']]))
 				$R[$r['manager']]['selected']=' selected';
 			$design->assign('users_manager',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'support');
+            StatModule::users()->d_users_get($R,'support');
 			if(isset($R[$r['support']]))
 				$R[$r['support']]['selected']=' selected';
 			$design->assign('users_support',$R);
@@ -1303,25 +1299,25 @@ class m_clients {
 		$design->assign('mode_new',1);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'account_managers');
+        StatModule::users()->d_users_get($R,'account_managers');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('account_managers',$R);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'manager');
+        StatModule::users()->d_users_get($R,'manager');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_manager',$R);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'telemarketing');
+        StatModule::users()->d_users_get($R,'telemarketing');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_telemarketing',$R);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'support');
+        StatModule::users()->d_users_get($R,'support');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_support',$R);
@@ -1639,7 +1635,7 @@ class m_clients {
                 DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
                 DatePickerPeriods::assignPeriods(new DateTime());
                 
-		$R=array(); $GLOBALS['module_users']->d_users_get($R,'manager');
+		$R=array(); StatModule::users()->d_users_get($R,'manager');
 		$design->assign('users',$R);
 		$design->assign('manager',$manager);
 
