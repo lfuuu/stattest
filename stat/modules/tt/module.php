@@ -713,6 +713,7 @@ class m_tt extends IModule{
     function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null)
     {
         global $db,$user,$design;
+        $tt_design = 'full';
         /*
         if(isset($_REQUEST['client']) && $_REQUEST['client']!=='---'){ //
             $client = $_REQUEST['client'];
