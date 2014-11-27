@@ -13,10 +13,7 @@ class UserService
 		return 25;
 	}
 }
-//require_once(INCLUDE_PATH.'user.php');
 $user	= new UserService();
-//$user->DoAction("");
-//if (!$user->IsAuthorized()) die('error:authorization failed');
 
 $action=get_param_raw('action','');
 if ($action=='add_client') {

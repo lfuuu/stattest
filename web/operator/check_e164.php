@@ -3,11 +3,6 @@
 	include PATH_TO_ROOT."conf_yii.php";
 	//аутентификация
 	$action=get_param_raw('action','default');
-	$user->DoAction($action);
-	if(!$user->IsAuthorized()){
-		echo "Authorize please!";
-		exit();
-	}
 
     $spec_numbers = array('9999', '7495', '7499', '', '0', '101');
 
