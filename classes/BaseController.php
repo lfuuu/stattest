@@ -32,9 +32,12 @@ class BaseController extends Controller
         return \yii\base\Controller::beforeAction($action);
     }
 
-    public function getPanelsData()
+    /**
+     * @return NavigationBlock[]
+     */
+    public function getNavigationBlocks()
     {
-        return Navigation::create()->getPanelsData();
+        return Navigation::create()->getBlocks();
     }
 
     public function getSearchData()

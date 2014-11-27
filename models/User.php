@@ -12,15 +12,12 @@ use yii\db\ActiveRecord;
  * @property string $pass
  * @property string $usergroup
  * @property string $name
- * @property string $data_panel
  * @property string $data_flag
  * @property integer $depart_id
  * @property string $enabled
  */
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
-    private $dataPanelData = false;
-
     public static function tableName()
     {
         return 'user_users';
@@ -70,14 +67,5 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->pass === md5($password);
-    }
-
-    public function isPanelVisible($panel)
-    {
-        if ($this->dataPanelData === false) {
-            $this->dataPanelData = unserialize($this->data_panel);
-        }
-
-        return isset($this->dataPanelData[$panel]) && $this->dataPanelData[$panel] > 0;
     }
 }

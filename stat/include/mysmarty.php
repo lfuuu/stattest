@@ -430,14 +430,6 @@ class MySmarty extends Smarty {
 			return (count($G['errors'])+count($G['notices'])?0:1);
 		}
 	}
-	function AddMenu($title,$arr){
-		if ($this->ignore) return;
-		$this->assign('panel_id',$this->cid);
-		$this->assign('panel_title',$title);
-		$this->assign_by_ref('panel_data',$arr);
-		$this->_add('panel', 'panel.tpl', 1);
-		$this->cid++;
-	}
 
     function var_is_array($name) {
 	    if(isset($this->_tpl_vars[$name])) {

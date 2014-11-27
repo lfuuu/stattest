@@ -68,8 +68,6 @@ $user = Yii::$app->user->identity;
                 <?= Html::a('Logout', ['site/logout']) ?>
             </div>
         <?php endif; ?>
-
-        <iframe id=toggle_frame src='?module=usercontrol&action=ex_toggle' height=1 width=1 style='display:none'></iframe>
     </div>
 
     <?= $this->render('widgets/left_menu', ['user' => $user]); ?>

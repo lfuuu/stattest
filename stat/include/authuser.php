@@ -75,11 +75,6 @@ class AuthUser {
                 $this->_Client=$this->_Login;
                 $this->_Login=$r['A'];
             }
-            if (isset($this->_Data['data_panel'])){
-                $this->_Data['data_panel']=unserialize($this->_Data['data_panel']);
-            } else {
-                $this->_Data['data_panel']=array();
-            }
             if (isset($this->_Data['data_flags'])){
                 $this->_Data['data_flags']=unserialize($this->_Data['data_flags']);
             } else {
@@ -94,11 +89,6 @@ class AuthUser {
         $db->Query('select * from '.USER_TABLE.' where id="' . $userId . '" and enabled="yes"');
         $this->_Data = $db->NextRecord();
         $this->_Login = $this->_Data['user'];
-        if (isset($this->_Data['data_panel'])){
-            $this->_Data['data_panel']=unserialize($this->_Data['data_panel']);
-        } else {
-            $this->_Data['data_panel']=array();
-        }
         if (isset($this->_Data['data_flags'])){
             $this->_Data['data_flags']=unserialize($this->_Data['data_flags']);
         } else {
@@ -144,11 +134,6 @@ class AuthUser {
             $this->_Login = $user;
             $this->_IsAuthorized = 1;
             $this->_Data = $data;
-            if (isset($this->_Data['data_panel'])){
-                $this->_Data['data_panel']=unserialize($this->_Data['data_panel']);
-            } else {
-                $this->_Data['data_panel']=array();
-            }
             if (isset($this->_Data['data_flags'])){
                 $this->_Data['data_flags']=unserialize($this->_Data['data_flags']);
             } else {

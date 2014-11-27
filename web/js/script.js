@@ -39,20 +39,36 @@ function doLoad() {
             } else document.getElementById('variants').style.display='none';
         })
 } 
- 
 
-function toggle(obj,link,module){
-	if (obj.style.display=='inline'){
-		obj.style.display = 'none';
-		link.innerHTML='&raquo;';
-		value = '0';
-	} else {
-		obj.style.display = 'inline';	
-		link.innerHTML='&laquo;';
-		value = '1';
-	}
-	if (module!="") document.getElementById("toggle_frame").src=("?module=usercontrol&action=ex_toggle&panel=" + module + "&value=" + value);
+function openNavigationBlock(id){
+    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+    $('#' + id).addClass('opened');
+    openedBlocks[id] = true;
+    localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
+
+function closeNavigationBlock(id){
+    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+    $('#' + id).removeClass('opened');
+    delete openedBlocks[id];
+    localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
+}
+
+function toggleNavigationBlock(id){
+    if ($('#' + id).hasClass('opened')) {
+        closeNavigationBlock(id);
+    } else {
+        openNavigationBlock(id);
+    }
+}
+
+function initNavigationBlocks(){
+    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+    for(var blockId in openedBlocks) {
+        openNavigationBlock(blockId);
+    }
+}
+
 
 function toggle2(obj){
 	if (!obj.style) obj = document.getElementById(obj);
