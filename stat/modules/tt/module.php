@@ -1292,7 +1292,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
 
             // фильтр по этапам
-            $sql_select_users = " select `user` from user_users where enabled='yes' order by `user` ";
+            $sql_select_users = " select `user` from user_users order by enabled, `user` ";
             $design->assign('users',$db->AllRecordsAssoc($sql_select_users, 'user', 'user'));
         }
 
