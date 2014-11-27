@@ -95,7 +95,6 @@ class m_usercontrol {
 		$phone_work=get_param_protected('phone_work');
 		$q_photo=$this->process_photo($user->Get('id'));
 		$db->Query('update user_users set name="'.$name.'",email="'.$email.'",icq="'.$icq.'",phone_work="'.$phone_work.'",phone_mobile="'.$phone_mobile.'"'.$q_photo.' where user="'.$user->Get('user').'"');
-		$user->Authorize();
 		$this->usercontrol_edit();
 	}
 

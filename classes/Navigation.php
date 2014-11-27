@@ -30,6 +30,14 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('ats2');
         $this->addBlockForStatModule('logs');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('test_new_clients')
+                ->setTitle('Тест Новые клиенты')
+                ->addItem('Ссылка 1', '/test/index?xxx')
+                ->addItem('Ссылка 2', '/test/index?yyy')
+                ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
+        );
     }
 
     /**
@@ -51,6 +59,11 @@ class Navigation
         return $this->blocks;
     }
 
+    private function addBlock(NavigationBlock $block)
+    {
+        $this->blocks[] = $block;
+    }
+
     private function addBlockForStatModule($moduleName)
     {
         $statModule = StatModule::getHeadOrModule($moduleName);
@@ -61,12 +74,16 @@ class Navigation
             return null;
         }
 
-        $block = new NavigationBlock();
-        $block->id = $moduleName;
-        $block->title = $title;
-        $block->items = $items;
+        $block =
+            NavigationBlock::create()
+                ->setId($moduleName)
+                ->setTitle($title)
+            ;
+        foreach ($items as $item) {
+            $block->addItem($item[0], '?' . $item[1]);
+        }
 
-        $this->blocks[] = $block;
+        $this->addBlock($block);
     }
 
 }

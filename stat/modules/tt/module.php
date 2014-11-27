@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 # 1 | открыт
 # 2 | закрыт
@@ -2473,8 +2473,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $user = $userFrom = false;
         $comment = "";
+        $user_login = Yii::$app->user->getIdentity();
 
-        if(count($rs) == 1 && isset($_SESSION[USER_VAR_LOGIN]) && $_SESSION[USER_VAR_LOGIN] != $rs[0]["user_main"]) //create
+        if(count($rs) == 1 && $user_login->user != $rs[0]["user_main"]) //create
         {
             $user = $rs[0]["user_main"];
             $comment = $rs[0]["comment"];
