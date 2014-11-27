@@ -21,6 +21,9 @@ $config = [
     'bootstrap' => ['log'],
     'language' => 'ru',
     'components' => [
+        'view' => [
+            'title' => 'stat - MCN Телеком',
+        ],
         'request' => [
             'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',

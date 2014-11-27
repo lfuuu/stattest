@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\classes\StatModule;
+use app\models\User;
 use Yii;
 use app\classes\BaseController;
 use app\classes\Encoding;
@@ -68,7 +69,11 @@ class CompatibilityController extends BaseController
             $fixclient_data = StatModule::clients()->get_client_info($fixclient);
         }
 
-        if ($renderLayout && access('tt','view')) {
+        if (
+            $renderLayout && access('tt','view')
+            && Yii::$app->user->getIdentity()->hasAttribute('show_troubles_on_every_page')
+            && Yii::$app->user->getIdentity()->show_troubles_on_every_page > 0
+        ) {
             if ((!$fixclient || $module != 'clients') && $module != 'tt') {
                 $tt = new \m_tt();
                 $tt->showTroubleList(2, 'top', $fixclient);
