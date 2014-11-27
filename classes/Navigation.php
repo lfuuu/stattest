@@ -11,6 +11,22 @@ class Navigation
     private function __construct()
     {
         $this->addBlockForStatModule('clients');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('client_telecom')
+                ->setTitle('Телеком')
+                ->addItem('Продажи', '/clients/index?bp=telecom.sales')
+                ->addItem('Сопровождение', '/clients/index?bp=telecom.accounting')
+               // ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
+        );
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('client_ecommerce')
+                ->setTitle('Интернет магазин')
+                ->addItem('Продажи', '/clients/index?bp=ecommerce.sales')
+                ->addItem('Сопровождение', '/clients/index?bp=ecommerce.accounting')
+               // ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
+        );
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
         $this->addBlockForStatModule('tarifs');
@@ -30,14 +46,6 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('ats2');
         $this->addBlockForStatModule('logs');
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('test_new_clients')
-                ->setTitle('Тест Новые клиенты')
-                ->addItem('Ссылка 1', '/test/index?xxx')
-                ->addItem('Ссылка 2', '/test/index?yyy')
-                ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
-        );
     }
 
     /**
