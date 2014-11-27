@@ -15,8 +15,8 @@ $blocks = $this->context->getNavigationBlocks();
         </div>
         <div class="group">
             <?php foreach ($block->items as $item): ?>
-                <?php if ($item[0]) { ?>
-                    <a class="item" href="?<?=$item[1]?>"><?=$item[0]?></a> <?=isset($item[3]) ? $item[3] : ''?>
+                <?php if ($item['title']) { ?>
+                    <a class="item" href="<?=$item['url']?>"><?=$item['title']?></a>
                 <?php } else { ?>
                     <div>&nbsp;</div>
                 <?php } ?>
