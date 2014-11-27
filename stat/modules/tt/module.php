@@ -1292,19 +1292,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
 
             // фильтр по этапам
-            //$sql_select_states = " select * from `tt_states` order by `order` ";
-            $sql_select_clients = " select tt_troubles.client from tt_troubles inner join clients on clients.client = tt_troubles.client and status='work' group by tt_troubles.client order by client ";
-            $sql_select_responsibles = " select user_main resp from tt_stages group by user_main having user_main<>'' order by user_main ";
-            $sql_select_editors = " select user_edit edit from tt_stages group by user_edit having user_edit<>'' order by user_edit ";
-            $sql_select_owners = " select user_author owner from tt_troubles group by user_author having user_author<>'' order by user_author ";
-
-
-            $design->assign('owners',$db->AllRecordsAssoc($sql_select_owners, 'owner', 'owner'));
-            $design->assign('editors',$db->AllRecordsAssoc($sql_select_editors,'edit','edit'));
-            $design->assign('resps',$db->AllRecordsAssoc($sql_select_responsibles,'resp','resp'));
-            $design->assign('clients',$db->AllRecordsAssoc($sql_select_clients,'client','client'));
-            //$design->assign('states',$db->AllRecords($sql_select_states,''));
-
+            $sql_select_users = " select `user` from user_users where enabled='yes' order by `user` ";
+            $design->assign('users',$db->AllRecordsAssoc($sql_select_users, 'user', 'user'));
         }
 
 
