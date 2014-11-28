@@ -4,6 +4,7 @@ namespace app\models;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use yii\db\ActiveRecord;
+use app\classes\behaviors\LogClientContractTypeChange;
 
 /**
  * @property int $id
@@ -26,6 +27,13 @@ class ClientAccount extends ActiveRecord
     public static function find()
     {
         return new ClientAccountQuery(get_called_class());
+    }
+
+    public function behaviors()
+    {
+        return [
+            LogClientContractTypeChange::className()
+            ];
     }
 
     public function getTaxRate()
