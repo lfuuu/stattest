@@ -1275,6 +1275,20 @@ class ClientCS {
             $db->QueryUpdate("clients", "id", array("id" => $this->id, "status" => $status));
         }
     }
+
+    function SetContractType($contractTypeId)
+    {
+        global $db;
+        $client = app\models\ClientAccount::findOne($this->id);
+
+        if ($client->contract_type_id != $contractTypeId)
+        {
+            $client->contract_type_id = $contractTypeId;
+            $client->save();
+
+        }
+    }
+
     function GetLastComment() {
         global $db;
         $db->Query("select * from client_statuses where (id_client='".$this->id."') and (comment!='') order by ts desc");

@@ -1,5 +1,6 @@
 <?php
 use app\classes\StatModule;
+use app\models\ClientContractType;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -1119,6 +1120,8 @@ class m_clients {
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
 		$r['status_color'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['color'] : '');
         $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
+        $r['contract_type'] = ClientContractType::findOne($r["contract_type_id"])->name;
+
         $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
 
 		$design->assign('fixclient',$id);
@@ -1128,7 +1131,8 @@ class m_clients {
         StatModule::tt()->get_counters($id);
 
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
-		$design->assign_by_ref('statuses',ClientCS::$statuses);
+        $design->assign_by_ref('statuses',ClientCS::$statuses);
+        $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
@@ -1592,8 +1596,10 @@ class m_clients {
 		if ($this->check_tele($id)==0) return;
 		$status=get_param_protected('status');
 		$comment=get_param_protected('comment');
+		$contractTypeId=get_param_protected('contract_type_id', 1);
 		$cs=new ClientCS($id);
 		$cs->Add($status,$comment);
+		$cs->SetContractType($contractTypeId);
 
         event::go("client_set_status", $id);
 
