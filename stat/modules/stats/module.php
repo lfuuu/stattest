@@ -3774,7 +3774,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             if(!$error)
             {
 
-                $i = $db->GetRow("select * from newbills_add_info where bill_no = '".mysql_real_escape_string($a["bill_no"])."'");
+                $i = $db->GetRow("select * from newbills_add_info where bill_no = '".$db->escape($a["bill_no"])."'");
 
                 $rNBN = new requestPlusOper();
                 $info = $rNBN->create($client, $a);
@@ -4164,10 +4164,10 @@ private function report_plusopers__Load($client, $billNo)
 	global $db;
 	$a = array();
 
-	if($billNo && $a = $db->GetRow("select * from newbills_add_info where bill_no = '".mysql_real_escape_string($billNo)."'"))
+	if($billNo && $a = $db->GetRow("select * from newbills_add_info where bill_no = '".$db->escape($billNo)."'"))
 	{
 		$a["req"] = $a["req_no"];
-		$a["comment"] = $db->GetValue("select comment from newbills where bill_no = '".mysql_real_escape_string($billNo)."'");
+		$a["comment"] = $db->GetValue("select comment from newbills where bill_no = '".$db->escape($billNo)."'");
 
 		if($a["comment1"])
 		{

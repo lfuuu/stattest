@@ -235,7 +235,7 @@ function delOrder($bill_no)
         $d["req_no"] = $z;
 
         print_r($d);
-        if($metro = $db->GetRow("select id from metro where name = '".mysql_real_escape_string(trim($d["comment2"]))."'")) {
+        if($metro = $db->GetRow("select id from metro where name = '".$db->escape(trim($d["comment2"]))."'")) {
             $d["metro_id"] = $metro["id"];
         }
         $dFull = $d;

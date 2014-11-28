@@ -3337,7 +3337,7 @@ class m_services extends IModule{
             return 'true';
         }
 
-        $region = mysql_real_escape_string(get_param_raw("region", 0));
+        $region = $db->escape(get_param_raw("region", 0));
         
         if (strlen($number) > 5 && substr($number, 0, 4) != '7800') {
             $q = 'SELECT number FROM voip_numbers WHERE number="'.$number.'" and region = "'.$region.'"';

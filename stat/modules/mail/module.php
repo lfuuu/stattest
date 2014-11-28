@@ -88,8 +88,8 @@ class m_mail{
 				UPDATE
 					`mail_job` `mj`
 				SET
-					`mj`.`template_body` = "'.mysql_real_escape_string($R['template_body']).'",
-					`mj`.`template_subject` = "'.mysql_real_escape_string($R['template_subject']).'",
+					`mj`.`template_body` = "'.$db->escape($R['template_body']).'",
+					`mj`.`template_subject` = "'.$db->escape($R['template_subject']).'",
 					`mj`.`date_edit` = NOW(),
 					`mj`.`user_edit` = "'.$R['user_edit'].'"
 				WHERE
@@ -100,7 +100,7 @@ class m_mail{
 				INSERT INTO	`mail_job`
 					(`template_subject`,`template_body`,`date_edit`,`user_edit`)
 				VALUES
-					("'.mysql_real_escape_string($R['template_subject']).'","'.mysql_real_escape_string($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
+					("'.$db->escape($R['template_subject']).'","'.$db->escape($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
 			';
 			$db->Query($query);
 			$id = $db->GetInsertId();
