@@ -1,5 +1,3 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-
 <h4>
 	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
 	<small>Заказ

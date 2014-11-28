@@ -1,4 +1,3 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 <script src="bootstrap/js/bootstrap.min.js"></script>
 {include file='utils/error_modal.tpl'}
 

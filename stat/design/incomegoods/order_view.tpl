@@ -1,5 +1,3 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-
 {if !$order}
     <h3 style="color: red">Заказ поставщику не найден, в данных, пришедших с 1С</h3>
 {else}

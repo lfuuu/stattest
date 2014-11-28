@@ -1,5 +1,3 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-
 <h4><a href="?module=incomegoods&action=order_list">Заказы поставщику</a></h4>
 
 <ul class="nav nav-pills">
