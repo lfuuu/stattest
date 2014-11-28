@@ -195,7 +195,7 @@ class HelpDbForm {
         $design->assign('dbform_f_cpe',get_cpe_history($service,$id));
     }
     public static function assign_tt($service,$service_id,$client) {
-        StatModule::tt()->makeTroubleList(1,'service',3,$client,$service,$service_id);
+        StatModule::tt()->showTroubleList(1,'service',$client,$service,$service_id);
     }
     public static function save_block($service,$id,$block,$comment, $fieldsChanges = "") {
         global $db,$user;
