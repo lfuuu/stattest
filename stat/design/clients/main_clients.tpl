@@ -10,6 +10,12 @@
 {if !isset($client_subj)}
     {assign var="client_subj" value=""}
 {/if}
+{if !isset($sort)}
+    {assign var="sort" value="1"}
+{/if}
+{if !isset($so)}
+    {assign var="so" value="1"}
+{/if}
 <TABLE class=price cellSpacing=4 cellPadding=2 width=100% border=0>
 <TBODY>
 <TR>
