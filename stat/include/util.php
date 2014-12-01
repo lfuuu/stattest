@@ -1980,7 +1980,7 @@ class send
 
 class event
 {
-    function go($event, $param)
+    public static function go($event, $param)
     {
         if (is_array($param))
         {
@@ -1992,7 +1992,7 @@ class event
         $db->QueryInsert("event_queue", array("event" => $event, "param" => $param));
     }
 
-    function setReject($bill, $state)
+    public static function setReject($bill, $state)
     {
         if($bill["client_id"] == 15701)
         {
