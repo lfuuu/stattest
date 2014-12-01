@@ -146,7 +146,7 @@ class m_employeers {
                 $cPhone = $getPhone;
                 $cAll4geo = $getAll4geo;
             }else{
-                $sql = "set name = '".mysql_real_escape_string($getName)."', phone = '".$getPhone."', all4geo = '".$getAll4geo."'";
+                $sql = "set name = '".$db->escape($getName)."', phone = '".$getPhone."', all4geo = '".$getAll4geo."'";
                 if ($getId) {
                     $db->Query("update courier ".$sql." where id = '".$getId."'");
                 }else{

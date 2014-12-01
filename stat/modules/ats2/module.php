@@ -24,7 +24,7 @@ function getClient($fixClient = null )
     static $cach = array();
     if(!isset($cach[$fixClient]))
     {
-        $cach[$fixClient] = $db->GetRow("select * from clients where client = '".mysql_real_escape_string($fixClient)."'");
+        $cach[$fixClient] = $db->GetRow("select * from clients where client = '".$db->escape($fixClient)."'");
     }
 
     return $cach[$fixClient];

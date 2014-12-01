@@ -962,7 +962,7 @@ class ClientCS {
 
         global $db;
         if($this->client!=""){
-            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_real_escape_string($this->F['client'])."'"))
+            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".$db->escape($this->F['client'])."'"))
                 return false;    //дубликат
         }
         $q1 = '';
@@ -1862,7 +1862,7 @@ class all4geo
         if(strpos($f,"ok") !== false){
             list($ok, $aId) = explode(",", $f);
 
-            $db->Query($z= "update tt_troubles set doer_comment = '".mysql_real_escape_string($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
+            $db->Query($z= "update tt_troubles set doer_comment = '".$db->escape($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
         }else{
             $pFile = fopen("/home/httpd/stat.mcn.ru/test/log.all4geo.errors", "a+");
             fwrite($pFile, date("r").":".$u." => ".$comment." => ".$f."\n");

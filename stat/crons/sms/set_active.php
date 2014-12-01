@@ -38,7 +38,7 @@ echo "\n".date("r");
         $cnt = 0;
         foreach($accs as $a)
         {
-            $query .= $a['client_id'].',"'.mysql_real_escape_string($a['tarif_name']).'"),(';
+            $query .= $a['client_id'].',"'.$db->escape($a['tarif_name']).'"),(';
         }
         $query = substr($query,0,strlen($query)-2);
 

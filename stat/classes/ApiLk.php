@@ -1747,7 +1747,7 @@ class ApiLk
         $allSavedContacts = $db->AllRecords("
                 SELECT id 
                 FROM `client_contacts` 
-                WHERE `client_id` = '".mysql_real_escape_string($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
+                WHERE `client_id` = '".$db->escape($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
 
         foreach ($res as $contact_id=>$d) 
         {
@@ -1899,7 +1899,7 @@ class ApiLk
         if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
             return false;
 
-        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".mysql_real_escape_string($clientId)."' AND id = '".mysql_real_escape_string($id)."'");
+        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$db->escape($clientId)."' AND id = '".$db->escape($id)."'");
         if (!$contactId)
             return false;
 

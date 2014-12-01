@@ -6072,7 +6072,7 @@ $sql .= "    order by client, bill_no";
         if(strlen($prod) >= 1)
         {
             $ret = "";
-            $prod = str_replace(array("*","%%"), array("%","%"), mysql_real_escape_string($prod));
+            $prod = str_replace(array("*","%%"), array("%","%"), $db->escape($prod));
 
             $storeId = get_param_protected("store_id", "8e5c7b22-8385-11df-9af5-001517456eb1");
             

@@ -705,7 +705,7 @@ class billMaker{
                     discount_set, discount_auto,
                     if(`sum` is null,round(price*1.18*amount),`sum`) AS `sum`
                     FROM newbill_lines
-                    WHERE bill_no = '".mysql_real_escape_string($bill_no)."'");
+                    WHERE bill_no = '".$db->escape($bill_no)."'");
 
         /*
         foreach($bLines as $p){
@@ -899,7 +899,7 @@ class SoapHandler{
                             SELECT c.id
                             FROM client_contacts
                             where cc.type = '".$type."'
-                                and data = '".mysql_real_escape_string($value)."'
+                                and data = '".$db->escape($value)."'
                                 and cc.client_id = '".$cl."'")){
                 $clData["id"] = $c["id"];
                 $db->QueryUpdate("client_contacts", "id", $clData);
@@ -948,7 +948,7 @@ class SoapHandler{
         $curbill = $db->GetRow("select newbills.*,(select count(*) from newbill_lines where bill_no=newbills.bill_no and `type`='good') good_count from newbills where bill_no = '".addcslashes($bill_no, "\\'")."'");
         $billLines = array();
         if($curbill){
-            $billLines = $db->AllRecords("select * from newbill_lines where bill_no = '".mysql_real_escape_string($bill_no)."'");
+            $billLines = $db->AllRecords("select * from newbill_lines where bill_no = '".$db->escape($bill_no)."'");
             $curtt = $db->GetRow("select * from tt_troubles where bill_no='".addcslashes($bill_no, "\\'")."'");
             if($curtt){
                 $curts = $db->GetRow("select * from tt_stages where stage_id=".$curtt['cur_stage_id']);
@@ -1183,7 +1183,7 @@ class SoapHandler{
                 $db->Query("select 'error: ".$err_msg."'");
             }else{
                 if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
-                    $q = "update tt_stages set comment='".mysql_real_escape_string(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
+                    $q = "update tt_stages set comment='".$db->escape(trim($_POST["comment"]))."',date_edit=now(), where stage_id=".$curtt['cur_stage_id'];
 
                 if($state_1c == 'Отгружен')
                     $q = "update tt_stages set comment='Товар Отгружен: ".nl2br(htmlspecialchars_(addcslashes(trr($o->{tr('КомментарийСклада')}), "\\'")))."',date_edit=now(),user_edit='1C' where stage_id=".$curtt['cur_stage_id'];
@@ -1396,8 +1396,8 @@ class SoapHandler{
         {
             $db->Query("delete from g_producers where id = '".$code."'");
         }else{
-            $db->Query("insert into g_producers set id='".$code."', name='".mysql_real_escape_string($name)."'
-                        on duplicate key update name='".mysql_real_escape_string($name)."'");
+            $db->Query("insert into g_producers set id='".$code."', name='".$db->escape($name)."'
+                        on duplicate key update name='".$db->escape($name)."'");
         }
         return array('return'=>!mysql_errno());
     }
@@ -1718,7 +1718,7 @@ class SoapHandler{
             $d = $r["id"];
             return;
         }
-        $db->Query("insert into g_division set name = '".mysql_real_escape_string($d)."'");
+        $db->Query("insert into g_division set name = '".$db->escape($d)."'");
         $d = $db->GetInsertId();
         return;
     }
@@ -1732,8 +1732,8 @@ class SoapHandler{
         $parentCode = $data->{tr('ГруппаТовара')}->{tr('КодГруппы')};
 
 
-        $db->Query("insert into g_groups set id='".$code."', name='".mysql_real_escape_string($name)."', parent_id = '".$parentCode."'
-                    on duplicate key update name='".mysql_real_escape_string($name)."', parent_id = '".$parentCode."'");
+        $db->Query("insert into g_groups set id='".$code."', name='".$db->escape($name)."', parent_id = '".$parentCode."'
+                    on duplicate key update name='".$db->escape($name)."', parent_id = '".$parentCode."'");
 
         return array('return'=>!mysql_errno());
     }

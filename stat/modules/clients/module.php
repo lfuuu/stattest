@@ -854,7 +854,7 @@ class m_clients {
         }
         // posible bill
         if(!count($R) && strlen($search) > 4){
-            if($db->GetRow("select bill_no from `newbills` where bill_no = '".mysql_real_escape_string($search)."'")){
+            if($db->GetRow("select bill_no from `newbills` where bill_no = '".$db->escape($search)."'")){
                 Header("Location: ./?module=newaccounts&action=search&search=".urlencode($search));
                 exit;
             }
@@ -2290,7 +2290,7 @@ DBG::sql_out($select_client_data);
 		//require_once INCLUDE_PATH.'1c_integration.php';
 		//$clS = new \_1c\clientSyncer($db);
 
-    $bik = $db->GetRow("select * from bik b where b.bik='".mysql_real_escape_string($_GET['findBik'])."'");
+    $bik = $db->GetRow("select * from bik b where b.bik='".$db->escape($_GET['findBik'])."'");
 
 		if(!$bik)
 			echo "false";

@@ -310,7 +310,7 @@ class MT
         checker::isEmpty($data["number"], "Название транка не задано!");
         checker::isEmpty($data["client"], "Клиент не задан!");
 
-        if(!$db->GetValue("select id from `".SQL_DB."`.clients where client='".mysql_real_escape_string($data["client"])."'"))
+        if(!$db->GetValue("select id from `".SQL_DB."`.clients where client='".$db->escape($data["client"])."'"))
             throw new Exception("Клиент не найден!");
 
         if($data["host_type"] != "static")
