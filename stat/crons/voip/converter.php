@@ -5,6 +5,7 @@ define("NO_WEB", 1);
 define("voip_debug", 1);
 define("print_sql", 1);
 define("exception_sql", 1);
+//define("diff_not_apply",1);
 
 
 include PATH_TO_ROOT."conf_yii.php";
@@ -59,11 +60,11 @@ define("DEFAULT_TIMEOUT", 200);
 
 $mtIds = array();
 
-$all            = loadRedirectSettings($clientId);
 $sipLines       = loadSIPLines($clientId);
 $sipMultitrunks = loadSIPMultitrunks($mtIds, $clientId);
 $peers          = loadNumbers($mtIds, $clientId);
 
+$all            = loadRedirectSettings($mtIds["client_ids"]);
 
 
 //echo "\n------ all -----\n";
@@ -84,11 +85,9 @@ $inss = array(
 convertSip($a, $inss["sipdevices"], $peers); //sipdevice
 insertNumber($peers, $all, $inss); // numbers + numbers_forward
 
-//define("diff_not_apply",1);
 
 // diffs
 
-define("print_sql", 1);
 
 try
 {
@@ -347,7 +346,7 @@ class diffNumbersFwd extends _diff
 
 
 
-function loadRedirectSettings($clientId)
+function loadRedirectSettings($clientIds)
 {
 	global $mDB;
 
@@ -360,7 +359,7 @@ function loadRedirectSettings($clientId)
 		a_number n
     LEFT JOIN rr_redirect_on r ON (r.number_id = n.id)
 	where 
-        n.enabled='yes'".($clientId ? " and n.client_id =  ".$clientId : ""));
+        n.enabled='yes'".($clientIds ? " and n.client_id in ('".implode("','", $clientIds)."')" : ""));
 
     $defaultSection = array(
 		'redir' =>        array("is_on" => 0, "timeout" => DEFAULT_TIMEOUT),
@@ -398,7 +397,7 @@ function loadRedirectSettings($clientId)
 	               number_id=n.id
 	          and s.number_id = n.id
 	          and enabled='yes'
-	          ".($clientId ? " and n.client_id =  ".$clientId : "")) as $v)
+	          ".($clientIds ? " and n.client_id  in ('".implode("','", $clientIds)."')" : "")) as $v)
 	{
 		foreach(array("call_strategy", "call_wait") as $f)
 		{
@@ -438,7 +437,7 @@ function loadRedirectSettings($clientId)
 	               number_id=n.id
 	          and s.number_id = n.id
 	          and enabled='yes'
-	          ".($clientId ? " and n.client_id =  ".$clientId : "").
+	          ".($clientIds ? " and n.client_id in  ('".implode("','", $clientIds)."')" : "").
               " order by s.from") as $v)
     {
         if ($v["to"] == "00:00") 
@@ -457,7 +456,7 @@ function loadRedirectSettings($clientId)
 	                    rr_redirect_phones p, a_number n
 	               where
 	                    n.id = p.number_id
-	                    ".($clientId ? " and p.client_id = ".$clientId : "")."
+	                    ".($clientIds ? " and p.client_id in ('".implode("','",$clientIds)."')" : "")."
 	               order by
 	                    n.number, section, p.id
 	") as $v)
@@ -474,7 +473,7 @@ function loadRedirectSettings($clientId)
                         n.id = a.number_id
                     and an.id = a.anonce_id
                     and is_on = 'yes'
-	            ".($clientId ? " and a.client_id = ".$clientId : "")."
+	            ".($clientIds ? " and a.client_id in ('".implode("','", $clientIds)."')" : "")."
                     ") as $v)
     {
         $all[$v["number"]]["anonse"][$v["section"]] = $v["file_name"];
@@ -532,7 +531,7 @@ function loadSIPMultitrunks(&$mtIds, $clientId = null)
 
 	// all multitrunks load
 
-	$mtIds = array("ids" => array(), "stat_ids" => array(), "numbers" => array());
+	$mtIds = array("ids" => array(), "stat_ids" => array(), "numbers" => array(), "client_ids" => []);
 
 
 	if($clientId)
@@ -556,12 +555,13 @@ function loadSIPMultitrunks(&$mtIds, $clientId = null)
 		if($mtIds["ids"])
 		{
 			foreach($mDB->AllRecords("
-					SELECT distinct number
+					SELECT distinct number, n.client_id
 					FROM `a_multitrunk` m, a_link l, a_number n
 					where m.id = l.c_id and c_type = 'multitrunk' and n.id = l.number_id and n.enabled='yes'
-						and m.parent_id in('".implode("','", $mtIds["ids"])."')") as $l)
+						and m.parent_id in ('".implode("','", $mtIds["ids"])."')") as $l)
 			{
 				$mtIds["numbers"][$l["number"]] = $l["number"];
+				$mtIds["client_ids"][$l["client_id"]] = $l["client_id"];
 			}
 		}
 	}
@@ -768,7 +768,7 @@ function convertSip(&$a, &$inss, &$peers)
             , array(
               "type"      => $sipType_type,
               "_type"     => $v["type"],
-              "delimeter" => ($v["format"] == "ats2" ? "" : $v["format"]),
+              "delimeter" => (!isset($v["format"]) || $v["format"] == "ats2" ? "" : $v["format"]),
               "ds"        => getDS($v["direction"]),
               //"fake"      => $sipType_fake // ненадо это поле изменять. Если линия в мультитранке, то флаг "fake", неизменным остается
 		));
