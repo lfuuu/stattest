@@ -14,7 +14,7 @@ use app\models\tariffication\ServiceType;
         <legend>Новая услуга</legend>
     <?php endif; ?>
     <?php
-    $form = ActiveForm::begin();
+    $form = ActiveForm::begin(['type' => ActiveForm::TYPE_HORIZONTAL]);
     echo Form::widget([
         'model' => $model,
         'form' => $form,
@@ -25,8 +25,10 @@ use app\models\tariffication\ServiceType;
             'actions' => [
                 'type' => Form::INPUT_RAW,
                 'value' =>
+                    '<div class="col-md-offset-2 col-md-10">' .
                     Html::submitButton('Сохранить', ['class'=>'btn btn-primary']) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' .
-                    Html::a('Отмена', ['index'], ['class'=>'btn btn-default btn-sm'])
+                    Html::a('Отмена', ['index'], ['class'=>'btn btn-default btn-sm']) .
+                    '</div>'
             ],
         ],
     ]);
