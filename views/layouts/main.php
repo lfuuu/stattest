@@ -123,9 +123,9 @@ $user = Yii::$app->user->identity;
         showMonthAfterYear: false,
         yearSuffix: ''};
     $(document).ready(function(){
+        $('.select2').select2();
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
-        $('.select2').select2();
     });
 </script>
 

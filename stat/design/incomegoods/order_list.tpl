@@ -1,4 +1,4 @@
-<h4><a href="?module=incomegoods&action=order_list">Заказы поставщику</a></h4>
+<h2><a href="?module=incomegoods&action=order_list">Заказы поставщику</a></h2>
 
 <ul class="nav nav-pills">
 	<form id="filter" action="" method="GET" class="navbar-form pull-left" style="margin-right: 15px;">

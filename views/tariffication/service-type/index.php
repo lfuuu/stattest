@@ -1,17 +1,24 @@
 <?php
-use yii\helpers\Html;
-/** @var $list \app\models\tariffication\ServiceType[] */
-?>
+use app\classes\grid\GridView;
+use app\classes\grid\column\DataColumn;
 
-<h2>Типы услуг:</h2>
 
-<table class="table table-bordered table-hover table-condensed">
-    <tr>
-        <th>Название</th>
-    </tr>
-    <?php foreach($list as $item): ?>
-    <tr>
-        <td><?=Html::encode($item->name)?></td>
-    </tr>
-    <?php endforeach; ?>
-</table>
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
+    'filterModel' => $filterModel,
+    'columns' => [
+        [
+            'class' => DataColumn::className(),
+            'attribute' => 'id',
+            'label' => '#',
+            'width' => '100px',
+        ],
+        [
+            'class' => DataColumn::className(),
+            'attribute' => 'name',
+        ],
+    ],
+    'panel' => [
+        'heading' => 'Типы услуг',
+    ],
+]);

@@ -22,7 +22,7 @@ class GlyphDataColumn extends DataColumn {
         $value = parent::getDataCellValue($model, $key, $index);
         $cssclass = 'cell'.md5($value);
         
-        $options = ['class' => $cssclass.' btn'];
+        $options = ['class' => $cssclass.' btn btn-grid'];
         return Html::tag('span', '&nbsp;<!--'.$value.'-->', $options);//<!--
                         
     }

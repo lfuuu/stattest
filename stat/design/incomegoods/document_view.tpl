@@ -1,4 +1,4 @@
-<h4>
+<h2>
 	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
 	<small>Заказ
 		<a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
@@ -17,7 +17,7 @@
 	<small><a href="?module=incomegoods&action=document_edit&id=&order_id={$order->id}"><span class="icon_add"></span>
 			Создать поступление</a></small>
 {/if}
-</h4>
+</h2>
 
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
