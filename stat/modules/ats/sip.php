@@ -893,7 +893,7 @@ class sip
         return $d;
     }
 
-    public function viewPass()
+    public static function viewPass()
     {
         $key = get_param_raw("key", "");
 
@@ -937,7 +937,7 @@ class sip
         $design->AddMain("ats/log_view.htm");
     }
 
-    private function map_supportMod(&$map, &$data)
+    private static function map_supportMod(&$map, &$data)
     {
         $allowFields = array("type", "call_count", "break", "direction","password");
 
