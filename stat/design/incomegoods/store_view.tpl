@@ -1,6 +1,4 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-
-<h4>
+<h2>
 	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
 	<small>Заказ
 		<a href="?module=incomegoods&action=order_view&id={$document->order->id}"><span class="{if $document->order->active}icon_active{elseif $document->order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
@@ -9,7 +7,7 @@
 	Приходный ордер на товары
 	<a href="?module=incomegoods&action=document_view&id={$document->id}"><span class="{if $document->active}icon_active{elseif $document->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
 		{$document->number}</a>
-</h4>
+</h2>
 
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">

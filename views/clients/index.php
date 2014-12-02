@@ -12,9 +12,6 @@ use app\classes\Encoding;
 
 require(__DIR__ . '/../../controllers/config/grid.php');
 
-$this->registerCssFile('/bootstrap/css/bootstrap.min.css');
-$this->registerCssFile('/css/grid/grid.css');   
-
 $bp = Yii::$app->request->get('bp', 'telecom.accounting');
 $bp = explode('.', $bp);
 $filtered_rows = $menumap[$bp[0]][$bp[1]];

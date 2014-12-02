@@ -1,10 +1,8 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-
 {if !$order}
     <h3 style="color: red">Заказ поставщику не найден, в данных, пришедших с 1С</h3>
 {else}
 
-<h4>
+<h2>
 	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
 	Заказ поставщику
 	<a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
@@ -17,7 +15,7 @@
 			Создать поступление</a></small>
     {/if}
 {/if}
-</h4>
+</h2>
 
 <table class="table table-bordered table-condensed table-hover pull-left" style="width: 500px; margin-right: 10px;">
 	<!--tr>

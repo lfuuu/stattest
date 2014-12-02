@@ -46,6 +46,14 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('ats2');
         $this->addBlockForStatModule('logs');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setId('tariffication_settings')
+                ->setTitle('Настройки тариффикатора')
+                ->addItem('Типы услуг', ['tariffication/service-type/index'])
+                ->addItem('Параметры', ['tariffication/feature/index'])
+                ->addItem('Услуги', ['tariffication/service/index'])
+        );
     }
 
     /**

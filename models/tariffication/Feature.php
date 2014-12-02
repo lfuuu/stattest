@@ -1,7 +1,6 @@
 <?php
 namespace app\models\tariffication;
 
-use app\models\tariffication\type\ServiceType;
 use yii\db\ActiveRecord;
 
 /**
@@ -19,6 +18,11 @@ class Feature extends ActiveRecord
 
     public function getType()
     {
-        return ServiceType::getById($this->service_type_id);
+        return \app\models\tariffication\type\ServiceType::getById($this->service_type_id);
+    }
+
+    public function getServiceType()
+    {
+        return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
     }
 }
