@@ -55,6 +55,14 @@ class m_tt extends IModule{
         $mode = get_param_integer('mode',$f);
         if($mode>=2)
             $user->SetFlag('tt_tasks',$mode);
+        if ($mode == 2) {
+            $_SESSION['clients_filter'] = '';
+            $_SESSION['clients_my'] = '';
+            $_SESSION['clients_client'] = '';
+            $GLOBALS['fixclient'] = '';
+            $GLOBALS['fixclient_data'] = '';
+            $this->curclient = null;
+        }
         $service = get_param_protected('service',null);
         $service_id = get_param_integer('service_id',null);
         $this->showTroubleList($mode,'full',$fixclient,$service,$service_id);
