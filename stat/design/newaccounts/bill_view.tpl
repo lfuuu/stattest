@@ -1,98 +1,121 @@
 <H3 style='font-size:110%;margin: 0px'>
 <table border=0 width=100%>
-	<tr>
-		<td colspan="1">
-			<a href="./?module=clients&id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
-			<a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
+    <tr>
+        <td colspan="1">
+            <a href="./?module=clients&id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
+            <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
             <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
-				{$bill_client.client}
-			</a>
-{assign var="isClosed" value="0"}{if isset($tt_trouble) && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
+                {$bill_client.client}
+            </a>
+            {assign var="isClosed" value="0"}
+            {if isset($tt_trouble) && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
 {*if !$isClosed*}
-{if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}{if $bill.is_rollback}-<b><u>возврат</u></b>{/if} <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
+            {if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}
+            {if $bill.is_rollback}-<b><u>возврат</u></b>{/if}
+            <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
 
-{if !isset($1c_bill_flag)}
-    {assign var="1c_bill_flag" value=0}
-{/if}
-{if !$all4net_order_number && !$1c_bill_flag}
-{if !$isClosed}<a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
-<a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
- / <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>{/if}
- {elseif $1c_bill_flag}
-{if !$isClosed}<a href='{$LINK_START}module=newaccounts&action=make_1c_bill&bill_no={$bill.bill_no}'>редактировать</a> /
-    <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>{/if}
-    </td>
-            <td>
-                {if !$bill.cleared_flag}Cчет не проведен{else}Счет проведен{/if}
-                {if false && access('newaccounts_bills','edit') && !$isClosed}
+            {if !isset($1c_bill_flag)}
+                {assign var="1c_bill_flag" value=0}
+            {/if}
+            {if !$all4net_order_number && !$1c_bill_flag}
+                {if !$isClosed}
+                    <a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
+                    <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a> /
+                    <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a>
+                {/if}
+            {elseif $1c_bill_flag}
+                {if !$isClosed}
+                    <a href='{$LINK_START}module=newaccounts&action=make_1c_bill&bill_no={$bill.bill_no}'>редактировать</a> /
+                    <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a>
+                {/if}
+            {/if}
+        </td>
+        <td>
+            {if !$bill.cleared_flag}Cчет не проведен{else}Счет проведен{/if}
+            {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">
                     <input type="hidden" name="module" value="newaccounts" />
                     <input type="hidden" name="action" value="bill_cleared" />
                     <input type="hidden" name="bill_no" value="{$bill.bill_no}" />
                     <input type="submit" name="ok" value="{if $bill.cleared_flag}Не проведен{else}Проведен{/if}" />
                 </form>
-                {/if}
-    {if $bill_client.type == "multi"}<br><a href="./?module=newaccounts&action=make_1c_bill&tty=shop_orders&from_order={$bill.bill_no}"> Создать заказ на основе данных этого</a>{/if}
-    {if $bill.is_payed != 1}<br><a href="./?module=newaccounts&action=pay_add&bill_no={$bill.bill_no}">Внести платеж</a>{/if}
+            {/if}
+            {if $bill_client.type == "multi"}<br><a href="./?module=newaccounts&action=make_1c_bill&tty=shop_orders&from_order={$bill.bill_no}"> Создать заказ на основе данных этого</a>{/if}
+            {if $bill.is_payed != 1}<br><a href="./?module=newaccounts&action=pay_add&bill_no={$bill.bill_no}">Внести платеж</a>{/if}
+        </td>
+        </tr>
+    <tr>
+    {if !$isClosed}
+        <tr>
+            <td>Выбрать исполнителя:
+                <form method='POST'>
+                    <input type='hidden' name='select_doer' value='1' />
+                    <input type='hidden' name='bill_no' value='{$bill.bill_no}' />
+                    <select name='doer'>
+                        <option value='0'>Отсутствует</option>
+                        {foreach from=$doers item='doer'}<option value='{$doer.id}'>{$doer.name} - {$doer.depart}</option>{/foreach}
+                    </select>
+                    <input type='submit' value='Выбрать' />
+                </form>
+            </td>
+            <td>
+                <form method='POST'><input type='hidden' name='bill_no' value='{$bill.bill_no}' />Предпологаемый тип платежа:<br>
+                    <select name="nal">
+                        <option value='---'>Не выбрано</option>
+                        <option value="beznal">безнал</option>
+                        <option value="nal">нал</option>
+                        <option value="prov">пров</option>
+                    </select>
+                    <input type='submit' name='select_nal' value='Выбрать' />
+                </form>
             </td>
         </tr>
-        <tr>
-{if !$isClosed}
-            <td>Выбрать исполнителя:
-            <form method='POST'><input type='hidden' name='select_doer' value='1' /><input type='hidden' name='bill_no' value='{$bill.bill_no}' /><select name='doer'><option value='0'>Отсутствует</option>{foreach from=$doers item='doer'}<option value='{$doer.id}'>{$doer.name} - {$doer.depart}</option>{/foreach}</select><input type='submit' value='Выбрать' /></form></td>
-            <td><form method='POST'><input type='hidden' name='bill_no' value='{$bill.bill_no}' />Предпологаемый тип платежа:<br> <select name="nal"><option value='---'>Не выбрано</option>
-    <option value="beznal">безнал</option>
-    <option value="nal">нал</option>
-    <option value="prov">пров</option>
-    </select><input type='submit' name='select_nal' value='Выбрать' /></form>{/if}</td>
-        </tr>
+    {/if}
     {if $bill_manager}
-        <tr><td></td><td><span title="Менеджер, который провел сделку по данному счету, и получит с него бонусы.">Менеджер счета*</span>: {$bill_manager}</td></tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td><span title="Менеджер, который провел сделку по данному счету, и получит с него бонусы.">Менеджер счета*</span>: {$bill_manager}</td>
+        </tr>
     {/if}
-		{if $bill.payed_ya > 0}<tr><td>&nbsp;</td><td>
+    {if $bill.payed_ya > 0}
+        <tr>
+            <td>&nbsp;</td>
+            <td>
 
-		{if $ym_pay eq 'success'}<div style="color:green;font-weight:bold;font-size: 20px;">Оплата прошла</div>
-		{elseif $ym_pay neq ''}<div style="color:red;font-weight:bold;font-size: 20px;">Оплата НЕ прошла<br/>{$ym_pay}</div>{/if}
+                {if $ym_pay eq 'success'}
+                    <div style="color:green;font-weight:bold;font-size: 20px;">Оплата прошла</div>
+                {elseif $ym_pay neq ''}
+                    <div style="color:red;font-weight:bold;font-size: 20px;">Оплата НЕ прошла<br/>{$ym_pay}</div>
+                {/if}
 
-		Оплачено Yandex: <b>{$bill.payed_ya}</b></td></tr>
-		{elseif $pay_to_comstar>0}
-			<tr><td>&nbsp;</td><td>
+                Оплачено Yandex: <b>{$bill.payed_ya}</b>
+            </td>
+        </tr>
+    {elseif $pay_to_comstar>0}
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                {if $ym_pay eq 'success'}
+                    <div style="color:green;font-weight:bold;font-size: 20px;">Оплата прошла</div>
+                {elseif $ym_pay neq ''}
+                    <div style="color:red;font-weight:bold;font-size: 20px;">Оплата НЕ прошла<br/>{$ym_pay}</div>
+                {/if}
 
-		{if $ym_pay eq 'success'}<div style="color:green;font-weight:bold;font-size: 20px;">Оплата прошла</div>
-		{elseif $ym_pay neq ''}<div style="color:red;font-weight:bold;font-size: 20px;">Оплата НЕ прошла<br/>{$ym_pay}</div>{/if}
-
-			Yandex Коплате: <b>{$pay_to_comstar|round:2}</b><br>счет: {$pay_to_comstar_acc_no}
-			<form method="get">
-			<input type="hidden" name="module" value="yandex"/>
-			<input type="hidden" name="action" value="pay_stat"/>
-			<input type="hidden" name="bill" value="{$bill.bill_no}"/>
-			<input type="hidden" name="comstar" value="{$pay_to_comstar_acc_no}"/>
-			<input type="hidden" name="sum" value="{$pay_to_comstar|round:2}"/>
-			<input type="hidden" name="backurl" value="{$pay_to_comstar_back}"/>
-			<input type="submit" value="Оплатить YM">
-			</form>
-			</td></tr>
-		{/if}
-    </table>
-{else}{*all4net*}
-<table>
-	<tr>
-		<td>
-    {if !$isClosed}
-			Выбрать исполнителя: <form method='POST'><input type='hidden' name='select_doer' value='1' /><input type='hidden' name='bill_no' value='{$bill.bill_no}' /><select name='doer'><option value='0'>Отсутствует</option>{foreach from=$doers item='doer'}<option value='{$doer.id}'>{$doer.name} - {$doer.depart}</option>{/foreach}</select><input type='submit' value='Выбрать' /></form>
-
-<form method='POST'><input type='hidden' name='bill_no' value='{$bill.bill_no}' />Предпологаемый тип платежа: <select name="nal"><option value='---'>Не выбрано</option>
-<option value="beznal">безнал</option>
-<option value="nal">нал</option>
-<option value="prov">пров</option>
-</select><input type='submit' name='select_nal' value='Выбрать' /></form>
+                Yandex Коплате: <b>{$pay_to_comstar|round:2}</b><br>счет: {$pay_to_comstar_acc_no}
+                <form method="get">
+                    <input type="hidden" name="module" value="yandex"/>
+                    <input type="hidden" name="action" value="pay_stat"/>
+                    <input type="hidden" name="bill" value="{$bill.bill_no}"/>
+                    <input type="hidden" name="comstar" value="{$pay_to_comstar_acc_no}"/>
+                    <input type="hidden" name="sum" value="{$pay_to_comstar|round:2}"/>
+                    <input type="hidden" name="backurl" value="{$pay_to_comstar_back}"/>
+                    <input type="submit" value="Оплатить YM">
+                </form>
+            </td>
+        </tr>
     {/if}
-    {/if}
- {if $all4net_order_number}<a href='http://all4net.ru/admin/orders/shop/details.html?id={$all4net_order_number}' target='_blank'>Заказ в all4net</a>
-		</td>
-	</tr>
 </table>
-{/if}</H3>
+</H3>
 
 
 {if !$isClosed}
