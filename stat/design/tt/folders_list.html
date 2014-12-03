@@ -1,15 +1,13 @@
-{*foreach from=$tt_folders item='f'}
-        {if $f.pk & $tt_folder}<b><font size="+1">{/if}<a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}&filtred=true">{$f.name} ({$f.cnt})</a>{if $f.pk & $tt_folder}</font></b>{/if}
-{/foreach*}
-{assign var='tt_folders_curcnt' value=0}
-<table border="0" cellpadding="0" cellspacing="10">
-        {foreach from=$tt_all_folders item='f' key="pk"}
-        {if $tt_folders_curcnt==0}<tr align="center">{elseif $tt_folders_curcnt%8==0}</tr><tr align="center">{/if}
-                <td>{if $f.pk & $tt_folder}<b><font size="+1">{/if}<a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}&filtred=true">
-                    {$f.name} ({if isset($tt_folders.$pk.cnt)}{$tt_folders.$pk.cnt}{else}0{/if})
-                </a>{if $f.pk & $tt_folder}</font></b>{/if}</td>
-                {assign var='tt_folders_curcnt' value=$tt_folders_curcnt+1}
-        {/foreach}
-        {section name='last_cols' loop=(8-$tt_folders_curcnt%8)}<td>&nbsp;</td>{/section}
-        </tr>
-</table>
+<ul class="nav nav-pills">
+    {foreach from=$tt_all_folders item='f' key="pk"}
+        <li {if $f.pk & $tt_folder}class="active"{/if}>
+            <a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}&filtred=true">
+                {$f.name}
+                {if isset($tt_folders.$pk.cnt)}
+                    <span class="badge">{$tt_folders.$pk.cnt}</span>
+                {/if}
+            </a>
+        </li>
+    {/foreach}
+</ul>
+<div style="height: 1px;background-color: #e7e7e7; margin: 15px; margin-top: 5px"></div>
