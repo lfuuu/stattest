@@ -1,7 +1,7 @@
 <H3 style='font-size:110%;margin: 0px'>
 <table border=0 width=100%>
     <tr>
-        <td colspan="1">
+        <td>
             <a href="./?module=clients&id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
             <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
             <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
@@ -9,7 +9,7 @@
             </a>
             {assign var="isClosed" value="0"}
             {if isset($tt_trouble) && $tt_trouble.state_id == 20}{assign var="isClosed" value="1"}{/if}
-{*if !$isClosed*}
+
             {if isset($tt_trouble) && $tt_trouble.trouble_name}{$tt_trouble.trouble_name}{else}Заказ{/if}
             {if $bill.is_rollback}-<b><u>возврат</u></b>{/if}
             <b style="font-weight: bold; font-size: large">{$bill.bill_no}{if strlen($bill.bill_no_ext)} ({$bill.bill_no_ext}){/if}</b>
