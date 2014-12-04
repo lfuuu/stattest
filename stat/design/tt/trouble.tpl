@@ -97,7 +97,7 @@
                     <td width='50%'>&nbsp;{/if}{$item.comment|find_urls}{if $item.uspd}<br>{$item.uspd}{/if}{if count($item.doers)>0}</td>
                     <td width='50%'><table border='0' align='right' style='background-color:lightblue'>
                         <tr align='center'><td colspan='2'>Исполнители:</td></tr>
-                        {foreach from=$item.doers item='doer'}<tr align='center'><td>{$doer.depart}</td><td>{$doer.name}</td></tr>{/foreach}
+                        {foreach from=$item.doers item='doer'}<tr align='center'><td>{$doer.depart}&nbsp;</td><td>&nbsp;{$doer.name}</td></tr>{/foreach}
                     </table></td>
                 </tr>
             </table>
@@ -240,7 +240,10 @@
             <tr><td colspan="2">&nbsp</td></tr>
         </table>
         <div align=center><input id=submit class=button type=submit value="Добавить"></div>
-    </form>
+    {if !isset($timetableShow)}
+        </form>
+    {/if}
+
 {/if}
 
 {if access('tt','rating')}

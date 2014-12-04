@@ -158,7 +158,9 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 </form>
 {/if}
 
+{if $refix_flag}
 <form method='POST'>
+{/if}
 <table id='timetable_cal_panel_frame' style='position:absolute;visibility:hidden;background-color:silver;border:double'>
 	<tr><td colspan='2'><div align='right'><a href='#' style='text-decoration:none' id='hide_cal' onclick='return optools.tt.timetable_event_handler(event);'>X</a></div></td></tr>
 	<tr>
