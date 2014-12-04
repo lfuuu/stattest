@@ -72,6 +72,7 @@ function initNavigationBlocks(){
 
 function toggle2(obj){
 	if (!obj.style) obj = document.getElementById(obj);
+	if (!obj) return;
 	if (obj.style.display=='none'){
 		obj.style.display = '';
 	} else {

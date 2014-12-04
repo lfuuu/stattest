@@ -267,9 +267,19 @@
         <td align="right">Комментарий:</td>
         <td><b>{$client.comment.comment}</b></td>
     </tr>
-    <tr>
+
+    <tr id="contact_header1" style="display: none;">
         <td align="right">
-            <a href='javascript:toggle2("contact");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+            <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+            Контакты:
+        </td>
+        <td colspan=2 id="contact_phone">
+            &nbsp;
+        </td>
+    </tr>
+    <tr id="contact_header2">
+        <td align="right">
+            <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
             Телефон:
         </td>
         <td colspan=2>
@@ -280,7 +290,7 @@
         </td>
     </tr>
     {if count($contact.fax)}
-        <tr>
+        <tr id="contact_fax">
             <td align="right">Факс:</td>
             <td colspan=2>
                 {foreach from=$contact.fax item=item name=inner}
@@ -291,7 +301,7 @@
         </tr>
     {/if}
     {if count($contact.email)}
-        <tr>
+        <tr id="contact_email">
             <td align="right">E-mail:</td>
             <td colspan=2>
                 {foreach from=$contact.email item=item name=inner}
@@ -303,7 +313,7 @@
         </tr>
     {/if}
     {if isset($contact.sms) && count($contact.sms)}
-        <tr>
+        <tr id="contact_sms">
             <td align="right">СМС:</td>
             <td colspan=2>
                 {foreach from=$contact.sms item=item name=inner}
