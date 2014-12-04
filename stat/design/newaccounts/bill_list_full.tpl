@@ -78,7 +78,7 @@
 	<input type="hidden" name="module" value="newaccounts">
 	<input type="hidden" name="action" value="show_income_goods">
 	<input id="with_income" type="checkbox" value="Y" name="show" {if $get_income_goods_on_bill_list}checked{/if} onchange="show_income_goods();">
-	<label for="with_income">Показывать заказы поставищика</label>
+	<label for="with_income">Показывать заказы поставщика</label>
 	</form>
 </div>
 {if $counters}

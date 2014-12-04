@@ -102,7 +102,7 @@ function do_func($function)
         case 'getClientPhoneNumbers': return Api::getClientPhoneNumbers(get_param_raw("client_id")); break;
         case 'setClientVatsPhoneNumbers': return Api::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
 
-        case 'getServiceOptions': return ApiLk::getServiceOptions(get_param_protected("service"), get_param_integer("client_id")); break;
+        case 'getServiceOptions': return ApiLk::getServiceOptions(get_param_raw("service"), get_param_integer("client_id")); break;
         case 'getAccountsNotification': return ApiLk::getAccountsNotification(get_param_integer("client_id")); break;
         case 'addAccountNotification': return ApiLk::addAccountNotification(get_param_integer("client_id"), get_param_raw("type"), get_param_raw("data")); break;
         case 'editAccountNotification': return ApiLk::editAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("type"), get_param_raw("data")); break;

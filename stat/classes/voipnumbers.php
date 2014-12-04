@@ -77,7 +77,7 @@ class voipNumbersChecker
         return $d;
     }
 
-    private static function diff(&$saved, &$actual)
+    private static function diff($saved, $actual)
     {
         l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
 
