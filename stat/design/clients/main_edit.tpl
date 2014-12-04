@@ -6,10 +6,10 @@
 {literal}
 
 function set_credit_flag(){
-    if ($('#credit_flag').attr('checked')) {
+    if ($('#credit_flag').is(':checked')) {
         if ($('#credit_size')[0].value < 0)
             $('#credit_size')[0].value = '0';
-        $('#credit_size_block').show()
+        $('#credit_size_block').show();
 
     } else {
         $('#credit_size')[0].value = '-1';

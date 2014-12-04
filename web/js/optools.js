@@ -38,7 +38,7 @@ var optools = {
 			return false;
 		}
 
-                if ($('#is_moved').attr('checked') == 'checked' && !$('select[name="dbform[moved_from]"]').val())
+                if ($('#is_moved').is(':checked') && !$('select[name="dbform[moved_from]"]').val())
                 {
                     alert("Не выбран клиент, с которого осуществляется переход!");
                     return false;
