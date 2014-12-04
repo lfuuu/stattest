@@ -20,7 +20,7 @@ function set_credit_flag(){
 $(function(){
     $("#deferred").click(function()
     {
-        if($(this).attr("checked"))
+        if($(this).is(':checked'))
         {
             $("#span_deferred_date").css("display", "");
         }else{
