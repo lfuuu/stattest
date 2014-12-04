@@ -158,7 +158,6 @@ class m_mail{
 			}
 			unset($l);
 			$design->assign('mail_letter',$L);
-			require_once('mailFiles.php');
 			$Files = new mailFiles($id);
 			$files = $Files->getFiles();
 			$design->assign('files', $files);
@@ -395,7 +394,6 @@ class m_mail{
 		$design->AddMain('mail/filter.tpl');
 	}
 	function mail_file_put($fixclient) {
-		require_once('mailFiles.php');
 		global $design;
 		if(!($job_id=get_param_integer('job_id')))
 			return;
@@ -408,7 +406,6 @@ class m_mail{
         }
 	}
 	function mail_file_get($fixclient) {
-		require_once('mailFiles.php');
 		global $design;
 		$job_id = get_param_integer('job_id');
 		if (!$job_id) return;
@@ -426,7 +423,6 @@ class m_mail{
 		}
 	}
 	function mail_file_del($fixclient) {
-		require_once('mailFiles.php');
 		global $design;
 		$job_id = get_param_integer('job_id');
 		if (!$job_id) return;

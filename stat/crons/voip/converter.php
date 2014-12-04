@@ -273,7 +273,7 @@ class _diff
         {
             $delKey = $this->key;
             if(get_class($this) == "diffNumbersFwd")
-                $key = $this->key1;
+                $delKey = $this->key1;
 
             foreach($this->diffs["delete"] as $d)
             {

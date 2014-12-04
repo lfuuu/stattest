@@ -233,7 +233,6 @@ class MailJob {
 	}
 	public function Send($emails = null){
 		global $db;
-		require_once('mailFiles.php');
 		if(!self::$prepared)
 			self::SendPrepare();
 
