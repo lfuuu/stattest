@@ -22,6 +22,7 @@ class Sync1CServerHandler
         $clientCard->company_full = $data->Наименование;
         $clientCard->inn = $data->ИНН;
         $clientCard->type = $data->ЮрЛицо ? 'org' : 'priv';
+        $clientCard->contract_type_id = 5; //Интернет-магазин
         $clientCard->save();
 
         if ($data->ЭлектроннаяПочта) {
