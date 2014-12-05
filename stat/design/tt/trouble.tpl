@@ -148,7 +148,7 @@
                                 {/if}
                             {/foreach}
                         {else}
-                            <select name=user>
+                            <select class="select2" style="width: 250px" name=user>
                                 {foreach from=$tt_users item=item}
                                     {if $item.user}
                                         <option value='{$item.user}'{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name} ({$item.user})</option>
@@ -179,7 +179,7 @@
                             {/if}
                         {/foreach}
                     {else}
-                        <select name='state' onChange="
+                        <select class="select2" style="width: 250px" name='state' onChange="
                                     tuspd.style.display=(document.getElementById('state_3') && state_3.selected?'':'none');
                                     {if access('tt','rating')} onChangeSelectState(this); {/if}
                                 ">
