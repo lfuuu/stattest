@@ -4,6 +4,7 @@ namespace app\classes;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 use yii\db\Query;
 
 abstract class ListForm extends Model
@@ -29,13 +30,23 @@ abstract class ListForm extends Model
         ]);
     }
 
+    /**
+     * @return ActiveQuery
+     */
+    public function spawnFilteredQuery()
+    {
+        $query = $this->spawnQuery();
+        $this->applyFilter($query);
+        return $query;
+    }
+
     public function applyFilter(Query $query)
     {
 
     }
 
     /**
-     * @return Query
+     * @return ActiveQuery
      */
     abstract public function spawnQuery();
 }

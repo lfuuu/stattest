@@ -58,7 +58,7 @@
         <td colspan=1 nowrap style="font-size:85%;">{mformat param=$r.date_creation format='Y.m.d H:i'}</td>
         <td colspan=1>{$r.state_name}</td>
         <td colspan=1>{$r.user_main}</td>
-        <td colspan=1 style="font-size:85%">{$r.problem|replace:"\\r":""|replace:"\\n":" "}</td>
+        <td colspan=1 style="font-size:85%">{$r.problem|escape}</td>
     </tr>
 
     <tr style="display: none"><td colspan="5"></td></tr>
@@ -74,7 +74,7 @@
                 <a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:100%;font-weight: bold">{$r.bill_no}</a>
             {else}&nbsp;{/if}
         </td>
-        <td colspan=1 style="font-size:85%;">{$r.last_comment}</td>
+        <td colspan=1 style="font-size:85%;">{$r.last_comment|escape}</td>
     </tr>
 
     {if $showStages && $r.state_id!=2}
@@ -92,7 +92,7 @@
                     <tr class={if $smarty.foreach.inner.iteration%2==count($r.stages)%2}even{else}odd{/if}>
                         <td>{$r2.state_name}</td>
                         <td>{$r2.user_main}</td>
-                        <td>{$r2.comment}</td>
+                        <td>{$r2.comment|escape}</td>
                         <td style='font-size:85%'>{$r2.user_edit}</td>
                         <td style='font-size:85%'>{mformat param=$r2.date_edit format='Y.m.d H:i'}</td>
                     </tr>

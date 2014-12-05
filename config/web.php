@@ -8,12 +8,20 @@ $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.local.php')
 );
 
-$log = ArrayHelper::merge(
-    require(__DIR__ . '/log.php'),
-    include(__DIR__ . '/log.local.php')
+$dbMongo = ArrayHelper::merge(
+  require(__DIR__ . '/db_mongo.php'),
+  require(__DIR__ . '/db_mongo.local.php')
 );
 
-$params = require(__DIR__ . '/params.php');
+$log = ArrayHelper::merge(
+    require(__DIR__ . '/log.php'),
+    require(__DIR__ . '/log.local.php')
+);
+
+$params = ArrayHelper::merge(
+  require(__DIR__ . '/params.php'),
+  require(__DIR__ . '/params.local.php')
+);
 
 $config = [
     'id' => 'basic',
@@ -27,6 +35,7 @@ $config = [
         'request' => [
             'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',
+            'parsers' => [ 'application/json' => 'yii\web\JsonParser' ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -51,6 +60,7 @@ $config = [
         ],
         'log' => $log,
         'db' => $db,
+        'mongodb' => $dbMongo,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

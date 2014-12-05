@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\exceptions\FormValidationException;
 use Yii;
 use yii\base\ErrorException;
 
@@ -23,5 +24,16 @@ class ErrorHandler extends \yii\web\ErrorHandler
         }
 
         return parent::handleError($code, $message, $file, $line);
+    }
+
+    protected function convertExceptionToArray($exception)
+    {
+        $array = parent::convertExceptionToArray($exception);
+
+        if ($exception instanceof FormValidationException) {
+            $array['errors'] = $exception->getErrors();
+        }
+
+        return $array;
     }
 }

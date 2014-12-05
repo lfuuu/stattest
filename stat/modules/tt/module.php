@@ -9,6 +9,9 @@
   7 | выполнен
   8 | отработано
 */
+use \app\dao\TroubleDao;
+use \app\models\support\TicketComment;
+use \app\models\mongo\CoreUser;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -645,6 +648,33 @@ class m_tt extends IModule{
         {
             header("Location: ./?module=newaccounts&action=bill_view&bill=".urlencode($trouble["bill_no"]));
             exit();
+        }
+
+        if ($trouble['support_ticket_id']) {
+            $ticketComments =
+                TicketComment::find()
+                    ->andWhere(['ticket_id' => $trouble['support_ticket_id']])
+                    ->orderBy('created_at')
+                    ->all();
+            foreach ($ticketComments as $k => $comment) {
+                /** @var TicketComment $comment */
+                if ($comment->user_id) {
+                    $author = CoreUser::findOne($comment->user_id);
+                    $author = $author ? $author->last_name : '';
+                } else {
+                    $author = \app\models\Trouble::DEFAULT_SUPPORT_USER;
+                }
+                $createdAt = $comment->getCreatedAt();
+                $createdAt->setTimezone(new DateTimeZone('Europe/Moscow'));
+
+                $comment['created_at'] = $createdAt->format('d.m.Y H:i:s');
+                $ticketComments[$k] = [
+                    'created_at' => $createdAt->format('d.m.Y H:i'),
+                    'author'  => $author,
+                    'text'  => $comment->text,
+                ];
+            }
+            $design->assign('ticketComments', $ticketComments);
         }
 
         $design->assign('tt_trouble',$trouble);
@@ -1419,7 +1449,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             );
 
             $db->QueryUpdate('tt_stages','stage_id',$R);
-            $r = $db->GetRow('
+
+
+          $r = $db->GetRow('
                 select
                     *
                 from
@@ -1484,6 +1516,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($id>0)
             $this->doers_action('fix_doers', $trouble_id, $id);
+
+
+        TroubleDao::me()->updateSupportTicketByTrouble($trouble_id);
 
         $this->checkTroubleToSendToAll4geo($trouble_id);
         $this->checkTroubleToSend($trouble_id);
