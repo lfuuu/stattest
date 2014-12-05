@@ -652,8 +652,9 @@ class m_tt extends IModule{
 
         $bill = false;
 
+        $this->prepareTimeTable();
         $design->AddMain('tt/trouble.tpl');
-        $this->showTimetable();
+
     }
 
     function loadOrderLog($billNo){
@@ -697,7 +698,7 @@ class m_tt extends IModule{
     function tt_timetable($fixclient) {
         global $db,$design,$user;
         $this->curclient = $fixclient;
-        $this->showTimetable(true);
+        $this->showTimeTable(true);
     }
 
     function assignDate($prefix, $date)
@@ -1344,7 +1345,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             if(in_array($this->curtype['code'],array('trouble','task','support_welltime'))){
                 $design->AddMain('tt/trouble_form.tpl');
             }
-            $this->showTimetable();
+            $this->showTimeTable();
         }
 
 
@@ -1638,6 +1639,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
 
     function showTimeTable($someone=null,$cast=false){
+        global $design;
+        $this->prepareTimeTable($someone, $cast);
+        $design->AddMain('tt/timetable.tpl');
+    }
+
+    function prepareTimeTable($someone=null,$cast=false){
         global $db,$design;
         $tr_id = get_param_integer('id',$this->cur_trouble_id);
         if(is_null($someone) && $tr_id){
@@ -1807,7 +1814,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             )
         ));
         $design->assign('timetableShow',$someone);
-        $design->AddMain('tt/timetable.tpl');
     }
 
     function tt_courier_report()

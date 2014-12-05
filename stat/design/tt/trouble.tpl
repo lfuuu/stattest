@@ -240,9 +240,8 @@
             <tr><td colspan="2">&nbsp</td></tr>
         </table>
         <div align=center><input id=submit class=button type=submit value="Добавить"></div>
-    {if !isset($timetableShow)}
+            {include file='tt/timetable.tpl'}
         </form>
-    {/if}
 
 {/if}
 
