@@ -99,11 +99,9 @@ define('MODULES_PATH',          realpath(PATH_TO_ROOT) . '/modules/');
 define('INCLUDE_ARCHAIC_PATH',  realpath(PATH_TO_ROOT) . '/include_archaic/');
 define('DESIGN_PATH',           realpath(PATH_TO_ROOT) . '/design/');
 define('DESIGNC_PATH',          realpath(PATH_TO_ROOT) . '/design_c/');
-define('LETTER_FILES_PATH',     realpath(PATH_TO_ROOT) . '/store/letters/');
 
-if(!defined("PAYMENTS_FILES_PATH"))
-    define('PAYMENTS_FILES_PATH', realpath(PATH_TO_ROOT) . '/store/payments/');
-define('STORE_PATH',            realpath(PATH_TO_ROOT) . '/store/');
+define('PAYMENTS_FILES_PATH', realpath(PATH_TO_ROOT . '../../') . '/store/payments/');
+define('STORE_PATH',            realpath(PATH_TO_ROOT . '../../') . '/store/');
 define('SOUND_PATH',            realpath(PATH_TO_ROOT) . '/sound/');
 
 define('WEB_IMAGES_PATH',       WEB_PATH . 'images/');
