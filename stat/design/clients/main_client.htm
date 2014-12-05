@@ -41,12 +41,12 @@
     <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
         Обращение в Welltone
     </a>
-    {if $card_type == "main"}
+
     {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
     <br>
     <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
         Переход в LK
-    </a>{/if}
+    </a>
     {php} endif; {/php}
     <br>
     <br>
