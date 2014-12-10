@@ -79,13 +79,12 @@ AppAsset::register($view);
 <?php $view->beginBody() ?>
 
 <?php
-    echo $view->render('@app/views/layouts/widgets/messages');
 	$dbf->nodesign=1;
 	HelpDbForm::assign_log_history($table,$id);
 	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'Редактирование'.' id='.$id);
-	$design->display('errors.tpl');
+
+	echo $view->render('@app/views/layouts/widgets/messages');
 	$design->display('dbform.tpl');
-	$design->display('errors.tpl');
 ?>
 
 <?php $view->endBody() ?>
