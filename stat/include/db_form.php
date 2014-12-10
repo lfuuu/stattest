@@ -161,12 +161,12 @@ class DbForm {
                     }
                     $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
                     $p='edit';
-                    trigger_error2('Запись обновлена');
+                    Yii::$app->session->addFlash('success', 'Запись обновлена');
                 } else {
                     $db->Query('insert into '.$this->table.' SET '.$s);
                     $this->dbform['id']=$db->GetInsertId();
                     $p='add';
-                    trigger_error2('Запись добавлена');
+                    Yii::$app->session->addFlash('success', 'Запись добавлена');
                 }
                 $this->Load($this->dbform['id']);
             } else {
