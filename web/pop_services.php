@@ -79,6 +79,7 @@ AppAsset::register($view);
 <?php $view->beginBody() ?>
 
 <?php
+    echo $view->render('@app/views/layouts/widgets/messages');
 	$dbf->nodesign=1;
 	HelpDbForm::assign_log_history($table,$id);
 	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'Редактирование'.' id='.$id);
