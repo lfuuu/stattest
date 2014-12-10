@@ -13,6 +13,7 @@ return [
         'space' => '100',
         'overrun_per_gb' => '100.0000',
         'is_record' => '1',
+        'is_web_call' => '1',
         'is_fax' => '0',
         'edit_user' => '188',
         'edit_time' => '2014-10-28 14:42:35',
