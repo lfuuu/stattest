@@ -4,7 +4,7 @@
 {if !isset($hl)}
     {assign var="hl" value=''}
 {/if}
-<form action="./pop_services.php" method=post id=dbform name=dbform>
+<form action="?" method=post id=dbform name=dbform>
     {foreach from=$dbform_params item=item key=key}
         <input type=hidden name={$key} value='{$item}'>
     {/foreach}
