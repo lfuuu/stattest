@@ -26,7 +26,7 @@
             {elseif $item.type=='no'}
             {elseif $item.type=='checkbox'}
                 <tr id=tr_{$key} {if !$visible}style="display:none;"{/if}>
-                    <td class=left width=40%>{$item.caption}</td>
+                    <td align=right width=40%>{$item.caption}</td>
                     <td>
                         <input type=hidden name=dbform[{$key}] value='0' id="hidden_{$key}">
                         <input type=checkbox name=dbform[{$key}] value='1' id={$key} {if $item.value==1}checked{/if}>
@@ -37,12 +37,12 @@
             {elseif $item.type=='label'}
                 <input type=hidden name=dbform[{$key}] value='{$item.value}' id={$key}>
                 <tr id=tr_{$key}>
-                    <td class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
+                    <td align=right width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
                     <td{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.value}{$item.comment}</td>
                 </tr>
             {elseif $item.type=='text' || $item.type=='password'}
                 <tr id=tr_{$key}>
-                    <td class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
+                    <td align=right width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
                     <td{if $hl==$key} style="background-color: #EEE0B9"{/if}>
                         <input class=text type={$item.type} {if $key == "actual_from" || $key == "actual_to"}readonly{/if} name=dbform[{$key}] id={$key} {if $key eq "E164"}onchange='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();' onkeyup='optools.voip.check_e164.set_timeout_check(this);form_usagevoip_hide();'{/if} value='{$item.value}'{$item.add}>{$item.comment}
                         {if $key eq "E164"}
@@ -87,18 +87,18 @@
                 {if $item.value}
                     <input type=hidden name=dbform[{$key}] value='{$item.value}'>
                     <tr id=tr_{$key}>
-                        <td class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
+                        <td align=right width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
                         <td{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.value} {$item.comment}</td>
                     </tr>
                 {else}
                     <tr id=tr_{$key}>
-                        <td class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
+                        <td align=right width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
                         <td{if $hl==$key} style="background-color: #EEE0B9"{/if}><input class=text type=text name=dbform[{$key}] id={$key} value='{$item.value}'{$item.add}>{$item.comment}</td>
                     </tr>
                 {/if}
             {elseif $item.type=='select'}
                 <tr id=tr_{$key} {if !$visible}style="display:none;"{/if}>
-                    <td class=left width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
+                    <td align=right width=40%{if $hl==$key} style="background-color: #EEE0B9"{/if}>{$item.caption}</td>
                     <td{if $hl==$key} style="background-color: #EEE0B9"{/if}>
                         {if isset($item.with_hidden) && $item.with_hidden}
                             <input type="hidden" name="dbform[{$key}]" value="">
