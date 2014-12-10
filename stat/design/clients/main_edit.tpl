@@ -209,7 +209,7 @@ $(function(){
         </td>
     </tr>
     <tr><td align="right">Регион:</td><td>
-        <select name="region" class=text {if $card_type=='addition'}readonly='readonly'{/if}>
+        <select name="region" class="select2" style="width: 200px" {if $card_type=='addition'}readonly='readonly'{/if}>
         {foreach from=$regions item='r'}
             <option value="{$r.id}"{if $r.id eq $client.region} selected{/if}>{$r.name}</option>
         {/foreach}
@@ -243,9 +243,9 @@ $(function(){
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Канал продаж:</td><td>{html_options name=sale_channel options=$sale_channels selected=$selected_channel}</td></tr>
     <tr><td align="right">Телемаркетинг:</td><td><SELECT name=telemarketing><option value=''>не определено</option>{foreach from=$users_telemarketing item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
-    <tr><td align="right">Аккаунт менеджер:</td><td><SELECT name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
-    <tr><td align="right">Менеджер:</td><td><SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
-    <tr><td align="right">Техподдержка:</td><td><SELECT name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
+    <tr><td align="right">Аккаунт менеджер:</td><td><SELECT class="select2" style="width: 250px" name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
+    <tr><td align="right">Менеджер:</td><td><SELECT class="select2" style="width: 250px" name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
+    <tr><td align="right">Техподдержка:</td><td><SELECT class="select2" style="width: 250px" name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Банковские реквизиты:</td><td><input style='width:100%' name=bank_properties class=text value='{$client.bank_properties}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>
     <tr><td align="right">{if isset($mode_new)}<font color="blue"><b>(1) {/if}ИНН:{if isset($mode_new)}</b></font>{/if}</td><td><input id="cl_inn" style='width:100%' {if isset($mode_new)}onKeyUp="statlib.modules.clients.create.findByInn(event)"{/if} name=inn class=text value='{$client.inn}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>

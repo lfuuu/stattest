@@ -2244,6 +2244,7 @@ $GLOBALS['translate_arr']=array(
     '*.space' => 'Пространство Мб',
     '*.overrun_per_gb' => 'Превышение за Gb',
     '*.is_record' => 'Запись звонков',
+    '*.is_web_call' => 'Звонки с сайта',
     '*.is_fax' => 'Факс',
     '*.datacenter_id' => 'Тех. площадка',
     '*.server_pbx_id' => 'Сервер АТС',
