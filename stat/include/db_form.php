@@ -422,6 +422,8 @@ class DbFormUsageIpPorts extends DbForm{
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('usage_ip_ports',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment'], isset($this->dbform['t_fields_changes']) ?$this->dbform['t_fields_changes'] : "");
         }
+
+        return $v;
     }
 }
 
