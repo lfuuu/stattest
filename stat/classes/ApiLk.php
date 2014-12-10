@@ -671,7 +671,7 @@ class ApiLk
                 `id`
             ", array($currency, $status)) as $service)
         {
-            $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_fax"), $service);
+            $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
             //$line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
