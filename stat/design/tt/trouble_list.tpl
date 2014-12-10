@@ -53,7 +53,7 @@
 {/if}
 
 {foreach from=$tt_troubles item=r name=outer}
-    <tr style="border-top: 2px solid #ddd; {if $r.is_important}background-color: #f4c0c0;{/if}">
+    <tr style="border-top: 2px solid #ccc; {if $r.is_important}background-color: #f4c0c0;{/if}">
         <td colspan=1><a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'><b>{$r.trouble_id}</b></a></td>
         <td colspan=1 nowrap style="font-size:85%;">{mformat param=$r.date_creation format='Y.m.d H:i'}</td>
         <td colspan=1>{$r.state_name}</td>
