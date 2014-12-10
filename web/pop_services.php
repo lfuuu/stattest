@@ -71,7 +71,6 @@ AppAsset::register($view);
 <html lang="<?= Yii::$app->language ?>">
 <head>
   <meta charset="<?= Yii::$app->charset ?>"/>
-  <base href="/" />
   <?= Html::csrfMetaTags() ?>
   <title><?= Html::encode($view->title) ?></title>
   <?php $view->head() ?>
