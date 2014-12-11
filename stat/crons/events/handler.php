@@ -1,5 +1,6 @@
 <?php
 
+define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
 include PATH_TO_ROOT."conf_yii.php";
 include INCLUDE_PATH."runChecker.php";
@@ -32,8 +33,9 @@ echo "\nstop-".date("r").":";
 
 function do_events()
 {
-    foreach(EventQueue::getUnhandledEvents() as $event)
+    foreach(EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event)
     {
+        $isError = false;
         echo "\n".date("r").": event: ".$event->event.", ".$event->param;
 
         $param = $event->param; 
@@ -43,6 +45,8 @@ function do_events()
             $param = unserialize($param);
         }else if (strpos($param, "|") !== false) {
             $param = explode("|", $param);
+        }else if (strpos($param, "{\"") === 0) {
+            $param = json_decode($param, true);
         }
 
         try{
@@ -108,8 +112,12 @@ function do_events()
         {
             echo "\n--------------\n";
             echo "[".$event->event."] Code: ".$e->getCode().": ".$e->GetMessage();
-            $event->setStoped();
+            $event->setError($e);
+            $isError = true;
         }
-        $event->setHandled();
+        if (!$isError)
+        {
+            $event->setOk();
+        }
     }
 }
