@@ -18,7 +18,7 @@ class NumberCreateParams extends ActiveRecord
 
         if ($n)
         {
-            $params = json_decode($n->params);           
+            $params = json_decode($n->params, true);
         }
 
         return $params;

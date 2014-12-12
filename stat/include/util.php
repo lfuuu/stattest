@@ -1984,7 +1984,8 @@ class event
     {
         if (is_array($param))
         {
-            $param = serialize($param);
+            //$param = serialize($param);
+            $param = json_encode($param);
         }
 
         global $db;

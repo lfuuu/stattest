@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\queries\UsageVoipQuery;
 
 /**
  * @property int $id
@@ -13,4 +14,10 @@ class UsageVoip extends ActiveRecord
     {
         return 'usage_voip';
     }
+
+    public static function find()
+    {
+        return new UsageVoipQuery(get_called_class());
+    }
 }
+
