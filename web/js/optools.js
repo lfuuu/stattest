@@ -344,6 +344,12 @@ var optools = {
                 var oActualFrom = document.getElementById("actual_from");
                 var oE164     = document.getElementById("E164");
 
+                if (oE164.value == "")
+                {
+                    alert("Номер не задан!");
+                    return false;
+                }
+
                 if(oActualFrom && oE164 && oActualFrom.value != "2029-01-01" && oE164.value == "7495")
                 {
                     alert("Нельзя изменить дату, не установив номер линии!");

@@ -1,99 +1,42 @@
 <?php
 
+use app\models\ActualNumber;
+use app\models\NumberCreateParams;
+
 class ActaulizerVoipNumbers
 {
     public function actualize()
     {
         l::ll(__CLASS__,__FUNCTION__);
 
-        $actual = $this->load("actual");
-
-        if($diff = $this->diff($this->load("number"), $actual))
+        if(
+            $diff = $this->diff(
+                $this->load("saved"), 
+                $this->load("actual")
+            )
+        )
         {
             $this->diffApply($diff);
         }
     }
 
-    private static $sqlActual = "
-        SELECT 
-            client_id, 
-            e164 AS number, 
-            region, 
-            no_of_lines AS call_count, 
-            IF(is_virtual, 'vnumber', IF(LENGTH(e164) > 5,'number','nonumber')) AS number_type,
-            allowed_direction AS direction, 
-            line7800_id,
-            is_blocked, 
-            voip_disabled AS is_disabled
-
-        FROM (
-                SELECT
-                    c.id AS client_id,
-                    TRIM(e164) AS e164,
-                    u.no_of_lines,
-                    u.region,
-                    IFNULL((SELECT an.id FROM usage_voip u7800, actual_number an WHERE u7800.id = u.line7800_id and an.number = u7800.e164), 0) AS line7800_id,
-                    IFNULL((SELECT block FROM log_block WHERE id= (SELECT MAX(id) FROM log_block WHERE service='usage_voip' AND id_service=u.id)), 0) AS is_blocked,
-                    IFNULL((
-                        SELECT 
-                            is_virtual 
-                        FROM 
-                            log_tarif lt, tarifs_voip tv 
-                        WHERE 
-                                service = 'usage_voip' 
-                            AND id_service = u.id 
-                            AND id_tarif = tv.id 
-                        ORDER BY lt.date_activation DESC, lt.id DESC 
-                        LIMIT 1), 0) AS is_virtual,
-                    allowed_direction,
-                    c.voip_disabled
-                FROM
-                    usage_voip u, clients c
-                WHERE
-                    (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
-                    and u.client = c.client 
-                    and ((c.status in ('work','connecting','testing')) or c.id = 9130) 
-                    and LENGTH(e164) > 3
-                ORDER BY u.id
-            )a
-            ";
-
-    private static $sqlNumber=
-        "
-        SELECT 
-            client_id, 
-            number, 
-            region, 
-            call_count, 
-            number_type, 
-            direction, 
-            line7800_id,
-            is_blocked, 
-            is_disabled 
-        FROM 
-            actual_number a
-        ORDER BY id";
-
     private function load($type)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
-        global $db;
-
-        $sql = "";
 
         switch($type)
         {
-            case 'actual': $sql = self::$sqlActual; break;
-            case 'number': $sql = self::$sqlNumber; break;
+            case 'actual': $data = ActualNumber::dao()->collectFromUsages(); break;
+            case 'saved': $data = ActualNumber::dao()->loadSaved(); break;
             default: throw new Exception("Unknown type");
         }
 
         $d = array();
-        foreach($db->AllRecords($sql) as $l)
+        foreach($data as $l)
             $d[$l["number"]] = $l;
 
-        //if (!$d)
-        //    throw new Exception("Data not load");
+        if (!$d)
+            throw new Exception("Data not load");
 
         return $d;
     }
@@ -106,9 +49,12 @@ class ActaulizerVoipNumbers
                 "added" => array(), 
                 "deleted" => array(), 
                 "changed" => array(), 
-                );
+            );
 
-        $d["deleted"] = array_diff(array_keys($saved), array_keys($actual));
+        foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
+        {
+            $d["deleted"][$l] = $saved[$l];
+        }
 
         foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
             $d["added"][$l] = $actual[$l];
@@ -120,7 +66,13 @@ class ActaulizerVoipNumbers
             {
                 if(isset($saved[$number]) && $saved[$number][$field] != $l[$field]) 
                 {
-                    $d["changed"][$number][$field] = $l[$field];
+                    if (!isset($d["changed"][$number]["changed_fields"]))
+                    {
+                        $d["changed"][$number]["data_new"][$field] = $l;
+                        $d["changed"][$number]["data_old"][$field] = $saved[$number];
+                    }
+
+                    $d["changed"][$number]["changed_fields"][$field] = $l[$field];
                 }
             }
         }
@@ -148,34 +100,178 @@ class ActaulizerVoipNumbers
 
     private function applyAdd($numbers)
     {
-        global $db;
+        l::ll(__CLASS__,__FUNCTION__, $numbers);
 
-        foreach($numbers as $number)
+        foreach($numbers as $numberData)
         {
-            $db->QueryInsert("actual_number", $number);
+            $n = new ActualNumber();
+            $n->setAttributes($numberData, false);
+            $n->save();
+
+            $this->add_event($numberData);
         }
     }
 
     private function applyDeleted($numbers)
     {
-        global $db;
+        l::ll(__CLASS__,__FUNCTION__, $numbers);
 
-        foreach($numbers as $number)
+        foreach($numbers as $numberData)
         {
-            $db->QueryDelete("actual_number", ["number" => $number]);
+            ActualNumber::findOne(["number" => $numberData["number"]])->delete();
+            $this->del_event($numberData);
         }
     }
 
     private function applyChanged($numbers)
     {
         l::ll(__CLASS__,__FUNCTION__, $numbers);
-        global $db;
 
         foreach($numbers as $number => $data)
         {
-            $data["number"] = $number;
-            $db->QueryUpdate("actual_number", "number", $data);
+            $n = ActualNumber::findOne(["number" => $number]);
+
+            if ($n)
+            {
+                $n->setAttributes($data["changed_fields"], false);
+                $n->save();
+
+                $this->change_event($clientId, $number, $data);
+            }
         }
+    }
+
+    private function add_event($data)
+    {
+        $params = NumberCreateParams::getParams($data["number"]);
+        $s = [
+            "client_id"    => (int) $data["client_id"],
+            "did"          =>       $data["number"],
+            "ds"           =>       $data["direction"],
+            "cl"           => (int) $data["call_count"],
+            "region"       => (int) $data["region"],
+            "type"         =>       $params["type_connect"],
+            "sip_accounts" =>       $params["sip_accounts"],
+            "nonumber"     => (bool)$this->isNonumber($data["number"]),
+            "virtual"      => (bool)$data["number_type"] == "vnumber"
+            ];
+
+        if ($s["nonumber"] && $this->is7800($s["did"]) && $params["line7800_id"])
+        {
+            $usage_line  = UsageVoip::findOne($data["line7800_id"]);
+            if (!$usage_line)
+                throw new Exception("Usage line not found");
+
+            $s["nonumber_phone"] = $usage_line->E164;
+        }
+
+        if ($s["type"] == "multi")
+        {
+            $s["id_multitrunk"] = $params["multitrunk_id"];
+        } elseif ($s["type"] == "vpbx") {
+            $s["vpbx_id"] = $params["vpbx_id"];
+        }
+
+        \event::go("ats3__add_number", $s);
+
+        return $s;
+    }
+
+    private function del_event($data)
+    {
+        $s = [
+            "client_id" => $data["client_id"],
+            "did" => $data["number"]
+            ];
+
+        \event::go("ats3__del_number", $s);
+    }
+
+    private function change_event($clientId, $number, $data)
+    {
+        $old = $data["data_old"];
+        $new = $data["date_new"];
+        $changed = $data["changed_fields"];
+
+        $structClientChange = null;
+
+        //change client_id
+        if (isset($changedFields["client_id"]))
+        {
+            $structClientChange = [
+                "old_client_id" => (int)$old["client_id"],
+                "did" => $number,
+                "client_id" => (int)$new["client_id"]
+                ];
+
+            \event::go("ats3__change_client", $structClientChange);
+            unset($changedFields["client_id"]);
+        }
+
+        // номер заблокирован (есть только входящая связь)
+        if (isset($changedFields["is_blocked"]))
+        {
+            $s = [
+                "client_id" => (int)$new["client_id"],
+                "number" => $number
+            ];
+
+            \event::go("ats3__blocked_number");
+
+            unset($changedFields["is_blocked"]);
+        }
+
+        // номер временно отключен (отключение и входящей и исходящей связи)
+        if (isset($changedFields["is_disabled"]))
+        {
+            $s = [
+                "client_id" => (int)$new["client_id"],
+                "number" => $number
+            ];
+
+            \event::go("ats3__disabled_number");
+
+            unset($changedFields["is_disabled"]);
+        }
+
+        //change fields
+        if ($changedFields)
+        {
+            $structChange = [
+                "client_id"    => (int) $new["client_id"],
+                "did"          =>       $number
+                ];
+
+            if (isset($changedFields["direction"]))
+                $structChange["ds"] = $changedFields["direction"];
+
+            if (isset($changedFields["call_count"]))
+                $structChange["cl"] = (int)$changedFields["call_count"];
+
+            if (isset($changedFields["region"]))
+                $structChange["region"] = (int)$changedFields["region"];
+
+            if (isset($changedFields["line7800_id"]))
+            {
+                $usage_line  = UsageVoip::findOne($changedFields["line7800_id"]);
+                if (!$usage_line)
+                    throw new Exception("Usage line not found");
+
+                $structChange["nonumber_phone"] = $usage_line->E164;
+            }
+
+            \event::go("ats3__update_number", $structChange);
+        }
+    }
+
+    private function isNonumber($number)
+    {
+        return (strlen($number) < 6) || $this->is7800($number);
+    }
+
+    private function is7800($number)
+    {
+        return (strpos($number, "7800") === 0);
     }
 }
 
