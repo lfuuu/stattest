@@ -1,7 +1,6 @@
 <?php
 
 use app\models\ActualNumber;
-use app\models\NumberCreateParams;
 use app\models\UsageVoip;
 use app\models\Region;
 
@@ -131,7 +130,6 @@ class ActaulizerVoipNumbers
         foreach($numbers as $numberData)
         {
             ActualNumber::findOne(["number" => $numberData["number"]])->delete();
-            NumberCreateParams::findOne(["number" => $numberData["number"]])->delete();
             $this->del_event($numberData);
         }
     }
@@ -158,7 +156,13 @@ class ActaulizerVoipNumbers
     {
         l::ll(__CLASS__,__FUNCTION__, $data);
 
-        $params = NumberCreateParams::getParams($data["number"]);
+        $params = UsageVoip::find()->phone($data["number"])->actual()->one()->create_params;
+
+        if (!$params || !($params = json_decode($params, true)))
+        {
+            $params = ["type_connect" => "line", "sip_accounts" => 1]; //by default
+        }
+
         $s = [
             "client_id"    => (int) $data["client_id"],
             "did"          =>       $data["number"],

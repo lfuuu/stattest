@@ -1,6 +1,5 @@
 <?php
 use app\classes\StatModule;
-use app\models\NumberCreateParams;
 
 class DbForm {
     protected $table;
@@ -694,19 +693,13 @@ class DbFormUsageVoip extends DbForm {
 
         $data = ["usage_id" => $usageId, "client" => $this->data["client"], "number" => $this->data["E164"]];
 
-        foreach(["type_connect", "vpbx_id", "multitrunk_id", "sip_accounts"] as $f) {
+        foreach(["type_connect", "sip_accounts", "vpbx_id", "multitrunk_id"] as $f) {
             $data[$f] = get_param_raw($f);
         }
 
-        $params = NumberCreateParams::findOne(["number" => $this->data["E164"]]);
-        if (!$params)
-        {
-            $params = new NumberCreateParams();
-            $params->number = $this->data["E164"];
-        }
-
-        $params->params = json_encode($data);
-        $params->save();
+        $usage = \app\models\UsageVoip::findOne(["id" => $usageId]);
+        $usage->create_params = json_encode($data);
+        $usage->save();
 
     }
 
