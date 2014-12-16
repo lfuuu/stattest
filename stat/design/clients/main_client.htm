@@ -8,23 +8,24 @@
 <div style="border: 1px solid #000; padding: 3px; margin: 10px 0">
     <div>{$contragent.name}</div>
     {foreach from=$contragent.accounts item='account'}
-    <div style="display: inline-block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
-        <div style="display: inline-block; width: 70px">
-            &nbsp;
-            {if $account.id==$clientAccount.id}<b>{/if}
-            <a href="?module=clients&id={$account.id}">{$account.client}</a>
-            {if $account.id==$clientAccount.id}</b>{/if}
+    <a class="nohover" href="?module=clients&id={$account.id}" style="display: inline-block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
+        <div style="display: inline-block">
+            <div style="display: inline-block; width: 70px">
+                &nbsp;
+                {if $account.id==$clientAccount.id}<b>{/if}
+                {$account.client}
+                {if $account.id==$clientAccount.id}</b>{/if}
+            </div>
+            <div style="display: inline-block; width: 70px">
+                <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
+            </div>
+            <div style="display: inline-block; width: 20px"></div>
+            <div style="display: inline-block; width: 180px">
+                {$account.balance} {$account.currency}
+                {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
+            </div>
         </div>
-        <div style="display: inline-block; width: 70px">
-            <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
-        </div>
-        <div style="display: inline-block; width: 20px"></div>
-
-        <div style="display: inline-block; width: 180px">
-            {$account.balance} {$account.currency}
-            {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
-        </div>
-    </div>
+    </a>
     {/foreach}
 </div>
 {/foreach}
