@@ -1,12 +1,14 @@
 <?php
 namespace app\dao;
 
+use app\classes\Assert;
 use app\classes\enum\ServiceTypeEnum;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\support\Ticket;
 use app\models\Trouble;
 use app\models\TroubleStage;
+use app\models\User;
 use yii\base\Exception;
 
 /**
@@ -30,9 +32,7 @@ class TroubleDao extends Singleton
     public function createTroubleForSupportTicket($clientAccountId, $serviceType, $subject, $description, $supportTicketId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
-        if ($clientAccount === null) {
-            throw new Exception("Client account #$clientAccountId not found");
-        }
+        Assert::isObject($clientAccount);
 
         $problem = '';
         if ($serviceType) {
@@ -80,7 +80,7 @@ class TroubleDao extends Singleton
         if (!$trouble) return;
 
         $oldStage = TroubleStage::findOne($trouble->cur_stage_id);
-        if (!$oldStage) throw new Exception();
+        Assert::isObject($oldStage);
 
         $newStateId = $ticket->spawnTroubleStatus();
         if ($newStateId != $oldStage->state_id) {
@@ -103,7 +103,7 @@ class TroubleDao extends Singleton
     public function updateSupportTicketByTrouble($troubleId)
     {
         $trouble = Trouble::findOne($troubleId);
-        if (!$trouble) throw new Exception();
+        Assert::isObject($trouble);
 
         if (!$trouble->support_ticket_id) {
             return;
@@ -112,7 +112,7 @@ class TroubleDao extends Singleton
 
 
         $stage = TroubleStage::findOne($trouble->cur_stage_id);
-        if (!$stage) throw new Exception();
+        Assert::isObject($stage);
 
         $ticket = Ticket::findOne($trouble->support_ticket_id);
         $ticket->setStatusByTroubleState($stage->state_id);
