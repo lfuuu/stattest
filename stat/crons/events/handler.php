@@ -1,7 +1,6 @@
 <?php
 
-
-use app\classes\eventHandlers\EventHandlerAddNumberToAts3;
+use app\classes\ActaulizerVoipNumbers;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -61,7 +60,6 @@ function do_events()
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
                 case 'usage_voip__delete':  ats2Numbers::check(); 
-                                            $a = new ActaulizerVoipNumbers(); $a->actaulize();
                                             break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]); 
@@ -70,7 +68,6 @@ function do_events()
 
                 case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();echo "...ats2Numbers::check()";
-                                 $a = new ActaulizerVoipNumbers(); $a->actaulize();echo "...ats3::actaulize";
                                  virtPbx::check();echo "...virtPbx::check()";
                                  EventHandler::updateSubscribeMass();echo "...EventHandler::updateSubscribeMass()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
@@ -117,12 +114,14 @@ function do_events()
                 {
                     switch($event->event)
                     {
-                        case 'ats3__add_number':      EventHandlerAddNumberToAts3::create($param)->addNumber(); break;
-                        case 'ats3__update_number':   EventHandlerAddNumberToAts3::create($param)->updateNumber(); break;
-                        case 'ats3__del_number':      EventHandlerAddNumberToAts3::create($param)->delNumber(); break;
-                        case 'ats3__change_client':   EventHandlerAddNumberToAts3::create($param)->changeClient(); break;
-                        case 'ats3__blocked_number':  EventHandlerAddNumberToAts3::create($param)->blocked(); break;
-                        case 'ats3__disabled_number': EventHandlerAddNumberToAts3::create($param)->disabled(); break;
+                        case 'usage_voip__insert':
+                        case 'usage_voip__update':
+                        case 'usage_voip__delete': ActaulizerVoipNumbers::me()->actaulizeByNumber($param[2]); break;
+
+                        case 'midnight': 
+                        case 'client_set_status': ActaulizerVoipNumbers::me()->actaulizeAll(); break;
+
+                        case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param); break;
                     }
                 }
             }

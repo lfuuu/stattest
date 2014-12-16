@@ -10,10 +10,9 @@ use app\models\ActualNumber;
  */
 class ActualNumberDao extends Singleton
 {
-    public function collectFromUsages()
+    public function collectFromUsages($number = null)
     {
-        return
-            ActualNumber::getDb()->createCommand("
+        $data = ActualNumber::getDb()->createCommand("
                 SELECT 
                     client_id, 
                     e164 AS number, 
@@ -53,14 +52,22 @@ class ActualNumberDao extends Singleton
                             and u.client = c.client 
                             and ((c.status in ('work','connecting','testing')) or c.id = 9130) 
                             and LENGTH(e164) > 3
+                            ".($number ? "and e164 = :number" : "")."
                         ORDER BY u.id
                     )a
-                    ")->queryAll();
+                    ", ($number ? [":number" => $number] : []))->queryAll();
+
+        $d = array();
+        foreach($data as $l)
+            $d[$l["number"]] = $l;
+
+        return $d;
+
     }
 
-    public function loadSaved()
+    public function loadSaved($number = null)
     {
-        return ActualNumber::getDb()->createCommand("
+        $data = ActualNumber::getDb()->createCommand("
                 SELECT 
                     client_id, 
                     number, 
@@ -73,6 +80,13 @@ class ActualNumberDao extends Singleton
                     is_disabled 
                 FROM 
                     actual_number a
-                    ORDER BY id")->queryAll();
+                ".($number ? "WHERE number = :number" : "")."
+                ORDER BY id", ($number ? [":number" => $number] : []))->queryAll();
+
+        $d = array();
+        foreach($data as $l)
+            $d[$l["number"]] = $l;
+
+        return $d;
     }
 }

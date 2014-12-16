@@ -1,19 +1,59 @@
 <?php
 
+namespace app\classes;
+
 use app\models\ActualNumber;
 use app\models\UsageVoip;
 use app\models\Region;
 
 class ActaulizerVoipNumbers
 {
-    public function actualize()
+    public function me()
     {
-        l::ll(__CLASS__,__FUNCTION__);
+        return new static();
+    }
+
+    private function __construct()
+    {
+        //
+    }
+
+    public function actualizeByNumber($number)
+    {
+        $this->actualize($number);
+    }
+
+    public function actualizeAll()
+    {
+        $this->actaulize();
+    }
+
+    private function checkSync($number = null)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $number);
+
+        if(
+            $diff = $this->checkDiff(
+                ActualNumber::dao()->loadSaved($numebr),
+                ActualNumber::dao()->collectFromUsages($number)
+            )
+        )
+        {
+            $this->diffToSync($diff);
+        }
+
+    }
+
+    public function sync($number = null)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $number);
+
+        if (!$number) return;
 
         if(
             $diff = $this->diff(
-                $this->load("saved"), 
-                $this->load("actual")
+                ActualNumber::dao()->loadSaved($numebr),
+                ActualNumber::dao()->collectFromUsages($number)
             )
         )
         {
@@ -31,25 +71,41 @@ class ActaulizerVoipNumbers
         }
     }
 
-    private function load($type)
+    private function checkDiff($saved, $actual)
     {
-        l::ll(__CLASS__,__FUNCTION__,$type);
+        l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
 
-        switch($type)
+        $d = [];
+
+        foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
         {
-            case 'actual': $data = ActualNumber::dao()->collectFromUsages(); break;
-            case 'saved': $data = ActualNumber::dao()->loadSaved(); break;
-            default: throw new Exception("Unknown type");
+            $d[$l] = ["action" => "del"] + $saved[$l];
         }
 
-        $d = array();
-        foreach($data as $l)
-            $d[$l["number"]] = $l;
+        foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
+            $d[$l] = ["action" => "add"] + $actual[$l];
 
-        if (!$d)
-            throw new Exception("Data not load");
+
+        foreach(["client_id", "region", "call_count", "number_type", "direction", "line7800_id", "is_blocked", "is_disabled"] as $field)
+        {
+            foreach($actual as $number => $l)
+            {
+                if(isset($saved[$number]) && $saved[$number][$field] != $l[$field] && !isset($d[$number])) 
+                {
+                    $d[$number] = ["action" => "update"] + $l;
+                }
+            }
+        }
 
         return $d;
+    }
+
+    private function diffToSync($diff)
+    {
+        foreach($diff as $data)
+        {
+            $this->event_go("ats3__sync", $data);       
+        }
     }
 
     private function diff($saved, $actual)
@@ -192,7 +248,7 @@ class ActaulizerVoipNumbers
             $s["vpbx_id"] = $params["vpbx_id"];
         }
 
-        $this->event_go("ats3__add_number", $s);
+        $this->execQuery("add_did", $s);
 
         return $s;
     }
@@ -206,7 +262,7 @@ class ActaulizerVoipNumbers
             "did" => $data["number"]
             ];
 
-        $this->event_go("ats3__del_number", $s);
+        $this->execQuery("disable_did", $s);
     }
 
     private function change_event($number, $data)
@@ -232,7 +288,7 @@ class ActaulizerVoipNumbers
                     "client_id" => (int)$new["client_id"]
                     ];
 
-                $this->event_go("ats3__change_client", $structClientChange);
+                $this->execQuery("edit_client_id", $structClientChange);
                 unset($changedFields["client_id"]);
             } else {
                 $this->del_event($old);
@@ -296,7 +352,7 @@ class ActaulizerVoipNumbers
                 $structChange["nonumber_phone"] = $usage_line->E164;
             }
 
-            $this->event_go("ats3__update_number", $structChange);
+            $this->execQuery("edit_did", $structChange);
         }
     }
 
@@ -325,6 +381,11 @@ class ActaulizerVoipNumbers
         l::ll(__CLASS__,__FUNCTION__, $event, $data);
 
         UsageVoip::getDb()->createCommand()->insert("event_queue", ["event" => $event, "param" => json_encode($data)])->execute();
+    }
+
+    private function execQuery($action)
+    {
+        \JSONQuery::exec("https://".PHONE_SERVER."/phone/api/".$action, $this->data);
     }
 }
 
