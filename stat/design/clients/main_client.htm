@@ -5,12 +5,12 @@
 </div>
 
 {foreach from=$contragents item='contragent'}
-<div style="border-top: 1px solid #b0b0b0; padding: 3px; margin: 10px 0">
-    <div>
+<div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
+    <div style="color: #333">
         <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
     </div>
     {foreach from=$contragent.accounts item='account'}
-    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
+    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
         <div style="display: inline-block; padding: 0 4px">
             {if $account.id==$clientAccount.id}<b>{/if}
             <div style="display: inline-block; min-width: 80px">
