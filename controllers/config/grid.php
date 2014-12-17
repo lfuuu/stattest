@@ -18,8 +18,14 @@ $menumap = [
             'telecom.sales.trash',
         ],
         'accounting' => [
+            'telecom.sales.connecting',
             'telecom.accounting.work',
-            'telecom.accounting.debt',
+            'telecom.accounting.closed', // отключен
+            'telecom.accounting.debt', // отключен за долги
+            'telecom.accounting.blocked', //временно заблокирован
+            'telecom.accounting.reserved',
+            'telecom.accounting.suspended', //приостановлен
+
         ],
     ],
     'ecommerce' => [
@@ -461,7 +467,7 @@ $rows['telecom.sales.trash'] = [
 				)
                         LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
 			WHERE
-				cl.contract_type_id=2 AND cl.status="trash"',
+				cl.contract_type_id=2 AND cl.status in ("trash","double")',
     'sortable' => [
             'status',
             'id',
@@ -512,6 +518,36 @@ $rows['telecom.sales.trash'] = [
     ],
 ];
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*---------СОПРОВОЖДЕНИЕ-------------*/
+
 $rows['telecom.accounting.work'] = [
     'header' => 'Включенные',
     'sql' => 'SELECT 
@@ -543,11 +579,6 @@ $rows['telecom.accounting.work'] = [
                 'label' => '#',
                 'class' => 'app\classes\yii\GlyphDataColumn',
              ],
-            'id' => [
-                'label' => 'ИД',
-                'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'index.php?module=clients&id={id}',
-             ],
             'client' => [
                 'label' => 'Клиент',
              ],
@@ -570,8 +601,61 @@ $rows['telecom.accounting.work'] = [
                 'class' => 'app\classes\yii\HrefDataColumn',
                 'href'=>'index.php?module=users&m=user&id={manager}',
              ],
-            'telemarketing' => [
-                'label' => 'ТМ',    
+    ],
+];
+
+$rows['telecom.accounting.closed'] = [
+    'header' => 'Отключенные',
+    'sql' => 'SELECT 
+				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				DATE(cls.ts) date_zayavka
+			FROM clients cl
+			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			AND
+				( cls.id IS NULL AND
+					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+				)
+                        LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
+			WHERE
+				cl.contract_type_id=2 AND cl.status="closed"',
+    'sortable' => [
+            'status',
+            'id',
+            'client',
+            'company',
+            'created',
+            'manager'
+    ],
+    'order'=> [
+        'created' => SORT_DESC, 
+    ],
+    'countperpage' => 50,
+    'columns' => [
+            'status' => [
+                'label' => '#',
+                'class' => 'app\classes\yii\GlyphDataColumn',
+             ],
+            'client' => [
+                'label' => 'Клиент',
+             ],
+            'company' => [
+                'label' => 'Компания',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=clients&id={id}',
+             ],
+            'created' => [
+                'label' => 'Заведен',
+             ],
+            'curency' => [
+                'label' => 'Валюта',    
+             ],
+            'sale_channel' => [
+                'label' => 'Канал',
+             ],
+            'manager' => [
+                'label' => 'Менеджер',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=users&m=user&id={manager}',
              ],
     ],
 ];
@@ -607,10 +691,61 @@ $rows['telecom.accounting.debt'] = [
                 'label' => '#',
                 'class' => 'app\classes\yii\GlyphDataColumn',
              ],
-            'id' => [
-                'label' => 'ИД',
+            'client' => [
+                'label' => 'Клиент',
+             ],
+            'company' => [
+                'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
                 'href'=>'index.php?module=clients&id={id}',
+             ],
+            'created' => [
+                'label' => 'Заведен',
+             ],
+            'curency' => [
+                'label' => 'Валюта',    
+             ],
+            'sale_channel' => [
+                'label' => 'Канал',
+             ],
+            'manager' => [
+                'label' => 'Менеджер',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=users&m=user&id={manager}',
+             ],
+    ],
+];
+
+$rows['telecom.accounting.blocked'] = [
+    'header' => 'Временно заблокированные',
+    'sql' => 'SELECT 
+				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				DATE(cls.ts) date_zayavka
+			FROM clients cl
+			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			AND
+				( cls.id IS NULL AND
+					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+				)
+                        LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
+			WHERE
+				cl.contract_type_id=2 AND cl.status="blocked"',
+    'sortable' => [
+            'status',
+            'id',
+            'client',
+            'company',
+            'created',
+            'manager'
+    ],
+    'order'=> [
+        'created' => SORT_DESC, 
+    ],
+    'countperpage' => 50,
+    'columns' => [
+            'status' => [
+                'label' => '#',
+                'class' => 'app\classes\yii\GlyphDataColumn',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -634,14 +769,188 @@ $rows['telecom.accounting.debt'] = [
                 'class' => 'app\classes\yii\HrefDataColumn',
                 'href'=>'index.php?module=users&m=user&id={manager}',
              ],
-            'telemarketing' => [
-                'label' => 'ТМ',    
+    ],
+];
+
+$rows['telecom.accounting.reserved'] = [
+    'header' => 'Резервирование канала',
+    'sql' => 'SELECT 
+				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				DATE(cls.ts) date_zayavka
+			FROM clients cl
+			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			AND
+				( cls.id IS NULL AND
+					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+				)
+                        LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
+			WHERE
+				cl.contract_type_id=2 AND cl.status="reserved"',
+    'sortable' => [
+            'status',
+            'id',
+            'client',
+            'company',
+            'created',
+            'manager'
+    ],
+    'order'=> [
+        'created' => SORT_DESC, 
+    ],
+    'countperpage' => 50,
+    'columns' => [
+            'status' => [
+                'label' => '#',
+                'class' => 'app\classes\yii\GlyphDataColumn',
+             ],
+            'client' => [
+                'label' => 'Клиент',
+             ],
+            'company' => [
+                'label' => 'Компания',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=clients&id={id}',
+             ],
+            'created' => [
+                'label' => 'Заведен',
+             ],
+            'curency' => [
+                'label' => 'Валюта',    
+             ],
+            'sale_channel' => [
+                'label' => 'Канал',
+             ],
+            'manager' => [
+                'label' => 'Менеджер',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=users&m=user&id={manager}',
              ],
     ],
 ];
 
+$rows['telecom.accounting.suspended'] = [
+    'header' => 'Приостановлен',
+    'sql' => 'SELECT 
+				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
+				DATE(cls.ts) date_zayavka
+			FROM clients cl
+			LEFT JOIN client_statuses cls ON cl.id = cls.id_client
+			AND
+				( cls.id IS NULL AND
+					cls.id = (SELECT MIN(id) FROM client_statuses WHERE id_client=cl.id)
+				)
+                        LEFT JOIN sale_channels s ON (s.id = cl.sale_channel)
+			WHERE
+				cl.contract_type_id=2 AND cl.status="suspended"',
+    'sortable' => [
+            'status',
+            'id',
+            'client',
+            'company',
+            'created',
+            'manager'
+    ],
+    'order'=> [
+        'created' => SORT_DESC, 
+    ],
+    'countperpage' => 50,
+    'columns' => [
+            'status' => [
+                'label' => '#',
+                'class' => 'app\classes\yii\GlyphDataColumn',
+             ],
+            'client' => [
+                'label' => 'Клиент',
+             ],
+            'company' => [
+                'label' => 'Компания',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=clients&id={id}',
+             ],
+            'created' => [
+                'label' => 'Заведен',
+             ],
+            'curency' => [
+                'label' => 'Валюта',    
+             ],
+            'sale_channel' => [
+                'label' => 'Канал',
+             ],
+            'manager' => [
+                'label' => 'Менеджер',
+                'class' => 'app\classes\yii\HrefDataColumn',
+                'href'=>'index.php?module=users&m=user&id={manager}',
+             ],
+    ],
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*-------------------------------------------------------------------------------------*/
+
 $rows['operators.accounting.work'] = [
-    'header' => 'Включенные',
+    'header' => 'Временно заблокирован',
     'sql' => 'SELECT 
 				cl.status, cl.id, cl.client, cl.company, cl.manager, cl.support, cl.telemarketing, s.name AS sale_channel, cl.created, cl.currency, 
 				DATE(cls.ts) date_zayavka
