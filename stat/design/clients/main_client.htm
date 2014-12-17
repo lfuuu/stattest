@@ -13,15 +13,15 @@
     <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
         <div style="display: inline-block; padding: 0 4px">
             {if $account.id==$clientAccount.id}<b>{/if}
-            <div style="display: inline-block; width: 70px">
+            <div style="display: inline-block; min-width: 80px">
                 {$account.client}
             </div>
-            <div style="display: inline-block; width: 200px">
+            <div style="display: inline-block; min-width: 200px">
                 {$account.contractType.name} /
                 <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
             </div>
-            <div style="display: inline-block; width: 20px"></div>
-            <div style="display: inline-block; width: 200px">
+            <div style="display: inline-block; min-width: 20px"></div>
+            <div style="display: inline-block; min-width: 200px">
                 <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
                     {math equation="-(balance)" balance=$account.balance} {$account.currency}
                 </span>
