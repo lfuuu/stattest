@@ -10,11 +10,10 @@
     {foreach from=$contragent.accounts item='account'}
     <a class="nohover" href="?module=clients&id={$account.id}" style="display: inline-block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
         <div style="display: inline-block">
+            {if $account.id==$clientAccount.id}<b>{/if}
             <div style="display: inline-block; width: 70px">
                 &nbsp;
-                {if $account.id==$clientAccount.id}<b>{/if}
                 {$account.client}
-                {if $account.id==$clientAccount.id}</b>{/if}
             </div>
             <div style="display: inline-block; width: 70px">
                 <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
@@ -24,6 +23,7 @@
                 {$account.balance} {$account.currency}
                 {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
             </div>
+            {if $account.id==$clientAccount.id}</b>{/if}
         </div>
     </a>
     {/foreach}
