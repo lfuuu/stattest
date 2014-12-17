@@ -1,5 +1,35 @@
 <script src="js/jquery.inputmask.js"></script>
-<H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
+
+<div style="font-size: 20px; padding: 5px; margin-bottom: 10px">
+    Клиент {$superClient.name}
+</div>
+
+{foreach from=$contragents item='contragent'}
+<div style="border: 1px solid #000; padding: 3px; margin: 10px 0">
+    <div>{$contragent.name}</div>
+    {foreach from=$contragent.accounts item='account'}
+    <a class="nohover" href="?module=clients&id={$account.id}" style="display: inline-block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
+        <div style="display: inline-block">
+            {if $account.id==$clientAccount.id}<b>{/if}
+            <div style="display: inline-block; width: 70px">
+                &nbsp;
+                {$account.client}
+            </div>
+            <div style="display: inline-block; width: 70px">
+                <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
+            </div>
+            <div style="display: inline-block; width: 20px"></div>
+            <div style="display: inline-block; width: 180px">
+                {$account.balance} {$account.currency}
+                {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
+            </div>
+            {if $account.id==$clientAccount.id}</b>{/if}
+        </div>
+    </a>
+    {/foreach}
+</div>
+{/foreach}
+
 
 <div style="width: 250px; float: right">
     {if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
@@ -98,62 +128,6 @@
 </tr>
 {/if}
 
-{if $client.contragents_count > 1}
-<tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-    Клиент:
-    </td>
-    <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-    <b>{$client.super_client_name}</b>
-    </td>
-</tr>
-
-<tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-    Контрагент:
-    </td>
-    <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-    {foreach from=$client.contragents item='c'}
-    {if $client.contragent_id <> $c.id}
-    <a href="?module=clients&contragent_id={$c.id}">
-        {else}
-        <b>
-            {/if}
-            {$c.name}
-            {if $client.contragent_id <> $c.id}
-    </a>
-    {else}
-    </b>
-    {/if}&nbsp;&nbsp;
-    {/foreach}
-    </td>
-</tr>
-{/if}
-
-{if $client.cards_count > 1}
-<tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-    {if $client.cards_count > 1}Карточки{else}Карточка{/if}:
-    </td>
-    <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-    {foreach from=$client.cards item='c'}
-    {if $client.id <> $c.id}
-    <a href="?module=clients&id={$c.id}">
-        {else}
-        <b>
-            {/if}
-
-            {$c.client}
-
-            {if $client.id <> $c.id}
-    </a>
-    {else}
-    </b>
-    {/if}&nbsp;&nbsp;
-    {/foreach}
-    </td>
-</tr>
-{/if}
 <tr>
     <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
     <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
@@ -190,12 +164,6 @@
     </td>
     <td {if $client.support_color} style='background-color:{$client.support_color}'{/if}>
     <b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b>
-    </td>
-</tr>
-<tr>
-    <td align="right">Валюта:</td>
-    <td>
-        <b{if $client.currency=='USD'}>${else} style='color:blue'>рубли{/if}</b> <span style='font-size:85%'>(кредит <b>{if $client.credit >= 0}{$client.credit}{else}не ограничен{/if}</b>)</span>
     </td>
 </tr>
 <tr><td align="right">Адрес:</td><td><b>{$client.address_post}</b></td></tr>

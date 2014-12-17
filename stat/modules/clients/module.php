@@ -1,6 +1,8 @@
 <?php
 use app\classes\StatModule;
 use app\models\ClientContractType;
+use app\models\ClientAccount;
+use app\classes\Assert;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -1037,6 +1039,16 @@ class m_clients {
 
 		global $design, $db, $user;
 
+    $clientAccount = ClientAccount::findOne($id);
+    Assert::isObject($clientAccount);
+
+    $superClient = $clientAccount->superClient;
+    $contragents = $superClient->contragents;
+
+    $design->assign('clientAccount', $clientAccount);
+    $design->assign('superClient', $superClient);
+    $design->assign('contragents', $contragents);
+
     $voip = new VoipStatus;
     $voip->loadClient($id);
     $voip_counters = $voip->loadVoipCounters();
@@ -1109,12 +1121,6 @@ class m_clients {
 		$design->assign('_cards',$_cards);
         */
 
-        if ($r)
-        {
-            $r["cards"] = $db->AllRecords("select id, client, company from clients where contragent_id = ".$r["contragent_id"]." order by id");
-            $r["cards_count"] = count($r["cards"]);
-        }
-
 		//$design->assign('all_cls',$db->AllRecords("select id,client from clients where client<>'' order by client",null,MYSQL_ASSOC));
 
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
@@ -1136,12 +1142,6 @@ class m_clients {
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
-
-        if ($r){
-            $r["contragents"] = $db->AllRecords($q = "select id, name from client_contragent where super_id = '".$r["super_id"]."'");
-            $r["contragents_count"] = count($r["contragents"]);
-        }
-
 
 		if(!$show_edit){
 			$design->assign('contacts',$cs->GetContacts());
