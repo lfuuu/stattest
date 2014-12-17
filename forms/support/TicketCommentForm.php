@@ -2,7 +2,6 @@
 namespace app\forms\support;
 
 use app\classes\Form;
-use app\classes\validators\CoreUserIdValidator;
 use app\classes\validators\TicketIdValidator;
 use app\models\support\Ticket;
 
@@ -20,7 +19,7 @@ class TicketCommentForm extends Form
         return [
             [['id'], 'integer'],
             [['ticket_id'], TicketIdValidator::className(), 'ticket' => 'ticket'],
-            [['user_id'], CoreUserIdValidator::className()],
+            [['user_id'], 'string', 'length' => 24],
             [['text'], 'string'],
         ];
     }

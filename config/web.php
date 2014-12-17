@@ -8,11 +8,6 @@ $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.local.php')
 );
 
-$dbMongo = ArrayHelper::merge(
-  require(__DIR__ . '/db_mongo.php'),
-  require(__DIR__ . '/db_mongo.local.php')
-);
-
 $log = ArrayHelper::merge(
     require(__DIR__ . '/log.php'),
     require(__DIR__ . '/log.local.php')
@@ -60,7 +55,6 @@ $config = [
         ],
         'log' => $log,
         'db' => $db,
-        'mongodb' => $dbMongo,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

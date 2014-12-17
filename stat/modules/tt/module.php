@@ -11,7 +11,6 @@
 */
 use \app\dao\TroubleDao;
 use \app\models\support\TicketComment;
-use \app\models\mongo\CoreUser;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -659,10 +658,9 @@ class m_tt extends IModule{
             foreach ($ticketComments as $k => $comment) {
                 /** @var TicketComment $comment */
                 if ($comment->user_id) {
-                    $author = CoreUser::findOne($comment->user_id);
-                    $author = $author ? $author->last_name : '';
+                    $author = 'Пользователь';
                 } else {
-                    $author = \app\models\Trouble::DEFAULT_SUPPORT_USER;
+                    $author = 'Тех. поддержка';
                 }
                 $createdAt = $comment->getCreatedAt();
                 $createdAt->setTimezone(new DateTimeZone('Europe/Moscow'));
