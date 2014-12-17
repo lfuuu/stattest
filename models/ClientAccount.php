@@ -13,6 +13,7 @@ use app\classes\behaviors\LogClientContractTypeChange;
 
  * @property ClientSuper $superClient
  * @property ClientStatuses $lastComment
+ * @property Region $accountRegion
  * @property
  */
 class ClientAccount extends ActiveRecord
@@ -79,7 +80,12 @@ class ClientAccount extends ActiveRecord
       return $this->hasOne(ClientContractType::className(), ['id' => 'contract_type_id']);
     }
 
-  public function getStatusName()
+    public function getAccountRegion()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    public function getStatusName()
     {
         return
             isset(self::$statuses[$this->status])

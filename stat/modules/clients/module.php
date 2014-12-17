@@ -1272,7 +1272,6 @@ class m_clients {
 		}
 
 		$design->assign('client',$r);
-        $design->assign('region_name', $db->GetValue('select `name` from regions where id='.intval($r['region'])) );
 		$_SESSION['clients_client'] = $r['client'];
 	}
 

@@ -27,6 +27,9 @@
                 </span>
                 {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
             </div>
+            <div style="display: inline-block; min-width: 120px">
+                {if $account.accountRegion}{$account.accountRegion.name}{/if}
+            </div>
             {if $account.id==$clientAccount.id}</b>{/if}
             <div style="display: inline-block;">
                 {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
@@ -123,10 +126,6 @@
 
 <div style="margin-right: 260px;">
 <table class="table table-condensed table-striped">
-<tr>
-    <td align="right">Регион:</td>
-    <td colspan="2"><b>{$region_name}</b></td>
-</tr>
 
 {if $client.previous_reincarnation}
 <tr>
