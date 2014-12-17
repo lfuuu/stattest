@@ -48,7 +48,11 @@ class CompatibilityController extends BaseController
         if ($newClient = get_param_raw("clients_client"))
             $_SESSION["clients_client"] = $newClient;
 
-        $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
+        if (Yii::$app->user->identity->restriction_client_id) {
+          $fixclient = Yii::$app->user->identity->restriction_client_id;
+        } else {
+          $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
+        }
         $fixclient_data = array();
 
         if ($module != 'clients' && $fixclient) {

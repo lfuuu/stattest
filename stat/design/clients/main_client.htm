@@ -234,13 +234,13 @@
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2>
                 <td align="right">Статус:</td>
                 <td>
-                    <SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 200px" name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
                 </tr>
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
                 <td align="right">Тип договора:</td>
                 <td>
-                    <SELECT name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
                 </tr>
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>

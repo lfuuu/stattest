@@ -161,12 +161,12 @@ class DbForm {
                     }
                     $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
                     $p='edit';
-                    trigger_error2('Запись обновлена');
+                    Yii::$app->session->addFlash('success', 'Запись обновлена');
                 } else {
                     $db->Query('insert into '.$this->table.' SET '.$s);
                     $this->dbform['id']=$db->GetInsertId();
                     $p='add';
-                    trigger_error2('Запись добавлена');
+                    Yii::$app->session->addFlash('success', 'Запись добавлена');
                 }
                 $this->Load($this->dbform['id']);
             } else {
@@ -422,6 +422,8 @@ class DbFormUsageIpPorts extends DbForm{
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('usage_ip_ports',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment'], isset($this->dbform['t_fields_changes']) ?$this->dbform['t_fields_changes'] : "");
         }
+
+        return $v;
     }
 }
 
@@ -2244,6 +2246,7 @@ $GLOBALS['translate_arr']=array(
     '*.space' => 'Пространство Мб',
     '*.overrun_per_gb' => 'Превышение за Gb',
     '*.is_record' => 'Запись звонков',
+    '*.is_web_call' => 'Звонки с сайта',
     '*.is_fax' => 'Факс',
     '*.datacenter_id' => 'Тех. площадка',
     '*.server_pbx_id' => 'Сервер АТС',

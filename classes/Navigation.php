@@ -14,6 +14,7 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setId('client_telecom')
+                ->setRights(['clients.read'])
                 ->setTitle('Телеком')
                     ->addItem('Продажи', '/clients/index?bp=telecom.sales')
                     ->addItem('Сопровождение', '/clients/index?bp=telecom.accounting')
@@ -22,6 +23,7 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setId('client_ecommerce')
+                ->setRights(['clients.read'])
                 ->setTitle('Интернет магазин')
                     ->addItem('Заказы магазина', '/clients/index?bp=ecommerce.sales')
 
@@ -30,6 +32,7 @@ class Navigation
        $this->addBlock(
             NavigationBlock::create()
                 ->setId('client_procurement')
+                ->setRights(['clients.read'])
                 ->setTitle('Закупки')
                     ->addItem('Заказы поставщиков', '/clients/index?bp=procurement.sales')
                     ->addItem('Сопровождение', '/clients/index?bp=procurement.accounting') 
@@ -39,6 +42,7 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setId('client_operator')
+                ->setRights(['clients.read'])
                 ->setTitle('Операторы')
                     ->addItem('Сопровождение', '/clients/index?bp=operator.accounting') 
 
@@ -63,14 +67,6 @@ class Navigation
         $this->addBlockForStatModule('incomegoods');
         $this->addBlockForStatModule('ats2');
         $this->addBlockForStatModule('logs');
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('tariffication_settings')
-                ->setTitle('Настройки тариффикатора')
-                ->addItem('Типы услуг', ['tariffication/service-type/index'])
-                ->addItem('Параметры', ['tariffication/feature/index'])
-                ->addItem('Услуги', ['tariffication/service/index'])
-        );
     }
 
     /**
@@ -94,7 +90,17 @@ class Navigation
 
     private function addBlock(NavigationBlock $block)
     {
-        $this->blocks[] = $block;
+        if ($block->rights) {
+          foreach ($block->rights as $right) {
+            if (Yii::$app->user->can($right)) {
+              $this->blocks[] = $block;
+              break;
+            }
+          }
+        } else {
+          $this->blocks[] = $block;
+        }
+        return $this;
     }
 
     private function addBlockForStatModule($moduleName)
@@ -104,7 +110,7 @@ class Navigation
         list($title, $items) = $statModule->GetPanel(null);
 
         if (!$title || !$items) {
-            return null;
+          return $this;
         }
 
         $block =
@@ -117,6 +123,7 @@ class Navigation
         }
 
         $this->addBlock($block);
+        return $this;
     }
 
 }

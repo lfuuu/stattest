@@ -64,6 +64,7 @@ class m_tt extends IModule{
             $GLOBALS['fixclient'] = '';
             $GLOBALS['fixclient_data'] = '';
             $this->curclient = null;
+            $fixclient = null;
         }
         $service = get_param_protected('service',null);
         $service_id = get_param_integer('service_id',null);

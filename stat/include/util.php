@@ -955,7 +955,7 @@ class ClientCS {
 
     function Create($uid = null){
 
-        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false));
+        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false), "contract_type_id" => 2 /* Телеком-клиент */);
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
                 $this->F[$field] = $defaultValue;

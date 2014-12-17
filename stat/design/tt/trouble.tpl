@@ -177,7 +177,7 @@
                                             {/if}
                                         {/foreach}
                                     {else}
-                                        <select name=user>
+                                        <select class="select2" style="width: 250px" name=user>
                                             {foreach from=$tt_users item=item}
                                             {if $item.user}
                                             <option value='{$item.user}'{if $tt_trouble.user_main==$item.user} selected{/if}>{$item.name} ({$item.user})</option>
