@@ -1039,7 +1039,11 @@ class m_clients {
 
 		global $design, $db, $user;
 
-    $clientAccount = ClientAccount::findOne($id);
+    if (is_numeric($id)) {
+      $clientAccount = ClientAccount::findOne($id);
+    } else {
+      $clientAccount = ClientAccount::find()->andWhere(['client' => $id])->one();
+    }
     Assert::isObject($clientAccount);
 
     $superClient = $clientAccount->superClient;
