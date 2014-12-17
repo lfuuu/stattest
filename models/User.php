@@ -35,7 +35,10 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        if ($token == Yii::$app->params['API_SECURE_KEY']) {
+            return new User();
+        }
+        return null;
     }
 
     public static function findByUsername($user)
