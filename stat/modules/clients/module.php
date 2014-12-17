@@ -1130,7 +1130,6 @@ class m_clients {
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
 		$r['status_color'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['color'] : '');
         $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
-        $r['contract_type'] = ClientContractType::findOne($r["contract_type_id"])->name;
 
         $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
 
@@ -1166,7 +1165,6 @@ class m_clients {
 				$design->assign('contract',$d[count($d)-1]);
 			$design->assign('contact',$cs->GetContact(false));
 
-			$r['comment'] = $cs->GetLastComment();
 			$r['data_cs'] = $cs->GetAllStatuses();
 
 			$design->assign('cfiles',count($cs->GetFiles()));

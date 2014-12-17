@@ -12,6 +12,7 @@ use app\classes\behaviors\LogClientContractTypeChange;
  * @property int $nds_zero
 
  * @property ClientSuper $superClient
+ * @property ClientStatuses $lastComment
  * @property
  */
 class ClientAccount extends ActiveRecord
@@ -38,6 +39,8 @@ class ClientAccount extends ActiveRecord
         'distr'               => array('name'=>'Поставщик','color'=>'yellow'),
         'operator'            => array('name'=>'Оператор','color'=>'lightblue')
     );
+
+    private $_lastComment = false;
 
     public static function tableName()
     {
@@ -71,7 +74,12 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
-    public function getStatusName()
+    public function getContractType()
+    {
+      return $this->hasOne(ClientContractType::className(), ['id' => 'contract_type_id']);
+    }
+
+  public function getStatusName()
     {
         return
             isset(self::$statuses[$this->status])
@@ -85,5 +93,18 @@ class ClientAccount extends ActiveRecord
             isset(self::$statuses[$this->status])
                 ? self::$statuses[$this->status]['color']
                 : '';
+    }
+
+    public function getLastComment()
+    {
+        if ($this->_lastComment === false) {
+            $this->_lastComment =
+                ClientStatuses::find()
+                    ->andWhere(['id_client' => $this->id])
+                    ->andWhere('comment != ""')
+                    ->orderBy('ts desc')
+                    ->one();
+        }
+        return $this->_lastComment;
     }
 }

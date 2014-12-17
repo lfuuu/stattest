@@ -1,29 +1,36 @@
 <script src="js/jquery.inputmask.js"></script>
 
-<div style="font-size: 20px; padding: 5px; margin-bottom: 10px">
+<div style="font-size: 18px; padding: 5px; margin-bottom: 10px">
     Клиент {$superClient.name}
 </div>
 
 {foreach from=$contragents item='contragent'}
-<div style="border: 1px solid #000; padding: 3px; margin: 10px 0">
-    <div>{$contragent.name}</div>
+<div style="border-top: 1px solid #b0b0b0; padding: 3px; margin: 10px 0">
+    <div>
+        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
+    </div>
     {foreach from=$contragent.accounts item='account'}
-    <a class="nohover" href="?module=clients&id={$account.id}" style="display: inline-block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
-        <div style="display: inline-block">
+    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; border: 1px solid #000; border-radius: 5px; padding: 3px; margin: 5px 0; {if $account.id==$clientAccount.id}background-color: #DBDBDB;{/if}">
+        <div style="display: inline-block; padding: 0 4px">
             {if $account.id==$clientAccount.id}<b>{/if}
             <div style="display: inline-block; width: 70px">
-                &nbsp;
                 {$account.client}
             </div>
-            <div style="display: inline-block; width: 70px">
+            <div style="display: inline-block; width: 200px">
+                {$account.contractType.name} /
                 <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
             </div>
             <div style="display: inline-block; width: 20px"></div>
-            <div style="display: inline-block; width: 180px">
-                {$account.balance} {$account.currency}
+            <div style="display: inline-block; width: 200px">
+                <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
+                    {math equation="-(balance)" balance=$account.balance} {$account.currency}
+                </span>
                 {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
             </div>
             {if $account.id==$clientAccount.id}</b>{/if}
+            <div style="display: inline-block;">
+                {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
+            </div>
         </div>
     </a>
     {/foreach}
@@ -175,7 +182,6 @@
     <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}
     </td>
 </tr>
-<tr><td align="right">Тип договора:</td><td><b>{$client.contract_type}</b></td></tr>
 
 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs1>
 <td colspan=2 align="center">
@@ -231,10 +237,6 @@
 <tr>
     <td align="right">Предполагаемый <b>адрес</b> подключения:</td>
     <td>{$client.address_connect}{if $client.phone_connect} <b>телефон:</b> {$client.phone_connect}{/if}</td>
-</tr>
-<tr>
-    <td align="right">Комментарий:</td>
-    <td><b>{$client.comment.comment}</b></td>
 </tr>
 
 <tr id="contact_header1" style="display: none;">
