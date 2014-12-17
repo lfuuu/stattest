@@ -11,8 +11,7 @@
         "kartik-v/yii2-editable": "*",
         "kartik-v/yii2-widgets": "*",
         "kartik-v/yii2-mpdf": "*",
-        "kartik-v/yii2-builder": "*",
-        "yiisoft/yii2-mongodb": "*"
+        "kartik-v/yii2-builder": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
