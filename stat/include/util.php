@@ -1988,9 +1988,21 @@ class event
             $param = json_encode($param);
         }
 
-        global $db;
+        $code = md5($event."|||".$param);
 
-        $db->QueryInsert("event_queue", array("event" => $event, "param" => $param));
+        $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+
+        if (!$row)
+        {
+            $row = new EventQueue();
+            $row->event = $event;
+            $row->param = $param;
+            $row->code = $code;
+        } else {
+            $row->iteration = 0;
+            $row->status = 'plan';
+        }
+        $row->save();
     }
 
     public static function setReject($bill, $state)

@@ -116,12 +116,12 @@ function do_events()
                     {
                         case 'usage_voip__insert':
                         case 'usage_voip__update':
-                        case 'usage_voip__delete': ActaulizerVoipNumbers::me()->actaulizeByNumber($param[2]); break;
+                        case 'usage_voip__delete': ActaulizerVoipNumbers::me()->actualizeByNumber($param[2]); break;
 
                         case 'midnight': 
-                        case 'client_set_status': ActaulizerVoipNumbers::me()->actaulizeAll(); break;
+                        case 'client_set_status': ActaulizerVoipNumbers::me()->actualizeAll(); break;
 
-                        case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param); break;
+                        case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
                     }
                 }
             }
@@ -129,7 +129,7 @@ function do_events()
         } catch (Exception $e)
         {
             echo "\n--------------\n";
-            echo "[".$event->event."] Code: ".$e->getCode().": ".$e->GetMessage();
+            echo "[".$event->event."] Code: ".$e->getCode().": ".$e->GetMessage()." in ".$e->getFile()." +".$e->getLine();
             $event->setError($e);
             $isError = true;
         }

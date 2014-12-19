@@ -62,7 +62,7 @@ class ats2sync7800ats2ToAsterDb
     /**
      * Сравнение загруженных данных
      */
-    private function diff()
+    private static function diff()
     {
         self::$diff = array();
 

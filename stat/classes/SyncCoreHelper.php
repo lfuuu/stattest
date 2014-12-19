@@ -5,7 +5,7 @@ class SyncCoreHelper
 
     private static $allowClientStatusSQL = array("work","connecting","testing", "debt", "operator");
 
-    function getFullClientStruct($superId) // only super client && conragent
+    static function getFullClientStruct($superId) // only super client && conragent
     {
         echo "\n".__FUNCTION__;
         global $db;
@@ -61,7 +61,7 @@ class SyncCoreHelper
         return $data;
     }
 
-    public function getAccountStruct($cl)
+    public static function getAccountStruct($cl)
     {
         echo "\n".__FUNCTION__;
 
@@ -79,7 +79,7 @@ class SyncCoreHelper
                 );
     }
 
-    function loadEmails(&$emails, $clientId)
+    static function loadEmails(&$emails, $clientId)
     {
         echo "\n".__FUNCTION__;
         global $db;
@@ -97,7 +97,7 @@ class SyncCoreHelper
         }
     }
 
-    function getProducts($clientId)
+    static function getProducts($clientId)
     {
         echo "\n".__FUNCTION__;
         $products = array();
@@ -111,13 +111,13 @@ class SyncCoreHelper
         return $products;
     }
 
-    function getEmailStruct($email, $password)
+    static function getEmailStruct($email, $password)
     {
         return array("email" => $email, "password" => $password);
     }
 
 
-    function getProductVPBX($clientId)
+    static function getProductVPBX($clientId)
     {
         global $db;
         $vpbxIP = $db->GetValue($q = "
@@ -142,7 +142,7 @@ class SyncCoreHelper
         return $vpbxIP ? array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS :$vpbxIP), "mnemonic" => "vpbx") : false;
     }
 
-    function getProductPhone($clientId)
+    static function getProductPhone($clientId)
     {
         global $db;
 
@@ -162,14 +162,14 @@ class SyncCoreHelper
         return false;
     }
 
-    public function getProductSavedState($clientId, $product, $returnObj = false)
+    public static function getProductSavedState($clientId, $product, $returnObj = false)
     {
         $state = ProductState::find("first", array("client_id" => $clientId, "product" => $product));
 
         return $returnObj ? $state : (bool)$state;
     }
 
-    public function setProductSavedState($clientId, $product, $newState)
+    public static function setProductSavedState($clientId, $product, $newState)
     {
         $oldState = self::getProductSavedState($clientId, $product, true);
 
@@ -190,7 +190,7 @@ class SyncCoreHelper
         }
     }
 
-    public function getProductState($clientId, $product)
+    public static function getProductState($clientId, $product)
     {
         switch($product)
         {
@@ -200,17 +200,17 @@ class SyncCoreHelper
         }
     }
 
-    public function getAddProductStruct($clientId, $productStruct)
+    public static function getAddProductStruct($clientId, $productStruct)
     {
         return array("account" => array("id" => $clientId), "products" => array($productStruct));
     }
 
-    public function getRemoveProductStruct($clientId, $product)
+    public static function getRemoveProductStruct($clientId, $product)
     {
         return array("account_id" => $clientId, "product" => $product);
     }
 
-    public function adminChangeStruct($superId, $email, $password, $isActive)
+    public static function adminChangeStruct($superId, $email, $password, $isActive)
     {
         return array("client_id" => $superId, "admin" => array("email" => $email, "password" => $password, "active" => (bool)$isActive));
     }

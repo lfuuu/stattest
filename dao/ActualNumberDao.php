@@ -81,7 +81,7 @@ class ActualNumberDao extends Singleton
                 FROM 
                     actual_number a
                 ".($number ? "WHERE number = :number" : "")."
-                ORDER BY id", ($number ? [":number" => $number] : []))->queryAll();
+                ORDER BY id", [":number" => $number])->queryAll();
 
         $d = array();
         foreach($data as $l)

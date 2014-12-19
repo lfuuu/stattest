@@ -34,7 +34,7 @@ class EventQueue extends ActiveRecord\Model
 
         if ($e)
         {
-            $this->log_error = "code: ".$e->getCode()."; message: ".$e->getMessage()."; ".$e->getTraceAsString();
+            $this->log_error = "code: ".$e->getCode()."; message: ".$e->getMessage()." in ".$e->getFile()." +".$e->getLine()."; \n".$e->getTraceAsString();
             Yii::error($e);
         }
 
@@ -48,21 +48,25 @@ class EventQueue extends ActiveRecord\Model
 
         switch ($o->iteration)
         {
-            case 1: $time = "+1 minute"; break;
-            case 2: $time = "+2 minute"; break;
-            case 3: $time = "+3 minute"; break;
-            case 4: $time = "+5 minute"; break;
-            case 5: $time = "+10 minute"; break;
-            case 6: $time = "+20 minute"; break;
-            case 7: $time = "+30 minute"; break;
-            case 8: $time = "+1 hour"; break;
-            case 9: $time = "+2 hour"; break;
-            case 10: $time = "+3 hour"; break;
-            case 11: $time = "+6 hour"; break;
-            case 12: $time = "+12 hour"; break;
+            case 0: $time = "+1 minute"; break;
+            case 1: $time = "+2 minute"; break;
+            case 2: $time = "+3 minute"; break;
+            case 3: $time = "+5 minute"; break;
+            case 4: $time = "+10 minute"; break;
+            case 5: $time = "+20 minute"; break;
+            case 6: $time = "+30 minute"; break;
+            case 7: $time = "+1 hour"; break;
+            case 8: $time = "+2 hour"; break;
+            case 9: $time = "+3 hour"; break;
+            case 10: $time = "+6 hour"; break;
+            case 11: $time = "+12 hour"; break;
+            case 12: $time = "+1 day"; break;
             case 13: $time = "+1 day"; break;
             case 14: $time = "+1 day"; break;
             case 15: $time = "+1 day"; break;
+            case 16: $time = "+1 day"; break;
+            case 17: $time = "+1 day"; break;
+            case 18: $time = "+1 day"; break;
             default: 
                 return array('stop', date('Y-m-d H:i:s'));
         }
