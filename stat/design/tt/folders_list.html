@@ -1,6 +1,6 @@
 <ul class="nav nav-pills">
     {foreach from=$tt_all_folders item='f' key="pk"}
-        <li {if $f.pk & $tt_folder}class="active"{/if}>
+        <li {if $f.pk == $tt_folder}class="active"{/if}>
             <a href="index.php?module=tt&action=view_type&type_pk={$tt_type.pk}&folder={$f.pk}&filtred=true">
                 {$f.name}
                 {if isset($tt_folders.$pk.cnt)}

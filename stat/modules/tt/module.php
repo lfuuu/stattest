@@ -403,7 +403,7 @@ class m_tt extends IModule{
             $folder = (int)$_REQUEST['folder'];
 
         if(!$folder && !$user->Flag('tt_'.$type['code'].'_folder')){
-            $folder = $db->GetValue("select pk from tt_folders where pk & ".$type['folders']." order by `order` LIMIT 0,1");
+            $folder = $db->GetValue("select pk from tt_folders where pk & (".$type['folders']."&~1) order by `order` LIMIT 0,1");
             $user->SetFlag('tt_'.$type['code'].'_folder',$folder);
         }elseif(!$folder){
             $folder = $user->Flag('tt_'.$type['code'].'_folder');
@@ -415,7 +415,8 @@ class m_tt extends IModule{
                     "shop_orders" => 2,
                     "mounting_orders" => 2,
                     "order_welltime" => 2,
-                    "incomegoods" => 214748364
+                    "incomegoods" => 214748364,
+                    "connect" => 137438953472
                     );
             if($folder == 1)
             {
@@ -1370,8 +1371,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             if($this->curclient)
                 $design->assign('bills',$db->AllRecords('select bill_no from newbills where is_payed=0 and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") order by bill_date desc','bill_no',MYSQL_ASSOC));
             $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
+
             $design->assign('curtype',$this->curtype);
-            if(in_array($this->curtype['code'],array('trouble','task','support_welltime'))){
+            if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
                 $design->AddMain('tt/trouble_form.tpl');
             }
             $this->showTimeTable();
@@ -1423,6 +1425,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($typePk == 7 || $isAll)
             $a["incomegoods"] = "Заказ поставщику";
+
+        if($typePk == 8 || $isAll)
+            $a["connect"] = "Подключение";
 
 
         if($isAll){
