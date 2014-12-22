@@ -9,6 +9,7 @@ class NavigationBlock
 {
     public $id;
     public $title;
+    public $rights;
     public $items = [];
 
     /**
@@ -37,6 +38,12 @@ class NavigationBlock
             $url = Url::toRoute($url);
         }
         $this->items[] = ['title' => $title, 'url' => $url];
+        return $this;
+    }
+
+    public function setRights(array $rights)
+    {
+        $this->rights = $rights;
         return $this;
     }
 }

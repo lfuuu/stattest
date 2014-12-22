@@ -259,6 +259,9 @@ return [
             'vip_report'            =>  'vip report',
             'voip_recognition'      =>  'телефония-нераспознаные',
             'sale_channel_report'   =>  'региональные представители',
+            'onlime_read'           =>  'onlime просмотр отчета',
+            'onlime_create'         =>  'onlime создание заявок',
+            'onlime_full'           =>  'onlime полный доступ',
         ],
     ],
     'tarifs' => [

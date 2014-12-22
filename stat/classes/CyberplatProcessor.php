@@ -373,10 +373,10 @@ class CyberplatCrypt
 
     private static function init()
     {
-        self::$my_private = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__private.key");
-        self::$my_public = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__public.key");
-        self::$my_passhare = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__passhare.key");
-        self::$cyberplat_public = file_get_contents(PATH_TO_ROOT."store/keys/cyberplat_public.key");
+        self::$my_private = file_get_contents(STORE_PATH."keys/mcn_telecom__private.key");
+        self::$my_public = file_get_contents(STORE_PATH."keys/mcn_telecom__public.key");
+        self::$my_passhare = file_get_contents(STORE_PATH."keys/mcn_telecom__passhare.key");
+        self::$cyberplat_public = file_get_contents(STORE_PATH."keys/cyberplat_public.key");
     }
 
     public static function checkSign($msg, $signHex)
