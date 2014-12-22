@@ -156,7 +156,8 @@ class SyncVirtPbx
                     space,
                     is_record,
                     is_fax,
-                    s.ip
+                    s.ip,
+                    t.is_web_call
                 FROM (select (
                         select 
                             id_tarif 

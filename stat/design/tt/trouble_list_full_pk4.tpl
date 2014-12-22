@@ -52,7 +52,7 @@
         {if $r.add_info.phone}, Телефон: {$r.add_info.phone}{/if}
         {if $r.add_info.email}, E-mail: {$r.add_info.email}{/if}
         </td>
-        <!--TD rowspan=3 style='font-size:85%'>{$r.problem}</TD-->
+        <!--TD rowspan=3 style='font-size:85%'>{$r.problem|escape}</TD-->
     </tr>
     <tr><td>
         {if $r.add_info.metro_id}м. {$r.add_info.metro_name}, {/if}Адрес: {$r.add_info.address}<br>

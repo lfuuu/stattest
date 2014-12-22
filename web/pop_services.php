@@ -71,7 +71,6 @@ AppAsset::register($view);
 <html lang="<?= Yii::$app->language ?>">
 <head>
   <meta charset="<?= Yii::$app->charset ?>"/>
-  <base href="/" />
   <?= Html::csrfMetaTags() ?>
   <title><?= Html::encode($view->title) ?></title>
   <?php $view->head() ?>
@@ -83,9 +82,9 @@ AppAsset::register($view);
 	$dbf->nodesign=1;
 	HelpDbForm::assign_log_history($table,$id);
 	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'Редактирование'.' id='.$id);
-	$design->display('errors.tpl');
+
+	echo $view->render('@app/views/layouts/widgets/messages');
 	$design->display('dbform.tpl');
-	$design->display('errors.tpl');
 ?>
 
 <?php $view->endBody() ?>

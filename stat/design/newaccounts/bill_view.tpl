@@ -51,7 +51,7 @@
                 <form method='POST'>
                     <input type='hidden' name='select_doer' value='1' />
                     <input type='hidden' name='bill_no' value='{$bill.bill_no}' />
-                    <select name='doer'>
+                    <select class="select2" name='doer'>
                         <option value='0'>Отсутствует</option>
                         {foreach from=$doers item='doer'}<option value='{$doer.id}'>{$doer.name} - {$doer.depart}</option>{/foreach}
                     </select>

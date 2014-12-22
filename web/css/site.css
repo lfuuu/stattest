@@ -10,6 +10,9 @@ body {
 a { color: #43657d; }
 a:hover { color: #0d7aae; }
 
+a.nohover { color: #000; }
+a.nohover:hover { color: #000; }
+
 .site_caption {
     text-align: center;
     padding: 15px 0;

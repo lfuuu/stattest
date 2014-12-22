@@ -40,7 +40,7 @@
             <a href='{$LINK_START}module=clients&id={$r.client_orig}'>{$r.client}{if $r.client != $r.client_orig} ({$r.client_orig}){/if}</a> / {$r.manager} / <a href='{$LINK_START}module=clients&id={$r.client_orig}'><b>{$r.company}</b></a>:<br>
             {if $r.service}<a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{$r.service|replace:"usage_":""}: {$r.service_id}</a>/
         {elseif $r.bill_no}<a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:11pt;font-weight: bold">{$r.bill_no}</a>/{/if}
-        {$r.problem}
+        {$r.problem|escape}
             <hr>
         </td>
     </tr>
@@ -55,7 +55,7 @@
         <table style="border-collapse:collapse" cellPadding=0 cellSpacing=0 border=0 id="tt_stable">
             {foreach from=$r.stages item=t}
             <tr style="border-bottom: 1px solid #EDEDED;">
-<td nowrap style="font-size: 8pt;">{$t.date_start}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment}
+<td nowrap style="font-size: 8pt;">{$t.date_start}</td><td><a href='./?module=tt&action=view&id={$t.trouble_id}'>{$t.state_name}</a></td><td> {$t.user_main}/{$t.user_edit}</td><td> {$t.comment|escape}
         {if $t.doers} {foreach from=$t.doers item=d}----><b>{$d.depart} {$d.name} ({$r.date_start}){if $r.sms} <br><span style="color: #c40000;">{$r.sms.sms_send} // {$r.sms.sms_sender}</span>{/if}</b>{/foreach}{/if}
         </td></tr>
             {/foreach}
