@@ -41,7 +41,7 @@
 {/foreach}
 
 
-<div style="width: 250px; float: right">
+<div style="width: 250px; float: right" id="right_menu">
     {if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
     {if access('clients','edit') || access('clients','edit_tele')}
     <a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
@@ -124,8 +124,8 @@
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
 </div>
 
-<div style="margin-right: 260px;">
-<table class="table table-condensed table-striped">
+<div style="margin-right: 260px;" id="cl_main_div">
+<table class="table table-condensed table-striped" width="100%">
 
 {if $client.previous_reincarnation}
 <tr>
@@ -135,10 +135,10 @@
 {/if}
 
 <tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
+    <td class="cl_main_col1" align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
     </td>
-    <td {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+    <td class="cl_main_col2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <b>{$client.company_full}</b>&nbsp; &nbsp;{if trim($client.company_full)!= trim($client.company)}({$client.company}){/if}&nbsp; &nbsp;(<span style='color:#000080'>{$client.firma}</span>)
     </td>
 </tr>
