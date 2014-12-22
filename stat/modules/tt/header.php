@@ -37,6 +37,7 @@ class m_tt_head extends IModuleHead{
 		array('Установка и Монтаж', 'view_type', '&type_pk=5'),
 		array('Заказы Welltime', 'view_type', '&type_pk=6'),
 		array('Заказы поставщику', 'view_type', '&type_pk=7'),
+		array('Подключение', 'view_type', '&type_pk=8'),
 		array('','view_type'),
 		#array('Список типов', 'list_types'),
 		array('Расписание',				'timetable'),
