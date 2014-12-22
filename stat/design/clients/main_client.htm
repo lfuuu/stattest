@@ -1,7 +1,7 @@
 <script src="js/jquery.inputmask.js"></script>
 <H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
 
-<div style="width: 250px; float: right">
+<div style="width: 250px; float: right" id="right_menu">
     {if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
     {if access('clients','edit') || access('clients','edit_tele')}
     <a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
@@ -84,11 +84,11 @@
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
 </div>
 
-<div style="margin-right: 260px;">
-<table class="table table-condensed table-striped">
+<div style="margin-right: 260px;" id="cl_main_div">
+<table class="table table-condensed table-striped" width="100%">
 <tr>
-    <td align="right">Регион:</td>
-    <td colspan="2"><b>{$region_name}</b></td>
+    <td align="right" class="cl_main_col1">Регион:</td>
+    <td colspan="2" class="cl_main_col2"><b>{$region_name}</b></td>
 </tr>
 
 {if $client.previous_reincarnation}
@@ -155,7 +155,7 @@
 </tr>
 {/if}
 <tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
+    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
     </td>
     <td {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
