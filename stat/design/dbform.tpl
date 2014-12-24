@@ -50,7 +50,6 @@
 	                        <span style="visibility:hidden" id="e164_flag_letter">Используется!</span>
 	                        <script type='text/javascript'>optools.voip.check_e164.old_number='{$item.value}';</script>
 	                        <select id='get_free_e164' alt='Получить свободный номер' onchange='optools.voip.check_e164.get_free_e164(this)'>
-		                        <option value='null'>Cвободный номер</option>
 		                        <option value='short'>Короткий номер</option>
                                 {if $region eq '99'}
                                     <option value='7499685'>7(499) 685</option>
@@ -69,11 +68,33 @@
                                     <option value='7383312'>7(383) 312</option>
                                 {elseif $region eq '93'}
                                     <option value='7843207'>7(843) 207</option>
+                                {elseif $region eq '81'}
+                                    <option value='36'>36</option>
+                                {elseif $region eq '82'}
+                                    <option value='7862'>7(863) 2</option>
+                                {elseif $region eq '83'}
+                                    <option value='74212'>7(421) 2</option>
+                                {elseif $region eq '84'}
+                                    <option value='7347'>7(347)</option>
+                                {elseif $region eq '85'}
+                                    <option value='74832'>7(483) 2</option>
+                                {elseif $region eq '86'}
+                                    <option value='7473'>7(473)</option>
+                                {elseif $region eq '88'}
+                                    <option value='7831'>7(831)</option>
+                                {elseif $region eq '90'}
+                                    <option value='7351'>7(351)</option>
+                                {elseif $region eq '91'}
+                                    <option value='78442'>7(844) 2</option>
+                                {elseif $region eq '92'}
+                                    <option value='7342'>7(342)</option>
                                 {elseif $region eq '89'}
                                     <option value='7423206'>7(423) 206</option>
                                 {elseif $region eq '87'}
                                     <option value='7863309'>7(863) 309</option>
                                 {/if}
+
+
                             </select>
                         {/if}
                         {if $key == "actual_from" || $key == "actual_to"}
