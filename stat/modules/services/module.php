@@ -1055,6 +1055,9 @@ class m_services extends IModule{
                 trigger_error2("unknown error");
             }
         }
+
+        header("Location: ./?module=clients&id=".$fixclient);
+        exit();
     }
 
 
