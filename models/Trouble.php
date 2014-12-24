@@ -27,7 +27,7 @@ use yii\db\ActiveRecord;
  */
 class Trouble extends ActiveRecord
 {
-    const DEFAULT_SUPPORT_USER = 'support';
+    const DEFAULT_SUPPORT_USER = 'nick'; //Михайлов Николай
     const DEFAULT_SUPPORT_FOLDER = 257;
     const DEFAULT_SUPPORT_STATE = 1;
     const TYPE_TROUBLE = 'trouble';
