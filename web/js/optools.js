@@ -935,7 +935,7 @@ $(document).ready(function() {
 		var region_id = $(this).val();
 		if ($('#get_free_e164').length) {
 			var get_free_e164 = $('#get_free_e164');
-			get_free_e164.find('[value!="null"][ value!="short"]').remove();
+			get_free_e164.find('[value!="short"]').remove();
 			$('#E164').val('');
 			$('#e164_flag_image').css('visibility', 'hidden');
 	
@@ -968,7 +968,38 @@ $(document).ready(function() {
 			} else if(region_id == '87') {
 				get_free_e164
 					.append("<option value='7863309'>7(863) 309</option>");
-			}
+			} else if(region_id == '81') {
+				get_free_e164
+                    .append("<option value='36'>36</option>");
+			} else if(region_id == '82') {
+				get_free_e164
+                    .append("<option value='7862'>7(863) 2</option>");
+			} else if(region_id == '83') {
+				get_free_e164
+                    .append("<option value='74212'>7(421) 2</option>");
+			} else if(region_id == '84') {
+				get_free_e164
+                    .append("<option value='7347'>7(347)</option>");
+			} else if(region_id == '85') {
+				get_free_e164
+                    .append("<option value='74832'>7(483) 2</option>");
+			} else if(region_id == '86') {
+				get_free_e164
+                    .append("<option value='7473'>7(473)</option>");
+			} else if(region_id == '88') {
+				get_free_e164
+                    .append("<option value='7831'>7(831)</option>");
+			} else if(region_id == '90') {
+				get_free_e164
+                    .append("<option value='7351'>7(351)</option>");
+			} else if(region_id == '91') {
+				get_free_e164
+                    .append("<option value='78442'>7(844) 2</option>");
+			} else if(region_id == '92') {
+				get_free_e164
+                    .append("<option value='7342'>7(342)</option>");
+            }
+
 		}
 		getTarifs(region_id);
 	});
