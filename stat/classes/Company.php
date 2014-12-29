@@ -176,6 +176,12 @@ class Company
                 $f["kpp"] = "773401001";
                 $f["address"] = "123098, г.Москва, ул. Академика Бочвара, д.10Б";
             }
+
+            if ($billDate >= strtotime("2015-01-01"))
+            {
+                $f["director"] = "Пыцкая М. А.";
+                $f["director_"] = "Пыцкую М. А.";
+            }
         }
 
         if ($firma == "all4net")
@@ -315,6 +321,11 @@ class Company
             if($billDate >= strtotime("2013-07-31"))
             {
                 $d = "nat";
+            }
+
+            if($billDate >= strtotime("2015-01-01"))
+            {
+                $d = "pma";
             }
         }elseif ($firma == "markomnet_new")
         {
