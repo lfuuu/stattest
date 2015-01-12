@@ -176,6 +176,12 @@ class Company
                 $f["kpp"] = "773401001";
                 $f["address"] = "123098, г.Москва, ул. Академика Бочвара, д.10Б";
             }
+
+            if ($billDate >= strtotime("2015-01-01"))
+            {
+                $f["director"] = "Пыцкая М. А.";
+                $f["director_"] = "Пыцкую М. А.";
+            }
         }
 
         if ($firma == "all4net")
@@ -245,6 +251,7 @@ class Company
 
     public static function setResidents($firma, $bill_or_time = null)
     {
+        $isGenDir = null;
 
         if(!$firma)
         {
@@ -303,6 +310,11 @@ class Company
         }elseif($firma == "all4net")
         {
             $d = "pma";
+
+            if($billDate >= strtotime("2015-01-01"))
+            {
+                $d = "kor";
+            }
         }elseif($firma == "mcn_telekom")
         {
             $d = $b = "vav";
@@ -315,6 +327,12 @@ class Company
             if($billDate >= strtotime("2013-07-31"))
             {
                 $d = "nat";
+            }
+
+            if($billDate >= strtotime("2015-01-01"))
+            {
+                $d = "pma";
+                $isGenDir = true;
             }
         }elseif ($firma == "markomnet_new")
         {
@@ -413,6 +431,13 @@ class Company
                         "position_" => "Генерального директора",
                         "sign" => false
                         ),
+                "kor" => array(
+                        "name" => "Королёва В.В.",
+                        "name_" => "Королёву В.В.",
+                        "position" => "Генеральный директор",
+                        "position_" => "Генерального директора",
+                        "sign" => false
+                        ),
 
 
                 "usk" => array(
@@ -475,6 +500,12 @@ class Company
 
         if (!isset($firm_buh["position"]))
             $firm_buh["position"] = "Главный бухгалтер";
+
+        if ($isGenDir === true)
+        {
+            $u[$d]["position"] = "Генеральный директор";
+            $u[$d]["position_"] = "Генерального директора";
+        }
 
         $design->assign("firma", $firms[$firma]);
         $design->assign("firm_director", $u[$d]);
