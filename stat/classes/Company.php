@@ -180,7 +180,7 @@ class Company
             if ($billDate >= strtotime("2015-01-01"))
             {
                 $f["director"] = "Пыцкая М. А.";
-                $f["director_"] = "Пыцкую М. А.";
+                $f["director_"] = "Пыцкой М. А.";
             }
         }
 
