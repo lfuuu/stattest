@@ -71,10 +71,10 @@ class PgSQLDatabase {
         fclose($pFile);
         */
 
-        if(defined("print_sql"))
+        if(defined("print_sql") || (isset($_GET["show_sql"]) && $_GET["show_sql"] == 1))
         {
             echo "\n<br>";
-            print_r($query);
+            printdbg($query);
         }
 
         if ($query == '') return 0;
