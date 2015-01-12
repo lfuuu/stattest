@@ -2304,7 +2304,7 @@ class m_newaccounts extends IModule
         if(in_array($obj, array("order","notice")))
         {
             $t = ($obj == "order" ?
-                    "Приказ (Телеком)":
+                    "Приказ (Телеком) (Пыцкая)":
                     ($obj == "notice" ?
                         "Уведомление (Телеком)":""));
                         
@@ -2324,6 +2324,12 @@ class m_newaccounts extends IModule
         if($obj == "new_director_info")
         {
             $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
+            exit();
+        }
+
+        if($obj == "order")
+        {
+            $this->docs_echoFile(STORE_PATH."order2.pdf", "Смена директора МСН Телеком.pdf");
             exit();
         }
             
