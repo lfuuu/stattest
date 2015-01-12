@@ -55,8 +55,14 @@ class m_newaccounts extends IModule
         set_time_limit(0);
         session_write_close();
         foreach ($R as $r) {
-            echo $r['client']."<br>\n";flush();
-            $this->update_balance($r['id'],$r['currency']);
+            echo $r['client'];
+            try{
+                $this->update_balance($r['id'],$r['currency']);
+            }catch(Exception $e)
+            {
+                echo "<h1>!!! ".$e->getMessage()."</h1>";
+            }
+            echo "<br>\n";flush();
         }
     }
 
