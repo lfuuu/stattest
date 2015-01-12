@@ -3362,8 +3362,10 @@ class m_newaccounts extends IModule
             }
             $design->assign('total_amount',$total_amount);
 
-            Company::setResidents($r["firma"], $inv_date);
-            $design->assign("firm", Company::getProperty($r["firma"], $inv_date));
+            $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
+
+            Company::setResidents($r["firma"], $docDate);
+            $design->assign("firm", Company::getProperty($r["firma"], $docDate));
 
             ClientCS::Fetch($r);
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
