@@ -391,7 +391,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
                 {if $row.tax == 0 && $row.line_nds == 0}
                     --
                 {else}
-					{$row.tax|string_format:"%.2f"} |
+					{$row.tax|string_format:"%.2f"}
                 {/if}
             {/if}</span></p>
 		</td>
