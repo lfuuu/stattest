@@ -817,7 +817,7 @@ class Bill{
         {
             $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
         }else{
-            die("Неизвестный тип документа!");
+            throw new Exception("Неизвестный тип документа!");
         }
 
         if(!$doc)
