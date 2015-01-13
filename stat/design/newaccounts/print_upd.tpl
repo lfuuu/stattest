@@ -462,7 +462,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if !$client.is_upd_without_sign && $bill.is_rollback != 1}{$firm_director.name}{/if}</span></p>
+			<p ><span>{$smarty.capture.seller_head_name}</span></p>
 		</td>
 		<td valign=bottom style="width:5pt">
 			<p ><span>&nbsp;</span></p>
@@ -477,7 +477,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td valign=bottom style='width:90pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if !$client.is_upd_without_sign && $bill.is_rollback != 1}{$firm_buh.name}{/if}</span></p>
+			<p ><span>{$smarty.capture.seller_buh_name}</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h8'>
