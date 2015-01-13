@@ -16,7 +16,7 @@ class Navigation
                 ->setId('client_telecom')
                 ->setTitle('Телеком')
                     ->addItem('Продажи', '/clients/index?bp=2')
-                    ->addItem('Сопровождение', '/clients/index?bp=1')
+                    ->addItem('Сопровождение', '/clients/index?bp=1') 
                // ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
         );
         $this->addBlock(
