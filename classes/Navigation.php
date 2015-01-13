@@ -15,15 +15,16 @@ class Navigation
             NavigationBlock::create()
                 ->setId('client_telecom')
                 ->setTitle('Телеком')
-                    ->addItem('Продажи', '/clients/index?bp=telecom.sales')
-                    ->addItem('Сопровождение', '/clients/index?bp=telecom.accounting')
+                    ->addItem('Продажи', '/clients/index?bp=2')
+                    ->addItem('Сопровождение', '/clients/index?bp=1')
                // ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
         );
         $this->addBlock(
             NavigationBlock::create()
                 ->setId('client_ecommerce')
                 ->setTitle('Интернет магазин')
-                    ->addItem('Заказы магазина', '/clients/index?bp=ecommerce.sales')
+                    ->addItem('Заказы магазина', '/?module=tt&action=view_type&type_pk=4')
+                    ->addItem('Сопровождение', '/clients/index?bp=4') 
 
         );
         
@@ -31,8 +32,8 @@ class Navigation
             NavigationBlock::create()
                 ->setId('client_procurement')
                 ->setTitle('Закупки')
-                    ->addItem('Заказы поставщиков', '/clients/index?bp=procurement.sales')
-                    ->addItem('Сопровождение', '/clients/index?bp=procurement.accounting') 
+                    ->addItem('Заказы поставщиков', '/?module=tt&action=view_type&type_pk=7')
+                    ->addItem('Сопровождение', '/clients/index?bp=6') 
 
         );
        
@@ -40,7 +41,7 @@ class Navigation
             NavigationBlock::create()
                 ->setId('client_operator')
                 ->setTitle('Операторы')
-                    ->addItem('Сопровождение', '/clients/index?bp=operator.accounting') 
+                    ->addItem('Сопровождение', '/clients/index?bp=7') 
 
         ); 
         
