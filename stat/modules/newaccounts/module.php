@@ -1937,6 +1937,7 @@ class m_newaccounts extends IModule
 
 
         $isFromImport = get_param_raw("from", "") == "import";
+        $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
@@ -2072,6 +2073,12 @@ class m_newaccounts extends IModule
 
                     if($stamp)
                         $r.="&stamp=".$stamp;
+
+                    if ($isFromImport)
+                        $r .= "&from=import";
+                    
+                    if ($isFromImport || $isToPrint)
+                        $r .= "&to_print=true";
 
                     $ll = array(
                             "bill_no" => $bill_no, 
@@ -2236,6 +2243,9 @@ class m_newaccounts extends IModule
 
         $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
         $design->assign("is_pdf", $is_pdf);
+
+        $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print', 'false') == 'true';
+        $design->assign("to_print", $isToPrint);
 
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
         self::$object = $object;
