@@ -19,10 +19,14 @@
 		public function __construct($job_id) 
 		{
 			$this->job_id = $job_id;
-			$this->files_path = PATH_TO_ROOT.'store/mail/attachments/' . $job_id . '/';
-			if (!file_exists($this->files_path) && is_writeable($this->files_path))
+			$this->files_path = STORE_PATH.'mail/attachments/' . $job_id . '/';
+
+			if (!is_dir($this->files_path))
 			{
-				mkdir($this->files_path, 0777, true);
+				if (!mkdir($this->files_path, 0777, true))
+				{
+					throw new Exception("Невозможно создать директорию для файлов (1)");
+				}
 			}
 		}
 		/**
@@ -57,12 +61,13 @@
 
 			$name = basename($_FILES['file']['name']);
 			$type = $_FILES['file']['type'];
-			if (move_uploaded_file($_FILES['file']['tmp_name'],$this->files_path.$id.'.attach'))
-            {
-                $V = array('name'=>$name,'job_id'=>$this->job_id,'type'=>$type);
-                $id = $db->QueryInsert('mail_files',$V);
-            }
-			
+
+			if (move_uploaded_file($_FILES['file']['tmp_name'],$this->files_path.'0.attach'))
+			{
+				$V = array('name'=>$name,'job_id'=>$this->job_id,'type'=>$type);
+				$id = $db->QueryInsert('mail_files',$V);
+				rename($this->files_path.'0.attach', $this->files_path.$id.".attach");
+			}
 		}
 		/**
 		 * Возвращает информацию о файле 

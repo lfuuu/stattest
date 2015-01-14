@@ -18,7 +18,7 @@
         <a href='{$LINK_START}module=services&action=vo_act_trunk' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт&nbsp;на&nbsp;транк</a>
     {/if}
     <br />
-    <table class="table table-condensed table-hover">
+    <table class="table table-condensed">
         {foreach from=$voip_conn item=item name=inner}
             <tr bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
                 <td width=1% nowrap>

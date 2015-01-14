@@ -87,7 +87,7 @@ function smarty_function_html_options($params, &$smarty)
     }
 
     if(!empty($name)) {
-        $_html_result = '<select name="' . $name . '"' . $extra . '>' . "\n" . $_html_result . '</select>' . "\n";
+        $_html_result = '<select class="select2" style="width: 250px" name="' . $name . '"' . $extra . '>' . "\n" . $_html_result . '</select>' . "\n";
     }
 
     return $_html_result;

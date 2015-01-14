@@ -33,6 +33,27 @@ class Company
                     "director_post_" => "Генерального директора"
 
                         ),
+"ooomcn" => array(
+                            "name_name" => "Общество с ограниченной ответственностью &laquo;МСН&raquo;",
+                            "name" => "ООО &laquo;МСН&raquo;",
+                            "address" => "117574 г. Москва, Одоевского пр-д., д. 3, кор. 7",
+                            "post_address" => "115162, г. Москва, а/я &#8470;21",
+                            "inn" => "7728638151",
+                            "kpp" => "772801001",
+
+                            "acc" => "40702810538110011157",
+                            "bank" => "Московский банк Сбербанка России ОАО, г. Москва",
+                            "kor_acc" => "30101810400000000225",
+                            "bik" => "044525225",
+                            "phone" => "(495) 950-56-78 доп. 159",
+                            "fax" => "(495) 638-50-17",
+                            "email" => "info@mcn.ru",
+                            "director" => "Бирюкова Н. В.",
+                            "director_" => "Бирюковой Н. В.",
+                            "director_post" => "Генеральный директор",
+                            "director_post_" => "Генерального директора"
+
+),
                     "mcn" => array(
                             "name_name" => "Общество с ограниченной ответственностью &laquo;Эм Си Эн&raquo;",
                             "name" => "ООО &laquo;Эм Си Эн&raquo;",
@@ -155,6 +176,12 @@ class Company
                 $f["kpp"] = "773401001";
                 $f["address"] = "123098, г.Москва, ул. Академика Бочвара, д.10Б";
             }
+
+            if ($billDate >= strtotime("2015-01-01"))
+            {
+                $f["director"] = "Пыцкая М. А.";
+                $f["director_"] = "Пыцкой М. А.";
+            }
         }
 
         if ($firma == "all4net")
@@ -224,6 +251,7 @@ class Company
 
     public static function setResidents($firma, $bill_or_time = null)
     {
+        $isGenDir = null;
 
         if(!$firma)
         {
@@ -282,6 +310,11 @@ class Company
         }elseif($firma == "all4net")
         {
             $d = "pma";
+
+            if($billDate >= strtotime("2015-01-01"))
+            {
+                $d = "kor";
+            }
         }elseif($firma == "mcn_telekom")
         {
             $d = $b = "vav";
@@ -294,6 +327,12 @@ class Company
             if($billDate >= strtotime("2013-07-31"))
             {
                 $d = "nat";
+            }
+
+            if($billDate >= strtotime("2015-01-01"))
+            {
+                $d = "pma";
+                $isGenDir = true;
             }
         }elseif ($firma == "markomnet_new")
         {
@@ -392,6 +431,13 @@ class Company
                         "position_" => "Генерального директора",
                         "sign" => false
                         ),
+                "kor" => array(
+                        "name" => "Королева В.В.",
+                        "name_" => "Королеву В.В.",
+                        "position" => "Генеральный директор",
+                        "position_" => "Генерального директора",
+                        "sign" => false
+                        ),
 
 
                 "usk" => array(
@@ -454,6 +500,12 @@ class Company
 
         if (!isset($firm_buh["position"]))
             $firm_buh["position"] = "Главный бухгалтер";
+
+        if ($isGenDir === true)
+        {
+            $u[$d]["position"] = "Генеральный директор";
+            $u[$d]["position_"] = "Генерального директора";
+        }
 
         $design->assign("firma", $firms[$firma]);
         $design->assign("firm_director", $u[$d]);

@@ -55,8 +55,14 @@ class m_newaccounts extends IModule
         set_time_limit(0);
         session_write_close();
         foreach ($R as $r) {
-            echo $r['client']."<br>\n";flush();
-            $this->update_balance($r['id'],$r['currency']);
+            echo $r['client'];
+            try{
+                $this->update_balance($r['id'],$r['currency']);
+            }catch(Exception $e)
+            {
+                echo "<h1>!!! ".$e->getMessage()."</h1>";
+            }
+            echo "<br>\n";flush();
         }
     }
 
@@ -1931,6 +1937,7 @@ class m_newaccounts extends IModule
 
 
         $isFromImport = get_param_raw("from", "") == "import";
+        $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
@@ -2066,6 +2073,12 @@ class m_newaccounts extends IModule
 
                     if($stamp)
                         $r.="&stamp=".$stamp;
+
+                    if ($isFromImport)
+                        $r .= "&from=import";
+                    
+                    if ($isFromImport || $isToPrint)
+                        $r .= "&to_print=true";
 
                     $ll = array(
                             "bill_no" => $bill_no, 
@@ -2231,6 +2244,9 @@ class m_newaccounts extends IModule
         $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
         $design->assign("is_pdf", $is_pdf);
 
+        $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print', 'false') == 'true';
+        $design->assign("to_print", $isToPrint);
+
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
         self::$object = $object;
         if ($object) {
@@ -2293,7 +2309,7 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope')))
             $obj='bill';
 
         if ($obj!='bill')
@@ -2304,7 +2320,7 @@ class m_newaccounts extends IModule
         if(in_array($obj, array("order","notice")))
         {
             $t = ($obj == "order" ?
-                    "Приказ (Телеком)":
+                    "Приказ (Телеком) (Пыцкая)":
                     ($obj == "notice" ?
                         "Уведомление (Телеком)":""));
                         
@@ -2324,6 +2340,12 @@ class m_newaccounts extends IModule
         if($obj == "new_director_info")
         {
             $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
+            exit();
+        }
+
+        if($obj == "order")
+        {
+            $this->docs_echoFile(STORE_PATH."order2.pdf", "Смена директора МСН Телеком.pdf");
             exit();
         }
             
@@ -3356,8 +3378,10 @@ class m_newaccounts extends IModule
             }
             $design->assign('total_amount',$total_amount);
 
-            Company::setResidents($r["firma"], $b);
-            $design->assign("firm", Company::getProperty($r["firma"], $b));
+            $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
+
+            Company::setResidents($r["firma"], $docDate);
+            $design->assign("firm", Company::getProperty($r["firma"], $docDate));
 
             ClientCS::Fetch($r);
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);

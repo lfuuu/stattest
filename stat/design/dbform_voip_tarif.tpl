@@ -250,14 +250,7 @@ $(document).ready(function(){
 	</tr>
 	<tr><td colspan="4"><input type="checkbox" name="dbform[t_apply_for_all_tarif_id]" value="{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current}{$dbform_f_tarif_current.id_tarif}{/if}"/>{if isset($dbform_f_tarif_current)}Применить для всех услуг с тарифом "{$dbform_f_tarifs[$dbform_f_tarif_current.id_tarif].name}"{/if}</td></tr>
 </table><br>
-<h3>Группа тарификации (priceId):</h3>
-<table width=400>
-<tr><td width=120>priceId:</td><td><input style='width:40px' type=text class=text name=dbform[t2_priceid] value="{if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.id_tarif}{/if}"></td></tr>
-{if isset($dbform_f_tarif_current) && $dbform_f_tarif_current}
-<tr><td>priceId в тарифе:</td><td><input style='width:40px' disabled type=text class=text value="{$dbform_f_tarif_current.priceid}"></td></tr>
-{/if}
-<tr><td>Дата активации:</td><td><input type=text class=text name=dbform[t2_date_activation] value={if isset($dbform_f_tarif2_current)}{$dbform_f_tarif2_current.date_activation}{else}{$smarty.now|date_format:"%Y-%m-01"}{/if}></td></tr>
-</table><br>
+
 <script type="text/javascript">
 	optools.friendly.voip.change_type('{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.status}{else}public{/if}');
 </script>

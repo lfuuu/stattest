@@ -94,11 +94,12 @@ function trigger_string($p) {
        return $p;
 }
 function str_protect($str){
+    global $db;
     if(is_array($str)) return $str;
     //вроде как, те 2 строчки лишние
     $str=str_replace("\\","\\\\",$str);
     $str=str_replace("\"","\\\"",$str);
-    return mysql_real_escape_string($str);
+    return $db->escape($str);
 };
 function str_normalize($str){
     $str=str_replace(array("\r","&"),array("","&amp;"),$str);

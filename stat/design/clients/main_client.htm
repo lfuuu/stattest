@@ -1,7 +1,47 @@
 <script src="js/jquery.inputmask.js"></script>
-<H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
 
-<div style="width: 250px; float: right">
+<div style="font-size: 18px; padding: 5px; margin-bottom: 10px">
+    Клиент {$superClient.name}
+</div>
+
+{foreach from=$contragents item='contragent'}
+<div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
+    <div style="color: #333">
+        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
+    </div>
+    {foreach from=$contragent.accounts item='account'}
+    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
+        <div style="display: inline-block; padding: 0 4px">
+            {if $account.id==$clientAccount.id}<b>{/if}
+            <div style="display: inline-block; min-width: 80px">
+                {$account.client}
+            </div>
+            <div style="display: inline-block; min-width: 200px">
+                {$account.contractType.name} /
+                <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
+            </div>
+            <div style="display: inline-block; min-width: 20px"></div>
+            <div style="display: inline-block; min-width: 200px">
+                <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
+                    {math equation="-(balance)" balance=$account.balance} {$account.currency}
+                </span>
+                {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
+            </div>
+            <div style="display: inline-block; min-width: 120px">
+                {if $account.accountRegion}{$account.accountRegion.name}{/if}
+            </div>
+            {if $account.id==$clientAccount.id}</b>{/if}
+            <div style="display: inline-block;">
+                {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
+            </div>
+        </div>
+    </a>
+    {/foreach}
+</div>
+{/foreach}
+
+
+<div style="width: 250px; float: right" id="right_menu">
     {if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
     {if access('clients','edit') || access('clients','edit_tele')}
     <a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
@@ -84,12 +124,8 @@
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
 </div>
 
-<div style="margin-right: 260px;">
-<table class="table table-condensed table-striped">
-<tr>
-    <td align="right">Регион:</td>
-    <td colspan="2"><b>{$region_name}</b></td>
-</tr>
+<div style="margin-right: 260px;" id="cl_main_div">
+<table class="table table-condensed table-striped" width="100%">
 
 {if $client.previous_reincarnation}
 <tr>
@@ -98,67 +134,11 @@
 </tr>
 {/if}
 
-{if $client.contragents_count > 1}
 <tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-    Клиент:
-    </td>
-    <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-    <b>{$client.super_client_name}</b>
-    </td>
-</tr>
-
-<tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-    Контрагент:
-    </td>
-    <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-    {foreach from=$client.contragents item='c'}
-    {if $client.contragent_id <> $c.id}
-    <a href="?module=clients&contragent_id={$c.id}">
-        {else}
-        <b>
-            {/if}
-            {$c.name}
-            {if $client.contragent_id <> $c.id}
-    </a>
-    {else}
-    </b>
-    {/if}&nbsp;&nbsp;
-    {/foreach}
-    </td>
-</tr>
-{/if}
-
-{if $client.cards_count > 1}
-<tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-    {if $client.cards_count > 1}Карточки{else}Карточка{/if}:
-    </td>
-    <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-    {foreach from=$client.cards item='c'}
-    {if $client.id <> $c.id}
-    <a href="?module=clients&id={$c.id}">
-        {else}
-        <b>
-            {/if}
-
-            {$c.client}
-
-            {if $client.id <> $c.id}
-    </a>
-    {else}
-    </b>
-    {/if}&nbsp;&nbsp;
-    {/foreach}
-    </td>
-</tr>
-{/if}
-<tr>
-    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
+    <td class="cl_main_col1" align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
     </td>
-    <td {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+    <td class="cl_main_col2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <b>{$client.company_full}</b>&nbsp; &nbsp;{if trim($client.company_full)!= trim($client.company)}({$client.company}){/if}&nbsp; &nbsp;(<span style='color:#000080'>{$client.firma}</span>)
     </td>
 </tr>
@@ -192,12 +172,6 @@
     <b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b>
     </td>
 </tr>
-<tr>
-    <td align="right">Валюта:</td>
-    <td>
-        <b{if $client.currency=='USD'}>${else} style='color:blue'>рубли{/if}</b> <span style='font-size:85%'>(кредит <b>{if $client.credit >= 0}{$client.credit}{else}не ограничен{/if}</b>)</span>
-    </td>
-</tr>
 <tr><td align="right">Адрес:</td><td><b>{$client.address_post}</b></td></tr>
 <tr>
     <td align="right" {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
@@ -207,7 +181,6 @@
     <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}
     </td>
 </tr>
-<tr><td align="right">Тип договора:</td><td><b>{$client.contract_type}</b></td></tr>
 
 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs1>
 <td colspan=2 align="center">
@@ -234,13 +207,13 @@
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2>
                 <td align="right">Статус:</td>
                 <td>
-                    <SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 200px" name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
                 </tr>
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
                 <td align="right">Тип договора:</td>
                 <td>
-                    <SELECT name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
                 </tr>
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
@@ -263,10 +236,6 @@
 <tr>
     <td align="right">Предполагаемый <b>адрес</b> подключения:</td>
     <td>{$client.address_connect}{if $client.phone_connect} <b>телефон:</b> {$client.phone_connect}{/if}</td>
-</tr>
-<tr>
-    <td align="right">Комментарий:</td>
-    <td><b>{$client.comment.comment}</b></td>
 </tr>
 
 <tr id="contact_header1" style="display: none;">

@@ -10,10 +10,13 @@ $db = ArrayHelper::merge(
 
 $log = ArrayHelper::merge(
     require(__DIR__ . '/log.php'),
-    include(__DIR__ . '/log.local.php')
+    require(__DIR__ . '/log.local.php')
 );
 
-$params = require(__DIR__ . '/params.php');
+$params = ArrayHelper::merge(
+  require(__DIR__ . '/params.php'),
+  require(__DIR__ . '/params.local.php')
+);
 
 $config = [
     'id' => 'basic',
@@ -27,6 +30,7 @@ $config = [
         'request' => [
             'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',
+            'parsers' => [ 'application/json' => 'yii\web\JsonParser' ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',

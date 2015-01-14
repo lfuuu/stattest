@@ -10,6 +10,9 @@ body {
 a { color: #43657d; }
 a:hover { color: #0d7aae; }
 
+a.nohover { color: #000; }
+a.nohover:hover { color: #000; }
+
 .site_caption {
     text-align: center;
     padding: 15px 0;
@@ -27,13 +30,43 @@ a:hover { color: #0d7aae; }
     line-height: 120%;
 }
 
+.cl_main_col1 {
+    width: 30%;
+}
+
+.cl_main_col2 {
+    width: 70%;
+}
+
 @media print {
-    .layout_left {
+    .layout_left, #right_menu, #top_search, #data_cs4 {
         display: none;
     }
-    #top_search {
-        display: none;
+
+    #cl_main_div {
+        width: 100%;
+        margin: 0 0 0 0;
     }
+
+    .cl_main_col1 {
+        width: 5%;
+    }
+
+    .cl_main_col2 {
+        width: 95%;
+    }
+
+    #data_cs1 td {text-align: left:}
+    #data_cs1 td div {font-size: 6pt;}
+    img {display: none;}
+
+    input[type=submit],input[type=button] { display: none;}
+    select { border: 0;}
+   a,a:visited{text-decoration:underline}
+   a[href]:after{content:none}
+   abbr[title]:after{content:none}
+   a[href^="javascript:"]:after,a[href^="#"]:after{content:none}
+   
 }
 
 @media screen {
