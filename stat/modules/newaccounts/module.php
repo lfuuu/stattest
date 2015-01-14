@@ -2309,7 +2309,7 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope')))
             $obj='bill';
 
         if ($obj!='bill')
