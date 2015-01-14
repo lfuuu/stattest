@@ -97,7 +97,7 @@ class Schema
             try{
                 if(!$name) 
                     throw new Exception("Имя не задано");
-                if($db->GetRow("select * from r_schema where name ='".mysql_real_escape_string($name)."' and client_id = '".$clientId."'"))
+                if($db->GetRow("select * from r_schema where name ='".$db->escape($name)."' and client_id = '".$clientId."'"))
                 {
                     throw new Exception("Схема с таким именем уже существует");
                 }

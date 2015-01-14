@@ -1,13 +1,6 @@
 <?php
 
 use yii\grid\GridView;
-use yii;
-
-$this->registerCssFile('/bootstrap/css/bootstrap.min.css');
-$this->registerCssFile('/css/grid/grid.css');   
-
-
-//var_dump($row); exit();
 
 $urlmanager = Yii::$app->getUrlManager();
 $url_params[0] = Yii::$app->controller->getRoute();

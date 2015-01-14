@@ -55,7 +55,17 @@ class Navigation
 
     private function addBlock(NavigationBlock $block)
     {
-        $this->blocks[] = $block;
+        if ($block->rights) {
+          foreach ($block->rights as $right) {
+            if (Yii::$app->user->can($right)) {
+              $this->blocks[] = $block;
+              break;
+            }
+          }
+        } else {
+          $this->blocks[] = $block;
+        }
+        return $this;
     }
     
 
@@ -66,7 +76,7 @@ class Navigation
         list($title, $items) = $statModule->GetPanel(null);
 
         if (!$title || !$items) {
-            return null;
+          return $this;
         }
 
         $block =
@@ -79,6 +89,7 @@ class Navigation
         }
 
         $this->addBlock($block);
+        return $this;
     }
     
     private function addBlockNewClients()
@@ -91,6 +102,7 @@ class Navigation
             
             $block = NavigationBlock::create()
                 ->setId('client_'.$block_row['id'])
+                ->setRights(['clients.read'])
                 ->setTitle($block_row['name']);
             
             foreach($block_row['items'] as $item)

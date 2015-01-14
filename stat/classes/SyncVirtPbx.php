@@ -17,6 +17,7 @@ class SyncVirtPbx
                 "phones"     => $tarif["num_ports"],
                 "faxes"      => (int)$tarif["is_fax"] ? 5 : 0,
                 "record"     => (bool)$tarif["is_record"],
+                "enable_web_call" => (bool)$tarif["is_web_call"],
                 "disk_space" => (int)$tarif["space"]
                 );
 
@@ -45,6 +46,7 @@ class SyncVirtPbx
                 "phones"     => $tarif["num_ports"],
                 "faxes"      => $tarif["is_fax"] ? 5 : 0,
                 "record"     => (bool)$tarif["is_record"],
+                "enable_web_call" => (bool)$tarif["is_web_call"],
                 );
 
         return self::_send($tarif["ip"], "update", $data);
@@ -154,7 +156,8 @@ class SyncVirtPbx
                     space,
                     is_record,
                     is_fax,
-                    s.ip
+                    s.ip,
+                    t.is_web_call
                 FROM (select (
                         select 
                             id_tarif 

@@ -1,6 +1,7 @@
 <?php
 namespace app\models\tariffication;
 
+use app\dao\tariffication\ServiceTypeDao;
 use yii\db\ActiveRecord;
 
 /**
@@ -13,5 +14,10 @@ class ServiceType extends ActiveRecord
     public static function tableName()
     {
         return 'tariffication_service_type';
+    }
+
+    public static function dao()
+    {
+        return ServiceTypeDao::me();
     }
 }

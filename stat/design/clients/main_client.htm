@@ -1,394 +1,509 @@
 <script src="js/jquery.inputmask.js"></script>
-<H2>Информация о клиенте <i style="color:red">{$client.client}</i> <span style='font-size:13px;font-weight:bold'>(id={$client.id})</span></H2>
-<table width=100%><tr><td>
-	<table class=mform cellSpacing=4 cellPadding=2 width="100%" border=0><TBODY>
 
-        <tr>
-            <td class=left>Регион:</td>
-            <td colspan="2"><b>{$region_name}</b></td>
-        </tr>
+<div style="font-size: 18px; padding: 5px; margin-bottom: 10px">
+    Клиент {$superClient.name}
+</div>
+
+{foreach from=$contragents item='contragent'}
+<div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
+    <div style="color: #333">
+        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
+    </div>
+    {foreach from=$contragent.accounts item='account'}
+    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
+        <div style="display: inline-block; padding: 0 4px">
+            {if $account.id==$clientAccount.id}<b>{/if}
+            <div style="display: inline-block; min-width: 80px">
+                {$account.client}
+            </div>
+            <div style="display: inline-block; min-width: 200px">
+                {$account.contractType.name} /
+                <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
+            </div>
+            <div style="display: inline-block; min-width: 20px"></div>
+            <div style="display: inline-block; min-width: 200px">
+                <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
+                    {math equation="-(balance)" balance=$account.balance} {$account.currency}
+                </span>
+                {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
+            </div>
+            <div style="display: inline-block; min-width: 120px">
+                {if $account.accountRegion}{$account.accountRegion.name}{/if}
+            </div>
+            {if $account.id==$clientAccount.id}</b>{/if}
+            <div style="display: inline-block;">
+                {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
+            </div>
+        </div>
+    </a>
+    {/foreach}
+</div>
+{/foreach}
 
 
-		{if $client.previous_reincarnation}
-		<tr>
-			<td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>Предыдущие реквизиты:</td>
-			<td><a href="?module=clients&id={$client.previous_reincarnation}">{$client.prev_r_cl}</a></td>
-		</tr>
-		{/if}
+<div style="width: 250px; float: right" id="right_menu">
+    {if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
+    {if access('clients','edit') || access('clients','edit_tele')}
+    <a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
+        <img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Редактировать ЛС
+    </a>
+    <br><br>
+    <a href='{$LINK_START}module=clients&id={$client.id}&action=print&data=envelope' target='_blank'>
+        <img class=icon src='{$IMAGES_PATH}icons/envelope.gif'>Напечатать конверт
+    </a>
+    <br><br>
+    {if access('clients','file')}
+    <a href="{$LINK_START}module=clients&action=files&cid={$client.id}">
+        <img class=icon src='{$IMAGES_PATH}icons/contract.gif'>Файлы
+    </a> ({$cfiles} шт.)
+    <br><br>
+    {/if}
+    <a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
+        <img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
+    </a>
+    <br><br>
+    <a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>
+        <img class=icon src='{$IMAGES_PATH}icons/password.gif'>Изменить пароль
+    </a>
+    <br><br>
+    {/if}
+    {if access('monitoring','edit') || access('clients','edit_tele')}
+    <a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
+        <img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
+    </a>
+    <br><br>
+    {/if}
 
-        {if $client.contragents_count > 1}
-        <tr>
-            <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-                Клиент:
-            </td>
-            <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-                <b>{$client.super_client_name}</b>
-            </td>
-        </tr>
+    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&up_id={$client.id}">
+        Профиль в Welltone
+    </a>
+    <br>
+    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
+        Обращение в Welltone
+    </a>
 
-        <tr>
-            <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-            Контрагент:
-            </td>
-            <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-                {foreach from=$client.contragents item='c'}
-                    {if $client.contragent_id <> $c.id}
-                        <a href="?module=clients&contragent_id={$c.id}">
-                    {else}
-                        <b>
-                    {/if}
-                    {$c.name}
-                    {if $client.contragent_id <> $c.id}
-                        </a>
-                    {else}
-                        </b>
-                    {/if}&nbsp;&nbsp;
+    {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
+    <br>
+    <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
+        Переход в LK
+    </a>
+    {php} endif; {/php}
+    <br>
+    <br>
+
+    {*if access('newaccounts_bills','regProductsOrder')*}
+    {if access('clients','all4net')}
+    <br /><br />
+    <a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> Создать заказ на Установку/Монтаж</a><br />
+    <br>
+    <a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders'><img src="./images/icons/add.gif" border=0>Создать заказ из Магазина</a><br />
+    <br>
+    <a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1'><img src="./images/icons/disable.gif" border=0> Возврат товара</a><br />
+    <br>
+    {/if}
+
+    {if access('incomegoods','admin')}
+    <br/>
+    <a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>Создать заказ Поставщику</a>
+    <br/><br/><br/>
+    {/if}
+
+    <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
+    <br>
+    <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
+
+    {*if access('clients','yota')*}
+    <br /><br />
+    <a href='{$LINK_START}module=clients&action=print_yota_contract' target='_blank' id='YotaContractLink' style='display:none'>Печатать договор Yota</a>
+    <script type='text/javascript'>
+        if(!document.all && window.navigator.appName != "Opera")
+            document.getElementById('YotaContractLink').style.display = 'block';
+    </script>
+    {*/if*}
+
+    <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
+</div>
+
+<div style="margin-right: 260px;" id="cl_main_div">
+<table class="table table-condensed table-striped" width="100%">
+
+{if $client.previous_reincarnation}
+<tr>
+    <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>Предыдущие реквизиты:</td>
+    <td><a href="?module=clients&id={$client.previous_reincarnation}">{$client.prev_r_cl}</a></td>
+</tr>
+{/if}
+
+<tr>
+    <td class="cl_main_col1" align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+    <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
+    </td>
+    <td class="cl_main_col2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
+    <b>{$client.company_full}</b>&nbsp; &nbsp;{if trim($client.company_full)!= trim($client.company)}({$client.company}){/if}&nbsp; &nbsp;(<span style='color:#000080'>{$client.firma}</span>)
+    </td>
+</tr>
+<tr id=company_names style="display: none;">
+    <td colspan=2 align=center>
+        Изменения названия компании:
+        <table style="background-color: gray;" cellspacing=1 cellpadding=3>
+            <tr><td><b>Дата</td><td><b>Пользователь</td><td><b>Полное названия</b></td><td><b>Краткое</b></td></tr>
+            {foreach from=$log_company item=l}
+            <tr><td>{$l.ts}</td><td>{$l.user}</td><td>{$l.company.company_full.to}</td><td>{$l.company.company.to}</td></tr>
+            {foreachelse}
+            <tr><td colspan=4 align=center><i>Нет изменений</i></td></tr>
             {/foreach}
-            </td>
-        </tr>
-        {/if}
+        </table>
 
-        {if $client.cards_count > 1}
-        <tr>
-            <td class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>
-            {if $client.cards_count > 1}Карточки{else}Карточка{/if}:
-            </td>
-            <td colspan="2" {if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-                {foreach from=$client.cards item='c'}
-                    {if $client.id <> $c.id}
-                        <a href="?module=clients&id={$c.id}">
-                    {else}
-                        <b>
-                    {/if}
-                    
-                    {$c.client}
-        
-                    {if $client.id <> $c.id}
-                        </a>
-                    {else}
-                        </b>
-                    {/if}&nbsp;&nbsp;
-                {/foreach}
-            </td>
-        </tr>
-        <tr height=5>
-            <td class=left></td>
-            <td colspan="2"></td>
-        </tr>
-        {/if}
-        <TR><TD class=left{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width=30%>
-				<a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:</TD><TD{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
-				<b>{$client.company_full}</b>&nbsp; &nbsp;{if trim($client.company_full)!= trim($client.company)}({$client.company}){/if}&nbsp; &nbsp;(<span style='color:#000080'>{$client.firma}</span>)</TD>
-
-			<td valign="top" width=250 rowspan={if access('clients','restatus')}14{else}11{/if}>
-				{if access('tt','r')}<a href='{$LINK_START}module=tt&action=all'><img class=icon src='{$IMAGES_PATH}icons/tt.gif'>Посмотреть заявки</a> (всего: <b>{$troubles_total}</b>{if $troubles_opened>0}, <font color=red>из них незакрытых: <b>{$troubles_opened}</b></font>{/if})<br><br>{/if}
-				{if access('clients','edit') || access('clients','edit_tele')}
-					<a href='{$LINK_START}module=clients&id={$client.id}&action=edit' title="Редактировать лицевой счет">
-						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Редактировать ЛС
-					</a>
-					<br><br>
-				<a href='{$LINK_START}module=clients&id={$client.id}&action=print&data=envelope' target='_blank'>
-					<img class=icon src='{$IMAGES_PATH}icons/envelope.gif'>Напечатать конверт
-				</a>
-				<br><br>
-				{if access('clients','file')}
-					<a href="{$LINK_START}module=clients&action=files&cid={$client.id}">
-						<img class=icon src='{$IMAGES_PATH}icons/contract.gif'>Файлы
-					</a> ({$cfiles} шт.)
-					<br><br>
-				{/if}
-					<a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
-						<img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
-					</a>
-					<br><br>
-					<a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>
-						<img class=icon src='{$IMAGES_PATH}icons/password.gif'>Изменить пароль
-					</a>
-					<br><br>
-				{/if}
-				{if access('monitoring','edit') || access('clients','edit_tele')}
-					<a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
-						<img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
-					</a>
-					<br><br>
-				{/if}
-
-				<a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&up_id={$client.id}">
-					Профиль в Welltone
-				</a>
-				<br>
-				<a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
-					Обращение в Welltone
-				</a>
-                {if $card_type == "main"}
-                {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
-                    <br>
-                    <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
-                        Переход в LK
-                    </a>{/if}
-                {php} endif; {/php}
-				<br>
-				<br>
-
-				{*if access('newaccounts_bills','regProductsOrder')*}
-				{if access('clients','all4net')}
-					<br /><br />
-					<a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> Создать заказ на Установку/Монтаж</a><br />
-				<br>
-					<a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders'><img src="./images/icons/add.gif" border=0>Создать заказ из Магазина</a><br />
-				<br>
-					<a href='?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1'><img src="./images/icons/disable.gif" border=0> Возврат товара</a><br />
-				<br>
-				{/if}
-
-			{if access('incomegoods','admin')}
-				<br/>
-				<a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>Создать заказ Поставщику</a>
-				<br/><br/><br/>
-			{/if}
-
-			<a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
-				<br>
-				<a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
-
-				{*if access('clients','yota')*}
-					<br /><br />
-					<a href='{$LINK_START}module=clients&action=print_yota_contract' target='_blank' id='YotaContractLink' style='display:none'>Печатать договор Yota</a>
-					<script type='text/javascript'>
-						if(!document.all && window.navigator.appName != "Opera")
-							document.getElementById('YotaContractLink').style.display = 'block';
-					</script>
-				{*/if*}
-
-                <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
-
-			</td>
-		</TR>
-		<TR id=company_names style="display: none;"><TD colspan=2 align=center>Изменения названия компании:
-			<table style="background-color: gray;" cellspacing=1 cellpadding=3>
-				<tr><td><b>Дата</td><td><b>Пользователь</td><td><b>Полное названия</b></td><td><b>Краткое</b></td></tr>
-				{foreach from=$log_company item=l}
-					<tr><td>{$l.ts}</td><td>{$l.user}</td><td>{$l.company.company_full.to}</td><td>{$l.company.company.to}</td></tr>
-				{foreachelse}
-					<tr><td colspan=4 align=center><i>Нет изменений</i></td></tr>
-				{/foreach}
-			</table>
-
-					</TD></TR>
-		<TR><TD class=left{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>Менеджер:</TD><TD{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}><b>{if $client.manager}{$client.manager_name} ({$client.manager}){/if}</b></TD></TR>
-		<TR><TD class=left{if $client.support_color} style='background-color:{$client.support_color}'{/if}>Техподдержка:</TD><TD{if $client.support_color} style='background-color:{$client.support_color}'{/if}><b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b></TD></TR>
-		<TR><TD class=left>Валюта:</TD><TD><b{if $client.currency=='USD'}>${else} style='color:blue'>рубли{/if}</b> <span style='font-size:85%'>(кредит <b>{if $client.credit >= 0}{$client.credit}{else}не ограничен{/if}</b>)</span></TD></TR>
-		<TR><TD class=left>Адрес:</TD><TD><b>{$client.address_post}</b></TD></TR>
-		<TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-		<TR><TD class=left{if $client.status_color} style='background-color:{$client.status_color}'{/if}>Статус:</TD><TD{if $client.status_color} style='background-color:{$client.status_color}'{/if}><b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}</TD></TR>
-<script language=javascript>
-{literal}
-function togglecs() {
-	toggle2(data_cs1); toggle2(data_cs2); toggle2(data_cs3);toggle2(data_cs4);
-	if (data_cs1.style.display==''){
-		value = '1';
-	} else {
-		value = '0';
-	}
-    $.get("?module=usercontrol&action=ex_flag&flag=statusbox&value="+value);
-}
-{/literal}
-</script>
-<tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs1>
-<td colspan=2>
-{foreach from=$client.data_cs item=item name=outer}
-{if $item.comment}
-<b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
-{/if}{if $item.status}
-<b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
-{/if}
-{/foreach}
-</td></tr>
-{if access('clients','restatus')}
-<FORM action="?" method=post id=sform name=sform>
-<input style='width:100%' type=hidden name=module value=clients>
-<input style='width:100%' type=hidden name=action value=restatus>
-<input style='width:100%' type=hidden name=id value='{$client.id}'>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2><TD class=left>Статус:</TD><TD><SELECT name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select></TD></TR>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4><TD class=left>Комментарий:</TD><TD><textarea style='width:100%;height:100px' name=comment class=text></textarea></TD></TR>
-<TR {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3><TD class=left style='border-bottom:1 solid red'>&nbsp;</TD><TD style='border-bottom:1 solid red'><input class=text value='Изменить' type=submit></TD></TR>
-</form>
-{/if}
-<TR><TD class=left>Предполагаемый <b>адрес</b> подключения:</TD><TD>{$client.address_connect}{if $client.phone_connect} <b>телефон:</b> {$client.phone_connect}{/if}</TD></TR>
-<TR><TD class=left>Комментарий:</TD><TD><b>{$client.comment.comment}</b></TD></TR>
-<TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-<TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-<TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-<TR><TD class=left><a href='javascript:toggle2("contact");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
-Телефон:</TD><TD colspan=2>{foreach from=$contact.phone item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
-<span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}{/foreach}
-</TD></TR>
-
-{if count($contact.fax)}
-<TR><TD class=left>Факс:</TD><TD colspan=2>{foreach from=$contact.fax item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
-<span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}{/foreach}
-</TD></TR>
-{/if}
-
-{if count($contact.email)}
-<TR><TD class=left>E-mail:</TD><TD colspan=2>{foreach from=$contact.email item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
-<a{if $item.is_official} style='font-weight:bold'{/if} target=_blank href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to={$item.data}" title="{$item.comment|escape}">{$item.data}</a>
- <a{if $item.is_official} style='font-weight:bold'{/if} href="mailto:{$item.data}">(@)</a>
-{/foreach}
-</TD></TR>
-{/if}
-
-{if isset($contact.sms) && count($contact.sms)}
-<TR><TD class=left>СМС:</TD><TD colspan=2>{foreach from=$contact.sms item=item name=inner}{if $smarty.foreach.inner.iteration!=1}; {/if}
-<span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
-{/foreach}
-</TD></TR>
-{/if}
-
-<TR id=contact{if !isset($contact_open)} style='display:none'{/if}>
-<td colspan=3 style='padding-left:50px'>
-
-<table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th>тип</th><th></th><th>контакт</th><th>комментарий</th><th>кто</th><th>когда</th><th>&nbsp;</th></tr>
-<FORM action="?" method=post><tr>
-	<input type=hidden name=module value=clients>
-	<input type=hidden name=action value=recontact>
-	<input type=hidden name=id value='{$client.id}'>
-{foreach from=$contacts item=item}
-<tr{if !$item.is_active} class="other"{/if}><td{if $item.is_official} style='font-weight:bold'{/if}>
-{if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{elseif $item.type=='sms'}СМС{/if}
-</td>
-<td>{if $card_type == "main" && $item.type == "email" && $item.is_official && $item.is_active}<input type=radio value="{$item.id}" name="admin_contact"{if $client.admin_contact_id == $item.id} checked{/if}>{/if}</td>
-<td>{$item.data}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
-{if $item.user == 'AutoLK'}
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
-{else}
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
-{/if}
-
-</td></tr>
-{/foreach}
-	<td>
-		<select name=type class=text style='font-size:10px' id='cd_type'>
-			<option value='phone'>телефон</option>
-			<option value='fax'>факс</option>
-			<option value='email'>e-mail</option>
-			<option value='sms'>СМС</option>
-		</select>
-		<input type=checkbox class=text name=official title="официальный?">
-	</td>
-    <td></td>
-	<td><input class=text style='width:100%' type=text name=data id='i_cd_data'></td>
-	<td colspan=2><input class=text style='width:100%' type=text name=comment></td>
-	<td><input class=button type=submit name="add_contact" value="добавить"></td>
+    </td>
+</tr>
+<tr>
+    <td align="right"{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>
+    Менеджер:
+    </td>
+    <td {if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>
+    <b>{if $client.manager}{$client.manager_name} ({$client.manager}){/if}</b>
+    </td>
+</tr>
+<tr>
+    <td align="right"{if $client.support_color} style='background-color:{$client.support_color}'{/if}>
+    Техподдержка:
+    </td>
+    <td {if $client.support_color} style='background-color:{$client.support_color}'{/if}>
+    <b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b>
+    </td>
+</tr>
+<tr><td align="right">Адрес:</td><td><b>{$client.address_post}</b></td></tr>
+<tr>
+    <td align="right" {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
+    Статус:
+    </td>
+    <td {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
+    <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}
+    </td>
 </tr>
 
-{if $card_type == "main"}
-    <tr><td>&nbsp;</td>
-            <td><input type=radio name="admin_contact" title="Сбросить" value=0{if $client.admin_contact_id == 0} checked{/if}></td><td colspan=4>
-        <input class=button type=submit name="set_admin" value="Администратор в LK">
-        </td></tr>
-{/if}
-    </form>
-
-</table></td></tr>
-
-
-
-<TR><TD style='visibility:hidden;font-size:1px' colspan=2>&nbsp;</TD></TR>
-
-<TR><TD class=left><a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>
-Договор:</TD><TD>{foreach from=$contracts item=item key=key}{if $item.is_active}
-	<b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> от {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts})</span> {if $key!=$contract_last}; {/if}
-{/if}{/foreach}</TD></TR>
-<TR id=contract{if !isset($contract_open)} style='display:none'{/if}><td colspan=3 style='padding-left:50px'><table class=insblock cellspacing=4 cellpadding=2 border=0>
-<tr><th style="font: bold 10pt sans-serif;">&#8470;<br>договора</th><th style="font: bold 10pt sans-serif;">дата<br>договора</th><th style="font: bold 10pt sans-serif;">дата доп.<br>соглашения</th><th>комментарий</th><th>кто</th><th>когда</th></tr>
-{foreach from=$contracts item=item}<tr{if !$item.is_active} class="other"{/if}>
-	<td>{$item.contract_no}</td><td>{$item.contract_date}</td><td>{if $item.contract_dop_date != "2012-01-01"}{$item.contract_dop_date}{/if}</td><td>{$item.comment}</td><td>{$item.user}</td>
-	<td style='font-size:85%'>{$item.ts}</td>
-	<td>
-		<a href='{$LINK_START}module=clients&id={$item.id}&action=contract_edit' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/edit.gif'></a>
-		<a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/printer.gif'></a>
-		<a href='{$LINK_START}module=clients&id={$item.id}&action=send&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/contract.gif'></a>
-		<a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontract2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
-		<a href="{$item.link}" target='_blank'>ссылка</a>
-	</td>
-</tr>{/foreach}
-<FORM action="?" method=post><tr>
-	<input type=hidden name=module value=clients>
-	<input type=hidden name=action value=recontract>
-	<input type=hidden name=id value='{$client.id}'>
-	<td><input class=text style='width:70' type=text name=contract_no value={$client.id}-{0|mdate:"y"}></td>
-	<td><input class=text style='width:85' type=text name=contract_date value={0|mdate:"Y-m-d"}></td>
-	<td><input class=text style='width:85' type=text name=contract_dop_date value=""></td>
-	<td><input class=text style='width:200' type=text name=comment></td>
-	<td colspan=3>
-	<select class=text name=contract_template_group id="contract_template_group" onChange="do_change_template_group(this)">
-    {foreach from=$templates key=k item=item}
-        <option value="{$k}">{$k}</option>
-    {/foreach}
-	</select>
-
-	<select class=text name=contract_template id="contract_template">
-    {foreach from=$templates.MCN item=item}
-            <option value="{$item}">{$item}</option>
-    {/foreach}
-	</select>
-	<input class=button type=submit value="зарегистрировать"></td>
-</tr></form>
-<script>
-var tDogovors = new Array();
-    {foreach from=$templates key=group item=item}
-tDogovors["{$group}"] = new Array();
-        {foreach from=$item item=dov}
-tDogovors["{$group}"].push('{$dov}');
+<tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs1>
+<td colspan=2 align="center">
+    <div style="display: inline-block; text-align: left">
+        {foreach from=$client.data_cs item=item name=outer}
+        {if $item.comment}
+        <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
+        {/if}
+        {if $item.status}
+        <b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
+        {/if}
         {/foreach}
+    </div>
+</td>
+</tr>
+{if access('clients','restatus')}
+<tr>
+    <td colspan="2" align="center">
+        <form action="?" method=post id=sform name=sform>
+            <input type=hidden name=module value=clients>
+            <input type=hidden name=action value=restatus>
+            <input type=hidden name=id value='{$client.id}'>
+            <table width="100%">
+                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2>
+                <td align="right">Статус:</td>
+                <td>
+                    <SELECT class="select2" style="width: 200px" name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
+                </td>
+                </tr>
+                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+                <td align="right">Тип договора:</td>
+                <td>
+                    <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                </td>
+                </tr>
+                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
+                <td align="right">Комментарий:</td>
+                <td>
+                    <div style="position: relative"><textarea style='width:90%;height:100px' name=comment class=text></textarea></div>
+                </td>
+                </tr>
+                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
+                <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
+                <td style='border-bottom:1 solid red'>
+                    <input class=text value='Изменить' type=submit>
+                </td>
+                </tr>
+            </table>
+        </form>
+    </td>
+</tr>
+{/if}
+<tr>
+    <td align="right">Предполагаемый <b>адрес</b> подключения:</td>
+    <td>{$client.address_connect}{if $client.phone_connect} <b>телефон:</b> {$client.phone_connect}{/if}</td>
+</tr>
+
+<tr id="contact_header1" style="display: none;">
+    <td align="right">
+        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+        Контакты:
+    </td>
+    <td colspan=2 id="contact_phone">
+        &nbsp;
+    </td>
+</tr>
+<tr id="contact_header2">
+    <td align="right">
+        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+        Телефон:
+    </td>
+    <td colspan=2>
+        {foreach from=$contact.phone item=item name=inner}
+        {if $smarty.foreach.inner.iteration!=1}; {/if}
+        <span {if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
+        {/foreach}
+    </td>
+</tr>
+{if count($contact.fax)}
+<tr id="contact_fax">
+    <td align="right">Факс:</td>
+    <td colspan=2>
+        {foreach from=$contact.fax item=item name=inner}
+        {if $smarty.foreach.inner.iteration!=1}; {/if}
+        <span {if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
+        {/foreach}
+    </td>
+</tr>
+{/if}
+{if count($contact.email)}
+<tr id="contact_email">
+    <td align="right">E-mail:</td>
+    <td colspan=2>
+        {foreach from=$contact.email item=item name=inner}
+        {if $smarty.foreach.inner.iteration!=1}; {/if}
+        <a{if $item.is_official} style='font-weight:bold'{/if} target=_blank href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to={$item.data}" title="{$item.comment|escape}">{$item.data}</a>
+        <a{if $item.is_official} style='font-weight:bold'{/if} href="mailto:{$item.data}">(@)</a>
+        {/foreach}
+    </td>
+</tr>
+{/if}
+{if isset($contact.sms) && count($contact.sms)}
+<tr id="contact_sms">
+    <td align="right">СМС:</td>
+    <td colspan=2>
+        {foreach from=$contact.sms item=item name=inner}
+        {if $smarty.foreach.inner.iteration!=1}; {/if}
+        <span{if $item.is_official} style='font-weight:bold'{/if}>{$item.data}</span> - {$item.comment|escape}
+        {/foreach}
+    </td>
+</tr>
+{/if}
+
+<tr id=contact style="display: none">
+    <td colspan=3 align="center">
+        <form action="?" method=post>
+            <input type=hidden name=module value=clients>
+            <input type=hidden name=action value=recontact>
+            <input type=hidden name=id value='{$client.id}'>
+
+            <table class=insblock cellspacing=4 cellpadding=2 border=0>
+                <tr>
+                    <th>тип</th>
+                    <th></th>
+                    <th>контакт</th>
+                    <th>комментарий</th>
+                    <th>кто</th>
+                    <th>когда</th>
+                    <th>&nbsp;</th>
+                </tr>
+                {foreach from=$contacts item=item}
+                <tr {if !$item.is_active} class="other"{/if}>
+                <td{if $item.is_official} style='font-weight:bold'{/if}>
+                {if $item.type=='phone'}телефон{elseif $item.type=='fax'}факс{elseif $item.type=='email'}e-mail{elseif $item.type=='sms'}СМС{/if}
+                </td>
+                <td>
+                    {if $card_type == "main" && $item.type == "email" && $item.is_official && $item.is_active}
+                    <input type=radio value="{$item.id}" name="admin_contact"{if $client.admin_contact_id == $item.id} checked{/if}>
+                    {/if}
+                </td>
+                <td>{$item.data}</td>
+                <td>{$item.comment}</td>
+                <td>{$item.user}</td>
+                <td style='font-size:70%'>{$item.ts}</td>
+                <td>
+                    {if $item.user == 'AutoLK'}
+                    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
+                    {else}
+                    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+                    {/if}
+                </td>
+                </tr>
+                {/foreach}
+                <tr>
+                    <td>
+                        <select name=type class=text style='font-size:10px' id='cd_type'>
+                            <option value='phone'>телефон</option>
+                            <option value='fax'>факс</option>
+                            <option value='email'>e-mail</option>
+                            <option value='sms'>СМС</option>
+                        </select>
+                        <input type=checkbox class=text name=official title="официальный?">
+                    </td>
+                    <td></td>
+                    <td><input class=text style='width:100%' type=text name=data id='i_cd_data'></td>
+                    <td colspan=2><input class=text style='width:100%' type=text name=comment></td>
+                    <td><input class=button type=submit name="add_contact" value="добавить"></td>
+                </tr>
+                {if $card_type == "main"}
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <input type=radio name="admin_contact" title="Сбросить" value=0 {if $client.admin_contact_id == 0} checked{/if}>
+                    </td>
+                    <td colspan=4>
+                        <input class=button type=submit name="set_admin" value="Администратор в LK">
+                    </td>
+                </tr>
+                {/if}
+            </table>
+        </form>
+    </td>
+</tr>
+<tr><td colspan="2" style="display: none"></td></tr>
+
+<tr>
+    <td align="right">
+        <a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>
+        Договор:
+    </td>
+    <td>
+        {foreach from=$contracts item=item key=key}
+        {if $item.is_active}
+        <b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> от {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts})</span> {if $key!=$contract_last}; {/if}
+        {/if}
+        {/foreach}
+    </td>
+</tr>
+
+<tr id=contract style="display: none">
+    <td colspan=3 align="center">
+        <form action="?" method=post>
+            <input type=hidden name=module value=clients>
+            <input type=hidden name=action value=recontract>
+            <input type=hidden name=id value='{$client.id}'>
+
+            <table class=insblock cellspacing=4 cellpadding=2 border=0>
+                <tr>
+                    <th style="font: bold 10pt sans-serif;">&#8470;<br>договора</th>
+                    <th style="font: bold 10pt sans-serif;">дата<br>договора</th>
+                    <th style="font: bold 10pt sans-serif;">дата доп.<br>соглашения</th>
+                    <th>комментарий</th>
+                    <th>кто</th>
+                    <th>когда</th>
+                </tr>
+                {foreach from=$contracts item=item}
+                <tr {if !$item.is_active} class="other"{/if}>
+                <td>{$item.contract_no}</td>
+                <td>{$item.contract_date}</td>
+                <td>{if $item.contract_dop_date != "2012-01-01"}{$item.contract_dop_date}{/if}</td>
+                <td>{$item.comment}</td>
+                <td>{$item.user}</td>
+                <td style='font-size:85%'>{$item.ts}</td>
+                <td>
+                    <a href='{$LINK_START}module=clients&id={$item.id}&action=contract_edit' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/edit.gif'></a>
+                    <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/printer.gif'></a>
+                    <a href='{$LINK_START}module=clients&id={$item.id}&action=send&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/contract.gif'></a>
+                    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontract2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+                    <a href="{$item.link}" target='_blank'>ссылка</a>
+                </td>
+                </tr>
+                {/foreach}
+                <tr>
+                    <td><input class=text style='width:70' type=text name=contract_no value={$client.id}-{0|mdate:"y"}></td>
+                    <td><input class=text style='width:85' type=text name=contract_date value={0|mdate:"Y-m-d"}></td>
+                    <td><input class=text style='width:85' type=text name=contract_dop_date value=""></td>
+                    <td><input class=text style='width:200' type=text name=comment></td>
+                    <td colspan=3>
+                        <select class=text name=contract_template_group id="contract_template_group" onChange="do_change_template_group(this)">
+                            {foreach from=$templates key=k item=item}
+                            <option value="{$k}">{$k}</option>
+                            {/foreach}
+                        </select>
+                        <select class=text name=contract_template id="contract_template">
+                            {foreach from=$templates.MCN item=item}
+                            <option value="{$item}">{$item}</option>
+                            {/foreach}
+                        </select>
+                        <input class=button type=submit value="зарегистрировать">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </td>
+</tr>
+<tr><td colspan="2" style="display: none"></td></tr>
+</table>
+</div>
+
+<script>
+    var tDogovors = new Array();
+    {foreach from=$templates key=group item=item}
+    tDogovors["{$group}"] = new Array();
+    {foreach from=$item item=dov}
+    tDogovors["{$group}"].push('{$dov}');
     {/foreach}
-{literal}
+    {/foreach}
 
-function do_change_template_group(o){
-    var group = o.options[o.selectedIndex].value;
+    {literal}
 
-    var oContractTemplate = document.getElementById("contract_template");
-
-    for(i = oContractTemplate.options.length; i >= 1 ;i--){
-        oContractTemplate.remove(i-1);
+    function togglecs() {
+        toggle2(data_cs1);
+        toggle2(data_cs2);
+        toggle2(data_cs3);
+        toggle2(data_cs4);
+        toggle2(data_cs5);
+        if (data_cs1.style.display==''){
+            value = '1';
+        } else {
+            value = '0';
+        }
+        $.get("?module=usercontrol&action=ex_flag&flag=statusbox&value="+value);
     }
 
-    aIds = tDogovors[group];
+    function do_change_template_group(o){
+        var group = o.options[o.selectedIndex].value;
 
-    var optNames = new Array();
+        var oContractTemplate = document.getElementById("contract_template");
 
-    if(aIds){
-        for(a in aIds){
-            id = aIds[a];
-            optNames.push([id,id])
+        for(i = oContractTemplate.options.length; i >= 1 ;i--){
+            oContractTemplate.remove(i-1);
+        }
+
+        aIds = tDogovors[group];
+
+        var optNames = new Array();
+
+        if(aIds){
+            for(a in aIds){
+                id = aIds[a];
+                optNames.push([id,id])
+            }
+        }
+
+        optNames.sort(optSort);
+
+        for(a in optNames) {
+            var o = optNames[a];
+            createOption(oContractTemplate, o[0], o[1]);
         }
     }
 
-    optNames.sort(optSort);
-
-    for(a in optNames) {
-        var o = optNames[a];
-        createOption(oContractTemplate, o[0], o[1]);
+    function optSort(i, ii)
+    {
+        return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
     }
-}
+    $('#cd_type').change(function(){
+        if($(this).val() != 'sms') {
+            $('#i_cd_data').inputmask("remove");
+        } else {
+            $('#i_cd_data').inputmask("+9(999)999-99-99");
+        }
+    });
 
-function optSort(i, ii)
-{
-    return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
-}
-$('#cd_type').change(function(){
-	if($(this).val() != 'sms') {
-		$('#i_cd_data').inputmask("remove");
-	} else {
-		$('#i_cd_data').inputmask("+9(999)999-99-99");
-	}
-});
-{/literal}
+    {/literal}
 </script>
-</table></td></tr>
-
-</TBODY></TABLE>
-</td>
-</table>

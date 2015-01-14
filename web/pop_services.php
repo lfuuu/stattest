@@ -58,12 +58,44 @@
 		header('Location: ?table='.$table.'&id='.$id);
 		exit;
 	}
-	$design->display('pop_header.tpl');
+
+use app\assets\AppAsset;
+use \yii\helpers\Html;
+
+$view = Yii::$app->view;
+
+AppAsset::register($view);
+?>
+<?php $view->beginPage() ?>
+<!DOCTYPE html>
+<html lang="<?= Yii::$app->language ?>">
+<head>
+  <meta charset="<?= Yii::$app->charset ?>"/>
+  <?= Html::csrfMetaTags() ?>
+  <title><?= Html::encode($view->title) ?></title>
+  <?php $view->head() ?>
+</head>
+<body style="padding: 15px;">
+<?php $view->beginBody() ?>
+
+<?php
 	$dbf->nodesign=1;
 	HelpDbForm::assign_log_history($table,$id);
 	$dbf->Display(array('table'=>$table,'id'=>$id),$table,'Редактирование'.' id='.$id);
-	$design->display('errors.tpl');
+
+	echo $view->render('@app/views/layouts/widgets/messages');
 	$design->display('dbform.tpl');
-	$design->display('errors.tpl');
-	$design->display('pop_footer.tpl');
 ?>
+
+<?php $view->endBody() ?>
+
+<script>
+  LOADED = 1;
+  $(document).ready(function(){
+    $('.select2').select2();
+  });
+</script>
+
+</body>
+</html>
+<?php $view->endPage() ?>

@@ -7,12 +7,12 @@ class m_tt_head extends IModuleHead{
 					'list'			=> array('tt','view'),
 					'list_cl'		=> array('tt','view_cl'),
 					'list2'			=> array('tt','use'),
-					'view'			=> array('tt','view'),
+					'view'			=> array('tt','use'),
 					'add'			=> array('tt','use'),		//новый трабл
 					'move'			=> array('tt','use'),		//новый этап
 					'refix_doers'	=> array('tt','use'),
 					'list_types'	=> array('tt','use'),
-					'view_type'		=> array('tt','use'),
+					'view_type'		=> array('tt','view'),
 					'time'			=> array('tt','time'),
 
 					'sadd'			=> array('tt','states'),
@@ -37,6 +37,7 @@ class m_tt_head extends IModuleHead{
 		array('Установка и Монтаж', 'view_type', '&type_pk=5'),
 		array('Заказы Welltime', 'view_type', '&type_pk=6'),
 		array('Заказы поставщику', 'view_type', '&type_pk=7'),
+		array('Подключение', 'view_type', '&type_pk=8'),
 		array('','view_type'),
 		#array('Список типов', 'list_types'),
 		array('Расписание',				'timetable'),
@@ -50,7 +51,7 @@ class m_tt_head extends IModuleHead{
 		array('Мне поручили',	 		'list2','&mode=2'),
 		array('Я поручил',	 			'list2','&mode=3'),
 		array('Запросы моих клиентов', 	'list_cl','&mode=4'),			//mode=4
-		array('Под контролем',			'list','&mode=5'),
+		array('Под контролем',			'list2','&mode=5'),
 		#array('Отчёт', 					'report'),
 		#array('Состояния',				'slist'),
 		array('','view_type'),

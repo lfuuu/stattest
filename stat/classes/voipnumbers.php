@@ -26,7 +26,7 @@ class voipNumbersChecker
         static $c = array();
 
         if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".mysql_real_escape_string($client)."'");
+            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".$db->escape($client)."'");
 
         return "client_id='".$c[$client]."'";
     }
@@ -77,7 +77,7 @@ class voipNumbersChecker
         return $d;
     }
 
-    private static function diff(&$saved, &$actual)
+    private static function diff($saved, $actual)
     {
         l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
 

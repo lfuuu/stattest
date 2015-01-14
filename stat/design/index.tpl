@@ -95,9 +95,9 @@ src="{$IMAGES_PATH}1.gif" width=1></DIV>
         showMonthAfterYear: false,
         yearSuffix: ''};
     $(document).ready(function(){
+        $('.select2').select2();
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
-        $('.select2').select2();
     });
     {/literal}
 </script>

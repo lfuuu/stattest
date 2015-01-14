@@ -94,11 +94,12 @@ function trigger_string($p) {
        return $p;
 }
 function str_protect($str){
+    global $db;
     if(is_array($str)) return $str;
     //вроде как, те 2 строчки лишние
     $str=str_replace("\\","\\\\",$str);
     $str=str_replace("\"","\\\"",$str);
-    return mysql_real_escape_string($str);
+    return $db->escape($str);
 };
 function str_normalize($str){
     $str=str_replace(array("\r","&"),array("","&amp;"),$str);
@@ -955,14 +956,14 @@ class ClientCS {
 
     function Create($uid = null){
 
-        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false));
+        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false), "contract_type_id" => 2 /* Телеком-клиент */);
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
                 $this->F[$field] = $defaultValue;
 
         global $db;
         if($this->client!=""){
-            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_real_escape_string($this->F['client'])."'"))
+            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".$db->escape($this->F['client'])."'"))
                 return false;    //дубликат
         }
         $q1 = '';
@@ -1275,6 +1276,20 @@ class ClientCS {
             $db->QueryUpdate("clients", "id", array("id" => $this->id, "status" => $status));
         }
     }
+
+    function SetContractType($contractTypeId)
+    {
+        global $db;
+        $client = app\models\ClientAccount::findOne($this->id);
+
+        if ($client->contract_type_id != $contractTypeId)
+        {
+            $client->contract_type_id = $contractTypeId;
+            $client->save();
+
+        }
+    }
+
     function GetLastComment() {
         global $db;
         $db->Query("select * from client_statuses where (id_client='".$this->id."') and (comment!='') order by ts desc");
@@ -1848,7 +1863,7 @@ class all4geo
         if(strpos($f,"ok") !== false){
             list($ok, $aId) = explode(",", $f);
 
-            $db->Query($z= "update tt_troubles set doer_comment = '".mysql_real_escape_string($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
+            $db->Query($z= "update tt_troubles set doer_comment = '".$db->escape($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
         }else{
             $pFile = fopen("/home/httpd/stat.mcn.ru/test/log.all4geo.errors", "a+");
             fwrite($pFile, date("r").":".$u." => ".$comment." => ".$f."\n");
@@ -1966,19 +1981,32 @@ class send
 
 class event
 {
-    function go($event, $param)
+    public static function go($event, $param)
     {
         if (is_array($param))
         {
-            $param = serialize($param);
+            //$param = serialize($param);
+            $param = json_encode($param);
         }
 
-        global $db;
+        $code = md5($event."|||".$param);
 
-        $db->QueryInsert("event_queue", array("event" => $event, "param" => $param));
+        $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+
+        if (!$row)
+        {
+            $row = new EventQueue();
+            $row->event = $event;
+            $row->param = $param;
+            $row->code = $code;
+        } else {
+            $row->iteration = 0;
+            $row->status = 'plan';
+        }
+        $row->save();
     }
 
-    function setReject($bill, $state)
+    public static function setReject($bill, $state)
     {
         if($bill["client_id"] == 15701)
         {

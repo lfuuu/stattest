@@ -23,7 +23,7 @@ class virtPbxChecker
         static $c = array();
 
         if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from clients where client = '".mysql_real_escape_string($client)."'");
+            $c[$client] = $db->GetValue("select id from clients where client = '".$db->escape($client)."'");
 
         return "client_id='".$c[$client]."'";
     }

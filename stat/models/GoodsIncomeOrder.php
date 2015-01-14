@@ -120,7 +120,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         return $data;
     }
 
-    public function checkClose($orderId)
+    public static function checkClose($orderId)
     {
         try{
             $order = GoodsIncomeOrder::find($orderId);

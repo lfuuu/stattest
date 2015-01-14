@@ -24,20 +24,28 @@
         {if isset($bill_client.is_with_consignee) && $bill_client.is_with_consignee && $bill_client.consignee}{$bill_client.consignee}{else}{if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}&nbsp;--{else}{$bill_client.company_full}{$bill_client.address_post}{/if}{/if}
     {/capture}
     {capture name=seller_head_position}
-        Генеральный директор
+        {if $to_print}
+            &nbsp;
+        {else}
+            Генеральный директор
+        {/if}
     {/capture}
     {capture name=seller_head_name}
-        {if !$client.is_upd_without_sign}
+        {if !$client.is_upd_without_sign && !$to_print}
             {$firm.director}
         {else}
             &nbsp;
         {/if}
     {/capture}
     {capture name=seller_buh_position}
-        {$firm_buh.position}
+        {if $to_print}
+            &nbsp;
+        {else}
+            {$firm_buh.position}
+        {/if}
     {/capture}
     {capture name=seller_buh_name}
-        {if !$client.is_upd_without_sign}
+        {if !$client.is_upd_without_sign && !$to_print}
             {$firm_buh.name}
         {else}
             &nbsp;

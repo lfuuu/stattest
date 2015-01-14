@@ -1,5 +1,8 @@
 <?php
 use app\classes\StatModule;
+use app\models\ClientContractType;
+use app\models\ClientAccount;
+use app\classes\Assert;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -853,7 +856,7 @@ class m_clients {
         }
         // posible bill
         if(!count($R) && strlen($search) > 4){
-            if($db->GetRow("select bill_no from `newbills` where bill_no = '".mysql_real_escape_string($search)."'")){
+            if($db->GetRow("select bill_no from `newbills` where bill_no = '".$db->escape($search)."'")){
                 Header("Location: ./?module=newaccounts&action=search&search=".urlencode($search));
                 exit;
             }
@@ -1036,6 +1039,20 @@ class m_clients {
 
 		global $design, $db, $user;
 
+    if (is_numeric($id)) {
+      $clientAccount = ClientAccount::findOne($id);
+    } else {
+      $clientAccount = ClientAccount::find()->andWhere(['client' => $id])->one();
+    }
+    Assert::isObject($clientAccount);
+
+    $superClient = $clientAccount->superClient;
+    $contragents = $superClient->contragents;
+
+    $design->assign('clientAccount', $clientAccount);
+    $design->assign('superClient', $superClient);
+    $design->assign('contragents', $contragents);
+
     $voip = new VoipStatus;
     $voip->loadClient($id);
     $voip_counters = $voip->loadVoipCounters();
@@ -1108,17 +1125,12 @@ class m_clients {
 		$design->assign('_cards',$_cards);
         */
 
-        if ($r)
-        {
-            $r["cards"] = $db->AllRecords("select id, client, company from clients where contragent_id = ".$r["contragent_id"]." order by id");
-            $r["cards_count"] = count($r["cards"]);
-        }
-
 		//$design->assign('all_cls',$db->AllRecords("select id,client from clients where client<>'' order by client",null,MYSQL_ASSOC));
 
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
 		$r['status_color'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['color'] : '');
         $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
+
         $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
 
 		$design->assign('fixclient',$id);
@@ -1128,16 +1140,11 @@ class m_clients {
         StatModule::tt()->get_counters($id);
 
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
-		$design->assign_by_ref('statuses',ClientCS::$statuses);
+        $design->assign_by_ref('statuses',ClientCS::$statuses);
+        $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
-
-        if ($r){
-            $r["contragents"] = $db->AllRecords($q = "select id, name from client_contragent where super_id = '".$r["super_id"]."'");
-            $r["contragents_count"] = count($r["contragents"]);
-        }
-
 
 		if(!$show_edit){
 			$design->assign('contacts',$cs->GetContacts());
@@ -1158,7 +1165,6 @@ class m_clients {
 				$design->assign('contract',$d[count($d)-1]);
 			$design->assign('contact',$cs->GetContact(false));
 
-			$r['comment'] = $cs->GetLastComment();
 			$r['data_cs'] = $cs->GetAllStatuses();
 
 			$design->assign('cfiles',count($cs->GetFiles()));
@@ -1266,7 +1272,6 @@ class m_clients {
 		}
 
 		$design->assign('client',$r);
-        $design->assign('region_name', $db->GetValue('select `name` from regions where id='.intval($r['region'])) );
 		$_SESSION['clients_client'] = $r['client'];
 	}
 
@@ -1592,8 +1597,10 @@ class m_clients {
 		if ($this->check_tele($id)==0) return;
 		$status=get_param_protected('status');
 		$comment=get_param_protected('comment');
+		$contractTypeId=get_param_protected('contract_type_id', 1);
 		$cs=new ClientCS($id);
 		$cs->Add($status,$comment);
+		$cs->SetContractType($contractTypeId);
 
         event::go("client_set_status", $id);
 
@@ -2284,7 +2291,7 @@ DBG::sql_out($select_client_data);
 		//require_once INCLUDE_PATH.'1c_integration.php';
 		//$clS = new \_1c\clientSyncer($db);
 
-    $bik = $db->GetRow("select * from bik b where b.bik='".mysql_real_escape_string($_GET['findBik'])."'");
+    $bik = $db->GetRow("select * from bik b where b.bik='".$db->escape($_GET['findBik'])."'");
 
 		if(!$bik)
 			echo "false";

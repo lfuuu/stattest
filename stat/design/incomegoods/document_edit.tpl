@@ -1,8 +1,7 @@
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 <script src="bootstrap/js/bootstrap.min.js"></script>
 {include file='utils/error_modal.tpl'}
 
-<h4>
+<h2>
 	<small><a href="?module=incomegoods&action=order_list">Заказы</a> - </small>
 	<small>Заказ
 		<a href="?module=incomegoods&action=order_view&id={$order->id}"><span class="{if $order->active}icon_active{elseif $order->deleted}icon_deleted_disabled{else}icon_disabled{/if}"></span>
@@ -14,7 +13,7 @@
 
 	<small><a href="?module=incomegoods&action=document_edit&id={$document->id}"><span class="icon_edit"></span>
 			<span style="color: darkred">{if $document->id}Редактирование{else}Создание{/if}</span></a></small>
-</h4>
+</h2>
 
 <form id="ajaxForm" action="?module=incomegoods&action=document_save" method="POST">
 	<input type="hidden" name="id" value="{$document->id}" />

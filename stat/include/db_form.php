@@ -161,12 +161,12 @@ class DbForm {
                     }
                     $db->Query($q='update '.$this->table.' SET '.$s.' WHERE id='.$this->dbform['id']);
                     $p='edit';
-                    trigger_error2('Запись обновлена');
+                    Yii::$app->session->addFlash('success', 'Запись обновлена');
                 } else {
                     $db->Query('insert into '.$this->table.' SET '.$s);
                     $this->dbform['id']=$db->GetInsertId();
                     $p='add';
-                    trigger_error2('Запись добавлена');
+                    Yii::$app->session->addFlash('success', 'Запись добавлена');
                 }
                 $this->Load($this->dbform['id']);
             } else {
@@ -195,7 +195,7 @@ class HelpDbForm {
         $design->assign('dbform_f_cpe',get_cpe_history($service,$id));
     }
     public static function assign_tt($service,$service_id,$client) {
-        StatModule::tt()->makeTroubleList(1,'service',3,$client,$service,$service_id);
+        StatModule::tt()->showTroubleList(1,'service',$client,$service,$service_id);
     }
     public static function save_block($service,$id,$block,$comment, $fieldsChanges = "") {
         global $db,$user;
@@ -422,6 +422,8 @@ class DbFormUsageIpPorts extends DbForm{
             if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
             HelpDbForm::save_block('usage_ip_ports',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment'], isset($this->dbform['t_fields_changes']) ?$this->dbform['t_fields_changes'] : "");
         }
+
+        return $v;
     }
 }
 
@@ -498,6 +500,13 @@ class DbFormUsageVoip extends DbForm {
             $region = $this->data['region'];
             $client = $this->data["client"];
         }else{
+            $this->fields['ats3']=array(
+                "type" => "include", 
+                "file" => "services/voip_ats3_add.tpl"
+            );
+
+            $design->assign("form_ats3", $this->makeFormData());
+
             $region = $this->fields['region']['default'];
             $client = $fixclient_data["client"];
         }
@@ -558,6 +567,12 @@ class DbFormUsageVoip extends DbForm {
         
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_voip');
         $v=DbForm::Process();
+
+        if ($v == "add") //ats3
+        {
+            $this->processAts3FormAdd($this->dbform["id"]);
+        }
+
         if ($v=='add' || $v=='edit') {
             $b = 1;
             if ($this->dbform['t_id_tarif'] == 0) $b=0;
@@ -654,6 +669,40 @@ class DbFormUsageVoip extends DbForm {
         }
         voipNumbers::check();
         return $v;
+    }
+
+    private function makeFormData()
+    {
+        global $db, $fixclient_data;
+
+        if (!is_array($fixclient_data) || !isset($fixclient_data["client"])) {
+            throw new Exception("Клиент не найден");
+        }
+
+        $client = $fixclient_data["client"];
+        $data = [
+            "vpbxs" => $db->AllRecordsAssoc("select id, concat('id:', id, ' (',actual_from,')') as name from usage_virtpbx where client='".$client."' and cast(now() as date) between actual_from and actual_to", "id", "name"),
+            "multis" => $db->AllRecordsAssoc("select id, name from multitrunk order by name", "id", "name")
+            ];
+
+
+        return $data;
+    }
+
+    private function processAts3FormAdd($usageId)
+    {
+        if (!get_param_raw("voip_ats3_add")) return;
+
+        $data = ["usage_id" => $usageId, "client" => $this->data["client"], "number" => $this->data["E164"]];
+
+        foreach(["type_connect", "sip_accounts", "vpbx_id", "multitrunk_id"] as $f) {
+            $data[$f] = get_param_raw($f);
+        }
+
+        $usage = \app\models\UsageVoip::findOne(["id" => $usageId]);
+        $usage->create_params = json_encode($data);
+        $usage->save();
+
     }
 
     private function check_number()
@@ -2244,6 +2293,7 @@ $GLOBALS['translate_arr']=array(
     '*.space' => 'Пространство Мб',
     '*.overrun_per_gb' => 'Превышение за Gb',
     '*.is_record' => 'Запись звонков',
+    '*.is_web_call' => 'Звонки с сайта',
     '*.is_fax' => 'Факс',
     '*.datacenter_id' => 'Тех. площадка',
     '*.server_pbx_id' => 'Сервер АТС',

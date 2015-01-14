@@ -27,7 +27,6 @@ function access_action($module,$action){
 
 class AuthUser {
     var $_Login = '';
-    var $_IsAuthorized = 0;
     var $_Data;
     var $_Priveleges;
 
@@ -35,8 +34,15 @@ class AuthUser {
         return '';
     }
     function AuthorizeByUserId($userId){
+        $this->loadUserData($userId);
+    }
+
+    function loadUserData($userId = null){
         global $db;
-        $db->Query('select * from user_users where id="' . $userId . '" and enabled="yes"');
+        if ($userId === null) {
+            $userId = Yii::$app->user->getId();
+        }
+        $db->Query('select * from user_users where id="' . $userId . '"');
         $this->_Data = $db->NextRecord();
         $this->_Login = $this->_Data['user'];
         if (isset($this->_Data['data_flags'])){
@@ -44,8 +50,6 @@ class AuthUser {
         } else {
             $this->_Data['data_flags']=array();
         }
-        $this->_IsAuthorized=1;
-        return 1;
     }
 
     function Get($v){
@@ -67,8 +71,10 @@ class AuthUser {
 
     function _LoadPriveleges(){
         global $db;
-        if (!$this->_IsAuthorized)
+
+        if (Yii::$app->user->isGuest) {
             return false;
+        }
 
         $this->_Priveleges=array();
 
@@ -91,8 +97,9 @@ class AuthUser {
     }
 
     function HasPrivelege($resource,$desired_access){
-        if(!$this->_IsAuthorized)
+        if (Yii::$app->user->isGuest) {
             return false;
+        }
         if(!$resource)
             return true;
         if(in_array($desired_access, array('test','vip','gen_mans'))){

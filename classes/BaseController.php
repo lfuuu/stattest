@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\models\Trouble;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -28,7 +29,6 @@ class BaseController extends Controller
 
     public function beforeAction($action)
     {
-        $this->view->title = 'stat - MCN Телеком';
         return \yii\base\Controller::beforeAction($action);
     }
 
@@ -38,6 +38,11 @@ class BaseController extends Controller
     public function getNavigationBlocks()
     {
         return Navigation::create()->getBlocks();
+    }
+
+    public function getMyTroublesCount()
+    {
+        return Trouble::dao()->getMyTroublesCount();
     }
 
     public function getSearchData()

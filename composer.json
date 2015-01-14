@@ -6,7 +6,12 @@
         "yiisoft/yii2": "*",
         "welltime/graylog-target": "*",
         "aferrandini/phpqrcode": "1.0.1",
-        "phpoffice/phpexcel": "dev-master"
+        "phpoffice/phpexcel": "dev-master",
+        "kartik-v/yii2-grid": "*",
+        "kartik-v/yii2-editable": "*",
+        "kartik-v/yii2-widgets": "*",
+        "kartik-v/yii2-mpdf": "*",
+        "kartik-v/yii2-builder": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

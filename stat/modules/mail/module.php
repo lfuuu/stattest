@@ -88,8 +88,8 @@ class m_mail{
 				UPDATE
 					`mail_job` `mj`
 				SET
-					`mj`.`template_body` = "'.mysql_real_escape_string($R['template_body']).'",
-					`mj`.`template_subject` = "'.mysql_real_escape_string($R['template_subject']).'",
+					`mj`.`template_body` = "'.$db->escape($R['template_body']).'",
+					`mj`.`template_subject` = "'.$db->escape($R['template_subject']).'",
 					`mj`.`date_edit` = NOW(),
 					`mj`.`user_edit` = "'.$R['user_edit'].'"
 				WHERE
@@ -100,7 +100,7 @@ class m_mail{
 				INSERT INTO	`mail_job`
 					(`template_subject`,`template_body`,`date_edit`,`user_edit`)
 				VALUES
-					("'.mysql_real_escape_string($R['template_subject']).'","'.mysql_real_escape_string($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
+					("'.$db->escape($R['template_subject']).'","'.$db->escape($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
 			';
 			$db->Query($query);
 			$id = $db->GetInsertId();
@@ -158,7 +158,6 @@ class m_mail{
 			}
 			unset($l);
 			$design->assign('mail_letter',$L);
-			require_once('mailFiles.php');
 			$Files = new mailFiles($id);
 			$files = $Files->getFiles();
 			$design->assign('files', $files);
@@ -395,7 +394,6 @@ class m_mail{
 		$design->AddMain('mail/filter.tpl');
 	}
 	function mail_file_put($fixclient) {
-		require_once('mailFiles.php');
 		global $design;
 		if(!($job_id=get_param_integer('job_id')))
 			return;
@@ -408,7 +406,6 @@ class m_mail{
         }
 	}
 	function mail_file_get($fixclient) {
-		require_once('mailFiles.php');
 		global $design;
 		$job_id = get_param_integer('job_id');
 		if (!$job_id) return;
@@ -426,7 +423,6 @@ class m_mail{
 		}
 	}
 	function mail_file_del($fixclient) {
-		require_once('mailFiles.php');
 		global $design;
 		$job_id = get_param_integer('job_id');
 		if (!$job_id) return;

@@ -9,6 +9,7 @@
 <TR><TD class=left>Внутренний номер (логин в comcenter):</TD><TD><input style='width:60%' name=phone_work class=text value='{$authuser.phone_work}'></TD></TR>
 <TR><TD class=left>Телефон мобильный:</TD><TD><input style='width:60%' name=phone_mobile class=text value='{$authuser.phone_mobile}'></TD></TR>
 <TR><TD class=left>ICQ:</TD><TD><input style='width:60%' name=icq class=text value='{$authuser.icq}'></TD></TR>
+<TR><TD class=left>Показывать заявки на каждой странице:</TD><TD><input name=show_troubles_on_every_page type="checkbox" value='1' {if $authuser.show_troubles_on_every_page}checked{/if}></TD></TR>
 <TR><TD class=left>Фотография:</TD><TD><input style='width:60%' name=photo class=text type=file value='' onchange='javscript:photo_change.checked=true;'><input id=file_change value=1 class=text type=checkbox name=photo_change>
 {if $authuser.photo}
 	<br><img src='images/users/{$authuser.id}.{$authuser.photo}'>

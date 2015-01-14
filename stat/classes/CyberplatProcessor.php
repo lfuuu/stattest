@@ -87,7 +87,7 @@ class CyberPlatProcessor
         $data = array();
         foreach(array("number", "amount", "type", "sign", "receipt", "date", "mes", "additional") as $f)
         {
-            $data[$f] = get_param_protected($f);
+            $data[$f] = get_param_raw($f);
         }
 
         return $data;
@@ -96,9 +96,11 @@ class CyberPlatProcessor
 
     private function log($d)
     {
-        $pFile = fopen(LOG_DIR."cyberplat.log", "a+");
-        fwrite($pFile, "\n".date("r").": ".var_export($d, true));
-        fclose($pFile);
+        if($pFile = fopen(LOG_DIR."cyberplat.log", "a+"))
+        {
+            fwrite($pFile, "\n".date("r").": ".var_export($d, true));
+            fclose($pFile);
+        }
     }
 
     private function echoError($e)
@@ -369,15 +371,15 @@ class CyberplatCrypt
     static $my_passhare = "";
     static $cyberplat_public = "";
 
-    private function init()
+    private static function init()
     {
-        self::$my_private = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__private.key");
-        self::$my_public = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__public.key");
-        self::$my_passhare = file_get_contents(PATH_TO_ROOT."store/keys/mcn_telecom__passhare.key");
-        self::$cyberplat_public = file_get_contents(PATH_TO_ROOT."store/keys/cyberplat_public.key");
+        self::$my_private = file_get_contents(STORE_PATH."keys/mcn_telecom__private.key");
+        self::$my_public = file_get_contents(STORE_PATH."keys/mcn_telecom__public.key");
+        self::$my_passhare = file_get_contents(STORE_PATH."keys/mcn_telecom__passhare.key");
+        self::$cyberplat_public = file_get_contents(STORE_PATH."keys/cyberplat_public.key");
     }
 
-    public function checkSign($msg, $signHex)
+    public static function checkSign($msg, $signHex)
     {
         self::init();
         $msg = trim($msg);
@@ -389,7 +391,7 @@ class CyberplatCrypt
         return openssl_verify($msg, $sign, $publicKey);
     }
 
-    public function sign(&$str)
+    public static function sign(&$str)
     {
         //return $str;
 
