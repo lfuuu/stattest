@@ -176,9 +176,22 @@
     {/if}
     {foreach from=$dbform_includesPre item=item name=outer}{include file=$item}{/foreach}
 
-    <div align=center>
-        <input id=b_submit class=button {if $dbform_table=="usage_voip"} type=button onclick="if(optools.check_submit()) document.getElementById('dbform').submit();"{elseif $dbform_table=="usage_virtpbx"} type=button onclick="if(optools.check_vpbx_submit()) document.getElementById('dbform').submit();"{else} type=submit{/if} value="{if $dbform_btn_new}Добавить{else}Изменить{/if}">
-    </div>
+<DIV align=center>
+    <input id=b_submit class=button 
+    {if $dbform_table=="usage_voip"}{literal} 
+        type=button onclick="
+            if(optools.check_submit() && ($('#voip_ats3_add').length ? checkVoipAts3Add() : true)) {
+                document.getElementById('dbform').submit();
+            }
+            "{/literal}
+    {elseif $dbform_table=="usage_virtpbx"} 
+        type=button onclick="
+            if(optools.check_vpbx_submit()) 
+                document.getElementById('dbform').submit();"
+    {else}
+        type=submit
+    {/if} value="{if $dbform_btn_new}Добавить{else}Изменить{/if}">
+</DIV>
 
     {foreach from=$dbform_includesPost item=item name=outer}{include file=$item}{/foreach}
 </form>

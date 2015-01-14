@@ -1,30 +1,80 @@
 <?php
+
 class EventQueue extends ActiveRecord\Model
 {
     static $table_name = 'event_queue';
 
-    public function getUnhandledEvents()
+    public static function getPlanedEvents()
     {
         return self::find("all", array(
-            "conditions" => array("is_handled" => 0, "is_stoped" => 0),
+            "conditions" => array("status" => "plan"),
             "order" => "id"
             )
         );
     }
 
-    public function setHandled()
+    public static function getPlanedErrorEvents()
     {
-        $this->is_handled = 1;
+        return self::find("all", array(
+            "conditions" => array("status = ? and next_start < NOW()", ["error"]),
+            "order" => "id"
+        ));
+    }
+
+    public function setOk()
+    {
+        $this->status = 'ok';
         $this->save();
     }
 
-    public function setStoped()
+    public function setError(Exception $e = null)
     {
-        $this->is_stoped = 1;
+        list($this->status, $this->next_start) = self::setNextStart($this);
+        $this->iteration++;
+
+        if ($e)
+        {
+            $this->log_error = "code: ".$e->getCode()."; message: ".$e->getMessage()." in ".$e->getFile()." +".$e->getLine()."; \n".$e->getTraceAsString();
+            Yii::error($e);
+        }
+
         $this->save();
     }
 
-    public function clean()
+    private static function setNextStart($o)
+    {
+        if (substr($o->event, 0, 6) != "ats3__")
+            $o->iteration = 19;
+
+        switch ($o->iteration)
+        {
+            case 0: $time = "+1 minute"; break;
+            case 1: $time = "+2 minute"; break;
+            case 2: $time = "+3 minute"; break;
+            case 3: $time = "+5 minute"; break;
+            case 4: $time = "+10 minute"; break;
+            case 5: $time = "+20 minute"; break;
+            case 6: $time = "+30 minute"; break;
+            case 7: $time = "+1 hour"; break;
+            case 8: $time = "+2 hour"; break;
+            case 9: $time = "+3 hour"; break;
+            case 10: $time = "+6 hour"; break;
+            case 11: $time = "+12 hour"; break;
+            case 12: $time = "+1 day"; break;
+            case 13: $time = "+1 day"; break;
+            case 14: $time = "+1 day"; break;
+            case 15: $time = "+1 day"; break;
+            case 16: $time = "+1 day"; break;
+            case 17: $time = "+1 day"; break;
+            case 18: $time = "+1 day"; break;
+            default: 
+                return array('stop', date('Y-m-d H:i:s'));
+        }
+
+        return array('error', date('Y-m-d H:i:s', strtotime($time)));
+    }
+
+    public static function clean()
     {
         EventQueue::table()->conn->query("delete from event_queue where date < date_sub(now(), INTERVAL 3 month)");
     }

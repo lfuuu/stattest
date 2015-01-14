@@ -7,7 +7,7 @@ include_once(PATH_TO_ROOT."modules/ats2/reservaccount.php");
 
 class ats2NumbersChecker
 {
-    public function check()
+    public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
 
@@ -17,22 +17,6 @@ class ats2NumbersChecker
         {
             ats2Diff::apply($diff);
         }
-    }
-
-    private function sqlClient($client = null)
-    {
-        global $db;
-        if($client == null)
-        {
-            $client = $_SESSION["clients_client"];
-        }
-        
-        static $c = array();
-
-        if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from clients where client = '".$db->escape($client)."'");
-
-        return "client_id='".$c[$client]."'";
     }
 
     private static $sqlActual = "select client_id, e164, no_of_lines, region, allowed_direction as direction, is_virtual from (
@@ -56,7 +40,7 @@ class ats2NumbersChecker
         FROM a_number WHERE enabled = 'yes'
         order by id";
 
-    private function load($type)
+    private static function load($type)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
         global $db, $db_ats;
@@ -80,7 +64,7 @@ class ats2NumbersChecker
         return $d;
     }
 
-    private function diff(&$saved, &$actual)
+    private static function diff($saved, $actual)
     {
         l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
 
@@ -151,7 +135,7 @@ class ats2NumbersChecker
         return false;
     }
 
-    private function save(&$actual)
+    private static function save(&$actual)
     {
         l::ll(__CLASS__,__FUNCTION__,"..."/*, $actual*/);
         global $db_ats;
@@ -165,7 +149,7 @@ class ats2NumbersChecker
 
 class ats2Numbers
 {
-    public function check()
+    public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
         ats2NumbersChecker::check();
@@ -174,12 +158,12 @@ class ats2Numbers
         ats2sync7800ats2ToAsterDb::sync();
     }
 
-    public function autocreateAccounts($usageId, $isTrunk, $isSync)
+    public static function autocreateAccounts($usageId, $isTrunk, $isSync)
     {
         ats2Helper::autocreateAccounts($usageId, $isTrunk, $isSync);
     }
 
-    public function getNumberId($l, $clientId = null, $isFromCache = true)
+    public static function getNumberId($l, $clientId = null, $isFromCache = true)
     {
         l::ll(__CLASS__,__FUNCTION__, $l, $clientId);
         global $db_ats;
@@ -204,7 +188,7 @@ class ats2Numbers
         return $c[$key];
     }
 
-    public function getNumberById($clientId, $numberId, $isFull = false)
+    public static function getNumberById($clientId, $numberId, $isFull = false)
     {
         global $db_ats;
 
@@ -213,7 +197,7 @@ class ats2Numbers
         return $isFull ? $r : $r["number"];
     }
 
-    public function add($l)
+    public static function add($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -227,7 +211,7 @@ class ats2Numbers
                 );
     }
 
-    public function switchEnabled($l)
+    public static function switchEnabled($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -236,7 +220,7 @@ class ats2Numbers
             self::_db_switchEnabled($numberId, true);
     }
 
-    public function switchDisabled($l)
+    public static function switchDisabled($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -245,7 +229,7 @@ class ats2Numbers
             self::_db_switchEnabled($numberId, false);
     }
 
-    private function _db_switchEnabled($numberId, $isEnabled)
+    private static function _db_switchEnabled($numberId, $isEnabled)
     {
         l::ll(__CLASS__,__FUNCTION__, $numberId, $isEnabled);
         global $db_ats;
@@ -258,7 +242,7 @@ class ats2Numbers
                 );
     }
 
-    public function isNumberEnabled($l)
+    public static function isNumberEnabled($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -268,7 +252,7 @@ class ats2Numbers
         return $r;
     }
 
-    public function isUsed($l)
+    public static function isUsed($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         $numberId = self::getNumberId($l);
@@ -276,14 +260,14 @@ class ats2Numbers
         return (bool)self::getLinkCount($numberId);
     }
 
-    public function getLinkCount($numberId)
+    public static function getLinkCount($numberId)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
         return $db_ats->GetValue("select count(*) from a_link where number_id = '".$numberId."'");
     }
 
-    public function getGroupLinkId($numberId)
+    public static function getGroupLinkId($numberId)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -293,7 +277,7 @@ class ats2Numbers
         return $db_ats->GetValue("select parent_id from a_line where id = '".$firstLineId."'");
     }
 
-    public function getLastGroupId($clientId)
+    public static function getLastGroupId($clientId)
     {
         l::ll(__CLASS__,__FUNCTION__, $clientId);
         global $db_ats;
@@ -302,7 +286,7 @@ class ats2Numbers
     }
 
 
-    public function delFull($l)
+    public static function delFull($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
@@ -313,7 +297,7 @@ class ats2Numbers
         $db_ats->QueryDelete("a_number", array("id" => $numberId));
     }
 
-    public function getTarif($usageId)
+    public static function getTarif($usageId)
     {
         global $db;
         
@@ -331,7 +315,7 @@ class ats2Numbers
 
 class ats2Diff
 {
-    public function apply(&$diff)
+    public static function apply(&$diff)
     {
         l::ll(__CLASS__,__FUNCTION__,$diff);
 
@@ -361,7 +345,7 @@ class ats2Diff
             self::updateClients($diff["clients"]);
     }
 
-    private function add(&$d)
+    private static function add(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -369,7 +353,7 @@ class ats2Diff
             ats2NumberAction::add($l);
     }
 
-    private function del(&$d)
+    private static function del(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -377,7 +361,7 @@ class ats2Diff
             ats2NumberAction::del($l);
     }
 
-    private function numOfLineChanged(&$d)
+    private static function numOfLineChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -385,7 +369,7 @@ class ats2Diff
             ats2NumberAction::numOfLineChanged($l);
     }
 
-    private function regionChanged(&$d)
+    private static function regionChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -393,7 +377,7 @@ class ats2Diff
             ats2NumberAction::regionChanged($l);
     }
 
-    private function directionChanged(&$d)
+    private static function directionChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -401,7 +385,7 @@ class ats2Diff
             ats2NumberAction::directionChanged($l);
     }
 
-    private function numberTypeChanged(&$d)
+    private static function numberTypeChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -409,7 +393,7 @@ class ats2Diff
             ats2NumberAction::numberTypeChanged($l);
     }
 
-    private function clientChanged(&$d)
+    private static function clientChanged(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -417,7 +401,7 @@ class ats2Diff
             ats2NumberAction::clientChanged($l);
     }
 
-    private function updateClients(&$d)
+    private static function updateClients(&$d)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
@@ -430,7 +414,7 @@ class ats2Diff
 
 class ats2NumberAction
 {
-    public function add(&$l)
+    public static function add(&$l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -457,7 +441,7 @@ class ats2NumberAction
         }
     }
 
-    public function del(&$l, $lookInDeleted = false)
+    public static function del(&$l, $lookInDeleted = false)
     {
         l::ll(__CLASS__,__FUNCTION__, $l, var_export($lookInDeleted, true));
 
@@ -468,13 +452,13 @@ class ats2NumberAction
         }
     }
 
-    public function delFull(&$l)
+    public static function delFull(&$l)
     {
         if(!isUsed($l))
             delFull($l);
     }
 
-    public function numOfLineChanged($l)
+    public static function numOfLineChanged($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -492,7 +476,7 @@ class ats2NumberAction
             */
     }
     
-    public function regionChanged($l)
+    public static function regionChanged($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -505,7 +489,7 @@ class ats2NumberAction
                 );
     }
 
-    public function directionChanged($l)
+    public static function directionChanged($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -518,7 +502,7 @@ class ats2NumberAction
                 );
     }
 
-    public function numberTypeChanged($l)
+    public static function numberTypeChanged($l)
     {
         l::ll(__CLASS__,__FUNCTION__, $l);
 
@@ -531,7 +515,7 @@ class ats2NumberAction
                 );
     }
 
-    public function clientChanged($l)
+    public static function clientChanged($l)
     {
         global $db_ats;
 
@@ -554,7 +538,7 @@ class ats2NumberAction
 
 class ats2Helper
 {
-    public function autocreateAccounts($usageId, $isTrunk, $isSync = false)
+    public static function autocreateAccounts($usageId, $isTrunk, $isSync = false)
     {
         global $db, $db_ats;
 

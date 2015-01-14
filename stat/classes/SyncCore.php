@@ -5,12 +5,12 @@
 class SyncCore
 {
 
-    private function getCoreApiUrl()
+    private static function getCoreApiUrl()
     {
         return "https://".CORE_SERVER."/core/api/";
     }
 
-    public function addSuperClient($superId)
+    public static function addSuperClient($superId)
     {
         $struct = SyncCoreHelper::getFullClientStruct($superId);
         $action = "import_user_from_stat";
@@ -21,7 +21,7 @@ class SyncCore
         }
     }
 
-    public function addAccount($clientId, $isResetProductState = false)
+    public static function addAccount($clientId, $isResetProductState = false)
     {
         $cl = ClientCard::find('first', array("id" => $clientId));
 
@@ -68,14 +68,14 @@ class SyncCore
 
     }
 
-    private function _checkNeedSyncProducts($client)
+    private static function _checkNeedSyncProducts($client)
     {
         echo "\n== [_checkNeedSyncProducts](".$client.")\n";
         self::checkProductState('phone', array(0, $client));
         self::checkProductState('vpbx', array(0, $client));
     }
 
-    public function addEmail($param)
+    public static function addEmail($param)
     {
         $email = ClientContact::find("first", array("id" => $param["contact_id"], "client_id" => $param["client_id"]));
 
@@ -95,7 +95,7 @@ class SyncCore
         }
     }
 
-    public function updateAdminPassword($clientId)
+    public static function updateAdminPassword($clientId)
     {
         $struct = false;
         $action = "sync_user_password_from_stat";
@@ -116,7 +116,7 @@ class SyncCore
         }
     }
 
-    public function checkProductState($product, $param)
+    public static function checkProductState($product, $param)
     {
         if ($product == "phone" && !defined("PHONE_SERVER") || !PHONE_SERVER) return;
 
@@ -153,7 +153,7 @@ class SyncCore
         return $action;
     }
 
-    public function adminChanged($clientId)
+    public static function adminChanged($clientId)
     {
         $action = "update_admin_from_stat";
 

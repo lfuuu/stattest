@@ -3,7 +3,7 @@
 
 class JSONQuery
 {
-    public function exec($url, $data, $isPostJSON = true)
+    public static function exec($url, $data, $isPostJSON = true)
     {
         self::log($url, $data);
 
@@ -71,7 +71,7 @@ class JSONQuery
         return $result;
     }
 
-    private function log($url, $data)
+    private static function log($url, $data)
     {
 
         $f = fopen("/tmp/json_query_log", "a+");

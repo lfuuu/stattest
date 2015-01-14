@@ -500,6 +500,13 @@ class DbFormUsageVoip extends DbForm {
             $region = $this->data['region'];
             $client = $this->data["client"];
         }else{
+            $this->fields['ats3']=array(
+                "type" => "include", 
+                "file" => "services/voip_ats3_add.tpl"
+            );
+
+            $design->assign("form_ats3", $this->makeFormData());
+
             $region = $this->fields['region']['default'];
             $client = $fixclient_data["client"];
         }
@@ -560,6 +567,12 @@ class DbFormUsageVoip extends DbForm {
         
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_voip');
         $v=DbForm::Process();
+
+        if ($v == "add") //ats3
+        {
+            $this->processAts3FormAdd($this->dbform["id"]);
+        }
+
         if ($v=='add' || $v=='edit') {
             $b = 1;
             if ($this->dbform['t_id_tarif'] == 0) $b=0;
@@ -656,6 +669,40 @@ class DbFormUsageVoip extends DbForm {
         }
         voipNumbers::check();
         return $v;
+    }
+
+    private function makeFormData()
+    {
+        global $db, $fixclient_data;
+
+        if (!is_array($fixclient_data) || !isset($fixclient_data["client"])) {
+            throw new Exception("Клиент не найден");
+        }
+
+        $client = $fixclient_data["client"];
+        $data = [
+            "vpbxs" => $db->AllRecordsAssoc("select id, concat('id:', id, ' (',actual_from,')') as name from usage_virtpbx where client='".$client."' and cast(now() as date) between actual_from and actual_to", "id", "name"),
+            "multis" => $db->AllRecordsAssoc("select id, name from multitrunk order by name", "id", "name")
+            ];
+
+
+        return $data;
+    }
+
+    private function processAts3FormAdd($usageId)
+    {
+        if (!get_param_raw("voip_ats3_add")) return;
+
+        $data = ["usage_id" => $usageId, "client" => $this->data["client"], "number" => $this->data["E164"]];
+
+        foreach(["type_connect", "sip_accounts", "vpbx_id", "multitrunk_id"] as $f) {
+            $data[$f] = get_param_raw($f);
+        }
+
+        $usage = \app\models\UsageVoip::findOne(["id" => $usageId]);
+        $usage->create_params = json_encode($data);
+        $usage->save();
+
     }
 
     private function check_number()
