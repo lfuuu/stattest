@@ -1,4 +1,7 @@
 <?php
+
+use app\classes\StatModule;
+
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
 header("Content-Type: text/html; charset=UTF-8");
@@ -23,7 +26,7 @@ if ($action=='add_client') {
 
 	if(empty($P["company"]))
 	{
-		die("error: ��� �������� �� ������!");
+		die("error: Название компании не задано!");
 	}
 
     $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_real_escape_string($P["company"], $db->_LinkId)."'");
@@ -69,6 +72,19 @@ if ($action=='add_client') {
             $O->admin_is_active = 0;
             $O->Apply();
         }
+
+        $R = array(
+            'trouble_type' => 'connect',
+            'trouble_subtype' => 'connect',
+            'client' => "id".$O->id,
+            'date_start' => date('Y-m-d H:i:s'),
+            'date_finish_desired' => date('Y-m-d H:i:s'),
+            'problem' => "Входящие клиент с сайта: ".$P["company"],
+            'user_author' => "system"
+        );
+
+        StatModule::tt()->createTrouble($R, "system");
+
 		echo 'ok:'.$O->id;
 	} else {
 		echo 'error:';
@@ -108,7 +124,7 @@ if ($action=='add_client') {
 
 
         	$comment = get_param_raw("comment","");
-        	$s["comment"] = ($comment ? $comment."<hr>" : "")."������ �������� � stat";
+        	$s["comment"] = ($comment ? $comment."<hr>" : "")."заявка передана в stat";
 
         	$db->QueryUpdate("tt_stages", "stage_id", $s);
         	$sId = $db->QueryInsert("tt_stages", $R);
