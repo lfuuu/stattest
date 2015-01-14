@@ -2,6 +2,7 @@
 namespace app\classes;
 
 use Yii;
+use app\models\ClientGrid;
 
 
 class Navigation
@@ -11,40 +12,7 @@ class Navigation
     private function __construct()
     {
         $this->addBlockForStatModule('clients');
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('client_telecom')
-                ->setTitle('Телеком')
-                    ->addItem('Продажи', '/clients/index?bp=2')
-                    ->addItem('Сопровождение', '/clients/index?bp=1') 
-               // ->addItem('Ссылка 3', ['test/index', 'zzz'=>'qwe'])
-        );
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('client_ecommerce')
-                ->setTitle('Интернет магазин')
-                    ->addItem('Заказы магазина', '/?module=tt&action=view_type&type_pk=4')
-                    ->addItem('Сопровождение', '/clients/index?bp=4') 
-
-        );
-        
-       $this->addBlock(
-            NavigationBlock::create()
-                ->setId('client_procurement')
-                ->setTitle('Закупки')
-                    ->addItem('Заказы поставщиков', '/?module=tt&action=view_type&type_pk=7')
-                    ->addItem('Сопровождение', '/clients/index?bp=6') 
-
-        );
-       
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('client_operator')
-                ->setTitle('Операторы')
-                    ->addItem('Сопровождение', '/clients/index?bp=7') 
-
-        ); 
-        
+        $this->addBlockNewClients();
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
         $this->addBlockForStatModule('tarifs');
@@ -89,6 +57,7 @@ class Navigation
     {
         $this->blocks[] = $block;
     }
+    
 
     private function addBlockForStatModule($moduleName)
     {
@@ -110,6 +79,31 @@ class Navigation
         }
 
         $this->addBlock($block);
+    }
+    
+    private function addBlockNewClients()
+    {
+        
+        $blocks_rows = ClientGrid::menuAsArray();
+        
+        foreach($blocks_rows as $block_row)
+        {
+            
+            $block = NavigationBlock::create()
+                ->setId('client_'.$block_row['id'])
+                ->setTitle($block_row['name']);
+            
+            foreach($block_row['items'] as $item)
+            {   
+
+                $block->addItem($item['name'],$item['link']);
+            }
+                    
+            $this->addBlock($block);
+
+       
+        }
+        
     }
 
 }
