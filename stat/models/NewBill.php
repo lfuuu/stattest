@@ -27,7 +27,7 @@ class NewBill extends ActiveRecord\Model
 
         //unpayed
         $b = NewBill::find('first', array(
-                    "conditions" => array("client_id = ? and is_payed in (0,2) and currency=? and bill_date > ?", $clientId, "RUR", $fromDate), // 0 - not paid, 1 - fully paid, 2 - partly paid
+                    "conditions" => array("client_id = ? and is_payed in (0,2) and currency=? and bill_date > ?", $clientId, "RUB", $fromDate), // 0 - not paid, 1 - fully paid, 2 - partly paid
                     "limit" => 1,
                     "order" => "bill_date"
                     )
@@ -38,7 +38,7 @@ class NewBill extends ActiveRecord\Model
 
         //last bill
         $b = NewBill::find('first', array(
-                    "conditions" => array("client_id = ? and is_payed = 1 and currency=? and bill_date > ?", $clientId, "RUR", $fromDate),
+                    "conditions" => array("client_id = ? and is_payed = 1 and currency=? and bill_date > ?", $clientId, "RUB", $fromDate),
                     "limit" => 1,
                     "order" => "bill_date desc"
                     )
@@ -74,7 +74,7 @@ class NewBill extends ActiveRecord\Model
      */
     public static function createBillOnPay($clientId, $paySum, $createAutoLkLog = false)
     {
-        $currency = "RUR";
+        $currency = "RUB";
         $bill = new Bill(null,$clientId,time(),0,$currency, true, true);
         $bill->AddLine($currency, "Авансовый платеж за услуги связи",1, $paySum/1.18, "zadatok");
         $bill->Save();

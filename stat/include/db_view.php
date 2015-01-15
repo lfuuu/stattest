@@ -152,14 +152,14 @@ class DbViewCommonTarif extends DbView {
 		$this->SQLFilters['s']='status="special"';
 		$this->SQLFilters['su']='status="adsl_su"';
 		$this->SQLFilters['USD']='currency="USD"';
-		$this->SQLFilters['RUR']='currency="RUR"';
+		$this->SQLFilters['RUB']='currency="RUB"';
 		$this->SQLFilterNames['p']='публичный';
 		$this->SQLFilterNames['a']='архивный';
 		$this->SQLFilterNames['s']='специальный';
 		$this->SQLFilterNames['su']='adsl.su';
 		$this->SQLFilterNames['USD']='USD';
-		$this->SQLFilterNames['RUR']='RUR';
-		$this->SQLFilterGroups=array('Тип тарифа'=>array('p','a','s','su'),'Валюта тарифа'=>array('USD','RUR'));
+		$this->SQLFilterNames['RUB']='RUB';
+		$this->SQLFilterGroups=array('Тип тарифа'=>array('p','a','s','su'),'Валюта тарифа'=>array('USD','RUB'));
 		$this->filters=array('p','USD');
 		$this->constructChild();
 		parent::__construct();
@@ -213,7 +213,7 @@ class DbViewTarifsInternet extends DbViewCommonTarif {
 class DbFormTarifsInternet extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_internet');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный','adsl_su'=>'adsl.su'));
 		$this->fields['type']=array('assoc_enum'=>array('I'=>'Интернет (I)','V'=>'VPN (V)','C'=>'Collocation (C)'));
 		$this->fields['type_internet']=array('assoc_enum'=>array('standard'=>'Обычный','wimax'=>'WiMAX','collective'=>'Коллективный'));
@@ -236,7 +236,7 @@ class DbFormTarifsInternet extends DbFormSimpleLog {
 class DbFormTarifsCollocation extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_internet');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['type']=array('assoc_enum'=>array('I'=>'Интернет (I)','V'=>'VPN (V)','C'=>'Collocation (C)'),'default'=>'C');
 		$this->fields['name']=array();
@@ -269,7 +269,7 @@ class DbViewTarifsHosting extends DbViewCommonTarif {
 class DbFormTarifsHosting extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_hosting');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['name']=array();
 		$this->fields['pay_once']=array('default'=>'0');
@@ -297,7 +297,7 @@ class DbViewPriceVoip extends DbViewCommonTarif {
 			'destination_prefix'=>'Префикс',
 			'Стоимость минуты'=>array(
 				'rate_USD'=>'В долларах',
-				'rate_RUR'=>'В рублях'
+				'rate_RUB'=>'В рублях'
 			),
 			'Направление'=>array(
 				'dgroup'=>'Группа',
@@ -333,7 +333,7 @@ class DbFormPriceVoip extends DbFormSimpleLog {
 		global $user;
 		if(in_array($user->Get('user'),array('sfilatov','dns','bnv','mak','pma'))){
 			$this->fields['rate_USD']=array('default'=>'0.00');
-			$this->fields['rate_RUR']=array('default'=>'0.00');
+			$this->fields['rate_RUB']=array('default'=>'0.00');
 			$this->fields['priceid']=array('default'=>'0');
 		}
 		$this->fields['dgroup']=array('default'=>0,'assoc_enum'=>array(0=>'Москва',1=>'Россия',2=>'Международное'));
@@ -371,7 +371,7 @@ class DbViewTarifsExtra extends DbViewCommonTarif {
 class DbFormTarifsExtra extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['description']=array();
 		$this->fields['code']=array('assoc_enum'=>array(
@@ -557,7 +557,7 @@ class DbViewTarifsWellSystem extends DbView{
 class DbFormTarifsITPark extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('enum'=>array('itpark'),'type'=>'hidden','default'=>'itpark');
 		$this->fields['description']=array();
 		$this->fields['code']=array('assoc_enum'=>array(''=>'','confroom'=>'Конференц-зал','workingtable'=>'Рабочее место'));
@@ -580,7 +580,7 @@ class DbFormTarifsITPark extends DbFormSimpleLog {
 class DbFormTarifsWelltime extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		//$this->fields['status']=array('enum'=>array('public'),'type'=>'hidden','default'=>'public');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','archive'=>'архивный'));
 		//$this->fields['status']=array('enum'=>array('itpark'),'type'=>'hidden','default'=>'itpark');
@@ -597,7 +597,7 @@ class DbFormTarifsWelltime extends DbFormSimpleLog {
 class DbFormTarifsVirtpbx extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_virtpbx');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['description']=array();
 		$this->fields['price']=array('default'=>0);
@@ -615,7 +615,7 @@ class DbFormTarifsVirtpbx extends DbFormSimpleLog {
 class DbFormTarifs8800 extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_8800');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','archive'=>'архивный'));
 		$this->fields['description']=array();
 		$this->fields['price']=array('default'=>0);
@@ -626,7 +626,7 @@ class DbFormTarifs8800 extends DbFormSimpleLog {
 class DbFormTarifsSms extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_sms');
-		$this->fields['currency']=array('type' => 'hidden', 'default'=>'RUR');
+		$this->fields['currency']=array('type' => 'hidden', 'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','archive'=>'архивный'));
 		$this->fields['description']=array();
 		$this->fields['per_month_price']=array('default'=>0);
@@ -638,7 +638,7 @@ class DbFormTarifsSms extends DbFormSimpleLog {
 class DbFormTarifsWellSystem extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('tarifs_extra');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('enum'=>array('public'),'type'=>'hidden','default'=>'public');
 		//$this->fields['status']=array('enum'=>array('itpark'),'type'=>'hidden','default'=>'itpark');
 		$this->fields['description']=array();
@@ -665,7 +665,7 @@ class DbViewBillMonthlyaddReference extends DbViewCommonTarif {
 class DbFormBillMonthlyaddReference extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('bill_monthlyadd_reference');
-		$this->fields['currency']=array('enum'=>array('USD','RUR'),'default'=>'RUR');
+		$this->fields['currency']=array('enum'=>array('USD','RUB'),'default'=>'RUB');
 		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
 		$this->fields['description']=array();
 		$this->fields['price']=array();

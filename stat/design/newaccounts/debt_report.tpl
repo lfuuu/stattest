@@ -156,7 +156,7 @@ function doSaveComment(billNo)
 <td style='font-size:85%'>{$item.company}</td>
 <td>{$item.manager}</td>
 <td>{$item.bill_date} - <a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$item.bill_no}'>{$item.bill_no}</a></td>
-<td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$ {if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rur} р</span>{/if}{else}р.{/if} </td>
+<td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$ {if $item.gen_bill_rub!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rub} р</span>{/if}{else}р.{/if} </td>
 <td align=center>{$item.debt.sum|round:2}{if $item.debt.currency=='USD'}${else}р.{/if} </td>
 <td onselect="return false" ondblclick="doDBL(this, '{$item.bill_no}')" align=center{if $item.bill_nal!='beznal'} bgcolor='#{if $item.bill_nal == "nal"}FFC0C0{else}C0C0FF{/if}'{/if}>{$item.bill_nal}</td>
 <td ondblclick="doDBL_courer(this, '{$item.bill_no}','{$item.courier_id}')">{$item.courier|replace:"-":""}</td>
@@ -171,8 +171,8 @@ function doSaveComment(billNo)
 </tr>
 <tr style='background:#FFFFFF'>
 <td colspan=5 align=right><b>Всего по рублёвым счетам:</b></td>
-<td align=right>{$bills_total_RUR.sum|round:2} р</td>
-<td align=center>{$bills_total_RUR.saldo|round:2} р</td>
+<td align=right>{$bills_total_RUB.sum|round:2} р</td>
+<td align=center>{$bills_total_RUB.saldo|round:2} р</td>
 </tr>
 </TABLE>
 {/if}

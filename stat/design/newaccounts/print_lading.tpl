@@ -494,7 +494,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <table cellspacing=0 cellpadding=0 border=0 width=100% class=z11><tbody>
 
 <tr>
-<td align="left" valign="top" colspan="8" rowspan="2">Всего отпущено на сумму: {$bill.tsum|wordify:'RUR'}</td>
+<td align="left" valign="top" colspan="8" rowspan="2">Всего отпущено на сумму: {$bill.tsum|wordify:'RUB'}</td>
 <td>&nbsp;</td>
 <td align="left" valign="top" colspan="2" style="border-left:1px solid">По доверенности &#8470;</td>
 <td align="center" valign="bottom" style="border-bottom:1px solid">&nbsp;</td>

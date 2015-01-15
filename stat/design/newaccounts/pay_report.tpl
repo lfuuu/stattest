@@ -176,11 +176,11 @@ $( "#to_period" ).datepicker({
 	<td style='font-size:85%'>{$item.comment}</td>
 </tr>{/foreach}
 
-<tr><td colspan=2>Сумма по RUR</td><td>b</td><td></td><td></td><td align=right>{$totals.bRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td>p</td><td></td><td></td><td align=right>{$totals.pRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td>n</td><td></td><td></td><td align=right>{$totals.nRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td>Эл. деньги</td><td></td><td></td><td align=right>{$totals.eRUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
-<tr><td colspan=2>Сумма по RUR</td><td></td><td></td><td></td><td align=right>{$totals.RUR|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUB</td><td>b</td><td></td><td></td><td align=right>{$totals.bRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUB</td><td>p</td><td></td><td></td><td align=right>{$totals.pRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUB</td><td>n</td><td></td><td></td><td align=right>{$totals.nRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUB</td><td>Эл. деньги</td><td></td><td></td><td align=right>{$totals.eRUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan=2>Сумма по RUB</td><td></td><td></td><td></td><td align=right>{$totals.RUB|num_format:true:2}р</td><td></td><td></td><td></td><td></td></tr>
 {if $totals.bUSD+$totals.pUSD+$totals.nUSD!=0}
 	<tr><td colspan=2>Сумма по USD</td><td>b</td><td></td><td></td><td align=right>{$totals.bUSD|num_format:true:2}$</td><td></td><td></td><td></td><td></td></tr>
 	<tr><td colspan=2>Сумма по USD</td><td>p</td><td></td><td></td><td align=right>{$totals.pUSD|num_format:true:2}$</td><td></td><td></td><td></td><td></td></tr>

@@ -1437,7 +1437,7 @@ class ServiceEmails extends ServicePrototype {
         if($p['has_server']>$this->getDatePercent())
             return $R;
 
-        $price = ($this->client['currency']=='RUR'?27 : 1);
+        $price = ($this->client['currency']=='RUB'?27 : 1);
         if($p['email_id']==$this->service['id'])
             $price=0;
 

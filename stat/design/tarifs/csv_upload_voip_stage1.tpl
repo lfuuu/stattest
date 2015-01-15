@@ -20,7 +20,7 @@
 	<td>Обнаруженые префиксы</td>
 	<td>Группа</td>
 	<td>Субгруппа</td>
-	<td>Цена RUR</td>
+	<td>Цена RUB</td>
 	<td>Цена USD</td>
 </tr>
 {foreach from=$upload_lines item='line' key='lkey'}
@@ -60,7 +60,7 @@
 				<option value='99'{if $line.dsubgroup==9} selected='selected'{/if}>Другое</option>
 			</select>
 		</td>
-		<td style='padding:0px 0px 0px 0px'><input type='text' value='{$line.price_RUR}' size='4' name='price_RUR[{$lkey}]' /></td>
+		<td style='padding:0px 0px 0px 0px'><input type='text' value='{$line.price_RUB}' size='4' name='price_RUB[{$lkey}]' /></td>
 		<td style='padding:0px 0px 0px 0px'><input type='text' value='{$line.price_USD}' size='4' name='price_USD[{$lkey}]' /></td>
 	</tr>
 {/foreach}

@@ -21,7 +21,7 @@ class BalanceSimple
                 'bill'=>0,
                 'ts'=>''
             ),
-            'RUR'=>array(
+            'RUB'=>array(
                 'delta'=>0,
                 'bill'=>0,
                 'ts'=>''

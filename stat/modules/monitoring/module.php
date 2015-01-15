@@ -511,7 +511,7 @@ class m_monitoring {
 			array('org', 'priv'),
 			date('Y-m-d', $from),
 			date('Y-m-d', $to),
-			'RUR',
+			'RUB',
 			0
 		);
 		if ($regionId)
