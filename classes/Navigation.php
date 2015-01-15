@@ -2,7 +2,7 @@
 namespace app\classes;
 
 use Yii;
-use app\models\ClientGrid;
+use app\models\ClientGridSettings;
 
 
 class Navigation
@@ -95,7 +95,7 @@ class Navigation
     private function addBlockNewClients()
     {
         
-        $blocks_rows = ClientGrid::menuAsArray();
+        $blocks_rows = ClientGridSettings::menuAsArray();
         
         foreach($blocks_rows as $block_row)
         {
