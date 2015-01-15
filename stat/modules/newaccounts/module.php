@@ -54,8 +54,13 @@ class m_newaccounts extends IModule
         $R=$db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash', 'once', 'tech_deny', 'double', 'deny') ");
         set_time_limit(0);
         session_write_close();
+
+        while (ob_get_level() > 0)
+            ob_end_clean();
+
+
         foreach ($R as $r) {
-            echo $r['client'];
+            echo date("d-m-Y H:i:s").": ".$r['client'];
             try{
                 $this->update_balance($r['id'],$r['currency']);
             }catch(Exception $e)
