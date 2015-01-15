@@ -2,7 +2,7 @@
 
 class VoipReservNumber
 {
-    public function reserv($number, $clientId, $lineCount = 1, $tarifId = null)
+    public static function reserv($number, $clientId, $lineCount = 1, $tarifId = null)
     {
         global $db;
 
@@ -79,7 +79,7 @@ class VoipReservNumber
 
     }
 
-    private function getDefaultTarifs()
+    private static function getDefaultTarifs()
     {
         global $db;
         $res = array('99'=>'156','97'=>'60','98'=>'112','96'=>'0','82'=>'0','95'=>'195','94'=>'178','87'=>'240','88'=>'278','89'=>314,'93'=>'302');
