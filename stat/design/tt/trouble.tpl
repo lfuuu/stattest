@@ -22,7 +22,7 @@
     {if $tt_trouble.service}
         <tr>
             <td align="right">Услуга:</td>
-            <td><a href='pop_services.php?table={$tt_trouble.service}&id={$tt_trouble.service_id}'>{$tt_trouble.service} #{$tt_trouble.service_id}</a></td>
+            <td><a href='pop_services.php?table={$tt_trouble.service}&id={$tt_trouble.service_id}'>{if $tt_trouble.service=="usage_voip"}Телефония {$tt_trouble.number}{else}{$tt_trouble.service} #{$tt_trouble.service_id}{/if}</a></td>
         </tr>
     {/if}
     {if $tt_trouble.bill_no}

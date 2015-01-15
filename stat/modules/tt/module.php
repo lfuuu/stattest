@@ -11,6 +11,7 @@
 */
 use \app\dao\TroubleDao;
 use \app\models\support\TicketComment;
+use \app\models\UsageVoip;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -677,6 +678,16 @@ class m_tt extends IModule{
             $design->assign('ticketComments', $ticketComments);
         }
 
+        if ($trouble["service"] == "usage_voip") {
+            $trouble["number"] = "";
+            $usageVoip = UsageVoip::findOne($trouble["service_id"]);
+
+            if ($usageVoip) {
+                $trouble["number"] = $usageVoip->E164;
+            }
+        }
+
+
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
 
@@ -1181,6 +1192,16 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     if($R[$k]['add_info']["logistic"] == "")$R[$k]['add_info']["logistic"] = "none";
                     $R[$k]['add_info']["logistic_name"] = $lLogistic[$R[$k]['add_info']["logistic"]];
                 }
+
+            if ($r["service"] == "usage_voip")
+            {
+                $R[$k]["number"] = "";
+                $usageVoip = UsageVoip::findOne($r["service_id"]);
+
+                if ($usageVoip) {
+                    $R[$k]["number"] = $usageVoip->E164;
+                }
+            }
         }
 
         if(($flags&1)!=0){
