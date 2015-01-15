@@ -799,7 +799,7 @@ class Bill{
         }elseif(preg_match("/20\d{4}\/\d{4}/", $bill_no))
         {
             return array("type" => "bill", "bill_type" => "1c");
-        }elseif(preg_match("/20\d{4}-\d{4}/", $bill_no)){
+        }elseif(preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)){ // mcn telekom || all4net
             return array("type" => "bill", "bill_type" => "stat");
         }
 
