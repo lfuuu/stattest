@@ -8,11 +8,11 @@ use yii\db\Query;
  * @property int $id
  * @property
  */
-class ClientGrid extends ActiveRecord
+class ClientGridSettings extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'client_bp_grid';
+        return 'grid_settings';
     }
     
     public function getConfigAsArray()
@@ -27,14 +27,14 @@ class ClientGrid extends ActiveRecord
         }
         catch (\yii\base\Exception $e)
         {
-            return;
+            return[];
         }
     }
     
     public static function findDefault($bp_id)
     {
        return self::find()
-                ->where(['client_bp_id' => $bp_id])
+                ->where(['grid_business_process_id' => $bp_id])
                 ->orderBy('default DESC, sort')
                 ->one();
     }
@@ -42,7 +42,7 @@ class ClientGrid extends ActiveRecord
     public static function findByBP($bp_id)
     {
        return self::find()
-                ->where(['client_bp_id' => $bp_id])
+                ->where(['grid_business_process_id' => $bp_id])
                 ->orderBy('sort')
                 ->all();
     }
@@ -52,10 +52,10 @@ class ClientGrid extends ActiveRecord
         $query = new Query();
         $rows = $query->select('ct.id,ct.name')
                     ->from('client_contract_type ct')
-                    ->innerJoin('client_bp bp', 'bp.client_contract_id = ct.id')
+                    ->innerJoin('grid_business_process bp', 'bp.client_contract_id = ct.id')
                     ->groupBy('ct.id')
                     ->orderBy('ct.sort')
-                    ->All();
+                    ->all();
         
         foreach($rows as $row)
             $blocks_rows[$row['id']] = $row;
@@ -64,15 +64,15 @@ class ClientGrid extends ActiveRecord
         {
             $query = new Query();
             $query->addParams([':id' => $block_row['id']]);
-            $bloks_items = $query->select('bp.id, bp.name, link')
-                    ->from('client_bp bp')
+            $blocks_items = $query->select('bp.id, bp.name, link')
+                    ->from('grid_business_process bp')
                     ->orderBy('bp.sort')
                     ->where('bp.client_contract_id = :id')
-                    ->All();
+                    ->all();
             
-            foreach($bloks_items as $item)
+            foreach($blocks_items as $item)
             {
-                if( $item['link'] == null )
+                if ( $item['link'] == null )
                 {
                     $item['link'] = '/clients/index?bp='.$item['id'];
                 }
