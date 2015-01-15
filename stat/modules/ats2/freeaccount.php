@@ -3,7 +3,7 @@
 
 class freeAccount
 {
-    public function get()
+    public static function get()
     {
         $v = reservAccount::get();
         $isReserv = $v ? true : false;
@@ -64,7 +64,7 @@ class freeAccount
 
 
 
-    private function getNextMissedAccount($serial)
+    private static function getNextMissedAccount($serial)
     {
         global $db_ats;
 
@@ -83,7 +83,7 @@ class freeAccount
         return false;
     }
 
-    private function getMaxSerial()
+    private static function getMaxSerial()
     {
         global $db_ats;
 

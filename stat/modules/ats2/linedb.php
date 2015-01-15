@@ -3,7 +3,7 @@
 
 class lineDB
 {
-    public function insert($d)
+    public static function insert($d)
     {
         global $db_ats;
 
@@ -50,7 +50,7 @@ class lineDB
         return $lineId;
     }
 
-    public function update(&$d)
+    public static function update(&$d)
     {
         global $db_ats;
 
@@ -64,14 +64,14 @@ class lineDB
         $db_ats->QueryUpdate("a_connect", "id", $d);
     }
 
-    public function getConnectId($lineId)
+    public static function getConnectId($lineId)
     {
         global $db_ats;
 
         return $db_ats->GetValue("select c_id from a_line where id = '".$lineId."' and ".sqlClient());
     }
 
-    public function bulk_del($numbers)
+    public static function bulk_del($numbers)
     {
 	global $db_ats;
 	foreach ($numbers as $v)
@@ -83,7 +83,7 @@ class lineDB
 		}
 	}
     }
-    public function del($id)
+    public static function del($id)
     {
         global $db_ats;
 
@@ -100,7 +100,7 @@ class lineDB
         }
     }
 
-    private function _del($l)
+    private static function _del($l)
     {
         global $db_ats;
 
