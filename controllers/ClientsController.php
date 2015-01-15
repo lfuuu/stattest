@@ -8,7 +8,7 @@ use yii\grid\GridView;
 use app\classes\yii\McnSqlDataProvider;
 use app\classes\yii\GlyphDataColumn;
 use app\classes\yii\HrefDataColumn;
-use app\models\ClientGrid;
+use app\models\ClientGridSettings;
 use yii\helpers\Url;
 use app\classes\Encoding;
 
@@ -18,14 +18,14 @@ class ClientsController extends BaseController
     public function actionIndex()
     {
 
-        $dataset = ClientGrid::findOne(Yii::$app->request->get('grid'));
+        $dataset = ClientGridSettings::findOne(Yii::$app->request->get('grid'));  
 
-        if( count($dataset) == 0)
+        if( count($dataset) == 0) 
         {
-            $dataset = ClientGrid::findDefault(Yii::$app->request->get('bp', 1));
+            $dataset = ClientGridSettings::findDefault(Yii::$app->request->get('bp', 1));
         }
 
-        $datasets = ClientGrid::findByBP($dataset->client_bp_id);
+        $datasets = ClientGridSettings::findByBP($dataset->grid_business_process_id);
 
         $rows = $datasets;
         $row = $dataset->configAsArray;
