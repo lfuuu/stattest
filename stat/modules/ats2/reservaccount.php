@@ -3,14 +3,14 @@
 
 class reservAccount
 {
-    private function clear()
+    private static function clear()
     {
         global $db_ats;
 
         $db_ats->Query("delete from a_reserv_account where (date+interval 5 minute) < now()");
     }
 
-    public function get()
+    public static function get()
     {
         global $db_ats;
 
@@ -27,7 +27,7 @@ class reservAccount
         return $v;
     }
 
-    public function set($l)
+    public static function set($l)
     {
         global $db_ats;
 
@@ -38,7 +38,7 @@ class reservAccount
                 );
     }
 
-    public function reset() 
+    public static function reset() 
     {
         global $db_ats;
 
@@ -48,7 +48,7 @@ class reservAccount
                 );
     }
 
-    public function isReservedOther($serial)
+    public static function isReservedOther($serial)
     {
         global $db_ats;
 
