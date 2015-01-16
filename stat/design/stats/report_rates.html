@@ -73,44 +73,44 @@
 		</td>
 	</tr>
 	<tr class="odd">
-		<td><a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');optools.friendly.checkAllInSelect('rates_voip[special][rur][]');optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');optools.friendly.checkAllInSelect('rates_voip[public][usd][]');optools.friendly.checkAllInSelect('rates_voip[special][usd][]');optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">Тарифы телефонии</a></td>
+		<td><a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rub][]');optools.friendly.checkAllInSelect('rates_voip[special][rub][]');optools.friendly.checkAllInSelect('rates_voip[archive][rub][]');optools.friendly.checkAllInSelect('rates_voip[public][usd][]');optools.friendly.checkAllInSelect('rates_voip[special][usd][]');optools.friendly.checkAllInSelect('rates_voip[archive][usd][]');return false">Тарифы телефонии</a></td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');optools.friendly.checkAllInSelect('rates_voip[special][rur][]');optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rub][]');optools.friendly.checkAllInSelect('rates_voip[special][rub][]');optools.friendly.checkAllInSelect('rates_voip[archive][rub][]');return false">Рублевые</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[public][rub][]');return false">Публичные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[special][rub][]');return false">Специальные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_voip[archive][rub][]');return false">Архивные</a>
 					</td>
 				</tr>
 				<tr class="even">
 					<td>
-						<select name="rates_voip[public][rur][]" multiple>
-							{foreach from=$rates.voip.public.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.voip.public.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_voip[public][rub][]" multiple>
+							{foreach from=$rates.voip.public.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.voip.public.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_voip[special][rur][]" multiple>
-							{foreach from=$rates.voip.special.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.voip.special.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_voip[special][rub][]" multiple>
+							{foreach from=$rates.voip.special.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.voip.special.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_voip[archive][rur][]" multiple>
-							{foreach from=$rates.voip.archive.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.voip.archive.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_voip[archive][rub][]" multiple>
+							{foreach from=$rates.voip.archive.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.voip.archive.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
@@ -163,45 +163,45 @@
 	</tr>
 	<tr class="even">
 		<td>
-			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');optools.friendly.checkAllInSelect('rates_internet[special][rur][]');optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');optools.friendly.checkAllInSelect('rates_internet[public][usd][]');optools.friendly.checkAllInSelect('rates_internet[special][usd][]');optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">Тарифы интернет</a>
+			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rub][]');optools.friendly.checkAllInSelect('rates_internet[special][rub][]');optools.friendly.checkAllInSelect('rates_internet[archive][rub][]');optools.friendly.checkAllInSelect('rates_internet[public][usd][]');optools.friendly.checkAllInSelect('rates_internet[special][usd][]');optools.friendly.checkAllInSelect('rates_internet[archive][usd][]');return false">Тарифы интернет</a>
 		</td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');optools.friendly.checkAllInSelect('rates_internet[special][rur][]');optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rub][]');optools.friendly.checkAllInSelect('rates_internet[special][rub][]');optools.friendly.checkAllInSelect('rates_internet[archive][rub][]');return false">Рублевые</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[public][rub][]');return false">Публичные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[special][rub][]');return false">Специальные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_internet[archive][rub][]');return false">Архивные</a>
 					</td>
 				</tr>
 				<tr class="even">
 					<td>
-						<select name="rates_internet[public][rur][]" multiple>
-							{foreach from=$rates.internet.I.public.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.internet.public.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_internet[public][rub][]" multiple>
+							{foreach from=$rates.internet.I.public.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.internet.public.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_internet[special][rur][]" multiple>
-							{foreach from=$rates.internet.I.special.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.internet.special.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_internet[special][rub][]" multiple>
+							{foreach from=$rates.internet.I.special.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.internet.special.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_internet[archive][rur][]" multiple>
-							{foreach from=$rates.internet.I.archive.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.internet.archive.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_internet[archive][rub][]" multiple>
+							{foreach from=$rates.internet.I.archive.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.internet.archive.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
@@ -254,45 +254,45 @@
 	</tr>
 	<tr class="odd">
 		<td>
-			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">Тарифы collocation</a>
+			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rub][]');optools.friendly.checkAllInSelect('rates_collocation[special][rub][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rub][]');optools.friendly.checkAllInSelect('rates_collocation[public][usd][]');optools.friendly.checkAllInSelect('rates_collocation[special][usd][]');optools.friendly.checkAllInSelect('rates_collocation[archive][usd][]');return false">Тарифы collocation</a>
 		</td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rub][]');optools.friendly.checkAllInSelect('rates_collocation[special][rub][]');optools.friendly.checkAllInSelect('rates_collocation[archive][rub][]');return false">Рублевые</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[public][rub][]');return false">Публичные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[special][rub][]');return false">Специальные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_collocation[archive][rub][]');return false">Архивные</a>
 					</td>
 				</tr>
 				<tr class="even">
 					<td>
-						<select name="rates_collocation[public][rur][]" multiple>
-							{foreach from=$rates.internet.C.public.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.collocation.public.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_collocation[public][rub][]" multiple>
+							{foreach from=$rates.internet.C.public.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.collocation.public.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_collocation[special][rur][]" multiple>
-							{foreach from=$rates.internet.C.special.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.collocation.special.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_collocation[special][rub][]" multiple>
+							{foreach from=$rates.internet.C.special.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.collocation.special.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_collocation[archive][rur][]" multiple>
-							{foreach from=$rates.internet.C.archive.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.collocation.archive.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_collocation[archive][rub][]" multiple>
+							{foreach from=$rates.internet.C.archive.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.collocation.archive.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
@@ -345,45 +345,45 @@
 	</tr>
 	<tr class="even">
 		<td>
-			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">Тарифы VPN</a>
+			<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rub][]');optools.friendly.checkAllInSelect('rates_vpn[special][rub][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rub][]');optools.friendly.checkAllInSelect('rates_vpn[public][usd][]');optools.friendly.checkAllInSelect('rates_vpn[special][usd][]');optools.friendly.checkAllInSelect('rates_vpn[archive][usd][]');return false">Тарифы VPN</a>
 		</td>
 		<td>
 			<table class="table_style">
 				<tr class="title">
 					<td colspan="3">
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');return false">Рублевые</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rub][]');optools.friendly.checkAllInSelect('rates_vpn[special][rub][]');optools.friendly.checkAllInSelect('rates_vpn[archive][rub][]');return false">Рублевые</a>
 					</td>
 				</tr>
 				<tr class="title">
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rur][]');return false">Публичные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[public][rub][]');return false">Публичные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[special][rur][]');return false">Специальные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[special][rub][]');return false">Специальные</a>
 					</td>
 					<td>
-						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[archive][rur][]');return false">Архивные</a>
+						<a href="#" onclick="optools.friendly.checkAllInSelect('rates_vpn[archive][rub][]');return false">Архивные</a>
 					</td>
 				</tr>
 				<tr class="even">
 					<td>
-						<select name="rates_vpn[public][rur][]" multiple>
-							{foreach from=$rates.internet.V.public.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.vpn.public.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_vpn[public][rub][]" multiple>
+							{foreach from=$rates.internet.V.public.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.vpn.public.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_vpn[special][rur][]" multiple>
-							{foreach from=$rates.internet.V.special.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.vpn.special.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_vpn[special][rub][]" multiple>
+							{foreach from=$rates.internet.V.special.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.vpn.special.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>
 					<td>
-						<select name="rates_vpn[archive][rur][]" multiple>
-							{foreach from=$rates.internet.V.archive.RUR item='r'}
-							<option value="{$r.id}"{if in_array($r.id,$selected.rates.vpn.archive.rur)} selected='selected'{/if}>{$r.name}</option>
+						<select name="rates_vpn[archive][rub][]" multiple>
+							{foreach from=$rates.internet.V.archive.RUB item='r'}
+							<option value="{$r.id}"{if in_array($r.id,$selected.rates.vpn.archive.rub)} selected='selected'{/if}>{$r.name}</option>
 							{/foreach}
 						</select>
 					</td>

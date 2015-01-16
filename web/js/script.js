@@ -220,15 +220,15 @@ function form_ip_ports_get_ports() {
 
 function form_cpe_get_clients(first_load) { 
 	var id_modelval=document.getElementById('id_model').value;
-	document.getElementById('deposit_sumRUR').title='загрузка...';
+	document.getElementById('deposit_sumRUB').title='загрузка...';
 	document.getElementById('deposit_sumUSD').title='загрузка...';
 	options_waiting('client',id_modelval);
     $.getJSON('/index_lite.php?module=routers&action=d_async&res=client&id_model='+id_modelval+'&client='+document.getElementById('client').getAttribute('tag'))
         .done(function(data){
-            if (data.depositUSD && data.depositRUR) {
+            if (data.depositUSD && data.depositRUB) {
                 document.getElementById('deposit_sumUSD').title=data.depositUSD;
-                document.getElementById('deposit_sumRUR').title=data.depositRUR;
-                if (!document.getElementById('deposit_sumRUR').value) document.getElementById('deposit_sumRUR').value=data.depositRUR;
+                document.getElementById('deposit_sumRUB').title=data.depositRUB;
+                if (!document.getElementById('deposit_sumRUB').value) document.getElementById('deposit_sumRUB').value=data.depositRUB;
                 if (!document.getElementById('deposit_sumUSD').value) document.getElementById('deposit_sumUSD').value=data.depositUSD;
             }
             if (data.data) {

@@ -267,8 +267,8 @@
 			$total = $db->GetValue('
 				select 
 					SUM(
-						IF(b.currency="RUR", b.sum, 
-							IF (b.inv_rur > 0, b.inv_rur, 
+						IF(b.currency="RUB", b.sum,
+							IF (b.inv_rub > 0, b.inv_rub,
 								(SELECT 
 									rate 
 								FROM 

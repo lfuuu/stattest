@@ -6,7 +6,7 @@ return [
         'status' => 'public',
         'description' => 'Тариф 8800',
         'period' => 'month',
-        'currency' => 'RUR',
+        'currency' => 'RUB',
         'price' => '300.0000',
         'edit_user' => '188',
         'edit_time' => '2014-10-28 14:42:36',

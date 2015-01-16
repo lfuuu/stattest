@@ -52,8 +52,8 @@ class uniteller {
 			if ($order['status'] == 'Paid' && $order2['status'] != 'Paid') $db->Query("update payments_orders set datepaid=now() where id={$order['ordernumber']}");
 			if ($order['status'] == 'Authorized' && $order2['status'] != 'Authorized') {
 
-				$bill = new Bill(null,$order2['client_id'],time(),0,'RUR');
-				$bill->AddLine('RUR','payment to balance',1,$order2['sum'],'zadatok','','','','');
+				$bill = new Bill(null,$order2['client_id'],time(),0,'RUB');
+				$bill->AddLine('RUB','payment to balance',1,$order2['sum'],'zadatok','','','','');
 				try{
 					$bill->Save();
 				}catch(Exception $e){}
@@ -69,7 +69,7 @@ class uniteller {
 														'payment_rate'=>'1',
 														'type'=>'bank',
 														'sum_rub'=>$order2['sum'],
-														'currency'=>'RUR',
+														'currency'=>'RUB',
 														'sync_1c'=>'yes',
 												));
 												

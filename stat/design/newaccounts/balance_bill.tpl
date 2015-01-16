@@ -29,11 +29,11 @@
 <td style='font-size:85%'>{$item.company}</td>
 <td{if !$item.f_currency} style="background-color: #c0ffc0;"{/if}>{$item.bill_date} - <a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$item.bill_no}'>{$item.bill_no}</a></td>
 <td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$
-{if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rur} р</span>{/if}{else}р{/if}</td>
+{if $item.gen_bill_rub!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rub} р</span>{/if}{else}р{/if}</td>
 <td align=center>{if $item.currency=='USD'}
-	{if $item.pay_sum_usd}{$item.pay_sum_usd} $ = {$item.pay_sum_rur} р{/if}
+	{if $item.pay_sum_usd}{$item.pay_sum_usd} $ = {$item.pay_sum_rub} р{/if}
 {else}
-	{if $item.pay_sum_rur}{$item.pay_sum_rur} р{/if}
+	{if $item.pay_sum_rub}{$item.pay_sum_rub} р{/if}
 {/if}</td>
 {if $b_show_bonus}<td title="{$item.bonus_info|escape}">{$item.bonus}</td>{/if}
 <td>{$item.client_manager}</td>
@@ -46,13 +46,13 @@
 <td align=left>{$clients_count}</td>
 <td align=right><b>Всего по долларовым счетам:</b></td>
 <td align=right>{$bills_total_USD.sum} $</td>
-<td align=center>{$bills_total_USD.pay_sum_usd} $ = {$bills_total_USD.pay_sum_rur} р</td>
+<td align=center>{$bills_total_USD.pay_sum_usd} $ = {$bills_total_USD.pay_sum_rub} р</td>
 </tr>
 <tr style='background:#FFFFFF'>
 <td colspan=4 align=right><b>Всего по рублёвым счетам:</b></td>
-<td align=right>{$bills_total_RUR.sum} р</td>
-<td align=center>{$bills_total_RUR.pay_sum_rur} р</td>
-{if $b_show_bonus}<td align=center>{$bills_total_RUR.bonus} р</td>{/if}
+<td align=right>{$bills_total_RUB.sum} р</td>
+<td align=center>{$bills_total_RUB.pay_sum_rub} р</td>
+{if $b_show_bonus}<td align=center>{$bills_total_RUB.bonus} р</td>{/if}
 </tr>
 </TABLE>
 {/if}

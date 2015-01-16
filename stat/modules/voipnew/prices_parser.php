@@ -658,7 +658,7 @@ class prices_parser
         $objWorksheet = self::open_file($filename);
         if ($objWorksheet === false) return false;
         $fields = array('defcode' => array('t' => 'S', 'v' => 'КОД'),
-            'price' => array('t' => 'F', 'v' => 'Tariff, RuR /min'),
+            'price' => array('t' => 'F', 'v' => 'Tariff, RuB /min'),
         );
         $table = self::read_table($objWorksheet, $fields);
         if ($table === false) return $table;

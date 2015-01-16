@@ -12,6 +12,6 @@
 </select></TD></TR>
 <TR><TD class=left width=40%>{$tarifs_translate.currency}</TD>
 <TD><select class=text name=currency>
-<option value='USD'{if $tarifs_data.currency!='RUR'} selected{/if}>USD</option>
-<option value='RUR'{if $tarifs_data.currency=='RUR'} selected{/if}>RUR</option>
+<option value='USD'{if $tarifs_data.currency!='RUB'} selected{/if}>USD</option>
+<option value='RUB'{if $tarifs_data.currency=='RUB'} selected{/if}>RUB</option>
 </select></TD></TR>

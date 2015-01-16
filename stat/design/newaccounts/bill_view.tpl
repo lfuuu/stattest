@@ -134,7 +134,7 @@
 <table>
 	<tr>
 		<td>Дата проводки:</td><td><b>{$bill.bill_date}</b></td>
-		<td>Валюта проводки:</td><td><b{if $bill.currency=='RUR'} style='color:blue'{/if}>{$bill.currency}</b></td>
+		<td>Валюта проводки:</td><td><b{if $bill.currency=='RUB'} style='color:blue'{/if}>{$bill.currency}</b></td>
 		<td>Исполнитель:</td><td>{if $bill.courier_id != 0}<i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}</td>
 		<td>Предполагаемый тип платежа:</td><td><i{if $bill.nal != "beznal"} style="background-color: {if $bill.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}"{/if}>{$bill.nal}</i></td>
 	</tr>
@@ -226,10 +226,8 @@
 <input type=hidden name=bill value="{$bill.bill_no}">
 {if $bill.currency=='USD'}
 <input type=checkbox value=1 name="bill-2-USD" id=cb1><label for=cb1>Счет в USD (предоплата)</label><br>
-{*<input type=checkbox value=1 name="bill-1-USD" id=cb2><label for=cb2>Счет в USD</label><br>*}
 {/if}
-<input type=checkbox value=1 name="bill-2-RUR" id=cb3><label for=cb3>Счет в RUR (предоплата)</label><br>
-{*<input type=checkbox value=1 name="bill-1-RUR" id=cb4><label for=cb4>Счет в RUR</label><br>*}
+<input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет в RUB (предоплата)</label><br>
 <input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if $client.mail_print =="no"} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
 
 <input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1)</label><br>
@@ -309,13 +307,13 @@ function doFormSend()
 {if $bill.currency=='USD'}
 <table cellspacing=0 cellpadding=10 valign=top border=0 style='border-style:solid;border-color:#808080;border-width:1;margin-top:10px'>
 <tr><td style='padding-top:0px' valign=top><h3>Сформированные:</h3><br>
-{if $bill.inv_rur!=0}Счёт-фактура и акт (1,2,3) {$bill.inv_rur} р, {$bill.inv1_date}<br>{else}
+{if $bill.inv_rub!=0}Счёт-фактура и акт (1,2,3) {$bill.inv_rub} р, {$bill.inv1_date}<br>{else}
 	{if $bill.inv1_rate!=0}Счёт-фактура и акт (1) по курсу {$bill.inv1_rate}, {$bill.inv1_date}<br>{/if}
 	{if $bill.inv2_rate!=0}Счёт-фактура и акт (2) по курсу {$bill.inv2_rate}, {$bill.inv2_date}<br>{/if}
 	{if $bill.inv3_rate!=0}Счёт-фактура и акт (3) по курсу {$bill.inv3_rate}, {$bill.inv3_date}<br>{/if}
 {/if}
 
-{if $bill.gen_bill_rur!=0 || $bill.gen_bill_rate!=0}Счёт {if $bill.gen_bill_rur!=0}= {$bill.gen_bill_rur} р{else}по курсу {$bill.gen_bill_rate}{/if}, {$bill.gen_bill_date}<br>{/if}
+{if $bill.gen_bill_rub!=0 || $bill.gen_bill_rate!=0}Счёт {if $bill.gen_bill_rub!=0}= {$bill.gen_bill_rub} р{else}по курсу {$bill.gen_bill_rate}{/if}, {$bill.gen_bill_date}<br>{/if}
 </td><td style='padding-top:0px;border:0 solid #808080;border-left-width:1' valign=top>
 <h3>Формирование:</h3><br>
 По сумме:<br>

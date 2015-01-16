@@ -110,7 +110,7 @@ function getDefaultTarifs()
                                 where
                                     status='public' and
                                     region='".$region_id."' and
-                                    currency='RUR'
+                                    currency='RUB'
                                 " . (($region_id == '99') ? "AND name LIKE('%".'Базовый'."%')" : '')
         );
         foreach ($tarifs as $r) {

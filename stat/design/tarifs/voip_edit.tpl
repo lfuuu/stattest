@@ -34,7 +34,7 @@
         {$data.currency}
     {else}
         <select name="currency">
-            <option value="RUR"{if 'RUR' eq $data.currency} selected{/if}>RUR</option>
+            <option value="RUB"{if 'RUB' eq $data.currency} selected{/if}>RUB</option>
             <option value="USD"{if 'USD' eq $data.currency} selected{/if}>USD</option>
         </select>
     {/if}

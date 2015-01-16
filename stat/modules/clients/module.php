@@ -1535,7 +1535,7 @@ class m_clients {
             }
 		}
 
-        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, support, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, currency_bill, stamp, nal, telemarketing, sale_channel, uid, site_req_no, signer_positionV, hid_rtsaldo_date, hid_rtsaldo_RUR, hid_rtsaldo_USD, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc"; 
+        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, support, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, currency_bill, stamp, nal, telemarketing, sale_channel, uid, site_req_no, signer_positionV, hid_rtsaldo_date, hid_rtsaldo_RUB, hid_rtsaldo_USD, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc";
 
 		# client_contacts
 		$db->Query('start transaction');
@@ -2210,7 +2210,7 @@ DBG::sql_out($select_client_data);
 					`destination_name`,
 					`destination_prefix`,
 					substring(`destination_prefix` from 2 for 3) `code`,
-					`rate_RUR`
+					`rate_RUB`
 				from
 					`price_voip`
 				where
@@ -2222,7 +2222,7 @@ DBG::sql_out($select_client_data);
 			";
 			$db->Query($query);
 			while($row=$db->NextRecord(MYSQL_ASSOC)){
-				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUR']."</td>\n</tr>";
+				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
 			}
 			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
 		}

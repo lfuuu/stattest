@@ -408,7 +408,7 @@
     </center></div>
 <br>
 {if $inv_is_new3}
-Итого: {$bill.tsum|wordify:'RUR'}
+Итого: {$bill.tsum|wordify:'RUB'}
 {/if}
     <div align="center">
     <table border="0" cellpadding="0" cellspacing="5" align="left">
