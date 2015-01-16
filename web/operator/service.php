@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\StatModule;
+use app\models\Trouble;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -175,30 +176,48 @@ if ($action=='add_client') {
 }elseif($action == "reserve_number")
 {
     $client_id = get_param_integer("client_id", 0);
-	$numbers = mysql_real_escape_string( get_param_raw("number","") );
-	$numbers = $_numbers = explode(',', $numbers);
-	$numbers = "'".implode("','", $numbers)."'";
+    $numbers = mysql_real_escape_string( get_param_raw("number","") );
+    $numbers = $_numbers = explode(',', $numbers);
+    $numbers = "'".implode("','", $numbers)."'";
 
-  $comment = "Reserve numbers: <br/>\n";
-  $res = $db->AllRecords("select number,price from voip_numbers where number in (".$numbers.")");
-  foreach($res as $r)
-  {
-    $comment .= $r['number'].' - '.$r['price']."<br/>\n";
-  }
-  $db->QueryInsert('client_statuses', array('id_client'=>$client_id,'comment'=>$comment,'user'=>'auto'));
+    $comment = "Reserve numbers: <br/>\n";
+    $res = $db->AllRecords("select number,price from voip_numbers where number in (".$numbers.")");
+    foreach($res as $r)
+    {
+        $comment .= $r['number'].' - '.$r['price']."<br/>\n";
+    }
+    $db->QueryInsert('client_statuses', array('id_client'=>$client_id,'comment'=>$comment,'user'=>'auto'));
 
-  $isOk = true;
-  foreach($_numbers as $number)
-  {
-      try{
-          VoipReservNumber::reserv($number, $client_id);
-      } catch (Exception $e)
-      {
-          $isOk = false;
-          mail("adima123@yandex.ru", "voip reserv error", "Number: ".$number.", clientId: ".$client_id."\n".$e->GetMessage());
-      }
-  }
-  echo $isOk ? 1 : 0;
+    $isOk = true;
+    foreach($_numbers as $number)
+    {
+        try{
+            $reservInfo = VoipReservNumber::reserv($number, $client_id);
+
+            if ($reservInfo)
+            {
+                $trouble = Trouble::findOne([
+                    "client" => "id".$client_id,
+                    "trouble_type" => "connect",
+                    "service" => "",
+                    ]
+                );
+
+                if ($trouble)
+                {
+                    $trouble->service = "usage_voip";
+                    $trouble->service_id = $reservInfo["usage_id"];
+                    $trouble->save();
+                }
+            }
+
+        } catch (Exception $e)
+        {
+            $isOk = false;
+            mail("adima123@yandex.ru", "voip reserv error", "Number: ".$number.", clientId: ".$client_id."\n".$e->GetMessage());
+        }
+    }
+    echo $isOk ? 1 : 0;
 
 }elseif($action == "stat_voip")
 {
