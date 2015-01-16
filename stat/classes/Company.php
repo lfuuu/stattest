@@ -436,7 +436,7 @@ class Company
                         "name_" => "Королеву В.В.",
                         "position" => "Генеральный директор",
                         "position_" => "Генерального директора",
-                        "sign" => false
+                        "sign" => array("src" => "sign_kor.png", "width" => 98, "height" => 92),
                         ),
 
 
