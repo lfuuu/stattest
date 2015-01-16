@@ -18,9 +18,8 @@ ALTER TABLE `clients_test`
 MODIFY COLUMN `currency`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `firma`,
 MODIFY COLUMN `currency_bill`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `currency`;
 
--- error
 ALTER TABLE `currency`
-MODIFY COLUMN `id`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST ;
+MODIFY COLUMN `id`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL FIRST;
 
 ALTER TABLE `newbills`
 MODIFY COLUMN `currency`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD' AFTER `client_id`;
@@ -76,6 +75,10 @@ ALTER TABLE `clients_test`
 CHANGE COLUMN `hid_rtsaldo_RUR` `hid_rtsaldo_RUB`  decimal(11,2) NOT NULL DEFAULT 0.00 AFTER `hid_rtsaldo_date`,
 CHANGE COLUMN `credit_RUR` `credit_RUB`  decimal(11,2) NOT NULL DEFAULT 0.00 AFTER `credit_USD`;
 
+ALTER TABLE `newbills`
+CHANGE COLUMN `inv_rur` `inv_rub`  decimal(11,2) NULL DEFAULT 0.00 AFTER `comment`,
+CHANGE COLUMN `gen_bill_rur` `gen_bill_rub`  decimal(11,2) NULL DEFAULT 0.00 AFTER `inv3_date`;
+
 ALTER TABLE `newbills_rtsaldo_changes`
 CHANGE COLUMN `delta_RUR` `delta_RUB`  decimal(11,2) NOT NULL AFTER `client_id`,
 CHANGE COLUMN `sum_RUR` `sum_RUB`  decimal(11,2) NOT NULL AFTER `delta_USD`;
@@ -104,11 +107,9 @@ UPDATE `clients` SET `currency_bill` = 'RUB' WHERE `currency_bill` = 'RUR';
 UPDATE `clients_test` SET `currency` = 'RUB' WHERE `currency` = 'RUR';
 UPDATE `clients_test` SET `currency_bill` = 'RUB' WHERE `currency_bill` = 'RUR';
 
-UPDATE `currency` SET `currency` = 'RUB' WHERE `currency` = 'RUR';
-
 UPDATE `newbills` SET `currency` = 'RUB' WHERE `currency` = 'RUR';
 
-UPDATE `newbills_overprice_aggregate` SET `currency` = 'RUB' WHERE `currency` = 'RUR';
+UPDATE `newbills_overprice_aggregate` SET `rate_currency` = 'RUB' WHERE `rate_currency` = 'RUR';
 
 UPDATE `newpayments` SET `currency` = 'RUB' WHERE `currency` = 'RUR';
 
