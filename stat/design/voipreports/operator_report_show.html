@@ -27,7 +27,7 @@
   <b>(идет расчет)</b>
   {else}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}"">Рассчет объемов</a>
+    <a href="?module=voipreports&action=calc_volume&report_type=pricelist&report_id={$rep->id}">Рассчет объемов</a>
   {/if}
 
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -105,15 +105,15 @@ tr.lock td {
 <tr class="{cycle values='even,odd'} {if $rd.locked=='t'}lock{/if} " value="{$rd.locked}">
   <td>{$rd.prefix}</td>
   <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
-  <td nowrap align=center style="min-width: 50px;">{$rd.amount_op}</td>
-  <td nowrap align=center style="min-width: 50px;">{$rd.count}</td>
-  <td nowrap align=center style="min-width: 50px;">{$rd.volume}</td>
-  <td nowrap align=center style="min-width: 50px;">{$rd.amount_op}</td>
+  <td nowrap align=center style="min-width: 50px;">{if isset($rd.amount_op)}{$rd.amount_op}{/if}</td>
+  <td nowrap align=center style="min-width: 50px;">{if isset($rd.count)}{$rd.count}{/if}</td>
+  <td nowrap align=center style="min-width: 50px;">{if isset($rd.volume)}{$rd.volume}{/if}</td>
+  <td nowrap align=center style="min-width: 50px;">{if isset($rd.amount)}{$rd.amount}{/if}</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
     <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if $rd.parts[$i].price != 'NULL'}{$rd.parts[$i].price|replace:'.':','}{/if}</td>
-    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].count}</td>
-    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].volume}</td>
-    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{$rd.parts[$i].amount}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if isset($rd.parts[$i].count)}{$rd.parts[$i].count}{/if}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if isset($rd.parts[$i].volume)}{$rd.parts[$i].volume}{/if}</td>
+    <td nowrap align=center style="min-width: 50px;" class="{if $best_p==$p}best{/if}">{if isset($rd.parts[$i].amount)}{$rd.parts[$i].amount}{/if}</td>
   {/foreach}
 </tr>
 {/foreach}
@@ -121,15 +121,15 @@ tr.lock td {
 <tr>
   <td><b>ИТОГО:</b></td>
   <td>&nbsp;</td>
-  <td nowrap align=center><b>{$totals.all.amount_op}</b> р.</td>
-  <td nowrap align=center><b>{$totals.all.count}</b></td>
-  <td nowrap align=center><b>{$totals.all.volume}</b> м.</td>
-  <td nowrap align=center><b>{$totals.all.amount}</b> р.</td>
+  <td nowrap align=center><b>{if isset($totals.all.amount_op)}{$totals.all.amount_op}{/if}</b> р.</td>
+  <td nowrap align=center><b>{if isset($totals.all.count)}{$totals.all.count}{/if}</b></td>
+  <td nowrap align=center><b>{if isset($totals.all.volume)}{$totals.all.volume}{/if}</b> м.</td>
+  <td nowrap align=center><b>{if isset($totals.all.amount)}{$totals.all.amount}{/if}</b> р.</td>
   {foreach from=$rep->pricelist_ids key='i' item='p'}
   <td nowrap align=center>&nbsp;</td>
-  <td nowrap align=center><b>{$totals[$i].count}</b></td>
-  <td nowrap align=center><b>{$totals[$i].volume}</b> м.</td>
-  <td nowrap align=center><b>{$totals[$i].amount}</b> р.</td>
+  <td nowrap align=center><b>{if isset($totals[$i].count)}{$totals[$i].count}{/if}</b></td>
+  <td nowrap align=center><b>{if isset($totals[$i].volume)}{$totals[$i].volume}{/if}</b> м.</td>
+  <td nowrap align=center><b>{if isset($totals[$i].amount)}{$totals[$i].amount}{/if}</b> р.</td>
   {/foreach}
 </tr>
 </table>

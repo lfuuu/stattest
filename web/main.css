@@ -1,16 +1,3 @@
-BODY {
-	BACKGROUND: #f5f5f5; MARGIN: 15px 0px 0px;
-	font-size:14px;
-}
-BODY {
-	FONT-FAMILY: Tahoma, Arial, Helvetica, sans-serif;
-}
-TD {
-	FONT-FAMILY: Tahoma, Arial, Helvetica, sans-serif
-}
-FONT {
-	FONT-FAMILY: Tahoma, Arial, Helvetica, sans-serif
-}
 H1 {
 	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-WEIGHT: normal; FONT-SIZE: 160%; PADDING-BOTTOM: 0px; MARGIN: 0px 0px 0.7em; LINE-HEIGHT: 1.1; PADDING-TOP: 0px
 }
@@ -56,18 +43,6 @@ TD.logo-main {
 TD.menu {
 	PADDING-RIGHT: 15px; PADDING-LEFT: 20px; PADDING-TOP: 10px
 }
-A {
-	COLOR: #43657d
-}
-A.visited {
-	COLOR: #43657d
-}
-A:hover {
-	COLOR: #43657d; TEXT-DECORATION: none
-}
-A:active {
-	COLOR: #43657d
-}
 .z13 {
 	FONT-SIZE: 13px
 }
@@ -99,15 +74,6 @@ DIV.submenu {
 	MARGIN-TOP: 10px; FONT-SIZE: 11px; COLOR: #999999
 }
 DIV.submenu A {
-	COLOR: #0d7aae
-}
-A:hover {
-	COLOR: #0d7aae
-}
-A:visited {
-	COLOR: #0d7aae
-}
-A:hover {
 	COLOR: #0d7aae
 }
 DIV.submenu SPAN {

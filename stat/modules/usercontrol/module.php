@@ -1,9 +1,6 @@
 <?
 define('UC_IMAGESIZE',250);
 class m_usercontrol {	
-	var $rights=array(
-					'usercontrol'		=>array('О пользователе','r,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля, изменение всех данных, настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список')
-				);
 	var $actions=array(
 					'default'			=> array('usercontrol','r'),
 					'edit_pass'			=> array('usercontrol','edit_pass'),
@@ -11,7 +8,6 @@ class m_usercontrol {
 					'edit'				=> array('usercontrol','edit_full'),
 					'apply'				=> array('usercontrol','edit_full'),
 
-					'ex_toggle'			=> array('',''),
 					'ex_flag'			=> array('',''),
 				);
 
@@ -26,10 +22,7 @@ class m_usercontrol {
 		
 	
 	}
-	function Install($p){
-		return $this->rights;
-	}
-	
+
 	function GetPanel($fixclient){
 		$R=array();
 		foreach($this->menu as $val){
@@ -98,11 +91,13 @@ class m_usercontrol {
 		$name=get_param_protected('name');
 		$email=get_param_protected('email');
 		$icq=get_param_protected('icq');
+        $show_troubles_on_every_page=get_param_integer('show_troubles_on_every_page', 0);
 		$phone_mobile=get_param_protected('phone_mobile');
 		$phone_work=get_param_protected('phone_work');
 		$q_photo=$this->process_photo($user->Get('id'));
-		$db->Query('update user_users set name="'.$name.'",email="'.$email.'",icq="'.$icq.'",phone_work="'.$phone_work.'",phone_mobile="'.$phone_mobile.'"'.$q_photo.' where user="'.$user->Get('user').'"');
-		$user->Authorize();
+		$db->Query('update user_users set name="'.$name.'",email="'.$email.'",icq="'.$icq.'",phone_work="'.$phone_work.'",phone_mobile="'.$phone_mobile.'"'.$q_photo.', show_troubles_on_every_page="'.$show_troubles_on_every_page.'" where user="'.$user->Get('user').'"');
+        $user->loadUserData();
+        $design->assign('authuser', $user->_Data);
 		$this->usercontrol_edit();
 	}
 
@@ -206,18 +201,7 @@ class m_usercontrol {
 		}
 		return $q_photo;
 	}
-	
-	function usercontrol_ex_toggle(){
-		global $db,$user;
-		if (!access('usercontrol','edit_panels')) exit;
-		$panel=get_param_protected('panel'); if (!$panel) exit;
-		$value=get_param_integer('value');
-		$data=$user->Get('data_panel');
-		if (!is_array($data)) $data=array();
-		$data[$panel]=$value;
-		$db->Query('update user_users set data_panel="'.AddSlashes(serialize($data)).'" where id='.$user->Get('id'));
-		exit;
-	}
+
 	function usercontrol_ex_flag(){
 		global $db,$user;
 		if (!access('usercontrol','edit_flags')) exit;

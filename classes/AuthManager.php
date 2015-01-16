@@ -4,6 +4,7 @@ namespace app\classes;
 use app\models\User;
 use app\models\UserGrantGroups;
 use app\models\UserGrantUsers;
+use app\models\UserRight;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\rbac\BaseManager;
@@ -275,4 +276,39 @@ class AuthManager extends BaseManager
         throw new NotSupportedException();
     }
 
+    public function updateDatabase()
+    {
+        $rightsConfig = Yii::$app->params['rights'];
+
+        /** @var UserRight[] $userRights */
+        $userRights = UserRight::find()->all();
+        $exists = [];
+
+        // Обновить существующие права
+        foreach ($userRights as $userRight) {
+            if (isset($rightsConfig[$userRight->resource])) {
+                $exists[$userRight->resource] = true;
+
+                $right = $rightsConfig[$userRight->resource];
+                $userRight->comment = $right['name'];
+                $userRight->values = implode(',', array_keys($right['permissions']));
+                $userRight->values_desc = implode(',', array_values($right['permissions']));
+                $userRight->save();
+            } else {
+                $userRight->delete();
+            }
+        }
+
+        // Добавить новые права
+        foreach ($rightsConfig as $resource => $right) {
+            if (!isset($exists[$resource])) {
+                $userRight = new UserRight();
+                $userRight->resource = $resource;
+                $userRight->comment = $right['name'];
+                $userRight->values = implode(',', array_keys($right['permissions']));
+                $userRight->values_desc = implode(',', array_values($right['permissions']));
+                $userRight->save();
+            }
+        }
+    }
 }

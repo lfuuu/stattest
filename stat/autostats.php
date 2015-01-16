@@ -7,7 +7,7 @@
 	set_time_limit(0);
 	require_once(INCLUDE_PATH.'mysmarty.php');
 	@include_once (MODULES_PATH."/stats/module.php");
-	global $module_stats;
+
 	$module_stats = new m_stats();
 
 	$def=getdate();

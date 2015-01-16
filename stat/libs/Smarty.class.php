@@ -628,7 +628,10 @@ class Smarty
             // $tpl_var is an array, ignore $value
             foreach ($tpl_var as $_key => $_val) {
                 if ($_key != '') {
-                    if(!@is_array($this->_tpl_vars[$_key])) {
+                    if (!isset($this->_tpl_vars[$_key])) {
+                        $this->_tpl_vars[$_key] = [];
+                    }
+                    if(!is_array($this->_tpl_vars[$_key])) {
                         settype($this->_tpl_vars[$_key],'array');
                     }
                     if($merge && is_array($_val)) {
@@ -642,7 +645,10 @@ class Smarty
             }
         } else {
             if ($tpl_var != '' && isset($value)) {
-                if(!@is_array($this->_tpl_vars[$tpl_var])) {
+                if (!isset($this->_tpl_vars[$tpl_var])) {
+                    $this->_tpl_vars[$tpl_var] = [];
+                }
+                if(!is_array($this->_tpl_vars[$tpl_var])) {
                     settype($this->_tpl_vars[$tpl_var],'array');
                 }
                 if($merge && is_array($value)) {

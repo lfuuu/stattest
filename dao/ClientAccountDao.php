@@ -16,7 +16,7 @@ class ClientAccountDao extends Singleton
         return ClientAccount::getDb()->createCommand("
                 select max(b.bill_date)
                 from newbills b, newbill_lines bl
-                where b.client_id=:clientAccountId and b.bill_no=bl.bill_no and bl.id_service > 0
+                where b.client_id=:clientAccountId and day(b.bill_date) = 1 and b.bill_no=bl.bill_no and bl.id_service > 0
             ",
             [':clientAccountId' => $clientAccountId]
         )->queryScalar();

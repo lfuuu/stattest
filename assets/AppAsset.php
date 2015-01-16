@@ -14,24 +14,27 @@ class AppAsset extends AssetBundle
     public $baseUrl = '@web';
 
     public $css = [
+        'css/themes/base/jquery-ui.css',
         'main.css',
         'css/site.css',
-        'lib/select2/select2.css',
-        'css/themes/base/jquery-ui.css',
+        'css/grid/grid.css',
     ];
 
     public $js = [
-        'js/JsHttpRequest.js',
-        'js/script.js',
-        'js/jquery.js',
+        'lib/meiomask.min.js',
         'js/ui/jquery-ui.custom.js',
+        'js/script.js',
         'js/optools.js',
         'js/statlib/main.js',
-        'js/jquery.meio.mask.min.js',
-        'lib/select2/select2.js',
     ];
 
     public $jsOptions = [
         'position' => View::POS_HEAD,
+    ];
+
+    public $depends = [
+        'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset',
+        'kartik\select2\Select2Asset'
     ];
 }

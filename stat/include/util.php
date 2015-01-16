@@ -94,11 +94,12 @@ function trigger_string($p) {
        return $p;
 }
 function str_protect($str){
+    global $db;
     if(is_array($str)) return $str;
     //вроде как, те 2 строчки лишние
     $str=str_replace("\\","\\\\",$str);
     $str=str_replace("\"","\\\"",$str);
-    return mysql_real_escape_string($str);
+    return $db->escape($str);
 };
 function str_normalize($str){
     $str=str_replace(array("\r","&"),array("","&amp;"),$str);
@@ -771,7 +772,7 @@ class ClientCS {
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
                         "head_company,head_company_address_jur,region,okpo,bill_rename1,nds_calc_method,is_bill_only_contract,is_bill_with_refund,".
-                        "is_with_consignee,consignee,is_agent";
+                        "is_with_consignee,consignee,is_agent,is_upd_without_sign";
                 $t=explode(",",$L);
                 $this->P = array();
                 foreach ($t as $v) $this->P[$v] = $v;
@@ -894,7 +895,7 @@ class ClientCS {
         return $cno;
     }
 
-    public function getClientClient(&$mix)
+    public static function getClientClient(&$mix)
     {
         global $db;
         $c = $db->GetRow("select id,client from clients where '".$mix."' in (client, id) limit 1");
@@ -955,14 +956,14 @@ class ClientCS {
 
     function Create($uid = null){
 
-        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false));
+        $defaultFields = array("status" => "income", "firma" => "mcn_telekom", "password" => password_gen(8, false), "contract_type_id" => 2 /* Телеком-клиент */);
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
                 $this->F[$field] = $defaultValue;
 
         global $db;
         if($this->client!=""){
-            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".mysql_real_escape_string($this->F['client'])."'"))
+            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".$db->escape($this->F['client'])."'"))
                 return false;    //дубликат
         }
         $q1 = '';
@@ -1275,6 +1276,20 @@ class ClientCS {
             $db->QueryUpdate("clients", "id", array("id" => $this->id, "status" => $status));
         }
     }
+
+    function SetContractType($contractTypeId)
+    {
+        global $db;
+        $client = app\models\ClientAccount::findOne($this->id);
+
+        if ($client->contract_type_id != $contractTypeId)
+        {
+            $client->contract_type_id = $contractTypeId;
+            $client->save();
+
+        }
+    }
+
     function GetLastComment() {
         global $db;
         $db->Query("select * from client_statuses where (id_client='".$this->id."') and (comment!='') order by ts desc");
@@ -1824,7 +1839,7 @@ function unix_timestamp($Ymd=null){
 
 class all4geo
 {
-    function getId($billNo, $doerId, $comment, $isTrouble = false)
+    static function getId($billNo, $doerId, $comment, $isTrouble = false)
     {
 
         return false;
@@ -1848,7 +1863,7 @@ class all4geo
         if(strpos($f,"ok") !== false){
             list($ok, $aId) = explode(",", $f);
 
-            $db->Query($z= "update tt_troubles set doer_comment = '".mysql_real_escape_string($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
+            $db->Query($z= "update tt_troubles set doer_comment = '".$db->escape($comment)."', all4geo_id = '".$aId."' where ".($isTrouble ? " id = '".$billNo."'" : "bill_no = '".$billNo."'"));
         }else{
             $pFile = fopen("/home/httpd/stat.mcn.ru/test/log.all4geo.errors", "a+");
             fwrite($pFile, date("r").":".$u." => ".$comment." => ".$f."\n");
@@ -1917,7 +1932,7 @@ class welltime{
 
 class sender
 {
-    function sendICQMsg($user, $msg)
+    static function sendICQMsg($user, $msg)
     {
         global $db;
 
@@ -1966,19 +1981,32 @@ class send
 
 class event
 {
-    function go($event, $param)
+    public static function go($event, $param)
     {
         if (is_array($param))
         {
-            $param = serialize($param);
+            //$param = serialize($param);
+            $param = json_encode($param);
         }
 
-        global $db;
+        $code = md5($event."|||".$param);
 
-        $db->QueryInsert("event_queue", array("event" => $event, "param" => $param));
+        $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+
+        if (!$row)
+        {
+            $row = new EventQueue();
+            $row->event = $event;
+            $row->param = $param;
+            $row->code = $code;
+        } else {
+            $row->iteration = 0;
+            $row->status = 'plan';
+        }
+        $row->save();
     }
 
-    function setReject($bill, $state)
+    public static function setReject($bill, $state)
     {
         if($bill["client_id"] == 15701)
         {

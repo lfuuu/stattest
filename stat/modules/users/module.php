@@ -1,8 +1,5 @@
 <?php
 class m_users {
-	var $rights=array(
-					'users'		=>array('Работа с пользователями','r,change,grant','чтение,изменение,раздача прав')
-				);
 	var $actions=array(
 					'default'		=> array('users','r'),
 					'edit'			=> array('users','change'),
@@ -15,14 +12,12 @@ class m_users {
 					array('Операторы',	'default',	'&m=users'),
 					array('Группы',		'default',	'&m=groups'),
 					array('Отделы',		'default',	'&m=departs'),
+					array('Обновить права в БД', 'default', '&m=update_rights'),
 				);
 
 	function m_users(){
 
 
-	}
-	function Install($p){
-		return $this->rights;
 	}
 
 	function GetPanel($fixclient){
@@ -43,7 +38,7 @@ class m_users {
 		if (!access($act[0],$act[1])) return;
 
 		$m=get_param_raw('m','users');
-		if (!in_array($m,array('users','user','groups','group','depart','departs'))) return;
+		if (!in_array($m,array('users','user','groups','group','depart','departs','update_rights'))) return;
 		$design->assign('CUR','?module=users&m='.$m);
 
 		//внимание! - не .$action, а .$m, для того, чтобы не копировать общий код
@@ -161,11 +156,8 @@ class m_users {
 						trigger_error2('Пароль изменён');
 					} else trigger_error2('Пароли не совпадают');
 				}
-				global $module_usercontrol;
-				if (!isset($module_usercontrol)){
-					trigger_error2('Модуль usercontrol не установлен - фотография меняться не будет');
-					$q_photo='';
-				} else $q_photo=$module_usercontrol->process_photo($id);
+
+				$q_photo=\app\classes\StatModule::usercontrol()->process_photo($id);
 
 				$db->Query('update user_users set '.$add.
 								'user="'.$f['user'].'",' .
@@ -470,6 +462,14 @@ class m_users {
 		return implode(',',$G);
 	}
 
+    public function users_update_rights()
+    {
+        if (access('users','grant')) {
+            $authManager = new \app\classes\AuthManager();
+            $authManager->updateDatabase();
+            Yii::$app->session->addFlash('success', 'Права обновлены');
+        }
+    }
 }
 
 ?>

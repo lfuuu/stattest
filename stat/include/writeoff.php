@@ -527,7 +527,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $clientId = $this->service["client_id"];
                 if($clientId)
                 {
-                    if($str = BillContract::getBillItemString($clientId))
+                    if($str = BillContract::getBillItemString($clientId, $this->date_from))
                     {
                         $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".mb_substr($l[1], mb_strpos($l[1], "(", 0, 'utf-8'), null, 'utf-8');
                         $l[1] .= $str;
@@ -580,7 +580,7 @@ class BillContract
             where 
                     client_id = ".$clientId." 
                 and contract_date <= FROM_UNIXTIME('".$dateTs."')
-            order by is_active desc, id desc 
+            order by is_active desc, contract_date desc, id desc 
             limit 1");
     }
 }
@@ -720,6 +720,15 @@ class ServiceUsageVoip extends ServicePrototype {
 
 
         if($this->date_from_prev && $this->date_to_prev){
+            $percentByDate = $this->GetDatePercent($this->date_from_prev, $this->date_to_prev);
+
+            $minpayment_local_mob   = $percentByDate * $this->tarif_previous['minpayment_local_mob'];
+            $minpayment_russia      = $percentByDate * $this->tarif_previous['minpayment_russia'];
+            $minpayment_intern      = $percentByDate * $this->tarif_previous['minpayment_intern'];
+            $minpayment_sng         = $percentByDate * $this->tarif_previous['minpayment_sng'];
+            $month_min_payment      = $percentByDate * $this->tarif_previous["month_min_payment"];
+            $minpayment_group       = $percentByDate * $this->tarif_previous["minpayment_group"];
+
             $O = array();
             $lines=$this->calc($is7800);
 
@@ -731,36 +740,40 @@ class ServiceUsageVoip extends ServicePrototype {
                     $name = 'Превышение лимита, включенного в абонентскую плату по номеру %NUM% (местные вызовы) %PERIOD%';
                 }elseif($dest == '5'){
 
-                    if ($this->tarif_previous['minpayment_local_mob'] > $price)
+                    if ($minpayment_local_mob > $price)
                     {
-                        $price = $this->tarif_previous['minpayment_local_mob'];
+                        $price = $minpayment_local_mob;
+                        $percent = $percentByDate;
                         $name = 'Минимальный платеж за звонки на местные мобильные с номера %NUM% %PERIOD%';
                     }else
                         $name = 'Плата за звонки на местные мобильные с номера %NUM% %PERIOD%';
                     
                 }elseif($dest == '1'){
 
-                    if ($this->tarif_previous['minpayment_russia'] > $price)
+                    if ($minpayment_russia > $price)
                     {
-                        $price = $this->tarif_previous['minpayment_russia'];
+                        $price = $minpayment_russia;
+                        $percent = $percentByDate;
                         $name = 'Минимальный платеж за междугородные звонки с номера %NUM% %PERIOD%';
                     }else
                         $name = 'Плата за междугородные звонки с номера %NUM% %PERIOD%';
 
                 }elseif($dest == '2'){
 
-                    if ($this->tarif_previous['minpayment_intern'] > $price)
+                    if ($minpayment_intern > $price)
                     {
-                        $price = $this->tarif_previous['minpayment_intern'];
+                        $price = $minpayment_intern;
+                        $percent = $percentByDate;
                         $name = 'Минимальный платеж за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
                     }else
                         $name = 'Плата за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
 
                 }elseif($dest == '3'){
 
-                    if ($this->tarif_previous['minpayment_sng'] > $price)
+                    if ($minpayment_sng > $price)
                     {
-                        $price = $this->tarif_previous['minpayment_sng'];
+                        $price = $minpayment_sng;
+                        $percent = $percentByDate;
                         $name = 'Минимальный платеж за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
                     }else
                         $name = 'Плата за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
@@ -773,9 +786,10 @@ class ServiceUsageVoip extends ServicePrototype {
                     if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE) $group[]='дальнее зарубежье';
                     if (strpos($this->tarif_previous['dest_group'], '3') !== FALSE) $group[]='ближнее зарубежье';
                     $group = implode(', ', $group);
-                    if ($this->tarif_previous['minpayment_group'] > $price)
+                    if ($minpayment_group > $price)
                     {
-                        $price = $this->tarif_previous['minpayment_group'];
+                        $price = $minpayment_group;
+                        $percent = $percentByDate;
                         $name = "Минимальный платеж за набор ($group) с номера %NUM% %PERIOD%";
                     }else
                         $name = "Плата за звонки в наборе ($group) с номера %NUM% %PERIOD%";
@@ -784,11 +798,11 @@ class ServiceUsageVoip extends ServicePrototype {
 
                     if ($is7800)
                     {
-                        $minPayment = $this->tarif_previous["month_min_payment"];
-                        if ($price <= $minPayment)
+                        if ($month_min_payment > $price)
                         {
+                            $price = $month_min_payment;
+                            $percent = $percentByDate;
                             $name = "Минимальный платеж за звонки по номеру %NUM% %PERIOD%";
-                            $price = $minPayment;
                         } else {
                             $name = "Плата за звонки по номеру %NUM% %PERIOD%";
                         }
@@ -800,12 +814,6 @@ class ServiceUsageVoip extends ServicePrototype {
 
                 $name = str_replace('%NUM%', $this->service['E164'], $name);
                 $name = str_replace('%PERIOD%', 'с '.date('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev), $name);
-
-                // минимальный платеж должен выставляться пропорционально использованию услуги
-                if(strpos($name, "Минимальный ") !== false)
-                {
-                    $percent = $this->GetDatePercent($this->date_from_prev, $this->date_to_prev);
-                }
 
                 $R[] = array(
                     $this->tarif_previous['currency'],
@@ -831,7 +839,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "бонентская плата за") !== false)
             {
-                $contractStr = BillContract::getBillItemString($this->service["client_id"]);
+                $contractStr = BillContract::getBillItemString($this->service["client_id"], $this->date_from);
                 if($contractStr)
                 {
                     $l[1] = "Оказанные услуги за ".mb_substr($l[1], mb_strpos($l[1], "за ", 0, 'utf-8')+3, null, 'utf-8').$contractStr;
@@ -841,12 +849,12 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if(strpos($l[1], "Плата за звонки по номеру") !== false)
             {
-                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"]);
+                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"], $this->date_from_prev);
             }
 
             if(strpos($l[1], "Услуга местного завершения вызо") !== false)
             {
-                $l[1] .= BillContract::getBillItemString($this->service["client_id"]);
+                $l[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
             }
 
         }
@@ -1071,7 +1079,7 @@ class ServiceUsageExtra extends ServicePrototype {
         
         if($this->client["bill_rename1"] == "yes")
         {
-            $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
+            $v[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
         }
 
         $R[]=$v;
@@ -1454,7 +1462,7 @@ class ServiceEmails extends ServicePrototype {
 
         if($this->client["bill_rename1"] == "yes")
             foreach($R as &$v)
-                $v[1] .= BillContract::getBillItemString($this->service["client_id"]);
+                $v[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
 
         return $R;
     }

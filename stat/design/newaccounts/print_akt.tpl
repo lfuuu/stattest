@@ -150,7 +150,7 @@
         <td colspan=5 align="right"><b>Итого НДС:</b></td>
         <td align="right">
             {if $bill_client.nds_zero}без НДС{else}
-                {if $bill.tax == 0 && $bill.sum}0.00{else}{$bill.tsum/1.18*0.18|round:2}{/if}
+                {if $bill.tax == 0 && $bill.sum}0.00{else}{$bill.tax|round:2}{/if}
                 | {$bill.doc_sum_tax|round:2}
             {/if}
         </td>
@@ -162,7 +162,7 @@
     </table>
     </center></div>
     <br>
-    Всего оказано услуг на сумму: {$bill.tsum|wordify:'RUR'}{if !$bill_client.nds_zero}<br>В т.ч. НДС: {$bill.tsum/1.18*0.18|round:2|wordify:'RUR'}{else} (Без НДС){/if}<br>
+    Всего оказано услуг на сумму: {$bill.tsum|wordify:'RUR'}{if !$bill_client.nds_zero}<br>В т.ч. НДС: {$bill.tax|round:2|wordify:'RUR'}{else} (Без НДС){/if}<br>
     <br>
     Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.
     <br>

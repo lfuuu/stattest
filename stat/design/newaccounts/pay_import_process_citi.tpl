@@ -10,23 +10,23 @@
 <tr bgcolor=#fffff5><td colspan='4'>
     {if $pay.clients}
         {foreach from=$pay.clients item=client}
- <input type=radio name=pay[{$pay.no}][client] value='{$client.client}'{if $pay.imported || $pay.to_check_bill_only} disabled='disabled'{/if}>
+ <input type=radio name=pay[{$pay.no}][client] value='{$client.client}'{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled='disabled'{/if}>
                 <a href='./?module=newaccounts&action=bill_list&clients_client={if $client.client}{$client.client|escape:'url'}{else}{$client.id}{/if}'>{$client.client}{if $client.currency == "USD"}<font style="color:green;"> ($)</font>{/if}</a> -
                 <span style='font-size:85%'>{$client.full_name} ({$client.manager})
                 </span><br>
         {/foreach}
     {/if}
-	{if !$pay.imported}
+	{if !isset($pay.imported) || !$pay.imported}
 		<input type=radio name=pay[{$pay.no}][client] value=''>не вносить
 	{/if}
 </td>
 </tr>
-<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}Платеж &#8470;{$pay.noref} от {$pay.date}
+<tr bgcolor={if isset($pay.imported) && $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}Платеж &#8470;{$pay.noref} от {$pay.date}
 {if $pay.inn}<br><span style="color: #aaa;">ИНН {$pay.inn}</span>{/if}
-    {if $pay.to_check}<div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания платильшик и компания, вледелец счета не совпадаю!</div>{/if}
-    {if $pay.to_check_bill_only}<br><br><div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания&nbsp;найдена&nbsp;по&nbsp;счету</div>{/if}
-    {if !$pay.clients || $pay.to_check_bill_only}
-{if !$pay.to_check_bill_only}<br/><br/>{/if}<span style="color: gray;">р/с: {$pay.from.account}
+    {if isset($pay.to_check) && $pay.to_check}<div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания платильшик и компания, вледелец счета не совпадаю!</div>{/if}
+    {if isset($pay.to_check_bill_only) && $pay.to_check_bill_only}<br><br><div style="color:#c40000;font: bold 8pt sans-serif;">Внимание! Компания&nbsp;найдена&nbsp;по&nbsp;счету</div>{/if}
+    {if !$pay.clients || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)}
+{if !isset($pay.to_check_bill_only) || !$pay.to_check_bill_only}<br/><br/>{/if}<span style="color: gray;">р/с: {$pay.from.account}
         <br/>бик: {$pay.from.bik}</span>
     {/if}
 <br><br><br><span style="font-size:7pt;" title="{$pay.company|escape}">{$pay.company|truncate:35}</span>
@@ -37,11 +37,11 @@
 <td><b>{$pay.sum}</b> р.</td><td>
 
 {if $pay.clients}
-	<select name=pay[{$pay.no}][bill_no] id=bills_{$pay.no}{if $pay.to_check_bill_only} disabled='disabled'{/if}>
+	<select name=pay[{$pay.no}][bill_no] id=bills_{$pay.no}{if isset($pay.to_check_bill_only) && $pay.to_check_bill_only} disabled='disabled'{/if}>
 		<option value=''>(без привязки)</option>
 		{assign var='is_select' value=false}
 		{foreach from=$pay.clients_bills item=bill name=inner2}
-			{if $bill.is_group}
+			{if isset($bill.is_group) && $bill.is_group}
 				</optgroup>
 				<optgroup label="{$bill.bill_no}">
 			{else}
@@ -54,7 +54,7 @@
 					{elseif $bill.is_payed ==-1}
 						-
 					{/if}
-					{if $bill.ext_no}
+					{if isset($bill.ext_no) && $bill.ext_no}
 						{$bill.ext_no}
 						{if $bill.bill_no_ext_date}
 							({"d-m-Y"|date:$bill.bill_no_ext_date})
@@ -66,18 +66,18 @@
 		{if !$is_select && $pay.bill_no}
 			</optgroup>
 			<optgroup label="Вне списка">
-				<option value={$pay.bill_no} selected>{$pay.bill_no}{if !$pay.imported} !?{/if} ??</option>
+				<option value={$pay.bill_no} selected>{$pay.bill_no}{if !isset($pay.imported) || !$pay.imported} !?{/if} ??</option>
 			</optgroup>
 		{/if}
 	</select>
 {else}
 	<input type=text class=text name=pay[{$pay.no}][bill_no] style='width:100px'>
 {/if}
-<input type=text class=text name=pay[{$pay.no}][usd_rate] style='width:60px' value={$pay.usd_rate}>
-{if $pay.clients && !$is_select && $pay.bill_no && !$pay.imported}<div style="color:#c40000; font: bold 8pt sans-serif;">Внимание!!! Счет в комментариях не найден в счетах клиентов.</div>{/if}
+<input type=text class=text name=pay[{$pay.no}][usd_rate] style='width:60px' value={if isset($pay.usd_rate)}{$pay.usd_rate}{/if}>
+{if $pay.clients && !$is_select && $pay.bill_no && (!isset($pay.imported) || !$pay.imported)}<div style="color:#c40000; font: bold 8pt sans-serif;">Внимание!!! Счет в комментариях не найден в счетах клиентов.</div>{/if}
 </td><td width=50%>
 {$pay.description|escape:"html"}<br>
-<textarea name=pay[{$pay.no}][comment] class=text style='width:100%;font-size:85%'>{$pay.comment}</textarea>
+<textarea name=pay[{$pay.no}][comment] class=text style='width:100%;font-size:85%'>{if isset($pay.comment)}{$pay.comment}{/if}</textarea>
 </td></tr>
 {/foreach}
 </TABLE>
@@ -98,7 +98,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&akt-1=1&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&akt-1=1&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -109,7 +109,7 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF одним файлом" style="padding: 5px;">
 </form>
 </td>
 </tr></table>
@@ -130,7 +130,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&invoice-1=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	<form action="./?module=newaccounts&invoice-1=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -141,7 +141,7 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF одним файлом" style="padding: 5px;">
 </form>
 </td>
 </tr></table>
@@ -160,7 +160,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	<form action="./?module=newaccounts&bill-2-RUR=1&envelope=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -171,7 +171,7 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF одним файлом" style="padding: 5px;">
 </form>
 </td>
 </tr></table>
@@ -186,7 +186,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&upd-1=1&upd-2=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	<form action="./?module=newaccounts&upd-1=1&upd-2=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -197,7 +197,7 @@
 {foreach from=$bills item=bill_no}
 <input type=hidden name=bill[] value="{$bill_no}">
 {/foreach}
-<input type="submit" value="PDF одним файлом" style="padding: 0; margin: 0;">
+<input type="submit" value="PDF одним файлом" style="padding: 5px;">
 </form>
 </td>
 </tr></table>
@@ -212,7 +212,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&action=bill_postreg&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 0; margin: 0;">
+	<form action="./?module=newaccounts&action=bill_postreg&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}

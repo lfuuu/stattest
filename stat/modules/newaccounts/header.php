@@ -3,13 +3,6 @@ class m_newaccounts_head extends IModuleHead{
 	public $module_name = 'newaccounts';
 	public $module_title = 'Бухгалтерия';
 
-	public $rights=array(
-					'newaccounts_bills'			=>array("Счета",'read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета'),
-					'newaccounts_payments'		=>array("Платежи",'read,edit,delete','просмотр,редактирование,удаление'),
-					'newaccounts_mass'			=>array("Массовые операции",'access','доступ'),
-					'newaccounts_balance'		=>array("Баланс",'read','просмотр'),
-					'newaccounts_usd'			=>array("Курс доллара",'access','доступ')
-	);
 	public $actions=array(
 					'bill_list'			=> array('newaccounts_bills','read'),
 					'bill_create'		=> array('newaccounts_bills','edit'),

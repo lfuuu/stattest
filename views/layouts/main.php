@@ -68,15 +68,16 @@ $user = Yii::$app->user->identity;
                 <?= Html::a('Logout', ['site/logout']) ?>
             </div>
         <?php endif; ?>
-
-        <iframe id=toggle_frame src='?module=usercontrol&action=ex_toggle' height=1 width=1 style='display:none'></iframe>
     </div>
 
     <?= $this->render('widgets/left_menu', ['user' => $user]); ?>
+
+    <div style="height: 100px;"></div>
 </div>
 
 <div class="layout_main">
-    <div style="margin-top: 15px; margin-bottom: 40px">
+    <div style="min-height: 70%">
+    <div id="top_search" style="margin-top: 15px; margin-bottom: 40px">
         <?php if (Yii::$app->user->can('clients.read')): ?>
             <?= $this->render('widgets/search') ?>
         <?php endif; ?>
@@ -86,9 +87,14 @@ $user = Yii::$app->user->identity;
 
     <?= $content ?>
 
-</div>
+    </div>
 
-<div style="clear: left"></div>
+    <div style="padding: 15px; margin-top: 100px">
+        <a href="http://www.mcn.ru/"><img height=16 src="images/logo_msn_s.gif" width=58 border=0/></a><br/>
+        <span style="color: #666">©2014 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
+    </div>
+
+</div>
 
 <?php $this->endBody() ?>
 
@@ -113,9 +119,9 @@ $user = Yii::$app->user->identity;
         showMonthAfterYear: false,
         yearSuffix: ''};
     $(document).ready(function(){
+        $('.select2').select2();
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
-        $('.select2').select2();
     });
 </script>
 

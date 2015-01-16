@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 # 1 | открыт
 # 2 | закрыт
@@ -9,6 +9,8 @@
   7 | выполнен
   8 | отработано
 */
+use \app\dao\TroubleDao;
+use \app\models\support\TicketComment;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -55,6 +57,15 @@ class m_tt extends IModule{
         $mode = get_param_integer('mode',$f);
         if($mode>=2)
             $user->SetFlag('tt_tasks',$mode);
+        if ($mode == 2) {
+            $_SESSION['clients_filter'] = '';
+            $_SESSION['clients_my'] = '';
+            $_SESSION['clients_client'] = '';
+            $GLOBALS['fixclient'] = '';
+            $GLOBALS['fixclient_data'] = '';
+            $this->curclient = null;
+            $fixclient = null;
+        }
         $service = get_param_protected('service',null);
         $service_id = get_param_integer('service_id',null);
         $this->showTroubleList($mode,'full',$fixclient,$service,$service_id);
@@ -213,6 +224,7 @@ class m_tt extends IModule{
             }
         }
 
+        $cur_stage_id = 0;
         if($trouble["bill_no"] && $trouble["trouble_type"] == "incomegoods")
         {
             // find last income order. Number mast by repeated.
@@ -229,13 +241,13 @@ class m_tt extends IModule{
 
             $new_state = TroubleState::find($R["state_id"]);
 
-            if($new_state->name == "Отказ")
-            {
-                $gio->setStatusAndSave($cur_state->state_1c, false);
-            }else
             if($new_state->state_1c != $cur_state->state_1c)
             {
-                $gio->setStatusAndSave($new_state->state_1c);
+                $isActive = $new_state->name != "Отказ";
+                $gio->setStatusAndSave($new_state->state_1c, $isActive);
+
+                $gio_trouble = Trouble::find_by_bill_id($trouble["bill_id"]);
+                $cur_stage_id = $gio_trouble->current_stage->id;
             }
         }
 
@@ -247,6 +259,16 @@ class m_tt extends IModule{
                 'stage_id'=>$trouble['stage_id']
             )
         );
+
+        //remote 1c stages in incomgoods, to avoid duplication
+        if ($cur_stage_id)
+        {
+            $stage = TroubleStage::find_by_stage_id($cur_stage_id);
+            if ($stage)
+            {
+                $stage->delete();
+            }
+        }
 
         // новый - 15
 
@@ -381,7 +403,7 @@ class m_tt extends IModule{
             $folder = (int)$_REQUEST['folder'];
 
         if(!$folder && !$user->Flag('tt_'.$type['code'].'_folder')){
-            $folder = $db->GetValue("select pk from tt_folders where pk & ".$type['folders']." order by `order` LIMIT 0,1");
+            $folder = $db->GetValue("select pk from tt_folders where pk & (".$type['folders']."&~1) order by `order` LIMIT 0,1");
             $user->SetFlag('tt_'.$type['code'].'_folder',$folder);
         }elseif(!$folder){
             $folder = $user->Flag('tt_'.$type['code'].'_folder');
@@ -393,7 +415,8 @@ class m_tt extends IModule{
                     "shop_orders" => 2,
                     "mounting_orders" => 2,
                     "order_welltime" => 2,
-                    "incomegoods" => 214748364
+                    "incomegoods" => 214748364,
+                    "connect" => 137438953472
                     );
             if($folder == 1)
             {
@@ -628,13 +651,40 @@ class m_tt extends IModule{
             exit();
         }
 
+        if ($trouble['support_ticket_id']) {
+            $ticketComments =
+                TicketComment::find()
+                    ->andWhere(['ticket_id' => $trouble['support_ticket_id']])
+                    ->orderBy('created_at')
+                    ->all();
+            foreach ($ticketComments as $k => $comment) {
+                /** @var TicketComment $comment */
+                if ($comment->user_id) {
+                    $author = 'Пользователь';
+                } else {
+                    $author = 'Тех. поддержка';
+                }
+                $createdAt = $comment->getCreatedAt();
+                $createdAt->setTimezone(new DateTimeZone('Europe/Moscow'));
+
+                $comment['created_at'] = $createdAt->format('d.m.Y H:i:s');
+                $ticketComments[$k] = [
+                    'created_at' => $createdAt->format('d.m.Y H:i'),
+                    'author'  => $author,
+                    'text'  => $comment->text,
+                ];
+            }
+            $design->assign('ticketComments', $ticketComments);
+        }
+
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
 
         $bill = false;
 
+        $this->prepareTimeTable();
         $design->AddMain('tt/trouble.tpl');
-        $this->showTimetable();
+
     }
 
     function loadOrderLog($billNo){
@@ -678,7 +728,7 @@ class m_tt extends IModule{
     function tt_timetable($fixclient) {
         global $db,$design,$user;
         $this->curclient = $fixclient;
-        $this->showTimetable(true);
+        $this->showTimeTable(true);
     }
 
     function assignDate($prefix, $date)
@@ -702,6 +752,7 @@ class m_tt extends IModule{
     function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null)
     {
         global $db,$user,$design;
+        $tt_design = 'full';
         /*
         if(isset($_REQUEST['client']) && $_REQUEST['client']!=='---'){ //
             $client = $_REQUEST['client'];
@@ -1280,19 +1331,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
 
             // фильтр по этапам
-            //$sql_select_states = " select * from `tt_states` order by `order` ";
-            $sql_select_clients = " select tt_troubles.client from tt_troubles inner join clients on clients.client = tt_troubles.client and status='work' group by tt_troubles.client order by client ";
-            $sql_select_responsibles = " select user_main resp from tt_stages group by user_main having user_main<>'' order by user_main ";
-            $sql_select_editors = " select user_edit edit from tt_stages group by user_edit having user_edit<>'' order by user_edit ";
-            $sql_select_owners = " select user_author owner from tt_troubles group by user_author having user_author<>'' order by user_author ";
-
-
-            $design->assign('owners',$db->AllRecordsAssoc($sql_select_owners, 'owner', 'owner'));
-            $design->assign('editors',$db->AllRecordsAssoc($sql_select_editors,'edit','edit'));
-            $design->assign('resps',$db->AllRecordsAssoc($sql_select_responsibles,'resp','resp'));
-            $design->assign('clients',$db->AllRecordsAssoc($sql_select_clients,'client','client'));
-            //$design->assign('states',$db->AllRecords($sql_select_states,''));
-
+            $sql_select_users = " select `user` from user_users order by enabled, `user` ";
+            $design->assign('users',$db->AllRecordsAssoc($sql_select_users, 'user', 'user'));
         }
 
 
@@ -1331,11 +1371,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             if($this->curclient)
                 $design->assign('bills',$db->AllRecords('select bill_no from newbills where is_payed=0 and client_id=(select id from clients where client="'.addcslashes($this->curclient, "\\\"").'") order by bill_date desc','bill_no',MYSQL_ASSOC));
             $design->assign('ttypes',$db->AllRecords('select * from tt_types','pk',MYSQL_ASSOC));
+
             $design->assign('curtype',$this->curtype);
-            if(in_array($this->curtype['code'],array('trouble','task','support_welltime'))){
+            if(in_array($this->curtype['code'],array('trouble','task','support_welltime','connect'))){
                 $design->AddMain('tt/trouble_form.tpl');
             }
-            $this->showTimetable();
+            $this->showTimeTable();
         }
 
 
@@ -1385,6 +1426,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($typePk == 7 || $isAll)
             $a["incomegoods"] = "Заказ поставщику";
 
+        if($typePk == 8 || $isAll)
+            $a["connect"] = "Подключение";
+
 
         if($isAll){
             $a["shop"] = "Заказ"; // possible: type_pk == 6
@@ -1409,7 +1453,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             );
 
             $db->QueryUpdate('tt_stages','stage_id',$R);
-            $r = $db->GetRow('
+
+
+          $r = $db->GetRow('
                 select
                     *
                 from
@@ -1474,6 +1520,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($id>0)
             $this->doers_action('fix_doers', $trouble_id, $id);
+
+
+        TroubleDao::me()->updateSupportTicketByTrouble($trouble_id);
 
         $this->checkTroubleToSendToAll4geo($trouble_id);
         $this->checkTroubleToSend($trouble_id);
@@ -1629,6 +1678,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
 
     function showTimeTable($someone=null,$cast=false){
+        global $design;
+        $this->prepareTimeTable($someone, $cast);
+        $design->AddMain('tt/timetable.tpl');
+    }
+
+    function prepareTimeTable($someone=null,$cast=false){
         global $db,$design;
         $tr_id = get_param_integer('id',$this->cur_trouble_id);
         if(is_null($someone) && $tr_id){
@@ -1798,7 +1853,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             )
         ));
         $design->assign('timetableShow',$someone);
-        $design->AddMain('tt/timetable.tpl');
     }
 
     function tt_courier_report()
@@ -2462,8 +2516,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $user = $userFrom = false;
         $comment = "";
+        $user_login = Yii::$app->user->getIdentity();
 
-        if(count($rs) == 1 && isset($_SESSION[USER_VAR_LOGIN]) && $_SESSION[USER_VAR_LOGIN] != $rs[0]["user_main"]) //create
+        if(count($rs) == 1 && $user_login->user != $rs[0]["user_main"]) //create
         {
             $user = $rs[0]["user_main"];
             $comment = $rs[0]["comment"];

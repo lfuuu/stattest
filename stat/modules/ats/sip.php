@@ -893,7 +893,7 @@ class sip
         return $d;
     }
 
-    public function viewPass()
+    public static function viewPass()
     {
         $key = get_param_raw("key", "");
 
@@ -912,7 +912,7 @@ class sip
         exit();
     }
 
-    public function logView($isFull = false)
+    public static function logView($isFull = false)
     {
         global $db, $design;
 
@@ -937,7 +937,7 @@ class sip
         $design->AddMain("ats/log_view.htm");
     }
 
-    private function map_supportMod(&$map, &$data)
+    private static function map_supportMod(&$map, &$data)
     {
         $allowFields = array("type", "call_count", "break", "direction","password");
 
@@ -955,25 +955,25 @@ class sip
         return $newMap;
     }
 
-    private function cryptId($id, $salt = null)
+    private static function cryptId($id, $salt = null)
     {
         $t = $salt === null ? time() : $salt;
         return $id.":".$t.":".md5($id.$t."aaa".$t);
     }
 
-    private function decryptId($str)
+    private static function decryptId($str)
     {
         list($id, $salt, $md5) = explode(":", $str."::::");
         return self::cryptId($id, $salt) == $str ? $id : false;
     }
 
-    private function resolveClientId($fixclient)
+    private static function resolveClientId($fixclient)
     {
         global $db;
         return $db->GetValue("select id from ".SQL_DB.".clients where id = '".$fixclient."' or client = '".$fixclient."'");
     }
 
-    private function getClientById($id)
+    private static function getClientById($id)
     {
         global $db;
         return $db->GetValue("select client from ".SQL_DB.".clients where id = '".$id."'");

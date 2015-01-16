@@ -17,10 +17,9 @@ if (php_sapi_name() != 'cli') {
 include PATH_TO_ROOT."conf.php";
 
 
-global $modules, $design, $user;
+global $design, $user;
 
 if (!defined('NO_WEB')) {
     $design = new \MySmarty();
     $user = new \AuthUser();
-    $modules = new \Modules();
 }

@@ -1,6 +1,5 @@
 <?php
 class m_tarifs{
-    var $rights=array('tarifs'    =>array('Работа с тарифами','read,edit','чтение,изменение'));
     var $actions=array(
             'default'            => array('tarifs','read'),
             'view'                => array('tarifs','read'),
@@ -42,10 +41,7 @@ class m_tarifs{
         );
     function m_tarifs(){
     }
-    function Install($p){
-        return $this->rights;
-    }
-    
+
     function GetPanel($fixclient){
         $R=array(); $p=0;
         foreach($this->menu as $val){

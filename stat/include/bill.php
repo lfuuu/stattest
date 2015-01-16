@@ -377,7 +377,7 @@ class Bill{
         if($this->bill["cleared_flag"] == 1){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
             if(!defined("NO_WEB"))
-			$GLOBALS['module_newaccounts']->update_balance($this->bill['client_id'], $this->bill["currency"]);
+                \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
         }
     }
 
@@ -388,7 +388,7 @@ class Bill{
         if($this->bill["cleared_flag"] == 0){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
             if(!defined("NO_WEB"))
-			$GLOBALS['module_newaccounts']->update_balance($this->bill['client_id'], $this->bill["currency"]);
+                \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
         }
     }
     public function GetStaticComment()
@@ -695,7 +695,7 @@ class Bill{
 		return true;
 	}
 
-    public function GetCouriers()
+    public static function GetCouriers()
     {
         global $db;
 
@@ -710,7 +710,7 @@ class Bill{
         return $R;
     }
 
-    public function GetCourierName($id)
+    public static function GetCourierName($id)
     {
         $c = Bill::GetCouriers();
 
@@ -839,7 +839,7 @@ class Bill{
         {
             $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
         }else{
-            die("Неизвестный тип документа!");
+            throw new Exception("Неизвестный тип документа!");
         }
 
         if(!$doc)

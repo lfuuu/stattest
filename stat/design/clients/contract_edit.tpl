@@ -1,4 +1,3 @@
-<script language="JavaScript" src="{$PATH_TO_ROOT}js/JsHttpRequest.js"></script> 
 <script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/html2xhtml.js"></script>
 <script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/richtext_compressed.js"></script>
 

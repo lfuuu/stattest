@@ -44,15 +44,15 @@ function mark_del(){
 {foreach from=$bill_lines item=item key=key name=outer}
 <tr>
 	<td>{$smarty.foreach.outer.iteration}.</td>
-	<td><input class=text type=text value="{$item.item|escape:"input_value_quotes"}" name=item[{$key}] style='width:100%'></td>
-	<td><input class=text type=text value="{$item.amount}" name=amount[{$key}]  style='width:55px;'></td>
-	<td><input class=text type=text value="{$item.price}" name=price[{$key}] style='width:80px;'></td>
+	<td><input class=text type=text value="{if isset($item.item)}{$item.item|escape:"input_value_quotes"}{/if}" name=item[{$key}] style='width:100%'></td>
+	<td><input class=text type=text value="{if isset($item.amount)}{$item.amount}{/if}" name=amount[{$key}]  style='width:55px;'></td>
+	<td><input class=text type=text value="{if isset($item.price)}{$item.price}{/if}" name=price[{$key}] style='width:80px;'></td>
 	<td>
 		<select name=type[{$key}]  style='width:70px;'>
-			<option value='service'{if $item.type=='service'} selected{/if}>услуга &nbsp; &nbsp; &nbsp;обычная</option>
-			<option value='zalog'{if $item.type=='zalog'} selected{/if}>залог &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;(попадает в с/ф-3)</option>
-			<option value='zadatok'{if $item.type=='zadatok'} selected{/if}>задаток &nbsp; (не попадает в с/ф)</option>
-			<option value='good'{if $item.type=='good'} selected{/if}>товар</option>
+			<option value='service'{if isset($item.type) && $item.type=='service'} selected{/if}>услуга &nbsp; &nbsp; &nbsp;обычная</option>
+			<option value='zalog'{if isset($item.type) && $item.type=='zalog'} selected{/if}>залог &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;(попадает в с/ф-3)</option>
+			<option value='zadatok'{if isset($item.type) && $item.type=='zadatok'} selected{/if}>задаток &nbsp; (не попадает в с/ф)</option>
+			<option value='good'{if isset($item.type) && $item.type=='good'} selected{/if}>товар</option>
 		</select>
 	</td>
 	<!-- td><input type="checkbox" name="move[{$key}]" value="1" /></td-->

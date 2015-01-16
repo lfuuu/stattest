@@ -19,7 +19,7 @@ class checker
         if (
                 count($db->AllRecords(
                     "select id from `".$table."` " .
-                    "where `".$field."` = '".mysql_real_escape_string($value)."' " .
+                    "where `".$field."` = '".$db->escape($value)."' " .
                     "and id != '".$id."'"
                     )) > 0
            ) {

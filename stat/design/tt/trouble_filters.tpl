@@ -7,7 +7,7 @@
 	<input type='hidden' name='module' value='tt' />
 	<input type='hidden' name='action' value='{$filter_head.action}' />
 	<input type='hidden' name='mode' value='{$filter_head.mode}' />
-	<input type='hidden' name='type_pk' value='{$tt_type.pk}' />
+	<input type='hidden' name='type_pk' value='{if isset($tt_type)}{$tt_type.pk}{/if}' />
 	<input type='hidden' name='filters_flag' value='true'/>
 	<input type='hidden' name='filter_set' value='true'/>
 
@@ -40,52 +40,40 @@
 		<tr>
 			<td>Создатель заявки</td>
 			<td>
-				<select name='owner'>
+				<select class="select2" style="width: 200px" name='owner'>
 					<option value='---'>Все</option>
-                    {html_options options=$owners selected=$filter.owner}
+                    {html_options options=$users selected=$filter.owner}
 				</select>
 			</td>
 		</tr>
 		<tr>
 			<td>Ответственный</td>
 			<td>
-				<select name='resp'>
+				<select class="select2" style="width: 200px" name='resp'>
 					<option value='---'>Все</option>
 					<option value='SUPPORT' {if $filter.resp == "SUPPORT"} selected{/if}>SUPPORT</option>
-                    {html_options options=$resps selected=$filter.resp}
+                    {html_options options=$users selected=$filter.resp}
 				</select>
 			</td>
 		</tr>
 		<tr>
 			<td>Редактирующий</td>
 			<td>
-				<select name='edit'>
+				<select class="select2" style="width: 200px" name='edit'>
 					<option value='---'>Все</option>
-                    {html_options options=$editors selected=$filter.edit}
+                    {html_options options=$users selected=$filter.edit}
 				</select>
 			</td>
 		</tr>
 		<tr>
 			<td>Тип заявки</td>
 			<td>
-				<select name='subtype'>
+				<select class="select2" style="width: 200px" name='subtype'>
 					<option value='---'>Все</option>
                     {html_options options=$trouble_subtypes selected=$filter.subtype}
 				</select>
 			</td>
 		</tr>
-{if false}
-		<tr>
-			<td>Клиент</td>
-			<td>
-				<select name='client'>
-					<option value='---'>Все</option>{foreach from=$clients item='client'}
-					<option value='{$client.client}'>{$client.client}</option>
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-{/if}
 	</table>
 </form>
 </div>

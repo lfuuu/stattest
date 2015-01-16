@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\classes\StatModule;
+use app\models\User;
 use Yii;
 use app\classes\BaseController;
 use app\classes\Encoding;
@@ -29,13 +31,12 @@ class CompatibilityController extends BaseController
 
         require_once PATH_TO_ROOT . 'conf.php';
 
-        global $user, $module, $modules, $design, $fixclient, $fixclient_data, $module_clients;
+        global $user, $module, $design, $fixclient, $fixclient_data;
 
         ob_start();
 
         $design  = new \MySmarty();
         $user    = new \AuthUser();
-        $modules = new \Modules();
 
         $user->AuthorizeByUserId(Yii::$app->user->id);
 
@@ -47,11 +48,16 @@ class CompatibilityController extends BaseController
         if ($newClient = get_param_raw("clients_client"))
             $_SESSION["clients_client"] = $newClient;
 
-        $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
+        if (Yii::$app->user->identity->restriction_client_id) {
+          $fixclient = Yii::$app->user->identity->restriction_client_id;
+        } else {
+          $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
+        }
         $fixclient_data = array();
 
-        if (isset($module_clients) && $module != 'clients' && $fixclient)
-            $fixclient_data = $module_clients->get_client_info($fixclient);
+        if ($module != 'clients' && $fixclient) {
+            $fixclient_data = StatModule::clients()->get_client_info($fixclient);
+        }
 
         $design->assign('authuser', $user->_Data);
         $design->assign('user', $user);
@@ -59,13 +65,19 @@ class CompatibilityController extends BaseController
         $design->assign('fixclient', $fixclient);
         $design->assign('module', $module);
 
+        StatModule::getHeadOrModule($module)->GetMain($action, $fixclient);
 
-        $modules->GetMain($module, $action, $fixclient);
+        $renderLayout = $lite === false && !$design->ignore;
 
-        if ($fixclient)
-            $fixclient_data = $module_clients->get_client_info($fixclient);
+        if ($fixclient) {
+            $fixclient_data = StatModule::clients()->get_client_info($fixclient);
+        }
 
-        if (access('tt','view')) {
+        if (
+            $renderLayout && access('tt','view')
+            && Yii::$app->user->getIdentity()->hasAttribute('show_troubles_on_every_page')
+            && Yii::$app->user->getIdentity()->show_troubles_on_every_page > 0
+        ) {
             if ((!$fixclient || $module != 'clients') && $module != 'tt') {
                 $tt = new \m_tt();
                 $tt->showTroubleList(2, 'top', $fixclient);
@@ -75,8 +87,6 @@ class CompatibilityController extends BaseController
         $preOutput = ob_get_clean();
 
         ob_start();
-
-        $renderLayout = $lite === false && !$design->ignore;
 
         if ($lite) {
             echo $this->view->render('/layouts/widgets/messages', [], $this);

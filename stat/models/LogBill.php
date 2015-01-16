@@ -4,7 +4,7 @@ class LogBill extends ActiveRecord\Model
 {
     static $table = "log_newbills";
 
-    public function log($billNo, $comment, $isUserAutoLK = false)
+    public static function log($billNo, $comment, $isUserAutoLK = false)
     {
         global $user;
 

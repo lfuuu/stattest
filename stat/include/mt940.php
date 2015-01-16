@@ -1,7 +1,5 @@
 <?php
 
-if(!defined("PAYMENTS_FILES_PATH")) define("PAYMENTS_FILES_PATH", "store/payments/");
-
 class banks{
 
     static private $names = array(

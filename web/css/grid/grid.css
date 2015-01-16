@@ -1,0 +1,72 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 24.11.2014, 14:44:21
+    Author     : MAK
+*/
+
+
+.pagination>li>a, .pagination>li>span {
+    color: #525252;
+    border: 1px solid #ddd;
+}
+
+.pagination>li>a:hover, .pagination>li>span:hover, .pagination>li>a:focus, .pagination>li>span:focus {
+    color: #151515;
+    background-color: #eee;
+    border-color: #ddd;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
+    background-color: #9D9D9D;
+    border-color: #9D9D9D;
+}
+
+.cell67e92c8765a9bc7fb2d335c459de9eb5 {  /*включен*/
+   /*background: #79B4D3; */
+}
+
+.cellaf4b5f3e98e178dd3c4bac64b625ecd0 { /*переговоры*/
+   background: #75C585; 
+}
+
+.cellae2b1fca515949e5d54fb22b8ed95575 {  /*переговоры*/
+   background: #79B4D3; 
+}
+
+.cell9a27316fbc5ef38b2a19c202dbdc29b7 { /*подключаемые*/
+   background: #E094C2; 
+}
+
+.cell349e686330723975502e9ef4f939a5ac { /*отключенные*/
+    background: #DFD85D; 
+}
+
+.cell85e9f75abccfb32296512919fb4aa768 { /*техотказ*/
+    background: #E0BC94; 
+}
+
+.cell762f8817ab6af0971fe330dbf46a359a { /*отключен за долги*/
+    background: #EA6262; 
+}
+
+.cell05afb6ce69b9cef1bd6ece7e4745f96c { /*отказ*/
+    background: #CBCBCB
+}
+
+.btn-grid {
+    padding: 0px 8px;
+    border-radius: 14px;
+    color: #fff;
+}
+
+.grid-view {
+    margin: 20px 0 0 0;
+}
+
+.grid-view .summary {
+    margin: 0px 0 12px 0;
+}

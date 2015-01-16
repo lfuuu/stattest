@@ -1,12 +1,10 @@
 <?php
+use app\classes\StatModule;
+use app\models\ClientContractType;
+use app\models\ClientAccount;
+use app\classes\Assert;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
-	var $rights=array(
-					'clients'		=>array(
-						'Работа с клиентами',
-							'read,read_filter,read_all,new,edit,restatus,credit,credit_all,edit_tele,sale_channels,file,inn_double,all4net,history_edit',
-							'просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,установка кредита,установка кредита всем сразу,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории'),
-				);
 	var $actions=array(
 					'default'		=> array('clients','read'),
 					'search_as'		=> array('clients','read'),
@@ -97,10 +95,6 @@ class m_clients {
     */
 	}
 
-	function Install($p){
-		return $this->rights;
-	}
-
 	function GetPanel($fixclient){
 		$R=array(); $p=0;
 		foreach($this->menu as $val){
@@ -126,17 +120,13 @@ class m_clients {
 	}
 
 	function clients_search_as($fixclient) {
-		global $db,$design,$_RESULT;
-		include INCLUDE_PATH."JsHttpRequest.php";
-		$JsHttpRequest = new Subsys_JsHttpRequest_Php();
-		$JsHttpRequest->setEncoding("UTF-8");
-		if (isset($_POST['query'])) $_POST['search']=$_POST['query'];
+		global $design;
+		if (isset($_GET['query'])) $_GET['search']=$_GET['query'];
 		$design->assign('clients',array());
 		$this->clients_list(false,5,20);
-		$_RESULT=array(
+		echo json_encode(array(
 					'data'		=> $design->fetch('clients/as_search.tpl'),
-					);
-        exit;
+					));
 	}
 
 	function clients_my($fixclient) {
@@ -473,10 +463,17 @@ class m_clients {
 			$design->assign('filter_clients_date_from_m',$_POST['filter_clients_date_from_m']);
 			$design->assign('filter_clients_date_from_d',$_POST['filter_clients_date_from_d']);
 			$design->assign('filter_clients_date_to_y',$_POST['filter_clients_date_to_y']);
-			$design->assign('filter_clietns_date_to_m',$_POST['filter_clients_date_to_m']);
+			$design->assign('filter_clients_date_to_m',$_POST['filter_clients_date_to_m']);
 			$design->assign('filter_clients_date_to_d',$_POST['filter_clients_date_to_d']);
-		}else
+		}else {
 			$date_from = $date_to = null;
+			$design->assign('filter_clients_date_from_y','');
+                        $design->assign('filter_clients_date_from_m','');
+                        $design->assign('filter_clients_date_from_d','');
+                        $design->assign('filter_clients_date_to_y','');
+                        $design->assign('filter_clients_date_to_m','');
+                        $design->assign('filter_clients_date_to_d','');
+                }
 
 		if ($smode && $smode!=1 && $smode!=5){
 			$my = '';
@@ -859,7 +856,7 @@ class m_clients {
         }
         // posible bill
         if(!count($R) && strlen($search) > 4){
-            if($db->GetRow("select bill_no from `newbills` where bill_no = '".mysql_real_escape_string($search)."'")){
+            if($db->GetRow("select bill_no from `newbills` where bill_no = '".$db->escape($search)."'")){
                 Header("Location: ./?module=newaccounts&action=search&search=".urlencode($search));
                 exit;
             }
@@ -1040,11 +1037,21 @@ class m_clients {
 	}
 	function client_view($id,$show_edit = 0,$design_echo = 1){
 
-		global
-			$design,
-			$db,
-			$module_tt,
-			$module_users, $user;
+		global $design, $db, $user;
+
+    if (is_numeric($id)) {
+      $clientAccount = ClientAccount::findOne($id);
+    } else {
+      $clientAccount = ClientAccount::find()->andWhere(['client' => $id])->one();
+    }
+    Assert::isObject($clientAccount);
+
+    $superClient = $clientAccount->superClient;
+    $contragents = $superClient->contragents;
+
+    $design->assign('clientAccount', $clientAccount);
+    $design->assign('superClient', $superClient);
+    $design->assign('contragents', $contragents);
 
     $voip = new VoipStatus;
     $voip->loadClient($id);
@@ -1118,37 +1125,26 @@ class m_clients {
 		$design->assign('_cards',$_cards);
         */
 
-        if ($r)
-        {
-            $r["cards"] = $db->AllRecords("select id, client, company from clients where contragent_id = ".$r["contragent_id"]." order by id");
-            $r["cards_count"] = count($r["cards"]);
-        }
-
 		//$design->assign('all_cls',$db->AllRecords("select id,client from clients where client<>'' order by client",null,MYSQL_ASSOC));
 
 		$r['status_name'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['name'] : $r['status']);
 		$r['status_color'] = (isset(ClientCS::$statuses[$r['status']]) ? ClientCS::$statuses[$r['status']]['color'] : '');
         $r["price_type"] = $r["price_type"] ? $r["price_type"] : ClientCS::GetIdByName("price_type", "Розница");
+
         $design->assign('user_flag_statusbox',$user->Flag('statusbox'));
 
 		$design->assign('fixclient',$id);
 		$GLOBALS['fixclient'] = $id;
 		$design->assign('request_uri',str_replace('&id='.$id,'',$_SERVER['REQUEST_URI']));
 
-		if(isset($module_tt))
-			$module_tt->get_counters($id);
+        StatModule::tt()->get_counters($id);
 
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
-		$design->assign_by_ref('statuses',ClientCS::$statuses);
+        $design->assign_by_ref('statuses',ClientCS::$statuses);
+        $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
-
-        if ($r){
-            $r["contragents"] = $db->AllRecords($q = "select id, name from client_contragent where super_id = '".$r["super_id"]."'");
-            $r["contragents_count"] = count($r["contragents"]);
-        }
-
 
 		if(!$show_edit){
 			$design->assign('contacts',$cs->GetContacts());
@@ -1169,7 +1165,6 @@ class m_clients {
 				$design->assign('contract',$d[count($d)-1]);
 			$design->assign('contact',$cs->GetContact(false));
 
-			$r['comment'] = $cs->GetLastComment();
 			$r['data_cs'] = $cs->GetAllStatuses();
 
 			$design->assign('cfiles',count($cs->GetFiles()));
@@ -1180,22 +1175,22 @@ class m_clients {
 
 			if($r['client']){
 				$design->assign('is_secondary_output',1);
-				$GLOBALS['module_tt']->showTroubleList(1,'client',$r['client']);
-				$GLOBALS['module_services']->services_in_view($r['client']);
-				$GLOBALS['module_services']->services_co_view($r['client']);
-				$GLOBALS['module_services']->services_ppp_view($r['client']);
-				$GLOBALS['module_services']->services_vo_view($r['client']);
-				$GLOBALS['module_routers']->routers_d_list($r['client'],1);
-				//$GLOBALS['module_routers']->routers_d_list($r['client']);
-				$GLOBALS['module_services']->services_em_view($r['client']);
-				$GLOBALS['module_services']->services_ex_view($r['client']);
-				$GLOBALS['module_services']->services_it_view($r['client']);
-				$GLOBALS['module_services']->services_welltime_view($r['client']);
-				$GLOBALS['module_services']->services_virtpbx_view($r['client']);
-				$GLOBALS['module_services']->services_8800_view($r['client']);
-				$GLOBALS['module_services']->services_sms_view($r['client']);
-				$GLOBALS['module_services']->services_wellsystem_view($r['client']);
-				$GLOBALS['module_services']->services_ad_view($r['client']);
+                StatModule::tt()->showTroubleList(1,'client',$r['client']);
+                StatModule::services()->services_in_view($r['client']);
+                StatModule::services()->services_co_view($r['client']);
+                StatModule::services()->services_ppp_view($r['client']);
+                StatModule::services()->services_vo_view($r['client']);
+                StatModule::routers()->routers_d_list($r['client'],1);
+				//StatModule::routers()->routers_d_list($r['client']);
+                StatModule::services()->services_em_view($r['client']);
+                StatModule::services()->services_ex_view($r['client']);
+                StatModule::services()->services_it_view($r['client']);
+                StatModule::services()->services_welltime_view($r['client']);
+                StatModule::services()->services_virtpbx_view($r['client']);
+                StatModule::services()->services_8800_view($r['client']);
+                StatModule::services()->services_sms_view($r['client']);
+                StatModule::services()->services_wellsystem_view($r['client']);
+                StatModule::services()->services_ad_view($r['client']);
 				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
 			}
 
@@ -1207,26 +1202,26 @@ class m_clients {
             $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
 
 			$R=array();
-			$module_users->d_users_get($R,'telemarketing');
+            StatModule::users()->d_users_get($R,'telemarketing');
 			if(isset($R[$r['telemarketing']]))
 				$R[$r['telemarketing']]['selected']=' selected';
 
 			$design->assign('users_telemarketing',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'account_managers');
+            StatModule::users()->d_users_get($R,'account_managers');
 			if(isset($R[$r['account_manager']]))
 				$R[$r['account_manager']]['selected']=' selected';
 			$design->assign('account_managers',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'manager');
+            StatModule::users()->d_users_get($R,'manager');
 			if(isset($R[$r['manager']]))
 				$R[$r['manager']]['selected']=' selected';
 			$design->assign('users_manager',$R);
 
 			$R=array();
-			$module_users->d_users_get($R,'support');
+            StatModule::users()->d_users_get($R,'support');
 			if(isset($R[$r['support']]))
 				$R[$r['support']]['selected']=' selected';
 			$design->assign('users_support',$R);
@@ -1277,7 +1272,6 @@ class m_clients {
 		}
 
 		$design->assign('client',$r);
-        $design->assign('region_name', $db->GetValue('select `name` from regions where id='.intval($r['region'])) );
 		$_SESSION['clients_client'] = $r['client'];
 	}
 
@@ -1300,25 +1294,25 @@ class m_clients {
 		$design->assign('mode_new',1);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'account_managers');
+        StatModule::users()->d_users_get($R,'account_managers');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('account_managers',$R);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'manager');
+        StatModule::users()->d_users_get($R,'manager');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_manager',$R);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'telemarketing');
+        StatModule::users()->d_users_get($R,'telemarketing');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_telemarketing',$R);
 
 		$R=array();
-		$GLOBALS['module_users']->d_users_get($R,'support');
+        StatModule::users()->d_users_get($R,'support');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_support',$R);
@@ -1603,8 +1597,10 @@ class m_clients {
 		if ($this->check_tele($id)==0) return;
 		$status=get_param_protected('status');
 		$comment=get_param_protected('comment');
+		$contractTypeId=get_param_protected('contract_type_id', 1);
 		$cs=new ClientCS($id);
 		$cs->Add($status,$comment);
+		$cs->SetContractType($contractTypeId);
 
         event::go("client_set_status", $id);
 
@@ -1636,7 +1632,7 @@ class m_clients {
                 DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
                 DatePickerPeriods::assignPeriods(new DateTime());
                 
-		$R=array(); $GLOBALS['module_users']->d_users_get($R,'manager');
+		$R=array(); StatModule::users()->d_users_get($R,'manager');
 		$design->assign('users',$R);
 		$design->assign('manager',$manager);
 
@@ -2295,7 +2291,7 @@ DBG::sql_out($select_client_data);
 		//require_once INCLUDE_PATH.'1c_integration.php';
 		//$clS = new \_1c\clientSyncer($db);
 
-    $bik = $db->GetRow("select * from bik b where b.bik='".mysql_real_escape_string($_GET['findBik'])."'");
+    $bik = $db->GetRow("select * from bik b where b.bik='".$db->escape($_GET['findBik'])."'");
 
 		if(!$bik)
 			echo "false";

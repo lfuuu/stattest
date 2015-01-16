@@ -16,7 +16,7 @@
         static $c = array();
 
         if(!isset($c[$client]))
-            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".mysql_real_escape_string($client)."'");
+            $c[$client] = $db->GetValue("select id from ".SQL_DB.".clients where client = '".$db->escape($client)."'");
 
         return $c[$client];
     }
@@ -55,11 +55,6 @@
 
 class m_ats extends IModule
 {
-
-	function Install($p)
-    {
-		return $this->rights;
-	}
 
 	function GetMain($action,$fixclient){
 		global $design,$db,$user;

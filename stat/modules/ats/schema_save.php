@@ -68,7 +68,7 @@ $db->Query("delete from r_time where schema_id = '".$schemaId."'");
 $db->Query("delete from r_action where schema_id = '".$schemaId."'");
 $db->Query("delete from r_number where schema_id = '".$schemaId."'");
 
-$db->Query("update r_schema set name = '".mysql_real_escape_string($schemaName)."' where id = '".$schemaId."'");
+$db->Query("update r_schema set name = '".$db->escape($schemaName)."' where id = '".$schemaId."'");
 
 foreach($s as $timeBlock)
 {

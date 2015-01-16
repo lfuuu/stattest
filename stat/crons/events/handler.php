@@ -1,5 +1,8 @@
 <?php
 
+use app\classes\ActaulizerVoipNumbers;
+
+define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
 include PATH_TO_ROOT."conf_yii.php";
 include INCLUDE_PATH."runChecker.php";
@@ -32,8 +35,9 @@ echo "\nstop-".date("r").":";
 
 function do_events()
 {
-    foreach(EventQueue::getUnhandledEvents() as $event)
+    foreach(EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event)
     {
+        $isError = false;
         echo "\n".date("r").": event: ".$event->event.", ".$event->param;
 
         $param = $event->param; 
@@ -43,6 +47,8 @@ function do_events()
             $param = unserialize($param);
         }else if (strpos($param, "|") !== false) {
             $param = explode("|", $param);
+        }else if (strpos($param, "{\"") === 0) {
+            $param = json_decode($param, true);
         }
 
         try{
@@ -53,16 +59,17 @@ function do_events()
 
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
-                case 'usage_voip__delete':  ats2Numbers::check(); break;
+                case 'usage_voip__delete':  ats2Numbers::check(); 
+                                            break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]); 
                                        LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); break;
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
-                case 'midnight': voipNumbers::check(); /* проверка необходимости включить или выключить услугу */
-                                 ats2Numbers::check();
-                                 virtPbx::check();
-                                 EventHandler::updateSubscribeMass();
+                case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
+                                 ats2Numbers::check();echo "...ats2Numbers::check()";
+                                 virtPbx::check();echo "...virtPbx::check()";
+                                 EventHandler::updateSubscribeMass();echo "...EventHandler::updateSubscribeMass()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
                                  }
@@ -71,7 +78,7 @@ function do_events()
                                      echo " exec: ".$execStr;
                                      exec($execStr);
                                  }
-                                 EventQueue::clean();
+                                 EventQueue::clean();echo "...EventQueue::clean()";
                                  break;
 
                 case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
@@ -102,14 +109,33 @@ function do_events()
                     case 'usage_voip__update':
                     case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
                 }
+
+                if (defined("use_ats3"))
+                {
+                    switch($event->event)
+                    {
+                        case 'usage_voip__insert':
+                        case 'usage_voip__update':
+                        case 'usage_voip__delete': ActaulizerVoipNumbers::me()->actualizeByNumber($param[2]); break;
+
+                        case 'midnight': 
+                        case 'client_set_status': ActaulizerVoipNumbers::me()->actualizeAll(); break;
+
+                        case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
+                    }
+                }
             }
 
         } catch (Exception $e)
         {
             echo "\n--------------\n";
-            echo "[".$event->event."] Code: ".$e->getCode().": ".$e->GetMessage();
-            $event->setStoped();
+            echo "[".$event->event."] Code: ".$e->getCode().": ".$e->GetMessage()." in ".$e->getFile()." +".$e->getLine();
+            $event->setError($e);
+            $isError = true;
         }
-        $event->setHandled();
+        if (!$isError)
+        {
+            $event->setOk();
+        }
     }
 }

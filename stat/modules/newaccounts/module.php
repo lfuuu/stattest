@@ -2,6 +2,7 @@
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 use app\dao\BillDao;
+use app\classes\StatModule;
 
 class m_newaccounts extends IModule
 {
@@ -54,8 +55,14 @@ class m_newaccounts extends IModule
         set_time_limit(0);
         session_write_close();
         foreach ($R as $r) {
-            echo $r['client']."<br>\n";flush();
-            $this->update_balance($r['id'],$r['currency']);
+            echo $r['client'];
+            try{
+                $this->update_balance($r['id'],$r['currency']);
+            }catch(Exception $e)
+            {
+                echo "<h1>!!! ".$e->getMessage()."</h1>";
+            }
+            echo "<br>\n";flush();
         }
     }
 
@@ -1358,11 +1365,11 @@ class m_newaccounts extends IModule
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
         if($tt){
-            $GLOBALS['module_tt']->dont_filters = true;
+            StatModule::tt()->dont_filters = true;
             #$GLOBALS['module_tt']->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
-            $GLOBALS['module_tt']->cur_trouble_id = $tt['id'];
-            $GLOBALS['module_tt']->tt_view($fixclient);
-            $GLOBALS['module_tt']->dont_again = true;
+            StatModule::tt()->cur_trouble_id = $tt['id'];
+            StatModule::tt()->tt_view($fixclient);
+            StatModule::tt()->dont_again = true;
         }
     }
 
@@ -1934,6 +1941,7 @@ class m_newaccounts extends IModule
 
 
         $isFromImport = get_param_raw("from", "") == "import";
+        $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
 
         $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUR','bill-2-RUR','lading','lading','gds','gds-2','gds-serial');
@@ -2069,6 +2077,12 @@ class m_newaccounts extends IModule
 
                     if($stamp)
                         $r.="&stamp=".$stamp;
+
+                    if ($isFromImport)
+                        $r .= "&from=import";
+                    
+                    if ($isFromImport || $isToPrint)
+                        $r .= "&to_print=true";
 
                     $ll = array(
                             "bill_no" => $bill_no, 
@@ -2540,6 +2554,9 @@ class m_newaccounts extends IModule
         $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
         $design->assign("is_pdf", $is_pdf);
 
+        $isToPrint = (isset($params['to_print'])) ? (bool)$params['to_print'] : get_param_raw('to_print', 'false') == 'true';
+        $design->assign("to_print", $isToPrint);
+
         $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
         self::$object = $object;
         if ($object) {
@@ -2602,7 +2619,7 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info')))
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope')))
             $obj='bill';
 
         if ($obj!='bill')
@@ -2613,7 +2630,7 @@ class m_newaccounts extends IModule
         if(in_array($obj, array("order","notice")))
         {
             $t = ($obj == "order" ?
-                    "Приказ (Телеком)":
+                    "Приказ (Телеком) (Пыцкая)":
                     ($obj == "notice" ?
                         "Уведомление (Телеком)":""));
                         
@@ -2633,6 +2650,12 @@ class m_newaccounts extends IModule
         if($obj == "new_director_info")
         {
             $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
+            exit();
+        }
+
+        if($obj == "order")
+        {
+            $this->docs_echoFile(STORE_PATH."order2.pdf", "Смена директора МСН Телеком.pdf");
             exit();
         }
             
@@ -2730,7 +2753,7 @@ class m_newaccounts extends IModule
                         break;
                     }
                     $content = $design->fetch('newaccounts/print_'.$obj.'.tpl');
-                    $file_name = '/tmp/' . mktime().$user->_Data['id'];
+                    $file_name = '/tmp/' . time().$user->_Data['id'];
                     $file_html = $file_name.'.html';
                     $file_pdf = $file_name.'.pdf';
 
@@ -3545,8 +3568,10 @@ class m_newaccounts extends IModule
             }
             $design->assign('total_amount',$total_amount);
 
-            Company::setResidents($r["firma"], $b);
-            $design->assign("firm", Company::getProperty($r["firma"], $b));
+            $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
+
+            Company::setResidents($r["firma"], $docDate);
+            $design->assign("firm", Company::getProperty($r["firma"], $docDate));
 
             ClientCS::Fetch($r);
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
@@ -4551,7 +4576,7 @@ $sql .= "    order by client, bill_no";
             }else{
                 $s_RUR['pay_sum_rur'] += $r['pay_sum_rur'];
                 $s_RUR['sum'] += $r['sum'];
-                @$s_RUR['bonus'] += $r['bonus'];
+                @$s_RUR['bonus'] += isset($r['bonus']) ? $r['bonus'] : 0;
             }
         }
         $design->assign('clients_count', count($clients));
@@ -4560,7 +4585,7 @@ $sql .= "    order by client, bill_no";
         $design->assign('bills_total_RUR',$s_RUR);
     }
 
-    $R=array(); $GLOBALS['module_users']->d_users_get($R,array('manager','marketing'));
+    $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
     if (isset($R[$manager])) $R[$manager]['selected']=' selected';
     $design->assign('users_manager',$R);
     $design->assign('action',$_GET["action"]);
@@ -4778,7 +4803,7 @@ $sql .= "    order by client, bill_no";
             $design->assign('bills_total_RUR',$s_RUR);
         }
         $m=array();
-        $GLOBALS['module_users']->d_users_get($m,'manager');
+        StatModule::users()->d_users_get($m,'manager');
 
         $R=array("all" =>array("name" => "Все", "user" => "all"));
         foreach($m as $user => $userData)$R[$user] = $userData;
@@ -4890,7 +4915,7 @@ $sql .= "    order by client, bill_no";
             }
             $design->assign('balance',$balance);
         }
-        $R=array(); $GLOBALS['module_users']->d_users_get($R,'manager');
+        $R=array(); StatModule::users()->d_users_get($R,'manager');
         if (isset($R[$manager])) $R[$manager]['selected']=' selected';
         $design->assign('users_manager',$R);
         $design->AddMain('newaccounts/balance_client.tpl');
@@ -6157,7 +6182,7 @@ $sql .= "    order by client, bill_no";
                         $db->QueryUpdate("tt_troubles", "bill_no", array( "problem" =>$comment, "bill_no"=>$ttt['bill_no']));
 
                 }elseif(isset($_GET['tty']) && in_array($_GET['tty'],array('shop_orders','mounting_orders','orders_kp'))){
-                    $GLOBALS['module_tt']->createTrouble(array(
+                    StatModule::tt()->createTrouble(array(
                                 'trouble_type'=>$_GET['tty'],
                                 'trouble_subtype' => 'shop',
                                 'client'=>$client_id,
@@ -6180,7 +6205,7 @@ $sql .= "    order by client, bill_no";
         }
 
 
-        $R=array(); $GLOBALS['module_users']->d_users_get($R,array('manager','marketing'));
+        $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
         $userSelect = array(0 => "--- Не установлен ---");
         foreach($R as $u) {
             $userSelect[$u["id"]] = $u["name"]." (".$u["user"].")";
@@ -6263,7 +6288,7 @@ $sql .= "    order by client, bill_no";
         if(strlen($prod) >= 1)
         {
             $ret = "";
-            $prod = str_replace(array("*","%%"), array("%","%"), mysql_real_escape_string($prod));
+            $prod = str_replace(array("*","%%"), array("%","%"), $db->escape($prod));
 
             $storeId = get_param_protected("store_id", "8e5c7b22-8385-11df-9af5-001517456eb1");
             
@@ -6332,13 +6357,10 @@ $sql .= "    order by client, bill_no";
                            "*/) as $good)
                     {
                         if(strpos($good["name"], "(Архив)")!==false) continue;
-                    if (!$pt_condition && !empty($store_info))
+                    if (!empty($store_info))
                     {
                         $add_fields = "store_id:'".addcslashes($store_info['id'],"\\'")."',".
                         "store_name:'".addcslashes($store_info['name'],"\\'")."',";
-                    } elseif (!$pt_condition) {
-                        $add_fields = "store_id:'',".
-                        "store_name:'',";
                     } else {
                         $add_fields = '';
                     }

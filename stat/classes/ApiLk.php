@@ -2,7 +2,7 @@
 
 class ApiLk
 {
-    public function getBalanceList($clientId)
+    public static function getBalanceList($clientId)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -69,7 +69,7 @@ class ApiLk
         return array("bills" => $bills, "sums" => $nSum);
     }
 
-    public function getUserBillOnSum($clientId, $sum)
+    public static function getUserBillOnSum($clientId, $sum)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -102,7 +102,7 @@ class ApiLk
         return $bill;
     }
 
-	public function getBillUrl($billNo)
+	public static function getBillUrl($billNo)
 	{
 		$bill = NewBill::first(array("bill_no" => $billNo));
 		if(!$bill)
@@ -115,7 +115,7 @@ class ApiLk
 		return API__print_bill_url.udata_encode_arr($R);
 	}
 
-    public function getReceiptURL($clientId, $sum)
+    public static function getReceiptURL($clientId, $sum)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -134,7 +134,7 @@ class ApiLk
         return API__print_bill_url.udata_encode_arr($R);
     }
 
-    public function getPropertyPaymentOnCard($clientId, $sum)
+    public static function getPropertyPaymentOnCard($clientId, $sum)
     {
         global $db;
     
@@ -168,13 +168,13 @@ class ApiLk
         return array("sum" => $sum, "order" => $orderId, "signature" => $signature);
     }
 
-    public function updateUnitellerOrder($orderId)
+    public static function updateUnitellerOrder($orderId)
     {
         return true;
         exit();
     }
 
-    public function getBill($clientId, $billNo)
+    public static function getBill($clientId, $billNo)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
             throw new Exception("Неверный номер лицевого счета!");
@@ -245,7 +245,7 @@ class ApiLk
         return $ret;
     }
 
-    public function getDomainList($clientId)
+    public static function getDomainList($clientId)
     {
         $ret = array();
 
@@ -271,11 +271,9 @@ class ApiLk
         }
     
         return $ret;
-    
-    
     }
 
-    public function getEmailList($clientId)
+    public static function getEmailList($clientId)
     {
     
         $ret = array();
@@ -312,9 +310,9 @@ class ApiLk
         return $ret;
     }
 
-    public function getVoipList($clientId, $isSimple = false)
+    public static function getVoipList($clientId, $isSimple = false)
     {
-        global $db_ats;
+        global $db, $db_ats;
         $ret = array();
     
         $card = ClientCard::first(array("id" => $clientId));
@@ -392,7 +390,7 @@ class ApiLk
         return $ret;
     }
 
-    public function getVpbxList($clientId)
+    public static function getVpbxList($clientId)
     {
         $ret = array();
     
@@ -673,7 +671,7 @@ class ApiLk
                 `id`
             ", array($currency, $status)) as $service)
         {
-            $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_fax"), $service);
+            $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
             //$line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
@@ -1749,7 +1747,7 @@ class ApiLk
         $allSavedContacts = $db->AllRecords("
                 SELECT id 
                 FROM `client_contacts` 
-                WHERE `client_id` = '".mysql_real_escape_string($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
+                WHERE `client_id` = '".$db->escape($client_id)."' AND `user_id` = (select id from user_users where user = 'AutoLK') AND `is_active` = '1' ", "id");
 
         foreach ($res as $contact_id=>$d) 
         {
@@ -1901,7 +1899,7 @@ class ApiLk
         if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
             return false;
 
-        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".mysql_real_escape_string($clientId)."' AND id = '".mysql_real_escape_string($id)."'");
+        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$db->escape($clientId)."' AND id = '".$db->escape($id)."'");
         if (!$contactId)
             return false;
 
@@ -1909,7 +1907,7 @@ class ApiLk
     }
 
 
-    private function _getPaymentTypeName($pay)
+    private static function _getPaymentTypeName($pay)
     {
         switch ($pay["type"])
         {
@@ -1930,7 +1928,7 @@ class ApiLk
         return $v;
     }
 
-    private function _getCutOffDate($clientId)
+    private static function _getCutOffDate($clientId)
     {
         global $db;
     
@@ -1958,7 +1956,7 @@ class ApiLk
         return $dateStart;
     }
 
-    private function _getUserBillOnSum_fromDB($clientId, $sum)
+    private static function _getUserBillOnSum_fromDB($clientId, $sum)
     {
         global $db;
     
@@ -2044,7 +2042,7 @@ class ApiLk
         return $tt->createTrouble($R, $user);
     }
 
-    private function _getUserForTrounble($manager)
+    private static function _getUserForTrounble($manager)
     {
         $default_manager = "ava";
     
@@ -2053,7 +2051,7 @@ class ApiLk
         else return $default_manager;
     }
 
-    private function _getUserLK()
+    private static function _getUserLK()
     {
         global $db;
         $default_user = 48;
@@ -2086,6 +2084,4 @@ class ApiLk
 
         return true;
     }
-
-
 }

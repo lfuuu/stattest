@@ -3,7 +3,7 @@ class Saldo extends ActiveRecord\Model
 {
     static $table_name = 'newsaldo';
 
-    public function getLastSaldo($clientId)
+    public static function getLastSaldo($clientId)
     {
         return Saldo::first(array(
                     'select' => 'ts as date, saldo',

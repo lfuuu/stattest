@@ -1,9 +1,6 @@
 <?
 //вывод данных мониторинга
 class m_monitoring {
-	var $rights=array(
-					'monitoring'		=>array('Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики')
-				);
 	var $actions=array(
 					'default'			=> array('monitoring','view'),
 					'edit'				=> array('monitoring','edit'),
@@ -23,9 +20,6 @@ class m_monitoring {
 	function m_monitoring(){	
 		
 	
-	}
-	function Install($p){
-		return $this->rights;
 	}
 	function GetPanel($fixclient){
 		$R=array(); $p=0;

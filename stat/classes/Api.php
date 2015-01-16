@@ -2,7 +2,7 @@
 
 class Api
 {
-	public function getBalance($clientIds, $simple = true)
+	public static function getBalance($clientIds, $simple = true)
 	{
 		if(!is_array($clientIds))
 			$clientIds = array($clientIds);
@@ -118,5 +118,4 @@ class Api
         $db->Query("commit");
         return true;
     }
-
 }

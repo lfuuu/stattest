@@ -51,8 +51,8 @@ function __fsize($params,&$smarty){
 	$v=$params['value'];
 	$v=round($v/(1024*10.24))/100;
 	$p=explode('.',$v);
-	if (strlen($p[1])<1) $v.='.0';
-	if (strlen($p[1])<2) $v.='0';
+	if (!isset($p[1]) || strlen($p[1])<1) $v.='.0';
+	if (!isset($p[1]) || strlen($p[1])<2) $v.='0';
 	return $v;
 }
 function __fsizeKB($params,&$smarty){
@@ -75,7 +75,6 @@ function __ipstat($params, &$smarty){
 	else
 		$c='';
 
-	global $module_monitoring;
 	$data = isset($params['data'])
 		  ? $params['data']
 		  : array();
@@ -94,7 +93,7 @@ function __ipstat($params, &$smarty){
 		$R = array("{$m[1]}.{$m[2]}.{$m[3]}.".($m[4]+1),"{$m[1]}.{$m[2]}.{$m[3]}.".($m[4]+2));
 		$ip="{$m[1]}.{$m[2]}.{$m[3]}.{$m[4]}";
 	}
-	return '<table cellspacing=0 cellpadding=0 border=0><tr><td valign=middle>'.$module_monitoring->get_image($R).'</td><td valign=middle'.$c.'>'.
+	return '<table cellspacing=0 cellpadding=0 border=0><tr><td valign=middle>'.\app\classes\StatModule::monitoring()->get_image($R).'</td><td valign=middle'.$c.'>'.
 					'<a href="?module=monitoring&ip='.$R[0].'"'.$c.'>'.$ip.'</a>'.
 					(isset($R[1])?'/<a href="?module=monitoring&ip='.$R[1].'"'.$c.'>'.$m[6].'</a>':'').' </td></tr></table>';
 }
@@ -296,7 +295,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 		$sum = sprintf("%0.2f",$op['delta']);
 		if ($curr=='RUR') return $sum.' р';
 		
-		if (!$simple && count($op['pays'])>=1 && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
+		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
 			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta']*$op['pays'][0]['payment_rate']).' р</span>';
 		} else {
 			return $sum.' $';
@@ -306,7 +305,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 		$sum = sprintf("%0.2f",$op['delta2']);
 		if ($curr=='RUR') return $sum.' р';
 		
-		if (!$simple && count($op['pays'])>=1 && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
+		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
 			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta2']*$op['pays'][0]['payment_rate']).' р</span>';
 		} else {
 			return $sum.' $';
@@ -314,7 +313,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 	} elseif ($obj=='pay_full') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_full']);
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_rub_full']);
-		$curr = $params['pay']['currency'];
+		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';
@@ -322,7 +321,7 @@ function smarty_function_objCurrency($params,&$smarty) {
 	} elseif ($obj=='pay2') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_pay']);
 		$sum_rur = sprintf("%0.2f",$params['pay']['sum_pay_rub']);
-		$curr = $params['pay']['currency'];
+		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';
@@ -415,14 +414,6 @@ class MySmarty extends Smarty {
 			$this->display($template);
 			return (count($G['errors'])+count($G['notices'])?0:1);
 		}
-	}
-	function AddMenu($title,$arr){
-		if ($this->ignore) return;
-		$this->assign('panel_id',$this->cid);
-		$this->assign('panel_title',$title);
-		$this->assign_by_ref('panel_data',$arr);
-		$this->_add('panel', 'panel.tpl', 1);
-		$this->cid++;
 	}
 
     function var_is_array($name) {

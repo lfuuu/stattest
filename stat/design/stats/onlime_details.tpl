@@ -65,7 +65,7 @@
             </th>
             <td>
                 {if isset($data.delivery.date)}
-                    {$data.delivery.date} 
+                    {$data.delivery.date|mdate:"d месяца Y"} 
                 {/if}
                 {if isset($data.delivery.time)}
                     с {$data.delivery.time.from} 

@@ -2,11 +2,11 @@
 	<input type="hidden" name="module" value="newaccounts" />
 	<input type="hidden" name="action" value="make_1c_bill" />
 	<input type="hidden" name="client_id" value="{$positions.client_id|escape:'url'}" />
-	<input type="hidden" name="order_number" value="{$positions.number}" />
+	<input type="hidden" name="order_number" value="{if isset($positions.number)}{$positions.number}{/if}" />
 	<input type="hidden" name="order_bill_no" value="{$positions.bill_no}" />
 	<input type="hidden" name="is_rollback" value="{if $is_rollback}1{/if}" />
 <table width="100%">
-	{if $positions.number}
+	{if isset($positions.number) && $positions.number}
 	<tr><td colspan="6"><b>Номер счета: <a href="?module=newaccounts&action=bill_view&bill={$positions.bill_no}">{$positions.bill_no}</a></b></td></tr>
 	{/if}
 	<tr><td colspan="6">Заявка{if $is_rollback}-<b><u>возврат</u></b>{/if} на выполнение заказа:</td></tr>
@@ -56,7 +56,7 @@
 	</tr>
 	{foreach from=$positions.list item='p' key='k' name=list}
 	<tr align="center">
-        <td><input class=text type=text value="{$p.art|escape}" name=item[{$key}] style='width:100%' readonly></td>
+        <td><input class=text type=text value="{$p.art|escape}" name=item[{$k}] style='width:100%' readonly></td>
 		<td>
 			<input type="hidden" name="pos[{$k}][id]" value="{$p.id}" />
 			<input type="hidden" name="pos[{$k}][code_1c]" value="{$p.code_1c}">

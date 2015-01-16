@@ -1,11 +1,15 @@
-{if $BIG_ERROR}
+{if isset($BIG_ERROR) && $BIG_ERROR}
 <script type='text/javascript'>
 alert('Возникла ошибка. Если у вас проблема, обратитесь к программисту.');
 </script>
-{elseif $BIG_VICTORY}
+{elseif isset($BIG_VICTORY) && $BIG_VICTORY}
 <script type='text/javascript'>
 alert('Фиксирование успешно завершено.\nGood Luck!');
 </script>
+{/if}
+
+{if !isset($tt_id)}
+    {assign var="tt_id" value=""}
 {/if}
 
 {if $refix_flag}
@@ -44,8 +48,8 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 		<tr>
 			<td>{$doer.name}</td>
 			{section loop=24 start=9 name='myloop'}
-				<td style="{if $doer.time[$dates.key.yesterday].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
-					{if $doer.time[$dates.key.yesterday][$smarty.section.myloop.index]}
+				<td style="{if isset($doer.time[$dates.key.yesterday].here) && $doer.time[$dates.key.yesterday].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
+					{if isset($doer.time[$dates.key.yesterday][$smarty.section.myloop.index]) && $doer.time[$dates.key.yesterday][$smarty.section.myloop.index]}
 						{if $refix_flag eq true && $doer.time[$dates.key.yesterday].here eq $smarty.section.myloop.index}
 							<input type='checkbox' checked='checked' name='doer_fix[{$dates.key.yesterday}][{$smarty.section.myloop.index}][{$doer_id}]' value='1' {*onclick='optools.tt.ctl_chckbxs(this)'*} />
 							{*<script type='text/javascript'>
@@ -74,8 +78,8 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 			{/section}
 			<td>&nbsp;</td>
 			{section loop=24 start=9 name='myloop'}
-				<td style="{if $doer.time[$dates.key.today].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
-					{if $doer.time[$dates.key.today][$smarty.section.myloop.index]}
+				<td style="{if isset($doer.time[$dates.key.today].here) && $doer.time[$dates.key.today].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
+					{if isset($doer.time[$dates.key.today][$smarty.section.myloop.index]) && $doer.time[$dates.key.today][$smarty.section.myloop.index]}
 						{if $refix_flag eq true && $doer.time[$dates.key.today].here eq $smarty.section.myloop.index}
 							<input type='checkbox' checked='checked' name='doer_fix[{$dates.key.today}][{$smarty.section.myloop.index}][{$doer_id}]' value='1' {*onclick='optools.tt.ctl_chckbxs(this)'*} />
 							{*<script type='text/javascript'>
@@ -105,8 +109,8 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 			{/section}
 			<td>&nbsp;</td>
 			{section loop=24 start=9 name='myloop'}
-				<td style="{if $doer.time[$dates.key.tomorrow].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
-					{if $doer.time[$dates.key.tomorrow][$smarty.section.myloop.index]}
+				<td style="{if isset($doer.time[$dates.key.tomorrow].here) && $doer.time[$dates.key.tomorrow].here eq $smarty.section.myloop.index}font-weight:bold;text-decoration:blink;{/if}">
+					{if isset($doer.time[$dates.key.tomorrow][$smarty.section.myloop.index]) && $doer.time[$dates.key.tomorrow][$smarty.section.myloop.index]}
 						{if $refix_flag eq true && $doer.time[$dates.key.tomorrow].here eq $smarty.section.myloop.index}
 							<input type='checkbox' checked='checked' name='doer_fix[{$dates.key.tomorrow}][{$smarty.section.myloop.index}][{$doer_id}]' value='1' {*onclick='optools.tt.ctl_chckbxs(this)'*} />
 							{*<script type='text/javascript'>
@@ -154,7 +158,9 @@ alert('Фиксирование успешно завершено.\nGood Luck!')
 </form>
 {/if}
 
+{if $refix_flag}
 <form method='POST'>
+{/if}
 <table id='timetable_cal_panel_frame' style='position:absolute;visibility:hidden;background-color:silver;border:double'>
 	<tr><td colspan='2'><div align='right'><a href='#' style='text-decoration:none' id='hide_cal' onclick='return optools.tt.timetable_event_handler(event);'>X</a></div></td></tr>
 	<tr>

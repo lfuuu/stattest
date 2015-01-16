@@ -50,23 +50,99 @@ optools.DatePickerInit();
 	        <td>Всего</td>
 	    </tr>
 	    {foreach from=$d item=i key=idx}
+            {assign var="line_total" value=0}
 	    <tr>
 	        <td>{$i.count+1}.</td>
 	        <td>{$i.name} <sup>({$idx})</sup></td>
-	        <td>{$i.data.consultation.count}{if $i.data.consultation.rating_count > 0} / <font style="color: {if $i.data.consultation.rating_avg <=3}#c40000{else}green{/if}">{$i.data.consultation.rating_avg|round:1}<sup>({$i.data.consultation.rating_count})</sup></font>{/if}</td>
-	        <td>{$i.data.monitoring.count}{if $i.data.monitoring.rating_count > 0} / <font style="color: {if $i.data.monitoring.rating_avg <=3}#c40000{else}green{/if}">{$i.data.monitoring.rating_avg|round:1}<sup>({$i.data.monitoring.rating_count})</sup></font>{/if}</td>
-	        <td>{$i.data.trouble.count}{if $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}</td>
-	        <td>{$i.data.task.count}{if $i.data.task.rating_count > 0} / <font style="color: {if $i.data.task.rating_avg <=3}#c40000{else}green{/if}">{$i.data.task.rating_avg|round:1}<sup>({$i.data.task.rating_count})</sup></font>{/if}</td>
-	        <td><i>{$i.data.trouble.count+$i.data.monitoring.count+$i.data.consultation.count+$i.data.task.count}</i></td>
+	        <td>
+                    {if isset($i.data.consultation.count)}
+                        {assign var="line_total" value=$line_total+$i.data.consultation.count}
+                        {$i.data.consultation.count}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($i.data.consultation.rating_count) && $i.data.consultation.rating_count > 0} / <font style="color: {if $i.data.consultation.rating_avg <=3}#c40000{else}green{/if}">{$i.data.consultation.rating_avg|round:1}<sup>({$i.data.consultation.rating_count})</sup></font>{/if}
+                </td>
+	        <td>
+                    {if isset($i.data.monitoring.count)}
+                        {assign var="line_total" value=$line_total+$i.data.monitoring.count}
+                        {$i.data.monitoring.count}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($i.data.monitoring.rating_count) && $i.data.monitoring.rating_count > 0} / <font style="color: {if $i.data.monitoring.rating_avg <=3}#c40000{else}green{/if}">{$i.data.monitoring.rating_avg|round:1}<sup>({$i.data.monitoring.rating_count})</sup></font>{/if}
+                </td>
+	        <td>
+                    {if isset($i.data.trouble.count)}
+                        {assign var="line_total" value=$line_total+$i.data.trouble.count}
+                        {$i.data.trouble.count}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($i.data.trouble.rating_count) && $i.data.trouble.rating_count > 0} / <font style="color: {if $i.data.trouble.rating_avg <=3}#c40000{else}green{/if}">{$i.data.trouble.rating_avg|round:1}<sup>({$i.data.trouble.rating_count})</sup></font>{/if}
+                </td>
+	        <td>
+                    {if isset($i.data.task.count)}
+                        {assign var="line_total" value=$line_total+$i.data.task.count}
+                        {$i.data.task.count}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($i.data.task.rating_count) && $i.data.task.rating_count > 0} / <font style="color: {if $i.data.task.rating_avg <=3}#c40000{else}green{/if}">{$i.data.task.rating_avg|round:1}<sup>({$i.data.task.rating_count})</sup></font>{/if}
+                </td>
+	        <td><i>{$line_total}</i></td>
 	    </tr>
 	    {/foreach}
 	    <tr>
+                {assign var="line_total" value=0}
 	        <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-	        <td><b>{$total.consultation}</b></td>
-	        <td><b>{$total.monitoring}</b></td>
-	        <td><b>{$total.trouble}</b></td>
-	        <td><b>{$total.task}</b></td>
-	        <td><b><i>{$total.trouble+$total.monitoring+$total.consultation+$total.task}</i></b></td>
+	        <td>
+                    <b>
+                        {if isset($total.consultation)}
+                            {assign var="line_total" value=$line_total+$total.consultation}
+                            {$total.consultation}
+                        {else}
+                            0
+                        {/if}
+                    </b>
+                </td>
+	        <td>
+                    <b>
+                        {if isset($total.monitoring)}
+                            {assign var="line_total" value=$line_total+$total.monitoring}
+                            {$total.monitoring}
+                        {else}
+                            0
+                        {/if}
+                    </b>
+                </td>
+	        <td>
+                    <b>
+                        {if isset($total.trouble)}
+                            {assign var="line_total" value=$line_total+$total.trouble}
+                            {$total.trouble}
+                        {else}
+                            0
+                        {/if}
+                    </b>
+                </td>
+	        <td>
+                    <b>
+                        {if isset($total.task)}
+                            {assign var="line_total" value=$line_total+$total.task}
+                            {$total.task}
+                        {else}
+                            0
+                        {/if}
+                    </b>
+                </td>
+	        <td>
+                    <b>
+                        <i>
+                            {$line_total}
+                        </i>
+                    </b>
+                </td>
 	    </tr>
 	</table>
     <br>
@@ -87,24 +163,114 @@ optools.DatePickerInit();
 			<td>Всего</td>
 		</tr>
 		{foreach from=$on_completed_users item=user_name key=user_user name='list'}
-			{assign var=rating_total value=`$on_completed_rating[$user_user].consultation[7]+$on_completed_rating[$user_user].monitoring[7]+$on_completed_rating[$user_user].trouble[7]+$on_completed_rating[$user_user].task[7]`}
+			{assign var=rating_total value=0}
+                        {assign var=line_total value=0}
 			<tr>
 				<td>{$smarty.foreach.list.iteration}.</td>
 				<td>{$user_name} <sup>({$user_user})</sup></td>
-				<td>{$on_completed_data.7.consultation[$user_user]}{if $on_completed_rating[$user_user].consultation[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].consultation[7]}</font>{/if}</td>
-				<td>{$on_completed_data.7.monitoring[$user_user]}{if $on_completed_rating[$user_user].monitoring[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].monitoring[7]}</font>{/if}</td>
-				<td>{$on_completed_data.7.trouble[$user_user]}{if $on_completed_rating[$user_user].trouble[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].trouble[7]}</font>{/if}</td>
-				<td>{$on_completed_data.7.task[$user_user]}{if $on_completed_rating[$user_user].task[7] > 0} / <font style="color: green">{$on_completed_rating[$user_user].task[7]}</font>{/if}</td>
-				<td><i>{$on_completed_data.7.consultation[$user_user]+$on_completed_data.7.monitoring[$user_user]+$on_completed_data.7.trouble[$user_user]+$on_completed_data.7.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+				<td>
+                                    {if isset($on_completed_data.7.consultation[$user_user])}
+                                        {assign var=line_total value=$line_total+$on_completed_data.7.consultation[$user_user]}
+                                        {$on_completed_data.7.consultation[$user_user]}
+                                    {else}
+                                        &nbsp;
+                                    {/if}
+                                    {if isset($on_completed_rating[$user_user].consultation[7]) && $on_completed_rating[$user_user].consultation[7] > 0}
+                                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].consultation[7]}
+                                         / <font style="color: green">{$on_completed_rating[$user_user].consultation[7]}</font>
+                                    {/if}
+                                </td>
+				<td>
+                                    {if isset($on_completed_data.7.monitoring[$user_user])}
+                                        {assign var=line_total value=$line_total+$on_completed_data.7.monitoring[$user_user]}
+                                        {$on_completed_data.7.monitoring[$user_user]}
+                                    {else}
+                                        &nbsp;
+                                    {/if}
+                                    {if isset($on_completed_rating[$user_user].monitoring[7]) && $on_completed_rating[$user_user].monitoring[7] > 0}
+                                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].monitoring[7]}
+                                         / <font style="color: green">{$on_completed_rating[$user_user].monitoring[7]}</font>
+                                    {/if}
+                                </td>
+				<td>
+                                    {if isset($on_completed_data.7.trouble[$user_user])}
+                                        {assign var=line_total value=$line_total+$on_completed_data.7.trouble[$user_user]}
+                                        {$on_completed_data.7.trouble[$user_user]}
+                                    {else}
+                                        &nbsp;
+                                    {/if}
+                                    {if isset($on_completed_rating[$user_user].trouble[7]) && $on_completed_rating[$user_user].trouble[7] > 0}
+                                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].trouble[7]}
+                                         / <font style="color: green">{$on_completed_rating[$user_user].trouble[7]}</font>
+                                    {/if}
+                                </td>
+				<td>
+                                    {if isset($on_completed_data.7.task[$user_user])}
+                                        {assign var=line_total value=$line_total+$on_completed_data.7.task[$user_user]}
+                                        {$on_completed_data.7.task[$user_user]}
+                                    {else}
+                                        &nbsp;
+                                    {/if}
+                                    {if isset($on_completed_rating[$user_user].task[7]) && $on_completed_rating[$user_user].task[7] > 0}
+                                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].task[7]}
+                                         / <font style="color: green">{$on_completed_rating[$user_user].task[7]}</font>
+                                    {/if}
+                                </td>
+				<td>
+                                    <i>{$line_total}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i>
+                                </td>
 			</tr>
 		{/foreach}
 		<tr>
+                    {assign var="line_total" value=0}
 		    <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-		    <td><b>{$on_completed_total.7.consultation}</b></td>
-		    <td><b>{$on_completed_total.7.monitoring}</b></td>
-		    <td><b>{$on_completed_total.7.trouble}</b></td>
-		    <td><b>{$on_completed_total.7.task}</b></td>
-		    <td><b><i>{$on_completed_total.7.trouble+$on_completed_total.7.monitoring+$on_completed_total.7.consultation+$on_completed_total.7.task}</i></b></td>
+                    <td>
+                        <b>
+                            {if isset($on_completed_total.7.consultation)}
+                                {assign var="line_total" value=$line_total+$on_completed_total.7.consultation}
+                                {$on_completed_total.7.consultation}
+                            {else}
+                                0
+                            {/if}
+                        </b>
+                    </td>
+                    <td>
+                        <b>
+                            {if isset($on_completed_total.7.monitoring)}
+                                {assign var="line_total" value=$line_total+$on_completed_total.7.monitoring}
+                                {$on_completed_total.7.monitoring}
+                            {else}
+                                0
+                            {/if}
+                        </b>
+                    </td>
+                    <td>
+                        <b>
+                            {if isset($on_completed_total.7.trouble)}
+                                {assign var="line_total" value=$line_total+$on_completed_total.7.trouble}
+                                {$on_completed_total.7.trouble}
+                            {else}
+                                0
+                            {/if}
+                        </b>
+                    </td>
+                    <td>
+                        <b>
+                            {if isset($on_completed_total.7.task)}
+                                {assign var="line_total" value=$line_total+$on_completed_total.7.task}
+                                {$on_completed_total.7.task}
+                            {else}
+                                0
+                            {/if}
+                        </b>
+                    </td>
+                    <td>
+                        <b>
+                            <i>
+                                {$line_total}
+                            </i>
+                        </b>
+                    </td>
 		</tr>
 	</table>
     <br>
@@ -125,24 +291,114 @@ optools.DatePickerInit();
             <td>Всего</td>
         </tr>
         {foreach from=$on_completed_users item=user_name key=user_user name='list'}
-            {assign var=rating_total value=`$on_completed_rating[$user_user].consultation[2]+$on_completed_rating[$user_user].monitoring[2]+$on_completed_rating[$user_user].trouble[2]+$on_completed_rating[$user_user].task[2]`}
+            {assign var=rating_total value=0}
+            {assign var=line_total value=0}
             <tr>
                 <td>{$smarty.foreach.list.iteration}.</td>
                 <td>{$user_name} <sup>({$user_user})</sup></td>
-                <td>{$on_completed_data.2.consultation[$user_user]}{if $on_completed_rating[$user_user].consultation[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].consultation[2]}</font>{/if}</td>
-                <td>{$on_completed_data.2.monitoring[$user_user]}{if $on_completed_rating[$user_user].monitoring[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].monitoring[2]}</font>{/if}</td>
-                <td>{$on_completed_data.2.trouble[$user_user]}{if $on_completed_rating[$user_user].trouble[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].trouble[2]}</font>{/if}</td>
-                <td>{$on_completed_data.2.task[$user_user]}{if $on_completed_rating[$user_user].task[2] > 0} / <font style="color: green">{$on_completed_rating[$user_user].task[2]}</font>{/if}</td>
-                <td><i>{$on_completed_data.2.consultation[$user_user]+$on_completed_data.2.monitoring[$user_user]+$on_completed_data.2.trouble[$user_user]+$on_completed_data.2.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+                <td>
+                    {if isset($on_completed_data.2.consultation[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data.2.consultation[$user_user]}
+                        {$on_completed_data.2.consultation[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating[$user_user].consultation[2]) && $on_completed_rating[$user_user].consultation[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].consultation[2]}
+                         / <font style="color: green">{$on_completed_rating[$user_user].consultation[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data.2.monitoring[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data.2.monitoring[$user_user]}
+                        {$on_completed_data.2.monitoring[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating[$user_user].monitoring[2]) && $on_completed_rating[$user_user].monitoring[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].monitoring[2]}
+                         / <font style="color: green">{$on_completed_rating[$user_user].monitoring[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data.2.trouble[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data.2.trouble[$user_user]}
+                        {$on_completed_data.2.trouble[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating[$user_user].trouble[2]) && $on_completed_rating[$user_user].trouble[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].trouble[2]}
+                         / <font style="color: green">{$on_completed_rating[$user_user].trouble[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data.2.task[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data.2.task[$user_user]}
+                        {$on_completed_data.2.task[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating[$user_user].task[2]) && $on_completed_rating[$user_user].task[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating[$user_user].task[2]}
+                         / <font style="color: green">{$on_completed_rating[$user_user].task[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    <i>{$line_total}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i>
+                </td>
             </tr>
         {/foreach}
         <tr>
             <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-            <td><b>{$on_completed_total.2.consultation}</b></td>
-            <td><b>{$on_completed_total.2.monitoring}</b></td>
-            <td><b>{$on_completed_total.2.trouble}</b></td>
-            <td><b>{$on_completed_total.2.task}</b></td>
-            <td><b><i>{$on_completed_total.2.trouble+$on_completed_total.2.monitoring+$on_completed_total.2.consultation+$on_completed_total.2.task}</i></b></td>
+            {assign var="line_total" value=0}
+            <td>
+                <b>
+                    {if isset($on_completed_total.2.consultation)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2.consultation}
+                        {$on_completed_total.2.consultation}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2.monitoring)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2.monitoring}
+                        {$on_completed_total.2.monitoring}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2.trouble)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2.trouble}
+                        {$on_completed_total.2.trouble}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2.task)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2.task}
+                        {$on_completed_total.2.task}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    <i>
+                        {$line_total}
+                    </i>
+                </b>
+            </td>
         </tr>
     </table>
     <br>
@@ -162,23 +418,96 @@ optools.DatePickerInit();
             <td>Всего</td>
         </tr>
         {foreach from=$on_completed_users item=user_name key=user_user name='list'}
+            {assign var="line_total" value=0}
             <tr>
                 <td>{$smarty.foreach.list.iteration}.</td>
                 <td>{$user_name} <sup>({$user_user})</sup></td>
-                <td>{$on_completed_data.2w7.consultation[$user_user]}</td>
-                <td>{$on_completed_data.2w7.monitoring[$user_user]}</td>
-                <td>{$on_completed_data.2w7.trouble[$user_user]}</td>
-                <td>{$on_completed_data.2w7.task[$user_user]}</td>
-                <td><i>{$on_completed_data.2w7.consultation[$user_user]+$on_completed_data.2w7.monitoring[$user_user]+$on_completed_data.2w7.trouble[$user_user]+$on_completed_data.2w7.task[$user_user]}</i></td>
+                <td>
+                    {if isset($on_completed_data.2w7.consultation[$user_user])}
+                        {assign var="line_total" value=$line_total+$on_completed_data.2w7.consultation[$user_user]}
+                        {$on_completed_data.2w7.consultation[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data.2w7.monitoring[$user_user])}
+                        {assign var="line_total" value=$line_total+$on_completed_data.2w7.monitoring[$user_user]}
+                        {$on_completed_data.2w7.monitoring[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data.2w7.trouble[$user_user])}
+                        {assign var="line_total" value=$line_total+$on_completed_data.2w7.trouble[$user_user]}
+                        {$on_completed_data.2w7.trouble[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data.2w7.task[$user_user])}
+                        {assign var="line_total" value=$line_total+$on_completed_data.2w7.task[$user_user]}
+                        {$on_completed_data.2w7.task[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                </td>
+                <td>
+                    <i>{$line_total}</i></td>
             </tr>
         {/foreach}
         <tr>
+            {assign var="line_total" value=0}
             <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-            <td><b>{$on_completed_total.2w7.consultation}</b></td>
-            <td><b>{$on_completed_total.2w7.monitoring}</b></td>
-            <td><b>{$on_completed_total.2w7.trouble}</b></td>
-            <td><b>{$on_completed_total.2w7.task}</b></td>
-            <td><b><i>{$on_completed_total.2w7.trouble+$on_completed_total.2w7.monitoring+$on_completed_total.2w7.consultation+$on_completed_total.2w7.task}</i></b></td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2w7.consultation)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2w7.consultation}
+                        {$on_completed_total.2w7.consultation}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2w7.monitoring)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2w7.monitoring}
+                        {$on_completed_total.2w7.monitoring}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2w7.trouble)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2w7.trouble}
+                        {$on_completed_total.2w7.trouble}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total.2w7.task)}
+                        {assign var="line_total" value=$line_total+$on_completed_total.2w7.task}
+                        {$on_completed_total.2w7.task}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    <i>
+                        {$line_total}
+                    </i>
+                </b>
+            </td>
         </tr>
     </table>
     <br>
@@ -199,24 +528,117 @@ optools.DatePickerInit();
             <td>Всего</td>
         </tr>
         {foreach from=$on_completed_users2 item=user_name key=user_user name='list'}
-            {assign var=rating_total value=`$on_completed_rating2[$user_user].consultation[7]+$on_completed_rating2[$user_user].monitoring[7]+$on_completed_rating2[$user_user].trouble[7]+$on_completed_rating2[$user_user].task[7]`}
+            {assign var=rating_total value=0}
+            {assign var=line_total value=0}
             <tr>
                 <td>{$smarty.foreach.list.iteration}.</td>
                 <td>{$user_name} <sup>({$user_user})</sup></td>
-                <td>{$on_completed_data2.7.consultation[$user_user]}{if $on_completed_rating2[$user_user].consultation[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].consultation[7]}</font>{/if}</td>
-                <td>{$on_completed_data2.7.monitoring[$user_user]}{if $on_completed_rating2[$user_user].monitoring[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].monitoring[7]}</font>{/if}</td>
-                <td>{$on_completed_data2.7.trouble[$user_user]}{if $on_completed_rating2[$user_user].trouble[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].trouble[7]}</font>{/if}</td>
-                <td>{$on_completed_data2.7.task[$user_user]}{if $on_completed_rating2[$user_user].task[7] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].task[7]}</font>{/if}</td>
-                <td><i>{$on_completed_data2.7.consultation[$user_user]+$on_completed_data2.7.monitoring[$user_user]+$on_completed_data2.7.trouble[$user_user]+$on_completed_data2.7.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+                <td>
+                    {if isset($on_completed_data2.7.consultation[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.7.consultation[$user_user]}
+                        {$on_completed_data2.7.consultation[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].consultation[7]) && $on_completed_rating2[$user_user].consultation[7] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].consultation[7]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].consultation[7]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data2.7.monitoring[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.7.monitoring[$user_user]}
+                        {$on_completed_data2.7.monitoring[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].monitoring[7]) && $on_completed_rating2[$user_user].monitoring[7] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].monitoring[7]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].monitoring[7]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data2.7.trouble[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.7.trouble[$user_user]}
+                        {$on_completed_data2.7.trouble[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].trouble[7]) && $on_completed_rating2[$user_user].trouble[7] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].trouble[7]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].trouble[7]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data2.7.task[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.7.task[$user_user]}
+                        {$on_completed_data2.7.task[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].task[7]) && $on_completed_rating2[$user_user].task[7] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].task[7]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].task[7]}</font>
+                    {/if}
+                </td>
+                <td>
+                    <i>
+                        {$line_total}
+                        {if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}
+                    </i>
+                </td>
             </tr>
         {/foreach}
         <tr>
+            {assign var="line_total" value=0}
             <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-            <td><b>{$on_completed_total2.7.consultation}</b></td>
-            <td><b>{$on_completed_total2.7.monitoring}</b></td>
-            <td><b>{$on_completed_total2.7.trouble}</b></td>
-            <td><b>{$on_completed_total2.7.task}</b></td>
-            <td><b><i>{$on_completed_total2.7.trouble+$on_completed_total2.7.monitoring+$on_completed_total2.7.consultation+$on_completed_total2.7.task}</i></b></td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.7.consultation)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.7.consultation}
+                        {$on_completed_total2.7.consultation}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.7.monitoring)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.7.monitoring}
+                        {$on_completed_total2.7.monitoring}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.7.trouble)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.7.trouble}
+                        {$on_completed_total2.7.trouble}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.7.task)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.7.task}
+                        {$on_completed_total2.7.task}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    <i>
+                        {$line_total}
+                    </i>
+                </b>
+            </td>
         </tr>
     </table>
 </div>
@@ -235,24 +657,117 @@ optools.DatePickerInit();
             <td>Всего</td>
         </tr>
         {foreach from=$on_completed_users2 item=user_name key=user_user name='list'}
-            {assign var=rating_total value=`$on_completed_rating2[$user_user].consultation[2]+$on_completed_rating2[$user_user].monitoring[2]+$on_completed_rating2[$user_user].trouble[2]+$on_completed_rating2[$user_user].task[2]`}
+            {assign var=rating_total value=0}
+            {assign var=line_total value=0}
             <tr>
                 <td>{$smarty.foreach.list.iteration}.</td>
                 <td>{$user_name} <sup>({$user_user})</sup></td>
-                <td>{$on_completed_data2.2.consultation[$user_user]}{if $on_completed_rating2[$user_user].consultation[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].consultation[2]}</font>{/if}</td>
-                <td>{$on_completed_data2.2.monitoring[$user_user]}{if $on_completed_rating2[$user_user].monitoring[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].monitoring[2]}</font>{/if}</td>
-                <td>{$on_completed_data2.2.trouble[$user_user]}{if $on_completed_rating2[$user_user].trouble[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].trouble[2]}</font>{/if}</td>
-                <td>{$on_completed_data2.2.task[$user_user]}{if $on_completed_rating2[$user_user].task[2] > 0} / <font style="color: green">{$on_completed_rating2[$user_user].task[2]}</font>{/if}</td>
-                <td><i>{$on_completed_data2.2.consultation[$user_user]+$on_completed_data2.2.monitoring[$user_user]+$on_completed_data2.2.trouble[$user_user]+$on_completed_data2.2.task[$user_user]}{if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}</i></td>
+                <td>
+                    {if isset($on_completed_data2.2.consultation[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.2.consultation[$user_user]}
+                        {$on_completed_data2.2.consultation[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].consultation[2]) && $on_completed_rating2[$user_user].consultation[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].consultation[2]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].consultation[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data2.2.monitoring[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.2.monitoring[$user_user]}
+                        {$on_completed_data2.2.monitoring[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].monitoring[2]) && $on_completed_rating2[$user_user].monitoring[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].monitoring[2]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].monitoring[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data2.2.trouble[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.2.trouble[$user_user]}
+                        {$on_completed_data2.2.trouble[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].trouble[2]) && $on_completed_rating2[$user_user].trouble[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].trouble[2]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].trouble[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    {if isset($on_completed_data2.2.task[$user_user])}
+                        {assign var=line_total value=$line_total+$on_completed_data2.2.task[$user_user]}
+                        {$on_completed_data2.2.task[$user_user]}
+                    {else}
+                        &nbsp;
+                    {/if}
+                    {if isset($on_completed_rating2[$user_user].task[2]) && $on_completed_rating2[$user_user].task[2] > 0}
+                        {assign var=rating_total value=$rating_total+$on_completed_rating2[$user_user].task[2]}
+                         / <font style="color: green">{$on_completed_rating2[$user_user].task[2]}</font>
+                    {/if}
+                </td>
+                <td>
+                    <i>
+                        {$line_total}
+                        {if $rating_total > 0} / <font style="color: green">{$rating_total}</font>{/if}
+                    </i>
+                </td>
             </tr>
         {/foreach}
         <tr>
             <td colspan=2 align=right><b>Итого:</b>&nbsp;</td>
-            <td><b>{$on_completed_total2.2.consultation}</b></td>
-            <td><b>{$on_completed_total2.2.monitoring}</b></td>
-            <td><b>{$on_completed_total2.2.trouble}</b></td>
-            <td><b>{$on_completed_total2.2.task}</b></td>
-            <td><b><i>{$on_completed_total2.2.trouble+$on_completed_total2.2.monitoring+$on_completed_total2.2.consultation+$on_completed_total2.2.task}</i></b></td>
+            {assign var="line_total" value=0}
+            <td>
+                <b>
+                    {if isset($on_completed_total2.2.consultation)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.2.consultation}
+                        {$on_completed_total2.2.consultation}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.2.monitoring)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.2.monitoring}
+                        {$on_completed_total2.2.monitoring}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.2.trouble)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.2.trouble}
+                        {$on_completed_total2.2.trouble}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    {if isset($on_completed_total2.2.task)}
+                        {assign var="line_total" value=$line_total+$on_completed_total2.2.task}
+                        {$on_completed_total2.2.task}
+                    {else}
+                        0
+                    {/if}
+                </b>
+            </td>
+            <td>
+                <b>
+                    <i>
+                        {$line_total}
+                    </i>
+                </b>
+            </td>
         </tr>
     </table>
 </div>

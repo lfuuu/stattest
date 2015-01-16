@@ -17,59 +17,62 @@ function doGetNet() {
 	document.getElementById('getnet_button').disabled = true;
 	
 	var query = '' + document.getElementById('getnet_size').value; 
-	var req = new Subsys_JsHttpRequest_Js();
-	req.onreadystatechange = function() { 
-		if (req.readyState == 4) {
-			document.getElementById('getnet_button').disabled = false;
-			document.getElementById('getnet_size').style.visibility = "";
-			if (req.responseJS && req.responseJS.data) { 
-				document.getElementById('net').value = req.responseJS.data;
-			}
-		} 
-	} 
-	req.caching = false; 
-	req.open('POST', '?module=routers&action=n_acquire_as', true); 
-	v={};
-	v['query']=query;
-	req.send(v);
+
+    $.getJSON('/index_lite.php?module=routers&action=n_acquire_as&query=' + encodeURI(query))
+        .done(function(data){
+            document.getElementById('getnet_button').disabled = false;
+            document.getElementById('getnet_size').style.visibility = "";
+            if (data && data.data) {
+                document.getElementById('net').value = data.data;
+            }
+        });
 }
 
 
 function doLoad() { 
 	var query = '' + document.getElementById('searchfield').value; 
-	var req = new Subsys_JsHttpRequest_Js();
-	req.onreadystatechange = function() { 
-		if (req.readyState == 4) {
-			if (req.responseJS && req.responseJS.data) { 
-				document.getElementById('variants').innerHTML = req.responseJS.data;
-				document.getElementById('variants').style.display="";
-			} else document.getElementById('variants').style.display='none';
-			//document.getElementById('variants').innerHTML = req.responseText; 
-		} 
-	} 
-	req.caching = false; 
-	req.open('POST', '?module=clients&action=search_as', true); 
-	v={};
-	v['query']=query;
-	req.send(v);
+    $.getJSON('/index_lite.php?module=clients&action=search_as&query=' + encodeURI(query))
+        .done(function(data){
+            if (data && data.data) {
+                document.getElementById('variants').innerHTML = data.data;
+                document.getElementById('variants').style.display="";
+            } else document.getElementById('variants').style.display='none';
+        })
 } 
- 
 
-function toggle(obj,link,module){
-	if (obj.style.display=='inline'){
-		obj.style.display = 'none';
-		link.innerHTML='&raquo;';
-		value = '0';
-	} else {
-		obj.style.display = 'inline';	
-		link.innerHTML='&laquo;';
-		value = '1';
-	}
-	if (module!="") document.getElementById("toggle_frame").src=("?module=usercontrol&action=ex_toggle&panel=" + module + "&value=" + value);
+function openNavigationBlock(id){
+    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+    $('#' + id).addClass('opened');
+    openedBlocks[id] = true;
+    localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
+
+function closeNavigationBlock(id){
+    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+    $('#' + id).removeClass('opened');
+    delete openedBlocks[id];
+    localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
+}
+
+function toggleNavigationBlock(id){
+    if ($('#' + id).hasClass('opened')) {
+        closeNavigationBlock(id);
+    } else {
+        openNavigationBlock(id);
+    }
+}
+
+function initNavigationBlocks(){
+    var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+    for(var blockId in openedBlocks) {
+        openNavigationBlock(blockId);
+    }
+}
+
 
 function toggle2(obj){
 	if (!obj.style) obj = document.getElementById(obj);
+	if (!obj) return;
 	if (obj.style.display=='none'){
 		obj.style.display = '';
 	} else {
@@ -207,14 +210,12 @@ function form_ip_ports_get_ports() {
 	var nodeval=document.getElementById('node').value;
 	var porttypeval=document.getElementById('port_type').value;
 	options_waiting('port',(nodeval && porttypeval));
-	var req = new Subsys_JsHttpRequest_Js();
-	req.onreadystatechange = function() {
-		if (req.readyState == 4 && req.responseJS && req.responseJS.ports) options_update('port',req.responseJS.ports);
-		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
-	} 
-	req.caching = false; 
-	req.open('GET', './index_lite.php?module=services&action=in_async&node='+nodeval+'&port_type='+porttypeval, true); 
-	req.send();			
+    $.getJSON('index_lite.php?module=services&action=in_async&node='+nodeval+'&port_type='+porttypeval)
+        .done(function(data){
+            if (data && data) {
+                options_update('port',data.ports);
+            }
+        });
 }
 
 function form_cpe_get_clients(first_load) { 
@@ -222,40 +223,30 @@ function form_cpe_get_clients(first_load) {
 	document.getElementById('deposit_sumRUR').title='загрузка...';
 	document.getElementById('deposit_sumUSD').title='загрузка...';
 	options_waiting('client',id_modelval);
-	var req = new Subsys_JsHttpRequest_Js();
-	req.onreadystatechange = function() {
-		if (req.readyState == 4 && req.responseJS) {
-			if (req.responseJS.depositUSD && req.responseJS.depositRUR) {
-				document.getElementById('deposit_sumUSD').title=req.responseJS.depositUSD;
-				document.getElementById('deposit_sumRUR').title=req.responseJS.depositRUR;
-				if (!document.getElementById('deposit_sumRUR').value) document.getElementById('deposit_sumRUR').value=req.responseJS.depositRUR;
-				if (!document.getElementById('deposit_sumUSD').value) document.getElementById('deposit_sumUSD').value=req.responseJS.depositUSD;
-			}
-			if (req.responseJS.data) {
-				options_update('client',req.responseJS.data, true);
+    $.getJSON('/index_lite.php?module=routers&action=d_async&res=client&id_model='+id_modelval+'&client='+document.getElementById('client').getAttribute('tag'))
+        .done(function(data){
+            if (data.depositUSD && data.depositRUR) {
+                document.getElementById('deposit_sumUSD').title=data.depositUSD;
+                document.getElementById('deposit_sumRUR').title=data.depositRUR;
+                if (!document.getElementById('deposit_sumRUR').value) document.getElementById('deposit_sumRUR').value=data.depositRUR;
+                if (!document.getElementById('deposit_sumUSD').value) document.getElementById('deposit_sumUSD').value=data.depositUSD;
+            }
+            if (data.data) {
+                options_update('client',data.data, true);
                 options_select('client', _client);
-				form_cpe_get_services();
-			}
-			if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
-		}
-	} 
-	req.caching = false;
-	req.open('GET', './index_lite.php?module=routers&action=d_async&res=client&id_model='+id_modelval+'&client='+document.getElementById('client').getAttribute('tag'), true); 
-	req.send();
+                form_cpe_get_services();
+            }
+        });
 } 
 
 function form_cpe_get_services(first_load) {
 	var id_modelval=document.getElementById('id_model').value;
 	var clientval=(first_load?document.getElementById('client').getAttribute('tag'):document.getElementById('client').value);
 	options_waiting('id_service',id_modelval);
-	var req = new Subsys_JsHttpRequest_Js();
-	req.onreadystatechange = function() {
-		if (req.readyState == 4 && req.responseJS && req.responseJS.data) options_update('id_service',req.responseJS.data);
-		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
-	}
-	req.caching = false; 
-	req.open('GET', './index_lite.php?module=routers&action=d_async&res=service&id_model='+id_modelval+'&client='+clientval+'&id='+document.getElementById('id_service').getAttribute('tag'), true);
-	req.send();
+    $.getJSON('/index_lite.php?module=routers&action=d_async&res=service&id_model='+id_modelval+'&client='+clientval+'&id='+document.getElementById('id_service').getAttribute('tag'))
+        .done(function(data){
+            if (data && data.data) options_update('id_service',data.data);
+        })
 } 
 
 function form_usage_extra_group(o) {
@@ -327,29 +318,24 @@ function __form_get(id, tarif_table) {
 	}
 	if (!id) return;
 	document.getElementById('async_price').value='загрузка...';
-	var req = new Subsys_JsHttpRequest_Js();
-	req.onreadystatechange = function() {
-		if (req.readyState == 4 && req.responseJS) {
-			if (req.responseJS.async_price) document.getElementById('tr_async_price').childNodes[1].innerHTML=req.responseJS.async_price;
-			if (req.responseJS.async_period) document.getElementById('tr_async_period').childNodes[1].innerHTML=req.responseJS.async_period;
-			if (req.responseJS.param_name) {
-				document.getElementById('tr_param_value').childNodes[0].innerHTML=req.responseJS.param_name;
-				document.getElementById('tr_param_value').style.display='';
-			} else document.getElementById('tr_param_value').style.display='none';
-			if (req.responseJS.is_countable && req.responseJS.is_countable==1) {
-				document.getElementById('tr_amount').style.display='';
-			} else {
-				document.getElementById('amount').value="1";
-				document.getElementById('tr_amount').style.display='none';
-			}
-			loading = false;
-		}
-		if (req.responseText) document.getElementById('div_errors').innerHTML+=req.responseText;
-	}
-	req.caching = false; 
-	req.open('GET', './index_lite.php?module=services&action=ex_async&tarif_table='+tarif_table+'&id='+id, true);
-	req.send();
-} 
+
+    $.getJSON('/index_lite.php?module=services&action=ex_async&tarif_table='+tarif_table+'&id='+id)
+        .done(function(data){
+            if (data.async_price) document.getElementById('tr_async_price').childNodes[1].innerHTML=data.async_price;
+            if (data.async_period) document.getElementById('tr_async_period').childNodes[1].innerHTML=data.async_period;
+            if (data.param_name) {
+                document.getElementById('tr_param_value').childNodes[0].innerHTML=data.param_name;
+                document.getElementById('tr_param_value').style.display='';
+            } else document.getElementById('tr_param_value').style.display='none';
+            if (data.is_countable && data.is_countable==1) {
+                document.getElementById('tr_amount').style.display='';
+            } else {
+                document.getElementById('amount').value="1";
+                document.getElementById('tr_amount').style.display='none';
+            }
+            loading = false;
+        });
+}
 
 function form_cpe_load(){
 //	document.getElementById('service').disabled=1;

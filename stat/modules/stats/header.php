@@ -2,9 +2,6 @@
 class m_stats_head extends IModuleHead{
 	public $module_name = 'stats';
 	public $module_title = 'Статистика';
-	var $rights=array(
-		'stats'=>array("Статистика", 'r,report,vip_report,voip_recognition,sale_channel_report','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители'),
-	);
 	var $actions=array(
 		'default'			=> array('stats','r'),
 		'internet'			=> array('stats','r'),
@@ -23,9 +20,9 @@ class m_stats_head extends IModuleHead{
 		'report_services'	=> array('stats','report'),
 		'report_wimax'		=> array('stats','report'),
 		'report_netbynet'	=> array('stats','report'),
-		'report_onlime'	    => array('stats','report'),
-		'report_onlime2'	    => array('stats','report'),
-		'report_onlime_all'	    => array('stats','report'),
+		'report_onlime'	    => array('stats','onlime_read'),
+		'report_onlime2'	    => array('stats','onlime_create'),
+		'report_onlime_all'	    => array('stats','onlime_full'),
 		'report_inn'	    => array('stats','report'),
 		//'report_wimax_test'		=> array('stats','report'),
 		'courier_sms'		=> array('stats','report'),

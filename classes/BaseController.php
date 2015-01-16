@@ -2,11 +2,11 @@
 namespace app\classes;
 
 use app\models\Bill;
+use app\models\Trouble;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
-use app\models\Module;
 use app\models\Region;
 use yii\web\NotFoundHttpException;
 
@@ -32,29 +32,20 @@ class BaseController extends Controller
 
     public function beforeAction($action)
     {
-        $this->view->title = 'stat - MCN Телеком';
         return \yii\base\Controller::beforeAction($action);
     }
 
-    public function getPanelsData()
+    /**
+     * @return NavigationBlock[]
+     */
+    public function getNavigationBlocks()
     {
-        if (!function_exists('access')) {
-            include_once Yii::$app->basePath . '/classes/compatibility.php';
-        }
+        return Navigation::create()->getBlocks();
+    }
 
-        $panelsData = [];
-        $modules =
-            Module::find()
-                ->installed()
-                ->orderByLoadOrder()
-                ->all();
-        foreach ($modules as $module) {
-            $panelData = $module->getPanelData();
-            if ($panelData) {
-                $panelsData[] = $panelData;
-            }
-        }
-        return $panelsData;
+    public function getMyTroublesCount()
+    {
+        return Trouble::dao()->getMyTroublesCount();
     }
 
     public function getSearchData()

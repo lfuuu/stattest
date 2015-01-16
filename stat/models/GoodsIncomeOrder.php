@@ -7,7 +7,8 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 		array('client', 'class_name' => 'ClientCard'),
 		array('organization', 'class_name' => 'Organization'),
 		array('store', 'class_name' => 'Store', 'foreign_key' => 'store_id'),
-		array('manager', 'class_name' => 'User', 'foreign_key' => 'manager_id'),
+        array('manager', 'class_name' => 'User', 'foreign_key' => 'manager_id'),
+        array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_id')
 	);
 	static $has_many = array(
 		array('lines', 'class_name' => 'GoodsIncomeOrderLine', 'foreign_key' => 'order_id'),
@@ -17,8 +18,8 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 
     const STATUS_NOT_AGREED    = 'Не согласован';
     const STATUS_AGREED        = 'Согласован';
-    const STATUS_CONFIRMED    = 'Подтвержден';
-    const STATUS_ENTERING    = 'К поступлению';
+    const STATUS_CONFIRMED     = 'Подтвержден';
+    const STATUS_ENTERING      = 'К поступлению';
     const STATUS_CLOSED        = 'Закрыт';
 
 	const STATUS_STAT_ENTERING	= 'Поступление';
@@ -30,7 +31,18 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 		self::STATUS_CONFIRMED	=> 'Подтвержден',
 		self::STATUS_ENTERING	=> 'К поступлению',
 		self::STATUS_CLOSED		=> 'Закрыт',
-	);
+    );
+
+    public static $stat_states = array(
+        "35" => "Новый",
+        "36" => "Оплата",
+        "37" => "Доставка",
+        "38" => "Поступление",
+        "39" => "Закрыт",
+        "40" => "Отказ"
+    );
+
+
 
     static $before_save = array('calculate_ready');
 
@@ -108,7 +120,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         return $data;
     }
 
-    public function checkClose($orderId)
+    public static function checkClose($orderId)
     {
         try{
             $order = GoodsIncomeOrder::find($orderId);

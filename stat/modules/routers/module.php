@@ -1,12 +1,5 @@
 <?
 class m_routers {
-    var $rights=array(
-        'routers_routers'        => array('Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление'),
-        'routers_devices'        => array('Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление'),
-//        'routers_modems'        => array('Каналы','r','чтение'),
-        'routers_models'        => array('Модели клиентских устройств','r,w','чтение,редактирование'),
-        'routers_nets'            => array('Сети','r','доступ'),
-    );
     var $actions=array(
         'default'                => array('',''),
         'r_list'                => array('routers_routers','r'),
@@ -119,9 +112,6 @@ class m_routers {
     }
 
     function m_routers(){}
-    function Install($p){
-        return $this->rights;
-    }
 
     function GetMain($action,$fixclient){
         if (!isset($this->actions[$action])) return;
@@ -461,11 +451,7 @@ class m_routers {
         $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'Клиентские устройства','Редактирование');
     }
     function routers_d_async($fixclient) {
-        global $db,$design,$_RESULT,$user;
-        include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("utf-8");
-
+        global $db;
         $id_model=get_param_integer('id_model',0);
         $res=get_param_protected('res');
         $client=get_param_raw('client','');
@@ -498,12 +484,12 @@ class m_routers {
 
         $db->Query('select * from tech_cpe_models where id="'.$id_model.'"');
         if (!$model=$db->NextRecord()) return;
-        $_RESULT=array(
+        echo json_encode(array(
                     'data'            => $R,
                     'depositUSD'    => $model['default_deposit_sumUSD'],
                     'depositRUR'    => $model['default_deposit_sumRUR'],
-                    );
-        if (isset($design)) $design->ProcessEx('errors.tpl');
+                ));
+        exit();
     }
 
     function routers_d_act($fixclient)    {
@@ -588,10 +574,6 @@ class m_routers {
         $design->ProcessEx('pop_footer.tpl');
     }
     function routers_n_acquire_as(){
-        global $db,$design,$_RESULT;
-        include INCLUDE_PATH."JsHttpRequest.php";
-        $JsHttpRequest = new Subsys_JsHttpRequest_Php();
-        $JsHttpRequest->setEncoding("UTF-8");
         $L = new IPList();
         $R = $L->getByType();
         $net = get_param_integer('query',31);
@@ -627,11 +609,10 @@ class m_routers {
             }
         }
 
-        $_RESULT=array(
+        echo json_encode(array(
             'data'=> $res
-        );
-
-        $design->ProcessEx('errors.tpl');
+        ));
+        exit();
     }
 
     function routers_datacenter_list($fixclient){
