@@ -1,7 +1,7 @@
 <h2>Бухгалтерия {$fixclient} &nbsp;&nbsp;&nbsp;<span style='font-size:10px'>(<a href='?module=newaccounts&simple=1'>попроще</a>{if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}{if $fixclient_data.type == 'multi'} | <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">{if $view_canceled}Скрыть{else}Показать{/if} отказные счета</a>{/if})</span></h2>
 
 <a href='{$LINK_START}module=newaccounts&action=bill_create'>Создать счёт</a>
-<!--/ <a href='{$LINK_START}module=newaccounts&action=bill_create&currency={if $fixclient_data.currency=='USD'}RUR{else}USD{/if}'>в {if $fixclient_data.currency=='USD'}RUR{else}USD{/if}</a>--><br>
+<br>
 <a href='{$LINK_START}module=newaccounts&action=bill_balance'>Обновить баланс</a> / <a href='{$LINK_START}module=newaccounts&action=bill_balance&nosaldo=1'>без учёта сальдо</a><br>
 <span title='Клиент должен нам'>Сальдо</span>: <form style='display:inline' action='?' method=post><input type=hidden name=module value=newaccounts>
 <input type=hidden name=action value=saldo><input type=text class=text style='width:70px;border:0;text-align:center' name=saldo value="{$sum_cur.saldo}"><input type=text class=text style='width:12px;border:0' readonly=1 value="{if $fixclient_data.currency=='USD'}${else}р{/if}">
@@ -12,11 +12,11 @@
 <TR class=even><td>{$item.edit_time}</td><td>{$item.user_name}</td><td>{$item.saldo} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts}</td></tr>
 {/foreach}
 </table>
-Общая сумма оказанных услуг: <b>{$sum_cur.bill|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUR.bill|round:2} р{else}р</b> и <b>{$sum.USD.bill|round:2} ${/if}</b><br>
-Общая сумма <span title='Клиент должен нам'>долга</span>: <b>{$sum_cur.delta+$sum_cur.saldo|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUR.delta+$sum.RUR.saldo|round:2} р{else}р</b> и <b>{$sum.USD.delta+$sum.USD.saldo|round:2} ${/if}</b> (с учётом сальдо)<br>
-Real-time сальдо: <b>{$saldo_rt.RUR|round:2} р, {$saldo_rt.USD|round:2} $</b><br>
+Общая сумма оказанных услуг: <b>{$sum_cur.bill|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUB.bill|round:2} р{else}р</b> и <b>{$sum.USD.bill|round:2} ${/if}</b><br>
+Общая сумма <span title='Клиент должен нам'>долга</span>: <b>{$sum_cur.delta+$sum_cur.saldo|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUB.delta+$sum.RUB.saldo|round:2} р{else}р</b> и <b>{$sum.USD.delta+$sum.USD.saldo|round:2} ${/if}</b> (с учётом сальдо)<br>
+Real-time сальдо: <b>{$saldo_rt.RUB|round:2} р, {$saldo_rt.USD|round:2} $</b><br>
 <span style='font-size:85%'>
-	Общая сумма <span title='Клиент должен нам'>долга</span>: <b>{$sum_cur.delta|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUR.delta|round:2} р{else}р</b> и <b>{$sum.USD.delta|round:2} ${/if}</b> (без учёта сальдо)<br>
+	Общая сумма <span title='Клиент должен нам'>долга</span>: <b>{$sum_cur.delta|round:2} {if $fixclient_data.currency=='USD'}$</b> и <b>{$sum.RUB.delta|round:2} р{else}р</b> и <b>{$sum.USD.delta|round:2} ${/if}</b> (без учёта сальдо)<br>
 </span>
 <TABLE class=price cellSpacing=3 cellPadding=1 border=0 width=100%><TR>
 	<TD class=header vAlign=bottom colspan=3>Счёт</td>

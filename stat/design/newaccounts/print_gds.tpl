@@ -30,8 +30,8 @@
 		{/foreach}
 	</table>
 	<br />
-	<p>Сумма: {$bill.tsum|round:2} {$bill.sum_with_tax|round:2} руб. (сумма прописью: {$bill.tsum|wordify:'RUR'} | {$bill.sum_with_tax|wordify:'RUR'})</p>
-	<p>Подпись продавца ____________________</p>
+<<<<<p>Сумма: {$bill.tsum|round:2} {$bill.sum_with_tax|round:2} руб. (сумма прописью: {$bill.tsum|wordify:'RUB'} | {$bill.sum_with_tax|wordify:'RUB'})</p>
+====<p>Подпись продавца ____________________</p>
 	<br /><br />
 	<p>Товар получил.<br />Претензий по количеству и качеству не имею.<br />
 	Информация о порядке и сроках возврата товара надлежащего качества предоставлена

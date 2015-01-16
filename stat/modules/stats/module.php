@@ -289,13 +289,13 @@ class m_stats extends IModule{
 
 			$db->Query($query);
 			$tarifs_stat = array();
-			$total_sum_rur = 0;
+			$total_sum_rub = 0;
 			$total_sum_usd = 0;
 			$total_sum_other = 0;
 			while($row=$db->NextRecord(MYSQL_ASSOC)){
 				$tarifs_stat[] = $row;
-				if($row['currency']=='RUR')
-					$total_sum_rur += $row['total'];
+				if($row['currency']=='RUB')
+					$total_sum_rub += $row['total'];
 				elseif($row['currency']=='USD')
 					$total_sum_usd += $row['total'];
 				else
@@ -305,7 +305,7 @@ class m_stats extends IModule{
 				'tarifs_stats',
 				array(
 					'totals'=>array(
-						'rur'=>$total_sum_rur,
+						'rub'=>$total_sum_rub,
 						'usd'=>$total_sum_usd,
 						'oth'=>$total_sum_other
 					),
@@ -2743,24 +2743,24 @@ class m_stats extends IModule{
 			'stats'=>array(),
 			'rates'=>array(
 				'voip'=>array(
-					'public'=>array('rur'=>array(),'usd'=>array()),
-					'special'=>array('rur'=>array(),'usd'=>array()),
-					'archive'=>array('rur'=>array(),'usd'=>array()),
+					'public'=>array('rub'=>array(),'usd'=>array()),
+					'special'=>array('rub'=>array(),'usd'=>array()),
+					'archive'=>array('rub'=>array(),'usd'=>array()),
 				),
 				'vpn'=>array(
-					'public'=>array('rur'=>array(),'usd'=>array()),
-					'special'=>array('rur'=>array(),'usd'=>array()),
-					'archive'=>array('rur'=>array(),'usd'=>array()),
+					'public'=>array('rub'=>array(),'usd'=>array()),
+					'special'=>array('rub'=>array(),'usd'=>array()),
+					'archive'=>array('rub'=>array(),'usd'=>array()),
 				),
 				'collocation'=>array(
-					'public'=>array('rur'=>array(),'usd'=>array()),
-					'special'=>array('rur'=>array(),'usd'=>array()),
-					'archive'=>array('rur'=>array(),'usd'=>array()),
+					'public'=>array('rub'=>array(),'usd'=>array()),
+					'special'=>array('rub'=>array(),'usd'=>array()),
+					'archive'=>array('rub'=>array(),'usd'=>array()),
 				),
 				'internet'=>array(
-					'public'=>array('rur'=>array(),'usd'=>array()),
-					'special'=>array('rur'=>array(),'usd'=>array()),
-					'archive'=>array('rur'=>array(),'usd'=>array()),
+					'public'=>array('rub'=>array(),'usd'=>array()),
+					'special'=>array('rub'=>array(),'usd'=>array()),
+					'archive'=>array('rub'=>array(),'usd'=>array()),
 				)
 			),
 			'with_nds'=>false,
@@ -2781,7 +2781,7 @@ class m_stats extends IModule{
 		if(isset($_POST['rates_voip'])){
 			foreach($_POST['rates_voip'] as $section=>$ar){
 				if(!isset($selected['rates']['voip'][$section]))
-					$selected['rates']['voip'][$section] = array('rur'=>array(),'usd'=>array());
+					$selected['rates']['voip'][$section] = array('rub'=>array(),'usd'=>array());
 				foreach($ar as $curr=>$v){
 					$selected['rates']['voip'][$section][$curr] = $v;
 				}
@@ -2807,7 +2807,7 @@ class m_stats extends IModule{
 				continue;
 			foreach($_POST['rates_'.$k] as $section=>$ar){
 				if(!isset($selected['rates'][$k][$section]))
-					$selected['rates'][$k][$section] = array('rur'=>array(),'usd'=>array());
+					$selected['rates'][$k][$section] = array('rub'=>array(),'usd'=>array());
 				foreach($ar as $curr=>$v){
 					$selected['rates'][$k][$section][$curr] = $v;
 				}

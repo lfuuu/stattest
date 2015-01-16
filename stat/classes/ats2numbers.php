@@ -262,14 +262,14 @@ class ats2Numbers
 
     public static function getLinkCount($numberId)
     {
-        l::ll(__CLASS__,__FUNCTION__, $l);
+        l::ll(__CLASS__,__FUNCTION__, $numberId);
         global $db_ats;
         return $db_ats->GetValue("select count(*) from a_link where number_id = '".$numberId."'");
     }
 
     public static function getGroupLinkId($numberId)
     {
-        l::ll(__CLASS__,__FUNCTION__, $l);
+        l::ll(__CLASS__,__FUNCTION__, $numberId);
         global $db_ats;
 
         $firstLineId = $db_ats->GetValue("select c_id from a_link where number_id = '".$numberId."' and c_type in ('line', 'trunk')");

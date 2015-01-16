@@ -293,9 +293,9 @@ function smarty_function_objCurrency($params,&$smarty) {
 	if ($obj=='delta') {
 		$curr = (isset($op['bill']) ? $op['bill']['currency'] : $params['currency']);
 		$sum = sprintf("%0.2f",$op['delta']);
-		if ($curr=='RUR') return $sum.' р';
+		if ($curr=='RUB') return $sum.' р';
 		
-		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
+		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUB') {
 			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta']*$op['pays'][0]['payment_rate']).' р</span>';
 		} else {
 			return $sum.' $';
@@ -303,37 +303,37 @@ function smarty_function_objCurrency($params,&$smarty) {
 	} elseif ($obj=='delta2') {
 		$curr = (isset($op['bill']) ? $op['bill']['currency'] : $params['currency']);
 		$sum = sprintf("%0.2f",$op['delta2']);
-		if ($curr=='RUR') return $sum.' р';
+		if ($curr=='RUB') return $sum.' р';
 		
-		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUR') {
+		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUB') {
 			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta2']*$op['pays'][0]['payment_rate']).' р</span>';
 		} else {
 			return $sum.' $';
 		}
 	} elseif ($obj=='pay_full') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_full']);
-		$sum_rur = sprintf("%0.2f",$params['pay']['sum_rub_full']);
+		$sum_rub = sprintf("%0.2f",$params['pay']['sum_rub_full']);
 		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rur.' р = '.$sum.' $';
+		return $sum_rub.' р = '.$sum.' $';
 	} elseif ($obj=='pay2') {
 		$sum = sprintf("%0.2f",$params['pay']['sum_pay']);
-		$sum_rur = sprintf("%0.2f",$params['pay']['sum_pay_rub']);
+		$sum_rub = sprintf("%0.2f",$params['pay']['sum_pay_rub']);
 		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rur.' р = '.$sum.' $';
+		return $sum_rub.' р = '.$sum.' $';
 	} elseif ($obj=='pay') {
 		$sum = sprintf("%0.2f",$params['pay']['sum']);
-		$sum_rur = sprintf("%0.2f",$params['pay']['sum_rub']);
+		$sum_rub = sprintf("%0.2f",$params['pay']['sum_rub']);
 		$curr = $params['pay']['currency'];
 		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
 		if ($one) return $sum.' р';
 		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rur.' р = '.$sum.' $';
+		return $sum_rub.' р = '.$sum.' $';
 	}
 }
 

@@ -1785,7 +1785,7 @@ class DbFormTechCPE extends DbForm{
         $this->fields['id_service']=array('in_tag'=>1,'enum'=>array());
 
         $this->fields['deposit_sumUSD']=array();
-        $this->fields['deposit_sumRUR']=array();
+        $this->fields['deposit_sumRUB']=array();
         $this->fields['serial']=array('type'=>'first_text');
         $this->fields['mac']=array('type'=>'text');
         
@@ -2014,7 +2014,7 @@ class DbFormNewpayments extends DbForm{
         }
         $curr = '';
         if (isset($GLOBALS['fixclient_data']) && isset($GLOBALS['fixclient_data']['currency'])) $curr = $GLOBALS['fixclient_data']['currency'];
-        if ($curr=='RUR') {
+        if ($curr=='RUB') {
             $this->fields['payment_rate']['default']=1;
             if (!access('users','grant')) $this->fields['payment_rate']['type'] = 'hidden';
         } else {
@@ -2032,7 +2032,7 @@ class DbFormTechCPEModels extends DbForm{
         $this->fields['model']=array();
         $this->fields['type']=array('enum'=>array('','voip','router','adsl','wireless', 'pon'));
         $this->fields['default_deposit_sumUSD']=array();
-        $this->fields['default_deposit_sumRUR']=array();
+        $this->fields['default_deposit_sumRUB']=array();
     }
 }
 
@@ -2211,10 +2211,10 @@ $GLOBALS['translate_arr']=array(
     'tech_cpe.owner'        => 'владелец',
     'tech_cpe.tech_support'    => 'тех. поддержка',
     'tech_cpe.deposit_sumUSD'    => 'сумма залога в USD',
-    'tech_cpe.deposit_sumRUR'    => 'сумма залога в RUR',
+    'tech_cpe.deposit_sumRUB'    => 'сумма залога в RUB',
     'tech_cpe_models.type'    => 'тип устройства',
     'tech_cpe_models.default_deposit_sumUSD'    => 'сумма залога в USD по умолчанию',
-    'tech_cpe_models.default_deposit_sumRUR'    => 'сумма залога в RUR по умолчанию',
+    'tech_cpe_models.default_deposit_sumRUB'    => 'сумма залога в RUB по умолчанию',
     '*.vendor'                                => 'вендор',
     'tech_cpe_models.part_no'                => 'парт. номер',
     'tech_cpe.id_model'                        => 'модель устройства',
@@ -2252,7 +2252,7 @@ $GLOBALS['translate_arr']=array(
     '*.destination_name'    => 'название зоны назначения',
     '*.destination_prefix'    => 'префикс зоны назначения',
     '*.rate_USD'    => 'цена за минуту в USD',
-    '*.rate_RUR'    => 'цена за минуту в рублях',
+    '*.rate_RUB'    => 'цена за минуту в рублях',
     '*.priceid'        => 'ID тарифной группы',        
     '*.dgroup'        => 'DGroup',
     '*.dsubgroup'    => 'DSubGroup',

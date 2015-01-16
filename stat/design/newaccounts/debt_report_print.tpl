@@ -40,8 +40,8 @@ th{font: bold 9pt Arial;}
 </tr>
 <tr style='background:#FFFFFF'>
 <td colspan=3 align=right><b>Всего по рублёвым счетам:</b></td>
-<td align=right>{$bills_total_RUR.sum|round:2} р</td>
-<td align=center>{$bills_total_RUR.saldo|round:2} р</td>
+<td align=right>{$bills_total_RUB.sum|round:2} р</td>
+<td align=center>{$bills_total_RUB.saldo|round:2} р</td>
 <td>&nbsp;</td>
 </tr>
 </TABLE>

@@ -51,7 +51,7 @@ class ApiLk
                 $bills[] = $bill;
         }
     
-        $sum = $sum["RUR"];
+        $sum = $sum["RUB"];
     
         $p = Payment::first(array(
                         "select" => "sum(sum_rub) as sum",
@@ -111,7 +111,7 @@ class ApiLk
 		if(!defined('API__print_bill_url') || !API__print_bill_url)
 			throw new Exception("Не установлена ссылка на печать документов");
 
-		$R = array('bill'=>$billNo,'object'=>"bill-2-RUR",'client'=>$bill->client_id);
+		$R = array('bill'=>$billNo,'object'=>"bill-2-RUB",'client'=>$bill->client_id);
 		return API__print_bill_url.udata_encode_arr($R);
 	}
 
@@ -130,7 +130,7 @@ class ApiLk
         if(!$c)
             throw new Exception("Лицевой счет не найден!");
     
-        $R = array("sum" => $sum, 'object'=>"receipt-2-RUR",'client'=>$c->id);
+        $R = array("sum" => $sum, 'object'=>"receipt-2-RUB",'client'=>$c->id);
         return API__print_bill_url.udata_encode_arr($R);
     }
 
@@ -231,7 +231,7 @@ class ApiLk
                                         "dtypes" => $types
                         ),
                         "link" => array(
-                                        "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUR", "client" => $clientId)),
+                                        "bill" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"bill-2-RUB", "client" => $clientId)),
                                         "invoice1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-1", "client" => $clientId)),
                                         "invoice2" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"invoice-2", "client" => $clientId)),
                                         "akt1" => API__print_bill_url.udata_encode_arr(array('bill'=>$billNo,'object'=>"akt-1", "client" => $clientId)),
@@ -631,7 +631,7 @@ class ApiLk
         return self::_getInternetTarifs("I");
     }
 
-    public static function getDomainTarifs($currency = 'RUR', $status = 'public', $code = 'uspd')
+    public static function getDomainTarifs($currency = 'RUB', $status = 'public', $code = 'uspd')
     {
         $ret = array();
         foreach(NewBill::find_by_sql("
@@ -656,7 +656,7 @@ class ApiLk
         return $ret;
     }
 
-    public static function getVpbxTarifs($currency = 'RUR', $status = 'public')
+    public static function getVpbxTarifs($currency = 'RUB', $status = 'public')
     {
         $ret = array();
         foreach(NewBill::find_by_sql("
@@ -678,7 +678,7 @@ class ApiLk
         return $ret;
     }
 
-    public static function getVoipTarifs($currency = 'RUR', $status = 'public', $dest = '4')
+    public static function getVoipTarifs($currency = 'RUB', $status = 'public', $dest = '4')
     {
         $fields = array('id','name','month_line','month_number','once_line','once_number','free_local_min','freemin_for_number','region');
         $ret = array();
@@ -1993,7 +1993,7 @@ class ApiLk
         return $fields;
     }
 
-    public static function _getInternetTarifs($type = 'I', $currency = 'RUR', $status = 'public')
+    public static function _getInternetTarifs($type = 'I', $currency = 'RUB', $status = 'public')
     {
         $ret = array();
         foreach(NewBill::find_by_sql("

@@ -309,6 +309,11 @@ abstract class Connection
 
 		$this->last_query = $sql;
 
+        if(isset($_GET["show_sql"]) && $_GET["show_sql"] == 1)
+        {
+            printdbg($values, $sql);
+        }
+
 		try {
 			if (!($sth = $this->connection->prepare($sql)))
 				throw new DatabaseException($this);

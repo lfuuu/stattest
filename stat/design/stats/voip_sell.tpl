@@ -46,10 +46,10 @@
 	}
 {/literal}</script>
 <table width='98%' border='0'>
-<tr style='text-align:center;background-color:#aaaaaa;color:#222222;font-weight:bolder;'><td width='20%'>Клиент</td><td width='50%'>Тарифный план</td><td width='15%'>RUR</td><td width='15%'>USD</td></tr>
-<tr style='text-align:center;color:black;background-color:#aaaaaa;'><td colspan='2' style='text-align:right;padding-right:100px'>Общая сумма:</td><td>{$tarifs_stats.totals.rur}</td><td>{$tarifs_stats.totals.usd}</td></tr>
+<tr style='text-align:center;background-color:#aaaaaa;color:#222222;font-weight:bolder;'><td width='20%'>Клиент</td><td width='50%'>Тарифный план</td><td width='15%'>RUB</td><td width='15%'>USD</td></tr>
+<tr style='text-align:center;color:black;background-color:#aaaaaa;'><td colspan='2' style='text-align:right;padding-right:100px'>Общая сумма:</td><td>{$tarifs_stats.totals.rub}</td><td>{$tarifs_stats.totals.usd}</td></tr>
 {foreach from=$tarifs_stats.rows item='row' key='k'}
-	<tr style='background-color:{if $k is odd}silver{else}#dddddd{/if};'><td><a href='?module=clients&id={$row.client_id}' style='text-decoration:none' target='_blank'>{$row.client}</a></td><td><a href='?module=tarifs&action=edit&m=voip&id={$row.tarif_id}' style='text-decoration:none' target='_blank'>{$row.tarif}</a></td><td>{if $row.currency eq 'RUR'}<a href='#' onclick='return optools.stats.voip_sell.displayBillsTable(event,"{$row.bills}")' style='text-decoration:none'>{$row.total}</a>{else}&nbsp;{/if}</td><td>{if $row.currency eq 'USD'}<a href='#' onclick='return optools.stats.voip_sell.displayBillsTable(event,"{$row.bills}")' style='text-decoration:none'>{$row.total}</a>{else}&nbsp;{/if}</td></tr>
+	<tr style='background-color:{if $k is odd}silver{else}#dddddd{/if};'><td><a href='?module=clients&id={$row.client_id}' style='text-decoration:none' target='_blank'>{$row.client}</a></td><td><a href='?module=tarifs&action=edit&m=voip&id={$row.tarif_id}' style='text-decoration:none' target='_blank'>{$row.tarif}</a></td><td>{if $row.currency eq 'RUB'}<a href='#' onclick='return optools.stats.voip_sell.displayBillsTable(event,"{$row.bills}")' style='text-decoration:none'>{$row.total}</a>{else}&nbsp;{/if}</td><td>{if $row.currency eq 'USD'}<a href='#' onclick='return optools.stats.voip_sell.displayBillsTable(event,"{$row.bills}")' style='text-decoration:none'>{$row.total}</a>{else}&nbsp;{/if}</td></tr>
 {/foreach}
 </table>
 {/if}

@@ -6,7 +6,7 @@ return [
         'status' => 'public',
         'description' => 'Тариф АТС',
         'period' => 'month',
-        'currency' => 'RUR',
+        'currency' => 'RUB',
         'price' => '300.0000',
         'num_ports' => '50',
         'overrun_per_port' => '20.0000',

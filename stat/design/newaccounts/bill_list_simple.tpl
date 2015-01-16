@@ -19,14 +19,14 @@
 <Table width=100% border=0>
 <tr style="background-color: #eaeaea;">
 	<td>Всего залогов:</td>
-	<td align=right> <b>{$sum_l.zalog.RUR|round:2} р.</b> </td>
+	<td align=right> <b>{$sum_l.zalog.RUB|round:2} р.</b> </td>
 	<td>/</td>
 	<td align=right> <b>{$sum_l.zalog.USD|round:2} $</b> </td>
 </tr>
 
 <!--tr style="background-color: #eaeaea;">
 	<td>Всего услуг и товаров:</td>
-	<td align=right> <b>{$sum_l.service_and_goods.RUR|round:2} р.</b> </td>
+	<td align=right> <b>{$sum_l.service_and_goods.RUB|round:2} р.</b> </td>
 	<td>/</td>
 	<td align=right> <b>{$sum_l.service_and_goods.USD|round:2} $</b></td>
 </tr-->
@@ -39,7 +39,7 @@
 
 <tr  style="background-color: #eaeaea;">
 	<td>Общая сумма оказанных услуг:</td>
-	<td align=right> <b> {if $fixclient_data.currency=='USD'} {$sum.RUR.bill|round:2} р.{else}{$sum_cur.bill|round:2} р. {/if}</td>
+	<td align=right> <b> {if $fixclient_data.currency=='USD'} {$sum.RUB.bill|round:2} р.{else}{$sum_cur.bill|round:2} р. {/if}</td>
 	<td>/</td>
 	<td align=right>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|round:2} ${else} <b>{$sum.USD.bill|round:2} $</b>{/if}</td>
 </tr>
@@ -51,7 +51,7 @@
             {if $fixclient_data.currency!='USD'}
                 {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum_cur.delta|round:2}{/if}
             {else}
-                {if isset($sum.RUR.saldo)}{$sum.RUR.delta+$sum.RUR.saldo|round:2}{else}{$sum.RUR.delta|round:2}{/if}
+                {if isset($sum.RUB.saldo)}{$sum.RUB.delta+$sum.RUB.saldo|round:2}{else}{$sum.RUB.delta|round:2}{/if}
             {/if} р.</b>
     </td>
     <td></td>

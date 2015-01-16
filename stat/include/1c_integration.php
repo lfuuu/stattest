@@ -192,7 +192,7 @@ class clientSyncer{
 					nb.bill_no,
 					nb.bill_date,
 					nb.currency,
-					sum_rur,
+					sum_rub,
 					nb.sum,
 					nb.comment,
 					nb.is_payed
@@ -229,7 +229,7 @@ class clientSyncer{
                     tr('Дата')=>tr($bill['bill_date']),
                     tr('ИдСоглашения1С')=>tr($cl->getAtMask(\clCards\struct_cardDetails::con_1c)),
                     tr('Валюта')=>tr($bill['currency']),
-                    tr('СуммаВРублях')=>($bill['sum_rur']),
+                    tr('СуммаВРублях')=>($bill['sum_rub']),
                     tr('Сумма')=>tr($bill['sum']),
                     tr('Комментарий')=>tr($bill['comment']),
                     tr('Закрыт')=>((int)$bill['is_payed'])>0
@@ -1038,7 +1038,7 @@ class SoapHandler{
                         bill_no = '".addcslashes($bill_no, "\\'")."',
                         bill_date = '".addcslashes($bill_date, "\\'")."',
                         client_id = (select id from clients where client='".addcslashes($client, "\\'")."'),
-                        currency = '".(($currency=='RUR')?'RUR':'USD')."',
+                        currency = '".(($currency=='RUB')?'RUB':'USD')."',
                         `sum` = '".addcslashes($sum, "\\'")."',
                         `sum_with_tax` = '".addcslashes($sum, "\\'")."',
                         `sum_total` = '".addcslashes($sum, "\\'")."',

@@ -487,7 +487,7 @@ class m_routers {
         echo json_encode(array(
                     'data'            => $R,
                     'depositUSD'    => $model['default_deposit_sumUSD'],
-                    'depositRUR'    => $model['default_deposit_sumRUR'],
+                    'depositRUB'    => $model['default_deposit_sumRUB'],
                 ));
         exit();
     }
@@ -501,9 +501,9 @@ class m_routers {
         if (!$client) return;
         if ($client['currency']=='USD') {
             $currency=$db->GetRow('select * from bill_currency_rate where date="'.$cpe['actual_from'].'" and currency="USD"');
-            $cpe['deposit_rur']=round($cpe['deposit_sumUSD']*$currency['rate'],2);
+            $cpe['deposit_rub']=round($cpe['deposit_sumUSD']*$currency['rate'],2);
         } else {
-            $cpe['deposit_rur']=round($cpe['deposit_sumRUR'],2);
+            $cpe['deposit_rub']=round($cpe['deposit_sumRUB'],2);
         }
         if ($cpe['service']=='usage_ip_ports' && $cpe['id_service']) $design->assign('conn',$db->GetRow('select * from '.$cpe['service'].' where id='.$cpe['id_service']));
         $design->assign('cpe',$cpe);

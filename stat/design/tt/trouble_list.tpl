@@ -69,7 +69,7 @@
         <td colspan=1><a href='{$LINK_START}module=clients&id={$r.client_orig}'>{$r.client}</a></td>
         <td colspan=1 align=center style='font-size:85%;{if !$r.service && $r.bill_no && $r.is_payed == 1}background-color: #ccFFcc;{/if}'>
             {if $r.service}
-                <a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{$r.service|replace:"usage_":""}<br>{$r.service_id}</a>
+                <a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{if $r.service =="usage_voip"}Телефония<br>{$r.number}{else}{$r.service|replace:"usage_":""}<br>{$r.service_id}{/if}</a>
             {elseif $r.bill_no}
                 <a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:100%;font-weight: bold">{$r.bill_no}</a>
             {else}&nbsp;{/if}

@@ -154,7 +154,7 @@ class m_tarifs{
         $where = 'where t.region='.(int)$f_region;
         if ($f_dest != '')
             $where .= ' and t.dest='.(int)$f_dest;
-        if ($f_currency == 'RUR' || $f_currency == 'USD')
+        if ($f_currency == 'RUB' || $f_currency == 'USD')
             $where .= " and t.currency='$f_currency'";
         if ($f_show_archive == 0)
           $where .= ' and t.status!="archive"';
@@ -453,7 +453,7 @@ class m_tarifs{
                                         'to'=>$match[5],
                                         'range'=>$this->get_ranges($match[4],$match[5])
                                     ),
-                                    'price_RUR'=>$_POST['price_RUR'],
+                                    'price_RUB'=>$_POST['price_RUB'],
                                     'price_USD'=>$_POST['price_USD'],
                                     'dgroup'=>$_POST['dgroup'],
                                     'dsubgroup'=>$_POST['dsubgroup']
@@ -487,7 +487,7 @@ class m_tarifs{
                                         'to'=>0,
                                         'range'=>array($match[1])
                                     ),
-                                    'price_RUR'=>round(floatval(str_replace(',','.',$match[3]))*$addtp,2),
+                                    'price_RUB'=>round(floatval(str_replace(',','.',$match[3]))*$addtp,2),
                                     'price_USD'=>round(floatval(str_replace(',','.',$match[3]))*$addtp/$usd_cur,2),
                                     'dgroup'=>$_POST['dgroup'],
                                     'dsubgroup'=>$_POST['dsubgroup']
@@ -526,7 +526,7 @@ class m_tarifs{
             $prefs =& $_POST['prefs'];
             $dgroup =& $_POST['dgroup'];
             $dsubgroup =& $_POST['dsubgroup'];
-            $price_rur =& $_POST['price_RUR'];
+            $price_rub =& $_POST['price_RUB'];
             $price_usd =& $_POST['price_USD'];
 
             $lines = array();
@@ -540,7 +540,7 @@ class m_tarifs{
                         'to'=>$_POST['prefix_to'][$i],
                         'range'=>explode(",",$prefs[$i])
                     ),
-                    'price_RUR'=>$price_rur[$i],
+                    'price_RUB'=>$price_rub[$i],
                     'price_USD'=>$price_usd[$i],
                     'dgroup'=>$dgroup[$i],
                     'dsubgroup'=>$dsubgroup[$i],
@@ -549,7 +549,7 @@ class m_tarifs{
             }
 
             $ins_data = array(
-                'statement'=>'destination_name,destination_prefix,operator,rate_USD,rate_RUR,dgroup,dsubgroup,priceid,rate,edit_user,edit_time',
+                'statement'=>'destination_name,destination_prefix,operator,rate_USD,rate_RUB,dgroup,dsubgroup,priceid,rate,edit_user,edit_time',
                 'data'=>array()
             );
             $cnt = count($operator);
@@ -567,7 +567,7 @@ class m_tarifs{
                         ((int)($dgroup[$i]<>2?'7'.$def[$i].$v:$v)).",".
                         "'".$coperator."',".
                         ((float)$price_usd[$i]).",".
-                        ((float)$price_rur[$i]).",".
+                        ((float)$price_rub[$i]).",".
                         ((int)$dgroup[$i]).",".
                         ((int)$dsubgroup[$i]).",".
                         "0,".
@@ -593,7 +593,7 @@ class m_tarifs{
                 $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
                 return;
             }else{
-                $repr_sql = 'insert into price_voip (id,destination_name,destination_prefix,operator,rate_USD,rate_RUR,dgroup,dsubgroup,priceid,rate,edit_user,edit_time,idExt) values';
+                $repr_sql = 'insert into price_voip (id,destination_name,destination_prefix,operator,rate_USD,rate_RUB,dgroup,dsubgroup,priceid,rate,edit_user,edit_time,idExt) values';
                 foreach($repr as $v){
                     $repr_sql .= '('.
                         ((int)$v['id']).",".
@@ -601,7 +601,7 @@ class m_tarifs{
                         $v['destination_prefix'].",".
                         "'".addcslashes($v['operator'],"\\\\'")."',".
                         ((float)$v['rate_USD']).",".
-                        ((float)$v['rate_RUR']).",".
+                        ((float)$v['rate_RUB']).",".
                         ((int)$v['dgroup']).",".
                         ((int)$v['dsubgroup']).",".
                         $v['priceid'].",".

@@ -232,7 +232,7 @@ class all4net_integration{
 					`site_req_no`,
 					`signer_positionV`,
 					`hid_rtsaldo_date`,
-					`hid_rtsaldo_RUR`,
+					`hid_rtsaldo_RUB`,
 					`hid_rtsaldo_USD`,
 					`credit`,
 					`user_impersonate`,
@@ -276,7 +276,7 @@ class all4net_integration{
 					'".addcslashes($this->client['stat']['site_req_no'],"\\\\'")."',
 					'".addcslashes($this->client['stat']['signer_positionV'],"\\\\'")."',
 					'".addcslashes($this->client['stat']['hid_rtsaldo_date'],"\\\\'")."',
-					'".addcslashes($this->client['stat']['hid_rtsaldo_RUR'],"\\\\'")."',
+					'".addcslashes($this->client['stat']['hid_rtsaldo_RUB'],"\\\\'")."',
 					'".addcslashes($this->client['stat']['hid_rtsaldo_USD'],"\\\\'")."',
 					'".addcslashes($this->client['stat']['credit'],"\\\\'")."',
 					'".addcslashes($this->client['stat']['user_impersonate'],"\\\\'")."',
@@ -392,7 +392,7 @@ class all4net_integration{
 				`site_req_no` = '".addcslashes($this->client['stat']['site_req_no'],"\\\\'")."',
 				`signer_positionV` = '".addcslashes($this->client['stat']['signer_positionV'],"\\\\'")."',
 				`hid_rtsaldo_date` = '".addcslashes($this->client['stat']['hid_rtsaldo_date'],"\\\\'")."',
-				`hid_rtsaldo_RUR` = '".addcslashes($this->client['stat']['hid_rtsaldo_RUR'],"\\\\'")."',
+				`hid_rtsaldo_RUB` = '".addcslashes($this->client['stat']['hid_rtsaldo_RUB'],"\\\\'")."',
 				`hid_rtsaldo_USD` = '".addcslashes($this->client['stat']['hid_rtsaldo_USD'],"\\\\'")."',
 				`user_impersonate` = '".addcslashes($this->client['stat']['user_impersonate'],"\\\\'")."',
 				`address_connect` = '".addcslashes($this->client['stat']['address_connect'],"\\\\'")."',
@@ -437,7 +437,7 @@ class all4net_integration{
 				`site_req_no` = '".addcslashes($this->client['stat']['site_req_no'],"\\\\'")."',
 				`signer_positionV` = '".addcslashes($this->client['stat']['signer_positionV'],"\\\\'")."',
 				`hid_rtsaldo_date` = '".addcslashes($this->client['stat']['hid_rtsaldo_date'],"\\\\'")."',
-				`hid_rtsaldo_RUR` = '".addcslashes($this->client['stat']['hid_rtsaldo_RUR'],"\\\\'")."',
+				`hid_rtsaldo_RUB` = '".addcslashes($this->client['stat']['hid_rtsaldo_RUB'],"\\\\'")."',
 				`hid_rtsaldo_USD` = '".addcslashes($this->client['stat']['hid_rtsaldo_USD'],"\\\\'")."',
 				`user_impersonate` = '".addcslashes($this->client['stat']['user_impersonate'],"\\\\'")."',
 				`address_connect` = '".addcslashes($this->client['stat']['address_connect'],"\\\\'")."',
@@ -605,8 +605,7 @@ class all4net_integration{
 
 		$data = array();
 		$bill_sum = 0;
-		$bill_sum_ori = 0;
-		$bill_rur_sub = 0;
+		$bill_sum_rub = 0;
 
 		$order_data['bill_currency'] = $bill->Get('currency');
 
@@ -636,10 +635,10 @@ class all4net_integration{
 			);
 
 			if($order_data['order_status'] == 40){ // если выполнен
-				$bill_sum_rur += $item['item_total_price']*$item['item_count'];
+				$bill_sum_rub += $item['item_total_price']*$item['item_count'];
 				$bill_sum += $price*$item['item_count']*1.18;
 			}else{
-				$bill_sum_rur = 0;
+				$bill_sum_rub = 0;
 				$bill_sum = 0;
 			}
 		}

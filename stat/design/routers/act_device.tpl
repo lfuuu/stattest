@@ -21,7 +21,7 @@
 	 и представитель <b>{$client.company_full}</b>, в&nbsp;лице <b>{$client.signer_positionV} {$client.signer_nameV}</b>, произвели акт приема-передачи во временное пользование следующего оборудования: 
 </p>
 		<ul> <li>{$cpe.type|upper}-модем {$cpe.vendor} {$cpe.model}, серийный номер {$cpe.serial|upper}, 1 шт.</li></ul><br>
-	 Получен залог в сумме {$cpe.deposit_rur*1.18|round:2} рублей</p>
+	 Получен залог в сумме {$cpe.deposit_rub*1.18|round:2} рублей</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>
 	 <p>&nbsp;</p>

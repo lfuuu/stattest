@@ -253,7 +253,7 @@ www.mcntelecom.ru
 <p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'USD'} | {$bill.sum_with_tax|wordify:'USD'}</i></p>
 <p style="font-size:11px">Оплата производится в рублях по курсу ЦБ РФ на день платежа плюс {if $bill_client.usd_rate_percent}{$bill_client.usd_rate_percent}{else}0{/if}%</p>
 {else}
-<p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'RUR'} | {$bill.sum_with_tax|wordify:'RUR'}</i></p>
+<p><i>Сумма прописью:  {$bill.tsum-$isDiscount|wordify:'RUB'} | {$bill.sum_with_tax|wordify:'RUB'}</i></p>
 {/if}
 
 <table border="0" align=center cellspacing="1" cellpadding="0"><tbody>

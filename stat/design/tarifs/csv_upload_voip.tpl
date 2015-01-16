@@ -31,8 +31,8 @@
 	</td>
 </tr>
 <tr>
-	<td>Цена RUR: </td>
-	<td><input type='text' value='1.08' name='price_RUR' size='5' /></td>
+	<td>Цена RUB: </td>
+	<td><input type='text' value='1.08' name='price_RUB' size='5' /></td>
 </tr>
 <tr>
 	<td>Цена USD: </td>

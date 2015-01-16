@@ -291,9 +291,9 @@ $(function(){
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Нал:</td><td><select name=nal class=text><option value='beznal'{if $client.nal=='beznal'} selected{/if}>безнал</option><option value='nal'{if $client.nal=='nal'} selected{/if}>нал</option><option value='prov'{if $client.nal=='prov'} selected{/if}>пров</option></select></td></tr>
     <tr><td align="right">Валюта:</td><td>
-        <select name=currency class=text><option value='RUR'{if $client.currency=='RUR'} selected{/if}>RUR</option><option value='USD'{if $client.currency=='USD'} selected{/if}>USD</option></select>
+        <select name=currency class=text><option value='RUB'{if $client.currency=='RUB'} selected{/if}>RUB</option><option value='USD'{if $client.currency=='USD'} selected{/if}>USD</option></select>
         {if $client.currency=='USD'}
-            и счета выставлять в <select name=currency_bill class=text><option value='USD'{if $client.currency_bill!='RUR'} selected{/if}>USD</option><option value='RUR'{if $client.currency_bill=='RUR'} selected{/if}>RUR</option></select>
+            и счета выставлять в <select name=currency_bill class=text><option value='USD'{if $client.currency_bill!='RUB'} selected{/if}>USD</option><option value='RUB'{if $client.currency_bill=='RUB'} selected{/if}>RUB</option></select>
         {/if}
     </td></tr>
     <tr><td style='font-size:4px'colspan=2>&nbsp;</td></tr>

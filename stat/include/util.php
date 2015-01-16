@@ -7,7 +7,7 @@ function get_payment_rate_by_bill($payment_date,$payment_sum = null,$bill_no = n
     global $db;
     if ($bill_no) {
         $r2 = $db->GetRow('select sum,currency from newbills where bill_no="'.$bill_no.'"');
-        if ($r2['currency']=='RUR') return 1;
+        if ($r2['currency']=='RUB') return 1;
     }
     $r=$db->GetRow('select * from bill_currency_rate where date="'.$payment_date.'" and currency="USD"');
     $rate = $r['rate'];
@@ -549,8 +549,8 @@ class util{
 
 
 class Wordifier {
-    private static $curBig=array('USD'=>array('доллар США','доллара США','долларов США'),'RUR'=>array('рубль','рубля','рублей'));
-    private static $curSmall=array('USD'=>array('цент','цента','центов'),'RUR'=>array('копейка','копейки','копеек'));
+    private static $curBig=array('USD'=>array('доллар США','доллара США','долларов США'),'RUB'=>array('рубль','рубля','рублей'));
+    private static $curSmall=array('USD'=>array('цент','цента','центов'),'RUB'=>array('копейка','копейки','копеек'));
     private static $num10 = array("","один ","два ","три ","четыре ","пять ","шесть ","семь ","восемь ","девять ",);
     private static $num10x = array("","одна ","две ","три ","четыре ","пять ","шесть ","семь ","восемь ","девять ",);
     private static $num20 = array("десять ","одиннадцать ","двенадцать ","тринадцать ","четырнадцать ","пятнадцать ","шестнадцать ","семнадцать ","восемнадцать ","девятнадцать ");

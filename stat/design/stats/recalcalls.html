@@ -43,7 +43,7 @@
 			Количество бесплатных секунд: {$connections[$usage_id].free_sec}<br />
 			Использовано бесплатных секунд: {$connections[$usage_id].msk_length} / {$ucalls.free.retime}<br />
 			Сумма разговоров: {$connections[$usage_id].all_cost} / {$ucalls.free.resum|round:2} = {$ucalls.free.difsum|round:2}<br />
-			Валюта:	{if $connections[$usage_id].currency=='RUR'}рубли{else}usd{/if}<br />
+			Валюта:	{if $connections[$usage_id].currency=='RUB'}рубли{else}usd{/if}<br />
 			Количество звонков с новой тарификацией: {$ucalls.free.recalc_count}
 		</td>
 	</tr>

@@ -37,7 +37,7 @@
 <tr><td>Валюта:</td><td>
     <select name="f_currency" onchange="report()">
         <option value=""> -- Все валюты -- </option>
-        <option value="RUR"{if 'RUR' eq $f_currency} selected{/if}>RUR</option>
+        <option value="RUB"{if 'RUB' eq $f_currency} selected{/if}>RUB</option>
         <option value="USD"{if 'USD' eq $f_currency} selected{/if}>USD</option>
     </select>
 </td></tr>
