@@ -28,8 +28,7 @@
 <td{if $item.nal=='nal'} bgcolor='#FFC0C0'{else}{if $item.nal=='prov'} bgcolor='#C0C0FF'{/if}{/if}><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.client}'>{$item.client}</a></td>
 <td style='font-size:85%'>{$item.company}</td>
 <td{if !$item.f_currency} style="background-color: #c0ffc0;"{/if}>{$item.bill_date} - <a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$item.bill_no}'>{$item.bill_no}</a></td>
-<td align=right>{$item.sum|round:2} {if $item.currency=='USD'}$
-{if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rur} р</span>{/if}{else}р{/if}</td>
+<td align=right>{$item.sum|round:2} {if $item.currency=='USD'}${else}р{/if}</td>
 <td align=center>{if $item.currency=='USD'}
 	{if $item.pay_sum_usd}{$item.pay_sum_usd} $ = {$item.pay_sum_rur} р{/if}
 {else}

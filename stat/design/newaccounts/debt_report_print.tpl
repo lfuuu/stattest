@@ -25,8 +25,7 @@ th{font: bold 9pt Arial;}
 <td width="10%">{$item.bill_date}<br>{$item.bill_no}</td>
 <td width="50%" valign=top>Получил</td>
 </tr><tr class={cycle values="even,odd"}><td width="1%">&nbsp;</td>
-<td nowrap width="10%" align=right>{$item.sum|round:2} {if $item.currency=='USD'}$
-{if $item.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$item.gen_bill_date}'>b {$item.gen_bill_rur} р</span>{/if}{else}р{/if} / {$item.sum_full|round:2}{if $item.currency=='USD'}${else}р.{/if}</td>
+<td nowrap width="10%" align=right>{$item.sum|round:2} {if $item.currency=='USD'}${else}р{/if} / {$item.sum_full|round:2}{if $item.currency=='USD'}${else}р.{/if}</td>
 <td nowrap width="12%" align=center{if $item.bill_nal!='beznal'} bgcolor='#{if $item.bill_nal == "nal"}FFC0C0{else}C0C0FF{/if}'{/if}>{$item.debt.sum|round:2}{if $item.debt.currency=='USD'}${else}р.{/if}/{$item.bill_nal}</td>
 <td width="27%" colspan=2 align=left>{$item.payment_comment}&nbsp;</td>
 <td width="50%" valign=top>Отказ</td>

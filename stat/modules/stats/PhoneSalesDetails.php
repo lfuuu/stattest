@@ -266,18 +266,7 @@
 			);
 			$total = $db->GetValue('
 				select 
-					SUM(
-						IF(b.currency="RUR", b.sum, 
-							IF (b.inv_rur > 0, b.inv_rur, 
-								(SELECT 
-									rate 
-								FROM 
-									bill_currency_rate 
-								WHERE 
-									date = b.bill_date)
-								*b.sum)
-						)
-					)
+					SUM(b.sum)
 				from 
 					newbills b 
 				left join 

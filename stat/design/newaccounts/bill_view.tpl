@@ -307,60 +307,6 @@ function doFormSend()
 {/literal}
 </script>
 
-{if $bill.currency=='USD'}
-<table cellspacing=0 cellpadding=10 valign=top border=0 style='border-style:solid;border-color:#808080;border-width:1;margin-top:10px'>
-<tr><td style='padding-top:0px' valign=top><h3>Сформированные:</h3><br>
-{if $bill.inv_rur!=0}Счёт-фактура и акт (1,2,3) {$bill.inv_rur} р, {$bill.inv1_date}<br>{else}
-	{if $bill.inv1_rate!=0}Счёт-фактура и акт (1) по курсу {$bill.inv1_rate}, {$bill.inv1_date}<br>{/if}
-	{if $bill.inv2_rate!=0}Счёт-фактура и акт (2) по курсу {$bill.inv2_rate}, {$bill.inv2_date}<br>{/if}
-	{if $bill.inv3_rate!=0}Счёт-фактура и акт (3) по курсу {$bill.inv3_rate}, {$bill.inv3_date}<br>{/if}
-{/if}
-
-{if $bill.gen_bill_rur!=0 || $bill.gen_bill_rate!=0}Счёт {if $bill.gen_bill_rur!=0}= {$bill.gen_bill_rur} р{else}по курсу {$bill.gen_bill_rate}{/if}, {$bill.gen_bill_date}<br>{/if}
-</td><td style='padding-top:0px;border:0 solid #808080;border-left-width:1' valign=top>
-<h3>Формирование:</h3><br>
-По сумме:<br>
-        <form action="/bill/bill/set-invoice-sum-rub" method="post" style='display:inline'>
-            <input type=hidden name=billId value="{$bill.id}">
-            <input type=text name=sumRub class=text value='{$bgen_psum}'>
-            <input type=submit class=button value='Счёт-фактура и акт (1,2,3)'>
-            <em>сумма всех платежей в рублях</em>
-        </form><br>
-        <form action="/bill/bill/set-bill-sum-rub" method="post" style='display:inline'>
-            <input type=hidden name=billId value="{$bill.id}">
-            <input type=text name=sumRub class=text value='{$bgen_psum}'>
-            <input type=submit class=button value='Счет'>
-            <em>сумма всех платежей в рублях</em>
-        </form><br>
-<br>
-По курсу:<br>
-        <form action="/bill/bill/set-invoice1-rate" method="post" style="display:inline">
-            <input type=hidden name=billId value="{$bill.id}">
-            <input type=text name=rate class=text value='{$bgen_rate.invoice1}'>
-            <input type=submit class=button value='Счёт-фактура и акт (1)'>
-            <em>курс на конец месяца</em>
-        </form><br>
-        <form action="/bill/bill/set-invoice2-rate" method="post" style="display:inline">
-            <input type=hidden name=billId value="{$bill.id}">
-            <input type=text name=rate class=text value='{$bgen_rate.invoice2}'>
-            <input type=submit class=button value='Счёт-фактура и акт (2)'>
-            <em>курс на конец предыдущего месяца</em>
-        </form><br>
-        <form action="/bill/bill/set-invoice3-rate" method="post" style="display:inline">
-            <input type=hidden name=billId value="{$bill.id}">
-            <input type=text name=rate class=text value='{$bgen_rate.invoice3}'>
-            <input type=submit class=button value='Счёт-фактура и акт (3)'>
-            <em>курс на дату счета</em>
-        </form><br>
-        <form action="/bill/bill/set-bill-rate" method="post" style="display:inline">
-            <input type=hidden name=billId value="{$bill.id}">
-            <input type=text name=rate class=text value='{$bgen_rate.bill}'>
-            <input type=submit class=button value='Счет'>
-            <em>курс на дату счета</em>
-        </form><br>
-</td></tr></table>
-{/if}
-
 <h3>История изменений счёта:</h3>
 {if count($bill_history)}{foreach from=$bill_history item=L key=key name=outer}
 <b>{$L.ts} - {$L.user}</b>: {$L.comment}<br>

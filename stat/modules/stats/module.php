@@ -4563,20 +4563,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       $region_sums = $db->AllRecordsAssoc($q="
 		SELECT 
 			b.region,
-			ROUND(
-				SUM(
-					IF(a.currency='RUR', a.sum, 
-						IF (a.inv_rur > 0, a.inv_rur, 
-							(SELECT 
-								rate 
-							FROM 
-								bill_currency_rate 
-							WHERE 
-								date = a.bill_date)
-							*a.sum)
-					)
-				)) as sum
-		FROM 
+			ROUND(SUM(a.sum)) as sum
+		FROM
 			newbills as a
 		LEFT JOIN
 			clients as b ON a.client_id = b.id

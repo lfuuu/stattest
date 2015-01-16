@@ -71,18 +71,8 @@ class m_newaccounts extends IModule
         BillDao::me()->updateSubscriptionForAllClientAccounts();
     }
 
-    function sum_more($pay,$bill,$currency, $diff=0.01) {
-        if ($pay-$bill>-$diff) return 1;
-        //echo "$pay|$bill|<br>\n";
-        return 0;
-
-        $diff = $bill - $pay;
-
-        $perc3 = $bill*0.03;
-        $line = 5; //USD
-        if ($currency=='RUR') $line = 100; //RUR
-        if($diff <= $perc3 && $diff <= $line) return 1;
-        return 0;
+    function sum_more($pay,$bill,$diff=0.01) {
+        return ($pay-$bill>-$diff);
     }
 
     function getClientSaldo($client_id,$currency,$ret_zero = false) {
@@ -121,8 +111,7 @@ class m_newaccounts extends IModule
                     B.bill_date,
                     B.currency,
                     B.is_payed, 
-                    B.inv_rur, 
-                    B.sum, 
+                    B.sum,
                     '.($saldo_ts?' CASE B.bill_date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
                     CASE B.cleared_sum > 0 WHEN true THEN B.cleared_sum ELSE B.sum END as sum_full
                 FROM 
@@ -137,8 +126,7 @@ class m_newaccounts extends IModule
                     cast(G.date as date) bill_date,
                     if(currency = "RUB", "RUR", currency) as currency,
                     G.is_payed,
-                    0.0 as inv_rur,  
-                    G.sum, 
+                    G.sum,
                     '.($saldo_ts?' CASE G.date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
                     G.sum as sum_full
 
@@ -150,7 +138,7 @@ class m_newaccounts extends IModule
                 ) as B #bills_and_incomegoods
 
                 GROUP BY 
-                    B.bill_no, B.is_payed, B.inv_rur, B.sum, B.bill_date, B.currency '.
+                    B.bill_no, B.is_payed, B.sum, B.bill_date, B.currency '.
                 ($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
 
         return $r;
@@ -284,7 +272,6 @@ class m_newaccounts extends IModule
                     (
                      'bill_no' => 'saldo',
                      'is_payed' => 1,
-                     'inv_rur' => -$sum,
                      'sum' => -$sum,
                      'new_is_payed' => 0,
                      'sum_full' => -$sum
@@ -315,10 +302,7 @@ class m_newaccounts extends IModule
             $bill_no = $r['bill_no'];
 
             $sum = $r['sum'];
-            if ($currency == 'RUR')
-                $sum_rub = $sum;
-            else
-                $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rur'] / $sum;
+            $sum_rub = $sum;
 
             $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                     'bill_no'=>$bill_no,
@@ -329,7 +313,6 @@ class m_newaccounts extends IModule
 
             $R1[$bill_no]['sum_full'] -= $sum;
             $R1[$bill_no]['sum'] -= $sum;
-            $R1[$bill_no]['inv_rur'] -= $sum_rub;
 
             $R2[$kp]['sum'] = 0;
         }
@@ -343,15 +326,11 @@ class m_newaccounts extends IModule
             $bill_no = $r['bill_no'];
 
             if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] >= 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'],$currency)) {
+                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'])) {
                     //echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
                     //$sum = round($R1[$bill_no]['sum_full'], 2);
                     $sum = round($R1[$bill_no]['sum'], 2);
-                    if ($currency == 'RUR')
-                        $sum_rub = $sum;
-                    else{
-                        $sum_rub = $sum != 0 ? $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rur'] / $sum : 0;
-                    }
+                    $sum_rub = $sum;
 
                     $PaymentsOrders[] = array(
                             'payment_id' => $r['id'],
@@ -359,8 +338,7 @@ class m_newaccounts extends IModule
                             'sum'        => $sum,
                             'currency'   => $currency,
                             'sum_rub'    => $sum_rub,
-                            'payment_no' => $r['payment_no'],
-                            'tt'         => 2);
+                            'payment_no' => $r['payment_no']);
 
 
                     $R2[$kp]['sum'] -= $sum;
@@ -372,41 +350,34 @@ class m_newaccounts extends IModule
                     $R1[$bill_no]['new_is_payed'] = 1;
                     $R1[$bill_no]['sum'] = 0;
                     $R1[$bill_no]['sum_full'] = 0;
-                    $R1[$bill_no]['inv_rur'] = 0;
 
                 } elseif ($r['sum'] >= 0.01){
 
                     $sum = $r['sum'];
-                    if ($currency == 'RUR')
-                        $sum_rub = $sum;
-                    else
-                        $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rur'] / $sum;
+                    $sum_rub = $sum;
 
                     $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                             'bill_no'=>$bill_no,
                             'sum'=>$sum,
                             'currency'=>$currency,
                             'sum_rub'=>$sum_rub,
-                            'payment_no'=>$r['payment_no'],
-                            'tt' => 3);
+                            'payment_no'=>$r['payment_no']);
 
                     $R2[$kp]['sum'] = 0;
 
                     $R1[$bill_no]['new_is_payed'] = 2;
                     $R1[$bill_no]['sum'] -= $sum;
                     $R1[$bill_no]['sum_full'] -= $sum;
-                    $R1[$bill_no]['inv_rur'] -= $sum_rub;
 
                     if ($R1[$bill_no]['sum_full'] < 0.01) {
                         $R1[$bill_no]['sum'] = 0;
                         $R1[$bill_no]['sum_full'] = 0;
-                        $R1[$bill_no]['inv_rur'] = 0;
                     }
 
                 }
             }
         }
-
+/*
         // если счет оплатили и столько же списали - считать не оплаченным
         foreach($R1 as $k => $r)
         {
@@ -415,7 +386,7 @@ class m_newaccounts extends IModule
                 $R1[$k]["new_is_payed"] = 0;
             }
         }
-
+*/
         // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
         // Новых счетов с привязкой не будет. Нужно для совместимости
         foreach ($R2 as $kp => $r) {
@@ -424,21 +395,17 @@ class m_newaccounts extends IModule
             $bill_no = $r['bill_vis_no'];
 
             if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] > 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'],$currency)) {
+                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'])) {
                     ///echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
                     $sum = round($R1[$bill_no]['sum_full'], 2);
-                    if ($currency == 'RUR')
-                        $sum_rub = $sum;
-                    else
-                        $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rur'] / $sum;
+                    $sum_rub = $sum;
 
                     if (abs($sum) >= 0.01){
                         $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                                 'bill_no'=>$bill_no,
                                 'sum'=>$sum,
                                 'currency'=>$currency,
-                                'sum_rub'=>$sum_rub,
-                                'tt' => 4);
+                                'sum_rub'=>$sum_rub);
                     }
 
 
@@ -452,22 +419,17 @@ class m_newaccounts extends IModule
                     $R1[$bill_no]['new_is_payed'] = 1;
                     $R1[$bill_no]['sum'] = 0;
                     $R1[$bill_no]['sum_full'] = 0;
-                    $R1[$bill_no]['inv_rur'] = 0;
 
                 } elseif ($r['sum'] >= 0.01){
                     $sum = $r['sum'];
-                    if ($currency == 'RUR')
-                        $sum_rub = $sum;
-                    else
-                        $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rur'] / $sum;
+                    $sum_rub = $sum;
 
                     if (abs($sum) >= 0.01){
                         $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                                 'bill_no'=>$bill_no,
                                 'sum'=>$sum,
                                 'currency'=>$currency,
-                                'sum_rub'=>$sum_rub,
-                                'tt' => 5);
+                                'sum_rub'=>$sum_rub);
                     }
 
                     $R2[$kp]['sum'] = 0;
@@ -475,12 +437,10 @@ class m_newaccounts extends IModule
                     $R1[$bill_no]['new_is_payed'] = 2;
                     $R1[$bill_no]['sum'] -= $sum;
                     $R1[$bill_no]['sum_full'] -= $sum;
-                    $R1[$bill_no]['inv_rur'] -= $sum_rub;
 
                     if  ($R1[$bill_no]['sum_full'] < 0.01) {
                         $R1[$bill_no]['sum'] = 0;
                         $R1[$bill_no]['sum_full'] = 0;
-                        $R1[$bill_no]['inv_rur'] = 0;
                     }
                 }
             }
@@ -499,13 +459,10 @@ class m_newaccounts extends IModule
 
                     if ($rb['new_is_payed']==1 || $rb['new_is_payed']==3 || $rb['sum'] < 0 || $r['sum'] < 0.01) continue;
 
-                    if ($this->sum_more($r['sum'],$rb['sum'],$currency)) {
+                    if ($this->sum_more($r['sum'],$rb['sum'])) {
 
                         $sum = $rb['sum'];
-                        if ($currency == 'RUR' || $sum == 0)
-                            $sum_rub = $sum;
-                        else
-                            $sum_rub = $rb['sum'] * $rb['inv_rur'] / $sum;
+                        $sum_rub = $sum;
 
                         if (abs($sum) >= 0.01){
                             $PaymentsOrders[] = array(
@@ -513,8 +470,7 @@ class m_newaccounts extends IModule
                                     'bill_no'=>$rb['bill_no'],
                                     'sum'=>$sum,
                                     'currency'=>$currency,
-                                    'sum_rub'=>$sum_rub,
-                                    'tt' => 6);
+                                    'sum_rub'=>$sum_rub);
                         }
 
 
@@ -530,16 +486,11 @@ class m_newaccounts extends IModule
                         $R1[$kb]['new_is_payed'] = 1;
                         $R1[$kb]['sum'] = 0;
                         $R1[$kb]['sum_full'] = 0;
-                        $R1[$kb]['inv_rur'] = 0;
 
                     } elseif ($r['sum'] >= 0.01){
 
                         $sum = $r['sum'];
-                        if ($currency == 'RUR')
-                            $sum_rub = $sum;
-                        else
-                            //$sum_rub = $rb['sum'] * $rb['inv_rur'] / $sum;
-                            $sum_rub =  $sum * $rb['inv_rur'] / $rb['sum'] ;
+                        $sum_rub = $sum;
 
                         if (abs($sum) >= 0.01){
                             $PaymentsOrders[] = array(
@@ -548,9 +499,7 @@ class m_newaccounts extends IModule
                                     'sum'=>$sum,
                                     'currency'=>$currency,
                                     'sum_rub'=>$sum_rub,
-                                    'rb' => $rb,
-                                    'ttt' => $rb["sum"]." * ".$rb["inv_rur"]." / ".$sum,
-                                    'tt' => 7);
+                                    'rb' => $rb);
                         }
 
                         $r['sum'] = 0;
@@ -559,7 +508,6 @@ class m_newaccounts extends IModule
                         $R1[$kb]['new_is_payed'] = 2;
                         $R1[$kb]['sum'] -= $sum;
                         $R1[$kb]['sum_full'] -= $sum;
-                        $R1[$kb]['inv_rur'] -= $sum_rub > $R1[$kb]['inv_rur'] ? $R1[$kb]['inv_rur'] : $sum_rub ;
 
                     }
                 }
@@ -571,7 +519,7 @@ class m_newaccounts extends IModule
             $last_payment = null;
             foreach ($R1 as $k => $r) {
 
-                if ( ($r['new_is_payed']==0 || $r['new_is_payed']==2) && $this->sum_more(0,$r['sum_full'],$currency, 1)) {
+                if ( ($r['new_is_payed']==0 || $r['new_is_payed']==2) && $this->sum_more(0,$r['sum_full'], 1)) {
                     $R1[$k]['new_is_payed'] = 1;
                 }
 
@@ -586,10 +534,7 @@ class m_newaccounts extends IModule
                 if ($v['sum'] == 0) continue;
 
                 $sum = $v['sum'];
-                if ($currency == 'RUR')
-                    $sum_rub = $sum;
-                else
-                    $sum_rub = $last_payment['sum'] * $last_payment['inv_rur'] / $sum;
+                $sum_rub = $sum;
 
                 if (abs($sum) >= 0.01){
                     $PaymentsOrders[] = array(
@@ -869,7 +814,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_no_ext, bill_date, client_id, currency, sum, inv_rur, is_payed, P.comment, postreg, nal,
+                bill_no, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -895,7 +840,6 @@ class m_newaccounts extends IModule
                     client_card_id as client_id, 
                     if(currency = "RUB", "RUR", currency) as currency, 
                     sum, 
-                    0.0 as inv_rur,  
                     is_payed,
                     "" `comment`, 
                     "0000-00-00" postreg , 
@@ -918,7 +862,6 @@ class m_newaccounts extends IModule
                                     'client_id' => $fixclient_data['id'],
                                     'currency' => $fixclient_data['currency'],
                                     'sum' => $sum[$fixclient_data['currency']]['saldo'],
-                                    'inv_rur' => $sum[$fixclient_data['currency']]['saldo'],
                                     'is_payed' => 1,
                                     'comment' => '',
                                     'postreg' => $sum[$fixclient_data['currency']]['ts'],
@@ -1234,14 +1177,6 @@ class m_newaccounts extends IModule
         $newbill = \app\models\Bill::findOne(['bill_no'=>$bill_no]);
         if(get_param_raw('err')==1)
             trigger_error2('Невозможно добавить строки из-за несовпадния валют');
-        $design->assign('bgen_psum', $newbill->dao()->requestSumRubForBill($newbill));
-        $design->assign('bgen_rate', [
-            'invoice1' => $newbill->dao()->requestRateForInvoice1($newbill),
-            'invoice2' => $newbill->dao()->requestRateForInvoice2($newbill),
-            'invoice3' => $newbill->dao()->requestRateForInvoice3($newbill),
-            'invoice4' => $newbill->dao()->requestRateForInvoice4($newbill),
-            'bill'     => $newbill->dao()->requestRateForBill($newbill),
-        ]);
         if(preg_match('/^\d{6}-\d{4}-(\d+)$/',trim($bill->getNo()),$match)){
             $design->assign('all4net_order_number',$match[1]);
         }else{
@@ -1716,14 +1651,6 @@ class m_newaccounts extends IModule
                         $bill2->AddLines($R);
                     }
                 }
-                if($c['form_type']=='bill' && $bill->Get('currency')=='USD'){
-                    $newbill = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
-                    $newbill
-                        ->setRateForInvoice1($newbill->dao()->requestRateForInvoice1($newbill))
-                        ->setRateForInvoice2($newbill->dao()->requestRateForInvoice2($newbill))
-                        ->setRateForInvoice3($newbill->dao()->requestRateForInvoice3($newbill))
-                        ->save();
-                }
                 if($bill2){
                     $no=$bill2->GetNo();
                     $v=$bill2->Save(1);
@@ -1799,11 +1726,6 @@ class m_newaccounts extends IModule
                     $p2 = $doctypes['i2'];
                     $p3 = $doctypes['i3'];
 
-                    if (($bill->Get('currency')=='USD') && !floatval($bill->Get('inv_rur'))) {
-                         if (!floatval($bill->Get('inv1_rate'))) $p1 = 0;
-                         if (!floatval($bill->Get('inv2_rate'))) $p2 = 0;
-                         if (!floatval($bill->Get('inv3_rate'))) $p3 = 0;
-                    }
                     if (($do_bill && count($L)) || $p1 || $p2 || $p3) {
                         $R[] = array($r['bill_no'],$p1,$p2,$p3);
                         $rows.=($rows?',':'');
@@ -3161,21 +3083,8 @@ class m_newaccounts extends IModule
         if(is_null($source))
             $source=3;
 
-        if ($bill->Get('currency')=='USD' && $curr=='RUR') {
-            if ($obj=='bill'){
-                $sum_rur = $bill->Get('gen_bill_rur');
-                $usd_rate = $bill->Get('gen_bill_rate');
-            } else {
-                $sum_rur = $bill->Get('inv_rur');
-                $usd_rate = $bill->Get('inv'.(($source==5)?1:$source).'_rate');
-
-                if($usd_rate > 1)
-                    $sum_rur = $bill->Get("sum")/$usd_rate;
-            }
-        } else {
-            $usd_rate=1;
-            $curr=$bill->Get('currency');
-        }
+        $usd_rate=1;
+        $curr=$bill->Get('currency');
 
 
         $usd_rate = floatval($usd_rate);
@@ -4376,26 +4285,8 @@ class m_newaccounts extends IModule
                 if (!$curr && $r2=$db->GetRow('select * from newsaldo where ts<"'.addslashes($P['date']).'" order by id desc limit 1')) $curr=$r2['currency'];
                 if (!$curr) $curr=$client['currency'];
 
-                if ($curr=='USD') {
-                    $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($P['date']).'" and currency="USD"');
-                    $rate = $r['rate'];
-                    $P['sum_rub']=round($P['sum_rub'],2);
-                    if ($bill_sum!=0) {
-                        $rate_bill=round($P['sum_rub']/$bill_sum,4);
-                        if (abs($rate_bill-$rate)/$rate <=0.03) {
-                            $rate=$rate_bill;
-                            //$A['inv_rur'] = $P['sum_rub'];
-                        } else {
-                            //$A['inv1_rate'] = $rate;
-                            //$A['inv2_rate'] = $rate;
-                            //$A['inv3_rate'] = $rate;
-                        }
-                    }
-                    if ($rate) $b=1;
-                } else {
-                    $rate=1;
-                    $b=1;
-                }
+                $rate=1;
+                $b=1;
                 if ($b) {
                     $A = array_merge($A,array(
                             'client_id'        => $client['id'],
@@ -5001,11 +4892,7 @@ $sql .= "    order by client, bill_no";
                 $A=$this->do_print_prepare($bill,$I==4?'lading':'akt',$I==4?null:$I,'RUR',0);
                 if ($I==1) $A1 = $A;
                 if($I==4 && $A['bill']){
-                    if(!$A1 && $I==4){
-                        $d = explode('-',$A['bill']['inv3_date']);
-                        $d = mktime(0, 0, 0, $d[1], $d[2], $d[0]);
-                    }
-                    $A['inv_date'] = ($A1)?$A1['inv_date']:$d;
+                    $A['inv_date'] = ($A1)?$A1['inv_date']:$A['inv_date'];
                     $A['inv_no'] = $A['bill']['bill_no'];
                 }
                 if($I != 3 && is_array($A) && $A['bill']['tsum']){
@@ -5037,7 +4924,7 @@ $sql .= "    order by client, bill_no";
             "select 'inv' as type, 3 as inv_num,
                 b.bill_no, concat(b.bill_no,'-3') as inv_no,
                 unix_timestamp(bill_date) as date,
-                l.sum as sum_income, item as items, b.currency, b.inv3_rate, b.gen_bill_rate, b.inv_rur,b.sum as b_sum
+                l.sum as sum_income, item as items, b.currency, b.gen_bill_rate, b.sum as b_sum
             from
                 newbills b, newbill_lines l
             where
@@ -5046,14 +4933,6 @@ $sql .= "    order by client, bill_no";
                 and type='zalog'
                 and b.bill_date<='".$date_to."'") as $z)
         {
-            $z["sum_income"] = (
-                    $z["currency"] == "USD" ?
-                        ($z["inv3_rate"] > 0 ?$z["inv3_rate"] :
-                            ($z["gen_bill_rate"] > 0 ? $z["gen_bill_rate"] : ($z["inv_rur"] > 0 ? $z["inv_rur"]/$z["b_sum"] :
-                             (99900000+$z["sum_income"]) / $z["sum_income"]) )
-                        )*$z["sum_income"]:
-                    $z["sum_income"]);
-
             $zalog[$z["date"]."-".count($zalog)] = $z;
             $S_zalog += $z["sum_income"];
         }

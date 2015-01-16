@@ -82,22 +82,6 @@ class BillLine extends ActiveRecord
 
     private function getRate(Bill $bill)
     {
-        if ($bill->currency == 'USD') {
-            if ($this->date_from >= $bill->bill_date) {
-                if ($bill->inv1_rate) {
-                    return $bill->inv1_rate;
-                } elseif ($bill->inv_rur && $bill->sum) {
-                    return $bill->inv_rur / $bill->sum;
-                }
-            } else {
-                if ($bill->inv2_rate) {
-                    return $bill->inv2_rate;
-                } elseif ($bill->inv_rur && $bill->sum) {
-                    return $bill->inv_rur / $bill->sum;
-                }
-            }
-            return 0;
-        }
         return 1;
     }
 

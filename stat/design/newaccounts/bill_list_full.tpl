@@ -139,9 +139,7 @@
 {if isset($op.bill) && $op.bill}
 	<TD rowspan={$rowspan}{if $op.bill.postreg!="0000-00-00"} style='background-color:#FFFFD0'{/if}>{$op.bill.bill_date}</TD>
 	<TD rowspan={$rowspan} class=pay{$op.bill.is_payed}><a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}{if strlen($op.bill.bill_no_ext)}<br>({$op.bill.bill_no_ext}){/if}</a></TD>
-	<TD rowspan={$rowspan} align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}р{/if}
-	{if isset($op.bill.gen_bill_rur) && $op.bill.gen_bill_rur!=0}<br><span style='font-size:85%' title='Сумма счёта, {$op.bill.gen_bill_date}'>{$op.bill.gen_bill_rur} р</span>{/if}
-	</TD>
+	<TD rowspan={$rowspan} align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}р{/if}</TD>
 {else}
 	<TD colspan=3 rowspan={$rowspan}>&nbsp;</TD>
 {/if}

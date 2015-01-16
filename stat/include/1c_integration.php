@@ -192,18 +192,7 @@ class clientSyncer{
 					nb.bill_no,
 					nb.bill_date,
 					nb.currency,
-					if(nb.currency = 'USD',
-						if(
-							nb.inv_rur>0,
-							nb.inv_rur,
-							if(
-								nb.gen_bill_rur>0,
-								nb.gen_bill_rur,
-								ifnull(round(nb.`sum`*np.payment_rate,2),0)
-							)
-						),
-						nb.`sum`
-					) sum_rur,
+					sum_rur,
 					nb.sum,
 					nb.comment,
 					nb.is_payed

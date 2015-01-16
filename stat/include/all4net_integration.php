@@ -644,21 +644,6 @@ class all4net_integration{
 			}
 		}
 
-		if($order_data['bill_currency']=='USD'){
-			$cur_rate = ',
-				`gen_bill_rate`='.$order_data['current_rate'].',
-				`gen_bill_rur` ='.$bill_sum_rur.',
-				`gen_bill_date`=NOW(),
-				`inv_rur`='.$bill_sum_rur.',
-				`inv1_rate`='.$order_data['current_rate'].',
-				`inv1_date`=NOW(),
-				`inv2_rate`='.$order_data['current_rate'].',
-				`inv2_date`=NOW(),
-				`inv3_rate`='.$order_data['current_rate'].',
-				`inv3_date`=NOW()';
-		}else
-			$cur_rate = '';
-
 		ob_start();
 		$flag = $bill->AddLines($data);
 		unset($bill);
@@ -668,7 +653,7 @@ class all4net_integration{
 				newbills
 			SET
 				bill_no = concat(bill_no,'-".$order_data['order_id']."'),
-				`sum` = ".$bill_sum.$cur_rate."
+				`sum` = ".$bill_sum."
 			WHERE
 				bill_no = '".$bill_no."'";
 
@@ -731,8 +716,8 @@ class all4net_integration{
 				concat(
 					`nb`.`bill_date`,'\t',
 					`nb`.`bill_no`,'\t',
-					if(`nb`.`gen_bill_rur`>0,`nb`.`gen_bill_rur`,`nb`.`sum`),'\t',
-					`np`.`sum_rub` - if(`nb`.`gen_bill_rur`>0,`nb`.`gen_bill_rur`,`nb`.`sum`),'\t',
+					`nb`.`sum`,'\t',
+					`np`.`sum_rub` - `nb`.`sum`,'\t',
 					`np`.`sum_rub`,'\t',
 					`np`.`payment_date`,' - No',`np`.`payment_no`,' / ',
 					case `np`.`type` when 'bank' then 'b' when 'prov' then 'p' when 'neprov' then 'n' end,
