@@ -21,6 +21,14 @@
 	include INCLUDE_PATH."bill.php";
 	include INCLUDE_PATH."all4net_integration.php";
 
+	Yii::info(
+		\welltime\graylog\GelfMessage::create()
+			->setTimestamp(YII_BEGIN_TIME)
+			->setShortMessage(Yii::$app->request->method . ' ' . isset($_SERVER['REQUEST_URI_ORIG']) ? $_SERVER['REQUEST_URI_ORIG'] : $_SERVER['REQUEST_URI'])
+			->setFullMessage(Yii::$app->request->bodyParams),
+		'request'
+	);
+
 	try{
 		$all4net = new all4net_integration();
 	}catch(ErrorException $e){
