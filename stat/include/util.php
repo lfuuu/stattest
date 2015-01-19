@@ -1981,7 +1981,7 @@ class send
 
 class event
 {
-    public static function go($event, $param)
+    public static function go($event, $param = "")
     {
         if (is_array($param))
         {
