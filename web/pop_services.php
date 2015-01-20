@@ -21,7 +21,7 @@
             if (!access('services_voip','edit')) return;
             break;
         case 'domains':
-            if (!access('services_hosting','edit')) return;
+            if (!access('services_domains','edit')) return;
             break;
         case 'usage_ip_ppp':
             if (!access('services_ppp','edit')) return;
