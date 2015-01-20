@@ -46,10 +46,21 @@ class ClientsController extends BaseController
         
         $filters = $row['filter'];
         
+        
+       // var_dump($filters); exit;
         foreach ($filters as $filter)
         {
-           $config['class'] = $filter['classname'];
+           if(is_array($filter))
+           {
+             $config['class'] = $filter['classname'];  
+           }
+           else
+           {
+             $config['class'] = $filter;  
+           }
+               
            $config['query'] = $query;
+         //  var_dump($filter); exit;
            $rendered_filters[] = Yii::createObject($config); 
         }
         
