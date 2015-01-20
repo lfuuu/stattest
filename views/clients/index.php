@@ -1,9 +1,30 @@
 <?php
 
 use yii\grid\GridView;
+use app\classes\grid\filters\FilterField;
+use yii\bootstrap\ActiveForm;
+use yii\helpers\Html;
+  
+if(count($filters)> 0)
+{
+    $form = ActiveForm::begin([
+        'id' => 'login-form',
+        'options' => ['class' => 'form-horizontal'],
+    ]);
 
-$urlmanager = Yii::$app->getUrlManager();
-$url_params[0] = Yii::$app->controller->getRoute();
+    //var_dump($filters); exit();
+    foreach($filters as $filter)
+    {
+        echo $filter->render();
+    }
+
+    echo Html::submitButton('Фильтровать', ['class' => 'btn btn-default btn-xs']);
+    
+    ActiveForm::end();
+}
+
+    $urlmanager = Yii::$app->getUrlManager();
+    $url_params[0] = Yii::$app->controller->getRoute();
 
 ?>
 
