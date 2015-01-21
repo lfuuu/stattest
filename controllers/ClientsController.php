@@ -16,11 +16,11 @@ use yii\data\ActiveDataProvider;
 use app\classes\grid\filters\FilterField;
 
 
-
 class ClientsController extends BaseController
 {
     public function actionIndex()
     {   
+
         $dataset = ClientGridSettings::findOne(Yii::$app->request->get('grid'));  
 
         if( count($dataset) == 0) 
