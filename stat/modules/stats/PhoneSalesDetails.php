@@ -61,6 +61,9 @@
 				$condition = "CAST(NOW() AS DATE) BETWEEN u.actual_from AND u.actual_to";
 			} else {
 				$ts = mktime(0,0,0,$month,1,date('Y'));
+				if ($ts > time()) {
+					$ts = strtotime("-1 year", $ts);
+				}
 				$design->assign('ts', $ts);
 				$condition = "u.".$field." BETWEEN '" . date('Y-m-d', $ts) . "' AND '" . date('Y-m-t', $ts) . "'";
 			}
