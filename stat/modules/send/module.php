@@ -124,7 +124,7 @@ class m_send {
 		$body="сБЮФЮЕЛШЕ цНЯОНДЮ!" . "\n" . "нРОПЮБКЪЕЛ бЮЛ ЯВЕРЮ МЮ НОКЮРС СЯКСЦ:" . "\n";
 		foreach ($R as $r){
 			$bill = new Bill($r['bill_no']);
-			$R=array('obj'=>'bill','source'=>2,'curr'=>'USD','bill'=>$r['bill_no']);
+			$R=array('obj'=>'bill','source'=>2,'bill'=>$r['bill_no']);
 			$R['client']=$bill->Get('client_id');
 			$body.=LK_PATH.'docs/?bill='.udata_encode_arr($R)."\n";
 		}

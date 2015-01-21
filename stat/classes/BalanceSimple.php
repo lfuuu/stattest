@@ -94,7 +94,6 @@ class BalanceSimple
         $R2 = $db->AllRecords('
             select
                 P.*,
-                (P.sum_rub/P.payment_rate) as sum,
                 U.user as user_name,
                 '.(
                     $sum[$params['client_currency']]['ts']
@@ -149,9 +148,7 @@ class BalanceSimple
                 ){
                     $d = round(-$v['delta'],2);
                     $R2[$k2]['sum'] = $r2['sum']-$d;
-                    $R2[$k2]['sum_rub'] = round($R2[$k2]['sum']*$R2[$k2]['payment_rate'],2);
                     $r2['sum'] = $d;
-                    $r2['sum_rub'] = round($r2['sum']*$r2['payment_rate'],2);
                     $r2['divide'] = 1;
                     $v['pays'][] = $r2;
                     $v['delta'] -= $d;

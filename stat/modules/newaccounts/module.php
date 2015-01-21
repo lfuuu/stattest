@@ -88,13 +88,6 @@ class m_newaccounts extends IModule
         return array('ts'=>$r['ts'],'saldo'=>$r['saldo']);
     }
 
-    private function enumBills($client_id,$currency,$saldo_ts,$select,$sort = 'bill_date asc, bill_no asc',$addSql = '',$arrKeySrc = 'bill_no', $W_add = null) {
-        global $db;
-        $W = array('AND','B.client_id='.$client_id,'B.currency="'.$currency.'"','B.bill_date>="'.$saldo_ts.'"');
-        if ($W_add) $W[] = $W_add;
-        return $db->AllRecords('select '.$select.' from newbills as B where '.MySQLDatabase::Generate($W).($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
-    }
-
     private function enumBillsFullSum(
             $client_id,
             $currency,
@@ -117,8 +110,7 @@ class m_newaccounts extends IModule
                     B.currency,
                     B.is_payed, 
                     B.sum,
-                    '.($saldo_ts?' CASE B.bill_date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
-                    CASE B.cleared_sum > 0 WHEN true THEN B.cleared_sum ELSE B.sum END as sum_full
+                    '.($saldo_ts?' CASE B.bill_date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed
                 FROM 
                     newbills B 
                 WHERE 
@@ -132,8 +124,7 @@ class m_newaccounts extends IModule
                     if(currency = "RUB", "RUB", currency) as currency,
                     G.is_payed,
                     G.sum,
-                    '.($saldo_ts?' CASE G.date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
-                    G.sum as sum_full
+                    '.($saldo_ts?' CASE G.date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed
 
                   FROM `g_income_order` G
                   WHERE 
@@ -211,9 +202,7 @@ class m_newaccounts extends IModule
                         'id' => $v['bill_no'],
                         'client_id' => $v['client_id'],
                         'payment_date' => $v['bill_date'],
-                        'payment_rate' => 1,
                         'payment_id' => $v['bill_no'],
-                        'sum_rub' => -$v['sum'],
                         'currency' => $v['currency'],
                         'sum' => -$v['sum'],
                         'bill_no' => '',
@@ -234,21 +223,12 @@ class m_newaccounts extends IModule
         $fixclient_data=$client = $db->GetRow("select * from clients where id=".intval($client_id));
 
         $R1 = $this->enumBillsFullSum        ($client_id,$currency,$saldo['ts']);
-        $R2 = $this->enumPayments    ($client_id,$currency,$saldo['ts'],'P.*,round(P.sum_rub/P.payment_rate,2) as sum');
-
+        $R2 = $this->enumPayments    ($client_id,$currency,$saldo['ts'],'P.*');
 
         $sum = -$saldo['saldo'];
 
         $balance = 0;
 
-        if(isset($R1["201007/2373"]))
-        {
-//            $R1["201007/2373"]["is_zadatok"] = 1;
-            $R1["201007/2373"]["sum_full"] = 0;
-        }
-
-        //$R2 = array();
-        //echo $saldo['ts'].'|'.$sum;
         if ($sum > 0){
 
             array_unshift($R2, Array
@@ -260,15 +240,11 @@ class m_newaccounts extends IModule
                      'bill_vis_no' => 'saldo',
                      'payment_date' => $saldo['ts'],
                      'oper_date' => $saldo['ts'],
-                     'payment_rate' => 1.0000,
                      'type' => 'priv',
-                     'sum_rub' => $sum,
                      'currency' => 'RUB',
                      'comment' => '',
                      'add_date' => $saldo['ts'],
                      'add_user' => 0,
-                     'push_1c' => 'yes',
-                     'sync_1c' => 'yes',
                      'sum' => $sum
                     ) );
         }elseif($sum < 0){
@@ -279,13 +255,9 @@ class m_newaccounts extends IModule
                      'is_payed' => 1,
                      'sum' => -$sum,
                      'new_is_payed' => 0,
-                     'sum_full' => -$sum
                     )
                     );
         }
-
-        //        print_r($R2);
-        //        die();
 
         $PaymentsOrders = array();
 
@@ -307,16 +279,12 @@ class m_newaccounts extends IModule
             $bill_no = $r['bill_no'];
 
             $sum = $r['sum'];
-            $sum_rub = $sum;
 
             $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                     'bill_no'=>$bill_no,
                     'sum'=>$sum,
-                    'currency'=>$currency,
-                    'sum_rub'=>$sum_rub,
-                    "tt" => 1);
+                    'currency'=>$currency);
 
-            $R1[$bill_no]['sum_full'] -= $sum;
             $R1[$bill_no]['sum'] -= $sum;
 
             $R2[$kp]['sum'] = 0;
@@ -330,19 +298,15 @@ class m_newaccounts extends IModule
             if ($r['bill_no'] == '') continue;
             $bill_no = $r['bill_no'];
 
-            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] >= 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'])) {
-                    //echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
-                    //$sum = round($R1[$bill_no]['sum_full'], 2);
+            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum'] >= 0) {
+                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum'])) {
                     $sum = round($R1[$bill_no]['sum'], 2);
-                    $sum_rub = $sum;
 
                     $PaymentsOrders[] = array(
                             'payment_id' => $r['id'],
                             'bill_no'    => $bill_no,
                             'sum'        => $sum,
                             'currency'   => $currency,
-                            'sum_rub'    => $sum_rub,
                             'payment_no' => $r['payment_no']);
 
 
@@ -354,44 +318,31 @@ class m_newaccounts extends IModule
 
                     $R1[$bill_no]['new_is_payed'] = 1;
                     $R1[$bill_no]['sum'] = 0;
-                    $R1[$bill_no]['sum_full'] = 0;
 
                 } elseif ($r['sum'] >= 0.01){
 
                     $sum = $r['sum'];
-                    $sum_rub = $sum;
 
                     $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                             'bill_no'=>$bill_no,
                             'sum'=>$sum,
                             'currency'=>$currency,
-                            'sum_rub'=>$sum_rub,
                             'payment_no'=>$r['payment_no']);
 
                     $R2[$kp]['sum'] = 0;
 
                     $R1[$bill_no]['new_is_payed'] = 2;
                     $R1[$bill_no]['sum'] -= $sum;
-                    $R1[$bill_no]['sum_full'] -= $sum;
 
-                    if ($R1[$bill_no]['sum_full'] < 0.01) {
+                    if ($R1[$bill_no]['sum'] < 0.01) {
                         $R1[$bill_no]['sum'] = 0;
-                        $R1[$bill_no]['sum_full'] = 0;
+                        $R1[$bill_no]['new_is_payed'] = 1;
                     }
 
                 }
             }
         }
-/*
-        // если счет оплатили и столько же списали - считать не оплаченным
-        foreach($R1 as $k => $r)
-        {
-            if($r["new_is_payed"] == 2 && $r["inv_rub"] == 0)
-            {
-                $R1[$k]["new_is_payed"] = 0;
-            }
-        }
-*/
+
         // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
         // Новых счетов с привязкой не будет. Нужно для совместимости
         foreach ($R2 as $kp => $r) {
@@ -399,18 +350,15 @@ class m_newaccounts extends IModule
 
             $bill_no = $r['bill_vis_no'];
 
-            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] > 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'])) {
-                    ///echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
-                    $sum = round($R1[$bill_no]['sum_full'], 2);
-                    $sum_rub = $sum;
+            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum'] >= 0) {
+                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum'])) {
+                    $sum = round($R1[$bill_no]['sum'], 2);
 
                     if (abs($sum) >= 0.01){
                         $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                                 'bill_no'=>$bill_no,
                                 'sum'=>$sum,
-                                'currency'=>$currency,
-                                'sum_rub'=>$sum_rub);
+                                'currency'=>$currency);
                     }
 
 
@@ -423,29 +371,25 @@ class m_newaccounts extends IModule
 
                     $R1[$bill_no]['new_is_payed'] = 1;
                     $R1[$bill_no]['sum'] = 0;
-                    $R1[$bill_no]['sum_full'] = 0;
 
                 } elseif ($r['sum'] >= 0.01){
                     $sum = $r['sum'];
-                    $sum_rub = $sum;
 
                     if (abs($sum) >= 0.01){
                         $PaymentsOrders[] = array(    'payment_id' => $r['id'],
                                 'bill_no'=>$bill_no,
                                 'sum'=>$sum,
-                                'currency'=>$currency,
-                                'sum_rub'=>$sum_rub);
+                                'currency'=>$currency);
                     }
 
                     $R2[$kp]['sum'] = 0;
 
                     $R1[$bill_no]['new_is_payed'] = 2;
                     $R1[$bill_no]['sum'] -= $sum;
-                    $R1[$bill_no]['sum_full'] -= $sum;
 
-                    if  ($R1[$bill_no]['sum_full'] < 0.01) {
+                    if  ($R1[$bill_no]['sum'] < 0.01) {
                         $R1[$bill_no]['sum'] = 0;
-                        $R1[$bill_no]['sum_full'] = 0;
+                        $R1[$bill_no]['new_is_payed'] = 1;
                     }
                 }
             }
@@ -460,22 +404,19 @@ class m_newaccounts extends IModule
                 if ($r['sum'] < 0.01) continue;
 
                 foreach ($R1 as $kb => $rb) {
-                    //                if ($rb['new_is_payed']==0 ) { echo $rb['sum']."|"; $rb['new_is_payed']=1; continue;}
 
                     if ($rb['new_is_payed']==1 || $rb['new_is_payed']==3 || $rb['sum'] < 0 || $r['sum'] < 0.01) continue;
 
                     if ($this->sum_more($r['sum'],$rb['sum'])) {
 
                         $sum = $rb['sum'];
-                        $sum_rub = $sum;
 
                         if (abs($sum) >= 0.01){
                             $PaymentsOrders[] = array(
                                     'payment_id' => $r['id'],
                                     'bill_no'=>$rb['bill_no'],
                                     'sum'=>$sum,
-                                    'currency'=>$currency,
-                                    'sum_rub'=>$sum_rub);
+                                    'currency'=>$currency);
                         }
 
 
@@ -490,12 +431,10 @@ class m_newaccounts extends IModule
 
                         $R1[$kb]['new_is_payed'] = 1;
                         $R1[$kb]['sum'] = 0;
-                        $R1[$kb]['sum_full'] = 0;
 
                     } elseif ($r['sum'] >= 0.01){
 
                         $sum = $r['sum'];
-                        $sum_rub = $sum;
 
                         if (abs($sum) >= 0.01){
                             $PaymentsOrders[] = array(
@@ -503,7 +442,6 @@ class m_newaccounts extends IModule
                                     'bill_no'=>$rb['bill_no'],
                                     'sum'=>$sum,
                                     'currency'=>$currency,
-                                    'sum_rub'=>$sum_rub,
                                     'rb' => $rb);
                         }
 
@@ -512,7 +450,6 @@ class m_newaccounts extends IModule
 
                         $R1[$kb]['new_is_payed'] = 2;
                         $R1[$kb]['sum'] -= $sum;
-                        $R1[$kb]['sum_full'] -= $sum;
 
                     }
                 }
@@ -524,11 +461,11 @@ class m_newaccounts extends IModule
             $last_payment = null;
             foreach ($R1 as $k => $r) {
 
-                if ( ($r['new_is_payed']==0 || $r['new_is_payed']==2) && $this->sum_more(0,$r['sum_full'], 1)) {
+                if ( ($r['new_is_payed']==0 || $r['new_is_payed']==2) && $this->sum_more(0,$r['sum'], 1)) {
                     $R1[$k]['new_is_payed'] = 1;
                 }
 
-                if ($r['sum_full'] < 0){
+                if ($r['sum'] < 0){
                     $R1[$k]['new_is_payed'] = 1;
                 }
 
@@ -539,7 +476,6 @@ class m_newaccounts extends IModule
                 if ($v['sum'] == 0) continue;
 
                 $sum = $v['sum'];
-                $sum_rub = $sum;
 
                 if (abs($sum) >= 0.01){
                     $PaymentsOrders[] = array(
@@ -547,8 +483,6 @@ class m_newaccounts extends IModule
                             'bill_no'=>$last_payment['bill_no'],
                             'sum'=>$sum,
                             'currency'=>$currency,
-                            'sum_rub'=>$sum_rub,
-                            'tt' => 8
                             );
                 }
             }
@@ -571,9 +505,9 @@ class m_newaccounts extends IModule
         $db->Query('delete from newpayments_orders where client_id='.$client_id);
 
         foreach ($PaymentsOrders as $r) {
-            $db->Query($q='INSERT INTO newpayments_orders (`payment_id`, `bill_no`, `client_id`, `sum`, `currency`, `sum_rub`, `sync_1c`)
-                    VALUES ("'.$r['payment_id'].'","'.$r['bill_no'].'","'.$client_id.'","'.$r['sum'].'","'.$r['currency'].'","'.$r['sum_rub'].'","no")
-                    ON DUPLICATE KEY UPDATE `sum`=`sum`+"'.$r['sum'].'", sum_rub=sum_rub+"'.$r['sum_rub'].'"');
+            $db->Query($q='INSERT INTO newpayments_orders (`payment_id`, `bill_no`, `client_id`, `sum`)
+                    VALUES ("'.$r['payment_id'].'","'.$r['bill_no'].'","'.$client_id.'","'.$r['sum'].'")
+                    ON DUPLICATE KEY UPDATE `sum`=`sum`+"'.$r['sum'].'"');
             //echo "<br>".$q;
         }
 
@@ -624,10 +558,7 @@ class m_newaccounts extends IModule
             group by l.type, b.currency") as $s)
                 $sum_l[$s["type"]][$s["currency"]] = $s["sum"];
 
-        $sum_l["service_and_goods"]["USD"] = $sum_l["service"]["USD"] +$sum_l["good"]["USD"];
-        $sum_l["service_and_goods"]["RUB"] = $sum_l["service"]["RUB"] +$sum_l["good"]["RUB"];
-
-        $sum_l["payments"] = $db->GetValue("select sum(sum_rub) from newpayments where client_id ='".$fixclient_data["id"]."'");
+        $sum_l["payments"] = $db->GetValue("select sum(p.sum) from newpayments p where p.client_id ='".$fixclient_data["id"]."'");
 
         $design->assign("sum_l", $sum_l);
 
@@ -880,8 +811,7 @@ class m_newaccounts extends IModule
         $R2 = $db->AllRecords('
 
             select
-                P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
-                P.sum_rub as sum_rub_full,
+                P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
                 U.user as user_name,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
@@ -891,15 +821,14 @@ class m_newaccounts extends IModule
                 P.payment_id,
                 P.bill_no,
                 P.sum_pay,
-                P.sum_pay_rub,
                 P.bank
-            from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
-                        L.payment_id, L.bill_no, L.sum as sum_pay, L.sum_rub as sum_pay_rub, P.bank
+            from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
+                        L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P LEFT JOIN newpayments_orders L ON L.client_id='.$fixclient_data['id'].' and P.id=L.payment_id
                     WHERE P.client_id='.$fixclient_data['id'].'
                     UNION
-                    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
-                        L.payment_id, L.bill_no, L.sum as sum_pay, L.sum_rub as sum_pay_rub, P.bank
+                    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
+                        L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P RIGHT JOIN newpayments_orders L ON P.client_id='.$fixclient_data['id'].' and P.id=L.payment_id
                     WHERE L.client_id='.$fixclient_data['id'].'
                 ) as P
@@ -929,49 +858,19 @@ class m_newaccounts extends IModule
 
                 if (strpos($r2['payment_id'], '-'))
                 {
-			$r2['payment_rate'] = 1;
 			$r2['currency'] = 'RUB';
 			$r2['id'] = $r2['payment_id'];
-			$R2[$k2]['payment_rate'] = 1;
 			$R2[$k2]['currency'] = 'RUB';
 			$R2[$k2]['id'] = $r2['payment_id'];
                 }
-                if ($r2['payment_rate'] != ''){
-                    $r2['sum_rub_full'] = round($r2['sum_rub_full'],2);
-                    $r2['sum_full'] = round($r2['sum_rub_full']/$r2['payment_rate'],2);
-                    $R2[$k2]['sum_rub_full'] = $r2['sum_rub_full'];
-                    $R2[$k2]['sum_full'] = $r2['sum_full'];
-                }
-//                $r2['sum_pay_rub'] = round($r2['sum_pay']*$r2['payment_rate'],2);
-
                 if($r['bill_no'] == $r2['p_bill_no']){
                     if (!isset($v['pays'][$r2['id']])){
-                        if ($r2['payment_rate'] != '')
-                            $v['delta']+=$r2['sum_full'];
+                        $v['delta']+=$r2['sum'];
                         $v['pays'][$r2['id']]=$r2;
                     }
                 }
             }
-/*
-            foreach($R2 as $k2=>$r2){
 
-                if ($r2['payment_rate'] != ''){
-                    $r2['sum_rub_full'] = round($r2['sum_rub_full'],2);
-                    $r2['sum_full'] = round($r2['sum_rub_full']/$r2['payment_rate'],2);
-                    $R2[$k2]['sum_rub_full'] = $r2['sum_rub_full'];
-                    $R2[$k2]['sum_full'] = $r2['sum_full'];
-                }
-//                $r2['sum_pay_rub'] = round($r2['sum_pay']*$r2['payment_rate'],2);
-
-                if($r['bill_no'] == $r2['p_bill_no']){
-                    if (!isset($v['pays'][$r2['id']])){
-                        if ($r2['payment_rate'] != '')
-                            $v['delta']+=$r2['sum_full'];
-                        $v['pays'][$r2['id']]=$r2;
-                    }
-                }
-            }
-*/
             $R1[$k]['v'] = $v;
         }
 
@@ -1236,26 +1135,6 @@ class m_newaccounts extends IModule
             ')
         );
 
-        //// start:comstar
-        $pay_to_comstar = 0;
-        foreach ($L as $l_item){
-            if ($l_item['num_id'] == 3234 || $l_item['num_id'] == 4216 || $l_item['num_id'] == 3606 || $l_item['num_id'] == 3785 || $l_item['num_id'] == 3865){
-                $pay_to_comstar = $pay_to_comstar + round($l_item['outprice']*1.18,2);
-            }
-        }
-        if ($pay_to_comstar > 0){
-            $ai = $db->GetRow("select acc_no from newbills_add_info where bill_no = '".$bill_no."'");
-            $pay_to_comstar_acc_no = trim(substr(trim($ai['acc_no']), 0, 12));
-            $pay_to_comstar_back = WEB_ADDRESS.WEB_PATH.$design->LINK_START.'module=newaccounts&action=bill_view&bill='.$bill_no;
-
-            $design->assign('pay_to_comstar_acc_no', $pay_to_comstar_acc_no);
-            $design->assign('pay_to_comstar_back', $pay_to_comstar_back);
-        }
-        $design->assign('pay_to_comstar', $pay_to_comstar);
-        if (isset($_GET['ym_pay']))
-        $design->assign('ym_pay', $_GET['ym_pay']);
-        //// end:comstar
-
         $r = $bill->Client();
         ClientCS::Fetch($r);
 
@@ -1306,7 +1185,6 @@ class m_newaccounts extends IModule
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
         if($tt){
             StatModule::tt()->dont_filters = true;
-            #$GLOBALS['module_tt']->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
             StatModule::tt()->cur_trouble_id = $tt['id'];
             StatModule::tt()->tt_view($fixclient);
             StatModule::tt()->dont_again = true;
@@ -1594,7 +1472,7 @@ class m_newaccounts extends IModule
                 }
                 if ($client->is_bill_with_refund && $client->balance > 0)
                 {
-                    $bill->applyRefundOverpay($client->balance, $client->nds_zero);
+                    $bill->applyRefundOverpay($client->balance);
                 }
             }
         } elseif ($obj=='template') {
@@ -1621,13 +1499,14 @@ class m_newaccounts extends IModule
         global $design,$db;
         set_time_limit(0);
         session_write_close();
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         $obj=get_param_raw('obj');
         if ($obj=='create') {
             $p='<span style="display:none">';
             for ($i=0;$i<200;$i++) $p.='                                                     ';
             $p.='</span>';
-            //$R=$db->AllRecords('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") and client<>"technotrade" order by client');
-            $i=0;
 
             $res = mysql_query('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") /*and id=2363*/ order by client');
             while($c=mysql_fetch_assoc($res)){
@@ -1673,7 +1552,7 @@ class m_newaccounts extends IModule
                 	}
                 	if ($c['is_bill_with_refund'] && !is_null($client) && $client->balance > 0)
                 	{
-                		$bill->applyRefundOverpay($client->balance, $client->nds_zero);
+                		$bill->applyRefundOverpay($client->balance);
                 	}
                 }
                 unset($bill);
@@ -1720,10 +1599,6 @@ class m_newaccounts extends IModule
                                 'ORDER by client LIMIT '.($page*50).',50') as $r) {
                     $bill = new Bill($r['bill_no']);
                     $L = $bill->GetLines();
-                    //$period_date = get_inv_date_period($bill->GetTs());
-                    //$p1 = count(self::do_print_prepare_filter('invoice',1,$L,$period_date));
-                    //$p2 = count(self::do_print_prepare_filter('invoice',2,$L,$period_date));
-                    //$p3 = count(self::do_print_prepare_filter('invoice',3,$L,$period_date));
                     if (($doctypes = $bill->getBill2Doctypes()) == false) {
                         $doctypes = $bill->updateBill2Doctypes($L, true);
                     }
@@ -1780,7 +1655,7 @@ class m_newaccounts extends IModule
         $template = array($template,$template);
         $D = array(
                     'Конверт: '=>array('envelope'),
-                    'Счет: '=>array('bill-1-USD','bill-2-USD','bill-1-RUB','bill-2-RUB'),
+                    'Счет: '=>array('bill-1-RUB','bill-2-RUB'),
                     'Счет-фактура: '=>array('invoice-1','invoice-2','invoice-3','invoice-4'),
                     'Акт: '=>array('akt-1','akt-2','akt-3'),
                     'Накладная: '=>array('lading'),
@@ -1871,7 +1746,7 @@ class m_newaccounts extends IModule
         $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
 
-        $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
+        $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
@@ -1986,8 +1861,6 @@ class m_newaccounts extends IModule
                     if($reCode)
                         $r = $reCode;
 
-                    // при импорте клиентов с долларами, печатать долларовые счета
-                    if($isFromImport && $c["currency"] == "USD" && $r == "bill-2-RUB") $r = "bill-2-USD";
                     if (isset($h[$r]))
                     {
                         $idxs[$bill_no."==".$r."-2"] = count($R);
@@ -2120,7 +1993,7 @@ class m_newaccounts extends IModule
         }
         if (!$bill->CheckForAdmin()) return;
         $db->Query('delete from newbill_lines where bill_no="'.$bill_no.'"');
-        ServicePrototype::CleanOverprice($bill_no);
+
         $bill->Save(0,0);
         
         $client = $bill->Client();
@@ -2162,311 +2035,6 @@ class m_newaccounts extends IModule
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
         }
-    }
-    function newaccounts_xxx($fixclient) {
-        set_time_limit(0);
-        session_write_close();
-        $limit = 1000;
-        $offset = 0;
-        $bills =
-            \app\models\Bill::find()
-                ->select('bill_no')
-                ->where(['currency' => 'RUB'])
-                //->where(['bill_no' => '200407-0099'])
-                ->offset($offset)
-                ->limit($limit)
-                //->asArray()
-                ->all();
-        global $nnnnnn;
-        $nnnnnn = $offset;
-        foreach ($bills as $bill) {
-            $nnnnnn++;
-
-            BillDao::me()->recalcBill($bill);
-            continue;
-
-            $_GET['bill'] = $bill['bill_no'];
-            $_GET['object'] = 'akt-1';
-            $_GET['is_pdf'] = '0';
-            $this->newaccounts_bill_print2(null);
-
-            $_GET['bill'] = $bill['bill_no'];
-            $_GET['object'] = 'akt-2';
-            $_GET['is_pdf'] = '0';
-            $this->newaccounts_bill_print2(null);
-        }
-        echo "EXIT $nnnnnn";
-        die();
-    }
-    function newaccounts_bill_print2($fixclient, $params = array()){
-        global $design,$db,$user;
-        $this->do_include();
-
-        $object = (isset($params['object'])) ? $params['object'] : get_param_protected('object');
-
-        $mode = get_param_protected('mode', 'html');
-
-        $is_pdf = (isset($params['is_pdf'])) ? $params['is_pdf'] : get_param_raw('is_pdf', 0);
-        $design->assign("is_pdf", $is_pdf);
-
-        $only_html = (isset($params['only_html'])) ? $params['only_html'] : get_param_raw('only_html', 0);
-        self::$object = $object;
-        if ($object) {
-            list($obj,$source,$curr) = explode('-',$object.'---');
-        } else {
-            $obj=get_param_protected("obj");
-            $source = get_param_integer('source',1);
-            $curr = get_param_raw('curr','RUB');
-        }
-
-        if($obj == "receipt")
-        {
-            return;
-            $this->_print_receipt();
-            exit();
-        }
-
-        $bill_no = (isset($params['bill'])) ? $params['bill'] : get_param_protected("bill");
-        if(!$bill_no)
-            return;
-
-
-        $bill = new Bill($bill_no);
-        $bb = $bill->GetBill();
-
-        $design->assign('without_date_date', $bill->getShipmentDate());
-
-        $to_client = (isset($params['to_client'])) ? $params['to_client'] : get_param_raw("to_client", "false");
-        $design->assign("to_client", $to_client);
-        $design->assign("stamp", $this->get_import1_name($bill, get_param_raw("stamp", "false")));
-
-        if(get_param_raw("emailed", "0") != "0")
-            $design->assign("emailed", get_param_raw("emailed", "0"));
-
-
-        if(in_array($obj,array('nbn_deliv', 'nbn_modem','nbn_gds'))){
-            $this->do_print_prepare($bill,'bill',1,'RUB');
-            $design->assign('cli',$cli=$db->GetRow("select * from newbills_add_info where bill_no='".$bill_no."'"));
-            if(preg_match("/([0-9]{2})\.([0-9]{2})\.([0-9]{4})/i",$cli["passp_birthday"], $out))
-                $cli["passp_birthday"] = $out[1]."-".$out[2]."-".$out[3];
-
-            $lastDoer = $db->GetValue("select name from tt_doers d , courier c where stage_id in (select stage_id from tt_stages where trouble_id = (SELECT id FROM `tt_troubles` where bill_no ='".$cli["bill_no"]."')) and d.doer_id = c.id order by d.id desc");
-
-            list($f, $i, $o) = explode(" ",$lastDoer."   ");
-            if(strlen($i) > 2) $i = $i[0].".";
-            if($o && strlen($o) > 2) $o = $i[0].".";
-
-            $design->assign("cli_doer", $lastDoer ? $f." ".$i." ".$o : "");
-
-            $design->assign('cli_fio',explode(' ',$cli['fio']));
-            $design->assign('cli_bd',explode('-',$cli['passp_birthday']));
-            $design->assign("serial", $this->do_print_serials($bill_no));
-            $cli_passp_when_given = explode('-',$cli['passp_when_given']);
-            if(count($cli_passp_when_given)==1)
-                $cli_passp_when_given = array_reverse(explode('.',$cli_passp_when_given[0]));
-            $design->assign('cli_passp_when_given',$cli_passp_when_given);
-            $design->assign('cli_acc_no',explode(' ',$cli['acc_no']));
-
-
-            global $nnnnnn;
-            if ($design->_tpl_vars['bill']['tsum'] != $design->_tpl_vars['bill']['sum_with_tax']) {
-                echo "$nnnnnn | ERROR TOTAL | $bill_no | {$design->_tpl_vars['bill']['tsum']} | {$design->_tpl_vars['bill']['sum_with_tax']}<br/>\n";
-            }elseif ($design->_tpl_vars['bill']['sum'] != $design->_tpl_vars['bill']['sum_without_tax']) {
-                echo "$nnnnnn | ERROR SUM | $bill_no | {$design->_tpl_vars['bill']['sum']} | {$design->_tpl_vars['bill']['sum_without_tax']}<br/>\n";
-            }elseif ($design->_tpl_vars['bill']['tax'] != $design->_tpl_vars['bill']['sum_tax']) {
-                echo "$nnnnnn | ERROR TAX | $bill_no | {$design->_tpl_vars['bill']['tax']} | {$design->_tpl_vars['bill']['sum_tax']}<br/>\n";
-            } else {
-                echo "$nnnnnn | OK | $bill_no<br/>\n";
-            }
-            return;
-            $design->ProcessEx('newaccounts/'.$obj.'.html');
-            return true;
-        }
-
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info')))
-            $obj='bill';
-
-        if ($obj!='bill')
-            $curr = 'RUB';
-
-        $cc = $bill->Client();
-
-        if(in_array($obj, array("order","notice")))
-        {
-            $t = ($obj == "order" ?
-                "Приказ (Телеком)":
-                ($obj == "notice" ?
-                    "Уведомление (Телеком)":""));
-
-            if($user->Get('id'))
-                $db->QueryInsert(
-                    "log_newbills",
-                    array(
-                        'bill_no'=>$bill_no,
-                        'ts'=>array('NOW()'),
-                        'user_id'=>$user->Get('id'),
-                        'comment'=>'Печать '.$t
-                    )
-                );
-
-        }
-
-        if($obj == "new_director_info")
-        {
-            return;
-            $this->docs_echoFile(STORE_PATH."new_director_info.pdf", "Смена директора.pdf");
-            exit();
-        }
-
-
-
-        if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice"))){
-
-            $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
-            $design->assign("source", $source);
-
-            if($source==3 && $obj=='akt')
-            {
-                if($mode=='html')
-                    $design->ProcessEx('newaccounts/print_akt_num3.tpl');
-            }else{
-                if(in_array($obj, array('invoice','upd'))){
-
-                    $design->assign("client_contract", BillContract::getString($bill->Client("id"), $bill->getTs()));
-
-                    $id = $db->QueryInsert(
-                        "log_newbills",
-                        array(
-                            'bill_no'=>$bill_no,
-                            'ts'=>array('NOW()'),
-                            'user_id'=>$user->Get('id'),
-                            'comment'=>'Печать с/ф &#8470;'.$source
-                        )
-                    );
-
-                    if ($obj == "upd")
-                    {
-                        $design->assign("print_upd", printUPD::getInfo(count($design->_tpl_vars["bill_lines"])));
-                    }
-
-                }elseif($obj == 'gds'){
-
-                    $serials = array();
-                    $onlimeOrder = false;
-                    foreach(Serial::find('all', array(
-                            'conditions' => array(
-                                'bill_no' => $bill->GetNo()
-                            ),
-                            'order' => 'code_1c'
-                        )
-                    ) as $s)
-                    {
-                        $serials[$s->code_1c][] = $s->serial;
-                    }
-
-                    // для onlime'а показываются номера купонов, если таковые есть
-                    if($bill->Get("client_id") == "18042")
-                    {
-                        $oo = OnlimeOrder::find_by_bill_no($bill->GetNo());
-                        if($oo)
-                        {
-                            if($oo->coupon)
-                            {
-                                $onlimeOrder = $oo;
-                            }
-                        }
-                    }
-
-                    $design->assign("onlime_order", $onlimeOrder);
-
-
-                    include_once INCLUDE_PATH.'1c_integration.php';
-                    $bm = new \_1c\billMaker($db);
-                    $f = null;
-                    $b = $bm->getOrder($bill_no, $fault);
-
-                    $_1c_lines = array();
-                    if($b)
-                    {
-                        foreach($b['list'] as $item){
-                            $_1c_lines[$item['strCode']] = $item;
-                        }
-                    }
-                    $design->assign("serials", $serials);
-                    $design->assign('1c_lines',$_1c_lines);
-                }
-
-                if ($only_html == '1') {
-                    global $nnnnnn;
-                    if ($design->_tpl_vars['bill']['tsum'] != $design->_tpl_vars['bill']['sum_with_tax']) {
-                        echo "$nnnnnn | ERROR TOTAL | $bill_no | {$design->_tpl_vars['bill']['tsum']} | {$design->_tpl_vars['bill']['sum_with_tax']}<br/>\n";
-                    }elseif ($design->_tpl_vars['bill']['sum'] != $design->_tpl_vars['bill']['sum_without_tax']) {
-                        echo "$nnnnnn | ERROR SUM | $bill_no | {$design->_tpl_vars['bill']['sum']} | {$design->_tpl_vars['bill']['sum_without_tax']}<br/>\n";
-                    }elseif ($design->_tpl_vars['bill']['tax'] != $design->_tpl_vars['bill']['sum_tax']) {
-                        echo "$nnnnnn | ERROR TAX | $bill_no | {$design->_tpl_vars['bill']['tax']} | {$design->_tpl_vars['bill']['sum_tax']}<br/>\n";
-                    } else {
-                        echo "$nnnnnn | OK | $bill_no<br/>\n";
-                    }
-                    return;
-                    return $design->fetch('newaccounts/print_'.$obj.'.tpl');
-                }
-
-                if ($is_pdf) {
-                    /*wkhtmltopdf*/
-                    $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
-                    switch ($obj) {
-                        case 'upd':
-                            $options .= ' --orientation Landscape ';
-                            break;
-                        case 'invoice':
-                            $options .= ' --orientation Landscape ';
-                            break;
-                    }
-                    $content = $design->fetch('newaccounts/print_'.$obj.'.tpl');
-                    $file_name = '/tmp/' . mktime().$user->_Data['id'];
-                    $file_html = $file_name.'.html';
-                    $file_pdf = $file_name.'.pdf';
-
-                    file_put_contents($file_name . '.html', $content);
-
-                    passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
-                    $pdf = file_get_contents($file_pdf);
-                    unlink($file_html);unlink($file_pdf);
-
-                    header('Content-Type: application/pdf');
-                    ob_clean();
-                    flush();
-                    echo $pdf;
-                    exit;
-
-                } else {
-                    if($mode=='html')
-                    {
-                        global $nnnnnn;
-                        if ($design->_tpl_vars['bill']['tsum'] != $design->_tpl_vars['bill']['sum_with_tax']) {
-                            echo "$nnnnnn | ERROR TOTAL | $obj | $bill_no | {$design->_tpl_vars['bill']['tsum']} | {$design->_tpl_vars['bill']['sum_with_tax']}<br/>\n";
-                        }elseif ($design->_tpl_vars['bill']['sum'] != $design->_tpl_vars['bill']['sum_without_tax']) {
-                            echo "$nnnnnn | ERROR SUM | $obj | $bill_no | {$design->_tpl_vars['bill']['sum']} | {$design->_tpl_vars['bill']['sum_without_tax']}<br/>\n";
-                        }elseif ($design->_tpl_vars['bill']['tax'] != $design->_tpl_vars['bill']['sum_tax']) {
-                            echo "$nnnnnn | ERROR TAX | $obj | $bill_no | {$design->_tpl_vars['bill']['tax']} | {$design->_tpl_vars['bill']['sum_tax']}<br/>\n";
-                        } else {
-                            //echo "$nnnnnn | OK | $bill_no | {$design->_tpl_vars['bill']['tsum']} | {$design->_tpl_vars['bill']['sum_with_tax']}<br/>\n";
-                        }
-                        return;
-                        $design->ProcessEx('newaccounts/print_'.$obj.'.tpl');
-                    }elseif($mode=='xml'){
-                        $design->ProcessEx('newaccounts/print_'.$obj.'.xml.tpl');
-                    }elseif($mode=='pdf'){
-                        include(INCLUDE_PATH.'fpdf/model/'.$obj.'.php');
-                    }
-                }
-            }
-        }else{
-            return;
-            if ($only_html == '1') return '';
-            trigger_error2('Документ не готов');
-        }
-        $design->ProcessEx('errors.tpl');
     }
 
     //эта функция готовит счёт к печати. ФОРМИРОВАНИЕ СЧЁТА
@@ -2796,65 +2364,6 @@ class m_newaccounts extends IModule
         return $s;
     }
 
-    function report_stream_blank($bill_no)
-    {
-        global $db;
-        $a=$db->GetRow("select * from newbills_add_info where bill_no='".$bill_no."'");
-        $t= $db->GetRow("SELECT item FROM newbill_lines where bill_no = '".$bill_no."' and price != 0 and type = 'service' and item like 'МТС%'");
-        $tarif = $t ? $t["item"] : "";
-        include "report.stream.blank.php";
-    }
-
-    public static function do_print_prepare_RecalculateItems($sum_rur,$d,&$L_prev,&$bdata,$mode = 1){
-
-        $d_last_I = abs($d)+10;
-        $I=0;
-        $I_max = ($mode==1?50000:1);
-        while(abs($d)<abs($d_last_I) && $I<$I_max){
-            $d_last_I = $d;
-            foreach($L_prev as &$li)
-                if($li['price']!=0){
-                    $sgn = ($d>0?1:-1);
-                    $i_max = ($mode==1?10:1);
-                    $i=0;
-                    do {
-                        $d_last = $d;
-                        if($mode==1){
-                            $li['outprice']+=round(0.01*$sgn/$li['amount'],4);
-                            $d_item = round($li['outprice']*$li['amount'],2);
-                        } else {
-                            $d_item = round($li['outprice']*$li['amount'],4);
-                        }
-                        $d = round($sum_rub-$bdata['tsum']+$li['tsum']-round($d_item*1.18,2),4);
-                        $i++;
-                    }while(abs($d)<abs($d_last) && ($i<$i_max));
-
-                if(abs($d) >= abs($d_last)){
-                        if($mode==1){
-                            $li['outprice'] -= round(0.01*$sgn/$li['amount'],4);
-                            $li['sum'] = null;
-                        }elseif($mode==3){
-                            $li['sum'] = null;
-                        }
-                        $d = $d_last;
-                    }else
-                        $li['sum']=null;
-                    $bdata['tax']-=$li['tax'];
-                    $bdata['tsum']-=$li['tsum'];
-
-                    if($li['sum']===null)
-                        $li['sum'] = round($li['outprice']*$li['amount'],($mode==1?2:4));
-                    $li['tax'] = round($li['sum']*0.18,2);
-                    $li['tsum']= round($li['sum']*1.18,2);
-                    $bdata['tax']+=$li['tax'];
-                    $bdata['tsum']+=$li['tsum'];
-                }
-            $I++;
-        }
-        unset($li);
-        return $d;
-    }
-
     public static function do_print_prepare_filter($obj,$source,&$L,$period_date, $inv3Full=true, $isViewOnly=false, $origObj = false) {
         $M = array();
 
@@ -3023,7 +2532,7 @@ class m_newaccounts extends IModule
                     where
                         `bill_no`='".$bill['bill_no']."'
                     and
-                        `sum_rub`<0
+                        `sum`<0
                 ",null,MYSQL_ASSOC);
 
                 return $payments;
@@ -3084,19 +2593,12 @@ class m_newaccounts extends IModule
         $design->assign('is_four_order',$is_four_order);
         if($source == 5)
             $is_four_order = false;
-        $sum_rub=0;
+
         if(is_null($source))
             $source=3;
 
-        $usd_rate=1;
         $curr=$bill->Get('currency');
 
-
-        $usd_rate = floatval($usd_rate);
-        $sum_rub = floatval($sum_rub);
-
-        if(!$usd_rate && !$sum_rub && $source<>5)
-            return false;
 
         $bdata=$bill->GetBill();
 
@@ -3104,7 +2606,7 @@ class m_newaccounts extends IModule
         // Если счет 1С, на товар, 
         if($bill->is1CBill())
         {
-            //то доступны только счета (в RUB || USD)
+            //то доступны только счета
             if($obj == "bill" && in_array($source, array('1','2')))
             {
                 $inv_date = $bill->GetTs();
@@ -3161,18 +2663,6 @@ class m_newaccounts extends IModule
 
 
         if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
-            /*$W = array('AND');
-            $W[] = 'payment_no!=""';
-            $W[] = '(bill_no="'.$bdata['bill_no'].'") OR (bill_vis_no="'.$bdata['bill_no'].'")';
-            $W[] = "1 IN (
-                SELECT
-                    newpayments.payment_date between adddate(date_format(newbills.bill_date,'%Y-%m-01'), interval -1 month)
-                and
-                    adddate(adddate(date_format(newbills.bill_date,'%Y-%m-01') ,interval 1 month), interval -1 day)
-                FROM
-                    newbills
-                WHERE
-                    newbills.bill_no = newpayments.bill_no)";*/
             //не отображать если оплата позже счета-фактуры
             $query = "
                 SELECT
@@ -3183,7 +2673,7 @@ class m_newaccounts extends IModule
                 WHERE
                     payment_no<>''
                 AND
-                    `sum_rub`>=0
+                    `sum`>=0
                 AND
                     (
                         bill_no='".$bdata['bill_no']."'
@@ -3234,22 +2724,8 @@ class m_newaccounts extends IModule
 
         $bdata['ts']=$bill->GetTs();
 
-        if(!$usd_rate){
-            $sum = $bill->CalculateSum();
-            $sum =
-                $obj == 'bill'
-                    ? $sum['sum_with_zadatok']
-                    : $sum['sum'];
 
-            $usd_rate =
-                $sum > 0
-                    ? $sum_rur / $sum
-                    : 0;
-            unset($sum);
-        }
-
-
-        $L_prev=$bill->GetLines($usd_rate,((preg_match('/bill-\d/',self::$object))?'order':false));//2 для фактур значит за прошлый период
+        $L_prev=$bill->GetLines((preg_match('/bill-\d/',self::$object))?'order':false);//2 для фактур значит за прошлый период
 
 
         if(in_array($obj, array("invoice","upd")))
@@ -3258,162 +2734,62 @@ class m_newaccounts extends IModule
         }
 
 
-        $isNdsZero = $bill->Client("nds_zero");
-        $nds = $bill->Client("nds_zero") ? 1 : 1.18;
-
         $design->assign_by_ref('negative_balance', $bill->negative_balance); // если баланс отрицательный - говорим, что недостаточно средств для проведения авансовых платежей
-        $bdata['tax']=0;
-        $bdata['tsum']=0;
-
 
         foreach($L_prev as $k => $li){
-            //$s=round($li['outprice']*$li['amount'],4);
-            //$L_prev[$k]['sum']=$s;
-
-            $L_prev[$k]['tax']=round($isNdsZero ? 0 : $L_prev[$k]['sum']*0.18,2);
-
-            if($L_prev[$k]['all4net_price']<>0){
-                $L_prev[$k]['tsum'] = round($L_prev[$k]['all4net_price']*$L_prev[$k]['amount'],2);
-            }else{
-                $L_prev[$k]['tsum']=round($L_prev[$k]['sum']*$nds,2);
+            if (!($obj=='bill' || ($li['type']!='zadatok' || $is_four_order))) {
+                unset($L_prev[$k]);
             }
-
-            $L_prev[$k]['sum']=$L_prev[$k]['sum'];
-
-            // add calc line nds
-            if($li["line_nds"] != 18)
-            {
-                $L_prev[$k]["outprice"] = $L_prev[$k]["tsum"]/$li["amount"];
-                $L_prev[$k]["sum"] = $L_prev[$k]["tsum"];
-                $L_prev[$k]["tax"] = 0;
-            }
-
-
-            if ($obj=='bill' || ($li['type']!='zadatok' || $is_four_order)) {
-                $bdata['tax']+=$L_prev[$k]['tax'];
-                $bdata['tsum']+=$L_prev[$k]['tsum'];
-            } else {unset($L_prev[$k]);}
         }
         unset($li);
 
         $L = self::do_print_prepare_filter($obj,$source,$L_prev,$period_date,(($obj == "invoice" || $obj == "upd") && $source == 3), $isSellBook ? true : false, $origObj);
 
-
-        if ($sum_rub!=0) { //расчет долларовых счетов
-
-            if($bill->GetTs() < 1351713600)  // 2012-11-01 00:00:00
-            {
-                   if($d=round($sum_rub-$bdata['tsum'],4))
-                       self::do_print_prepare_RecalculateItems($sum_rub,$d,$L_prev,$bdata,1);
-                   if($d=round($sum_rub-$bdata['tsum'],4))
-                       self::do_print_prepare_RecalculateItems($sum_rub,$d,$L_prev,$bdata,2);
-                   if($d=round($sum_rub-$bdata['tsum'],4))
-                       self::do_print_prepare_RecalculateItems($sum_rub,$d,$L_prev,$bdata,3);
-            }else{
-
-                $rate = $sum_rub/$bdata["sum"];
-
-                foreach($L_prev as &$l)
-                {
-                    if($l["tsum"])
-                    {
-                        $l["tsum"] *= $rate;
-                        $l["sum"] *= $rate;
-                        $l["tax"] *= $rate;
-
-                        if($l["amount"])
-                        {
-                            $l["sum"] = $l["tsum"]/1.18;
-                            $l["outprice"] = $l["sum"]/$l["amount"];
-                        }
-
-                        $l["tax"] = $l["tsum"]/1.18*0.18;
-                    }
-                }
-            }
-        }
-
         if($is_four_order){
             $L =& $L_prev;
             $bill->refactLinesWithFourOrderFacure($L);
         }elseif($source == 5){
-            $pays = $db->AllRecords("
-                select
-                    *
-                from
-                    `newpayments`
-                where
-                    `bill_no` = '".$bdata['bill_no']."'
-                and
-                    `sum_rub`<0
-            ",null,MYSQL_ASSOC);
-
             $L_prev = [
                 [
                     'bill_no'=>$bdata['bill_no'],
                     'sort'=>1,
                     'item'=>'Авансовый платеж за доступ в интернет',
-                    'amount'=>1,
+                    'amount'=>0,
                     'price'=>0,
-                    'all4net_price'=>0,
                     'service'=>'usage_ip_ports',
                     'id_service'=>0,
                     'date_from'=>0,
                     'date_to'=>0,
                     'type'=>'zadatok',
                     'outprice'=>0,
-                    'sum'=>0,
                     'id'=>1,
                     'ts_from'=>0,
                     'ts_to'=>0,
-                    'tsum'=>0,
-                    'tax'=>0,
                     'is_price_includes_tax' => 0,
                     'tax_type_id' => null,
+                    'sum'=> 0,
                     'sum_without_tax'=>0,
                     'sum_tax'=>0,
-                    'sum_with_tax'=>0,
-                    'doc_sum_without_tax'=>0,
-                    'doc_sum_tax'=>0,
-                    'doc_sum_with_tax'=>0,
                 ]
             ];
-            foreach($pays as $pay){
-                $L_prev[0]['sum']+=($pay['sum_rub']*-1);
-                $L_prev[0]['tax']+=($pay['sum_rub']*-1)/1.18*0.18;
-                $L_prev[0]['outprice']+=($pay['sum_rub']*-1);
-                $L_prev[0]['tsum']+=($pay['sum_rub']*-1);
-            }
             $L =& $L_prev;
         }
 
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
 
         $cpe = array();
-        $bdata['tax']=0; $bdata['tsum']=0; $bdata["sum"] = 0;
-        $bdata['sum_without_tax']=0; $bdata['sum_tax']=0; $bdata["sum_with_tax"] = 0;
-        $bdata['doc_sum_without_tax']=0; $bdata['doc_sum_tax']=0; $bdata["doc_sum_with_tax"] = 0;
+        $bdata["sum"] = 0;
+        $bdata['sum_without_tax'] = 0;
+        $bdata['sum_tax'] = 0;
 
 
         $r = $bill->Client();
 
         foreach ($L as &$li) {
 
-            if($r["nds_calc_method"] == 3 && !$isNdsZero)
-            {
-                $li["tax"] = round($li["tsum"]/1.18*0.18,2);
-                $li["sum"] = $li["tsum"] - $li["tax"];
-            }
-
-            $bdata['tax']+=round($li['tax'],2);
-            $bdata['tsum']+=$li['tsum'];
-            $bdata['sum']+=round($li['sum'],2);
+            $bdata['sum']               += $li['sum'];
             $bdata['sum_without_tax']   += $li['sum_without_tax'];
             $bdata['sum_tax']           += $li['sum_tax'];
-            $bdata['sum_with_tax']      += $li['sum_with_tax'];
-            $bdata['doc_sum_without_tax']   += $li['doc_sum_without_tax'];
-            $bdata['doc_sum_tax']           += $li['doc_sum_tax'];
-            $bdata['doc_sum_with_tax']      += $li['doc_sum_with_tax'];
 
             if ($obj=='akt' && $source==3 && $do_assign) {			//связь строчка>устройство или строчка>подключение>устройство
                 $id = null;
@@ -3434,31 +2810,7 @@ class m_newaccounts extends IModule
         }
 		unset($li);
 
-        if($bdata["currency"] == "USD")
-        {
-            if($bdata["tsum"] - $bdata["sum"] != $bdata["tax"])
-            {
-                $bdata["tax"] = $bdata["tsum"] - $bdata["sum"];
-            }
-        }
-
-        //каст! 200909-1868
-        $bdata['tax'] = $isNdsZero ? 0 : $bdata['tax'];//round($bdata['tsum']/($nds)*($nds-1),2);
-
-        //$bdata['sum'] = $bdata['tsum']-$bdata['tax'];
-
         $b = $bill->GetBill();
-
-        if($r["nds_calc_method"] == 2 && !$isNdsZero)
-        {
-            $bdata["tax"] = $bdata["tsum"] - $bdata["sum"];
-        }
-
-        if($r["nds_calc_method"] == 3 && !$isNdsZero)
-        {
-            $bdata["tax"] = round($bdata["tsum"]/1.18*0.18,2);
-            $bdata["sum"] = $bdata["tsum"] - $bdata["tax"];
-        }
 
         if ($do_assign){
             $design->assign('cpe',$cpe);
@@ -3506,7 +2858,7 @@ class m_newaccounts extends IModule
             {
                 $discount = ($l["discount_set"] + $l["discount_auto"])/1.18;
 
-                $l["sum"] -= $discount;
+                $l["sum_without_tax"] -= $discount;
 
                 if($discount && $l["amount"])
                     $l["outprice"] = $l["price"] -= $discount/$l["amount"];
@@ -3949,7 +3301,7 @@ class m_newaccounts extends IModule
         global $db;
 
         if (!$clientIds) $clientIds = array(-1);
-        if ($pm=$db->GetRow('select comment,bill_no from newpayments where client_id in ("'.implode('","', $clientIds).'") and sum_rub = "'.$pay['sum'].'" and payment_date = "'.$pay['date'].'" and type="bank" and payment_no = "'.$pay["noref"].'"')) {
+        if ($pm=$db->GetRow('select comment,bill_no from newpayments where client_id in ("'.implode('","', $clientIds).'") and sum = "'.$pay['sum'].'" and payment_date = "'.$pay['date'].'" and type="bank" and payment_no = "'.$pay["noref"].'"')) {
             $pay['imported']=1;
             $pay["comment"] = $pm["comment"];
             $pay["bill_no"] = $pm["bill_no"];
@@ -4095,7 +3447,7 @@ class m_newaccounts extends IModule
             $isIn = !isset($payAccs[$p["account"]]);
 
             if(!$isIn){
-                $p["sum_rub"] = -abs($p["sum_rub"]);
+                $p["sum"] = -abs($p["sum"]);
                 $p["account"] = $p["geter_acc"];
                 $p["bik"] = $p["geter_bik"];
                 $p["payer"] = $p["geter"];
@@ -4111,7 +3463,7 @@ class m_newaccounts extends IModule
                     "date_exch" => $od1[2]."-".$od1[1]."-".$od1[0],
                     "date" => $od1[2]."-".$od1[1]."-".$od1[0],
                     "oper_date" => $od[2]."-".$od[1]."-".$od[0],
-                    "sum" => $p["sum_rub"],
+                    "sum" => $p["sum"],
                     "noref" => $p["pp"],
                     "inn" => $p["inn"],
                     "description" => $p["comment"],
@@ -4163,9 +3515,6 @@ class m_newaccounts extends IModule
         $firmaSql = ' and firma in ("'.implode('","', $firms).'")';
         foreach($payments as $p){
 
-            //if($p["sum_rub"] != 3774.82) continue;
-
-
             $p['id'] = $payid;
             $payid++;
             $v=explode('.',$p['date_dot']);
@@ -4178,7 +3527,6 @@ class m_newaccounts extends IModule
                 $p['oper_date'] = '';
 
             $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($p['date']).'" and currency="USD"');
-            $p['usd_rate'] = $r['rate'];
             if(!isset($clients[$p['inn']])){
                 $clients[$p['inn']] = $db->AllRecords('select clients.*,0 as is_ext from clients where (inn="'.addslashes($p['inn']).'") and (inn!="")'.$firmaSql);
                 $clients[$p['inn']] = array_merge($clients[$p['inn']],$db->AllRecords('select clients.*,1 as is_ext,client_inn.comment from clients inner join client_inn on client_inn.client_id=clients.id and client_inn.is_active=1 where (client_inn.inn="'.addslashes($p['inn']).'") and (client_inn.inn!="")'.$firmaSql));
@@ -4219,27 +3567,18 @@ class m_newaccounts extends IModule
 
                     }
                 }
-                if ($v['currency']=='RUB') {
-                    unset($p['usd_rate']);
-                } elseif ($p['usd_rate'] && $p['bill_no']) {
-                    $r = $db->GetRow('select sum as S from newbills where bill_no="'.$p['bill_no'].'"');
-                    if ($r && $r['S']!=0) {
-                        $rate_bill=round($p['sum_rub']/$r['S'],4);
-                        if (abs($rate_bill-$p['usd_rate'])/$p['usd_rate'] <=0.03) $p['usd_rate']=$rate_bill;
-                    }
-                }
-                if ($pm=$db->QuerySelectRow('newpayments',array('client_id'=>$p['client']['id'],'sum_rub'=>$p['sum_rub'],'payment_date'=>$p['date']))) {
+                if ($pm=$db->QuerySelectRow('newpayments',array('client_id'=>$p['client']['id'],'sum'=>$p['sum'],'payment_date'=>$p['date']))) {
                     $p["bill_no"] = $pm["bill_no"];
                     $p['imported']=1;
-                    $SUM_already += $p['sum_rub'];
+                    $SUM_already += $p['sum'];
                 }
             } else {
                 $k="-".substr(md5($p['inn'].$p['payer']),1,8);
                 $p['client']=array('id'=>$k);
             }
             $R[]=$p;
-            $SUM_sum += $p['sum_rub'];
-            if ($p['sum_rub']>=0) $SUM_plus+=$p['sum_rub']; else $SUM_minus+=$p['sum_rub'];
+            $SUM_sum += $p['sum'];
+            if ($p['sum']>=0) $SUM_plus+=$p['sum']; else $SUM_minus+=$p['sum'];
         }
         $design->assign('file',$file);
         $design->assign('payments',$R);
@@ -4276,7 +3615,7 @@ class m_newaccounts extends IModule
                 $bill = $db->QuerySelectRow("newbills", array("bill_no" => $P["bill_no"]));
 
                 if($bill["client_id"] != $client["id"]) {
-                    trigger_error2("Платеж #".$P["pay"].", на сумму:".$P["sum_rub"]." не внесен, проверте, что бы счет принадлежал этой компании");
+                    trigger_error2("Платеж #".$P["pay"].", на сумму:".$P["sum"]." не внесен, проверте, что бы счет принадлежал этой компании");
                     continue;
                 }
 
@@ -4290,7 +3629,6 @@ class m_newaccounts extends IModule
                 if (!$curr && $r2=$db->GetRow('select * from newsaldo where ts<"'.addslashes($P['date']).'" order by id desc limit 1')) $curr=$r2['currency'];
                 if (!$curr) $curr=$client['currency'];
 
-                $rate=1;
                 $b=1;
                 if ($b) {
                     $A = array_merge($A,array(
@@ -4300,8 +3638,11 @@ class m_newaccounts extends IModule
                             'bill_vis_no'    => $P['bill_no'],
                             'payment_date'    => $P['date'],
                             'oper_date'        => (isset($P['oper_date']) ? $P['oper_date'] : $P['date']),
-                            'payment_rate'    => $rate,
-                            'sum_rub'        => round($P['sum_rub'],2),
+                            'sum'               => $P['sum'],
+                            'currency'          => 'RUB',
+                            'payment_rate'      => 1,
+                            'original_sum'      => $P['sum'],
+                            'original_currency' => 'RUB',
                             'comment'        => $P['comment'],
                             'add_date'        => array('NOW()'),
                             'add_user'        => $user->Get('id'),
@@ -4309,23 +3650,15 @@ class m_newaccounts extends IModule
                             'bank'          => $bank
                             ));
                     $b=$db->QueryInsert('newpayments',$A);
-                    #$all4net->payment($P['bill_no']);
-                    //$cs->pushClientPayment($b);
                 }
                 if ($b) {
-                    //$CL[$client['id']]=$client['currency'];
                     echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' внесён';
                  } else {
                     echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' не внесён, так как на '.$P['date'].' отсутствует курс доллара';
                 }
             }
         }
-#            if ($P['bill_no'] && $bill_sum && ($curr=='USD')) {
 
-        //foreach ($CL as $cl_id=>$curr) $this->update_balance($cl_id,$curr); // обновление баланса делается после занесения платежа.
-
-
-        //$this->newaccounts_bill_balance_mass($fixclient);
         trigger_error2("Баланс обновлён");
         if ($b && $design->ProcessEx('errors.tpl')) {
             header('Location: ?module=newaccounts&action=pi_process&file='.$file);
@@ -4392,9 +3725,8 @@ $W1 = array("and", "~~where_owner~~");
             $newpayments_join .= "
                 inner join newpayments on newpayments.bill_no = newbills.bill_no
                 and
-                if(newbills.currency = 'USD', newbills.`sum`*newpayments.payment_rate, newbills.`sum`) - (select sum(sum_rub) from newpayments where bill_no=newbills.bill_no) >= ".((float)$p_nedopay)."
+                newbills.`sum` - (select sum(p.sum) from newpayments p where bill_no=newbills.bill_no) >= ".((float)$p_nedopay)."
                     ";
-        }else{
         }
 
         $W1[] = '( newbills.bill_date >= newsaldo.ts OR newsaldo.ts IS NULL)';
@@ -4408,15 +3740,13 @@ $W1 = array("and", "~~where_owner~~");
             clients.company,
             clients.firma,
             if(clients.currency = newbills.currency, 1,0) as f_currency,
-                (SELECT SUM(P.sum_rub) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_rub,
-                    (SELECT SUM(round(P.sum_rub/P.payment_rate,2)) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_usd,
                     clients.manager as client_manager,
                     (select user from user_users where id=nbo.owner_id) as bill_manager'.($b_show_bonus ? ',
 
-                    (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", round(bl.price*1.18*bl.amount,2), " => ", round(if(b.type = "%",bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2)))) separator "|\n")  FROM newbill_lines bl
+                    (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) separator "|\n")  FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "'.$managerInfo["usergroup"].'"
                      where bl.bill_no=newbills.bill_no) bonus_info ,
-                    (SELECT sum(round(if(b.type = "%",bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2)) FROM newbill_lines bl
+                    (SELECT sum(round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)) FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "'.$managerInfo["usergroup"].'"
                      where bl.bill_no=newbills.bill_no) bonus' : '').'
                         from
@@ -4439,12 +3769,6 @@ $W1 = array("and", "~~where_owner~~");
                 $sql = str_replace("~~where_owner~~", 'nbo.owner_id="'.$managerInfo["id"].'"', $sql);
             }else{
                 $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'" or nbo.owner_id="'.$managerInfo["id"].'"', $sql);
-/*
-                $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'"', $sql)." union ".
-                    str_replace("~~where_owner~~", 'nbo.owner_id="'.$managerInfo["id"].'"', $sql);
-*/
-
-                //$W1 = array('AND',' ( nbo.owner_id="'.$managerInfo["id"].'" or clients.manager="'.$manager.'") ');
             }
         }
 
@@ -4452,33 +3776,29 @@ $sql .= "    order by client, bill_no";
 
         $R=$db->AllRecords($sql);
 
-        $s_USD = array(
-                'pay_sum_rub'=>0,
-                'pay_sum_usd'=>0,
-                'sum'=>0
-                  );
-        $s_RUB=array(
-                'pay_sum_rub'=>0,
-                'sum'=>0,
-                'bonus' => 0
-                );
+        $totalAmount = [];
+        $totalBonus = [];
+
         $clients = array();
         foreach($R as &$r){
             $clients[$r['client_id']] =1;
-            if($r['currency']=='USD'){
-                $s_USD['pay_sum_rub'] += $r['pay_sum_rub'];
-                $s_USD['pay_sum_usd'] += $r['pay_sum_usd'];
-                $s_USD['sum'] += $r['sum'];
-            }else{
-                $s_RUB['pay_sum_rub'] += $r['pay_sum_rub'];
-                $s_RUB['sum'] += $r['sum'];
-                @$s_RUB['bonus'] += isset($r['bonus']) ? $r['bonus'] : 0;
+            if ($r['sum']) {
+                if (!isset($totalAmount[$r['currency']])) {
+                    $totalAmount[$r['currency']] = 0;
+                }
+                $totalAmount[$r['currency']] += $r['sum'];
+            }
+            if ($r['bonus']) {
+                if (!isset($totalBonus[$r['currency']])) {
+                    $totalBonus[$r['currency']] = 0;
+                }
+                $totalBonus[$r['currency']] += $r['bonus'];
             }
         }
         $design->assign('clients_count', count($clients));
         $design->assign('bills',$R);
-        $design->assign('bills_total_USD',$s_USD);
-        $design->assign('bills_total_RUB',$s_RUB);
+        $design->assign('totalAmount',$totalAmount);
+        $design->assign('totalBonus',$totalBonus);
     }
 
     $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
@@ -4508,7 +3828,7 @@ $sql .= "    order by client, bill_no";
             $sum[$fixclient_data['currency']]=array('delta'=>0,'bill'=>0,'ts'=>'');
         }
         $R1=$db->AllRecords('select *,'.($sum[$fixclient_data['currency']]['ts']?'IF(bill_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)':'1').' as in_sum from newbills where client_id='.$fixclient_data['id'].' order by bill_no desc');
-        $R2=$db->AllRecords('select P.*,(P.sum_rub/P.payment_rate) as sum,U.user as user_name,'.($sum[$fixclient_data['currency']]['ts']?'IF(P.payment_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)':'1').' as in_sum from newpayments as P LEFT JOIN user_users as U on U.id=P.add_user where P.client_id='.$fixclient_data['id'].' order by P.payment_date desc');
+        $R2=$db->AllRecords('select P.*,U.user as user_name,'.($sum[$fixclient_data['currency']]['ts']?'IF(P.payment_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)':'1').' as in_sum from newpayments as P LEFT JOIN user_users as U on U.id=P.add_user where P.client_id='.$fixclient_data['id'].' order by P.payment_date desc');
 
         foreach ($R1 as $r) {
             $delta =-$r['sum'];
@@ -4615,13 +3935,12 @@ $sql .= "    order by client, bill_no";
             }
             $W1[] = "newbills.nal in ('".implode("','", array_keys($nal))."')";
             $W1[] = 'is_payed in (0,2)';
-            //$W1[] = 'sum > 0';
+
             if (!$cl_off) $W1[]='status="work"';
             if ($date_from) $W1[]='newbills.bill_date>="'.$date_from.'"';
             if ($date_to) $W1[]='newbills.bill_date<="'.$date_to.'"';
             if($zerobill) $W1[] = 'newbills.sum<>0';
 
-            //$W1[]='((newbills.bill_date>=newsaldo.ts OR newsaldo.ts IS NULL) AND newbills.currency=clients.currency)';
             $q = '
                 select
                     a.*,
@@ -4646,9 +3965,7 @@ $sql .= "    order by client, bill_no";
                             newbills.nal as bill_nal,
                             clients.client,
                             clients.company,
-                            clients.manager,
-                            (SELECT SUM(P.sum_rub) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_rub,
-                            (SELECT SUM(round(P.sum_rub/P.payment_rate,2)) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_usd
+                            clients.manager
                         from newbills
                         LEFT JOIN clients ON clients.id=newbills.client_id
                         LEFT JOIN newsaldo ON newsaldo.client_id=clients.id
@@ -4666,37 +3983,31 @@ $sql .= "    order by client, bill_no";
 
             $R=$db->AllRecords($q);
 
-            $s_USD=array('sum'=>0,'saldo'=>0);
-            $s_RUB=array('sum'=>0,'saldo'=>0);
+            $totalAmount = [];
+            $totalSaldo = [];
+
             foreach ($R as &$r) {
-                /*
-                $staticComment = $this->getStaticComment($r["bill_no"]);
-                if($staticComment)
-                {
-                    $r["statcomment"] = $staticComment;
-                }
-                */
                 if ($isPrint) {
                     $r["metro"] = ClientCS::GetMetroName($r["metro_id"]);
                 }
                 $r["debt"] = $this->GetDebt($r["client_id"]);
                 $r["courier"] = Bill::GetCourierName($r["courier_id"]);
-                if ($r['currency']=='USD') {
-                    $s_USD['sum']+=$r['sum'];
-                } else {
-                    $s_RUB['sum']+=$r['sum'];
+                if ($r['sum']) {
+                    if (!isset($totalAmount[$r['currency']])) {
+                        $totalAmount[$r['currency']] = 0;
+                    }
+                    $totalAmount[$r['currency']] += $r['sum'];
                 }
-                if ($r["debt"]["currency"] == "USD")
-                {
-                    $s_USD["saldo"] += $r["debt"]["sum"];
-                }else{
-                    $s_RUB["saldo"] += $r["debt"]["sum"];
+                if ($r["debt"]["sum"]) {
+                    if (!isset($totalSaldo[$r["debt"]["currency"]])) {
+                        $totalSaldo[$r["debt"]["currency"]] = 0;
+                    }
+                    $totalSaldo[$r["debt"]["currency"]] += $r["debt"]["sum"];
                 }
-
             }
             $design->assign('bills',$R);
-            $design->assign('bills_total_USD',$s_USD);
-            $design->assign('bills_total_RUB',$s_RUB);
+            $design->assign('totalAmount',$totalAmount);
+            $design->assign('totalSaldo',$totalSaldo);
         }
         $m=array();
         StatModule::users()->d_users_get($m,'manager');
@@ -4723,6 +4034,7 @@ $sql .= "    order by client, bill_no";
 
     function newaccounts_search($fixclient) {
         global $db,$design;
+
         $search=get_param_protected('search');
         $search = trim($search);
         if ($search) {
@@ -4798,8 +4110,7 @@ $sql .= "    order by client, bill_no";
                                 ', (select ts from newsaldo where client_id=clients.id and newsaldo.is_history=0 and newsaldo.currency=clients.currency order by id desc limit 1) as saldo_ts'.
                                 ', (select saldo from newsaldo where client_id=clients.id and newsaldo.is_history=0 and newsaldo.currency=clients.currency order by id desc limit 1) as saldo_sum'.
                                 ', (select sum(`sum`) from newbills where '.MySQLDatabase::Generate($W1).') as sum_bills'.
-                                ', (select sum(round(sum_rub/payment_rate,2)) from newpayments as P LEFT JOIN newbills ON newbills.bill_no=P.bill_no and P.client_id = newbills.client_id where '.MySQLDatabase::Generate($W2).') as sum_payments'.
-                                //', (select sum(round(sum_rub/payment_rate,2)) from newpayments as P  where '.MySQLDatabase::Generate($W2).') as sum_payments'.
+                                ', (select sum(P.sum) from newpayments as P LEFT JOIN newbills ON newbills.bill_no=P.bill_no and P.client_id = newbills.client_id where '.MySQLDatabase::Generate($W2).') as sum_payments'.
                                 ', (select bill_date from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_date'.
                                 ', (select bill_no from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_no'.
                                 ', (select round(`sum`) from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_sum'.
@@ -4845,18 +4156,18 @@ $sql .= "    order by client, bill_no";
         if ($saldo) $W[]='P.payment_date>="'.$saldo['ts'].'"';
         if ($date_from) $W[]='P.payment_date>="'.$date_from.'"';
         if ($date_to) $W[]='P.payment_date<="'.$date_to.'"';
-        /*
+
         $P=$db->AllRecords($sql = '
                 select P.*,
                     UNIX_TIMESTAMP(P.payment_date) as payment_date
                 from newpayments as P
                 where '.MySQLDatabase::Generate($W).'
                 order by P.id');
-        */
-        $P = [];
+
+
         foreach ($P as &$A) {
 
-            $sum_outcome = $A['sum_rub'];
+            $sum_outcome = $A['sum'];
             if ($sum_outcome < 0) {
                 $sum_income = - $sum_outcome;
                 $sum_outcome = 0;
@@ -4900,15 +4211,15 @@ $sql .= "    order by client, bill_no";
                     $A['inv_date'] = ($A1)?$A1['inv_date']:$A['inv_date'];
                     $A['inv_no'] = $A['bill']['bill_no'];
                 }
-                if($I != 3 && is_array($A) && $A['bill']['tsum']){
+                if($I != 3 && is_array($A) && $A['bill']['sum']){
                     $k=date('Y-m-d',$A['inv_date']);
                     if(
                         (!$date_from || $k>=$date_from)
                     &&
                         (!$date_to || $k<=$date_to)
                     ){
-                        $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['tsum'];
-                        $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['tsum'] : 0;
+                        $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['sum'];
+                        $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['sum'] : 0;
                         $R[$A['inv_date']+($Rc++)] = array(
                             'type'       => 'inv',
                             'date'       => $A['inv_date'],
@@ -4929,7 +4240,7 @@ $sql .= "    order by client, bill_no";
             "select 'inv' as type, 3 as inv_num,
                 b.bill_no, concat(b.bill_no,'-3') as inv_no,
                 unix_timestamp(bill_date) as date,
-                l.sum as sum_income, item as items, b.currency, b.gen_bill_rate, b.sum as b_sum
+                l.sum as sum_income, item as items, b.currency, b.sum as b_sum
             from
                 newbills b, newbill_lines l
             where
@@ -5035,9 +4346,9 @@ $sql .= "    order by client, bill_no";
         $R=array();
         $Rc = 0;
         $S = array(
+            'sum_without_tax'=>0,
             'sum'=>0,
-            'tsum'=>0,
-            'tax'=>0
+            'sum_tax'=>0
         );
 
         if(get_param_raw("do", ""))
@@ -5093,7 +4404,7 @@ $sql .= "    order by client, bill_no";
                     C.kpp,
                     C.type,
                     max(P.payment_date) as payment_date,
-                    sum(P.sum_rub) as sum_rub,
+                    sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
                     unix_timestamp(bill_date) as shipment_ts,
                     18 as min_nds
@@ -5128,7 +4439,7 @@ $sql .= "    order by client, bill_no";
                         C.kpp,
                         C.type,
                         max(P.payment_date) as payment_date,
-                        sum(P.sum_rub) as sum_rub,
+                        sum(P.sum) as `pay_sum`,
                         (
                             SELECT min(nds) 
                             FROM `newbill_lines` nl, g_goods g 
@@ -5203,7 +4514,7 @@ $sql .= "    order by client, bill_no";
                 }
 
 
-                if (is_array($A) && $A['bill']['tsum']) {
+                if (is_array($A) && $A['bill']['sum']) {
 
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
 
@@ -5229,7 +4540,7 @@ $sql .= "    order by client, bill_no";
                         }
 
                         $A['bill']['payment_date'] = $p['payment_date'];
-                        $A['bill']['sum_rub'] = $p['sum_rub'];
+                        $A['bill']['pay_sum'] = $p['pay_sum'];
 
                         $A['bill']['inv_no'] = $A['inv_no'];
 
@@ -5237,7 +4548,7 @@ $sql .= "    order by client, bill_no";
 
                         if($p["is_rollback"])
                         {
-                            foreach(array("ts", "tax", "tsum", "sum") as $f)
+                            foreach(array("ts", "sum_tax", "sum_without_tax", "sum") as $f)
                                 $A["bill"][$f] = -abs($A["bill"][$f]);
                         }
 
@@ -5369,7 +4680,7 @@ $sql .= "    order by client, bill_no";
             $dbf->SetDefault('bill_no',$bill_no);
             if($oBill === null)
                 $oBill = new Bill($bill_no);
-            $dbf->SetDefault("sum_rub", $oBill->Get("sum"));
+            $dbf->SetDefault("sum", $oBill->Get("sum"));
             $dbf->SetDefault("type", "prov");
         }
 
@@ -5377,7 +4688,7 @@ $sql .= "    order by client, bill_no";
         $design->AddMain('newaccounts/pay_add.tpl');
     }
     function newaccounts_pay_apply($fixclient){
-        global $design,$db,$fixclient_data;
+        global $db,$fixclient_data;
         if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
         $bill_no = $_POST['dbform']['bill_no'];
         if ($bill_no==''){trigger_error2('Не выбран счет'); return;}
@@ -5387,7 +4698,7 @@ $sql .= "    order by client, bill_no";
 
         // каст для БИЛАЙНА
 
-        if(false && $b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0 && $b->sum > 0) {
+        if(false && $b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum"]>0 && $b->sum > 0) {
             trigger_error2("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
             return;
         }elseif($b->is_payed == 0){
@@ -5407,39 +4718,16 @@ $sql .= "    order by client, bill_no";
         $dbf = new DbFormNewpayments();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
-        $result=$dbf->Process();
+        $dbf->Process();
 
 
         $this->update_balance($b->client->id, $b->client->currency);
-        /*
-        if(include_once(INCLUDE_PATH."1c_integration.php")){
-            $clS = new \_1c\clientSyncer($db);
-            $f = null;
-            if(!$clS->pushClientPayment($dbf->data['id'],$f)){
-                echo "Не удалось синхронизировать платеж в 1С!<br />";
-                if($f)
-                    echo "Ошибка: ".\_1c\getFaultMessage($f);
-                echo "<br /><br /><a href='?module=newaccounts'>Баланс</a>";
-                exit();
-            }
-        }
-        */
+
         header('Location: ?module=newaccounts');
         exit();
         $design->ProcessX();
     }
-    function newaccounts_pay_rate($fixclient) {
-        global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
-        $id=get_param_integer('id','');
-        $rate=floatval(get_param_raw('rate',''));
-        if (!$id) return;
-        $db->Query('update newpayments set payment_rate="'.$rate.'" where id='.$id);
-        $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
-        header('Location: ?module=newaccounts');
-        exit();
-        $design->ProcessX();
-    }
+
     function newaccounts_pay_rebill($fixclient) {
         global $design,$db,$fixclient_data;
         if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
@@ -5448,22 +4736,9 @@ $sql .= "    order by client, bill_no";
         if ($bill) {
             $db->Query('update newpayments set bill_vis_no="'.$bill.'" where id='.$pay);
         } else $db->Query('update newpayments set bill_vis_no=bill_no where id='.$pay);
-        /*
-        if(include_once(INCLUDE_PATH."1c_integration.php")){
-            $clS = new \_1c\clientSyncer($db);
-            $f = null;
-            if(!$clS->pushClientPayment($pay,$f)){
-                echo "Не удалось синхронизировать платеж в 1С!<br />";
-                if($f)
-                    echo "Ошибка: ".\_1c\getFaultMessage($f);
-                echo "<br /><br /><a href='?module=newaccounts'>Баланс</a>";
-                exit();
-            }
-        }
-        */
+
         header('Location: ?module=newaccounts');
         exit();
-        $design->ProcessX();
     }
     function newaccounts_pay_delete($fixclient){
         global $design,$db,$fixclient_data,$user;
@@ -5472,22 +4747,13 @@ $sql .= "    order by client, bill_no";
             return;
 
         $pay = Payment::find($id);
-        LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum_rub);
+        LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum);
         $pay->delete();
 
         $this->update_balance($fixclient_data['id'], $fixclient_data['currency']);
 
-        if(include(INCLUDE_PATH."1c_integration.php")){
-            $clS = new \_1c\clientSyncer($db);
-            if(!$clS->deletePayment($id)){
-                trigger_error2("Не удалось удалить платеж из 1С!<br /><a href='?module=newaccounts'>Баланс</a>");
-                exit();
-            }
-        }
-
         header('Location: ?module=newaccounts');
         exit();
-        $design->ProcessX();
     }
 
 
@@ -5515,7 +4781,7 @@ $sql .= "    order by client, bill_no";
 
             $query1 = $db->AllRecords("
                     SELECT
-                        client_id, client, company, sum_rub, payment_date, site_req_no
+                        client_id, client, company, sum, payment_date, site_req_no
                     FROM
                         `newpayments`, `clients`
                     WHERE
@@ -5644,7 +4910,7 @@ $sql .= "    order by client, bill_no";
         $banks = get_param_raw("banks", $bdefault);
         $design->assign("banks", $banks);
 
-        $edefault = array("cyberplat"=> true, "yandex" => true, "uniteller" => true);
+        $edefault = array("cyberplat"=> true, "yandex" => true);
         $ecashs = get_param_raw("ecashs", $edefault);
         $design->assign("ecashs", $ecashs);
         
@@ -5679,8 +4945,8 @@ $sql .= "    order by client, bill_no";
 
         foreach ($R as &$r) {
             $r['type']=substr($r['type'],0,1);
-            $S[$r['type'].$r['currency']] += $r['sum_rub'];
-            $S[$r['currency']] += $r['sum_rub'];
+            $S[$r['type'].$r['currency']] += $r['sum'];
+            $S[$r['currency']] += $r['sum'];
         } unset($r);
         $design->assign('user',$user);
         $design->assign('users',$db->AllRecords("select id,user,name from user_users where usergroup in ('admin','manager','account_managers','accounts_department') and enabled = 'yes' order by name",null,MYSQL_ASSOC));

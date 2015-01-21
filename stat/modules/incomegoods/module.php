@@ -138,7 +138,7 @@ class m_incomegoods extends IModule{
             }
             $order = new GoodsIncomeOrder();
             $order->active = true;
-            $order->currency = Currency::RUB;
+            $order->currency = \app\models\Currency::RUB;
             $order->client_card_id = $fixclient_data['id'];
             $order->organization_id = Organization::DEFAULT_FOR_INCOMES;
             $order->store_id = Store::MAIN_STORE;

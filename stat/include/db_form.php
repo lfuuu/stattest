@@ -1910,11 +1910,10 @@ class DbFormNewpayments extends DbForm{
         DbForm::__construct('newpayments');
         $this->fields['client_id']=array('type'=>'hidden','default'=>'');
         $this->fields['client']=array('type'=>'label','db_ignore'=>1);
-        $this->fields['sum_rub']=array('type'=>'text','default'=>'0.00');
+        $this->fields['sum']=array('type'=>'text','default'=>'0.00');
         $this->fields['payment_date']=array('type'=>'text','default'=>date('Y-m-d'));
         $this->fields['oper_date']=array('type'=>'text','default'=>date('Y-m-d'));
         $this->fields['payment_no']=array('type'=>'text','default'=>'0');
-        $this->fields['payment_rate']=array('type'=>'text');
         $this->fields['type']=array('assoc_enum'=>array('bank'=>'b bank','prov'=>'p prov', 'neprov'=>'n neprov', 'ecash' => "Электронные деньги"),'default'=>'bank', 'add'=>' onchange=form_newpayments_hide();');
         $this->fields['bank']=array('assoc_enum'=>array('citi'=>'CitiBank','mos'=>'Банк Москвы','ural'=>'УралСиб','sber'=>'Сбербанк'),'default'=>'mos');
         $this->fields['ecash_operator']=array('assoc_enum'=>array('Cyberplat'=>'Cyberplat','Yandex'=>'Яндекс.Деньги','Uniteller'=>'Uniteller'),'default'=>'');
@@ -1940,9 +1939,6 @@ class DbFormNewpayments extends DbForm{
 
         $this->fields['bill_vis_no']=array();
         $this->dbform['bill_vis_no']=$this->dbform['bill_no'];
-        if (!$this->dbform['payment_rate']) {
-            $this->dbform['payment_rate']=get_payment_rate_by_bill($this->dbform['payment_date'],$this->dbform['sum_rub'],$this->dbform['bill_no']);
-        }
         return DbForm::Process();
     }
     public function Display($form_params = array(),$h2='',$h3='') {
@@ -1958,36 +1954,34 @@ class DbFormNewpayments extends DbForm{
             //добавляем не оплаченные счета
             $billsNoPayed = array();
             foreach(NewBill::find('all', array(
-                            'select' => 'bill_no',
+                            'select' => 'bill_no,sum,currency',
                             'conditions' => array('client_id' => $c, 'is_payed' => 0),
                             'order' => 'bill_no'
                             )
                         ) as $bill) 
             {
-                $billsNoPayed[]=$bill->bill_no;
+                $billsNoPayed[$bill->bill_no]=$bill->bill_no . ' = ' . $bill->sum . ' ' . $bill->currency;
             }
             if($billsNoPayed) 
             {
-                $R[] = '';
-                $R[] = 'счета не оплаченые';
+                $R['счета не оплаченые'] = '-- счета не оплаченые --';
                 $R = array_merge($R, $billsNoPayed);
             }
 
             // добавляем оплаченные счета
             $billsPayed = array();
             foreach(NewBill::find('all', array(
-                            'select' => 'bill_no',
+                            'select' => 'bill_no,sum,currency',
                             'conditions' => array('client_id = ? and is_payed != 0', $c),
                             'order' => 'bill_no'
                             )
                         ) as $bill) 
             {
-                $billsPayed[]=$bill->bill_no;
+                $billsPayed[$bill->bill_no]=$bill->bill_no . ' = ' . $bill->sum . ' ' . $bill->currency;
             }
             if($billsPayed)
             {
-                $R[] = '';
-                $R[] = 'счета оплаченые';
+                $R['счета оплаченые'] = '-- счета оплаченые --';
                 $R = array_merge($R, $billsPayed);
             }
 
@@ -1995,32 +1989,23 @@ class DbFormNewpayments extends DbForm{
             // добавляем не полаченые заказы поставщикам
             $incomeGoodsNoPayed = array();
             foreach(GoodsIncomeOrder::find('all', array(
-                        'select' => 'number',
+                        'select' => 'number,sum,currency',
                         'conditions' => array(
                             'is_payed' => 0,
                             'client_card_id' => $c),
                         'order' => 'number')) as $order)
             {
-                $incomeGoodsNoPayed[]=$order->number;
+                $incomeGoodsNoPayed[$order->number]=$order->number . ' = ' . $bill->sum . ' ' . $bill->currency;;
             }
             if($incomeGoodsNoPayed)
             {
-                $R[]='';
-                $R[]='заказы не оплаченые';
+                $R['заказы не оплаченые']='-- заказы не оплаченые --';
                 $R = array_merge($R, $incomeGoodsNoPayed);
             }
 
-            $this->fields['bill_no']['enum']=$R;
+            $this->fields['bill_no']['assoc_enum']=$R;
         }
-        $curr = '';
-        if (isset($GLOBALS['fixclient_data']) && isset($GLOBALS['fixclient_data']['currency'])) $curr = $GLOBALS['fixclient_data']['currency'];
-        if ($curr=='RUB') {
-            $this->fields['payment_rate']['default']=1;
-            if (!access('users','grant')) $this->fields['payment_rate']['type'] = 'hidden';
-        } else {
-            $r=$db->GetRow('select * from bill_currency_rate where date=NOW() and currency="USD"');
-            $this->fields['payment_rate']['default']=$r['rate'];
-        }
+
         DbForm::Display($form_params,$h2,$h3);
     }
 }
@@ -2165,9 +2150,8 @@ $GLOBALS['translate_arr']=array(
     'newpayments.type'                    => 'тип платежа',
     'newpayments.bank'                    => 'Банк',
     'newpayments.bill_no'                => 'номер счёта',
-    'newpayments.sum_rub'                => 'сумма в рублях',
+    'newpayments.sum'                => 'сумма в рублях',
     'newpayments.payment_date'            => 'дата платежа',
-    'newpayments.payment_rate'            => 'курс доллара',
 
     '*.nat_net'                            => 'IP-адрес внутренней сети (via NAT)',
     '*.dnat'                            => 'dnat',
@@ -2251,9 +2235,7 @@ $GLOBALS['translate_arr']=array(
     '*.has_mysql'    => 'наличие MySQL',
     '*.destination_name'    => 'название зоны назначения',
     '*.destination_prefix'    => 'префикс зоны назначения',
-    '*.rate_USD'    => 'цена за минуту в USD',
-    '*.rate_RUB'    => 'цена за минуту в рублях',
-    '*.priceid'        => 'ID тарифной группы',        
+    '*.priceid'        => 'ID тарифной группы',
     '*.dgroup'        => 'DGroup',
     '*.dsubgroup'    => 'DSubGroup',
     '*.month_line'    => 'ежемесячная плата за линию',

@@ -216,7 +216,7 @@ class m_tt extends IModule{
                 }
                 if($f){
                     if (strcmp($newstate['state_1c'],'Отказ') == 0){
-                        $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
+                        $db->Query($q="update newbills set sum=0, sum_with_unapproved = 0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
                         event::setReject($bill, $newstate);
                     }else{
                         $db->Query($q="update newbills set state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($trouble['bill_no'], "\\'")."'");
@@ -2024,9 +2024,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             `ln`.`ts` `date`,
                             `cr`.`name` `courier_name`,
                             `cl`.`company` `company`,
-                            IF(`nb`.`bill_no` like '%-%-%',
-                                (select round(sum(`all4net_price`*`amount`),2) from `newbill_lines` where `bill_no`=`nb`.`bill_no`),
-                                ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`price`,0)*IFNULL(`nbl`.`amount`,0)*1.18),2)) `task`,
+                            ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
                             0 `cur_state`,
                             0 `tt_id`,
                             `cl`.`id` `client_id`,
@@ -2108,9 +2106,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             `ln`.`ts` `date`,
                             `cr`.`name` `courier_name`,
                             `cl`.`company` `company`,
-                            IF(`nb`.`bill_no` like '%-%-%',
-                                (select round(sum(`all4net_price`*`amount`),2) from `newbill_lines` where `bill_no`=`nb`.`bill_no`),
-                                ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`price`,0)*IFNULL(`nbl`.`amount`,0)*1.18),2)) `task`,
+                            ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
                             `cl`.`id` `client_id`,
                             `nb`.`currency` `type`,
                             `nb`.`bill_no` bill_no
@@ -2213,9 +2209,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             `ln`.`ts` `date`,
                             `cr`.`name` `courier_name`,
                             `cl`.`company` `company`,
-                            IF(`nb`.`bill_no` like '%-%-%',
-                                (select round(sum(`all4net_price`*`amount`),2) from `newbill_lines` where `bill_no`=`nb`.`bill_no`),
-                                ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`price`,0)*IFNULL(`nbl`.`amount`,0)*1.18),2)) `task`,
+                            ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
                             0 `cur_state`,
                             0 `tt_id`,
                             `cl`.`id` `client_id`,
@@ -2282,12 +2276,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         {
 
         $query = "SELECT tbl2.*, nb2.sum as bill_sum,
-           if(tbl2.bill_no is not null and tbl2.bill_no != '',(SELECT round(SUM(IF(type='good', price*1.18*amount,0)),2) FROM newbill_lines nbl2 WHERE nbl2.bill_no = tbl2.bill_no),0) AS sum_good,
+           if(tbl2.bill_no is not null and tbl2.bill_no != '',(SELECT round(SUM(IF(type='good', `sum`,0)),2) FROM newbill_lines nbl2 WHERE nbl2.bill_no = tbl2.bill_no),0) AS sum_good,
 
            if(tbl2.bill_no is not null and tbl2.bill_no != '',(SELECT SUM(IF(type='good', 1,0)) FROM newbill_lines nbl2 WHERE nbl2.bill_no = tbl2.bill_no),0) AS count_good,
            if(tbl2.bill_no is not null and tbl2.bill_no != '',(SELECT SUM(IF(type='service', 1,0)) FROM newbill_lines nbl2 WHERE nbl2.bill_no = tbl2.bill_no),0) AS count_service,
 
-           if(tbl2.bill_no is not null and tbl2.bill_no != '',(SELECT round(SUM(IF(type='service', price*1.18*amount,0)),2) AS sum_good FROM newbill_lines nbl2 WHERE nbl2.bill_no = tbl2.bill_no),0) AS sum_service,
+           if(tbl2.bill_no is not null and tbl2.bill_no != '',(SELECT round(SUM(IF(type='service', `sum`,0)),2) AS sum_good FROM newbill_lines nbl2 WHERE nbl2.bill_no = tbl2.bill_no),0) AS sum_service,
 
 
             (select  max(if(l.item_id is null || l.item_id = '',1,0)) from newbill_lines l where l.bill_no = nb2.bill_no ) is_stat,
@@ -2673,7 +2667,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         }
         if($f){
             if (strcmp($state,'Отказ') == 0){
-                $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
+                $db->Query($q="update newbills set sum=0, sum_with_unapproved = 0, state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
                event::setReject($bill, $state);
             }else{
                 $db->Query($q="update newbills set state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");

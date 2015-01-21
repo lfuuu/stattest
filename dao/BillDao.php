@@ -8,7 +8,9 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\CurrencyRate;
+use app\models\LogBill;
 use app\models\Payment;
+use app\models\User;
 
 /**
  * @method static BillDao me($args = null)
@@ -45,70 +47,6 @@ class BillDao extends Singleton
             ->save();
     }
 
-    public function requestRateForBill(Bill $bill)
-    {
-        return
-            CurrencyRate::dao()
-                ->findRate(
-                    'USD',
-                    $bill->bill_date
-                )->rate;
-    }
-
-    public function requestRateForInvoice1(Bill $bill)
-    {
-        return
-            CurrencyRate::dao()
-                ->findRate(
-                    'USD',
-                    Utils::dateEndOfMonth($bill->bill_date)
-                )->rate;
-    }
-
-    public function requestRateForInvoice2(Bill $bill)
-    {
-        return
-            CurrencyRate::dao()
-                ->findRate(
-                    'USD',
-                    Utils::dateEndOfPreviousMonth($bill->bill_date)
-                )->rate;
-    }
-
-    public function requestRateForInvoice3(Bill $bill)
-    {
-        return
-            CurrencyRate::dao()
-                ->findRate(
-                    'USD',
-                    $bill->bill_date
-                )->rate;
-    }
-
-    public function requestRateForInvoice4(Bill $bill)
-    {
-        $payment = Payment::findOne(['bill_no' => $bill->bill_no]);
-
-        return $payment ? $payment->payment_rate : '';
-    }
-
-    public function requestSumRubForBill(Bill $bill)
-    {
-        $sumRub =
-            Payment::getDb()->createCommand("
-                    select
-                        sum(sum_rub)
-                    from
-                        newpayments as P
-                    where
-                        bill_no=:billNo
-                ",
-                [':billNo' => $bill->bill_no]
-            )->queryScalar();
-
-        return $sumRub !== null ? round($sumRub,2) : null;
-    }
-
     public function recalcBill(Bill $bill)
     {
         $this->recalcBillLines($bill);
@@ -117,20 +55,29 @@ class BillDao extends Singleton
 
     public function recalcBillSum(Bill $bill)
     {
-        $bill->sum_total_with_unapproved =
+        $bill->sum_with_unapproved =
             BillLine::find()
                 ->andWhere(['bill_no' => $bill->bill_no])
                 ->andWhere("type <> 'zadatok'")
-                ->sum('sum_with_tax');
+                ->sum('sum');
 
-        if ($bill->sum_total_with_unapproved === null) {
-            $bill->sum_total_with_unapproved = 0;
+        if ($bill->sum_with_unapproved === null) {
+            $bill->sum_with_unapproved = 0;
         }
 
-        $bill->sum_total =
-            $bill->cleared_flag
-                ? $bill->sum_total_with_unapproved
+        $bill->sum =
+            $bill->is_approved
+                ? $bill->sum_with_unapproved
                 : 0;
+
+        if (isset($bill->dirtyAttributes['sum'])) {
+            $log = new LogBill();
+            $log->bill_no = $bill->bill_no;
+            $log->ts = $bill->bill_no;
+            $log->user_id = \Yii::$app->user->getId() ? \Yii::$app->user->getId() : User::SYSTEM_USER_ID;
+            $log->comment = 'Сумма: ' . $bill->sum;
+            $log->save();
+        }
 
         $bill->save();
     }

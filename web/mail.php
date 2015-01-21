@@ -14,7 +14,6 @@
 
 		$R['bill'] = $o['object_param'];
 		$R['obj'] = $o["object_type"];
-		$R['curr'] = 'USD';
 		$R['source'] = $o["source"];
 
 		$design->assign('emailed',1);

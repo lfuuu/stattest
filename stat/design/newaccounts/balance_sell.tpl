@@ -94,9 +94,9 @@ h3 {
     <td>{if $r.inn}{$r.inn}{else}&nbsp;{/if}</td>
     <td>{if $r.kpp}{$r.kpp}{else}&nbsp;{/if}</td>
 	<td>{if $r.payment_date}{$r.payment_date|mdate:"d.m.Y"}{else}&nbsp;{/if}</td>
-	<td>{$r.tsum|round:2|replace:".":","}</td>
 	<td>{$r.sum|round:2|replace:".":","}</td>
-	<td>{$r.tax|round:2|replace:".":","}</td>
+	<td>{$r.sum_without_tax|round:2|replace:".":","}</td>
+	<td>{$r.sum_tax|round:2|replace:".":","}</td>
 	<td>0</td>
 	<td>0</td>
 	<td>0</td>
@@ -107,9 +107,9 @@ h3 {
 {/foreach}
 <tr class={cycle values="even,odd"}>
 	<td colspan=5 align=right>Всего:</td>
-	<td>{$sum.tsum|round:2|replace:".":","}</td>
-	<td>{$sum.sum|round:2}</td>
-	<td>{$sum.tax|round:2}</td>
+	<td>{$sum.sum|round:2|replace:".":","}</td>
+	<td>{$sum.sum_without_tax|round:2}</td>
+	<td>{$sum.sum_tax|round:2}</td>
 	<td>0</td>
 	<td>0</td>
 	<td>0</td>

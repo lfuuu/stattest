@@ -16,7 +16,6 @@ class m_stats_head extends IModuleHead{
 		'report_traff_less'	=> array('stats','report'),
 		'report_sms_gate'	=> array('stats','report'),
 		'report_voip_e164_free' => array('stats','report'),
-		'voip_sell'			=> array('stats','test'),
 		'report_services'	=> array('stats','report'),
 		'report_wimax'		=> array('stats','report'),
 		'report_netbynet'	=> array('stats','report'),

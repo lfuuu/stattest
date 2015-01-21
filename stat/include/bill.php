@@ -1,5 +1,6 @@
 <?php
-use \app\models\TaxType;
+use app\models\TaxType;
+use app\models\BillLine;
 
 class Bill{
 	private $client_id;
@@ -88,7 +89,9 @@ class Bill{
 					"bill_date"=>date('Y-m-'.($is_auto?'01':'d'),$bill_date),
 					"nal" => $this->client_data["nal"],
                     "is_lk_show" => $isLkShow ? 1 : 0,
-                    "is_user_prepay" => $isUserPrepay ? 1 : 0
+                    "is_user_prepay" => $isUserPrepay ? 1 : 0,
+                    'is_approved' => 1,
+					'is_use_tax' => $this->client_data['nds_zero'] > 0 ? 0 : 1,
 				)
 			);
 		}
@@ -118,7 +121,7 @@ class Bill{
         $this->bill_courier = $this->GetCourierName($this->bill["courier_id"]);
 		$this->changed=0;
 	}
-	public function AddLine($currency,$title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to='',$all4net_price=0,$overprice=array()){
+	public function AddLine($currency,$title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to=''){
 		global $db;
 		if($currency!=$this->bill['currency'])
 			return false;
@@ -133,12 +136,9 @@ class Bill{
 		}
 		$this->changed = 1;
 
-        $taxTypeId = $this->Client("nds_zero") ? 0 : 18;
-        $sumWithoutTax = round($amount * $price, 2);
-        $sumTax = round($sumWithoutTax * TaxType::rate($taxTypeId), 2);
-        $sumWithTax = $sumWithoutTax + $sumTax;
+        $taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
 
-        $lpk = $db->QueryInsert(
+        $db->QueryInsert(
             "newbill_lines",
             array(
                 "bill_no"=>$this->bill_no,
@@ -146,38 +146,25 @@ class Bill{
                 "item"=>$title,
                 "amount"=>$amount,
                 "price"=>$price,
-                "sum" => $sumWithTax,
                 "type"=>$type,
                 "service"=>$service,
                 "id_service"=>$id_service,
                 'date_from'=>$date_from,
                 'date_to'=>$date_to,
-                'all4net_price'=>$all4net_price,
                 'is_price_includes_tax' => 0,
                 'tax_type_id' => $taxTypeId,
-                'sum_without_tax' => $sumWithoutTax,
-                'sum_tax' => $sumTax,
-                'sum_with_tax' => $sumWithTax,
+                'sum' => 0,
+                'sum_without_tax' => 0,
+                'sum_tax' => 0,
             )
-        ,1);
-		if($overprice && count($overprice)){
-			foreach($overprice as $v){
-				$v['bill_line_pk'] = $lpk;
-				ServicePrototype::WriteOverprice($v);
-			}
-		}
+        , false);
 
 		return true;
 	}
 	public function AddLines($R){
 		$b=true;
 		foreach($R as $r){
-			if(isset($r[10]))
-				$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8],$r[9],$r[10]);
-			elseif(isset($r[9]))
-				$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8],$r[9]);
-			else
-				$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8]);
+			$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8]);
 			$b=$b && $b1;
 			if(!$b1)
 				trigger_error2('Невозможно добавить '.$r[1].'-'.$r[3].$r[0].'x'.$r[2]);
@@ -222,24 +209,20 @@ class Bill{
 		global $db;
 		$this->changed = 1;
 
-        $taxTypeId = $this->Client("nds_zero") ? 0 : 18;
-        $sumWithoutTax = round($amount * $price, 2);
-        $sumTax = round($sumWithoutTax * TaxType::rate($taxTypeId), 2);
-        $sumWithTax = $sumWithoutTax + $sumTax;
+		$taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
 
         $db->QueryUpdate("newbill_lines",array('bill_no','sort'),array(
                     'bill_no'=>$this->bill_no,
                     'sort'=>$sort,
                     'item'=>$title,
                     'amount'=>$amount,
-                    'sum' => $sumWithTax,
                     'price'=>$price,
                     'type'=>$type,
                     'is_price_includes_tax' => 0,
                     'tax_type_id' => $taxTypeId,
-                    'sum_without_tax' => $sumWithoutTax,
-                    'sum_tax' => $sumTax,
-                    'sum_with_tax' => $sumWithTax,
+                    'sum' => 0,
+                    'sum_without_tax' => 0,
+                    'sum_tax' => 0,
         ));
 	}
 	public function RemoveLine($sort) {
@@ -250,77 +233,42 @@ class Bill{
 	public static function RemoveBill($bill_no) {
 		global $db, $user;
 
-        /*
-		if(include_once(INCLUDE_PATH."1c_integration.php")){
-			$clS = new \_1c\clientSyncer($db);
-			if(!$clS->deleteBill($bill_no,$f)){
-				trigger_error2("Внимание! Не удалось синхронизировать счет с 1С.");
-                return;
-			}
-		}
-        */
-
 		$bill=$db->QuerySelectRow('newbills',array('bill_no'=>$bill_no));
 		if(!$bill)
 			return 0;
 		$db->Query('start transaction');
-		//ServicePrototype::CleanOverprice($bill_no);
 		$db->QueryDelete('newbills',array('bill_no'=>$bill_no));
-		$db->QueryDelete('newbill_lines',array('bill_no'=>$bill_no));
-		$db->QueryDelete('newbill_owner',array('bill_no'=>$bill_no));
         $troubleId = $db->GetValue("select id from tt_troubles where bill_no='".$bill_no."'");
         if($troubleId)
     		$db->Query("delete from tt_stages where trouble_id = '.$troubleId.'");
 
 		$db->QueryDelete('tt_troubles',array('bill_no'=>$bill_no));
 		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Удаление"));
-		//$db->QueryDelete('log_newbills',array('bill_no'=>$bill_no));
 		$db->Query("update log_newbills set bill_no = '".$bill_no.date('dHs')."' where bill_no='".$bill_no."'");
-		$db->QueryDelete('newbills_documents',array('bill_no'=>$bill_no));
 		$db->Query('commit');
 	}
-	public function Save($remove_empty = 0,$check_change=1) {
-		global $db,$design,$user;
-		if ($check_change && !$this->changed && !$remove_empty) return 0;
-		$this->changed=0;
+    public function Save($remove_empty = 0,$check_change=1) {
+        global $db;
+        if ($check_change && !$this->changed && !$remove_empty) return 0;
+        $this->changed=0;
 
-		$r = $this->CalculateSum();
+        $hasLines = BillLine::findOne(['bill_no' => $this->bill_no]) !== null;
+        if ($hasLines || !$remove_empty) {
+            $bSave = $this->bill;
+            unset($bSave["doc_ts"]);
+            $db->QueryUpdate("newbills", "bill_no", $bSave);
 
-		if ($remove_empty && $r['lines_count'] == 0) {
-			Bill::RemoveBill($this->bill_no);
-			return 2;
-		} else {
-			if($this->bill['sum'] != $r['sum']) {
-				$this->bill['sum'] = $r['sum'];
-				$db->QueryInsert("log_newbills",array(
-                    'bill_no'=>$this->bill['bill_no'],
-                    'ts'=>array('NOW()'),
-                    'user_id'=>(is_object($user) ? $user->Get('id') : AuthUser::getSystemUserId()),
-                    'comment'=>($this->_comment?$this->_comment:'Сумма: '.$this->bill['sum'])));
-			}
-			if(!$this->bill['cleared_flag']){
-				$this->bill['cleared_sum'] = $this->bill['sum'];
-				$this->bill['sum'] = 0;
-			}
-			$bSave = $this->bill;
-			unset($bSave["doc_ts"]);
-			$db->QueryUpdate("newbills","bill_no",$bSave);
             $bill = \app\models\Bill::findOne(['bill_no' => $this->bill_no]);
             $bill->dao()->recalcBill($bill);
+
             $this->bill_ts = unix_timestamp($this->Get('bill_date'));
-			$this->updateBill2Doctypes(null, false);
-            /*
-			if(include_once(INCLUDE_PATH."1c_integration.php")){
-				$clS = new \_1c\clientSyncer($db);
-				if(!$clS->pushClientBillService($this->bill_no))
-					$db->QueryUpdate("newbills","bill_no",array('bill_no'=>$this->bill['bill_no'],'sync_1c'=>'no'));
-				else
-					$db->QueryUpdate("newbills","bill_no",array('bill_no'=>$this->bill['bill_no'],'sync_1c'=>'yes'));
-			}
-            */
-			return 1;
-		}
-	}
+            $this->updateBill2Doctypes(null, false);
+            return 1;
+        } else {
+            Bill::RemoveBill($this->bill_no);
+            return 2;
+        }
+    }
 	public function GetNo() {
 		return $this->bill_no;
 	}
@@ -374,7 +322,7 @@ class Bill{
     {
         global $db;
 
-        if($this->bill["cleared_flag"] == 1){
+        if($this->bill["is_approved"] == 1){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
             if(!defined("NO_WEB"))
                 \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
@@ -385,7 +333,7 @@ class Bill{
     {
         global $db;
 
-        if($this->bill["cleared_flag"] == 0){
+        if($this->bill["is_approved"] == 0){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
             if(!defined("NO_WEB"))
                 \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
@@ -426,28 +374,26 @@ class Bill{
             'bill_no' => '',
             'sort' => 1,
             'item' => '',
-            'amount' => 1,
-            'price' => '',
             'service' => 'usage_ip_ports',
             'id_service' => 2945,
             'date_from' => '',
             'date_to' => '',
             'type' => 'service',
-            'outprice' => '',
-            'sum' => '',
             'id' => '',
             'ts_from' => '',
             'ts_to' => '',
-            'tsum'=>0,
             'tax'=>0,
             'country_id' => 0,
             'okvd_code' => 0,
             'okvd' => "",
+			'amount' => 1,
+			'price' => '',
+			'outprice' => '',
             'is_price_includes_tax' => 0,
             'tax_type_id' => null,
+			'sum' => '',
             'sum_without_tax' => 0,
             'sum_tax' => 0,
-            'sum_with_tax' => 0,
         );
 
 		$query = "
@@ -457,8 +403,8 @@ class Bill{
 			FROM
 				(
 					SELECT
-						IFNULL(`np`.`sum_rub`,`nb`.`sum`) `sum`,
-						IF(IFNULL(`np`.`sum_rub`,false),'PAY','BILL') `type`
+						IFNULL(`np`.`sum`,`nb`.`sum`) `sum`,
+						IF(IFNULL(`np`.`sum`,false),'PAY','BILL') `type`
 					FROM
 						`newbills` `nb`
 					LEFT JOIN
@@ -475,8 +421,8 @@ class Bill{
 		$db->Query($query);
 		$pay = $db->NextRecord(MYSQL_ASSOC);
 		if($pay['type'] == 'PAY'){
-			$ret_x['tsum'] = $pay['sum'];
-			$ret_x['tax'] = $pay['sum']/1.18*0.18;
+			$ret_x['sum'] = $pay['sum'];
+			$ret_x['sum_tax'] = $pay['sum']/1.18*0.18;
 		}
 
 		foreach($ret as $key=>&$item){
@@ -503,9 +449,6 @@ class Bill{
 
 				$ret_x['item'] .= $item['item'].";<br />";
 				$ret_x['bill_no'] = $item['bill_no'];
-				$ret_x['sum'] = $item['sum'];
-				$ret_x['price'] = $item['price'];
-				$ret_x['outprice'] = $item['outprice'];
 				$ret_x['date_from'] = $item['date_from'];
 				$ret_x['date_to'] = $item['date_to'];
 				$ret_x['id'] = $item['id'];
@@ -513,28 +456,25 @@ class Bill{
 				$ret_x['ts_to'] = $item['ts_to'];
 
 				if($pay['type'] == 'BILL'){
-					$ret_x['tsum'] += $item['outprice']*$item['amount']*1.18;
-					$ret_x['tax']  += $item['outprice']*$item['amount']*0.18;
+					$ret_x['sum'] += $item['sum'];
+					$ret_x['sum_tax']  += $item['sum_tax'];
                 }
             }else{
 				if($pay['type'] == 'PAY' && $item['type']<>'zalog'){
-					$ret_x['tsum']-=$item['tsum'];
-					$ret_x['tax'] -=$item['tax'];
+					$ret_x['sum']-=$item['sum'];
+					$ret_x['sum_tax'] -=$item['sum_tax'];
 				}
 				if($item['type']=='zadatok'){
-					$ret_x['tsum']+=$item['tsum'];
-					$ret_x['tax'] +=$item['tax'];
+					$ret_x['sum']+=$item['sum'];
+					$ret_x['sum_tax'] +=$item['sum_tax'];
 				}
 				unset($ret[$key]);
 			}
 		}
 
-		if($ret_x['tsum']<0)
+		if($ret_x['sum']<0)
 			$this->negative_balance = true;
 
-        $ret_x['doc_sum_with_tax'] = round($ret_x['tsum'], 2);
-        $ret_x['doc_sum_tax'] = round($ret_x['tax'], 2);
-        $ret_x['doc_sum_without_tax'] = $ret_x['sum_with_tax'] - $ret_x['sum_tax'];
 		$ret = array($ret_x);
 	}
 	public function refactLinesWithOrder(&$ret){
@@ -557,7 +497,7 @@ class Bill{
 
         $r = array();
         $q = $db->AllRecords("
-                SELECT code_1c as code, round(if(b.type = '%', bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2) as bonus
+                SELECT code_1c as code, round(if(b.type = '%', bl.sum*0.01*`value`, `value`*amount),2) as bonus
                 FROM newbill_lines bl
                 inner join g_bonus b on b.good_id = bl.item_id
                     and `group` = (select if(usergroup='account_managers', 'manager', usergroup) from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='".$this->bill_no."'");
@@ -567,18 +507,13 @@ class Bill{
         return $r;
     }
 
-	public function GetLines($rate = 1,$mode=false){
+	public function GetLines($mode=false){
 		global $db;
-		$nds = $this->Client("nds_zero") ? "1" : "1.18";
-
-
 		$ret =
 			$db->AllRecords($q='
 				select
 					nl.*,
 					art,
-					round(nl.price*'.$rate.',4) as outprice,
-					sum/'.$nds.' as sum,
 					sort as id,
 					UNIX_TIMESTAMP(date_from) as ts_from,
 					UNIX_TIMESTAMP(date_to) as ts_to,
@@ -603,15 +538,7 @@ class Bill{
 							WHERE 
 								id = g.unit_id
 							), "")
-					) okvd_code,
-					is_price_includes_tax,
-					tax_type_id,
-					sum_without_tax,
-					sum_tax,
-					sum_with_tax,
-					doc_sum_without_tax,
-					doc_sum_tax,
-					doc_sum_with_tax
+					) okvd_code
 				from
 					newbill_lines nl
 				left join 
@@ -627,12 +554,9 @@ class Bill{
 
         foreach($ret as &$r)
         {
-            if($r["sum"] > 0 && $r["amount"] > 0 && 
-                    round($r["sum"]/$r["amount"],4) != $r["price"])
-            {
-                $r["sum"] = round($r["price"]*$r["amount"], 4);
-            }
-            $r["amount"] = round($r["amount"],6);
+            $r["outprice"] = $r['price'];
+
+
             $r["country_name"] = $this->getCountryName($r["country_id"]);
 
             // если услуга, прописанная через 1с, услуга с датой. Для выписки документов (акт1)
@@ -664,28 +588,7 @@ class Bill{
 	public function GetMaxSort() {
 		return $this->max_sort;
 	}
-	public function CalculateSum() {
-		global $db;
 
-        $taxTypeId = $this->Client("nds_zero") ? 0 : 18;
-
-		$result =
-            $db->GetRow($q=
-                'select
-                        count(*) as lines_count,
-                        sum(round(' . (1 + TaxType::rate($taxTypeId)) . ' * price * amount, 2)) as sum_with_zadatok,
-                        sum(round(' . (1 + TaxType::rate($taxTypeId)) . ' * price * amount * IF(type="zadatok",0,1),2)) as sum
-                from newbill_lines where bill_no="'.$this->bill_no.'"');
-
-		if (!$result) {
-            $result = [
-                'lines_count' => 0,
-                'sum_with_zadatok' => 0,
-                'sum' => 0
-            ];
-        }
-        return $result;
-	}
 	public function CheckForAdmin($doTrigger = true) {
 		global $db,$user;
 		$A = date('Ym');
@@ -958,7 +861,7 @@ class Bill{
 
         $time_from = strtotime('first day of next month 00:00:00');
         $time_to = strtotime('last day of next month 23:59:59');
-        $nds = ((!$client_data['nds_zero'])) ? 1.18 : 1;
+        $nds = $client_data['nds_zero'] > 0 ? 1 : 1.18;
         $R = 0;
         foreach ($services as $service){
             if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))
@@ -1022,14 +925,14 @@ class Bill{
      *	@param int $balance текущий баланс клиента
      *	@param bool $nds_zero флаг, приминять НДС или нет 
      */
-    public function applyRefundOverpay($balance, $nds_zero)
+    public function applyRefundOverpay($balance)
     {
         if (!$balance) return;
 
         $lines_info = BillLines::first(array('select' => 'MAX(sort) as max_sort, SUM(sum) as sum', 'conditions' => array('bill_no = ?', $this->bill_no)));
         if ($lines_info->sum)
         {
-            $taxTypeId = $nds_zero ? 0 : 18;
+            $taxTypeId = $this->bill["is_use_tax"] > 0 ? 18 : 0;
 
             $balance = min($lines_info->sum, $balance);
 
@@ -1044,13 +947,12 @@ class Bill{
             $new_line->item = 'Переплата';
             $new_line->amount = 1;
             $new_line->type = 'zadatok';
-            $new_line->price = $sumWithoutTax;
-            $new_line->sum = $sumWithTax;
             $new_line->is_price_includes_tax = 0;
             $new_line->tax_type_id = $taxTypeId;
+			$new_line->price = $sumWithoutTax;
+			$new_line->sum = $sumWithTax;
             $new_line->sum_without_tax = $sumWithoutTax;
             $new_line->sum_tax = $sumTax;
-            $new_line->sum_with_tax = $sumWithTax;
 
             $ts = $this->GetTs();
             $new_line->date_from = date('Y-m-d', strtotime('first day of previous month', $ts));

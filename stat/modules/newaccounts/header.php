@@ -13,8 +13,6 @@ class m_newaccounts_head extends IModuleHead{
 					'bill_comment'		=> array('newaccounts_bills','edit'),
 					'bill_delete'		=> array('newaccounts_bills','delete'),
 					'bill_print'		=> array('newaccounts_bills','read'),
-					'bill_print2'		=> array('newaccounts_bills','read'),
-					'xxx'		=> array('newaccounts_bills','read'),
 					'bill_mprint'		=> array('newaccounts_bills','read'),
 					'bill_email'		=> array('newaccounts_bills','read'),
 					'bill_postreg'		=> array('newaccounts_bills','edit'),

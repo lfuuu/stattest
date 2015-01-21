@@ -2,25 +2,6 @@
 define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
 
-
-function get_payment_rate_by_bill($payment_date,$payment_sum = null,$bill_no = null) {
-    global $db;
-    if ($bill_no) {
-        $r2 = $db->GetRow('select sum,currency from newbills where bill_no="'.$bill_no.'"');
-        if ($r2['currency']=='RUB') return 1;
-    }
-    $r=$db->GetRow('select * from bill_currency_rate where date="'.$payment_date.'" and currency="USD"');
-    $rate = $r['rate'];
-    if ($bill_no) {
-        $bill_sum = round($r2['sum'],2);
-        $sum_rub=round($payment_sum,2);
-        $rate_bill=round($sum_rub/$bill_sum,4);
-        if (!$rate) $rate=$rate_bill;
-        if (abs($rate_bill-$rate)/$rate <=0.03) $rate=$rate_bill;
-    }
-    return $rate;
-}
-
 function printdbg($param,$s=''){
         echo "<br><pre>$s=";print_r($param);echo "</pre><br>";
 };
@@ -766,7 +747,7 @@ class ClientCS {
             if (is_array($get_params)) {
                 $this->P = $get_params;
             } else {
-                $L="client,currency,currency_bill,credit,password,company,company_full,address_jur,address_post,address_connect,phone_connect,sale_channel," .
+                $L="client,currency,credit,password,company,company_full,address_jur,address_post,address_connect,phone_connect,sale_channel," .
                         "telemarketing,account_manager,manager,support,address_post_real,bik,bank_properties,signer_name,signer_position,firma," .
                         "usd_rate_percent,company_full,type,login,inn,kpp,form_type,stamp,nal,signer_nameV,signer_positionV,id_all4net,".
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".

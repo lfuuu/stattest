@@ -138,31 +138,30 @@
 {*if $line.okvd_code}{$line.okvd}{else}{if $line.type == "service"}-{else}шт.{/if}{/if*}</td>
         <td align="center">{$line.amount|round:4}</td>
         <td align="center">{$line.outprice|round:4}</td>
-        <td align="center">{$line.sum|mround:2:4} | {$line.doc_sum_without_tax}</td>
+        <td align="center">{$line.sum_without_tax}</td>
       </tr>
 {/foreach}
 
       <tr>
         <td colspan=5 align="right"><b>Итого:</b></td>
-        <td align="right">{$bill.sum|round:2} | {$bill.doc_sum_without_tax|round:2}</td>
+        <td align="right">{$bill.sum_without_tax|round:2}</td>
       </tr>
       <tr>
         <td colspan=5 align="right"><b>Итого НДС:</b></td>
         <td align="right">
             {if $bill_client.nds_zero}без НДС{else}
-                {if $bill.tax == 0 && $bill.sum}0.00{else}{$bill.tax|round:2}{/if}
-                | {$bill.doc_sum_tax|round:2}
+                {$bill.sum_tax|round:2}
             {/if}
         </td>
       </tr>
       <tr>
         <td colspan=5 align="right"><b>Всего (с учетом НДС):</b></td>
-        <td align="right">{$bill.tsum|round:2} | {$bill.doc_sum_with_tax|round:2}</td>
+        <td align="right">{$bill.sum|round:2}</td>
       </tr>
     </table>
     </center></div>
     <br>
-    Всего оказано услуг на сумму: {$bill.tsum|wordify:'RUB'}{if !$bill_client.nds_zero}<br>В т.ч. НДС: {$bill.tax|round:2|wordify:'RUB'}{else} (Без НДС){/if}<br>
+    Всего оказано услуг на сумму: {$bill.sum|wordify:'RUB'}{if !$bill_client.nds_zero}<br>В т.ч. НДС: {$bill.sum_tax|round:2|wordify:'RUB'}{else} (Без НДС){/if}<br>
     <br>
     Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.
     <br>

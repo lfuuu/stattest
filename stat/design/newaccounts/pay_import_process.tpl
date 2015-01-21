@@ -23,13 +23,13 @@
 {/if}
 </td>
 </tr>
-<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum_rub > 0}<br><br>{/if}Платеж &#8470;{$pay.pp} от {$pay.date}
-{if $pay.sum_rub > 0}<br><br><br><span style="font-size:7pt;" title="{$pay.payer|escape}">{$pay.payer|truncate:35}</span>{/if}
+<tr bgcolor={if $pay.imported}#FFE0E0{else}#EEDCA9{/if}><td>{if $pay.sum > 0}<br><br>{/if}Платеж &#8470;{$pay.pp} от {$pay.date}
+{if $pay.sum > 0}<br><br><br><span style="font-size:7pt;" title="{$pay.payer|escape}">{$pay.payer|truncate:35}</span>{/if}
 <input type=hidden name=pay[{$pay.id}][pay] value='{$pay.pp}'>
 <input type=hidden name=pay[{$pay.id}][date] value='{$pay.date}'>
 <input type=hidden name=pay[{$pay.id}][oper_date] value='{$pay.oper_date}'>
-<input type=hidden name=pay[{$pay.id}][sum_rub] value='{$pay.sum_rub}'></td>
-<td><b>{$pay.sum_rub}</b> р.</td><td>
+<input type=hidden name=pay[{$pay.id}][sum] value='{$pay.sum}'></td>
+<td><b>{$pay.sum}</b> р.</td><td>
     
 {if $pay.client.client}
 	<select name=pay[{$pay.id}][bill_no] id=bills_{$pay.id}>

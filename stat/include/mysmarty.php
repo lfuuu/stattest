@@ -1,4 +1,6 @@
 <?php
+use app\models\Currency;
+
 require PATH_TO_ROOT.'libs/Smarty.class.php';
 
 function __count_rows_func($params,&$smarty){
@@ -288,53 +290,45 @@ function smarty_modifier_find_urls($text)
 function smarty_function_objCurrency($params,&$smarty) {
 	$op = &$params['op'];
 	$obj = $params['obj'];
-	$simple = (isset($params['simple'])&&$params['simple']==1);
-	
+
 	if ($obj=='delta') {
 		$curr = (isset($op['bill']) ? $op['bill']['currency'] : $params['currency']);
-		$sum = sprintf("%0.2f",$op['delta']);
-		if ($curr=='RUB') return $sum.' р';
-		
-		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUB') {
-			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta']*$op['pays'][0]['payment_rate']).' р</span>';
-		} else {
-			return $sum.' $';
-		}
+		$sum = $op['delta'];
+		return sprintf("%0.2f", $sum) . ' ' . Currency::symbol($curr);
 	} elseif ($obj=='delta2') {
 		$curr = (isset($op['bill']) ? $op['bill']['currency'] : $params['currency']);
-		$sum = sprintf("%0.2f",$op['delta2']);
-		if ($curr=='RUB') return $sum.' р';
-		
-		if (!$simple && count($op['pays'])>=1 && isset($op['pays'][0]) && ($op['pays'][0]['payment_rate']>2) && $op['pays'][0]['currency']=='RUB') {
-			return $sum.' $<br><span style="font-size:85%">'.sprintf("%0.2f",$op['delta2']*$op['pays'][0]['payment_rate']).' р</span>';
-		} else {
-			return $sum.' $';
-		}
+		$sum = $op['delta2'];
+		return sprintf("%0.2f", $sum) . ' ' . Currency::symbol($curr);
 	} elseif ($obj=='pay_full') {
-		$sum = sprintf("%0.2f",$params['pay']['sum_full']);
-		$sum_rub = sprintf("%0.2f",$params['pay']['sum_rub_full']);
+		$sum = $params['pay']['sum'];
 		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
-		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
-		if ($one) return $sum.' р';
-		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rub.' р = '.$sum.' $';
+		return sprintf("%0.2f", $sum) . ' ' . Currency::symbol($curr);
 	} elseif ($obj=='pay2') {
-		$sum = sprintf("%0.2f",$params['pay']['sum_pay']);
-		$sum_rub = sprintf("%0.2f",$params['pay']['sum_pay_rub']);
+		$sum = $params['pay']['sum_pay'];
 		$curr = isset($params['pay']['currency']) ? $params['pay']['currency'] : $params['currency'];
-		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
-		if ($one) return $sum.' р';
-		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rub.' р = '.$sum.' $';
+		return sprintf("%0.2f", $sum) . ' ' . Currency::symbol($curr);
 	} elseif ($obj=='pay') {
-		$sum = sprintf("%0.2f",$params['pay']['sum']);
-		$sum_rub = sprintf("%0.2f",$params['pay']['sum_rub']);
+		$sum = $params['pay']['sum'];
 		$curr = $params['pay']['currency'];
-		$one = (abs($params['pay']['payment_rate']-1)<0.0005);
-		if ($one) return $sum.' р';
-		if ($curr=='USD' || $simple) return $sum.' $';
-		return $sum_rub.' р = '.$sum.' $';
+		return sprintf("%0.2f", $sum) . ' ' . Currency::symbol($curr);
 	}
+}
+
+function smarty_modifier_money($value, $currency, $round = 2) {
+
+	$currency = $currency ? Currency::symbol($currency) : '';
+
+	if (is_numeric($value)) {
+		$value = round($value, $round);
+		$result = number_format($value, $round, '.', '');
+		if ($currency) {
+			$result = $result . ' ' . $currency;
+		}
+	} else {
+		$result = $currency;
+	}
+
+	return $result;
 }
 
 class MySmarty extends Smarty {
@@ -366,6 +360,7 @@ class MySmarty extends Smarty {
 		$this->register_function('get_region_by_dgroups','__get_region_by_dgroups');
 		$this->register_function('get_minutes_by_seconds','__get_minutes_by_seconds');
 		$this->register_function('get_time','__get_time');
+		$this->register_modifier('money','smarty_modifier_money');
 		$this->register_modifier('time_period','time_period');
 		$this->register_modifier('hl','smarty_modifier_hl');
 		$this->register_modifier('wordify','smarty_modifier_wordify');

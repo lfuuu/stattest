@@ -1,6 +1,8 @@
 <?php
 namespace _1c;
 
+use app\models\Bill;
+
 function trr($var){
 
     if(!is_string($var)) return $var;
@@ -184,131 +186,6 @@ class clientSyncer{
         return $cc;
     }
 
-    public function pushClientBillService($bill_no,&$fault=null)
-    {
-        $bill = $this->db->GetRow("
-				select
-					cl.sync_1c,
-					nb.bill_no,
-					nb.bill_date,
-					nb.currency,
-					sum_rub,
-					nb.sum,
-					nb.comment,
-					nb.is_payed
-				from
-					newbills nb
-				left join
-					newpayments np
-				on
-					np.bill_no = nb.bill_no
-				left join
-					clients cl
-				on
-					cl.id = nb.client_id
-				where
-					nb.bill_no = '".addcslashes($bill_no, "\\'")."'
-			");
-        if($bill['sync_1c'] == 'no')
-            return false;
-        $cl = \clCards\getClientByBillNo($this->db, $bill_no);
-
-        if(!$cl)
-            return false;
-
-        if(!$cl->getAtMask(\clCards\struct_cardDetails::card))
-            return false;
-
-        global $user;
-
-        try{
-            $ret = $this->soap->utSaveOrderService(array(
-                tr('ЗаказУслуги')=>array(
-                    tr('ИдКарточкиКлиентаСтат')=>tr($cl->getAtMask(\clCards\struct_cardDetails::card)),
-                    tr('Номер')=>tr($bill['bill_no']),
-                    tr('Дата')=>tr($bill['bill_date']),
-                    tr('ИдСоглашения1С')=>tr($cl->getAtMask(\clCards\struct_cardDetails::con_1c)),
-                    tr('Валюта')=>tr($bill['currency']),
-                    tr('СуммаВРублях')=>($bill['sum_rub']),
-                    tr('Сумма')=>tr($bill['sum']),
-                    tr('Комментарий')=>tr($bill['comment']),
-                    tr('Закрыт')=>((int)$bill['is_payed'])>0
-                ),
-                tr('Пользователь')=>$user->Get("user")
-            ))->return;
-        }catch(\SoapFault $e){
-            $fault = $e;
-            return false;
-        }
-
-        if($ret)
-            $this->db->Query("update newbills set sync_1c='yes' where bill_no='".$bill_no."'");
-        return $ret;
-    }
-
-    public function pushClientPayment($payment_id,&$fault=null)
-    {
-        $pay = $this->db->GetRow($q="
-				select
-					cl.sync_1c,
-					if(np.payment_date>0,np.payment_date,if(np.oper_date>0,np.oper_date,np.add_date)) pdate,
-					if(np.oper_date>0,np.oper_date,if(np.payment_date>0,np.payment_date,np.add_date)) odate,
-					np.*
-				from
-					newpayments np
-				left join
-					newbills nb
-				on
-					nb.bill_no = np.bill_no
-				left join
-					newbills nbv
-				on
-					nbv.bill_no = np.bill_vis_no
-				left join
-					clients cl
-				on
-					cl.id = nb.client_id
-				where np.id=".(int)$payment_id
-        );
-
-        if(!$pay)
-            return false;
-
-        if($pay['push_1c'] == 'no')
-            return false;
-
-        global $user;
-
-        try{
-            $ret = $this->soap->utSavePayment(array(
-                tr('ОплатаУслуги')=>array(
-                    tr('ИдПлатежаСтат')=>$pay['id'],
-                    tr('НомерСчетаСтат')=>tr($pay['bill_no']),
-                    tr('НомерСчетаПривязкиСтат')=>tr($pay['bill_vis_no']),
-                    tr('ИдПлатежа')=>'',
-                    tr('ИдЗаказа')=>'',
-                    tr('ИдЗаказаПривязка')=>'',
-                    tr('ДатаДокумента')=>tr($pay['pdate']),
-                    tr('НомерДокумента')=>tr($pay['payment_no']),
-                    tr('ДатаОперации')=>tr($pay['odate']),
-                    tr('Тип')=>tr($pay['type']),
-                    tr('СуммаВРублях')=>tr($pay['sum_rub']),
-                    tr('Валюта')=>tr($pay['currency']),
-                    tr('Курс')=>tr($pay['payment_rate']),
-                    tr('Комментарий')=>tr($pay['comment'])
-                ),
-                tr('Пользователь')=>$user->Get("user"),
-            ))->return;
-        }catch(\SoapFault $e){
-            $fault = $e;
-            return false;
-        }
-
-        if($ret)
-            $this->db->Query('update newpayments set sync_1c = "yes" where id='.(int)$payment_id);
-        return $ret;
-    }
-
     public function checkBillExists($bill_no)
     {
         $resp = $this->soap->utOrderExists(array('number'=>$bill_no))->return;
@@ -331,16 +208,6 @@ class clientSyncer{
             return false;
         }
 
-        return $resp;
-    }
-
-    public function deletePayment($payment_no)
-    {
-        global $user;
-        $resp = $this->soap->utDeletePayment(array(
-            tr('ИдПлатежаСтат')=>$payment_no,
-            tr('Пользователь')=>$user->Get("user")
-        ))->return;
         return $resp;
     }
 }
@@ -692,7 +559,7 @@ class billMaker{
                     CAST(amount AS SIGNED) AS quantity,
                     round(price*1.18,4) as price,
                     discount_set, discount_auto,
-                    if(`sum` is null,round(price*1.18*amount),`sum`) AS `sum`
+                    `sum` AS `sum`
                     FROM newbill_lines
                     WHERE bill_no = '".$db->escape($bill_no)."'");
 
@@ -949,7 +816,7 @@ class SoapHandler{
                 'postreg'=>'0000-00-00',
                 'courier_id'=>'null',
                 'nal'=>'',
-                'cleared_flag'=>false
+                'is_approved'=>0
             );
             $curtt = null;
             $curts = null;
@@ -1000,7 +867,6 @@ class SoapHandler{
                 'tax_type_id' => 18,
                 'sum_without_tax' => $p->{tr('СуммаИтогоБезНДС')},
                 'sum_tax' => $p->{tr('СуммаНДС')},
-                'sum_with_tax' => $p->{tr('Сумма')},
             );
         }
 
@@ -1038,10 +904,9 @@ class SoapHandler{
                         bill_no = '".addcslashes($bill_no, "\\'")."',
                         bill_date = '".addcslashes($bill_date, "\\'")."',
                         client_id = (select id from clients where client='".addcslashes($client, "\\'")."'),
-                        currency = '".(($currency=='RUB')?'RUB':'USD')."',
+                        currency = '" . $currency . "',
                         `sum` = '".addcslashes($sum, "\\'")."',
-                        `sum_with_tax` = '".addcslashes($sum, "\\'")."',
-                        `sum_total` = '".addcslashes($sum, "\\'")."',
+                        `sum_with_unapproved` = '".addcslashes($sum, "\\'")."',
                         comment = '".addcslashes($comment, "\\'")."',
                         sync_1c = 'yes',
                         `state_1c` = '".addcslashes($state_1c, "\\'")."',
@@ -1055,7 +920,7 @@ class SoapHandler{
 
 
         $q = "insert into newbill_lines (bill_no,sort,item,item_id,amount,price,service,type,code_1c, descr_id, discount_set, discount_auto, `sum`,dispatch,gtd,country_id," .
-                                        "is_price_includes_tax, tax_type_id, sum_without_tax, sum_tax, sum_with_tax) values";
+                                        "is_price_includes_tax, tax_type_id, sum_without_tax, sum_tax) values";
 
         $qSerials = "";
 
@@ -1077,11 +942,11 @@ class SoapHandler{
                 "'".$item["sum"]."',".
                 "'".$item["dispatch"]."',".
                 "'".$item["gtd"]."',".
+                "'".$item["country_id"]."'".
                 "'".$item["is_price_includes_tax"]."',".
                 "'".$item["tax_type_id"]."',".
                 "'".$item["sum_without_tax"]."',".
-                "'".$item["sum_tax"]."',".
-                "'".$item["sum_with_tax"]."',".
+                "'".$item["sum_tax"]."'".
                 "),";
 
             if($item["serial"]) {
@@ -1210,12 +1075,16 @@ class SoapHandler{
 
                     // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
                     include_once INCLUDE_PATH.'bill.php';
-                    $oBill = new \Bill($bill_no);
+
+                    $oBill = Bill::findOne(['bill_no' => $bill_no]);
                     if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                        $oBill->SetCleared();
+                        $oBill->is_approved = 1;
+                        $oBill->sum = $oBill->sum_with_unapproved;
                     }else{
-                        $oBill->SetUnCleared();
+                        $oBill->is_approved = 0;
+                        $oBill->sum = 0;
                     }
+                    $oBill->save();
 
                     $newts_id = $db->QueryInsert(
                         'tt_stages',

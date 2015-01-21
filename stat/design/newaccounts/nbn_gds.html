@@ -25,12 +25,12 @@
 			<td align="left">{$l.item}&nbsp;</td>
 			<td align="center">{$l.amount|round:0} шт.</td>
 			<td align="center">{$l.price*1.18|round:2} руб.</td>
-			<td align="center">{$l.sum*1.18|round:2} руб.</td>
+			<td align="center">{$l.sum|round:2} руб.</td>
 		</tr>
 		{/foreach}
 	</table>
 	<br />
-	<p>Сумма: {$bill.tsum|round:2} руб. (сумма прописью: {$bill.tsum|wordify:'RUB'})</p>
+	<p>Сумма: {$bill.sum|round:2} руб. (сумма прописью: {$bill.sum|wordify:'RUB'})</p>
 	<p><br>Агент: ____________________/{$cli_doer|default:"____________________"}/<br>
     <span style="padding-left: 170px;">(Ф.И.О.)</span>
     </p>

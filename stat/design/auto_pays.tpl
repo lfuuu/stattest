@@ -34,7 +34,7 @@
   		
   	</TR>
   	<TR>
-  		<TD>{$pay.sum_rub} <INPUT type="hidden" name="sum_rub" value="{$pay.sum_rub}"></TD>
+  		<TD>{$pay.sum} <INPUT type="hidden" name="sum" value="{$pay.sum}"></TD>
   		<TD>{$pay.payment_date}<INPUT type="hidden" name="payment_date" value="{$pay.payment_date}"></TD>
   		<TD>{$pay.payment_pp}<INPUT type="hidden" name="payment_pp" value="{$payment_pp}"></TD>
   		<TD>

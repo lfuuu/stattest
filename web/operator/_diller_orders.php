@@ -15,7 +15,7 @@
 {
     foreach($db->AllRecords(
                 "SELECT b.bill_no, bill_date, b.client_id, l.dispatch, g.num_id, 
-                    (select sum(sum_rub) from newpayments p where (b.bill_no = p.bill_no)) as payment
+                    (select sum(p.sum) from newpayments p where (b.bill_no = p.bill_no)) as payment
                 FROM `newbills` b, newbill_lines l , g_goods g, clients c
                 where b.client_id = '".$id."' and bill_date > '".$dateFrom."' and bill_date <='".$dateTo."' 
                 and l.bill_no = b.bill_no and g.id = l.item_id

@@ -52,7 +52,6 @@ function do_events()
         }
 
         try{
-
             switch($event->event)
             {
                 case 'company_changed':     EventHandler::companyChanged($param); break;

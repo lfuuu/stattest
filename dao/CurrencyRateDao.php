@@ -16,10 +16,21 @@ class CurrencyRateDao extends Singleton
      */
     public static function findRate($currency, $date)
     {
-        $rate = CurrencyRate::findOne(['currency' => $currency, 'date' => $date]);
-        if ($rate === null) {
-            //throw new Exception('Не найден курс вылюты ' . $currency . ' на ' . $date);
-        }
-        return $rate;
+        return CurrencyRate::findOne(['currency' => $currency, 'date' => $date]);
+    }
+
+    /**
+     * @return float
+     */
+    public static function getRate($fromCurrencyId, $toCurrencyId, \DateTime $datetime)
+    {
+        // TODO Сделать конвертацию кросскурсов
+        $rate =
+            CurrencyRate::find()
+                ->andWhere(['currency' => $toCurrencyId])
+                ->andWhere('date <= :date', [':date' => $datetime->format('Y-m-d')])
+                ->orderBy('date desc')
+                ->one();
+        return $rate === null ? null : $rate->rate;
     }
 }

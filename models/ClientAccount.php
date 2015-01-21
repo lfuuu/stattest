@@ -10,6 +10,7 @@ use app\classes\behaviors\LogClientContractTypeChange;
  * @property int $id
  * @property string $client
  * @property int $nds_zero
+ * @property int $nds_calc_method 1: Сум_с_ндс = Сум_без_ндс + ндс, 2: ндс = Сум_с_ндс - Сум_без_ндс, 3: Сум_без_ндс = Сум_c_ндс - ндс
 
  * @property ClientSuper $superClient
  * @property ClientStatuses $lastComment

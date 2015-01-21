@@ -35,7 +35,7 @@ foreach(Trouble::find_by_sql(
             }
             if($f){
                 if (strcmp($newstate['state_1c'],'Отказ') == 0){
-                    $db->Query($q="update newbills set sum=0, cleared_sum=0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($b->bill_no, "\\'")."'");
+                    $db->Query($q="update newbills set sum=0, sum_with_unapproved = 0, state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($b->bill_no, "\\'")."'");
                     event::setReject($bill, $newstate);
                 }else{
                     $db->Query($q="update newbills set state_1c='".$newstate['state_1c']."' where bill_no='".addcslashes($b->bill_no, "\\'")."'");

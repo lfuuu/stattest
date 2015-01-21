@@ -5,7 +5,6 @@ class m_tarifs{
             'view'                => array('tarifs','read'),
             'edit'                => array('tarifs','read'),
             'delete'            => array('tarifs','edit'),
-            'csv_upload'        => array('tarifs','pack_edit'),
             'itpark'            => array('services_itpark','full'),
             'welltime'            => array('services_welltime','full'),
             'wellsystem'        => array('services_wellsystem','full'),
@@ -35,7 +34,6 @@ class m_tarifs{
             array('СМС',                   'sms',''),
             array('WellSystem',                'wellsystem',''),
 //            array('Старые доп.услуги',        'view','&m=add'),
-            array('Пакетная загрузка тарифов','csv_upload'),
             array('Договора',            'contracts',''),
             array('Договор-Прайс-Телефония',            'price_tel',''),
         );
@@ -154,8 +152,7 @@ class m_tarifs{
         $where = 'where t.region='.(int)$f_region;
         if ($f_dest != '')
             $where .= ' and t.dest='.(int)$f_dest;
-        if ($f_currency == 'RUB' || $f_currency == 'USD')
-            $where .= " and t.currency='$f_currency'";
+        $where .= " and t.currency='$f_currency'";
         if ($f_show_archive == 0)
           $where .= ' and t.status!="archive"';
 
@@ -426,240 +423,16 @@ class m_tarifs{
         return $prefses;
     }
 
-    function tarifs_csv_upload(){
-        global $db,$design;
-        $main = 0;
-        if(isset($_POST['submit']) && $_POST['submit']=='exist'){
-            while(true){
-                $file = $_FILES['csv_file'];
-                if($file['error']<>0){
-                    $main = 1;
-                    break;
-                }else{
-                    $lines = array();
-                    $defs = array();
-                    switch($_POST['file_format']){
-                        case 'mtt1':{
-                            $str = iconv($_POST['encoding'],'utf-8',file_get_contents($file['tmp_name']));
-                            $pattern = '#^([^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})(?:с.(\d+?))\s+(?:по\s+(\d+?))#imU';
-                            preg_match_all($pattern,$str,$matches,PREG_SET_ORDER);
-                            foreach($matches as $match){
-                                $lines[] = array(
-                                    'operator'=>$match[1],
-                                    'region'=>$match[2],
-                                    'DEF'=>$match[3],
-                                    'prefixes'=>array(
-                                        'from'=>$match[4],
-                                        'to'=>$match[5],
-                                        'range'=>$this->get_ranges($match[4],$match[5])
-                                    ),
-                                    'price_RUB'=>$_POST['price_RUB'],
-                                    'price_USD'=>$_POST['price_USD'],
-                                    'dgroup'=>$_POST['dgroup'],
-                                    'dsubgroup'=>$_POST['dsubgroup']
-                                );
-                                if(!isset($defs[$match[3]]))
-                                    $defs[$match[3]] = array();
-                                $defs[$match[3]][] = count($lines)-1;
-                            }
-                            ksort($defs);
-                            break;
-                        }case 'stable_pack':{
-                            if(isset($_POST['add_to_price']))
-                                $addtp = 1+(intval($_POST['add_to_price'])/100);
-                            else
-                                $addtp = 1;
-                            if(isset($_POST['usd_currency'])){
-                                $usd_cur = floatval($_POST['usd_currency']);
-                                if($usd_cur == 0)$usd_cur = 1;
-                            }else
-                                $usd_cur = 1;
-                            $str = iconv($_POST['encoding'],'utf-8',file_get_contents($file['tmp_name']));
-                            $pattern = '#^([^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})([^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})(?:[^\t]+)(?:\t|\s{2,})([^\t]+?)#imU';
-                            preg_match_all($pattern,$str,$matches,PREG_SET_ORDER);
-                            foreach($matches as $match){
-                                $lines[] = array(
-                                    'operator'=>$match[2],
-                                    'region'=>$match[2],
-                                    'DEF'=>$match[1],
-                                    'prefixes'=>array(
-                                        'from'=>0,
-                                        'to'=>0,
-                                        'range'=>array($match[1])
-                                    ),
-                                    'price_RUB'=>round(floatval(str_replace(',','.',$match[3]))*$addtp,2),
-                                    'price_USD'=>round(floatval(str_replace(',','.',$match[3]))*$addtp/$usd_cur,2),
-                                    'dgroup'=>$_POST['dgroup'],
-                                    'dsubgroup'=>$_POST['dsubgroup']
-                                );
-                                $defs[$match[1]] = array(0=>count($lines)-1);
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            $last_ = array();
-            foreach($defs as $def){
-                foreach($def as $idx){
-                    if($_POST['dgroup']=='0' && $_POST['dsubgroup']=='2'){
-                        $lines[$idx]['region'] = preg_replace('/^Москва$/i','Москва (моб.)',trim($lines[$idx]['region']));
-                    }
-                    if(is_array($lines[$idx]['prefixes']['range'])){
-                        $lines[$idx]['find'] = true;
-                        array_push($last_,$lines[$idx]);
-                    }else{
-                        $lines[$idx]['find'] = false;
-                        array_unshift($last_,$lines[$idx]);
-                    }
-                }
-            }
-
-            $lines = $last_;
-            $design->assign('upload_lines',$lines);
-            $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
-        }elseif(isset($_POST['fix_it']) && $_POST['fix_it']=='1'){
-            global $user;
-            $operator =& $_POST['operator'];
-            $region =& $_POST['region'];
-            $def =& $_POST['def'];
-            $prefs =& $_POST['prefs'];
-            $dgroup =& $_POST['dgroup'];
-            $dsubgroup =& $_POST['dsubgroup'];
-            $price_rub =& $_POST['price_RUB'];
-            $price_usd =& $_POST['price_USD'];
-
-            $lines = array();
-            for($i=0 ; $i<count($operator) ; $i++){
-                $lines[$i] = array(
-                    'operator'=>$operator[$i],
-                    'region'=>$region[$i],
-                    'DEF'=>$def[$i],
-                    'prefixes'=>array(
-                        'from'=>$_POST['prefix_from'][$i],
-                        'to'=>$_POST['prefix_to'][$i],
-                        'range'=>explode(",",$prefs[$i])
-                    ),
-                    'price_RUB'=>$price_rub[$i],
-                    'price_USD'=>$price_usd[$i],
-                    'dgroup'=>$dgroup[$i],
-                    'dsubgroup'=>$dsubgroup[$i],
-                    'find'=>true
-                );
-            }
-
-            $ins_data = array(
-                'statement'=>'destination_name,destination_prefix,operator,rate_USD,rate_RUB,dgroup,dsubgroup,priceid,rate,edit_user,edit_time',
-                'data'=>array()
-            );
-            $cnt = count($operator);
-            $prefses = array();
-            $exists_prefs = array();
-            for($i=0 ; $i<$cnt ; $i++){
-                $cregion = addcslashes($region[$i], "\\\\'");
-                $coperator = addcslashes($operator[$i], "\\\\'");
-                foreach(explode(',',$prefs[$i]) as $v){
-                    if(in_array($def[$i].$v,$exists_prefs,true))
-                        continue;
-                    $prefses[] = $dgroup[$i]<>2?'7'.$def[$i].$v:$v;
-                    $ins_data['data'][] =
-                        "'".$cregion."',".
-                        ((int)($dgroup[$i]<>2?'7'.$def[$i].$v:$v)).",".
-                        "'".$coperator."',".
-                        ((float)$price_usd[$i]).",".
-                        ((float)$price_rub[$i]).",".
-                        ((int)$dgroup[$i]).",".
-                        ((int)$dsubgroup[$i]).",".
-                        "0,".
-                        ((float)$price_usd[$i]).",".
-                        $user->Get('id').",".
-                        "now()";
-                    $exists_prefs[] = $def[$i].$v;
-                }
-            }
-
-            $query_repr = 'select * from price_voip where destination_prefix in ('.implode(",",$prefses).')';
-            $query_del = 'delete from price_voip where destination_prefix in ('.implode(",",$prefses).')';
-            $query_ins = 'insert into price_voip('.$ins_data['statement'].') values';
-            foreach($ins_data['data'] as $insline){
-                $query_ins .= "(".$insline."),";
-            }
-            $query_ins = substr($query_ins,0,strlen($query_ins)-1);
-
-            $repr = $db->AllRecords($query_repr,null,MYSQL_ASSOC);
-            if(mysql_errno()){
-                $design->assign('error',mysql_error());
-                $design->assign('upload_lines',$lines);
-                $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
-                return;
-            }else{
-                $repr_sql = 'insert into price_voip (id,destination_name,destination_prefix,operator,rate_USD,rate_RUB,dgroup,dsubgroup,priceid,rate,edit_user,edit_time,idExt) values';
-                foreach($repr as $v){
-                    $repr_sql .= '('.
-                        ((int)$v['id']).",".
-                        "'".addcslashes($v['destination_name'],"\\\\'")."',".
-                        $v['destination_prefix'].",".
-                        "'".addcslashes($v['operator'],"\\\\'")."',".
-                        ((float)$v['rate_USD']).",".
-                        ((float)$v['rate_RUB']).",".
-                        ((int)$v['dgroup']).",".
-                        ((int)$v['dsubgroup']).",".
-                        $v['priceid'].",".
-                        $v['rate'].",".
-                        "'".addcslashes($v['edit_user'], "\\\\'")."',".
-                        "'".$v['edit_time']."',".
-                        $v['idExt'].
-                    '),';
-                }
-                $repr_sql = substr($repr_sql,0,strlen($repr_sql)-1);
-            }
-            $db->Lock('price_voip');
-            if(mysql_errno()){
-                $design->assign('error','Не удалось заблокировать таблицу! '.mysql_error());
-                $design->assign('upload_lines',$lines);
-                $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
-                return;
-            }
-            $db->Query($query_del);
-            if(mysql_errno()){
-                $db->Unlock();
-                $design->assign('error',mysql_error());
-                $design->assign('upload_lines',$lines);
-                $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
-                return;
-            }else{
-                $db->Query($query_ins);
-                if(mysql_errno()){
-                    $db->Unlock();
-                    $error = mysql_error();
-                    $db->Query($query_repr);
-                    $repr_flag = mysql_errno()?false:true;
-                    $design->assign('error',$error);
-                    $design->assign('repr',$repr_flag);
-                    $design->assign('upload_lines',$lines);
-                    $design->AddMain('tarifs/csv_upload_voip_stage1.tpl');
-                    return;
-                }else{
-                    $db->Unlock();
-                    $design->assign('success',true);
-                    $design->AddMain('tarifs/csv_upload_voip_stage2.tpl');
-                    return;
-                }
-            }
-            $db->Unlock();
-        }else
-            $main = 1;
-        if($main)
-            $design->AddMain('tarifs/csv_upload_voip.tpl');
-    }
 
     function tarifs_price_tel()
     {
-        if(get_param_raw("gen", "") == "true") 
-            return PriceTel::gen();
+        if(get_param_raw("gen", "") == "true") {
+            PriceTel::gen();
+        }
 
-        if(get_param_raw("save", "") == "true") 
-            return PriceTel::save();
+        if(get_param_raw("save", "") == "true") {
+            PriceTel::save();
+        }
 
         PriceTel::view();
     }
@@ -685,7 +458,7 @@ class m_tarifs{
 
 class PriceTel
 {
-    static function view()
+    public static function view()
     {
         global $design, $db;
 
@@ -711,7 +484,7 @@ class PriceTel
         $design->AddMain('tarifs/price_tel.htm');
     }
 
-    static function gen()
+    public static function gen()
     {
         global $design;
 

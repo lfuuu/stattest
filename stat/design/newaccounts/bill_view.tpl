@@ -30,13 +30,13 @@
             {/if}
         </td>
         <td>
-            {if !$bill.cleared_flag}Cчет не проведен{else}Счет проведен{/if}
+            {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
             {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">
                     <input type="hidden" name="module" value="newaccounts" />
                     <input type="hidden" name="action" value="bill_cleared" />
                     <input type="hidden" name="bill_no" value="{$bill.bill_no}" />
-                    <input type="submit" name="ok" value="{if $bill.cleared_flag}Не проведен{else}Проведен{/if}" />
+                    <input type="submit" name="ok" value="{if $bill.is_approved}Не проведен{else}Проведен{/if}" />
                 </form>
             {/if}
             {if $bill_client.type == "multi"}<br><a href="./?module=newaccounts&action=make_1c_bill&tty=shop_orders&from_order={$bill.bill_no}"> Создать заказ на основе данных этого</a>{/if}
@@ -74,43 +74,6 @@
         <tr>
             <td>&nbsp;</td>
             <td><span title="Менеджер, который провел сделку по данному счету, и получит с него бонусы.">Менеджер счета*</span>: {$bill_manager}</td>
-        </tr>
-    {/if}
-    {if $bill.payed_ya > 0}
-        <tr>
-            <td>&nbsp;</td>
-            <td>
-
-                {if $ym_pay eq 'success'}
-                    <div style="color:green;font-weight:bold;font-size: 20px;">Оплата прошла</div>
-                {elseif $ym_pay neq ''}
-                    <div style="color:red;font-weight:bold;font-size: 20px;">Оплата НЕ прошла<br/>{$ym_pay}</div>
-                {/if}
-
-                Оплачено Yandex: <b>{$bill.payed_ya}</b>
-            </td>
-        </tr>
-    {elseif $pay_to_comstar>0}
-        <tr>
-            <td>&nbsp;</td>
-            <td>
-                {if $ym_pay eq 'success'}
-                    <div style="color:green;font-weight:bold;font-size: 20px;">Оплата прошла</div>
-                {elseif $ym_pay neq ''}
-                    <div style="color:red;font-weight:bold;font-size: 20px;">Оплата НЕ прошла<br/>{$ym_pay}</div>
-                {/if}
-
-                Yandex Коплате: <b>{$pay_to_comstar|round:2}</b><br>счет: {$pay_to_comstar_acc_no}
-                <form method="get">
-                    <input type="hidden" name="module" value="yandex"/>
-                    <input type="hidden" name="action" value="pay_stat"/>
-                    <input type="hidden" name="bill" value="{$bill.bill_no}"/>
-                    <input type="hidden" name="comstar" value="{$pay_to_comstar_acc_no}"/>
-                    <input type="hidden" name="sum" value="{$pay_to_comstar|round:2}"/>
-                    <input type="hidden" name="backurl" value="{$pay_to_comstar_back}"/>
-                    <input type="submit" value="Оплатить YM">
-                </form>
-            </td>
         </tr>
     {/if}
 </table>
@@ -174,7 +137,7 @@
 <td>{if access('newaccounts_bills','edit')}<a href='#' onclick='optools.bills.changeBillItemDate(event,"{$bill.bill_no}",{$item.sort});return false' style='text-decoration:none;color:#333333;'>{/if}<nobr>{$item.date_from}</nobr><br><nobr>{$item.date_to}</nobr>{if access('newaccounts_bills', 'edit')}</a>{/if}</td>
 <td>{$item.amount}{if isset($cur_state) && $cur_state == 17}/<span {if $item.amount != $item.dispatch}style="font-weight: bold; color: #c40000;"{/if}>{$item.dispatch}{/if}</td>
 <td align=right>{$item.price}</td>
-<td align=right>{if $item.all4net_price<>0}{$item.all4net_price*$item.amount|round:2}{else}{if $bill_client.nds_zero}{$item.sum|round:2}{else}{$item.sum*1.18|round:2}{/if}{/if}</td>
+<td align=right>{$item.sum}</td>
 {if $bill_bonus}<td align=right>{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>{/if}
 <td>{$item.type}</td>
 </tr>
@@ -223,10 +186,7 @@
 <b>Печать/отправка:</b><br>
 <input type=hidden name=module value=newaccounts>
 <input type=hidden name=bill value="{$bill.bill_no}">
-{if $bill.currency=='USD'}
-<input type=checkbox value=1 name="bill-2-USD" id=cb1><label for=cb1>Счет в USD (предоплата)</label><br>
-{/if}
-<input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет в RUB (предоплата)</label><br>
+<input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет (предоплата)</label><br>
 <input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if $client.mail_print =="no"} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
 
 <input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1 абонентка)</label><br>

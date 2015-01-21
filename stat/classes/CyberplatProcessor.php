@@ -293,11 +293,13 @@ class CyberplatActionCheck
             $payment->oper_date = $now;
             $payment->payment_date = $paymentDate;
             $payment->add_date = $now;
-            $payment->payment_rate = 1;
             $payment->type='ecash';
             $payment->ecash_operator='cyberplat';
-            $payment->sum_rub = $data["amount"];
+            $payment->sum = $data["amount"];
             $payment->currency = "RUB";
+            $payment->payment_rate = 1;
+            $payment->original_sum = $data["amount"];
+            $payment->original_currency = "RUB";
             $payment->comment = "Cyberplat pay# ".$data["receipt"]." at ".str_replace("T", " ", $data["date"]);
             $payment->save();
 

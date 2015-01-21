@@ -8,7 +8,7 @@ use yii\db\ActiveRecord;
 /**
  * @property int    $id
  * @property string $date           дата yyyy-mm-dd
- * @property string $currency       валюта: USD, RUR
+ * @property string $currency       валюта: USD, RUB
  * @property float  $rate           значение курса на дату
  * @property
  */

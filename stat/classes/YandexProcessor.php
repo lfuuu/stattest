@@ -148,11 +148,13 @@ class YandexProcessor
         $payment->oper_date = $now;
         $payment->payment_date = $paymentDate;
         $payment->add_date = $now;
-        $payment->payment_rate = 1;
         $payment->type='ecash';
         $payment->ecash_operator='yandex';
-        $payment->sum_rub = $this->data["orderSumAmount"];
+        $payment->sum = $this->data["orderSumAmount"];
         $payment->currency = "RUB";
+        $payment->payment_rate = 1;
+        $payment->original_sum = $this->data["orderSumAmount"];
+        $payment->original_currency = "RUB";
         $payment->comment = "Yandex pay# ".$this->data["invoiceId"]." at ".$paymentDateFull;
         $payment->save();
 
