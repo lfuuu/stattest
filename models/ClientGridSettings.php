@@ -33,18 +33,18 @@ class ClientGridSettings extends ActiveRecord
     
     public static function findDefault($bp_id)
     {
-       return self::find()
-                ->where(['grid_business_process_id' => $bp_id])
-                ->orderBy('default DESC, sort')
-                ->one();
+        return self::find()
+            ->where(['grid_business_process_id' => $bp_id])
+            ->orderBy('default DESC, sort')
+            ->one();
     }
     
     public static function findByBP($bp_id)
     {
-       return self::find()
-                ->where(['grid_business_process_id' => $bp_id])
-                ->orderBy('sort')
-                ->all();
+        return self::find()
+            ->where(['grid_business_process_id' => $bp_id])
+            ->orderBy('sort')
+            ->all();
     }
     
     public static function menuAsArray ()

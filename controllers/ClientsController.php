@@ -20,25 +20,24 @@ class ClientsController extends BaseController
 {
     public function actionIndex()
     {   
+        $gridSettings = ClientGridSettings::findOne(Yii::$app->request->get('grid'));
 
-        $dataset = ClientGridSettings::findOne(Yii::$app->request->get('grid'));  
-
-        if( count($dataset) == 0) 
+        if ($gridSettings === null)
         {
-            $dataset = ClientGridSettings::findDefault(Yii::$app->request->get('bp', 1));
+            $gridSettings = ClientGridSettings::findDefault(Yii::$app->request->get('bp', 1));
         }
 
-        $datasets = ClientGridSettings::findByBP($dataset->grid_business_process_id);
+        $datasets = ClientGridSettings::findByBP($gridSettings->grid_business_process_id);
 
         $rows = $datasets;
-        $row = $dataset->configAsArray;
-        $row['sql'] = $dataset->sql;
-        $row['id'] = $dataset->id;
+        $row = $gridSettings->configAsArray;
+        $row['sql'] = $gridSettings->sql;
+        $row['id'] = $gridSettings->id;
 
         foreach ($row['order'] as $key => $value)
         { 
-          unset($row['order'][$key]);
-          $row['order'][FilterField::QUERY_ALIAS.'.'.$key] = $value;
+            unset($row['order'][$key]);
+            $row['order'][FilterField::QUERY_ALIAS.'.'.$key] = $value;
         }
         
         $query = new Query;
@@ -47,7 +46,6 @@ class ClientsController extends BaseController
         $filters = $row['filter'];
         
         
-       // var_dump($filters); exit;
         foreach ($filters as $filter)
         {
            if(is_array($filter))
@@ -60,14 +58,10 @@ class ClientsController extends BaseController
            }
                
            $config['query'] = $query;
-         //  var_dump($filter); exit;
-           $rendered_filters[] = Yii::createObject($config); 
+           $rendered_filters[] = Yii::createObject($config);
         }
         
         $dataProvider = new ActiveDataProvider([
-            //'sql' => $row['sql'],
-            //'totalcount' => 1000, 
-            
             'query' => $query,
             'sort' => [
                 'attributes' => $row['sortable'],
@@ -101,8 +95,8 @@ class ClientsController extends BaseController
         return  $this->render('index', [
             'dataProvider' => $dataProvider,
             'columns' => $columns,
-            'rows' => $rows,
-            'row' => $row,
+            'folders' => $rows,
+            'currentFolder' => $row,
             'filters' => $rendered_filters,
         ]);
     }

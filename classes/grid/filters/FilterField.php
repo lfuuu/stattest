@@ -1,13 +1,4 @@
 <?php
-
-/* 
- * Базовый класс фильтра. Общий смысл такой - в конструктор передается объект класса Query, содержаий запрос выборки
- * Класс фильтр накладывает на объект класса Query условия фильтрации и условия джойна с со своим ключевым полем. 
- * Ключевое поле содежится в НД фильтра $this->dataset. В наследниках этого класса нужно переопределить методы 
- * 1. initDataset() - формирование НД для списка фильтра.
- * 2. applyJoin() - джойн НД, в котором есть ключевое поле фильтра
- * 3. applyCondition() - условие where указывающее как применять значение фильтра указанное пользователем.
- */
 namespace app\classes\grid\filters;
 
 use yii\base\Object;
@@ -16,27 +7,31 @@ use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use Yii;
 
-
+/*
+ * Базовый класс фильтра. Общий смысл такой - в конструктор передается объект класса Query, содержаий запрос выборки
+ * Класс фильтр накладывает на объект класса Query условия фильтрации и условия джойна с со своим ключевым полем.
+ * Ключевое поле содежится в НД фильтра $this->dataset. В наследниках этого класса нужно переопределить методы
+ * 1. initDataset() - формирование НД для списка фильтра.
+ * 2. applyJoin() - джойн НД, в котором есть ключевое поле фильтра
+ * 3. applyCondition() - условие where указывающее как применять значение фильтра указанное пользователем.
+ */
 abstract class FilterField extends Object
 {
-    public $query; 
+    /** @var Query */
+    public $query;
+    /** @var Query */
+    public $filterValuesQuery;
+    public $control_name;
     public $value;
     public $noselected_value = 'noset';
-    public $dataset;
-    public $control_name;
-    
+
     public $control_atrrs = ['style'=>'margin-right:10px'];
     
-    static $call_count = 0;
+    protected static $call_count = 0;
     static $no_select = '-Не выбрано-';
     
     const QUERY_ALIAS = 'sub_query';
-    
-    public function __construct($config = array()) {
-        self::$call_count++;
-        parent::__construct($config);
-    }
-    
+
     protected function initValue(){
 
         if (!empty(Yii::$app->request->post($this->control_name))) {
@@ -54,9 +49,10 @@ abstract class FilterField extends Object
     
     public function init() {
         parent::init();
-        $this->dataset = new Query;
+        $this->filterValuesQuery = new Query;
         $this->initDataset();
-        $this->control_name = str_replace('\\','-',$this->className()).self::$call_count;
+        self::$call_count++;
+        $this->control_name = str_replace('\\','-',$this->className()) . self::$call_count;
         $this->initValue();
         $this->applyFilter();
     }
@@ -64,7 +60,7 @@ abstract class FilterField extends Object
     public function render(){
 
        $no_select[$this->noselected_value] = self::$no_select;
-       $options = ArrayHelper::map($this->dataset->all(), 'id', 'name');
+       $options = ArrayHelper::map($this->filterValuesQuery->all(), 'id', 'name');
        $options = array($this->noselected_value => self::$no_select) + $options;
        
        return Html::dropDownList(
@@ -78,7 +74,7 @@ abstract class FilterField extends Object
     
     protected function isSetValue()
     {
-        if ($this->value != $this->noselected_value && $this->value > 0) return true;
+        return $this->value != $this->noselected_value && $this->value > 0;
     }
     
     abstract protected function initDataset();
@@ -89,13 +85,12 @@ abstract class FilterField extends Object
     
     public function applyFilter()
     {
-      if($this->isSetValue())
-      {
-          $this->applyJoin();
-          $this->applyCondition();
-      }
+        if ($this->isSetValue())
+        {
+            $this->applyJoin();
+            $this->applyCondition();
+        }
     }
-
 
 }
 

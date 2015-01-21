@@ -21,8 +21,9 @@ use app\classes\grid\filters\FilterField;
 
     protected function initDataset()
     {
-        $this->dataset->select('id, name')
-                ->from('regions');
+        $this->filterValuesQuery
+            ->select('id, name')
+            ->from('regions');
     }
     
     protected function applyJoin()
