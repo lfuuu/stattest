@@ -10,6 +10,7 @@ use app\models\ClientGridSettings;
 use yii\helpers\Url;
 use app\classes\Encoding;
 use yii\db\Query;
+use app\classes\grid\FilterDataProvider;
 use yii\data\ActiveDataProvider;
 use app\classes\grid\filters\FilterField;
 class ClientsController extends BaseController
@@ -53,8 +54,8 @@ class ClientsController extends BaseController
            $rendered_filters[] = Yii::createObject($config);
         }
         
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
+        $dataProvider = new FilterDataProvider([ //ActiveDataProvider FilterDataProvider
+            'query' => $query, 
             'sort' => [
                 'attributes' => $row['sortable'],
                 'defaultOrder' => $row['order'],
