@@ -1,7 +1,5 @@
 <?php
-
 namespace app\controllers;
-
 use Yii;
 use app\classes\BaseController;
 use yii\grid\GridView;
@@ -14,26 +12,20 @@ use app\classes\Encoding;
 use yii\db\Query;
 use yii\data\ActiveDataProvider;
 use app\classes\grid\filters\FilterField;
-
-
 class ClientsController extends BaseController
 {
     public function actionIndex()
     {   
         $gridSettings = ClientGridSettings::findOne(Yii::$app->request->get('grid'));
-
         if ($gridSettings === null)
         {
             $gridSettings = ClientGridSettings::findDefault(Yii::$app->request->get('bp', 1));
         }
-
         $datasets = ClientGridSettings::findByBP($gridSettings->grid_business_process_id);
-
         $rows = $datasets;
         $row = $gridSettings->configAsArray;
         $row['sql'] = $gridSettings->sql;
         $row['id'] = $gridSettings->id;
-
         foreach ($row['order'] as $key => $value)
         { 
             unset($row['order'][$key]);
@@ -71,24 +63,19 @@ class ClientsController extends BaseController
                 'pageSize' => $row['countperpage']
             ],
         ]);
-
         $providerfields = array_keys(reset($dataProvider->getModels()));
-
         foreach( $providerfields as $field)
         {  
-
             foreach( $row['columns'][$field] as $key => $value )
             {
                 $column[$key] = $value;
             }
-
             if(isset($column)&&!$column['hide']) 
             { 
                 //нужно повторить названия полей провайдера для грида
                 $column['attribute'] = $field;
                 $columns[] = $column; 
             }
-
             unset( $label, $class, $column );
         }
         
@@ -96,7 +83,7 @@ class ClientsController extends BaseController
             'dataProvider' => $dataProvider,
             'columns' => $columns,
             'folders' => $rows,
-            'currentFolder' => $row,
+            'current' => $row,
             'filters' => $rendered_filters,
         ]);
     }
