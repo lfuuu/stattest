@@ -132,4 +132,12 @@ a.nohover:hover { color: #000; }
     .layout_left .menupanel .item:hover {
         background-color: #e0e0e0;
     }
+
+    .publish_comment {
+        opacity:0.3;
+    }
+
+    .publish_comment_over {
+        opacity:1;
+    }
 }
