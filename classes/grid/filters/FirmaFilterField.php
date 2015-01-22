@@ -31,7 +31,6 @@ class FirmaFilterField extends FilterField
     
     protected function isSetValue()
     {
-        // var_dump($this->value); exit;
         return ($this->value != $this->noselected_value && $this->value != null );
     }
     
