@@ -13,6 +13,7 @@ use yii\db\Query;
 use app\classes\grid\FilterDataProvider;
 use yii\data\ActiveDataProvider;
 use app\classes\grid\filters\FilterField;
+
 class ClientsController extends BaseController
 {
     public function actionIndex()
@@ -34,7 +35,8 @@ class ClientsController extends BaseController
         }
         
         $query = new Query;
-        $query->from('('.$row['sql'].') as '.FilterField::QUERY_ALIAS);
+        $query->select(FilterField::QUERY_ALIAS.'.*')
+              ->from('('.$row['sql'].') as '.FilterField::QUERY_ALIAS);
         
         $filters = $row['filter'];
         
