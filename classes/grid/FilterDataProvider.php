@@ -33,7 +33,6 @@ class FilterDataProvider extends ActiveDataProvider
             {
                 $correct_order_fields[FilterField::QUERY_ALIAS.'.'.$field] = $sort; 
             }
-           // var_dump($correct_order_fields); exit;
             $query->addOrderBy($correct_order_fields);
         }
 
