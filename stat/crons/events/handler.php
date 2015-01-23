@@ -51,7 +51,7 @@ function do_events()
             $param = json_decode($param, true);
         }
 
-        Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
         try{
 
