@@ -436,7 +436,7 @@ class Company
                         "name_" => "Королеву В.В.",
                         "position" => "Генеральный директор",
                         "position_" => "Генерального директора",
-                        "sign" => false
+                        "sign" => array("src" => "sign_kor.png", "width" => 140, "height" => 88),
                         ),
 
 
@@ -458,7 +458,7 @@ class Company
         $firms = array(
                 "all4net" => array(
                     "src" => "stamp_all4net.jpg",
-                    "style" => "position:relative;left:-10;top:-160;z-index:-10; margin-bottom:-170px;",
+                    "style" => "position:relative;left:-10;top:-260;z-index:-10; margin-bottom:-170px;",
                     "name" => "ООО &laquo;Олфонет&raquo;",
                     "width" => false
                     ),

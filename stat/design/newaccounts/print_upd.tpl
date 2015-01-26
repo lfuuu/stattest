@@ -38,6 +38,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 
 .tr_h2 td p span{font-size:1.0pt;}
 .td_item {height: {/literal}{$print_upd.row_size}{literal}px;}
+.to_client td{ font: normal 8pt sans-serif;text-decoration: underline; }
 
 {/literal}
 </style>
@@ -903,6 +904,18 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	<img class="sign_main" style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>
 	</div>
 	{/if}
+{/if}
+{if $to_client == "true" && $bill_client.firma == 'mcn_telekom'}
+<table border=0 cellspacing=0 cellpadding=0 style='width:100%;'>
+	<tr>
+		<td colspan="6" width=50%>
+			<p ><span>&nbsp;</span></p>
+		</td>
+		<td colspan="6" width=50%>
+			<p ><table class=to_client><tr><td valign=top><br><b>Обращаем Ваше Вниманиние!</b></td><td>Этот экземпляр Акта, просьба с подписью и печатью<br> направить в наш адрес: 115162 г.Москва,а/я 21 ООО &laquo;МСН Телеком&raquo;</td></tr></table></div></p>
+		</td>
+	</tr>
+</table>
 {/if}
 </body>
 </html>
