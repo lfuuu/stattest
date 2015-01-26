@@ -47,6 +47,25 @@ class ClientGridSettings extends ActiveRecord
             ->all();
     }
     
+    public static function findBusinessProcessStatusesByClientIdAndBusinessProcessId($client_id, $bp_id)
+    {
+        return self::find()
+                ->innerJoin('grid_business_process bp', 'bp.id = grid_business_process_id')
+                ->innerJoin('clients c', 'c.contract_type_id = bp.client_contract_id')
+                ->andWhere(['grid_settings.show_as_status'=>1])
+                ->andWhere(['c.id' => $client_id])
+                ->andWhere(['bp.id' => $bp_id])
+                ->orderBy('grid_settings.sort');
+                
+                
+                /*
+SELECT g.id, g.name FROM grid_settings g 
+INNER JOIN grid_business_process bp ON (bp.id = g.grid_business_process_id)
+INNER JOIN clients c ON (c.contract_type_id = bp.client_contract_id)
+WHERE c.id = 15071 AND bp.id = 1 AND g.show_as_status = 1 ORDER BY g.sort 
+                 */
+    }
+    
     public static function menuAsArray ()
     {
         $query = new Query();
