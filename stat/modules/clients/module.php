@@ -1060,6 +1060,9 @@ class m_clients {
     $voip->showCountersWarning();
     $design->assign('voip_counters',$voip_counters);
 
+    
+    
+    
 		if(get_param_raw("contract_open", "") !== "")
 			$design->assign('contract_open',true);
 
