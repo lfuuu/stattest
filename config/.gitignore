@@ -1,3 +1,6 @@
 db_stat.local.php
+
 log.local.php
-params.local.phpdb_pgsql.local.php
+
+params.local.php
+db_pgsql.local.php
