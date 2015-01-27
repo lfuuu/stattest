@@ -454,11 +454,21 @@ class ClientAccountDao extends Singleton
     private function enumPayments(ClientAccount $clientAccount, $saldoDate)
     {
         $sql = '
-            select P.*, 0 as is_billpay
-            from newpayments as P
-            inner join newbills as B ON B.bill_no=P.bill_no
+            select P.*, 0 as is_billpay  from newpayments as P
+            left join newbills as B ON P.client_id = B.client_id
             where
                 P.client_id = :clientAccountId
+                and P.payment_date >= :saldoDate
+                and B.bill_no IS NULL
+
+            UNION
+
+            select P.*, 0 as is_billpay
+            from newpayments as P
+            left join newbills as B ON P.client_id = B.client_id
+            where
+                P.client_id = :clientAccountId
+                and B.bill_no=P.bill_no
                 and B.currency = :currency
                 and B.bill_date >= :saldoDate
             order by payment_date asc

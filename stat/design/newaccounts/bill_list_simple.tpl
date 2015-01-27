@@ -94,6 +94,7 @@
 	<TD class=header vAlign=bottom title='положительные числа - мы должны клиенту, отрицательные - клиент нам'>разница</TD>
 	<TD class=header vAlign=bottom>Сумма</TD>
 	<TD class=header vAlign=bottom>Дата</TD>
+	<TD class=header vAlign=bottom>Курс</TD>
 	<TD class=header vAlign=bottom>Кто</TD>
 </TR>
 {foreach from=$billops item=op key=key name=outer}
@@ -126,16 +127,17 @@
 		{if $pay.type=='bank'}b({$pay.bank}){elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
 		{if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}
 	</TD>
+	<TD style='padding:0 0 0 0;'>{if isset($op.bill) && $op.bill.currency=='USD'}{$pay.payment_rate}{else}&nbsp;{/if}</TD>
 	<TD><span title="{$pay.add_date}">{$pay.user_name}</span></TD>
 
 	{if $pay.comment}</TR><TR class={$class}><TD colspan=4 class=comment>{$pay.comment|escape:"html"}</TD>{/if}
 	{/foreach}
 	{if isset($op.bill) && $op.bill.comment}
-	</TR><TR class={$class}><TD colspan=3 class=comment>{$op.bill.comment|escape:"html"}</TD><TD colspan=4>&nbsp;</TD>
+	</TR><TR class={$class}><TD colspan=4 class=comment>{$op.bill.comment|escape:"html"}</TD><TD colspan=4>&nbsp;</TD>
 	{/if}
 {else}
 	{if isset($op.bill) && $op.bill.comment}
-		<TD colspan=3 rowspan=2>&nbsp;</TD>
+		<TD colspan=4 rowspan=2>&nbsp;</TD>
 		</TR><TR class={$class}><TD colspan=4 class=comment>{$op.bill.comment|escape:"html"}</TD>
 	{else}
 		<TD colspan=4>&nbsp;</TD>
