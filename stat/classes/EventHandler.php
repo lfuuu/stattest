@@ -4,7 +4,7 @@ use app\classes\StatModule;
 
 class EventHandler
 {
-    public function companyChanged($clientId)
+    public static function companyChanged($clientId)
     {
         $card = ClientCard::find("first", array("id" => $clientId));
 
@@ -17,7 +17,7 @@ class EventHandler
         $card->contragent->save();
     }
 
-    public function updateBalance($clientId)
+    public static function updateBalance($clientId)
     {
         include_once INCLUDE_PATH."bill.php";
 
@@ -27,7 +27,7 @@ class EventHandler
         }
     }
 
-    public function updateSubscribeMass()
+    public static function updateSubscribeMass()
     {
         BillDao::me()->updateSubscriptionForAllClientAccounts();
     }
