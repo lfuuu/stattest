@@ -8,30 +8,38 @@ use yii\helpers\ArrayHelper;
 use Yii;
 use app\classes\grid\filters\FilterField;
 
-class FirmaFilterField extends FilterField
+class AutoblockFlagHiddenFilter extends FilterField
 {
     protected function initDataset()
     {
-        $this->filterValuesQuery
-            ->select('firma as id, firma as name')
-            ->from('clients')
-            ->where('firma!="         "')
-            ->groupby('firma');
+       return null;
     }
     
     protected function applyJoin()
     {
-        $this->query->innerJoin('clients firma_clients','firma_clients.id ='.self::QUERY_ALIAS.'.id');
+        return null;
     }
     
     protected function applyCondition()
     {
-        $this->query->andWhere('firma_clients.firma='.Yii::$app->db->quoteValue($this->value));  
+        
+        $pg_query = new Query;
+        //пример запроса к постгесу, главное что бы выдавал ид. (выборка от балды, сделана только для проверки)
+        $pg_query->select('id')->from('clients')->where('address_post LIKE "%усачев%"');
+        
+        //наложение условия
+        $ids = implode(',',$pg_query->column());     
+        $this->query->andWhere(self::QUERY_ALIAS.'.id in ('.$ids.')');
+
+    }
+    
+    public function render() {
+        return null;
     }
     
     protected function isSetValue()
     {
-        return ($this->value != $this->noselected_value && $this->value != null );
+        return true; //учитывая что наложени фильтра не зависит от пользователя условие будет применено всегда
     }
     
 
