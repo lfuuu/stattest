@@ -65,7 +65,7 @@ function do_events()
                                             break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]);
-                                       //LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); 
+                                       LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); 
                                        break;
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
