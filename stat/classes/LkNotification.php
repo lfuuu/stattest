@@ -41,6 +41,7 @@ class LkNotification {
     {
         $this->Client = ClientCard::find_by_id($clientId);
         $this->Contact = ClientContact::find_by_id($contactId);
+        $this->design = new \MySmarty();
 
         $this->type = $type;
         $this->value = $value;
@@ -61,8 +62,6 @@ class LkNotification {
 
     function getMessage()
     {
-        global $design;
-
         $contactType = $this->Contact->type;
 
         if ($contactType == "sms") {
@@ -71,16 +70,16 @@ class LkNotification {
 
         $assigns = array('value'=>$this->value, 'balance' => $this->balance, "account" => $this->Client->id);
 
-        $design->assign($assigns);
-        $message = $design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
+        $this->design->assign($assigns);
+        $message = $this->design->fetch($q = $this->tpl_dir . $contactType . '_' . $this->type . '.tpl');
 
 
         if ($contactType == "email") {
             if (in_array($this->type, array("day_limit", "min_balance", "zero_balance"))) {
-                $message .= $design->fetch($q = $this->tpl_dir . $contactType . '__sms_notification.tpl'); // реклама услуги ""Уведомление о критическом остатке"
+                $message .= $this->design->fetch($q = $this->tpl_dir . $contactType . '__sms_notification.tpl'); // реклама услуги ""Уведомление о критическом остатке"
 
             }
-            $message .= $design->fetch($this->tpl_dir . $contactType . '__footer.tpl'); 
+            $message .= $this->design->fetch($this->tpl_dir . $contactType . '__footer.tpl'); 
         }
 
 
