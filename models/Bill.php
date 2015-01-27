@@ -56,4 +56,6 @@ class Bill extends ActiveRecord
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
+
+
 }

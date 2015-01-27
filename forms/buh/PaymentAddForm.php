@@ -2,6 +2,7 @@
 namespace app\forms\buh;
 
 use app\classes\Assert;
+use app\classes\StatModule;
 use app\models\ClientAccount;
 use app\models\Payment;
 
@@ -36,16 +37,23 @@ class PaymentAddForm extends PaymentForm
         $item->payment_date = $this->payment_date;
         $item->oper_date = $this->oper_date;
         $item->bill_no = $this->bill_no;
+        $item->bill_vis_no = $this->bill_no;
         $item->original_currency = $this->original_currency;
         $item->currency = $client->currency;
         $item->original_sum = round($this->original_sum, 2);
         $item->sum = round($this->sum, 2);
-        $this->payment_rate = round($item->original_sum / $item->sum, 8) ;
+        $item->payment_rate = round($item->original_sum / $item->sum, 8) ;
         $item->type = $this->type;
         $item->bank = $item->type == 'bank' ? $this->bank : '';
         $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
         $item->comment = $this->comment;
+        $item->add_date = (new \DateTime())->format(\DateTime::ATOM);
+        $item->add_user = \Yii::$app->user->getId();
 
-        return $this->saveModel($item);
+        $result = $this->saveModel($item);
+        if ($result) {
+            StatModule::newaccounts()->update_balance($client->id, $client->currency);
+        }
+        return $result;
     }
 }

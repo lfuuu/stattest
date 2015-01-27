@@ -20,7 +20,7 @@ use kartik\widgets\DatePicker;
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'payment_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass'=>DatePicker::className()],
+            'payment_date' => ['type' => Form::INPUT_TEXT],
             'original_sum' => ['type' => Form::INPUT_TEXT, 'options' => ['id' => 'payment_original_sum']],
             'sum' => ['type' => Form::INPUT_TEXT, 'options' => ['id' => 'payment_sum']],
         ],
@@ -30,7 +30,7 @@ use kartik\widgets\DatePicker;
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'oper_date' => ['type' => Form::INPUT_WIDGET, 'widgetClass'=>DatePicker::className()],
+            'oper_date' => ['type' => Form::INPUT_TEXT],
             'original_currency' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['id' => 'payment_original_currency']],
             'payment_rate' => ['type' => Form::INPUT_TEXT, 'options' => ['id' => 'payment_rate']],
         ],

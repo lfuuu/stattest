@@ -33,6 +33,7 @@ set b.is_use_tax = if(c.nds_zero>0,0,1);
 
 DROP PROCEDURE IF EXISTS `switch_bill_cleared`;
 
+DELIMITER $$
 CREATE DEFINER = `latyntsev`@`localhost` PROCEDURE `switch_bill_cleared`(in p_bill_no varbinary(32))
 begin
 		declare p_sum_with_unapproved decimal(11,2) default 0;
@@ -61,7 +62,8 @@ begin
 
 		call add_event('update_balance', p_client_id);
 
-end;
+end;$$
+DELIMITER ;
 
 
 

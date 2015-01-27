@@ -142,12 +142,6 @@
             {/if}
         {/foreach}
         
-        {if $dbform_table == "newpayments"}
-            <script>
-                form_newpayments_hide();
-            </script>
-        {/if}
-        
         {if $dbform_table == "usage_voip"}
             <script>
                 form_usagevoip_hide();

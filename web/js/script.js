@@ -169,27 +169,6 @@ function form_ip_ports_hide(is_first){
 	}
 }
 
-function form_newpayments_hide()
-{
-    var val = document.getElementById('type').value;
-    if(val != "bank")
-    {
-		document.getElementById('tr_bank').style.display='none';
-		document.getElementById('bank').selectedIndex =1;
-    }else{
-		document.getElementById('tr_bank').style.display='';
-    }
-
-    if (val != "ecash")
-    {
-		document.getElementById('tr_ecash_operator').style.display='none';
-		document.getElementById('ecash_operator').selectedIndex =1;
-    }else{
-		document.getElementById('tr_ecash_operator').style.display='';
-    }
-
-}
-
 var usagevoip_line7800_hide = false;
 function form_usagevoip_hide()
 {

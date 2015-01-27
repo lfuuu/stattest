@@ -716,40 +716,6 @@ class Bill{
         return $ls[0]["type"] == "zadatok";
     }
 
-    public static function getDocumentType($bill_no)
-    {
-        if(preg_match("/\d{2}-\d{8}/", $bill_no))
-        {
-            return array("type" => "incomegood");
-        }elseif(preg_match("/20\d{4}\/\d{4}/", $bill_no))
-        {
-            return array("type" => "bill", "bill_type" => "1c");
-        }elseif(preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)){ // mcn telekom || all4net
-            return array("type" => "bill", "bill_type" => "stat");
-        }
-
-        return array("type" => "unknown");
-    }
-
-    public static function getDocument($docId, $clientId = false)
-    {
-        $docType = self::getDocumentType($docId);
-
-        if($docType["type"] == "bill")
-        {
-            $doc = NewBill::find_by_bill_no($docId);
-        }elseif($docType["type"] == "incomegood")
-        {
-            $doc = GoodsIncomeOrder::getOrder($docId, $clientId);
-        }else{
-            throw new Exception("Неизвестный тип документа!");
-        }
-
-        if(!$doc)
-            throw new Exception("Документ не найден");
-
-        return $doc;
-    }
 //------------------------------------------------------------------------------------
     public function setBill2Doctypes($data = array())
     {
