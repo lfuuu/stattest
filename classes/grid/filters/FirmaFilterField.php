@@ -13,7 +13,7 @@ class FirmaFilterField extends FilterField
     protected function initDataset()
     {
         $this->filterValuesQuery
-            ->select('firma as id, firma as name')
+            ->select('firma as id, firma as name') 
             ->from('clients')
             ->where('firma!="         "')
             ->groupby('firma');

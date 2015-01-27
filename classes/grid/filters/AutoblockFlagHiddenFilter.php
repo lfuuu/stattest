@@ -24,11 +24,12 @@ class AutoblockFlagHiddenFilter extends FilterField
     {
         
         $pg_query = new Query;
-        //пример запроса к постгесу, главное что бы выдавал ид. (выборка от балды, сделана только для проверки)
-        $pg_query->select('id')->from('clients')->where('address_post LIKE "%усачев%"');
+       
+        $pg_query->select('client_id')->from('billing.counters')->where('voip_auto_disabled=true');
         
         //наложение условия
-        $ids = implode(',',$pg_query->column());     
+        $ids = implode(',',$pg_query->column(Yii::$app->db_pgsql));    
+        
         $this->query->andWhere(self::QUERY_ALIAS.'.id in ('.$ids.')');
 
     }
