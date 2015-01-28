@@ -1,0 +1,10 @@
+INSERT INTO `organizations` (`id`, `name`) VALUES ('all4net', 'ООО \"ОЛФОНЕТ\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('markomnet', 'ООО \"МАРКОМНЕТ (старый)\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('markomnet_new', 'ООО \"МАРКОМНЕТ\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('markomnet_service', 'ООО \"МАРКОМНЕТ сервис\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('mcm', 'ООО \"МСМ\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('mcn', 'ООО \"Эм Си Эн\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('mcn_telekom', 'ООО \"МСН Телеком\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('ooocmc', 'ООО \"Си Эм Си\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('ooomcn', 'ООО \"МСН\"');
+INSERT INTO `organizations` (`id`, `name`) VALUES ('wellstart', 'ООО \"Веллстарт\"');
