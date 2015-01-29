@@ -5,6 +5,7 @@ class m100000_000002_data extends app\classes\Migration
     public function up()
     {
         $this->executeSqlFile('adsl_speed.sql');
+        $this->executeSqlFile('client_contract_type.sql');
         $this->executeSqlFile('country.sql');
         $this->executeSqlFile('currency.sql');
         $this->executeSqlFile('datacenter.sql');

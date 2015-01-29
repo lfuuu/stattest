@@ -1,6 +1,6 @@
 <?php
 
-class f000001_users extends app\classes\Migration
+class f000001 extends app\classes\Migration
 {
     public function up()
     {
@@ -13,6 +13,11 @@ class f000001_users extends app\classes\Migration
         $this->execute("
             insert into user_grant_groups(name,resource,access)
                 select 'admin', resource, `values` from user_rights;
+            insert into user_grant_groups(name,resource,access)
+                select 'manager', resource, `values` from user_rights;
         ");
+
+        $this->applyFixture('clients');
+
     }
 }
