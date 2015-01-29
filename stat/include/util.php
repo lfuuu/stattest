@@ -232,11 +232,6 @@ function time_start($measure_id=0){
     if (isset($G['time_finish_'.$measure_id])) unset($G['time_finish_'.$measure_id]);
 }
 
-function bytes_to_mb($val,$nround=2){
-    if ($nround==2) $r=100; else
-        for ($r=1,$i=0;$i<$nround;$i++) $r*=10;
-    return round(($val)*$r/(1024*1024))/$r;
-}
 
 function _tocorrect($v1,$v2){
     if (strlen($v1)!=strlen($v2)) return 1;

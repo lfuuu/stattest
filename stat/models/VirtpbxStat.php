@@ -82,7 +82,7 @@ class VirtpbxStat extends ActiveRecord\Model
 	*	@param int $from - timestamp начала периода 
 	*	@param int $to - timestamp конца периода
 	*/
-	public static function getVpbxStatDetails($client_id, $from, $to, $tarif_id = false)
+	public static function getVpbxStatDetails($client_id, $from, $to)
 	{
 		$options = array();
 		$totals = array(
@@ -116,7 +116,7 @@ class VirtpbxStat extends ActiveRecord\Model
 		foreach ($stat_detailed as $k => &$v) 
 		{
 			$tarif_info = TarifVirtpbx::getTarifByClient($client_id, $v->mdate);
-			$mb = bytes_to_mb($v->use_space);
+			$mb = \app\classes\Utils::bytesToMb($v->use_space);
 			if ($mb > $tarif_info->space)
 			{
 				$v->for_space = ceil(($mb - $tarif_info->space)/1024);

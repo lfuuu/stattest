@@ -3,6 +3,15 @@ ADD COLUMN `sum`  decimal(11,2) NOT NULL DEFAULT 0.00 AFTER `ecash_operator`,
 ADD COLUMN `original_sum`  decimal(11,2) NULL AFTER `currency`,
 ADD COLUMN `original_currency`  char(3) CHARACTER SET utf8 COLLATE utf8_bin NULL AFTER `original_sum`;
 
+ALTER TABLE `newbills`
+ADD COLUMN `is_approved`  tinyint NULL AFTER `currency`,
+ADD COLUMN `sum_with_unapproved`  decimal(11,2) NULL AFTER `sum`,
+ADD COLUMN `is_use_tax`  tinyint NULL AFTER `sum_with_unapproved`,
+MODIFY COLUMN `inv1_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `inv1_rate`,
+MODIFY COLUMN `inv2_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `inv2_rate`,
+MODIFY COLUMN `inv3_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `inv3_rate`,
+MODIFY COLUMN `gen_bill_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `gen_bill_rate`;
+
 update newpayments
 set `sum`=sum_rub, original_currency='RUB', original_sum = sum_rub
 where payment_rate=1;
@@ -15,14 +24,7 @@ update newpayments_orders
 set `sum`=sum_rub
 where currency='USD';
 
-ALTER TABLE `newbills`
-ADD COLUMN `is_approved`  tinyint NULL AFTER `currency`,
-ADD COLUMN `sum_with_unapproved`  decimal(11,2) NULL AFTER `sum`,
-ADD COLUMN `is_use_tax`  tinyint NULL AFTER `sum_with_unapproved`,
-MODIFY COLUMN `inv1_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `inv1_rate`,
-MODIFY COLUMN `inv2_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `inv2_rate`,
-MODIFY COLUMN `inv3_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `inv3_rate`,
-MODIFY COLUMN `gen_bill_date`  date NOT NULL DEFAULT '0000-00-00' AFTER `gen_bill_rate`;
+
 
 update newbills set is_approved=cleared_flag, sum_with_unapproved=if(cleared_flag>0, `sum`, cleared_sum);
 
@@ -103,6 +105,19 @@ where l.service = '1C' and g.nds=0 and l.amount > 0;
 
 
 
+CREATE TABLE `transaction` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_account_id` int(11) NOT NULL,
+  `source` enum('stat_bill_line','1c_bill_line','whmcs_transaction','jerasoft_transaction') NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `bill_id` int(11) DEFAULT NULL,
+  `bill_line_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `newbill_lines`
+ADD COLUMN `transaction_id`  int NULL AFTER `sum_with_tax`;
 
 
 

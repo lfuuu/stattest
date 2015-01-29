@@ -28,7 +28,7 @@ class AutoblockFlagHiddenFilter extends FilterField
         $pg_query->select('client_id')->from('billing.counters')->where('voip_auto_disabled=true');
         
         //наложение условия
-        $ids = implode(',',$pg_query->column(Yii::$app->db_pgsql));    
+        $ids = implode(',',$pg_query->column(Yii::$app->dbPg));
         
         $this->query->andWhere(self::QUERY_ALIAS.'.id in ('.$ids.')');
 

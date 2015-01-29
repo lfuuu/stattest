@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use Yii;
 use app\dao\BillDao;
 use yii\db\ActiveRecord;
 
@@ -33,6 +34,8 @@ use yii\db\ActiveRecord;
  * @property string $bill_no_ext_date   ??
 
  * @property ClientAccount $clientAccount   ??
+ * @property BillLine[] $lines   ??
+ * @property Transaction[] $transactions   ??
  * @property
  */
 class Bill extends ActiveRecord
@@ -40,6 +43,13 @@ class Bill extends ActiveRecord
     public static function tableName()
     {
         return 'newbills';
+    }
+
+    public function transactions()
+    {
+        return [
+            'default' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
+        ];
     }
 
     public static function dao()
@@ -52,10 +62,46 @@ class Bill extends ActiveRecord
         return $this->hasMany(BillLine::className(), ['bill_no' => 'bill_no']);
     }
 
+    public function getTransactions()
+    {
+        return $this->hasMany(Transaction::className(), ['bill_id' => 'id']);
+    }
+
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
+    public function isClosed()
+    {
+        return Bill::dao()->isClosed($this);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if (isset($changedAttributes['sum'])) {
+            LogBill::dao()->log($this, 'Сумма: ' . $this->sum);
+        }
+    }
+
+    public function beforeDelete()
+    {
+        Trouble::deleteAll(['bill_no' => $this->bill_no]);
+
+        foreach ($this->lines as $line) {
+            Transaction::dao()->deleteByBillLine($line);
+        }
+
+        LogBill::dao()->log($this, 'Удаление');
+
+        Yii::$app->db->createCommand(
+            'update log_newbills set bill_no = :billNoWithDate where bill_no = :billNo',
+            [':billNoWithDate' => $this->bill_no . date('dHs'), ':billNo' => $this->bill_no]
+        )->execute();
+
+        return parent::beforeDelete();
+    }
 
 }

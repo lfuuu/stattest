@@ -1,5 +1,4 @@
 <?php
-
 /*
 4268 0337 0354 5624
 */
@@ -140,7 +139,7 @@ class YandexProcessor
         if (!$b)
             $b = NewBill::createBillOnPay($client->id, $this->data["orderSumAmount"]);
 
-        $payment = new Payment();
+        $payment = new \app\models\Payment();
         $payment->client_id = $client->id;
         $payment->bill_no = $b ? $b->bill_no : "";
         $payment->bill_vis_no = $b ? $b->bill_no : "";

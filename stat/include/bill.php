@@ -1,8 +1,13 @@
 <?php
+
 use app\models\TaxType;
 use app\models\BillLine;
+use app\models\ClientAccount;
+use app\models\Courier;
+use app\models\Country;
+use app\models\BillDocument;
 
-class Bill{
+class Bill {
 	private $client_id;
 	private $client_data = null;
 	private $bill_no;
@@ -118,53 +123,48 @@ class Bill{
 		$this->bill_ts=$this->bill['ts'];
 		unset($this->bill['ts']);
 		$this->client_id=$this->bill['client_id'];
-        $this->bill_courier = $this->GetCourierName($this->bill["courier_id"]);
+        $this->bill_courier = Courier::dao()->getNameById($this->bill["courier_id"]);
 		$this->changed=0;
 	}
-	public function AddLine($currency,$title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to=''){
-		global $db;
-		if($currency!=$this->bill['currency'])
-			return false;
-		$this->max_sort++;
-		if(!$date_from && !$date_to){
-            $date_from_ts = $this->bill_ts;
-			$date_from = date('Y-m-01',$this->bill_ts);
-            if($price < 0) {$date_from_ts = strtotime("-1 month", $this->bill_ts);$date_from = date("Y-m-01", $date_from_ts);}
-			$d=getdate($date_from_ts);
-			$moncount=cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']);
-			$date_to = date('Y-m-'.$moncount,$date_from_ts);
-		}
-		$this->changed = 1;
+    public function AddLine($title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to='')
+    {
+        $this->changed = 1;
+        $this->max_sort++;
+
+        if (!$date_from && !$date_to){
+            if ($price < 0) {
+                $date_from = \app\classes\Utils::dateBeginOfPreviousMonth($this->bill['bill_date']);
+                $date_to = \app\classes\Utils::dateBeginOfPreviousMonth($this->bill['bill_date']);
+            } else {
+                $date_from = \app\classes\Utils::dateBeginOfMonth($this->bill['bill_date']);
+                $date_to = \app\classes\Utils::dateEndOfMonth($this->bill['bill_date']);
+            }
+        }
 
         $taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
 
-        $db->QueryInsert(
-            "newbill_lines",
-            array(
-                "bill_no"=>$this->bill_no,
-                "sort"=>$this->max_sort,
-                "item"=>$title,
-                "amount"=>$amount,
-                "price"=>$price,
-                "type"=>$type,
-                "service"=>$service,
-                "id_service"=>$id_service,
-                'date_from'=>$date_from,
-                'date_to'=>$date_to,
-                'is_price_includes_tax' => 0,
-                'tax_type_id' => $taxTypeId,
-                'sum' => 0,
-                'sum_without_tax' => 0,
-                'sum_tax' => 0,
-            )
-        , false);
+        $line = new BillLine();
+        $line->bill_no = $this->bill_no;
+        $line->sort = $this->max_sort;
+        $line->item = $title;
+        $line->amount = $amount;
+        $line->price = $price;
+        $line->type = $type;
+        $line->service = $service;
+        $line->id_service = $id_service;
+        $line->date_from = $date_from;
+        $line->date_to = $date_to;
+        $line->is_price_includes_tax = 0;
+        $line->tax_type_id = $taxTypeId;
+        $line->calculateSum();
+        $line->save();
 
-		return true;
-	}
+        return true;
+    }
 	public function AddLines($R){
 		$b=true;
 		foreach($R as $r){
-			$b1=$this->AddLine($r[0],$r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8]);
+			$b1=$this->AddLine($r[1],$r[2],$r[3],$r[4],$r[5],$r[6],$r[7],$r[8]);
 			$b=$b && $b1;
 			if(!$b1)
 				trigger_error2('Невозможно добавить '.$r[1].'-'.$r[3].$r[0].'x'.$r[2]);
@@ -176,7 +176,7 @@ class Bill{
         if ($this->bill["nal"] != $nal && in_array($nal, array("nal", "beznal","prov"))) {
             global $db,$user;
             $this->Set("nal", $nal);
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен предпологаемый тип платежа на ".$nal));
+            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен предпологаемый тип платежа на ".$nal));
         }
     }
     public function SetExtNo($bill_no_ext)
@@ -184,7 +184,7 @@ class Bill{
         if ($this->bill["bill_no_ext"] != $bill_no_ext) {
             global $db,$user;
             $this->Set("bill_no_ext", $bill_no_ext);
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен внешний номер на ".$bill_no_ext));
+            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен внешний номер на ".$bill_no_ext));
         }
     }
     public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
@@ -193,7 +193,7 @@ class Bill{
             global $db,$user;
             $this->Set("bill_no_ext_date", $bill_no_ext_date . ' 00:00:00');
             $comment = ($bill_no_ext_date) ? "Именена дата внешнего счета на ". $bill_no_ext_date : 'Удаление даты внешнего счета';
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$comment));
+            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$comment));
         }
     }
     public function SetCourier($courierId){
@@ -202,51 +202,43 @@ class Bill{
             global $db,$user;
             $this->Set("courier_id", $courierId);
             $db->QueryUpdate("courier", array("id"), array("id" => $courierId, "is_used" => "1"));
-			$db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Назначен курьер ".Bill::GetCourierName($courierId)));
+            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Назначен курьер ".Courier::dao()->getNameById($courierId)));
         }
     }
-	public function EditLine($sort,$title,$amount,$price,$type) {
-		global $db;
-		$this->changed = 1;
+    public function EditLine($sort,$title,$amount,$price,$type) {
 
-		$taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
+        $this->changed = 1;
 
-        $db->QueryUpdate("newbill_lines",array('bill_no','sort'),array(
-                    'bill_no'=>$this->bill_no,
-                    'sort'=>$sort,
-                    'item'=>$title,
-                    'amount'=>$amount,
-                    'price'=>$price,
-                    'type'=>$type,
-                    'is_price_includes_tax' => 0,
-                    'tax_type_id' => $taxTypeId,
-                    'sum' => 0,
-                    'sum_without_tax' => 0,
-                    'sum_tax' => 0,
-        ));
-	}
-	public function RemoveLine($sort) {
-		global $db;
-		$this->changed = 1;
-		$db->QueryDelete("newbill_lines",array('bill_no'=>$this->bill_no,'sort'=>$sort));
-	}
-	public static function RemoveBill($bill_no) {
-		global $db, $user;
+        $taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
 
-		$bill=$db->QuerySelectRow('newbills',array('bill_no'=>$bill_no));
-		if(!$bill)
-			return 0;
-		$db->Query('start transaction');
-		$db->QueryDelete('newbills',array('bill_no'=>$bill_no));
-        $troubleId = $db->GetValue("select id from tt_troubles where bill_no='".$bill_no."'");
-        if($troubleId)
-    		$db->Query("delete from tt_stages where trouble_id = '.$troubleId.'");
+        /** @var BillLine $line */
+        $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
+        if ($line) {
+            $line->item = $title;
+            $line->amount = $amount;
+            $line->price = $price;
+            $line->type = $type;
+            $line->is_price_includes_tax = 0;
+            $line->tax_type_id = $taxTypeId;
+            $line->calculateSum();
+            $line->save();
+        }
 
-		$db->QueryDelete('tt_troubles',array('bill_no'=>$bill_no));
-		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Удаление"));
-		$db->Query("update log_newbills set bill_no = '".$bill_no.date('dHs')."' where bill_no='".$bill_no."'");
-		$db->Query('commit');
-	}
+    }
+    public function RemoveLine($sort) {
+        $this->changed = 1;
+
+        $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
+        if ($line) {
+            $line->delete();
+        }
+    }
+    public static function RemoveBill($bill_no) {
+        $bill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+        if ($bill) {
+            $bill->delete();
+        }
+    }
     public function Save($remove_empty = 0,$check_change=1) {
         global $db;
         if ($check_change && !$this->changed && !$remove_empty) return 0;
@@ -262,50 +254,21 @@ class Bill{
             $bill->dao()->recalcBill($bill);
 
             $this->bill_ts = unix_timestamp($this->Get('bill_date'));
-            $this->updateBill2Doctypes(null, false);
+            BillDocument::dao()->updateByBillNo($this->bill_no);
             return 1;
         } else {
-            Bill::RemoveBill($this->bill_no);
+            $bill = \app\models\Bill::find()->andWhere(['bill_no' => $this->bill_no])->one();
+            $bill->delete();
             return 2;
         }
     }
+
 	public function GetNo() {
 		return $this->bill_no;
 	}
 	public function GetBill() {
 		return $this->bill;
 	}
-
-	public function GetManager() {
-		global $db;
-        $m = $db->GetRow("select owner_id from newbill_owner where bill_no = '".$this->bill_no."'");
-        return $m ? $m["owner_id"] : 0;
-	}
-    public function SetManager($mId) {
-        global $db,$user;
-        $getedId= $this->GetManager();
-
-        $s = "";
-        if($mId == 0){
-            $db->Query("delete from `newbill_owner` where  bill_no = '".$this->bill_no."'");
-            $s = "Удален менеджер";
-        }elseif($getedId == 0){
-            $db->Query("insert into `newbill_owner` set owner_id ='".$mId."', bill_no = '".$this->bill_no."'");
-            $s = "Установлен менеджер";
-        }elseif($getedId != $mId){
-            $s = "Изменен менеджер на";
-            $db->Query("update `newbill_owner` set owner_id ='".$mId."' where bill_no = '".$this->bill_no."'");
-        }else return;
-
-        $db->QueryInsert("log_newbills",array(
-                    'bill_no'=>$this->bill_no,
-                    'ts'=>array('NOW()'),
-                    'user_id'=>$user->Get('id'),
-                    'comment'=> $s.($mId ? ": ".getUserName($mId) : "")
-                    )
-                );
-
-    }
 
     public function isClosed()
     {
@@ -324,8 +287,9 @@ class Bill{
 
         if($this->bill["is_approved"] == 1){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
-            if(!defined("NO_WEB"))
-                \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
+            if(!defined("NO_WEB")) {
+                ClientAccount::dao()->updateBalance($this->bill['client_id']);
+            }
         }
     }
 
@@ -335,8 +299,9 @@ class Bill{
 
         if($this->bill["is_approved"] == 0){
             $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
-            if(!defined("NO_WEB"))
-                \app\classes\StatModule::newaccounts()->update_balance($this->bill['client_id'], $this->bill["currency"]);
+            if(!defined("NO_WEB")) {
+                ClientAccount::dao()->updateBalance($this->bill['client_id']);
+            }
         }
     }
     public function GetStaticComment()
@@ -491,21 +456,6 @@ class Bill{
 			}
 		}
 	}
-    public function GetBonus()
-    {
-        global $db;
-
-        $r = array();
-        $q = $db->AllRecords("
-                SELECT code_1c as code, round(if(b.type = '%', bl.sum*0.01*`value`, `value`*amount),2) as bonus
-                FROM newbill_lines bl
-                inner join g_bonus b on b.good_id = bl.item_id
-                    and `group` = (select if(usergroup='account_managers', 'manager', usergroup) from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='".$this->bill_no."'");
-        if($q)
-            foreach($q as $l)
-                $r[$l["code"]] = $l["bonus"];
-        return $r;
-    }
 
 	public function GetLines($mode=false){
 		global $db;
@@ -557,7 +507,7 @@ class Bill{
             $r["outprice"] = $r['price'];
 
 
-            $r["country_name"] = $this->getCountryName($r["country_id"]);
+            $r["country_name"] = Country::dao()->getNameByCode($r["country_id"]);
 
             // если услуга, прописанная через 1с, услуга с датой. Для выписки документов (акт1)
             if($r["service"] == "1C" && $r["type"] == "service")
@@ -598,43 +548,6 @@ class Bill{
 		return true;
 	}
 
-    public static function GetCouriers()
-    {
-        global $db;
-
-        static $R = array();
-
-        if (empty($R))
-        {
-            $R[0] = "--- Не установлен ---";
-            $db->Query("select id, name from courier where enabled='yes' order by name");
-            while($r = $db->NextRecord()) $R[$r["id"]] = $r["name"];
-        }
-        return $R;
-    }
-
-    public static function GetCourierName($id)
-    {
-        $c = Bill::GetCouriers();
-
-        if (!isset($c[$id])) {/*trigger_error2("Установленный курьер не найден!");*/ return "";}
-        return str_replace("-","", $c[$id]);
-    }
-
-    public function getCountryName($id)
-    {
-    	global $db;
-
-    	static $cach = array("0" => "");
-
-    	if(!isset($cach[$id]))
-    	{
-    		$cach[$id] = $db->GetValue("select name from country where code = '".$id."'");
-    	}
-
-    	return $cach[$id] ? $cach[$id] : "";
-    }
-
     public function SetDocDate($utDate)
     {
         global $db;
@@ -650,23 +563,13 @@ class Bill{
                     "bill_no" => $this->bill_no,
                     "doc_date" => $wDate));
 
-        $this->addLog($utDate ? "Дата документ установлена: ".mdate("d месяца Y г.", $utDate) : "Дата документа убрана");
+        \app\models\LogBill::dao()->log(
+            $this->bill_no,
+            $utDate ? "Дата документ установлена: ".mdate("d месяца Y г.", $utDate) : "Дата документа убрана"
+        );
 
         $this->bill["doc_date"] = $wDate;
         $this->bill["doc_ts"] = $utDate;
-    }
-
-    public function addLog($comment)
-    {
-        global $db, $user;
-
-        $db->QueryInsert("log_newbills",array(
-                    'bill_no'=>$this->bill_no,
-                    'ts'=>array('NOW()'),
-                    'user_id'=>$user->Get('id'),
-                    'comment'=> $comment
-                    )
-                );
     }
 
     public function is1CBill()
@@ -714,96 +617,6 @@ class Bill{
         if(count($ls) != 1) return false;
 
         return $ls[0]["type"] == "zadatok";
-    }
-
-//------------------------------------------------------------------------------------
-    public function setBill2Doctypes($data = array())
-    {
-        global $db;
-
-        $data['bill_no'] = $this->bill_no;
-        $data['ts'] = array('NOW()');
-
-        if ($this->checkBill2Doctypes()) 
-            $db->QueryUpdate("newbills_documents","bill_no",$data);
-        else 
-            $db->QueryInsert("newbills_documents",$data);
-
-    }
-//------------------------------------------------------------------------------------
-    public function updateBill2Doctypes($L = null, $returnData = false)
-    {
-        global $db;
-
-        if(!$L) 
-            $L = $this->GetLines();
-
-        $period_date = get_inv_date_period($this->GetTs());
-
-        $p1 = m_newaccounts::do_print_prepare_filter('invoice',1,$L,$period_date);
-        $a1 = m_newaccounts::do_print_prepare_filter('akt',1,$L,$period_date);
-
-        $p2 = m_newaccounts::do_print_prepare_filter('invoice',2,$L,$period_date);
-        $a2 = m_newaccounts::do_print_prepare_filter('akt',2,$L,$period_date);
-
-        $p3 = m_newaccounts::do_print_prepare_filter('invoice',3,$L,$period_date,true,true);
-        $a3 = m_newaccounts::do_print_prepare_filter('akt',3,$L,$period_date);
-
-        $p4 = m_newaccounts::do_print_prepare_filter('lading',1,$L,$period_date);
-        $p5 = m_newaccounts::do_print_prepare_filter('invoice',4,$L,$period_date);
-
-        $p6 = m_newaccounts::do_print_prepare_filter('invoice',5,$L,$period_date);
-
-        $gds = m_newaccounts::do_print_prepare_filter('gds',3,$L,$period_date);
-
-        $bill_akts = array(
-            1=>count($a1),
-            2=>count($a2),
-            3=>count($a3)
-        );
-
-        $bill_invoices = array(
-            1=>count($p1),
-            2=>count($p2),
-            3=>count($p3),
-            4=>count($p4),
-            5=>($p5==-1 || $p5 == 0)?$p5:count($p5),
-            6=>count($p6),
-            7=>count($gds)
-        );
-
-        $bill_invoice_akts = array(
-                        1=>count($p1),
-                        2=>count($p2)
-        );
-
-        $doctypes = array();
-        for ($i=1;$i<=3;$i++) $doctypes['a'.$i] = $bill_akts[$i];
-        for ($i=1;$i<=7;$i++) $doctypes['i'.$i] = $bill_invoices[$i];
-        for ($i=1;$i<=2;$i++) $doctypes['ia'.$i] = $bill_invoice_akts[$i];
-
-        $this->setBill2Doctypes($doctypes);
-
-        return ($returnData) ? $this->getBill2Doctypes() : true;
-    }
-//------------------------------------------------------------------------------------
-    public function getBill2Doctypes()
-    {
-        global $db;
-
-        $res = $db->GetRow("SELECT * FROM newbills_documents WHERE bill_no='".$this->bill_no."'");
-        
-        if (!$res) 
-            $res = $this->updateBill2Doctypes(null, true);
-        
-        return $res;
-    }
-//------------------------------------------------------------------------------------
-    public function checkBill2Doctypes()
-    {
-        global $db;
-
-        return $db->GetValue("SELECT COUNT(*) FROM newbills_documents WHERE bill_no='".$this->bill_no."'");
     }
 
     public static function getPreBillAmount($client_id)

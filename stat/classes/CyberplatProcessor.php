@@ -1,6 +1,5 @@
 <?php
 
-
 class CyberPlatProcessor
 {
     // request fields
@@ -285,7 +284,7 @@ class CyberplatActionCheck
             if (!$b)
                 $b = NewBill::createBillOnPay($client->id, $data["amount"]);
 
-            $payment = new Payment();
+            $payment = new \app\models\Payment();
             $payment->client_id = $client->id;
             $payment->bill_no = $b ? $b->bill_no : "";
             $payment->bill_vis_no = $b ? $b->bill_no : "";
@@ -293,14 +292,14 @@ class CyberplatActionCheck
             $payment->oper_date = $now;
             $payment->payment_date = $paymentDate;
             $payment->add_date = $now;
-            $payment->type='ecash';
-            $payment->ecash_operator='cyberplat';
+            $payment->type = 'ecash';
+            $payment->ecash_operator = 'cyberplat';
             $payment->sum = $data["amount"];
             $payment->currency = "RUB";
             $payment->payment_rate = 1;
             $payment->original_sum = $data["amount"];
             $payment->original_currency = "RUB";
-            $payment->comment = "Cyberplat pay# ".$data["receipt"]." at ".str_replace("T", " ", $data["date"]);
+            $payment->comment = "Cyberplat pay# " . $data["receipt"] . " at " . str_replace("T", " ", $data["date"]);
             $payment->save();
 
             event::go("cyberplat_payment", array("client_id" => $client->id, "payment_id" => $payment->id)); // for start update balance

@@ -11,6 +11,8 @@ use app\models\ClientBPStatuses;
 /**
  * @property int $id
  * @property string $client
+ * @property string $currency
+ * @property string $nal
  * @property int $nds_zero
  * @property int $nds_calc_method 1: Сум_с_ндс = Сум_без_ндс + ндс, 2: ндс = Сум_с_ндс - Сум_без_ндс, 3: Сум_без_ндс = Сум_c_ндс - ндс
 
@@ -150,5 +152,14 @@ class ClientAccount extends ActiveRecord
            $cs->comment = "Установлен статус бизнес процесса: ".  ClientGridSettings::findOne($grid_status_id)->name;
            $cs->save();
          
+    }
+
+    public function getDefaultTaxId()
+    {
+        if ($this->nds_zero) {
+            return TaxType::TAX_0;
+        } else {
+            return TaxType::TAX_18;
+        }
     }
 }

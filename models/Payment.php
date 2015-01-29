@@ -62,4 +62,33 @@ class Payment extends ActiveRecord
     {
         return 'newpayments';
     }
+
+    public function transactions()
+    {
+        return [
+            'default' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
+        ];
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($insert) {
+            Transaction::dao()->insertByPayment($this);
+        } else {
+            Transaction::dao()->updateByPayment($this);
+        }
+    }
+
+
+    public function beforeDelete()
+    {
+        parent::beforeDelete();
+
+        Transaction::dao()->deleteByPaymentId($this->id);
+
+        LogBill::dao()->log($this->bill_no, "Удаление платежа ({$this->id}), на сумму: {$this->sum}");
+    }
+
 }

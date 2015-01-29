@@ -1,8 +1,11 @@
 <?php
+use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
-use app\dao\BillDao;
 use app\classes\StatModule;
+use app\models\Payment;
+use app\classes\Assert;
+use app\models\BillDocument;
 
 class m_newaccounts extends IModule
 {
@@ -33,7 +36,7 @@ class m_newaccounts extends IModule
         $date = get_param_protected('date');
         $db->Query('update newsaldo set is_history=1 where client_id='.$fixclient_data['id']);
         $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].','.$saldo.',"'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
-        $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
+        ClientAccount::dao()->updateBalance($fixclient_data['id']);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
@@ -42,7 +45,7 @@ class m_newaccounts extends IModule
     function newaccounts_bill_balance($fixclient){
         global $design,$db,$user,$fixclient_data;
         $client_id=$fixclient_data['id'];
-        $this->update_balance($client_id,$fixclient_data['currency']);
+        ClientAccount::dao()->updateBalance($client_id);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
@@ -62,22 +65,13 @@ class m_newaccounts extends IModule
         foreach ($R as $r) {
             echo date("d-m-Y H:i:s").": ".$r['client'];
             try{
-                $this->update_balance($r['id'],$r['currency']);
+                ClientAccount::dao()->updateBalance($r['id']);
             }catch(Exception $e)
             {
                 echo "<h1>!!! ".$e->getMessage()."</h1>";
             }
             echo "<br>\n";flush();
         }
-    }
-
-    function newaccounts_subscribe_mass($fixclient)
-    {
-        BillDao::me()->updateSubscriptionForAllClientAccounts();
-    }
-
-    function update_balance($client_id,$currency, $isCalcSubscription = 1) {
-        ClientAccount::dao()->updateBalance($client_id, $isCalcSubscription);
     }
 
     function newaccounts_bill_list($fixclient,$get_sum=false){
@@ -649,11 +643,11 @@ class m_newaccounts extends IModule
         $design->assign('admin_order',$adminNum);
 
         $design->assign('bill',$bill->GetBill());
-        $design->assign('bill_manager',getUserName($bill->GetManager()));
+        $design->assign('bill_manager',getUserName(\app\models\Bill::dao()->getManager($bill->GetNo())));
         $design->assign('bill_comment',$bill->GetStaticComment());
         $design->assign('bill_courier',$bill->GetCourier());
         $design->assign('bill_lines',$L = $bill->GetLines());
-        $design->assign('bill_bonus',$bill->GetBonus());
+        $design->assign('bill_bonus',$this->getBillBonus($bill->GetNo()));
 
         /*
            счет-фактура(1)-абонен.плата
@@ -748,8 +742,8 @@ class m_newaccounts extends IModule
     {
         $bill_akts = $bill_invoices = $bill_upd = array();
 
-        if (($doctypes = $bill->getBill2Doctypes()) == false) {
-            $doctypes = $bill->updateBill2Doctypes($L, true);
+        if (($doctypes = BillDocument::dao()->getByBillNo($bill->GetNo())) == false) {
+            $doctypes = BillDocument::dao()->updateByBillNo($bill->GetNo(), $L, true);
         }
 
         if ($doctypes && count($doctypes) > 0) {
@@ -813,7 +807,7 @@ class m_newaccounts extends IModule
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
-        $design->assign('l_couriers',$bill->GetCouriers());
+        $design->assign('l_couriers',Courier::dao()->getList(true));
         $V = $bill->GetLines();
         $V[$bill->GetMaxSort()+1] = array();
         $V[$bill->GetMaxSort()+2] = array();
@@ -912,7 +906,7 @@ class m_newaccounts extends IModule
             }elseif(isset($item[$k]) && $item[$k] && isset($arr_v['item'])){
                 $bill->EditLine($k,$item[$k],$amount[$k],$price[$k],$type[$k]);
             }elseif(isset($item[$k]) && $item[$k]){
-                $bill->AddLine($bill->Get('currency'),$item[$k],$amount[$k],$price[$k],$type[$k],'','','','');
+                $bill->AddLine($item[$k],$amount[$k],$price[$k],$type[$k],'','','','');
             }
         }
         $bill->Save();
@@ -937,7 +931,7 @@ class m_newaccounts extends IModule
         }
         $bill->Save();
         */
-        $this->update_balance($bill->Client('id'),$bill->Get('currency'));
+        ClientAccount::dao()->updateBalance($bill->Client('id'));
         unset($bill);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ?module=newaccounts&action=bill_view&bill=".$bill_no);
@@ -989,7 +983,7 @@ class m_newaccounts extends IModule
             $client = ClientCard::first($fixclient_data['id']);
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
-                $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
+                ClientAccount::dao()->updateBalance($fixclient_data['id']);
                 $client = ClientCard::first($fixclient_data['id']);
             }
 
@@ -1031,16 +1025,16 @@ class m_newaccounts extends IModule
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
             foreach ($db->AllRecords('select * from newbill_lines where bill_no="'.$tbill.'" order by sort') as $r) {
-                $bill->AddLine($bill->Get('currency'),$r['item'],$r['amount'],$r['price'],$r['type']);
+                $bill->AddLine($r['item'],$r['amount'],$r['price'],$r['type']);
             }
         } elseif (isset($L[$bill->Get('currency')][$obj])) {
             $D=$L[$bill->Get('currency')][$obj];
             if (!is_array($D[0])) $D=array($D);
-            foreach ($D as $d) $bill->AddLine($bill->Get('currency'),$d[0],$d[1],$d[2],$d[3]);
+            foreach ($D as $d) $bill->AddLine($d[0],$d[1],$d[2],$d[3]);
         }
         $bill->Save();
         $client=$bill->Client('client');
-        $this->update_balance($bill->Client('id'),$bill->Get('currency'));
+        ClientAccount::dao()->updateBalance($bill->Client('id'));
         unset($bill);
 
         if (!$err && $design->ProcessEx('errors.tpl')) {
@@ -1069,8 +1063,8 @@ class m_newaccounts extends IModule
                 $client = null;
                 if ($c['status'] == "operator" && $c['is_bill_with_refund'])
                 {
-                	$this->update_balance($c['id'],$c['currency']);
-                	$client = ClientCard::first($c['id']);
+                    ClientAccount::dao()->updateBalance($c['id']);
+                    $client = ClientCard::first($c['id']);
                 }
 
                 $RS = [];
@@ -1152,8 +1146,8 @@ class m_newaccounts extends IModule
                                 'ORDER by client LIMIT '.($page*50).',50') as $r) {
                     $bill = new Bill($r['bill_no']);
                     $L = $bill->GetLines();
-                    if (($doctypes = $bill->getBill2Doctypes()) == false) {
-                        $doctypes = $bill->updateBill2Doctypes($L, true);
+                    if (($doctypes = BillDocument::dao()->getByBillNo($bill->GetNo())) == false) {
+                        $doctypes = BillDocument::dao()->updateByBillNo($bill->GetNo(), $L, true);
                     }
                     $p1 = $doctypes['i1'];
                     $p2 = $doctypes['i2'];
@@ -1550,8 +1544,8 @@ class m_newaccounts extends IModule
         $bill->Save(0,0);
         
         $client = $bill->Client();
-        $this->update_balance($client['id'], $client['currency']);
-        
+        ClientAccount::dao()->updateBalance($client['id']);
+
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
             exit();
@@ -1573,17 +1567,19 @@ class m_newaccounts extends IModule
         global $design,$db;
         $bill_no=get_param_protected("bill"); if (!$bill_no) return;
 
-        $bill = new Bill($bill_no);
-        if($bill->IsClosed()){
-            header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
+        /** @var \app\models\Bill $bill */
+        $bill = \app\models\Bill::find()->andWhere(['bill_no' => $bill_no])->one();
+
+        if ($bill->isClosed()) {
+            header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
         }
 
-        Bill::RemoveBill($bill_no);
-        
-        $client = $bill->Client();
-        $this->update_balance($client['id'], $client['currency']);
-        
+        $clientAccountId = $bill->client_id;
+        $bill->delete();
+
+        ClientAccount::dao()->updateBalance($clientAccountId);
+
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
@@ -3173,36 +3169,32 @@ class m_newaccounts extends IModule
                 }
 
                 $CL[$client['id']]=$client['currency'];
-                $A = array();
-                $curr='';
-                $b=0; //вносить ли; 0=нет курса
-                $r2 = $db->GetRow('select sum,currency from newbills where bill_no="'.$P['bill_no'].'"');
-                $bill_sum = $r2['sum'];
-                if ($r2['currency']) $curr=$r2['currency'];
-                if (!$curr && $r2=$db->GetRow('select * from newsaldo where ts<"'.addslashes($P['date']).'" order by id desc limit 1')) $curr=$r2['currency'];
-                if (!$curr) $curr=$client['currency'];
 
                 $b=1;
+                $r2 = $db->GetRow('select currency from newbills where bill_no="'.$P['bill_no'].'"');
+                if (isset($r2['currency']) && $r2['currency'] != 'RUB') {
+                    $b = 0;
+                }
+
                 if ($b) {
-                    $A = array_merge($A,array(
-                            'client_id'        => $client['id'],
-                            'payment_no'    => intval($P['pay']),
-                            'bill_no'        => $P['bill_no'],
-                            'bill_vis_no'    => $P['bill_no'],
-                            'payment_date'    => $P['date'],
-                            'oper_date'        => (isset($P['oper_date']) ? $P['oper_date'] : $P['date']),
-                            'sum'               => $P['sum'],
-                            'currency'          => 'RUB',
-                            'payment_rate'      => 1,
-                            'original_sum'      => $P['sum'],
-                            'original_currency' => 'RUB',
-                            'comment'        => $P['comment'],
-                            'add_date'        => array('NOW()'),
-                            'add_user'        => $user->Get('id'),
-                            'type'            => 'bank',
-                            'bank'          => $bank
-                            ));
-                    $b=$db->QueryInsert('newpayments',$A);
+                    $payment = new Payment();
+                    $payment->client_id = $client['id'];
+                    $payment->payment_no = intval($P['pay']);
+                    $payment->bill_no = $P['bill_no'];
+                    $payment->bill_vis_no = $P['bill_no'];
+                    $payment->payment_date = $P['date'];
+                    $payment->oper_date = isset($P['oper_date']) ? $P['oper_date'] : $P['date'];
+                    $payment->sum = $P['sum'];
+                    $payment->currency = 'RUB';
+                    $payment->payment_rate = 1;
+                    $payment->original_sum = $P['sum'];
+                    $payment->original_currency = 'RUB';
+                    $payment->comment = $P['comment'];
+                    $payment->add_date = date('Y-m-d H:i:s');
+                    $payment->add_user = $user->Get('id');
+                    $payment->type = 'bank';
+                    $payment->bank = $bank;
+                    $payment->save();
                 }
                 if ($b) {
                     echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' внесён';
@@ -3404,7 +3396,7 @@ $sql .= "    order by client, bill_no";
     function newaccounts_debt_report($fixclient) {
     global $design,$db;
 
-        $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Bill::GetCouriers());
+        $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Courier::dao()->getList(false));
         $design->assign("l_metro", array("all" => "--- Все ---") + ClientCS::GetMetroList());
         $design->assign('courier',$courier=get_param_protected('courier',"all"));
         $design->assign('metro',$metro=get_param_protected('metro',"all"));
@@ -3544,7 +3536,7 @@ $sql .= "    order by client, bill_no";
                     $r["metro"] = ClientCS::GetMetroName($r["metro_id"]);
                 }
                 $r["debt"] = $this->GetDebt($r["client_id"]);
-                $r["courier"] = Bill::GetCourierName($r["courier_id"]);
+                $r["courier"] = Courier::dao()->getNameById($r["courier_id"]);
                 if ($r['sum']) {
                     if (!isset($totalAmount[$r['currency']])) {
                         $totalAmount[$r['currency']] = 0;
@@ -4228,16 +4220,17 @@ $sql .= "    order by client, bill_no";
         exit();
     }
     function newaccounts_pay_delete($fixclient){
-        global $design,$db,$fixclient_data,$user;
-        $id = get_param_raw('id');
-        if(!$id)
+        global $fixclient_data;
+        $paymentId = get_param_raw('id');
+        if(!$paymentId)
             return;
 
-        $pay = Payment::find($id);
-        LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum);
+        $pay = Payment::findOne($paymentId);
+        Assert::isObject($pay);
+
         $pay->delete();
 
-        $this->update_balance($fixclient_data['id'], $fixclient_data['currency']);
+        ClientAccount::dao()->updateBalance($fixclient_data['id']);
 
         header('Location: ?module=newaccounts');
         exit();
@@ -4521,8 +4514,7 @@ $sql .= "    order by client, bill_no";
                 $db->Query($query);
 
                 //Обновление списка документов
-                $b = new Bill($_REQUEST['bill_no']);
-                $b->updateBill2Doctypes(null, false);
+                BillDocument::dao()->updateByBillNo($_REQUEST['bill_no']);
 
                 ob_end_clean();
                 if(mysql_errno()){
@@ -4804,7 +4796,7 @@ $sql .= "    order by client, bill_no";
                 if($ttt = $db->GetRow("select * from tt_troubles where bill_no='".$bill_no."'")) {
                     if($ttt['state_id'] == 15 && $bill){
                         global $user;
-                        $bill->SetManager($user->Get("id"));
+                        \app\models\Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
                     }
                     if(!$positions['comment']){
                         $comment = $add_info['ПроисхождениеЗаказа']."<br />
@@ -4829,8 +4821,9 @@ $sql .= "    order by client, bill_no";
                                 ));
                 }
 
-                if(!$ttt && $bill)
-                    $bill->SetManager($user->Get("id"));
+                if(!$ttt && $bill) {
+                    \app\models\Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
+                }
 
                 trigger_error2("Счет #".$bill_no." успешно ".($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан")."!");
                 $db->QueryInsert("log_newbills", array( 'bill_no'=>$bill_no, 'ts'=>array('NOW()'), 'user_id'=>$user->Get('id'), 'comment'=>'Создание заказа'));
@@ -4849,7 +4842,7 @@ $sql .= "    order by client, bill_no";
         }
         $design->assign("managers", $userSelect);
         if($bill)
-        $design->assign("bill_manager", $bill->GetManager());
+        $design->assign("bill_manager", \app\models\Bill::dao()->getManager($bill->GetNo()));
 
         $design->assign('show_adds',
                 (in_array($client_id,array('all4net','wellconnect')) || !$cl_c || $cl_c->getAtMask(\clCards\struct_cardDetails::type) <> 'org'));
@@ -5328,6 +5321,22 @@ $sql .= "    order by client, bill_no";
         } else echo 'Файл не задан!';
 
         exit();
+    }
+
+    private function getBillBonus($billNo)
+    {
+        global $db;
+
+        $r = array();
+        $q = $db->AllRecords("
+                SELECT code_1c as code, round(if(b.type = '%', bl.sum*0.01*`value`, `value`*amount),2) as bonus
+                FROM newbill_lines bl
+                inner join g_bonus b on b.good_id = bl.item_id
+                    and `group` = (select if(usergroup='account_managers', 'manager', usergroup) from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='".$billNo."'");
+        if($q)
+            foreach($q as $l)
+                $r[$l["code"]] = $l["bonus"];
+        return $r;
     }
 }
 ?>

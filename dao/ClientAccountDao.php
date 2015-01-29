@@ -41,7 +41,7 @@ class ClientAccountDao extends Singleton
         )->queryScalar();
     }
 
-    public function updateBalance($clientAccountId, $isCalcSubscription)
+    public function updateBalance($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
         Assert::isObject($clientAccount);
@@ -372,10 +372,6 @@ class ClientAccountDao extends Singleton
             ->execute();
 
         $transaction->commit();
-
-        if ($isCalcSubscription) {
-            BillDao::me()->updateSubscription($clientAccount->id);
-        }
     }
 
     private function getSaldo(ClientAccount $clientAccount)

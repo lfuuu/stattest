@@ -417,7 +417,7 @@ class BillContract
         $contract = self::getLastContract($clientId, $date);
 
         if($contract)
-            return $contract["no"]." от ".mdate("d месяца Y г.",$contract["date"]);
+            return $contract["no"]." от ".mdate("d месяца Y",$contract["date"]) . " г.";
 
         return "";
     }
@@ -1056,7 +1056,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
         }
         if($this->date_from_prev && $this->date_to_prev){
             list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->date_from_prev, $this->date_to_prev);
-            
+
             if ($overrun_prev_month['sum_space'] > 0)
             {
                 $price = $overrun_prev_month['overrun_per_gb'];
@@ -1255,7 +1255,7 @@ class ServiceEmails extends ServicePrototype {
                 AND
                     U.client="'.$this->service['client'].'"
             ');
-            
+
             if(!$b) // тут косяк. T.code не всегда адекватные
                 $b = $db->getRow($q='
                     select

@@ -287,7 +287,7 @@ class m_tt extends IModule{
 
             if($trouble['state_id'] == 15){
                 global $user;
-                $oBill->SetManager($user->Get("id"));
+                \app\models\Bill::dao()->setManager($oBill->GetNo(), $user->Get("id"));
             }
 
             // проводим если новая стадия: закрыт, отгружен, к отгрузке

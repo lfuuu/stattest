@@ -85,12 +85,10 @@
             <td>
                 <span title="Баланс по счетам: {$fixclient_data.balance}
                 VOIP расход в этом месяце: {math equation="y*-1" y=$counters.amount_sum}
-                Выставленная в счете абонентка: {$subscr_counter->subscription_rt_last_month}
-                Начисленная абонентка за текущей месяц: {math equation="y*-1" y=$subscr_counter->subscription_rt}">Реалтайм баланс: 
-        {math equation='((b*-1)-c+s)*-1' 
+                ">Реалтайм баланс:
+        {math equation='((b*-1)-c)*-1'
                 b=$fixclient_data.balance 
                 c=$counters.amount_sum 
-                s=$subscr_counter->subscription_rt_balance
         }</span>
                 <br><br>
                 <b>IP-Телефония:</b><br/>

@@ -1,4 +1,5 @@
 <?php 
+use app\models\BillDocument;
 
 class ApiLk
 {
@@ -203,7 +204,7 @@ class ApiLk
         include_once INCLUDE_PATH.'bill.php';
         include_once PATH_TO_ROOT . "modules/newaccounts/module.php";
         $curr_bill = new Bill($billNo);
-        $dt = $curr_bill->getBill2Doctypes();
+        $dt = BillDocument::dao()->getByBillNo($curr_bill->GetNo());
 
 
         $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
