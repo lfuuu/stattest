@@ -5,6 +5,8 @@ use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use yii\db\ActiveRecord;
 use app\classes\behaviors\LogClientContractTypeChange;
+use app\models\ClientGridSettings;
+use app\models\ClientBPStatuses;
 
 /**
  * @property int $id
@@ -113,5 +115,40 @@ class ClientAccount extends ActiveRecord
                     ->one();
         }
         return $this->_lastComment;
+    }
+    
+    public function getBusinessProcessStatus()
+    {
+        return $this->hasMany(ClientGridSettings::className(), ['id' => 'grid_status_id'])
+            ->viaTable('client_grid_statuses', ['client_id' => 'id'])
+            ->one();
+    }
+    
+    public function setBusinessProcessStatus($grid_status_id)
+    {         
+          /* $model = ClientBPStatuses::find()
+                          ->andWhere(['client_id' => $this->id])
+                          ->one();*/
+        
+           $model = ClientBPStatuses::findOne(['client_id' => $this->id]);
+
+           if($model === null)
+           {
+               $model = new ClientBPStatuses();
+           }
+        
+           $model->grid_status_id = $grid_status_id;
+           $model->client_id = $this->id;
+           $model->save();
+           
+           $cs = new ClientStatuses();
+
+           $cs->ts = date("Y-m-d H:i:s");
+           $cs->id_client = $this->id;
+           $cs->user = \Yii::$app->user->getIdentity()->user;
+           $cs->status = "";
+           $cs->comment = "Установлен статус бизнес процесса: ".  ClientGridSettings::findOne($grid_status_id)->name;
+           $cs->save();
+         
     }
 }

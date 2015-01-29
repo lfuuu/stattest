@@ -1,0 +1,15 @@
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('03dd5890-6494-11de-96c3-001517456eb1', 'шт.', '796');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('0fa0aa28-dd2f-11e0-bdf8-00155d21fe06', 'л', '112');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('15a3236a-0207-11e0-9c11-d485644c7711', 'бухта', '616');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('1af08384-8f4f-11df-866d-001517456eb1', 'м', '006');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('1af08385-8f4f-11df-866d-001517456eb1', 'кг', '166');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('54f61867-01da-11e4-887e-00155d881200', 'упак', '778');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('62da39fd-2833-11e4-b8cf-00155d881200', 'пар', '715');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('6bb9efd7-2c60-11e4-a2ab-00155d881200', 'Мбайт', '257');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('7bb0772c-9f1b-11df-8ed6-001517456eb1', 'del_шт', '796');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('961d4cb4-2c59-11e4-a2ab-00155d881200', 'м2', '055');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('bc54b002-2c59-11e4-a2ab-00155d881200', 'мин', '355');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('cdcb0d98-2c59-11e4-a2ab-00155d881200', 'мес', '362');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('d83694d7-2390-11e4-926b-00155d881200', 'набор', '704');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('d83694d9-2390-11e4-926b-00155d881200', 'рул', '736');
+INSERT INTO `g_unit` (`id`, `name`, `okei`) VALUES ('efa1d7a6-6550-11de-96c3-001517456eb1', 'м3', '113');

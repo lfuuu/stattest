@@ -3,6 +3,7 @@ use app\classes\StatModule;
 use app\models\ClientContractType;
 use app\models\ClientAccount;
 use app\classes\Assert;
+use app\models\ClientGridSettings;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -976,6 +977,9 @@ class m_clients {
     $voip->showCountersWarning();
     $design->assign('voip_counters',$voip_counters);
 
+    
+    
+    
 		if(get_param_raw("contract_open", "") !== "")
 			$design->assign('contract_open',true);
 
@@ -1059,6 +1063,11 @@ class m_clients {
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
         $design->assign_by_ref('statuses',ClientCS::$statuses);
         $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
+        
+        // пока нужно вывести только процесс для продаж телекома (ИД - 1)
+        $design->assign("business_process", ClientGridSettings::findBusinessProcessStatusesByClientIdAndBusinessProcessId($clientAccount->id, 1)->all());
+        
+        
 		$cs = new ClientCS($r['id']);
 
 		$design->assign('templates',ClientCS::contract_listTemplates());
@@ -1512,6 +1521,16 @@ class m_clients {
 		$cs=new ClientCS($id);
 		$cs->Add($status,$comment);
 		$cs->SetContractType($contractTypeId);
+                
+                //я копипастнул из client_view, но вообще нужно будет перекрыть findOne и вклюдчить условие по типу ид
+                if (is_numeric($id)) {
+                    $yii_model = ClientAccount::findOne($id);
+                } else {
+                    $yii_model = ClientAccount::find()->andWhere(['client' => $id])->one();
+                }
+
+                $yii_model->businessProcessStatus = Yii::$app->request->post('business_process_id');
+                $yii_model->save();
 
         event::go("client_set_status", $id);
 

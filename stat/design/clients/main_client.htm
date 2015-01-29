@@ -216,6 +216,12 @@
                     <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
                 </tr>
+                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+                <td align="right">Статус бизнес процесса:</td>
+                <td>
+                    <SELECT class="select2" style="width: 200px" name=business_process_id>{foreach from=$business_process item=item}<option value='{$item.id}' {if ($item.id == $clientAccount.businessProcessStatus.id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                </td>
+                </tr>
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
                 <td align="right">Комментарий:</td>
                 <td>

@@ -63,8 +63,9 @@ function do_events()
                 case 'usage_voip__delete':  ats2Numbers::check(); 
                                             break;
 
-                case 'add_payment':    EventHandler::updateBalance($param[1]); 
-                                       LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); break;
+                case 'add_payment':    EventHandler::updateBalance($param[1]);
+                                       LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); 
+                                       break;
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
                 case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
