@@ -7,6 +7,8 @@ use Yii;
 
 class ConsoleApplication extends \yii\console\Application
 {
+    public $enableCoreCommands = false;
+
     public function init()
     {
         parent::init();
