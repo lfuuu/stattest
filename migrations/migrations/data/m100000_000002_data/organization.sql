@@ -1,0 +1,14 @@
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('105b3c26-c0c7-11df-9864-001517456eb1', 'СМ СЕРВИС', 'ООО \"СМ СЕРВИС\"', 'Общество с ограниченной ответственностью \"СМ СЕРВИС\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('1af08386-8f4f-11df-866d-001517456eb1', 'МСН', 'ООО \"МСН\"', 'Общество с ограниченной ответственностью \"МСН\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('323e46bf-4896-11e4-8530-00155d881200', 'ООО \"НМС сервис\"', '', '');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('864ac447-4761-11e1-8572-00155d881200', 'Маркомнет Старый', 'ООО \"Маркомнет\"', 'Общество с ограниченной ответственностью \"Маркомнет\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('8b50f62c-475f-11e1-8572-00155d881200', 'МСН Телеком', 'ООО \"МСН Телеком\"', 'Общество с ограниченной ответственностью \"МСН Телеком\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('8e5c7b1e-8385-11df-9af5-001517456eb1', 'ЭМ СИ ЭН', 'ООО \"ЭМ СИ ЭН\"', 'Общество с ограниченной ответственностью \"ЭМ СИ ЭН\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('8e5c7b1f-8385-11df-9af5-001517456eb1', 'Маркомнет', 'ООО \"Маркомнет\"', 'Общество с ограниченной ответственностью \"Маркомнет\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('92241963-955d-11e3-9482-00155d881200', 'Веллстарт', 'ООО \"Веллстарт\"', 'Общество с ограниченной ответственностью \"Веллстарт\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('9bce961c-b525-11e1-b733-00155d881200', 'Маркомнет Сервис', 'ООО \"Маркомнет Сервис\"', 'Общество с ограниченной ответственностью \"Маркомнет сервис\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('9e926a28-6fe1-11e0-a7ed-d485644c7711', 'НС Системс', 'ООО \"НС Системс\"', 'Общество с ограниченной ответственостью \"НС Системс\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('a195ccf5-66a3-11e1-8572-00155d881200', 'МСМ', 'ООО \"МСМ\"', 'Общество с ограниченной ответственностью \"МСМ\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('af714d23-1334-11e0-9c11-d485644c7711', 'Олфонет', 'ООО \"Олфонет\"', 'Общество с ограниченной ответственностью \"Олфонет\"');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('c25a7969-50eb-4d49-ade2-3ddf89b5fc14', 'Управленческая организация', '', '');
+INSERT INTO `organization` (`id`, `name`, `jur_name`, `jur_name_full`) VALUES ('dcc73554-8a33-11e2-af24-00155d881200', 'Олфогео', 'ООО \"Олфогео\"', 'Общество с ограниченной ответственностью \"Олфогео\"');
