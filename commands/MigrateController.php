@@ -85,6 +85,10 @@ class MigrateController extends \yii\console\controllers\MigrateController
         $connection->createCommand('
             CREATE DATABASE ' . $dbName . '
         ')->execute();
+
+        $connection->createCommand('
+            ALTER DATABASE ' . $dbName . ' CHARACTER SET utf8 COLLATE utf8_general_ci;
+        ')->execute();
     }
 
     protected function dropActiveConnections(Connection $connection, $dbName)
