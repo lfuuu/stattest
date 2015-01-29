@@ -26,7 +26,7 @@ class SyncCore
         $cl = ClientCard::find('first', array("id" => $clientId));
 
         if (!$cl)
-            throw new Exeption("Клиент не найден");
+            throw new Exception("Клиент не найден");
 
         if ($isResetProductState)
         {
