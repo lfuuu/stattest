@@ -916,7 +916,8 @@ function getDS($direction)
             "full"   => "full",
             "russia" => "full-russia",
             "localmob" => "local-mobile",
-            "local"    => "local"
+            "local"    => "local",
+            "blocked"  => "blocked"
             );
     return $ds = "my-".(isset($aDst[$direction]) ? $aDst[$direction] : $direction)."-out";
 }
