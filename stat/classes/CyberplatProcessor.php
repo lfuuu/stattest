@@ -431,7 +431,7 @@ class CyberplatFieldCheck
             throw new Answer_ERR_CLIENT_NOT_FOUND();
 
         $c = ClientCard::find_by_id($data["number"]);
-        if($c)
+        if ($c && in_array($c->status, array("work", "connecting", "testing", "debt")))
         {
             // Абонент найден
             return $c;
