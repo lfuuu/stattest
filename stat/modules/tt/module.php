@@ -1989,7 +1989,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $doerId = (int)$doer_filter;
             $doer_filter = '
                     AND
-                        `cr`.`id` = '.((int)$doer_filter);
+                    `cr`.`id` = '.((int)$doer_filter);
+            $doerName = $db->GetValue("select name from courier where id = '".$doerId."'");
         }
 
         $state_filter = $state_filter_ = get_param_protected('state_filter', 'null');
@@ -2006,6 +2007,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         }
 
         if($ttype_filter == 'all')
+        {
             $query = "
                 SELECT
                     DATE(`date`) `date`,
@@ -2036,23 +2038,21 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         FROM
                             `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-                        INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
-                            AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+
+                        INNER JOIN ( 
+                            select bill_no, max(ts) ts
+                            from `log_newbills`
+                            where `comment` ".($doerId ? "= 'Назначен курьер ".$doerName : "like 'Назначен курьер %")."'
+                            group by bill_no
+                            
+                        ) `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
+
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
                         AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
-                        AND
-                            `ln`.`id` = (
-                                select `id`
-                                from `log_newbills`
-                                where `bill_no` = `nb`.`bill_no`
-                                    AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-                                order by id desc
-                                limit 1
-                            )
                         GROUP BY
                             `ln`.`ts`,
                             `cr`.`name`,
@@ -2089,7 +2089,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     `company`,
                     `courier_name`
             ";
-        elseif($ttype_filter == 'bills')
+        }elseif($ttype_filter == 'bills')
             $query = "
                 SELECT
                     DATE(`date`) `date`,
@@ -2300,7 +2300,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             ";
         }
 
-        //printdbg($query);
 
         $ret = array();
 
