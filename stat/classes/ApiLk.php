@@ -1287,7 +1287,7 @@ class ApiLk
         global $db;
         $status_arr = array('income','connecting','testing');
         $edit_fields = array(
-                        'inn','kpp','company_full','address_jur','address_post','pay_acc','bik',
+                        'inn','kpp','company_full','address_jur','address_post_real','pay_acc','bik',
                         'signer_name','signer_position','mail_who','address_connect','phone_connect'
         );
     
