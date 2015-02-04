@@ -592,7 +592,7 @@ class DbFormUsageVoip extends DbForm {
             if(preg_match("/^8/", $this->dbform["E164"], $o))
             {
                 die("<font style='color:red'><b>Номер начинается на 8-ку!</b></font>");
-            }elseif(strlen($this->dbform["E164"]) > 5 && strlen($this->dbform["E164"]) != 11) // if not line_without_number
+            }elseif(strlen($this->dbform["E164"]) > 5 && strlen($this->dbform["E164"]) != 11 && strlen($this->dbform["E164"]) != 10) // if not line_without_number
             {
                 die("<font style='color:red'><b>Номер задан не верно!</b></font>");
             }else

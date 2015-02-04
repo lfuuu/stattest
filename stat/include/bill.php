@@ -117,9 +117,9 @@ class Bill{
 		$this->changed=0;
 	}
 	public function AddLine($currency,$title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to='',$all4net_price=0,$overprice=array()){
-		global $db;
+        global $db;
 		if($currency!=$this->bill['currency'])
-			return false;
+            return false;
 		$this->max_sort++;
 		if(!$date_from && !$date_to){
             $date_from_ts = $this->bill_ts;
@@ -129,7 +129,7 @@ class Bill{
 			$moncount=cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']);
 			$date_to = date('Y-m-'.$moncount,$date_from_ts);
 		}
-		$this->changed = 1;
+        $this->changed = 1;
 
         $nds = $this->Client("nds_zero") ? "1" : "1.18";
 
@@ -254,12 +254,32 @@ class Bill{
     		$db->Query("delete from tt_stages where trouble_id = '.$troubleId.'");
 
 		$db->QueryDelete('tt_troubles',array('bill_no'=>$bill_no));
-		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Удаление"));
+		$db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=> (is_object($user) ? $user->Get('id') : -1 ),'comment'=>"Удаление"));
 		//$db->QueryDelete('log_newbills',array('bill_no'=>$bill_no));
 		$db->Query("update log_newbills set bill_no = '".$bill_no.date('dHs')."' where bill_no='".$bill_no."'");
 		$db->QueryDelete('newbills_documents',array('bill_no'=>$bill_no));
 		$db->Query('commit');
-	}
+    }
+
+    public static function cleanOldPrePayedBills()
+    {
+        global $db;
+
+        foreach($db->AllRecords(
+            "
+            SELECT
+                b.bill_no, bill_date
+            FROM newbills b
+            LEFT JOIN newpayments p ON (b.client_id = p.client_id and (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
+            WHERE
+                    is_user_prepay=1
+                AND bill_date < SUBDATE(NOW(), INTERVAL 1 month)
+                AND p.payment_no IS NULL
+            ") as $b)
+        {
+            self::RemoveBill($b["bill_no"]);
+        }
+    }
 	public function Save($remove_empty = 0,$check_change=1) {
 		global $db,$design,$user;
 		if ($check_change && !$this->changed && !$remove_empty) return 0;
