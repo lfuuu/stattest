@@ -125,20 +125,21 @@ class ClientAccount extends ActiveRecord
     
     public function setBusinessProcessStatus($grid_status_id)
     {         
-          /* $model = ClientBPStatuses::find()
-                          ->andWhere(['client_id' => $this->id])
-                          ->one();*/
-        
+
+         if(intval($grid_status_id) > 0)
+         {
+           
            $model = ClientBPStatuses::findOne(['client_id' => $this->id]);
 
            if($model === null)
            {
                $model = new ClientBPStatuses();
            }
-        
+             
            $model->grid_status_id = $grid_status_id;
            $model->client_id = $this->id;
            $model->save();
+          
            
            $cs = new ClientStatuses();
 
@@ -148,6 +149,7 @@ class ClientAccount extends ActiveRecord
            $cs->status = "";
            $cs->comment = "Установлен статус бизнес процесса: ".  ClientGridSettings::findOne($grid_status_id)->name;
            $cs->save();
+         } 
          
     }
 }
