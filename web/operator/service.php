@@ -26,8 +26,8 @@ if ($action=='add_client') {
 	foreach ($V as $k) @$P[$k] = trim(get_param_raw($k));
 
 	if(empty($P["company"]))
-	{
-		die("error: Название компании не задано!");
+    {
+        $P["company"] = "Клиент с сайта";
 	}
 
     $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_real_escape_string($P["company"], $db->_LinkId)."'");
