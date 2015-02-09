@@ -186,7 +186,7 @@ class YandexProcessor
             }
         }
 
-        if ($c && in_array($c->status, array("work", "connecting", "testing", "debt")))
+        if ($c && in_array($c->status, array("work", "connecting", "testing", "debt", "negotiations")))
         {
             return $c;
         } else {
