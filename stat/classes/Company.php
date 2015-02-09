@@ -218,9 +218,9 @@ class Company
         return $firms[$firma];
     }
 
-    public static function getDetail($firma)
+    public static function getDetail($firma, $time = null)
     {
-        $f = self::getProperty($firma);
+        $f = self::getProperty($firma, $time);
 
         $d = $f["name"]."<br /> Юридический адрес: ".$f["address"].
             (isset($f["post_address"]) ? "<br /> Почтовый адрес: ".$f["post_address"] : "").
