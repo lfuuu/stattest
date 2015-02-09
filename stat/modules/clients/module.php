@@ -916,7 +916,7 @@ class m_clients {
 		$design->ProcessEx('empty.tpl');
 	}
 
-	static function fix_contract($clientId, $contractId)
+	static function fix_contract($clientId, $contractId, $contractDate)
 	{
 		global $db, $design;
 		$file = 'contracts/'.$clientId.'-'.$contractId.'.html';
@@ -939,8 +939,8 @@ class m_clients {
 
 
 		self::contract_fix_static_parts_of_template(file_get_contents(STORE_PATH.$file), $r["client"], $r["id"]);
-		self::contract_apply_firma($r["firma"]);
-    self::contract_apply_support_phone($r["region"]);
+		self::contract_apply_firma($r["firma"], $contractDate);
+        self::contract_apply_support_phone($r["region"]);
 
 		ob_start();
 		$design->ProcessEx(STORE_PATH.$file);
@@ -984,7 +984,7 @@ class m_clients {
             	echo file_get_contents(STORE_PATH.$file);
             	exit();
             }else{
-            	$this->fix_contract($r['id'], $c['id']);
+            	$this->fix_contract($r['id'], $c['id'], $c['contract_date']);
             }
 
             if (!file_exists(STORE_PATH.$fileTemplate)) {
@@ -1880,7 +1880,10 @@ class m_clients {
             $content = preg_replace("/<style([^>]*)>(.*?)<\/style>/six", "<style\\1>{literal}\\2{/literal}</style>", $content);
 
 		$content = self::contract_fix_static_parts_of_template($content, '', $id);
-		$cs=new ClientCS($id);
+        $cs=new ClientCS($id);
+
+        $contractDate = get_param_protected('contract_date');
+
 		$contractId = $cs->AddContract(
 			$content,
 			get_param_protected('contract_no'),
@@ -1889,7 +1892,7 @@ class m_clients {
 			get_param_protected('comment')
 		);
 
-		$this->fix_contract($id, $contractId);
+        $this->fix_contract($id, $contractId, $contractDate);
 		header("Location: ./?module=clients&id=".$id."&contract_open=true");
 		exit();
 
@@ -2270,12 +2273,12 @@ DBG::sql_out($select_client_data);
         $design->assign("support_phone", $phone);
     }
 
-    static function contract_apply_firma($firma)
+    static function contract_apply_firma($firma, $date = null)
     {
         global $design;
 
-        $design->assign("firm_detail", Company::getDetail($firma));
-        $design->assign("firm", Company::getProperty($firma));
+        $design->assign("firm_detail", Company::getDetail($firma, $date));
+        $design->assign("firm", Company::getProperty($firma, $date));
     }
 
 	function clients_rpc_findClient1c(){
