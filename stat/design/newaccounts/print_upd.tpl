@@ -562,7 +562,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>Основание передачи (сдачи) / получения (приемки)</span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;width:100%;'>
-			<p ><span>&nbsp;{if isset($client_contract)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; договор N{$client_contract}{/if}</span></p>
+			<p ><span>&nbsp;{if isset($client_contract)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; договор {$client_contract}{/if}</span></p>
 		</td>
 		<td valign=bottom>
 			<p ><span>[8]</span></p>
