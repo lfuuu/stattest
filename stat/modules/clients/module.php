@@ -4,6 +4,7 @@ use app\models\ClientContractType;
 use app\models\ClientAccount;
 use app\classes\Assert;
 use app\models\ClientGridSettings;
+use app\models\ClientBP;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -43,6 +44,7 @@ class m_clients {
 					'print_yota_contract' => array('clients','file'),
 					'rpc_findClient1c'	=> array('clients','new'),
 					'rpc_findBank1c'	=> array('clients','new'),
+                    'rpc_loadBPStatuses'=> array('',''),
 					'view_history'		=> array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
 
@@ -1146,9 +1148,11 @@ class m_clients {
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
         $design->assign_by_ref('statuses',ClientCS::$statuses);
         $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
+        $design->assign("bussines_processes", ClientBP::find()->select(["id", "name"])->where(["client_contract_id" => $r["contract_type_id"]])->orderBy("sort")->all());
         
         // пока нужно вывести только процесс для продаж телекома (ИД - 1)
-        $design->assign("business_process", ClientGridSettings::findBusinessProcessStatusesByClientIdAndBusinessProcessId($clientAccount->id, 1)->all());
+        //$design->assign("business_process", ClientGridSettings::findBusinessProcessStatusesByClientIdAndBusinessProcessId($clientAccount->id, 1)->all());
+        $design->assign("business_process", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $r["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
         
         
 		$cs = new ClientCS($r['id']);
@@ -2366,6 +2370,26 @@ DBG::sql_out($select_client_data);
 		}
 		exit();
 	}
+
+    public function clients_rpc_loadBPStatuses($fixclient)
+    {
+        $processes = [];
+        foreach(ClientBP::find()->orderBy("sort")->all() as $b)
+        {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        foreach(ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s)
+        {
+            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+        }
+
+        //printdbg(["processes" => $processes, "statuses" => $statuses]);
+
+        echo json_encode(["processes" => $processes, "statuses" => $statuses]);
+        exit();
+    }
 
 	function get_history_flags($clientId)
 	{
