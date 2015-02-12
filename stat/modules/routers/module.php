@@ -619,9 +619,11 @@ class m_routers {
         global $db ,$design;
         $design->assign('ds', $db->AllRecords('
                         select 
-                            d.*, 
+                            d.*, r.name as region_name,
                             (select count(*) from server_pbx s where s.datacenter_id = d.id) as count 
-                        from datacenter d'));
+                            from datacenter d
+                            left join regions r ON (r.id = d.region)
+                            '));
         $design->AddMain('routers/main_datacenters.tpl');
     }
 

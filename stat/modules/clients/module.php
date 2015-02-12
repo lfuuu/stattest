@@ -1183,7 +1183,8 @@ class m_clients {
 			}
 
 			if($r['client']){
-				$design->assign('is_secondary_output',1);
+                $design->assign('is_secondary_output',1);
+                $this->showServersTroubles($r);
                 StatModule::tt()->showTroubleList(1,'client',$r['client']);
                 StatModule::services()->services_in_view($r['client']);
                 StatModule::services()->services_co_view($r['client']);
@@ -1282,7 +1283,44 @@ class m_clients {
 
 		$design->assign('client',$r);
 		$_SESSION['clients_client'] = $r['client'];
-	}
+    }
+
+    function showServersTroubles($client)
+    {
+        global $db;
+
+        $isData = false;
+        $serverIds = [];
+
+        foreach($db->AllRecords("
+            SELECT DISTINCT region 
+            FROM `usage_voip`
+            WHERE client = '".$client["client"]."'
+            AND CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to") as $r)
+        {
+            $region = $r["region"];
+
+            foreach($db->AllRecords("
+                SELECT s.id 
+                FROM datacenter d, server_pbx s 
+                WHERE region='".$region."' 
+                AND d.id = s.datacenter_id 
+                ORDER BY s.id") as $server)
+            {
+                $serverIds[] = $server["id"];
+            }
+        }
+
+        if ($serverIds)
+        {
+            if(StatModule::tt()->showServerTroubles($serverIds))
+            {
+                $isData = true;
+            }
+        }
+
+        return $isData;
+    }
 
     function client_contragent($contragentId)
     {
