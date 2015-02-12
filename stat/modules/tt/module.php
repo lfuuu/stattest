@@ -69,7 +69,8 @@ class m_tt extends IModule{
         }
         $service = get_param_protected('service',null);
         $service_id = get_param_integer('service_id',null);
-        $this->showTroubleList($mode,'full',$fixclient,$service,$service_id);
+        $server_id = get_param_integer('server_id',null);
+        $this->showTroubleList($mode,'full',$fixclient,$service,$service_id,null,$server_id);
     }
     function tt_add($fixclient){
         global $db,$design,$user;
@@ -88,6 +89,7 @@ class m_tt extends IModule{
         $R['is_important']=get_param_protected('is_important','0');
         $R['bill_no'] = get_param_protected('bill_no','null');
         $R['service_id']=get_param_integer('service_id');
+        $R['server_id']=get_param_integer('server_id', 0);
         $id = $this->createTrouble($R,$user_main);
         if ($design->ProcessEx('errors.tpl')) {
             header('Location: ?module=tt&action=view&id='.$id);
@@ -687,6 +689,20 @@ class m_tt extends IModule{
             }
         }
 
+        if ($trouble["server_id"] != 0) {
+
+            $trouble["server"] = $trouble["datacenter_name"] = $trouble["datacenter_region"] = "";
+
+            $res = $this->setServerForTT($trouble["server_id"]);
+            if ($res)
+            {
+                $trouble["server"] = $res["name"];
+                $trouble["datacenter_name"] = $res["datacenter_name"];
+                $trouble["datacenter_region"] = $res["datacenter_region"];
+            }
+        }
+
+
 
         $design->assign('tt_trouble',$trouble);
         $design->assign('tt_states',$R);
@@ -697,6 +713,19 @@ class m_tt extends IModule{
         $design->AddMain('tt/trouble.tpl');
 
     }
+
+    function setServerForTT($serverId)
+    {
+        global $db;
+
+        return $db->GetRow(
+            "SELECT s.name, d.name AS datacenter_name, r.name AS datacenter_region 
+            FROM `server_pbx` s 
+            LEFT JOIN datacenter d ON (d.id = s.datacenter_id)
+            LEFT JOIN regions r ON (r.id = d.region)
+            WHERE s.id = ".$serverId);
+    }
+
 
     function loadOrderLog($billNo){
         global $db;
@@ -760,8 +789,9 @@ class m_tt extends IModule{
     //  4 = возвращать список
     //    8 = был ли я ответственным
 
-    function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null)
+    function makeTroubleList($mode,$tt_design = null,$flags = 3,$client = null,$service=null,$service_id=null,$t_id = null, $server_id = null)
     {
+        //printdbg(func_get_args());
         global $db,$user,$design;
         $tt_design = 'full';
         /*
@@ -1053,7 +1083,14 @@ class m_tt extends IModule{
         if($t_id)
             $W[]='T.id='.intval($t_id);
 
-        $showStages = ($mode>=1 || $client || $service || $service_id || $t_id);
+        if($server_id)
+        {
+            $W[]='T.server_id in ("'.implode('","', (is_array($server_id) ? $server_id : [$server_id])).'")';
+        } else if (!$t_id) { // убираем серверные траблы из списка простых заявок. Показывает траблу - если открыта детелизация
+            $W[]='T.server_id=0';
+        }
+
+        $showStages = ($mode>=1 || $client || $service || $service_id || $t_id || $server_id);
 
         if($mode>=1)
         {
@@ -1202,6 +1239,19 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     $R[$k]["number"] = $usageVoip->E164;
                 }
             }
+
+            if ($r["server_id"] != 0) {
+
+                $R[$k]["server"] = $R[$k]["datacenter_name"] = $R[$k]["datacenter_region"] = "";
+
+                $res = $this->setServerForTT($r["server_id"]);
+                if ($res)
+                {
+                    $R[$k]["server"] = $res["name"];
+                    $R[$k]["datacenter_name"] = $res["datacenter_name"];
+                    $R[$k]["datacenter_region"] = $res["datacenter_region"];
+                }
+            }
         }
 
         if(($flags&1)!=0){
@@ -1219,6 +1269,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $design->assign('tt_client',$client);
             $design->assign('tt_service',$service);
             $design->assign('tt_service_id',$service_id);
+            $design->assign('tt_server_id',$server_id);
+            if ($server_id && get_param_raw("show_add_form")) {
+                $design->assign('tt_server',$this->setServerForTT($server_id));
+            }
+
             $db->Query('select u.usergroup, user, name,g.comment as ugroup from user_users u , user_groups  g
                     where u.usergroup = g.usergroup and u.enabled="yes" order by usergroup,convert(name using koi8r)');
             $U=array();
@@ -1329,9 +1384,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     // 3 = открытые, активные, автор - я.
     // 4 = открытые, менеджер клиента - я.
 
-    function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null){
-
-
+    function showTroubleList($mode,$tt_design = 'full',$fixclient = null,$service = null,$service_id = null,$t_id = null, $server_ids = null){
 
         if($this->dont_again)
             return 0;
@@ -1342,22 +1395,24 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $fixclient_data = ClientCS::FetchClient($fixclient);
             if (!empty($fixclient_data))
             {
-		$fixclient = $fixclient_data['client'];
+                $fixclient = $fixclient_data['client'];
             } 
-	}
+        }
 
         if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
-            $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
+            $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id, $server_ids);
         else{
-            $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id);
+            $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id, $server_ids);
 
             // фильтр по этапам
             $sql_select_users = " select `user` from user_users order by enabled, `user` ";
             $design->assign('users',$db->AllRecordsAssoc($sql_select_users, 'user', 'user'));
         }
 
+        if ($mode == 6 && !$R) return false; // не показываем секцию с страблами если их нет
 
-            $design->assign('tt_show_filter',$tt_design == "full");
+
+        $design->assign('tt_show_filter',$tt_design == "full");
 
 
         switch ($mode){
@@ -1367,6 +1422,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             case 3: $t='Активные заявки, созданные мной'; break;
             case 4: $t='Запросы моих клиентов'; break;
             case 5: $t='Заявки с закрытым мною этапом, но не закрытые полностью'; break;
+            case 6: $t='Серверные заявки'; break;
             default: trigger_error2("mode = ".$mode);
         }
         $design->assign('tt_header',$t);
@@ -1407,17 +1463,23 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         }
         */
 
-        $design->AddMain('tt/trouble_filters.tpl');
+        if ($mode != 6)
+            $design->AddMain('tt/trouble_filters.tpl');
 
         if ($v>=1) {
             if ($tt_design=='top') {
                 $design->AddPreMain('tt/trouble_list.tpl');
             } else {
-                $design->AddMain('tt/trouble_list'.(get_param_raw("type_pk","0") == 4 ? "_full_pk4" : "").'.tpl');
+                $design->AddMain('tt/trouble_list'.(get_param_raw("type_pk","0") == 4 ? "_full_pk4" : "").'.tpl', ($mode == 6 ? 1 : 0));
             }
         }
 
         return count($R);
+    }
+
+    public function showServerTroubles($serverIds)
+    {
+        return $this->showTroubleList(6, 'full',null,null,null,null,$serverIds);
     }
 
     private function getTroubleSubTypes($isAll = false)

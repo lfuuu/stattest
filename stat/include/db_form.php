@@ -2056,11 +2056,13 @@ class DbFormUsagePhoneRedirConditions extends DbForm {
 
 class DbFormDataCenter extends DbForm{
     public function __construct() {
+        global $db;
         DbForm::__construct('datacenter');
 
         $this->fields['name'] = array();
         $this->fields['address'] = array();
         $this->fields['comment'] = array();
+        $this->fields['region'] = array("assoc_enum" => $db->AllRecordsAssoc("select id, name from regions order by id", "id", "name"));
 
     }
 }

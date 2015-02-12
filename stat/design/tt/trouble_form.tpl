@@ -9,22 +9,41 @@
 	<input type="hidden" name="type" value="{$curtype.code}" />
 {/if}
 <TABLE class=mform cellSpacing=4 cellPadding=2 border=0>
-{if !$curtype}<TR>
-	<TD class=left width=30%>Тип заявки</TD>
-	<TD><SELECT name=type class=text style='width:300px' onclick = 'if (this.selectedIndex==null) return; eval("tt_"+this.options[this.selectedIndex].getAttribute("value")+"()");'>
-		{foreach from=$ttypes item='t'}
-		<option value="{$t.code}">{$t.name}</option>
-		{/foreach}
-	</SELECT></TD>
-</TR>{/if}<TR>
-	<TD class=left>Клиент</TD>
-	<TD><input name=client readonly="readonly" value='{if $fixclient}{$fixclient_data.client}{/if}' class=text style='width:300px'></TD>
-</TR>{if $tt_service}<TR>	
-	<TD class=left>Услуга</TD>
-	<TD><a href='pop_services.php?table={$tt_service}&id={$tt_service_id}'>{$tt_service} #{$tt_service_id}</a></TD>
-	<input type=hidden name=service value='{$tt_service}'>
-	<input type=hidden name=service_id value='{$tt_service_id}'>
-</TR>{/if}<TR id=dt_C1 style='display:none'>
+    {if !$curtype}
+        <TR>
+            <TD class=left width=30%>Тип заявки</TD>
+            <TD><SELECT name=type class=text style='width:300px' onclick = 'if (this.selectedIndex==null) return; eval("tt_"+this.options[this.selectedIndex].getAttribute("value")+"()");'>
+                    {foreach from=$ttypes item='t'}
+                        <option value="{$t.code}">{$t.name}</option>
+                    {/foreach}
+                </SELECT>
+            </TD>
+       </TR>
+    {/if}
+
+    <TR>
+        <TD class=left>Клиент</TD>
+        <TD><input name=client readonly="readonly" value='{if $fixclient}{$fixclient_data.client}{/if}' class=text style='width:300px'></TD>
+    </TR>
+
+    {if $tt_service}
+        <TR>	
+            <TD class=left>Услуга</TD>
+            <TD><a href='pop_services.php?table={$tt_service}&id={$tt_service_id}'>{$tt_service} #{$tt_service_id}</a></TD>
+            <input type=hidden name=service value='{$tt_service}'>
+            <input type=hidden name=service_id value='{$tt_service_id}'>
+        </TR>
+    {/if}
+
+    {if $tt_server_id}
+        <TR>	
+            <TD class=left>Сервер</TD>
+            <TD><a href='./?module=routers&action=server_pbx_list&id={$tt_server_id}'>&nbsp;{$tt_server.name}, Тех.площадка: {$tt_server.datacenter_name}, Регион: {$tt_server.datacenter_region}</a></TD>
+            <input type=hidden name=server_id value='{$tt_server_id}'>
+        </TR>
+    {/if}
+
+    <TR id=dt_C1 style='display:none'>
 	<TD class=left id=dt_C1_capt>Показывать с</TD>
 	<TD><input type=textbox id=date_start name=date_start value="{0|mdate:'Y-m-d H:i:s'}" class=text style='width:300px'></TD>
 </TR><TR id=dt_A1>
