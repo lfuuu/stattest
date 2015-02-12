@@ -15,14 +15,22 @@
 
 <table class="table table-condensed table-striped">
 {if !$tt_trouble.bill_no}
-    <tr>
-        <td align="right">Клиент:</td>
-        <td><a href='{$LINK_START}module=clients&id={$tt_client.client}'>{$tt_client.company}</a> ({$tt_client.client})</td>
-    </tr>
+    {if $tt_client}
+        <tr>
+            <td align="right">Клиент:</td>
+            <td><a href='{$LINK_START}module=clients&id={$tt_client.client}'>{$tt_client.company}</a> ({$tt_client.client})</td>
+        </tr>
+    {/if}
     {if $tt_trouble.service}
         <tr>
             <td align="right">Услуга:</td>
             <td><a href='pop_services.php?table={$tt_trouble.service}&id={$tt_trouble.service_id}'>{if $tt_trouble.service=="usage_voip"}Телефония {$tt_trouble.number}{else}{$tt_trouble.service} #{$tt_trouble.service_id}{/if}</a></td>
+        </tr>
+    {/if}
+    {if $tt_trouble.server_id}
+        <tr>
+            <td align="right">Сервер:</td>
+            <td><a href='module=routers&action=server_pbx_apply&id={$tt_trouble.server_id}'>{$tt_trouble.server}, Тех.площадка: "{$tt_trouble.datacenter_name}", Регион: {$tt_trouble.datacenter_region}</a></td>
         </tr>
     {/if}
     {if $tt_trouble.bill_no}
