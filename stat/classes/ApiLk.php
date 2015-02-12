@@ -86,10 +86,10 @@ class ApiLk
             throw new Exception("Лицевой счет не найден!");
     
         /* !!! проверка поличества созданных счетов */
-    
-    
+
+
         $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
-    
+
         if(!$bill)
         {
             NewBill::createBillOnPay($clientId, $sum, true);
@@ -1286,7 +1286,7 @@ class ApiLk
         global $db;
         $status_arr = array('income','connecting','testing');
         $edit_fields = array(
-                        'inn','kpp','company_full','address_jur','address_post','pay_acc','bik',
+                        'inn','kpp','company_full','address_jur','address_post_real','pay_acc','bik',
                         'signer_name','signer_position','mail_who','address_connect','phone_connect'
         );
     
@@ -1957,19 +1957,42 @@ class ApiLk
     private static function _getUserBillOnSum_fromDB($clientId, $sum)
     {
         global $db;
-    
+
         return $db->GetValue(
-                "SELECT
-				b.bill_no
-			FROM
-				`newbills` b, newbill_lines l
-			where
-					b.bill_no = l.bill_no
-				and client_id = '".$clientId."'
-                and l.sum = '".$sum."'
-                order by bill_date desc 
-                limit 1");
+            "SELECT 
+                bill_no 
+             FROM (
+                SELECT 
+                    b.bill_no, 
+                    p.payment_no 
+                FROM (
+                        SELECT 
+                            b.bill_no, 
+                            b.client_id, 
+                            bill_date, 
+                            COUNT(1) AS count_lines, 
+                            SUM(l.sum) AS l_sum 
+                        FROM 
+                            newbills b, newbill_lines l 
+                        WHERE 
+                                b.client_id = '".$clientId."' 
+                            AND l.bill_no = b.bill_no 
+                            AND is_user_prepay 
+                        GROUP BY 
+                            bill_no 
+                        HAVING 
+                                count_lines = 1 
+                            AND l_sum = '".$sum."'
+                ) b 
+                LEFT JOIN newpayments p ON (p.client_id = b.client_id and (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
+                HAVING 
+                    p.payment_no IS NULL #счет неоплачен
+                ORDER BY 
+                    bill_date DESC #последний счет 
+                LIMIT 1
+             )a");
     }
+
 
     public static function _exportModelRow($fields, &$row)
     {

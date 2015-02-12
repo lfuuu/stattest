@@ -3273,7 +3273,7 @@ class m_services extends IModule{
                 return "FAIL";
         }
 
-        if(preg_match('/^FREE:(\d{4,7}|short)?/',$_GET['e164'],$m)){
+        if(preg_match('/^FREE:(\d{2,7}|short)?/',$_GET['e164'],$m)){
             if(isset($m[1]) && $m[1] != 'short'){
                 $ann = "and substring(`vn`.`number` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
                 $ann_ = "substring(`e164` from 1 for ".strlen($m[1]).") = '".$m[1]."'";
@@ -3330,7 +3330,7 @@ class m_services extends IModule{
 
         if(strlen($number)>5)
         {
-            if(!preg_match("/^7[0-9]+$/", $_GET["e164"]))
+            if(!preg_match("/^7[0-9]+$/", $_GET["e164"]) && !preg_match("/^36[0-9]+$/", $_GET["e164"])) //Россия или Венгрия
             {
                 return "false";
             }

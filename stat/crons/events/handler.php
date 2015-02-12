@@ -79,6 +79,7 @@ function do_events()
                                      echo " exec: ".$execStr;
                                      exec($execStr);
                                  }
+                                 Bill::cleanOldPrePayedBills(); echo "... clear prebilled bills";
                                  EventQueue::clean();echo "...EventQueue::clean()";
                                  break;
 

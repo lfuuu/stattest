@@ -126,6 +126,7 @@ class Bill {
         $this->bill_courier = Courier::dao()->getNameById($this->bill["courier_id"]);
 		$this->changed=0;
 	}
+
     public function AddLine($title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to='')
     {
         $this->changed = 1;
@@ -260,6 +261,26 @@ class Bill {
             $bill = \app\models\Bill::find()->andWhere(['bill_no' => $this->bill_no])->one();
             $bill->delete();
             return 2;
+        }
+    }
+
+    public static function cleanOldPrePayedBills()
+    {
+        global $db;
+
+        foreach($db->AllRecords(
+            "
+            SELECT
+                b.bill_no, bill_date
+            FROM newbills b
+            LEFT JOIN newpayments p ON (b.client_id = p.client_id and (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
+            WHERE
+                    is_user_prepay=1
+                AND bill_date < SUBDATE(NOW(), INTERVAL 1 month)
+                AND p.payment_no IS NULL
+            ") as $b)
+        {
+            self::RemoveBill($b["bill_no"]);
         }
     }
 

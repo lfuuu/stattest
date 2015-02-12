@@ -8,8 +8,9 @@ class UsageVoip extends ActiveRecord\Model
     static $allowedDirection = array(
         "full"     => "Все",
         "russia"   => "Россия",
-        "localmob" => "Местные (мобильные)",
-        "local"    => "Местные (все)"
+        "localmob" => "Местные стац.+моб.",
+        "local"    => "Местные стац.",
+        "blocked"  => "Запрет исх. связи"
     );
     
      /**

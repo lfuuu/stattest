@@ -66,10 +66,19 @@
     <tr style="{if $r.is_important}background-color: #f4c0c0;{/if}">
         <td colspan=1>{$trouble_subtypes_list[$r.trouble_subtype]}</td>
         <td colspan=1 style="font-size:85%;">{$r.time_pass}</td>
-        <td colspan=1><a href='{$LINK_START}module=clients&id={$r.client_orig}'>{$r.client}</a></td>
+        <td colspan=1>{if $r.client}<a href='{$LINK_START}module=clients&id={$r.client_orig}'>{$r.client}</a>{/if}</td>
         <td colspan=1 align=center style='font-size:85%;{if !$r.service && $r.bill_no && $r.is_payed == 1}background-color: #ccFFcc;{/if}'>
-            {if $r.service}
-                <a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{if $r.service =="usage_voip"}Телефония<br>{$r.number}{else}{$r.service|replace:"usage_":""}<br>{$r.service_id}{/if}</a>
+            {if $r.server_id}
+                <a href='./?module=routers&action=server_pbx_apply&id={$r.server_id}'>
+                    Сервер: {$r.server},<br>Регион: {$r.datacenter_region}
+                </a>
+            {elseif $r.service}
+                <a href='pop_services.php?table={$r.service}&id={$r.service_id}'>
+                    {if $r.service =="usage_voip"}
+                        Телефония<br>{$r.number}
+                    {else}
+                        {$r.service|replace:"usage_":""}<br>{$r.service_id}
+                    {/if}</a>
             {elseif $r.bill_no}
                 <a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:100%;font-weight: bold">{$r.bill_no}</a>
             {else}&nbsp;{/if}
