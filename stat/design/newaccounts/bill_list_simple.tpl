@@ -68,16 +68,16 @@
 
 <td valign=top style="padding-left: 100px;" align=right>
 {if $counters}
-<table>
-<tr>
-    <td>
-        <b>IP-Телефония:</b><br/>
-        Расход за день: <b>{$counters.amount_day_sum}</b><br/>
-        Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-        Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
-    </td>
-</tr>
-</table>
+    <table>
+        <tr>
+            <td>
+                <b>IP-Телефония:</b><br/>
+                Расход за день: <b>{$counters.amount_day_sum}</b><br/>
+                Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
+                Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
+            </td>
+        </tr>
+    </table>
 {/if}
 </td>
 </tr>

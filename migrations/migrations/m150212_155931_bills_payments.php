@@ -1,6 +1,6 @@
 <?php
 
-class m150129_155931_bills_payments extends \app\classes\Migration
+class m150212_155931_bills_payments extends \app\classes\Migration
 {
     public function up()
     {
@@ -147,7 +147,7 @@ class m150129_155931_bills_payments extends \app\classes\Migration
 
     public function down()
     {
-        echo "m150129_155931_bills_payments cannot be reverted.\n";
+        echo "m150212_155931_bills_payments cannot be reverted.\n";
 
         return false;
     }

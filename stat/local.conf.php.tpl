@@ -7,20 +7,8 @@ return array(
     'ADMIN_EMAIL'   => 'admin@mcn.loc',
 
 // stat mysql
-    'SQL_HOST'            =>    '',
-    'SQL_USER'            =>    '',
-    'SQL_PASS'            =>    '',
-    'SQL_DB'            =>    '',
     'SQL_ATS_DB'        =>    '', //db width ats v.1
     'SQL_ATS2_DB'        =>    '', //db width ats v.2 (with "a" prefix, with schema)
-
-
-/* voip central db
-    'PGSQL_HOST'        =>    '',
-    'PGSQL_USER'        =>    '',
-    'PGSQL_PASS'        =>    '',
-    'PGSQL_DB'            =>    '',
-*/
 
 /* voip regions db
     'R_CALLS_HOST'        =>    '',
@@ -69,13 +57,13 @@ return array(
 
     /** параметры для достпа к платежной системе Unileller */
     'UNITELLER_SHOP_ID' => '',
-    'UNITELLER_PASSWORD' => ''
+    'UNITELLER_PASSWORD' => '',
 /*   dir with scaned docs (for qrcodes response) 
 *    stat.mcn.ru: 'SCAN_DOC_DIR'      => '/var/log/skanpdf/';
 */
     'SCAN_DOC_DIR'      => "/tmp/docs/",
     "CORE_API_URL" => "http://demo.mcn.loc/core/api/", ///with end slash,
     "LK_PATH" => "https://lk.mcn.ru/lk/",
-    "AUTOCREATE_SIP_ACCOUNT" => 0 //автоматическое создание учеток при заведении номера
-    "AUTOCREATE_VPBX" => 0// автоматическое создание vpbx после включения услуги
+    "AUTOCREATE_SIP_ACCOUNT" => 0, //автоматическое создание учеток при заведении номера
+    "AUTOCREATE_VPBX" => 0, // автоматическое создание vpbx после включения услуги
 );

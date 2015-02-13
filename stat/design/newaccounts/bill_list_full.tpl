@@ -71,26 +71,18 @@
 </table>
 </td>
 <td valign=top style="padding-left: 100px;" align=right>
-<div>
-	<form action="?" name="show_incomegoods" method="get">
-	<input type="hidden" name="module" value="newaccounts">
-	<input type="hidden" name="action" value="show_income_goods">
-	<input id="with_income" type="checkbox" value="Y" name="show" {if $get_income_goods_on_bill_list}checked{/if} onchange="show_income_goods();">
-	<label for="with_income">Показывать заказы поставщика</label>
-	</form>
-</div>
+    <div>
+        <form action="?" name="show_incomegoods" method="get">
+            <input type="hidden" name="module" value="newaccounts">
+            <input type="hidden" name="action" value="show_income_goods">
+            <input id="with_income" type="checkbox" value="Y" name="show" {if $get_income_goods_on_bill_list}checked{/if} onchange="show_income_goods();">
+            <label for="with_income">Показывать заказы поставщика</label>
+        </form>
+    </div>
 {if $counters}
     <table>
         <tr>
             <td>
-                <span title="Баланс по счетам: {$fixclient_data.balance}
-                VOIP расход в этом месяце: {math equation="y*-1" y=$counters.amount_sum}
-                ">Реалтайм баланс:
-        {math equation='((b*-1)-c)*-1'
-                b=$fixclient_data.balance 
-                c=$counters.amount_sum 
-        }</span>
-                <br><br>
                 <b>IP-Телефония:</b><br/>
                 Расход за день: <b>{$counters.amount_day_sum}</b><br/>
                 Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
@@ -99,6 +91,7 @@
         </tr>
     </table>
 {/if}
+
 </td>
 </tr>
 </table>

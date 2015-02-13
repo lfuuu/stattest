@@ -1,12 +1,16 @@
 <?php
 
-class m150129_155958_transactions extends \app\classes\Migration
+class m150212_155958_transactions extends \app\classes\Migration
 {
     public function up()
     {
         $this->execute("
             ALTER TABLE `newpayments`
               MODIFY COLUMN `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT FIRST ;
+        ");
+
+        $this->execute("
+            DROP TABLE IF EXISTS `transaction` ;
         ");
 
         $this->execute("
@@ -78,7 +82,7 @@ class m150129_155958_transactions extends \app\classes\Migration
 
     public function down()
     {
-        echo "m150129_155958_transactions cannot be reverted.\n";
+        echo "m150212_155958_transactions cannot be reverted.\n";
 
         return false;
     }
