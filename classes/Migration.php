@@ -35,7 +35,13 @@ class Migration extends \yii\db\Migration
         $dbPass = $this->db->password;
         $fullFileName =  $this->getFullFileName($fileName);
 
-        system("mysql -h $dbHost -u $dbUser -p$dbPass $dbName < $fullFileName", $result);
+        $command = "mysql -h $dbHost -u $dbUser";
+        if ($dbPass) {
+            $command .= " -p$dbPass";
+        }
+        $command .= " $dbName < $fullFileName";
+
+        system($command, $result);
         if ($result !== 0) {
             throw new Exception("Error executing sql file");
         }
