@@ -1,0 +1,2 @@
+mysql nispd < /vagrant/install/db/backup/stat.sql
+
