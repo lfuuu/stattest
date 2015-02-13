@@ -18,9 +18,9 @@ class UsageSms extends ActiveRecord implements Usage
         return 'usage_sms';
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new SmsBiller($this, $date);
+        return new SmsBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -31,5 +31,10 @@ class UsageSms extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_SMS;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }

@@ -101,7 +101,7 @@ abstract class BillerPackage
         $transaction->sum = $transaction->sum_without_tax + $transaction->sum_tax;
 
         if ($transaction->is_partial_write_off && $periodFrom && $periodTo) {
-            $date = $this->biller->billerDate->getTimestamp();
+            $date = $this->biller->billerDate->getTimestamp() + 86400 - 1;
             $periodFrom = $periodFrom->getTimestamp();
             $periodTo = $periodTo->getTimestamp();
 

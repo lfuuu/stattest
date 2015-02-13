@@ -96,6 +96,7 @@
 </tr>
 </table>
 
+{include file='newaccounts/bill_list_part_transactions.tpl'}
 
 <TABLE class=price cellSpacing=3 cellPadding=1 border=0 width=100%><TR>
 	<TD class=header vAlign=bottom colspan=3>Счёт</td>
@@ -143,7 +144,7 @@
 		{if $pay.type=='bank'}b{elseif $pay.type=='prov'}p{elseif $pay.type=='neprov'}n{elseif $pay.type=='webmoney'}wm{elseif $pay.type=='yandex'}y{else}{$pay.type}{/if}
 		{if $pay.oper_date!="0000-00-00"} - {$pay.oper_date}{/if}
 	</TD>
-	<TD align="right"><span title="{$pay.add_date}">{$pay.user_name}</span>{if (access('newaccounts_payments','delete') && $pay.type != 'ecash')}<a onclick="return confirm('Вы уверены?')" href="{$LINK_START}module=newaccounts&action=pay_delete&id={$pay.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>{/if}</TD>
+	<TD align="right"><span title="{$pay.add_date}">{$pay.user_name}</span>{if (access('newaccounts_payments','delete') && $pay.type != 'ecash')}<a onclick="return confirm('Вы уверены?')" href="/payment/delete?paymentId={$pay.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>{/if}</TD>
 	{else}
 	<TD colspan=3>&nbsp;</TD>
 	{/if}

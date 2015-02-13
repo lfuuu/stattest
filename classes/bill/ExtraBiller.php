@@ -5,20 +5,25 @@ use Yii;
 
 class ExtraBiller extends Biller
 {
-    public function process()
-    {
-        $tariff = $this->usage->tariff;
-        if ($tariff === null) {
-            return $this;
-        }
+    private $tariff;
 
+    protected function beforeProcess()
+    {
+        $this->tariff = $this->usage->tariff;
+        if ($this->tariff === null) {
+            return false;
+        }
+    }
+
+    protected function processPeriodical()
+    {
         $template = '{name}';
 
-        if ($tariff->param_name) {
+        if ($this->tariff->param_name) {
             $template = str_replace('%', $this->usage->param_value, $template);
         }
 
-        $template .= $this->getPeriodTemplate($tariff->period);
+        $template .= $this->getPeriodTemplate($this->tariff->period);
 
         if ($this->clientAccount->bill_rename1 == 'yes') {
             $template .= $this->getContractInfo();
@@ -26,16 +31,15 @@ class ExtraBiller extends Biller
 
         $this->addPackage(
             BillerPackagePeriodical::create($this)
-                ->setPeriodType($tariff->period)
-                ->setIsAlign($tariff->period == self::PERIOD_MONTH)
+                ->setPeriodType($this->tariff->period)
+                ->setIsAlign($this->tariff->period == self::PERIOD_MONTH)
                 ->setIsPartialWriteOff(false)
                 ->setAmount($this->usage->amount)
-                ->setName($tariff->description)
+                ->setName($this->tariff->description)
                 ->setTemplate($template)
-                ->setPrice($tariff->price)
+                ->setPrice($this->tariff->price)
         );
 
-        return $this;
     }
 
 }

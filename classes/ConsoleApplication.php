@@ -45,6 +45,7 @@ class ConsoleApplication extends \yii\console\Application
                 'request'
             );
         });
+
     }
 
 }

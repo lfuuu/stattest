@@ -10,12 +10,18 @@ use DateTime;
 
 class VirtpbxBiller extends Biller
 {
-    public function process()
-    {
-        $tariffRange = $this->getTariffRange();
-        foreach ($tariffRange as $range) {
+    private $tariffRange;
 
-            $tariff = TariffVirtpbx::findOne($range['id']);
+    protected function beforeProcess()
+    {
+        $this->tariffRange = $this->getTariffRange();
+    }
+
+    protected function processPeriodical()
+    {
+        foreach ($this->tariffRange as $range) {
+
+            $tariff = $range['tariff'];
 
             $template = '{name}' . $this->getPeriodTemplate($tariff->period);
 
@@ -30,8 +36,14 @@ class VirtpbxBiller extends Biller
                     ->setTemplate($template)
                     ->setPrice($tariff->price)
             );
+        }
+    }
 
-            $stats = $this->getVpbxStat($range['from'], $range['to'], $tariff);
+    protected function processResource()
+    {
+        foreach ($this->tariffRange as $range) {
+
+            $stats = $this->getVpbxStat($range['from'], $range['to'], $range['tariff']);
 
             if ($stats['sum_space'] > 0) {
                 $price = $stats['overrun_per_gb'];
@@ -66,9 +78,8 @@ class VirtpbxBiller extends Biller
                 }
             }
         }
-
-        return $this;
     }
+
 
     private function getVpbxStat(DateTime $from, DateTime $to, TariffVirtpbx $tariff)
     {
@@ -164,6 +175,7 @@ class VirtpbxBiller extends Biller
                     'from' => $lastTariffDate,
                     'to' => $to,
                     'id' => $lastTariffId,
+                    'tariff' => TariffVirtpbx::findOne($lastTariffId)
                 ];
                 $lastTariffId = $tariffId;
                 $lastTariffDate = $activationDate;
@@ -176,6 +188,7 @@ class VirtpbxBiller extends Biller
                 'from' => $lastTariffDate,
                 'to' => $this->billerActualTo,
                 'id' => $lastTariffId,
+                'tariff' => TariffVirtpbx::findOne($lastTariffId)
             ];
         }
 

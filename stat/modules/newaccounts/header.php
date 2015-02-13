@@ -12,6 +12,7 @@ class m_newaccounts_head extends IModuleHead{
 					'bill_add'			=> array('newaccounts_bills','edit'),	//добавление чего-нибудь в счета, типа там "всех подключений" или "абонплата" или "залог"
 					'bill_apply'		=> array('newaccounts_bills','edit'),
 					'bill_comment'		=> array('newaccounts_bills','edit'),
+					'bill_nal'			=> array('newaccounts_bills','edit'),
 					'bill_delete'		=> array('newaccounts_bills','delete'),
 					'bill_print'		=> array('newaccounts_bills','read'),
 					'bill_mprint'		=> array('newaccounts_bills','read'),
@@ -37,7 +38,6 @@ class m_newaccounts_head extends IModuleHead{
 					'pi_process'		=> array('newaccounts_payments','read'),
 					'pi_apply'			=> array('newaccounts_payments','edit'),
 
-					'pay_delete'		=> array('newaccounts_payments','delete'),
 					'pay_rebill'		=> array('newaccounts_payments','edit'),
 
 					'balance_client'	=> array('newaccounts_balance','read'),

@@ -1,6 +1,6 @@
 <table border=0 width=100%>
     <tr>
-        <td>
+        <td width="33%">
             <a href="./?module=clients&id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
             <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
             <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
@@ -29,7 +29,8 @@
                 {/if}
             {/if}
         </td>
-        <td>
+        <td>&nbsp;</td>
+        <td width="33%">
             {if !$bill.is_approved}Cчет не проведен{else}Счет проведен{/if}
             {if false && access('newaccounts_bills','edit') && !$isClosed}
                 <form action="?" method="post">
@@ -40,67 +41,76 @@
                 </form>
             {/if}
             {if $bill_client.type == "multi"}<br><a href="./?module=newaccounts&action=make_1c_bill&tty=shop_orders&from_order={$bill.bill_no}"> Создать заказ на основе данных этого</a>{/if}
-            {if $bill.is_payed != 1}<br><a href="./?module=newaccounts&action=pay_add&bill_no={$bill.bill_no}">Внести платеж</a>{/if}
+            {if $bill.is_payed != 1}<br><a href="/payment/add?clientAccountId={$bill.client_id}">Внести платеж</a>{/if}
         </td>
-        </tr>
-    <tr>
+    </tr>
     {if !$isClosed}
         <tr>
-            <td>Выбрать исполнителя:
+            <td width="33%">
+                Выбрать исполнителя:
                 <form method='POST'>
                     <input type='hidden' name='select_doer' value='1' />
                     <input type='hidden' name='bill_no' value='{$bill.bill_no}' />
-                    <select class="select2" name='doer'>
+                    <select class="select2" name='doer' style="width: 200px">
                         <option value='0'>Отсутствует</option>
                         {foreach from=$doers item='doer'}<option value='{$doer.id}'>{$doer.name} - {$doer.depart}</option>{/foreach}
                     </select>
                     <input type='submit' value='Выбрать' />
                 </form>
             </td>
-            <td>
-                <form method='POST'><input type='hidden' name='bill_no' value='{$bill.bill_no}' />Предпологаемый тип платежа:<br>
+            <td width="33%">
+                Комментарий:
+                <form action="?" method=post>
+                    <input type=hidden name=module value=newaccounts>
+                    <input type=hidden name=bill value="{$bill.bill_no}">
+                    <input type=hidden name=action value="bill_comment">
+                    <input class=text type=text value="{$bill.comment|escape}" name=comment style="width: 200px">
+                    <input type=submit class=button value='ок'>
+                </form>
+            </td>
+            <td width="33%">
+                Предпологаемый тип платежа:
+                <form action="?" method=post>
+                    <input type=hidden name=module value=newaccounts>
+                    <input type=hidden name=bill value="{$bill.bill_no}">
+                    <input type=hidden name=action value="bill_nal">
                     <select name="nal">
                         <option value='---'>Не выбрано</option>
                         <option value="beznal">безнал</option>
                         <option value="nal">нал</option>
                         <option value="prov">пров</option>
                     </select>
-                    <input type='submit' name='select_nal' value='Выбрать' />
+                    <input type='submit' value='Выбрать' />
                 </form>
             </td>
+        </tr>
+    {else}
+        <tr>
+            <td>&nbsp;</td>
+            <td>{$bill.comment}</td>
+            <td>&nbsp;</td>
         </tr>
     {/if}
     {if $bill_manager}
         <tr>
             <td>&nbsp;</td>
+            <td>&nbsp;</td>
             <td><span title="Менеджер, который провел сделку по данному счету, и получит с него бонусы.">Менеджер счета*</span>: {$bill_manager}</td>
         </tr>
     {/if}
 </table>
-</H3>
 
+<br/>
 
-{if !$isClosed}
-<table width=100%><tr><td>
-<FORM action="?" method=post id=form name=form>
-<input type=hidden name=module value=newaccounts>
-<input type=hidden name=bill value="{$bill.bill_no}">
-<input type=hidden name=action value="bill_comment">
-<input class=text type=text value="{$bill.comment|escape}" name=comment>
-<input type=submit class=button value='ок'></form>
-</td><td>
-    {if $bill.is_payed != 1}<br><a href="./?module=newaccounts&action=pay_add&bill_no={$bill.bill_no}">Внести платеж</a>{/if}
-    </td></tr></table>
-{else}{$bill.comment}
-{/if}
-<table>
-	<tr>
-		<td>Дата проводки:</td><td><b>{$bill.bill_date}</b></td>
-		<td>Валюта проводки:</td><td><b{if $bill.currency=='RUB'} style='color:blue'{/if}>{$bill.currency}</b></td>
-		<td>Исполнитель:</td><td>{if $bill.courier_id != 0}<i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}</td>
-		<td>Предполагаемый тип платежа:</td><td><i{if $bill.nal != "beznal"} style="background-color: {if $bill.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}"{/if}>{$bill.nal}</i></td>
-	</tr>
-</table>
+<div>
+    Дата проводки: <b>{$bill.bill_date}</b>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Валюта проводки: <b{if $bill.currency=='RUB'} style='color:blue'{/if}>{$bill.currency}</b>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Исполнитель:{if $bill.courier_id != 0}<i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Предполагаемый тип платежа: <i{if $bill.nal != "beznal"} style="background-color: {if $bill.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}"{/if}>{$bill.nal}</i>
+</div>
 
 {if $bill_comment.comment}
 <br><b><i>Комментарий:</i></b><br>
@@ -142,7 +152,7 @@
 <td>{$item.type}</td>
 </tr>
 {/foreach}
-<tr>&nbsp;</td><td colspan=5 align=right><b>Итого: </b>&nbsp; </td><td align=right><b>{$bill.sum|round:2}</b></td>{if $bill_bonus}<td align=right><b>{$bonus_sum|round:2}</b></td>{/if}</tr>
+<tr><td>&nbsp;</td><td colspan=5 align=right><b>Итого: </b>&nbsp; </td><td align=right><b>{$bill.sum|round:2}</b></td>{if $bill_bonus}<td align=right><b>{$bonus_sum|round:2}</b></td>{/if}</tr>
 </TABLE>
 
 {if !$isClosed && !$all4net_order_number && !$1c_bill_flag}
@@ -193,7 +203,6 @@
 <input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2 превышение)</label><br>
 <input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3] || $deinv3} style='color:#C0C0C0'{/if}>Счёт-фактура (3 оборудование)</label><br>
 <input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4 аванс)</label><br>
-<input type=checkbox value=1 name="invoice-5" id=cb10><label for=cb10{if !$bill_invoices[6]} style='color:#C0C0C0'{/if}>Счёт-фактура (5)</label><br>
 
 <input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1 абонентка)</label><br>
 <input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2 превышение)</label><br>

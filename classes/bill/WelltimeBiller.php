@@ -5,7 +5,7 @@ use Yii;
 
 class WelltimeBiller extends Biller
 {
-    public function process()
+    protected function processPeriodical()
     {
         $tariff = $this->usage->tariff;
 
@@ -18,7 +18,6 @@ class WelltimeBiller extends Biller
                 ->setName($tariff->description)
                 ->setPrice($tariff->price)
         );
-        return $this;
     }
 
 }

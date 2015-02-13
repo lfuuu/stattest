@@ -16,9 +16,9 @@ class UsageIpPorts extends ActiveRecord implements Usage
         return 'usage_ip_ports';
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new IpPortBiller($this, $date);
+        return new IpPortBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -29,5 +29,10 @@ class UsageIpPorts extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_IPPORT;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }

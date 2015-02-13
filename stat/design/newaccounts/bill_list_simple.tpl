@@ -83,6 +83,8 @@
 </tr>
 </table>
 
+{include file='newaccounts/bill_list_part_transactions.tpl'}
+
 <TABLE class=price cellSpacing=3 cellPadding=1 border=0 width=100%><TR>
 	<TD class=header vAlign=bottom colspan=3>Счёт</td>
 	<TD class=header vAlign=bottom>&nbsp;</td>

@@ -33,6 +33,7 @@ class DevController extends Controller
 
     public function actionYyy()
     {
+        /*
         $clientAccounts =
             ClientAccount::find()
 //                ->andWhere('client != "" and status NOT IN ("closed","deny","tech_deny") ')
@@ -46,22 +47,20 @@ class DevController extends Controller
 
             echo $n . "\t\t\t" . $clientAccount->id . "\n";
             $n++;
-
-            $biller = ClientAccountBiller::create($clientAccount, new \DateTime('2015-02-05 23:59:59'));
-            $biller->createTransactions();
-            $biller->saveTransactions();
-
+echo "AAA\n";
+            $biller =
+                ClientAccountBiller::create(
+                    $clientAccount,
+                    new \DateTime('2015-02-05 23:59:59'),
+                    true, true, false
+                );
+            $biller->process();
+            echo "BBB\n";
 //            $biller->createAndSaveBill();
 
-/*
-            foreach ($biller->getErrors() as $error) {
-                $exception = $error['exception'];
-                echo $exception->getMessage() . "\n";
-                echo $exception->getFile() . '[' . $exception->getLine() . "]\n";
-                echo $exception->getTraceAsString();
-            }
-*/
         }
+        */
 
+        echo "CCC\n";
     }
 }

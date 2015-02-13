@@ -1,6 +1,7 @@
 <?php
 namespace _1c;
 
+use app\dao\BillDao;
 use app\models\Bill;
 
 function trr($var){
@@ -882,6 +883,12 @@ class SoapHandler{
         $err_msg = '';
         $db->Query('start transaction');
 
+        if (isset($curbill['id'])) {
+            $db->Query("delete from `transaction` where bill_id='" . addcslashes($curbill['id'], "\\'") . "'");
+            if ($err |= mysql_errno())
+                $err_msg = mysql_error();
+        }
+
         $db->Query("delete from newbills where bill_no='".addcslashes($bill_no, "\\'")."'");
         if($err |= mysql_errno())
             $err_msg = mysql_error();
@@ -1074,17 +1081,16 @@ class SoapHandler{
                     unset($curts['stage_id'],$curts['date_edit']);
 
                     // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
-                    include_once INCLUDE_PATH.'bill.php';
 
-                    $oBill = Bill::findOne(['bill_no' => $bill_no]);
+                    $bill = Bill::findOne(['bill_no' => $bill_no]);
                     if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                        $oBill->is_approved = 1;
-                        $oBill->sum = $oBill->sum_with_unapproved;
+                        $bill->is_approved = 1;
+                        $bill->sum = $bill->sum_with_unapproved;
                     }else{
-                        $oBill->is_approved = 0;
-                        $oBill->sum = 0;
+                        $bill->is_approved = 0;
+                        $bill->sum = 0;
                     }
-                    $oBill->save();
+                    $bill->save();
 
                     $newts_id = $db->QueryInsert(
                         'tt_stages',
@@ -1200,13 +1206,17 @@ class SoapHandler{
                     if(!$err){
 
                         // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
-                        include_once INCLUDE_PATH.'bill.php';
-                        $oBill = new \Bill($bill_no);
+
+                        $bill = Bill::findOne(['bill_no' => $bill_no]);
                         if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                            $oBill->SetCleared();
+                            $bill->is_approved = 1;
+                            $bill->sum = $bill->sum_with_unapproved;
                         }else{
-                            $oBill->SetUnCleared();
+                            $bill->is_approved = 0;
+                            $bill->sum = 0;
                         }
+                        $bill->save();
+
                         $comment = "";
                         if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
                             $comment = trim($_POST["comment"]);
@@ -1229,6 +1239,11 @@ class SoapHandler{
                         $err_msg = mysql_error();
                 }
             }
+        }
+
+        if (!$err) {
+            $bill = Bill::findOne(['bill_no' => $bill_no]);
+            Bill::dao()->recalcBill($bill);
         }
 
         if($err){

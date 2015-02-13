@@ -44,12 +44,13 @@ abstract class Biller
     /** @var DateTime */
     public $billerActualTo;
 
-    public function __construct(Usage $usage, DateTime $date)
+    public function __construct(Usage $usage, DateTime $date, ClientAccount $clientAccount)
     {
         $this->usage = $usage;
+        $this->clientAccount = $clientAccount;
 
-        $this->setupClientAccount();
-        $this->setupTimezone();
+        // $this->timezone = new DateTimeZone($this->clientAccount->accountRegion->timezone_name);
+        $this->timezone = $date->getTimezone();
 
         $this->setupBillerDate($date);
         $this->setupBillerPeriod();
@@ -58,29 +59,6 @@ abstract class Biller
         $this->setupBillerActualPeriod();
     }
 
-    protected function setupClientAccount()
-    {
-        if ($this->usage->hasAttribute('client')) {
-            $this->clientAccount = ClientAccount::findOne(['client' => $this->usage->client]);
-        }
-
-        if ($this->usage->hasAttribute('client_id')) {
-            $this->clientAccount = ClientAccount::findOne(['id' => $this->usage->client_id]);
-        }
-
-        if ($this->usage->hasAttribute('client_account_id')) {
-            $this->clientAccount = ClientAccount::findOne(['id' => $this->usage->client_account_id]);
-        }
-
-        Assert::isObject($this->clientAccount);
-    }
-
-    protected function setupTimezone()
-    {
-        $this->timezone = new DateTimeZone($this->clientAccount->accountRegion->timezone_name);
-
-        Assert::isObject($this->timezone);
-    }
 
     protected function setupBillerDate(DateTime $date)
     {
@@ -153,10 +131,44 @@ abstract class Biller
         return $this->transactions;
     }
 
-    /**
-     * @return $this
-     */
-    abstract public function process();
+    public function process($connecting = true, $periodical = true, $resource = true)
+    {
+        if ($this->beforeProcess() === false) {
+            return $this;
+        }
+
+        if ($connecting) {
+            $this->processConnecting();
+        }
+
+        if ($periodical) {
+            $this->processPeriodical();
+        }
+
+        if ($resource) {
+            $this->processResource();
+        }
+
+        return $this;
+    }
+
+    protected function beforeProcess()
+    {
+        return true;
+    }
+
+    protected function processConnecting() {
+
+    }
+
+    protected function processPeriodical() {
+
+    }
+
+    protected function processResource() {
+
+    }
+
 
     protected function getPeriodTemplate($period)
     {

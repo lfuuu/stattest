@@ -18,9 +18,9 @@ class UsageWelltime extends ActiveRecord implements Usage
         return 'usage_welltime';
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new WelltimeBiller($this, $date);
+        return new WelltimeBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -31,5 +31,10 @@ class UsageWelltime extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_WELLTIME;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }

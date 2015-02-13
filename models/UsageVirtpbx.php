@@ -18,9 +18,9 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return 'usage_virtpbx';
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new VirtpbxBiller($this, $date);
+        return new VirtpbxBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -31,5 +31,10 @@ class UsageVirtpbx extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_VIRTPBX;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }

@@ -5,7 +5,7 @@ use Yii;
 
 class SmsBiller extends Biller
 {
-    public function process()
+    protected function processPeriodical()
     {
         $tariff = $this->usage->tariff;
 
@@ -22,7 +22,11 @@ class SmsBiller extends Biller
                     ->setPrice($tariff->per_month_price)
             );
         }
+    }
 
+    protected function processResource()
+    {
+        $tariff = $this->usage->tariff;
 
         $smsCount = $this->getSmsCount();
         if ($smsCount > 0 && $tariff->per_sms_price > 0)
@@ -38,7 +42,6 @@ class SmsBiller extends Biller
             );
 
         }
-        return $this;
     }
 
     private function getSmsCount()

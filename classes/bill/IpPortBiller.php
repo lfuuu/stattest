@@ -10,24 +10,33 @@ use Yii;
 
 class IpPortBiller extends Biller
 {
-    public function process()
-    {
-        $tariff = $this->getTariff();
-        if ($tariff === null) {
-            return $this;
-        }
+    /** @var TariffInternet */
+    private $tariff;
 
+    protected function beforeProcess()
+    {
+        $this->tariff = $this->getTariff();
+        if ($this->tariff === null) {
+            return false;
+        }
+    }
+
+    protected function processConnecting()
+    {
         $template = 'Подключение к интернет по тарифу {name}';
         $this->addPackage(
             BillerPackageConnecting::create($this)
-                ->setName($tariff->name)
+                ->setName($this->tariff->name)
                 ->setTemplate($template)
-                ->setPrice($tariff->pay_once)
+                ->setPrice($this->tariff->pay_once)
         );
+    }
 
+    protected function processPeriodical()
+    {
         $template =
-            $tariff->type == "C"
-                ? $tariff->name . $this->getPeriodTemplate(self::PERIOD_MONTH)
+            $this->tariff->type == "C"
+                ? $this->tariff->name . $this->getPeriodTemplate(self::PERIOD_MONTH)
                 : 'Абонентская плата за доступ в интернет (подключение '.$this->usage->id.', тариф {name})' . $this->getPeriodTemplate(self::PERIOD_MONTH);
 
         $this->addPackage(
@@ -35,18 +44,21 @@ class IpPortBiller extends Biller
                 ->setPeriodType(self::PERIOD_MONTH)
                 ->setIsAlign(true)
                 ->setIsPartialWriteOff(false)
-                ->setName($tariff->name)
+                ->setName($this->tariff->name)
                 ->setTemplate($template)
                 ->setAmount($this->usage->amount)
-                ->setPrice($tariff->pay_month)
+                ->setPrice($this->tariff->pay_month)
         );
+    }
 
+    protected function processResource()
+    {
         $template =
             'Превышение лимита {name}, включенного в абонентскую плату (подключение '.
-            $this->usage->id . ', тариф '. $tariff->name . ')' .
+            $this->usage->id . ', тариф '. $this->tariff->name . ')' .
             $this->getPeriodTemplate(self::PERIOD_MONTH);
 
-        if ($tariff->type=='I') {
+        if ($this->tariff->type=='I') {
             $S = $this->calcIC();
             $S['in'] = $S['in_r'] + $S['in_r2'] + $S['in_f'];
             $S['out']= $S['out_r'] + $S['out_r2'] + $S['out_f'];
@@ -55,17 +67,17 @@ class IpPortBiller extends Biller
                 BillerPackageResource::create($this)
                     ->setName(($S['in']>$S['out']?'входящего':'исходящего').' трафика')
                     ->setTemplate($template)
-                    ->setFreeAmount($tariff->mb_month)
+                    ->setFreeAmount($this->tariff->mb_month)
                     ->setAmount($mb)
-                    ->setPrice($tariff->pay_mb)
+                    ->setPrice($this->tariff->pay_mb)
             );
-        } elseif ($tariff->type=='C') {
+        } elseif ($this->tariff->type=='C') {
             $S = $this->calcIC();
-            if ($tariff->type_count=='r2_f') {
+            if ($this->tariff->type_count=='r2_f') {
                 $S['in_f'] += $S['in_r2'];
                 $S['in_r2'] = 0;
                 $N = array('бесплатного входящего трафика','','платного входящего трафика');
-            } elseif ($tariff->type_count == 'all_f') {
+            } elseif ($this->tariff->type_count == 'all_f') {
                 $S['in_f'] += $S['in_r'] + $S['in_r2'];
                 $S['in_r'] = 0;
                 $S['in_r2'] = 0;
@@ -77,40 +89,38 @@ class IpPortBiller extends Biller
                 BillerPackageResource::create($this)
                     ->setName($N[0])
                     ->setTemplate($template)
-                    ->setFreeAmount($tariff->month_r)
+                    ->setFreeAmount($this->tariff->month_r)
                     ->setAmount($S['in_r'])
-                    ->setPrice($tariff->pay_r)
+                    ->setPrice($this->tariff->pay_r)
             );
             $this->addPackage(
                 BillerPackageResource::create($this)
                     ->setName($N[1])
                     ->setTemplate($template)
-                    ->setFreeAmount($tariff->month_r2)
+                    ->setFreeAmount($this->tariff->month_r2)
                     ->setAmount($S['in_r2'])
-                    ->setPrice($tariff->pay_r2)
+                    ->setPrice($this->tariff->pay_r2)
             );
             $this->addPackage(
                 BillerPackageResource::create($this)
                     ->setName($N[2])
                     ->setTemplate($template)
-                    ->setFreeAmount($tariff->month_f)
+                    ->setFreeAmount($this->tariff->month_f)
                     ->setAmount($S['in_f'])
-                    ->setPrice($tariff->pay_f)
+                    ->setPrice($this->tariff->pay_f)
             );
-        } elseif ($tariff->type=='V') {
+        } elseif ($this->tariff->type=='V') {
             $S = $this->calcV();
             $mb = max($S['in'],$S['out']);
             $this->addPackage(
                 BillerPackageResource::create($this)
                     ->setName(($S['in']>$S['out']?'входящего':'исходящего').' трафика')
                     ->setTemplate($template)
-                    ->setFreeAmount($tariff->mb_month)
+                    ->setFreeAmount($this->tariff->mb_month)
                     ->setAmount($mb)
-                    ->setPrice($tariff->pay_mb)
+                    ->setPrice($this->tariff->pay_mb)
             );
         }
-
-        return $this;
     }
 
     private function calcIC()

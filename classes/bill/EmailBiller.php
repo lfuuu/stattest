@@ -8,7 +8,7 @@ class EmailBiller extends Biller
 {
     private static $service_data = [];
 
-    public function process()
+    protected function processPeriodical()
     {
         if (!isset(self::$service_data[$this->clientAccount->id])) {
 

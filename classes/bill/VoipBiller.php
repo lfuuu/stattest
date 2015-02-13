@@ -8,34 +8,50 @@ use Yii;
 
 class VoipBiller extends Biller
 {
-    public function process()
+    /** @var LogTarif */
+    private $logTariff = false;
+    /** @var TariffVoip */
+    private $tariff = false;
+
+    public function beforeProcess()
     {
-        $logTariff = $this->getLogTariff();
-        if ($logTariff === null) {
-            return $this;
+        $this->logTariff =
+            LogTarif::find()
+                ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
+                ->andWhere('date_activation < :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                ->andWhere('id_tarif != 0')
+                ->orderBy('date_activation desc, id desc')
+                ->limit(1)
+                ->one();
+        if ($this->logTariff === null) {
+            return false;
         }
 
-        $tariff = $this->getTariff($logTariff);
+        $this->tariff = TariffVoip::findOne($this->logTariff->id_tarif);
+        Assert::isObject($this->tariff);
+    }
 
-        $price = ($this->usage->no_of_lines - 1) * $tariff->once_line;
+    protected function processConnecting()
+    {
+        $price = ($this->usage->no_of_lines - 1) * $this->tariff->once_line;
         if ($price < 0) {
             $price = 0;
         }
-        $price += $tariff->once_number;
+        $price += $this->tariff->once_number;
 
         $template = 'Подключение к IP-телефонии по тарифу {name}';
 
         $this->addPackage(
             BillerPackageConnecting::create($this)
-                ->setName($tariff->name)
+                ->setName($this->tariff->name)
                 ->setTemplate($template)
                 ->setPrice($price)
         );
+    }
 
-
-        $is7800 = substr($this->usage->E164, 0, 4) == "7800";
-
-        if ($tariff->month_number > 0) {
+    protected function processPeriodical()
+    {
+        if ($this->tariff->month_number > 0) {
             $template = 'Абонентская плата за телефонный номер {name}' . $this->getPeriodTemplate(self::PERIOD_MONTH);
 
             if ($this->clientAccount->bill_rename1 == 'yes') {
@@ -49,16 +65,16 @@ class VoipBiller extends Biller
 
             $this->addPackage(
                 BillerPackagePeriodical::create($this)
-                    ->setPeriodType($tariff->period)
+                    ->setPeriodType($this->tariff->period)
                     ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
                     ->setName($this->usage->E164)
                     ->setTemplate($template)
-                    ->setPrice($tariff->month_number)
+                    ->setPrice($this->tariff->month_number)
             );
         }
 
-        if ($this->usage->no_of_lines > 1 && $tariff->month_line > 0) {
+        if ($this->usage->no_of_lines > 1 && $this->tariff->month_line > 0) {
             $count = $this->usage->no_of_lines - 1;
 
             $template =
@@ -78,17 +94,22 @@ class VoipBiller extends Biller
 
             $this->addPackage(
                 BillerPackagePeriodical::create($this)
-                    ->setPeriodType($tariff->period)
+                    ->setPeriodType($this->tariff->period)
                     ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
                     ->setName($this->usage->E164)
                     ->setTemplate($template)
                     ->setAmount($count)
-                    ->setPrice($tariff->month_line)
+                    ->setPrice($this->tariff->month_line)
             );
         }
+    }
 
-        $lines = $this->calc($is7800, $logTariff);
+    protected function processResource()
+    {
+        $is7800 = substr($this->usage->E164, 0, 4) == "7800";
+
+        $lines = $this->calc($is7800, $this->logTariff);
 
         foreach ($lines as $dest => $r) {
 
@@ -100,35 +121,35 @@ class VoipBiller extends Biller
                 $template = 'Превышение лимита, включенного в абонентскую плату по номеру {name} (местные вызовы)';
             }elseif($dest == '5'){
                 $template = 'Плата за звонки на местные мобильные с номера {name}';
-                $minPayment = $logTariff->minpayment_local_mob;
+                $minPayment = $this->logTariff->minpayment_local_mob;
                 $minPaymentTemplate = 'Минимальный платеж за звонки на местные мобильные с номера {name}';;
             }elseif($dest == '1'){
                 $template = 'Плата за междугородные звонки с номера {name}';
-                $minPayment = $logTariff->minpayment_russia;
+                $minPayment = $this->logTariff->minpayment_russia;
                 $minPaymentTemplate = 'Минимальный платеж за междугородные звонки с номера {name}';
             }elseif($dest == '2'){
                 $template = 'Плата за звонки в дальнее зарубежье с номера {name}';
-                $minPayment = $logTariff->minpayment_intern;
+                $minPayment = $this->logTariff->minpayment_intern;
                 $minPaymentTemplate = 'Минимальный платеж за звонки в дальнее зарубежье с номера {name}';
             }elseif($dest == '3'){
                 $template = 'Плата за звонки в ближнее зарубежье с номера {name}';
-                $minPayment = $logTariff->minpayment_sng;
+                $minPayment = $this->logTariff->minpayment_sng;
                 $minPaymentTemplate = 'Минимальный платеж за звонки в ближнее зарубежье с номера {name}';
             }elseif($dest == '100'){
                 $group = array();
-                if (strpos($logTariff->dest_group, '5') !== FALSE) $group[]='местные мобильные';
-                if (strpos($logTariff->dest_group, '1') !== FALSE) $group[]='междугородные';
-                if (strpos($logTariff->dest_group, '2') !== FALSE) $group[]='дальнее зарубежье';
-                if (strpos($logTariff->dest_group, '3') !== FALSE) $group[]='ближнее зарубежье';
+                if (strpos($this->logTariff->dest_group, '5') !== FALSE) $group[]='местные мобильные';
+                if (strpos($this->logTariff->dest_group, '1') !== FALSE) $group[]='междугородные';
+                if (strpos($this->logTariff->dest_group, '2') !== FALSE) $group[]='дальнее зарубежье';
+                if (strpos($this->logTariff->dest_group, '3') !== FALSE) $group[]='ближнее зарубежье';
                 $group = implode(', ', $group);
 
                 $template = "Плата за звонки в наборе ($group) с номера {name}";
-                $minPayment = $logTariff->minpayment_group;
+                $minPayment = $this->logTariff->minpayment_group;
                 $minPaymentTemplate = "Минимальный платеж за набор ($group) с номера {name}";
             }elseif($dest == '900'){
                 if ($is7800) {
                     $template = 'Плата за звонки по номеру {name}';
-                    $minPayment = $tariff->month_min_payment;
+                    $minPayment = $this->tariff->month_min_payment;
                     $minPaymentTemplate = 'Минимальный платеж за звонки по номеру {name}';
                 } else {
                     $template = 'Плата за звонки по номеру {name} (местные, междугородные, международные)';
@@ -158,37 +179,8 @@ class VoipBiller extends Biller
                         ->setTemplate($template)
                         ->setMinPayment($minPayment)
                         ->setMinPaymentTemplate($minPaymentTemplate)
-                );
+            );
         }
-
-        return $this;
-    }
-
-    /**
-     * @return LogTarif
-     */
-    private function getLogTariff()
-    {
-        return
-            LogTarif::find()
-                ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
-                ->andWhere('date_activation < :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
-                ->andWhere('id_tarif != 0')
-                ->orderBy('date_activation desc, id desc')
-                ->limit(1)
-                ->one();
-    }
-
-    /**
-     * @return TariffVoip
-     */
-    private function getTariff(LogTarif $logTariff)
-    {
-        $tariff = TariffVoip::findOne($logTariff->id_tarif);
-
-        Assert::isObject($tariff);
-
-        return $tariff;
     }
 
     private function calc($is7800, LogTarif $logTarif)

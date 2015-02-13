@@ -1,7 +1,8 @@
 <?php
 namespace app\classes\bill;
 
-use app\classes\Assert;
+use Yii;
+use DateTime;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
@@ -14,14 +15,10 @@ use app\models\UsageSms;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
-use Yii;
-use DateTime;
-use DateTimeZone;
+
 
 class ClientAccountBiller
 {
-    /** @var DateTimeZone */
-    public $timezone;
     /** @var DateTime */
     protected $billerDate;
     /** @var DateTime */
@@ -35,36 +32,29 @@ class ClientAccountBiller
     protected $transactions = [];
     /** @var BillLine[] */
     protected $billLines = [];
-    protected $errors = [];
 
+    protected $connecting;
+    protected $periodical;
+    protected $resource;
     /**
      * @param ClientAccount $clientAccount
      * @param DateTime $date
      * @return ClientAccountBiller
      */
-    public static function create(ClientAccount $clientAccount, DateTime $date)
+    public static function create(ClientAccount $clientAccount, DateTime $date, $connecting = true, $periodical = true, $resource = true)
     {
-        return new static($clientAccount, $date);
+        return new static($clientAccount, $date, $connecting, $periodical, $resource);
     }
 
-    protected function __construct(ClientAccount $clientAccount, DateTime $date)
+    protected function __construct(ClientAccount $clientAccount, DateTime $date, $connecting, $periodical, $resource)
     {
         $this->billerDate = $date;
         $this->clientAccount = $clientAccount;
+        $this->connecting = $connecting;
+        $this->periodical = $periodical;
+        $this->resource = $resource;
+
         $this->setupBillerPeriod();
-    }
-
-    protected function setupTimezone()
-    {
-        $this->timezone = new DateTimeZone($this->clientAccount->accountRegion->timezone_name);
-
-        Assert::isObject($this->timezone);
-    }
-
-    protected function setupBillerDate(DateTime $date)
-    {
-        $this->billerDate = clone $date;
-        $this->billerDate->setTimezone($this->timezone);
     }
 
     protected function setupBillerPeriod()
@@ -81,7 +71,14 @@ class ClientAccountBiller
         $this->billerPeriodTo->setTime(23, 59, 59);
     }
 
-    public function createTransactions()
+    public function process()
+    {
+        $this->createTransactions();
+        $this->saveTransactions();
+        return $this;
+    }
+
+    protected function createTransactions()
     {
         $this->transactions = [];
 
@@ -134,24 +131,30 @@ class ClientAccountBiller
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
-
-        return $this;
     }
 
-    public function saveTransactions()
+    protected function saveTransactions()
     {
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
-            /** @var Transaction[] $transactions */
-            $transactions =
+            $transactionTypes = [];
+            if ($this->connecting) $transactionTypes[] = Transaction::TYPE_CONNECTION;
+            if ($this->periodical) $transactionTypes[] = Transaction::TYPE_PERIODICAL;
+            if ($this->resource) $transactionTypes[] = Transaction::TYPE_RESOURCE;
+
+            $query =
                 Transaction::find()
                     ->andWhere([
                         'client_account_id' => $this->clientAccount->id,
                         'source' => Transaction::SOURCE_STAT,
                         'billing_period' => $this->billerPeriodFrom->format('Y-m-d'),
+                        'transaction_type' => $transactionTypes,
                     ])
-                    ->orderBy('id')
-                    ->all();
+                    ->orderBy('id');
+
+
+            /** @var Transaction[] $transactions */
+            $transactions = $query->all();
 
             $existsTransactionsByKey = [];
             foreach ($transactions as $transaction) {
@@ -217,71 +220,12 @@ class ClientAccountBiller
         }
     }
 
-    public function createAndSaveBill()
-    {
-        /** @var Transaction[] $transactions */
-        $transactions =
-            Transaction::find()
-                ->andWhere(['client_account_id' => $this->clientAccount->id, 'source' => Transaction::SOURCE_STAT])
-                ->andWhere('transaction_date >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d H:i:s')])
-                ->andWhere('transaction_date <= :to', [':to' => $this->billerPeriodTo->format('Y-m-d H:i:s')])
-                ->andWhere('bill_id is null and deleted = 0')
-                ->all();
-
-        if (empty($transactions)) {
-            return;
-        }
-
-        $sum = 0;
-        foreach ($transactions as $transaction) {
-            $sum += $transaction->sum;
-        }
-
-        $dbTransaction = Yii::$app->db->beginTransaction();
-        try {
-            $bill = new Bill();
-            $bill->client_id = $this->clientAccount->id;
-            $bill->currency = $this->clientAccount->currency;
-            $bill->nal = $this->clientAccount->nal;
-            $bill->is_lk_show = 1;
-            $bill->is_user_prepay = 0;
-            $bill->is_approved = 1;
-            $bill->is_use_tax = $this->clientAccount->nds_zero > 0 ? 0 : 1;
-            $bill->bill_date = $this->billerPeriodFrom->format('Y-m-d');
-            $bill->sum_with_unapproved = $sum;
-            $bill->sum = $sum;
-            $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
-            $bill->save();
-
-            $sort = 1;
-            foreach ($transactions as $transaction) {
-                Transaction::dao()->insertBillLine($transaction, $bill, $sort);
-                $sort++;
-            }
-
-            Bill::dao()->recalcBill($bill);
-
-            $dbTransaction->commit();
-        } catch (\Exception $e) {
-            $dbTransaction->rollBack();
-            throw $e;
-        }
-    }
-
     /**
      * @return Transaction[]
      */
     public function getTransactions()
     {
         return $this->transactions;
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrors()
-    {
-        return $this->errors;
     }
 
     private function processUsages(array $usages)
@@ -293,22 +237,12 @@ class ClientAccountBiller
 
     private function processUsage(Usage $usage)
     {
-        try {
-
-            $transactions =
-                $usage
-                    ->getBiller($this->billerDate)
-                    ->process()
-                    ->getTransactions();
-            $this->transactions = array_merge($this->transactions, $transactions);
-
-        } catch (\Exception $e) {
-            $this->errors[] = [
-                'usage' => $usage,
-                'exception' => $e,
-            ];
-        }
-
+        $transactions =
+            $usage
+                ->getBiller($this->billerDate, $this->clientAccount)
+                ->process($this->connecting, $this->periodical, $this->resource)
+                ->getTransactions();
+        $this->transactions = array_merge($this->transactions, $transactions);
     }
 
 }

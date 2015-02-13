@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\forms\buh\PaymentAddForm;
 use app\models\ClientAccount;
 use app\models\Currency;
+use app\models\Payment;
 use Yii;
 use app\classes\BaseController;
 
@@ -17,10 +18,13 @@ class PaymentController extends BaseController
         $behaviors['access']['rules'] = [
             [
                 'allow' => true,
-                'actions' => [
-                    'add','delete'
-                ],
+                'actions' => ['add'],
                 'roles' => ['newaccounts_payments.edit'],
+            ],
+            [
+                'allow' => true,
+                'actions' => ['delete'],
+                'roles' => ['newaccounts_payments.delete'],
             ],
             [
                 'allow' => false,
@@ -61,5 +65,20 @@ class PaymentController extends BaseController
             'model' => $model,
             'client' => $client,
         ]);
+    }
+
+    public function actionDelete($paymentId)
+    {
+        $payment = Payment::findOne($paymentId);
+        Assert::isObject($payment);
+
+        if (!$payment->delete()) {
+            var_dump($payment->getErrors());
+            die();
+        };
+
+        ClientAccount::dao()->updateBalance($payment->client_id);
+
+        $this->redirect(Yii::$app->request->referrer);
     }
 }

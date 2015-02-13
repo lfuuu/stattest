@@ -16,9 +16,9 @@ class Emails extends ActiveRecord implements Usage
         return 'emails';
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new EmailBiller($this, $date);
+        return new EmailBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -29,5 +29,10 @@ class Emails extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_EMAIL;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }

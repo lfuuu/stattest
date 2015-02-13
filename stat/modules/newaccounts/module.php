@@ -6,6 +6,7 @@ use app\classes\StatModule;
 use app\models\Payment;
 use app\classes\Assert;
 use app\models\BillDocument;
+use app\models\Transaction;
 
 class m_newaccounts extends IModule
 {
@@ -121,6 +122,13 @@ class m_newaccounts extends IModule
         $design->assign("counters", $billingCounter);
         $design->assign("subscr_counter", ClientCounter::dao()->getOrCreateCounter($fixclient_data["id"]));
 
+        $design->assign(
+            'notLinkedtransactions',
+            Transaction::find()
+                ->andWhere(['client_account_id' => $fixclient_data["id"], 'source' => 'stat', 'deleted' => 0])
+                ->andWhere('bill_id is null')
+                ->all()
+        );
 
 
 
@@ -577,9 +585,6 @@ class m_newaccounts extends IModule
                 $db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
                 $db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
                 unset($row);
-            }elseif(isset($_POST['select_nal'])){
-                $n = addcslashes($_POST['nal'],"\\'");
-                $db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
             }
             // 1c || all4net bills
 		}elseif(isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4}|\d{6,7})$/',$_GET['bill'])){
@@ -591,9 +596,6 @@ class m_newaccounts extends IModule
 				$db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
 				$db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
 				unset($row);
-			}elseif(isset($_POST['select_nal'])){
-				$n = addcslashes($_POST['nal'],"\\\\'");
-				$db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
 			}
 
        //income orders
@@ -817,16 +819,27 @@ class m_newaccounts extends IModule
     }
 
     function newaccounts_bill_comment($fixclient) {
-        global $design,$db,$user,$fixclient_data;
-        $bill_no=get_param_protected("bill"); if (!$bill_no) return;
-        $bill = new Bill($bill_no);
-        $bill->Set('comment',get_param_raw("comment"));
-        unset($bill);
-        if ($design->ProcessEx('errors.tpl')) {
-            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
-            exit();
-        }
+        $billNo = get_param_protected("bill");
+
+        $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+        $bill->comment = get_param_raw("comment");
+        $bill->save();
+
+        header("Location: /?module=newaccounts&action=bill_view&bill=" . $billNo);
+        exit();
     }
+
+    function newaccounts_bill_nal($fixclient) {
+        $billNo = get_param_protected("bill");
+
+        $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+        $bill->nal = get_param_raw("nal");
+        $bill->save();
+
+        header("Location: /?module=newaccounts&action=bill_view&bill=" . $billNo);
+        exit();
+    }
+
     function newaccounts_bill_postreg($fixclient) {
         global $design,$db,$user,$fixclient_data;
 
@@ -1051,11 +1064,73 @@ class m_newaccounts extends IModule
         }
         $obj=get_param_raw('obj');
         if ($obj=='create') {
+            echo "Запущено выставление счетов<br/>"; flush();
+
+            $partSize = 500;
+            $date = new DateTime();
+            //$date->modify('+1 month');
+            $totalCount = 0;
+            $totalAmount = 0;
+            $totalErrorsCount = 0;
+            try {
+                $count = $partSize;
+                $offset = 0;
+                while ($count >= $partSize) {
+                    $clientAccounts =
+                        ClientAccount::find()
+                            ->andWhere('status NOT IN ("closed","deny","tech_deny", "trash", "once")')
+                            ->limit($partSize)->offset($offset)
+                            ->orderBy('id')
+                            ->all();
+
+                    foreach ($clientAccounts as $clientAccount) {
+                        $offset++;
+                        echo "$offset. Лицевой счет: <a target='_blank' href='/?module=clients&id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
+
+                        try {
+
+                            $bill =
+                                \app\classes\bill\BillFactory::create($clientAccount, $date)
+                                    ->process();
+
+                            if ($bill) {
+                                $totalCount++;
+                                $totalAmount = $totalAmount + $bill->sum;
+                                echo ", создан счет: <a target='_blank' href='/?module=newaccounts&action=bill_view&bill{$bill->bill_no}'>{$bill->bill_no}</a> на сумму {$bill->sum}<br/>\n"; flush();
+                            } else {
+                                echo "<br/>\n"; flush();
+                            }
+
+                        } catch (\Exception $e) {
+                            echo "<b>ОШИБКА</b><br/>\n"; flush();
+                            Yii::error($e);
+                            $totalErrorsCount++;
+                        }
+                    }
+
+                    $count = count($clientAccounts);
+                }
+
+
+            } catch (\Exception $e) {
+                echo "<b>ОШИБКА Выставления счетов</b>\n"; flush();
+                Yii::error($e);
+                exit;
+            }
+
+            echo "Закончено выставление счетов<br/>";
+            echo "<b>Всего создано {$totalCount} счетов на сумму {$totalAmount}</b><br/>";
+            if ($totalErrorsCount) {
+                echo "<b>Всего {$totalErrorsCount} ошибок!</b><br/>";
+            }
+            exit;
+
+
             $p='<span style="display:none">';
             for ($i=0;$i<200;$i++) $p.='                                                     ';
             $p.='</span>';
 
-            $res = mysql_query('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") /*and id=2363*/ order by client');
+            $res = mysql_query('select * from clients where status NOT IN ("closed","deny","tech_deny", "trash") order by id');
             while($c=mysql_fetch_assoc($res)){
                 $bill = new Bill(null,$c,time(), 1, null, false);
                 $bill2 = null;
@@ -1974,6 +2049,13 @@ class m_newaccounts extends IModule
                 $M['zadatok']=0;
                 $M['good']=0;//($obj=='invoice'?1:0);
                 $M['_']=$source;
+            }elseif($source == 3){
+                $M['all4net']=1;
+                $M['service']=0;
+                $M['zalog']= ($isViewOnly)?0:1;
+                $M['zadatok']=0;
+                $M['good']=$inv3Full ? 1 :0;
+                $M['_']=0;
             }elseif($source == 4){
                 if(!count($L))
                     return array();
@@ -1995,9 +2077,6 @@ class m_newaccounts extends IModule
 
                 $ret = $db->NextRecord(MYSQL_ASSOC);
 
-                if(substr($ret['bill_date'], 0, 4)<'2009'){
-                    return array();
-                }
                 if(in_array($ret['nal'],array('nal','prov'))){
                     $db->Query($q="
                         SELECT
@@ -2063,35 +2142,8 @@ class m_newaccounts extends IModule
                         $R[] = $item;
                 }
                 return $R;
-            } elseif($source == 5){
-                if(!count($L))
-                    return array();
-                foreach($L as $val){
-                    $bill = $val;
-                    break;
-                }
-
-                global $db;
-
-                $payments = $db->AllRecords("
-                    select
-                        *
-                    from
-                        `newpayments`
-                    where
-                        `bill_no`='".$bill['bill_no']."'
-                    and
-                        `sum`<0
-                ",null,MYSQL_ASSOC);
-
-                return $payments;
-            }else{ //source 3
-                $M['all4net']=1;
-                $M['service']=0;
-                $M['zalog']= ($isViewOnly)?0:1;
-                $M['zadatok']=0;
-                $M['good']=$inv3Full ? 1 :0;
-                $M['_']=0;
+            } else {
+                return [];
             }
         }
 
@@ -2135,13 +2187,9 @@ class m_newaccounts extends IModule
         if($source == 4){
             $source = 1;
             $is_four_order = true;
-        }elseif($source == 5){
-            $is_four_order = true;
         }else
             $is_four_order = false;
         $design->assign('is_four_order',$is_four_order);
-        if($source == 5)
-            $is_four_order = false;
 
         if(is_null($source))
             $source=3;
@@ -2211,7 +2259,7 @@ class m_newaccounts extends IModule
 
 
 
-        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
+        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
             //не отображать если оплата позже счета-фактуры
             $query = "
                 SELECT
@@ -2297,31 +2345,6 @@ class m_newaccounts extends IModule
         if($is_four_order){
             $L =& $L_prev;
             $bill->refactLinesWithFourOrderFacure($L);
-        }elseif($source == 5){
-            $L_prev = [
-                [
-                    'bill_no'=>$bdata['bill_no'],
-                    'sort'=>1,
-                    'item'=>'Авансовый платеж за доступ в интернет',
-                    'amount'=>0,
-                    'price'=>0,
-                    'service'=>'usage_ip_ports',
-                    'id_service'=>0,
-                    'date_from'=>0,
-                    'date_to'=>0,
-                    'type'=>'zadatok',
-                    'outprice'=>0,
-                    'id'=>1,
-                    'ts_from'=>0,
-                    'ts_to'=>0,
-                    'is_price_includes_tax' => 0,
-                    'tax_type_id' => null,
-                    'sum'=> 0,
-                    'sum_without_tax'=>0,
-                    'sum_tax'=>0,
-                ]
-            ];
-            $L =& $L_prev;
         }
 
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
@@ -4219,23 +4242,6 @@ $sql .= "    order by client, bill_no";
         header('Location: ?module=newaccounts');
         exit();
     }
-    function newaccounts_pay_delete($fixclient){
-        global $fixclient_data;
-        $paymentId = get_param_raw('id');
-        if(!$paymentId)
-            return;
-
-        $pay = Payment::findOne($paymentId);
-        Assert::isObject($pay);
-
-        $pay->delete();
-
-        ClientAccount::dao()->updateBalance($fixclient_data['id']);
-
-        header('Location: ?module=newaccounts');
-        exit();
-    }
-
 
     function newaccounts_first_pay($fixclient) {
         global $design,$db;

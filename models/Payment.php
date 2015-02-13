@@ -84,11 +84,11 @@ class Payment extends ActiveRecord
 
     public function beforeDelete()
     {
-        parent::beforeDelete();
-
         Transaction::dao()->deleteByPaymentId($this->id);
 
         LogBill::dao()->log($this->bill_no, "Удаление платежа ({$this->id}), на сумму: {$this->sum}");
+
+        return parent::beforeDelete();
     }
 
 }

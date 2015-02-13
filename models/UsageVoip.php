@@ -22,9 +22,9 @@ class UsageVoip extends ActiveRecord implements Usage
         return new UsageVoipQuery(get_called_class());
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new VoipBiller($this, $date);
+        return new VoipBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -35,6 +35,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_VOIP;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }
 

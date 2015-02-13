@@ -43,8 +43,6 @@ class BillDocumentDao extends Singleton
         $p4 = \m_newaccounts::do_print_prepare_filter('lading',1,$L,$period_date);
         $p5 = \m_newaccounts::do_print_prepare_filter('invoice',4,$L,$period_date);
 
-        $p6 = \m_newaccounts::do_print_prepare_filter('invoice',5,$L,$period_date);
-
         $gds = \m_newaccounts::do_print_prepare_filter('gds',3,$L,$period_date);
 
         $bill_akts = array(
@@ -59,7 +57,7 @@ class BillDocumentDao extends Singleton
             3=>count($p3),
             4=>count($p4),
             5=>($p5==-1 || $p5 == 0)?$p5:count($p5),
-            6=>count($p6),
+            6=>0,
             7=>count($gds)
         );
 
@@ -80,7 +78,7 @@ class BillDocumentDao extends Singleton
         }
         $data['bill_no'] = $this->bill_no;
         $docs->ts = date('Y-m-d H:i:s');
-        $docs->setAttributes($doctypes);
+        $docs->setAttributes($doctypes, false);
         $docs->save();
 
         return ($returnData) ? $docs->toArray() : true;

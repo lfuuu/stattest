@@ -18,9 +18,9 @@ class UsageExtra extends ActiveRecord implements Usage
         return 'usage_extra';
     }
 
-    public function getBiller(DateTime $date)
+    public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
-        return new ExtraBiller($this, $date);
+        return new ExtraBiller($this, $date, $clientAccount);
     }
 
     public function getTariff()
@@ -31,5 +31,10 @@ class UsageExtra extends ActiveRecord implements Usage
     public function getServiceType()
     {
         return Transaction::SERVICE_EXTRA;
+    }
+
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 }
