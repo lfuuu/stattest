@@ -108,7 +108,11 @@ $pDB->Query("start transaction");
 $pDB->Query("commit");
 } catch (Exception $e)
 {
+    $pDB->Query("rollback");
+
     mail(ADMIN_EMAIL, "[voip/converter] error convert clientId: ".$clientId, $e->GetMessage());
+
+    resolveSqlProblem($clientId, $e->GetMessage());
 }
 
 $dependedClientId = getVpbxTrunkClientHolder($clientId);
@@ -1030,6 +1034,22 @@ function refactMT(&$a)
 	}
 
 	$a = $trunkMain;
+}
+
+function resolveSqlProblem($clientId, $sqlError)
+{
+    global $pDB;
+
+    if(strpos($sqlError, "numbers_forward_number_fwtype_key") !== false && strpos($sqlError, "already") !== false)
+    {
+        if(preg_match("/Key \(number, fwtype\)=\((\d+), [^)]+\) already/", $sqlError, $o) && isset($o[1]))
+        {
+            $number = $o[1];
+
+            $pDB->QueryDelete(PG_SCHEMA."."."numbers_forward", ["number" => $number]);
+            ats2sync::updateClient($clientId);
+        }
+    }
 }
 
 
