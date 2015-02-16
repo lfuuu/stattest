@@ -69,7 +69,7 @@ class LoadBikFile
 		$zip = new ZipArchive;
 		$res = $zip->open($file_path);
 		if ($res === TRUE) {
-			$dbf_file = $zip->getFromName('BNKSEEK.DBF');
+			$dbf_file = $zip->getFromName('BNKSEEK.DBF') ?: $zip->getFromName('bnkseek.dbf');
 			$zip->close();
 		} else {
 			echo $res;

@@ -1,5 +1,6 @@
 .idea
 .vagrant
+tags
 *~
 web/noc
 web/tst
