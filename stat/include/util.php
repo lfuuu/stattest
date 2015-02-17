@@ -1985,7 +1985,7 @@ class send
 
 class event
 {
-    public static function go($event, $param = "")
+    public static function go($event, $param = "", $isForceAdd = false)
     {
         if (is_array($param))
         {
@@ -1995,7 +1995,11 @@ class event
 
         $code = md5($event."|||".$param);
 
-        $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+        $row = null;
+        if (!$isForceAdd)
+        {
+            $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+        }
 
         if (!$row)
         {
