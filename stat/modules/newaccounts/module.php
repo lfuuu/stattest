@@ -776,9 +776,16 @@ class m_newaccounts extends IModule
     }
 
     function newaccounts_bill_cleared(){
-        global $db;
+
         $bill_no=$_POST['bill_no'];
-        $db->Query('call switch_bill_cleared("'.addcslashes($bill_no, "\\\"").'")');
+        $bill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+
+        $bill->is_approved = $bill->is_approved ? 0 : 1;
+        $bill->sum = $bill->is_approved ? $bill->sum_with_unapproved : 0;
+        $bill->save();
+        $bill->dao()->recalcBill($bill);
+        ClientAccount::dao()->updateBalance($bill->client_id);
+
         header('Location: index.php?module=newaccounts&action=bill_view&bill='.$bill_no);
         exit();
     }

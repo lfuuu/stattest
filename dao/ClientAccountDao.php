@@ -70,7 +70,8 @@ class ClientAccountDao extends Singleton
                 'comment' => '',
                 'add_date' => $saldo['ts'],
                 'add_user' => 0,
-                'sum' => $sum
+                'sum' => $sum,
+                "is_billpay" => 0,
             ) );
         }elseif($sum < 0){
 

@@ -2425,8 +2425,6 @@ DBG::sql_out($select_client_data);
 			"mail_who" => "Кому письмо",
 			"head_company" => "Головная компания",
 			"head_company_address_jur" => "Юр. адрес головной компании",
-            "nds_calc_method" => "Метод расчета НДС"
-
 		);
 		return isset($f[$l]) ? $f[$l] : $l;
 

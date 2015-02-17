@@ -40,7 +40,9 @@ class m150212_155931_bills_payments extends \app\classes\Migration
             where currency='USD';
         ");
 
-        $this->executeSqlFile('switch_bill_cleared.sql');
+        $this->execute("
+            DROP PROCEDURE IF EXISTS `switch_bill_cleared`;
+        ");
 
         $this->execute("
           update newbills set is_approved=cleared_flag, sum_with_unapproved=if(cleared_flag>0, `sum`, cleared_sum);

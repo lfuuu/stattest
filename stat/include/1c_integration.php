@@ -1,7 +1,6 @@
 <?php
 namespace _1c;
 
-use app\dao\BillDao;
 use app\models\Bill;
 
 function trr($var){
@@ -1253,8 +1252,6 @@ class SoapHandler{
             return new \SoapFault('olol',$error);
         }else{
             $db->Query('commit');
-            if(!$curbill || !$curbill['cleared_flag'])
-                $db->Query('call switch_bill_cleared("'.addcslashes($bill_no, "\\\"").'")');
         }
         return array('return'=>!$err);
     }

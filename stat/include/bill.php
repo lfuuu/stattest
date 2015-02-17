@@ -302,29 +302,6 @@ class Bill {
         return $t ? $t["state_id"] == 20 : false;
     }
 
-    public function SetUnCleared()
-    {
-        global $db;
-
-        if($this->bill["is_approved"] == 1){
-            $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
-            if(!defined("NO_WEB")) {
-                ClientAccount::dao()->updateBalance($this->bill['client_id']);
-            }
-        }
-    }
-
-    public function SetCleared()
-    {
-        global $db;
-
-        if($this->bill["is_approved"] == 0){
-            $db->Query('call switch_bill_cleared("'.addcslashes($this->bill_no, "\\\"").'")');
-            if(!defined("NO_WEB")) {
-                ClientAccount::dao()->updateBalance($this->bill['client_id']);
-            }
-        }
-    }
     public function GetStaticComment()
     {
         global $db;

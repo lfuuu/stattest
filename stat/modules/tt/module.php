@@ -9,9 +9,10 @@
   7 | выполнен
   8 | отработано
 */
-use \app\dao\TroubleDao;
-use \app\models\support\TicketComment;
-use \app\models\UsageVoip;
+use app\dao\TroubleDao;
+use app\models\support\TicketComment;
+use app\models\UsageVoip;
+use app\models\ClientAccount;
 
 class m_tt extends IModule{
     var $is_active = 0;
@@ -284,20 +285,24 @@ class m_tt extends IModule{
 
         if($trouble["bill_no"] && ($trouble["trouble_type"] == "shop_orders" || $trouble["trouble_type"] == "shop" || $trouble["trouble_type"] == "mounting_orders"))
         {
-            include_once INCLUDE_PATH.'bill.php';
-            $oBill = new \Bill($trouble["bill_no"]);
+            $bill = \app\models\Bill::findOne(['bill_no' => $trouble["bill_no"]]);
 
             if($trouble['state_id'] == 15){
-                global $user;
-                \app\models\Bill::dao()->setManager($oBill->GetNo(), $user->Get("id"));
+                $bill->dao()->setManager($bill->bill_no, Yii::$app->user->getId());
             }
 
             // проводим если новая стадия: закрыт, отгружен, к отгрузке
             if(in_array($R['state_id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                $oBill->SetCleared();
+                $bill->is_approved = 1;
+                $bill->sum = $bill->sum_with_unapproved;
             }else{
-                $oBill->SetUnCleared();
+                $bill->is_approved = 0;
+                $bill->sum = 0;
             }
+            $bill->save();
+            $bill->dao()->recalcBill($bill);
+            ClientAccount::dao()->updateBalance($bill->client_id);
+
         }
         if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
         {

@@ -280,14 +280,6 @@ $(function(){
             </td></tr>
     <tr><td align="right">Печатать штамп:</td><td><select name=stamp class=text><option value=0{if $client.stamp==0} selected{/if}>нет</option><option value=1{if $client.stamp==1} selected{/if}>да</option></select></td></tr>
     <tr><td align="right">Без НДС:</td><td><input type=checkbox name=nds_zero value=1{if $client.nds_zero} checked{/if}></td></tr>
-    <tr><td align="right">Метор расчета НДС:</td><td>
-    <select name="nds_calc_method">
-        <option value=1{if $client.nds_calc_method == 1} selected{/if}>Основной (Сум_с_ндс = Сум_без_ндс + ндс)</option>
-        <option value=2{if $client.nds_calc_method == 2} selected{/if}>Эксперементальный 1 (ндс = Сум_с_ндс - Сум_без_ндс)</option>
-        <option value=3{if $client.nds_calc_method == 3} selected{/if}>Эксперементальный 2 (Сум_без_ндс = Сум_c_ндс - ндс)</option>
-    </select>
-        
-        </td></tr>
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Нал:</td><td><select name=nal class=text><option value='beznal'{if $client.nal=='beznal'} selected{/if}>безнал</option><option value='nal'{if $client.nal=='nal'} selected{/if}>нал</option><option value='prov'{if $client.nal=='prov'} selected{/if}>пров</option></select></td></tr>
     <tr><td align="right">Валюта:</td><td>
