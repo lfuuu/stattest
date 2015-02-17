@@ -1,5 +1,6 @@
 <?php
 
+use app\models\CoreSyncIds;
 
 
 class SyncCore
@@ -17,7 +18,16 @@ class SyncCore
 
         if ($struct)
         {
-            JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+            $data = JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+
+            if (isset($data["data"]))
+            {
+                $accountSync = new CoreSyncIds;
+                $accountSync->id = $superId;
+                $accountSync->type = "super_client";
+                $accountSync->external_id = $data["data"]["client_id"];
+                $accountSync->save();
+            }
         }
     }
 
@@ -28,6 +38,15 @@ class SyncCore
         if (!$cl)
             throw new Exception("Клиент не найден");
 
+        $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "id" => $cl->super_id]);
+        if (!$superClientSync)
+        {
+            event::go("add_super_client", $cl->super_id);
+            event::go("add_account", $cl->id, true);
+            return;
+        }
+
+
         if ($isResetProductState)
         {
             $clientProducts = ProductState::find("first", array("client_id" => $clientId));
@@ -36,32 +55,46 @@ class SyncCore
                 $clientProducts->delete();
         }
 
-        // addition card
-        $struct = SyncCoreHelper::getAccountStruct($cl);
-        $action = "add_accounts_from_stat";
-        if ($struct)
+
+        $accountSync = CoreSyncIds::findOne(["type" => "account", "id" => $cl->id]);
+        if (!$accountSync)
         {
-            try{
-                JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
-            } catch(Exception $e)
+            // addition card
+            $struct = SyncCoreHelper::getAccountStruct($cl);
+            $action = "add_accounts_from_stat";
+            if ($struct)
             {
+                try{
+                    $data = JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
 
-                if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
+                    if (isset($data["success"]))
+                    {
+                        $accountSync = new CoreSyncIds;
+                        $accountSync->id = $cl->id;
+                        $accountSync->type = "account";
+                        $accountSync->external_id = "*" . $cl->id;
+                        $accountSync->save();
+                    }
+                } catch(Exception $e)
                 {
-                    event::go("add_super_client", $cl->super_id);
-                    event::go("add_account", $cl->id);
+
+                    if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
+                    {
+                        event::go("add_super_client", $cl->super_id);
+                        event::go("add_account", $cl->id, true);
+                    }
+
+                    if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
+                    {
+                        event::go("add_super_client", $cl->super_id);
+                        event::go("add_account", $cl->id, true);
+                    }
+
+                    if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует
+                    {
+                        throw $e;
+                    } //для синхронизации продуктов
                 }
-
-                if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
-                {
-                    event::go("add_super_client", $cl->super_id);
-                    event::go("add_account", $cl->id);
-                }
-
-                if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует
-                {
-                    throw $e;
-                } //для синхронизации продуктов
             }
         }
         self::_checkNeedSyncProducts($cl->client);
