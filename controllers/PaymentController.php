@@ -33,17 +33,10 @@ class PaymentController extends BaseController
         return $behaviors;
     }
 
-    public function actionAdd($clientAccountId, $currencyId = null)
+    public function actionAdd($clientAccountId)
     {
         $client = ClientAccount::findOne($clientAccountId);
         Assert::isObject($client);
-
-        if ($currencyId === null) {
-            $currencyId = $client->currency;
-        }
-
-        $currency = Currency::findOne($currencyId);
-        Assert::isObject($currency);
 
         $model = new PaymentAddForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
@@ -52,14 +45,10 @@ class PaymentController extends BaseController
 
         $model->client_id = $client->id;
         $model->currency = $client->currency;
-        $model->original_currency = $currency->id;
+        $model->original_currency = $client->currency;
         $model->payment_date = date('Y-m-d');
         $model->oper_date = date('Y-m-d');
-        if ($model->currency == $model->original_currency) {
-            $model->payment_rate = 1;
-        } else {
-            $model->payment_rate = 65;
-        }
+        $model->payment_rate = 1;
 
         return $this->render('add', [
             'model' => $model,
@@ -72,10 +61,7 @@ class PaymentController extends BaseController
         $payment = Payment::findOne($paymentId);
         Assert::isObject($payment);
 
-        if (!$payment->delete()) {
-            var_dump($payment->getErrors());
-            die();
-        };
+        $payment->delete();
 
         ClientAccount::dao()->updateBalance($payment->client_id);
 
