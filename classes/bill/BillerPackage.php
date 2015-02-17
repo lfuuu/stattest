@@ -126,4 +126,21 @@ abstract class BillerPackage
         }
     }
 
+    protected function processTemplate(DateTime $from, DateTime $to)
+    {
+        $name = $this->template;
+
+        $name = str_replace('{name}', $this->name, $name);
+
+        $name = str_replace('{fromDay}', $from->format('d'), $name);
+        $name = str_replace('{fromDate}', $from->format('d F Y'), $name);
+        $name = str_replace('{toDate}', $to->format('d F Y'), $name);
+
+        $monthSrc = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        $monthDst = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+        $name = str_replace($monthSrc, $monthDst, $name);
+
+        return $name;
+    }
+
 }

@@ -15,11 +15,7 @@ class BillerPackageConnecting extends BillerPackage
             && $this->price
             && $this->amount
         ) {
-            $name = $this->template;
-            $name = str_replace('{name}', $this->name, $name);
-            $name = str_replace('{fromDay}', $this->usageActualFrom->format('d'), $name);
-            $name = str_replace('{fromDate}', $this->usageActualFrom->format('d F Y'), $name);
-            $name = str_replace('{toDate}', $this->usageActualTo->format('d F Y'), $name);
+            $name = $this->processTemplate($this->usageActualFrom, $this->usageActualTo);
 
             $transaction = new Transaction();
             $transaction->client_account_id = $this->clientAccount->id;

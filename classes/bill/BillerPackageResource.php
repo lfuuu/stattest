@@ -57,10 +57,7 @@ class BillerPackageResource extends BillerPackage
         $transactionDate->modify('+1 second');
 
 
-        $name = str_replace('{name}', $this->name, $name);
-        $name = str_replace('{fromDay}', $from->format('d'), $name);
-        $name = str_replace('{fromDate}', $from->format('d F Y'), $name);
-        $name = str_replace('{toDate}', $to->format('d F Y'), $name);
+        $name = $this->processTemplate($from, $to);
 
 
         $transaction = new Transaction();
