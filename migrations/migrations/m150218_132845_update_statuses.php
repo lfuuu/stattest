@@ -1,6 +1,6 @@
 <?php
 
-class m17022015_000000_update_statuses extends \app\classes\Migration
+class m150218_132845_update_statuses extends \app\classes\Migration
 {
     public function up()
     {
@@ -19,9 +19,11 @@ class m17022015_000000_update_statuses extends \app\classes\Migration
             INNER JOIN grid_settings g ON (c.status = g.oldstatus AND g.show_as_status = 1) WHERE g.grid_business_process_id <>2;
         ");
     }
+
     public function down()
     {
-        echo "m17022015_update_statuses cannot be reverted.\n";
+        echo "m150218_132845_update_statuses cannot be reverted.\n";
+
         return false;
     }
 }
