@@ -1,6 +1,6 @@
 <?php
 
-class m17022015_update_statuses extends \app\classes\Migration
+class m17022015_000000_update_statuses extends \app\classes\Migration
 {
     public function up()
     {
