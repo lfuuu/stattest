@@ -18,16 +18,25 @@ class SyncCore
 
         if ($struct)
         {
-            $data = JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+            $accountSync = new CoreSyncIds;
+            $accountSync->id = $superId;
+            $accountSync->type = "super_client";
+            $accountSync->external_id = "*" . $superId;
+
+            try{
+                $data = JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+            }catch(Exception $e)
+            {
+                $accountSync->save();
+                throw $e;
+            }
 
             if (isset($data["data"]))
             {
-                $accountSync = new CoreSyncIds;
-                $accountSync->id = $superId;
-                $accountSync->type = "super_client";
                 $accountSync->external_id = $data["data"]["client_id"];
-                $accountSync->save();
             }
+
+            $accountSync->save();
         }
     }
 
