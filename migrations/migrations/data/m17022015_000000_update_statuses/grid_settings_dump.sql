@@ -11,7 +11,7 @@ MySQL - 5.1.73 : Database - nispd
 
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-/*Table structure for table `grid_settings` */
+/*Table structure for table `grid_settings` */ 
 
 DROP TABLE IF EXISTS `grid_settings`;
 
