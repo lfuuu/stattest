@@ -960,7 +960,9 @@ class ClientCS {
             "status" => "income", 
             "firma" => "mcn_telekom", 
             "password" => password_gen(8, false), 
-            "contract_type_id" => 2, /* Телеком-клиент */
+            "contract_type_id" => 2, // Телеком-клиент
+            "business_process_id" => 1, //Сопровождение
+            "business_process_status_id" => 1, //Входящие
             "voip_credit_limit_day" => 1000,
             "voip_is_day_calc" => 1
         );
@@ -1266,34 +1268,48 @@ class ClientCS {
     function __unset($k) { unset($this->F[$k]); }
 
 
-    function Add($status,$comment) {        //добавляет статус
+    function Add($comment) {        //добавляет коментарий
         global $db,$user;
-        $db->Query("select status from clients where id=".$this->id);
-        $r=$db->NextRecord();
-        if ($r['status']==$status) $status="";
-        $db->QueryInsert("client_statuses", array(
-                    "ts" => array('NOW()'),
-                    "id_client" => $this->id,
-                    "user" => $user->Get('user'),
-                    "status" => $status,
-                    "comment" => $comment)
-        );
 
-        if($status){
-            $db->QueryUpdate("clients", "id", array("id" => $this->id, "status" => $status));
+        $comment = trim($comment);
+
+        if ($comment)
+        {
+            $db->QueryInsert("client_statuses", array(
+                "ts" => array('NOW()'),
+                "id_client" => $this->id,
+                "user" => $user->Get('user'),
+                "status" => "",
+                "comment" => $comment)
+            );
         }
     }
 
-    function SetContractType($contractTypeId)
+    function SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId)
     {
         global $db;
         $client = app\models\ClientAccount::findOne($this->id);
 
-        if ($client->contract_type_id != $contractTypeId)
-        {
-            $client->contract_type_id = $contractTypeId;
-            $client->save();
 
+        if (
+            ($client->contract_type_id != $contractTypeId && $contractTypeId != 0)
+            || ($client->business_process_id != $businessProcessId && $businessProcessId != 0)
+            || ($client->business_process_status_id != $businessProcessStatusId && $businessProcessStatusId != 0)
+        )
+        {
+            if($client->contract_type_id != $contractTypeId && $contractTypeId != 0){
+                $client->contract_type_id = $contractTypeId;
+            }
+
+            if ($client->business_process_id != $businessProcessId && $businessProcessId != 0){
+                $client->business_process_id = $businessProcessId;
+            }
+
+            if ($client->business_process_status_id != $businessProcessStatusId && $businessProcessStatusId != 0){
+                $client->business_process_status_id = $businessProcessStatusId;
+            }
+
+            $client->save();
         }
     }
 

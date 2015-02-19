@@ -833,6 +833,125 @@ var optools = {
 			}
 		}
 	},
+    client:{
+        clientId: null,
+        initBlocked: function(clientId)
+        {
+            optools.client.clientId = clientId;
+            $("#block-btn-work, #block-btn-block").click(function(event) {
+                var id = $(event.target).attr("id");
+                var toWork = false;
+
+                if (id == "block-btn-work") {
+                    toWork = true;
+
+                    $("#block-btn-block").removeClass("btn-danger").addClass("btn-default");
+                } else {
+                    $("#block-btn-work").removeClass("btn-success").addClass("btn-default");
+                }
+
+                $.get('./?module=clients&action=rpc_setBlocked&account_id='+optools.client.clientId+'&is_blocked='+(toWork ? "false" : "true")).done(function(answer) {
+                    if (answer == "ok") {
+                        if (toWork)
+                        {
+                            $("#block-btn-work").removeClass("btn-default").addClass("btn-success");
+                        } else {
+                            $("#block-btn-block").removeClass("btn-default").addClass("btn-danger");
+                        }
+                    } else {
+                        alert("Ошибка переключения блокировки");
+                    }
+                    location.href= './?module=clients&id='+optools.client.clientId;
+                });
+            });
+        },
+        contractTypeSwitch:{
+            bpData: null,
+            bpAction: null,
+            bpActionId: 0,
+            init:function(){
+                $("select#bp_type_id").change(function(ev){
+                    optools.client.contractTypeSwitch.bpAction = "reload_statuses";
+                    optools.client.contractTypeSwitch.bpActionId = $(ev.currentTarget).val();
+
+                    if (optools.client.contractTypeSwitch.bpData){
+                        optools.client.contractTypeSwitch.doAction();
+                    } else {
+                        optools.client.contractTypeSwitch.loadData();
+                    }
+
+                });
+
+                $("select#contract_type_id").change(function(ev){
+                    optools.client.contractTypeSwitch.bpAction = "reload_processes";
+                    optools.client.contractTypeSwitch.bpActionId = $(ev.currentTarget).val();
+
+                    if (optools.client.contractTypeSwitch.bpData){
+                        optools.client.contractTypeSwitch.doAction();
+                    } else {
+                        optools.client.contractTypeSwitch.loadData();
+                    }
+
+                });
+            },
+            doAction:function() {
+
+                if (optools.client.contractTypeSwitch.bpAction == "reload_processes")
+                {
+                    var bp = $("select#bp_type_id");
+
+                    optools.client.contractTypeSwitch.fillSelect(bp, optools.client.contractTypeSwitch.bpData.processes, optools.client.contractTypeSwitch.bpActionId);
+
+                    var firstOption = bp.find("option:first");
+
+                    optools.client.contractTypeSwitch.bpAction = "reload_statuses";
+                    optools.client.contractTypeSwitch.bpActionId = 0
+
+                        if (firstOption.length == 1) {
+                            optools.client.contractTypeSwitch.bpActionId = firstOption.val();
+                            bp.select2("val", optools.client.contractTypeSwitch.bpActionId);
+                        }
+                }
+
+                if (optools.client.contractTypeSwitch.bpAction == "reload_statuses")
+                {
+                    var bps = $("select#business_process_id");
+
+                    optools.client.contractTypeSwitch.fillSelect(bps, optools.client.contractTypeSwitch.bpData.statuses, optools.client.contractTypeSwitch.bpActionId);
+
+                    var firstOption = bps.find("option:first");
+
+                    if (firstOption.length == 1) {
+                        bps.select2("val", firstOption.val());
+                    }
+                }
+
+            },
+
+            fillSelect:function(jqSel, data, filterId)
+            {
+                jqSel.empty();
+                for(var key in data)
+                {
+                    var val = data[key];
+                    if (val.up_id == filterId) {
+                        jqSel.append("<option value='"+val.id+"'>"+val.name+"</option>")
+                    }
+                }
+            },
+
+            loadData:function() 
+            {
+                $.get("./?module=clients&action=rpc_loadBPStatuses").done(function(text){
+                    optools.client.contractTypeSwitch.bpData = JSON.parse(text);
+                    if (optools.client.contractTypeSwitch.bpAction) {
+                        optools.client.contractTypeSwitch.doAction();
+                    }
+                });
+            }
+        }
+    },
+
 	getFullOffset:function(element){
 		var x=parseInt(element.offsetLeft);
 		var y=parseInt(element.offsetTop);

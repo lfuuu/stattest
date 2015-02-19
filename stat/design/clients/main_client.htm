@@ -196,48 +196,95 @@
     </div>
 </td>
 </tr>
+{if !access("clients", "client_type_change") && $client.is_blocked}
+<tr>
+    <td align=right valign=top style="padding-top: 14px;">
+        Блокировка:
+    </td>
+    <td>
+        <button type="button" class="btn btn-default btn-danger" style="width: 130px;">Заблокирован</button>
+    </td>
+</tr>
+
+{/if}
 {if access('clients','restatus')}
 <tr>
     <td colspan="2" align="center">
         <form action="?" method=post id=sform name=sform>
-            <input type=hidden name=module value=clients>
-            <input type=hidden name=action value=restatus>
-            <input type=hidden name=id value='{$client.id}'>
-            <table width="100%">
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2>
-                <td align="right">Статус:</td>
-                <td>
-                    <SELECT class="select2" style="width: 200px" name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
-                </td>
-                </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+        <input type=hidden name=module value=clients>
+        <input type=hidden name=action value=restatus>
+        <input type=hidden name=id value='{$client.id}'>
+        <table width=60%>
+            <tr>
+    {if access("clients", "client_type_change")}
+    <td valign=top>
+        
+        <table width=100%>
+            <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
                 <td align="right">Тип договора:</td>
                 <td>
-                    <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 240px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
-                </tr>
+            </tr>
+            <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+                <td align="right">Бизнес процес:</td>
+                <td>
+                        <SELECT class="select2" style="width: 240px" name=bp_type_id id=bp_type_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.business_process_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    Блокировка
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button id="block-btn-work" type="button" class="btn btn-default {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
+                        <button id="block-btn-block" type="button" class="btn btn-default dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+            optools.client.initBlocked({$client.id});
+            optools.client.contractTypeSwitch.init();
+        </script>
+    </td>
+    {/if}
+        <td valign=top>
+            <table width="100%">
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
-                <td align="right">Статус бизнес процесса:</td>
-                <td>
-                    <SELECT class="select2" style="width: 200px" name=business_process_id>{foreach from=$business_process item=item}<option value='{$item.id}' {if ($item.id == $clientAccount.businessProcessStatus.id)} selected{/if}>{$item.name}</option>{/foreach}</select>
-                </td>
+                    <td align="right">Статус бизнес процесса:</td>
+                    <td>
+                        <SELECT class="select2" style="width: 200px" name=business_process_id id=business_process_id>
+                            {foreach from=$business_process item=item}
+                                <option value='{$item.id}' {if ($item.id == $client.business_process_status_id)} selected{/if}>{$item.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
                 </tr>
+
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
-                <td align="right">Комментарий:</td>
-                <td>
-                    <div style="position: relative"><textarea style='width:90%;height:100px' name=comment class=text></textarea></div>
-                </td>
-                </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
-                <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
-                <td style='border-bottom:1 solid red'>
-                    <input class=text value='Изменить' type=submit>
-                </td>
+                    <td align="right">Комментарий:</td>
+                    <td>
+                        <div style="position: relative"><textarea style='width:90%; height:100px' name=comment class=text></textarea></div>
+                    </td>
+                    </tr>
+                    <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
+                    <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
+                    <td style='border-bottom:1 solid red'>
+                        <input class=text value='Изменить' type=submit>
+                    </td>
                 </tr>
             </table>
-        </form>
+        </td>
+    </tr>
+</table>
+
     </td>
 </tr>
+</form>
 {/if}
 <tr>
     <td align="right">Предполагаемый <b>адрес</b> подключения:</td>
