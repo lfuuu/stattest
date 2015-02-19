@@ -45,6 +45,7 @@ class m_clients {
 					'rpc_findClient1c'	=> array('clients','new'),
 					'rpc_findBank1c'	=> array('clients','new'),
                     'rpc_loadBPStatuses'=> array('',''),
+                    'rpc_setBlocked'    => array('clients', 'client_type_change'),
 					'view_history'		=> array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
 
@@ -1149,9 +1150,8 @@ class m_clients {
         $design->assign_by_ref('statuses',ClientCS::$statuses);
         $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
         $design->assign("bussines_processes", ClientBP::find()->select(["id", "name"])->where(["client_contract_id" => $r["contract_type_id"]])->orderBy("sort")->all());
-        
-        // пока нужно вывести только процесс для продаж телекома (ИД - 1)
-        //$design->assign("business_process", ClientGridSettings::findBusinessProcessStatusesByClientIdAndBusinessProcessId($clientAccount->id, 1)->all());
+
+        //bp statuses
         $design->assign("business_process", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $r["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
         
         
@@ -1646,23 +1646,15 @@ class m_clients {
 		global $design;
 		$id=get_param_protected('id');
 		if ($this->check_tele($id)==0) return;
-		$status=get_param_protected('status');
 		$comment=get_param_protected('comment');
-		$contractTypeId=get_param_protected('contract_type_id', 1);
+        $contractTypeId=get_param_protected('contract_type_id', 0);
+        $businessProcessId=get_param_protected('bp_type_id', 0);
+        $businessProcessStatusId=get_param_protected('business_process_id', 0);
+
 		$cs=new ClientCS($id);
-		$cs->Add($status,$comment);
-		$cs->SetContractType($contractTypeId);
+		$cs->Add($comment);
+		$cs->SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId);
                 
-                //я копипастнул из client_view, но вообще нужно будет перекрыть findOne и вклюдчить условие по типу ид
-                if (is_numeric($id)) {
-                    $yii_model = ClientAccount::findOne($id);
-                } else {
-                    $yii_model = ClientAccount::find()->andWhere(['client' => $id])->one();
-                }
-
-                $yii_model->businessProcessStatus = Yii::$app->request->post('business_process_id');
-                $yii_model->save();
-
         event::go("client_set_status", $id);
 
         voipNumbers::check();
@@ -2369,7 +2361,26 @@ DBG::sql_out($select_client_data);
 			}";
 		}
 		exit();
-	}
+    }
+
+    public function clients_rpc_setBlocked($fixclient)
+    {
+        $accountId = get_param_integer("account_id", 0);
+        $isBlocked = (get_param_raw("is_blocked", "false") == "true" ? 1 : 0);
+
+        $client = ClientAccount::findOne(["id" => $accountId]);
+
+        Assert::isObject($client);
+
+        if ($isBlocked != $client->is_blocked)
+        {
+            $client->is_blocked = $isBlocked ? 1 : 0;
+            $client->save();
+        }
+
+        echo "ok";
+        exit();
+    }
 
     public function clients_rpc_loadBPStatuses($fixclient)
     {
