@@ -1,8 +1,18 @@
 <script src="js/jquery.inputmask.js"></script>
 
-<div style="font-size: 18px; padding: 5px; margin-bottom: 10px">
-    Клиент {$superClient.name}
+<div style="font-size: 18px; padding: 5px; margin-bottom: 10px; width: 100%">
+    <div style="display: inline; width: 50%; float: left;">
+        Клиент {$superClient.name}
+    </div>
+    <div style="display: inline; text-align: right; float: left; width: 50%;">
+        {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
+        <a style="font: normal 8pt sans-serif;" target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
+            Переход в LK
+        </a>
+        {php} endif; {/php}
+    </div>
 </div>
+<div style="clear: both;"></div>
 
 {foreach from=$contragents item='contragent'}
 <div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
@@ -58,36 +68,9 @@
     </a> ({$cfiles} шт.)
     <br><br>
     {/if}
-    <a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
-        <img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
-    </a>
-    <br><br>
-    <a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>
-        <img class=icon src='{$IMAGES_PATH}icons/password.gif'>Изменить пароль
-    </a>
-    <br><br>
-    {/if}
-    {if access('monitoring','edit') || access('clients','edit_tele')}
-    <a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
-        <img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
-    </a>
-    <br><br>
     {/if}
 
-    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&up_id={$client.id}">
-        Профиль в Welltone
-    </a>
-    <br>
-    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
-        Обращение в Welltone
-    </a>
 
-    {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
-    <br>
-    <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
-        Переход в LK
-    </a>
-    {php} endif; {/php}
     <br>
     <br>
 
@@ -505,13 +488,15 @@
     {literal}
 
     function togglecs() {
-        toggle2(data_cs1);
-        toggle2(data_cs2);
-        toggle2(data_cs3);
-        toggle2(data_cs4);
-        toggle2(data_cs5);
-        toggle2(data_cs6);
-        toggle2(data_cs7);
+        for(var i in [1,2,3,4,5,6,7])
+        {
+            i++;
+            var d = document.getElementById("data_cs"+i);
+            if (d) {
+                toggle2(d);
+            }
+        }
+
         if (data_cs1.style.display==''){
             value = '1';
         } else {
