@@ -3618,7 +3618,7 @@ class m_newaccounts extends IModule
 
         if($inn){
             $q = $fromAdd ?
-                "select client_id as id from client_inn p, clients c where p.inn = '".$inn."' and p.client_id = c.id and is_active"
+                "select client_id as id from client_inn p, clients c where p.inn = '".$inn."' and p.client_id = c.id and p.is_active"
                 :
                 "select id from clients where inn = '".$inn."'";
 

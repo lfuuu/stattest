@@ -1089,7 +1089,7 @@ class m_services extends IModule{
         foreach($db->AllRecords("SELECT data as email 
                     FROM `client_contacts` cc, clients c 
                     where c.client = '".$fixclient."' and client_id = c.id and cc.type = 'email' 
-                    and is_active 
+                    and cc.is_active 
                     order by data") as $l)
             $emails[$l["email"]] = $l["email"];
 
