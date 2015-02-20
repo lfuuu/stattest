@@ -1499,7 +1499,7 @@ class m_clients {
 						on
 							client_inn.client_id = clients.id
 						and
-							is_active = 1
+							client_inn.is_active = 1
 						where
 							client_inn.inn = "'.$inn.'"
 						and
@@ -1838,7 +1838,7 @@ class m_clients {
 			$comment=get_param_protected('comment');
 			$dbl = 0;
 			if ($r = $db->getRow('select client from clients where inn="'.$inn.'"')) $dbl = $r['client'];
-			if (!$dbl && ($r = $db->getRow('select client from clients inner join client_inn on client_inn.client_id=clients.id and is_active=1 where client_inn.inn="'.$inn.'"'))) $dbl = $r['client'];
+			if (!$dbl && ($r = $db->getRow('select client from clients inner join client_inn on client_inn.client_id=clients.id and client_inn.is_active=1 where client_inn.inn="'.$inn.'"'))) $dbl = $r['client'];
 			if (access('clients','inn_double') || !$dbl) {
 				$db->QueryInsert('client_inn',array('ts'=>array('NOW()'),'client_id'=>$id,'user_id'=>$user->Get('id'),'inn'=>$inn,'comment'=>$comment));
 				if ($dbl) {
