@@ -1,16 +1,23 @@
 <script src="js/jquery.inputmask.js"></script>
 
-<div style="font-size: 18px; padding: 5px; margin-bottom: 10px; width: 100%">
-    <div style="display: inline; width: 50%; float: left;">
-        Клиент {$superClient.name}
-    </div>
-    <div style="display: inline; text-align: right; float: left; width: 50%;">
+<div style="font-size: 18px; padding 5px; margin-bottom: 10px;">
+    <div style="width: 50%; display: inline-block;">
+        {if access('clients','edit')}
+            <a href='{$LINK_START}module=clients&id={$client.super_id}&action=client_edit' title="Редактировать (супер) клиента">
+                <img src='{$IMAGES_PATH}icons/edit.gif'>
+            </a>
+        {/if}
+        
+        {$superClient.name} &nbsp;&nbsp;
         {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
-        <a style="font: normal 8pt sans-serif;" target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
+        <a style="font: normal 7pt sans-serif;" target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
             Переход в LK
         </a>
         {php} endif; {/php}
     </div>
+    {if false}
+    <div style="width: 45%; display: inline-block; text-align: right; padding-right: 10px; font: normal 12pt sans-serif;">{if $superClient.accountManager}Аккаунт менеджер: {$superClient.accountManager.name}{/if}</div>
+    {/if}
 </div>
 <div style="clear: both;"></div>
 
@@ -40,9 +47,16 @@
             <div style="display: inline-block; min-width: 120px">
                 {if $account.accountRegion}{$account.accountRegion.name}{/if}
             </div>
+            <div style="display: inline-block; min-width: 260px; padding: 1px 5px;">
+                {if $account.manager}Менеджер: {$account.userManager.name}{/if}
+            </div>
             {if $account.id==$clientAccount.id}</b>{/if}
             <div style="display: inline-block;">
-                {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
+                {if $account.lastComment}
+                    {foreach from=$account.lastComment item=comment}
+                        {$comment.user} {$comment.ts|substr:0:10} {$comment.comment}<br>
+                    {/foreach}
+                {/if}
             </div>
         </div>
     </a>
@@ -169,13 +183,17 @@
 <td colspan=2 align="center">
     <div style="display: inline-block; text-align: left">
         {foreach from=$client.data_cs item=item name=outer}
-        {if $item.comment}
-        <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
-        {/if}
-        {if $item.status}
-        <b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
-        {/if}
-        {/foreach}
+            {if $item.comment}
+                <input type=checkbox name="publich_contact_id" value="{$item.id}" class="publish_comment{if $item.is_publish}_over{/if}"{if $item.is_publish} checked{/if}>
+                <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
+            {/if}
+            {if $item.status}
+                <div style="width: 17px; display: inline-block;">&nbsp;</div><b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
+            {/if}
+            {/foreach}
+            <script>
+                optools.client.initChoiseLastComment({$client.id});
+            </script>
     </div>
 </td>
 </tr>

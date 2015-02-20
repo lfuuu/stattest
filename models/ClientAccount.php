@@ -91,6 +91,11 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    public function getUserManager()
+    {
+        return $this->hasOne(User::className(), ["user" => "manager"]);
+    }
+
     public function getStatusName()
     {
         return
@@ -113,9 +118,9 @@ class ClientAccount extends ActiveRecord
             $this->_lastComment =
                 ClientStatuses::find()
                     ->andWhere(['id_client' => $this->id])
-                    ->andWhere('comment != ""')
+                    ->andWhere(['is_publish' => 1])
                     ->orderBy('ts desc')
-                    ->one();
+                    ->all();
         }
         return $this->_lastComment;
     }

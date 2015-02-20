@@ -1,6 +1,7 @@
 <?php
 use app\classes\StatModule;
 use app\models\ClientContractType;
+use app\models\ClientStatuses;
 use app\models\ClientAccount;
 use app\classes\Assert;
 use app\models\ClientGridSettings;
@@ -48,6 +49,7 @@ class m_clients {
                     'rpc_setBlocked'    => array('clients', 'client_type_change'),
 					'view_history'		=> array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
+                    'publish_comment'   => array('', ''),
 
 					'p_edit' => array('clients','edit')
 				);
@@ -2663,6 +2665,27 @@ DBG::sql_out($select_client_data);
 
 
         $design->AddMain("clients/contragent_edit.html");
+    }
+
+    public function clients_publish_comment($fixclient)
+    {
+        $accountId = get_param_raw("account_id", 0);
+        $statusId  = get_param_raw("status_id", 0);
+        $isPublish = (int)(get_param_raw("publish", "false") == "true");
+
+
+        $comment = ClientStatuses::find()->where(["id" => $statusId, "id_client" => $accountId])->one();
+
+        Assert::isObject($comment);
+
+        if ($comment)
+        {
+            if ($comment->is_publish != $isPublish)
+            {
+                $comment->is_publish = $isPublish;
+                $comment->save();
+            }
+        }
     }
 }
 

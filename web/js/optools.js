@@ -949,7 +949,25 @@ var optools = {
                     }
                 });
             }
-        }
+        },
+        initChoiseLastComment: function(clientId)
+        {
+            optools.client.clientId = clientId;
+            $("input.publish_comment, input.publish_comment_over").click(function(){
+                var isPublish = false;
+                if ($(this).is(":checked"))
+                {
+                    isPublish = true;
+                    $(this).addClass("publish_comment_over");
+                    $(this).removeClass("publish_comment");
+                } else {
+                    $(this).addClass("publish_comment");
+                    $(this).removeClass("publish_comment_over");
+                }
+
+                $.get("./index_lite.php?module=clients&action=publish_comment&account_id="+optools.client.clientId+"&status_id="+$(this).val()+"&publish="+(isPublish ? "true" : "false"));
+            });
+       }
     },
 
 	getFullOffset:function(element){
