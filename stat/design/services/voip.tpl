@@ -12,12 +12,31 @@
         <h3><a href='?module=services&action=vo_view'>IP-телефония</a></h3>
     {/if}
     
-    <a href='{$LINK_START}module=services&action=vo_act' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a>
-    <a href='{$LINK_START}module=services&action=vo_act&sendmail=1' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Отправить&nbsp;акт</a>
-    {if $has_trunk}
-        <a href='{$LINK_START}module=services&action=vo_act_trunk' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт&nbsp;на&nbsp;транк</a>
+    {if isset($is_secondary_output)}
+        <table border=0 width=99%>
+            <tr>
+                <td width=50%>
+                    <a href='{$LINK_START}module=services&action=vo_act' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт</a>
+                    <a href='{$LINK_START}module=services&action=vo_act&sendmail=1' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Отправить&nbsp;акт</a>
+                    {if $has_trunk}
+                        <a href='{$LINK_START}module=services&action=vo_act_trunk' target="_blank"><img class=icon src='{$IMAGES_PATH}icons/act.gif'>Выписать&nbsp;акт&nbsp;на&nbsp;транк</a>
+                    {/if}
+                </td>
+                <td width=50% align="right" style="{if $client.voip_disabled or $voip_counters.auto_disabled}background-color: #f4a0a0;{else}color: #ccc;{/if}">
+                    <b>Телефония:</b>
+                    <label>
+                        <input type="checkbox" id="voip_disabled" name="voip_disabled" value=1{if $client.voip_disabled} checked{/if}{if !access("clients", "client_type_change")} disabled{/if}> - Выключить телефонию (МГ, МН, Местные мобильные)
+                    </label>
+                </td>
+            </tr>
+        </table>
+        {if access("clients", "client_type_change")}
+            <script>
+                optools.service.voip.initVoipDisabledSaver({$client.id});
+            </script>
+        {/if}
     {/if}
-    <br />
+
     <table class="table table-condensed">
         {foreach from=$voip_conn item=item name=inner}
             <tr bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">

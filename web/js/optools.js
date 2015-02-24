@@ -364,6 +364,28 @@ var optools = {
 			}
 		}
 	},
+    service: {
+        voip: {
+            accountId: 0,
+            initVoipDisabledSaver:function(_accountId) {
+                optools.service.voip.accountId = _accountId;
+                $("input#voip_disabled").click(function(){
+                    var isDisabled = false;
+                    if ($(this).is(":checked"))
+                    {
+                        isDisabled = true;
+                    }
+
+                    $.get("./index_lite.php?module=clients&account_id="+optools.service.voip.accountId+"&action=rpc_setVoipDisabled&is_disabled="+(isDisabled ? "true" : "false")).done(function(data){
+                        if(data != 'ok') 
+                        {
+                            alert("ошибка сохранения");
+                        }
+                    });
+                });
+            }
+        }
+    },
 	tt:{
 		refix_buffer:{
 			trash:null,

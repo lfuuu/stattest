@@ -47,6 +47,7 @@ class m_clients {
 					'rpc_findBank1c'	=> array('clients','new'),
                     'rpc_loadBPStatuses'=> array('',''),
                     'rpc_setBlocked'    => array('clients', 'client_type_change'),
+                    'rpc_setVoipDisabled' => array("clients", "client_type_change"),
 					'view_history'		=> array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
                     'publish_comment'   => array('', ''),
@@ -2363,6 +2364,23 @@ DBG::sql_out($select_client_data);
 			}";
 		}
 		exit();
+    }
+    public function clients_rpc_setVoipDisabled()
+    {
+        $accountId = get_param_integer("account_id", 0);
+        $isDisabled = (get_param_raw("is_disabled", "false") == "true");
+
+        $client = clientAccount::findOne($accountId);
+
+        Assert::isObject($client);
+
+        if ((bool)$client->voip_disabled != $isDisabled)
+        {
+            $client->voip_disabled = $isDisabled ? 1 : 0;
+            $client->save();
+        }
+        echo "ok";
+        exit();
     }
 
     public function clients_rpc_setBlocked($fixclient)
