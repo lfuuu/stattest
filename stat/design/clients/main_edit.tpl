@@ -37,7 +37,7 @@ $(function(){
                 width: 850,
                 height: 400,
                 open: function(event, ui){
-                    $(this).load("./?module=clients&id={/literal}{$client.id}{literal}&action=view_history&view_only=true");
+                    $(this).load("./?module=clients&client_id={/literal}{$client.id}{literal}&action=view_history&view_only=true");
                 }
             });
     }

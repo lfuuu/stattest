@@ -48,7 +48,8 @@ class m_clients {
                     'rpc_loadBPStatuses'=> array('',''),
                     'rpc_setBlocked'    => array('clients', 'client_type_change'),
                     'rpc_setVoipDisabled' => array("clients", "client_type_change"),
-					'view_history'		=> array('clients', 'edit'),
+                    'view_history'		=> array('clients', 'edit'),
+                    'client_edit'       => array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
                     'publish_comment'   => array('', ''),
 
@@ -2465,11 +2466,19 @@ DBG::sql_out($select_client_data);
 
 	function clients_view_history()
 	{
-		global $db, $design, $user;
+        global $db, $design, $user;
 
-        
-        $design->assign("isAdmin", ($isAdmin = access("clients", "history_edit")));
+        $clientId = get_param_raw("client_id", 0);
+        $superId = get_param_raw("super_id", 0);
+
+        $isAdmin = access("clients", "history_edit") && $clientId;
+
+        $design->assign("isAdmin", $isAdmin);
         $design->assign("user_id", $user->Get("id"));
+
+        $field = $superId ? "super_id" : "client_id";
+        $id = $superId ?: $clientId;
+
 
 		$clientId = get_param_raw("id", "-1");
 
@@ -2484,7 +2493,7 @@ DBG::sql_out($select_client_data);
 			"select user_id,client_id, lc.id, unix_timestamp(lc.ts) as ts ,u.name, is_overwrited, is_apply_set, unix_timestamp(apply_ts) as apply_ts
 			from log_client lc
 			left join user_users u on (u.id = lc.user_id)
-			where lc.client_id = '".$clientId."' and lc.type='fields'
+			where lc.".$field." = '".$id."' and lc.type='fields'
 			order by lc.id desc");
 
 
@@ -2569,7 +2578,9 @@ DBG::sql_out($select_client_data);
 			"mail_who" => "Кому письмо",
 			"head_company" => "Головная компания",
 			"head_company_address_jur" => "Юр. адрес головной компании",
-            "nds_calc_method" => "Метод расчета НДС"
+            "nds_calc_method" => "Метод расчета НДС",
+            "name" => "Название",
+            "account_manager" => "Аккаунт менеджер"
 
 		);
 		return isset($f[$l]) ? $f[$l] : $l;
@@ -2675,7 +2686,37 @@ DBG::sql_out($select_client_data);
 		}
 
 		$design->AddMain('clients/phisclient.html');
-	}
+    }
+
+    public function clients_client_edit($fixclient)
+    {
+        global $design;
+
+        $client = app\models\ClientSuper::findOne(get_param_raw("id"));
+        Assert::isObject($client);
+
+        if (get_param_raw("save"))
+        {
+            $name = get_param_raw("name");
+            $accountManager = get_param_raw("account_manager");
+
+            Assert::isNotEmpty($name, "Имя не задано");
+
+            if ($name != $client->name || $accountManager != $client->account_manager)
+            {
+                $client->name = $name;
+                $client->account_manager = $accountManager;
+                $client->save();
+            }
+        }
+
+        $accountManagers=array();
+        StatModule::users()->d_users_get($accountManagers, 'account_managers');
+
+        $design->assign("client", $client);
+        $design->assign("account_managers", $accountManagers);
+        $design->AddMain("clients/client_edit.htm");
+    }
 
     public function clients_contragent_edit($fixclient)
     {
