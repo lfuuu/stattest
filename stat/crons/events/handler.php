@@ -59,6 +59,7 @@ function do_events()
             {
                 case 'company_changed':     EventHandler::companyChanged($param); break;
 
+                case 'client_set_status':
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
                 case 'usage_voip__delete':  ats2Numbers::check(); 
