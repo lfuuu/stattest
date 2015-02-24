@@ -569,6 +569,7 @@ class m_tt extends IModule{
             $db->GetRow('select * from clients where client="'.$trouble['client_orig'].'"')
         );
         $design->assign('tt_write',$this->checkTroubleAccess($trouble));
+        $design->assign('tt_edit',$this->checkTroubleAccess($trouble) && !in_array($trouble["state_id"], [2, 20, 21, 39, 40, 46,47,48]));
         $design->assign('tt_doComment',access('tt','comment'));
         $stage = $trouble['stages'][count($trouble['stages'])-1];
 
@@ -1094,7 +1095,7 @@ class m_tt extends IModule{
 
         if($mode>=1)
         {
-            $W[]='S.state_id not in (2,20,21,39,40)';
+            $W[]='S.state_id not in (2,20,21,39,40,46,47,48)';
             $use_stages = true;
         }
         if($mode==2 || $mode==3)
@@ -1585,7 +1586,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     $data_to_open['date_finish_desired'] = $r2['date_finish_desired'];
             }
         }
-        if(in_array($data_to_open['state_id'],array(2,20,21,39,40))){
+        if(in_array($data_to_open['state_id'],array(2,20,21,39,40,48))){
             $data_to_open['date_finish_desired'] = array('NOW()');
             $data_to_open['date_edit'] = array('NOW()');
             $data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
@@ -1596,7 +1597,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $db->Query('update tt_troubles set cur_stage_id = '.$id.', folder=(select folder from tt_states where id='.(int)$data_to_open['state_id'].') where id='.$trouble_id);
 
-        if(in_array($data_to_open["state_id"], array(2,20,7,8))){
+        if(in_array($data_to_open["state_id"], array(2,20,7,8,48))){
             // to close
             $db->Query("update tt_troubles set date_close=now() where id = '".$data_to_open["trouble_id"]."' and date_close='0000-00-00 00:00:00'");
         }
@@ -1621,6 +1622,13 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         } elseif ($r = $db->GetRow('select user,trouble_redirect from user_users where user="'.$user_main.'"')) {
             if ($r['trouble_redirect']) $user_main = $r['trouble_redirect']; else $user_main = $r['user'];
         } else {trigger_error2('неверный пользователь'); return;}
+
+        $R2 = [];
+        if (isset($R["first_comment"]))
+        {
+            $R2["comment"] = $R["first_comment"];
+            unset($R["first_comment"]);
+        }
 
         if(isset($R['date_finish_desired']))
             $R2['date_finish_desired']=$R['date_finish_desired'];
@@ -1665,7 +1673,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if (access('tt','admin')) return true;
         if (!access('tt','use')) return false;
         $u = $user->Get('user');
-        if (in_array($trouble['state_id'], array(2, 20, 39))) return false;
+        if (in_array($trouble['state_id'], array(2, 20, 39, 46,47,48))) return false;
         if ($trouble['state_id']==7 && $u==$trouble['user_author']) return true;
         if ($trouble['is_editableByMe']) return true;
         if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;
@@ -2061,9 +2069,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($state_filter == "null")
         {
-            $state_filter = " not in (2,20,21,39,40)";
+            $state_filter = " not in (2,20,21,39,40,48)";
         }elseif($state_filter == 2 || $state_filter == 20){
-            $state_filter = " in (2,20,39,40)";
+            $state_filter = " in (2,20,39,40,48)";
         }else{
             $state_filter = ' = "'.$state_filter.'"';
         }
