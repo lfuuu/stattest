@@ -100,7 +100,7 @@
     <br>
     <br>
 
-    {*if access('newaccounts_bills','regProductsOrder')*}
+    {if $client.is_active}
     {if access('clients','all4net')}
     <br /><br />
     <a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> Создать заказ на Установку/Монтаж</a><br />
@@ -131,6 +131,7 @@
     {*/if*}
 
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
+    {/if} {* is active*}
 </div>
 
 <div style="margin-right: 260px;" id="cl_main_div">
@@ -143,6 +144,7 @@
 </tr>
 {/if}
 
+{if false}
 <tr>
     <td class="cl_main_col1" align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
@@ -165,29 +167,13 @@
 
     </td>
 </tr>
-<tr>
-    <td align="right"{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>
-    Менеджер:
-    </td>
-    <td {if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>
-    <b>{if $client.manager}{$client.manager_name} ({$client.manager}){/if}</b>
-    </td>
-</tr>
-<tr>
-    <td align="right"{if $client.support_color} style='background-color:{$client.support_color}'{/if}>
-    Техподдержка:
-    </td>
-    <td {if $client.support_color} style='background-color:{$client.support_color}'{/if}>
-    <b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b>
-    </td>
-</tr>
-<tr><td align="right">Адрес:</td><td><b>{$client.address_post}</b></td></tr>
+{/if} {* end if false *}
 <tr>
     <td align="right" {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
     Статус:
     </td>
     <td {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
-    <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}
+    <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
     </td>
 </tr>
 
@@ -220,6 +206,36 @@
 </tr>
 
 {/if}
+
+{if !access('clients','restatus') || !access("clients", "client_type_change")}
+<tr>
+    <td align="right">Тип договора:</td>
+    <td>
+        {foreach from=$contract_types item=item}
+            {if ($item.id == $client.contract_type_id)}{$item.name}{/if}
+        {/foreach}
+    </td>
+</tr>
+<tr>
+    <td align="right">Бизнес процес:</td>
+    <td>
+        {foreach from=$bussines_processes item=item}
+            {if ($item.id == $client.business_process_id)}{$item.name}{/if}
+        {/foreach}
+    </td>
+</tr>
+    {if !$client.is_active}
+    <tr>
+        <td align="right">Статус бизнес процесса:</td>
+        <td>
+            {foreach from=$business_process item=item}
+                {if ($item.id == $client.business_process_status_id)}{$item.name}{/if}
+            {/foreach}
+        </td>
+    </tr>
+    {/if}
+{/if}
+
 {if access('clients','restatus')}
 <tr>
     <td colspan="2" align="center">
@@ -227,7 +243,7 @@
         <input type=hidden name=module value=clients>
         <input type=hidden name=action value=restatus>
         <input type=hidden name=id value='{$client.id}'>
-        <table width=60%>
+        <table width=80%>
             <tr>
     {if access("clients", "client_type_change")}
     <td valign=top>
@@ -246,17 +262,19 @@
 
                 </td>
             </tr>
-            <tr>
-                <td align="right">
-                    Блокировка
-                </td>
-                <td>
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button id="block-btn-work" type="button" class="btn btn-default {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
-                        <button id="block-btn-block" type="button" class="btn btn-default dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
-                    </div>
-                </td>
-            </tr>
+            {if $client.is_active}
+                <tr>
+                    <td align="right">
+                        Блокировка
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button id="block-btn-work" type="button" class="btn btn-default {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
+                            <button id="block-btn-block" type="button" class="btn btn-default dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
+                        </div>
+                    </td>
+                </tr>
+            {/if}
         </table>
 
         <script>
@@ -265,9 +283,10 @@
         </script>
     </td>
     {/if}
+        {if $client.is_active || access("clients", "client_type_change")}
         <td valign=top>
             <table width="100%">
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+                <tr>
                     <td align="right">Статус бизнес процесса:</td>
                     <td>
                         <SELECT class="select2" style="width: 200px" name=business_process_id id=business_process_id>
@@ -278,7 +297,7 @@
                     </td>
                 </tr>
 
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
+                <tr>
                     <td align="right">Комментарий:</td>
                     <td>
                         <div style="position: relative"><textarea style='width:90%; height:100px' name=comment class=text></textarea></div>
@@ -292,6 +311,7 @@
                 </tr>
             </table>
         </td>
+        {/if}
     </tr>
 </table>
 
@@ -306,7 +326,7 @@
 
 <tr id="contact_header1" style="display: none;">
     <td align="right">
-        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Изменить"></a>
         Контакты:
     </td>
     <td colspan=2 id="contact_phone">
@@ -315,7 +335,7 @@
 </tr>
 <tr id="contact_header2">
     <td align="right">
-        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Изменить"></a>
         Телефон:
     </td>
     <td colspan=2>
@@ -392,14 +412,18 @@
                 <td>{$item.user}</td>
                 <td style='font-size:70%'>{$item.ts}</td>
                 <td>
+                    {if $client.is_active}
                     {if $item.user == 'AutoLK'}
                     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
                     {else}
                     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
                     {/if}
+                    {/if} {* is active *}
                 </td>
                 </tr>
                 {/foreach}
+
+                {if $client.is_active}
                 <tr>
                     <td>
                         <select name=type class=text style='font-size:10px' id='cd_type'>
@@ -426,6 +450,7 @@
                     </td>
                 </tr>
                 {/if}
+                {/if} {* is active *}
             </table>
         </form>
     </td>
@@ -434,7 +459,7 @@
 
 <tr>
     <td align="right">
-        <a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>
+        <a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
         Договор:
     </td>
     <td>
@@ -479,6 +504,7 @@
                 </td>
                 </tr>
                 {/foreach}
+                {if $client.is_active}
                 <tr>
                     <td><input class=text style='width:70' type=text name=contract_no value={$client.id}-{0|mdate:"y"}></td>
                     <td><input class=text style='width:85' type=text name=contract_date value={0|mdate:"Y-m-d"}></td>
@@ -498,6 +524,7 @@
                         <input class=button type=submit value="зарегистрировать">
                     </td>
                 </tr>
+                {/if}
             </table>
         </form>
     </td>

@@ -366,6 +366,7 @@ $(function(){
     </td></tr>
 </table>
 
+{if $client.is_active}
 {if isset($client.id) && $client.id >0}
 <div align=center>Изменения на дату <input type=checkbox name=deferred value=1 id="deferred">
 <div id="span_deferred_date" style="display: none; width: 200px; text-align: left;">
@@ -379,6 +380,12 @@ $(function(){
 
 <div align=center><input id=bSubmit onclick="doMainFormSubmit()" class=button type=button value="Изменить"></div>
 
+{else}
+<script>
+    $("#form input, #form select").attr("readonly", "readonly").attr("disabled", "disabled")
+</script>
+
+{/if}
 </form>
 
 <div id="history_dialog" title="История изменений" style="display: none;"></div>
@@ -413,9 +420,12 @@ $(function(){
     {foreach from=$inn item=item}
     <tr{if !$item.is_active} class="other"{/if}>
     <td>{$item.inn}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=inn&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+    {if $client.is_active}
+        <a href='{$LINK_START}module=clients&id={$item.client_id}&action=inn&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+    {/if}
     </td></tr>
     {/foreach}
+{if $client.is_active}
     <form action="?" method=post><tr>
         <input type=hidden name=module value=clients>
         <input type=hidden name=action value=inn>
@@ -424,6 +434,7 @@ $(function(){
         <td colspan=2><input class=text style='width:100%' type=text name=comment></td>
         <td><input class=button type=submit value="добавить"></td>
     </tr></form>
+    {/if}
 </table>
 
 <h3>Дополнительные расчетные счета</h3>
@@ -432,9 +443,12 @@ $(function(){
     {foreach from=$pay_acc item=item}
     <tr>
     <td>{$item.pay_acc}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.date}</td><td>
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=pay_acc&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Активность"></a>
+        {if $client.is_active}
+            <a href='{$LINK_START}module=clients&id={$item.client_id}&action=pay_acc&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Активность"></a>
+        {/if}
     </td></tr>
     {/foreach}
+    {if $client.is_active}
     <form action="?" method=post><tr>
         <input type=hidden name=module value=clients>
         <input type=hidden name=action value=pay_acc>
@@ -442,4 +456,5 @@ $(function(){
         <td><input class=text style='width:100%' type=text name=pay_acc style="width: 100px;"></td>
         <td colspan=2><input class=button type=submit value="добавить"></td>
     </tr></form>
+    {/if}
 </table>
