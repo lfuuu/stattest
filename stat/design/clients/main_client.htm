@@ -25,43 +25,53 @@
 
 {foreach from=$contragents item='contragent'}
 <div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
-    <div style="color: #333">
+    <div style="color: #333;min-width: 500px; display: inline-block;">
         <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
     </div>
+    <div style="display: inline-block;">  
+        <small>{$client.address_post}</small>
+    </div>
     {foreach from=$contragent.accounts item='account'}
-    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
-        <div style="display: inline-block; padding: 0 4px">
+        <div style="display: inline-block; padding: 0 4px;display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
             {if $account.id==$clientAccount.id}<b>{/if}
-            <div style="display: inline-block; min-width: 80px">
-                {$account.client}
-            </div>
-            <div style="display: inline-block; min-width: 200px">
-                {$account.contractType.name} /
-                <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
-            </div>
-            <div style="display: inline-block; min-width: 20px"></div>
-            <div style="display: inline-block; min-width: 200px">
-                <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
-                    {math equation="-(balance)" balance=$account.balance} {$account.currency}
-                </span>
-                {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
-            </div>
-            <div style="display: inline-block; min-width: 120px">
-                {if $account.accountRegion}{$account.accountRegion.name}{/if}
-            </div>
-            <div style="display: inline-block; min-width: 260px; padding: 1px 5px;">
-                {if $account.manager}Менеджер: {$account.userManager.name}{/if}
-            </div>
-            {if $account.id==$clientAccount.id}</b>{/if}
-            <div style="display: inline-block;">
-                {if $account.lastComment}
-                    {foreach from=$account.lastComment item=comment}
-                        {$comment.user} {$comment.ts|substr:0:10} {$comment.comment}<br>
-                    {/foreach}
-                {/if}
-            </div>
-        </div>
-    </a>
+            <div style="display: inline-block; min-width: 70px">
+                 {if access('clients','edit')}
+                     <div style="display: inline-block;">
+                         <a href='{$LINK_START}module=clients&id={$account.id}&action=edit' title="Редактировать лицевой счет">
+                             <img src='{$IMAGES_PATH}icons/edit.gif' style="valign: top;">
+                         </a>
+                     </div>
+                 {/if}
+                 <div style="display: inline-block;" title="{$account.client}">{$account.id}</div>
+             </div>
+             <a class="nohover" href="?module=clients&id={$account.id}" style="">
+                 <div style="display: inline-block; min-width: 200px">
+                     {$account.contractType.name} / {$client.firma} / 
+                     <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
+                 </div>
+                 <div style="display: inline-block; min-width: 20px"></div>
+                 <div style="display: inline-block; min-width: 200px">
+                     <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
+                         {math equation="-(balance)" balance=$account.balance} {$account.currency}
+                     </span>
+                     {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
+                 </div>
+                 <div style="display: inline-block; min-width: 120px">
+                     {if $account.accountRegion}{$account.accountRegion.name}{/if}
+                 </div>
+                 <div style="display: inline-block; min-width: 260px; padding: 1px 5px;">
+                     {if $account.manager}Менеджер: {$account.userManager.name}{/if}
+                 </div>
+                 {if $account.id==$clientAccount.id}</b>{/if}
+                 <div style="display: inline-block;">
+                     {if $account.lastComment}
+                         {foreach from=$account.lastComment item=comment}
+                             {$comment.user} {$comment.ts|substr:0:10} {$comment.comment}<br>
+                         {/foreach}
+                     {/if}
+                 </div>
+             </a>
+         </div>
     {/foreach}
 </div>
 {/foreach}
