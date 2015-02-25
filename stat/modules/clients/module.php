@@ -1194,22 +1194,29 @@ class m_clients {
                 $design->assign('is_secondary_output',1);
                 $this->showServersTroubles($r);
                 StatModule::tt()->showTroubleList(1,'client',$r['client']);
-                StatModule::services()->services_in_view($r['client']);
-                StatModule::services()->services_co_view($r['client']);
-                StatModule::services()->services_ppp_view($r['client']);
-                StatModule::services()->services_vo_view($r['client']);
-                StatModule::routers()->routers_d_list($r['client'],1);
+
+                $design->AddMain("clients/service_header.htm");
+                $isServiceEnabled = false;
+
+                if(StatModule::services()->services_in_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_co_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_ppp_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_vo_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::routers()->routers_d_list($r['client'],1)) $isServiceEnabled = true;
 				//StatModule::routers()->routers_d_list($r['client']);
-                StatModule::services()->services_em_view($r['client']);
-                StatModule::services()->services_ex_view($r['client']);
-                StatModule::services()->services_it_view($r['client']);
-                StatModule::services()->services_welltime_view($r['client']);
-                StatModule::services()->services_virtpbx_view($r['client']);
-                StatModule::services()->services_8800_view($r['client']);
-                StatModule::services()->services_sms_view($r['client']);
-                StatModule::services()->services_wellsystem_view($r['client']);
-                StatModule::services()->services_ad_view($r['client']);
-				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
+                if(StatModule::services()->services_em_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_ex_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_it_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_welltime_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_virtpbx_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_8800_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_sms_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_wellsystem_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_ad_view($r['client'])) $isServiceEnabled = true;
+                $design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
+
+                $design->assign("is_service_enabled", $isServiceEnabled);
+
 			}
 
 		}else{
