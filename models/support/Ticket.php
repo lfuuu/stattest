@@ -11,7 +11,7 @@ use yii\db\ActiveRecord;
  * @property string $user_id
  * @property string $subject
  * @property string $status
- * @property string $service_type
+ * @property string $department
  * @property string $created_at
  * @property string $updated_at
  * @property

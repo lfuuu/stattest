@@ -1,7 +1,7 @@
 <?php
 namespace app\forms\support;
 
-use app\classes\enum\ServiceTypeEnum;
+use app\classes\enum\DepartmentEnum;
 use app\classes\enum\TicketStatusEnum;
 use app\classes\Form;
 use app\classes\validators\AccountIdValidator;
@@ -13,7 +13,7 @@ class TicketForm extends Form
     public $id;
     public $client_account_id;
     public $user_id;
-    public $service_type;
+    public $department;
     public $subject;
     public $description;
     public $status;
@@ -24,7 +24,7 @@ class TicketForm extends Form
             [['id'], TicketIdValidator::className()],
             [['client_account_id'], AccountIdValidator::className()],
             [['user_id'], 'string', 'length' => 24],
-            [['service_type'], EnumValidator::className(), 'enum' => ServiceTypeEnum::className()],
+            [['department'], EnumValidator::className(), 'enum' => DepartmentEnum::className()],
             [['subject'], 'string', 'max' => 1000],
             [['description'], 'string'],
             [['status'], EnumValidator::className(), 'enum' => TicketStatusEnum::className()],
@@ -34,7 +34,7 @@ class TicketForm extends Form
     public function attributeLabels()
     {
         return [
-            'service_type' => 'Тип услуги',
+            'department' => 'Отдел',
             'subject' => 'Название',
             'description' => 'Описание',
             'status' => 'Статус',
