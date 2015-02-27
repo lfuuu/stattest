@@ -47,7 +47,7 @@
              <a class="nohover" href="?module=clients&id={$account.id}" style="">
                  <div style="display: inline-block; min-width: 200px">
                      {$account.contractType.name} / {$client.firma} / 
-                     <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
+                     <span{if $account.statusBP.color} style="background-color: {$account.statusBP.color}"{/if}>{$account.statusBP.name}</span>
                  </div>
                  <div style="display: inline-block; min-width: 20px"></div>
                  <div style="display: inline-block; min-width: 200px">
@@ -169,11 +169,11 @@
 </tr>
 {/if} {* end if false *}
 <tr>
-    <td align="right" {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
+    <td align="right" {if $account.statusBP.color} style='background-color:{$account.statusBP.color}'{/if}>
     Статус:
     </td>
-    <td {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
-    <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
+    <td {if $account.statusBP.color} style='background-color:{$account.statusBP.color}'{/if}>
+    <b>{$account.statusBP.name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
     </td>
 </tr>
 
