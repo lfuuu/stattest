@@ -18,6 +18,8 @@ use yii\db\ActiveRecord;
  */
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
+    const SYSTEM_USER_ID = 60;
+
     public static function tableName()
     {
         return 'user_users';
