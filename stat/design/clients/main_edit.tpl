@@ -242,10 +242,8 @@ $(function(){
     <tr><td align="right">Комментарии к платежу:</td><td><input style='width:100%' name=payment_comment class=text value='{$client.payment_comment}'></td></tr>
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Канал продаж:</td><td>{html_options name=sale_channel options=$sale_channels selected=$selected_channel}</td></tr>
-    <tr><td align="right">Телемаркетинг:</td><td><SELECT name=telemarketing><option value=''>не определено</option>{foreach from=$users_telemarketing item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td align="right">Аккаунт менеджер:</td><td><SELECT class="select2" style="width: 250px" name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td align="right">Менеджер:</td><td><SELECT class="select2" style="width: 250px" name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
-    <tr><td align="right">Техподдержка:</td><td><SELECT class="select2" style="width: 250px" name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
 
 {if isset($mode_new)}
     <tr><td align="right">Тип договора:</td><td><SELECT class="select2" style="width: 250px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>

@@ -493,7 +493,7 @@ class m_clients {
 		$where_2='';
 
 		if($my!=='')
-			$where.="and ((cl.manager='$my') or (cl.support='$my') or (cl.telemarketing='$my')) ";
+			$where.="and (cl.manager='$my') ";
 
 		if($smode!=5){
 			if($filter!=='')
@@ -716,8 +716,6 @@ class m_clients {
 								'(cl.company_full '.$lword.') OR '.
 //								'(phone '.$lword.') OR '.
 //								'(contact '.$lword.') OR '.
-								'(cl.support '.$lword.') OR '.
-								'(cl.telemarketing '.$lword.') OR '.
 								'(cl.site_req_no '.$lword.') OR '.
 								'(cl.manager '.$lword.')'.
 								') ';
@@ -819,8 +817,8 @@ class m_clients {
 			case 3: $order='cl.currency '.$order; break;
 			case 4: $order='cl.sale_channel '.$order; break;
 			case 5: $order='cl.manager '.$order; break;
-			case 6: $order='cl.support '.$order; break;
-			case 7: $order='cl.telemarketing '.$order; break;
+			//case 6: $order='cl.support '.$order; break;
+			//case 7: $order='cl.telemarketing '.$order; break;
 			case 8: $order='cl.created '.$order; break;
 			default: $order='cl.client '.$order; break;	//=1
 		}
@@ -1084,14 +1082,11 @@ class m_clients {
 					clients.*,
 					uA.name as manager_name,
 					uA.color as manager_color,
-					uB.name as support_name,
-					uB.color as support_color,
 					cl.client prev_r_cl,
                     s.name as super_client_name
 				from
 					clients
 				LEFT JOIN  user_users as uA  ON uA.user=clients.manager
-				LEFT JOIN  user_users as uB  ON uB.user=clients.support
 				left join  clients cl on cl.id = clients.previous_reincarnation
                 LEFT JOIN client_super s ON (clients.super_id = s.id)
 				where
@@ -1226,12 +1221,6 @@ class m_clients {
             $design->assign("l_metro", ClientCS::GetMetroList());
             $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
 
-			$R=array();
-            StatModule::users()->d_users_get($R,'telemarketing');
-			if(isset($R[$r['telemarketing']]))
-				$R[$r['telemarketing']]['selected']=' selected';
-
-			$design->assign('users_telemarketing',$R);
 
 			$R=array();
             StatModule::users()->d_users_get($R,'account_managers');
@@ -1245,11 +1234,6 @@ class m_clients {
 				$R[$r['manager']]['selected']=' selected';
 			$design->assign('users_manager',$R);
 
-			$R=array();
-            StatModule::users()->d_users_get($R,'support');
-			if(isset($R[$r['support']]))
-				$R[$r['support']]['selected']=' selected';
-			$design->assign('users_support',$R);
 
 			$design->assign(
 				'inn',
@@ -1367,17 +1351,6 @@ class m_clients {
 			$R[$user->Get('user')]['selected']=' selected';
 		$design->assign('users_manager',$R);
 
-		$R=array();
-        StatModule::users()->d_users_get($R,'telemarketing');
-		if(isset($R[$user->Get('user')]))
-			$R[$user->Get('user')]['selected']=' selected';
-		$design->assign('users_telemarketing',$R);
-
-		$R=array();
-        StatModule::users()->d_users_get($R,'support');
-		if(isset($R[$user->Get('user')]))
-			$R[$user->Get('user')]['selected']=' selected';
-        $design->assign('users_support',$R);
 
         $client = [
             "client"=>"idNNNN",
@@ -1610,7 +1583,7 @@ class m_clients {
             }
 		}
 
-        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, support, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, currency_bill, stamp, nal, telemarketing, sale_channel, uid, site_req_no, signer_positionV, hid_rtsaldo_date, hid_rtsaldo_RUB, hid_rtsaldo_USD, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc";
+        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, currency_bill, stamp, nal, sale_channel, uid, site_req_no, signer_positionV, hid_rtsaldo_date, hid_rtsaldo_RUB, hid_rtsaldo_USD, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc";
 
 		# client_contacts
 		$db->Query('start transaction');

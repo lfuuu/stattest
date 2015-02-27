@@ -16,7 +16,6 @@
 <td>Номер заказа с&nbsp;сайта</td>
 <td>Организация</td>
 <td>Менеджер</td>
-<td>Телемаркетинг</td>
 <td>Канал продаж</td>
 <td>Услуга</td>
 <td>Активна&nbsp;С:</td>
@@ -34,7 +33,6 @@
 	<td>{$item.site_req_no}</td>
 	<td>{$item.organisation}</td>
 	<td>{$item.manager}</td>
-	<td>{$item.telemark}</td>
 	<td>{$item.channel}</td>
 				<td></td>
 				<td></td>
