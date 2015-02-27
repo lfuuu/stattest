@@ -26,8 +26,6 @@
 	<TD class=header vAlign=bottom width="15%">{sort_link sort=3 text='Валюта' link='?module=clients&action=' link2=$action link3='&subj=' link4=$client_subj link5='&search=' link6=$search link7='&letter=' link8=$letter sort_cur=$sort so_cur=$so}</TD>
 	<TD class=header vAlign=bottom width="15%">{sort_link sort=4 text='Канал' link='?module=clients&action=' link2=$action link3='&subj=' link4=$client_subj link5='&search=' link6=$search link7='&letter=' link8=$letter sort_cur=$sort so_cur=$so}</TD>
 	<TD class=header vAlign=bottom width="10%">{sort_link sort=5 text='SD' link='?module=clients&action=' link2=$action link3='&subj=' link4=$client_subj link5='&search=' link6=$search link7='&letter=' link8=$letter sort_cur=$sort so_cur=$so}</TD>
-	<TD class=header vAlign=bottom width="10%">{sort_link sort=6 text='TP' link='?module=clients&action=' link2=$action link3='&subj=' link4=$client_subj link5='&search=' link6=$search link7='&letter=' link8=$letter sort_cur=$sort so_cur=$so}</TD>
-	<TD class=header vAlign=bottom width="10%">{sort_link sort=7 text='TM' link='?module=clients&action=' link2=$action link3='&subj=' link4=$client_subj link5='&search=' link6=$search link7='&letter=' link8=$letter sort_cur=$sort so_cur=$so}</TD>
 
 </TR>
 {if isset($clients)}
@@ -39,8 +37,6 @@
 	<TD>{$item.currency}</TD>
 	<TD>{$item.sale_channel}</TD>
 	<TD><a href='{$LINK_START}module=users&m=user&id={$item.manager}'>{$item.manager|hl:$search}</a></TD>
-	<TD><a href='{$LINK_START}module=users&m=user&id={$item.support}'>{$item.support|hl:$search}</a></TD>
-	<TD><a href='{$LINK_START}module=users&m=user&id={$item.support}'>{$item.telemarketing|hl:$search}</a></TD>
 </TR>
 {/foreach}
 {/if}
