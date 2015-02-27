@@ -246,6 +246,15 @@ $(function(){
     <tr><td align="right">Аккаунт менеджер:</td><td><SELECT class="select2" style="width: 250px" name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td align="right">Менеджер:</td><td><SELECT class="select2" style="width: 250px" name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td align="right">Техподдержка:</td><td><SELECT class="select2" style="width: 250px" name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
+
+{if isset($mode_new)}
+    <tr><td align="right">Тип договора:</td><td><SELECT class="select2" style="width: 250px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <tr><td align="right">Бизнес процесс:</td><td><SELECT class="select2" style="width: 250px" name=business_process_id id=business_process_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.bussines_processes_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <tr><td align="right">Статус бизнес процесса:</td><td><SELECT class="select2" style="width: 250px" name="business_process_status_id" id="business_process_status_id">{foreach from=$bp_statuses item=item}<option value='{$item.id}' {if ($item.id == $client.bussines_processes_status_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <script>
+            optools.client.contractTypeSwitch.init();
+    </script>
+{/if}
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Банковские реквизиты:</td><td><input style='width:100%' name=bank_properties class=text value='{$client.bank_properties}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>
     <tr><td align="right">{if isset($mode_new)}<font color="blue"><b>(1) {/if}ИНН:{if isset($mode_new)}</b></font>{/if}</td><td><input id="cl_inn" style='width:100%' {if isset($mode_new)}onKeyUp="statlib.modules.clients.create.findByInn(event)"{/if} name=inn class=text value='{$client.inn}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>

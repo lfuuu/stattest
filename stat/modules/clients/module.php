@@ -1377,15 +1377,28 @@ class m_clients {
         StatModule::users()->d_users_get($R,'support');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
-		$design->assign('users_support',$R);
-        $design->assign("client", array(
-                    "client"=>"idNNNN",
-                    "credit"=>-1,
-                    "firma" => "mcn_telekom",
-                    "price_type" => ClientCS::GetIdByName("price_type", "Розница"),
-                    "password" => substr(md5(time()+rand(1,1000)*rand(10000,10000)), 3, 8),
-                    "voip_credit_limit_day" => 1000
-                    ));
+        $design->assign('users_support',$R);
+
+        $client = [
+            "client"=>"idNNNN",
+            "credit"=>-1,
+            "firma" => "mcn_telekom",
+            "price_type" => ClientCS::GetIdByName("price_type", "Розница"),
+            "password" => substr(md5(time()+rand(1,1000)*rand(10000,10000)), 3, 8),
+            "voip_credit_limit_day" => 1000,
+            "is_active" => 1,
+            "contract_type_id" => 2,
+            "business_process_id" => 1,
+            "business_process_status_id" => 1
+        ];
+        $design->assign("client", $client);
+
+        $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
+        $design->assign("bussines_processes", ClientBP::find()->select(["id", "name"])->where(["client_contract_id" => $client["contract_type_id"]])->orderBy("sort")->all());
+        $design->assign("bp_statuses", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $client["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
+
+        $bp = $this->clients_rpc_loadBPStatuses("", false);
+        $design->assign("business_processes_all", json_encode($bp["processes"]));
 
         $design->assign("l_price_type", ClientCS::GetPriceTypeList());
         $design->assign("l_metro", ClientCS::GetMetroList());
@@ -1659,8 +1672,8 @@ class m_clients {
 		if ($this->check_tele($id)==0) return;
 		$comment=get_param_protected('comment');
         $contractTypeId=get_param_protected('contract_type_id', 0);
-        $businessProcessId=get_param_protected('bp_type_id', 0);
-        $businessProcessStatusId=get_param_protected('business_process_id', 0);
+        $businessProcessId=get_param_protected('business_process_id', 0);
+        $businessProcessStatusId=get_param_protected('business_process_status_id', 0);
 
 		$cs=new ClientCS($id);
 		$cs->Add($comment);
@@ -1987,13 +2000,19 @@ class m_clients {
 
             if ($C->Create()){
 
-				try {
-					if ($syncClient = Sync1C::getClient())
+                $contractTypeId=get_param_protected('contract_type_id', 0);
+                $businessProcessId=get_param_protected('business_process_id', 0);
+                $businessProcessStatusId=get_param_protected('business_process_status_id', 0);
+
+                $C->SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId);
+
+                try {
+                    if ($syncClient = Sync1C::getClient())
                         $syncClient->saveClientCard($C->F['id']);
 
-				} catch (Sync1CException $e) {
-					$e->triggerError();
-				}
+                } catch (Sync1CException $e) {
+                    $e->triggerError();
+                }
 
                 $this->client_view($C->id,1);
                 return ;
@@ -2410,7 +2429,7 @@ DBG::sql_out($select_client_data);
         exit();
     }
 
-    public function clients_rpc_loadBPStatuses($fixclient)
+    public function clients_rpc_loadBPStatuses($fixclient, $isJSON = true)
     {
         $processes = [];
         foreach(ClientBP::find()->orderBy("sort")->all() as $b)
@@ -2424,10 +2443,15 @@ DBG::sql_out($select_client_data);
             $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
         }
 
-        //printdbg(["processes" => $processes, "statuses" => $statuses]);
+        $res = ["processes" => $processes, "statuses" => $statuses];
 
-        echo json_encode(["processes" => $processes, "statuses" => $statuses]);
-        exit();
+        if ($isJSON)
+        {
+            echo json_encode($res);
+            exit();
+        } else {
+            return $res;
+        }
     }
 
 	function get_history_flags($clientId)

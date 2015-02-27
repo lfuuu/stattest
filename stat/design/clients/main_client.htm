@@ -258,7 +258,7 @@
             <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs6>
                 <td align="right">Бизнес процес:</td>
                 <td>
-                        <SELECT class="select2" style="width: 240px" name=bp_type_id id=bp_type_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.business_process_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                        <SELECT class="select2" style="width: 240px" name=business_process_id id=business_process_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.business_process_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
 
                 </td>
             </tr>
@@ -289,7 +289,7 @@
                 <tr>
                     <td align="right">Статус бизнес процесса:</td>
                     <td>
-                        <SELECT class="select2" style="width: 200px" name=business_process_id id=business_process_id>
+                        <SELECT class="select2" style="width: 200px" name=business_process_status_id id=business_process_status_id>
                             {foreach from=$business_process item=item}
                                 <option value='{$item.id}' {if ($item.id == $client.business_process_status_id)} selected{/if}>{$item.name}</option>
                             {/foreach}

@@ -892,7 +892,7 @@ var optools = {
             bpAction: null,
             bpActionId: 0,
             init:function(){
-                $("select#bp_type_id").change(function(ev){
+                $("select#business_process_id").change(function(ev){
                     optools.client.contractTypeSwitch.bpAction = "reload_statuses";
                     optools.client.contractTypeSwitch.bpActionId = $(ev.currentTarget).val();
 
@@ -920,7 +920,7 @@ var optools = {
 
                 if (optools.client.contractTypeSwitch.bpAction == "reload_processes")
                 {
-                    var bp = $("select#bp_type_id");
+                    var bp = $("select#business_process_id");
 
                     optools.client.contractTypeSwitch.fillSelect(bp, optools.client.contractTypeSwitch.bpData.processes, optools.client.contractTypeSwitch.bpActionId);
 
@@ -937,7 +937,7 @@ var optools = {
 
                 if (optools.client.contractTypeSwitch.bpAction == "reload_statuses")
                 {
-                    var bps = $("select#business_process_id");
+                    var bps = $("select#business_process_status_id");
 
                     optools.client.contractTypeSwitch.fillSelect(bps, optools.client.contractTypeSwitch.bpData.statuses, optools.client.contractTypeSwitch.bpActionId);
 
