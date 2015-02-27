@@ -26,7 +26,7 @@ class SubmitTicketForm extends TicketForm
                 $ticket = new Ticket();
                 $ticket->client_account_id = $this->client_account_id;
                 $ticket->user_id = $this->user_id;
-                $ticket->service_type = $this->service_type;
+                $ticket->department = $this->department;
                 $ticket->subject = $this->subject;
                 $ticket->status = TicketStatusEnum::OPEN;
 
@@ -41,7 +41,7 @@ class SubmitTicketForm extends TicketForm
 
                     Trouble::dao()->createTroubleForSupportTicket(
                         $this->client_account_id,
-                        $this->service_type,
+                        $this->department,
                         $this->subject,
                         $this->description,
                         $ticket->id
