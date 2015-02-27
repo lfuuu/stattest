@@ -926,7 +926,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><span>&nbsp;</span></p>
 		</td>
 		<td colspan="6" width=50%>
-			<p ><table class=to_client><tr><td valign=top><br><b>Обращаем Ваше Вниманиние!</b></td><td>Этот экземпляр Акта, просьба с подписью и печатью<br> направить в наш адрес: 115162 г.Москва,а/я 21 ООО &laquo;МСН Телеком&raquo;</td></tr></table></div></p>
+			<p ><table class=to_client><tr><td valign=top><br><b>Обращаем Ваше Вниманиние!</b></td><td>Этот экземпляр УПД, просьба с подписью и печатью<br> направить в наш адрес: 115162 г.Москва,а/я 21 ООО &laquo;МСН Телеком&raquo;</td></tr></table></div></p>
 		</td>
 	</tr>
 </table>

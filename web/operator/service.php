@@ -57,6 +57,10 @@ if ($action=='add_client') {
 	$O->address_jur = $P['address'];
 	$O->sale_channel = $P['market_chanel'];
     $O->contract_type_id = 2; //Телеком-клиент
+    $O->business_process_id = 1; //Сопровождение
+    $O->business_process_status_id = 1; //Входящие
+    $O->status = "income"; 
+
 	if($P["phone_connect"])
 		$O->phone_connect = $P["phone_connect"];
 

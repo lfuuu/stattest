@@ -1,8 +1,25 @@
 <script src="js/jquery.inputmask.js"></script>
 
-<div style="font-size: 18px; padding: 5px; margin-bottom: 10px">
-    Клиент {$superClient.name}
+<div style="font-size: 18px; padding 5px; margin-bottom: 10px;">
+    <div style="width: 50%; display: inline-block;">
+        {if access('clients','edit')}
+            <a href='{$LINK_START}module=clients&id={$client.super_id}&action=client_edit' title="Редактировать (супер) клиента">
+                <img src='{$IMAGES_PATH}icons/edit.gif'>
+            </a>
+        {/if}
+        
+        {$superClient.name} &nbsp;&nbsp;
+        {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
+        <a style="font: normal 7pt sans-serif;" target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
+            Переход в LK
+        </a>
+        {php} endif; {/php}
+    </div>
+    {if false}
+    <div style="width: 45%; display: inline-block; text-align: right; padding-right: 10px; font: normal 12pt sans-serif;">{if $superClient.accountManager}Аккаунт менеджер: {$superClient.accountManager.name}{/if}</div>
+    {/if}
 </div>
+<div style="clear: both;"></div>
 
 {foreach from=$contragents item='contragent'}
 <div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
@@ -30,9 +47,16 @@
             <div style="display: inline-block; min-width: 120px">
                 {if $account.accountRegion}{$account.accountRegion.name}{/if}
             </div>
+            <div style="display: inline-block; min-width: 260px; padding: 1px 5px;">
+                {if $account.manager}Менеджер: {$account.userManager.name}{/if}
+            </div>
             {if $account.id==$clientAccount.id}</b>{/if}
             <div style="display: inline-block;">
-                {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
+                {if $account.lastComment}
+                    {foreach from=$account.lastComment item=comment}
+                        {$comment.user} {$comment.ts|substr:0:10} {$comment.comment}<br>
+                    {/foreach}
+                {/if}
             </div>
         </div>
     </a>
@@ -58,36 +82,9 @@
     </a> ({$cfiles} шт.)
     <br><br>
     {/if}
-    <a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
-        <img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
-    </a>
-    <br><br>
-    <a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>
-        <img class=icon src='{$IMAGES_PATH}icons/password.gif'>Изменить пароль
-    </a>
-    <br><br>
-    {/if}
-    {if access('monitoring','edit') || access('clients','edit_tele')}
-    <a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
-        <img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
-    </a>
-    <br><br>
     {/if}
 
-    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&up_id={$client.id}">
-        Профиль в Welltone
-    </a>
-    <br>
-    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
-        Обращение в Welltone
-    </a>
 
-    {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
-    <br>
-    <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
-        Переход в LK
-    </a>
-    {php} endif; {/php}
     <br>
     <br>
 
@@ -186,58 +183,109 @@
 <td colspan=2 align="center">
     <div style="display: inline-block; text-align: left">
         {foreach from=$client.data_cs item=item name=outer}
-        {if $item.comment}
-        <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
-        {/if}
-        {if $item.status}
-        <b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
-        {/if}
-        {/foreach}
+            {if $item.comment}
+                <input type=checkbox name="publich_contact_id" value="{$item.id}" class="publish_comment{if $item.is_publish}_over{/if}"{if $item.is_publish} checked{/if}>
+                <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
+            {/if}
+            {if $item.status}
+                <div style="width: 17px; display: inline-block;">&nbsp;</div><b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
+            {/if}
+            {/foreach}
+            <script>
+                optools.client.initChoiseLastComment({$client.id});
+            </script>
     </div>
 </td>
 </tr>
+{if !access("clients", "client_type_change") && $client.is_blocked}
+<tr>
+    <td align=right valign=top style="padding-top: 14px;">
+        Блокировка:
+    </td>
+    <td>
+        <button type="button" class="btn btn-default btn-danger" style="width: 130px;">Заблокирован</button>
+    </td>
+</tr>
+
+{/if}
 {if access('clients','restatus')}
 <tr>
     <td colspan="2" align="center">
         <form action="?" method=post id=sform name=sform>
-            <input type=hidden name=module value=clients>
-            <input type=hidden name=action value=restatus>
-            <input type=hidden name=id value='{$client.id}'>
-            <table width="100%">
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2>
-                <td align="right">Статус:</td>
-                <td>
-                    <SELECT class="select2" style="width: 200px" name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
-                </td>
-                </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+        <input type=hidden name=module value=clients>
+        <input type=hidden name=action value=restatus>
+        <input type=hidden name=id value='{$client.id}'>
+        <table width=60%>
+            <tr>
+    {if access("clients", "client_type_change")}
+    <td valign=top>
+        
+        <table width=100%>
+            <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs7>
                 <td align="right">Тип договора:</td>
                 <td>
-                    <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 240px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
-                </tr>
+            </tr>
+            <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs6>
+                <td align="right">Бизнес процес:</td>
+                <td>
+                        <SELECT class="select2" style="width: 240px" name=bp_type_id id=bp_type_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.business_process_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    Блокировка
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button id="block-btn-work" type="button" class="btn btn-default {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
+                        <button id="block-btn-block" type="button" class="btn btn-default dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+            optools.client.initBlocked({$client.id});
+            optools.client.contractTypeSwitch.init();
+        </script>
+    </td>
+    {/if}
+        <td valign=top>
+            <table width="100%">
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
-                <td align="right">Статус бизнес процесса:</td>
-                <td>
-                    <SELECT class="select2" style="width: 200px" name=business_process_id>{foreach from=$business_process item=item}<option value='{$item.id}' {if ($item.id == $clientAccount.businessProcessStatus.id)} selected{/if}>{$item.name}</option>{/foreach}</select>
-                </td>
+                    <td align="right">Статус бизнес процесса:</td>
+                    <td>
+                        <SELECT class="select2" style="width: 200px" name=business_process_id id=business_process_id>
+                            {foreach from=$business_process item=item}
+                                <option value='{$item.id}' {if ($item.id == $client.business_process_status_id)} selected{/if}>{$item.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
                 </tr>
+
                 <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
-                <td align="right">Комментарий:</td>
-                <td>
-                    <div style="position: relative"><textarea style='width:90%;height:100px' name=comment class=text></textarea></div>
-                </td>
-                </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
-                <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
-                <td style='border-bottom:1 solid red'>
-                    <input class=text value='Изменить' type=submit>
-                </td>
+                    <td align="right">Комментарий:</td>
+                    <td>
+                        <div style="position: relative"><textarea style='width:90%; height:100px' name=comment class=text></textarea></div>
+                    </td>
+                    </tr>
+                    <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
+                    <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
+                    <td style='border-bottom:1 solid red'>
+                        <input class=text value='Изменить' type=submit>
+                    </td>
                 </tr>
             </table>
-        </form>
+        </td>
+    </tr>
+</table>
+
     </td>
 </tr>
+</form>
 {/if}
 <tr>
     <td align="right">Предполагаемый <b>адрес</b> подключения:</td>
@@ -458,11 +506,15 @@
     {literal}
 
     function togglecs() {
-        toggle2(data_cs1);
-        toggle2(data_cs2);
-        toggle2(data_cs3);
-        toggle2(data_cs4);
-        toggle2(data_cs5);
+        for(var i in [1,2,3,4,5,6,7])
+        {
+            i++;
+            var d = document.getElementById("data_cs"+i);
+            if (d) {
+                toggle2(d);
+            }
+        }
+
         if (data_cs1.style.display==''){
             value = '1';
         } else {

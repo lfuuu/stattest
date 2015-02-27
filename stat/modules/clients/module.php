@@ -1,9 +1,11 @@
 <?php
 use app\classes\StatModule;
 use app\models\ClientContractType;
+use app\models\ClientStatuses;
 use app\models\ClientAccount;
 use app\classes\Assert;
 use app\models\ClientGridSettings;
+use app\models\ClientBP;
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -43,8 +45,11 @@ class m_clients {
 					'print_yota_contract' => array('clients','file'),
 					'rpc_findClient1c'	=> array('clients','new'),
 					'rpc_findBank1c'	=> array('clients','new'),
+                    'rpc_loadBPStatuses'=> array('',''),
+                    'rpc_setBlocked'    => array('clients', 'client_type_change'),
 					'view_history'		=> array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
+                    'publish_comment'   => array('', ''),
 
 					'p_edit' => array('clients','edit')
 				);
@@ -1146,9 +1151,10 @@ class m_clients {
 		ClientCS::$statuses[$r['status']]['selected'] = ' selected';
         $design->assign_by_ref('statuses',ClientCS::$statuses);
         $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
-        
-        // пока нужно вывести только процесс для продаж телекома (ИД - 1)
-        $design->assign("business_process", ClientGridSettings::findBusinessProcessStatusesByClientIdAndBusinessProcessId($clientAccount->id, 1)->all());
+        $design->assign("bussines_processes", ClientBP::find()->select(["id", "name"])->where(["client_contract_id" => $r["contract_type_id"]])->orderBy("sort")->all());
+
+        //bp statuses
+        $design->assign("business_process", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $r["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
         
         
 		$cs = new ClientCS($r['id']);
@@ -1495,7 +1501,7 @@ class m_clients {
 						on
 							client_inn.client_id = clients.id
 						and
-							is_active = 1
+							client_inn.is_active = 1
 						where
 							client_inn.inn = "'.$inn.'"
 						and
@@ -1642,23 +1648,15 @@ class m_clients {
 		global $design;
 		$id=get_param_protected('id');
 		if ($this->check_tele($id)==0) return;
-		$status=get_param_protected('status');
 		$comment=get_param_protected('comment');
-		$contractTypeId=get_param_protected('contract_type_id', 1);
+        $contractTypeId=get_param_protected('contract_type_id', 0);
+        $businessProcessId=get_param_protected('bp_type_id', 0);
+        $businessProcessStatusId=get_param_protected('business_process_id', 0);
+
 		$cs=new ClientCS($id);
-		$cs->Add($status,$comment);
-		$cs->SetContractType($contractTypeId);
+		$cs->Add($comment);
+		$cs->SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId);
                 
-                //я копипастнул из client_view, но вообще нужно будет перекрыть findOne и вклюдчить условие по типу ид
-                if (is_numeric($id)) {
-                    $yii_model = ClientAccount::findOne($id);
-                } else {
-                    $yii_model = ClientAccount::find()->andWhere(['client' => $id])->one();
-                }
-
-                $yii_model->businessProcessStatus = Yii::$app->request->post('business_process_id');
-                $yii_model->save();
-
         event::go("client_set_status", $id);
 
         voipNumbers::check();
@@ -1842,7 +1840,7 @@ class m_clients {
 			$comment=get_param_protected('comment');
 			$dbl = 0;
 			if ($r = $db->getRow('select client from clients where inn="'.$inn.'"')) $dbl = $r['client'];
-			if (!$dbl && ($r = $db->getRow('select client from clients inner join client_inn on client_inn.client_id=clients.id and is_active=1 where client_inn.inn="'.$inn.'"'))) $dbl = $r['client'];
+			if (!$dbl && ($r = $db->getRow('select client from clients inner join client_inn on client_inn.client_id=clients.id and client_inn.is_active=1 where client_inn.inn="'.$inn.'"'))) $dbl = $r['client'];
 			if (access('clients','inn_double') || !$dbl) {
 				$db->QueryInsert('client_inn',array('ts'=>array('NOW()'),'client_id'=>$id,'user_id'=>$user->Get('id'),'inn'=>$inn,'comment'=>$comment));
 				if ($dbl) {
@@ -2365,7 +2363,46 @@ DBG::sql_out($select_client_data);
 			}";
 		}
 		exit();
-	}
+    }
+
+    public function clients_rpc_setBlocked($fixclient)
+    {
+        $accountId = get_param_integer("account_id", 0);
+        $isBlocked = (get_param_raw("is_blocked", "false") == "true" ? 1 : 0);
+
+        $client = ClientAccount::findOne(["id" => $accountId]);
+
+        Assert::isObject($client);
+
+        if ($isBlocked != $client->is_blocked)
+        {
+            $client->is_blocked = $isBlocked ? 1 : 0;
+            $client->save();
+        }
+
+        echo "ok";
+        exit();
+    }
+
+    public function clients_rpc_loadBPStatuses($fixclient)
+    {
+        $processes = [];
+        foreach(ClientBP::find()->orderBy("sort")->all() as $b)
+        {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        foreach(ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s)
+        {
+            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+        }
+
+        //printdbg(["processes" => $processes, "statuses" => $statuses]);
+
+        echo json_encode(["processes" => $processes, "statuses" => $statuses]);
+        exit();
+    }
 
 	function get_history_flags($clientId)
 	{
@@ -2628,6 +2665,27 @@ DBG::sql_out($select_client_data);
 
 
         $design->AddMain("clients/contragent_edit.html");
+    }
+
+    public function clients_publish_comment($fixclient)
+    {
+        $accountId = get_param_raw("account_id", 0);
+        $statusId  = get_param_raw("status_id", 0);
+        $isPublish = (int)(get_param_raw("publish", "false") == "true");
+
+
+        $comment = ClientStatuses::find()->where(["id" => $statusId, "id_client" => $accountId])->one();
+
+        Assert::isObject($comment);
+
+        if ($comment)
+        {
+            if ($comment->is_publish != $isPublish)
+            {
+                $comment->is_publish = $isPublish;
+                $comment->save();
+            }
+        }
     }
 }
 
