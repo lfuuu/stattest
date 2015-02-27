@@ -414,6 +414,7 @@ class m_routers {
         $design->assign('cur_page',$page+1);
         $design->assign('pages_count',$pages_count);
         $design->AddMain('routers/main_devices.tpl');
+        return $pages_count;
     }
     function routers_d_snmp($fixclient){
         global $db,$design;

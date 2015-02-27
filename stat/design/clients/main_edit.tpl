@@ -37,7 +37,7 @@ $(function(){
                 width: 850,
                 height: 400,
                 open: function(event, ui){
-                    $(this).load("./?module=clients&id={/literal}{$client.id}{literal}&action=view_history&view_only=true");
+                    $(this).load("./?module=clients&client_id={/literal}{$client.id}{literal}&action=view_history&view_only=true");
                 }
             });
     }
@@ -246,6 +246,15 @@ $(function(){
     <tr><td align="right">Аккаунт менеджер:</td><td><SELECT class="select2" style="width: 250px" name=account_manager><option value=''>не определено</option>{foreach from=$account_managers item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td align="right">Менеджер:</td><td><SELECT class="select2" style="width: 250px" name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
     <tr><td align="right">Техподдержка:</td><td><SELECT class="select2" style="width: 250px" name=support><option value=''>не определено</option>{foreach from=$users_support item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select></td></tr>
+
+{if isset($mode_new)}
+    <tr><td align="right">Тип договора:</td><td><SELECT class="select2" style="width: 250px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <tr><td align="right">Бизнес процесс:</td><td><SELECT class="select2" style="width: 250px" name=business_process_id id=business_process_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.bussines_processes_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <tr><td align="right">Статус бизнес процесса:</td><td><SELECT class="select2" style="width: 250px" name="business_process_status_id" id="business_process_status_id">{foreach from=$bp_statuses item=item}<option value='{$item.id}' {if ($item.id == $client.bussines_processes_status_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <script>
+            optools.client.contractTypeSwitch.init();
+    </script>
+{/if}
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Банковские реквизиты:</td><td><input style='width:100%' name=bank_properties class=text value='{$client.bank_properties}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>
     <tr><td align="right">{if isset($mode_new)}<font color="blue"><b>(1) {/if}ИНН:{if isset($mode_new)}</b></font>{/if}</td><td><input id="cl_inn" style='width:100%' {if isset($mode_new)}onKeyUp="statlib.modules.clients.create.findByInn(event)"{/if} name=inn class=text value='{$client.inn}'{if $card_type=='addition'}readonly='readonly'{/if}></td></tr>
@@ -366,6 +375,7 @@ $(function(){
     </td></tr>
 </table>
 
+{if $client.is_active}
 {if isset($client.id) && $client.id >0}
 <div align=center>Изменения на дату <input type=checkbox name=deferred value=1 id="deferred">
 <div id="span_deferred_date" style="display: none; width: 200px; text-align: left;">
@@ -379,6 +389,12 @@ $(function(){
 
 <div align=center><input id=bSubmit onclick="doMainFormSubmit()" class=button type=button value="Изменить"></div>
 
+{else}
+<script>
+    $("#form input, #form select").attr("readonly", "readonly").attr("disabled", "disabled")
+</script>
+
+{/if}
 </form>
 
 <div id="history_dialog" title="История изменений" style="display: none;"></div>
@@ -413,9 +429,12 @@ $(function(){
     {foreach from=$inn item=item}
     <tr{if !$item.is_active} class="other"{/if}>
     <td>{$item.inn}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=inn&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+    {if $client.is_active}
+        <a href='{$LINK_START}module=clients&id={$item.client_id}&action=inn&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
+    {/if}
     </td></tr>
     {/foreach}
+{if $client.is_active}
     <form action="?" method=post><tr>
         <input type=hidden name=module value=clients>
         <input type=hidden name=action value=inn>
@@ -424,6 +443,7 @@ $(function(){
         <td colspan=2><input class=text style='width:100%' type=text name=comment></td>
         <td><input class=button type=submit value="добавить"></td>
     </tr></form>
+    {/if}
 </table>
 
 <h3>Дополнительные расчетные счета</h3>
@@ -432,9 +452,12 @@ $(function(){
     {foreach from=$pay_acc item=item}
     <tr>
     <td>{$item.pay_acc}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.date}</td><td>
-    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=pay_acc&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Активность"></a>
+        {if $client.is_active}
+            <a href='{$LINK_START}module=clients&id={$item.client_id}&action=pay_acc&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Активность"></a>
+        {/if}
     </td></tr>
     {/foreach}
+    {if $client.is_active}
     <form action="?" method=post><tr>
         <input type=hidden name=module value=clients>
         <input type=hidden name=action value=pay_acc>
@@ -442,4 +465,5 @@ $(function(){
         <td><input class=text style='width:100%' type=text name=pay_acc style="width: 100px;"></td>
         <td colspan=2><input class=button type=submit value="добавить"></td>
     </tr></form>
+    {/if}
 </table>

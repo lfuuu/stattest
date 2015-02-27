@@ -28,6 +28,7 @@ class checkIsActiveAccount extends Behavior
                 if ($bpStatus && $bpStatus->oldstatus && $bpStatus->is_close_status == $event->sender->is_active) // is_close = !is_active
                 {
                     $event->sender->is_active = $bpStatus->is_close_status ? 0 : 1;
+                    $event->sender->is_blocked = 0;
                     $event->sender->save();
 
                     $cs = new ClientStatuses();

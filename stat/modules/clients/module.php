@@ -47,7 +47,9 @@ class m_clients {
 					'rpc_findBank1c'	=> array('clients','new'),
                     'rpc_loadBPStatuses'=> array('',''),
                     'rpc_setBlocked'    => array('clients', 'client_type_change'),
-					'view_history'		=> array('clients', 'edit'),
+                    'rpc_setVoipDisabled' => array("clients", "client_type_change"),
+                    'view_history'		=> array('clients', 'edit'),
+                    'client_edit'       => array('clients', 'edit'),
                     'contragent_edit'   => array('clients', 'edit'),
                     'publish_comment'   => array('', ''),
 
@@ -1192,22 +1194,29 @@ class m_clients {
                 $design->assign('is_secondary_output',1);
                 $this->showServersTroubles($r);
                 StatModule::tt()->showTroubleList(1,'client',$r['client']);
-                StatModule::services()->services_in_view($r['client']);
-                StatModule::services()->services_co_view($r['client']);
-                StatModule::services()->services_ppp_view($r['client']);
-                StatModule::services()->services_vo_view($r['client']);
-                StatModule::routers()->routers_d_list($r['client'],1);
+
+                $design->AddMain("clients/service_header.htm");
+                $isServiceEnabled = false;
+
+                if(StatModule::services()->services_in_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_co_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_ppp_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_vo_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::routers()->routers_d_list($r['client'],1)) $isServiceEnabled = true;
 				//StatModule::routers()->routers_d_list($r['client']);
-                StatModule::services()->services_em_view($r['client']);
-                StatModule::services()->services_ex_view($r['client']);
-                StatModule::services()->services_it_view($r['client']);
-                StatModule::services()->services_welltime_view($r['client']);
-                StatModule::services()->services_virtpbx_view($r['client']);
-                StatModule::services()->services_8800_view($r['client']);
-                StatModule::services()->services_sms_view($r['client']);
-                StatModule::services()->services_wellsystem_view($r['client']);
-                StatModule::services()->services_ad_view($r['client']);
-				$design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
+                if(StatModule::services()->services_em_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_ex_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_it_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_welltime_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_virtpbx_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_8800_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_sms_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_wellsystem_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_ad_view($r['client'])) $isServiceEnabled = true;
+                $design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
+
+                $design->assign("is_service_enabled", $isServiceEnabled);
+
 			}
 
 		}else{
@@ -1368,15 +1377,28 @@ class m_clients {
         StatModule::users()->d_users_get($R,'support');
 		if(isset($R[$user->Get('user')]))
 			$R[$user->Get('user')]['selected']=' selected';
-		$design->assign('users_support',$R);
-        $design->assign("client", array(
-                    "client"=>"idNNNN",
-                    "credit"=>-1,
-                    "firma" => "mcn_telekom",
-                    "price_type" => ClientCS::GetIdByName("price_type", "Розница"),
-                    "password" => substr(md5(time()+rand(1,1000)*rand(10000,10000)), 3, 8),
-                    "voip_credit_limit_day" => 1000
-                    ));
+        $design->assign('users_support',$R);
+
+        $client = [
+            "client"=>"idNNNN",
+            "credit"=>-1,
+            "firma" => "mcn_telekom",
+            "price_type" => ClientCS::GetIdByName("price_type", "Розница"),
+            "password" => substr(md5(time()+rand(1,1000)*rand(10000,10000)), 3, 8),
+            "voip_credit_limit_day" => 1000,
+            "is_active" => 1,
+            "contract_type_id" => 2,
+            "business_process_id" => 1,
+            "business_process_status_id" => 1
+        ];
+        $design->assign("client", $client);
+
+        $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
+        $design->assign("bussines_processes", ClientBP::find()->select(["id", "name"])->where(["client_contract_id" => $client["contract_type_id"]])->orderBy("sort")->all());
+        $design->assign("bp_statuses", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $client["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
+
+        $bp = $this->clients_rpc_loadBPStatuses("", false);
+        $design->assign("business_processes_all", json_encode($bp["processes"]));
 
         $design->assign("l_price_type", ClientCS::GetPriceTypeList());
         $design->assign("l_metro", ClientCS::GetMetroList());
@@ -1650,8 +1672,8 @@ class m_clients {
 		if ($this->check_tele($id)==0) return;
 		$comment=get_param_protected('comment');
         $contractTypeId=get_param_protected('contract_type_id', 0);
-        $businessProcessId=get_param_protected('bp_type_id', 0);
-        $businessProcessStatusId=get_param_protected('business_process_id', 0);
+        $businessProcessId=get_param_protected('business_process_id', 0);
+        $businessProcessStatusId=get_param_protected('business_process_status_id', 0);
 
 		$cs=new ClientCS($id);
 		$cs->Add($comment);
@@ -1978,13 +2000,19 @@ class m_clients {
 
             if ($C->Create()){
 
-				try {
-					if ($syncClient = Sync1C::getClient())
+                $contractTypeId=get_param_protected('contract_type_id', 0);
+                $businessProcessId=get_param_protected('business_process_id', 0);
+                $businessProcessStatusId=get_param_protected('business_process_status_id', 0);
+
+                $C->SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId);
+
+                try {
+                    if ($syncClient = Sync1C::getClient())
                         $syncClient->saveClientCard($C->F['id']);
 
-				} catch (Sync1CException $e) {
-					$e->triggerError();
-				}
+                } catch (Sync1CException $e) {
+                    $e->triggerError();
+                }
 
                 $this->client_view($C->id,1);
                 return ;
@@ -2364,6 +2392,23 @@ DBG::sql_out($select_client_data);
 		}
 		exit();
     }
+    public function clients_rpc_setVoipDisabled()
+    {
+        $accountId = get_param_integer("account_id", 0);
+        $isDisabled = (get_param_raw("is_disabled", "false") == "true");
+
+        $client = clientAccount::findOne($accountId);
+
+        Assert::isObject($client);
+
+        if ((bool)$client->voip_disabled != $isDisabled)
+        {
+            $client->voip_disabled = $isDisabled ? 1 : 0;
+            $client->save();
+        }
+        echo "ok";
+        exit();
+    }
 
     public function clients_rpc_setBlocked($fixclient)
     {
@@ -2384,7 +2429,7 @@ DBG::sql_out($select_client_data);
         exit();
     }
 
-    public function clients_rpc_loadBPStatuses($fixclient)
+    public function clients_rpc_loadBPStatuses($fixclient, $isJSON = true)
     {
         $processes = [];
         foreach(ClientBP::find()->orderBy("sort")->all() as $b)
@@ -2398,10 +2443,15 @@ DBG::sql_out($select_client_data);
             $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
         }
 
-        //printdbg(["processes" => $processes, "statuses" => $statuses]);
+        $res = ["processes" => $processes, "statuses" => $statuses];
 
-        echo json_encode(["processes" => $processes, "statuses" => $statuses]);
-        exit();
+        if ($isJSON)
+        {
+            echo json_encode($res);
+            exit();
+        } else {
+            return $res;
+        }
     }
 
 	function get_history_flags($clientId)
@@ -2447,11 +2497,19 @@ DBG::sql_out($select_client_data);
 
 	function clients_view_history()
 	{
-		global $db, $design, $user;
+        global $db, $design, $user;
 
-        
-        $design->assign("isAdmin", ($isAdmin = access("clients", "history_edit")));
+        $clientId = get_param_raw("client_id", 0);
+        $superId = get_param_raw("super_id", 0);
+
+        $isAdmin = access("clients", "history_edit") && $clientId;
+
+        $design->assign("isAdmin", $isAdmin);
         $design->assign("user_id", $user->Get("id"));
+
+        $field = $superId ? "super_id" : "client_id";
+        $id = $superId ?: $clientId;
+
 
 		$clientId = get_param_raw("id", "-1");
 
@@ -2466,7 +2524,7 @@ DBG::sql_out($select_client_data);
 			"select user_id,client_id, lc.id, unix_timestamp(lc.ts) as ts ,u.name, is_overwrited, is_apply_set, unix_timestamp(apply_ts) as apply_ts
 			from log_client lc
 			left join user_users u on (u.id = lc.user_id)
-			where lc.client_id = '".$clientId."' and lc.type='fields'
+			where lc.".$field." = '".$id."' and lc.type='fields'
 			order by lc.id desc");
 
 
@@ -2551,7 +2609,9 @@ DBG::sql_out($select_client_data);
 			"mail_who" => "Кому письмо",
 			"head_company" => "Головная компания",
 			"head_company_address_jur" => "Юр. адрес головной компании",
-            "nds_calc_method" => "Метод расчета НДС"
+            "nds_calc_method" => "Метод расчета НДС",
+            "name" => "Название",
+            "account_manager" => "Аккаунт менеджер"
 
 		);
 		return isset($f[$l]) ? $f[$l] : $l;
@@ -2657,7 +2717,37 @@ DBG::sql_out($select_client_data);
 		}
 
 		$design->AddMain('clients/phisclient.html');
-	}
+    }
+
+    public function clients_client_edit($fixclient)
+    {
+        global $design;
+
+        $client = app\models\ClientSuper::findOne(get_param_raw("id"));
+        Assert::isObject($client);
+
+        if (get_param_raw("save"))
+        {
+            $name = get_param_raw("name");
+            $accountManager = get_param_raw("account_manager");
+
+            Assert::isNotEmpty($name, "Имя не задано");
+
+            if ($name != $client->name || $accountManager != $client->account_manager)
+            {
+                $client->name = $name;
+                $client->account_manager = $accountManager;
+                $client->save();
+            }
+        }
+
+        $accountManagers=array();
+        StatModule::users()->d_users_get($accountManagers, 'account_managers');
+
+        $design->assign("client", $client);
+        $design->assign("account_managers", $accountManagers);
+        $design->AddMain("clients/client_edit.htm");
+    }
 
     public function clients_contragent_edit($fixclient)
     {
