@@ -1678,7 +1678,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if ($trouble['is_editableByMe']) return true;
         if ($u==$trouble['user_main'] || $u==$trouble['user_author']) return true;
         if (in_array($trouble['client'],array('all4net','wellconnect')) && access('tt','shop_orders')) return true;
-        if ($trouble["user_author"] == "1c-vitrina") return true;
+        if (in_array($trouble["user_author"], ["1c-vitrina", "AutoLK"])) return true;
+        if ($trouble["user_main"] == "system") return true;
         return false;
     }
 
