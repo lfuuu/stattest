@@ -116,9 +116,11 @@
     <a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>Создать заказ Поставщику</a>
     <br/><br/><br/>
     {/if}
-
+    {/if} {* if $client.is_active *}
+    
     <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
     <br>
+    {if $client.is_active}
     <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
 
     {*if access('clients','yota')*}
