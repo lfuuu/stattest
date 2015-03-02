@@ -31,6 +31,11 @@ class BillerPackageResource extends BillerPackage
 
     public function createTransaction()
     {
+        $currentPeriod = $this->billerPeriodTo->getTimestamp() - $this->billerPeriodFrom->getTimestamp();
+        $effectivePeriod = $this->billerActualTo->getTimestamp() - $this->billerActualFrom->getTimestamp();
+        $minPayment = $this->minPayment * $effectivePeriod / $currentPeriod;
+
+
         $amount = $this->amount - ($this->freeAmount ? $this->freeAmount : 0);
         if ($amount < 0) {
             $amount = 0;
@@ -38,10 +43,10 @@ class BillerPackageResource extends BillerPackage
         $amount = round($amount, 6);
         $price = $this->price;
 
-        if (round($amount * $price, 2) < $this->minPayment) {
+        if (round($amount * $price, 2) < $minPayment) {
             $name = $this->minPaymentTemplate;
             $amount = 1;
-            $price = $this->minPayment;
+            $price = $minPayment;
         } else {
             $name = $this->template;
         }
@@ -57,7 +62,7 @@ class BillerPackageResource extends BillerPackage
         $transactionDate->modify('+1 second');
 
 
-        $name = $this->processTemplate($from, $to);
+        $name = $this->processTemplate($from, $to, $name);
 
 
         $transaction = new Transaction();

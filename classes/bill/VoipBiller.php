@@ -149,7 +149,7 @@ class VoipBiller extends Biller
             }elseif($dest == '900'){
                 if ($is7800) {
                     $template = 'Плата за звонки по номеру {name}';
-                    $minPayment = $this->logTariff->month_min_payment;
+                    $minPayment = $this->tariff->month_min_payment;
                     $minPaymentTemplate = 'Минимальный платеж за звонки по номеру {name}';
                 } else {
                     $template = 'Плата за звонки по номеру {name} (местные, междугородные, международные)';

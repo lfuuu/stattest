@@ -126,9 +126,11 @@ abstract class BillerPackage
         }
     }
 
-    protected function processTemplate(DateTime $from, DateTime $to)
+    protected function processTemplate(DateTime $from, DateTime $to, $name = null)
     {
-        $name = $this->template;
+        if ($name === null) {
+            $name = $this->template;
+        }
 
         $name = str_replace('{name}', $this->name, $name);
 
