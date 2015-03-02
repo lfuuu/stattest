@@ -9,6 +9,10 @@ class WelltimeBiller extends Biller
     {
         $tariff = $this->usage->tariff;
 
+        $template = '{name}';
+
+        $template .= $this->getPeriodTemplate($this->tariff->period);
+
         $this->addPackage(
             BillerPackagePeriodical::create($this, 2001)
                 ->setPeriodType($tariff->period)
@@ -17,6 +21,7 @@ class WelltimeBiller extends Biller
                 ->setAmount($this->usage->amount)
                 ->setName($tariff->description)
                 ->setPrice($tariff->price)
+                ->setTemplate($template)
         );
     }
 
