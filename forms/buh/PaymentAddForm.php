@@ -44,7 +44,7 @@ class PaymentAddForm extends PaymentForm
         $item->sum = round($this->sum, 2);
         $item->payment_rate = round($item->original_sum / $item->sum, 8);
         $item->type = $this->type;
-        $item->bank = $item->type == 'bank' ? $this->bank : '';
+        $item->bank = $item->type == 'bank' ? $this->bank : 'mos';
         $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
         $item->comment = $this->comment;
         $item->add_date = (new \DateTime())->format(\DateTime::ATOM);
