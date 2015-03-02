@@ -44,11 +44,11 @@ class BillerPackageResource extends BillerPackage
         $price = $this->price;
 
         if (round($amount * $price, 2) < $minPayment) {
-            $name = $this->minPaymentTemplate;
+            $template = $this->minPaymentTemplate;
             $amount = 1;
             $price = $minPayment;
         } else {
-            $name = $this->template;
+            $template = $this->template;
         }
 
         if (!$price || !$amount) {
@@ -62,7 +62,7 @@ class BillerPackageResource extends BillerPackage
         $transactionDate->modify('+1 second');
 
 
-        $name = $this->processTemplate($from, $to, $name);
+        $name = $this->processTemplate($from, $to, $template);
 
 
         $transaction = new Transaction();
