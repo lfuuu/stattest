@@ -865,7 +865,7 @@ class SoapHandler{
                 "country_id" => trr($p->{tr('СтранаПроизводитель')}),
                 'is_price_includes_tax' => 0,
                 'tax_type_id' => 18,
-                'sum_without_tax' => $p->{tr('СуммаИтогоБезНДС')},
+                'sum_without_tax' => $p->{tr('Сумма')} - $p->{tr('СуммаНДС')},
                 'sum_tax' => $p->{tr('СуммаНДС')},
             );
         }
@@ -948,7 +948,7 @@ class SoapHandler{
                 "'".$item["sum"]."',".
                 "'".$item["dispatch"]."',".
                 "'".$item["gtd"]."',".
-                "'".$item["country_id"]."'".
+                "'".$item["country_id"]."',".
                 "'".$item["is_price_includes_tax"]."',".
                 "'".$item["tax_type_id"]."',".
                 "'".$item["sum_without_tax"]."',".
@@ -1081,15 +1081,17 @@ class SoapHandler{
 
                     // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
 
-                    $bill = Bill::findOne(['bill_no' => $bill_no]);
+                    //$bill = Bill::findOne(['bill_no' => $bill_no]);
                     if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                        $bill->is_approved = 1;
-                        $bill->sum = $bill->sum_with_unapproved;
+                        //$bill->is_approved = 1;
+                        //$bill->sum = $bill->sum_with_unapproved;
+                        $db->Query("update newbills set is_approved=1, `sum` = sum_with_unapproved where bill_no = '".$bill_no."'");
                     }else{
-                        $bill->is_approved = 0;
-                        $bill->sum = 0;
+                        //$bill->is_approved = 0;
+                        //$bill->sum = 0;
+                        $db->Query("update newbills set is_approved=1, `sum` = 0 where bill_no = '".$bill_no."'");
                     }
-                    $bill->save();
+                    //$bill->save();
 
                     $newts_id = $db->QueryInsert(
                         'tt_stages',
@@ -1206,15 +1208,18 @@ class SoapHandler{
 
                         // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
 
-                        $bill = Bill::findOne(['bill_no' => $bill_no]);
+                        //$bill = Bill::findOne(['bill_no' => $bill_no]);
                         if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                            $bill->is_approved = 1;
-                            $bill->sum = $bill->sum_with_unapproved;
+                            //$bill->is_approved = 1;
+                            //$bill->sum = $bill->sum_with_unapproved;
+                            $db->Query("update newbills set is_approved=1, `sum` = sum_with_unapproved where bill_no = '".$bill_no."'");
                         }else{
-                            $bill->is_approved = 0;
-                            $bill->sum = 0;
+                            //$bill->is_approved = 0;
+                            //$bill->sum = 0;
+                            $db->Query("update newbills set is_approved=1, `sum` = 0 where bill_no = '".$bill_no."'");
                         }
-                        $bill->save();
+                        //$bill->save();
+
 
                         $comment = "";
                         if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
@@ -1240,18 +1245,14 @@ class SoapHandler{
             }
         }
 
-        if (!$err) {
-            $bill = Bill::findOne(['bill_no' => $bill_no]);
-            Bill::dao()->recalcBill($bill);
-        }
-
         if($err){
-
             $db->Query('rollback');
             $error = $err_msg;
             return new \SoapFault('olol',$error);
         }else{
             $db->Query('commit');
+            $bill = Bill::findOne(['bill_no' => $bill_no]);
+            Bill::dao()->recalcBill($bill);
         }
         return array('return'=>!$err);
     }
