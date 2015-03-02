@@ -6,17 +6,7 @@ $config = array(
     'USE_MD5'           => 0,
 
 // stat mysql
-    'SQL_HOST'            =>    '',
-    'SQL_USER'            =>    '',
-    'SQL_PASS'            =>    '',
-    'SQL_DB'            =>    '',
     'SQL_ATS_DB'        =>    '',
-
-// voip central db
-    'PGSQL_HOST'        =>    '',
-    'PGSQL_USER'        =>    '',
-    'PGSQL_PASS'        =>    '',
-    'PGSQL_DB'            =>    '',
 
 // voip regions db
     'R_CALLS_HOST'        =>    '',
@@ -62,7 +52,25 @@ if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->db->dsn, $matche
     $config['SQL_DB'] = $matches[2][0];
     $config['SQL_USER'] = Yii::$app->db->username;
     $config['SQL_PASS'] = Yii::$app->db->password;
+} else {
+    $config['SQL_HOST'] = '';
+    $config['SQL_DB'] = '';
+    $config['SQL_USER'] = '';
+    $config['SQL_PASS'] = '';
 }
+
+if (preg_match_all('/host=([\w\.]+);.*dbname=(\w+)/i', Yii::$app->dbPg->dsn, $matches)) {
+    $config['PGSQL_HOST'] = $matches[1][0];
+    $config['PGSQL_DB'] = $matches[2][0];
+    $config['PGSQL_USER'] = Yii::$app->dbPg->username;
+    $config['PGSQL_PASS'] = Yii::$app->dbPg->password;
+} ELSE {
+    $config['PGSQL_HOST'] = '';
+    $config['PGSQL_DB'] = '';
+    $config['PGSQL_USER'] = '';
+    $config['PGSQL_PASS'] = '';
+}
+
 
 if(!defined("NO_WEB")) {
     header("Content-type:text/html; charset=utf-8");

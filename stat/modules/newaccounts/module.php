@@ -1,8 +1,12 @@
 <?php
+use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
-use app\dao\BillDao;
 use app\classes\StatModule;
+use app\models\Payment;
+use app\classes\Assert;
+use app\models\BillDocument;
+use app\models\Transaction;
 
 class m_newaccounts extends IModule
 {
@@ -33,7 +37,7 @@ class m_newaccounts extends IModule
         $date = get_param_protected('date');
         $db->Query('update newsaldo set is_history=1 where client_id='.$fixclient_data['id']);
         $db->Query('insert into newsaldo (client_id,saldo,currency,ts,is_history,edit_user,edit_time) values ('.$fixclient_data['id'].','.$saldo.',"'.$fixclient_data['currency'].'","'.$date.'",0,"'.$user->Get('id').'",NOW())');
-        $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
+        ClientAccount::dao()->updateBalance($fixclient_data['id']);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
@@ -42,7 +46,7 @@ class m_newaccounts extends IModule
     function newaccounts_bill_balance($fixclient){
         global $design,$db,$user,$fixclient_data;
         $client_id=$fixclient_data['id'];
-        $this->update_balance($client_id,$fixclient_data['currency']);
+        ClientAccount::dao()->updateBalance($client_id);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
@@ -62,589 +66,12 @@ class m_newaccounts extends IModule
         foreach ($R as $r) {
             echo date("d-m-Y H:i:s").": ".$r['client'];
             try{
-                $this->update_balance($r['id'],$r['currency']);
+                ClientAccount::dao()->updateBalance($r['id']);
             }catch(Exception $e)
             {
                 echo "<h1>!!! ".$e->getMessage()."</h1>";
             }
             echo "<br>\n";flush();
-        }
-    }
-
-    function newaccounts_subscribe_mass($fixclient)
-    {
-        BillDao::me()->updateSubscriptionForAllClientAccounts();
-    }
-
-    function sum_more($pay,$bill,$currency, $diff=0.01) {
-        if ($pay-$bill>-$diff) return 1;
-        //echo "$pay|$bill|<br>\n";
-        return 0;
-
-        $diff = $bill - $pay;
-
-        $perc3 = $bill*0.03;
-        $line = 5; //USD
-        if ($currency=='RUB') $line = 100; //RUB
-        if($diff <= $perc3 && $diff <= $line) return 1;
-        return 0;
-    }
-
-    function getClientSaldo($client_id,$currency,$ret_zero = false) {
-        global $db;
-        $r = null;
-        if (!$ret_zero) $r=$db->GetRow('select * from newsaldo where client_id='.$client_id.' and is_history=0 and currency="'.$currency.'" order by id desc limit 1');
-        if (!$r) return array('ts'=>0,'saldo'=>0);
-        return array('ts'=>$r['ts'],'saldo'=>$r['saldo']);
-    }
-
-    private function enumBills($client_id,$currency,$saldo_ts,$select,$sort = 'bill_date asc, bill_no asc',$addSql = '',$arrKeySrc = 'bill_no', $W_add = null) {
-        global $db;
-        $W = array('AND','B.client_id='.$client_id,'B.currency="'.$currency.'"','B.bill_date>="'.$saldo_ts.'"');
-        if ($W_add) $W[] = $W_add;
-        return $db->AllRecords('select '.$select.' from newbills as B where '.MySQLDatabase::Generate($W).($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
-    }
-
-    private function enumBillsFullSum(
-            $client_id,
-            $currency,
-            $saldo_ts,
-            $sort = 'bill_date asc, bill_no asc',
-            $addSql = '',
-            $arrKeySrc = 'bill_no', 
-            $W_add = null) 
-    {
-        global $db;
-
-        $W = array('AND','B.client_id='.$client_id,'B.currency="'.$currency.'"','B.bill_date>="'.$saldo_ts.'"');
-        if ($W_add) $W[] = $W_add;
-
-        $r = $db->AllRecords($q='
-                SELECT * FROM (
-                SELECT 
-                    B.bill_no, 
-                    B.bill_date,
-                    B.currency,
-                    B.is_payed, 
-                    B.inv_rub,
-                    B.sum, 
-                    '.($saldo_ts?' CASE B.bill_date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
-                    CASE B.cleared_sum > 0 WHEN true THEN B.cleared_sum ELSE B.sum END as sum_full
-                FROM 
-                    newbills B 
-                WHERE 
-                    '.MySQLDatabase::Generate($W).' 
-
-                UNION 
-
-                SELECT 
-                    G.number as bill_no, 
-                    cast(G.date as date) bill_date,
-                    if(currency = "RUB", "RUB", currency) as currency,
-                    G.is_payed,
-                    0.0 as inv0_rub,
-                    G.sum, 
-                    '.($saldo_ts?' CASE G.date>="'.$saldo_ts.'" WHEN true THEN 0 ELSE 3 END ':'0').' as new_is_payed, 
-                    G.sum as sum_full
-
-                  FROM `g_income_order` G
-                  WHERE 
-                        client_card_id = "'.$client_id.'"
-                    and G.currency = "'.($currency == "RUB" ? "RUB" : $currency).'"
-                    and G.date>="'.$saldo_ts.'"
-                ) as B #bills_and_incomegoods
-
-                GROUP BY 
-                    B.bill_no, B.is_payed, B.inv_rub, B.sum, B.bill_date, B.currency '.
-                ($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
-
-        return $r;
-    }
-
-    private function enumPayments($client_id,$currency,$saldo_ts,$select,$sort = 'payment_date asc',$addSql = '',$arrKeySrc = 'id', $W_add = null) {
-        global $db;
-        $W = array('AND','P.client_id='.$client_id);
-        $W2 = $W;
-
-        $W[] = array('AND','B.bill_no IS NULL', 'P.payment_date>="'.$saldo_ts.'"');
-
-        $W2[] = array('AND','B.currency="'.$currency.'"','B.bill_date>="'.$saldo_ts.'"', 'B.bill_no=P.bill_no');
-        if ($W_add) {$W[] = $W_add; $W2[] = $W_add;}
-
-	$r = $db->AllRecords($q =
-		'select '.$select.', 0 as is_billpay  from newpayments as P
-		left join newbills as B ON (P.client_id = B.client_id)
-		where '.MySQLDatabase::Generate($W).
-		" UNION ".
-		'select '.$select.', 0 as is_billpay from newpayments as P
-		left join newbills as B ON (P.client_id = B.client_id)
-		where '.MySQLDatabase::Generate($W2).
-
-		($sort?' order by '.$sort:'').$addSql,$arrKeySrc);
-		
-        $bill_payments = $db->AllRecords($q = "
-                        SELECT B.* 
-                        FROM newbills as B 
-                        LEFT JOIN clients as C ON C.id = B.client_id 
-                        WHERE 
-                            B.bill_date>='" . $saldo_ts . "' AND 
-                            B.client_id = ". $client_id . " AND 
-                            B.sum < 0 AND 
-                            B.currency = 'RUB' AND
-                            C.status NOT IN ('operator', 'distr') 
-                            
-        ");
-        $old_schema_payments = array();
-        foreach ($r as $v)
-        {
-            foreach ($r as $v2)
-            {
-                if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] == -$v2['sum']) 
-                {
-                    $old_schema_payments[$v['bill_no']] = 1;
-                }
-            }
-        }
-
-        foreach ($bill_payments as $v) 
-        {
-            if (!isset($old_schema_payments[$v['bill_no']])) 
-            {
-                foreach ($r as $v2)
-                {
-                    if ($v['bill_no'] == $v2['bill_no'] && $v['sum'] < 0 && $v2['sum'] < 0) 
-                    {
-                        $v['sum'] -= $v2['sum'];
-                    }
-                }
-                if ($v['sum'] < 0)
-                {
-                    $pay = array (
-                        'id' => $v['bill_no'],
-                        'client_id' => $v['client_id'],
-                        'payment_date' => $v['bill_date'],
-                        'payment_rate' => 1,
-                        'payment_id' => $v['bill_no'],
-                        'sum_rub' => -$v['sum'],
-                        'currency' => $v['currency'],
-                        'sum' => -$v['sum'],
-                        'bill_no' => '',
-                        'bill_vis_no' => '',
-                        "is_billpay" => 1
-                    );
-                    $r[$v['bill_no']] = $pay;
-                }
-            }
-        }
-        return $r;
-    }
-    function update_balance($client_id,$currency, $isCalcSubscription = 1) {
-        global $db, $fixclient_data;
-        set_time_limit(120);
-        $saldo=$this->getClientSaldo($client_id,$currency,get_param_raw('nosaldo'));
-
-        $fixclient_data=$client = $db->GetRow("select * from clients where id=".intval($client_id));
-
-        $R1 = $this->enumBillsFullSum        ($client_id,$currency,$saldo['ts']);
-        $R2 = $this->enumPayments    ($client_id,$currency,$saldo['ts'],'P.*,round(P.sum_rub/P.payment_rate,2) as sum');
-
-
-        $sum = -$saldo['saldo'];
-
-        $balance = 0;
-
-        if(isset($R1["201007/2373"]))
-        {
-//            $R1["201007/2373"]["is_zadatok"] = 1;
-            $R1["201007/2373"]["sum_full"] = 0;
-        }
-
-        //$R2 = array();
-        //echo $saldo['ts'].'|'.$sum;
-        if ($sum > 0){
-
-            array_unshift($R2, Array
-                    (
-                     'id' => '0',
-                     'client_id' => $client_id,
-                     'payment_no' => 0,
-                     'bill_no' => 'saldo',
-                     'bill_vis_no' => 'saldo',
-                     'payment_date' => $saldo['ts'],
-                     'oper_date' => $saldo['ts'],
-                     'payment_rate' => 1.0000,
-                     'type' => 'priv',
-                     'sum_rub' => $sum,
-                     'currency' => 'RUB',
-                     'comment' => '',
-                     'add_date' => $saldo['ts'],
-                     'add_user' => 0,
-                     'push_1c' => 'yes',
-                     'sync_1c' => 'yes',
-                     'sum' => $sum
-                    ) );
-        }elseif($sum < 0){
-
-            array_unshift($R1, Array
-                    (
-                     'bill_no' => 'saldo',
-                     'is_payed' => 1,
-                     'inv_rub' => -$sum,
-                     'sum' => -$sum,
-                     'new_is_payed' => 0,
-                     'sum_full' => -$sum
-                    )
-                    );
-        }
-
-        //        print_r($R2);
-        //        die();
-
-        $PaymentsOrders = array();
-
-        foreach ($R1 as $r) {
-            $balance = $balance - $r['sum'];
-        }
-
-        foreach ($R2 as $r) {
-            if (!$r["is_billpay"])
-            {
-                $balance = $balance + $r['sum'];
-            }
-        }
-
-        // Цикл оплачивает минусовые счета
-        foreach ($R2 as $kp => $r) {
-            if ($r['sum'] >= 0) continue;
-
-            $bill_no = $r['bill_no'];
-
-            $sum = $r['sum'];
-            if ($currency == 'RUB')
-                $sum_rub = $sum;
-            else
-                $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rub'] / $sum;
-
-            $PaymentsOrders[] = array(    'payment_id' => $r['id'],
-                    'bill_no'=>$bill_no,
-                    'sum'=>$sum,
-                    'currency'=>$currency,
-                    'sum_rub'=>$sum_rub,
-                    "tt" => 1);
-
-            $R1[$bill_no]['sum_full'] -= $sum;
-            $R1[$bill_no]['sum'] -= $sum;
-            $R1[$bill_no]['inv_rub'] -= $sum_rub;
-
-            $R2[$kp]['sum'] = 0;
-        }
-
-        // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета
-        foreach ($R2 as $kp => $r) {
-            if ($r['sum'] < 0.01) {continue;}
-
-
-            if ($r['bill_no'] == '') continue;
-            $bill_no = $r['bill_no'];
-
-            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] >= 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'],$currency)) {
-                    //echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
-                    //$sum = round($R1[$bill_no]['sum_full'], 2);
-                    $sum = round($R1[$bill_no]['sum'], 2);
-                    if ($currency == 'RUB')
-                        $sum_rub = $sum;
-                    else{
-                        $sum_rub = $sum != 0 ? $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rub'] / $sum : 0;
-                    }
-
-                    $PaymentsOrders[] = array(
-                            'payment_id' => $r['id'],
-                            'bill_no'    => $bill_no,
-                            'sum'        => $sum,
-                            'currency'   => $currency,
-                            'sum_rub'    => $sum_rub,
-                            'payment_no' => $r['payment_no'],
-                            'tt'         => 2);
-
-
-                    $R2[$kp]['sum'] -= $sum;
-
-                    if  ($R2[$kp]['sum'] < 0.01) {
-                        $R2[$kp]['sum'] = 0;
-                    }
-
-                    $R1[$bill_no]['new_is_payed'] = 1;
-                    $R1[$bill_no]['sum'] = 0;
-                    $R1[$bill_no]['sum_full'] = 0;
-                    $R1[$bill_no]['inv_rub'] = 0;
-
-                } elseif ($r['sum'] >= 0.01){
-
-                    $sum = $r['sum'];
-                    if ($currency == 'RUB')
-                        $sum_rub = $sum;
-                    else
-                        $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rub'] / $sum;
-
-                    $PaymentsOrders[] = array(    'payment_id' => $r['id'],
-                            'bill_no'=>$bill_no,
-                            'sum'=>$sum,
-                            'currency'=>$currency,
-                            'sum_rub'=>$sum_rub,
-                            'payment_no'=>$r['payment_no'],
-                            'tt' => 3);
-
-                    $R2[$kp]['sum'] = 0;
-
-                    $R1[$bill_no]['new_is_payed'] = 2;
-                    $R1[$bill_no]['sum'] -= $sum;
-                    $R1[$bill_no]['sum_full'] -= $sum;
-                    $R1[$bill_no]['inv_rub'] -= $sum_rub;
-
-                    if ($R1[$bill_no]['sum_full'] < 0.01) {
-                        $R1[$bill_no]['sum'] = 0;
-                        $R1[$bill_no]['sum_full'] = 0;
-                        $R1[$bill_no]['inv_rub'] = 0;
-                    }
-
-                }
-            }
-        }
-
-        // если счет оплатили и столько же списали - считать не оплаченным
-        foreach($R1 as $k => $r)
-        {
-            if($r["new_is_payed"] == 2 && $r["inv_rub"] == 0)
-            {
-                $R1[$k]["new_is_payed"] = 0;
-            }
-        }
-
-        // Цикл оплачивает счета для которых существует оплата с жестко указанным номером счета ПРИВЯЗКИ.
-        // Новых счетов с привязкой не будет. Нужно для совместимости
-        foreach ($R2 as $kp => $r) {
-            if ($r['sum'] < 0.01) continue;
-
-            $bill_no = $r['bill_vis_no'];
-
-            if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed']==0 || $R1[$bill_no]['new_is_payed']==2) && $R1[$bill_no]['sum_full'] > 0) {
-                if ($this->sum_more($r['sum'],$R1[$bill_no]['sum_full'],$currency)) {
-                    ///echo "[".$r['sum']."|".$R1[$bill_no]['sum_full']."]";
-                    $sum = round($R1[$bill_no]['sum_full'], 2);
-                    if ($currency == 'RUB')
-                        $sum_rub = $sum;
-                    else
-                        $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rub'] / $sum;
-
-                    if (abs($sum) >= 0.01){
-                        $PaymentsOrders[] = array(    'payment_id' => $r['id'],
-                                'bill_no'=>$bill_no,
-                                'sum'=>$sum,
-                                'currency'=>$currency,
-                                'sum_rub'=>$sum_rub,
-                                'tt' => 4);
-                    }
-
-
-                    $R2[$kp]['sum'] -= $sum;
-
-                    if  ($R2[$kp]['sum'] < 0.01) {
-                        $R2[$kp]['sum'] = 0;
-                    }
-
-
-                    $R1[$bill_no]['new_is_payed'] = 1;
-                    $R1[$bill_no]['sum'] = 0;
-                    $R1[$bill_no]['sum_full'] = 0;
-                    $R1[$bill_no]['inv_rub'] = 0;
-
-                } elseif ($r['sum'] >= 0.01){
-                    $sum = $r['sum'];
-                    if ($currency == 'RUB')
-                        $sum_rub = $sum;
-                    else
-                        $sum_rub = $R1[$bill_no]['sum'] * $R1[$bill_no]['inv_rub'] / $sum;
-
-                    if (abs($sum) >= 0.01){
-                        $PaymentsOrders[] = array(    'payment_id' => $r['id'],
-                                'bill_no'=>$bill_no,
-                                'sum'=>$sum,
-                                'currency'=>$currency,
-                                'sum_rub'=>$sum_rub,
-                                'tt' => 5);
-                    }
-
-                    $R2[$kp]['sum'] = 0;
-
-                    $R1[$bill_no]['new_is_payed'] = 2;
-                    $R1[$bill_no]['sum'] -= $sum;
-                    $R1[$bill_no]['sum_full'] -= $sum;
-                    $R1[$bill_no]['inv_rub'] -= $sum_rub;
-
-                    if  ($R1[$bill_no]['sum_full'] < 0.01) {
-                        $R1[$bill_no]['sum'] = 0;
-                        $R1[$bill_no]['sum_full'] = 0;
-                        $R1[$bill_no]['inv_rub'] = 0;
-                    }
-                }
-            }
-        }
-
-        //print_r($R2);
-
-        if ($fixclient_data["type"] != "multi"){ // не магазин
-
-            // Раскидываем остатки оплаты по неоплаченным счетам
-            foreach ($R2 as $kp => $r) {
-                if ($r['sum'] < 0.01) continue;
-
-                foreach ($R1 as $kb => $rb) {
-                    //                if ($rb['new_is_payed']==0 ) { echo $rb['sum']."|"; $rb['new_is_payed']=1; continue;}
-
-                    if ($rb['new_is_payed']==1 || $rb['new_is_payed']==3 || $rb['sum'] < 0 || $r['sum'] < 0.01) continue;
-
-                    if ($this->sum_more($r['sum'],$rb['sum'],$currency)) {
-
-                        $sum = $rb['sum'];
-                        if ($currency == 'RUB' || $sum == 0)
-                            $sum_rub = $sum;
-                        else
-                            $sum_rub = $rb['sum'] * $rb['inv_rub'] / $sum;
-
-                        if (abs($sum) >= 0.01){
-                            $PaymentsOrders[] = array(
-                                    'payment_id' => $r['id'],
-                                    'bill_no'=>$rb['bill_no'],
-                                    'sum'=>$sum,
-                                    'currency'=>$currency,
-                                    'sum_rub'=>$sum_rub,
-                                    'tt' => 6);
-                        }
-
-
-                        $r['sum'] -= $sum;
-                        $R2[$kp]['sum'] -= $sum;
-
-                        if  ($R2[$kp]['sum'] < 0.01) {
-                            $R2[$kp]['sum'] = 0;
-                            $r['sum'] = 0;
-                        }
-
-
-                        $R1[$kb]['new_is_payed'] = 1;
-                        $R1[$kb]['sum'] = 0;
-                        $R1[$kb]['sum_full'] = 0;
-                        $R1[$kb]['inv_rub'] = 0;
-
-                    } elseif ($r['sum'] >= 0.01){
-
-                        $sum = $r['sum'];
-                        if ($currency == 'RUB')
-                            $sum_rub = $sum;
-                        else
-                            //$sum_rub = $rb['sum'] * $rb['inv_rub'] / $sum;
-                            $sum_rub =  $sum * $rb['inv_rub'] / $rb['sum'] ;
-
-                        if (abs($sum) >= 0.01){
-                            $PaymentsOrders[] = array(
-                                    'payment_id' => $r['id'],
-                                    'bill_no'=>$rb['bill_no'],
-                                    'sum'=>$sum,
-                                    'currency'=>$currency,
-                                    'sum_rub'=>$sum_rub,
-                                    'rb' => $rb,
-                                    'ttt' => $rb["sum"]." * ".$rb["inv_rub"]." / ".$sum,
-                                    'tt' => 7);
-                        }
-
-                        $r['sum'] = 0;
-                        $R2[$kp]['sum'] = 0;
-
-                        $R1[$kb]['new_is_payed'] = 2;
-                        $R1[$kb]['sum'] -= $sum;
-                        $R1[$kb]['sum_full'] -= $sum;
-                        $R1[$kb]['inv_rub'] -= $sum_rub > $R1[$kb]['inv_rub'] ? $R1[$kb]['inv_rub'] : $sum_rub ;
-
-                    }
-                }
-            }
-
-
-            // Если все счета оплачены и осталась лишняя оплата то в любом случае закидываем ее на последний счет, даже если будет переплата.
-
-            $last_payment = null;
-            foreach ($R1 as $k => $r) {
-
-                if ( ($r['new_is_payed']==0 || $r['new_is_payed']==2) && $this->sum_more(0,$r['sum_full'],$currency, 1)) {
-                    $R1[$k]['new_is_payed'] = 1;
-                }
-
-                if ($r['sum_full'] < 0){
-                    $R1[$k]['new_is_payed'] = 1;
-                }
-
-                $last_payment = $r;
-            }
-
-            foreach ($R2 as $k => $v) {
-                if ($v['sum'] == 0) continue;
-
-                $sum = $v['sum'];
-                if ($currency == 'RUB')
-                    $sum_rub = $sum;
-                else
-                    $sum_rub = $last_payment['sum'] * $last_payment['inv_rub'] / $sum;
-
-                if (abs($sum) >= 0.01){
-                    $PaymentsOrders[] = array(
-                            'payment_id' => $v['id'],
-                            'bill_no'=>$last_payment['bill_no'],
-                            'sum'=>$sum,
-                            'currency'=>$currency,
-                            'sum_rub'=>$sum_rub,
-                            'tt' => 8
-                            );
-                }
-            }
-
-        } // не магазин
-
-        $db->Query('START TRANSACTION');
-
-        foreach ($R1 as $k => $v) 
-        {
-            if($v["bill_no"] == "saldo") continue; 
-
-            if ($v['is_payed'] != $v['new_is_payed']) 
-            {
-                $doc = Bill::getDocument($k, $fixclient_data["id"]);
-                $doc->is_payed = $v['new_is_payed'];
-                $doc->save();
-            }
-        }
-        $db->Query('delete from newpayments_orders where client_id='.$client_id);
-
-        foreach ($PaymentsOrders as $r) {
-            $db->Query($q='INSERT INTO newpayments_orders (`payment_id`, `bill_no`, `client_id`, `sum`, `currency`, `sum_rub`, `sync_1c`)
-                    VALUES ("'.$r['payment_id'].'","'.$r['bill_no'].'","'.$client_id.'","'.$r['sum'].'","'.$r['currency'].'","'.$r['sum_rub'].'","no")
-                    ON DUPLICATE KEY UPDATE `sum`=`sum`+"'.$r['sum'].'", sum_rub=sum_rub+"'.$r['sum_rub'].'"');
-            //echo "<br>".$q;
-        }
-
-        $lastBillDate = ClientAccount::dao()->getLastBillDate($client_id);
-        $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($client_id);
-        
-        $db->Query("
-                UPDATE clients
-                SET balance = '{$balance}',
-                    last_account_date = " . ($lastBillDate ? "'$lastBillDate'" : 'null') . ",
-                    last_payed_voip_month = " . ($lastPayedBillMonth ? "'$lastPayedBillMonth'" : 'null') . "
-                WHERE id = {$client_id}");
-        $db->Query('COMMIT');
-
-        if ($isCalcSubscription) {
-            BillDao::me()->updateSubscription($client_id);
         }
     }
 
@@ -679,10 +106,7 @@ class m_newaccounts extends IModule
             group by l.type, b.currency") as $s)
                 $sum_l[$s["type"]][$s["currency"]] = $s["sum"];
 
-        $sum_l["service_and_goods"]["USD"] = $sum_l["service"]["USD"] +$sum_l["good"]["USD"];
-        $sum_l["service_and_goods"]["RUB"] = $sum_l["service"]["RUB"] +$sum_l["good"]["RUB"];
-
-        $sum_l["payments"] = $db->GetValue("select sum(sum_rub) from newpayments where client_id ='".$fixclient_data["id"]."'");
+        $sum_l["payments"] = $db->GetValue("select sum(p.sum) from newpayments p where p.client_id ='".$fixclient_data["id"]."'");
 
         $design->assign("sum_l", $sum_l);
 
@@ -698,6 +122,13 @@ class m_newaccounts extends IModule
         $design->assign("counters", $billingCounter);
         $design->assign("subscr_counter", ClientCounter::dao()->getOrCreateCounter($fixclient_data["id"]));
 
+        $design->assign(
+            'notLinkedtransactions',
+            Transaction::find()
+                ->andWhere(['client_account_id' => $fixclient_data["id"], 'source' => 'stat', 'deleted' => 0])
+                ->andWhere('bill_id is null')
+                ->all()
+        );
 
 
 
@@ -874,7 +305,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q='
                 select * from (
             select
-                bill_no, bill_no_ext, bill_date, client_id, currency, sum, inv_rub, is_payed, P.comment, postreg, nal,
+                bill_no, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
                         ?    'IF(bill_date >= "'.$sum[$fixclient_data['currency']]['ts'].'",1,0)'
@@ -900,7 +331,6 @@ class m_newaccounts extends IModule
                     client_card_id as client_id, 
                     if(currency = "RUB", "RUB", currency) as currency,
                     sum, 
-                    0.0 as inv_rub,
                     is_payed,
                     "" `comment`, 
                     "0000-00-00" postreg , 
@@ -923,7 +353,6 @@ class m_newaccounts extends IModule
                                     'client_id' => $fixclient_data['id'],
                                     'currency' => $fixclient_data['currency'],
                                     'sum' => $sum[$fixclient_data['currency']]['saldo'],
-                                    'inv_rub' => $sum[$fixclient_data['currency']]['saldo'],
                                     'is_payed' => 1,
                                     'comment' => '',
                                     'postreg' => $sum[$fixclient_data['currency']]['ts'],
@@ -937,8 +366,7 @@ class m_newaccounts extends IModule
         $R2 = $db->AllRecords('
 
             select
-                P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
-                P.sum_rub as sum_rub_full,
+                P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.p_bill_no, P.p_bill_vis_no,
                 U.user as user_name,
                 '.(
                     $sum[$fixclient_data['currency']]['ts']
@@ -948,15 +376,14 @@ class m_newaccounts extends IModule
                 P.payment_id,
                 P.bill_no,
                 P.sum_pay,
-                P.sum_pay_rub,
                 P.bank
-            from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
-                        L.payment_id, L.bill_no, L.sum as sum_pay, L.sum_rub as sum_pay_rub, P.bank
+            from (    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
+                        L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P LEFT JOIN newpayments_orders L ON L.client_id='.$fixclient_data['id'].' and P.id=L.payment_id
                     WHERE P.client_id='.$fixclient_data['id'].'
                     UNION
-                    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.payment_rate, P.type, P.sum_rub, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
-                        L.payment_id, L.bill_no, L.sum as sum_pay, L.sum_rub as sum_pay_rub, P.bank
+                    SELECT P.id, P.client_id, P.payment_no, P.payment_date, P.oper_date, P.type, P.sum, P.comment, P.add_date, P.add_user, P.bill_no as p_bill_no, P.bill_vis_no as p_bill_vis_no,
+                        L.payment_id, L.bill_no, L.sum as sum_pay, P.bank
                     FROM newpayments P RIGHT JOIN newpayments_orders L ON P.client_id='.$fixclient_data['id'].' and P.id=L.payment_id
                     WHERE L.client_id='.$fixclient_data['id'].'
                 ) as P
@@ -986,49 +413,19 @@ class m_newaccounts extends IModule
 
                 if (strpos($r2['payment_id'], '-'))
                 {
-			$r2['payment_rate'] = 1;
 			$r2['currency'] = 'RUB';
 			$r2['id'] = $r2['payment_id'];
-			$R2[$k2]['payment_rate'] = 1;
 			$R2[$k2]['currency'] = 'RUB';
 			$R2[$k2]['id'] = $r2['payment_id'];
                 }
-                if ($r2['payment_rate'] != ''){
-                    $r2['sum_rub_full'] = round($r2['sum_rub_full'],2);
-                    $r2['sum_full'] = round($r2['sum_rub_full']/$r2['payment_rate'],2);
-                    $R2[$k2]['sum_rub_full'] = $r2['sum_rub_full'];
-                    $R2[$k2]['sum_full'] = $r2['sum_full'];
-                }
-//                $r2['sum_pay_rub'] = round($r2['sum_pay']*$r2['payment_rate'],2);
-
                 if($r['bill_no'] == $r2['p_bill_no']){
                     if (!isset($v['pays'][$r2['id']])){
-                        if ($r2['payment_rate'] != '')
-                            $v['delta']+=$r2['sum_full'];
+                        $v['delta']+=$r2['sum'];
                         $v['pays'][$r2['id']]=$r2;
                     }
                 }
             }
-/*
-            foreach($R2 as $k2=>$r2){
 
-                if ($r2['payment_rate'] != ''){
-                    $r2['sum_rub_full'] = round($r2['sum_rub_full'],2);
-                    $r2['sum_full'] = round($r2['sum_rub_full']/$r2['payment_rate'],2);
-                    $R2[$k2]['sum_rub_full'] = $r2['sum_rub_full'];
-                    $R2[$k2]['sum_full'] = $r2['sum_full'];
-                }
-//                $r2['sum_pay_rub'] = round($r2['sum_pay']*$r2['payment_rate'],2);
-
-                if($r['bill_no'] == $r2['p_bill_no']){
-                    if (!isset($v['pays'][$r2['id']])){
-                        if ($r2['payment_rate'] != '')
-                            $v['delta']+=$r2['sum_full'];
-                        $v['pays'][$r2['id']]=$r2;
-                    }
-                }
-            }
-*/
             $R1[$k]['v'] = $v;
         }
 
@@ -1188,9 +585,6 @@ class m_newaccounts extends IModule
                 $db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
                 $db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
                 unset($row);
-            }elseif(isset($_POST['select_nal'])){
-                $n = addcslashes($_POST['nal'],"\\'");
-                $db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
             }
             // 1c || all4net bills
 		}elseif(isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4}|\d{6,7})$/',$_GET['bill'])){
@@ -1202,9 +596,6 @@ class m_newaccounts extends IModule
 				$db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
 				$db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
 				unset($row);
-			}elseif(isset($_POST['select_nal'])){
-				$n = addcslashes($_POST['nal'],"\\\\'");
-				$db->Query("update newbills set nal='".$n."' where bill_no='".$_POST['bill_no']."'");
 			}
 
        //income orders
@@ -1236,16 +627,9 @@ class m_newaccounts extends IModule
         if(!$bill_no)
             return;
         $bill = new Bill($bill_no);
+        $newbill = \app\models\Bill::findOne(['bill_no'=>$bill_no]);
         if(get_param_raw('err')==1)
             trigger_error2('Невозможно добавить строки из-за несовпадния валют');
-        $design->assign('bgen_psum',$this->do_generate($bill,'invoice','psum',array(),false));
-        $design->assign('bgen_rate',array(
-            $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>1),false),
-            $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>2),false),
-            $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>3),false),
-            $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>4),false),
-            $this->do_generate($bill,'bill','cbrf',array(),false),
-        ));
         if(preg_match('/^\d{6}-\d{4}-(\d+)$/',trim($bill->getNo()),$match)){
             $design->assign('all4net_order_number',$match[1]);
         }else{
@@ -1261,11 +645,11 @@ class m_newaccounts extends IModule
         $design->assign('admin_order',$adminNum);
 
         $design->assign('bill',$bill->GetBill());
-        $design->assign('bill_manager',getUserName($bill->GetManager()));
+        $design->assign('bill_manager',getUserName(\app\models\Bill::dao()->getManager($bill->GetNo())));
         $design->assign('bill_comment',$bill->GetStaticComment());
         $design->assign('bill_courier',$bill->GetCourier());
         $design->assign('bill_lines',$L = $bill->GetLines());
-        $design->assign('bill_bonus',$bill->GetBonus());
+        $design->assign('bill_bonus',$this->getBillBonus($bill->GetNo()));
 
         /*
            счет-фактура(1)-абонен.плата
@@ -1299,26 +683,6 @@ class m_newaccounts extends IModule
                 ORDER BY bill_no
             ')
         );
-
-        //// start:comstar
-        $pay_to_comstar = 0;
-        foreach ($L as $l_item){
-            if ($l_item['num_id'] == 3234 || $l_item['num_id'] == 4216 || $l_item['num_id'] == 3606 || $l_item['num_id'] == 3785 || $l_item['num_id'] == 3865){
-                $pay_to_comstar = $pay_to_comstar + round($l_item['outprice']*1.18,2);
-            }
-        }
-        if ($pay_to_comstar > 0){
-            $ai = $db->GetRow("select acc_no from newbills_add_info where bill_no = '".$bill_no."'");
-            $pay_to_comstar_acc_no = trim(substr(trim($ai['acc_no']), 0, 12));
-            $pay_to_comstar_back = WEB_ADDRESS.WEB_PATH.$design->LINK_START.'module=newaccounts&action=bill_view&bill='.$bill_no;
-
-            $design->assign('pay_to_comstar_acc_no', $pay_to_comstar_acc_no);
-            $design->assign('pay_to_comstar_back', $pay_to_comstar_back);
-        }
-        $design->assign('pay_to_comstar', $pay_to_comstar);
-        if (isset($_GET['ym_pay']))
-        $design->assign('ym_pay', $_GET['ym_pay']);
-        //// end:comstar
 
         $r = $bill->Client();
         ClientCS::Fetch($r);
@@ -1370,7 +734,6 @@ class m_newaccounts extends IModule
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
         if($tt){
             StatModule::tt()->dont_filters = true;
-            #$GLOBALS['module_tt']->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);
             StatModule::tt()->cur_trouble_id = $tt['id'];
             StatModule::tt()->tt_view($fixclient);
             StatModule::tt()->dont_again = true;
@@ -1381,8 +744,8 @@ class m_newaccounts extends IModule
     {
         $bill_akts = $bill_invoices = $bill_upd = array();
 
-        if (($doctypes = $bill->getBill2Doctypes()) == false) {
-            $doctypes = $bill->updateBill2Doctypes($L, true);
+        if (($doctypes = BillDocument::dao()->getByBillNo($bill->GetNo())) == false) {
+            $doctypes = BillDocument::dao()->updateByBillNo($bill->GetNo(), $L, true);
         }
 
         if ($doctypes && count($doctypes) > 0) {
@@ -1413,9 +776,16 @@ class m_newaccounts extends IModule
     }
 
     function newaccounts_bill_cleared(){
-        global $db;
+
         $bill_no=$_POST['bill_no'];
-        $db->Query('call switch_bill_cleared("'.addcslashes($bill_no, "\\\"").'")');
+        $bill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+
+        $bill->is_approved = $bill->is_approved ? 0 : 1;
+        $bill->sum = $bill->is_approved ? $bill->sum_with_unapproved : 0;
+        $bill->save();
+        $bill->dao()->recalcBill($bill);
+        ClientAccount::dao()->updateBalance($bill->client_id);
+
         header('Location: index.php?module=newaccounts&action=bill_view&bill='.$bill_no);
         exit();
     }
@@ -1446,7 +816,7 @@ class m_newaccounts extends IModule
         $design->assign('bills_list',$db->AllRecords("select `bill_no`,`bill_date` from `newbills` where `client_id`=".$fixclient_data['id']." order by `bill_date` desc",null,MYSQL_ASSOC));
         $design->assign('bill',$bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
-        $design->assign('l_couriers',$bill->GetCouriers());
+        $design->assign('l_couriers',Courier::dao()->getList(true));
         $V = $bill->GetLines();
         $V[$bill->GetMaxSort()+1] = array();
         $V[$bill->GetMaxSort()+2] = array();
@@ -1456,16 +826,27 @@ class m_newaccounts extends IModule
     }
 
     function newaccounts_bill_comment($fixclient) {
-        global $design,$db,$user,$fixclient_data;
-        $bill_no=get_param_protected("bill"); if (!$bill_no) return;
-        $bill = new Bill($bill_no);
-        $bill->Set('comment',get_param_raw("comment"));
-        unset($bill);
-        if ($design->ProcessEx('errors.tpl')) {
-            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
-            exit();
-        }
+        $billNo = get_param_protected("bill");
+
+        $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+        $bill->comment = get_param_raw("comment");
+        $bill->save();
+
+        header("Location: /?module=newaccounts&action=bill_view&bill=" . $billNo);
+        exit();
     }
+
+    function newaccounts_bill_nal($fixclient) {
+        $billNo = get_param_protected("bill");
+
+        $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+        $bill->nal = get_param_raw("nal");
+        $bill->save();
+
+        header("Location: /?module=newaccounts&action=bill_view&bill=" . $billNo);
+        exit();
+    }
+
     function newaccounts_bill_postreg($fixclient) {
         global $design,$db,$user,$fixclient_data;
 
@@ -1545,7 +926,7 @@ class m_newaccounts extends IModule
             }elseif(isset($item[$k]) && $item[$k] && isset($arr_v['item'])){
                 $bill->EditLine($k,$item[$k],$amount[$k],$price[$k],$type[$k]);
             }elseif(isset($item[$k]) && $item[$k]){
-                $bill->AddLine($bill->Get('currency'),$item[$k],$amount[$k],$price[$k],$type[$k],'','','','');
+                $bill->AddLine($item[$k],$amount[$k],$price[$k],$type[$k],'','','','');
             }
         }
         $bill->Save();
@@ -1570,7 +951,7 @@ class m_newaccounts extends IModule
         }
         $bill->Save();
         */
-        $this->update_balance($bill->Client('id'),$bill->Get('currency'));
+        ClientAccount::dao()->updateBalance($bill->Client('id'));
         unset($bill);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ?module=newaccounts&action=bill_view&bill=".$bill_no);
@@ -1622,7 +1003,7 @@ class m_newaccounts extends IModule
             $client = ClientCard::first($fixclient_data['id']);
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
-                $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
+                ClientAccount::dao()->updateBalance($fixclient_data['id']);
                 $client = ClientCard::first($fixclient_data['id']);
             }
 
@@ -1658,22 +1039,22 @@ class m_newaccounts extends IModule
                 }
                 if ($client->is_bill_with_refund && $client->balance > 0)
                 {
-                    $bill->applyRefundOverpay($client->balance, $client->nds_zero);
+                    $bill->applyRefundOverpay($client->balance);
                 }
             }
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
             foreach ($db->AllRecords('select * from newbill_lines where bill_no="'.$tbill.'" order by sort') as $r) {
-                $bill->AddLine($bill->Get('currency'),$r['item'],$r['amount'],$r['price'],$r['type']);
+                $bill->AddLine($r['item'],$r['amount'],$r['price'],$r['type']);
             }
         } elseif (isset($L[$bill->Get('currency')][$obj])) {
             $D=$L[$bill->Get('currency')][$obj];
             if (!is_array($D[0])) $D=array($D);
-            foreach ($D as $d) $bill->AddLine($bill->Get('currency'),$d[0],$d[1],$d[2],$d[3]);
+            foreach ($D as $d) $bill->AddLine($d[0],$d[1],$d[2],$d[3]);
         }
         $bill->Save();
         $client=$bill->Client('client');
-        $this->update_balance($bill->Client('id'),$bill->Get('currency'));
+        ClientAccount::dao()->updateBalance($bill->Client('id'));
         unset($bill);
 
         if (!$err && $design->ProcessEx('errors.tpl')) {
@@ -1685,15 +1066,78 @@ class m_newaccounts extends IModule
         global $design,$db;
         set_time_limit(0);
         session_write_close();
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         $obj=get_param_raw('obj');
         if ($obj=='create') {
+            echo "Запущено выставление счетов<br/>"; flush();
+
+            $partSize = 500;
+            $date = new DateTime();
+            //$date->modify('+1 month');
+            $totalCount = 0;
+            $totalAmount = 0;
+            $totalErrorsCount = 0;
+            try {
+                $count = $partSize;
+                $offset = 0;
+                while ($count >= $partSize) {
+                    $clientAccounts =
+                        ClientAccount::find()
+                            ->andWhere('status NOT IN ("closed","deny","tech_deny", "trash", "once")')
+                            ->limit($partSize)->offset($offset)
+                            ->orderBy('id')
+                            ->all();
+
+                    foreach ($clientAccounts as $clientAccount) {
+                        $offset++;
+                        echo "$offset. Лицевой счет: <a target='_blank' href='/?module=clients&id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
+
+                        try {
+
+                            $bill =
+                                \app\classes\bill\BillFactory::create($clientAccount, $date)
+                                    ->process();
+
+                            if ($bill) {
+                                $totalCount++;
+                                $totalAmount = $totalAmount + $bill->sum;
+                                echo ", создан счет: <a target='_blank' href='/?module=newaccounts&action=bill_view&bill{$bill->bill_no}'>{$bill->bill_no}</a> на сумму {$bill->sum}<br/>\n"; flush();
+                            } else {
+                                echo "<br/>\n"; flush();
+                            }
+
+                        } catch (\Exception $e) {
+                            echo "<b>ОШИБКА</b><br/>\n"; flush();
+                            Yii::error($e);
+                            $totalErrorsCount++;
+                        }
+                    }
+
+                    $count = count($clientAccounts);
+                }
+
+
+            } catch (\Exception $e) {
+                echo "<b>ОШИБКА Выставления счетов</b>\n"; flush();
+                Yii::error($e);
+                exit;
+            }
+
+            echo "Закончено выставление счетов<br/>";
+            echo "<b>Всего создано {$totalCount} счетов на сумму {$totalAmount}</b><br/>";
+            if ($totalErrorsCount) {
+                echo "<b>Всего {$totalErrorsCount} ошибок!</b><br/>";
+            }
+            exit;
+
+
             $p='<span style="display:none">';
             for ($i=0;$i<200;$i++) $p.='                                                     ';
             $p.='</span>';
-            //$R=$db->AllRecords('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") and client<>"technotrade" order by client');
-            $i=0;
 
-            $res = mysql_query('select * from clients where client!="" and status NOT IN ("closed","deny","tech_deny") /*and id=2363*/ order by client');
+            $res = mysql_query('select * from clients where status NOT IN ("closed","deny","tech_deny", "trash") order by id');
             while($c=mysql_fetch_assoc($res)){
                 $bill = new Bill(null,$c,time(), 1, null, false);
                 $bill2 = null;
@@ -1701,8 +1145,8 @@ class m_newaccounts extends IModule
                 $client = null;
                 if ($c['status'] == "operator" && $c['is_bill_with_refund'])
                 {
-                	$this->update_balance($c['id'],$c['currency']);
-                	$client = ClientCard::first($c['id']);
+                    ClientAccount::dao()->updateBalance($c['id']);
+                    $client = ClientCard::first($c['id']);
                 }
 
                 $RS = [];
@@ -1719,11 +1163,6 @@ class m_newaccounts extends IModule
                             $bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUB'?'USD':'RUB'), false);
                         $bill2->AddLines($R);
                     }
-                }
-                if($c['form_type']=='bill' && $bill->Get('currency')=='USD'){
-                    $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>1),true);
-                    $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>2),true);
-                    $this->do_generate($bill,'invoice','cbrf',array('inv_num'=>3),true);
                 }
                 if($bill2){
                     $no=$bill2->GetNo();
@@ -1742,7 +1181,7 @@ class m_newaccounts extends IModule
                 	}
                 	if ($c['is_bill_with_refund'] && !is_null($client) && $client->balance > 0)
                 	{
-                		$bill->applyRefundOverpay($client->balance, $client->nds_zero);
+                		$bill->applyRefundOverpay($client->balance);
                 	}
                 }
                 unset($bill);
@@ -1789,22 +1228,13 @@ class m_newaccounts extends IModule
                                 'ORDER by client LIMIT '.($page*50).',50') as $r) {
                     $bill = new Bill($r['bill_no']);
                     $L = $bill->GetLines();
-                    //$period_date = get_inv_date_period($bill->GetTs());
-                    //$p1 = count(self::do_print_prepare_filter('invoice',1,$L,$period_date));
-                    //$p2 = count(self::do_print_prepare_filter('invoice',2,$L,$period_date));
-                    //$p3 = count(self::do_print_prepare_filter('invoice',3,$L,$period_date));
-                    if (($doctypes = $bill->getBill2Doctypes()) == false) {
-                        $doctypes = $bill->updateBill2Doctypes($L, true);
+                    if (($doctypes = BillDocument::dao()->getByBillNo($bill->GetNo())) == false) {
+                        $doctypes = BillDocument::dao()->updateByBillNo($bill->GetNo(), $L, true);
                     }
                     $p1 = $doctypes['i1'];
                     $p2 = $doctypes['i2'];
                     $p3 = $doctypes['i3'];
 
-                    if (($bill->Get('currency')=='USD') && !floatval($bill->Get('inv_rub'))) {
-                         if (!floatval($bill->Get('inv1_rate'))) $p1 = 0;
-                         if (!floatval($bill->Get('inv2_rate'))) $p2 = 0;
-                         if (!floatval($bill->Get('inv3_rate'))) $p3 = 0;
-                    }
                     if (($do_bill && count($L)) || $p1 || $p2 || $p3) {
                         $R[] = array($r['bill_no'],$p1,$p2,$p3);
                         $rows.=($rows?',':'');
@@ -1854,7 +1284,7 @@ class m_newaccounts extends IModule
         $template = array($template,$template);
         $D = array(
                     'Конверт: '=>array('envelope'),
-                    'Счет: '=>array('bill-1-USD','bill-2-USD','bill-1-RUB','bill-2-RUB'),
+                    'Счет: '=>array('bill-1-RUB','bill-2-RUB'),
                     'Счет-фактура: '=>array('invoice-1','invoice-2','invoice-3','invoice-4'),
                     'Акт: '=>array('akt-1','akt-2','akt-3'),
                     'Накладная: '=>array('lading'),
@@ -1945,7 +1375,7 @@ class m_newaccounts extends IModule
         $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
 
-        $L = array('envelope','bill-1-USD','bill-2-USD','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
+        $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
@@ -2060,8 +1490,6 @@ class m_newaccounts extends IModule
                     if($reCode)
                         $r = $reCode;
 
-                    // при импорте клиентов с долларами, печатать долларовые счета
-                    if($isFromImport && $c["currency"] == "USD" && $r == "bill-2-RUB") $r = "bill-2-USD";
                     if (isset($h[$r]))
                     {
                         $idxs[$bill_no."==".$r."-2"] = count($R);
@@ -2194,12 +1622,12 @@ class m_newaccounts extends IModule
         }
         if (!$bill->CheckForAdmin()) return;
         $db->Query('delete from newbill_lines where bill_no="'.$bill_no.'"');
-        ServicePrototype::CleanOverprice($bill_no);
+
         $bill->Save(0,0);
         
         $client = $bill->Client();
-        $this->update_balance($client['id'], $client['currency']);
-        
+        ClientAccount::dao()->updateBalance($client['id']);
+
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
             exit();
@@ -2221,22 +1649,25 @@ class m_newaccounts extends IModule
         global $design,$db;
         $bill_no=get_param_protected("bill"); if (!$bill_no) return;
 
-        $bill = new Bill($bill_no);
-        if($bill->IsClosed()){
-            header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
+        /** @var \app\models\Bill $bill */
+        $bill = \app\models\Bill::find()->andWhere(['bill_no' => $bill_no])->one();
+
+        if ($bill->isClosed()) {
+            header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
         }
 
-        Bill::RemoveBill($bill_no);
-        
-        $client = $bill->Client();
-        $this->update_balance($client['id'], $client['currency']);
-        
+        $clientAccountId = $bill->client_id;
+        $bill->delete();
+
+        ClientAccount::dao()->updateBalance($clientAccountId);
+
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_list");
             exit();
         }
     }
+
     //эта функция готовит счёт к печати. ФОРМИРОВАНИЕ СЧЁТА
     function newaccounts_bill_print($fixclient, $params = array()){
         global $design,$db,$user;
@@ -2564,207 +1995,6 @@ class m_newaccounts extends IModule
         return $s;
     }
 
-    function report_stream_blank($bill_no)
-    {
-        global $db;
-        $a=$db->GetRow("select * from newbills_add_info where bill_no='".$bill_no."'");
-        $t= $db->GetRow("SELECT item FROM newbill_lines where bill_no = '".$bill_no."' and price != 0 and type = 'service' and item like 'МТС%'");
-        $tarif = $t ? $t["item"] : "";
-        include "report.stream.blank.php";
-    }
-
-    function newaccounts_bill_generate($fixclient) {
-        global $design,$db;
-        $bill_no=get_param_protected("bill"); if (!$bill_no) return;
-        $bill = new Bill($bill_no);
-        $obj=get_param_protected("obj",'bill');
-        if ($obj=='inv2to1') {
-            $bill->Set('inv2to1',get_param_integer('inv2to1',0));
-            $bill->Save();
-        } else {
-            if ($obj!='invoice' && $obj!='akt') $obj='bill'; else $obj='inv';
-            $type = get_param_raw('type','cbrf');            //cbrf,rate,vsum,psum
-            $P = array();
-            $P['inv_num']= get_param_integer('inv_num',1); if ($P['inv_num']!=1 && $P['inv_num']!=3) $P['inv_num'] = 2;
-            $P['sum'] = floatval(get_param_raw('sum'));
-            $P['rate'] = floatval(get_param_raw('rate'));
-            $this->do_generate($bill,$obj,$type,$P,true);
-        }
-        if ($design->ProcessEx('errors.tpl')) {
-            header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
-            exit();
-        }
-    }
-
-    //obj:        invoice, bill
-    //type:        cvrf, vsum, rate, psum
-    function do_generate(Bill &$bill,$obj,$type,$P = array(),$save = true) {
-        global $db,$user;
-        $upd_inv = null;
-        $sum_rub = null;
-        $usd_rate = null;
-        if($type=='cbrf'){
-            if($obj=='bill'){
-                $date=$bill->GetTs();
-            }else{
-                list($date) = get_inv_date($bill->GetTs(),$P['inv_num']);
-                $upd_inv = $P['inv_num'];
-            }
-            if(isset($P['inv_num']) && $P['inv_num']==4){
-                $r = $db->QuerySelectRow('newpayments',array('bill_no'=>$bill->GetNo()));
-                $usd_rate = $r['payment_rate'];
-            }else{
-                $r=$db->QuerySelectRow('bill_currency_rate',array('currency'=>'USD','date'=>date('Y-m-d',$date)));
-                $usd_rate=$r['rate'];
-            }
-        }elseif($type=='rate'){
-            $usd_rate=$P['rate'];
-            if($obj!='bill' && isset($P['inv_num']) && $P['inv_num']!=0)
-                $upd_inv = $P['inv_num'];
-        }elseif($type=='psum'){
-            $r = $db->GetRow('
-                select
-                    sum(sum_rub) as s
-                from
-                    newpayments as P
-                where
-                    bill_no="'.$bill->GetNo().'"
-            ');
-            $sum_rub = $r['s'];
-        }elseif($type=='vsum'){
-            $sum_rub = $P['sum'];
-        }
-        if($sum_rub !== null)
-            $sum_rub=round($sum_rub,2);
-        if($save){
-            if($sum_rub !== null){
-                if($obj == 'bill'){
-                    $db->Query('
-                        update
-                            newbills
-                        set
-                            gen_bill_rub = "'.$sum_rub.'",
-                            gen_bill_rate = NULL,
-                            gen_bill_date = NOW()
-                        where
-                            bill_no = "'.$bill->GetNo().'"
-                    ');
-                }else{
-                    $db->Query('
-                        update
-                            newbills
-                        set
-                            inv_rub = "'.$sum_rub.'",
-                            inv1_date = NOW(),
-                            inv2_date = NOW(),
-                            inv3_date = NOW(),
-                            inv1_rate = NULL,
-                            inv2_rate = NULL,
-                            inv3_rate = NULL
-                        where
-                            bill_no = "'.$bill->GetNo().'"
-                    ');
-                }
-            }elseif($upd_inv === null){
-                if($obj == 'bill'){
-                    $db->Query('
-                        update
-                            newbills
-                        set
-                            gen_bill_rub = NULL,
-                            gen_bill_rate = "'.$usd_rate.'",
-                            gen_bill_date = NOW()
-                        where
-                            bill_no = "'.$bill->GetNo().'"
-                    ');
-                }else{
-                    $db->Query('
-                        update
-                            newbills
-                        set
-                            inv_rub = NULL,
-                            inv1_date = NOW(),
-                            inv2_date = NOW(),
-                            inv3_date = NOW(),
-                            inv1_rate = "'.$usd_rate.'",
-                            inv2_rate = "'.$usd_rate.'",
-                            inv3_rate = "'.$usd_rate.'"
-                        where
-                            bill_no = "'.$bill->GetNo().'"
-                    ');
-                }
-            }else{
-                if($obj == 'bill'){
-                    $t1 = $t2 = 'gen_bill';
-                }else{
-                    $t1 = 'inv';
-                    $t2 = 'inv'.$upd_inv;
-                }
-                $db->Query('
-                    update
-                        newbills
-                    set
-                        '.$t1.'_rub = NULL,
-                        '.$t2.'_rate = "'.$usd_rate.'",
-                        '.$t2.'_date = NOW()
-                    where
-                        bill_no = "'.$bill->GetNo().'"
-                ');
-            }
-        }
-        return array($sum_rub,$usd_rate);
-    }
-
-    public static function do_print_prepare_RecalculateItems($sum_rub,$d,&$L_prev,&$bdata,$mode = 1){
-
-        $d_last_I = abs($d)+10;
-        $I=0;
-        $I_max = ($mode==1?50000:1);
-        while(abs($d)<abs($d_last_I) && $I<$I_max){
-            $d_last_I = $d;
-            foreach($L_prev as &$li)
-                if($li['price']!=0){
-                    $sgn = ($d>0?1:-1);
-                    $i_max = ($mode==1?10:1);
-                    $i=0;
-                    do {
-                        $d_last = $d;
-                        if($mode==1){
-                            $li['outprice']+=round(0.01*$sgn/$li['amount'],4);
-                            $d_item = round($li['outprice']*$li['amount'],2);
-                        } else {
-                            $d_item = round($li['outprice']*$li['amount'],4);
-                        }
-                        $d = round($sum_rub-$bdata['tsum']+$li['tsum']-round($d_item*1.18,2),4);
-                        $i++;
-                    }while(abs($d)<abs($d_last) && ($i<$i_max));
-
-                if(abs($d) >= abs($d_last)){
-                        if($mode==1){
-                            $li['outprice'] -= round(0.01*$sgn/$li['amount'],4);
-                            $li['sum'] = null;
-                        }elseif($mode==3){
-                            $li['sum'] = null;
-                        }
-                        $d = $d_last;
-                    }else
-                        $li['sum']=null;
-                    $bdata['tax']-=$li['tax'];
-                    $bdata['tsum']-=$li['tsum'];
-
-                    if($li['sum']===null)
-                        $li['sum'] = round($li['outprice']*$li['amount'],($mode==1?2:4));
-                    $li['tax'] = round($li['sum']*0.18,2);
-                    $li['tsum']= round($li['sum']*1.18,2);
-                    $bdata['tax']+=$li['tax'];
-                    $bdata['tsum']+=$li['tsum'];
-                }
-            $I++;
-        }
-        unset($li);
-        return $d;
-    }
-
     public static function do_print_prepare_filter($obj,$source,&$L,$period_date, $inv3Full=true, $isViewOnly=false, $origObj = false) {
         $M = array();
 
@@ -2826,6 +2056,13 @@ class m_newaccounts extends IModule
                 $M['zadatok']=0;
                 $M['good']=0;//($obj=='invoice'?1:0);
                 $M['_']=$source;
+            }elseif($source == 3){
+                $M['all4net']=1;
+                $M['service']=0;
+                $M['zalog']= ($isViewOnly)?0:1;
+                $M['zadatok']=0;
+                $M['good']=$inv3Full ? 1 :0;
+                $M['_']=0;
             }elseif($source == 4){
                 if(!count($L))
                     return array();
@@ -2847,9 +2084,6 @@ class m_newaccounts extends IModule
 
                 $ret = $db->NextRecord(MYSQL_ASSOC);
 
-                if(substr($ret['bill_date'], 0, 4)<'2009'){
-                    return array();
-                }
                 if(in_array($ret['nal'],array('nal','prov'))){
                     $db->Query($q="
                         SELECT
@@ -2915,44 +2149,13 @@ class m_newaccounts extends IModule
                         $R[] = $item;
                 }
                 return $R;
-            } elseif($source == 5){
-                if(!count($L))
-                    return array();
-                foreach($L as $val){
-                    $bill = $val;
-                    break;
-                }
-
-                global $db;
-
-                $payments = $db->AllRecords("
-                    select
-                        *
-                    from
-                        `newpayments`
-                    where
-                        `bill_no`='".$bill['bill_no']."'
-                    and
-                        `sum_rub`<0
-                ",null,MYSQL_ASSOC);
-
-                return $payments;
-            }else{ //source 3
-                $M['all4net']=1;
-                $M['service']=0;
-                $M['zalog']= ($isViewOnly)?0:1;
-                $M['zadatok']=0;
-                $M['good']=$inv3Full ? 1 :0;
-                $M['_']=0;
+            } else {
+                return [];
             }
         }
 
         $R = array();
         foreach($L as &$li){
-            if($li["sum"] == 0){
-                $li["outprice"] = 0;
-                $li["price"] = 0;
-            }
             if($M[$li['type']]==1){
                 if(
                          $M['_']==0
@@ -2965,7 +2168,12 @@ class m_newaccounts extends IModule
                             ($origObj == "gds" && $source == 2) ||
                             preg_match("/^Аренд/i", $li["item"]) ||
                             ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"]))
-                            ) {
+                            )
+                    {
+                        if($li["sum"] == 0){
+                            $li["outprice"] = 0;
+                            $li["price"] = 0;
+                        }
                         $R[]=&$li;
                     }
                 }
@@ -2986,39 +2194,15 @@ class m_newaccounts extends IModule
         if($source == 4){
             $source = 1;
             $is_four_order = true;
-        }elseif($source == 5){
-            $is_four_order = true;
         }else
             $is_four_order = false;
         $design->assign('is_four_order',$is_four_order);
-        if($source == 5)
-            $is_four_order = false;
-        $sum_rub=0;
+
         if(is_null($source))
             $source=3;
 
-        if ($bill->Get('currency')=='USD' && $curr=='RUB') {
-            if ($obj=='bill'){
-                $sum_rub = $bill->Get('gen_bill_rub');
-                $usd_rate = $bill->Get('gen_bill_rate');
-            } else {
-                $sum_rub = $bill->Get('inv_rub');
-                $usd_rate = $bill->Get('inv'.(($source==5)?1:$source).'_rate');
+        $curr=$bill->Get('currency');
 
-                if($usd_rate > 1)
-                    $sum_rub = $bill->Get("sum")/$usd_rate;
-            }
-        } else {
-            $usd_rate=1;
-            $curr=$bill->Get('currency');
-        }
-
-
-        $usd_rate = floatval($usd_rate);
-        $sum_rub = floatval($sum_rub);
-
-        if(!$usd_rate && !$sum_rub && $source<>5)
-            return false;
 
         $bdata=$bill->GetBill();
 
@@ -3026,7 +2210,7 @@ class m_newaccounts extends IModule
         // Если счет 1С, на товар, 
         if($bill->is1CBill())
         {
-            //то доступны только счета (в RUB || USD)
+            //то доступны только счета
             if($obj == "bill" && in_array($source, array('1','2')))
             {
                 $inv_date = $bill->GetTs();
@@ -3082,19 +2266,7 @@ class m_newaccounts extends IModule
 
 
 
-        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3,5)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
-            /*$W = array('AND');
-            $W[] = 'payment_no!=""';
-            $W[] = '(bill_no="'.$bdata['bill_no'].'") OR (bill_vis_no="'.$bdata['bill_no'].'")';
-            $W[] = "1 IN (
-                SELECT
-                    newpayments.payment_date between adddate(date_format(newbills.bill_date,'%Y-%m-01'), interval -1 month)
-                and
-                    adddate(adddate(date_format(newbills.bill_date,'%Y-%m-01') ,interval 1 month), interval -1 day)
-                FROM
-                    newbills
-                WHERE
-                    newbills.bill_no = newpayments.bill_no)";*/
+        if(in_array($obj, array('invoice','upd')) && (in_array($source, array(1,3)) || ($source==2 && $bill->Get('inv2to1'))) && $do_assign) {//привязанный к фактуре счет
             //не отображать если оплата позже счета-фактуры
             $query = "
                 SELECT
@@ -3105,7 +2277,7 @@ class m_newaccounts extends IModule
                 WHERE
                     payment_no<>''
                 AND
-                    `sum_rub`>=0
+                    `sum`>=0
                 AND
                     (
                         bill_no='".$bdata['bill_no']."'
@@ -3156,19 +2328,8 @@ class m_newaccounts extends IModule
 
         $bdata['ts']=$bill->GetTs();
 
-        if(!$usd_rate){
-            $s = $bill->CalculateSum(1,$obj=='bill'?'A':'B');
-            if($s>0)
-            {
-                $usd_rate=$sum_rub/$bill->CalculateSum(1,$obj=='bill'?'A':'B');
-            }else{
-                $usd_rate=0;
-            }
-            unset($s);
-        }
 
-
-        $L_prev=$bill->GetLines($usd_rate,((preg_match('/bill-\d/',self::$object))?'order':false));//2 для фактур значит за прошлый период
+        $L_prev=$bill->GetLines((preg_match('/bill-\d/',self::$object))?'order':false);//2 для фактур значит за прошлый период
 
 
         if(in_array($obj, array("invoice","upd")))
@@ -3177,144 +2338,37 @@ class m_newaccounts extends IModule
         }
 
 
-        $isNdsZero = $bill->Client("nds_zero");
-        $nds = $bill->Client("nds_zero") ? 1 : 1.18;
-
         $design->assign_by_ref('negative_balance', $bill->negative_balance); // если баланс отрицательный - говорим, что недостаточно средств для проведения авансовых платежей
-        $bdata['tax']=0;
-        $bdata['tsum']=0;
-
 
         foreach($L_prev as $k => $li){
-            //$s=round($li['outprice']*$li['amount'],4);
-            //$L_prev[$k]['sum']=$s;
-
-            $L_prev[$k]['tax']=round($isNdsZero ? 0 : $L_prev[$k]['sum']*0.18,2);
-
-            if($L_prev[$k]['all4net_price']<>0){
-                $L_prev[$k]['tsum'] = round($L_prev[$k]['all4net_price']*$L_prev[$k]['amount'],2);
-            }else{
-                $L_prev[$k]['tsum']=round($L_prev[$k]['sum']*$nds,2);
+            if (!($obj=='bill' || ($li['type']!='zadatok' || $is_four_order))) {
+                unset($L_prev[$k]);
             }
-
-            $L_prev[$k]['sum']=$L_prev[$k]['sum'];
-
-            // add calc line nds
-            if($li["line_nds"] != 18)
-            {
-                $L_prev[$k]["outprice"] = $L_prev[$k]["tsum"]/$li["amount"];
-                $L_prev[$k]["sum"] = $L_prev[$k]["tsum"];
-                $L_prev[$k]["tax"] = 0;
-            }
-
-
-            if ($obj=='bill' || ($li['type']!='zadatok' || $is_four_order)) {
-                $bdata['tax']+=$L_prev[$k]['tax'];
-                $bdata['tsum']+=$L_prev[$k]['tsum'];
-            } else {unset($L_prev[$k]);}
         }
         unset($li);
 
         $L = self::do_print_prepare_filter($obj,$source,$L_prev,$period_date,(($obj == "invoice" || $obj == "upd") && $source == 3), $isSellBook ? true : false, $origObj);
 
+        if($is_four_order){
+            $L =& $L_prev;
+            $bill->refactLinesWithFourOrderFacure($L);
+        }
 
-        if ($sum_rub!=0) { //расчет долларовых счетов
+        //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
 
-            if($bill->GetTs() < 1351713600)  // 2012-11-01 00:00:00
-            {
-                   if($d=round($sum_rub-$bdata['tsum'],4))
-                       self::do_print_prepare_RecalculateItems($sum_rub,$d,$L_prev,$bdata,1);
-                   if($d=round($sum_rub-$bdata['tsum'],4))
-                       self::do_print_prepare_RecalculateItems($sum_rub,$d,$L_prev,$bdata,2);
-                   if($d=round($sum_rub-$bdata['tsum'],4))
-                       self::do_print_prepare_RecalculateItems($sum_rub,$d,$L_prev,$bdata,3);
-            }else{
-
-                $rate = $sum_rub/$bdata["sum"];
-
-                foreach($L_prev as &$l)
-                {
-                    if($l["tsum"])
-                    {
-                        $l["tsum"] *= $rate;
-                        $l["sum"] *= $rate;
-                        $l["tax"] *= $rate;
-
-                        if($l["amount"])
-                        {
-                            $l["sum"] = $l["tsum"]/1.18;
-                            $l["outprice"] = $l["sum"]/$l["amount"];
-                        }
-
-                        $l["tax"] = $l["tsum"]/1.18*0.18;
-                    }
-                }
-            }
-		}
-
-		if($is_four_order){
-			$L =& $L_prev;
-			$bill->refactLinesWithFourOrderFacure($L);
-		}elseif($source == 5){
-			$pays = $db->AllRecords("
-				select
-					*
-				from
-					`newpayments`
-				where
-					`bill_no` = '".$bdata['bill_no']."'
-				and
-					`sum_rub`<0
-			",null,MYSQL_ASSOC);
-
-			$L_prev = array(array(
-				'bill_no'=>$bdata['bill_no'],
-				'sort'=>1,
-				'item'=>'Авансовый платеж за доступ в интернет',
-				'amount'=>1,
-				'price'=>0,
-				'all4net_price'=>0,
-				'service'=>'usage_ip_ports',
-				'id_service'=>0,
-				'date_from'=>0,
-				'date_to'=>0,
-				'type'=>'zadatok',
-				'outprice'=>0,
-				'sum'=>0,
-				'id'=>1,
-				'ts_from'=>0,
-				'ts_to'=>0,
-				'tsum'=>0,
-				'tax'=>0
-			));
-			foreach($pays as $pay){
-				$L_prev[0]['sum']+=($pay['sum_rub']*-1);
-				$L_prev[0]['tax']+=($pay['sum_rub']*-1)/1.18*0.18;
-				$L_prev[0]['outprice']+=($pay['sum_rub']*-1);
-				$L_prev[0]['tsum']+=($pay['sum_rub']*-1);
-			}
-			$L =& $L_prev;
-		}
-
-		//подсчёт итоговых сумм, получить данные по оборудованию для акта-3
-
-		$cpe = array();
-		$bdata['tax']=0; $bdata['tsum']=0; $bdata["sum"] = 0;
+        $cpe = array();
+        $bdata["sum"] = 0;
+        $bdata['sum_without_tax'] = 0;
+        $bdata['sum_tax'] = 0;
 
 
         $r = $bill->Client();
 
         foreach ($L as &$li) {
 
-            if($r["nds_calc_method"] == 3 && !$isNdsZero)
-            {
-                $li["tax"] = round($li["tsum"]/1.18*0.18,2);
-                $li["sum"] = $li["tsum"] - $li["tax"];
-            }
-
-            $bdata['tax']+=round($li['tax'],2);
-            $bdata['tsum']+=$li['tsum'];
-            $bdata['sum']+=round($li['sum'],2);
+            $bdata['sum']               += $li['sum'];
+            $bdata['sum_without_tax']   += $li['sum_without_tax'];
+            $bdata['sum_tax']           += $li['sum_tax'];
 
             if ($obj=='akt' && $source==3 && $do_assign) {			//связь строчка>устройство или строчка>подключение>устройство
                 $id = null;
@@ -3335,31 +2389,7 @@ class m_newaccounts extends IModule
         }
 		unset($li);
 
-        if($bdata["currency"] == "USD")
-        {
-            if($bdata["tsum"] - $bdata["sum"] != $bdata["tax"])
-            {
-                $bdata["tax"] = $bdata["tsum"] - $bdata["sum"];
-            }
-        }
-
-        //каст! 200909-1868
-        $bdata['tax'] = $isNdsZero ? 0 : $bdata['tax'];//round($bdata['tsum']/($nds)*($nds-1),2);
-
-        //$bdata['sum'] = $bdata['tsum']-$bdata['tax'];
-
         $b = $bill->GetBill();
-
-        if($r["nds_calc_method"] == 2 && !$isNdsZero)
-        {
-            $bdata["tax"] = $bdata["tsum"] - $bdata["sum"];
-        }
-
-        if($r["nds_calc_method"] == 3 && !$isNdsZero)
-        {
-            $bdata["tax"] = round($bdata["tsum"]/1.18*0.18,2);
-            $bdata["sum"] = $bdata["tsum"] - $bdata["tax"];
-        }
 
         if ($do_assign){
             $design->assign('cpe',$cpe);
@@ -3407,7 +2437,7 @@ class m_newaccounts extends IModule
             {
                 $discount = ($l["discount_set"] + $l["discount_auto"])/1.18;
 
-                $l["sum"] -= $discount;
+                $l["sum_without_tax"] -= $discount;
 
                 if($discount && $l["amount"])
                     $l["outprice"] = $l["price"] -= $discount/$l["amount"];
@@ -3850,7 +2880,7 @@ class m_newaccounts extends IModule
         global $db;
 
         if (!$clientIds) $clientIds = array(-1);
-        if ($pm=$db->GetRow('select comment,bill_no from newpayments where client_id in ("'.implode('","', $clientIds).'") and sum_rub = "'.$pay['sum'].'" and payment_date = "'.$pay['date'].'" and type="bank" and payment_no = "'.$pay["noref"].'"')) {
+        if ($pm=$db->GetRow('select comment,bill_no from newpayments where client_id in ("'.implode('","', $clientIds).'") and sum = "'.$pay['sum'].'" and payment_date = "'.$pay['date'].'" and type="bank" and payment_no = "'.$pay["noref"].'"')) {
             $pay['imported']=1;
             $pay["comment"] = $pm["comment"];
             $pay["bill_no"] = $pm["bill_no"];
@@ -3996,7 +3026,7 @@ class m_newaccounts extends IModule
             $isIn = !isset($payAccs[$p["account"]]);
 
             if(!$isIn){
-                $p["sum_rub"] = -abs($p["sum_rub"]);
+                $p["sum"] = -abs($p["sum"]);
                 $p["account"] = $p["geter_acc"];
                 $p["bik"] = $p["geter_bik"];
                 $p["payer"] = $p["geter"];
@@ -4012,7 +3042,7 @@ class m_newaccounts extends IModule
                     "date_exch" => $od1[2]."-".$od1[1]."-".$od1[0],
                     "date" => $od1[2]."-".$od1[1]."-".$od1[0],
                     "oper_date" => $od[2]."-".$od[1]."-".$od[0],
-                    "sum" => $p["sum_rub"],
+                    "sum" => $p["sum"],
                     "noref" => $p["pp"],
                     "inn" => $p["inn"],
                     "description" => $p["comment"],
@@ -4064,9 +3094,6 @@ class m_newaccounts extends IModule
         $firmaSql = ' and firma in ("'.implode('","', $firms).'")';
         foreach($payments as $p){
 
-            //if($p["sum_rub"] != 3774.82) continue;
-
-
             $p['id'] = $payid;
             $payid++;
             $v=explode('.',$p['date_dot']);
@@ -4079,7 +3106,6 @@ class m_newaccounts extends IModule
                 $p['oper_date'] = '';
 
             $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($p['date']).'" and currency="USD"');
-            $p['usd_rate'] = $r['rate'];
             if(!isset($clients[$p['inn']])){
                 $clients[$p['inn']] = $db->AllRecords('select clients.*,0 as is_ext from clients where (inn="'.addslashes($p['inn']).'") and (inn!="")'.$firmaSql);
                 $clients[$p['inn']] = array_merge($clients[$p['inn']],$db->AllRecords('select clients.*,1 as is_ext,client_inn.comment from clients inner join client_inn on client_inn.client_id=clients.id and client_inn.is_active=1 where (client_inn.inn="'.addslashes($p['inn']).'") and (client_inn.inn!="")'.$firmaSql));
@@ -4120,27 +3146,18 @@ class m_newaccounts extends IModule
 
                     }
                 }
-                if ($v['currency']=='RUB') {
-                    unset($p['usd_rate']);
-                } elseif ($p['usd_rate'] && $p['bill_no']) {
-                    $r = $db->GetRow('select sum as S from newbills where bill_no="'.$p['bill_no'].'"');
-                    if ($r && $r['S']!=0) {
-                        $rate_bill=round($p['sum_rub']/$r['S'],4);
-                        if (abs($rate_bill-$p['usd_rate'])/$p['usd_rate'] <=0.03) $p['usd_rate']=$rate_bill;
-                    }
-                }
-                if ($pm=$db->QuerySelectRow('newpayments',array('client_id'=>$p['client']['id'],'sum_rub'=>$p['sum_rub'],'payment_date'=>$p['date']))) {
+                if ($pm=$db->QuerySelectRow('newpayments',array('client_id'=>$p['client']['id'],'sum'=>$p['sum'],'payment_date'=>$p['date']))) {
                     $p["bill_no"] = $pm["bill_no"];
                     $p['imported']=1;
-                    $SUM_already += $p['sum_rub'];
+                    $SUM_already += $p['sum'];
                 }
             } else {
                 $k="-".substr(md5($p['inn'].$p['payer']),1,8);
                 $p['client']=array('id'=>$k);
             }
             $R[]=$p;
-            $SUM_sum += $p['sum_rub'];
-            if ($p['sum_rub']>=0) $SUM_plus+=$p['sum_rub']; else $SUM_minus+=$p['sum_rub'];
+            $SUM_sum += $p['sum'];
+            if ($p['sum']>=0) $SUM_plus+=$p['sum']; else $SUM_minus+=$p['sum'];
         }
         $design->assign('file',$file);
         $design->assign('payments',$R);
@@ -4177,74 +3194,46 @@ class m_newaccounts extends IModule
                 $bill = $db->QuerySelectRow("newbills", array("bill_no" => $P["bill_no"]));
 
                 if($bill["client_id"] != $client["id"]) {
-                    trigger_error2("Платеж #".$P["pay"].", на сумму:".$P["sum_rub"]." не внесен, проверте, что бы счет принадлежал этой компании");
+                    trigger_error2("Платеж #".$P["pay"].", на сумму:".$P["sum"]." не внесен, проверте, что бы счет принадлежал этой компании");
                     continue;
                 }
 
                 $CL[$client['id']]=$client['currency'];
-                $A = array();
-                $curr='';
-                $b=0; //вносить ли; 0=нет курса
-                $r2 = $db->GetRow('select sum,currency from newbills where bill_no="'.$P['bill_no'].'"');
-                $bill_sum = $r2['sum'];
-                if ($r2['currency']) $curr=$r2['currency'];
-                if (!$curr && $r2=$db->GetRow('select * from newsaldo where ts<"'.addslashes($P['date']).'" order by id desc limit 1')) $curr=$r2['currency'];
-                if (!$curr) $curr=$client['currency'];
 
-                if ($curr=='USD') {
-                    $r = $db->GetRow('select * from bill_currency_rate where date="'.addslashes($P['date']).'" and currency="USD"');
-                    $rate = $r['rate'];
-                    $P['sum_rub']=round($P['sum_rub'],2);
-                    if ($bill_sum!=0) {
-                        $rate_bill=round($P['sum_rub']/$bill_sum,4);
-                        if (abs($rate_bill-$rate)/$rate <=0.03) {
-                            $rate=$rate_bill;
-                            //$A['inv_rub'] = $P['sum_rub'];
-                        } else {
-                            //$A['inv1_rate'] = $rate;
-                            //$A['inv2_rate'] = $rate;
-                            //$A['inv3_rate'] = $rate;
-                        }
-                    }
-                    if ($rate) $b=1;
-                } else {
-                    $rate=1;
-                    $b=1;
+                $b=1;
+                $r2 = $db->GetRow('select currency from newbills where bill_no="'.$P['bill_no'].'"');
+                if (isset($r2['currency']) && $r2['currency'] != 'RUB') {
+                    $b = 0;
+                }
+
+                if ($b) {
+                    $payment = new Payment();
+                    $payment->client_id = $client['id'];
+                    $payment->payment_no = intval($P['pay']);
+                    $payment->bill_no = $P['bill_no'];
+                    $payment->bill_vis_no = $P['bill_no'];
+                    $payment->payment_date = $P['date'];
+                    $payment->oper_date = isset($P['oper_date']) ? $P['oper_date'] : $P['date'];
+                    $payment->sum = $P['sum'];
+                    $payment->currency = 'RUB';
+                    $payment->payment_rate = 1;
+                    $payment->original_sum = $P['sum'];
+                    $payment->original_currency = 'RUB';
+                    $payment->comment = $P['comment'];
+                    $payment->add_date = date('Y-m-d H:i:s');
+                    $payment->add_user = $user->Get('id');
+                    $payment->type = 'bank';
+                    $payment->bank = $bank;
+                    $payment->save();
                 }
                 if ($b) {
-                    $A = array_merge($A,array(
-                            'client_id'        => $client['id'],
-                            'payment_no'    => intval($P['pay']),
-                            'bill_no'        => $P['bill_no'],
-                            'bill_vis_no'    => $P['bill_no'],
-                            'payment_date'    => $P['date'],
-                            'oper_date'        => (isset($P['oper_date']) ? $P['oper_date'] : $P['date']),
-                            'payment_rate'    => $rate,
-                            'sum_rub'        => round($P['sum_rub'],2),
-                            'comment'        => $P['comment'],
-                            'add_date'        => array('NOW()'),
-                            'add_user'        => $user->Get('id'),
-                            'type'            => 'bank',
-                            'bank'          => $bank
-                            ));
-                    $b=$db->QueryInsert('newpayments',$A);
-                    #$all4net->payment($P['bill_no']);
-                    //$cs->pushClientPayment($b);
-                }
-                if ($b) {
-                    //$CL[$client['id']]=$client['currency'];
                     echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' внесён';
                  } else {
                     echo '<br>Платеж '.$P['pay'].' клиента '.$client['client'].' не внесён, так как на '.$P['date'].' отсутствует курс доллара';
                 }
             }
         }
-#            if ($P['bill_no'] && $bill_sum && ($curr=='USD')) {
 
-        //foreach ($CL as $cl_id=>$curr) $this->update_balance($cl_id,$curr); // обновление баланса делается после занесения платежа.
-
-
-        //$this->newaccounts_bill_balance_mass($fixclient);
         trigger_error2("Баланс обновлён");
         if ($b && $design->ProcessEx('errors.tpl')) {
             header('Location: ?module=newaccounts&action=pi_process&file='.$file);
@@ -4311,9 +3300,8 @@ $W1 = array("and", "~~where_owner~~");
             $newpayments_join .= "
                 inner join newpayments on newpayments.bill_no = newbills.bill_no
                 and
-                if(newbills.currency = 'USD', newbills.`sum`*newpayments.payment_rate, newbills.`sum`) - (select sum(sum_rub) from newpayments where bill_no=newbills.bill_no) >= ".((float)$p_nedopay)."
+                newbills.`sum` - (select sum(p.sum) from newpayments p where bill_no=newbills.bill_no) >= ".((float)$p_nedopay)."
                     ";
-        }else{
         }
 
         $W1[] = '( newbills.bill_date >= newsaldo.ts OR newsaldo.ts IS NULL)';
@@ -4327,15 +3315,13 @@ $W1 = array("and", "~~where_owner~~");
             clients.company,
             clients.firma,
             if(clients.currency = newbills.currency, 1,0) as f_currency,
-                (SELECT SUM(P.sum_rub) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_rub,
-                    (SELECT SUM(round(P.sum_rub/P.payment_rate,2)) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_usd,
                     clients.manager as client_manager,
                     (select user from user_users where id=nbo.owner_id) as bill_manager'.($b_show_bonus ? ',
 
-                    (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", round(bl.price*1.18*bl.amount,2), " => ", round(if(b.type = "%",bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2)))) separator "|\n")  FROM newbill_lines bl
+                    (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) separator "|\n")  FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "'.$managerInfo["usergroup"].'"
                      where bl.bill_no=newbills.bill_no) bonus_info ,
-                    (SELECT sum(round(if(b.type = "%",bl.price*1.18*bl.amount*0.01*`value`, `value`*amount),2)) FROM newbill_lines bl
+                    (SELECT sum(round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)) FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "'.$managerInfo["usergroup"].'"
                      where bl.bill_no=newbills.bill_no) bonus' : '').'
                         from
@@ -4358,12 +3344,6 @@ $W1 = array("and", "~~where_owner~~");
                 $sql = str_replace("~~where_owner~~", 'nbo.owner_id="'.$managerInfo["id"].'"', $sql);
             }else{
                 $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'" or nbo.owner_id="'.$managerInfo["id"].'"', $sql);
-/*
-                $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'"', $sql)." union ".
-                    str_replace("~~where_owner~~", 'nbo.owner_id="'.$managerInfo["id"].'"', $sql);
-*/
-
-                //$W1 = array('AND',' ( nbo.owner_id="'.$managerInfo["id"].'" or clients.manager="'.$manager.'") ');
             }
         }
 
@@ -4371,33 +3351,29 @@ $sql .= "    order by client, bill_no";
 
         $R=$db->AllRecords($sql);
 
-        $s_USD = array(
-                'pay_sum_rub'=>0,
-                'pay_sum_usd'=>0,
-                'sum'=>0
-                  );
-        $s_RUB=array(
-                'pay_sum_rub'=>0,
-                'sum'=>0,
-                'bonus' => 0
-                );
+        $totalAmount = [];
+        $totalBonus = [];
+
         $clients = array();
         foreach($R as &$r){
             $clients[$r['client_id']] =1;
-            if($r['currency']=='USD'){
-                $s_USD['pay_sum_rub'] += $r['pay_sum_rub'];
-                $s_USD['pay_sum_usd'] += $r['pay_sum_usd'];
-                $s_USD['sum'] += $r['sum'];
-            }else{
-                $s_RUB['pay_sum_rub'] += $r['pay_sum_rub'];
-                $s_RUB['sum'] += $r['sum'];
-                @$s_RUB['bonus'] += isset($r['bonus']) ? $r['bonus'] : 0;
+            if ($r['sum']) {
+                if (!isset($totalAmount[$r['currency']])) {
+                    $totalAmount[$r['currency']] = 0;
+                }
+                $totalAmount[$r['currency']] += $r['sum'];
+            }
+            if ($r['bonus']) {
+                if (!isset($totalBonus[$r['currency']])) {
+                    $totalBonus[$r['currency']] = 0;
+                }
+                $totalBonus[$r['currency']] += $r['bonus'];
             }
         }
         $design->assign('clients_count', count($clients));
         $design->assign('bills',$R);
-        $design->assign('bills_total_USD',$s_USD);
-        $design->assign('bills_total_RUB',$s_RUB);
+        $design->assign('totalAmount',$totalAmount);
+        $design->assign('totalBonus',$totalBonus);
     }
 
     $R=array(); StatModule::users()->d_users_get($R,array('manager','marketing'));
@@ -4427,7 +3403,7 @@ $sql .= "    order by client, bill_no";
             $sum[$fixclient_data['currency']]=array('delta'=>0,'bill'=>0,'ts'=>'');
         }
         $R1=$db->AllRecords('select *,'.($sum[$fixclient_data['currency']]['ts']?'IF(bill_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)':'1').' as in_sum from newbills where client_id='.$fixclient_data['id'].' order by bill_no desc');
-        $R2=$db->AllRecords('select P.*,(P.sum_rub/P.payment_rate) as sum,U.user as user_name,'.($sum[$fixclient_data['currency']]['ts']?'IF(P.payment_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)':'1').' as in_sum from newpayments as P LEFT JOIN user_users as U on U.id=P.add_user where P.client_id='.$fixclient_data['id'].' order by P.payment_date desc');
+        $R2=$db->AllRecords('select P.*,U.user as user_name,'.($sum[$fixclient_data['currency']]['ts']?'IF(P.payment_date>="'.$sum[$fixclient_data['currency']]['ts'].'",1,0)':'1').' as in_sum from newpayments as P LEFT JOIN user_users as U on U.id=P.add_user where P.client_id='.$fixclient_data['id'].' order by P.payment_date desc');
 
         foreach ($R1 as $r) {
             $delta =-$r['sum'];
@@ -4450,7 +3426,7 @@ $sql .= "    order by client, bill_no";
     function newaccounts_debt_report($fixclient) {
     global $design,$db;
 
-        $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Bill::GetCouriers());
+        $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Courier::dao()->getList(false));
         $design->assign("l_metro", array("all" => "--- Все ---") + ClientCS::GetMetroList());
         $design->assign('courier',$courier=get_param_protected('courier',"all"));
         $design->assign('metro',$metro=get_param_protected('metro',"all"));
@@ -4534,13 +3510,12 @@ $sql .= "    order by client, bill_no";
             }
             $W1[] = "newbills.nal in ('".implode("','", array_keys($nal))."')";
             $W1[] = 'is_payed in (0,2)';
-            //$W1[] = 'sum > 0';
+
             if (!$cl_off) $W1[]='status="work"';
             if ($date_from) $W1[]='newbills.bill_date>="'.$date_from.'"';
             if ($date_to) $W1[]='newbills.bill_date<="'.$date_to.'"';
             if($zerobill) $W1[] = 'newbills.sum<>0';
 
-            //$W1[]='((newbills.bill_date>=newsaldo.ts OR newsaldo.ts IS NULL) AND newbills.currency=clients.currency)';
             $q = '
                 select
                     a.*,
@@ -4565,9 +3540,7 @@ $sql .= "    order by client, bill_no";
                             newbills.nal as bill_nal,
                             clients.client,
                             clients.company,
-                            clients.manager,
-                            (SELECT SUM(P.sum_rub) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_rub,
-                            (SELECT SUM(round(P.sum_rub/P.payment_rate,2)) from newpayments as P where P.bill_no=newbills.bill_no) as pay_sum_usd
+                            clients.manager
                         from newbills
                         LEFT JOIN clients ON clients.id=newbills.client_id
                         LEFT JOIN newsaldo ON newsaldo.client_id=clients.id
@@ -4585,37 +3558,31 @@ $sql .= "    order by client, bill_no";
 
             $R=$db->AllRecords($q);
 
-            $s_USD=array('sum'=>0,'saldo'=>0);
-            $s_RUB=array('sum'=>0,'saldo'=>0);
+            $totalAmount = [];
+            $totalSaldo = [];
+
             foreach ($R as &$r) {
-                /*
-                $staticComment = $this->getStaticComment($r["bill_no"]);
-                if($staticComment)
-                {
-                    $r["statcomment"] = $staticComment;
-                }
-                */
                 if ($isPrint) {
                     $r["metro"] = ClientCS::GetMetroName($r["metro_id"]);
                 }
                 $r["debt"] = $this->GetDebt($r["client_id"]);
-                $r["courier"] = Bill::GetCourierName($r["courier_id"]);
-                if ($r['currency']=='USD') {
-                    $s_USD['sum']+=$r['sum'];
-                } else {
-                    $s_RUB['sum']+=$r['sum'];
+                $r["courier"] = Courier::dao()->getNameById($r["courier_id"]);
+                if ($r['sum']) {
+                    if (!isset($totalAmount[$r['currency']])) {
+                        $totalAmount[$r['currency']] = 0;
+                    }
+                    $totalAmount[$r['currency']] += $r['sum'];
                 }
-                if ($r["debt"]["currency"] == "USD")
-                {
-                    $s_USD["saldo"] += $r["debt"]["sum"];
-                }else{
-                    $s_RUB["saldo"] += $r["debt"]["sum"];
+                if ($r["debt"]["sum"]) {
+                    if (!isset($totalSaldo[$r["debt"]["currency"]])) {
+                        $totalSaldo[$r["debt"]["currency"]] = 0;
+                    }
+                    $totalSaldo[$r["debt"]["currency"]] += $r["debt"]["sum"];
                 }
-
             }
             $design->assign('bills',$R);
-            $design->assign('bills_total_USD',$s_USD);
-            $design->assign('bills_total_RUB',$s_RUB);
+            $design->assign('totalAmount',$totalAmount);
+            $design->assign('totalSaldo',$totalSaldo);
         }
         $m=array();
         StatModule::users()->d_users_get($m,'manager');
@@ -4642,6 +3609,7 @@ $sql .= "    order by client, bill_no";
 
     function newaccounts_search($fixclient) {
         global $db,$design;
+
         $search=get_param_protected('search');
         $search = trim($search);
         if ($search) {
@@ -4717,8 +3685,7 @@ $sql .= "    order by client, bill_no";
                                 ', (select ts from newsaldo where client_id=clients.id and newsaldo.is_history=0 and newsaldo.currency=clients.currency order by id desc limit 1) as saldo_ts'.
                                 ', (select saldo from newsaldo where client_id=clients.id and newsaldo.is_history=0 and newsaldo.currency=clients.currency order by id desc limit 1) as saldo_sum'.
                                 ', (select sum(`sum`) from newbills where '.MySQLDatabase::Generate($W1).') as sum_bills'.
-                                ', (select sum(round(sum_rub/payment_rate,2)) from newpayments as P LEFT JOIN newbills ON newbills.bill_no=P.bill_no and P.client_id = newbills.client_id where '.MySQLDatabase::Generate($W2).') as sum_payments'.
-                                //', (select sum(round(sum_rub/payment_rate,2)) from newpayments as P  where '.MySQLDatabase::Generate($W2).') as sum_payments'.
+                                ', (select sum(P.sum) from newpayments as P LEFT JOIN newbills ON newbills.bill_no=P.bill_no and P.client_id = newbills.client_id where '.MySQLDatabase::Generate($W2).') as sum_payments'.
                                 ', (select bill_date from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_date'.
                                 ', (select bill_no from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_no'.
                                 ', (select round(`sum`) from newbills where '.MySQLDatabase::Generate($W1).' order by bill_date desc limit 1) as lastbill_sum'.
@@ -4764,6 +3731,7 @@ $sql .= "    order by client, bill_no";
         if ($saldo) $W[]='P.payment_date>="'.$saldo['ts'].'"';
         if ($date_from) $W[]='P.payment_date>="'.$date_from.'"';
         if ($date_to) $W[]='P.payment_date<="'.$date_to.'"';
+
         $P=$db->AllRecords($sql = '
                 select P.*,
                     UNIX_TIMESTAMP(P.payment_date) as payment_date
@@ -4771,9 +3739,10 @@ $sql .= "    order by client, bill_no";
                 where '.MySQLDatabase::Generate($W).'
                 order by P.id');
 
+
         foreach ($P as &$A) {
 
-            $sum_outcome = $A['sum_rub'];
+            $sum_outcome = $A['sum'];
             if ($sum_outcome < 0) {
                 $sum_income = - $sum_outcome;
                 $sum_outcome = 0;
@@ -4814,22 +3783,18 @@ $sql .= "    order by client, bill_no";
                 $A=$this->do_print_prepare($bill,$I==4?'lading':'akt',$I==4?null:$I,'RUB',0);
                 if ($I==1) $A1 = $A;
                 if($I==4 && $A['bill']){
-                    if(!$A1 && $I==4){
-                        $d = explode('-',$A['bill']['inv3_date']);
-                        $d = mktime(0, 0, 0, $d[1], $d[2], $d[0]);
-                    }
-                    $A['inv_date'] = ($A1)?$A1['inv_date']:$d;
+                    $A['inv_date'] = ($A1)?$A1['inv_date']:$A['inv_date'];
                     $A['inv_no'] = $A['bill']['bill_no'];
                 }
-                if($I != 3 && is_array($A) && $A['bill']['tsum']){
+                if($I != 3 && is_array($A) && $A['bill']['sum']){
                     $k=date('Y-m-d',$A['inv_date']);
                     if(
                         (!$date_from || $k>=$date_from)
                     &&
                         (!$date_to || $k<=$date_to)
                     ){
-                        $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['tsum'];
-                        $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['tsum'] : 0;
+                        $sum_in = $A["bill"]["is_rollback"] ? 0 : $A['bill']['sum'];
+                        $sum_out = $A["bill"]["is_rollback"] ? $A['bill']['sum'] : 0;
                         $R[$A['inv_date']+($Rc++)] = array(
                             'type'       => 'inv',
                             'date'       => $A['inv_date'],
@@ -4850,7 +3815,7 @@ $sql .= "    order by client, bill_no";
             "select 'inv' as type, 3 as inv_num,
                 b.bill_no, concat(b.bill_no,'-3') as inv_no,
                 unix_timestamp(bill_date) as date,
-                l.sum as sum_income, item as items, b.currency, b.inv3_rate, b.gen_bill_rate, b.inv_rub,b.sum as b_sum
+                l.sum as sum_income, item as items, b.currency, b.sum as b_sum
             from
                 newbills b, newbill_lines l
             where
@@ -4859,14 +3824,6 @@ $sql .= "    order by client, bill_no";
                 and type='zalog'
                 and b.bill_date<='".$date_to."'") as $z)
         {
-            $z["sum_income"] = (
-                    $z["currency"] == "USD" ?
-                        ($z["inv3_rate"] > 0 ?$z["inv3_rate"] :
-                            ($z["gen_bill_rate"] > 0 ? $z["gen_bill_rate"] : ($z["inv_rub"] > 0 ? $z["inv_rub"]/$z["b_sum"] :
-                             (99900000+$z["sum_income"]) / $z["sum_income"]) )
-                        )*$z["sum_income"]:
-                    $z["sum_income"]);
-
             $zalog[$z["date"]."-".count($zalog)] = $z;
             $S_zalog += $z["sum_income"];
         }
@@ -4964,9 +3921,9 @@ $sql .= "    order by client, bill_no";
         $R=array();
         $Rc = 0;
         $S = array(
+            'sum_without_tax'=>0,
             'sum'=>0,
-            'tsum'=>0,
-            'tax'=>0
+            'sum_tax'=>0
         );
 
         if(get_param_raw("do", ""))
@@ -5022,7 +3979,7 @@ $sql .= "    order by client, bill_no";
                     C.kpp,
                     C.type,
                     max(P.payment_date) as payment_date,
-                    sum(P.sum_rub) as sum_rub,
+                    sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
                     unix_timestamp(bill_date) as shipment_ts,
                     18 as min_nds
@@ -5057,7 +4014,7 @@ $sql .= "    order by client, bill_no";
                         C.kpp,
                         C.type,
                         max(P.payment_date) as payment_date,
-                        sum(P.sum_rub) as sum_rub,
+                        sum(P.sum) as `pay_sum`,
                         (
                             SELECT min(nds) 
                             FROM `newbill_lines` nl, g_goods g 
@@ -5132,7 +4089,7 @@ $sql .= "    order by client, bill_no";
                 }
 
 
-                if (is_array($A) && $A['bill']['tsum']) {
+                if (is_array($A) && $A['bill']['sum']) {
 
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
 
@@ -5158,7 +4115,7 @@ $sql .= "    order by client, bill_no";
                         }
 
                         $A['bill']['payment_date'] = $p['payment_date'];
-                        $A['bill']['sum_rub'] = $p['sum_rub'];
+                        $A['bill']['pay_sum'] = $p['pay_sum'];
 
                         $A['bill']['inv_no'] = $A['inv_no'];
 
@@ -5166,7 +4123,7 @@ $sql .= "    order by client, bill_no";
 
                         if($p["is_rollback"])
                         {
-                            foreach(array("ts", "tax", "tsum", "sum") as $f)
+                            foreach(array("ts", "sum_tax", "sum_without_tax", "sum") as $f)
                                 $A["bill"][$f] = -abs($A["bill"][$f]);
                         }
 
@@ -5280,95 +4237,6 @@ $sql .= "    order by client, bill_no";
         }
     }
 
-
-    function newaccounts_pay_add($fixclient) {
-        global $design,$fixclient_data;
-        $oBill = null;
-        if ($bill_no=get_param_protected('bill_no')) {
-            $oBill = new Bill($bill_no);
-            $_SESSION['clients_client'] = $oBill->Get("client_id");
-            $fixclient_data = ClientCS::FetchClient($oBill->Get("client_id"));
-        }elseif (!$fixclient) {
-            trigger_error2('Зафиксируйте клиента'); return;
-        }
-        $dbf = new DbFormNewpayments();
-        $dbf->SetDefault('client_id',$fixclient_data['id']);
-        $dbf->SetDefault('client',$fixclient_data['client']);
-        if ($bill_no=get_param_protected('bill_no')) {
-            $dbf->SetDefault('bill_no',$bill_no);
-            if($oBill === null)
-                $oBill = new Bill($bill_no);
-            $dbf->SetDefault("sum_rub", $oBill->Get("sum"));
-            $dbf->SetDefault("type", "prov");
-        }
-
-        $dbf->Display(array('module'=>'newaccounts','action'=>'pay_apply'),'Платежи','Ручной ввод платежа');
-        $design->AddMain('newaccounts/pay_add.tpl');
-    }
-    function newaccounts_pay_apply($fixclient){
-        global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
-        $bill_no = $_POST['dbform']['bill_no'];
-        if ($bill_no==''){trigger_error2('Не выбран счет'); return;}
-
-
-        $b = bill::getDocument($bill_no, $_POST['dbform']['client_id']);
-
-        // каст для БИЛАЙНА
-
-        if(false && $b->is_payed == 1 && $b->client->id != 14043 && $_POST["dbform"]["sum_rub"]>0 && $b->sum > 0) {
-            trigger_error2("Счет ".$bill_no." оплачен польностью! <br>Не разрешено внесение ручной оплаты полностью оплаченных счетов.");
-            return;
-        }elseif($b->is_payed == 0){
-            $r = $db->GetValue("select client_id from newpayments where bill_no = '".$bill_no."'");
-            if($r)
-            {
-                mail("dga@mcn.ru", "stat", "Оплата счета ".$bill_no.", оплаченного, но is_payed = 0<br>".var_export($_SESSION,true)."<br>".var_export($fixclient_data, true));
-                $c = ClientCS::FetchClient($r);
-                $this->update_balance($c["id"], $c["currency"]);
-                //header('Location: ?module=newaccounts');
-                //return;
-            }
-
-        }
-
-
-        $dbf = new DbFormNewpayments();
-        $id=get_param_integer('id','');
-        if ($id) $dbf->Load($id);
-        $result=$dbf->Process();
-
-
-        $this->update_balance($b->client->id, $b->client->currency);
-        /*
-        if(include_once(INCLUDE_PATH."1c_integration.php")){
-            $clS = new \_1c\clientSyncer($db);
-            $f = null;
-            if(!$clS->pushClientPayment($dbf->data['id'],$f)){
-                echo "Не удалось синхронизировать платеж в 1С!<br />";
-                if($f)
-                    echo "Ошибка: ".\_1c\getFaultMessage($f);
-                echo "<br /><br /><a href='?module=newaccounts'>Баланс</a>";
-                exit();
-            }
-        }
-        */
-        header('Location: ?module=newaccounts');
-        exit();
-        $design->ProcessX();
-    }
-    function newaccounts_pay_rate($fixclient) {
-        global $design,$db,$fixclient_data;
-        if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
-        $id=get_param_integer('id','');
-        $rate=floatval(get_param_raw('rate',''));
-        if (!$id) return;
-        $db->Query('update newpayments set payment_rate="'.$rate.'" where id='.$id);
-        $this->update_balance($fixclient_data['id'],$fixclient_data['currency']);
-        header('Location: ?module=newaccounts');
-        exit();
-        $design->ProcessX();
-    }
     function newaccounts_pay_rebill($fixclient) {
         global $design,$db,$fixclient_data;
         if (!$fixclient) {trigger_error2('Не выбран клиент'); return;}
@@ -5377,48 +4245,10 @@ $sql .= "    order by client, bill_no";
         if ($bill) {
             $db->Query('update newpayments set bill_vis_no="'.$bill.'" where id='.$pay);
         } else $db->Query('update newpayments set bill_vis_no=bill_no where id='.$pay);
-        /*
-        if(include_once(INCLUDE_PATH."1c_integration.php")){
-            $clS = new \_1c\clientSyncer($db);
-            $f = null;
-            if(!$clS->pushClientPayment($pay,$f)){
-                echo "Не удалось синхронизировать платеж в 1С!<br />";
-                if($f)
-                    echo "Ошибка: ".\_1c\getFaultMessage($f);
-                echo "<br /><br /><a href='?module=newaccounts'>Баланс</a>";
-                exit();
-            }
-        }
-        */
-        header('Location: ?module=newaccounts');
-        exit();
-        $design->ProcessX();
-    }
-    function newaccounts_pay_delete($fixclient){
-        global $design,$db,$fixclient_data,$user;
-        $id = get_param_raw('id');
-        if(!$id)
-            return;
-
-        $pay = Payment::find($id);
-        LogBill::log($pay->bill_no, "Удаление платежа (".$pay->id."), на сумму: ".$pay->sum_rub);
-        $pay->delete();
-
-        $this->update_balance($fixclient_data['id'], $fixclient_data['currency']);
-
-        if(include(INCLUDE_PATH."1c_integration.php")){
-            $clS = new \_1c\clientSyncer($db);
-            if(!$clS->deletePayment($id)){
-                trigger_error2("Не удалось удалить платеж из 1С!<br /><a href='?module=newaccounts'>Баланс</a>");
-                exit();
-            }
-        }
 
         header('Location: ?module=newaccounts');
         exit();
-        $design->ProcessX();
     }
-
 
     function newaccounts_first_pay($fixclient) {
         global $design,$db;
@@ -5444,7 +4274,7 @@ $sql .= "    order by client, bill_no";
 
             $query1 = $db->AllRecords("
                     SELECT
-                        client_id, client, company, sum_rub, payment_date, site_req_no
+                        client_id, client, company, sum, payment_date, site_req_no
                     FROM
                         `newpayments`, `clients`
                     WHERE
@@ -5572,7 +4402,7 @@ $sql .= "    order by client, bill_no";
         $banks = get_param_raw("banks", $bdefault);
         $design->assign("banks", $banks);
 
-        $edefault = array("cyberplat"=> true, "yandex" => true, "uniteller" => true);
+        $edefault = array("cyberplat"=> true, "yandex" => true);
         $ecashs = get_param_raw("ecashs", $edefault);
         $design->assign("ecashs", $ecashs);
         
@@ -5607,8 +4437,8 @@ $sql .= "    order by client, bill_no";
 
         foreach ($R as &$r) {
             $r['type']=substr($r['type'],0,1);
-            $S[$r['type'].$r['currency']] += $r['sum_rub'];
-            $S[$r['currency']] += $r['sum_rub'];
+            $S[$r['type'].$r['currency']] += $r['sum'];
+            $S[$r['currency']] += $r['sum'];
         } unset($r);
         $design->assign('user',$user);
         $design->assign('users',$db->AllRecords("select id,user,name from user_users where usergroup in ('admin','manager','account_managers','accounts_department') and enabled = 'yes' order by name",null,MYSQL_ASSOC));
@@ -5696,8 +4526,7 @@ $sql .= "    order by client, bill_no";
                 $db->Query($query);
 
                 //Обновление списка документов
-                $b = new Bill($_REQUEST['bill_no']);
-                $b->updateBill2Doctypes(null, false);
+                BillDocument::dao()->updateByBillNo($_REQUEST['bill_no']);
 
                 ob_end_clean();
                 if(mysql_errno()){
@@ -5979,7 +4808,7 @@ $sql .= "    order by client, bill_no";
                 if($ttt = $db->GetRow("select * from tt_troubles where bill_no='".$bill_no."'")) {
                     if($ttt['state_id'] == 15 && $bill){
                         global $user;
-                        $bill->SetManager($user->Get("id"));
+                        \app\models\Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
                     }
                     if(!$positions['comment']){
                         $comment = $add_info['ПроисхождениеЗаказа']."<br />
@@ -6004,8 +4833,9 @@ $sql .= "    order by client, bill_no";
                                 ));
                 }
 
-                if(!$ttt && $bill)
-                    $bill->SetManager($user->Get("id"));
+                if(!$ttt && $bill) {
+                    \app\models\Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
+                }
 
                 trigger_error2("Счет #".$bill_no." успешно ".($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан")."!");
                 $db->QueryInsert("log_newbills", array( 'bill_no'=>$bill_no, 'ts'=>array('NOW()'), 'user_id'=>$user->Get('id'), 'comment'=>'Создание заказа'));
@@ -6024,7 +4854,7 @@ $sql .= "    order by client, bill_no";
         }
         $design->assign("managers", $userSelect);
         if($bill)
-        $design->assign("bill_manager", $bill->GetManager());
+        $design->assign("bill_manager", \app\models\Bill::dao()->getManager($bill->GetNo()));
 
         $design->assign('show_adds',
                 (in_array($client_id,array('all4net','wellconnect')) || !$cl_c || $cl_c->getAtMask(\clCards\struct_cardDetails::type) <> 'org'));
@@ -6503,6 +5333,22 @@ $sql .= "    order by client, bill_no";
         } else echo 'Файл не задан!';
 
         exit();
+    }
+
+    private function getBillBonus($billNo)
+    {
+        global $db;
+
+        $r = array();
+        $q = $db->AllRecords("
+                SELECT code_1c as code, round(if(b.type = '%', bl.sum*0.01*`value`, `value`*amount),2) as bonus
+                FROM newbill_lines bl
+                inner join g_bonus b on b.good_id = bl.item_id
+                    and `group` = (select if(usergroup='account_managers', 'manager', usergroup) from newbill_owner nbo, user_users u where nbo.bill_no = bl.bill_no and u.id=nbo.owner_id) where bl.bill_no='".$billNo."'");
+        if($q)
+            foreach($q as $l)
+                $r[$l["code"]] = $l["bonus"];
+        return $r;
     }
 }
 ?>

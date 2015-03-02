@@ -15,9 +15,9 @@
 <td>{$smarty.foreach.outer.iteration}</td>
 <td{if $item.nal!='beznal'} bgcolor='#{if $item.nal == "nal"}FFC0C0{else}C0C0FF{/if}'{/if}><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.client}'>{$item.client}</a></td>
 <td>{$item.company}</td>
-<td align=right>{$item.saldo_sum+$item.sum_bills-$item.sum_payments|round:2} {if $item.currency=='USD'}${else}р{/if}</td>
-<td align=right>{$item.sum_payments|round:2} {if $item.currency=='USD'}${else}р{/if}</td>
-<td align=right>{$item.sum_bills|round:2} {if $item.currency=='USD'}${else}р{/if}</td>
+<td align=right>{$item.saldo_sum+$item.sum_bills-$item.sum_payments|money:$item.currency}</td>
+<td align=right>{$item.sum_payments|money:$item.currency}</td>
+<td align=right>{$item.sum_bills|money:$item.currency}</td>
 <td style='font-size:85%'>{$item.saldo_ts}</td>
 <td>{if $item.firma=='markomnet'}mar{else}mcn{/if}</td>
 </tr>{/foreach}

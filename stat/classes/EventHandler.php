@@ -1,6 +1,5 @@
 <?php
-use app\dao\BillDao;
-use app\classes\StatModule;
+use app\models\ClientAccount;
 
 class EventHandler
 {
@@ -19,17 +18,6 @@ class EventHandler
 
     public static function updateBalance($clientId)
     {
-        include_once INCLUDE_PATH."bill.php";
-
-        $card = ClientCard::find($clientId);
-        if ($card) {
-            StatModule::newaccounts()->update_balance($card->id, $card->currency);
-        }
+        ClientAccount::dao()->updateBalance($clientId);
     }
-
-    public static function updateSubscribeMass()
-    {
-        BillDao::me()->updateSubscriptionForAllClientAccounts();
-    }
-
 }

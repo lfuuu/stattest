@@ -13,6 +13,8 @@ use app\models\ClientBPStatuses;
 /**
  * @property int $id
  * @property string $client
+ * @property string $currency
+ * @property string $nal
  * @property int $nds_zero
 
  * @property ClientSuper $superClient

@@ -11,7 +11,7 @@
     {if $pay.clients}
         {foreach from=$pay.clients item=client}
  <input type=radio name=pay[{$pay.no}][client] value='{$client.client}'{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled='disabled'{/if}>
-                <a href='./?module=newaccounts&action=bill_list&clients_client={if $client.client}{$client.client|escape:'url'}{else}{$client.id}{/if}'>{$client.client}{if $client.currency == "USD"}<font style="color:green;"> ($)</font>{/if}</a> -
+                <a href='./?module=newaccounts&action=bill_list&clients_client={if $client.client}{$client.client|escape:'url'}{else}{$client.id}{/if}'>{$client.client} <font style="color:green;"> ({$client.currency})</font></a> -
                 <span style='font-size:85%'>{$client.full_name} ({$client.manager})
                 </span><br>
         {/foreach}
@@ -33,7 +33,7 @@
 <input type=hidden name=pay[{$pay.no}][pay] value='{$pay.noref}'>
 <input type=hidden name=pay[{$pay.no}][date] value='{$pay.date}'>
 <input type=hidden name=pay[{$pay.no}][oper_date] value='{$pay.oper_date}'>
-<input type=hidden name=pay[{$pay.no}][sum_rub] value='{$pay.sum}'></td>
+<input type=hidden name=pay[{$pay.no}][sum] value='{$pay.sum}'></td>
 <td><b>{$pay.sum}</b> р.</td><td>
 
 {if $pay.clients}

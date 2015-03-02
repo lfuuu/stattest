@@ -370,39 +370,28 @@ padding:0cm 2.4pt 0cm 2.4pt;
             {if $is_four_order}
                 --
             {else}
-                {if $bill_client.nds_calc_method != 1}
-                    {$row.sum|mround:2:2}
-                {else}
-                    {$row.sum|mround:2:2}
-                {/if}
-                    
+                {$row.sum_without_tax|round:2}
             {/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' nowrap>
 			<p ><span>{if $inv_is_new4}без акциза{else}--{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p ><span>{if $row.tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</span></p>
+			<p ><span>{if $row.sum_tax == 0}без НДС{else}{if $is_four_order eq true}18%/118%{else}18%{/if}{/if}</span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>
-            {if $bill_client.nds_calc_method != 1}
-                {$row.tax|string_format:"%.2f"}
+			<p align=right style='text-align:right'><span>
+            {if $row.sum_tax == 0 && $row.line_nds == 0}
+                --
             {else}
-                {if $row.tax == 0 && $row.line_nds == 0}
-                    --
-                {else}
-					{$row.tax|string_format:"%.2f"}
-                {/if}
-            {/if}</span></p>
+                {$row.sum_tax|round:2}
+            {/if}
+            </span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>
-            {if $bill_client.nds_calc_method != 1}
-                {$row.tsum|round:2}
-            {else}
-                {$row.tsum|round:2}
-            {/if}</span></p>
+			<p align=right style='text-align:right'><span>
+                {$row.sum|round:2}
+            </span></p>
 		</td>
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>{if $row.country_id == 0}--{else}{$row.country_id}{/if}</span></p>
@@ -423,25 +412,22 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p ><b><span>Всего к оплате</span></b></p>
 		</td>
 		<td valign=bottom style='border:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum|round:2}{/if}</span></p>
+			<p  align=right style='text-align:right'><span>{if $is_four_order}--{else}{$bill.sum_without_tax|round:2}{/if}</span></p>
 		</td>
 		<td colspan=2 valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span><b>Х</b></span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p  align=right style='text-align:right'><span>
-            {if $bill_client.nds_calc_method != 1}
-                {$bill.tax|string_format:"%.2f"}
+            {if $bill.sum_tax == 0 && $bill.sum}
+                --
             {else}
-                {if $bill.tax == 0 && $bill.sum}
-                    --
-                {else}
-					{$bill.tax|string_format:"%.2f"}
-                {/if}
-            {/if}</span></p>
+                {$bill.sum_tax|round:2}
+            {/if}
+            </span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
-			<p  align=right style='text-align:right'><span>{$bill.tsum|round:2}</span></p>
+			<p  align=right style='text-align:right'><span>{$bill.sum|round:2}</span></p>
 		</td>
 		<td colspan="3" valign=bottom style='border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>

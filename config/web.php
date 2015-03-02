@@ -8,7 +8,7 @@ $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.local.php')
 );
 
-$db_pqsql = ArrayHelper::merge(
+$dbPg = ArrayHelper::merge(
     require(__DIR__ . '/db_pgsql.php'),
     require(__DIR__ . '/db_pgsql.local.php')
 );
@@ -60,7 +60,7 @@ $config = [
         ],
         'log' => $log,
         'db' => $db,
-        'db_pgsql' => $db_pqsql,
+        'dbPg' => $dbPg,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

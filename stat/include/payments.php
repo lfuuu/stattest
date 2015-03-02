@@ -6,7 +6,7 @@ class PaymentParser {
                 'begin'	=> 'СекцияДокумент',//Платежное поручение',
                 'end'	=> 'КонецДокумента',
                 'ops'	=> array(
-                    'Сумма'					=> 'sum_rub',
+                    'Сумма'					=> 'sum',
                     'Дата'					=> 'date_dot',
                     'Номер'					=> 'pp',
                     'НазначениеПлатежа'		=> 'comment',
@@ -35,7 +35,7 @@ class PaymentParser {
                 'begin' => '$OPERATION',
                 'end'	=> '$OPERATION_END',
                 'ops'	=> array(
-                    'AMOUNT'				=> 'sum_rub',
+                    'AMOUNT'				=> 'sum',
                     'DOC_DATE'				=> 'date_dot',
                     'DOC_NUM'				=> 'pp',
                     'OPER_DETAILS'			=> 'comment',

@@ -9,6 +9,11 @@ $db = ArrayHelper::merge(
     require(__DIR__ . '/db_stat.local.php')
 );
 
+$dbPg = ArrayHelper::merge(
+    require(__DIR__ . '/db_pgsql.php'),
+    require(__DIR__ . '/db_pgsql.local.php')
+);
+
 $log = ArrayHelper::merge(
     require(__DIR__ . '/log.php'),
     include(__DIR__ . '/log.local.php')
@@ -33,6 +38,7 @@ return [
         ],
         'log' => $log,
         'db' => $db,
+        'dbPg' => $dbPg,
     ],
     'params' => $params,
 ];

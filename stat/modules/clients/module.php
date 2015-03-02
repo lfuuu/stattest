@@ -31,7 +31,6 @@ class m_clients {
 					'all'			=> array('clients','read_all'),
 					'my'			=> array('clients','read_filter'),
 					'show'			=> array('clients','read_filter'),
-					'credit'		=> array('clients','credit'),
 					'sc'			=> array('clients','sale_channels'),
 					'sc_edit'		=> array('clients','sale_channels'),
 					'files'			=> array('clients','file'),
@@ -61,8 +60,6 @@ class m_clients {
 //					array('Мои клиенты',			'my'),
 //					array('Все клиенты',			'all'),
 					array('Новый клиент',			'new'),
-					#array('ФизЛицо',				'p_edit'),
-// 					array('Кредит',					'credit'),
 					array('',						'show'),	//чтобы пробел не показывался, если read_filter отключен
 					array('Телемаркетинг',			'show','&subj=telemarketing'),
 					array('Входящие',				'show','&subj=income'),
@@ -187,84 +184,6 @@ class m_clients {
 
 		$design->assign('name_of_action','Все клиенты');
 		$design->AddMain('clients/main_clients.tpl');
-	}
-
-	function get_credit_sum($client) {
-		global $db;
-		$db->Query("SELECT bill_no,sum FROM bill_bills WHERE client='{$client}' order by bill_date DESC LIMIT 5");
-		$s=array();
-		$a=array();
-		while ($r=$db->NextRecord()) {
-			$s[$r['bill_no']]=floatval($r['sum']);
-			$v[$r['bill_no']]=floatval($r['sum']);
-			$a[]=$r['bill_no'];
-		}
-		if (!count($a)) return 0;
-		$db->Query("select bill_no,sum_usd from bill_payments WHERE client='{$client}' and bill_no IN ('".implode("','",$a)."')");
-		$S=0;
-		while ($r=$db->NextRecord()) {
-			$v[$r['bill_no']]-=$r['sum_usd'];
-		}
-		foreach ($v as $b=>$val) {
-			if ($val>1) {
-				$S-=$s[$b];
-			} else $S+=$s[$b];
-		}
-		if ($S<0) $S=0;
-		return $S;
-	}
-	function set_credit($client,$service){
-		global $db;
-		switch ($service) {
-		case 'usage_ip_ports':
-			$db->Query("update usage_ip_ports as u LEFT JOIN tarifs_internet as t ON t.id=u.tarif_id set credit_usd=t.pay_month*3 WHERE u.client='{$client}'");
-			break;
-		case 'usage_voip':
-            /*
-			$db->Query("select * from usage_voip as u WHERE u.client='{$client}'");
-			$R=array(); while ($r=$db->NextRecord()) $R[]=$r;
-			foreach ($R as $r) {
-				if (preg_match('/V\d+\-\d+\-(\d+)/',$r['tarif'],$m)) $credit=$m[1];
-				$db->Query("update usage_voip set credit_usd='{$credit}' where id={$r['id']}");
-			}
-			*/
-            break;
-		}
-	}
-	function clients_credit($fixclient) {
-		global $db,$design,$writeoff_services;
-		$process=get_param_protected("process",0);
-		$sum=get_param_raw("sum");
-		$client=get_param_protected("client",'');
-		$service=get_param_protected("service",'');
-		if ($process) {
-	    	if ($client) {
-	    		$C=array($client);
-	    	} else if (access('clients','credit_all')){
-	    		$db->Query("select * from clientsw where client!=''");
-	    		$C=array(); while ($c=$db->NextRecord()) $C[]=$c['client'];
-			} else {trigger_error2("Выберите клиента"); return;}
-
-    		foreach ($C as $client) {
-//    			$sum=$this->get_credit_sum($client);
-				foreach ($writeoff_services as $w) if (($w==$service) || ($service=="")){
-					if ($sum) {
-						$db->Query("update $w set credit_usd=".$sum." where client='{$client}'");
-					} else {
-						$this->set_credit($client,$w);
-					}
-				}
-    		}
-			trigger_error2("Кредит установлен");
-		}
-		if ($fixclient) $design->assign('credit_sum',$this->get_credit_sum($fixclient));
-		if (!$fixclient && !access('clients','credit_all')) {trigger_error2('Выберите клиента'); return; }
-		$W=$writeoff_services;
-		$W = array_unshift( $W,"");
-		$design->assign('services',$W);
-		$design->assign('service',$service);
-		$design->AddMain('clients/credit.tpl');
-
 	}
 
 	function clients_show($fixclient){
@@ -1405,12 +1324,6 @@ class m_clients {
 		if($this->check_tele($id)==0)
 			return;
 
-		$cli = $db->GetRow("select client from clients where id=".(int)$id);
-		if($cli['client'] == 'pid'.$id){
-			header('Location: ?module=clients&action=p_edit&pid='.$id);
-			exit();
-		}
-
 		$design->assign('hl',get_param_protected('hl'));
         $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
 		$design->assign("history_flags", $this->get_history_flags($id));
@@ -1583,7 +1496,7 @@ class m_clients {
             }
 		}
 
-        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, currency_bill, stamp, nal, sale_channel, uid, site_req_no, signer_positionV, hid_rtsaldo_date, hid_rtsaldo_RUB, hid_rtsaldo_USD, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc";
+        $cp_fields = " password, password_type, company, comment, address_jur, status, usd_rate_percent, company_full, address_post, address_post_real, type, manager, login, inn, kpp, bik, bank_properties, signer_name, signer_position, signer_nameV, firma, currency, stamp, nal, sale_channel, uid, site_req_no, signer_positionV, credit, user_impersonate, address_connect, phone_connect, id_all4net, dealer_comment, form_type, metro_id, payment_comment, bank_city, bank_name, pay_acc, corr_acc";
 
 		# client_contacts
 		$db->Query('start transaction');
@@ -2585,7 +2498,6 @@ DBG::sql_out($select_client_data);
             "nds_calc_method" => "Метод расчета НДС",
             "name" => "Название",
             "account_manager" => "Аккаунт менеджер"
-
 		);
 		return isset($f[$l]) ? $f[$l] : $l;
 

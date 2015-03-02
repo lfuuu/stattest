@@ -275,112 +275,7 @@ class AgentReport
         return array($ret, $total);
     }
     
-    /** 
-     * Получение данных при вознагрождение "% от счета" при подсчете от "Платежей"
-     * @param array $agent информация об агенте
-     * @param string $fields  доп поля для запроса
-     * @param string $from  начало периода
-     * @param string $to  конец периода
-     * @param string $interests_types данные о подтипах поощрений агента
-     * @param array $agent_interests данные о возможных поощрениях агента
-     */
-    private static function old_getReportDataBills($agent, $fields, $from, $to, $interests_types, $agent_interests)
-    {
-        global $db;
-        $ret = array(); 
-        $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
-        $R = $db->AllRecords($q = "
-                SELECT " . $fields . " 
-                    c.id, c.client, c.company, 
-                    sum(l.sum) as bills
-                FROM
-                    clients c
-                LEFT JOIN newbills b ON (b.client_id = c.id)
-                LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
-                WHERE
-                    c.sale_channel = ".$agent['id']."
-                AND b.bill_date >= '".$from."'
-                AND b.bill_date <= '".$to."' 
-                AND l.sum > 0 
-                GROUP BY c.id
-             ");
-             
-        foreach ($R as $r) {
-            $ret[$r['id']] = array(
-                'id'=>$r['id'],
-                'client'=>$r['client'],
-                'company'=>$r['company'],
-                'psum'=>0,
-                'fsum'=>0, 
-                'period'=>0,
-                'fsums' => $interests_types);
-        }
-
-        $R2 = $db->AllRecords($q = "
-            SELECT 
-                c.id, 
-                sum(p.sum_rub) as bills_all,
-                (
-                    SELECT
-                        SUM(l.sum)
-                    FROM 
-                        newbill_lines as l
-                    WHERE 
-                            l.bill_no IN (
-                                SELECT 
-                                    o.bill_no 
-                                FROM 
-                                    newpayments_orders as o 
-                                LEFT JOIN 
-                                    newpayments as np ON o.payment_id = np.id 
-                                WHERE 
-                                        o.client_id = c.id 
-                                    AND 
-                                        payment_date >= '".$from."' 
-                                    AND
-                                        payment_date <= '".$to."' 
-                            )
-                        AND 
-                            l.item NOT LIKE '%номер%' 
-                        AND 
-                            l.item NOT LIKE '%ВАТС%'
-                ) as no_tel_sum
-            FROM
-                clients c
-            LEFT JOIN 
-                newpayments p ON (p.client_id = c.id)
-            LEFT JOIN 
-                newbills b ON (p.bill_no = b.bill_no)
-            WHERE
-                    c.sale_channel = ".$agent['id']."
-                AND
-                    p.payment_date >= '".$from."' 
-                AND
-                    p.payment_date <= '".$to."' 
-                AND 
-                    b.bill_no NOT LIKE '%/%'
-            GROUP BY c.id
-        ");
-
-        foreach ($R2 as $r) 
-        {
-            $r['bills_all'] -= $r['no_tel_sum'];
-            $r['bills'] = $r['bills_all'];
-            $ret[$r['id']]['psum'] += $r['bills'];
-            $total['psum'] += $ret[$r['id']]['psum'];
-            foreach ($interests_types as $k => $v) {
-                        $sum = round($r[$k]*$agent_interests[$k]/100, 2);
-                        $ret[$r['id']]['fsums'][$k] += $sum;
-                        $ret[$r['id']]['fsum'] += $sum;
-                        $total['fsum'] += $ret[$r['id']]['fsum'];
-            }
-        }
-        $total = AgentReport::prepareTotals($total);
-        return array($ret, $total);
-    }
-    
-    
-    /** 
+    /**
      * Получение данных при вознагрождение "% от абонентской платы"
      * @param array $agent информация об агенте
      * @param string $fields  доп поля для запроса
@@ -722,17 +617,16 @@ class AgentReport
                 p.id, 
                 UNIX_TIMESTAMP(p.payment_date) as ts,
                 p.bill_no as p_bill,
-                no.sum as p_sum,
-                p.sum_rub,
+                p.sum,
                 nl.bill_no, 
                 nl.sum, 
                 nl.item,
                 IF(nl.item like '%номер%' OR nl.item like '%ВАТС%',1,0) as is_tel
             FROM 
                 newbill_lines as nl 
-            LEFT JOIN 
-                newpayments_orders as no ON nl.bill_no = no.bill_no 
-            LEFT JOIN 
+            LEFT JOIN
+                newpayments_orders as no ON nl.bill_no = no.bill_no
+            LEFT JOIN
                 newpayments as p ON p.id = no.payment_id 
             WHERE 
                     no.client_id = ".$client_id." 
@@ -746,7 +640,7 @@ class AgentReport
         
         $totals = $db->GetRow($q = "
             SELECT 
-                sum(p.sum_rub) as bills_all,
+                sum(p.sum) as bills_all,
                 (
                     SELECT
                         SUM(l.sum)

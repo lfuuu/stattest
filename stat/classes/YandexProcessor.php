@@ -1,5 +1,4 @@
 <?php
-
 /*
 4268 0337 0354 5624
 */
@@ -140,7 +139,7 @@ class YandexProcessor
         if (!$b)
             $b = NewBill::createBillOnPay($client->id, $this->data["orderSumAmount"]);
 
-        $payment = new Payment();
+        $payment = new \app\models\Payment();
         $payment->client_id = $client->id;
         $payment->bill_no = $b ? $b->bill_no : "";
         $payment->bill_vis_no = $b ? $b->bill_no : "";
@@ -148,11 +147,13 @@ class YandexProcessor
         $payment->oper_date = $now;
         $payment->payment_date = $paymentDate;
         $payment->add_date = $now;
-        $payment->payment_rate = 1;
         $payment->type='ecash';
         $payment->ecash_operator='yandex';
-        $payment->sum_rub = $this->data["orderSumAmount"];
+        $payment->sum = $this->data["orderSumAmount"];
         $payment->currency = "RUB";
+        $payment->payment_rate = 1;
+        $payment->original_sum = $this->data["orderSumAmount"];
+        $payment->original_currency = "RUB";
         $payment->comment = "Yandex pay# ".$this->data["invoiceId"]." at ".$paymentDateFull;
         $payment->save();
 

@@ -4,13 +4,17 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int $id
+ * @property int $client_id
+ * @property int $usage_id
+ * @property string $date
+ * @property int $use_space
+ * @property int $numbers
  * @property
  */
-class TariffVoip extends ActiveRecord
+class Virtpbx extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'tarifs_voip';
+        return 'virtpbx_stat';
     }
 }

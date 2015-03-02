@@ -1,4 +1,5 @@
 <?php 
+use app\models\BillDocument;
 
 class ApiLk
 {
@@ -44,7 +45,7 @@ class ApiLk
                                 "no"   => $p["payment_no"],
                                 "date" => $p["payment_date"],
                                 "type" => self::_getPaymentTypeName($p),
-                                "sum"  => $p["sum_rub"]
+                                "sum"  => $p["sum"]
                 );
             }
             if ($b["is_lk_show"] == '1')
@@ -54,7 +55,7 @@ class ApiLk
         $sum = $sum["RUB"];
     
         $p = Payment::first(array(
-                        "select" => "sum(sum_rub) as sum",
+                        "select" => "sum(`sum`) as sum",
                         "conditions" => array("client_id" => $c->id)
         )
         );
@@ -203,7 +204,7 @@ class ApiLk
         include_once INCLUDE_PATH.'bill.php';
         include_once PATH_TO_ROOT . "modules/newaccounts/module.php";
         $curr_bill = new Bill($billNo);
-        $dt = $curr_bill->getBill2Doctypes();
+        $dt = BillDocument::dao()->getByBillNo($curr_bill->GetNo());
 
 
         $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
@@ -432,7 +433,6 @@ class ApiLk
             ', array($clientId)) as $v)
         {
             $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","city"), $v);
-            //$line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
     
@@ -672,7 +672,6 @@ class ApiLk
             ", array($currency, $status)) as $service)
         {
             $line = self::_exportModelRow(array("id", "description", "period", "price", "num_ports", "overrun_per_port", "space", "overrun_per_gb", "is_record", "is_web_call", "is_fax"), $service);
-            //$line['price'] = (double)round($line['price']*1.18);
             $ret[] = $line;
         }
         return $ret;
@@ -1919,7 +1918,6 @@ class ApiLk
                 {
                     case 'yandex': $v = "Яндекс.Деньги"; break;
                     case 'cyberplat': $v = "Cyberplat"; break;
-                    case 'uniteller': $v = "Uniteller"; break;
                 }
                 break;
         	default: $v = "Банк";

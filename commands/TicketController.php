@@ -1,8 +1,13 @@
 <?php
 namespace app\commands;
 
+use app\classes\bill\ClientAccountBiller;
 use app\classes\enum\TicketStatusEnum;
+use app\models\Bill;
+use app\models\ClientAccount;
+use app\models\Payment;
 use app\models\support\Ticket;
+use app\models\Transaction;
 use app\models\Trouble;
 use yii\console\Controller;
 
@@ -26,5 +31,4 @@ class TicketController extends Controller
             Trouble::dao()->updateTroubleBySupportTicket($ticket);
         }
     }
-
 }

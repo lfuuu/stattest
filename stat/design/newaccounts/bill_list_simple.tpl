@@ -19,48 +19,46 @@
 <Table width=100% border=0>
 <tr style="background-color: #eaeaea;">
 	<td>Всего залогов:</td>
-	<td align=right> <b>{$sum_l.zalog.RUB|round:2} р.</b> </td>
-	<td>/</td>
-	<td align=right> <b>{$sum_l.zalog.USD|round:2} $</b> </td>
+	<td align=right> <b>{$sum_l.zalog.RUB|money:'RUB'}</b> </td>
+	<td></td>
+	<td align=right> <b>{$sum_l.zalog.USD|money:'USD'}</b> </td>
 </tr>
 
-<!--tr style="background-color: #eaeaea;">
-	<td>Всего услуг и товаров:</td>
-	<td align=right> <b>{$sum_l.service_and_goods.RUB|round:2} р.</b> </td>
-	<td>/</td>
-	<td align=right> <b>{$sum_l.service_and_goods.USD|round:2} $</b></td>
-</tr-->
 <tr>
 	<td>Всего платежей:</td>
-	<td align=right> <b>{$sum_l.payments|round:2|default:'0.00'} р.</b></td>
+	<td align=right> <b>{$sum_l.payments|default:'0.00'|money:'RUB'}</b></td>
 	<td></td>
 	<td></td>
 </tr>
 
 <tr  style="background-color: #eaeaea;">
 	<td>Общая сумма оказанных услуг:</td>
-	<td align=right> <b> {if $fixclient_data.currency=='USD'} {$sum.RUB.bill|round:2} р.{else}{$sum_cur.bill|round:2} р. {/if}</td>
-	<td>/</td>
-	<td align=right>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|round:2} ${else} <b>{$sum.USD.bill|round:2} $</b>{/if}</td>
+	<td align=right><b>{if $fixclient_data.currency=='USD'}{$sum.RUB.bill|money:'RUB'}{else}{$sum_cur.bill|money:'RUB'}{/if}</b></td>
+	<td></td>
+	<td align=right><b>{if $fixclient_data.currency=='USD'}{$sum_cur.bill|money:'USD'}{else}{$sum.USD.bill|money:'USD'}{/if}</b></td>
 </tr>
 
 
 <tr>
 	<td>Общая сумма <span title='Клиент должен нам'>долга</span> (с учётом сальдо):</td>
-    <td align=right> <b>
+    <td align=right>
+		<b>
             {if $fixclient_data.currency!='USD'}
-                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum_cur.delta|round:2}{/if}
+                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:'RUB'}{else}{$sum_cur.delta|money:'RUB'}{/if}
             {else}
-                {if isset($sum.RUB.saldo)}{$sum.RUB.delta+$sum.RUB.saldo|round:2}{else}{$sum.RUB.delta|round:2}{/if}
-            {/if} р.</b>
+                {if isset($sum.RUB.saldo)}{$sum.RUB.delta+$sum.RUB.saldo|money:'RUB'}{else}{$sum.RUB.delta|money:'RUB'}{/if}
+            {/if}
+		</b>
     </td>
     <td></td>
-    <td align=right><b>
+    <td align=right>
+		<b>
             {if $fixclient_data.currency=='USD'}
-                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|round:2}{else}{$sum_cur.delta|round:2}{/if}
+                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:'USD'}{else}{$sum_cur.delta|money:'USD'}{/if}
             {else}
-                {if isset($sum.USD.saldo)}{$sum.USD.delta+$sum.USD.saldo|round:2}{else}{$sum.USD.delta|round:2}{/if}
-            {/if} $</b>
+                {if isset($sum.USD.saldo)}{$sum.USD.delta+$sum.USD.saldo|money:'USD'}{else}{$sum.USD.delta|money:'USD'}{/if}
+            {/if}
+		</b>
     </td>
 </tr>
 
@@ -70,20 +68,22 @@
 
 <td valign=top style="padding-left: 100px;" align=right>
 {if $counters}
-<table>
-<tr>
-    <td>
-        <b>IP-Телефония:</b><br/>
-        Расход за день: <b>{$counters.amount_day_sum}</b><br/>
-        Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-        Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
-    </td>
-</tr>
-</table>
+    <table>
+        <tr>
+            <td>
+                <b>IP-Телефония:</b><br/>
+                Расход за день: <b>{$counters.amount_day_sum}</b><br/>
+                Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
+                Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
+            </td>
+        </tr>
+    </table>
 {/if}
 </td>
 </tr>
 </table>
+
+{include file='newaccounts/bill_list_part_transactions.tpl'}
 
 <TABLE class=price cellSpacing=3 cellPadding=1 border=0 width=100%><TR>
 	<TD class=header vAlign=bottom colspan=3>Счёт</td>
@@ -112,9 +112,7 @@
 	<TD rowspan={$rowspan} class=pay{$op.bill.is_payed}>
 		<a href='{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}'>{$op.bill.bill_no}</a>
 	</TD>
-	<TD rowspan={$rowspan} align=right>{$op.bill.sum} {if $op.bill.currency=='USD'}${else}р{/if}
-	{if $op.bill.gen_bill_rub!=0}<br><span style='font-size:85%' title='Сумма счёта, {$op.bill.gen_bill_date}'>{$op.bill.gen_bill_rub} р</span>{/if}
-	</TD>
+	<TD rowspan={$rowspan} align=right>{$op.bill.sum|money:$op.bill.currency}</TD>
 {else}
 	<TD colspan=3 rowspan={$rowspan}>&nbsp;</TD>
 {/if}

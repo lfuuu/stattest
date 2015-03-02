@@ -56,7 +56,7 @@ class CompatibilityController extends BaseController
         $fixclient_data = array();
 
         if ($module != 'clients' && $fixclient) {
-            $fixclient_data = StatModule::clients()->get_client_info($fixclient);
+            $this->applyFixClient($fixclient);
         }
 
         $design->assign('authuser', $user->_Data);
@@ -70,7 +70,7 @@ class CompatibilityController extends BaseController
         $renderLayout = $lite === false && !$design->ignore;
 
         if ($fixclient) {
-            $fixclient_data = StatModule::clients()->get_client_info($fixclient);
+            $this->applyFixClient($fixclient);
         }
 
         if (

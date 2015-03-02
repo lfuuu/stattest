@@ -10,12 +10,6 @@ H3 {
 H4 {
 	FONT-WEIGHT: normal; FONT-SIZE: 100%; MARGIN: 1em 0px 0.3em
 }
-SPAN.date {
-	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; FONT-SIZE: 9px; PADDING-BOTTOM: 2px; COLOR: #333333; PADDING-TOP: 2px; FONT-FAMILY: Tahoma, Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #ffffff
-}
-DIV.date {
-	PADDING-RIGHT: 2px; BORDER-TOP: #0074aa 2px solid; PADDING-LEFT: 2px; FONT-SIZE: 9px; PADDING-BOTTOM: 2px; COLOR: #333333; PADDING-TOP: 2px; FONT-FAMILY: Tahoma, Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #ffffff
-}
 DIV.leftmenu {
 	FONT-SIZE: 11px; MARGIN: 20px; COLOR: #333333
 }

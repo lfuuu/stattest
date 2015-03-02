@@ -431,10 +431,10 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 <td align="right">{$line.amount|round:2}</td>
 <td align='right'>{$line.outprice|round:2}</td>
-<td align="right">{$line.sum|round:2}</td>
+<td align="right">{$line.sum_without_tax|round:2}</td>
 <td align="right">{$line.line_nds|round:0}</td>
-<td align="right">{$line.tax|round:2}</td>
-<td align="right">{$line.tsum|round:2}</td>
+<td align="right">{$line.sum_tax|round:2}</td>
+<td align="right">{$line.sum|round:2}</td>
 </tr>
 {/foreach}
 
@@ -444,11 +444,10 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 <td align='right'>{$total_amount|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$bill.sum|round:2}</td>
+<td align="right">{$line.sum_without_tax|round:2}</td>
 <td align="right">Х </td>
-<!--td align="right">{$bill.tax|round:2}</td-->
-<td align="right">{$bill.tax}{*$bill.tsum/1.18*0.18|round:2*}</td>
-<td align="right">{$bill.tsum|round:2}</td>
+<td align="right">{$line.sum_tax|round:2}</td>
+<td align="right">{$bill.sum|round:2}</td>
 </tr>
 <tr>
 <td colspan="7" align="right">Всего по накладной</td>
@@ -456,11 +455,10 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <td>&nbsp;</td>
 <td align='right'>{$total_amount|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$bill.sum|round:2}</td>
+<td align="right">{$line.sum_without_tax|round:2}</td>
 <td align="right">Х </td>
-<td align="right">{$bill.tax|round:2}</td>
-<!-- td align="right">{$bill.tsum/1.18*0.18|round:2}</td-->
-<td align="right">{$bill.tsum|round:2}</td>
+<td align="right">{$line.sum_tax|round:2}</td>
+<td align="right">{$bill.sum|round:2}</td>
 </tr>
 </table>
 <hr>
@@ -494,7 +492,7 @@ style="font-size: 10pt; font-weight: bold">{$bill.bill_no}</td>
 <table cellspacing=0 cellpadding=0 border=0 width=100% class=z11><tbody>
 
 <tr>
-<td align="left" valign="top" colspan="8" rowspan="2">Всего отпущено на сумму: {$bill.tsum|wordify:'RUB'}</td>
+<td align="left" valign="top" colspan="8" rowspan="2">Всего отпущено на сумму: {$bill.sum|wordify:'RUB'}</td>
 <td>&nbsp;</td>
 <td align="left" valign="top" colspan="2" style="border-left:1px solid">По доверенности &#8470;</td>
 <td align="center" valign="bottom" style="border-bottom:1px solid">&nbsp;</td>

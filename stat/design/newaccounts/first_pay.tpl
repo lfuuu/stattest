@@ -40,7 +40,7 @@
 				<td></td>
 				<td></td>
 				<td></td>
-				<td>{$item.sum_rub}<br>({$item.first_pay_data})</td>
+				<td>{$item.sum}<br>({$item.first_pay_data})</td>
 				</tr>
 
 	{if count($item.voip) >= 1}

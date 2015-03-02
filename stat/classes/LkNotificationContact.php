@@ -190,9 +190,9 @@ class LkNotificationContact
                     $client->balance -= self::$billingCounters[$C->client_id]['amount_sum'];
                 }
 
-                LkNotificationLog::addLogRaw($C->client_id, $C->id, 'add_pay_notif', true, $client->balance, 0, $pay->sum_rub);
+                LkNotificationLog::addLogRaw($C->client_id, $C->id, 'add_pay_notif', true, $client->balance, 0, $pay->sum);
 
-                $Notification = new LkNotification($C->client_id, $C->id, 'add_pay_notif', $pay->sum_rub, $client->balance);
+                $Notification = new LkNotification($C->client_id, $C->id, 'add_pay_notif', $pay->sum, $client->balance);
                 $Notification->send();
             }
         }

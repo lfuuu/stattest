@@ -8,6 +8,7 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property string $short_name
  * @property int $code
+ * @property string $timezone_name
  * @property
  */
 class Region extends ActiveRecord

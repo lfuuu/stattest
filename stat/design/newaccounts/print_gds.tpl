@@ -25,12 +25,12 @@
 			<td align="left">{$l.item}&nbsp;{if $serials && isset($serials[$l.code_1c])}<br>(с/н: {foreach from=$serials[$l.code_1c] item=s name=foreach_ss}{if $smarty.foreach.foreach_ss.iteration > 1},{/if} {$s}{/foreach}){/if}</td>
 			<td align="center">{$l.amount|round:0} шт.</td>
 			<td align="center">{$l.price*1.18|round:2} руб.</td>
-			<td align="center">{if $l.line_nds == 18}{$l.sum*1.18|round:2}{else}{$l.sum|round:2}{/if} руб.</td>
+			<td align="center">{$l.sum|round:2} руб.</td>
 		</tr>
 		{/foreach}
 	</table>
 	<br />
-	<p>Сумма: {$bill.tsum|round:2} руб. (сумма прописью: {$bill.tsum|wordify:'RUB'})</p>
+	<p>Сумма: {$bill.sum|round:2} руб. (сумма прописью: {$bill.sum|wordify:'RUB'})</p>
 	<p>Подпись продавца ____________________</p>
 	<br /><br />
 	<p>Товар получил.<br />Претензий по количеству и качеству не имею.<br />

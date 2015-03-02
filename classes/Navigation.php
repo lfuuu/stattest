@@ -85,7 +85,11 @@ class Navigation
                 ->setTitle($title)
             ;
         foreach ($items as $item) {
-            $block->addItem($item[0], '?' . $item[1]);
+            $url =
+                substr($item[1], 0, 1) == '/'
+                    ? $item[1]
+                    : '?' . $item[1];
+            $block->addItem($item[0], $url);
         }
 
         $this->addBlock($block);

@@ -1,4 +1,6 @@
-<?
+<?php
+use yii\helpers\Url;
+
 abstract class IModuleHead {
 	public $module_name = '';
 	public $module_title = '';
@@ -25,8 +27,13 @@ abstract class IModuleHead {
 		$R=array(); $p=0;
 		foreach($this->menu as $val){
 			if ($val=='') {
-				$p++;
-				$R[]='';
+                $p++;
+                $R[] = '';
+            }elseif(is_callable($val[1])) {
+                $getRoute = $val[1];
+                if ($route = $getRoute()) {
+                    $R[] = [$val[0], Url::to($route), '', ''];
+                }
 			} else {
 				$act=$this->actions[$val[1]];
 				if (access($act[0],$act[1])) $R[]=array($val[0],'module='.$this->module_name.'&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));

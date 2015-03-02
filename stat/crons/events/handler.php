@@ -54,7 +54,6 @@ function do_events()
         Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
         try{
-
             switch($event->event)
             {
                 case 'company_changed':     EventHandler::companyChanged($param); break;
@@ -73,7 +72,6 @@ function do_events()
                 case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();echo "...ats2Numbers::check()";
                                  virtPbx::check();echo "...virtPbx::check()";
-                                 EventHandler::updateSubscribeMass();echo "...EventHandler::updateSubscribeMass()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
                                  }

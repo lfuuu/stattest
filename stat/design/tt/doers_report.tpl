@@ -8,21 +8,7 @@
 	<th width='30%'>Задание</td>
 	<th width='20%'>Подпись</td>
 </tr>
-{*{foreach from=$report_data item="one_day" key="date"}
-	<tr align='center'>
-		<td rowspan='{$one_day.rowspan}'>{$date}</td>
-		{foreach from=$one_day.doers item="tasks" key="doer"}
-			{foreach from=$tasks.tasks item="task"}
-				<td>{$doer}</td>
-				<td>{$task.company}</td>
-				<td>{$task.task}{if $task.type eq 'USD'}${/if}</td>
-				<td>&nbsp;</td>
-	</tr>
-	<tr align='center'>
-			{/foreach}
-		{/foreach}
-	</tr>
-{/foreach}*}
+
 {foreach from=$report_data item="one_day" key="date"}
 	<tr align='center'>
 		<td rowspan='{$one_day.rowspan}'>{$date}</td>

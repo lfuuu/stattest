@@ -82,7 +82,6 @@ function checkPeriod()
           <td valign=top>
           		<input type=checkbox name=ecashs[cyberplat]{if $ecashs.cyberplat} checked{/if}>Cyberplat
           		<input type=checkbox name=ecashs[yandex]{if $ecashs.yandex} checked{/if}>Яндекс.Деньги
-          		<input type=checkbox name=ecashs[uniteller]{if $ecashs.uniteller} checked{/if}>Uniteller
 			</td></tr>
 		<tr>
 			<td class="left">Пользователь: </td>
@@ -102,7 +101,7 @@ function checkPeriod()
 					<option value="add_date" {if $order_by == "add_date"}selected{/if}>Дате заненсения платежа</option>
 					<option value="C.client" {if $order_by == "C.client"}selected{/if}>Клиенту</option>
 					<option value="payment_no" {if $order_by == "payment_no"}selected{/if}>Номеру платежа</option>
-					<option value="sum_rub" {if $order_by == "sum_rub"}selected{/if}>Сумме</option>
+					<option value="sum" {if $order_by == "sum"}selected{/if}>Сумме</option>
 				</select>
 			</td>
 		</tr>
@@ -169,7 +168,7 @@ $( "#to_period" ).datepicker({
 	<td>{$item.payment_no}</td>
 	<td>{$item.payment_date}</td>
 	<td>{$item.oper_date}</td>
-	<td align=right>{$item.sum_rub|num_format:true:2}{if $item.currency=='USD'}${else}р{/if}{if $item.payment_rate!=1}<span style='font-size:85%'> / {$item.payment_rate}</span>{/if}</td>
+	<td align=right>{$item.sum|money:$item.currency}</td>
 	<td>{$item.bill_no}<span style='font-size:85%'> от {$item.bill_date}</span></td>
 	<td style='font-size:85%'>{$item.user}</td>
 	<td style='font-size:85%'>{$item.add_date}</td>
