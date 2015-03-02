@@ -1,19 +1,24 @@
 <?php
 
-class m150227_132847_update_statuses extends \app\classes\Migration
+class m150302_132848_update_contract_type extends \app\classes\Migration
 {
     public function up()
     {
         
-        //добавление и замена строчек таблицы grid_settings
-        $this->executeSqlFile('grid_settings_dump.sql'); 
+        $this->execute("
+           UPDATE `client_contract_type` SET `id`='3',`name`='Межоператорка',`sort`='3' WHERE `id`='3';
+        ");
+        //удаление типа договора "входящие"
+        $this->execute("
+           delete from `client_contract_type` WHERE `id`='1';
+        ");
         
 
     }
 
     public function down()
     {
-        echo "m150227_132847_update_statuses cannot be reverted.\n";
+        echo "m150302_132848_update_contract_type cannot be reverted.\n";
 
         return false;
     }
