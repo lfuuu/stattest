@@ -1270,8 +1270,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 $subj=1;
 
             $design->assign('tt_subject',$subj);
-            if($tt_design)
-                $design->assign('tt_design',$tt_design);
+            $design->assign('tt_design',$tt_design);
             $design->assign('tt_client',$client);
             $design->assign('tt_service',$service);
             $design->assign('tt_service_id',$service_id);
