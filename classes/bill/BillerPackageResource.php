@@ -33,8 +33,6 @@ class BillerPackageResource extends BillerPackage
     {
         $currentPeriod = $this->billerPeriodTo->getTimestamp() - $this->billerPeriodFrom->getTimestamp();
         $effectivePeriod = $this->billerActualTo->getTimestamp() - $this->billerActualFrom->getTimestamp();
-        $minPayment = $this->minPayment * $effectivePeriod / $currentPeriod;
-
 
         $amount = $this->amount - ($this->freeAmount ? $this->freeAmount : 0);
         if ($amount < 0) {
@@ -43,10 +41,10 @@ class BillerPackageResource extends BillerPackage
         $amount = round($amount, 6);
         $price = $this->price;
 
-        if (round($amount * $price, 2) < $minPayment) {
+        if (round($amount * $price, 2) < $this->minPayment * $effectivePeriod / $currentPeriod) {
+            $amount = $effectivePeriod / $currentPeriod;
+            $price = $this->minPayment;
             $template = $this->minPaymentTemplate;
-            $amount = 1;
-            $price = $minPayment;
         } else {
             $template = $this->template;
         }

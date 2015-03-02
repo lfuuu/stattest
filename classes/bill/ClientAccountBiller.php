@@ -138,7 +138,7 @@ class ClientAccountBiller
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $transactionTypes = [];
-            if ($this->connecting) $transactionTypes[] = Transaction::TYPE_CONNECTION;
+            if ($this->connecting) $transactionTypes[] = Transaction::TYPE_CONNECTING;
             if ($this->periodical) $transactionTypes[] = Transaction::TYPE_PERIODICAL;
             if ($this->resource) $transactionTypes[] = Transaction::TYPE_RESOURCE;
 

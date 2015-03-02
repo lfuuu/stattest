@@ -23,7 +23,7 @@ class BillerPackageConnecting extends BillerPackage
             $transaction->billing_period = $this->billerPeriodFrom->format('Y-m-d');
             $transaction->service_type = $this->usage->getServiceType();
             $transaction->service_id = $this->usage->id;
-            $transaction->transaction_type = Transaction::TYPE_CONNECTION;
+            $transaction->transaction_type = Transaction::TYPE_CONNECTING;
             $transaction->name = $name;
             $transaction->transaction_date = $this->usageActualFrom->format('Y-m-d H:i:s');
             $transaction->amount = $this->amount;
