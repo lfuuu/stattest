@@ -11,7 +11,7 @@ class Navigation
 
     private function __construct()
     {
-        //$this->addBlockForStatModule('clients');
+        $this->addBlockForStatModule('clients');
         $this->addBlockNewClients();
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
