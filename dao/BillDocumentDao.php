@@ -76,7 +76,7 @@ class BillDocumentDao extends Singleton
             $docs = new BillDocument();
             $docs->bill_no = $billNo;
         }
-        $data['bill_no'] = $this->bill_no;
+        $data['bill_no'] = $billNo;
         $docs->ts = date('Y-m-d H:i:s');
         $docs->setAttributes($doctypes, false);
         $docs->save();
