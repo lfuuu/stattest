@@ -284,6 +284,7 @@ class m_services extends IModule{
 
             $design->assign('serv_routers',$R);
             $design->AddMain('services/internet_select.tpl');            
+            return $R;
         } else {
             $connections=array();
             $ports=$this->get_ports($fixclient,0);
@@ -300,6 +301,7 @@ class m_services extends IModule{
             $design->assign("now",$now);
             $design->assign('internet_suffix','internet');
             $design->AddMain('services/internet.tpl',1);
+            return $connections;
         }
     }
     function services_in_view_ind($fixclient){
@@ -554,6 +556,7 @@ class m_services extends IModule{
             $design->assign('internet_suffix','collocation');
             $design->AddMain('services/internet.tpl'); 
         }
+        return $connections;
     }
     
     function services_co_add($fixclient){
@@ -638,6 +641,7 @@ class m_services extends IModule{
             $design->assign('voip_conn',$R);
             $design->assign('has_trunk',$has_trunk);
             $design->AddMain('services/voip_all.tpl'); 
+            return $R;
         } else {
 
             global $db_ats;
@@ -714,6 +718,8 @@ class m_services extends IModule{
 
             if(get_param_raw("action", "") == "vo_view")
                 $this->services_vo_permit($fixclient);
+
+            return $R;
         }
     }
 
@@ -1089,7 +1095,7 @@ class m_services extends IModule{
         foreach($db->AllRecords("SELECT data as email 
                     FROM `client_contacts` cc, clients c 
                     where c.client = '".$fixclient."' and client_id = c.id and cc.type = 'email' 
-                    and is_active 
+                    and cc.is_active 
                     order by data") as $l)
             $emails[$l["email"]] = $l["email"];
 
@@ -1408,6 +1414,7 @@ class m_services extends IModule{
         while($r=$db->NextRecord())
             $R[]=$r;
         $design->assign('mails',$R);
+        $res = $R ? true : false;
 
         $db->Query($q='
             select
@@ -1422,6 +1429,9 @@ class m_services extends IModule{
 
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         $design->assign('mailservers',$R);
+
+        if (!$res && $R)
+            $res = true;
         
         $db->Query('
             select
@@ -1435,6 +1445,8 @@ class m_services extends IModule{
         $design->assign('mailservers_id',$r['id']);
 
         $design->AddMain('services/mail.tpl'); 
+
+        return $res;
     }
     
     function whitelist_load($fixclient,$filter,&$domains,&$mails,&$MCN,&$whlist){
@@ -1830,6 +1842,7 @@ class m_services extends IModule{
 
         $design->assign('services_ex',$R);
         $design->AddMain('services/ex.tpl'); 
+        return $R;
     }
     function services_ex_act($fixclient){
         global $design,$db;
@@ -1904,6 +1917,7 @@ class m_services extends IModule{
         }
         $design->assign('adds',$R);
         $design->AddMain('services/ad.tpl'); 
+        return $R;
     }
     function services_ad_act($fixclient){
         global $design,$db;
@@ -2045,6 +2059,7 @@ class m_services extends IModule{
 
         $design->assign('services_it',$R);
         $design->AddMain('services/it.tpl');
+        return $R;
     }
     function services_it_add($fixclient){
         global $design,$db;
@@ -2133,6 +2148,7 @@ class m_services extends IModule{
         $design->assign('virtpbx_akt',$isViewAkt);
         $design->assign('services_virtpbx',$R);
         $design->AddMain('services/virtpbx.tpl');
+        return $R;
     }
     function services_virtpbx_add($fixclient){
         global $design,$db;
@@ -2293,6 +2309,7 @@ class m_services extends IModule{
 
         $design->assign('services_8800',$R);
         $design->AddMain('services/8800.tpl');
+        return $R;
     }
     function services_8800_add($fixclient){
         global $design,$db;
@@ -2388,6 +2405,7 @@ class m_services extends IModule{
 
         $design->assign('services_sms',$R);
         $design->AddMain('services/sms.tpl');
+        return $R;
     }
     function services_sms_add($fixclient){
         global $design,$db;
@@ -2513,7 +2531,10 @@ class m_services extends IModule{
 
         $design->assign('services_welltime',$R);
         $design->AddMain('services/welltime.tpl');
+
+        return $R;
     }
+
     function services_welltime_add($fixclient){
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
@@ -2578,6 +2599,7 @@ class m_services extends IModule{
 
         $design->assign('services_wellsystem',$R);
         $design->AddMain('services/wellsystem.tpl');
+        return $R;
     }
     function services_wellsystem_add($fixclient){
         global $design,$db;
@@ -2618,6 +2640,7 @@ class m_services extends IModule{
             $R[]=$r;
         $design->assign('ppps',$R);
         $design->AddMain('services/ppp.tpl'); 
+        return $R;
     }
     function services_ppp_add($fixclient){
         global $design,$db;

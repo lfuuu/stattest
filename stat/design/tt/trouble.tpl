@@ -67,13 +67,13 @@
             {$tt_trouble.problem|escape|replace:"\\n":"\n"|replace:"\\r":""|replace:"\n\n":"\n"|replace:"\n\n":"\n"|replace:"\n":"<br>"}
         </td>
     </tr>
-{if access('tt','time') && $tt_write && $tt_trouble.state_id != 20 && $tt_trouble.state_id != 39}
+{if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td align="right">Добавить времени (часов)</td>
         <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text class=text name=time value='1'> <input type=submit class=button value='Добавить'> (введите отрицательное число, чтобы отнять время)</form></td>
     </tr>
 {/if}
-{if access('tt','time') && $tt_write && $tt_trouble.state_id != 20 && $tt_trouble.state_id != 39}
+{if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td  align="right" title="С какого момента показывать">Дата активации </td>
         <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start}"> <input type=submit class=button value='Установить'></form></td>
@@ -154,7 +154,7 @@
                 {/foreach}
             </table>
 
-            {if ($tt_write || $tt_doComment) && $tt_trouble.state_id != 20 && $tt_trouble.state_id != 39}{*не закрыт*}
+            {if ($tt_write || $tt_doComment) && $tt_edit || (access('tt', 'rating') && !$tt_edit && !$rated && $tt_trouble.state_id == 2)}{*не закрыт или закрыт и рейтинг не стоит*}
                 <form action="index_lite.php" method="post" id="state_1c_form">
                     <input type="hidden" name="module" value="tt" />
                     <input type="hidden" name="action" value="rpc_setState1c" />

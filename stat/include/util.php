@@ -743,7 +743,7 @@ class ClientCS {
                 $this->P = $get_params;
             } else {
                 $L="client,currency,credit,password,company,company_full,address_jur,address_post,address_connect,phone_connect,sale_channel," .
-                        "telemarketing,account_manager,manager,support,address_post_real,bik,bank_properties,signer_name,signer_position,firma," .
+                        "account_manager,manager,address_post_real,bik,bank_properties,signer_name,signer_position,firma," .
                         "usd_rate_percent,company_full,type,login,inn,kpp,form_type,stamp,nal,signer_nameV,signer_positionV,id_all4net,".
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
@@ -936,7 +936,9 @@ class ClientCS {
             "status" => "income", 
             "firma" => "mcn_telekom", 
             "password" => password_gen(8, false), 
-            "contract_type_id" => 2, /* Телеком-клиент */
+            "contract_type_id" => 2, // Телеком-клиент
+            "business_process_id" => 1, //Сопровождение
+            "business_process_status_id" => 1, //Входящие
             "voip_credit_limit_day" => 1000,
             "voip_is_day_calc" => 1
         );
@@ -1078,8 +1080,8 @@ class ClientCS {
 
         if (isset($this->status)) self::updateProperty($cid,'status',$this->status,-$this->id,true);
         self::updateProperty($cid,'manager',$this->manager,-$this->id,true);
-        self::updateProperty($cid,'support',$this->support,-$this->id,true);
-        self::updateProperty($cid,'telemarketing',$this->telemarketing,-$this->id,true);
+        //self::updateProperty($cid,'support',$this->support,-$this->id,true);
+        //self::updateProperty($cid,'telemarketing',$this->telemarketing,-$this->id,true);
         return true;
     }
     private function post_apply($uid = null,$create = false) {
@@ -1242,34 +1244,48 @@ class ClientCS {
     function __unset($k) { unset($this->F[$k]); }
 
 
-    function Add($status,$comment) {        //добавляет статус
+    function Add($comment) {        //добавляет коментарий
         global $db,$user;
-        $db->Query("select status from clients where id=".$this->id);
-        $r=$db->NextRecord();
-        if ($r['status']==$status) $status="";
-        $db->QueryInsert("client_statuses", array(
-                    "ts" => array('NOW()'),
-                    "id_client" => $this->id,
-                    "user" => $user->Get('user'),
-                    "status" => $status,
-                    "comment" => $comment)
-        );
 
-        if($status){
-            $db->QueryUpdate("clients", "id", array("id" => $this->id, "status" => $status));
+        $comment = trim($comment);
+
+        if ($comment)
+        {
+            $db->QueryInsert("client_statuses", array(
+                "ts" => array('NOW()'),
+                "id_client" => $this->id,
+                "user" => $user->Get('user'),
+                "status" => "",
+                "comment" => $comment)
+            );
         }
     }
 
-    function SetContractType($contractTypeId)
+    function SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId)
     {
         global $db;
         $client = app\models\ClientAccount::findOne($this->id);
 
-        if ($client->contract_type_id != $contractTypeId)
-        {
-            $client->contract_type_id = $contractTypeId;
-            $client->save();
 
+        if (
+            ($client->contract_type_id != $contractTypeId && $contractTypeId != 0)
+            || ($client->business_process_id != $businessProcessId && $businessProcessId != 0)
+            || ($client->business_process_status_id != $businessProcessStatusId && $businessProcessStatusId != 0)
+        )
+        {
+            if($client->contract_type_id != $contractTypeId && $contractTypeId != 0){
+                $client->contract_type_id = $contractTypeId;
+            }
+
+            if ($client->business_process_id != $businessProcessId && $businessProcessId != 0){
+                $client->business_process_id = $businessProcessId;
+            }
+
+            if ($client->business_process_status_id != $businessProcessStatusId && $businessProcessStatusId != 0){
+                $client->business_process_status_id = $businessProcessStatusId;
+            }
+
+            $client->save();
         }
     }
 
@@ -1961,7 +1977,7 @@ class send
 
 class event
 {
-    public static function go($event, $param = "")
+    public static function go($event, $param = "", $isForceAdd = false)
     {
         if (is_array($param))
         {
@@ -1971,7 +1987,11 @@ class event
 
         $code = md5($event."|||".$param);
 
-        $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+        $row = null;
+        if (!$isForceAdd)
+        {
+            $row = EventQueue::first(['conditions' => ["code = ? and status not in (?, ?)", $code, "ok", "stop"]]);
+        }
 
         if (!$row)
         {

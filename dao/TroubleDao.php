@@ -2,7 +2,7 @@
 namespace app\dao;
 
 use app\classes\Assert;
-use app\classes\enum\ServiceTypeEnum;
+use app\classes\enum\DepartmentEnum;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\support\Ticket;
@@ -29,18 +29,19 @@ class TroubleDao extends Singleton
                 ->queryScalar();
     }
 
-    public function createTroubleForSupportTicket($clientAccountId, $serviceType, $subject, $description, $supportTicketId)
+    public function createTroubleForSupportTicket($clientAccountId, $department, $subject, $description, $supportTicketId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
         Assert::isObject($clientAccount);
 
         $problem = '';
-        if ($serviceType) {
-          $problem .= 'Тип услуги: ' . ServiceTypeEnum::getName($serviceType) . "\n";
+        if ($department) {
+          $problem .= 'Отдел: ' . DepartmentEnum::getName($department) . "\n";
         }
         $problem .= 'Тема: ' . $subject . "\n";
         $problem .= $description;
 
+        $supportUser = $this->getUserByDepartment($department);
 
         $transaction = Trouble::getDb()->beginTransaction();
         try {
@@ -48,7 +49,7 @@ class TroubleDao extends Singleton
             $trouble->trouble_type = Trouble::TYPE_TROUBLE;
             $trouble->trouble_subtype = Trouble::SUBTYPE_TROUBLE;
             $trouble->client = $clientAccount->client;
-            $trouble->user_author = Trouble::DEFAULT_SUPPORT_USER;
+            $trouble->user_author = $supportUser;
             $trouble->date_creation = (new \DateTime())->format(\DateTime::ATOM);
             $trouble->problem = $problem;
             $trouble->folder = Trouble::DEFAULT_SUPPORT_FOLDER;
@@ -58,7 +59,7 @@ class TroubleDao extends Singleton
             $stage = new TroubleStage();
             $stage->trouble_id = $trouble->id;
             $stage->state_id = Trouble::DEFAULT_SUPPORT_STATE;
-            $stage->user_main = Trouble::DEFAULT_SUPPORT_USER;
+            $stage->user_main = $supportUser;
             $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
             $stage->date_finish_desired = $stage->date_start;
             $stage->save();
@@ -79,18 +80,20 @@ class TroubleDao extends Singleton
         $trouble = Trouble::findOne(['support_ticket_id' => $ticket->id]);
         if (!$trouble) return;
 
+        $supportUser = $this->getUserByDepartment($ticket->department);
+
         $oldStage = TroubleStage::findOne($trouble->cur_stage_id);
         Assert::isObject($oldStage);
 
         $newStateId = $ticket->spawnTroubleStatus();
         if ($newStateId != $oldStage->state_id) {
-          $oldStage->user_edit = Trouble::DEFAULT_SUPPORT_USER;
+          $oldStage->user_edit = $supportUser;
           $oldStage->save();
 
           $stage = new TroubleStage();
           $stage->trouble_id = $trouble->id;
           $stage->state_id = $newStateId;
-          $stage->user_main = Trouble::DEFAULT_SUPPORT_USER;
+          $stage->user_main = $supportUser;
           $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
           $stage->save();
 
@@ -118,5 +121,18 @@ class TroubleDao extends Singleton
         $ticket->setStatusByTroubleState($stage->state_id);
         $ticket->updated_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM);
         $ticket->save();
+    }
+
+    private function getUserByDepartment($department)
+    {
+        if ($department == DepartmentEnum::SALES) {
+            return Trouble::DEFAULT_SUPPORT_SALES;
+        } elseif ($department == DepartmentEnum::ACCOUNTING) {
+            return Trouble::DEFAULT_SUPPORT_ACCOUNTING;
+        } elseif ($department == DepartmentEnum::TECHNICAL) {
+            return Trouble::DEFAULT_SUPPORT_TECHNICAL;
+        } else {
+            return Trouble::DEFAULT_SUPPORT_USER;
+        }
     }
 }

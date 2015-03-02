@@ -364,6 +364,28 @@ var optools = {
 			}
 		}
 	},
+    service: {
+        voip: {
+            accountId: 0,
+            initVoipDisabledSaver:function(_accountId) {
+                optools.service.voip.accountId = _accountId;
+                $("input#voip_disabled").click(function(){
+                    var isDisabled = false;
+                    if ($(this).is(":checked"))
+                    {
+                        isDisabled = true;
+                    }
+
+                    $.get("./index_lite.php?module=clients&account_id="+optools.service.voip.accountId+"&action=rpc_setVoipDisabled&is_disabled="+(isDisabled ? "true" : "false")).done(function(data){
+                        if(data != 'ok') 
+                        {
+                            alert("ошибка сохранения");
+                        }
+                    });
+                });
+            }
+        }
+    },
 	tt:{
 		refix_buffer:{
 			trash:null,
@@ -833,6 +855,143 @@ var optools = {
 			}
 		}
 	},
+    client:{
+        clientId: null,
+        initBlocked: function(clientId)
+        {
+            optools.client.clientId = clientId;
+            $("#block-btn-work, #block-btn-block").click(function(event) {
+                var id = $(event.target).attr("id");
+                var toWork = false;
+
+                if (id == "block-btn-work") {
+                    toWork = true;
+
+                    $("#block-btn-block").removeClass("btn-danger").addClass("btn-default");
+                } else {
+                    $("#block-btn-work").removeClass("btn-success").addClass("btn-default");
+                }
+
+                $.get('./?module=clients&action=rpc_setBlocked&account_id='+optools.client.clientId+'&is_blocked='+(toWork ? "false" : "true")).done(function(answer) {
+                    if (answer == "ok") {
+                        if (toWork)
+                        {
+                            $("#block-btn-work").removeClass("btn-default").addClass("btn-success");
+                        } else {
+                            $("#block-btn-block").removeClass("btn-default").addClass("btn-danger");
+                        }
+                    } else {
+                        alert("Ошибка переключения блокировки");
+                    }
+                    location.href= './?module=clients&id='+optools.client.clientId;
+                });
+            });
+        },
+        contractTypeSwitch:{
+            bpData: null,
+            bpAction: null,
+            bpActionId: 0,
+            init:function(){
+                $("select#business_process_id").change(function(ev){
+                    optools.client.contractTypeSwitch.bpAction = "reload_statuses";
+                    optools.client.contractTypeSwitch.bpActionId = $(ev.currentTarget).val();
+
+                    if (optools.client.contractTypeSwitch.bpData){
+                        optools.client.contractTypeSwitch.doAction();
+                    } else {
+                        optools.client.contractTypeSwitch.loadData();
+                    }
+
+                });
+
+                $("select#contract_type_id").change(function(ev){
+                    optools.client.contractTypeSwitch.bpAction = "reload_processes";
+                    optools.client.contractTypeSwitch.bpActionId = $(ev.currentTarget).val();
+
+                    if (optools.client.contractTypeSwitch.bpData){
+                        optools.client.contractTypeSwitch.doAction();
+                    } else {
+                        optools.client.contractTypeSwitch.loadData();
+                    }
+
+                });
+            },
+            doAction:function() {
+
+                if (optools.client.contractTypeSwitch.bpAction == "reload_processes")
+                {
+                    var bp = $("select#business_process_id");
+
+                    optools.client.contractTypeSwitch.fillSelect(bp, optools.client.contractTypeSwitch.bpData.processes, optools.client.contractTypeSwitch.bpActionId);
+
+                    var firstOption = bp.find("option:first");
+
+                    optools.client.contractTypeSwitch.bpAction = "reload_statuses";
+                    optools.client.contractTypeSwitch.bpActionId = 0
+
+                        if (firstOption.length == 1) {
+                            optools.client.contractTypeSwitch.bpActionId = firstOption.val();
+                            bp.select2("val", optools.client.contractTypeSwitch.bpActionId);
+                        }
+                }
+
+                if (optools.client.contractTypeSwitch.bpAction == "reload_statuses")
+                {
+                    var bps = $("select#business_process_status_id");
+
+                    optools.client.contractTypeSwitch.fillSelect(bps, optools.client.contractTypeSwitch.bpData.statuses, optools.client.contractTypeSwitch.bpActionId);
+
+                    var firstOption = bps.find("option:first");
+
+                    if (firstOption.length == 1) {
+                        bps.select2("val", firstOption.val());
+                    }
+                }
+
+            },
+
+            fillSelect:function(jqSel, data, filterId)
+            {
+                jqSel.empty();
+                for(var key in data)
+                {
+                    var val = data[key];
+                    if (val.up_id == filterId) {
+                        jqSel.append("<option value='"+val.id+"'>"+val.name+"</option>")
+                    }
+                }
+            },
+
+            loadData:function() 
+            {
+                $.get("./?module=clients&action=rpc_loadBPStatuses").done(function(text){
+                    optools.client.contractTypeSwitch.bpData = JSON.parse(text);
+                    if (optools.client.contractTypeSwitch.bpAction) {
+                        optools.client.contractTypeSwitch.doAction();
+                    }
+                });
+            }
+        },
+        initChoiseLastComment: function(clientId)
+        {
+            optools.client.clientId = clientId;
+            $("input.publish_comment, input.publish_comment_over").click(function(){
+                var isPublish = false;
+                if ($(this).is(":checked"))
+                {
+                    isPublish = true;
+                    $(this).addClass("publish_comment_over");
+                    $(this).removeClass("publish_comment");
+                } else {
+                    $(this).addClass("publish_comment");
+                    $(this).removeClass("publish_comment_over");
+                }
+
+                $.get("./index_lite.php?module=clients&action=publish_comment&account_id="+optools.client.clientId+"&status_id="+$(this).val()+"&publish="+(isPublish ? "true" : "false"));
+            });
+       }
+    },
+
 	getFullOffset:function(element){
 		var x=parseInt(element.offsetLeft);
 		var y=parseInt(element.offsetTop);

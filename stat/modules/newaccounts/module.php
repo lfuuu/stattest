@@ -2648,7 +2648,7 @@ class m_newaccounts extends IModule
 
         if($inn){
             $q = $fromAdd ?
-                "select client_id as id from client_inn p, clients c where p.inn = '".$inn."' and p.client_id = c.id and is_active"
+                "select client_id as id from client_inn p, clients c where p.inn = '".$inn."' and p.client_id = c.id and p.is_active"
                 :
                 "select id from clients where inn = '".$inn."'";
 
@@ -4301,10 +4301,9 @@ $sql .= "    order by client, bill_no";
             }
 
             foreach($sortedArray as $client => $clientData){
-                $clientData = $db->AllRecords("SELECT manager, telemarketing, sale_channel FROM clients where client='".$client."'");
+                $clientData = $db->AllRecords("SELECT manager, sale_channel FROM clients where client='".$client."'");
 
                 $sortedArray[$client]['manager'] = isset($usersData[$clientData[0]['manager']])?$usersData[$clientData[0]['manager']]:$clientData[0]['manager'];
-                $sortedArray[$client]['telemark'] = isset($usersData[$clientData[0]['telemarketing']])?$usersData[$clientData[0]['telemarketing']]:$clientData[0]['telemarketing'];
                 $sortedArray[$client]['channel'] =isset($channels[$clientData[0]['sale_channel']])?$channels[$clientData[0]['sale_channel']]:$clientData[0]['sale_channel'];
                 $sortedArray[$client]['voip'] = $db->AllRecords("
                         SELECT

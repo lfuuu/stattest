@@ -30,6 +30,12 @@ return [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'user' => [
+            'class' => 'yii\web\User',
+            'identityClass' => 'app\models\User',
+            'enableSession' => false,
+            'enableAutoLogin' => false,
+        ],
         'log' => $log,
         'db' => $db,
         'dbPg' => $dbPg,

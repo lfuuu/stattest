@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\models\User;
 use welltime\graylog\GelfMessage;
 use Yii;
 
@@ -12,6 +13,8 @@ class ConsoleApplication extends \yii\console\Application
     public function init()
     {
         parent::init();
+
+        Yii::$app->user->setIdentity(User::findOne(User::SYSTEM_USER_ID));
 
         register_shutdown_function(function(){
             $messageData = '';

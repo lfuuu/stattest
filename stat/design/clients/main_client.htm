@@ -1,41 +1,77 @@
 <script src="js/jquery.inputmask.js"></script>
 
-<div style="font-size: 18px; padding: 5px; margin-bottom: 10px">
-    Клиент {$superClient.name}
+<div style="font-size: 18px; padding 5px; margin-bottom: 10px;">
+    <div style="width: 50%; display: inline-block;">
+        {if access('clients','edit')}
+            <a href='{$LINK_START}module=clients&id={$client.super_id}&action=client_edit' title="Редактировать (супер) клиента">
+                <img src='{$IMAGES_PATH}icons/edit.gif'>
+            </a>
+        {/if}
+        
+        {$superClient.name} &nbsp;&nbsp;
+        {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
+        <a style="font: normal 7pt sans-serif;" target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
+            Переход в LK
+        </a>
+        {php} endif; {/php}
+    </div>
+    <div style="width: 45%; display: inline-block; text-align: right; padding-right: 10px; font: normal 12pt sans-serif;">
+        {if $superClient.accountManager}
+        <span style="{if $superClient.accountManager && $superClient.accountManager.color}background-color: {$superClient.accountManager.color}{/if}">Аккаунт менеджер: {$superClient.accountManager.name}</span>
+        {/if}
+    </div>
 </div>
+<div style="clear: both;"></div>
 
 {foreach from=$contragents item='contragent'}
 <div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
-    <div style="color: #333">
+    <div style="color: #333;min-width: 500px; display: inline-block;">
         <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
     </div>
+    <div style="display: inline-block;">  
+        <small>{$client.address_post}</small>
+    </div>
     {foreach from=$contragent.accounts item='account'}
-    <a class="nohover" href="?module=clients&id={$account.id}" style="display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
-        <div style="display: inline-block; padding: 0 4px">
+        <div style="display: inline-block; padding: 0 4px;display: block; color: #333; border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin: 5px 0; background-color: {if $account.id==$clientAccount.id}#ddd{else}#f2f2f2{/if};">
             {if $account.id==$clientAccount.id}<b>{/if}
-            <div style="display: inline-block; min-width: 80px">
-                {$account.client}
-            </div>
-            <div style="display: inline-block; min-width: 200px">
-                {$account.contractType.name} /
-                <span style="background-color: {$account.statusColor}">{$account.statusName}</span>
-            </div>
-            <div style="display: inline-block; min-width: 20px"></div>
-            <div style="display: inline-block; min-width: 200px">
-                <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
-                    {math equation="-(balance)" balance=$account.balance} {$account.currency}
-                </span>
-                {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
-            </div>
-            <div style="display: inline-block; min-width: 120px">
-                {if $account.accountRegion}{$account.accountRegion.name}{/if}
-            </div>
-            {if $account.id==$clientAccount.id}</b>{/if}
-            <div style="display: inline-block;">
-                {if $account.lastComment}{$account.lastComment.user} {$account.lastComment.ts|substr:0:10} {$account.lastComment.comment}{/if}
-            </div>
-        </div>
-    </a>
+            <div style="display: inline-block; min-width: 70px">
+                 {if access('clients','edit')}
+                     <div style="display: inline-block;">
+                         <a href='{$LINK_START}module=clients&id={$account.id}&action=edit' title="Редактировать лицевой счет">
+                             <img src='{$IMAGES_PATH}icons/edit.gif' style="valign: top;">
+                         </a>
+                     </div>
+                 {/if}
+                 <div style="display: inline-block;" title="{$account.client}">{$account.id}</div>
+             </div>
+             <a class="nohover" href="?module=clients&id={$account.id}" style="">
+                 <div style="display: inline-block; min-width: 200px">
+                     {$account.contractType.name} / {$client.firma} / 
+                     <span{if $account.statusBP.color} style="background-color: {$account.statusBP.color}"{/if}>{$account.statusBP.name}</span>
+                 </div>
+                 <div style="display: inline-block; min-width: 20px"></div>
+                 <div style="display: inline-block; min-width: 200px">
+                     <span {if $account.balance > 0}style="color: green"{elseif $account.balance < 0}style="color: red"{/if}>
+                         {math equation="-(balance)" balance=$account.balance} {$account.currency}
+                     </span>
+                     {if $account.credit >= 0}<span style='font-size:85%'>(кредит {$account.credit})</span>{/if}
+                 </div>
+                 <div style="display: inline-block; min-width: 120px">
+                     {if $account.accountRegion}{$account.accountRegion.name}{/if}
+                 </div>
+                 <div style="display: inline-block; min-width: 260px; padding: 1px 5px;{if $account.manager && $account.userManager.color}background-color: {$account.userManager.color}{/if}">
+                     {if $account.manager}Менеджер: {$account.userManager.name}{/if}
+                 </div>
+                 {if $account.id==$clientAccount.id}</b>{/if}
+                 <div style="display: inline-block;">
+                     {if $account.lastComment}
+                         {foreach from=$account.lastComment item=comment}
+                             {$comment.user} {$comment.ts|substr:0:10} {$comment.comment}<br>
+                         {/foreach}
+                     {/if}
+                 </div>
+             </a>
+         </div>
     {/foreach}
 </div>
 {/foreach}
@@ -58,40 +94,13 @@
     </a> ({$cfiles} шт.)
     <br><br>
     {/if}
-    <a href='{$LINK_START}module=clients&id={$client.id}&action=contragent_edit' title="Перенос карточки">
-        <img class=icon src='{$IMAGES_PATH}icons/edit.gif'>Перенос карточки
-    </a>
-    <br><br>
-    <a href='{$LINK_START}module=clients&id={$client.id}&action=chpass'>
-        <img class=icon src='{$IMAGES_PATH}icons/password.gif'>Изменить пароль
-    </a>
-    <br><br>
-    {/if}
-    {if access('monitoring','edit') || access('clients','edit_tele')}
-    <a href="{$LINK_START}module=monitoring&action=add&id={$client.id}">
-        <img class=icon src='{$IMAGES_PATH}icons/monitoring.gif'>Добавить в мониторинг
-    </a>
-    <br><br>
     {/if}
 
-    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&up_id={$client.id}">
-        Профиль в Welltone
-    </a>
-    <br>
-    <a href="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&set_action=new_treatment&up_id={$client.id}">
-        Обращение в Welltone
-    </a>
 
-    {php} if (defined("CORE_SERVER") && CORE_SERVER): {/php}
-    <br>
-    <a target=_blank href="https://{php}echo CORE_SERVER;{/php}/core/support/login_under_core_admin?stat_client_id={$client.super_id}">
-        Переход в LK
-    </a>
-    {php} endif; {/php}
     <br>
     <br>
 
-    {*if access('newaccounts_bills','regProductsOrder')*}
+    {if $client.is_active}
     {if access('clients','all4net')}
     <br /><br />
     <a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> Создать заказ на Установку/Монтаж</a><br />
@@ -122,6 +131,7 @@
     {*/if*}
 
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
+    {/if} {* is active*}
 </div>
 
 <div style="margin-right: 260px;" id="cl_main_div">
@@ -134,6 +144,7 @@
 </tr>
 {/if}
 
+{if false}
 <tr>
     <td class="cl_main_col1" align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if}>
     <a href='javascript:toggle2("company_names");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>Компания:
@@ -156,29 +167,13 @@
 
     </td>
 </tr>
+{/if} {* end if false *}
 <tr>
-    <td align="right"{if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>
-    Менеджер:
-    </td>
-    <td {if $client.manager_color} style='background-color:{$client.manager_color}'{/if}>
-    <b>{if $client.manager}{$client.manager_name} ({$client.manager}){/if}</b>
-    </td>
-</tr>
-<tr>
-    <td align="right"{if $client.support_color} style='background-color:{$client.support_color}'{/if}>
-    Техподдержка:
-    </td>
-    <td {if $client.support_color} style='background-color:{$client.support_color}'{/if}>
-    <b>{if $client.support}{$client.support_name} ({$client.support}){/if}</b>
-    </td>
-</tr>
-<tr><td align="right">Адрес:</td><td><b>{$client.address_post}</b></td></tr>
-<tr>
-    <td align="right" {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
+    <td align="right" {if $account.statusBP.color} style='background-color:{$account.statusBP.color}'{/if}>
     Статус:
     </td>
-    <td {if $client.status_color} style='background-color:{$client.status_color}'{/if}>
-    <b>{$client.status_name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>&nbsp; &nbsp; {if $client.site_req_no}(заявка &#8470;{$client.site_req_no}){/if}
+    <td {if $account.statusBP.color} style='background-color:{$account.statusBP.color}'{/if}>
+    <b>{$account.statusBP.name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
     </td>
 </tr>
 
@@ -186,58 +181,143 @@
 <td colspan=2 align="center">
     <div style="display: inline-block; text-align: left">
         {foreach from=$client.data_cs item=item name=outer}
-        {if $item.comment}
-        <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
-        {/if}
-        {if $item.status}
-        <b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
-        {/if}
-        {/foreach}
+            {if $item.comment}
+                <input type=checkbox name="publich_contact_id" value="{$item.id}" class="publish_comment{if $item.is_publish}_over{/if}"{if $item.is_publish} checked{/if}>
+                <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
+            {/if}
+            {if $item.status}
+                <div style="width: 17px; display: inline-block;">&nbsp;</div><b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
+            {/if}
+            {/foreach}
+            <script>
+                optools.client.initChoiseLastComment({$client.id});
+            </script>
     </div>
 </td>
 </tr>
+{if !access("clients", "client_type_change") && $client.is_blocked}
+<tr>
+    <td align=right valign=top style="padding-top: 14px;">
+        Блокировка:
+    </td>
+    <td>
+        <button type="button" class="btn btn-default btn-danger" style="width: 130px;">Заблокирован</button>
+    </td>
+</tr>
+
+{/if}
+
+{if !access('clients','restatus') || !access("clients", "client_type_change")}
+<tr>
+    <td align="right">Тип договора:</td>
+    <td>
+        {foreach from=$contract_types item=item}
+            {if ($item.id == $client.contract_type_id)}{$item.name}{/if}
+        {/foreach}
+    </td>
+</tr>
+<tr>
+    <td align="right">Бизнес процес:</td>
+    <td>
+        {foreach from=$bussines_processes item=item}
+            {if ($item.id == $client.business_process_id)}{$item.name}{/if}
+        {/foreach}
+    </td>
+</tr>
+    {if !$client.is_active}
+    <tr>
+        <td align="right">Статус бизнес процесса:</td>
+        <td>
+            {foreach from=$business_process item=item}
+                {if ($item.id == $client.business_process_status_id)}{$item.name}{/if}
+            {/foreach}
+        </td>
+    </tr>
+    {/if}
+{/if}
+
 {if access('clients','restatus')}
 <tr>
     <td colspan="2" align="center">
         <form action="?" method=post id=sform name=sform>
-            <input type=hidden name=module value=clients>
-            <input type=hidden name=action value=restatus>
-            <input type=hidden name=id value='{$client.id}'>
-            <table width="100%">
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs2>
-                <td align="right">Статус:</td>
-                <td>
-                    <SELECT class="select2" style="width: 200px" name=status>{foreach from=$statuses item=item key=key}<option value='{$key}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name}</option>{/foreach}</select>
-                </td>
-                </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
+        <input type=hidden name=module value=clients>
+        <input type=hidden name=action value=restatus>
+        <input type=hidden name=id value='{$client.id}'>
+        <table width=80%>
+            <tr>
+    {if access("clients", "client_type_change")}
+    <td valign=top>
+        
+        <table width=100%>
+            <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs7>
                 <td align="right">Тип договора:</td>
                 <td>
-                    <SELECT class="select2" style="width: 200px" name=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                    <SELECT class="select2" style="width: 240px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
                 </td>
-                </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs5>
-                <td align="right">Статус бизнес процесса:</td>
+            </tr>
+            <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs6>
+                <td align="right">Бизнес процес:</td>
                 <td>
-                    <SELECT class="select2" style="width: 200px" name=business_process_id>{foreach from=$business_process item=item}<option value='{$item.id}' {if ($item.id == $clientAccount.businessProcessStatus.id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+                        <SELECT class="select2" style="width: 240px" name=business_process_id id=business_process_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.business_process_id)} selected{/if}>{$item.name}</option>{/foreach}</select>
+
                 </td>
+            </tr>
+            {if $client.is_active}
+                <tr>
+                    <td align="right">
+                        Блокировка
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button id="block-btn-work" type="button" class="btn btn-default {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
+                            <button id="block-btn-block" type="button" class="btn btn-default dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
+                        </div>
+                    </td>
                 </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs4>
-                <td align="right">Комментарий:</td>
-                <td>
-                    <div style="position: relative"><textarea style='width:90%;height:100px' name=comment class=text></textarea></div>
-                </td>
+            {/if}
+        </table>
+
+        <script>
+            optools.client.initBlocked({$client.id});
+            optools.client.contractTypeSwitch.init();
+        </script>
+    </td>
+    {/if}
+        {if $client.is_active || access("clients", "client_type_change")}
+        <td valign=top>
+            <table width="100%">
+                <tr>
+                    <td align="right">Статус бизнес процесса:</td>
+                    <td>
+                        <SELECT class="select2" style="width: 200px" name=business_process_status_id id=business_process_status_id>
+                            {foreach from=$business_process item=item}
+                                <option value='{$item.id}' {if ($item.id == $client.business_process_status_id)} selected{/if}>{$item.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
                 </tr>
-                <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
-                <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
-                <td style='border-bottom:1 solid red'>
-                    <input class=text value='Изменить' type=submit>
-                </td>
+
+                <tr>
+                    <td align="right">Комментарий:</td>
+                    <td>
+                        <div style="position: relative"><textarea style='width:90%; height:100px' name=comment class=text></textarea></div>
+                    </td>
+                    </tr>
+                    <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
+                    <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
+                    <td style='border-bottom:1 solid red'>
+                        <input class=text value='Изменить' type=submit>
+                    </td>
                 </tr>
             </table>
-        </form>
+        </td>
+        {/if}
+    </tr>
+</table>
+
     </td>
 </tr>
+</form>
 {/if}
 <tr>
     <td align="right">Предполагаемый <b>адрес</b> подключения:</td>
@@ -246,7 +326,7 @@
 
 <tr id="contact_header1" style="display: none;">
     <td align="right">
-        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Изменить"></a>
         Контакты:
     </td>
     <td colspan=2 id="contact_phone">
@@ -255,7 +335,7 @@
 </tr>
 <tr id="contact_header2">
     <td align="right">
-        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Изменить"></a>
+        <a href='javascript:toggle2("contact");toggle2("contact_header1");toggle2("contact_header2");toggle2("contact_fax");toggle2("contact_email");toggle2("contact_sms");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Изменить"></a>
         Телефон:
     </td>
     <td colspan=2>
@@ -332,14 +412,18 @@
                 <td>{$item.user}</td>
                 <td style='font-size:70%'>{$item.ts}</td>
                 <td>
+                    {if $client.is_active}
                     {if $item.user == 'AutoLK'}
                     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
                     {else}
                     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontact2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
                     {/if}
+                    {/if} {* is active *}
                 </td>
                 </tr>
                 {/foreach}
+
+                {if $client.is_active}
                 <tr>
                     <td>
                         <select name=type class=text style='font-size:10px' id='cd_type'>
@@ -366,6 +450,7 @@
                     </td>
                 </tr>
                 {/if}
+                {/if} {* is active *}
             </table>
         </form>
     </td>
@@ -374,7 +459,7 @@
 
 <tr>
     <td align="right">
-        <a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/edit.gif' alt="Посмотреть"></a>
+        <a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
         Договор:
     </td>
     <td>
@@ -419,6 +504,7 @@
                 </td>
                 </tr>
                 {/foreach}
+                {if $client.is_active}
                 <tr>
                     <td><input class=text style='width:70' type=text name=contract_no value={$client.id}-{0|mdate:"y"}></td>
                     <td><input class=text style='width:85' type=text name=contract_date value={0|mdate:"Y-m-d"}></td>
@@ -438,6 +524,7 @@
                         <input class=button type=submit value="зарегистрировать">
                     </td>
                 </tr>
+                {/if}
             </table>
         </form>
     </td>
@@ -458,11 +545,15 @@
     {literal}
 
     function togglecs() {
-        toggle2(data_cs1);
-        toggle2(data_cs2);
-        toggle2(data_cs3);
-        toggle2(data_cs4);
-        toggle2(data_cs5);
+        for(var i in [1,2,3,4,5,6,7])
+        {
+            i++;
+            var d = document.getElementById("data_cs"+i);
+            if (d) {
+                toggle2(d);
+            }
+        }
+
         if (data_cs1.style.display==''){
             value = '1';
         } else {

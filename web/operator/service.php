@@ -30,8 +30,7 @@ if ($action=='add_client') {
         $P["company"] = "Клиент с сайта";
 	}
 
-    $cid1 = $id = $db->GetValue("select id from clients where company = '".mysql_real_escape_string($P["company"], $db->_LinkId)."'");
-    $cid2 = $db->GetValue(
+    $id = $db->GetValue(
         "SELECT 
             client_id 
         FROM 
@@ -40,8 +39,6 @@ if ($action=='add_client') {
                 type='email' 
             and `data` = '".mysql_real_escape_string($P["email"])."'
         ORDER BY if(is_active = 1, if(is_official = 1, 2, 1), 0) desc, `id` DESC limit 1");
-
-    $id = ($cid2 ? $cid2 : ($cid1 ? $cid1 : false));
 
 	if($id)
 	{
@@ -57,6 +54,10 @@ if ($action=='add_client') {
 	$O->address_jur = $P['address'];
 	$O->sale_channel = $P['market_chanel'];
     $O->contract_type_id = 2; //Телеком-клиент
+    $O->business_process_id = 1; //Сопровождение
+    $O->business_process_status_id = 1; //Входящие
+    $O->status = "income"; 
+
 	if($P["phone_connect"])
 		$O->phone_connect = $P["phone_connect"];
 
