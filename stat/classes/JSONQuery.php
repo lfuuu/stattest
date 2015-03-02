@@ -5,8 +5,7 @@ class JSONQuery
 {
     public static function exec($url, $data, $isPostJSON = true)
     {
-        self::log($url, $data);
-
+        Yii::info('Json request ' . $url . ': ' . json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
         $defaults = array( 
                 CURLOPT_POST => 1, 
@@ -26,18 +25,13 @@ class JSONQuery
             $defaults[CURLOPT_URL] .= "?".http_build_query($data);
         }
 
-
-        //echo "\n".json_encode($data);
-
-        $ch = curl_init(); 
+        $ch = curl_init();
         curl_setopt_array($ch, $defaults); 
         if( ! $result = curl_exec($ch)) 
         { 
             throw new Exception(curl_error($ch));
         } 
 
-        self::log("answer: ", $result);
-        
         $info = curl_getinfo($ch);
         curl_close($ch); 
 
@@ -45,18 +39,19 @@ class JSONQuery
         // todo: переделать эту хрень на событийную модель
         if ($info["http_code"] !== 200)
         {
-            //print_r($info);
             throw new Exception("VPBX Sync Error: http code: ".$info["http_code"], $info["http_code"]);
         }
 
-        //print_r($result);
         $result = @json_decode($result, true);
-        //print_r($result);
+
 
         if (!$result)
         {
             throw new Exception("VPBX Sync Error: result false", -1);
         }
+
+        Yii::info('Json response: ' . json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+
 
         if (isset($result["errors"]) && $result["errors"])
         {
@@ -71,11 +66,4 @@ class JSONQuery
         return $result;
     }
 
-    private static function log($url, $data)
-    {
-
-        $f = fopen("/tmp/json_query_log", "a+");
-        fwrite($f, "\n".date("d-m-Y H;i:s").": ".$url."\n".var_export($data, true));
-        fclose($f);
-    }
 }

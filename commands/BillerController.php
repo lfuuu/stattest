@@ -52,8 +52,8 @@ class BillerController extends Controller
 
         try {
 
-            //ClientAccountBiller::create($clientAccount, $date, $connecting = true, $periodical = true, $resource = false)
-            //    ->process();
+            ClientAccountBiller::create($clientAccount, $date, $connecting = true, $periodical = true, $resource = false)
+                ->process();
 
             $resourceDate = clone $date;
             $resourceDate->modify('-1 day');
