@@ -131,5 +131,13 @@ class ClientAccount extends ActiveRecord
         }
         return $this->_lastComment;
     }
-    
+
+    public function getDefaultTaxId()
+    {
+        if ($this->nds_zero) {
+            return TaxType::TAX_0;
+        } else {
+            return TaxType::TAX_18;
+        }
+    }
 }
