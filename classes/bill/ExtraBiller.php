@@ -9,6 +9,10 @@ class ExtraBiller extends Biller
 
     protected function beforeProcess()
     {
+        if ($this->usage->code == 'welltime_backup' || $this->usage->code == 'welltime_backup_no_c') {
+            return false;
+        }
+
         $this->tariff = $this->usage->tariff;
         if ($this->tariff === null) {
             return false;
