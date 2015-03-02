@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\classes\Singleton;
 use app\models\ClientCounter;
+use app\models\Country;
 use app\models\Courier;
 use yii\helpers\ArrayHelper;
 
@@ -18,7 +19,7 @@ class CountryDao extends Singleton
             return '';
         }
 
-        $country = Courier::findOne(['code' => $countryCode]);
+        $country = Country::findOne(['code' => $countryCode]);
         return $country ? $country->name : '';
     }
 
