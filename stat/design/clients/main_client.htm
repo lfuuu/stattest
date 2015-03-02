@@ -169,11 +169,11 @@
 </tr>
 {/if} {* end if false *}
 <tr>
-    <td align="right" {if $account.statusBP.color} style='background-color:{$account.statusBP.color}'{/if}>
+    <td align="right" {if $clientAccount.statusBP.color} style='background-color:{$clientAccount.statusBP.color}'{/if}>
     Статус:
     </td>
-    <td {if $account.statusBP.color} style='background-color:{$account.statusBP.color}'{/if}>
-    <b>{$account.statusBP.name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
+    <td {if $clientAccount.statusBP.color} style='background-color:{$clientAccount.statusBP.color}'{/if}>
+    <b>{$clientAccount.statusBP.name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
     </td>
 </tr>
 
