@@ -89,7 +89,7 @@ class BillFactory
             $bill->client_id = $this->clientAccount->id;
             $bill->currency = $this->clientAccount->currency;
             $bill->nal = $this->clientAccount->nal;
-            $bill->is_lk_show = 1;
+            $bill->is_lk_show = 0;
             $bill->is_user_prepay = 0;
             $bill->is_approved = 1;
             $bill->is_use_tax = $this->clientAccount->nds_zero > 0 ? 0 : 1;

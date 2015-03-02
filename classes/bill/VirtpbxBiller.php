@@ -29,7 +29,7 @@ class VirtpbxBiller extends Biller
                 BillerPackagePeriodical::create($this)
                     ->setActualPeriod($range['from'], $range['to'])
                     ->setPeriodType($tariff->period)
-                    ->setIsAlign(false)
+                    ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
                     ->setAmount($this->usage->amount)
                     ->setName($tariff->description)
