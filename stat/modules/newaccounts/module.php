@@ -1103,7 +1103,7 @@ class m_newaccounts extends IModule
                             if ($bill) {
                                 $totalCount++;
                                 $totalAmount = $totalAmount + $bill->sum;
-                                echo ", создан счет: <a target='_blank' href='/?module=newaccounts&action=bill_view&bill{$bill->bill_no}'>{$bill->bill_no}</a> на сумму {$bill->sum}<br/>\n"; flush();
+                                echo ", создан счет: <a target='_blank' href='/?module=newaccounts&action=bill_view&bill={$bill->bill_no}'>{$bill->bill_no}</a> на сумму {$bill->sum}<br/>\n"; flush();
                             } else {
                                 echo "<br/>\n"; flush();
                             }
