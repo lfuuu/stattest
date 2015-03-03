@@ -24,4 +24,8 @@ echo "create user 'latyntsev'@'localhost'" | mysql
 echo "GRANT ALL PRIVILEGES ON * . * TO 'latyntsev'@'localhost'" | mysql
 echo "FLUSH PRIVILEGES" | mysql
 
+
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+
 exit 0

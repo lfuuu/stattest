@@ -14,7 +14,10 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
      cd /vagrant/install
-     sudo ./install.sh
+     sudo ./install_root.sh
+     cd -
+     cd /vagrant
+     sudo ./install_vagrant.sh
      cd -
   SHELL
 end
