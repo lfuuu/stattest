@@ -49,7 +49,7 @@ class historyViewAction
         
         if($isNeedRedirect)
         {
-            header("Location: ./?module=clients&id=".$clientId."&action=view_history");
+            header("Location: ./?module=clients&client_id=".$clientId."&action=view_history");
             exit();
         }
     }
