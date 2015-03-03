@@ -89,10 +89,10 @@ class BillFactory
                 Bill::find()
                     ->andWhere(['client_id' => $this->clientAccount->id])
                     ->andWhere(['currency' => $this->clientAccount->currency])
-                    ->andWhere('bill_date >= :date', [':date' => $this->billerPeriodFrom->format('Y-m-d')])
-                    ->andWhere('bill_date <= :date', [':date' => $this->billerPeriodTo->format('Y-m-d')])
+                    ->andWhere('bill_date >= :dateFrom', [':dateFrom' => $this->billerPeriodFrom->format('Y-m-d')])
+                    ->andWhere('bill_date <= :dateTo', [':dateTo' => $this->billerPeriodTo->format('Y-m-d')])
                     ->andWhere(['is_approved' => 1])
-                    ->andWhere('bill_no like :billno', [':billno', $this->billerPeriodFrom->format('Ym') . '-%'])
+                    ->andWhere('bill_no like :billno', [':billno' => $this->billerPeriodFrom->format('Ym') . '-%'])
                     ->orderBy('bill_date asc, id asc')
                     ->limit(1)
                     ->one();
@@ -110,9 +110,11 @@ class BillFactory
                 $bill->sum = $sum;
                 $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
                 $bill->save();
+                $sort = 1;
+            } else {
+                $sort = count($bill->lines) + 1;
             }
-
-            $sort = 1;
+            
             foreach ($transactions as $transaction) {
                 Transaction::dao()->insertBillLine($transaction, $bill, $sort);
                 $sort++;
