@@ -52,7 +52,7 @@ class BillerController extends Controller
 
         try {
 
-            ClientAccountBiller::create($clientAccount, $date, $connecting = true, $periodical = true, $resource = false)
+            ClientAccountBiller::create($clientAccount, $date, $connecting = false, $periodical = true, $resource = false)
                 ->process();
 
             $resourceDate = clone $date;

@@ -91,7 +91,7 @@ class Bill extends ActiveRecord
         Trouble::deleteAll(['bill_no' => $this->bill_no]);
 
         foreach ($this->lines as $line) {
-            Transaction::dao()->markDeleted($line);
+            Transaction::dao()->markDeletedByBillLine($line);
         }
 
         LogBill::dao()->log($this, 'Удаление');
