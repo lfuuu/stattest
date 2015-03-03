@@ -18,7 +18,7 @@ class VoipBiller extends Biller
         $this->logTariff =
             LogTarif::find()
                 ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
-                ->andWhere('date_activation < :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                ->andWhere('date_activation <= :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
                 ->andWhere('id_tarif != 0')
                 ->orderBy('date_activation desc, id desc')
                 ->limit(1)
