@@ -85,19 +85,32 @@ class BillFactory
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
-            $bill = new Bill();
-            $bill->client_id = $this->clientAccount->id;
-            $bill->currency = $this->clientAccount->currency;
-            $bill->nal = $this->clientAccount->nal;
-            $bill->is_lk_show = 0;
-            $bill->is_user_prepay = 0;
-            $bill->is_approved = 1;
-            $bill->is_use_tax = $this->clientAccount->nds_zero > 0 ? 0 : 1;
-            $bill->bill_date = $this->billerPeriodFrom->format('Y-m-d');
-            $bill->sum_with_unapproved = $sum;
-            $bill->sum = $sum;
-            $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
-            $bill->save();
+            $bill =
+                Bill::find()
+                    ->andWhere(['client_id' => $this->clientAccount->id])
+                    ->andWhere(['currency' => $this->clientAccount->currency])
+                    ->andWhere('bill_date >= :date', [':date' => $this->billerPeriodFrom->format('Y-m-d')])
+                    ->andWhere('bill_date <= :date', [':date' => $this->billerPeriodTo->format('Y-m-d')])
+                    ->andWhere(['is_approved' => 1])
+                    ->andWhere('bill_no like :billno', [':billno', $this->billerPeriodFrom->format('Ym') . '-%'])
+                    ->orderBy('bill_date asc, id asc')
+                    ->limit(1)
+                    ->one();
+            if ($bill === null) {
+                $bill = new Bill();
+                $bill->client_id = $this->clientAccount->id;
+                $bill->currency = $this->clientAccount->currency;
+                $bill->nal = $this->clientAccount->nal;
+                $bill->is_lk_show = 0;
+                $bill->is_user_prepay = 0;
+                $bill->is_approved = 1;
+                $bill->is_use_tax = $this->clientAccount->nds_zero > 0 ? 0 : 1;
+                $bill->bill_date = $this->billerPeriodFrom->format('Y-m-d');
+                $bill->sum_with_unapproved = $sum;
+                $bill->sum = $sum;
+                $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
+                $bill->save();
+            }
 
             $sort = 1;
             foreach ($transactions as $transaction) {
