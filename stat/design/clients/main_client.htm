@@ -267,12 +267,13 @@
             {if $client.is_active}
                 <tr>
                     <td align="right">
-                        Блокировка
+                        Блокировка:
                     </td>
                     <td>
+                        &nbsp;
                         <div class="btn-group" role="group" aria-label="...">
-                            <button id="block-btn-work" type="button" class="btn btn-default {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
-                            <button id="block-btn-block" type="button" class="btn btn-default dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
+                            <button id="block-btn-work" type="button" class="btn btn-default btn-sm {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
+                            <button id="block-btn-block" type="button" class="btn btn-default btn-sm dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
                         </div>
                     </td>
                 </tr>
