@@ -1163,14 +1163,29 @@ class m_services extends IModule{
 
         $id=get_param_integer('id','');
 
-        $db->Query('select * from usage_voip where (client="'.$fixclient.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW())');
+        $rr = ["7499"];
+        foreach($db->AllRecords("select code from regions order by length(code)") as $r)
+        {
+            $rr[] = $r["code"];
+        }
+
+        $db->Query('select * from usage_voip where (client="'.$fixclient.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW()) order by actual_from');
         $R=array(); 
         while ($r=$db->NextRecord()) 
         {
-            if (in_array(substr($r['E164'],0,4),array('7095','7495','7499'))) {
-                $r['E164_first']=substr($r['E164'],0,4);
-                $r['E164_last']=substr($r['E164'],4);
-            }else{
+            $isFind = false;
+            foreach($rr as $l)
+            {
+                if(strpos($r["E164"], $l) === 0)
+                {
+                    $r["E164_first"] = $l;
+                    $r["E164_last"] = substr($r["E164"], strlen($l));
+
+                    $isFind = true;
+                }
+            }
+
+            if (!$isFind) {
                 $r['E164_first']="";
                 $r['E164_last']=$r['E164'];
             }
