@@ -2397,8 +2397,6 @@ DBG::sql_out($select_client_data);
         $id = $superId ?: $clientId;
 
 
-		$clientId = get_param_raw("id", "-1");
-
         if($isAdmin)
         {
             historyViewAction::check($clientId);
