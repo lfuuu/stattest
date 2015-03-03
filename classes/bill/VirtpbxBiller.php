@@ -107,7 +107,7 @@ class VirtpbxBiller extends Biller
             $useSpaceMb = Utils::bytesToMb($vpbxStat['use_space']);
 
             if ($useSpaceMb > $tariff->space) {
-                $spaceForBill = ceil(($useSpaceMb/* - $tariff->space*/)/1024);
+                $spaceForBill = ceil(($useSpaceMb - $tariff->space)/1024);
                 //$totals['amount_space'] += $spaceForBill;
 
                 $sumForSpace = ($spaceForBill * $tariff->overrun_per_gb) / $from->format('t');
@@ -115,7 +115,7 @@ class VirtpbxBiller extends Biller
             }
 
             if ($useNumbers > $tariff->num_ports) {
-                $numbersForBill = $useNumbers/* - $tariff->num_ports*/;
+                $numbersForBill = $useNumbers - $tariff->num_ports;
                 //$totals['amount_number'] += $numbersForBill;
 
                 $sumForNumbers = ($numbersForBill * $tariff->overrun_per_port) / $from->format('t');
