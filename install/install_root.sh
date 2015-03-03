@@ -4,7 +4,7 @@ set -e
 apt-get update
 apt-get install -y mc
 export DEBIAN_FRONTEND=noninteractive
-apt-get install -y apache2 mysql-server
+apt-get install -y apache2 mysql-server git
 apt-get install -y php5 php5-curl php5-mcrypt php5-gd php5-mysqlnd php5-pgsql
 
 pwd
