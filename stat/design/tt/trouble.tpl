@@ -154,11 +154,13 @@
                 {/foreach}
             </table>
 
-            {if ($tt_write || $tt_doComment) && $tt_edit || (access('tt', 'rating') && !$tt_edit && !$rated && $tt_trouble.state_id == 2)}{*не закрыт или закрыт и рейтинг не стоит*}
+            {if $tt_write 
+            || ($tt_doComment && !$tt_isClosed) 
+            || (access('tt', 'rating') && !$tt_edit && !$rated && $tt_trouble.state_id == 2)}{*не закрыт или закрыт и рейтинг не стоит*}
                 <form action="index_lite.php" method="post" id="state_1c_form">
                     <input type="hidden" name="module" value="tt" />
                     <input type="hidden" name="action" value="rpc_setState1c" />
-                    <input type=hidden name="id" value='{$tt_trouble.id}' />
+                    <input type="hidden" name="id" value='{$tt_trouble.id}' />
                     <input type="hidden" id="state_1c_form_bill_no" name="bill_no" value="{$tt_trouble.bill_no}" />
                     <input type="hidden" id="state_1c_form_state" name="state" value="" />
                 </form>
