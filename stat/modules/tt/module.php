@@ -575,6 +575,7 @@ class m_tt extends IModule{
         );
         $design->assign('tt_write',$this->checkTroubleAccess($trouble));
         $design->assign('tt_edit',$this->checkTroubleAccess($trouble) && !in_array($trouble["state_id"], [2, 20, 21, 39, 40, 46,47,48]));
+        $design->assign("tt_isClosed", in_array($trouble["state_id"], [2, 20, 21, 39, 40, 46,47,48]));
         $design->assign('tt_doComment',access('tt','comment'));
         $stage = $trouble['stages'][count($trouble['stages'])-1];
 
