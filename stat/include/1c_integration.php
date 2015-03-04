@@ -1080,20 +1080,6 @@ class SoapHandler{
                 if(!$err){
                     unset($curts['stage_id'],$curts['date_edit']);
 
-                    // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
-
-                    //$bill = Bill::findOne(['bill_no' => $bill_no]);
-                    if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                        //$bill->is_approved = 1;
-                        //$bill->sum = $bill->sum_with_unapproved;
-                        $db->Query("update newbills set is_approved=1, `sum` = sum_with_unapproved where bill_no = '".$bill_no."'");
-                    }else{
-                        //$bill->is_approved = 0;
-                        //$bill->sum = 0;
-                        $db->Query("update newbills set is_approved=0, `sum` = 0 where bill_no = '".$bill_no."'");
-                    }
-                    //$bill->save();
-
                     $newts_id = $db->QueryInsert(
                         'tt_stages',
                         array(
@@ -1207,21 +1193,6 @@ class SoapHandler{
 
                     if(!$err){
 
-                        // проводим ели ноавя стадия закрыт, отгружен, к отгрузке
-
-                        //$bill = Bill::findOne(['bill_no' => $bill_no]);
-                        if(in_array($newstate['id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                            //$bill->is_approved = 1;
-                            //$bill->sum = $bill->sum_with_unapproved;
-                            $db->Query("update newbills set is_approved=1, `sum` = sum_with_unapproved where bill_no = '".$bill_no."'");
-                        }else{
-                            //$bill->is_approved = 0;
-                            //$bill->sum = 0;
-                            $db->Query("update newbills set is_approved=0, `sum` = 0 where bill_no = '".$bill_no."'");
-                        }
-                        //$bill->save();
-
-
                         $comment = "";
                         if(in_array($client, array("nbn", "onlime", "onlime2", "DostavkaMTS")) && trim($_POST["comment"]))
                             $comment = trim($_POST["comment"]);
@@ -1246,6 +1217,7 @@ class SoapHandler{
             }
         }
 
+        // проводим стадия закрыт, отгружен, к отгрузке
         $curtt = $db->GetRow("select * from tt_troubles where bill_no='".addcslashes($bill_no, "\\'")."'");
         if($curtt){
             $curts = $db->GetRow("select * from tt_stages where stage_id=".$curtt['cur_stage_id']);
