@@ -1089,7 +1089,7 @@ class SoapHandler{
                     }else{
                         //$bill->is_approved = 0;
                         //$bill->sum = 0;
-                        $db->Query("update newbills set is_approved=1, `sum` = 0 where bill_no = '".$bill_no."'");
+                        $db->Query("update newbills set is_approved=0, `sum` = 0 where bill_no = '".$bill_no."'");
                     }
                     //$bill->save();
 
@@ -1216,7 +1216,7 @@ class SoapHandler{
                         }else{
                             //$bill->is_approved = 0;
                             //$bill->sum = 0;
-                            $db->Query("update newbills set is_approved=1, `sum` = 0 where bill_no = '".$bill_no."'");
+                            $db->Query("update newbills set is_approved=0, `sum` = 0 where bill_no = '".$bill_no."'");
                         }
                         //$bill->save();
 
