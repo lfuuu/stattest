@@ -911,6 +911,7 @@ class SoapHandler{
                         bill_date = '".addcslashes($bill_date, "\\'")."',
                         client_id = (select id from clients where client='".addcslashes($client, "\\'")."'),
                         currency = '" . $currency . "',
+                        is_approved = 1,
                         `sum` = '".addcslashes($sum, "\\'")."',
                         `sum_with_unapproved` = '".addcslashes($sum, "\\'")."',
                         comment = '".addcslashes($comment, "\\'")."',
@@ -1241,6 +1242,18 @@ class SoapHandler{
                         $db->Query("update tt_troubles set cur_stage_id=".$tsid." where id=".$ttid);
                     if(!$err && $err |= mysql_errno())
                         $err_msg = mysql_error();
+                }
+            }
+        }
+
+        $curtt = $db->GetRow("select * from tt_troubles where bill_no='".addcslashes($bill_no, "\\'")."'");
+        if($curtt){
+            $curts = $db->GetRow("select * from tt_stages where stage_id=".$curtt['cur_stage_id']);
+            if ($curts) {
+                if(in_array($curts['state_id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
+                    $db->Query("update newbills set is_approved=1, `sum` = sum_with_unapproved where bill_no = '".$bill_no."'");
+                }else{
+                    $db->Query("update newbills set is_approved=0, `sum` = 0 where bill_no = '".$bill_no."'");
                 }
             }
         }
