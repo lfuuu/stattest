@@ -105,6 +105,17 @@ class Onlime1CCreateBill
            from 18.07.2014
            ид12=NetGear Беспроводной роутер, JNR3210-1NNRUS e1a5bf94-0764-11e4-8c79-00155d881200 16315
 
+
+           from 1.03.2015
+
+           18=55b6f916-b3fb-11e3-9fe5-00155d881200 16117   Zyxel KEENETIC EXTRA Беспроводной роутер, для выделенной линии Gigabit Ethernet, с двухдиапазонной 2,4 и 5 ГГц точкой доступа Wi
+           19=14265ab3-9bca-11e4-8402-00155d881200 16710   D-Link DWA-182/RU/C1A Беспроводной адаптер, Wireless AC1200 Dual Band USB Adapter
+           20=e147d6bc-73f0-11e1-afcc-00155d881200 13837   Gigaset C610A IP IP-телефон, и радио телефон (автоответчик, IP, черный)
+           21=e5f617a4-8f97-11e1-afcc-00155d881200 13949   Gigaset A510 IP IP-телефон, и радио телефон Siemens Gigaset A510 IP (IP, черный)
+           22=4454e4d5-a79e-11e4-a330-00155d881200 16813   Gigaset C530 IP IP-телефон, радио телефон Siemens Gigaset (IP, черный)
+
+
+
          */
 
         foreach($o["products"] as $product)
@@ -115,6 +126,12 @@ class Onlime1CCreateBill
                 case '9': $goodId = "14723f35-d423-11e3-9fe5-00155d881200"; break;
                 case '11': $goodId = "2c6d3955-d423-11e3-9fe5-00155d881200"; break;
                 case '12': $goodId = "e1a5bf94-0764-11e4-8c79-00155d881200"; break;
+
+                case '18': $goodId="55b6f916-b3fb-11e3-9fe5-00155d881200"; break;
+                case '19': $goodId="14265ab3-9bca-11e4-8402-00155d881200"; break;
+                case '20': $goodId="e147d6bc-73f0-11e1-afcc-00155d881200"; break;
+                case '21': $goodId="e5f617a4-8f97-11e1-afcc-00155d881200"; break;
+                case '22': $goodId="4454e4d5-a79e-11e4-a330-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])
