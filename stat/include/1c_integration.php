@@ -783,19 +783,26 @@ class SoapHandler{
         $bill_date = trr($o->{tr('Дата')});
         $client = trr($o->{tr('ИдКарточкиКлиентаСтат')});
         $currency = trr($o->{tr('Валюта')});
-        $sum = trr($o->{tr('СуммаИтого')});
+        $sum_with_unapproved = trr($o->{tr('СуммаИтого')});
         $comment = trr($o->{tr('Комментарий')});
         $state_1c = trr($o->{tr('СтатусЗаказа')});
         $add_info = $o->{tr('ДопИнформацияЗаказа')};
         $storeId = $o->{tr('КодСклад1С')};
 
-        if (strcmp($state_1c, 'Отказ')==0) {
+//        if (strcmp($state_1c, 'Отказ')==0) {
+//            $sum_with_unapproved = 0;
+//        }
+
+
+        if($is_rollback && $sum_with_unapproved > 0){$sum_with_unapproved =-$sum_with_unapproved;}
+
+        if (in_array($state_1c, ['КОтгрузке', 'Отгружен', 'Закрыт'])) {
+            $sum = $sum_with_unapproved;
+            $is_approved = 1;
+        } else {
             $sum = 0;
+            $is_approved = 0;
         }
-
-
-        if($is_rollback && $sum > 0){$sum =-$sum;}
-
 
 
         if(strpos($bill_no,'-'))
@@ -911,9 +918,9 @@ class SoapHandler{
                         bill_date = '".addcslashes($bill_date, "\\'")."',
                         client_id = (select id from clients where client='".addcslashes($client, "\\'")."'),
                         currency = '" . $currency . "',
-                        is_approved = 1,
-                        `sum` = '".addcslashes($sum, "\\'")."',
-                        `sum_with_unapproved` = '".addcslashes($sum, "\\'")."',
+                        is_approved = '" . $is_approved . "',
+                        `sum` = '" . $sum . "',
+                        `sum_with_unapproved` = '". $sum_with_unapproved . "',
                         comment = '".addcslashes($comment, "\\'")."',
                         sync_1c = 'yes',
                         `state_1c` = '".addcslashes($state_1c, "\\'")."',
@@ -1213,19 +1220,6 @@ class SoapHandler{
                         $db->Query("update tt_troubles set cur_stage_id=".$tsid." where id=".$ttid);
                     if(!$err && $err |= mysql_errno())
                         $err_msg = mysql_error();
-                }
-            }
-        }
-
-        // проводим стадия закрыт, отгружен, к отгрузке
-        $curtt = $db->GetRow("select * from tt_troubles where bill_no='".addcslashes($bill_no, "\\'")."'");
-        if($curtt){
-            $curts = $db->GetRow("select * from tt_stages where stage_id=".$curtt['cur_stage_id']);
-            if ($curts) {
-                if(in_array($curts['state_id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
-                    $db->Query("update newbills set is_approved=1, `sum` = sum_with_unapproved where bill_no = '".$bill_no."'");
-                }else{
-                    $db->Query("update newbills set is_approved=0, `sum` = 0 where bill_no = '".$bill_no."'");
                 }
             }
         }
