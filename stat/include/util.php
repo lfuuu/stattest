@@ -1297,7 +1297,7 @@ class ClientCS {
     }
     function GetAllStatuses() {
         global $db;
-        $db->Query("select * from client_statuses where (id_client='".$this->id."') order by ts asc");
+        $db->Query("select *,unix_timestamp(ts) as tst from client_statuses where (id_client='".$this->id."') order by ts asc");
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         return $R;
     }
