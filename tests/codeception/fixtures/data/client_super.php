@@ -9,10 +9,6 @@ return [
         'id' => '76180',
         'name' => 'welltime company',
     ],
-    's8800' => [
-        'id' => '76181',
-        'name' => 's8800 company',
-    ],
     'sms' => [
         'id' => '76182',
         'name' => 'sms company',

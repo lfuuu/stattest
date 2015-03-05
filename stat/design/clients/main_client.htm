@@ -100,7 +100,7 @@
     <br>
     <br>
 
-    {if $client.is_active}
+    {if !$client.is_closed}
     {if access('clients','all4net')}
     <br /><br />
     <a href='?module=newaccounts&action=make_1c_bill&tty=mounting_orders'><img src="./images/icons/printer.gif" border=0> Создать заказ на Установку/Монтаж</a><br />
@@ -116,11 +116,11 @@
     <a href='?module=incomegoods&action=order_edit&id='><img src="./images/icons/add.gif" border=0>Создать заказ Поставщику</a>
     <br/><br/><br/>
     {/if}
-    {/if} {* if $client.is_active *}
+    {/if} {* if !$client.is_closed *}
     
     <a href="?module=tt&action=view_type&type_pk=2&show_add_form=true">Создать задание</a><br />
     <br>
-    {if $client.is_active}
+    {if !$client.is_closed}
     <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать заявку на поддержку</a>
 
     {*if access('clients','yota')*}
@@ -133,7 +133,7 @@
     {*/if*}
 
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
-    {/if} {* is active*}
+    {/if} {* if !$client.is_closed *}
 </div>
 
 <div style="margin-right: 260px;" id="cl_main_div">
@@ -226,7 +226,7 @@
         {/foreach}
     </td>
 </tr>
-    {if !$client.is_active}
+    {if $client.is_closed}
     <tr>
         <td align="right">Статус бизнес процесса:</td>
         <td>
@@ -264,7 +264,7 @@
 
                 </td>
             </tr>
-            {if $client.is_active}
+            {if !$client.is_closed}
                 <tr>
                     <td align="right">
                         Блокировка:
@@ -286,7 +286,7 @@
         </script>
     </td>
     {/if}
-        {if $client.is_active || access("clients", "client_type_change")}
+        {if !$client.is_closed || access("clients", "client_type_change")}
         <td valign=top>
             <table width="100%">
                 <tr>
@@ -415,7 +415,7 @@
                 <td>{$item.user}</td>
                 <td style='font-size:70%'>{$item.ts}</td>
                 <td>
-                    {if $client.is_active}
+                    {if !$client.is_closed}
                     {if $item.user == 'AutoLK'}
                     <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontactLK&act={if $lk_contacts[$item.id] == "connecting"}working{else}connecting{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $lk_contacts[$item.id] == "connecting"}action_check_off{else}action_check{/if}.gif' alt="Активность"></a>
                     {else}
@@ -426,7 +426,7 @@
                 </tr>
                 {/foreach}
 
-                {if $client.is_active}
+                {if !$client.is_closed}
                 <tr>
                     <td>
                         <select name=type class=text style='font-size:10px' id='cd_type'>
@@ -453,7 +453,7 @@
                     </td>
                 </tr>
                 {/if}
-                {/if} {* is active *}
+                {/if} {* !$client.is_closed *}
             </table>
         </form>
     </td>
@@ -507,7 +507,7 @@
                 </td>
                 </tr>
                 {/foreach}
-                {if $client.is_active}
+                {if !$client.is_closed}
                 <tr>
                     <td><input class=text style='width:70' type=text name=contract_no value={$client.id}-{0|mdate:"y"}></td>
                     <td><input class=text style='width:85' type=text name=contract_date value={0|mdate:"Y-m-d"}></td>

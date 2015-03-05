@@ -8,7 +8,7 @@ use app\models\ClientStatuses;
 use app\models\ClientGridSettings;
 
 
-class checkIsActiveAccount extends Behavior
+class SetOldStatus extends Behavior
 {
     public function events()
     {
@@ -25,10 +25,9 @@ class checkIsActiveAccount extends Behavior
             {
                 $bpStatus = ClientGridSettings::findOne($event->sender->business_process_status_id);
 
-                if ($bpStatus && $bpStatus->oldstatus && $bpStatus->is_close_status == $event->sender->is_active) // is_close = !is_active
+                if ($bpStatus && $bpStatus->oldstatus && $bpStatus->oldstatus != $event->sender->status)
                 {
-                    $event->sender->is_active = $bpStatus->is_close_status ? 0 : 1;
-                    $event->sender->is_blocked = 0;
+                    $event->sender->status = $bpStatus->oldstatus;
                     $event->sender->save();
 
                     $cs = new ClientStatuses();
@@ -36,8 +35,8 @@ class checkIsActiveAccount extends Behavior
                     $cs->ts = date("Y-m-d H:i:s");
                     $cs->id_client = $event->sender->id;
                     $cs->user = \Yii::$app->user->getIdentity()->user;
-                    $cs->status = "";
-                    $cs->comment = "Лицевой счет " . ($event->sender->is_active ? "открыт" : "закрыт");
+                    $cs->status = $bpStatus->oldstatus;
+                    $cs->comment = "";
 
                     $cs->save();
                 }

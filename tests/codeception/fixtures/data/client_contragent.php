@@ -11,11 +11,6 @@ return [
         'super_id' => '76180',
         'name' => 'welltime company',
     ],
-    's8800' => [
-        'id' => '76182',
-        'super_id' => '76181',
-        'name' => 's8800 company',
-    ],
     'sms' => [
         'id' => '76183',
         'super_id' => '76182',

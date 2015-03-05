@@ -3,7 +3,6 @@
 use tests\codeception\_pages\LoginPage;
 use tests\codeception\_pages\NewClient;
 use app\tests\codeception\fixtures\TariffVoipFixture;
-use app\tests\codeception\fixtures\Tariff8800Fixture;
 use app\tests\codeception\fixtures\TariffExtraFixture;
 use app\tests\codeception\fixtures\TariffInternetFixture;
 use app\tests\codeception\fixtures\TariffSmsFixture;
@@ -23,9 +22,6 @@ $date_to = date('20-m-Y', $to_ts);
 
 $tariffVoip = new TariffVoipFixture();
 $tariffVoip->load();
-
-$tariff8800 = new Tariff8800Fixture();
-$tariff8800->load();
 
 $tariffExtra = new TariffExtraFixture();
 $tariffExtra->load();
@@ -97,24 +93,6 @@ $services = array(
             'input[name="dbform[is_moved]"]' => 1,
             'input[name="dbform[comment]"]' => 'Тестовая АТС',
             'input[name="dbform[t_date_activation]"]' => $date_activation,
-        ),
-        'verifications' => array(
-            'selectboxes' => true,
-            'inputs' => true,
-        ),
-        'button' => 'Добавить'
-    ),
-    's88002' => array(
-        'page' => '?module=services&action=8800_view',
-        'add_link' => 'Добавить услугу',
-        'selectbox' => array(
-            'select[name="dbform[tarif_id]"]' => $tariff8800->getModel('s8800')->id,
-            'select[name="dbform[status]"]' => 'working',
-        ),
-        'input' => array(
-            'input[name="dbform[actual_from]"]' => $date_from,
-            'input[name="dbform[actual_to]"]' => $date_to,
-            'input[name="dbform[number]"]' => '78002332020',
         ),
         'verifications' => array(
             'selectboxes' => true,

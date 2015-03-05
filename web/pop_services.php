@@ -39,10 +39,7 @@
         case 'usage_virtpbx': 
             if (!access('services_welltime','full')) return;
             break;
-        case 'usage_8800': 
-            if (!access('services_welltime','full')) return;
-            break;
-        case 'usage_sms': 
+        case 'usage_sms':
             if (!access('services_welltime','full')) return;
             break;
         default: return;

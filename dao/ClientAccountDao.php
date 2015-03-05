@@ -1,6 +1,8 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientStatuses;
+use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
 use app\models\Bill;
@@ -539,5 +541,75 @@ class ClientAccountDao extends Singleton
 
     private function sum_more($pay,$bill,$diff=0.01) {
         return ($pay-$bill>-$diff);
+    }
+
+    public function updateIsActive(ClientAccount $clientAccount)
+    {
+        $hasUsage =
+            Yii::$app->db->createCommand("
+                select id
+                from emails u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+
+                union all
+
+                select id
+                from usage_extra u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+
+                union all
+
+                select id
+                from usage_welltime u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+
+                union all
+
+                select id
+                from usage_ip_ports u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+
+                union all
+
+                select id
+                from usage_sms u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+
+                union all
+
+                select id
+                from usage_virtpbx u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+
+                union all
+
+                select id
+                from usage_voip u
+                where u.client = :client and u.status != 'archived'
+                limit 1
+            ", [
+                ':client' => $clientAccount->client
+            ])
+                ->queryOne();
+
+        $newIsActive = $hasUsage ? 1 : 0;
+        if ($clientAccount->is_active != $newIsActive) {
+            $clientAccount->is_active = $newIsActive;
+            $clientAccount->save();
+
+            $cs = new ClientStatuses();
+
+            $cs->ts = date("Y-m-d H:i:s");
+            $cs->id_client = $clientAccount->id;
+            $cs->user = \Yii::$app->user->getIdentity()->user;
+            $cs->status = "";
+            $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
+        }
     }
 }

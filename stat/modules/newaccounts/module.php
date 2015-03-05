@@ -993,7 +993,7 @@ class m_newaccounts extends IModule
                 }
                 $R=$s->GetLinesMonth();
                 if (!$bill->AddLines($R)) $err=1;
-                $db->Query("update ".$service['service']." set status='working' where id='".$service['id']."'");
+                //$db->Query("update ".$service['service']." set status='working' where id='".$service['id']."'");
             }
         } elseif ($obj=='regular') {
             ClientCS::getClientClient($fixclient);
