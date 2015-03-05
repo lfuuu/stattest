@@ -187,7 +187,7 @@
                 <input type=checkbox name="publich_contact_id" value="{$item.id}" class="publish_comment{if $item.is_publish}_over{/if}"{if $item.is_publish} checked{/if}>
                 <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
             {/if}
-            {if $item.status}
+            {if $item.status && $item.tst < 1425588720}{*'2015-03-05 20:52:00'*}
                 <div style="width: 17px; display: inline-block;">&nbsp;</div><b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
             {/if}
             {/foreach}
@@ -270,7 +270,6 @@
                         Блокировка:
                     </td>
                     <td>
-                        &nbsp;
                         <div class="btn-group" role="group" aria-label="...">
                             <button id="block-btn-work" type="button" class="btn btn-default btn-sm {if $client.is_blocked}btn-default{else}btn-success{/if}" style="width: 120px;">Работает</button>
                             <button id="block-btn-block" type="button" class="btn btn-default btn-sm dropdown-toggle {if $client.is_blocked}btn-danger{else}btn-default{/if}" style="width: 120px;" data-toggle="dropdown" aria-expanded="false">Заблокирован</button>
