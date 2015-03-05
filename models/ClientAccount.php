@@ -5,10 +5,7 @@ use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use yii\db\ActiveRecord;
 use app\classes\behaviors\LogClientContractTypeChange;
-use app\classes\behaviors\setOldStatus;
-use app\classes\behaviors\checkIsActiveAccount;
-use app\models\ClientGridSettings;
-use app\models\ClientBPStatuses;
+use app\classes\behaviors\SetOldStatus;
 
 /**
  * @property int $id
@@ -68,9 +65,8 @@ class ClientAccount extends ActiveRecord
     {
         return [
             LogClientContractTypeChange::className(),
-            setOldStatus::className(),
-            checkIsActiveAccount::className()
-            ];
+            SetOldStatus::className(),
+        ];
     }
 
     public function getTaxRate()

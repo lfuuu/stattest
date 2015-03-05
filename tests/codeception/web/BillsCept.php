@@ -10,7 +10,6 @@ use app\tests\codeception\fixtures\LogClientFixture;
 use app\tests\codeception\fixtures\LogClientFieldsFixture;
 use app\tests\codeception\fixtures\LogTarifFixture;
 use app\tests\codeception\fixtures\LogBlockFixture;
-use app\tests\codeception\fixtures\Usage8800Fixture;
 use app\tests\codeception\fixtures\UsageExtraFixture;
 use app\tests\codeception\fixtures\UsageIpPortsFixture;
 use app\tests\codeception\fixtures\UsageSmsFixture;
@@ -18,7 +17,6 @@ use app\tests\codeception\fixtures\UsageVirtpbxFixture;
 use app\tests\codeception\fixtures\UsageVoipFixture;
 use app\tests\codeception\fixtures\UsageWelltimeFixture;
 use app\tests\codeception\fixtures\TariffVoipFixture;
-use app\tests\codeception\fixtures\Tariff8800Fixture;
 use app\tests\codeception\fixtures\TariffExtraFixture;
 use app\tests\codeception\fixtures\TariffInternetFixture;
 use app\tests\codeception\fixtures\TariffSmsFixture;
@@ -32,8 +30,6 @@ $I->wantTo('Создать счета');
 $tariffVoip = new TariffVoipFixture();
 $tariffVoip->load();
 
-$tariff8800 = new Tariff8800Fixture();
-$tariff8800->load();
 
 $tariffExtra = new TariffExtraFixture();
 $tariffExtra->load();
@@ -67,9 +63,6 @@ $logTarif->load();
 
 $logBlock = new LogBlockFixture();
 $logBlock->load();
-
-$usage8800 = new Usage8800Fixture();
-$usage8800->load();
 
 $usageExtra = new UsageExtraFixture();
 $usageExtra->load();
@@ -116,11 +109,6 @@ $clients = array(
     'internet' => array(
         'links' => array(
             'Абонентская плата за доступ в интернет (подключение 7711, тариф Тариф интернет)'
-        )
-    ),
-    's8800' => array(
-        'links' => array(
-            'Тариф 8800'
         )
     ),
     'collocation' => array(

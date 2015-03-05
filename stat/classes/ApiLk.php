@@ -952,7 +952,7 @@ class ApiLk
                         "box_quota"     => "50000",
                         "status"        => "working",
                         "actual_from"   => array('NOW()'),
-                        "actual_to"     => "2029-12-31"
+                        "actual_to"     => "2029-01-01"
                         )
                     );
         return array('status'=>'ok','message'=>'Почтовый ящик добавлен.');
@@ -1254,7 +1254,8 @@ class ApiLk
                         "id" => $email_id, 
                         "client"=>$client['client'], 
                         "enabled" => (($action == 'disable') ? '0' : '1'),
-                        "actual_to" => (($action == 'disable') ? array('NOW()') : '2029-12-31')
+                        "status" => 'archived',
+                        "actual_to" => (($action == 'disable') ? array('NOW()') : '2029-01-01')
                     )
             );
             return array('status'=>'ok','message'=>(($action == 'disable') ? 'Почтовый ящик отключен.' : 'Почтовый ящик подключен.'));

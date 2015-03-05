@@ -15,13 +15,6 @@ return [
         'value_from' => '',
         'value_to' => 'welltime',
     ],
-    '2' => [
-        'id' => '84396',
-        'ver_id' => '80588',
-        'field' => 'client',
-        'value_from' => '',
-        'value_to' => 's8800',
-    ],
     '3' => [
         'id' => '84397',
         'ver_id' => '80589',

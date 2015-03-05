@@ -31,16 +31,6 @@ return [
         'comment' => '',
         'fields_changes' => '',
     ],
-    '3' => [
-        'id' => '85262',
-        'service' => 'usage_8800',
-        'id_service' => '31',
-        'block' => '0',
-        'id_user' => '188',
-        'ts' => '2014-10-30 17:03:00',
-        'comment' => '',
-        'fields_changes' => '',
-    ],
     '4' => [
         'id' => '85263',
         'service' => 'usage_sms',

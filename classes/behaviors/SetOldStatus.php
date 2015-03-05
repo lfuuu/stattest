@@ -8,7 +8,7 @@ use app\models\ClientStatuses;
 use app\models\ClientGridSettings;
 
 
-class setOldStatus extends Behavior
+class SetOldStatus extends Behavior
 {
     public function events()
     {

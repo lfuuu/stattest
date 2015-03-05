@@ -253,19 +253,6 @@ $tariffs = array(
         ),
         'button' => 'Добавить'
     ),
-    '8800' => array(
-        'page' => '?module=tarifs&action=8800',
-        'add_link' => 'Добавить',
-        'input' => array(
-            'input[name="dbform[description]"]' => 'test_8800',
-            'input[name="dbform[price]"]' => '300',
-        ),
-        'verifications' => array(
-            'selectboxes' => true,
-            'inputs' => true,
-        ),
-        'button' => 'Добавить'
-    ),
     'sms' => array(
         'page' => '?module=tarifs&action=sms',
         'add_link' => 'Добавить',

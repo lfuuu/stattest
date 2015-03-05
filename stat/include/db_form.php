@@ -176,6 +176,33 @@ class DbForm {
             return $p;
         }
     }
+
+    public function processStatusAndPeriod()
+    {
+        if ($this->dbform_action != 'delete') {
+            if ($this->dbform['actual_from'] > $this->dbform['actual_to']) {
+                $this->dbform['actual_to'] = $this->dbform['actual_from'];
+            }
+            if ($this->dbform['status'] == 'connecting') {
+                $this->dbform['actual_from'] = '2029-01-01';
+                $this->dbform['actual_to'] = '2029-01-01';
+            } elseif ($this->dbform['status'] == 'working') {
+                if ($this->dbform['actual_from'] == '2029-01-01') {
+                    $this->dbform['actual_from'] = date('Y-m-d');
+                    $this->dbform['actual_to'] = '2029-01-01';
+                } elseif ($this->dbform['actual_to'] < date('Y-m-d')) {
+                    $this->dbform['status'] = 'archived';
+                }
+            } elseif ($this->dbform['status'] == 'archived') {
+                if ($this->dbform['actual_from'] > date('Y-m-d')) {
+                    $this->dbform['actual_from'] = '0000-00-00';
+                    $this->dbform['actual_to'] = '0000-00-00';
+                } elseif ($this->dbform['actual_to'] > date('Y-m-d')) {
+                    $this->dbform['actual_to'] == date('Y-m-d');
+                }
+            }
+        }
+    }
 }
 class HelpDbForm {
     public static function assign_tarif($service,$id, $postfix = '') {
@@ -307,6 +334,7 @@ class DbFormUsageIpPorts extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_ip_ports');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029');
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['address']=array();
@@ -320,7 +348,7 @@ class DbFormUsageIpPorts extends DbForm{
         $this->fields['port_id']=array('type'=>'hidden');
         $this->fields['amount']=array('default'=>'1');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
-        
+
         $this->includesPreL = array('dbform_internet_tarif.tpl');
         $this->includesPreR = array('dbform_block.tpl');
         $this->includesPre=array('dbform_tt.tpl');
@@ -408,6 +436,9 @@ class DbFormUsageIpPorts extends DbForm{
             $this->dbform['port_id']=$db->GetInsertId();
         }
         $current = $db->GetRow("select * from usage_ip_ports where id = '".$this->dbform["id"]."'");
+
+        $this->processStatusAndPeriod();
+
         $v=DbForm::Process();
         
         if ($v=='add' || $v=='edit') {
@@ -439,13 +470,13 @@ class DbFormUsageVoip extends DbForm {
         DbForm::__construct('usage_voip');
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>"onchange='change_datepicker_value();' ");
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['E164']=array("add" => " onchange='form_usagevoip_hide()'");
         $this->fields['no_of_lines']=array('default'=>1);
         $this->fields['line7800_id']=array("assoc_enum" => array());
         $this->fields['allowed_direction']=array('assoc_enum' => UsageVoip::$allowedDirection, 'default'=>'full');
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['address']=array();
@@ -557,6 +588,10 @@ class DbFormUsageVoip extends DbForm {
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+
+        $this->processStatusAndPeriod();
+
 
         if($this->dbform['is_trunk'] == '0' && !$this->check_number()) return;
 
@@ -733,6 +768,7 @@ class DbFormEmails extends DbForm {
     public function __construct() {
         DbForm::__construct('emails');
         $this->fields['client']=array('type'=>'label','default'=>'');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['local_part']=array('type'=>'text');
@@ -740,7 +776,6 @@ class DbFormEmails extends DbForm {
         $this->fields['password']=array("type" => "password");
         $this->fields['box_quota']=array('assoc_enum'=>array('50000'=>'50 Mb','100000'=>'100 Mb'));
         $this->fields['box_size']=array('type'=>'label');
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['t_comment']=array('db_ignore'=>1);
         $this->includesPre = array('dbform_block.tpl');
         $this->includesPost =array('dbform_block_history.tpl');
@@ -779,6 +814,10 @@ class DbFormEmails extends DbForm {
 
         if(!isset($this->dbform['id']))
             return '';
+
+
+        $this->processStatusAndPeriod();
+
 
         if($this->dbform_action!='delete'){
             $this->dbform['actual_from'] = date('Y-m-d',strtotime($this->dbform['actual_from']));
@@ -819,13 +858,13 @@ class DbFormEmailsSimple extends DbForm {
     public function __construct() {
         DbForm::__construct('emails');
         $this->fields['client']=array('type'=>'label','default'=>'');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('type'=>'hidden','default'=>date('d-m-Y'));
         $this->fields['actual_to']=array('type'=>'hidden','default'=>'01-01-2029');
         $this->fields['local_part']=array('type'=>'text');
         $this->fields['domain']=array('type'=>'include','file'=>'dbform_emails_domain.tpl','add'=>'');
         $this->fields['password']=array();
         $this->fields['box_quota']=array('assoc_enum'=>array('50000'=>'50 Mb','100000'=>'100 Mb'));
-        $this->fields['status']=array('type'=>'hidden','default'=>'connecting');
     }
     public function Display($form_params = array(),$h2='',$h3='') {
         global $db,$design;
@@ -1010,6 +1049,7 @@ class DbFormUsageExtra extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029');
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['code']=array('type'=>'hidden');
@@ -1019,7 +1059,6 @@ class DbFormUsageExtra extends DbForm{
         $this->fields['amount']=array("default" => 1);
         $this->fields['async_price']=array('type'=>'label','db_ignore'=>1);
         $this->fields['async_period']=array('type'=>'label','db_ignore'=>1);
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
         $this->includesPre = array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
@@ -1089,6 +1128,10 @@ class DbFormUsageExtra extends DbForm{
         $this->Get();
         if (!isset($this->dbform['id'])) return '';
 
+
+        $this->processStatusAndPeriod();
+
+
         $current = $db->GetRow("select * from usage_extra where id = '".$this->dbform["id"]."'");
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_extra');
 
@@ -1104,6 +1147,7 @@ class DbFormUsageITPark extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029');
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
@@ -1112,7 +1156,6 @@ class DbFormUsageITPark extends DbForm{
         $this->fields['amount']=array();
         $this->fields['async_price']=array('type'=>'label','db_ignore'=>1);
         $this->fields['async_period']=array('type'=>'label','db_ignore'=>1);
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['t_comment']=array('db_ignore'=>1);
         $this->includesPre = array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
@@ -1171,6 +1214,11 @@ class DbFormUsageITPark extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+
+        $this->processStatusAndPeriod();
+
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
@@ -1185,6 +1233,7 @@ class DbFormUsageWelltime extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_welltime');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029');
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
@@ -1192,7 +1241,6 @@ class DbFormUsageWelltime extends DbForm{
         $this->fields['ip']=array();
         $this->fields['router']=array("enum" => array());
         $this->fields['amount']=array();
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
         $this->includesPre=array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
@@ -1260,6 +1308,10 @@ class DbFormUsageWelltime extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
+
+        $this->processStatusAndPeriod();
+
+
         $current = $db->GetRow("select * from usage_welltime where id = '".$this->dbform["id"]."'");
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_welltime');
 
@@ -1279,13 +1331,13 @@ class DbFormUsageVirtpbx extends DbForm{
 
         DbForm::__construct('usage_virtpbx');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029', 'add'=>"onchange='optools.voip.check_e164.move_checking();' ");
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         //$this->fields['tarif_id']=array('type'=>'hidden');
         //$this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"), 'default' => 2);
         $this->fields['amount']=array("default" => 1);
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
         $this->fields['is_moved']=array("type" => 'checkbox', 'visible' => false);
         $this->fields['moved_from']=array('type' => 'select', 'visible' => false, 'with_hidden' => true);
@@ -1401,6 +1453,10 @@ class DbFormUsageVirtpbx extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
+
+        $this->processStatusAndPeriod();
+
+
         if(!$this->check_virtats()) {
             $this->fields['actual_from']['default']=$this->dbform['actual_from'];
             $this->fields['actual_to']['default']=$this->dbform['actual_to'];
@@ -1459,101 +1515,17 @@ class DbFormUsageVirtpbx extends DbForm{
     }
 }
 
-class DbFormUsage8800 extends DbForm{
-    public function __construct() {
-        global $db;
-
-        DbForm::__construct('usage_8800');
-        $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>'01-01-2029');
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
-        $this->fields['tarif_id']=array('type'=>'hidden');
-        $this->fields['tarif_str']=array('db_ignore'=>1);
-        $this->fields['number']=array("default" => "7800");
-        $this->fields['amount']=array("default" => 1);
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
-        $this->fields['comment']=array();
-        $this->includesPre=array('dbform_block.tpl');
-        $this->includesPre2=array('dbform_tt.tpl');
-        $this->includesPost=array('dbform_block_history.tpl','dbform_usage_extra.tpl');
-    }
-    public function Display($form_params = array(),$h2='',$h3='') {
-         global $db,$design, $fixclient_data;
-
-        if(!isset($fixclient_data))
-            $fixclient_data=StatModule::clients()->get_client_info($this->data['client']);
-        if ($this->isData('id')) {
-            HelpDbForm::assign_block('usage_8800',$this->data['id']);
-            HelpDbForm::assign_tt('usage_8800',$this->data['id'],$this->data['client']);
-
-            $db->Query('
-                select
-                    id,
-                    description,
-                    price,
-                    currency
-                from
-                    tarifs_8800
-                where
-                    id='.$this->data['tarif_id']
-            );
-
-            $r=$db->NextRecord();
-            $this->fields['tarif_str']['type']='label';
-            $design->assign('tarif_real_id',$r['id']);
-            $this->data['tarif_str']=$r['description'];
-        }else{
-            $db->Query('
-            select
-                id,
-                description,
-                price,
-                currency
-            from
-                tarifs_8800
-            order by price'
-            );
-            $R=array('');
-            while($r=$db->NextRecord())
-                $R[$r['id']]=$r['description'].' ('.$r['price'].' '.$r['currency'].')';
-            $this->fields['tarif_id']['type']='select';
-            $this->fields['tarif_id']['add']=' onchange=form_usage_8800_get()';
-            $this->fields['tarif_id']['assoc_enum']=$R;
-            $this->fields['tarif_str']['type']='no';
-        }
-        DbForm::Display($form_params,$h2,$h3);
-    }
-    public function Process($no_real_update = 0){
-        global $db,$user;
-        $this->Get();
-        if(!isset($this->dbform['id']))
-            return '';
-        $current = $db->GetRow("select * from usage_8800 where id = '".$this->dbform["id"]."'");
-        
-        $v=DbForm::Process();
-        if($v=='add' || $v=='edit'){
-            HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_8800');
-            $this->dbform["number"] = trim($this->dbform["number"]);
-
-            if(!isset($this->dbform['t_block']))
-                $this->dbform['t_block'] = 0;
-            HelpDbForm::save_block('usage_8800',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
-        }
-        return $v;
-    }
-}
-
 class DbFormUsageSms extends DbForm{
     public function __construct() {
         global $db;
 
         DbForm::__construct('usage_sms');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029');
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['comment']=array();
         $this->includesPre=array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
@@ -1612,6 +1584,10 @@ class DbFormUsageSms extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
+
+        $this->processStatusAndPeriod();
+
+
         $current = $db->GetRow("select * from usage_sms where id = '".$this->dbform["id"]."'");
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_sms');
 
@@ -1630,6 +1606,7 @@ class DbFormUsageWellSystem extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
+        $this->fields['status']=array('enum'=>array('connecting','working','archived'),'default'=>'connecting');
         $this->fields['actual_from']=array('default'=>'01-01-2029');
         $this->fields['actual_to']=array('default'=>'01-01-2029');
         $this->fields['tarif_id']=array('type'=>'hidden');
@@ -1638,7 +1615,6 @@ class DbFormUsageWellSystem extends DbForm{
         $this->fields['amount']=array();
         $this->fields['async_price']=array('type'=>'label','db_ignore'=>1);
         $this->fields['async_period']=array('type'=>'label','db_ignore'=>1);
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['t_comment']=array('db_ignore'=>1);
         $this->includesPre = array('dbform_block.tpl');
         $this->includesPre2=array('dbform_tt.tpl');
@@ -1697,6 +1673,11 @@ class DbFormUsageWellSystem extends DbForm{
         $this->Get();
         if(!isset($this->dbform['id']))
             return '';
+
+
+        $this->processStatusAndPeriod();
+
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
@@ -1993,8 +1974,6 @@ class DbFormFactory {
             return new DbFormUsageWelltime();
         }elseif ($table=='usage_virtpbx') {
             return new DbFormUsageVirtpbx();
-        }elseif ($table=='usage_8800') {
-            return new DbFormUsage8800();
         }elseif ($table=='usage_sms') {
             return new DbFormUsageSms();
         }elseif ($table=='emails') {

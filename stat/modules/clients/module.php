@@ -590,20 +590,7 @@ class m_clients {
                 {
 					$in_c = "'".$cls[0]['client']."'";
                 } else {
-
-                    // search by service 8800
-                    if(strlen($search) > 5)
-                    {
-                        $n = $db->GetValue("select client from usage_8800 where number like '%".$search."%'");
-                        if ($n)
-                        {
-                            $in_c = "'".$n."'";
-                        } else {
-                            $in_c = "''";
-                        }
-                    } else {
-                        $in_c = "''";
-                    }
+                    $in_c = "''";
                 }
 			}elseif($smode==8){
 				$cls = $db->AllRecords(
@@ -1123,7 +1110,6 @@ class m_clients {
                 if(StatModule::services()->services_it_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_welltime_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_virtpbx_view($r['client'])) $isServiceEnabled = true;
-                if(StatModule::services()->services_8800_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_sms_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_wellsystem_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_ad_view($r['client'])) $isServiceEnabled = true;
