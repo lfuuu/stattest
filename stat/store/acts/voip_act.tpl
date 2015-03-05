@@ -23,7 +23,7 @@
 <li>Абоненту выданы следующие телефонные номера:<br>
 <ul>
 {foreach from=$voip_connections item=item}
-<li>{if $item.E164_first}({$item.E164_first}) {/if}{$item.E164_last} {if $item.no_of_lines>1} x {$item.no_of_lines}{/if}{if $item.address} по&nbsp;адресу: {$item.address}{/if}</li>
+<li title="{$item.actual_from}">{if $item.E164_first}({$item.E164_first}) {/if}{$item.E164_last} {if $item.no_of_lines>1} x {$item.no_of_lines}{/if}{if $item.address} по&nbsp;адресу: {$item.address}{/if}</li>
 {/foreach}
 </ul>
 </ol><br>
