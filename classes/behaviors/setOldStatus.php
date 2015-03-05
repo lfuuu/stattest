@@ -41,6 +41,26 @@ class setOldStatus extends Behavior
                     $cs->save();
                 }
             }
+
+            if (isset($event->changedAttributes["is_blocked"]))
+            {
+                if ($event->changedAttributes["is_blocked"] != $event->sender->is_blocked)
+                {
+                    $newStatus = $event->sender->is_blocked ? "debt" : "work";
+                    $event->sender->status = $newStatus;
+                    $event->sender->save();
+
+                    $cs = new ClientStatuses();
+
+                    $cs->ts = date("Y-m-d H:i:s");
+                    $cs->id_client = $event->sender->id;
+                    $cs->user = \Yii::$app->user->getIdentity()->user;
+                    $cs->status = $newStatus;
+                    $cs->comment = "Лицевой счет ".($newStatus == "work" ? "разблокирован" : "заблокирован");
+
+                    $cs->save();
+                }
+            }
         }
     }
 }
