@@ -1267,7 +1267,8 @@ class m_clients {
             "is_active" => 1,
             "contract_type_id" => 2,
             "business_process_id" => 1,
-            "business_process_status_id" => 1
+            "business_process_status_id" => 1,
+            "credit" => 0
         ];
         $design->assign("client", $client);
 

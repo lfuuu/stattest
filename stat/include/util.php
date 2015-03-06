@@ -940,7 +940,8 @@ class ClientCS {
             "business_process_id" => 1, //Сопровождение
             "business_process_status_id" => 1, //Входящие
             "voip_credit_limit_day" => 1000,
-            "voip_is_day_calc" => 1
+            "voip_is_day_calc" => 1,
+            "credit" => 0
         );
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
