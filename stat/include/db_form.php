@@ -1003,6 +1003,10 @@ class DbFormUsageIpRoutes extends DbForm{
             $p=1;
             trigger_error2('Адрес сети отсутствует');
         }
+
+        $from = $this->dbform['actual_from'];
+        $to = $this->dbform['actual_to'];
+
         $v=(
                 $this->dbform_action=='save'
             &&
@@ -1014,18 +1018,21 @@ class DbFormUsageIpRoutes extends DbForm{
                     from
                         usage_ip_routes
                     where
-                        (
-                            (actual_from<>"2029-01-01" and actual_from between "'.addslashes($this->dbform['actual_from']).'" and "'.addslashes($this->dbform['actual_to']).'")
-                        or
-                            (actual_to<>"2029-01-01" and actual_to between "'.addslashes($this->dbform['actual_from']).'" and "'.addslashes($this->dbform['actual_to']).'")
-                        )
+                    (
+                        "'.$from.'" between actual_from and actual_to
+                    or 
+                        "'.$to.'" between actual_from and actual_to
+                    or 
+                        (actual_from between "'.$from.'" and "'.$to.'" and actual_to between "'.$from.'" and "'.$to.'")
+                    )
                     and
                         net="'.addslashes($this->dbform['net']).'"
                     and
                         id!="'.addslashes($this->dbform['id']).'"')
         );
 
-        if ($v) {$this->dbform['net']=''; trigger_error2('Сеть уже занята');}
+
+        if ($v) {$this->dbform['net']=''; trigger_error2('Сеть уже занята'); header("Location: ./?module=services&action=in_add2"); exit();}
         $current = $db->GetRow("select * from usage_ip_routes where id = '".$this->dbform["id"]."'");
         $action=DbForm::Process($p);
 
