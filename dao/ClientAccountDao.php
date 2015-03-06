@@ -545,56 +545,59 @@ class ClientAccountDao extends Singleton
 
     public function updateIsActive(ClientAccount $clientAccount)
     {
+        $now = new \DateTime();
+
         $hasUsage =
             Yii::$app->db->createCommand("
                 select id
                 from emails u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
 
                 union all
 
                 select id
                 from usage_extra u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
 
                 union all
 
                 select id
                 from usage_welltime u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
 
                 union all
 
                 select id
                 from usage_ip_ports u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
 
                 union all
 
                 select id
                 from usage_sms u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
 
                 union all
 
                 select id
                 from usage_virtpbx u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
 
                 union all
 
                 select id
                 from usage_voip u
-                where u.client = :client and u.status != 'archived'
+                where u.client = :client and u.actual_to >= :date
                 limit 1
             ", [
-                ':client' => $clientAccount->client
+                ':client' => $clientAccount->client,
+                ':date' => $now->format('Y-m-d'),
             ])
                 ->queryOne();
 
