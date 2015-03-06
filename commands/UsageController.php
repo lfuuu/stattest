@@ -19,9 +19,9 @@ class UsageController extends Controller
 {
     public function actionCloseExpired()
     {
+        /*
         $now = new DateTime();
 
-        /** @var ActiveQuery[] $usageQueries */
         $usageQueries = [
             Emails::find(),
             UsageExtra::find(),
@@ -43,6 +43,7 @@ class UsageController extends Controller
                 $usage->save();
             }
         }
+        */
     }
 
     public function actionClientUpdateIsActive()
