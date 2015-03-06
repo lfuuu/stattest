@@ -5,13 +5,13 @@ class m150305_181347_account_is_active_rollback extends \app\classes\Migration
     public function up()
     {
         $this->execute("
-            update emails set status='working' where status='archived' and actual_to >now();
-            update usage_extra set status='working' where status='archived' and actual_to>now();
-            update usage_ip_ports set status='working' where status='archived' and actual_to>now();
-            update usage_sms set status='working' where status='archived' and actual_to>now();
-            update usage_virtpbx set status='working' where status='archived' and actual_to>now();
-            update usage_voip set status='working' where status='archived' and actual_to>now();
-            update usage_welltime set status='working' where status='archived' and actual_to>now();
+            update emails set status='working' where status='archived';
+            update usage_extra set status='working' where status='archived';
+            update usage_ip_ports set status='working' where status='archived';
+            update usage_sms set status='working' where status='archived';
+            update usage_virtpbx set status='working' where status='archived';
+            update usage_voip set status='working' where status='archived';
+            update usage_welltime set status='working' where status='archived';
         ");
 
         $this->execute("
