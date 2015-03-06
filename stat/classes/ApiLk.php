@@ -1254,7 +1254,6 @@ class ApiLk
                         "id" => $email_id, 
                         "client"=>$client['client'], 
                         "enabled" => (($action == 'disable') ? '0' : '1'),
-                        "status" => 'archived',
                         "actual_to" => (($action == 'disable') ? array('NOW()') : '2029-01-01')
                     )
             );
