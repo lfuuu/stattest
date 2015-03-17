@@ -193,7 +193,7 @@ class VirtpbxStat extends ActiveRecord\Model
         {
             $line = ApiLk::_exportModelRow($fields, $l);
 
-            $line["mdate"]      = mdate("j месяца Y г.", $line["mdate"]);
+            $line["mdate"]      = $line["mdate"];
             $line["use_space"]  = smarty_modifier_bytesize($line["use_space"], 'b');
             $line["diff"]       = smarty_modifier_bytesize($line["diff"], 'b');
             $line["for_space"]  = smarty_modifier_bytesize($line["for_space"], 'Gb');

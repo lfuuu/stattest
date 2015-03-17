@@ -333,6 +333,8 @@ class m_stats extends IModule{
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
                 $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
 
                 break;
             case 'call':
@@ -358,6 +360,8 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
                 $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -706,7 +710,8 @@ class m_stats extends IModule{
 			'in_f'=>0,
 			'out_r'=>0,
 			'out_r2'=>0,
-			'out_f'=>0
+			'out_f'=>0,
+            'is_total' => 0
 		);
 		//define("print_sql",1);
 		if(count($P)>1){
@@ -778,6 +783,7 @@ class m_stats extends IModule{
 			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
+                $r['is_total'] = 0;
 				$R[]=$r;
 				//printdbg($r);
 				if ($is_collocation) {
@@ -798,6 +804,7 @@ class m_stats extends IModule{
 		$T['ts']='<b>Итого</b>';
 		$T['tsf']='<b>Итого</b>';
 		$T['ip']='&nbsp;';
+        $T["is_total"] = 1;
 		$R[]=$T;
 		return $R;
 	}
@@ -1046,6 +1053,8 @@ class m_stats extends IModule{
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
             $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price_without_tax'] = number_format($rt['price'], 2, '.','');
+            $rt['price_with_tax'] = number_format($rt['price']*1.18, 2, '.','');
 
             $R['total']=$rt;
         }else{
@@ -1098,6 +1107,8 @@ class m_stats extends IModule{
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
             $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price_without_tax'] = number_format($price, 2, '.','');
+            $rt['price_with_tax'] = number_format($price*1.18, 2, '.','');
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
         }
