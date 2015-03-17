@@ -137,9 +137,9 @@ class m_tarifs{
     function tarifs_voip(){
         global $db, $pg_db, $design;
 
-        $f_region = get_param_integer('f_region', '');
+        $f_region = get_param_integer('f_region', '99');
         $f_dest = get_param_protected('f_dest', '');
-        $f_currency = get_param_protected('f_currency', '');
+        $f_currency = get_param_protected('f_currency', 'RUB');
         $f_show_archive = get_param_integer('f_show_archive', 0);
         $design->assign('f_region',$f_region);
         $design->assign('f_dest',$f_dest);
