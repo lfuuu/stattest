@@ -6,13 +6,13 @@ class ApiLk
     public static function getBalanceList($clientId)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
     
         $c = ClientCard::find_by_id($clientId);
         if(!$c)
         {
-            throw new Exception("Лицевой счет не найден!");
+            throw new Exception("account_not_found");
         }
     
         $params = array("client_id" => $c->id, "client_currency" => $c->currency);
@@ -73,17 +73,17 @@ class ApiLk
     public static function getUserBillOnSum($clientId, $sum)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $sum = (float)$sum;
     
         if(!$sum || $sum < 1 || $sum > 1000000)
-            throw new Exception("Ошибка в данных");
+            throw new Exception("data_error");
     
     
         $c = ClientCard::find_by_id($clientId);
         if(!$c)
-            throw new Exception("Лицевой счет не найден!");
+            throw new Exception("account_not_found");
     
         /* !!! проверка поличества созданных счетов */
 
@@ -98,7 +98,7 @@ class ApiLk
         }
     
         if(!$bill)
-            throw new Exception("Невозможно создать счет");
+            throw new Exception("account_error_create");
     
         return $bill;
     }
@@ -107,7 +107,7 @@ class ApiLk
 	{
 		$bill = NewBill::first(array("bill_no" => $billNo));
 		if(!$bill)
-			throw new Exception("Счет не найден");
+			throw new Exception("bill_not_found");
 
 		if(!defined('API__print_bill_url') || !API__print_bill_url)
 			throw new Exception("Не установлена ссылка на печать документов");
@@ -119,17 +119,17 @@ class ApiLk
     public static function getReceiptURL($clientId, $sum)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $sum = (float)$sum;
     
         if(!$sum || $sum < 1 || $sum > 1000000)
-            throw new Exception("Ошибка в данных");
+            throw new Exception("data_error");
     
     
         $c = ClientCard::find_by_id($clientId);
         if(!$c)
-            throw new Exception("Лицевой счет не найден!");
+            throw new Exception("account_not_found");
     
         $R = array("sum" => $sum, 'object'=>"receipt-2-RUB",'client'=>$c->id);
         return API__print_bill_url.udata_encode_arr($R);
@@ -143,17 +143,17 @@ class ApiLk
             throw new Exception("Не заданы параметры для UNITELLER в конфиге");
     
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $sum = (float)$sum;
     
         if(!$sum || $sum < 1 || $sum > 1000000)
-            throw new Exception("Ошибка в данных");
+            throw new Exception("data_error");
     
     
         $c = ClientCard::find_by_id($clientId);
         if(!$c)
-            throw new Exception("Лицевой счет не найден!");
+            throw new Exception("account_not_found");
     
     
         $sum = number_format($sum, 2, '.', '');
@@ -178,15 +178,15 @@ class ApiLk
     public static function getBill($clientId, $billNo)
     {
         if (is_array($clientId) || !$clientId || !preg_match("/^\d{1,6}$/", $clientId))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $c = ClientCard::find_by_id($clientId);
         if(!$c)
-            throw new Exception("Лицевой счет не найден!");
+            throw new Exception("account_not_found");
     
         $b = NewBill::first(array("conditions" => array("client_id" => $clientId, "bill_no" => $billNo, "is_lk_show" => "1")));
         if(!$b)
-            throw new Exception("Счет не найден!");
+            throw new Exception("bill_not_found");
     
         $lines = array();
     
@@ -809,7 +809,7 @@ class ApiLk
         $order_str = 'Заказ услуги Интернет из Личного Кабинета. '.
                 'Client ID: ' . $client_id . '; Region ID: ' . $region_id . '; Tarif ID: ' . $tarif_id;
     
-        return array('status'=>'error','message'=>'Ошибка добавления заявки');
+        return array('status'=>'error','message'=>'order_error');
     }
 
     public static function orderCollocationTarif($client_id, $region_id, $tarif_id)
@@ -817,7 +817,7 @@ class ApiLk
         $order_str = 'Заказ услуги Collocation из Личного Кабинета. '.
                 'Client ID: ' . $client_id . '; Region ID: ' . $region_id . '; Tarif ID: ' . $tarif_id;
     
-        return array('status'=>'error','message'=>'Ошибка добавления заявки');
+        return array('status'=>'error','message'=>'order_error');
     }
 
     public static function orderVoip($client_id, $region_id, $number, $tarif_id, $lines_cnt)
@@ -827,15 +827,15 @@ class ApiLk
 
         $freeNumbers = self::getFreeNumbers(0, true);
         if (array_search($number, $freeNumbers) === false)
-            return array('status'=>'error','message'=>'Номер не свободен!');
+            return array('status'=>'error','message'=>'voip_number_not_free');
     
         $clientNumbers = self::getVoipList($client_id, true);
         if (array_search($number, $clientNumbers) !== false)
-            return array('status'=>'error','message'=>'Номер уже используется!');
+            return array('status'=>'error','message'=>'voip_number_already_used');
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from='2029-01-01' AND actual_to='2029-01-01'");
-        if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'Допускается резервировать не более 5 номеров!');
+        if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'voip_number_max_reserv');
     
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
     
@@ -854,9 +854,9 @@ class ApiLk
     
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager']), "usage_voip", $reserNumber["usage_id"]) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -873,7 +873,7 @@ class ApiLk
         $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
     
         if (!$client || !$region || !$tarif)
-            throw new Exception("Ошибка в данных!");
+            throw new Exception("data_error");
     
         $message = "Заказ услуги Виртуальная АТС из Личного Кабинета. \n";
         $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
@@ -890,7 +890,7 @@ class ApiLk
                             )
                         );
 
-        if (!$vpbxId) return array('status'=>'error','message'=>'Ошибка подключения услуги');
+        if (!$vpbxId) return array('status'=>'error','message'=>'service_connecting_error');
 
         $db->QueryInsert("log_tarif", array(
                             "service"         => 'usage_virtpbx',
@@ -903,9 +903,9 @@ class ApiLk
                         );
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     }
 
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
@@ -922,9 +922,9 @@ class ApiLk
         $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -941,7 +941,7 @@ class ApiLk
                     local_part='".$local_part."'
                 ");
         if ($email_id)
-            return array('status'=>'error','message'=>'Такой Email уже используется');
+            return array('status'=>'error','message'=>'email_already_used');
 
         $emailId = $db->QueryInsert("emails", array(
                         "local_part"        => $local_part,
@@ -955,7 +955,7 @@ class ApiLk
                         "actual_to"     => "2029-01-01"
                         )
                     );
-        return array('status'=>'ok','message'=>'Почтовый ящик добавлен.');
+        return array('status'=>'ok','message'=>'email_added');
     }
 
     public static function changeInternetTarif($client_id, $service_id, $tarif_id)
@@ -972,9 +972,9 @@ class ApiLk
         $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -992,9 +992,9 @@ class ApiLk
         $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -1016,9 +1016,9 @@ class ApiLk
             $message .= "\n\nтариф сменен, т.к. подключения не было";
         }
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -1030,7 +1030,7 @@ class ApiLk
         $tarif = $db->GetValue("select description as name from tarifs_virtpbx where id='".$tarif_id."'");
     
         if (!$client || !$tarif)
-            throw new Exception("Ошибка в данных!");
+            throw new Exception("data_error");
     
         $message = "Заказ изменения тарифного плана услуги Виртуальная АТС из Личного Кабинета. \n";
         $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
@@ -1054,11 +1054,11 @@ class ApiLk
             $message .= "\n\nтариф изменен из личного кабинета";
 
             if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-                return array('status'=>'ok','message'=>'Заявка принята');
+                return array('status'=>'ok','message'=>'order_ok');
         }
     
     
-        return array('status'=>'error','message'=>'Ошибка добавления заявки');
+        return array('status'=>'error','message'=>'order_error');
     }
 
     public static function changeDomainTarif($client_id, $service_id, $tarif_id)
@@ -1075,9 +1075,9 @@ class ApiLk
         $message .= 'Тарифный план: ' . $tarif;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -1094,8 +1094,8 @@ class ApiLk
                     array("id" => $email_id, "client"=>$client['client'], "password" => $password)
             );
 
-            return array('status'=>'ok','message'=>'Пароль изменен');
-        } else return array('status'=>'error','message'=>'Ошибка изменения пароля.');
+            return array('status'=>'ok','message'=>'password_changed');
+        } else return array('status'=>'error','message'=>'password_changed_error');
     }
 
     public static function changeEmailSpamAct($client_id, $email_id, $spam_act)
@@ -1107,7 +1107,7 @@ class ApiLk
         if ($cur_spam_act) {
             $db->QueryUpdate("emails", array("id", "client"), array("id" => $email_id, "client"=>$client['client'], "spam_act" => $spam_act));
         } else 
-            return array('status'=>'error','message'=>'Ошибка изменения фильтрации спама');
+            return array('status'=>'error','message'=>'email_spam_filter_change_error');
 
         return array('status'=>'ok','message'=>'ok');
     }
@@ -1146,9 +1146,9 @@ class ApiLk
         $message .= 'Адрес: ' . $address;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -1164,9 +1164,9 @@ class ApiLk
         $message .= 'Адрес: ' . $address;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -1188,9 +1188,9 @@ class ApiLk
         }
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     }
 
     public static function disconnectVpbx($client_id, $service_id)
@@ -1216,10 +1216,10 @@ class ApiLk
             }
     
             if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-                return array('status'=>'ok','message'=>'Заявка принята');
+                return array('status'=>'ok','message'=>'order_ok');
         }
 
-        return array('status'=>'error','message'=>'Ошибка добавления заявки');
+        return array('status'=>'error','message'=>'order_error');
     }
 
     public static function disconnectDomain($client_id, $service_id)
@@ -1234,9 +1234,9 @@ class ApiLk
         $message .= 'Домен: ' . $domain;
     
         if (self::createTT($message, $client['client'], self::_getUserForTrounble($client['manager'])) > 0)
-            return array('status'=>'ok','message'=>'Заявка принята');
+            return array('status'=>'ok','message'=>'order_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка добавления заявки');
+            return array('status'=>'error','message'=>'order_error');
     
     }
 
@@ -1254,12 +1254,11 @@ class ApiLk
                         "id" => $email_id, 
                         "client"=>$client['client'], 
                         "enabled" => (($action == 'disable') ? '0' : '1'),
-                        "status" => 'archived',
                         "actual_to" => (($action == 'disable') ? array('NOW()') : '2029-01-01')
                     )
             );
-            return array('status'=>'ok','message'=>(($action == 'disable') ? 'Почтовый ящик отключен.' : 'Почтовый ящик подключен.'));
-        } else return array('status'=>'error','message'=>(($action == 'disable') ? 'Ошибка отключения ящика.' : 'Ошибка подключения ящика.'));
+            return array('status'=>'ok','message'=>(($action == 'disable') ? 'email_off' : 'email_on'));
+        } else return array('status'=>'error','message'=>(($action == 'disable') ? 'email_off_error' : 'email_on_error'));
     }
 
     /**
@@ -1269,7 +1268,7 @@ class ApiLk
     public static function getClientData($client_id = '')
     {
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
 
         $ret = self::_exportModelRow(array('id','client','status','inn','kpp','address_jur','address_post','corr_acc',
                         'pay_acc','bik','address_post_real','signer_name','signer_position','address_connect','phone_connect',
@@ -1292,14 +1291,14 @@ class ApiLk
         );
     
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $client = $db->GetRow("select * from clients where '".addslashes($client_id)."' in (id, client)");
         if (!$client)
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         if (!in_array($client['status'], $status_arr))
-            throw new Exception("Запрет редактирования клиента!");
+            throw new Exception("account_edit_ban");
     
         $edit_data = array('id'=>$client_id);
         foreach ($edit_fields as $fld) {
@@ -1321,7 +1320,7 @@ class ApiLk
     public static function getCompanyName($client_id = '')
     {
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $ret = array();
         $client = ClientCard::find_by_id($client_id);
@@ -1501,7 +1500,7 @@ class ApiLk
     public static function getAccountsNotification($client_id = '')
     {
         if (!self::validateClient($client_id))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $ret = array();
         foreach(ClientContact::find_by_sql("
@@ -1528,25 +1527,25 @@ class ApiLk
     {
         global $db;
         if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+            return array('status'=>'error','message'=>'account_is_bad');
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
         if (!$client)
-            return array('status'=>'error','message'=>'Лицевой счет не найден!');
+            return array('status'=>'error','message'=>'account_not_found');
 
         $lk_user = $db->GetRow("select id, user from user_users where user='AutoLK'");
         if (!$lk_user)
-            return array('status'=>'error','message'=>'Ошибка добавления Контакта. Свяжитесь с менеджером.');
+            return array('status'=>'error','message'=>'contact_add_error');
     
         $contact_cnt = $db->GetValue("SELECT COUNT(*) FROM client_contacts WHERE client_id='".$client_id."' AND user_id='".$lk_user["id"]."'");
         if ($contact_cnt >= 5) 
-            return array('status'=>'error','message'=>'Допускается добавлять не более 5 контактов!');
+            return array('status'=>'error','message'=>'contact_max_length');
 
         if (!in_array($type, array('email', 'phone')))
-            return array('status'=>'error','message'=>'Неверный тип контакта.');
+            return array('status'=>'error','message'=>'contact_type_error');
         
         if (!self::validateData($type, $data))
-            return array('status'=>'error','message'=>'Неверный формат данных.');
+            return array('status'=>'error','message'=>'format_error');
     
         $contact_id = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$client_id."' AND type='".$type."' AND data='".$data."' AND user_id='".$lk_user["id"]."'");
         if (!$contact_id) {
@@ -1569,11 +1568,11 @@ class ApiLk
                             )
                         );
         } else 
-            return array('status'=>'error','message'=>'Ошибка добавления контакта.');
+            return array('status'=>'error','message'=>'contact_add_error');
 
         self::sendApproveMessage($client_id, $type, $data, $contact_id);
 
-        return array('status'=>'ok','message'=>'Контакт добавлен');
+        return array('status'=>'ok','message'=>'contact_add_ok');
     }
 
     public static function validateData($t = '', $d = '')
@@ -1603,18 +1602,18 @@ class ApiLk
     {
         global $db;
         if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+            return array('status'=>'error','message'=>'account_is_bad');
 
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
 
         if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+            return array('status'=>'error','message'=>'contact_id_error');
 
         if (!in_array($type, array('email', 'phone')))
-            return array('status'=>'error','message'=>'Неверный тип контакта.');
+            return array('status'=>'error','message'=>'contact_type_error');
 
         if (!self::validateData($type, $data))
-            return array('status'=>'error','message'=>'Неверный формат данных.');
+            return array('status'=>'error','message'=>'format_error');
 
         $status = $db->GetValue("select status from lk_notice_settings where client_id='".$client_id."' and client_contact_id='".$contact_id."'");
 
@@ -1641,7 +1640,7 @@ class ApiLk
             self::sendApproveMessage($client_id, $type, $data, $contact_id);
         }
 
-        return array('status'=>'ok','message'=>'Контакт изменен');
+        return array('status'=>'ok','message'=>'contact_changed_ok');
     }
 
     /**
@@ -1654,14 +1653,14 @@ class ApiLk
     {
         global $db;
         if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+            return array('status'=>'error','message'=>'account_is_bad');
         if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+            return array('status'=>'error','message'=>'contact_id_error');
     
         $db->QueryDelete('lk_notice_settings', array('client_contact_id'=>$contact_id));
         $db->QueryDelete('client_contacts', array('id'=>$contact_id, 'client_id'=>$client_id));
     
-        return array('status'=>'ok','message'=>'Контакт удален.');
+        return array('status'=>'ok','message'=>'contact_del_ok');
     }
 
     /**
@@ -1675,21 +1674,21 @@ class ApiLk
     {
         global $db;
         if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+            return array('status'=>'error','message'=>'account_is_bad');
         if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+            return array('status'=>'error','message'=>'contact_id_error');
         if ($code == '')
-            return array('status'=>'error','message'=>'Код активации не задан!');
+            return array('status'=>'error','message'=>'contact_activation_code_empty');
         
         $etalon_code = $db->GetValue("select activate_code from lk_notice_settings where client_id='".$client_id."' AND client_contact_id='".$contact_id."'");
         if ($etalon_code != $code)
-            return array('status'=>'error','message'=>'Неверный код активации!');
+            return array('status'=>'error','message'=>'contact_activation_code_bad');
         
         $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
         if ($res)
-            return array('status'=>'ok','message'=>'Контакт активирован.');
+            return array('status'=>'ok','message'=>'contact_activation_ok');
         else 
-            return array('status'=>'error','message'=>'Ошибка активации! Свяжитесь с менеджером.');
+            return array('status'=>'error','message'=>'contact_activation_error');
     }
 
     /**
@@ -1703,18 +1702,18 @@ class ApiLk
     {
         global $db;
         if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+            return array('status'=>'error','message'=>'account_is_bad');
         if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'Неверный идентификатор контакта!');
+            return array('status'=>'error','message'=>'contact_id_error');
 
         if ($key == '' || $key != md5($client_id.'SeCrEt-KeY'.$contact_id))
-            return array('status'=>'error','message'=>'Неверный код активации!');
+            return array('status'=>'error','message'=>'contact_activation_code_bad');
 
         $res = $db->Query('update lk_notice_settings set status="working" where client_id="'.$client_id.'" and client_contact_id="'.$contact_id.'"');
         if ($res)
-            return array('status'=>'ok','message'=>'Контакт активирован.');
+            return array('status'=>'ok','message'=>'contact_activation_ok');
         else
-            return array('status'=>'error','message'=>'Ошибка активации! Свяжитесь с менеджером.');
+            return array('status'=>'error','message'=>'contact_activation_error');
     }
 
     /**
@@ -1727,7 +1726,7 @@ class ApiLk
     {
         global $db;
         if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'Неверный номер лицевого счета!');
+            return array('status'=>'error','message'=>'account_is_bad');
     
         $res = array();
         foreach ($data as $name) 
@@ -1810,7 +1809,7 @@ class ApiLk
             $db->QueryInsert('lk_client_settings',$data);
         }
         
-        return array('status'=>'ok','message'=>'Данные сохранены.');
+        return array('status'=>'ok','message'=>'save_ok');
     }
 
     /**
@@ -1821,7 +1820,7 @@ class ApiLk
     public static function getAccountSettings($client_id = '')
     {
         if (!self::validateClient($client_id))
-            throw new Exception("Неверный номер лицевого счета!");
+            throw new Exception("account_is_bad");
     
         $ret = array();
         foreach(ClientContact::find_by_sql("
