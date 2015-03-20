@@ -161,7 +161,7 @@ class BillDao extends Singleton
             $owner->owner_id = $userId;
             $owner->save();
         } elseif ($owner) {
-            $owner->delete();
+            //$owner->delete();
         }
     }
 }
