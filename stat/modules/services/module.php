@@ -891,7 +891,7 @@ class m_services extends IModule{
 
             $dbHost = str_replace("[region]", $region, R_CALLS_HOST);
         
-            if(in_array($region, array(94, 95, 87, 97, 98, 88, 89, 93, 991))) // new schema. scynced
+            if(in_array($region, array(94, 95, 96, 87, 97, 98, 88, 89, 93, 991))) // new schema. scynced
             {
                 $schema = "astschema";
                 $dbHost = "eridanus.mcn.ru";
@@ -985,7 +985,7 @@ class m_services extends IModule{
                 "ast245" => "85.94.32.245",
                 "ast248" => "85.94.32.248",
                 "reg99" => "sip.mcn.ru",
-                "reg96" => "37.228.82.12",
+                "reg96" => "37.228.82.6",
                 "reg97" => "37.228.80.6",
                 "reg98" => "37.228.81.6",
                 "reg95" => "37.228.85.6",
@@ -3425,7 +3425,7 @@ class voipRegion
 
         $pbx = array(
                 "99" => "sip.mcn.ru",
-                "96" => "37.228.82.12",
+                "96" => "37.228.82.6",
                 "97" => "37.228.80.6",
                 "98" => "37.228.81.6",
                 "95" => "37.228.85.6",
@@ -3488,7 +3488,7 @@ class voipRegion
                 "ast244" => "85.94.32.244",
                 "ast245" => "85.94.32.245",
                 "ast248" => "85.94.32.248",
-                "reg96" => "37.228.82.12",
+                "reg96" => "37.228.82.6",
                 "reg97" => "37.228.80.6",
                 "reg98" => "37.228.81.6",
                 "reg95" => "37.228.85.6",
