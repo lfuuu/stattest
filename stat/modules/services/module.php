@@ -1169,7 +1169,7 @@ class m_services extends IModule{
             $rr[] = $r["code"];
         }
 
-        $db->Query('select * from usage_voip where (client="'.$fixclient.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW()) order by actual_from');
+        $db->Query('select * from usage_voip where (client="'.$fixclient.'") and /*(actual_from<=NOW()) and*/ (actual_to>NOW()) order by actual_from, E164');
         $R=array(); 
         while ($r=$db->NextRecord()) 
         {
