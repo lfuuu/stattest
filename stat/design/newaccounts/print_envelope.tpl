@@ -17,7 +17,7 @@
 		ADDRESS.cjk { font-family: "Times New Roman", serif; font-size: 10pt }
 		ADDRESS.ctl { font-family: "Arial", sans-serif; font-size: 10pt; so-language: ar-SA }
 		A:link { color: #0000ff }
-        .envelope_to{margin-left: 9cm; font-size: 12pt; padding-top: 26.5cm;}
+        .envelope_to{margin-left: 10cm; font-size: 12pt; padding-top: 26.5cm;}
         .envelope_from {margin-left: 6cm}
 	-->
 	</STYLE>
