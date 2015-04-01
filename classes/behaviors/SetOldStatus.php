@@ -45,8 +45,17 @@ class SetOldStatus extends Behavior
             if (isset($event->changedAttributes["is_blocked"]))
             {
                 if ($event->changedAttributes["is_blocked"] != $event->sender->is_blocked)
-                {
-                    $newStatus = $event->sender->is_blocked ? "debt" : "work";
+                { 
+                    $newStatus = "debt";
+
+                    if (!$event->sender->is_blocked)
+                    {
+                        $newStatus = "work";
+                        $bpStatus = ClientGridSettings::findOne($event->sender->business_process_status_id);
+                        if ($bpStatus->oldstatus)
+                            $newStatus = $bpStatus->oldstatus;
+                    }
+
                     $event->sender->status = $newStatus;
                     $event->sender->save();
 
@@ -56,7 +65,7 @@ class SetOldStatus extends Behavior
                     $cs->id_client = $event->sender->id;
                     $cs->user = \Yii::$app->user->getIdentity()->user;
                     $cs->status = $newStatus;
-                    $cs->comment = "Лицевой счет ".($newStatus == "work" ? "разблокирован" : "заблокирован");
+                    $cs->comment = "Лицевой счет ".($newStatus == "debt" ? "заблокирован" : "разблокирован");
 
                     $cs->save();
                 }
