@@ -1127,17 +1127,19 @@ class m_clients {
             $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
 
 
-			$R=array();
+            $R=array();
             StatModule::users()->d_users_get($R,'account_managers');
-			if(isset($R[$r['account_manager']]))
-				$R[$r['account_manager']]['selected']=' selected';
-			$design->assign('account_managers',$R);
-
-			$R=array();
             StatModule::users()->d_users_get($R,'manager');
-			if(isset($R[$r['manager']]))
-				$R[$r['manager']]['selected']=' selected';
-			$design->assign('users_manager',$R);
+
+            $rAccountManagers = $rManagers = $R;
+
+            if(isset($rAccountManagers[$r['account_manager']]))
+                $rAccountManagers[$r['account_manager']]['selected']=' selected';
+            $design->assign('account_managers',$rAccountManagers);
+
+            if(isset($rManagers[$r['manager']]))
+                $rManagers[$r['manager']]['selected']=' selected';
+            $design->assign('users_manager',$rManagers);
 
 
 			$design->assign(
