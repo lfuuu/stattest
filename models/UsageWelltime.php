@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\WelltimeBiller;
+use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
 
@@ -16,6 +17,11 @@ class UsageWelltime extends ActiveRecord implements Usage
     public static function tableName()
     {
         return 'usage_welltime';
+    }
+
+    public static function find()
+    {
+        return new UsageQuery(get_called_class());
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -36,5 +42,11 @@ class UsageWelltime extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public function getCurrentTariff()
+    {
+        $tariff = TariffExtra::findOne($this->tarif_id);
+        return $tariff;
     }
 }

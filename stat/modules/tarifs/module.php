@@ -232,7 +232,7 @@ class m_tarifs{
         $this->tarifs_view();
     }
 
-    function tarifs_contracts(){
+    function tarifs_contracts($fixclient){
 
         \app\assets\TinymceAsset::register(Yii::$app->view);
 

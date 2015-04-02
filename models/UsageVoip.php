@@ -5,6 +5,7 @@ use app\classes\bill\VoipBiller;
 use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
+use app\models\TariffVoip;
 
 /**
  * @property int $id
@@ -40,6 +41,24 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public function getCurrentTariff()
+    {
+        $logTariff =
+            LogTarif::find()
+            ->andWhere(['service' => 'usage_voip', 'id_service' => $this->id])
+            ->andWhere('date_activation <= now()')
+            ->andWhere('id_tarif != 0')
+            ->orderBy('date_activation desc, id desc')
+            ->limit(1)
+            ->one();
+        if ($logTariff === null) {
+            return false;
+        }
+
+        $tariff = TariffVoip::findOne($logTariff->id_tarif);
+        return $tariff;
     }
 }
 

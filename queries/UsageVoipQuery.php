@@ -2,21 +2,16 @@
 namespace app\queries;
 
 use app\models\UsageVoip;
-use yii\db\ActiveQuery;
+use app\queries\UsageQuery;
 
 /**
  * @method UsageVoip[] all($db = null)
  * @property
  */
-class UsageVoipQuery extends ActiveQuery
+class UsageVoipQuery extends UsageQuery
 {
     public function phone($number)
     {
         return $this->andWhere(["E164" => $number]);
-    }
-
-    public function actual()
-    {
-        return $this->andWhere("cast(now() as date) between actual_from and actual_to");
     }
 }

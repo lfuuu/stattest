@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\SmsBiller;
+use app\queries\UsageQuery;
+use app\models\TariffSms;
 use yii\db\ActiveRecord;
 use DateTime;
 
@@ -16,6 +18,11 @@ class UsageSms extends ActiveRecord implements Usage
     public static function tableName()
     {
         return 'usage_sms';
+    }
+
+    public static function find()
+    {
+        return new UsageQuery(get_called_class());
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -36,5 +43,11 @@ class UsageSms extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public function getCurrentTariff()
+    {
+        $tariff = TariffSms::findOne($this->tarif_id);
+        return $tariff;
     }
 }
