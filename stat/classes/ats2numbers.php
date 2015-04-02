@@ -526,6 +526,8 @@ class ats2NumberAction
 
         if($numberId)
         {
+            l::ll("__ NumberId __", $numberId);
+
             $db_ats->QueryDelete("a_link", array("number_id" => $numberId));
             $db_ats->QueryUpdate("a_number", "id", array(
                         "id" => $numberId, 
@@ -534,9 +536,23 @@ class ats2NumberAction
                         "enabled" => "yes")
                     );
 
-            self::clearSettings($numberId);
+            if (!self::isNumberMoved($l))
+            {
+                l::ll("__ NOT isNumberMoved __", "");
+                self::clearSettings($numberId);
+            } else {
+                l::ll("__ isNumberMoved __","");
+            }
         }
     }
+
+    public static function isNumberMoved(&$l)
+    {
+        global $db;
+
+        return (bool) $db->GetValue("SELECT id FROM `usage_voip` WHERE `E164` = '".$l["e164"]."' AND CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AND is_moved");
+    }
+
 
     private static function clearSettings($numberId)
     {
