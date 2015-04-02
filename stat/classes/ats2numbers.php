@@ -517,6 +517,8 @@ class ats2NumberAction
 
     public static function clientChanged($l)
     {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
         global $db_ats;
 
         $numberId = $db_ats->GetValue("select id from a_number 
@@ -531,8 +533,22 @@ class ats2NumberAction
                         "last_update" => array("NOW()"),
                         "enabled" => "yes")
                     );
-        }
 
+            self::clearSettings($numberId);
+        }
+    }
+
+    private static function clearSettings($numberId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $numberId);
+
+        global $db_ats;
+
+        $db_ats->QueryDelete("rr_anonce",          ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_number_settings", ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_redirect_on",     ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_redirect_phones", ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_weekday",         ["number_id" => $numberId]);
     }
 }
 
