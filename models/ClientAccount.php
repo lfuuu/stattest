@@ -94,6 +94,11 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(User::className(), ["user" => "manager"]);
     }
 
+    public function getUserAccountManager()
+    {
+        return $this->hasOne(User::className(), ["user" => "account_manager"]);
+    }
+
     public function getStatusBP()
     {
         return $this->hasOne(ClientGridSettings::className(), ["id" => "business_process_status_id"]);
