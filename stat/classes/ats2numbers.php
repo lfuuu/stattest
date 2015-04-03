@@ -598,7 +598,7 @@ class ats2NumberAction
                     //перенос без анонса
                     l::ll("=====", "move without anonce");
 
-                    $db_ats->Query("update rr_anonce set client_id = '".$clientId."', number_id='".$numberId."', anonce_id = null where id = '".$anonce["id"]."'"); 
+                    $db_ats->Query("update rr_anonce set client_id = '".$clientId."', number_id='".$numberId."', anonce_id = null, is_on = 'no' where id = '".$anonce["id"]."'"); 
                 } else {
 
                     //перенос вместе с анонсом
