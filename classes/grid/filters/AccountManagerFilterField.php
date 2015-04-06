@@ -15,7 +15,7 @@ class AccountManagerFilterField extends FilterField
         $this->filterValuesQuery
             ->select('user as id, name')
             ->from('user_users')
-            ->where('usergroup IN ("account_managers")')
+            ->where('usergroup IN ("account_managers", "manager")')
             ->orderBy('name');
     }
     
