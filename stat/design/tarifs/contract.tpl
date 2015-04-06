@@ -11,7 +11,7 @@
     <table border=0 width=90%>
     <tr>
     <td>Договор:</td><td>
-	<select class=text name=contract_template_group>
+	<select class="select2" style="width: 200px;" name=contract_template_group>
     {foreach from=$templates key=k item=item}
         <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
     {/foreach}
@@ -29,22 +29,23 @@
     <table border=0 width=90%>
     <tr>
     <td>Договор:</td><td>
-    <table width=100%><tr><td>
+    <table width=100% border=1><tr><td>
 <FORM action="?" method=post onsubmit="updateRTEs();return true;">
 	<input type=hidden name=module value=tarifs>
 	<input type=hidden name=action value=contracts>
 	<input type=hidden name=do value=open>
-	<select class=text name=contract_template_group id="contract_template_group" onChange="do_change_template_group(this)">
+	<select class="select2" style="width:200px;" name=contract_template_group id="contract_template_group" onChange="do_change_template_group(this)">
     {foreach from=$templates key=k item=item}
         <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
     {/foreach}
 	</select> 
 
-	<select class=text name=contract_template id="contract_template">
+	<select name=contract_template id="contract_template" class="text select2" style="width:300px;">
     {foreach from=$templates[$contract_template_group] item=item}
             <option value="{$item}"{if $contract_template == $item} selected{/if}>{$item}</option>
     {/foreach}
-	</select> <input type=submit value="Открыть"></form></td><td><img src="./images/icons/add.gif" align=absmiddle style="cursor: pointer;" onclick="toggle(false);"></td><td align=right>{$info}</td></tr></table>
+	</select> <input type=submit value="Открыть">
+    </form></td><td><img src="./images/icons/add.gif" align=absmiddle style="cursor: pointer;" onclick="toggle(false);"></td><td align=right>{$info}</td></tr></table>
     </form>
     </td>
     </tr>
@@ -58,6 +59,7 @@
 	<input type=hidden name="contract_template_group" value="{$contract_template_group}">
 	<input type=hidden name="contract_template" value={$contract_template}>
 
+    Тип документа: {html_options name="contract_type" options=$contract_types selected=$contract_type}
     <textarea id="text" name="text" style="width: 100%; margin: 0px; height: 600px;">{$contract_body}</textarea>
 <script type="text/javascript">
 {literal}
@@ -172,9 +174,17 @@ function do_change_template_group(o){
 
     optNames.sort(optSort);
 
+    var firstName = "";
     for(a in optNames) {
         var o = optNames[a];
+        if (firstName == "") {
+            firstName = o[0];
+        }
         createOption(oContractTemplate, o[0], o[1]);
+    }
+
+    if (firstName != "") {
+        $("#contract_template").select2("val", firstName);
     }
 }
 
@@ -188,6 +198,7 @@ function toggle(flag)
     document.getElementById("add_from").style.display= flag ? "none":"block" ;
     document.getElementById("edit_from").style.display= !flag ? "none":"block" ;
 }
+
 {/literal}
 
 </script>
