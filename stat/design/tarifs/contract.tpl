@@ -29,7 +29,7 @@
     <table border=0 width=90%>
     <tr>
     <td>Договор:</td><td>
-    <table width=100% border=1><tr><td>
+    <table width=100% border=0><tr><td>
 <FORM action="?" method=post onsubmit="updateRTEs();return true;">
 	<input type=hidden name=module value=tarifs>
 	<input type=hidden name=action value=contracts>
