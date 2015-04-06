@@ -41,14 +41,7 @@ function __sort_link($params, &$smarty){
 	$v.='<a href="'.$link.'&sort='.$sort_d.'&so='.($sort==$sort_d ? (1-$so) : $so).'">'.$params['text'].'</a>';
 	return $v;
 }
-function __rus_date($params, &$smarty){
-	return get_rus_date();
-}
 
-function __mformat($params, &$smarty){
-	if ($params['param']==0) return '';
-	return mdate($params['format'],is_numeric($params['param'])?$params['param']:strtotime($params['param']));
-}
 function __fsize($params,&$smarty){
 	$v=$params['value'];
 	$v=round($v/(1024*10.24))/100;
@@ -230,7 +223,18 @@ function smarty_modifier_wordify($val,$curr) {
 	return Wordifier::Make($val,$curr);	
 }
 function smarty_modifier_mdate($value,$format) {
-	return mdate($format,is_numeric($value)?$value:strtotime($value));	
+	return mdate($format,is_numeric($value)?$value:strtotime($value));
+}
+function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
+    if (is_numeric($value)) {
+        $date = new DateTime('now', new DateTimeZone('UTC'));
+        $date->setTimestamp($value);
+    } else {
+        $date = new DateTime($value, new DateTimeZone('UTC'));
+    }
+    $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
+
+    return dateReplaceMonth($date->format($format), $date->format('m'));
 }
 /**
  * Smarty bytesize modifier plugin
@@ -351,11 +355,9 @@ class MySmarty extends Smarty {
 		$this->register_function('count_rows_func','__count_rows_func');
 		$this->register_function('count_comments','__count_comments');
 		$this->register_function('sort_link','__sort_link');
-		$this->register_function('mformat','__mformat');
 		$this->register_function('ipstat','__ipstat');
 		$this->register_function('fsize','__fsize');
 		$this->register_function('fsizeKB','__fsizeKB');
-		$this->register_function('rus_date','__rus_date');
 		$this->register_function('objCurrency','smarty_function_objCurrency');
 		$this->register_function('get_region_by_dgroups','__get_region_by_dgroups');
 		$this->register_function('get_minutes_by_seconds','__get_minutes_by_seconds');
@@ -367,6 +369,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('round','smarty_modifier_round');
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
+        $this->register_modifier('udate','smarty_modifier_udate');
 		$this->register_modifier('num_format','smarty_modifier_num_format');
 		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');

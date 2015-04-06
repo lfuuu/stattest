@@ -24,7 +24,7 @@
 	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{$item.actual_from} - {$item.actual_to}</a>&nbsp;
 	<a href="./?module=stats&action=report_vpbx_stat_space&client_id={$fixclient_data.id}"><img class="icon" src="{$IMAGES_PATH}icons/stats.gif"></a>
 		<a href='index.php?module=tt&clients_client={$item.client}&service=usage_virtpbx&service_id={$item.id}&action=view_type&type_pk=3&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
-    	{if $item.actual_from == '2029-01-01' && access('services_voip', 'del2029')}<a href="./?module=services&action=virtpbx_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
+    	{if $item.actual_from > '3000-01-01' && access('services_voip', 'del4000')}<a href="./?module=services&action=virtpbx_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
     	
     </td>
 	<td>{$item.tarif.description}</td>

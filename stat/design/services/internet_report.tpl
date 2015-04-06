@@ -142,7 +142,7 @@
 		</SELECT>
 		<SELECT name=to_y>
 			{generate_sequence_options_select start='2003'}
-			<OPTION value=2029{if $to_y==2029} selected{/if}>2029</OPTION>
+			<OPTION value=4000{if $to_y==4000} selected{/if}>4000</OPTION>
 		</SELECT> </TD></TR>
 
 

@@ -66,7 +66,7 @@
                  <div style="display: inline-block;">
                      {if $account.lastComment}
                          {foreach from=$account.lastComment item=comment}
-                             {$comment.user} {$comment.ts|substr:0:10} {$comment.comment}<br>
+                             {$comment.user} {$comment.ts|udate|substr:0:10} {$comment.comment}<br>
                          {/foreach}
                      {/if}
                  </div>
@@ -161,7 +161,7 @@
         <table style="background-color: gray;" cellspacing=1 cellpadding=3>
             <tr><td><b>Дата</td><td><b>Пользователь</td><td><b>Полное названия</b></td><td><b>Краткое</b></td></tr>
             {foreach from=$log_company item=l}
-            <tr><td>{$l.ts}</td><td>{$l.user}</td><td>{$l.company.company_full.to}</td><td>{$l.company.company.to}</td></tr>
+            <tr><td>{$l.ts|udate}</td><td>{$l.user}</td><td>{$l.company.company_full.to}</td><td>{$l.company.company.to}</td></tr>
             {foreachelse}
             <tr><td colspan=4 align=center><i>Нет изменений</i></td></tr>
             {/foreach}
@@ -185,10 +185,10 @@
         {foreach from=$client.data_cs item=item name=outer}
             {if $item.comment}
                 <input type=checkbox name="publich_contact_id" value="{$item.id}" class="publish_comment{if $item.is_publish}_over{/if}"{if $item.is_publish} checked{/if}>
-                <b>{$item.user} {$item.ts}</b>: {$item.comment}<br>
+                <b>{$item.user} {$item.ts|udate}</b>: {$item.comment}<br>
             {/if}
-            {if $item.status && $item.tst < 1425588720}{*'2015-03-05 20:52:00'*}
-                <div style="width: 17px; display: inline-block;">&nbsp;</div><b>{$item.user} {$item.ts}</b>: статус изменён на {$item.status}<br>
+            {if $item.status}
+                <div style="width: 17px; display: inline-block;">&nbsp;</div><b>{$item.user} {$item.ts|udate}</b>: статус изменён на {$item.status}<br>
             {/if}
             {/foreach}
             <script>
@@ -412,7 +412,7 @@
                 <td>{$item.data}</td>
                 <td>{$item.comment}</td>
                 <td>{$item.user}</td>
-                <td style='font-size:70%'>{$item.ts}</td>
+                <td style='font-size:70%'>{$item.ts|udate}</td>
                 <td>
                     {if !$client.is_closed}
                     {if $item.user == 'AutoLK'}
@@ -467,7 +467,7 @@
     <td>
         {foreach from=$contracts item=item key=key}
         {if $item.is_active}
-        <b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> от {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts})</span> {if $key!=$contract_last}; {/if}
+        <b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> от {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts|udate})</span> {if $key!=$contract_last}; {/if}
         {/if}
         {/foreach}
     </td>
@@ -496,7 +496,7 @@
                 <td>{if $item.contract_dop_date != "2012-01-01"}{$item.contract_dop_date}{/if}</td>
                 <td>{$item.comment}</td>
                 <td>{$item.user}</td>
-                <td style='font-size:85%'>{$item.ts}</td>
+                <td style='font-size:85%'>{$item.ts|udate}</td>
                 <td>
                     <a href='{$LINK_START}module=clients&id={$item.id}&action=contract_edit' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/edit.gif'></a>
                     <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/printer.gif'></a>

@@ -41,7 +41,7 @@ class voipNumbersChecker
         FROM 
             usage_voip u, clients c
         WHERE 
-            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from >= '2029-01-01')
+            ((actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')) or actual_from > '3000-01-01')
             and u.client = c.client and (c.status in ('work','connecting','testing') or c.client ='id9130')
             /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
 

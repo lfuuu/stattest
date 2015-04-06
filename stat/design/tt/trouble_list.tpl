@@ -55,7 +55,7 @@
 {foreach from=$tt_troubles item=r name=outer}
     <tr style="border-top: 2px solid #ccc; {if $r.is_important}background-color: #f4c0c0;{/if}">
         <td colspan=1><a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'><b>{$r.trouble_id}</b></a></td>
-        <td colspan=1 nowrap style="font-size:85%;">{mformat param=$r.date_creation format='Y.m.d H:i'}</td>
+        <td colspan=1 nowrap style="font-size:85%;">{$r.date_creation|udate:'Y.m.d H:i'}</td>
         <td colspan=1>{$r.state_name}</td>
         <td colspan=1>{$r.user_main}</td>
         <td colspan=1 style="font-size:85%">{$r.problem|escape}</td>
@@ -103,7 +103,7 @@
                         <td>{$r2.user_main}</td>
                         <td>{$r2.comment|escape}</td>
                         <td style='font-size:85%'>{$r2.user_edit}</td>
-                        <td style='font-size:85%'>{mformat param=$r2.date_edit format='Y.m.d H:i'}</td>
+                        <td style='font-size:85%'>{$r2.date_edit|udate:'Y.m.d H:i'}</td>
                     </tr>
                     {/foreach}
                 </table>

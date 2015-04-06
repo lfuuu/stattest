@@ -102,7 +102,7 @@
 к/с:&nbsp;30101810400000000225<br>
 БИК:&nbsp;044525225<br>
 
-{elseif $bill_client.firma=='mcn'}{* || ($bill_client.nal=='beznal' && $bill.ts>=strtotime('2006-07-01') && $bill.comment!="разбивка Markomnet")*}
+{elseif $bill_client.firma=='mcn'}
 <b>Поставщик: ООО &laquo;Эм Си Эн&raquo;</b><br>
 ИНН:&nbsp;7727508671 &nbsp;&nbsp;КПП:&nbsp;772701001<br>
 Адрес:&nbsp;113452, г.Москва, Балаклавский пр-т, д.20, кор. 4 кв. 130<br>

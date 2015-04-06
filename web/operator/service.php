@@ -142,14 +142,14 @@ if ($action=='add_client') {
     $region = isset($_GET["region"]) ? (int)$_GET["region"] : null;
 
 	$res = $db->AllRecords("
-          SELECT a.*, (SELECT MAX(actual_to) FROM usage_voip WHERE e164 = a.number AND NOT (actual_from = '2029-01-01' AND actual_to='2029-01-01')) date_to
+          SELECT a.*, (SELECT MAX(actual_to) FROM usage_voip WHERE e164 = a.number AND NOT (actual_from > '3000-01-01' AND actual_to > '3000-01-01')) date_to
           FROM (
             SELECT number, beauty_level, price, vn.region
               FROM voip_numbers vn
               LEFT JOIN usage_voip uv ON (
                     uv.E164 = vn.number AND 
                     (
-                           ( actual_from = '2029-01-01' AND actual_from='2029-01-01') 
+                           ( actual_from > '3000-01-01' AND actual_from > '3000-01-01')
                         OR ( actual_from <= CAST(NOW() AS date) AND actual_to >= CAST(NOW() AS date))
                     )
               )

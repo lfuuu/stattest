@@ -79,7 +79,7 @@ class UsageVirtpbx extends ActiveRecord\Model
                 . ' LEFT JOIN clients as c ON (a.client = c.client)';
         $options['conditions'] = array(
                 '   a.id <> b.id 
-                AND a.actual_to < "2029-01-01" 
+                AND a.actual_to < "3000-01-01"
                 AND CAST(NOW() as DATE) <= a.actual_to
                 AND a.client = ? 
                 AND b.client = ? 

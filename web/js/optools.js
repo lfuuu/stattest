@@ -350,7 +350,7 @@ var optools = {
                     return false;
                 }
 
-                if(oActualFrom && oE164 && oActualFrom.value != "2029-01-01" && oE164.value == "7495")
+                if(oActualFrom && oE164 && oActualFrom.value < "3000-01-01" && oE164.value == "7495")
                 {
                     alert("Нельзя изменить дату, не установив номер линии!");
                     return false;

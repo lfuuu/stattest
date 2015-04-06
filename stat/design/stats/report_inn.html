@@ -29,7 +29,7 @@
             <td {if $item.client_color}style='background-color:{$item.client_color};'{/if}><a {if $item.client_color}style="color: black" {/if}href="./?module=clients&id={$item.client}" target="_blank">{$item.client}</a>&nbsp;</td>
             <td>{$item.company}</td>
             <td>{$item.manager}</td>
-            <td>{$item.ts|mdate:"d месяца Y г."}</td>
+            <td>{$item.ts|udate:"d месяца Y г."}</td>
 
             <td>{$item.value_from}</td>
             <td>{$item.value_to}</td>

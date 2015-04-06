@@ -24,7 +24,7 @@
     <td {if $item.client_color}style='background-color:{$item.client_color};'{/if}><a {if $item.client_color}style="color: black" {/if}href="./?module=clients&id={$item.client}" target="_blank">{$item.client}</a>&nbsp;</td>
     <td>{$item.description}</td>
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_welltime&id={$item.id}" target="_blank">{$item.actual_from}</a>&nbsp;</td>
-    <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_welltime&id={$item.id}" target="_blank">{if $item.actual_to != '2029-01-01'}{$item.actual_to}{/if}</a>&nbsp;</td>
+    <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_welltime&id={$item.id}" target="_blank">{if $item.actual_to < '3000-01-01'}{$item.actual_to}{/if}</a>&nbsp;</td>
 
 	<td>{$item.amount}</td>
 	<td>{$item.price}</td>

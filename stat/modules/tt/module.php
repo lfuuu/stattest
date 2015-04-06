@@ -493,42 +493,6 @@ class m_tt extends IModule{
                         'INNER JOIN tt_stages as V ON V.trouble_id = T.id '.            //все этапы
                         'WHERE '.MySQLDatabase::Generate($W).' GROUP BY V.user_main HAVING V.user_main!=""');
 
-        /*
-        if ($open) $W[1][]='state_id!=2';
-        $W[1][]='date_finish_fact>="'.$from.'" AND date_finish_fact<"'.$to.'"';
-        //$W[]= 'trouble_type != "task"';
-
-        //$date_desired = 'IF(trouble_type="out",DATE(date_finish_desired)+INTERVAL 36 HOUR,date_finish_desired)';
-        $date_desired = 'date_finish_desired';
-        $date_finish = 'UNIX_TIMESTAMP(IF(state_id=2,date_edit,NOW()))';
-        $P = array(
-                'time_limit'        =>array(    'UNIX_TIMESTAMP('.$date_desired.')-UNIX_TIMESTAMP(date_start)'    ),
-                'time_total'        =>array(    $date_finish.'-UNIX_TIMESTAMP(date_start)'    ),
-                'time_over'            =>array(    'GREATEST('.$date_finish.'-UNIX_TIMESTAMP('.$date_desired.'),0)'),
-                'count_over'        =>array(    'IF(IF(state_id=2,date_edit,NOW())>'.$date_desired.',1,0)'    ),
-                'count_over_closed'    =>array(    'IF((state_id=2) AND (date_edit>date_finish_desired),1,0)'    ),
-                'count_total_open'    =>array(    'IF(state_id!=2,1,0)'    ),
-                'count_total'        =>array(    '1'        ),
-            );
-        $S = '';
-        foreach ($P as $k=>$v) if (count($v)==1) {
-            $S.=',SUM('.$v[0].') as '.$k;
-        } else {
-            $S.=',SUM('; $S2 = '';
-            foreach ($v as $vk=>$vv) if ($vk===true) {
-                $S.=$vv;
-            } else {
-                $S.='IF('.$vk.','.$vv.',';
-                $S2.=')';
-            }
-            $S.=$S2.' as '.$k;
-        }
-        $R = $db->AllRecords('select '.
-                        '(SELECT SU.user_main FROM tt_stages as SU WHERE SU.user_main!=T.user_author AND SU.trouble_id=T.id ORDER BY SU.stage_id DESC LIMIT 1) as user '.
-                        $S.' FROM tt_troubles as T '.
-                        'INNER JOIN tt_stages as S ON (S.trouble_id = T.id AND S.user_main!=T.user_author) '.
-                        'WHERE '.MySQLDatabase::Generate($W).' GROUP BY user HAVING user IS NOT NULL');
-                */
         $design->assign('tt_report',$R);
         $design->AddMain('tt/report.tpl');
         $design->AddMain('tt/report_form.tpl');

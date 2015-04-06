@@ -103,7 +103,7 @@
                         {/if}
                         {if $key == "actual_from" || $key == "actual_to"}
                             <input type=button value="С" title="Сейчас" onclick='var d = new Date(); document.getElementById("{$key}").value="{php} echo date("d-m-Y");{/php}";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip"  || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}'>
-                            <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="01-01-2029";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}' style="">
+                            <input type=button value="&#8734;" title="Услуга открыта" onclick='document.getElementById("{$key}").value="01-01-4000";change_datepicker_option("{$key}");{if $key == "actual_from" && ($dbform_table == "usage_voip" || $dbform_table == "usage_virtpbx")} optools.voip.check_e164.move_checking();{/if}' style="">
                             {assign var="use_datepicker" value="true"}
                         {/if}
                     </td>

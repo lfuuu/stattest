@@ -1,5 +1,7 @@
 db_stat.local.php
+db_ats.local.php
+db_ats2.local.php
+db_pg_ats.local.php
+db_pgsql.local.php
 log.local.php
 params.local.php
-db_pgsql.local.php
-

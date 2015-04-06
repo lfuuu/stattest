@@ -267,12 +267,6 @@ function day_norm($m,$d,$y){
     $i=0; while (!checkdate($m,$d,$y) && ($i<5)) {$d--; $i++; }
     return $d;
 }
-function get_rus_date($date=0){
-    if ($date==0) $date=time();
-    $d=getdate($date);
-    $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
-    return $d['mday'].' '.$p[$d['mon']-1].' '.$d['year'].' г.';
-}
 
 function password_gen($len = 15, $isStrong = true){
     mt_srand((double) microtime() * 1000000);
@@ -432,19 +426,25 @@ function mask_match($ip,$mask){
     return 1;
 }
 
+
+function dateReplaceMonth($string,$nMonth){
+    $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
+    $string=str_replace('месяца',$p[$nMonth-1],$string);
+    $p=array('январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре');
+    $string=str_replace('месяце',$p[$nMonth-1],$string);
+    $p=array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
+    $string=str_replace('Месяц',$p[$nMonth-1],$string);
+    $p=array('январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь');
+    $string=str_replace('месяц',$p[$nMonth-1],$string);
+    return $string;
+}
+
 function mdate($format,$ts=0){
     if ($ts) $s=date($format,$ts); else $s=date($format);
     if ($ts) $d=getdate($ts); else $d=getdate();
-    $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
-    $s=str_replace('месяца',$p[$d['mon']-1],$s);
-    $p=array('январе','феврале','марте','апреле','мае','июне','июле','августе','сентябре','октябре','ноябре','декабре');
-    $s=str_replace('месяце',$p[$d['mon']-1],$s);
-    $p=array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
-    $s=str_replace('Месяц',$p[$d['mon']-1],$s);
-    $p=array('январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь');
-    $s=str_replace('месяц',$p[$d['mon']-1],$s);
-    return $s;
+    return dateReplaceMonth($s, $d['mon']);
 }
+
 function rus_fin($v,$s1,$s2,$s3){
      if($v==11)
         return $s3;
@@ -748,7 +748,7 @@ class ClientCS {
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
                         "head_company,head_company_address_jur,region,okpo,bill_rename1,is_bill_only_contract,is_bill_with_refund,".
-                        "is_with_consignee,consignee,is_agent,is_upd_without_sign";
+                        "is_with_consignee,consignee,is_agent,is_upd_without_sign,timezone_name";
                 $t=explode(",",$L);
                 $this->P = array();
                 foreach ($t as $v) $this->P[$v] = $v;
@@ -940,7 +940,8 @@ class ClientCS {
             "business_process_id" => 1, //Сопровождение
             "business_process_status_id" => 1, //Входящие
             "voip_credit_limit_day" => 1000,
-            "voip_is_day_calc" => 1
+            "voip_is_day_calc" => 1,
+            "timezone_name" => 'Europe/Moscow',
         );
         foreach ($defaultFields as $field => $defaultValue)
             if (!isset($this->F[$field]) || !$this->F[$field])
@@ -1289,15 +1290,9 @@ class ClientCS {
         }
     }
 
-    function GetLastComment() {
-        global $db;
-        $db->Query("select * from client_statuses where (id_client='".$this->id."') and (comment!='') order by ts desc");
-        @$r=$db->NextRecord();
-        return $r;
-    }
     function GetAllStatuses() {
         global $db;
-        $db->Query("select *,unix_timestamp(ts) as tst from client_statuses where (id_client='".$this->id."') order by ts asc");
+        $db->Query("select * from client_statuses where (id_client='".$this->id."') order by ts asc");
         $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
         return $R;
     }
@@ -1711,7 +1706,7 @@ class IPList{
                 `tech_ports`.`id`=`P`.`port_id`
             WHERE
                 `R`.`actual_from`<=`R`.`actual_to`
-            AND `R`.`actual_from`!='2029-01-01'
+            AND `R`.`actual_from`<'3000-01-01'
             AND `R`.`actual_to`<>'0000-00-00'
             AND `tech_ports`.`port_type` IN ('adsl','adsl_connect','adsl_cards','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1', 'GPON')
             order by

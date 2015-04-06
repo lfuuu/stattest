@@ -21,7 +21,7 @@ class ReportMovedNumbers
         $options['conditions'] = array(
                 '   a.id <> b.id 
                 AND CAST(NOW() as DATE) <= a.actual_to 
-                AND a.actual_to < "2029-01-01" 
+                AND a.actual_to < "3000-01-01"
                 AND a.actual_to = DATE_SUB(b.actual_from, INTERVAL 1 DAY)'
         );
         $options['order'] = 'from_actual_to, from_id, to_id';
@@ -45,7 +45,7 @@ class ReportMovedNumbers
                 .   'LEFT JOIN clients as c ON (c.client = a.client)';
         $options['conditions'] = array(
                 '   a.id <> b.id 
-                AND a.actual_to < "2029-01-01" 
+                AND a.actual_to < "3000-01-01"
                 AND CAST(NOW() as DATE) <= a.actual_to 
                 AND c.id = b.moved_from'
         );
@@ -69,7 +69,7 @@ class ReportMovedNumbers
         ';
         $options['conditions'] = array(
                 '   a.id <> b.id 
-                AND a.actual_to < "2029-01-01" 
+                AND a.actual_to < "3000-01-01"
                 AND CAST(NOW() as DATE) <= a.actual_to 
                 AND b.is_moved = 0 
                 AND (c.actual_from <> b.actual_from OR ISNULL(c.actual_from))'

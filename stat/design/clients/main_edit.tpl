@@ -236,6 +236,13 @@ $(function(){
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Головная компания:</td><td><input style='width:100%' name=head_company class=text value='{$client.head_company}'{*if $card_type=='addition'}readonly='readonly'{/if*}></td></tr>
     <tr><td align="right">Юр. адрес головной компании:</td><td><input style='width:100%' name=head_company_address_jur class=text value='{$client.head_company_address_jur}'{*if $card_type=='addition'}readonly='readonly'{/if*}></td></tr>
+    <tr><td align="right">Таймзона:</td><td>
+            <select class="select2" style="width: 250px" name=timezone_name>
+                {foreach from=$timezones item=item key=key}
+                    <option value='{$key}' {if $key==$client.timezone_name}selected{/if}>{$item.timezone_name}</option>
+                {/foreach}
+            </select>
+        </td></tr>
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
 
     <tr><td align="right">Станция метро:</td><td>{html_options name='metro_id' options=$l_metro selected=$client.metro_id}</td></tr>
@@ -406,7 +413,7 @@ $(function(){
 
 <h3><img alt="Посмотреть" src="images/icons/edit.gif" class="icon history_open">История изменений клиента:</h3>
 {if count($log)}{foreach from=$log item=L key=key name=outer}
-<b>{$L.ts} - {$L.user}</b>: {$L.comment}<br>
+<b>{$L.ts|udate} - {$L.user}</b>: {$L.comment}<br>
 {/foreach}{/if}
 <br>
 
@@ -415,7 +422,7 @@ $(function(){
     <tr><th>ИНН</th><th>комментарий</th><th>кто</th><th>когда</th><th>&nbsp;</th></tr>
     {foreach from=$inn item=item}
     <tr{if !$item.is_active} class="other"{/if}>
-    <td>{$item.inn}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts}</td><td>
+    <td>{$item.inn}</td><td>{$item.comment}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.ts|udate}</td><td>
     {if !$client.is_closed}
         <a href='{$LINK_START}module=clients&id={$item.client_id}&action=inn&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
     {/if}
@@ -438,7 +445,7 @@ $(function(){
     <tr><th>р/с</th><th>кто</th><th>когда</th><th>&nbsp;</th></tr>
     {foreach from=$pay_acc item=item}
     <tr>
-    <td>{$item.pay_acc}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.date}</td><td>
+    <td>{$item.pay_acc}</td><td>{$item.user}</td><td style='font-size:70%'>{$item.date|udate}</td><td>
         {if !$client.is_closed}
             <a href='{$LINK_START}module=clients&id={$item.client_id}&action=pay_acc&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Активность"></a>
         {/if}

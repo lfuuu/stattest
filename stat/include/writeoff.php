@@ -39,8 +39,6 @@ abstract class ServicePrototype {
         if (!$this->tarif_std) $this->LoadTarif();
     }
     public function SetDate($date_from,$date_to,$date_from_prev = 0,$date_to_prev = 0){
-        if($this->service['actual_to']=='9999-00-00')
-            $this->service['actual_to']='2029-01-01';
         $this->date_from = max($date_from,strtotime($this->service['actual_from']));
         $this->date_to = min($date_to,strtotime($this->service['actual_to']));
         if($this->date_to<$this->date_from){

@@ -5,7 +5,7 @@
 <TR><TD class=left>Полное название компании:</TD><TD><input style='width:100%' name=company_full class=text value='{$client.company_full}'></TD></TR>
 {if isset($status)}
 <TR><TD class=left>Статус:</TD><TD>
-	<b>{$status.status_name}</b>, установлен {$status.ts}
+	<b>{$status.status_name}</b>, установлен {$status.ts|udate}
 </TD></TR>{/if}
 </TBODY></TABLE>
 

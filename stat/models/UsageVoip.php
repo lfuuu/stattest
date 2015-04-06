@@ -80,7 +80,7 @@ class UsageVoip extends ActiveRecord\Model
         $options['conditions'] = array(
             '   a.id <> b.id 
             AND CAST(NOW() as DATE) <= a.actual_to 
-            AND a.actual_to < "2029-01-01" 
+            AND a.actual_to < "3000-01-01"
             AND a.actual_to = DATE_SUB(b.actual_from, INTERVAL 1 DAY) 
             AND a.client = ? 
             AND b.client = ? 

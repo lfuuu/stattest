@@ -739,7 +739,7 @@ class ApiLk
                                     actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND 
                                     actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
                                 ) OR 
-                                actual_from >= '2029-01-01'
+                                actual_from > '3000-01-01'
                             ) 
                     ) AS active_usage_id, 
                     (
@@ -749,7 +749,7 @@ class ApiLk
                             usage_voip u 
                         WHERE 
                             u.e164 = v.number AND 
-                            actual_from = '2029-01-01'
+                            actual_from > '3000-01-01'
                     ) AS date_reserved 
                 FROM 
                     voip_numbers v 
@@ -834,7 +834,7 @@ class ApiLk
             return array('status'=>'error','message'=>'Номер уже используется!');
     
         $client = $db->GetRow("select client, company, manager from clients where id='".$client_id."'");
-        $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from='2029-01-01' AND actual_to='2029-01-01'");
+        $waiting_cnt = $db->GetValue("SELECT COUNT(*) FROM usage_voip WHERE client='".$client["client"]."' AND actual_from>'3000-01-01' AND actual_to>'3000-01-01'");
         if ($waiting_cnt >= 5) return array('status'=>'error','message'=>'Допускается резервировать не более 5 номеров!');
     
         $region = $db->GetRow("select name from regions where id='".$region_id."'");
@@ -882,8 +882,8 @@ class ApiLk
 
         $vpbxId = $db->QueryInsert("usage_virtpbx", array(
                             "client"        => $client["client"],
-                            "actual_from"   => "2029-01-01",
-                            "actual_to"     => "2029-01-01",
+                            "actual_from"   => "4000-01-01",
+                            "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
                             "server_pbx_id" => 1
@@ -952,7 +952,7 @@ class ApiLk
                         "box_quota"     => "50000",
                         "status"        => "working",
                         "actual_from"   => array('NOW()'),
-                        "actual_to"     => "2029-01-01"
+                        "actual_to"     => "4000-01-01"
                         )
                     );
         return array('status'=>'ok','message'=>'Почтовый ящик добавлен.');
@@ -1011,7 +1011,7 @@ class ApiLk
         $message .= 'Номер: ' . $voip['E164'] . "\n";
         $message .= 'Тарифный план: ' . $tarif;
     
-        if ($voip['actual_from'] == '2029-01-01') {
+        if ($voip['actual_from'] > '3000-01-01') {
             $db->QueryUpdate("log_tarif", array("id_service", "service"), array("service" => "usage_voip", "id_service"=>$service_id, "id_tarif" => $tarif_id));
             $message .= "\n\nтариф сменен, т.к. подключения не было";
         }
@@ -1047,7 +1047,7 @@ class ApiLk
                             "id_tarif"        => $tarif_id,
                             "id_user"         => self::_getUserLK(),
                             "ts"              => array('NOW()'),
-                            "date_activation" => ($vpbx['actual_from'] == '2029-01-01') ? date('Y-m-d') : $first_day_next_month
+                            "date_activation" => ($vpbx['actual_from'] > '3000-01-01') ? date('Y-m-d') : $first_day_next_month
                             )
                         );
 
@@ -1181,7 +1181,7 @@ class ApiLk
         $message .= 'Клиент: ' . $client['company'] . " (Id: $client_id)\n";
         $message .= 'Номер: ' . $voip['E164'];
     
-        if ($voip['actual_from'] == '2029-01-01') {
+        if ($voip['actual_from'] > '3000-01-01') {
             $db->QueryDelete('log_tarif', array("service" => "usage_voip", 'id_service'=>$service_id));
             $db->QueryDelete('usage_voip', array('id'=>$service_id));
             $message .= "\n\nномер удален, т.к. подключения не было";
@@ -1207,7 +1207,7 @@ class ApiLk
 
         if ($vpbx)
         {
-            if ($vpbx["actual_from"] == "2029-01-01")
+            if ($vpbx["actual_from"] > "3000-01-01")
             {
                 $db->QueryDelete("log_tarif", array("service" => "usage_virtpbx", "id_service" => $vpbx["id"]));
                 $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
@@ -1255,7 +1255,7 @@ class ApiLk
                         "client"=>$client['client'], 
                         "enabled" => (($action == 'disable') ? '0' : '1'),
                         "status" => 'archived',
-                        "actual_to" => (($action == 'disable') ? array('NOW()') : '2029-01-01')
+                        "actual_to" => (($action == 'disable') ? array('NOW()') : '4000-01-01')
                     )
             );
             return array('status'=>'ok','message'=>(($action == 'disable') ? 'Почтовый ящик отключен.' : 'Почтовый ящик подключен.'));
