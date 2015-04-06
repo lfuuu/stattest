@@ -1,5 +1,6 @@
 <?php
 
+use \app\models\Contract;
 
 class m_tarifs{
     var $actions=array(
@@ -244,10 +245,13 @@ class m_tarifs{
 
         $group = get_param_raw("contract_template_group", "MCN");
         $contract = get_param_raw("contract_template", get_param_raw("contract_template_add", "default"));
+        $contractType = get_param_raw("contract_type", "contract");
 
         $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
-        $filePath = STORE_PATH."contracts/template_".clientCS::contract_getFolder($group)."_".$contract.".html";
+        $name = clientCS::contract_getFolder($group)."_".$contract;
+
+        $filePath = STORE_PATH."contracts/template_".$name.".html";
 
         if(get_param_raw("new", "") == "true")
         {
@@ -256,15 +260,24 @@ class m_tarifs{
                 return;
             }else{
                 if(file_put_contents($filePath, "договор ".$group.": ".$contract))
-                $db->QueryInsert("log_contract_template_edit", array(
+                {
+                    $db->QueryInsert(
+                        "log_contract_template_edit", 
+                        array(
                             "group" => $group,
                             "contract" => $contract,
                             "user" => $user->Get("id"),
                             "action" => "new",
                             "date" => date("Y-m-d H:i:d"),
                             "length" => 0
-                            )
-                        );
+                        )
+                    );
+
+                    $oContract = new Contract();
+                    $oContract->name = $name;
+                    $oContract->type = $contractType;
+                    $oContract->save();
+                }
                 $templates = clientCS::contract_listTemplates();
             }
         }
@@ -273,16 +286,31 @@ class m_tarifs{
         if(get_param_raw("save_text", "") != "") {
             $contract_body_s = trim(get_param_raw("text", ""));
 
-            if($contract_body_s){
-                $db->QueryInsert("log_contract_template_edit", array(
-                            "group" => $group,
-                            "contract" => $contract,
-                            "user" => $user->Get("id"),
-                            "action" => "save",
-                            "date" => date("Y-m-d H:i:d"),
-                            "length" => strlen($contract_body_s)
-                            )
-                        );
+            if($contract_body_s)
+            {
+                $db->QueryInsert(
+                    "log_contract_template_edit", 
+                    array(
+                        "group" => $group,
+                        "contract" => $contract,
+                        "user" => $user->Get("id"),
+                        "action" => "save",
+                        "date" => date("Y-m-d H:i:d"),
+                        "length" => strlen($contract_body_s)
+                    )
+                );
+
+                $oContract = Contract::findOne(["name" => $name]);
+                if (!$oContract){
+                    $oContract = new Contract();
+                    $oContract->name = $name;
+                }
+
+                if ($oContract->type != $contractType)
+                    $oContract->type = $contractType;
+
+                $oContract->save();
+
                 file_put_contents($filePath, $contract_body_s);
             }
         }
@@ -291,6 +319,12 @@ class m_tarifs{
         if(get_param_raw("do", "") == "open") {
             $isOpened = true;
 
+            $oContract = Contract::findOne(["name" => $name]);
+            if ($oContract){
+                $contractType = $oContract->type;
+            } else {
+                //default = "contract" (in get_param_raw set)
+            }
 
             $contract_body = file_get_contents($filePath);
 
@@ -309,6 +343,12 @@ class m_tarifs{
         $design->assign("info", $info);
         $design->assign("contract_template_group", $group);
         $design->assign("contract_template", $contract);
+        $design->assign("contract_type", $contractType);
+        $design->assign("contract_types", [
+            'contract' => 'Договор',
+            'agreement' => 'Дополнительное соглашение',
+            'blank' => 'Бланк заказа'
+        ]);
 
         $design->assign("templates", $templates);
         $design->AddMain("tarifs/contract.tpl");

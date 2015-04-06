@@ -1,0 +1,130 @@
+
+<style>
+{literal}
+table.insblock tr.tr1 td {
+    text-align: center; 
+    background-color: #282828;
+    padding: 5px 0px 5px 0px;
+    color: white;
+}
+
+table.insblock tr.tr2 td {
+    text-align: left; 
+    background-color: gray; 
+    padding: 5px 0px 5px 10px;
+    color: white;
+    font-weight: bold; 
+}
+
+table.insblock tr.trdata td {
+    text-align: left; 
+    background-color: white; 
+    padding: 5px 0px 5px 10px;
+    color: #5b5b5b;
+    font-weight: bold; 
+}
+
+table.insblock tr.trdata.other td{
+    color: #999;
+    font-weight: normal; 
+}
+{/literal}
+</style>
+
+
+{include file="clients/contract/section.htm" type="contract" data=$contracts.contract}
+
+{if $contracts.contract}
+    {include file="clients/contract/section.htm" type="blank" data=$contracts.blank}
+    {include file="clients/contract/section.htm" type="agreement" data=$contracts.agreement}
+{/if}
+
+<script>
+    var tcontractDogovors = new Array();
+    var tblankDogovors = new Array();
+    var tagreementDogovors = new Array();
+
+    {foreach from=$templates key=contractType item=items}
+        {foreach from=$items key=group item=item}
+            t{$contractType}Dogovors["{$group}"] = new Array();
+            {foreach from=$item item=dov}
+                t{$contractType}Dogovors["{$group}"].push('{$dov}');
+            {/foreach}
+        {/foreach}
+    {/foreach}
+
+    {literal}
+
+    var firstContractGroup = $("#contract_template_group_contract")[0];
+    do_change_template_group(firstContractGroup, "contract");
+
+    var firstContractGroup = $("#contract_template_group_blank");
+    if (firstContractGroup.length)
+        do_change_template_group(firstContractGroup[0], "blank");
+
+    var firstContractGroup = $("#contract_template_group_agreement");
+    if (firstContractGroup.length)
+    do_change_template_group(firstContractGroup[0], "agreement");
+
+
+    function do_change_template_group(o, type){
+        var group = o.options[o.selectedIndex].value;
+
+        var oContractTemplate = document.getElementById("contract_template_"+type);
+
+        for(i = oContractTemplate.options.length; i >= 1 ;i--){
+            oContractTemplate.remove(i-1);
+        }
+
+        eval("var aIds = t"+type+"Dogovors[group]");
+
+        var optNames = new Array();
+
+        if(aIds){
+            for(a in aIds){
+                id = aIds[a];
+                optNames.push([id,id])
+            }
+        }
+
+        optNames.sort(optSort);
+
+        for(a in optNames) {
+            var o = optNames[a];
+            createOption(oContractTemplate, o[0], o[1]);
+        }
+    }
+
+    function optSort(i, ii)
+    {
+        return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
+    }
+    $('#cd_type').change(function(){
+        if($(this).val() != 'sms') {
+            $('#i_cd_data').inputmask("remove");
+        } else {
+            $('#i_cd_data').inputmask("+9(999)999-99-99");
+        }
+    });
+
+var datepicker_ru = {
+closeText: 'Закрыть',
+           prevText: '&#x3c;Пред',
+           nextText: 'След&#x3e;',
+           currentText: 'Сегодня',
+           monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+           'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+           monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+           'Июл','Авг','Сен','Окт','Ноя','Дек'],
+           dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+           dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+           dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+           weekHeader: 'Не',
+           dateFormat: 'dd.mm.yy',
+           firstDay: 1,
+           showMonthAfterYear: false,
+           yearSuffix: ''};
+    $('.contract_datepicker').datepicker(datepicker_ru);
+
+    {/literal}
+</script>

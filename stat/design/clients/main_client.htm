@@ -466,91 +466,13 @@
 </tr>
 <tr><td colspan="2" style="display: none"></td></tr>
 
-<tr>
-    <td align="right">
-        <a href='javascript:toggle2("contract");'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
-        Договор:
-    </td>
-    <td>
-        {foreach from=$contracts item=item key=key}
-        {if $item.is_active}
-        <b><a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>{$item.contract_no}</a></b> от {$item.contract_date} <span style='font-size:85%'>({$item.comment}, {$item.user}, {$item.ts})</span> {if $key!=$contract_last}; {/if}
-        {/if}
-        {/foreach}
-    </td>
-</tr>
+{include file="clients/contract/main.htm"}
 
-<tr id=contract style="display: none">
-    <td colspan=3 align="center">
-        <form action="?" method=post>
-            <input type=hidden name=module value=clients>
-            <input type=hidden name=action value=recontract>
-            <input type=hidden name=id value='{$client.id}'>
-
-            <table class=insblock cellspacing=4 cellpadding=2 border=0>
-                <tr>
-                    <th style="font: bold 10pt sans-serif;">&#8470;<br>договора</th>
-                    <th style="font: bold 10pt sans-serif;">дата<br>договора</th>
-                    <th style="font: bold 10pt sans-serif;">дата доп.<br>соглашения</th>
-                    <th>комментарий</th>
-                    <th>кто</th>
-                    <th>когда</th>
-                </tr>
-                {foreach from=$contracts item=item}
-                <tr {if !$item.is_active} class="other"{/if}>
-                <td>{$item.contract_no}</td>
-                <td>{$item.contract_date}</td>
-                <td>{if $item.contract_dop_date != "2012-01-01"}{$item.contract_dop_date}{/if}</td>
-                <td>{$item.comment}</td>
-                <td>{$item.user}</td>
-                <td style='font-size:85%'>{$item.ts}</td>
-                <td>
-                    <a href='{$LINK_START}module=clients&id={$item.id}&action=contract_edit' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/edit.gif'></a>
-                    <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/printer.gif'></a>
-                    <a href='{$LINK_START}module=clients&id={$item.id}&action=send&data=contract' target='_blank'><img class=icon src='{$IMAGES_PATH}icons/contract.gif'></a>
-                    <a href='{$LINK_START}module=clients&id={$item.client_id}&action=recontract2&act={if $item.is_active}0{else}1{/if}&cid={$item.id}'><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/{if $item.is_active}delete{else}add{/if}.gif' alt="Активность"></a>
-                    <a href="{$item.link}" target='_blank'>ссылка</a>
-                </td>
-                </tr>
-                {/foreach}
-                {if !$client.is_closed}
-                <tr>
-                    <td><input class=text style='width:70' type=text name=contract_no value={$client.id}-{0|mdate:"y"}></td>
-                    <td><input class=text style='width:85' type=text name=contract_date value={0|mdate:"Y-m-d"}></td>
-                    <td><input class=text style='width:85' type=text name=contract_dop_date value=""></td>
-                    <td><input class=text style='width:200' type=text name=comment></td>
-                    <td colspan=3>
-                        <select class=text name=contract_template_group id="contract_template_group" onChange="do_change_template_group(this)">
-                            {foreach from=$templates key=k item=item}
-                            <option value="{$k}">{$k}</option>
-                            {/foreach}
-                        </select>
-                        <select class=text name=contract_template id="contract_template">
-                            {foreach from=$templates.MCN item=item}
-                            <option value="{$item}">{$item}</option>
-                            {/foreach}
-                        </select>
-                        <input class=button type=submit value="зарегистрировать">
-                    </td>
-                </tr>
-                {/if}
-            </table>
-        </form>
-    </td>
-</tr>
 <tr><td colspan="2" style="display: none"></td></tr>
 </table>
 </div>
 
 <script>
-    var tDogovors = new Array();
-    {foreach from=$templates key=group item=item}
-    tDogovors["{$group}"] = new Array();
-    {foreach from=$item item=dov}
-    tDogovors["{$group}"].push('{$dov}');
-    {/foreach}
-    {/foreach}
-
     {literal}
 
     function togglecs() {
@@ -570,46 +492,6 @@
         }
         $.get("?module=usercontrol&action=ex_flag&flag=statusbox&value="+value);
     }
-
-    function do_change_template_group(o){
-        var group = o.options[o.selectedIndex].value;
-
-        var oContractTemplate = document.getElementById("contract_template");
-
-        for(i = oContractTemplate.options.length; i >= 1 ;i--){
-            oContractTemplate.remove(i-1);
-        }
-
-        aIds = tDogovors[group];
-
-        var optNames = new Array();
-
-        if(aIds){
-            for(a in aIds){
-                id = aIds[a];
-                optNames.push([id,id])
-            }
-        }
-
-        optNames.sort(optSort);
-
-        for(a in optNames) {
-            var o = optNames[a];
-            createOption(oContractTemplate, o[0], o[1]);
-        }
-    }
-
-    function optSort(i, ii)
-    {
-        return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
-    }
-    $('#cd_type').change(function(){
-        if($(this).val() != 'sms') {
-            $('#i_cd_data').inputmask("remove");
-        } else {
-            $('#i_cd_data').inputmask("+9(999)999-99-99");
-        }
-    });
 
     {/literal}
 </script>
