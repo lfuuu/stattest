@@ -35,6 +35,7 @@ class PaymentAddForm extends PaymentForm
         $item = new Payment();
         $item->client_id = $this->client_id;
         $item->payment_date = $this->payment_date;
+        $item->payment_no = $this->payment_no ?: 0;
         $item->oper_date = $this->oper_date;
         $item->bill_no = $this->bill_no;
         $item->bill_vis_no = $this->bill_no;

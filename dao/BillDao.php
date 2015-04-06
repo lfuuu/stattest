@@ -69,6 +69,10 @@ class BillDao extends Singleton
             $bill->sum_with_unapproved += $line->sum;
         }
 
+        if ($bill->is_rollback && $bill->sum_with_unapproved > 0) {
+            $bill->sum_with_unapproved = -$bill->sum_with_unapproved;
+        }
+
         $bill->sum =
             $bill->is_approved
                 ? $bill->sum_with_unapproved
@@ -157,7 +161,7 @@ class BillDao extends Singleton
             $owner->owner_id = $userId;
             $owner->save();
         } elseif ($owner) {
-            $owner->delete();
+            //$owner->delete();
         }
     }
 }

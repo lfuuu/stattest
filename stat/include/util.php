@@ -941,6 +941,7 @@ class ClientCS {
             "business_process_status_id" => 1, //Входящие
             "voip_credit_limit_day" => 1000,
             "voip_is_day_calc" => 1,
+            "credit" => 0,
             "timezone_name" => 'Europe/Moscow',
         );
         foreach ($defaultFields as $field => $defaultValue)
@@ -1481,7 +1482,7 @@ class ClientCS {
         $dNow = date("Y-m-d",strtotime("+1 day"));
         $c = $db->GetRow("select * from clients where id='".$clientId."'");
 
-        $trasitFields = array("mail_print", "bill_rename1");
+        $trasitFields = array("mail_print", "bill_rename1", "address_post_real");
         $transit = array();
 
         foreach($trasitFields as $f)

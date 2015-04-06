@@ -56,7 +56,7 @@ class m_voipnew_operators
         $minimumPayment = get_param_protected('minimum_payment');
         $termInCost = get_param_protected('term_in_cost');
         $localNetworkPricelistId = get_param_protected('local_network_pricelist_id');
-        $defaultPricelistId = get_param_protected('default_pricelist_id');
+        $pricelistId = get_param_protected('pricelist_id');
         $operator7800PricelistId = get_param_protected('operator_7800_pricelist_id');
         $client7800PricelistId = get_param_protected('client_7800_pricelist_id');
         $statClientCardId = get_param_protected('stat_client_card_id');
@@ -76,7 +76,7 @@ class m_voipnew_operators
         $operator->short_name = $shortName;
         $operator->minimum_payment = $minimumPayment ? $minimumPayment : null;
         $operator->term_in_cost = $termInCost ? $termInCost : 0;
-        $operator->default_pricelist_id = $defaultPricelistId ? $defaultPricelistId : null;
+        $operator->pricelist_id = $pricelistId ? $pricelistId : null;
         $operator->local_network_pricelist_id = $localNetworkPricelistId ? $localNetworkPricelistId : null;
         $operator->operator_7800_pricelist_id = $operator7800PricelistId ? $operator7800PricelistId : null;
         $operator->client_7800_pricelist_id = $client7800PricelistId ? $client7800PricelistId : null;

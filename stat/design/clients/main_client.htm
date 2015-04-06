@@ -16,7 +16,7 @@
         {php} endif; {/php}
     </div>
     <div style="width: 45%; display: inline-block; text-align: right; padding-right: 10px; font: normal 12pt sans-serif;">
-        {if $superClient.accountManager}
+        {if false && $superClient.accountManager}
         <span style="{if $superClient.accountManager && $superClient.accountManager.color}background-color: {$superClient.accountManager.color}{/if}">Аккаунт менеджер: {$superClient.accountManager.name}</span>
         {/if}
     </div>
@@ -62,6 +62,13 @@
                  <div style="display: inline-block; min-width: 260px; padding: 1px 5px;{if $account.manager && $account.userManager.color}background-color: {$account.userManager.color}{/if}">
                      {if $account.manager}Менеджер: {$account.userManager.name}{/if}
                  </div>
+                 
+                 {if $account.account_manager}
+                     <div style="display: inline-block; min-width: 260px; padding: 1px 5px;{if $account.userAccountManager.color}background-color: {$account.userAccountManager.color}{/if}">
+                         Ак.Менеджер: {$account.userAccountManager.name}
+                     </div>
+                 {/if}
+
                  {if $account.id==$clientAccount.id}</b>{/if}
                  <div style="display: inline-block;">
                      {if $account.lastComment}
@@ -305,7 +312,7 @@
                         <div style="position: relative"><textarea style='width:90%; height:100px' name=comment class=text></textarea></div>
                     </td>
                     </tr>
-                    <tr {if !$user_flag_statusbox}style='display:none' {/if}id=data_cs3>
+                    <tr>
                     <td align="right" style='border-bottom:1 solid red'>&nbsp;</td>
                     <td style='border-bottom:1 solid red'>
                         <input class=text value='Изменить' type=submit>

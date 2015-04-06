@@ -333,6 +333,8 @@ class m_stats extends IModule{
                 if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
                 $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
 
                 break;
             case 'call':
@@ -358,6 +360,8 @@ class m_stats extends IModule{
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
                 $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
                 break;
             default:
                 foreach ($data as $r_id=>$reg_data) {
@@ -706,7 +710,8 @@ class m_stats extends IModule{
 			'in_f'=>0,
 			'out_r'=>0,
 			'out_r2'=>0,
-			'out_f'=>0
+			'out_f'=>0,
+            'is_total' => 0
 		);
 		//define("print_sql",1);
 		if(count($P)>1){
@@ -778,6 +783,7 @@ class m_stats extends IModule{
 			if ($db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
 			while ($r=$db->NextRecord()){
 				$r['tsf']=mdate($format,$r['ts']);
+                $r['is_total'] = 0;
 				$R[]=$r;
 				//printdbg($r);
 				if ($is_collocation) {
@@ -798,6 +804,7 @@ class m_stats extends IModule{
 		$T['ts']='<b>Итого</b>';
 		$T['tsf']='<b>Итого</b>';
 		$T['ip']='&nbsp;';
+        $T["is_total"] = 1;
 		$R[]=$T;
 		return $R;
 	}
@@ -1046,6 +1053,8 @@ class m_stats extends IModule{
             if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60).'</b>';
             $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price_without_tax'] = number_format($rt['price'], 2, '.','');
+            $rt['price_with_tax'] = number_format($rt['price']*1.18, 2, '.','');
 
             $R['total']=$rt;
         }else{
@@ -1098,6 +1107,8 @@ class m_stats extends IModule{
             if ($len>=24*60*60) $d=floor($len/(24*60*60)); else $d=0;
             $rt['tsf2']='<b>'.($d?($d.'d '):'').gmdate("H:i:s",$len-$d*24*60*60).'</b>';
             $rt['price']= number_format($price, 2, '.','') .' (<b>'.number_format($price*1.18, 2, '.','').' - Сумма с НДС</b>)';
+            $rt['price_without_tax'] = number_format($price, 2, '.','');
+            $rt['price_with_tax'] = number_format($price*1.18, 2, '.','');
             $rt['cnt']=$cnt;
             $R['total'] = $rt;
         }
@@ -3321,23 +3332,23 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if($genReport)
     {
-	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
-	$d1 = $d2 = $dateFrom->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
-	$dateFrom->format = 'Y-m-d';
-	$d1 = $d2 = $dateFrom->getDay();
+        $dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
+        $d1 = $d2 = $dateFrom->getDay();
+        $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+        $dateFrom->format = 'Y-m-d';
+        $d1 = $d2 = $dateFrom->getDay();
     }else{
-	$dateFrom = new DatePickerValues('date_from', 'first');
-	$dateTo = new DatePickerValues('date_to', 'last');
-	$d1 = $dateFrom->getDay();
+        $dateFrom = new DatePickerValues('date_from', 'first');
+        $dateTo = new DatePickerValues('date_to', 'last');
+        $d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
-	$date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
-	$dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
-	$d1 = $dateFrom->getDay();
+        $date = $d1 == $d2 ? 'за '.$d1 : 'с '.$d1.' по '.$d2;
+        $dateFrom->format = 'Y-m-d';$dateTo->format = 'Y-m-d';
+        $d1 = $dateFrom->getDay();
         $d2 = $dateTo->getDay();
 
         $filterPromoAll = array("all"=> "Все заявки", "promo" => "По акции", "no_promo" => "Не по акции");
-    	$filterPromo = get_param_raw("filter_promo", "all");
+        $filterPromo = get_param_raw("filter_promo", "all");
 
         $design->assign("filter_promo_all", $filterPromoAll);
         $design->assign("filter_promo", $filterPromo);
@@ -3376,7 +3387,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
-    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0);
+    $total = array("count_3" => 0, "count_9" => 0, "count_11" => 0, "count_12" => 0, "count_18" => 0);
 
     foreach($list as $l)
     {
@@ -3384,6 +3395,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         $total["count_9"] += $l["count_9"];
         $total["count_11"] += $l["count_11"];
         $total["count_12"] += $l["count_12"];
+        $total["count_18"] += $l["count_18"];
     }
 
     $design->assign("list", $list);
@@ -3410,6 +3422,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["count_9"] = (int)$l["count_9"];
             $l["count_11"] = (int)$l["count_11"];
             $l["count_12"] = (int)$l["count_12"];
+            $l["count_18"] = (int)$l["count_18"];
             $design->assign("i_stages", $l["stages"]);
             $design->assign("last", 1000);
             $html = $design->fetch("stats/onlime_stage.tpl");
@@ -3440,6 +3453,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     "Кол-во HD-ресивер OnLime" => "count_9",
                     "Кол-во HD-ресивер с диском" => "count_11",
                     "NetGear Беспроводной роутер, JNR3210-1NNRUS" => "count_12",
+                    "Zyxel KEENETIC EXTRA Беспроводной роутер" => "count_18",
                     "Серийные номера" => "serials",
                     "Номер купона" => "coupon",
                     "ФИО клиента" => "fio",
@@ -3758,6 +3772,10 @@ if($client != "nbn")
                         where item_id in ('e1a5bf94-0764-11e4-8c79-00155d881200')
                         and nl.bill_no = t.bill_no) as count_12,
 
+				(select sum(amount) from newbill_lines nl
+                        where item_id in ('55b6f916-b3fb-11e3-9fe5-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_18,
+
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
 
@@ -3875,6 +3893,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('e1a5bf94-0764-11e4-8c79-00155d881200')
                         and nl.bill_no = t.bill_no) as count_12,
+
+				(select sum(amount) from newbill_lines nl
+                        where item_id in ('55b6f916-b3fb-11e3-9fe5-00155d881200')
+                        and nl.bill_no = t.bill_no) as count_18,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,

@@ -1123,17 +1123,19 @@ class m_clients {
             $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
 
 
-			$R=array();
+            $R=array();
             StatModule::users()->d_users_get($R,'account_managers');
-			if(isset($R[$r['account_manager']]))
-				$R[$r['account_manager']]['selected']=' selected';
-			$design->assign('account_managers',$R);
-
-			$R=array();
             StatModule::users()->d_users_get($R,'manager');
-			if(isset($R[$r['manager']]))
-				$R[$r['manager']]['selected']=' selected';
-			$design->assign('users_manager',$R);
+
+            $rAccountManagers = $rManagers = $R;
+
+            if(isset($rAccountManagers[$r['account_manager']]))
+                $rAccountManagers[$r['account_manager']]['selected']=' selected';
+            $design->assign('account_managers',$rAccountManagers);
+
+            if(isset($rManagers[$r['manager']]))
+                $rManagers[$r['manager']]['selected']=' selected';
+            $design->assign('users_manager',$rManagers);
 
 
 			$design->assign(
@@ -1264,6 +1266,7 @@ class m_clients {
             "contract_type_id" => 2,
             "business_process_id" => 1,
             "business_process_status_id" => 1,
+            "credit" => 0,
             'timezone_name' => 'Europe/Moscow',
         ];
         $design->assign("client", $client);
@@ -2098,7 +2101,7 @@ DBG::sql_out($select_client_data);
 		exit();
 	}
 
-	static function contract_fix_static_parts_of_template(&$content, $client, $clientId=0){
+    static function contract_fix_static_parts_of_template(&$content, $client, $clientId=0){
 		global $db;
         global $design;
 
@@ -2171,6 +2174,12 @@ DBG::sql_out($select_client_data);
                         where tarif_id in (196,330,332,333) and client='".$client."' and tarif_id = t.id order by u.id desc limit 1"));
         }
 
+        if (strpos($content, "{*#blank_zakaz#*}") !== false)
+        {
+            $content = str_replace("{*#blank_zakaz#*}", self::makeBlankZakaz($clientId), $content);
+        }
+
+
 		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
 			$repl = '';
 			// москва(моб.)
@@ -2194,9 +2203,94 @@ DBG::sql_out($select_client_data);
 				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
 			}
 			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
-		}
+        }
+
 		return $content;
-	}
+    }
+
+    static function makeBlankZakaz($clientId)
+    {
+        $client = ClientAccount::findOne(["id" => $clientId])->client;
+
+        $data = ['voip' => [], 'ip' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
+
+
+        foreach(\app\models\UsageVoip::find()->client($client)->actual()->all() as $a)
+        {
+            $data['voip'][] = [
+                'from' => $a->actual_from,
+                'description' => "Телефонный номер: " . $a->E164,
+                'number' => $a->E164,
+                'tarif_name' => $a->currentTariff->name,
+                'per_month' => round($a->currentTariff->month_number, 2),
+                'per_month_with_tax' => round($a->currentTariff->month_number * 1.18, 2)
+            ];
+        }
+
+        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $a)
+        {
+            $data['ip'][] = [
+                'from' => $a->actual_from,
+                'description' => 'Интернет подключение #" . $a->id',
+                'tarif_name' => $a->currentTariff->name,
+                'per_month' => round($a->currentTariff->pay_month, 2),
+                'per_month_with_tax' => round($a->currentTariff->pay_month * 1.18, 2)
+            ];
+        }
+
+        foreach(\app\models\UsageWelltime::find()->client($client)->actual()->all() as $a)
+        {
+            $data['welltime'][] = [
+                'from' => $a->actual_from,
+                'description' => "Welltime",
+                'amount' => $a->amount,
+                'tarif_name' => $a->currentTariff->description,
+                'per_month' =>  round($a->currentTariff->price * $a->amount,2),
+                'per_month_with_tax' =>  round($a->currentTariff->price * 1.18 * $a->amount,2)
+            ];
+        }
+
+        foreach(\app\models\UsageVirtpbx::find()->client($client)->actual()->all() as $a)
+        {
+            $data['vats'][] = [
+                'from' => $a->actual_from,
+                'description' => "ВАТС #".$a->id,
+                'tarif_name' => $a->currentTariff->description,
+                'per_month' => round($a->currentTariff->price, 2),
+                'per_month_with_tax' => round($a->currentTariff->price * 1.18, 2)
+            ];
+        }
+
+        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $a)
+        {
+            $data['sms'][] = [
+                'from' => $a->actual_from,
+                'description' => "SMS-рассылка",
+                'tarif_name' => $a->currentTariff->description,
+                'per_month' => round($a->currentTariff->per_month_price/1.18, 2),
+                'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
+            ];
+        }
+
+        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $a)
+        {
+            $data['extra'][] = [
+                'from' => $a->actual_from,
+                'description' => "Доп. услуга", 
+                'amount' => $a->amount,
+                'tarif_name' => $a->currentTariff->description,
+                'per_month' => round($a->currentTariff->price * $a->amount, 2),
+                'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
+            ];
+        }
+
+        global $design;
+
+        $design->assign("blank_data", $data);
+
+        return $design->fetch("tarifs/blank.htm");
+    }
+
 
     static function contract_apply_support_phone($region)
     {

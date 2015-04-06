@@ -56,8 +56,9 @@ class BillerPackageResource extends BillerPackage
         $from = $this->billerActualFrom;
         $to = $this->billerActualTo;
 
-        $transactionDate = clone $to;
-        $transactionDate->modify('+1 second');
+        $transactionDate = new DateTime('now', $this->biller->timezone);
+        $transactionDate->setDate($from->format('Y'), $from->format('m') + 1, 1);
+        $transactionDate->setTime(0, 0, 0);
 
 
         $name = $this->processTemplate($from, $to, $template);

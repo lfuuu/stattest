@@ -1,19 +1,21 @@
 <?php
+
+
 class m_tarifs{
     var $actions=array(
-            'default'            => array('tarifs','read'),
+            'default'             => array('tarifs','read'),
             'view'                => array('tarifs','read'),
             'edit'                => array('tarifs','read'),
-            'delete'            => array('tarifs','edit'),
-            'itpark'            => array('services_itpark','full'),
+            'delete'              => array('tarifs','edit'),
+            'itpark'              => array('services_itpark','full'),
             'welltime'            => array('services_welltime','full'),
-            'wellsystem'        => array('services_wellsystem','full'),
-            'contracts'            => array('tarifs','read'),
+            'wellsystem'          => array('services_wellsystem','full'),
+            'contracts'           => array('tarifs','read'),
             'voip'                => array('tarifs','read'),
-            'voip_edit'            => array('tarifs','edit'),
-            'price_tel'            => array('tarifs','edit'),
-            'virtpbx'              => array('tarifs','edit'),
-            'sms'              => array('tarifs','edit'),
+            'voip_edit'           => array('tarifs','edit'),
+            'price_tel'           => array('tarifs','edit'),
+            'virtpbx'             => array('tarifs','edit'),
+            'sms'                 => array('tarifs','edit'),
         );
 
     var $menu=array(
@@ -137,9 +139,9 @@ class m_tarifs{
     function tarifs_voip(){
         global $db, $pg_db, $design;
 
-        $f_region = get_param_integer('f_region', '');
+        $f_region = get_param_integer('f_region', '99');
         $f_dest = get_param_protected('f_dest', '');
-        $f_currency = get_param_protected('f_currency', '');
+        $f_currency = get_param_protected('f_currency', 'RUB');
         $f_show_archive = get_param_integer('f_show_archive', 0);
         $design->assign('f_region',$f_region);
         $design->assign('f_dest',$f_dest);
@@ -230,7 +232,10 @@ class m_tarifs{
         $this->tarifs_view();
     }
 
-    function tarifs_contracts(){
+    function tarifs_contracts($fixclient){
+
+        \app\assets\TinymceAsset::register(Yii::$app->view);
+
         global $design, $db, $user;;
         $templates = clientCS::contract_listTemplates();
         $info = "";

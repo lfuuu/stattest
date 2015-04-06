@@ -51,12 +51,32 @@
 {if $is_opened}
     <tr>
     <td colspan=2>
-<FORM action="?" method=post onsubmit="updateRTEs();return true;" name=form1 id=form1>
+<FORM action="?" method=post name=form1 id=form1>
 	<input type=hidden name=module value=tarifs>
 	<input type=hidden name=action value=contracts>
 	<input type=hidden name=do value=open>
 	<input type=hidden name="contract_template_group" value="{$contract_template_group}">
 	<input type=hidden name="contract_template" value={$contract_template}>
+
+    <textarea id="text" name="text" style="width: 100%; margin: 0px; height: 600px;">{$contract_body}</textarea>
+<script type="text/javascript">
+{literal}
+$(document).ready(function(){
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste"
+        ],
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+    });
+});
+
+{/literal}
+</script>
+
+{if false}
 <script language=javascript type='text/javascript'>
 initRTE("{$PATH_TO_ROOT}editor/images/", "{$PATH_TO_ROOT}editor/", "", true);
 
@@ -109,6 +129,7 @@ rte1.html = "{$contract_body|escape:"javascript"}";
 rte1.toggleSrc = true;
 rte1.build();
 </script>
+{/if}
     </td>
     </tr>
     <tr>

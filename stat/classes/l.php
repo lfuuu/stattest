@@ -12,7 +12,8 @@ class l
         if(defined("voip_debug"))
             echo "\n".$l;
 
-        $logFile = '/var/log/nispd/voipcheck.log';
+        $logFile = LOG_DIR.'voipcheck.log';
+
         if (is_writeable($logFile)) {
             if($fp = fopen($logFile, "a+")) {
                 fwrite($fp, "\n".date("r").": ".$l);

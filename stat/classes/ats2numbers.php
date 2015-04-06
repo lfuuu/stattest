@@ -517,10 +517,15 @@ class ats2NumberAction
 
     public static function clientChanged($l)
     {
+        l::ll(__CLASS__,__FUNCTION__, $l);
+
         global $db_ats;
 
-        $numberId = $db_ats->GetValue("select id from a_number 
-                where number = '".$l["e164"]."'");
+        $number = $db_ats->GetRow("select id, client_id from a_number 
+            where number = '".$l["e164"]."'");
+
+        $numberId = $number["id"];
+        $prevClientId = $number["client_id"];
 
         if($numberId)
         {
@@ -531,8 +536,79 @@ class ats2NumberAction
                         "last_update" => array("NOW()"),
                         "enabled" => "yes")
                     );
-        }
 
+            if (self::isNumberMoved($l))
+            {
+                self::moveSettings($numberId, $l["client_id"], $prevClientId);
+            } else {
+                self::clearSettings($numberId);
+            }
+        }
+    }
+
+    public static function isNumberMoved(&$l)
+    {
+        global $db;
+
+        return (bool) $db->GetValue("SELECT id FROM `usage_voip` WHERE `E164` = '".$l["e164"]."' AND CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AND is_moved");
+    }
+
+
+    private static function clearSettings($numberId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $numberId);
+
+        global $db_ats;
+
+        $db_ats->QueryDelete("rr_anonce",          ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_number_settings", ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_redirect_on",     ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_redirect_phones", ["number_id" => $numberId]);
+        $db_ats->QueryDelete("rr_weekday",         ["number_id" => $numberId]);
+    }
+
+    private static function moveSettings($numberId, $clientId, $prevClientId)
+    {
+        l::ll(__CLASS__,__FUNCTION__, $numberId, $clientId, $prevClientId);
+
+        global $db_ats;
+
+        $db_ats->QueryUpdate("rr_number_settings", "number_id", ["number_id" => $numberId, "client_id" => $clientId]);
+        $db_ats->QueryUpdate("rr_redirect_on",     "number_id", ["number_id" => $numberId, "client_id" => $clientId]);
+        $db_ats->QueryUpdate("rr_redirect_phones", "number_id", ["number_id" => $numberId, "client_id" => $clientId]);
+        $db_ats->QueryUpdate("rr_weekday",         "number_id", ["number_id" => $numberId, "client_id" => $clientId]);
+
+        // есть анонсы на номере?
+        foreach($db_ats->AllRecords("select id, anonce_id from rr_anonce where number_id = '".$numberId."'") as $anonce)
+        {
+            l::ll("move", "rr_anonce", $anonce);
+
+            // секция без анонса
+            if (!$anonce["anonce_id"]) 
+            {
+                l::ll("-------", "without anonce");
+                $db_ats->QueryUpdate("rr_anonce", "id", ["client_id" => $clientId, "number_id" => $numberId, "id" => $anonce["id"]]);
+            } else { 
+
+                //есть ли этот ананос на других номерах.
+                l::ll("-------", "with anonce");
+                
+                if ($db_ats->GetValue("select id from rr_anonce where anonce_id = '".$anonce["anonce_id"]."' and number_id != '".$numberId."'")) 
+                {
+                    //перенос без анонса
+                    l::ll("=====", "move without anonce");
+
+                    $db_ats->Query("update rr_anonce set client_id = '".$clientId."', number_id='".$numberId."', anonce_id = null, is_on = 'no' where id = '".$anonce["id"]."'"); 
+                } else {
+
+                    //перенос вместе с анонсом
+                    l::ll("=====", "move with anonce");
+
+                    $db_ats->QueryUpdate("rr_anonce", "id", ["client_id" => $clientId, "number_id" => $numberId, "id" => $anonce["id"]]);
+                    $db_ats->QueryUpdate("anonce", "id", ["id" => $anonce["anonce_id"], "client_id" => $clientId]);
+                }
+            }
+        }
     }
 }
 
