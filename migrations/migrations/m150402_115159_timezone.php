@@ -215,8 +215,6 @@ class m150402_115159_timezone extends \app\classes\Migration
             update tt_troubles set date_creation = date_sub(date_creation, interval 3 hour);
             update tt_troubles set date_close = date_sub(date_close, interval 3 hour);
 
-            update tt_troubles set date_close = date_sub(date_close, interval 3 hour);
-
         ");
     }
 
