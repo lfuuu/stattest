@@ -5,7 +5,7 @@
     <a href="./?module=clients&id={$item.id}&action=file_send&cid={$item.client_id}"><img border=0 src='images/icons/envelope.gif'></a></td>
 	<td>{$item.comment}</td>
 	<td>{$item.user}</td>
-	<td style='font-size:85%'>{$item.ts}</td>
+	<td style='font-size:85%'>{$item.ts|udate:'Y-m-d H:i:s'}</td>
 	<td>
 		<a href='{$LINK_START}module=clients&action=file_del&id={$item.id}' onclick="return confirm('Вы уверены, что хотите удалить файл {$item.name}?')"><img style='margin-left:-2px;margin-top:-3px' class=icon src='{$IMAGES_PATH}icons/delete.gif' alt="Удалить"></a>
 	</td>

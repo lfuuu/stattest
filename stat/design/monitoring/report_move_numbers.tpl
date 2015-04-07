@@ -34,7 +34,7 @@
                         {$w->from_actual_from|mdate:"d месяца Y г"}
                 </td>
                 <td align="right">
-                        {if "2029-01-01" == "Y-m-d"|date:$w->from_actual_to}
+                        {if "3000-01-01" < "Y-m-d"|date:$w->from_actual_to}
                                 ---
                         {else}
                                 {$w->from_actual_to|mdate:"d месяца Y г"}
@@ -50,7 +50,7 @@
                         {$w->to_actual_from|mdate:"d месяца Y г"}
                 </td>
                 <td align="right">
-                        {if "2029-01-01" == "Y-m-d"|date:$w->to_actual_to}
+                        {if "3000-01-01" < "Y-m-d"|date:$w->to_actual_to}
                                 ---
                         {else}
                                 {$w->to_actual_to|mdate:"d месяца Y г"}
@@ -121,7 +121,7 @@
                         {$w->to_actual_from|mdate:"d месяца Y г"}
                 </td>
                 <td align="right">
-                        {if "2029-01-01" == "Y-m-d"|date:$w->to_actual_to}
+                        {if "3000-01-01" < "Y-m-d"|date:$w->to_actual_to}
                                 ---
                         {else}
                                 {$w->to_actual_to|mdate:"d месяца Y г"}
@@ -224,7 +224,7 @@
                 </td>
                 <td align=right>
                     {foreach from=$w.to item=v name=to}
-                        {if "2029-01-01" == "Y-m-d"|date:$v->to_actual_to}
+                        {if "3000-01-01" < "Y-m-d"|date:$v->to_actual_to}
                                 ---
                         {else}
                                 {$w->to_actual_to|mdate:"d месяца Y г"}

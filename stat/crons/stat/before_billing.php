@@ -31,7 +31,7 @@ foreach($db->AllRecords("SELECT id, client, credit FROM clients WHERE credit > -
         WHERE 
                 client = '".$l["client"]."' 
             AND actual_to > '".date("Y-m-d", $prevMonthStart)."' 
-            AND actual_from < '2029-01-01'") as $u)
+            AND actual_from < '3000-01-01'") as $u)
     {
         $usages[] = $u["id"];
     }

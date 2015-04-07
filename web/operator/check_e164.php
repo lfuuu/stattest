@@ -32,9 +32,6 @@
             $ann_ = '';
         }
 
-		$actual_from = $_GET['actual_from'];
-		$actual_to = $_GET['actual_to'];
-
 		$query = "
 			select `vn`.`number`, (select max(actual_to) from usage_voip uv where uv.e164 = vn.number) as actual_to
 			from `voip_numbers` `vn`
@@ -115,19 +112,19 @@
 				(
 					`actual_to` BETWEEN '".$actual_from."' AND '".$actual_to."'
 				and
-					(`actual_to` <> '2029-01-01' or `status` = 'connection')
+					(`actual_to` < '3000-01-01' or `status` = 'connection')
 				)
 			or
 				(
 					`actual_from` BETWEEN '".$actual_from."' AND '".$actual_to."'
 				and
-					(`actual_from` <> '2029-01-01' or `status` = 'connection')
+					(`actual_from` < '3000-01-01' or `status` = 'connection')
 				)
 			or
 				(
 					'".$actual_from."' BETWEEN `actual_from` AND `actual_to`
 				and
-					('".$actual_from."' <> '2029-01-01' or `status` = 'connection')
+					('".$actual_from."' < '3000-01-01' or `status` = 'connection')
 				)
 			)
 	";

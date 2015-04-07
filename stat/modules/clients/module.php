@@ -682,14 +682,6 @@ class m_clients {
 			}
 
 		}
-		/*$query = "
-			SELECT
-				(select date(ts) from client_statuses where id_client=clients.id order by client_statuses.id asc limit 1) as date_zayavka,
-				clients.*,
-				clients.client as client
-			FROM
-				clients
-			WHERE ";*/
 
 		$query = "
 			select sql_calc_found_rows
@@ -952,12 +944,16 @@ class m_clients {
 
 		global $design, $db, $user;
 
-    if (is_numeric($id)) {
-      $clientAccount = ClientAccount::findOne($id);
-    } else {
-      $clientAccount = ClientAccount::find()->andWhere(['client' => $id])->one();
-    }
-    Assert::isObject($clientAccount);
+        if (is_numeric($id)) {
+          $clientAccount = ClientAccount::findOne($id);
+        } else {
+          $clientAccount = ClientAccount::find()->andWhere(['client' => $id])->one();
+        }
+        Assert::isObject($clientAccount);
+
+        $timezones = \app\models\Region::find()->select('timezone_name')->groupBy('timezone_name')->indexBy('timezone_name')->asArray()->all();
+        $timezones[$clientAccount->timezone_name] = ['timezone_name' => $clientAccount->timezone_name];
+        $design->assign('timezones', $timezones);
 
     $superClient = $clientAccount->superClient;
     $contragents = $superClient->contragents;
@@ -1256,7 +1252,8 @@ class m_clients {
             "contract_type_id" => 2,
             "business_process_id" => 1,
             "business_process_status_id" => 1,
-            "credit" => 0
+            "credit" => 0,
+            'timezone_name' => 'Europe/Moscow',
         ];
         $design->assign("client", $client);
 
@@ -1274,7 +1271,10 @@ class m_clients {
 
         $design->assign("history_flags", $this->get_history_flags(0));
 
-		$design->AddMain('clients/main_edit.tpl');
+        $timezones = \app\models\Region::find()->select('timezone_name')->groupBy('timezone_name')->indexBy('timezone_name')->asArray()->all();
+        $design->assign('timezones', $timezones);
+
+        $design->AddMain('clients/main_edit.tpl');
 
     }
 	function clients_edit_pop($v){ $this->clients_edit($v,true); exit; }
@@ -1326,6 +1326,17 @@ class m_clients {
 			return;
 
 		$C = new ClientCS(get_param_protected('id'),true);
+
+        if ($C->F['timezone_name'] != $_POST['timezone_name']) {
+            $firstTransaction =
+                \app\models\Transaction::find()
+                    ->andWhere(['client_account_id' => $C->F['id']])
+                    ->limit(1)
+                    ->one();
+            if ($firstTransaction) {
+                trigger_error2("Не возможно изменить таймзону лицевого счета. По нему уже существуют финансовые транзакции");
+            }
+        }
 
 		if(isset($_POST['cl_cards_operations'])){ // привязать к истории
 			$cli = $db->GetRow("select * from clients where id=".((int)$_POST['id']));
@@ -2146,7 +2157,7 @@ DBG::sql_out($select_client_data);
                         where client = '".$client."'
                         and u.tarif_id = t.id
                         and t.status ='itpark' and (description like 'Аренда%' or description like 'аренда%')
-                        and actual_from < '2029-01-01' and unix_timestamp(u.actual_to) > ".time()."
+                        and actual_from < '3000-01-01' and unix_timestamp(u.actual_to) > ".time()."
                         order by  actual_from desc, u.id desc");
 
             $rr = array("from" => @$r[0]["from"], "to" => @$r[0]["to"], "sum" => 0);
@@ -2504,7 +2515,7 @@ DBG::sql_out($select_client_data);
 
 
 		$log = $db->AllRecords(
-			"select user_id,client_id, lc.id, unix_timestamp(lc.ts) as ts ,u.name, is_overwrited, is_apply_set, unix_timestamp(apply_ts) as apply_ts
+			"select user_id,client_id, lc.id, lc.ts, u.name, is_overwrited, is_apply_set, unix_timestamp(apply_ts) as apply_ts
 			from log_client lc
 			left join user_users u on (u.id = lc.user_id)
 			where lc.".$field." = '".$id."' and lc.type='fields'
@@ -2513,7 +2524,7 @@ DBG::sql_out($select_client_data);
 
 		foreach($log as $idx => $l)
 		{
-			$log[$idx]["ts"] = mdate("d месяца Y", $log[$idx]["ts"])." ".date("H:i:s",$log[$idx]["ts"]);
+			//$log[$idx]["ts"] = mdate("d месяца Y", $log[$idx]["ts"])." ".date("H:i:s",$log[$idx]["ts"]);
 			$log[$idx]["apply"] = $l["apply_ts"] ? array((int)date("Y", $l["apply_ts"]), (int)date("m", $l["apply_ts"]), (int)date("d", $l["apply_ts"])): false;
 			$log[$idx]["apply_ts"] = $l["apply_ts"]  ? mdate("d месяца Y", $l["apply_ts"]) : false;
 			$log[$idx]["fields"] = array();

@@ -107,7 +107,7 @@
         {$data.user}
     </td></tr>
     <tr><td>время последнего изменения тарифа:</td><td>
-        {$data.edit_time}
+        {$data.edit_time|udate}
     </td></tr>
 </table>
 <input type="submit" value="Сохранить"/>

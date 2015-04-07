@@ -11,7 +11,7 @@
                         {$item.contract_no}
                     </a>
                 </b> от {$item.contract_date} 
-                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts})</span>;
+                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
             {/if}
         {/foreach}
     </td>
@@ -30,7 +30,7 @@
                         {$item.contract_no}
                     </a>
                 </b> от {$item.contract_date} 
-                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts})</span>;
+                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
             {/if}
         {/foreach}
     </td>
@@ -50,7 +50,7 @@
                         {$item.contract_no}
                     </a>
                 </b> от {$item.contract_date} 
-                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts})</span>;
+                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
             {/if}
         {/foreach}
     </td>

@@ -38,7 +38,6 @@
 <br><br>
 {if access('services_ppp','addnew')}
 	{if count($ppps)>0}
-		{*<a href='{$PATH_TO_ROOT}ppp_lazy.php?client={$fixclient}&action=add' target="_blank">*}
 		<a href='{$LINK_START}module=services&action=ppp_append&client={$fixclient}'><img class=icon src='{$IMAGES_PATH}icons/add.gif' alt='Добавить логин'></a>
 	{else}
 		{if access('services_ppp','full')}

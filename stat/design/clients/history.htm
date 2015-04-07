@@ -11,7 +11,7 @@
 <tr >
 <td style="border-top: 1px solid #aaa;{if $l.is_overwrited=='yes'}color: gray;text-decoration: line-through;{/if}" align=right><b>
 {if $isAdmin}<a href="./?module=clients&client_id={$l.client_id}&action=view_history&del_section={$l.id}">x</a><input type="radio" name="fs" value="{$l.id}">{/if}
-{$l.ts}</b>
+{$l.ts|udate:'d месяца Y H:i:s'}</b>
 {if $l.apply_ts}<br>{if $l.is_apply_set == 'no'}<b style="color: #c40000;">применить{else}<b style="color: #555;">применено{/if} c {$l.apply_ts}</b>{if $isAdmin} <a href="./?module=clients&client_id={$l.client_id}&action=view_history&del_apply={$l.id}"><img width=6 height=6 src="./images/del2.gif" valign=absmiddle border=0></a>{/if}{/if}
 {if $isAdmin} <img class="date_selector" data-id="{$l.id}" data-year="{$l.apply.0}" data-month="{$l.apply.1}" data-day="{$l.apply.2}" width=12 height=13 src="./images/date_selector.gif" valign=absmiddle border=0></a>{/if}
 </td>

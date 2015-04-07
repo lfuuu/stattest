@@ -69,8 +69,8 @@ function getVoipUsageIDs($dates = array())
             WHERE
                 service = 'usage_voip' AND
                 uv.status = 'connecting' AND 
-                uv.actual_from = '2029-01-01' AND
-                uv.actual_to = '2029-01-01'
+                uv.actual_from > '3000-01-01' AND
+                uv.actual_to > '3000-01-01'
             GROUP BY uv.id
             HAVING
                 1 ".$where."

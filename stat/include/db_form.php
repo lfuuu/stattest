@@ -1,5 +1,7 @@
 <?php
 use app\classes\StatModule;
+use app\models\ClientAccount;
+use app\classes\Assert;
 
 class DbForm {
     protected $table;
@@ -91,7 +93,7 @@ class DbForm {
                 } elseif ($this->dbform['id']) {
                     $this->dbform['actual_from'] = $db->GetValue('SELECT actual_from FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
                 } else {
-                    $this->dbform['actual_from'] = '2029-01-01';
+                    $this->dbform['actual_from'] = '4000-01-01';
                 } 
                 
                 $ts = strtotime($this->dbform['actual_to']);
@@ -101,7 +103,7 @@ class DbForm {
                 } elseif ($this->dbform['id']) {
                     $this->dbform['actual_to'] = $db->GetValue('SELECT actual_to FROM ' . $this->table . ' WHERE id = ' . $this->dbform['id']);
                 } else {
-                    $this->dbform['actual_to'] = '2029-01-01';
+                    $this->dbform['actual_to'] = '4000-01-01';
                 }
             }
         }
@@ -152,6 +154,7 @@ class DbForm {
             }
 
 
+
             if (!$no_real_update) {
                 if ($this->dbform['id']) {
 
@@ -175,6 +178,14 @@ class DbForm {
             }
             return $p;
         }
+    }
+
+    public function fillUTCPeriod()
+    {
+        $client = ClientAccount::findOne(['client' => $this->dbform['client']]);
+        Assert::isObject($client);
+        $this->dbform['activation_dt'] = (new DateTime($this->dbform['actual_from'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        $this->dbform['expire_dt'] = (new DateTime($this->dbform['actual_to'], new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
     }
 }
 class HelpDbForm {
@@ -308,7 +319,9 @@ class DbFormUsageIpPorts extends DbForm{
         DbForm::__construct('usage_ip_ports');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['address']=array();
         
         $this->fields['port_type']=array('db_ignore'=>1,'enum'=>array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota','GPON'),'default'=>'adsl','add'=>' onchange=form_ip_ports_hide()');
@@ -409,6 +422,8 @@ class DbFormUsageIpPorts extends DbForm{
         }
         $current = $db->GetRow("select * from usage_ip_ports where id = '".$this->dbform["id"]."'");
 
+        $this->fillUTCPeriod();
+
         $v=DbForm::Process();
         
         if ($v=='add' || $v=='edit') {
@@ -441,7 +456,9 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['region']=array('type'=>'select','assoc_enum'=>$regions,'add'=>' readonly', 'default'=>'99');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'), 'add'=>"onchange='change_datepicker_value();' ");
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['E164']=array("add" => " onchange='form_usagevoip_hide()'");
         $this->fields['no_of_lines']=array('default'=>1);
         $this->fields['line7800_id']=array("assoc_enum" => array());
@@ -563,7 +580,9 @@ class DbFormUsageVoip extends DbForm {
 
         $this->dbform['edit_user_id'] = $user->Get('id');
         $current = $db->GetRow("select * from usage_voip where id = '".$this->dbform["id"]."'");
-        
+
+        $this->fillUTCPeriod();
+
         $this->updateMovedFieldsBeforeSave($current);
         
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_voip');
@@ -735,7 +754,7 @@ class DbFormEmails extends DbForm {
         DbForm::__construct('emails');
         $this->fields['client']=array('type'=>'label','default'=>'');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
         $this->fields['local_part']=array('type'=>'text');
         $this->fields['domain']=array('type'=>'include','file'=>'dbform_emails_domain.tpl','add'=>'');
         $this->fields['password']=array("type" => "password");
@@ -821,7 +840,7 @@ class DbFormEmailsSimple extends DbForm {
         DbForm::__construct('emails');
         $this->fields['client']=array('type'=>'label','default'=>'');
         $this->fields['actual_from']=array('type'=>'hidden','default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('type'=>'hidden','default'=>'01-01-2029');
+        $this->fields['actual_to']=array('type'=>'hidden','default'=>'01-01-4000');
         $this->fields['local_part']=array('type'=>'text');
         $this->fields['domain']=array('type'=>'include','file'=>'dbform_emails_domain.tpl','add'=>'');
         $this->fields['password']=array();
@@ -844,7 +863,7 @@ class DbFormDomains extends DbForm {
         DbForm::__construct('domains');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
         $this->fields['domain']=array();
         $this->fields['primary_mx']=array();
         $this->fields['registrator']=array('default'=>'RUCENTER-REG-RIPN');
@@ -882,7 +901,7 @@ class DbFormBillMonthlyadd extends DbForm {
     public function __construct() {
         DbForm::__construct('bill_monthlyadd');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
         $this->fields['client']=array('type'=>'label');
         $this->fields['amount']=array('default'=>'1');
         $this->fields['description']=array();
@@ -934,7 +953,7 @@ class DbFormUsageIpRoutes extends DbForm{
         DbForm::__construct('usage_ip_routes');
         $this->fields['port_id']=array('type'=>'hidden');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
         $this->fields['type']=array('enum'=>array('unused', 'uplink', 'uplink+pool', 'client', 'client-nat', 'pool', 'aggregate', 'reserved', 'gpon'),'default'=>'aggregate');
         $this->fields['net']=array();
         $this->fields['nat_net']=array();
@@ -1019,7 +1038,9 @@ class DbFormUsageExtra extends DbForm{
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['code']=array('type'=>'hidden');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
@@ -1098,6 +1119,9 @@ class DbFormUsageExtra extends DbForm{
         if (!isset($this->dbform['id'])) return '';
 
         $current = $db->GetRow("select * from usage_extra where id = '".$this->dbform["id"]."'");
+
+        $this->fillUTCPeriod();
+
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_extra');
 
         $v=DbForm::Process();
@@ -1113,7 +1137,9 @@ class DbFormUsageITPark extends DbForm{
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['param_value']=array();
@@ -1180,6 +1206,8 @@ class DbFormUsageITPark extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
+        $this->fillUTCPeriod();
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
@@ -1195,7 +1223,9 @@ class DbFormUsageWelltime extends DbForm{
         DbForm::__construct('usage_welltime');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['ip']=array();
@@ -1270,6 +1300,9 @@ class DbFormUsageWelltime extends DbForm{
             return '';
 
         $current = $db->GetRow("select * from usage_welltime where id = '".$this->dbform["id"]."'");
+
+        $this->fillUTCPeriod();
+
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_welltime');
 
         $v=DbForm::Process();
@@ -1289,7 +1322,9 @@ class DbFormUsageVirtpbx extends DbForm{
         DbForm::__construct('usage_virtpbx');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'), 'add'=>"onchange='optools.voip.check_e164.move_checking();' ");
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         //$this->fields['tarif_id']=array('type'=>'hidden');
         //$this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['server_pbx_id']=array('assoc_enum'=>$db->AllRecordsAssoc("select id, name from server_pbx order by name", "id", "name"), 'default' => 2);
@@ -1428,7 +1463,9 @@ class DbFormUsageVirtpbx extends DbForm{
         }
 
         $current = $db->GetRow("select * from usage_virtpbx where id = '".$this->dbform["id"]."'");
-       
+
+        $this->fillUTCPeriod();
+
         $this->updateMovedFieldsBeforeSave($current);
         
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_virtpbx');
@@ -1475,7 +1512,9 @@ class DbFormUsageSms extends DbForm{
         DbForm::__construct('usage_sms');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
@@ -1538,6 +1577,9 @@ class DbFormUsageSms extends DbForm{
             return '';
 
         $current = $db->GetRow("select * from usage_sms where id = '".$this->dbform["id"]."'");
+
+        $this->fillUTCPeriod();
+
         HelpDbForm::saveChangeHistory($current, $this->dbform, 'usage_sms');
 
         $v=DbForm::Process();
@@ -1556,7 +1598,9 @@ class DbFormUsageWellSystem extends DbForm{
         DbForm::__construct('usage_extra');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
+        $this->fields['activation_dt']=array('type'=>'hidden');
+        $this->fields['expire_dt']=array('type'=>'hidden');
         $this->fields['tarif_id']=array('type'=>'hidden');
         $this->fields['tarif_str']=array('db_ignore'=>1);
         $this->fields['param_value']=array();
@@ -1623,6 +1667,8 @@ class DbFormUsageWellSystem extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
+        $this->fillUTCPeriod();
+
         $v=DbForm::Process();
         if($v=='add' || $v=='edit'){
             if(!isset($this->dbform['t_block']))
@@ -1639,7 +1685,7 @@ class DbFormUsageIPPPP extends DbForm{
         DbForm::__construct('usage_ip_ppp');
         $this->fields['client']=array('type'=>'label');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
         $this->fields['login']=array();
         $this->fields['password']=array();
         $this->fields['enabled']=array('enum'=>array('0','1'));
@@ -1703,7 +1749,7 @@ class DbFormTechCPE extends DbForm{
     public function __construct() {
         DbForm::__construct('tech_cpe');
         $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-2029');
+        $this->fields['actual_to']=array('default'=>'01-01-4000');
 
         $this->fields['id_model']=array('type'=>'enum','add'=>' onchange=form_cpe_get_clients()','assoc_enum'=>array());
         $this->fields['client']=array('in_tag'=>1,'add'=>' onchange=form_cpe_get_services()','enum'=>array());

@@ -46,7 +46,7 @@ class LkServiceOptions
 
         if ($vpbx)
         {  
-            if ($vpbx["actual"] || $vpbx["actual_from"] == "2029-01-01")
+            if ($vpbx["actual"] || $vpbx["actual_from"] > "3000-01-01")
             {
                 $data["tarif_change"] = 1;
                 $data["disable"] = 1;

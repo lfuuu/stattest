@@ -57,7 +57,7 @@
 	</TD>
 {/if}
 <TD align=left colspan=2><a href="{$LINK_START}module=routers&action=d_edit&id={$cpe.id}">{$cpe.vendor} {$cpe.model}</a> <a href="{$LINK_START}module=routers&action=d_act&id={$cpe.id}"><img src="images/icons/act.gif" class=icon></a> ({$cpe.type}, id={$cpe.id})</td>
-<TD>{$cpe.actual_from}/{*if !$cpe.actual}{$cpe.actual_to}{/if*}{date_proc in=$cpe.actual_to mode="year_filter" year="2029"}</TD>
+<TD>{$cpe.actual_from}/{*if !$cpe.actual}{$cpe.actual_to}{/if*}{date_proc in=$cpe.actual_to mode="year_filter" year="4000"}</TD>
 <TD>{if $cpe.ip}{ipstat net=$cpe.ip}{else}ip не задан{/if}{if isset($cpe.ip_nat)}<br>{ipstat net=$cpe.ip_nat}{/if}</td>
 <TD>{$cpe.numbers}</TD>
 </TR>

@@ -8,7 +8,7 @@
 <table style='display:none;margin-left:20px' class=price id=saldo_history>
 <TR><TD class=header>Дата изменения</td><TD class=header>Пользователь</td><TD class=header>Сальдо</td><TD class=header>Дата сальдо</td></TR>
 {foreach from=$saldo_history item=item}
-<TR class=even><td>{$item.edit_time}</td><td>{$item.user_name}</td><td>{if isset($item.saldo)}{$item.saldo}{/if} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts}</td></tr>
+<TR class=even><td>{$item.edit_time|udate}</td><td>{$item.user_name}</td><td>{if isset($item.saldo)}{$item.saldo}{/if} {if $item.currency=='USD'}${else}р{/if}</td><td>{$item.ts|udate}</td></tr>
 {/foreach}
 </table>
 

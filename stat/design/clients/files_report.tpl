@@ -28,7 +28,7 @@
         </td>
 	<td style='font-size:85%'>{$item.comment}</td>
 	<td>{$item.user}</td>
-	<td>{$item.ts|mdate:"d месяца Y H:i:s"}</td>
+	<td>{$item.ts|udate:"d месяца Y H:i:s"}</td>
 	<td>{$item.client_manager}</td>
     </tr>
 {/foreach}

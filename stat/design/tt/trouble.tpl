@@ -9,7 +9,7 @@
     {/if}
     {$tt_trouble.id}
     {if $tt_trouble.bill_no}
-        <span style='font-size:11px'>{mformat param=$tt_trouble.date_creation format='Y.m.d H:i:s'}</span>
+        <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span>
     {/if}
 </h2>
 
@@ -41,12 +41,12 @@
     {/if}
     <tr>
         <td align="right">Трабл создал:</td>
-        <td>{$tt_trouble.user_author_name} ({$tt_trouble.user_author}), <span style='font-size:11px'>{mformat param=$tt_trouble.date_creation format='Y.m.d H:i:s'}</span></td>
+        <td>{$tt_trouble.user_author_name} ({$tt_trouble.user_author}), <span style='font-size:11px'>{$tt_trouble.date_creation|udate:'Y.m.d H:i:s'}</span></td>
     </tr>
     <tr>
         <td align="right">Текущие сроки:</td>
         <td>
-            с {mformat param=$tt_trouble.date_start format='Y.m.d H:i:s'} по {mformat param=$tt_trouble.date_finish_desired format='Y.m.d H:i:s'}<br>
+            с {$tt_trouble.date_start|udate:'Y.m.d H:i:s'} по {$tt_trouble.date_finish_desired|udate:'Y.m.d H:i:s'}<br>
             {if $tt_trouble.is_active}
                 прошло <font color=red>{$tt_trouble.time_pass} / {$tt_trouble.time_limit}</span>
             {else}
@@ -76,7 +76,7 @@
 {if access('tt','time') && $tt_write && $tt_edit}
     <tr>
         <td  align="right" title="С какого момента показывать">Дата активации </td>
-        <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start}"> <input type=submit class=button value='Установить'></form></td>
+        <td><form action='?' style='padding:0; margin:0' method=post><input type=hidden name=module value=tt><input type=hidden name=action value=time><input type=hidden name=id value={$tt_trouble.id}><input type=text name=date_activation value="{$tt_trouble.date_start|udate}"> <input type=submit class=button value='Установить'></form></td>
     </tr>
 {/if}
 </table>
@@ -125,7 +125,7 @@
                     <tr>
                         <td>{$item.state_name}</td>
                         <td>{$item.user_main}</td>
-                        <td>{$item.date_start|mdate:'m-d H:i'}<br>{$item.date_finish_desired|mdate:'m-d H:i'}</td>
+                        <td>{$item.date_start|udate:'m-d H:i'}<br>{$item.date_finish_desired|udate:'m-d H:i'}</td>
                         <td>{$item.user_edit}</td>
                         <td>
                             {if count($item.doers)>0}
@@ -149,7 +149,7 @@
                                 Оценка: {$item.user_rating}: <b>{$item.rating}</b>
                             {/if}
                         </td>
-                        <td>{$item.date_edit}</td>
+                        <td>{$item.date_edit|udate}</td>
                     </tr>
                 {/foreach}
             </table>

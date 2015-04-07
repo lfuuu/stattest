@@ -49,11 +49,11 @@
                     <a href='{$LINK_START}module=stats&action=voip&phone={$item.region}_{$item.E164}'><img class=icon src='{$IMAGES_PATH}icons/stats.gif'></a>
                     {if ($item.actual && (access("services_voip", "close") || access("services_voip", "full")))}<a href="{$LINK_START}module=services&action=vo_close&id={$item.id}"><img class=icon src='{$IMAGES_PATH}icons/delete.gif'></a>{/if}
                     <a href='index.php?module=tt&clients_client={$item.client}&service=usage_voip&service_id={$item.id}&action=view_type&type_pk=1&show_add_form=true'><img class=icon src='{$IMAGES_PATH}icons/tt_new.gif' alt="Создать заявку"></a>
-                    {if $item.actual_from == '2029-01-01' && access('services_voip', 'del2029')}<a href="./?module=services&action=vo_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
+                    {if $item.actual_from > '3000-01-01' && access('services_voip', 'del4000')}<a href="./?module=services&action=vo_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
                 </td>
                 <td width=5% nowrap>{$regions[$item.region].name}</td>
                 <td style="font-size: 8pt; width: 15%;">{if $item.vpbx}<div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>{else}{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...{/if}{/if}</td>
-                <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to!='2029-01-01'}{$item.actual_to}{/if}</a></td>
+                <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to < '3000-01-01'}{$item.actual_to}{/if}</a></td>
                 <td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
                 <td>
                     {if isset($ats_schema[$item.E164]) && $ats_schema[$item.E164]}

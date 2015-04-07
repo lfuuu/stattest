@@ -20,7 +20,7 @@ class VoipReservNumber
         $u = $db->GetValue("select id from usage_voip where 
                 (  
                  cast(now() as date) between actual_from and actual_to 
-                 or (actual_from = '2029-01-01' and actual_to = '2029-01-01')
+                 or (actual_from > '3000-01-01' and actual_to > '3000-01-01')
                 ) and E164 = '".$number."'");
 
         if ($u)
@@ -49,8 +49,8 @@ class VoipReservNumber
                     "region"        => $region,
                     "E164"          => $number,
                     "no_of_lines"   => $lineCount,
-                    "actual_from"   => "2029-01-01",
-                    "actual_to"     => "2029-01-01",
+                    "actual_from"   => "4000-01-01",
+                    "actual_to"     => "4000-01-01",
                     "status"        => "connecting"
                     )
                 );

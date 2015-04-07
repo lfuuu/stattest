@@ -28,6 +28,7 @@ $config = [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'language' => 'ru',
+    'timeZone' => 'UTC',
     'components' => [
         'view' => [
             'title' => 'stat - MCN Телеком',
