@@ -4,13 +4,13 @@
     <input type=hidden name=module value=clients>
     <input type=hidden name=action value=recontract>
     <input type=hidden name=contract_type value={$type}>
-    <input type=hidden name=id value='23456'>
+    <input type=hidden name=id value='{$client_id}'>
 
     <tr>
         {if $type == "blank"}
             <td colspan=2 style='width:155px'>&nbsp;</td>
         {else}
-            <td><input class=text style='width:70px' type=text name=contract_no value={$client_id}-{0|mdate:"y"}></td>
+            <td><input class=text style='width:70px' type=text name=contract_no value='{$client_id}-{0|mdate:"y"}'></td>
             <td><input class="text contract_datepicker" style='width:85px' type=text name=contract_date value="{0|mdate:"d.m.Y"}"></td>
         {/if}
         <td><input class=text style='width:200' type=text name=comment></td>
