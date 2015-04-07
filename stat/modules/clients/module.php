@@ -1820,7 +1820,7 @@ class m_clients {
         $lastContract = BillContract::getLastContract($id, time());
 
         $contractNo = $lastContract["no"];
-        $contractDate = date("Y-m-d", $lastContract["date"]);
+        $contractDate = date("d.m.Y", $lastContract["date"]);
         $contractDopDate = "01.01.2012";
         $contractDopNo = "0";
 
