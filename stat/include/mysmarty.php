@@ -228,7 +228,9 @@ function smarty_modifier_mdate($value,$format) {
 function smarty_modifier_udate($value,$format = 'Y-m-d H:i:s') {
     if (is_numeric($value)) {
         $date = new DateTime('now', new DateTimeZone('UTC'));
-        $date->setTimestamp($value);
+        if ($value > 0) {
+            $date->setTimestamp($value);
+        }
     } else {
         $date = new DateTime($value, new DateTimeZone('UTC'));
     }

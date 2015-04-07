@@ -45,13 +45,13 @@
 
     <TR id=dt_C1 style='display:none'>
 	<TD class=left id=dt_C1_capt>Показывать с</TD>
-	<TD><input type=textbox id=date_start name=date_start value="{0|mdate:'Y-m-d H:i:s'}" class=text style='width:300px'></TD>
+	<TD><input type=textbox id=date_start name=date_start value="{0|udate}" class=text style='width:300px'></TD>
 </TR><TR id=dt_A1>
 	<TD class=left>Время на устранение</TD>
 	<TD><input type=radio id=radiostart1 name=A checked onclick='start1.disabled=false; start2.disabled=true'><input id=start1 type=textbox name=time value=1 class=text style='text-align:right;width:180px'> час</TD>
 </TR><TR id=dt_A2>
 	<TD class=left>Дата желаемого окончания</TD>
-	<TD><input type=radio id=radiostart2 name=A onclick='start1.disabled=true; start2.disabled=false'><input id=start2 disabled type=textbox name=date_finish_desired value="{0|mdate:'Y-m-d H:i:s'}" class=text style='width:180px'></TD>
+	<TD><input type=radio id=radiostart2 name=A onclick='start1.disabled=true; start2.disabled=false'><input id=start2 disabled type=textbox name=date_finish_desired value="{0|udate}" class=text style='width:180px'></TD>
 </TR>
 <tr>
 <td class=left>Тип заявки:</td>

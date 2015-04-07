@@ -75,6 +75,15 @@ class m_tt extends IModule{
     }
     function tt_add($fixclient){
         global $db,$design,$user;
+
+        $date = new DateTime(get_param_protected('date_start',null), new DateTimeZone(Yii::$app->user->identity->timezone_name));
+        $date->setTimezone(new DateTimeZone('UTC'));
+        $dateStart = $date->format('Y-m-d H:i:s');
+
+        $date = new DateTime(get_param_protected('date_finish_desired',null), new DateTimeZone(Yii::$app->user->identity->timezone_name));
+        $date->setTimezone(new DateTimeZone('UTC'));
+        $dateFinishDesired = $date->format('Y-m-d H:i:s');
+
         $R = array();
         $R['trouble_type'] = get_param_protected('type' , 'trouble');
         $R['trouble_subtype'] = get_param_protected('trouble_subtype' , '');
@@ -82,8 +91,8 @@ class m_tt extends IModule{
         $R['client'] = get_param_protected('client' , null);
         if (!$R['client'] || !($db->GetRow('select * from clients where (client="'.$R['client'].'")'))) {trigger_error2('Такого клиента не существует'); return;}
         $R['time']=get_param_integer('time',null);
-        $R['date_start'] = get_param_protected('date_start',null);
-        $R['date_finish_desired']=get_param_protected('date_finish_desired',null);
+        $R['date_start'] = $dateStart;
+        $R['date_finish_desired']=$dateFinishDesired;
         $R['problem']=get_param_raw('problem','');
         $user_main=get_param_protected('user','');
         $R['service']=get_param_protected('service','');

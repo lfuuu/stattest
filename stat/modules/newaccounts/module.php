@@ -2243,7 +2243,6 @@ class m_newaccounts extends IModule
             list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
         }
 
-
         if(in_array($obj, array('invoice','akt','upd')))
         {
             if(date("Ymd", $inv_date) != date("Ymd", $bill->GetTs()))
