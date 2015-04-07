@@ -791,7 +791,24 @@ class ClientCS {
     }
     public function GetContracts() {
         global $db;
-        return $db->AllRecords("select client_contracts.*,user_users.user from client_contracts LEFT JOIN user_users ON user_users.id=client_contracts.user_id where client_id=".$this->id. " order by client_contracts.id");
+        $contracts = ["contract" => [], "agreement" => [], "blank" => []];
+
+        foreach($db->AllRecords(
+            "SELECT 
+                client_contracts.*,
+                user_users.user 
+             from 
+                client_contracts 
+             LEFT JOIN user_users ON user_users.id=client_contracts.user_id 
+             where 
+                client_id=".$this->id. " 
+             order by 
+             client_contracts.id") as $c)
+        {
+            $contracts[$c["type"]][] = $c;
+        }
+
+        return $contracts;
     }
     public static function FetchClient($client) {
         global $db;
@@ -849,21 +866,22 @@ class ClientCS {
         global $db;
         $db->Query('update lk_notice_settings set status="'.$active.'" where client_id="'.$this->id.'" and client_contact_id="'.$id.'"');
     }
-    public function AddContract($content,$no,$date,$date_dop, $comment) {
+    public function AddContract($content,$type,$no,$date,$dop_no, $dop_date, $comment) {
         global $db,$user;
         if(!$no)
             $no = $this->id.'-'.date('y');
 
         $V = array(
+            'type' => $type,
             'contract_no'=>$no,
-            'contract_date'=>$date,
+            'contract_date'=>trim($date),
+            'contract_dop_no'=>$dop_no,
+            'contract_dop_date' =>trim($dop_date),
             'ts'=>array('NOW()'),
             'client_id'=>$this->id,
             'comment'=>$comment,
             'user_id'=>$user->Get('id')
         );
-        if(trim($date_dop))
-            $V["contract_dop_date"] = $date_dop;
 
         $db->QueryInsert('client_contracts',$V);
         $cno = $db->GetInsertId();
@@ -901,18 +919,47 @@ class ClientCS {
         return $folder === null ? $f : $f[$folder];
     }
 
-    public static function contract_listTemplates() {
+    public static function contract_listTemplates($isWithType = false) {
         $R = array();
         foreach (glob(STORE_PATH.'contracts/template_*.html') as $s) {
             $t = str_replace(array('template_','.html'),array('',''),basename($s));
+
             list($group,) = explode("_", $t);
-            $R[$group][] = substr($t, strlen($group)+1);
+
+            if ($isWithType)
+            {
+                $R[$group][] = $t;
+            } else {
+                $R[$group][] = substr($t, strlen($group)+1);
+            }
         }
 
         foreach(self::contract_getFolder() as $folderName => $key )
             $_R[$folderName] = isset($R[$key]) ? $R[$key] : array();
 
-        $R = $_R;
+        if ($isWithType)
+        {
+            $R = ["contract" => [], "blank" => [], "agreement" => []];
+
+            foreach ($_R as $folder => $rr)
+            {
+                foreach($rr as $k => $r)
+                {
+                    $contract = app\models\Contract::findOne(["name" => $r]);
+
+                    if ($contract)
+                    {
+                        $type = $contract->type;
+                    } else {
+                        $type = "contract";
+                    }
+                    list($group,) = explode("_", $r);
+                    $R[$type][$folder][] = substr($r, strlen($group)+1);
+                }
+            }
+        } else {
+            $R = $_R;
+        }
 
         return $R;
     }

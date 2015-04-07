@@ -1,0 +1,85 @@
+<tr>
+    <td align="right">
+        <a href='javascript:' id="open_contract_el"><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
+        Договор:
+    </td>
+    <td>
+        {foreach from=$contracts.contract item=item key=key}
+            {if $item.is_active}
+                <b>
+                    <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>
+                        {$item.contract_no}
+                    </a>
+                </b> от {$item.contract_date} 
+                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
+            {/if}
+        {/foreach}
+    </td>
+</tr>
+
+{if $contracts.blank}
+<tr>
+    <td align="right">
+        Бланк заказа:
+    </td>
+    <td>
+        {foreach from=$contracts.blank item=item key=key}
+            {if $item.is_active}
+                <b>
+                    <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>
+                        {$item.contract_no}
+                    </a>
+                </b> от {$item.contract_date} 
+                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
+            {/if}
+        {/foreach}
+    </td>
+</tr>
+{/if}
+
+{if $contracts.agreement}
+<tr>
+    <td align="right">
+        Доп. соглашения:
+    </td>
+    <td>
+        {foreach from=$contracts.agreement item=item key=key}
+            {if $item.is_active}
+                <b>
+                    <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>
+                        {$item.contract_no}
+                    </a>
+                </b> от {$item.contract_date} 
+                <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
+            {/if}
+        {/foreach}
+    </td>
+</tr>
+{/if}
+
+
+<tr id=contract style="display: none">
+    <td colspan=3 align="center" id="contract_form_contener">
+        ....загружаем....
+    </td>
+</tr>
+
+<script>
+{literal}
+$("#open_contract_el").click(function(){
+
+        $.get("./index_lite.php?module=clients&action=contract_form").done(function(data){
+            $("#contract_form_contener").html(data);
+
+            $("#open_contract_el").unbind("click").click(function(){
+                toggle2("contract");
+            }).trigger("click");
+
+        });
+});
+{/literal}
+{if isset($contract_open) && $contract_open}
+    $("#open_contract_el").trigger("click");
+{/if}
+</script>
+

@@ -18,6 +18,7 @@ class m_clients {
 					'recontact2'	=> array('',''),
 					'recontract'	=> array('',''),
 					'recontract2'	=> array('',''),
+					'contract_form'	=> array('',''),
 					'edit_pop'		=> array('',''),
 					'apply'			=> array('',''),				//собственно редактирование
 					'apply_pop'		=> array('',''),
@@ -1056,27 +1057,12 @@ class m_clients {
         $design->assign("business_process", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $r["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
         
         
-		$cs = new ClientCS($r['id']);
-
-		$design->assign('templates',ClientCS::contract_listTemplates());
+        $cs = new ClientCS($r['id']);
 
 		if(!$show_edit){
 			$design->assign('contacts',$cs->GetContacts());
             $design->assign('lk_contacts',$cs->GetContactsFromLK());
-			$d = $cs->GetContracts();
-			foreach ($d as $k=>$v){
-				$p = data_encode($v['id'].'-'.$v['client_id']);
-				$d[$k]['link']=PROTOCOL_STRING.$_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']).'/view.php?code='.$p;
-			}
-			$design->assign('contracts',$d);
-			$contract_last = 0;
-			foreach($d as $k=>$ctr)
-				if($ctr['is_active'])
-					$contract_last = $k;
-
-			$design->assign('contract_last',$contract_last);
-			if(count($d))
-				$design->assign('contract',$d[count($d)-1]);
+            $design->assign('contracts',$cs->GetContracts());
 			$design->assign('contact',$cs->GetContact(false));
 
 			$r['data_cs'] = $cs->GetAllStatuses();
@@ -1813,7 +1799,10 @@ class m_clients {
 		$id=get_param_protected('id');
 		if($this->check_tele($id)==0)
 			return;
-		$content = get_param_raw('contract_content');
+        $content = get_param_raw('contract_content');
+        $contractType = get_param_raw("contract_type", "contract");
+
+        Assert::isNotFalse(in_array($contractType, ["contract", "blank", "agreement"]));
 
         $group = ClientCS::contract_getFolder(get_param_raw("contract_template_group"));
 
@@ -1826,13 +1815,43 @@ class m_clients {
 		$content = self::contract_fix_static_parts_of_template($content, '', $id);
         $cs=new ClientCS($id);
 
-        $contractDate = get_param_protected('contract_date');
+
+
+        $lastContract = BillContract::getLastContract($id, time());
+
+        $contractNo = $lastContract["no"];
+        $contractDate = date("Y-m-d", $lastContract["date"]);
+        $contractDopDate = "01.01.2012";
+        $contractDopNo = "0";
+
+        if ($contractType == "contract")
+        {
+            $contractDate = get_param_protected('contract_date');
+            $contractNo = get_param_protected('contract_no');
+        } else {
+
+            if ($contractType == "agreement")
+            {
+                $contractDopNo = get_param_protected('contract_no');
+                $contractDopDate = get_param_protected('contract_date');
+            } else { //blank
+                $contractDopDate = date("d.m.Y");
+            }
+        }
+
+        list($d, $m, $y) = explode(".", $contractDate);
+        $contractDate = $y."-".$m."-".$d;
+
+        list($d, $m, $y) = explode(".", $contractDopDate);
+        $contractDopDate = $y."-".$m."-".$d;
 
 		$contractId = $cs->AddContract(
-			$content,
-			get_param_protected('contract_no'),
-			get_param_protected('contract_date'),
-			get_param_protected('contract_dop_date'),
+            $content,
+            $contractType,
+			$contractNo,
+            $contractDate,
+            $contractDopNo,
+            $contractDopDate,
 			get_param_protected('comment')
 		);
 
@@ -2750,6 +2769,31 @@ DBG::sql_out($select_client_data);
                 $comment->save();
             }
         }
+    }
+
+    public function clients_contract_form($fixclient)
+    {
+        global $design;
+
+        $clientAccount = ClientAccount::find()->andWhere(['client' => $fixclient])->one();
+        Assert::isObject($clientAccount);
+
+        $cs = new ClientCS($clientAccount->id);
+
+        $d = $cs->GetContracts();
+        foreach ($d as $k=>$vv){
+            foreach($vv as $k2 => $v){
+                $p = data_encode($v['id'].'-'.$v['client_id']);
+                $d[$k][$k2]['link']=PROTOCOL_STRING.$_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']).'/view.php?code='.$p;
+            }
+        }
+        $design->assign('contracts',$d);
+        $design->assign('templates',ClientCS::contract_listTemplates(true));
+        $design->assign("client_id", $clientAccount->id);
+
+        echo $design->fetch("clients/contract/form.htm");
+
+        exit();
     }
 }
 
