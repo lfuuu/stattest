@@ -1,6 +1,3 @@
-<script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/html2xhtml.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/richtext_compressed.js"></script>
-
 <h2>Договора</h2>
 <div id=add_from style="display:none;">
 <FORM action="?" method=post>
@@ -30,7 +27,7 @@
     <tr>
     <td>Договор:</td><td>
     <table width=100% border=0><tr><td>
-<FORM action="?" method=post onsubmit="updateRTEs();return true;">
+<FORM action="?" method=post>
 	<input type=hidden name=module value=tarifs>
 	<input type=hidden name=action value=contracts>
 	<input type=hidden name=do value=open>
@@ -71,67 +68,13 @@ $(document).ready(function(){
             "searchreplace visualblocks code fullscreen",
             "insertdatetime media table contextmenu paste"
         ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+        toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
     });
 });
 
 {/literal}
 </script>
 
-{if false}
-<script language=javascript type='text/javascript'>
-initRTE("{$PATH_TO_ROOT}editor/images/", "{$PATH_TO_ROOT}editor/", "", true);
-
-var rte1 = new richTextEditor('text');
-rte1.width = "100%";
-rte1.height = "500";
-
-rte1.cmdFormatBlock = true;
-rte1.cmdFontName = true;
-rte1.cmdFontSize = true;
-rte1.cmdIncreaseFontSize = true;
-rte1.cmdDecreaseFontSize = true;
-
-rte1.cmdBold = true;
-rte1.cmdItalic = true;
-rte1.cmdUnderline = true;
-rte1.cmdStrikethrough = true;
-rte1.cmdSuperscript = true;
-rte1.cmdSubscript = true;
-
-rte1.cmdJustifyLeft = true;
-rte1.cmdJustifyCenter = true;
-rte1.cmdJustifyRight = true;
-rte1.cmdJustifyFull = true;
-
-rte1.cmdInsertHorizontalRule = true;
-rte1.cmdInsertOrderedList = true;
-rte1.cmdInsertUnorderedList = true;
-
-rte1.cmdOutdent = true;
-rte1.cmdIndent = true;
-rte1.cmdForeColor = true;
-rte1.cmdHiliteColor = true;
-rte1.cmdInsertLink = true;
-rte1.cmdInsertImage = true;
-rte1.cmdInsertSpecialChars = true;
-rte1.cmdInsertTable = true;
-rte1.cmdSpellcheck = true;
-
-rte1.cmdCut = true;
-rte1.cmdCopy = true;
-rte1.cmdPaste = true;
-rte1.cmdUndo = true;
-rte1.cmdRedo = true;
-rte1.cmdRemoveFormat = true;
-rte1.cmdUnlink = true;
-
-
-rte1.html = "{$contract_body|escape:"javascript"}";
-rte1.toggleSrc = true;
-rte1.build();
-</script>
-{/if}
     </td>
     </tr>
     <tr>

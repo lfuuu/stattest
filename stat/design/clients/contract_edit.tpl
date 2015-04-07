@@ -1,59 +1,49 @@
-<script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/html2xhtml.js"></script>
-<script language="JavaScript" type="text/javascript" src="{$PATH_TO_ROOT}editor/richtext_compressed.js"></script>
-
-
-<form name="RTEDemo" action="?" method="post" onsubmit="updateRTEs();return true;">
+<form name="RTEDemo" action="?" method="post">
 <input style='width:100%' type=hidden name=module value=clients>
 <input style='width:100%' type=hidden name=action value=recontract>
+<input style='width:100%' type=hidden name=contract_type value="{$contract.type}">
 <input type=hidden name=id value='{$client.id}'>
-договор &#8470;<input class=text style='width:100' type=text name=contract_no value={$contract.contract_no}>
-от <input class=text style='width:100' type=text name=contract_date value={$contract.contract_date}>
-комментарий <input class=text style='width:100' type=text name=comment value={$contract.comment}>
-<script language=javascript type='text/javascript'>
-initRTE("{$PATH_TO_ROOT}editor/images/", "{$PATH_TO_ROOT}editor/", "", true);
+{if $contract.type == "contract"}Договор {else}{if $contract.type == "agreement"}Дополнительное соглашение{else}Бланк заказа{/if}{/if} {if $contract.type != "blank"}&#8470;<input class=text style='width:100' type=text name=contract_no value="{if $contract.type == "contract"}{$contract.contract_no}{else}{$contract.contract_dop_no}{/if}">
+от <input class="text contract_datepicker" style='width:100' type=text name=contract_date value="{if $contract.type == "contract"}{$contract.ts_date|mdate:"d.m.Y"}{else}{$contract.ts_dop|mdate:"d.m.Y"}{/if}">{/if}
+<br>Комментарий <input class=text style='width:100' type=text name=comment value={$contract.comment}>
 
-var rte1 = new richTextEditor('contract_content');
-rte1.width = "100%";
-rte1.height = "500";
-rte1.cmdFormatBlock = true;
-rte1.cmdFontName = true;
-rte1.cmdFontSize = true;
-rte1.cmdIncreaseFontSize = true;
-rte1.cmdDecreaseFontSize = true;
+    <textarea id="text" name="contract_content" style="width: 100%; margin: 0px; height: 600px;">{$content}</textarea>
 
-rte1.cmdBold = true;
-rte1.cmdItalic = true;
-rte1.cmdUnderline = true;
+<script type="text/javascript">
+{literal}
+$(document).ready(function(){
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste"
+        ],
+        toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+    });
+});
 
-rte1.cmdJustifyLeft = true;
-rte1.cmdJustifyCenter = true;
-rte1.cmdJustifyRight = true;
-rte1.cmdJustifyFull = true;
+var datepicker_ru = {
+           closeText: 'Закрыть',
+           prevText: '&#x3c;Пред',
+           nextText: 'След&#x3e;',
+           currentText: 'Сегодня',
+           monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь',
+           'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+           monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн',
+           'Июл','Авг','Сен','Окт','Ноя','Дек'],
+           dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+           dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+           dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+           weekHeader: 'Не',
+           dateFormat: 'dd.mm.yy',
+           firstDay: 1,
+           showMonthAfterYear: false,
+           yearSuffix: ''};
 
-rte1.cmdInsertHorizontalRule = true;
-rte1.cmdInsertOrderedList = true;
-rte1.cmdInsertUnorderedList = true;
+    $('.contract_datepicker').datepicker(datepicker_ru);
 
-rte1.cmdOutdent = true;
-rte1.cmdIndent = true;
-rte1.cmdForeColor = true;
-rte1.cmdHiliteColor = true;
-rte1.cmdInsertLink = true;
-rte1.cmdInsertImage = true;
-rte1.cmdInsertSpecialChars = true;
-rte1.cmdInsertTable = true;
-rte1.cmdSpellcheck = true;
-
-rte1.cmdCut = true;
-rte1.cmdCopy = true;
-rte1.cmdPaste = true;
-rte1.cmdUndo = true;
-rte1.cmdRedo = true;
-rte1.cmdRemoveFormat = true;
-rte1.cmdUnlink = true;
-rte1.html = "{$content|escape:"javascript"}";
-rte1.toggleSrc = false;
-rte1.build();
+{/literal}
 </script>
 
 <input type=submit value="Сохранить">
