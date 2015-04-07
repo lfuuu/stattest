@@ -56,6 +56,7 @@ class MySQLDatabase {
                 return 0;
             }
             $this->Query("set names utf8");
+            $this->Query("SET @@session.time_zone = '+00:00'");
 
 		}
         return $this->_LinkId;

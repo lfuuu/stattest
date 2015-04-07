@@ -49,6 +49,7 @@ class PgSQLDatabase {
 				throw new Exception("can't connect postgres");
             }
 
+            $this->Query("SET SESSION TIME ZONE 'UTC'");
 		}
         return $this->_LinkId;
     }
