@@ -927,18 +927,17 @@ class m_clients {
 	function clients_contract_edit() {
 		global $design,$db;
 
+        \app\assets\TinymceAsset::register(Yii::$app->view);
+
 		$id=get_param_protected('id');
 		if ($this->check_tele($id)==0) return;
-		$contract = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
+		$contract = $db->GetRow('select *, unix_timestamp(contract_date) as ts, unix_timestamp(contract_dop_date) as ts_dop  from client_contracts where id="'.intval($id).'"');
 		$client = ClientCS::getOnDate($contract['client_id'], $contract['contract_date']);
 		$design->assign('contract',$contract);
 		$design->assign('client',$client);
 		$design->assign('content',ClientCS::getContractTemplate($client['id'].'-'.$contract['id']));
 
-		$design->display('pop_header.tpl');
-		$design->display('clients/contract_edit.tpl');
-		$design->display('pop_footer.tpl');
-		$design->ProcessEx('errors.tpl');
+		$design->AddMain('clients/contract_edit.tpl');
 	}
 	function client_view($id,$show_edit = 0,$design_echo = 1){
 
@@ -1814,7 +1813,6 @@ class m_clients {
 
 		$content = self::contract_fix_static_parts_of_template($content, '', $id);
         $cs=new ClientCS($id);
-
 
 
         $lastContract = BillContract::getLastContract($id, time());
