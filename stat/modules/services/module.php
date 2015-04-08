@@ -1751,9 +1751,9 @@ class m_services extends IModule{
                 ));
             }
             if ($r['save_from']) {
-                $db->Query("update emails set actual_to='2029-01-01',enabled=1, status='working' where id=".$id);
+                $db->Query("update emails set actual_to='4000-01-01',enabled=1, status='working' where id=".$id);
             } else {
-                $db->Query("update emails set actual_from=NOW(),actual_to='2029-01-01',enabled=1,status='working' where id=".$id);
+                $db->Query("update emails set actual_from=NOW(),actual_to='4000-01-01',enabled=1,status='working' where id=".$id);
             }
         }
         trigger_error2('<script language=javascript>window.location.href="?module=services&action=em_view";</script>');
@@ -1976,7 +1976,7 @@ class m_services extends IModule{
             $db->Query('update bill_monthlyadd set actual_to=NOW() where id='.$id);
         } else {
             $block=0;
-            $db->Query('update bill_monthlyadd set actual_from=NOW(),actual_to="2029-01-01" where id='.$id);
+            $db->Query('update bill_monthlyadd set actual_from=NOW(),actual_to="4000-01-01" where id='.$id);
         }
         trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
 //        $this->services_ad_view($fixclient);
@@ -2192,7 +2192,7 @@ class m_services extends IModule{
 
         if ($vpbx)
         {
-            if ($vpbx["actual_from"] == "2029-01-01")
+            if ($vpbx["actual_from"] > "3000-01-01")
             {
                 $db->QueryDelete("log_tarif", array("service" => "usage_virtpbx", "id_service" => $vpbx["id"]));
                 $db->QueryDelete("usage_virtpbx", array("id" => $vpbx["id"]));
@@ -2668,7 +2668,7 @@ class m_services extends IModule{
         if ($r['enabled']) {
             $db->Query('update usage_ip_ppp set enabled=0,actual_to=NOW() where id='.$id);
         } else {
-            $db->Query('update usage_ip_ppp set enabled=1,actual_from=NOW(),actual_to="2029-01-01" where id='.$id);
+            $db->Query('update usage_ip_ppp set enabled=1,actual_from=NOW(),actual_to="4000-01-01" where id='.$id);
         }
         $this->services_ppp_view($fixclient);
     }
@@ -3071,7 +3071,7 @@ class m_services extends IModule{
 
         if ($usage_id > 0)
         {
-            $usage_id = $db->GetValue("select id from usage_voip where actual_from = '2029-01-01' and actual_to = '2029-01-01' and id = '".$db->escape($usage_id)."'");
+            $usage_id = $db->GetValue("select id from usage_voip where actual_from > '3000-01-01' and actual_to > '3000-01-01' and id = '".$db->escape($usage_id)."'");
 
             if ($usage_id)
             {
@@ -3250,19 +3250,19 @@ class m_services extends IModule{
                     (
                         `actual_to` BETWEEN '".$actual_from."' AND '".$actual_to."'
                     and
-                        (`actual_to` <> '2029-01-01' or `status` = 'connection')
+                        (`actual_to` < '3000-01-01' or `status` = 'connection')
                     )
                 or
                     (
                         `actual_from` BETWEEN '".$actual_from."' AND '".$actual_to."'
                     and
-                        (`actual_from` <> '2029-01-01' or `status` = 'connection')
+                        (`actual_from` < '3000-01-01' or `status` = 'connection')
                     )
                 or
                     (
                         '".$actual_from."' BETWEEN `actual_from` AND `actual_to`
                     and
-                        ('".$actual_from."' <> '2029-01-01' or `status` = 'connection')
+                        ('".$actual_from."' < '3000-01-01' or `status` = 'connection')
                     )
                 )
         ";

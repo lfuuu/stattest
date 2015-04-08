@@ -521,7 +521,7 @@ class m_stats extends IModule{
                                                 actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') AND 
                                                 actual_to >= DATE_FORMAT(now(), '%Y-%m-%d')
                                             ) OR 
-                                            actual_from >= '2029-01-01'
+                                            actual_from > '3000-01-01'
                                         )
                                 ) as active_usage_id,
                                
@@ -534,8 +534,8 @@ class m_stats extends IModule{
                                         u.e164 = v.number AND 
                                         lt.service = 'usage_voip' AND  
                                         u.id = lt.id_service AND 
-                                        u.actual_from = '2029-01-01' AND 
-                                        u.actual_to = '2029-01-01' AND 
+                                        u.actual_from > '3000-01-01' AND 
+                                        u.actual_to > '3000-01-01' AND 
                                         u.status = 'connecting' 
                                     GROUP BY lt.id_service
                                 ) AS date_reserved
@@ -621,7 +621,7 @@ class m_stats extends IModule{
 
 	function GetStatsInternet($client,$from,$to,$detality,$routes,$is_collocation=0){
 		global $db;
-		if(date('Y-m-d',$from)=='2029-01-01'){
+		if($from > strtotime('3000-01-01')){
 			$r=array('in_bytes'=>0, 'out_bytes'=>0,'ts'=>0,'tsf'=>0);
 			return array($r,$r);
 		}
@@ -666,7 +666,7 @@ class m_stats extends IModule{
 			if(
 					$R[1]!='9999-00-00'
 				&&
-					$R[1]!='2029-01-01'
+					$R[1] < '3000-01-01'
 				&&
 					$R[2]>=date('Y-m-d',$from)
 			){
@@ -677,7 +677,7 @@ class m_stats extends IModule{
 					list($ip,$sum)=$res;
 
 					$t = array('AND','time>="'.$R[1].'"');
-					if($R[2]!="9999-00-00" && $R[2]!="2029-01-01")
+					if($R[2]!="9999-00-00" && $R[2] < "3000-01-01")
 						$t[]='time<="'.$R[2].'"';
 					if($sum<=128){
 						$cnt = 0;
@@ -716,7 +716,7 @@ class m_stats extends IModule{
 		//define("print_sql",1);
 		if(count($P)>1){
 			$W=array('AND',$P,'router="rubicon"','time>=FROM_UNIXTIME('.$from.')');
-			if(date('Y-m-d',$to)!="2029-01-01")
+			if($to < strtotime("3000-01-01"))
 				$W[]='time<FROM_UNIXTIME('.$to.'+86400)';
 			//printdbg($W);
 			$whsql=MySQLDatabase::Generate($W);
@@ -810,7 +810,7 @@ class m_stats extends IModule{
 	}
 	function GetStatsVPN($client,$from,$to,$detality,$IPs){
 		global $db;
-		if (date('Y-m-d',$from)=='2029-01-01') {
+		if ($from > strtotime('3000-01-01')) {
 			$r=array('in_bytes'=>0, 'out_bytes'=>0,'ts'=>0,'tsf'=>0);
 			return array($r,$r);
 		}
@@ -848,10 +848,10 @@ class m_stats extends IModule{
 		} else return;
 
 		$whsql='';
-		foreach ($IPs as $k=>$R) if ($R['actual_from']!='9999-00-00' && $R['actual_from']!='2029-01-01'){
+		foreach ($IPs as $k=>$R) if ($R['actual_from']!='9999-00-00' && $R['actual_from'] < '3000-01-01'){
 			if ($whsql) $whsql.=' OR ';
 			$whsql.='(ip_int=INET_ATON("'.$R['ip'].'") AND (datetime>="'.$R['actual_from'].'")'.
-					($R['actual_to']=="9999-00-00" || $R['actual_to']=="2029-01-01" ?'':' AND (datetime<="'.$R['actual_to'].'")').')';
+					($R['actual_to']=="9999-00-00" || $R['actual_to'] > "3000-01-01" ?'':' AND (datetime<="'.$R['actual_to'].'")').')';
 		}
 
 		$R=array();
@@ -4726,9 +4726,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         $options['from'] = 'log_tarif as LT';
         $options['joins'] = "LEFT JOIN usage_voip as U ON U.id = LT.id_service";
         $options['conditions'] = array(
-            'U.actual_from = ? AND U.actual_to = ? AND LT.service = ?',
-            '2029-01-01',
-            '2029-01-01',
+            'U.actual_from > ? AND U.actual_to > ? AND LT.service = ?',
+            '3000-01-01',
+            '3000-01-01',
             'usage_voip'
         );
         $options['order'] = 'max_ts asc';
