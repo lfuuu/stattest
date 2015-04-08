@@ -1730,8 +1730,8 @@ class IPList{
 
         $db->Query($q="
             SELECT
-                UNIX_TIMESTAMP(`R`.`actual_from`) as `actual_from`,
-                UNIX_TIMESTAMP(`R`.`actual_to`) as `actual_to`,
+                `R`.`actual_from`,
+                `R`.`actual_to`,
                 `R`.`net`,
                 `clients`.`client`,
                 `clients`.`status`,
@@ -1762,6 +1762,10 @@ class IPList{
         ");//.MySQLDatabase::Generate($Cond));
 
         while($r = $db->NextRecord())
+
+            $r["actual_from"] = strtotime($r["actual_from"]);
+            $r["actual_to"] = strtotime($r["actual_to"]);
+
             if($v = netmask_to_ip_sum($r['net'])){
                 if(iplist_check($our,$v[0])){
 
