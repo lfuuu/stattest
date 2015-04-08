@@ -387,7 +387,7 @@ class m_routers {
     }
     function routers_r_add($fixclient){
         global $design;
-        $this->dbmap->ShowEditForm('tech_routers','',array('actual_from'=>'2029-01-01','actual_to'=>'2029-01-01'),1);
+        $this->dbmap->ShowEditForm('tech_routers','',array('actual_from'=>'4000-01-01','actual_to'=>'4000-01-01'),1);
         $design->AddMain('routers/db_r_add.tpl');
     }
     function routers_r_apply($fixclient){

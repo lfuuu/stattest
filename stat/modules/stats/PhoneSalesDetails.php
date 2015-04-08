@@ -85,7 +85,7 @@
 					u.client,
 					c.id as client_id, 
 					UNIX_TIMESTAMP(u.actual_from) as actual_from,
-					if (u.actual_to >= "2029-01-01", "--", UNIX_TIMESTAMP(u.actual_to)) as actual_to, 
+					if (u.actual_to > "3000-01-01", "--", UNIX_TIMESTAMP(u.actual_to)) as actual_to, 
 					TV.name as tarif 
 				from 
 					usage_voip u 
@@ -177,7 +177,7 @@
 					u.client,
 					c.id as client_id,
 					UNIX_TIMESTAMP(u.actual_from) as actual_from,
-					if (u.actual_to >= "2029-01-01", "--", UNIX_TIMESTAMP(u.actual_to)) as actual_to,
+					if (u.actual_to > "3000-01-01", "--", UNIX_TIMESTAMP(u.actual_to)) as actual_to,
 					TV.description as tarif
 				from 
 					usage_virtpbx u 
@@ -322,7 +322,7 @@
 					s.name as sale_channel,
 					s.courier_id,
 					UNIX_TIMESTAMP(u.actual_from) as actual_from,
-					if (u.actual_to >= '2029-01-01', '--', UNIX_TIMESTAMP(u.actual_to)) as actual_to, 
+					if (u.actual_to > '3000-01-01', '--', UNIX_TIMESTAMP(u.actual_to)) as actual_to, 
 					TV.name as tarif 
 				FROM 
 					usage_voip u
@@ -366,7 +366,7 @@
 					s.name as sale_channel,
 					s.courier_id,
 					UNIX_TIMESTAMP(u.actual_from) as actual_from,
-					if (u.actual_to >= '2029-01-01', '--', UNIX_TIMESTAMP(u.actual_to)) as actual_to,
+					if (u.actual_to > '3000-01-01', '--', UNIX_TIMESTAMP(u.actual_to)) as actual_to,
 					TV.description as tarif 
 				FROM 
 					usage_virtpbx u 
