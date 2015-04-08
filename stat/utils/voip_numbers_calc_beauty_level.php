@@ -4,12 +4,12 @@
 //exit();
 define('NO_WEB',1);
 define('PATH_TO_ROOT','../');
-include PATH_TO_ROOT."conf.php";
+include PATH_TO_ROOT."conf_yii.php";
 
 
 
-$region = 89;
-$prefix = "74232060";
+$region = 99;
+$prefix = "74951090";
 
 $whereSql = "region = '".$region."' and number like '".$prefix."%'";
 
@@ -17,7 +17,7 @@ $whereSql = "region = '".$region."' and number like '".$prefix."%'";
 //$db->Query("delete from voip_numbers where ".$whereSql);
 
 $sql = "";
-for($i=0;$i<=499;$i++)
+for($i=0;$i<=999;$i++)
 {
     $num = $prefix.str_pad($i, 11-strlen($prefix), "0", STR_PAD_LEFT); 
     echo "\n".$num;
