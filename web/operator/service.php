@@ -166,7 +166,16 @@ if ($action=='add_client') {
                  ) ".($region !== null ? " AND vn.region = '".$region."'" : "")."
 
               )a
-          HAVING (date_to IS NULL OR date_to < NOW()) and if(region = 99, if(number like '7495%', number like '74951059%' or beauty_level in (1,2),true), true)
+              HAVING (date_to IS NULL OR date_to < NOW()) and 
+              
+                if(region = 99,
+                    if (number like '74996854%' and number between '74996854000' and '74996854999', false,
+                        if (number like '74951090%', false,
+                            if(number like '7495%', number like '74951059%' or beauty_level in (1,2), true)
+                        )
+                    ),
+                true)
+
           #order by if(beauty_level=0, 10, beauty_level) desc, number
           ORDER BY IF(region = 99, -IFNULL(price,0), if(beauty_level=0, 10, beauty_level)) DESC, number
 	                        ");
