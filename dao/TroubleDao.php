@@ -24,7 +24,7 @@ class TroubleDao extends Singleton
                 select count(*)
                 from tt_troubles as t
                 inner join tt_stages as s  on s.stage_id = t.cur_stage_id and s.trouble_id = t.id
-                where s.state_id not in (2,20,21,39,40) and s.date_start<=now() and s.user_main=:userLogin
+                where s.state_id not in (2,20,21,39,40,46,47,48) and s.date_start<=now() and s.user_main=:userLogin
             ", [':userLogin' => \Yii::$app->user->getIdentity()->user])
                 ->queryScalar();
     }
