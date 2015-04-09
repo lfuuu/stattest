@@ -967,7 +967,12 @@ class m_clients {
     $voip->showCountersWarning();
     $design->assign('voip_counters',$voip_counters);
 
-    
+    $design->assign("edit_user", $user->Get('user'));
+
+    if (get_param_raw("do", "") == "make_contract")
+    {
+        $db->QueryUpdate("client_contracts", "id", ["id" => get_param_integer("contract", 0), "contract_dop_date" => "2012-01-01", "type" => "contract"]);
+    }
     
     
 		if(get_param_raw("contract_open", "") !== "")
