@@ -48,7 +48,10 @@
                 <b>
                     <a href='{$LINK_START}module=clients&id={$item.id}&action=print&data=contract' target='_blank'>
                         {$item.contract_no}
-                    </a>
+                    </a>{if $edit_user == "adima" || $edit_user == "ava"}
+                    <a href='{$LINK_START}module=clients&id={$client.id}&contract={$item.id}&do=make_contract'>
+                        (сделать договор)
+                    </a>{/if}
                 </b> от {$item.contract_date} 
                 <span style='font-size:85%'>({if $item.comment}{$item.comment}, {/if}{$item.user}, {$item.ts|udate})</span>;
             {/if}
