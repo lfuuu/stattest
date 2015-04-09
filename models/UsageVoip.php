@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
 use app\models\TariffVoip;
+use app\models\VoipNumber;
 
 /**
  * @property int $id
@@ -41,6 +42,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public function getVoipNumber()
+    {
+        return $this->hasOne(VoipNumber::className(), ['number' => 'E164']);
     }
 
     public function getCurrentTariff()

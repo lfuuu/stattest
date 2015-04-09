@@ -1808,10 +1808,13 @@ class m_clients {
 		if(!$content)
 			$content = ClientCS::getContractTemplate('template_'.$group."_".get_param_protected('contract_template'));
 
-        if(strpos($content, "{/literal}</style>") === false)
-            $content = preg_replace("/<style([^>]*)>(.*?)<\/style>/six", "<style\\1>{literal}\\2{/literal}</style>", $content);
+        $content = self::contract_fix_static_parts_of_template($content, '', $id);
 
-		$content = self::contract_fix_static_parts_of_template($content, '', $id);
+        if(strpos($content, "{/literal}</style>") === false)
+        {
+            $content = preg_replace("/<style([^>]*)>(.*?)<\/style>/six", "<style\\1>{literal}\\2{/literal}</style>", $content);
+        }
+
         $cs=new ClientCS($id);
 
 
@@ -2238,6 +2241,9 @@ DBG::sql_out($select_client_data);
                 'from' => $a->actual_from,
                 'description' => "Телефонный номер: " . $a->E164,
                 'number' => $a->E164,
+                'lines' => $a->no_of_lines,
+                'free_local_min' => $a->currentTariff->free_local_min,
+                'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
                 'per_month' => round($a->currentTariff->month_number, 2),
                 'per_month_with_tax' => round($a->currentTariff->month_number * 1.18, 2)
@@ -2248,22 +2254,13 @@ DBG::sql_out($select_client_data);
         {
             $data['ip'][] = [
                 'from' => $a->actual_from,
-                'description' => 'Интернет подключение #" . $a->id',
+                'id' => $a->id,
                 'tarif_name' => $a->currentTariff->name,
+                'pay_once' => $a->currentTariff->pay_once,
+                'gb_month' => $a->currentTariff->mb_month/1024,
+                'pay_mb' => $a->currentTariff->pay_mb,
                 'per_month' => round($a->currentTariff->pay_month, 2),
                 'per_month_with_tax' => round($a->currentTariff->pay_month * 1.18, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageWelltime::find()->client($client)->actual()->all() as $a)
-        {
-            $data['welltime'][] = [
-                'from' => $a->actual_from,
-                'description' => "Welltime",
-                'amount' => $a->amount,
-                'tarif_name' => $a->currentTariff->description,
-                'per_month' =>  round($a->currentTariff->price * $a->amount,2),
-                'per_month_with_tax' =>  round($a->currentTariff->price * 1.18 * $a->amount,2)
             ];
         }
 
@@ -2273,11 +2270,16 @@ DBG::sql_out($select_client_data);
                 'from' => $a->actual_from,
                 'description' => "ВАТС #".$a->id,
                 'tarif_name' => $a->currentTariff->description,
+                'space' => $a->currentTariff->space,
+                'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
+                'num_ports' => $a->currentTariff->num_ports,
+                'overrun_per_port' => $a->currentTariff->overrun_per_port,
                 'per_month' => round($a->currentTariff->price, 2),
                 'per_month_with_tax' => round($a->currentTariff->price * 1.18, 2)
             ];
         }
 
+        /*
         foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $a)
         {
             $data['sms'][] = [
@@ -2300,6 +2302,7 @@ DBG::sql_out($select_client_data);
                 'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
             ];
         }
+         */
 
         global $design;
 
