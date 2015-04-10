@@ -1762,7 +1762,7 @@ class IPList{
         ");//.MySQLDatabase::Generate($Cond));
 
         while($r = $db->NextRecord())
-
+        {
             $r["actual_from"] = strtotime($r["actual_from"]);
             $r["actual_to"] = strtotime($r["actual_to"]);
 
@@ -1800,6 +1800,7 @@ class IPList{
                     }
                 }
             }
+        }
             ksort($this->data);
     }
     public function getByType(){
