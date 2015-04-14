@@ -3980,7 +3980,7 @@ $sql .= "    order by client, bill_no";
                     max(P.payment_date) as payment_date,
                     sum(P.sum) as pay_sum,
                     bill_date as shipment_date,
-                    unix_timestamp(bill_date) as shipment_ts,
+                    0 as shipment_ts,
                     18 as min_nds
                 FROM
                     newbills B
@@ -3988,7 +3988,8 @@ $sql .= "    order by client, bill_no";
                 INNER JOIN clients as C ON (C.id = B.client_id)
         WHERE
                 '.MySQLDatabase::Generate($W).'
-        and B.bill_no like "20____-____"
+            and B.bill_no like "20____-____"
+            and if(B.sum < 0, C.contract_type_id =2, true) ### only telekom clients with negative sum
         GROUP BY
             B.bill_no
         order by
@@ -4093,7 +4094,9 @@ $sql .= "    order by client, bill_no";
                     $A['bill']['shipment_ts'] = $p['shipment_ts'];
 
 
-                    $invDate = $A['bill']['shipment_ts'] ? date("d.m.Y", $A['bill']['shipment_ts']) : $A['inv_date'];
+                    $invDate = $A['bill']['shipment_ts'] ? 
+                        $A['bill']['shipment_ts'] : 
+                        $A['inv_date'];
 
                     $A['bill']['inv_date'] = $invDate;
 
@@ -4145,6 +4148,43 @@ $sql .= "    order by client, bill_no";
         $this->bb_cache__finish();
 
         //usort($R, array("self", "bb_sort_sum"));
+        }
+
+        if(get_param_raw("csv", "0") == "1")
+        {
+            header('Content-type: application/csv');
+            header('Content-Disposition: attachment; filename="'.iconv("utf-8", "windows-1251", "Книга продаж").'.csv"');
+
+            ob_start();
+
+            echo "Книга продаж;;;;;;;;;;;;;;\n";
+            echo ";;;;;;;;;;;;;;;;\n";
+            echo ";;;;;;в том числе продажи, облагаемые налогом по ставке;;;;;;;;;;\n";
+            echo "Дата счета-фактуры продавца;Номер счета-фактуры продавца;ИНН покупателя;КПП покупателя;Дата оплаты счета-фактуры продавца;Всего продаж, включая НДС;18 процентов стоимость продаж без НДС;18 процентов сумма НДС;10 процентов стоимость продаж без НДС;10 процентов сумма НДС;20 процентов стоимость продаж без НДС; 20 процентов сумма НДС;продажи, освобождаемые от налога;\n";
+
+            foreach($R as $r)
+            {
+                echo $r["inv_no"].";";
+                echo date("d.m.Y",$r["inv_date"]).";";
+                echo $r["inn"].";";
+                echo $r["kpp"].";";
+                echo ($r["payment_date"] ? date("d.m.Y", strtotime($r["payment_date"])) : "").";";
+                echo number_format(round($r["sum"],2), 2, ",", "").";";
+                echo number_format(round($r["sum_without_tax"],2), 2, ",", "").";";
+                echo number_format(round($r["sum_tax"],2), 2, ",", "").";";
+                echo "0;";
+                echo "0;";
+                echo "0;";
+                echo "0;";
+                echo "0;";
+                echo "0;";
+
+
+
+                echo "\n";
+            }
+            echo iconv('utf-8', 'windows-1251', ob_get_clean());
+            exit();
         }
 
         $design->assign('data',$R);
