@@ -1927,6 +1927,7 @@ class ApiLk
                 switch($pay["ecash_operator"])
                 {
                     case 'yandex': $v = "Яндекс.Деньги"; break;
+                    case 'paypal': $v = "PayPal"; break;
                     case 'cyberplat': $v = "Cyberplat"; break;
                 }
                 break;
@@ -2114,5 +2115,34 @@ class ApiLk
             }
 
         return true;
+    }
+
+    public static function getPayPalToken($accountId, $sum)
+    {
+        if (!defined("LK_PATH") || !LK_PATH)
+            throw new Exception("format_error");
+
+        if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId))
+            throw new Exception("account_is_bad");
+
+        $sum = (float)$sum;
+
+        if(!$sum || $sum < 1 || $sum > 1000000)
+            throw new Exception("data_error");
+
+
+        $c = ClientCard::find_by_id($accountId);
+        if(!$c)
+            throw new Exception("account_not_found");
+
+
+        $paypal = new \PayPal();
+        return $paypal->getPaymentToken($accountId, $sum);
+    }
+
+    public static function paypalApply($token, $payerId)
+    {
+        $paypal = new \PayPal();
+        return $paypal->paymentApply($token, $payerId);
     }
 }

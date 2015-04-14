@@ -82,6 +82,7 @@ function checkPeriod()
           <td valign=top>
           		<input type=checkbox name=ecashs[cyberplat]{if $ecashs.cyberplat} checked{/if}>Cyberplat
           		<input type=checkbox name=ecashs[yandex]{if $ecashs.yandex} checked{/if}>Яндекс.Деньги
+          		<input type=checkbox name=ecashs[paypal]{if $ecashs.paypal} checked{/if}>PayPal
 			</td></tr>
 		<tr>
 			<td class="left">Пользователь: </td>

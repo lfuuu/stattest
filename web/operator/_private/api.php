@@ -39,6 +39,7 @@ function do_func($function)
 {
 	switch($function)
 	{
+
 		case 'getBalance': return Api::getBalance(get_param_raw("client_id"), false); break;
 		case 'getBalanceList': return ApiLk::getBalanceList(get_param_raw("client_id")); break;
 		case 'getUserBillOnSum': return ApiLk::getUserBillOnSum(get_param_raw("client_id"), get_param_raw("sum")); break;
@@ -116,7 +117,11 @@ function do_func($function)
 
 		case 'getClientData': return ApiLk::getClientData(get_param_raw("client_id")); break;
 		case 'saveClientData': return ApiLk::saveClientData(get_param_raw("client_id"), get_param_raw("data")); break;
-		case 'getCompanyName': return ApiLk::getCompanyName(get_param_raw("client_id")); break;
+        case 'getCompanyName': return ApiLk::getCompanyName(get_param_raw("client_id")); break;
+
+        case 'getPayPalToken': return ApiLk::getPayPalToken(get_param_raw("account_id"), get_param_raw("sum")); break;
+        case 'paypalApply': return ApiLk::paypalApply(get_param_raw("token"), get_param_raw("payer_id")); break;
+
 		
 		default: throw new Exception("Функция не определенна");
 	}

@@ -53,7 +53,7 @@ return array(
     "LOG_DIR" => "/tmp/",
 
     /** ссылка-префикс для вывода публичных счетов */
-    'API__print_bill_url' => 'https://lk.mcn.ru/print?bill=' //'https://stat.mcn.ru/tst/bill.php?bill='
+    'API__print_bill_url' => 'https://lk.mcn.ru/print?bill=', //'https://stat.mcn.ru/tst/bill.php?bill='
 
     /** параметры для достпа к платежной системе Unileller */
     'UNITELLER_SHOP_ID' => '',
@@ -66,4 +66,8 @@ return array(
     "LK_PATH" => "https://lk.mcn.ru/lk/",
     "AUTOCREATE_SIP_ACCOUNT" => 0, //автоматическое создание учеток при заведении номера
     "AUTOCREATE_VPBX" => 0, // автоматическое создание vpbx после включения услуги
+
+  'paypal_user' => '',
+  'paypal_password' => '',
+  'paypal_signature' => ''
 );
