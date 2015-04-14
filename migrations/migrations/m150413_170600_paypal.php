@@ -20,6 +20,7 @@ class m150413_170600_paypal extends \app\classes\Migration
             `data3` text NOT NULL,
             PRIMARY KEY (`id`),
           KEY `token` (`token`)
+          )
 
           ");
 
