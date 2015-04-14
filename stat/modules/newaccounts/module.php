@@ -4401,7 +4401,7 @@ $sql .= "    order by client, bill_no";
         $banks = get_param_raw("banks", $bdefault);
         $design->assign("banks", $banks);
 
-        $edefault = array("cyberplat"=> true, "yandex" => true);
+        $edefault = array("cyberplat"=> true, "yandex" => true, "paypal" => true);
         $ecashs = get_param_raw("ecashs", $edefault);
         $design->assign("ecashs", $ecashs);
         
