@@ -54,7 +54,8 @@ h3 {
         <option value="ooocmc"{if $firma == "ooocmc"} selected{/if}>ООО "Си Эм Си"</option>
         </select>
 
-Полный экран: <input type=checkbox name=fullscreen value='1'><br>
+Полный экран: <input type=checkbox name=fullscreen value='1'>&nbsp;
+в Excel (csv): <input type=checkbox name=csv value='1'><br>
 Счета: <select name=payfilter><option value='1'{if $payfilter=='1'} selected{/if}>полностью оплаченные</option>
 <option value='3'{if $payfilter=='3'} selected{/if}>полностью или частично оплаченные</option>
 <option value='0'{if $payfilter=='0'} selected{/if}>все</option></select>
