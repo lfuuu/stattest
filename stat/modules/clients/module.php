@@ -1840,6 +1840,11 @@ class m_clients {
             {
                 $contractDopNo = get_param_protected('contract_no');
                 $contractDopDate = get_param_protected('contract_date');
+
+                $lastContract = BillContract::getLastContract($id, (strtotime($contractDopDate) ?: time()));
+
+                $contractNo = $lastContract["no"];
+                $contractDate = date("d.m.Y", $lastContract["date"]);
             } else { //blank
                 $contractDopDate = date("d.m.Y");
             }
