@@ -1,0 +1,7 @@
+#!/bin/sh
+
+mysqldump -h stat.mcn.ru -u user -ppassword \
+--single-transaction \
+--routines \
+ats \
+> /vagrant/install/db/dump/ats.sql

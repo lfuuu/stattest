@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mysql -h 127.0.0.1 -u vagrant -pvagrant ats < /vagrant/install/db/dump/ats.sql
+
+

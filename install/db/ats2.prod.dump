@@ -1,0 +1,16 @@
+#!/bin/sh
+
+mysqldump -h stat.mcn.ru -u password -ppassword \
+--single-transaction \
+--routines \
+--ignore-table=ats2.a_connect \
+ats2 \
+> /vagrant/install/db/dump/ats2.sql
+
+mysqldump -h stat.mcn.ru -u password -ppassword \
+--no-data \
+--single-transaction \
+ats2 \
+a_connect \
+>> /vagrant/install/db/dump/ats2.sql
+
