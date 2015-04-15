@@ -1230,19 +1230,23 @@ class m_clients {
 
 	function clients_new() {
 		global $design, $db,$user;
-		$design->assign('mode_new',1);
+        $design->assign('mode_new',1);
 
-		$R=array();
+        $currentUser = $user->Get('user');
+
+        $R=array();
         StatModule::users()->d_users_get($R,'account_managers');
-		if(isset($R[$user->Get('user')]))
-			$R[$user->Get('user')]['selected']=' selected';
-		$design->assign('account_managers',$R);
-
-		$R=array();
         StatModule::users()->d_users_get($R,'manager');
-		if(isset($R[$user->Get('user')]))
-			$R[$user->Get('user')]['selected']=' selected';
-		$design->assign('users_manager',$R);
+
+        $rAccountManagers = $rManagers = $R;
+
+        if(isset($rAccountManagers[$currentUser]))
+            $rAccountManagers[$currentUser]['selected']=' selected';
+        $design->assign('account_managers',$rAccountManagers);
+
+        if(isset($rManagers[$currentUser]))
+            $rManagers[$currentUser]['selected']=' selected';
+        $design->assign('users_manager',$rManagers);
 
 
         $client = [
@@ -1255,7 +1259,7 @@ class m_clients {
             "is_active" => 1,
             "contract_type_id" => 2,
             "business_process_id" => 1,
-            "business_process_status_id" => 1,
+            "business_process_status_id" => 19,
             "credit" => 0,
             'timezone_name' => 'Europe/Moscow',
         ];
