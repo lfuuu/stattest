@@ -26,6 +26,9 @@
 {foreach from=$contragents item='contragent'}
 <div style="border-top: 1px solid #bbb; padding: 3px; margin: 10px 0">
     <div style="color: #333;min-width: 500px; display: inline-block;">
+        <a href='/contragent/edit?id={$contragent.id}' title="Редактировать контрагента">
+            <img src='{$IMAGES_PATH}icons/edit.gif'>
+        </a>
         <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
     </div>
     <div style="display: inline-block;">  
