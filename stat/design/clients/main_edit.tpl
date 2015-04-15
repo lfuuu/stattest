@@ -254,7 +254,7 @@ $(function(){
 
 {if isset($mode_new)}
     <tr><td align="right">Тип договора:</td><td><SELECT class="select2" style="width: 250px" name=contract_type_id id=contract_type_id>{foreach from=$contract_types item=item}<option value='{$item.id}' {if ($item.id == $client.contract_type_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
-    <tr><td align="right">Бизнес процесс:</td><td><SELECT class="select2" style="width: 250px" name=business_process_id id=business_process_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.bussines_processes_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
+    <tr><td align="right">Бизнес процесс:</td><td><SELECT class="select2" style="width: 250px" name=business_process_id id=business_process_id>{foreach from=$bussines_processes item=item}<option value='{$item.id}' {if ($item.id == $client.business_process_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
     <tr><td align="right">Статус бизнес процесса:</td><td><SELECT class="select2" style="width: 250px" name="business_process_status_id" id="business_process_status_id">{foreach from=$bp_statuses item=item}<option value='{$item.id}' {if ($item.id == $client.bussines_processes_status_id)} selected{/if}>{$item.name}</option>{/foreach}</select></td>
     <script>
             optools.client.contractTypeSwitch.init();
