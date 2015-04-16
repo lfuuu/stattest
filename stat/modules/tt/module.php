@@ -2716,13 +2716,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 if (strcmp($state, 'Отказ') == 0) {
                     $oBill->sum = 0;
                     $oBill->sum_with_unapproved = 0;
-                    $oBill->state_1c = $_POST['state'];
-                    $oBill->save();
                     event::setReject($bill, $state);
-                } else {
-                    $oBill->state_1c = $_POST['state'];
-                    $oBill->save();
                 }
+                $oBill->state_1c = $_POST['state'];
+                $oBill->save();
             }
         }
         header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
