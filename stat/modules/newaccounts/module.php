@@ -574,7 +574,7 @@ class m_newaccounts extends IModule
         
         
         //old all4net bills
-        if(isset($_POST['bill_no']) && preg_match('/^\d{6}-\d{4}$/',$_POST['bill_no'])){
+        if(isset($_POST['bill_no']) && preg_match('/^\d{6}-\d{4}-\d+$/',$_POST['bill_no'])){
 
             //set doers
             if(isset($_POST['select_doer'])){
