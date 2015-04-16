@@ -25,7 +25,7 @@ use yii\db\ActiveRecord;
         <?php foreach ($newData as $field => $value): ?>
             <tr>
                 <?php if ($firstRow): ?>
-                    <td nowrap rowspan="<?=$rows?>"><?= $change->user ? $change->user->name : '' ?></td>
+                    <td nowrap rowspan="<?=$rows?>"><?= $change->user ? $change->user->name : $change->user_id ?></td>
                     <td nowrap rowspan="<?=$rows?>"><?= $date->format('d.m.Y H:i:s') ?></td>
                 <?php endif; ?>
                 <td nowrap><?= $model->getAttributeLabel($field) ?></td>
