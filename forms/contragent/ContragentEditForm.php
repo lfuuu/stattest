@@ -10,9 +10,10 @@ class ContragentEditForm extends Form
     public $legal_type;
     public $name;
     public $name_full;
-    public $address;
+    public $address_jur;
+    public $address_post;
     public $inn;
-    public $inn_eu;
+    public $inn_euro;
     public $kpp;
     public $position;
     public $fio;
@@ -25,7 +26,7 @@ class ContragentEditForm extends Form
     public function rules()
     {
         $rules = [];
-        $rules[] = [[ 'legal_type', 'name', 'name_full', 'address', 'inn', 'inn_eu', 
+        $rules[] = [[ 'legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
             'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd'], 'string'];
         $rules[] = [['name', 'legal_type'], 'required'];
 
@@ -37,10 +38,11 @@ class ContragentEditForm extends Form
         return [
             "name" => "Название контрагента",
             "name_full" => "Полное наименование",
-            "address" => "Адрес",
+            "address_jur" => "Адрес юридический",
+            "address_post" => "Адрес почтовый",
             "legal_type" => "Тип",
             "inn" => "ИНН",
-            "inn_eu" => "Общеевропейский ИНН",
+            "inn_euro" => "ЕвроИНН",
             "kpp" => "КПП",
             "position" => "Должность",
             "fio" => "ФИО",
