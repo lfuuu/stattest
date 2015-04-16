@@ -310,3 +310,27 @@ function form_cpe_load(){
 //	document.getElementById('service').disabled=1;
 	form_cpe_get_clients(1);
 }
+
+function showHistory(model, modelId) {
+    var $dialog = $('<iframe src="'+'/history/show?model=' + model + '&model_id=' + modelId+'" title="История изменений" style="display: none;"></iframe>');
+
+    $dialog.appendTo(document.body);
+
+    var width = window.innerWidth - 100;
+    var height = window.innerHeight - 100;
+    if (width > 1200) {
+        width = 1200;
+    }
+
+    $dialog.dialog(
+        {
+            width: width,
+            height: height,
+            open: function(){
+                $dialog[0].style.width = '100%';
+            },
+            close: function(){
+                $dialog.remove();
+            }
+        });
+}

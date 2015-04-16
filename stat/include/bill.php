@@ -177,7 +177,6 @@ class Bill {
         if ($this->bill["nal"] != $nal && in_array($nal, array("nal", "beznal","prov"))) {
             global $db,$user;
             $this->Set("nal", $nal);
-            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен предпологаемый тип платежа на ".$nal));
         }
     }
     public function SetExtNo($bill_no_ext)
@@ -185,7 +184,6 @@ class Bill {
         if ($this->bill["bill_no_ext"] != $bill_no_ext) {
             global $db,$user;
             $this->Set("bill_no_ext", $bill_no_ext);
-            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Именен внешний номер на ".$bill_no_ext));
         }
     }
     public function SetExtNoDate($bill_no_ext_date = '0000-00-00')
@@ -193,8 +191,6 @@ class Bill {
         if ($this->bill["bill_no_ext_date"] != $bill_no_ext_date) {
             global $db,$user;
             $this->Set("bill_no_ext_date", $bill_no_ext_date . ' 00:00:00');
-            $comment = ($bill_no_ext_date) ? "Именена дата внешнего счета на ". $bill_no_ext_date : 'Удаление даты внешнего счета';
-            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$comment));
         }
     }
     public function SetCourier($courierId){
@@ -203,7 +199,6 @@ class Bill {
             global $db,$user;
             $this->Set("courier_id", $courierId);
             $db->QueryUpdate("courier", array("id"), array("id" => $courierId, "is_used" => "1"));
-            $db->QueryInsert("log_newbills",array('bill_no'=>$this->bill['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>"Назначен курьер ".Courier::dao()->getNameById($courierId)));
         }
     }
     public function EditLine($sort,$title,$amount,$price,$type) {
@@ -249,11 +244,11 @@ class Bill {
         if ($hasLines || !$remove_empty) {
             $bSave = $this->bill;
             unset($bSave["doc_ts"]);
-            $db->QueryUpdate("newbills", "bill_no", $bSave);
 
             $bill = \app\models\Bill::findOne(['bill_no' => $this->bill_no]);
+            $bill->setAttributes($bSave);
+            $bill->save();
             $bill->dao()->recalcBill($bill);
-
             $this->bill_ts = unix_timestamp($this->Get('bill_date'));
             BillDocument::dao()->updateByBillNo($this->bill_no);
             return 1;
@@ -560,11 +555,6 @@ class Bill {
         $db->QueryUpdate("newbills", "bill_no", array(
                     "bill_no" => $this->bill_no,
                     "doc_date" => $wDate));
-
-        \app\models\LogBill::dao()->log(
-            $this->bill_no,
-            $utDate ? "Дата документ установлена: ".mdate("d месяца Y г.", $utDate) : "Дата документа убрана"
-        );
 
         $this->bill["doc_date"] = $wDate;
         $this->bill["doc_ts"] = $utDate;

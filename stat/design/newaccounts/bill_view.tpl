@@ -274,7 +274,11 @@ function doFormSend()
 {/literal}
 </script>
 
-<h3>История изменений счёта:</h3>
+<br/>
+
+<button onclick="showHistory('Bill',{$bill.id})">Открыть историю изменений</button>
+
+<h3>События счета:</h3>
 {if count($bill_history)}{foreach from=$bill_history item=L key=key name=outer}
 <b>{$L.ts|udate} - {$L.user}</b>: {$L.comment}<br>
 {/foreach}{/if}
