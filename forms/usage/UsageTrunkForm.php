@@ -11,12 +11,17 @@ class UsageTrunkForm extends Form
     public $trunk_name;
     public $actual_from;
     public $actual_to;
+    public $orig_enabled;
+    public $term_enabled;
+    public $orig_min_payment;
+    public $term_min_payment;
 
     public function rules()
     {
         return [
             [['id','client_account_id','connection_point_id'], 'integer'],
             [['trunk_name','actual_from', 'actual_to'], 'string'],
+            [['orig_enabled','term_enabled', 'orig_min_payment','term_min_payment'], 'integer'],
         ];
     }
 
@@ -29,6 +34,10 @@ class UsageTrunkForm extends Form
             'trunk_name' => 'Имя транка',
             'actual_from' => 'Дата подключения',
             'actual_to' => 'Дата отключения',
+            'orig_enabled' => 'Оригинация включена',
+            'term_enabled' => 'Терминация включена',
+            'orig_min_payment' => 'Минимальный платеж за терминацию',
+            'term_min_payment' => 'Минимальный платеж за оригинацию',
         ];
     }
 

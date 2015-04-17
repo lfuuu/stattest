@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\classes\Assert;
 use Yii;
 use DateTimeZone;
 use DateTime;
@@ -23,6 +24,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $rules = parent::rules();
         $rules[] = [['connection_point_id', 'client_account_id', 'trunk_name', 'actual_from'], 'required', 'on' => 'add'];
         $rules[] = [['trunk_name'], 'validateTrunkName', 'on' => 'add'];
+        $rules[] = [['orig_min_payment', 'term_min_payment'], 'required', 'on' => 'edit'];
         return $rules;
     }
 
@@ -50,6 +52,10 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->activation_dt = $activationDt->format('Y-m-d H:i:s');
         $usage->expire_dt = $expireDt->format('Y-m-d H:i:s');
         $usage->trunk_name = $this->trunk_name;
+        $usage->orig_enabled = $this->orig_enabled;
+        $usage->term_enabled = $this->term_enabled;
+        $usage->orig_min_payment = $this->orig_min_payment;
+        $usage->term_min_payment = $this->term_min_payment;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -66,6 +72,32 @@ class UsageTrunkEditForm extends UsageTrunkForm
 
         return true;
     }
+
+    public function edit()
+    {
+        $usage = $this->usage;
+        Assert::isTrue($usage->isActive());
+
+        $usage->trunk_name = $this->trunk_name;
+        $usage->orig_enabled = $this->orig_enabled;
+        $usage->term_enabled = $this->term_enabled;
+        $usage->orig_min_payment = $this->orig_enabled ? $this->orig_min_payment : 0;
+        $usage->term_min_payment = $this->term_enabled ? $this->term_min_payment : 0;
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+
+            $usage->save();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return true;
+    }
+
 
     public function initModel(ClientAccount $clientAccount, UsageTrunk $usage = null) {
         $this->clientAccount = $clientAccount;

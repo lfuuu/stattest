@@ -70,103 +70,157 @@ echo Form::widget([
     ],
 ]);
 
-$form->end();
+
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'columns' => 3,
+    'attributes' => [
+        '' => ['type' => Form::INPUT_RAW],
+        'orig_enabled' => ['type' => Form::INPUT_CHECKBOX],
+        'orig_min_payment' => ['type' => Form::INPUT_TEXT],
+    ],
+]);
+
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'columns' => 3,
+    'attributes' => [
+        '' => ['type' => Form::INPUT_RAW],
+        'term_enabled' => ['type' => Form::INPUT_CHECKBOX],
+        'term_min_payment' => ['type' => Form::INPUT_TEXT],
+    ],
+]);
+
+if ($usage->isActive()):
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'attributes' => [
+            'actions' => [
+                'type' => Form::INPUT_RAW,
+                'value' =>
+                    '<div class="col-md-12">' .
+                    Html::button('Сохранить', ['class' => 'btn btn-primary', 'onclick' => "jerasoftSubmitForm('edit')"]) .
+                    '</div>'
+            ],
+        ],
+    ]);
+
+endif;
+
+echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario']);
+ActiveForm::end();
 ?>
+<script>
+    function jerasoftSubmitForm(scenario) {
+        $('#scenario').val(scenario);
+        $('#<?=$form->getId()?>')[0].submit();
+    }
+    $('.form-reload').change(function() {
+        jerasoftSubmitForm('default');
+    });
+</script>
 
+<?php if($usage->orig_enabled): ?>
+    <h2>Оригинация:</h2>
+    <table class="table table-condensed table-striped">
+        <tr>
+            <th width="33%">A номер</th>
+            <th width="33%">B номер</th>
+            <th width="33%">Прайслист</th>
+            <th></th>
+        </tr>
+        <?php foreach ($origination as $rule): ?>
+            <?php
+            $formModel = new UsageTrunkSettingsEditForm();
+            $formModel->setAttributes($rule->attributes, false);
 
-<h2>Оригинация:</h2>
-<table class="table table-condensed table-striped">
-    <tr>
-        <th width="33%">A номер</th>
-        <th width="33%">B номер</th>
-        <th width="33%">Прайслист</th>
-        <th></th>
-    </tr>
-    <?php foreach ($origination as $rule): ?>
+            $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
+            echo Html::activeHiddenInput($formModel, 'id');
+            ?>
+            <tr>
+                <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
+                <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
+            </tr>
+            <?php
+            ActiveForm::end();
+            ?>
+        <?php endforeach; ?>
         <?php
-        $formModel = new UsageTrunkSettingsEditForm();
-        $formModel->setAttributes($rule->attributes, false);
+        if ($usage->isActive()):
+            $formModel = new UsageTrunkSettingsAddForm();
+            $formModel->usage_id = $usage->id;
+            $formModel->type = UsageTrunkSettings::TYPE_ORIGINATION;
 
-        $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
-        echo Html::activeHiddenInput($formModel, 'id');
+            $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
+            echo Html::activeHiddenInput($formModel, 'usage_id');
+            echo Html::activeHiddenInput($formModel, 'type');
         ?>
         <tr>
-            <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
-            <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-            <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
-            <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
+            <td colspan="3"></td>
+            <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
+            <td></td>
         </tr>
         <?php
-        ActiveForm::end();
+            $form->end();
+        endif;
         ?>
-    <?php endforeach; ?>
-    <?php
-    if ($usage->isActive()):
-        $formModel = new UsageTrunkSettingsAddForm();
-        $formModel->usage_id = $usage->id;
-        $formModel->type = UsageTrunkSettings::TYPE_ORIGINATION;
+    </table>
+<?php endif; ?>
 
-        $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
-        echo Html::activeHiddenInput($formModel, 'usage_id');
-        echo Html::activeHiddenInput($formModel, 'type');
-    ?>
-    <tr>
-        <td colspan="3"></td>
-        <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
-        <td></td>
-    </tr>
-    <?php
-        $form->end();
-    endif;
-    ?>
-</table>
+<?php if($usage->term_enabled): ?>
+    <h2>Терминация:</h2>
+    <table class="table table-condensed table-striped">
+        <tr>
+            <th width="33%">A номер</th>
+            <th width="33%">B номер</th>
+            <th width="33%">Прайслист</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <?php foreach ($termination as $rule): ?>
+            <?php
+            $formModel = new UsageTrunkSettingsEditForm();
+            $formModel->setAttributes($rule->attributes, false);
 
-<h2>Терминация:</h2>
-<table class="table table-condensed table-striped">
-    <tr>
-        <th width="33%">A номер</th>
-        <th width="33%">B номер</th>
-        <th width="33%">Прайслист</th>
-        <th></th>
-        <th></th>
-    </tr>
-    <?php foreach ($termination as $rule): ?>
+            $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
+            echo Html::activeHiddenInput($formModel, 'id');
+            ?>
+            <tr>
+                <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
+                <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
+            </tr>
+            <?php
+            $form->end();
+            ?>
+        <?php endforeach; ?>
         <?php
-        $formModel = new UsageTrunkSettingsEditForm();
-        $formModel->setAttributes($rule->attributes, false);
+        if ($usage->isActive()):
+            $formModel = new UsageTrunkSettingsAddForm();
+            $formModel->usage_id = $usage->id;
+            $formModel->type = UsageTrunkSettings::TYPE_TERMINATION;
 
-        $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
-        echo Html::activeHiddenInput($formModel, 'id');
+            $form = ActiveForm::begin();
+            echo Html::activeHiddenInput($formModel, 'usage_id');
+            echo Html::activeHiddenInput($formModel, 'type');
         ?>
         <tr>
-            <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
-            <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-            <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
-            <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
+            <td colspan="3"></td>
+            <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
         </tr>
         <?php
-        $form->end();
+            $form->end();
+        endif;
         ?>
-    <?php endforeach; ?>
-    <?php
-    if ($usage->isActive()):
-        $formModel = new UsageTrunkSettingsAddForm();
-        $formModel->usage_id = $usage->id;
-        $formModel->type = UsageTrunkSettings::TYPE_TERMINATION;
-
-        $form = ActiveForm::begin();
-        echo Html::activeHiddenInput($formModel, 'usage_id');
-        echo Html::activeHiddenInput($formModel, 'type');
-    ?>
-    <tr>
-        <td colspan="3"></td>
-        <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
-    </tr>
-    <?php
-        $form->end();
-    endif;
-    ?>
-</table>
+    </table>
+<?php endif; ?>
 
 <h2>Направления:</h2>
 <table class="table table-condensed table-striped">

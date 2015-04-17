@@ -39,31 +39,51 @@ echo Form::widget([
     ],
 ]);
 
+
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'columns' => 1,
+    'columns' => 3,
     'attributes' => [
         'trunk_name' => ['type' => Form::INPUT_TEXT],
-        'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'saveTimezone' => $clientAccount->timezone_name],
+        'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
     ],
 ]);
 
-
-$attributes = [
-    'actions' => [
-        'type' => Form::INPUT_RAW,
-        'value' =>
-            '<div class="col-md-12">' .
-            Html::button('Подключить', ['class' => 'btn btn-primary', 'onclick' => "jerasoftSubmitForm('add')"]) .
-            '</div>'
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'columns' => 3,
+    'attributes' => [
+        '' => ['type' => Form::INPUT_RAW],
+        'orig_enabled' => ['type' => Form::INPUT_CHECKBOX],
+        'orig_min_payment' => ['type' => Form::INPUT_TEXT],
     ],
-];
+]);
 
 echo Form::widget([
     'model' => $model,
     'form' => $form,
-    'attributes' => $attributes,
+    'columns' => 3,
+    'attributes' => [
+        '' => ['type' => Form::INPUT_RAW],
+        'term_enabled' => ['type' => Form::INPUT_CHECKBOX],
+        'term_min_payment' => ['type' => Form::INPUT_TEXT],
+    ],
+]);
+
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
+    'attributes' => [
+        'actions' => [
+            'type' => Form::INPUT_RAW,
+            'value' =>
+                '<div class="col-md-12">' .
+                Html::button('Подключить', ['class' => 'btn btn-primary', 'onclick' => "jerasoftSubmitForm('add')"]) .
+                '</div>'
+        ],
+    ],
 ]);
 
 echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario']);

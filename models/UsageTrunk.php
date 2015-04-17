@@ -5,8 +5,20 @@ use yii\db\ActiveRecord;
 use DateTime;
 
 /**
- * @property int $id
+ * @property int    $id
+ * @property int    $client_account_id
+ * @property int    $connection_point_id
+ * @property string $trunk_name
+ * @property string $actual_from
+ * @property string $actual_to
+ * @property string $activation_dt
+ * @property string $expire_dt
+ * @property int    $orig_enabled
+ * @property int    $term_enabled
+ * @property int    $orig_min_payment
+ * @property int    $term_min_payment
  *
+ * @property ClientAccount $clientAccount
  * @property Region $connectionPoint
  * @property
  */
