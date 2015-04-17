@@ -2,6 +2,8 @@
 define("PATH_TO_ROOT",'../../../stat/');
 require_once "../../../stat/conf_yii.php";
 
+Yii::$app->user->setIdentity(User::findOne(User::SYSTEM_USER_ID));
+
 Header('Content-type: text/xml; charset="UTF-8"');
 
 if (isset($_GET['wsdl'])){
