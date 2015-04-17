@@ -3990,6 +3990,7 @@ $sql .= "    order by client, bill_no";
             and B.bill_no like "20____-____"
             and if(B.sum < 0, C.contract_type_id =2, true) ### only telekom clients with negative sum
             and C.contract_type_id != 6 ## internal office
+            and C.business_process_status_id != 22 ## trash
         GROUP BY
             B.bill_no
         order by
