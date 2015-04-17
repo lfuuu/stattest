@@ -34,11 +34,16 @@ class TrunkController extends BaseController
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
         $model = new UsageTrunkEditForm();
+        $model->orig_min_payment = 0;
+        $model->term_min_payment = 0;
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($clientAccount);
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->scenario == 'add' && $model->validate() && $model->add()) {
+                return $this->redirect(['edit', 'id' => $model->id]);
+            }
+            if ($model->scenario == 'edit' && $model->validate() && $model->edit()) {
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
         }
@@ -59,7 +64,7 @@ class TrunkController extends BaseController
         $model->scenario = Yii::$app->request->post('scenario', 'default');
         $model->initModel($clientAccount, $usage);
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->scenario == 'save' && $model->validate() && $model->save()) {
+            if ($model->scenario == 'edit' && $model->validate() && $model->edit()) {
                 return $this->redirect(['edit', 'id' => $usage->id]);
             }
         }

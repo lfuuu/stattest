@@ -12,14 +12,18 @@ class m150417_120843_trunk extends \app\classes\Migration
               `trunk_name` varchar(50) NOT NULL DEFAULT '',
               `actual_from` date NOT NULL DEFAULT '9999-00-00',
               `actual_to` date NOT NULL DEFAULT '9999-00-00',
-              `activation_dt` datetime DEFAULT NULL,
-              `expire_dt` datetime DEFAULT NULL,
+              `activation_dt` datetime NOT NULL,
+              `expire_dt` datetime NOT NULL,
+              `orig_enabled` tinyint(4) NOT NULL DEFAULT '0',
+              `term_enabled` tinyint(4) NOT NULL DEFAULT '0',
+              `orig_min_payment` int(11) NOT NULL DEFAULT '0',
+              `term_min_payment` int(11) NOT NULL DEFAULT '0',
               PRIMARY KEY (`id`),
               KEY `usage_trunk__connection_point_id_trunk_name` (`connection_point_id`,`trunk_name`) USING BTREE,
               KEY `usage_trunk__client_account_id` (`client_account_id`) USING BTREE,
-              CONSTRAINT `usage_trunk__connection_point_id` FOREIGN KEY (`connection_point_id`) REFERENCES `regions` (`id`) ON UPDATE CASCADE,
-              CONSTRAINT `usage_trunk__client_account_id` FOREIGN KEY (`client_account_id`) REFERENCES `clients` (`id`) ON UPDATE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+              CONSTRAINT `usage_trunk__client_account_id` FOREIGN KEY (`client_account_id`) REFERENCES `clients` (`id`) ON UPDATE CASCADE,
+              CONSTRAINT `usage_trunk__connection_point_id` FOREIGN KEY (`connection_point_id`) REFERENCES `regions` (`id`) ON UPDATE CASCADE
+            ) ENGINE=InnoDB AUTO_INCREMENT=11424 DEFAULT CHARSET=utf8;
 
             CREATE TRIGGER `to_postgres_usage_trunk_after_ins_tr` AFTER INSERT ON `usage_trunk` FOR EACH ROW BEGIN
                 call z_sync_postgres('usage_trunk', NEW.id);
@@ -99,6 +103,12 @@ class m150417_120843_trunk extends \app\classes\Migration
         $this->execute("
             ALTER TABLE `clients`
             ADD COLUMN `country_id` int(4) NOT NULL DEFAULT '643' AFTER `contragent_id`;
+        ");
+
+        $this->execute("
+            ALTER TABLE `usage_trunk`
+            ADD COLUMN `orig_enabled`  tinyint NULL AFTER `expire_dt`,
+            ADD COLUMN `term_enabled`  tinyint NULL AFTER `orig_enabled`;
         ");
     }
 
