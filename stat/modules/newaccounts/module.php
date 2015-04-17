@@ -4104,7 +4104,7 @@ $sql .= "    order by client, bill_no";
                     $p["company_full"] = trim($c["company_full"]);
                     $p["inn"] = $c["inn"];
                     $p["kpp"] = $c["kpp"];
-                    $p["type"] = $c["type"];
+                    //$p["type"] = $c["type"];
 
                     $A['bill']['inv_date'] = $invDate;
 
