@@ -34,6 +34,7 @@ ini_set('soap.wsdl_cache_enabled', '0');
 
 require_once "../../../stat/conf_yii.php";
 
+use app\models\User;
 Yii::$app->user->setIdentity(User::findOne(User::SYSTEM_USER_ID));
 
 require_once INCLUDE_PATH."1c_integration.php";
