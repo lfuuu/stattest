@@ -11,7 +11,7 @@ class m150415_170322_history extends \app\classes\Migration
               `model_id` int(11) NOT NULL,
               `user_id` int(11) NOT NULL,
               `created_at` datetime NOT NULL,
-              `action` enum('insert','update','delete') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;
+              `action` enum('insert','update','delete') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
               `data_json` text NOT NULL,
               `prev_data_json` text NOT NULL,
               PRIMARY KEY (`id`),
