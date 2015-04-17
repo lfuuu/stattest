@@ -246,7 +246,7 @@ class Bill {
             unset($bSave["doc_ts"]);
 
             $bill = \app\models\Bill::findOne(['bill_no' => $this->bill_no]);
-            $bill->setAttributes($bSave);
+            $bill->setAttributes($bSave, false);
             $bill->save();
             $bill->dao()->recalcBill($bill);
             $this->bill_ts = unix_timestamp($this->Get('bill_date'));
