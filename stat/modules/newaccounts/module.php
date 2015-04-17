@@ -3989,6 +3989,7 @@ $sql .= "    order by client, bill_no";
                 '.MySQLDatabase::Generate($W).'
             and B.bill_no like "20____-____"
             and if(B.sum < 0, C.contract_type_id =2, true) ### only telekom clients with negative sum
+            and C.contract_type_id != 6 ## internal office
         GROUP BY
             B.bill_no
         order by
@@ -4099,7 +4100,7 @@ $sql .= "    order by client, bill_no";
 
                     // get property from history
                     $c = ClientCS::getOnDate($p['client_id'], date("Y-m-d", $invDate));
-                    $p["company_full"] = $c["company_full"];
+                    $p["company_full"] = trim($c["company_full"]);
                     $p["inn"] = $c["inn"];
                     $p["kpp"] = $c["kpp"];
                     $p["type"] = $c["type"];
@@ -4110,6 +4111,7 @@ $sql .= "    order by client, bill_no";
 
                     if ((!$date_from || $k>=$date_from) && (!$date_to || $k<=$date_to)) {
                         $A['bill']['company_full'] = $p['company_full'];
+
                         if($p["type"] == "priv")
                         {
                             $A['bill']['inn'] = "-----";
@@ -4118,6 +4120,13 @@ $sql .= "    order by client, bill_no";
                             $A['bill']['inn'] = "<span style=\"color: red;\"><b>??????? ".$p['inn']."</b></span>";
                             $A['bill']['kpp'] = $p['kpp'];
                         }else{
+                            if (
+                                preg_match("/(И|и)ндивидуальный[ ]+(П|п)редприниматель/", $p["company_full"]) ||
+                                preg_match("/^ИП/", $p["company_full"])
+                            )
+                            {
+                                $p["kpp"] = "-----";
+                            }
                             $A['bill']['inn'] = $p['inn'];
                             $A['bill']['kpp'] = $p['kpp'];
                         }
