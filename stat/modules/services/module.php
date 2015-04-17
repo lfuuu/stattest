@@ -1,5 +1,6 @@
 <?php
 use app\classes\StatModule;
+use app\models\ClientAccount;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -13,6 +14,7 @@ class m_services extends IModule{
     }
     function services_default($fixclient){
         if (access_action('services','vo_view')) {$this->services_vo_view($fixclient); return;}
+        if (access_action('services','trunk_view')) {$this->services_trunk_view($fixclient); return;}
         if (access_action('services','in_view')) {$this->services_in_view($fixclient); return;}
         if (access_action('services','co_view')) {$this->services_co_view($fixclient); return;}
     }
@@ -718,6 +720,43 @@ class m_services extends IModule{
 
             if(get_param_raw("action", "") == "vo_view")
                 $this->services_vo_permit($fixclient);
+
+            return $R;
+        }
+    }
+
+    function services_trunk_view($fixclient){
+        global $db,$design;
+
+        $client = ClientAccount::findOne(['client' => $fixclient]);
+
+        if ($client) {
+            global $db_ats;
+
+            $isDbAtsInited = $db_ats && $db != $db_ats;
+
+            $now = (new DateTime('now', $client->timezone))->format('Y-m-d');
+
+            $db->Query($q="
+                select
+                    u.*,
+                    IF((u.actual_from<='$now') and (u.actual_to>'$now'),1,0) as actual,
+                    IF((u.actual_from<=('$now'+INTERVAL 5 DAY)),1,0) as actual5d
+                from
+                    usage_trunk u
+                where
+                    u.client_account_id={$client->id}
+                order by actual desc, u.actual_from, u.actual_to
+            ");
+
+            $R=array();
+            while ($r=$db->NextRecord()) {
+                $R[]=$r;
+            }
+
+            $design->assign('items',$R);
+            $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)','id') );
+            $design->AddMain('services/trunk.tpl');
 
             return $R;
         }

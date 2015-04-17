@@ -32,6 +32,7 @@ class m_services_head extends IModuleHead {
 					'co_close'			=> array('services_collocation','close'),
 						
 //VOip
+					'trunk_view'		=> array('services_voip','r'),
 					'vo_view'			=> array('services_voip','r'),
 					'vo_act'			=> array('services_voip','r'),
 	                'vo_act_trunk'		=> array('services_voip','r'),
@@ -117,7 +118,8 @@ class m_services_head extends IModuleHead {
 					'ad_close'			=> array('services_additional','close'),
 				);
 	public $menu=array(
-		array('IP Телефония',			'vo_view'),
+		array('Телефония Номера',		'vo_view'),
+		array('Телефония Транки',		'trunk_view'),
 		array('Welltime',				'welltime_view'),
         array('Виртуальная АТС',		'virtpbx_view'),
         array('СМС',	                'sms_view'),

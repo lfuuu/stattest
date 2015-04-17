@@ -12,6 +12,8 @@
         "kartik-v/yii2-widgets": "*",
         "kartik-v/yii2-mpdf": "*",
         "kartik-v/yii2-builder": "*",
+        "kartik-v/yii2-datecontrol": "*",
+        "kartik-v/yii2-date-range": "*",
         "tinymce/tinymce": "*"
     },
     "require-dev": {
