@@ -18,6 +18,7 @@ class ContragentEditForm extends Form
     public $position;
     public $fio;
     public $tax_regime;
+    public $ogrn;
     public $opf;
     public $okpo;
     public $okvd;
@@ -27,7 +28,7 @@ class ContragentEditForm extends Form
     {
         $rules = [];
         $rules[] = [[ 'legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
-            'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd'], 'string'];
+            'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'];
         $rules[] = [['name', 'legal_type'], 'required'];
 
         return $rules;
@@ -47,9 +48,10 @@ class ContragentEditForm extends Form
             "position" => "Должность",
             "fio" => "ФИО",
             "tax_regime" => "Налогвый режим",
+            "ogrn" => "Код ОГРН"
             "opf" => "Код ОПФ",
             "okpo" => "Код ОКПО",
-            "okvd" => "Код ОКВЭД"
+            "okvd" => "Код ОКВЭД",
         ];
     }
 

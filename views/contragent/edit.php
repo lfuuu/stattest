@@ -30,6 +30,7 @@ use kartik\builder\Form;
             'position' => ['type' => Form::INPUT_TEXT],
             'fio' => ['type' => Form::INPUT_TEXT],
             'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ['full' => 'Полный', "6" => "Упрощенный 6", "15" => "Упрощенный 15"]],
+            'ogrn' => ['type' => Form::INPUT_TEXT],
             'opf' => ['type' => Form::INPUT_TEXT],
             'okpo' => ['type' => Form::INPUT_TEXT],
             'okvd' => ['type' => Form::INPUT_TEXT],
