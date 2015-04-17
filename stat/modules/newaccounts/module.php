@@ -4097,6 +4097,13 @@ $sql .= "    order by client, bill_no";
                         $A['bill']['shipment_ts'] : 
                         $A['inv_date'];
 
+                    // get property from history
+                    $c = ClientCS::getOnDate($p['client_id'], date("Y-m-d", $invDate));
+                    $p["company_full"] = $c["company_full"];
+                    $p["inn"] = $c["inn"];
+                    $p["kpp"] = $c["kpp"];
+                    $p["type"] = $c["type"];
+
                     $A['bill']['inv_date'] = $invDate;
 
                     $k=date('Y-m-d',$A['inv_date']);
