@@ -1088,6 +1088,7 @@ class m_clients {
                 if(StatModule::services()->services_in_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_co_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_ppp_view($r['client'])) $isServiceEnabled = true;
+                if(StatModule::services()->services_trunk_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_vo_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::routers()->routers_d_list($r['client'],1)) $isServiceEnabled = true;
 				//StatModule::routers()->routers_d_list($r['client']);

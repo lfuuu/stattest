@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use DateTimeZone;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use yii\db\ActiveRecord;
@@ -16,7 +17,9 @@ use app\classes\behaviors\SetOldStatus;
 
  * @property ClientSuper $superClient
  * @property ClientStatuses $lastComment
+ * @property Country $country
  * @property Region $accountRegion
+ * @property DateTimeZone $timezone
  * @property
  */
 class ClientAccount extends ActiveRecord
@@ -84,6 +87,11 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(ClientContractType::className(), ['id' => 'contract_type_id']);
     }
 
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
+
     public function getAccountRegion()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
@@ -131,6 +139,14 @@ class ClientAccount extends ActiveRecord
                     ->all();
         }
         return $this->_lastComment;
+    }
+
+    /**
+     * @return DateTimeZone
+     */
+    public function getTimezone()
+    {
+        return new DateTimeZone($this->timezone_name);
     }
 
     public function getDefaultTaxId()

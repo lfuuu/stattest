@@ -47,6 +47,7 @@ class Transaction extends ActiveRecord
     const SERVICE_EMAIL     = 'emails';
     const SERVICE_IPPORT    = 'usage_ip_ports';
     const SERVICE_VOIP      = 'usage_voip';
+    const SERVICE_TRUNK     = 'usage_trunk';
 
     const TYPE_CONNECTING = 'connecting';
     const TYPE_PERIODICAL = 'periodical';

@@ -76,6 +76,30 @@ $config = [
         'gridview' =>  [
             'class' => '\kartik\grid\Module',
         ],
+        'datecontrol' =>  [
+            'class' => 'kartik\datecontrol\Module',
+
+            // format settings for displaying each date attribute (ICU format example)
+            'displaySettings' => [
+                'date' => 'dd.MM.yyyy',
+                'time' => 'HH:mm:ss a',
+                'datetime' => 'dd.MM.yyyy HH:mm:ss a',
+            ],
+
+            // format settings for saving each date attribute (PHP format example)
+            'saveSettings' => [
+                'date' => 'php:Y-m-d', // saves as unix timestamp
+                'time' => 'php:H:i:s',
+                'datetime' => 'php:Y-m-d H:i:s',
+            ],
+
+            // default settings for each widget from kartik\widgets used when autoWidget is true
+            'autoWidgetSettings' => [
+                'date' => ['pluginOptions'=> ['autoclose' => true] ], // example
+                'datetime' => [], // setup if needed
+                'time' => [], // setup if needed
+            ],
+        ],
     ],
     'params' => $params,
 ];
