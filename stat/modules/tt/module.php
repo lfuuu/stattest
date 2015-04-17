@@ -2039,7 +2039,6 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $doer_filter = '
                     AND
                     `cr`.`id` = '.((int)$doer_filter);
-            $doerName = $db->GetValue("select name from courier where id = '".$doerId."'");
         }
 
         $state_filter = $state_filter_ = get_param_protected('state_filter', 'null');
@@ -2072,7 +2071,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 FROM
                     (
                         SELECT
-                            `ln`.`ts` `date`,
+                            `ln`.`created_at` `date`,
                             `cr`.`name` `courier_name`,
                             `cl`.`company` `company`,
                             ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
@@ -2087,21 +2086,21 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
 
                         INNER JOIN ( 
-                            select bill_no, max(ts) ts
-                            from `log_newbills`
-                            where `comment` ".($doerId ? "= 'Назначен курьер ".$doerName : "like 'Назначен курьер %")."'
-                            group by bill_no
+                            select model_id, max(created_at) created_at
+                            from `history_changes`
+                            where model='Bill' and data_json like '%" . ($doerId ? "\"courier_id\":\"{$doerId}\"":"\"courier_id\":") ."%'
+                            group by model_id
                             
-                        ) `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
+                        ) `ln` ON `ln`.`model_id` = `nb`.`id`
 
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
-                        AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
+                        AND `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
                         GROUP BY
-                            `ln`.`ts`,
+                            `ln`.`created_at`,
                             `cr`.`name`,
                             `cl`.`company`,
                             `nb`.`currency`
@@ -2152,7 +2151,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 FROM
                     (
                         SELECT
-                            `ln`.`ts` `date`,
+                            `ln`.`created_at` `date`,
                             `cr`.`name` `courier_name`,
                             `cl`.`company` `company`,
                             ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
@@ -2161,26 +2160,25 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                             `nb`.`bill_no` bill_no
                         FROM `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-                        INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
-                                    AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                        INNER JOIN `history_changes` `ln` ON `ln`.model='Bill' and `ln`.`model_id` = `nb`.`id`
+                                    and ln.data_json like concat('%\"courier_id\":\"',cr.id,'\"%')
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                                     AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
                         AND
-                            `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
+                            `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
                         AND
                             `ln`.`id` = (
-                                select `id`
-                                from `log_newbills`
-                                where `bill_no` = `nb`.`bill_no`
-                                AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-                                order by id desc
-                                limit 1
+                                    select id
+                                    from `history_changes`
+                                    where model='Bill' and model_id=nb.id and data_json like concat('%\"courier_id\":\"',cr.id,'\"%')
+                                    order by created_at desc
+                                    limit 1
                             )
                         GROUP BY
-                            `ln`.`ts`,
+                            `ln`.`created_at`,
                             `cr`.`name`,
                             `cl`.`company`,
                             `nb`.`currency`
@@ -2255,7 +2253,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 FROM
                     (
                         SELECT
-                            `ln`.`ts` `date`,
+                            `ln`.`created_at` `date`,
                             `cr`.`name` `courier_name`,
                             `cl`.`company` `company`,
                             ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
@@ -2268,25 +2266,24 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         FROM
                             `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-                        INNER JOIN `log_newbills` `ln` ON `ln`.`bill_no` = `nb`.`bill_no`
-                            AND `ln`.`comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
+                        INNER JOIN `history_changes` `ln` ON nl.model='Bill' and `ln`.`model_id` = `nb`.`id`
+                            and ln.data_json like concat('%\"courier_id\":\"',cr.id,'\"%')
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
-                        AND `ln`.`ts` BETWEEN '".$date_begin."' AND '".$date_end."'
+                        AND `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
                         AND
                             `ln`.`id` = (
-                                select `id`
-                                from `log_newbills`
-                                where `bill_no` = `nb`.`bill_no`
-                                    AND `comment` = CONCAT('Назначен курьер',' ',`cr`.`name`)
-                                order by id desc
-                                limit 1
+                                    select id
+                                    from `history_changes`
+                                    where model='Bill' and model_id=nb.id and data_json like concat('%\"courier_id\":\"',cr.id,'\"%')
+                                    order by created_at desc
+                                    limit 1
                             )
                         GROUP BY
-                            `ln`.`ts`,
+                            `ln`.`created_at`,
                             `cr`.`name`,
                             `cl`.`company`,
                             `nb`.`currency`
@@ -2714,13 +2711,16 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             exit();
         }
         if($f){
-            if (strcmp($state,'Отказ') == 0){
-                $db->Query($q="update newbills set sum=0, sum_with_unapproved = 0, state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
-               event::setReject($bill, $state);
-            }else{
-                $db->Query($q="update newbills set state_1c='".addcslashes($_POST['state'], "\\'")."' where bill_no='".addcslashes($_POST['bill_no'], "\\'")."'");
+            $oBill = \app\models\Bill::findOne(['bill_no' => $bill]);
+            if ($oBill) {
+                if (strcmp($state, 'Отказ') == 0) {
+                    $oBill->sum = 0;
+                    $oBill->sum_with_unapproved = 0;
+                    event::setReject($bill, $state);
+                }
+                $oBill->state_1c = $_POST['state'];
+                $oBill->save();
             }
-            $db->QueryInsert("log_newbills",array('bill_no'=>$_POST['bill_no'],'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Статус заказа: '.$_POST['state']));
         }
         header('Location: index.php?module=tt&action=view&id='.$_POST['id']);
         exit();

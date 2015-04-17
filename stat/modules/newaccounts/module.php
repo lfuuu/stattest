@@ -562,7 +562,6 @@ class m_newaccounts extends IModule
         $bill = new Bill(null,$fixclient_data,time(),0,$currency);
         $no = $bill->GetNo();
         unset($bill);
-        $db->QueryInsert("log_newbills",array('bill_no'=>$no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Счет создан'));
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$no); 
@@ -580,22 +579,22 @@ class m_newaccounts extends IModule
             //set doers
             if(isset($_POST['select_doer'])){
                 $d = (int)$_POST['doer'];
-                $db->Query("select name from courier where id=".$d);
-                $row = $db->NextRecord(MYSQL_ASSOC);
-                $db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
-                $db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
-                unset($row);
+                $bill = \app\models\Bill::findOne(['bill_no' => $_POST['bill_no']]);
+                if ($bill) {
+                    $bill->courier_id = $d;
+                    $bill->save();
+                }
             }
             // 1c || all4net bills
 		}elseif(isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4}|\d{6,7})$/',$_GET['bill'])){
 			$design->assign('1c_bill_flag',true);
 			if(isset($_POST['select_doer'])){
 				$d = (int)$_POST['doer'];
-				$db->Query("select name from courier where id=".$d);
-				$row = $db->NextRecord(MYSQL_ASSOC);
-				$db->Query("update newbills set courier_id=".$d." where bill_no='".$_POST['bill_no']."'");
-				$db->Query("insert into log_newbills set `bill_no` = '".$_POST['bill_no']."', ts=now(), user_id=".$user->Get('id').", comment='Назначен курьер ".$row['name']."'");
-				unset($row);
+                $bill = \app\models\Bill::findOne(['bill_no' => $_POST['bill_no']]);
+                if ($bill) {
+                    $bill->courier_id = $d;
+                    $bill->save();
+                }
 			}
 
        //income orders
@@ -859,11 +858,11 @@ class m_newaccounts extends IModule
 
         foreach($bills as $bill_no)
         {
-            $bill = new Bill($bill_no);
-
-            $bill->Set('postreg',$option?'':date('Y-m-d'));
-            $db->QueryInsert("log_newbills",array('bill_no'=>$bill_no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>$option?'Удаление из почтового реестра':('Почтовый реестр '.date('Y-m-d').($isImport ? " (из импорта платежей)" : ""))));
-            unset($bill);
+            $bill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+            if ($bill) {
+                $bill->postreg = $option?'':date('Y-m-d');
+                $bill->save();
+            }
         }
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$bill_no);
@@ -4877,7 +4876,6 @@ $sql .= "    order by client, bill_no";
                 }
 
                 trigger_error2("Счет #".$bill_no." успешно ".($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан")."!");
-                $db->QueryInsert("log_newbills", array( 'bill_no'=>$bill_no, 'ts'=>array('NOW()'), 'user_id'=>$user->Get('id'), 'comment'=>'Создание заказа'));
                 header("Location: ./?module=newaccounts&action=bill_view&bill=".$bill_no);
                 exit();
             }else{

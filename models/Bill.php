@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\HistoryChanges;
 use Yii;
 use app\dao\BillDao;
 use yii\db\ActiveRecord;
@@ -52,9 +53,43 @@ class Bill extends ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            HistoryChanges::className(),
+        ];
+    }
+
     public static function dao()
     {
         return BillDao::me();
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'sum' => 'Сумма',
+            'sum_with_unapproved' => 'Сумма (не проведенная)',
+            'postreg' => 'Почтовый реестр',
+            'courier_id' => 'Курьер',
+            'state_1c' => 'Статус заказа',
+            'doc_date' => 'Дата документа',
+            'bill_no_ext_date' => 'Дата внешнего счета',
+            'bill_no_ext' => 'Внешний номер',
+            'nal' => 'Предпологаемый тип платежа',
+        ];
+    }
+
+    public function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+            case 'courier_id':
+                if ($curier = Courier::findOne($value)) {
+                    return $value . ' (' . $curier->name . ')';
+                }
+                break;
+        }
+        return $value;
     }
 
     public function getLines()
@@ -77,15 +112,6 @@ class Bill extends ActiveRecord
         return Bill::dao()->isClosed($this);
     }
 
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-
-        if (isset($changedAttributes['sum'])) {
-            LogBill::dao()->log($this, 'Сумма: ' . $this->sum);
-        }
-    }
-
     public function beforeDelete()
     {
         Trouble::deleteAll(['bill_no' => $this->bill_no]);
@@ -93,8 +119,6 @@ class Bill extends ActiveRecord
         foreach ($this->lines as $line) {
             Transaction::dao()->markDeletedByBillLine($line);
         }
-
-        LogBill::dao()->log($this, 'Удаление');
 
         Yii::$app->db->createCommand(
             'update log_newbills set bill_no = :billNoWithDate where bill_no = :billNo',
