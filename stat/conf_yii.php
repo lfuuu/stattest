@@ -24,5 +24,3 @@ if (!defined('NO_WEB')) {
     $user = new \AuthUser();
 }
 
-use app\models\User;
-Yii::$app->user->setIdentity(User::findOne(User::SYSTEM_USER_ID));
