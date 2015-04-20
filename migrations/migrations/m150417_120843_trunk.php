@@ -105,11 +105,6 @@ class m150417_120843_trunk extends \app\classes\Migration
             ADD COLUMN `country_id` int(4) NOT NULL DEFAULT '643' AFTER `contragent_id`;
         ");
 
-        $this->execute("
-            ALTER TABLE `usage_trunk`
-            ADD COLUMN `orig_enabled`  tinyint NULL AFTER `expire_dt`,
-            ADD COLUMN `term_enabled`  tinyint NULL AFTER `orig_enabled`;
-        ");
     }
 
     public function down()
