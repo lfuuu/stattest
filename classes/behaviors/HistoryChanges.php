@@ -39,7 +39,7 @@ class HistoryChanges extends Behavior
         $queryData =[
             'model' => substr(get_class($this->owner), 11), // remove 'app\models\'
             'model_id' => $this->owner->id,
-            'user_id' => Yii::$app->getUser()->getId(),
+            'user_id' => Yii::$app->user->getId(),
             'created_at' => date('Y-m-d H:i:s'),
             'action' => $action,
             'data_json' => json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
