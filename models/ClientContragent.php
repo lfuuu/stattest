@@ -16,6 +16,11 @@ class ClientContragent extends ActiveRecord
 
     public function getAccounts()
     {
-      return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
+        return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
+    }
+
+    public function getPerson()
+    {
+        return $this->hasOne(ClientContragentPerson::className(), ['contragent_id' => 'id']);
     }
 }

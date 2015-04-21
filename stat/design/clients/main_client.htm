@@ -186,6 +186,7 @@
     </td>
     <td {if $clientAccount.statusBP.color} style='background-color:{$clientAccount.statusBP.color}'{/if}>
     <b>{$clientAccount.statusBP.name}</b>&nbsp;&nbsp;<a href='javascript:togglecs();'><img class=icon src='{$IMAGES_PATH}icons/monitoring.gif' alt="Посмотреть"></a>
+    {include file="clients/wizard.htm"}
     </td>
 </tr>
 

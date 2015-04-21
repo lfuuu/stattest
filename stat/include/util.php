@@ -866,6 +866,7 @@ class ClientCS {
         global $db;
         $db->Query('update lk_notice_settings set status="'.$active.'" where client_id="'.$this->id.'" and client_contact_id="'.$id.'"');
     }
+
     public function AddContract($content,$type,$no,$date,$dop_no, $dop_date, $comment) {
         global $db,$user;
         if(!$no)

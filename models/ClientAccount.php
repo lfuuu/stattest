@@ -2,9 +2,9 @@
 namespace app\models;
 
 use DateTimeZone;
+use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use yii\db\ActiveRecord;
 use app\classes\behaviors\LogClientContractTypeChange;
 use app\classes\behaviors\SetOldStatus;
 
@@ -107,9 +107,19 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(User::className(), ["user" => "account_manager"]);
     }
 
+    public function getLkWizardState()
+    {
+        return $this->hasOne(LkWizardState::className(), ["account_id" => "id"]);
+    }
+
     public function getStatusBP()
     {
         return $this->hasOne(ClientGridSettings::className(), ["id" => "business_process_status_id"]);
+    }
+
+    public function getContragent()
+    {
+        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
     }
 
     public function getStatusName()
