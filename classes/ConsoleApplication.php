@@ -51,4 +51,9 @@ class ConsoleApplication extends \yii\console\Application
 
     }
 
+    public function getUser()
+    {
+        return $this->get('user');
+    }
+
 }
