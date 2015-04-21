@@ -8,10 +8,10 @@ require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 
 if (php_sapi_name() != 'cli') {
     $config = require(__DIR__ . '/../config/web.php');
-    new yii\web\Application($config);
+    new app\classes\WebApplication($config);
 } else {
     $config = require(__DIR__ . '/../config/console.php');
-    new yii\console\Application($config);
+    new app\classes\ConsoleApplication($config);
 }
 
 include PATH_TO_ROOT."conf.php";
