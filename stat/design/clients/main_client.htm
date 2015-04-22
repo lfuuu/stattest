@@ -45,7 +45,7 @@
                          </a>
                      </div>
                  {/if}
-                 <div style="display: inline-block;" title="{$account.client}">{$account.id}</div>
+                 <div style="display: inline-block; color: {if $account->is_active}green{else}black{/if};" title="{$account.client}">{$account.id}</div>
              </div>
              <a class="nohover" href="?module=clients&id={$account.id}" style="">
                  <div style="display: inline-block; min-width: 200px">
