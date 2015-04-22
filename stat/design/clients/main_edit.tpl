@@ -47,11 +47,13 @@ $(function(){
 });
 
 {/literal}
+    var vPeriod0 = {$history_flags.m.0.v};
     var vPeriod1 = {$history_flags.m.1.v};
     var vPeriod2 = {$history_flags.m.2.v};
     var vPeriod3 = {$history_flags.m.3.v};
     var vPeriod4 = {$history_flags.m.4.v};
 
+    var nPeriod0 = '{$history_flags.m.0.n}';
     var nPeriod1 = '{$history_flags.m.1.n}';
     var nPeriod2 = '{$history_flags.m.2.n}';
     var nPeriod3 = '{$history_flags.m.3.n}';
@@ -89,8 +91,11 @@ $(function(){
                     }
                 }else{ // past
 
-                    if(periodSelected == 1)
+                    if(periodSelected == 0)
                     {
+                        fPast = vPeriod0;
+                        nPast = nPeriod0;
+                    }else if(periodSelected == 1){
                         fPast = vPeriod1;
                         nPast = nPeriod1;
                     }else if(periodSelected == 2){
@@ -374,8 +379,9 @@ $(function(){
 <div align=center>Изменения на дату <input type=checkbox name=deferred value=1 id="deferred">
 <div id="span_deferred_date" style="display: none; width: 200px; text-align: left;">
 <!--input type=text name=deferred_date id=deferred_date-->
-<input type=radio name="deferred_date" value="1" checked>с 1го {$history_flags.m.1.n}<br>
-<input type=radio name="deferred_date" value="2" checked>с 1го {$history_flags.m.2.n}<br>
+<input type=radio name="deferred_date" value="0">с 1го {$history_flags.m.0.n}<br>
+<input type=radio name="deferred_date" value="1">с 1го {$history_flags.m.1.n}<br>
+<input type=radio name="deferred_date" value="2">с 1го {$history_flags.m.2.n}<br>
 <input type=radio name="deferred_date" value="3" checked>с 1го {$history_flags.m.3.n}<br>
 <input type=radio name="deferred_date" value="4">с 1го {$history_flags.m.4.n}
 </div></div>
