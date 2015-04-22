@@ -1148,6 +1148,7 @@ class ClientCS {
         $company = false;
 
         $deffers = array(
+                        "0" => array("d" => strtotime("-3 month", strtotime(date("Y-m-01"))), "v" => 0),
                         "1" => array("d" => strtotime("-2 month", strtotime(date("Y-m-01"))), "v" => 0),
                         "2" => array("d" => strtotime("-1 month", strtotime(date("Y-m-01"))), "v" => 0),
                         "3" => array("d" => strtotime(date("Y-m-01")),                        "v" => 0),

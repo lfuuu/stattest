@@ -2476,6 +2476,7 @@ DBG::sql_out($select_client_data);
 		static $a = array();
 		$a = array("d_past" => $past, "d_future" => $future, "past" => 0, "future" => 0,
 			"m" => array(
+				"0" => array("d" => strtotime("-3 month", strtotime(date("Y-m-01"))), "v"=>0),
 				"1" => array("d" => strtotime("-2 month", strtotime(date("Y-m-01"))), "v"=>0),
 				"2" => array("d" => strtotime("-1 month", strtotime(date("Y-m-01"))), "v"=>0),
 				"3" => array("d" => strtotime(date("Y-m-01")), "v"=>0),
