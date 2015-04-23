@@ -1,5 +1,6 @@
 <?php
 use app\classes\StatModule;
+use app\classes\Company;
 use app\models\ClientAccount;
 
 class m_services extends IModule{

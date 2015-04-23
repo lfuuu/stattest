@@ -14,7 +14,8 @@
         "kartik-v/yii2-builder": "*",
         "kartik-v/yii2-datecontrol": "*",
         "kartik-v/yii2-date-range": "*",
-        "tinymce/tinymce": "*"
+        "tinymce/tinymce": "*",
+        "smarty/smarty": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

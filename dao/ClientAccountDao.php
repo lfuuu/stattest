@@ -615,4 +615,61 @@ class ClientAccountDao extends Singleton
             $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }
+
+    public function getAccountPropertyOnDate($clientId, $date)
+    {
+        $dNow = date("Y-m-d",strtotime("+1 day"));
+        $c = ClientAccount::findOne($clientId)->toArray();
+
+        $trasitFields = array("mail_print", "bill_rename1", "address_post_real");
+        $transit = array();
+
+        foreach($trasitFields as $f)
+            $transit[$f] = $c[$f];
+
+        if($dNow >= $date)
+        {
+            $rows = ClientAccount::getDB()->createCommand("
+                        select *
+                        from log_client lc, log_client_fields lf
+                        where client_id = :client_id and
+                            if(apply_ts = '0000-00-00', ts >= :date_full, apply_ts > :date)
+                            and if(apply_ts = '0000-00-00', ts < :now_full, apply_ts <= :now)
+                            and type='fields'
+                            and lc.id = lf.ver_id
+                            and is_overwrited = 'no'
+                            and is_apply_set = 'yes'
+                        order by lf.id desc ", [":client_id" => $c["id"], ":date" => $date, ":date_full" => $date." 23:59:59", ":now" => $dNow, ":now_full" => $now." 00:00:00"])->queryAll();
+            if ($rows) {
+                foreach ($rows as $l) {
+                    $c[$l["field"]] = $l["value_from"];
+                }
+            }
+        }
+        if ($dNow <= $date)
+        {
+            $rows = ClientAccount::getDB()->createCommand("
+                        select *
+                        from log_client lc, log_client_fields lf
+                        where client_id = :client_id
+                            and apply_ts BETWEEN :now AND :date
+                            and type='fields'
+                            and lc.id = lf.ver_id
+                            and is_apply_set = 'no'
+                        order by lf.id", [":client_id" => $c["id"], ":now" => $dNow, ":date" => $date])->queryAll();
+            if ($rows) {
+                foreach ($rows as $l) {
+                    $c[$l["field"]] = $l["value_to"];
+                }
+            }
+        }
+
+        foreach($trasitFields as $f) {
+            if (isset($transit[$f])) {
+                $c[$f] = $transit[$f];
+            }
+        }
+
+        return $c;
+    }
 }

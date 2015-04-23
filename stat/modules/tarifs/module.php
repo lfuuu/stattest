@@ -238,7 +238,7 @@ class m_tarifs{
         \app\assets\TinymceAsset::register(Yii::$app->view);
 
         global $design, $db, $user;;
-        $templates = clientCS::contract_listTemplates();
+        $templates = ClientContract::dao()->contract_listTemplates();
         $info = "";
         $contract_body = "";
         $isOpened = false;
@@ -278,7 +278,7 @@ class m_tarifs{
                     $oContract->type = $contractType;
                     $oContract->save();
                 }
-                $templates = clientCS::contract_listTemplates();
+                $templates = ClientContract::dao()->contract_listTemplates();
             }
         }
 

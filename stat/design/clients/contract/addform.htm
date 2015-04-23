@@ -1,31 +1,32 @@
 {if !$client.is_closed}
-
-<form action="?" method=post>
-    <input type=hidden name=module value=clients>
-    <input type=hidden name=action value=recontract>
-    <input type=hidden name=contract_type value={$type}>
-    <input type=hidden name=id value='{$client_id}'>
-
     <tr>
-        {if $type == "blank"}
-            <td colspan=2 style='width:155px'>&nbsp;</td>
-        {else}
-            <td><input class=text style='width:70px' type=text name=contract_no value='{$client_id}-{0|mdate:"y"}'></td>
-            <td><input class="text contract_datepicker" style='width:85px' type=text name=contract_date value="{0|mdate:"d.m.Y"}"></td>
-        {/if}
-        <td><input class=text style='width:200' type=text name=comment></td>
-        <td colspan=3>
-            <select class=text name=contract_template_group id="contract_template_group_{$type}" onChange="do_change_template_group(this, '{$type}')" style="width: 200px;">
-                {foreach from=$templates[$type] key=k item=item}
-                    <option value="{$k}">{$k}</option>
-                {/foreach}
-            </select>
-            <select class=text name=contract_template id="contract_template_{$type}" style="width: 200px;">
-            </select>
-            <input class=button type=submit value="зарегистрировать">
+        <td colspan=6>
+            <form action="/account/document-create/?id={$client_id}" method=post>
+                <input type=hidden name=contract_type value={$type}>
+                <table>
+                    <tr>
+                    {if $type == "blank"}
+                        <td colspan=2 style='width:155px'>&nbsp;</td>
+                    {else}
+                        <td><input class=text style='width:70px' type=text name=contract_no value='{$client_id}-{0|mdate:"y"}'></td>
+                        <td><input class="text contract_datepicker" style='width:85px' type=text name=contract_date value="{0|mdate:"d.m.Y"}"></td>
+                    {/if}
+                    <td><input class=text style='width:200' type=text name=comment></td>
+                    <td colspan=3>
+                        <select class=text name=contract_template_group id="contract_template_group_{$type}" onChange="do_change_template_group(this, '{$type}')" style="width: 200px;">
+                            {foreach from=$templates[$type] key=k item=item}
+                                <option value="{$k}">{$k}</option>
+                            {/foreach}
+                        </select>
+                        <select class=text name=contract_template id="contract_template_{$type}" style="width: 200px;">
+                        </select>
+                        <input class=button type=submit value="зарегистрировать">
+                    </td>
+                </tr>
+            </table>
+            </form>
         </td>
     </tr>
-</form>
 <br>
 <br>
 

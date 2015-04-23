@@ -6,6 +6,7 @@ use app\models\ClientAccount;
 use app\models\Courier;
 use app\models\Country;
 use app\models\BillDocument;
+use app\classes\BillContract;
 
 class Bill {
 	private $client_id;

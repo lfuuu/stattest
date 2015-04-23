@@ -867,28 +867,6 @@ class ClientCS {
         $db->Query('update lk_notice_settings set status="'.$active.'" where client_id="'.$this->id.'" and client_contact_id="'.$id.'"');
     }
 
-    public function AddContract($content,$type,$no,$date,$dop_no, $dop_date, $comment) {
-        global $db,$user;
-        if(!$no)
-            $no = $this->id.'-'.date('y');
-
-        $V = array(
-            'type' => $type,
-            'contract_no'=>$no,
-            'contract_date'=>trim($date),
-            'contract_dop_no'=>$dop_no,
-            'contract_dop_date' =>trim($dop_date),
-            'ts'=>array('NOW()'),
-            'client_id'=>$this->id,
-            'comment'=>$comment,
-            'user_id'=>$user->Get('id')
-        );
-
-        $db->QueryInsert('client_contracts',$V);
-        $cno = $db->GetInsertId();
-        self::putContractTemplate($this->id.'-'.$cno,$content);
-        return $cno;
-    }
 
     public static function getClientClient(&$mix)
     {
@@ -899,84 +877,7 @@ class ClientCS {
         return $mix;
     }
 
-    public static function contract_getFolder($folder = null)
-    {
-        $f = array(
-                "MCN" => "mcn",
-                "MCN-СПб" => "mcn98",
-                "MCN-Краснодар" => "mcn97",
-                "MCN-Самара" => "mcn96",
-                "MCN-Екатеринбург" => "mcn95",
-                "MCN-Новосибирск" => "mcn94",
-                "MCN-Ростов-на-Дону" => "mcn87",
-                "MCN-НижнийНовгород" => "mcn88",
-                "MCN-Казань" => "mcn93",
-                "MCN-Владивосток" => "mcn89",
-                "WellTime" => "welltime",
-                "IT-Park" => "itpark",
-                "Arhiv" => "arhiv"
-                );
 
-        return $folder === null ? $f : $f[$folder];
-    }
-
-    public static function contract_listTemplates($isWithType = false) {
-        $R = array();
-        foreach (glob(STORE_PATH.'contracts/template_*.html') as $s) {
-            $t = str_replace(array('template_','.html'),array('',''),basename($s));
-
-            list($group,) = explode("_", $t);
-
-            if ($isWithType)
-            {
-                $R[$group][] = $t;
-            } else {
-                $R[$group][] = substr($t, strlen($group)+1);
-            }
-        }
-
-        foreach(self::contract_getFolder() as $folderName => $key )
-            $_R[$folderName] = isset($R[$key]) ? $R[$key] : array();
-
-        if ($isWithType)
-        {
-            $R = ["contract" => [], "blank" => [], "agreement" => []];
-
-            foreach ($_R as $folder => $rr)
-            {
-                foreach($rr as $k => $r)
-                {
-                    $contract = app\models\Contract::findOne(["name" => $r]);
-
-                    if ($contract)
-                    {
-                        $type = $contract->type;
-                    } else {
-                        $type = "contract";
-                    }
-                    list($group,) = explode("_", $r);
-                    $R[$type][$folder][] = substr($r, strlen($group)+1);
-                }
-            }
-        } else {
-            $R = $_R;
-        }
-
-        return $R;
-    }
-    public static function getContractTemplate($v) {
-        global $db,$user;
-        $v = preg_replace('[^\w\d\-\_]','',$v);
-        if (file_exists(STORE_PATH.'contracts/'.$v.'.html')) {
-            $data = file_get_contents(STORE_PATH.'contracts/'.$v.'.html');
-        } else $data = file_get_contents(STORE_PATH.'contracts/template_mcn_default.html');
-        return $data;
-    }
-    public static function putContractTemplate($v,$data){
-        global $db,$user;
-        $v = preg_replace('[^\w\d\-\_]','',$v);
-        file_put_contents(STORE_PATH.'contracts/'.$v.'.html',$data);
-    }
 
     function Create($uid = null){
 
@@ -1524,62 +1425,7 @@ class ClientCS {
 
     public static function getOnDate($clientId, $date)
     {
-        global $db;
-        //echo "<br>".$date."|".$clientId;
-
-        $dNow = date("Y-m-d",strtotime("+1 day"));
-        $c = $db->GetRow("select * from clients where id='".$clientId."'");
-
-        $trasitFields = array("mail_print", "bill_rename1", "address_post_real");
-        $transit = array();
-
-        foreach($trasitFields as $f)
-            $transit[$f] = $c[$f];
-
-        if($dNow >= $date)
-        {
-            $rows = $db->AllRecords("
-                        select *
-                        from log_client lc, log_client_fields lf
-                        where client_id = ".$c["id"]." and
-                            if(apply_ts = '0000-00-00', ts >= '".$date." 23:59:59', apply_ts > '".$date."')
-                            and if(apply_ts = '0000-00-00', ts < '".$dNow." 00:00:00', apply_ts <= '".$dNow."')
-                            and type='fields'
-                            and lc.id = lf.ver_id
-                            and is_overwrited = 'no'
-                            and is_apply_set = 'yes'
-                        order by lf.id desc ");
-            if ($rows) {
-                foreach ($rows as $l) {
-                    $c[$l["field"]] = $l["value_from"];
-                }
-            }
-        }
-        if ($dNow <= $date)
-        {
-            $rows = $db->AllRecords("
-                        select *
-                        from log_client lc, log_client_fields lf
-                        where client_id = ".$c["id"]."
-                            and apply_ts BETWEEN  '".$dNow."' AND '".$date."'
-                            and type='fields'
-                            and lc.id = lf.ver_id
-                            and is_apply_set = 'no'
-                        order by lf.id");
-            if ($rows) {
-                foreach ($rows as $l) {
-                    $c[$l["field"]] = $l["value_to"];
-                }
-            }
-        }
-
-        foreach($trasitFields as $f) {
-            if (isset($transit[$f])) {
-                $c[$f] = $transit[$f];
-            }
-        }
-
-        return $c;
+        return app\models\ClientAccount::dao()->getAccountPropertyOnDate($clientId, $date);
     }
 
     public static function getManagerName($manager)

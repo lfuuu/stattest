@@ -313,4 +313,21 @@ class WizardController extends BaseController/*ApiController*/
         Yii::$app->request->setBodyParams($_POST);
     }
 
+    public function actionCreateContract()
+    {
+        $contractId = \app\models\ClientContract::dao()->addContract(
+            9130,
+
+            "contract",
+            "МСН",
+            "Usludi_svyazi",
+
+			"9130-001",
+            "2015-01-02",
+
+            "",
+			"тестовый договор"
+		);
+    }
+
 }
