@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\dao\ClientContragentDao;
 
 /**
  * @property int $id
@@ -22,5 +23,15 @@ class ClientContragent extends ActiveRecord
     public function getPerson()
     {
         return $this->hasOne(ClientContragentPerson::className(), ['contragent_id' => 'id']);
+    }
+
+    public function dao()
+    {
+        return ClientContragentDao::me();
+    }
+
+    public function saveToAccount()
+    {
+        return self::dao()->saveToAccount($this);
     }
 }

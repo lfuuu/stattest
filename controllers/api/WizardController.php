@@ -3,21 +3,51 @@
 namespace app\controllers\api;
 
 use Yii;
-//use app\classes\ApiController;
+use app\classes\ApiController;
 use app\classes\BaseController;
 
 use app\classes\Assert;
 use app\models\LkWizardState;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\ClientContract;
 use app\models\ClientFile;
 use app\models\ClientBPStatuses;
 use app\models\User;
 use app\forms\contragent\ContragentEditForm;
+use app\forms\lk_wizard\ContactForm;
 
 
-class WizardController extends BaseController/*ApiController*/
+class WizardController extends /*BaseController*/ApiController
 {
+    private $accountId = null;
+    private $account = null;
+    private $wizard = null;
+
+    private $postData = [];
+       
+
+    private function loadAndCheck($isCheckWizard = true)
+    {
+        $this->postData = Yii::$app->request->bodyParams;
+
+        if (!isset($this->postData["account_id"]))
+            throw new \Exception("account_is_bad");
+
+        $this->accountId = $this->postData["account_id"];
+
+        $this->account = $this->_checkAndGetAccount($this->accountId);
+
+        $this->wizard = LkWizardState::findOne($this->account->id);
+
+        if ($isCheckWizard)
+            if (!$this->wizard)
+                throw new \Exception("account_is_bad");
+
+        return $this->postData;
+    }
+
+
     private function _checkAndGetAccount($accountId)
     {
         if (is_array($accountId) || !$accountId || !preg_match("/^\d{1,6}$/", $accountId))
@@ -49,79 +79,128 @@ class WizardController extends BaseController/*ApiController*/
 
     public function actionState()
     {
-        //$data = Yii::$app->request->bodyParams;
-        //
+        $this->loadAndCheck(false);
 
-        $data = ["account_id" => 9130];
-
-        $account = $this->_checkAndGetAccount($data["account_id"]);
-
-        return print_r($this->getWizardState($account));
+        return $this->getWizardState();
 
     }
 
-    public function getWizardState($account)
+    public function actionRead()
     {
-        $wizard = LkWizardState::findOne($account->id);
+        $this->loadAndCheck();
+
+        return $this->makeWizardFull();
+    }
+
+    public function actionSave()
+    {
+        $postData = $this->loadAndCheck();
+
+        $result = true;
+
+        $step = $postData["state"]["step"];
+
+        if ($step == 1)
+        {
+            $result = $this->_saveStep1($postData["step1"]);
+
+        } else if ($step == 3)
+        {
+            $result = $this->_saveStep3($postData["step3"]);
+        }
+
+        if ($result === true)
+        {
+            if ($step == 1 || $step == 3)
+            {
+                $this->wizard->step = $step+1;
+                $this->wizard->state = ($step == 1 ? "process" : ($step == 3 ? "review" : "process"));
+                $this->wizard->save();
+            }
+        } else { //error
+            return $result;
+        }
+
+        return $this->makeWizardFull();
+    }
+
+    public function actionGetContract()
+    {
+        $this->loadAndCheck();
+
+        $contract = ClientContract::findOne([
+            "client_id" => $this->accountId, 
+            "user_id" => User::CLIENT_USER_ID
+        ]);
+
+        if (!$contract)
+        {
+            $contractId = ClientContract::dao()->addContract(
+                $this->accountId,
+
+                "contract",
+                "МСН",
+                "Usludi_svyazi",
+
+                $this->accountId."-".date("Y"),
+                date("Y-m-d"),
+
+                "",
+                "тестовый договор",
+                User::CLIENT_USER_ID
+            );
+
+            $contract = ClientContract::findOne([
+                "client_id" => $this->accountId, 
+                "user_id" => User::CLIENT_USER_ID
+            ]);
+        }
+
+        if ($this->wizard->step == 2)
+        {
+            $this->wizard->step = 3;
+            $this->wizard->save();
+        }
+
+        return $contract->content;
+    }
+
+    private function makeWizardFull()
+    {
+        return [
+            "step1" => $this->getOrganizationInformation(),
+            "step2" => $this->getContract(),
+            "step3" => $this->getContactAndContractList(),
+            "step4" => $this->getAccountManager(),
+            "state" => $this->getWizardState()
+        ];
+    }
+
+    public function getWizardState()
+    {
+        $wizard = $this->wizard;
 
         if (!$wizard)
             return ["step" => -1, "good" => -1];
 
         if ($wizard->step == 4)
         {
-            return ["step" => $wizard->step, "good" => $wizard->step-($wizard->state == 'review' ? 1 : 0), "step_state" => $wizard->state];
+            return [
+                "step" => $wizard->step, 
+                "good" => $wizard->step-($wizard->state == 'review' ? 1 : 0), "step_state" => $wizard->state
+            ];
         } else {
-            return ["step" => $wizard->step, "good" => $wizard->step-1];
+            return [
+                "step" => $wizard->step, 
+                "good" => $wizard->step-1
+            ];
         }
     }
 
-    private function _getStruct()
-    {
-        $d = [
-            "step1" =>  [
-                "name" =>  "ИП Иванов",
-                "legal_type" =>  "person",
-                "address_jur" =>  "москва кремль",
-                "inn" =>  "123345",
-                "kpp" =>  "43553",
-                "position" =>  "генеральный директор",
-                "fio" =>  "Васин А.А.",
-                "ogrn" =>  "123",
-                "last_name" =>  "Иванов",
-                "first_name" =>  "Иван",
-                "middle_name" =>  "Иванович",
-                "passport_serial" =>  "77 00",
-                "passport_number" =>  "1123456",
-                "passport_date_issued" =>  "2005-01-01",
-                "passport_issued" =>  "МИД",
-                "address" =>  "aaa"
-            ],
-            "step2" =>  [
-                "link_dogovor" => "http => //lk.mcn.loc"
-            ],
-            "step3" => [
-                "contact_phone" => "",
-                "contact_fio" => "",
-                "file_list" => ["dfgsdf.pdf","sdfgsdfgsdfgs.txt"],
-                "is_upload" =>  true
-            ],
-            "step4" => [
-                "manager_name" => "Балабес Иванович",
-                "manager_phone" => "(495) 105-55-55"
-            ],
-            "state" => [
-                "step" => 1,
-                "good" => 0,
-                "step_state" => "approve"
-            ]
-        ];
 
-        return $d;
-    }
-
-    private function getOrganizationInformation($account)
+    private function getOrganizationInformation()
     {
-        $c = $account->contragent;
+        $c = $this->account->contragent;
         $d = [
             "name" =>  $c->name,
             "legal_type" =>  $c->legal_type,
@@ -143,15 +222,15 @@ class WizardController extends BaseController/*ApiController*/
         return $d;
     }
 
-    private function getContract($account)
+    private function getContract()
     {
         return ["link_dogovor" => "/lk/wizard/get_contract"];
     }
 
-    private function getContactAndContractList($account)
+    private function getContactAndContractList()
     {
-        $contact = $this->getContact($account);
-        $files = $this->getClientFiles($account);
+        $contact = $this->getContact();
+        $files = $this->getClientFiles();
 
         $d = [
                 "contact_phone" => $contact["phone"],
@@ -163,10 +242,10 @@ class WizardController extends BaseController/*ApiController*/
         return $d;
     }
 
-    private function getContact($account)
+    private function getContact()
     {
         $contact = ClientContact::findOne([
-            "client_id" => $account->id, 
+            "client_id" => $this->account->id, 
             "user_id"   => User::CLIENT_USER_ID, 
             "type"      => "phone"
         ]);
@@ -179,10 +258,10 @@ class WizardController extends BaseController/*ApiController*/
         return ["phone" => "", "fio" => ""];
     }
 
-    private function getClientFiles($account)
+    private function getClientFiles()
     {
         $files = [];
-        foreach(ClientFile::findAll(["client_id" => $account->id, "user_id" => User::CLIENT_USER_ID]) as $file)
+        foreach(ClientFile::findAll(["client_id" => $this->account->id, "user_id" => User::CLIENT_USER_ID]) as $file)
         {
             $files[] = $file->name;
         }
@@ -190,9 +269,9 @@ class WizardController extends BaseController/*ApiController*/
         return $files;
     }
 
-    private function getAccountManager($account)
+    private function getAccountManager()
     {
-        $manager = $account->userAccountManager ?: User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
+        $manager = $this->account->userAccountManager ?: User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
 
         return [
             "manager_name" => $manager->name,
@@ -200,52 +279,11 @@ class WizardController extends BaseController/*ApiController*/
         ];
     }
 
-
-    public function actionRead()
+    private function _saveStep1($stepData)
     {
-        //$data = Yii::$app->request->bodyParams;
-
-        $data = [];
-        $data["account_id"] = 9130;
-
-        $account = $this->_checkAndGetAccount($data["account_id"]);
-
-        $d = [
-            "step1" => $this->getOrganizationInformation($account),
-            "step2" => $this->getContract($account),
-            "step3" => $this->getContactAndContractList($account),
-            "step4" => $this->getAccountManager($account),
-            "state" => $this->getWizardState($account)
-        ];
-
-        echo "<pre>";
-        print_r($d);
-        echo "</pre>";
-        return 1;
-        return $d;
-    }
-
-    public function actionSaveStep1()
-    {
-        $accountId = 9130;
-        $postData = $this->_getStruct();
-        $postData = $postData["step1"];
-
-        $account = $this->_checkAndGetAccount($accountId);
-        $wizard = LkWizardState::findOne($account->id);
-
-        if (!$wizard)
-            return false;
-
-        //$this->setStep1TestData();
-
-        //$postData = Yii::$app->request->post();
-        echo "<pre>";
-        print_r($postData);
-        echo "</pre>";
-
         $form = new ContragentEditForm();
-        var_dump($form->load($postData, ""));
+
+        $form->load($stepData, "");
 
         if (!$form->validate())
         {
@@ -254,80 +292,28 @@ class WizardController extends BaseController/*ApiController*/
             {
                 $errors[] = ["field" => $field, "error" => $error[0]];
             }
-            echo "<pre>";
-            print_r(["errors" => $errors]);
-            echo "</pre>";
-
-            return 1;
             return ["errors" => $errors];
         } else {
-            $contragent = $account->contragent;
-            echo "<pre>";
-            print_r($form->saveInContragent($contragent));
-            echo "</pre>";
-
-            return 1;
-            return $form->saveInContragent($contragent);
+            return $form->saveInContragent($this->account->contragent);
         }
     }
 
-    public function actionSaveStep2()
+    private function _saveStep3($stepData)
     {
-        $accountId = 9130;
+        $form = new ContactForm;
+
+        $form->load($stepData, "");
+
+        if (!$form->validate())
+        {
+            $errors = [];
+            foreach($form->getErrors() as $field => $error)
+            {
+                $errors[] = ["field" => $field, "error" => $error[0]];
+            }
+            return ["errors" => $errors];
+        } else {
+            return $form->save($this->account);
+        }
     }
-
-    private function setStep1TestData()
-    {
-        global $_POST;
-
-        $_POST = [
-            "account_id" => 9130,
-
-            'legal_type' => 'ip',
-
-            'name' => '1111',
-            'name_full' => date("r"),
-            'address_jur' => '',
-            'address_post' => '',
-            'inn' => '',
-            'inn_euro' => '',
-            'kpp' => '23213',
-            'position' => 'aaa',
-            'fio' => 'sss',
-            'tax_regime' => '',
-            'ogrn' => '',
-            'opf' => '',
-            'okpo' => '',
-            'okvd' => '',
-
-            'last_name' => 'Иван',
-            'first_name' => 'Петров',
-            'middle_name' => 'Сергеевеич',
-            'passport_serial' => '77 03',
-            'passport_number' => '123456',
-            'passport_issued' => 'ОВД г. Москвы',
-            'passport_date_issued' => '2001-02-28',
-            'address' => 'г. Москва, кремль'
-        ];
-
-        Yii::$app->request->setBodyParams($_POST);
-    }
-
-    public function actionCreateContract()
-    {
-        $contractId = \app\models\ClientContract::dao()->addContract(
-            9130,
-
-            "contract",
-            "МСН",
-            "Usludi_svyazi",
-
-			"9130-001",
-            "2015-01-02",
-
-            "",
-			"тестовый договор"
-		);
-    }
-
 }

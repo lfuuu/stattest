@@ -18,7 +18,8 @@ class ClientContractDao extends Singleton
         $accountId, 
         $contractType, $contractGroup, $contractTemplate,
         $_contractNo,  $_contractDate, 
-        $content,      $comment
+        $content,      $comment, 
+        $userId = null
     )
     {
         Assert::isNotFalse(in_array($contractType, ["contract", "blank", "agreement"]));
@@ -69,7 +70,8 @@ class ClientContractDao extends Singleton
             $contractDate,
             $contractDopNo,
             $contractDopDate,
-            $comment
+            $comment,
+            $userId
         );
 
         $this->fix_contract($accountId, $contractId, $contractDate);
@@ -82,7 +84,8 @@ class ClientContractDao extends Singleton
         $content, $type, 
         $no, 
         $date, $dop_no, $dop_date, 
-        $comment
+        $comment,
+        $userId = null
     )
     {
         if(!$no)
@@ -98,7 +101,7 @@ class ClientContractDao extends Singleton
         $c->ts = (new \DateTime())->format(\DateTime::ATOM);
         $c->client_id = $accountId;
         $c->comment = $comment;
-        $c->user_id = Yii::$app->user->getId();
+        $c->user_id = $userId ?: Yii::$app->user->getId();
         $c->save();
 
         $cno = $c->id;
@@ -411,5 +414,17 @@ class ClientContractDao extends Singleton
 
         $this->design->assign("blank_data", $data);
         return $this->design->fetch("tarifs/blank.htm");
+    }
+
+    public function getContent($clientId, $contractId)
+    {
+        $file = 'contracts/'.$clientId.'-'.$contractId.'.html';
+
+        if(file_exists(Yii::$app->params['STORE_PATH'].$file)) 
+        {
+            return file_get_contents(Yii::$app->params['STORE_PATH'].$file);
+        } else {
+            return "File not found";
+        }
     }
 }

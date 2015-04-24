@@ -845,11 +845,9 @@ class m_clients {
 
         if ($data=='contract') {
 
-            $file = 'contracts/'.$r['id'].'-'.$c['id'].'.html';
-            $fileTemplate = 'contracts/'.$r['id'].'-'.$c['id'].'-tpl.html';
-
-            if(file_exists(STORE_PATH.$file)) {
-            	echo file_get_contents(STORE_PATH.$file);
+            $contract = ClientContract::findOne($c["id"]);
+            if($contract) {
+            	echo $contract->content;
                 exit();
             } else {
             	echo "Ошибка. Файл не найден " . STORE_PATH . $file;
