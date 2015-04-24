@@ -2,7 +2,7 @@
 namespace app\classes\grid\filters;
 
 use yii\base\Object;
-use yii\db\Query;
+use app\classes\grid\Query;
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use Yii;
@@ -21,14 +21,20 @@ abstract class FilterField extends Object
     public $query;
     /** @var Query */
     public $filterValuesQuery;
+    
     public $control_name;
+    
     public $value;
+    
     public $noselected_value = 'noset';
 
     public $control_atrrs = ['style'=>'margin-right:10px'];
     
     protected static $call_count = 0;
+    
     static $no_select = '-Не выбрано-';
+    
+    public $sql_join_field_name;
     
     const QUERY_ALIAS = 'sub_query';
 
@@ -48,6 +54,7 @@ abstract class FilterField extends Object
     }
     
     public function init() {
+        
         parent::init();
         $this->filterValuesQuery = new Query;
         $this->initDataset();
@@ -55,6 +62,7 @@ abstract class FilterField extends Object
         $this->control_name = str_replace('\\','-',$this->className()) . self::$call_count;
         $this->initValue();
         $this->applyFilter();
+        
     }
 
     public function render(){
