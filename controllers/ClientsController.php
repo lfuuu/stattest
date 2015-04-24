@@ -9,7 +9,7 @@ use app\classes\yii\HrefDataColumn;
 use app\models\ClientGridSettings;
 use yii\helpers\Url;
 use app\classes\Encoding;
-use yii\db\Query;
+use app\classes\grid\Query;
 use app\classes\grid\FilterDataProvider;
 use yii\data\ActiveDataProvider;
 use app\classes\grid\filters\FilterField;
@@ -34,12 +34,12 @@ class ClientsController extends BaseController
             $row['order'][FilterField::QUERY_ALIAS.'.'.$key] = $value;
         }
         
-        $query = new Query;
+        $query = new Query(['subQuery'=> $row['sql'] ]);
         $query->select(FilterField::QUERY_ALIAS.'.*')
-              ->from('('.$row['sql'].') as '.FilterField::QUERY_ALIAS);
+              ->from('(SUB_QUERY)  as '.FilterField::QUERY_ALIAS);
+        //$query->select();
         
         $filters = $row['filter'];
-        
         
         foreach ($filters as $filter)
         {
