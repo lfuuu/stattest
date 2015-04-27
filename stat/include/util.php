@@ -1247,42 +1247,6 @@ class ClientCS {
         return $R;
     }
 
-    public function AddFile($name,$comment) {
-        global $db,$user;
-
-        if (!isset($_FILES['file']) || !$_FILES['file']['tmp_name']) return;
-
-        if (!$name) {
-            $name = basename($_FILES['file']['name']);
-        } else {
-            if (!preg_match('/\.([^.]{2,5})$/',$name) && preg_match('/\.([^.]{2,5})$/',$_FILES['file']['name'],$m)) {
-                $name.= $m[0];
-            }
-        }
-
-        $V = array('name'=>$name,'ts'=>array('NOW()'),'client_id'=>$this->id,'comment'=>$comment,'user_id'=>$user->Get('id'));
-        $id = $db->QueryInsert('client_files',$V);
-        move_uploaded_file($_FILES['file']['tmp_name'],STORE_PATH.'files/'.$id);
-    }
-    public function GetFile($fid) {
-        global $db,$user;
-        $f = $db->getRow('select * from client_files where id='.$fid.' and client_id='.$this->id);
-        if ($f) $f['path'] = STORE_PATH.'files/'.$f['id'];
-        return $f;
-    }
-    public function GetFiles() {
-        global $db,$user;
-        return $db->AllRecords('select client_files.*,user_users.user from client_files'.
-                                ' LEFT JOIN user_users ON user_users.id=client_files.user_id'.
-                                ' where client_files.client_id='.$this->id.' order by client_files.id');
-    }
-    public function DeleteFile($fid) {
-        global $db,$user;
-        if ($f = $this->GetFile($fid)) {
-            $db->Query('delete from client_files where id='.$f['id']);
-            unlink($f['path']);
-        }
-    }
     public static function GetList($listName, $zero = false)
     {
 

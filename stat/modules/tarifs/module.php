@@ -1,6 +1,7 @@
 <?php
 
 use \app\models\Contract;
+use \app\models\ClientContract;
 
 class m_tarifs{
     var $actions=array(
@@ -249,7 +250,7 @@ class m_tarifs{
 
         $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
-        $name = clientCS::contract_getFolder($group)."_".$contract;
+        $name = ClientContract::dao()->contract_getFolder($group)."_".$contract;
 
         $filePath = STORE_PATH."contracts/template_".$name.".html";
 

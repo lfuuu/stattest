@@ -18,7 +18,7 @@ use app\forms\contragent\ContragentEditForm;
 use app\forms\lk_wizard\ContactForm;
 
 
-class WizardController extends /*BaseController*/ApiController
+class WizardController extends BaseController/*ApiController*/
 {
     private $accountId = null;
     private $account = null;
@@ -139,14 +139,14 @@ class WizardController extends /*BaseController*/ApiController
                 $this->accountId,
 
                 "contract",
-                "МСН",
+                "MCN",
                 "Usludi_svyazi",
 
                 $this->accountId."-".date("Y"),
-                date("Y-m-d"),
+                date("d.m.Y"),
 
                 "",
-                "тестовый договор",
+                "ЛК - wizard",
                 User::CLIENT_USER_ID
             );
 
@@ -164,6 +164,14 @@ class WizardController extends /*BaseController*/ApiController
 
         return $contract->content;
     }
+
+    public function actionSaveDocument()
+    {
+        $this->loadAndCheck();
+
+        return $this->account->fileManager->addFileFromParam("тестовый документ.txt", " какойто текст", "ЛК - wizard", User::CLIENT_USER_ID);
+    }
+
 
     private function makeWizardFull()
     {
@@ -224,7 +232,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function getContract()
     {
-        return ["link_dogovor" => "/lk/wizard/get_contract"];
+        return ["link_dogovor" => "/lk/wizard/contract"];
     }
 
     private function getContactAndContractList()

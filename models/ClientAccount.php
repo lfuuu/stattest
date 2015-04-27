@@ -7,6 +7,7 @@ use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use app\classes\behaviors\LogClientContractTypeChange;
 use app\classes\behaviors\SetOldStatus;
+use app\classes\FileManager;
 
 /**
  * @property int $id
@@ -120,6 +121,16 @@ class ClientAccount extends ActiveRecord
     public function getContragent()
     {
         return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+    }
+
+    public function getFiles()
+    {
+        return $this->hasMany(ClientFile::className(), ['client_id' => 'id']);
+    }
+
+    public function getFileManager()
+    {
+        return new FileManager($this);
     }
 
     public function getStatusName()

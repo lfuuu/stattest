@@ -7,6 +7,7 @@ use app\classes\Assert;
 use app\models\ClientGridSettings;
 use app\models\ClientBP;
 use app\models\ClientContract;
+use app\models\ClientFile;
 
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
@@ -1022,7 +1023,7 @@ class m_clients {
 
 			$r['data_cs'] = $cs->GetAllStatuses();
 
-			$design->assign('cfiles',count($cs->GetFiles()));
+			$design->assign('cfiles',count($clientAccount->files));
 
 			if($design_echo){
 				$design->AddMain('clients/main_client.htm');
@@ -1523,10 +1524,15 @@ class m_clients {
 
 		$client = ClientCS::FetchClient($cId ? $cId : $fixclient);
 		if ($this->check_tele($client['id'])==0) return;
-		$cs=new ClientCS($client['id']);
-		$d = $cs->GetFiles();
-		$design->assign('files',$d);
-		$design->assign('file_last',count($d)-1);
+
+        $a = ClientAccount::findOne($cId);
+
+        if (!$a)
+            throw new Exception("ЛС не найден");
+
+        $design->assign('files', $a->fileManager->listFiles());
+        $design->assign('client_id', $cId);
+
 		$design->AddMain('clients/files.tpl');
 	}
 	function clients_files_report() {
@@ -1557,34 +1563,43 @@ class m_clients {
 		$design->AddMain('clients/files_report.tpl');
 	}
 	function clients_file_put($fixclient) {
-		global $design;
-		$client = ClientCS::FetchClient($fixclient);
+        global $design;
+
+        $clientId = get_param_integer("cid", 0);
+		$client = ClientCS::FetchClient($clientId);
 		if ($this->check_tele($client['id'])==0) return;
 
-		$cs=new ClientCS($client['id']);
-		$cs->AddFile(get_param_protected('name'),get_param_protected('comment'));
-		if ($design->ProcessEx('errors.tpl')) {
-            header('Location: ?module=clients&action=files');
-            exit();
-        }
+        $a = ClientAccount::findOne($clientId);
+
+        if (!$a)
+            throw new Exception("ЛС не найден");
+
+        $a->fileManager->addFile(get_param_protected('comment'), get_param_protected('name'));
+
+        header('Location: /?module=clients&action=files&cid='.$a->id);
+        exit();
 	}
-	function clients_file_get($fixclient) {
-		global $design;
-		$cid = get_param_integer('cid');
-		if ($this->check_tele($cid)==0) return;
-		$cs=new ClientCS($cid);
-		if ($f = $cs->GetFile(get_param_protected('id'))) {
-			header('Content-Type: archive/zip');
-			header("Pragma: ");
-			header("Cache-Control: ");
-		    header('Content-Transfer-Encoding: binary');
-			header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$f['name']).'"');
-			header("Content-Length: " . filesize($f['path']));
-			readfile($f['path']);
-			$design->ProcessEx();
-            exit();
-		}
-	}
+    function clients_file_get($fixclient) {
+        global $design;
+
+        $cid = get_param_integer('cid');
+        $fileId = get_param_protected('id');
+
+        if ($this->check_tele($cid)==0) return;
+
+        $f = ClientFile::findOne(["client_id" => $cid, "id" => $fileId]);
+        if (!$f)
+            throw new Exception("Файл не найден");
+
+        header("Content-Type: ".$f->mime);
+        header("Pragma: ");
+        header("Cache-Control: ");
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$f->name).'"');
+        header("Content-Length: " . strlen($f->content));
+        echo $f->content;
+        exit();
+    }
 
     function clients_file_send($fixclient)
     {
@@ -1595,59 +1610,41 @@ class m_clients {
 
         $design->assign("emails", $ee = $db->AllRecordsAssoc("select data from client_contacts where client_id = '".$clientId."' and type='email' and is_official and is_active", "data", "data"));
 
+        $a = ClientAccount::findOne($clientId);
 
-		$cs=new ClientCS($clientId);
-		$f = $cs->GetFile($id);
+        if (!$a)
+            throw new Exception("ЛС не найден");
 
-        if(!$f) return;
+		$f = ClientFile::findOne(["client_id" => $a->id, "id" => $id]);
 
-        $design->assign("file_name", $f['name']);
-        $design->assign("file_name_send", $f['name']);
-        $design->assign("file_content", base64_encode(file_get_contents($f["path"])));
+        if (!$f)
+            throw new Exception("Файл не найден");
+
+        $design->assign("file_name", $f->name);
+        $design->assign("file_name_send", $f->name);
+        $design->assign("file_content", base64_encode($f->content));
         $design->assign("msg_session", md5(rand()+time()));
-        $design->assign("file_mime", $this->getMime($f["name"]));
+        $design->assign("file_mime", $f->mime);
         $design->AddMain("clients/file_send.tpl");
     }
 
-    function getMime($name)
-    {
-        $name = strtolower($name);
-
-        foreach(
-                array(
-                    "doc" => "application/msword",
-                    "pdf" => "application/pdf",
-                    "gif" => "image/gif",
-                    "tif" => "image/tiff",
-                    "tiff" => "image/tiff",
-                    "jpeg" => "image/jpeg",
-                    "jpg" => "image/jpeg",
-                    "jpe" => "image/jpeg",
-                    "htm" => "text/html",
-                    "html" => "text/html",
-                    "txt" => "text/plain",
-                    "zip" => "application/zip",
-                    "rar" => "application/rar",
-                    "xls" => "application/vnd.ms-excel",
-                    "ppt" => "application/vnd.ms-powerpoint"
-                    ) as $ext => $mime)
-        {
-            if(strpos($name, ".".$ext))
-            {
-                return $mime;
-            }
-        }
-
-        return "text/plain";
-    }
 
 	function clients_file_del($fixclient) {
-		global $design;
-		$client = ClientCS::FetchClient($fixclient);
-		if ($this->check_tele($client['id'])==0) return;
-		$cs=new ClientCS($client['id']);
-		$cs->DeleteFile(get_param_protected('id'));
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=clients&action=files');
+        global $design;
+
+        $clientId = get_param_protected("id");
+		$client = ClientCS::FetchClient($clientId);
+        if ($this->check_tele($client['id'])==0) return;
+
+        $a = ClientAccount::findOne($clientId);
+
+        if ($a)
+        {
+            $a->fileManager->removeFile(get_param_raw("file_id"));
+        }
+
+        header('Location: /?module=clients&action=files&cid='.$a->id);
+        exit();
 	}
     function clients_recontact() {
         global $design;
