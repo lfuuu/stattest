@@ -18,6 +18,9 @@ Vagrant.configure(2) do |config|
     v.cpus = 4
   end
 
+  config.ssh.username = "vagrant"
+  config.ssh.password = "vagrant"
+
   config.vm.provision "shell", inline: <<-SHELL
      cd /vagrant/install
      sudo ./install_root.sh
