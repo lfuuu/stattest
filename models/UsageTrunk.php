@@ -17,6 +17,8 @@ use DateTime;
  * @property int    $term_enabled
  * @property int    $orig_min_payment
  * @property int    $term_min_payment
+ * @property string $description
+ * @property int    $operator_id
  *
  * @property ClientAccount $clientAccount
  * @property Region $connectionPoint

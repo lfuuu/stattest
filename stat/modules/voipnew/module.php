@@ -5,6 +5,7 @@ include_once 'prices_parser.php';
 include_once 'network.php';
 include_once 'operators.php';
 include_once 'pricelists.php';
+include_once 'trunks.php';
 
 class m_voipnew extends IModule
 {
@@ -15,6 +16,7 @@ class m_voipnew extends IModule
         $this->_addInheritance(new m_voipnew_operators);
         $this->_addInheritance(new m_voipnew_network);
         $this->_addInheritance(new m_voipnew_pricelists);
+        $this->_addInheritance(new m_voipnew_trunks);
     }
 
     public function __call($method, array $arguments = array())

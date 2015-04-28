@@ -1,0 +1,21 @@
+<p>
+    Транки:
+</p>
+<table class=price cellSpacing=2 cellPadding=4 border=0>
+<tr>
+    <td class=header>Точка присоединения</td>
+    <td class=header>Ид</td>
+    <td class=header>Транк</td>
+    <td class=header>Описание</td>
+    <td class=header>Ид оператора</td>
+</tr>
+{foreach from=$trunks item='t'}
+	<tr class="{cycle values='even,odd'}">
+        <td>{$regions[$t.connection_point_id].name}</td>
+        <td><a href='/usage/trunk/edit?id={$t.id}'>{$t.id}</a></td>
+        <td><a href='/usage/trunk/edit?id={$t.id}'>{$t.trunk_name}</a></td>
+        <td>{$t.description}</td>
+        <td>{$t.operator_id}</td>
+    </tr>
+{/foreach}
+</table>
