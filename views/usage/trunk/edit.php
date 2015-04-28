@@ -22,7 +22,8 @@ use app\forms\usage\UsageTrunkSettingsDeleteForm;
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
-$pricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList();
+$termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList('operator');
+$origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList('client');
 
 ?>
 <legend>
@@ -64,7 +65,7 @@ echo Form::widget([
     'form' => $form,
     'columns' => 3,
     'attributes' => [
-        'trunk_name' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+        'trunk_name' => ['type' => Form::INPUT_TEXT],
         'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
         'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
     ],
@@ -155,7 +156,7 @@ ActiveForm::end();
             <tr>
                 <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
                 <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-                <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($origPricelists, ['class' => 'select2']) ?></td>
                 <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
             </tr>
             <?php
@@ -205,7 +206,7 @@ ActiveForm::end();
             <tr>
                 <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers,  ['class' => 'select2']) ?></td>
                 <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-                <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($termPricelists, ['class' => 'select2']) ?></td>
                 <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
             </tr>
             <?php
