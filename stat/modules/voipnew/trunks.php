@@ -14,10 +14,11 @@ class m_voipnew_trunks
         $now = $now->format('Y-m-d H:i:s');
 
 
-        $res = $db->AllRecords("    select u.*
+        $res = $db->AllRecords("    select u.*, c.id as client_id, c.company
                                     from usage_trunk u
-                                    where activation_dt <= '{$now}' and expire_dt >= '{$now}'
-                                    order by u.connection_point_id desc, u.trunk_name          ");
+                                    left join clients c on c.id=u.client_account_id
+                                    where u.activation_dt <= '{$now}' and u.expire_dt >= '{$now}'
+                                    order by u.connection_point_id desc, c.id, u.trunk_name          ");
 
         $design->assign('trunks', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));

@@ -20,8 +20,8 @@ use app\forms\usage\UsageTrunkSettingsDeleteForm;
 /** @var $termination UsageTrunkSettings[] */
 /** @var $destination UsageTrunkSettings[] */
 
-$srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC);
-$dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST);
+$srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
+$dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
 $pricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList();
 
 ?>
@@ -203,7 +203,7 @@ ActiveForm::end();
             echo Html::activeHiddenInput($formModel, 'id');
             ?>
             <tr>
-                <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
+                <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers,  ['class' => 'select2']) ?></td>
                 <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
                 <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($pricelists, ['class' => 'select2']) ?></td>
                 <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>

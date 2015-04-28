@@ -12,11 +12,14 @@ use yii\helpers\ArrayHelper;
 class NumberDao extends Singleton
 {
 
-    public function getList($typeId = false)
+    public function getList($typeId = false, $serverId = false)
     {
         $query = Number::find();
         if ($typeId !== false) {
             $query->andWhere(['type_id' => $typeId]);
+        }
+        if ($serverId !== false) {
+            $query->andWhere(['server_id' => $serverId]);
         }
 
         return
