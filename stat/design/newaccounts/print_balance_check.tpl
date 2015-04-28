@@ -37,7 +37,7 @@
 
 <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
     <h2>АКТ СВЕРКИ</h2>
-    <h3 style="color: black;">взаимных расчетов по состоянию на {$date_to_val|mdate:"d.m.Y г."}<br>между {$company_full}<br>и {$firma.name}</h3>
+    <h3 style="color: black;">взаимных расчетов по состоянию на {$date_to_val|mdate:"d.m.Y г."}<br>между {$company_full} лицевой счет № {$client_id}<br>и {$firma.name} по Договору № {$last_contract.no} от {$last_contract.date|mdate:"d.m.Y г."}</h3>
     <TABLE class=price cellSpacing=0 cellPadding=2 border=1>
         <thead>
             <tr>
