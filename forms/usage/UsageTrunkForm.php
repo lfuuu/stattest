@@ -38,8 +38,8 @@ class UsageTrunkForm extends Form
             'actual_to' => 'Дата отключения',
             'orig_enabled' => 'Оригинация включена',
             'term_enabled' => 'Терминация включена',
-            'orig_min_payment' => 'Минимальный платеж за терминацию',
-            'term_min_payment' => 'Минимальный платеж за оригинацию',
+            'orig_min_payment' => 'Минимальный платеж за оригинацию',
+            'term_min_payment' => 'Минимальный платеж за терминацию',
             'description' => 'Описание',
             'operator_id' => 'Ид оператора (для совместимости)',
         ];

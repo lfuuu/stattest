@@ -12,9 +12,12 @@ use yii\helpers\ArrayHelper;
 class PricelistDao extends Singleton
 {
 
-    public function getList()
+    public function getList($type = false)
     {
         $query = Pricelist::find();
+        if ($type !== false) {
+            $query->andWhere(['type' => $type]);
+        }
 
         return
             ArrayHelper::map(
