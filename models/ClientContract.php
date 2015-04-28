@@ -21,4 +21,11 @@ class ClientContract extends ActiveRecord
     {
         return self::dao()->getContent($this->client_id, $this->id);
     }
+
+    public function erase()
+    {
+        @unlink(self::dao()->getFilePath($this->client_id, $this->id));
+
+        return $this->delete();
+    }
 }

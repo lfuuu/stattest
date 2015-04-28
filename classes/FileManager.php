@@ -7,16 +7,16 @@ use app\models\ClientFile;
 
 class FileManager
 {
-    private $account = null;
+    private $accountId = null;
 
-    public function __construct($account)
+    public function create($accountId)
     {
-        $this->account = $account;
+        return new self($accountId);
     }
 
-    public function listFiles()
+    private function __construct($accountId)
     {
-        return $this->account->files;
+        $this->accountId = $accountId;
     }
 
     public function addFile($comment = "", $name = "")
@@ -35,7 +35,7 @@ class FileManager
         }
 
         $file = new ClientFile;
-        $file->client_id = $this->account->id;
+        $file->client_id = $this->accountId;
         $file->ts = (new \DateTime())->format(\DateTime::ATOM);
 
         $file->name = $name;
@@ -59,7 +59,7 @@ class FileManager
 
 
         $file = new ClientFile;
-        $file->client_id = $this->account->id;
+        $file->client_id = $this->accountId;
         $file->ts = (new \DateTime())->format(\DateTime::ATOM);
 
         $file->name = $name;
@@ -68,12 +68,17 @@ class FileManager
 
         $file->save();
 
-        return file_put_contents(Yii::$app->params['STORE_PATH'].'files/'.$file->id, $content);
+        if(file_put_contents(Yii::$app->params['STORE_PATH'].'files/'.$file->id, $content) !== false)
+        {
+            return $file;
+        } else {
+            return false;
+        }
     }
 
     public function removeFile($id)
     {
-        $f = ClientFile::findOne(["client_id" => $this->account->id, "id" => $id]);
+        $f = ClientFile::findOne(["client_id" => $this->accountId, "id" => $id]);
         if ($f)
         {
             $f->delete();

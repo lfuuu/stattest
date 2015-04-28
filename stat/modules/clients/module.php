@@ -8,6 +8,7 @@ use app\models\ClientGridSettings;
 use app\models\ClientBP;
 use app\models\ClientContract;
 use app\models\ClientFile;
+use app\models\LkWizardState;
 
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
@@ -912,6 +913,7 @@ class m_clients {
     $design->assign('clientAccount', $clientAccount);
     $design->assign('superClient', $superClient);
     $design->assign('contragents', $contragents);
+    $design->assign('is_wizard_allow', LkWizardState::isBPStatusAllow($clientAccount->business_process_status_id, $clientAccount->id));
 
     $voip = new VoipStatus;
     $voip->loadClient($id);
@@ -1530,7 +1532,7 @@ class m_clients {
         if (!$a)
             throw new Exception("ЛС не найден");
 
-        $design->assign('files', $a->fileManager->listFiles());
+        $design->assign('files', $a->files);
         $design->assign('client_id', $cId);
 
 		$design->AddMain('clients/files.tpl');

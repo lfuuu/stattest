@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\models\ClientContragent;
 use app\models\ClientBPStatuses;
+use app\models\LkWizardState;
 
 class ClientContragentDao extends Singleton
 {
@@ -13,13 +14,13 @@ class ClientContragentDao extends Singleton
         $accounts = $contragent->accounts;
 
         if (!isset($accounts[0]))
-            return false;
+            return ["errors" => ["error" => "Account not found"]];
 
         $account = $accounts[0];
 
         // данное действие разрешено, если ЛС в стадии подключения
-        if (!in_array($account->business_process_status_id, [ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES, ClientBPStatuses::TELEKOM__SUPPORT__CONNECTED, 34])) ///// FIX!!!
-            return false;
+        if (!LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
+            return ["errors" => ["error" => "Account not allowed to save from wizard"]];
 
         //legal || ip
         $account->company = $contragent->name;
@@ -28,8 +29,8 @@ class ClientContragentDao extends Singleton
         $account->address_post =$contragent->address_post;
         $account->inn = $contragent->inn;
         $account->kpp = $contragent->kpp;
-        $account->signer_position = $contragent->position;
-        $account->signer_name = $contragent->fio;
+        $account->signer_position = $account->signer_positionV = $contragent->position;
+        $account->signer_name = $account->signer_nameV = $contragent->fio;
         $account->okpo = $contragent->okpo;
 
         if ($contragent->legal_type == "person")

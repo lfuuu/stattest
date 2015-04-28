@@ -416,13 +416,18 @@ class ClientContractDao extends Singleton
         return $this->design->fetch("tarifs/blank.htm");
     }
 
+    public function getFilePath($clientId, $contractId)
+    {
+        return Yii::$app->params['STORE_PATH'].'contracts/'.$clientId.'-'.$contractId.'.html';
+    }
+
     public function getContent($clientId, $contractId)
     {
-        $file = 'contracts/'.$clientId.'-'.$contractId.'.html';
+        $file = $this->getFilePath($clientId, $contractId);
 
-        if(file_exists(Yii::$app->params['STORE_PATH'].$file)) 
+        if(file_exists($file)) 
         {
-            return file_get_contents(Yii::$app->params['STORE_PATH'].$file);
+            return file_get_contents($file);
         } else {
             return "File not found";
         }

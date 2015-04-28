@@ -13,12 +13,13 @@ use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientFile;
 use app\models\ClientBPStatuses;
+use app\models\TroubleState;
 use app\models\User;
 use app\forms\contragent\ContragentEditForm;
 use app\forms\lk_wizard\ContactForm;
 
 
-class WizardController extends BaseController/*ApiController*/
+class WizardController extends /*BaseController*/ApiController
 {
     private $accountId = null;
     private $account = null;
@@ -64,7 +65,7 @@ class WizardController extends BaseController/*ApiController*/
 
     private function _checkClean($account)
     {
-        if ($account->business_process_status_id == ClientBPStatuses::TELEKOM__SUPPORT__WORK ) //Клиента включили
+        if ($account->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
         {
             $wizard = LkWizardState::findOne($account->id);
             if ($wizard)
@@ -72,6 +73,18 @@ class WizardController extends BaseController/*ApiController*/
                 if ($wizard->step < 4 || ($wizard->step == 4 && $wizard->state == "review"))
                 {
                     $wizard->delete();
+                } else {
+                    if (
+                        !$wizard->trouble 
+                        || !in_array($wizard->trouble->currentStage->state_id, [
+                            TroubleState::CONNECT__INCOME,
+                            TroubleState::CONNECT__NEGOTIATION,
+                            TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS
+                        ])
+                    )
+                    {
+                        $wizard->delete();
+                    }
                 }
             }
         }
@@ -89,7 +102,14 @@ class WizardController extends BaseController/*ApiController*/
     {
         $this->loadAndCheck();
 
-        return $this->makeWizardFull();
+        $fullWizard = $this->makeWizardFull();
+
+        if ($this->wizard->step == 4 && $this->wizard->state != "review") //удаляем wizard после просмотра последнего шага, с участием менеджера
+        {
+            $this->wizard->delete();
+        }
+
+        return $fullWizard;
     }
 
     public function actionSave()
@@ -113,9 +133,25 @@ class WizardController extends BaseController/*ApiController*/
         {
             if ($step == 1 || $step == 3)
             {
+                if ($step == 1 && $this->wizard->step >= 2) //если пользователь вернулся назад и пересохранил шаг 1
+                {
+                    $this->eraseContract();
+                }
                 $this->wizard->step = $step+1;
                 $this->wizard->state = ($step == 1 ? "process" : ($step == 3 ? "review" : "process"));
                 $this->wizard->save();
+
+                if ($this->wizard->step == 4 && $this->wizard->state == "review")
+                {
+                    $manager = $this->makeNotify();
+
+                    $this->wizard->trouble->addStage(
+                        TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS, 
+                        "Клиент ожидает проверки документов. ЛК - Wizard", 
+                        ($manager ? $manager->id : null),
+                        User::LK_USER_ID
+                    );
+                }
             }
         } else { //error
             return $result;
@@ -162,16 +198,30 @@ class WizardController extends BaseController/*ApiController*/
             $this->wizard->save();
         }
 
-        return $contract->content;
+        return "<html><head><meta charset=\"UTF-8\"/></head><body>".$contract->content."</body></html>";
     }
 
     public function actionSaveDocument()
     {
-        $this->loadAndCheck();
+        $data = $this->loadAndCheck();
 
-        return $this->account->fileManager->addFileFromParam("тестовый документ.txt", " какойто текст", "ЛК - wizard", User::CLIENT_USER_ID);
+        if (!isset($data["file"]) || !isset($data["file"]["name"]) || !$data["file"]["name"])
+            throw new \Exception("data_error");
+
+        $file = $this->account->fileManager->addFileFromParam(
+            $data["file"]["name"], 
+            base64_decode($data["file"]["content"]), 
+            "ЛК - wizard", 
+            User::CLIENT_USER_ID
+        );
+
+        if ($file)
+        {
+            return ["file_name" => $file->name, "file_id" => $file->id];
+        } else {
+            return ["errors" => ["file" => "error upload file"]];
+        }
     }
-
 
     private function makeWizardFull()
     {
@@ -235,6 +285,19 @@ class WizardController extends BaseController/*ApiController*/
         return ["link_dogovor" => "/lk/wizard/contract"];
     }
 
+    private function eraseContract()
+    {
+        $contract = ClientContract::findOne([
+            "client_id" => $this->accountId, 
+            "user_id" => User::CLIENT_USER_ID
+        ]);
+
+        if ($contract)
+            return $contract->erase();
+
+        return false;
+    }
+
     private function getContactAndContractList()
     {
         $contact = $this->getContact();
@@ -281,10 +344,40 @@ class WizardController extends BaseController/*ApiController*/
     {
         $manager = $this->account->userAccountManager ?: User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
 
+        if (!$manager)
+        {
+            return [
+                "manager_name" => "", 
+                "manager_phone" => "(495) 105-55-55"
+                ];
+        }
+
         return [
             "manager_name" => $manager->name,
             "manager_phone" => "(495) 105-55-55".($manager->phone_work ? " доп. ".$manager->phone_work : "")
         ];
+    }
+
+
+    private function makeNotify()
+    {
+        $manager = $this->account->userAccountManager;
+
+        $subj = "ЛК - Wizard";
+        $text = "Клиент id: ".$this->account->id." заполнил Wizard в ЛК";
+
+        if ($manager && $manager->email)
+        {
+            mail($manager->email, $subj, $text);
+        } else {
+            $manager = User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
+            if ($manager && $manager->email)
+            {
+                mail($manager->email, $subj, $text);
+            }
+        }
+
+        return $manager ?: null;
     }
 
     private function _saveStep1($stepData)
@@ -312,7 +405,7 @@ class WizardController extends BaseController/*ApiController*/
 
         $form->load($stepData, "");
 
-        if (!$form->validate())
+        if (!$form->validate()) // all validators are turned off
         {
             $errors = [];
             foreach($form->getErrors() as $field => $error)

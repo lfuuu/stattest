@@ -10,9 +10,14 @@ use yii\db\Query;
  */
 class ClientBPStatuses extends ActiveRecord
 {
-    const TELEKOM__SUPPORT__WORK = 9; //Включенные
-    const TELEKOM__SUPPORT__ORDER_OF_SERVICES = 19; //Заказ услуг
-    const TELEKOM__SUPPORT__CONNECTED = 9; //Подключаемые
+    const TELEKOM__SALE__INCOME = 31; //Телеком - Продажи - Входящие
+
+    const TELEKOM__SUPPORT__ORDER_OF_SERVICES = 19; //Телеком - Сопровождение - Заказ услуг
+    const TELEKOM__SUPPORT__CONNECTED = 8; //Телеком - Сопровождение - Подключаемые
+    const TELEKOM__SUPPORT__WORK = 9; //Телеком - Сопровождение - Включенные
+
+    const INTERNAL_OFFICE = 34; //Внутренний офис -> Внутренний офис -> Внутренний офис
+
 
     public static function tableName()
     {

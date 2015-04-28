@@ -1407,7 +1407,7 @@ class ClientCS {
     {
         $subj = '[stat/include/util] База биллинга телефонии не доступна';
         $body = 'Клиент ' . ClientCard::find($clientId)->client . ' не получил информацию по биллингу';
-        mail(ADMIN_EMAIL, $subj, $body);
+        //mail(ADMIN_EMAIL, $subj, $body);
     }
     public static function getBillingCounters($clientId, $silent_mode = false)
     {

@@ -341,6 +341,10 @@ class ClientAccountDao extends Singleton
         PaymentOrder::deleteAll(['client_id' => $clientAccount->id]);
 
         foreach ($paymentsOrders as $r) {
+
+            if (!$r["bill_no"])
+                continue;
+
             PaymentOrder::getDb()
                 ->createCommand('
                     INSERT INTO newpayments_orders (payment_id, bill_no, client_id, `sum`)

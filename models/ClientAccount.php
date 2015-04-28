@@ -7,6 +7,7 @@ use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use app\classes\behaviors\LogClientContractTypeChange;
 use app\classes\behaviors\SetOldStatus;
+use app\classes\behaviors\LkWizardClean;
 use app\classes\FileManager;
 
 /**
@@ -70,6 +71,7 @@ class ClientAccount extends ActiveRecord
         return [
             LogClientContractTypeChange::className(),
             SetOldStatus::className(),
+            LkWizardClean::className()
         ];
     }
 
@@ -125,12 +127,12 @@ class ClientAccount extends ActiveRecord
 
     public function getFiles()
     {
-        return $this->hasMany(ClientFile::className(), ['client_id' => 'id']);
+        return $this->hasMany(ClientFile::className(), ['client_id' => 'id'])->orderBy("ts");
     }
 
     public function getFileManager()
     {
-        return new FileManager($this);
+        return FileManager::create($this->id);
     }
 
     public function getStatusName()

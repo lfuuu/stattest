@@ -3,6 +3,7 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 use app\models\User;
+use app\classes\FileManager;
 
 class ClientFile extends ActiveRecord
 {
@@ -18,11 +19,11 @@ class ClientFile extends ActiveRecord
 
     public function getContent()
     {
-        return ClientAccount::findOne($this->client_id)->fileManager->getContent($this);
+        return FileManager::create($this->client_id)->getContent($this);
     }
 
     public function getMime()
     {
-        return ClientAccount::findOne($this->client_id)->fileManager->getMime($this);
+        return FileManager::create($this->client_id)->getMime($this);
     }
 }

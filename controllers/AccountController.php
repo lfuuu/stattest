@@ -8,6 +8,7 @@ use app\classes\Assert;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
 use app\models\ClientContract;
+use app\models\ClientAccount;
 
 
 class AccountController extends BaseController
@@ -30,30 +31,51 @@ class AccountController extends BaseController
     public function actionChangeWizardState($id, $state)
     {
         $accountId = $id;
+
+        $account = ClientAccount::findOne($accountId);
+
+        if (!$account || !LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
+            throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
+
         $wizard = LkWizardState::findOne($accountId);
 
-        if (in_array($state, ['off', 'review', 'rejected', 'approve', 'first', 'next']))
+        if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next']))
         {
 
-            Assert::isObject($wizard);
-
-            if ($state == "off")
+            if ($state == "on" && !$wizard)
             {
-                $wizard->delete();
+                $wizard = new LkWizardState;
+                $wizard->account_id = $accountId;
+                $wizard->step = 1;
+                $wizard->state = "process";
+                $wizard->save();
             } else {
-                if ($state == "first" || $state == "next")
+
+                Assert::isObject($wizard);
+
+                if ($state == "off")
                 {
-                    $wizard->step = ($state == "first" ? 1 : $wizard->step+1);
-                    if ($wizard->step == 4)
+                    $wizard->delete();
+                } else {
+                    if ($state == "first" || $state == "next")
                     {
-                        $state = "review";
-                    } else {
-                        $state = "process";
+                        $wizard->step = ($state == "first" ? 1 : ($wizard->step < 4 ? $wizard->step+1 : 4));
+                        if ($wizard->step == 4)
+                        {
+                            $state = "review";
+                        } else {
+                            $state = "process";
+                        }
+                    }
+
+                    $wizard->state = $state; 
+                    $wizard->save();
+
+                    if ($state == "approve")
+                    {
+                        $wizard->add100Rub();
                     }
                 }
-                $wizard->state = $state; 
-                $wizard->save();
-
             }
         }
 

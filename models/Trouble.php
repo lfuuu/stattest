@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\TroubleDao;
 use yii\db\ActiveRecord;
+use app\models\TroubleStage;
 
 /**
  * @property int $id
@@ -45,6 +46,16 @@ class Trouble extends ActiveRecord
     public static function dao()
     {
         return TroubleDao::me();
+    }
+
+    public function addStage($stateId, $comment, $userId = null)
+    {
+        return TroubleDao::me()->addStage($this, $stateId, $comment, $userId);
+    }
+
+    public function getCurrentStage()
+    {
+        return TroubleStage::findOne(["stage_id" => $this->cur_stage_id, "trouble_id" => $this->id]);
     }
 
 }

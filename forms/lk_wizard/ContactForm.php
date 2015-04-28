@@ -14,7 +14,7 @@ class ContactForm extends Form
     {
         $rules = [];
 
-        $rules[] = [["contact_phone"], "required"];
+        $rules[] = [["contact_phone"], "string"];
         $rules[] = ["contact_fio", "string"];
 
         return $rules;
