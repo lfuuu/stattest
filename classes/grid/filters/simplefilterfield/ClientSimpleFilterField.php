@@ -11,12 +11,11 @@ class ClientSimpleFilterField extends SimpleFilterField
     
     protected function initDataset()
     {   
-        $this->filterValuesQuery->subQuery = 'select id, concat(client, " ", company) as name from clients where contract_type_id in (2,8) order by company';
+        $this->filterValuesQuery->subQuery = 'SELECT c.id, CONCAT(c.client," ",c.company) as name FROM clients c
+                                              INNER JOIN newbills b ON b.client_id = c.id
+                                              WHERE b.is_payed = 1 AND c.contract_type_id IN (2,8) GROUP BY c.id ORDER BY c.company';
         $this->filterValuesQuery
             ->select('*')
-            ->from('(SUB_QUERY) as clients');
-    }
-    
-
-    
+            ->from('(SUB_QUERY) as clients1');
+    }   
 }
