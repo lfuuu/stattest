@@ -75,6 +75,17 @@ echo Form::widget([
 echo Form::widget([
     'model' => $model,
     'form' => $form,
+    'columns' => 3,
+    'attributes' => [
+        '' => ['type' => Form::INPUT_RAW],
+        'description' => ['type' => Form::INPUT_TEXT],
+        'operator_id' => ['type' => Form::INPUT_TEXT],
+    ],
+]);
+
+echo Form::widget([
+    'model' => $model,
+    'form' => $form,
     'attributes' => [
         'actions' => [
             'type' => Form::INPUT_RAW,

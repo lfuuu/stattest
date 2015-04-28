@@ -17,6 +17,7 @@ class m_voipnew_head extends IModuleHead
         'upload' => array('voip', 'admin'),
         'mass_activate' => array('voip', 'admin'),
         'pricelist' => array('voip', 'access'),
+        'trunks' => array('voip', 'admin'),
         'operators' => array('voip', 'access'),
         'operator_edit' => array('voip', 'admin'),
         'operator_save' => array('voip', 'admin'),
@@ -44,6 +45,7 @@ class m_voipnew_head extends IModuleHead
 
     public $menu = array(
         array('Справочники', 'catalogs'),
+        array('Транки', 'trunks'),
         array('Операторы', 'operators'),
         array('Клиенстские прайслисты', 'client_pricelists'),
         array('Операторские прайслисты', 'operator_pricelists'),
