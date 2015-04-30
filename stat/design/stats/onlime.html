@@ -65,7 +65,7 @@ optools.DatePickerInit();
 <td rowspan=2 width=10%>Оператор</td>
 <td colspan=2 width=10%>Номер счета</td>
 <td rowspan=2 width=10%>Дата<br>создания заказа</td>
-<td colspan=5 width=1%>Кол-во</td>
+<td colspan=6 width=1%>Кол-во</td>
 <td colspan=1 width=10%>Номер купона</td>
 <td rowspan=2 width=30%>Клиент <br />(ФИО, телефон, адрес)</td>
 <td colspan=2 width=10%>Дата доставки</td>
@@ -79,6 +79,7 @@ optools.DatePickerInit();
 <td>НВ-р. с диском</td>
 <td>NetGear роутер</td>
 <td>Zyxel KEENETIC EXTRA</td>
+<td>Gigaset C530</td>
 <td>Серийный номер</td>
 <td>Желаемая</td>
 <td>Фактическая</td>
@@ -96,6 +97,7 @@ optools.DatePickerInit();
 <td rowspan=2 align=center>{$i.count_11|round:0}</td>
 <td rowspan=2 align=center>{$i.count_12|round:0}</td>
 <td rowspan=2 align=center>{$i.count_18|round:0}</td>
+<td rowspan=2 align=center>{$i.count_22|round:0}</td>
 <td colspan=1>{if $i.coupon}{$i.coupon}{/if}</td>
 <td rowspan=2><p>{$i.fio}</p>
     <p>{$i.phone}</p>
@@ -124,6 +126,7 @@ optools.DatePickerInit();
     <td align=center><b>{$total.count_11}</b></td>
     <td align=center><b>{$total.count_12}</b></td>
     <td align=center><b>{$total.count_18}</b></td>
+    <td align=center><b>{$total.count_22}</b></td>
     <td colspan=5>&nbsp;</td>
 </tr>
 {/if}
