@@ -3845,7 +3845,7 @@ $sql .= "    order by client, bill_no";
         $period_client_data = ClientCS::getOnDate($fixclient_data['id'], $date_from);
         $design->assign("company_full", $period_client_data["company_full"]);
         $design->assign("client_id", $fixclient_data['id']);
-        $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_from_val));
+        $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_to_val));
         $design->assign('data',$R);
         $design->assign('zalog',$zalog);
         $design->assign('sum_bill',$S_b);
