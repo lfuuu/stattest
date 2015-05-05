@@ -5,7 +5,7 @@ use yii\db\ActiveRecord;
 /** @var $model ActiveRecord */
 /** @var $changes HistoryChanges[] */
 ?>
-<table class="table table-condensed table-striped table-bordered" style="width: auto" align="center">
+<table class="table table-condensed table-striped table-bordered" style="width: auto">
     <tr>
         <th>Пользователь</th>
         <th>Дата</th>

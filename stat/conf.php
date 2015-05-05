@@ -3,7 +3,7 @@
 $config = array(
     'WEB_ADDRESS'        => '',
     'WEB_PATH'            =>    '',
-    'USE_MD5'           => 0,
+    'USE_MD5'           => 1,
 
 // stat mysql
     'SQL_ATS_DB'        =>    '',
