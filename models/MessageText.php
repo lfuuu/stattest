@@ -7,6 +7,6 @@ class MessageText extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'message_text';
+        return 'message_text'; 
     }
 }

@@ -5,36 +5,80 @@ namespace app\controllers\api;
 use Yii;
 use app\classes\ApiController;
 use app\models\Message;
+use app\classes\validators\AccountIdValidator;
+use app\classes\DynamicModel;
+use app\exceptions\FormValidationException;
 
-class MessageController extends ApiController {
+class MessageController extends ApiController
+{
 
-    public function actionList() {
-        $data = Yii::$app->request->bodyParams;
-        $model = new Message();
-        return Message::find()
-                        ->where(['account_id' => $data['client_account_id']])
-                        ->orderBy(['created_at' => ($data['order'] == 'desc' ) ? SORT_DESC : SORT_ASC])
-                        ->limit(100)
-                        ->asArray()
-                        ->all();
-    }
+    public function actionList()
+    {
+        $form = DynamicModel::validateData(
+                        Yii::$app->request->bodyParams, 
+                        [
+                            ['client_account_id', AccountIdValidator::className()],
+                            ['order', 'in', 'range' => ['desc', 'asc']],
+                            [['client_account_id'], 'required'],
+                        ]
+        );
 
-    public function actionDetails() {
-        $data = Yii::$app->request->bodyParams;
-        $model = Message::find()->where(['id' => $data['id'], 'account_id' => $data['client_account_id']])->with('text')->asArray()->one();
-        return $model;
-    }
-
-    public function actionRead() {
-        $data = Yii::$app->request->bodyParams;
-        $model = Message::findOne(['id' => $data['id'], 'account_id' => $data['client_account_id']]);
-        if($model){
-            $model->is_read = 1;
-            $model->save();
-            return $model;
+        if (!$form->hasErrors()) {
+            return Message::find()
+                            ->where(['account_id' => $form->client_account_id])
+                            ->orderBy(['created_at' => $form->order == 'desc'  ? SORT_DESC : SORT_ASC])
+                            ->limit(100)
+                            ->asArray()
+                            ->all();
+        } else {
+            throw new FormValidationException($form);
         }
-        else
+    }
+
+    public function actionDetails()
+    {
+        $form = DynamicModel::validateData(
+                        Yii::$app->request->bodyParams, [
+                            ['client_account_id', AccountIdValidator::className()],
+                            ['id', 'integer'],
+                            [['client_account_id', 'id'], 'required'],
+                        ]
+        );
+
+        if (!$form->hasErrors()) {
+            $data = Yii::$app->request->bodyParams;
+            return 
+                Message::find()
+                    ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
+                    ->with('text')
+                    ->asArray()
+                    ->one();
+        } else {
+            throw new FormValidationException($form);
+        }
+    }
+
+    public function actionRead()
+    {
+        $model = DynamicModel::validateData(
+                        Yii::$app->request->bodyParams, [
+                            ['client_account_id', AccountIdValidator::className()],
+                            ['id', 'int'],
+                            [['client_account_id', 'id'], 'required'],
+                        ]
+        );
+
+        if (!$model->hasErrors()) {
+            $msg = Message::findOne(['id' => $data['id'], 'account_id' => $data['client_account_id']]);
+            if ($msg) {
+                $msg->is_read = 1;
+                $msg->save();
+                return $msg;
+            } else
+                throw new Exception('Message not found');
+        } else {
             throw new FormValidationException($model);
+        }
     }
 
 }

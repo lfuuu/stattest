@@ -2,6 +2,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\models\MessageText;
 
 class Message extends ActiveRecord
 {
@@ -12,11 +13,11 @@ class Message extends ActiveRecord
     
     public function getText()
     {
-        return $this->hasOne('app\models\MessageText', ['message_id' => 'id']);
+        return $this->hasOne(MessageText::className(), ['message_id' => 'id']);
     }
     
     public function getAccount()
     {
-        return $this->hasOne('app\models\ClientAccount', ['id' => 'account_id']);
+        return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);
     }
 }
