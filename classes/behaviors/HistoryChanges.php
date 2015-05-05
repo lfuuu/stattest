@@ -10,18 +10,18 @@ class HistoryChanges extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
-            ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
+            ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
         ];
     }
 
-    public function beforeInsert()
+    public function afterInsert()
     {
         $this->logChanges(\app\models\HistoryChanges::ACTION_INSERT, $this->owner->toArray(), null);
     }
 
-    public function beforeUpdate()
+    public function afterUpdate()
     {
         $this->fillChanges($data, $prevData);
         if (!empty($data)) {
@@ -29,7 +29,7 @@ class HistoryChanges extends Behavior
         }
     }
 
-    public function beforeDelete()
+    public function afterDelete()
     {
         $this->logChanges(\app\models\HistoryChanges::ACTION_DELETE, null, $this->owner->toArray());
     }

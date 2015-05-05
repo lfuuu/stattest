@@ -312,6 +312,13 @@ function form_cpe_load(){
 }
 
 function showHistory(model, modelId) {
+    var el = $('.showhistorybutton');
+    $.get('/history/show?model=' + model + '&model_id=' + modelId, function(data){
+        el.replaceWith(data);
+    });
+}
+
+function showHistoryPopup(model, modelId) {
     var $dialog = $('<iframe src="'+'/history/show?model=' + model + '&model_id=' + modelId+'" title="История изменений" style="display: none;"></iframe>');
 
     $dialog.appendTo(document.body);

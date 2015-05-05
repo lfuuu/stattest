@@ -6,7 +6,6 @@ use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
 
-
 class HistoryController extends BaseController
 {
     public function behaviors()
@@ -39,9 +38,15 @@ class HistoryController extends BaseController
                 ->orderBy('created_at desc')
                 ->all();
 
-        return $this->render('show', [
-            'model' => new $className(),
-            'changes' => $changes,
+
+
+        return Yii::$app->request->isAjax ?
+                $this->renderPartial('show', [
+                    'model' => new $className(),
+                    'changes' => $changes,
+                ]) : $this->render('show', [
+                    'model' => new $className(),
+                    'changes' => $changes,
         ]);
     }
 }
