@@ -46,7 +46,6 @@ class MessageController extends ApiController
         );
 
         if (!$form->hasErrors()) {
-            $data = Yii::$app->request->bodyParams;
             return 
                 Message::find()
                     ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
@@ -60,7 +59,7 @@ class MessageController extends ApiController
 
     public function actionRead()
     {
-        $model = DynamicModel::validateData(
+        $form = DynamicModel::validateData(
                         Yii::$app->request->bodyParams, [
                             ['client_account_id', AccountIdValidator::className()],
                             ['id', 'int'],
@@ -68,8 +67,8 @@ class MessageController extends ApiController
                         ]
         );
 
-        if (!$model->hasErrors()) {
-            $msg = Message::findOne(['id' => $data['id'], 'account_id' => $data['client_account_id']]);
+        if (!$form->hasErrors()) {
+            $msg = Message::findOne(['id' => $form->id, 'account_id' => $form->client_account_id]);
             if ($msg) {
                 $msg->is_read = 1;
                 $msg->save();
