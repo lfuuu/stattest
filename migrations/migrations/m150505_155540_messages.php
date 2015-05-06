@@ -19,14 +19,12 @@ class m150505_155540_messages extends \app\classes\Migration
         ");
         
         $this->execute("CREATE TABLE `message_text` (
-                                `id` INT(11) NOT NULL AUTO_INCREMENT,
                                 `message_id` INT(11) NOT NULL,
                                 `text` TEXT NOT NULL,
-                                PRIMARY KEY (`id`),
-                                INDEX `message_id` (`message_id`)
+                                PRIMARY KEY (`message_id`)
                         )
                         COLLATE='utf8_general_ci'
-                        ENGINE=InnoDB 
+                        ENGINE=InnoDB
         ");
     }
 

@@ -49,7 +49,7 @@ class MessageController extends ApiController
             return 
                 Message::find()
                     ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
-                    ->with('text')
+                    ->joinWith('text')
                     ->asArray()
                     ->one();
         } else {
