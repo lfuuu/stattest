@@ -158,7 +158,18 @@ $(function(){
 
 
 
-<H2>{if isset($mode_new)}Новый клиент{else}Редактирование клиента {$client.client} (id={$client.id}){/if}</H2>
+
+{if isset($mode_new)}
+    <H2>Новый клиент</H2>
+{else}
+    <div>
+    <b>
+        <div style="display: inline-block; min-width: 130px;"> Редактирование клиента <a href="?module=clients&id={$client.client}" style="font-size:14px; color: {if $client.is_active}green{else}black{/if};">{$client.id}</a> :</div>
+        <div style="display: inline-block;">{$client.company}</div>
+    </b>
+        <div style="display: inline-block;" title="{$account.client}">({$client.client})</div>
+    <div>
+{/if}
 <form action="?" method=post id=form name=form>
 <input style='width:100%' type=hidden name=module value=clients>
 {if isset($mode_new)}
@@ -241,7 +252,7 @@ $(function(){
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Головная компания:</td><td><input style='width:100%' name=head_company class=text value='{$client.head_company}'{*if $card_type=='addition'}readonly='readonly'{/if*}></td></tr>
     <tr><td align="right">Юр. адрес головной компании:</td><td><input style='width:100%' name=head_company_address_jur class=text value='{$client.head_company_address_jur}'{*if $card_type=='addition'}readonly='readonly'{/if*}></td></tr>
-    <tr><td align="right">Таймзона:</td><td>
+    <tr><td align="right">Часовой пояс:</td><td>
             <select class="select2" style="width: 250px" name=timezone_name>
                 {foreach from=$timezones item=item key=key}
                     <option value='{$key}' {if $key==$client.timezone_name}selected{/if}>{$item.timezone_name}</option>
