@@ -7,6 +7,7 @@ class m150508_181329_fix_state__connect_wait_docs extends \app\classes\Migration
         $this->execute("update tt_types set states = '70231305224192' where code='connect'");
         $this->execute("update tt_states SET `order`='3' WHERE (`id`='49')");
         $this->execute("update tt_states set deny = deny+35184372088832 where id in (47, 48, 44, 45, 46)");
+        $this->execute("insert into tt_folders values (35184372088832,	'Проверка докeументов',	27)");
     }
 
     public function down()
