@@ -562,6 +562,7 @@ class m_newaccounts extends IModule
         $bill = new Bill(null,$fixclient_data,time(),0,$currency);
         $no = $bill->GetNo();
         unset($bill);
+        $db->QueryInsert("log_newbills",array('bill_no'=>$no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Счет создан'));
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$no); 
