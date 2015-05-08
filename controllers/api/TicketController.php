@@ -21,10 +21,11 @@ class TicketController extends ApiController
         $model = new TicketListForm();
         $model->load(Yii::$app->request->bodyParams, '');
         if ($model->validate()) {
-            return
-              $model->spawnFilteredQuery()
-                ->asArray()
-                ->all();
+            $data = [];
+            foreach($model->spawnFilteredQuery()->all() as $ticket) {
+                $data[] = $ticket->toArray();
+            }
+            return $data;
         } else {
             throw new FormValidationException($model);
         }
