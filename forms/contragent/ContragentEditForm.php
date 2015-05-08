@@ -48,7 +48,7 @@ class ContragentEditForm extends Form
             "position" => "Должность",
             "fio" => "ФИО",
             "tax_regime" => "Налогвый режим",
-            "ogrn" => "Код ОГРН"
+            "ogrn" => "Код ОГРН",
             "opf" => "Код ОПФ",
             "okpo" => "Код ОКПО",
             "okvd" => "Код ОКВЭД",
