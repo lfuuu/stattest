@@ -28,7 +28,13 @@ if ($action=='add_client') {
 	if(empty($P["company"]))
     {
         $P["company"] = "Клиент с сайта";
-	}
+    }
+
+    if ($P["company"] == "google")
+    {
+        echo "error:";
+        exit();
+    }
 
     $id = $db->GetValue(
         "SELECT 
