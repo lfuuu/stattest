@@ -122,6 +122,8 @@ function do_func($function)
         case 'getPayPalToken': return ApiLk::getPayPalToken(get_param_raw("account_id"), get_param_raw("sum")); break;
         case 'paypalApply': return ApiLk::paypalApply(get_param_raw("token"), get_param_raw("payer_id")); break;
 
+        case 'getWizardState': return ApiLkWizard::getState(get_param_raw("account_id")); break;
+        case 'saveWizardStep1': return ApiLkWizard::saveStep1(get_param_raw("account_id")); break;
 		
 		default: throw new Exception("Функция не определенна");
 	}

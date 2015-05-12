@@ -10,6 +10,9 @@ use yii\db\Query;
  */
 class ClientBP extends ActiveRecord
 {
+    const TELEKOM__SALE = 2; //Продажи
+    const TELEKOM__SUPPORT = 1; //Сопровождение
+
     public static function tableName()
     {
         return 'grid_business_process';

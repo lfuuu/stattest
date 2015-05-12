@@ -1,14 +1,11 @@
 <?php
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 use app\queries\ClientContractQuery;
+use app\dao\ClientContractDao;
 
-/**
- * @property int $id
- * @property string $name
- * @property string $type
- */
 class ClientContract extends ActiveRecord
 {
     public static function tableName()
@@ -29,5 +26,22 @@ class ClientContract extends ActiveRecord
     public function getBlank()
     {
         return self::find()->account($this->client_id)->active()->blank()->fromContract($this)->last();
+    }
+
+    public static function dao()
+    {
+        return ClientContractDao::me();
+    }
+
+    public function getContent()
+    {
+        return self::dao()->getContent($this->client_id, $this->id);
+    }
+
+    public function erase()
+    {
+        @unlink(self::dao()->getFilePath($this->client_id, $this->id));
+
+        return $this->delete();
     }
 }

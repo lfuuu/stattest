@@ -1,10 +1,13 @@
 <?php
+
+use app\classes\StatModule;
+use app\classes\Assert;
+use app\classes\Company;
+use app\classes\BillContract;
 use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
-use app\classes\StatModule;
 use app\models\Payment;
-use app\classes\Assert;
 use app\models\BillDocument;
 use app\models\Transaction;
 
@@ -562,6 +565,7 @@ class m_newaccounts extends IModule
         $bill = new Bill(null,$fixclient_data,time(),0,$currency);
         $no = $bill->GetNo();
         unset($bill);
+        $db->QueryInsert("log_newbills",array('bill_no'=>$no,'ts'=>array('NOW()'),'user_id'=>$user->Get('id'),'comment'=>'Счет создан'));
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ".$design->LINK_START."module=newaccounts&action=bill_view&bill=".$no); 

@@ -1,6 +1,7 @@
 <?php
 
 use \app\models\Contract;
+use \app\models\ClientContract;
 
 class m_tarifs{
     var $actions=array(
@@ -238,7 +239,7 @@ class m_tarifs{
         \app\assets\TinymceAsset::register(Yii::$app->view);
 
         global $design, $db, $user;;
-        $templates = clientCS::contract_listTemplates();
+        $templates = ClientContract::dao()->contract_listTemplates();
         $info = "";
         $contract_body = "";
         $isOpened = false;
@@ -249,7 +250,7 @@ class m_tarifs{
 
         $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
-        $name = clientCS::contract_getFolder($group)."_".$contract;
+        $name = ClientContract::dao()->contract_getFolder($group)."_".$contract;
 
         $filePath = STORE_PATH."contracts/template_".$name.".html";
 
@@ -278,7 +279,7 @@ class m_tarifs{
                     $oContract->type = $contractType;
                     $oContract->save();
                 }
-                $templates = clientCS::contract_listTemplates();
+                $templates = ClientContract::dao()->contract_listTemplates();
             }
         }
 
