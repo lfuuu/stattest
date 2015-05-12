@@ -4,10 +4,6 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\dao\ClientContragentDao;
 
-/**
- * @property int $id
- * @property
- */
 class ClientContragent extends ActiveRecord
 {
     public static function tableName()
