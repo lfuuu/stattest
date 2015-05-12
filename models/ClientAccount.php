@@ -112,6 +112,11 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(ClientGridSettings::className(), ["id" => "business_process_status_id"]);
     }
 
+    public function getContragent()
+    {
+        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+    }
+
     public function getStatusName()
     {
         return

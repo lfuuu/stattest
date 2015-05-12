@@ -62,7 +62,7 @@ class MessageController extends ApiController
         $form = DynamicModel::validateData(
                         Yii::$app->request->bodyParams, [
                             ['client_account_id', AccountIdValidator::className()],
-                            ['id', 'int'],
+                            ['id', 'integer'],
                             [['client_account_id', 'id'], 'required'],
                         ]
         );
@@ -74,7 +74,7 @@ class MessageController extends ApiController
                 $msg->save();
                 return $msg;
             } else
-                throw new Exception('Message not found');
+                throw new \Exception('Message not found');
         } else {
             throw new FormValidationException($model);
         }
