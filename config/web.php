@@ -1,5 +1,7 @@
 <?php
+
 use \yii\helpers\ArrayHelper;
+use yii\web\Response;
 
 Yii::setAlias('@app', dirname(__DIR__));
 
@@ -36,7 +38,7 @@ $config = [
         'request' => [
             'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',
-            'parsers' => [ 'application/json' => 'yii\web\JsonParser' ],
+            'parsers' => [ 'application/json' => 'yii\web\JsonParser'],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -71,31 +73,39 @@ $config = [
 //                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             )
         ],
+        'response' => [
+            'formatters' => [
+                Response::FORMAT_HTML => 'yii\web\HtmlResponseFormatter',
+                Response::FORMAT_XML => 'yii\web\XmlResponseFormatter',
+                Response::FORMAT_JSON => 'app\classes\JsonResponseFormatter',
+                Response::FORMAT_JSONP => [
+                    'class' => 'app\classes\JsonResponseFormatter',
+                    'useJsonp' => true,
+                ],
+            ],
+        ],
     ],
     'modules' => [
-        'gridview' =>  [
+        'gridview' => [
             'class' => '\kartik\grid\Module',
         ],
-        'datecontrol' =>  [
+        'datecontrol' => [
             'class' => 'kartik\datecontrol\Module',
-
             // format settings for displaying each date attribute (ICU format example)
             'displaySettings' => [
                 'date' => 'dd.MM.yyyy',
                 'time' => 'HH:mm:ss a',
                 'datetime' => 'dd.MM.yyyy HH:mm:ss a',
             ],
-
             // format settings for saving each date attribute (PHP format example)
             'saveSettings' => [
                 'date' => 'php:Y-m-d', // saves as unix timestamp
                 'time' => 'php:H:i:s',
                 'datetime' => 'php:Y-m-d H:i:s',
             ],
-
             // default settings for each widget from kartik\widgets used when autoWidget is true
             'autoWidgetSettings' => [
-                'date' => ['pluginOptions'=> ['autoclose' => true] ], // example
+                'date' => ['pluginOptions' => ['autoclose' => true]], // example
                 'datetime' => [], // setup if needed
                 'time' => [], // setup if needed
             ],
@@ -106,7 +116,6 @@ $config = [
 
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
-
 }
 
 return $config;
