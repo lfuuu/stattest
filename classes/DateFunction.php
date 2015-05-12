@@ -16,9 +16,10 @@ class DateFunction
         return $string;
     }
 
-    public static function mdate($format,$ts=0){
+    public static function mdate($ts, $format){
         if ($ts) $s=date($format,$ts); else $s=date($format);
         if ($ts) $d=getdate($ts); else $d=getdate();
+
         return self::dateReplaceMonth($s, $d['mon']);
     }
 }
