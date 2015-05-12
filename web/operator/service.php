@@ -96,7 +96,7 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($O->id, $troubleId);
+        //LkWizardState::create($O->id, $troubleId);
 
 		echo 'ok:'.$O->id;
 	} else {
