@@ -217,7 +217,11 @@ class ClientContractDao extends Singleton
         if (!$r) {
 			trigger_error2('Такого клиента не существует');
 			return;
-		}
+        }
+
+        $c["contract_dop_date"] = strtotime($c["contract_dop_date"]);
+        $c["contract_date"] = strtotime($c["contract_date"]);
+
 
         $this->design = \app\classes\Smarty::init();
         $this->design->assign("client", $r);
