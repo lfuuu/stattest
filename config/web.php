@@ -1,5 +1,7 @@
 <?php
+
 use \yii\helpers\ArrayHelper;
+use yii\web\Response;
 
 Yii::setAlias('@app', dirname(__DIR__));
 
@@ -37,6 +39,17 @@ $config = [
             'class' => 'app\classes\Request',
             'cookieValidationKey' => 'HGjhg78gUJ78234gh2jGYUgh38',
             'parsers' => [ 'application/json' => 'yii\web\JsonParser' ],
+        ],
+        'response' => [
+            'formatters' => [
+                Response::FORMAT_HTML => 'yii\web\HtmlResponseFormatter',
+                Response::FORMAT_XML => 'yii\web\XmlResponseFormatter',
+                Response::FORMAT_JSON => 'app\classes\JsonResponseFormatter',
+                Response::FORMAT_JSONP => [
+                    'class' => 'app\classes\JsonResponseFormatter',
+                    'useJsonp' => true,
+                ],
+            ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
