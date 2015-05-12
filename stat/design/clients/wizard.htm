@@ -1,0 +1,37 @@
+{if $clientAccount->lkWizardState}
+<b style="color: green;"> Wizard включен</b>, шаг: {$clientAccount->lkWizardState->step} ({$clientAccount->lkWizardState->stepName}) 
+<small>
+    [<a href="/account/change-wizard-state/?id={$clientAccount.id}&state=off">выключить</a>
+    
+    {if $clientAccount->lkWizardState->step == 4}
+
+        {if $clientAccount->lkWizardState->state != 'rejected'}
+        | <a href="/account/change-wizard-state/?id={$clientAccount.id}&state=rejected">отклонить</a>
+        {/if}
+
+        {if $clientAccount->lkWizardState->state != 'approve'}
+        | <a href="/account/change-wizard-state/?id={$clientAccount.id}&state=approve">одобрить</a>
+        {/if}
+
+        {if $clientAccount->lkWizardState->state != 'review'}
+        | <a href="/account/change-wizard-state/?id={$clientAccount.id}&state=review">рассмотрение</a>
+        {/if}
+    {/if}
+
+    {if $clientAccount->lkWizardState->step != 1}
+    | <a href="/account/change-wizard-state/?id={$clientAccount.id}&state=first" title="Для тестов">*первый шаг*</a>
+    {/if}
+
+    {if $clientAccount->lkWizardState->step != 4}
+    | <a href="/account/change-wizard-state/?id={$clientAccount.id}&state=next" title="Для тестов">*след шаг*</a>
+    {/if}
+
+    ]</small>
+{else}
+{* входящие, заказ услуг, подключаемые, тестовый аккаунт *}
+    {if $is_wizard_allow}
+        <b style="color: gray;"> Wizard выключен</b>
+        [<a href="/account/change-wizard-state/?id={$clientAccount.id}&state=on">включить</a>]
+    {/if}
+{/if}
+

@@ -2,6 +2,10 @@
 
 use app\classes\StatModule;
 use app\models\Trouble;
+use app\models\LkWizardState;
+use app\models\ClientContractType;
+use app\models\ClientBP;
+use app\models\ClientBPStatuses;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -59,9 +63,9 @@ if ($action=='add_client') {
 	$O->address_connect = $P['address'];
 	$O->address_jur = $P['address'];
 	$O->sale_channel = $P['market_chanel'];
-    $O->contract_type_id = 2; //Телеком-клиент
-    $O->business_process_id = 1; //Сопровождение
-    $O->business_process_status_id = 1; //Входящие
+    $O->contract_type_id = ClientContractType::TELEKOM; //Телеком-клиент
+    $O->business_process_id = ClientBP::TELEKOM__SUPPORT; //Сопровождение
+    $O->business_process_status_id = ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES; //Заказ уcлуг
     $O->status = "income"; 
 
 	if($P["phone_connect"])
@@ -91,7 +95,8 @@ if ($action=='add_client') {
             'user_author' => "system"
         );
 
-        StatModule::tt()->createTrouble($R, "system");
+        $troubleId = StatModule::tt()->createTrouble($R, "system");
+        LkWizardState::create($O->id, $troubleId);
 
 		echo 'ok:'.$O->id;
 	} else {

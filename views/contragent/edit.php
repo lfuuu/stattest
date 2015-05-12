@@ -25,7 +25,7 @@ use kartik\builder\Form;
             'address_jur' => ['type' => Form::INPUT_TEXT],
             'address_post' => ['type' => Form::INPUT_TEXT],
             'inn' => ['type' => Form::INPUT_TEXT],
-            'inn_euro' => ['type' => Form::INPUT_TEXT],
+            //'inn_euro' => ['type' => Form::INPUT_TEXT],
             'kpp' => ['type' => Form::INPUT_TEXT],
             'position' => ['type' => Form::INPUT_TEXT],
             'fio' => ['type' => Form::INPUT_TEXT],

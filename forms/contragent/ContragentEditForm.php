@@ -1,90 +1,86 @@
 <?php
 namespace app\forms\contragent;
 
-use Yii;
-use app\classes\Form;
+use app\forms\contragent\ContragentForm;
+use app\models\ClientContragentPerson;
+use app\models\ClientContragent;
 
-class ContragentEditForm extends Form
+class ContragentEditForm extends ContragentForm
 {
-
-    public $legal_type;
-    public $name;
-    public $name_full;
-    public $address_jur;
-    public $address_post;
-    public $inn;
-    public $inn_euro;
-    public $kpp;
-    public $position;
-    public $fio;
-    public $tax_regime;
-    public $ogrn;
-    public $opf;
-    public $okpo;
-    public $okvd;
-
-
     public function rules()
     {
-        $rules = [];
-        $rules[] = [[ 'legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
-            'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'];
-        $rules[] = [['name', 'legal_type'], 'required'];
+        $rules = parent::rules();
+
+        $rules[] = [['name', 'address_jur', 'inn', 'kpp', 'position', 'fio'], 'required',
+            'when' => function($model){ return $model->legal_type=='legal';}
+        ];
+
+        $rules[] = [['name', 'address_jur', 'first_name', 'last_name', 'inn', 'ogrn'], 'required',
+            'when' => function($model){ return $model->legal_type=='ip';}
+        ];
+
+        $rules[] = [['first_name', 'last_name', 'passport_serial', 'passport_number', 'passport_date_issued', 'passport_issued', 'address'], 'required',
+            'when' => function($model){ return $model->legal_type=='person';} 
+        ];
 
         return $rules;
     }
 
-    public function attributeLabels()
+    public function saveInContragent(ClientContragent $contragent)
     {
-        return [
-            "name" => "Название контрагента",
-            "name_full" => "Полное наименование",
-            "address_jur" => "Адрес юридический",
-            "address_post" => "Адрес почтовый",
-            "legal_type" => "Тип",
-            "inn" => "ИНН",
-            "inn_euro" => "ЕвроИНН",
-            "kpp" => "КПП",
-            "position" => "Должность",
-            "fio" => "ФИО",
-            "tax_regime" => "Налогвый режим",
-            "ogrn" => "Код ОГРН"
-            "opf" => "Код ОПФ",
-            "okpo" => "Код ОКПО",
-            "okvd" => "Код ОКВЭД",
-        ];
-    }
+        $contragent->legal_type = $this->legal_type;
+        $contragent->name = $this->name;
+        $contragent->name_full = $this->name_full;
+        $contragent->address_jur = $this->address_jur;
+        $contragent->address_post = $this->address_post;
+        $contragent->inn = $this->inn;
+        $contragent->kpp = $this->kpp;
+        $contragent->position = $this->position;
+        $contragent->fio = $this->fio;
 
-    public function save()
-    {
-        /*
-        $client = ClientAccount::findOne($this->client_id);
-        Assert::isObject($client);
+        if ($contragent->legal_type == "legal")
+        {
+            if (trim($contragent->name_full) == "")
+            {
+                $contragent->name_full = $contragent->name;
+            }
 
-        $item = new Payment();
-        $item->client_id = $this->client_id;
-        $item->payment_date = $this->payment_date;
-        $item->payment_no = $this->payment_no ?: 0;
-        $item->oper_date = $this->oper_date;
-        $item->bill_no = $this->bill_no;
-        $item->bill_vis_no = $this->bill_no;
-        $item->original_currency = $this->original_currency;
-        $item->currency = $client->currency;
-        $item->original_sum = round($this->original_sum, 2);
-        $item->sum = round($this->sum, 2);
-        $item->payment_rate = round($item->original_sum / $item->sum, 8);
-        $item->type = $this->type;
-        $item->bank = $item->type == 'bank' ? $this->bank : 'mos';
-        $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
-        $item->comment = $this->comment;
-        $item->add_date = (new \DateTime())->format(\DateTime::ATOM);
-        $item->add_user = \Yii::$app->user->getId();
-
-        $result = $this->saveModel($item);
-        if ($result) {
-            ClientAccount::dao()->updateBalance($client->id);
+            if (trim($contragent->address_post) == "")
+            {
+                $contragent->address_post = $contragent->address_jur;
+            }
         }
-        return $result;
-         */
+        if ($contragent->legal_type == "person")
+        {
+            $contragent->name = $contragent->name_full = $this->first_name." ".$this->last_name.($this->middle_name ? " ".$this->middle_name : "");
+        }
+
+        $contragent->save();
+
+        if ($contragent->legal_type == "ip" || $contragent->legal_type == "person")
+        {
+            $person = $contragent->person;
+
+            if (!$person)
+            {
+                $person = new ClientContragentPerson();
+                $person->contragent_id = $contragent->id;
+            }
+
+            $person->first_name = $this->first_name;
+            $person->last_name = $this->last_name;
+            $person->middle_name = $this->middle_name;
+
+            $person->address = $this->address;
+
+            $person->passport_serial = $this->passport_serial;
+            $person->passport_number = $this->passport_number;
+            $person->passport_issued = $this->passport_issued;
+            $person->passport_date_issued = $this->passport_date_issued;
+
+            $person->save();
+        }
+
+        return $contragent->saveToAccount();
     }
 }
