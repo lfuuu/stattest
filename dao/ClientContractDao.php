@@ -263,14 +263,14 @@ class ClientContractDao extends Singleton
         	if(file_exists($fname))
         	{
         		$c = file_get_contents($fname);
-        		$this->smarty->assign("include_".$templateName, $c);
+        		$this->design->assign("include_".$templateName, $c);
         	}
 
         	$fname =Yii::$app->params['STORE_PATH']."contracts/".$templateName.".html";
         	if(file_exists($fname))
         	{
         		$c = file_get_contents($fname);
-        		$this->smarty->assign("include_".$templateName, $c);
+        		$this->design->assign("include_".$templateName, $c);
         	}
         }
 
