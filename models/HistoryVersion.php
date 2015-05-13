@@ -45,10 +45,6 @@ class HistoryVersion extends ActiveRecord
                         $diffs[$key] = [$versions[$k-1]['data_json'][$key], $val];
             }
             
-            if($k==2){
-                var_dump($diffs);die;
-            }
-            
             $versions[$k]['diffs'] = $diffs;
         }
     }

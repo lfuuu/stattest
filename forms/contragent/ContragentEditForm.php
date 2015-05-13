@@ -23,13 +23,16 @@ class ContragentEditForm extends Form
     public $okpo;
     public $okvd;
 
-
     public function rules()
     {
-        $rules = [];
-        $rules[] = [[ 'legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
-            'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'];
-        $rules[] = [['name', 'legal_type'], 'required'];
+        $rules = [
+            [['legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
+            'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
+            ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
+            ['tax_regime', 'in', 'range' => ['15', '6', 'full']],
+            ['super_id', 'integer'],
+            [['name', 'legal_type', 'super_id'], 'required']
+        ];
 
         return $rules;
     }
@@ -58,33 +61,34 @@ class ContragentEditForm extends Form
     public function save()
     {
         /*
-        $client = ClientAccount::findOne($this->client_id);
-        Assert::isObject($client);
+          $client = ClientAccount::findOne($this->client_id);
+          Assert::isObject($client);
 
-        $item = new Payment();
-        $item->client_id = $this->client_id;
-        $item->payment_date = $this->payment_date;
-        $item->payment_no = $this->payment_no ?: 0;
-        $item->oper_date = $this->oper_date;
-        $item->bill_no = $this->bill_no;
-        $item->bill_vis_no = $this->bill_no;
-        $item->original_currency = $this->original_currency;
-        $item->currency = $client->currency;
-        $item->original_sum = round($this->original_sum, 2);
-        $item->sum = round($this->sum, 2);
-        $item->payment_rate = round($item->original_sum / $item->sum, 8);
-        $item->type = $this->type;
-        $item->bank = $item->type == 'bank' ? $this->bank : 'mos';
-        $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
-        $item->comment = $this->comment;
-        $item->add_date = (new \DateTime())->format(\DateTime::ATOM);
-        $item->add_user = \Yii::$app->user->getId();
+          $item = new Payment();
+          $item->client_id = $this->client_id;
+          $item->payment_date = $this->payment_date;
+          $item->payment_no = $this->payment_no ?: 0;
+          $item->oper_date = $this->oper_date;
+          $item->bill_no = $this->bill_no;
+          $item->bill_vis_no = $this->bill_no;
+          $item->original_currency = $this->original_currency;
+          $item->currency = $client->currency;
+          $item->original_sum = round($this->original_sum, 2);
+          $item->sum = round($this->sum, 2);
+          $item->payment_rate = round($item->original_sum / $item->sum, 8);
+          $item->type = $this->type;
+          $item->bank = $item->type == 'bank' ? $this->bank : 'mos';
+          $item->ecash_operator = $item->type == 'ecash' ? $this->ecash_operator : null;
+          $item->comment = $this->comment;
+          $item->add_date = (new \DateTime())->format(\DateTime::ATOM);
+          $item->add_user = \Yii::$app->user->getId();
 
-        $result = $this->saveModel($item);
-        if ($result) {
-            ClientAccount::dao()->updateBalance($client->id);
-        }
-        return $result;
+          $result = $this->saveModel($item);
+          if ($result) {
+          ClientAccount::dao()->updateBalance($client->id);
+          }
+          return $result;
          */
     }
+
 }

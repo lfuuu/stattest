@@ -4,8 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use app\classes\BaseController;
-use app\models\ClientAccount;
-use app\models\ClientContragent;
 use app\models\HistoryVersion;
 
 class VersionController extends BaseController
@@ -18,7 +16,6 @@ class VersionController extends BaseController
 
     public function actionIndex($modelName = null, $modelId = null, $date = null, $dateType = self::DATE_THIS)
     {
-        //return \yii\helpers\Url::toRoute(['version/index', 'modelName' => '435&45', 'modelId' => $modelId]);
                 
         $model = HistoryVersion::find();
         if (!empty($modelName)) {
@@ -50,7 +47,7 @@ class VersionController extends BaseController
 
 
         $versions = HistoryVersion::generateVersionsJson($model->asArray()->all());
-        return (\Yii::$app->request->isAjax) ? $versions : $this->renderPartial('index', ['versions' => $versions]);
+        return (Yii::$app->request->isAjax) ? $versions : $this->renderPartial('index', ['versions' => $versions]);
     }
     
     public function actionList($modelName, $modelId)
@@ -107,37 +104,4 @@ class VersionController extends BaseController
         
         return $this->actionList($modelName, $modelId);
     }
-
-    //test edit contagent
-    public function actionTestec()
-    {
-        $model = ClientContragent::find()->orderBy('rand()')->one();
-        $model->name = substr($model->name, 0, 5) . ' end';
-        $model->save();
-    }
-
-    //test create contragent
-    public function actionTestcc()
-    {
-        $model = new ClientContragent();
-        $model->name = 'test';
-        $model->save();
-    }
-
-    //test edit account 
-    public function actionTestea()
-    {
-        $model = ClientAccount::find()->orderBy('rand()')->one();
-        $model->company = substr($model->company, 0, 5) . ' end';
-        $model->save();
-    }
-
-    //test create account
-    public function actionTestca()
-    {
-        $model = new ClientAccount;
-        $model->company = 'test';
-        $model->save();
-    }
-
 }
