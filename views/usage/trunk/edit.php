@@ -9,6 +9,7 @@ use app\forms\usage\UsageTrunkSettingsForm;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\models\billing\Number;
 use app\models\billing\Pricelist;
+use app\models\billing\Trunk;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\forms\usage\UsageTrunkSettingsDeleteForm;
@@ -19,6 +20,8 @@ use app\forms\usage\UsageTrunkSettingsDeleteForm;
 /** @var $origination UsageTrunkSettings[] */
 /** @var $termination UsageTrunkSettings[] */
 /** @var $destination UsageTrunkSettings[] */
+
+$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($usage->connection_point_id);
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
@@ -65,7 +68,7 @@ echo Form::widget([
     'form' => $form,
     'columns' => 3,
     'attributes' => [
-        'trunk_name' => ['type' => Form::INPUT_TEXT],
+        'trunk_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $trunks, 'options' => ['class' => 'select2']],
         'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
         'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
     ],

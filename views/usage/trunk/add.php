@@ -4,9 +4,12 @@ use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
 use app\models\Region;
+use app\models\billing\Trunk;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageTrunkEditForm */
+
+$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($usage->connection_point_id);
 
 ?>
 
@@ -45,7 +48,7 @@ echo Form::widget([
     'form' => $form,
     'columns' => 3,
     'attributes' => [
-        'trunk_name' => ['type' => Form::INPUT_TEXT],
+        'trunk_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $trunks, 'options' => ['class' => 'select2']],
         'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
     ],
 ]);
