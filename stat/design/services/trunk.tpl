@@ -34,7 +34,7 @@
                     {if access("services_voip", "edit")}
                         <a href="/usage/trunk/edit?id={$item.id}" target="_blank">{$item.trunk_name}</a>
                     {else}
-                        {$item.trunk_name}
+                        {$bill_trunks[$item.trunk_id]}
                     {/if}
                 </td>
                 <td nowrap>{if $item.actual_from}<a href="/usage/trunk/edit?id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to<'3000-01-01'}{$item.actual_to}{/if}</a>{/if}</td>

@@ -20,7 +20,7 @@ class m_voipnew_trunks
                                     from usage_trunk u
                                     left join clients c on c.id=u.client_account_id
                                     where u.activation_dt <= '{$now}' and u.expire_dt >= '{$now}'
-                                    order by u.connection_point_id desc, c.id, u.trunk_name          ");
+                                    order by u.connection_point_id desc, c.id, u.trunk_id          ");
 
         $design->assign('trunks', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
