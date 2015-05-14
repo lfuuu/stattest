@@ -86,20 +86,17 @@ class Bill {
 				");
 				$currency=$this->client_data['currency'];
 		    }
-			$db->QueryInsert(
-				"newbills",
-				array(
-					"client_id"=>$client_id,
-					"currency"=>$currency,
-					"bill_no"=>$this->bill_no,
-					"bill_date"=>date('Y-m-'.($is_auto?'01':'d'),$bill_date),
-					"nal" => $this->client_data["nal"],
-                    "is_lk_show" => $isLkShow ? 1 : 0,
-                    "is_user_prepay" => $isUserPrepay ? 1 : 0,
-                    'is_approved' => 1,
-					'is_use_tax' => $this->client_data['nds_zero'] > 0 ? 0 : 1,
-				)
-			);
+            $bill = new \app\models\Bill();
+            $bill->client_id = $client_id;
+            $bill->currency = $currency;
+            $bill->bill_no = $this->bill_no;
+            $bill->bill_date = date('Y-m-'.($is_auto?'01':'d'),$bill_date);
+            $bill->nal = $this->client_data["nal"];
+            $bill->is_lk_show = $isLkShow ? 1 : 0;
+            $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
+            $bill->is_approved = 1;
+            $bill->is_use_tax = $this->client_data['nds_zero'] > 0 ? 0 : 1;
+            $bill->save();
 		}
 
 		$this->bill = $db->GetRow("
