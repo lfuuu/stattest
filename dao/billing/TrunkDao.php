@@ -2,22 +2,20 @@
 namespace app\dao\billing;
 
 use app\classes\Singleton;
-use app\models\billing\Number;
+use app\models\billing\Trunk;
 use yii\helpers\ArrayHelper;
 
 /**
- * @method static NumberDao me($args = null)
+ * @method static TrunkDao me($args = null)
  * @property
  */
-class NumberDao extends Singleton
+class TrunkDao extends Singleton
 {
 
-    public function getList($typeId = false, $serverId = false)
+    public function getList($serverId = false)
     {
-        $query = Number::find();
-        if ($typeId !== false) {
-            $query->andWhere(['type_id' => $typeId]);
-        }
+        $query = Trunk::find();
+
         if ($serverId !== false) {
             $query->andWhere(['server_id' => $serverId]);
         }
