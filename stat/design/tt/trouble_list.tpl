@@ -35,7 +35,7 @@
 
 <table class="table table-condensed table-bordered table-striped table-hover" width="{if $tt_design=='service'}700px{else}100%{/if}">
 {if $tt_design == "full"}
-    <tr>
+    <tr style="border-top: 2px solid #555555;">
         <th>{sort_link sort=1 text='&#8470;' link=$CUR sort_cur=$sort so_cur=$so}</th>
         <th>Дата создания</th>
         <th>{sort_link sort=3 text='Этап' link=$CUR sort_cur=$sort so_cur=$so}</th>
@@ -53,7 +53,7 @@
 {/if}
 
 {foreach from=$tt_troubles item=r name=outer}
-    <tr style="border-top: 2px solid #ccc; {if $r.is_important}background-color: #f4c0c0;{/if}">
+    <tr style="border-top: 2px solid #555555; {if $r.is_important}background-color: #f4f0f0;{/if}">
         <td colspan=1><a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'><b>{$r.trouble_id}</b></a></td>
         <td colspan=1 nowrap style="font-size:85%;">{$r.date_creation|udate:'Y.m.d H:i'}</td>
         <td colspan=1>{$r.state_name}</td>
@@ -61,7 +61,7 @@
         <td colspan=1 style="font-size:85%">{$r.problem|escape}</td>
     </tr>
 
-    <tr style="display: none"><td colspan="5"></td></tr>
+    <tr style="display: none"><td colspan="5"><td></td></tr>
 
     <tr style="{if $r.is_important}background-color: #f4c0c0;{/if}">
         <td colspan=1>{$trouble_subtypes_list[$r.trouble_subtype]}</td>
