@@ -1,4 +1,6 @@
 <?php
+use app\models\billing\Trunk;
+
 class m_voipnew_trunks
 {
     public function invoke($method, $arguments)
@@ -22,6 +24,7 @@ class m_voipnew_trunks
 
         $design->assign('trunks', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
+        $design->assign('bill_trunks', Trunk::dao()->getListAll());
         $design->AddMain('voipnew/trunks.html');
     }
 
