@@ -756,6 +756,7 @@ class m_services extends IModule{
 
             $design->assign('items',$R);
             $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)','id') );
+            $design->assign('bill_trunks', \app\models\billing\Trunk::dao()->getListAll());
             $design->AddMain('services/trunk.tpl');
 
             return $R;

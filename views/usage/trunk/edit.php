@@ -21,6 +21,8 @@ use app\forms\usage\UsageTrunkSettingsDeleteForm;
 /** @var $termination UsageTrunkSettings[] */
 /** @var $destination UsageTrunkSettings[] */
 
+$trunk = Trunk::findOne($usage->trunk_id);
+
 $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($usage->connection_point_id);
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
@@ -32,7 +34,7 @@ $origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getLis
 <legend>
     <?= Html::a($clientAccount->company, '/?module=clients&id='.$clientAccount->id) ?> ->
     <?= Html::a('Телефония Транки', '/?module=services&action=trunk_view') ?> ->
-    <?= Html::a($usage->trunk_name, Url::to(['edit', 'id' => $usage->id])) ?>
+    <?= Html::a($trunk->name, Url::to(['edit', 'id' => $usage->id])) ?>
 </legend>
 <?php
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
