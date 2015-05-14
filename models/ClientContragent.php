@@ -2,6 +2,8 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\classes\behaviors\HistoryVersion;
+use app\classes\behaviors\HistoryChanges;
 
 /**
  * @property int $id
@@ -14,18 +16,6 @@ class ClientContragent extends ActiveRecord
     public static function tableName()
     {
         return 'client_contragent';
-    }
-    
-    public function rules()
-    {
-        return [
-            [['legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
-            'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
-            ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
-            ['tax_regime', 'in', 'range' => ['simplified', 'full']],
-            ['super_id', 'integer'],
-            [['name', 'legal_type', 'super_id'], 'required']
-        ];
     }
 
     public function attributeLabels()
@@ -59,24 +49,11 @@ class ClientContragent extends ActiveRecord
       return $this->hasOne(ClientPerson::className(), ['contragent_id' => 'id']);
     }
 
-    function beforeValidate()
+    public function behaviors()
     {
-        if(!parent::beforeValidate())
-            return false;
-        switch($this->legal_type){
-            case 'legal':
-                if(empty($this->name) && !empty($this->name_full))
-                    $this->name = $this->name_full;
-                break;
-            case 'ip':
-                $person = $this->cPerson;
-                $this->name = $this->name_full = $person->first_name . $person->middle_name + $person->last_name;
-                break;
-            case 'person':
-                $person = $this->cPerson;
-                $this->name = $this->name_full = $person->first_name . $person->middle_name + $person->last_name;
-                break;
-        }
-        return true;
+        return [
+            HistoryVersion::className(),
+            HistoryChanges::className(),
+        ];
     }
 }

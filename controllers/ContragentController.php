@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\forms\contragent\ContragentEditForm;
 use app\models\ClientContragent;
 use app\classes\BaseController;
 use app\models\ClientPerson;
@@ -13,29 +14,14 @@ class ContragentController extends BaseController
 {
     public function actionEdit($id)
     {
-        $model = ClientContragent::findOne($id);
-        if ($model === null)
-            new Exception('Id not exists');
+        $model = new ContragentEditForm(['id' => $id]);
 
-        $person = new ClientPerson();
-        $find = $person->findOne($id);
-        if ($find)
-            $person = $find;
-        else
-            $person->contraget_id = $id;
-
-        $person->load(Yii::$app->request->post());
-        $model->load(Yii::$app->request->post());
-
-        if ($model->validate() && $person->validate()) {
+        if ($model->load(Yii::$app->request->post())) {
             $model->save();
-            $person->save();
-            //return $this->goBack();
         }
 
         return $this->render("edit", [
-            'model' => $model,
-            'person' => $person
+            'model' => $model
         ]);
 
     }

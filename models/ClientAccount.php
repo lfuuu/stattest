@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\HistoryVersion;
 use DateTimeZone;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
@@ -69,6 +70,7 @@ class ClientAccount extends ActiveRecord
         return [
             LogClientContractTypeChange::className(),
             SetOldStatus::className(),
+            HistoryVersion::className(),
         ];
     }
 

@@ -20,8 +20,8 @@ class HistoryVersion extends Behavior
     public function addVersion()
     {
         $queryData = [
-            'model' => substr(get_class($this->owner), 11), // remove 'app\models\'
-            'model_id' => $this->owner->id,
+            'model' => substr(get_class($this->owner), 11),
+            'model_id' => $this->owner->primaryKey,
             'date' => date('Y-m-d'),
             'data_json' => json_encode($this->owner->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
@@ -31,7 +31,6 @@ class HistoryVersion extends Behavior
                     'model_id' => $queryData['model_id'],
                     'date' => $queryData['date'],
         ]);
-        
         if ($this->chechDiff($queryData) === false)
             return;
 
@@ -53,7 +52,7 @@ class HistoryVersion extends Behavior
                 ->one();
         
         
-        if($model===null || $model->data_json == $queryData['data_json'])
+        if($model===null || $model->data_json != $queryData['data_json'])
             return true;
         return false;
     }

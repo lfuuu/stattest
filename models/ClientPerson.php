@@ -2,6 +2,8 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\classes\behaviors\HistoryVersion;
+use app\classes\behaviors\HistoryChanges;
 
 /**
  * @property int $id
@@ -28,21 +30,11 @@ class ClientPerson extends ActiveRecord
         ];
     }
 
-    public function rules()
+    public function behaviors()
     {
         return [
-            [
-                [
-                    'first_name',
-                    'last_name',
-                    'middle_name',
-                    'passport_date_issued',
-                    'passport_serial',
-                    'passport_number',
-                    'passport_issued',
-                    'registration_address'
-                ], 'string'
-            ],
+            HistoryVersion::className(),
+            HistoryChanges::className(),
         ];
     }
 }

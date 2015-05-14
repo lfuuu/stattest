@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
+use kartik\widgets\DatePicker;
 use kartik\builder\Form;
 
 ?>
@@ -13,7 +14,7 @@ use kartik\builder\Form;
 
 <?php
 $f = ActiveForm::begin();
-$taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенный'];
+$taxRegtimeItems = ['full' => 'Полный (с НДС 18%)', 'simplified' => 'Упрощенный (без НДС)'];
 ?>
 
 <fieldset style="margin-bottom: 20px; text-align: center;">
@@ -92,7 +93,7 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
 
     echo '<div id="ip" class="tab-pane">';
         echo Form::widget([
-            'model' => $person,
+            'model' => $model,
             'form' => $f,
             'columns' => 1,
             'options' => ['style'=>'width:50%; padding-right: 15px; float: left;'],
@@ -107,7 +108,7 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
             ],
         ]);
         echo Form::widget([
-            'model' => $person,
+            'model' => $model,
             'form' => $f,
             'columns' => 1,
             'columnOptions' => ['class' => 'col-sm-12'],
@@ -177,7 +178,7 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
 
     echo '<div id="person" class="tab-pane">';
         echo Form::widget([
-            'model' => $person,
+            'model' => $model,
             'form' => $f,
             'columns' => 1,
             'options' => ['style'=>'width:50%; padding-right: 15px; float: left;'],
@@ -192,7 +193,7 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
             ],
         ]);
         echo Form::widget([
-            'model' => $person,
+            'model' => $model,
             'form' => $f,
             'columns' => 2,
             'columnOptions' => ['class' => 'col-sm-6'],
@@ -207,7 +208,7 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
             ],
         ]);
         echo Form::widget([
-            'model' => $person,
+            'model' => $model,
             'form' => $f,
             'columns' => 1,
             'columnOptions' => ['class' => 'col-sm-12'],
@@ -217,7 +218,20 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
                 'type' => Form::INPUT_TEXT
             ],
             'attributes' => [
-                'passport_date_issued' => ['columnOptions' => ['class' => 'col-sm-6'],],
+                'passport_date_issued' => [
+                    'type'=>Form::INPUT_WIDGET,
+                    'widgetClass'=>'\kartik\widgets\DatePicker',
+                    'columnOptions' => ['class' => 'col-sm-6'],
+                    'options' => [
+                        'removeButton' => false,
+                        'pluginOptions' => [
+                            'autoclose'=>true,
+                            'format' => 'yyyy-mm-dd',
+                            'startDate' => '-40y',
+                            'endDate' => '+1y',
+                        ]
+                    ]
+                ],
                 'passport_issued' => [],
                 'registration_address' => [],
             ],
@@ -236,7 +250,11 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
 <?php ActiveForm::end(); ?>
 <script>
     $(document).ready(function(){
-        $('#type-select .btn[data-tab="#'+ $('#type-select input').val() +'"]').addClass('btn-primary').removeClass('btn-default');
+        var b = $('#type-select .btn[data-tab="#'+ $('#type-select input').val() +'"]');
+        console.log(b.length );
+        if(b.length < 1)
+            b = $('#type-select .btn').first();
+        b.addClass('btn-primary').removeClass('btn-default');
         $('.tab-pane').hide();
         $($('#type-select .btn-primary').data('tab')).show();
 
@@ -247,7 +265,7 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
                 $(newT+' .form-control[name="'+ $(this).attr('name') +'"]').val($(this).val());
             });
 
-            $('#clientcontragent-legal_type').val($(newT).attr('id'));
+            $('#contragenteditform-legal_type').val($(newT).attr('id'));
 
             $('#type-select .btn').removeClass('btn-primary').addClass('btn-default');
             $(this).addClass('btn-primary');
@@ -263,21 +281,21 @@ $taxRegtimeItems = ['full' => 'Полный', 'simplified' => 'Упрощенн�
        });
     });
 
-    $('#legal #clientcontragent-name').on('keyup', function () {
-        if($('#legal #clientcontragent-name_full').val() == '')
-            $('#legal #clientcontragent-name_full').val($(this).val());
+    $('#legal #contragenteditform-name').on('keyup', function () {
+        if($('#legal #contragenteditform-name_full').val() == '')
+            $('#legal #contragenteditform-name_full').val($(this).val());
     });
-    $('#legal #clientcontragent-name_full').on('keyup', function () {
-        if($('#legal #clientcontragent-name').val() == '')
-            $('#legal #clientcontragent-name').val($(this).val());
+    $('#legal #contragenteditform-name_full').on('keyup', function () {
+        if($('#legal #contragenteditform-name').val() == '')
+            $('#legal #contragenteditform-name').val($(this).val());
     });
 
-    $('#legal #clientcontragent-address_jur').on('keyup', function () {
-        if($('#legal #clientcontragent-address_post').val() == '')
-            $('#legal #clientcontragent-address_post').val($(this).val());
+    $('#legal #contragenteditform-address_jur').on('keyup', function () {
+        if($('#legal #contragenteditform-address_post').val() == '')
+            $('#legal #contragenteditform-address_post').val($(this).val());
     });
-    $('#legal #clientcontragent-address_post').on('keyup', function () {
-        if($('#legal #clientcontragent-address_jur').val() == '')
-            $('#legal #clientcontragent-address_jur').val($(this).val());
+    $('#legal #contragenteditform-address_post').on('keyup', function () {
+        if($('#legal #contragenteditform-address_jur').val() == '')
+            $('#legal #contragenteditform-address_jur').val($(this).val());
     });
 </script>

@@ -10,13 +10,13 @@ class VersionController extends BaseController
 {
 
     const DATE_THIS = 0,
-            DATE_FROM = 1,
-            DATE_TO = 2,
-            DATE_FROM_TO = 3;
+        DATE_FROM = 1,
+        DATE_TO = 2,
+        DATE_FROM_TO = 3;
 
     public function actionIndex($modelName = null, $modelId = null, $date = null, $dateType = self::DATE_THIS)
     {
-                
+
         $model = HistoryVersion::find();
         if (!empty($modelName)) {
             $model->andWhere(['model' => $modelName]);
@@ -49,59 +49,60 @@ class VersionController extends BaseController
         $versions = HistoryVersion::generateVersionsJson($model->asArray()->all());
         return (Yii::$app->request->isAjax) ? $versions : $this->renderPartial('index', ['versions' => $versions]);
     }
-    
+
     public function actionList($modelName, $modelId)
     {
         $this->layout = 'minimal';
 
 
         $model = HistoryVersion::find()
-                ->andWhere(['model' => $modelName])
-                ->andWhere(['model_id' => $modelId]);
-        
+            ->andWhere(['model' => $modelName])
+            ->andWhere(['model_id' => $modelId]);
+
         $versions = $model->asArray()->all();
         HistoryVersion::generateDifferencesFor($versions);
-        
+
         return $this->render('list', ['versions' => $versions]);
     }
-    
-    public function actionSetdate($modelName, $modelId, $date, $dateTo){
+
+    public function actionSetdate($modelName, $modelId, $date, $dateTo)
+    {
         $model = HistoryVersion::find()
-                ->andWhere(['model' => $modelName])
-                ->andWhere(['model_id' => $modelId])
-                ->andWhere(['date' => $date])
-                ->one();
-        
+            ->andWhere(['model' => $modelName])
+            ->andWhere(['model_id' => $modelId])
+            ->andWhere(['date' => $date])
+            ->one();
+
         $modelNew = HistoryVersion::findOne([
-                    'model' => $modelName,
-                    'model_id' => $modelId,
-                    'date' => $dateTo,
+            'model' => $modelName,
+            'model_id' => $modelId,
+            'date' => $dateTo,
         ]);
 
-        if ($modelNew !== null){
+        if ($modelNew !== null) {
             $modelNew->data_json = $model->data_json;
             $modelNew->save();
             $model->delete();
-        }
-        else{
+        } else {
             $model->date = $dateTo;
             $model->save();
         }
-        
+
         return $this->actionList($modelName, $modelId);
     }
-    
-    public function delete($modelName, $modelId, $date, $key, $value){
+
+    public function delete($modelName, $modelId, $date, $key, $value)
+    {
         $model = HistoryVersion::find()
-                ->andWhere(['model' => $modelName])
-                ->andWhere(['model_id' => $modelId])
-                ->andWhere(['date' => $date])
-                ->one();
+            ->andWhere(['model' => $modelName])
+            ->andWhere(['model_id' => $modelId])
+            ->andWhere(['date' => $date])
+            ->one();
         $newJSON = json_decode($model->data_json, true);
         $newJSON[$key] = $value;
         $model->data_json = json_encode($newJSON, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $model->save();
-        
+
         return $this->actionList($modelName, $modelId);
     }
 }
