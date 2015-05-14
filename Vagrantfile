@@ -26,7 +26,7 @@ Vagrant.configure(2) do |config|
      sudo ./install_root.sh
      cd -
      cd /vagrant
-     sudo ./install/install_vagrant.sh
+     ./install/install_vagrant.sh
      cd -
   SHELL
 end
