@@ -21,32 +21,31 @@ class HistoryController extends BaseController
         return $behaviors;
     }
 
-    public function actionShow($model, $model_id)
+    public function actionShow()
     {
-        $className = 'app\\models\\' . $model;
-        if (!class_exists($className)) {
-            throw new Exception('Bad model type');
+        $models = [];
+        $getRequest = Yii::$app->request->get();
+        if(!$getRequest)
+            throw new Exception('Models not exists');
+
+        $changes = HistoryChanges::find()
+            ->joinWith('user');
+        foreach ($getRequest as $modelName => $modelId) {
+            $className = 'app\\models\\' . $modelName;
+            if (!class_exists($className)) {
+                throw new Exception('Bad model type');
+            }
+
+            $changes->orWhere(['model' => $modelName, 'model_id' => $modelId]);
+            $models[$modelName] = new $className();
         }
+
+        $changes = $changes->orderBy('created_at desc')->all();
 
         $this->layout = 'minimal';
 
-        $changes =
-            HistoryChanges::find()
-                ->joinWith('user')
-                ->andWhere(['model' => $model])
-                ->andWhere(['model_id' => $model_id])
-                ->orderBy('created_at desc')
-                ->all();
-
-
-
-        return Yii::$app->request->isAjax ?
-                $this->renderPartial('show', [
-                    'model' => new $className(),
-                    'changes' => $changes,
-                ]) : $this->render('show', [
-                    'model' => new $className(),
-                    'changes' => $changes,
-        ]);
+        return Yii::$app->request->isAjax
+            ? $this->renderPartial('show', ['changes' => $changes, 'models' => $models])
+            : $this->render('show', ['changes' => $changes, 'models' => $models]);
     }
 }

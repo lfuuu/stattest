@@ -11,7 +11,7 @@ class HistoryChanges extends Behavior
     {
         return [
             ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
             ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
         ];
     }
@@ -21,7 +21,7 @@ class HistoryChanges extends Behavior
         $this->logChanges(\app\models\HistoryChanges::ACTION_INSERT, $this->owner->toArray(), null);
     }
 
-    public function afterUpdate()
+    public function beforeUpdate()
     {
         $this->fillChanges($data, $prevData);
         if (!empty($data)) {
@@ -38,7 +38,7 @@ class HistoryChanges extends Behavior
     {
         $queryData =[
             'model' => substr(get_class($this->owner), 11), // remove 'app\models\'
-            'model_id' => $this->owner->id,
+            'model_id' => $this->owner->primaryKey,
             'user_id' => Yii::$app->user->getId(),
             'created_at' => date('Y-m-d H:i:s'),
             'action' => $action,

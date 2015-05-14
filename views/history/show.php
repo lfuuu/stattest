@@ -5,7 +5,7 @@ use yii\db\ActiveRecord;
 /** @var $model ActiveRecord */
 /** @var $changes HistoryChanges[] */
 ?>
-<table class="table table-condensed table-striped table-bordered" style="width: auto">
+<table class="table table-condensed table-striped table-bordered" style="width: auto; margin-top: 20px">
     <tr>
         <th>Пользователь</th>
         <th>Дата</th>
@@ -28,9 +28,9 @@ use yii\db\ActiveRecord;
                     <td nowrap rowspan="<?=$rows?>"><?= $change->user ? $change->user->name : $change->user_id ?></td>
                     <td nowrap rowspan="<?=$rows?>"><?= $date->format('d.m.Y H:i:s') ?></td>
                 <?php endif; ?>
-                <td nowrap><?= $model->getAttributeLabel($field) ?></td>
-                <td nowrap><?= method_exists($model, 'prepareHistoryValue') ? $model->prepareHistoryValue($field, $value) : $value ?></td>
-                <td nowrap><?= method_exists($model, 'prepareHistoryValue') ? $model->prepareHistoryValue($field, $oldData[$field]) : $oldData[$field] ?></td>
+                <td nowrap><?= $models[$change->model]->getAttributeLabel($field) ?></td>
+                <td nowrap><?= method_exists($models[$change->model], 'prepareHistoryValue') ? $models[$change->model]->prepareHistoryValue($field, $value) : $value ?></td>
+                <td nowrap><?= method_exists($models[$change->model], 'prepareHistoryValue') ? $models[$change->model]->prepareHistoryValue($field, $oldData[$field]) : $oldData[$field] ?></td>
                 <?php
                 $firstRow = false;
                 ?>

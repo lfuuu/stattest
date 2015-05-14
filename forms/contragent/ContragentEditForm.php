@@ -17,7 +17,6 @@ class ContragentEditForm extends Form
         $name,
         $name_full,
         $address_jur,
-        $address_post,
         $inn,
         $kpp,
         $position,
@@ -41,7 +40,7 @@ class ContragentEditForm extends Form
     public function rules()
     {
         $rules = [
-            [['legal_type', 'name', 'name_full', 'address_jur', 'address_post', 'inn', 'inn_euro',
+            [['legal_type', 'name', 'name_full', 'address_jur', 'inn', 'inn_euro',
                 'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
             ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
             ['tax_regime', 'in', 'range' => ['simplified', 'full']],
@@ -86,7 +85,6 @@ class ContragentEditForm extends Form
         $contragent->name = $this->name;
         $contragent->name_full = $this->name_full;
         $contragent->address_jur = $this->address_jur;
-        $contragent->address_post = $this->address_post;
         $contragent->inn = $this->inn;
         $contragent->kpp = $this->kpp;
         $contragent->position = $this->position;

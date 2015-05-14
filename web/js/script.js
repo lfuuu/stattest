@@ -311,33 +311,18 @@ function form_cpe_load(){
 	form_cpe_get_clients(1);
 }
 
-function showHistory(model, modelId) {
+function showHistory(obj) {
     var el = $('.showhistorybutton');
-    $.get('/history/show?model=' + model + '&model_id=' + modelId, function(data){
-        el.replaceWith(data);
-    });
-}
-
-function showHistoryPopup(model, modelId) {
-    var $dialog = $('<iframe src="'+'/history/show?model=' + model + '&model_id=' + modelId+'" title="История изменений" style="display: none;"></iframe>');
-
-    $dialog.appendTo(document.body);
-
-    var width = window.innerWidth - 100;
-    var height = window.innerHeight - 100;
-    if (width > 1200) {
-        width = 1200;
-    }
-
-    $dialog.dialog(
-        {
-            width: width,
-            height: height,
-            open: function(){
-                $dialog[0].style.width = '100%';
-            },
-            close: function(){
-                $dialog.remove();
-            }
+    if (el.data('sh') !== false) {
+        $.get('/history/show', obj, function (data) {
+            el.next().after(data);
+            el.text('∧');
+            el.data('sh', false);
         });
+    }
+    else{
+        el.text('∨');
+        el.next().next().remove();
+        el.data('sh', true);
+    }
 }

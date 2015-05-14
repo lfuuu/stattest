@@ -14,7 +14,7 @@ use kartik\builder\Form;
 
 <?php
 $f = ActiveForm::begin();
-$taxRegtimeItems = ['full' => 'Полный (с НДС 18%)', 'simplified' => 'Упрощенный (без НДС)'];
+$taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
 ?>
 
 <fieldset style="margin-bottom: 20px; text-align: center;">
@@ -48,7 +48,6 @@ $taxRegtimeItems = ['full' => 'Полный (с НДС 18%)', 'simplified' => '�
                 'name' => [],
                 'address_jur' => [],
                 'name_full' => [],
-                'address_post' => [],
             ],
         ]);
         echo Form::widget([
@@ -119,23 +118,6 @@ $taxRegtimeItems = ['full' => 'Полный (с НДС 18%)', 'simplified' => '�
             ],
             'attributes' => [
                 'registration_address' => [],
-            ],
-        ]);
-
-        echo Form::widget([
-            'model' => $model,
-            'form' => $f,
-            'columns' => 1,
-            'options' => ['style'=>'width:50%; padding-left: 15px;'],
-            'columnOptions' => ['class' => 'col-sm-12'],
-            'attributeDefaults' => [
-                'container' => [
-                    'class' => 'col-sm-12',
-                    'type' => Form::INPUT_TEXT
-                ],
-            ],
-            'attributes' => [
-                'address_post' => [],
             ],
         ]);
 
@@ -242,16 +224,26 @@ $taxRegtimeItems = ['full' => 'Полный (с НДС 18%)', 'simplified' => '�
 </div>
     <div class="row" style="clear: both;">
         <div class="col-sm-6">
-            <div class="col-sm-12">
+            <div class="col-sm-12 form-group">
                 <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
             </div>
         </div>
     </div>
 <?php ActiveForm::end(); ?>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-12 form-group">
+            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:'. $model->id .', ClientPerson:'. $model->id .'})']); ?>
+            <span>История изменений</span>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function(){
         var b = $('#type-select .btn[data-tab="#'+ $('#type-select input').val() +'"]');
-        console.log(b.length );
+
         if(b.length < 1)
             b = $('#type-select .btn').first();
         b.addClass('btn-primary').removeClass('btn-default');

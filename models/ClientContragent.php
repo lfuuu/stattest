@@ -24,7 +24,6 @@ class ClientContragent extends ActiveRecord
             "name" => "Краткое наименование",
             "name_full" => "Полное наименование",
             "address_jur" => "Адрес юридический",
-            "address_post" => "Адрес почтовый",
             "legal_type" => "Тип",
             "inn" => "ИНН",
             "inn_euro" => "ЕвроИНН",
