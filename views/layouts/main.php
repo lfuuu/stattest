@@ -42,11 +42,11 @@ $user = Yii::$app->user->identity;
                     <?= Html::a('Logout', ['site/logout']) ?>
                 </div>
             <?php else: ?>
-                <div style="padding: 2px">
-                    <b><a href="?module=clients&id=<?=$fixclient_data['client']?>">
+                <div style="padding: 2px">Л.С.  
+                    <b><a href="?module=clients&id=<?=$fixclient_data['id']?>">
                             <?=
                             $fixclient_data['client']
-                                ? Html::encode($fixclient_data['client'])
+                                ? Html::encode($fixclient_data['id'])
                                 : '<font color=red>id=</font>' . Html::encode($fixclient_data['id'])
                             ?>
                         </a></b>
