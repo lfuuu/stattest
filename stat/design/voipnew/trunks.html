@@ -14,7 +14,7 @@
 	<tr class="{cycle values='even,odd'}">
         <td>{$regions[$t.connection_point_id].name}</td>
         <td>({$t.client_id}) {$t.company}</td>
-        <td><a href='/usage/trunk/edit?id={$t.id}'>({$t.id}) {$t.trunk_name}</a></td>
+        <td><a href='/usage/trunk/edit?id={$t.id}'>({$t.id}) {$t.trunk_name} | {$bill_trunks[$t.trunk_id]}</a></td>
         <td>{if $t.orig_enabled > 0}Оригинация{/if} {if $t.term_enabled > 0}Терминация{/if}</td>
         <td>{$t.description}</td>
         <td>{$t.operator_id}</td>

@@ -33,4 +33,18 @@ class TrunkDao extends Singleton
             );
     }
 
+
+    public function getListAll()
+    {
+        $query = Trunk::find();
+        return
+            ArrayHelper::map(
+                $query
+                    ->orderBy('name')
+                    ->asArray()
+                    ->all(),
+                'id',
+                'name'
+            );
+    }
 }
