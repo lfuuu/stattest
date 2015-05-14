@@ -36,7 +36,7 @@ class LkDocsController extends ApiController
     {
         $this->validateAccountId();
 
-        $data = ["type" => "property"];
+        $data = [["type" => "property", "id" => 0]];
 
         $contract = ClientContract::find()->account($this->accountId)->active()->contract()->last();
 
@@ -71,15 +71,15 @@ class LkDocsController extends ApiController
         return $data;
     }
 
-    public function actionProperty()
+    public function getProperty()
     {
-        $this->validateAccountId();
-
         $c = ClientAccount::findOne($this->accountId)->contragent;
+
+        $return = ["error" => "Error"];
 
         if ($c->legal_type == "legal")
         {
-            return [
+            $return = [
                 'company_name' => $c->name, 
                 'address_jur' => $c->address_jur,
                 'inn' => $c->inn,
@@ -89,7 +89,7 @@ class LkDocsController extends ApiController
                 ];
         } else if ($c->legal_type == "ip")
         {
-            return [
+            $return = [
                 'company_name' => $c->name,
                 'address_jur' => $c->address_jur,
                 'first_name' => $c->person->first_name,
@@ -111,7 +111,7 @@ class LkDocsController extends ApiController
                 ? substr($passportNumber, 0, 1).preg_replace("/\d/", "*", substr($passportNumber, 1, strlen($passportNumber)-2)).substr($passportNumber, strlen($passportNumber)-1) 
                 : $passportNumber;
 
-            return [
+            $return = [
                 'first_name' => $c->person->first_name,
                 'last_name' => $c->person->last_name,
                 'passport_serial' => $passportSerial,
@@ -121,6 +121,9 @@ class LkDocsController extends ApiController
                 'address' => $c->person->address,
                 ];
         }
+
+        //return str_replace("\n", "<br>\n", var_export($return, true));
+        return $return;
     }
 
     public function actionDocument()
@@ -129,8 +132,7 @@ class LkDocsController extends ApiController
             Yii::$app->request->bodyParams, 
             [
                 ["account_id", AccountIdValidator::className()],
-                ["type", "in", "range" => ["contract", "blank", "agreement"]],
-                [["account_id", "type", "id"], "required"],
+                [["account_id", "id"], "required"],
             ]
         );
 
@@ -141,12 +143,18 @@ class LkDocsController extends ApiController
 
         $this->accountId = $form->account_id;
 
-        $document = ClientContract::findOne([
-            "client_id" => $this->accountId,
-            "type" => $form->type,
-            "id" => $form->id
-            ]
-        );
+        if ($form->id == 0)
+        {
+            return $this->getProperty();
+        }
+
+        $document = ClientContract::find()
+            ->account($this->accountId)
+            ->active()
+            ->andWhere(["id" => $form->id])
+            ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date", "client_id"])
+            ->one();
+
 
         if (!$document) 
         {
@@ -154,9 +162,17 @@ class LkDocsController extends ApiController
             throw new FormValidationException($form);
         }
 
-        return "Type: ".$document->type.", id: ".$document->id;
-        //  !!!!!!!!!!!!!!!!! $document->content; НАДО ПРИТЯНУТЬ ИЗМЕНЕНИЯ ИЗ lk_wizard
+        $result = $document->toArray();
+        $result["content"] = $document->content;
 
+        if ($document->type != "agreement")
+        {
+            unset($result["contract_dop_no"], $result["contract_dop_date"]);
+        }
+
+        unset($result["client_id"]);
+
+        return $result;
     }
 
 }
