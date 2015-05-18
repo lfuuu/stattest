@@ -799,7 +799,7 @@ class m_clients {
 		global $design,$db,$_SERVER;
 		if (!($id=get_param_integer('id'))) return;
 
-		$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
+		$c = $db->GetRow('select * from client_document where id="'.intval($id).'"');
 		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error2('Такого клиента не существует');return;}
 
         $email = "";
@@ -829,7 +829,7 @@ class m_clients {
 		if(file_exists(STORE_PATH.$fileTemplate)) //already
 			return true;
 
-		if (!($c = $db->GetRow('select * from client_contracts where id="'.intval($contractId).'"'))) {
+		if (!($c = $db->GetRow('select * from client_document where id="'.intval($contractId).'"'))) {
 			trigger_error2('Такого договора не существует');
 			return;
 		}
@@ -867,7 +867,7 @@ class m_clients {
 
 		$data=get_param_raw('data',$default_data);
 		if ($data=='contract') {
-			$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
+			$c = $db->GetRow('select * from client_document where id="'.intval($id).'"');
 			$id = $c['client_id'];
 			$r = ClientCS::getOnDate($id, $c['contract_date']);
 		} else {
@@ -931,7 +931,7 @@ class m_clients {
 
 		$id=get_param_protected('id');
 		if ($this->check_tele($id)==0) return;
-		$contract = $db->GetRow('select *, unix_timestamp(contract_date) as ts, unix_timestamp(contract_dop_date) as ts_dop  from client_contracts where id="'.intval($id).'"');
+		$contract = $db->GetRow('select *, unix_timestamp(contract_date) as ts, unix_timestamp(contract_dop_date) as ts_dop  from client_document where id="'.intval($id).'"');
 		$client = ClientCS::getOnDate($contract['client_id'], $contract['contract_date']);
 		$design->assign('contract',$contract);
 		$design->assign('client',$client);
@@ -971,7 +971,7 @@ class m_clients {
 
     if (get_param_raw("do", "") == "make_contract")
     {
-        $db->QueryUpdate("client_contracts", "id", ["id" => get_param_integer("contract", 0), "contract_dop_date" => "2012-01-01", "type" => "contract"]);
+        $db->QueryUpdate("client_document", "id", ["id" => get_param_integer("contract", 0), "contract_dop_date" => "2012-01-01", "type" => "contract"]);
     }
     
     
@@ -1885,7 +1885,7 @@ class m_clients {
 		$cid=get_param_protected('cid');
 		$active=get_param_integer('act');
 		$design->assign('contract_open',true);
-		$db->Query('update client_contracts set is_active="'.$active.'",ts=NOW(),user_id="'.$user->Get('id').'" where client_id="'.$id.'" and id="'.$cid.'"');
+		$db->Query('update client_document set is_active="'.$active.'",ts=NOW(),user_id="'.$user->Get('id').'" where client_id="'.$id.'" and id="'.$cid.'"');
 		$this->client_view($id);
 	}
 	function check_tele($id) {
@@ -2192,7 +2192,7 @@ DBG::sql_out($select_client_data);
 
 
 
-            $design->assign("contract_date", $db->GetValue("select contract_date from client_contracts where client_id = '".$clientId."' and comment like '%огово%' order by id desc limit 1"));
+            $design->assign("contract_date", $db->GetValue("select contract_date from client_document where client_id = '".$clientId."' and comment like '%огово%' order by id desc limit 1"));
 
 
             //printdbg($r);

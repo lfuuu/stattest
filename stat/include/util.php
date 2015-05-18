@@ -795,15 +795,15 @@ class ClientCS {
 
         foreach($db->AllRecords(
             "SELECT 
-                client_contracts.*,
+                client_document.*,
                 user_users.user 
              from 
-                client_contracts 
-             LEFT JOIN user_users ON user_users.id=client_contracts.user_id 
+                client_document
+             LEFT JOIN user_users ON user_users.id=client_document.user_id
              where 
                 client_id=".$this->id. " 
              order by 
-             client_contracts.id") as $c)
+             client_document.id") as $c)
         {
             $contracts[$c["type"]][] = $c;
         }
@@ -883,7 +883,7 @@ class ClientCS {
             'user_id'=>$user->Get('id')
         );
 
-        $db->QueryInsert('client_contracts',$V);
+        $db->QueryInsert('client_document',$V);
         $cno = $db->GetInsertId();
         self::putContractTemplate($this->id.'-'.$cno,$content);
         return $cno;

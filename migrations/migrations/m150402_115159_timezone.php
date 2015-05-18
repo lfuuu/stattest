@@ -142,7 +142,7 @@ class m150402_115159_timezone extends \app\classes\Migration
 
             update client_contacts set ts = date_sub(ts, interval 3 hour);
 
-            update client_contracts set ts = date_sub(ts, interval 3 hour);
+            update client_document set ts = date_sub(ts, interval 3 hour);
 
             update log_block set ts = date_sub(ts, interval 3 hour);
 
