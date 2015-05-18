@@ -7,7 +7,7 @@ use app\classes\validators\AccountIdValidator;
 use app\exceptions\FormValidationException;
 use app\classes\ApiController;
 use app\classes\DynamicModel;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientAccount;
 
 class LkDocsController extends ApiController
@@ -38,7 +38,7 @@ class LkDocsController extends ApiController
 
         $data = [["type" => "property", "id" => 0]];
 
-        $contract = ClientContract::find()->account($this->accountId)->active()->contract()->last();
+        $contract = ClientDocument::find()->account($this->accountId)->active()->contract()->last();
 
         if ($contract)
         {
@@ -148,7 +148,7 @@ class LkDocsController extends ApiController
             return $this->getProperty();
         }
 
-        $document = ClientContract::find()
+        $document = ClientDocument::find()
             ->account($this->accountId)
             ->active()
             ->andWhere(["id" => $form->id])

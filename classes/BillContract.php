@@ -3,7 +3,7 @@
 namespace app\classes;
 
 use app\classes\DateFunction;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 
 class BillContract
 {
@@ -32,12 +32,12 @@ class BillContract
 
     public static function getLastContract($clientId, $dateTs)
     {
-        return ClientContract::getDb()->createCommand("
+        return ClientDocument::getDb()->createCommand("
             select 
                 contract_no as no, 
                 unix_timestamp(contract_date) as date 
             from 
-                client_contracts 
+                client_document
             where 
                     client_id = :client_id
                 and contract_date <= FROM_UNIXTIME(:date_ts)

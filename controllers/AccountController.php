@@ -7,7 +7,7 @@ use app\classes\BaseController;
 use app\classes\Assert;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientAccount;
 
 
@@ -93,7 +93,7 @@ class AccountController extends BaseController
         $comment =  Yii::$app->request->post('comment');
 
 
-        $contractId = ClientContract::dao()->addContract(
+        $contractId = ClientDocument::dao()->addContract(
             $id,
 
             $contractType,

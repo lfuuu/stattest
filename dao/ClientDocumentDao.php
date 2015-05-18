@@ -7,10 +7,10 @@ use app\classes\Company;
 use app\classes\Singleton;
 use app\classes\BillContract;
 use app\models\Contract;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientAccount;
 
-class ClientContractDao extends Singleton
+class ClientDocumentDao extends Singleton
 {
     private $design = null;
 
@@ -92,7 +92,7 @@ class ClientContractDao extends Singleton
             $no = $accountId.'-'.date('y');
 
         //save in DB
-        $c = new ClientContract;
+        $c = new ClientDocument;
         $c->type = $type;
         $c->contract_no = $no;
         $c->contract_date = trim($date);
@@ -206,7 +206,7 @@ class ClientContractDao extends Singleton
 		if(file_exists(Yii::$app->params['STORE_PATH'].$fileTemplate)) //already
             return true;
 
-        $c = ClientContract::findOne($contractId)->toArray();
+        $c = ClientDocument::findOne($contractId)->toArray();
 		if (!$c) {
 			trigger_error2('Такого договора не существует');
 			return;
@@ -302,7 +302,7 @@ class ClientContractDao extends Singleton
 				order by
 					`destination_prefix`
 			";
-            foreach(ClientContract::getDB()->createCommand($query)->queryAll() as $row)
+            foreach(ClientDocument::getDB()->createCommand($query)->queryAll() as $row)
             {
 				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
 			}
