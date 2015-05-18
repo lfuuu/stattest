@@ -131,7 +131,13 @@ class ClientDocumentDao extends Singleton
                 "MCN-Владивосток" => "mcn89",
                 "WellTime" => "welltime",
                 "IT-Park" => "itpark",
-                "Arhiv" => "arhiv"
+                "Arhiv" => "arhiv",
+                "МСН_Телефония" => "mcn_telefonija",
+                "МСН_Интернет" => "mcn_internet",
+                "МСН_Дата-центр" => "mcn_datacenter",
+                "Межоператорка" => "interop",
+                "Партнеры" => "partners",
+                "Интернет-магазин" => "internet-shop",
                 );
 
         return $folder === null ? $f : $f[$folder];
