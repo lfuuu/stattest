@@ -13,14 +13,25 @@ use yii\db\ActiveRecord;
         <th nowrap>Новое значение</th>
         <th nowrap>Старое значение</th>
     </tr>
-    <?php foreach ($changes as $change): ?>
+    <?php foreach ($changes as $k => $change): ?>
         <?php
         $date = new DateTime($change->created_at, new DateTimeZone('UTC'));
         $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
         $newData = json_decode($change->data_json, true);
         $oldData = json_decode($change->prev_data_json, true);
-        $rows = count($newData);
-        $firstRow = true;
+        $firstRow = false;
+        if($k == 0 || $change->created_at != $changes[$k-1]->created_at){
+            $rows = count($newData);
+            $firstRow = true;
+            $kk = $k;
+            while(true){
+                if($changes[$kk+1]->created_at != $changes[$kk]->created_at || !isset($changes[$kk+1]))
+                    break;
+                $kk++;
+                $rows+= count(json_decode($changes[$kk]->data_json, true));
+            }
+        }
+
         ?>
         <?php foreach ($newData as $field => $value): ?>
             <tr>

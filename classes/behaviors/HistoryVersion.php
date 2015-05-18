@@ -22,8 +22,8 @@ class HistoryVersion extends Behavior
         $queryData = [
             'model' => substr(get_class($this->owner), 11),
             'model_id' => $this->owner->primaryKey,
-            'date' => date('Y-m-d'),
-            'data_json' => json_encode($this->owner->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            'date' => Yii::$app->request->post('deferred-date') ? Yii::$app->request->post('deferred-date') : date('Y-m-d'),
+            'data_json' => json_encode($this->owner->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
         ];
 
         $model = \app\models\HistoryVersion::findOne([
@@ -31,7 +31,7 @@ class HistoryVersion extends Behavior
                     'model_id' => $queryData['model_id'],
                     'date' => $queryData['date'],
         ]);
-        if ($this->chechDiff($queryData) === false)
+        if ($this->checkDiff($queryData) === false)
             return;
 
         if ($model === null)
@@ -41,7 +41,7 @@ class HistoryVersion extends Behavior
         $model->save();
     }
 
-    private function chechDiff($queryData)
+    private function checkDiff($queryData)
     {
         $model = \app\models\HistoryVersion::find([
                     'model' => $queryData['model'],
