@@ -190,7 +190,7 @@ abstract class Biller
                     contract_no as no,
                     unix_timestamp(contract_date) as date
                 from
-                    client_contracts
+                    client_document
                 where
                         client_id = :clientAccountId
                         and contract_date <= FROM_UNIXTIME(:dateTs)

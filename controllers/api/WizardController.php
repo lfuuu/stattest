@@ -10,7 +10,7 @@ use app\classes\Assert;
 use app\models\LkWizardState;
 use app\models\ClientAccount;
 use app\models\ClientContact;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientFile;
 use app\models\ClientBPStatuses;
 use app\models\TroubleState;
@@ -164,14 +164,14 @@ class WizardController extends /*BaseController*/ApiController
     {
         $this->loadAndCheck();
 
-        $contract = ClientContract::findOne([
+        $contract = ClientDocument::findOne([
             "client_id" => $this->accountId, 
             "user_id" => User::CLIENT_USER_ID
         ]);
 
         if (!$contract)
         {
-            $contractId = ClientContract::dao()->addContract(
+            $contractId = ClientDocument::dao()->addContract(
                 $this->accountId,
 
                 "contract",
@@ -186,7 +186,7 @@ class WizardController extends /*BaseController*/ApiController
                 User::CLIENT_USER_ID
             );
 
-            $contract = ClientContract::findOne([
+            $contract = ClientDocument::findOne([
                 "client_id" => $this->accountId, 
                 "user_id" => User::CLIENT_USER_ID
             ]);
@@ -287,7 +287,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function eraseContract()
     {
-        $contract = ClientContract::findOne([
+        $contract = ClientDocument::findOne([
             "client_id" => $this->accountId, 
             "user_id" => User::CLIENT_USER_ID
         ]);

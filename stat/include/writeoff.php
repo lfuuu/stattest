@@ -812,7 +812,7 @@ class ServiceUsageExtra extends ServicePrototype {
                             if(contract_no regexp '^[0-9]+', concat('А/',contract_no),contract_no) c_no,
                             comment
                         from 
-                            client_contracts 
+                            client_document
                         where 
                                 client_id = '" . $clientId . "'
                             and is_active =1 

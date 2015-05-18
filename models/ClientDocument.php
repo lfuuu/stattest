@@ -3,19 +3,19 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
-use app\queries\ClientContractQuery;
-use app\dao\ClientContractDao;
+use app\queries\ClientDocumentQuery;
+use app\dao\ClientDocumentDao;
 
-class ClientContract extends ActiveRecord
+class ClientDocument extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'client_contracts';
+        return 'client_document';
     }
 
     public static function find()
     {
-        return new ClientContractQuery(get_called_class());
+        return new ClientDocumentQuery(get_called_class());
     }
 
     public function getAgreements()
@@ -30,7 +30,7 @@ class ClientContract extends ActiveRecord
 
     public static function dao()
     {
-        return ClientContractDao::me();
+        return ClientDocumentDao::me();
     }
 
     public function getContent()
