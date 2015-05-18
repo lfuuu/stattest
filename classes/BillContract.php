@@ -1,5 +1,10 @@
 <?php
 
+namespace app\classes;
+
+use app\classes\DateFunction;
+use app\models\ClientDocument;
+
 class BillContract
 {
     public static function getBillItemString($clientId, $date = null)
@@ -14,29 +19,30 @@ class BillContract
 
         return "";
     }
+
     public static function getString($clientId, $date)
     {
         $contract = self::getLastContract($clientId, $date);
 
         if($contract)
-            return $contract["no"]." от ".mdate("d месяца Y",$contract["date"]) . " г.";
+            return $contract["no"]." от ".DateFunction::mdate($contract["date"], "d месяца Y") . " г.";
 
         return "";
     }
+
     public static function getLastContract($clientId, $dateTs)
     {
-        global $db;
-        return $db->GetRow("
+        return ClientDocument::getDb()->createCommand("
             select 
                 contract_no as no, 
                 unix_timestamp(contract_date) as date 
             from 
                 client_document
             where 
-                    client_id = ".$clientId." 
-                and contract_date <= FROM_UNIXTIME('".$dateTs."')
+                    client_id = :client_id
+                and contract_date <= FROM_UNIXTIME(:date_ts)
                 and type = 'contract'
             order by is_active desc, contract_date desc, id desc 
-            limit 1");
+            limit 1", [":client_id" => $clientId, ":date_ts" => $dateTs])->queryOne();
     }
 }

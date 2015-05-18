@@ -21,10 +21,11 @@ class TicketController extends ApiController
         $model = new TicketListForm();
         $model->load(Yii::$app->request->bodyParams, '');
         if ($model->validate()) {
-            return
-              $model->spawnFilteredQuery()
-                ->asArray()
-                ->all();
+            $data = [];
+            foreach($model->spawnFilteredQuery()->all() as $ticket) {
+                $data[] = $ticket->toArray();
+            }
+            return $data;
         } else {
             throw new FormValidationException($model);
         }
@@ -82,6 +83,35 @@ class TicketController extends ApiController
         } else {
             throw new FormValidationException($model);
         }
+    }
+
+    public function actionSetRead()
+    {
+        $model = DynamicModel::validateData(
+              Yii::$app->request->bodyParams,
+              [
+                  ['client_account_id', AccountIdValidator::className()],
+                  ['ticket_id', TicketIdValidator::className()],
+                  [['client_account_id', 'ticket_id'], 'required'],
+              ]
+          );
+
+        if (!$model->hasErrors()) {
+            $ticket =
+                Ticket::find()
+                    ->andWhere(['id' => $model->ticket_id])
+                    ->andWhere(['client_account_id' => $model->client_account_id])
+                    ->one();
+
+               if ($ticket->is_with_new_comment) {
+                   $ticket->is_with_new_comment = 0;
+                   $ticket->save();
+               }
+            return $ticket;;
+        } else {
+            throw new FormValidationException($model);
+        }
+        //
     }
 
 }

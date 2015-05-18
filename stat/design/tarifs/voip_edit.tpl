@@ -36,6 +36,8 @@
         <select name="currency">
             <option value="RUB"{if 'RUB' eq $data.currency} selected{/if}>RUB</option>
             <option value="USD"{if 'USD' eq $data.currency} selected{/if}>USD</option>
+            <option value="HUF"{if 'HUF' eq $data.currency} selected{/if}>HUF</option>
+            <option value="EUR"{if 'EUR' eq $data.currency} selected{/if}>EUR</option>
         </select>
     {/if}
     </td></tr>

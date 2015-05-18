@@ -313,7 +313,12 @@ $(function(){
     <tr><td style='font-size:4px' colspan=2>&nbsp;</td></tr>
     <tr><td align="right">Нал:</td><td><select name=nal class=text><option value='beznal'{if $client.nal=='beznal'} selected{/if}>безнал</option><option value='nal'{if $client.nal=='nal'} selected{/if}>нал</option><option value='prov'{if $client.nal=='prov'} selected{/if}>пров</option></select></td></tr>
     <tr><td align="right">Валюта:</td><td>
-        <select name=currency class=text><option value='RUB'{if $client.currency=='RUB'} selected{/if}>RUB</option><option value='USD'{if $client.currency=='USD'} selected{/if}>USD</option></select>
+        <select name=currency class=text>
+            <option value='RUB'{if $client.currency=='RUB'} selected{/if}>RUB</option>
+            <option value='USD'{if $client.currency=='USD'} selected{/if}>USD</option>
+            <option value='HUF'{if $client.currency=='HUF'} selected{/if}>HUF</option>
+            <option value='EUR'{if $client.currency=='EUR'} selected{/if}>EUR</option>
+        </select>
     </td></tr>
     <tr><td style='font-size:4px'colspan=2>&nbsp;</td></tr>
     <tr><td align="right"{if $client.voip_disabled or $voip_counters.auto_disabled} style="background-color: #f4a0a0;"{/if}><b>Телефония:</b></td><td{if $client.voip_disabled or $voip_counters.auto_disabled} style="background-color: #f4a0a0;"{/if}>

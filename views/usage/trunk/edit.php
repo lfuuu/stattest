@@ -9,6 +9,7 @@ use app\forms\usage\UsageTrunkSettingsForm;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\models\billing\Number;
 use app\models\billing\Pricelist;
+use app\models\billing\Trunk;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\forms\usage\UsageTrunkSettingsDeleteForm;
@@ -20,6 +21,10 @@ use app\forms\usage\UsageTrunkSettingsDeleteForm;
 /** @var $termination UsageTrunkSettings[] */
 /** @var $destination UsageTrunkSettings[] */
 
+$trunk = Trunk::findOne($usage->trunk_id);
+
+$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($usage->connection_point_id);
+
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
 $termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList('operator');
@@ -29,7 +34,7 @@ $origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getLis
 <legend>
     <?= Html::a($clientAccount->company, '/?module=clients&id='.$clientAccount->id) ?> ->
     <?= Html::a('Телефония Транки', '/?module=services&action=trunk_view') ?> ->
-    <?= Html::a($usage->trunk_name, Url::to(['edit', 'id' => $usage->id])) ?>
+    <?= Html::a($trunk->name, Url::to(['edit', 'id' => $usage->id])) ?>
 </legend>
 <?php
 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
@@ -65,7 +70,7 @@ echo Form::widget([
     'form' => $form,
     'columns' => 3,
     'attributes' => [
-        'trunk_name' => ['type' => Form::INPUT_TEXT],
+        'trunk_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $trunks, 'options' => ['class' => 'select2']],
         'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
         'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
     ],

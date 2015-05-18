@@ -39,6 +39,8 @@
         <option value=""> -- Все валюты -- </option>
         <option value="RUB"{if 'RUB' eq $f_currency} selected{/if}>RUB</option>
         <option value="USD"{if 'USD' eq $f_currency} selected{/if}>USD</option>
+        <option value="HUF"{if 'HUF' eq $f_currency} selected{/if}>HUF</option>
+        <option value="EUR"{if 'EUR' eq $f_currency} selected{/if}>EUR</option>
     </select>
 </td></tr>
 <tr><td>Показывать архивные:</td><td>

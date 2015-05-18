@@ -46,12 +46,20 @@ class MessageController extends ApiController
         );
 
         if (!$form->hasErrors()) {
-            return 
-                Message::find()
+            $message = Message::find()
                     ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
-                    ->joinWith('text')
-                    ->asArray()
                     ->one();
+
+            if ($message)
+            {
+                $messageText = $message->text->text;
+                $message = $message->toArray();
+                $message["text"] = $messageText;
+
+                return $message;
+            } else {
+                throw new \Exception("Message not found");
+            }
         } else {
             throw new FormValidationException($form);
         }
@@ -62,7 +70,7 @@ class MessageController extends ApiController
         $form = DynamicModel::validateData(
                         Yii::$app->request->bodyParams, [
                             ['client_account_id', AccountIdValidator::className()],
-                            ['id', 'int'],
+                            ['id', 'integer'],
                             [['client_account_id', 'id'], 'required'],
                         ]
         );
@@ -70,11 +78,14 @@ class MessageController extends ApiController
         if (!$form->hasErrors()) {
             $msg = Message::findOne(['id' => $form->id, 'account_id' => $form->client_account_id]);
             if ($msg) {
-                $msg->is_read = 1;
-                $msg->save();
+                if ($msg->is_read == 0) {
+                    $msg->is_read = 1;
+                    $msg->save();
+                }
                 return $msg;
-            } else
-                throw new Exception('Message not found');
+            } else {
+                throw new \Exception('Message not found');
+            }
         } else {
             throw new FormValidationException($model);
         }

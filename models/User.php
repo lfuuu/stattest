@@ -19,6 +19,9 @@ use yii\db\ActiveRecord;
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
     const SYSTEM_USER_ID = 60;
+    const CLIENT_USER_ID = 25;
+    const LK_USER_ID = 177;
+    const DEFAULT_ACCOUNT_MANAGER_USER_ID = 10;//Владимир Ан
 
     public static function tableName()
     {

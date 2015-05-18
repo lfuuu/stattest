@@ -22,6 +22,8 @@ class NumberDao extends Singleton
             $query->andWhere(['server_id' => $serverId]);
         }
 
+        $query->andWhere('show_in_stat = true');
+
         return
             ArrayHelper::map(
                 $query

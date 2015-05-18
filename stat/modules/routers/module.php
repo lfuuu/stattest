@@ -1,4 +1,7 @@
-<?
+<?php
+
+use app\clesses\Company;
+
 class m_routers {
     var $actions=array(
         'default'                => array('',''),

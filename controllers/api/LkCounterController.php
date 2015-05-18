@@ -3,10 +3,9 @@
 namespace app\controllers\api;
 
 use Yii;
-use app\exceptions\FormValidationException;
-use app\forms\support\TicketListForm;
 use app\classes\ApiController;
 use app\models\Message;
+use app\models\support\Ticket;
 
 class LkCounterController extends ApiController
 {
@@ -15,24 +14,14 @@ class LkCounterController extends ApiController
         $accountId = Yii::$app->request->bodyParams["account_id"];
 
         return [
-            "tickets_open" => $this->getTicketCount($accountId), 
+            "tickets_unread" => $this->getTicketCount($accountId), 
             "messages_unread" => $this->getMessagesUnreadCount($accountId)
             ];
     }
 
     private function getTicketCount($accountId)
     {
-        $model = new TicketListForm();
-        $data = ["client_account_id" => $accountId, "status" => ["open", "done"]];
-
-        $model->load($data, '');
-        if ($model->validate()) {
-            return
-                (int)$model->spawnFilteredQuery()
-                    ->count();
-        } else {
-            throw new FormValidationException($model);
-        }
+        return (int)Ticket::find()->where(["client_account_id" => $accountId, "is_with_new_comment" => 1])->count();
     }
 
     private function getMessagesUnreadCount($accountId)

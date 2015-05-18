@@ -42,11 +42,13 @@ class JSONQuery
             throw new Exception("VPBX Sync Error: http code: ".$info["http_code"], $info["http_code"]);
         }
 
+        $response = $result;
         $result = @json_decode($result, true);
 
 
         if (!$result)
         {
+            Yii::info('Json result not decoded: '.$response);
             throw new Exception("VPBX Sync Error: result false", -1);
         }
 

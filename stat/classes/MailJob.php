@@ -1,5 +1,7 @@
 <?php
 
+use app\classes\BillContract;
+
 class MailJob {
 	public $data = array();
 	public $client = array();

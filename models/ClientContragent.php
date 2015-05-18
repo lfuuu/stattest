@@ -4,11 +4,8 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use app\classes\behaviors\HistoryVersion;
 use app\classes\behaviors\HistoryChanges;
+use app\dao\ClientContragentDao;
 
-/**
- * @property int $id
- * @property
- */
 class ClientContragent extends ActiveRecord
 {
     public $cPerson = null;
@@ -40,12 +37,12 @@ class ClientContragent extends ActiveRecord
     
     public function getAccounts()
     {
-      return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
+        return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
     }
 
     public function getPerson()
     {
-      return $this->hasOne(ClientPerson::className(), ['contragent_id' => 'id']);
+        return $this->hasOne(ClientContragentPerson::className(), ['contragent_id' => 'id']);
     }
 
     public function behaviors()
@@ -54,5 +51,15 @@ class ClientContragent extends ActiveRecord
             HistoryVersion::className(),
             HistoryChanges::className(),
         ];
+    }
+
+    public function dao()
+    {
+        return ClientContragentDao::me();
+    }
+
+    public function saveToAccount()
+    {
+        return self::dao()->saveToAccount($this);
     }
 }

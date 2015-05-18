@@ -6,6 +6,10 @@ use app\models\ClientAccount;
 use app\classes\Assert;
 use app\models\ClientGridSettings;
 use app\models\ClientBP;
+use app\models\ClientDocument;
+use app\models\ClientFile;
+use app\models\LkWizardState;
+
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
 	var $actions=array(
@@ -803,7 +807,7 @@ class m_clients {
 		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error2('Такого клиента не существует');return;}
 
         $email = "";
-        if (($em = $db->GetRow('SELECT data FROM `client_contacts` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
+        if (($em = $db->GetRow('SELECT data FROM `client_document` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
         {
             $email = $em["data"];
         }
@@ -820,52 +824,14 @@ class m_clients {
 		$design->ProcessEx('empty.tpl');
 	}
 
-	static function fix_contract($clientId, $contractId, $contractDate)
-	{
-		global $db, $design;
-		$file = 'contracts/'.$clientId.'-'.$contractId.'.html';
-		$fileTemplate = 'contracts/'.$clientId.'-'.$contractId.'-tpl.html';
-
-		if(file_exists(STORE_PATH.$fileTemplate)) //already
-			return true;
-
-		if (!($c = $db->GetRow('select * from client_document where id="'.intval($contractId).'"'))) {
-			trigger_error2('Такого договора не существует');
-			return;
-		}
-		
-		if (!($r = ClientCS::getOnDate(intval($clientId), $c['contract_date']))) {
-			trigger_error2('Такого клиента не существует');
-			return;
-		}
-
-		ClientCS::Fetch($r,$c);
-
-
-		self::contract_fix_static_parts_of_template(file_get_contents(STORE_PATH.$file), $r["client"], $r["id"]);
-		self::contract_apply_firma($r["firma"], $contractDate);
-        self::contract_apply_support_phone($r["region"]);
-
-		ob_start();
-		$design->ProcessEx(STORE_PATH.$file);
-		$c = ob_get_clean();
-		//echo $c;
-		if(copy(STORE_PATH.$file,STORE_PATH.$fileTemplate))
-		{
-			file_put_contents(STORE_PATH.$file, $c);
-			return true;
-		}
-
-
-		return false;
-	}
 
 	function clients_print($fixclient,$default_data=''){
 		global $design,$db;
 
 		if (!($id=get_param_integer('id',$fixclient))) return;
 
-		$data=get_param_raw('data',$default_data);
+        $data=get_param_raw('data', $default_data);
+
 		if ($data=='contract') {
 			$c = $db->GetRow('select * from client_document where id="'.intval($id).'"');
 			$id = $c['client_id'];
@@ -881,33 +847,20 @@ class m_clients {
 
         if ($data=='contract') {
 
-            $file = 'contracts/'.$r['id'].'-'.$c['id'].'.html';
-            $fileTemplate = 'contracts/'.$r['id'].'-'.$c['id'].'-tpl.html';
-
-            if(file_exists(STORE_PATH.$fileTemplate)) {
-            	echo file_get_contents(STORE_PATH.$file);
-            	exit();
-            }else{
-            	$this->fix_contract($r['id'], $c['id'], $c['contract_date']);
-            }
-
-            if (!file_exists(STORE_PATH.$fileTemplate)) {
-            	echo "Ошибка. Файл не найден " . STORE_PATH . $fileTemplate;
+            $contract = ClientDocument::findOne($c["id"]);
+            if($contract) {
+            	echo $contract->content;
+                exit();
+            } else {
+            	echo "Ошибка. Файл не найден " . STORE_PATH . $file;
             	exit();
             }
 
-
-            echo file_get_contents(STORE_PATH.$file);
 
         } else {
 
         	ClientCS::Fetch($r,$c);
 
-#			header('Content-Type: application/ms-word');
-#			header('Content-Disposition: attachment; filename="document.doc"');
-#			header("Pragma: ");
-#			header("Cache-Control: ");
-#			$design->ProcessEx('clients/test.tpl.html');
 			$c = $design->fetch('../store/acts/envelope.tpl');
             if(stripos($_SERVER["HTTP_USER_AGENT"], "FireFox") !== false)
             {
@@ -935,7 +888,7 @@ class m_clients {
 		$client = ClientCS::getOnDate($contract['client_id'], $contract['contract_date']);
 		$design->assign('contract',$contract);
 		$design->assign('client',$client);
-		$design->assign('content',ClientCS::getContractTemplate($client['id'].'-'.$contract['id']));
+        $design->assign('content',ClientDocument::dao()->getTemplate($client['id'].'-'.$contract['id']));
 
 		$design->AddMain('clients/contract_edit.tpl');
 	}
@@ -960,6 +913,7 @@ class m_clients {
     $design->assign('clientAccount', $clientAccount);
     $design->assign('superClient', $superClient);
     $design->assign('contragents', $contragents);
+    $design->assign('is_wizard_allow', LkWizardState::isBPStatusAllow($clientAccount->business_process_status_id, $clientAccount->id));
 
     $voip = new VoipStatus;
     $voip->loadClient($id);
@@ -1071,7 +1025,7 @@ class m_clients {
 
 			$r['data_cs'] = $cs->GetAllStatuses();
 
-			$design->assign('cfiles',count($cs->GetFiles()));
+			$design->assign('cfiles',count($clientAccount->files));
 
 			if($design_echo){
 				$design->AddMain('clients/main_client.htm');
@@ -1572,10 +1526,15 @@ class m_clients {
 
 		$client = ClientCS::FetchClient($cId ? $cId : $fixclient);
 		if ($this->check_tele($client['id'])==0) return;
-		$cs=new ClientCS($client['id']);
-		$d = $cs->GetFiles();
-		$design->assign('files',$d);
-		$design->assign('file_last',count($d)-1);
+
+        $a = ClientAccount::findOne($cId);
+
+        if (!$a)
+            throw new Exception("ЛС не найден");
+
+        $design->assign('files', $a->files);
+        $design->assign('client_id', $cId);
+
 		$design->AddMain('clients/files.tpl');
 	}
 	function clients_files_report() {
@@ -1606,34 +1565,43 @@ class m_clients {
 		$design->AddMain('clients/files_report.tpl');
 	}
 	function clients_file_put($fixclient) {
-		global $design;
-		$client = ClientCS::FetchClient($fixclient);
+        global $design;
+
+        $clientId = get_param_integer("cid", 0);
+		$client = ClientCS::FetchClient($clientId);
 		if ($this->check_tele($client['id'])==0) return;
 
-		$cs=new ClientCS($client['id']);
-		$cs->AddFile(get_param_protected('name'),get_param_protected('comment'));
-		if ($design->ProcessEx('errors.tpl')) {
-            header('Location: ?module=clients&action=files');
-            exit();
-        }
+        $a = ClientAccount::findOne($clientId);
+
+        if (!$a)
+            throw new Exception("ЛС не найден");
+
+        $a->fileManager->addFile(get_param_protected('comment'), get_param_protected('name'));
+
+        header('Location: /?module=clients&action=files&cid='.$a->id);
+        exit();
 	}
-	function clients_file_get($fixclient) {
-		global $design;
-		$cid = get_param_integer('cid');
-		if ($this->check_tele($cid)==0) return;
-		$cs=new ClientCS($cid);
-		if ($f = $cs->GetFile(get_param_protected('id'))) {
-			header('Content-Type: archive/zip');
-			header("Pragma: ");
-			header("Cache-Control: ");
-		    header('Content-Transfer-Encoding: binary');
-			header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$f['name']).'"');
-			header("Content-Length: " . filesize($f['path']));
-			readfile($f['path']);
-			$design->ProcessEx();
-            exit();
-		}
-	}
+    function clients_file_get($fixclient) {
+        global $design;
+
+        $cid = get_param_integer('cid');
+        $fileId = get_param_protected('id');
+
+        if ($this->check_tele($cid)==0) return;
+
+        $f = ClientFile::findOne(["client_id" => $cid, "id" => $fileId]);
+        if (!$f)
+            throw new Exception("Файл не найден");
+
+        header("Content-Type: ".$f->mime);
+        header("Pragma: ");
+        header("Cache-Control: ");
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Disposition: attachment; filename="'.iconv("UTF-8","CP1251",$f->name).'"');
+        header("Content-Length: " . strlen($f->content));
+        echo $f->content;
+        exit();
+    }
 
     function clients_file_send($fixclient)
     {
@@ -1644,59 +1612,41 @@ class m_clients {
 
         $design->assign("emails", $ee = $db->AllRecordsAssoc("select data from client_contacts where client_id = '".$clientId."' and type='email' and is_official and is_active", "data", "data"));
 
+        $a = ClientAccount::findOne($clientId);
 
-		$cs=new ClientCS($clientId);
-		$f = $cs->GetFile($id);
+        if (!$a)
+            throw new Exception("ЛС не найден");
 
-        if(!$f) return;
+		$f = ClientFile::findOne(["client_id" => $a->id, "id" => $id]);
 
-        $design->assign("file_name", $f['name']);
-        $design->assign("file_name_send", $f['name']);
-        $design->assign("file_content", base64_encode(file_get_contents($f["path"])));
+        if (!$f)
+            throw new Exception("Файл не найден");
+
+        $design->assign("file_name", $f->name);
+        $design->assign("file_name_send", $f->name);
+        $design->assign("file_content", base64_encode($f->content));
         $design->assign("msg_session", md5(rand()+time()));
-        $design->assign("file_mime", $this->getMime($f["name"]));
+        $design->assign("file_mime", $f->mime);
         $design->AddMain("clients/file_send.tpl");
     }
 
-    function getMime($name)
-    {
-        $name = strtolower($name);
-
-        foreach(
-                array(
-                    "doc" => "application/msword",
-                    "pdf" => "application/pdf",
-                    "gif" => "image/gif",
-                    "tif" => "image/tiff",
-                    "tiff" => "image/tiff",
-                    "jpeg" => "image/jpeg",
-                    "jpg" => "image/jpeg",
-                    "jpe" => "image/jpeg",
-                    "htm" => "text/html",
-                    "html" => "text/html",
-                    "txt" => "text/plain",
-                    "zip" => "application/zip",
-                    "rar" => "application/rar",
-                    "xls" => "application/vnd.ms-excel",
-                    "ppt" => "application/vnd.ms-powerpoint"
-                    ) as $ext => $mime)
-        {
-            if(strpos($name, ".".$ext))
-            {
-                return $mime;
-            }
-        }
-
-        return "text/plain";
-    }
 
 	function clients_file_del($fixclient) {
-		global $design;
-		$client = ClientCS::FetchClient($fixclient);
-		if ($this->check_tele($client['id'])==0) return;
-		$cs=new ClientCS($client['id']);
-		$cs->DeleteFile(get_param_protected('id'));
-		if ($design->ProcessEx('errors.tpl')) header('Location: ?module=clients&action=files');
+        global $design;
+
+        $clientId = get_param_protected("id");
+		$client = ClientCS::FetchClient($clientId);
+        if ($this->check_tele($client['id'])==0) return;
+
+        $a = ClientAccount::findOne($clientId);
+
+        if ($a)
+        {
+            $a->fileManager->removeFile(get_param_raw("file_id"));
+        }
+
+        header('Location: /?module=clients&action=files&cid='.$a->id);
+        exit();
 	}
     function clients_recontact() {
         global $design;
@@ -1807,76 +1757,33 @@ class m_clients {
 		global $design,$db;
 		$id=get_param_protected('id');
 		if($this->check_tele($id)==0)
-			return;
+            return;
+
+
         $content = get_param_raw('contract_content');
         $contractType = get_param_raw("contract_type", "contract");
-
-        Assert::isNotFalse(in_array($contractType, ["contract", "blank", "agreement"]));
-
-        $group = ClientCS::contract_getFolder(get_param_raw("contract_template_group"));
-
-		if(!$content)
-			$content = ClientCS::getContractTemplate('template_'.$group."_".get_param_protected('contract_template'));
-
-        $content = self::contract_fix_static_parts_of_template($content, '', $id);
-
-        if(strpos($content, "{/literal}</style>") === false)
-        {
-            $content = preg_replace("/<style([^>]*)>(.*?)<\/style>/six", "<style\\1>{literal}\\2{/literal}</style>", $content);
-        }
-
-        $cs=new ClientCS($id);
+        $contractGroup = get_param_raw("contract_template_group");
+        $contractTemplate = get_param_protected('contract_template');
+        $contractDate = get_param_protected('contract_date');
+        $contractNo = get_param_protected('contract_no');
 
 
-        $lastContract = BillContract::getLastContract($id, time());
+        $contractId = ClientDocument::dao()->addContract(
+            $id,
 
-        $contractNo = $lastContract["no"];
-        $contractDate = date("d.m.Y", $lastContract["date"]);
-        $contractDopDate = "01.01.2012";
-        $contractDopNo = "0";
-
-        if ($contractType == "contract")
-        {
-            $contractDate = get_param_protected('contract_date');
-            $contractNo = get_param_protected('contract_no');
-        } else {
-
-            if ($contractType == "agreement")
-            {
-                $contractDopNo = get_param_protected('contract_no');
-                $contractDopDate = get_param_protected('contract_date');
-
-                $lastContract = BillContract::getLastContract($id, (strtotime($contractDopDate) ?: time()));
-
-                $contractNo = $lastContract["no"];
-                $contractDate = date("d.m.Y", $lastContract["date"]);
-            } else { //blank
-                $contractDopDate = date("d.m.Y");
-            }
-        }
-
-        list($d, $m, $y) = explode(".", $contractDate);
-        $contractDate = $y."-".$m."-".$d;
-
-        list($d, $m, $y) = explode(".", $contractDopDate);
-        $contractDopDate = $y."-".$m."-".$d;
-
-		$contractId = $cs->AddContract(
-            $content,
             $contractType,
+            $contractGroup,
+            $contractTemplate,
+
 			$contractNo,
             $contractDate,
-            $contractDopNo,
-            $contractDopDate,
+
+            $content,
 			get_param_protected('comment')
 		);
 
-        $this->fix_contract($id, $contractId, $contractDate);
 		header("Location: ./?module=clients&id=".$id."&contract_open=true");
 		exit();
-
-		$design->assign('contract_open',true);
-		$this->client_view($id);
 	}
 	function clients_recontract2() {
 		global $design,$db,$user;
@@ -2136,226 +2043,7 @@ DBG::sql_out($select_client_data);
 		exit();
 	}
 
-    static function contract_fix_static_parts_of_template(&$content, $client, $clientId=0){
-		global $db;
-        global $design;
 
-        if(($pos = strpos($content, "{\$include_")) !== false)
-        {
-        	$c = substr($content, $pos);
-        	$templateName = substr($c, 10, strpos($c, "}")-10);
-
-        	$fname =STORE_PATH."contracts/template_".$templateName.".html";
-
-        	if(file_exists($fname))
-        	{
-        		$c = file_get_contents($fname);
-        		$design->assign("include_".$templateName, $c);
-        	}
-
-        	$fname =STORE_PATH."contracts/".$templateName.".html";
-        	if(file_exists($fname))
-        	{
-        		$c = file_get_contents($fname);
-        		$design->assign("include_".$templateName, $c);
-        	}
-
-
-        }
-
-        if(strpos($content, "{*#subarenda_cmc#*}") !== false)
-        {
-            $r = $db->AllRecords($q =
-                        "SELECT *,
-                        unix_timestamp(u.actual_from) `from`, unix_timestamp(u.actual_to) `to`, amount,
-                        substring_index(param_value, ',',1) floor, substring(param_value, instr(param_value, ',')+1) office, t.price
-                        FROM `usage_extra` u , tarifs_extra t
-                        where client = '".$client."'
-                        and u.tarif_id = t.id
-                        and t.status ='itpark' and (description like 'Аренда%' or description like 'аренда%')
-                        and actual_from < '3000-01-01' and unix_timestamp(u.actual_to) > ".time()."
-                        order by  actual_from desc, u.id desc");
-
-            $rr = array("from" => @$r[0]["from"], "to" => @$r[0]["to"], "sum" => 0);
-            $s = array();
-            foreach($r as $a)
-            {
-                $rr["sum"] += $a["amount"]*$a["price"];
-                $s[] = array(
-                        "floor" => $a["floor"],
-                        "office" => $a["office"],
-                        "amount" => round($a["amount"],4),
-                        "is_store" => strpos(strtolower($a["office"]), "склад") !== false
-                        );
-            }
-            $rr["s"] = $s;
-
-
-
-            $design->assign("contract_date", $db->GetValue("select contract_date from client_document where client_id = '".$clientId."' and comment like '%огово%' order by id desc limit 1"));
-
-
-            //printdbg($r);
-            //printdbg($rr);
-
-            $design->assign("subarenda", $rr);
-        }
-
-		if(strpos($content, '{*#mcm#*}')!==false){
-            //Услуги по обеспечению контроля территории
-            $design->assign("mcm", $db->GetRow(
-                        "select actual_from, actual_to, amount, price 
-                        from usage_extra u, tarifs_extra t 
-                        where tarif_id in (196,330,332,333) and client='".$client."' and tarif_id = t.id order by u.id desc limit 1"));
-        }
-
-        if (strpos($content, "{*#blank_zakaz#*}") !== false)
-        {
-            $content = str_replace("{*#blank_zakaz#*}", self::makeBlankZakaz($clientId), $content);
-        }
-
-
-		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
-			$repl = '';
-			// москва(моб.)
-			$query = "
-				select
-					`destination_name`,
-					`destination_prefix`,
-					substring(`destination_prefix` from 2 for 3) `code`,
-					`rate_RUB`
-				from
-					`price_voip`
-				where
-					`dgroup`=0
-				and
-					`dsubgroup`=0
-				order by
-					`destination_prefix`
-			";
-			$db->Query($query);
-			while($row=$db->NextRecord(MYSQL_ASSOC)){
-				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
-			}
-			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
-        }
-
-		return $content;
-    }
-
-    static function makeBlankZakaz($clientId)
-    {
-        $client = ClientAccount::findOne(["id" => $clientId])->client;
-
-        $data = ['voip' => [], 'ip' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
-
-
-        foreach(\app\models\UsageVoip::find()->client($client)->actual()->all() as $a)
-        {
-            $data['voip'][] = [
-                'from' => $a->actual_from,
-                'description' => "Телефонный номер: " . $a->E164,
-                'number' => $a->E164,
-                'lines' => $a->no_of_lines,
-                'free_local_min' => $a->currentTariff->free_local_min,
-                'connect_price' => (string)$a->voipNumber->price,
-                'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($a->currentTariff->month_number, 2),
-                'per_month_with_tax' => round($a->currentTariff->month_number * 1.18, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $a)
-        {
-            $data['ip'][] = [
-                'from' => $a->actual_from,
-                'id' => $a->id,
-                'tarif_name' => $a->currentTariff->name,
-                'pay_once' => $a->currentTariff->pay_once,
-                'gb_month' => $a->currentTariff->mb_month/1024,
-                'pay_mb' => $a->currentTariff->pay_mb,
-                'per_month' => round($a->currentTariff->pay_month, 2),
-                'per_month_with_tax' => round($a->currentTariff->pay_month * 1.18, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->actual()->all() as $a)
-        {
-            $data['vats'][] = [
-                'from' => $a->actual_from,
-                'description' => "ВАТС #".$a->id,
-                'tarif_name' => $a->currentTariff->description,
-                'space' => $a->currentTariff->space,
-                'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
-                'num_ports' => $a->currentTariff->num_ports,
-                'overrun_per_port' => $a->currentTariff->overrun_per_port,
-                'per_month' => round($a->currentTariff->price, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * 1.18, 2)
-            ];
-        }
-
-        /*
-        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $a)
-        {
-            $data['sms'][] = [
-                'from' => $a->actual_from,
-                'description' => "SMS-рассылка",
-                'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->per_month_price/1.18, 2),
-                'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
-            ];
-        }
-
-        foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $a)
-        {
-            $data['extra'][] = [
-                'from' => $a->actual_from,
-                'description' => "Доп. услуга", 
-                'amount' => $a->amount,
-                'tarif_name' => $a->currentTariff->description,
-                'per_month' => round($a->currentTariff->price * $a->amount, 2),
-                'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
-            ];
-        }
-         */
-
-        global $design;
-
-        $design->assign("blank_data", $data);
-
-        return $design->fetch("tarifs/blank.htm");
-    }
-
-
-    static function contract_apply_support_phone($region)
-    {
-        switch($region)
-        {
-            case '97': $phone = "(861) 204-00-99"; break;
-            case '98': $phone = "(812) 372-69-99"; break;
-            case '95': $phone = "(343) 302-00-99"; break;
-            case '94': $phone = "(383) 312-00-99"; break;
-            case '96': $phone = "(846) 215-00-99"; break;
-            case '87': $phone = "(863) 309-00-99"; break;
-            case '93': $phone = "(843) 207-00-99"; break;
-            case '88': $phone = "(831) 235-00-99"; break;
-            case '99':
-            default: 
-                $phone = "(495) 105-99-95";
-        }
-
-        global $design;
-
-        $design->assign("support_phone", $phone);
-    }
-
-    static function contract_apply_firma($firma, $date = null)
-    {
-        global $design;
-
-        $design->assign("firm_detail", Company::getDetail($firma, $date));
-        $design->assign("firm", Company::getProperty($firma, $date));
-    }
 
 	function clients_rpc_findClient1c(){
 		require_once INCLUDE_PATH.'1c_integration.php';
@@ -2804,8 +2492,8 @@ DBG::sql_out($select_client_data);
                 $d[$k][$k2]['link']=PROTOCOL_STRING.$_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']).'/view.php?code='.$p;
             }
         }
-        $design->assign('contracts',$d);
-        $design->assign('templates',ClientCS::contract_listTemplates(true));
+        $design->assign('contracts', $d);
+        $design->assign('templates',ClientDocument::dao()->contract_listTemplates(true));
         $design->assign("client_id", $clientAccount->id);
 
         echo $design->fetch("clients/contract/form.htm");

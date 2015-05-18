@@ -112,8 +112,6 @@ class TroubleDao extends Singleton
             return;
         }
 
-
-
         $stage = TroubleStage::findOne($trouble->cur_stage_id);
         Assert::isObject($stage);
 
@@ -134,5 +132,43 @@ class TroubleDao extends Singleton
         } else {
             return Trouble::DEFAULT_SUPPORT_USER;
         }
+    }
+
+    public function addStage($trouble, $newStateId, $comment, $newUserMainId = null, $userEditId = null)
+    {
+        if (!$userEditId)
+        {
+            $userEdit = \Yii::$app->user->getIdentity();
+        } else {
+            $userEdit = User::findOne(["id" => $userEditId]);
+        }
+
+        $userMain = null;
+        if ($newUserMainId)
+            $userMain = User::findOne(["id" => $newUserMainId]);
+
+        Assert::isObject($userEdit);
+        Assert::isObject($trouble);
+
+        $curStage = $trouble->currentStage;
+        Assert::isObject($curStage);
+
+        $curStage->user_edit = $userEdit->user;
+
+        if (trim($comment))
+            $curStage->comment = $comment;
+
+        $curStage->save();
+
+        $stage = new TroubleStage();
+        $stage->trouble_id = $trouble->id;
+        $stage->state_id = $newStateId;
+        $stage->user_main = $userMain ? $userMain->user : $curStage->user_main;
+        $stage->date_start = (new \DateTime())->format(\DateTime::ATOM);
+        $stage->save();
+
+        $trouble->cur_stage_id = $stage->stage_id;
+        $trouble->save();
+        return $stage;
     }
 }

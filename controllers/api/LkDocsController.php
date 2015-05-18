@@ -1,0 +1,178 @@
+<?php
+
+namespace app\controllers\api;
+
+use Yii;
+use app\classes\validators\AccountIdValidator;
+use app\exceptions\FormValidationException;
+use app\classes\ApiController;
+use app\classes\DynamicModel;
+use app\models\ClientDocument;
+use app\models\ClientAccount;
+
+class LkDocsController extends ApiController
+{
+    private $accountId = 0;
+
+    private function validateAccountId()
+    {
+        $form = DynamicModel::validateData(
+            Yii::$app->request->bodyParams, 
+            [
+                ['account_id', AccountIdValidator::className()],
+                ["account_id", "required"]
+            ]
+        );
+
+        if (!$form->hasErrors()) {
+            $this->accountId = $form->account_id;
+            return true;
+        } else {
+            throw new \Exception("Account not found");
+        }
+    }
+
+    public function actionSections()
+    {
+        $this->validateAccountId();
+
+        $data = [["type" => "property", "id" => 0]];
+
+        $contract = ClientDocument::find()->account($this->accountId)->active()->contract()->last();
+
+        if ($contract)
+        {
+            $data[] = [
+                "type" => "contract",
+                "id"   => $contract->id, 
+                "no"   => $contract->contract_no, 
+                "date" => strtotime($contract->contract_date)
+                ];
+
+            if ($contract->blank)
+            {
+                $data[] = [
+                    "type" => "blank",
+                    "id" => $contract->blank->id,
+                    ];
+            }
+
+            foreach($contract->agreements as $agreement)
+            {
+                $data[] = [
+                    "type" => "agreement",
+                    "id" => $agreement->id, 
+                    "no" => $agreement->contract_dop_no, 
+                    "date" => strtotime($agreement->contract_dop_date)
+                    ];
+            }
+        }
+
+        return $data;
+    }
+
+    public function getProperty()
+    {
+        $c = ClientAccount::findOne($this->accountId)->contragent;
+
+        $return = ["error" => "Error"];
+
+        if ($c->legal_type == "legal")
+        {
+            $return = [
+                'company_name' => $c->name, 
+                'address_jur' => $c->address_jur,
+                'inn' => $c->inn,
+                'kpp' => $c->kpp,
+                'signer_position' => $c->position,
+                'signer_fio' => $c->fio,
+                ];
+        } else if ($c->legal_type == "ip")
+        {
+            $return = [
+                'company_name' => $c->name,
+                'address_jur' => $c->address_jur,
+                'first_name' => $c->person->first_name,
+                'last_name' => $c->person->last_name,
+                'inn' => $c->inn,
+                'ogrn' => $c->ogrn,
+                ];
+        } else { //person
+
+            $passportSerial = $c->person->passport_serial;
+            $passportSerial = 
+                strlen($passportSerial) > 2 
+                ? substr($passportSerial, 0, 2).preg_replace("/\d/", "*", substr($passportSerial, 2)) 
+                : $passportSerial;
+
+            $passportNumber = $c->person->passport_number;
+            $passportNumber = 
+                strlen($passportNumber) > 2 
+                ? substr($passportNumber, 0, 1).preg_replace("/\d/", "*", substr($passportNumber, 1, strlen($passportNumber)-2)).substr($passportNumber, strlen($passportNumber)-1) 
+                : $passportNumber;
+
+            $return = [
+                'first_name' => $c->person->first_name,
+                'last_name' => $c->person->last_name,
+                'passport_serial' => $passportSerial,
+                'passport_number' => $passportNumber,
+                'passport_date_issued' => ($c->person->passport_date_issued == "0000-00-00" ? 0 : strtotime($c->person->passport_date_issued)),
+                'passport_issued' => $c->person->passport_issued ? "***" : "",
+                'address' => $c->person->address,
+                ];
+        }
+
+        //return str_replace("\n", "<br>\n", var_export($return, true));
+        return $return;
+    }
+
+    public function actionDocument()
+    {
+        $form = DynamicModel::validateData(
+            Yii::$app->request->bodyParams, 
+            [
+                ["account_id", AccountIdValidator::className()],
+                [["account_id", "id"], "required"],
+            ]
+        );
+
+        if ($form->hasErrors()) 
+        {
+            throw new FormValidationException($form);
+        }
+
+        $this->accountId = $form->account_id;
+
+        if ($form->id == 0)
+        {
+            return $this->getProperty();
+        }
+
+        $document = ClientDocument::find()
+            ->account($this->accountId)
+            ->active()
+            ->andWhere(["id" => $form->id])
+            ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date", "client_id"])
+            ->one();
+
+
+        if (!$document) 
+        {
+            $form->addError("id", "Document not found");
+            throw new FormValidationException($form);
+        }
+
+        $result = $document->toArray();
+        $result["content"] = $document->content;
+
+        if ($document->type != "agreement")
+        {
+            unset($result["contract_dop_no"], $result["contract_dop_date"]);
+        }
+
+        unset($result["client_id"]);
+
+        return $result;
+    }
+
+}

@@ -2,6 +2,7 @@
 namespace app\forms\usage;
 
 use app\classes\Assert;
+use app\models\billing\Trunk;
 use Yii;
 use DateTimeZone;
 use DateTime;
@@ -22,10 +23,10 @@ class UsageTrunkEditForm extends UsageTrunkForm
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['connection_point_id', 'client_account_id', 'trunk_name', 'actual_from'], 'required', 'on' => 'add'];
-        //$rules[] = [['trunk_name'], 'validateTrunkName', 'on' => 'add'];
-        $rules[] = [['orig_min_payment', 'term_min_payment','trunk_name',], 'required', 'on' => 'edit'];
-        //$rules[] = [['trunk_name'], 'validateTrunkName', 'on' => 'edit'];
+        $rules[] = [['connection_point_id', 'client_account_id', 'trunk_id', 'actual_from'], 'required', 'on' => 'add'];
+        $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => 'add'];
+        $rules[] = [['orig_min_payment', 'term_min_payment','trunk_id',], 'required', 'on' => 'edit'];
+        $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => 'edit'];
         return $rules;
     }
 
@@ -52,7 +53,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->actual_to = $actualTo->format('Y-m-d');
         $usage->activation_dt = $activationDt->format('Y-m-d H:i:s');
         $usage->expire_dt = $expireDt->format('Y-m-d H:i:s');
-        $usage->trunk_name = $this->trunk_name;
+        $usage->trunk_id = $this->trunk_id;
         $usage->orig_enabled = $this->orig_enabled;
         $usage->term_enabled = $this->term_enabled;
         $usage->orig_min_payment = $this->orig_min_payment;
@@ -81,7 +82,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage = $this->usage;
         Assert::isTrue($usage->isActive());
 
-        $usage->trunk_name = $this->trunk_name;
+        $usage->trunk_id = $this->trunk_id;
         $usage->orig_enabled = $this->orig_enabled;
         $usage->term_enabled = $this->term_enabled;
         $usage->orig_min_payment = $this->orig_enabled ? $this->orig_min_payment : 0;
@@ -118,40 +119,21 @@ class UsageTrunkEditForm extends UsageTrunkForm
             $this->connection_point_id = $usage->connection_point_id;
 
             $this->setAttributes($usage->getAttributes(), false);
-            $this->trunk_name = $usage->trunk_name;
+            $this->trunk_id = $usage->trunk_id;
         } else {
             $this->actual_from = $this->today->format('Y-m-d');
         }
     }
 
-    public function validateTrunkName($attribute, $params)
+    public function validateTrunkId($attribute, $params)
     {
-        if (!$this->trunk_name) {
+        if (!$this->trunk_id) {
             return;
         }
 
-        $actualFrom = new DateTime($this->actual_from, $this->timezone);
-        $activationDt = clone $actualFrom;
-        $activationDt->setTimezone(new DateTimeZone('UTC'));
-
-        $actualTo = new DateTime('4000-01-01', $this->timezone);
-        $expireDt = clone $actualTo;
-        $expireDt->setTimezone(new DateTimeZone('UTC'));
-
-        $queryTrunk =
-            UsageTrunk::find()
-                ->andWhere(['connection_point_id' => $this->connection_point_id])
-                ->andWhere(['trunk_name' => $this->trunk_name])
-                ->andWhere(
-                    '(activation_dt between :from and :to) or (expire_dt between :from and :to)',
-                    [':from' => $activationDt->format('Y-m-d H:i:s'), ':to' => $expireDt->format('Y-m-d H:i:s')]
-                );
-        if ($this->id) {
-            $queryTrunk->andWhere('id != :id', [':id' => $this->id]);
-        }
-        $usages = $queryTrunk->all();
-        foreach ($usages as $usage) {
-            $this->addError('trunk_name', "Имя транка пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
+        $trunk = Trunk::findOne($this->trunk_id);
+        if ($trunk === null) {
+            $this->addError('trunk_id', "Транк #{$this->trunk_id} не найден");
         }
     }
 }

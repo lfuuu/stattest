@@ -1,4 +1,7 @@
 <?php
+
+use app\classes\BillContract;
+
 global $writeoff_services;
 $writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails","usage_sms");
 

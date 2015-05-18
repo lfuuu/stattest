@@ -8,7 +8,7 @@ use DateTime;
  * @property int    $id
  * @property int    $client_account_id
  * @property int    $connection_point_id
- * @property string $trunk_name
+ * @property int    $trunk_id
  * @property string $actual_from
  * @property string $actual_to
  * @property string $activation_dt
