@@ -1,6 +1,6 @@
 <?php
 
-use app\clesses\Company;
+use app\classes\Company;
 
 class m_routers {
     var $actions=array(
