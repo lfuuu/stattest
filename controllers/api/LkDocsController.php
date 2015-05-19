@@ -122,8 +122,19 @@ class LkDocsController extends ApiController
                 ];
         }
 
-        //return str_replace("\n", "<br>\n", var_export($return, true));
-        return $return;
+        $data = [];
+        $counter = 1;
+        foreach($return as $title => $value)
+        {
+            $data[] = [
+                "id" => $counter++,
+                "title" => $title,
+                "value" => $value,
+                "tips" => false
+                ];
+        }
+
+        return $data;
     }
 
     public function actionDocument()
