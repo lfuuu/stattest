@@ -9,6 +9,7 @@ use app\classes\BillContract;
 use app\models\Contract;
 use app\models\ClientDocument;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 
 class ClientDocumentDao extends Singleton
 {
@@ -235,6 +236,7 @@ class ClientDocumentDao extends Singleton
         $this->design = \app\classes\Smarty::init();
         $this->design->assign("client", $r);
         $this->design->assign("contract", $c);
+        $this->design->assign("contact", ClientContact::dao()->GetContact($r["id"]));
 
 
 		$content = $this->contract_fix_static_parts_of_template(file_get_contents(Yii::$app->params['STORE_PATH'].$file), $clientId);
