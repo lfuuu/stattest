@@ -25,7 +25,13 @@ class Navigation
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');
-        $this->addBlockForStatModule('voipnew');
+//        $this->addBlock(
+//            $this->getBlockForStatModule('voipnew')
+//                ->addItem('Плайслисты Оригинация', ['voip/pricelist/list', 'local' => 0, 'orig' => 1])
+//                ->addItem('Плайслисты Терминация', ['voip/pricelist/list', 'local' => 0, 'orig' => 0])
+//                ->addItem('Плайслисты Местные', ['voip/pricelist/list', 'local' => 1, 'orig' => 0])
+//                ->addItem('Местные Префиксы', ['voip/network-config/list'])
+//        );
         $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
@@ -67,23 +73,24 @@ class Navigation
         }
         return $this;
     }
-    
 
-    private function addBlockForStatModule($moduleName)
+    /**
+     * @return NavigationBlock
+     */
+    private function getBlockForStatModule($moduleName)
     {
         $statModule = StatModule::getHeadOrModule($moduleName);
 
         list($title, $items) = $statModule->GetPanel(null);
 
         if (!$title || !$items) {
-          return $this;
+            return null;
         }
 
         $block =
             NavigationBlock::create()
                 ->setId($moduleName)
-                ->setTitle($title)
-            ;
+                ->setTitle($title);
         foreach ($items as $item) {
             $url =
                 substr($item[1], 0, 1) == '/'
@@ -92,7 +99,15 @@ class Navigation
             $block->addItem($item[0], $url);
         }
 
-        $this->addBlock($block);
+        return $block;
+    }
+
+    private function addBlockForStatModule($moduleName)
+    {
+        $block = $this->getBlockForStatModule($moduleName);
+        if ($block !== null) {
+            $this->addBlock($block);
+        }
         return $this;
     }
     

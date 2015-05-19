@@ -896,7 +896,7 @@ class ApiLk
                             "actual_to"     => "4000-01-01",
                             "amount"        => 1,
                             "status"        => "connecting",
-                            "server_pbx_id" => 1
+                            "server_pbx_id" => 2 //vpbx-msk
                             )
                         );
 

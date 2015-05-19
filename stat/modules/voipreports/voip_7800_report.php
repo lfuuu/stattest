@@ -40,9 +40,9 @@ class m_voipreports_voip_7800_report
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
             $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59';
 
-            $where  = " and (time between '".$date_from."' and '".$date_to."') ";
-            $where .= ' and direction_out = false ';
-            $where .= " and usage_num::varchar like '7800%'";
+            $where  = " and (connect_time between '".$date_from."' and '".$date_to."') ";
+            $where .= ' and orig = true ';
+            $where .= " and dst_number::varchar like '7800%'";
 
 
             if ($operator>0) {
@@ -50,17 +50,17 @@ class m_voipreports_voip_7800_report
             }
 
             if ($groupp == 1) {
-                $god = " group by day,operator_id ";
-                $sod = " ,day as date";
+                $god = " group by date_trunc('day',connect_time),operator_id ";
+                $sod = " ,date_trunc('day',connect_time) as date";
                 $ob = " order by date, operator_id";
             } elseif ($groupp == 2) {
-                $god = " group by month, operator_id ";
-                $sod = " ,month as date";
+                $god = " group by date_trunc('month',connect_time), operator_id ";
+                $sod = " ,date_trunc('month',connect_time) as date";
                 $ob = " order by date, operator_id";
             } elseif ($groupp == 3) {
-                $god = " group by usage_num, operator_id ";
-                $sod = " ,usage_num as date";
-                $ob = " order by usage_num, operator_id ";
+                $god = " group by dst_number, operator_id ";
+                $sod = " ,dst_number as date";
+                $ob = " order by dst_number, operator_id ";
             }else{
                 $god = ' group by operator_id ';
                 $sod = '';
@@ -70,16 +70,14 @@ class m_voipreports_voip_7800_report
             $query = "
                 select
                     count(*) as count,
-                    sum(len) / 60.0 as len,
-                    sum(len_op) / 60.0 as len_op,
-                    sum(len_mcn) / 60.0 as len_mcn,
-                    cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as amount_op,
-                    cast(sum(amount)/100.0 as NUMERIC(10,2)) as amount_mcn,
+                    sum(billed_time) / 60.0 as len_op,
+                    -sum(cost) as amount_op,
                     operator_id as operator_id
                     ".$sod."
-                from
-                    " . ($region ? "calls.calls_{$region}" : "calls.calls") . "
-                where len>0
+                from calls_raw.calls_raw
+                where
+                    " . ($region ? "server_id = {$region} and" : '') . "
+                    billed_time>0
                     ".$where.$god.$ob;
 
             $report = $pg_db->AllRecords($query);

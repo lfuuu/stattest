@@ -176,7 +176,7 @@ class WizardController extends /*BaseController*/ApiController
 
                 "contract",
                 "MCN",
-                "Usludi_svyazi",
+                "Dog_UslugiSvayzi",
 
                 $this->accountId."-".date("Y"),
                 date("d.m.Y"),
@@ -222,6 +222,20 @@ class WizardController extends /*BaseController*/ApiController
             return ["errors" => ["file" => "error upload file"]];
         }
     }
+
+    public function actionSaveContacts()
+    {
+        $data = $this->loadAndCheck();
+        $result = $this->_saveStep3($data);
+
+        if ($result === true)
+        {
+            return $this->makeWizardFull();
+        } else {
+            return $result;
+        }
+    }
+        
 
     private function makeWizardFull()
     {

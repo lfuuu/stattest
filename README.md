@@ -1,7 +1,7 @@
 УСТАНОВКА
 ---------
 ```
-git clone git@github.com:welltime/voip_gui.git
+git clone git@github.com:welltime/stat.git
 ```
 ```
 curl -sS https://getcomposer.org/installer | php

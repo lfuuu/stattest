@@ -761,23 +761,12 @@ class ClientCS {
         }
     }
     public function GetContacts($type = null,$onlyActive = false,$onlyOfficial = false) {
-        global $db;
-        $wh = '';
-        if ($type) $wh.= ' and client_contacts.type="'.addslashes($type).'"';
-        if ($onlyActive) $wh.= ' and client_contacts.is_active=1';
-        if ($onlyOfficial) $wh.= ' and client_contacts.is_official=1';
-        return $db->AllRecords("select client_contacts.*,user_users.user from client_contacts LEFT JOIN user_users ON user_users.id=client_contacts.user_id where client_id=".$this->id. $wh." order by client_contacts.id");
+        return app\models\ClientContact::dao()->GetContacts($this->id, $type, $onlyActive, $onlyOfficial);
     }
 
 
     public function GetContact($onlyOfficial = true) {
-        global $db;
-        $V = $this->GetContacts(null,true,$onlyOfficial);
-        $R = array('fax'=>array(),'phone'=>array(),'email'=>array());
-        if ($V) {
-            foreach ($V as $v) $R[$v['type']][] = $v;
-        }
-        return $R;
+        return app\models\ClientContact::dao()->GetContact($this->id, $onlyOfficial);
     }
 
     public function GetContactsFromLK($type = null) {
@@ -1819,7 +1808,7 @@ class send
         include_once(INCLUDE_PATH.'WebIcqLite.class.php');
 
         $icq = new WebIcqLite();
-        if($icq->connect("415601006", 'iddqd111'))
+        if($icq->connect('661127544', 'eiS8vaimD#'))
         {
             if(!$icq->send_message($uin, iconv("utf-8", "cp1251", $msg)))
             {

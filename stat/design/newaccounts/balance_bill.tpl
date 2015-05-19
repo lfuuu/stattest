@@ -5,6 +5,9 @@
 <label for="r1">По менеджеру: </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=radio name="user_type" id="r1" value="manager"{if $user_type == 'manager'} checked{/if}><br />
 <label for="r2">По создателю счета: </label><input type=radio name="user_type" id="r2" value="creator"{if $user_type != 'manager'} checked{/if}><font style="font-size: 8pt;">(так же последний редактировавший)</font><br />
 <label for="r3">Сводный: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><input type=radio name="user_type" id="r3" value="union"{if $user_type == 'union'} checked{/if}><font style="font-size: 8pt;">(по менеджеру+по создателю счета)</font><br />
+<br />
+<label for="r4">По дате создания счета&nbsp;&nbsp;</label><input type=radio name="report_by" value="bill_created" id="r4"{if $report_by == "bill_created"} checked{/if}><br>
+<label for="r5">По дате закрытия счета&nbsp;&nbsp;</label><input type=radio name="report_by" value="bill_closed" id="r5"{if $report_by != "bill_created"} checked{/if}><br>
 
 <SELECT name=manager><option value=''>не определено</option>{foreach from=$users_manager item=item key=user}<option value='{$item.user}' {if isset($item.selected)}{$item.selected}{/if}>{$item.name} ({$item.user})</option>{/foreach}</select>
 От <input type=text class=text name='date_from' id='date_from' value='{$date_from}'> до <input type=text class=text id='date_to' name='date_to' value='{$date_to}'><br>

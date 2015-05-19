@@ -439,7 +439,8 @@ class prices_parser
         $rowIterator = $objWorksheet->getRowIterator();
         $table = array();
         $isFindHeader = false;
-        $price_column = 1;
+        $def_column = 'A';
+        $price_column = 'B';
         foreach ($rowIterator as $row) {
             if (!$isFindHeader) {
                 $isFindHeader = true;
@@ -457,7 +458,7 @@ class prices_parser
                 $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
                 $table_row = array('startdate' => date('Y-m-d'), 'deleting' => 0, 'currency_id' => 1);
                 foreach ($cellIterator as $cell) {
-                    if ($cellIterator->key() == 0) {
+                    if ($cellIterator->key() == $def_column) {
                         $table_row['defcode'] = strip_tags(trim($cell->getCalculatedValue()));
                     }
                     if ($cellIterator->key() == $price_column) {
@@ -485,10 +486,10 @@ class prices_parser
                 $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells
                 $table_row = array();
                 foreach ($cellIterator as $cell) {
-                    if ($cellIterator->key() == 0) {
+                    if ($cellIterator->key() == 'A') {
                         $table_row['defcode'] = strip_tags(trim($cell->getCalculatedValue()));
                     }
-                    if ($cellIterator->key() == 1) {
+                    if ($cellIterator->key() == 'B') {
                         $table_row['price'] = number_format(floatval(str_replace(',', '.', $cell->getCalculatedValue())), 4, '.', '');
                     }
                 }
@@ -563,13 +564,13 @@ class prices_parser
                 $prefixFrom = '';
                 $prefixTo = '';
                 foreach ($cellIterator as $cell) {
-                    if ($cellIterator->key() == 1) {
+                    if ($cellIterator->key() == 'B') {
                         $def = '7' . strip_tags(trim($cell->getCalculatedValue()));
                     }
-                    if ($cellIterator->key() == 3) {
+                    if ($cellIterator->key() == 'D') {
                         $prefixFrom = strip_tags(trim($cell->getCalculatedValue()));;
                     }
-                    if ($cellIterator->key() == 4) {
+                    if ($cellIterator->key() == 'E') {
                         $prefixTo = strip_tags(trim($cell->getCalculatedValue()));;
                     }
                 }
@@ -594,7 +595,7 @@ class prices_parser
         $rowIterator = $objWorksheet->getRowIterator();
         $table = array();
         $isFindHeader = false;
-        $column = 1;
+        $column = 'B';
         foreach ($rowIterator as $row) {
             if (!$isFindHeader) {
 
@@ -613,7 +614,7 @@ class prices_parser
                 $code = '';
                 $group = '';
                 foreach ($cellIterator as $cell) {
-                    if ($cellIterator->key() == 0) {
+                    if ($cellIterator->key() == 'A') {
                         $code = strip_tags(trim($cell->getCalculatedValue()));
                     }
                     if ($cellIterator->key() == $column) {

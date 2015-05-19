@@ -32,17 +32,17 @@ class m_voipreports_calls_report
         $report = array();
         if (isset($_GET['make'])) {
 
-            $where = " and r.time >= '{$date_from}'";
-            $where .= " and r.time <= '{$date_to} 23:59:59'";
-            $where .= $f_direction_out == 'f' ?  " and r.direction_out=false " : " and r.direction_out=true ";
+            $where = " and r.connect_time >= '{$date_from}'";
+            $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
+            $where .= $f_direction_out == 'f' ?  " and r.orig=true " : " and r.orig=false ";
 
             if ($f_operator_id != '0')
                 $where .= " and r.operator_id='{$f_operator_id}' ";
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
-                    $where .= " and r.dest < 0 ";
+                    $where .= " and r.destination_id < 0 ";
                 } else {
-                    $where .= " and r.dest='{$f_dest_group}' ";
+                    $where .= " and r.destination_id='{$f_dest_group}' ";
                 }
             }
             if ($f_country_id != '0')
@@ -56,36 +56,33 @@ class m_voipreports_calls_report
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
             if ($f_prefix_op)
-                $where .= " and r.prefix_op = '{$f_prefix_op}'";
+                $where .= " and r.prefix = '{$f_prefix_op}'";
             if ($f_without_prefix_op > 0)
-                $where .= " and r.prefix_op is null ";
+                $where .= " and r.prefix is null ";
 
             $report = $pg_db->AllRecords("
                         select
                               r.id,
-                              r.time,
+                              r.connect_time,
                               r.operator_id,
                               r.mob as mob,
-                              r.dest,
-                              r.usage_num,
-                              r.direction_out,
-                              r.phone_num,
-                              r.len,
-                              r.len_mcn as len_mcn,
-                              round(r.amount / 100.0, 2) as amount_mcn,
-                              r.len_op,
-                              round(r.amount_op / 100.0, 2) as amount_op,
+                              r.src_number,
+                              r.dst_number,
+                              r.orig,
+                              r.billed_time,
+                              r.cost,
                               r.operator_id,
-                              r.dest,
+                              r.destination_id,
                               g.name as destination,
-                              r.srv_region_id,
-                              r.prefix_op,
-                              r.prefix_mcn
-                        from " . ($f_instance_id > 0 ? "calls.calls_{$f_instance_id}" : "calls.calls") . " r
+                              r.server_id,
+                              r.prefix
+                        from calls_raw.calls_raw r
                         left join voip_destinations d on d.ndef=r.geo_id
                         left join geo.geo g on g.id=d.geo_id
-                        where len>0 {$where}
-                        order by time
+                        where
+                            " . ($f_instance_id > 0 ? "server_id = {$f_instance_id} and " : '') . "
+                            billed_time>0 {$where}
+                        order by connect_time
                         limit 100 offset {$offset}
                                      ");
 

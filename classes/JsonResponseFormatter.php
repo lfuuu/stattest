@@ -10,7 +10,7 @@ class JsonResponseFormatter extends \yii\web\JsonResponseFormatter
     {
         $response->getHeaders()->set('Content-Type', 'application/json; charset=UTF-8');
         if ($response->data !== null) {
-            $response->content = Json::encode($response->data, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $response->content = Json::encode($response->data, /*JSON_NUMERIC_CHECK |*/ JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
     }
     

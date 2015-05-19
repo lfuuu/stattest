@@ -3253,6 +3253,8 @@ class m_newaccounts extends IModule
     $design->assign('b_show_bonus',$b_show_bonus=get_param_protected('b_show_bonus',0));
     $design->assign('user_type',$userType =get_param_protected('user_type','manager'));
 
+    $design->assign("report_by", $reportBy = get_param_protected("report_by", "bill_created"));
+
 	$dateFrom = new DatePickerValues('date_from', 'first');
 	$dateTo= new DatePickerValues('date_to', 'last');
 	$dateFrom->format='Y-m-d';$dateTo->format='Y-m-d';
@@ -3278,19 +3280,22 @@ class m_newaccounts extends IModule
 
     if($manager && ($b_pay0 || $b_pay1 || $nedopay)){
 
-$W1 = array("and", "~~where_owner~~");
-
-
-
+        $W1 = array("and", "~~where_owner~~");
 
 
         $W1[] = 'newbills.sum > 0';
         if($cl_status)
             $W1[] = 'status in ("'.implode('", "', $cl_status).'")';
-        if($date_from)
+
+        if ($reportBy == "bill_created")
+        {
             $W1[] = 'newbills.bill_date >= "'.$date_from.'"';
-        if($date_to)
             $W1[] = 'newbills.bill_date <= "'.$date_to.'"';
+        } else { // report_by == bill_closed
+            $W1[] = 'trouble_stage.date_start between "'.$date_from.'" and "'.$date_to.'"';
+            $W1[] = 'trouble_stage.state_id = 20'; //closed
+        }
+
         if(!$b_pay0 || !$b_pay1){
             if($b_pay0)
                 $W1[] = 'newbills.is_payed IN (0,2)';
@@ -3320,14 +3325,20 @@ $W1 = array("and", "~~where_owner~~");
                     clients.manager as client_manager,
                     (select user from user_users where id=nbo.owner_id) as bill_manager'.($b_show_bonus ? ',
 
-                    (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) separator "|\n")  FROM newbill_lines bl
+                    (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) ORDER BY bl.`code_1c` separator "|\n")  FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "'.$managerInfo["usergroup"].'"
                      where bl.bill_no=newbills.bill_no) bonus_info ,
                     (SELECT sum(round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)) FROM newbill_lines bl
                      left join g_bonus b on b.good_id = bl.item_id and `group` = "'.$managerInfo["usergroup"].'"
                      where bl.bill_no=newbills.bill_no) bonus' : '').'
                         from
-                        newbills
+                        newbills '.
+                        
+                        ($reportBy == "bill_closed" ? '
+                        inner join tt_troubles trouble using (bill_no)
+                        inner join tt_stages trouble_stage on (trouble.cur_stage_id = trouble_stage.stage_id)
+                        ' : '').'
+
                         left join newbill_owner nbo on (nbo.bill_no = newbills.bill_no)
                         '.$newpayments_join.'
                         LEFT JOIN clients ON clients.id = newbills.client_id
@@ -3337,6 +3348,7 @@ $W1 = array("and", "~~where_owner~~");
                         where '.MySQLDatabase::Generate($W1).'
 
                         ';
+
         if($userType == "manager") {
             $sql = str_replace("~~where_owner~~", 'clients.manager="'.$manager.'"', $sql);
         }else{
@@ -3349,7 +3361,7 @@ $W1 = array("and", "~~where_owner~~");
             }
         }
 
-$sql .= "    order by client, bill_no";
+        $sql .= "    order by client, bill_no";
 
         $R=$db->AllRecords($sql);
 
@@ -3849,7 +3861,7 @@ $sql .= "    order by client, bill_no";
         $period_client_data = ClientCS::getOnDate($fixclient_data['id'], $date_from);
         $design->assign("company_full", $period_client_data["company_full"]);
         $design->assign("client_id", $fixclient_data['id']);
-        $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_to_val));
+        $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_from_val));
         $design->assign('data',$R);
         $design->assign('zalog',$zalog);
         $design->assign('sum_bill',$S_b);

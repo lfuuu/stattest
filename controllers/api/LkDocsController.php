@@ -36,7 +36,7 @@ class LkDocsController extends ApiController
     {
         $this->validateAccountId();
 
-        $data = [["type" => "property", "id" => 0]];
+        $data = [["type" => "client_card", "id" => 0]];
 
         $contract = ClientDocument::find()->account($this->accountId)->active()->contract()->last();
 
@@ -92,8 +92,8 @@ class LkDocsController extends ApiController
             $return = [
                 'company_name' => $c->name,
                 'address_jur' => $c->address_jur,
-                'first_name' => $c->person->first_name,
                 'last_name' => $c->person->last_name,
+                'first_name' => $c->person->first_name,
                 'inn' => $c->inn,
                 'ogrn' => $c->ogrn,
                 ];
@@ -112,8 +112,9 @@ class LkDocsController extends ApiController
                 : $passportNumber;
 
             $return = [
-                'first_name' => $c->person->first_name,
                 'last_name' => $c->person->last_name,
+                'first_name' => $c->person->first_name,
+                'middle_name' => $c->person->middle_name,
                 'passport_serial' => $passportSerial,
                 'passport_number' => $passportNumber,
                 'passport_date_issued' => ($c->person->passport_date_issued == "0000-00-00" ? 0 : strtotime($c->person->passport_date_issued)),
@@ -122,8 +123,19 @@ class LkDocsController extends ApiController
                 ];
         }
 
-        //return str_replace("\n", "<br>\n", var_export($return, true));
-        return $return;
+        $data = [];
+        $counter = 1;
+        foreach($return as $title => $value)
+        {
+            $data[] = [
+                "id" => $counter++,
+                "title" => $title,
+                "value" => $value,
+                "tips" => false
+                ];
+        }
+
+        return $data;
     }
 
     public function actionDocument()

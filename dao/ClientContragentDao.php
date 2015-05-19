@@ -32,6 +32,7 @@ class ClientContragentDao extends Singleton
         $account->signer_position = $account->signer_positionV = $contragent->position;
         $account->signer_name = $account->signer_nameV = $contragent->fio;
         $account->okpo = $contragent->okpo;
+        $account->type = $contragent->legal_type == "person" ? "priv" : "org";
 
         if ($contragent->legal_type == "person")
         {

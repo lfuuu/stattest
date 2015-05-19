@@ -7,7 +7,7 @@
     include INCLUDE_PATH.'icq/WebIcqPro.class.php';
 
 
-    $lifeH = rand(3,12);
+    $lifeH = 1;//rand(3,12);
 
 
     if(runChecker::isRun())
@@ -19,7 +19,7 @@
     $icq = new WebIcqPro();
     $count = 0;
     $countSend = 0;
-    if($icq->connect("415601006", 'iddqd111'))
+    if($icq->connect("661127544", 'eiS8vaimD#'))
     {
         while(true)
         {

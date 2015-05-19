@@ -29,7 +29,7 @@ class Api
             if ($c->credit >= 0)
             {
                 $billingCounter = ClientCS::getBillingCounters($clientId, true);
-                $balance -=$billingCounter["amount_sum"];
+                $balance +=$billingCounter["amount_sum"];
             }
 
 			$result[$c->id] = array("id" => $c->id, "balance" => $balance);

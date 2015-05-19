@@ -99,7 +99,7 @@
                 тариф для виртуальных номеров</label>
         </td></tr>
     <tr><td>прайс-лист:</td><td>
-        <select name="pricelist_id">
+        <select class="select2" name="pricelist_id" style="width: 400px">
         {foreach from=$pricelists item='r'}
             <option value="{$r.id}"{if $r.id eq $data.pricelist_id} selected{/if}>{$r.name}</option>
         {/foreach}

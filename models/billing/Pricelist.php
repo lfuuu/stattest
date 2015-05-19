@@ -25,5 +25,4 @@ class Pricelist extends ActiveRecord
     {
         return PricelistDao::me();
     }
-
 }

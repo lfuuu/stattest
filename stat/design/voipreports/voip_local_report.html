@@ -11,7 +11,7 @@
             <td>По</td>
             <td><select name="date_to_y" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=2003 selected=$date_to_yy}</select></td>
             <td><select name="date_to_m" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=12 mode='m' selected=$date_to_mm}</select></td>
-            <td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select></td>
+            <td><select name="date_to_d" onchange="optools.friendly.dates.check_mon_right_days_count('date_to_y','date_to_m','date_to_d')">{generate_sequence_options_select start=1 end=31 mode='d' selected=$date_to_dd}</select> (время в UTC)</td>
         </tr>
         <tr>
             <td>Оператор</td>
@@ -63,16 +63,11 @@
         {foreach from=$columns key='k' item='n'}
         <td>{if $r[$k]}
                 {if $details}
-                    Длительность (мин):<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;факт <b>{$r[$k].len|round:2}</b><br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор {$r[$k].len_op|round:2}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].len_mcn|round:2}<br />
-                    Стоимость:<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;оператор    {$r[$k].amount_op|round:2}<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCN {$r[$k].amount_mcn|round:2}<br />
+                    Длительность (мин): <b>{$r[$k].len_op|round:0}</b><br />
+                    Стоимость: <b>{$r[$k].amount_op|round:0}</b><br />
                     Количество: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
                 {else}
-                    Минут: <b>{$r[$k].len|round:2}</b><br />
+                    Минут: <b>{$r[$k].len_op|round:0}</b><br />
                     Количество: <b><a href="{$r[$k].link}" target="_blank">{$r[$k].count}</a></b><br />
                 {/if}
             {/if}

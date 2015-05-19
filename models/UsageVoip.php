@@ -7,6 +7,7 @@ use app\queries\UsageVoipQuery;
 use DateTime;
 use app\models\TariffVoip;
 use app\models\VoipNumber;
+use app\models\Datacenter;
 
 /**
  * @property int $id
@@ -47,6 +48,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public function getVoipNumber()
     {
         return $this->hasOne(VoipNumber::className(), ['number' => 'E164']);
+    }
+
+    public function getDatacenter()
+    {
+        return $this->hasOne(Datacenter::className(), ["region" => "region"]);
     }
 
     public function getCurrentTariff()
