@@ -120,6 +120,15 @@ class ClientDocumentDao extends Singleton
     {
         $f = array(
                 "MCN" => "mcn",
+
+                "MCN Телефония" => "mcntelefonija",
+                "MCN Интернет" => "mcninternet",
+                "MCN Дата-центр" => "mcndatacenter",
+
+                "Межоператорка" => "interop",
+                "Партнеры" => "partners",
+                "Интернет-магазин" => "internetshop",
+
                 "MCN-СПб" => "mcn98",
                 "MCN-Краснодар" => "mcn97",
                 "MCN-Самара" => "mcn96",
@@ -132,12 +141,6 @@ class ClientDocumentDao extends Singleton
                 "WellTime" => "welltime",
                 "IT-Park" => "itpark",
                 "Arhiv" => "arhiv",
-                "МСН_Телефония" => "mcn_telefonija",
-                "МСН_Интернет" => "mcn_internet",
-                "МСН_Дата-центр" => "mcn_datacenter",
-                "Межоператорка" => "interop",
-                "Партнеры" => "partners",
-                "Интернет-магазин" => "internet-shop",
                 );
 
         return $folder === null ? $f : $f[$folder];
