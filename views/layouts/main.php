@@ -44,11 +44,7 @@ $user = Yii::$app->user->identity;
             <?php else: ?>
                 <div style="padding: 2px">Л.С.  
                     <b><a href="?module=clients&id=<?=$fixclient_data['id']?>">
-                            <?=
-                            $fixclient_data['client']
-                                ? Html::encode($fixclient_data['id'])
-                                : '<font color=red>id=</font>' . Html::encode($fixclient_data['id'])
-                            ?>
+                            <?= $fixclient_data['id'] ?>
                         </a></b>
                     (<b><a href='?module=clients&unfix=1'>снять</a></b>)
                 </div>
