@@ -3,7 +3,8 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 use app\models\ClientBPStatuses;
-use app\models\Saldo;
+use app\models\Bill;
+use app\models\BillLine;
 use app\models\ClientAccount;
 
 
@@ -61,22 +62,36 @@ class LkWizardState extends ActiveRecord
 
     public function add100Rub()
     {
-        $saldo = Saldo::findOne(["client_id" => $this->account_id]);
+        $clientAccount = ClientAccount::findOne($this->account_id);
 
-        if (!$saldo)
-        {
-            $saldo = new Saldo;
-            $saldo->client_id = $this->account_id;
-            $saldo->ts = (new \DateTime('now', new \DateTimeZone('UTC')))->format("Y-m-d");
-            $saldo->currency = "RUB";
-            $saldo->edit_user = User::SYSTEM_USER_ID;
-            $saldo->edit_time = (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM);
-        }
+        $sum = -100;
 
-        $saldo->saldo = -100;
-        $saldo->save();
+        $bill = new Bill();
+        $bill->client_id = $clientAccount->id;
+        $bill->currency = $clientAccount->currency;
+        $bill->nal = $clientAccount->nal;
+        $bill->is_lk_show = 1;
+        $bill->is_user_prepay = 0;
+        $bill->is_approved = 1;
+        $bill->is_use_tax = $clientAccount->nds_zero > 0 ? 0 : 1;
+        $bill->bill_date = date('Y-m-d');
+        $bill->bill_no = Bill::dao()->spawnBillNumber(date('Y-m-d'));
+        $bill->save();
 
-        ClientAccount::dao()->updateBalance($this->account_id);
+        $line = new BillLine(["bill_no" => $bill->bill_no]);
+        $line->item = "Услуга \"Бонус\"";
+        $line->date_from = date("Y-m-d", strtotime("first day of this month"));
+        $line->date_to = date("Y-m-d", strtotime("last day of this month"));
+        $line->type = 'service';
+        $line->amount = 1;
+        $line->price = $sum/1.18;
+        $line->tax_type_id = $clientAccount->getDefaultTaxId();
+        $line->calculateSum();
+        $line->sum = $sum;
+        $line->save();
+
+        Bill::dao()->recalcBill($bill);
+        ClientAccount::dao()->updateBalance($clientAccount->id);
 
         return true;
     }
