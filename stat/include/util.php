@@ -1808,7 +1808,7 @@ class send
         include_once(INCLUDE_PATH.'WebIcqLite.class.php');
 
         $icq = new WebIcqLite();
-        if($icq->connect("415601006", 'iddqd111'))
+        if($icq->connect('661127544', 'eiS8vaimD#'))
         {
             if(!$icq->send_message($uin, iconv("utf-8", "cp1251", $msg)))
             {
