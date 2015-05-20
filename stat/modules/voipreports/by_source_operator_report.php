@@ -21,16 +21,16 @@ class m_voipreports_by_source_operator_report
         $f_mob = get_param_protected('f_mob', '0');
 
         if ($f_instance_id) {
-            $where = "not r.direction_out and len > 0 and r.time >= '{$date_from}' and r.time <= '{$date_to} 23:59:59' ";
+            $where = "r.orig=true and billed_time > 0 and r.connect_time >= '{$date_from}' and r.connect_time <= '{$date_to} 23:59:59.999999' ";
 
             if ($f_operator_id)
                 $where .= " and r.operator_id = '{$f_operator_id}' ";
 
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
-                    $where .= " and r.dest < 0 ";
+                    $where .= " and r.destination_id < 0 ";
                 } else {
-                    $where .= " and r.dest='{$f_dest_group}' ";
+                    $where .= " and r.destination_id='{$f_dest_group}' ";
                 }
             }
             if ($f_country_id != '0')
@@ -49,12 +49,15 @@ class m_voipreports_by_source_operator_report
                                                 select
                                                     o.name as operator,
                                                     count(*) as count,
-                                                    sum(len_op) / 60 as minutes,
-                                                    sum(amount_op) / 100 as amount
-                                                from calls.calls_{$f_instance_id} r
+                                                    sum(billed_time) / 60 as minutes,
+                                                    -sum(cost) as amount
+                                                from calls_raw.calls_raw r
                                                 left join geo.operator o on o.id=r.geo_operator_id
                                                 left join geo.geo g on g.id=r.geo_id
-                                                where {$where}
+                                                where
+                                                    server_id = {$f_instance_id}
+                                                    and {$where}
+                                                    and operator_id > 0
                                                 group by o.name
                                                 order by minutes desc
 

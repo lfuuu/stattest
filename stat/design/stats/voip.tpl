@@ -7,9 +7,9 @@
           <TD class=header vAlign=bottom>Id</TD>
           <TD class=header vAlign=bottom>Дата/время</TD>
           {if $phone=='all_regions'}<TD class=header vAlign=bottom>Регион</TD>{/if}
-          <TD class=header vAlign=bottom>Номер абонента</TD>
+          <TD class=header vAlign=bottom>Исходящий номер</TD>
           <TD class=header vAlign=bottom>Направление</TD>
-          <TD class=header vAlign=bottom>Внешний номер</TD>
+          <TD class=header vAlign=bottom>Входящий номер</TD>
           <TD class=header vAlign=bottom>Время разговора</TD>
           <TD class=header vAlign=bottom>Стоимость (без НДС)</TD>
           <TD class=header vAlign=bottom>Назначение</TD>
@@ -27,9 +27,9 @@
     <TD style="color:gray">{if isset($item.id)}{$item.id}{/if}</TD>
     <TD>{$item.tsf1}</TD>
     {if $phone=='all_regions'}<TD>{$item.reg_id}</TD>{/if}
-    <TD>{if isset($item.redirect_num)}{$item.redirect_num} -> {/if}{if isset($item.usage_num)}{$item.usage_num}{/if}</TD>
-    <TD style="color: {if isset($item.direction_out) && $item.direction_out=='f'}blue;">&darr;&nbsp;входящий{elseif isset($item.direction_out) && $item.direction_out=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
-    <TD>{if isset($item.phone_num)}{$item.phone_num}{/if}</TD>
+    <TD>{if isset($item.src_number)}{$item.src_number}{/if}</TD>
+    <TD style="color: {if isset($item.orig) && $item.orig=='f'}blue;">&darr;&nbsp;входящий{elseif isset($item.orig) && $item.orig=='t'}green">&uarr;&nbsp;исходящий{else}">{/if}</td>
+    <TD>{if isset($item.dst_number)}{$item.dst_number}{/if}</TD>
     <TD><b>{$item.tsf2}</b></TD>
     {if $smarty.foreach.outer.last}
          <TD colspan='2'>{$item.price}</TD>

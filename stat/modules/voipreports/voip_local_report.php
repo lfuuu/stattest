@@ -39,10 +39,10 @@ class m_voipreports_voip_local_report
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
-            $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59';
+            $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59.999999';
 
-            $where  = " and (time between '".$date_from."' and '".$date_to."') ";
-            $where .= ' and ( dest < 0 or direction_out = false) ';
+            $where  = " and (connect_time between '".$date_from."' and '".$date_to."') ";
+            $where .= ' and ( destination_id < 0 or orig = true) ';
 
             $link = "index.php?module=voipreports&action=calls_report&make=";
             $link .= "&f_instance_id={$region}&f_operator_id={$operator}";
@@ -55,15 +55,15 @@ class m_voipreports_voip_local_report
             }
 
             if ($groupp == 1) {
-                $god = " group by direction_out, day,operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
-                $sod = " ,day as date";
+                $god = " group by orig, date_trunc('day',connect_time),operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
+                $sod = " ,date_trunc('day',connect_time) as date";
                 $ob = " order by date, operator_id ";
             } elseif ($groupp == 2) {
-                $god = " group by direction_out, month, operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
-                $sod = " ,month as date";
+                $god = " group by orig, date_trunc('month',connect_time), operator_id, prefix_op, dst_number::varchar like '7_____' or dst_number::varchar like '7______' ";
+                $sod = " ,date_trunc('month',connect_time) as date";
                 $ob = " order by date, operator_id";
             }else{
-                $god = " group by direction_out, operator_id, prefix_op, phone_num::varchar like '7_____' or phone_num::varchar like '7______' ";
+                $god = " group by orig, operator_id, prefix_op, dst_number::varchar like '7_____' or dst_number::varchar like '7______' ";
                 $sod = '';
                 $ob = " order by operator_id ";
             }
@@ -72,20 +72,18 @@ class m_voipreports_voip_local_report
 
             $query = "
                 select
-                    phone_num::varchar like '7_____' or phone_num::varchar like '7______' as is_special,
+                    dst_number::varchar like '7_____' or dst_number::varchar like '7______' as is_special,
                     count(*) as count,
-                    sum(len) / 60.0 as len,
-                    sum(len_op) / 60.0 as len_op,
-                    sum(len_mcn) / 60.0 as len_mcn,
-                    cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as amount_op,
-                    cast(sum(amount)/100.0 as NUMERIC(10,2)) as amount_mcn,
-                    direction_out,
+                    sum(billed_time) / 60.0 as len_op,
+                    sum(cost) as amount_op,
+                    orig,
                     operator_id as operator_id,
-                    prefix_op
+                    prefix as prefix_op
                     ".$sod."
-                from
-                    " . ($region ? "calls.calls_{$region}" : "calls.calls") . "
-                where len>0
+                from calls_raw.calls_raw
+                where
+                    " . ($region ? "server_id = {$region} and" : '') . "
+                    billed_time>0
                     ".$where.$god.$ob;
 
             $columns = array();
@@ -103,7 +101,7 @@ class m_voipreports_voip_local_report
                     }
                 }
 
-                if ($r['direction_out'] == 'f') {
+                if ($r['orig'] == 't') {
                     $r['prefix_op'] = '9000';
                 } else {
                     if ($r['is_special'] == 't') {
@@ -130,7 +128,7 @@ class m_voipreports_voip_local_report
                     $report[$k][$r['prefix_op']]['amount_mcn'] += $r['amount_mcn'];
                 }
 
-                if ($r['direction_out'] == 't') {
+                if ($r['orig'] == 'f') {
                     if (!isset($report[$k]['8000'])) {
                         $report[$k]['8000'] = $r;
                         $report[$k]['8000']['link'] = $link . "&f_direction_out=t&f_operator_id={$r['operator_id']}";
