@@ -13,7 +13,7 @@ class ClientPerson extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'client_person';
+        return 'client_contragent_person';
     }
 
     public function attributeLabels()
