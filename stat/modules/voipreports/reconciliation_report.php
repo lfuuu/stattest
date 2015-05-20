@@ -21,33 +21,35 @@ class m_voipreports_reconciliation_report
         $totals = array('count'=>0, 'minutes'=>0, 'amount'=>0, 'nds'=>0, 'amount_with_nds' => 0);
 
         if ($f_instance_id && $f_operator_id) {
-            $where = "r.direction_out and len > 0 and r.operator_id = '{$f_operator_id}' and r.time >= '{$date_from}' and r.time <= '{$date_to} 23:59:59' ";
+            $where = "r.orig=false and billed_time > 0 and r.operator_id = '{$f_operator_id}' and r.connect_time >= '{$date_from}' and r.connect_time <= '{$date_to} 23:59:59.999999' ";
 
             if ($exclude_local > 0) {
-                $where .= ' and r.dest >= 0 ';
+                $where .= ' and r.destination_id >= 0 ';
             }
 
             $report = $pg_db->AllRecords("
                                                 select
                                                     g.id,
-                                                    r.phone_num::varchar like '7800%' as is7800,
+                                                    r.dst_number::varchar like '7800%' as is7800,
                                                     g.name as destination,
                                                     count(*) as count,
-                                                    sum(len_op) / 60 as minutes,
-                                                    price_op / 10000.0 as price,
-                                                    sum(amount_op) / 100.0 as amount,
+                                                    sum(billed_time) / 60 as minutes,
+                                                    rate as price,
+                                                    sum(cost) as amount,
                                                     case i.region_id @> ARRAY[g.region]::varchar[]
                                                     when true then
                                                         p.initiate_zona_cost
                                                     else
                                                         p.initiate_mgmn_cost
                                                     end as initiate_price
-                                                from calls.calls_{$f_instance_id} r
+                                                from calls_raw.calls_raw r
                                                 left join geo.geo g on g.id=r.geo_id
-                                                left join voip.pricelist p on p.id=r.pricelist_op_id
+                                                left join voip.pricelist p on p.id=r.pricelist_id
                                                 left join billing.instance_settings i on i.id = p.region
-                                                where {$where}
-                                                group by g.id, g.name, r.price_op, g.region, p.initiate_zona_cost, p.initiate_mgmn_cost, i.region_id, p.initiate_mgmn_cost, r.phone_num::varchar like '7800%'
+                                                where
+                                                    server_id = {$f_instance_id}
+                                                    and {$where}
+                                                group by g.id, g.name, r.rate, g.region, p.initiate_zona_cost, p.initiate_mgmn_cost, i.region_id, p.initiate_mgmn_cost, r.dst_number::varchar like '7800%'
                                                 order by is7800 desc, g.name, amount
                                              ");
             foreach($report as $k => $r) {

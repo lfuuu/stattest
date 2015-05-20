@@ -56,9 +56,9 @@ class m_voipreports_operators_traf
 
         if(isset($_GET['get'])){
             $date_from = $date_from_y.'-'.$date_from_m.'-'.$date_from_d.' 00:00:00';
-            $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59';
+            $date_to = $date_to_y.'-'.$date_to_m.'-'.$date_to_d.' 23:59:59.999999';
 
-            $wm = " (time between '".$date_from."' and '".$date_to."') ";
+            $wm = " (connect_time between '".$date_from."' and '".$date_to."') ";
 
             if($operator>0)
                 $wo = " and operator_id=".$operator;
@@ -67,28 +67,28 @@ class m_voipreports_operators_traf
 
             if($destination != 'all'){
                 if ($destination == 10){
-                    $wde = " and dest<0 and mob=false ";
+                    $wde = " and destination_id<0 and mob=false ";
                 }elseif ($destination == 11){
-                    $wde = " and dest<0 and mob=true ";
+                    $wde = " and destination_id<0 and mob=true ";
                 }else{
-                    $wde = " and dest=".($destination-100);
+                    $wde = " and destination_id=".($destination-100);
                 }
             }else
                 $wde = '';
 
             if($direction<>'both')
-                $wdi = " and direction_out=".(($direction=='in')?'false':'true');
+                $wdi = " and orig=".(($direction=='in')?'true':'false');
             else
                 $wdi = '';
 
             if($groupp){
                 $god = " group by ";
-                if ($groupp==1)        $god .= " day, ";
+                if ($groupp==1)        $god .= " date_trunc('day',connect_time), ";
                 else $god .= " month, ";
                 $god .= "    operator_id,
                             dest2";
-                if ($groupp==1)        $sod = " ,day as date";
-                else    $sod = " ,month as date";
+                if ($groupp==1)        $sod = " ,date_trunc('day',connect_time) as date";
+                else    $sod = " ,date_trunc('month',connect_time) as date";
                 $ob = " order by date, operator_id, dest2";
             }else{
                 $god = ' group by operator_id, dest2';
@@ -98,15 +98,14 @@ class m_voipreports_operators_traf
 
             $query = "
                 select
-                    sum(len) as length,
-                    cast(sum(amount_op)/100.0 as NUMERIC(10,2)) as price,
-                    cast(sum(amount)/100.0 as NUMERIC(10,2)) as price_mcn,
+                    sum(billed_time) as length,
+                    sum(cost) as price,
                     operator_id as operator_id,
-                    case direction_out when true then
-                        case phone_num::varchar like '7800%' when true then
+                    case orig when false then
+                        case dst_number::varchar like '7800%' when true then
                             100
                         else
-                            case dest when 0 then
+                            case destination_id when 0 then
                                 case mob when true then
                                     11
                                 else
@@ -115,14 +114,16 @@ class m_voipreports_operators_traf
                             when -1 then
                                 9
                             else
-                                100+dest
+                                100+destination_id
                             end
                         end
                     else 900 end as dest2
                     ".$sod."
                 from
-                    " . ($region ? "calls.calls_{$region}" : "calls.calls") . "
-                where len>0 and
+                    calls_raw.calls_raw
+                where
+                    " . ($region ? "server_id = {$region} and" : '') . "
+                    billed_time > 0 and
                     ".$wm.$wo.$wde.$wdi.$god.$ob;
 
             $pg_db->Query($query);
@@ -152,7 +153,6 @@ class m_voipreports_operators_traf
                         'clean'=>0,
                         'human'=>0,
                         'price'=>0,
-                        'price_mcn'=>0
                     );
                 }
                 if(!isset($report_dest[$row['dest2']])){
@@ -160,12 +160,10 @@ class m_voipreports_operators_traf
                         'clean'=>0,
                         'human'=>'',
                         'price'=>0,
-                        'price_mcn'=>0
                     );
                 }
                 $report_dest[$row['dest2']]['clean'] += $row['length'];
                 $report_dest[$row['dest2']]['price'] += $row['price'];
-                $report_dest[$row['dest2']]['price_mcn'] += $row['price_mcn'];
 
                 //$h = (int)($report_dest[$row['dest2']]['clean']/3600);
                 //$m = (int)(($report_dest[$row['dest2']]['clean']-($h*3600))/60);
@@ -178,27 +176,23 @@ class m_voipreports_operators_traf
                 //$s = $row['length'] - ($m*60+$h*3600);
                 $report_oper[$row['operator_id']][$row['dest2']]['clean'] += $row['length'];
                 $report_oper[$row['operator_id']][$row['dest2']]['price'] += $row['price'];
-                $report_oper[$row['operator_id']][$row['dest2']]['price_mcn'] += $row['price_mcn'];
                 if($row['dest2']==900){
                     $r[900] = array(
                         'clean'=>$row['length'],
                         'human'=> round($row['length']/3600,2), //$h.'ч '.$m.'м '.$s.'с',
                         'price'=>$row['price'],
-                        'price_mcn'=>$row['price_mcn']
                     );
                 }else{
                     $r[$row['dest2']] = array(
                         'clean'=>$row['length'],
                         'human'=>round($row['length']/3600,2), //$h.'ч '.$m.'м '.$s.'с',
                         'price'=>$row['price'],
-                        'price_mcn'=>$row['price_mcn']
                     );
                     if(!isset($r['sum'])){
                         $r['sum'] = array(
                             'clean'=>0,
                             'human'=>'',
                             'price'=>0,
-                            'price_mcn'=>0
                         );
                     }
                     if(!isset($report_dest['sum'])){
@@ -206,12 +200,10 @@ class m_voipreports_operators_traf
                             'clean'=>0,
                             'human'=>'',
                             'price'=>0,
-                            'price_mcn'=>0
                         );
                     }
                     $r['sum']['clean'] += $row['length'];
                     $r['sum']['price'] += $row['price'];
-                    $r['sum']['price_mcn'] += $row['price_mcn'];
                     //$h = (int)($r['sum']['clean']/3600);
                     //$m = (int)(($r['sum']['clean']-($h*3600))/60);
                     //$s = $r['sum']['clean'] - ($m*60+$h*3600);
@@ -219,7 +211,6 @@ class m_voipreports_operators_traf
 
                     $report_dest['sum']['clean'] += $row['length'];
                     $report_dest['sum']['price'] += $row['price'];
-                    $report_dest['sum']['price_mcn'] += $row['price_mcn'];
                     //$h = (int)($report_dest['sum']['clean']/3600);
                     //$m = (int)(($report_dest['sum']['clean']-($h*3600))/60);
                     //$s = $report_dest['sum']['clean'] - ($m*60+$h*3600);
@@ -230,14 +221,13 @@ class m_voipreports_operators_traf
             ksort($report_dest);
             foreach($report_oper as $op=>&$repo){
                 if(!isset($report_oper[$op]['sum']))
-                    $report_oper[$op]['sum'] = array('clean'=>0,'human'=>'','price'=>0,'price_mcn'=>0);
+                    $report_oper[$op]['sum'] = array('clean'=>0,'human'=>'','price'=>0);
                 foreach($repo as $dk=>&$dd){
                     if($dk=='sum')
                         continue;
                     if($dk<>900){
                         $report_oper[$op]['sum']['clean'] += $dd['clean'];
                         $report_oper[$op]['sum']['price'] += $dd['price'];
-                        $report_oper[$op]['sum']['price_mcn'] += $dd['price_mcn'];
                     }
                     //$h = (int)($report_oper[$op][$dk]['clean']/3600);
                     //$m = (int)(($report_oper[$op][$dk]['clean']-($h*3600))/60);

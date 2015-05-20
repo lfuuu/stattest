@@ -58,7 +58,7 @@ class m_voipreports_analyze_pricelist_report
             $showOperator = $f_mob == 't' && $f_dest_group == 1;
 
             $sql = "
-                    select r.prefix, r.prices, r.locked, r.orders, round(v.seconds/60.0) as volume,
+                    select r.prefix, r.prices, r.locked, r.orders, round(v.seconds_op/60.0) as volume,
                               g.name as destination,
                               " . ($showOperator ? 'pp.operator_id,' :'' ) . "
                               d.mob, g.zone
@@ -90,7 +90,7 @@ class m_voipreports_analyze_pricelist_report
 
 
             $res_volumes = $pg_db->AllRecords("
-                                        select prefix, instance_id, round(seconds/60.0) as volume
+                                        select prefix, instance_id, round(seconds_op/60.0) as volume
                                         from voip.volume_calc_data
                                         where task_id={$volume_task_id} and operator_id=0
                                   ");

@@ -34,27 +34,29 @@ class m_voipreports_unrecognized_report
         $geo = array();
         if ($phone != 'none')
         {
-            $filter = " time between '".date("Y-m-d", $from)." 00:00:00' and '".date("Y-m-d", $to)." 23:59:59' ";
-            $filter .= " and usage_id is null and region=$region ";
+            $filter = " connect_time between '".date("Y-m-d", $from)." 00:00:00' and '".date("Y-m-d", $to)." 23:59:59.999999' ";
+            $filter .= " and service_id is null and server_id=$region ";
             if($direction<>'both')
-                $filter .= " and direction_out=".(($direction=='in')?'false':'true');
+                $filter .= " and orig=".(($direction=='in')?'false':'true');
 
             if ($haslen == 1)
-                $filter .= ' and len>0 ';
+                $filter .= ' and billed_time>0 ';
             if ($phone != '')
-                $filter .= ' and usage_num='.$pg_db->escape($phone).' ';
+                $filter .= ' and (src_number='.$pg_db->escape($phone).' or dst_number='.$pg_db->escape($phone).') ';
 
-            $stats = $pg_db->AllRecords("select id, usage_num, phone_num, len, direction_out, \"time\", geo_id, mob
-	                    from calls.calls_".intval($region)."
+            $stats = $pg_db->AllRecords("select id, src_number, dst_number, billed_time, orig, connect_time, geo_id, mob
+	                    from calls_raw.calls_raw
 	                    where $filter
-	                    order by time");
+	                    order by connect_time
+	                    limit 10000
+	                    ");
             foreach($stats as $k=>$r)
             {
 
-                if ($r["len"]>=24*60*60) $d=floor($r["len"]/(24*60*60)); else $d=0;
-                $length=($d?($d.'d '):'').gmdate("<b>H:i</b>:s",$r["len"]);
+                if ($r["billed_time"]>=24*60*60) $d=floor($r["billed_time"]/(24*60*60)); else $d=0;
+                $length=($d?($d.'d '):'').gmdate("<b>H:i</b>:s",$r["billed_time"]);
 
-                $stats[$k]['time'] = substr($r["time"], 0, 19);
+                $stats[$k]['connect_time'] = substr($r["connect_time"], 0, 19);
                 $stats[$k]['length'] = $length;
 
                 if (!isset($geo[$r['geo_id']]))
