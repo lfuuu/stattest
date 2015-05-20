@@ -56,13 +56,7 @@
     </td>
     <td></td>
     <td align=right>
-        <b>
-            {if $fixclient_data.currency=='USD'}
-                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:'USD'}{else}{$sum_cur.delta|money:'USD'}{/if}
-            {else}
-                {if isset($sum.USD.saldo)}{$sum.USD.delta+$sum.USD.saldo|money:'USD'}{else}{$sum.USD.delta|money:'USD'}{/if}
-            {/if}
-        </b>
+        &nbsp;
     </td>
 
 </tr>
@@ -133,7 +127,11 @@
 	<TD colspan=3 rowspan={$rowspan}>&nbsp;</TD>
 {/if}
 
-<TD rowspan={$rowspan} align=right>{objCurrency op=$op obj='delta' currency=$fixclient_data.currency}</TD>
+<TD rowspan={$rowspan} align=right>
+    {if $fixclient_data.currency == $op.bill.currency}
+        {objCurrency op=$op obj='delta' currency=$fixclient_data.currency}
+    {/if}
+</TD>
 
 {if count($op.pays)}
 	{foreach from=$op.pays item=pay key=keyin name=inner}
