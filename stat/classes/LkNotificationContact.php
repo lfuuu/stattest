@@ -46,7 +46,7 @@ class LkNotificationContact
             }
 
             if ($r->credit > -1) {
-                $r->balance -= self::$billingCounters[$r->client_id]['amount_sum'];
+                $r->balance += self::$billingCounters[$r->client_id]['amount_sum'];
             }
 
             $list[] = $r;
@@ -86,7 +86,7 @@ class LkNotificationContact
             $r->day_sum = self::$billingCounters[$r->client_id]['amount_day_sum'];
 
             if ($r->credit > -1) {
-                $r->balance -= self::$billingCounters[$r->client_id]['amount_sum'];
+                $r->balance += self::$billingCounters[$r->client_id]['amount_sum'];
             }
 
             $list[] = $r;
@@ -124,7 +124,7 @@ class LkNotificationContact
             }
 
             if ($r->credit > -1) {
-                $r->balance -= self::$billingCounters[$r->client_id]['amount_sum'];
+                $r->balance += self::$billingCounters[$r->client_id]['amount_sum'];
             }
 
             $list[] = $r;
