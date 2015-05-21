@@ -72,7 +72,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
             ],
             'signer_position' => [],
             'signer_name' => [],
-            'signer_positionV' => [],
+            'signer_positionV' => [],   
             'signer_nameV' => [],
         ],
     ]);
@@ -94,7 +94,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
 <div class="row">
     <div class="col-sm-12">
         <div class="col-sm-12 form-group">
-            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientPerson:' . $model->id . '})']); ?>
+            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
             <span>История изменений</span>
         </div>
     </div>

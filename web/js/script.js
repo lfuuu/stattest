@@ -313,16 +313,21 @@ function form_cpe_load(){
 
 function showHistory(obj) {
     var el = $('.showhistorybutton');
-    if (el.data('sh') !== false) {
-        $.get('/history/show', obj, function (data) {
-            el.next().after(data);
-            el.text('∧');
-            el.data('sh', false);
-        });
-    }
-    else{
-        el.text('∨');
-        el.next().next().remove();
-        el.data('sh', true);
+    var loading = false;
+    if(loading == false) {
+        if (el.data('sh') !== false) {
+            loading = true;
+            $.get('/history/show', obj, function (data) {
+                el.next().after(data);
+                el.text('∧');
+                el.data('sh', false);
+                loading = false;
+            });
+        }
+        else {
+            el.text('∨');
+            el.next().next().remove();
+            el.data('sh', true);
+        }
     }
 }
