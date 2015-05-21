@@ -2,7 +2,7 @@
 namespace app\forms\contragent;
 
 use app\models\ClientContragent;
-use app\models\ClientPerson;
+use app\models\ClientContragentPerson;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
@@ -54,7 +54,7 @@ class ContragentEditForm extends Form
 
     public function attributeLabels()
     {
-        return (new ClientContragent())->attributeLabels() + (new ClientPerson())->attributeLabels();
+        return (new ClientContragent())->attributeLabels() + (new ClientContragentPerson())->attributeLabels();
     }
 
     public function init()
@@ -65,14 +65,14 @@ class ContragentEditForm extends Form
                 throw new Exception('Contragent not found');
             }
 
-            $this->person = ClientPerson::findOne($this->contragent->id);
+            $this->person = ClientContragentPerson::findOne($this->contragent->id);
             if ($this->person === null) {
-                $this->person = new ClientPerson();
+                $this->person = new ClientContragentPerson();
             }
             $this->setAttributes($this->contragent->getAttributes() + $this->person->getAttributes(), false);
         } else {
             $this->contragent = new ClientContragent();
-            $this->person = new ClientPerson();
+            $this->person = new ClientContragentPerson();
         }
     }
 

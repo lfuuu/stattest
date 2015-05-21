@@ -21,12 +21,8 @@ class ClientContract extends ActiveRecord
             'account_manager' => 'Аккаунт менеджер',
             'business_process_id' => 'Бизнес процесс',
             'business_process_status_id' => 'Статус бизнес процесса',
-            'signer_name' => 'ФИО лица, подписывающего договор',
-            'signer_position' => 'Должность лица, подписывающего договор',
-            'signer_positionV' => 'Должность лица, подписывающего договор, в вин. падеже',
-            'signer_nameV' => 'ФИО лица, подписывающего договор, в вин. падеже',
+            'comment' => 'Комментарий',
             'contract_type_id' => 'Тип',
-            'is_blocked' => 'Блокировка',
         ];
     }
 
