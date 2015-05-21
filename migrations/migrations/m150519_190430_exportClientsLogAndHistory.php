@@ -305,8 +305,8 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
                             ORDER BY hv.`date` DESC
                     ) m;
 
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]','"'),'[-contragent_id-]','"') WHERE `model` = 'ClientContragent';
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]','"'),'[-super_id-]','"') WHERE `model` = 'ClientContragent';
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContragent';
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContragent';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/legal_type-]','"'),'[-legal_type-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/name-]','"'),'[-name-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/name_full-]','"'),'[-name_full-]','"') WHERE `model` = 'ClientContragent';
@@ -322,8 +322,8 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/okpo-]','"'),'[-okpo-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/opf-]','"'),'[-opf-]','"') WHERE `model` = 'ClientContragent';
 
-        UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]','"'),'[-contragent_id-]','"') WHERE `model` = 'ClientContragent';
-        UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]','"'),'[-super_id-]','"') WHERE `model` = 'ClientContragent';
+        UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContragent';
+        UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/legal_type-]','"'),'[-legal_type-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/name-]','"'),'[-name-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/name_full-]','"'),'[-name_full-]','"') WHERE `model` = 'ClientContragent';
@@ -339,8 +339,8 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
         UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/okpo-]','"'),'[-okpo-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/opf-]','"'),'[-opf-]','"') WHERE `model` = 'ClientContragent';
 
-        UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/contragent_id-]','"'),'[-contragent_id-]','"') WHERE `model` = 'ClientContragent';
-        UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/super_id-]','"'),'[-super_id-]','"') WHERE `model` = 'ClientContragent';
+        UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContragent';
+        UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/legal_type-]','"'),'[-legal_type-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/name-]','"'),'[-name-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/name_full-]','"'),'[-name_full-]','"') WHERE `model` = 'ClientContragent';

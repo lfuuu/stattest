@@ -45,7 +45,7 @@ class m150520_180304_exportContracts extends \app\classes\Migration
                 c.`account_manager`,
                 c.`business_process_id`,
                 c.`business_process_status_id`,
-                REPLACE(cs.`comment`, '"', '\\"') AS `comment`,
+                REPLACE(IF(ISNULL(cs.`comment`),'null',cs.`comment`), '"', '\\"') AS `comment`,
                 c.`contract_type_id`
                 FROM clients c
                 INNER JOIN (
@@ -125,10 +125,10 @@ class m150520_180304_exportContracts extends \app\classes\Migration
                         '"account_manager":[-account_manager-]', c.`account_manager`, '[-/account_manager-],',
                         '"business_process_id":[-business_process_id-]', c.`business_process_id`, '[-/business_process_id-],',
                         '"business_process_status_id":[-business_process_status_id-]', c.`business_process_status_id`, '[-/business_process_status_id-],',
-                        '"comment":[-comment-]', REPLACE(c.`comment`, '"', '\\"'), '[-/comment-],',
+                        '"comment":[-comment-]', REPLACE(IF(ISNULL(c.`comment`),'null',c.`comment`), '"', '\\"'), '[-/comment-],',
                         '"contract_type_id":[-contract_type_id-]', c.`contract_type_id`, '[-/contract_type_id-]',
                    '}'
-                ) AS `json_date`
+                ) AS `data_json`
                 FROM
                 (
                     SELECT
@@ -149,7 +149,7 @@ class m150520_180304_exportContracts extends \app\classes\Migration
                          c.`account_manager`,
                          c.`business_process_id`,
                          c.`business_process_status_id`,
-                         REPLACE(cs.`comment`, '"', '\\"') AS `comment`,
+                         REPLACE(IF(ISNULL(cs.`comment`),'null',cs.`comment`), '"', '\\"') AS `comment`,
                          c.`contract_type_id`
                          FROM clients c
                          INNER JOIN (
@@ -197,15 +197,19 @@ class m150520_180304_exportContracts extends \app\classes\Migration
                    ORDER BY hv.`date` DESC
             ) m;
 
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]','"'),'[-super_id-]','"') WHERE `model` = 'ClientContract';
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]','"'),'[-contragent_id-]','"') WHERE `model` = 'ClientContract';
+        UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientContract';
+        UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'ClientContract';
+        UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientContract';
+
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientContract';
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientContract';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/number-]','"'),'[-number-]','"') WHERE `model` = 'ClientContract';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/organization-]','"'),'[-organization-]','"') WHERE `model` = 'ClientContract';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/manager-]','"'),'[-manager-]','"') WHERE `model` = 'ClientContract';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/account_manager-]','"'),'[-account_manager-]','"') WHERE `model` = 'ClientContract';
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/business_process_id-]','"'),'[-business_process_id-]','"') WHERE `model` = 'ClientContract';
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/business_process_status_id-]','"'),'[-business_process_status_id-]','"') WHERE `model` = 'ClientContract';
-        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contract_type_id-]','"'),'[-contract_type_id-]','"') WHERE `model` = 'ClientContract';
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/business_process_id-]',''),'[-business_process_id-]','') WHERE `model` = 'ClientContract';
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/business_process_status_id-]',''),'[-business_process_status_id-]','') WHERE `model` = 'ClientContract';
+        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contract_type_id-]',''),'[-contract_type_id-]','') WHERE `model` = 'ClientContract';
         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/comment-]','"'),'[-comment-]','"') WHERE `model` = 'ClientContract';
 SQL;
 

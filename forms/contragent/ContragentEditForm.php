@@ -1,11 +1,15 @@
 <?php
 namespace app\forms\contragent;
 
+use app\classes\Connection;
+use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
+use yii\db\Command;
+use yii\db\Query;
 
 class ContragentEditForm extends Form
 {
@@ -59,6 +63,13 @@ class ContragentEditForm extends Form
 
     public function init()
     {
+
+        $c = ClientAccount::find()->one();
+        $fds = array_keys($c->getAttributes());
+        foreach($fds as $f)
+            echo "UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/$f-]','\"'),'[-$f-]','\"') WHERE `model` = 'Client';"."<br/>";
+
+        die();
         if ($this->id) {
             $this->contragent = ClientContragent::findOne($this->id);
             if ($this->contragent === null) {
