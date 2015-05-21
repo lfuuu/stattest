@@ -31,13 +31,10 @@ table.service_table th {
 <table style="border-collapse: collapse;" border=1 class="service_table">
     <tr>
         <th>
-            <p><span><b>Дата<br>включения</b></span></p>
-        </th>
-        <th>
             <p><span><b>Телефонный<br>номер</b></span></p>
         </th>
         <th>
-            <p><span><b>Кол-во<br>одновременных<br> соединений</b></span></p>
+            <p><span><b>Адрес<br>подключения<br>услуги</b></span></p>
         </th>
         <th>
             <p><span><b>Тарифный план</b></span></p>
@@ -54,23 +51,23 @@ table.service_table th {
         <th>
             <p><span><b>Стоимость<br> превышения за 1<br> мин. местного<br> исходящего<br> трафика,<br> руб./мин.</b></span></p>
         </th>
+        <th>
+            <p><span><b>Дата<br>подключения</b></span></p>
+        </th>
     </tr>
     {foreach from=$blank_data.voip item=i}
     <tr>
         <td>
-            <p><span>{$i.from|mdate:"d месяца Y г."}</span></p>
+            <p><span>{$i.number}{if $i.lines > 1}*{$i.lines}{/if}</span></p>
         </td>
         <td>
-            <p><span>{$i.number}</span></p>
-        </td>
-        <td>
-            <p><span>{$i.lines}</span></p>
+            <p><span>{$i.address}</span></p>
         </td>
         <td>
             <p><span>{$i.tarif_name|replace:" ":"&nbsp;"}</span></p>
         </td>
         <td align=center>
-            <p><span>{$i.free_local_min}</span></p>
+            <p><span>{if $i.free_local_min >= 5000}----{else}{$i.free_local_min}{/if}</span></p>
         </td>
         <td align=center>
             <p><span>{if $i.connect_price == ""}----{else}{$i.connect_price|round:2}{/if}</span></p>
@@ -80,6 +77,9 @@ table.service_table th {
         </td>
         <td align=center>
             <p><span>0.49</span></p>
+        </td>
+        <td>
+            <p><span>{if $i.from < 32503669200}{$i.from|mdate:"d месяца Yг."|replace:" ":"&nbsp;"}{/if}</span></p>
         </td>
     </tr>
     {/foreach}
@@ -99,9 +99,6 @@ table.service_table th {
 <table style="border-collapse: collapse;" border=1 class="service_table">
     <tr>
         <th>
-            <p><span><b>Дата включения</b></span></p>
-        </th>
-        <th>
             <p><span><b>Тарифный план</b></span></p>
         </th>
         <th>
@@ -119,12 +116,12 @@ table.service_table th {
         <th>
             <p><span><b>Стоимость<br> дополнительного<br> дискового<br> пространства,<br> руб./1Гб.</b></span></p>
         </th>
+        <th>
+            <p><span><b>Дата<br>подключения</b></span></p>
+        </th>
     </tr>
     {foreach from=$blank_data.vats item=i}
     <tr>
-        <td>
-            <p><span>{$i.from|mdate:"d месяца Y г."}</span></p>
-        </td>
         <td>
             <p><span>{$i.tarif_name}</span></p>
         </td>
@@ -143,69 +140,77 @@ table.service_table th {
         <td align=center>
             <p><span>{$i.over_space_per_gb|round:2}</span></p>
         </td>
-    </tr>
-    {/foreach}
-</table>
-{/if}
-{if $blank_data.ip}
-<p>
-    <strong>
-        <em>
-            <span>
-                Параметры услуги Интернет
-            </span>
-        </em>
-    </strong>
-</p>
-
-<table style="border-collapse: collapse;" border=1 class="service_table">
-    <tr>
-        <th>
-            <p><span><b>Дата включения</b></span></p>
-        </th>
-        <th>
-            <p><span><b>Подключение,<br>№</b></span></p>
-        </th>
-        <th>
-            <p><span><b>Название тарифа</b></span></p>
-        </th>
-        <th>
-            <p><span><b>Объем трафика,<br>включенного<br> в абон. плату,<br> Гб./мес.</b></span></p>
-        </th>
-        <th>
-            <p><span><b>Единоразовый<br>платеж,<br>руб.</b></span></p>
-        </th>
-        <th>
-            <p><span><b>Абонентская<br>плата,<br>руб./мес.</b></span></p>
-        </th>
-        <th>
-            <p><span><b>Стоимость<br>превышения,<br>руб./Мб.</b></span></p>
-        </th>
-    </tr>
-    {foreach from=$blank_data.ip item=i}
-    <tr>
         <td>
             <p><span>{$i.from|mdate:"d месяца Y г."}</span></p>
         </td>
-        <td>
-            <p><span>{$i.id}</span></p>
-        </td>
-        <td>
-            <p><span>{$i.tarif_name}</span></p>
-        </td>
-        <td>
-            <p><span>{$i.gb_month|round:2}</span></p>
-        </td>
-        <td align=center>
-            <p><span>{$i.pay_once|round:2}</span></p>
-        </td>
-        <td align=center>
-            <p><span>{$i.per_month|round:2}</span></p>
-        </td>
-        <td>
-            <p><span>{$i.pay_mb|round:4}</span></p>
-        </td>
     </tr>
     {/foreach}
 </table>
 {/if}
+{$data = ['ip', 'colocation', 'vpn']}
+{foreach $data as $block}
+    {$blockData = $blank_data[$block]}
+
+    {if $blockData}
+    <p>
+        <strong>
+            <em>
+                <span>
+                    Параметры услуги {if $block == "ip"}Интернет{elseif $block == "colocation"}Colocation{else}VPN{/if}
+                </span>
+            </em>
+        </strong>
+    </p>
+
+    <table style="border-collapse: collapse;" border=1 class="service_table">
+        <tr>
+            <th>
+                <p><span><b>Подключение,<br>&#8470;</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Название тарифа</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Объем трафика,<br>включенного<br> в абон. плату,<br> Гб./мес.</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Единоразовый<br>платеж,<br>руб.</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Абонентская<br>плата,<br>руб./мес.</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Стоимость<br>превышения,<br>руб./Мб.</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Дата<br>подключения</b></span></p>
+            </th>
+        </tr>
+        {foreach from=$blockData item=i}
+        <tr>
+            <td>
+                <p><span>{$i.id}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.tarif_name}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.gb_month|round:2}</span></p>
+            </td>
+            <td align=center>
+                <p><span>{$i.pay_once|round:2}</span></p>
+            </td>
+            <td align=center>
+                <p><span>{$i.per_month|round:2}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.pay_mb|round:4}</span></p>
+            </td>
+            <td>
+                <p><span>{if $i.from < 32503669200}{$i.from|mdate:"d месяца Yг."|replace:" ":"&nbsp;"}{/if}</span></p>
+            </td>
+        </tr>
+        {/foreach}
+    </table>
+    {/if}
+{/foreach}
