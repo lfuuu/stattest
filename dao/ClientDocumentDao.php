@@ -355,28 +355,39 @@ class ClientDocumentDao extends Singleton
     {
         $client = ClientAccount::findOne(["id" => $clientId])->client;
 
-        $data = ['voip' => [], 'ip' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
+        $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
 
 
-        foreach(\app\models\UsageVoip::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
         {
+            $perMonth = $a->currentTariff->month_number + ($a->currentTariff->month_line * $a->no_of_lines);
+
             $data['voip'][] = [
-                'from' => $a->actual_from,
+                'from' => strtotime($a->actual_from),
+                'address' => $a->address,
                 'description' => "Телефонный номер: " . $a->E164,
                 'number' => $a->E164,
                 'lines' => $a->no_of_lines,
                 'free_local_min' => $a->currentTariff->free_local_min,
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($a->currentTariff->month_number, 2),
-                'per_month_with_tax' => round($a->currentTariff->month_number * 1.18, 2)
+                'per_month' => round($perMonth, 2),
+                'per_month_with_tax' => round($perMonth * 1.18, 2)
             ];
         }
 
         foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $a)
         {
-            $data['ip'][] = [
-                'from' => $a->actual_from,
+            switch($a->currentTariff->type)
+            {
+                case 'C': $block = 'colocation'; break;
+                case 'V': $block = 'vpn';break;
+                case 'I': 
+                default: $block = 'ip'; 
+            }
+
+            $data[$block][] = [
+                'from' => strtotime($a->actual_from),
                 'id' => $a->id,
                 'tarif_name' => $a->currentTariff->name,
                 'pay_once' => $a->currentTariff->pay_once,
@@ -390,8 +401,8 @@ class ClientDocumentDao extends Singleton
         foreach(\app\models\UsageVirtpbx::find()->client($client)->actual()->all() as $a)
         {
             $data['vats'][] = [
-                'from' => $a->actual_from,
-                'description' => "ВАТС #".$a->id,
+                'from' => strtotime($a->actual_from),
+                'description' => "ВАТС ".$a->id,
                 'tarif_name' => $a->currentTariff->description,
                 'space' => $a->currentTariff->space,
                 'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
