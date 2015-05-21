@@ -161,7 +161,7 @@ class LkNotificationContact
             }
 
             if ($r->credit > -1) {
-                $r->balance -= self::$billingCounters[$r->client_id]['amount_sum'];
+                $r->balance += self::$billingCounters[$r->client_id]['amount_sum'];
             }
 
             $list[] = $r;
@@ -187,7 +187,7 @@ class LkNotificationContact
                     if (!isset(self::$billingCounters[$C->client_id]))
                         self::$billingCounters[$C->client_id] = ClientCS::getBillingCounters($C->client_id);
 
-                    $client->balance -= self::$billingCounters[$C->client_id]['amount_sum'];
+                    $client->balance += self::$billingCounters[$C->client_id]['amount_sum'];
                 }
 
                 LkNotificationLog::addLogRaw($C->client_id, $C->id, 'add_pay_notif', true, $client->balance, 0, $pay->sum);
