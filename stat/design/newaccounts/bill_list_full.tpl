@@ -80,7 +80,7 @@
                 <b>IP-Телефония:</b><br/>
                 Расход за день: <b>{$counters.amount_day_sum}</b><br/>
                 Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-                Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
+                Текущий баланс: <b>{$fixclient_data.balance+$counters.amount_sum} {$fixclient_data.currency}</b><br/>
             </td>
         </tr>
     </table>
