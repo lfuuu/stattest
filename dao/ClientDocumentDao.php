@@ -53,7 +53,7 @@ class ClientDocumentDao extends Singleton
                 $contractDopDate = date("d.m.Y");
             }
 
-            $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
+            $lastContract = BillContract::getLastContract($accountId, ($contractType == "blank" ? strtotime("01.01.4000") : (strtotime($contractDopDate) ?: time())));
 
             $contractNo = $lastContract["no"];
             $contractDate = date("d.m.Y", $lastContract["date"]);
