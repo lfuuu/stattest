@@ -223,6 +223,20 @@ class WizardController extends /*BaseController*/ApiController
         }
     }
 
+    public function actionSaveContacts()
+    {
+        $data = $this->loadAndCheck();
+        $result = $this->_saveStep3($data);
+
+        if ($result === true)
+        {
+            return $this->makeWizardFull();
+        } else {
+            return $result;
+        }
+    }
+        
+
     private function makeWizardFull()
     {
         return [
