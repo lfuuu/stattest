@@ -5,8 +5,13 @@
                 <input type=hidden name=contract_type value={$type}>
                 <table>
                     <tr>
-                    {if $type == "blank"}
-                        <td colspan=2 style='width:155px'>&nbsp;</td>
+                    {if $type == "blank" || $type == "agreement"}
+                        <td><input class=text style='width:70px' type=text name=contract_no value='{$contract_start_numbers[$type]+1}'></td>
+                        {if $type == "agreement"}
+                            <td><input class="text contract_datepicker" style='width:85px' type=text name=contract_date value="{0|mdate:"d.m.Y"}"></td>
+                        {else}
+                            <td>&nbsp;</td>
+                        {/if}
                     {else}
                         <td><input class=text style='width:70px' type=text name=contract_no value='{$client_id}-{0|mdate:"y"}'></td>
                         <td><input class="text contract_datepicker" style='width:85px' type=text name=contract_date value="{0|mdate:"d.m.Y"}"></td>
