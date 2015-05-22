@@ -7,7 +7,7 @@
     include INCLUDE_PATH.'icq/WebIcqPro.class.php';
 
 
-    $lifeH = rand(3,12);
+    $lifeH = 1;//rand(3,12);
 
 
     if(runChecker::isRun())
