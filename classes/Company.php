@@ -336,6 +336,11 @@ class Company
                 $d = "pma";
                 $isGenDir = true;
             }
+
+            if ($billDate >= strtotime("2015-06-01"))
+            {
+                $b = "sim";
+            }
         }elseif ($firma == "markomnet_new")
         {
             $d = "maz";
@@ -454,7 +459,8 @@ class Company
                 "nem" => array(
                         "name" => "Нем И. В.",       
                         "sign" => array("src" => "sign_nem.png", "width" => 140, "height" => 142)
-                        )
+                        ),
+                "sim" => ["name" => "Симоненко Т. Е.", "sign" => false]
                     );
 
         $firms = array(
