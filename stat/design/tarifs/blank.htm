@@ -206,7 +206,7 @@ table.service_table th {
                 <p><span>{$i.tarif_name}</span></p>
             </td>
             <td>
-                <p><span>{$i.gb_month|round:2}</span></p>
+                <p><span>{if $i.gb_month}{$i.gb_month|round:2}{else}----{/if}</span></p>
             </td>
             <td align=center>
                 <p><span>{$i.pay_once|round:2}</span></p>
