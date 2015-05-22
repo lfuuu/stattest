@@ -2486,13 +2486,26 @@ DBG::sql_out($select_client_data);
         $cs = new ClientCS($clientAccount->id);
 
         $d = $cs->GetContracts();
+
+        $maxs = ["agreement" => 0, "blank" => 0];
+
         foreach ($d as $k=>$vv){
             foreach($vv as $k2 => $v){
                 $p = data_encode($v['id'].'-'.$v['client_id']);
                 $d[$k][$k2]['link']=PROTOCOL_STRING.$_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']).'/view.php?code='.$p;
+
+                if ($k == "agreement" || $k == "blank")
+                {
+                    if (preg_match("/^\d{1,3}$/", $v["contract_dop_no"]))
+                    {
+                        $maxs[$k] = max($maxs[$k], $v["contract_dop_no"]);
+                    }
+                }
             }
         }
+
         $design->assign('contracts', $d);
+        $design->assign('contract_start_numbers', $maxs);
         $design->assign('templates',ClientDocument::dao()->contract_listTemplates(true));
         $design->assign("client_id", $clientAccount->id);
 

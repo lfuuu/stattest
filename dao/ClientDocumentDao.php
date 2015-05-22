@@ -48,13 +48,15 @@ class ClientDocumentDao extends Singleton
                 $contractDopNo = $_contractNo;
                 $contractDopDate = $_contractDate;
 
-                $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
-
-                $contractNo = $lastContract["no"];
-                $contractDate = date("d.m.Y", $lastContract["date"]);
             } else { //blank
+                $contractDopNo = $_contractNo;
                 $contractDopDate = date("d.m.Y");
             }
+
+            $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
+
+            $contractNo = $lastContract["no"];
+            $contractDate = date("d.m.Y", $lastContract["date"]);
         }
 
         list($d, $m, $y) = explode(".", $contractDate);
@@ -364,11 +366,11 @@ class ClientDocumentDao extends Singleton
 
             $data['voip'][] = [
                 'from' => strtotime($a->actual_from),
-                'address' => $a->address,
+                'address' => $a->address ?: $a->datacenter->address,
                 'description' => "Телефонный номер: " . $a->E164,
                 'number' => $a->E164,
                 'lines' => $a->no_of_lines,
-                'free_local_min' => $a->currentTariff->free_local_min,
+                'free_local_min' => $a->currentTariff->free_local_min * $a->no_of_lines,
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
                 'per_month' => round($perMonth, 2),
@@ -424,19 +426,19 @@ class ClientDocumentDao extends Singleton
                 'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
             ];
         }
+        */
 
         foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $a)
         {
             $data['extra'][] = [
-                'from' => $a->actual_from,
-                'description' => "Доп. услуга", 
-                'amount' => $a->amount,
+                'from' => strtotime($a->actual_from),
                 'tarif_name' => $a->currentTariff->description,
+                'amount' => $a->amount,
+                'pay_once' => 0,
                 'per_month' => round($a->currentTariff->price * $a->amount, 2),
                 'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
             ];
         }
-         */
 
         $this->design->assign("blank_data", $data);
         return $this->design->fetch("tarifs/blank.htm");
