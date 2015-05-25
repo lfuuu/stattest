@@ -362,7 +362,7 @@ class ClientDocumentDao extends Singleton
 
         foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
         {
-            $perMonth = $a->currentTariff->month_number + ($a->currentTariff->month_line * $a->no_of_lines);
+            $perMonth = $a->currentTariff->month_number + ($a->currentTariff->month_line * ($a->no_of_lines-1));
 
             $data['voip'][] = [
                 'from' => strtotime($a->actual_from),
@@ -370,7 +370,7 @@ class ClientDocumentDao extends Singleton
                 'description' => "Телефонный номер: " . $a->E164,
                 'number' => $a->E164,
                 'lines' => $a->no_of_lines,
-                'free_local_min' => $a->currentTariff->free_local_min * $a->no_of_lines,
+                'free_local_min' => $a->currentTariff->free_local_min * ($a->currentTariff->freemin_for_number ? 1 : $a->no_of_lines),
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
                 'per_month' => round($perMonth, 2),
@@ -400,7 +400,7 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageVirtpbx::find()->client($client)->->andWhere("actual_to > NOW()")->all() as $a)
         {
             $data['vats'][] = [
                 'from' => strtotime($a->actual_from),
