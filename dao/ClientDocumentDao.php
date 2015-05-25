@@ -400,7 +400,7 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->->andWhere("actual_to > NOW()")->all() as $a)
+        foreach(\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
         {
             $data['vats'][] = [
                 'from' => strtotime($a->actual_from),
