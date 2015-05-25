@@ -460,7 +460,7 @@ class Company
                         "name" => "Нем И. В.",       
                         "sign" => array("src" => "sign_nem.png", "width" => 140, "height" => 142)
                         ),
-                "sim" => ["name" => "Симоненко Т. Е.", "sign" => false]
+                "sim" => ["name" => "Симоненко Т. Е.", "sign" => ["src" => "sign_sim.png", "width" => 140, "height" => 54]]
                     );
 
         $firms = array(
