@@ -1,7 +1,7 @@
 <?php
 namespace app\models\billing;
 
-use app\dao\billing\PricelistDao;
+use app\dao\billing\OperatorDao;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -9,11 +9,11 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property
  */
-class Pricelist extends ActiveRecord
+class Operator extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'voip.pricelist';
+        return 'voip.operator';
     }
 
     public static function getDb()
@@ -23,6 +23,8 @@ class Pricelist extends ActiveRecord
 
     public static function dao()
     {
-        return PricelistDao::me();
+        return OperatorDao::me();
     }
+
+
 }

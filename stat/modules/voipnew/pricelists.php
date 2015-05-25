@@ -11,8 +11,7 @@ class m_voipnew_pricelists
     {
         global $db, $pg_db, $design;
 
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
+        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator from voip.pricelist p
                                     left join voip.operator o on o.id=p.operator_id and o.region=p.region
                                     where p.operator_id = 999 and p.type = 'client'
                                     order by p.region desc, p.operator_id, p.name");
@@ -26,8 +25,7 @@ class m_voipnew_pricelists
     {
         global $db, $pg_db, $design;
 
-        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator, c.code as currency from voip.pricelist p
-                                    left join public.currency c on c.id=p.currency_id
+        $res = $pg_db->AllRecords(" select p.*, o.short_name as operator from voip.pricelist p
                                     left join voip.operator o on o.id=p.operator_id and o.region=p.region
                                     where p.operator_id != 999 and p.type = 'operator'
                                     order by p.region desc, p.operator_id, p.name");

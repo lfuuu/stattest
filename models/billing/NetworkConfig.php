@@ -1,7 +1,7 @@
 <?php
 namespace app\models\billing;
 
-use app\dao\billing\PricelistDao;
+use app\dao\billing\NetworkConfigDao;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -9,11 +9,11 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property
  */
-class Pricelist extends ActiveRecord
+class NetworkConfig extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'voip.pricelist';
+        return 'voip.network_config';
     }
 
     public static function getDb()
@@ -23,6 +23,6 @@ class Pricelist extends ActiveRecord
 
     public static function dao()
     {
-        return PricelistDao::me();
+        return NetworkConfigDao::me();
     }
 }
