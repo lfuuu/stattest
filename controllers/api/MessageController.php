@@ -24,12 +24,20 @@ class MessageController extends ApiController
         );
 
         if (!$form->hasErrors()) {
-            return Message::find()
+            $listMessages = [];
+            $fromQuery = Message::find()
                             ->where(['account_id' => $form->client_account_id])
                             ->orderBy(['created_at' => $form->order == 'desc'  ? SORT_DESC : SORT_ASC])
                             ->limit(100)
-                            ->asArray()
                             ->all();
+            if ($fromQuery)
+            {
+                foreach($fromQuery as $message)
+                {
+                    $listMessages[] = $message->toArray();
+                }
+            }
+            return $listMessages;
         } else {
             throw new FormValidationException($form);
         }
@@ -82,7 +90,7 @@ class MessageController extends ApiController
                     $msg->is_read = 1;
                     $msg->save();
                 }
-                return $msg;
+                return $msg->toArray();
             } else {
                 throw new \Exception('Message not found');
             }

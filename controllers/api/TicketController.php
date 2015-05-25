@@ -47,15 +47,21 @@ class TicketController extends ApiController
                 Ticket::find()
                     ->andWhere(['id' => $model->ticket_id])
                     ->andWhere(['client_account_id' => $model->client_account_id])
-                    ->asArray()
                     ->one();
             if ($ticket !== null) {
-                $ticket['comments'] =
-                    TicketComment::find()
+                $ticket = $ticket->toArray();
+                $ticket['comments'] =[];
+                $ticketComments = TicketComment::find()
                         ->andWhere(['ticket_id' => $model->ticket_id])
                         ->orderBy('created_at')
-                        ->asArray()
                         ->all();
+                if ($ticketComments)
+                {
+                    foreach($ticketComments as $ticketComment)
+                    {
+                        $ticket["comments"][] = $ticketComment->toArray();
+                    }
+                }
             }
             return $ticket;
         } else {
@@ -107,11 +113,10 @@ class TicketController extends ApiController
                    $ticket->is_with_new_comment = 0;
                    $ticket->save();
                }
-            return $ticket;;
+            return $ticket->toArray();
         } else {
             throw new FormValidationException($model);
         }
-        //
     }
 
 }
