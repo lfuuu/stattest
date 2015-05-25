@@ -152,7 +152,7 @@ table.service_table th {
             <p><span>{$i.over_space_per_gb|round:2}</span></p>
         </td>
         <td>
-            <p><span>{$i.from|mdate:"d месяца Y г."|replace:" ":"&nbsp;"}</span></p>
+            <p><span>{if $i.from < 32503669200}{$i.from|mdate:"d месяца Y г."|replace:" ":"&nbsp;"}{else}&nbsp;{/if}</span></p>
         </td>
     </tr>
     {/foreach}
