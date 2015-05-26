@@ -47,15 +47,21 @@ class TicketController extends ApiController
                 Ticket::find()
                     ->andWhere(['id' => $model->ticket_id])
                     ->andWhere(['client_account_id' => $model->client_account_id])
-                    ->asArray()
                     ->one();
             if ($ticket !== null) {
-                $ticket['comments'] =
-                    TicketComment::find()
+                $ticket = $ticket->toArray();
+                $ticket['comments'] =[];
+                $ticketComments = TicketComment::find()
                         ->andWhere(['ticket_id' => $model->ticket_id])
                         ->orderBy('created_at')
-                        ->asArray()
                         ->all();
+                if ($ticketComments)
+                {
+                    foreach($ticketComments as $ticketComment)
+                    {
+                        $ticket["comments"][] = $ticketComment->toArray();
+                    }
+                }
             }
             return $ticket;
         } else {
@@ -80,6 +86,34 @@ class TicketController extends ApiController
         $model->load(Yii::$app->request->bodyParams, '');
         if ($model->save()) {
             return ['ticket_id' => $model->ticket_id, 'comment_id' => $model->id];
+        } else {
+            throw new FormValidationException($model);
+        }
+    }
+
+    public function actionSetRead()
+    {
+        $model = DynamicModel::validateData(
+              Yii::$app->request->bodyParams,
+              [
+                  ['client_account_id', AccountIdValidator::className()],
+                  ['ticket_id', TicketIdValidator::className()],
+                  [['client_account_id', 'ticket_id'], 'required'],
+              ]
+          );
+
+        if (!$model->hasErrors()) {
+            $ticket =
+                Ticket::find()
+                    ->andWhere(['id' => $model->ticket_id])
+                    ->andWhere(['client_account_id' => $model->client_account_id])
+                    ->one();
+
+               if ($ticket->is_with_new_comment) {
+                   $ticket->is_with_new_comment = 0;
+                   $ticket->save();
+               }
+            return $ticket->toArray();
         } else {
             throw new FormValidationException($model);
         }

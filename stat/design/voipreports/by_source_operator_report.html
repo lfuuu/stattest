@@ -53,6 +53,7 @@
     С: <input readonly type=text id="date_from" class="datepicker" name="date_from" value="{$date_from}" />
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     По: <input readonly type=text id="date_to" class="datepicker" name="date_to" value="{$date_to}" />
+    (время в UTC)
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <input type=submit name="make" id="make_report" value="Сформировать"/>
 </form>
@@ -73,9 +74,8 @@
 	<td>{$r.operator}</td>
     <td>{$r.count}</td>
 	<td>{$r.minutes}</td>
-    <td>{$r.amount}</td>
+    <td>{$r.amount|round:0}</td>
 </tr>
 {/foreach}
 </tbody>
 </table>
-</div>

@@ -57,7 +57,7 @@ class m_voipreports_operator_report
                                   ", 'id');
 
             $res_volumes = $pg_db->AllRecords("
-                                        select prefix, operator_id, seconds_op/60.0 as volume, amount_op/100.0 as amount, amount_op/100.0 as amount_op, \"count\" as count
+                                        select prefix, operator_id, seconds_op/60.0 as volume, amount_op as amount, \"count\" as count
                                         from voip.volume_calc_data
                                         where task_id={$volume_task_id} and instance_id=0
                                   ");
@@ -82,7 +82,7 @@ class m_voipreports_operator_report
             foreach ($report as $k => $r) {
 
                 $r['volume'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['volume'] : '';
-                $r['amount_op'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['amount_op'] : '';
+                $r['amount'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['amount'] : '';
                 $r['count'] = isset($volumes['0'][$r['prefix']]) ? $volumes['0'][$r['prefix']]['count'] : '';
 
                 if ($f_volume != '' && $r['volume'] < $f_volume) {
@@ -131,9 +131,9 @@ class m_voipreports_operator_report
                 if ($r['volume']) {
                     $report[$k]['volume'] = round($r['volume']);
                 }
-                if ($r['amount_op']) {
-                    $report[$k]['amount_op'] = round($r['amount_op']);
-                    $totals['all']['amount_op'] += $r['amount_op'];
+                if ($r['amount']) {
+                    $report[$k]['amount'] = round($r['amount']);
+                    $totals['all']['amount'] += $r['amount'];
                 }
                 if ($r['count']) {
                     $report[$k]['count'] = round($r['count']);
@@ -152,8 +152,6 @@ class m_voipreports_operator_report
                 $totals[$k]['volume'] = round($v['volume'], 2);
             if ($v['amount'])
                 $totals[$k]['amount'] = round($v['amount'], 2);
-            if ($v['amount_op'])
-                $totals[$k]['amount_op'] = round($v['amount_op'], 2);
             if ($v['count'])
                 $totals[$k]['count'] = round($v['count']);
         }
@@ -192,7 +190,7 @@ class m_voipreports_operator_report
                 echo '"' . $pricelists[$p]['operator'] . '";;;;';
             }
             echo "\n";
-            echo '"Префикс номера";"Назначение";"Факт. Стоимость";"Кол-во";"Объем";"Стоимость";';
+            echo '"Префикс номера";"Назначение";"Кол-во";"Объем";"Стоимость";';
             foreach ($rep->pricelist_ids as $i => $p) {
                 echo '"Цена";"Кол-во";"Объем";"Стоимость";';
             }
@@ -200,10 +198,9 @@ class m_voipreports_operator_report
             foreach ($report as $r) {
                 echo '"' . $r['prefix'] . '";';
                 echo '"' . $r['destination'] . ($r['mob']=='t'?' (mob)':'') . '";';
-                echo '"' . str_replace('.',',',$r['amount_op']) . '";';
                 echo '"' . $r['count'] . '";';
                 echo '"' . $r['volume'] . '";';
-                echo '"' . str_replace('.',',',$r['amount_op']) . '";';
+                echo '"' . str_replace('.',',',$r['amount']) . '";';
                 foreach ($rep->pricelist_ids as $i => $p) {
                     echo '"' . str_replace('.',',', $r['parts'][$i]['price']) . '";';
                     echo '"' . $r['parts'][$i]['count'] . '";';

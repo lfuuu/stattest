@@ -52,13 +52,7 @@
     </td>
     <td></td>
     <td align=right>
-		<b>
-            {if $fixclient_data.currency=='USD'}
-                {if isset($sum_cur.saldo)}{$sum_cur.delta+$sum_cur.saldo|money:'USD'}{else}{$sum_cur.delta|money:'USD'}{/if}
-            {else}
-                {if isset($sum.USD.saldo)}{$sum.USD.delta+$sum.USD.saldo|money:'USD'}{else}{$sum.USD.delta|money:'USD'}{/if}
-            {/if}
-		</b>
+        &nbsp;
     </td>
 </tr>
 
@@ -74,7 +68,7 @@
                 <b>IP-Телефония:</b><br/>
                 Расход за день: <b>{$counters.amount_day_sum}</b><br/>
                 Расход за месяц: <b>{$counters.amount_month_sum}</b><br/>
-                Текущий баланс: <b>{$fixclient_data.balance-$counters.amount_sum} {$fixclient_data.currency}</b><br/>
+                Текущий баланс: <b>{$fixclient_data.balance+$counters.amount_sum} {$fixclient_data.currency}</b><br/>
             </td>
         </tr>
     </table>
@@ -117,7 +111,11 @@
 	<TD colspan=3 rowspan={$rowspan}>&nbsp;</TD>
 {/if}
 
-<TD rowspan={$rowspan} align=right>{objCurrency op=$op obj='delta' currency=$fixclient_data.currency simple=1}</TD>
+<TD rowspan={$rowspan} align=right>
+    {if $fixclient_data.currency == $op.bill.currency}
+        {objCurrency op=$op obj='delta' currency=$fixclient_data.currency simple=1}
+    {/if}
+</TD>
 
 {if count($op.pays)}
 	{foreach from=$op.pays item=pay key=keyin name=inner}

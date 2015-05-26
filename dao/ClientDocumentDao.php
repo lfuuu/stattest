@@ -7,10 +7,11 @@ use app\classes\Company;
 use app\classes\Singleton;
 use app\classes\BillContract;
 use app\models\Contract;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 
-class ClientContractDao extends Singleton
+class ClientDocumentDao extends Singleton
 {
     private $design = null;
 
@@ -47,13 +48,15 @@ class ClientContractDao extends Singleton
                 $contractDopNo = $_contractNo;
                 $contractDopDate = $_contractDate;
 
-                $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
-
-                $contractNo = $lastContract["no"];
-                $contractDate = date("d.m.Y", $lastContract["date"]);
             } else { //blank
+                $contractDopNo = $_contractNo;
                 $contractDopDate = date("d.m.Y");
             }
+
+            $lastContract = BillContract::getLastContract($accountId, ($contractType == "blank" ? strtotime("01.01.2035") : (strtotime($contractDopDate) ?: time())));
+
+            $contractNo = $lastContract["no"];
+            $contractDate = date("d.m.Y", $lastContract["date"]);
         }
 
         list($d, $m, $y) = explode(".", $contractDate);
@@ -92,7 +95,7 @@ class ClientContractDao extends Singleton
             $no = $accountId.'-'.date('y');
 
         //save in DB
-        $c = new ClientContract;
+        $c = new ClientDocument;
         $c->type = $type;
         $c->contract_no = $no;
         $c->contract_date = trim($date);
@@ -120,6 +123,15 @@ class ClientContractDao extends Singleton
     {
         $f = array(
                 "MCN" => "mcn",
+
+                "MCN Телефония" => "mcntelefonija",
+                "MCN Интернет" => "mcninternet",
+                "MCN Дата-центр" => "mcndatacenter",
+
+                "Межоператорка" => "interop",
+                "Партнеры" => "partners",
+                "Интернет-магазин" => "internetshop",
+
                 "MCN-СПб" => "mcn98",
                 "MCN-Краснодар" => "mcn97",
                 "MCN-Самара" => "mcn96",
@@ -131,7 +143,7 @@ class ClientContractDao extends Singleton
                 "MCN-Владивосток" => "mcn89",
                 "WellTime" => "welltime",
                 "IT-Park" => "itpark",
-                "Arhiv" => "arhiv"
+                "Arhiv" => "arhiv",
                 );
 
         return $folder === null ? $f : $f[$folder];
@@ -206,7 +218,7 @@ class ClientContractDao extends Singleton
 		if(file_exists(Yii::$app->params['STORE_PATH'].$fileTemplate)) //already
             return true;
 
-        $c = ClientContract::findOne($contractId)->toArray();
+        $c = ClientDocument::findOne($contractId)->toArray();
 		if (!$c) {
 			trigger_error2('Такого договора не существует');
 			return;
@@ -226,6 +238,7 @@ class ClientContractDao extends Singleton
         $this->design = \app\classes\Smarty::init();
         $this->design->assign("client", $r);
         $this->design->assign("contract", $c);
+        $this->design->assign("contact", ClientContact::dao()->GetContact($r["id"]));
 
 
 		$content = $this->contract_fix_static_parts_of_template(file_get_contents(Yii::$app->params['STORE_PATH'].$file), $clientId);
@@ -302,7 +315,7 @@ class ClientContractDao extends Singleton
 				order by
 					`destination_prefix`
 			";
-            foreach(ClientContract::getDB()->createCommand($query)->queryAll() as $row)
+            foreach(ClientDocument::getDB()->createCommand($query)->queryAll() as $row)
             {
 				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
 			}
@@ -344,28 +357,39 @@ class ClientContractDao extends Singleton
     {
         $client = ClientAccount::findOne(["id" => $clientId])->client;
 
-        $data = ['voip' => [], 'ip' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
+        $data = ['voip' => [], 'ip' => [], 'colocation' => [], 'vpn' => [], 'welltime' => [], 'vats' => [], 'sms' => [], 'extra' => []];
 
 
-        foreach(\app\models\UsageVoip::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
         {
+            $perMonth = $a->currentTariff->month_number + ($a->currentTariff->month_line * ($a->no_of_lines-1));
+
             $data['voip'][] = [
-                'from' => $a->actual_from,
+                'from' => strtotime($a->actual_from),
+                'address' => $a->address ?: $a->datacenter->address,
                 'description' => "Телефонный номер: " . $a->E164,
                 'number' => $a->E164,
                 'lines' => $a->no_of_lines,
-                'free_local_min' => $a->currentTariff->free_local_min,
+                'free_local_min' => $a->currentTariff->free_local_min * ($a->currentTariff->freemin_for_number ? 1 : $a->no_of_lines),
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($a->currentTariff->month_number, 2),
-                'per_month_with_tax' => round($a->currentTariff->month_number * 1.18, 2)
+                'per_month' => round($perMonth, 2),
+                'per_month_with_tax' => round($perMonth * 1.18, 2)
             ];
         }
 
         foreach(\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $a)
         {
-            $data['ip'][] = [
-                'from' => $a->actual_from,
+            switch($a->currentTariff->type)
+            {
+                case 'C': $block = 'colocation'; break;
+                case 'V': $block = 'vpn';break;
+                case 'I': 
+                default: $block = 'ip'; 
+            }
+
+            $data[$block][] = [
+                'from' => strtotime($a->actual_from),
                 'id' => $a->id,
                 'tarif_name' => $a->currentTariff->name,
                 'pay_once' => $a->currentTariff->pay_once,
@@ -376,11 +400,11 @@ class ClientContractDao extends Singleton
             ];
         }
 
-        foreach(\app\models\UsageVirtpbx::find()->client($client)->actual()->all() as $a)
+        foreach(\app\models\UsageVirtpbx::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
         {
             $data['vats'][] = [
-                'from' => $a->actual_from,
-                'description' => "ВАТС #".$a->id,
+                'from' => strtotime($a->actual_from),
+                'description' => "ВАТС ".$a->id,
                 'tarif_name' => $a->currentTariff->description,
                 'space' => $a->currentTariff->space,
                 'over_space_per_gb' => $a->currentTariff->overrun_per_gb,
@@ -402,19 +426,19 @@ class ClientContractDao extends Singleton
                 'per_month_with_tax' => round($a->currentTariff->per_month_price, 2)
             ];
         }
+        */
 
         foreach(\app\models\UsageExtra::find()->client($client)->actual()->all() as $a)
         {
             $data['extra'][] = [
-                'from' => $a->actual_from,
-                'description' => "Доп. услуга", 
-                'amount' => $a->amount,
+                'from' => strtotime($a->actual_from),
                 'tarif_name' => $a->currentTariff->description,
+                'amount' => $a->amount,
+                'pay_once' => 0,
                 'per_month' => round($a->currentTariff->price * $a->amount, 2),
                 'per_month_with_tax' => round($a->currentTariff->price * 1.18 * $a->amount, 2)
             ];
         }
-         */
 
         $this->design->assign("blank_data", $data);
         return $this->design->fetch("tarifs/blank.htm");

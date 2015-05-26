@@ -10,7 +10,7 @@ use app\classes\Assert;
 use app\models\LkWizardState;
 use app\models\ClientAccount;
 use app\models\ClientContact;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientFile;
 use app\models\ClientBPStatuses;
 use app\models\TroubleState;
@@ -164,19 +164,19 @@ class WizardController extends /*BaseController*/ApiController
     {
         $this->loadAndCheck();
 
-        $contract = ClientContract::findOne([
+        $contract = ClientDocument::findOne([
             "client_id" => $this->accountId, 
             "user_id" => User::CLIENT_USER_ID
         ]);
 
         if (!$contract)
         {
-            $contractId = ClientContract::dao()->addContract(
+            $contractId = ClientDocument::dao()->addContract(
                 $this->accountId,
 
                 "contract",
                 "MCN",
-                "Usludi_svyazi",
+                "Dog_UslugiSvayzi",
 
                 $this->accountId."-".date("Y"),
                 date("d.m.Y"),
@@ -186,7 +186,7 @@ class WizardController extends /*BaseController*/ApiController
                 User::CLIENT_USER_ID
             );
 
-            $contract = ClientContract::findOne([
+            $contract = ClientDocument::findOne([
                 "client_id" => $this->accountId, 
                 "user_id" => User::CLIENT_USER_ID
             ]);
@@ -222,6 +222,20 @@ class WizardController extends /*BaseController*/ApiController
             return ["errors" => ["file" => "error upload file"]];
         }
     }
+
+    public function actionSaveContacts()
+    {
+        $data = $this->loadAndCheck();
+        $result = $this->_saveStep3($data);
+
+        if ($result === true)
+        {
+            return $this->makeWizardFull();
+        } else {
+            return $result;
+        }
+    }
+        
 
     private function makeWizardFull()
     {
@@ -287,7 +301,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function eraseContract()
     {
-        $contract = ClientContract::findOne([
+        $contract = ClientDocument::findOne([
             "client_id" => $this->accountId, 
             "user_id" => User::CLIENT_USER_ID
         ]);

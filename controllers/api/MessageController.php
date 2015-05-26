@@ -24,12 +24,20 @@ class MessageController extends ApiController
         );
 
         if (!$form->hasErrors()) {
-            return Message::find()
+            $listMessages = [];
+            $fromQuery = Message::find()
                             ->where(['account_id' => $form->client_account_id])
                             ->orderBy(['created_at' => $form->order == 'desc'  ? SORT_DESC : SORT_ASC])
                             ->limit(100)
-                            ->asArray()
                             ->all();
+            if ($fromQuery)
+            {
+                foreach($fromQuery as $message)
+                {
+                    $listMessages[] = $message->toArray();
+                }
+            }
+            return $listMessages;
         } else {
             throw new FormValidationException($form);
         }
@@ -46,12 +54,20 @@ class MessageController extends ApiController
         );
 
         if (!$form->hasErrors()) {
-            return 
-                Message::find()
+            $message = Message::find()
                     ->where(['id' => $form->id, 'account_id' => $form->client_account_id])
-                    ->joinWith('text')
-                    ->asArray()
                     ->one();
+
+            if ($message)
+            {
+                $messageText = $message->text->text;
+                $message = $message->toArray();
+                $message["text"] = $messageText;
+
+                return $message;
+            } else {
+                throw new \Exception("Message not found");
+            }
         } else {
             throw new FormValidationException($form);
         }
@@ -70,11 +86,14 @@ class MessageController extends ApiController
         if (!$form->hasErrors()) {
             $msg = Message::findOne(['id' => $form->id, 'account_id' => $form->client_account_id]);
             if ($msg) {
-                $msg->is_read = 1;
-                $msg->save();
-                return $msg;
-            } else
+                if ($msg->is_read == 0) {
+                    $msg->is_read = 1;
+                    $msg->save();
+                }
+                return $msg->toArray();
+            } else {
                 throw new \Exception('Message not found');
+            }
         } else {
             throw new FormValidationException($model);
         }

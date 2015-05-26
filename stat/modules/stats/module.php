@@ -739,13 +739,13 @@ class m_stats extends IModule{
             $group='';
             $format='d месяца Y г. H:i:s';
         } elseif ($detality=='year'){
-            $group=" group by date_trunc('year',month)";
+            $group=" group by date_trunc('year',connect_time)";
             $format='Y г.';
         } elseif ($detality=='month'){
-            $group=" group by date_trunc('month',month)";
+            $group=" group by date_trunc('month',connect_time)";
             $format='Месяц Y г.';
         } elseif ($detality=='day'){
-            $group=' group by day';
+            $group=" group by date_trunc('day',connect_time)";
             $format='d месяца Y г.';
         } else {
             $group='';
@@ -753,8 +753,8 @@ class m_stats extends IModule{
         }
         $W=array('AND');
 
-        $W[] = "time>='".$from."'";
-        $W[] = "time<='".$to." 23:59:59'";
+        $W[] = "connect_time>='".$from."'";
+        $W[] = "connect_time<='".$to." 23:59:59.999999'";
 
 
 
@@ -762,9 +762,9 @@ class m_stats extends IModule{
             $dg = explode("-", $destination);
             $dest = intval($dg[0]);
             if ($dest == 0)
-                $W[] = 'dest<='.$dest;
+                $W[] = 'destination_id<='.$dest;
             else
-                $W[] = 'dest='.$dest;
+                $W[] = 'destination_id='.$dest;
             if(count($dg)>1){
                 if ($dg[1] == 'm') {
                     $W[] = 'mob=true';
@@ -776,15 +776,15 @@ class m_stats extends IModule{
 
         if($direction <> 'both'){
             if($direction == 'in')
-                $W[] = 'direction_out=false';
+                $W[] = 'orig=false';
             else
-                $W[] = 'direction_out=true';
+                $W[] = 'orig=true';
         }
 
-        $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'usage_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE';
+        $W[]=(isset($usage_arr) && count($usage_arr) > 0) ? 'number_service_id IN (' . implode($usage_arr, ',') . ')' : 'FALSE';
 
         if ($paidonly) {
-            $W[]='amount!=0';
+            $W[]='abs(cost)>0.0001';
         }
 
         global $db;
@@ -794,27 +794,25 @@ class m_stats extends IModule{
             $sql="
                             select
                                     ".($group?'':'id,')."
-                                    ".($group?'':'phone_num,')."
+                                    ".($group?'':'src_number,')."
                                     ".($group?'':'geo_id,')."
                                     ".($group?'':'mob,')."
-                                    ".($group?'':'usage_num,')."
-                                    ".($group?'':'redirect_num,')."
-                                    ".($group?'':'usage_id,')."
-                                    ".($group?'':'direction_out,');
-            if ($detality == 'day') $sql.= ' day as ts1, ';
-            elseif ($detality == 'month') $sql.= " date_trunc('month',month) as ts1, ";
-            elseif ($detality == 'year') $sql.= " date_trunc('year',month) as ts1, ";
-            else $sql.= ' time as ts1, ';
+                                    ".($group?'':'dst_number,')."
+                                    ".($group?'':'orig,');
+            if ($detality == 'day') $sql.= " date_trunc('day',connect_time) as ts1, ";
+            elseif ($detality == 'month') $sql.= " date_trunc('month',connect_time) as ts1, ";
+            elseif ($detality == 'year') $sql.= " date_trunc('year',connect_time) as ts1, ";
+            else $sql.= ' connect_time as ts1, ';
 
 
 
             $sql .=
-            'cast('.($group?'sum':'').'(amount)/100.0 as NUMERIC(10,2)) as price,
-                                    '.($group?'sum':'').'('.($paidonly?'case amount>0 when true then len_mcn else 0 end':'len_mcn').') as ts2,
-                                    '.($group?'sum('.($paidonly?'case amount>0 when true then 1 else 0 end':1).')':'1').' as cnt
+            ($group?'-sum':'-').'(cost) as price,
+                                    '.($group?'sum':'').'('.($paidonly?'case abs(cost)>0.0001 when true then billed_time else 0 end':'billed_time').') as ts2,
+                                    '.($group?'sum('.($paidonly?'case abs(cost)>0.0001 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
-                                    calls.calls_'.intval($region).'
-                            where '.MySQLDatabase::Generate($W).$group."
+                                    calls_raw.calls_raw
+                            where server_id=' . intval($region) . ' and '.MySQLDatabase::Generate($W).$group."
                             ORDER BY
                                     ts1 ASC
                             LIMIT ".($isFull ? "50000" : "5000");
@@ -869,10 +867,10 @@ class m_stats extends IModule{
 
             $R['total']=$rt;
         }else{
-            $sql="  select dest, mob, cast(sum(amount)/100.0 as NUMERIC(10,2)) as price, sum(len_mcn) as len, sum(1) as cnt
-                            from calls.calls_".intval($region)."
-                            where ".MySQLDatabase::Generate($W)."
-                            GROUP BY dest, mob";
+            $sql="  select destination_id as dest, mob, -sum(cost) as price, sum(billed_time) as len, sum(1) as cnt
+                            from calls_raw.calls_raw
+                            where server_id=" . intval($region) . " and  ".MySQLDatabase::Generate($W)."
+                            GROUP BY destination_id, mob";
             $R = array(     'mos_loc'=>  array('tsf1'=>'Местные Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'mos_mob'=> array('tsf1'=>'Местные Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),

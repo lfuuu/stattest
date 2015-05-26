@@ -78,8 +78,23 @@ $(document).ready(function(){
     </td>
     </tr>
     <tr>
-    <td colspan=2 align=right>
-    <input type=submit value="Сохранить" name="save_text" style="width: 100%"></td>
+    <td colspan=2 align=left>
+    <input type=submit value="Сохранить" name="save_text" style="width: 100%">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+    Переименовать: <input type=text value="{$contract_template}" name="new_contract_template"><input type=submit value="Go" name="rename"><br>
+    Переложить: 
+    
+	<select class="select2" style="width:200px;" name=new_contract_template_group id="new_contract_template_group">
+    {foreach from=$templates key=k item=item}
+        <option value="{$k}"{if $contract_template_group == $k} selected{/if}>{$k}</option>
+    {/foreach}
+	</select> <input type=submit value="Go" name="move"><br>
+    </td>
 </form>
     </tr>
 {/if}

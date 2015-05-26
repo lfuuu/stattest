@@ -27,8 +27,8 @@ $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
-$termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList('operator');
-$origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList('client');
+$termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(null,false);
+$origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(false,true);
 
 ?>
 <legend>

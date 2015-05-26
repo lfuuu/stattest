@@ -1,6 +1,6 @@
 {foreach from=$data item=item}
     <tr class="trdata{if !$item.is_active} other{/if}">
-        <td>{if $item.type == "agreement"}{$item.contract_dop_no}{else}{$item.contract_no}{/if}</td>
+        <td>{if $item.type != "contract"}{$item.contract_dop_no}{else}{$item.contract_no}{/if}</td>
         <td>{if $item.type != "contract"}{$item.contract_dop_date}{else}{$item.contract_date}{/if}</td>
         <td>{$item.comment}</td>
         <td>{$item.user}</td>

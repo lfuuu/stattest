@@ -1,7 +1,7 @@
 <?php
 
 use \app\models\Contract;
-use \app\models\ClientContract;
+use \app\models\ClientDocument;
 
 class m_tarifs{
     var $actions=array(
@@ -220,7 +220,7 @@ class m_tarifs{
 
         $design->assign('data',$data);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
-        $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where operator_id=999"));
+        $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
         $design->assign('id',$id);
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
         $design->AddMain('tarifs/voip_edit.tpl');
@@ -240,7 +240,6 @@ class m_tarifs{
         \app\assets\TinymceAsset::register(Yii::$app->view);
 
         global $design, $db, $user;;
-        $templates = ClientContract::dao()->contract_listTemplates();
         $info = "";
         $contract_body = "";
         $isOpened = false;
@@ -251,9 +250,10 @@ class m_tarifs{
 
         $contract = preg_replace("/[^a-zA-Z0-9_]/", "", $contract);
 
-        $name = ClientContract::dao()->contract_getFolder($group)."_".$contract;
+        $name = ClientDocument::dao()->contract_getFolder($group)."_".$contract;
 
         $filePath = STORE_PATH."contracts/template_".$name.".html";
+        $filePathTemplate = STORE_PATH."contracts/template_{}.html";
 
         if(get_param_raw("new", "") == "true")
         {
@@ -280,9 +280,59 @@ class m_tarifs{
                     $oContract->type = $contractType;
                     $oContract->save();
                 }
-                $templates = ClientContract::dao()->contract_listTemplates();
             }
         }
+
+        if (get_param_raw("rename") != "")
+        {
+            $newContractTemplate = preg_replace("/[^a-zA-Z0-9_]/", "", get_param_raw("new_contract_template"));
+
+            if ($newContractTemplate)
+            {
+                $newName = ClientDocument::dao()->contract_getFolder($group)."_".$newContractTemplate;
+                $oContract = Contract::findOne(["name" => $name]);
+
+                if ($oContract)
+                {
+                    $oContract->name = $newName;
+                    $oContract->save();
+
+                    $newFilePath = str_replace("{}", $newName, $filePathTemplate);
+
+                    rename($filePath, $newFilePath);
+
+                    $name = $newName;
+                    $filePath = $newFilePath;
+                    $contract = $newContractTemplate;
+                }
+            }
+        }
+
+        if (get_param_raw("move") != "")
+        {
+            $newGroup = get_param_raw("new_contract_template_group");
+            if ($newGroup && $newGroup != $group)
+            {
+                $newName = ClientDocument::dao()->contract_getFolder($newGroup)."_".$contract;
+                $oContract = Contract::findOne(["name" => $name]);
+
+                if ($oContract)
+                {
+                    $oContract->name = $newName;
+                    $oContract->save();
+
+                    $newFilePath = str_replace("{}", $newName, $filePathTemplate);
+
+                    rename($filePath, $newFilePath);
+
+                    $name = $newName;
+                    $group = $newGroup;
+                    $filePath = $newFilePath;
+                }
+            }
+        }
+
+
 
 
         if(get_param_raw("save_text", "") != "") {
@@ -352,7 +402,7 @@ class m_tarifs{
             'blank' => 'Бланк заказа'
         ]);
 
-        $design->assign("templates", $templates);
+        $design->assign("templates", ClientDocument::dao()->contract_listTemplates());
         $design->AddMain("tarifs/contract.tpl");
     }
 

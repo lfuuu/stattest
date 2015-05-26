@@ -7,7 +7,7 @@ use app\classes\Assert;
 use app\models\ClientGridSettings;
 use app\models\ClientBP;
 use app\classes\Event;
-use app\models\ClientContract;
+use app\models\ClientDocument;
 use app\models\ClientFile;
 use app\models\LkWizardState;
 
@@ -804,11 +804,11 @@ class m_clients {
 		global $design,$db,$_SERVER;
 		if (!($id=get_param_integer('id'))) return;
 
-		$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
+		$c = $db->GetRow('select * from client_document where id="'.intval($id).'"');
 		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error2('Такого клиента не существует');return;}
 
         $email = "";
-        if (($em = $db->GetRow('SELECT data FROM `client_contacts` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
+        if (($em = $db->GetRow('SELECT data FROM `client_document` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
         {
             $email = $em["data"];
         }
@@ -834,7 +834,7 @@ class m_clients {
         $data=get_param_raw('data', $default_data);
 
 		if ($data=='contract') {
-			$c = $db->GetRow('select * from client_contracts where id="'.intval($id).'"');
+			$c = $db->GetRow('select * from client_document where id="'.intval($id).'"');
 			$id = $c['client_id'];
 			$r = ClientCS::getOnDate($id, $c['contract_date']);
 		} else {
@@ -848,7 +848,7 @@ class m_clients {
 
         if ($data=='contract') {
 
-            $contract = ClientContract::findOne($c["id"]);
+            $contract = ClientDocument::findOne($c["id"]);
             if($contract) {
             	echo $contract->content;
                 exit();
@@ -885,11 +885,11 @@ class m_clients {
 
 		$id=get_param_protected('id');
 		if ($this->check_tele($id)==0) return;
-		$contract = $db->GetRow('select *, unix_timestamp(contract_date) as ts, unix_timestamp(contract_dop_date) as ts_dop  from client_contracts where id="'.intval($id).'"');
+		$contract = $db->GetRow('select *, unix_timestamp(contract_date) as ts, unix_timestamp(contract_dop_date) as ts_dop  from client_document where id="'.intval($id).'"');
 		$client = ClientCS::getOnDate($contract['client_id'], $contract['contract_date']);
 		$design->assign('contract',$contract);
 		$design->assign('client',$client);
-        $design->assign('content',ClientContract::dao()->getTemplate($client['id'].'-'.$contract['id']));
+        $design->assign('content',ClientDocument::dao()->getTemplate($client['id'].'-'.$contract['id']));
 
 		$design->AddMain('clients/contract_edit.tpl');
 	}
@@ -926,7 +926,7 @@ class m_clients {
 
     if (get_param_raw("do", "") == "make_contract")
     {
-        $db->QueryUpdate("client_contracts", "id", ["id" => get_param_integer("contract", 0), "contract_dop_date" => "2012-01-01", "type" => "contract"]);
+        $db->QueryUpdate("client_document", "id", ["id" => get_param_integer("contract", 0), "contract_dop_date" => "2012-01-01", "type" => "contract"]);
     }
     
     
@@ -1768,7 +1768,7 @@ class m_clients {
         $contractNo = get_param_protected('contract_no');
 
 
-        $contractId = ClientContract::dao()->addContract(
+        $contractId = ClientDocument::dao()->addContract(
             $id,
 
             $contractType,
@@ -1792,7 +1792,7 @@ class m_clients {
 		$cid=get_param_protected('cid');
 		$active=get_param_integer('act');
 		$design->assign('contract_open',true);
-		$db->Query('update client_contracts set is_active="'.$active.'",ts=NOW(),user_id="'.$user->Get('id').'" where client_id="'.$id.'" and id="'.$cid.'"');
+		$db->Query('update client_document set is_active="'.$active.'",ts=NOW(),user_id="'.$user->Get('id').'" where client_id="'.$id.'" and id="'.$cid.'"');
 		$this->client_view($id);
 	}
 	function check_tele($id) {
@@ -2486,14 +2486,27 @@ DBG::sql_out($select_client_data);
         $cs = new ClientCS($clientAccount->id);
 
         $d = $cs->GetContracts();
+
+        $maxs = ["agreement" => 0, "blank" => 0];
+
         foreach ($d as $k=>$vv){
             foreach($vv as $k2 => $v){
                 $p = data_encode($v['id'].'-'.$v['client_id']);
                 $d[$k][$k2]['link']=PROTOCOL_STRING.$_SERVER['SERVER_NAME'].dirname($_SERVER['SCRIPT_NAME']).'/view.php?code='.$p;
+
+                if ($k == "agreement" || $k == "blank")
+                {
+                    if (preg_match("/^\d{1,3}$/", $v["contract_dop_no"]))
+                    {
+                        $maxs[$k] = max($maxs[$k], $v["contract_dop_no"]);
+                    }
+                }
             }
         }
+
         $design->assign('contracts', $d);
-        $design->assign('templates',ClientContract::dao()->contract_listTemplates(true));
+        $design->assign('contract_start_numbers', $maxs);
+        $design->assign('templates',ClientDocument::dao()->contract_listTemplates(true));
         $design->assign("client_id", $clientAccount->id);
 
         echo $design->fetch("clients/contract/form.htm");

@@ -59,7 +59,9 @@
 		</SELECT>
 		<SELECT name=from_y>
 			{generate_sequence_options_select start=2003 selected=$from_y}
-		</SELECT> </TD>
+		</SELECT>
+              (время в UTC)
+          </TD>
 			<TD class=left>Регион</TD><TD>
 		        <select name="region">
                     {foreach from=$regions item='r'}
@@ -120,13 +122,15 @@
 		</SELECT>
 		<SELECT name=to_y>
 			{generate_sequence_options_select start=2003 selected=$to_y}
-		</SELECT> </TD>
-		<td  class=left>Входящие/Исходящие</td>
+		</SELECT>
+              (время в UTC)
+          </TD>
+		<td  class=left>Оригинация/Терминация</td>
 			<td colspan="8">
 				<select name="direction">
 					<option value="both">Все</option>
-					<option value="in"{if $direction eq 'in'} selected='selected'{/if}>Входящие</option>
-					<option value="out"{if $direction eq 'out'} selected='selected'{/if}>Исходящие</option>
+					<option value="out"{if $direction eq 'out'} selected='selected'{/if}>Оригинация</option>
+                    <option value="in"{if $direction eq 'in'} selected='selected'{/if}>Терминация</option>
 				</select>
 			</td></TR>
 		<TR><TD class=left>Номер</TD><TD><input type="text" name="phone" value="{$phone}"/></TD>

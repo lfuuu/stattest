@@ -32,7 +32,13 @@ class Navigation
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');
-        $this->addBlockForStatModule('voipnew');
+        $this->addBlock(
+            $this->spawnBlockForStatModule('voipnew')
+                ->addItem('Плайслисты Оригинация', ['voip/pricelist/list', 'local' => 0, 'orig' => 1])
+                ->addItem('Плайслисты Терминация', ['voip/pricelist/list', 'local' => 0, 'orig' => 0])
+                ->addItem('Плайслисты Местные', ['voip/pricelist/list', 'local' => 1, 'orig' => 0])
+                ->addItem('Местные Префиксы', ['voip/network-config/list'])
+        );
         $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
@@ -79,14 +85,6 @@ class Navigation
 
         return $this;
     }
-    
-
-    private function addBlockForStatModule($moduleName)
-    {
-        $block = $this->spawnBlockForStatModule($moduleName);
-        $this->addBlock($block);
-        return $this;
-    }
 
     /**
      * @return NavigationBlock
@@ -97,18 +95,14 @@ class Navigation
 
         list($title, $items) = $statModule->GetPanel(null);
 
+        if (!$title || !$items) {
+            return null;
+        }
+
         $block =
             NavigationBlock::create()
                 ->setId($moduleName)
-                ->setTitle($title)
-            ;
-
-        if (!$title || !$items) {
-            return $block;
-        }
-
-
-        ;
+                ->setTitle($title);
         foreach ($items as $item) {
             $url =
                 substr($item[1], 0, 1) == '/'
@@ -118,6 +112,15 @@ class Navigation
         }
 
         return $block;
+    }
+
+    private function addBlockForStatModule($moduleName)
+    {
+        $block = $this->spawnBlockForStatModule($moduleName);
+        if ($block !== null) {
+            $this->addBlock($block);
+        }
+        return $this;
     }
     
     private function addBlockNewClients()
