@@ -1,7 +1,7 @@
 <?php
 namespace app\dao;
 
-use app\models\ClientStatuses;
+use app\models\ClientContractComment;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
@@ -610,12 +610,11 @@ class ClientAccountDao extends Singleton
             $clientAccount->is_active = $newIsActive;
             $clientAccount->save();
 
-            $cs = new ClientStatuses();
+            $cs = new ClientContractComment();
 
             $cs->ts = date("Y-m-d H:i:s");
-            $cs->id_client = $clientAccount->id;
+            $cs->contract_id = $clientAccount->contract_id;
             $cs->user = \Yii::$app->user->getIdentity()->user;
-            $cs->status = "";
             $cs->comment = "Лицевой счет " . ($clientAccount->is_active ? "открыт" : "закрыт");
         }
     }

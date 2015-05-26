@@ -61,4 +61,14 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         $tariff = TariffVirtpbx::findOne($logTariff->id_tarif);
         return $tariff;
     }
+
+    public function getRegionName()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    public function getServerPbx()
+    {
+        return $this->hasOne(ServerPbx::className(), ['id' => 'server_pbx_id']);
+    }
 }

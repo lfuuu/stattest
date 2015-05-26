@@ -1,55 +1,52 @@
 <?php
 namespace app\forms\contragent;
 
-use app\classes\Connection;
-use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
-use yii\db\Command;
-use yii\db\Query;
 
 class ContragentEditForm extends Form
 {
     public $id;
+    public $super_id;
     protected $person = null;
     protected $contragent = null;
 
     public $legal_type,
-        $name,
-        $name_full,
-        $address_jur,
-        $inn,
-        $kpp,
-        $position,
-        $fio,
+        $name = '',
+        $name_full = '',
+        $address_jur = '',
+        $inn = '',
+        $kpp = '',
+        $position = '',
+        $fio = '',
         $tax_regime,
-        $opf,
-        $okpo,
-        $okvd,
-        $ogrn,
+        $opf = '',
+        $okpo = '',
+        $okvd = '',
+        $ogrn = '',
 
-        $contragent_id,
-        $first_name,
-        $last_name,
-        $middle_name,
-        $passport_date_issued,
-        $passport_serial,
-        $passport_number,
-        $passport_issued,
-        $registration_address;
+        $contragent_id = '',
+        $first_name = '',
+        $last_name = '',
+        $middle_name = '',
+        $passport_date_issued = '1970-01-01',
+        $passport_serial = '',
+        $passport_number = '',
+        $passport_issued = '',
+        $registration_address = '';
 
     public function rules()
     {
         $rules = [
-            [['legal_type', 'name', 'name_full', 'address_jur', 'inn', 'inn_euro',
+            [['legal_type', 'name', 'name_full', 'address_jur', 'inn',
                 'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
             ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
             ['tax_regime', 'in', 'range' => ['simplified', 'full']],
             ['super_id', 'integer'],
-            [['name', 'legal_type', 'super_id'], 'required'],
+            [['legal_type', 'super_id'], 'required'],
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'string'],
         ];
@@ -63,28 +60,23 @@ class ContragentEditForm extends Form
 
     public function init()
     {
-
-        $c = ClientAccount::find()->one();
-        $fds = array_keys($c->getAttributes());
-        foreach($fds as $f)
-            echo "UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/$f-]','\"'),'[-$f-]','\"') WHERE `model` = 'Client';"."<br/>";
-
-        die();
         if ($this->id) {
             $this->contragent = ClientContragent::findOne($this->id);
             if ($this->contragent === null) {
                 throw new Exception('Contragent not found');
             }
 
-            $this->person = ClientContragentPerson::findOne($this->contragent->id);
+            $this->person = ClientContragentPerson::find()->where(['contragent_id' => $this->contragent->id])->one();
             if ($this->person === null) {
                 $this->person = new ClientContragentPerson();
             }
             $this->setAttributes($this->contragent->getAttributes() + $this->person->getAttributes(), false);
-        } else {
+        } elseif ($this->super_id) {
             $this->contragent = new ClientContragent();
+            $this->super_id = $this->contragent->super_id = $this->super_id;
             $this->person = new ClientContragentPerson();
-        }
+        } else
+            throw new Exception('You must send id or super_id');
     }
 
     public function save()
@@ -92,6 +84,7 @@ class ContragentEditForm extends Form
         $contragent = $this->contragent;
         $person = $this->person;
 
+        $contragent->super_id = $this->super_id;
         $contragent->legal_type = $this->legal_type;
         $contragent->name = $this->name;
         $contragent->name_full = $this->name_full;
@@ -107,21 +100,26 @@ class ContragentEditForm extends Form
         $contragent->ogrn = $this->ogrn;
 
         if ($contragent->save()) {
-            if (!$person->contragent_id)
-                $person->contragent_id = $contragent->id;
+            if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
+                if (!$person->contragent_id)
+                    $person->contragent_id = $contragent->id;
 
-            $person->first_name = $this->first_name;
-            $person->last_name = $this->last_name;
-            $person->middle_name = $this->middle_name;
-            $person->passport_date_issued = $this->passport_date_issued;
-            $person->passport_serial = $this->passport_serial;
-            $person->passport_number = $this->passport_number;
-            $person->passport_issued = $this->passport_issued;
-            $person->registration_address = $this->registration_address;
+                $person->first_name = $this->first_name;
+                $person->last_name = $this->last_name;
+                $person->middle_name = $this->middle_name;
+                $person->passport_date_issued = $this->passport_date_issued;
+                $person->passport_serial = $this->passport_serial;
+                $person->passport_number = $this->passport_number;
+                $person->passport_issued = $this->passport_issued;
+                $person->registration_address = $this->registration_address;
 
-            if ($person->save()) {
-                return true;
+                if ($person->save()) {
+                    return true;
+                } else {
+                    $contragent->delete();
+                }
             }
+            return true;
         }
         return false;
     }
@@ -138,12 +136,17 @@ class ContragentEditForm extends Form
                     $this->name_full = $this->name;
                 break;
             case 'ip':
-                $this->name = $this->name_full = $this->first_name . $this->middle_name + $this->last_name;
+                $this->name = $this->name_full = $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
                 break;
             case 'person':
-                $this->name = $this->name_full = $this->first_name . $this->middle_name + $this->last_name;
+                $this->name = $this->name_full = $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
                 break;
         }
         return true;
+    }
+
+    public function getIsNewRecord()
+    {
+        return $this->id ? false : true;
     }
 }

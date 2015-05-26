@@ -4,12 +4,12 @@ use yii\helpers\Html;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
+use \app\models\ClientContract;
+use kartik\widgets\DatePicker;
 
 ?>
 
-<h1>
-    Редактировать договора
-</h1>
+<h1><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> договора</h1>
 
 
 <?php
@@ -24,26 +24,24 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
     echo Form::widget([
         'model' => $model,
         'form' => $f,
-        'options' => ['style' => 'padding-right:30px;'],
-        'attributeDefaults' => [
-            'container' => ['class' => 'col-sm-6'],
-            'type' => Form::INPUT_TEXT
-        ],
-        'attributes' => [
-            'organization' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->getOrganizationsList()],
-        ],
-    ]);
-    echo Form::widget([
-        'model' => $model,
-        'form' => $f,
-        'columns' => 2,
+        'columns' => 3,
         'attributeDefaults' => [
             'container' => ['class' => 'col-sm-12'],
             'type' => Form::INPUT_TEXT
         ],
         'attributes' => [
+            'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states, 'columnOptions' => ['class' => 'col-sm-offset-9 col-md-pull-9']],
+            'empty' => [
+                'type' => Form::INPUT_RAW,
+                'value' => ''
+            ],
+            'empty2' => [
+                'type' => Form::INPUT_RAW,
+                'value' => ''
+            ],
+            'organization' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->getOrganizationsList()],
             'manager' => [
-                'type' =>Form::INPUT_RAW,
+                'type' => Form::INPUT_RAW,
                 'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['manager'] . '</label>'
                     . Select2::widget([
                         'model' => $model,
@@ -57,7 +55,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                     . '</div>'
             ],
             'account_manager' => [
-                'type' =>Form::INPUT_RAW,
+                'type' => Form::INPUT_RAW,
                 'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['account_manager'] . '</label>'
                     . Select2::widget([
                         'model' => $model,
@@ -70,10 +68,6 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                     ])
                     . '</div>'
             ],
-            'signer_position' => [],
-            'signer_name' => [],
-            'signer_positionV' => [],   
-            'signer_nameV' => [],
         ],
     ]);
 
@@ -81,6 +75,40 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
     ?>
 
 
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="col-sm-12" type="textInput">
+                <label class="control-label" for="deferred-date">Сохранить на</label>
+                <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
+                <?= Html::dropDownList('deferred-date', null,
+                    [
+                        date('Y-m-d', time()) => 'Текущую дату',
+                        date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
+                        date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
+                        '' => 'Выбраную дату'
+                    ],
+                    ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'name' => 'deferred-date', 'id' => 'deferred-date']); ?>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="col-sm-12" type="textInput">
+                <label class="control-label" for="deferred-date-input">Выберите дату</label>
+                <?= DatePicker::widget(
+                    [
+                        'name' => 'kartik-date-3',
+                        'value' => date('Y-m-d', time()),
+                        'removeButton' => false,
+                        'pluginOptions' => [
+                            'autoclose' => true,
+                            'format' => 'yyyy-mm-dd',
+                            'startDate' => '-5y',
+                        ],
+                        'id' => 'deferred-date-input'
+                    ]
+                ); ?>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="row" style="clear: both;">
     <div class="col-sm-6">
@@ -91,12 +119,39 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
 </div>
 <?php ActiveForm::end(); ?>
 
-<div class="row">
-    <div class="col-sm-12">
-        <div class="col-sm-12 form-group">
-            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
-            <span>История изменений</span>
+<?php if (!$model->isNewRecord): ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-12 form-group">
+                <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
+                <span>История изменений</span>
+            </div>
         </div>
     </div>
-</div>
+<?php endif; ?>
 
+
+<script>
+    $(function () {
+        $('#deferred-date-input').parent().parent().hide();
+    });
+
+    $('#buttonSave').on('click', function (e) {
+        $('#type-select .btn').not('.btn-primary').each(function () {
+            $($(this).data('tab')).remove();
+        });
+        if ($("#deferred-date option:selected").is('option:last'))
+            $('#deferred-date option:last').val($('#deferred-date-input').val()).select();
+        return true;
+    });
+
+    $('#deferred-date').on('change', function () {
+        var datepicker = $('#deferred-date-input');
+        if ($("option:selected", this).is('option:last')) {
+            datepicker.parent().parent().show();
+        }
+        else {
+            datepicker.parent().parent().hide();
+        }
+    });
+</script>

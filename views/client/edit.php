@@ -1,0 +1,211 @@
+<?php
+
+use yii\helpers\Html;
+use app\models\Region;
+use app\models\Metro;
+use app\models\SaleChannel;
+use app\models\Bank;
+use app\models\PriceType;
+use kartik\widgets\ActiveForm;
+use kartik\widgets\Select2;
+use kartik\builder\Form;
+use kartik\widgets\DatePicker;
+
+?>
+
+<h1><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> Лицевого Счета</h1>
+
+
+<?php
+$f = ActiveForm::begin();
+$contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без НДС'];
+?>
+
+<div style="width: 1100px;">
+    <?php
+
+    echo '<div>';
+    echo Form::widget([
+        'model' => $model,
+        'form' => $f,
+        'columns' => 4,
+        'attributeDefaults' => [
+            'container' => ['class' => 'col-sm-12'],
+            'type' => Form::INPUT_TEXT
+        ],
+        'attributes' => [
+            'region' => [
+                'type' => Form::INPUT_RAW,
+                'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['region'] . '</label>'
+                    . Select2::widget([
+                        'model' => $model,
+                        'attribute' => 'region',
+                        'data' => Region::getList(),
+                        'options' => ['placeholder' => 'Начните вводить название'],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ])
+                    . '</div>'
+            ],
+            'timezone_name' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->timezones],
+            'sale_channel' => [
+                'type' => Form::INPUT_RAW,
+                'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['sale_channel'] . '</label>'
+                    . Select2::widget([
+                        'model' => $model,
+                        'attribute' => 'sale_channel',
+                        'data' => SaleChannel::getList(),
+                        'options' => ['placeholder' => 'Начните вводить название'],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ])
+                    . '</div>'
+            ],
+            'password' => [],
+
+            'nal' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->nalTypes],
+            'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->currencyTypes],
+            'price_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => PriceType::getList()],
+            'empty1' => ['type' => Form::INPUT_RAW,],
+
+            'voip_disabled' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions'=>['colspan'=>3],],
+            'empty15' => ['type' => Form::INPUT_RAW,],
+            'empty16' => ['type' => Form::INPUT_RAW,],
+            'empty17' => ['type' => Form::INPUT_RAW,],
+
+            'credit' => ['type' => Form::INPUT_CHECKBOX, 'options'=>['id' => 'credit'], 'columnOptions'=>['style' => 'margin-top: 20px;']],
+            'credit_size' => ['columnOptions'=>['id' => 'credit-size', 'style' => $model->credit > 0 ? '' : 'display:none;']],
+            'empty13' => ['type' => Form::INPUT_RAW,],
+            'empty14' => ['type' => Form::INPUT_RAW,],
+
+            'voip_credit_limit' => ['columnOptions'=>['colspan'=>2], 'options' => ['style' => 'width:20%;']],
+            'empty18' => ['type' => Form::INPUT_RAW,],
+            'empty19' => ['type' => Form::INPUT_RAW,],
+            'empty20' => ['type' => Form::INPUT_RAW,],
+
+            'voip_credit_limit_day' => ['columnOptions'=>['colspan'=>2], 'options' => ['style' => 'width:20%;']],
+            'voip_is_day_calc' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions'=>['colspan'=>2, 'style' => 'margin-top: 20px;'],],
+            'empty21' => ['type' => Form::INPUT_RAW,],
+            'empty22' => ['type' => Form::INPUT_RAW,],
+
+            'address_post' => ['columnOptions'=>['colspan'=>2],],
+            'head_company' => ['columnOptions'=>['colspan'=>2],],
+            'empty2' => ['type' => Form::INPUT_RAW,],
+            'empty3' => ['type' => Form::INPUT_RAW,],
+
+            'address_post_real' => ['columnOptions'=>['colspan'=>2],],
+            'head_company_address_jur' => ['columnOptions'=>['colspan'=>2],],
+            'empty4' => ['type' => Form::INPUT_RAW,],
+            'empty5' => ['type' => Form::INPUT_RAW,],
+
+            'is_with_consignee' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions'=>['style' => 'margin-top: 20px;'],'options'=>['id' => 'with-consignee']],
+            'consignee' => ['columnOptions'=>['colspan'=>3, 'style' => $model->is_with_consignee?'':'display:none;', 'id' => 'consignee']],
+            'empty7' => ['type' => Form::INPUT_RAW,],
+            'empty8' => ['type' => Form::INPUT_RAW,],
+
+            'payment_comment' => ['columnOptions'=>['colspan'=>2],],
+            'mail_who' => ['columnOptions'=>['colspan'=>2],],
+            'empty9' => ['type' => Form::INPUT_RAW,],
+            'empty10' => ['type' => Form::INPUT_RAW,],
+
+            'stamp' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions'=>['style' => 'margin-top: 20px;'],],
+            'is_upd_without_sign' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions'=>['style' => 'margin-top: 20px;'],],
+            'mail_print' => ['type' => Form::INPUT_CHECKBOX, 'columnOptions'=>['style' => 'margin-top: 20px;'],],
+            'form_type' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->formTypes],
+
+            'address_connect' => ['columnOptions'=>['colspan'=>2],],
+            'phone_connect' => ['columnOptions'=>['colspan'=>2],],
+            'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Абонентская плата по Договору', 'no' => 'Оказанные услуги по Договору'], 'columnOptions'=>['colspan'=>2],],
+            'id_all4net' => [],
+            'is_agent' => ['type' => Form::INPUT_CHECKBOX],
+        ],
+    ]);
+
+    echo '</div>';
+    ?>
+
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="col-sm-12" type="textInput">
+                <label class="control-label" for="deferred-date">Сохранить на</label>
+                <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
+                <?= Html::dropDownList('deferred-date', null,
+                    [
+                        date('Y-m-d', time()) => 'Текущую дату',
+                        date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
+                        date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
+                        '' => 'Выбраную дату'
+                    ],
+                    ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'name' => 'deferred-date', 'id' => 'deferred-date']); ?>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="col-sm-12" type="textInput">
+                <label class="control-label" for="deferred-date-input">Выберите дату</label>
+                <?= DatePicker::widget(
+                    [
+                        'name' => 'kartik-date-3',
+                        'value' => date('Y-m-d', time()),
+                        'removeButton' => false,
+                        'pluginOptions' => [
+                            'autoclose' => true,
+                            'format' => 'yyyy-mm-dd',
+                            'startDate' => '-5y',
+                        ],
+                        'id' => 'deferred-date-input'
+                    ]
+                ); ?>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" style="clear: both;">
+    <div class="col-sm-6">
+        <div class="col-sm-12 form-group">
+            <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
+        </div>
+    </div>
+</div>
+<?php ActiveForm::end(); ?>
+
+<?php if (!$model->isNewRecord): ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-12 form-group">
+                <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
+                <span>История изменений</span>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+
+<script>
+    $(function () {
+        $('#deferred-date-input').parent().parent().hide();
+        $('#with-consignee').on('click', function(){$('#consignee').toggle();});
+        $('#credit').on('click', function(){$('#credit-size').toggle();});
+    });
+
+    $('#buttonSave').on('click', function (e) {
+        $('#type-select .btn').not('.btn-primary').each(function () {
+            $($(this).data('tab')).remove();
+        });
+        if ($("#deferred-date option:selected").is('option:last'))
+            $('#deferred-date option:last').val($('#deferred-date-input').val()).select();
+        return true;
+    });
+
+    $('#deferred-date').on('change', function () {
+        var datepicker = $('#deferred-date-input');
+        if ($("option:selected", this).is('option:last')) {
+            datepicker.parent().parent().show();
+        }
+        else {
+            datepicker.parent().parent().hide();
+        }
+    });
+</script>

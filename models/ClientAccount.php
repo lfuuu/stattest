@@ -6,8 +6,6 @@ use DateTimeZone;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\classes\behaviors\LogClientContractTypeChange;
-use app\classes\behaviors\SetOldStatus;
 use app\classes\behaviors\LkWizardClean;
 use app\classes\FileManager;
 
@@ -19,7 +17,7 @@ use app\classes\FileManager;
  * @property int $nds_zero
 
  * @property ClientSuper $superClient
- * @property ClientStatuses $lastComment
+ * @property ClientContractComment $lastComment
  * @property Country $country
  * @property Region $accountRegion
  * @property DateTimeZone $timezone
@@ -70,8 +68,6 @@ class ClientAccount extends ActiveRecord
     public function behaviors()
     {
         return [
-            LogClientContractTypeChange::className(),
-            SetOldStatus::className(),
             HistoryVersion::className(),
             LkWizardClean::className(),
         ];
@@ -114,7 +110,7 @@ class ClientAccount extends ActiveRecord
 
     public function getLkWizardState()
     {
-        return $this->hasOne(LkWizardState::className(), ["account_id" => "id"]);
+        return $this->hasOne(LkWizardState::className(), ["contract_id" => "id"]);
     }
 
     public function getStatusBP()
@@ -157,8 +153,8 @@ class ClientAccount extends ActiveRecord
     {
         if ($this->_lastComment === false) {
             $this->_lastComment =
-                ClientStatuses::find()
-                    ->andWhere(['id_client' => $this->id])
+                ClientContractComment::find()
+                    ->andWhere(['contract_id' => $this->contract_id])
                     ->andWhere(['is_publish' => 1])
                     ->orderBy('ts desc')
                     ->all();

@@ -55,6 +55,17 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->hasOne(Datacenter::className(), ["region" => "region"]);
     }
 
+    public function getCurrentLogTariff()
+    {
+        return LogTarif::find()
+            ->andWhere(['service' => 'usage_voip', 'id_service' => $this->id])
+            ->andWhere('date_activation <= now()')
+            ->andWhere('id_tarif != 0')
+            ->orderBy('date_activation desc, id desc')
+            ->limit(1)
+            ->one();
+    }
+
     public function getCurrentTariff()
     {
         $logTariff =
@@ -71,6 +82,11 @@ class UsageVoip extends ActiveRecord implements Usage
 
         $tariff = TariffVoip::findOne($logTariff->id_tarif);
         return $tariff;
+    }
+
+    public function getRegionName()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 }
 

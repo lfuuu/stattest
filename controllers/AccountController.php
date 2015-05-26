@@ -9,6 +9,7 @@ use yii\filters\AccessControl;
 use app\models\LkWizardState;
 use app\models\ClientDocument;
 use app\models\ClientAccount;
+use yii\helpers\Url;
 
 
 class AccountController extends BaseController
@@ -45,7 +46,7 @@ class AccountController extends BaseController
             if ($state == "on" && !$wizard)
             {
                 $wizard = new LkWizardState;
-                $wizard->account_id = $accountId;
+                $wizard->contract_id = $accountId;
                 $wizard->step = 1;
                 $wizard->state = "process";
                 $wizard->save();
@@ -79,7 +80,7 @@ class AccountController extends BaseController
             }
         }
 
-        return $this->redirect('/?module=clients&id='.$accountId);
+        $this->redirect(Url::toRoute(['client/clientview', 'id'=>$id]));
     }
 
     public function actionDocumentCreate($id)
@@ -107,7 +108,7 @@ class AccountController extends BaseController
             $comment
 		);
 
-        $this->redirect("/?module=clients&id=".$id."&contract_open=true");
+        $this->redirect(Url::toRoute(['client/clientview', 'id'=>$id]));
     }
 
 }

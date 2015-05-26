@@ -7,9 +7,7 @@ use kartik\builder\Form;
 
 ?>
 
-<h1>
-    Редактировать контрагента
-</h1>
+<h1><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> контрагента</h1>
 
 
 <?php
@@ -31,7 +29,7 @@ $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'бе
         </div>
     </div>
 </fieldset>
-
+<?= Html::activeHiddenInput($model, 'super_id') ?>
 <div id="fs-tabs" style="width: 1100px;">
     <?php
     echo '<div id="legal" class="tab-pane">';
@@ -270,20 +268,24 @@ $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'бе
 </div>
 <?php ActiveForm::end(); ?>
 
+<?php if(!$model->isNewRecord): ?>
 <div class="row">
     <div class="col-sm-12">
         <div class="col-sm-12 form-group">
-            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientPerson:' . $model->id . '})']); ?>
+            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
             <span>История изменений</span>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <script>
     $(document).ready(function () {
         var b = $('#type-select .btn[data-tab="#' + $('#type-select input').val() + '"]');
-        if (b.length < 1)
+        if (b.length < 1) {
             b = $('#type-select .btn').first();
+            $('#type-select input').val(b.data('tab').replace("#",""));
+        }
         b.addClass('btn-primary').removeClass('btn-default');
         $('.tab-pane').hide();
         $($('#type-select .btn-primary').data('tab')).show();
@@ -314,20 +316,20 @@ $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'бе
         return true;
     });
 
-    $('#legal #contragenteditform-name').on('keyup', function () {
+    $('#legal #contragenteditform-name').on('blur', function () {
         if ($('#legal #contragenteditform-name_full').val() == '')
             $('#legal #contragenteditform-name_full').val($(this).val());
     });
-    $('#legal #contragenteditform-name_full').on('keyup', function () {
+    $('#legal #contragenteditform-name_full').on('blur', function () {
         if ($('#legal #contragenteditform-name').val() == '')
             $('#legal #contragenteditform-name').val($(this).val());
     });
 
-    $('#legal #contragenteditform-address_jur').on('keyup', function () {
+    $('#legal #contragenteditform-address_jur').on('blur', function () {
         if ($('#legal #contragenteditform-address_post').val() == '')
             $('#legal #contragenteditform-address_post').val($(this).val());
     });
-    $('#legal #contragenteditform-address_post').on('keyup', function () {
+    $('#legal #contragenteditform-address_post').on('blur', function () {
         if ($('#legal #contragenteditform-address_jur').val() == '')
             $('#legal #contragenteditform-address_jur').val($(this).val());
     });

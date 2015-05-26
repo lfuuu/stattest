@@ -12,6 +12,19 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
 	          ADD COLUMN `positionV` VARCHAR(128) NOT NULL DEFAULT '' AFTER `fio`,
 	          ADD COLUMN `fioV` VARCHAR(128) NOT NULL DEFAULT '' AFTER `positionV`;
 
+            ALTER TABLE `client_contragent_person`
+	          CHANGE COLUMN `address` `registration_address` VARCHAR(255) NOT NULL AFTER `passport_issued`;
+
+            ALTER TABLE `client_contragent_person`
+                CHANGE COLUMN `last_name` `last_name` VARCHAR(64) NULL DEFAULT '' AFTER `contragent_id`,
+                CHANGE COLUMN `first_name` `first_name` VARCHAR(64) NULL DEFAULT '' AFTER `last_name`,
+                CHANGE COLUMN `middle_name` `middle_name` VARCHAR(64) NULL DEFAULT '' AFTER `first_name`,
+                CHANGE COLUMN `passport_date_issued` `passport_date_issued` DATE NULL DEFAULT '1970-01-01' AFTER `middle_name`,
+                CHANGE COLUMN `passport_serial` `passport_serial` VARCHAR(6) NULL DEFAULT '' AFTER `passport_date_issued`,
+                CHANGE COLUMN `passport_number` `passport_number` VARCHAR(10) NULL DEFAULT '' AFTER `passport_serial`,
+                CHANGE COLUMN `passport_issued` `passport_issued` VARCHAR(255) NULL DEFAULT '' AFTER `passport_number`,
+                CHANGE COLUMN `address` `address` VARCHAR(255) NULL DEFAULT '' AFTER `passport_issued`,
+                ADD UNIQUE INDEX `contragent_id` (`contragent_id`);
 
         ");
 
@@ -216,7 +229,7 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
                                 ) AS `json_date`
                                 FROM clients c
 
-                                INNER JOIN
+                                LEFT JOIN
                                 (
                                     SELECT client_id,
                                             IF(DATE(`ts`) < '2006-01-01', '2006-01-01',  DATE(`ts`)) AS 't',
@@ -252,7 +265,7 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
 
                                     ) AS `data_json`
                             FROM history_version hv
-                            INNER JOIN
+                            LEFT JOIN
                             (
                                 SELECT * FROM
                                     (SELECT * FROM
@@ -355,6 +368,10 @@ class m150519_190430_exportClientsLogAndHistory extends \app\classes\Migration
         UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/okvd-]','"'),'[-okvd-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/okpo-]','"'),'[-okpo-]','"') WHERE `model` = 'ClientContragent';
         UPDATE history_changes SET `prev_data_json` = REPLACE(REPLACE(`prev_data_json`, '[-/opf-]','"'),'[-opf-]','"') WHERE `model` = 'ClientContragent';
+
+        UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientContragent';
+        UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'ClientContragent';
+        UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientContragent';
 
 SQL;
 

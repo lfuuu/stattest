@@ -47,6 +47,11 @@ class ClientContragent extends ActiveRecord
         return $this->hasOne(ClientContragentPerson::className(), ['contragent_id' => 'id']);
     }
 
+    public function getContracts()
+    {
+        return $this->hasMany(ClientContract::className(), ['contragent_id' => 'id']);
+    }
+
     public function behaviors()
     {
         return [
@@ -55,13 +60,13 @@ class ClientContragent extends ActiveRecord
         ];
     }
 
-    public function dao()
+    public function afterSave($insert, $changedAttributes)
     {
-        return ClientContragentDao::me();
-    }
-
-    public function saveToAccount()
-    {
-        return self::dao()->saveToAccount($this);
+        parent::afterSave($insert, $changedAttributes);
+        if($this->name) {
+            $super = ClientSuper::findOne($this->super_id);
+            $super->name = $this->name;
+            $super->save();
+        }
     }
 }

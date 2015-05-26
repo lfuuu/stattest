@@ -49,4 +49,9 @@ class UsageWelltime extends ActiveRecord implements Usage
         $tariff = TariffExtra::findOne($this->tarif_id);
         return $tariff;
     }
+
+    public function getRegionName()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
 }

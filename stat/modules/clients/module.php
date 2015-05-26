@@ -1,7 +1,7 @@
 <?php
 use app\classes\StatModule;
 use app\models\ClientContractType;
-use app\models\ClientStatuses;
+use app\models\ClientContractComment;
 use app\models\ClientAccount;
 use app\classes\Assert;
 use app\models\ClientGridSettings;
@@ -2457,12 +2457,12 @@ DBG::sql_out($select_client_data);
 
     public function clients_publish_comment($fixclient)
     {
-        $accountId = get_param_raw("account_id", 0);
+        $contractId = get_param_raw("contract_id", 0);
         $statusId  = get_param_raw("status_id", 0);
         $isPublish = (int)(get_param_raw("publish", "false") == "true");
 
 
-        $comment = ClientStatuses::find()->where(["id" => $statusId, "id_client" => $accountId])->one();
+        $comment = ClientContractStatus::find()->where(["id" => $statusId, "contract_id" => $contractId])->one();
 
         Assert::isObject($comment);
 

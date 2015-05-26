@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\RegionDao;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property int $id
@@ -23,5 +24,11 @@ class Region extends ActiveRecord
     public static function dao()
     {
         return RegionDao::me();
+    }
+
+    public static function getList()
+    {
+        $arr = self::find()->all();
+        return ArrayHelper::map($arr, 'id', 'name');
     }
 }

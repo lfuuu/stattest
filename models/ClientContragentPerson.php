@@ -2,6 +2,8 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use app\classes\behaviors\HistoryVersion;
+use app\classes\behaviors\HistoryChanges;
 
 class ClientContragentPerson extends ActiveRecord
 {

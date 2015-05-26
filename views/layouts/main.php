@@ -85,7 +85,7 @@ $user = Yii::$app->user->identity;
 
     </div>
 
-    <div style="padding: 15px; margin-top: 100px">
+    <div style="padding: 15px; margin-top: 100px; clear: both;">
         <a href="http://www.mcn.ru/"><img height=16 src="images/logo_msn_s.gif" width=58 border=0/></a><br/>
         <span style="color: #666">©2014 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
     </div>

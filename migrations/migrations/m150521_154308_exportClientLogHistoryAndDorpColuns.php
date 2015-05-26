@@ -70,8 +70,8 @@ class m150521_154308_exportClientLogHistoryAndDorpColuns extends \app\classes\Mi
                                                 lc.`user_id`,
                                                 lc.`ts` AS `create_at`,
                                                 'update' AS `action`,
-                                                REPLACE(lcf.`value_from`, '"', '\\"') AS `value_from`,
-                                                REPLACE(lcf.`value_to`, '"', '\\"') AS `value_to`,
+                                                IF(ISNULL(lcf.`value_from`), 'null', REPLACE(lcf.`value_from`, '"', '\\"')) AS `value_from`,
+                                                IF(ISNULL(lcf.`value_to`), 'null', REPLACE(lcf.`value_to`, '"', '\\"')) AS `value_to`,
                                                 lcf.`field`
                                                 FROM log_client lc
                                                 LEFT JOIN log_client_fields lcf ON lcf.`ver_id` = lc.`id`
@@ -208,10 +208,6 @@ class m150521_154308_exportClientLogHistoryAndDorpColuns extends \app\classes\Mi
                                ORDER BY hv.`date` DESC
                         ) m;
 
-                        UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'Client';
-                        UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'Client';
-
                         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'Client';
                         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/client-]','"'),'[-client-]','"') WHERE `model` = 'Client';
                         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'Client';
@@ -288,6 +284,10 @@ class m150521_154308_exportClientLogHistoryAndDorpColuns extends \app\classes\Mi
                         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_blocked-]',''),'[-is_blocked-]','') WHERE `model` = 'Client';
                         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_closed-]',''),'[-is_closed-]','') WHERE `model` = 'Client';
                         UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/timezone_name-]','"'),'[-timezone_name-]','"') WHERE `model` = 'Client';
+
+                        UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'Client';
+                        UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'Client';
+                        UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'Client';
 
 SQL;
 

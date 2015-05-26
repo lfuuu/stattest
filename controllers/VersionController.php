@@ -42,7 +42,7 @@ class VersionController extends BaseController
             }
         }
 
-        if (empty(date) || empty($modelId))
+        if (empty($date) || empty($modelId))
             $model->limit(100);
 
 
@@ -88,7 +88,7 @@ class VersionController extends BaseController
             $model->save();
         }
 
-        return $this->actionList($modelName, $modelId);
+        $this->redirect(['version/list', 'modelName' => $modelName, 'modelId' => $modelId]);
     }
 
     public function delete($modelName, $modelId, $date, $key, $value)
@@ -103,6 +103,6 @@ class VersionController extends BaseController
         $model->data_json = json_encode($newJSON, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $model->save();
 
-        return $this->actionList($modelName, $modelId);
+        $this->redirect(['version/list', 'modelName' => $modelName, 'modelId' => $modelId]);
     }
 }
