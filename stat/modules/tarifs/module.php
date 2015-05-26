@@ -141,16 +141,18 @@ class m_tarifs{
     function tarifs_voip(){
         global $db, $pg_db, $design;
 
+        $f_country = get_param_integer('f_country', '643');
         $f_region = get_param_integer('f_region', '99');
         $f_dest = get_param_protected('f_dest', '');
         $f_currency = get_param_protected('f_currency', 'RUB');
         $f_show_archive = get_param_integer('f_show_archive', 0);
+        $design->assign('f_country',$f_country);
         $design->assign('f_region',$f_region);
         $design->assign('f_dest',$f_dest);
         $design->assign('f_currency',$f_currency);
         $design->assign('f_show_archive',$f_show_archive);
 
-        $where = 'where t.region='.(int)$f_region;
+        $where = 'where t.country_id='.(int)$f_country . ' and t.region='.(int)$f_region;
         if ($f_dest != '')
             $where .= ' and t.dest='.(int)$f_dest;
         $where .= " and t.currency='$f_currency'";
@@ -166,6 +168,7 @@ class m_tarifs{
 
         $design->assign('tarifs_by_dest',$tarifs_by_dest);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
+        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'id'));
         $design->assign('pricelists', $pg_db->AllRecords("select p.id, p.name from voip.pricelist p", 'id'));
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
         $design->AddMain('tarifs/voip_list.tpl');
@@ -196,6 +199,7 @@ class m_tarifs{
             $data['edit_time'] = date('Y.m.d H:i:s');
             $data['id'] = $id;
             if ($data['id']=='0'){
+                $data['country_id'] = $_POST['country_id'];
                 $data['region'] = (int)$_POST['region'];
                 $data['dest'] = (int)$_POST['dest'];
                 $data['currency'] = $_POST['currency'];
@@ -220,6 +224,7 @@ class m_tarifs{
 
         $design->assign('data',$data);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
+        $design->assign('countries',$db->AllRecords("select * from country where in_use > 0",'id'));
         $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
         $design->assign('id',$id);
         $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));

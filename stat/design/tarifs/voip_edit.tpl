@@ -4,6 +4,18 @@
 <input type="hidden" name="action" value="voip_edit" />
 <input type="hidden" name="id" value="{$data.id}" />
 <table>
+    <tr><td>Страна:</td><td>
+            {if $data.id > 0}
+                <input type="hidden" name="country_id" value="{$data.country_id}" />
+                {$countries[$data.country_id].name}
+            {else}
+                <select name="country_id">
+                    {foreach from=$countries item='r'}
+                        <option value="{$r.code}"{if $r.code eq $data.country_id} selected{/if}>{$r.name}</option>
+                    {/foreach}
+                </select>
+            {/if}
+        </td></tr>
     <tr><td>Регион:</td><td>
     {if $data.id > 0}
         <input type="hidden" name="region" value="{$data.region}" />

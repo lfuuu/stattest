@@ -67,6 +67,16 @@ class m150515_181210_voip extends \app\classes\Migration
         ");
 
         $this->execute("
+            ALTER TABLE `tarifs_voip`
+            MODIFY COLUMN `region`  int(11) NOT NULL AFTER `id`,
+            ADD COLUMN `country_id`  int NOT NULL DEFAULT 643 AFTER `id`;
+        ");
+
+        $this->execute("
+            update tarifs_voip set country_id=348, currency='HUF' where region = 81;
+        ");
+
+        $this->execute("
             INSERT INTO `city` (`id`, `name`, `country_id`, `voip_number_format`, `connection_point_id`) VALUES (49, 'Германия', 276, '49 0000 000-000-000', 82);
             INSERT INTO `city` (`id`, `name`, `country_id`, `voip_number_format`, `connection_point_id`) VALUES (361, 'Будапешт', 348, '36 1 000-0000', 81);
             INSERT INTO `city` (`id`, `name`, `country_id`, `voip_number_format`, `connection_point_id`) VALUES (3646, 'Мишкольц', 348, '36 46 000-000', 81);

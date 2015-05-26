@@ -10,6 +10,14 @@
 <input type="hidden" name="module" value="tarifs"/>
 <input type="hidden" name="action" value="voip"/>
 <table>
+    <tr><td>Страна:</td><td>
+            <select name="f_country" onchange="report()">
+                <option value=""> -- Выберите страну -- </option>
+                {foreach from=$countries item='r'}
+                    <option value="{$r.code}"{if $r.code eq $f_country} selected{/if}>{$r.name}</option>
+                {/foreach}
+            </select>
+        </td>
 <tr><td>Регион:</td><td>
     <select name="f_region" onchange="report()">
         <option value=""> -- Выберите регион -- </option>

@@ -322,21 +322,6 @@ class ApiLk
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
 
-        $oldConnectionPointIdToCityId = [
-            99 => 7495,
-            98 => 7812,
-            97 => 7861,
-            95 => 7343,
-            94 => 7383,
-            93 => 7843,
-            89 => 74232,
-            88 => 7831,
-            87 => 7863,
-        ];
-
-
-        $resultTariffsByCityId = [];
-
         $useTestTariff = false;
         /** @var TariffVoip[] $tariffs */
         if ($useTestTariff) {
@@ -355,19 +340,15 @@ class ApiLk
                     ->all();
         }
 
+        $resultTariffsByConnectionPointId = [];
+
         foreach ($tariffs as $tariff) {
 
-            if (!isset($oldConnectionPointIdToCityId[$tariff->region])) {
-                continue;
+            if (!isset($resultTariffsByConnectionPointId[$tariff->region])) {
+                $resultTariffsByConnectionPointId[$tariff->region] = [];
             }
 
-            $cityId = $oldConnectionPointIdToCityId[$tariff->region];
-
-            if (!isset($resultTariffsByCityId[$cityId])) {
-                $resultTariffsByCityId[$cityId] = [];
-            }
-
-            $resultTariffsByCityId[$cityId][$tariff->id] = [
+            $resultTariffsByConnectionPointId[$tariff->region][$tariff->id] = [
                 'type' => 'old',
                 'id' => $tariff->id,
                 'name' => $tariff->name,
@@ -415,10 +396,10 @@ class ApiLk
                 continue;
             }
 
-            if (!isset($resultTariffsByCityId[$city->id])) {
+            if (!isset($resultTariffsByConnectionPointId[$city->connection_point_id])) {
                 continue;
             }
-            $resultMainTariffsByCityId[$city->id] = $resultTariffsByCityId[$city->id];
+            $resultMainTariffsByCityId[$city->id] = $resultTariffsByConnectionPointId[$city->connection_point_id];
 
             if (!isset($resultCitiesByCountryId[$city->country_id])) {
                 $resultCitiesByCountryId[$city->country_id] = [];
@@ -448,6 +429,7 @@ class ApiLk
 
 
         return [
+            'countryId' => $clientAccount->country_id,
             'countries' => $resultCountries,
             'citiesByCountryId' => $resultCitiesByCountryId,
             'numberTariffsByCityId' => $resultNumberTariffsByCityId,
