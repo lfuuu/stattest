@@ -25,13 +25,13 @@ class Navigation
         $this->addBlockForStatModule('send');
         $this->addBlockForStatModule('employeers');
         $this->addBlockForStatModule('mail');
-        $this->addBlock(
-            $this->getBlockForStatModule('voipnew')
-                ->addItem('Плайслисты Оригинация', ['voip/pricelist/list', 'local' => 0, 'orig' => 1])
-                ->addItem('Плайслисты Терминация', ['voip/pricelist/list', 'local' => 0, 'orig' => 0])
-                ->addItem('Плайслисты Местные', ['voip/pricelist/list', 'local' => 1, 'orig' => 0])
-                ->addItem('Местные Префиксы', ['voip/network-config/list'])
-        );
+//        $this->addBlock(
+//            $this->getBlockForStatModule('voipnew')
+//                ->addItem('Плайслисты Оригинация', ['voip/pricelist/list', 'local' => 0, 'orig' => 1])
+//                ->addItem('Плайслисты Терминация', ['voip/pricelist/list', 'local' => 0, 'orig' => 0])
+//                ->addItem('Плайслисты Местные', ['voip/pricelist/list', 'local' => 1, 'orig' => 0])
+//                ->addItem('Местные Префиксы', ['voip/network-config/list'])
+//        );
         $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
