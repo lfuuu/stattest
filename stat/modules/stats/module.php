@@ -1007,8 +1007,6 @@ class m_stats extends IModule{
                             ORDER BY
                                     ts1 ASC
                             LIMIT ".($isFull ? "50000" : "5000");
-            echo $sql;
-            die();
             $pg_db->Query($sql);
 
             if ($pg_db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
@@ -1068,8 +1066,6 @@ class m_stats extends IModule{
                             'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
-            echo $sql;
-            die();
             //$db_calls->Query($sql);
             $pg_db->Query($sql);
             //while ($r=$db_calls->NextRecord()){
