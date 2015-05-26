@@ -1190,6 +1190,7 @@ function getTarifs(region_id)
 	$('#t_id_tarif_special').empty();
 	//dest == 1
 	$('#t_id_tarif_russia').empty();
+    $('#t_id_tarif_russia_mob').empty();
 	//dest == 3
 	$('#t_id_tarif_sng').empty();
 	//dest == 2
@@ -1206,6 +1207,7 @@ function getTarifs(region_id)
 			$.each(data, function( k, v ) {
 				if (v.dest == 1) {
 					$('#t_id_tarif_russia').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
+                    $('#t_id_tarif_russia_mob').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
 				} else if (v.dest == 2) {
 					$('#t_id_tarif_intern').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
 				} else if (v.dest == 3) {

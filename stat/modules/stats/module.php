@@ -987,7 +987,7 @@ class m_stats extends IModule{
                                     ".($group?'':'id,')."
                                     ".($group?'':'src_number,')."
                                     ".($group?'':'geo_id,')."
-                                    ".($group?'':'mob,')."
+                                    ".($group?'':'geo_mob,')."
                                     ".($group?'':'dst_number,')."
                                     ".($group?'':'orig,');
             if ($detality == 'day') $sql.= " date_trunc('day',connect_time) as ts1, ";
@@ -1007,7 +1007,8 @@ class m_stats extends IModule{
                             ORDER BY
                                     ts1 ASC
                             LIMIT ".($isFull ? "50000" : "5000");
-
+            echo $sql;
+            die();
             $pg_db->Query($sql);
 
             if ($pg_db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
@@ -1023,7 +1024,7 @@ class m_stats extends IModule{
                     if (!isset($geo[$r['geo_id']]))
                         $geo[$r['geo_id']] = $pg_db->GetValue('select name from geo.geo where id='.((int)$r['geo_id']));
                     $r['geo'] = $geo[$r['geo_id']];
-                    if ($r['mob'] == 't') $r['geo'] .= ' (mob)';
+                    if ($r['geo_mob'] == 't') $r['geo'] .= ' (mob)';
                 } else $r['geo'] = '';
 
                 $dt = explode(' ', $r['ts1']);
@@ -1067,6 +1068,8 @@ class m_stats extends IModule{
                             'rus_fix'=> array('tsf1'=>'Россия Стационарные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'rus_mob'=> array('tsf1'=>'Россия Мобильные','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false),
                             'int'=>     array('tsf1'=>'Международка','cnt'=>0,'len'=>0,'price'=>0,'is_total'=>false));
+            echo $sql;
+            die();
             //$db_calls->Query($sql);
             $pg_db->Query($sql);
             //while ($r=$db_calls->NextRecord()){
