@@ -32,12 +32,23 @@ class NavigationBlock
         return $this;
     }
 
-    public function addItem($title, $url)
+    public function addItem($title, $url, $rights = null)
     {
         if (is_array($url)) {
             $url = Url::toRoute($url);
         }
-        $this->items[] = ['title' => $title, 'url' => $url];
+
+        if ($rights) {
+            foreach ($rights as $right) {
+                if (Yii::$app->user->can($right)) {
+                    $this->items[] = ['title' => $title, 'url' => $url];
+                    break;
+                }
+            }
+        } else {
+            $this->items[] = ['title' => $title, 'url' => $url];
+        }
+
         return $this;
     }
 

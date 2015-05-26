@@ -1,7 +1,7 @@
 <?php
 
 use app\models\CoreSyncIds;
-
+use app\classes\Event;
 
 class SyncCore
 {
@@ -50,8 +50,8 @@ class SyncCore
         $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "id" => $cl->super_id]);
         if (!$superClientSync)
         {
-            event::go("add_super_client", $cl->super_id);
-            event::go("add_account", $cl->id, true);
+            Event::go("add_super_client", $cl->super_id);
+            Event::go("add_account", $cl->id, true);
             return;
         }
 
@@ -89,14 +89,14 @@ class SyncCore
 
                     if ($e->getCode() == 535)//"Клиент с контрагентом c id "70954" не существует"
                     {
-                        event::go("add_super_client", $cl->super_id);
-                        event::go("add_account", $cl->id, true);
+                        Event::go("add_super_client", $cl->super_id);
+                        Event::go("add_account", $cl->id, true);
                     }
 
                     if ($e->getCode() == 538)//Контрагент с идентификатором "73273" не существует
                     {
-                        event::go("add_super_client", $cl->super_id);
-                        event::go("add_account", $cl->id, true);
+                        Event::go("add_super_client", $cl->super_id);
+                        Event::go("add_account", $cl->id, true);
                     }
 
                     if ($e->getCode() != 532) //Контрагент с лицевым счётом "1557" уже существует
@@ -113,8 +113,8 @@ class SyncCore
     private static function _checkNeedSyncProducts($client)
     {
         echo "\n== [_checkNeedSyncProducts](".$client.")\n";
-        self::checkProductState('phone', array(0, $client));
-        self::checkProductState('vpbx', array(0, $client));
+        self::checkProductState('phone', $client);
+        self::checkProductState('vpbx', $client);
     }
 
     public static function addEmail($param)
@@ -158,11 +158,9 @@ class SyncCore
         }
     }
 
-    public static function checkProductState($product, $param)
+    public static function checkProductState($product, $client)
     {
         if ($product == "phone" && !defined("PHONE_SERVER") || !PHONE_SERVER) return;
-
-        list($usageId, $client) = $param;
 
         $client = ClientCard::find("first", array("client" => $client));
 

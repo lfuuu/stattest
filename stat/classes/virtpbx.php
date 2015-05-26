@@ -1,4 +1,5 @@
 <?php
+use app\classes\Event;
 
 class virtPbxChecker
 {
@@ -558,7 +559,7 @@ class virtPbxAction
 
         $db_ats->QueryUpdate("a_virtpbx", "client_id", $q);
 
-        event::go("virtpbx_tarif_changed", $q);
+        Event::go("virtpbx_tarif_changed", $q);
     }
 
     public function usageIdChanged($l)

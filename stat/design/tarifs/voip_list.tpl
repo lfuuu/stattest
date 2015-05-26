@@ -53,6 +53,7 @@
     <tr>
         <td class=header rowspan="2">Тариф</td>
         <td class=header rowspan="2">Статус</td>
+        <td class=header rowspan="2">Поумолчанию</td>
         <td class=header rowspan="2">Местных минут</td>
         <td class=header rowspan="2">Мин. платеж</td>
         <td class=header rowspan="2">Платная<br/>переадресация</td>
@@ -75,6 +76,7 @@
         <tr class="{cycle values='even,odd'}">
             <td>{if access('tarifs','edit')}<a href='index.php?module=tarifs&action=voip_edit&id={$o.id}'>{$o.name}</a>{else}{$o.name}{/if} {$o.name_short}</td>
             <td>{$o.status}</td>
+            <td align="center">{if $o.is_testing > 0}<b>поумолчанию</b>{else}{/if}</td>
             <td align="center">{$o.free_local_min}</td>
             <td align="center">{$o.month_min_payment}</td>
             <td align="center">{if $o.paid_redirect > 0}да{else}нет{/if}</td>

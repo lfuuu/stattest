@@ -6,6 +6,7 @@ use app\models\ClientAccount;
 use app\classes\Assert;
 use app\models\ClientGridSettings;
 use app\models\ClientBP;
+use app\classes\Event;
 use app\models\ClientContract;
 use app\models\ClientFile;
 use app\models\LkWizardState;
@@ -971,7 +972,7 @@ class m_clients {
 
         if (get_param_raw("sync"))
         {
-            event::go("add_account", $r["id"]);
+            Event::go("add_account", $r["id"]);
             header("Location: ./?module=clients&id=".$r["id"]);
             exit();
         }
@@ -1513,10 +1514,9 @@ class m_clients {
 		$cs=new ClientCS($id);
 		$cs->Add($comment);
 		$cs->SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId);
-                
-        event::go("client_set_status", $id);
 
-        voipNumbers::check();
+        Event::go("client_set_status", $id);
+
 		$this->client_view($id);
 	}
 	function clients_files($fixclient) {
@@ -1660,7 +1660,7 @@ class m_clients {
             $type = get_param_protected('type');
             $data = get_param_protected('data');
             $dataId = $cs->AddContact($type,$data,get_param_protected('comment'),get_param_protected('official')?1:0);
-            event::go("contact_add_".$type, array("client_id" => $id, "contact_id" => $dataId, "email" => $data));
+            Event::go("contact_add_".$type, array("client_id" => $id, "contact_id" => $dataId, "email" => $data));
         } elseif (get_param_raw("set_admin")) {
 
             $adminContactId = get_param_integer('admin_contact');

@@ -3,7 +3,7 @@
 use app\classes\ActaulizerVoipNumbers;
 
 define("NO_WEB", 1);
-define("PATH_TO_ROOT", "../../");
+define("PATH_TO_ROOT", __DIR__ . "/../../");
 include PATH_TO_ROOT."conf_yii.php";
 include INCLUDE_PATH."runChecker.php";
 
@@ -59,9 +59,7 @@ function do_events()
                 case 'company_changed':     EventHandler::companyChanged($param); break;
 
                 case 'client_set_status':
-                case 'usage_voip__insert':
-                case 'usage_voip__update':
-                case 'usage_voip__delete':  ats2Numbers::check(); 
+                case 'ats2_numbers_check':  ats2Numbers::check();
                                             break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]);
@@ -69,8 +67,7 @@ function do_events()
                                        break;
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
-                case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
-                                 ats2Numbers::check();echo "...ats2Numbers::check()";
+                case 'midnight': ats2Numbers::check();echo "...ats2Numbers::check()";
                                  virtPbx::check();echo "...virtPbx::check()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
@@ -84,7 +81,7 @@ function do_events()
                                  EventQueue::clean();echo "...EventQueue::clean()";
                                  break;
 
-                case 'autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
+                case 'ats2_autocreate_accounts': ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true); break;
             }
 
             if (defined("CORE_SERVER") && CORE_SERVER)
@@ -103,25 +100,21 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete': 
-                                                    SyncCore::checkProductState('vpbx', $param/*id, client*/);  // no break
+                                                    SyncCore::checkProductState('vpbx', $param[1]);  // no break
                     case 'client_set_status':
                                                   virtPbx::check();
                                                   break; 
 
                     case 'virtpbx_tarif_changed': SyncVirtPbx::changeTarif($param["client_id"], $param["usage_id"]); break;
 
-                    case 'usage_voip__insert':
-                    case 'usage_voip__update':
-                    case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
+                    case 'core_update_product_state_phone':  SyncCore::checkProductState('phone', $param); break;
                 }
 
                 if (defined("use_ats3"))
                 {
                     switch($event->event)
                     {
-                        case 'usage_voip__insert':
-                        case 'usage_voip__update':
-                        case 'usage_voip__delete': ActaulizerVoipNumbers::me()->actualizeByNumber($param[2]); break;
+                        case 'ats3_actualize_number': ActaulizerVoipNumbers::me()->actualizeByNumber($param); break;
 
                         case 'midnight': 
                         case 'client_set_status': ActaulizerVoipNumbers::me()->actualizeAll(); break;

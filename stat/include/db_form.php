@@ -2,6 +2,7 @@
 use app\classes\StatModule;
 use app\models\ClientAccount;
 use app\classes\Assert;
+use app\classes\Event;
 
 class DbForm {
     protected $table;
@@ -594,6 +595,8 @@ class DbFormUsageVoip extends DbForm {
         }
 
         if ($v=='add' || $v=='edit') {
+            $toAutoCreate = false;
+
             $b = 1;
             if ($this->dbform['t_id_tarif'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_local_mob'] == 0) $b=0;
@@ -659,35 +662,34 @@ class DbFormUsageVoip extends DbForm {
                 }
 
                 if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
-                    
-                    $toAutoCreate = false;
 
-                    if ($v == "add")
-                    {
+
+                    if ($v == "add") {
                         $toAutoCreate = true;
-                    } elseif ($v == "edit")
-                    {
-                        foreach(array("actual_from", "actual_to", "one_sip", "no_of_lines", ) as $field)
-                        {
-                            if ($this->dbform[$field] != $current[$field])
-                            {
+                    } elseif ($v == "edit") {
+                        foreach(array("actual_from", "actual_to", "one_sip", "no_of_lines", ) as $field) {
+                            if ($this->dbform[$field] != $current[$field]) {
                                 $toAutoCreate = true;
                                 break;
                             }
                         }
                     }
 
-                    if ($toAutoCreate)
-                    {
-                        event::go("autocreate_accounts", $this->data["id"]."|".$this->data["one_sip"]);
-                    }
                 }
 
             }else{
                 trigger_error2("Не сохранено! Выберите тариф");
             }
+
+            Event::go('ats2_numbers_check');
+            if ($toAutoCreate) {
+                Event::go("ats2_autocreate_accounts", $this->data["id"] . '|' . $this->data["one_sip"]);
+            }
+            Event::go('ats3_actualize_number', $this->data["E164"]);
+            Event::go('core_update_product_state_phone', $this->data["id"] . '|' . $this->dbform['client']);
+
         }
-        voipNumbers::check();
+
         return $v;
     }
 
@@ -722,7 +724,6 @@ class DbFormUsageVoip extends DbForm {
         $usage = \app\models\UsageVoip::findOne(["id" => $usageId]);
         $usage->create_params = json_encode($data);
         $usage->save();
-
     }
 
     private function check_number()
@@ -2004,7 +2005,6 @@ $GLOBALS['translate_arr']=array(
     'usage_voip.E164'                => 'номер телефона',
     '*.ClientIPAddress'        => 'IP-адрес',
     '*.enabled'                => 'включено',
-    '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
     'usage_voip.is_trunk'              => 'Оператор',
     'usage_voip.one_sip'              => 'Одна SIP-учетка',

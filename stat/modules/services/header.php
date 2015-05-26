@@ -40,7 +40,6 @@ class m_services_head extends IModuleHead {
 					'vo_apply'			=> array('services_voip','edit'),
 					'vo_close'			=> array('services_voip','close'),
 					'e164'				=> array('services_voip','e164'),
-                    'e164_edit'			=> array('services_voip','e164'),
                     'vo_settings_send'	=> array('services_voip','send_settings'),
 					'vo_delete'			=> array('services_voip','del4000'),
                                        'get_tarifs'        =>array('services_voip','r'),

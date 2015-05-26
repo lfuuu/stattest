@@ -1,1 +1,0 @@
-/xxx/test/index

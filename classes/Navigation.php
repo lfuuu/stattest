@@ -15,9 +15,16 @@ class Navigation
         $this->addBlockNewClients();
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
-        $this->addBlockForStatModule('tarifs');
+        $this->addBlock(
+            $this->spawnBlockForStatModule('tarifs')
+                ->addItem('Телефония DID группы', ['tariff/did-group/list'], ['tarifs.read'])
+                ->addItem('Телефония Номера', ['tariff/number/index'], ['tarifs.read'])
+        );
         $this->addBlockForStatModule('tt');
-        $this->addBlockForStatModule('stats');
+        $this->addBlock(
+            $this->spawnBlockForStatModule('stats')
+                ->addItem('Состояние номеров', ['usage/number/detail-report'], ['stats.report'])
+        );
         $this->addBlockForStatModule('routers');
         $this->addBlockForStatModule('monitoring');
         $this->addBlockForStatModule('users');
@@ -55,6 +62,10 @@ class Navigation
 
     private function addBlock(NavigationBlock $block)
     {
+        if (!$block->id) {
+            $block->id = 'block' . md5($block->title);
+        }
+
         if ($block->rights) {
           foreach ($block->rights as $right) {
             if (Yii::$app->user->can($right)) {
@@ -65,25 +76,39 @@ class Navigation
         } else {
           $this->blocks[] = $block;
         }
+
         return $this;
     }
     
 
     private function addBlockForStatModule($moduleName)
     {
+        $block = $this->spawnBlockForStatModule($moduleName);
+        $this->addBlock($block);
+        return $this;
+    }
+
+    /**
+     * @return NavigationBlock
+     */
+    private function spawnBlockForStatModule($moduleName)
+    {
         $statModule = StatModule::getHeadOrModule($moduleName);
 
         list($title, $items) = $statModule->GetPanel(null);
-
-        if (!$title || !$items) {
-          return $this;
-        }
 
         $block =
             NavigationBlock::create()
                 ->setId($moduleName)
                 ->setTitle($title)
             ;
+
+        if (!$title || !$items) {
+            return $block;
+        }
+
+
+        ;
         foreach ($items as $item) {
             $url =
                 substr($item[1], 0, 1) == '/'
@@ -92,8 +117,7 @@ class Navigation
             $block->addItem($item[0], $url);
         }
 
-        $this->addBlock($block);
-        return $this;
+        return $block;
     }
     
     private function addBlockNewClients()

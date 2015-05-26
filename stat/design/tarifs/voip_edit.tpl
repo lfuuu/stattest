@@ -98,6 +98,10 @@
                 <input type="checkbox" name="is_virtual" value="1" {if $data.is_virtual > 0}checked{/if} />
                 тариф для виртуальных номеров</label>
         </td></tr>
+    <tr><td></td><td><label>
+                <input type="checkbox" name="is_testing" value="1" {if $data.is_testing > 0}checked{/if} />
+                тариф поумолчанию</label>
+        </td></tr>
     <tr><td>прайс-лист:</td><td>
         <select name="pricelist_id">
         {foreach from=$pricelists item='r'}

@@ -25,4 +25,4 @@
 </table>
 </div>
 <br><br>
-{if access_action('services','vo_add')}<a href='{$LINK_START}module=services&action=vo_add'>Добавить подключение</a>{/if}
+

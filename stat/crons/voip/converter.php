@@ -40,14 +40,6 @@ echo date("r")." clientId: ".$clientId;
 
 $mDB = $db_ats;
 
-foreach(array("HOST", "PASS", "USER", "DB") as $f)
-{
-    if (!defined("PG_ATS_".$f))
-    {
-        throw new Exception("PG_ATS_".$f." не найден");
-    }
-}
-
 $pDB = new PgSQLDatabase(PG_ATS_HOST, PG_ATS_USER, PG_ATS_PASS, PG_ATS_DB);
 $pDB->Connect() or die("PgSQLDatabase not connected");
 

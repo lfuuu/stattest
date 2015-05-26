@@ -5,9 +5,6 @@ $config = array(
     'WEB_PATH'            =>    '',
     'USE_MD5'           => 1,
 
-// stat mysql
-    'SQL_ATS_DB'        =>    '',
-
 // voip regions db
     'R_CALLS_HOST'        =>    '',
     'R_CALLS_USER'        =>    '',
@@ -57,6 +54,42 @@ if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->db->dsn, $matche
     $config['SQL_DB'] = '';
     $config['SQL_USER'] = '';
     $config['SQL_PASS'] = '';
+}
+
+if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->dbAts->dsn, $matches)) {
+    $config['SQL_ATS_HOST'] = $matches[1][0];
+    $config['SQL_ATS_DB'] = $matches[2][0];
+    $config['SQL_ATS_USER'] = Yii::$app->dbAts->username;
+    $config['SQL_ATS_PASS'] = Yii::$app->dbAts->password;
+} else {
+    $config['SQL_ATS_HOST'] = '';
+    $config['SQL_ATS_DB'] = '';
+    $config['SQL_ATS_USER'] = '';
+    $config['SQL_ATS_PASS'] = '';
+}
+
+if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->dbAts2->dsn, $matches)) {
+    $config['SQL_ATS2_HOST'] = $matches[1][0];
+    $config['SQL_ATS2_DB'] = $matches[2][0];
+    $config['SQL_ATS2_USER'] = Yii::$app->dbAts2->username;
+    $config['SQL_ATS2_PASS'] = Yii::$app->dbAts2->password;
+} else {
+    $config['SQL_ATS2_HOST'] = '';
+    $config['SQL_ATS2_DB'] = '';
+    $config['SQL_ATS2_USER'] = '';
+    $config['SQL_ATS2_PASS'] = '';
+}
+
+if (preg_match_all('/host=([\w\.]+);.*dbname=(\w+)/i', Yii::$app->dbPgAts->dsn, $matches)) {
+    $config['PG_ATS_HOST'] = $matches[1][0];
+    $config['PG_ATS_DB'] = $matches[2][0];
+    $config['PG_ATS_USER'] = Yii::$app->dbPgAts->username;
+    $config['PG_ATS_PASS'] = Yii::$app->dbPgAts->password;
+} ELSE {
+    $config['PG_ATS_HOST'] = '';
+    $config['PG_ATS_DB'] = '';
+    $config['PG_ATS_USER'] = '';
+    $config['PG_ATS_PASS'] = '';
 }
 
 if (preg_match_all('/host=([\w\.]+);.*dbname=(\w+)/i', Yii::$app->dbPg->dsn, $matches)) {
@@ -132,10 +165,8 @@ if (!defined('NO_INCLUDE')){
     require_once(INCLUDE_PATH.'sql.php');
     $db        = new MySQLDatabase();
 
-    if (defined("SQL_ATS2_DB") && SQL_ATS2_DB) {
-        $db_ats = new MySQLDatabase(SQL_HOST, SQL_USER, SQL_PASS, SQL_ATS2_DB);
-    } else {
-        $db_ats = &$db;
+    if (SQL_ATS2_DB) {
+        $db_ats = new MySQLDatabase(SQL_ATS2_HOST, SQL_ATS2_USER, SQL_ATS2_PASS, SQL_ATS2_DB);
     }
 
     require_once(INCLUDE_PATH.'pgsql.php');
@@ -167,5 +198,9 @@ ActiveRecord\Config::initialize(function($cfg) {
 });
 
 function trigger_error2($string) {
-    Yii::$app->session->addFlash('error', $string);
+    if (Yii::$app instanceof \yii\web\Application) {
+        Yii::$app->session->addFlash('error', $string);
+    } else {
+        Yii::error($string);
+    }
 }

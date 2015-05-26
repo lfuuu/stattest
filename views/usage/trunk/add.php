@@ -94,7 +94,7 @@ echo Form::widget([
             'type' => Form::INPUT_RAW,
             'value' =>
                 '<div class="col-md-12">' .
-                Html::button('Подключить', ['class' => 'btn btn-primary', 'onclick' => "jerasoftSubmitForm('add')"]) .
+                Html::button('Подключить', ['class' => 'btn btn-primary', 'onclick' => "submitForm('add')"]) .
                 '</div>'
         ],
     ],
@@ -104,11 +104,11 @@ echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario']);
 ActiveForm::end();
 ?>
 <script>
-    function jerasoftSubmitForm(scenario) {
+    function submitForm(scenario) {
         $('#scenario').val(scenario);
         $('#<?=$form->getId()?>')[0].submit();
     }
     $('.form-reload').change(function() {
-        jerasoftSubmitForm('default');
+        submitForm('default');
     });
 </script>

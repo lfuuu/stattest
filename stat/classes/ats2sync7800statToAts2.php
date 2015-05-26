@@ -47,7 +47,7 @@ class ats2sync7800statToAts2
                         c.client = u.client 
                         and CAST(now() as DATE) between u.actual_from and u.actual_to 
                         and u.E164 like '7800%' 
-                        and u.line7800_id != 0") as $l )
+                        and u.line7800_id != 0") as $l)
         {
             $data[$l["client_id"]][$l["number7800"]] = $l["line_nonum"];
         }

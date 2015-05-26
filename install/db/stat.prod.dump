@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mysqldump -h stat.mcn.ru -u user -ppassword \
+mysqldump -h stat.mcn.ru -u ievg -pterem0k@@ \
 --single-transaction \
 --routines \
 --ignore-table=nispd.traf_flows_1h \
@@ -11,7 +11,7 @@ mysqldump -h stat.mcn.ru -u user -ppassword \
 nispd \
 > /vagrant/install/db/dump/stat.sql
 
-mysqldump -h stat.mcn.ru -u user -ppassword \
+mysqldump -h stat.mcn.ru -u ievg -pterem0k@@ \
 --no-data \
 --single-transaction \
 nispd \

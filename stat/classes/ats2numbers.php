@@ -5,6 +5,8 @@ include_once(PATH_TO_ROOT."modules/ats2/freeaccount.php");
 include_once(PATH_TO_ROOT."modules/ats2/linedb.php");
 include_once(PATH_TO_ROOT."modules/ats2/reservaccount.php");
 
+use app\models\UsageVoip;
+
 class ats2NumbersChecker
 {
     public static function check()
@@ -19,21 +21,22 @@ class ats2NumbersChecker
         }
     }
 
-    private static $sqlActual = "select client_id, e164, no_of_lines, region, allowed_direction as direction, is_virtual from (
-        SELECT 
-            c.id as client_id,
-            trim(e164) as e164,
-            u.no_of_lines, 
-            u.region,
-            (select block from log_block where id= (select max(id) from log_block where service='usage_voip' and id_service=u.id)) is_block,
-            ifnull((select is_virtual from log_tarif lt, tarifs_voip tv where service = 'usage_voip' and id_service = u.id and id_tarif = tv.id order by lt.date_activation desc, lt.id desc limit 1), 0) as is_virtual,
-            allowed_direction
-        FROM 
-            usage_voip u, clients c
-        WHERE 
-            (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
-            and u.client = c.client and ((c.status in ('work','connecting','testing')) or c.id = 9130) and LENGTH(e164) >= 3
-            /*and c.voip_disabled=0 */ having is_block =0 or is_block is null order by u.id)a";
+    private static $sqlActual = "
+        select client_id, e164, no_of_lines, region, allowed_direction as direction, is_virtual from (
+            SELECT
+                c.id as client_id,
+                trim(e164) as e164,
+                u.no_of_lines,
+                u.region,
+                ifnull((select is_virtual from log_tarif lt, tarifs_voip tv where service = 'usage_voip' and id_service = u.id and id_tarif = tv.id order by lt.date_activation desc, lt.id desc limit 1), 0) as is_virtual,
+                allowed_direction
+            FROM
+                usage_voip u, clients c
+            WHERE
+                (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
+                and u.client = c.client and ((c.status in ('work','connecting','testing')) or c.id = 9130) and LENGTH(e164) >= 3
+        ) a
+    ";
 
     private static $sqlNumber=
         "SELECT client_id, number as e164, call_count as no_of_lines, region, direction, number_type
@@ -153,6 +156,7 @@ class ats2Numbers
     {
         l::ll(__CLASS__,__FUNCTION__);
         ats2NumbersChecker::check();
+        voipNumbers::check();
 
         ats2sync7800statToAts2::sync();
         ats2sync7800ats2ToAsterDb::sync();
@@ -616,31 +620,30 @@ class ats2Helper
 {
     public static function autocreateAccounts($usageId, $isTrunk, $isSync = false)
     {
-        global $db, $db_ats;
+        global $db_ats;
 
-        $usage = $db->GetRow("select * from usage_voip where id = '".$usageId."'");
-        if (!$usage) {
-            throw new Exception("Usage voip с id=".$usageId." не найден!");
+        $usage = UsageVoip::findOne($usageId);
+        if ($usage === null) {
+            throw new Exception("UsageVoip с id=".$usageId." не найден!");
         }
 
-        $clientId = $db->GetValue("select id from clients where client = '".$db->escape($usage["client"])."'");
+        $tariff = ats2Numbers::getTarif($usage->id);
 
-        if (!$clientId) {
-            throw new Exception("Клиент не найден");
-        }
-
-        if (preg_match("/^7800\d+/", $usage["E164"]))
-        {
-            return; // для номеров 8800 не создавать учеток.
-        }
-
-        $tarif = ats2Numbers::getTarif($usage["id"]);
-
-        if (!$tarif || $tarif["is_virtual"]) {
+        if (!$tariff || $tariff["is_virtual"]) {
             return; //SS-78: Для виртуальных номер SIP-учетки создавать не надо
         }
 
-        $usage["client_id"] = $clientId;
+        $clientAccount = $usage->clientAccount;
+        $did = $usage->E164;
+        $linesCount = $usage->no_of_lines;
+
+        if ($clientAccount === null) {
+            throw new Exception("Клиент не найден");
+        }
+
+        if ($usage->type_id == '7800') {
+            return; // для номеров 8800 не создавать учеток.
+        }
 
         // extract numberId
         $count = 0;
@@ -649,7 +652,7 @@ class ats2Helper
                 sleep(1);
             }
 
-            $numberId = ats2Numbers::getNumberId($usage["E164"], $clientId, false);
+            $numberId = ats2Numbers::getNumberId($did, $clientAccount->id, false);
         } while($count++ < 10 && !$numberId); // expect to create number
 
         if (!$numberId) {
@@ -664,20 +667,20 @@ class ats2Helper
 
         $currentCountAccounts = ats2Numbers::getLinkCount($numberId);
 
-        $needLines = $isTrunk ? 1 : $usage["no_of_lines"];
+        $needLines = $isTrunk ? 1 : $linesCount;
 
         //exract group line id
         if ($currentCountAccounts)
         {
             $lineId = ats2Numbers::getGroupLinkId($numberId); //получаем группу по номеру
         } else {
-            $lineId = ats2Numbers::getLastGroupId($clientId); //последная группа у клиента
+            $lineId = ats2Numbers::getLastGroupId($clientAccount->id); //последная группа у клиента
 
             if (!$lineId)
             {
                 // create group account
                 $line = account::get();
-                $line["client_id"] = $clientId;
+                $line["client_id"] = $clientAccount->id;
                 $lineId = lineDB::insert($line);
             }
 
@@ -713,7 +716,7 @@ class ats2Helper
             }
 
             if ($isSync)
-                ats2sync::updateClient($clientId);
+                ats2sync::updateClient($clientAccount->id);
         }
     }
 }
