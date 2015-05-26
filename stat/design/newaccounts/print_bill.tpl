@@ -198,7 +198,7 @@ www.mcntelecom.ru
     <td align="center"><b>Единица измерения</b></td>
     <td align="center"><b>Стоимость,&nbsp;{''|money:$curr}</b></td>
     <td align="center"><b>Сумма,&nbsp;{''|money:$curr}</b></td>
-    <td align="center"><b>Сумма налога,&nbsp;{''|money:$curr}</b></td>
+    <td align="center"><b>{if $bill_client.firma == 'mcn_telekom'}НДС 18%{else}Сумма налога{/if},&nbsp;{''|money:$curr}</b></td>
     <td align="center"><b>Сумма с учётом налога,&nbsp;{''|money:$curr}</b></td>
 {if $isDiscount}
     <td align="center"><b>Скидка</b></td>
