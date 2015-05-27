@@ -341,3 +341,125 @@ function showHistoryPopup(model, modelId) {
             }
         });
 }
+
+/**
+ * Для переноса услуг, создание и обработка popup
+ */
+jQuery(document).ready(function() {
+    var $actions = {
+            'services-choose': function(element) {
+                var extend_block = element.parent('td').find('div');
+                element.val() == 'custom' ? extend_block.show() : extend_block.hide();
+            },
+            'date-choose': function(element) {
+                var extend_block = element.parent('td').find('input.text');
+                element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
+            },
+            'account-choose': function(element) {
+                var extend_block = element.parent('td').find('div.account-search');
+                element.val() == 'custom' ? extend_block.show() : extend_block.hide();
+            }
+        },
+        $search_timeout;
+
+    $('a.dialog').click(function(e) {
+        e.preventDefault();
+
+        var that = $(this);
+
+        if (that.data('dialog') && !$('div#' + that.data('dialog')).length) {
+            var $dialog = $('<div />')
+                .attr('id', that.data('dialog'))
+                .appendTo('body');
+
+            $.ajax({
+                url: that.attr('href'),
+                async: false,
+                dataType: 'html',
+                success: function(html) {
+                    $dialog.html(html).dialog({
+                            modal: true,
+                            width: 800,
+                            height: 600,
+                            resizable: false,
+                            draggable: false,
+                            closeOnEscape: true,
+                            autoOpen: true,
+                            title: that.text(),
+                            buttons: [
+                                {
+                                    text: 'OK',
+                                    icons: { primary: 'ui-icon-heart' },
+                                    click: function() {
+                                        $dialog.find('form').submit();
+                                        $(this).dialog('close');
+                                    }
+                                }
+                            ],
+                            open: function() {
+                                $('input[name="transfer[actual_custom]"]').datepicker({
+                                    closeText: 'Закрыть',
+                                    prevText: '&#x3c;Пред',
+                                    nextText: 'След&#x3e;',
+                                    currentText: 'Сегодня',
+                                    monthNames: [
+                                        'Январь','Февраль','Март','Апрель','Май','Июнь',
+                                        'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'
+                                    ],
+                                    monthNamesShort: [
+                                        'Янв','Фев','Мар','Апр','Май','Июн',
+                                        'Июл','Авг','Сен','Окт','Ноя','Дек'
+                                    ],
+                                    dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+                                    dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+                                    dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+                                    weekHeader: 'Не',
+                                    dateFormat: 'dd.mm.yy',
+                                    firstDay: 1,
+                                    showMonthAfterYear: false,
+                                    yearSuffix: ''
+                                });
+
+                                $('input[name="transfer[account_custom]"]')
+                                    .keyup(function() {
+                                        var query = '' + $(this).val();
+                                        $.getJSON('/index_lite.php?module=clients&action=search_as&query=' + encodeURI(query))
+                                            .done(function(data){
+                                                if (data && data.data)
+                                                    $('div#search-results')
+                                                        .html(data.data)
+                                                        .find('table').css({'width': '410px'})
+                                                        .show();
+                                                else
+                                                    $('div#search-results').hide();
+                                            });
+                                    })
+                                    .blur(function(){
+                                        $search_timeout = setTimeout(function(){ $('div.search-results').hide(); }, 1000);
+                                    });
+                                $('div#search-results')
+                                        .click(function(e) {
+                                            e.preventDefault();
+                                            clearTimeout($search_timeout);
+                                        })
+                                        .on('click', 'a', function(e) {
+                                            e.preventDefault();
+                                            $('input[name="transfer[account_custom]"]').val( $(this).attr('href').replace(/[^0-9]/g, '') );
+                                            $(this).parents('div#search-results').hide();
+                                        });
+
+                                $('input[data-action]').click(function() {
+                                    if ($(this).has(':checked') && $.isFunction($actions[$(this).data('action')]))
+                                        $actions[$(this).data('action')]($(this));
+                                });
+                            }
+                        });
+
+                }
+            });
+        }
+        else if ($('div#' + that.data('dialog')).length)
+            $('div#' + that.data('dialog')).dialog('open');
+    });
+
+});

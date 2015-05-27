@@ -29,7 +29,7 @@
         <a href='/contragent/edit?id={$contragent.id}' title="Редактировать контрагента">
             <img src='{$IMAGES_PATH}icons/edit.gif'>
         </a>
-        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
+        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}c>{$ontragent.name}</span>
     </div>
     <div style="display: inline-block;">  
         <small>{$client.address_post}</small>
@@ -143,6 +143,9 @@
     {*/if*}
 
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
+
+    <hr />
+    <a href="/transfer/index/?client={$client.id}" class="dialog" data-dialog="transfer">Перенос услуг</a>
     {/if} {* if !$client.is_closed *}
 </div>
 
