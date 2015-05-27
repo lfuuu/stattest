@@ -13,6 +13,7 @@
 <input type="hidden" name="date_from" value="{$date_from}">
 <input type="hidden" name="date_to" value="{$date_to}">
 <input type="hidden" name="filter[s8800][0]" value="{$mail_filter.s8800.0}">
+<input type="hidden" name="filter[node][0]" value="{$mail_filter.node.0}">
 <input type="hidden" name="disable_filter" value="Y">
 {if isset($mail_filter.regions)}
 {foreach from=$mail_filter.regions item="r"}
@@ -89,6 +90,10 @@ function check_all2(){ldelim}
 <option value='without'{if $mail_filter.s8800.0 == 'without'} selected{/if}>без услуги</option>
 </select>
 </option></select>
+</td></tr>
+
+<TR><TD>Роутер:</TD><TD>
+<select name='filter[node][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_node item=r}<option value='{$r.node}'{if $r.node==$mail_filter.node.0} selected="selected"{/if}>{$r.node} ({$r.address})</option>{/foreach}</select>
 </td></tr>
 
 <tr><td>Регионы:</TD><TD>

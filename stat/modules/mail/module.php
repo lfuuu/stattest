@@ -228,6 +228,11 @@ class m_mail{
 					case 'manager':
 						$W[] = 'C.manager="'.addslashes($p[0]).'"';
 						break;
+					case 'node':
+						$J[] = 'INNER JOIN usage_ip_ports AS uipp ON C.client=uipp.client';
+						$J[] = 'INNER JOIN tech_ports AS tech_ports ON uipp.port_id=tech_ports.id';
+						$W[] = "tech_ports.node LIKE '".addslashes($p[0])."'";
+						break;
 					case 'bill':
 						$W[] = 'B.bill_date>="'.addslashes($p[1]).'"';
 						$W[] = 'B.bill_date<="'.addslashes($p[2]).'"';
@@ -307,8 +312,8 @@ class m_mail{
 									)";
 						}
 						break;
-						
 				}
+		$design->assign('f_node', $db->AllRecords("SELECT DISTINCT id, node, address FROM tech_ports WHERE port_name <> 'mgts' AND LENGTH(node) > 0 GROUP BY node ORDER BY node ASC", 'id'));
 		$design->assign('mail_filter',$filter);
 		$design->assign('mail_id',$id);
 
