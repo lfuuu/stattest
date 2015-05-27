@@ -29,7 +29,7 @@
         <a href='/contragent/edit?id={$contragent.id}' title="Редактировать контрагента">
             <img src='{$IMAGES_PATH}icons/edit.gif'>
         </a>
-        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}c>{$ontragent.name}</span>
+        <span {if $clientAccount.contragent_id==$contragent.id}style="font-weight: bold"{/if}>{$contragent.name}</span>
     </div>
     <div style="display: inline-block;">  
         <small>{$client.address_post}</small>
