@@ -47,6 +47,11 @@
         <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
     </select>
 
+    <label>
+        <input name="f_exclude_other_numbers" type="checkbox" value="1" {if $f_exclude_other_numbers > 0} checked{/if}>
+        Исключить не наши емкости
+    </label>
+
 
     <div style="height: 5px"></div>
 
