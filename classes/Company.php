@@ -474,7 +474,7 @@ class Company
                     "src" => "stampmcn.gif",
                     "style" => "position:relative;left:-20;top:-180;z-index:-10; margin-bottom:-170px;",
                     "name" => "ООО &laquo;Эм Си Эн&raquo;",
-                    "width" => false
+                    "width"=>251*0.8, "height"=>256*0.8
                     ),
                 "mcn_telekom" => array(
                     "src" => "stamp_mcn_telekom.png",
