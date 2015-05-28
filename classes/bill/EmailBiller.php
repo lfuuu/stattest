@@ -23,11 +23,11 @@ class EmailBiller extends Biller
                 Yii::$app->db->createCommand("
                     select
                         MAX(
-                            86400 +
-                            LEAST(UNIX_TIMESTAMP(actual_to),UNIX_TIMESTAMP(:to)) -
-                            GREATEST(UNIX_TIMESTAMP(actual_from),UNIX_TIMESTAMP(:from))
+                            1 +
+                            LEAST(actual_to,DATE(:to)) -
+                            GREATEST(actual_from,DATE(:from))
                         )/
-                        (86400 + UNIX_TIMESTAMP(:to)-UNIX_TIMESTAMP(:from)) as dt
+                        (1 + DATE(:to)-DATE(:from)) as dt
                     from usage_extra as U
                     inner join
                         tarifs_extra as T

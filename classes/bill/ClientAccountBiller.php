@@ -78,7 +78,7 @@ class ClientAccountBiller
         return $this;
     }
 
-    protected function createTransactions()
+    public function createTransactions()
     {
         $this->transactions = [];
 
@@ -133,7 +133,7 @@ class ClientAccountBiller
         );
     }
 
-    protected function saveTransactions()
+    public function saveTransactions()
     {
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {

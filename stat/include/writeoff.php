@@ -1184,11 +1184,11 @@ class ServiceEmails extends ServicePrototype {
                 $b = $db->getRow($q='
                     select
                         MAX(
-                            86400+
-                            LEAST(UNIX_TIMESTAMP(actual_to),'.$this->date_to.')-
-                            GREATEST(UNIX_TIMESTAMP(actual_from),'.$this->date_from.')
+                            1+
+                            LEAST(actual_to,DATE("'.date('Y-m-d', $this->date_to).'"")-
+                            GREATEST(actual_from,DATE("'.date('Y-m-d', $this->date_from).'"")
                         )/
-                        (86400+'.($this->date_to-$this->date_from).') as dt
+                        (1+(DATE("'.date('Y-m-d', $this->date_to).'"") - DATE("'.date('Y-m-d', $this->date_from).'"")) ) as dt
                     from
                         usage_extra as U
                     INNER JOIN
