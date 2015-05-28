@@ -1185,10 +1185,10 @@ class ServiceEmails extends ServicePrototype {
                     select
                         MAX(
                             1+
-                            LEAST(actual_to,DATE("'.date('Y-m-d', $this->date_to).'"")-
-                            GREATEST(actual_from,DATE("'.date('Y-m-d', $this->date_from).'"")
+                            LEAST(actual_to,DATE("'.date('Y-m-d', $this->date_to).'"))-
+                            GREATEST(actual_from,DATE("'.date('Y-m-d', $this->date_from).'"))
                         )/
-                        (1+(DATE("'.date('Y-m-d', $this->date_to).'"") - DATE("'.date('Y-m-d', $this->date_from).'"")) ) as dt
+                        (1+(DATE("'.date('Y-m-d', $this->date_to).'") - DATE("'.date('Y-m-d', $this->date_from).'")) ) as dt
                     from
                         usage_extra as U
                     INNER JOIN
