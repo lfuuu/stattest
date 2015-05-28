@@ -1445,23 +1445,6 @@ class DbFormUsageVirtpbx extends DbForm{
         if(!isset($this->dbform['id']))
             return '';
 
-        if(!$this->check_virtats()) {
-            $this->fields['actual_from']['default']=$this->dbform['actual_from'];
-            $this->fields['actual_to']['default']=$this->dbform['actual_to'];
-            $this->fields['amount']['default']=$this->dbform['amount'];
-            $this->fields['status']['default']=$this->dbform['status'];
-            $this->fields['comment']['default']=$this->dbform['comment'];
-
-            if (isset($this->dbform['t_id_tarif'])) {
-                $cur_tarif = $db->getRow('select * from tarifs_virtpbx where id='.$this->dbform['t_id_tarif']);
-                $cur_tarif['date_activation'] = $this->dbform['t_date_activation'];
-                $design->assign('dbform_f_tarif_current', $cur_tarif);
-                
-            }
-
-            return;
-        }
-
         $current = $db->GetRow("select * from usage_virtpbx where id = '".$this->dbform["id"]."'");
 
         $this->fillUTCPeriod();
@@ -1485,24 +1468,6 @@ class DbFormUsageVirtpbx extends DbForm{
         return $v;
     }
 
-    private function check_virtats()
-    {
-        global $db;
-
-        $f = $this->dbform["actual_from"];
-        $t = $this->dbform["actual_to"];
-
-        $c = $db->GetRow(
-                "select * from usage_virtpbx where ((actual_from between '".$f."' and '".$t."' or actual_to between '".$f."' and '".$t."' or (actual_from <= '".$f."' and '".$t."' <= actual_to ))) and id != '".$this->dbform["id"]."' and client='".$this->dbform["client"]."'");
-
-        if($c)
-        {
-            trigger_error2("На указанные даты виртуальная АТС, у этого клиента, уже работает");
-            return false;
-        }
-
-        return true;
-    }
 }
 
 class DbFormUsageSms extends DbForm{

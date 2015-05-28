@@ -114,7 +114,22 @@ class SyncCore
     {
         echo "\n== [_checkNeedSyncProducts](".$client.")\n";
         self::checkProductState('phone', array(0, $client));
-        self::checkProductState('vpbx', array(0, $client));
+
+        $vpbxIds =
+            Yii::$app->db->createCommand("
+                SELECT
+                    u.id
+                FROM usage_virtpbx u
+                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
+                LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
+                WHERE
+                    u.client = '$client'
+                    AND u.actual_from <= cast(now() AS date)
+                    AND u.actual_to >= cast(now() AS date)
+            ")->queryAll();
+        foreach ($vpbxIds as $statProductId) {
+            self::checkProductState('vpbx', array($statProductId, $client));
+        }
     }
 
     public static function addEmail($param)
@@ -168,10 +183,16 @@ class SyncCore
 
         if (!$client) return false;
 
-        $currentState = SyncCoreHelper::getProductSavedState($client->id, $product);
-        $newState = SyncCoreHelper::getProductState($client->id, $product);
+        if ($product == 'vpbx') {
+            $statProductId = $usageId;
+        } else {
+            $statProductId = 0;
+        }
 
-        SyncCoreHelper::setProductSavedState($client->id, $product, (bool)$newState);
+        $currentState = SyncCoreHelper::getProductSavedState($client->id, $product, $statProductId);
+        $newState = SyncCoreHelper::getProductState($client->id, $product, $statProductId);
+
+        SyncCoreHelper::setProductSavedState($client->id, $product, $statProductId, (bool)$newState);
 
         $action = null;
 

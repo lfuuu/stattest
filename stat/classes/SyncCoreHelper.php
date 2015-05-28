@@ -97,49 +97,31 @@ class SyncCoreHelper
         }
     }
 
-    static function getProducts($clientId)
-    {
-        echo "\n".__FUNCTION__;
-        $products = array();
-
-        if (($vpbx = self::getProductVPBX($clientId)))
-            $products[] = $vpbx;
-
-        if (($phone = self::getProductPhone($clientId)))
-            $products[] = $phone;
-
-        return $products;
-    }
-
     static function getEmailStruct($email, $password)
     {
         return array("email" => $email, "password" => $password);
     }
 
 
-    static function getProductVPBX($clientId)
+    static function getProductVPBX($clientId, $statProductId)
     {
         global $db;
+
+        $statProductId = (int)$statProductId;
+
         $vpbxIP = $db->GetValue($q = "
                 SELECT
-                s.ip
-                FROM (
-                    SELECT
-                    max(u.id) as virtpbx_id
-                    FROM
-                    usage_virtpbx u, clients c
-                    WHERE
-                    c.id = '".$clientId."'
-                    AND c.client = u.client
-                    AND actual_from <= cast(now() AS date)
-                    AND actual_to >= cast(now() AS date)
-                    ) a, usage_virtpbx u
+					u.id, s.ip
+                FROM usage_virtpbx u
                 LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
                 LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
-                WHERE u.id = a.virtpbx_id
+                WHERE
+					u.id = $statProductId
+                    AND u.actual_from <= cast(now() AS date)
+                    AND u.actual_to >= cast(now() AS date)
                 ");
 
-        return $vpbxIP ? array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS :$vpbxIP), "mnemonic" => "vpbx") : false;
+        return $vpbxIP ? array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS :$vpbxIP), "mnemonic" => "vpbx", "stat_product_id" => $statProductId) : false;
     }
 
     static function getProductPhone($clientId)
@@ -162,16 +144,16 @@ class SyncCoreHelper
         return false;
     }
 
-    public static function getProductSavedState($clientId, $product, $returnObj = false)
+    public static function getProductSavedState($clientId, $product, $statProductId, $returnObj = false)
     {
-        $state = ProductState::find("first", array("client_id" => $clientId, "product" => $product));
+        $state = ProductState::find("first", array("client_id" => $clientId, "product" => $product, 'stat_product_id' => $statProductId));
 
         return $returnObj ? $state : (bool)$state;
     }
 
-    public static function setProductSavedState($clientId, $product, $newState)
+    public static function setProductSavedState($clientId, $product, $statProductId, $newState)
     {
-        $oldState = self::getProductSavedState($clientId, $product, true);
+        $oldState = self::getProductSavedState($clientId, $product, $statProductId, true);
 
         if (!$newState && $oldState)
         {
@@ -190,11 +172,11 @@ class SyncCoreHelper
         }
     }
 
-    public static function getProductState($clientId, $product)
+    public static function getProductState($clientId, $product, $usageId)
     {
         switch($product)
         {
-            case 'vpbx': return self::getProductVPBX($clientId); 
+            case 'vpbx': return self::getProductVPBX($clientId, $usageId);
             case 'phone': return self::getProductPhone($clientId); 
             default: return false;
         }
