@@ -185,6 +185,7 @@ class VoipBiller extends Biller
 
     private function calc($is7800, LogTarif $logTarif)
     {
+/*
         $res =
             Yii::$app->get('dbPg')
                 ->createCommand('
@@ -206,6 +207,39 @@ class VoipBiller extends Biller
                         ':usageId' => $this->usage->id,
                         ':from' => $this->billerActualFrom->format('Y-m-d H:i:s'),
                         ':to' => $this->billerActualTo->format('Y-m-d H:i:s'),
+                    ]
+                )
+                ->queryAll();
+        */
+
+        $from = clone $this->billerActualFrom;
+        $from->setTimezone($this->clientAccount->timezone);
+        $to = clone $this->billerActualTo;
+        $to->setTimezone($this->clientAccount->timezone);
+
+        $res =
+            Yii::$app->get('dbPg')
+                ->createCommand('
+                        select
+                            case destination_id <= 0 when true then
+                                case mob when true then 5 else 4 end
+                            else destination_id end rdest,
+                            cast( - sum(cost) as NUMERIC(10,2)) as price
+                        from
+                            calls_raw.calls_raw
+                        where
+                            server_id = :serverId
+                            and number_service_id = :usageId
+                            and connect_time >= :from
+                            and connect_time <= :to
+                            and abs(cost) > 0.00001
+                        group by rdest
+                        having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0
+                    ', [
+                        ':serverId' => $this->usage->region,
+                        ':usageId' => $this->usage->id,
+                        ':from' => $from->format('Y-m-d H:i:s'),
+                        ':to' => $to->format('Y-m-d H:i:s'),
                     ]
                 )
                 ->queryAll();
