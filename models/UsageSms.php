@@ -50,4 +50,9 @@ class UsageSms extends ActiveRecord implements Usage
         $tariff = TariffSms::findOne($this->tarif_id);
         return $tariff;
     }
+
+    public function getTransferHelper()
+    {
+        return new SmsServiceTransfer($this);
+    }
 }

@@ -49,4 +49,9 @@ class UsageExtra extends ActiveRecord implements Usage
         $tariff = TariffExtra::findOne($this->tarif_id);
         return $tariff;
     }
+
+    public function getTransferHelper()
+    {
+        return new ExtraTransfer($this);
+    }
 }

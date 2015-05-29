@@ -145,7 +145,7 @@
     <br> <a href="./?module=clients&id={$client.id}&sync=true">Синхронизовать с ЛК</a>
 
     <hr />
-    <a href="/transfer/index/?client={$client.id}" class="dialog" data-dialog="transfer">Перенос услуг</a>
+    <a href="/transfer/index/?client={$client.id}" onClick="return showIframePopup(this)">Перенос услуг</a>
     {/if} {* if !$client.is_closed *}
 </div>
 

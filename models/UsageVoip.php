@@ -72,5 +72,10 @@ class UsageVoip extends ActiveRecord implements Usage
         $tariff = TariffVoip::findOne($logTariff->id_tarif);
         return $tariff;
     }
+
+    public function getTransferHelper()
+    {
+        return new VoipServiceTransfer($this);
+    }
 }
 

@@ -61,4 +61,9 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         $tariff = TariffVirtpbx::findOne($logTariff->id_tarif);
         return $tariff;
     }
+
+    public function getTransferHelper()
+    {
+        //return new EmailTransfer($this);
+    }
 }

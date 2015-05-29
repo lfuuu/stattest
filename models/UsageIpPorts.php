@@ -59,4 +59,9 @@ class UsageIpPorts extends ActiveRecord implements Usage
         $tariff = TariffInternet::findOne($logTariff->id_tarif);
         return $tariff;
     }
+
+    public function getTransferHelper()
+    {
+        return new IpPortsServiceTransfer($this);
+    }
 }

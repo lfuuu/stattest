@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\WelltimeBiller;
+use app\classes\transfer\WelltimeServiceTransfer;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
@@ -48,5 +49,10 @@ class UsageWelltime extends ActiveRecord implements Usage
     {
         $tariff = TariffExtra::findOne($this->tarif_id);
         return $tariff;
+    }
+
+    public function getTransferHelper()
+    {
+        return new WelltimeServiceTransfer($this);
     }
 }

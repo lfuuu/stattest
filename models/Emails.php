@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\EmailBiller;
+use app\classes\transfer\EmailServiceTransfer;
 use yii\db\ActiveRecord;
 use DateTime;
 
@@ -34,5 +35,10 @@ class Emails extends ActiveRecord implements Usage
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
+    }
+
+    public function getTransferHelper()
+    {
+        return new EmailServiceTransfer($this);
     }
 }
