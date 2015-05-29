@@ -27,6 +27,23 @@ class m150528_162330_stat_product_id extends \app\classes\Migration
             set p.stat_product_id = u.id
             where p.product = 'vpbx' and p.stat_product_id = 0
          ");
+
+        $this->execute("
+            update virtpbx_stat p
+            inner join clients c on c.id = p.client_id
+            inner join usage_virtpbx u on c.client=u.client
+            set p.usage_id = u.id
+            where p.usage_id = 0 and u.actual_from <= cast(now() AS date) and u.actual_to >= cast(now() AS date)
+        ");
+
+
+        $this->execute("
+            update virtpbx_stat p
+            inner join clients c on c.id = p.client_id
+            inner join usage_virtpbx u on c.client=u.client
+            set p.usage_id = u.id
+            where p.usage_id = 0
+        ");
     }
 
     public function down()

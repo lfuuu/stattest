@@ -111,7 +111,7 @@ class SyncCoreHelper
 
         $vpbxIP = $db->GetValue($q = "
                 SELECT
-					u.id, s.ip
+					s.ip
                 FROM usage_virtpbx u
                 LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
                 LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
@@ -167,6 +167,7 @@ class SyncCoreHelper
                 $newState = new ProductState();
                 $newState->client_id = $clientId;
                 $newState->product = $product;
+                $newState->stat_product_id = $statProductId;
                 $newState->save();
             }
         }

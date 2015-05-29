@@ -2,17 +2,14 @@
 
 class SyncVirtPbx
 {
-    private static $clientId = 0;
-
-    public function create($clientId)
+    public static function create($clientId, $usageId)
     {
-        self::$clientId = $clientId;
-
-        $tarif = self::getTarif();
-        $numbers = self::getNumbers();
+        $tarif = self::getTarif($usageId);
+        $numbers = self::getNumbers($clientId, $usageId);
 
         $data = array(
-                "client_id"  => (int)self::$clientId,
+                "client_id"  => (int)$clientId,
+                "stat_product_id"  => (int)$usageId,
                 "numbers"    => $numbers,
                 "phones"     => $tarif["num_ports"],
                 "faxes"      => (int)$tarif["is_fax"] ? 5 : 0,
@@ -24,25 +21,25 @@ class SyncVirtPbx
         return self::_send($tarif["ip"], "create", $data);
     }
 
-    public function stop($clientId)
+    public static function stop($clientId, $usageId)
     {
-        self::$clientId = $clientId;
-
-        $tarif = self::getTarif();
+        $tarif = self::getTarif($usageId);
 
         $data = array(
-                "client_id"  => self::$clientId
+                "client_id"  => (int)$clientId,
+                "stat_product_id"  => (int)$usageId,
                 );
 
         return self::_send($tarif["ip"], "delete", $data);
     }
 
-    public function changeTarif($clientId, $usageId)
+    public static function changeTarif($clientId, $usageId)
     {
-        $tarif = self::getTarif($clientId, $usageId);
+        $tarif = self::getTarif($usageId);
 
         $data = array(
-                "client_id"  => $clientId,
+                "client_id"  => (int)$clientId,
+                "stat_product_id"  => (int)$usageId,
                 "phones"     => $tarif["num_ports"],
                 "faxes"      => $tarif["is_fax"] ? 5 : 0,
                 "record"     => (bool)$tarif["is_record"],
@@ -52,11 +49,11 @@ class SyncVirtPbx
         return self::_send($tarif["ip"], "update", $data);
     }
 
-    public function addDid($clientId, $number)
+    public static function addDid($clientId, $usageId, $number)
     {
         global $db;
 
-        $tarif = self::getTarif($clientId);
+        $tarif = self::getTarif($usageId);
         $region = $db->GetValue("select region from voip_numbers where number = '".$number."'");
 
         //if line without number, or trunk
@@ -64,40 +61,41 @@ class SyncVirtPbx
             $region = $db->GetValue("SELECT region FROM `usage_voip` where E164 = '".$number."' and cast(now() as date) between actual_from and actual_to limit 1") ?: 99;
 
         return self::_send($tarif["ip"], "add_did", array(
-                    "client_id" => $clientId,
+                    "client_id" => (int)$clientId,
+                    "stat_product_id" => (int)$usageId,
                     "numbers"   => array(array($number, (int)$region))
                     )
                 );
 
     }
 
-    public function delDid($clientId, $number)
+    public static function delDid($clientId, $usageId, $number)
     {
         global $db;
 
-        $tarif = self::getTarif($clientId);
+        $tarif = self::getTarif($usageId);
         $region = $db->GetValue("select region from voip_numbers where number = '".$number."'") ?: 99;
 
         return self::_send($tarif["ip"], "remove_did", array(
                     "client_id" => $clientId,
+                    "stat_product_id" => $usageId,
                     "numbers"   => array(array($number, (int)$region))
                     )
                 );
 
     }
 
-    public function setDiff($clientId, &$diff)
+    public static function setDiff($clientId, $usageId, &$diff)
     {
-        self::$clientId = $clientId;
-
-        $tarif = self::getTarif();
+        $tarif = self::getTarif($usageId);
 
         if ($diff["add"])
         {
             $numbers = self::_getDiffNumbers($diff["add"]);
 
             self::_send($tarif["ip"], "add_did", array(
-                        "client_id" => self::$clientId,
+                        "client_id" => (int)$clientId,
+                        "stat_product_id" => (int)$usageId,
                         "numbers"   => $numbers
                         )
                     );
@@ -108,14 +106,15 @@ class SyncVirtPbx
             $numbers = self::_getDiffNumbers($diff["del"]);
 
             self::_send($tarif["ip"], "remove_did", array(
-                        "client_id" => self::$clientId,
+                        "client_id" => (int)$clientId,
+                        "stat_product_id" => (int)$usageId,
                         "numbers"   => $numbers
                         )
                     );
         }
     }
 
-    private function _getDiffNumbers(&$d)
+    private static function _getDiffNumbers(&$d)
     {
         $numbers = array();
         foreach($d as $k => $number)
@@ -126,29 +125,9 @@ class SyncVirtPbx
         return array_keys($numbers);
     }
 
-    private function getTarif($clientId = null, $usageId = null)
+    private static function getTarif($usageId)
     {
         global $db;
-
-        if ($clientId === null)
-            $clientId = self::$clientId;
-
-        if ($usageId === null)
-        {
-            $usageId = $db->getValue("
-                    SELECT
-                        max(u.id) as virtpbx_id
-                    FROM
-                        usage_virtpbx u, clients c
-                    WHERE
-                            c.id = '".$clientId."'
-                        AND c.client = u.client
-                        AND actual_from <= cast(now() AS date)
-                        AND actual_to >= cast(now() AS date)
-                    ");
-        }
-
-        //
 
         $row = $db->GetRow("
                 SELECT
@@ -181,14 +160,14 @@ class SyncVirtPbx
         return $row;
     }
 
-    private function getNumbers()
+    private static function getNumbers($clientId, $usageId)
     {
-        $list = VirtPbx::getList(self::$clientId);
+        $list = VirtPbx::getInfo($clientId, $usageId);
 
         $numbers = array();
         foreach($list["numbers"] as $numberId => $n)
         {
-            $number = ats2Numbers::getNumberById(self::$clientId, $numberId, true);
+            $number = ats2Numbers::getNumberById($clientId, $numberId, true);
             $numbers[] = array($number["number"], (int)$number["region"]);
         }
 
@@ -204,12 +183,13 @@ class SyncVirtPbx
     * @param $statisticField string поле, в которым храниться результат, в возвращаемых дланных
     * @return mix полученное занчение
     */
-    public function getStatistic($clientId, $date, $statisticFunction = "get_total_space_usage", $statisticField = "total")
+    public static function getStatistic($clientId, $usageId, $date, $statisticFunction = "get_total_space_usage", $statisticField = "total")
     {
-        $tarif = self::getTarif($clientId);
+        $tarif = self::getTarif($usageId);
 
         $data = array(
-                "client_id" => $clientId,
+                "client_id" => (int)$clientId,
+                "stat_product_id" => (int)$usageId,
                 "date" => $date
                 );
 
@@ -228,7 +208,7 @@ class SyncVirtPbx
 
     }
 
-    private function _send($address, $action, $data)
+    private static function _send($address, $action, $data)
     {
         if (!defined("VIRTPBX_URL"))
             throw new Exception("Не установлен URL для связи с VPBX", 500);

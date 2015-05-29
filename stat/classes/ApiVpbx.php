@@ -34,7 +34,7 @@ class ApiVpbx
         return  $data;
     }
 
-    public static function addDid($clientId, $phone)
+    public static function addDid($clientId, $vpbxId, $phone)
     {
         // check cleint && exists phone number
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
@@ -44,7 +44,7 @@ class ApiVpbx
         }
 
         //already added => answer: ok
-        $list = virtPbx::getList($clientId);
+        $list = virtPbx::getInfo($clientId, $vpbxId);
         foreach($list["numbers"] as $number)
         {
             if ($number["number"] == $phone)
@@ -57,7 +57,7 @@ class ApiVpbx
 
         $isPass = false;
         try{
-            $r = SyncVirtPbx::addDid($clientId, $phone);
+            $r = SyncVirtPbx::addDid($clientId, $vpbxId, $phone);
         }catch(Exception $e)
         {
             if ($e->getCode() != 514) // Номер "7499xxxxxxx" уже используется
@@ -69,20 +69,20 @@ class ApiVpbx
 
         if (isset($r["success"]) || $isPass)
         {
-            virtPbx::addNumber($clientId, $phone);
+            virtPbx::addNumber($clientId, $vpbxId, $phone);
 
             return "ok";
         } else {
             //unknown error
-            virtPbx::delNumber($clientId, $phone);
-            SyncVirtPbx::delDid($clientId, $phone);
+            virtPbx::delNumber($clientId, $vpbxId, $phone);
+            SyncVirtPbx::delDid($clientId, $vpbxId, $phone);
         }
 
 
         return "error";
     }
 
-    public static function delDid($clientId, $phone)
+    public static function delDid($clientId, $vpbxId, $phone)
     {
         // check cleint && exists phone number
         $clientNumbers = self::getClientPhoneNumbers($clientId, true);
@@ -92,7 +92,7 @@ class ApiVpbx
         }
 
         $isDeleted = true;
-        $list = virtPbx::getList($clientId);
+        $list = virtPbx::getInfo($clientId, $vpbxId);
         foreach($list["numbers"] as $number)
         {
             if ($number["number"] == $phone)
@@ -106,7 +106,7 @@ class ApiVpbx
 
         $isPass = false;
         try{
-            $r = SyncVirtPbx::delDid($clientId, $phone);
+            $r = SyncVirtPbx::delDid($clientId, $vpbxId, $phone);
         }catch(Exception $e)
         {
             if ($e->getCode() != 514) // Номер "7xxxxxxxxxx" не существует
@@ -118,7 +118,7 @@ class ApiVpbx
 
         if (isset($r["success"]) || $isPass)
         {
-            virtPbx::delNumber($clientId, $phone);
+            virtPbx::delNumber($clientId, $vpbxId, $phone);
 
             return 'ok';
         }

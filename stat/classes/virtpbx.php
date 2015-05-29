@@ -2,7 +2,7 @@
 
 class virtPbxChecker
 {
-    public function check()
+    public static function check()
     {
         l::ll(__CLASS__,__FUNCTION__);
 
@@ -43,7 +43,6 @@ class virtPbxChecker
                            c.status IN ('work','negotiations','connecting','testing','debt','blocked','suspended') 
                         OR c.client = 'id9130'
                         )
-            GROUP BY u.client
             ORDER BY u.id";
 
 
@@ -68,7 +67,7 @@ class virtPbxChecker
 
         $d = array();
         foreach($_db->AllRecords($sql) as $l)
-            $d[$l["client_id"]] = $l;
+            $d[$l["usage_id"]] = $l;
 
         if (!$d)
             throw new Exception("Data not load");
@@ -147,12 +146,10 @@ class virtPbx
         virtPbxChecker::check();
     }
 
-    public static function getList($clientId = null)
+
+    public static function getInfo($clientId, $usageId)
     {
         global $db_ats;
-
-        if ($clientId === null)
-            $clientId = getClientId();
 
         $numbers = array();
         $accounts = array();
@@ -162,19 +159,19 @@ class virtPbx
         $isVirtPbxAvalible = false;
         $isStarted = false;
         foreach($db_ats->AllRecords(
-                    $q = "
-                    SELECT 
-                        v.id as virtpbx_id, 
-                        type, 
-                        if(type = 'number', n.id, a.id) as id, 
+            $q = "
+                    SELECT
+                        v.id as virtpbx_id,
+                        type,
+                        if(type = 'number', n.id, a.id) as id,
                         if(type = 'number', n.number, a.account) as name,
                         direction,
                         is_started
                     FROM `a_virtpbx` v
                     LEFT JOIN a_virtpbx_link l on (v.id = l.virtpbx_id)
-                    LEFT JOIN a_line a ON (a.id = type_id and l.type = 'account' and a.client_id = '".$clientId."')
-                    LEFT JOIN a_number n ON (n.id = type_id and l.type = 'number' and n.client_id = '".$clientId."')
-                    WHERE v.client_id = '".$clientId."'
+                    LEFT JOIN a_line a ON (a.id = type_id and l.type = 'account' and a.client_id = '{$clientId}')
+                    LEFT JOIN a_number n ON (n.id = type_id and l.type = 'number' and n.client_id = '{$clientId}')
+                    WHERE v.client_id = '{$clientId}' and v.usage_id = '{$usageId}'
                     ORDER BY a.account, n.number
                     ") as $l)
         {
@@ -186,18 +183,69 @@ class virtPbx
             } else if ($l["type"] == "account"){
                 $accounts[$l["id"]] = array("id" => $l["id"], "account" => $l["name"]);
             }
-            
+
             $isVirtPbxAvalible = true;
             $isStarted = $l["is_started"] == "yes";
         }
 
         return array(
-                "id" => $vpbxId,
+            "id" => $vpbxId,
+            "is_avalible" => $isVirtPbxAvalible,
+            "is_started" => $isStarted,
+            "accounts" => $accounts,
+            "numbers" => $numbers
+        );
+    }
+
+    public static function getList($clientId)
+    {
+        global $db_ats;
+
+        $numbers = array();
+        $accounts = array();
+
+        $vpbxList = $db_ats->AllRecords("SELECT v.id, v.usage_id FROM `a_virtpbx` v WHERE v.client_id = '{$clientId}' ");
+
+        $isVirtPbxAvalible = false;
+        $isStarted = false;
+        foreach ($vpbxList as $k => $vpbx) {
+            foreach ($db_ats->AllRecords(
+                $q = "
+                    SELECT 
+                        v.id as virtpbx_id, 
+                        type, 
+                        if(type = 'number', n.id, a.id) as id, 
+                        if(type = 'number', n.number, a.account) as name,
+                        direction,
+                        is_started,
+                        usage_id
+                    FROM `a_virtpbx` v
+                    LEFT JOIN a_virtpbx_link l on (v.id = l.virtpbx_id)
+                    LEFT JOIN a_line a ON (a.id = type_id and l.type = 'account' and a.client_id = '{$clientId}')
+                    LEFT JOIN a_number n ON (n.id = type_id and l.type = 'number' and n.client_id = '{$clientId}')
+                    WHERE v.id = '{$vpbx['id']}'
+                    ORDER BY a.account, n.number
+                    ") as $l) {
+
+                if ($l["type"] == "number") {
+                    $numbers[$l["id"]] = array("id" => $l["id"], "number" => $l["name"], "direction" => $l["direction"]);
+                } else if ($l["type"] == "account") {
+                    $accounts[$l["id"]] = array("id" => $l["id"], "account" => $l["name"]);
+                }
+
+                $isVirtPbxAvalible = true;
+                $isStarted = $l["is_started"] == "yes";
+            }
+            $vpbxList[$k] = array(
+                "id" => $vpbx['id'],
+                "usage_id" => $vpbx['usage_id'],
                 "is_avalible" => $isVirtPbxAvalible,
                 "is_started" => $isStarted,
                 "accounts" => $accounts,
                 "numbers" => $numbers
-                );
+            );
+        }
+        return $vpbxList;
     }
 
     public static function number_isOnVpbx($clientId, $number)
@@ -225,7 +273,7 @@ class virtPbx
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
 
-        $r = $db_ats->GetRow("select enabled, is_started from a_virtpbx where client_id = '".$l["client_id"]."'");
+        $r = $db_ats->GetRow("select enabled, is_started from a_virtpbx where client_id = '".$l["client_id"]."' and usage_id = '".$l["usage_id"]."' ");
 
         if (!$r)
         {
@@ -237,11 +285,11 @@ class virtPbx
         return new virtPbxStatus($r["status"], $r["is_started"]);
     }
 
-    public static function addNumber($clientId, $number)
+    public static function addNumber($clientId, $vpbxId, $number)
     {
         global $db_ats;
 
-        $vpbx = self::getList($clientId);
+        $vpbx = self::getInfo($clientId, $vpbxId);
 
         if (!$vpbx && !$vpbx["id"])
         {
@@ -262,11 +310,11 @@ class virtPbx
     }
 
 
-    public static function delNumber($clientId, $number)
+    public static function delNumber($clientId, $vpbxId, $number)
     {
         global $db_ats;
 
-        $vpbx = self::getList($clientId);
+        $vpbx = self::getInfo($clientId, $vpbxId);
 
         if (!$vpbx && !$vpbx["id"])
         {
@@ -295,7 +343,7 @@ class virtPbx
         return $db_ats->QueryInsert("a_virtpbx", array(
                     "client_id" => $l["client_id"],
                     "tarif_id" => $l["tarif_id"],
-                    "usage_id" => $l["usage_id"]
+                    "usage_id" => $l["usage_id"],
                     )
                 );
     }
@@ -306,7 +354,8 @@ class virtPbx
         global $db_ats;
 
         return $db_ats->QueryDelete("a_virtpbx", array(
-                    "client_id" => $l["client_id"]
+                    "client_id" => $l["client_id"],
+                    "usage_id" => $l["usage_id"],
                     )
                 );
     }
@@ -316,9 +365,10 @@ class virtPbx
         l::ll(__CLASS__,__FUNCTION__, $l);
         global $db_ats;
 
-        $db_ats->QueryUpdate("a_virtpbx", "client_id",
+        $db_ats->QueryUpdate("a_virtpbx", ["client_id", "usage_id"],
                 array(
                     "client_id" => $l["client_id"],
+                    "usage_id" => $l["usage_id"],
                     "enabled" => "yes",
                     )
                 );
@@ -332,9 +382,10 @@ class virtPbx
         global $db_ats;
 
         $db_ats->QueryUpdate("a_virtpbx", 
-                array("client_id"), 
+                array("client_id", "usage_id"),
                 array(
                     "client_id" => $l["client_id"],
+                    "usage_id" => $l["usage_id"],
                     "enabled" => "no",
                     "disabled_date" => array("NOW()"),
                     )
@@ -342,44 +393,46 @@ class virtPbx
 
     }
 
-    public static function setStarted($clientId)
+    public static function setStarted($clientId, $usageId)
     {
-        l::ll(__CLASS__,__FUNCTION__, $clientId);
+        l::ll(__CLASS__,__FUNCTION__, $clientId, $usageId);
 
         global $db_ats;
 
         $db_ats->QueryUpdate("a_virtpbx", 
-                "client_id", 
+                array("client_id", "usage_id"),
                 array(
                     "client_id" => $clientId,
+                    "usage_id" => $usageId,
                     "is_started" => "yes"
                     )
                 );
     }
 
-    public static function setStoped($clientId)
+    public static function setStoped($clientId, $usageId)
     {
-        l::ll(__CLASS__,__FUNCTION__, $clientId);
+        l::ll(__CLASS__,__FUNCTION__, $clientId, $usageId);
 
         global $db_ats;
 
         $db_ats->QueryUpdate("a_virtpbx", 
-                "client_id", 
+                array("client_id","usage_id"),
                 array(
                     "client_id" => $clientId,
+                    "usage_id" => $usageId,
                     "is_started" => "no"
                     )
                 );
     }
 
-    public function startVpbx($clientId)
+    public static function startVpbx($clientId, $usageId)
     {
-        l::ll(__CLASS__,__FUNCTION__, $clientId);
+        l::ll(__CLASS__,__FUNCTION__, $clientId, $usageId);
 
         try{
-            if ($rr = SyncVirtPbx::create($clientId))
+            if ($rr = SyncVirtPbx::create($clientId, $usageId))
             {
-                self::setStarted($clientId);
+                self::setStarted($clientId, $usageId);
                 return true;
             }
 
@@ -390,7 +443,7 @@ class virtPbx
 
             if ($code == 547) //Для лицевого счёта 9130 уже существует экземпляр vpbx
             {
-                self::setStarted($clientId);
+                self::setStarted($clientId, $usageId);
                 return true;
             }
 
@@ -398,14 +451,14 @@ class virtPbx
         }
     }
 
-    public function stopVpbx($clientId)
+    public static function stopVpbx($clientId, $usageId)
     {
         l::ll(__CLASS__,__FUNCTION__, $clientId);
 
         try{
-            if ($rr = SyncVirtPbx::stop($clientId))
+            if ($rr = SyncVirtPbx::stop($clientId, $usageId))
             {
-                self::setStoped($clientId);
+                self::setStoped($clientId, $usageId);
                 return true;
             }
 
@@ -416,7 +469,7 @@ class virtPbx
 
             if ($code == 539) //Лицевой счёт не найден
             {
-                self::setStoped($clientId);
+                self::setStoped($clientId, $usageId);
                 return true;
             }
 
@@ -427,7 +480,7 @@ class virtPbx
 
 class virtPbxDiff
 {
-    public function apply(&$diff)
+    public static function apply(&$diff)
     {
         l::ll(__CLASS__,__FUNCTION__,$diff);
 
@@ -449,7 +502,7 @@ class virtPbxDiff
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $clientId => $l)
+        foreach($d as $l)
             virtPbxAction::add($l);
     }
 
@@ -457,7 +510,7 @@ class virtPbxDiff
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $clientId => $l)
+        foreach($d as $l)
             virtPbxAction::del($l);
     }
 
@@ -465,7 +518,7 @@ class virtPbxDiff
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $cleintId => $l)
+        foreach($d as $l)
             virtPbxAction::tarifChanged($l);
     }
 
@@ -473,7 +526,7 @@ class virtPbxDiff
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $cleintId => $l)
+        foreach($d as $l)
             virtPbxAction::usageIdChanged($l);
     }
 
@@ -501,7 +554,7 @@ class virtPbxAction
         {
             if (!$status->isEnabled() && !$status->isStarted())
             {
-                virtPbx::startVpbx($l["client_id"]);           
+                virtPbx::startVpbx($l["client_id"], $l["usage_id"]);
             }
         }
 
@@ -529,7 +582,7 @@ class virtPbxAction
         {
             if ($status->isEnabled() && $status->isStarted())
             {
-                virtPbx::stopVpbx($l["client_id"]);           
+                virtPbx::stopVpbx($l["client_id"], $l["usage_id"]);
             }
         }
     }
