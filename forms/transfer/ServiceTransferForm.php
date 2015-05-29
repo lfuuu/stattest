@@ -79,6 +79,11 @@ class ServiceTransferForm extends Form
                         $service = UsageExtra::findOne($serviceId);
                         Assert::isObject($service);
                         break;
+                    case 'usage_ip_ports':
+                        $service = UsageIpPorts::findOne($serviceId);
+                        Assert::isObject($service);
+                        break;
+                        break;
                     case 'usage_welltime':
                         $service = UsageWelltime::findOne($serviceId);
                         Assert::isObject($service);
@@ -152,7 +157,7 @@ class ServiceTransferForm extends Form
         return [
             Emails::find(),
             //UsageExtra::find(),
-            //UsageIpPorts::find(),
+            UsageIpPorts::find(),
             //UsageSms::find(),
             //UsageVirtpbx::find(),
             //UsageVoip::find(),

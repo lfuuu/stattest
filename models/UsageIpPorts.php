@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\IpPortBiller;
+use app\classes\transfer\IpPortsServiceTransfer;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;

@@ -76,6 +76,9 @@ use app\forms\transfer\ServiceTransferForm;
                                     case 'usage_voip':
                                         $text = $fulltext = $service->E164 . 'x' . $service->no_of_lines;
                                         break;
+                                    case 'usage_ip_ports':
+                                        $text = $fulltext = $service->address;
+                                        break;
                                     default:
                                         $tariff = $service->tariff;
                                         if ($tariff)

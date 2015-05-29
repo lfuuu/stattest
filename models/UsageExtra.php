@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\ExtraBiller;
+use app\classes\transfer\ExtraServiceTransfer;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
@@ -52,6 +53,6 @@ class UsageExtra extends ActiveRecord implements Usage
 
     public function getTransferHelper()
     {
-        return new ExtraTransfer($this);
+        return new ExtraServiceTransfer($this);
     }
 }
