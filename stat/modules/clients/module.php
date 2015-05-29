@@ -807,7 +807,7 @@ class m_clients {
 		//if (!($r = $db->GetRow('select * from clients where id='.$c['client_id'].' limit 1'))) {trigger_error2('Такого клиента не существует');return;}
 
         $email = "";
-        if (($em = $db->GetRow('SELECT data FROM `client_document` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
+        if (($em = $db->GetRow('SELECT data FROM `client_contacts` where client_id = '.$c["client_id"].' and type = "email" and is_official = 1 order by id desc limit 1')))
         {
             $email = $em["data"];
         }
