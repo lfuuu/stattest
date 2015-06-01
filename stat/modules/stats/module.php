@@ -918,13 +918,15 @@ class m_stats extends IModule{
         global $pg_db;
 
 
+        /** @var \app\models\ClientAccount $client */
+        $client = \app\models\ClientAccount::findOne($client_id);
         /*
          $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
                  R_CALLS_USER, R_CALLS_PASS,
                  str_replace('[region]', $region, R_CALLS_DB)	);
         */
-        $from = date('Y-m-d', $from);
-        $to = date('Y-m-d', $to);
+        $from = new DateTime(date('Y-m-d', $from), $client->timezone);
+        $to = new DateTime(date('Y-m-d 23:59:59', $to), $client->timezone);
 
         if ($detality=='call'){
             $group='';
@@ -944,8 +946,8 @@ class m_stats extends IModule{
         }
         $W=array('AND');
 
-        $W[] = "connect_time>='".$from."'";
-        $W[] = "connect_time<='".$to." 23:59:59.999999'";
+        $W[] = "connect_time>='".$from->format('Y-m-d H:i:s')."'";
+        $W[] = "connect_time<='".$to->format('Y-m-d H:i:s.999999')."'";
 
 
 

@@ -425,22 +425,39 @@ class ServiceUsageVoip extends ServicePrototype {
     global $pg_db;
         $d = getdate($this->date_from_prev);
 
-        $W = "(usage_id='".$this->service['id']."')";
-        $W .= " and (time >= '".$d['year']."-".$d['mon']."-01')";
-        $W .= " and (time < '".$d['year']."-".$d['mon']."-01'::date+interval '1 month')";
-        $W .= " and (amount > 0)";
+        /** @var \app\models\ClientAccount $clientAccount */
+        $clientAccount = \app\models\ClientAccount::findOne($this->client['id']);
+
+        $from = new DateTime($d['year'].'-'.$d['mon'].'-01', $clientAccount->timezone);
+        $from = $from->format('Y-m-d H:i:s');
+
+        $toYear = $d['year'];
+        $toMon = $d['mon'] + 1;
+        if ($toMon > 12) {
+            $toMon = 1;
+            $toYear += 1;
+        }
+
+        $to = new DateTime($toYear.'-'.$toMon.'-01', $clientAccount->timezone);
+        $to = $to->format('Y-m-d H:i:s');
+
+        $W = " server_id = " . intval($this->service['region']);
+        $W .= " and number_service_id = '".$this->service['id']."' ";
+        $W .= " and connect_time >= '".$from."' ";
+        $W .= " and connect_time < '".$to."' ";
+        $W .= " and abs(cost) > 0.00001 ";
 
         $res = $pg_db->AllRecords($q='
             select
-                case dest <= 0 when true then
+                case destination_id <= 0 when true then
                     case mob when true then 5 else 4 end
-                else dest end rdest, 
-                cast( sum(amount)/100.0 as NUMERIC(10,2)) as price
+                else destination_id end rdest,
+                cast( - sum(cost) as NUMERIC(10,2)) as price
             from
-                calls.calls_'.intval($this->service['region']).'
+                calls_raw.calls_raw
             where '.$W.'
             group by rdest
-            having cast( sum(amount)/100.0 as NUMERIC(10,2)) > 0');
+            having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0');
 
 
         $groups = $this->tarif_previous['dest_group'];

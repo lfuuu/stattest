@@ -131,6 +131,8 @@ class ClientAccountBiller
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
+
+        return $this;
     }
 
     public function saveTransactions()
@@ -218,6 +220,8 @@ class ClientAccountBiller
             $dbTransaction->rollBack();
             throw $e;
         }
+
+        return $this;
     }
 
     /**

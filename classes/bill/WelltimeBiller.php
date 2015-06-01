@@ -11,7 +11,7 @@ class WelltimeBiller extends Biller
 
         $template = '{name}';
 
-        $template .= $this->getPeriodTemplate($this->tariff->period);
+        $template .= $this->getPeriodTemplate($tariff->period);
 
         $this->addPackage(
             BillerPackagePeriodical::create($this, 2001)
