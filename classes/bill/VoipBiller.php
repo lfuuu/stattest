@@ -217,9 +217,9 @@ class VoipBiller extends Biller
         $to = clone $this->billerActualTo;
         $to->setTimezone($this->clientAccount->timezone);
 
-        $res =
+        $command =
             Yii::$app->get('dbPg')
-                ->createCommand('
+                ->createCommand("
                         select
                             case destination_id <= 0 when true then
                                 case mob when true then 5 else 4 end
@@ -228,21 +228,16 @@ class VoipBiller extends Biller
                         from
                             calls_raw.calls_raw
                         where
-                            server_id = :serverId
-                            and number_service_id = :usageId
-                            and connect_time >= :from
-                            and connect_time <= :to
+                            number_service_id = $this->usage->id
+                            and connect_time >= '" . $from->format('Y-m-d H:i:s') . "'
+                            and connect_time <= '" . $to->format('Y-m-d H:i:s') . "'
                             and abs(cost) > 0.00001
                         group by rdest
                         having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0
-                    ', [
-                        ':serverId' => $this->usage->region,
-                        ':usageId' => $this->usage->id,
-                        ':from' => $from->format('Y-m-d H:i:s'),
-                        ':to' => $to->format('Y-m-d H:i:s'),
-                    ]
-                )
-                ->queryAll();
+                    "
+                );
+
+        $res = $command->queryAll();
 
         $groups = $logTarif->dest_group;
 

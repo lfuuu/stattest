@@ -441,8 +441,7 @@ class ServiceUsageVoip extends ServicePrototype {
         $to = new DateTime($toYear.'-'.$toMon.'-01', $clientAccount->timezone);
         $to = $to->format('Y-m-d H:i:s');
 
-        $W = " server_id = " . intval($this->service['region']);
-        $W .= " and number_service_id = '".$this->service['id']."' ";
+        $W = " number_service_id = '".$this->service['id']."' ";
         $W .= " and connect_time >= '".$from."' ";
         $W .= " and connect_time < '".$to."' ";
         $W .= " and abs(cost) > 0.00001 ";
