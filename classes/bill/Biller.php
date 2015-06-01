@@ -49,8 +49,7 @@ abstract class Biller
         $this->usage = $usage;
         $this->clientAccount = $clientAccount;
 
-        // $this->timezone = new DateTimeZone($this->clientAccount->accountRegion->timezone_name);
-        $this->timezone = $date->getTimezone();
+        $this->timezone = $this->clientAccount->timezone;
 
         $this->setupBillerDate($date);
         $this->setupBillerPeriod();
@@ -62,8 +61,10 @@ abstract class Biller
 
     protected function setupBillerDate(DateTime $date)
     {
-        $this->billerDate = clone $date;
+        $this->billerDate = new DateTime();
         $this->billerDate->setTimezone($this->timezone);
+        $this->billerDate->setDate($date->format('Y'), $date->format('m'), $date->format('d'));
+        $this->billerDate->setTime($date->format('H'), $date->format('i'), $date->format('s'));
     }
 
     protected function setupBillerPeriod()

@@ -47,14 +47,14 @@ foreach($db->AllRecords("SELECT id, client, credit FROM clients WHERE credit > -
     } else {
         $r = $pg_db->GetRow(
                 "SELECT 
-                    cast(sum(amount)/100.0 as numeric(10,2)) as sum, 
-                    min(time) as min, 
-                    max(time) as max 
+                    cast( - sum(cost) as numeric(10,2)) as sum,
+                    min(connect_time) as min,
+                    max(connect_time) as max
                 FROM 
-                    calls.calls 
+                    calls_raw.calls_raw
                 WHERE 
-                        time > '".date("Y-m-d", $prevMonthStart)." 00:00:00' 
-                    AND usage_id IN (".implode(", ", $usages).")
+                        connect_time > '".date("Y-m-d", $prevMonthStart)." 00:00:00'
+                    AND number_service_id IN (".implode(", ", $usages).")
                 ");
 
 

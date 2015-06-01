@@ -429,6 +429,7 @@ class ServiceUsageVoip extends ServicePrototype {
         $clientAccount = \app\models\ClientAccount::findOne($this->client['id']);
 
         $from = new DateTime($d['year'].'-'.$d['mon'].'-01', $clientAccount->timezone);
+        $from->setTimezone(new DateTimeZone('UTC'));
         $from = $from->format('Y-m-d H:i:s');
 
         $toYear = $d['year'];
@@ -439,6 +440,7 @@ class ServiceUsageVoip extends ServicePrototype {
         }
 
         $to = new DateTime($toYear.'-'.$toMon.'-01', $clientAccount->timezone);
+        $to->setTimezone(new DateTimeZone('UTC'));
         $to = $to->format('Y-m-d H:i:s');
 
         $W = " number_service_id = '".$this->service['id']."' ";
