@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\SmsBiller;
+use app\classes\transfer\SmsServiceTransfer;
 use app\queries\UsageQuery;
 use app\models\TariffSms;
 use yii\db\ActiveRecord;

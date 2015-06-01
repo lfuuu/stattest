@@ -75,6 +75,10 @@ class ServiceTransferForm extends Form
                         $service = Emails::findOne($serviceId);
                         Assert::isObject($service);
                         break;
+                    case 'usage_sms':
+                        $service = UsageSms::findOne($serviceId);
+                        Assert::isObject($service);
+                        break;
                     case 'usage_extra':
                         $service = UsageExtra::findOne($serviceId);
                         Assert::isObject($service);
@@ -158,7 +162,7 @@ class ServiceTransferForm extends Form
             Emails::find(),
             //UsageExtra::find(),
             UsageIpPorts::find(),
-            //UsageSms::find(),
+            UsageSms::find(),
             //UsageVirtpbx::find(),
             //UsageVoip::find(),
             UsageWelltime::find()
