@@ -344,36 +344,64 @@ function showHistoryPopup(model, modelId) {
 }
 
 function showIframePopup(element) {
-    $dialog = $('<iframe src="' + $(element).attr('href') + '" title="Подождите полной загрузки..." width="100%" height="100%" style="display:none;"></iframe>');
-    $dialog.appendTo('body');
+    var width = (
+            $(element).data('width') > 0
+                ? $(element).data('width')
+                : Math.max($(window).width(), window.innerWidth) / 2 - 100
+        ),
+        height = (
+            $(element).data('height') > 0
+                ? $(element).data('height')
+                : Math.max($(window).height(), window.innerHeight) - 100
+        ),
+        loader = createLoader();
 
-    var width = Math.max( $(window).width(), window.innerWidth) - 100,
-        height = Math.max( $(window).height(), window.innerHeight) - 100;
-
-    if (width > 1200)
-        width = 1200;
+    $dialog = $('<iframe width="100%" height="100%" src="' + $(element).attr('href') + '" />');
 
     $dialog
         .dialog({
             width: width,
             height: height,
             modal: true,
-            resizable: true,
+            resizable: false,
             draggable: false,
             closeOnEscape: true,
             open: function() {
-                $dialog.css('width', '100%');
+                $dialog.dialog('widget')
+                    .find('.ui-dialog-titlebar')
+                        .replaceWith(loader);
+
+                $dialog.css('width', '100%').load(function() {
+                    $dialog.dialog('widget')
+                        .find('.dialog-loader')
+                            .remove();
+                });
             },
             close: function() {
                 $dialog.remove();
             }
         })
-        .dialog('widget')
-            .find('.ui-dialog-titlebar-close')
-                .hide();
-    $dialog.load(function() {
-        $(this).dialog('widget').find('.ui-dialog-titlebar').hide();
-    });
 
     return false;
+}
+
+function createLoader() {
+    return $('<div />')
+        .addClass('dialog-loader')
+        .css({
+            'position':       'fixed',
+            'top':            '50%',
+            'left':           '50%',
+            'margin-left':    '-50px',
+            'margin-top':     '-50px',
+            'text-align':     'center',
+            'z-index':        1234,
+            'overflow':       'auto',
+            'width':          '100px',
+            'height':         '102px'
+        })
+        .append(
+            $('<img />')
+                .attr('src', '/images/ajax-loader.gif')
+        );
 }
