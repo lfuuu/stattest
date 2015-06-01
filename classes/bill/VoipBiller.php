@@ -228,7 +228,7 @@ class VoipBiller extends Biller
                         from
                             calls_raw.calls_raw
                         where
-                            number_service_id = $this->usage->id
+                            number_service_id = {$this->usage->id}
                             and connect_time >= '" . $from->format('Y-m-d H:i:s') . "'
                             and connect_time <= '" . $to->format('Y-m-d H:i:s') . "'
                             and abs(cost) > 0.00001
