@@ -200,7 +200,7 @@ $possibleServices = $model->getPossibleServices($client);
                             </label>
                         </div>
 
-                        <input type="text" name="target_account_search" class="form-control" style="margin-left: 20px; width: 150px; visibility: hidden;" />
+                        <input type="text" name="target_account_search" class="form-control" style="margin-left: 20px; width: 70%; visibility: hidden;" />
                         <input type="hidden" name="transfer[target_account_id_custom]" value="0" />
                     </td>
                     <td valign="top">

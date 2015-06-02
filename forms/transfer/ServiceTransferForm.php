@@ -161,7 +161,7 @@ class ServiceTransferForm extends Form
         return [
             Emails::dao(),
             UsageExtra::dao(),
-            //UsageIpPorts::find(),
+            UsageIpPorts::dao(),
             UsageSms::dao(),
             //UsageVirtpbx::find(),
             //UsageVoip::find(),

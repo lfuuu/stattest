@@ -62,7 +62,7 @@ class TransferController extends BaseController
                                 : $row['contragent']
                         )
                 ),
-                'full' => htmlspecialchars('№ ' . $row['id'] . ' - ' . $row['contragent']),
+                'full' => '№ ' . $row['id'] . ' - ' . $row['contragent'],
                 'value' => $row['id']
             ];
 
