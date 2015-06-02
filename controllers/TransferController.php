@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use kartik\date\DatePickerAsset;
+use kartik\datetime\DateTimePickerAsset;
+use kartik\widgets\WidgetAsset;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
@@ -18,13 +21,11 @@ class TransferController extends BaseController
         Assert::isObject($clientAccount);
 
         $model = new ServiceTransferForm;
-
         if ($model->load(Yii::$app->request->post(), 'transfer') && $model->validate() && $model->process()) {
             $this->redirect(array(
                 'transfer/success',
-                'target_account_id' => (
-                    $model->target_account_id == 'custom' ? $model->target_account_custom : $model->target_account_id
-                )
+                'client' => $clientAccount->id,
+                'target_account_id' => $model->targetAccount->id
             ));
         }
 
@@ -44,15 +45,14 @@ class TransferController extends BaseController
             SELECT SQL_CALC_FOUND_ROWS `id`, `client`, `company`, `firma`
             FROM `clients`
             WHERE (`client` LIKE ('%" . $term . "%')) OR (`company` LIKE ('%" . $term . "%')) OR (`id` = " . (int) $term . ")
-            LIMIT 15
+            LIMIT 10
         ")->queryAll();
 
         $items = [];
         foreach ($result as $row)
             $items[] = [
-                'id' => $row['id'],
                 'label' => html_entity_decode(
-                        $row['client'] . ': ' .
+                        '№ ' . $row['id'] . ' - ' .
                         (
                             !mb_strlen($row['firma'])
                                 ? (
@@ -67,9 +67,13 @@ class TransferController extends BaseController
         return \yii\helpers\Json::encode($items);
     }
 
-    public function actionSuccess($target_account_id) {
+    public function actionSuccess($client, $target_account_id) {
+        $clientAccount = ClientAccount::findOne($client);
+        Assert::isObject($clientAccount);
+
         $this->layout = 'minimal';
         return $this->render('success', [
+            'client' => $clientAccount,
             'target_account_id' => $target_account_id
         ]);
     }

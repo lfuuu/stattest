@@ -61,7 +61,7 @@ abstract class ServiceTransfer
     /**
      * Перенос базовой сущности услуги
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
-     * @return array
+     * @return object - созданная услуга
      */
     public function process(ClientAccount $targetAccount)
     {

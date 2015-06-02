@@ -1,7 +1,7 @@
 <?php
 
-use \yii\helpers\Html;
 use app\forms\transfer\ServiceTransferForm;
+use kartik\widgets\DatePicker;
 
 /** @var $model ServiceTransferForm */
 
@@ -13,6 +13,8 @@ $servicesTitle = [
     'emails' => 'E-mail',
     'usage_ip_ports' => 'Интернет'
 ];
+
+$possibleServices = $model->getPossibleServices($client);
 ?>
 
 <form method="POST" action="/transfer/index/?client=<?php echo $client->id; ?>">
@@ -20,6 +22,7 @@ $servicesTitle = [
         <col width="40%" />
         <col width="40%" />
         <col width="15%" />
+
         <thead>
             <tr>
                 <th colspan="3">
@@ -28,195 +31,227 @@ $servicesTitle = [
                 </th>
             </tr>
             <tr>
-                <th>
-                    Перенести
-                    <?php
-                    if ($model->getFirstError('source_service_ids') || $model->getFirstError('services-got-errors')):
-                        ?>
-                        <br />
-                        <div class="label label-danger">
-                            <?php echo $model->getFirstError('source_service_ids'); ?>
-                            <?php echo $model->getFirstError('services-got-errors'); ?>
-                        </div>
-                    <?php
-                    endif;
-                    ?>
-                </th>
-                <th>
-                    на лицевой счет
-                    <?php
-                    if ($model->getFirstError('target_account_id') || $model->getFirstError('target_account_custom')):
-                        ?>
-                        <br />
-                        <div class="label label-danger">
-                            <?php echo $model->getFirstError('target_account_id'); ?>
-                            <?php echo $model->getFirstError('target_account_custom'); ?>
-                        </div>
-                    <?php
-                    endif;
-
-                    if ($model->getFirstError('target-account-not-found')):
-                        ?>
-                        <br />
-                        <div class="label label-danger">
-                            <?php echo $model->getFirstError('target-account-not-found'); ?>
-                        </div>
-                    <?php
-                    endif;
-                    ?>
-                </th>
-                <th>
-                    дата переноса
-                    <?php
-                    if ($model->getFirstError('actual_from') || $model->getFirstError('actual_custom')):
-                        ?>
-                        <br />
-                        <div class="label label-danger">
-                            <?php echo $model->getFirstError('actual_from'); ?>
-                            <?php echo $model->getFirstError('actual_custom'); ?>
-                        </div>
-                    <?php
-                    endif;
-                    ?>
-                </th>
+                <th>Перенести</th>
+                <th>на лицевой счет</th>
+                <th>дата переноса</th>
             </tr>
         </thead>
+    </table>
 
-        <tbody>
-            <tr>
-                <td valign="top">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="services-choose" value="all" data-action="services-choose"<?php echo (!sizeof($model->servicesErrors) ? 'checked="checked"' : ''); ?> />
-                            Все
-                        </label>
-                    </div>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="services-choose" value="custom" data-action="services-choose"<?php echo (sizeof($model->servicesErrors) ? ' checked="checked"' : '');?> />
-                            Выбранные услуги
-                        </label>
-                    </div>
+    <div style="overflow: auto; max-height: 400px;">
+        <table border="0" width="95%" align="center">
+            <col width="40%" />
+            <col width="40%" />
+            <col width="15%" />
 
-                    <div id="services-list" style="width: 90%; height: auto; display: none; overflow: auto; margin-left: 20px;">
+            <thead>
+                <tr>
+                    <th valign="top">
                         <?php
-                        foreach ($model->getPossibleServices($client) as $service_type => $services):
-                            ?>
-                            <b><?php echo (array_key_exists($service_type, $servicesTitle) ? $servicesTitle[$service_type] : $service_type); ?></b><br />
-                            <?php
-                            foreach ($services as $service):
-                                $text = $fulltext = '';
-                                switch ($service_type)
-                                {
-                                    case 'emails':
-                                        $text = $fulltext = $service->local_part . '@' . $service->domain;
-                                        break;
-                                    case 'usage_voip':
-                                        $text = $fulltext = $service->E164 . 'x' . $service->no_of_lines;
-                                        break;
-                                    case 'usage_ip_ports':
-                                        $text = $fulltext = $service->address;
-                                        break;
-                                    default:
-                                        $tariff = $service->tariff;
-                                        if ($tariff)
-                                            $text = $fulltext = $tariff->description;
-                                        break;
-                                }
-
-                                if (mb_strlen($text, 'UTF-8') > 30):
-                                    $text = mb_substr($text, 0, 30, 'UTF-8') . '...';
-                                endif;
-                                ?>
-
-                                <?php
-                                if (array_key_exists($service->id, $model->servicesErrors)):
-                                    ?>
-                                    <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?php echo implode($model->servicesErrors[$service->id], "\n"); ?>' />
-                                <?php
-                                endif;
-                                ?>
-
-                                <input type="checkbox" name="transfer[source_service_ids][<?php echo $service_type; ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
-                                &nbsp;<?php echo $service->id;?>: <abbr title="<?php echo $service->id . ': ' . $fulltext; ?>"><?php echo $text; ?></abbr><br />
-                                <?php
-                            endforeach;
+                        if ($model->getFirstError('source_service_ids') || $model->getFirstError('services_got_errors')):
                             ?>
                             <br />
+                            <div class="label label-danger">
+                                <?php echo $model->getFirstError('source_service_ids'); ?>
+                                <?php echo $model->getFirstError('services_got_errors'); ?>
+                            </div>
+                        <?php
+                        endif;
+                        ?>
+                    </th>
+                    <th valign="top">
+                        <?php
+                        if ($model->getFirstError('target_account_id') || $model->getFirstError('target_account_custom')):
+                            ?>
+                            <br />
+                            <div class="label label-danger">
+                                <?php echo $model->getFirstError('target_account_id'); ?>
+                                <?php echo $model->getFirstError('target_account_custom'); ?>
+                            </div>
+                        <?php
+                        endif;
+
+                        if ($model->getFirstError('target_account_not_found')):
+                            ?>
+                            <br />
+                            <div class="label label-danger">
+                                <?php echo $model->getFirstError('target_account_not_found'); ?>
+                            </div>
+                        <?php
+                        endif;
+                        ?>
+                    </th>
+                    <th valign="top">
+                        <?php
+                        if ($model->getFirstError('actual_from') || $model->getFirstError('actual_custom')):
+                            ?>
+                            <br />
+                            <div class="label label-danger">
+                                <?php echo $model->getFirstError('actual_from'); ?>
+                                <?php echo $model->getFirstError('actual_custom'); ?>
+                            </div>
+                        <?php
+                        endif;
+                        ?>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td valign="top">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="services-choose" value="all" data-action="services-choose"<?php echo (!sizeof($model->servicesErrors) ? 'checked="checked"' : ''); ?> />
+                                Все (<?php echo $possibleServices['total'];?> шт.)
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="services-choose" value="custom" data-action="services-choose"<?php echo (sizeof($model->servicesErrors) ? ' checked="checked"' : '');?> />
+                                Выбранные услуги
+                            </label>
+                        </div>
+
+                        <div id="services-list" style="width: 90%; height: auto; display: none; overflow: auto; margin-left: 20px;">
                             <?php
+                            foreach ($possibleServices['items'] as $service_type => $services):
+                                ?>
+                                <b><?php echo (array_key_exists($service_type, $servicesTitle) ? $servicesTitle[$service_type] : $service_type); ?></b><br />
+                                <?php
+                                foreach ($services as $service):
+                                    $text = $fulltext = '';
+                                    switch ($service_type)
+                                    {
+                                        case 'emails':
+                                            $text = $fulltext = $service->local_part . '@' . $service->domain;
+                                            break;
+                                        case 'usage_voip':
+                                            $text = $fulltext = $service->E164 . 'x' . $service->no_of_lines;
+                                            break;
+                                        case 'usage_ip_ports':
+                                            $text = $fulltext = $service->address;
+                                            break;
+                                        default:
+                                            $tariff = $service->tariff;
+                                            if ($tariff)
+                                                $text = $fulltext = $tariff->description;
+                                            break;
+                                    }
+
+                                    if (mb_strlen($text, 'UTF-8') > 30):
+                                        $text = mb_substr($text, 0, 30, 'UTF-8') . '...';
+                                    endif;
+                                    ?>
+
+                                    <?php
+                                    if (array_key_exists($service->id, $model->servicesErrors)):
+                                        ?>
+                                        <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?php echo implode($model->servicesErrors[$service->id], "\n"); ?>' />
+                                    <?php
+                                    endif;
+                                    ?>
+
+                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo $service_type; ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
+                                    &nbsp;<?php echo $service->id;?>: <abbr title="<?php echo $service->id . ': ' . $fulltext; ?>"><?php echo $text; ?></abbr><br />
+                                <?php
+                                endforeach;
+                                ?>
+                                <br />
+                            <?php
+                            endforeach;
+                            ?>
+                        </div>
+
+                    </td>
+                    <td valign="top">
+                        <?php
+                        if (!is_null($model->targetAccount)):
+                            ?>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="transfer[target_account_id]" value="<?php echo $model->targetAccount->id; ?>" data-action="account-choose" checked="checked" />
+                                    № <?php echo $model->targetAccount->id; ?> - <?php echo $model->targetAccount->firma; ?>
+                                </label>
+                            </div>
+                        <?php
+                        endif;
+
+                        $firstRow = (boolean) !(int) $model->target_account_id;
+                        foreach ($model->getClientAccounts($client) as $account):
+                            if (!is_null($model->targetAccount) && $account->id == $model->targetAccount->id)
+                                continue;
+                            ?>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="transfer[target_account_id]" value="<?php echo $account->id; ?>" data-action="account-choose"<?php echo ($firstRow || $model->target_account_id == $account->id ? 'checked="checked"' : ''); ?> />
+                                    № <?php echo $account->id; ?> - <?php echo $account->firma; ?>
+                                </label>
+                            </div>
+                            <?php
+                            $firstRow = false;
                         endforeach;
                         ?>
-                    </div>
 
-                </td>
-                <td valign="top">
-                    <?php
-                    if (!is_null($model->targetAccount)):
-                        ?>
-                        <div class="radio">
+                        <div class="radio" data-custom="1">
                             <label>
-                                <input type="radio" name="transfer[target_account_id]" value="<?php echo $model->targetAccount->id; ?>" data-action="account-choose" checked="checked" />
-                                № <?php echo $model->targetAccount->id; ?> - <?php echo $model->targetAccount->firma; ?>
+                                <input type="radio" name="transfer[target_account_id]" value="custom" data-action="account-choose" />
+                                Другой клиент
                             </label>
                         </div>
-                    <?php
-                    endif;
 
-                    $firstRow = (boolean) !(int) $model->target_account_id;
-                    foreach ($model->getClientAccounts($client) as $account):
-                        if (!is_null($model->targetAccount) && $account->id == $model->targetAccount->id)
-                            continue;
-                        ?>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="transfer[target_account_id]" value="<?php echo $account->id; ?>" data-action="account-choose"<?php echo ($firstRow || $model->target_account_id == $account->id ? 'checked="checked"' : ''); ?> />
-                                № <?php echo $account->id; ?> - <?php echo $account->firma; ?>
-                            </label>
-                        </div>
+                        <input type="text" name="target_account_search" class="form-control" style="margin-left: 20px; width: 150px; visibility: hidden;" />
+                        <input type="hidden" name="transfer[target_account_id_custom]" value="0" />
+                    </td>
+                    <td valign="top">
                         <?php
-                        $firstRow = false;
-                    endforeach;
-                    ?>
-
-                    <div class="radio" data-custom="1">
-                        <label>
-                            <input type="radio" name="transfer[target_account_id]" value="custom" data-action="account-choose" />
-                            Другой клиент
-                        </label>
-                    </div>
-
-                    <input type="text" name="transfer[target_account_custom]" class="text" style="margin-left: 20px; visibility: hidden;" />
-                </td>
-                <td valign="top">
-                    <?php
-                    $firstRow = (boolean) !$model->actual_from;
-                    foreach ($model->getActualDateVariants() as $date):
+                        $firstRow = (boolean) !$model->actual_from;
+                        foreach ($model->getActualDateVariants() as $date):
+                            ?>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="transfer[actual_from]" value="<?php echo strtotime($date); ?>" data-action="date-choose"<?php echo ($firstRow || $model->actual_from == strtotime($date) ? 'checked="checked"' : ''); ?> />
+                                    <?php echo date('d.m.Y', strtotime($date)); ?>
+                                </label>
+                            </div>
+                            <?php
+                            $firstRow = false;
+                        endforeach;
                         ?>
                         <div class="radio">
                             <label>
-                                <input type="radio" name="transfer[actual_from]" value="<?php echo strtotime($date); ?>" data-action="date-choose"<?php echo ($firstRow || $model->actual_from == strtotime($date) ? 'checked="checked"' : ''); ?> />
-                                <?php echo date('d.m.Y', strtotime($date)); ?>
+                                <input type="radio" name="transfer[actual_from]" value="custom" data-action="date-choose"<?php echo ($model->actual_from == 'custom' ? 'checked="checked"' : ''); ?> />
+                                Другая дата
                             </label>
                         </div>
+
                         <?php
-                        $firstRow = false;
-                    endforeach;
-                    ?>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="transfer[actual_from]" value="custom" data-action="date-choose"<?php echo ($model->actual_from == 'custom' ? 'checked="checked"' : ''); ?> />
-                            Другая дата
-                        </label>
-                    </div>
-                    <input type="text" name="transfer[actual_custom]" value="<?php echo $model->actual_custom; ?>" class="text" style="margin-left: 20px; visibility: hidden; width: 100px;" />
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                        echo DatePicker::widget([
+                            'type' => DatePicker::TYPE_INPUT,
+                            'value' => $model->actual_custom,
+                            'name' => 'transfer[actual_custom]',
+                            'language' => 'ru',
+                            'options' => [
+                                'style' => 'margin-left: 20px; width: 100px'
+                            ],
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'dd.mm.yyyy',
+                                'orientation' => 'top right',
+                                'startDate' =>  'today'
+                            ]
+                        ]);
+                        ?>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <div style="position: fixed; bottom: 0; right: 15px;">
         <button type="button" id="dialog-close" style="width: 100px; margin-right: 15px;" class="btn btn-link">Отмена</button>
-        <button type="submit" style="width: 100px;" class="btn btn-primary">OK</button>
+        <button type="submit" style="width: 100px;" class="btn btn-primary"<?php echo (!$possibleServices['total'] ? 'disabled="disabled"' : '');?>>OK</button>
     </div>
 </form>
 
@@ -242,7 +277,7 @@ jQuery(document).ready(function() {
                 element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
             },
             'account-choose': function(element) {
-                var extend_block = $('input[name="transfer[target_account_custom]"]');
+                var extend_block = $('input[name="target_account_search"]');
                 element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
             }
         };
@@ -251,34 +286,15 @@ jQuery(document).ready(function() {
         window.parent.$dialog.dialog('close');
     });
 
-    $('input[name="transfer[actual_custom]"]').datepicker({
-        closeText: 'Закрыть',
-        prevText: '&#x3c;Пред',
-        nextText: 'След&#x3e;',
-        currentText: 'Сегодня',
-        monthNames: [
-            'Январь','Февраль','Март','Апрель','Май','Июнь',
-            'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'
-        ],
-        monthNamesShort: [
-            'Янв','Фев','Мар','Апр','Май','Июн',
-            'Июл','Авг','Сен','Окт','Ноя','Дек'
-        ],
-        dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
-        dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
-        dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
-        weekHeader: 'Не',
-        dateFormat: 'dd.mm.yy',
-        firstDay: 1,
-        showMonthAfterYear: false,
-        yearSuffix: '',
-        minDate: '+1 day'
-    });
-
-    $('input[name="transfer[target_account_custom]"]')
+    $('input[name="target_account_search"]')
         .bind('keydown', function(e) {
             if (e.keyCode === $.ui.keyCode.TAB && $(this).autocomplete('instance').menu.active)
                 e.preventDefault();
+            if (e.keyCode === $.ui.keyCode.ENTER)
+                $(this).blur();
+        })
+        .bind('blur', function() {
+            $('input[name="transfer[target_account_id_custom]"]').val($(this).val());
         })
         .autocomplete({
             source: '/transfer/account-search',
@@ -287,25 +303,8 @@ jQuery(document).ready(function() {
                 return false;
             },
             select: function(event, ui) {
-                var input = $('<input />')
-                    .attr('type', 'radio')
-                    .attr('name', 'transfer[target_account_id]')
-                    .attr('data-action', 'account-choose')
-                    .attr('checked', 'checked')
-                    .prop('checked', true)
-                    .val(ui.item.value);
-
-                $('<div />')
-                    .insertBefore('div[data-custom]')
-                    .addClass('radio')
-                    .append(
-                        $('<label />')
-                            .text(ui.item.label)
-                            .prepend(input)
-                    );
-
-                input.trigger('click');
-                $('input[name="transfer[target_account_custom]"]').val('');
+                $('input[name="transfer[target_account_id_custom]"]').val(ui.item.value);
+                $(this).val(ui.item.label);
                 return false;
             }
         })
@@ -329,5 +328,10 @@ jQuery(document).ready(function() {
 <style type="text/css">
 .ui-autocomplete-loading {
     background: white url('images/ajax-loader-small.gif') right center no-repeat;
+}
+.form-control {
+    padding: 0;
+    height: auto;
+    font-size: 12px;
 }
 </style>

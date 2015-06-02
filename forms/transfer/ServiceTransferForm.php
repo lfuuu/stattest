@@ -17,7 +17,7 @@ class ServiceTransferForm extends Form
 {
 
     public $target_account_id;
-    public $target_account_custom;
+    public $target_account_id_custom;
     public $source_service_ids;
     public $actual_from;
     public $actual_custom;
@@ -37,45 +37,29 @@ class ServiceTransferForm extends Form
     {
         return [
             [['target_account_id', 'source_service_ids'], 'required', 'message' => 'Необходимо заполнить'],
-            ['target_account_custom', 'required', 'when' => function($model) { return !(int) $model->target_account_id;  }, 'message' => 'Необходимо заполнить'],
+            ['target_account_id_custom', 'required', 'when' => function($model) { return !(int) $model->target_account_id;  }, 'message' => 'Необходимо заполнить'],
             ['actual_from', 'required', 'when' => function($model) { return $model->actual_from != 'custom'; }, 'message' => 'Необходимо заполнить'],
             ['actual_custom', 'required', 'when' => function($model) { return $model->actual_from == 'custom'; }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'validateActualCustom'],
+            ['actual_custom', 'date', 'format' => 'php:d.m.Y', 'message' => 'Неверный формат даты переноса'],
             ['target_account_id', 'validateTargetAccountId']
         ];
-    }
-
-    public function validateActualCustom($attribute, $params)
-    {
-        if (
-            !preg_match('#([0-9]{2})\.([0-9]{2})\.([0-9]{4})#', $this->actual_custom)
-                &&
-            !preg_match('#([0-9]{4})\-([0-9]{2})\-([0-9]{2})#', $this->actual_custom)
-        )
-            $this->addError('actual_custom', 'Неверный формат даты переноса');
     }
 
     public function validateTargetAccountId($attribute, $params)
     {
         try {
-            $this->targetAccount = ClientAccount::findOne($this->target_account_id);
+            $this->targetAccount = ClientAccount::findOne(
+                (int) (
+                    $this->target_account_id == 'custom'
+                        ? $this->target_account_id_custom
+                        : $this->target_account_id
+                )
+            );
             Assert::isObject($this->targetAccount);
         }
         catch(\Exception $e) {
-            $this->addError('target-account-not-found', 'Выбранный клиент не найден');
-            return false;
+            $this->addError('target_account_not_found', 'Выбранный клиент не найден: ');
         }
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'target_account_id' => '', // Лицевой счет
-            'target_account_custom' => '', // Лицевой счет
-            'source_service_ids' => '', // Услуги
-            'actual_from' => '', // Дата переноса
-            'actual_custom' => '' // Дата переноса
-        ];
     }
 
     public function process()
@@ -126,7 +110,7 @@ class ServiceTransferForm extends Form
         }
 
         if (sizeof($this->servicesErrors)) {
-            $this->addError('services-got-errors', 'Некоторые услуги не могут быть перенесены');
+            $this->addError('services_got_errors', 'Некоторые услуги не могут быть перенесены');
             return false;
         }
 
@@ -158,11 +142,17 @@ class ServiceTransferForm extends Form
             );
         }
 
+        $total = 0;
         if (sizeof($services))
-            foreach ($services as $service)
+            foreach ($services as $service) {
                 $result[$service->getServiceType()][] = $service;
+                $total++;
+            }
 
-        return $result;
+        return array(
+            'total' => $total,
+            'items' => $result
+        );
     }
 
     public function getActualDateVariants() {

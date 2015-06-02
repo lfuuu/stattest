@@ -356,7 +356,8 @@ function showIframePopup(element) {
         ),
         loader = createLoader();
 
-    $dialog = $('<iframe width="100%" height="100%" src="' + $(element).attr('href') + '" />');
+    $dialog = $('<iframe scrolling="no" width="100%" height="' + height + '" src="' + $(element).attr('href') + '" />')
+                    .css('overflow', 'hidden');
 
     $dialog
         .dialog({

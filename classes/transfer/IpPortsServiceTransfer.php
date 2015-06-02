@@ -17,6 +17,11 @@ class IpPortsServiceTransfer extends ServiceTransfer
     --  select * from usage_ip_ppp ?
     */
 
+    /**
+     * Перенос базовой сущности услуги
+     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     * @return object - созданная услуга
+     */
     public function process(ClientAccount $targetAccount) {
         $targetService = parent::process($targetAccount);
 
@@ -26,6 +31,12 @@ class IpPortsServiceTransfer extends ServiceTransfer
         return $targetService;
     }
 
+    /**
+     * Перенос связанных с услугой сетей
+     * @param object $targetService - базовая услуга
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     private function processRoutes($targetService) {
         $routes =
             UsageIpRoutes::find()
@@ -58,6 +69,12 @@ class IpPortsServiceTransfer extends ServiceTransfer
         }
     }
 
+    /**
+     * Перенос связанных с услугой устройств
+     * @param object $targetService - базовая услуга
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     private function processDevices($targetService) {
         $devices =
             TechCpe::find()
