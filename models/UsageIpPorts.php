@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\bill\IpPortBiller;
 use app\classes\transfer\IpPortsServiceTransfer;
+use app\dao\services\IpPortsServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
@@ -21,6 +22,11 @@ class UsageIpPorts extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return IpPortsServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)

@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\bill\WelltimeBiller;
 use app\classes\transfer\WelltimeServiceTransfer;
+use app\dao\services\WelltimeServiceDao;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
 use DateTime;
@@ -23,6 +24,11 @@ class UsageWelltime extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return WelltimeServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
