@@ -57,7 +57,17 @@ $possibleServices = $model->getPossibleServices($client);
                             </div>
                         <?php
                         endif;
+
+                        if (sizeof($model->servicesSuccess)):
+                            ?>
+                            <br />
+                            <div class="label label-success">
+                                Успешно перенесено <?php echo sizeof($model->servicesSuccess); ?>
+                            </div>
+                            <?php
+                        endif;
                         ?>
+
                     </th>
                     <th valign="top">
                         <?php
@@ -171,7 +181,7 @@ $possibleServices = $model->getPossibleServices($client);
                             <div class="radio">
                                 <label>
                                     <input type="radio" name="transfer[target_account_id]" value="<?php echo $model->targetAccount->id; ?>" data-action="account-choose" checked="checked" />
-                                    № <?php echo $model->targetAccount->id; ?> - <?php echo $model->targetAccount->firma; ?>
+                                    № <?php echo $model->targetAccount->id; ?> - <?php echo $model->targetAccount->contragent->name; ?>
                                 </label>
                             </div>
                         <?php

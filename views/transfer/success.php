@@ -12,7 +12,7 @@
             <tr>
                 <td valign="top" align="center">
                     <h2 style="margin-top: 0px;">
-                        Услуги успешно перенесны.
+                        Услуги успешно перенесены.
                     </h2>
                     <button type="button" id="dialog-close" class="btn btn-link">Закрыть</button>
                     <button type="button" id="redirect-to" class="btn btn-primary" data-account-id="<?php echo $target_account_id; ?>">Перейти к лицевому счету</button>
