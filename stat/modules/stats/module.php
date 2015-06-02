@@ -928,17 +928,23 @@ class m_stats extends IModule{
         $from = new DateTime(date('Y-m-d', $from), $client->timezone);
         $to = new DateTime(date('Y-m-d 23:59:59', $to), $client->timezone);
 
+        $offset = $from->getOffset();
+
+        $from->setTimezone(new DateTimeZone('UTC'));
+        $to->setTimezone(new DateTimeZone('UTC'));
+
+
         if ($detality=='call'){
             $group='';
             $format='d месяца Y г. H:i:s';
         } elseif ($detality=='year'){
-            $group=" group by date_trunc('year',connect_time)";
+            $group=" group by date_trunc('year',connect_time + '{$offset} second'::interval)";
             $format='Y г.';
         } elseif ($detality=='month'){
-            $group=" group by date_trunc('month',connect_time)";
+            $group=" group by date_trunc('month',connect_time + '{$offset} second'::interval)";
             $format='Месяц Y г.';
         } elseif ($detality=='day'){
-            $group=" group by date_trunc('day',connect_time)";
+            $group=" group by date_trunc('day',connect_time + '{$offset} second'::interval)";
             $format='d месяца Y г.';
         } else {
             $group='';
@@ -992,10 +998,10 @@ class m_stats extends IModule{
                                     ".($group?'':'geo_mob,')."
                                     ".($group?'':'dst_number,')."
                                     ".($group?'':'orig,');
-            if ($detality == 'day') $sql.= " date_trunc('day',connect_time) as ts1, ";
-            elseif ($detality == 'month') $sql.= " date_trunc('month',connect_time) as ts1, ";
-            elseif ($detality == 'year') $sql.= " date_trunc('year',connect_time) as ts1, ";
-            else $sql.= ' connect_time as ts1, ';
+            if ($detality == 'day') $sql.= " date_trunc('day',connect_time + '{$offset} second'::interval) as ts1, ";
+            elseif ($detality == 'month') $sql.= " date_trunc('month',connect_time + '{$offset} second'::interval) as ts1, ";
+            elseif ($detality == 'year') $sql.= " date_trunc('year',connect_time + '{$offset} second'::interval) as ts1, ";
+            else $sql.= " connect_time + '{$offset} second'::interval as ts1, ";
 
 
 
@@ -1005,7 +1011,7 @@ class m_stats extends IModule{
                                     '.($group?'sum('.($paidonly?'case abs(cost)>0.0001 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
                                     calls_raw.calls_raw
-                            where server_id=' . intval($region) . ' and '.MySQLDatabase::Generate($W).$group."
+                            where '.MySQLDatabase::Generate($W).$group."
                             ORDER BY
                                     ts1 ASC
                             LIMIT ".($isFull ? "50000" : "5000");
