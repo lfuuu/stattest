@@ -295,6 +295,11 @@ jQuery(document).ready(function() {
     $('#dialog-close').click(function() {
         window.parent.$dialog.dialog('close');
     });
+    
+    $(document).bind('keydown', function(e) {
+        if (e.keyCode === $ui.keyCode.ESCAPE)
+            $('#dialog-close').trigger('click');
+    });
 
     $('input[name="target_account_search"]')
         .bind('keydown', function(e) {
