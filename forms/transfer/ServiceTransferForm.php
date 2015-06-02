@@ -123,6 +123,7 @@ class ServiceTransferForm extends Form
             ClientAccount::find()
                 ->andWhere(['super_id' => $client->super_id])
                 ->andWhere('id != :id', [':id' => $client->id])
+                ->orderBy('contragent_id ASC, id ASC')
                 ->all();
     }
 
@@ -131,14 +132,10 @@ class ServiceTransferForm extends Form
         $now = new \DateTime();
         $services = $result = [];
 
-        foreach (self::listOfServices() as $type) {
+        foreach (self::listOfServices() as $service) {
             $services = array_merge(
                 $services,
-                $type
-                    ->andWhere(['client' => $client->client])
-                    ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
-                    ->andWhere(['dst_usage_id' => 0])
-                    ->all()
+                $service->getPossibleToTransfer($client)
             );
         }
 
@@ -162,13 +159,13 @@ class ServiceTransferForm extends Form
     private static function listOfServices()
     {
         return [
-            Emails::find(),
-            //UsageExtra::find(),
-            UsageIpPorts::find(),
-            UsageSms::find(),
+            Emails::dao(),
+            UsageExtra::dao(),
+            //UsageIpPorts::find(),
+            UsageSms::dao(),
             //UsageVirtpbx::find(),
             //UsageVoip::find(),
-            UsageWelltime::find()
+            UsageWelltime::dao()
         ];
     }
 }

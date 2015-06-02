@@ -2,15 +2,11 @@
 
 namespace app\controllers;
 
-use kartik\date\DatePickerAsset;
-use kartik\datetime\DateTimePickerAsset;
-use kartik\widgets\WidgetAsset;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
 use app\forms\transfer\ServiceTransferForm;
 use app\models\ClientAccount;
-
 
 class TransferController extends BaseController
 {
@@ -36,15 +32,22 @@ class TransferController extends BaseController
         ]);
     }
 
-    public function actionAccountSearch($term)
+    public function actionAccountSearch($client_id, $term)
     {
         if (!Yii::$app->request->getIsAjax())
             $this->redirect('/');
 
         $result = ClientAccount::getDB()->createCommand("
-            SELECT SQL_CALC_FOUND_ROWS `id`, `client`, `company`, `firma`
-            FROM `clients`
-            WHERE (`client` LIKE ('%" . $term . "%')) OR (`company` LIKE ('%" . $term . "%')) OR (`id` = " . (int) $term . ")
+            SELECT SQL_CALC_FOUND_ROWS c.`id`, c.`client`, cc.`name` AS 'contragent'
+            FROM `clients` c
+                    LEFT JOIN `client_contragent` cc ON cc.`id` = c.`contragent_id`
+            WHERE
+                c.`id` != " . (int) $client_id . " AND
+                c.`client` LIKE '%" . $term . "%' OR
+                c.`company` LIKE '%" . $term . "%' OR
+                c.`id` = " . (int) $term . " OR
+                cc.`name` LIKE '%" . $term . "%'
+            ORDER BY cc.`name` DESC, c.`id` DESC
             LIMIT 10
         ")->queryAll();
 
@@ -54,13 +57,12 @@ class TransferController extends BaseController
                 'label' => html_entity_decode(
                         '№ ' . $row['id'] . ' - ' .
                         (
-                            !mb_strlen($row['firma'])
-                                ? (
-                                    mb_strlen($row['company']) > 30 ? mb_substr($row['company'], 0, 30) . '...'  : $row['company']
-                                )
-                                : $row['firma']
+                            mb_strlen($row['contragent'], 'UTF-8') > 27
+                                ? mb_substr($row['contragent'], 0, 27, 'UTF-8') . '...'
+                                : $row['contragent']
                         )
                 ),
+                'full' => htmlspecialchars('№ ' . $row['id'] . ' - ' . $row['contragent']),
                 'value' => $row['id']
             ];
 

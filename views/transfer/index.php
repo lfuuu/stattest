@@ -185,7 +185,7 @@ $possibleServices = $model->getPossibleServices($client);
                             <div class="radio">
                                 <label>
                                     <input type="radio" name="transfer[target_account_id]" value="<?php echo $account->id; ?>" data-action="account-choose"<?php echo ($firstRow || $model->target_account_id == $account->id ? 'checked="checked"' : ''); ?> />
-                                    № <?php echo $account->id; ?> - <?php echo $account->firma; ?>
+                                    № <?php echo $account->id; ?> - <?php echo $account->contragent->name; ?>
                                 </label>
                             </div>
                             <?php
@@ -297,7 +297,7 @@ jQuery(document).ready(function() {
             $('input[name="transfer[target_account_id_custom]"]').val($(this).val());
         })
         .autocomplete({
-            source: '/transfer/account-search',
+            source: '/transfer/account-search?client_id=<?php echo $client->id;?>',
             minLength: 2,
             focus: function() {
                 return false;
@@ -311,7 +311,7 @@ jQuery(document).ready(function() {
         .data('autocomplete')._renderItem = function(ul, item) {
             return $('<li />')
                 .data('item.autocomplete', item)
-                .append('<a>' + item.label + '</a>')
+                .append('<a title="' + item.full + '">' + item.label + '</a>')
                 .appendTo(ul);
         };
 
@@ -328,6 +328,14 @@ jQuery(document).ready(function() {
 <style type="text/css">
 .ui-autocomplete-loading {
     background: white url('images/ajax-loader-small.gif') right center no-repeat;
+}
+.ui-autocomplete {
+    max-height: 145px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.ui-menu-item {
+    white-space: nowrap;
 }
 .form-control {
     padding: 0;
