@@ -58,7 +58,11 @@ class ServiceTransferForm extends Form
             Assert::isObject($this->targetAccount);
         }
         catch(\Exception $e) {
-            $this->addError('target_account_not_found', 'Выбранный клиент не найден: ');
+            $this->addError('target_account_not_found', 'Выбранный клиент не найден:' . (
+                $this->target_account_id == 'custom'
+                    ? $this->target_account_id_custom
+                    : $this->target_account_id
+            ));
         }
     }
 
@@ -93,14 +97,17 @@ class ServiceTransferForm extends Form
 
                 if (!is_null($service)) {
                     $serviceTransfer = $service->getTransferHelper();
-                    $serviceTransfer
-                        ->setActivationDate($this->actual_from == 'custom' ? $this->actual_custom : $this->actual_from);
+                    $serviceTransfer->setActivationDate(
+                        $this->actual_from == 'custom'
+                            ? $this->actual_custom
+                            : $this->actual_from
+                    );
 
                     if ($service->actual_to < date('Y-m-d', $serviceTransfer->getActivationDate()))
                         $this->servicesErrors[$service->id][] = 'Услуга не может быть перенеса на указанную дату';
                     else {
                         try {
-                            $this->servicesSuccess[] = $serviceTransfer->process($this->targetAccount);
+                            $this->servicesSuccess[$serviceType][] = $serviceTransfer->process($this->targetAccount);
                         } catch (\Exception $e) {
                             $this->servicesErrors[$service->id][] = $e->getMessage();
                         }
@@ -164,7 +171,7 @@ class ServiceTransferForm extends Form
             UsageIpPorts::dao(),
             UsageSms::dao(),
             //UsageVirtpbx::find(),
-            //UsageVoip::find(),
+            //UsageVoip::dao(),
             UsageWelltime::dao()
         ];
     }
