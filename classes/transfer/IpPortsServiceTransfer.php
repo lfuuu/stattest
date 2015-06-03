@@ -2,6 +2,7 @@
 
 namespace app\classes\transfer;
 
+use app\classes\Assert;
 use Yii;
 use app\models\ClientAccount;
 use app\models\UsageIpRoutes;
@@ -22,7 +23,8 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount) {
+    public function process(ClientAccount $targetAccount)
+    {
         $targetService = parent::process($targetAccount);
 
         $this->processRoutes($targetService);
@@ -32,12 +34,22 @@ class IpPortsServiceTransfer extends ServiceTransfer
     }
 
     /**
+     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     */
+    public function fallback()
+    {
+        parent::fallback();
+
+        $this->fallbackRoutes();
+        $this->fallbackDevices();
+    }
+
+    /**
      * Перенос связанных с услугой сетей
      * @param object $targetService - базовая услуга
-     * @throws \Exception
-     * @throws \yii\db\Exception
      */
-    private function processRoutes($targetService) {
+    private function processRoutes($targetService)
+    {
         $routes =
             UsageIpRoutes::find()
                 ->andWhere(['port_id' => $this->service->id])
@@ -45,8 +57,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
         foreach ($routes as $route) {
             $dbTransaction = Yii::$app->db->beginTransaction();
-            try
-            {
+            try {
                 $targetRoute = new $route;
                 $targetRoute->setAttributes($route->getAttributes(), false);
                 unset($targetRoute->id);
@@ -61,8 +72,40 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
                 $dbTransaction->commit();
             }
-            catch (\Exception $e)
-            {
+            catch (\Exception $e) {
+                $dbTransaction->rollBack();
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * Отмена переноса связанных с услугой сетей
+     */
+    private function fallbackRoutes()
+    {
+        $routes =
+            UsageIpRoutes::find()
+                ->andWhere(['port_id' => $this->service->id])
+                ->all();
+
+        foreach ($routes as $route) {
+            $dbTransaction = Yii::$app->db->beginTransaction();
+            try {
+                $movedRoute =
+                    UsageIpRoutes::find()
+                        ->andWhere(['src_usage_id' => $route->id])
+                        ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
+                        ->one();
+                Assert::isObject($movedRoute);
+
+                $route->actual_to = $movedRoute->actual_to;
+                $route->save();
+
+                $movedRoute->delete();
+                $dbTransaction->commit();
+            }
+            catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }
@@ -72,10 +115,9 @@ class IpPortsServiceTransfer extends ServiceTransfer
     /**
      * Перенос связанных с услугой устройств
      * @param object $targetService - базовая услуга
-     * @throws \Exception
-     * @throws \yii\db\Exception
      */
-    private function processDevices($targetService) {
+    private function processDevices($targetService)
+    {
         $devices =
             TechCpe::find()
                 ->andWhere(['service' => 'usage_ip_ports'])
@@ -84,8 +126,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
         foreach ($devices as $device) {
             $dbTransaction = Yii::$app->db->beginTransaction();
-            try
-            {
+            try {
                 $targetDevice = new $device;
                 $targetDevice->setAttributes($device->getAttributes(), false);
                 unset($targetDevice->id);
@@ -100,12 +141,46 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
                 $dbTransaction->commit();
             }
-            catch (\Exception $e)
-            {
+            catch (\Exception $e) {
                 $dbTransaction->rollBack();
                 throw $e;
             }
         }
     }
+
+    /**
+     * Отмена переноса связанных с услугой устройств
+     */
+    private function fallbackDevices()
+    {
+        $devices =
+            TechCpe::find()
+                ->andWhere(['service' => 'usage_ip_ports'])
+                ->andWhere(['id_service' => $this->service->id])
+                ->all();
+
+        foreach ($devices as $device) {
+            $dbTransaction = Yii::$app->db->beginTransaction();
+            try {
+                $movedDevice =
+                    TechCpe::find()
+                        ->andWhere(['src_usage_id' => $device->id])
+                        ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
+                        ->one();
+                Assert::isObject($movedDevice);
+
+                $device->actual_to = $movedDevice->actual_to;
+                $device->save();
+
+                $movedDevice->delete();
+                $dbTransaction->commit();
+            }
+            catch (\Exception $e) {
+                $dbTransaction->rollBack();
+                throw $e;
+            }
+        }
+    }
+
 
 }

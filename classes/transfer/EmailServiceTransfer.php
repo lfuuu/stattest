@@ -12,14 +12,18 @@ use app\models\ClientAccount;
 class EmailServiceTransfer extends ServiceTransfer
 {
 
+    /**
+     * Перенос базовой сущности услуги
+     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     * @return object - созданная услуга
+     */
     public function process(ClientAccount $targetAccount)
     {
         if ((int) $this->service->dst_usage_id)
             throw new \Exception('Услуга уже перенесена');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
-        try
-        {
+        try {
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
@@ -36,13 +40,41 @@ class EmailServiceTransfer extends ServiceTransfer
 
             $dbTransaction->commit();
         }
-        catch (\Exception $e)
-        {
+        catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }
 
         return $targetService;
+    }
+
+    /**
+     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     * @throws Exception
+     */
+    public function fallback()
+    {
+        if (!(int) $this->service->dst_usage_id)
+            throw new \Exception('Услуга не была подготовлена к переносу');
+
+        $dbTransaction = Yii::$app->db->beginTransaction();
+        try {
+            $movedService = new $this->service;
+            $movedService = $movedService->findOne($this->service->dst_usage_id);
+            Assert::isObject($movedService);
+
+            $this->service->dst_usage_id = 0;
+            $this->service->actual_to = $movedService->actual_to;
+
+            $this->service->source->save();
+
+            $movedService->delete();
+            $dbTransaction->commit();
+        }
+        catch (\Exception $e) {
+            $dbTransaction->rollBack();
+            throw $e;
+        }
     }
 
 }

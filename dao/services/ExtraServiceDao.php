@@ -15,8 +15,8 @@ class ExtraServiceDao extends Singleton implements ServiceDao
         return
             Yii::$app->db->createCommand("
                 SELECT
-                    s.*,
                     t.*,
+                    s.*,
                     IF((s.`actual_from` <= NOW()) AND (s.`actual_to` > NOW()), 1, 0) AS actual,
                     IF((s.`actual_from` <= (NOW() + INTERVAL 5 DAY)), 1, 0) AS actual5d
                 FROM usage_extra s

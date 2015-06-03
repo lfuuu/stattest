@@ -2,11 +2,13 @@
 
 namespace app\controllers;
 
+use app\models\UsageSms;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
 use app\forms\transfer\ServiceTransferForm;
 use app\models\ClientAccount;
+use yii\helpers\Json;
 
 class TransferController extends BaseController
 {
@@ -18,12 +20,28 @@ class TransferController extends BaseController
 
         $model = new ServiceTransferForm;
         if ($model->load(Yii::$app->request->post(), 'transfer') && $model->validate() && $model->process()) {
-            $this->redirect(array(
+            if (!Yii::$app->session->isActive)
+                Yii::$app->session->open();
+            Yii::$app->session->set(
+                'transfer_results_' . $clientAccount->id . '_' . $model->targetAccount->id,
+                Json::encode($model->servicesSuccess)
+            );
+            $this->redirect([
                 'transfer/success',
-                'client' => $clientAccount->id,
+                'client_account_id' => $clientAccount->id,
                 'target_account_id' => $model->targetAccount->id
-            ));
+            ]);
         }
+
+        /*
+$now = new \DateTime();
+
+print '<pre>';
+$sms = UsageSms::findOne(61);
+$sms_service = $sms->getTransferHelper();
+$sms_service->fallback();
+print '</pre>';
+*/
 
         $this->layout = 'minimal';
         return $this->render('index', [
@@ -66,17 +84,27 @@ class TransferController extends BaseController
                 'value' => $row['id']
             ];
 
-        return \yii\helpers\Json::encode($items);
+        return Json::encode($items);
     }
 
-    public function actionSuccess($client, $target_account_id) {
-        $clientAccount = ClientAccount::findOne($client);
+    public function actionSuccess($client_account_id, $target_account_id) {
+        $clientAccount = ClientAccount::findOne($client_account_id);
         Assert::isObject($clientAccount);
+
+        $targetAccount = ClientAccount::findOne($target_account_id);
+        Assert::isObject($targetAccount);
+
+        $session = Yii::$app->session;
+        $session_key = 'transfer_results_' . $clientAccount->id . '_' . $targetAccount->id;
+
+        $movedServices = Json::decode($session->get($session_key));
+        unset($session[$session_key]);
 
         $this->layout = 'minimal';
         return $this->render('success', [
-            'client' => $clientAccount,
-            'target_account_id' => $target_account_id
+            'clientAccount' => $clientAccount,
+            'targetAccount' => $targetAccount,
+            'movedServices' => $movedServices
         ]);
     }
 

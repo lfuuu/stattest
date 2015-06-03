@@ -10,11 +10,18 @@ use app\models\ClientAccount;
 class VoipServiceTransfer extends ServiceTransfer
 {
 
+    /**
+     * Перенос базовой сущности услуги
+     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     * @return object - созданная услуга
+     */
     public function process(ClientAccount $targetAccount)
     {
-        //$service = parent::process($targetAccount);
+        $targetService = parent::process($targetAccount);
 
-        //$this->service->voip_number->
+        Event::go('ats2_numbers_check');
+
+        return $targetService;
     }
 
 }

@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\VoipBiller;
+use app\classes\transfer\VoipServiceTransfer;
+use app\dao\services\VoipServiceDao;
 use yii\db\ActiveRecord;
 use app\queries\UsageVoipQuery;
 use DateTime;
@@ -23,6 +25,11 @@ class UsageVoip extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageVoipQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return VoipServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)

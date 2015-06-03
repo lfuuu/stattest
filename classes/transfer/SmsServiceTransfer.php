@@ -9,4 +9,9 @@ namespace app\classes\transfer;
 class SmsServiceTransfer extends ServiceTransfer
 {
 
+    public function isTransferred()
+    {
+
+    }
+
 }

@@ -3,7 +3,6 @@
 namespace app\classes\transfer;
 
 use Yii;
-use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\Usage;
 
@@ -35,13 +34,13 @@ abstract class ServiceTransfer
      */
     public function setActivationDate($date)
     {
-        if ((int) $date)
+        if (is_numeric($date))
             $this->activation_date = $date;
         else if (preg_match('#([0-9]{2})\.([0-9]{2})\.([0-9]{4})#', $date, $match))
             $this->activation_date = mktime(0, 0, 0, $match[2], $match[1], $match[3]);
         else if(preg_match('#([0-9]{4})\-([0-9]{2})\-([0-9]{2})#', $date, $match))
             $this->activation_date = mktime(0, 0, 0, $match[2], $match[3], $match[1]);
-        else if(!empty($date))
+        else if(is_string($date) && !empty($date))
             $this->activation_date = strtotime($date);
         else
             $this->activation_date = strtotime($this->activation_date);
@@ -71,8 +70,7 @@ abstract class ServiceTransfer
             throw new \Exception('Услуга уже перенесена');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
-        try
-        {
+        try {
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
@@ -91,8 +89,7 @@ abstract class ServiceTransfer
 
             $dbTransaction->commit();
         }
-        catch (\Exception $e)
-        {
+        catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }
@@ -102,27 +99,45 @@ abstract class ServiceTransfer
 
     /**
      * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
-     * @param $record - объект модели услуги для которой надо сделать отмену
-     * @throws Exception
      */
-    public function cancel($source)
+    public function fallback()
     {
-        /*
-        if (!(int) $source->dst_usage_id)
+
+        $now = new \DateTime();
+        $movedService = new $this->service;
+        $movedService = $movedService->find()
+            ->andWhere(['id' => $this->service->dst_usage_id])
+            ->andWhere('actual_from > :date', [':date' => $now->format('Y-m-d')])
+            ->one();
+        print_r($movedService);
+        die();
+        if (!(int) $this->service->dst_usage_id)
             throw new \Exception('Услуга не была подготовлена к переносу');
 
-        $clone = new $source;
-        $transfer = $clone->findOne($this->dst_usage_id);
-        Assert::isObject($transfer);
+        $now = new \DateTime();
 
-        $source->dst_usage_id = 0;
-        $source->expire_dt = $transfer->expire_dt;
-        $source->actual_to = $transfer->actual_to;
+        $dbTransaction = Yii::$app->db->beginTransaction();
+        try {
+            $movedService = new $this->service;
+            $movedService = $movedService->find()
+                ->andWhere(['id' => $this->service->dst_usage_id])
+                ->andWhere('actual_from > :date', [':date' => $now->format('Y-m-d')])
+                ->one();
+            Assert::isObject($movedService);
 
-        $source->save();
+            $this->service->dst_usage_id = 0;
+            $this->service->expire_dt = $movedService->expire_dt;
+            $this->service->actual_to = $movedService->actual_to;
 
-        $transfer->delete();
-        */
+            $this->service->source->save();
+
+            $movedService->delete();
+            $dbTransaction->commit();
+        }
+        catch (\Exception $e) {
+            $dbTransaction->rollBack();
+            throw $e;
+        }
     }
 
 }
