@@ -9,11 +9,11 @@ $servicesTitle = [
     'usage_extra' => 'Доп. услуги',
     'usage_sms' => 'SMS',
     'usage_welltime' => 'Welltime',
-    'usage_voip' => 'Телефония',
+    'usage_voip' => 'Телефония номера',
+    'usage_trunk' => 'Телефония транки',
     'emails' => 'E-mail',
     'usage_ip_ports' => 'Интернет'
 ];
-
 $possibleServices = $model->getPossibleServices($client);
 ?>
 
@@ -50,7 +50,6 @@ $possibleServices = $model->getPossibleServices($client);
                         <?php
                         if ($model->getFirstError('source_service_ids') || $model->getFirstError('services_got_errors')):
                             ?>
-                            <br />
                             <div class="label label-danger">
                                 <?php echo $model->getFirstError('source_service_ids'); ?>
                                 <?php echo $model->getFirstError('services_got_errors'); ?>
@@ -73,7 +72,6 @@ $possibleServices = $model->getPossibleServices($client);
                         <?php
                         if ($model->getFirstError('target_account_id') || $model->getFirstError('target_account_custom')):
                             ?>
-                            <br />
                             <div class="label label-danger">
                                 <?php echo $model->getFirstError('target_account_id'); ?>
                                 <?php echo $model->getFirstError('target_account_custom'); ?>
@@ -83,7 +81,6 @@ $possibleServices = $model->getPossibleServices($client);
 
                         if ($model->getFirstError('target_account_not_found')):
                             ?>
-                            <br />
                             <div class="label label-danger">
                                 <?php echo $model->getFirstError('target_account_not_found'); ?>
                             </div>
@@ -95,7 +92,6 @@ $possibleServices = $model->getPossibleServices($client);
                         <?php
                         if ($model->getFirstError('actual_from') || $model->getFirstError('actual_custom')):
                             ?>
-                            <br />
                             <div class="label label-danger">
                                 <?php echo $model->getFirstError('actual_from'); ?>
                                 <?php echo $model->getFirstError('actual_custom'); ?>
@@ -125,14 +121,13 @@ $possibleServices = $model->getPossibleServices($client);
 
                         <div id="services-list" style="width: 90%; height: auto; display: none; overflow: auto; margin-left: 20px;">
                             <?php
-                            foreach ($possibleServices['items'] as $service_type => $services):
+                            foreach ($possibleServices['items'] as $serviceType => $services):
                                 ?>
-                                <b><?php echo (array_key_exists($service_type, $servicesTitle) ? $servicesTitle[$service_type] : $service_type); ?></b><br />
+                                <b><?php echo (array_key_exists($serviceType, $servicesTitle) ? $servicesTitle[$serviceType] : $service_type); ?></b><br />
                                 <?php
                                 foreach ($services as $service):
                                     $text = $fulltext = '';
-                                    switch ($service_type)
-                                    {
+                                    switch ($serviceType):
                                         case 'emails':
                                             $text = $fulltext = $service->local_part . '@' . $service->domain;
                                             break;
@@ -147,7 +142,7 @@ $possibleServices = $model->getPossibleServices($client);
                                             if ($tariff)
                                                 $text = $fulltext = $tariff->description;
                                             break;
-                                    }
+                                    endswitch;
 
                                     if (mb_strlen($text, 'UTF-8') > 30):
                                         $text = mb_substr($text, 0, 30, 'UTF-8') . '...';
@@ -162,7 +157,7 @@ $possibleServices = $model->getPossibleServices($client);
                                     endif;
                                     ?>
 
-                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo $service_type; ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
+                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo $serviceType; ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
                                     &nbsp;<?php echo $service->id;?>: <abbr title="<?php echo $service->id . ': ' . $fulltext; ?>"><?php echo $text; ?></abbr><br />
                                 <?php
                                 endforeach;
@@ -176,7 +171,11 @@ $possibleServices = $model->getPossibleServices($client);
                     </td>
                     <td valign="top">
                         <?php
+                        $firstRow = (boolean) !(int) $model->target_account_id;
+
                         if (!is_null($model->targetAccount)):
+                            $firstRow = false;
+
                             ?>
                             <div class="radio">
                                 <label>
@@ -187,7 +186,6 @@ $possibleServices = $model->getPossibleServices($client);
                         <?php
                         endif;
 
-                        $firstRow = (boolean) !(int) $model->target_account_id;
                         foreach ($model->getClientAccounts($client) as $account):
                             if (!is_null($model->targetAccount) && $account->id == $model->targetAccount->id)
                                 continue;
@@ -211,7 +209,7 @@ $possibleServices = $model->getPossibleServices($client);
                         </div>
 
                         <input type="text" name="target_account_search" class="form-control" style="margin-left: 20px; width: 70%; visibility: hidden;" />
-                        <input type="hidden" name="transfer[target_account_id_custom]" value="0" />
+                        <input type="text" name="transfer[target_account_id_custom]" value="0" />
                     </td>
                     <td valign="top">
                         <?php
@@ -295,9 +293,9 @@ jQuery(document).ready(function() {
     $('#dialog-close').click(function() {
         window.parent.$dialog.dialog('close');
     });
-    
+
     $(document).bind('keydown', function(e) {
-        if (e.keyCode === $ui.keyCode.ESCAPE)
+        if (e.keyCode === $.ui.keyCode.ESCAPE)
             $('#dialog-close').trigger('click');
     });
 
@@ -309,7 +307,8 @@ jQuery(document).ready(function() {
                 $(this).blur();
         })
         .bind('blur', function() {
-            $('input[name="transfer[target_account_id_custom]"]').val($(this).val());
+            if ($(this).val().test(/^[0-9]+$/))
+                $('input[name="transfer[target_account_id_custom]"]').val($(this).val());
         })
         .autocomplete({
             source: '/transfer/account-search?client_id=<?php echo $client->id;?>',
