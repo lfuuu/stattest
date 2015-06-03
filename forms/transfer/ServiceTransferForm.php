@@ -58,11 +58,7 @@ class ServiceTransferForm extends Form
             Assert::isObject($this->targetAccount);
         }
         catch(\Exception $e) {
-            $this->addError('target_account_not_found', 'Выбранный клиент не найден:' . (
-                $this->target_account_id == 'custom'
-                    ? $this->target_account_id_custom
-                    : $this->target_account_id
-            ));
+            $this->addError('target_account_not_found', 'Выбранный клиент не найден');
         }
     }
 
