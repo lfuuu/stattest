@@ -5,7 +5,7 @@ use app\forms\transfer\ServiceTransferForm;
 /** @var $model ServiceTransferForm */
 
 $servicesGroups = $model->getServicesGroups();
-$servicesObjects = $model->getServicesByIDs($movedServices);
+$servicesObjects = $model->getServicesByIDs((array) $movedServices);
 ?>
 <form>
     <table border="0" width="95%" align="center">
@@ -64,7 +64,7 @@ $servicesObjects = $model->getServicesByIDs($movedServices);
                                 ?>
 
                                 <li>
-                                    <?php echo $service->id;?>: <?php echo $fulltext; ?>
+                                    <?php echo $service->prev_usage_id;?>: <?php echo $fulltext; ?>
                                 </li>
                                 <?php
                             endfor;

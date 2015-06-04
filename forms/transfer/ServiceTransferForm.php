@@ -73,7 +73,7 @@ class ServiceTransferForm extends Form
      */
     public function process()
     {
-        $services = $this->getServicesByIDs($this->source_service_ids);
+        $services = $this->getServicesByIDs((array) $this->source_service_ids);
 
         foreach ($services as $serviceId => $service) {
             $serviceTransfer = $service['object']->getTransferHelper();
