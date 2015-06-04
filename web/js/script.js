@@ -1,5 +1,6 @@
 var timeout = null;
 var timeout2 = null;
+var $dialog = null;
 function doLoadUp(step) {
 	if(timeout)
 		clearTimeout(timeout);
@@ -340,4 +341,68 @@ function showHistoryPopup(model, modelId) {
                 $dialog.remove();
             }
         });
+}
+
+function showIframePopup(element) {
+    var width = (
+            $(element).data('width') > 0
+                ? $(element).data('width')
+                : Math.max($(window).width(), window.innerWidth) / 2 - 100
+        ),
+        height = (
+            $(element).data('height') > 0
+                ? $(element).data('height')
+                : Math.max($(window).height(), window.innerHeight) - 100
+        ),
+        loader = createLoader();
+
+    $dialog = $('<iframe scrolling="no" width="100%" height="' + height + '" src="' + $(element).attr('href') + '" />')
+                    .css('overflow', 'hidden');
+
+    $dialog
+        .dialog({
+            width: width,
+            height: height,
+            modal: true,
+            resizable: false,
+            draggable: false,
+            closeOnEscape: true,
+            open: function() {
+                $dialog.dialog('widget')
+                    .find('.ui-dialog-titlebar')
+                        .replaceWith(loader);
+
+                $dialog.css('width', '100%').load(function() {
+                    $dialog.dialog('widget')
+                        .find('.dialog-loader')
+                            .remove();
+                });
+            },
+            close: function() {
+                $dialog.remove();
+            }
+        })
+
+    return false;
+}
+
+function createLoader() {
+    return $('<div />')
+        .addClass('dialog-loader')
+        .css({
+            'position':       'fixed',
+            'top':            '50%',
+            'left':           '50%',
+            'margin-left':    '-50px',
+            'margin-top':     '-50px',
+            'text-align':     'center',
+            'z-index':        1234,
+            'overflow':       'auto',
+            'width':          '100px',
+            'height':         '102px'
+        })
+        .append(
+            $('<img />')
+                .attr('src', '/images/ajax-loader.gif')
+        );
 }

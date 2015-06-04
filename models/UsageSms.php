@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\bill\SmsBiller;
+use app\classes\transfer\SmsServiceTransfer;
+use app\dao\services\SmsServiceDao;
 use app\queries\UsageQuery;
 use app\models\TariffSms;
 use yii\db\ActiveRecord;
@@ -23,6 +25,11 @@ class UsageSms extends ActiveRecord implements Usage
     public static function find()
     {
         return new UsageQuery(get_called_class());
+    }
+
+    public static function dao()
+    {
+        return SmsServiceDao::me();
     }
 
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
@@ -49,5 +56,10 @@ class UsageSms extends ActiveRecord implements Usage
     {
         $tariff = TariffSms::findOne($this->tarif_id);
         return $tariff;
+    }
+
+    public function getTransferHelper()
+    {
+        return new SmsServiceTransfer($this);
     }
 }
