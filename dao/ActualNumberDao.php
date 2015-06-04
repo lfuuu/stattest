@@ -50,7 +50,7 @@ class ActualNumberDao extends Singleton
                         WHERE
                             (actual_from <= DATE_FORMAT(now(), '%Y-%m-%d') and actual_to >= DATE_FORMAT(now(), '%Y-%m-%d'))
                             and u.client = c.client 
-                            and ((c.status in ('work','connecting','testing')) or c.id = 9130) 
+                            and ((c.status in ('negotiations','work','connecting','testing')) or c.id = 9130)
                             and LENGTH(e164) > 3
                             ".($number ? "and e164 = :number" : "")."
                         ORDER BY u.id
