@@ -115,7 +115,7 @@ class account
         if($from >= $to)
         {
             $d["subaccount_count"] = $from;
-            return;
+            return [];
         }
 
         $sequence = account::getMaxSequence($d);

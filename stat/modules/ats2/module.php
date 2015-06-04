@@ -697,8 +697,13 @@ class m_ats2 extends IModule
 
     public function ats2_virtpbx($fixClient)
     {
+        global $design;
         include "virtpbx.php";
+
         $usageId = get_param_integer('usage_id');
+
+        $design->assign('usage_id', $usageId);
+
         aVirtPbx::edit(getClientId(), $usageId);
     }
 
