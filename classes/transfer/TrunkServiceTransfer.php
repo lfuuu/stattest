@@ -19,9 +19,9 @@ class TrunkServiceTransfer extends ServiceTransfer
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount)
+    public function process(ClientAccount $targetAccount, $activationDate)
     {
-        $targetService = parent::process($targetAccount);
+        $targetService = parent::process($targetAccount, $activationDate);
 
         $this->processSettings($targetService);
 

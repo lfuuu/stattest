@@ -47,4 +47,9 @@ class Emails extends ActiveRecord implements Usage
     {
         return new EmailServiceTransfer($this);
     }
+
+    public function getTitle()
+    {
+        return 'E-mail';
+    }
 }

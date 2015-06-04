@@ -62,4 +62,9 @@ class UsageSms extends ActiveRecord implements Usage
     {
         return new SmsServiceTransfer($this);
     }
+
+    public function getTitle()
+    {
+        return 'SMS';
+    }
 }

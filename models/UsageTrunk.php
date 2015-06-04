@@ -68,5 +68,9 @@ class UsageTrunk extends ActiveRecord
         return new TrunkServiceTransfer($this);
     }
 
+    public function getTitle()
+    {
+        return 'Телефония транки';
+    }
 }
 

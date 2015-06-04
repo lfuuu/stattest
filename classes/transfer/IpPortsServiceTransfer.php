@@ -23,9 +23,9 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount)
+    public function process(ClientAccount $targetAccount, $activationDate)
     {
-        $targetService = parent::process($targetAccount);
+        $targetService = parent::process($targetAccount, $activationDate);
 
         $this->processRoutes($targetService);
         $this->processDevices($targetService);
@@ -48,7 +48,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * Перенос связанных с услугой сетей
      * @param object $targetService - базовая услуга
      */
-    private function processRoutes($targetService)
+    private function processRoutes($targetService, $activationDate)
     {
         $routes =
             UsageIpRoutes::find()
@@ -61,12 +61,12 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $targetRoute = new $route;
                 $targetRoute->setAttributes($route->getAttributes(), false);
                 unset($targetRoute->id);
-                $targetRoute->actual_from = date('Y-m-d', $this->activation_date);
+                $targetRoute->actual_from = (new \DateTime($activationDate))->format('Y-m-d');
                 $targetRoute->port_id = $targetService->id;
 
                 $targetRoute->save();
 
-                $route->actual_to = date('Y-m-d', $this->activation_date - 1);
+                $route->actual_to = (new \DateTime($activationDate))->modify('-1 day')->format('Y-m-d');
 
                 $route->save();
 
@@ -116,7 +116,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * Перенос связанных с услугой устройств
      * @param object $targetService - базовая услуга
      */
-    private function processDevices($targetService)
+    private function processDevices($targetService, $activationDate)
     {
         $devices =
             TechCpe::find()
@@ -130,12 +130,12 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $targetDevice = new $device;
                 $targetDevice->setAttributes($device->getAttributes(), false);
                 unset($targetDevice->id);
-                $targetDevice->actual_from = date('Y-m-d', $this->activation_date);
+                $targetDevice->actual_from = (new \DateTime($activationDate))->format('Y-m-d');
                 $targetDevice->id_service = $targetService->id;
 
                 $targetDevice->save();
 
-                $device->actual_to = date('Y-m-d', $this->activation_date - 1);
+                $device->actual_to = (new \DateTime($activationDate))->modify('-1 day')->format('Y-m-d');
 
                 $device->save();
 

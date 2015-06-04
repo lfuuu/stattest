@@ -61,4 +61,9 @@ class UsageWelltime extends ActiveRecord implements Usage
     {
         return new WelltimeServiceTransfer($this);
     }
+
+    public function getTitle()
+    {
+        return 'Welltime';
+    }
 }

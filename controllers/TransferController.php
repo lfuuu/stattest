@@ -20,9 +20,6 @@ class TransferController extends BaseController
         $model = new ServiceTransferForm;
         if ($model->load(Yii::$app->request->post(), 'transfer') && $model->validate() && $model->process()) {
 
-            if (!Yii::$app->session->isActive)
-                Yii::$app->session->open();
-
             Yii::$app->session->set(
                 'transfer_results_' . $clientAccount->id . '_' . $model->targetAccount->id,
                 Json::encode($model->servicesSuccess)

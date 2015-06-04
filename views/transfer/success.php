@@ -4,8 +4,6 @@ use app\forms\transfer\ServiceTransferForm;
 
 /** @var $model ServiceTransferForm */
 
-$servicesGroups = $model->getServicesGroups();
-$servicesObjects = $model->getServicesByIDs((array) $movedServices);
 ?>
 <form>
     <table border="0" width="95%" align="center">
@@ -25,51 +23,28 @@ $servicesObjects = $model->getServicesByIDs((array) $movedServices);
                     </p>
 
                     <ul style="height: 350px;">
-                        <?php
-                        foreach ($movedServices as $serviceType => $services):
-                            ?>
-                            <b>
+                        <?php foreach ($movedServices as $serviceClass => $serviceIds): ?>
+                            <b><?= (new $serviceClass)->getTitle(); ?></b><br />
+                            <?php foreach($serviceIds as $serviceId): ?>
                                 <?php
-                                    echo (
-                                        array_key_exists($serviceType, $servicesGroups)
-                                            ? $servicesGroups[$serviceType]['title']
-                                            : $serviceType
-                                    );
-                                ?>
-                            </b><br />
-                            <?php
-                            for ($i=0, $s=sizeof($services); $i<$s; $i++):
-                                if (!array_key_exists($services[$i], $servicesObjects))
-                                    continue;
+                                    $service = $model->getService($serviceClass, $serviceId);
 
-                                $service = $servicesObjects[ $services[$i] ]['object'];
-                                $fulltext = '';
-
-                                switch ($serviceType):
-                                    case 'emails':
+                                    if ($service instanceof \app\models\Emails) {
                                         $fulltext = $service->local_part . '@' . $service->domain;
-                                        break;
-                                    case 'usage_voip':
+                                    } elseif ($service instanceof \app\models\UsageVoip) {
                                         $fulltext = $service->E164 . 'x' . $service->no_of_lines;
-                                        break;
-                                    case 'usage_ip_ports':
+                                    } elseif ($service instanceof \app\models\UsageIpPorts) {
                                         $fulltext = $service->address;
-                                        break;
-                                    default:
-                                        $tariff = $service->tariff;
-                                        if ($tariff)
-                                            $fulltext = $tariff->description;
-                                        break;
-                                endswitch;
-                                ?>
+                                    } else {
+                                        $fulltext = $service->tariff ? $service->tariff->description : '';
+                                    }
 
+                                ?>
                                 <li>
-                                    <?php echo $service->prev_usage_id;?>: <?php echo $fulltext; ?>
+                                    <?= $service->prev_usage_id;?>: <?= $fulltext; ?>
                                 </li>
-                                <?php
-                            endfor;
-                        endforeach;
-                        ?>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
                     </ul>
                 </td>
             </tr>

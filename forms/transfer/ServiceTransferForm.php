@@ -6,6 +6,7 @@ use app\classes\Assert;
 use app\classes\Form;
 use app\models\ClientAccount;
 use app\models\Emails;
+use app\models\Usage;
 use app\models\UsageExtra;
 use app\models\UsageSms;
 use app\models\UsageWelltime;
@@ -47,7 +48,7 @@ class ServiceTransferForm extends Form
             ['actual_custom', 'required', 'when' => function ($model) {
                 return $model->actual_from == 'custom';
             }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'date', 'format' => 'php:d.m.Y', 'message' => 'Неверный формат даты переноса'],
+            ['actual_custom', 'date', 'format' => 'php:Y-m-d', 'message' => 'Неверный формат даты переноса'],
             ['target_account_id', 'validateTargetAccountId']
         ];
     }
@@ -75,21 +76,21 @@ class ServiceTransferForm extends Form
     {
         $services = $this->getServicesByIDs((array) $this->source_service_ids);
 
-        foreach ($services as $serviceId => $service) {
-            $serviceTransfer = $service['object']->getTransferHelper();
-            $serviceTransfer->setActivationDate(
+        foreach ($services as $service) {
+            $serviceTransfer = $service->getTransferHelper();
+            $activationDate =
                 $this->actual_from == 'custom'
                     ? $this->actual_custom
-                    : $this->actual_from
-            );
+                    : $this->actual_from;
 
-            if ($service['object']->actual_to < date('Y-m-d', $serviceTransfer->getActivationDate()))
-                $this->servicesErrors[ $serviceId ][] = 'Услуга не может быть перенеса на указанную дату';
+            if ($service->actual_to < $activationDate)
+                $this->servicesErrors[ $service->id ][] = 'Услуга не может быть перенеса на указанную дату';
             else {
                 try {
-                    $this->servicesSuccess[ $service['type'] ][] = $serviceTransfer->process($this->targetAccount)->id;
+                    $this->servicesSuccess[ get_class($service) ][] = $serviceTransfer->process($this->targetAccount, $activationDate)->id;
                 } catch (\Exception $e) {
-                    $this->servicesErrors[ $serviceId ][] = $e->getMessage();
+                    $this->servicesErrors[ $service->id ][] = $e->getMessage();
+                    \Yii::error($e);
                 }
             }
         }
@@ -109,38 +110,14 @@ class ServiceTransferForm extends Form
     public function getServicesGroups()
     {
         return [
-            'emails' => [
-                'title' => 'E-mail',
-                'service' => Emails::dao()
-            ],
-            'usage_extra' => [
-                'title' => 'Доп. услуги',
-                'service' => UsageExtra::dao()
-            ],
-            'usage_sms' => [
-                'title' => 'SMS',
-                'service' => UsageSms::dao()
-            ],
-            'usage_welltime' => [
-                'title' => 'Welltime',
-                'service' => UsageWelltime::dao()
-            ],
-            'usage_voip' => [
-                'title' => 'Телефония номера',
-                'service' => UsageVoip::dao()
-            ],
-            'usage_trunk' => [
-                'title' => 'Телефония транки',
-                'service' => UsageTrunk::dao()
-            ],
-            'usage_ip_ports' => [
-                'title' => 'Интернет',
-                'service' => UsageIpPorts::dao()
-            ],
-            'usage_virtpbx' => [
-                'title' => 'Виртуальная АТС',
-                'service' => UsageVirtpbx::dao()
-            ]
+            Emails::dao(),
+            UsageExtra::dao(),
+            UsageSms::dao(),
+            UsageWelltime::dao(),
+            UsageVoip::dao(),
+            UsageTrunk::dao(),
+            UsageIpPorts::dao(),
+            UsageVirtpbx::dao(),
         ];
     }
 
@@ -166,19 +143,20 @@ class ServiceTransferForm extends Form
      */
     public function getPossibleServices(ClientAccount $client)
     {
-        $services = $result = [];
-
-        foreach ($this->getServicesGroups() as $groupKey => $groupData) {
+        /** @var Usage[] $services */
+        $services = [];
+        foreach ($this->getServicesGroups() as $serviceDao) {
             $services = array_merge(
                 $services,
-                $groupData['service']->getPossibleToTransfer($client)
+                $serviceDao->getPossibleToTransfer($client)
             );
         }
 
         $total = 0;
+        $result = [];
         if (sizeof($services))
             foreach ($services as $service) {
-                $result[$service->getServiceType()][] = $service;
+                $result[$service->getTitle()][] = $service;
                 $total++;
             }
 
@@ -191,51 +169,28 @@ class ServiceTransferForm extends Form
     /**
      * Получение списка услуг по ID услуги и типу
      * @param array $servicesList - Список услуг разделенных по группам
-     * @return array
+     * @return Usage[]
      */
     public function getServicesByIDs(array $servicesList)
     {
         $result = [];
 
-        foreach ($servicesList as $serviceType => $services) {
+        foreach ($servicesList as $serviceClass => $services) {
             foreach ($services as $serviceId) {
-                $service = null;
-                switch ($serviceType) {
-                    case 'emails':
-                        $service = Emails::findOne($serviceId);
-                        break;
-                    case 'usage_sms':
-                        $service = UsageSms::findOne($serviceId);
-                        break;
-                    case 'usage_extra':
-                        $service = UsageExtra::findOne($serviceId);
-                        break;
-                    case 'usage_ip_ports':
-                        $service = UsageIpPorts::findOne($serviceId);
-                        break;
-                    case 'usage_welltime':
-                        $service = UsageWelltime::findOne($serviceId);
-                        break;
-                    case 'usage_voip':
-                        $service = UsageVoip::findOne($serviceId);
-                        break;
-                    case 'usage_virtpbx':
-                        $service = UsageVirtpbx::findOne($serviceId);
-                        break;
-                    case 'usage_trunk':
-                        $service = UsageTrunk::findOne($serviceId);
-                        break;
-                }
-                Assert::isObject($service);
-
-                $result[$service->id] = [
-                    'type' => $serviceType,
-                    'object' => $service
-                ];
+                $result[] = $this->getService($serviceClass, $serviceId);
             }
         }
 
         return $result;
+    }
+
+    public function getService($className, $id)
+    {
+        $service = $className::findOne($id);
+        if (!$service instanceof Usage) {
+            Assert::isUnreachable();
+        }
+        return $service;
     }
 
     /**

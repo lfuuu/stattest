@@ -18,7 +18,7 @@ class EmailServiceTransfer extends ServiceTransfer
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount)
+    public function process(ClientAccount $targetAccount, $activationDate)
     {
         if ((int) $this->service->next_usage_id)
             throw new \Exception('Услуга уже перенесена');
@@ -28,13 +28,13 @@ class EmailServiceTransfer extends ServiceTransfer
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
-            $targetService->actual_from = date('Y-m-d', $this->activation_date);
+            $targetService->actual_from = (new \DateTime($activationDate))->format('Y-m-d');
             $targetService->prev_usage_id = $this->service->id;
             $targetService->client = $targetAccount->client;
 
             $targetService->save();
 
-            $this->service->actual_to = date('Y-m-d', $this->activation_date - 1);
+            $this->service->actual_to = (new \DateTime($activationDate))->modify('-1 day')->format('Y-m-d');
             $this->service->next_usage_id = $targetService->id;
 
             $this->service->save();

@@ -5,7 +5,6 @@ use kartik\widgets\DatePicker;
 
 /** @var $model ServiceTransferForm */
 
-$servicesGroups = $model->getServicesGroups();
 $possibleServices = $model->getPossibleServices($client);
 ?>
 
@@ -39,26 +38,19 @@ $possibleServices = $model->getPossibleServices($client);
             <thead>
                 <tr>
                     <th valign="top">
-                        <?php
-                        if ($model->getFirstError('source_service_ids') || $model->getFirstError('services_got_errors')):
-                            ?>
+                        <?php if ($model->getFirstError('source_service_ids') || $model->getFirstError('services_got_errors')): ?>
                             <div class="label label-danger">
                                 <?php echo $model->getFirstError('source_service_ids'); ?>
                                 <?php echo $model->getFirstError('services_got_errors'); ?>
                             </div>
-                        <?php
-                        endif;
+                        <?php endif; ?>
 
-                        if (sizeof($model->servicesSuccess)):
-                            ?>
+                        <?php if (sizeof($model->servicesSuccess)): ?>
                             <br />
                             <div class="label label-success">
                                 Успешно перенесено <?php echo sizeof($model->servicesSuccess); ?>
                             </div>
-                            <?php
-                        endif;
-                        ?>
-
+                        <?php endif; ?>
                     </th>
                     <th valign="top">
                         <?php
@@ -113,39 +105,26 @@ $possibleServices = $model->getPossibleServices($client);
 
                         <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
                             <?php
-                            foreach ($possibleServices['items'] as $serviceType => $services):
+                            foreach ($possibleServices['items'] as $serviceTitle => $services):
                                 ?>
-                                <b>
-                                    <?php
-                                        echo (
-                                            array_key_exists($serviceType, $servicesGroups)
-                                                ? $servicesGroups[$serviceType]['title']
-                                                : $serviceType
-                                        );
-                                    ?>
-                                </b><br />
+                                <b><?= $serviceTitle; ?></b><br />
                                 <?php
+                                /** @var \app\models\Usage[] $services */
                                 foreach ($services as $service):
-                                    $text = $fulltext = '';
-                                    switch ($serviceType):
-                                        case 'emails':
-                                            $text = $fulltext = $service->local_part . '@' . $service->domain;
-                                            break;
-                                        case 'usage_voip':
-                                            $text = $fulltext = $service->E164 . 'x' . $service->no_of_lines;
-                                            break;
-                                        case 'usage_ip_ports':
-                                            $text = $fulltext = $service->address;
-                                            break;
-                                        default:
-                                            $tariff = $service->tariff;
-                                            if ($tariff)
-                                                $text = $fulltext = $tariff->description;
-                                            break;
-                                    endswitch;
+                                    if ($service instanceof \app\models\Emails) {
+                                        $fulltext = $service->local_part . '@' . $service->domain;
+                                    } elseif ($service instanceof \app\models\UsageVoip) {
+                                        $fulltext = $service->E164 . 'x' . $service->no_of_lines;
+                                    } elseif ($service instanceof \app\models\UsageIpPorts) {
+                                        $fulltext = $service->address;
+                                    } else {
+                                        $fulltext = $service->tariff ? $service->tariff->description : '';
+                                    }
 
-                                    if (mb_strlen($text, 'UTF-8') > 30):
-                                        $text = mb_substr($text, 0, 30, 'UTF-8') . '...';
+                                    if (mb_strlen($fulltext, 'UTF-8') > 30):
+                                        $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
+                                    else:
+                                        $text = $fulltext;
                                     endif;
                                     ?>
 
@@ -157,7 +136,7 @@ $possibleServices = $model->getPossibleServices($client);
                                     endif;
                                     ?>
 
-                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo $serviceType; ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
+                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
                                     &nbsp;<?php echo $service->id;?>: <abbr title="<?php echo $service->id . ': ' . $fulltext; ?>"><?php echo $text; ?></abbr><br />
                                 <?php
                                 endforeach;
@@ -215,11 +194,13 @@ $possibleServices = $model->getPossibleServices($client);
                         <?php
                         $firstRow = (boolean) !$model->actual_from;
                         foreach ($model->getActualDateVariants() as $date):
+                            $date = new DateTime($date);
+                            $dateValue = $date->format('Y-m-d');
                             ?>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="transfer[actual_from]" value="<?php echo strtotime($date); ?>" data-action="date-choose"<?php echo ($firstRow || $model->actual_from == strtotime($date) ? 'checked="checked"' : ''); ?> />
-                                    <?php echo date('d.m.Y', strtotime($date)); ?>
+                                    <input type="radio" name="transfer[actual_from]" value="<?= $dateValue; ?>" data-action="date-choose"<?php echo ($firstRow || $model->actual_from == $dateValue ? 'checked="checked"' : ''); ?> />
+                                    <?php echo $date->format('d.m.Y'); ?>
                                 </label>
                             </div>
                             <?php
@@ -244,7 +225,7 @@ $possibleServices = $model->getPossibleServices($client);
                             ],
                             'pluginOptions' => [
                                 'autoclose' => true,
-                                'format' => 'dd.mm.yyyy',
+                                'format' => 'yyyy-mm-dd',
                                 'orientation' => 'top right',
                                 'startDate' =>  'today'
                             ]

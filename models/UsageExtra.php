@@ -61,4 +61,10 @@ class UsageExtra extends ActiveRecord implements Usage
     {
         return new ExtraServiceTransfer($this);
     }
+
+    public function getTitle()
+    {
+        return 'Доп. услуги';
+    }
+
 }

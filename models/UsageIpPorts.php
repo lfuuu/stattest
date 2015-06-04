@@ -71,4 +71,9 @@ class UsageIpPorts extends ActiveRecord implements Usage
     {
         return new IpPortsServiceTransfer($this);
     }
+
+    public function getTitle()
+    {
+        return 'Интернет';
+    }
 }
