@@ -2,8 +2,8 @@
 
 namespace app\classes\transfer;
 
-use app\classes\Assert;
 use Yii;
+use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\UsageIpRoutes;
 use app\models\TechCpe;
@@ -38,10 +38,10 @@ class IpPortsServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
-        parent::fallback();
-
         $this->fallbackRoutes();
         $this->fallbackDevices();
+
+        parent::fallback();
     }
 
     /**
@@ -94,7 +94,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
             try {
                 $movedRoute =
                     UsageIpRoutes::find()
-                        ->andWhere(['src_usage_id' => $route->id])
+                        ->andWhere(['port_id' => $this->service->next_usage_id])
                         ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
                         ->one();
                 Assert::isObject($movedRoute);
@@ -164,7 +164,8 @@ class IpPortsServiceTransfer extends ServiceTransfer
             try {
                 $movedDevice =
                     TechCpe::find()
-                        ->andWhere(['src_usage_id' => $device->id])
+                        ->andWhere(['service' => 'usage_ip_ports'])
+                        ->andWhere(['id_service' => $this->service->next_usage_id])
                         ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
                         ->one();
                 Assert::isObject($movedDevice);

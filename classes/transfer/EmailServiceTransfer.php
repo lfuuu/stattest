@@ -3,6 +3,7 @@
 namespace app\classes\transfer;
 
 use Yii;
+use app\classes\Assert;
 use app\models\ClientAccount;
 
 /**
@@ -19,7 +20,7 @@ class EmailServiceTransfer extends ServiceTransfer
      */
     public function process(ClientAccount $targetAccount)
     {
-        if ((int) $this->service->dst_usage_id)
+        if ((int) $this->service->next_usage_id)
             throw new \Exception('Услуга уже перенесена');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
@@ -28,13 +29,13 @@ class EmailServiceTransfer extends ServiceTransfer
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
             $targetService->actual_from = date('Y-m-d', $this->activation_date);
-            $targetService->src_usage_id = $this->service->id;
+            $targetService->prev_usage_id = $this->service->id;
             $targetService->client = $targetAccount->client;
 
             $targetService->save();
 
             $this->service->actual_to = date('Y-m-d', $this->activation_date - 1);
-            $this->service->dst_usage_id = $targetService->id;
+            $this->service->next_usage_id = $targetService->id;
 
             $this->service->save();
 
@@ -54,19 +55,19 @@ class EmailServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
-        if (!(int) $this->service->dst_usage_id)
+        if (!(int) $this->service->next_usage_id)
             throw new \Exception('Услуга не была подготовлена к переносу');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $movedService = new $this->service;
-            $movedService = $movedService->findOne($this->service->dst_usage_id);
+            $movedService = $movedService->findOne($this->service->next_usage_id);
             Assert::isObject($movedService);
 
-            $this->service->dst_usage_id = 0;
+            $this->service->next_usage_id = 0;
             $this->service->actual_to = $movedService->actual_to;
 
-            $this->service->source->save();
+            $this->service->save();
 
             $movedService->delete();
             $dbTransaction->commit();

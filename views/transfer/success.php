@@ -1,25 +1,12 @@
 <?php
 
-use app\classes\Assert;
-use app\models\Emails;
-use app\models\UsageExtra;
-use app\models\UsageIpPorts;
-use app\models\UsageSms;
-use app\models\UsageVirtpbx;
-use app\models\UsageVoip;
-use app\models\UsageWelltime;
+use app\forms\transfer\ServiceTransferForm;
 
-$servicesTitle = [
-    'usage_extra' => 'Доп. услуги',
-    'usage_sms' => 'SMS',
-    'usage_welltime' => 'Welltime',
-    'usage_voip' => 'Телефония номера',
-    'usage_trunk' => 'Телефония транки',
-    'emails' => 'E-mail',
-    'usage_ip_ports' => 'Интернет'
-];
+/** @var $model ServiceTransferForm */
+
+$servicesGroups = $model->getServicesGroups();
+$servicesObjects = $model->getServicesByIDs($movedServices);
 ?>
-
 <form>
     <table border="0" width="95%" align="center">
         <thead>
@@ -41,47 +28,39 @@ $servicesTitle = [
                         <?php
                         foreach ($movedServices as $serviceType => $services):
                             ?>
-                            <b><?php echo (array_key_exists($serviceType, $servicesTitle) ? $servicesTitle[$serviceType] : $service_type); ?></b><br />
+                            <b>
+                                <?php
+                                    echo (
+                                        array_key_exists($serviceType, $servicesGroups)
+                                            ? $servicesGroups[$serviceType]['title']
+                                            : $serviceType
+                                    );
+                                ?>
+                            </b><br />
                             <?php
                             for ($i=0, $s=sizeof($services); $i<$s; $i++):
+                                if (!array_key_exists($services[$i], $servicesObjects))
+                                    continue;
+
+                                $service = $servicesObjects[ $services[$i] ]['object'];
                                 $fulltext = '';
 
                                 switch ($serviceType):
                                     case 'emails':
-                                        $service = Emails::findOne($services[$i]['id']);
-                                        Assert::isObject($service);
                                         $fulltext = $service->local_part . '@' . $service->domain;
                                         break;
-                                    case 'usage_sms':
-                                        $service = UsageSms::findOne($services[$i]['id']);
-                                        Assert::isObject($service);
-                                        break;
-                                    case 'usage_extra':
-                                        $service = UsageExtra::findOne($services[$i]['id']);
-                                        Assert::isObject($service);
-                                        break;
-                                    case 'usage_ip_ports':
-                                        $service = UsageIpPorts::findOne($services[$i]['id']);
-                                        Assert::isObject($service);
-                                        $fulltext = $service->address;
-                                        break;
-                                        break;
-                                    case 'usage_welltime':
-                                        $service = UsageWelltime::findOne($services[$i]['id']);
-                                        Assert::isObject($service);
-                                        break;
                                     case 'usage_voip':
-                                        $service = UsageVoip::findOne($services[$i]['id']);
-                                        Assert::isObject($service);
                                         $fulltext = $service->E164 . 'x' . $service->no_of_lines;
                                         break;
+                                    case 'usage_ip_ports':
+                                        $fulltext = $service->address;
+                                        break;
+                                    default:
+                                        $tariff = $service->tariff;
+                                        if ($tariff)
+                                            $fulltext = $tariff->description;
+                                        break;
                                 endswitch;
-
-                                if (empty($fulltext)):
-                                    $tariff = $service->tariff;
-                                    if ($tariff)
-                                        $fulltext = $tariff->description;
-                                endif;
                                 ?>
 
                                 <li>

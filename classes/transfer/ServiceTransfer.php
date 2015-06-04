@@ -3,6 +3,7 @@
 namespace app\classes\transfer;
 
 use Yii;
+use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\Usage;
 
@@ -66,7 +67,7 @@ abstract class ServiceTransfer
     {
         //throw new \Exception('Услуга не готова к переносу');
 
-        if ((int) $this->service->dst_usage_id)
+        if ((int) $this->service->next_usage_id)
             throw new \Exception('Услуга уже перенесена');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
@@ -76,14 +77,14 @@ abstract class ServiceTransfer
             unset($targetService->id);
             $targetService->activation_dt = date('Y-m-d H:i:s', $this->activation_date);
             $targetService->actual_from = date('Y-m-d', $this->activation_date);
-            $targetService->src_usage_id = $this->service->id;
+            $targetService->prev_usage_id = $this->service->id;
             $targetService->client = $targetAccount->client;
 
             $targetService->save();
 
             $this->service->expire_dt = date('Y-m-d H:i:s', $this->activation_date - 1);
             $this->service->actual_to = date('Y-m-d', $this->activation_date - 1);
-            $this->service->dst_usage_id = $targetService->id;
+            $this->service->next_usage_id = $targetService->id;
 
             $this->service->save();
 
@@ -102,34 +103,23 @@ abstract class ServiceTransfer
      */
     public function fallback()
     {
-
-        $now = new \DateTime();
-        $movedService = new $this->service;
-        $movedService = $movedService->find()
-            ->andWhere(['id' => $this->service->dst_usage_id])
-            ->andWhere('actual_from > :date', [':date' => $now->format('Y-m-d')])
-            ->one();
-        print_r($movedService);
-        die();
-        if (!(int) $this->service->dst_usage_id)
+        if (!(int) $this->service->next_usage_id)
             throw new \Exception('Услуга не была подготовлена к переносу');
-
-        $now = new \DateTime();
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $movedService = new $this->service;
             $movedService = $movedService->find()
-                ->andWhere(['id' => $this->service->dst_usage_id])
-                ->andWhere('actual_from > :date', [':date' => $now->format('Y-m-d')])
+                ->andWhere(['id' => $this->service->next_usage_id])
+                ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
                 ->one();
             Assert::isObject($movedService);
 
-            $this->service->dst_usage_id = 0;
+            $this->service->next_usage_id = 0;
             $this->service->expire_dt = $movedService->expire_dt;
             $this->service->actual_to = $movedService->actual_to;
 
-            $this->service->source->save();
+            $this->service->save();
 
             $movedService->delete();
             $dbTransaction->commit();

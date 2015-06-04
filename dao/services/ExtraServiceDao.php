@@ -39,7 +39,7 @@ class ExtraServiceDao extends Singleton implements ServiceDao
                 ->innerJoinWith('tariff', false)
                 ->andWhere(['client' => $client->client])
                 ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
-                ->andWhere(['dst_usage_id' => 0])
+                ->andWhere(['next_usage_id' => 0])
                 ->andWhere(['tarifs_extra.status' => ['public','special','archive']])
                 ->andWhere(['not in', 'tarifs_extra.code', ['welltime','wellsystem']])
                 ->all();

@@ -1,6 +1,10 @@
 <?php
 
 namespace app\classes\transfer;
+
+use Yii;
+use app\classes\Assert;
+use app\models\ClientAccount;
 use app\models\UsageTrunkSettings;
 
 /**
@@ -61,15 +65,15 @@ class TrunkServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
-        parent::fallback();
-
         $this->fallbackSettings();
+
+        parent::fallback();
     }
 
     /**
      * Отмена переноса связанных с услугой настроек
      */
-    public function fallbackSettings()
+    private function fallbackSettings()
     {
         $settings =
             UsageTrunkSettings::find()
@@ -81,7 +85,7 @@ class TrunkServiceTransfer extends ServiceTransfer
             try {
                 $movedSettings =
                     UsageTrunkSettings::find()
-                        ->andWhere(['src_usage_id' => $setting->id])
+                        ->andWhere(['usage_id' => $this->service->next_usage_id])
                         ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
                         ->one();
                 Assert::isObject($movedSettings);

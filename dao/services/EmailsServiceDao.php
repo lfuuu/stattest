@@ -39,7 +39,7 @@ class EmailsServiceDao extends Singleton implements ServiceDao
             Emails::find()
                 ->andWhere(['client' => $client->client])
                 ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
-                ->andWhere(['dst_usage_id' => 0])
+                ->andWhere(['next_usage_id' => 0])
                 ->all();
     }
 }

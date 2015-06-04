@@ -4,10 +4,10 @@ namespace app\dao\services;
 
 use Yii;
 use app\classes\Singleton;
+use app\models\UsageTrunk;
 use app\models\ClientAccount;
-use app\models\UsageIpPorts;
 
-class IpPortsServiceDao extends Singleton implements ServiceDao
+class TrunkServiceDao extends Singleton implements ServiceDao
 {
 
     public function getPossibleToTransfer(ClientAccount $client)
@@ -15,8 +15,8 @@ class IpPortsServiceDao extends Singleton implements ServiceDao
         $now = new \DateTime();
 
         return
-            UsageIpPorts::find()
-                ->andWhere(['client' => $client->client])
+            UsageTrunk::find()
+                ->andWhere(['client_account_id' => $client->id])
                 ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
                 ->andWhere(['next_usage_id' => 0])
                 ->all();

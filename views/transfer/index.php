@@ -5,15 +5,7 @@ use kartik\widgets\DatePicker;
 
 /** @var $model ServiceTransferForm */
 
-$servicesTitle = [
-    'usage_extra' => 'Доп. услуги',
-    'usage_sms' => 'SMS',
-    'usage_welltime' => 'Welltime',
-    'usage_voip' => 'Телефония номера',
-    'usage_trunk' => 'Телефония транки',
-    'emails' => 'E-mail',
-    'usage_ip_ports' => 'Интернет'
-];
+$servicesGroups = $model->getServicesGroups();
 $possibleServices = $model->getPossibleServices($client);
 ?>
 
@@ -119,11 +111,19 @@ $possibleServices = $model->getPossibleServices($client);
                             </label>
                         </div>
 
-                        <div id="services-list" style="width: 90%; height: auto; display: none; overflow: auto; margin-left: 20px;">
+                        <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
                             <?php
                             foreach ($possibleServices['items'] as $serviceType => $services):
                                 ?>
-                                <b><?php echo (array_key_exists($serviceType, $servicesTitle) ? $servicesTitle[$serviceType] : $service_type); ?></b><br />
+                                <b>
+                                    <?php
+                                        echo (
+                                            array_key_exists($serviceType, $servicesGroups)
+                                                ? $servicesGroups[$serviceType]['title']
+                                                : $serviceType
+                                        );
+                                    ?>
+                                </b><br />
                                 <?php
                                 foreach ($services as $service):
                                     $text = $fulltext = '';
@@ -209,7 +209,7 @@ $possibleServices = $model->getPossibleServices($client);
                         </div>
 
                         <input type="text" name="target_account_search" class="form-control" style="margin-left: 20px; width: 70%; visibility: hidden;" />
-                        <input type="text" name="transfer[target_account_id_custom]" value="0" />
+                        <input type="hidden" name="transfer[target_account_id_custom]" value="0" />
                     </td>
                     <td valign="top">
                         <?php
@@ -273,11 +273,11 @@ jQuery(document).ready(function() {
                 var extend_block = $('#services-list');
                 if (element.val() == 'custom') {
                     extend_block.find('input[type="checkbox"]').removeAttr('checked').prop('checked', false);
-                    extend_block.show();
+                    extend_block.css('visibility', 'visible');
                 }
                 else {
                     extend_block.find('input[type="checkbox"]').attr('checked', 'checked').prop('checked', true);
-                    extend_block.hide();
+                    extend_block.css('visibility', 'hidden');
                 }
             },
             'date-choose': function(element) {
