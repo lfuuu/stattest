@@ -6,10 +6,6 @@ return array(
     'USE_MD5'        => 0, //использование md5-хеширование для паролей
     'ADMIN_EMAIL'   => 'admin@mcn.loc',
 
-// stat mysql
-    'SQL_ATS_DB'        =>    '', //db width ats v.1
-    'SQL_ATS2_DB'        =>    '', //db width ats v.2 (with "a" prefix, with schema)
-
 /* voip regions db
     'R_CALLS_HOST'        =>    '',
     'R_CALLS_USER'        =>    '',

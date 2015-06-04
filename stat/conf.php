@@ -59,6 +59,42 @@ if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->db->dsn, $matche
     $config['SQL_PASS'] = '';
 }
 
+if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->dbAts->dsn, $matches)) {
+    $config['SQL_ATS_HOST'] = $matches[1][0];
+    $config['SQL_ATS_DB'] = $matches[2][0];
+    $config['SQL_ATS_USER'] = Yii::$app->dbAts->username;
+    $config['SQL_ATS_PASS'] = Yii::$app->dbAts->password;
+} else {
+    $config['SQL_ATS_HOST'] = '';
+    $config['SQL_ATS_DB'] = '';
+    $config['SQL_ATS_USER'] = '';
+    $config['SQL_ATS_PASS'] = '';
+}
+
+if (preg_match_all('/host=([\w\.]+);dbname=(\w+)/i', Yii::$app->dbAts2->dsn, $matches)) {
+    $config['SQL_ATS2_HOST'] = $matches[1][0];
+    $config['SQL_ATS2_DB'] = $matches[2][0];
+    $config['SQL_ATS2_USER'] = Yii::$app->dbAts2->username;
+    $config['SQL_ATS2_PASS'] = Yii::$app->dbAts2->password;
+} else {
+    $config['SQL_ATS2_HOST'] = '';
+    $config['SQL_ATS2_DB'] = '';
+    $config['SQL_ATS2_USER'] = '';
+    $config['SQL_ATS2_PASS'] = '';
+}
+
+if (preg_match_all('/host=([\w\.]+);.*dbname=(\w+)/i', Yii::$app->dbPgAts->dsn, $matches)) {
+    $config['PG_ATS_HOST'] = $matches[1][0];
+    $config['PG_ATS_DB'] = $matches[2][0];
+    $config['PG_ATS_USER'] = Yii::$app->dbPgAts->username;
+    $config['PG_ATS_PASS'] = Yii::$app->dbPgAts->password;
+} ELSE {
+    $config['PG_ATS_HOST'] = '';
+    $config['PG_ATS_DB'] = '';
+    $config['PG_ATS_USER'] = '';
+    $config['PG_ATS_PASS'] = '';
+}
+
 if (preg_match_all('/host=([\w\.]+);.*dbname=(\w+)/i', Yii::$app->dbPg->dsn, $matches)) {
     $config['PGSQL_HOST'] = $matches[1][0];
     $config['PGSQL_DB'] = $matches[2][0];

@@ -920,11 +920,7 @@ class m_stats extends IModule{
 
         /** @var \app\models\ClientAccount $client */
         $client = \app\models\ClientAccount::findOne($client_id);
-        /*
-         $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
-                 R_CALLS_USER, R_CALLS_PASS,
-                 str_replace('[region]', $region, R_CALLS_DB)	);
-        */
+
         $from = new DateTime(date('Y-m-d', $from), $client->timezone);
         $to = new DateTime(date('Y-m-d 23:59:59', $to), $client->timezone);
 
