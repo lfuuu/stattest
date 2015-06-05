@@ -106,7 +106,6 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete': 
-                                                    SyncCore::checkProductState('vpbx', $param/*id, client*/);  // no break
                     case 'client_set_status':
 //                                                  virtPbx::check();
                                                   VirtPbx3::check();

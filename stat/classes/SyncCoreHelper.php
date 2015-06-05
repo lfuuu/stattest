@@ -188,7 +188,7 @@ class SyncCoreHelper
         return array("account" => array("id" => $clientId), "products" => array($productStruct));
     }
 
-    public static function getRemoveProductStruct($clientId, $product, $statProductId)
+    public static function getRemoveProductStruct($clientId, $product, $statProductId = 0)
     {
         return array("account_id" => $clientId, "product" => $product, "stat_product_id" => $statProductId);
     }

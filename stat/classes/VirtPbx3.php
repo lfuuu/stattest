@@ -10,6 +10,9 @@ class VirtPbx3Checker
 
         if($diff = self::diff(self::load("saved"), $actual))
             VirtPbx3Diff::apply($diff);
+
+        SyncCore::checkProductState('vpbx', $param/*id, client*/);  // no break
+
     }
 
     private static $sqlActual = "
@@ -138,6 +141,11 @@ class VirtPbx3Diff
 
 class VirtPbx3Action
 {
+    private static function getCoreApiUrl()
+    {
+        return "https://".CORE_SERVER."/core/api/";
+    }
+
     public static function add(&$l)
     {
         global $db;
@@ -146,6 +154,23 @@ class VirtPbx3Action
 
         if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
         {
+            $vpbxIP =
+                $db->GetValue("
+                    SELECT
+                        s.ip
+                    FROM usage_virtpbx u
+                    LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
+                    LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
+                    WHERE u.id = {$l["usage_id"]}
+                ");
+
+            $newState = array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS :$vpbxIP), "mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]);
+
+            JSONQuery::exec(
+                self::getCoreApiUrl().'add_products_from_stat',
+                SyncCoreHelper::getAddProductStruct($l["client_id"], $newState)
+            );
+
             if ($rr = SyncVirtPbx::create($l["client_id"], $l["usage_id"]))
             {
                 return $db->QueryInsert("actual_virtpbx", array(
@@ -168,6 +193,11 @@ class VirtPbx3Action
 
         if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
         {
+            JSONQuery::exec(
+                self::getCoreApiUrl().'remove_product',
+                SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx', $l["usage_id"])
+            );
+
             if ($rr = SyncVirtPbx::stop($l["client_id"], $l["usage_id"]))
             {
                 return $db->QueryDelete("actual_virtpbx", array(
