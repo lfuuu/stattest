@@ -190,18 +190,20 @@ class VirtPbx3Action
 
         if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
         {
-            JSONQuery::exec(
-                self::getCoreApiUrl().'remove_product',
-                SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]
-            );
-
             if ($rr = SyncVirtPbx::stop($l["client_id"], $l["usage_id"]))
             {
+                JSONQuery::exec(
+                    self::getCoreApiUrl().'remove_product',
+                    SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]
+                );
+
                 return $db->QueryDelete("actual_virtpbx", array(
                         "usage_id" => $l["usage_id"],
                     )
                 );
             }
+
+
             throw new Exception("VPBX not stoped", 500);
         }
     }
