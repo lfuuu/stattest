@@ -34,7 +34,7 @@ class VirtPbx3Checker
         FROM actual_virtpbx
         order by usage_id";
 
-    private function load($type, $usageId)
+    private function load($type, $usageId = 0)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
         global $db, $db_ats;
@@ -89,10 +89,10 @@ class VirtPbx3Checker
 
 class VirtPbx3
 {
-    public static function check()
+    public static function check($usageId = 0)
     {
         l::ll(__CLASS__,__FUNCTION__);
-        VirtPbx3Checker::check();
+        VirtPbx3Checker::check($usageId);
     }
 }
 
