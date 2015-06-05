@@ -380,7 +380,7 @@ class ActaulizerVoipNumbers
         return 'Europe/Moscow';
     }
 
-    private function event_go($event, $data)
+    private function event_go($event, $data = null)
     {
         \l::ll(__CLASS__,__FUNCTION__, $event, $data);
 
