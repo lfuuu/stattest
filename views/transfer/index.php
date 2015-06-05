@@ -40,49 +40,39 @@ $possibleServices = $model->getPossibleServices($client);
                     <th valign="top">
                         <?php if ($model->getFirstError('source_service_ids') || $model->getFirstError('services_got_errors')): ?>
                             <div class="label label-danger">
-                                <?php echo $model->getFirstError('source_service_ids'); ?>
-                                <?php echo $model->getFirstError('services_got_errors'); ?>
+                                <?= $model->getFirstError('source_service_ids'); ?>
+                                <?= $model->getFirstError('services_got_errors'); ?>
                             </div>
                         <?php endif; ?>
 
                         <?php if (sizeof($model->servicesSuccess)): ?>
                             <br />
                             <div class="label label-success">
-                                Успешно перенесено <?php echo sizeof($model->servicesSuccess); ?>
+                                Успешно перенесено <?= sizeof($model->servicesSuccess); ?>
                             </div>
                         <?php endif; ?>
                     </th>
                     <th valign="top">
-                        <?php
-                        if ($model->getFirstError('target_account_id') || $model->getFirstError('target_account_custom')):
-                            ?>
+                        <?php if ($model->getFirstError('target_account_id') || $model->getFirstError('target_account_custom')): ?>
                             <div class="label label-danger">
-                                <?php echo $model->getFirstError('target_account_id'); ?>
-                                <?php echo $model->getFirstError('target_account_custom'); ?>
+                                <?= $model->getFirstError('target_account_id'); ?>
+                                <?= $model->getFirstError('target_account_custom'); ?>
                             </div>
-                        <?php
-                        endif;
+                        <?php endif; ?>
 
-                        if ($model->getFirstError('target_account_not_found')):
-                            ?>
+                        <?php if ($model->getFirstError('target_account_not_found')): ?>
                             <div class="label label-danger">
-                                <?php echo $model->getFirstError('target_account_not_found'); ?>
+                                <?= $model->getFirstError('target_account_not_found'); ?>
                             </div>
-                        <?php
-                        endif;
-                        ?>
+                        <?php endif; ?>
                     </th>
                     <th valign="top">
-                        <?php
-                        if ($model->getFirstError('actual_from') || $model->getFirstError('actual_custom')):
-                            ?>
+                        <?php if ($model->getFirstError('actual_from') || $model->getFirstError('actual_custom')): ?>
                             <div class="label label-danger">
-                                <?php echo $model->getFirstError('actual_from'); ?>
-                                <?php echo $model->getFirstError('actual_custom'); ?>
+                                <?= $model->getFirstError('actual_from'); ?>
+                                <?= $model->getFirstError('actual_custom'); ?>
                             </div>
-                        <?php
-                        endif;
-                        ?>
+                        <?php endif; ?>
                     </th>
                 </tr>
             </thead>
@@ -92,34 +82,25 @@ $possibleServices = $model->getPossibleServices($client);
                     <td valign="top">
                         <div class="radio">
                             <label>
-                                <input type="radio" name="services-choose" value="all" data-action="services-choose"<?php echo (!sizeof($model->servicesErrors) ? 'checked="checked"' : ''); ?> />
-                                Все (<?php echo $possibleServices['total'];?> шт.)
+                                <input type="radio" name="services-choose" value="all" data-action="services-choose"<?= (!sizeof($model->servicesErrors) ? 'checked="checked"' : ''); ?> />
+                                Все (<?= $possibleServices['total'];?> шт.)
                             </label>
                         </div>
                         <div class="radio">
                             <label>
-                                <input type="radio" name="services-choose" value="custom" data-action="services-choose"<?php echo (sizeof($model->servicesErrors) ? ' checked="checked"' : '');?> />
+                                <input type="radio" name="services-choose" value="custom" data-action="services-choose"<?= (sizeof($model->servicesErrors) ? ' checked="checked"' : ''); ?> />
                                 Выбранные услуги
                             </label>
                         </div>
 
                         <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
-                            <?php
-                            foreach ($possibleServices['items'] as $serviceTitle => $services):
-                                ?>
-                                <b><?= $serviceTitle; ?></b><br />
+                            <?php foreach ($possibleServices['items'] as $serviceType => $services): ?>
+                                <b><?= $serviceType::getTypeTitle(); ?></b><br />
+
                                 <?php
                                 /** @var \app\models\Usage[] $services */
                                 foreach ($services as $service):
-                                    if ($service instanceof \app\models\Emails) {
-                                        $fulltext = $service->local_part . '@' . $service->domain;
-                                    } elseif ($service instanceof \app\models\UsageVoip) {
-                                        $fulltext = $service->E164 . 'x' . $service->no_of_lines;
-                                    } elseif ($service instanceof \app\models\UsageIpPorts) {
-                                        $fulltext = $service->address;
-                                    } else {
-                                        $fulltext = $service->tariff ? $service->tariff->description : '';
-                                    }
+                                    $fulltext = $service->getTypeDescription();
 
                                     if (mb_strlen($fulltext, 'UTF-8') > 30):
                                         $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
@@ -128,25 +109,16 @@ $possibleServices = $model->getPossibleServices($client);
                                     endif;
                                     ?>
 
-                                    <?php
-                                    if (array_key_exists($service->id, $model->servicesErrors)):
-                                        ?>
-                                        <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?php echo implode($model->servicesErrors[$service->id], "\n"); ?>' />
-                                    <?php
-                                    endif;
-                                    ?>
+                                    <?php if (array_key_exists($service->id, $model->servicesErrors)):?>
+                                        <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?= implode($model->servicesErrors[$service->id], "\n"); ?>' />
+                                    <?php endif; ?>
 
-                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?php echo $service->id; ?>" checked="checked" />
-                                    &nbsp;<?php echo $service->id;?>: <abbr title="<?php echo $service->id . ': ' . $fulltext; ?>"><?php echo $text; ?></abbr><br />
-                                <?php
-                                endforeach;
-                                ?>
+                                    <input type="checkbox" name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?= $service->id; ?>" checked="checked" />
+                                    &nbsp;<?= $service->id;?>: <abbr title="<?= $service->id . ': ' . $fulltext; ?>"><?= $text; ?></abbr><br />
+                                <?php endforeach; ?>
                                 <br />
-                            <?php
-                            endforeach;
-                            ?>
+                            <?php endforeach; ?>
                         </div>
-
                     </td>
                     <td valign="top">
                         <?php
@@ -154,12 +126,11 @@ $possibleServices = $model->getPossibleServices($client);
 
                         if (!is_null($model->targetAccount)):
                             $firstRow = false;
-
                             ?>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="transfer[target_account_id]" value="<?php echo $model->targetAccount->id; ?>" data-action="account-choose" checked="checked" />
-                                    № <?php echo $model->targetAccount->id; ?> - <?php echo $model->targetAccount->contragent->name; ?>
+                                    <input type="radio" name="transfer[target_account_id]" value="<?= $model->targetAccount->id; ?>" data-action="account-choose" checked="checked" />
+                                    № <?= $model->targetAccount->id; ?> - <?= $model->targetAccount->contragent->name; ?>
                                 </label>
                             </div>
                         <?php
@@ -171,8 +142,8 @@ $possibleServices = $model->getPossibleServices($client);
                             ?>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="transfer[target_account_id]" value="<?php echo $account->id; ?>" data-action="account-choose"<?php echo ($firstRow || $model->target_account_id == $account->id ? 'checked="checked"' : ''); ?> />
-                                    № <?php echo $account->id; ?> - <?php echo $account->contragent->name; ?>
+                                    <input type="radio" name="transfer[target_account_id]" value="<?= $account->id; ?>" data-action="account-choose"<?= ($firstRow || $model->target_account_id == $account->id ? 'checked="checked"' : ''); ?> />
+                                    № <?= $account->id; ?> - <?= $account->contragent->name; ?>
                                 </label>
                             </div>
                             <?php
@@ -193,14 +164,15 @@ $possibleServices = $model->getPossibleServices($client);
                     <td valign="top">
                         <?php
                         $firstRow = (boolean) !$model->actual_from;
+
                         foreach ($model->getActualDateVariants() as $date):
                             $date = new DateTime($date);
                             $dateValue = $date->format('Y-m-d');
                             ?>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="transfer[actual_from]" value="<?= $dateValue; ?>" data-action="date-choose"<?php echo ($firstRow || $model->actual_from == $dateValue ? 'checked="checked"' : ''); ?> />
-                                    <?php echo $date->format('d.m.Y'); ?>
+                                    <input type="radio" name="transfer[actual_from]" value="<?= $dateValue; ?>" data-action="date-choose"<?= ($firstRow || $model->actual_from == $dateValue ? 'checked="checked"' : ''); ?> />
+                                    <?= $date->format('d.m.Y'); ?>
                                 </label>
                             </div>
                             <?php
@@ -209,7 +181,7 @@ $possibleServices = $model->getPossibleServices($client);
                         ?>
                         <div class="radio">
                             <label>
-                                <input type="radio" name="transfer[actual_from]" value="custom" data-action="date-choose"<?php echo ($model->actual_from == 'custom' ? 'checked="checked"' : ''); ?> />
+                                <input type="radio" name="transfer[actual_from]" value="custom" data-action="date-choose"<?= ($model->actual_from == 'custom' ? 'checked="checked"' : ''); ?> />
                                 Другая дата
                             </label>
                         </div>
@@ -218,19 +190,25 @@ $possibleServices = $model->getPossibleServices($client);
                         echo DatePicker::widget([
                             'type' => DatePicker::TYPE_INPUT,
                             'value' => $model->actual_custom,
-                            'name' => 'transfer[actual_custom]',
+                            'name' => 'actual_from_datepicker',
                             'language' => 'ru',
                             'options' => [
                                 'style' => 'margin-left: 20px; width: 100px'
                             ],
                             'pluginOptions' => [
                                 'autoclose' => true,
-                                'format' => 'yyyy-mm-dd',
+                                'format' => 'dd.mm.yyyy',
                                 'orientation' => 'top right',
                                 'startDate' =>  'today'
+                            ],
+                            'pluginEvents' => [
+                                'changeDate' => "function(e) {
+                                    $('input[name=\"transfer[actual_custom]\"]').val(e.format(0, 'yyyy-mm-dd'));
+                                }"
                             ]
                         ]);
                         ?>
+                        <input type="hidden" name="transfer[actual_custom]" value="0" />
 
                     </td>
                 </tr>
@@ -240,7 +218,7 @@ $possibleServices = $model->getPossibleServices($client);
 
     <div style="position: fixed; bottom: 0; right: 15px;">
         <button type="button" id="dialog-close" style="width: 100px; margin-right: 15px;" class="btn btn-link">Отмена</button>
-        <button type="submit" style="width: 100px;" class="btn btn-primary"<?php echo (!$possibleServices['total'] ? 'disabled="disabled"' : '');?>>OK</button>
+        <button type="submit" style="width: 100px;" class="btn btn-primary"<?= (!$possibleServices['total'] ? 'disabled="disabled"' : '');?>>OK</button>
     </div>
 </form>
 
@@ -262,7 +240,7 @@ jQuery(document).ready(function() {
                 }
             },
             'date-choose': function(element) {
-                var extend_block = $('input[name="transfer[actual_custom]"]');
+                var extend_block = $('input[name="actual_from_datepicker"]');
                 element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
             },
             'account-choose': function(element) {

@@ -16,12 +16,11 @@ class TrunkServiceTransfer extends ServiceTransfer
 
     /**
      * Перенос базовой сущности услуги
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount, $activationDate)
+    public function process()
     {
-        $targetService = parent::process($targetAccount, $activationDate);
+        $targetService = parent::process();
 
         $this->processSettings($targetService);
 

@@ -62,8 +62,14 @@ class UsageWelltime extends ActiveRecord implements Usage
         return new WelltimeServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'Welltime';
     }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
+    }
+
 }

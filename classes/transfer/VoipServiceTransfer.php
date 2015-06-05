@@ -2,6 +2,7 @@
 
 namespace app\classes\transfer;
 
+use app\classes\Assert;
 use app\classes\Event;
 use app\models\ClientAccount;
 
