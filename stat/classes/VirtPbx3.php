@@ -148,8 +148,6 @@ class VirtPbx3Action
         {
             if ($rr = SyncVirtPbx::create($l["client_id"], $l["usage_id"]))
             {
-                SyncVirtPbx::changeTarif($l["client_id"], $l["usage_id"]);
-
                 return $db->QueryInsert("actual_virtpbx", array(
                         "usage_id" => $l["usage_id"],
                         "client_id" => $l["client_id"],
@@ -187,7 +185,7 @@ class VirtPbx3Action
 
         l::ll(__CLASS__,__FUNCTION__, $l);
 
-        SyncVirtPbx::changeTarif($l["client_id"], $l["tarif_id"]);
+        SyncVirtPbx::changeTarif($l["client_id"], $l["usage_id"]);
 
         $db->QueryUpdate("actual_virtpbx", "client_id", array(
             "usage_id" => $l["usage_id"],
