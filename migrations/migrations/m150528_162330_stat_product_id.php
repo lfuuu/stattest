@@ -87,7 +87,7 @@ class m150528_162330_stat_product_id extends \app\classes\Migration
               `is_disabled` tinyint(4) NOT NULL DEFAULT '0',
               PRIMARY KEY (`id`),
               UNIQUE KEY `number` (`number`) USING BTREE
-            ) ENGINE=MyISAM AUTO_INCREMENT=4772 DEFAULT CHARSET=utf8;
+            ) ENGINE=InnoDB AUTO_INCREMENT=4772 DEFAULT CHARSET=utf8;
         ");
 
         $this->execute("

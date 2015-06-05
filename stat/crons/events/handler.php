@@ -61,7 +61,7 @@ function do_events()
                 case 'client_set_status':
                 case 'usage_voip__insert':
                 case 'usage_voip__update':
-                case 'usage_voip__delete':  //ats2Numbers::check();
+                case 'usage_voip__delete':  ats2Numbers::check();
                                             break;
 
                 case 'add_payment':    EventHandler::updateBalance($param[1]);
@@ -70,7 +70,7 @@ function do_events()
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
                 case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
-//                                 ats2Numbers::check();echo "...ats2Numbers::check()";
+                                 ats2Numbers::check();echo "...ats2Numbers::check()";
 //                                 virtPbx::check();echo "...virtPbx::check()";
                                  VirtPbx3::check();echo "...VirtPbx3::check()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
@@ -86,7 +86,7 @@ function do_events()
                                  break;
 
                 case 'autocreate_accounts':
-                    //ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true);
+                    ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true);
                     break;
             }
 
