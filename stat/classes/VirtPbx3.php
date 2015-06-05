@@ -192,7 +192,7 @@ class VirtPbx3Action
         {
             JSONQuery::exec(
                 self::getCoreApiUrl().'remove_product',
-                SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx', $l["usage_id"])
+                SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]
             );
 
             if ($rr = SyncVirtPbx::stop($l["client_id"], $l["usage_id"]))
