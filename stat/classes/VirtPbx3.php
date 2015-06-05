@@ -66,11 +66,11 @@ class VirtPbx3Checker
                 "changed_tarif" => array(), 
                 );
 
-        foreach(array_diff(array_keys($saved), array_keys($actual)) as $usageId => $l)
-            $d["deleted"][$usageId] = $saved[$usageId];
+        foreach(array_diff(array_keys($saved), array_keys($actual)) as $l)
+            $d["deleted"][$l] = $saved[$l];
 
-        foreach(array_diff(array_keys($actual), array_keys($saved)) as $usageId => $l)
-            $d["added"][$usageId] = $actual[$usageId];
+        foreach(array_diff(array_keys($actual), array_keys($saved)) as $l)
+            $d["added"][$l] = $actual[$l];
 
         foreach($actual as $usageId => $l)
             if(isset($saved[$usageId]) && $saved[$usageId]["tarif_id"] != $l["tarif_id"]) 
