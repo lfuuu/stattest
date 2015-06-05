@@ -105,7 +105,10 @@ function do_events()
 
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
-                    case 'usage_virtpbx__delete': 
+                    case 'usage_virtpbx__delete':
+//                                                  virtPbx::check();
+                                                  VirtPbx3::check($param[0]);
+                    break;
                     case 'client_set_status':
 //                                                  virtPbx::check();
                                                   VirtPbx3::check();

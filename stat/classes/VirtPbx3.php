@@ -2,13 +2,13 @@
 
 class VirtPbx3Checker
 {
-    public static function check()
+    public static function check($usageId = 0)
     {
         l::ll(__CLASS__,__FUNCTION__);
 
-        $actual = self::load("actual");
+        $actual = self::load("actual", $usageId);
 
-        if($diff = self::diff(self::load("saved"), $actual))
+        if($diff = self::diff(self::load("saved", $usageId), $actual))
             VirtPbx3Diff::apply($diff);
     }
 
@@ -34,7 +34,7 @@ class VirtPbx3Checker
         FROM actual_virtpbx
         order by usage_id";
 
-    private function load($type)
+    private function load($type, $usageId)
     {
         l::ll(__CLASS__,__FUNCTION__,$type);
         global $db, $db_ats;
@@ -47,8 +47,11 @@ class VirtPbx3Checker
         }
 
         $d = array();
-        foreach($db->AllRecords($sql) as $l)
-            $d[$l["usage_id"]] = $l;
+        foreach($db->AllRecords($sql) as $l) {
+            if (!$usageId || $usageId == $l["usage_id"]) {
+                $d[$l["usage_id"]] = $l;
+            }
+        }
 
         if (!$d)
             throw new Exception("Data not load");
