@@ -53,7 +53,7 @@ class VirtPbx3Checker
             }
         }
 
-        if (!$d)
+        if (!$usageId && !$d)
             throw new Exception("Data not load");
 
         return $d;
