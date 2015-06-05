@@ -883,14 +883,14 @@ class m_stats extends IModule{
       $R = array();
       $geo = array();
         foreach($pg_db->AllRecords($q =
-                  "SELECT direction_out,usage_num,phone_num,len,time, geo_id FROM calls.calls
-                  WHERE \"time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
-                  AND phone_num = '".$find."'
-                  AND region = '".$region."'
+                  "SELECT orig, src_number, dst_number, billed_time as len, geo_id FROM calls_raw.calls_raw
+                  WHERE \"connect_time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
+                  AND '".$find."' in (src_number, dst_number)
+                  AND server_id = '".$region."'
                   AND operator_id < 50
                   LIMIT 1000") as $l)
         {
-          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["time"]));
+          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["connect_time"]));
 
           if ($l['len']>=24*60*60) $d=floor($l['len']/(24*60*60)); else $d=0;
           $l["len"]=($d?($d.'d '):'').gmdate("H:i:s",$l['len']-$d*24*60*60);
