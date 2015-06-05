@@ -10,9 +10,6 @@ class VirtPbx3Checker
 
         if($diff = self::diff(self::load("saved"), $actual))
             VirtPbx3Diff::apply($diff);
-
-        SyncCore::checkProductState('vpbx', $param/*id, client*/);  // no break
-
     }
 
     private static $sqlActual = "
