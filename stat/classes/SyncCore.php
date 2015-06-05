@@ -205,7 +205,7 @@ class SyncCore
         {
             $action = "remove";
             $actionJSON = "remove_product";
-            $struct = SyncCoreHelper::getRemoveProductStruct($client->id, $product);
+            $struct = SyncCoreHelper::getRemoveProductStruct($client->id, $product, $statProductId);
         }
 
         if ($action && $struct)
