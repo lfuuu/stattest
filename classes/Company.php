@@ -33,9 +33,59 @@ class Company
                     "director_" => "Надточеевой Н. А. ",
                     "director_post" => "Генеральный директор",
                     "director_post_" => "Генерального директора"
+                ),
+                /*
+                "mcn_telekom_hungary" => [
+                    "name" => "MCN Telecom Kft.", 
+                    "address" => "123098, Moscow, ulitsa Akademika Bochvara, 10B",
+                    "post_address" => "115487, Moscow, 2-y Nagatinsky proyezd, 2с8",
+                    "inn" => "7727752084",
+                    "kpp" => "772401001",
+                    "acc" => "40702810038110015462",
+                    "bank" => "Oroszország, Szberbank zRt., Moszkvai fiok",
+                    "kor_acc" => "30101810400000000225",
+                    "bik" => "SABRRUMM",
+                    "phone" => "+7 495 105-99-99",
+                    "fax" => "+7 495 105-99-96",
+                    "email" => "info@mcn.ru",
+                    "director" => "",
+                    "director_" => "",
+                    "director_post" => "",
+                    "director_post_" => ""
+                ],
+*/
 
-                        ),
-"ooomcn" => array(
+                "mcn_telekom_hungary" => [
+                    "name" => "MCN Telecom Kft.", 
+                    "address" => "123098, Moscow, ulitsa Akademika Bochvara, 10B",
+                    "post_address" => "115487, Moscow, 2-y Nagatinsky proyezd, 2с8",
+                    "inn" => "7727752084",
+                    "reg_no" => "1117746441647", //ogrn
+                    "acc" => "40702810038110015462",
+                    "bank" => "Oroszország, Szberbank zRt., Moszkvai fiok",
+                    "swift" => "SABRRUMM",
+                    "phone" => "+7 495 105-99-99",
+                    "fax" => "+7 495 105-99-96",
+                    "email" => "info@mcn.ru",
+                ],
+
+                "tel2tel_hungary" => [
+                    "name" => "Tel2tel Kft.", 
+                    "address" => "Budapest, 1114, Kemenes utca 8. félemelet 3.  Magyarorsag",
+                    "post_address" => "Budapest, 1114, Kemenes utca 8. félemelet 3.  Magyarorsag",
+                    "inn" => "12773246-2-43 / HU12773246",
+                    "reg_no" => "01 09 702746",
+                    "acc" => "12010611- 01424475 - 00100006 Ft,
+                              12010611 - 01424475 - 00300000 Usd,
+                              12010611 - 01424475 - 00200003 Euro"
+                    "bank" => "Raiffeisen Bank Zrt.",
+                    "swift" => "UBRTHUHB",
+                    "phone" => "+36 1 490-0999",
+                    "fax" => "+36 1 490-0998",
+                    "email" => "info@tel2tel.com",
+                ],
+
+                "ooomcn" => array(
                             "name_name" => "Общество с ограниченной ответственностью &laquo;МСН&raquo;",
                             "name" => "ООО &laquo;МСН&raquo;",
                             "address" => "117574 г. Москва, Одоевского пр-д., д. 3, кор. 7",
