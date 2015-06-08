@@ -46,8 +46,7 @@ class JSONQuery
         $result = @json_decode($result, true);
 
 
-        if (!$result)
-        {
+        if ($result === null) {
             Yii::info('Json result not decoded: '.$response);
             throw new Exception("VPBX Sync Error: result false", -1);
         }
