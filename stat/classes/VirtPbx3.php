@@ -1,6 +1,7 @@
 <?php
 
-use app\classes\JSONQuery;
+use app\classes\api\ApiCore;
+use app\classes\api\ApiPhone;
 
 class VirtPbx3Checker
 {
@@ -100,8 +101,8 @@ class VirtPbx3
 
     public static function getNumberTypes($clientId)
     {
-        if (defined('PHONE_SERVER') && PHONE_SERVER) {
-            return JSONQuery::exec("https://" . PHONE_SERVER . "/phone/api/numbers_state", ['account_id' => $clientId]);
+        if (ApiPhone::isAvailable()) {
+            return ApiPhone::exec('numbers_state', ['account_id' => $clientId]);
         } else {
             return [];
         }
@@ -172,11 +173,6 @@ class VirtPbx3Diff
 
 class VirtPbx3Action
 {
-    private static function getCoreApiUrl()
-    {
-        return "https://".CORE_SERVER."/core/api/";
-    }
-
     public static function add(&$l)
     {
         global $db;
@@ -201,19 +197,17 @@ class VirtPbx3Action
 
             $newState = array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS : $vpbxIP), "mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]);
 
-            JSONQuery::exec(
-                self::getCoreApiUrl() . 'add_products_from_stat',
-                SyncCoreHelper::getAddProductStruct($l["client_id"], $newState)
-            );
+            ApiCore::exec('add_products_from_stat', SyncCoreHelper::getAddProductStruct($l["client_id"], $newState));
+
         } catch (Exception $e) {
             $exceptionProduct = $e;
         }
 
         $exceptionVpbx = null;
         try {
-            if (!SyncVirtPbx::create($l["client_id"], $l["usage_id"])) {
-                throw new Exception("VPBX not started", 500);
-            }
+
+            SyncVirtPbx::create($l["client_id"], $l["usage_id"]);
+
         } catch (Exception $e) {
             $exceptionVpbx = $e;
         }
@@ -245,10 +239,9 @@ class VirtPbx3Action
         }
 
         try {
-            JSONQuery::exec(
-                self::getCoreApiUrl().'remove_product',
-                SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]
-            );
+
+            ApiCore::exec('remove_product', SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]);
+
         } catch (Exception $e) {
             throw $e;
         }

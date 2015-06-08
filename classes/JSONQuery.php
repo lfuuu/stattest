@@ -55,17 +55,6 @@ class JSONQuery
 
         Yii::info('Json response: ' . json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
-
-        if (isset($result["errors"]) && $result["errors"])
-        {
-            $msg = "";
-            if ( ! isset($result['errors'][0]["message"]) && isset($result['errors'][0]))
-            {
-                $msg = "Текст ошибки не найден! <br>".var_export($result['errors'][0], true);
-            }
-            throw new Exception($msg ?: $result["errors"][0]["message"], $result["errors"][0]["code"]);
-        }
-
         return $result;
     }
 
