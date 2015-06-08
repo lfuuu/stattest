@@ -132,17 +132,7 @@ class ClientDocumentDao extends Singleton
                 "Партнеры" => "partners",
                 "Интернет-магазин" => "internetshop",
 
-                "MCN-СПб" => "mcn98",
-                "MCN-Краснодар" => "mcn97",
-                "MCN-Самара" => "mcn96",
-                "MCN-Екатеринбург" => "mcn95",
-                "MCN-Новосибирск" => "mcn94",
-                "MCN-Ростов-на-Дону" => "mcn87",
-                "MCN-НижнийНовгород" => "mcn88",
-                "MCN-Казань" => "mcn93",
-                "MCN-Владивосток" => "mcn89",
                 "WellTime" => "welltime",
-                "IT-Park" => "itpark",
                 "Arhiv" => "arhiv",
                 );
 
