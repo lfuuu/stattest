@@ -544,7 +544,11 @@ class m_tt extends IModule{
 
         $design->assign(
             'tt_client',
-            $db->GetRow('select * from clients where client="'.$trouble['client_orig'].'"')
+            $db->GetRow('
+SELECT cr.`*`, cg.`*`, c.* FROM `clients` c
+INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
+where c.client="'.$trouble['client_orig'].'"')
         );
         $design->assign('tt_write',$this->checkTroubleAccess($trouble));
         $design->assign('tt_edit',$this->checkTroubleAccess($trouble) && !in_array($trouble["state_id"], [2, 20, 21, 39, 40, 46,47,48]));
@@ -1087,8 +1091,11 @@ class m_tt extends IModule{
         if($mode==3)
             $W[] = 'user_author="'.addslashes($user->Get('user')).'"';
         if($mode==4){
-            $W[] = 'clients.manager="'.addslashes($user->Get('user')).'"';
-            $join.= 'INNER JOIN clients ON (clients.client=T.client) ';
+            $W[] = 'cr.manager="'.addslashes($user->Get('user')).'"';
+            $join.= '
+INNER JOIN clients c ON (clients.client=T.client)
+INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+';
         }if($mode==5){
             $W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
         }
@@ -1131,16 +1138,18 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 IF(S.date_start<=NOW(),UNIX_TIMESTAMP(IF(S.state_id=2,S.date_edit,NOW()))-UNIX_TIMESTAMP(S.date_start),0) as time_pass,
                 (UNIX_TIMESTAMP(IF(S.state_id=2,S.date_edit,NOW())) - UNIX_TIMESTAMP(T.date_creation)) as time_start,
                 if(T.bill_no,(
-                    SELECT if(cl.`type`="multi",nai.fio,cl.company) FROM newbills nb
-                    LEFT JOIN clients cl ON cl.id = nb.client_id
+                    SELECT cg.name FROM newbills nb
                     LEFT JOIN newbills_add_info nai ON nai.bill_no = nb.bill_no
+                    LEFT JOIN clients cl ON cl.id = nb.client_id
+                    INNER JOIN `client_contract` cr ON cr.id=cl.contract_id
+                    INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
                     WHERE nb.bill_no = T.bill_no
                 ),
                 T.client) as client,
                 is_payed,
                 is_rollback,
                 tt.name as trouble_name,
-                cl.manager, cl.company
+                cr.manager, cg.name
             FROM
                 tt_troubles as T
             '.$join.'
@@ -1151,6 +1160,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
+            INNER JOIN `client_contract` cr ON cr.id=cl.contract_id
+            INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
             WHERE '.MySQLDatabase::Generate($W).'
             GROUP BY T.id
             ORDER BY T.id

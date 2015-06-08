@@ -56,7 +56,7 @@ class m150601_135758_editTriggerToPGClients extends \app\classes\Migration
             END;
 
 
-            ALTER DEFINER=CURRENT_USER VIEW
+            ALTER DEFINER=`latyntsev`@`localhost` VIEW
               `clients_select` AS select `nispd`.`clients`.`id` AS `id`,
                 `nispd`.`clients`.`client` AS `client`,
                 md5(`nispd`.`clients`.`password`) AS `password`
@@ -66,7 +66,7 @@ class m150601_135758_editTriggerToPGClients extends \app\classes\Migration
           DROP PROCEDURE `create_super_client`;
           DROP TRIGGER `create_super_client`;
 
-          ALTER ALGORITHM = UNDEFINED DEFINER=CURRENT_USER VIEW `client_grid_statuses` AS select `nispd`.`clients`.`id` AS `client_id`,
+          ALTER ALGORITHM = UNDEFINED DEFINER=`latyntsev`@`localhost` VIEW `client_grid_statuses` AS select `nispd`.`clients`.`id` AS `client_id`,
           cc.`business_process_status_id` AS `grid_status_id`
 	from `clients`
 	inner join client_contract cc on cc.id = clients.contract_id ;

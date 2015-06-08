@@ -4,6 +4,7 @@ namespace app\controllers;
 use app\forms\client\ClientEditForm;
 use app\forms\contract\ContractEditForm;
 use app\models\Client;
+use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Trouble;
 use app\models\UsageExtra;
@@ -81,6 +82,20 @@ class ClientController extends BaseController
             'model' => $model
         ]);
 
+    }
+
+    public function actionIndex()
+    {
+        $searchModel = new ClientSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        if($dataProvider->query->count() == 1)
+            return $this->redirect(Url::toRoute(['client/clientview', 'id' => $dataProvider->query->one()->id]));
+
+        return $this->render('index', [
+//          'searchModel' => $dataProvider,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
 }

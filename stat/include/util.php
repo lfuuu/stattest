@@ -805,7 +805,13 @@ class ClientCS {
             $D = $client;
         } else {
             $f = (is_numeric($client)?'id':'client');
-            $D = $db->GetRow("select *, client as client_orig from clients where ".$f."='".addslashes($client)."'");
+            $D = $db->GetRow("
+select cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
+cr
+from clients c
+INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
+where ".$f."='".addslashes($client)."'");
 
         }
         return $D;
@@ -867,7 +873,7 @@ class ClientCS {
     }
 
 
-
+/*
     function Create($uid = null){
 
         $defaultFields = array(
@@ -906,7 +912,7 @@ class ClientCS {
         $db->Query('insert into clients ('.$q1.') values ('.$q2.')');
         $this->F = array('id'=>$db->GetInsertId(), "client" => $this->client);
         return $this->post_apply($uid,true);
-    }
+    }*/
     function Apply($uid = null) {
         global $db;
         if(!$this->GetDB('id'))

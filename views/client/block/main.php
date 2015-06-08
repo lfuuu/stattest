@@ -95,7 +95,7 @@ use \app\models\ClientContract;
                         <span class="col-sm-2"
                               style="text-align: right;color:<?= ($client->balance < 0) ? 'red' : 'green'; ?>;"><?= $client->balance ?>
                             RUB</span>
-                        <span class="col-sm-2">(Кредит: <?= $client->credit ?>)</span>
+                        <span class="col-sm-2">(Кредит: <?= $client->credit > 0 ? $client->credit : '0' ?>)</span>
                     </div>
                 </div>
             <?php endforeach; ?>

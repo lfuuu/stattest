@@ -4,12 +4,12 @@
 
 <h2 style="margin: 0 auto 10px; text-align: center;">ЛС № <?= $client->id ?></h2>
 
-<a href="/client/edit?id=<?= $activeClient->id ?>"
+<a href="/client/edit?id=<?= $client->id ?>"
    title="Редактировать лицевой счет">
     <img class="icon" src="/images/icons/edit.gif">Редактировать ЛС
 </a>
 <br><br>
-<a href="/client/create?parentId=<?=$activeClient->contract_id ?>"
+<a href="/client/create?parentId=<?=$client->contract_id ?>"
    title="Создать доп. лицевой счет">
     <img class="icon" src="/images/icons/edit.gif">Создать доп. ЛС
 </a>

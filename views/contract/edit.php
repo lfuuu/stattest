@@ -46,7 +46,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                     . Select2::widget([
                         'model' => $model,
                         'attribute' => 'manager',
-                        'data' => $model->getManagersList(),
+                        'data' => \app\models\User::getManagerList(),
                         'options' => ['placeholder' => 'Начните воодить фамилию'],
                         'pluginOptions' => [
                             'allowClear' => true
@@ -60,7 +60,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                     . Select2::widget([
                         'model' => $model,
                         'attribute' => 'account_manager',
-                        'data' => $model->getAccountManagersList(),
+                        'data' => \app\models\User::getAccountManagerList(),
                         'options' => ['placeholder' => 'Начните воодить фамилию'],
                         'pluginOptions' => [
                             'allowClear' => true

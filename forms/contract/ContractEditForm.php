@@ -68,18 +68,6 @@ class ContractEditForm extends Form
             throw new Exception('You must send id or contragent_id');
     }
 
-    public function getAccountManagersList()
-    {
-        $arr = User::find()->where(['usergroup' => 'account_managers', 'enabled' => 'yes'])->all();
-        return ArrayHelper::map($arr, 'user', 'name');
-    }
-
-    public function getManagersList()
-    {
-        $arr = User::find()->where(['usergroup' => 'manager', 'enabled' => 'yes'])->all();
-        return ArrayHelper::map($arr, 'user', 'name');
-    }
-
     public function getOrganizationsList()
     {
         $arr = Organization::find()->all();
@@ -96,6 +84,11 @@ class ContractEditForm extends Form
     {
         $arr = ClientGridSettings::find()->all();
         return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public function getCurrentBusinessProcessStatus()
+    {
+        return ClientGridSettings::findOne($this->business_process_status_id);
     }
 
     public function getContractTypes()

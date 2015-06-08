@@ -102,6 +102,11 @@ class ClientContract extends ActiveRecord
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
+    public function getContragent()
+    {
+        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
