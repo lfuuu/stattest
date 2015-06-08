@@ -94,6 +94,16 @@ class VirtPbx3
         l::ll(__CLASS__,__FUNCTION__);
         VirtPbx3Checker::check($usageId);
     }
+
+
+    public static function getNumberTypes($clientId)
+    {
+        if (defined('PHONE_SERVER') && PHONE_SERVER) {
+            return JSONQuery::exec("https://" . PHONE_SERVER . "/phone/api/numbers_state", ['account_id' => $clientId]);
+        } else {
+            return [];
+        }
+    }
 }
 
 class VirtPbx3Diff
