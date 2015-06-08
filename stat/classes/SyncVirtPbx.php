@@ -1,5 +1,7 @@
 <?php
 
+use app\classes\JSONQuery;
+
 class SyncVirtPbx
 {
     public static function create($clientId, $usageId)

@@ -5,6 +5,7 @@ namespace app\classes;
 use app\models\ActualNumber;
 use app\models\UsageVoip;
 use app\models\Region;
+use app\classes\JSONQuery;
 
 class ActaulizerVoipNumbers
 {
@@ -397,7 +398,7 @@ class ActaulizerVoipNumbers
     private function execQuery($action, $data)
     {
         if (!defined("ats3_silent"))
-            \JSONQuery::exec("https://".PHONE_SERVER."/phone/api/".$action, $data);
+            JSONQuery::exec("https://".PHONE_SERVER."/phone/api/".$action, $data);
     }
 }
 

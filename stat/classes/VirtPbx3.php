@@ -1,5 +1,7 @@
 <?php
 
+use app\classes\JSONQuery;
+
 class VirtPbx3Checker
 {
     public static function check($usageId = 0)

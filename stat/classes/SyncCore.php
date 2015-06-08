@@ -1,7 +1,7 @@
 <?php
 
 use app\models\CoreSyncIds;
-
+use app\classes\JSONQuery;
 
 class SyncCore
 {
