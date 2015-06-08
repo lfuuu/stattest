@@ -32,7 +32,7 @@
 				</td>
 				{if !$fixclient}
 					<td style="text-align: center;">
-						<a href="?module=clients&id={$s->client}">{$s->client}</a>
+						<a href="/client/clientview?id={$s->client}">{$s->client}</a>
 					</td>
 				{/if}
 				<td style="text-align: center;">{$s->actual|mdate:"j месяца Y"}</td>

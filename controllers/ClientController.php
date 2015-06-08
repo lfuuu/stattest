@@ -4,6 +4,7 @@ namespace app\controllers;
 use app\forms\client\ClientEditForm;
 use app\forms\contract\ContractEditForm;
 use app\models\Client;
+use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Trouble;
@@ -29,7 +30,7 @@ class ClientController extends BaseController
 
     public function actionClientview($id)
     {
-        $client = Client::findOne($id);
+        $client = ClientAccount::findOne($id);
         if (!$client)
             throw new Exception('Client not found');
 

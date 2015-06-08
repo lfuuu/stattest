@@ -14,8 +14,6 @@ use app\models\LkWizardState;
 class m_clients {
 	var $actions=array(
 					'default'		=> array('clients','read'),
-					'search_as'		=> array('clients','read'),
-					'edit'			=> array('',''),					//права проверяются потом
 					'restatus'		=> array('clients','restatus'),
 					'recontact'		=> array('',''),
                     'recontactLK'   => array('',''),
@@ -23,7 +21,6 @@ class m_clients {
 					'recontract'	=> array('',''),
 					'recontract2'	=> array('',''),
 					'contract_form'	=> array('',''),
-					'edit_pop'		=> array('',''),
 					'apply'			=> array('',''),				//собственно редактирование
 					'apply_pop'		=> array('',''),
 					'mkcontract'	=> array('clients','new'),
@@ -31,11 +28,6 @@ class m_clients {
 					'chpass'		=> array('clients','edit'),
 					'print'			=> array('clients','read'),
 					'send'			=> array('clients','read'),
-					'new'			=> array('clients','new'),
-					'create'		=> array('clients','new'),					//собственно добавление
-					'all'			=> array('clients','read_all'),
-					'my'			=> array('clients','read_filter'),
-					'show'			=> array('clients','read_filter'),
 					'sc'			=> array('clients','sale_channels'),
 					'sc_edit'		=> array('clients','sale_channels'),
 					'files'			=> array('clients','file'),
@@ -53,8 +45,6 @@ class m_clients {
                     'rpc_setBlocked'    => array('clients', 'client_type_change'),
                     'rpc_setVoipDisabled' => array("clients", "client_type_change"),
                     'view_history'		=> array('clients', 'edit'),
-                    'client_edit'       => array('clients', 'edit'),
-                    'contragent_edit'   => array('clients', 'edit'),
                     'publish_comment'   => array('', ''),
 
 					'p_edit' => array('clients','edit')
@@ -129,29 +119,6 @@ class m_clients {
 		call_user_func(array($this,'clients_'.$action),$fixclient);
 	}
 
-	function clients_search_as($fixclient) {
-		global $design;
-		if (isset($_GET['query'])) $_GET['search']=$_GET['query'];
-		$design->assign('clients',array());
-		$this->clients_list(false,5,20);
-		echo json_encode(array(
-					'data'		=> $design->fetch('clients/as_search.tpl'),
-					));
-	}
-
-	function clients_my($fixclient) {
-		global $design,$user;
-
-        $this->client_unfix();
-
-		// запоминаем что дальше всех клиентов надо фильтровать по менеджеру
-		$_SESSION['clients_my'] = $user->_Login;
-		$this->clients_headers('my');
-		$this->clients_list(true);
-		$design->assign('name_of_action', 'Мои клиенты');
-		$design->AddMain('clients/main_clients.tpl');
-	}
-
 	function client_unfix(){
 		// фильтр по менеджеру обнуляем
 		// Фильтр по типу клиента обнуляем
@@ -179,54 +146,6 @@ class m_clients {
         }
 	}
 
-	function clients_all($fixclient){
-		global $design,$user;
-		// запоминаем что дальше надо показывать всех клиентов
-		$this->client_unfix();
-
-		$this->clients_headers('all');
-		$this->clients_list(true);
-
-		$design->assign('name_of_action','Все клиенты');
-		$design->AddMain('clients/main_clients.tpl');
-	}
-
-	function clients_show($fixclient){
-		global $design,$user;
-		$subj=get_param_protected("subj");
-		if (!$subj) return;
-		$design->assign('hide_tt_list',1);
-		$_SESSION['clients_filter'] = $subj;
-		$this->clients_headers('show', $subj);
-
-		switch($subj) {
-			case 'telemarketing': $design->assign('name_of_action','Телемаркетинг'); break;
-			case 'income':		$design->assign('name_of_action','Входящие'); break;
-			case 'testing':		$design->assign('name_of_action','Тестируемые клиенты'); break;
-			case 'negotiations':	$design->assign('name_of_action','В стадии переговоров'); break;
-			case 'connecting':	$design->assign('name_of_action','В стадии подключения'); break;
-			case 'work':			$design->assign('name_of_action','Включенные'); break;
-			case 'tech_deny':	$design->assign('name_of_action','С тех. отказом'); break;
-			case 'closed':		$design->assign('name_of_action','Отключенные'); break;
-			case 'deny':			$design->assign('name_of_action','Отказ'); break;
-			case 'debt':			$design->assign('name_of_action','Отключен за долги'); break;
-            case 'double':   $design->assign('name_of_action','Дубликаты');break;
-            case 'trash': $design->assign('name_of_action','Мусор');break;
-            case 'move':  $design->assign('name_of_action','Переезд');break;
-            case 'suspended': $design->assign('name_of_action','Приостановленные');break;
-			case 'denial':  $design->assign('name_of_action','Отказ/задаток');break;
-			case 'reserved': $design->assign('name_of_action','Резервирование канала');break;
-			case 'voip_disabled': $design->assign('name_of_action', 'Телефония отключена');break;
-			case 'blocked': $design->assign('name_of_action', 'Временно заблокирован');break;
-			case 'once': $design->assign('name_of_action', 'Интернет Магазин');break;
-			case 'distr': $design->assign('name_of_action', 'Поставщики');break;
-			case 'operator': $design->assign('name_of_action', 'Операторы');break;
-			default: return;
-		};
-
-		$this->clients_list(true);
-		$design->AddMain('clients/main_clients.tpl');
-	}
 	function clients_chpass($fixclient) {
 		global $db,$design;
 		$id=get_param_protected('id','');
@@ -362,443 +281,6 @@ class m_clients {
 
 	}
 
-	function clients_list($move_if_single=false,$smode = '',$limit = ''){
-		global $db, $design,$user;
-
-    if(!isset($_SESSION["letter"]))
-      $_SESSION["letter"] = "";
-
-    $letter=$_SESSION["letter"];
-
-    if(!isset($_SESSION['letter_region']))
-      $_SESSION['letter_region'] = "any";
-
-    $letter_region=$_SESSION['letter_region'];
-
-		$my=get_param_protected('clients_my');
-		$filter=get_param_protected('clients_filter');
-		$search=get_param_protected('search');
-        $search = trim($search);
-		$smode=get_param_protected('smode',$smode);
-
-		if(
-			array_key_exists('filter_clients_date_from_y', $_POST)
-		&& array_key_exists('filter_clients_date_from_m', $_POST)
-		&& array_key_exists('filter_clients_date_from_d', $_POST)
-		&& array_key_exists('filter_clients_date_to_y', $_POST)
-		&& array_key_exists('filter_clients_date_to_m', $_POST)
-		&& array_key_exists('filter_clients_date_to_d', $_POST)
-		){
-			$date_from = param_load_date('filter_clients_date_from_',array('year'=>0,'mon'=>0,'mday'=>0));
-			$date_to = param_load_date('filter_clients_date_to_',array('year'=>0,'mon'=>0,'mday'=>0));
-			$design->assign('filter_clients_date_from_y',$_POST['filter_clients_date_from_y']);
-			$design->assign('filter_clients_date_from_m',$_POST['filter_clients_date_from_m']);
-			$design->assign('filter_clients_date_from_d',$_POST['filter_clients_date_from_d']);
-			$design->assign('filter_clients_date_to_y',$_POST['filter_clients_date_to_y']);
-			$design->assign('filter_clients_date_to_m',$_POST['filter_clients_date_to_m']);
-			$design->assign('filter_clients_date_to_d',$_POST['filter_clients_date_to_d']);
-		}else {
-			$date_from = $date_to = null;
-			$design->assign('filter_clients_date_from_y','');
-                        $design->assign('filter_clients_date_from_m','');
-                        $design->assign('filter_clients_date_from_d','');
-                        $design->assign('filter_clients_date_to_y','');
-                        $design->assign('filter_clients_date_to_m','');
-                        $design->assign('filter_clients_date_to_d','');
-                }
-
-		if ($smode && $smode!=1 && $smode!=5){
-			$my = '';
-			$letter = '';
-		}
-		$where="1 ";
-		$join="";
-		$group='';
-		$where_2='';
-
-		if($my!=='')
-			$where.="and (cl.manager='$my') ";
-
-		if($smode!=5){
-			if($filter!=='')
-                if($filter == "voip_disabled")
-                    $where.="and voip_disabled ";
-                else
-                    $where.="and cl.status='".$filter."' ";
-			else
-				$where.="and (cl.status NOT IN ('deny','tech_deny','closed','debt') )";
-		}
-
-		if($letter!==''){
-            if($letter=='!'){
-				$where .= " and cl.client in (select client from usage_extra ue inner join tarifs_extra te on ue.tarif_id=te.id and te.status='itpark') ";
-            } elseif (substr($letter,0,5) == 'firma') {
-                $firma = substr($letter,6);
-                $where.="and cl.firma ='".$firma."' ";
-            }else{
-				$where.="and cl.client LIKE '{$letter}%' ";
-			}
-		}
-
-    if($letter_region != "any")
-    {
-      $region = (int)$letter_region;
-      $where .= " and cl.region = '".$region."'";
-    }
-    if (isset($user->_Priveleges['firms']) && count($user->_Priveleges['firms']) > 0) {
-        $where .= " and cl.firma IN ('".implode("','", array_keys($user->_Priveleges['firms']))."')";
-    }
-
-
-
-		if($search!=''){
-			$words=explode(' ',$search);
-			$where2='';
-			$where3='';
-			$where4='';
-			foreach($words as $word){
-				$mask_sum="POW(2,32-SUBSTRING_INDEX(net,'/',-1))";
-				$ip_start="INET_ATON(SUBSTRING_INDEX(net,'/',1))";
-				$where3.='AND ((INET_ATON("'.$word.'")>='.$ip_start.') AND (INET_ATON("'.$word.'")<'.$ip_start.'+'.$mask_sum.')) ';
-
-				if($smode!=3){
-					if (!strstr($word,'*')) $word=$word.'*';
-					$word=str_replace('*','%',$word);
-				}
-				if(substr($word,0,1)=='%'){
-					$where2.='AND (node LIKE "'.$word.'") ';
-				}else{
-					$where2.='AND (node LIKE "(49_) '.$word.'") ';
-				}
-				//$where3.='or (net LIKE "'.$word.'") ';
-
-				$where4.='AND (address LIKE "%'.$word.'") ';
-			}
-
-			if($smode==2){
-				$R=array();
-				$db->Query($q='
-					SELECT
-						usage_ip_ports.client
-					FROM
-						usage_ip_ports
-					INNER JOIN
-						tech_ports
-					ON
-						tech_ports.id = usage_ip_ports.port_id
-					WHERE
-						(port_name="mgts")
-					AND
-						(1 '.$where2.')
-					GROUP BY
-						usage_ip_ports.client
-				');
-				while($r=$db->NextRecord())
-					$R[$r[0]]='"'.$r[0].'"';
-				$db->Query($q='
-					SELECT
-						client
-					FROM
-						usage_ip_ports
-					LEFT JOIN
-						tech_ports
-					ON
-						tech_ports.id=usage_ip_ports.port_id
-					WHERE
-						(tech_ports.port_name="mgts")
-					AND
-						(1 '.$where2.')
-					GROUP BY
-						client
-				');
-				while($r=$db->NextRecord())
-					$R[$r[0]]='"'.$r[0].'"';
-				$in_c=implode(',',$R);
-			}elseif($smode==3){
-				$R=array();
-				$db->Query($q='
-					SELECT
-						usage_ip_ports.client
-					FROM
-						usage_ip_routes
-					LEFT JOIN
-						usage_ip_ports
-					ON
-						usage_ip_ports.id = usage_ip_routes.port_id
-					WHERE
-						INSTR(net,"/")
-					AND
-						(1 '.$where3.')
-					and
-						usage_ip_ports.client is not null
-					and
-						usage_ip_ports.client <> ""
-					GROUP BY
-						client
-				');
-				while($r=$db->NextRecord())
-					$R[$r[0]]='"'.$r[0].'"';
-				$in_c=implode(',',$R);
-			}elseif($smode==4){
-				$R=array();
-				$db->Query('
-					SELECT
-						client
-					FROM
-						usage_ip_ports
-					WHERE
-						(1 '.$where4.')
-					GROUP BY
-						client
-				');
-				while($r=$db->NextRecord())
-					$R[$r[0]]='"'.$r[0].'"';
-				$in_c=implode(',',$R);
-			}elseif($smode==6){
-				$db->Query($q='
-					SELECT
-						`cl`.`id`,
-						`cl`.`client`
-					FROM
-						`clients` `cl`
-					INNER JOIN
-						`client_contacts` `cc`
-					ON
-						`cc`.`client_id` = `cl`.`id`
-					AND
-						`cc`.`type`="email"
-					AND
-						`cc`.`is_active`=1
-					AND
-						trim(`cc`.`data`) = "'.$search.'"
-					AND
-						`cl`.`client`<>""
-					AND
-						`cl`.`client` IS NOT NULL
-				');
-
-				$in_c = '';
-				$cnt = 0;
-				while($row = $db->NextRecord()){
-					$in_c .= "'".$row['client']."',";
-					$cnt++;
-				}
-				if(!$cnt)
-					return;
-				else
-				$in_c = substr($in_c, 0, strlen($in_c)-1);
-			}elseif($smode==7){
-				$cls = $db->AllRecords($q='
-					SELECT `client` FROM `usage_voip` `uv` WHERE `uv`.`e164` = "'.($search).'" ORDER BY `actual_from` DESC LIMIT 1
-				',null,MYSQL_ASSOC);
-				if(count($cls))
-                {
-					$in_c = "'".$cls[0]['client']."'";
-                } else {
-                    $in_c = "''";
-                }
-			}elseif($smode==8){
-				$cls = $db->AllRecords(
-                        $q=' SELECT `client` FROM `domains` WHERE `domain` = "'.($search).'" AND now() BETWEEN `actual_from` AND `actual_to` ',null,MYSQL_ASSOC);
-
-				$in_c = "'".$cls[0]['client']."'";
-			}elseif($smode==9){
-                $in_c = "";
-				$cls = $db->AllRecords($q='
-					SELECT `client` FROM `clients` WHERE `inn` = "'.($search).'"
-				',null,MYSQL_ASSOC);
-
-                if($cls)
-                    $in_c = "'".$cls[0]['client']."'";
-			}
-			if($smode==1 || $smode==4 || $smode==5){
-				if($smode==4 && $in_c){
-					$where='('.$where.' AND cl.client IN ('.$in_c.')) OR (1 ';
-				};
-				foreach($words as $word){
-					if(!strstr($word,'*'))
-						$word='*'.$word.'*';
-					$word = str_replace('*','%',$word);
-					$lword = 'LIKE ("'.$word.'")'; //LCASE
-					if($smode==1){
-						$where.='and ('.
-								'(cl.client '.$lword.') OR '. //LCASE
-								'(cl.company '.$lword.') OR '.
-								'(cl.company_full '.$lword.') OR '.
-//								'(phone '.$lword.') OR '.
-//								'(contact '.$lword.') OR '.
-								'(cl.site_req_no '.$lword.') OR '.
-								'(cl.manager '.$lword.')'.
-								') ';
-					}elseif($smode==4){
-						$where.='and ('.
-								'(cl.address_post_real '.$lword.') OR '.
-								'(cl.address_jur '.$lword.') OR '.
-								'(cl.address_post '.$lword.')'.
-								') ';
-					}elseif($smode==5){
-						$where.='and ('.
-								'(cl.client '.$lword.')'.
-								' OR (cl.company '.$lword.')'.
-								' OR (cl.company_full '.$lword.')'.
-								' OR (cl.site_req_no '.$lword.')';
-						$where.=' OR (cl.id '.$lword.'))';
-					}
-				}
-				if($smode==4 && $in_c){
-					$where.=') ';
-				}
-			}else{
-				if($in_c){
-					$where = '(cl.client IN ('.$in_c.')) ';
-				} else $where = '0 ';
-			}
-		}
-
-		$flag_single = true;
-		if(!$smode && $filter && $date_from && $date_to){
-			$flag_single = false;
-			$query = "
-				select
-					cs.id_client
-				from
-					client_statuses cs
-				inner join
-					clients c
-				on
-					c.id = cs.id_client
-				where
-					cs.ts between '".date('Y-m-d',$date_from)."' and '".(date('Y-m-d',$date_to).' 23:59:59')."'
-				and
-					cs.status = c.status
-				and
-					c.status='".addcslashes($filter,"\\\\'")."'
-				group by
-					c.client
-			";
-			$clients = $db->AllRecords($query,null,MYSQL_ASSOC);
-			if(count($clients)>0){
-				$where .= 'and cl.id in (';
-				foreach($clients as $client){
-					$where .= $client['id_client'].',';
-				}
-				$where = substr($where, 0, strlen($where)-1).")";
-			}
-
-		}
-
-		$query = "
-			select sql_calc_found_rows
-				cl.*,
-				date(cls.ts) date_zayavka
-			from clients cl
-			left join client_statuses cls on cl.id = cls.id_client
-			and
-				( cls.id is null and
-					cls.id = (select min(id) from client_statuses where id_client=cl.id)
-				)
-			where
-				";
-		// если нет никаких ограничений, то печатаем только список букв
-
-		if($where==="1 and (cl.status NOT IN ('deny','tech_deny','closed','debt') )")
-			return;
-		$query.=$where;
-
-		// Сортировка результата по указанному полю
-		$so = get_param_integer ('so', 1);
-		$order = $so ? 'asc' : 'desc';
-		$sort=get_param_integer('sort',1);
-		if ($filter == 'income' && $sort == 1) {
-		    $sort=8;
-		    $order='desc';
-		    $so=0;
-		}
-		
-		switch($sort){
-			case 2: $order='cl.company '.$order; break;
-			case 3: $order='cl.currency '.$order; break;
-			case 4: $order='cl.sale_channel '.$order; break;
-			case 5: $order='cl.manager '.$order; break;
-			//case 6: $order='cl.support '.$order; break;
-			//case 7: $order='cl.telemarketing '.$order; break;
-			case 8: $order='cl.created '.$order; break;
-			default: $order='cl.client '.$order; break;	//=1
-		}
-		
-		$design->assign('sort',$sort);
-		$design->assign('so',$so);
-		$query.="ORDER BY ".$order;
-
-        $page = get_param_integer("page", 1);
-        $recPerPage = 50;
-        $limit = (($page-1)*$recPerPage).",".$recPerPage;
-
-		if($limit)
-			$query.=" LIMIT ".$limit;
-
-		$SC = $db->AllRecords('select * from sale_channels','id');
-
-		$db->Query($query);
-
-		$R=array();
-		while($r=$db->NextRecord()){
-			if(isset(ClientCS::$statuses[$r['status']])){
-				$r['status_name']=ClientCS::$statuses[$r['status']]['name'];
-				$r['status_color']=ClientCS::$statuses[$r['status']]['color'];
-			}
-			if(isset($SC[$r['sale_channel']]))
-				$r['sale_channel'] = $SC[$r['sale_channel']]['name'];
-			$R[]=$r;
-		}
-
-        util::pager("cl");
-
-        if(!count($R) && is_numeric($search))
-        {
-		$tt_exists = Trouble::exists($search);
-		if ($tt_exists)
-		{
-			header("Location: ./?module=tt&action=view&id=".urlencode($search));
-			exit;
-		}
-        }
-        // posible bill
-        if(!count($R) && strlen($search) > 4){
-            if($db->GetRow("select bill_no from `newbills` where bill_no = '".$db->escape($search)."'")){
-                Header("Location: ./?module=newaccounts&action=search&search=".urlencode($search));
-                exit;
-            }
-        }
-
-        // posible income order
-        if(!count($R) && strlen($search) > 4){
-           $incomeOrder = GoodsIncomeOrder::first(array(
-                       "conditions" => array("number" => $search),
-                       "order" => "date desc",
-                       "limit" => 1
-                       )
-                   );
-            if($incomeOrder){
-                header("Location: ./?module=incomegoods&action=order_view&id=".urlencode($incomeOrder->id));
-                exit;
-            }
-        }
-
-		if($move_if_single && (count($R)==1) && $flag_single){
-			Header("Location: ?module=clients&id=".($R[0]['id']));
-			exit;
-		}
-
-		if (strlen($search) && count($R) > 1) $design->assign('hide_tt_list',1);
-
-		$design->assign('clients',$R);
-		//$design->assign('letter',$letter);
-    //$design->assign('letter_region',$letter_region);
-		$design->assign('clients_my',$my);
-		$design->assign('search',$search);
-		$design->assign('clients_m_chose',array($my,$letter, $letter_region, $filter));
-	}
 	function clients_send(){
 		global $design,$db,$_SERVER;
 		if (!($id=get_param_integer('id'))) return;
@@ -972,7 +454,7 @@ class m_clients {
         if (get_param_raw("sync"))
         {
             event::go("add_account", $r["id"]);
-            header("Location: ./?module=clients&id=".$r["id"]);
+            header("Location: /clients/clientview?id=".$r["id"]);
             exit();
         }
 
@@ -1129,7 +611,8 @@ class m_clients {
 		}
 
 		$design->assign('client',$r);
-		$_SESSION['clients_client'] = $r['client'];
+        $client_id = ClientAccount::find()->where('id = :id or client = :id', [':id' => $r['client']])->one()->id;
+		$_SESSION['clients_client'] = $client_id;
     }
 
     function showServersTroubles($client)
@@ -1175,240 +658,13 @@ class m_clients {
 
         if ($clientId = $db->GetValue("select id from clients where contragent_id = '".$contragentId."' order by id"))
         {
-            header("Location: ./?module=clients&id=".$clientId);
+            header("Location: /clients/clientview?id=".$clientId);
             exit();
         } else {
             trigger_error2("Контрагент не найден!");
         }
     }
 
-
-	function clients_new() {
-		global $design, $db,$user;
-        $design->assign('mode_new',1);
-
-        $currentUser = $user->Get('user');
-
-        $R=array();
-        StatModule::users()->d_users_get($R,'account_managers');
-        StatModule::users()->d_users_get($R,'manager');
-
-        $rAccountManagers = $rManagers = $R;
-
-        if(isset($rAccountManagers[$currentUser]))
-            $rAccountManagers[$currentUser]['selected']=' selected';
-        $design->assign('account_managers',$rAccountManagers);
-
-        if(isset($rManagers[$currentUser]))
-            $rManagers[$currentUser]['selected']=' selected';
-        $design->assign('users_manager',$rManagers);
-
-
-        $client = [
-            "client"=>"idNNNN",
-            "credit"=>-1,
-            "firma" => "mcn_telekom",
-            "price_type" => ClientCS::GetIdByName("price_type", "Розница"),
-            "password" => substr(md5(time()+rand(1,1000)*rand(10000,10000)), 3, 8),
-            "voip_credit_limit_day" => 1000,
-            "is_active" => 1,
-            "contract_type_id" => 2,
-            "business_process_id" => 1,
-            "business_process_status_id" => 19,
-            "credit" => 0,
-            'timezone_name' => 'Europe/Moscow',
-        ];
-        $design->assign("client", $client);
-
-        $design->assign("contract_types", ClientContractType::find()->orderBy("sort")->all());
-        $design->assign("bussines_processes", ClientBP::find()->select(["id", "name"])->where(["client_contract_id" => $client["contract_type_id"]])->orderBy("sort")->all());
-        $design->assign("bp_statuses", ClientGridSettings::find()->select(["id", "name"])->where(["grid_business_process_id" => $client["business_process_id"], "show_as_status" => 1])->orderBy("sort")->all());
-
-        $bp = $this->clients_rpc_loadBPStatuses("", false);
-        $design->assign("business_processes_all", json_encode($bp["processes"]));
-
-        $design->assign("l_price_type", ClientCS::GetPriceTypeList());
-        $design->assign("l_metro", ClientCS::GetMetroList());
-        $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
-        $design->assign('regions',$db->AllRecords('select * from regions order by id desc', 'id'));
-
-        $design->assign("history_flags", $this->get_history_flags(0));
-
-        $timezones = \app\models\Region::find()->select('timezone_name')->groupBy('timezone_name')->indexBy('timezone_name')->asArray()->all();
-        $design->assign('timezones', $timezones);
-
-        $design->AddMain('clients/main_edit.tpl');
-
-    }
-	function clients_edit_pop($v){ $this->clients_edit($v,true); exit; }
-	function clients_edit($v,$pop = false) {
-		global $design, $db;
-
-
-        /*
-        $s = file_get_contents("/tmp/statSaveOrder2010-11-12_18:53:50.5659");
-        $s = unserialize($s);
-
-		require_once INCLUDE_PATH.'1c_integration.php';
-        printdbgu($s);
-        $r = _1c\SoapHandler::statSaveOrder($s);
-        printdbgu($r);
-
-        exit();
-        */
-
-		if(!($id=get_param_protected('id')))
-			return;
-		if($this->check_tele($id)==0)
-			return;
-
-		$design->assign('hl',get_param_protected('hl'));
-        $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
-		$design->assign("history_flags", $this->get_history_flags($id));
-
-		if($pop){
-			$design->assign('form_action','apply_pop');
-			$design->display('pop_header.tpl');
-			$this->client_view($id,1,0);
-			$design->display('clients/main_edit.tpl');
-			$design->display('pop_footer.tpl');
-		} else {
-			$this->client_view($id,1);
-		}
-	}
-	function clients_apply_pop($v){
-		$this->clients_apply($v,true);
-		exit;
-	}
-	function clients_apply($v,$pop = false){
-		global $design,$db,$user;
-		$id=get_param_protected('id');
-		if(!$id)
-			return;
-		if($this->check_tele($id)==0)
-			return;
-
-		$C = new ClientCS(get_param_protected('id'),true);
-
-        if ($C->F['timezone_name'] != $_POST['timezone_name']) {
-            $firstTransaction =
-                \app\models\Transaction::find()
-                    ->andWhere(['client_account_id' => $C->F['id']])
-                    ->limit(1)
-                    ->one();
-            if ($firstTransaction) {
-                trigger_error2("Не возможно изменить таймзону лицевого счета. По нему уже существуют финансовые транзакции");
-            }
-        }
-
-		if(isset($_POST['cl_cards_operations'])){ // привязать к истории
-			$cli = $db->GetRow("select * from clients where id=".((int)$_POST['id']));
-			if(
-				isset($_POST['previous_reincarnation'])
-			&& $cli['previous_reincarnation'] <> $_POST['previous_reincarnation']
-			&& $_POST['previous_reincarnation'] <> $_POST['id']
-			&& !( !$cli['previous_reincarnation'] && !$_POST['previous_reincarnation'])
-			){
-				if(clCards\setParent($db, $user, $_POST['previous_reincarnation'], $cli['client']))
-					trigger_error2("Предыдущие реквизиты успешно установлены");
-				else
-					trigger_error2("Не удалось установить предыдущие реквизиты");
-			}
-			if($_POST['move_usages'] && $_POST['move_usages']<>$_POST['id'] && $user->HasPrivelege('clients','moveUsages')){
-				if(clCards\moveUsages($db, $user, $_POST['move_usages'], $_POST['client']))
-					trigger_error2("Услуги перенесены");
-				else
-					trigger_error2("Перенести услуги не удалось");
-			}
-			return false;
-		}
-
-		$inn = $C->F['inn'];
-		$r = $db->getRow('select inn from clients where id='.$C->F['id']);
-		$inn2 = $r['inn'];
-		$dbl = 0;
-
-		$cl_curcard = $C->F['client'];
-		if(($tmp = strrpos($C->F['client'], '/'))!==false)
-			$cl_main_card = substr($C->F['client'],0, $tmp);
-		else
-			$cl_main_card = $C->F['client'];
-
-
-        //inn в карточке
-		if( $inn!=$inn2 &&
-			$r = $db->getRow('select client from clients where inn="'.$inn.'" and client not like "'.addcslashes($cl_main_card,"\\'").'%"')
-		)
-			$dbl = $r['client'];
-
-        //в дополнительных inn
-		if(
-				$inn!=$inn2
-			&&
-				!$dbl
-			&&
-				(
-					$r = $db->getRow('
-						select
-							client
-						from
-							clients
-						inner join
-							client_inn
-						on
-							client_inn.client_id = clients.id
-						and
-							client_inn.is_active = 1
-						where
-							client_inn.inn = "'.$inn.'"
-						and
-							clients.client not like "'.addcslashes($cl_main_card,"\\'").'%"
-					')
-				)
-		)
-        $dbl = $r['client'];
-        $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
-
-        if(!access('clients','inn_double') && $dbl){
-			trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Добавление невозможно');
-		}else{
-			if($dbl)
-				trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$dbl.'. Имейте в виду');
-			if($C->Apply()){
-				clCards\SyncAdditionCards($db, $cl_main_card);
-
-				try {
-					if (($Client = Sync1C::getClient())!==false)
-					   $Client->saveClientCards($cl_main_card);
-					else trigger_error2('Ошибка синхронизации с 1С.');
-				} catch (Sync1CException $e) {
-					$e->triggerError();
-				}
-
-				if($pop){
-					$design->display('pop_header.tpl');
-					$design->display('reload_parent.tpl');
-					$design->display('pop_footer.tpl');
-				}else{
-					$this->client_view($id,1);
-				}
-				return true;
-			}else{
-				trigger_error2("Клиент с таким кодом уже есть.");
-			}
-		}
-		$design->assign('client',$C->F);
-		if($pop){
-			$design->assign('form_action','apply_pop');
-			$design->display('pop_header.tpl');
-			$design->assign("history_flags", $this->get_history_flags($id));
-			$design->display('clients/main_edit.tpl');
-			$design->display('pop_footer.tpl');
-		}else{
-			$design->AddMain('clients/main_edit.tpl');
-		}
-		return false;
-	}
 	function clients_mkcontract($client){
 		global $db;
 		if(($tmp = strrpos($client, '/'))!==false)
@@ -1498,7 +754,7 @@ class m_clients {
 			$e->triggerError();
 		}
 
-		Header("Location: ?module=clients&id=".$id);
+		Header("Location: /clients/clientview?id=".$id);
 		exit();
 	}
 	function clients_restatus() {
@@ -1806,52 +1062,7 @@ class m_clients {
 		if ($r['status']=='negotiations') return 1;
 		return 0;
 	}
-    function clients_create(){
-        global $design, $db;
 
-        $C=new ClientCS(null,true);
-        $C->status='income';
-        $C->user_impersonate = 'client';
-
-        $isInnDbl = false;
-        $inn = get_param_protected("inn");
-        if($inn)
-            if($r = $db->getRow('select client, id from clients where inn="'.$inn.'" /*and status = "work"*/'))
-                $isInnDbl = $r["client"]." (id:".$r["id"].")";
-
-		if($isInnDbl && !access('clients','inn_double')){
-			trigger_error2('Такой же ИНН есть, как минимум, у клиента '.$isInnDbl.'. Добавление невозможно');
-		}else{
-			if($isInnDbl) {
-                trigger_error2('Такой же ИНН есть, как минимум, у клиента ' . $isInnDbl . '. Имейте в виду');
-            }
-
-            if ($C->Create()){
-
-                $contractTypeId=get_param_protected('contract_type_id', 0);
-                $businessProcessId=get_param_protected('business_process_id', 0);
-                $businessProcessStatusId=get_param_protected('business_process_status_id', 0);
-
-                $C->SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId);
-
-                try {
-                    if ($syncClient = Sync1C::getClient())
-                        $syncClient->saveClientCard($C->F['id']);
-
-                } catch (Sync1CException $e) {
-                    $e->triggerError();
-                }
-
-                $this->client_view($C->id,1);
-                return ;
-            }else{
-                trigger_error2("Такой клиент уже существует.");
-            }
-        }
-        $design->assign('client',$C->F);
-        $design->assign("history_flags", $this->get_history_flags(0));
-        $design->AddMain('clients/main_edit.tpl');
-    }
 	function get_client_info($client){
     global $db;
     if (is_numeric($client)) {
@@ -2372,7 +1583,7 @@ DBG::sql_out($select_client_data);
 				$db->Query('rollback');
 			}
 
-			header('Location: ?module=clients&id=pid'.$pid);
+			header('Location: /client/clientview?id='.$pid);
 			exit();
 		}elseif(isset($_POST['gone']) && isset($_POST['pid'])){
 			$pid = $_POST['pid'];

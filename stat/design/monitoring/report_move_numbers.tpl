@@ -28,7 +28,7 @@
                         <a target="_blank" href="{$PATH_TO_ROOT}pop_services.php?&table=usage_voip&id={$w->from_id}">{$w->from_id}</a>
                 </td>
                 <td>
-                        <a href="?module=clients&id={$w->from_client}">{$w->from_client}</a>
+                        <a href="/client/clientview?id={$w->from_client}">{$w->from_client}</a>
                 </td>
                 <td align="right">
                         {$w->from_actual_from|mdate:"d месяца Y г"}
@@ -44,7 +44,7 @@
                         <a target="_blank" href="{$PATH_TO_ROOT}pop_services.php?&table=usage_voip&id={$w->to_id}">{$w->to_id}</a>
                 </td>
                 <td>
-                        <a href="?module=clients&id={$w->to_client}">{$w->to_client}</a>
+                        <a href="/client/clientview?id={$w->to_client}">{$w->to_client}</a>
                 </td>
                 <td align="right">
                         {$w->to_actual_from|mdate:"d месяца Y г"}
@@ -102,7 +102,7 @@
                         <a target="_blank" href="{$PATH_TO_ROOT}pop_services.php?&table=usage_virtpbx&id={$w->from_id}">{$w->from_id}</a>
                 </td>
                 <td>
-                        <a href="?module=clients&id={$w->from_client}">{$w->from_client}</a>
+                        <a href="/client/clientview?id={$w->from_client}">{$w->from_client}</a>
                 </td>
                 <td align="right">
                         {$w->from_actual_from|mdate:"d месяца Y г"}
@@ -115,7 +115,7 @@
                         <a target="_blank" href="{$PATH_TO_ROOT}pop_services.php?&table=usage_virtpbx&id={$w->to_id}">{$w->to_id}</a>
                 </td>
                 <td>
-                        <a href="?module=clients&id={$w->to_client}">{$w->to_client}</a>
+                        <a href="/client/clientview?id={$w->to_client}">{$w->to_client}</a>
                 </td>
                 <td align="right">
                         {$w->to_actual_from|mdate:"d месяца Y г"}
@@ -173,7 +173,7 @@
                 </td>
                 <td>
                     {foreach from=$w.from item=v name=from}
-                        <a href="?module=clients&id={$v->from_client}">{$v->from_client}</a>
+                        <a href="/client/clientview?id={$v->from_client}">{$v->from_client}</a>
                         {if !$smarty.foreach.from.last}
                             <br/>
                         {/if}
@@ -208,7 +208,7 @@
                 </td>
                 <td>
                     {foreach from=$w.to item=v name=to}
-                        <a href="?module=clients&id={$v->to_client}">{$v->to_client}</a>
+                        <a href="/client/clientview?id={$v->to_client}">{$v->to_client}</a>
                         {if !$smarty.foreach.to.last}
                             <br/>
                         {/if}

@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use app\models\Bill;
 use app\models\Client;
+use app\models\ClientAccount;
 use app\models\HistoryChanges;
 use app\models\Trouble;
 use Yii;
@@ -34,7 +35,7 @@ class SearchController extends BaseController
                 break;
             case 'bills':
                 if (null !== $model = Bill::find()->where(['bill_no' => trim($search)])->one()) {
-                    $client = Client::findOne($model->client_id)->client;
+                    $client = ClientAccount::findOne($model->client_id)->client;
                     return $this->redirect('/index.php?module=newaccounts&action=bill_list&clients_client=' . $client);
                 } else {
                     return $this->render('result', ['message' => 'Счет № '.$search.' не найден']);

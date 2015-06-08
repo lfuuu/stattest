@@ -43,7 +43,7 @@ class ClientContract extends ActiveRecord
 
     public function getClients()
     {
-        return $this->hasMany(Client::className(), ['contract_id' => 'id']);
+        return $this->hasMany(ClientAccount::className(), ['contract_id' => 'id']);
     }
 
     public function getManagerName()

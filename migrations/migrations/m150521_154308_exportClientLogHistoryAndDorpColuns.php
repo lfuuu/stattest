@@ -65,7 +65,7 @@ class m150521_154308_exportClientLogHistoryAndDorpColuns extends \app\classes\Mi
                                         (
                                             SELECT
                                                 lc.`id`,
-                                                'Client' AS `model`,
+                                                'ClientAccount' AS `model`,
                                                 lc.`client_id` AS `model_id`,
                                                 lc.`user_id`,
                                                 lc.`ts` AS `create_at`,
@@ -86,7 +86,7 @@ class m150521_154308_exportClientLogHistoryAndDorpColuns extends \app\classes\Mi
 
                     REPLACE INTO history_version
                         SELECT
-                            'Client' AS `model`,
+                            'ClientAccount' AS `model`,
                             c.`id` AS `model_id`,
                             IF(DATE(c.`created`) < '2006-01-01' OR ISNULL(c.`created`), '2006-01-01',  DATE(c.`created`))
                                 AS `date`,
@@ -204,90 +204,90 @@ class m150521_154308_exportClientLogHistoryAndDorpColuns extends \app\classes\Mi
                                        ) z
                                    GROUP BY `contract_id`, `date_c`, `field_name`
                                ) l ON `contract_id` = hv.`model_id`
-                               WHERE hv.`model` = 'Client'
+                               WHERE hv.`model` = 'ClientAccount'
                                ORDER BY hv.`date` DESC
                         ) m;
 
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/client-]','"'),'[-client-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contract_id-]',''),'[-contract_id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/country_id-]',''),'[-country_id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/password-]','"'),'[-password-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/password_type-]','"'),'[-password_type-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/comment-]','"'),'[-comment-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/status-]','"'),'[-status-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/usd_rate_percent-]',''),'[-usd_rate_percent-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/address_post-]','"'),'[-address_post-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/address_post_real-]','"'),'[-address_post_real-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/support-]','"'),'[-support-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/login-]','"'),'[-login-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bik-]','"'),'[-bik-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bank_properties-]','"'),'[-bank_properties-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/currency-]','"'),'[-currency-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/currency_bill-]','"'),'[-currency_bill-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/stamp-]','"'),'[-stamp-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/nal-]','"'),'[-nal-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/telemarketing-]','"'),'[-telemarketing-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/sale_channel-]',''),'[-sale_channel-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/uid-]','"'),'[-uid-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/site_req_no-]','"'),'[-site_req_no-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/hid_rtsaldo_date-]','"'),'[-hid_rtsaldo_date-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/hid_rtsaldo_RUB-]',''),'[-hid_rtsaldo_RUB-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/hid_rtsaldo_USD-]',''),'[-hid_rtsaldo_USD-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/credit_USD-]',''),'[-credit_USD-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/credit_RUB-]',''),'[-credit_RUB-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/credit-]',''),'[-credit-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/user_impersonate-]','"'),'[-user_impersonate-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/address_connect-]','"'),'[-address_connect-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/phone_connect-]','"'),'[-phone_connect-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id_all4net-]',''),'[-id_all4net-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/dealer_comment-]','"'),'[-dealer_comment-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/form_type-]','"'),'[-form_type-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/metro_id-]',''),'[-metro_id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/payment_comment-]',''),'[-payment_comment-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/previous_reincarnation-]','"'),'[-previous_reincarnation-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/cli_1c-]','"'),'[-cli_1c-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/con_1c-]','"'),'[-con_1c-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/corr_acc-]','"'),'[-corr_acc-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/pay_acc-]','"'),'[-pay_acc-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bank_name-]','"'),'[-bank_name-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bank_city-]','"'),'[-bank_city-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/sync_1c-]','"'),'[-sync_1c-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/price_type-]','"'),'[-price_type-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_credit_limit-]',''),'[-voip_credit_limit-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_disabled-]',''),'[-voip_disabled-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_credit_limit_day-]',''),'[-voip_credit_limit_day-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/balance-]',''),'[-balance-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/balance_usd-]',''),'[-balance_usd-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_is_day_calc-]',''),'[-voip_is_day_calc-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/region-]',''),'[-region-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/last_account_date-]','"'),'[-last_account_date-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/last_payed_voip_month-]','"'),'[-last_payed_voip_month-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/mail_print-]','"'),'[-mail_print-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/mail_who-]','"'),'[-mail_who-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/head_company-]','"'),'[-head_company-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/head_company_address_jur-]','"'),'[-head_company_address_jur-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/created-]','"'),'[-created-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bill_rename1-]','"'),'[-bill_rename1-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/nds_calc_method-]','"'),'[-nds_calc_method-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/admin_contact_id-]',''),'[-admin_contact_id-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/admin_is_active-]',''),'[-admin_is_active-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_agent-]','"'),'[-is_agent-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_bill_only_contract-]',''),'[-is_bill_only_contract-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_bill_with_refund-]',''),'[-is_bill_with_refund-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_with_consignee-]',''),'[-is_with_consignee-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/consignee-]','"'),'[-consignee-]','"') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_upd_without_sign-]',''),'[-is_upd_without_sign-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_active-]',''),'[-is_active-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_blocked-]',''),'[-is_blocked-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_closed-]',''),'[-is_closed-]','') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/timezone_name-]','"'),'[-timezone_name-]','"') WHERE `model` = 'Client';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id-]',''),'[-id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/client-]','"'),'[-client-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/super_id-]',''),'[-super_id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contragent_id-]',''),'[-contragent_id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/contract_id-]',''),'[-contract_id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/country_id-]',''),'[-country_id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/password-]','"'),'[-password-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/password_type-]','"'),'[-password_type-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/comment-]','"'),'[-comment-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/status-]','"'),'[-status-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/usd_rate_percent-]',''),'[-usd_rate_percent-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/address_post-]','"'),'[-address_post-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/address_post_real-]','"'),'[-address_post_real-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/support-]','"'),'[-support-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/login-]','"'),'[-login-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bik-]','"'),'[-bik-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bank_properties-]','"'),'[-bank_properties-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/currency-]','"'),'[-currency-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/currency_bill-]','"'),'[-currency_bill-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/stamp-]','"'),'[-stamp-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/nal-]','"'),'[-nal-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/telemarketing-]','"'),'[-telemarketing-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/sale_channel-]',''),'[-sale_channel-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/uid-]','"'),'[-uid-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/site_req_no-]','"'),'[-site_req_no-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/hid_rtsaldo_date-]','"'),'[-hid_rtsaldo_date-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/hid_rtsaldo_RUB-]',''),'[-hid_rtsaldo_RUB-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/hid_rtsaldo_USD-]',''),'[-hid_rtsaldo_USD-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/credit_USD-]',''),'[-credit_USD-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/credit_RUB-]',''),'[-credit_RUB-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/credit-]',''),'[-credit-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/user_impersonate-]','"'),'[-user_impersonate-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/address_connect-]','"'),'[-address_connect-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/phone_connect-]','"'),'[-phone_connect-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/id_all4net-]',''),'[-id_all4net-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/dealer_comment-]','"'),'[-dealer_comment-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/form_type-]','"'),'[-form_type-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/metro_id-]',''),'[-metro_id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/payment_comment-]',''),'[-payment_comment-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/previous_reincarnation-]','"'),'[-previous_reincarnation-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/cli_1c-]','"'),'[-cli_1c-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/con_1c-]','"'),'[-con_1c-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/corr_acc-]','"'),'[-corr_acc-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/pay_acc-]','"'),'[-pay_acc-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bank_name-]','"'),'[-bank_name-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bank_city-]','"'),'[-bank_city-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/sync_1c-]','"'),'[-sync_1c-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/price_type-]','"'),'[-price_type-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_credit_limit-]',''),'[-voip_credit_limit-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_disabled-]',''),'[-voip_disabled-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_credit_limit_day-]',''),'[-voip_credit_limit_day-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/balance-]',''),'[-balance-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/balance_usd-]',''),'[-balance_usd-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/voip_is_day_calc-]',''),'[-voip_is_day_calc-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/region-]',''),'[-region-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/last_account_date-]','"'),'[-last_account_date-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/last_payed_voip_month-]','"'),'[-last_payed_voip_month-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/mail_print-]','"'),'[-mail_print-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/mail_who-]','"'),'[-mail_who-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/head_company-]','"'),'[-head_company-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/head_company_address_jur-]','"'),'[-head_company_address_jur-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/created-]','"'),'[-created-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/bill_rename1-]','"'),'[-bill_rename1-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/nds_calc_method-]','"'),'[-nds_calc_method-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/admin_contact_id-]',''),'[-admin_contact_id-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/admin_is_active-]',''),'[-admin_is_active-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_agent-]','"'),'[-is_agent-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_bill_only_contract-]',''),'[-is_bill_only_contract-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_bill_with_refund-]',''),'[-is_bill_with_refund-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_with_consignee-]',''),'[-is_with_consignee-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/consignee-]','"'),'[-consignee-]','"') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_upd_without_sign-]',''),'[-is_upd_without_sign-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_active-]',''),'[-is_active-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_blocked-]',''),'[-is_blocked-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/is_closed-]',''),'[-is_closed-]','') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(REPLACE(`data_json`, '[-/timezone_name-]','"'),'[-timezone_name-]','"') WHERE `model` = 'ClientAccount';
 
-                        UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'Client';
-                        UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'Client';
-                        UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'Client';
+                        UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientAccount';
+                        UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'ClientAccount';
+                        UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientAccount';
 
 SQL;
 

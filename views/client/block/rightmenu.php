@@ -14,7 +14,7 @@
     <img class="icon" src="/images/icons/edit.gif">Создать доп. ЛС
 </a>
 <br><br>
-<a href="index.php?module=clients&id=<?= $activeClient->id ?>&action=print&data=envelope"
+<a href="/client/clientview?id=<?= $activeClient->id ?>&action=print&data=envelope"
    target="_blank">
     <img class="icon" src="/images/icons/envelope.gif">Напечатать конверт
 </a>
@@ -58,4 +58,4 @@
         document.getElementById('YotaContractLink').style.display = 'block';
 </script>
 
-<br> <a href="./?module=clients&id=<?= $activeClient->id ?>&sync=true">Синхронизовать с ЛК</a>
+<br> <a href="/?module=clients&id=<?= $activeClient->id ?>&sync=true">Синхронизовать с ЛК</a>

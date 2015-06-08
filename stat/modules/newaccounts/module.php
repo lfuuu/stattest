@@ -85,7 +85,9 @@ class m_newaccounts extends IModule
 
         set_time_limit(60);
 
-        $_SESSION['clients_client'] = $fixclient;
+        $client = ClientAccount::find()->where('id = :id or client = :id', [':id' => $fixclient])->one();
+
+        $_SESSION['clients_client'] = $client->id;
 
         $t = get_param_raw('simple',null);
         if($t!==null)
@@ -1095,7 +1097,7 @@ class m_newaccounts extends IModule
 
                     foreach ($clientAccounts as $clientAccount) {
                         $offset++;
-                        echo "$offset. Лицевой счет: <a target='_blank' href='/?module=clients&id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
+                        echo "$offset. Лицевой счет: <a target='_blank' href='/clients/clientview?id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
 
                         try {
 
@@ -1171,7 +1173,7 @@ class m_newaccounts extends IModule
                     $no=$bill2->GetNo();
                     $v=$bill2->Save(1);
                     if($v)
-                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен<br>");
+                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/clientview?id={$c['id']}'>{$c['client']}</a> выставлен<br>");
                     unset($bill2);
                 }
                 $no=$bill->GetNo();
@@ -1189,7 +1191,7 @@ class m_newaccounts extends IModule
                 }
                 unset($bill);
                 if($v==1){
-                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен".$p."<br>");
+                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/clientview?id={$c['id']}'>{$c['client']}</a> выставлен".$p."<br>");
                     flush();
                 }
             }
@@ -4647,7 +4649,7 @@ class m_newaccounts extends IModule
             }
         }
 
-        ClientCS::getClientClient($client_id);
+        $client_id = ClientAccount::find()->where('id = :id or client = :id', [':id' => $client_id])->one()->id;
         $_SESSION['clients_client'] = $client_id;
 
         // инициализация

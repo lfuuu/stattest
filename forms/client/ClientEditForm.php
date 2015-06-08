@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\client;
 
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Region;
 use Yii;
@@ -130,19 +131,19 @@ class ClientEditForm extends Form
 
     public function attributeLabels()
     {
-        return (new Client())->attributeLabels();
+        return (new ClientAccount())->attributeLabels();
     }
 
     public function init()
     {
         if ($this->id) {
-            $this->clientM = Client::findOne($this->id);
+            $this->clientM = ClientAccount::findOne($this->id);
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }
             $this->setAttributes($this->clientM->getAttributes(), false);
         } elseif ($this->contract_id) {
-            $this->clientM = new Client();
+            $this->clientM = new ClientAccount();
             $this->clientM->contract_id = $this->contract_id;
             $this->contragent_id = $this->clientM->contragent_id = ClientContract::findOne($this->contract_id)->contragent_id;
             $this->super_id = $this->clientM->super_id = ClientContract::findOne($this->contract_id)->super_id;
