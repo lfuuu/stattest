@@ -101,40 +101,59 @@ class VirtPbx3Diff
     public static function apply(&$diff)
     {
         l::ll(__CLASS__,__FUNCTION__,$diff);
+        $exception = null;
 
         if($diff["added"])
-            self::add($diff["added"]);
+            self::add($diff["added"], $exception);
 
         if($diff["deleted"])
-            self::del($diff["deleted"]);
+            self::del($diff["deleted"], $exception);
 
         if($diff["changed_tarif"])
-            self::tarifChanged($diff["changed_tarif"]);
+            self::tarifChanged($diff["changed_tarif"], $exception);
 
+        if ($exception instanceof Exception) {
+            throw $exception;
+        }
     }
 
-    private function add(&$d)
+    private function add(&$d, &$exception)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $l)
-            VirtPbx3Action::add($l);
+        foreach($d as $l) {
+            try {
+                VirtPbx3Action::add($l);
+            } catch (Exception $e) {
+                if (!$exception) $exception = $e;
+            }
+        }
     }
 
-    private function del(&$d)
+    private function del(&$d, &$exception)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $l)
-            VirtPbx3Action::del($l);
+        foreach($d as $l) {
+            try {
+                VirtPbx3Action::del($l);
+            } catch (Exception $e) {
+                if (!$exception) $exception = $e;
+            }
+        }
     }
 
-    private function tarifChanged(&$d)
+    private function tarifChanged(&$d, &$exception)
     {
         l::ll(__CLASS__,__FUNCTION__, $d);
 
-        foreach($d as $l)
-            VirtPbx3Action::tarifChanged($l);
+        foreach($d as $l) {
+            try {
+                VirtPbx3Action::tarifChanged($l);
+            } catch (Exception $e) {
+                if (!$exception) $exception = $e;
+            }
+        }
     }
 
 }
@@ -152,37 +171,55 @@ class VirtPbx3Action
 
         l::ll(__CLASS__,__FUNCTION__, $l);
 
-        if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
-        {
-            $vpbxIP =
-                $db->GetValue("
-                    SELECT
-                        s.ip
-                    FROM usage_virtpbx u
-                    LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
-                    LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
-                    WHERE u.id = {$l["usage_id"]}
-                ");
-
-            $newState = array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS :$vpbxIP), "mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]);
-
-            JSONQuery::exec(
-                self::getCoreApiUrl().'add_products_from_stat',
-                SyncCoreHelper::getAddProductStruct($l["client_id"], $newState)
-            );
-
-            if ($rr = SyncVirtPbx::create($l["client_id"], $l["usage_id"]))
-            {
-                return $db->QueryInsert("actual_virtpbx", array(
-                        "usage_id" => $l["usage_id"],
-                        "client_id" => $l["client_id"],
-                        "tarif_id" => $l["tarif_id"],
-                    )
-                );
-            }
-            throw new Exception("VPBX not started", 500);
+        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX) {
+            return null;
         }
 
+        $exceptionProduct = null;
+        try {
+            $vpbxIP =
+                $db->GetValue("
+                SELECT
+                    s.ip
+                FROM usage_virtpbx u
+                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
+                LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
+                WHERE u.id = {$l["usage_id"]}
+            ");
+
+            $newState = array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS : $vpbxIP), "mnemonic" => "vpbx", "stat_product_id" => $l["usage_id"]);
+
+            JSONQuery::exec(
+                self::getCoreApiUrl() . 'add_products_from_stat',
+                SyncCoreHelper::getAddProductStruct($l["client_id"], $newState)
+            );
+        } catch (Exception $e) {
+            $exceptionProduct = $e;
+        }
+
+        $exceptionVpbx = null;
+        try {
+            if (!SyncVirtPbx::create($l["client_id"], $l["usage_id"])) {
+                throw new Exception("VPBX not started", 500);
+            }
+        } catch (Exception $e) {
+            $exceptionVpbx = $e;
+        }
+
+        if ($exceptionProduct) {
+            throw $exceptionProduct;
+        }
+
+        if ($exceptionVpbx) {
+            throw $exceptionVpbx;
+        }
+
+        return $db->QueryInsert("actual_virtpbx", array(
+                "usage_id" => $l["usage_id"],
+                "client_id" => $l["client_id"],
+                "tarif_id" => $l["tarif_id"],
+            )
+        );
     }
 
     public static function del(&$l)
@@ -191,24 +228,24 @@ class VirtPbx3Action
 
         l::ll(__CLASS__,__FUNCTION__, $l);
 
-        if (defined("AUTOCREATE_VPBX") && AUTOCREATE_VPBX)
-        {
-            if ($rr = SyncVirtPbx::stop($l["client_id"], $l["usage_id"]))
-            {
-                JSONQuery::exec(
-                    self::getCoreApiUrl().'remove_product',
-                    SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]
-                );
-
-                return $db->QueryDelete("actual_virtpbx", array(
-                        "usage_id" => $l["usage_id"],
-                    )
-                );
-            }
-
-
-            throw new Exception("VPBX not stoped", 500);
+        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX) {
+            return null;
         }
+
+        try {
+            JSONQuery::exec(
+                self::getCoreApiUrl().'remove_product',
+                SyncCoreHelper::getRemoveProductStruct($l["client_id"], 'vpbx') + ["stat_product_id" => $l["usage_id"]]
+            );
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        return $db->QueryDelete("actual_virtpbx", array(
+                "usage_id" => $l["usage_id"],
+            )
+        );
+
     }
 
     public static function tarifChanged($l)
@@ -217,7 +254,13 @@ class VirtPbx3Action
 
         l::ll(__CLASS__,__FUNCTION__, $l);
 
-        SyncVirtPbx::changeTarif($l["client_id"], $l["usage_id"]);
+        try {
+
+            SyncVirtPbx::changeTarif($l["client_id"], $l["usage_id"]);
+
+        } catch (Exception $e) {
+            throw $e;
+        }
 
         $db->QueryUpdate("actual_virtpbx", "client_id", array(
             "usage_id" => $l["usage_id"],
