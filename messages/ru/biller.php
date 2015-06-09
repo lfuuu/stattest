@@ -19,7 +19,7 @@ return [
 
     // Extra
     'extra_service' => '{tariff}{by_agreement}',
-    'extra_service_itpart' => 'по Договору {contract} от {contract_date, date, dd MMM YYYY} г.',
+    'extra_service_itpark' => 'по Договору {contract} от {contract_date, date, dd MMM YYYY} г.',
 
     // Welltime
     'welltime_service' => '{tariff}{date_range}',

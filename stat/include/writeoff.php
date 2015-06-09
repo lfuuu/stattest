@@ -959,7 +959,7 @@ class ServiceUsageExtra extends ServicePrototype {
 
                     if (isset($contracts["arenda"])) {
                         $c = $contracts["arenda"]["c_no"];
-                        $v[1] .= Yii::t('biller', 'extra_service_itpart', [
+                        $v[1] .= Yii::t('biller', 'extra_service_itpark', [
                             'contract' => (strpos($c, "A/") !== false || strpos($c, "А/") !== false ? "" : "А/") . $c,
                             'contract_date' => $contracts["arenda"]["date"]
                         ], $this->country->lang);
