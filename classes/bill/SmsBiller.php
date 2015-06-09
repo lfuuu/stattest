@@ -5,21 +5,25 @@ use Yii;
 
 class SmsBiller extends Biller
 {
+
     protected function processPeriodical()
     {
         $tariff = $this->usage->tariff;
 
         if ($tariff->per_month_price > 0) {
-            $template = 'Абонентская плата за СМС рассылки, {name}' . $this->getPeriodTemplate($tariff->period);
+            $template = 'sms_service';
+            $template_data = [
+                'tariff' => $tariff->description
+            ];
 
             $this->addPackage(
                 BillerPackagePeriodical::create($this)
                     ->setPeriodType($tariff->period)
                     ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
-                    ->setName($tariff->description)
-                    ->setTemplate($template)
                     ->setPrice($tariff->per_month_price)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         }
     }
@@ -31,14 +35,18 @@ class SmsBiller extends Biller
         $smsCount = $this->getSmsCount();
         if ($smsCount > 0 && $tariff->per_sms_price > 0)
         {
-            $template = 'СМС рассылка, {name}' . $this->getPeriodTemplate($tariff->period);
+            $template = 'sms_service';
+            $template_data = [
+                'tariff' => $tariff->description
+            ];
 
             $this->addPackage(
                 BillerPackageResource::create($this)
+                    ->setPeriodType($tariff->period)
                     ->setAmount($smsCount)
-                    ->setName($tariff->description)
-                    ->setTemplate($template)
                     ->setPrice($tariff->per_sms_price/1.18)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
 
         }

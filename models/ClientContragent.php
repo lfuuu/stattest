@@ -30,4 +30,10 @@ class ClientContragent extends ActiveRecord
     {
         return self::dao()->saveToAccount($this);
     }
+
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        //return $this->hasOne(Country::className(), ['country_code' => 'code']);
+    }
 }
