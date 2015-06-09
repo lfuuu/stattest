@@ -98,7 +98,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&bill-2-RUB=1&envelope=1&action=bill_mprint&akt-1=1&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
+	<form action="./?module=newaccounts&bill-2-RUB=1&envelope=1&action=bill_mprint&akt-1=1&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;" onclick="this.style.background='#E0FFE0';">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -130,7 +130,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&invoice-1=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
+	<form action="./?module=newaccounts&invoice-1=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;" onclick="this.style.background='#E0FFE0';">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -160,7 +160,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&bill-2-RUB=1&envelope=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
+	<form action="./?module=newaccounts&bill-2-RUB=1&envelope=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;" onclick="this.style.background='#E0FFE0';">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -186,7 +186,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&upd-1=1&upd-2=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
+	<form action="./?module=newaccounts&upd-1=1&upd-2=1&action=bill_mprint&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;" onclick="this.style.background='#E0FFE0';">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
@@ -212,7 +212,7 @@
 <form  style="padding: 0; margin: 0;">
 {foreach from=$bills item=bill_no}
 {if $bill_no}{if $cc%10 == 0}</form></td><td>
-	<form action="./?module=newaccounts&action=bill_postreg&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;">
+	<form action="./?module=newaccounts&action=bill_postreg&from=import" method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;" onclick="this.style.background='#E0FFE0';">
 	{assign var="cp" value=$cp+1}
 	{/if}<input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
 {/foreach}
