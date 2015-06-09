@@ -2,7 +2,7 @@
 
 return [
 
-    'ipports_service' => '{tariff}{date_range}{by_agreement}',
+    'ipports_service' => '{tariff}{date_range}',
 
     'ipports_connection' => 'Подключение к интернет по тарифу {tariff}',
 
