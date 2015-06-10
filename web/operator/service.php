@@ -181,9 +181,7 @@ if ($action=='add_client') {
               
                 if(region = 99,
                     if (number like '74996854%' and number between '74996854000' and '74996854999', false,
-                        if (number like '74951090%', false,
-                            if(number like '7495%', number like '74951059%' or beauty_level in (1,2), true)
-                        )
+                        if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true)
                     ),
                 true)
 
