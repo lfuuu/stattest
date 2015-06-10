@@ -178,7 +178,7 @@ class WizardController extends /*BaseController*/ApiController
                 "MCN",
                 "Dog_UslugiSvayzi",
 
-                $this->accountId."-".date("Y"),
+                $this->accountId."-".date("y"),
                 date("d.m.Y"),
 
                 "",
