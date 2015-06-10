@@ -51,7 +51,7 @@ foreach($res as $r)
 }
 foreach($clients as $k=>$c)
 {
-  $clients[$k]['sum'] = $c['sum']*1.18/100;
+  $clients[$k]['sum'] = $c['sum']*1.18;
   $clients[$k]['new_limit'] = intval($clients[$k]['sum']/$work_days*3);
 
   //TODO: 1000 это сумма в рублях. Для не рублевых клиентов сделать конвертацию по курсу
