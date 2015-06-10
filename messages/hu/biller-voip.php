@@ -2,13 +2,13 @@
 
 return [
 
-    'voip_monthly_fee_per_number' => '{date_range} hónapra előfizetési díj {service} telefonszámra',
+    'voip_monthly_fee_per_number' => 'Előfizetési díj {service} telefonszámra{date_range}',
 
     'voip_overlimit' => 'Havidíjban foglalt limiten felüli hívások díja {service}{date_range}',
 
-    'voip_calls_payment' => 'Távközlési előfizetési díj{date_range}{service} telefonszámra',
+    'voip_calls_payment' => 'Távközlési előfizetési díj {service} telefonszámra{date_range}',
 
-    'voip_package_monfly_fee' => 'Előfizetői csomagdíj {service}',
+    'voip_package_monfly_fee' => '{service} előfizetői csomagdíj{date_range}',
 
-    'voip_sip_trunk_monfly_fee' => 'SIP trunk előfizetési díja {tariff}{date_range}',
+    'voip_sip_trunk_monfly_fee' => '{tariff} SIP trunk előfizetési díja{date_range}',
 ];
