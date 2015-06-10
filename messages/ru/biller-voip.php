@@ -53,5 +53,7 @@ return [
     // Client "bill_rename1" = Оказанные услуги по Договору
     'voip_group_calls_payment_custom' => 'Оказанные услуги за звонки по номеру {service} (местные, междугородные, международные){date_range}{by_agreement}',
 
-    'voip_sip_trunk' => '',
+    'voip_package_monfly_fee' => 'Абонентская плата за пакет минут {service}{date_range}',
+
+    'voip_sip_trunk_monfly_fee' => 'Абонентская плата за Sip транк по тарифу {tariff}{date_range}',
 ];
