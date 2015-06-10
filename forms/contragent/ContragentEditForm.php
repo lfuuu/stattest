@@ -19,7 +19,7 @@ class ContragentEditForm extends ContragentForm
             'when' => function($model){ return $model->legal_type=='ip';}
         ];
 
-        $rules[] = [['first_name', 'last_name', 'passport_serial', 'passport_number', 'passport_date_issued', 'passport_issued', 'address'], 'required',
+        $rules[] = [['first_name', 'last_name', 'middle_name', 'passport_serial', 'passport_number', 'passport_date_issued', 'passport_issued', 'address'], 'required',
             'when' => function($model){ return $model->legal_type=='person';} 
         ];
 
