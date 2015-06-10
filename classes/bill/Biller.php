@@ -179,9 +179,9 @@ abstract class Biller
         if ($period == 'once') {
             return 'date_once';
         } elseif ($period == 'month') {
-            return 'date_range';
+            return 'date_range_full';
         } elseif ($period == 'year') {
-            return 'date_range_w_year';
+            return 'date_range_with_year';
         }
     }
     protected function getContractInfo()

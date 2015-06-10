@@ -287,7 +287,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
 
         if($this->date_from && $this->date_to){
 
-            $date_range = Yii::t('biller', 'date_range', [
+            $date_range = Yii::t('biller', 'date_range_full', [
                 $this->date_from,
                 $this->date_to
             ], $this->country->lang);
@@ -583,7 +583,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
         $is7800 = substr($this->service["E164"], 0, 4) == "7800";
 
-        $date_range = Yii::t('biller', 'date_range', [
+        $date_range = Yii::t('biller', 'date_range_full', [
             $this->date_from,
             $this->date_to
         ], $this->country->lang);
@@ -731,7 +731,7 @@ class ServiceUsageVoip extends ServicePrototype {
 
                 if ($this->client["bill_rename1"] != "yes") {
                     $i18n_params['service'] = $this->service['E164'];
-                    $i18n_params['date_range'] = Yii::t('biller', 'date_range', [
+                    $i18n_params['date_range'] = Yii::t('biller', 'date_range_full', [
                         $this->date_from_prev,
                         $this->date_to_prev
                     ], $this->country->lang);
@@ -810,7 +810,7 @@ class ServiceBillMonthlyadd extends ServicePrototype {
         if ($this->service['price'] > 0) {
             $R[] = array(
                 0 => $this->service['currency'],
-                1 => $this->service['description'] . Yii::t('biller', 'date_range', [$this->date_from, $this->date_to], $this->country->lang),
+                1 => $this->service['description'] . Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang),
                 2 => $this->service['amount'] * $this->GetDatePercent(),
                 3 => $this->service['price'],
                 4 => 'service',
@@ -997,9 +997,9 @@ class ServiceUsageExtra extends ServicePrototype {
             if ($this->tarif_current['period'] == 'once') {
                 $v[1] .= Yii::t('biller', 'date_once', $this->date_from, $this->country->lang);
             } elseif ($this->tarif_current['period'] == 'month') {
-                $v[1] .= Yii::t('biller', 'date_range', [$this->date_from, $this->date_to], $this->country->lang);
+                $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
             } elseif ($this->tarif_current['period'] == 'year') {
-                $v[1] .= Yii::t('biller', 'date_range_w_year', [$this->date_from, $this->date_to], $this->country->lang);
+                $v[1] .= Yii::t('biller', 'date_range_with_year', [$this->date_from, $this->date_to], $this->country->lang);
             }
 
             if ($this->client["bill_rename1"] == "yes") {
@@ -1091,9 +1091,9 @@ class ServiceUsageWelltime extends ServicePrototype {
             if($this->tarif_current['period']=='once'){
                 $v[1] .= Yii::t('biller', 'date_once', $this->date_from, $this->country->lang);
             }elseif($this->tarif_current['period']=='month'){
-                $v[1] .= Yii::t('biller', 'date_range', [$this->date_from, $this->date_to], $this->country->lang);
+                $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
             } elseif ($this->tarif_current['period']=='year') {
-                $v[1] .= Yii::t('biller', 'date_range_w_year', [$this->date_from, $this->date_to], $this->country->lang);
+                $v[1] .= Yii::t('biller', 'date_range_with_year', [$this->date_from, $this->date_to], $this->country->lang);
             }
             $R[]=$v;
         }
@@ -1130,12 +1130,12 @@ class ServiceUsageVirtpbx extends ServicePrototype {
             );
 
             //by month
-            $v[1] .= Yii::t('biller', 'date_range', [$this->date_from, $this->date_to], $this->country->lang);
+            $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
 
             $R[]=$v;
         }
         if($this->date_from_prev && $this->date_to_prev){
-            $date_range = Yii::t('biller', 'date_range', [$this->date_from_prev, $this->date_to_prev], $this->country->lang);
+            $date_range = Yii::t('biller', 'date_range_full', [$this->date_from_prev, $this->date_to_prev], $this->country->lang);
 
             list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->date_from_prev, $this->date_to_prev);
 
@@ -1231,7 +1231,7 @@ class ServiceUsageSms extends ServicePrototype {
                     date('Y-m-d',$this->date_to)
                     );
 
-            $v[1] .= Yii::t('biller', 'date_range', [$this->date_from, $this->date_to], $this->country->lang);
+            $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
             $R[]=$v;
         }
 
@@ -1242,7 +1242,7 @@ class ServiceUsageSms extends ServicePrototype {
                     $this->tarif_current['currency'],
                     Yii::t('biller', 'sms_service', [
                         'tariff' => $this->tarif_current['description'],
-                        'date_range' => Yii::t('biller', 'date_range', [
+                        'date_range' => Yii::t('biller', 'date_range_full', [
                             $this->date_from_prev,
                             $this->date_to_prev
                         ], $this->country->lang)
@@ -1353,7 +1353,7 @@ class ServiceEmails extends ServicePrototype {
                 1 => Yii::t('biller', 'email_service', [
                     'local_part' => $this->service['local_part'],
                     'domain' => $this->service['domain'],
-                    'date_range' => Yii::t('biller', 'date_range', [$this->date_from, $this->date_to], $this->country->lang),
+                    'date_range' => Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang),
                     'by_agreement' => ''
                 ], $this->country->lang),
                 2 => $this->getDatePercent(),
