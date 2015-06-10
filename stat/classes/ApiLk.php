@@ -695,6 +695,11 @@ class ApiLk
             ", array($currency, $status, $dest)) as $service)
         {
             $line = self::_exportModelRow($fields, $service);
+
+            if ($line["free_local_min"] >= 5000)
+            {
+                $line["free_local_min"] = "";
+            }
             $ret[] = $line;
         }
         return $ret;
