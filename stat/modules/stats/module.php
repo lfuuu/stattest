@@ -4000,6 +4000,24 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
   public function stats_report_phone_sales()
   {
     global $db, $design;
+    $from_y = get_param_raw("from_y", date('Y'));
+    $from_m = get_param_raw("from_m", date('m'));
+    $to_y   = get_param_raw("to_y",   date('Y'));
+    $to_m   = get_param_raw("to_m",   date('m'));
+
+    // для последующего использования в sql-выражениях:
+    $from_date = $from_y."-".$from_m."-01";
+    $to_date = date("Y-m-t", mktime(0,0,0,$to_m,1,$to_y));
+
+    $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
+    $selector_mm = array();
+    for($i=1;$i<=12;$i++) $selector_mm[$i] = $month_list[$i-1];
+
+    $selector_yy = array(date('Y')+1, date('Y'), date('Y')-1, date('Y')-2);
+
+    // для показа в интерфейсе:
+    $from = "01.".$from_m.".".$from_y;
+    $to = date("t.m.Y", mktime(0,0,0,$to_m,1,$to_y));
 
     $curr_phones = $db->AllRecords('
         SELECT 
@@ -4065,14 +4083,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	ORDER BY
 		region DESC
     ", 'region', 'clients');
-    $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
-    $m = date('n');
-    for($mm = 0; $mm < 4; $mm++)
-    {
-      $date = date("Y-m-01");
 
+    $tmp_m = $from_m; // for itterations
+    $tmp_y = $from_y;
+    while(mktime(0,0,0,$tmp_m,1,$tmp_y) <= mktime(0,0,0,$to_m,1,$to_y)) // process all monthes in interval
+    {
+      $tmp_date_from = $tmp_y.'-'.$tmp_m.'-01';
+      $tmp_date_to = date("Y-m-t", mktime(0,0,0,$tmp_m,1,$tmp_y));
       $client_ids = array();
       $region_sums = $db->AllRecordsAssoc($q="
 		SELECT 
@@ -4083,8 +4102,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		LEFT JOIN
 			clients as b ON a.client_id = b.id
 		WHERE 
-			a.bill_date >= date_add('".$date."',interval -".$mm." month) AND 
-			a.bill_date < date_add('".$date."',interval -".$mm."+1 month) AND 
+			a.bill_date >= CAST('".$tmp_date_from."' AS DATE) AND
+			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
 			b.region > 0 AND 
 			b.status IN ('testing', 'conecting', 'work') AND 
 			b.type IN ('org', 'priv') AND 
@@ -4106,7 +4125,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             u.E164 as phone, 
             u.no_of_lines,
             c.id as client_id, 
-            ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
+            ifnull(c.created >= date_add('".$tmp_date_from."',interval - 1 month), 0) as is_new,
             s.name as sale_channel,
             s.id as sale_channel_id,
             s.courier_id as courier_id
@@ -4114,8 +4133,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
           where 
-              u.actual_from>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_from<date_add('".$date."',interval -".$mm."+1 month)
+              u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
           group by 
             u.region, u.E164, c.id, c.created, s.name  ");
             
@@ -4124,7 +4143,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             c.region, 
             u.id, 
             c.id as client_id, 
-            ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
+            ifnull(c.created >= date_add('".$tmp_date_from."',interval - 1 month), 0) as is_new,
             s.name as sale_channel,
             s.id as sale_channel_id,
             s.courier_id as courier_id
@@ -4132,8 +4151,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
           where 
-              u.actual_from>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_from<date_add('".$date."',interval -".$mm."+1 month)
+              u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
           group by 
             c.region, c.id, c.created, s.name  ");
 
@@ -4349,16 +4368,16 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 					WHERE 
 						    d.doer_id = ' . $d['courier_id'] . ' 
 						AND 
-						    s.date_start >= date_add("'.$date.'",interval -'.$mm.'-1 month)  
+						    s.date_start >= CAST("'.$tmp_date_from.'" AS DATE)
 						AND 
-						    s.date_start < date_add("'.$date.'",interval -'.$mm.'+2 month) 
+						    s.date_start <= CAST("'.$tmp_date_to.'" AS DATE)
 					) 
 				AND 
 				    st.state_id = 4 
 				AND 
-				    st.date_start >= date_add("'.$date.'",interval -'.$mm.' month)  
+				    st.date_start >= CAST("'.$tmp_date_from.'" AS DATE)
 				AND 
-				    st.date_start < date_add("'.$date.'",interval -'.$mm.'+1 month) 
+				    st.date_start <= CAST("'.$tmp_date_to.'" AS DATE)
 				AND  
 				    td.doer_id = ' . $d['courier_id']);
             $sale_channels['all']['visits'] += $res;
@@ -4409,8 +4428,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           from usage_voip u
           left join clients c on c.client=u.client
           where 
-                u.actual_to>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_to<date_add('".$date."',interval -".$mm."+1 month)
+                u.actual_to>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_to<=CAST('".$tmp_date_to."' AS DATE)
           group by u.region, u.E164, c.id  ");
 
       $res_vpbx = $db->AllRecords("
@@ -4421,8 +4440,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           from usage_virtpbx u
           left join clients c on c.client=u.client
           where 
-                u.actual_to>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_to<date_add('".$date."',interval -".$mm."+1 month) 
+                u.actual_to>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_to<=CAST('".$tmp_date_to."' AS DATE)
           group by c.region, u.id, c.id  ");
       
       foreach($res as $r)
@@ -4467,12 +4486,12 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       }
 
 
-      if ($m < 1) $m = 12;
-      $date = $month_list[$m-1].' '.date("Y");
+      if ($tmp_m < 1) $tmp_m = 12;
 
       $reports[] = array(
-        'date' => $date,
-        'month' => $m,
+        'date' => $month_list[$tmp_m-1]." ".$tmp_y." ",
+        'month' => 0+$tmp_m,
+        'year' => $tmp_y,
         'region_sums' => $region_sums,
         'sale_nums'=>$sale_nums,
         'sale_8800'=>$sale_8800,
@@ -4489,8 +4508,18 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         'vpbx_clients' => $vpbx_clients
       );
       $m--;
+      if (++$tmp_m > 12) {
+        $tmp_m = 1;
+        $tmp_y++;
+      }
     }
 
+    $design->assign("from_y", $from_y);
+    $design->assign("from_m", $from_m);
+    $design->assign("to_y", $to_y);
+    $design->assign("to_m", $to_m);
+    $design->assign("select_year", $selector_yy);
+    $design->assign("select_month", $selector_mm);
     $design->assign("regions", $regions);
     $design->assign("region_clients_count", $region_clients_count);
     $design->assign('reports',$reports);
