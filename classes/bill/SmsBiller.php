@@ -11,7 +11,7 @@ class SmsBiller extends Biller
         $tariff = $this->usage->tariff;
 
         if ($tariff->per_month_price > 0) {
-            $template = 'sms_service';
+            $template = 'sms_monthly_fee';
             $template_data = [
                 'tariff' => $tariff->description
             ];
