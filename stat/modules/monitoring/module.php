@@ -71,6 +71,10 @@ class m_monitoring {
 	}
 	function monitoring_top($fixclient){
 		global $design,$db,$user;
+/*		$db->Query('select * from clients_vip where (num_unsucc>=3)');
+		$C=array(); while ($r=$db->NextRecord()) $C[$r['id']]=$r;
+		$design->assign('monitoring_bad',$C);
+		$design->ProcessEx('monitoring/top.tpl');*/
 	}
 	
 	function monitoring_view($fixclient){
@@ -108,6 +112,73 @@ class m_monitoring {
 		$design->AddMain('monitoring/view.tpl');
 	}
 		
+/*		$period=get_param_integer('period',0);
+		$skip=get_param_integer('skip',0);
+		$year=get_param_integer('year',0);
+		$month=get_param_integer('month',0);
+		$day=get_param_integer('day',0);
+
+		$design->assign('ip',$ip);
+		$design->assign('period',$period);
+		$design->assign('skip',$skip);
+		$design->assign('year',$year);
+		$design->assign('month',$month);
+		$design->assign('day',$day);
+
+		$years=array(2003,2004,2005,2006);
+		foreach ($years as $i=>$v) $years[$i]=array('val'=>$v,'selected'=>($v==$year?1:0));
+		$design->assign('years',$years);
+
+		$months=array();
+		for ($i=1;$i<=12;$i++) $months[]=array('val'=>$i,'selected'=>($i==$month?1:0));
+		$design->assign('months',$months);
+
+		$days=array();
+		for ($i=1;$i<=31;$i++) $days[]=array('val' => $i,'selected' => ($i==$day?1:0));
+		$design->assign('days',$days);
+
+		$design->AddMain('monitoring/ip.tpl');*/
+		
+		
+/*
+	function monitoring_edit($fixclient){
+		global $db,$design;
+		$this->dbmap=new Db_map_nispd();	
+		$this->dbmap->SetErrorMode(2,0);
+		$id = get_param_protected('id' , '');
+		$this->dbmap->ApplyChanges('clients_vip');
+		$this->dbmap->ShowEditForm('clients_vip','clients_vip.id="'.$id.'"',array(),1);
+		$design->assign('id',$id);
+		$design->AddMain('monitoring/db_edit.tpl');
+	}
+	function monitoring_add($fixclient){
+		global $design,$db;
+		$client=get_param_protected('id');
+		if ($client){
+			$db->Query('select * from clients where client="'.$client.'"');
+			if (!($r=$db->NextRecord())) return;
+			$db->Query('select * from user_users where user="'.$r['support'].'"');
+			$r=$db->NextRecord();
+		}
+		if (!isset($r) || !is_array($r)) $r=array('email'=>'','phone'=>'');
+		$this->dbmap=new Db_map_nispd();
+		$this->dbmap->SetErrorMode(2,0);
+		$this->dbmap->ShowEditForm('clients_vip','',array('client'=>$client,'email'=>$r['email'],'phone'=>$r['phone_work'],'important_period'=>'8-20','num_unsucc'=>0),1);
+		$design->AddMain('monitoring/db_add.tpl');
+	}
+	function monitoring_apply($fixclient){
+		global $db,$design;
+		$this->dbmap=new Db_map_nispd();	
+		$this->dbmap->SetErrorMode(2,0);
+		if (($this->dbmap->ApplyChanges('clients_vip')!="ok") && (get_param_protected('dbaction','')!='delete')) {
+			$this->dbmap->ShowEditForm('clients_vip','',get_param_raw('row',array()));
+			$design->AddMain('monitoring/db_add.tpl');
+		} else {
+			trigger_error2('<script language=javascript>window.location.href="?module=monitoring";</script>');
+		}
+	}
+*/
+
 //public function
 	function get_image($IPs){
 		global $db;
