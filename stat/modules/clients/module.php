@@ -87,6 +87,9 @@ class m_clients {
 					array('Телефония отключена',	'show','&subj=voip_disabled'),
 					array('Временно заблокирован',	'show','&subj=blocked'),
                      */
+					array('',						'sc'),
+					array('Каналы продаж',			'sc'),
+					array('Отчёт по файлам',		'files_report'),                     
 				);
 //###################################################################
 	function color_status($status_code){
