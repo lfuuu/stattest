@@ -18,7 +18,6 @@
 	
 	//$graphic=new Graphic();
 
-        $tz_offset = (60/5) * 3; // 3 часа 5-минутными интервалами
 	//1 - this day
 	//2 - previous day
 	//3 - this month
@@ -36,9 +35,9 @@
 		if ($period==1) {
 			$w=' AND time300>='.$day;
 		} else {
-			$w=' AND time300>='.($day).' AND time300<'.($day+288-$tz_offset);
+			$w=' AND time300>='.($day).' AND time300<'.($day+288);
 		}
-		$db->Query('select ip_int, time300+'.$tz_offset.' AS time300, value from monitor_5min where ip_int=INET_ATON("'.$ip.'")'.$w.' order by time300');
+		$db->Query('select * from monitor_5min where ip_int=INET_ATON("'.$ip.'")'.$w.' order by time300');
 		$R=array(); $maxval=0; $E=0; $cnt=0;
 		while ($r=$db->NextRecord()) {
 			$maxval=max($maxval,$r['value']);
