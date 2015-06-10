@@ -578,7 +578,6 @@ class ServiceUsageVoip extends ServicePrototype {
     }
 
     public function GetLinesMonth(){
-        //$this->country->lang = 'ru';
         $R=ServicePrototype::GetLinesMonth();
 
         $is7800 = substr($this->service["E164"], 0, 4) == "7800";

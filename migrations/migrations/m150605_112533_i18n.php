@@ -6,13 +6,18 @@ class m150605_112533_i18n extends \app\classes\Migration
     {
         $this->execute("
             ALTER TABLE `country`
-	            ADD COLUMN `lang` VARCHAR (2) NULL DEFAULT 'ru' AFTER `in_use`;
+	            ADD COLUMN `lang` VARCHAR (5) NULL DEFAULT 'ru' AFTER `in_use`;
+        ");
+        $this->execute("
+            UPDATE `country` SET `lang` = 'hu' WHERE `code` = 348;
         ");
 
+        /*
         $this->execute("
             ALTER TABLE `client_contragent`
 	            ADD COLUMN `country_code` INT (4) NULL DEFAULT '0' AFTER `super_id`;
         ");
+        */
     }
 
     public function down()
