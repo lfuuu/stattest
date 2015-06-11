@@ -25,7 +25,6 @@ class BillerPackagePeriodical extends BillerPackage
     public function createTransaction()
     {
         if (!$this->prepareCurrentPeriod()) {
-            print 'here';
             return null;
         }
 

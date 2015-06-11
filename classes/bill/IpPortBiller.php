@@ -86,7 +86,7 @@ class IpPortBiller extends Biller
 
             $template_data['overlimit'] = Yii::t(
                 $this->getTranslateFilename(),
-                'ipports_' . ($S['in'] > $S['out'] ? 'in' : 'out') . '_traffic',
+                ($S['in'] > $S['out'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
                 [],
                 $this->clientAccount->contragent->country->lang
             );
@@ -193,7 +193,7 @@ class IpPortBiller extends Biller
 
             $template_data['overlimit'] = Yii::t(
                 $this->getTranslateFilename(),
-                'ipports_' . ($S['in'] > $S['out'] ? 'in' : 'out') . '_traffic',
+                ($S['in'] > $S['out'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
                 [],
                 $this->clientAccount->contragent->country->lang
             );
