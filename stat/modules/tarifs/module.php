@@ -133,7 +133,7 @@ class m_tarifs{
         $design->assign('tarifs_by_dest',$tarifs_by_dest);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists', $pg_db->AllRecords("select p.id, p.name from voip.pricelist p", 'id'));
-        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
+        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_list.tpl');
     }
     function tarifs_voip_edit(){
@@ -187,7 +187,7 @@ class m_tarifs{
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
         $design->assign('id',$id);
-        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
+        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_edit.tpl');
     }
     function tarifs_delete(){

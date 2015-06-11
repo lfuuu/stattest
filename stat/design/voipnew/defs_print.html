@@ -66,24 +66,9 @@
 	{/if} 
 	{/foreach}
 	{foreach from=$defs item='o'}
-	{if $o.dgroup == 'СНГ'}
-		{if $pre_napr != $o.dgroup}
-		<tr><td colspan=6 class="hpart">Ближнее зарубежье</td></tr>
-		{assign var="pre_napr" value=$o.dgroup}
-		{/if}
-		
-		<tr>
-			<td>{$o.destination}</td>
-			<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
-			<td class="def"><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>
-			<td align=right><b>{$o.price|string_format:"%.2f"|replace:'.':','}</b></td>
-		</tr>
-	{/if} 
-	{/foreach}
-	{foreach from=$defs item='o'}
 	{if $o.dgroup == 'МН'}
 		{if $pre_napr != $o.dgroup}
-		<tr><td colspan=6 class="hpart">Дальнее зарубежье</td></tr>
+		<tr><td colspan=6 class="hpart">Международка</td></tr>
 		{assign var="pre_napr" value=$o.dgroup}
 		{/if}
 		

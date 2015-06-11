@@ -37,7 +37,6 @@
 					<option value="11"{if $destination eq '11'} selected='selected'{/if}>Зона мобильные</option>
 					<option value="101"{if $destination eq '101'} selected='selected'{/if}>Россия</option>
 					<option value="102"{if $destination eq '102'} selected='selected'{/if}>Международное</option>
-					<option value="103"{if $destination eq '103'} selected='selected'{/if}>СНГ</option>
 				</select>
 			</td>
 		</tr>
@@ -82,7 +81,7 @@
 		<td class='header' vAlign='bottom' width="110">Оператор</td>
 		{foreach from=$report_dest item='dd' key='d'}
 		{if $d<>'sum'}
-		<td class='header' vAlign='bottom'  width="110">{if $d==9}Местные{elseif $d==10}Зона ст.{elseif $d==11}Зона моб.{elseif $d==100}7800{elseif $d==101}Россия{elseif $d==102}Международные{elseif $d==103}СНГ{elseif $d==900}Сумма</td><td class='header' vAlign='bottom' width="110">Входящие{/if}</td>
+		<td class='header' vAlign='bottom'  width="110">{if $d==9}Местные{elseif $d==10}Зона ст.{elseif $d==11}Зона моб.{elseif $d==100}7800{elseif $d==101}Россия{elseif $d==102}Международные{elseif $d==900}Сумма</td><td class='header' vAlign='bottom' width="110">Входящие{/if}</td>
 		{/if}
 		{/foreach}
 	</tr>

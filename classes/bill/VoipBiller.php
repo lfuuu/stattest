@@ -128,19 +128,14 @@ class VoipBiller extends Biller
                 $minPayment = $this->logTariff->minpayment_russia;
                 $minPaymentTemplate = 'Минимальный платеж за междугородные звонки с номера {name}';
             }elseif($dest == '2'){
-                $template = 'Плата за звонки в дальнее зарубежье с номера {name}';
+                $template = 'Плата за международные звонки с номера {name}';
                 $minPayment = $this->logTariff->minpayment_intern;
-                $minPaymentTemplate = 'Минимальный платеж за звонки в дальнее зарубежье с номера {name}';
-            }elseif($dest == '3'){
-                $template = 'Плата за звонки в ближнее зарубежье с номера {name}';
-                $minPayment = $this->logTariff->minpayment_sng;
-                $minPaymentTemplate = 'Минимальный платеж за звонки в ближнее зарубежье с номера {name}';
+                $minPaymentTemplate = 'Минимальный платеж за международные звонки с номера {name}';
             }elseif($dest == '100'){
                 $group = array();
                 if (strpos($this->logTariff->dest_group, '5') !== FALSE) $group[]='местные мобильные';
                 if (strpos($this->logTariff->dest_group, '1') !== FALSE) $group[]='междугородные';
-                if (strpos($this->logTariff->dest_group, '2') !== FALSE) $group[]='дальнее зарубежье';
-                if (strpos($this->logTariff->dest_group, '3') !== FALSE) $group[]='ближнее зарубежье';
+                if (strpos($this->logTariff->dest_group, '2') !== FALSE) $group[]='международные';
                 $group = implode(', ', $group);
 
                 $template = "Плата за звонки в наборе ($group) с номера {name}";
@@ -221,7 +216,6 @@ class VoipBiller extends Biller
            [minpayment_local_mob] => 0  // 5
            [minpayment_russia] => 1500  // 1
            [minpayment_intern] => 0     // 2
-           [minpayment_sng] => 0        // 3
 
            // other 900
          */
@@ -240,9 +234,6 @@ class VoipBiller extends Biller
             if ($logTarif->minpayment_intern) {
                 $lines["2"] = array('price' => 0);
             }
-            if ($logTarif->minpayment_sng) {
-                $lines["3"] = array('price' => 0);
-            }
         }
 
         foreach ($res as $r) {
@@ -253,8 +244,7 @@ class VoipBiller extends Biller
             if ((int)$logTarif->minpayment_group +
                 (int)$logTarif->minpayment_local_mob +
                 (int)$logTarif->minpayment_russia +
-                (int)$logTarif->minpayment_intern +
-                (int)$logTarif->minpayment_sng  == 0
+                (int)$logTarif->minpayment_intern == 0
             ) {
                 $dest = '900';
             }

@@ -470,7 +470,6 @@ class ServiceUsageVoip extends ServicePrototype {
            [minpayment_local_mob] => 0  // 5
            [minpayment_russia] => 1500  // 1
            [minpayment_intern] => 0     // 2
-           [minpayment_sng] => 0        // 3
 
            // other 900
          */
@@ -489,9 +488,6 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if($this->tarif_previous["minpayment_intern"])
                 $lines["2"] = array('price' => 0);
-
-            if($this->tarif_previous["minpayment_sng"])
-                $lines["3"] = array('price' => 0);
         }
 
         foreach ($res as $r) {
@@ -500,8 +496,7 @@ class ServiceUsageVoip extends ServicePrototype {
             if ((int)$this->tarif_previous['minpayment_group'] +
                 (int)$this->tarif_previous['minpayment_local_mob'] +
                 (int)$this->tarif_previous['minpayment_russia'] +
-                (int)$this->tarif_previous['minpayment_intern'] +
-                (int)$this->tarif_previous['minpayment_sng']  == 0) $dest = '900';
+                (int)$this->tarif_previous['minpayment_intern'] == 0) $dest = '900';
 
             if (!isset($lines[$dest])) $lines[$dest] = array('price'=>0);
             $lines[$dest]['price'] += $r['price'];
@@ -562,7 +557,6 @@ class ServiceUsageVoip extends ServicePrototype {
             $minpayment_local_mob   = $percentByDate * $this->tarif_previous['minpayment_local_mob'];
             $minpayment_russia      = $percentByDate * $this->tarif_previous['minpayment_russia'];
             $minpayment_intern      = $percentByDate * $this->tarif_previous['minpayment_intern'];
-            $minpayment_sng         = $percentByDate * $this->tarif_previous['minpayment_sng'];
             $month_min_payment      = $percentByDate * $this->tarif_previous["month_min_payment"];
             $minpayment_group       = $percentByDate * $this->tarif_previous["minpayment_group"];
 
@@ -600,27 +594,16 @@ class ServiceUsageVoip extends ServicePrototype {
                     {
                         $price = $minpayment_intern;
                         $percent = $percentByDate;
-                        $name = 'Минимальный платеж за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'Минимальный платеж за международные звонки с номера %NUM% %PERIOD%';
                     }else
-                        $name = 'Плата за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
-
-                }elseif($dest == '3'){
-
-                    if ($minpayment_sng > $price)
-                    {
-                        $price = $minpayment_sng;
-                        $percent = $percentByDate;
-                        $name = 'Минимальный платеж за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
-                    }else
-                        $name = 'Плата за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'Плата за международные звонки с номера %NUM% %PERIOD%';
 
                 }elseif($dest == '100'){
 
                     $group = array();
                     if (strpos($this->tarif_previous['dest_group'], '5') !== FALSE) $group[]='местные мобильные';
                     if (strpos($this->tarif_previous['dest_group'], '1') !== FALSE) $group[]='междугородные';
-                    if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE) $group[]='дальнее зарубежье';
-                    if (strpos($this->tarif_previous['dest_group'], '3') !== FALSE) $group[]='ближнее зарубежье';
+                    if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE) $group[]='международные';
                     $group = implode(', ', $group);
                     if ($minpayment_group > $price)
                     {
@@ -1311,15 +1294,14 @@ function get_tarif_history($service,$param,$date_quoted = 'NOW()'){
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_internet as A ON A.id=log_tarif.id_tarif';
     } elseif ($service=="usage_voip"){
-        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
-        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
-        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,log_tarif.minpayment_sng,';
+        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,';
+        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,';
+        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,';
         $add2 =' LEFT JOIN tarifs_voip as A ON A.id=log_tarif.id_tarif ';
         $add2.=' LEFT JOIN tarifs_voip as A5 ON A5.id=log_tarif.id_tarif_local_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
         $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
-        $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
     } elseif ($service=="domains") {
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_hosting as A ON A.id=log_tarif.id_tarif';
@@ -1429,15 +1411,14 @@ function get_tarif_current($service,$param){
         ON
             A.id=log_tarif.id_tarif';
     }elseif($service=="usage_voip"){
-        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
-        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
-        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,log_tarif.minpayment_sng,';
+        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,';
+        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,';
+        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,';
         $add2 =' LEFT JOIN tarifs_voip as A ON A.id=log_tarif.id_tarif ';
         $add2.=' LEFT JOIN tarifs_voip as A5 ON A5.id=log_tarif.id_tarif_local_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
         $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
-        $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
     }elseif($service=="usage_virtpbx"){
         $add1='A.*,';
         $add2='LEFT JOIN

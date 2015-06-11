@@ -51,7 +51,6 @@ $services = array(
             'input[name="dbform[t_minpayment_local_mob]"]' => 0,
             'input[name="dbform[t_minpayment_russia]"]' => 0,
             'input[name="dbform[t_minpayment_intern]"]' => 0,
-            'input[name="dbform[t_minpayment_sng]"]' => 0,
             'input[name="dbform[is_moved]"]' => 1,
             'input[name="dbform[is_moved_with_pbx]"]' => 1,
             'input[name="dbform[t_date_activation]"]' => $date_activation,
