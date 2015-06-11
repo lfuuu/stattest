@@ -52,7 +52,7 @@ class ContragentEditForm extends ContragentForm
         }
         if ($contragent->legal_type == "person")
         {
-            $contragent->name = $contragent->name_full = $this->first_name." ".$this->last_name.($this->middle_name ? " ".$this->middle_name : "");
+            $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
         }
 
         $contragent->save();
