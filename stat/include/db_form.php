@@ -892,57 +892,6 @@ class DbFormDomains extends DbForm {
 
 }
 
-class DbFormBillMonthlyadd extends DbForm {
-    public function __construct() {
-        DbForm::__construct('bill_monthlyadd');
-        $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-4000');
-        $this->fields['client']=array('type'=>'label');
-        $this->fields['amount']=array('default'=>'1');
-        $this->fields['description']=array();
-        $this->fields['price']=array('type'=>'label');
-        $this->fields['period']=array('type'=>'label');
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
-        $this->fields['t_comment']=array('db_ignore'=>1);
-        $this->includesPreL = array('dbform_bill_montlyadd.tpl');
-        $this->includesPreR = array('dbform_block.tpl');
-        $this->includesPost =array('dbform_block_history.tpl');
-    }    
-    public function Display($form_params = array(),$h2='',$h3='') {
-        global $db,$design;
-        $R=$db->AllRecords('select * from bill_monthlyadd_reference'); //where status!="archive"');
-        $design->assign('dbform_f_ref',$R);
-
-        if ($this->isData('id')) {
-            $R=$db->AllRecords('select bill_monthlyadd_log.*,user_users.user from bill_monthlyadd_log LEFT JOIN user_users ON user_users.id=bill_monthlyadd_log.who where id_service='.$this->data['id'].' order by ts'); //where status!="archive"');
-            $design->assign('dbform_f_log',$R);
-
-            HelpDbForm::assign_block('bill_monthlyadd',$this->data['id']);
-        }        
-
-        DbForm::Display($form_params,$h2,$h3);
-    }
-    public function Process($no_real_update = 0) {
-        global $db,$user;
-        $this->Get();
-        if (!isset($this->dbform['id'])) return '';
-        if ($this->dbform['id']) {
-            $r=$db->GetRow('select * from bill_monthlyadd where id='.$this->dbform['id']);
-            $r['id_service']=$r['id']; unset($r['id']);
-            $r['who']=$user->Get('id');
-            $r['ts']=array('NOW()');
-            $db->QueryInsert('bill_monthlyadd_log',$r);
-        }
-        $current = $db->GetRow("select * from bill_monthlyadd where id = '".$this->dbform["id"]."'");
-        $v=DbForm::Process();
-        if ($v=='add' || $v=='edit') {
-            HelpDbForm::saveChangeHistory($current, $this->dbform, 'bill_monthlyadd');
-            if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
-            HelpDbForm::save_block('bill_monthlyadd',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
-        }
-    }
-}
-
 class DbFormUsageIpRoutes extends DbForm{
     public function __construct() {
         DbForm::__construct('usage_ip_routes');
@@ -1950,8 +1899,6 @@ class DbFormFactory {
             return new DbFormTechCPE();
         }elseif ($table=='tech_cpe_models') {
             return new DbFormTechCPEModels();
-        }elseif ($table=='bill_monthlyadd') {
-            return new DbFormBillMonthlyadd();
         }elseif ($table=='domains') {
             return new DbFormDomains();
         }elseif ($table=='usage_extra') {

@@ -5,7 +5,13 @@
     $p_region = intval($_GET['region']);
     $p_dest = intval($_GET['dest']);
 
-    $filter = " and g.dest={$p_dest} ";
+    if ($p_dest == 1) {
+        $filter = " and g.country=7 ";
+    } elseif ($p_dest == 2) {
+        $filter = " and g.country<>7 ";
+    } else {
+        $filter = '';
+    }
 
     $report_id = -1;
     $params = array();
@@ -17,177 +23,115 @@
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>17,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>18,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>19,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 99 && $p_dest == 3){
-            $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>17,'param'=>'d1', 'date'=>date('Y-m-d'));
-            $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>18,'param'=>'d1', 'date'=>date('Y-m-d'));
-            $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>19,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 99 && $p_dest == 4){
-        $filter = " and g.dest=1 and d.mob=false ";
+        $filter .= " and d.mob=false ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>61,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>61,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>61,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 99 && $p_dest == 5){
-        $filter = " and g.dest=1 and d.mob=true ";
+        $filter .= " and d.mob=true ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>39,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>42,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>43,'param'=>'d1', 'date'=>date('Y-m-d'));
         $params[] = array('report_id'=>$report_id,'position'=>4,'pricelist_id'=>45,'param'=>'d1', 'date'=>date('Y-m-d'));
 
-    //Архивные тарифы для Москвы
-    }elseif ($p_region == 990 && $p_dest == 1){
-        $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 990 && $p_dest == 2){
-        $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 990 && $p_dest == 3){
-            $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-            $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-            $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>6,'param'=>'d1', 'date'=>date('Y-m-d'));
-
-    //Тарифы для договора присоединения сетей
-    }elseif ($p_region == 991 && in_array($p_dest, array(1,2,3))){
-        $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
-        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
-        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>111,'param'=>'d1', 'date'=>date('Y-m-d'));
-
     }elseif ($p_region == 97 && $p_dest == 1){
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>27,'param'=>'d1', 'date'=>date('Y-m-d'));
-//        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>28,'param'=>'d1', 'date'=>date('Y-m-d'));
-//        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>29,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 97 && $p_dest == 2){
-            $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>27,'param'=>'d1', 'date'=>date('Y-m-d'));
-//            $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>28,'param'=>'d1', 'date'=>date('Y-m-d'));
-//            $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>29,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 97 && $p_dest == 3){
-            $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>27,'param'=>'d1', 'date'=>date('Y-m-d'));
-//            $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>28,'param'=>'d1', 'date'=>date('Y-m-d'));
-//            $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>29,'param'=>'d1', 'date'=>date('Y-m-d'));
+        $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>27,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 97 && $p_dest == 4){
-        $filter = " and g.dest=1 and d.mob=false ";
+        $filter .= " and d.mob=false ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
-//        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
-//        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 97 && $p_dest == 5){
-        $filter = " and g.dest=1 and d.mob=true ";
+        $filter .= " and and d.mob=true ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
-//        $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
-//        $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 98 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>52,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>53,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>54,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 98 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>52,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>53,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>54,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 98 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>52,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>53,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>54,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 98 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and g.dest=1 and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>50,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>50,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>50,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 98 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and g.dest=1 and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>50,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>2,'pricelist_id'=>50,'param'=>'d1', 'date'=>date('Y-m-d'));
-//      $params[] = array('report_id'=>$report_id,'position'=>3,'pricelist_id'=>50,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 96 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>56,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 96 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>56,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 96 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>56,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 96 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and g.dest=1 and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>55,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 96 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and g.dest=1 and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>55,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 95 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>66,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 95 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>66,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 95 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>66,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 95 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>65,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 95 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>65,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 94 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>70,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 94 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>70,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 94 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>70,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 94 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>68,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 94 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>68,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 93 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>79,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 93 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>79,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 93 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>79,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 93 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>78,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 93 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>78,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 87 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>73,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 87 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>73,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 87 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>73,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 87 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>72,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 87 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>72,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 89 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>117,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 89 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>117,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 89 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>117,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 89 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>116,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 89 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>116,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 88 && $p_dest == 1){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 88 && $p_dest == 2){
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
-    }elseif ($p_region == 88 && $p_dest == 3){
-      $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>82,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 88 && $p_dest == 4){
-      $filter = " and g.dest=1 and d.mob=false ";
+      $filter .= " and d.mob=false ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>81,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 88 && $p_dest == 5){
-      $filter = " and g.dest=1 and d.mob=true ";
+      $filter .= " and d.mob=true ";
       $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>81,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }else{
@@ -344,7 +288,7 @@
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    if ($p_region == 99 || $p_region == 990)
+    if ($p_region == 99)
     {
       echo '"code1";"code2";"name";"zone";"price1";"price2";"price3";"price4"'."\n";
       foreach ($data as $r)

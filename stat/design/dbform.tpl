@@ -9,12 +9,6 @@
         <input type=hidden name={$key} value='{$item}'>
     {/foreach}
     <table class="table table-condensed table-striped">
-        {if isset($smarty.session.trash) && $smarty.session.trash.price_voip}
-            <tr>
-                <td><a href='?module=tarifs&action=csv_upload' target='_blank' style='text-decoration:none'>Пакетная заливка</a></td>
-                <td>&nbsp;</td>
-            </tr>
-        {/if}
         {foreach from=$dbform_data item=item key=key name=outer}
             {if isset($item.visible)}
                 {assign var="visible" value=$item.visible}

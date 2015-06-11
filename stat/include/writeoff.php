@@ -3,7 +3,7 @@
 use app\classes\BillContract;
 
 global $writeoff_services;
-$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails","usage_sms");
+$writeoff_services=array("usage_ip_ports","usage_voip", "usage_virtpbx", "usage_extra","usage_welltime", "emails","usage_sms");
 
 function Underscore2Caps($s) {
     return preg_replace_callback("/_(.)/",create_function('$a','return strtoupper($a[1]);'),$s);
@@ -1168,41 +1168,25 @@ class ServiceEmails extends ServicePrototype {
 
             $b = $db->getRow($q='
                 select
-                    1 as dt
+                    MAX(
+                        1+
+                        LEAST(actual_to,DATE("'.date('Y-m-d', $this->date_to).'"))-
+                        GREATEST(actual_from,DATE("'.date('Y-m-d', $this->date_from).'"))
+                    )/
+                    (1+(DATE("'.date('Y-m-d', $this->date_to).'") - DATE("'.date('Y-m-d', $this->date_from).'")) ) as dt
                 from
-                    bill_monthlyadd as U
+                    usage_extra as U
+                INNER JOIN
+                    tarifs_extra as T
+                ON
+                    T.id = U.tarif_id
                 where
-                    description LIKE "Виртуальный почтовый сервер%"
+                    T.code = "mailserver"
                 and
-                    U.actual_from<=FROM_UNIXTIME('.$this->date_from.')
-                and
-                    U.actual_to>=FROM_UNIXTIME('.$this->date_to.')
+                    U.actual_from<=FROM_UNIXTIME('.$this->date_to.')
                 AND
                     U.client="'.$this->service['client'].'"
             ');
-
-            if(!$b) // тут косяк. T.code не всегда адекватные
-                $b = $db->getRow($q='
-                    select
-                        MAX(
-                            1+
-                            LEAST(actual_to,DATE("'.date('Y-m-d', $this->date_to).'"))-
-                            GREATEST(actual_from,DATE("'.date('Y-m-d', $this->date_from).'"))
-                        )/
-                        (1+(DATE("'.date('Y-m-d', $this->date_to).'") - DATE("'.date('Y-m-d', $this->date_from).'")) ) as dt
-                    from
-                        usage_extra as U
-                    INNER JOIN
-                        tarifs_extra as T
-                    ON
-                        T.id = U.tarif_id
-                    where
-                        T.code = "mailserver"
-                    and
-                        U.actual_from<=FROM_UNIXTIME('.$this->date_to.')
-                    AND
-                        U.client="'.$this->service['client'].'"
-                ');
             
             if($b && ($b['dt']>0.08)){
                 $b = $b['dt']+0.05;

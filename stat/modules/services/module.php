@@ -1476,33 +1476,13 @@ class m_services extends IModule{
         $design->assign('mails',$R);
         $res = $R ? true : false;
 
-        $db->Query($q='
-            select
-                *
-            from
-                bill_monthlyadd
-            where
-                (client="'.$fixclient.'")
-            and
-                (description LIKE "Виртуальный почтовый сервер%")
-        ');
-
-        $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
+        $R=array();
         $design->assign('mailservers',$R);
 
         if (!$res && $R)
             $res = true;
-        
-        $db->Query('
-            select
-                id
-            from
-                bill_monthlyadd_reference
-            where
-                (description LIKE "Виртуальный почтовый сервер%")
-        ');
-        $r=$db->NextRecord();
-        $design->assign('mailservers_id',$r['id']);
+
+        $design->assign('mailservers_id',null);
 
         $design->AddMain('services/mail.tpl'); 
 
@@ -1900,131 +1880,12 @@ class m_services extends IModule{
         echo json_encode($_RESULT);
     }
     function services_ex_close($fixclient){
+        global $db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $id=get_param_integer('id','');
         if (!$id) return;
         $db->Query('update usage_extra set actual_to=NOW() where id='.$id);
         trigger_error2('<script language=javascript>window.location.href="?module=services&action=ex_view";</script>');
-    }
-
-    function services_ad_view($fixclient){
-        global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $R=array();
-        $db->Query('select bill_monthlyadd.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d from bill_monthlyadd where client="'.$fixclient.'"');
-        while ($r=$db->NextRecord()) {
-            if ($r['period']=='day') $r['period_rus']='каждый день'; else
-            if ($r['period']=='week') $r['period_rus']='каждую неделю'; else
-            if ($r['period']=='month') $r['period_rus']='каждый месяц'; else
-            if ($r['period']=='year') $r['period_rus']='каждый год'; else
-            if ($r['period']=='once') $r['period_rus']='единожды';
-            $R[]=$r;
-        }
-        $design->assign('adds',$R);
-        $design->AddMain('services/ad.tpl'); 
-        return $R;
-    }
-    function services_ad_act($fixclient){
-        global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $id=get_param_integer('id',0);
-        $db->Query('select bill_monthlyadd.*,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from bill_monthlyadd where (id="'.$id.'") and (client="'.$fixclient.'")');
-        if (!($r=$db->NextRecord())) return;
-        if ($r['period']=='day') $r['period_rus']='каждый день'; else
-        if ($r['period']=='week') $r['period_rus']='каждую неделю'; else
-        if ($r['period']=='month') $r['period_rus']='каждый месяц'; else
-        if ($r['period']=='year') $r['period_rus']='каждый год'; else
-        if ($r['period']=='once') $r['period_rus']='единожды';
-        $design->assign('ad_item',$r);
-        $design->assign('client',$db->GetRow('select * from clients where client="'.$r['client'].'"'));
-        $design->ProcessEx('../store/acts/ad_act.tpl'); 
-    }
-    
-    function services_ad_add($fixclient){
-        global $db,$design;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $dbf = new DbFormBillMonthlyadd();
-        $dbf->SetDefault('client',$fixclient);
-        $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'Услуги','Доп. услуги лучше заводить <a href="?module=services&action=ex_add">нового образца</a>');    //'Новая доп. услуга'
-    }
-
-    function services_ad_apply($fixclient){
-        global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $dbf = new DbFormBillMonthlyadd();
-        $id=get_param_integer('id','');
-        if ($id) $dbf->Load($id);
-        $result=$dbf->Process();
-        if ($result=='delete') {
-            header('Location: ?module=services&action=in_view');
-            exit;
-        } else {
-            $dbf->Display(array('module'=>'services','action'=>'ad_apply'),'Услуги','Редактировать доп. услугу');
-        }
-    }
-/*    function services_ad_add($fixclient){
-        global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $copyid=get_param_integer('copyid',0);
-        
-        $R=array(''); $db->Query('select * from bill_monthlyadd_reference');
-        while ($r=$db->NextRecord()) $R[$r['id']]=$r;
-        
-        if ($copyid) {
-            $price=$R[$copyid]['price'];
-            $period=$R[$copyid]['period'];
-        } else {
-            $price='';
-            $period='month';
-        }
-        $design->assign('copy',$R);
-        $dt=getdate();
-        $this->dbmap->ShowEditForm('bill_monthlyadd','',array('client'=>$fixclient,'price'=>$price,'period'=>$period,'actual_to'=>'2029-01-01','actual_from'=>date('Y-m-d'),'amount'=>'1'),1);
-        $design->assign('copyid',$copyid);
-        $design->AddMain('services/ad_add.tpl');
-    }
-    function services_ad_apply($fixclient){
-        global $design,$db,$_POST;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        if ($this->dbmap->ApplyChanges('bill_monthlyadd')!="ok") {
-            $this->dbmap->ShowEditForm('bill_monthlyadd','',get_param_raw('row',array()));
-            $design->AddMain('services/ad_add.tpl');
-        } else {
-            if (get_param_raw('dbaction')!='delete'){
-                if (!get_param_raw('id','')) $id=$db->GetInsertId();
-                $r=$this->dbmap->SelectRow('bill_monthlyadd','id='.$id);
-            }
-            trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
-        }
-    }*/
-    function services_ad_close($fixclient){
-        global $design,$db;
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $id=get_param_integer('id','');
-        if (!$id) return;
-        $db->Query('select * from bill_monthlyadd where id='.$id);
-        if (!($r=$db->NextRecord())) return;
-        $db->Query('update bill_monthlyadd set actual_to=NOW() where id='.$id);
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
-//        $this->services_ad_view($fixclient);
-    }
-    function services_ad_activate($fixclient){
-        global $design,$db;    
-        if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $id=get_param_integer('id','');
-        if (!$id) return;
-        $db->Query('select *,IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual from bill_monthlyadd where id='.$id);
-        if (!($r=$db->NextRecord())) return;
-        
-        if ($r['actual']) {
-            $block=0;
-            $db->Query('update bill_monthlyadd set actual_to=NOW() where id='.$id);
-        } else {
-            $block=0;
-            $db->Query('update bill_monthlyadd set actual_from=NOW(),actual_to="4000-01-01" where id='.$id);
-        }
-        trigger_error2('<script language=javascript>window.location.href="?module=services&action=ad_view";</script>');
-//        $this->services_ad_view($fixclient);
     }
 
 // =========================================================================================================================================

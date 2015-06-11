@@ -1055,7 +1055,6 @@ class m_clients {
                 if(StatModule::services()->services_virtpbx_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_sms_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_wellsystem_view($r['client'])) $isServiceEnabled = true;
-                if(StatModule::services()->services_ad_view($r['client'])) $isServiceEnabled = true;
                 $design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
 
                 $design->assign("is_service_enabled", $isServiceEnabled);

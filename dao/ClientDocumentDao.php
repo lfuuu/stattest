@@ -288,27 +288,7 @@ class ClientDocumentDao extends Singleton
 
 
 		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
-			$repl = '';
-			// москва(моб.)
-			$query = "
-				select
-					`destination_name`,
-					`destination_prefix`,
-					substring(`destination_prefix` from 2 for 3) `code`,
-					`rate_RUB`
-				from
-					`price_voip`
-				where
-					`dgroup`=0
-				and
-					`dsubgroup`=0
-				order by
-					`destination_prefix`
-			";
-            foreach(ClientDocument::getDB()->createCommand($query)->queryAll() as $row)
-            {
-				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
-			}
+			$repl = ''; // москва(моб.)
 			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
         }
 

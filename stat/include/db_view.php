@@ -288,22 +288,6 @@ class DbFormTarifsHosting extends DbFormSimpleLog {
 	}
 }
 
-class DbFormPriceVoip extends DbFormSimpleLog {
-	public function constructChild() {
-		DbForm::__construct('price_voip');
-		$this->fields['destination_name']=array();
-		$this->fields['destination_prefix']=array();
-		$this->fields['operator']=array();
-		global $user;
-		if(in_array($user->Get('user'),array('sfilatov','dns','bnv','mak','pma'))){
-			$this->fields['rate_USD']=array('default'=>'0.00');
-			$this->fields['rate_RUB']=array('default'=>'0.00');
-			$this->fields['priceid']=array('default'=>'0');
-		}
-		$this->fields['dgroup']=array('default'=>0,'assoc_enum'=>array(0=>'Москва',1=>'Россия',2=>'Международное'));
-		$this->fields['dsubgroup']=array('default'=>0,'assoc_enum'=>array(0=>'Мобильные',1=>'1 Зона/Стационарные',2=>'2 Зона',3=>'3 Зона',4=>'4 Зона',5=>'5 Зона',6=>'6 Зона',97=>'Международное Фрифон',98=>'Россия Фрифон',99=>'Другое'));
-	}
-}
 class DbViewTarifsExtra extends DbViewCommonTarif {
 	public function constructChild() {
 		$this->table='tarifs_extra';
@@ -578,28 +562,6 @@ class DbFormTarifsWellSystem extends DbFormSimpleLog {
 		$this->fields['period']=array('assoc_enum'=>array('month'=>'ежемесячно', 'year'=>'ежегодно','once'=>'разово', '3mon'=>'раз в 3 месяца','6mon'=>'раз в 6 месяцев'));
 	}
 }
-class DbViewBillMonthlyaddReference extends DbViewCommonTarif {
-	public function constructChild() {
-		$this->table='bill_monthlyadd_reference';
-		$this->Headers['z']='Тарифы на дополнительные услуги';
-		$this->FieldSets['z']=array(
-							'description'=>'Описание',
-							'price'=>'Стоимость',
-							'period' => 'Период',
-							);
-		$this->fieldset='z';
-	}
-}
-class DbFormBillMonthlyaddReference extends DbFormSimpleLog {
-	public function constructChild() {
-		DbForm::__construct('bill_monthlyadd_reference');
-		$this->fields['currency']=array('enum'=>Currency::enum(),'default'=>'RUB');
-		$this->fields['status']=array('assoc_enum'=>array('public'=>'публичный','special'=>'специальный','archive'=>'архивный'));
-		$this->fields['description']=array();
-		$this->fields['price']=array();
-		$this->fields['period']=array('assoc_enum'=>array('day'=>'Ежедневно', 'month'=>'Ежемесячно', 'year'=>'Ежегодно', 'once'=>'Разовая услуга'));
-	}
-}
 
 class DbViewMonitorClients extends DbView {
 	public function __construct() {
@@ -674,7 +636,6 @@ class DbViewFactory {
 	public static function Get($v) {
 		if ($v=='internet') return new DbViewTarifsInternet();
 		if ($v=='hosting') return new DbViewTarifsHosting();
-		if ($v=='bill_monthlyadd_reference') return new DbViewBillMonthlyaddReference();
 		if ($v=='extra') return new DbViewTarifsExtra();
 		if ($v=='itpark') return new DbViewTarifsITPark();
 		if ($v=='welltime') return new DbViewTarifsWelltime();
@@ -687,8 +648,6 @@ class DbViewFactory {
 		if ($v=='internet' && $t=='c') return new DbFormTarifsCollocation();
 		if ($v=='internet') return new DbFormTarifsInternet();
 		if ($v=='hosting') return new DbFormTarifsHosting();
-		if ($v=='price_voip') return new DbFormPriceVoip();
-		if ($v=='bill_monthlyadd_reference') return new DbFormBillMonthlyaddReference();
 		if ($v=='extra') return new DbFormTarifsExtra();
 		if ($v=='itpark') return new DbFormTarifsITPark();
 		if ($v=='welltime') return new DbFormTarifsWelltime();

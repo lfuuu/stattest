@@ -109,13 +109,6 @@ class m_services_head extends IModuleHead {
 					'ppp_activateall'	=> array('services_ppp','activate'),
 					'ppp_chpass'		=> array('services_ppp','chpass'),
 					'ppp_chreal'		=> array('services_ppp','chpass'),
-
-//дополнительные услуги (старые)
-					'ad_view'			=> array('services_additional','r_old'),
-					'ad_act'			=> array('services_additional','r_old'),
-					'ad_add'			=> array('services_additional','addnew'),
-					'ad_apply'			=> array('services_additional','edit'),
-					'ad_close'			=> array('services_additional','close'),
 				);
 	public $menu=array(
 		array('Телефония Номера',		'vo_view'),
