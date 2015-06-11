@@ -58,12 +58,12 @@ class m_incomegoods extends IModule{
 
         $states = GoodsIncomeOrder::find_by_sql($q = "
             SELECT 
-                st.`name`, 
-                st.`id`,
-                st.id, COUNT(*) AS count 
+                IF(gio.deleted, 'Отказ', st.`name`) AS `name`,
+                IF(gio.deleted, 40, st.`id`) AS `id`,
+                COUNT(st.`id`) AS count
             ".$sqlBody."
                 AND {$where}
-            GROUP BY st.`name`
+            GROUP BY `id`
                 ", $whereData);
 
         foreach($states as $state) {
