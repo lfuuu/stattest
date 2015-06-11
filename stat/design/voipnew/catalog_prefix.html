@@ -7,38 +7,38 @@
 <form action="./index.php" method="get" style="display:inline">
     <input type="hidden" name="module" value="voipnew" />
     <input type="hidden" name="action" value="catalog_prefix" />
-    <select name="f_country_id" class="select2">
+    <select name="f_country_id" class="select2" style="width: 200px">
         <option value="0">-- Все страны --</option>
         {foreach from=$countries item='g'}
         <option value="{$g.id}" {if $g.id eq $f_country_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
-    <select name="f_region_id" class="select2">
+    <select name="f_region_id" class="select2" style="width: 250px">
         <option value="0">-- Все регионы --</option>
         {foreach from=$geo_regions item='g'}
         <option value="{$g.id}" {if $g.id eq $f_region_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
 
-    <select name="f_city_geo_id" class="select2">
+    <select name="f_city_geo_id" class="select2" style="width: 200px">
         <option value="0">-- Все города --</option>
         {foreach from=$cities item='g'}
         <option value="{$g.id}" {if $g.id eq $f_city_geo_id} selected{/if}>{$g.name}</option>
         {/foreach}
     </select>
 
-    <select name="f_mob">
+    <select name="f_mob" class="select2"  style="width: 150px">
         <option value="0">-- Моб/Стац --</option>
         <option value="t" {if $f_mob eq 't'} selected{/if}>Мобильные</option>
         <option value="f" {if $f_mob eq 'f'} selected{/if}>Стационарные</option>
     </select>
 
-    <br/>
+    <br/><br/>
     <input type="text" name="f_prefix" value="{$f_prefix}" placeholder="-- Префикс --"/>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <input type=submit name="make" value="Сформировать"/>
 </form>
-<br/>
+<br/><br/><br/>
 <table class="table table-condensed table-striped table-hover table-bordered">
     <tr>
         <th>Префикс номера</th>
