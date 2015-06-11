@@ -20,12 +20,6 @@
         На дату: <input name="f_date" value="{$f_date}">
     </div>
     <div style="margin: 5px 0">
-        <select name="f_dest_group" class="select2" style="width:200px">
-        <option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-        <option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-        <option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-        </select>
-        &nbsp;&nbsp;
         <select name="f_country_id" class="select2" style="width:250px">
         <option value="0">-- Все страны --</option>
         {foreach from=$countries item='g'}
@@ -50,8 +44,6 @@
         &nbsp;&nbsp;&nbsp;&nbsp;
         <label><input type="checkbox" name="f_short" {if $f_short != ''} checked{/if}>Сократить</label>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <label><input type="checkbox" id="f_print" name="f_print">Печать</label>
-        &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="submit" value="Сформировать">
         &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="submit" name="export" value="Выгрузить">
@@ -64,14 +56,14 @@
 {if $pricelist_id ne ''}
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 	<tr>
-		<td class=header>Направление</td><td class=header>Назначение</td><td class=header>fix/mob</td>
+		<td class=header>Направление</td>
+        <td class=header>fix/mob</td>
 		<td class=header>Префикс</td>
 		<td class=header>Цена</td>
 		{if $f_short == ''}<td class=header style="width:130px">Действие</td>{/if}
 		</tr>
 	{foreach from=$defs item='o'}
 	<tr class={cycle values='even,odd'}>
-		<td nowrap>{$o.dgroup}</td>
 		<td nowrap>{$o.destination}</td>
 		<td nowrap>{if $o.mob == 't'}mob{else}fix{/if}</td>
 		<td><b>{$o.defcode}</b>{if $o.defcode2} ({$o.defcode2}){/if}</td>

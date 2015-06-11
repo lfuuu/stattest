@@ -202,18 +202,17 @@
     }
 
     $pg_db->Query("select * from voip.prepare_analyze_pricelist_report('{$report_id}')");
-    $data =   $pg_db->AllRecords("          select d.defcode, r.*, dgr.shortname as dgroup,
+    $data =   $pg_db->AllRecords("          select d.defcode, r.*,
                                                     g.name as destination, g.zone, d.mob
                                             from voip.analyze_pricelist_report_data r
                                                     LEFT JOIN voip_destinations d ON r.ndef=d.ndef
                       					                    LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                                    LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
                                                     where r.report_id={$report_id} {$filter}
                                                     order by r.report_id, r.position, r.param, g.name, d.defcode
                                              ");
     foreach($data as $r){
         if (!isset($report[$r['defcode']])){
-            $report[$r['defcode']] = array('defcode'=>$r['defcode'], 'zone'=>$r['zone'], 'mob'=>$r['mob'], 'dgroup'=>$r['dgroup'], 'destination'=>$r['destination'], 'parts'=>array(), );
+            $report[$r['defcode']] = array('defcode'=>$r['defcode'], 'zone'=>$r['zone'], 'mob'=>$r['mob'], 'destination'=>$r['destination'], 'parts'=>array(), );
         }
 
         if (!isset($report[$r['defcode']]['parts'][$r['position']]))
@@ -255,12 +254,10 @@
     $resgroup = array();
     foreach($report as $r){
 
-        if ($dest != $r['dgroup'] ||
-            $destination != $r['destination'] ||
+        if ($destination != $r['destination'] ||
             $ismob != $r['mob'] ||
             $price != $r['price'] )
         {
-            $dest = $r['dgroup'];
             $destination = $r['destination'];
             $ismob = $r['mob'];
             $price = $r['price'];

@@ -288,44 +288,6 @@ class DbFormTarifsHosting extends DbFormSimpleLog {
 	}
 }
 
-class DbViewPriceVoip extends DbViewCommonTarif {
-	public function constructChild() {
-		global $db;
-		$this->table='price_voip';
-		$this->Headers['r']='Тарифы на междугородние звонки';
-		$this->Headers['w']='Тарифы на международные звонки';
-		$this->FieldSets['r'] = array(
-			'destination_name'=>'Пункт',
-			'destination_prefix'=>'Префикс',
-			'Стоимость минуты'=>array(
-				'rate_USD'=>'В долларах',
-				'rate_RUB'=>'В рублях'
-			),
-			'Направление'=>array(
-				'dgroup'=>'Группа',
-				'dsubgroup'=>'Подгруппа'
-			),
-		);
-		$this->FieldSets['w']=$this->FieldSets['r'];
-		$this->SQLFilters['r']='dgroup IN (0,1)';
-		$this->SQLFilters['w']='dgroup IN (2)';
-		$this->SQLFieldsReplacement = array(
-			'dgroup'=>array(0=>'Москва',1=>'Россия',2=>'Международное'),
-			'dsubgroup'=>array(0=>'Мобильные',1=>'1 Зона/Стационарные',2=>'2 Зона',3=>'3 Зона',4=>'4 Зона',5=>'5 Зона',6=>'6 Зона',97=>'Международное Фрифон',98=>'Россия Фрифон',99=>'Другое')
-		);
-		$this->order = array('dgroup'=>'asc','dsubgroup'=>'asc','destination_name'=>'asc');
-		$r=$db->GetRow('select max(priceid) as A from price_voip');
-		$R=array();
-		for($i=0;$i<=$r['A'];$i++){
-			$this->SQLFilters['g'.$i]='priceid='.$i;
-			$this->SQLFilterNames['g'.$i]=$i;
-			$R[]='g'.$i;
-		}
-		$this->SQLFilterGroups=array('Группа'=>$R);
-		$this->filters=array('g0');
-		$this->fieldset='r';
-	}
-}
 class DbFormPriceVoip extends DbFormSimpleLog {
 	public function constructChild() {
 		DbForm::__construct('price_voip');
@@ -712,7 +674,6 @@ class DbViewFactory {
 	public static function Get($v) {
 		if ($v=='internet') return new DbViewTarifsInternet();
 		if ($v=='hosting') return new DbViewTarifsHosting();
-		if ($v=='price_voip') return new DbViewPriceVoip();
 		if ($v=='bill_monthlyadd_reference') return new DbViewBillMonthlyaddReference();
 		if ($v=='extra') return new DbViewTarifsExtra();
 		if ($v=='itpark') return new DbViewTarifsITPark();

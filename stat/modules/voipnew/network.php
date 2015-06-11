@@ -218,13 +218,11 @@ class m_voipnew_network
 
             $query = "
                     select d.defcode, r.date_from, r.date_to, r.price,
-                                g.dest, dgr.shortname as dgroup,
                                 g.name as destination, d.mob,
                                 r.price as price
                     from select_defs_price('$pricelist_id', '$f_date') r
                                                 LEFT JOIN voip_destinations d ON r.ndef=d.ndef
                                     LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                                LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
                     order by d.defcode";
             $res = $pg_db->AllRecords($query);
 
