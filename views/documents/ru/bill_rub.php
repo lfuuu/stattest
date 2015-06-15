@@ -1,5 +1,5 @@
 <?php
-use Yii;
+
 use app\classes\Utils;
 use app\classes\Wordifier;
 

@@ -1,6 +1,5 @@
 <?php
 
-use Yii;
 use app\classes\Utils;
 
 /** @var $document app\classes\documents\DocumentReport */
