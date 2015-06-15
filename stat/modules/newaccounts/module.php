@@ -1801,9 +1801,9 @@ class m_newaccounts extends IModule
             
         if (strpos($object, 'DocRep') !== false) {
             $document = (new \app\classes\documents\DocumentsFactory())->getReport(\app\models\Bill::findOne(['bill_no'=>$bill_no]), $obj);
-            if ($is_pdf)
-                $document->renderAsPDF();
-            else
+            //if ($is_pdf)
+            //    $document->renderAsPDF();
+            //else
                 echo $document->render();
             exit();
         }

@@ -82,7 +82,8 @@ class Utils
         return sprintf('%0.' . $precision . 'f', ($mode === '-' ? -$value : $value));
     }
 
-    public static function rus_fin($value, $s1, $s2, $s3) {
+    public static function rus_fin($value, $s1, $s2, $s3)
+    {
         if ($value == 11)
             return $s3;
         if (($value % 10) == 1)
@@ -92,6 +93,33 @@ class Utils
         if (($value % 10) >= 2 && ($value %10) <= 4)
             return $s2;
         return $s3;
+    }
+
+    public static function get_inv_date($date, $source)
+    {
+        $d = getdate($date);
+        $v = mktime(0, 0, 0, $d['mon'], 1, $d['year']);
+        if ($source != 1) {
+            $d['mon']--;
+            if (!$d['mon']) {
+                $d['year']--;
+                $d['mon']=12;
+            }
+        }
+        if ($source == 3) {
+            $tm = $date;
+        }
+        else {
+            $tm = mktime(0, 0, 0, $d['mon'], cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']), $d['year']);
+        }
+
+        return [$tm, $v];
+    }
+
+    public static function get_inv_period($date)
+    {
+        $d = getdate($date);
+        return mktime(0, 0, 0, $d['mon'], 1, $d['year']);
     }
 
 }
