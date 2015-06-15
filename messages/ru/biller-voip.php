@@ -33,11 +33,8 @@ return [
     'voip_long_distance_call_minpay' => 'Минимальный платеж за междугородные звонки с номера {service}{date_range}',
     'voip_long_distance_call_payment' => 'Плата за междугородные звонки с номера {service}{date_range}',
 
-    'voip_international_call_minpay' => 'Минимальный платеж за звонки в дальнее зарубежье с номера {service}{date_range}',
-    'voip_international_call_payment' => 'Плата за звонки в дальнее зарубежье с номера {service}{date_range}',
-
-    'voip_sng_call_minpay' => 'Минимальный платеж за звонки в ближнее зарубежье с номера {service}{date_range}',
-    'voip_sng_call_payment' => 'Плата за звонки в ближнее зарубежье с номера {service}{date_range}',
+    'voip_international_call_minpay' => 'Минимальный платеж за международные звонки с номера {service}{date_range}',
+    'voip_international_call_payment' => 'Плата за международные звонки с номера {service}{date_range}',
 
     'voip_group_minpay' => 'Минимальный платеж за набор ({group}) с номера {service}{date_range}',
     'voip_group_payment' => 'Плата за звонки в наборе ({group}) с номера {service}{date_range}',
