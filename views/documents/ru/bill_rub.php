@@ -60,8 +60,11 @@ $company = $document->getCompany();
                                 <td width="50"><?= str_replace(' ', '&nbsp;', $document->bill->clientAccount->userManager->name); ?></td>
                             </tr>
                             <tr>
-                                <td colspan=2 align="center">
-                                    <!-- QRCode -->
+                                <td colspan="2" align="center">
+                                    <?php if ($document->qr_code !== false): ?>
+                                        <img src="/utils/qr-code/get?data=<?= $document->qr_code; ?>" />
+                                    <?php endif; ?>
+
                                 </td>
                             </tr>
                         </table>

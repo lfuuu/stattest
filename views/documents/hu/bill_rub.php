@@ -42,9 +42,9 @@ $company = $document->getCompany();
                             <?php endif; ?>
                         </div>
                         <tr>
-                            <td colspan=2 align="center">
-                                <?php if ($document->bill->bill_date >= '2013-05-01'): ?>
-                                    <!--img src="/utils/qr-code/get?data=<? //QRcode::gif($document->bill->bill_no); ?>" /-->
+                            <td colspan="2" align="center">
+                                <?php if ($document->qr_code !== false): ?>
+                                    <img src="/utils/qr-code/get?data=<?= $document->qr_code; ?>" />
                                 <?php endif; ?>
                             </td>
                         </tr>
