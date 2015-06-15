@@ -31,9 +31,9 @@
     <select name='to_m'>{foreach from=$select_month item='m' key='key'}<option value='{$key}' {if $key == $to_m}selected='selected'{/if}>{$m}</option>{/foreach}</select></td><td>
     <select name='to_y'>{foreach from=$select_year item='y'}<option value='{$y}' {if $y == $to_y}selected='selected'{/if}>{$y}</option>{/foreach}</select></td><td>
     &nbsp;&nbsp;<input type="submit" value="Показать"></td></tr>
-    <tr><td colspan='8' align="center"> <br>Отчёт за {$from_m}.{$from_y}&mdash;{$to_m}.{$to_y}
     </table>
 </form>
+<h2>Отчёт за&nbsp;{if $from_m == $to_m && $from_y == $to_y}{$from_m|string_format:'%02d'}.{$from_y}{else}период&nbsp;&nbsp;{$from_m|string_format:'%02d'}.{$from_y}&nbsp...&nbsp;{$to_m|string_format:'%02d'}.{$to_y}{/if}</h2>
 <table class="price">
   <tr>
     <th>&nbsp;</th>
