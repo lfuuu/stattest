@@ -43,6 +43,11 @@ abstract class DocumentReport extends Singleton
         return Company::getDetail($this->bill->clientAccount->firma, $this->bill->bill_date);
     }
 
+    public function getCompanyResidents()
+    {
+        return Company::setResidents($this->bill->clientAccount->firma, $this->bill->bill_date);
+    }
+
     public function getClassName() {
         return (new \ReflectionClass($this))->getShortName();
     }
@@ -104,7 +109,7 @@ abstract class DocumentReport extends Singleton
                 list($inv_date, $period_date) = Utils::get_inv_date(strtotime($this->bill->bill_date),($this->bill->inv2to1 && $source == 2) ? 1 : $source);
             }
         }
-        else { // статовские переодичекские счета
+        else { // статовские переодические счета
             list($inv_date, $period_date) = Utils::get_inv_date(strtotime($this->bill->bill_date),($this->bill->inv2to1 && $source == 2) ? 1 : $source);
         }
 

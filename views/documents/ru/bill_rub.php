@@ -12,6 +12,7 @@ foreach ($document->bill_lines as $position => $line)
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
 $company = $document->getCompany();
+$residents = $document->getCompanyResidents();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -154,43 +155,22 @@ $company = $document->getCompany();
 
         <p><i>Сумма прописью: <?= Wordifier::Make($document->summary->value - $isDiscount, $document->getCurrency()); ?></i></p>
 
-        <!--table border="0" align=center cellspacing="1" cellpadding="0">
+        <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>
                 <tr>
-                    <td>{$firm_director.position}</td>
-                    {if isset($emailed) && $emailed==1}
-                        <td>
-                            {if $firm_director.sign} <img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_director.sign.src}"  border="0" alt="" align="top"{if $firm_director.sign.width} width="{$firm_director.sign.width}" height="{$firm_director.sign.height}"{/if}> {else} _________________________________ {/if}
-                         </td>
-                    {else}
-                        <td><br><br>_________________________________<br><br></td>
-                    {/if}
-                    <td>/ {$firm_director.name} /</td>
+                    <td><?= $residents['firm_director']['position']; ?></td>
+                    <td><br><br>_________________________________<br><br></td>
+                    <td>/ <?= $residents['firm_director']['name']; ?> /</td>
                 </tr>
                 <tr>
                     <td>Главный бухгалтер</td>
-                    {if isset($emailed) && $emailed==1}
-                        <td>
-                            {if $firm_buh.sign}<img src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firm_buh.sign.src}"  border="0" alt="" align="top"{if $firm_buh.sign.width} width="{$firm_buh.sign.width}" height="{$firm_buh.sign.height}"{/if}>{else} _________________________________ {/if}
-                        </td>
-                    {else}
-                        <td><br><br>_________________________________<br><br></td>
-                    {/if}
+                    <td><br><br>_________________________________<br><br></td>
                     <td>
-                        / {$firm_buh.name} /
+                        / <?= $residents['firm_buh']['name']; ?> /
                     </td>
                 </tr>
-                {if isset($emailed) && $emailed==1}
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td align=left>
-                            {if $firma}<img style='{$firma.style}' src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>{/if}
-                        </td>
-                        <td>&nbsp;</td>
-                    </tr>
-                {/if}
             </tbody>
-        </table-->
+        </table>
 
         <?php if ($document->bill->clientAccount->firma != 'ooocmc' && $document->bill->clientAccount->firma != 'ooomcn'): ?>
             <small>

@@ -512,6 +512,7 @@ class Company
             "wellstart" => array("name" => "ООО &laquo;Веллстарт&raquo;", "src" => false, "style" => "", "width" => false),
         );
         global $design;
+
         $firm_buh = $u[$b];
         if (!isset($firm_buh["position"]))
             $firm_buh["position"] = "Главный бухгалтер";
@@ -520,8 +521,16 @@ class Company
             $u[$d]["position"] = "Генеральный директор";
             $u[$d]["position_"] = "Генерального директора";
         }
-        $design->assign("firma", $firms[$firma]);
-        $design->assign("firm_director", $u[$d]);
-        $design->assign("firm_buh", $firm_buh);
+        if ($design) {
+            $design->assign("firma", $firms[$firma]);
+            $design->assign("firm_director", $u[$d]);
+            $design->assign("firm_buh", $firm_buh);
+        }
+
+        return [
+            'firma' => $firms[$firma],
+            'firm_director' => $u[$d],
+            'firm_buh' => $firm_buh
+        ];
     }
 }
