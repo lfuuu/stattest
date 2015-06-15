@@ -732,6 +732,16 @@ class m_newaccounts extends IModule
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
+        $availableDocuments = (new \app\classes\documents\DocumentsFactory())->availableDocuments($newbill);
+        $documents = [];
+        foreach ($availableDocuments as $docType) {
+            $documents[] = [
+                'code' => $docType->getClassName(),
+                'title' => $docType->getName(),
+            ];
+        }
+        $design->assign('available_documents', $documents);
+
         $design->AddMain('newaccounts/bill_view.tpl');
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
@@ -1382,6 +1392,7 @@ class m_newaccounts extends IModule
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
+        $L = array_merge($L, ['BillDocRepHuRUB', 'BillDocRepRuRUB']);
 
         //$L = array("invoice-1");
 
@@ -1450,7 +1461,6 @@ class m_newaccounts extends IModule
             }
             //$design->assign('bill',$bb);
 
-
             $h = array();
             foreach($L as $r) {
 
@@ -1486,7 +1496,6 @@ class m_newaccounts extends IModule
                 {
                     $isDeny = true;
                 }
-
 
                 if ((get_param_protected($r) || $reCode) && !$isDeny) {
 
@@ -1748,8 +1757,10 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope')))
-            $obj='bill';
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope'))) {
+            $lang = ClientAccount::findOne($bill->Get('client_id'))->contragent->country->lang;
+            $obj = 'bill';
+        }
 
         if ($obj!='bill')
             $curr = 'RUB';
@@ -1788,12 +1799,19 @@ class m_newaccounts extends IModule
             exit();
         }
             
-
+        if (strpos($object, 'DocRep') !== false) {
+            $document = (new \app\classes\documents\DocumentsFactory())->getReport(\app\models\Bill::findOne(['bill_no'=>$bill_no]), $obj);
+            if ($is_pdf)
+                $document->renderAsPDF();
+            else
+                echo $document->render();
+            exit();
+        }
 
         if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice"))){
 
-      $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
-      $design->assign("source", $source);
+            $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
+            $design->assign("source", $source);
 
             if($source==3 && $obj=='akt')
             {
@@ -1901,7 +1919,7 @@ class m_newaccounts extends IModule
                 } else {
                     if($mode=='html')
                     {
-                        $design->ProcessEx('newaccounts/print_'.$obj.'.tpl');
+                        $design->ProcessEx('newaccounts/print_'.$obj . '_' . $lang .'.tpl');
                     }elseif($mode=='xml'){
                         $design->ProcessEx('newaccounts/print_'.$obj.'.xml.tpl');
                     }elseif($mode=='pdf'){
@@ -2332,7 +2350,7 @@ class m_newaccounts extends IModule
 
 
         $L_prev=$bill->GetLines((preg_match('/bill-\d/',self::$object))?'order':false);//2 для фактур значит за прошлый период
-
+        //print_r($L_prev);
 
         if(in_array($obj, array("invoice","upd")))
         {
