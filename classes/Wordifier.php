@@ -38,7 +38,7 @@ class Wordifier
             else
                 $s .= self::$num10[$num];
         }
-        $s .= Utils::rus_fin($num, self::$sections[$sect][0], self::$sections[$sect][1], self::$sections[$sect][2]);
+        $s .= Utils::rus_plural($num, self::$sections[$sect][0], self::$sections[$sect][1], self::$sections[$sect][2]);
         if ($sect == 0)
             return array($s, $num);
         else
@@ -68,9 +68,9 @@ class Wordifier
         $s = strtr(mb_substr($s, 0, 1, 'utf-8'), 'мнодтчпшсв', 'МНОДТЧПШСВ') . mb_substr($s, 1, -1, 'utf-8');
         //$s=mb_strtoupper(mb_substr($s,0,1)).mb_substr($s,1);
         //$s=mb_strtoupper(mb_substr($s,0,1,'utf-8'),'utf-8').mb_substr($s,1,-1,'utf-8');
-        $s .= Utils::rus_fin($v[1], self::$curBig[$currency][0], self::$curBig[$currency][1], self::$curBig[$currency][2]);
+        $s .= Utils::rus_plural($v[1], self::$curBig[$currency][0], self::$curBig[$currency][1], self::$curBig[$currency][2]);
         $c = round(($num-floor($num))*100);
-        $s .= ' ' . sprintf('%02d', $c) . ' ' . Utils::rus_fin($c, self::$curSmall[$currency][0], self::$curSmall[$currency][1], self::$curSmall[$currency][2]);
+        $s .= ' ' . sprintf('%02d', $c) . ' ' . Utils::rus_plural($c, self::$curSmall[$currency][0], self::$curSmall[$currency][1], self::$curSmall[$currency][2]);
 
         return $s;
     }

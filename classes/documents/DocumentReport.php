@@ -7,7 +7,7 @@ use yii\helpers\ArrayHelper;
 use app\classes\Singleton;
 use app\classes\Company;
 use app\classes\Utils;
-use app\classes\QRCode;
+use app\classes\BillQRCode;
 use app\models\Bill;
 
 abstract class DocumentReport extends Singleton
@@ -72,7 +72,7 @@ abstract class DocumentReport extends Singleton
         $this->calculateSummary();
 
         if (strtotime($this->bill->bill_date) >= strtotime('2013-05-01'))
-            $this->qr_code = QRCode::getNo($this->bill->bill_no);
+            $this->qr_code = BillQRCode::getNo($this->bill->bill_no);
 
         return $this;
     }

@@ -4,6 +4,7 @@ use app\classes\StatModule;
 use app\classes\Assert;
 use app\classes\Company;
 use app\classes\BillContract;
+use app\classes\BillQRCode;
 use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
@@ -1757,6 +1758,7 @@ class m_newaccounts extends IModule
             return true;
         }
 
+        $lang = '';
         if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope'))) {
             $lang = ClientAccount::findOne($bill->Get('client_id'))->contragent->country->lang;
             $obj = 'bill';
@@ -1810,7 +1812,7 @@ class m_newaccounts extends IModule
 
         if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice"))){
 
-            $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
+            $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? BillQRCode::getNo($bill->GetNo()) : false));
             $design->assign("source", $source);
 
             if($source==3 && $obj=='akt')
@@ -1919,7 +1921,7 @@ class m_newaccounts extends IModule
                 } else {
                     if($mode=='html')
                     {
-                        $design->ProcessEx('newaccounts/print_'.$obj . '_' . $lang .'.tpl');
+                        $design->ProcessEx('newaccounts/print_'.$obj . (!empty($lang) ? '_' . $lang : '')  .'.tpl');
                     }elseif($mode=='xml'){
                         $design->ProcessEx('newaccounts/print_'.$obj.'.xml.tpl');
                     }elseif($mode=='pdf'){
@@ -2255,18 +2257,18 @@ class m_newaccounts extends IModule
                     }
                 }
             }
-            $period_date = get_inv_period($inv_date);;
+            $period_date = Utils::get_inv_period($inv_date);;
         }elseif($bill->isOneTimeService())// или разовая услуга
         {
             if($bdata["doc_ts"])
             {
                 $inv_date = $bill->GetTs();
-                $period_date = get_inv_period($inv_date);
+                $period_date = Utils::get_inv_period($inv_date);
             }else{
-                list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+                list($inv_date, $period_date)=Utils::get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
             }
         }else{ // статовские переодичекские счета
-            list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+            list($inv_date, $period_date)=Utils::get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
         }
 
         if(in_array($obj, array('invoice','akt','upd')))
@@ -5189,7 +5191,7 @@ class m_newaccounts extends IModule
             $r["ts"] = $r["date"];
 
 
-            $qNo = QRCode::decodeNo($r["code"]);
+            $qNo = BillQRCode::decodeNo($r["code"]);
 
             $r["type"] = $qNo ? $qNo["type"]["name"] : "????";
             $r["number"] = $qNo ? $qNo["number"] : "????";
@@ -5251,8 +5253,8 @@ class m_newaccounts extends IModule
 
         foreach($docs as $e)
         {
-            $qrcode = QRCode::decodeFile($dir.$e);
-            $qr = QRCode::decodeNo($qrcode);
+            $qrcode = BillQRCode::decodeFile($dir.$e);
+            $qr = BillQRCode::decodeNo($qrcode);
 
             if($qrcode && $qr)
             {
@@ -5317,7 +5319,7 @@ class m_newaccounts extends IModule
         $d->close();
 
         $docType = array();
-        foreach(QRCode::$codes as $code => $c)
+        foreach(BillQRCode::$codes as $code => $c)
         {
             $docType[$code] = $c["name"];
         }
@@ -5336,7 +5338,7 @@ class m_newaccounts extends IModule
         if(!file_exists($dirUnrec.$file)) {trigger_error2("Файл не найден!"); return;}
 
         $type = get_param_raw("type", "");
-        if(!isset(QRCode::$codes[$type])) {trigger_error2("Ошибка в типе!"); return;}
+        if(!isset(BillQRCode::$codes[$type])) {trigger_error2("Ошибка в типе!"); return;}
 
         $number = get_param_raw("number", "");
         if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error2("Ошибка в номере!"); return;}
@@ -5344,8 +5346,8 @@ class m_newaccounts extends IModule
         global $db;
 
 
-        $qrcode = QRCode::encode($type, $number);
-        $qr = QRCode::decodeNo($qrcode);
+        $qrcode = BillQRCode::encode($type, $number);
+        $qr = BillQRCode::decodeNo($qrcode);
 
         $billNo = "";
         $clientId = 0;

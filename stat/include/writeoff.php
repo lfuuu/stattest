@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\Utils;
 use app\classes\BillContract;
 use \app\models\ClientContragent;
 
@@ -607,8 +608,8 @@ class ServiceUsageVoip extends ServicePrototype {
                 if ($this->tarif_current['month_line'] > 0) {
                     // Yii::t plural not work
                     // https://github.com/yiisoft/yii2/issues/4259
-                    $i18n_params['plural_first'] = rus_fin($c, 'ую', 'ые', 'ых');
-                    $i18n_params['plural_second'] = rus_fin($c, 'ию', 'ии', 'ий');
+                    $i18n_params['plural_first'] = Utils::rus_plural($c, 'ую', 'ые', 'ых');
+                    $i18n_params['plural_second'] = Utils::rus_plural($c, 'ию', 'ии', 'ий');
                     $i18n_params['lines_number'] = $c;
 
                     $R[] = array(

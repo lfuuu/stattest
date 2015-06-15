@@ -82,7 +82,7 @@ class Utils
         return sprintf('%0.' . $precision . 'f', ($mode === '-' ? -$value : $value));
     }
 
-    public static function rus_fin($value, $s1, $s2, $s3)
+    public static function rus_plural($value, $s1, $s2, $s3)
     {
         if ($value == 11)
             return $s3;

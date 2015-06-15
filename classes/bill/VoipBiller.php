@@ -2,6 +2,7 @@
 namespace app\classes\bill;
 
 use app\classes\Assert;
+use app\classes\Utils;
 use app\models\LogTarif;
 use app\models\TariffVoip;
 use Yii;
@@ -88,8 +89,8 @@ class VoipBiller extends Biller
             $template = 'voip_monthly_fee_per_line';
             $template_data = [
                 'lines_number' => $count,
-                'plural_first' => $this->rus_fin($count, 'ую', 'ые', 'ых'),
-                'plural_second' => $this->rus_fin($count, 'ию', 'ии', 'ий'),
+                'plural_first' => Utils::rus_plural($count, 'ую', 'ые', 'ых'),
+                'plural_second' => Utils::rus_plural($count, 'ию', 'ии', 'ий'),
                 'service' => $this->usage->E164
             ];
 
@@ -286,19 +287,6 @@ class VoipBiller extends Biller
         uksort($lines, '\app\classes\bill\cmp_calc_voip_by_dest');
 
         return $lines;
-    }
-
-    private function rus_fin($v,$s1,$s2,$s3)
-    {
-        if ($v == 11)
-            return $s3;
-        if (($v % 10) == 1)
-            return $s1;
-        if (($v % 100) >= 11 && ($v % 100) <= 14)
-            return $s3;
-        if (($v % 10) >= 2 && ($v % 10) <= 4)
-            return $s2;
-        return $s3;
     }
 
 }
