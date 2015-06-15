@@ -1,4 +1,4 @@
-<h2>Бухгалтерия {$fixclient} &nbsp;&nbsp;&nbsp;<span style='font-size:10px'>(<a href='?module=newaccounts&simple=0'>посложнее</a>{if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}{if $fixclient_data.type == 'multi'} | <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">{if $view_canceled}Скрыть{else}Показать{/if} отказные счета</a>{/if})</span></h2>
+<h2>Бухгалтерия {$fixclient_data.id} &nbsp;&nbsp;&nbsp;<span style='font-size:10px'>(<a href='?module=newaccounts&simple=0'>посложнее</a>{if $fixclient_data.id_all4net} | <a href="http://all4net.ru/admin/users/balance.html?id={$fixclient_data.id_all4net}">all4net</a>{/if}{if $fixclient_data.type == 'multi'} | <a href="./?module=newaccounts&view_canceled={if $view_canceled}0{else}1{/if}">{if $view_canceled}Скрыть{else}Показать{/if} отказные счета</a>{/if})</span></h2>
 
 <a href='{$LINK_START}module=newaccounts&action=bill_create'>Создать счёт</a> /
 <a href='{$LINK_START}module=newaccounts&action=bill_balance'>Обновить баланс</a> <br><br>
