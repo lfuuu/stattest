@@ -64,7 +64,6 @@ $company = $document->getCompany();
                                     <?php if ($document->qr_code !== false): ?>
                                         <img src="/utils/qr-code/get?data=<?= $document->qr_code; ?>" />
                                     <?php endif; ?>
-
                                 </td>
                             </tr>
                         </table>
