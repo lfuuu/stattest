@@ -1108,6 +1108,7 @@ $(document).ready(function() {
 				get_free_e164
 					.append("<option value='7499685'>7(499) 685</option>")
 					.append("<option value='7499213'>7(499) 213</option>")
+					.append("<option value='7495109'>7(495) 109</option>")
 					.append("<option value='7495'>7(495)</option>");
 			} else if(region_id == '97') {
 				get_free_e164
@@ -1191,8 +1192,6 @@ function getTarifs(region_id)
 	//dest == 1
 	$('#t_id_tarif_russia').empty();
     $('#t_id_tarif_russia_mob').empty();
-	//dest == 3
-	$('#t_id_tarif_sng').empty();
 	//dest == 2
 	$('#t_id_tarif_intern').empty();	
 	//dest == 5
@@ -1210,8 +1209,6 @@ function getTarifs(region_id)
                     $('#t_id_tarif_russia_mob').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
 				} else if (v.dest == 2) {
 					$('#t_id_tarif_intern').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
-				} else if (v.dest == 3) {
-					$('#t_id_tarif_sng').append('<option value="'+v.id+'">'+v.name+' ('+v.month_min_payment+')</option>');
 				} else if (v.dest == 4) {
 					$('#t_id_tarif_' + v.status).append('<option value="'+v.id+'">'+v.name+' ('+v.month_number+'-'+v.month_line+')</option>');
 				} else if (v.dest == 5) {

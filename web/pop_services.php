@@ -26,7 +26,6 @@
         case 'usage_ip_ppp':
             if (!access('services_ppp','edit')) return;
             break;
-        case 'bill_monthlyadd':
         case 'usage_extra':
             if (!access('services_additional','edit')) return;
             break;

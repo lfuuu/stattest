@@ -137,10 +137,6 @@ class VoipBiller extends Biller
                 $template = 'voip_international_call_payment';
                 $minPayment = $this->logTariff->minpayment_intern;
                 $minPaymentTemplate = 'voip_international_call_minpay';
-            }elseif($dest == '3'){
-                $template = 'voip_sng_call_payment';
-                $minPayment = $this->logTariff->minpayment_sng;
-                $minPaymentTemplate = 'voip_sng_call_minpay';
             }elseif($dest == '100'){
                 $group = array();
                 if (strpos($this->logTariff->dest_group, '5') !== FALSE)
@@ -164,13 +160,7 @@ class VoipBiller extends Biller
                         [],
                         $this->clientAccount->contragent->country->lang
                     );
-                if (strpos($this->logTariff->dest_group, '3') !== FALSE)
-                    $group[] = Yii::t(
-                        $this->getTranslateFilename(),
-                        'voip_group_sng',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    );
+
                 $template_data['group'] = implode(', ', $group);
 
                 $template = 'voip_group_payment';
@@ -250,7 +240,6 @@ class VoipBiller extends Biller
            [minpayment_local_mob] => 0  // 5
            [minpayment_russia] => 1500  // 1
            [minpayment_intern] => 0     // 2
-           [minpayment_sng] => 0        // 3
 
            // other 900
          */
@@ -269,9 +258,6 @@ class VoipBiller extends Biller
             if ($logTarif->minpayment_intern) {
                 $lines["2"] = array('price' => 0);
             }
-            if ($logTarif->minpayment_sng) {
-                $lines["3"] = array('price' => 0);
-            }
         }
 
         foreach ($res as $r) {
@@ -282,8 +268,7 @@ class VoipBiller extends Biller
             if ((int)$logTarif->minpayment_group +
                 (int)$logTarif->minpayment_local_mob +
                 (int)$logTarif->minpayment_russia +
-                (int)$logTarif->minpayment_intern +
-                (int)$logTarif->minpayment_sng  == 0
+                (int)$logTarif->minpayment_intern == 0
             ) {
                 $dest = '900';
             }

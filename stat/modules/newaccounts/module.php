@@ -2175,6 +2175,10 @@ class m_newaccounts extends IModule
             }
         }
 
+        // счета из 1С выводим полностью.
+        $Lkeys = array_keys($L);
+        $is1Cbill = $Lkeys && isset($L[$Lkeys[0]]) && isset($L[$Lkeys[0]]["bill_no"]) && preg_match("/^\d{6}\/\d{4}$/i", $L[$Lkeys[0]]["bill_no"]);
+
         $R = array();
         foreach($L as &$li){
             if($M[$li['type']]==1){
@@ -2188,7 +2192,8 @@ class m_newaccounts extends IModule
                             $li["item"] == "S" || 
                             ($origObj == "gds" && $source == 2) ||
                             preg_match("/^Аренд/i", $li["item"]) ||
-                            ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"]))
+                            ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"])) ||
+                            $is1Cbill
                             )
                     {
                         if($li["sum"] == 0){

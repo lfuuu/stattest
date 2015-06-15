@@ -695,6 +695,11 @@ class ApiLk
             ", array($currency, $status, $dest)) as $service)
         {
             $line = self::_exportModelRow($fields, $service);
+
+            if ($line["free_local_min"] >= 5000)
+            {
+                $line["free_local_min"] = "";
+            }
             $ret[] = $line;
         }
         return $ret;
@@ -760,9 +765,7 @@ class ApiLk
 
                 if(a.region = 99,
                     if (number like '74996854%' and number between '74996854000' and '74996854999', false,
-                        if (number like '74951090%', false,
-                            if(number like '7495%', number like '74951059%' or beauty_level in (1,2), true)
-                        )
+                        if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true)
                     ),
                 true)
 

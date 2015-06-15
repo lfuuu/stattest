@@ -43,7 +43,6 @@
 					<option value="1-m"{if $destination eq '1-m'} selected='selected'{/if}>&nbsp;&nbsp;Россия мобильные</option>
 					<option value="1-f"{if $destination eq '1-f'} selected='selected'{/if}>&nbsp;&nbsp;Россия стационарные</option>
 					<option value="2"{if $destination eq '2'} selected='selected'{/if}>Международные</option>
-					<option value="3"{if $destination eq '3'} selected='selected'{/if}>СНГ</option>
 				</select>
 			</td>
 		</tr>

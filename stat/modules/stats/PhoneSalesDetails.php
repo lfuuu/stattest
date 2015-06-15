@@ -13,22 +13,27 @@
 			$subtype = get_param_raw('subtype', '');
 			$disabled = get_param_raw('disabled', false);
 			$month = get_param_integer('month', 0);
+			$year = get_param_integer('year', date('Y'));
 			$region = get_param_integer('region', '');
 			$channel_id = get_param_integer('channel_id', 0);
 			if (!$type || (!$region && $type != 'channels'))
 			{
 				return false;
 			}
+			if (empty($year))
+			{
+                                $year = date('Y');
+			}
 			switch ($type)
 			{
 				case 'numbers':
-					return self::getNumbersDetails($region, $month, $subtype, $disabled);
+					return self::getNumbersDetails($region, $month, $year, $subtype, $disabled);
 				case 'vpbx':
-					return self::getVpbxDetails($region, $month, $disabled);
+					return self::getVpbxDetails($region, $month, $year, $disabled);
 				case 'sums':
-					return self::getSumsDetails($region, $month);
+					return self::getSumsDetails($region, $month, $year);
 				case 'channels':
-					return self::getChannelsDetails($channel_id, $month);
+					return self::getChannelsDetails($channel_id, $month, $year);
 			}
 			return false;
 		}
@@ -36,6 +41,8 @@
 		*	Получение детализации о подключенных номерах
 		*	@param int $region ID региона по которому идет детализация
 		*	@param int $month месяц по которому идет детализация
+		*		если не задан, то берется информация об актуальных номерах на текущий день
+		*	@param int $year год по которому идет детализация
 		*		если не задан, то берется информация об актуальных номерах на текущий день
 		*	@param string $subtype timestamp начала периода
 		*		пустая строка - берется информация о соединительных линиях
@@ -46,11 +53,11 @@
 		*		true - берет номера которые подключили в указанном месяце
 		*		false - берет номера которые отключили в указанном месяце
 		*/
-		private static function getNumbersDetails($region, $month, $subtype = '', $disabled = false)
+		private static function getNumbersDetails($region, $month, $year, $subtype = '', $disabled = false)
 		{
 			global $db,$design;
-			$title = 'Детальная информация о [dis] [nums] [month] по региону [region]';
-			$search = array('[dis]', '[nums]', '[month]', '[region]');
+			$title = 'Детальная информация о [dis] [nums] [month] [year] по региону [region]';
+			$search = array('[dis]', '[nums]', '[month]', '[year]', '[region]');
 			$replace = array();
 			$field = ($disabled) ? 'actual_to' : 'actual_from';
 			$replace[0] = (!$disabled) ? 'проданных' : 'отключенных';
@@ -60,7 +67,7 @@
 				$replace[0] = 'подключенных';
 				$condition = "CAST(NOW() AS DATE) BETWEEN u.actual_from AND u.actual_to";
 			} else {
-				$ts = mktime(0,0,0,$month,1,date('Y'));
+				$ts = mktime(0,0,0,$month,1,$year);
 				if ($ts > time()) {
 					$ts = strtotime("-1 year", $ts);
 				}
@@ -144,16 +151,18 @@
 		*	@param int $region ID региона по которому идет детализация
 		*	@param int $month месяц по которому идет детализация
 		*		если не задан, то берется информация об актуальных ВАТС на текущий день
+		*	@param int $year год по которому идет детализация
+		*		если не задан, то берется информация об актуальных ВАТС на текущий день
 		*	@param bool $disabled (работает если только задан $month)
 		*		true - берет ВАТС которые подключили в указанном месяце
 		*		false - берет ВАТС которые отключили в указанном месяце
 		*/
-		private static function getVpbxDetails($region, $month, $disabled = false)
+		private static function getVpbxDetails($region, $month, $year, $disabled = false)
 		{
 			global $db,$design;
 			
 			$title = 'Детальная информация о [dis] виртуальных АТС [month] по региону [region]';
-			$search = array('[dis]', '[month]', '[region]');
+			$search = array('[dis]', '[month]', '[year]', '[region]');
 			$replace = array();
 			$field = ($disabled) ? 'actual_to' : 'actual_from';
 			$replace[0] = (!$disabled) ? 'проданных' : 'отключенных';
@@ -163,7 +172,7 @@
 				$replace[0] = 'подключенных';
 				$condition = "CAST(NOW() AS DATE) BETWEEN u.actual_from AND u.actual_to";
 			} else {
-				$ts = mktime(0,0,0,$month,1,date('Y'));
+				$ts = mktime(0,0,0,$month,1,$year);
 				if ($ts > time()) {
 					$ts = strtotime("-1 year", $ts);
 				}
@@ -238,7 +247,7 @@
 		*	@param int $month месяц по которому идет детализация
 		*		если не задан, то берется текущий месяц
 		*/
-		private static function getSumsDetails($region, $month)
+		private static function getSumsDetails($region, $month, $year)
 		{
 			global $db,$design;
 			if (empty($month)) 
@@ -246,7 +255,7 @@
 				$month = date('n');
 			} 
 			
-			$ts = mktime(0,0,0,$month,1,date('Y'));
+			$ts = mktime(0,0,0,$month,1,$year);
 			if ($ts > time()) {
 				$ts = strtotime("-1 year", $ts);
 			}
@@ -301,10 +310,10 @@
 		*	@param int $channel_id ID менеджера
 		*	@param int $month месяц по которому идет детализация
 		*/
-		private static function getChannelsDetails($channel_id, $month)
+		private static function getChannelsDetails($channel_id, $month, $year)
 		{
 			global $db,$design;
-			$ts = mktime(0,0,0,$month,1,date('Y'));
+			$ts = mktime(0,0,0,$month,1,$year);
 			if ($ts > time()) {
 				$ts = strtotime("-1 year", $ts);
 			}

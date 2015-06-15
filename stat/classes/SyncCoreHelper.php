@@ -24,7 +24,8 @@ class SyncCoreHelper
         {
             $dataContragent = array("id" => $contr["id"], "name" => $contr["name"], "accounts" => array());
 
-            foreach($db->AllRecords("select id, client, password, status  from clients where contragent_id = '".$contr["id"]."'") as $c)
+            $adminContactId = 0;
+            foreach($db->AllRecords("select id, client, password, status, admin_contact_id  from clients where contragent_id = '".$contr["id"]."'") as $c)
             {
                 $isMainCard = strpos($c["client"], "/") === false;
                 if ($isMainCard)
@@ -32,6 +33,7 @@ class SyncCoreHelper
                     $password = $c["password"];
                     $main_card = $c["client"];
                     $main_card_id = $c["id"];
+                    $adminContactId = $c["admin_contact_id"];
                 }
 
                 if (!$isMainCard && !in_array($c["status"], self::$allowClientStatusSQL)) continue;
@@ -46,7 +48,19 @@ class SyncCoreHelper
             $data["contragents"][] = $dataContragent;
         }
 
-        $data["admin"] = array("email" => $main_card_id."@mcn.ru", "password" => $password?:password_gen(), "active" => true);
+        $adminEmail = $main_card_id."@mcn.ru";
+
+        if ($adminContactId)
+        {
+            $contact = app\models\ClientContact::findOne(["id" => $adminContactId, "type" => "email"]);
+
+            if ($contact)
+            {
+                $adminEmail = $contact->data;
+            }
+        }
+
+        $data["admin"] = array("email" => $adminEmail, "password" => $password?:password_gen(), "active" => true);
         /*
         if ($emails && $password)
         {

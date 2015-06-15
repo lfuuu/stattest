@@ -38,35 +38,42 @@ class m_stats_head extends IModuleHead{
         'report_reserve' => array('stats', 'r'),
 		'onlime_details'	    => array('stats','report'),
 	);
-	var $menu=array(
-		array('Телефония',              'voip'),
-		array('Интернет',		'internet'),
-		array('Collocation',	'internet','&is_coll=1'),
-		array('PPP',			'ppp'),
-		array('Состояние номеров',		'voip_free_stat'),
-		array('Callback',		'callback'),
-		array('VPN',			'vpn'),
-		array('Рассылка',		'send_view'),
-		array('Отчёт',			'report'),
-		array('Отчёт по мин. трафику',	'report_traff_less'),
-		array('Свободные номера', 'report_voip_e164_free'),
-		array('SMS Gate',		'report_sms_gate'),
-		array('Отчет по услугам', 'report_services'),
-		array('Отчет по WiMax', 'report_wimax'),
-		array('Отчет по Курьерам(SMS)', 'courier_sms'),
-		array('Отчет по ТехПоддержке', 'support_efficiency'),
-		array('Отчет по NetByNet', 'report_netbynet'),
-		array('Отчет по OnLime', 'report_onlime'),
-		array('Отчет по OnLime2', 'report_onlime2'),
-		array('Отчет по OnLime 1+2', 'report_onlime_all'),
-		array('Отчет: Продажи номеров', 'report_phone_sales'),
 
-		array('Отчет: ИНН', 'report_inn'),
-		array('Отчет по Агентам', 'report_agent'),
-        array('Настройка Агента', 'agent_settings'),
-		array('Региональные представители', 'report_sale_channel'),
-		array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
-		array('Номера в резерве', 'report_reserve'),
-	);
+    var $menu=[];
+
+    public function __construct()
+    {
+        $this->menu = array(
+            array('Телефония',              'voip'),
+            array('Интернет',		'internet'),
+            array('Collocation',	'internet','&is_coll=1'),
+            array('PPP',			'ppp'),
+            array('Состояние номеров',		'voip_free_stat'),
+            array('Callback',		'callback'),
+            array('VPN',			'vpn'),
+            array('Рассылка',		'send_view'),
+            array('Отчёт',			'report'),
+            array('Отчёт по мин. трафику',	'report_traff_less'),
+            array('Свободные номера', 'report_voip_e164_free'),
+            array('SMS Gate',		'report_sms_gate'),
+            array('Отчет по услугам', 'report_services'),
+            array('Отчёт по файлам',  function() {return 'module=clients&action=files_report';}),
+            array('Отчет по WiMax', 'report_wimax'),
+            array('Отчет по Курьерам(SMS)', 'courier_sms'),
+            array('Отчет по ТехПоддержке', 'support_efficiency'),
+            array('Отчет по NetByNet', 'report_netbynet'),
+            array('Отчет по OnLime', 'report_onlime'),
+            array('Отчет по OnLime2', 'report_onlime2'),
+            array('Отчет по OnLime 1+2', 'report_onlime_all'),
+            array('Отчет: Продажи номеров', 'report_phone_sales'),
+
+            array('Отчет: ИНН', 'report_inn'),
+            array('Отчет по Агентам', 'report_agent'),
+            array('Настройка Агента', 'agent_settings'),
+            array('Региональные представители', 'report_sale_channel'),
+            array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
+            array('Номера в резерве', 'report_reserve'),
+        );
+    }
 }
 ?>

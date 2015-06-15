@@ -19,7 +19,7 @@ class ContragentEditForm extends ContragentForm
             'when' => function($model){ return $model->legal_type=='ip';}
         ];
 
-        $rules[] = [['first_name', 'last_name', 'passport_serial', 'passport_number', 'passport_date_issued', 'passport_issued', 'address'], 'required',
+        $rules[] = [['first_name', 'last_name', 'middle_name', 'passport_serial', 'passport_number', 'passport_date_issued', 'passport_issued', 'address'], 'required',
             'when' => function($model){ return $model->legal_type=='person';} 
         ];
 
@@ -52,7 +52,7 @@ class ContragentEditForm extends ContragentForm
         }
         if ($contragent->legal_type == "person")
         {
-            $contragent->name = $contragent->name_full = $this->first_name." ".$this->last_name.($this->middle_name ? " ".$this->middle_name : "");
+            $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
         }
 
         $contragent->save();

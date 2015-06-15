@@ -59,7 +59,7 @@ class m_usercontrol {
 			$C = array();
 			if (access('usercontrol','dealer')) {
 				$sc = $db->getRow('select * from sale_channels where dealer_id = '.$r['id']);
-				$T = array('usage_ip_ports'=>'Интернет','usage_voip'=>'IP-телефония','bill_monthlyadd'=>'Доп. услуги','usage_extra'=>'Доп. услуги','emails'=>'Почта');
+				$T = array('usage_ip_ports'=>'Интернет','usage_voip'=>'IP-телефония','usage_extra'=>'Доп. услуги','emails'=>'Почта');
 				foreach ($db->AllRecords('select * from clients where sale_channel = '.$sc['id'].' order by id') as $r2) {
 					$s = $db->getRow("select * from client_statuses where (id_client='".$r2['id']."') and status!='' order by ts desc limit 1");
 					$r2['status_name'] = (isset(ClientCS::$statuses[$s['status']]) ? ClientCS::$statuses[$s['status']]['name'] : $s['status']);

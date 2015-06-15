@@ -1091,7 +1091,7 @@ class ClientCS {
                 {
                     $dd = get_param_raw("deferred_date", "");
 
-                    if($dd == "1" || $dd == "2" || $dd == "3" || $dd == "4")
+                    if($dd == "0" || $dd == "1" || $dd == "2" || $dd == "3" || $dd == "4")
                     {
                         if($dd == 4)
                         {

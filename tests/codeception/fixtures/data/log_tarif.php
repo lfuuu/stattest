@@ -12,7 +12,6 @@ return [
         'id_tarif_russia' => '342',
         'id_tarif_russia_mob' => '342',
         'id_tarif_intern' => '344',
-        'id_tarif_sng' => '343',
         'id_user' => '188',
         'ts' => '2014-10-30 17:02:39',
         'comment' => '',
@@ -22,7 +21,6 @@ return [
         'minpayment_local_mob' => '0',
         'minpayment_russia' => '0',
         'minpayment_intern' => '0',
-        'minpayment_sng' => '0',
     ],
     '1' => [
         'id' => '28894',
@@ -35,7 +33,6 @@ return [
         'id_tarif_russia' => '',
         'id_tarif_russia_mob' => '',
         'id_tarif_intern' => '',
-        'id_tarif_sng' => '',
         'id_user' => '188',
         'ts' => '2014-10-30 17:02:59',
         'comment' => '',
@@ -45,7 +42,6 @@ return [
         'minpayment_local_mob' => '',
         'minpayment_russia' => '',
         'minpayment_intern' => '',
-        'minpayment_sng' => '',
     ],
     '2' => [
         'id' => '28895',
@@ -58,7 +54,6 @@ return [
         'id_tarif_russia' => '',
         'id_tarif_russia_mob' => '',
         'id_tarif_intern' => '',
-        'id_tarif_sng' => '',
         'id_user' => '188',
         'ts' => '2014-10-30 17:03:02',
         'comment' => '',
@@ -68,7 +63,6 @@ return [
         'minpayment_local_mob' => '',
         'minpayment_russia' => '',
         'minpayment_intern' => '',
-        'minpayment_sng' => '',
     ],
     '3' => [
         'id' => '28896',
@@ -81,7 +75,6 @@ return [
         'id_tarif_russia' => '',
         'id_tarif_russia_mob' => '',
         'id_tarif_intern' => '',
-        'id_tarif_sng' => '',
         'id_user' => '188',
         'ts' => '2014-10-30 17:03:04',
         'comment' => '',
@@ -91,6 +84,5 @@ return [
         'minpayment_local_mob' => '',
         'minpayment_russia' => '',
         'minpayment_intern' => '',
-        'minpayment_sng' => '',
     ],
 ];
