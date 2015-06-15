@@ -27,7 +27,7 @@ $action=get_param_raw('action','');
 if ($action=='add_client') {
 	$V = array('company','fio', 'contact','email','phone','fax','address','market_chanel','client_comment', 'phone_connect');
 	$P = array();
-	foreach ($V as $k) @$P[$k] = trim(get_param_raw($k));
+	foreach ($V as $k) @$P[$k] = htmlspecialchars(trim(get_param_raw($k, "")));
 
 	if(empty($P["company"]))
     {
@@ -77,7 +77,7 @@ if ($action=='add_client') {
 		if($P['phone']) $O->AddContact('phone',$P['phone'],$P["fio"],1);
 		if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
 		if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
-		$O->Add('income',$P['client_comment']);
+		$O->Add("Входящие клиент с сайта: ".$P["company"]);
         if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
         {
             $O->admin_contact_id = $contactId;
@@ -92,7 +92,8 @@ if ($action=='add_client') {
             'date_start' => date('Y-m-d H:i:s'),
             'date_finish_desired' => date('Y-m-d H:i:s'),
             'problem' => "Входящие клиент с сайта: ".$P["company"],
-            'user_author' => "system"
+            'user_author' => "system",
+            'first_comment' => $P["client_comment"]
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");

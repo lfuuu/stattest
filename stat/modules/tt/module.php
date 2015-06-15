@@ -1642,6 +1642,12 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 */
 
         $this->createStage($id,$R2);
+        if (isset($R2["comment"]) && $R2["comment"])
+        {
+            $R2["comment"] = "";
+            $this->createStage($id,$R2);
+        }
+
         return $id;
     }
 
