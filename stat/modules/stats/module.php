@@ -4027,7 +4027,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         FROM 
           usage_voip u 
         WHERE 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND 
+          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+          u.actual_from <=CAST("'.$to_date.'"   AS DATE) AND
           E164 NOT LIKE "7800%" AND 
           LENGTH(E164) > 4 
         GROUP BY 
@@ -4040,7 +4041,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	LEFT JOIN 
 		clients as c ON c.client = u.client 
 	WHERE 
-		CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+                u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+                u.actual_from <=CAST("'.$to_date.'"   AS DATE)
 	GROUP BY
 		c.region
 	', 'region', 'count_vpbx'
@@ -4054,7 +4056,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           u.E164 LIKE "7800%" AND 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
         group by 
           u.region', 'region');
     $curr_no_nums = $db->AllRecords('
@@ -4066,7 +4069,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           LENGTH(u.E164) < 5 AND 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
         group by 
           u.region', 'region');
     $region_clients_count = $db->AllRecordsAssoc("
@@ -4086,9 +4090,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
     $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
 
-    $tmp_m = $from_m; // for itterations
-    $tmp_y = $from_y;
-    while(mktime(0,0,0,$tmp_m,1,$tmp_y) <= mktime(0,0,0,$to_m,1,$to_y)) // process all monthes in interval
+    $tmp_m = $to_m; // for itterations
+    $tmp_y = $to_y;
+    while(mktime(0,0,0,$tmp_m,1,$tmp_y) >= mktime(0,0,0,$from_m,1,$from_y)) // process all monthes in interval
     {
       $tmp_date_from = $tmp_y.'-'.$tmp_m.'-01';
       $tmp_date_to = date("Y-m-t", mktime(0,0,0,$tmp_m,1,$tmp_y));
@@ -4507,10 +4511,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         'sale_vpbx' => $sale_vpbx,
         'vpbx_clients' => $vpbx_clients
       );
-      $m--;
-      if (++$tmp_m > 12) {
-        $tmp_m = 1;
-        $tmp_y++;
+      if (--$tmp_m < 1) {
+        $tmp_m = 12;
+        $tmp_y--;
       }
     }
 
