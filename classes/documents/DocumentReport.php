@@ -31,8 +31,6 @@ abstract class DocumentReport extends Object
         $sum_with_tax,
         $sum_discount = 0;
 
-    public $isPDFMode = false;
-
     protected $optionsPDF = ' --quiet -L 10 -R 10 -T 10 -B 10';
 
     /**
@@ -97,12 +95,6 @@ abstract class DocumentReport extends Object
         return $this;
     }
 
-    public function setIsPDF()
-    {
-        $this->isPDFMode = true;
-        return $this;
-    }
-
     /**
      * @return $this
      */
@@ -138,9 +130,7 @@ abstract class DocumentReport extends Object
         */
 
         ob_start();
-        echo $this
-                ->setIsPDF()
-                    ->render();
+        echo $this->render();
         $content = ob_get_contents();
         ob_end_clean();
 
