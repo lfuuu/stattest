@@ -20,6 +20,8 @@ class NetworkConfigEditForm extends NetworkConfigForm
         Assert::isObject($networkConfig);
 
         $networkConfig->name = $this->name;
+        $networkConfig->geo_city_id = $this->geo_city_id;
+        $networkConfig->geo_operator_id = $this->geo_operator_id;
 
         $networkConfig->save();
 

@@ -1,11 +1,13 @@
 <?php
-include_once 'definfo.php';
 include_once 'prices_parser.php';
 
 include_once 'network.php';
 include_once 'operators.php';
 include_once 'pricelists.php';
 include_once 'trunks.php';
+
+use app\classes\voip\DefInfo;
+use app\models\billing\PricelistFile;
 
 class m_voipnew extends IModule
 {
@@ -32,27 +34,6 @@ class m_voipnew extends IModule
         $inheritance->module = $this;
     }
 
-    public function voipnew_raw_files()
-    {
-        global $pg_db, $design;
-
-        $f_pricelist_id = get_param_protected('pricelist', '0');
-
-        $query = "  select f.id,p.operator_id, o.name as operator,f.date,f.full,f.format,f.filename,f.active,f.startdate,f.rows
-                    from voip.raw_file f
-                    left join voip.pricelist p on p.id=f.pricelist_id
-                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                    where f.pricelist_id=$f_pricelist_id
-                    order by f.startdate desc, f.date desc";
-        $design->assign('files_list', $pg_db->AllRecords($query));
-
-        $query = "select * from voip.pricelist where id=$f_pricelist_id ";
-        $design->assign('pricelist', $pg_db->GetRow($query));
-
-
-        $design->AddMain('voipnew/raw_files.html');
-    }
-
     public function voipnew_view_raw_file()
     {
         global $pg_db, $design;
@@ -76,13 +57,13 @@ class m_voipnew extends IModule
         $pg_db->Query('BEGIN');
         try {
             $query = "
-                        SELECT d.defcode, r.deleting, r.price,
+                        SELECT r.ndef as defcode, r.deleting, r.price,
                             g.name as destination, d.mob
                         FROM voip.raw_price r
                             LEFT JOIN voip_destinations d ON r.ndef=d.ndef
                             LEFT JOIN geo.geo g ON g.id=d.geo_id
                         WHERE rawfile_id={$id} {$filter}
-                        order by g.name, d.mob, d.defcode";
+                        order by g.name, r.ndef";
             $page = get_param_integer("page", 1);
             $recCount = 0;
             $recPerPage = 100;
@@ -186,19 +167,14 @@ class m_voipnew extends IModule
 
     public function voipnew_delete_raw_file()
     {
-        global $pg_db;
-
         $id = get_param_protected('id', 0);
 
-        $pricelist_id = $pg_db->GetValue("select pricelist_id from voip.raw_file where id=" . $id);
+        $file = PricelistFile::findOne($id); /** @var PricelistFile $file */
+        unlink($file->getStorageFilePath());
+        $file->delete();
 
-        $query = "delete from voip.raw_file where id=" . $id;
-        $pg_db->Query($query);
-        if ($pg_db->mError == '') {
-            header("location: index.php?module=voipnew&action=raw_files&pricelist={$pricelist_id}");
-            exit;
-        }
-        $this->voip_view_raw_file();
+        header("location: /voip/pricelist/files?pricelistId={$file->id}");
+        exit;
     }
 
     public function voipnew_activatedeactivate()
@@ -955,16 +931,13 @@ class m_voipnew extends IModule
 
         $instances = array();
 
-        $query = "  select i.id, r.id as region_id, r.name as region_name, i.city_prefix, i.city_geo_id, cg.city_name as city_name
+        $query = "  select i.id, r.id as region_id, r.name as region_name, i.city_geo_id, cg.city_name as city_name
                     from billing.instance_settings i
                     left join geo.geo cg on cg.id=i.city_geo_id
                     left join geo.region r on r.id::varchar = ANY(i.region_id)
                     order by i.id desc, r.name asc ";
         foreach ($pg_db->AllRecords($query) as $r) {
             if (!isset($instances[$r['id']])) {
-                $r['city_prefix'] = str_replace('{', '', $r['city_prefix']);
-                $r['city_prefix'] = str_replace('}', '', $r['city_prefix']);
-                $r['city_prefix'] = str_replace(',', ', ', $r['city_prefix']);
                 $instances[$r['id']] = $r;
                 $instances[$r['id']]['regions'] = array();
 

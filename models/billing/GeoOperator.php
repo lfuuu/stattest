@@ -1,21 +1,19 @@
 <?php
 namespace app\models\billing;
 
-use app\dao\billing\PricelistDao;
+use app\dao\billing\GeoOperatorDao;
 use Yii;
 use yii\db\ActiveRecord;
 
 /**
  * @property int $id
- *
- * @property string $parser_settings
  * @property
  */
-class Pricelist extends ActiveRecord
+class GeoOperator extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'voip.pricelist';
+        return 'geo.operator';
     }
 
     public static function getDb()
@@ -25,6 +23,8 @@ class Pricelist extends ActiveRecord
 
     public static function dao()
     {
-        return PricelistDao::me();
+        return GeoOperatorDao::me();
     }
+
+
 }

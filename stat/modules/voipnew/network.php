@@ -113,7 +113,7 @@ class m_voipnew_network
             }
         }
 
-        header('Location: index.php?module=voipnew&action=network_config_show&id=' . $networkConfig->id);
+        header('Location: /voip/network-config/files?networkConfigId=' . $networkConfig->id);
     }
 
     function voipnew_network_file_show()
@@ -169,7 +169,7 @@ class m_voipnew_network
         }
         $file->save();
 
-        header('location: index.php?module=voipnew&action=network_config_show&id=' . $file->network_config_id);
+        header('location: /voip/network-config/files?networkConfigId=' . $file->network_config_id);
         exit;
     }
 
