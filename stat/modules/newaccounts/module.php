@@ -1,9 +1,7 @@
 <?php
 
 use app\classes\StatModule;
-use app\classes\Assert;
 use app\classes\Company;
-use app\classes\Utils;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\models\Courier;
@@ -2258,18 +2256,18 @@ class m_newaccounts extends IModule
                     }
                 }
             }
-            $period_date = Utils::get_inv_period($inv_date);;
+            $period_date = get_inv_period($inv_date);
         }elseif($bill->isOneTimeService())// или разовая услуга
         {
             if($bdata["doc_ts"])
             {
                 $inv_date = $bill->GetTs();
-                $period_date = Utils::get_inv_period($inv_date);
+                $period_date = get_inv_period($inv_date);
             }else{
-                list($inv_date, $period_date)=Utils::get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+                list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
             }
         }else{ // статовские переодичекские счета
-            list($inv_date, $period_date)=Utils::get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
+            list($inv_date, $period_date)=get_inv_date($bill->GetTs(),($bill->Get('inv2to1')&&($source==2))?1:$source);
         }
 
         if(in_array($obj, array('invoice','akt','upd')))

@@ -520,6 +520,31 @@ function get_inv_date_period($date) {
     return $v;
 }
 
+function get_inv_date($date, $source) {
+    $d = getdate($date);
+    $v = mktime(0, 0, 0, $d['mon'], 1, $d['year']);
+    if ($source != 1) {
+        $d['mon']--;
+        if (!$d['mon']) {
+            $d['year']--;
+            $d['mon']=12;
+        }
+    }
+    if ($source == 3) {
+        $tm = $date;
+    }
+    else {
+        $tm = mktime(0, 0, 0, $d['mon'], cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']), $d['year']);
+    }
+
+    return [$tm, $v];
+}
+
+function get_inv_period($date) {
+    $d = getdate($date);
+    return mktime(0, 0, 0, $d['mon'], 1, $d['year']);
+}
+
 function debug_arr($V) {
     $R=array();
     foreach ($V as $vk=>$v) {
