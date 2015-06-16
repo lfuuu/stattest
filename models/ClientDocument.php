@@ -69,4 +69,9 @@ class ClientDocument extends ActiveRecord
         return urlencode(base64_encode($data2) . $d);
 
     }
+
+    public function getClient()
+    {
+        return HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->client_id, $this->contract_date);
+    }
 }

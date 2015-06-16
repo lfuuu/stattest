@@ -26,4 +26,9 @@ class ClientFile extends ActiveRecord
     {
         return FileManager::create($this->client_id)->getMime($this);
     }
+
+    public function getClient()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+    }
 }

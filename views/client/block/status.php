@@ -13,15 +13,18 @@ use \yii\helpers\Url;
     <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus->color ?>;">
         <div class="col-sm-3">
             Статус: <b><?= $contractForm->currentBusinessProcessStatus->name ?></b>
-            <a href="#" onclick="$('#statuses').toggle(); return false;"><img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть"></a>
+            <a href="#" onclick="$('#statuses').toggle(); return false;"><img class="icon"
+                                                                              src="/images/icons/monitoring.gif"
+                                                                              alt="Посмотреть"></a>
         </div>
         <div class="col-sm-9">Wizard</div>
     </div>
     <div class="row" id="statuses" style="display: none;">
         <div class="col-sm-12">
-            <?php foreach($client->contract->comments as $comment): ?>
+            <?php foreach ($client->contract->comments as $comment): ?>
                 <div class="col-sm-12">
-                    <input type="checkbox" name="ContractEditForm[public_comment][<?= $comment->id ?>]" <?= $comment->is_publish?'checked':'' ?>>
+                    <input type="checkbox"
+                           name="ContractEditForm[public_comment][<?= $comment->id ?>]" <?= $comment->is_publish ? 'checked' : '' ?>>
                     <b><?= $comment->user ?> <?= $comment->ts ?>: </b><?= $comment->comment ?>
                 </div>
             <?php endforeach; ?>
@@ -96,39 +99,50 @@ use \yii\helpers\Url;
             if ($(this).attr('id') == 'block-btn-work') {
                 $(this).addClass('btn-success');
                 b.removeClass('btn-danger');
-                bl = 'false';
             } else {
                 $(this).addClass('btn-danger');
                 w.removeClass('btn-success');
-                bl = 'true';
             }
-            $.get('/?module=clients&action=rpc_setBlocked&account_id=' + acId + '&is_blocked=' + bl);
+            $.get('/client/setblock?id=' + acId);
         });
 
+        var statuses = <?= json_encode($client->getBpStatuses()) ?>;
+        var s1 = $('#contracteditform-contract_type_id');
+        var s2 = $('#contracteditform-business_process_id');
+        var s3 = $('#contracteditform-business_process_status_id');
+
+        var vals2 = s2.val();
+        s2.empty();
+        $(statuses.processes).each(function (k, v) {
+            if (s1.val() == v['up_id'])
+                s2.append('<option '+(v['id']==vals2 ? 'selected' : '')+' value="' + v['id'] + '">' + v['name'] + '</option>');
+        });
+
+        var vals3 = s3.val();
+        s3.empty();
+        $(statuses.statuses).each(function (k, v) {
+            if (s2.val() == v['up_id'])
+                s3.append('<option '+(v['id']==vals3 ? 'selected' : '')+' value="' + v['id'] + '">' + v['name'] + '</option>');
+        });
 
         $('.statuses').on('change', 'select', function () {
-            //https://stat.mcn.ru/?module=clients&action=rpc_loadBPStatuses
             var t = $(this);
-            $.get('/?module=clients&action=rpc_loadBPStatuses', function (vall) {
-                    var ol = [];
-                    var s1 = $('#contracteditform-contract_type_id');
-                    var s2 = $('#contracteditform-business_process_id');
-                    var s3 = $('#contracteditform-business_process_status_id');
 
-                    if(t.attr('id') == s1.attr('id')){
-                        s2.empty();
-                        $(vall.processes).each(function(k, v){
-                            if(s1.val() == v['up_id'])
-                                s2.append('<option value="'+v['id']+'">'+v['name']+'</option>');
-                        });
-                    }
-
-                s3.empty();
-                $(vall.statuses).each(function(k, v){
-                    if(s2.val() == v['up_id'])
-                        s3.append('<option value="'+v['id']+'">'+v['name']+'</option>');
+            if (t.attr('id') == s1.attr('id')) {
+                s2.empty();
+                $(statuses.processes).each(function (k, v) {
+                    if (s1.val() == v['up_id'])
+                        s2.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
                 });
-            }, 'json');
+            }
+
+            if (t.attr('id') == s2.attr('id')) {
+                s3.empty();
+                $(statuses.statuses).each(function (k, v) {
+                    if (s2.val() == v['up_id'])
+                        s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
+                });
+            }
         });
 
 

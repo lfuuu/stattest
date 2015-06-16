@@ -2,9 +2,6 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\classes\behaviors\HistoryVersion;
-use app\classes\behaviors\HistoryChanges;
-use app\dao\ClientContragentDao;
 
 class ClientContragent extends ActiveRecord
 {
@@ -36,7 +33,7 @@ class ClientContragent extends ActiveRecord
             "okvd" => "Код ОКВЭД",
         ];
     }
-    
+
     public function getAccounts()
     {
         return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
@@ -52,20 +49,40 @@ class ClientContragent extends ActiveRecord
         return $this->hasMany(ClientContract::className(), ['contragent_id' => 'id']);
     }
 
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if ($this->isNewRecord) {
+            return parent::save($runValidation = true, $attributeNames = null);
+        }
+        else {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+                return parent::save($runValidation = true, $attributeNames = null);
+            } else {
+                $behaviors = $this->behaviors;
+                unset($behaviors['HistoryVersion']);
+                $behaviors = array_keys($behaviors);
+                foreach ($behaviors as $behavior)
+                    $this->detachBehavior($behavior);
+                $this->beforeSave(false);
+            }
+            return true;
+        }
+    }
+
     public function behaviors()
     {
         return [
-            HistoryVersion::className(),
-            HistoryChanges::className(),
+            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if($this->name) {
+        if ($this->name) {
             $super = ClientSuper::findOne($this->super_id);
-            $super->name = $this->name;
+            $super->setAttribute('name', $this->name);
             $super->save();
         }
     }

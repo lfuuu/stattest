@@ -43,7 +43,7 @@ class SiteController extends BaseController
 
     public function actionIndex()
     {
-        return $this->redirect('?module=clients');
+        return $this->redirect('client/index');
     }
 
     public function actionLogin()

@@ -76,7 +76,8 @@ class ClientSearch extends ClientAccount
 
         if($this->voip){
             $query->leftJoin(UsageVoip::tableName(), UsageVoip::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', UsageVoip::tableName().'.e164', $this->voip]);        }
+            $query->andFilterWhere(['like', UsageVoip::tableName().'.e164', $this->voip]);
+        }
 
         return $dataProvider;
     }

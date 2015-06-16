@@ -2,6 +2,7 @@
 namespace _1c;
 
 use app\models\Bill;
+use app\models\Metro;
 
 function trr($var){
 
@@ -990,8 +991,19 @@ class SoapHandler{
         if(!$err && !is_null($add_info)){
             //if($_SESSION["_mcn_user_login_stat.mcn.ru"] == "adima")
 
-            $idMetro = \ClientCS::GetIdByName("metro",trr($add_info->{tr('Метро')}), 0);
-            $idLogistic = \ClientCS::GetIdByName("logistic",trr($add_info->{tr('Логистика')}), "none");
+
+            $idMetro = (-1 !== $metro = array_search(trr($add_info->{tr('Метро')}), Metro::getList())) ? $metro : 0;
+
+            $logistic = [
+                "none" => "--- Не установленно ---",
+                "selfdeliv" => "Самовывоз",
+                "courier" => "Доставка курьером",
+                "auto" => "Доставка авто",
+                "tk" => "Доставка ТК",
+            ];
+            $idLogistic = array_search(trr($add_info->{tr('Логистика')}), $logistic);
+            if($idLogistic === -1)
+                $idLogistic = 'none';
 
             $db->QueryDelete("newbills_add_info", array("bill_no" => $bill_no));
             $db->QueryInsert('newbills_add_info',$add_info_koi8r = array(

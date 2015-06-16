@@ -35,16 +35,16 @@ use \app\models\ClientContract;
         </div>
         <?php $contracts = $contragent->contracts;
         foreach ($contracts as $contract): ?>
-            <div class="row">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-3">
+            <div class="row" style="margin:5px 0 5px;">
+                <div class="col-sm-5">
                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $activeClient->id]) ?>"><span
                             class="c-blue-color">№ <?= $contract->number ?> (<?= $contract->organizationName ?>)</span></a>
                 </div>
                 <div class="col-sm-1" style="padding:0;">
                     <span>
                         <i class="<?= $contract->state == 'unchecked' ? 'uncheck' : 'check' ?>"></i>
-                        <?php $states = ClientContract::$states; echo $states[$contract->state]; ?>
+                        <?php $states = ClientContract::$states;
+                        echo $states[$contract->state]; ?>
                     </span>
                 </div>
                 <div class="col-sm-3">
@@ -52,27 +52,20 @@ use \app\models\ClientContract;
                     <span><?= $contract->businessProcess ?></span>&nbsp;/&nbsp;<b
                         style="background:<?= $bps['color'] ?>;"><?= $bps['name'] ?></b>
                 </div>
-                <div class="col-sm-2" style="text-align: right;">
+                <div class="col-sm-3" style="text-align: right;">
                     <?php if ($contract->managerName) : ?>
                         <span style="background: <?= $contract->managerColor ?>">
                             <i class="glyphicon glyphicon-user i-manager"></i> <?= $contract->managerName ?>
                         </span>
                     <?php endif; ?>
-                </div>
-                <div class="col-sm-2">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
                     <?php if ($contract->accountManagerName) : ?>
                         <span style="background: <?= $contract->accountManagerColor ?>">
                             <i class="glyphicon glyphicon-user i-accmanager"></i> <?= $contract->accountManagerName ?>
                         </span>
                     <?php endif; ?>
                 </div>
-                <?php /*<div class="col-sm-2">
-                    <a href="<?= Url::toRoute(['client/create', 'parentId' => $contract->id, 'childId' => $activeClient->id]) ?>"><span
-                            class="c-blue-color"><i class="glyphicon glyphicon-plus"></i> Новый ЛС</span></a>
-                </div>*/ ?>
-            </div>
-            <div>
-                <div class="col-sm-11 col-xs-offset-1">
+                <div class="col-sm-12">
                     <?php foreach ($contract->comments as $comment)
                         if ($comment->is_publish): ?>
                             <div class="col-sm-12">
@@ -80,23 +73,23 @@ use \app\models\ClientContract;
                             </div>
                         <?php endif; ?>
                 </div>
+                <?php /*<div class="col-sm-2">
+                    <a href="<?= Url::toRoute(['client/create', 'parentId' => $contract->id, 'childId' => $activeClient->id]) ?>"><span
+                            class="c-blue-color"><i class="glyphicon glyphicon-plus"></i> Новый ЛС</span></a>
+                </div>*/ ?>
             </div>
             <?php $clients = $contract->clients;
             foreach ($clients as $client): ?>
-                <div class="row" style="margin:5px 0; cursor: pointer;"
-                     onclick="location.href='/client/clientview?id=<?= $client->id ?>'">
-                    <div class="col-sm-2"></div>
-                    <div
-                        class="col-sm-10  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>"
-                        style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px;">
-                        <span class="col-sm-4"
+                <div style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin:5px -15px 5px 40px; cursor: pointer;"
+                     onclick="location.href='/client/clientview?id=<?= $client->id ?>'"
+                     class="row  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
+                        <span class="col-sm-6"
                               style="font-weight: bold; color:<?= ($client->is_blocked) ? 'red' : 'green' ?>;">ЛС № <?= $client->id ?></span>
-                        <span class="col-sm-4"><?= $client->regionName ?></span>
+                    <span class="col-sm-2" style="text-align: right;"><?= $client->regionName ?></span>
                         <span class="col-sm-2"
                               style="text-align: right;color:<?= ($client->balance < 0) ? 'red' : 'green'; ?>;"><?= $client->balance ?>
                             RUB</span>
-                        <span class="col-sm-2">(Кредит: <?= $client->credit > 0 ? $client->credit : '0' ?>)</span>
-                    </div>
+                    <span class="col-sm-2">(Кредит: <?= $client->credit > 0 ? $client->credit : '0' ?>)</span>
                 </div>
             <?php endforeach; ?>
         <?php endforeach; ?>

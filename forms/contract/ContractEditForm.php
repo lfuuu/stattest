@@ -6,14 +6,13 @@ use app\models\ClientContractType;
 use app\models\ClientContragent;
 use app\models\ClientGridBussinesProcess;
 use app\models\ClientGridSettings;
+use app\models\EventQueue;
 use app\models\Organization;
 use app\models\UserDepart;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use app\models\ClientContract;
-use app\models\User;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 class ContractEditForm extends Form
@@ -21,7 +20,7 @@ class ContractEditForm extends Form
     public $id,
         $super_id,
         $contragent_id,
-        $number,
+        $number = '',
         $date,
         $organization,
         $manager,
@@ -63,7 +62,7 @@ class ContractEditForm extends Form
         } elseif ($this->contragent_id) {
             $this->contract = new ClientContract();
             $this->contract->contragent_id = $this->contragent_id;
-            $this->super_id =$this->contract->super_id = ClientContragent::findOne($this->contragent_id)->super_id;
+            $this->super_id = $this->contract->super_id = !$this->super_id ? ClientContragent::findOne($this->contragent_id)->super_id : $this->super_id;
         } else
             throw new Exception('You must send id or contragent_id');
     }
@@ -126,6 +125,16 @@ class ContractEditForm extends Form
         $contract->setAttributes($this->getAttributes(), false);
 
         if ($contract->save()) {
+            $this->setAttributes($contract->getAttributes(), false);
+
+            ///////////////////
+            $eq = new EventQueue();
+            $eq->event = 'client_set_status';
+            $eq->param = $contract->id;
+            $eq->code = md5('client_set_status'.'|||'.$contract->id);
+
+            $eq->save();
+            /*\voipNumbers::check();*/
             return true;
         }
         return false;
@@ -135,8 +144,6 @@ class ContractEditForm extends Form
     {
         if(!parent::beforeValidate())
             return false;
-
-        $this->number = $this->contragent_id . '-' . date('y');
 
         return true;
     }

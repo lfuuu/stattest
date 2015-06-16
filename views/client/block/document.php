@@ -46,16 +46,16 @@ use \yii\helpers\Url;
                             <a href="<?=Url::toRoute(['document/delete', 'id'=>$doc->id])?>">
                                 <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif"
                                     alt="Активность"></a>
-                            <a href="https://stat.mcn.ru//view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                            <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
                 <?php endif; ?>
                 <div class="col-sm-12" style="margin-top: 5px;">
-                    <form action="/account/document-create/?id=<?= $doc->client_id ?>" method="post">
+                    <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2">
                             <input type="hidden" name="contract_type" value="contract">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $doc->client_id ?>-<?= date('y') ?>">
+                                   value="<?= $client->contract->id ?>-<?= date('y') ?>">
                         </div>
                         <div class="col-sm-2">
                             <input class="text contract_datepicker" type="text"
@@ -134,15 +134,15 @@ use \yii\helpers\Url;
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
                             <a href="<?=Url::toRoute(['document/delete', 'id'=>$doc->id])?>"><img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif"
                                     alt="Активность"></a>
-                            <a href="https://stat.mcn.ru//view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                            <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
                 <?php endif; ?>
                 <div class="col-sm-12" style="margin-top: 5px;">
-                    <form action="/account/document-create/?id=<?= $doc->client_id ?>" method="post">
+                    <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="blank">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $doc->client_id ?>-<?= date('y') ?>"></div>
+                                   value="<?= $client->contract->id ?>-<?= date('y') ?>"></div>
                         <div class="col-sm-2"><input class="text contract_datepicker" type="text" name="contract_date">
                         </div>
                         <div class="col-sm-2"><input class="text" type="text" name="comment"></div>
@@ -212,15 +212,15 @@ use \yii\helpers\Url;
                             <a href="<?=Url::toRoute(['document/delete', 'id'=>$doc->id])?>">
                                 <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif"
                                     alt="Активность"></a>
-                            <a href="https://stat.mcn.ru//view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
+                            <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
                 <?php endif; ?>
                 <div class="col-sm-12" style="margin-top: 5px;">
-                    <form action="/account/document-create/?id=<?= $doc->client_id ?>" method="post">
+                    <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="agreement">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $doc->client_id ?>-<?= date('y') ?>"></div>
+                                   value="<?= $client->contract->id ?>-<?= date('y') ?>"></div>
                         <div class="col-sm-2"><input class="text contract_datepicker" type="text" name="contract_date">
                         </div>
                         <div class="col-sm-2"><input class="text" type="text" name="comment"></div>

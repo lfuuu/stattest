@@ -144,7 +144,7 @@ $ipstat = function ($data) {
                                 </td>
                                 <td><?= $net->actual_from ?>&nbsp;-&nbsp;<?= $net->actual_to ?></td>
                                 <td><?= $net->nat_net ? $ipstat($net->nat_net) : '' ?></td>
-                                <td><?= $net->comment ?>}</td>
+                                <td><?= $net->comment ?></td>
                             </TR>
                         <?php endforeach; ?>
                     <?php else : ?>

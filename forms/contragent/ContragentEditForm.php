@@ -100,6 +100,7 @@ class ContragentEditForm extends Form
         $contragent->ogrn = $this->ogrn;
 
         if ($contragent->save()) {
+            $this->setAttributes($contragent->getAttributes(), false);
             if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
                 if (!$person->contragent_id)
                     $person->contragent_id = $contragent->id;

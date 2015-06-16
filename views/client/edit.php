@@ -191,9 +191,6 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
     });
 
     $('#buttonSave').on('click', function (e) {
-        $('#type-select .btn').not('.btn-primary').each(function () {
-            $($(this).data('tab')).remove();
-        });
         if ($("#deferred-date option:selected").is('option:last'))
             $('#deferred-date option:last').val($('#deferred-date-input').val()).select();
         return true;

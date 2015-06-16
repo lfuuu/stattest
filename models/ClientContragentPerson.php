@@ -2,8 +2,6 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\classes\behaviors\HistoryVersion;
-use app\classes\behaviors\HistoryChanges;
 
 class ClientContragentPerson extends ActiveRecord
 {
@@ -29,8 +27,28 @@ class ClientContragentPerson extends ActiveRecord
     public function behaviors()
     {
         return [
-            HistoryVersion::className(),
-            HistoryChanges::className(),
+            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
+    }
+
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if ($this->isNewRecord) {
+            return parent::save($runValidation = true, $attributeNames = null);
+        }
+        else {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+                return parent::save($runValidation = true, $attributeNames = null);
+            } else {
+                $behaviors = $this->behaviors;
+                unset($behaviors['HistoryVersion']);
+                $behaviors = array_keys($behaviors);
+                foreach ($behaviors as $behavior)
+                    $this->detachBehavior($behavior);
+                $this->beforeSave(false);
+            }
+            return true;
+        }
     }
 }

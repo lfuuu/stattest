@@ -1,12 +1,10 @@
 <?php
 namespace app\models;
 
-use app\classes\behaviors\HistoryVersion;
 use DateTimeZone;
 use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
-use app\classes\behaviors\LkWizardClean;
 use app\classes\FileManager;
 
 /**
@@ -15,7 +13,6 @@ use app\classes\FileManager;
  * @property string $currency
  * @property string $nal
  * @property int $nds_zero
-
  * @property ClientSuper $superClient
  * @property ClientContractComment $lastComment
  * @property Country $country
@@ -26,26 +23,26 @@ use app\classes\FileManager;
 class ClientAccount extends ActiveRecord
 {
     public static $statuses = array(
-        'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
-        'testing'             => array('name'=>'тестируемый','color'=>'#6DCFF6'),
-        'connecting'          => array('name'=>'подключаемый','color'=>'#F49AC1'),
-        'work'                => array('name'=>'включенный','color'=>''),
-        'closed'              => array('name'=>'отключенный','color'=>'#FFFFCC'),
-        'tech_deny'           => array('name'=>'тех. отказ','color'=>'#996666'),
-        'telemarketing'       => array('name'=>'телемаркетинг','color'=>'#A0FFA0'),
-        'income'              => array('name'=>'входящие','color'=>'#CCFFFF'),
-        'deny'                => array('name'=>'отказ','color'=>'#A0A0A0'),
-        'debt'                => array('name'=>'отключен за долги','color'=>'#C00000'),
-        'double'              => array('name'=>'дубликат','color'=>'#60a0e0'),
-        'trash'               => array('name'=>'мусор','color'=>'#a5e934'),
-        'move'                => array('name'=>'переезд','color'=>'#f590f3'),
-        'suspended'           => array('name'=>'приостановленные','color'=>'#C4a3C0'),
-        'denial'              => array('name'=>'отказ/задаток','color'=>'#00C0C0'),
-        'once'                => array('name'=>'Интернет Магазин','color'=>'silver'),
-        'reserved'            => array('name'=>'резервирование канала','color'=>'silver'),
-        'blocked'             => array('name'=>'временно заблокирован','color'=>'silver'),
-        'distr'               => array('name'=>'Поставщик','color'=>'yellow'),
-        'operator'            => array('name'=>'Оператор','color'=>'lightblue')
+        'negotiations' => array('name' => 'в стадии переговоров', 'color' => '#C4DF9B'),
+        'testing' => array('name' => 'тестируемый', 'color' => '#6DCFF6'),
+        'connecting' => array('name' => 'подключаемый', 'color' => '#F49AC1'),
+        'work' => array('name' => 'включенный', 'color' => ''),
+        'closed' => array('name' => 'отключенный', 'color' => '#FFFFCC'),
+        'tech_deny' => array('name' => 'тех. отказ', 'color' => '#996666'),
+        'telemarketing' => array('name' => 'телемаркетинг', 'color' => '#A0FFA0'),
+        'income' => array('name' => 'входящие', 'color' => '#CCFFFF'),
+        'deny' => array('name' => 'отказ', 'color' => '#A0A0A0'),
+        'debt' => array('name' => 'отключен за долги', 'color' => '#C00000'),
+        'double' => array('name' => 'дубликат', 'color' => '#60a0e0'),
+        'trash' => array('name' => 'мусор', 'color' => '#a5e934'),
+        'move' => array('name' => 'переезд', 'color' => '#f590f3'),
+        'suspended' => array('name' => 'приостановленные', 'color' => '#C4a3C0'),
+        'denial' => array('name' => 'отказ/задаток', 'color' => '#00C0C0'),
+        'once' => array('name' => 'Интернет Магазин', 'color' => 'silver'),
+        'reserved' => array('name' => 'резервирование канала', 'color' => 'silver'),
+        'blocked' => array('name' => 'временно заблокирован', 'color' => 'silver'),
+        'distr' => array('name' => 'Поставщик', 'color' => 'yellow'),
+        'operator' => array('name' => 'Оператор', 'color' => 'lightblue')
     );
 
     private $_lastComment = false;
@@ -65,12 +62,32 @@ class ClientAccount extends ActiveRecord
         return new ClientAccountQuery(get_called_class());
     }
 
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if ($this->isNewRecord) {
+            return parent::save($runValidation = true, $attributeNames = null);
+        }
+        else {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+                return parent::save($runValidation = true, $attributeNames = null);
+            } else {
+                $behaviors = $this->behaviors;
+                unset($behaviors['HistoryVersion']);
+                $behaviors = array_keys($behaviors);
+                foreach ($behaviors as $behavior)
+                    $this->detachBehavior($behavior);
+                $this->beforeSave(false);
+            }
+            return true;
+        }
+    }
+
     public function behaviors()
     {
         return [
-            HistoryVersion::className(),
-            HistoryChanges::className(),
-            LkWizardClean::className(),
+            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
         ];
     }
 
@@ -164,7 +181,7 @@ class ClientAccount extends ActiveRecord
 
     public function getContract()
     {
-        return $this->hasOne(ClientContract::className(),['id' => 'contract_id']);
+        return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
     }
 
     public function getContractType()
@@ -266,5 +283,31 @@ class ClientAccount extends ActiveRecord
         } else {
             return TaxType::TAX_18;
         }
+    }
+
+    public function getAllDocuments()
+    {
+        $this->hasMany(ClientDocument::className(), ['client_id' => 'id'])->all();
+        return $this->hasMany(ClientDocument::className(), ['client_id' => 'id']);
+    }
+
+    public function getAllContacts()
+    {
+        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
+    }
+
+    public function getBpStatuses()
+    {
+        $processes = [];
+        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        foreach (ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s) {
+            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+        }
+
+        return ["processes" => $processes, "statuses" => $statuses];
     }
 }

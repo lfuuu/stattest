@@ -51,11 +51,11 @@ use \yii\helpers\Url;
                             <?php if ($contact->userUser == 'AutoLK'): ?>
                                 <a href="<?= Url::toRoute(['contact/lkactivate', 'id' => $contact->id])?>">
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon"
-                                         src="/images/icons/<?=$contact->is_active ? 'action_check.gif':'action_check_off.gif'?>" alt="Активность">
+                                         src="/images/icons/<?=$contact->is_active ? 'action_check_off.gif':'action_check.gif'?>" alt="Активность">
                                 </a>
                             <?php else: ?>
                                 <a href="<?= Url::toRoute(['contact/activate', 'id' => $contact->id])?>">
-                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/<?=$contact->is_active ? 'add.gif':'delete.gif'?>" alt="Активность">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/<?=$contact->is_active ? 'delete.gif':'add.gif'?>" alt="Активность">
                                 </a>
                             <?php endif; ?>
                         </div>

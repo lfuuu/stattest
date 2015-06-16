@@ -244,8 +244,8 @@ class m_tt extends IModule{
             $gio = GoodsIncomeOrder::find("first", array(
                         "conditions" => array(
                             "id = ?", $trouble["bill_id"]
-                            ), 
-                        "order" => "date desc", 
+                            ),
+                        "order" => "date desc",
                         "limit" => 1)
                     );
 
@@ -545,9 +545,11 @@ class m_tt extends IModule{
         $design->assign(
             'tt_client',
             $db->GetRow('
-SELECT cr.`*`, cg.`*`, c.* FROM `clients` c
+SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
+cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
+FROM `clients` c
 INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
+INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where c.client="'.$trouble['client_orig'].'"')
         );
         $design->assign('tt_write',$this->checkTroubleAccess($trouble));
@@ -927,7 +929,7 @@ where c.client="'.$trouble['client_orig'].'"')
                 $ons = array("create" => false, "active" => false, "close" => false);
 
                 $prefixs = array('create_', 'active_', 'close_');
-                foreach ($prefixs as $prefix) 
+                foreach ($prefixs as $prefix)
                 {
                         $var_name = $prefix . 'date_to';
                         $mTime = new DatePickerValues($var_name, 'now');
@@ -978,7 +980,7 @@ where c.client="'.$trouble['client_orig'].'"')
                 $design->assign('active_date_from', date('d-m-Y', $active_date_from));
             }
             $active_date_from = date('Y-m-d',$active_date_from);
-            
+
             if($active_date_to < $min_time)
             {
                 $active_date_to = false;
@@ -993,7 +995,7 @@ where c.client="'.$trouble['client_orig'].'"')
                 $design->assign('close_date_from', date('d-m-Y', $close_date_from));
             }
             $close_date_from = date('Y-m-d',$close_date_from);
-                
+
             if($close_date_to < $min_time)
             {
                 $close_date_to = false;
@@ -1099,7 +1101,7 @@ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
         }if($mode==5){
             $W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
         }
-        
+
         $folders_join = $join;
 
         if (($flags&8)!=8) {
@@ -1109,9 +1111,9 @@ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
 
         if($this->curtype)
             $W[] = "T.trouble_type = '".$this->curtype['code']."'";
-            
+
         $W_folders = $W;
-        
+
         if($this->curfolder)
             $W[] = "T.folder&".$this->curfolder;
 
@@ -1142,7 +1144,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     LEFT JOIN newbills_add_info nai ON nai.bill_no = nb.bill_no
                     LEFT JOIN clients cl ON cl.id = nb.client_id
                     INNER JOIN `client_contract` cr ON cr.id=cl.contract_id
-                    INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
+                    INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                     WHERE nb.bill_no = T.bill_no
                 ),
                 T.client) as client,
@@ -1161,7 +1163,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
             INNER JOIN `client_contract` cr ON cr.id=cl.contract_id
-            INNER JOIN `client_contragent` cg ON cg.id=c.contragent_id
+            INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
             WHERE '.MySQLDatabase::Generate($W).'
             GROUP BY T.id
             ORDER BY T.id
@@ -1180,8 +1182,14 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $design->assign("pager_url", $url);
 
-        $lMetro = ClientCS::GetList("metro");
-        $lLogistic = ClientCS::GetList("logistic");
+        $lMetro = \app\models\Metro::getList();
+        $lLogistic = array(
+            "none" => "--- Не установленно ---",
+            "selfdeliv" => "Самовывоз",
+            "courier" => "Доставка курьером",
+            "auto" => "Доставка авто",
+            "tk" => "Доставка ТК",
+        );
 
         foreach($R as $k=>$r){
             $R[$k]["trouble_name"] = str_replace(array("заказы"), array("Заказ"), mb_strtoupper($r["trouble_name"]));
@@ -1310,10 +1318,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if(($flags&2)!=0){
             $design->assign('tt_troubles',$R);
         }
-        
+
         if (isset($_SESSION['get_folders']) && $_SESSION['get_folders'])
         {
-            
+
             unset($_SESSION['get_folders']);
             $W_folders[] = "tf.pk & ".$this->curtype['folders'];
             if ($use_stages)
@@ -1345,17 +1353,17 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 from 
                     tt_folders 
                 where 
-                    pk & ".$this->curtype['folders']." 
+                    pk & ".$this->curtype['folders']."
                 order by 
-                    `order`", 
+                    `order`",
                 'pk'
             );
- 
+
             $design->assign('tt_all_folders',$all_folders);
             $design->assign('tt_folders',$folders);
             $design->assign('tt_folders_block',$design->fetch('tt/folders_list.html'));
          }
-        
+
         if(($flags&4)!=0)
             return $R;
         return count($R);
@@ -1379,14 +1387,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         if($this->dont_again)
             return 0;
         global $db,$design,$user;
-        
-        if ($fixclient) 
+
+        if ($fixclient)
         {
-            $fixclient_data = ClientCS::FetchClient($fixclient);
-            if (!empty($fixclient_data))
-            {
-                $fixclient = $fixclient_data['client'];
-            } 
+            if((trim($fixclient) != intval($fixclient)))
+                $fixclient = ClientAccount::findOne($fixclient)->client;
         }
 
         if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
@@ -1796,69 +1801,38 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $db->Query($query = "
             SELECT
-                `cr`.`id`,
-                `cr`.`name`,
-                `tt`.bill_no,
-                /*`cl`.`company` `client`,*/
-                `ts_last`.`state_id` `state`,
-                `st`.name state_name,
-                `ts`.`trouble_id`,
-                `cr`.`depart`,
-                DATE(`ts`.`date_start`) `t_date`,
-                `ts`.`date_start` `tf_date`,
-                ".(($tr_id)?"IF(`ts`.`trouble_id`=".($tr_id).",'Y','N')":"'N'")." `its_here`,
-                IF(`ts`.`stage_id`=`tt`.`cur_stage_id`,'Y','N') `its_this`,
-                if(tt.bill_no,(
-                    select if(cl.`type`='multi',nai.fio,cl.company) from
-                        newbills nb
-                    left join
-                        newbills_add_info nai
-                    on
-                        nai.bill_no = nb.bill_no
-                    where
-                        nb.bill_no = tt.bill_no
-                ),
-                cl.company) as client
-            FROM
-                `courier` `cr`
-            LEFT JOIN
-                `tt_doers` `td`
-            ON
-                `td`.`doer_id` = `cr`.`id`
-            LEFT JOIN
-                `tt_stages` `ts`
-            ON
-                `ts`.`stage_id` = `td`.`stage_id`
-            AND
-                `ts`.`date_start` BETWEEN DATE_ADD('".$date."',INTERVAL -1 DAY)
-                          AND      DATE_ADD('".$date."',INTERVAL 2 DAY)
-            LEFT JOIN
-                `tt_troubles` `tt`
-            ON
-                `tt`.`id` = `ts`.`trouble_id`
-            LEFT JOIN
-                `clients` `cl`
-            ON
-                `cl`.`client` = CAST(`tt`.`client` AS CHAR)
-            LEFT JOIN
-                `tt_stages` `ts_last`
-            ON
-                `ts_last`.`stage_id` = `tt`.`cur_stage_id`
-            LEFT JOIN
-                `tt_states` st
-            ON
-                `st`.id = `ts_last`.state_id
-
-            WHERE
-                `cr`.`enabled` = 'yes'
-            GROUP BY
-                `cr`.`id`,
-                `cr`.`name`,
-                `cr`.`depart`,
-                `ts`.`date_start`
-            ORDER BY
-                `cr`.`depart`,
-                `cr`.`name`
+	    `cr`.`id`,
+	    `cr`.`name`,
+	    `tt`.bill_no,
+	    `cc`.`name` `client`,
+	    `ts_last`.`state_id` `state`,
+	    `st`.name state_name,
+	    `ts`.`trouble_id`,
+	    `cr`.`depart`,
+	    DATE(`ts`.`date_start`) `t_date`,
+	    `ts`.`date_start` `tf_date`,
+	    ".(($tr_id)?"IF(`ts`.`trouble_id`=".($tr_id).",'Y','N')":"'N'")." `its_here`,
+	    IF(`ts`.`stage_id`=`tt`.`cur_stage_id`,'Y','N') `its_this`
+	FROM `courier` `cr`
+	LEFT JOIN `tt_doers` `td` ON `td`.`doer_id` = `cr`.`id`
+	LEFT JOIN `tt_stages` `ts` ON `ts`.`stage_id` = `td`.`stage_id` AND `ts`.`date_start` BETWEEN DATE_ADD('".$date."',INTERVAL -1 DAY) AND DATE_ADD('".$date."',INTERVAL 2 DAY)
+	LEFT JOIN `tt_troubles` `tt` ON `tt`.`id` = `ts`.`trouble_id`
+	LEFT JOIN `clients` `cl` ON `cl`.`client` = CAST(`tt`.`client` AS CHAR)
+	LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+	LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
+	LEFT JOIN `tt_stages` `ts_last` ON `ts_last`.`stage_id` = `tt`.`cur_stage_id`
+	LEFT JOIN `tt_states` st ON `st`.id = `ts_last`.state_id
+	LEFT JOIN `newbills` nb ON nb.bill_no = tt.bill_no
+	LEFT JOIN `newbills_add_info` nai on nai.bill_no = nb.bill_no
+	WHERE `cr`.`enabled` = 'yes'
+	GROUP BY
+	    `cr`.`id`,
+	    `cr`.`name`,
+	    `cr`.`depart`,
+	    `ts`.`date_start`
+	ORDER BY
+	    `cr`.`depart`,
+	    `cr`.`name`
         ");
 
 
@@ -2022,7 +1996,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
     function tt_doers_list($fixclient){
         global $db,$design;
-        
+
         $dateFrom = new DatePickerValues('date_from', 'today');
         $dateTo = new DatePickerValues('date_to', 'today');
         $dateFrom->format = 'Y-m-d 00:00:00';$dateTo->format = 'Y-m-d 23:59:59';
@@ -2084,7 +2058,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         SELECT
                             `ln`.`created_at` `date`,
                             `cr`.`name` `courier_name`,
-                            `cl`.`company` `company`,
+                            `cc`.`name` `company`,
                             ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
                             0 `cur_state`,
                             0 `tt_id`,
@@ -2107,19 +2081,21 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
                         AND `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
                         GROUP BY
                             `ln`.`created_at`,
                             `cr`.`name`,
-                            `cl`.`company`,
+                            `cc`.`name`,
                             `nb`.`currency`
                     UNION
                         SELECT distinct
                             `ts`.`date_start` `date`,
                             `cr`.`name` `courier_name`,
-                            `cl`.`company` `company`,
+                            `cc`.`name` `company`,
                             `tt`.`problem` `task`,
                             `ts`.`state_id` `cur_state`,
                             `tt`.`id` `tt_id`,
@@ -2134,6 +2110,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         LEFT JOIN  `tt_troubles` `tt` ON `tt`.`id` = `ts`.`trouble_id`
                         left join   tt_stages cts on cts.stage_id = tt.cur_stage_id
                         LEFT JOIN  `clients` `cl` ON `cl`.`client` = `tt`.`client`
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
                         WHERE
                             /*`ts`.`state_id` = 4
                         AND */
@@ -2164,7 +2142,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         SELECT
                             `ln`.`created_at` `date`,
                             `cr`.`name` `courier_name`,
-                            `cl`.`company` `company`,
+                            `cc`.`name` `company`,
                             ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
                             `cl`.`id` `client_id`,
                             `nb`.`currency` `type`,
@@ -2176,6 +2154,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                                     AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
                         AND
@@ -2191,7 +2171,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         GROUP BY
                             `ln`.`created_at`,
                             `cr`.`name`,
-                            `cl`.`company`,
+                            `cc`.`name`,
                             `nb`.`currency`
                     ) `tbl`
                 ORDER BY
@@ -2217,7 +2197,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         SELECT distinct
                             `ts`.`date_start` `date`,
                             `cr`.`name` `courier_name`,
-                            `cl`.`company` `company`,
+                            `cc`.`name` `company`,
                             `tt`.`problem` `task`,
                             `ts`.`state_id` `cur_state`,
                             `tt`.`id` `tt_id`,
@@ -2234,6 +2214,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
                         LEFT JOIN `tt_stages`   `cts` ON cts.stage_id = tt.cur_stage_id
                         LEFT JOIN `clients`     `cl`  ON `cl`.`client` = `tt`.`client`
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
 
                         WHERE
                             ".($view_bwt ? "" : "tt.id > 0 and ")."
@@ -2266,7 +2248,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         SELECT
                             `ln`.`created_at` `date`,
                             `cr`.`name` `courier_name`,
-                            `cl`.`company` `company`,
+                            `cc`.`name` `company`,
                             ROUND(SUM(`nb`.`sum`)+SUM(IFNULL(`nbl`.`sum`,0)),2) `task`,
                             0 `cur_state`,
                             0 `tt_id`,
@@ -2282,6 +2264,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
                         LEFT JOIN `clients` `cl` ON `cl`.`id` = `nb`.`client_id`
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
                         WHERE `nb`.`courier_id` > 0
                             ".($view_bwt ? "" : " and false ")."
                         AND `ln`.`created_at` BETWEEN '".$date_begin."' AND '".$date_end."'
@@ -2296,13 +2280,13 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         GROUP BY
                             `ln`.`created_at`,
                             `cr`.`name`,
-                            `cl`.`company`,
+                            `cc`.`name`,
                             `nb`.`currency`
                     UNION
                     SELECT distinct
                             `s`.`date_start` `date`,
                             `cr`.`name` `courier_name`,
-                            `cl`.`company` `company`,
+                            `cc`.`name` `company`,
                             `tt`.`problem` `task`,
                             `s`.`state_id` `cur_state`,
                             `tt`.`id` `tt_id`,
@@ -2319,6 +2303,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         LEFT JOIN `tt_troubles` `tt`  ON `tt`.`id` = s.trouble_id
                         LEFT JOIN `tt_stages`   `cts` ON cts.stage_id = tt.cur_stage_id
                         LEFT JOIN `clients`     `cl`  ON `cl`.`client` = `tt`.`client`
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = `cl`.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
                         INNER JOIN `tt_doers` `td` ON `td`.`stage_id` = `s`.`stage_id`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `td`.`doer_id`
                         where s.stage_id = a.stage_id
@@ -2740,7 +2726,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     {
         include 'StoreLimitReport.php';
         StoreLimitReport::getData();
-        
+
     }
     function tt_save_limits($fixclient)
     {

@@ -21,9 +21,7 @@ class FileManager
 
     public function addFile($comment = "", $name = "")
     {
-        global $db,$user;
-
-        if (!isset($_FILES['file']) || !$_FILES['file']['tmp_name']) 
+        if (!isset($_FILES['file']) || !$_FILES['file']['tmp_name'])
             return false;
 
         if (!$name) {

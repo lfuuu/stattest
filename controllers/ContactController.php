@@ -32,7 +32,7 @@ class ContactController extends BaseController
         $model->is_active = 1;
         $model->save();
 
-        $this->goBack();
+        $this->redirect(Yii::$app->request->referrer);
     }
 
     public function actionActivate($id)

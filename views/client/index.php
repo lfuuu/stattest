@@ -1,10 +1,8 @@
 <?php
 use \kartik\grid\GridView;
-use kartik\widgets\Select2;
 
 echo GridView::widget([
     'dataProvider' => $dataProvider,
-    'layout' => "{items}\n{pager}",
     'columns' => [
         'id' => [
             'label' => (new $dataProvider->query->modelClass)->attributeLabels()['id'],
@@ -19,3 +17,24 @@ echo GridView::widget([
         'channelName',
     ],
 ]);
+?>
+
+<script>
+    $('body').on('click', '.grid-view tbody tr', function(){
+        location.href = '/client/clientview?id=' + $(this).data('key');
+    });
+
+    $('body').on('mouseover', '.grid-view tbody tr', function(){
+        $(this).css('background', '#CCC');
+    });
+
+    $('body').on('mouseout', '.grid-view tbody tr', function(){
+        $(this).css('background', '');
+    });
+</script>
+
+<style>
+    .grid-view tbody tr{
+        cursor: pointer;
+    }
+</style>
