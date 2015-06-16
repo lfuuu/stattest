@@ -150,7 +150,6 @@ abstract class DocumentReport extends Object
 
         file_put_contents($file_name . '.html', $content);
 
-        print "/usr/bin/wkhtmltopdf $options $file_html $file_pdf";
         passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
         $pdf = file_get_contents($file_pdf);
         unlink($file_html);
