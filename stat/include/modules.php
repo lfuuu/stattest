@@ -35,7 +35,7 @@ abstract class IModuleHead {
                     $R[] = [$val[0], Url::to($route), '', ''];
                 }
 			} else {
-				$act=$this->actions[$val[1]];
+				$act=isset($this->actions[$val[1]]) ? $this->actions[$val[1]] : ["",""];
 				if (access($act[0],$act[1])) $R[]=array($val[0],'module='.$this->module_name.'&action='.$val[1].(isset($val[2])?$val[2]:''), (isset($val[3])?$val[3]:''),(isset($val[4])?$val[4]:''));
 			}
 		}

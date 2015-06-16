@@ -79,6 +79,7 @@ class ContragentEditForm extends ContragentForm
             $person->passport_date_issued = $this->passport_date_issued;
 
             $person->save();
+            $contragent->refresh();
         }
 
         return $contragent->saveToAccount();
