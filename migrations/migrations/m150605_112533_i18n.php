@@ -15,7 +15,7 @@ class m150605_112533_i18n extends \app\classes\Migration
         /*
         $this->execute("
             ALTER TABLE `client_contragent`
-	            ADD COLUMN `country_code` INT (4) NULL DEFAULT '0' AFTER `super_id`;
+	            ADD COLUMN `country_code` INT (4) NULL DEFAULT '643' AFTER `super_id`;
         ");
         */
     }

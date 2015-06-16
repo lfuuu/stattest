@@ -31,6 +31,10 @@ abstract class DocumentReport extends Object
         $sum_with_tax,
         $sum_discount = 0;
 
+    public $isPDFMode = false;
+
+    protected $optionsPDF = ' --quiet -L 10 -R 10 -T 10 -B 10';
+
     /**
      * @return mixed
      */
@@ -79,12 +83,23 @@ abstract class DocumentReport extends Object
         return BillQRCode::getNo($this->bill->bill_no);
     }
 
+    public function isMail()
+    {
+        return (Yii::$app->request->get('emailed') == 1 ? true : false);
+    }
+
     /**
      * @return $this
      */
     public function setBill(Bill $bill = null)
     {
         $this->bill = $bill;
+        return $this;
+    }
+
+    public function setIsPDF()
+    {
+        $this->isPDFMode = true;
         return $this;
     }
 
@@ -97,6 +112,55 @@ abstract class DocumentReport extends Object
             ->fetchLines()
             ->filterLines()
             ->calculateSummary();
+    }
+
+    public function render()
+    {
+        return Yii::$app->view->renderFile($this->getTemplateFile() . '.php', [
+            'document' => $this
+        ]);
+    }
+
+    /*wkhtmltopdf*/
+    public function renderAsPDF()
+    {
+        $options = $this->optionsPDF;
+        // Может быть когда-нибудь доп. параметры уйдут в свой класс
+        /*
+        switch ($this->getDocType()) {
+            case 'upd':
+                $options .= ' --orientation Landscape ';
+                break;
+            case 'invoice':
+                $options .= ' --orientation Landscape ';
+                break;
+        }
+        */
+
+        ob_start();
+        echo $this
+                ->setIsPDF()
+                    ->render();
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        $file_name = '/tmp/' . time() . Yii::$app->user->id;
+        $file_html = $file_name . '.html';
+        $file_pdf = $file_name . '.pdf';
+
+        file_put_contents($file_name . '.html', $content);
+
+        print "/usr/bin/wkhtmltopdf $options $file_html $file_pdf";
+        passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+        $pdf = file_get_contents($file_pdf);
+        unlink($file_html);
+        unlink($file_pdf);
+
+        Header('Content-Type: application/pdf');
+        ob_clean();
+        flush();
+        echo $pdf;
+        exit;
     }
 
     /**
@@ -187,56 +251,5 @@ abstract class DocumentReport extends Object
     abstract public function getDocType();
 
     abstract public function getName();
-
-    public function render()
-    {
-        return Yii::$app->view->renderFile($this->getTemplateFile() . '.php', [
-            'document' => $this
-        ]);
-    }
-
-    /*wkhtmltopdf*/
-    /*
-    public function renderAsPDF()
-    {
-        $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
-        switch ($this->document->getDocType()) {
-            case 'upd':
-                $options .= ' --orientation Landscape ';
-                break;
-            case 'invoice':
-                $options .= ' --orientation Landscape ';
-                break;
-        }
-
-        ob_start();
-        echo $this->render();
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        $file_name = '/tmp/' . time() . Yii::$app->user->id;
-        $file_html = $file_name . '.html';
-        $file_pdf = $file_name . '.pdf';
-
-        print $file_html . '<br />';
-        print $file_pdf;
-
-        file_put_contents($file_name . '.html', $content);
-
-        print "/usr/bin/wkhtmltopdf $options $file_html $file_pdf";
-        passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
-        $pdf = file_get_contents($file_pdf);
-        //unlink($file_html);
-        //unlink($file_pdf);
-        print $pdf;
-        exit;
-
-        Header('Content-Type: application/pdf');
-        ob_clean();
-        flush();
-        echo $pdf;
-        exit;
-    }
-    */
 
 }

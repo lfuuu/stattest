@@ -18,8 +18,9 @@ $residents = $document->getCompanyResidents();
 <html>
     <head>
         <title>Счёт &#8470;<?= $document->bill->bill_no; ?></title>
-        <meta http-equiv=Content-Type content="text/html; charset=utf-8" />
-        <link title=default href="/bill.css" type="text/css" rel="stylesheet" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <base href="<?= Yii::$app->request->hostInfo; ?>" />
+        <link title="default" href="/bill.css" type="text/css" rel="stylesheet" />
     </head>
 
     <body bgcolor="#FFFFFF" style="background:#FFFFFF">
@@ -156,16 +157,51 @@ $residents = $document->getCompanyResidents();
             <tbody>
                 <tr>
                     <td><?= $residents['firm_director']['position']; ?></td>
-                    <td><br><br>_________________________________<br><br></td>
+                    <?php if ($document->isMail()): ?>
+                        <td>
+                            <?php if(isset($residents['firm_director']['sign'])): ?>
+                                <img src="/images/<?= $residents['firm_director']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_director']['sign']['width']? ' width="' . $residents['firm_director']['sign']['width'] . '" height="' . $residents['firm_director']['sign']['height'] . '"' : ''); ?>>
+                            <?php else:?>
+                                _________________________________
+                            <?php endif; ?>
+                        </td>
+                    <?php else: ?>
+                        <td>
+                            <br /><br />_________________________________<br /><br />
+                        </td>
+                    <?php endif; ?>
                     <td>/ <?= $residents['firm_director']['name']; ?> /</td>
                 </tr>
                 <tr>
                     <td>Главный бухгалтер</td>
-                    <td><br><br>_________________________________<br><br></td>
+                    <?php if ($document->isMail()) :?>
+                        <td>
+                            <?php if (isset($residents['firm_buh']['sign'])): ?>
+                                <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_buh']['sign']['width'] ? ' width="' . $residents['firm_buh']['sign']['width'] . '" height="' . $residents['firm_buh']['sign']['height'] . '"' : ''); ?>>
+                            <?php else: ?>
+                                _________________________________
+                            <?php endif; ?>
+                        </td>
+                    <?php else: ?>
+                        <td>
+                            <br /><br />_________________________________<br /><br />
+                        </td>
+                    <?php endif; ?>
                     <td>
                         / <?= $residents['firm_buh']['name']; ?> /
                     </td>
                 </tr>
+                <?php if ($document->isMail()): ?>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td align=left>
+                            <?php if (isset($residents['firma'])): ?>
+                                <img style="<?= $residents['firma']['style']; ?>" src="/images/<?= $residents['firma']['src']; ?>"<?= ($residents['firma']['width'] ? ' width="' . $residents['firma']['width'] . '" height="' . $residents['firma']['height'] . '"' : ''); ?>>
+                            <?php endif; ?>
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
 

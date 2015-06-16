@@ -15,7 +15,8 @@ $company = $document->getCompany();
 <html>
     <head>
         <title>Díjbekérő No <?= $document->bill->bill_no; ?></title>
-        <meta http-equiv=Content-Type content="text/html; charset=utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <base href="<?= Yii::$app->request->hostInfo; ?>" />
         <link title="default" href="/bill.css" type="text/css" rel="stylesheet" />
     </head>
 
@@ -121,16 +122,51 @@ $company = $document->getCompany();
             <tbody>
                 <tr>
                     <td>Vezérigazgatója</td>
-                    <td><br><br>_________________________________<br><br></td>
+                    <?php if ($document->isMail()): ?>
+                        <td>
+                            <?php if(isset($residents['firm_director']['sign'])): ?>
+                                <img src="/images/<?= $residents['firm_director']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_director']['sign']['width']? ' width="' . $residents['firm_director']['sign']['width'] . '" height="' . $residents['firm_director']['sign']['height'] . '"' : ''); ?>>
+                            <?php else:?>
+                                _________________________________
+                            <?php endif; ?>
+                        </td>
+                    <?php else: ?>
+                        <td>
+                            <br /><br />_________________________________<br /><br />
+                        </td>
+                    <?php endif; ?>
                     <td>/ Melnikov A.K. /</td>
                 </tr>
                 <tr>
                     <td>Főkönyvelő</td>
-                    <td><br><br>_________________________________<br><br></td>
+                    <?php if ($document->isMail()) :?>
+                        <td>
+                            <?php if (isset($residents['firm_buh']['sign'])): ?>
+                                <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_buh']['sign']['width'] ? ' width="' . $residents['firm_buh']['sign']['width'] . '" height="' . $residents['firm_buh']['sign']['height'] . '"' : ''); ?>>
+                            <?php else: ?>
+                                _________________________________
+                            <?php endif; ?>
+                        </td>
+                    <?php else: ?>
+                        <td>
+                            <br /><br />_________________________________<br /><br />
+                        </td>
+                    <?php endif; ?>
                     <td>
                         / Melnikov A.K. /
                     </td>
                 </tr>
+                <?php if ($document->isMail()): ?>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td align=left>
+                            <?php if (isset($residents['firma'])): ?>
+                                <img style="<?= $residents['firma']['style']; ?>" src="/images/<?= $residents['firma']['src']; ?>"<?= ($residents['firma']['width'] ? ' width="' . $residents['firma']['width'] . '" height="' . $residents['firma']['height'] . '"' : ''); ?>>
+                            <?php endif; ?>
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
 
