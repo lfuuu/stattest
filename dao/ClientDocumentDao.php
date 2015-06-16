@@ -258,7 +258,7 @@ class ClientDocumentDao extends Singleton
     }
 
 
-    private function contract_fix_static_parts_of_template(&$content, $clientId=0)
+    private function contract_fix_static_parts_of_template($content, $clientId=0)
     {
         if(($pos = strpos($content, "{\$include_")) !== false)
         {
