@@ -5,7 +5,7 @@ namespace app\classes\documents;
 class BillDocRepRuRUB extends DocumentReport
 {
 
-    public function getCountryLang()
+    public function getLanguage()
     {
         return 'ru';
     }
@@ -20,14 +20,9 @@ class BillDocRepRuRUB extends DocumentReport
         return self::BILL_DOC_TYPE;
     }
 
-    public function getDocSource()
-    {
-        return 2;
-    }
-
     public function getName()
     {
-        return 'Счет (предоплата) alfa';
+        return 'Счет (предоплата) RuRub (Alfa)';
     }
 
 }

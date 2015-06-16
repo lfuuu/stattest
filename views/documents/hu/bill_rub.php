@@ -4,9 +4,7 @@ use app\classes\Utils;
 
 /** @var $document app\classes\documents\DocumentReport */
 
-$isDiscount = 0;
-foreach ($document->bill_lines as $position => $line)
-    $isDiscount += $line['discount_auto'] + $line['discount_set'];
+$hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
@@ -43,9 +41,7 @@ $company = $document->getCompany();
                         </div>
                         <tr>
                             <td colspan="2" align="center">
-                                <?php if ($document->qr_code !== false): ?>
-                                    <img src="/utils/qr-code/get?data=<?= $document->qr_code; ?>" />
-                                <?php endif; ?>
+                                <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" />
                             </td>
                         </tr>
                     </table>
@@ -74,13 +70,13 @@ $company = $document->getCompany();
                     <td align="center"><b>Nettó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Áfa értéke, &nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Bruttó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <?php if ($isDiscount): ?>
+                    <?php if ($hasDiscount): ?>
                         <td align="center"><b>Áfa érték</b></td>
                         <td align="center"><b>ÁFA összesen,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php endif; ?>
                 </tr>
 
-                <?php foreach ($document->bill_lines as $position => $line): ?>
+                <?php foreach ($document->lines as $position => $line): ?>
                     <tr>
                         <td align="right"><?= ($position + 1); ?></td>
                         <td><?= $line['item']; ?></td>
@@ -89,7 +85,7 @@ $company = $document->getCompany();
                         <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                         <td align="center"><?= Utils::round($line['sum_tax'], 2); ?></td>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
-                        <?php if ($isDiscount): ?>
+                        <?php if ($hasDiscount): ?>
                             <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
                             <td align="center"><?= Utils::round($line['sum'] - ($line['discount_auto'] + $line['discount_set']), 2); ?></td>
                         <?php endif; ?>
@@ -102,19 +98,19 @@ $company = $document->getCompany();
                             <b>Összesen:</b>
                         </div>
                     </td>
-                    <td align="center"><?= Utils::round($document->summary->without_tax, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                     <td align="center">
-                        <?php if (!$isDiscount): ?>
-                            <?= Utils::round($document->summary->with_tax, 2); ?>
+                        <?php if (!$hasDiscount): ?>
+                            <?= Utils::round($document->sum_with_tax, 2); ?>
                         <?php else: ?>
                             &nbsp;
                         <?php endif; ?>
                     </td>
-                    <?php if ($isDiscount): ?>
+                    <?php if ($hasDiscount): ?>
                         <td align="center">&nbsp;</td>
-                        <td align="center"><?= Utils::round($isDiscount, 2); ?></td>
+                        <td align="center"><?= Utils::round($document->sum_discount, 2); ?></td>
                     <?php endif; ?>
-                    <td align="center"><?= Utils::round($document->summary->value - $isDiscount, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
                 </tr>
 
             </tbody>

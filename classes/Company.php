@@ -28,6 +28,7 @@ class Company
                 "director_post" => "Генеральный директор",
                 "director_post_" => "Генерального директора",
                 "logo" => "mcntelecom-logo.png",
+                "site" => "www.mcntelecom.ru",
             ),
             /*
             "mcn_telekom_hungary" => [

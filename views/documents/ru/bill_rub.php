@@ -5,13 +5,12 @@ use app\classes\Wordifier;
 
 /** @var $document app\classes\documents\DocumentReport */
 
-$isDiscount = 0;
-foreach ($document->bill_lines as $position => $line)
-     $isDiscount += $line['discount_auto'] + $line['discount_set'];
+$hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
 $company = $document->getCompany();
+
 $residents = $document->getCompanyResidents();
 ?>
 
@@ -45,7 +44,7 @@ $residents = $document->getCompanyResidents();
 
                      <?php if ($document->bill->clientAccount->client != 'salvus'): ?>
                         <table border="0" align="right">
-                            <tr<?= ($document->summary->value > 300 ? ' bgcolor="#FFD6D6"' : '');?>>
+                            <tr<?= ($document->sum > 300 ? ' bgcolor="#FFD6D6"' : '');?>>
                                 <td>Клиент</td>
                                 <td><?= $document->bill->clientAccount->client; ?></td>
                             </tr>
@@ -62,9 +61,7 @@ $residents = $document->getCompanyResidents();
                             </tr>
                             <tr>
                                 <td colspan="2" align="center">
-                                    <?php if ($document->qr_code !== false): ?>
-                                        <img src="/utils/qr-code/get?data=<?= $document->qr_code; ?>" />
-                                    <?php endif; ?>
+                                    <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" />
                                 </td>
                             </tr>
                         </table>
@@ -76,7 +73,7 @@ $residents = $document->getCompanyResidents();
 
         <center><h2>Счёт &#8470;<?= $document->bill->bill_no; ?></h2></center>
 
-        <p align=right>Дата: <b> <?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'dd MMM YYYY'); ?></b></p>
+        <p align=right>Дата: <b> <?= Yii::$app->formatter->asDatetime($document->bill->bill_date, 'dd MMM YYYY г.'); ?></b></p>
 
         <hr />
         <br />
@@ -95,13 +92,13 @@ $residents = $document->getCompanyResidents();
                     <td align="center"><b>Сумма,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b><?= ($document->bill->clientAccount->firma == 'mcn_telekom' ? 'НДС 18%': 'Сумма налога'); ?>,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <?php if ($isDiscount): ?>
+                    <?php if ($hasDiscount): ?>
                         <td align="center"><b>Скидка</b></td>
                         <td align="center"><b>Сумма со скидкой,<br>с учётом налога,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php endif; ?>
                 </tr>
 
-                <?php foreach($document->bill_lines as $position => $line): ?>
+                <?php foreach($document->lines as $position => $line): ?>
                     <tr>
                         <td align="right"><?= ($position + 1); ?></td>
                         <td><?= $line['item']; ?></td>
@@ -120,9 +117,9 @@ $residents = $document->getCompanyResidents();
                         </td>
                         <td align="center"><?= Utils::round($line['price'], 4); ?></td>
                         <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                        <td align="center"><?= ($document->bill->clientAccount->nds_zero/* || $line['line_nds'] == 0*/ ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
+                        <td align="center"><?= ($document->bill->clientAccount->nds_zero || $line['nds'] == 0 ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
-                        <?php if ($isDiscount): ?>
+                        <?php if ($hasDiscount): ?>
                             <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
                             <td align="center"><?= Utils::round($line['sum'] - ($line['discount_auto'] + $line['discount_set']), 2); ?></td>
                         <?php endif; ?>
@@ -135,25 +132,25 @@ $residents = $document->getCompanyResidents();
                             <b>Итого:</b>
                         </div>
                     </td>
-                    <td align="center"><?= Utils::round($document->summary->without_tax, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
                     <td align="center">
-                        <?php if (!$isDiscount): ?>
-                            <?= ($document->bill->clientAccount->nds_zero ? 'без НДС' : Utils::round($document->summary->with_tax, 2)); ?>
+                        <?php if (!$hasDiscount): ?>
+                            <?= ($document->bill->clientAccount->nds_zero ? 'без НДС' : Utils::round($document->sum_with_tax, 2)); ?>
                         <?php else: ?>
                             &nbsp;
                         <?php endif; ?>
                     </td>
-                    <?php if ($isDiscount): ?>
+                    <?php if ($hasDiscount): ?>
                         <td align="center">&nbsp;</td>
-                        <td align="center"><?= Utils::round($isDiscount, 2); ?></td>
+                        <td align="center"><?= Utils::round($document->sum_discount, 2); ?></td>
                     <?php endif; ?>
-                    <td align="center"><?= Utils::round($document->summary->value - $isDiscount, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum - $document->sum_discount, 2); ?></td>
                 </tr>
             </tbody>
         </table>
         <br />
 
-        <p><i>Сумма прописью: <?= Wordifier::Make($document->summary->value - $isDiscount, $document->getCurrency()); ?></i></p>
+        <p><i>Сумма прописью: <?= Wordifier::Make($document->sum - $document->sum_discount, $document->getCurrency()); ?></i></p>
 
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>

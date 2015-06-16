@@ -3,14 +3,12 @@
 namespace app\classes\documents;
 
 use Yii;
-use yii\helpers\ArrayHelper;
-use app\classes\Singleton;
+use yii\base\Object;
 use app\classes\Company;
-use app\classes\Utils;
 use app\classes\BillQRCode;
 use app\models\Bill;
 
-abstract class DocumentReport extends Singleton
+abstract class DocumentReport extends Object
 {
 
     const TEMPLATE_PATH = '@app/views/documents/';
@@ -21,314 +19,224 @@ abstract class DocumentReport extends Singleton
     const CURRENCY_USD = 'USD';
     const CURRENCY_FT = 'FT';
 
+    /**
+     * @var Bill
+     */
     public $bill;
-    public $bill_lines = [];
-    public $summary;
-    public $qr_code = false;
+    public $lines = [];
 
-    public function setBill(Bill $bill)
-    {
-        $this->bill = $bill;
+    public
+        $sum,
+        $sum_without_tax,
+        $sum_with_tax,
+        $sum_discount = 0;
 
-        return $this;
-    }
-
+    /**
+     * @return mixed
+     */
     public function getCompany()
     {
         return Company::getProperty($this->bill->clientAccount->firma, $this->bill->bill_date);
     }
 
+    /**
+     * @return string
+     */
     public function getCompanyDetails()
     {
         return Company::getDetail($this->bill->clientAccount->firma, $this->bill->bill_date);
     }
 
+    /**
+     * @return array
+     */
     public function getCompanyResidents()
     {
         return Company::setResidents($this->bill->clientAccount->firma, $this->bill->bill_date);
     }
 
-    public function getClassName() {
-        return (new \ReflectionClass($this))->getShortName();
-    }
-
+    /**
+     * @return string
+     */
     public function getTemplateFile()
     {
-        return self::TEMPLATE_PATH . $this->getCountryLang() . '/' . $this->getDocType() . '_' . mb_strtolower($this->getCurrency(), 'UTF-8');
+        return self::TEMPLATE_PATH . $this->getLanguage() . '/' . $this->getDocType() . '_' . mb_strtolower($this->getCurrency(), 'UTF-8');
     }
 
+    /**
+     * @return string
+     */
     public function getHeaderTemplate()
     {
-        return self::TEMPLATE_PATH . $this->getCountryLang() . '/header_base';
+        return self::TEMPLATE_PATH . $this->getLanguage() . '/header_base';
     }
 
+    /**
+     * @return array
+     */
+    public function getQrCode()
+    {
+        return BillQRCode::getNo($this->bill->bill_no);
+    }
+
+    /**
+     * @return $this
+     */
+    public function setBill(Bill $bill = null)
+    {
+        $this->bill = $bill;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
     public function prepare()
     {
-        $this->bill_lines = array_map(function($line) {
-            $result = ArrayHelper::toArray($line);
+        return $this
+            ->fetchLines()
+            ->filterLines()
+            ->calculateSummary();
+    }
 
-            $result['ts_from'] = strtotime($line['date_from']);
-            $result['ts_to'] = strtotime($line['date_to']);
-
-            return $result;
-        }, $this->bill->lines);
-
-        $this->doPrintPrepare();
-        $this->calculateSummary();
-
-        if (strtotime($this->bill->bill_date) >= strtotime('2013-05-01'))
-            $this->qr_code = BillQRCode::getNo($this->bill->bill_no);
+    /**
+     * @return $this
+     */
+    protected function fetchLines()
+    {
+        $this->lines =
+            Yii::$app->db->createCommand('
+                select
+					l.*,
+					if(g.nds is null, 18, g.nds) as nds,
+					g.art as art,
+					g.num_id as num_id,
+					g.store as in_store,
+                    if(l.service="usage_extra",
+						(select
+							okvd_code
+						from
+							usage_extra u, tarifs_extra t
+						where
+							u.id = l.id_service and
+							t.id = tarif_id
+						),
+						if (l.type = "good",
+							(select
+								okei
+							FROM
+								g_unit
+							WHERE
+								id = g.unit_id
+							), "")
+					) okvd_code
+				from newbill_lines l
+				left join g_goods g on (l.item_id = g.id)
+				left join g_unit as gu ON g.unit_id = gu.id
+				where l.bill_no=:billNo
+				order by sort
+            ', [
+                ':billNo' => $this->bill->bill_no,
+            ])->queryAll();
 
         return $this;
     }
 
-    public function prepareFilter($lines)
+    /**
+     * @return $this
+     */
+    protected function filterLines()
     {
-        return $lines;
+        $filtered_lines = [];
+
+        foreach ($this->lines as $line) {
+            if (!(int) $line['sum']) continue;
+
+            $filtered_lines[] = $line;
+        }
+
+        $this->lines = $filtered_lines;
+
+        return $this;
     }
 
-    public function doPrintPrepare()
-    {
-        $source  = $this->getDocSource();
-
-        $isOneTimeService = (
-            sizeof($this->bill_lines) != 1 &&
-            (
-                $this->bill_lines[0]['type'] == 'service' &&
-                $this->bill_lines[0]['id_service'] == 0 &&
-                $this->bill_lines[0]['service'] == ''
-            )
-        ) ? true : false;
-
-        // if ($bill->isOneTimeService())// или разовая услуга
-        if ($isOneTimeService)
-        {
-            if(strtotime($this->bill->doc_date)) {
-                $period_date = Utils::get_inv_period(strtotime($this->bill->bill_date));
-            }else{
-                list($inv_date, $period_date) = Utils::get_inv_date(strtotime($this->bill->bill_date),($this->bill->inv2to1 && $source == 2) ? 1 : $source);
-            }
-        }
-        else { // статовские переодические счета
-            list($inv_date, $period_date) = Utils::get_inv_date(strtotime($this->bill->bill_date),($this->bill->inv2to1 && $source == 2) ? 1 : $source);
-        }
-
-        $this->bill_lines = static::doPrintPrepareFilter($this->getDocType(), $source, $this->bill_lines, $period_date);
-    }
-
-    public static function doPrintPrepareFilter($obj, $source, &$lines, $period_date, $inv3Full = true, $isViewOnly = false, $origObj = false)
-    {
-        $M = array();
-
-        if ($origObj === false)
-            $origObj = $obj;
-
-        if ($obj == "gds") {
-            $M = [
-                'all4net'   => 0,
-                'service'   => 0,
-                'zalog'     => 0,
-                'zadatok'   => 0,
-                'good'      => 1,
-                '_'         => 0
-            ];
-        }
-        else {
-            if ($obj == 'bill') {
-                $M = [
-                    'all4net' => 1,
-                    'service' => 1,
-                    'zalog' => 1,
-                    'zadatok' => ($source == 2 ? 1 : 0),
-                    'good' => 1,
-                    '_' => 0
-                ];
-            } else if ($obj == 'lading') {
-                $M = [
-                    'all4net'   => 1,
-                    'service'   => 0,
-                    'zalog'     => 0,
-                    'zadatok'   => 0,
-                    'good'      => 1,
-                    '_'         => 0
-                ];
-            } elseif ($obj == 'akt') {
-                if ($source == 3) {
-                    $M = [
-                        'all4net'   => 0,
-                        'service'   => 0,
-                        'zalog'     => 1,
-                        'zadatok'   => 0,
-                        'good'      => 0,
-                        '_'         => 0
-                    ];
-                } elseif (in_array($source, array(1, 2))) {
-                    $M = [
-                        'all4net'   => 1,
-                        'service'   => 1,
-                        'zalog'     => 0,
-                        'zadatok'   => 0,
-                        'good'      => 0,
-                        '_'         => $source
-                    ];
-                }
-            }
-            else { //invoice
-                if (in_array($source, array(1, 2))) {
-                    $M = [
-                        'all4net'   => 1,
-                        'service'   => 1,
-                        'zalog'     => 0,
-                        'zadatok'   => 0,
-                        'good'      => 0, //($obj=='invoice'?1:0);
-                        '_'         => $source
-                    ];
-                }
-                elseif ($source == 3) {
-                    $M = [
-                        'all4net'   => 1,
-                        'service'   => 0,
-                        'zalog'     => ($isViewOnly) ? 0 : 1,
-                        'zadatok'   => 0,
-                        'good'      => $inv3Full ? 1 : 0,
-                        '_'         => 0
-                    ];
-                }
-                elseif ($source == 4) {
-                    if (!count($lines))
-                        return [];
-                    foreach ($lines as $line) {
-                        $bill = $line;
-                        break;
-                    }
-
-                    $ret = Yii::$app->db->createCommand("
-                      SELECT
-                          bill_date,
-                          nal
-                      FROM
-                          newbills
-                      WHERE
-                          bill_no = '" . $bill['bill_no'] . "'
-                    ")->queryOne();
-
-                    if (in_array($ret['nal'], array('nal', 'prov'))) {
-                        $ret = Yii::$app->db->createCommand("
-                            SELECT
-                                *
-                            FROM
-                                newpayments
-                            WHERE
-                                bill_no = '" . $bill['bill_no'] . "'
-                        ")->queryOne();
-                        if ($ret == 0)
-                            return -1;
-                    }
-
-                    $query = "
-                        SELECT
-                            *
-                        FROM
-                            newbills nb
-                        INNER JOIN
-                            newpayments np
-                        ON
-                            (
-                                np.bill_vis_no = nb.bill_no
-                            OR
-                                np.bill_no = nb.bill_no
-                            )
-                        AND
-                            (
-                                (
-                                    YEAR(np.payment_date)=YEAR(nb.bill_date)
-                                AND
-                                    (
-                                        MONTH(np.payment_date)=MONTH(nb.bill_date)
-                                    OR
-                                        MONTH(nb.bill_date)-1=MONTH(np.payment_date)
-                                    )
-                                )
-                            OR
-                                (
-                                    YEAR(nb.bill_date)-1=YEAR(np.payment_date)
-                                AND
-                                    MONTH(np.payment_date)=1
-                                AND
-                                    MONTH(nb.bill_date)=12
-                                )
-                            )
-                        WHERE
-                            nb.bill_no = '" . $bill['bill_no'] . "'
-                    ";
-
-                    //echo $query;
-                    $ret = Yii::$app->db->createCommand($query)->queryOne();
-
-                    if ($ret == 0)
-                        return 0;
-
-                    $R = [];
-                    foreach ($lines as $line) {
-                        if (preg_match("/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС|^\s*Перенос|^\s*Выезд|^\s*Сервисное\s+обслуживание|^\s*Хостинг|^\s*Подключение|^\s*Внутренняя\s+линия|^\s*Абонентское\s+обслуживание|^\s*Услуга\s+доставки|^\s*Виртуальный\s+почтовый|^\s*Размещение\s+сервера|^\s*Настройка[0-9a-zA-Zа-яА-Я]+АТС|^Дополнительный\sIP[\s\-]адрес|^Поддержка\sпервичного\sDNS|^Поддержка\sвторичного\sDNS|^Аванс\sза\sподключение\sинтернет-канала|^Администрирование\sсервер|^Обслуживание\sрабочей\sстанции|^Оптимизация\sсайта/", $line['item']))
-                            $R[] = $line;
-                    }
-                    return $R;
-                } else {
-                    return [];
-                }
-            }
-        }
-
-        $R = array();
-        foreach ($lines as &$li) {
-            if ($M[ $li['type'] ] == 1) {
-                if(
-                    $M['_']==0
-                    || ( $M['_'] == 1 && $li['ts_from'] >= $period_date)
-                    || ( $M['_'] == 2 && $li['ts_from'] < $period_date)
-                ){
-                    if(
-                        $li['sum'] != 0 ||
-                        $li['item'] == 'S' ||
-                        ($origObj == "gds" && $source == 2) ||
-                        preg_match("/^Аренд/i", $li['item']) ||
-                        ($li['sum'] == 0 && preg_match("|^МГТС/МТС|i", $li['item']))
-                    )
-                    {
-                        if ($li['sum'] == 0) {
-                            $li['outprice'] = 0;
-                            $li['price'] = 0;
-                        }
-                        $R[] = &$li;
-                    }
-                }
-            }
-        }
-
-        return $R;
-    }
-
+    /**
+     * @return $this
+     */
     protected function calculateSummary()
     {
-        foreach ($this->bill_lines as $line) {
-            $this->summary->value       += $line['sum'];
-            $this->summary->without_tax += $line['sum_without_tax'];
-            $this->summary->with_tax    += $line['sum_tax'];
+        $this->sum              =
+        $this->sum_without_tax  =
+        $this->sum_with_tax     =
+        $this->sum_discount     = 0;
+
+        foreach ($this->lines as $line) {
+            $this->sum              += $line['sum'];
+            $this->sum_without_tax  += $line['sum_without_tax'];
+            $this->sum_with_tax     += $line['sum_tax'];
+            $this->sum_discount     += $line['discount_auto'] + $line['discount_set'];
         }
+
+        return $this;
     }
 
-    abstract public function getCountryLang();
+    abstract public function getLanguage();
 
     abstract public function getCurrency();
 
     abstract public function getDocType();
 
-    public function getDocSource()
+    abstract public function getName();
+
+    public function render()
     {
-        return '';
+        return Yii::$app->view->renderFile($this->getTemplateFile() . '.php', [
+            'document' => $this
+        ]);
     }
 
-    abstract public function getName();
+    /*wkhtmltopdf*/
+    /*
+    public function renderAsPDF()
+    {
+        $options = ' --quiet -L 10 -R 10 -T 10 -B 10';
+        switch ($this->document->getDocType()) {
+            case 'upd':
+                $options .= ' --orientation Landscape ';
+                break;
+            case 'invoice':
+                $options .= ' --orientation Landscape ';
+                break;
+        }
+
+        ob_start();
+        echo $this->render();
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        $file_name = '/tmp/' . time() . Yii::$app->user->id;
+        $file_html = $file_name . '.html';
+        $file_pdf = $file_name . '.pdf';
+
+        print $file_html . '<br />';
+        print $file_pdf;
+
+        file_put_contents($file_name . '.html', $content);
+
+        print "/usr/bin/wkhtmltopdf $options $file_html $file_pdf";
+        passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
+        $pdf = file_get_contents($file_pdf);
+        //unlink($file_html);
+        //unlink($file_pdf);
+        print $pdf;
+        exit;
+
+        Header('Content-Type: application/pdf');
+        ob_clean();
+        flush();
+        echo $pdf;
+        exit;
+    }
+    */
 
 }

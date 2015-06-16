@@ -199,7 +199,7 @@
 
 {if $available_documents}
     {foreach from=$available_documents item=item}
-        <input type="checkbox" name="{$item.code}" value="1" id="{$item.code}" /><label for="{$item.code}">{$item.title}</label><br />
+        <input type="checkbox" name="{$item.class}" value="1" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label><br />
     {/foreach}
 {/if}
 

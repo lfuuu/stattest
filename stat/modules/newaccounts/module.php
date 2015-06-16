@@ -736,10 +736,10 @@ class m_newaccounts extends IModule
 
         $availableDocuments = (new \app\classes\documents\DocumentsFactory())->availableDocuments($newbill);
         $documents = [];
-        foreach ($availableDocuments as $docType) {
+        foreach ($availableDocuments as $document) {
             $documents[] = [
-                'code' => $docType->getClassName(),
-                'title' => $docType->getName(),
+                'class' => $document->className(),
+                'title' => $document->getName(),
             ];
         }
         $design->assign('available_documents', $documents);
@@ -1394,7 +1394,7 @@ class m_newaccounts extends IModule
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
-        $L = array_merge($L, ['BillDocRepHuRUB', 'BillDocRepRuRUB']);
+        $L = array_merge($L, ['app\classes\documents\BillDocRepHuRUB', 'app\classes\documents\BillDocRepRuRUB']);
 
         //$L = array("invoice-1");
 
@@ -1801,7 +1801,7 @@ class m_newaccounts extends IModule
             $this->docs_echoFile(STORE_PATH."order2.pdf", "Смена директора МСН Телеком.pdf");
             exit();
         }
-            
+
         if (strpos($object, 'DocRep') !== false) {
             $document = (new \app\classes\documents\DocumentsFactory())->getReport(\app\models\Bill::findOne(['bill_no'=>$bill_no]), $obj);
             //if ($is_pdf)
