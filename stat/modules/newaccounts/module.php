@@ -10,6 +10,7 @@ use app\models\ClientCounter;
 use app\models\Payment;
 use app\models\BillDocument;
 use app\models\Transaction;
+use app\classes\documents\DocumentsFactory;
 
 class m_newaccounts extends IModule
 {
@@ -1757,9 +1758,7 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        $lang = '';
         if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope'))) {
-            $lang = ClientAccount::findOne($bill->Get('client_id'))->contragent->country->lang;
             $obj = 'bill';
         }
 
@@ -1801,7 +1800,7 @@ class m_newaccounts extends IModule
         }
 
         if (strpos($object, 'DocRep') !== false) {
-            $document = (new \app\classes\documents\DocumentsFactory())->getReport(\app\models\Bill::findOne(['bill_no'=>$bill_no]), $obj);
+            $document = DocumentsFactory::me()->getReport(\app\models\Bill::findOne(['bill_no'=>$bill_no]), $obj);
             if ($is_pdf)
                 $document->renderAsPDF();
             else
@@ -1920,7 +1919,7 @@ class m_newaccounts extends IModule
                 } else {
                     if($mode=='html')
                     {
-                        $design->ProcessEx('newaccounts/print_'.$obj . (!empty($lang) ? '_' . $lang : '')  .'.tpl');
+                        $design->ProcessEx('newaccounts/print_'.$obj.'.tpl');
                     }elseif($mode=='xml'){
                         $design->ProcessEx('newaccounts/print_'.$obj.'.xml.tpl');
                     }elseif($mode=='pdf'){
