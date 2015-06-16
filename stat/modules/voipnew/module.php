@@ -173,7 +173,7 @@ class m_voipnew extends IModule
         unlink($file->getStorageFilePath());
         $file->delete();
 
-        header("location: /voip/pricelist/files?pricelistId={$file->id}");
+        header("location: /voip/pricelist/files?pricelistId={$file->pricelist_id}");
         exit;
     }
 
