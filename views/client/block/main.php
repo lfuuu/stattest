@@ -37,8 +37,9 @@ use \app\models\ClientContract;
         foreach ($contracts as $contract): ?>
             <div class="row" style="margin:5px 0 5px;">
                 <div class="col-sm-5">
-                    <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $activeClient->id]) ?>"><span
-                            class="c-blue-color">№ <?= $contract->number ?> (<?= $contract->organizationName ?>)</span></a>
+                    <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $activeClient->id]) ?>">
+                        <span class="c-blue-color">Договор № <?= $contract->number ?> (<?= $contract->organizationName ?>)</span>
+                    </a>
                 </div>
                 <div class="col-sm-1" style="padding:0;">
                     <span>

@@ -227,6 +227,8 @@ $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'бе
                         <label class="control-label" for="deferred-date">Сохранить на</label>
                         <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
                         <?= Html::dropDownList('deferred-date', null,
+                            (Yii::$app->request->get('date')? [Yii::$app->request->get('date') => 'Дату из истории'] : [])
+                            +
                             [
                                 date('Y-m-d', time()) => 'Текущую дату',
                                 date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
@@ -242,7 +244,7 @@ $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'бе
                         <?= DatePicker::widget(
                             [
                                 'name' => 'kartik-date-3',
-                                'value' => date('Y-m-d', time()),
+                                'value' => Yii::$app->request->get('date')? Yii::$app->request->get('date') : date('Y-m-d', time()),
                                 'removeButton' => false,
                                 'pluginOptions' => [
                                     'autoclose' => true,
@@ -259,12 +261,8 @@ $taxRegtimeItems = ['full' => 'Полный (НДС 18%)', 'simplified' => 'бе
 
 
 </div>
-<div class="row" style="clear: both;">
-    <div class="col-sm-6">
-        <div class="col-sm-12 form-group">
-            <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
-        </div>
-    </div>
+<div class="col-sm-12 form-group">
+    <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
 </div>
 <?php ActiveForm::end(); ?>
 

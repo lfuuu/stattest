@@ -12,6 +12,8 @@
     <?= $this->render('block/rightmenu', ['client' => $activeClient]); ?>
 </div>
 
+<div id="history-dialog" title=""></div>
+
 <?= $this->render('block/style'); ?>
 
 

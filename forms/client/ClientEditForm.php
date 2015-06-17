@@ -3,6 +3,7 @@ namespace app\forms\client;
 
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\HistoryVersion;
 use app\models\Region;
 use Yii;
 use app\classes\Form;
@@ -13,6 +14,7 @@ use yii\helpers\ArrayHelper;
 class ClientEditForm extends Form
 {
     protected $clientM = null;
+    public $ddate = null;
 
     public $id,
         $super_id,
@@ -137,7 +139,7 @@ class ClientEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->clientM = ClientAccount::findOne($this->id);
+            $this->clientM = HistoryVersion::getVersionOnDate('ClientAccount', $this->id, $this->ddate);
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }

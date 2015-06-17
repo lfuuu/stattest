@@ -65,6 +65,27 @@
     </li>
 </ul>
 
+<ul style="bottom:0; position: absolute; width: 240px;">
+    <li style="text-align: right;">
+        <span style="float: left;">Контрагент</span>
+        <a href="#" onclick="return showHistory({ClientContragent:<?= $client->contract->contragent->id ?>}, true);">История</a>
+        &nbsp;/&nbsp;
+        <a href="#" onclick="return showVersion({ClientContragent:<?= $client->contract->contragent->id ?>}, true);">Версии</a>
+    </li>
+    <li style="text-align: right;">
+        <span style="float: left;">Договор</span>
+        <a href="#" onclick="return showHistory({ClientContract:<?= $client->contract->id ?>}, true);">История</a>
+        &nbsp;/&nbsp;
+        <a href="#" onclick="return showVersion({ClientContract:<?= $client->contract->id ?>}, true);">Версии</a>
+    </li>
+    <li style="text-align: right;">
+        <span style="float: left;">ЛС</span>
+        <a href="#" onclick="return showHistory({ClientAccount:<?= $client->id ?>}, true);">История</a>
+        &nbsp;/&nbsp;
+        <a href="#" onclick="return showVersion({ClientAccount:<?= $client->id ?>}, true);">Версии</a>
+    </li>
+</ul>
+
 <style>
     .size {
         white-space: nowrap;

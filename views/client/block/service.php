@@ -139,7 +139,7 @@ $ipstat = function ($data) {
                                 <td colspan=2>
                                     <a href="/?pop_services.php?table=usage_ip_routes&id=<?= $net->id ?>"
                                        target="_blank">
-                                        <?= $net->net ?><?= $net->nat_net ? '<br>.$net->nat_net' : '' ?>
+                                        <?= $net->net ?><?= $net->nat_net ? '<br>'.$net->nat_net : '' ?>
                                     </a> (id=<?= $net->id ?>)
                                 </td>
                                 <td><?= $net->actual_from ?>&nbsp;-&nbsp;<?= $net->actual_to ?></td>

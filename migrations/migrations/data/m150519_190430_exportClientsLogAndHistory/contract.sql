@@ -35,8 +35,10 @@ INSERT INTO client_contract
         c.`business_process_status_id`,
         c.`contract_type_id`
         FROM clients c
-        LEFT JOIN client_document cd ON cd.`client_id` = c.`id`
-	      GROUP BY c.`id` HAVING MAX(cd.`contract_date`)
+        LEFT JOIN (
+		  	SELECT * FROM client_document WHERE `type` = 'contract' AND `is_active` = 1 ORDER BY `contract_date` DESC
+		  ) cd ON cd.`client_id` = c.`id`
+		  GROUP BY c.`id`
 ;
 
 UPDATE clients c

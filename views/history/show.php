@@ -5,6 +5,9 @@ use yii\db\ActiveRecord;
 /** @var $model ActiveRecord */
 /** @var $changes HistoryChanges[] */
 ?>
+<?php if(!$changes) :?>
+Изменений не найдено
+<?php else : ?>
 <table class="table table-condensed table-striped table-bordered" style="width: auto; margin-top: 20px">
     <tr>
         <th>Пользователь</th>
@@ -49,3 +52,4 @@ use yii\db\ActiveRecord;
         <?php endforeach; ?>
     <?php endforeach; ?>
 </table>
+<?php endif; ?>

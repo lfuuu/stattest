@@ -7,6 +7,7 @@ use app\models\ClientContragent;
 use app\models\ClientGridBussinesProcess;
 use app\models\ClientGridSettings;
 use app\models\EventQueue;
+use app\models\HistoryVersion;
 use app\models\Organization;
 use app\models\UserDepart;
 use Yii;
@@ -35,6 +36,8 @@ class ContractEditForm extends Form
 
     protected $contract = null;
 
+    public $ddate = null;
+
     public function rules()
     {
         $rules = [
@@ -54,7 +57,7 @@ class ContractEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contract = ClientContract::findOne($this->id);
+            $this->contract = HistoryVersion::getVersionOnDate('ClientContract', $this->id, $this->ddate);
             if ($this->contract === null) {
                 throw new Exception('Contract not found');
             }

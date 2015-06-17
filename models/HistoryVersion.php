@@ -76,7 +76,7 @@ class HistoryVersion extends ActiveRecord
             return $currentModel;
         elseif(null === $date)
             $date = date('Y-m-d');
-        else
+        elseif(null ===  $currentModel)
             $currentModel = new $modelClass();
 
         $historyModel = static::find()

@@ -72,9 +72,9 @@ class ClientController extends BaseController
         ]);
     }
 
-    public function actionEdit($id)
+    public function actionEdit($id, $date = null)
     {
-        $model = new ClientEditForm(['id' => $id]);
+        $model = new ClientEditForm(['id' => $id, 'ddate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             $this->redirect(Url::toRoute(['client/clientview', 'id' => $id]));
