@@ -1,6 +1,6 @@
 <?php
 use app\models\Bill;
-use app\classes\documents\DocumentsFactory;
+use app\classes\documents\DocumentReportFactory;
 
 	define("PATH_TO_ROOT",'../stat/');
 	include PATH_TO_ROOT."conf_yii.php";
@@ -23,7 +23,7 @@ use app\classes\documents\DocumentsFactory;
         $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
         $sendEmail = Yii::$app->request->get('emailed') == 1;
-        $report = DocumentsFactory::me()->getReport($bill, $R['doc_type'], $sendEmail);
+        $report = DocumentReportFactory::me()->getReport($bill, $R['doc_type'], $sendEmail);
         echo $report->render();
     }
     else {

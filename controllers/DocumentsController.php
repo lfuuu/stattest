@@ -6,7 +6,7 @@ use Yii;
 use app\models\Bill;
 use app\classes\Assert;
 use app\classes\BaseController;
-use app\classes\documents\DocumentsFactory;
+use app\classes\documents\DocumentReportFactory;
 
 class DocumentsController extends BaseController
 {
@@ -18,7 +18,7 @@ class DocumentsController extends BaseController
         Assert::isObject($bill);
 
         $sendEmail = Yii::$app->request->get('emailed') == 1;
-        $report = DocumentsFactory::me()->getReport($bill, $doc_type, $sendEmail);
+        $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail);
 
         if ($is_pdf == 1)
             $report->renderAsPDF();

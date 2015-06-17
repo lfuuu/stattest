@@ -1,6 +1,6 @@
 <?
 use app\models\Bill;
-use app\classes\documents\DocumentsFactory;
+use app\classes\documents\DocumentReportFactory;
 use app\classes\documents\DocumentReport;
 
 	//для просмотра клиентами того, что было отправлено через модуль mail
@@ -23,7 +23,7 @@ use app\classes\documents\DocumentReport;
         if ($R['obj'] == 'bill') {
             $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
-            $report = DocumentsFactory::me()->getReport($bill, DocumentReport::BILL_DOC_TYPE, $sendEmail = 1);
+            $report = DocumentReportFactory::me()->getReport($bill, DocumentReport::BILL_DOC_TYPE, $sendEmail = 1);
             echo $report->render();
         }
         else {

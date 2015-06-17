@@ -10,7 +10,7 @@ use app\models\ClientCounter;
 use app\models\Payment;
 use app\models\BillDocument;
 use app\models\Transaction;
-use app\classes\documents\DocumentsFactory;
+use app\classes\documents\DocumentReportFactory;
 
 class m_newaccounts extends IModule
 {
@@ -733,7 +733,7 @@ class m_newaccounts extends IModule
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
-        $availableDocuments = DocumentsFactory::me()->availableDocuments($newbill);
+        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill);
         $documents = [];
         foreach ($availableDocuments as $document) {
             $documents[] = [
