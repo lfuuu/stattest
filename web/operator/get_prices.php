@@ -43,7 +43,7 @@
         $filter .= " and d.mob=false ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
     }elseif ($p_region == 97 && $p_dest == 5){
-        $filter .= " and and d.mob=true ";
+        $filter .= " and d.mob=true ";
         $params[] = array('report_id'=>$report_id,'position'=>1,'pricelist_id'=>38,'param'=>'d1', 'date'=>date('Y-m-d'));
 
     }elseif ($p_region == 98 && $p_dest == 1){
