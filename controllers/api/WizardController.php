@@ -15,6 +15,8 @@ use app\models\ClientFile;
 use app\models\ClientBPStatuses;
 use app\models\TroubleState;
 use app\models\User;
+use app\models\UsageVoip;
+use app\models\UsageVirtpbx;
 use app\forms\contragent\ContragentEditForm;
 use app\forms\lk_wizard\ContactForm;
 
@@ -168,6 +170,8 @@ class WizardController extends /*BaseController*/ApiController
             "client_id" => $this->accountId, 
             "user_id" => User::CLIENT_USER_ID
         ]);
+        
+        $agreement = null;
 
         if (!$contract)
         {
@@ -188,8 +192,37 @@ class WizardController extends /*BaseController*/ApiController
 
             $contract = ClientDocument::findOne([
                 "client_id" => $this->accountId, 
-                "user_id" => User::CLIENT_USER_ID
-            ]);
+                "user_id" => User::CLIENT_USER_ID,
+                "type" => "contract"
+                ]);
+
+
+            if (
+                    UsageVoip::find()   ->client($this->account->client)->count()
+                ||  UsageVirtpbx::find()->client($this->account->client)->count()
+            )
+            {
+                $contractId = ClientDocument::dao()->addContract(
+                    $this->accountId,
+
+                    "agreement",
+                    "MCN",
+                    "agreement",
+
+                    "1",
+                    date("d.m.Y"),
+
+                    "",
+                    "ЛК - wizard",
+                    User::CLIENT_USER_ID
+                );
+
+                $agreement = ClientDocument::findOne([
+                    "client_id" => $this->accountId, 
+                    "user_id" => User::CLIENT_USER_ID,
+                    "type" => "agreement"
+                    ]);
+            }
         }
 
         if ($this->wizard->step == 2)
@@ -198,8 +231,25 @@ class WizardController extends /*BaseController*/ApiController
             $this->wizard->save();
         }
 
-        return "<html><head><meta charset=\"UTF-8\"/></head><body>".$contract->content."</body></html>";
+        $content = "";
+
+        if (!$contract || !$contract->content)
+        {
+            $content = "Ошибка в данных";
+        } else {
+            $content = $contract->content;
+
+            if ($agreement && $agreement->content)
+            {
+                $content .= "<p style=\"page-break-after: always;\"></p>";
+                $content .= $agreement->content;
+            }
+
+        }
+
+        return base64_encode($this->getPDFfromHTML("<html><head><meta charset=\"UTF-8\"/></head><body>".$content."</body></html>"));
     }
+
 
     public function actionSaveDocument()
     {
@@ -301,15 +351,18 @@ class WizardController extends /*BaseController*/ApiController
 
     private function eraseContract()
     {
-        $contract = ClientDocument::findOne([
+        $contracts = ClientDocument::findAll([
             "client_id" => $this->accountId, 
             "user_id" => User::CLIENT_USER_ID
         ]);
 
-        if ($contract)
-            return $contract->erase();
-
-        return false;
+        if ($contracts)
+        {
+            foreach($contracts as $contract)
+            {
+                $contract->erase();
+            }
+        }
     }
 
     private function getContactAndContractList()
@@ -430,5 +483,32 @@ class WizardController extends /*BaseController*/ApiController
         } else {
             return $form->save($this->account);
         }
+    }
+
+    private function getPDFfromHTML($html)
+    {
+        $tmp_dir = sys_get_temp_dir();
+        $file_html = tempnam($tmp_dir, "lk_wizard_html");
+        $file_pdf  = tempnam($tmp_dir, "lk_wizard_pdf");
+
+        unlink($file_html);
+        unlink($file_pdf);
+
+        $file_html = $file_html . ".html";
+        $file_pdf  = $file_pdf  . ".pdf";
+
+        /*wkhtmltopdf*/
+        $options = ' --quiet -L 15 -R 15 -T 15 -B 15';
+
+        file_put_contents($file_html, $html);
+
+        exec($q = "/usr/bin/wkhtmltopdf ".$options." ".$file_html." ".$file_pdf);
+
+        $content = file_get_contents($file_pdf);
+
+        unlink($file_html);
+        unlink($file_pdf);
+
+        return $content;
     }
 }
