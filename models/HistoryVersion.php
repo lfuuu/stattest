@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use yii\base\Model;
 use yii\db\ActiveRecord;
 
 /**
@@ -49,4 +50,42 @@ class HistoryVersion extends ActiveRecord
         }
     }
 
+    //Export the current version for the current object in the table
+    public function exportCurrentVersion()
+    {
+        $modelClass = 'app\\models\\'.$this->model;
+        $currentModel = $modelClass::findOne($this->model_id);
+
+        $currentModel->setAttributes(json_decode($this->data_json, true), false);
+        $currentModel->detachBehavior('HistoryVersion');
+        return $currentModel->save();
+    }
+
+    public static function getVersionOnDate($modelName, $modelId, $date = null)
+    {
+        if(strpos($modelName, 'app\\models\\') === false)
+            $modelClass = 'app\\models\\'.$modelName;
+        else{
+            $modelClass = $modelName;
+            $modelName = substr($modelName, strlen('app\\models\\'));
+        }
+
+        $currentModel = $modelClass::findOne($modelId);
+
+        if(mull===$date && null!==$currentModel)
+            return $currentModel;
+        elseif(null === $date)
+            $date = date('Y-m-d');
+        elseif(null ===  $currentModel)
+            $currentModel = new $modelClass();
+
+        $historyModel = static::find()
+            ->andWhere(['model' => $modelName])
+            ->andWhere(['model_id' => $modelId])
+            ->andWhere(['<=','date',$date])
+            ->orderBy('date DESC')->one();
+
+        $currentModel->setAttributes(json_decode($historyModel['data_json'], true), false);
+        return $currentModel;
+    }
 }

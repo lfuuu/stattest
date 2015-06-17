@@ -123,7 +123,7 @@ class sip
             $data = vSip::get($id, false);
             if($data &&  $fixClient != self::getClientById(self::resolveClientId($data["client_id"])))
             {
-                $_SESSION["clients_client"] = $fixClient = self::getClientById($data["client_id"]);
+                $_SESSION["clients_client"] = $fixClient = $data["client_id"];
             }
         }
 

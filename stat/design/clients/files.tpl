@@ -2,7 +2,7 @@
 <tr><th>имя файла</th><th>комментарий</th><th>кто</th><th>когда&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;</th></tr>
 {foreach from=$files item=item}<tr>
 	<td><a href='{$LINK_START}module=clients&id={$item->id}&action=file_get&cid={$item->client_id}'>{$item.name}</a> 
-    <a href="./?module=clients&id={$item.id}&action=file_send&cid={$item.client_id}"><img border=0 src='images/icons/envelope.gif'></a></td>
+    <a href="/client/clientview?id={$item.id}&action=file_send&cid={$item.client_id}"><img border=0 src='images/icons/envelope.gif'></a></td>
 	<td>{$item->comment}</td>
 	<td>{$item->user->name}</td>
 	<td style='font-size:85%'>{$item->ts|udate:'Y-m-d H:i:s'}</td>

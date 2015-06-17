@@ -5,6 +5,10 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
+ * @property string $comment
+ * @property string $user
+ * @property string $ts
+ * @property int $is_publish
  * @property
  */
 class ClientContractComment extends ActiveRecord

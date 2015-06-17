@@ -54,13 +54,13 @@
     }
 
     .data-block .row{
-        padding: 5px 0;
+        padding: 5px;
         border-top: 1px solid rgb(82, 164, 203);
         background: #f7f7f7;
     }
 
     .data-block .row .row{
-        padding: 5px 0;
+        padding: 5px;
         border-top: 1px solid rgb(82, 164, 203);
         background: #f7f7f7;
     }
@@ -73,7 +73,7 @@
         background: #dcdcdc;
     }
     .status-block>form>.row{
-        padding: 5px 0;
+        padding: 5px;
         border-top: 1px solid #929292;
         background: #f7f7f7;
     }
@@ -97,6 +97,27 @@
 
     .tt-troubles th {
         text-align: center;
+    }
+
+    #rightmenu{
+        padding: 10px;
+        position: fixed;
+        right: 20px;
+        top: 0;
+        border-left: 1px solid black;
+        width: 14%;
+        height: 100%;
+        background: #eeeeee;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    #rightmenu ul{
+        list-style: none;
+        padding-left: 5px;
+    }
+
+    #rightmenu ul li{
+        padding: 5px 0;
     }
 </style>
 

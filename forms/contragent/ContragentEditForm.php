@@ -3,6 +3,7 @@ namespace app\forms\contragent;
 
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
+use app\models\HistoryVersion;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
@@ -11,8 +12,10 @@ class ContragentEditForm extends Form
 {
     public $id;
     public $super_id;
-    protected $person = null;
-    protected $contragent = null;
+    protected $person = null,
+        $contragent = null;
+
+    public $ddate = null;
 
     public $legal_type,
         $name = '',
@@ -61,7 +64,7 @@ class ContragentEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contragent = ClientContragent::findOne($this->id);
+            $this->contragent = HistoryVersion::getVersionOnDate('ClientContragent', $this->id, $this->ddate);
             if ($this->contragent === null) {
                 throw new Exception('Contragent not found');
             }
@@ -100,6 +103,7 @@ class ContragentEditForm extends Form
         $contragent->ogrn = $this->ogrn;
 
         if ($contragent->save()) {
+            $this->setAttributes($contragent->getAttributes(), false);
             if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
                 if (!$person->contragent_id)
                     $person->contragent_id = $contragent->id;

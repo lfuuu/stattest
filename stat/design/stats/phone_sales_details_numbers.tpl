@@ -26,10 +26,10 @@
 		{foreach from=$phones item="p" name="outer"}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td>
-					<a href="?module=clients&id={$p.client_id}">{$p.client_id}</a>
+					<a href="/client/clientview?id={$p.client_id}">{$p.client_id}</a>
 				</td>
 				<td>
-					<a href="?module=clients&id={$p.client}">{$p.client}</a>
+					<a href="/client/clientview?id={$p.client}">{$p.client}</a>
 				</td>
 				<td>
 					{$p.E164}

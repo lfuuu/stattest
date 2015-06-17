@@ -13,7 +13,7 @@ class HistoryVersion extends Behavior
     {
         return [
             ActiveRecord::EVENT_AFTER_INSERT => 'addVersion',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'addVersion'
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'addVersion'
         ];
     }
 
@@ -31,12 +31,13 @@ class HistoryVersion extends Behavior
                     'model_id' => $queryData['model_id'],
                     'date' => $queryData['date'],
         ]);
+
         if ($this->checkDiff($queryData) === false)
             return;
 
         if ($model === null)
             $model = new \app\models\HistoryVersion($queryData);
-        
+
         $model->data_json = json_encode($this->owner->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
         $model->save();
     }

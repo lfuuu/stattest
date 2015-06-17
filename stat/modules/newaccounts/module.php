@@ -85,7 +85,9 @@ class m_newaccounts extends IModule
 
         set_time_limit(60);
 
-        $_SESSION['clients_client'] = $fixclient;
+        $client = ClientAccount::find()->where('id = :id or client = :id', [':id' => $fixclient])->one();
+
+        $_SESSION['clients_client'] = $client->id;
 
         $t = get_param_raw('simple',null);
         if($t!==null)
@@ -1095,7 +1097,7 @@ class m_newaccounts extends IModule
 
                     foreach ($clientAccounts as $clientAccount) {
                         $offset++;
-                        echo "$offset. Лицевой счет: <a target='_blank' href='/?module=clients&id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
+                        echo "$offset. Лицевой счет: <a target='_blank' href='/clients/clientview?id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
 
                         try {
 
@@ -1171,7 +1173,7 @@ class m_newaccounts extends IModule
                     $no=$bill2->GetNo();
                     $v=$bill2->Save(1);
                     if($v)
-                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен<br>");
+                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/clientview?id={$c['id']}'>{$c['client']}</a> выставлен<br>");
                     unset($bill2);
                 }
                 $no=$bill->GetNo();
@@ -1189,7 +1191,7 @@ class m_newaccounts extends IModule
                 }
                 unset($bill);
                 if($v==1){
-                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен".$p."<br>");
+                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/clientview?id={$c['id']}'>{$c['client']}</a> выставлен".$p."<br>");
                     flush();
                 }
             }
@@ -3441,7 +3443,7 @@ class m_newaccounts extends IModule
     global $design,$db;
 
         $design->assign("l_couriers", array("all" => "--- Все ---","checked"=>"--- Установленные --") + Courier::dao()->getList(false));
-        $design->assign("l_metro", array("all" => "--- Все ---") + ClientCS::GetMetroList());
+        $design->assign("l_metro", array("all" => "--- Все ---") + \app\models\Metro::getList());
         $design->assign('courier',$courier=get_param_protected('courier',"all"));
         $design->assign('metro',$metro=get_param_protected('metro',"all"));
         $design->assign('manager',$manager=get_param_protected('manager'));
@@ -3577,7 +3579,7 @@ class m_newaccounts extends IModule
 
             foreach ($R as &$r) {
                 if ($isPrint) {
-                    $r["metro"] = ClientCS::GetMetroName($r["metro_id"]);
+                    $r["metro"] = \app\models\Metro::getList()[$r["metro_id"]];
                 }
                 $r["debt"] = $this->GetDebt($r["client_id"]);
                 $r["courier"] = Courier::dao()->getNameById($r["courier_id"]);
@@ -3727,7 +3729,7 @@ class m_newaccounts extends IModule
         $date_from=$dateFrom->getDay();
         $date_to=$dateTo->getDay();
        
-        $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
+        $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
         Company::setResidents($c["firma"], $date_to);
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
@@ -3858,7 +3860,7 @@ class m_newaccounts extends IModule
         $ressaldo = array('type'=>'saldo','date'=>$date_to_val,'sum_income'=>$S>0?0:-$S,'sum_outcome'=>$S>0?$S:0);
 
 
-        $period_client_data = ClientCS::getOnDate($fixclient_data['id'], $date_from);
+        $period_client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'], $date_from);
         $design->assign("company_full", $period_client_data["company_full"]);
         $design->assign("client_id", $fixclient_data['id']);
         $design->assign("last_contract", BillContract::getLastContract($fixclient_data['id'], $date_from_val));
@@ -4117,7 +4119,7 @@ class m_newaccounts extends IModule
                         $A['inv_date'];
 
                     // get property from history
-                    $c = ClientCS::getOnDate($p['client_id'], date("Y-m-d", $invDate));
+                    $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'], date("Y-m-d", $invDate));
                     $p["company_full"] = trim($c["company_full"]);
                     $p["inn"] = $c["inn"];
                     $p["kpp"] = $c["kpp"];
@@ -4647,12 +4649,18 @@ class m_newaccounts extends IModule
             }
         }
 
-        ClientCS::getClientClient($client_id);
+        $client_id = ClientAccount::find()->where('id = :id or client = :id', [':id' => $client_id])->one()->id;
         $_SESSION['clients_client'] = $client_id;
 
         // инициализация
-        $lMetro = ClientCS::GetList("metro","std");
-        $lLogistic = ClientCS::GetList("logistic");
+        $lMetro = \app\models\Metro::getList();
+        $lLogistic = array(
+            "none" => "--- Не установленно ---",
+            "selfdeliv" => "Самовывоз",
+            "courier" => "Доставка курьером",
+            "auto" => "Доставка авто",
+            "tk" => "Доставка ТК",
+        );
         $design->assign("l_metro", $lMetro);
         $design->assign("l_logistic", $lLogistic);
 

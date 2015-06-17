@@ -6,6 +6,8 @@ use app\models\LkWizardState;
 use app\models\ClientContractType;
 use app\models\ClientBP;
 use app\models\ClientBPStatuses;
+use app\models\ClientContractComment;
+use app\models\ClientAccount;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -207,7 +209,12 @@ if ($action=='add_client') {
     {
         $comment .= $r['number'].' - '.$r['price']."<br/>\n";
     }
-    $db->QueryInsert('client_statuses', array('id_client'=>$client_id,'comment'=>$comment,'user'=>'auto'));
+
+    $comment = new ClientContractComment();
+    $comment->contract_id = ClientAccount::findOne($client_id)->contract_id;
+    $comment->user = 'auto';
+    $comment->comment = $comment;
+    $comment->save();
 
     $isOk = true;
     foreach($_numbers as $number)

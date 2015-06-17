@@ -3,7 +3,10 @@ namespace app\controllers;
 
 use app\forms\client\ClientEditForm;
 use app\forms\contract\ContractEditForm;
-use app\models\Client;
+use app\models\ClientAccount;
+use app\models\ClientBP;
+use app\models\ClientGridSettings;
+use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Trouble;
 use app\models\UsageExtra;
@@ -15,6 +18,7 @@ use app\models\UsageWelltime;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
+use yii\web\Response;
 use yii\helpers\Url;
 
 class ClientController extends BaseController
@@ -28,7 +32,7 @@ class ClientController extends BaseController
 
     public function actionClientview($id)
     {
-        $client = Client::findOne($id);
+        $client = ClientAccount::findOne($id);
         if (!$client)
             throw new Exception('Client not found');
 
@@ -66,12 +70,11 @@ class ClientController extends BaseController
         return $this->render("edit", [
             'model' => $model
         ]);
-
     }
 
-    public function actionEdit($id)
+    public function actionEdit($id, $date = null)
     {
-        $model = new ClientEditForm(['id' => $id]);
+        $model = new ClientEditForm(['id' => $id, 'ddate' => $date]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             $this->redirect(Url::toRoute(['client/clientview', 'id' => $id]));
@@ -81,6 +84,60 @@ class ClientController extends BaseController
             'model' => $model
         ]);
 
+    }
+
+    public function actionIndex()
+    {
+        $searchModel = new ClientSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        if ($dataProvider->query->count() == 1)
+            return $this->redirect(Url::toRoute(['client/clientview', 'id' => $dataProvider->query->one()->id]));
+
+        return $this->render('index', [
+//          'searchModel' => $dataProvider,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionSetblock($id)
+    {
+        $model = ClientAccount::findOne($id);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $model->is_blocked = !$model->is_blocked;
+        $model->save();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return ['status' => 'ok'];
+    }
+
+    public function actionSetvoipdisable($id)
+    {
+        $model = ClientAccount::findOne($id);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $model->voip_disabled = !$model->voip_disabled;
+        $model->save();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return ['status' => 'ok'];
+    }
+
+    public function actionLoadbpstatuses()
+    {
+        $processes = [];
+        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        foreach (ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s) {
+            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+        }
+
+        $res = ["processes" => $processes, "statuses" => $statuses];
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return $res;
     }
 
 }

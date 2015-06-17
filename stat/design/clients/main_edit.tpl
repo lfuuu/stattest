@@ -164,7 +164,7 @@ $(function(){
 {else}
     <div>
     <b>
-        <div style="display: inline-block; min-width: 130px;"> Редактирование клиента <a href="?module=clients&id={$client.client}" style="font-size:14px; color: {if $client.is_active}green{else}black{/if};">{$client.id}</a> :</div>
+        <div style="display: inline-block; min-width: 130px;"> Редактирование клиента <a href="/client/clientview?id={$client.client}" style="font-size:14px; color: {if $client.is_active}green{else}black{/if};">{$client.id}</a> :</div>
         <div style="display: inline-block;">{$client.company}</div>
     </b>
         <div style="display: inline-block;" title="{$account.client}">({$client.client})</div>

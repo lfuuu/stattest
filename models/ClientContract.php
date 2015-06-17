@@ -3,8 +3,6 @@ namespace app\models;
 
 use app\forms\client\ClientEditForm;
 use yii\db\ActiveRecord;
-use app\classes\behaviors\HistoryVersion;
-use app\classes\behaviors\HistoryChanges;
 
 class ClientContract extends ActiveRecord
 {
@@ -36,14 +34,34 @@ class ClientContract extends ActiveRecord
     public function behaviors()
     {
         return [
-            HistoryVersion::className(),
-            HistoryChanges::className(),
+            'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
+    }
+
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if ($this->isNewRecord) {
+            return parent::save($runValidation = true, $attributeNames = null);
+        }
+        else {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+                return parent::save($runValidation = true, $attributeNames = null);
+            } else {
+                $behaviors = $this->behaviors;
+                unset($behaviors['HistoryVersion']);
+                $behaviors = array_keys($behaviors);
+                foreach ($behaviors as $behavior)
+                    $this->detachBehavior($behavior);
+                $this->beforeSave(false);
+            }
+            return true;
+        }
     }
 
     public function getClients()
     {
-        return $this->hasMany(Client::className(), ['contract_id' => 'id']);
+        return $this->hasMany(ClientAccount::className(), ['contract_id' => 'id']);
     }
 
     public function getManagerName()
@@ -102,22 +120,33 @@ class ClientContract extends ActiveRecord
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
+    public function getContragent()
+    {
+        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
         if($insert){
             $client = new ClientEditForm(['contract_id' => $this->id]);
             $client->save();
+            $this->number = $client->id;
+            /*
             if($client->id > $this->id){
                 $this->id = $client->id;
+                $this->number = $this->id.'-'.date('y');
                 $this->save();
                 $client->contract_id = $this->id;
                 $client->save();
             }
             else{
+                $this->number = $this->id.'-'.date('y');
+                $this->save();
                 $client->id = $this->id;
                 $client->save();
             }
+            */
         }
     }
 }

@@ -500,7 +500,6 @@ class m_mail{
 		foreach ($R as $r) {
 			$job = new MailJob($r['job_id']);
 			$job->assign_client_data($fixclient_data);
-			if ($user->GetAsClient()) $db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id='.$r['object_id']);
 			$design->assign('pm_subject',$job->Template('template_subject','html'));
 			$design->assign('pm_body',$job->Template('template_body','html'));
 			$design->AddMain('mail/pm.tpl',1);

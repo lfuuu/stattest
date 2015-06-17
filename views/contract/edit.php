@@ -46,7 +46,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                     . Select2::widget([
                         'model' => $model,
                         'attribute' => 'manager',
-                        'data' => $model->getManagersList(),
+                        'data' => \app\models\User::getManagerList(),
                         'options' => ['placeholder' => 'Начните воодить фамилию'],
                         'pluginOptions' => [
                             'allowClear' => true
@@ -60,7 +60,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                     . Select2::widget([
                         'model' => $model,
                         'attribute' => 'account_manager',
-                        'data' => $model->getAccountManagersList(),
+                        'data' => \app\models\User::getAccountManagerList(),
                         'options' => ['placeholder' => 'Начните воодить фамилию'],
                         'pluginOptions' => [
                             'allowClear' => true
@@ -81,6 +81,8 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                 <label class="control-label" for="deferred-date">Сохранить на</label>
                 <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
                 <?= Html::dropDownList('deferred-date', null,
+                    (Yii::$app->request->get('date')? [Yii::$app->request->get('date') => 'Дату из истории'] : [])
+                    +
                     [
                         date('Y-m-d', time()) => 'Текущую дату',
                         date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
@@ -96,7 +98,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
                 <?= DatePicker::widget(
                     [
                         'name' => 'kartik-date-3',
-                        'value' => date('Y-m-d', time()),
+                        'value' => Yii::$app->request->get('date')? Yii::$app->request->get('date') : date('Y-m-d', time()),
                         'removeButton' => false,
                         'pluginOptions' => [
                             'autoclose' => true,
@@ -110,12 +112,8 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
         </div>
     </div>
 </div>
-<div class="row" style="clear: both;">
-    <div class="col-sm-6">
-        <div class="col-sm-12 form-group">
-            <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
-        </div>
-    </div>
+<div class="col-sm-12 form-group">
+    <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave']); ?>
 </div>
 <?php ActiveForm::end(); ?>
 
@@ -123,7 +121,7 @@ $contractTypes = ['full' => 'Полный (НДС 18%)', 'simplified' => 'без
     <div class="row">
         <div class="col-sm-12">
             <div class="col-sm-12 form-group">
-                <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->id . '})']); ?>
+                <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
                 <span>История изменений</span>
             </div>
         </div>

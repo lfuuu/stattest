@@ -5,6 +5,7 @@ use app\queries\UserQuery;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property integer $id
@@ -75,5 +76,17 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->pass === md5($password);
+    }
+
+    public static function getAccountManagerList()
+    {
+        $arr = self::find()->where(['usergroup' => 'account_managers', 'enabled' => 'yes'])->all();
+        return ArrayHelper::map($arr, 'user', 'name');
+    }
+
+    public static function getManagerList()
+    {
+        $arr = self::find()->where(['usergroup' => 'manager', 'enabled' => 'yes'])->all();
+        return ArrayHelper::map($arr, 'user', 'name');
     }
 }

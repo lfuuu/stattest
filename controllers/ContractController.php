@@ -24,12 +24,20 @@ class ContractController extends BaseController
 
     }
 
-    public function actionEdit($id, $childId = null)
+    public function actionEdit($id, $childId = null, $date = null)
     {
-        $model = new ContractEditForm(['id' => $id]);
+        $model = new ContractEditForm(['id' => $id, 'ddate' => $date]);
+
+        if($childId===null) {
+            parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
+            $params = Yii::$app->request->getQueryParams();
+            $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
+            Yii::$app->request->setQueryParams($params);
+            Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/clientview', 'id' => $childId]));
+            $this->redirect(Url::toRoute(['client/clientview','id'=>$childId]));
         }
 
         return $this->render("edit", [

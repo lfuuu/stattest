@@ -311,23 +311,69 @@ function form_cpe_load(){
 	form_cpe_get_clients(1);
 }
 
-function showHistory(obj) {
+function showHistory(obj, popup) {
     var el = $('.showhistorybutton');
     var loading = false;
     if(loading == false) {
-        if (el.data('sh') !== false) {
+        if(popup === true){
+            if(!$('#history-dialog'))
+                $('#layout-main').append('<div id="history-dialog"></div>');
+            var dialog = $('#history-dialog');
+            dialog.dialog({
+                width:'80%',
+                height:'700'
+            });
+            dialog.empty();
             loading = true;
             $.get('/history/show', obj, function (data) {
-                el.next().after(data);
-                el.text('∧');
-                el.data('sh', false);
+                dialog.append(data);
+                dialog.dialog('open');
                 loading = false;
-            });
+            }, 'html');
         }
-        else {
-            el.text('∨');
-            el.next().next().remove();
-            el.data('sh', true);
+        else{
+            if (el.data('sh') !== false) {
+                loading = true;
+                $.get('/history/show', obj, function (data) {
+                    el.next().after(data);
+                    el.text('∧');
+                    el.data('sh', false);
+                    loading = false;
+                }, 'html');
+            }
+            else {
+                el.text('∨');
+                el.next().next().remove();
+                el.data('sh', true);
+            }
         }
     }
+    return false;
+}
+
+function showVersion(obj, popup) {
+    var el = $('.showhistorybutton');
+    var loading = false;
+    if(loading == false) {
+        if(popup === true){
+            if(!$('#history-dialog'))
+                $('#layout-main').append('<div id="history-dialog"></div>');
+            var dialog = $('#history-dialog');
+            dialog.dialog({
+                width:800,
+                height:700
+            });
+            dialog.empty();
+            loading = true;
+            $.get('/version/show', obj, function (data) {
+                dialog.append(data);
+                dialog.dialog('open');
+                loading = false;
+            }, 'html');
+        }
+        else{
+
+        }
+    }
+    return false;
 }

@@ -6,14 +6,14 @@ use app\models\ClientContractType;
 use app\models\ClientContragent;
 use app\models\ClientGridBussinesProcess;
 use app\models\ClientGridSettings;
+use app\models\EventQueue;
+use app\models\HistoryVersion;
 use app\models\Organization;
 use app\models\UserDepart;
 use Yii;
 use app\classes\Form;
 use yii\base\Exception;
 use app\models\ClientContract;
-use app\models\User;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 class ContractEditForm extends Form
@@ -21,7 +21,7 @@ class ContractEditForm extends Form
     public $id,
         $super_id,
         $contragent_id,
-        $number,
+        $number = '',
         $date,
         $organization,
         $manager,
@@ -35,6 +35,8 @@ class ContractEditForm extends Form
         $public_comment = [];
 
     protected $contract = null;
+
+    public $ddate = null;
 
     public function rules()
     {
@@ -55,7 +57,7 @@ class ContractEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contract = ClientContract::findOne($this->id);
+            $this->contract = HistoryVersion::getVersionOnDate('ClientContract', $this->id, $this->ddate);
             if ($this->contract === null) {
                 throw new Exception('Contract not found');
             }
@@ -63,21 +65,9 @@ class ContractEditForm extends Form
         } elseif ($this->contragent_id) {
             $this->contract = new ClientContract();
             $this->contract->contragent_id = $this->contragent_id;
-            $this->super_id =$this->contract->super_id = ClientContragent::findOne($this->contragent_id)->super_id;
+            $this->super_id = $this->contract->super_id = !$this->super_id ? ClientContragent::findOne($this->contragent_id)->super_id : $this->super_id;
         } else
             throw new Exception('You must send id or contragent_id');
-    }
-
-    public function getAccountManagersList()
-    {
-        $arr = User::find()->where(['usergroup' => 'account_managers', 'enabled' => 'yes'])->all();
-        return ArrayHelper::map($arr, 'user', 'name');
-    }
-
-    public function getManagersList()
-    {
-        $arr = User::find()->where(['usergroup' => 'manager', 'enabled' => 'yes'])->all();
-        return ArrayHelper::map($arr, 'user', 'name');
     }
 
     public function getOrganizationsList()
@@ -96,6 +86,11 @@ class ContractEditForm extends Form
     {
         $arr = ClientGridSettings::find()->all();
         return ArrayHelper::map($arr, 'id', 'name');
+    }
+
+    public function getCurrentBusinessProcessStatus()
+    {
+        return ClientGridSettings::findOne($this->business_process_status_id);
     }
 
     public function getContractTypes()
@@ -133,6 +128,16 @@ class ContractEditForm extends Form
         $contract->setAttributes($this->getAttributes(), false);
 
         if ($contract->save()) {
+            $this->setAttributes($contract->getAttributes(), false);
+
+            ///////////////////
+            $eq = new EventQueue();
+            $eq->event = 'client_set_status';
+            $eq->param = $contract->id;
+            $eq->code = md5('client_set_status'.'|||'.$contract->id);
+
+            $eq->save();
+            /*\voipNumbers::check();*/
             return true;
         }
         return false;
@@ -142,8 +147,6 @@ class ContractEditForm extends Form
     {
         if(!parent::beforeValidate())
             return false;
-
-        $this->number = $this->contragent_id . '-' . date('y');
 
         return true;
     }

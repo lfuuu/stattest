@@ -50,7 +50,7 @@
     <tr>
         <td>{$n.number}</td>
         <td>{$n.price}</td>
-        <td><a href="./?module=clients&id={$n.client_id}">{$n.client}</a></td>
+        <td><a href="/client/clientview?id={$n.client_id}">{$n.client}</a></td>
         <td>
             {if $n.status == 'stop'}
                 <font style="color: blue;">В отстойнике</font>

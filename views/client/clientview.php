@@ -1,4 +1,4 @@
-<div style="padding: 30px;" class="col-sm-10">
+<div style="padding: 30px 15px 0 0;" class="col-sm-10">
     <?= $this->render('block/main', ['sClient' => $sClient, 'activeClient' => $activeClient]); ?>
     <?= $this->render('block/status', ['client' => $activeClient, 'contractForm' => $contractForm]); ?>
     <?= $this->render('block/contact', ['client' => $activeClient]); ?>
@@ -8,20 +8,11 @@
 
 </div>
 
-<div style="
-    padding: 10px;
-    position: fixed;
-    right: 20px;
-    top: 0;
-    border-left: 1px solid black;
-    width: 14%;
-    height: 100%;
-    background: #eeeeee;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-
-">
+<div id="rightmenu">
     <?= $this->render('block/rightmenu', ['client' => $activeClient]); ?>
 </div>
+
+<div id="history-dialog" title=""></div>
 
 <?= $this->render('block/style'); ?>
 

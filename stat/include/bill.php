@@ -28,7 +28,7 @@ class Bill {
 		global $db;
 		if (!$this->client_data)
         {
-            $this->client_data = ClientCS::getOnDate($this->client_id, $this->bill["bill_date"]);
+            $this->client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->client_id, $this->bill["bill_date"]);
         }
 
 		return ($v?($this->client_data[$v]):($this->client_data));
@@ -36,7 +36,7 @@ class Bill {
 
     public function SetClientDate($date)
     {
-           $this->client_data = ClientCS::getOnDate($this->client_id, $date);
+        $this->client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->client_id, $date);
     }
 
 	public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true, $isUserPrepay=false) {

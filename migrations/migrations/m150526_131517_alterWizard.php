@@ -6,8 +6,7 @@ class m150526_131517_alterWizard extends \app\classes\Migration
     {
         $sql = <<<SQL
 ALTER TABLE `lk_wizard_state`
-	ADD COLUMN `contract_id` INT NOT NULL AFTER `account_id`,
-	ADD UNIQUE INDEX `contract_id` (`contract_id`);
+	ADD COLUMN `contract_id` INT NOT NULL AFTER `account_id`;
 
 UPDATE lk_wizard_state s
 	INNER JOIN clients c ON c.`id` = s.`account_id`

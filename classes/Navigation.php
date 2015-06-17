@@ -3,6 +3,7 @@ namespace app\classes;
 
 use Yii;
 use app\models\ClientGridSettings;
+use yii\helpers\Url;
 
 
 class Navigation
@@ -113,28 +114,13 @@ class Navigation
     
     private function addBlockNewClients()
     {
-        
-        $blocks_rows = ClientGridSettings::menuAsArray();
-        
-        foreach($blocks_rows as $block_row)
-        {
-            
-            $block = NavigationBlock::create()
-                ->setId('client_'.$block_row['id'])
-                ->setRights(['clients.read'])
-                ->setTitle($block_row['name']);
-            
-            foreach($block_row['items'] as $item)
-            {   
+        $block = NavigationBlock::create()
+            ->setRights(['clients.read'])
+            ->setTitle('Клиенты');
 
-                $block->addItem($item['name'],$item['link']);
-            }
-                    
-            $this->addBlock($block);
+        $block->addItem('Новый клиент',Url::toRoute(['account/create']));
 
-       
-        }
-        
+        $this->addBlock($block);
     }
 
 }

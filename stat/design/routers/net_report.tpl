@@ -28,7 +28,7 @@
 
 <td valign=top>
 {foreach from=$data.gpon item=item key=key}
-<a href="./?module=clients&id={$item[4]|urlencode}">{$item[4]|htmlentities}</a>&nbsp;({$item[5]})</br>
+<a href="/client/clientview?id={$item[4]|urlencode}">{$item[4]|htmlentities}</a>&nbsp;({$item[5]})</br>
 {/foreach}
 </td>
 

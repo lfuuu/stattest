@@ -805,7 +805,13 @@ class ClientCS {
             $D = $client;
         } else {
             $f = (is_numeric($client)?'id':'client');
-            $D = $db->GetRow("select *, client as client_orig from clients where ".$f."='".addslashes($client)."'");
+            $D = $db->GetRow("
+select cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
+cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
+from clients c
+INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where ".$f."='".addslashes($client)."'");
 
         }
         return $D;
@@ -867,7 +873,7 @@ class ClientCS {
     }
 
 
-
+/*
     function Create($uid = null){
 
         $defaultFields = array(
@@ -906,7 +912,7 @@ class ClientCS {
         $db->Query('insert into clients ('.$q1.') values ('.$q2.')');
         $this->F = array('id'=>$db->GetInsertId(), "client" => $this->client);
         return $this->post_apply($uid,true);
-    }
+    }*/
     function Apply($uid = null) {
         global $db;
         if(!$this->GetDB('id'))
@@ -920,48 +926,6 @@ class ClientCS {
                 return false;
         }
         return $this->post_apply($uid);
-    }
-    function SyncAdditionCards($cl_tid,$from_main=true){
-        global $db;
-        $cl_main_tid = '';
-        if(strrpos($cl_tid, '/')!==false){
-            $cl_main_tid = substr($cl_tid,0,-2);
-        }else{
-            $cl_main_tid = $cl_tid;
-        }
-        $from_tid = ($from_main)?$cl_main_tid:$cl_tid;
-
-        $up_query = "
-            update
-                clients cl
-            left join
-                clients clf
-            on
-                clf.client = '".addcslashes($from_tid, "\\'")."'
-            set
-                cl.company = clf.company,
-                cl.comment = clf.comment,
-                cl.address_jur = clf.address_jur,
-                cl.company_full = clf.company_full,
-                cl.address_post = clf.address_post,
-                cl.address_post_real = clf.address_post_real,
-                cl.inn = clf.inn,
-                cl.kpp = clf.kpp,
-                cl.bik = clf.bik,
-                cl.bank_properties = clf.bank_properties,
-                cl.address_connect = clf.address_connect,
-                cl.phone_connect = clf.phone_connect,
-                cl.previous_reincarnation = clf.previous_reincarnation
-            where
-                (
-                    cl.client like '".addcslashes($cl_main_tid,"\\'")."/_'
-                or
-                    cl.client like '".addcslashes($cl_main_tid,"\\'")."'
-                )
-            and
-                cl.client <> '".addcslashes($from_tid, "\\'")."'
-        ";
-        $db->Query($up_query);
     }
 
     private static $db2 = null;
@@ -1054,7 +1018,7 @@ class ClientCS {
 
             if($dd < 4)
             {
-                $this->D = ClientCS::getOnDate($this->id, $applyTS);
+                $this->D = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->id, $applyTS);
             }
         }
 
@@ -1200,136 +1164,6 @@ class ClientCS {
                 "comment" => $comment)
             );
         }
-    }
-
-    function SetContractType($contractTypeId, $businessProcessId, $businessProcessStatusId)
-    {
-        global $db;
-        $client = app\models\ClientAccount::findOne($this->id);
-
-
-        if (
-            ($client->contract_type_id != $contractTypeId && $contractTypeId != 0)
-            || ($client->business_process_id != $businessProcessId && $businessProcessId != 0)
-            || ($client->business_process_status_id != $businessProcessStatusId && $businessProcessStatusId != 0)
-        )
-        {
-            if($client->contract_type_id != $contractTypeId && $contractTypeId != 0){
-                $client->contract_type_id = $contractTypeId;
-            }
-
-            if ($client->business_process_id != $businessProcessId && $businessProcessId != 0){
-                $client->business_process_id = $businessProcessId;
-            }
-
-            if ($client->business_process_status_id != $businessProcessStatusId && $businessProcessStatusId != 0){
-                $client->business_process_status_id = $businessProcessStatusId;
-            }
-
-            $client->save();
-        }
-    }
-
-    function GetAllStatuses() {
-        global $db;
-        $db->Query("select * from client_statuses where (id_client='".$this->id."') order by ts asc");
-        $R=array(); while ($r=$db->NextRecord()) $R[]=$r;
-        return $R;
-    }
-
-    public static function GetList($listName, $zero = false)
-    {
-
-        switch($listName)
-        {
-            case 'metro': return self::_GetList("metro",$zero); break;
-            case 'price_type': return self::_GetList("g_price_type"); break;
-            case 'logistic': return array(
-                                     "none" => "--- Не установленно ---",
-                                     "selfdeliv" => "Самовывоз",
-                                     "courier" => "Доставка курьером",
-                                     "auto" => "Доставка авто",
-                                     "tk" => "Доставка ТК",
-                                     ); break;
-            default: return array();
-        }
-    }
-
-    private static function _GetList($table, $zero = false)
-    {
-        global $db;
-        static $list = array();
-
-        if(!isset($list[$table]))
-        {
-            $list[$table] = array();
-
-            if($zero == "std")
-            {
-                $list[$table][0] = "--- Не определено ---";
-            }elseif($zero !== false)
-            {
-                $list[$table][0] = $zero;
-            }
-
-            foreach($db->AllRecords("select * from ".$table." order by name") as $m) {
-                $list[$table][$m["id"]] = $m["name"];
-            }
-        }
-        return $list[$table];
-    }
-
-    public static function GetSaleChannelsList()
-    {
-        return self::_GetList("sale_channels", "std");
-    }
-
-    public static function GetPriceTypeList($val = false)
-    {
-        return self::GetList("price_type");
-    }
-
-    public static function GetMetroList()
-    {
-        return self::_GetList("metro", 'std');
-    }
-    public static function GetName($type, $id)
-    {
-        $list = self::GetList($type);
-        if(isset($list[$id]))
-        {
-            return $list[$id];
-        }else{
-            return false;
-        }
-    }
-    public static function GetIdByName($type, $name, $default = false)
-    {
-        foreach(self::GetList($type) as $id => $_name)
-        {
-            if($name == $_name) return $id;
-        }
-        return $default;
-    }
-
-    public static function GetMetroName($mId)
-    {
-        $list = ClientCS::GetMetroList();
-        if (isset($list[$mId]))
-        {
-            if ($mId == 0)
-            {
-                return str_replace("-","",$list[$mId]);
-            }else{
-                return $list[$mId];
-            }
-        }
-    }
-
-    public static function GetPriceType($client)
-    {
-        $d = ClientCS::FetchClient($client);
-        return $d["price_type"] ? $d["price_type"] : ClientCS::getIdByName("price_type", "Розница");
     }
 
     public static function getClientLog($id, $types = array('msg','fields'))

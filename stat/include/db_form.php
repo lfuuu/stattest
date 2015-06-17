@@ -488,7 +488,7 @@ class DbFormUsageVoip extends DbForm {
             if ($this->data['is_moved'])
             {
                 $this->fields['moved_from']=array("type" => "label");
-                $this->data['moved_from'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+                $this->data['moved_from'] = '<a target="_blank" href="/clients/clientview?id='. $check_move->client . '">' . $check_move->client . '</a>';
             }
             $check_move_with_pbx = UsageVirtpbx::checkNumberIsMovedWithPbx( $check_move->client, $this->data['client'],$this->data['actual_from']);
             if (!empty($check_move_with_pbx))
@@ -501,7 +501,7 @@ class DbFormUsageVoip extends DbForm {
         if (!empty($check_move))
         {
             $this->fields['moved_to']=array("type" => "label");
-            $this->data['moved_to'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+            $this->data['moved_to'] = '<a target="_blank" href="/clients/clientview?id='. $check_move->client . '">' . $check_move->client . '</a>';
         }
     }
     public function Display($form_params = array(),$h2='',$h3='') {
@@ -1377,7 +1377,7 @@ class DbFormUsageVirtpbx extends DbForm{
         if (!empty($check_move))
         {
             $this->fields['moved_to']=array("type" => "label");
-            $this->data['moved_to'] = '<a target="_blank" href="index.php?module=clients&id='. $check_move->client . '">' . $check_move->client . '</a>';
+            $this->data['moved_to'] = '<a target="_blank" href="/clients/clientview?id='. $check_move->client . '">' . $check_move->client . '</a>';
         }
     }
     public function Display($form_params = array(),$h2='',$h3='') {

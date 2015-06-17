@@ -30,9 +30,6 @@ class AuthUser {
     var $_Data;
     var $_Priveleges;
 
-    function GetAsClient(){
-        return '';
-    }
     function AuthorizeByUserId($userId){
         $this->loadUserData($userId);
     }

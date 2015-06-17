@@ -43,7 +43,7 @@ $user = Yii::$app->user->identity;
                 </div>
             <?php else: ?>
                 <div style="padding: 2px">Л.С.  
-                    <b><a href="?module=clients&id=<?=$fixclient_data['id']?>">
+                    <b><a href="/client/clientview?id=<?=$fixclient_data['id']?>">
                             <?= $fixclient_data['id'] ?>
                         </a></b>
                     (<b><a href='?module=clients&unfix=1'>снять</a></b>)
@@ -73,7 +73,7 @@ $user = Yii::$app->user->identity;
 
 <div class="layout_main">
     <div style="min-height: 70%">
-    <div id="top_search" style="margin-top: 15px; margin-bottom: 40px">
+    <div id="top_search" style="margin-top: 15px; height: 40px">
         <?php if (Yii::$app->user->can('clients.read')): ?>
             <?= $this->render('widgets/search') ?>
         <?php endif; ?>

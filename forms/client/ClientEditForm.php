@@ -1,7 +1,9 @@
 <?php
 namespace app\forms\client;
 
+use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\HistoryVersion;
 use app\models\Region;
 use Yii;
 use app\classes\Form;
@@ -12,6 +14,7 @@ use yii\helpers\ArrayHelper;
 class ClientEditForm extends Form
 {
     protected $clientM = null;
+    public $ddate = null;
 
     public $id,
         $super_id,
@@ -99,7 +102,7 @@ class ClientEditForm extends Form
                     'client', 'password', 'password_type', 'comment', 'status', 'address_post', 'address_post_real', 'support', 'login', 'bik', 'bank_properties', 'currency', 'currency_bill',
                     'nal', 'telemarketing', 'uid', 'site_req_no', 'hid_rtsaldo_date', 'user_impersonate', 'address_connect', 'phone_connect',
                     'dealer_comment', 'form_type', 'payment_comment', 'cli_1c', 'con_1c', 'corr_acc', 'pay_acc', 'bank_name', 'bank_city', 'sync_1c', 'price_type',
-                    'last_account_date', 'last_payed_voip_month', 'mail_who', 'head_company', 'head_company_address_jur', 'bill_rename1',
+                    'last_account_date', 'mail_who', 'head_company', 'head_company_address_jur', 'bill_rename1',
                     'consignee', 'timezone_name',
                 ],
                 'string'
@@ -107,7 +110,7 @@ class ClientEditForm extends Form
             [
                 [
                     'id', 'super_id', 'contragent_id', 'contract_id', 'country_id', 'stamp', 'sale_channel', 'credit_USD', 'credit_RUB', 'credit', 'id_all4net',
-                    'metro_id', 'previous_reincarnation', 'voip_credit_limit', 'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'region', 'created',
+                    'metro_id', 'previous_reincarnation', 'voip_credit_limit', 'voip_disabled', 'voip_credit_limit_day', 'voip_is_day_calc', 'region',
                     'nds_calc_method', 'admin_contact_id', 'admin_is_active', 'is_bill_only_contract', 'is_bill_with_refund', 'is_with_consignee',
                     'is_upd_without_sign', 'is_active', 'is_blocked', 'is_closed', 'is_agent', 'mail_print'
                 ],
@@ -130,22 +133,22 @@ class ClientEditForm extends Form
 
     public function attributeLabels()
     {
-        return (new Client())->attributeLabels();
+        return (new ClientAccount())->attributeLabels();
     }
 
     public function init()
     {
         if ($this->id) {
-            $this->clientM = Client::findOne($this->id);
+            $this->clientM = HistoryVersion::getVersionOnDate('ClientAccount', $this->id, $this->ddate);
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }
             $this->setAttributes($this->clientM->getAttributes(), false);
         } elseif ($this->contract_id) {
-            $this->clientM = new Client();
+            $this->clientM = new ClientAccount();
             $this->clientM->contract_id = $this->contract_id;
-            $this->contragent_id = $this->clientM->contragent_id = ClientContract::findOne($this->contract_id)->contragent_id;
-            $this->super_id = $this->clientM->super_id = ClientContract::findOne($this->contract_id)->super_id;
+            $this->contragent_id = $this->clientM->contragent_id = !$this->contragent_id ? ClientContract::findOne($this->contract_id)->contragent_id : $this->contragent_id;
+            $this->super_id = $this->clientM->super_id = !$this->super_id ? ClientContract::findOne($this->contract_id)->super_id : $this->super_id;
         } else
             throw new Exception('You must send id or contract_id');
 
