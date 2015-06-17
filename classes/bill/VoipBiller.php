@@ -2,6 +2,7 @@
 namespace app\classes\bill;
 
 use app\classes\Assert;
+use app\classes\Utils;
 use app\models\LogTarif;
 use app\models\TariffVoip;
 use Yii;
@@ -12,6 +13,11 @@ class VoipBiller extends Biller
     private $logTariff = false;
     /** @var TariffVoip */
     private $tariff = false;
+
+    public function getTranslateFilename()
+    {
+        return 'biller-voip';
+    }
 
     public function beforeProcess()
     {
@@ -39,28 +45,31 @@ class VoipBiller extends Biller
         }
         $price += $this->tariff->once_number;
 
-        $template = 'Подключение к IP-телефонии по тарифу {name}';
+        $template = 'voip_connection';
+        $template_data = [
+            'tariff' => $this->tariff->name
+        ];
 
         $this->addPackage(
             BillerPackageConnecting::create($this)
-                ->setName($this->tariff->name)
-                ->setTemplate($template)
                 ->setPrice($price)
+                ->setTemplate($template)
+                ->setTemplateData($template_data)
         );
     }
 
     protected function processPeriodical()
     {
         if ($this->tariff->month_number > 0) {
-            $template = 'Абонентская плата за телефонный номер {name}' . $this->getPeriodTemplate(self::PERIOD_MONTH);
+            $template = 'voip_monthly_fee_per_number';
+            $template_data = [
+                'service' => $this->usage->E164,
+                'by_agreement' => ''
+            ];
 
             if ($this->clientAccount->bill_rename1 == 'yes') {
-                if (strpos($template, "бонентская плата за") !== false) {
-                    $contractInfo = $this->getContractInfo();
-                    if ($contractInfo) {
-                        $template = "Оказанные услуги за " . mb_substr($template, mb_strpos($template, "за ", 0, 'utf-8') + 3, null, 'utf-8') . $contractInfo;
-                    }
-                }
+                $template = 'voip_monthly_fee_per_number_custom';
+                $template_data['by_agreement'] = $this->getContractInfo();
             }
 
             $this->addPackage(
@@ -68,28 +77,26 @@ class VoipBiller extends Biller
                     ->setPeriodType($this->tariff->period)
                     ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
-                    ->setName($this->usage->E164)
-                    ->setTemplate($template)
                     ->setPrice($this->tariff->month_number)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         }
 
         if ($this->usage->no_of_lines > 1 && $this->tariff->month_line > 0) {
             $count = $this->usage->no_of_lines - 1;
 
-            $template =
-                'Абонентская плата за ' . $count .
-                ' телефонн' . $this->rus_fin($count, 'ую', 'ые', 'ых') .
-                ' лин' . $this->rus_fin($count, 'ию', 'ии', 'ий') . ' к номеру {name}' .
-                $this->getPeriodTemplate(self::PERIOD_MONTH);
+            $template = 'voip_monthly_fee_per_line';
+            $template_data = [
+                'lines_number' => $count,
+                'plural_first' => Utils::rus_plural($count, 'ую', 'ые', 'ых'),
+                'plural_second' => Utils::rus_plural($count, 'ию', 'ии', 'ий'),
+                'service' => $this->usage->E164
+            ];
 
             if ($this->clientAccount->bill_rename1 == 'yes') {
-                if (strpos($template, "бонентская плата за") !== false) {
-                    $contractInfo = $this->getContractInfo();
-                    if ($contractInfo) {
-                        $template = "Оказанные услуги за " . mb_substr($template, mb_strpos($template, "за ", 0, 'utf-8') + 3, null, 'utf-8') . $contractInfo;
-                    }
-                }
+                $template = 'voip_monthly_fee_per_line_custom';
+                $template_data['by_agreement'] = $this->getContractInfo();
             }
 
             $this->addPackage(
@@ -97,10 +104,10 @@ class VoipBiller extends Biller
                     ->setPeriodType($this->tariff->period)
                     ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
-                    ->setName($this->usage->E164)
-                    ->setTemplate($template)
                     ->setAmount($count)
                     ->setPrice($this->tariff->month_line)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         }
     }
@@ -118,62 +125,80 @@ class VoipBiller extends Biller
             $minPaymentTemplate = null;
 
             if ($dest == '4'){
-                $template = 'Превышение лимита, включенного в абонентскую плату по номеру {name} (местные вызовы)';
+                $template = 'voip_overlimit';
             }elseif($dest == '5'){
-                $template = 'Плата за звонки на местные мобильные с номера {name}';
+                $template = 'voip_local_mobile_call_payment';
                 $minPayment = $this->logTariff->minpayment_local_mob;
-                $minPaymentTemplate = 'Минимальный платеж за звонки на местные мобильные с номера {name}';;
+                $minPaymentTemplate = 'voip_local_mobile_call_minpay';
             }elseif($dest == '1'){
-                $template = 'Плата за междугородные звонки с номера {name}';
+                $template = 'voip_long_distance_call_payment';
                 $minPayment = $this->logTariff->minpayment_russia;
-                $minPaymentTemplate = 'Минимальный платеж за междугородные звонки с номера {name}';
+                $minPaymentTemplate = 'voip_long_distance_call_minpay';
             }elseif($dest == '2'){
-                $template = 'Плата за международные звонки с номера {name}';
+                $template = 'voip_international_call_payment';
                 $minPayment = $this->logTariff->minpayment_intern;
-                $minPaymentTemplate = 'Минимальный платеж за международные звонки с номера {name}';
+                $minPaymentTemplate = 'voip_international_call_minpay';
             }elseif($dest == '100'){
                 $group = array();
-                if (strpos($this->logTariff->dest_group, '5') !== FALSE) $group[]='местные мобильные';
-                if (strpos($this->logTariff->dest_group, '1') !== FALSE) $group[]='междугородные';
-                if (strpos($this->logTariff->dest_group, '2') !== FALSE) $group[]='международные';
-                $group = implode(', ', $group);
+                if (strpos($this->logTariff->dest_group, '5') !== FALSE)
+                    $group[] = Yii::t(
+                        $this->getTranslateFilename(),
+                        'voip_group_local',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    );
+                if (strpos($this->logTariff->dest_group, '1') !== FALSE)
+                    $group[] = Yii::t(
+                        $this->getTranslateFilename(),
+                        'voip_group_long_distance',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    );
+                if (strpos($this->logTariff->dest_group, '2') !== FALSE)
+                    $group[] = Yii::t(
+                        $this->getTranslateFilename(),
+                        'voip_group_international',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    );
 
-                $template = "Плата за звонки в наборе ($group) с номера {name}";
+                $template_data['group'] = implode(', ', $group);
+
+                $template = 'voip_group_payment';
                 $minPayment = $this->logTariff->minpayment_group;
-                $minPaymentTemplate = "Минимальный платеж за набор ($group) с номера {name}";
+                $minPaymentTemplate = 'voip_group_minpay';
             }elseif($dest == '900'){
                 if ($is7800) {
-                    $template = 'Плата за звонки по номеру {name}';
+                    $template = 'voip_calls_payment';
                     $minPayment = $this->tariff->month_min_payment;
-                    $minPaymentTemplate = 'Минимальный платеж за звонки по номеру {name}';
+                    $minPaymentTemplate = 'voip_calls_minpay';
                 } else {
-                    $template = 'Плата за звонки по номеру {name} (местные, междугородные, международные)';
+                    $template = 'voip_group_calls_payment';
                 }
 
             }
 
-            $template .= $this->getPeriodTemplate(self::PERIOD_MONTH);
-            if ($minPaymentTemplate) {
-                $minPaymentTemplate .= $this->getPeriodTemplate(self::PERIOD_MONTH);
-            }
+            $template_data = [
+                'service' => $this->usage->E164,
+                'by_agreement' => ''
+            ];
 
             if ($this->clientAccount->bill_rename1 == 'yes') {
-                if (strpos($template, "Плата за звонки по номеру") !== false) {
-                    $template = str_replace("Плата", "Оказанные услуги", $template) . $this->getContractInfo();
-                }
-                if ($minPaymentTemplate && strpos($minPaymentTemplate, "Плата за звонки по номеру") !== false) {
-                    $minPaymentTemplate = str_replace("Плата", "Оказанные услуги", $minPaymentTemplate) . $this->getContractInfo();
+                $template_data['by_agreement'] = $this->getContractInfo();
+                if ($template == 'voip_calls_payment' || $template == 'voip_group_calls_payment') {
+                    $template .= '_custom';
                 }
             }
 
             $this->addPackage(
                 $package =
                     BillerPackageResource::create($this)
-                        ->setName($this->usage->E164)
                         ->setPrice($r['price'])
-                        ->setTemplate($template)
                         ->setMinPayment($minPayment)
                         ->setMinPaymentTemplate($minPaymentTemplate)
+                        ->setPeriodType(self::PERIOD_MONTH) // Need for localization
+                        ->setTemplate($template)
+                        ->setTemplateData($template_data)
             );
         }
     }
@@ -262,19 +287,6 @@ class VoipBiller extends Biller
         uksort($lines, '\app\classes\bill\cmp_calc_voip_by_dest');
 
         return $lines;
-    }
-
-    private function rus_fin($v,$s1,$s2,$s3)
-    {
-        if ($v == 11)
-            return $s3;
-        if (($v % 10) == 1)
-            return $s1;
-        if (($v % 100) >= 11 && ($v % 100) <= 14)
-            return $s3;
-        if (($v % 10) >= 2 && ($v % 10) <= 4)
-            return $s2;
-        return $s3;
     }
 
 }

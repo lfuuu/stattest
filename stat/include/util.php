@@ -1,4 +1,7 @@
 <?php
+
+use app\classes\Utils;
+
 define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
 
@@ -426,7 +429,6 @@ function mask_match($ip,$mask){
     return 1;
 }
 
-
 function dateReplaceMonth($string,$nMonth){
     $p=array('января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря');
     $string=str_replace('месяца',$p[$nMonth-1],$string);
@@ -445,17 +447,6 @@ function mdate($format,$ts=0){
     return dateReplaceMonth($s, $d['mon']);
 }
 
-function rus_fin($v,$s1,$s2,$s3){
-     if($v==11)
-        return $s3;
-    if(($v%10)==1)
-        return $s1;
-    if(($v%100)>=11 && ($v%100)<=14)
-        return $s3;
-    if(($v%10)>=2 && ($v%10)<=4)
-        return $s2;
-    return $s3;
-}
 class util{
     public static function pager($pref = "")
     {
@@ -523,100 +514,35 @@ class util{
     }
 }
 
-
-class Wordifier {
-    private static $curBig=array('USD'=>array('доллар США','доллара США','долларов США'),'RUB'=>array('рубль','рубля','рублей'));
-    private static $curSmall=array('USD'=>array('цент','цента','центов'),'RUB'=>array('копейка','копейки','копеек'));
-    private static $num10 = array("","один ","два ","три ","четыре ","пять ","шесть ","семь ","восемь ","девять ",);
-    private static $num10x = array("","одна ","две ","три ","четыре ","пять ","шесть ","семь ","восемь ","девять ",);
-    private static $num20 = array("десять ","одиннадцать ","двенадцать ","тринадцать ","четырнадцать ","пятнадцать ","шестнадцать ","семнадцать ","восемнадцать ","девятнадцать ");
-    private static $num100 = array("","","двадцать ","тридцать ","сорок ","пятьдесят ","шестьдесят ","семьдесят ","восемьдесят ","девяносто ");
-    private static $num1000 = array("","сто ","двести ","триста ","четыреста ","пятьсот ","шестьсот ","семьсот ","восемьсот ","девятьсот " );
-    private static $sections = array(array(' ',' ',' '),array('тысяча','тысячи','тысяч'),array("миллион","миллиона","миллионов"),array("миллиард","миллиарда","миллиардов"));
-
-    private static function MakeSections($num,$sect){
-
-        if($num>=1000){
-            $s = Wordifier::MakeSections(floor($num/1000),$sect+1).' ';
-            $num=$num%1000;
-        }else
-            $s='';
-        $s .= Wordifier::$num1000[floor($num/100)];
-        $num = $num%100;
-        if($num>=10 && $num<=19){
-            $s .= Wordifier::$num20[$num-10];
-        }else{
-            $s .= Wordifier::$num100[floor($num/10)];
-            $num=$num%10;
-            if($sect==1){
-                $s .= Wordifier::$num10x[$num];
-            }else{
-                $s .= Wordifier::$num10[$num];
-            }
-        }
-        $s .= rus_fin($num,Wordifier::$sections[$sect][0],Wordifier::$sections[$sect][1],Wordifier::$sections[$sect][2]);
-        if($sect==0)
-            return array($s,$num);
-        else
-            return $s;
-    }
-
-    public static function Make($num,$currency){
-        $num = round($num,2);
-
-        $isMinus = false;
-
-        if($num < 0) {
-            $num = abs($num); 
-            $isMinus = true;
-        }
-
-
-        if(floor($num)==0)
-            $v = array('ноль ',0);
-        else
-            $v = Wordifier::MakeSections(floor($num),0);
-        $s=$v[0];
-
-        if($isMinus)
-        {
-            $s = "минус ".$s;
-        }
-
-        $s=strtr(mb_substr($s,0,1,'utf-8'),"мнодтчпшсв","МНОДТЧПШСВ").mb_substr($s,1,-1,'utf-8');
-        //$s=mb_strtoupper(mb_substr($s,0,1)).mb_substr($s,1);
-        //$s=mb_strtoupper(mb_substr($s,0,1,'utf-8'),'utf-8').mb_substr($s,1,-1,'utf-8');
-        $s.=rus_fin($v[1],Wordifier::$curBig[$currency][0],Wordifier::$curBig[$currency][1],Wordifier::$curBig[$currency][2]);
-        $c=round(($num-floor($num))*100);
-        $s.=' '.sprintf("%02d", $c).' '.rus_fin($c,Wordifier::$curSmall[$currency][0],Wordifier::$curSmall[$currency][1],Wordifier::$curSmall[$currency][2]);
-        return $s;
-    }
-}
-
 function get_inv_date_period($date) {
     $d=getdate($date);
     $v = mktime(0,0,0,$d['mon'],1,$d['year']);
     return $v;
 }
-function get_inv_date($date,$source) {
-    $d=getdate($date);
-    $v = mktime(0,0,0,$d['mon'],1,$d['year']);
-    if ($source!=1) {
+
+function get_inv_date($date, $source) {
+    $d = getdate($date);
+    $v = mktime(0, 0, 0, $d['mon'], 1, $d['year']);
+    if ($source != 1) {
         $d['mon']--;
-        if (!$d['mon']) {$d['year']--; $d['mon']=12;}
+        if (!$d['mon']) {
+            $d['year']--;
+            $d['mon']=12;
+        }
     }
-    if ($source==3) {
+    if ($source == 3) {
         $tm = $date;
-    } else {
-        $tm = mktime(0,0,0,$d['mon'],cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']),$d['year']);
     }
-    return array($tm,$v);
+    else {
+        $tm = mktime(0, 0, 0, $d['mon'], cal_days_in_month(CAL_GREGORIAN, $d['mon'], $d['year']), $d['year']);
+    }
+
+    return [$tm, $v];
 }
 
-function get_inv_period($date)
-{
-    $d=getdate($date);
-    return mktime(0,0,0,$d['mon'],1,$d['year']);
+function get_inv_period($date) {
+    $d = getdate($date);
+    return mktime(0, 0, 0, $d['mon'], 1, $d['year']);
 }
 
 function debug_arr($V) {
@@ -658,7 +584,7 @@ function time_period($v) {
     } elseif ($h && $m) {
         return sprintf('%02d:%02d',$h,$m);
     } elseif ($h && !$m) {
-        return $h.' час'.rus_fin($h,'','а','ов');
+        return $h.' час'.Utils::rus_plural($h,'','а','ов');
     } else {
         return     sprintf('0:%02d',$m);
     }

@@ -44,6 +44,9 @@ abstract class BillerPackage
     /** @var DateTime */
     protected $usageActualTo;
 
+    protected $periodType;
+    protected $templateData;
+
     public static function create(Biller $biller)
     {
         $package = new static();
@@ -90,6 +93,18 @@ abstract class BillerPackage
         return $this;
     }
 
+    public function setPeriodType($periodType)
+    {
+        $this->periodType = $periodType;
+        return $this;
+    }
+
+    public function setTemplateData($data)
+    {
+        $this->templateData = $data;
+        return $this;
+    }
+
     abstract public function createTransaction();
 
     protected function calculateSum(Transaction $transaction, DateTime $periodFrom = null, DateTime $periodTo = null)
@@ -132,6 +147,27 @@ abstract class BillerPackage
             $template = $this->template;
         }
 
+        $i18n_params = $this->templateData;
+
+        if ($this->periodType)
+            $i18n_params['date_range'] = Yii::t(
+                'biller',
+                $this->biller->getPeriodTemplate($this->periodType),
+                [
+                    $from->getTimestamp(),
+                    $to->getTimestamp()
+                ],
+                $this->clientAccount->contragent->country->lang
+            );
+
+        $name  = Yii::t(
+            $this->biller->getTranslateFilename(),
+            $this->template,
+            $i18n_params,
+            $this->clientAccount->contragent->country->lang
+        );
+
+        /*
         $name = str_replace('{name}', $this->name, $template);
 
         $name = str_replace('{fromDay}', $from->format('d'), $name);
@@ -141,6 +177,7 @@ abstract class BillerPackage
         $monthSrc = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         $monthDst = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
         $name = str_replace($monthSrc, $monthDst, $name);
+        */
 
         return $name;
     }
