@@ -23,6 +23,7 @@ abstract class DocumentReport extends Object
      * @var Bill
      */
     public $bill;
+    public $sendEmail;
     public $lines = [];
 
     public
@@ -83,7 +84,7 @@ abstract class DocumentReport extends Object
 
     public function isMail()
     {
-        return (Yii::$app->request->get('emailed') == 1 ? true : false);
+        return $this->sendEmail;
     }
 
     /**
@@ -92,6 +93,15 @@ abstract class DocumentReport extends Object
     public function setBill(Bill $bill = null)
     {
         $this->bill = $bill;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setSendEmail($sendEmail)
+    {
+        $this->sendEmail = $sendEmail;
         return $this;
     }
 

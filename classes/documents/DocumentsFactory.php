@@ -2,11 +2,16 @@
 
 namespace app\classes\documents;
 
+use app\classes\Singleton;
 use Yii;
 use app\classes\Assert;
 use app\models\Bill;
 
-class DocumentsFactory
+/**
+ * @method static DocumentsFactory me($args = null)
+ * @property
+ */
+class DocumentsFactory extends Singleton
 {
 
     private static function getDocTypes()
@@ -49,19 +54,19 @@ class DocumentsFactory
     }
 
     /**
-     * @return DocumentReport|bool
+     * @return DocumentReport
      */
-    public function getReport(Bill $bill, $docType)
+    public function getReport(Bill $bill, $docType, $sendEmail = false)
     {
         foreach (self::availableDocuments($bill, $docType) as $documentReport) {
             return
                 $documentReport
+                    ->setSendEmail($sendEmail)
                     ->setBill($bill)
                     ->prepare();
         }
 
         Assert::isUnreachable('Document report not found');
-        return false;
     }
 
 

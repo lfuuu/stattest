@@ -23,7 +23,8 @@ class BillDocRepHuRUB extends DocumentReport
 
     public function getName()
     {
-        return 'Счет (предоплата) HuRub (Alfa)';
+        return 'Счет (предоплата)';
+        //return 'Díjbekérő';
     }
 
 }

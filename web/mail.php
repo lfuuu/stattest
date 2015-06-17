@@ -1,4 +1,8 @@
 <?
+use app\models\Bill;
+use app\classes\documents\DocumentsFactory;
+use app\classes\documents\DocumentReport;
+
 	//для просмотра клиентами того, что было отправлено через модуль mail
 
     header('Content-Type: text/html; charset=utf-8');
@@ -16,8 +20,17 @@
 		$R['obj'] = $o["object_type"];
 		$R['source'] = $o["source"];
 
-		$design->assign('emailed',1);
-		$_GET = $R; \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
-		$design->Process();
+        if ($R['obj'] == 'bill') {
+            $bill = Bill::findOne(['bill_no' => $R['bill']]);
+
+            $report = DocumentsFactory::me()->getReport($bill, DocumentReport::BILL_DOC_TYPE, $sendEmail = 1);
+            echo $report->render();
+        }
+        else {
+            $design->assign('emailed',1);
+            $_GET = $R;
+            \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
+            $design->Process();
+        }
 	}
 ?>

@@ -733,11 +733,11 @@ class m_newaccounts extends IModule
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
-        $availableDocuments = (new \app\classes\documents\DocumentsFactory())->availableDocuments($newbill);
+        $availableDocuments = DocumentsFactory::me()->availableDocuments($newbill);
         $documents = [];
         foreach ($availableDocuments as $document) {
             $documents[] = [
-                'class' => $document->className(),
+                'class' => $document->getDocType(),
                 'title' => $document->getName(),
             ];
         }
@@ -1308,27 +1308,53 @@ class m_newaccounts extends IModule
         );
 
         foreach ($D as $k=>$rs) {
-            foreach ($rs as $r) if (get_param_protected($r)) {
-                $R = array('bill'=>$bill_no,'object'=>$r,'client'=>$bill->Get('client_id'), 'is_pdf' => $is_pdf);
-                if(isset($_REQUEST['without_date'])){
-                    $R['without_date'] = 1;
-                    $R['without_date_date'] = $_REQUEST['without_date_date'];
-                }
-                $link = array();
-                if(in_array($r, array("notice", "order")))
-                {
-                    $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
-                    $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
-                }
+            foreach ($rs as $r) {
+                if (get_param_protected($r)) {
+                    $R = array('bill'=>$bill_no,'object'=>$r,'client'=>$bill->Get('client_id'), 'is_pdf' => $is_pdf);
+                    if(isset($_REQUEST['without_date'])){
+                        $R['without_date'] = 1;
+                        $R['without_date_date'] = $_REQUEST['without_date_date'];
+                    }
+                    $link = array();
+                    if(in_array($r, array("notice", "order")))
+                    {
+                        $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
+                        $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
+                    }
 
 
-                $R['emailed'] = '1';
-                $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
-                $R['emailed'] = '0';
-                $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
-                foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
+                    $R['emailed'] = '1';
+                    $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
+                    $R['emailed'] = '0';
+                    $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
+                    foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
+                }
             }
         }
+
+        $documentReports = get_param_raw('document_reports', []);
+        $document_link = [];
+        for ($i=0, $s=sizeof($documentReports); $i<$s; $i++) {
+            $link_params = [
+                'bill'      => $bill_no,
+                'client'    => $bill->Get('client_id'),
+                'doc_type'  => $documentReports[$i],
+                'is_pdf'    => $is_pdf,
+            ];
+
+            $document_link[] = LK_PATH . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
+            $document_link[] = LK_PATH . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
+
+            foreach ($template as $pos => &$item) {
+                switch ($documentReports[$i]) {
+                    case 'bill':
+                        $item .= 'Счет: ';
+                        break;
+                }
+                $item .= '<a href="' . $document_link[$pos] . '">' . $document_link[$pos] . '</a>';
+            }
+        }
+
         $design->ProcessEx();
 
         $cs=new ClientCS($bill->Client('id'));
@@ -1384,23 +1410,22 @@ class m_newaccounts extends IModule
         $R = array();
         $P = '';
 
-
         $isFromImport = get_param_raw("from", "") == "import";
         $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
+
+        $documentReports = get_param_raw('document_reports', array());
 
         $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('akt-1','akt-2','akt-3', 'order','notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv','nbn_modem','nbn_gds'));
-        $L = array_merge($L, ['app\classes\documents\BillDocRepHuRUB', 'app\classes\documents\BillDocRepRuRUB']);
 
         //$L = array("invoice-1");
 
         //$bills = array("201204-0465");
 
             $idxs = array();
-
 
         foreach($bills as $bill_no)
         {
@@ -1538,6 +1563,17 @@ class m_newaccounts extends IModule
                     $P.=($P?',':'').'1';
                 }
             }
+
+            if (sizeof($documentReports)) {
+                foreach ($documentReports as $documentReport) {
+                    $R[] = [
+                        'bill_no' => $bill_no,
+                        'doc_type' => $documentReport,
+                    ];
+                    $P .= ($P ? ',' : '') . '1';
+                }
+            }
+
             unset($bill);
         }
 
@@ -1566,6 +1602,7 @@ class m_newaccounts extends IModule
         if ($one_pdf == '1') {
             $this->create_pdf_from_docs($fixclient, $R);
         }
+
         $design->assign('is_pdf',$is_pdf);
         $design->assign('rows',$P);
         $design->assign('objects',$R);
@@ -1796,15 +1833,6 @@ class m_newaccounts extends IModule
         if($obj == "order")
         {
             $this->docs_echoFile(STORE_PATH."order2.pdf", "Смена директора МСН Телеком.pdf");
-            exit();
-        }
-
-        if (strpos($object, 'DocRep') !== false) {
-            $document = DocumentsFactory::me()->getReport(\app\models\Bill::findOne(['bill_no'=>$bill_no]), $obj);
-            if ($is_pdf)
-                $document->renderAsPDF();
-            else
-                echo $document->render();
             exit();
         }
 

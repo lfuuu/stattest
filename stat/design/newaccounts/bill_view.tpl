@@ -199,12 +199,11 @@
 
 {if $available_documents}
     {foreach from=$available_documents item=item}
-        <input type="checkbox" name="{$item.class}" value="1" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label><br />
+        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label><br />
     {/foreach}
 {/if}
 
-
-<input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет (предоплата)</label><br>
+<!--input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет (предоплата)</label><br-->
 <input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if $client.mail_print =="no"} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
 
 <input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1 абонентка)</label><br>
