@@ -207,7 +207,7 @@ class WizardController extends /*BaseController*/ApiController
 
                     "agreement",
                     "MCN",
-                    "agreement",
+                    "Zakaz_Uslug",
 
                     "1",
                     date("d.m.Y"),
