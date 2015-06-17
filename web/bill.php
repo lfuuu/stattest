@@ -1,6 +1,7 @@
 <?php
 use app\models\Bill;
 use app\classes\documents\DocumentReportFactory;
+use app\classes\documents\DocumentReport;
 
 	define("PATH_TO_ROOT",'../stat/');
 	include PATH_TO_ROOT."conf_yii.php";
@@ -12,18 +13,24 @@ use app\classes\documents\DocumentReportFactory;
         $db->Query('update newbill_send set state="viewed" where bill_no="'.$R['bill'].'"');
     }
 	$_GET=$R;
-	if (isset($R['is_pdf']) && $R['is_pdf'] == 1) 
+	if (isset($R['is_pdf']) && $R['is_pdf'] == 1)
 	{
 		header('Content-Type: application/pdf');
 	}else {
 		header('Content-Type: text/html; charset=utf-8');
 	}
 
-    if (isset($R['doc_type'])) {
+    if (
+        isset($R['doc_type'])
+        || (
+            isset($R['object'])
+            && strpos($R['object'], 'bill') == 0
+        )
+    ) {
         $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
         $sendEmail = Yii::$app->request->get('emailed') == 1;
-        $report = DocumentReportFactory::me()->getReport($bill, $R['doc_type'], $sendEmail);
+        $report = DocumentReportFactory::me()->getReport($bill, (!isset($R['doc_type']) ? DocumentReport::BILL_DOC_TYPE : $R['doc_type']), $sendEmail);
         echo $report->render();
     }
     else {
