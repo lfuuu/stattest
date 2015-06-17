@@ -24,7 +24,8 @@ class BillDocRepHuHUF extends DocumentReport
 
     public function getName()
     {
-        return 'Díjbekérő';
+        return 'Счет (предоплата)';
+        //return 'Díjbekérő';
     }
 
 }
