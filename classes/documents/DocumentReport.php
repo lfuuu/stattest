@@ -113,6 +113,7 @@ abstract class DocumentReport extends Object
         return $this
             ->fetchLines()
             ->filterLines()
+            ->postProcessingLines()
             ->calculateSummary();
     }
 
@@ -220,6 +221,14 @@ abstract class DocumentReport extends Object
 
         $this->lines = $filtered_lines;
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function postProcessingLines()
+    {
         return $this;
     }
 

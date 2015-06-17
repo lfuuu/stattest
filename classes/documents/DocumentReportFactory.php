@@ -25,7 +25,7 @@ class DocumentReportFactory extends Singleton
     /**
      * @return DocumentReport[]
      */
-    public function availableDocuments(Bill $bill, $docType = null)
+    public function availableDocuments(Bill $bill, $docType = false)
     {
         $currency = $bill->currency;
         $language = $bill->clientAccount->contragent->country->lang;
@@ -36,16 +36,16 @@ class DocumentReportFactory extends Singleton
     /**
      * @return DocumentReport[]
      */
-    public function availableDocumentsEx($language = null, $currency = null, $docType = null)
+    public function availableDocumentsEx($language = false, $currency = false, $docType = false)
     {
         $result = [];
 
         foreach (self::getDocTypes() as $documentClass) {
             $documentReport = new $documentClass;
 
-            if ($docType !== null && $documentReport->getDocType() != $docType) continue;
-            if ($language !== null && $documentReport->getLanguage() != $language) continue;
-            if ($currency !== null && $documentReport->getCurrency() != $currency) continue;
+            if ($docType !== false && $documentReport->getDocType() != $docType) continue;
+            if ($language !== false && $documentReport->getLanguage() != $language) continue;
+            if ($currency !== false && $documentReport->getCurrency() != $currency) continue;
 
             $result[] = $documentReport;
         }

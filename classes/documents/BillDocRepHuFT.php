@@ -12,8 +12,7 @@ class BillDocRepHuRUB extends DocumentReport
 
     public function getCurrency()
     {
-        //return self::CURRENCY_FT;
-        return self::CURRENCY_RUB;
+        return self::CURRENCY_FT;
     }
 
     public function getDocType()
@@ -23,8 +22,7 @@ class BillDocRepHuRUB extends DocumentReport
 
     public function getName()
     {
-        return 'Счет (предоплата)';
-        //return 'Díjbekérő';
+        return 'Díjbekérő';
     }
 
 }
