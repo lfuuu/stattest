@@ -250,9 +250,9 @@ if ($action=='add_client') {
     $d = $_GET["d"];
     if(!($d = @unserialize($d))) die("error: params is bad");
 
-    list($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction) = $d;
+    list($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, $timezone) = $d;
     
-    $a = $s->GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction);
+    $a = $s->GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly ,$skipped , $destination,$direction, $timezone);
 
     echo serialize($a);
 

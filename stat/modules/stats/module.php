@@ -212,8 +212,10 @@ class m_stats extends IModule{
 
         $client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
 
+        $timezones = [ $client['timezone_name'] ];
+
         $client_id = $client['id'];
-        $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
+        $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
@@ -223,9 +225,16 @@ class m_stats extends IModule{
         }
 
         $regions = array();
-        foreach ($usages as $u)
-            if (!isset($regions[$u['region']]))
+        foreach ($usages as $u) {
+            if (!isset($regions[$u['region']])) {
                 $regions[$u['region']] = $u['region'];
+                if (!in_array($u['timezone_name'], $timezones)) {
+                    $timezones[] = $u['timezone_name'];
+                }
+            }
+        }
+
+        $timezones[] = 'UTC';
 
         $regions_cnt = count($regions);
 
@@ -278,18 +287,23 @@ class m_stats extends IModule{
         if(!in_array($direction,array('both','in','out')))
             $direction = 'both';
 
+        /** @var \app\models\ClientAccount $client */
+        $client = \app\models\ClientAccount::findOne($client_id);
+
         $design->assign('destination',$destination);
         $design->assign('direction',$direction);
         $design->assign('detality',$detality=get_param_protected('detality','day'));
         $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
+        $design->assign('timezone',$timezone=get_param_raw('timezone', $client->timezone_name));
+        $design->assign('timezones', $timezones);
         if ($region == 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions);
+                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
             $stats = $this->prepareStatArray($stats, $detality);
         } else {
-            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) {
+            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
             }
         }
@@ -914,15 +928,15 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array(), $isFull = false){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $timezone, $regions = array(), $isFull = false){
         global $pg_db;
 
+        if (!$timezone instanceof DateTimeZone) {
+            $timezone = new DateTimeZone($timezone);
+        }
 
-        /** @var \app\models\ClientAccount $client */
-        $client = \app\models\ClientAccount::findOne($client_id);
-
-        $from = new DateTime(date('Y-m-d', $from), $client->timezone);
-        $to = new DateTime(date('Y-m-d 23:59:59', $to), $client->timezone);
+        $from = new DateTime(date('Y-m-d', $from), $timezone);
+        $to = new DateTime(date('Y-m-d 23:59:59', $to), $timezone);
 
         $offset = $from->getOffset();
 

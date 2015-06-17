@@ -18,6 +18,11 @@
           <TD>
 		<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
 		По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
+                  <select name=timezone>
+                      {foreach from=$timezones item=item}
+                          <option value='{$item}'{if $item==$timezone} selected{/if}>{$item}</option>
+                      {/foreach}
+                  </select>
           </TD>
           </TR>
           <TR>
