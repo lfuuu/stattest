@@ -58,10 +58,10 @@
 			{assign var="total" value=$total+1}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td>
-					<a href="/client/clientview?id={$p.client_id}">{$p.client_id}</a>
+					<a href="/client/view?id={$p.client_id}">{$p.client_id}</a>
 				</td>
 				<td>
-					<a href="/client/clientview?id={$p.client}">{$p.client}</a>
+					<a href="/client/view?id={$p.client}">{$p.client}</a>
 				</td>
 				<td>
 					{$p.phone}
@@ -147,10 +147,10 @@
 			{assign var="total" value=$total+1}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td>
-					<a href="/client/clientview?id={$p.client_id}">{$p.client_id}</a>
+					<a href="/client/view?id={$p.client_id}">{$p.client_id}</a>
 				</td>
 				<td>
-					<a href="/client/clientview?id={$p.client}">{$p.client}</a>
+					<a href="/client/view?id={$p.client}">{$p.client}</a>
 				</td>
 				<td>
 					{$p.id}
@@ -199,7 +199,7 @@
 					{$v.date|mdate:"d месяца Y"}
 				</td>
 				<td>
-					<a href="/client/clientview?id={$v.client}">{$v.client}</a>
+					<a href="/client/view?id={$v.client}">{$v.client}</a>
 				</td>
 				<td>
 					<a href="./?module=tt&action=view&id={$v.id}">{$v.id}</a>

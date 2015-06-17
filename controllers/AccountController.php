@@ -77,7 +77,7 @@ class AccountController extends BaseController
             }
         }
 
-        $this->redirect(Url::toRoute(['client/clientview', 'id' => $id]));
+        $this->redirect(Url::toRoute(['client/view', 'id' => $id]));
     }
 
     public function actionCreate()
@@ -105,7 +105,7 @@ class AccountController extends BaseController
             }
             if ($commit) {
                 $transaction->commit();
-                return $this->redirect(Url::toRoute(['client/clientview', 'id' => $client->id]));
+                return $this->redirect(Url::toRoute(['client/view', 'id' => $client->id]));
             } else {
                 $transaction->rollback();
             }

@@ -43,7 +43,7 @@ $user = Yii::$app->user->identity;
                 </div>
             <?php else: ?>
                 <div style="padding: 2px">Л.С.  
-                    <b><a href="/client/clientview?id=<?=$fixclient_data['id']?>">
+                    <b><a href="/client/view?id=<?=$fixclient_data['id']?>">
                             <?= $fixclient_data['id'] ?>
                         </a></b>
                     (<b><a href='?module=clients&unfix=1'>снять</a></b>)

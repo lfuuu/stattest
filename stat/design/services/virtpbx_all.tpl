@@ -19,7 +19,7 @@
 {foreach from=$services_virtpbx item=item name=outer}
 <TR bgcolor="{if $item.status=='working'}{if $item.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
     <td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{$item.id}</a>&nbsp;</td>
-    <td {if $item.client_color}style='background-color:{$item.client_color};'{/if}><a {if $item.client_color}style="color: black" {/if}href="/client/clientview?id={$item.client}" target="_blank">{$item.client}</a>&nbsp;</td>
+    <td {if $item.client_color}style='background-color:{$item.client_color};'{/if}><a {if $item.client_color}style="color: black" {/if}href="/client/view?id={$item.client}" target="_blank">{$item.client}</a>&nbsp;</td>
     <td>{$item.tarif.description}</td>
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{$item.actual_from}</a>&nbsp;</td>
     <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_virtpbx&id={$item.id}" target="_blank">{if $item.actual_to < '3000-01-01'}{$item.actual_to}{/if}</a>&nbsp;</td>

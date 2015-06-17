@@ -1108,7 +1108,7 @@ class m_newaccounts extends IModule
 
                     foreach ($clientAccounts as $clientAccount) {
                         $offset++;
-                        echo "$offset. Лицевой счет: <a target='_blank' href='/clients/clientview?id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
+                        echo "$offset. Лицевой счет: <a target='_blank' href='/clients/view?id={$clientAccount->id}'>{$clientAccount->id}</a>"; flush();
 
                         try {
 
@@ -1184,7 +1184,7 @@ class m_newaccounts extends IModule
                     $no=$bill2->GetNo();
                     $v=$bill2->Save(1);
                     if($v)
-                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/clientview?id={$c['id']}'>{$c['client']}</a> выставлен<br>");
+                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/view?id={$c['id']}'>{$c['client']}</a> выставлен<br>");
                     unset($bill2);
                 }
                 $no=$bill->GetNo();
@@ -1202,7 +1202,7 @@ class m_newaccounts extends IModule
                 }
                 unset($bill);
                 if($v==1){
-                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/clientview?id={$c['id']}'>{$c['client']}</a> выставлен".$p."<br>");
+                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='/clients/view?id={$c['id']}'>{$c['client']}</a> выставлен".$p."<br>");
                     flush();
                 }
             }

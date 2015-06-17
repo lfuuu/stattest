@@ -44,7 +44,7 @@ class DocumentController extends BaseController
             $comment
         );
 
-        $this->redirect(Url::toRoute(['client/clientview', 'id' => $id]));
+        $this->redirect(Url::toRoute(['client/view', 'id' => $id]));
     }
 /*
     public function actionEdit($id)
@@ -67,7 +67,7 @@ class DocumentController extends BaseController
                 $request['comment']
             );
 
-            return $this->redirect(Url::toRoute(['client/clientview', ['id' => $id]]));
+            return $this->redirect(Url::toRoute(['client/view', ['id' => $id]]));
 
         } else {
             $content = ClientDocument::dao()->getTemplate($model->client_id . '-' . $model->id);

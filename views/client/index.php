@@ -8,7 +8,7 @@ echo GridView::widget([
             'label' => (new $dataProvider->query->modelClass)->attributeLabels()['id'],
             'format' => 'raw',
             'value' => function($data){
-                return '<a href="/client/clientview?id='.$data->id.'">'.$data->id.'</a>';
+                return '<a href="/client/view?id='.$data->id.'">'.$data->id.'</a>';
             }
         ],
         'companyName',
@@ -21,7 +21,7 @@ echo GridView::widget([
 
 <script>
     $('body').on('click', '.grid-view tbody tr', function(){
-        location.href = '/client/clientview?id=' + $(this).data('key');
+        location.href = '/client/view?id=' + $(this).data('key');
     });
 
     $('body').on('mouseover', '.grid-view tbody tr', function(){

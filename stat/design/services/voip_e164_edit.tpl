@@ -23,7 +23,7 @@
             <tr style='background-color:lightblue;text-align:right'><td style='font-weight:bold'>Звонков за 2 дня: {$count_calls}</td></tr>
             {/if}
             {if $client_id and ($is_using or $client_id != 764)}
-                <tr style='background-color:lightblue;text-align:right'><td>Клиент: <a href='/client/clientview?id={$client_id}' target='_blank'>{$client} {$company}</a></td></tr>
+                <tr style='background-color:lightblue;text-align:right'><td>Клиент: <a href='/client/view?id={$client_id}' target='_blank'>{$client} {$company}</a></td></tr>
             {/if}
         </table>
     </td></tr>
@@ -55,13 +55,13 @@
     {foreach from=$logs item='record'}
         <tr><td style='text-align:center;font-weight:bolder;color:#555'>{$record.human_time}</td><td>
         {if $record.action eq 'fix'}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>зафиксирован</b> за клиентом <a style='text-decoration:none;font-weight:bold' href='/client/clientview?id={$record.client_id}'>{$record.client}</a>
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>зафиксирован</b> за клиентом <a style='text-decoration:none;font-weight:bold' href='/client/view?id={$record.client_id}'>{$record.client}</a>
         {elseif $record.action eq 'unfix'}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>снят</b> с клиента <a href='/client/clientview?id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> <b>снят</b> с клиента <a href='/client/view?id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
         {elseif $record.action eq 'invertReserved' and $record.client_id == 764}
             <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>Сделан Своим</b>{else}<b>Сделан Арендуемым</b>{/if}
         {elseif $record.action eq 'invertReserved'}
-            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>Зарезервирован</b> за клиентом{else}<b>Снят резерв</b> с клиента{/if} <a href='/client/clientview?id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
+            <a style='text-decoration:none;font-weight:bold' href='?module=employeers&user={$record.user}'>{$record.user}</a> {if $record.addition eq 'Y'}<b>Зарезервирован</b> за клиентом{else}<b>Снят резерв</b> с клиента{/if} <a href='/client/view?id={$record.client_id}' style='text-decoration:none;font-weight:bold'>{$record.client}</a>
         {/if}
         </td></tr>
     {/foreach}

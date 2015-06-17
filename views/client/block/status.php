@@ -103,7 +103,7 @@ use \yii\helpers\Url;
                 $(this).addClass('btn-danger');
                 w.removeClass('btn-success');
             }
-            $.get('/client/setblock?id=' + acId);
+            $.get('/client/set-block?id=' + acId);
         });
 
         var statuses = <?= json_encode($client->getBpStatuses()) ?>;

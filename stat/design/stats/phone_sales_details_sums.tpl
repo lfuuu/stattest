@@ -19,10 +19,10 @@
 		{foreach from=$bills item="p" name="outer"}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td>
-					<a href="/client/clientview?id={$p.client_id}">{$p.client_id}</a>
+					<a href="/client/view?id={$p.client_id}">{$p.client_id}</a>
 				</td>
 				<td>
-					<a href="/client/clientview?id={$p.client}">{$p.client}</a>
+					<a href="/client/view?id={$p.client}">{$p.client}</a>
 				</td>
 				<td>
 					<a href="?module=newaccounts&action=bill_view&bill={$p.bill_no}">{$p.bill_no}</a>

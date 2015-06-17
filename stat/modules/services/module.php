@@ -1107,7 +1107,7 @@ class m_services extends IModule{
             }
         }
 
-        header("Location: /client/clientview?id=".$fixclient);
+        header("Location: /client/view?id=".$fixclient);
         exit();
     }
 

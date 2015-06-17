@@ -10,20 +10,6 @@ use yii\base\Exception;
 
 class ContactController extends BaseController
 {
-   /* public function actionCreate($parentId)
-    {
-        $model = new ContractEditForm(['contragent_id' => $parentId]);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $this->redirect(Url::toRoute(['client/superclientview','id'=>$model->super_id]));
-        }
-
-        return $this->render("edit", [
-            'model' => $model
-        ]);
-
-    }*/
-
     public function actionCreate($clientId)
     {
         $model = new ClientContact();

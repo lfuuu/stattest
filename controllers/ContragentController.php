@@ -16,7 +16,7 @@ class ContragentController extends BaseController
         $model = new ContragentEditForm(['super_id' => $parentId]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/clientview','id'=>$childId]));
+            $this->redirect(Url::toRoute(['client/view','id'=>$childId]));
         }
 
         return $this->render("edit", [
@@ -38,7 +38,7 @@ class ContragentController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/clientview','id'=>$childId]));
+            $this->redirect(Url::toRoute(['client/view','id'=>$childId]));
         }
 
         return $this->render("edit", [

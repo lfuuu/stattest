@@ -883,7 +883,7 @@ var optools = {
                     } else {
                         alert("Ошибка переключения блокировки");
                     }
-                    location.href= '/client/clientview?id='+optools.client.clientId;
+                    location.href= '/client/view?id='+optools.client.clientId;
                 });
             });
         }

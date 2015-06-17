@@ -82,7 +82,7 @@ use \app\models\ClientContract;
             <?php $clients = $contract->clients;
             foreach ($clients as $client): ?>
                 <div style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin:5px -15px 5px 40px; cursor: pointer;"
-                     onclick="location.href='/client/clientview?id=<?= $client->id ?>'"
+                     onclick="location.href='/client/view?id=<?= $client->id ?>'"
                      class="row  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
                         <span class="col-sm-6"
                               style="font-weight: bold; color:<?= ($client->is_blocked) ? 'red' : 'green' ?>;">ЛС № <?= $client->id ?></span>

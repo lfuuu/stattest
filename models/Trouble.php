@@ -84,12 +84,6 @@ class Trouble extends ActiveRecord
         return TroubleStage::findOne(["stage_id" => $this->cur_stage_id, "trouble_id" => $this->id]);
     }
 
-    public static function findAllByClientId($client)
-    {
-        return self::find()
-            ->where(['client' => $client]);
-    }
-
     public function getStage()
     {
        return $this->hasOne(TroubleStage::className(), ['stage_id' => 'cur_stage_id']);

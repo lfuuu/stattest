@@ -1,5 +1,5 @@
 {if !isset($hide_tts)}{if !isset($tt_wo_explain) && $tt_design=='full'}<H2>{$tt_header}
-	{if $fixclient_data}(клиент <a href='/clients/clientview?'>{$fixclient_data.client}</a>){/if}
+	{if $fixclient_data}(клиент <a href='/clients/view?'>{$fixclient_data.client}</a>){/if}
 	</H2>
 {elseif $tt_design=='client'}
 	<H3><a href='{$LINK_START}module=tt&action=list&mode=1'>{$tt_header}</a></H3>
@@ -37,7 +37,7 @@
         </td>
         <td>
         
-            <a href='/clients/clientview?id={$r.client_orig}'>{$r.client}{if $r.client != $r.client_orig} ({$r.client_orig}){/if}</a> / {$r.manager} / <a href='/clients/clientview?id={$r.client_orig}'><b>{$r.company}</b></a>:<br>
+            <a href='/clients/view?id={$r.client_orig}'>{$r.client}{if $r.client != $r.client_orig} ({$r.client_orig}){/if}</a> / {$r.manager} / <a href='/clients/view?id={$r.client_orig}'><b>{$r.company}</b></a>:<br>
             {if $r.service}<a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{$r.service|replace:"usage_":""}: {$r.service_id}</a>/
         {elseif $r.bill_no}<a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:11pt;font-weight: bold">{$r.bill_no}</a>/{/if}
         {$r.problem|escape}
@@ -69,7 +69,7 @@
 <TR class={if $smarty.foreach.outer.iteration%2==count($tt_troubles)%2}even{else}odd{/if}{if $r.is_important} style="background-color: #f4c0c0;"{/if}>
 	{if $tt_design=='full'}<TD><a href='{$LINK_START}module=tt&action=view&id={$r.trouble_id}'>{$r.trouble_id}</a></TD>{/if}
 {if $tt_subject<2}
-	{if $tt_subject<1}<TD><a href='/clients/clientview?id={$r.client}'>{$r.client}</a></TD>{/if}
+	{if $tt_subject<1}<TD><a href='/clients/view?id={$r.client}'>{$r.client}</a></TD>{/if}
 	<TD align=center style='font-size:85%'>{if $r.service}
 		<a href='pop_services.php?table={$r.service}&id={$r.service_id}'>{$r.service|replace:"usage_":""}<br>{$r.service_id}</a>
 	{elseif $r.bill_no}<a href="?module=newaccounts&action=bill_view&bill={$r.bill_no}" style="font-size:medium;font-weight: bold">{$r.bill_no}</a>{else}&nbsp;{/if}</TD>

@@ -15,7 +15,7 @@ class ContractController extends BaseController
         $model = new ContractEditForm(['contragent_id' => $parentId]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/clientview', 'id' => $childId]));
+            $this->redirect(Url::toRoute(['client/view', 'id' => $childId]));
         }
 
         return $this->render("edit", [
@@ -37,7 +37,7 @@ class ContractController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/clientview','id'=>$childId]));
+            $this->redirect(Url::toRoute(['client/view','id'=>$childId]));
         }
 
         return $this->render("edit", [

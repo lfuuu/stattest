@@ -18,8 +18,11 @@ class m_clients {
 					'print_yota_contract' => array('clients','file'),
 					'rpc_findClient1c'	=> array('clients','new'),
 					'rpc_findBank1c'	=> array('clients','new'),
-					'p_edit' => array('clients','edit')
-				);
+					'p_edit' => array('clients','edit'),
+                    'sc'			=> array('clients','sale_channels'),
+                    'sc_edit'		=> array('clients','sale_channels'),
+                    'files_report'	=> array('clients','file'),
+    );
 
 	//содержимое левого меню. array(название; действие (для проверки прав доступа); доп. параметры - строкой, начинающейся с & (при необходимости); картиночка ; доп. текст)
 	var $menu=array(
@@ -263,7 +266,7 @@ class m_clients {
 			$e->triggerError();
 		}
 
-		Header("Location: /clients/clientview?id=".$id);
+		Header("Location: /clients/view?id=".$id);
 		exit();
 	}
 
@@ -591,7 +594,7 @@ DBG::sql_out($select_client_data);
 				$db->Query('rollback');
 			}
 
-			header('Location: /client/clientview?id='.$pid);
+			header('Location: /client/view?id='.$pid);
 			exit();
 		}elseif(isset($_POST['gone']) && isset($_POST['pid'])){
 			$pid = $_POST['pid'];
@@ -634,6 +637,51 @@ DBG::sql_out($select_client_data);
 		}
 
 		$design->AddMain('clients/phisclient.html');
+    }
+
+    function clients_sc() {
+        global $db,$design;
+        include INCLUDE_PATH.'db_view.php';
+        $view=new DbViewSaleChannels();
+        $view->Display('module=clients&action=sc','module=clients&action=sc_edit');
+    }
+
+    function clients_sc_edit(){
+        global $db,$design;
+        include INCLUDE_PATH.'db_view.php';
+        $view=new DbViewSaleChannels();
+        $dbf=new DbFormSaleChannels();
+        if (($id=get_param_integer('id')) && !($dbf->Load($id))) return;
+        $dbf->Process();
+        $dbf->Display(array('module'=>'clients','action'=>'sc_edit','id'=>$id),$view->Headers[$view->fieldset],$id?'Редактирование':'Добавление');
+    }
+
+    function clients_files_report() {
+        global $db,$design;
+        $manager = get_param_protected('manager');
+        $dateFrom = new DatePickerValues('date_from', 'today');
+        $dateTo = new DatePickerValues('date_to', 'today');
+
+        $from = $dateFrom->getTimestamp();
+        $to = $dateTo->getTimestamp();
+
+        DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
+        DatePickerPeriods::assignPeriods(new DateTime());
+
+        $R=array(); StatModule::users()->d_users_get($R,'manager');
+        $design->assign('users',$R);
+        $design->assign('manager',$manager);
+
+        $R = $db->AllRecords('select client_files.*,UNIX_TIMESTAMP(client_files.ts) as ts,clients.client as client_client,clients.company as client_company,user_users.user as user,clients.manager as client_manager'.
+            ' FROM client_files'.
+            ' INNER JOIN clients ON clients.id=client_files.client_id'.
+            ' LEFT JOIN user_users ON user_users.id=client_files.user_id'.
+            ' WHERE client_files.ts>=FROM_UNIXTIME('.$from.') AND client_files.ts<=FROM_UNIXTIME('.$to.')'.
+            (!$manager?'':' AND clients.manager="'.$manager.'"').
+            ' order by id');
+        $i = 0; foreach ($R as &$r) $r['no'] = ++$i; unset($r);
+        $design->assign('files',$R);
+        $design->AddMain('clients/files_report.tpl');
     }
 }
 

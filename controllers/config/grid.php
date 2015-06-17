@@ -104,7 +104,7 @@ $rows['telecom.sales.income'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -112,7 +112,7 @@ $rows['telecom.sales.income'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -168,7 +168,7 @@ $rows['telecom.sales.negotiations'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -176,7 +176,7 @@ $rows['telecom.sales.negotiations'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -232,7 +232,7 @@ $rows['telecom.sales.testing'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -240,7 +240,7 @@ $rows['telecom.sales.testing'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -296,7 +296,7 @@ $rows['telecom.sales.connecting'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -304,7 +304,7 @@ $rows['telecom.sales.connecting'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -360,7 +360,7 @@ $rows['telecom.sales.tech_deny'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -368,7 +368,7 @@ $rows['telecom.sales.tech_deny'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -424,7 +424,7 @@ $rows['telecom.sales.deny'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -432,7 +432,7 @@ $rows['telecom.sales.deny'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -488,7 +488,7 @@ $rows['telecom.sales.trash'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -496,7 +496,7 @@ $rows['telecom.sales.trash'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -585,7 +585,7 @@ $rows['telecom.accounting.work'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -641,7 +641,7 @@ $rows['telecom.accounting.closed'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -697,7 +697,7 @@ $rows['telecom.accounting.debt'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -753,7 +753,7 @@ $rows['telecom.accounting.blocked'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -809,7 +809,7 @@ $rows['telecom.accounting.reserved'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -865,7 +865,7 @@ $rows['telecom.accounting.suspended'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -983,7 +983,7 @@ $rows['operators.accounting.work'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -991,7 +991,7 @@ $rows['operators.accounting.work'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1047,7 +1047,7 @@ $rows['operators.accounting.deny'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -1055,7 +1055,7 @@ $rows['operators.accounting.deny'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1111,7 +1111,7 @@ $rows['operators.accounting.testing'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -1119,7 +1119,7 @@ $rows['operators.accounting.testing'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1639,7 +1639,7 @@ $rows['procurement.accounting.work'] = [
             'id' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'client' => [
                 'label' => 'Клиент',
@@ -1647,7 +1647,7 @@ $rows['procurement.accounting.work'] = [
             'company' => [
                 'label' => 'Компания',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={id}',
+                'href'=>'/client/view?id={id}',
              ],
             'created' => [
                 'label' => 'Заведен',
@@ -1724,7 +1724,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -1805,7 +1805,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -1886,7 +1886,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -1967,7 +1967,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2048,7 +2048,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2129,7 +2129,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2211,7 +2211,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2293,7 +2293,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2374,7 +2374,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2455,7 +2455,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2536,7 +2536,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2617,7 +2617,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2698,7 +2698,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2779,7 +2779,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2860,7 +2860,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',
@@ -2941,7 +2941,7 @@ IF(is_rollback IS NULL OR (is_rollback IS NOT NULL AND !is_rollback), tts.name, 
             'client' => [
                 'label' => 'ИД',
                 'class' => 'app\classes\yii\HrefDataColumn',
-                'href'=>'/client/clientview?id={client}',
+                'href'=>'/client/view?id={client}',
              ],
              'company' => [
                 'label' => 'Компания',

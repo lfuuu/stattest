@@ -20,7 +20,7 @@
         </a>
     </li>
     <li>
-        <a href="/client/clientview?id=<?= $client->id ?>&action=print&data=envelope" target="_blank">
+        <a href="/client/view?id=<?= $client->id ?>&action=print&data=envelope" target="_blank">
             <img class="icon" src="/images/icons/envelope.gif">Напечатать конверт
         </a>
     </li>

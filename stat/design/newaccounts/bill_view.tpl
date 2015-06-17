@@ -1,7 +1,7 @@
 <table border=0 width=100%>
     <tr>
         <td width="33%">
-            <a href="/client/clientview?id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
+            <a href="/client/view?id={$bill_client.client_orig}"><img src="images/client.jpg" title="Клиент" border=0></a>&nbsp;
             <a href='./?module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}'><img src="images/cash.png" title="Счета" border=0></a>&nbsp;
             <a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$bill_client.client_orig}' style="font-weight: bold; font-size: large">
                 {$bill_client.client}

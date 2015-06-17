@@ -30,7 +30,7 @@
         <td>{if $o.operator_7800_pricelist_id}{$pricelists[$o.operator_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.operator_7800_pricelist_id}">({$o.operator_7800_pricelist_id})</a>{/if}</td>
         <td style="text-align: center">{if $o.term_in_cost != 0}{$o.term_in_cost}{/if}</td>
         <td>{if $o.client_7800_pricelist_id}{$pricelists[$o.client_7800_pricelist_id]->name} <a href="?module=voipnew&action=raw_files&pricelist={$o.client_7800_pricelist_id}">({$o.client_7800_pricelist_id})</a>{/if}</td>
-        <td>{if $o.stat_client_card_id}<a href="/clients/clientview?id={$o.stat_client_card_id}" target="_blank">({$o.stat_client_card_id})</a>{/if}</td>
+        <td>{if $o.stat_client_card_id}<a href="/clients/view?id={$o.stat_client_card_id}" target="_blank">({$o.stat_client_card_id})</a>{/if}</td>
     </tr>
     {/foreach}
 </table>

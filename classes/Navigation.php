@@ -12,8 +12,16 @@ class Navigation
 
     private function __construct()
     {
-        $this->addBlockForStatModule('clients');
-        $this->addBlockNewClients();
+
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setRights(['clients.read'])
+                ->setTitle('Клиенты')
+                ->addItem('Новый клиент',Url::toRoute(['account/create']), 'clients.read')
+                ->addItem('Каналы продаж', '/?module=clients&action=sc', 'clients.sale_channels')
+                ->addItem('Отчет по файлам', '/?module=clients&action=files_report', 'clients.file')
+        );
+
         $this->addBlockForStatModule('services');
         $this->addBlockForStatModule('newaccounts');
         $this->addBlockForStatModule('tarifs');
@@ -67,6 +75,10 @@ class Navigation
 
     private function addBlock(NavigationBlock $block)
     {
+        if (!$block->id) {
+            $block->id = 'block' . md5($block->title);
+        }
+
         if ($block->rights) {
           foreach ($block->rights as $right) {
             if (Yii::$app->user->can($right)) {
@@ -117,15 +129,4 @@ class Navigation
         return $this;
     }
     
-    private function addBlockNewClients()
-    {
-        $block = NavigationBlock::create()
-            ->setRights(['clients.read'])
-            ->setTitle('Клиенты');
-
-        $block->addItem('Новый клиент',Url::toRoute(['account/create']));
-
-        $this->addBlock($block);
-    }
-
 }

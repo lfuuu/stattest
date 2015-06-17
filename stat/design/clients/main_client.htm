@@ -47,7 +47,7 @@
                  {/if}
                  <div style="display: inline-block; color: {if $account->is_active}green{else}black{/if};" title="{$account.client}">{$account.id}</div>
              </div>
-             <a class="nohover" href="/client/clientview?id={$account.id}" style="">
+             <a class="nohover" href="/client/view?id={$account.id}" style="">
                  <div style="display: inline-block; min-width: 200px">
                      {$account.contractType.name} / {$account.firma} / 
                      <span{if $account.statusBP.color} style="background-color: {$account.statusBP.color}"{/if}>{$account.statusBP.name}</span>
@@ -152,7 +152,7 @@
 {if $client.previous_reincarnation}
 <tr>
     <td align="right"{if $client.nal!='beznal'} style='background-color:{if $client.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}'{/if} width='30%'>Предыдущие реквизиты:</td>
-    <td><a href="/client/clientview?id={$client.previous_reincarnation}">{$client.prev_r_cl}</a></td>
+    <td><a href="/client/view?id={$client.previous_reincarnation}">{$client.prev_r_cl}</a></td>
 </tr>
 {/if}
 

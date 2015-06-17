@@ -41,7 +41,7 @@
 			<TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if} {if !$item.is_set}style="color: #999999;"{/if}>
 				{if !$fixclient}
 					<TD align=left>{$item.client_id}</TD>
-					<TD align=left><a href="/client/clientview?id={$item.client_id}">{$item.client}</a></TD>
+					<TD align=left><a href="/client/view?id={$item.client_id}">{$item.client}</a></TD>
 				{/if}
 				<TD align=left>{$item.timestamp|mdate:"d месяца Y H:i:s"}</TD>
 				<TD align=left>

@@ -4,7 +4,7 @@
             <h2>
                 {$tt_header}
                 {if $fixclient_data}
-                    (клиент <a href='/clients/clientview?id={$fixclient_data.client}'>{$fixclient_data.client}</a>)
+                    (клиент <a href='/clients/view?id={$fixclient_data.client}'>{$fixclient_data.client}</a>)
                 {/if}
             </h2>
 {elseif $tt_design=='client'}
@@ -66,7 +66,7 @@
     <tr style="{if $r.is_important}background-color: #f4c0c0;{/if}">
         <td colspan=1>{$trouble_subtypes_list[$r.trouble_subtype]}</td>
         <td colspan=1 style="font-size:85%;">{$r.time_pass}</td>
-        <td colspan=1>{if $r.client}<a href='/clients/clientview?id={$r.client_orig}'>{$r.client}</a>{/if}</td>
+        <td colspan=1>{if $r.client}<a href='/clients/view?id={$r.client_orig}'>{$r.client}</a>{/if}</td>
         <td colspan=1 align=center style='font-size:85%;{if !$r.service && $r.bill_no && $r.is_payed == 1}background-color: #ccFFcc;{/if}'>
             {if $r.server_id}
                 <a href='./?module=routers&action=server_pbx_apply&id={$r.server_id}'>
