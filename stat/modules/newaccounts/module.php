@@ -1565,6 +1565,7 @@ class m_newaccounts extends IModule
             }
 
             if (sizeof($documentReports)) {
+                $idxs[$bill_no . '==bill'] = count($R);
                 foreach ($documentReports as $documentReport) {
                     $R[] = [
                         'bill_no' => $bill_no,
