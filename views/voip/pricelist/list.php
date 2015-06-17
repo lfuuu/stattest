@@ -30,7 +30,7 @@
         <?php if ($local == 1): ?>
             <th>Местные префиксы</th>
         <?php endif; ?>
-        <th>Префиксы</th>
+        <th>Файлы</th>
         <th>Цены</th>
     </tr>
     <?php foreach ($pricelists as $pricelist): ?>
@@ -55,7 +55,7 @@
         <?php if ($local == 1): ?>
             <td><?=$networkConfigs[$pricelist->local_network_config_id]?></td>
         <?php endif; ?>
-        <td><a href='index.php?module=voipnew&action=raw_files&pricelist=<?=$pricelist->id?>'>префиксы</a></td>
+        <td><a href='/voip/pricelist/files?pricelistId=<?=$pricelist->id?>'>файлы</a></td>
         <td><a href='index.php?module=voipnew&action=defs&pricelist=<?=$pricelist->id?>'>цены</a></td>
     </tr>
     <?php endforeach; ?>

@@ -9,9 +9,10 @@ class WelltimeBiller extends Biller
     {
         $tariff = $this->usage->tariff;
 
-        $template = '{name}';
-
-        $template .= $this->getPeriodTemplate($this->tariff->period);
+        $template = 'welltime_service';
+        $template_data = [
+            'tariff' => $tariff->description
+        ];
 
         $this->addPackage(
             BillerPackagePeriodical::create($this, 2001)
@@ -19,9 +20,9 @@ class WelltimeBiller extends Biller
                 ->setIsAlign($tariff->period == self::PERIOD_MONTH)
                 ->setIsPartialWriteOff(false)
                 ->setAmount($this->usage->amount)
-                ->setName($tariff->description)
                 ->setPrice($tariff->price)
                 ->setTemplate($template)
+                ->setTemplateData($template_data)
         );
     }
 

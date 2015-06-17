@@ -118,6 +118,7 @@ class ContragentEditForm extends Form
                 $person->registration_address = $this->registration_address;
 
                 if ($person->save()) {
+                    $contragent->refresh();
                     return true;
                 } else {
                     $contragent->delete();
@@ -140,10 +141,10 @@ class ContragentEditForm extends Form
                     $this->name_full = $this->name;
                 break;
             case 'ip':
-                $this->name = $this->name_full = $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
+                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
                 break;
             case 'person':
-                $this->name = $this->name_full = $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
+                $this->name = $this->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " ".$this->middle_name : "");
                 break;
         }
         return true;

@@ -12,7 +12,6 @@ function onchange_use_group()
 	if (document.getElementById('local_mob_in_group').checked) group+='5';
 	if (document.getElementById('russia_in_group').checked) group+='1';
 	if (document.getElementById('intern_in_group').checked) group+='2';
-	if (document.getElementById('sng_in_group').checked) group+='3';
 	document.getElementById('dest_group').value = group;
 	checkbox_to_show_minpayment();
 }
@@ -22,12 +21,10 @@ function dest_group_to_checkbox()
 	document.getElementById('local_mob_in_group').checked = false;
 	document.getElementById('russia_in_group').checked = false;
 	document.getElementById('intern_in_group').checked = false;
-	document.getElementById('sng_in_group').checked = false;
 	for(i in group){
 		if (group[i] == '5') document.getElementById('local_mob_in_group').checked = true;
 		if (group[i] == '1') document.getElementById('russia_in_group').checked = true;
 		if (group[i] == '2') document.getElementById('intern_in_group').checked = true;
-		if (group[i] == '3') document.getElementById('sng_in_group').checked = true;
 	}
 }
 function checkbox_to_show_minpayment()
@@ -55,13 +52,6 @@ function checkbox_to_show_minpayment()
 	}else
 		document.getElementById('minpayment_intern').type='text';
 
-	if (document.getElementById('sng_in_group').checked)
-	{
-		document.getElementById('minpayment_sng').type='hidden';
-		$groups = true;
-	}else
-		document.getElementById('minpayment_sng').type='text';
-
 	if ($groups)
 		$('#tr_group').show();
 	else
@@ -78,8 +68,6 @@ function init_minpayments()
 		onchange_tarif(document.getElementById('t_id_tarif_russia'), document.getElementById('minpayment_russia'));
 	if (document.getElementById('minpayment_intern').value == '') 
 		onchange_tarif(document.getElementById('t_id_tarif_intern'), document.getElementById('minpayment_intern'));
-	if (document.getElementById('minpayment_sng').value == '') 
-		onchange_tarif(document.getElementById('t_id_tarif_sng'), document.getElementById('minpayment_sng'));
 }
 $(document).ready(function(){
 	dest_group_to_checkbox();
@@ -216,22 +204,6 @@ $(document).ready(function(){
 		</td>
 		<td><input id="intern_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
 		<td><input id="minpayment_intern" type="hidden" name="dbform[t_minpayment_intern]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_intern}{/if}"/></td>
-	</tr>
-	<tr>
-		<td nowrap>Тариф СНГ:</td>
-		<td>
-			<select id=t_id_tarif_sng name=dbform[t_id_tarif_sng] style='display:"";width:270px' onchange="onchange_tarif(this, document.getElementById('minpayment_sng'))">>
-				{foreach from=$dbform_f_tarifs item=tarif name=tarif_sng}
-					{if $tarif.dest == '3'}
-					<option	payment="{$tarif.month_min_payment}"	value={$tarif.id} {if isset($dbform_f_tarif_current) and $tarif.id==$dbform_f_tarif_current.id_tarif_sng} selected{/if}>
-						{$tarif.name} ({$tarif.month_min_payment})
-					</option>
-					{/if}
-				{/foreach}
-			</select>
-		</td>
-		<td><input id="sng_in_group" type="checkbox" onchange="onchange_use_group()"/>Набор</td>
-		<td><input id="minpayment_sng" type="hidden" name="dbform[t_minpayment_sng]" value="{if isset($dbform_f_tarif_current)}{$dbform_f_tarif_current.minpayment_sng}{/if}"/></td>
 	</tr>
 	<tr id="tr_group">
 		<td colspan="2"></td>

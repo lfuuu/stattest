@@ -306,6 +306,8 @@ $(function(){
                 <option value="mcm"{if $client.firma=='mcm'} selected{/if}>ООО &laquo;МСМ&raquo;</option>
                 <option value="all4geo"{if $client.firma=='all4geo'} selected{/if}>ООО &laquo;Олфогео&raquo;</option>
                 <option value="wellstart"{if $client.firma=='wellstart'} selected{/if}>ООО &laquo;Веллстарт&raquo;</option>
+                <option value="mcn_telekom_hungary"{if $client.firma=='mcn_telekom_hungary'} selected{/if}>MCN Telecom Kft. (Венгрия)</option>
+                <option value="tel2tel_hungary"{if $client.firma=='tel2tel_hungary'} selected{/if}>Tel2tel Kft. (Венгрия)</option>
             </select>
             </td></tr>
     <tr><td align="right">Печатать штамп:</td><td><select name=stamp class=text><option value=0{if $client.stamp==0} selected{/if}>нет</option><option value=1{if $client.stamp==1} selected{/if}>да</option></select></td></tr>

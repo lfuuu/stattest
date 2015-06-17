@@ -18,6 +18,11 @@
           <TD>
 		<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
 		По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
+                  <select name=timezone>
+                      {foreach from=$timezones item=item}
+                          <option value='{$item}'{if $item==$timezone} selected{/if}>{$item}</option>
+                      {/foreach}
+                  </select>
           </TD>
           </TR>
           <TR>
@@ -43,7 +48,6 @@
 					<option value="1-m"{if $destination eq '1-m'} selected='selected'{/if}>&nbsp;&nbsp;Россия мобильные</option>
 					<option value="1-f"{if $destination eq '1-f'} selected='selected'{/if}>&nbsp;&nbsp;Россия стационарные</option>
 					<option value="2"{if $destination eq '2'} selected='selected'{/if}>Международные</option>
-					<option value="3"{if $destination eq '3'} selected='selected'{/if}>СНГ</option>
 				</select>
 			</td>
 		</tr>

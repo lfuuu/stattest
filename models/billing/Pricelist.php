@@ -7,6 +7,8 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
+ *
+ * @property string $parser_settings
  * @property
  */
 class Pricelist extends ActiveRecord

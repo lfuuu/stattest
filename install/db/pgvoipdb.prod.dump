@@ -1,0 +1,9 @@
+pg_dump \
+--host reg99.mcntelecom.ru \
+--port 5432 \
+--username "user" \
+--format tar \
+--blobs --no-privileges --no-tablespaces --no-unlogged-table-data \
+--file "/vagrant/install/db/dump/pgvoipdb.tar" \
+"voipdb"
+

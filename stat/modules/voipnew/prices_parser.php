@@ -136,8 +136,6 @@ class prices_parser
     public static function &read_beeline_full1($filename)
     {
 
-        global $pg_db;
-
         $objWorksheet = self::open_file($filename);
         if ($objWorksheet === false) return false;
         $fields = array('defcode' => array('t' => 'S', 'v' => 'Code/CNP'),

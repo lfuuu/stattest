@@ -1,5 +1,7 @@
 <?php
 use app\models\Currency;
+use app\classes\Wordifier;
+use app\classes\Utils;
 
 require PATH_TO_ROOT.'libs/Smarty.class.php';
 
@@ -211,16 +213,14 @@ function smarty_modifier_okei_name($string){
 	$res = GoodUnit::first($options);
 	return $res->name;
 }
-function smarty_modifier_round($val,$b,$t = ''){
-    $val = round($val, $b);
-	return sprintf("%0.".$b."f",($t==='-'?-$val:$val));
+function smarty_modifier_round($value, $precision, $mode = ''){
+    return Utils::round($value, $precision, $mode = '');
 }
-function smarty_modifier_mround($val,$r1,$r2){
-	$v = $val - round($val,$r1);
-	return sprintf("%0.".($v==0?$r1:$r2)."f",$val);
+function smarty_modifier_mround($value, $precision1, $precision2){
+    return Utils::mround($value, $precision1, $precision2);
 }
 function smarty_modifier_wordify($val,$curr) {
-	return Wordifier::Make($val,$curr);	
+	return Wordifier::Make($val,$curr);
 }
 function smarty_modifier_mdate($value,$format) {
 	return mdate($format,is_numeric($value)?$value:strtotime($value));
@@ -321,20 +321,11 @@ function smarty_function_objCurrency($params,&$smarty) {
 }
 
 function smarty_modifier_money($value, $currency, $round = 2) {
+    return Utils::money($value, $currency, $round);
+}
 
-	$currency = $currency ? Currency::symbol($currency) : '';
-
-	if (is_numeric($value)) {
-		$value = round($value, $round);
-		$result = number_format($value, $round, '.', '');
-		if ($currency) {
-			$result = $result . ' ' . $currency;
-		}
-	} else {
-		$result = $currency;
-	}
-
-	return $result;
+function smarty_modifier_rus_plural($value, $s1, $s2, $s3) {
+    return Utils::rus_plural($value, $s1, $s2, $s3);
 }
 
 class MySmarty extends Smarty {
@@ -367,7 +358,7 @@ class MySmarty extends Smarty {
 		$this->register_modifier('money','smarty_modifier_money');
 		$this->register_modifier('time_period','time_period');
 		$this->register_modifier('hl','smarty_modifier_hl');
-		$this->register_modifier('wordify','smarty_modifier_wordify');
+		$this->register_modifier('wordify', 'smarty_modifier_wordify');
 		$this->register_modifier('round','smarty_modifier_round');
 		$this->register_modifier('mround','smarty_modifier_mround');
 		$this->register_modifier('mdate','smarty_modifier_mdate');
@@ -375,8 +366,8 @@ class MySmarty extends Smarty {
 		$this->register_modifier('num_format','smarty_modifier_num_format');
 		$this->register_modifier('okei_name','smarty_modifier_okei_name');
 		$this->register_modifier('bytesize','smarty_modifier_bytesize');
-                $this->register_modifier('find_urls','smarty_modifier_find_urls');
-		$this->register_modifier('rus_fin','rus_fin');
+        $this->register_modifier('find_urls','smarty_modifier_find_urls');
+		$this->register_modifier('rus_fin','smarty_modifier_rus_plural');
 		$this->assign('premain',array());
 		$this->assign('WEB_PATH', WEB_ADDRESS . WEB_PATH);
 		$this->assign('IMAGES_PATH',WEB_IMAGES_PATH);

@@ -15,6 +15,21 @@ if (file_exists($file = __DIR__ . '/db_pgsql.local.php')) {
     $dbPg = ArrayHelper::merge($dbPg, require($file));
 }
 
+$dbAts = require(__DIR__ . '/db_ats.php');
+if (file_exists($file = __DIR__ . '/db_ats.local.php')) {
+    $dbAts = ArrayHelper::merge($dbAts, require($file));
+}
+
+$dbAts2 = require(__DIR__ . '/db_ats2.php');
+if (file_exists($file = __DIR__ . '/db_ats2.local.php')) {
+    $dbAts2 = ArrayHelper::merge($dbAts2, require($file));
+}
+
+$dbPgAts = require(__DIR__ . '/db_pg_ats.php');
+if (file_exists($file = __DIR__ . '/db_pg_ats.local.php')) {
+    $dbPgAts = ArrayHelper::merge($dbPgAts, require($file));
+}
+
 $log = require(__DIR__ . '/log.php');
 if (file_exists($file = __DIR__ . '/log.local.php')) {
     $log = ArrayHelper::merge($log, require($file));
@@ -75,6 +90,9 @@ $config = [
         'log' => $log,
         'db' => $db,
         'dbPg' => $dbPg,
+        'dbAts' => $dbAts,
+        'dbAts2' => $dbAts2,
+        'dbPgAts' => $dbPgAts,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -92,6 +110,14 @@ $config = [
                 Response::FORMAT_JSONP => [
                     'class' => 'app\classes\JsonResponseFormatter',
                     'useJsonp' => true,
+                ],
+            ],
+        ],
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource'
+                    //, 'sourceLanguage' => 'ru'
                 ],
             ],
         ],

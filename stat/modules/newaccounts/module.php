@@ -1,15 +1,16 @@
 <?php
 
 use app\classes\StatModule;
-use app\classes\Assert;
 use app\classes\Company;
 use app\classes\BillContract;
+use app\classes\BillQRCode;
 use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\ClientCounter;
 use app\models\Payment;
 use app\models\BillDocument;
 use app\models\Transaction;
+use app\classes\documents\DocumentReportFactory;
 
 class m_newaccounts extends IModule
 {
@@ -734,6 +735,16 @@ class m_newaccounts extends IModule
 
         $design->assign("store", $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '".$bill_no."'"));
 
+        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill);
+        $documents = [];
+        foreach ($availableDocuments as $document) {
+            $documents[] = [
+                'class' => $document->getDocType(),
+                'title' => $document->getName(),
+            ];
+        }
+        $design->assign('available_documents', $documents);
+
         $design->AddMain('newaccounts/bill_view.tpl');
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='".$bill_no."'");
@@ -1299,27 +1310,53 @@ class m_newaccounts extends IModule
         );
 
         foreach ($D as $k=>$rs) {
-            foreach ($rs as $r) if (get_param_protected($r)) {
-                $R = array('bill'=>$bill_no,'object'=>$r,'client'=>$bill->Get('client_id'), 'is_pdf' => $is_pdf);
-                if(isset($_REQUEST['without_date'])){
-                    $R['without_date'] = 1;
-                    $R['without_date_date'] = $_REQUEST['without_date_date'];
-                }
-                $link = array();
-                if(in_array($r, array("notice", "order")))
-                {
-                    $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
-                    $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
-                }
+            foreach ($rs as $r) {
+                if (get_param_protected($r)) {
+                    $R = array('bill'=>$bill_no,'object'=>$r,'client'=>$bill->Get('client_id'), 'is_pdf' => $is_pdf);
+                    if(isset($_REQUEST['without_date'])){
+                        $R['without_date'] = 1;
+                        $R['without_date_date'] = $_REQUEST['without_date_date'];
+                    }
+                    $link = array();
+                    if(in_array($r, array("notice", "order")))
+                    {
+                        $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
+                        $link[] = "https://stat.mcn.ru/client/pdf/".$r.".pdf";
+                    }
 
 
-                $R['emailed'] = '1';
-                $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
-                $R['emailed'] = '0';
-                $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
-                foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
+                    $R['emailed'] = '1';
+                    $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
+                    $R['emailed'] = '0';
+                    $link[] = LK_PATH.'docs/?bill='.udata_encode_arr($R);
+                    foreach ($template as $tk=>$tv) $template[$tk].=$k.'<a href="'.$link[$tk].'">'.$link[$tk].'</a><br>';
+                }
             }
         }
+
+        $documentReports = get_param_raw('document_reports', []);
+        $document_link = [];
+        for ($i=0, $s=sizeof($documentReports); $i<$s; $i++) {
+            $link_params = [
+                'bill'      => $bill_no,
+                'client'    => $bill->Get('client_id'),
+                'doc_type'  => $documentReports[$i],
+                'is_pdf'    => $is_pdf,
+            ];
+
+            $document_link[] = LK_PATH . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 1]);
+            $document_link[] = LK_PATH . 'docs/?bill=' . udata_encode_arr($link_params + ['emailed' => 0]);
+
+            foreach ($template as $pos => &$item) {
+                switch ($documentReports[$i]) {
+                    case 'bill':
+                        $item .= 'Счет: ';
+                        break;
+                }
+                $item .= '<a href="' . $document_link[$pos] . '">' . $document_link[$pos] . '</a>';
+            }
+        }
+
         $design->ProcessEx();
 
         $cs=new ClientCS($bill->Client('id'));
@@ -1375,10 +1412,11 @@ class m_newaccounts extends IModule
         $R = array();
         $P = '';
 
-
         $isFromImport = get_param_raw("from", "") == "import";
         $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
+
+        $documentReports = get_param_raw('document_reports', array());
 
         $L = array('envelope','bill-1-RUB','bill-2-RUB','lading','lading','gds','gds-2','gds-serial');
         $L = array_merge($L, array('invoice-1','invoice-2','invoice-3','invoice-4','invoice-5','akt-1','akt-2','akt-3','upd-1', 'upd-2', 'upd-3'));
@@ -1390,7 +1428,6 @@ class m_newaccounts extends IModule
         //$bills = array("201204-0465");
 
             $idxs = array();
-
 
         foreach($bills as $bill_no)
         {
@@ -1452,7 +1489,6 @@ class m_newaccounts extends IModule
             }
             //$design->assign('bill',$bb);
 
-
             $h = array();
             foreach($L as $r) {
 
@@ -1488,7 +1524,6 @@ class m_newaccounts extends IModule
                 {
                     $isDeny = true;
                 }
-
 
                 if ((get_param_protected($r) || $reCode) && !$isDeny) {
 
@@ -1530,6 +1565,18 @@ class m_newaccounts extends IModule
                     $P.=($P?',':'').'1';
                 }
             }
+
+            if (sizeof($documentReports)) {
+                $idxs[$bill_no . '==bill'] = count($R);
+                foreach ($documentReports as $documentReport) {
+                    $R[] = [
+                        'bill_no' => $bill_no,
+                        'doc_type' => $documentReport,
+                    ];
+                    $P .= ($P ? ',' : '') . '1';
+                }
+            }
+
             unset($bill);
         }
 
@@ -1558,6 +1605,7 @@ class m_newaccounts extends IModule
         if ($one_pdf == '1') {
             $this->create_pdf_from_docs($fixclient, $R);
         }
+
         $design->assign('is_pdf',$is_pdf);
         $design->assign('rows',$P);
         $design->assign('objects',$R);
@@ -1750,8 +1798,9 @@ class m_newaccounts extends IModule
             return true;
         }
 
-        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope')))
-            $obj='bill';
+        if (!in_array($obj, array('invoice', 'akt', 'upd', 'lading', 'gds', 'order', 'notice','new_director_info','envelope'))) {
+            $obj = 'bill';
+        }
 
         if ($obj!='bill')
             $curr = 'RUB';
@@ -1789,13 +1838,11 @@ class m_newaccounts extends IModule
             $this->docs_echoFile(STORE_PATH."order2.pdf", "Смена директора МСН Телеком.pdf");
             exit();
         }
-            
-
 
         if ($this->do_print_prepare($bill,$obj,$source,$curr) || in_array($obj, array("order","notice"))){
 
-      $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? QRCode::getNo($bill->GetNo()) : false));
-      $design->assign("source", $source);
+            $design->assign("bill_no_qr", ($bill->GetTs() >= strtotime("2013-05-01") ? BillQRCode::getNo($bill->GetNo()) : false));
+            $design->assign("source", $source);
 
             if($source==3 && $obj=='akt')
             {
@@ -2159,6 +2206,10 @@ class m_newaccounts extends IModule
             }
         }
 
+        // счета из 1С выводим полностью.
+        $Lkeys = array_keys($L);
+        $is1Cbill = $Lkeys && isset($L[$Lkeys[0]]) && isset($L[$Lkeys[0]]["bill_no"]) && preg_match("/^\d{6}\/\d{4}$/i", $L[$Lkeys[0]]["bill_no"]);
+
         $R = array();
         foreach($L as &$li){
             if($M[$li['type']]==1){
@@ -2172,7 +2223,8 @@ class m_newaccounts extends IModule
                             $li["item"] == "S" || 
                             ($origObj == "gds" && $source == 2) ||
                             preg_match("/^Аренд/i", $li["item"]) ||
-                            ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"]))
+                            ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"])) ||
+                            $is1Cbill
                             )
                     {
                         if($li["sum"] == 0){
@@ -2234,7 +2286,7 @@ class m_newaccounts extends IModule
                     }
                 }
             }
-            $period_date = get_inv_period($inv_date);;
+            $period_date = get_inv_period($inv_date);
         }elseif($bill->isOneTimeService())// или разовая услуга
         {
             if($bdata["doc_ts"])
@@ -2334,7 +2386,7 @@ class m_newaccounts extends IModule
 
 
         $L_prev=$bill->GetLines((preg_match('/bill-\d/',self::$object))?'order':false);//2 для фактур значит за прошлый период
-
+        //print_r($L_prev);
 
         if(in_array($obj, array("invoice","upd")))
         {
@@ -5174,7 +5226,7 @@ class m_newaccounts extends IModule
             $r["ts"] = $r["date"];
 
 
-            $qNo = QRCode::decodeNo($r["code"]);
+            $qNo = BillQRCode::decodeNo($r["code"]);
 
             $r["type"] = $qNo ? $qNo["type"]["name"] : "????";
             $r["number"] = $qNo ? $qNo["number"] : "????";
@@ -5236,8 +5288,8 @@ class m_newaccounts extends IModule
 
         foreach($docs as $e)
         {
-            $qrcode = QRCode::decodeFile($dir.$e);
-            $qr = QRCode::decodeNo($qrcode);
+            $qrcode = BillQRCode::decodeFile($dir.$e);
+            $qr = BillQRCode::decodeNo($qrcode);
 
             if($qrcode && $qr)
             {
@@ -5302,7 +5354,7 @@ class m_newaccounts extends IModule
         $d->close();
 
         $docType = array();
-        foreach(QRCode::$codes as $code => $c)
+        foreach(BillQRCode::$codes as $code => $c)
         {
             $docType[$code] = $c["name"];
         }
@@ -5321,7 +5373,7 @@ class m_newaccounts extends IModule
         if(!file_exists($dirUnrec.$file)) {trigger_error2("Файл не найден!"); return;}
 
         $type = get_param_raw("type", "");
-        if(!isset(QRCode::$codes[$type])) {trigger_error2("Ошибка в типе!"); return;}
+        if(!isset(BillQRCode::$codes[$type])) {trigger_error2("Ошибка в типе!"); return;}
 
         $number = get_param_raw("number", "");
         if(!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) { trigger_error2("Ошибка в номере!"); return;}
@@ -5329,8 +5381,8 @@ class m_newaccounts extends IModule
         global $db;
 
 
-        $qrcode = QRCode::encode($type, $number);
-        $qr = QRCode::decodeNo($qrcode);
+        $qrcode = BillQRCode::encode($type, $number);
+        $qr = BillQRCode::decodeNo($qrcode);
 
         $billNo = "";
         $clientId = 0;

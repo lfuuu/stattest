@@ -49,8 +49,7 @@ abstract class Biller
         $this->usage = $usage;
         $this->clientAccount = $clientAccount;
 
-        // $this->timezone = new DateTimeZone($this->clientAccount->accountRegion->timezone_name);
-        $this->timezone = $date->getTimezone();
+        $this->timezone = $this->clientAccount->timezone;
 
         $this->setupBillerDate($date);
         $this->setupBillerPeriod();
@@ -59,11 +58,12 @@ abstract class Biller
         $this->setupBillerActualPeriod();
     }
 
-
     protected function setupBillerDate(DateTime $date)
     {
-        $this->billerDate = clone $date;
+        $this->billerDate = new DateTime();
         $this->billerDate->setTimezone($this->timezone);
+        $this->billerDate->setDate($date->format('Y'), $date->format('m'), $date->format('d'));
+        $this->billerDate->setTime($date->format('H'), $date->format('i'), $date->format('s'));
     }
 
     protected function setupBillerPeriod()
@@ -169,15 +169,19 @@ abstract class Biller
 
     }
 
+    public function getTranslateFilename()
+    {
+        return 'biller';
+    }
 
-    protected function getPeriodTemplate($period)
+    public function getPeriodTemplate($period)
     {
         if ($period == 'once') {
-            return ', {fromDay}';
+            return 'date_once';
         } elseif ($period == 'month') {
-            return ' с {fromDay} по {toDate}';
+            return 'date_range_full';
         } elseif ($period == 'year') {
-            return ' с {fromDate} по {toDate}';
+            return 'date_range_with_year';
         }
     }
     protected function getContractInfo()
@@ -201,7 +205,10 @@ abstract class Biller
                 ->queryOne();
 
         if ($contract) {
-            return ', согласно Договора ' . $contract["no"] . " от " . date("d F Y", $contract["date"]) . " г.";
+            return Yii::t('biller', 'by_agreement', [
+                'contract_no' => $contract['no'],
+                'contract_date' => $contract['date']
+            ], $this->clientAccount->contragent->country->lang);
         } else {
             return '';
         }

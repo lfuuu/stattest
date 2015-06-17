@@ -1,9 +1,11 @@
 <?php
 
+use app\classes\Utils;
 use app\classes\BillContract;
+use \app\models\ClientContragent;
 
 global $writeoff_services;
-$writeoff_services=array("usage_ip_ports","usage_voip","bill_monthlyadd", "usage_virtpbx", "usage_extra","usage_welltime", "emails","usage_sms");
+$writeoff_services=array("usage_ip_ports","usage_voip", "usage_virtpbx", "usage_extra","usage_welltime", "emails","usage_sms");
 
 function Underscore2Caps($s) {
     return preg_replace_callback("/_(.)/",create_function('$a','return strtoupper($a[1]);'),$s);
@@ -23,6 +25,7 @@ abstract class ServicePrototype {
     public $devices;
     public $date_from,$date_to,$date_from_prev,$date_to_prev,$bill_no;
     public $client;
+    public $country;
     protected $tarif_std = 1;
 
     public function __construct($service,$bill) {
@@ -40,6 +43,8 @@ abstract class ServicePrototype {
             $this->devices = get_cpe_history ($service['service'],$service['id']);
         } else $this->devices=array();
         if (!$this->tarif_std) $this->LoadTarif();
+
+        $this->country = ClientContragent::findOne($this->client['contragent_id'])->country;
     }
     public function SetDate($date_from,$date_to,$date_from_prev = 0,$date_to_prev = 0){
         $this->date_from = max($date_from,strtotime($this->service['actual_from']));
@@ -103,8 +108,18 @@ abstract class ServicePrototype {
         if(false)
         foreach ($this->devices as $d) {
             $t=$d['vendor'].' '.$d['model'];
-            if ($d['serial']) $t.=' (серийный номер '.$d['serial'].')';
-            $R[]=array($this->tarif_current['currency'],'Залог за '.$t,1,$d['deposit_sum'.$this->tarif_current['currency']],'zalog','tech_cpe',$d['id'],$this->service['actual_from'],$this->service['actual_from']);
+            if ($d['serial']) $t.= Yii::t('biller', 'serial_number ', ['value' => $d['serial']] , $this->country->lang);
+            $R[]=array(
+                $this->tarif_current['currency'],
+                Yii::t('biller', 'pledge', ['value' => $t], $this->country->lang),
+                1,
+                $d['deposit_sum'.$this->tarif_current['currency']],
+                'zalog',
+                'tech_cpe',
+                $d['id'],
+                $this->service['actual_from'],
+                $this->service['actual_from']
+            );
         }
         return $R;
     }
@@ -157,7 +172,9 @@ class ServiceUsageIpPorts extends ServicePrototype {
         $R = ServicePrototype::GetLinesConnect();
         $R[] = array(
             $this->tarif_current['currency'],
-            'Подключение к интернет по тарифу '.$this->tarif_current['name'],
+            Yii::t('biller-ipports', 'ipports_connection', [
+                'tariff' => $this->tarif_current['name']
+            ], $this->country->lang),
             1,
             $this->tarif_current['pay_once'],
             'service',
@@ -271,10 +288,30 @@ class ServiceUsageIpPorts extends ServicePrototype {
 
         if($this->date_from && $this->date_to){
 
+            $date_range = Yii::t('biller', 'date_range_full', [
+                $this->date_from,
+                $this->date_to
+            ], $this->country->lang);
+
             $itemName = (
-                $this->tarif_current["type"] == "C" ? 
-                $this->tarif_current['name'].' с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to) :
-                'Абонентская плата за доступ в интернет (подключение '.$this->service['id'].', тариф '.$this->tarif_current['name'].') с '.date('d',$this->date_from).' по '.mdate('d месяца',$this->date_to));
+                $this->tarif_current["type"] == "C"
+                    ?
+                        Yii::t('biller-ipports', 'ipports_service', [
+                            'tariff' => $this->tarif_current['name'],
+                            'date_range' => $date_range
+                        ], $this->country->lang)
+                    : (
+                        $this->client["bill_rename1"] == "yes"
+                            ?
+                                'ipports_monthly_fee'
+                            :
+                                Yii::t('biller-ipports', 'ipports_monthly_fee', [
+                                    'service_id' => $this->service['id'],
+                                    'tariff' => $this->tarif_current['name'],
+                                    'date_range' => $date_range
+                                ], $this->country->lang)
+                    )
+            );
 
             if ($this->tarif_current['pay_month'] > 0 && $this->service['amount'] > 0) {
                 $R[] = array(
@@ -291,7 +328,6 @@ class ServiceUsageIpPorts extends ServicePrototype {
             }
         }
 
-
         if($this->date_from_prev && $this->date_to_prev){
             $TrafficOver=array();
             if($this->tarif_previous['type']=='I'){
@@ -301,7 +337,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $mb=max($S['in'],$S['out']);
                 if($mb > $this->tarif_previous['mb_month']*$this->GetDatePercentPrev()){
                     $TrafficOver[] = array(
-                        ($S['in']>$S['out']?'входящего':'исходящего').' трафика',
+                        Yii::t('biller-ipports', 'ipports_' . ($S['in'] > $S['out'] ? 'in' : 'out').'_traffic', [], $this->country->lang),
                         $mb-$this->tarif_previous['mb_month']*$this->GetDatePercentPrev(),
                         $this->tarif_previous['pay_mb'],
                     );
@@ -311,14 +347,22 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 if($this->tarif_previous['type_count']=='r2_f'){
                     $S['in_f'] += $S['in_r2'];
                     $S['in_r2'] = 0;
-                    $N = array('бесплатного входящего трафика','','платного входящего трафика');
+                    $N = array(
+                        Yii::t('biller-ipports', 'ipports_free_in_traffic', [], $this->country->lang),
+                        '',
+                        Yii::t('biller-ipports', 'ipports_pay_in_traffic', [], $this->country->lang)
+                    );
                 }elseif($this->tarif_previous['type_count'] == 'all_f'){
                     $S['in_f'] += $S['in_r'] + $S['in_r2'];
                     $S['in_r'] = 0;
                     $S['in_r2'] = 0;
-                    $N = array('','','платного входящего трафика');
+                    $N = array('', '', Yii::t('biller-ipports', 'ipports_pay_in_traffic', [], $this->country->lang));
                 }else{
-                    $N = array('входящего трафика "Россия"','входящего трафика "Россия-2"','входящего трафика "Иностранный"');
+                    $N = array(
+                        Yii::t('biller-ipports', 'ipports_in_traffic_RUSSIA', [], $this->country->lang),
+                        Yii::t('biller-ipports', 'ipports_in_traffic_RUSSIA-2', [], $this->country->lang),
+                        Yii::t('biller-ipports', 'ipports_in_traffic_FOREIGN', [], $this->country->lang)
+                    );
                 }
                 if($this->tarif_previous['pay_r'] && $S['in_r']>$this->tarif_previous['month_r']*$this->GetDatePercentPrev()){
                     $TrafficOver[] = array(
@@ -346,7 +390,7 @@ class ServiceUsageIpPorts extends ServicePrototype {
                 $mb = max($S['in'],$S['out']);
                 if($mb>$this->tarif_previous['mb_month']*$this->GetDatePercentPrev()){
                     $TrafficOver[] = array(
-                        ($S['in']>$S['out']?'входящего':'исходящего').' трафика',
+                        Yii::t('biller-ipports', 'ipports_' . ($S['in'] > $S['out'] ? 'in' : 'out').'_traffic', [], $this->country->lang),
                         $mb-$this->tarif_previous['mb_month']*$this->GetDatePercentPrev(),
                         $this->tarif_previous['pay_mb'],
                     );
@@ -355,13 +399,12 @@ class ServiceUsageIpPorts extends ServicePrototype {
             foreach($TrafficOver as $T){
                 $R[] = array(
                     $this->tarif_previous['currency'],
-                    'Превышение лимита '.
-                    $T[0].
-                    ', включенного в абонентскую плату (подключение '.
-                    $this->service['id'].
-                    ', тариф '.
-                    $this->tarif_previous['name'].
-                    ') с '.date('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev),
+                    Yii::t('biller-ipports', 'ipports_overlimit', [
+                        'overlimit' => $T[0],
+                        'service_id' => $this->service['id'],
+                        'tariff' => $this->tarif_previous['name'],
+                        'date_range' => $date_range
+                    ], $this->country->lang),
                     $T[1],
                     $T[2],
                     'service',
@@ -373,23 +416,32 @@ class ServiceUsageIpPorts extends ServicePrototype {
             }
         }
 
-        if($this->client["bill_rename1"] == "yes")
-        foreach($R as &$l)
-        {
-            if(strpos($l[1], "бонентская плата за доступ в интернет") !== false)
-            {
-                $clientId = $this->service["client_id"];
-                if($clientId)
-                {
-                    if($str = BillContract::getBillItemString($clientId, $this->date_from))
-                    {
-                        $l[1] = "Оказанные услуги по предоставлению доступа в интернет ".mb_substr($l[1], mb_strpos($l[1], "(", 0, 'utf-8'), null, 'utf-8');
-                        $l[1] .= $str;
-                    }
-                }
+        if($this->client["bill_rename1"] == "yes") {
+            foreach ($R as &$l) {
+                if ($l[1] === 'internet_connection_pyment') {
+                    $clientId = $this->service["client_id"];
+                    if ($clientId) {
+                        if ($contract = BillContract::getLastContract($clientId, $this->date_from)) {
+                            $l[1] = Yii::t('biller-ipports', 'ipports_monthly_fee_custom', [
+                                'by_agreement' => Yii::t('biller', 'by_agreement', [
+                                    'contract_no' => $contract['no'],
+                                    'contract_date' => $contract['date']
+                                ], $this->country->lang)
+                            ], $this->country->lang);
 
+                            break;
+                        }
+                    }
+
+                    $l[1] = Yii::t('biller-ipports', $l[1], [
+                        'service_id' => $this->service['id'],
+                        'tariff' => $this->tarif_current['name'],
+                        'date_range' => $date_range
+                    ], $this->country->lang);
+                }
             }
         }
+
         return $R;
     }
 
@@ -414,7 +466,17 @@ class ServiceUsageVoip extends ServicePrototype {
         $p=($this->service['no_of_lines']-1)*$this->tarif_current['once_line'];
         if ($p<0) $p=0;
         $p+=$this->tarif_current['once_number'];
-        $R[]=array($this->tarif_current['currency'],'Подключение к IP-телефонии по тарифу '.$this->tarif_current['name'],1,$p,'service',$this->service['service'],$this->service['id'],$this->service['actual_from'],$this->service['actual_to']);
+        $R[]=array(
+            $this->tarif_current['currency'],
+            Yii::t('biller-voip', 'voip_connection', ['tariff' => $this->tarif_current['name']], $this->country->lang),
+            1,
+            $p,
+            'service',
+            $this->service['service'],
+            $this->service['id'],
+            $this->service['actual_from'],
+            $this->service['actual_to']
+        );
         return $R;
     }
     private function get_traffic_categories_list(){
@@ -422,25 +484,43 @@ class ServiceUsageVoip extends ServicePrototype {
     }
 
     private function calc($is7800){
-    global $pg_db;
+        global $pg_db;
         $d = getdate($this->date_from_prev);
 
-        $W = "(usage_id='".$this->service['id']."')";
-        $W .= " and (time >= '".$d['year']."-".$d['mon']."-01')";
-        $W .= " and (time < '".$d['year']."-".$d['mon']."-01'::date+interval '1 month')";
-        $W .= " and (amount > 0)";
+        /** @var \app\models\ClientAccount $clientAccount */
+        $clientAccount = \app\models\ClientAccount::findOne($this->client['id']);
+
+        $from = new DateTime($d['year'].'-'.$d['mon'].'-01', $clientAccount->timezone);
+        $from->setTimezone(new DateTimeZone('UTC'));
+        $from = $from->format('Y-m-d H:i:s');
+
+        $toYear = $d['year'];
+        $toMon = $d['mon'] + 1;
+        if ($toMon > 12) {
+            $toMon = 1;
+            $toYear += 1;
+        }
+
+        $to = new DateTime($toYear.'-'.$toMon.'-01', $clientAccount->timezone);
+        $to->setTimezone(new DateTimeZone('UTC'));
+        $to = $to->format('Y-m-d H:i:s');
+
+        $W = " number_service_id = '".$this->service['id']."' ";
+        $W .= " and connect_time >= '".$from."' ";
+        $W .= " and connect_time < '".$to."' ";
+        $W .= " and abs(cost) > 0.00001 ";
 
         $res = $pg_db->AllRecords($q='
             select
-                case dest <= 0 when true then
+                case destination_id <= 0 when true then
                     case mob when true then 5 else 4 end
-                else dest end rdest, 
-                cast( sum(amount)/100.0 as NUMERIC(10,2)) as price
+                else destination_id end rdest,
+                cast( - sum(cost) as NUMERIC(10,2)) as price
             from
-                calls.calls_'.intval($this->service['region']).'
+                calls_raw.calls_raw
             where '.$W.'
             group by rdest
-            having cast( sum(amount)/100.0 as NUMERIC(10,2)) > 0');
+            having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0');
 
 
         $groups = $this->tarif_previous['dest_group'];
@@ -452,7 +532,6 @@ class ServiceUsageVoip extends ServicePrototype {
            [minpayment_local_mob] => 0  // 5
            [minpayment_russia] => 1500  // 1
            [minpayment_intern] => 0     // 2
-           [minpayment_sng] => 0        // 3
 
            // other 900
          */
@@ -471,9 +550,6 @@ class ServiceUsageVoip extends ServicePrototype {
 
             if($this->tarif_previous["minpayment_intern"])
                 $lines["2"] = array('price' => 0);
-
-            if($this->tarif_previous["minpayment_sng"])
-                $lines["3"] = array('price' => 0);
         }
 
         foreach ($res as $r) {
@@ -482,8 +558,7 @@ class ServiceUsageVoip extends ServicePrototype {
             if ((int)$this->tarif_previous['minpayment_group'] +
                 (int)$this->tarif_previous['minpayment_local_mob'] +
                 (int)$this->tarif_previous['minpayment_russia'] +
-                (int)$this->tarif_previous['minpayment_intern'] +
-                (int)$this->tarif_previous['minpayment_sng']  == 0) $dest = '900';
+                (int)$this->tarif_previous['minpayment_intern'] == 0) $dest = '900';
 
             if (!isset($lines[$dest])) $lines[$dest] = array('price'=>0);
             $lines[$dest]['price'] += $r['price'];
@@ -503,12 +578,22 @@ class ServiceUsageVoip extends ServicePrototype {
 
         $is7800 = substr($this->service["E164"], 0, 4) == "7800";
 
+        $date_range = Yii::t('biller', 'date_range_full', [
+            $this->date_from,
+            $this->date_to
+        ], $this->country->lang);
+
+        $i18n_params = [
+            'service_id' => $this->service_id,
+            'service' => $this->service['E164'],
+            'date_range' => $date_range
+        ];
+
         if($this->date_from && $this->date_to){
             if ($this->tarif_current['month_number'] > 0) {
                 $R[] = array(
                     $this->tarif_current['currency'],
-                    'Абонентская плата за телефонный номер ' . $this->service['E164'] .
-                    ' с ' . date('d', $this->date_from) . ' по ' . mdate('d месяца', $this->date_to),
+                    'voip_monthly_fee_per_number',
                     $this->GetDatePercent(),
                     $this->tarif_current['month_number'],
                     'service',
@@ -521,10 +606,15 @@ class ServiceUsageVoip extends ServicePrototype {
             if($this->service['no_of_lines']>1){
                 $c=intval($this->service['no_of_lines']-1);
                 if ($this->tarif_current['month_line'] > 0) {
+                    // Yii::t plural not work
+                    // https://github.com/yiisoft/yii2/issues/4259
+                    $i18n_params['plural_first'] = Utils::rus_plural($c, 'ую', 'ые', 'ых');
+                    $i18n_params['plural_second'] = Utils::rus_plural($c, 'ию', 'ии', 'ий');
+                    $i18n_params['lines_number'] = $c;
+
                     $R[] = array(
                         $this->tarif_current['currency'],
-                        'Абонентская плата за ' . $c . ' телефонн' . rus_fin($c, 'ую', 'ые', 'ых') .
-                        ' лин' . rus_fin($c, 'ию', 'ии', 'ий') . ' к номеру ' . $this->service['E164'],
+                        'voip_monthly_fee_per_line',
                         $this->GetDatePercent() * ($this->service['no_of_lines'] - 1),
                         $this->tarif_current['month_line'],
                         'service',
@@ -544,7 +634,6 @@ class ServiceUsageVoip extends ServicePrototype {
             $minpayment_local_mob   = $percentByDate * $this->tarif_previous['minpayment_local_mob'];
             $minpayment_russia      = $percentByDate * $this->tarif_previous['minpayment_russia'];
             $minpayment_intern      = $percentByDate * $this->tarif_previous['minpayment_intern'];
-            $minpayment_sng         = $percentByDate * $this->tarif_previous['minpayment_sng'];
             $month_min_payment      = $percentByDate * $this->tarif_previous["month_min_payment"];
             $minpayment_group       = $percentByDate * $this->tarif_previous["minpayment_group"];
 
@@ -554,17 +643,19 @@ class ServiceUsageVoip extends ServicePrototype {
                 $price = $r['price'];
                 $name = '';
                 $percent = 1;
+                $group = array();
+
                 if ($dest == '4'){
-                    $name = 'Превышение лимита, включенного в абонентскую плату по номеру %NUM% (местные вызовы) %PERIOD%';
+                    $name = 'overlimit';
                 }elseif($dest == '5'){
 
                     if ($minpayment_local_mob > $price)
                     {
                         $price = $minpayment_local_mob;
                         $percent = $percentByDate;
-                        $name = 'Минимальный платеж за звонки на местные мобильные с номера %NUM% %PERIOD%';
+                        $name = 'voip_local_mobile_call_minpay';
                     }else
-                        $name = 'Плата за звонки на местные мобильные с номера %NUM% %PERIOD%';
+                        $name = 'voip_local_mobile_call_payment';
                     
                 }elseif($dest == '1'){
 
@@ -572,9 +663,9 @@ class ServiceUsageVoip extends ServicePrototype {
                     {
                         $price = $minpayment_russia;
                         $percent = $percentByDate;
-                        $name = 'Минимальный платеж за междугородные звонки с номера %NUM% %PERIOD%';
+                        $name = 'voip_long_distance_call_minpay';
                     }else
-                        $name = 'Плата за междугородные звонки с номера %NUM% %PERIOD%';
+                        $name = 'voip_long_distance_call_payment';
 
                 }elseif($dest == '2'){
 
@@ -582,35 +673,27 @@ class ServiceUsageVoip extends ServicePrototype {
                     {
                         $price = $minpayment_intern;
                         $percent = $percentByDate;
-                        $name = 'Минимальный платеж за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'voip_international_call_minpay';
                     }else
-                        $name = 'Плата за звонки в дальнее зарубежье с номера %NUM% %PERIOD%';
-
-                }elseif($dest == '3'){
-
-                    if ($minpayment_sng > $price)
-                    {
-                        $price = $minpayment_sng;
-                        $percent = $percentByDate;
-                        $name = 'Минимальный платеж за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
-                    }else
-                        $name = 'Плата за звонки в ближнее зарубежье с номера %NUM% %PERIOD%';
+                        $name = 'voip_international_call_payment';
 
                 }elseif($dest == '100'){
-
-                    $group = array();
-                    if (strpos($this->tarif_previous['dest_group'], '5') !== FALSE) $group[]='местные мобильные';
-                    if (strpos($this->tarif_previous['dest_group'], '1') !== FALSE) $group[]='междугородные';
-                    if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE) $group[]='дальнее зарубежье';
-                    if (strpos($this->tarif_previous['dest_group'], '3') !== FALSE) $group[]='ближнее зарубежье';
-                    $group = implode(', ', $group);
+                    if (strpos($this->tarif_previous['dest_group'], '5') !== FALSE)
+                        $group[] = Yii::t('biller-voip', 'voip_group_local', [], $this->country->lang);
+                    if (strpos($this->tarif_previous['dest_group'], '1') !== FALSE)
+                        $group[] = Yii::t('biller-voip', 'voip_group_long_distance', [], $this->country->lang);
+                    if (strpos($this->tarif_previous['dest_group'], '2') !== FALSE)
+                        $group[] = Yii::t('biller-voip', 'voip_group_international', [], $this->country->lang);
+                    if (strpos($this->tarif_previous['dest_group'], '3') !== FALSE)
+                        $group[] = Yii::t('biller-voip', 'voip_group_sng', [], $this->country->lang);
+                    $i18n_params['group'] = implode(', ', $group);
                     if ($minpayment_group > $price)
                     {
                         $price = $minpayment_group;
                         $percent = $percentByDate;
-                        $name = "Минимальный платеж за набор ($group) с номера %NUM% %PERIOD%";
+                        $name = 'voip_group_minpay';
                     }else
-                        $name = "Плата за звонки в наборе ($group) с номера %NUM% %PERIOD%";
+                        $name = 'voip_group_payment';
 
                 }elseif($dest == '900'){
 
@@ -620,18 +703,23 @@ class ServiceUsageVoip extends ServicePrototype {
                         {
                             $price = $month_min_payment;
                             $percent = $percentByDate;
-                            $name = "Минимальный платеж за звонки по номеру %NUM% %PERIOD%";
+                            $name = 'voip_calls_minpay';
                         } else {
-                            $name = "Плата за звонки по номеру %NUM% %PERIOD%";
+                            $name = 'voip_calls_payment';
                         }
                     } else {
-                        $name = "Плата за звонки по номеру %NUM% (местные, междугородные, международные) %PERIOD%";
+                        $name = 'voip_group_calls_payment';
                     }
 
                 }
 
-                $name = str_replace('%NUM%', $this->service['E164'], $name);
-                $name = str_replace('%PERIOD%', 'с '.date('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev), $name);
+                if ($this->client["bill_rename1"] != "yes") {
+                    $i18n_params['service'] = $this->service['E164'];
+                    $i18n_params['date_range'] = Yii::t('biller', 'date_range_full', [
+                        $this->date_from_prev,
+                        $this->date_to_prev
+                    ], $this->country->lang);
+                }
 
                 if ($price > 0) {
                     $R[] = array(
@@ -649,33 +737,41 @@ class ServiceUsageVoip extends ServicePrototype {
             }            
         }
 
-        if($this->client["bill_rename1"] == "yes")
-        foreach($R as &$l)
-        {
-            //Абонентская плата за телефонный номер 74956385213 с 01 по 31 января 
-            //Оказанные услуги за телефонный номер 74956385213 с 01 по 30 июня, согласно Договора ??? 4743-08 от 01.10.2008 г. 
+        foreach ($R as &$l) {
+            //Абонентская плата за телефонный номер 74956385213 с 01 по 31 января
+            //Оказанные услуги за телефонный номер 74956385213 с 01 по 30 июня, согласно Договора ??? 4743-08 от 01.10.2008 г.
 
-            if(strpos($l[1], "бонентская плата за") !== false)
-            {
-                $contractStr = BillContract::getBillItemString($this->service["client_id"], $this->date_from);
-                if($contractStr)
-                {
-                    $l[1] = "Оказанные услуги за ".mb_substr($l[1], mb_strpos($l[1], "за ", 0, 'utf-8')+3, null, 'utf-8').$contractStr;
+            $i18n_params['by_agreement'] = '';
+
+            if($this->client["bill_rename1"] == "yes") {
+                if ($l[1] == 'voip_monthly_fee_per_number' || $l[1] == 'voip_monthly_fee_per_line') {
+                    if ($contract = BillContract::getLastContract($this->service["client_id"], $this->date_from)) {
+                        $i18n_params['by_agreement'] = Yii::t('biller', 'by_agreement', [
+                            'contract_no' => $contract['no'],
+                            'contract_date' => $contract['date']
+                        ], $this->country->lang);
+
+                        $l[1] = Yii::t('biller-voip', $l[1] . '_custom', $i18n_params, $this->country->lang);
+                        continue;
+                    }
                 }
 
+                if ($l[1] == 'voip_calls_payment' || $l[1] == 'voip_group_calls_payment') {
+                    if ($contract = BillContract::getLastContract($this->service["client_id"], $this->date_from_prev)) {
+                        $i18n_params['by_agreement'] = Yii::t('biller', 'by_agreement', [
+                            'contract_no' => $contract['no'],
+                            'contract_date' => $contract['date']
+                        ], $this->country->lang);
+
+                        $l[1] = Yii::t('biller-voip', $l[1] . '_custom', $i18n_params, $this->country->lang);
+                        continue;
+                    }
+                }
             }
 
-            if(strpos($l[1], "Плата за звонки по номеру") !== false)
-            {
-                $l[1] = str_replace("Плата", "Оказанные услуги", $l[1]).BillContract::getBillItemString($this->service["client_id"], $this->date_from_prev);
-            }
-
-            if(strpos($l[1], "Услуга местного завершения вызо") !== false)
-            {
-                $l[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
-            }
-
+            $l[1] = Yii::t('biller-voip', $l[1], $i18n_params, $this->country->lang);
         }
+
         return $R;
     }
 
@@ -698,11 +794,7 @@ class ServiceBillMonthlyadd extends ServicePrototype {
         if ($this->service['price'] > 0) {
             $R[] = array(
                 0 => $this->service['currency'],
-                1 => $this->service['description'] .
-                    ' с ' .
-                    date('d', $this->date_from) .
-                    ' по ' .
-                    mdate('d месяца', $this->date_to),
+                1 => $this->service['description'] . Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang),
                 2 => $this->service['amount'] * $this->GetDatePercent(),
                 3 => $this->service['price'],
                 4 => 'service',
@@ -851,28 +943,34 @@ class ServiceUsageExtra extends ServicePrototype {
 
                     if (isset($contracts["arenda"])) {
                         $c = $contracts["arenda"]["c_no"];
-                        $v[1] .= " по Договору " .
-                            (strpos($c, "A/") !== false || strpos($c, "А/") !== false ? "" : "А/") . $c . " от " . mdate('d месяца Y', $contracts["arenda"]["date"]) . "г.";
+                        $v[1] .= Yii::t('biller', 'extra_service_itpark', [
+                            'contract' => (strpos($c, "A/") !== false || strpos($c, "А/") !== false ? "" : "А/") . $c,
+                            'contract_date' => $contracts["arenda"]["date"]
+                        ], $this->country->lang);
                     }
                 }
 
                 if (
-
                     strpos($this->tarif_current["description"], "очтовое") !== false
                     && strpos($this->tarif_current["description"], "бслуживание") !== false
                 ) {
                     if (isset($contracts["post"])) {
-                        $v[1] .= " по Договору " . $contracts["post"]["c_no"] . " от " . mdate('d месяца Y', $contracts["post"]["date"]) . "г.";
+                        $v[1] .= Yii::t('biller', 'extra_service_itpark', [
+                            'contract' => $contracts["post"]["c_no"],
+                            'contract_date' => $contracts["post"]["date"]
+                        ], $this->country->lang);
                     }
                 }
 
                 if (
-
                     strpos($this->tarif_current["description"], "онтрол") !== false
                     && strpos($this->tarif_current["description"], "территории") !== false
                 ) {
                     if (isset($contracts["parking"])) {
-                        $v[1] .= " по Договору " . $contracts["parking"]["c_no"] . " от " . mdate('d месяца Y', $contracts["parking"]["date"]) . "г.";
+                        $v[1] .= Yii::t('biller', 'extra_service_itpark', [
+                            'contract' => $contracts["parking"]["c_no"],
+                            'contract_date' => $contracts["parking"]["date"]
+                        ], $this->country->lang);
                     }
                 }
             }
@@ -881,15 +979,19 @@ class ServiceUsageExtra extends ServicePrototype {
             if ($this->tarif_current['param_name'])
                 $v[1] = str_replace('%', $this->service['param_value'], $v[1]);
             if ($this->tarif_current['period'] == 'once') {
-                $v[1] .= ', ' . mdate('d', $this->date_from);
+                $v[1] .= Yii::t('biller', 'date_once', $this->date_from, $this->country->lang);
             } elseif ($this->tarif_current['period'] == 'month') {
-                $v[1] .= ' с ' . mdate('d', $this->date_from) . ' по ' . mdate('d месяца', $this->date_to);
+                $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
             } elseif ($this->tarif_current['period'] == 'year') {
-                $v[1] .= ' с ' . mdate('d месяца Y', $this->date_from) . ' по ' . mdate('d месяца Y', $this->date_to);
+                $v[1] .= Yii::t('biller', 'date_range_with_year', [$this->date_from, $this->date_to], $this->country->lang);
             }
 
             if ($this->client["bill_rename1"] == "yes") {
-                $v[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
+                if ($contract = BillContract::getLastContract($this->service["client_id"], $this->date_from))
+                    $v[1] .= Yii::t('biller', 'by_agreement', [
+                        'contract_no' => $contract['no'],
+                        'contact_date' => $contract['date']
+                    ], $this->country->lang);
             }
 
             $R[] = $v;
@@ -971,11 +1073,11 @@ class ServiceUsageWelltime extends ServicePrototype {
                 date('Y-m-d', $this->date_to)
             );
             if($this->tarif_current['period']=='once'){
-                $v[1] .= ', '.mdate('d',$this->date_from);
+                $v[1] .= Yii::t('biller', 'date_once', $this->date_from, $this->country->lang);
             }elseif($this->tarif_current['period']=='month'){
-                $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+                $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
             } elseif ($this->tarif_current['period']=='year') {
-                $v[1].=' с '.mdate('d месяца Y',$this->date_from).' по '.mdate('d месяца Y',$this->date_to);
+                $v[1] .= Yii::t('biller', 'date_range_with_year', [$this->date_from, $this->date_to], $this->country->lang);
             }
             $R[]=$v;
         }
@@ -1012,11 +1114,13 @@ class ServiceUsageVirtpbx extends ServicePrototype {
             );
 
             //by month
-            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
 
             $R[]=$v;
         }
         if($this->date_from_prev && $this->date_to_prev){
+            $date_range = Yii::t('biller', 'date_range_full', [$this->date_from_prev, $this->date_to_prev], $this->country->lang);
+
             list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->date_from_prev, $this->date_to_prev);
 
             if ($overrun_prev_month['sum_space'] > 0)
@@ -1031,7 +1135,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
                 if ($price > 0) {
                     $v = array(
                         $this->tarif_current['currency'],
-                        'Превышение дискового пространства с ' . mdate('d', $this->date_from_prev) . ' по ' . mdate('d месяца', $this->date_to_prev),
+                        Yii::t('biller', 'vpbx_over_disk_usage', ['date_range' => $date_range], $this->country->lang),
                         $amount,
                         $price,
                         'service',
@@ -1056,7 +1160,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
                 if ($price > 0) {
                     $v = array(
                         $this->tarif_current['currency'],
-                        'Превышение количества портов с ' . mdate('d', $this->date_from_prev) . ' по ' . mdate('d месяца', $this->date_to_prev),
+                        Yii::t('biller', 'vpbx_over_ports_count', ['date_range' => $date_range], $this->country->lang),
                         $amount,
                         $price,
                         'service',
@@ -1099,7 +1203,9 @@ class ServiceUsageSms extends ServicePrototype {
         {
             $v=array(
                     $this->tarif_current['currency'],
-                    "Абонентская плата за СМС рассылки, ".$this->tarif_current['description'],
+                    Yii::t('biller', 'sms_monthly_fee', [
+                        'tariff' => $this->tarif_current['description']
+                    ], $this->country->lang),
                     1*$this->GetDatePercent(),
                     $this->tarif_current['per_month_price']/1.18,
                     'service',
@@ -1109,7 +1215,7 @@ class ServiceUsageSms extends ServicePrototype {
                     date('Y-m-d',$this->date_to)
                     );
 
-            $v[1].=' с '.mdate('d',$this->date_from).' по '.mdate('d месяца',$this->date_to);
+            $v[1] .= Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang);
             $R[]=$v;
         }
 
@@ -1118,7 +1224,13 @@ class ServiceUsageSms extends ServicePrototype {
         {
             $v=array(
                     $this->tarif_current['currency'],
-                    "СМС рассылка, ".$this->tarif_current['description'],
+                    Yii::t('biller', 'sms_service', [
+                        'tariff' => $this->tarif_current['description'],
+                        'date_range' => Yii::t('biller', 'date_range_full', [
+                            $this->date_from_prev,
+                            $this->date_to_prev
+                        ], $this->country->lang)
+                    ], $this->country->lang),
                     $count,
                     $this->tarif_current['per_sms_price']/1.18,
                     'service',
@@ -1128,7 +1240,6 @@ class ServiceUsageSms extends ServicePrototype {
                     date('Y-m-d',$this->date_to_prev)
                     );
 
-            $v[1].=' с '.mdate('d',$this->date_from_prev).' по '.mdate('d месяца',$this->date_to_prev);
             $R[]=$v;
         }
 
@@ -1167,41 +1278,25 @@ class ServiceEmails extends ServicePrototype {
 
             $b = $db->getRow($q='
                 select
-                    1 as dt
+                    MAX(
+                        1+
+                        LEAST(actual_to,DATE("'.date('Y-m-d', $this->date_to).'"))-
+                        GREATEST(actual_from,DATE("'.date('Y-m-d', $this->date_from).'"))
+                    )/
+                    (1+(DATE("'.date('Y-m-d', $this->date_to).'") - DATE("'.date('Y-m-d', $this->date_from).'")) ) as dt
                 from
-                    bill_monthlyadd as U
+                    usage_extra as U
+                INNER JOIN
+                    tarifs_extra as T
+                ON
+                    T.id = U.tarif_id
                 where
-                    description LIKE "Виртуальный почтовый сервер%"
+                    T.code = "mailserver"
                 and
-                    U.actual_from<=FROM_UNIXTIME('.$this->date_from.')
-                and
-                    U.actual_to>=FROM_UNIXTIME('.$this->date_to.')
+                    U.actual_from<=FROM_UNIXTIME('.$this->date_to.')
                 AND
                     U.client="'.$this->service['client'].'"
             ');
-
-            if(!$b) // тут косяк. T.code не всегда адекватные
-                $b = $db->getRow($q='
-                    select
-                        MAX(
-                            86400+
-                            LEAST(UNIX_TIMESTAMP(actual_to),'.$this->date_to.')-
-                            GREATEST(UNIX_TIMESTAMP(actual_from),'.$this->date_from.')
-                        )/
-                        (86400+'.($this->date_to-$this->date_from).') as dt
-                    from
-                        usage_extra as U
-                    INNER JOIN
-                        tarifs_extra as T
-                    ON
-                        T.id = U.tarif_id
-                    where
-                        T.code = "mailserver"
-                    and
-                        U.actual_from<=FROM_UNIXTIME('.$this->date_to.')
-                    AND
-                        U.client="'.$this->service['client'].'"
-                ');
             
             if($b && ($b['dt']>0.08)){
                 $b = $b['dt']+0.05;
@@ -1223,14 +1318,12 @@ class ServiceEmails extends ServicePrototype {
         if ($price > 0) {
             $R[] = array(
                 0 => $this->client['currency'],
-                1 => 'Поддержка почтового ящика ' .
-                    $this->service['local_part'] .
-                    '@' .
-                    $this->service['domain'] .
-                    ' с ' .
-                    date('d', $this->date_from) .
-                    ' по ' .
-                    mdate('d месяца', $this->date_to),
+                1 => Yii::t('biller', 'email_service', [
+                    'local_part' => $this->service['local_part'],
+                    'domain' => $this->service['domain'],
+                    'date_range' => Yii::t('biller', 'date_range_full', [$this->date_from, $this->date_to], $this->country->lang),
+                    'by_agreement' => ''
+                ], $this->country->lang),
                 2 => $this->getDatePercent(),
                 3 => $price,
                 4 => 'service',
@@ -1242,8 +1335,13 @@ class ServiceEmails extends ServicePrototype {
         }
 
         if($this->client["bill_rename1"] == "yes")
-            foreach($R as &$v)
-                $v[1] .= BillContract::getBillItemString($this->service["client_id"], $this->date_from);
+            foreach($R as &$v) {
+                if ($contract = BillContract::getLastContract($this->service['client_id'], $this->date_from))
+                    $v[1] .= Yii::t('biller', 'by_agreement', [
+                        'contract_no' => $contract['no'],
+                        'contract_date' => $contract['date']
+                    ], $this->country->lang);
+            }
 
         return $R;
     }
@@ -1293,15 +1391,14 @@ function get_tarif_history($service,$param,$date_quoted = 'NOW()'){
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_internet as A ON A.id=log_tarif.id_tarif';
     } elseif ($service=="usage_voip"){
-        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
-        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
-        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,log_tarif.minpayment_sng,';
+        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,';
+        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,';
+        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,';
         $add2 =' LEFT JOIN tarifs_voip as A ON A.id=log_tarif.id_tarif ';
         $add2.=' LEFT JOIN tarifs_voip as A5 ON A5.id=log_tarif.id_tarif_local_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
         $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
-        $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
     } elseif ($service=="domains") {
         $add1='A.*,';
         $add2=' LEFT JOIN tarifs_hosting as A ON A.id=log_tarif.id_tarif';
@@ -1411,15 +1508,14 @@ function get_tarif_current($service,$param){
         ON
             A.id=log_tarif.id_tarif';
     }elseif($service=="usage_voip"){
-        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,A3.name_short tarif_sng_name,';
-        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,log_tarif.id_tarif_sng,';
-        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,log_tarif.minpayment_sng,';
+        $add1 ='A.*,A5.name_short tarif_local_mob_name,A1.name_short tarif_russia_name,A6.name_short tarif_russia_mob_name,A2.name_short tarif_intern_name,';
+        $add1.='log_tarif.id_tarif_local_mob,log_tarif.id_tarif_russia,log_tarif.id_tarif_russia_mob,log_tarif.id_tarif_intern,';
+        $add1.='log_tarif.dest_group,log_tarif.minpayment_group,log_tarif.minpayment_local_mob,log_tarif.minpayment_russia,log_tarif.minpayment_intern,';
         $add2 =' LEFT JOIN tarifs_voip as A ON A.id=log_tarif.id_tarif ';
         $add2.=' LEFT JOIN tarifs_voip as A5 ON A5.id=log_tarif.id_tarif_local_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A1 ON A1.id=log_tarif.id_tarif_russia ';
         $add2.=' LEFT JOIN tarifs_voip as A6 ON A6.id=log_tarif.id_tarif_russia_mob ';
         $add2.=' LEFT JOIN tarifs_voip as A2 ON A2.id=log_tarif.id_tarif_intern ';
-        $add2.=' LEFT JOIN tarifs_voip as A3 ON A3.id=log_tarif.id_tarif_sng ';
     }elseif($service=="usage_virtpbx"){
         $add1='A.*,';
         $add2='LEFT JOIN

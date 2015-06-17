@@ -33,8 +33,8 @@ class m_voipreports_cost_report
         $reportOperators = array();
         if (isset($_GET['make']) || isset($_GET['export'])) {
 
-            $where = " and r.time >= '{$date_from}'";
-            $where .= " and r.time <= '{$date_to} 23:59:59'";
+            $where = " and r.connect_time >= '{$date_from}'";
+            $where .= " and r.connect_time <= '{$date_to} 23:59:59'";
             $where .= $f_direction_out == 'f' ?  " and r.direction_out=false " : " and r.direction_out=true ";
 
             if ($f_operator_id != '0')
@@ -43,9 +43,9 @@ class m_voipreports_cost_report
                 $where .= " and r.{$prefixField}::varchar like '" . intval($f_prefix) . "%' ";
             if ($f_dest_group != '') {
                 if ($f_dest_group == '-1') {
-                    $where .= " and r.dest < 0 ";
+                    $where .= " and r.destination_id < 0 ";
                 } else {
-                    $where .= " and r.dest='{$f_dest_group}' ";
+                    $where .= " and r.destination_id='{$f_dest_group}' ";
                 }
             }
             if ($f_country_id != '0')
@@ -73,10 +73,10 @@ class m_voipreports_cost_report
                               sum(r.len_op) as len_op,
                               sum(r.amount_op) amount_op,
                               g.name as destination
-                        from calls.calls_{$f_instance_id} r
+                        from calls_raw.calls_raw r
                         left join voip_destinations d on d.ndef=r.{$prefixField}
                         left join geo.geo g on g.id=d.geo_id
-                        where len>0 {$where}
+                        where server_id = {$f_instance_id} and len>0 {$where}
                         group by r.{$prefixField}, r.mob, r.operator_id, g.name, r.dest
                         order by destination, r.{$prefixField}
                                      ");

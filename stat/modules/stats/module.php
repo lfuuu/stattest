@@ -212,8 +212,10 @@ class m_stats extends IModule{
 
         $client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
 
+        $timezones = [ $client['timezone_name'] ];
+
         $client_id = $client['id'];
-        $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
+        $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
@@ -223,9 +225,16 @@ class m_stats extends IModule{
         }
 
         $regions = array();
-        foreach ($usages as $u)
-            if (!isset($regions[$u['region']]))
+        foreach ($usages as $u) {
+            if (!isset($regions[$u['region']])) {
                 $regions[$u['region']] = $u['region'];
+                if (!in_array($u['timezone_name'], $timezones)) {
+                    $timezones[] = $u['timezone_name'];
+                }
+            }
+        }
+
+        $timezones[] = 'UTC';
 
         $regions_cnt = count($regions);
 
@@ -278,18 +287,23 @@ class m_stats extends IModule{
         if(!in_array($direction,array('both','in','out')))
             $direction = 'both';
 
+        /** @var \app\models\ClientAccount $client */
+        $client = \app\models\ClientAccount::findOne($client_id);
+
         $design->assign('destination',$destination);
         $design->assign('direction',$direction);
         $design->assign('detality',$detality=get_param_protected('detality','day'));
         $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
+        $design->assign('timezone',$timezone=get_param_raw('timezone', $client->timezone_name));
+        $design->assign('timezones', $timezones);
         if ($region == 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions);
+                $stats[$region] = $this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions);
             }
             $stats = $this->prepareStatArray($stats, $detality);
         } else {
-            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $regions))) {
+            if (!($stats=$this->GetStatsVoIP($region,$from,$to,$detality,$client_id,$phones_sel,$paidonly,0,$destination,$direction, $timezone, $regions))) {
                 return;
             }
         }
@@ -883,14 +897,14 @@ class m_stats extends IModule{
       $R = array();
       $geo = array();
         foreach($pg_db->AllRecords($q =
-                  "SELECT direction_out,usage_num,phone_num,len,time, geo_id FROM calls.calls
-                  WHERE \"time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
-                  AND phone_num = '".$find."'
-                  AND region = '".$region."'
+                  "SELECT orig, src_number, dst_number, billed_time as len, geo_id FROM calls_raw.calls_raw
+                  WHERE \"connect_time\" BETWEEN '".date("Y-m-d", $from)." 00:00:00' AND '".date("Y-m-d", $to)." 23:59:59'
+                  AND '".$find."' in (src_number, dst_number)
+                  AND server_id = '".$region."'
                   AND operator_id < 50
                   LIMIT 1000") as $l)
         {
-          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["time"]));
+          $l["time"] = mdate("d месяца Y г. H:i:s", strtotime($l["connect_time"]));
 
           if ($l['len']>=24*60*60) $d=floor($l['len']/(24*60*60)); else $d=0;
           $l["len"]=($d?($d.'d '):'').gmdate("H:i:s",$l['len']-$d*24*60*60);
@@ -914,29 +928,33 @@ class m_stats extends IModule{
       return $R;
     }
 
-    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $regions = array(), $isFull = false){
+    function GetStatsVoIP($region,$from,$to,$detality,$client_id,$usage_arr,$paidonly = 0,$skipped = 0, $destination='all',$direction='both', $timezone, $regions = array(), $isFull = false){
         global $pg_db;
 
+        if (!$timezone instanceof DateTimeZone) {
+            $timezone = new DateTimeZone($timezone);
+        }
 
-        /*
-         $db_calls = new PgSQLDatabase(	str_replace('[region]', $region, R_CALLS_HOST),
-                 R_CALLS_USER, R_CALLS_PASS,
-                 str_replace('[region]', $region, R_CALLS_DB)	);
-        */
-        $from = date('Y-m-d', $from);
-        $to = date('Y-m-d', $to);
+        $from = new DateTime(date('Y-m-d', $from), $timezone);
+        $to = new DateTime(date('Y-m-d 23:59:59', $to), $timezone);
+
+        $offset = $from->getOffset();
+
+        $from->setTimezone(new DateTimeZone('UTC'));
+        $to->setTimezone(new DateTimeZone('UTC'));
+
 
         if ($detality=='call'){
             $group='';
             $format='d месяца Y г. H:i:s';
         } elseif ($detality=='year'){
-            $group=" group by date_trunc('year',connect_time)";
+            $group=" group by date_trunc('year',connect_time + '{$offset} second'::interval)";
             $format='Y г.';
         } elseif ($detality=='month'){
-            $group=" group by date_trunc('month',connect_time)";
+            $group=" group by date_trunc('month',connect_time + '{$offset} second'::interval)";
             $format='Месяц Y г.';
         } elseif ($detality=='day'){
-            $group=" group by date_trunc('day',connect_time)";
+            $group=" group by date_trunc('day',connect_time + '{$offset} second'::interval)";
             $format='d месяца Y г.';
         } else {
             $group='';
@@ -944,8 +962,8 @@ class m_stats extends IModule{
         }
         $W=array('AND');
 
-        $W[] = "connect_time>='".$from."'";
-        $W[] = "connect_time<='".$to." 23:59:59.999999'";
+        $W[] = "connect_time>='".$from->format('Y-m-d H:i:s')."'";
+        $W[] = "connect_time<='".$to->format('Y-m-d H:i:s.999999')."'";
 
 
 
@@ -987,13 +1005,13 @@ class m_stats extends IModule{
                                     ".($group?'':'id,')."
                                     ".($group?'':'src_number,')."
                                     ".($group?'':'geo_id,')."
-                                    ".($group?'':'mob,')."
+                                    ".($group?'':'geo_mob,')."
                                     ".($group?'':'dst_number,')."
                                     ".($group?'':'orig,');
-            if ($detality == 'day') $sql.= " date_trunc('day',connect_time) as ts1, ";
-            elseif ($detality == 'month') $sql.= " date_trunc('month',connect_time) as ts1, ";
-            elseif ($detality == 'year') $sql.= " date_trunc('year',connect_time) as ts1, ";
-            else $sql.= ' connect_time as ts1, ';
+            if ($detality == 'day') $sql.= " date_trunc('day',connect_time + '{$offset} second'::interval) as ts1, ";
+            elseif ($detality == 'month') $sql.= " date_trunc('month',connect_time + '{$offset} second'::interval) as ts1, ";
+            elseif ($detality == 'year') $sql.= " date_trunc('year',connect_time + '{$offset} second'::interval) as ts1, ";
+            else $sql.= " connect_time + '{$offset} second'::interval as ts1, ";
 
 
 
@@ -1003,11 +1021,10 @@ class m_stats extends IModule{
                                     '.($group?'sum('.($paidonly?'case abs(cost)>0.0001 when true then 1 else 0 end':1).')':'1').' as cnt
                             from
                                     calls_raw.calls_raw
-                            where server_id=' . intval($region) . ' and '.MySQLDatabase::Generate($W).$group."
+                            where '.MySQLDatabase::Generate($W).$group."
                             ORDER BY
                                     ts1 ASC
                             LIMIT ".($isFull ? "50000" : "5000");
-
             $pg_db->Query($sql);
 
             if ($pg_db->NumRows()==5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
@@ -1023,7 +1040,7 @@ class m_stats extends IModule{
                     if (!isset($geo[$r['geo_id']]))
                         $geo[$r['geo_id']] = $pg_db->GetValue('select name from geo.geo where id='.((int)$r['geo_id']));
                     $r['geo'] = $geo[$r['geo_id']];
-                    if ($r['mob'] == 't') $r['geo'] .= ' (mob)';
+                    if ($r['geo_mob'] == 't') $r['geo'] .= ' (mob)';
                 } else $r['geo'] = '';
 
                 $dt = explode(' ', $r['ts1']);
@@ -3997,6 +4014,24 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
   public function stats_report_phone_sales()
   {
     global $db, $design;
+    $from_y = get_param_raw("from_y", date('Y'));
+    $from_m = get_param_raw("from_m", date('m'));
+    $to_y   = get_param_raw("to_y",   date('Y'));
+    $to_m   = get_param_raw("to_m",   date('m'));
+
+    // для последующего использования в sql-выражениях:
+    $from_date = $from_y."-".$from_m."-01";
+    $to_date = date("Y-m-t", mktime(0,0,0,$to_m,1,$to_y));
+
+    $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
+    $selector_mm = array();
+    for($i=1;$i<=12;$i++) $selector_mm[$i] = $month_list[$i-1];
+
+    $selector_yy = array(date('Y')+1, date('Y'), date('Y')-1, date('Y')-2);
+
+    // для показа в интерфейсе:
+    $from = "01.".$from_m.".".$from_y;
+    $to = date("t.m.Y", mktime(0,0,0,$to_m,1,$to_y));
 
     $curr_phones = $db->AllRecords('
         SELECT 
@@ -4006,7 +4041,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         FROM 
           usage_voip u 
         WHERE 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND 
+          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+          u.actual_from <=CAST("'.$to_date.'"   AS DATE) AND
           E164 NOT LIKE "7800%" AND 
           LENGTH(E164) > 4 
         GROUP BY 
@@ -4019,7 +4055,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	LEFT JOIN 
 		clients as c ON c.client = u.client 
 	WHERE 
-		CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+                u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+                u.actual_from <=CAST("'.$to_date.'"   AS DATE)
 	GROUP BY
 		c.region
 	', 'region', 'count_vpbx'
@@ -4033,7 +4070,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           u.E164 LIKE "7800%" AND 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
         group by 
           u.region', 'region');
     $curr_no_nums = $db->AllRecords('
@@ -4045,7 +4083,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           LENGTH(u.E164) < 5 AND 
-          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  
+          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
+          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
         group by 
           u.region', 'region');
     $region_clients_count = $db->AllRecordsAssoc("
@@ -4062,14 +4101,15 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	ORDER BY
 		region DESC
     ", 'region', 'clients');
-    $month_list = array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь');
     $regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
     $reports = array();
-    $m = date('n');
-    for($mm = 0; $mm < 4; $mm++)
-    {
-      $date = date("Y-m-01");
 
+    $tmp_m = $to_m; // for itterations
+    $tmp_y = $to_y;
+    while(mktime(0,0,0,$tmp_m,1,$tmp_y) >= mktime(0,0,0,$from_m,1,$from_y)) // process all monthes in interval
+    {
+      $tmp_date_from = $tmp_y.'-'.$tmp_m.'-01';
+      $tmp_date_to = date("Y-m-t", mktime(0,0,0,$tmp_m,1,$tmp_y));
       $client_ids = array();
       $region_sums = $db->AllRecordsAssoc($q="
 		SELECT 
@@ -4080,8 +4120,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		LEFT JOIN
 			clients as b ON a.client_id = b.id
 		WHERE 
-			a.bill_date >= date_add('".$date."',interval -".$mm." month) AND 
-			a.bill_date < date_add('".$date."',interval -".$mm."+1 month) AND 
+			a.bill_date >= CAST('".$tmp_date_from."' AS DATE) AND
+			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
 			b.region > 0 AND 
 			b.status IN ('testing', 'conecting', 'work') AND 
 			b.type IN ('org', 'priv') AND 
@@ -4103,7 +4143,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             u.E164 as phone, 
             u.no_of_lines,
             c.id as client_id, 
-            ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
+            ifnull(c.created >= date_add('".$tmp_date_from."',interval - 1 month), 0) as is_new,
             s.name as sale_channel,
             s.id as sale_channel_id,
             s.courier_id as courier_id
@@ -4111,8 +4151,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
           where 
-              u.actual_from>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_from<date_add('".$date."',interval -".$mm."+1 month)
+              u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
           group by 
             u.region, u.E164, c.id, c.created, s.name  ");
             
@@ -4121,7 +4161,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
             c.region, 
             u.id, 
             c.id as client_id, 
-            ifnull(c.created >= date_add('".$date."',interval -".$mm."-1 month), 0) as is_new, 
+            ifnull(c.created >= date_add('".$tmp_date_from."',interval - 1 month), 0) as is_new,
             s.name as sale_channel,
             s.id as sale_channel_id,
             s.courier_id as courier_id
@@ -4129,8 +4169,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           left join clients c on c.client=u.client
           left join sale_channels s on s.id=c.sale_channel
           where 
-              u.actual_from>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_from<date_add('".$date."',interval -".$mm."+1 month)
+              u.actual_from>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_from<=CAST('".$tmp_date_to."' AS DATE)
           group by 
             c.region, c.id, c.created, s.name  ");
 
@@ -4346,16 +4386,16 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 					WHERE 
 						    d.doer_id = ' . $d['courier_id'] . ' 
 						AND 
-						    s.date_start >= date_add("'.$date.'",interval -'.$mm.'-1 month)  
+						    s.date_start >= CAST("'.$tmp_date_from.'" AS DATE)
 						AND 
-						    s.date_start < date_add("'.$date.'",interval -'.$mm.'+2 month) 
+						    s.date_start <= CAST("'.$tmp_date_to.'" AS DATE)
 					) 
 				AND 
 				    st.state_id = 4 
 				AND 
-				    st.date_start >= date_add("'.$date.'",interval -'.$mm.' month)  
+				    st.date_start >= CAST("'.$tmp_date_from.'" AS DATE)
 				AND 
-				    st.date_start < date_add("'.$date.'",interval -'.$mm.'+1 month) 
+				    st.date_start <= CAST("'.$tmp_date_to.'" AS DATE)
 				AND  
 				    td.doer_id = ' . $d['courier_id']);
             $sale_channels['all']['visits'] += $res;
@@ -4406,8 +4446,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           from usage_voip u
           left join clients c on c.client=u.client
           where 
-                u.actual_to>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_to<date_add('".$date."',interval -".$mm."+1 month)
+                u.actual_to>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_to<=CAST('".$tmp_date_to."' AS DATE)
           group by u.region, u.E164, c.id  ");
 
       $res_vpbx = $db->AllRecords("
@@ -4418,8 +4458,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           from usage_virtpbx u
           left join clients c on c.client=u.client
           where 
-                u.actual_to>=date_add('".$date."',interval -".$mm." month) 
-            and u.actual_to<date_add('".$date."',interval -".$mm."+1 month) 
+                u.actual_to>=CAST('".$tmp_date_from."' AS DATE)
+            and u.actual_to<=CAST('".$tmp_date_to."' AS DATE)
           group by c.region, u.id, c.id  ");
       
       foreach($res as $r)
@@ -4464,12 +4504,12 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
       }
 
 
-      if ($m < 1) $m = 12;
-      $date = $month_list[$m-1].' '.date("Y");
+      if ($tmp_m < 1) $tmp_m = 12;
 
       $reports[] = array(
-        'date' => $date,
-        'month' => $m,
+        'date' => $month_list[$tmp_m-1]." ".$tmp_y." ",
+        'month' => 0+$tmp_m,
+        'year' => $tmp_y,
         'region_sums' => $region_sums,
         'sale_nums'=>$sale_nums,
         'sale_8800'=>$sale_8800,
@@ -4485,9 +4525,18 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         'sale_vpbx' => $sale_vpbx,
         'vpbx_clients' => $vpbx_clients
       );
-      $m--;
+      if (--$tmp_m < 1) {
+        $tmp_m = 12;
+        $tmp_y--;
+      }
     }
 
+    $design->assign("from_y", $from_y);
+    $design->assign("from_m", $from_m);
+    $design->assign("to_y", $to_y);
+    $design->assign("to_m", $to_m);
+    $design->assign("select_year", $selector_yy);
+    $design->assign("select_month", $selector_mm);
     $design->assign("regions", $regions);
     $design->assign("region_clients_count", $region_clients_count);
     $design->assign('reports',$reports);

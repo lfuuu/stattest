@@ -86,4 +86,9 @@ class ClientContragent extends ActiveRecord
             $super->save();
         }
     }
+
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
 }

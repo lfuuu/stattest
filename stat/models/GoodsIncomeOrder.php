@@ -93,6 +93,8 @@ class GoodsIncomeOrder extends ActiveRecord\Model
         $list = array();
         foreach($this->lines as $line) {
 
+            if (!$line->good_id) continue;
+
             $list[] = array(
                 'Номенклатура' => $line->good_id,
                 'Количество' => $line->amount,

@@ -11,7 +11,7 @@
     {assign var="pricelist_id" value=$r->pricelist_id}
     <tr class="{cycle values='even,odd'}">
         <td>{$regions[$instance_id]->name}</td>
-        <td><a href="index.php?module=voipnew&action=network_config_show&id={$r->id}">{$r->name}</a></td>
+        <td><a href="/voip/network-config/files?networkConfigId={$r->id}">{$r->name}</a></td>
         <td><a href="?module=voipnew&action=network_price&pricelist={$pricelist_id}">{$pricelists[$pricelist_id]->name}</a></td>
     </tr>
     {/foreach}

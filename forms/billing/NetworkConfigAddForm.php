@@ -20,6 +20,8 @@ class NetworkConfigAddForm extends NetworkConfigForm
         $networkConfig->connection_point_id = $this->connection_point_id;
         $networkConfig->name = $this->name;
         $networkConfig->pricelist_id = $this->pricelist_id;
+        $networkConfig->geo_city_id = $this->geo_city_id;
+        $networkConfig->geo_operator_id = $this->geo_operator_id;
 
         $networkConfig->save();
         $this->id = $networkConfig->id;

@@ -80,29 +80,6 @@ $tariffs = array(
         ),
         'button' => 'Сохранить'
     ),
-    'voip4' => array(
-        'page' => '?module=tarifs&action=voip',
-        'add_link' => 'Добавить тариф',
-        'selectbox' => array(
-            'select[name="region"]' => '99. Москва',
-            'select[name="dest"]' => 'СНГ',
-        ), 
-        'input' => array(
-            'input[name="name"]' => 'test_voip4',
-            'input[name="name_short"]' => 'short_voip4',
-            'input[name="month_number"]' => '400',
-            'input[name="month_line"]' => '100',
-        ),
-        'checkbox' => array(
-            'input[name="tariffication_by_minutes"]',
-            'input[name="tariffication_free_first_seconds"]'
-        ),
-        'verifications' => array(
-            'link' => 'test_voip4',
-            'text' => 'short_voip4',
-        ),
-        'button' => 'Сохранить'
-    ),
     'voip5' => array(
         'page' => '?module=tarifs&action=voip',
         'add_link' => 'Добавить тариф',

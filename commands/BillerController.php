@@ -66,5 +66,4 @@ class BillerController extends Controller
             Yii::error($e);
         }
     }
-
 }

@@ -78,7 +78,7 @@ class ClientAccountBiller
         return $this;
     }
 
-    protected function createTransactions()
+    public function createTransactions()
     {
         $this->transactions = [];
 
@@ -131,9 +131,11 @@ class ClientAccountBiller
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
                 ->all()
         );
+
+        return $this;
     }
 
-    protected function saveTransactions()
+    public function saveTransactions()
     {
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -218,6 +220,8 @@ class ClientAccountBiller
             $dbTransaction->rollBack();
             throw $e;
         }
+
+        return $this;
     }
 
     /**

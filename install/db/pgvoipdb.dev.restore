@@ -1,0 +1,8 @@
+pg_restore \
+--port 5432 \
+--username "vagrant" \
+--dbname "voipdb" \
+--no-password \
+--no-owner --no-privileges --no-tablespaces --verbose \
+"/vagrant/install/db/dump/pgvoipdb.tar"
+

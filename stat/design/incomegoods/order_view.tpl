@@ -117,7 +117,7 @@
 			<td>{$item->price}</td>
 			<td>{$item->sum}</td>
 			<td>{$item->sum_nds}</td>
-			<td>{$item->incoming_date->format('d.m.Y')}</td>
+			<td>{if $item->incoming_date}{$item->incoming_date->format('d.m.Y')}{/if}</td>
 		</tr>
 	{/foreach}
 	</tbody>

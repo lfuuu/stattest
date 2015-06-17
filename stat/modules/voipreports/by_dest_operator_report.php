@@ -19,6 +19,7 @@ class m_voipreports_by_dest_operator_report
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_dest_group = get_param_protected('f_dest_group', '-1');
         $f_mob = get_param_protected('f_mob', '0');
+        $f_exclude_other_numbers = (int)get_param_protected('f_exclude_other_numbers', '0');
 
         if ($f_instance_id) {
             $where = "r.orig=false and billed_time > 0 and r.connect_time >= '{$date_from}' and r.connect_time <= '{$date_to} 23:59:59.999999' ";
@@ -43,6 +44,8 @@ class m_voipreports_by_dest_operator_report
                 $where .= " and r.mob=false ";
             if ($f_region_id != '0')
                 $where .= " and g.region='{$f_region_id}' ";
+            if ($f_exclude_other_numbers > 0)
+                $where .= " and r.src_number::varchar not like '7495950%' and r.src_number::varchar not like '7495638%' ";
 
 
             $report = $pg_db->AllRecords("
@@ -83,6 +86,7 @@ class m_voipreports_by_dest_operator_report
         $design->assign('f_region_id', $f_region_id);
         $design->assign('f_mob', $f_mob);
         $design->assign('f_dest_group', $f_dest_group);
+        $design->assign('f_exclude_other_numbers', $f_exclude_other_numbers);
         $design->assign('operators', $operators);
         $design->assign('regions', Region::getListAssoc());
         $design->assign('geo_countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));

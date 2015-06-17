@@ -642,7 +642,7 @@ class ClientAccountDao extends Singleton
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
                             and is_apply_set = 'yes'
-                        order by lf.id desc ", [":client_id" => $c["id"], ":date" => $date, ":date_full" => $date." 23:59:59", ":now" => $dNow, ":now_full" => $now." 00:00:00"])->queryAll();
+                        order by lf.id desc ", [":client_id" => $c["id"], ":date" => $date, ":date_full" => $date." 23:59:59", ":now" => $dNow, ":now_full" => $dNow." 00:00:00"])->queryAll();
             if ($rows) {
                 foreach ($rows as $l) {
                     $c[$l["field"]] = $l["value_from"];

@@ -63,7 +63,6 @@ class VoipReservNumber
                     "id_tarif_local_mob"  => $tarifs[$region]['id_tarif_local_mob'],
                     "id_tarif_russia"     => $tarifs[$region]['id_tarif_russia'],
                     "id_tarif_intern"     => $tarifs[$region]['id_tarif_intern'],
-                    "id_tarif_sng"        => $tarifs[$region]['id_tarif_sng'],
                     "ts"                  => array("NOW()"),
                     "date_activation"     => array("NOW()"),
                     "dest_group"          => '0',
@@ -71,7 +70,6 @@ class VoipReservNumber
                     "minpayment_local_mob"=> '0',
                     "minpayment_russia"   => '0',
                     "minpayment_intern"   => '0',
-                    "minpayment_sng"      => '0'
                     )
                 );
 
@@ -89,7 +87,6 @@ class VoipReservNumber
                     'id_tarif_local_mob'=>0,
                     'id_tarif_russia'=>0,
                     'id_tarif_intern'=>0,
-                    'id_tarif_sng'=>0,
                     'id_tarif'=>$v
                     );
 
@@ -110,8 +107,6 @@ class VoipReservNumber
                         $def['id_tarif_russia'] = $r['id'];break;
                     case '2':
                         $def['id_tarif_intern'] = $r['id'];break;
-                    case '3':
-                        $def['id_tarif_sng'] = $r['id'];break;
                     case '5':
                         $def['id_tarif_local_mob'] = $r['id'];break;
                 }

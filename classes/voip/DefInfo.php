@@ -1,4 +1,8 @@
 <?php
+namespace app\classes\voip;
+
+use Yii;
+
 class DefInfo
 {
     var $country_zones;
@@ -7,16 +11,26 @@ class DefInfo
 
     function __construct()
     {
-        global $pg_db;
-        $this->country_zones = $pg_db->AllRecords(' SELECT gz.prefix, g.country FROM geo.geo g
-                                                LEFT JOIN geo.geo_prefix gz on g.id=gz.geo_id
-                                                WHERE g.prefix is not null and g.country is not null and g.country=g.id
-                                                ORDER BY gz.prefix  ');
-        $this->region_zones = $pg_db->AllRecords(' SELECT gz.prefix, g.region FROM geo.geo g
-                                                    LEFT JOIN geo.geo_prefix gz on g.id=gz.geo_id
-                                                    WHERE g.prefix is not null and g.region is not null  and g.region=g.id
-                                                    ORDER BY gz.prefix  ');
-        $this->mob_zones = $pg_db->AllRecords('SELECT prefix FROM geo.mob_prefix ORDER BY prefix');
+        $this->country_zones =
+            Yii::$app->dbPg->createCommand("
+                SELECT gz.prefix, g.country FROM geo.geo g
+                LEFT JOIN geo.geo_prefix gz on g.id=gz.geo_id
+                WHERE g.prefix is not null and g.country is not null and g.country=g.id
+                ORDER BY gz.prefix
+            ")->queryAll();
+
+        $this->region_zones =
+            Yii::$app->dbPg->createCommand("
+                SELECT gz.prefix, g.region FROM geo.geo g
+                LEFT JOIN geo.geo_prefix gz on g.id=gz.geo_id
+                WHERE g.prefix is not null and g.region is not null  and g.region=g.id
+                ORDER BY gz.prefix
+            ")->queryAll();
+
+        $this->mob_zones =
+            Yii::$app->dbPg->createCommand("
+                SELECT prefix FROM geo.mob_prefix ORDER BY prefix
+            ")->queryAll();
     }
 
     function get_country($phone)

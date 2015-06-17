@@ -13,6 +13,11 @@ class IpPortBiller extends Biller
     /** @var TariffInternet */
     private $tariff;
 
+    public function getTranslateFilename()
+    {
+        return 'biller-ipports';
+    }
+
     protected function beforeProcess()
     {
         $this->tariff = $this->getTariff();
@@ -23,12 +28,16 @@ class IpPortBiller extends Biller
 
     protected function processConnecting()
     {
-        $template = 'Подключение к интернет по тарифу {name}';
+        $template = 'ipports_connection';
+        $template_data = [
+            'tariff' => $this->tariff->name
+        ];
+
         $this->addPackage(
             BillerPackageConnecting::create($this)
-                ->setName($this->tariff->name)
-                ->setTemplate($template)
                 ->setPrice($this->tariff->pay_once)
+                ->setTemplate($template)
+                ->setTemplateData($template_data)
         );
     }
 
@@ -36,89 +45,167 @@ class IpPortBiller extends Biller
     {
         $template =
             $this->tariff->type == "C"
-                ? $this->tariff->name . $this->getPeriodTemplate(self::PERIOD_MONTH)
-                : 'Абонентская плата за доступ в интернет (подключение '.$this->usage->id.', тариф {name})' . $this->getPeriodTemplate(self::PERIOD_MONTH);
+                ? 'ipports_service'
+                : 'ipports_monthly_fee';
+        $template_data = [
+            'tariff' => $this->tariff->name,
+            'service_id' => $this->usage->id,
+            'by_agreement' => ''
+        ];
+
+        if ($this->clientAccount->bill_rename1 == 'yes') {
+            $template = 'ipports_monthly_fee_custom';
+            $template_data['by_agreement'] = $this->getContractInfo();
+        }
 
         $this->addPackage(
             BillerPackagePeriodical::create($this)
                 ->setPeriodType(self::PERIOD_MONTH)
                 ->setIsAlign(true)
                 ->setIsPartialWriteOff(false)
-                ->setName($this->tariff->name)
-                ->setTemplate($template)
                 ->setAmount($this->usage->amount)
                 ->setPrice($this->tariff->pay_month)
+                ->setTemplate($template)
+                ->setTemplateData($template_data)
         );
     }
 
     protected function processResource()
     {
-        $template =
-            'Превышение лимита {name}, включенного в абонентскую плату (подключение '.
-            $this->usage->id . ', тариф '. $this->tariff->name . ')' .
-            $this->getPeriodTemplate(self::PERIOD_MONTH);
+        $template = 'ipports_overlimit';
+        $template_data = [
+            'service_id' => $this->usage->id,
+            'tariff' => $this->tariff->name
+        ];
 
         if ($this->tariff->type=='I') {
             $S = $this->calcIC();
             $S['in'] = $S['in_r'] + $S['in_r2'] + $S['in_f'];
             $S['out']= $S['out_r'] + $S['out_r2'] + $S['out_f'];
             $mb = max($S['in'],$S['out']);
+
+            $template_data['overlimit'] = Yii::t(
+                $this->getTranslateFilename(),
+                ($S['in'] > $S['out'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
+                [],
+                $this->clientAccount->contragent->country->lang
+            );
+
             $this->addPackage(
                 BillerPackageResource::create($this)
-                    ->setName(($S['in']>$S['out']?'входящего':'исходящего').' трафика')
-                    ->setTemplate($template)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
                     ->setFreeAmount($this->tariff->mb_month)
                     ->setAmount($mb)
                     ->setPrice($this->tariff->pay_mb)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
-        } elseif ($this->tariff->type=='C') {
+         } elseif ($this->tariff->type=='C') {
             $S = $this->calcIC();
             if ($this->tariff->type_count=='r2_f') {
                 $S['in_f'] += $S['in_r2'];
                 $S['in_r2'] = 0;
-                $N = array('бесплатного входящего трафика','','платного входящего трафика');
+                $N = array(
+                    Yii::t(
+                        $this->getTranslateFilename(),
+                        'ipports_free_in_traffic',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    ),
+                    '',
+                    Yii::t(
+                        $this->getTranslateFilename(),
+                        'ipports_pay_in_traffic',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    )
+                );
             } elseif ($this->tariff->type_count == 'all_f') {
                 $S['in_f'] += $S['in_r'] + $S['in_r2'];
                 $S['in_r'] = 0;
                 $S['in_r2'] = 0;
-                $N = array('','','платного входящего трафика');
+                $N = array(
+                    '',
+                    '',
+                    Yii::t(
+                        $this->getTranslateFilename(),
+                        'ipports_pay_in_traffic',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    )
+                );
             } else {
-                $N = array('входящего трафика "Россия"','входящего трафика "Россия-2"','входящего трафика "Иностранный"');
+                $N = array(
+                    Yii::t(
+                        $this->getTranslateFilename(),
+                        'ipports_in_traffic_RUSSIA',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    ),
+                    Yii::t(
+                        $this->getTranslateFilename(),
+                        'ipports_in_traffic_RUSSIA-2',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    ),
+                    Yii::t(
+                        $this->getTranslateFilename(),
+                        'ipports_in_traffic_FOREIGN',
+                        [],
+                        $this->clientAccount->contragent->country->lang
+                    )
+                );
             }
+
+            $template_data['overlimit'] = $N[0];
             $this->addPackage(
                 BillerPackageResource::create($this)
-                    ->setName($N[0])
-                    ->setTemplate($template)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
                     ->setFreeAmount($this->tariff->month_r)
                     ->setAmount($S['in_r'])
                     ->setPrice($this->tariff->pay_r)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
+            $template_data['overlimit'] = $N[1];
             $this->addPackage(
                 BillerPackageResource::create($this)
-                    ->setName($N[1])
-                    ->setTemplate($template)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
                     ->setFreeAmount($this->tariff->month_r2)
                     ->setAmount($S['in_r2'])
                     ->setPrice($this->tariff->pay_r2)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
+            $template_data['overlimit'] = $N[2];
             $this->addPackage(
                 BillerPackageResource::create($this)
-                    ->setName($N[2])
-                    ->setTemplate($template)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
                     ->setFreeAmount($this->tariff->month_f)
                     ->setAmount($S['in_f'])
                     ->setPrice($this->tariff->pay_f)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         } elseif ($this->tariff->type=='V') {
             $S = $this->calcV();
             $mb = max($S['in'],$S['out']);
+
+            $template_data['overlimit'] = Yii::t(
+                $this->getTranslateFilename(),
+                ($S['in'] > $S['out'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
+                [],
+                $this->clientAccount->contragent->country->lang
+            );
+
             $this->addPackage(
                 BillerPackageResource::create($this)
-                    ->setName(($S['in']>$S['out']?'входящего':'исходящего').' трафика')
-                    ->setTemplate($template)
+                    ->setPeriodType(self::PERIOD_MONTH) // Need for localization
                     ->setFreeAmount($this->tariff->mb_month)
                     ->setAmount($mb)
                     ->setPrice($this->tariff->pay_mb)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         }
     }
