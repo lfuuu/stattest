@@ -24,7 +24,7 @@ use app\classes\documents\DocumentReport;
         isset($R['doc_type'])
         || (
             isset($R['object'])
-            && strpos($R['object'], 'bill') == 0
+            && strpos($R['object'], 'bill') === 0
         )
     ) {
         $bill = Bill::findOne(['bill_no' => $R['bill']]);
