@@ -18,7 +18,7 @@ class DocumentReportFactory extends Singleton
     {
         return [
             BillDocRepRuRUB::className(),
-            BillDocRepHuRUB::className()
+            BillDocRepHuFT::className()
         ];
     }
 

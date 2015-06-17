@@ -2,7 +2,7 @@
 
 namespace app\classes\documents;
 
-class BillDocRepHuRUB extends DocumentReport
+class BillDocRepHuFT extends DocumentReport
 {
 
     public function getLanguage()
