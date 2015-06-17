@@ -2,6 +2,8 @@
 
 namespace app\classes\documents;
 
+use app\models\Currency;
+
 class BillDocRepRuRUB extends DocumentReport
 {
 
@@ -12,7 +14,7 @@ class BillDocRepRuRUB extends DocumentReport
 
     public function getCurrency()
     {
-        return self::CURRENCY_RUB;
+        return Currency::RUB;
     }
 
     public function getDocType()

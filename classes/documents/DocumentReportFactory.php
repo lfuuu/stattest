@@ -2,8 +2,8 @@
 
 namespace app\classes\documents;
 
-use app\classes\Singleton;
 use Yii;
+use app\classes\Singleton;
 use app\classes\Assert;
 use app\models\Bill;
 
@@ -18,7 +18,7 @@ class DocumentReportFactory extends Singleton
     {
         return [
             BillDocRepRuRUB::className(),
-            BillDocRepHuFT::className()
+            BillDocRepHuHUF::className()
         ];
     }
 

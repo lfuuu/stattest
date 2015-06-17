@@ -2,7 +2,9 @@
 
 namespace app\classes\documents;
 
-class BillDocRepHuFT extends DocumentReport
+use app\models\Currency;
+
+class BillDocRepHuHUF extends DocumentReport
 {
 
     public function getLanguage()
@@ -12,7 +14,7 @@ class BillDocRepHuFT extends DocumentReport
 
     public function getCurrency()
     {
-        return self::CURRENCY_FT;
+        return Currency::HUF;
     }
 
     public function getDocType()

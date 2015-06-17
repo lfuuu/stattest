@@ -15,10 +15,6 @@ abstract class DocumentReport extends Object
 
     const BILL_DOC_TYPE = 'bill';
 
-    const CURRENCY_RUB = 'RUB';
-    const CURRENCY_USD = 'USD';
-    const CURRENCY_FT = 'FT';
-
     /**
      * @var Bill
      */
