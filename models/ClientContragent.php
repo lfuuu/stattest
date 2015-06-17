@@ -33,6 +33,6 @@ class ClientContragent extends ActiveRecord
 
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
 }

@@ -12,12 +12,10 @@ class m150605_112533_i18n extends \app\classes\Migration
             UPDATE `country` SET `lang` = 'hu' WHERE `code` = 348;
         ");
 
-        /*
         $this->execute("
             ALTER TABLE `client_contragent`
-	            ADD COLUMN `country_code` INT (4) NULL DEFAULT '643' AFTER `super_id`;
+	            ADD COLUMN `country_id` INT (4) NULL DEFAULT '643' AFTER `super_id`;
         ");
-        */
     }
 
     public function down()
