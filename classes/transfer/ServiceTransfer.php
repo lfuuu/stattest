@@ -58,8 +58,8 @@ abstract class ServiceTransfer
      */
     public function process()
     {
-        if ((int)$this->service->next_usage_id)
-            throw new InvalidValueException('Услуга уже перенесена');
+        //if ((int)$this->service->next_usage_id)
+        //    throw new InvalidValueException('Услуга уже перенесена');
 
         if ($this->service->actual_to < $this->getActualDate())
             throw new InvalidValueException('Услуга не может быть перенеса на указанную дату');
