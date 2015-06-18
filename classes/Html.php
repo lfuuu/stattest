@@ -12,8 +12,8 @@ class Html extends \yii\helpers\Html
         } else {
             $filename = tempnam('/tmp', 'img_');
             $file = file_get_contents($src);
-            $mimeType = mime_content_type($filename);
             file_put_contents($filename, $file);
+            $mimeType = mime_content_type($filename);
             unlink($filename);
         }
 
