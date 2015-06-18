@@ -157,8 +157,6 @@ $(function(){
 </script>
 
 
-
-
 {if isset($mode_new)}
     <H2>Новый клиент</H2>
 {else}
@@ -222,6 +220,16 @@ $(function(){
                     {/if}
                 </tr>
             </table>
+        </td>
+    </tr>
+    <tr>
+        <td align="right">Страна:</td>
+        <td>
+            <select name="country_id" class="select2" style="width: 200px" {if $card_type=='addition'}readonly='readonly'{/if}>
+                {foreach from=$countries item=item}
+                    <option value="{$item.code}"{if $item.code eq $contragent.country_id} selected="selected"{/if}>{$item.name}</option>
+                {/foreach}
+            </select>
         </td>
     </tr>
     <tr><td align="right">Регион:</td><td>

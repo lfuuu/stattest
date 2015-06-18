@@ -13,6 +13,7 @@ class EventHandler
         $card->super->save();
 
         $card->contragent->name = $card->company;
+        $card->contragent->country_id = $card->country_id;
         $card->contragent->save();
     }
 
