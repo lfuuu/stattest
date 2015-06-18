@@ -31,6 +31,10 @@ class ClientAccountDao extends Singleton
                 [':clientAccountId' => $clientAccount->id]
             )->queryScalar();
 
+        if (!$billDate) {
+            $billDate = '2000-01-01';
+        }
+
         $billDate = new DateTime($billDate, $clientAccount->timezone);
         $billDate->setTimezone(new DateTimeZone('UTC'));
 
