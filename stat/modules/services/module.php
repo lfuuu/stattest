@@ -681,7 +681,11 @@ class m_services extends IModule{
                     $actualNumbers[] = $r["E164"];
             }
 
-            $numberTypes = count($R) > 0 ? VirtPbx3::getNumberTypes($this->fetched_client["id"]) : [];
+            if (defined("use_ats3")) {
+                $numberTypes = count($R) > 0 ? VirtPbx3::getNumberTypes($this->fetched_client["id"]) : [];
+            } else {
+                $numberTypes = [];
+            }
 
             foreach ($R as &$r) {
                 $r['tarif']=get_tarif_current('usage_voip',$r['id']);
