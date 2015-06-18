@@ -695,6 +695,11 @@ class ApiLk
             ", array($currency, $status, $dest)) as $service)
         {
             $line = self::_exportModelRow($fields, $service);
+
+            if ($line["free_local_min"] >= 5000)
+            {
+                $line["free_local_min"] = "";
+            }
             $ret[] = $line;
         }
         return $ret;
@@ -760,9 +765,7 @@ class ApiLk
 
                 if(a.region = 99,
                     if (number like '74996854%' and number between '74996854000' and '74996854999', false,
-                        if (number like '74951090%', false,
-                            if(number like '7495%', number like '74951059%' or beauty_level in (1,2), true)
-                        )
+                        if(number like '7495%', number like '74951059%' or number like '74951090%' or beauty_level in (1,2), true)
                     ),
                 true)
 
@@ -1344,16 +1347,26 @@ class ApiLk
         global $db;
     
         $client = $db->GetRow("select * from clients where '".addslashes($client)."' in (id, client)");
-    
-        $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
+
+        $timezones = [ $client['timezone_name'] ];
+
+        $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
                                        where u.client='".addslashes($client['client'])."'
                                        order by u.region desc, u.id asc");
     
         $regions = array();
-        foreach ($usages as $u)
-        if (!isset($regions[$u['region']]))
-            $regions[$u['region']] = $u['region'];
+        foreach ($usages as $u) {
+            if (!isset($regions[$u['region']])) {
+                $regions[$u['region']] = $u['region'];
+                if (!in_array($u['timezone_name'], $timezones)) {
+                    $timezones[] = $u['timezone_name'];
+                }
+            }
+        }
+
+        $timezones[] = 'UTC';
+
     
         $regions_cnt = count($regions);
     
@@ -1386,10 +1399,13 @@ class ApiLk
         }
         $ret = array();
         foreach ($phones as $k=>$v) $ret[] = array('id'=>$k, 'number'=>$v);
-        return $ret;
+        return [
+            'phones' => $ret,
+            'timezones' => $timezones,
+        ];
     }
 
-    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $onlypay = 0, $isFull = 0)
+    public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $timezone = 'UTC', $onlypay = 0, $isFull = 0)
     {
         global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
@@ -1425,7 +1441,7 @@ class ApiLk
         if ($phone == 'all') {
     
             foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array());
+                $stats[$region] = $module_stats->GetStatsVoIP($region,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array());
             }
     
             $ar = array();
@@ -1433,7 +1449,7 @@ class ApiLk
             foreach ($all_regions as $reg) $ar[$reg['id']] =  $reg['name'];
             $stats = $module_stats->prepareStatArray($stats, $detality, $ar);
         } else {
-            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, array(), $isFull);
+            $stats = $module_stats->GetStatsVoIP($phone,strtotime($from),strtotime($to),$detality,$client_id,$phones_sel,$onlypay,0,$destination,$direction, $timezone, array(), $isFull);
         }
         foreach ($stats as $k=>$r) {
             $stats[$k]["ts1"] = $stats[$k]["ts1"];

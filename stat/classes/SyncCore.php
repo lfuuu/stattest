@@ -44,9 +44,10 @@ class SyncCore
         $superClientSync = CoreSyncIds::findOne(["type" => "super_client", "id" => $cl->super_id]);
         if (!$superClientSync)
         {
-            event::go("add_super_client", $cl->super_id);
-            event::go("add_account", $cl->id, true);
-            return;
+            //event::go("add_super_client", $cl->super_id);
+            //event::go("add_account", $cl->id, true);
+            //return;
+            SyncCore::AddSuperClient($cl->super_id);
         }
 
 

@@ -39,7 +39,7 @@ class ClientContragentDao extends Singleton
             $p = &$contragent->person;
             $passport_date = strtotime($p->passport_date_issued);
 
-            $account->bank_properties = "Паспорт серия ".$p->passport_serial." номер ".$p->passport_number." Выдан ".$p->passport_issued." Дата выдачи:".date("d.m.Y", $passport_date);
+            $account->bank_properties = "Паспорт серия: ".$p->passport_serial." номер ".$p->passport_number."; Выдан: ".$p->passport_issued."; Дата выдачи: ".date("d.m.Y г.", $passport_date);
             $account->address_connect = $account->address_jur = $account->address_post = $p->address;
         }
         return $account->save();

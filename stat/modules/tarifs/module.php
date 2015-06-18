@@ -4,41 +4,7 @@ use \app\models\Contract;
 use \app\models\ClientDocument;
 
 class m_tarifs{
-    var $actions=array(
-            'default'             => array('tarifs','read'),
-            'view'                => array('tarifs','read'),
-            'edit'                => array('tarifs','read'),
-            'delete'              => array('tarifs','edit'),
-            'itpark'              => array('services_itpark','full'),
-            'welltime'            => array('services_welltime','full'),
-            'wellsystem'          => array('services_wellsystem','full'),
-            'contracts'           => array('tarifs','read'),
-            'voip'                => array('tarifs','read'),
-            'voip_edit'           => array('tarifs','edit'),
-            'price_tel'           => array('tarifs','edit'),
-            'virtpbx'             => array('tarifs','edit'),
-            'sms'                 => array('tarifs','edit'),
-        );
 
-    var $menu=array(
-            array('IP-телефония',            'voip'),
-            array('Интернет',                'view','&m=internet'),
-            array('Collocation',            'view','&m=collocation'),
-            array('VPN',                    'view','&m=vpn'),
-//            array('Хостинг',                'view','&m=hosting'),
-//             array('Междугородняя связь',    'view','&m=russia'),
-//             array('Международная связь',    'view','&m=world'),
-            array('Дополнительные услуги',    'view','&m=extra'),
-            //array('IT Park',                'view','&m=itpark'),
-            array('IT Park',                'itpark',''),
-            array('Welltime',                'welltime',''),
-            array('Виртуальная АТС',        'virtpbx',''),
-            array('СМС',                   'sms',''),
-            array('WellSystem',                'wellsystem',''),
-//            array('Старые доп.услуги',        'view','&m=add'),
-            array('Договора',            'contracts',''),
-            array('Договор-Прайс-Телефония',            'price_tel',''),
-        );
     function m_tarifs(){
     }
 
@@ -74,14 +40,11 @@ class m_tarifs{
         elseif ($m=='vpn') {$p='internet'; $q='v';}
         elseif ($m=='collocation') {$p='internet'; $q='c';}
         elseif ($m=='hosting') {$p='hosting'; $q='z';}
-//         elseif ($m=='russia') {$p='price_voip'; $q='r';}
-//         elseif ($m=='world') {$p='price_voip'; $q='w';}
         elseif ($m=='extra') {$p='extra'; $q='z';}
         elseif ($m=='itpark') {$p='itpark'; $q='z';}
         elseif ($m=='welltime') {$p='welltime'; $q='z';}
         elseif ($m=='virtpbx') {$p='virtpbx'; $q='z';}
         elseif ($m=='wellsystem') {$p='wellsystem'; $q='z';}
-        elseif ($m=='add') {$p='bill_monthlyadd_reference'; $q='z';}
         elseif ($m=='voip') {$p='voip'; $q='z';}
         elseif ($m=='sms') {$p='sms'; $q='z';}
         else return false;
@@ -105,12 +68,10 @@ class m_tarifs{
             !($dbf->Load($id))
         )return;
 
-        if( ($dbf->Process()) == "add"){
-            $db->QueryUpdate("price_voip", "id", array("id" => $dbf->data["id"], "idExt" => $dbf->data["id"]));
-        }
+        $dbf->Process();
+
         if(!isset($_SESSION['trash']) || !is_array($_SESSION['trash']))
             $_SESSION['trash'] = array();
-        $_SESSION['trash']['price_voip'] = 1;
 
         $dbf->Display(
             array(
@@ -167,7 +128,7 @@ class m_tarifs{
         $design->assign('tarifs_by_dest',$tarifs_by_dest);
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists', $pg_db->AllRecords("select p.id, p.name from voip.pricelist p", 'id'));
-        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
+        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_list.tpl');
     }
     function tarifs_voip_edit(){
@@ -221,7 +182,7 @@ class m_tarifs{
         $design->assign('regions',$db->AllRecords("select * from regions",'id'));
         $design->assign('pricelists',$pg_db->AllRecords("select id, name from voip.pricelist where local=false and orig=true"));
         $design->assign('id',$id);
-        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка','3'=>'СНГ'));
+        $design->assign('dests',array('4'=>'Местные Стационарные','5'=>'Местные Мобильные','1'=>'Россия','2'=>'Международка'));
         $design->AddMain('tarifs/voip_edit.tpl');
     }
     function tarifs_delete(){
@@ -516,20 +477,6 @@ class m_tarifs{
         return $prefses;
     }
 
-
-    function tarifs_price_tel()
-    {
-        if(get_param_raw("gen", "") == "true") {
-            PriceTel::gen();
-        }
-
-        if(get_param_raw("save", "") == "true") {
-            PriceTel::save();
-        }
-
-        PriceTel::view();
-    }
-
     function tarifs_virtpbx()
     {
         Header('Location: ?module=tarifs&action=view&m=virtpbx');
@@ -542,140 +489,3 @@ class m_tarifs{
         exit();
     }
 }
-
-class PriceTel
-{
-    public static function view()
-    {
-        global $design, $db;
-
-        $data = array(
-                "990" => array("city" => "Москва (старый прайс)", "time" => false),
-                "991" => array("city" => "Присоединение сетей", "time" => false),
-                );
-
-        foreach($db->AllRecords('select id, name from regions order by id desc', 'id') as $r)
-            $data[$r["id"]] = array("city" => $r["name"], "time" => false);
-            
-
-
-        foreach (glob(STORE_PATH.'contracts/region_*.html') as $s) {
-            if(preg_match("/\d+/", $s, $o))
-            {
-                $region = $o[0];
-                $data[$region]["time"] = date("Y-m-d H:i", filemtime($s));
-            }
-        }
-
-        $design->assign("data", $data);
-        $design->AddMain('tarifs/price_tel.htm');
-    }
-
-    public static function gen()
-    {
-        global $design;
-
-        $region = get_param_integer("region", 0);
-
-        if(!$region) 
-            die("Ошибка");
-
-        $pp = array();
-        foreach(array(5,4,3,2,1) as $p)
-        {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://stat.mcn.ru/operator/get_prices.php?region=$region&dest=$p");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            $result = curl_exec($ch);
-            if ($result === false) {
-                $error = curl_error($ch);
-                curl_close($ch);
-                throw new \yii\base\Exception($error);
-            }
-            curl_close($ch);
-
-            $pp[$p] = explode("\n", $result);
-
-            //file_put_contents("/tmp/a".$p.".dat", serialize($pp[$p]));
-            //$pp[$p] = unserialize(file_get_contents("/tmp/a".$p.".dat"));
-        }
-
-        $d = array();
-
-        if($region != 990 && $region != 991)
-        {
-            self::__addTitle("Местные стационарные", $d);
-            self::__parsePrice($pp[4], $d);
-            self::__addTitle("Местные мобильные", $d);
-            self::__parsePrice($pp[5], $d);
-        }
-        self::__addTitle("Россия", $d);
-        self::__parsePrice($pp[1], $d);
-        self::__addTitle("Ближнее зарубежье", $d);
-        self::__parsePrice($pp[3], $d);
-        self::__addTitle("Дальнее зарубежье", $d);
-        self::__parsePrice($pp[2], $d);
-
-        $design->assign("d", $d);
-        $design->assign("region", $region);
-
-        echo ($region == 991) ? $design->display("tarifs/price_tel__gen991.htm") : $design->display("tarifs/price_tel__gen.htm");
-        exit();
-
-    }
-
-    static function save()
-    {
-        $region = get_param_integer("region", 0);
-        if(!$region)
-        {
-            echo "Ошибка";
-            exit();
-        }
-
-
-        if(file_put_contents(STORE_PATH."contracts/region_".$region.".html", $_POST["html"]))
-        {
-            echo "ok";
-        }else{
-            echo "Ошибка сохранения";
-        }
-        exit();
-    }
-
-    static function __addTitle($title, &$d)
-    {
-        $d[] = array("type" => "title", "title" => $title);
-    }
-
-    static function __parsePrice(&$cc, &$d)
-    {
-        foreach($cc as $idx => $c)
-        {
-            if($idx == 0) continue;
-
-            $c = trim($c);
-            if ($c == '') continue;
-
-            $aa = explode(";", $c);
-            foreach($aa as &$a)
-            {
-                $a = str_replace("\"", "", $a);
-            }
-
-            $d[] = array(
-                    "type" => "price",
-                    "code1" => $aa[0],
-                    "code2" => $aa[1],
-                    "name" => $aa[2],
-                    "zone" => $aa[3],
-                    "price1" => $aa[4],
-                    "price2" => $aa[5],
-                    "price3" => $aa[6],
-                    );
-
-        }
-    }
-}
-?>

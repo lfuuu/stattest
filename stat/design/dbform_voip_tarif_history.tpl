@@ -9,7 +9,6 @@
 		{if strpos($T.dest_group, '5') !== false}Моб{/if}
 		{if strpos($T.dest_group, '1') !== false}МГ{/if}
 		{if strpos($T.dest_group, '2') !== false}МН{/if}
-		{if strpos($T.dest_group, '3') !== false}СНГ{/if}
 		({$T.minpayment_group})
 		{/if}
 		{if strpos($T.dest_group, '5') === false}
@@ -23,9 +22,6 @@
 		{/if}
 		{if strpos($T.dest_group, '2') === false}
 		/ МН {$T.tarif_intern_name} {if $T.minpayment_intern > 0}({$T.minpayment_intern}){/if}
-		{/if}
-		{if strpos($T.dest_group, '3') === false}
-		/ СНГ {$T.tarif_sng_name} {if $T.minpayment_sng > 0}({$T.minpayment_sng}){/if}
 		{/if}
 	<br>
 	{if $T.is_current || $T.is_previous || $T.is_next}</span>{/if}

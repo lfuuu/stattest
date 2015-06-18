@@ -221,20 +221,20 @@ class HelpDbForm {
         
     }
     public static function logTarifUsage($service,$id,$dateActivation,
-                                        $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,$tarifSngId,
+                                        $tarifId,$tarifLocalMobId,$tarifRussiaId,$tarifRussiaMobId,$tarifInternId,
                                         $dest_group, $minpayment_group, 
-                                        $minpayment_local_mob, $minpayment_russia, $minpayment_intern, $minpayment_sng)
+                                        $minpayment_local_mob, $minpayment_russia, $minpayment_intern)
     {
         global $db,$user;
         $db->Query('insert into log_tarif (service,id_service,id_user,ts,date_activation,comment,
-                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_russia_mob,id_tarif_intern,id_tarif_sng,
+                                        id_tarif,id_tarif_local_mob,id_tarif_russia,id_tarif_russia_mob,id_tarif_intern,
                                         dest_group,minpayment_group,
-                                        minpayment_local_mob,minpayment_russia,minpayment_intern,minpayment_sng
+                                        minpayment_local_mob,minpayment_russia,minpayment_intern
                                     ) VALUES '.
                                     '("'.$service.'",'.$id.','.$user->Get('id').',NOW(),"'.addslashes($dateActivation).'","",'.
-                                        intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.intval($tarifSngId).','.
+                                        intval($tarifId).','.intval($tarifLocalMobId).','.intval($tarifRussiaId).','.intval($tarifRussiaMobId).','.intval($tarifInternId).','.
                                         intval($dest_group).','.intval($minpayment_group).','.
-                                        intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).','.intval($minpayment_sng).
+                                        intval($minpayment_local_mob).','.intval($minpayment_russia).','.intval($minpayment_intern).
                                     ')');
         
     }
@@ -510,7 +510,6 @@ class DbFormUsageVoip extends DbForm {
         if ($this->isData('id')) {
             $this->prepareMovedFieldsForDispaly();
             HelpDbForm::assign_tarif('usage_voip',$this->data['id']);
-            HelpDbForm::assign_tarif('usage_voip',$this->data['id'],'_sng');
             HelpDbForm::assign_tarif('usage_voip2',$this->data['id'],'2');
             HelpDbForm::assign_block('usage_voip',$this->data['id']);
             HelpDbForm::assign_tt('usage_voip',$this->data['id'],$this->data['client']);
@@ -600,12 +599,10 @@ class DbFormUsageVoip extends DbForm {
             if ($this->dbform['t_id_tarif_russia'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_russia_mob'] == 0) $b=0;
             if ($this->dbform['t_id_tarif_intern'] == 0) $b=0;
-            if ($this->dbform['t_id_tarif_sng'] == 0) $b=0;
             if ($this->dbform['t_minpayment_group'] == '') $b=0;
             if ($this->dbform['t_minpayment_local_mob'] == '') $b=0;
             if ($this->dbform['t_minpayment_russia'] == '') $b=0;
             if ($this->dbform['t_minpayment_intern'] == '') $b=0;
-            if ($this->dbform['t_minpayment_sng'] == '') $b=0;
 
             $this->dbform["E164"] = trim($this->dbform["E164"]);
             
@@ -638,7 +635,6 @@ class DbFormUsageVoip extends DbForm {
                     if ($this->dbform['t_id_tarif_russia']!=$olddata['id_tarif_russia']) $b=1;
                     if ($this->dbform['t_id_tarif_russia_mob']!=$olddata['id_tarif_russia_mob']) $b=1;
                     if ($this->dbform['t_id_tarif_intern']!=$olddata['id_tarif_intern']) $b=1;
-                    if ($this->dbform['t_id_tarif_sng']!=$olddata['id_tarif_sng']) $b=1;
                     if ($this->dbform['t_date_activation']!=$olddata['date_activation']) $b=1;
                     if ($this->dbform['t_comment']!='') $b=1;
                     if ($this->dbform['t_dest_group']!=$olddata['dest_group']) $b=1;
@@ -646,15 +642,14 @@ class DbFormUsageVoip extends DbForm {
                     if ($this->dbform['t_minpayment_local_mob']!=$olddata['minpayment_local_mob']) $b=1;
                     if ($this->dbform['t_minpayment_russia']!=$olddata['minpayment_russia']) $b=1;
                     if ($this->dbform['t_minpayment_intern']!=$olddata['minpayment_intern']) $b=1;
-                    if ($this->dbform['t_minpayment_sng']!=$olddata['minpayment_sng']) $b=1;
                     if ($this->dbform['t_date_activation']!=$olddata['date_activation']) $b=1;
                     if (!$b) continue;
 
                     HelpDbForm::logTarifUsage("usage_voip",
                             $usage_id,$this->dbform['t_date_activation'],
-                            $this->dbform['t_id_tarif'],$this->dbform['t_id_tarif_local_mob'],$this->dbform['t_id_tarif_russia'],$this->dbform['t_id_tarif_russia_mob'],$this->dbform['t_id_tarif_intern'],$this->dbform['t_id_tarif_sng'],
+                            $this->dbform['t_id_tarif'],$this->dbform['t_id_tarif_local_mob'],$this->dbform['t_id_tarif_russia'],$this->dbform['t_id_tarif_russia_mob'],$this->dbform['t_id_tarif_intern'],
                             $this->dbform['t_dest_group'],$this->dbform['t_minpayment_group'],
-                            $this->dbform['t_minpayment_local_mob'],$this->dbform['t_minpayment_russia'],$this->dbform['t_minpayment_intern'],$this->dbform['t_minpayment_sng']
+                            $this->dbform['t_minpayment_local_mob'],$this->dbform['t_minpayment_russia'],$this->dbform['t_minpayment_intern']
                         );
                 }
 
@@ -895,57 +890,6 @@ class DbFormDomains extends DbForm {
         return $v;
     }
 
-}
-
-class DbFormBillMonthlyadd extends DbForm {
-    public function __construct() {
-        DbForm::__construct('bill_monthlyadd');
-        $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-4000');
-        $this->fields['client']=array('type'=>'label');
-        $this->fields['amount']=array('default'=>'1');
-        $this->fields['description']=array();
-        $this->fields['price']=array('type'=>'label');
-        $this->fields['period']=array('type'=>'label');
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
-        $this->fields['t_comment']=array('db_ignore'=>1);
-        $this->includesPreL = array('dbform_bill_montlyadd.tpl');
-        $this->includesPreR = array('dbform_block.tpl');
-        $this->includesPost =array('dbform_block_history.tpl');
-    }    
-    public function Display($form_params = array(),$h2='',$h3='') {
-        global $db,$design;
-        $R=$db->AllRecords('select * from bill_monthlyadd_reference'); //where status!="archive"');
-        $design->assign('dbform_f_ref',$R);
-
-        if ($this->isData('id')) {
-            $R=$db->AllRecords('select bill_monthlyadd_log.*,user_users.user from bill_monthlyadd_log LEFT JOIN user_users ON user_users.id=bill_monthlyadd_log.who where id_service='.$this->data['id'].' order by ts'); //where status!="archive"');
-            $design->assign('dbform_f_log',$R);
-
-            HelpDbForm::assign_block('bill_monthlyadd',$this->data['id']);
-        }        
-
-        DbForm::Display($form_params,$h2,$h3);
-    }
-    public function Process($no_real_update = 0) {
-        global $db,$user;
-        $this->Get();
-        if (!isset($this->dbform['id'])) return '';
-        if ($this->dbform['id']) {
-            $r=$db->GetRow('select * from bill_monthlyadd where id='.$this->dbform['id']);
-            $r['id_service']=$r['id']; unset($r['id']);
-            $r['who']=$user->Get('id');
-            $r['ts']=array('NOW()');
-            $db->QueryInsert('bill_monthlyadd_log',$r);
-        }
-        $current = $db->GetRow("select * from bill_monthlyadd where id = '".$this->dbform["id"]."'");
-        $v=DbForm::Process();
-        if ($v=='add' || $v=='edit') {
-            HelpDbForm::saveChangeHistory($current, $this->dbform, 'bill_monthlyadd');
-            if (!isset($this->dbform['t_block'])) $this->dbform['t_block'] = 0;
-            HelpDbForm::save_block('bill_monthlyadd',$this->dbform['id'],$this->dbform['t_block'],$this->dbform['t_comment']);
-        }
-    }
 }
 
 class DbFormUsageIpRoutes extends DbForm{
@@ -1920,8 +1864,6 @@ class DbFormFactory {
             return new DbFormTechCPE();
         }elseif ($table=='tech_cpe_models') {
             return new DbFormTechCPEModels();
-        }elseif ($table=='bill_monthlyadd') {
-            return new DbFormBillMonthlyadd();
         }elseif ($table=='domains') {
             return new DbFormDomains();
         }elseif ($table=='usage_extra') {
@@ -2068,8 +2010,6 @@ $GLOBALS['translate_arr']=array(
     '*.destination_name'    => 'название зоны назначения',
     '*.destination_prefix'    => 'префикс зоны назначения',
     '*.priceid'        => 'ID тарифной группы',
-    '*.dgroup'        => 'DGroup',
-    '*.dsubgroup'    => 'DSubGroup',
     '*.month_line'    => 'ежемесячная плата за линию',
     '*.month_number'=> 'ежемесячная плата за номер',
     '*.once_line'    => 'плата за подключение линии',
@@ -2098,10 +2038,6 @@ $GLOBALS['translate_arr']=array(
     '*.is_agent'        => 'Агент',
     '*.interest'        => 'Вознаграждение',
     '*.courier_id' => 'Курьер',
-    'price_voip.operator' => 'Оператор',
-    'price_voip.dgroup' => 'Направление',
-    'price_voip.dsubgroup' => 'Подгруппа',
-    'tarifs_voip.tarif_group' => 'Тарифная группа',
     '*.num_ports' => 'Количество портов',
     '*.overrun_per_port' => 'Превышение за порт',
     '*.space' => 'Пространство Мб',

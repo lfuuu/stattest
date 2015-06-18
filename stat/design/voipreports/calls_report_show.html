@@ -29,7 +29,6 @@
 	<option value="0" {if $f_dest_group eq '0'} selected{/if}>Зона</option>
 	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
 	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
 	</select>
 	<select class="select2" name="f_country_id" style="width: 250px">
 	<option value="0">-- Все страны --</option>
@@ -117,7 +116,6 @@
         {elseif $rd.destination_id == '0'}Зона
         {elseif $rd.destination_id == '1'}Россия
         {elseif $rd.destination_id == '2'}Международка
-        {elseif $rd.destination_id == '3'}СНГ
         {/if}
     </td>
     <td>{$rd.destination}{if $rd.mob=='t'} (mob){/if}</td>
