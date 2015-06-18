@@ -8,21 +8,17 @@ class Html extends \yii\helpers\Html
         if (strpos($src, '://') === false) {
             $filename = \Yii::$app->basePath . '/web' . $src;
             $file = file_get_contents($filename);
+            $mimeType = mime_content_type($filename);
         } else {
             $filename = tempnam('/tmp', 'img_');
             $file = file_get_contents($src);
+            $mimeType = mime_content_type($filename);
             file_put_contents($filename, $file);
+            unlink($filename);
         }
-        $mimeType = mime_content_type($filename);
 
         $options['src'] = 'data:' . $mimeType . ';base64,' . base64_encode($file);
 
-        if (strpos($filename, 'img_') !== false)
-            unlink($filename);
-
-        if (!isset($options['alt'])) {
-            $options['alt'] = '';
-        }
         return static::tag('img', '', $options);
     }
 }
