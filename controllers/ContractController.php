@@ -1,21 +1,36 @@
 <?php
 namespace app\controllers;
 
-use app\forms\contract\ContractEditForm;
+use app\forms\client\ContractEditForm;
 use app\classes\BaseController;
 use \Yii;
-use yii\base\Exception;
-use yii\helpers\Url;
+use yii\filters\AccessControl;
 
 
 class ContractController extends BaseController
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['edit', 'create'],
+                        'roles' => ['clients.edit'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function actionCreate($parentId, $childId = null)
     {
         $model = new ContractEditForm(['contragent_id' => $parentId]);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/view', 'id' => $childId]));
+            $this->redirect(['client/view', 'id' => $childId]);
         }
 
         return $this->render("edit", [
@@ -37,7 +52,7 @@ class ContractController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(Url::toRoute(['client/view','id'=>$childId]));
+            $this->redirect(['client/view','id'=>$childId]);
         }
 
         return $this->render("edit", [

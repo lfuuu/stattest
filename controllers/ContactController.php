@@ -6,10 +6,25 @@ use app\models\ClientContact;
 use app\models\LkNoticeSetting;
 use \Yii;
 use yii\base\Exception;
-
+use yii\filters\AccessControl;
 
 class ContactController extends BaseController
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['*'],
+                        'roles' => ['clients.edit'],
+                    ],
+                ],
+            ],
+        ];
+    }
     public function actionCreate($clientId)
     {
         $model = new ClientContact();
@@ -32,7 +47,7 @@ class ContactController extends BaseController
         $this->redirect(Yii::$app->request->referrer);
     }
 
-    public function actionLkactivate($id)
+    public function actionLkActivate($id)
     {
         $statuses = ['working','connecting'];
         $contact = ClientContact::findOne($id);

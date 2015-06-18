@@ -1,5 +1,5 @@
 <?php
-namespace app\forms\contragent;
+namespace app\forms\client;
 
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;

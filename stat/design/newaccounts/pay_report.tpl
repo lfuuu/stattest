@@ -162,7 +162,7 @@ $( "#to_period" ).datepicker({
         </tr>
 
 {foreach from=$payments item=item}<tr>
-	<td>{if !$fullscreen}<a href='{$LINK_START}module=clients&id={$item.client_id}'>{$item.client}</a>{else}{$item.client}{/if}</td>
+	<td>{if !$fullscreen}<a href='/client/view?id={$item.client_id}'>{$item.client}</a>{else}{$item.client}{/if}</td>
 	<td style='font-size:85%'>{$item.company}</td>
 	<td>{$item.manager}</td>
 	<td>{if $item.type=='e'}{$item.ecash_operator}{else}{$item.bank}{/if}</td>

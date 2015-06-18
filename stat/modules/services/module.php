@@ -79,7 +79,7 @@ class m_services extends IModule{
         if($port_type && count($port_type))
             $fil .= " AND `tp`.`port_type` in ('".join("','",$port_type)."')";
         if($manager)
-            $fil .= ' AND `cl`.`manager` = "'.$manager.'"';
+            $fil .= ' AND `cr`.`manager` = "'.$manager.'"';
         if($hide_off)
             $fil .= ' AND `uip`.`actual_to` >= FROM_UNIXTIME('.strtotime("+1 day", $to).')';
         if($hide_slow){
@@ -107,7 +107,8 @@ class m_services extends IModule{
                 `uip`.`speed_mgts`,
                 `uip`.`id`,
                 `uip`.`client`,
-                `cl`.`manager`,
+                `cr`.`manager`,
+                `cl`.`id` AS `clientid`,
                 `tp`.`port_type`,
                 `tp`.`port_name` `port`,
                 `tp`.`node`,
@@ -132,6 +133,7 @@ class m_services extends IModule{
                 `cl`.`client` = `uip`.`client`
             AND
                 `cl`.`status` not in ('deny','tech_deny')
+            LEFT JOIN client_contract cr ON cr.id = cl.contract_id
             LEFT JOIN
                 `log_tarif` `lt`
             ON
@@ -624,10 +626,12 @@ class m_services extends IModule{
                 select
                     usage_voip.*,
                     IF((actual_from<=NOW())
-                and
-                    (actual_to>NOW()),1,0) as actual
+                      and
+                    (actual_to>NOW()),1,0) as actual,
+                    c.id as clientid
                 from
                     usage_voip
+                    INNER JOIN clients c ON c.client = usage_voip.client
                     ".($where ? "where (".implode(") and (", $where).")" : "")."
                 order by
                     actual desc,
@@ -729,8 +733,7 @@ class m_services extends IModule{
     function services_trunk_view($fixclient){
         global $db,$design;
 
-        $client = ClientAccount::findOne(['client' => $fixclient]);
-
+        $client = ClientAccount::findOne($fixclient);
         if ($client) {
             global $db_ats;
 
@@ -1952,6 +1955,7 @@ class m_services extends IModule{
                 S.id as id,
                 sp.name as server_pbx,
                 c.status as client_status,
+                c.id as clientid,
                 IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             FROM usage_virtpbx as S
@@ -2212,6 +2216,7 @@ class m_services extends IModule{
                 T.*,
                 S.*,
                 c.status as client_status,
+                c.id as clientid,
                 IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
                 IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
             from
@@ -2610,9 +2615,11 @@ class m_services extends IModule{
                 tech_ports.port_name as port,
                 tech_ports.node,
                 tech_ports.port_type,
+                c.id AS clientid,
                 IF(usage_ip_ports.actual_from<=(NOW()+INTERVAL 5 DAY),1,0) as actual5d '.$select.'
             FROM
                 usage_ip_ports
+            LEFT JOIN clients c ON c.client = usage_ip_ports.client
             LEFT JOIN
                 tech_ports
             ON
@@ -2680,7 +2687,7 @@ class m_services extends IModule{
         if (isset($this->fetched_client)) return 1;
         if ($design->var_is_array('client')) return 1;
         if (!$fixclient) return 0;
-        $db->Query('select * from clients where (client="'.$fixclient.'")');
+        $db->Query('select * from clients where (id="'.$fixclient.'")');
         if (!($r=$db->NextRecord())) return 0;
         $design->assign('client',$r);
         $this->fetched_client=$r;
@@ -2886,7 +2893,7 @@ class m_services extends IModule{
                 select
                     `vn`.*,
                     `cl`.`client`,
-                    `cl`.`company_full`,
+                    `cg`.name_full AS `company_full`,
                     `vn`.`nullcalls_last_2_days` `count_calls`
                 from
                     `voip_numbers` `vn`
@@ -2894,6 +2901,8 @@ class m_services extends IModule{
                     `clients` `cl`
                 on
                     `cl`.`id` = `vn`.`client_id`
+                LEFT JOIN client_contract cr ON cr.id = cl.contract_id
+                LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
                 where
                     `vn`.`number` = '".$e164."'";
 

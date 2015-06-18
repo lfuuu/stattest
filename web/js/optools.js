@@ -376,7 +376,7 @@ var optools = {
                         isDisabled = true;
                     }
 
-                    $.get("./client/setvoipdisable?id="+optools.service.voip.accountId).done(function(data){
+                    $.get("./account/set-voip-disable?id="+optools.service.voip.accountId).done(function(data){
                         if(data != 'ok') 
                         {
                             alert("ошибка сохранения");

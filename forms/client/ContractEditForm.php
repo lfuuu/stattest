@@ -1,5 +1,5 @@
 <?php
-namespace app\forms\contract;
+namespace app\forms\client;
 
 use app\models\ClientContractComment;
 use app\models\ClientContractType;

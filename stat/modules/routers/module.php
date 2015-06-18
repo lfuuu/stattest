@@ -99,8 +99,10 @@ class m_routers {
             $lim = ' limit '.$offset.', '.$limit;
         else
             $lim = '';
+
+        $addJ.=' LEFT JOIN clients ON clients.client=tech_cpe.client';
         $db->Query($q='select sql_calc_found_rows tech_cpe.*,tech_cpe_models.vendor,'.$selJ.
-                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual'.
+                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual, clients.id as clientid'.
                         ' from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model '.
                         $addJ.$add.
                         ' order by actual desc,tech_cpe.id asc'.$lim);
@@ -350,12 +352,17 @@ class m_routers {
             default: $order='client '.$order; break;    //=1
         }
 
-        $db->Query('select usage_ip_ports.*,tech_ports.port_name as port,tech_ports.node,clients.company as client_company from usage_ip_ports '.
-                        'left join clients on usage_ip_ports.client=clients.client '.
+        $db->Query('select usage_ip_ports.*,tech_ports.port_name as port,tech_ports.node,cc.name as client_company, c.id as clientid from usage_ip_ports '.
+                        'left join clients c on usage_ip_ports.client=c.client '.
+            "
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = c.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
+            ".
                         'left join tech_ports on tech_ports.id=usage_ip_ports.port_id '.
                         'where (tech_ports.node="'.$id.'")'.($fixclient?' and (usage_ip_ports.client="'.$fixclient.'")':'').' order by '.$order);
         $i=0;
         $R=array(); while ($r=$db->NextRecord()) $R[$r['id']]=$r;
+
         foreach ($R as $i=>$v){
             $R[$i]['ip_ppp']=$this->GetIP_PPP($i);
             $R[$i]['ip_routes']=$this->GetIP_Router($i);
@@ -366,7 +373,13 @@ class m_routers {
         $design->assign('router_clients',$R);
 
         $R = array();
-        $db->Query('select R.net,P.client,P.id,IF (R.actual_from<NOW() and R.actual_to>NOW() and P.actual_from<NOW() and P.actual_to>NOW(),1,0) as active from usage_ip_routes as R inner join usage_ip_ports as P ON P.id=R.port_id INNER JOIN tech_ports as TP ON TP.id=P.port_id WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
+        $db->Query('
+select R.net,P.client,P.id, c.id AS clientid,IF (R.actual_from<NOW() and R.actual_to>NOW() and P.actual_from<NOW() and P.actual_to>NOW(),1,0) as active
+from usage_ip_routes as R
+inner join usage_ip_ports as P ON P.id=R.port_id
+INNER JOIN clients c ON c.client = P.client
+INNER JOIN tech_ports as TP ON TP.id=P.port_id
+WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         while ($r=$db->NextRecord()) {
             $b=1;
             if ($b && isset($R[$r['net']])) $b=0;

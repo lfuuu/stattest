@@ -496,7 +496,7 @@ class m_stats extends IModule{
 
             $ns = $db->AllRecords($q = "
                         SELECT 
-                            a.*, c.company, c.client,
+                            a.*, cg.name AS company, c.client,
                             IF(client_id IN ('9130', '764'), 'our', 
                                 IF(date_reserved IS NOT NULL, 'reserv', 
                                     IF(active_usage_id IS NOT NULL, 'used', 
@@ -561,6 +561,8 @@ class m_stats extends IModule{
                                 number BETWEEN '".$rangeFrom."' AND '".$rangeTo."' 
                         )a 
                         LEFT JOIN clients c ON (c.id = a.client_id)
+                        LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                        LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                         WHERE beauty_level IN ('".implode("','", $beauty)."')
                         HAVING status IN ('".implode("','", $group)."')
                     ");
@@ -1356,7 +1358,9 @@ class m_stats extends IModule{
 		}
 
 		if (count($C)) $q='IF (client IN ("'.implode('","',$C).'"),1,0)'; else $q='0';
-		$db->Query('select *,'.$q.' as cur_sent from stats_send order by cur_sent desc,state,last_send desc,client');
+		$db->Query('select stats_send.*, c.id AS clientid,'.$q.' as cur_sent from stats_send
+		inner join clients c ON c.client = stats_send.client
+		order by cur_sent desc,state,last_send desc,client');
 		$R=array(); while ($r=$db->NextRecord()) {
 			$r['cur_sent']=(isset($C[$r['client']]))?1:0;
 			if (isset($R[$r['client']])){
@@ -1454,7 +1458,8 @@ class m_stats extends IModule{
 					ti.name tarif_name,
 					ti.mb_month,
 					ti.pay_month,
-					ti.pay_mb
+					ti.pay_mb,
+					c.id AS clientid
 				FROM
 					usage_ip_ports uip
 				INNER JOIN
@@ -1687,6 +1692,7 @@ class m_stats extends IModule{
 				SELECT
 					uip.id,
 					uip.client,
+					c.id AS clientid,
 					sum(tfr.in_bytes) in_bytes,
 					sum(tfr.out_bytes) out_bytes,
 					ti.name tarif_name,
@@ -1714,6 +1720,7 @@ class m_stats extends IModule{
 					usage_ip_ports as uip
 				ON
 					uip.id=tfr.id_port
+				INNER JOIN clients c ON c.client = uip.client
 				LEFT JOIN
 					log_tarif lt
 				ON
@@ -2346,8 +2353,11 @@ class m_stats extends IModule{
         global $db;
 
         $R = $db->AllRecords(
-            "SELECT c.client, c.company, c.status, c.manager, unix_timestamp(l.ts) ts, f.*
-             FROM clients c, `log_client` l, log_client_fields f where c.id = l.client_id and f.ver_id = l.id
+            "SELECT c.client, cg.name AS company, c.status, cr.manager, unix_timestamp(l.ts) ts, f.*
+             FROM clients c, `log_client` l, log_client_fields f, client_contract cr, client_contragent cg
+             where c.id = l.client_id and f.ver_id = l.id
+             and cr.id = c.contract_id
+             and cg.id = cr.contragent_id
              and ts >= '2012-04-01 00:00:00'
              and field = 'inn'
              and value_from != ''
@@ -4119,12 +4129,16 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			newbills as a
 		LEFT JOIN
 			clients as b ON a.client_id = b.id
+		LEFT JOIN
+			client_contract as c ON c.id = b.contract_id
+		LEFT JOIN
+			client_contragent as d ON c.contragent_id = d.id
 		WHERE 
 			a.bill_date >= CAST('".$tmp_date_from."' AS DATE) AND
 			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
 			b.region > 0 AND 
 			b.status IN ('testing', 'conecting', 'work') AND 
-			b.type IN ('org', 'priv') AND 
+			d.legal_type IN ('legal', 'ip') AND
 			sum > 0 
 		GROUP BY
 			b.region

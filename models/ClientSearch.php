@@ -8,13 +8,13 @@ class ClientSearch extends ClientAccount
 {
     public $channel, $manager, $email, $voip;
 
-    protected $companyName, $inn;
+    protected $companyName, $inn, $contractNo;
 
     public function rules()
     {
         return [
             [['id', 'channel', 'manager'], 'integer'],
-            [['companyName', 'inn', 'email', 'voip'], 'string'],
+            [['companyName', 'inn', 'email', 'voip', 'contractNo'], 'string'],
         ];
     }
 
@@ -26,7 +26,13 @@ class ClientSearch extends ClientAccount
             'inn' => 'ИНН',
             'managerName' => 'Менеджер',
             'channelName' => 'Канал продаж',
+            'contractNo' => '№ договора',
         ];
+    }
+
+    public function getContractNo()
+    {
+        return $this->contract->number;
     }
 
     public function getCompanyName()
@@ -67,6 +73,12 @@ class ClientSearch extends ClientAccount
         $query->orFilterWhere([ClientAccount::tableName() . '.id' => $this->id]);
         $query->orFilterWhere(['like', 'name_full', $this->companyName]);
         $query->orFilterWhere(['like', 'inn', $this->inn]);
+
+        if($this->contractNo) {
+            $query->orFilterWhere(['number' => $this->contractNo]);
+            if(!$dataProvider->getTotalCount())
+                $query->orFilterWhere(['like', 'number', $this->contractNo]);
+        }
 
         if($this->email){
             $query->leftJoin(ClientContact::tableName(), ClientContact::tableName() . '.client_id=' . ClientAccount::tableName() . '.id');

@@ -11,7 +11,7 @@
 {if count($pay.clients)}
 	{foreach from=$pay.clients item=i name=inner}
 		<input type=radio name=pay[{$pay.id}][client] value='{$i.client}'{if $pay.imported} disabled='disabled'{/if} onclick = "filterBills('bills_{$pay.id}',GBILLS[{$i.id}],'{$pay.bill_no}')">
-			<a href='{$LINK_START}module=clients&id={$i.id}'>{$i.client}</a> - 
+			<a href='/client/view?id={$i.id}'>{$i.client}</a> -
 			<span style='font-size:85%'>{$i.company_full} ({$i.manager})
 			{if $i.is_ext} - {$i.comment}{else} - основной ИНН{/if}</span><br>
 	{/foreach}

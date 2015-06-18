@@ -663,6 +663,7 @@ class ClientCS {
     }
 
     function ClientCS ($id = null, $get_params = false) {
+        $id = 9130;
         if ($id) $this->F['id']=$id;
         if ($get_params) {
             if (is_array($get_params)) {
@@ -730,20 +731,16 @@ class ClientCS {
         if (is_array($client)) {
             $D = $client;
         } else {
-            $f = (is_numeric($client)?'id':'client');
-            $D = $db->GetRow("
-select cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
-cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
-from clients c
-INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-where ".$f."='".addslashes($client)."'");
+            if($client instanceof \app\models\ClientAccount)
+                return $client;
+
+            $D = is_numeric($client) ? \app\models\ClientAccount::findOne($client) : \app\models\ClientAccount::find()->where(['client' => $client])->one();
 
         }
         return $D;
     }
 
-    public static function Fetch($client,$ContractData=null) {
+    public static function Fetch($client) {
         global $db,$design;
         $D = self::FetchClient($client);
         $O = new self($D['id']);

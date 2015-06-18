@@ -2,7 +2,7 @@
 /** @var $versions array */
 
 $links = [
-    'ClientAccount' => '/client/edit?id=',
+    'ClientAccount' => '/account/edit?id=',
     'ClientContragent' => '/contragent/edit?id=',
     'ClientContragentPerson' => '/contragent/edit?id=',
     'ClientContract' => '/contract/edit?id=',

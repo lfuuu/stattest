@@ -545,7 +545,7 @@ class m_tt extends IModule{
         $design->assign(
             'tt_client',
             $db->GetRow('
-SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
+SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firma,
 cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
 FROM `clients` c
 INNER JOIN `client_contract` cr ON cr.id=c.contract_id
@@ -1094,10 +1094,6 @@ where c.client="'.$trouble['client_orig'].'"')
             $W[] = 'user_author="'.addslashes($user->Get('user')).'"';
         if($mode==4){
             $W[] = 'cr.manager="'.addslashes($user->Get('user')).'"';
-            $join.= '
-INNER JOIN clients c ON (clients.client=T.client)
-INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-';
         }if($mode==5){
             $W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
         }
@@ -1130,6 +1126,7 @@ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
                 T.*,
                 S.*,
                 T.client as client_orig,
+                cl.id as clientid,
                 (select count(1) from  newbill_sms bs where  T.bill_no = bs.bill_no) is_sms_send,
                 T.client as trouble_original_client,
 if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, ttsrb.name) as state_name,
@@ -1151,7 +1148,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name as trouble_name,
-                cr.manager, cg.name
+                cr.manager,
+                cg.name AS company
             FROM
                 tt_troubles as T
             '.$join.'
@@ -1162,8 +1160,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
-            INNER JOIN `client_contract` cr ON cr.id=cl.contract_id
-            INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+            LEFT JOIN `client_contract` cr ON cr.id=cl.contract_id
+            LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
             WHERE '.MySQLDatabase::Generate($W).'
             GROUP BY T.id
             ORDER BY T.id

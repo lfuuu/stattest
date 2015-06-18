@@ -266,7 +266,7 @@ class m_clients {
 			$e->triggerError();
 		}
 
-		Header("Location: /clients/view?id=".$id);
+		Header("Location: /client/view?id=".$id);
 		exit();
 	}
 
@@ -672,9 +672,11 @@ DBG::sql_out($select_client_data);
         $design->assign('users',$R);
         $design->assign('manager',$manager);
 
-        $R = $db->AllRecords('select client_files.*,UNIX_TIMESTAMP(client_files.ts) as ts,clients.client as client_client,clients.company as client_company,user_users.user as user,clients.manager as client_manager'.
+        $R = $db->AllRecords('select client_files.*,UNIX_TIMESTAMP(client_files.ts) as ts,clients.client as client_client,cg.name as client_company,user_users.user as user,cr.manager as client_manager'.
             ' FROM client_files'.
             ' INNER JOIN clients ON clients.id=client_files.client_id'.
+            ' INNER JOIN client_contract cr ON clients.contract_id=cr.id'.
+            ' INNER JOIN client_contragent cg ON cr.contragent_id = cg.id'.
             ' LEFT JOIN user_users ON user_users.id=client_files.user_id'.
             ' WHERE client_files.ts>=FROM_UNIXTIME('.$from.') AND client_files.ts<=FROM_UNIXTIME('.$to.')'.
             (!$manager?'':' AND clients.manager="'.$manager.'"').
@@ -683,5 +685,14 @@ DBG::sql_out($select_client_data);
         $design->assign('files',$R);
         $design->AddMain('clients/files_report.tpl');
     }
+
+	function get_client_info($client){
+		global $db;
+		if (is_numeric($client)) {
+			$q='(id="'.$client.'")';
+		} else $q='(client="'.$client.'")';
+		$db->Query("select * from clients where	".$q);
+		if ($r=$db->NextRecord()) return $r; else return false;
+	}
 }
 

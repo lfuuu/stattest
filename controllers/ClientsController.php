@@ -2,17 +2,12 @@
 namespace app\controllers;
 use Yii;
 use app\classes\BaseController;
-use yii\grid\GridView;
-use app\classes\yii\McnSqlDataProvider;
-use app\classes\yii\GlyphDataColumn;
-use app\classes\yii\HrefDataColumn;
 use app\models\ClientGridSettings;
-use yii\helpers\Url;
 use app\classes\Encoding;
 use app\classes\grid\Query;
 use app\classes\grid\FilterDataProvider;
-use yii\data\ActiveDataProvider;
 use app\classes\grid\filters\FilterField;
+use yii\filters\AccessControl;
 
 class ClientsController extends BaseController
 {

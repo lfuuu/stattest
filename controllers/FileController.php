@@ -6,11 +6,27 @@ use app\models\ClientFile;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
-use yii\helpers\Url;
 use yii\web\Response;
+use yii\filters\AccessControl;
 
 class FileController extends BaseController
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['*'],
+                        'roles' => ['clients.file'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function actionList($userId)
     {
         $model = ClientAccount::findOne($userId);
@@ -47,7 +63,7 @@ class FileController extends BaseController
         $request = Yii::$app->request->post();
         $model->fileManager->addFile($request['comment'], $request['name']);
 
-        return $this->redirect(Url::toRoute(['file/list', 'userId'=> $userId]));
+        return $this->redirect(['file/list', 'userId'=> $userId]);
     }
 
     public function actionDelete($id)

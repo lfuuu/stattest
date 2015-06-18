@@ -3,6 +3,7 @@ namespace app\forms\client;
 
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\Currency;
 use app\models\HistoryVersion;
 use app\models\Region;
 use Yii;
@@ -11,7 +12,7 @@ use yii\base\Exception;
 use app\models\Client;
 use yii\helpers\ArrayHelper;
 
-class ClientEditForm extends Form
+class AccountEditForm extends Form
 {
     protected $clientM = null;
     public $ddate = null;
@@ -31,9 +32,7 @@ class ClientEditForm extends Form
         $login = '',
         $currency_bill = 'RUB',
         $telemarketing = '',
-        $uid,
         $site_req_no = '',
-        $hid_rtsaldo_date = '0000-00-00 00:00:00',
         $cli_1c,
         $con_1c,
         $country_id = 643,
@@ -47,8 +46,6 @@ class ClientEditForm extends Form
         $is_bill_with_refund = 0,
         $is_active = 1,
         $is_closed = 0,
-        $hid_rtsaldo_RUB = 0.00,
-        $hid_rtsaldo_USD = 0.00,
         $balance_usd = 0.00,
         $sync_1c = 'no',
         $last_account_date,
@@ -100,7 +97,7 @@ class ClientEditForm extends Form
             [
                 [
                     'client', 'password', 'password_type', 'comment', 'status', 'address_post', 'address_post_real', 'support', 'login', 'bik', 'bank_properties', 'currency', 'currency_bill',
-                    'nal', 'telemarketing', 'uid', 'site_req_no', 'hid_rtsaldo_date', 'user_impersonate', 'address_connect', 'phone_connect',
+                    'nal', 'telemarketing', 'site_req_no', 'user_impersonate', 'address_connect', 'phone_connect',
                     'dealer_comment', 'form_type', 'payment_comment', 'cli_1c', 'con_1c', 'corr_acc', 'pay_acc', 'bank_name', 'bank_city', 'sync_1c', 'price_type',
                     'last_account_date', 'mail_who', 'head_company', 'head_company_address_jur', 'bill_rename1',
                     'consignee', 'timezone_name',
@@ -118,7 +115,7 @@ class ClientEditForm extends Form
             ],
             [
                 [
-                    'usd_rate_percent', 'hid_rtsaldo_RUB', 'hid_rtsaldo_USD', 'balance', 'balance_usd'
+                    'usd_rate_percent', 'balance', 'balance_usd'
                 ],
                 'number'
             ],
@@ -200,7 +197,7 @@ class ClientEditForm extends Form
 
     public function getCurrencyTypes()
     {
-        return ['RUB' => 'RUB', 'USD' => 'USD'];
+        return Currency::map();
     }
 
     public function getFormTypes()

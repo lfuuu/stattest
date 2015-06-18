@@ -15,7 +15,7 @@ class SearchController extends BaseController
 {
     public function actionIndex($search, $searchType)
     {
-        $controller = 'client';
+        $controller = 'account';
         $action = 'index';
         $params = [];
         switch ($searchType) {
@@ -32,6 +32,9 @@ class SearchController extends BaseController
                 break;
             case 'email':
                 $params['email'] = trim($search);
+                break;
+            case 'contractNo':
+                $params['contractNo'] = trim($search);
                 break;
             case 'bills':
                 if (null !== $model = Bill::find()->where(['bill_no' => trim($search)])->one()) {

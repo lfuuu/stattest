@@ -214,10 +214,12 @@ class AgentReport
         $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
         $R = $db->AllRecords($q = "
                 SELECT " . $fields . " 
-                    c.id, c.client, c.company, 
+                    c.id, c.client, cg.name AS company,
                     sum(l.sum) as bills
                 FROM
                     clients c
+                LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                 LEFT JOIN newbills b ON (b.client_id = c.id)
                 LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
                 WHERE
@@ -291,7 +293,7 @@ class AgentReport
         $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
         $R = $db->AllRecords($q = "
                 SELECT " . $fields . " 
-                    c.id, c.client, c.company, 
+                    c.id, c.client, cg.name AS company,
                     sum(l.sum) as bills,
                     sum( IF(
                             l.service = 'usage_voip' OR l.service = 'usage_virtpbx',
@@ -311,6 +313,8 @@ class AgentReport
                     ) as prebills 
                 FROM
                     clients c
+                LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                 LEFT JOIN newbills b ON (b.client_id = c.id)
                 LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
                 WHERE

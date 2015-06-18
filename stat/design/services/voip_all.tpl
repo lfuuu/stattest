@@ -13,7 +13,7 @@
 </TR>
 {foreach from=$voip_conn item=item name=outer}
 <tr>
-	<td><a href="{$LINK_START}module=clients&id={$item.client}">{$item.client}</a></td>
+	<td><a href="/client/view?id={$item.clientid}">{$item.client}</a></td>
 	<td><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from} - {if !$item.actual}{$item.actual_to}{/if}</a></td>
 	<td>{$item.E164}</td>
 	<td>{$item.no_of_lines}</td>

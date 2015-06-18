@@ -15,7 +15,7 @@ class HistoryController extends BaseController
             [
                 'allow' => true,
                 'actions' => ['show'],
-                'roles' => ['@'],
+                'roles' => ['clients.read'],
             ],
         ];
         return $behaviors;

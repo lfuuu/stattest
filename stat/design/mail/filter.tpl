@@ -35,7 +35,7 @@
   </TR>
 {foreach from=$mail_clients item=r name=outer}{if !isset($r.letter_state) || $r.letter_state!="sent"}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-	<TD><input type=hidden value='{$r.client}' name='clients[{$smarty.foreach.outer.iteration}]'><a href='{$LINK_START}module=clients&id={$r.client}'>{$r.client}</a></TD>
+	<TD><input type=hidden value='{$r.client}' name='clients[{$smarty.foreach.outer.iteration}]'><a href='/client/view?id={$r.id}'>{$r.client}</a></TD>
 	<TD><input type=checkbox value=1 name='flag[{$smarty.foreach.outer.iteration}]' id='flag_{$smarty.foreach.outer.iteration}'{if $r.filtered && !$disable_filter} checked{/if}></TD>
 	<TD><input type=checkbox value=1 name='flag2[{$smarty.foreach.outer.iteration}]' id='flag2_{$smarty.foreach.outer.iteration}'{if $r.selected} checked{/if}></TD>
 	<TD><input type=hidden value='{if isset($r.email)}{$r.email}{/if}' name='emails[{$smarty.foreach.outer.iteration}]'>{if isset($r.email)}{$r.email}{/if}</TD>

@@ -17,7 +17,7 @@ use app\models\TroubleState;
 use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
-use app\forms\contragent\ContragentEditForm;
+use app\forms\client\ContragentEditForm;
 use app\forms\lk_wizard\ContactForm;
 
 

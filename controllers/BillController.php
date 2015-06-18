@@ -1,16 +1,14 @@
 <?php
-
 namespace app\controllers;
 
-use Yii;
-use app\models\Bill;
 use app\classes\Assert;
-use app\classes\BaseController;
 use app\classes\documents\DocumentReportFactory;
+use app\models\Bill;
+use Yii;
+use app\classes\BaseController;
 
-class DocumentsController extends BaseController
+class BillController extends BaseController
 {
-
     public function actionPrint($bill_no, $doc_type = 'bill', $is_pdf = 0)
     {
         $bill = Bill::findOne(['bill_no' => $bill_no]);
@@ -25,5 +23,4 @@ class DocumentsController extends BaseController
         else
             echo $report->render();
     }
-
 }

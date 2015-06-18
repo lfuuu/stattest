@@ -98,26 +98,5 @@
     .tt-troubles th {
         text-align: center;
     }
-
-    #rightmenu{
-        padding: 10px;
-        position: fixed;
-        right: 20px;
-        top: 0;
-        border-left: 1px solid black;
-        width: 14%;
-        height: 100%;
-        background: #eeeeee;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-
-    #rightmenu ul{
-        list-style: none;
-        padding-left: 5px;
-    }
-
-    #rightmenu ul li{
-        padding: 5px 0;
-    }
 </style>
 

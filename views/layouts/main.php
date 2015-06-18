@@ -46,7 +46,7 @@ $user = Yii::$app->user->identity;
                     <b><a href="/client/view?id=<?=$fixclient_data['id']?>">
                             <?= $fixclient_data['id'] ?>
                         </a></b>
-                    (<b><a href='?module=clients&unfix=1'>снять</a></b>)
+                    (<b><a href='/account/unfix?id=<?=$fixclient_data['id']?>'>снять</a></b>)
                 </div>
                 <div style="padding: 2px">
                     <?=  Html::encode($fixclient_data['company']);?>

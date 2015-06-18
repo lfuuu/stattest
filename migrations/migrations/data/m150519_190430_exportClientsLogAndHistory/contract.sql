@@ -24,27 +24,26 @@ INSERT INTO client_contract
     (`id`,`super_id`, `contragent_id`, `number`, `organization`, `manager`, `account_manager`,
         `business_process_id`, `business_process_status_id`, `contract_type_id`)
     SELECT
-        c.`id`,
-        c.`super_id`,
-        c.`contragent_id`,
-        IF(ISNULL(cd.`contract_no`), '', cd.`contract_no`) AS `number`,
-        c.`firma` AS `organization`,
-        c.`manager`,
-        c.`account_manager`,
-        c.`business_process_id`,
-        c.`business_process_status_id`,
-        c.`contract_type_id`
-        FROM clients c
-        LEFT JOIN (
-		  	SELECT * FROM client_document WHERE `type` = 'contract' AND `is_active` = 1 ORDER BY `contract_date` DESC
-		  ) cd ON cd.`client_id` = c.`id`
-		  GROUP BY c.`id`
+        `id`,
+        `super_id`,
+        `contragent_id`,
+        '',
+        `firma` AS `organization`,
+        `manager`,
+        `account_manager`,
+        `business_process_id`,
+        `business_process_status_id`,
+        `contract_type_id`
+        FROM clients
 ;
 
-UPDATE clients c
-    INNER JOIN client_contract cc USING(`contragent_id`)
-    SET c.`contract_id` = cc.`id`
-;
+UPDATE clients SET `contract_id` = `id`;
+
+UPDATE client_contract cc
+        LEFT JOIN (
+		  	SELECT * FROM client_document WHERE `type` = 'contract' AND `is_active` = 1
+		  ) cd ON cd.`client_id` = cc.`id`
+	SET cc.`number` = cd.`contract_no`;
 
 INSERT INTO history_changes
     (`model`, `model_id`, `user_id`, `created_at`, `action`, `data_json`, `prev_data_json`)
@@ -184,10 +183,6 @@ INSERT INTO history_changes
     UPDATE history_changes SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientContract';
     UPDATE history_changes SET `data_json` = REPLACE(`prev_data_json`,'"null"', 'null') WHERE `model` = 'ClientContract';
     UPDATE history_version SET `data_json` = REPLACE(`data_json`,'"null"', 'null') WHERE `model` = 'ClientContract';
-
-    UPDATE client_statuses cs
-    LEFT JOIN clients c ON c.`id` = cs.`id_client`
-    SET cs.id_client = c.contract_id AND c.contract_id != 0;
 
     ALTER TABLE `client_statuses`
         CHANGE COLUMN `id_client` `contract_id` INT(11) NOT NULL DEFAULT '0' AFTER `id`,

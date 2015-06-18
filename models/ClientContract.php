@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\forms\client\ClientEditForm;
+use app\forms\client\AccountEditForm;
 use yii\db\ActiveRecord;
 
 class ClientContract extends ActiveRecord
@@ -129,7 +129,7 @@ class ClientContract extends ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
         if($insert){
-            $client = new ClientEditForm(['contract_id' => $this->id]);
+            $client = new AccountEditForm(['contract_id' => $this->id]);
             $client->save();
             $this->number = $client->id;
             /*

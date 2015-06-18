@@ -2,14 +2,29 @@
 namespace app\controllers;
 
 use app\models\ClientDocument;
-use app\models\HistoryVersion;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
-use yii\helpers\Url;
+use yii\filters\AccessControl;
 
 class DocumentController extends BaseController
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['*'],
+                        'roles' => ['clients.edit'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function actionDelete($id)
     {
         $model = ClientDocument::findOne($id);
@@ -44,8 +59,9 @@ class DocumentController extends BaseController
             $comment
         );
 
-        $this->redirect(Url::toRoute(['client/view', 'id' => $id]));
+        $this->redirect(['client/view', 'id' => $id]);
     }
+
 /*
     public function actionEdit($id)
     {

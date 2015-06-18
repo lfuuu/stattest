@@ -29,7 +29,7 @@
 {foreach from=$data item=item key=key name=outer}
 	<tr class=even>
 	<td>{$smarty.foreach.outer.iteration}</td>
-	<td><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.client}'>{$item.client}</a></td>
+	<td><a href='{$LINK_START}module=newaccounts&action=bill_list&clients_client={$item.clientid}'>{$item.client}</a></td>
 	<td>{$item.site_req_no}</td>
 	<td>{$item.organisation}</td>
 	<td>{$item.manager}</td>

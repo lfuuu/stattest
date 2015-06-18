@@ -3,7 +3,7 @@ use \yii\helpers\Url;
 ?>
 <?php $contacts = $client->allContacts; ?>
 
-<div class="data-block">
+<div class="data-block row">
     <div class="row">
         <div class="col-sm-2 showFullTable" style="cursor: pointer;">
             <a><img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть"></a>Контакты
@@ -49,7 +49,7 @@ use \yii\helpers\Url;
                         <div class="col-sm-2"><?= $contact->ts ?></div>
                         <div class="col-sm-2">
                             <?php if ($contact->userUser == 'AutoLK'): ?>
-                                <a href="<?= Url::toRoute(['contact/lkactivate', 'id' => $contact->id])?>">
+                                <a href="<?= Url::toRoute(['contact/lk-activate', 'id' => $contact->id])?>">
                                     <img style="margin-left:-2px;margin-top:-3px" class="icon"
                                          src="/images/icons/<?=$contact->is_active ? 'action_check_off.gif':'action_check.gif'?>" alt="Активность">
                                 </a>
