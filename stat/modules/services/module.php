@@ -653,8 +653,6 @@ class m_services extends IModule{
 
             global $db_ats;
 
-            $isDbAtsInited = $db_ats && $db != $db_ats;
-
             $db->Query($q='
                 select
                     usage_voip.*,
@@ -683,19 +681,13 @@ class m_services extends IModule{
                     $actualNumbers[] = $r["E164"];
             }
 
-            if ($isDbAtsInited)
-            {
-            }
+            $numberTypes = count($R) > 0 ? VirtPbx3::getNumberTypes($this->fetched_client["id"]) : [];
+
             foreach ($R as &$r) {
                 $r['tarif']=get_tarif_current('usage_voip',$r['id']);
                 $r['cpe']=get_cpe_history('usage_voip',$r['id']);
 
-                if ($isDbAtsInited)
-                {
-                    $r["vpbx"] = virtPbx::number_isOnVpbx($this->fetched_client["id"], $r["E164"]);
-                } else {
-                    $r["vpbx"] = false;
-                }
+                $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
             }
 
             $notAcos = array();

@@ -1,16 +1,10 @@
 <?php
 
 use app\models\CoreSyncIds;
-
+use app\classes\api\ApiCore;
 
 class SyncCore
 {
-
-    private static function getCoreApiUrl()
-    {
-        return "https://".CORE_SERVER."/core/api/";
-    }
-
     public static function addSuperClient($superId)
     {
         $struct = SyncCoreHelper::getFullClientStruct($superId);
@@ -24,7 +18,7 @@ class SyncCore
             $accountSync->external_id = "*" . $superId;
 
             try{
-                $data = JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+                $data = ApiCore::exec($action, $struct);
             }catch(Exception $e)
             {
                 $accountSync->save();
@@ -75,7 +69,7 @@ class SyncCore
             if ($struct)
             {
                 try{
-                    $data = JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+                    $data = ApiCore::exec($action, $struct);
 
                     if (isset($data["success"]))
                     {
@@ -107,15 +101,7 @@ class SyncCore
                 }
             }
         }
-        self::_checkNeedSyncProducts($cl->client);
 
-    }
-
-    private static function _checkNeedSyncProducts($client)
-    {
-        echo "\n== [_checkNeedSyncProducts](".$client.")\n";
-        self::checkProductState('phone', array(0, $client));
-        self::checkProductState('vpbx', array(0, $client));
     }
 
     public static function addEmail($param)
@@ -134,7 +120,7 @@ class SyncCore
 
         if ($struct)
         {
-            JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+            ApiCore::exec($action, $struct);
         }
     }
 
@@ -155,7 +141,7 @@ class SyncCore
         }
         if ($struct)
         {
-            JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+            ApiCore::exec($action, $struct);
         }
     }
 
@@ -190,7 +176,7 @@ class SyncCore
 
         if ($action && $struct)
         {
-            JSONQuery::exec(self::getCoreApiUrl().$actionJSON, $struct);
+            ApiCore::exec($actionJSON, $struct);
         }
 
         return $action;
@@ -218,7 +204,7 @@ class SyncCore
             $struct = SyncCoreHelper::adminChangeStruct($client->super_id, $email, $client->password?:password_gen(), (bool)$client->admin_is_active);
             if ($struct)
             {
-                JSONQuery::exec(self::getCoreApiUrl().$action, $struct);
+                ApiCore::exec($action, $struct);
             }
 
         }

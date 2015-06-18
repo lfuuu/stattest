@@ -5,13 +5,11 @@
 
 class aVirtPbx
 {
-
-
-    public function edit()
+    public static function edit($clientId, $vpbxId)
     {
         global $design;
 
-        $virtpbx = virtpbx::getList();
+        $virtpbx = virtpbx::getInfo($clientId, $vpbxId);
 
         if(get_param_raw("cancel", "")) //cancel key
         {
@@ -42,7 +40,7 @@ class aVirtPbx
                 $formConstructor->make($gData);
             }else{
 
-                if (($result = self::save($gData)) === true)
+                if (($result = self::save($clientId, $vpbxId, $gData)) === true)
                 {
                     header("Location: ./?module=ats2");
                     exit();
@@ -71,7 +69,7 @@ class aVirtPbx
         $design->AddMain("ats2/virtpbx_edit.htm");
     }
 
-    private function checkSavedData($d)
+    private static function checkSavedData($d)
     {
         global $db_ats;
 
@@ -104,16 +102,14 @@ class aVirtPbx
 
     }
 
-    private function save($data)
+    private static function save($clientId, $vpbxId, $data)
     {
-        global $db_ats;
-
-        $virtPbxId = self::getVirtPbxId();
+        $virtPbxId = self::getVirtPbxId($clientId, $vpbxId);
 
         if (!$virtPbxId)
             throw new Exception("Виртуальная АТС не найдена у клиента!");
 
-        $vpbx = virtPbx::getList();
+        $vpbx = virtPbx::getInfo($clientId, $vpbxId);
 
         $getNumbers = array();
 
@@ -139,8 +135,6 @@ class aVirtPbx
         $add = array_diff($posted, $saved);
         $del = array_diff($saved, $posted);
 
-        $clientId = getClientId();
-
 
         $result = array();
         $isErrorResult = false;
@@ -156,11 +150,11 @@ class aVirtPbx
 
                 if (!$vpbx["is_started"])
                 {
-                    virtPbx::addNumber($clientId, $number);
+                    virtPbx::addNumber($clientId, $vpbxId, $number);
                 } else {
 
                     try{
-                        $res = ApiVpbx::addDid($clientId, $number);
+                        $res = ApiVpbx::addDid($clientId, $vpbxId, $number);
                     }catch(Exception $e)
                     {
                         $res = $e->getMessage();
@@ -184,10 +178,10 @@ class aVirtPbx
 
                 if (!$vpbx["is_started"])
                 {
-                    virtPbx::delNumber($clientId, $number);
+                    virtPbx::delNumber($clientId, $vpbxId, $number);
                 } else {
                     try{
-                        $res = ApiVpbx::delDid($clientId, $number);
+                        $res = ApiVpbx::delDid($clientId, $vpbxId, $number);
                     }catch(Exception $e)
                     {
                         $res = $e->getMessage();
@@ -217,10 +211,8 @@ class aVirtPbx
     }
 
 
-    private function getMap($id)
+    private static function getMap($id)
     {
-        global $design;
-
         $map = array();
 
         $sqlNumbers = array(array("type" => "query", "query" => 
@@ -239,11 +231,11 @@ class aVirtPbx
         return $map;
     }
 
-    private function getVirtPbxId()
+    private static function getVirtPbxId($clientId, $vpbxId)
     {
         global $db_ats;
         
-        return $db_ats->GetValue("select id from a_virtpbx where client_id = '".getClientId()."'");
+        return $db_ats->GetValue("select id from a_virtpbx where client_id = '".$clientId."' and usage_id = '".$vpbxId."'");
     }
 
 }

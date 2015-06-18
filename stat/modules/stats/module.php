@@ -4558,18 +4558,19 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
 		DatePickerPeriods::assignPeriods(new DateTime());
 		
-		$vpbx_id = get_param_integer('vpbx', 0);
-		$design->assign('vpbx_id', $vpbx_id);
-		$vpbx_id = 0;
-		if ($fixclient)
-		{
-			$client_id = $fixclient_data['id'];
-		} else {
-			$client_id = get_param_integer('client_id', 0);
-		}
-		$design->assign('client_id', $client_id);
+        $usage_id = get_param_integer('usage_id', 0);
+        if ($usage_id) {
+            $usage = \app\models\UsageVirtpbx::findOne($usage_id);
+            \app\classes\Assert::isObject($usage);
+            $client_id = $usage->clientAccount->id;
+        } elseif ($fixclient) {
+            $client_id = $fixclient_data['id'];
+        } else {
+            $client_id = 0;
+        }
+		$design->assign('usage_id', $usage_id);
 
-		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to);
+		list($stats, $stat_detailed) = $this->getReportVpbxStatSpace($client_id, $usage_id, $from, $to);
 		$design->assign('stats', $stats);
 		$design->assign('stat_detailed', $stat_detailed);
 
@@ -4608,10 +4609,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
                         $to,
                         $from
 		);
-		if ($fixclient)
+		if ($client_id)
 		{
-			$condition_string .=' AND UV.client = ?';
-			$condition_values[] = $fixclient;
+			$condition_string .=' AND C.id = ?';
+			$condition_values[] = $client_id;
 		}
 		$options['conditions'] = array($condition_string);
 		foreach ($condition_values as $v) 
@@ -4634,7 +4635,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	 *	@param int $from timestamp начала периода
 	 *	@param int $to timestamp конца периода
 	 */
-	function getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to) 
+	function getReportVpbxStatSpace($client_id, $vpbx_id, $from, $to)
 	{
 		global $db;
 		$stat_detailed = array();
@@ -4660,7 +4661,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 		
 		$options['joins'] = 
 			'LEFT JOIN clients as C ON C.id = stat.client_id ' . 
-                        'LEFT JOIN usage_virtpbx as UV ON UV.client = C.client and UV.actual_to>="' . $from  . '" and UV.actual_from <= "' . $to . '" ' .
+            'LEFT JOIN usage_virtpbx as UV ON UV.id = stat.usage_id ' .
 			'LEFT JOIN log_tarif as LT ON UV.id = LT.id_service  ' . 
 			'LEFT JOIN tarifs_virtpbx as T ON LT.id_tarif = T.id '
 			;
@@ -4708,13 +4709,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			$condition_string .=' AND stat.client_id = ?';
 			$condition_values[] = $client_id;
 		}
-		if ($fixclient)
-		{
-			$condition_string .=' AND UV.client = ?';
-			$condition_values[] = $fixclient;
-		} else {
-			$options['select'] .= ',UV.client';
-		}
+
 		$options['conditions'] = array($condition_string);
 		foreach ($condition_values as $v) 
 		{
@@ -4724,7 +4719,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
 		if ($client_id && !empty($stats)) 
 		{
-			$stat_detailed = VirtpbxStat::getVpbxStatDetails($client_id, strtotime($from), strtotime($to));
+			$stat_detailed = VirtpbxStat::getVpbxStatDetails($client_id, $vpbx_id, strtotime($from), strtotime($to));
 		}
 		foreach ($stats as $k => &$v) 
 		{

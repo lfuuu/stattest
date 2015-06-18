@@ -697,8 +697,14 @@ class m_ats2 extends IModule
 
     public function ats2_virtpbx($fixClient)
     {
+        global $design;
         include "virtpbx.php";
-        aVirtPbx::edit();        
+
+        $usageId = get_param_integer('usage_id');
+
+        $design->assign('usage_id', $usageId);
+
+        aVirtPbx::edit(getClientId(), $usageId);
     }
 
     public function update_key($fixclient)
@@ -724,7 +730,7 @@ class m_ats2 extends IModule
         global $design;
         include "virtpbx.php";
 
-        $design->assign("virtpbx", $r = VirtPbx::getList());
+        $design->assign("virtpbxList", VirtPbx::getList(getClientId()));
         $design->AddMain("ats2/virtpbx_list.htm");
     }
 
@@ -733,9 +739,10 @@ class m_ats2 extends IModule
         global $design;
 
         $clientId = getClientId();
+        $usageId = get_param_integer('usage_id');
 
         try{
-            virtPbx::startVpbx($clientId);
+            virtPbx::startVpbx($clientId, $usageId);
 
             header("Location: ./?module=ats2");
             exit();

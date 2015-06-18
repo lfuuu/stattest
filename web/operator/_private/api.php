@@ -97,8 +97,8 @@ function do_func($function)
         //vpbx
         case 'getClientPhoneNumbers': return ApiVpbx::getClientPhoneNumbers(get_param_raw("client_id")); break;
         case 'setClientVatsPhoneNumbers': return ApiVpbx::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
-        case 'vpbx_addDid': return ApiVpbx::addDid(get_param_raw("client_id"), get_param_raw("phone")); break;
-        case 'vpbx_delDid': return ApiVpbx::delDid(get_param_raw("client_id"), get_param_raw("phone")); break;
+        case 'vpbx_addDid': return ApiVpbx::addDid(get_param_raw("client_id"), get_param_raw("vpbx_id"), get_param_raw("phone")); break;
+        case 'vpbx_delDid': return ApiVpbx::delDid(get_param_raw("client_id"), get_param_raw("vpbx_id"), get_param_raw("phone")); break;
 
         case 'getClientPhoneNumbers': return Api::getClientPhoneNumbers(get_param_raw("client_id")); break;
         case 'setClientVatsPhoneNumbers': return Api::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
@@ -112,7 +112,7 @@ function do_func($function)
         case 'getAccountSettings': return ApiLk::getAccountSettings(get_param_integer("client_id")); break;
         case 'activateAccountNotification': return ApiLk::activateAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("code")); break;
         case 'activatebyemailAccountNotification': return ApiLk::activatebyemailAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("key")); break;
-        case 'getVatsStatistic': return VirtpbxStat::getVpbxStatDetailsFormated(get_param_integer("client_id"), get_param_integer("from"), get_param_integer("to")); break;
+        case 'getVatsStatistic': return VirtpbxStat::getVpbxStatDetailsFormated(get_param_integer("client_id"), get_param_integer("vpbxId"), get_param_integer("from"), get_param_integer("to")); break;
 
 
 		case 'getClientData': return ApiLk::getClientData(get_param_raw("client_id")); break;

@@ -1,7 +1,7 @@
 <TABLE class=price cellSpacing=4 cellPadding=2 width="100%" border=0>
 <tr>
 	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">АТС</td>
-	{if !$fixclient}
+	{if !$client_id}
 		<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Клиент</td>
 	{/if}
 	<td style="text-align: center;" class="header" vAlign=bottom rowspan="2">Работатет с</td>
@@ -28,11 +28,11 @@
 	{foreach from=$stats item="s" name=outer key="k"}
 			<tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 				<td style="text-align: center;">
-					<a href="?module=stats&action=report_vpbx_stat_space&client_id={$s->client_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
+					<a href="?module=stats&action=report_vpbx_stat_space&usage_id={$s->usage_id}&date_from={$date_from}&date_to={$date_to}">АТС {$s->client_id}</a>
 				</td>
-				{if !$fixclient}
+				{if !$client_id}
 					<td style="text-align: center;">
-						<a href="?module=clients&id={$s->client}">{$s->client}</a>
+						<a href="?module=clients&id={$s->client_id}">{$s->client_id}</a>
 					</td>
 				{/if}
 				<td style="text-align: center;">{$s->actual|mdate:"j месяца Y"}</td>

@@ -52,7 +52,19 @@
                     {if $item.actual_from > '3000-01-01' && access('services_voip', 'del4000')}<a href="./?module=services&action=vo_delete&id={$item.id}"><img src="{$IMAGES_PATH}del2.gif"></a>{/if}
                 </td>
                 <td width=5% nowrap>{$regions[$item.region].name}</td>
-                <td style="font-size: 8pt; width: 15%;">{if $item.vpbx}<div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>{else}{if $item.address}<a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>{else}<!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...{/if}{/if}</td>
+                <td style="font-size: 8pt; width: 15%;">
+                    {if $item.vpbx == 'vpbx'}
+                        <div style="padding: 0 15 0 15; color: blue;">Виртуальная АТС</div>
+                    {elseif $item.vpbx == 'multi'}
+                        <div style="padding: 0 15 0 15; color: blue;">Мультитранк</div>
+                    {else}
+                        {if $item.address}
+                            <a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.address}</a>
+                        {else}
+                            <!-- div style='width:150px;text-align:center'>адрес отсутствует</div-->...
+                        {/if}
+                    {/if}
+                </td>
                 <td nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_voip&id={$item.id}" target="_blank">{$item.actual_from}&nbsp;-&nbsp;{if $item.actual_to < '3000-01-01'}{$item.actual_to}{/if}</a></td>
                 <td nowrap>{$item.E164}&nbsp;x&nbsp;{$item.no_of_lines}{if access('services_voip','view_reg')}&nbsp;<a href="./?module=services&action=vo_view&phone={$item.E164}" title="Посмотреть регистрацию">&raquo;</a>{/if}</td>
                 <td>

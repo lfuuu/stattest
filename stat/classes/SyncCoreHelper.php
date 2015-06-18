@@ -111,49 +111,9 @@ class SyncCoreHelper
         }
     }
 
-    static function getProducts($clientId)
-    {
-        echo "\n".__FUNCTION__;
-        $products = array();
-
-        if (($vpbx = self::getProductVPBX($clientId)))
-            $products[] = $vpbx;
-
-        if (($phone = self::getProductPhone($clientId)))
-            $products[] = $phone;
-
-        return $products;
-    }
-
     static function getEmailStruct($email, $password)
     {
         return array("email" => $email, "password" => $password);
-    }
-
-
-    static function getProductVPBX($clientId)
-    {
-        global $db;
-        $vpbxIP = $db->GetValue($q = "
-                SELECT
-                s.ip
-                FROM (
-                    SELECT
-                    max(u.id) as virtpbx_id
-                    FROM
-                    usage_virtpbx u, clients c
-                    WHERE
-                    c.id = '".$clientId."'
-                    AND c.client = u.client
-                    AND actual_from <= cast(now() AS date)
-                    AND actual_to >= cast(now() AS date)
-                    ) a, usage_virtpbx u
-                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
-                LEFT JOIN server_pbx s ON (s.id = u.server_pbx_id)
-                WHERE u.id = a.virtpbx_id
-                ");
-
-        return $vpbxIP ? array("server_host" => (defined("VIRTPBX_TEST_ADDRESS") ? VIRTPBX_TEST_ADDRESS :$vpbxIP), "mnemonic" => "vpbx") : false;
     }
 
     static function getProductPhone($clientId)
@@ -208,8 +168,7 @@ class SyncCoreHelper
     {
         switch($product)
         {
-            case 'vpbx': return self::getProductVPBX($clientId); 
-            case 'phone': return self::getProductPhone($clientId); 
+            case 'phone': return self::getProductPhone($clientId);
             default: return false;
         }
     }

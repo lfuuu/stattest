@@ -1121,7 +1121,7 @@ class ServiceUsageVirtpbx extends ServicePrototype {
         if($this->date_from_prev && $this->date_to_prev){
             $date_range = Yii::t('biller', 'date_range_full', [$this->date_from_prev, $this->date_to_prev], $this->country->lang);
 
-            list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->date_from_prev, $this->date_to_prev);
+            list($data, $overrun_prev_month) = VirtpbxStat::getVpbxStatDetails($this->client['id'], $this->service['id'], $this->date_from_prev, $this->date_to_prev);
 
             if ($overrun_prev_month['sum_space'] > 0)
             {

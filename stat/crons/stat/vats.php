@@ -59,17 +59,18 @@ if ($_SERVER["argv"][1] == "yesterday")
 }
 
 
-foreach ($db_ats->AllRecords("SELECT client_id FROM `a_virtpbx` where is_started = 'yes'") as $vats)
+foreach ($db->AllRecords("SELECT client_id, usage_id FROM `actual_virtpbx` where is_started = 'yes'") as $vats)
 {
     $clientId = $vats["client_id"];
+    $usageId = $vats["usage_id"];
 
-    echo "\nclientId: ".$clientId;
+    echo "\nclientId: ".$clientId . ", $usageId: ".$usageId;
 
     for($d = $startDate; $d <= $endDate; $d = strtotime("+1 day", $d))
     {
         $day = date("Y-m-d", $d);
 
-        $vatsStat = new VpbxStatisticProcessor($clientId, $day);
+        $vatsStat = new VpbxStatisticProcessor($clientId, $usageId, $day);
 
         try{
             $stat = $vatsStat->getStatistic();
@@ -97,12 +98,14 @@ foreach ($db_ats->AllRecords("SELECT client_id FROM `a_virtpbx` where is_started
 class VpbxStatisticProcessor
 {
     private $clientId = 0;
+    private $usageId = 0;
     private $day = null;
     private $_stat = null;
 
-    public function __construct($clientId, $day)
+    public function __construct($clientId, $usageId, $day)
     {
         $this->clientId = $clientId;
+        $this->usageId = $usageId;
         $this->day = $day;
     }
 
@@ -153,7 +156,7 @@ class VpbxStatisticProcessor
     {
         $v = null;
         try{
-            $v = ApiVpbx::$fn($this->clientId, $this->day);
+            $v = \app\classes\api\ApiVpbx::$fn($this->clientId, $this->usageId, $this->day);
         } catch(Exception $e)
         {
             if ($e->getCode() != 540)

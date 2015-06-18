@@ -1,28 +1,28 @@
 <H2>Статистика использования дискового пространства виртуальными АТС</H2>
-<H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$prev_date_from}&date_to={$prev_date_to}">прошлый месяц</a>,
-      								за <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$cur_date_from}&date_to={$cur_date_to}">текущий месяц</a>,
-      								за <a href="?module=stats&action=report_vpbx_stat_space&vpbx={$vpbx_id}&date_from={$today}&date_to={$today}">текущий день</a>)</H3>
+<H3>Создайте отчёт сами: (или - посмотрите отчёты за <a href="?module=stats&action=report_vpbx_stat_space&usage_id={$usage_id}&date_from={$prev_date_from}&date_to={$prev_date_to}">прошлый месяц</a>,
+      								за <a href="?module=stats&action=report_vpbx_stat_space&usage_id={$usage_id}&date_from={$cur_date_from}&date_to={$cur_date_to}">текущий месяц</a>,
+      								за <a href="?module=stats&action=report_vpbx_stat_space&usage_id={$usage_id}&date_from={$today}&date_to={$today}">текущий день</a>)</H3>
 <FORM action="?" method=get>
 	<input type=hidden name=module value=stats>
 	<input type=hidden name=action value=report_vpbx_stat_space>
 	<TABLE class=mform cellSpacing=4 cellPadding=2 width="100%" border=0>
 		<TBODY>
-			{if !$fixclient}
+			{if $fixclient}
 				<TR>
 					<TD class=left>
 						<label for="vpbx">Виртуальная АТС:</label>
 					</TD>
 					<TD>
-						<select name="client_id" id="vpbx">
-							<option value="0" {if $client_id == 0}selected="selected"{/if}>Все</option>
+						<select name="usage_id" id="vpbx">
+							<option value="0" {if $usage_id == 0}selected="selected"{/if}>Все</option>
 							{foreach from=$vpbxs item="vpbx"}
-								<option value="{$vpbx->client_id}" {if $client_id == $vpbx->client_id}selected="selected"{/if}>
+								<option value="{$vpbx->id}" {if $usage_id == $vpbx->id}selected="selected"{/if}>
 									ВАТС {if !$fixclient}{$vpbx->client} {/if} {$vpbx->tarif} с {$vpbx->actual|mdate:"j месяца Y"}
 								</option>
 							{/foreach}
 						</select>
 					</TD>
-					
+
 				</TR>
 			{/if}
 			<tr>

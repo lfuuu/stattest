@@ -2,6 +2,7 @@
 
 namespace app\classes;
 
+use app\classes\api\ApiPhone;
 use app\models\ActualNumber;
 use app\models\UsageVoip;
 use app\models\Region;
@@ -380,7 +381,7 @@ class ActaulizerVoipNumbers
         return 'Europe/Moscow';
     }
 
-    private function event_go($event, $data)
+    private function event_go($event, $data = null)
     {
         \l::ll(__CLASS__,__FUNCTION__, $event, $data);
 
@@ -396,8 +397,9 @@ class ActaulizerVoipNumbers
 
     private function execQuery($action, $data)
     {
-        if (!defined("ats3_silent"))
-            \JSONQuery::exec("https://".PHONE_SERVER."/phone/api/".$action, $data);
+        if (!defined("ats3_silent")) {
+            ApiPhone::exec($action, $data);
+        }
     }
 }
 
