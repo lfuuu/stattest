@@ -24,13 +24,6 @@
 	<input type="hidden" name="action" value="compare_raw_file" />
 	<input type="hidden" name="id" value="{$file.id}" />
 
-	<select name="f_dest_group">
-	<option value="-1" {if $f_dest_group eq '-1'} selected{/if}>-- Все направления --</option>
-	<option value="0" {if $f_dest_group eq '0'} selected{/if}>Москва</option>
-	<option value="1" {if $f_dest_group eq '1'} selected{/if}>Россия</option>
-	<option value="2" {if $f_dest_group eq '2'} selected{/if}>Международка</option>
-	<option value="3" {if $f_dest_group eq '3'} selected{/if}>СНГ</option>
-	</select>
 	<select name="f_country_id">
 	<option value="0">-- Все страны --</option>
 	{foreach from=$countries item='g'}
@@ -55,7 +48,6 @@
 
 <table class=price cellSpacing=2 cellPadding=4 border=0>
 <tr><td class=header>Префикс номера</td><td class=header colspan=2>Изменение цены</td><td class=header>НОВАЯ Цена</td><td class=header>СТАРАЯ Цена</td>
-<td class=header>Направление</td>
 <td class=header>Назначение</td>
 <td class=header>Fix/Mob</td>
 {foreach from=$defs_list item='o'}
@@ -74,7 +66,6 @@
 {/if}
 </td>
 <td>{$o.new_price}</td><td>{$o.old_price}</td>
-<td>{$o.dgroup}</td>
 <td>{$o.destination}</td>
 <td>{if $o.mob eq 't'}mob{/if}</td>
 </tr>

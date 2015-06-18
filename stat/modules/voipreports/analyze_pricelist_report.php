@@ -15,7 +15,6 @@ class m_voipreports_analyze_pricelist_report
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_mob = get_param_protected('f_mob', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
         $f_short = get_param_protected('f_short', '');
 
         $recalc = isset($_GET['calc']) ? 'true' : 'false';
@@ -44,8 +43,6 @@ class m_voipreports_analyze_pricelist_report
         $report = array();
         if (isset($_GET['make']) || isset($_GET['calc']) || isset($_GET['export'])) {
             $where = '';
-            if ($f_dest_group != '-1')
-                $where .= " and g.dest='{$f_dest_group}'";
             if ($f_country_id != '0')
                 $where .= " and g.country='{$f_country_id}'";
             if ($f_region_id != '0')
@@ -55,7 +52,8 @@ class m_voipreports_analyze_pricelist_report
             if ($f_mob == 'f')
                 $where .= " and d.mob=false ";
 
-            $showOperator = $f_mob == 't' && $f_dest_group == 1;
+            $showOperator = $f_mob == 't';
+            $showOperator = false;
 
             $sql = "
                     select r.prefix, r.prices, r.locked, r.orders, round(v.seconds_op/60.0) as volume,
@@ -142,7 +140,6 @@ class m_voipreports_analyze_pricelist_report
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
         $design->assign('f_mob', $f_mob);
-        $design->assign('f_dest_group', $f_dest_group);
         $design->assign('f_short', $f_short);
         $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));

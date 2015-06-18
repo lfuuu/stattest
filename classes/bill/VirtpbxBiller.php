@@ -20,10 +20,12 @@ class VirtpbxBiller extends Biller
     protected function processPeriodical()
     {
         foreach ($this->tariffRange as $range) {
-
             $tariff = $range['tariff'];
 
-            $template = '{name}' . $this->getPeriodTemplate($tariff->period);
+            $template = 'vpbx_service';
+            $template_data = [
+                'tariff' => $tariff->description
+            ];
 
             $this->addPackage(
                 BillerPackagePeriodical::create($this)
@@ -32,9 +34,9 @@ class VirtpbxBiller extends Biller
                     ->setIsAlign(true)
                     ->setIsPartialWriteOff(false)
                     ->setAmount($this->usage->amount)
-                    ->setName($tariff->description)
-                    ->setTemplate($template)
                     ->setPrice($tariff->price)
+                    ->setTemplate($template)
+                    ->setTemplateData($template_data)
             );
         }
     }
@@ -49,14 +51,15 @@ class VirtpbxBiller extends Biller
                 $price = $stats['overrun_per_gb'];
                 $amount = $stats['sum_space']/$stats['overrun_per_gb'];
                 if ($price > 0) {
-                    $template = 'Превышение дискового пространства ' . $this->getPeriodTemplate(Biller::PERIOD_MONTH);
+                    $template = 'vpbx_over_disk_usage';
 
                     $this->addPackage(
                         BillerPackageResource::create($this)
+                            ->setPeriodType($range['tariff']->period)
                             ->setActualPeriod($range['from'], $range['to'])
-                            ->setTemplate($template)
                             ->setAmount($amount)
                             ->setPrice($price)
+                            ->setTemplate($template)
                     );
                 }
             }
@@ -66,20 +69,20 @@ class VirtpbxBiller extends Biller
                 $amount = $stats['sum_number']/$stats['overrun_per_port'];
 
                 if ($price > 0) {
-                    $template = 'Превышение количества портов ' . $this->getPeriodTemplate(Biller::PERIOD_MONTH);
+                    $template = 'vpbx_over_ports_count';
 
                     $this->addPackage(
                         BillerPackageResource::create($this)
+                            ->setPeriodType($range['tariff']->period)
                             ->setActualPeriod($range['from'], $range['to'])
-                            ->setTemplate($template)
                             ->setAmount($amount)
                             ->setPrice($price)
+                            ->setTemplate($template)
                     );
                 }
             }
         }
     }
-
 
     private function getVpbxStat(DateTime $from, DateTime $to, TariffVirtpbx $tariff)
     {

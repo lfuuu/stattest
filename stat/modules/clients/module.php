@@ -65,7 +65,8 @@ class m_clients {
 //					array('Мои клиенты',			'my'),
 //					array('Все клиенты',			'all'),
 					array('Новый клиент',			'new'),
-					array('',						'show'),	//чтобы пробел не показывался, если read_filter отключен
+                    /*
+                    array('',						'show'),	//чтобы пробел не показывался, если read_filter отключен
 					array('Телемаркетинг',			'show','&subj=telemarketing'),
 					array('Входящие',				'show','&subj=income'),
 					array('В стадии переговоров',	'show','&subj=negotiations'),
@@ -85,9 +86,10 @@ class m_clients {
 					array('Операторы',	            'show','&subj=operator'),
 					array('Телефония отключена',	'show','&subj=voip_disabled'),
 					array('Временно заблокирован',	'show','&subj=blocked'),
+                     */
 					array('',						'sc'),
 					array('Каналы продаж',			'sc'),
-					array('Отчёт по файлам',		'files_report'),
+					array('Отчёт по файлам',		'files_report'),                     
 				);
 //###################################################################
 	function color_status($status_code){
@@ -1053,7 +1055,6 @@ class m_clients {
                 if(StatModule::services()->services_virtpbx_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_sms_view($r['client'])) $isServiceEnabled = true;
                 if(StatModule::services()->services_wellsystem_view($r['client'])) $isServiceEnabled = true;
-                if(StatModule::services()->services_ad_view($r['client'])) $isServiceEnabled = true;
                 $design->assign('log_company', ClientCS::getClientLog($r["id"], array("company_name")));
 
                 $design->assign("is_service_enabled", $isServiceEnabled);

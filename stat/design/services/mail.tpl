@@ -76,8 +76,8 @@
 </TR>
 {foreach from=$mailservers item=item name=outer}
 <tr>
-	<td><a href="{$PATH_TO_ROOT}pop_services_ad.php?id={$item.id}" target="_blank">{$item.actual_from} - {if !$item.actual}{$item.actual_to}{/if}</a></td>
-	<td><a href="{$PATH_TO_ROOT}pop_services_ad.php?id={$item.id}" target="_blank">{$item.price}</a></td>
+	<td>{$item.actual_from} - {if !$item.actual}{$item.actual_to}{/if}</td>
+	<td>{$item.price}</td>
 	<td>{if $item.enabled}+{else}&nbsp;{/if}</td>
 	<td><a href="{$LINK_START}module=services&action=ad_close&id={$item.id}">отключить</a>
 		<a href="{$LINK_START}module=services&action=ad_activate&id={$item.id}">{if ($item.actual)}заблокировать{else}разблокировать{/if}</a>

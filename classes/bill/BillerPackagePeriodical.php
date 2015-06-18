@@ -7,15 +7,8 @@ use DateTime;
 
 class BillerPackagePeriodical extends BillerPackage
 {
-    protected $periodType;
     protected $isAlign;
     protected $isPartialWriteOff;
-
-    public function setPeriodType($periodType)
-    {
-        $this->periodType = $periodType;
-        return $this;
-    }
 
     public function setIsAlign($isAlign)
     {
@@ -38,7 +31,6 @@ class BillerPackagePeriodical extends BillerPackage
         if (!$this->price || !$this->amount) {
             return null;
         }
-
 
         $from = $this->currentAlignFrom;
         $to = $this->currentAlignTo;

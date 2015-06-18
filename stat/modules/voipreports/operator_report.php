@@ -14,7 +14,6 @@ class m_voipreports_operator_report
 
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
         $f_mob = get_param_protected('f_mob', '0');
         $f_prefix = get_param_protected('f_prefix', '');
         $f_volume = get_param_protected('f_volume', '');
@@ -40,8 +39,6 @@ class m_voipreports_operator_report
             $where = '';
             if ($f_prefix != '')
                 $where .= " and r.prefix like '" . intval($f_prefix) . "%' ";
-            if ($f_dest_group != '-1')
-                $where .= " and g.dest='{$f_dest_group}' ";
             if ($f_country_id != '0')
                 $where .= " and g.country='{$f_country_id}' ";
             if ($f_region_id != '0')
@@ -173,7 +170,6 @@ class m_voipreports_operator_report
             $design->assign('f_country_id', $f_country_id);
             $design->assign('f_region_id', $f_region_id);
             $design->assign('f_mob', $f_mob);
-            $design->assign('f_dest_group', $f_dest_group);
             $design->assign('geo_countries', $countries);
             $design->assign('geo_regions', $regions);
             $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));

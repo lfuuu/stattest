@@ -61,6 +61,14 @@ return [
         'dbAts' => $dbAts,
         'dbAts2' => $dbAts2,
         'dbPgAts' => $dbPgAts,
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource'
+                    //, 'sourceLanguage' => 'ru'
+                ],
+            ],
+        ],
     ],
     'params' => $params,
 ];

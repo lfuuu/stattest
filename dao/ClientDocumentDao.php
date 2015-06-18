@@ -132,17 +132,7 @@ class ClientDocumentDao extends Singleton
                 "Партнеры" => "partners",
                 "Интернет-магазин" => "internetshop",
 
-                "MCN-СПб" => "mcn98",
-                "MCN-Краснодар" => "mcn97",
-                "MCN-Самара" => "mcn96",
-                "MCN-Екатеринбург" => "mcn95",
-                "MCN-Новосибирск" => "mcn94",
-                "MCN-Ростов-на-Дону" => "mcn87",
-                "MCN-НижнийНовгород" => "mcn88",
-                "MCN-Казань" => "mcn93",
-                "MCN-Владивосток" => "mcn89",
                 "WellTime" => "welltime",
-                "IT-Park" => "itpark",
                 "Arhiv" => "arhiv",
                 );
 
@@ -268,7 +258,7 @@ class ClientDocumentDao extends Singleton
     }
 
 
-    private function contract_fix_static_parts_of_template(&$content, $clientId=0)
+    private function contract_fix_static_parts_of_template($content, $clientId=0)
     {
         if(($pos = strpos($content, "{\$include_")) !== false)
         {
@@ -298,27 +288,7 @@ class ClientDocumentDao extends Singleton
 
 
 		if(strpos($content, '{*#voip_moscow_tarifs_mob#*}')!==false){
-			$repl = '';
-			// москва(моб.)
-			$query = "
-				select
-					`destination_name`,
-					`destination_prefix`,
-					substring(`destination_prefix` from 2 for 3) `code`,
-					`rate_RUB`
-				from
-					`price_voip`
-				where
-					`dgroup`=0
-				and
-					`dsubgroup`=0
-				order by
-					`destination_prefix`
-			";
-            foreach(ClientDocument::getDB()->createCommand($query)->queryAll() as $row)
-            {
-				$repl .= "<tr>\n\t<td>".$row['destination_name']." - ".$row['code']."</td>\n\t<td>".$row['destination_prefix']."</td>\n\t<td width='30'>".$row['rate_RUB']."</td>\n</tr>";
-			}
+			$repl = ''; // москва(моб.)
 			$content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
         }
 

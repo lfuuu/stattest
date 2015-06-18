@@ -8,7 +8,7 @@ apt-get update
 apt-get install -y mc git
 export DEBIAN_FRONTEND=noninteractive
 apt-get install -y apache2 mysql-server postgresql-9.4
-apt-get install -y php5 php5-cli php5-curl php5-gd php5-json php5-mcrypt php5-mysqlnd php5-pgsql php5-readline php5-xdebug php5-xmlrpc
+apt-get install -y php5 php5-cli php5-curl php5-gd php5-json php5-mcrypt php5-mysqlnd php5-pgsql php5-readline php5-xdebug php5-xmlrpc php5-intl
 
 cp ./apache.default.conf /etc/apache2/sites-available/000-default.conf
 cp ./php.ini /etc/php5/apache2/php.ini

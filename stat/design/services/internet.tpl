@@ -35,7 +35,7 @@
 	</td>
 	<td>{$conn.data.address}</td>
 	<td title="Время проверки скорости: {$conn.data.speed_update}" {if isset($conn.data.tarif) && $conn.data.speed_mgts != $conn.data.tarif.adsl_speed} style="color: #c40000;"><b>{$conn.data.speed_mgts}</b> ({$conn.data.tarif.adsl_speed}){else}>{if isset($conn.data.tarif)}{$conn.data.tarif.adsl_speed}{/if}{/if}</td>
-	<TD>{$conn.data.actual_from}/{if !$conn.data.actual}{$conn.data.actual_to}{/if}</td>
+	<TD>{$conn.data.actual_from}/{if !$conn.data.actual}{$conn.data.actual_to}{else}{if $conn.data.actual_to < '3000-01-01'}<span style="color: #009400;"><b>{$conn.data.actual_to}</b></span>{/if}{/if}</td>
 	<td><b>{$conn.data.port_type}, {if $conn.data.port=='mgts'}{$conn.data.node}{else}<a href='{$LINK_START}module=routers&id={$conn.data.node}'>{$conn.data.node}</a>::{$conn.data.port}{/if}</b></td>
 	<td>
 	{if isset($conn.data.tarif.name)}<img alt='Текущий тариф' class=icon src='{$IMAGES_PATH}icons/tarif.gif' alt="{$conn.data.tarif.mb_month}-{$conn.data.tarif.pay_month}-{$conn.data.tarif.pay_mb}">

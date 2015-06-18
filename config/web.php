@@ -102,6 +102,14 @@ $config = [
 //                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             )
         ],
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource'
+                    //, 'sourceLanguage' => 'ru'
+                ],
+            ],
+        ],
     ],
     'modules' => [
         'gridview' =>  [

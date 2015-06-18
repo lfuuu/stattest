@@ -1,11 +1,13 @@
 <?php
-include_once 'definfo.php';
 include_once 'prices_parser.php';
 
 include_once 'network.php';
 include_once 'operators.php';
 include_once 'pricelists.php';
 include_once 'trunks.php';
+
+use app\classes\voip\DefInfo;
+use app\models\billing\PricelistFile;
 
 class m_voipnew extends IModule
 {
@@ -32,27 +34,6 @@ class m_voipnew extends IModule
         $inheritance->module = $this;
     }
 
-    public function voipnew_raw_files()
-    {
-        global $pg_db, $design;
-
-        $f_pricelist_id = get_param_protected('pricelist', '0');
-
-        $query = "  select f.id,p.operator_id, o.name as operator,f.date,f.full,f.format,f.filename,f.active,f.startdate,f.rows
-                    from voip.raw_file f
-                    left join voip.pricelist p on p.id=f.pricelist_id
-                    left join voip.operator o on o.id=p.operator_id and o.region=p.region
-                    where f.pricelist_id=$f_pricelist_id
-                    order by f.startdate desc, f.date desc";
-        $design->assign('files_list', $pg_db->AllRecords($query));
-
-        $query = "select * from voip.pricelist where id=$f_pricelist_id ";
-        $design->assign('pricelist', $pg_db->GetRow($query));
-
-
-        $design->AddMain('voipnew/raw_files.html');
-    }
-
     public function voipnew_view_raw_file()
     {
         global $pg_db, $design;
@@ -60,7 +41,6 @@ class m_voipnew extends IModule
         $id = get_param_protected('id', 0);
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
 
         $query = "  select o.name as operator, p.type as type, p.id as pricelist_id, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
                     from voip.raw_file f
@@ -71,22 +51,19 @@ class m_voipnew extends IModule
         $design->assign('file', $file);
 
         $filter = '';
-        if ($f_dest_group >= 0) $filter .= ' and g.dest=' . intval($f_dest_group);
         if ($f_country_id > 0) $filter .= ' and g.country=' . intval($f_country_id);
         if ($f_region_id > 0) $filter .= ' and g.region=' . intval($f_region_id);
 
         $pg_db->Query('BEGIN');
         try {
             $query = "
-                        SELECT d.defcode, r.deleting, r.price,
-                            dgr.shortname as dgroup,
+                        SELECT r.ndef as defcode, r.deleting, r.price,
                             g.name as destination, d.mob
                         FROM voip.raw_price r
                             LEFT JOIN voip_destinations d ON r.ndef=d.ndef
                             LEFT JOIN geo.geo g ON g.id=d.geo_id
-                            LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
                         WHERE rawfile_id={$id} {$filter}
-                        order by g.dest, g.name, d.mob, d.defcode";
+                        order by g.name, r.ndef";
             $page = get_param_integer("page", 1);
             $recCount = 0;
             $recPerPage = 100;
@@ -118,7 +95,6 @@ class m_voipnew extends IModule
         $design->assign('defs_list', $defs);
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
-        $design->assign('f_dest_group', $f_dest_group);
         $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
 
@@ -133,7 +109,6 @@ class m_voipnew extends IModule
         $id = get_param_protected('id', 0);
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
 
         $query = "  select o.name as operator, p.name as pricelist,f.id,f.date,f.format,f.filename,f.active,f.startdate, f.rows
                     from voip.raw_file f
@@ -143,7 +118,6 @@ class m_voipnew extends IModule
         $design->assign('file', $pg_db->GetRow($query));
 
         $filter = 'where 1=1';
-        if ($f_dest_group >= 0) $filter .= ' and g.dest=' . intval($f_dest_group);
         if ($f_country_id > 0) $filter .= ' and g.country=' . intval($f_country_id);
         if ($f_region_id > 0) $filter .= ' and g.region=' . intval($f_region_id);
 
@@ -156,15 +130,12 @@ class m_voipnew extends IModule
                             ELSE
                             CAST((r.new_price - r.old_price) * 100 / r.old_price as NUMERIC(6,2))
                             END price_diff_pr,
-
-                            dgr.shortname as dgroup,
                             g.name as destination, d.mob
                         FROM select_rawfile_diff($id) r
                         LEFT JOIN voip_destinations d ON r.ndef=d.ndef
                         LEFT JOIN geo.geo g ON g.id=d.geo_id
-                        LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
                         {$filter}
-                        order by g.dest, g.name, d.mob, d.defcode ";
+                        order by g.name, d.mob, d.defcode ";
             $page = get_param_integer("page", 1);
             $recCount = 0;
             $recPerPage = 100;
@@ -187,7 +158,6 @@ class m_voipnew extends IModule
         $design->assign('defs_list', $defs);
         $design->assign('f_country_id', $f_country_id);
         $design->assign('f_region_id', $f_region_id);
-        $design->assign('f_dest_group', $f_dest_group);
         $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
 
@@ -197,19 +167,14 @@ class m_voipnew extends IModule
 
     public function voipnew_delete_raw_file()
     {
-        global $pg_db;
-
         $id = get_param_protected('id', 0);
 
-        $pricelist_id = $pg_db->GetValue("select pricelist_id from voip.raw_file where id=" . $id);
+        $file = PricelistFile::findOne($id); /** @var PricelistFile $file */
+        unlink($file->getStorageFilePath());
+        $file->delete();
 
-        $query = "delete from voip.raw_file where id=" . $id;
-        $pg_db->Query($query);
-        if ($pg_db->mError == '') {
-            header("location: index.php?module=voipnew&action=raw_files&pricelist={$pricelist_id}");
-            exit;
-        }
-        $this->voip_view_raw_file();
+        header("location: /voip/pricelist/files?pricelistId={$file->pricelist_id}");
+        exit;
     }
 
     public function voipnew_activatedeactivate()
@@ -598,11 +563,9 @@ class m_voipnew extends IModule
         $f_date = get_param_raw('f_date', date('Y-m-d', time()));
         $f_date = pg_escape_string($f_date);
         $f_short = get_param_raw('f_short', '');
-        $f_print = get_param_raw('f_print', '');
 
         $f_country_id = get_param_protected('f_country_id', '0');
         $f_region_id = get_param_protected('f_region_id', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
         $f_mob = get_param_protected('f_mob', '0');
 
         $query = "select o.id, o.name from voip.pricelist o";
@@ -610,7 +573,6 @@ class m_voipnew extends IModule
 
         if ($pricelist_id != '') {
             $filter = 'WHERE 1=1';
-            if ($f_dest_group >= 0) $filter .= ' and g.dest=' . intval($f_dest_group);
             if ($f_country_id > 0) $filter .= ' and g.country=' . intval($f_country_id);
             if ($f_region_id > 0) $filter .= ' and g.region=' . intval($f_region_id);
             if ($f_mob == 't') $filter .= " and d.mob=true ";
@@ -620,15 +582,13 @@ class m_voipnew extends IModule
             try {
                 $query = "
                         select d.defcode, r.date_from, r.date_to, r.price,
-                                    g.dest, dgr.shortname as dgroup,
                                     g.name as destination, d.mob,
                                     r.price as price
                         from select_defs_price('$pricelist_id', '$f_date') r
                                                     LEFT JOIN voip_destinations d ON r.ndef=d.ndef
                                         LEFT JOIN geo.geo g ON g.id=d.geo_id
-                                                    LEFT JOIN voip_dest_groups dgr ON dgr.id=g.dest
                         {$filter}
-                        order by g.dest, g.name, d.mob, r.price, d.defcode";
+                        order by g.name, d.mob, r.price, d.defcode";
                 $page = get_param_integer("page", 1);
                 $recCount = 0;
                 $recPerPage = 1000000;
@@ -763,28 +723,21 @@ class m_voipnew extends IModule
             $design->assign('f_short', $f_short);
             $design->assign('f_country_id', $f_country_id);
             $design->assign('f_region_id', $f_region_id);
-            $design->assign('f_dest_group', $f_dest_group);
             $design->assign('f_mob', $f_mob);
             $design->assign('countries', $countries);
             $design->assign('regions', $regions);
 
-            if ($f_print != '') {
-                $design->display('voipnew/defs_print.html');
-                exit;
-            } else {
-                $design->AddMain('voipnew/defs.html');
-            }
+            $design->AddMain('voipnew/defs.html');
         } else {
             header('Content-type: application/csv');
             header('Content-Disposition: attachment; filename="price.csv"');
 
             ob_start();
 
-            echo '"Префикс";"Цена";"Направление";"Направление";"Fix / Mоb";' . "\n";
+            echo '"Префикс";"Цена";"Направление";"Fix / Mоb";' . "\n";
             foreach ($res as $r) {
                 echo '"' . $r['defcode'] . (isset($r['defcode2']) ? ' (' . $r['defcode2'] . ')' : '') . '";';
                 echo '"' . str_replace('.', ',', $r['price']) . '";';
-                echo '"' . $r['dgroup'] . '";';
                 echo '"' . $r['destination'] . '";';
                 echo '"' . ($r['mob']=='t'?'mob':'fix') . '";';
                 echo "\n";
@@ -978,16 +931,13 @@ class m_voipnew extends IModule
 
         $instances = array();
 
-        $query = "  select i.id, r.id as region_id, r.name as region_name, i.city_prefix, i.city_geo_id, cg.city_name as city_name
+        $query = "  select i.id, r.id as region_id, r.name as region_name, i.city_geo_id, cg.city_name as city_name
                     from billing.instance_settings i
                     left join geo.geo cg on cg.id=i.city_geo_id
                     left join geo.region r on r.id::varchar = ANY(i.region_id)
                     order by i.id desc, r.name asc ";
         foreach ($pg_db->AllRecords($query) as $r) {
             if (!isset($instances[$r['id']])) {
-                $r['city_prefix'] = str_replace('{', '', $r['city_prefix']);
-                $r['city_prefix'] = str_replace('}', '', $r['city_prefix']);
-                $r['city_prefix'] = str_replace(',', ', ', $r['city_prefix']);
                 $instances[$r['id']] = $r;
                 $instances[$r['id']]['regions'] = array();
 
@@ -1009,7 +959,6 @@ class m_voipnew extends IModule
         $f_region_id = get_param_protected('f_region_id', '0');
         $f_city_geo_id = get_param_protected('f_city_geo_id', '0');
         $f_mob = get_param_protected('f_mob', '0');
-        $f_dest_group = get_param_protected('f_dest_group', '-1');
 
 
         $report = array();
@@ -1019,8 +968,6 @@ class m_voipnew extends IModule
                 $where .= " and p.prefix like '" . intval($f_prefix) . "%' ";
             if ($f_city_geo_id != '0')
                 $where .= " and p.geo_id='{$f_city_geo_id}'";
-            if ($f_dest_group != '-1')
-                $where .= " and g.dest='{$f_dest_group}'";
             if ($f_country_id != '0')
                 $where .= " and g.country='{$f_country_id}'";
             if ($f_region_id != '0')
@@ -1047,7 +994,6 @@ class m_voipnew extends IModule
         $design->assign('f_region_id', $f_region_id);
         $design->assign('f_city_geo_id', $f_city_geo_id);
         $design->assign('f_mob', $f_mob);
-        $design->assign('f_dest_group', $f_dest_group);
         $design->assign('countries', $pg_db->AllRecords("SELECT id, name FROM geo.country ORDER BY name"));
         $design->assign('geo_regions', $pg_db->AllRecords("SELECT id, name FROM geo.region ORDER BY name"));
         $design->assign('cities', $pg_db->AllRecords("SELECT i.city_geo_id as id, g.city_name as name FROM billing.instance_settings i left join geo.geo g on i.city_geo_id=g.id ORDER BY g.city_name"));

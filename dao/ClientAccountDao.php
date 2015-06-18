@@ -10,6 +10,8 @@ use app\models\ClientAccount;
 use app\models\GoodsIncomeOrder;
 use app\models\PaymentOrder;
 use app\models\Saldo;
+use DateTime;
+use DateTimeZone;
 
 /**
  * @method static ClientAccountDao me($args = null)
@@ -18,18 +20,28 @@ use app\models\Saldo;
 class ClientAccountDao extends Singleton
 {
 
-    public function getLastBillDate($clientAccountId)
+    public function getLastBillDate(ClientAccount $clientAccount)
     {
-        return ClientAccount::getDb()->createCommand("
-                select max(b.bill_date)
-                from newbills b, newbill_lines bl
-                where b.client_id=:clientAccountId and day(b.bill_date) = 1 and b.bill_no=bl.bill_no and bl.id_service > 0
-            ",
-            [':clientAccountId' => $clientAccountId]
-        )->queryScalar();
+        $billDate =
+            ClientAccount::getDb()->createCommand("
+                    select max(b.bill_date)
+                    from newbills b, newbill_lines bl
+                    where b.client_id=:clientAccountId and day(b.bill_date) = 1 and b.bill_no=bl.bill_no and bl.id_service > 0
+                ",
+                [':clientAccountId' => $clientAccount->id]
+            )->queryScalar();
+
+        if (!$billDate) {
+            $billDate = '2000-01-01';
+        }
+
+        $billDate = new DateTime($billDate, $clientAccount->timezone);
+        $billDate->setTimezone(new DateTimeZone('UTC'));
+
+        return $billDate->format('Y-m-d H:i:s');
     }
 
-    public function getLastPayedBillMonth($clientAccountId)
+    public function getLastPayedBillMonth(ClientAccount $clientAccount)
     {
         return ClientAccount::getDb()->createCommand("
                 select b.bill_date - interval day(b.bill_date)-1 day
@@ -39,7 +51,7 @@ class ClientAccountDao extends Singleton
                 order by b.bill_date desc
                 limit 1
             ",
-            [':clientAccountId' => $clientAccountId]
+            [':clientAccountId' => $clientAccount->id]
         )->queryScalar();
     }
 
@@ -360,8 +372,8 @@ class ClientAccountDao extends Singleton
                 ->execute();
         }
 
-        $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount->id);
-        $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($clientAccount->id);
+        $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount);
+        $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($clientAccount);
 
         ClientAccount::getDb()
             ->createCommand('
@@ -643,7 +655,7 @@ class ClientAccountDao extends Singleton
                             and lc.id = lf.ver_id
                             and is_overwrited = 'no'
                             and is_apply_set = 'yes'
-                        order by lf.id desc ", [":client_id" => $c["id"], ":date" => $date, ":date_full" => $date." 23:59:59", ":now" => $dNow, ":now_full" => $now." 00:00:00"])->queryAll();
+                        order by lf.id desc ", [":client_id" => $c["id"], ":date" => $date, ":date_full" => $date." 23:59:59", ":now" => $dNow, ":now_full" => $dNow." 00:00:00"])->queryAll();
             if ($rows) {
                 foreach ($rows as $l) {
                     $c[$l["field"]] = $l["value_from"];

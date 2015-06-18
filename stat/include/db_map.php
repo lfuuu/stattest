@@ -437,7 +437,6 @@ class Db_map_nispd extends Db_map {
 				'usage_voip'			=> 'id',
 				'domains'				=> 'id',
 				'emails'				=> 'id',
-				'bill_monthlyadd'		=> 'id',
 				'tt_states'				=> 'id',
 				'usage_ip_ppp'			=> 'id',
 			);
@@ -537,8 +536,6 @@ class Db_map_nispd extends Db_map {
 				'usage_voip.DialPlan'				=> array('E164','city'),
 				'usage_voip.tech_voip_device_id'	=> array(array('0','')),
 				
-				'bill_monthlyadd.period'			=> array(array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('year','раз в год'),array('once','единожды')),
-
 				'emails.spam_act'					=> array('pass','mask','discard'),
 					
 				'usage_ip_ports.period'				=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
@@ -546,14 +543,12 @@ class Db_map_nispd extends Db_map {
 				'domains.period'					=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
 				'emails.period'						=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
 				'usage_phone_callback.period'		=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
-				'bill_monthlyadd.period'			=> array(array('immediately','мгновенно'),array('day','раз в день'),array('week','раз в неделю'),array('month','раз в месяц'),array('6months','раз в полгода'),array('year','раз в год')),
 
 				'usage_ip_ports.status'				=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
 				'usage_voip.status'					=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
 				'domains.status'					=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
 				'emails.status'						=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
 				'usage_phone_callback.status'		=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
-				'bill_monthlyadd.status'			=> array(array('working','в работе'),array('connecting','на стадии подключения, до выписки счёта')),
 
 				);
 		//скрытые поля
@@ -563,7 +558,6 @@ class Db_map_nispd extends Db_map {
 				'usage_voip'			=> array ('client','id'),
 				'domains'				=> array ('client','id'),
 				'emails'				=> array ('client','id','domain'),
-				'bill_monthlyadd'		=> array ('client','id'),
 				'tech_routers'			=> array ('router'),
 				'clients_vip'			=> array ('id','last_time5'),
 				'tech_cpe'			=> array ('id'),

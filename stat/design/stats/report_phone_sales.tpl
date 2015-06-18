@@ -20,6 +20,20 @@
 {/literal}
 </style>
 
+<form action="?" action="POST">
+    <input type="hidden" name="module" value="stats">
+    <input type="hidden" name="action" value="report_phone_sales">
+    <table border='0' cellpadding='0' cellspacing='3'><tr valign="middle"><td>
+    Период отчёта c:&nbsp;</td><td>
+    <select name='from_m'>{foreach from=$select_month item='m' key='key'}<option value='{$key}' {if $key == $from_m}selected='selected'{/if}>{$m}</option>{/foreach}</select></td><td>
+    <select name='from_y'>{foreach from=$select_year item='y'}<option value='{$y}' {if $y == $from_y}selected='selected'{/if}>{$y}</option>{/foreach}</select></td><td>
+    &nbsp;&nbsp;по:&nbsp;</td><td>
+    <select name='to_m'>{foreach from=$select_month item='m' key='key'}<option value='{$key}' {if $key == $to_m}selected='selected'{/if}>{$m}</option>{/foreach}</select></td><td>
+    <select name='to_y'>{foreach from=$select_year item='y'}<option value='{$y}' {if $y == $to_y}selected='selected'{/if}>{$y}</option>{/foreach}</select></td><td>
+    &nbsp;&nbsp;<input type="submit" value="Показать"></td></tr>
+    </table>
+</form>
+<h2>Отчёт за&nbsp;{if $from_m == $to_m && $from_y == $to_y}{$from_m|string_format:'%02d'}.{$from_y}{else}период&nbsp;&nbsp;{$from_m|string_format:'%02d'}.{$from_y}&nbsp...&nbsp;{$to_m|string_format:'%02d'}.{$to_y}{/if}</h2>
 <table class="price">
   <tr>
     <th>&nbsp;</th>
@@ -32,7 +46,7 @@
     {foreach from=$regions item=r}
         <td class="dig">
             {if isset($curr_phones[$r.id].count_num)}
-                <b class="click" onclick="phone_sales_details('numbers', '{$r.id}', '0', 'nums');">{$curr_phones[$r.id].count_num|num_format}</b>
+                <b class="click" onclick="phone_sales_details('numbers', '{$r.id}', '0', '{$year}', 'nums');">{$curr_phones[$r.id].count_num|num_format}</b>
             {else}
                 &nbsp;
             {/if}
@@ -56,7 +70,7 @@
     {foreach from=$regions item=r}
         <td class="dig">
             {if isset($curr_no_nums[$r.id].count_num)}
-                <b class="click" onclick="phone_sales_details('numbers', '{$r.id}', '0', 'no_nums');">{$curr_no_nums[$r.id].count_num|num_format}</b>
+                <b class="click" onclick="phone_sales_details('numbers', '{$r.id}', '0', '{$year}', 'no_nums');">{$curr_no_nums[$r.id].count_num|num_format}</b>
             {else}
                 &nbsp;
             {/if}
@@ -68,7 +82,7 @@
     {foreach from=$regions item=r}
         <td class="dig">
             {if isset($curr_vpbx[$r.id])}
-                <b class="click" onclick="phone_sales_details('vpbx','{$r.id}', '0');">{$curr_vpbx[$r.id]|num_format}</b>
+                <b class="click" onclick="phone_sales_details('vpbx','{$r.id}', '0', '{$year}');">{$curr_vpbx[$r.id]|num_format}</b>
             {else}
                 &nbsp;
             {/if}
@@ -92,7 +106,7 @@
     {foreach from=$regions item=r}
         <td class="dig">
             {if isset($curr_8800[$r.id].count_num)}
-            <b class="click" onclick="phone_sales_details('numbers', '{$r.id}', '0', '8800');">{$curr_8800[$r.id].count_num|num_format}</b>
+            <b class="click" onclick="phone_sales_details('numbers', '{$r.id}', '0', '{$year}', '8800');">{$curr_8800[$r.id].count_num|num_format}</b>
             {else}
                 &nbsp;
             {/if}
@@ -106,7 +120,7 @@
     {foreach from=$regions item=r}
         <td class="dig">
             {if isset($region_sums[$r.id])}
-                <b class="click" onclick="phone_sales_details('sums','{$r.id}', '0');">{if $region_sums[$r.id]}&nbsp;{/if}{$region_sums[$r.id]|num_format:true}</b>
+                <b class="click" onclick="phone_sales_details('sums','{$r.id}', '0', '{$year}');">{if $region_sums[$r.id]}&nbsp;{/if}{$region_sums[$r.id]|num_format:true}</b>
             {else}
                 &nbsp;
             {/if}
@@ -132,6 +146,7 @@
   {assign var=sale_vpbx value=$report.sale_vpbx}
   {assign var=vpbx_clients value=$report.vpbx_clients}
   {assign var=month value=$report.month}
+  {assign var=year value=$report.year}
   <h2>Статистика продаж телефонных номеров {$report.date}</h2>
 
   <table class="price">
@@ -147,7 +162,7 @@
         {foreach from=$regions item=r}
             <td class="dig">
                 {if isset($sale_nums[$r.id].all)}
-                    <span class="click" onclick="phone_sales_details('numbers','{$r.id}', '{$month}', 'nums');">{$sale_nums[$r.id].all|num_format}</span>
+                    <span class="click" onclick="phone_sales_details('numbers','{$r.id}', '{$month}', '{$year}', 'nums');">{$sale_nums[$r.id].all|num_format}</span>
                 {else}
                     &nbsp;
                 {/if}
@@ -186,7 +201,7 @@
         {foreach from=$regions item=r}
           <td class="dig">
             {if isset($sale_nonums[$r.id].all)}
-                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', 'no_nums');">{$sale_nonums[$r.id].all|num_format}</span>
+                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '{$year}', 'no_nums');">{$sale_nonums[$r.id].all|num_format}</span>
             {else}
                 &nbsp;
             {/if}
@@ -225,7 +240,7 @@
         {foreach from=$regions item=r}
           <td class="dig">
             {if isset($sale_lines[$r.id].all)}
-                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}');">{$sale_lines[$r.id].all|num_format}</span>
+                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '{$year}');">{$sale_lines[$r.id].all|num_format}</span>
             {else}
                 &nbsp;
             {/if}
@@ -303,7 +318,7 @@
         {foreach from=$regions item=r}
             <td class="dig">
                 {if isset($sale_vpbx[$r.id].all)}
-                    <span class="click" onclick="phone_sales_details('vpbx','{$r.id}', '{$month}');">{$sale_vpbx[$r.id].all|num_format}</span>
+                    <span class="click" onclick="phone_sales_details('vpbx','{$r.id}', '{$month}', '{$year}');">{$sale_vpbx[$r.id].all|num_format}</span>
                 {else}
                     &nbsp;
                 {/if}
@@ -381,7 +396,7 @@
         {foreach from=$regions item=r}
             <td class="dig">
                 {if isset($sale_8800[$r.id].all)}
-                    <span class="click" onclick="phone_sales_details('numbers','{$r.id}', '{$month}', '8800');">{$sale_8800[$r.id].all|num_format}</span>
+                    <span class="click" onclick="phone_sales_details('numbers','{$r.id}', '{$month}', '{$year}', '8800');">{$sale_8800[$r.id].all|num_format}</span>
                 {else}
                     &nbsp;
                 {/if}
@@ -420,7 +435,7 @@
             {foreach from=$regions item=r}
           <td class="dig">
             {if isset($del_nums[$r.id])}
-                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', 'nums', '1');">{$del_nums[$r.id]|num_format}</span>
+                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '{$year}', 'nums', '1');">{$del_nums[$r.id]|num_format}</span>
             {else}
                 &nbsp;
             {/if}
@@ -433,7 +448,7 @@
         {foreach from=$regions item=r}
           <td class="dig">
             {if isset($del_nonums[$r.id])}
-                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', 'no_nums', '1');">{$del_nonums[$r.id]|num_format}</span>
+                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '{$year}', 'no_nums', '1');">{$del_nonums[$r.id]|num_format}</span>
             {else}
                 &nbsp;
             {/if}
@@ -446,7 +461,7 @@
         {foreach from=$regions item=r}
           <td class="dig">
             {if isset($del_nonums[$r.id])}
-                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '', '1');">{$del_lines[$r.id]|num_format}</span>
+                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '{$year}', '', '1');">{$del_lines[$r.id]|num_format}</span>
             {else}
                 &nbsp;
             {/if}
@@ -459,7 +474,7 @@
         {foreach from=$regions item=r}
             <td class="dig">
                 {if isset($del_vpbx[$r.id])}
-                    <span class="click" onclick="phone_sales_details('vpbx', '{$r.id}', '{$month}', '', '1');">{$del_vpbx[$r.id]|num_format}</span>
+                    <span class="click" onclick="phone_sales_details('vpbx', '{$r.id}', '{$month}', '{$year}', '', '1');">{$del_vpbx[$r.id]|num_format}</span>
                 {else}
                     &nbsp;
                 {/if}
@@ -472,7 +487,7 @@
         {foreach from=$regions item=r}
           <td class="dig">
             {if isset($del_8800[$r.id])}
-                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '8800', '1');">{$del_8800[$r.id]|num_format}</span>
+                <span class="click" onclick="phone_sales_details('numbers', '{$r.id}', '{$month}', '{$year}', '8800', '1');">{$del_8800[$r.id]|num_format}</span>
             {else}
                 &nbsp;
             {/if}
@@ -486,7 +501,7 @@
         {foreach from=$regions item=r}
           <td class="dig">
             {if isset($region_sums[$r.id])}
-                <span class="click" onclick="phone_sales_details('sums','{$r.id}', '{$month}');">{if $region_sums[$r.id]}&nbsp;{/if}{$region_sums[$r.id]|num_format:true}</span>
+                <span class="click" onclick="phone_sales_details('sums','{$r.id}', '{$month}', '{$year}');">{if $region_sums[$r.id]}&nbsp;{/if}{$region_sums[$r.id]|num_format:true}</span>
             {else}
                 &nbsp;
             {/if}
@@ -522,7 +537,7 @@
     </tr>
     {foreach from=$sale_channels.managers item=sales key=manager name="outer"}
     <tr class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-      <td><span class="click" onclick="phone_sales_details('channels', '', '{$month}', '', '', '{$sales.sale_channel_id}');">{$manager|default:"???????"}</span></td>
+      <td><span class="click" onclick="phone_sales_details('channels', '', '{$month}', '{$year}', '', '', '{$sales.sale_channel_id}');">{$manager|default:"???????"}</span></td>
       <td class="dig">
         {if isset($sales.nums.new)}
           <b>{$sales.nums.new}</b>
@@ -629,7 +644,7 @@
 <script src="js/jquery-ui-1.9.2.custom.min.js"></script>
 <script>
 {literal}
-	function phone_sales_details(type, region, month, subtype, disabled, channel_id)
+	function phone_sales_details(type, region, month, year, subtype, disabled, channel_id)
 	{
 		$('a.ui-dialog-titlebar-close').click();
 		subtype = subtype || '';
@@ -641,7 +656,7 @@
 			width: 850,
 			height: 400,
 			open: function(){
-				$(this).load('./index_lite.php?module=stats&action=phone_sales_details&type=' + type + '&region=' + region + '&month=' + month + '&subtype=' + subtype + '&disabled=' + disabled + '&channel_id=' + channel_id);
+				$(this).load('./index_lite.php?module=stats&action=phone_sales_details&type=' + type + '&region=' + region + '&month=' + month + '&year=' + year + '&subtype=' + subtype + '&disabled=' + disabled + '&channel_id=' + channel_id);
 			}
 		});
 	}

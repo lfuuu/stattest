@@ -25,7 +25,6 @@
             <option value="5"{if '5' eq $data.dest} selected{/if}>Местные Мобильные</option>
             <option value="1"{if '1' eq $data.dest} selected{/if}>Россия</option>
             <option value="2"{if '2' eq $data.dest} selected{/if}>Международка</option>
-            <option value="3"{if '3' eq $data.dest} selected{/if}>СНГ</option>
         </select>
     {/if}
     </td></tr>

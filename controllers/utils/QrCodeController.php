@@ -21,7 +21,7 @@ class QrCodeController extends BaseController
 
     public function actionGet($data)
     {
-        //QRcode::gif(trim($data), false, 'H', 4, 2);
-        \PHPQRCode\QRcode::png(trim($data), false, 'H', 4, 2);
+        QRcode::gif(trim($data), false, 'H', 4, 2);
+        //\PHPQRCode\QRcode::png(trim($data), false, 'H', 4, 2);
     }
 }

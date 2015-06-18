@@ -21,16 +21,18 @@ class ExtraBiller extends Biller
 
     protected function processPeriodical()
     {
-        $template = '{name}';
+        $template  = 'extra_service';
+        $template_data = [
+            'tariff' => $this->tariff->description,
+            'by_agreement' => ''
+        ];
 
         if ($this->tariff->param_name) {
-            $template = str_replace('%', $this->usage->param_value, $template);
+            $template_data['tariff'] = str_replace('%', $this->usage->param_value, $template_data['tariff']);
         }
 
-        $template .= $this->getPeriodTemplate($this->tariff->period);
-
         if ($this->clientAccount->bill_rename1 == 'yes') {
-            $template .= $this->getContractInfo();
+            $template_data['by_agreement'] .= $this->getContractInfo();
         }
 
         $this->addPackage(
@@ -39,9 +41,9 @@ class ExtraBiller extends Biller
                 ->setIsAlign($this->tariff->period == self::PERIOD_MONTH)
                 ->setIsPartialWriteOff(false)
                 ->setAmount($this->usage->amount)
-                ->setName($this->tariff->description)
-                ->setTemplate($template)
                 ->setPrice($this->tariff->price)
+                ->setTemplate($template)
+                ->setTemplateData($template_data)
         );
 
     }

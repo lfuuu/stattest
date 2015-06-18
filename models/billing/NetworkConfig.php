@@ -7,6 +7,10 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
+ * @property int $geo_city_id
+ * @property int $geo_operator_id
+ *
+ * @property Pricelist $pricelist
  * @property
  */
 class NetworkConfig extends ActiveRecord
@@ -24,5 +28,10 @@ class NetworkConfig extends ActiveRecord
     public static function dao()
     {
         return NetworkConfigDao::me();
+    }
+
+    public function getPricelist()
+    {
+        return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);
     }
 }
