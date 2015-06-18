@@ -286,7 +286,7 @@ class ActaulizerVoipNumbers
         //change client_id
         if (isset($changedFields["client_id"]))
         {
-            $isMoved = UsageVoip::find()->phone($number)->actual()->one()->is_moved;
+            $isMoved = UsageVoip::find()->phone($number)->actual()->one()->next_usage_id;
 
             if ($isMoved)
             {
