@@ -142,12 +142,11 @@ abstract class DocumentReport extends Object
         $file_pdf = $file_name . '.pdf';
 
         file_put_contents($file_name . '.html', $content);
-        exit;
 
         passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
         $pdf = file_get_contents($file_pdf);
-        //unlink($file_html);
-        //unlink($file_pdf);
+        unlink($file_html);
+        unlink($file_pdf);
 
         Header('Content-Type: application/pdf');
         ob_clean();
