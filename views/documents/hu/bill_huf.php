@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Utils;
+use app\classes\Html;
 
 /** @var $document app\classes\documents\DocumentReport */
 
@@ -16,8 +17,9 @@ $company = $document->getCompany();
     <head>
         <title>Díjbekérő No <?= $document->bill->bill_no; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <base href="<?= Yii::$app->request->hostInfo; ?>" />
-        <link title="default" href="/bill.css" type="text/css" rel="stylesheet" />
+        <style type="text/css">
+            <?php readfile(Yii::$app->basePath . '/web/bill.css'); ?>
+        </style>
     </head>
 
     <body bgcolor="#FFFFFF" style="background:#FFFFFF">
@@ -34,7 +36,7 @@ $company = $document->getCompany();
                     <table border="0" align="right">
                         <div style="width: 110px;  text-align: center;padding-right: 10px;">
                             <?php if (isset($company['logo']) && !empty($company['logo'])): ?>
-                                <img border="0" src="/images/<?= $company['logo']; ?>" width="115" />
+                                <?= Html::inlineImg('/images/'. $company['logo'], ['width' => 115, 'border' => 0]); ?>
                             <?php endif; ?>
                             <?php if (isset($company['site']) && !empty($company['site'])): ?>
                                 <?= $company['site']; ?>
@@ -42,7 +44,7 @@ $company = $document->getCompany();
                         </div>
                         <tr>
                             <td colspan="2" align="center">
-                                <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" />
+                                <?= Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode()); ?>
                             </td>
                         </tr>
                     </table>
@@ -59,7 +61,9 @@ $company = $document->getCompany();
 
         <hr />
         <br />
-        <p><b>Vevő: Napsütéses Idő</b></p>
+        <p>
+            <b>Vevő: <?= ($document->bill->clientAccount->head_company ? $document->bill->clientAccount->head_company . ', ' : '') . $document->bill->clientAccount->company_full; ?></b>
+        </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
             <tbody>
@@ -122,11 +126,23 @@ $company = $document->getCompany();
             <tbody>
                 <tr>
                     <td>Vezérigazgatója</td>
-                    <?php if ($document->isMail()): ?>
+                    <?php if ($document->sendEmail): ?>
                         <td>
-                            <?php if(isset($residents['firm_director']['sign'])): ?>
-                                <img src="/images/<?= $residents['firm_director']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_director']['sign']['width']? ' width="' . $residents['firm_director']['sign']['width'] . '" height="' . $residents['firm_director']['sign']['height'] . '"' : ''); ?>>
-                            <?php else:?>
+                            <?php
+                            if (isset($residents['firm_director']['sign'])):
+                                $image_options = [
+                                    'width' => 115,
+                                    'border' => '0',
+                                    'align' => 'top',
+                                ];
+
+                                if ($residents['firm_director']['sign']['width']):
+                                    $image_options['width'] = $residents['firm_director']['sign']['width'];
+                                    $image_options['height'] = $residents['firm_director']['sign']['height'];
+                                endif;
+
+                                echo Html::inlineImg('/images/'. $residents['firm_director']['sign']['src'], $image_options);
+                            else: ?>
                                 _________________________________
                             <?php endif; ?>
                         </td>
@@ -139,11 +155,22 @@ $company = $document->getCompany();
                 </tr>
                 <tr>
                     <td>Főkönyvelő</td>
-                    <?php if ($document->isMail()) :?>
+                    <?php if ($document->sendEmail) :?>
                         <td>
-                            <?php if (isset($residents['firm_buh']['sign'])): ?>
-                                <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"  border="0" alt="" align="top"<?= ($residents['firm_buh']['sign']['width'] ? ' width="' . $residents['firm_buh']['sign']['width'] . '" height="' . $residents['firm_buh']['sign']['height'] . '"' : ''); ?>>
-                            <?php else: ?>
+                            <?php if (isset($residents['firm_buh']['sign'])):
+                                $image_options = [
+                                    'width' => 115,
+                                    'border' => '0',
+                                    'align' => 'top',
+                                ];
+
+                                if ($residents['firm_buh']['sign']['width']) {
+                                    $image_options['width'] = $residents['firm_buh']['sign']['width'];
+                                    $image_options['height'] = $residents['firm_buh']['sign']['height'];
+                                }
+
+                                echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
+                            else: ?>
                                 _________________________________
                             <?php endif; ?>
                         </td>
@@ -156,13 +183,24 @@ $company = $document->getCompany();
                         / Melnikov A.K. /
                     </td>
                 </tr>
-                <?php if ($document->isMail()): ?>
+                <?php if ($document->sendEmail): ?>
                     <tr>
                         <td>&nbsp;</td>
                         <td align=left>
-                            <?php if (isset($residents['firma'])): ?>
-                                <img style="<?= $residents['firma']['style']; ?>" src="/images/<?= $residents['firma']['src']; ?>"<?= ($residents['firma']['width'] ? ' width="' . $residents['firma']['width'] . '" height="' . $residents['firma']['height'] . '"' : ''); ?>>
-                            <?php endif; ?>
+                            <?php if (isset($residents['firma'])):
+                                $image_options = [
+                                    'width' => 115,
+                                    'border' => '0',
+                                    'style' => $residents['firma']['style'],
+                                ];
+
+                                if ($residents['firma']['width']) {
+                                    $image_options['width'] = $residents['firma']['width'];
+                                    $image_options['height'] = $residents['firma']['height'];
+                                }
+
+                                echo Html::inlineImg('/images/'. $residents['firma']['src'], $image_options);
+                            endif; ?>
                         </td>
                         <td>&nbsp;</td>
                     </tr>

@@ -75,12 +75,8 @@ abstract class DocumentReport extends Object
      */
     public function getQrCode()
     {
-        return BillQRCode::getNo($this->bill->bill_no);
-    }
-
-    public function isMail()
-    {
-        return $this->sendEmail;
+        $result = BillQRCode::getNo($this->bill->bill_no);
+        return $result['bill'];
     }
 
     /**
