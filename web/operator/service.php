@@ -6,6 +6,10 @@ use app\models\LkWizardState;
 use app\models\ClientContractType;
 use app\models\ClientBP;
 use app\models\ClientBPStatuses;
+use app\models\TariffVirtpbx;
+use app\models\LogTarif;
+use app\models\User;
+use app\models\ClientAccount;
 
 define('NO_WEB',1);
 define("PATH_TO_ROOT",'../../stat/');
@@ -71,13 +75,13 @@ if ($action=='add_client') {
 	if($P["phone_connect"])
 		$O->phone_connect = $P["phone_connect"];
 
-	if ($O->Create(0)) {
+    if ($O->Create(0)) {
         $contactId = 0;
-		if($P['contact']) $O->AddContact('phone',$P['contact'],$P["fio"],0);
-		if($P['phone']) $O->AddContact('phone',$P['phone'],$P["fio"],1);
-		if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
-		if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
-		$O->Add("Входящие клиент с сайта: ".$P["company"]);
+        if($P['contact']) $O->AddContact('phone',$P['contact'],$P["fio"],0);
+        if($P['phone']) $O->AddContact('phone',$P['phone'],$P["fio"],1);
+        if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
+        if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
+        $O->Add("Входящие клиент с сайта: ".$P["company"]);
         if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
         {
             $O->admin_contact_id = $contactId;
@@ -99,8 +103,41 @@ if ($action=='add_client') {
         $troubleId = StatModule::tt()->createTrouble($R, "system");
         LkWizardState::create($O->id, $troubleId);
 
-		echo 'ok:'.$O->id;
-	} else {
+        if ($vatsTarifId = get_param_raw("vats_tarifid", 0)) // заявка с ВАТС
+        {
+            $client = ClientAccount::findOne(["id" => $O->id]);
+            $tarif = TariffVirtpbx::find()->where(["and", ["id" => $vatsTarifId], ["!=", "status", "archive"]])->one();
+
+            if ($client && $tarif)
+            {
+                $actual_from = "4000-01-01";
+                $actual_to = "4000-01-01";
+
+                $vats = new UsageVirtpbx;
+
+                $vats->client = $client->client;
+                $vats->activation_dt = (new DateTime($actual_from, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $vats->expire_dt = (new DateTime($actual_to, new DateTimeZone($client->timezone_name)))->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $vats->actual_from = $actual_from;
+                $vats->actual_to = $actual_to;
+                $vats->amount = 1;
+                $vats->status = 'connecting';
+                $vats->server_pbx_id = 2; // vpbx-msk
+                $vats->save();
+
+                $logTarif = new LogTarif;
+                $logTarif->service = "usage_virtpbx";
+                $logTarif->id_service = $vats->id;
+                $logTarif->id_tarif = $tarif->id;
+                $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+                $logTarif->date_activation = date("Y-m-d");
+                $logTarif->id_user = User::LK_USER_ID;
+                $logTarif->save();
+            }
+        }
+
+        echo 'ok:'.$O->id;
+    } else {
 		echo 'error:';
 	}
 }elseif($action == "set_active")
