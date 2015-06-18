@@ -9,7 +9,7 @@ $company = $document->getCompany();
     Adószám: <?= $company['inn']; ?><br />
     Bankszámla:<br />
     <?= nl2br($company['acc']); ?><br />
-    <?= $company['bank']; ?><br />
+    <?= $company['bank']; ?> SWIFT <?= $company['swift']; ?><br />
     Telefon: <?= $company['phone']; ?><br />
     Fax: <?= $company['fax']; ?><br />
     Postázási cím: <?= $company['post_address']; ?><br />
