@@ -121,8 +121,8 @@ function do_events()
                     case 'usage_voip__delete':  SyncCore::checkProductState('phone', $param/*id, client*/); break;
                 }
 
-//                if (defined("use_ats3"))
-//                {
+                if (defined("use_ats3"))
+                {
                     switch($event->event)
                     {
                         case 'usage_voip__insert':
@@ -134,7 +134,7 @@ function do_events()
 
                         case 'ats3__sync': ActaulizerVoipNumbers::me()->sync($param["number"]); break;
                     }
-  //              }
+                }
             }
 
         } catch (Exception $e)
