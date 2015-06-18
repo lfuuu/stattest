@@ -2,6 +2,10 @@
 use app\classes\StatModule;
 use app\classes\Company;
 use app\models\ClientAccount;
+use app\dao\services\SmsServiceDao;
+use app\dao\services\WelltimeServiceDao;
+use app\dao\services\EmailsServiceDao;
+use app\dao\services\ExtraServiceDao;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -1432,49 +1436,17 @@ class m_services extends IModule{
 
 // =========================================================================================================================================
     function services_em_view($fixclient){
-        global $db,$design;
-        if (!$this->fetch_client($fixclient)){
+        global $db, $design;
+
+        if (!$this->fetch_client($fixclient)) {
             trigger_error2('Не выбран клиент');
             return;
         }
 
-        $db->Query('
-            select
-                emails.*,
-                IF(
-                        (emails.actual_from<=NOW())
-                    and
-                        (emails.actual_to>NOW())
-                ,1,0) as actual,
-                count(email_whitelist.id) as count_filters
-            from
-                emails
-            LEFT JOIN
-                email_whitelist
-            ON
-                (
-                    (email_whitelist.domain=emails.domain)
-                AND
-                    (
-                        (email_whitelist.local_part="")
-                    OR
-                        (email_whitelist.local_part=emails.local_part)
-                    )
-                AND
-                    (email_whitelist.sender_address="")
-                AND
-                    (email_whitelist.sender_address_domain="")
-                )
-            where
-                emails.client="'.$fixclient.'"
-            group by
-                emails.id
-        ');
-        $R=array();
-        while($r=$db->NextRecord())
-            $R[]=$r;
-        $design->assign('mails',$R);
-        $res = $R ? true : false;
+        $items = EmailsServiceDao::me()->getAllForClient($fixclient);
+
+        $design->assign('mails', $items);
+        $res = $items ? true : false;
 
         $R=array();
         $design->assign('mailservers',$R);
@@ -1800,35 +1772,21 @@ class m_services extends IModule{
     function services_ex_view($fixclient){
         global $db,$design;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
-        $R=array();
-        $db->Query($q='
-            select
-                T.*,
-                S.*,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            from
-                usage_extra as S
-            inner join
-                tarifs_extra as T
-            on
-                T.id=S.tarif_id
-            and
-                T.status in ("public","special","archive") and T.code not in ("welltime","wellsystem")
-            where
-                S.client="'.$fixclient.'"'
-        );
+        $items = ExtraServiceDao::me()->getAllForClient($fixclient);
 
-        while ($r=$db->NextRecord()) {
-            if ($r['param_name']) $r['description']=str_replace('%','<i>'.$r['param_value'].'</i>',$r['description']);
-            if ($r['period']=='month') $r['period_rus']='ежемесячно'; else
-            if ($r['period']=='year') $r['period_rus']='ежегодно';
-            $R[]=$r;
+        for ($i=0, $s=sizeof($items); $i<$s; $i++) {
+            if ($items[$i]['param_name'])
+                $items[$i]['description'] = str_replace('%', '<i>' . $items[$i]['param_value'] . '</i>', $items[$i]['description']);
+
+            if ($items[$i]['period'] == 'month')
+                $items[$i]['period_rus'] = 'ежемесячно';
+            else if ($items[$i]['period'] == 'year')
+                $items[$i]['period_rus'] = 'ежегодно';
         }
 
-        $design->assign('services_ex',$R);
+        $design->assign('services_ex', $items);
         $design->AddMain('services/ex.tpl'); 
-        return $R;
+        return $items;
     }
     function services_ex_act($fixclient){
         global $design,$db;
@@ -2108,72 +2066,42 @@ class m_services extends IModule{
 
 // =========================================================================================================================================
     function services_sms_view($fixclient){
-        global $db,$design;
-        if(!$this->fetch_client($fixclient)){
+        global $design;
 
-
-            $db->Query($q='
-            SELECT
-                S.*,
-                T.*,
-                S.id as id,
-                c.status as client_status,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            FROM usage_sms as S
-            LEFT JOIN clients c ON (c.client = S.client)
-            LEFT JOIN tarifs_sms as T ON T.id=S.tarif_id
-            HAVING actual
-            ORDER BY client,actual_from'
-
-            );
-
-            $R = array();
+        if (!$this->fetch_client($fixclient)) {
+            $items = SmsServiceDao::me()->getAll();
             $statuses = ClientCS::$statuses;
-            while($r=$db->NextRecord()){
-                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
-                if($r['period']=='month')
-                    $r['period_rus']='ежемесячно';
-                $R[]=$r;
+
+            for ($i=0, $s=sizeof($items); $i<$s; $i++) {
+                $items[$i]["client_color"] = isset($statuses[ $items[$i]["client_status"] ])
+                    ? $statuses[ $items[$i]["client_status"] ]["color"]
+                    : false;
+                if ($items[$i]['period'] == 'month')
+                    $items[$i]['period_rus'] = 'ежемесячно';
             }
 
-            $m=array();
-            StatModule::users()->d_users_get($m,'manager');
+            $manager = array();
+            StatModule::users()->d_users_get($manager, 'manager');
 
-            $design->assign(
-                'f_manager',
-                $m
-            );
-
-            $design->assign('services_sms',$R);
+            $design->assign('f_manager', $manager);
+            $design->assign('services_sms', $items);
             $design->AddMain('services/sms.tpl');
-            return;
+
+            return $items;
         }
 
-
-        $R=array();
-        $db->Query($q='
-            SELECT
-                T.*,
-                S.*,
-                S.id as id,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            FROM usage_sms as S
-            LEFT JOIN tarifs_sms as T ON T.id=S.tarif_id
-            WHERE S.client="'.$fixclient.'"'
-        );
+        $items = SmsServiceDao::me()->getAllForClient($fixclient);
 
         $isViewAkt = false;
-        while($r=$db->NextRecord()){
-            if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
-            $R[]=$r;
+        for ($i=0, $s=sizeof($items); $i<$s; $i++) {
+            if ($items[$i]['period'] == 'month')
+                $items[$i]['period_rus'] = 'ежемесячно';
         }
 
-        $design->assign('services_sms',$R);
+        $design->assign('services_sms', $items);
         $design->AddMain('services/sms.tpl');
-        return $R;
+
+        return $items;
     }
     function services_sms_add($fixclient){
         global $design,$db;
@@ -2204,103 +2132,44 @@ class m_services extends IModule{
 
 // =========================================================================================================================================
     function services_welltime_view($fixclient){
-        global $db,$design;
-        if(!$this->fetch_client($fixclient)){
+        global $design;
 
-            $db->Query($q='
-            select
-                T.*,
-                S.*,
-                c.status as client_status,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            from
-                usage_welltime as S
-            left join clients c on (c.client = S.client)
+        if (!$this->fetch_client($fixclient)) {
+            $items = WelltimeServiceDao::me()->getAll();
 
-            inner join
-                tarifs_extra as T
-            on
-                T.id=S.tarif_id
-            and
-                T.code in ("welltime")
-
-            having actual
-            order by client,actual_from'
-
-            );
-
-            $R = array();
             $statuses = ClientCS::$statuses;
-            while($r=$db->NextRecord()){
-                $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
-                if($r['period']=='month')
-                    $r['period_rus']='ежемесячно';
-                elseif($r['period']=='year')
-                    $r['period_rus']='ежегодно';
-                $R[]=$r;
+            for ($i=0, $s=sizeof($items); $i<$s; $i++) {
+                $items[$i]["client_color"] = isset($statuses[ $items[$i]["client_status"] ])
+                    ? $statuses[ $items[$i]["client_status"] ]["color"]
+                    : false;
+
+                if ($items[$i]['period'] == 'month')
+                    $items[$i]['period_rus'] = 'ежемесячно';
+                else if($items[$i]['period'] == 'year')
+                    $items[$i]['period_rus'] = 'ежегодно';
             }
 
-            $design->assign('services_welltime',$R);
+            $design->assign('services_welltime', $items);
             $design->AddMain('services/welltime_all.tpl');
 
             //trigger_error2('Не выбран клиент');
-            return;
+            return $items;
         }
-        $R=array();
 
-
-
-        /*
-        $db->Query($q='
-            select
-                T.*,
-                S.*,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            from
-                usage_extra as S
-            inner join
-                tarifs_extra as T
-            on
-                T.id=S.tarif_id
-            and
-                T.code in ("welltime")
-            where
-                S.client="'.$fixclient.'"'
-        );*/
-        $db->Query($q='
-            select
-                T.*,
-                S.*,
-                IF((actual_from<=NOW()) and (actual_to>NOW()),1,0) as actual,
-                IF((actual_from<=(NOW()+INTERVAL 5 DAY)),1,0) as actual5d
-            from
-                usage_welltime as S
-            inner join
-                tarifs_extra as T
-            on
-                T.id=S.tarif_id
-            and
-                T.code in ("welltime")
-            where
-                S.client="'.$fixclient.'"'
-        );
+        $items = WelltimeServiceDao::me()->getAllForClient($fixclient);
 
         $isViewAkt = false;
-        while($r=$db->NextRecord()){
-            if($r['period']=='month')
-                $r['period_rus']='ежемесячно';
-            elseif($r['period']=='year')
-                $r['period_rus']='ежегодно';
-            $R[]=$r;
-
+        for ($i=0, $s=sizeof($items); $i<$s; $i++) {
+            if ($items[$i]['period'] == 'month')
+                $items[$i]['period_rus'] = 'ежемесячно';
+            else if($items[$i]['period'] == 'year')
+                $items[$i]['period_rus'] = 'ежегодно';
         }
 
-        $design->assign('services_welltime',$R);
+        $design->assign('services_welltime', $items);
         $design->AddMain('services/welltime.tpl');
 
-        return $R;
+        return $items;
     }
 
     function services_welltime_add($fixclient){
