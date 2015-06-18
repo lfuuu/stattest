@@ -63,8 +63,13 @@ class UsageSms extends ActiveRecord implements Usage
         return new SmsServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'SMS';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
     }
 }

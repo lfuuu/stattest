@@ -62,9 +62,14 @@ class UsageExtra extends ActiveRecord implements Usage
         return new ExtraServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'Доп. услуги';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
     }
 
 }

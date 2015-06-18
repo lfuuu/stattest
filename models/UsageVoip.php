@@ -85,9 +85,14 @@ class UsageVoip extends ActiveRecord implements Usage
         return new VoipServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'Телефония номера';
+    }
+
+    public function getTypeDescription()
+    {
+        return $this->E164 . 'x' . $this->no_of_lines;
     }
 
 }

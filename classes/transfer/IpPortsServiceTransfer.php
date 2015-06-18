@@ -23,9 +23,9 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount, $activationDate)
+    public function process()
     {
-        $targetService = parent::process($targetAccount, $activationDate);
+        $targetService = parent::process();
 
         $this->processRoutes($targetService);
         $this->processDevices($targetService);
@@ -48,7 +48,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * Перенос связанных с услугой сетей
      * @param object $targetService - базовая услуга
      */
-    private function processRoutes($targetService, $activationDate)
+    private function processRoutes($targetService)
     {
         $routes =
             UsageIpRoutes::find()
@@ -61,12 +61,12 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $targetRoute = new $route;
                 $targetRoute->setAttributes($route->getAttributes(), false);
                 unset($targetRoute->id);
-                $targetRoute->actual_from = (new \DateTime($activationDate))->format('Y-m-d');
+                $targetRoute->actual_from = $this->getActualDate();
                 $targetRoute->port_id = $targetService->id;
 
                 $targetRoute->save();
 
-                $route->actual_to = (new \DateTime($activationDate))->modify('-1 day')->format('Y-m-d');
+                $route->actual_to = $this->getExpireDate();
 
                 $route->save();
 
@@ -116,7 +116,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * Перенос связанных с услугой устройств
      * @param object $targetService - базовая услуга
      */
-    private function processDevices($targetService, $activationDate)
+    private function processDevices($targetService)
     {
         $devices =
             TechCpe::find()
@@ -130,12 +130,12 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $targetDevice = new $device;
                 $targetDevice->setAttributes($device->getAttributes(), false);
                 unset($targetDevice->id);
-                $targetDevice->actual_from = (new \DateTime($activationDate))->format('Y-m-d');
+                $targetDevice->actual_from = $this->getActualDate();
                 $targetDevice->id_service = $targetService->id;
 
                 $targetDevice->save();
 
-                $device->actual_to = (new \DateTime($activationDate))->modify('-1 day')->format('Y-m-d');
+                $device->actual_to = $this->getExpireDate();
 
                 $device->save();
 

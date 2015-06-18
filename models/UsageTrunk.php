@@ -68,9 +68,15 @@ class UsageTrunk extends ActiveRecord
         return new TrunkServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'Телефония транки';
     }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
+    }
+
 }
 

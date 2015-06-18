@@ -35,20 +35,32 @@ class ServiceTransferForm extends Form
 
     public $targetAccount = null;
 
+    /**
+     * Список возможных услуг
+     * @return array
+     */
+    public function getServicesGroups()
+    {
+        return [
+            Emails::dao(),
+            UsageExtra::dao(),
+            UsageSms::dao(),
+            UsageWelltime::dao(),
+            //UsageVoip::dao(),
+            UsageTrunk::dao(),
+            UsageIpPorts::dao(),
+            //UsageVirtpbx::dao(),
+        ];
+    }
+
     public function rules()
     {
         return [
             [['target_account_id', 'source_service_ids'], 'required', 'message' => 'Необходимо заполнить'],
-            ['target_account_id_custom', 'required', 'when' => function ($model) {
-                return !(int)$model->target_account_id;
-            }, 'message' => 'Необходимо заполнить'],
-            ['actual_from', 'required', 'when' => function ($model) {
-                return $model->actual_from != 'custom';
-            }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'required', 'when' => function ($model) {
-                return $model->actual_from == 'custom';
-            }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'date', 'format' => 'php:Y-m-d', 'message' => 'Неверный формат даты переноса'],
+            ['target_account_id_custom', 'required', 'when' => function ($model) { return !(int)$model->target_account_id; }, 'message' => 'Необходимо заполнить'],
+            ['actual_from', 'required', 'when' => function ($model) { return $model->actual_from != 'custom'; }, 'message' => 'Необходимо заполнить'],
+            ['actual_custom', 'required', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Необходимо заполнить'],
+            ['actual_custom', 'date', 'format' => 'php:Y-m-d', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Неверный формат даты переноса'],
             ['target_account_id', 'validateTargetAccountId']
         ];
     }
@@ -77,21 +89,25 @@ class ServiceTransferForm extends Form
         $services = $this->getServicesByIDs((array) $this->source_service_ids);
 
         foreach ($services as $service) {
-            $serviceTransfer = $service->getTransferHelper();
-            $activationDate =
-                $this->actual_from == 'custom'
-                    ? $this->actual_custom
-                    : $this->actual_from;
+            $serviceTransfer =
+                $service
+                    ->getTransferHelper()
+                        ->setTargetAccount($this->targetAccount)
+                        ->setActivationDate(
+                            $this->actual_from == 'custom'
+                                ? $this->actual_custom
+                                : $this->actual_from
+                        );
 
-            if ($service->actual_to < $activationDate)
-                $this->servicesErrors[ $service->id ][] = 'Услуга не может быть перенеса на указанную дату';
-            else {
+            try {
                 try {
-                    $this->servicesSuccess[ get_class($service) ][] = $serviceTransfer->process($this->targetAccount, $activationDate)->id;
-                } catch (\Exception $e) {
+                    $this->servicesSuccess[get_class($service)][] = $serviceTransfer->process()->id;
+                } catch (\yii\base\InvalidValueException $e) {
                     $this->servicesErrors[ $service->id ][] = $e->getMessage();
-                    \Yii::error($e);
                 }
+            }
+            catch (\Exception $e) {
+                \Yii::error($e);
             }
         }
 
@@ -101,24 +117,6 @@ class ServiceTransferForm extends Form
         }
 
         return true;
-    }
-
-    /**
-     * Список услуг по группам
-     * @return array
-     */
-    public function getServicesGroups()
-    {
-        return [
-            Emails::dao(),
-            UsageExtra::dao(),
-            UsageSms::dao(),
-            UsageWelltime::dao(),
-            UsageVoip::dao(),
-            UsageTrunk::dao(),
-            UsageIpPorts::dao(),
-            UsageVirtpbx::dao(),
-        ];
     }
 
     /**
@@ -156,7 +154,7 @@ class ServiceTransferForm extends Form
         $result = [];
         if (sizeof($services))
             foreach ($services as $service) {
-                $result[$service->getTitle()][] = $service;
+                $result[ get_class($service) ][] = $service;
                 $total++;
             }
 

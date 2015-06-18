@@ -4,7 +4,7 @@ namespace app\classes\transfer;
 
 use Yii;
 use app\classes\Assert;
-use app\models\ClientAccount;
+use yii\base\InvalidValueException;
 
 /**
  * Класс переноса услуг типа "E-mail"
@@ -15,26 +15,25 @@ class EmailServiceTransfer extends ServiceTransfer
 
     /**
      * Перенос базовой сущности услуги
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount, $activationDate)
+    public function process()
     {
         if ((int) $this->service->next_usage_id)
-            throw new \Exception('Услуга уже перенесена');
+            throw new InvalidValueException('Услуга уже перенесена');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
-            $targetService->actual_from = (new \DateTime($activationDate))->format('Y-m-d');
+            $targetService->actual_from = $this->getActualDate();
             $targetService->prev_usage_id = $this->service->id;
-            $targetService->client = $targetAccount->client;
+            $targetService->client = $this->targetAccount->client;
 
             $targetService->save();
 
-            $this->service->actual_to = (new \DateTime($activationDate))->modify('-1 day')->format('Y-m-d');
+            $this->service->actual_to = $this->getExpireDate();
             $this->service->next_usage_id = $targetService->id;
 
             $this->service->save();
@@ -56,7 +55,7 @@ class EmailServiceTransfer extends ServiceTransfer
     public function fallback()
     {
         if (!(int) $this->service->next_usage_id)
-            throw new \Exception('Услуга не была подготовлена к переносу');
+            throw new InvalidValueException('Услуга не была подготовлена к переносу');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {

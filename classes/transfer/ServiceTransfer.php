@@ -8,14 +8,15 @@ use app\models\ClientAccount;
 use app\models\Usage;
 use \DateTime;
 use \DateTimeZone;
+use yii\base\InvalidValueException;
 /**
  * Абстрактный класс переноса услуг
  * @package app\classes\transfer
  */
 abstract class ServiceTransfer
 {
-    // Дата активации услуги при переносе, по-умолчанию
-    protected $activation_date;
+    protected $targetAccount;
+    protected $activationDate;
 
     /** @var Usage */
     protected $service;
@@ -30,49 +31,59 @@ abstract class ServiceTransfer
     }
 
     /**
-     * Перенос базовой сущности услуги
+     * Устанавливает лицевой счет на который предполагается перенос
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     * @return $this
+     */
+    public function setTargetAccount(ClientAccount $targetAccount)
+    {
+        $this->targetAccount = $targetAccount;
+        return $this;
+    }
+
+    /**
+     * Устанавливает дату активации переносимых услуг
+     * @param $date - дата активации
+     * @return $this
+     */
+    public function setActivationDate($date)
+    {
+        $this->activationDate = new DateTime($date, $this->targetAccount->timezone);
+        return $this;
+    }
+
+    /**
+     * Перенос базовой сущности услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount, $activationDate)
+    public function process()
     {
-        //throw new \Exception('Услуга не готова к переносу');
+        //if ((int)$this->service->next_usage_id)
+        //    throw new InvalidValueException('Услуга уже перенесена');
 
-        if ((int) $this->service->next_usage_id)
-            throw new \Exception('Услуга уже перенесена');
-
-        $dstActualFrom = new DateTime($activationDate, $targetAccount->timezone);
-        $dstActivationDt = clone $dstActualFrom;
-        $dstActivationDt->setTimezone(new DateTimeZone('UTC'));
-
-        $srcActualTo = clone $dstActualFrom;
-        $srcActualTo->modify('-1 day');
-        $srcExpireDt = clone $srcActualTo;
-        $srcExpireDt->setTime(23, 59, 59);
-        $srcExpireDt->setTimezone(new DateTimeZone('UTC'));
-
+        if ($this->service->actual_to < $this->getActualDate())
+            throw new InvalidValueException('Услуга не может быть перенеса на указанную дату');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
-            $targetService->activation_dt = $dstActivationDt->format('Y-m-d H:i:s');
-            $targetService->actual_from = $dstActualFrom->format('Y-m-d');
+            $targetService->activation_dt = $this->getActivationDatetime();
+            $targetService->actual_from = $this->getActualDate();
             $targetService->prev_usage_id = $this->service->id;
-            $targetService->client = $targetAccount->client;
+            $targetService->client = $this->targetAccount->client;
 
             $targetService->save();
 
-            $this->service->expire_dt = $srcExpireDt->format('Y-m-d H:i:s');
-            $this->service->actual_to = $srcActualTo->format('Y-m-d');
+            $this->service->expire_dt = $this->getExpireDatetime();
+            $this->service->actual_to = $this->getExpireDate();
             $this->service->next_usage_id = $targetService->id;
 
             $this->service->save();
 
             $dbTransaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }
@@ -85,8 +96,8 @@ abstract class ServiceTransfer
      */
     public function fallback()
     {
-        if (!(int) $this->service->next_usage_id)
-            throw new \Exception('Услуга не была подготовлена к переносу');
+        if (!(int)$this->service->next_usage_id)
+            throw new InvalidValueException('Услуга не была подготовлена к переносу');
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -105,10 +116,41 @@ abstract class ServiceTransfer
 
             $movedService->delete();
             $dbTransaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
         }
     }
+
+    public function getActivationDatetime()
+    {
+        $activationDatetime = clone $this->activationDate;
+        return $activationDatetime
+                    ->setTimezone(new DateTimeZone('UTC'))
+                    ->format('Y-m-d H:i:s');
+    }
+
+    protected function getActualDate()
+    {
+        return $this->activationDate->format('Y-m-d');
+    }
+
+    protected function getExpireDatetime()
+    {
+        $expireDatetime = clone $this->activationDate;
+        return $expireDatetime
+                    ->modify('-1 day')
+                    ->setTime(23, 59, 59)
+                    ->setTimezone(new DateTimeZone('UTC'))
+                    ->format('Y-m-d H:i:s');
+    }
+
+    protected function getExpireDate()
+    {
+        $expireDate = clone $this->activationDate;
+        return $expireDate
+                    ->modify('-1 day')
+                    ->format('Y-m-d');
+    }
+
 }

@@ -74,8 +74,14 @@ class UsageVirtpbx extends ActiveRecord implements Usage
         return new VirtpbxServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'Виртуальная АТС';
     }
+
+    public function getTypeDescription()
+    {
+        return $this->tariff ? $this->tariff->description : 'Описание';
+    }
+
 }

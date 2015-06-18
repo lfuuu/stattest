@@ -30,6 +30,7 @@ interface Usage
      */
     public function getClientAccount();
 
-    public function getTitle();
+    public static function getTypeTitle();
+    public function getTypeDescription();
 
 }

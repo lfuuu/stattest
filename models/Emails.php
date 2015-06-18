@@ -48,8 +48,14 @@ class Emails extends ActiveRecord implements Usage
         return new EmailServiceTransfer($this);
     }
 
-    public function getTitle()
+    public static function getTypeTitle()
     {
         return 'E-mail';
     }
+
+    public function getTypeDescription()
+    {
+        return $this->local_part . '@' . $this->domain;
+    }
+
 }

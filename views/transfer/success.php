@@ -3,7 +3,6 @@
 use app\forms\transfer\ServiceTransferForm;
 
 /** @var $model ServiceTransferForm */
-
 ?>
 <form>
     <table border="0" width="95%" align="center">
@@ -22,30 +21,28 @@ use app\forms\transfer\ServiceTransferForm;
                         <b>Успешно перенесены услуги:</b>
                     </p>
 
-                    <ul style="height: 350px;">
-                        <?php foreach ($movedServices as $serviceClass => $serviceIds): ?>
-                            <b><?= (new $serviceClass)->getTitle(); ?></b><br />
-                            <?php foreach($serviceIds as $serviceId): ?>
-                                <?php
-                                    $service = $model->getService($serviceClass, $serviceId);
+                    <div style="height: 350px;">
+                        <?php foreach ($movedServices as $serviceType => $serviceIds):
+                            $serviceTitle = '';
+                            ?>
+                            <div style="position: relative;">
+                                <ul style="position: relative; top: 20px;">
+                                    <?php foreach($serviceIds as $serviceId):
+                                        $service = $model->getService($serviceType, $serviceId);
+                                        $serviceTitle = $service->getTypeTitle();
+                                        ?>
+                                        <li>
+                                            <?= $service->prev_usage_id; ?>: <?= $service->getTypeDescription(); ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <div style="position: absolute; top: 0;">
+                                    <b><?= $serviceTitle; ?></b>
+                                </div>
+                            </div>
 
-                                    if ($service instanceof \app\models\Emails) {
-                                        $fulltext = $service->local_part . '@' . $service->domain;
-                                    } elseif ($service instanceof \app\models\UsageVoip) {
-                                        $fulltext = $service->E164 . 'x' . $service->no_of_lines;
-                                    } elseif ($service instanceof \app\models\UsageIpPorts) {
-                                        $fulltext = $service->address;
-                                    } else {
-                                        $fulltext = $service->tariff ? $service->tariff->description : '';
-                                    }
-
-                                ?>
-                                <li>
-                                    <?= $service->prev_usage_id;?>: <?= $fulltext; ?>
-                                </li>
-                            <?php endforeach; ?>
                         <?php endforeach; ?>
-                    </ul>
+                    </div>
                 </td>
             </tr>
         </tbody>
