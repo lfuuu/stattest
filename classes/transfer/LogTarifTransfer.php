@@ -3,7 +3,6 @@
 namespace app\classes\transfer;
 
 use Yii;
-use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\LogTarif;
 
@@ -33,7 +32,9 @@ abstract class LogTarifTransfer
                 ->limit(1)
                 ->one();
 
-        Assert::isObject($logTariff);
+        if ($logTariff === null) {
+            return false;
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
@@ -69,7 +70,9 @@ abstract class LogTarifTransfer
                 ->andWhere('id_tarif != 0')
                 ->one();
 
-        Assert::isObject($logTariff);
+        if ($logTariff === null) {
+            return false;
+        }
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
