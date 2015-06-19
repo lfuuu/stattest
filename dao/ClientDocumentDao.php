@@ -332,8 +332,6 @@ class ClientDocumentDao extends Singleton
 
         foreach(\app\models\UsageVoip::find()->client($client)->andWhere("actual_to > NOW()")->all() as $a)
         {
-            $perMonth = $a->currentTariff->month_number + ($a->currentTariff->month_line * ($a->no_of_lines-1));
-
             $data['voip'][] = [
                 'from' => strtotime($a->actual_from),
                 'address' => $a->address ?: $a->datacenter->address,
@@ -343,8 +341,8 @@ class ClientDocumentDao extends Singleton
                 'free_local_min' => $a->currentTariff->free_local_min * ($a->currentTariff->freemin_for_number ? 1 : $a->no_of_lines),
                 'connect_price' => (string)$a->voipNumber->price,
                 'tarif_name' => $a->currentTariff->name,
-                'per_month' => round($perMonth, 2),
-                'per_month_with_tax' => round($perMonth * 1.18, 2)
+                'per_month' => round($a->getAbonPerMonth(), 2),
+                'per_month_with_tax' => round($a->getAbonPerMonth() * 1.18, 2)
             ];
         }
 

@@ -327,7 +327,6 @@ class ApiLk
                 '
                     SELECT
                         u.id,
-                        t.name AS tarif_name,
                         u.E164 AS number,
                         actual_from,
                         actual_to,
@@ -336,21 +335,7 @@ class ApiLk
                         u.region
                     FROM (
                         SELECT
-                            u.*,
-                            (
-                                SELECT
-                                    id_tarif
-                                FROM
-                                    log_tarif
-                                WHERE
-                                    service = "usage_voip"
-                                    AND date_activation<NOW()
-                                    AND id_service= u.id
-                                ORDER BY
-                                    date_activation DESC,
-                                    id DESC
-                                LIMIT 1
-                            ) AS tarif_id
+                            u.*
                         FROM
                             usage_voip u, (
                                 SELECT
@@ -369,15 +354,17 @@ class ApiLk
                             AND if(actual_to < cast(NOW() as date),  actual_from > cast( now() - interval 2 month as date), true)
                         ) AS `u`
     
-                    LEFT JOIN tarifs_voip t ON (
-                        t.id = u.tarif_id
-                    )
                      ORDER BY
                          `u`.`actual_from` DESC
     
                 ', array($card->client, $card->client)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual","tarif_name", "region"), $v);
+            $line =  self::_exportModelRow(array("id", "number", "no_of_lines", "actual_from", "actual_to", "actual", "region"), $v);
+
+            $usage = app\models\UsageVoip::findOne(["id" => $v->id]);
+
+            $line["tarif_name"] = $usage->currentTariff->name;
+            $line["per_month"] = number_format($usage->getAbonPerMonth(), 2);
 
             if ($isDBAtsInited)
             {
