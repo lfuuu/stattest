@@ -29,6 +29,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
         $this->processRoutes($targetService);
         $this->processDevices($targetService);
+        LogTarifTransfer::process($this, $targetService->id);
 
         return $targetService;
     }
@@ -40,6 +41,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
     {
         $this->fallbackRoutes();
         $this->fallbackDevices();
+        LogTarifTransfer::fallback($this);
 
         parent::fallback();
     }
@@ -95,7 +97,6 @@ class IpPortsServiceTransfer extends ServiceTransfer
                 $movedRoute =
                     UsageIpRoutes::find()
                         ->andWhere(['port_id' => $this->service->next_usage_id])
-                        ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
                         ->one();
                 Assert::isObject($movedRoute);
 
