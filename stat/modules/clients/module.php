@@ -9,6 +9,7 @@ use app\models\ClientBP;
 use app\models\ClientDocument;
 use app\models\ClientFile;
 use app\models\LkWizardState;
+use app\models\Country;
 
 //просмотр списка клиентов с фильтрами и поиском / просмотр информации о конкретном клиенте
 class m_clients {
@@ -911,10 +912,12 @@ class m_clients {
 
     $superClient = $clientAccount->superClient;
     $contragents = $superClient->contragents;
+    $contragent = $clientAccount->contragent;
 
     $design->assign('clientAccount', $clientAccount);
     $design->assign('superClient', $superClient);
     $design->assign('contragents', $contragents);
+    $design->assign('contragent', $contragent);
     $design->assign('is_wizard_allow', LkWizardState::isBPStatusAllow($clientAccount->business_process_status_id, $clientAccount->id));
 
     $voip = new VoipStatus;
@@ -1231,6 +1234,7 @@ class m_clients {
         $design->assign("l_price_type", ClientCS::GetPriceTypeList());
         $design->assign("l_metro", ClientCS::GetMetroList());
         $design->assign("sale_channels", ClientCS::GetSaleChannelsList());
+        $design->assign('countries', Country::find()->where(['in_use' => 1])->orderBy('code desc')->asArray()->all());
         $design->assign('regions',$db->AllRecords('select * from regions order by id desc', 'id'));
 
         $design->assign("history_flags", $this->get_history_flags(0));
@@ -1264,6 +1268,7 @@ class m_clients {
 			return;
 
 		$design->assign('hl',get_param_protected('hl'));
+        $design->assign('countries', Country::find()->where(['in_use' => 1])->orderBy('code desc')->asArray()->all());
         $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
 		$design->assign("history_flags", $this->get_history_flags($id));
 
@@ -1368,6 +1373,7 @@ class m_clients {
 				)
 		)
         $dbl = $r['client'];
+        $design->assign('countries', Country::find()->where(['in_use' => 1])->orderBy('code desc')->asArray()->all());
         $design->assign('regions',$db->AllRecords('select * from regions', 'id'));
 
         if(!access('clients','inn_double') && $dbl){

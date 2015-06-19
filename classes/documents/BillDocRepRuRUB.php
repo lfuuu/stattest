@@ -28,7 +28,7 @@ class BillDocRepRuRUB extends DocumentReport
         return 'Счет (предоплата)';
     }
 
-    protected function postProcessingLines()
+    protected function postFilterLines()
     {
         $now = (new DateTime())->format('Ym');
 
@@ -44,7 +44,7 @@ class BillDocRepRuRUB extends DocumentReport
             }
         }
 
-        return parent::postProcessingLines();
+        return parent::postFilterLines();
     }
 
 }

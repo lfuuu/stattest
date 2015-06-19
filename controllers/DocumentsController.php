@@ -23,7 +23,7 @@ class DocumentsController extends BaseController
         if ($is_pdf == 1)
             $report->renderAsPDF();
         else
-            echo $report->render();
+            echo $report->render($inline_img = false);
     }
 
 }

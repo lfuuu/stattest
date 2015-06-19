@@ -105,14 +105,15 @@ abstract class DocumentReport extends Object
         return $this
             ->fetchLines()
             ->filterLines()
-            ->postProcessingLines()
+            ->postFilterLines()
             ->calculateSummary();
     }
 
-    public function render()
+    public function render($inline_img = true)
     {
         return Yii::$app->view->renderFile($this->getTemplateFile() . '.php', [
-            'document' => $this
+            'document' => $this,
+            'inline_img' => $inline_img
         ]);
     }
 
@@ -219,7 +220,7 @@ abstract class DocumentReport extends Object
     /**
      * @return $this
      */
-    protected function postProcessingLines()
+    protected function postFilterLines()
     {
         return $this;
     }

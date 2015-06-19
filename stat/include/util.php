@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Utils;
+use app\models\ClientAccount;
 
 define('CLIENTS_SECRET','ZyG,GJr:/J4![%qhA,;^w^}HbZz;+9s34Y74cOf7[El)[A.qy5_+AR6ZUh=|W)z]y=*FoFs`,^%vt|6tM>E-OX5_Rkkno^T.');
 define('UDATA_SECRET','}{)5PTkkaTx]>a{U8_HA%6%eb`qYHEl}9:aXf)@F2Tx$U=/%iOJ${9bkfZq)N:)W%_*Kkz.C760(8GjL|w3fK+#K`qdtk_m[;+Q;@[PHG`%U1^Qu');
@@ -674,7 +675,7 @@ class ClientCS {
                         "user_impersonate,dealer_comment,metro_id,payment_comment,previous_reincarnation,corr_acc,pay_acc,bank_name,bank_city,".
                         "price_type,voip_credit_limit,voip_disabled,voip_credit_limit_day,nds_zero,voip_is_day_calc,mail_print,mail_who,".
                         "head_company,head_company_address_jur,region,okpo,bill_rename1,is_bill_only_contract,is_bill_with_refund,".
-                        "is_with_consignee,consignee,is_agent,is_upd_without_sign,timezone_name";
+                        "is_with_consignee,consignee,is_agent,is_upd_without_sign,timezone_name,country_id";
                 $t=explode(",",$L);
                 $this->P = array();
                 foreach ($t as $v) $this->P[$v] = $v;
@@ -1076,6 +1077,11 @@ class ClientCS {
                             )
                         );
             }
+
+            $clientAccount = ClientAccount::findOne($this->id);
+            $contragent = $clientAccount->contragent;
+            $contragent->country_id = $clientAccount->country_id;
+            $contragent->save();
         }
 
         if($company)
