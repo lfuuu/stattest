@@ -71,7 +71,7 @@ function do_events()
 
                 case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
                                  ats2Numbers::check();echo "...ats2Numbers::check()";
-//                                 virtPbx::check();echo "...virtPbx::check()";
+                                 virtPbx::check();echo "...virtPbx::check()";
                                  VirtPbx3::check();echo "...VirtPbx3::check()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
@@ -106,11 +106,11 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-//                                                  virtPbx::check();
+                                                  virtPbx::check();
                                                   VirtPbx3::check($param[0]);
                     break;
                     case 'client_set_status':
-//                                                  virtPbx::check();
+                                                  virtPbx::check();
                                                   VirtPbx3::check();
                                                   break; 
 
