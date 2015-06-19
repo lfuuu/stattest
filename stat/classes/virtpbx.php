@@ -430,11 +430,11 @@ class virtPbx
         l::ll(__CLASS__,__FUNCTION__, $clientId, $usageId);
 
         try{
-            SyncVirtPbx::create($clientId, $usageId);
+            //SyncVirtPbx::create($clientId, $usageId);
 
             self::setStarted($clientId, $usageId);
 
-            throw new Exception("VPBX not started", 500);
+            //throw new Exception("VPBX not started", 500);
         } catch(Exception $e)
         {
             $code = $e->getCode();
@@ -454,11 +454,11 @@ class virtPbx
         l::ll(__CLASS__,__FUNCTION__, $clientId);
 
         try{
-            SyncVirtPbx::stop($clientId, $usageId);
+            //SyncVirtPbx::stop($clientId, $usageId);
 
             self::setStoped($clientId, $usageId);
 
-            throw new Exception("VPBX not stoped", 500);
+            //throw new Exception("VPBX not stoped", 500);
         } catch(Exception $e)
         {
             $code = $e->getCode();
