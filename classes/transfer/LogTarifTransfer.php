@@ -25,9 +25,12 @@ abstract class LogTarifTransfer
             LogTarif::find()
                 ->andWhere([
                     'service' => $serviceTransfer->service->serviceType,
-                    'id_service' => $serviceTransfer->service->id
+                    'id_service' => $serviceTransfer->service->id,
                 ])
                 ->andWhere('id_tarif != 0')
+                ->andWhere('date_activation <= :date', ['date' => $serviceTransfer->getActualDate()])
+                ->orderBy('date_activation desc, id desc')
+                ->limit(1)
                 ->one();
 
         Assert::isObject($logTariff);
