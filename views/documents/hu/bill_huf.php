@@ -36,7 +36,12 @@ $company = $document->getCompany();
                     <table border="0" align="right">
                         <div style="width: 110px;  text-align: center;padding-right: 10px;">
                             <?php if (isset($company['logo']) && !empty($company['logo'])): ?>
-                                <?= Html::inlineImg('/images/'. $company['logo'], ['width' => 115, 'border' => 0]); ?>
+                                <?php
+                                if ($inline_img):
+                                    echo Html::inlineImg('/images/'. $company['logo'], ['width' => 115, 'border' => 0]);
+                                else: ?>
+                                    <img src="/images/<?= $company['logo']; ?>" width="115" border="0" />
+                                <?php endif; ?>
                             <?php endif; ?>
                             <?php if (isset($company['site']) && !empty($company['site'])): ?>
                                 <?= $company['site']; ?>
@@ -44,7 +49,13 @@ $company = $document->getCompany();
                         </div>
                         <tr>
                             <td colspan="2" align="center">
-                                <?= Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode()); ?>
+                                <?php
+                                if ($inline_img):
+                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode());
+                                else: ?>
+                                    <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0" />
+                                <?php endif; ?>
+
                             </td>
                         </tr>
                     </table>
@@ -53,7 +64,6 @@ $company = $document->getCompany();
             </tr>
         </table>
         <hr />
-
 
         <center><h2>Díjbekérő No <?= $document->bill->bill_no; ?></h2></center>
 
@@ -141,8 +151,16 @@ $company = $document->getCompany();
                                     $image_options['height'] = $residents['firm_director']['sign']['height'];
                                 endif;
 
-                                echo Html::inlineImg('/images/'. $residents['firm_director']['sign']['src'], $image_options);
-                            else: ?>
+                                if ($inline_img):
+                                    echo Html::inlineImg('/images/'. $residents['firm_director']['sign']['src'], $image_options);
+                                else:
+                                    array_walk($image_options, function(&$item, $key) {
+                                        $item = $key . '="' . $item . '"';
+                                    });
+                                    ?>
+                                    <img src="/image/<?= $residents['firm_director']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                <?php endif; ?>
+                            <?php else: ?>
                                 _________________________________
                             <?php endif; ?>
                         </td>
@@ -169,7 +187,15 @@ $company = $document->getCompany();
                                     $image_options['height'] = $residents['firm_buh']['sign']['height'];
                                 }
 
-                                echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
+                                if ($inline_img):
+                                    echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
+                                else:
+                                    array_walk($image_options, function(&$item, $key) {
+                                        $item = $key . '="' . $item . '"';
+                                    });
+                                    ?>
+                                    <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                <?php endif; ?>
                             else: ?>
                                 _________________________________
                             <?php endif; ?>
@@ -199,8 +225,16 @@ $company = $document->getCompany();
                                     $image_options['height'] = $residents['firma']['height'];
                                 }
 
-                                echo Html::inlineImg('/images/'. $residents['firma']['src'], $image_options);
-                            endif; ?>
+                                if ($inline_img):
+                                    echo Html::inlineImg('/images/'. $residents['firma']['src'], $image_options);
+                                else:
+                                    array_walk($image_options, function(&$item, $key) {
+                                        $item = $key . '="' . $item . '"';
+                                    });
+                                    ?>
+                                    <img src="/images/<?= $residents['firma']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </td>
                         <td>&nbsp;</td>
                     </tr>
