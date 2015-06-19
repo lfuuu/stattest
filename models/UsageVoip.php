@@ -95,5 +95,9 @@ class UsageVoip extends ActiveRecord implements Usage
         return $this->E164 . 'x' . $this->no_of_lines;
     }
 
+    public function getAbonPerMonth()
+    {
+        return $this->currentTariff->month_number + ($this->currentTariff->month_line * ($this->no_of_lines-1));
+    }
 }
 
