@@ -691,7 +691,11 @@ class m_services extends IModule{
                 $r['tarif']=get_tarif_current('usage_voip',$r['id']);
                 $r['cpe']=get_cpe_history('usage_voip',$r['id']);
 
-                $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
+                if (defined("use_ats3")) {
+                    $r["vpbx"] = isset($numberTypes[$r["E164"]]) ? $numberTypes[$r["E164"]] : false;
+                } else {
+                    $r["vpbx"] = (virtPbx::number_isOnVpbx($this->fetched_client["id"], $r["E164"]) ? "vpbx": "number" );
+                }
             }
 
             $notAcos = array();
