@@ -19,7 +19,7 @@ abstract class ServiceTransfer
     protected $activationDate;
 
     /** @var Usage */
-    protected $service;
+    public $service;
 
     /**
      * Конструктор класса
@@ -59,7 +59,7 @@ abstract class ServiceTransfer
     public function process()
     {
         //if ((int)$this->service->next_usage_id)
-        //    throw new InvalidValueException('Услуга уже перенесена');
+            //throw new InvalidValueException('Услуга уже перенесена');
 
         if ($this->service->actual_to < $this->getActualDate())
             throw new InvalidValueException('Услуга не может быть перенеса на указанную дату');
@@ -130,12 +130,12 @@ abstract class ServiceTransfer
                     ->format('Y-m-d H:i:s');
     }
 
-    protected function getActualDate()
+    public function getActualDate()
     {
         return $this->activationDate->format('Y-m-d');
     }
 
-    protected function getExpireDatetime()
+    public function getExpireDatetime()
     {
         $expireDatetime = clone $this->activationDate;
         return $expireDatetime
@@ -145,7 +145,7 @@ abstract class ServiceTransfer
                     ->format('Y-m-d H:i:s');
     }
 
-    protected function getExpireDate()
+    public function getExpireDate()
     {
         $expireDate = clone $this->activationDate;
         return $expireDate

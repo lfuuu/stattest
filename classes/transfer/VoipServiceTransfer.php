@@ -2,7 +2,6 @@
 
 namespace app\classes\transfer;
 
-use app\classes\Assert;
 use app\classes\Event;
 use app\models\ClientAccount;
 
@@ -18,13 +17,25 @@ class VoipServiceTransfer extends ServiceTransfer
      * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
      * @return object - созданная услуга
      */
-    public function process(ClientAccount $targetAccount, $activationDate)
+    public function process()
     {
-        $targetService = parent::process($targetAccount, $activationDate);
+        $targetService = parent::process();
+
+        LogTarifTransfer::process($this, $targetService->id);
 
         Event::go('ats2_numbers_check');
 
         return $targetService;
+    }
+
+    /**
+     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     */
+    public function fallback()
+    {
+        LogTarifTransfer::fallback($this);
+
+        parent::fallback();
     }
 
 }
