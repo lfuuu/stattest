@@ -14,6 +14,23 @@ class ApiPhone
         return self::isAvailable() ? 'https://' . PHONE_SERVER . '/phone/api/' : false;
     }
 
+    public static function getMultitranks()
+    {
+        $data = [];
+        try {
+            foreach(self::exec("multitrunks") as $d) {
+                $data[$d["id"]] = $d["name"];
+            }
+        }catch(\Exception $e) {
+            //
+        }
+
+        return $data;
+    }
+
+
+
+
     public static function exec($action, $data) {
         if (!self::isAvailable()) {
             throw new Exception('API Phone was not configured');
