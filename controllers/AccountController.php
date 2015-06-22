@@ -49,16 +49,16 @@ class AccountController extends BaseController
 
         $account = ClientAccount::findOne($accountId);
 
-        if (!$account || !LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
+        if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id))
             throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
 
-        $wizard = LkWizardState::findOne($accountId);
+        $wizard = LkWizardState::findOne($account->contract->id);
 
         if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next'])) {
 
             if ($state == "on" && !$wizard) {
                 $wizard = new LkWizardState;
-                $wizard->contract_id = $accountId;
+                $wizard->contract_id = $account->contract->id;
                 $wizard->step = 1;
                 $wizard->state = "process";
                 $wizard->save();

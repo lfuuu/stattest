@@ -5,10 +5,6 @@ class NewBill extends ActiveRecord\Model
     static $table_name = "newbills";
     static $primary_key = 'bill_no';
 
-    static $belongs_to = array(
-        array('client', 'class_name' => 'ClientCard', 'foreign_key' => 'client_id')
-    );
-
     static $has_one = array(
         array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_no')
         );

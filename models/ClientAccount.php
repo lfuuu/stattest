@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use app\classes\FileManager;
+use yii\web\User;
 
 /**
  * @property int $id
@@ -204,7 +205,6 @@ class ClientAccount extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
         ];
     }
 
@@ -320,17 +320,17 @@ class ClientAccount extends ActiveRecord
 
     public function getUserManager()
     {
-        return $this->hasOne(User::className(), ["user" => "manager"]);
+        return \app\models\User::findOne(['user' => $this->contract->manager]);
     }
 
     public function getUserAccountManager()
     {
-        return $this->hasOne(User::className(), ["user" => "account_manager"]);
+        return \app\models\User::findOne(['user' => $this->contract->account_manager]);
     }
 
     public function getLkWizardState()
     {
-        return $this->hasOne(LkWizardState::className(), ["contract_id" => "id"]);
+        return LkWizardState::findOne($this->contract->id);
     }
 
     public function getStatusBP()

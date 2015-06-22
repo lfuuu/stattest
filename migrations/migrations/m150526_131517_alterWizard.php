@@ -14,7 +14,6 @@ UPDATE lk_wizard_state s
 
 ALTER TABLE `lk_wizard_state`
 	DROP COLUMN `account_id`,
-	DROP INDEX `contract_id`,
 	DROP PRIMARY KEY,
 	ADD PRIMARY KEY (`contract_id`);
 SQL;

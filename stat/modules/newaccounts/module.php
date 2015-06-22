@@ -1020,11 +1020,11 @@ class m_newaccounts extends IModule
             $services = get_all_services($fixclient,$fixclient_data['id']);
             $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
 
-            $client = ClientCard::first($fixclient_data['id']);
+            $client = \app\models\ClientAccount::findOne($fixclient_data['id']);
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
                 ClientAccount::dao()->updateBalance($fixclient_data['id']);
-                $client = ClientCard::first($fixclient_data['id']);
+                $client = \app\models\ClientAccount::findOne($fixclient_data['id']);
             }
 
             $_R = [];
@@ -1157,8 +1157,8 @@ class m_newaccounts extends IModule
             for ($i=0;$i<200;$i++) $p.='                                                     ';
             $p.='</span>';
 
-            $res = mysql_query('select * from clients where status NOT IN ("closed","deny","tech_deny", "trash") order by id');
-            while($c=mysql_fetch_assoc($res)){
+            $clients = ClientAccount::find([['not in','status',["closed","deny","tech_deny", "trash"]]])->all();
+            foreach($clients as $c){
                 $bill = new Bill(null,$c,time(), 1, null, false);
                 $bill2 = null;
                 $services = get_all_services($c['client'],$c['id']);
@@ -1166,7 +1166,7 @@ class m_newaccounts extends IModule
                 if ($c['status'] == "operator" && $c['is_bill_with_refund'])
                 {
                     ClientAccount::dao()->updateBalance($c['id']);
-                    $client = ClientCard::first($c['id']);
+                    $client = ClientAccount::findOne($c['id']);
                 }
 
                 $RS = [];

@@ -137,7 +137,7 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($ca->id, $troubleId);
+        LkWizardState::create($ca->contract->id, $troubleId);
 
 		echo 'ok:'.$ca->id;
 	} else {

@@ -51,7 +51,7 @@ use \yii\helpers\Url;
 
                 ]</small>
             <?php else: ?>
-                <?php  if(\app\models\LkWizardState::isBPStatusAllow($client->contract->business_process_status_id, $client->id)): ?>
+                <?php  if(\app\models\LkWizardState::isBPStatusAllow($client->contract->business_process_status_id, $client->contract->id)): ?>
                     <b style="color: gray;"> Wizard выключен</b>
                     [<a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=on">включить</a>]
                 <?php endif; ?>
