@@ -252,9 +252,9 @@ class ActaulizerVoipNumbers
 
         if ($s["type"] == "multi")
         {
-            $s["multitrunk_id"] = $params["multitrunk_id"];
+            $s["multitrunk_id"] = (int)$params["multitrunk_id"];
         } elseif ($s["type"] == "vpbx") {
-            $s["vpbx_id"] = $params["vpbx_id"];
+            $s["vpbx_id"] = (int)$params["vpbx_id"];
         }
 
         $this->execQuery("add_did", $s);
