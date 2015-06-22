@@ -30,7 +30,7 @@ class AccountController extends BaseController
                 ],
                 [
                     'allow' => true,
-                    'actions' => ['edit', 'create'],
+                    'actions' => ['edit', 'create', 'change-wizard-state'],
                     'roles' => ['clients.edit'],
                 ],
                 [

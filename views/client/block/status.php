@@ -17,7 +17,47 @@ use \yii\helpers\Url;
                                                                               src="/images/icons/monitoring.gif"
                                                                               alt="Посмотреть"></a>
         </div>
-        <div class="col-sm-9">Wizard</div>
+        <div class="col-sm-9">
+
+            <?php if($client->lkWizardState) :?>
+            <b style="color: green;"> Wizard включен</b>, шаг: <?= $client->lkWizardState->step ?> (<?= $client->lkWizardState->stepName ?>)
+            <small>
+                [
+                <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=off">выключить</a>
+
+                <?php if($client->lkWizardState->step == 4): ?>
+
+                    <?if($client->lkWizardState->step!='rejected'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=rejected">отклонить</a>
+                    <?php endif; ?>
+
+                    <?if($client->lkWizardState->step!='approve'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=approve">одобрить</a>
+                    <?php endif; ?>
+
+                    <?if($client->lkWizardState->step!='review'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=review">рассмотрение</a>
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
+                <?if($client->lkWizardState->step!=1):?>
+                    | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=first">*первый шаг*</a>
+                <?php endif; ?>
+
+                <?if($client->lkWizardState->step!=4):?>
+                    | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=next">*след шаг*</a>
+                <?php endif; ?>
+
+                ]</small>
+            <?php else: ?>
+                <?php  if(\app\models\LkWizardState::isBPStatusAllow($client->contract->business_process_status_id, $client->id)): ?>
+                    <b style="color: gray;"> Wizard выключен</b>
+                    [<a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=on">включить</a>]
+                <?php endif; ?>
+            <?php endif; ?>
+
+        </div>
     </div>
     <div class="row" id="statuses" style="display: none;">
         <div class="col-sm-12">
