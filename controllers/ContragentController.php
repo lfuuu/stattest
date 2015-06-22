@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\forms\contragent\ContragentEditForm;
+use app\forms\client\ContragentEditForm;
 use app\classes\BaseController;
 use \Yii;
 use yii\filters\AccessControl;

@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\HistoryVersion;
 use Yii;
 use app\classes\Assert;
 use app\classes\Company;
@@ -211,12 +212,13 @@ class ClientDocumentDao extends Singleton
 			return;
         }
 
-        $r = ClientAccount::dao()->getAccountPropertyOnDate($clientId, $c["contract_date"]);
-		
+        $r = HistoryVersion::getVersionOnDate(ClientAccount::className(), $clientId, $c["contract_date"]);
+
         if (!$r) {
 			trigger_error2('Такого клиента не существует');
 			return;
         }
+        $r = $r->toArray();
 
         $c["contract_dop_date"] = strtotime($c["contract_dop_date"]);
         $c["contract_date"] = strtotime($c["contract_date"]);

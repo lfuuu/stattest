@@ -149,7 +149,8 @@ class m_newaccounts extends IModule
     {
         global $db;
 
-        return $db->GetValue("select min(if(apply_ts = '0000-00-00', cast(ts as date), apply_ts)) as switch_date from log_client l, log_client_fields f where client_id = '".$clientId."' and f.ver_id = l.id and l.type='fields' and field='firma' and value_to = 'mcn_telekom'");
+        $res = \app\models\HistoryChanges::find()->andWhere(['like', 'data_json', '"organization":"mcn_telekom"'])->one();
+        return $res ? date('Y-m-d', strtotime($res->created_at)) : '0000-00-00';
     }
 
     function newaccounts_bill_list_simple($get_sum=false){
@@ -1012,7 +1013,10 @@ class m_newaccounts extends IModule
                 $db->Query("update ".$service['service']." set status='working' where id='".$service['id']."'");
             }
         } elseif ($obj=='regular') {
-            ClientCS::getClientClient($fixclient);
+            if(is_numeric($fixclient)) {
+                $ca = ClientAccount::findOne($fixclient);
+                $fixclient = $ca->client;
+            }
             $services = get_all_services($fixclient,$fixclient_data['id']);
             $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
 
@@ -1359,8 +1363,8 @@ class m_newaccounts extends IModule
 
         $design->ProcessEx();
 
-        $cs=new ClientCS($bill->Client('id'));
-        $contact = $cs->GetContact();
+        $c= ClientAccount()::findOne($bill->Client('id'));
+        $contact = $c->officialContact;
         $this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
         $this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);
         echo "<hr><br>Шаблон с печатью <br><br>";

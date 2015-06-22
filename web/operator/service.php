@@ -41,56 +41,94 @@ if ($action=='add_client') {
         echo "error:";
         exit();
     }
+///////////////Создание клиента из модели , удаление Apply... удаление log_client
+    $c = \app\models\ClientContact::find(['data' => $P['email'], 'type' => 'email'])->one();
 
-    $id = $db->GetValue(
-        "SELECT 
-            client_id 
-        FROM 
-            `client_contacts` 
-        WHERE 
-                type='email' 
-            and `data` = '".mysql_real_escape_string($P["email"])."'
-        ORDER BY if(is_active = 1, if(is_official = 1, 2, 1), 0) desc, `id` DESC limit 1");
-
-	if($id)
+	if($c)
 	{
-		die("ok:".$id);
+		die("ok:".$c->client_id);
 	}
-	$O = new ClientCS();
-	$O->client = "idNNNN";
-	$O->company = $P['company'];
-	$O->company_full = $P['company'];
-	$O->address_post = $P['address'];
-	$O->address_post_real = $P['address'];
-	$O->address_connect = $P['address'];
-	$O->address_jur = $P['address'];
-	$O->sale_channel = $P['market_chanel'];
-    $O->contract_type_id = ClientContractType::TELEKOM; //Телеком-клиент
-    $O->business_process_id = ClientBP::TELEKOM__SUPPORT; //Сопровождение
-    $O->business_process_status_id = ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES; //Заказ уcлуг
-    $O->status = "income"; 
+
+    $s = new \app\models\ClientSuper();
+    $s->name = $P['company'];
+    $s->save();
+
+    $cg = new \app\forms\client\ContragentEditForm(['super_id' => $s->id]);
+    $cg->name = $cg->name_full = $P['company'];
+    $cg->address_jur = $P['address'];
+    $cg->legal_type = 'legal';
+    $cg->save();
+
+    $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
+    $cr->contract_type_id = ClientContractType::TELEKOM;
+    $cr->business_process_id = ClientBP::TELEKOM__SUPPORT;
+    $cr->business_process_status_id = ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES;
+    $cr->save();
+
+    $ca = new \app\forms\client\AccountEditForm(['id' => $cr->id]);
+    $ca->address_post = $P['address'];
+    $ca->address_post_real = $P['address'];
+    $ca->address_connect = $P['address'];
+    $ca->sale_channel = $P['market_chanel'];
+    $ca->status = "income";
 
 	if($P["phone_connect"])
-		$O->phone_connect = $P["phone_connect"];
+        $cr->phone_connect = $P["phone_connect"];
 
-	if ($O->Create(0)) {
+	if ($cr->save()) {
         $contactId = 0;
-		if($P['contact']) $O->AddContact('phone',$P['contact'],$P["fio"],0);
-		if($P['phone']) $O->AddContact('phone',$P['phone'],$P["fio"],1);
-		if($P['fax'])  $O->AddContact('fax',$P['fax'],$P["fio"],1);
-		if($P['email']) $contactId= $O->AddContact('email',$P['email'],$P["fio"],1);
-		$O->Add("Входящие клиент с сайта: ".$P["company"]);
+		if($P['contact']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'phone';
+            $c->data = $P['contact'];
+            $c->comment = $P["fio"];
+            $c->is_active = 1;
+            $c->is_official = 0;
+            $c->save();
+        }
+		if($P['phone']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'phone';
+            $c->data = $P['phone'];
+            $c->comment = $P["fio"];
+            $c->is_active = 1;
+            $c->is_official = 1;
+            $c->save();
+        }
+		if($P['fax']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'fax';
+            $c->data = $P['fax'];
+            $c->comment = $P["fio"];
+            $c->is_active = 1;
+            $c->is_official = 1;
+            $c->save();
+        }
+		if($P['email']){
+            $c = new \app\models\ClientContact();
+            $c->client_id = $ca->id;
+            $c->type = 'email';
+            $c->data = $P['email'];
+            $c->comment = $P["fio"];
+            $c->is_active = 1;
+            $c->is_official = 1;
+            $c->save();
+            $contactId = $c->id;
+        }
         if ($contactId && isset($_GET["lk_access"]) && $_GET["lk_access"])
         {
-            $O->admin_contact_id = $contactId;
-            $O->admin_is_active = 0;
-            $O->Apply();
+            $ca->admin_contact_id = $contactId;
+            $ca->admin_is_active = 0;
+            $ca->save();
         }
 
         $R = array(
             'trouble_type' => 'connect',
             'trouble_subtype' => 'connect',
-            'client' => "id".$O->id,
+            'client' => "id".$ca->id,
             'date_start' => date('Y-m-d H:i:s'),
             'date_finish_desired' => date('Y-m-d H:i:s'),
             'problem' => "Входящие клиент с сайта: ".$P["company"],
@@ -99,9 +137,9 @@ if ($action=='add_client') {
         );
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($O->id, $troubleId);
+        LkWizardState::create($ca->id, $troubleId);
 
-		echo 'ok:'.$O->id;
+		echo 'ok:'.$ca->id;
 	} else {
 		echo 'error:';
 	}

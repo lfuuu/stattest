@@ -19,7 +19,9 @@ class ApiLk
     
         list($R, $sum, ) = BalanceSimple::get($params);
 
-        $cutOffDate = self::_getCutOffDate($clientId);
+        $cutOffDate = \app\models\HistoryVersion::find(['model' => \app\models\ClientAccount::className(), 'model_id' => $clientId])
+            ->orderBy('date DESC')->one();
+        $cutOffDate = $cutOffDate->date;
     
         $bills = array();
         foreach ($R as $r)
@@ -1951,34 +1953,6 @@ class ApiLk
         }
     
         return $v;
-    }
-
-    private static function _getCutOffDate($clientId)
-    {
-        global $db;
-    
-        $dateStart = $db->GetValue(
-                "
-                SELECT
-                    UNIX_TIMESTAMP(if(apply_ts = '0000-00-00', cast(l.ts as date), apply_ts)) as ts
-                FROM
-                    `clients` c,
-                    `log_client` l,
-                    log_client_fields f
-                WHERE
-                        c.id = l.client_id
-                    AND f.ver_id = l.id
-                    AND ts >= '2012-04-01 00:00:00'
-                    AND field = 'inn'
-                    AND value_from != ''
-                    AND c.id = '".$clientId."'
-                ORDER BY ts DESC
-                LIMIT 1");
-    
-        if(!$dateStart)
-            $dateStart = strtotime("2012-04-01");
-    
-        return $dateStart;
     }
 
     private static function _getUserBillOnSum_fromDB($clientId, $sum)

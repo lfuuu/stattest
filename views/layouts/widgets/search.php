@@ -23,7 +23,7 @@ use yii\helpers\Url;
                         data-placeholder="№ ЛС или Названию">Клиентам
                 </button>
                 <button type="submit" class="btn btn-default" style="display: none;" data-search="contractNo"
-                        data-placeholder="Номеру договора">Номеру договора
+                        data-placeholder="Номеру договора">Договору
                 </button>
                 <button type="submit" class="btn btn-default" style="display: none;" data-search="inn"
                         data-placeholder="ИНН">ИНН

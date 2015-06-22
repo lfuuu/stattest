@@ -1968,7 +1968,7 @@ class m_services extends IModule{
             );
 
             $R = array();
-            $statuses = ClientCS::$statuses;
+            $statuses = ClientAccount::$statuses;
             foreach($vpbxs as $r){
                 $r['tarif']=get_tarif_current('usage_virtpbx',$r['id']);
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
@@ -2133,7 +2133,7 @@ class m_services extends IModule{
             );
 
             $R = array();
-            $statuses = ClientCS::$statuses;
+            $statuses = ClientAccount::$statuses;
             while($r=$db->NextRecord()){
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
                 if($r['period']=='month')
@@ -2236,7 +2236,7 @@ class m_services extends IModule{
             );
 
             $R = array();
-            $statuses = ClientCS::$statuses;
+            $statuses = ClientAccount::$statuses;
             while($r=$db->NextRecord()){
                 $r["client_color"] = isset($statuses[$r["client_status"]]) ? $statuses[$r["client_status"]]["color"] : false;
                 if($r['period']=='month')

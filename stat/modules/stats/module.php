@@ -2308,66 +2308,6 @@ class m_stats extends IModule{
 		$design->AddMain('stats/report_services.html');
 	}
 
-    function stats_report_inn()
-    {
-        global $design;
-
-        $managers = array();
-        $all = $this->_stat_report_inn();
-
-        $statuses = ClientCS::$statuses;
-        foreach($all as &$l)
-        {
-            $l["client_color"] = isset($statuses[$l["status"]]) ? $statuses[$l["status"]]["color"] : false;
-            $managers[$l["manager"]] = $l["manager"];
-        }
-        sort($managers);
-
-        $manager = get_param_raw("manager", false);
-
-        if($manager === false)
-        {
-            $R = array();
-        }elseif($manager == ""){
-            $R = $all;
-        }else{
-            $R = array();
-            foreach($all as $l)
-            {
-                if($l["manager"] == $manager)
-                {
-                    $R[] = $l;
-                }
-            }
-        }
-
-        $design->assign("inns", $R);
-        $design->assign("managers", $managers);
-        $design->assign("manager", $manager);
-
-        $design->AddMain("stats/report_inn.html");
-    }
-
-    function _stat_report_inn($manager = false)
-    {
-        global $db;
-
-        $R = $db->AllRecords(
-            "SELECT c.client, cg.name AS company, c.status, cr.manager, unix_timestamp(l.ts) ts, f.*
-             FROM clients c, `log_client` l, log_client_fields f, client_contract cr, client_contragent cg
-             where c.id = l.client_id and f.ver_id = l.id
-             and cr.id = c.contract_id
-             and cg.id = cr.contragent_id
-             and ts >= '2012-04-01 00:00:00'
-             and field = 'inn'
-             and value_from != ''
-             ".($manager ? "and c.manager = '".$manager."'" : "")."
-             order by c.client, ts
-             limit 1000");
-
-        return $R;
-    }
-
     function stats_report_agent()
     {
         include_once 'AgentReport.php';

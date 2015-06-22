@@ -409,6 +409,16 @@ class ClientAccount extends ActiveRecord
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
     }
 
+    public function getOfficialContact()
+    {
+        $res = [];
+        $contacts = ClientContact::find(['client_id' => $this->id, 'is_official'=>1])->all;
+        foreach($contacts as $contact){
+            $res[$contact->type] = $contact;
+        }
+        return $res;
+    }
+
     public function getBpStatuses()
     {
         $processes = [];

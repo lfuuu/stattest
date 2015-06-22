@@ -30,6 +30,7 @@ class ContragentEditForm extends Form
         $okpo = '',
         $okvd = '',
         $ogrn = '',
+        $country_id = 643,
 
         $contragent_id = '',
         $first_name = '',
@@ -48,7 +49,7 @@ class ContragentEditForm extends Form
                 'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
             ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
             ['tax_regime', 'in', 'range' => ['simplified', 'full']],
-            ['super_id', 'integer'],
+            ['super_id, country_id', 'integer'],
             [['legal_type', 'super_id'], 'required'],
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'string'],
@@ -101,6 +102,7 @@ class ContragentEditForm extends Form
         $contragent->okpo = $this->okpo;
         $contragent->okvd = $this->okvd;
         $contragent->ogrn = $this->ogrn;
+        $contragent->country_id = $this->country_id;
 
         if ($contragent->save()) {
             $this->setAttributes($contragent->getAttributes(), false);

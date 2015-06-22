@@ -7,7 +7,7 @@ use \app\models\ClientContract;
 
     <div class="row">
         <div class="col-sm-5">
-            <a href="#"><h2 class="c-blue-color"><?= $sClient->name ?></h2></a>
+            <h2 class="c-blue-color" style="margin:0;"><a href="#"><?= $sClient->name ?></a></h2>
         </div>
         <div class="col-sm-5" class="c-blue-color">
             <a href="#">Переход в личный кабинет</a>
@@ -22,8 +22,8 @@ use \app\models\ClientContract;
             foreach ($contragents as $contragent): ?>
                 <div class="row" style="padding-top: 10px; border-top: solid #43657d 1px;">
                     <div class="col-sm-5">
-                        <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $activeClient->id]) ?>"><span
-                                style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ?></span></a>
+                        <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $activeClient->id]) ?>">
+                            <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ?></span></a>
                     </div>
                     <div class="col-sm-5">
                         <span><?= $contragent->address_jur ? $contragent->address_jur : '...' ?></span>
