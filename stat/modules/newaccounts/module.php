@@ -4598,10 +4598,10 @@ class m_newaccounts extends IModule
             $r['_addr'] = $m[3];
         } unset($r);
         $design->assign('postregs',$R);
-        $design->ProcessEx('pop_header.tpl');
-        $design->ProcessEx('errors.tpl');
+        $design->ProcessEx('newaccounts/pop_header.tpl');
+        $design->ProcessEx('newaccounts/errors.tpl');
         $design->ProcessEx('newaccounts/postreg_report.tpl');
-        $design->ProcessEx('pop_footer.tpl');
+        $design->ProcessEx('newaccounts/pop_footer.tpl');
     }
 
     function newaccounts_bill_data(){
