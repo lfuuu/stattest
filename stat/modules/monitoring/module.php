@@ -2,14 +2,18 @@
 //вывод данных мониторинга
 class m_monitoring {
 	var $actions=array(
+					'default'			=> array('monitoring','view'),
 					'edit'				=> array('monitoring','edit'),
 					'add'				=> array('monitoring','edit'),
 					'view'				=> array('monitoring','view'),
 					'top'				=> array('monitoring','top'),
+					'report_voip_graph' 		=> array('monitoring','graphs'),
 					'report_bill_graph' 		=> array('monitoring','graphs'),
 					'report_move_numbers'           => array('services_voip','edit'),
 				);
 	var $menu=array(
+					array('VIP-клиенты',			'default'),
+					array('Отчет: Динамика звоноков',	'report_voip_graph'),
 					array('Отчет: Динамика счетов',	'report_bill_graph'),
 					array('Перемещаемые услуги',    'report_move_numbers'),
 				);
@@ -39,6 +43,14 @@ class m_monitoring {
 		call_user_func(array($this,'monitoring_'.$action),$fixclient);		
 	}
 	
+	function monitoring_default($fixclient){
+		global $design,$db,$user;
+		$ip = get_param_protected('ip' , '');
+		if ($ip) return $this->monitoring_view($fixclient);
+		include INCLUDE_PATH.'db_view.php';
+		$view = new DbViewMonitorClients();
+		$view->Display('module=monitoring','module=monitoring&action=edit');
+	}
 	function monitoring_edit($fixclient) {
 		include INCLUDE_PATH.'db_view.php';
 		$dbf = new DbFormMonitorClients();
@@ -68,7 +80,7 @@ class m_monitoring {
 	function monitoring_view($fixclient){
 		global $design,$db,$user;
 		$design->assign('ip',$ip=get_param_protected('ip'));
-		if (!$ip) return;
+		if (!$ip) return $this->monitoring_default($fixclient);
 		$design->assign('period',get_param_protected('period'));
 		$design->assign('m',$m=get_param_protected('m',date('m')));
 		$design->assign('d',$d=get_param_protected('d',date('d')));
@@ -88,7 +100,7 @@ class m_monitoring {
 	function monitoring_view2() {
 		global $design,$db,$user;
 		$design->assign('ip',$ip=get_param_protected('ip'));
-		if (!$ip) return;
+		if (!$ip) return $this->monitoring_default($fixclient);
 		
 		//необязательные данные, нужны для отладки и для удобства
 		$r=$db->GetRow('select min(time300)*300 as A,max(time300)*300 as B,count(*) as C from monitor_5min where ip_int=INET_ATON("'.$ip.'")');
@@ -217,17 +229,17 @@ class m_monitoring {
 
 		foreach($pg_db->AllRecords(
 			"SELECT 
-				day, 
-				direction_out, 
-				SUM(len) AS sum_len, 
+				to_char(connect_time, 'YYYY-MM-DD') as day, 
+				orig as direction_out, 
+				SUM(billed_time) AS sum_len, 
 				COUNT(*) AS call_count
 			FROM 
 				calls_raw.calls_raw
 			WHERE 
 				connect_time BETWEEN  '".date("Y-m-d", $from)."' AND '".date("Y-m-d", $to)."'
-				AND srv_region_id = '".$regionId."'
+				AND server_id = '".$regionId."'
 			GROUP BY 
-				srv_region_id, 
+				server_id, 
 				day, 
 				direction_out
 			ORDER BY 
@@ -263,6 +275,182 @@ class m_monitoring {
 
 		return $data;
         
+	}
+	function monitoring_report_voip_graph($fixclient)
+	{
+		global $design,$db;
+		require_once ('JpGraphsInit.php');
+		require_once (PATH_TO_ROOT.'libs/jpgraph/jpgraph.php');
+		require_once (PATH_TO_ROOT.'libs/jpgraph/jpgraph_line.php');
+		$regionId = get_param_integer('region', 99);
+		$design->assign('region', $regionId);
+		
+		$from = strtotime('first day of this month 00:00:00');
+		$to = strtotime('last day of this month 23:59:59');
+		
+		$week_start = min(date('w', $from),date('w', strtotime('-1 month', $from)),date('w', strtotime('-2 month', $from)), date('w', strtotime('-3 month', $from)));
+
+		$data = $this->getVoipSummaryRegionStatistic($regionId, strtotime('-3 month',$from), $to);
+
+		$week_stats = array();
+		$g_data = array();
+		$no_calls = array();
+		$week_num = null;
+		if (!empty($data))
+		{
+			foreach ($data as $k=>$v)
+			{
+				//понедельная статистика
+				if ($week_num != date('W', $k))
+				{
+					if (isset($week_stats[$week_num])) 
+					{
+						$week_stats[$week_num]['avg'] = $week_stats[$week_num]['count']/$week_stats[$week_num]['count_in_week'];
+						$week_stats[$week_num]['len_avg'] = $week_stats[$week_num]['len']/$week_stats[$week_num]['count_in_week'];
+					}
+					if (isset($week_stats[$week_num-1]))
+					{
+						$week_stats[$week_num]['diff'] = $week_stats[$week_num]['count'] - $week_stats[$week_num-1]['count'];
+						$week_stats[$week_num]['len_diff'] = $week_stats[$week_num]['len'] - $week_stats[$week_num-1]['len'];
+					}
+				}
+				$week_num = date('W', $k);
+				$v['len'] = round($v['len']/3600,2);
+				if (!isset($week_stats[$week_num]))
+				{
+					$week_stats[$week_num] = array(
+						'count' => 0,
+						'max' => 0,
+						'min' => $v['count'],
+						'avg' => 0,
+						'count_in_week' => 0,
+						'len' => 0,
+						'len_max' => 0,
+						'len_min' => $v['len'],
+						'len_avg' => 0,
+						'week_start' => $k,
+						'week_end' => ''
+					);
+				}
+				$week_stats[$week_num]['count'] += $v['count'];
+				$week_stats[$week_num]['len'] += $v['len'];
+				$week_stats[$week_num]['max'] = ($v['count'] > $week_stats[$week_num]['max']) ? $v['count'] : $week_stats[$week_num]['max'];
+				$week_stats[$week_num]['min'] = ($v['count'] < $week_stats[$week_num]['min']) ? $v['count'] : $week_stats[$week_num]['min'];
+				$week_stats[$week_num]['len_max'] = ($v['len'] > $week_stats[$week_num]['len_max']) ? $v['len'] : $week_stats[$week_num]['len_max'];
+				$week_stats[$week_num]['len_min'] = ($v['len'] < $week_stats[$week_num]['len_min']) ? $v['len'] : $week_stats[$week_num]['len_min'];
+				$week_stats[$week_num]['count_in_week']++;
+				$week_stats[$week_num]['week_end'] = $k;
+				
+				//данные для графиков
+				$f_day = null;
+				if (!isset($month_num) || $month_num != date('n', $k))
+				{
+					if (isset($month_num)) {
+						$ts = strtotime('last day of previous month', $k);
+						$last_day = date('j', $ts);
+						if ($last_day != $prev_day)
+						{
+							$index = count($g_data['count'][$month_num])-1;
+							$val_count = $g_data['count'][$month_num][$index];
+							$val_len = $g_data['len'][$month_num][$index];
+							for($i=$prev_day+1;$i<=$last_day;$i++)
+							{
+								$g_data['count'][$month_num][] = '-';
+								$g_data['len'][$month_num][] = '-';
+								$no_calls[] = strtotime(date('Y', $ts) . '-' . $month_num . '-' . $i);
+								$index = count($g_data['count'][$month_num])-1;
+								$no_calls_lines['count'][$month_num][][$index] = $val_count;
+								$no_calls_lines['len'][$month_num][][$index] = $val_len;
+							}
+						}
+					}
+					$prev_day = 0;
+				}
+				$month_num = date('n', $k);
+				$this_day = date('j', $k);
+				if ($this_day - $prev_day > 1)
+				{
+					$j = 1;
+					$dx = $this_day-$prev_day;
+					if (isset($g_data['count'][$month_num]))
+					{
+						$index = count($g_data['count'][$month_num])-1;
+						$val_count = $g_data['count'][$month_num][$index];
+						$val_len = $g_data['len'][$month_num][$index];
+					} else {
+						$index=$val_count=$val_len=0;
+					}
+					$dy_c =  round($v['count']/1000,3) - $val_count;
+					$dy_l =  $v['len'] - $val_len;
+					for($i=$prev_day+1;$i<$this_day;$i++)
+					{
+						$g_data['count'][$month_num][] = '-';
+						$g_data['len'][$month_num][] = '-';
+						$no_calls[] = strtotime(date('Y', $k) . '-' . $month_num . '-' . $i);
+						$index = count($g_data['count'][$month_num])-1;
+						$no_calls_lines['count'][$month_num][][$index] = $val_count + $j*$dy_c/$dx;
+						$no_calls_lines['len'][$month_num][][$index] = $val_len + $j*$dy_l/$dx;
+						$j++;
+					}
+					
+				}
+				$prev_day = $this_day;
+				$g_data['count'][$month_num][] = round($v['count']/1000,3);
+				$g_data['len'][$month_num][] = $v['len'];
+			}
+			$week_stats[$week_num]['avg'] = $week_stats[$week_num]['count']/$week_stats[$week_num]['count_in_week'];
+			$week_stats[$week_num]['len_avg'] = $week_stats[$week_num]['len']/$week_stats[$week_num]['count_in_week'];
+			if (isset($week_stats[$week_num-1]))
+			{
+				$week_stats[$week_num]['diff'] = $week_stats[$week_num]['count'] - $week_stats[$week_num-1]['count'];
+				$week_stats[$week_num]['len_diff'] = $week_stats[$week_num]['len'] - $week_stats[$week_num-1]['len'];
+			}
+			$graph_count = JpGraphsInit::getLineGraph('Количество звонков, шт x 1000');
+			$graph_duration = JpGraphsInit::getLineGraph('Продолжительность звонков, час');
+			
+			JpGraphsInit::setLines($graph_count,$g_data['count'], $week_start);
+			JpGraphsInit::setLines($graph_duration,$g_data['len'], $week_start);
+			
+			if (!empty($no_calls_lines))
+			{
+				JpGraphsInit::setNoCallLines($graph_count,$no_calls_lines['count'], $week_start);
+				JpGraphsInit::setNoCallLines($graph_duration,$no_calls_lines['len'], $week_start);
+			}
+
+			$gc_filename = './images/graphs/count.png';
+
+			$graph_count->legend->SetFrameWeight(1);
+			$graph_count->Stroke($gc_filename);
+			$design->assign('graph_count', $gc_filename);
+
+			
+			$gd_filename = './images/graphs/duration.png';
+			$graph_duration->legend->SetFrameWeight(1);
+			$graph_duration->Stroke($gd_filename);
+			$design->assign('graph_duration', $gd_filename);
+		}
+		
+		$regions = $db->AllRecords("select id, short_name, name from regions order by id desc");
+		$design->assign('regions', $regions);
+		
+		$i=$key=$j=0;
+		$no_calls_periods = array();
+		while (isset($no_calls[$i]))
+		{
+			$month = date('n', $no_calls[$i]);
+			$no_calls_periods[$month][$key]['start'] = $no_calls[$i];
+			while (isset($no_calls[$i+1]) && date('n', $no_calls[$i+1]) == $month && (date('j', $no_calls[$i+1]) - date('j', $no_calls[$i]))==1)
+			{
+				$i++;
+			}
+			$no_calls_periods[$month][$key]['end'] = $no_calls[$i];
+			$i++;
+			$key++;
+		}
+		$design->assign('no_calls_periods', $no_calls_periods);
+		$design->assign('week_stats', $week_stats);
+		$design->AddMain('monitoring/report_voip_graph.tpl');
+		
 	}
 	/**
 	 * Функция возвращает обобщенную статистику счетов.
