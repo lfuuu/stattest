@@ -26,4 +26,14 @@ class DocumentsController extends BaseController
             echo $report->render($inline_img = false);
     }
 
+    public function actionGetMhtml($bill_no, $doc_type = 'bill')
+    {
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
+
+        Assert::isObject($bill);
+
+        $report = DocumentReportFactory::me()->getReport($bill, $doc_type, $sendEmail = 0);
+        $report->renderAsMhtml();
+    }
+
 }

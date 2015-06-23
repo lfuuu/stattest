@@ -51,7 +51,7 @@ $company = $document->getCompany();
                             <td colspan="2" align="center">
                                 <?php
                                 if ($inline_img):
-                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode());
+                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
                                 else: ?>
                                     <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0" />
                                 <?php endif; ?>

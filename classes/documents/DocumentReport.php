@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Object;
 use app\classes\Company;
 use app\classes\BillQRCode;
+use app\classes\Html2Mhtml;
 use app\models\Bill;
 
 abstract class DocumentReport extends Object
@@ -133,27 +134,53 @@ abstract class DocumentReport extends Object
         }
         */
 
-        ob_start();
-        echo $this->render();
-        $content = ob_get_contents();
-        ob_end_clean();
-
         $file_name = '/tmp/' . time() . Yii::$app->user->id;
         $file_html = $file_name . '.html';
         $file_pdf = $file_name . '.pdf';
 
-        file_put_contents($file_name . '.html', $content);
+        file_put_contents($file_name . '.html', $this->render());
 
         passthru("/usr/bin/wkhtmltopdf $options $file_html $file_pdf");
-        $pdf = file_get_contents($file_pdf);
+
+        Yii::$app->response->sendFile($file_pdf, basename($file_pdf), [
+            'mimeType' => 'application/pdf'
+        ]);
+
         unlink($file_html);
         unlink($file_pdf);
 
-        Header('Content-Type: application/pdf');
-        ob_clean();
-        flush();
-        echo $pdf;
-        exit;
+        Yii::$app->end();
+    }
+
+    public function renderAsMhtml()
+    {
+        $result = (new Html2Mhtml)
+            ->addContents(
+                'index.html',
+                $this->render($inline_img = false),
+                function($content) {
+                    return preg_replace('#font\-size:\s?[0-7]{1,2}\%#', 'font-size:8pt', $content);
+                }
+            )
+            ->addImages(function($image_src) {
+                $file_path = '';
+                $file_name = '';
+
+                if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $image_src)) {
+                    $file_name = 'host_img_' . mt_rand(0, 50);
+                    $file_path = Yii::$app->request->hostInfo . $image_src;
+                }
+                else if (strpos($image_src, 'http:\/\/') === false) {
+                    $file_path = Yii::$app->basePath . '/web' . $image_src;
+                    $file_name = basename($image_src);
+                }
+
+                return [$file_name, $file_path];
+            })
+            ->getFile();
+
+        Yii::$app->response->sendContentAsFile($result, time() . Yii::$app->user->id . '.doc');
+        Yii::$app->end();
     }
 
     /**
