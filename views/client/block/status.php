@@ -13,9 +13,9 @@ use \yii\helpers\Url;
     <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus->color ?>;">
         <div class="col-sm-3">
             Статус: <b><?= $contractForm->currentBusinessProcessStatus->name ?></b>
-            <a href="#" onclick="$('#statuses').toggle(); return false;"><img class="icon"
-                                                                              src="/images/icons/monitoring.gif"
-                                                                              alt="Посмотреть"></a>
+            <a href="#" onclick="$('#statuses').toggle(); $('#w1 .row').slice(0,2).toggle(); return false;">
+                <img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть">
+            </a>
         </div>
         <div class="col-sm-9">
 
@@ -59,7 +59,7 @@ use \yii\helpers\Url;
 
         </div>
     </div>
-    <div class="row" id="statuses" style="display: none;">
+    <div class="row" id="statuses" <?=$_COOKIE['openedBlock']!='statuses'?'style="display: none;"':''?>>
         <div class="col-sm-12">
             <?php foreach ($client->contract->comments as $comment): ?>
                 <div class="col-sm-12">
@@ -83,68 +83,29 @@ use \yii\helpers\Url;
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contractForm->contractTypes],
-                'business_process_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contractForm->businessProcessesList],
-                'business_process_status_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contractForm->businessProcessStatusesList],
-            ],
-        ]);
-        ?>
-
-        <?php
-        echo Form::widget([
-            'model' => $contractForm,
-            'form' => $f,
-            'attributeDefaults' => [
-                'container' => ['class' => 'col-sm-12'],
-            ],
-            'options' => [
-                'class' => 'col-sm-6'
-            ],
-            'attributes' => [
-                'block' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => '<div class="col-sm-6">
-                                    <div class="form-group field-contracteditform-status">
-                                        <label class="control-label">Блокировка</label>
-                                        <div class="btn-group" role="group" aria-label="..." data-account-id="' . $client->id . '">
-                                            <button id="block-btn-work" type="button" class="btn btn-default btn-sm ' . ($client->is_blocked ? '' : 'btn-success') . '" style="width: 120px;">Работает</button>
-                                            <button id="block-btn-block" type="button" class="btn btn-default btn-sm ' . ($client->is_blocked ? 'btn-danger' : '') . '" style="width: 120px;">Заблокирован</button>
-                                        </div>
-                                    </div>
-                                </div>'
-                ],
-                'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['style' => 'height:108px;']]
+                'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->contractTypes],
+                'business_process_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessesList],
+                'business_process_status_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessStatusesList],
+                'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['style' => 'height:108px;'], 'container' => ['class' => 'col-sm-12']],
             ],
         ]);
         ?>
 
 
-        <div class="row" style="clear: both;">
-            <div class="col-sm-12">
-                <div class="col-sm-12 form-group" style="text-align: center;">
-                    <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave',]); ?>
-                </div>
+        <div class="col-sm-12">
+            <div class="col-sm-12 form-group">
+                <?= Html::submitButton('Изменить', ['class' => 'btn btn-default', 'id' => 'buttonSave',]); ?>
             </div>
         </div>
+
 
     </div>
     <?php ActiveForm::end(); ?>
 </div>
 <script>
     $(function () {
-        $('.field-contracteditform-status .btn-group button').on('click', function () {
-            var b = $('#block-btn-block'),
-                w = $('#block-btn-work'),
-                acId = $(this).parent().data('account-id');
-            if ($(this).attr('id') == 'block-btn-work') {
-                $(this).addClass('btn-success');
-                b.removeClass('btn-danger');
-            } else {
-                $(this).addClass('btn-danger');
-                w.removeClass('btn-success');
-            }
-            $.get('/account/set-block?id=' + acId);
-        });
+        document.cookie = "openedBlock=;";
+        $('#w1 .row').slice(0,2).toggle();
 
         var statuses = <?= json_encode($client->getBpStatuses()) ?>;
         var s1 = $('#contracteditform-contract_type_id');
@@ -183,6 +144,11 @@ use \yii\helpers\Url;
                         s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
                 });
             }
+        });
+
+        $('#buttonSave').closest('form').on('submit', function(){
+            document.cookie = "openedBlock=statuses";
+            return true;
         });
 
 

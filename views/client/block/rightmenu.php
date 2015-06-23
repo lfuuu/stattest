@@ -2,12 +2,7 @@
 use yii\helpers\Url;
 
 ?>
-<div id="rightmenu" style="display: none;">
-    <h2 style="margin: 0 auto 10px; text-align: center;" class="size"
-        title="<?= $client->contract->contragent->name ?>"><?= $client->contract->contragent->name ?></h2>
-
-    <h2 style="margin: 0 auto 5px;  text-align: center; font-size: 14px;">Договор
-        № <?= $client->contract->number ?></h2>
+<div id="rightmenu">
     <ul>
         <li>
             <a href="/account/create?parentId=<?= $client->contract_id ?>" title="Создать доп. лицевой счет">
@@ -15,8 +10,6 @@ use yii\helpers\Url;
             </a>
         </li>
     </ul>
-
-    <h2 style="margin: 0 auto 5px;  text-align: center; font-size: 14px;">ЛС № <?= $client->id ?></h2>
 
     <ul>
         <li>
@@ -71,7 +64,7 @@ use yii\helpers\Url;
         </li>
     </ul>
 
-    <ul style="bottom:0; position: absolute; width: 240px;">
+    <ul style="width: 100%;">
         <li style="text-align: right;">
             <span style="float: left;">Контрагент</span>
             <a href="#"
@@ -95,8 +88,6 @@ use yii\helpers\Url;
     </ul>
 </div>
 
-<div id="btn-menu" data-text="Закрыть меню">Открыть меню</div>
-
 <style>
     .size {
         white-space: nowrap;
@@ -106,14 +97,15 @@ use yii\helpers\Url;
 
     #rightmenu{
         padding: 10px;
-        position: fixed;
-        right: 17px;
-        top: 50px;
-        bottom: 0;
+        position: absolute;
+        background-color: rgb(247, 247, 247);
+        border-radius: 4px;
+        border: 1px solid rgb(146, 146, 146);
+        /*
         border-left: 1px solid black;
-        width: 300px;
         background: #eeeeee;
         box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        height: 100%;*/
     }
 
     #rightmenu ul{
@@ -124,29 +116,4 @@ use yii\helpers\Url;
     #rightmenu ul li{
         padding: 5px 0;
     }
-
-    #btn-menu{
-        position: fixed;
-        right: 17px;
-        top:0;
-        width: 300px;
-        border-left: 1px solid black;
-        background: #eeeeee;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        text-align: center;
-        padding: 11px;
-        font-size: 20px;
-        cursor: pointer;
-    }
 </style>
-
-<script>
-$(function(){
-    $('#btn-menu').on('click', function(){
-        $('#rightmenu').toggle();
-        var text = $(this).text();
-        $(this).text($(this).data('text'));
-        $(this).data('text', text);
-    });
-});
-</script>

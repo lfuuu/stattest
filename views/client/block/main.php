@@ -10,7 +10,7 @@ use \app\models\ClientContract;
             <h2 class="c-blue-color" style="margin:0;"><a href="#"><?= $sClient->name ?></a></h2>
         </div>
         <div class="col-sm-5" class="c-blue-color">
-            <a href="#">Переход в личный кабинет</a>
+            <?php/*<a href="#">Переход в личный кабинет</a>*/?>
         </div>
         <div class="col-sm-2" class="c-blue-color">
             <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $sClient->id, 'childId' => $activeClient->id]) ?>"><span
@@ -19,8 +19,8 @@ use \app\models\ClientContract;
         </div>
         <div class="col-sm-12">
             <?php $contragents = $sClient->contragents;
-            foreach ($contragents as $contragent): ?>
-                <div class="row" style="padding-top: 10px; border-top: solid #43657d 1px;">
+            foreach ($contragents as $k => $contragent): ?>
+                <div class="row contragent-wrap" style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
                     <div class="col-sm-5">
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $activeClient->id]) ?>">
                             <span style="font-size: 18px;" class="c-blue-color"><?= $contragent->name_full ?></span></a>
@@ -80,13 +80,17 @@ use \app\models\ClientContract;
                                         <div style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin-left: 30px; cursor: pointer;"
                                              onclick="location.href='/client/view?id=<?= $client->id ?>'"
                                              class="row  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
-                        <span class="col-sm-6"
-                              style="font-weight: bold; color:<?= ($client->is_blocked) ? 'red' : 'green' ?>;">ЛС № <?= $client->id ?></span>
+                        <span class="col-sm-2"
+                              style="font-weight: bold; color:<?= ($client->is_active) ? 'green' : 'black' ?>;">ЛС № <?= $client->id ?></span>
+                        <span class="col-sm-2" style="font-weight: bold; color:red;"><?= $client->is_blocked ? 'Заблокирован' : ''?></span>
                                             <span class="col-sm-2" style="text-align: right;"><?= $client->regionName ?></span>
                         <span class="col-sm-2"
                               style="text-align: right;color:<?= ($client->balance < 0) ? 'red' : 'green'; ?>;"><?= $client->balance ?>
                             RUB</span>
                                             <span class="col-sm-2">(Кредит: <?= $client->credit > 0 ? $client->credit : '0' ?>)</span>
+                                            <button type="button" class="btn btn-sm set-block
+                                            <?= $client->is_blocked ? 'btn-danger':'btn-success' ?>"
+                                                    style="width: 120px;float: right;padding: 3px 10px;" data-id="<?= $client->id ?>"><?= $client->is_blocked ? 'Разблокировать':'Заблокировать' ?></button>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -98,3 +102,25 @@ use \app\models\ClientContract;
         </div>
     </div>
 </div>
+
+<script>
+    $(function(){
+
+        $('.active-client').closest('.contragent-wrap').addClass('active-contragent');
+
+        $('.set-block').click(function(e) {
+            e.stopPropagation();
+            var id = $(this).data('id');
+            t = $(this);
+            if(confirm('Вы уверены, что хотите ' + t.text().toLowerCase() + ' ЛС № ' + id +'?')) {
+                if (t.hasClass('btn-danger')) {
+                    t.addClass('btn-success').removeClass('btn-danger').text('Заблокировать');
+                } else {
+                    t.addClass('btn-danger').removeClass('btn-success').text('Разблокировать');
+                }
+
+                location.href = '/account/set-block?id=' + id;
+            }
+        });
+    })
+</script>

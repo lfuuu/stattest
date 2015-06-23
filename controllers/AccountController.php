@@ -132,7 +132,7 @@ class AccountController extends BaseController
         ]);
     }
 
-    public function actionUnfix($id)
+    public function actionUnfix()
     {
         //Для старого стата, для старых модулей
         Yii::$app->session->set('clients_client', '');
@@ -146,8 +146,7 @@ class AccountController extends BaseController
             throw new Exception('ЛС не найден');
         $model->is_blocked = !$model->is_blocked;
         $model->save();
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        return ['status' => 'ok'];
+        return $this->redirect(['client/view', 'id' => $id]);
     }
 
     public function actionSetVoipDisable($id)
@@ -157,8 +156,7 @@ class AccountController extends BaseController
             throw new Exception('ЛС не найден');
         $model->voip_disabled = !$model->voip_disabled;
         $model->save();
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        return ['status' => 'ok'];
+        return $this->redirect(['client/view', 'id' => $id]);
     }
 
     public function actionLoadBpStatuses()

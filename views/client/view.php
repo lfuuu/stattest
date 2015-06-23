@@ -1,9 +1,16 @@
 <div class="row" style="margin-right: 0;">
     <div class="col-sm-12">
         <?= $this->render('block/main', ['sClient' => $sClient, 'activeClient' => $activeClient]); ?>
-        <?= $this->render('block/status', ['client' => $activeClient, 'contractForm' => $contractForm]); ?>
-        <?= $this->render('block/contact', ['client' => $activeClient]); ?>
-        <?= $this->render('block/document', ['client' => $activeClient]); ?>
+        <div class="row">
+            <div class="col-sm-10">
+                <?= $this->render('block/status', ['client' => $activeClient, 'contractForm' => $contractForm]); ?>
+                <?= $this->render('block/contact', ['client' => $activeClient]); ?>
+                <?= $this->render('block/document', ['client' => $activeClient]); ?>
+            </div>
+            <div class="col-sm-2">
+                <?= $this->render('block/rightmenu', ['client' => $activeClient]); ?>
+            </div>
+        </div>
         <?= $this->render('block/trouble', ['troubles' => $troubles]); ?>
         <?= $this->render('block/service', ['client' => $activeClient, 'services' => $services]); ?>
 
@@ -43,5 +50,3 @@
     </script>
 </div>
 
-
-<?= $this->render('block/rightmenu', ['client' => $activeClient]); ?>

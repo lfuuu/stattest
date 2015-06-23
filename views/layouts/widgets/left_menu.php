@@ -3,14 +3,7 @@
 global $module;
 /** @var \app\classes\NavigationBlock[] $blocks */
 $blocks = $this->context->getNavigationBlocks();
-$myTroublesCount = $this->context->getMyTroublesCount();
 ?>
-<?php if ($myTroublesCount > 0): ?>
-    <div class="menupanel" style="text-align: center">
-        <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">Поручено <?=$myTroublesCount?> заявок</a>
-    </div>
-    <div class="menupanel">&nbsp;</div>
-<?php endif; ?>
 
 <?php foreach ($blocks as $block): ?>
     <div id="navigation-block-<?=$block->id?>" class="menupanel">

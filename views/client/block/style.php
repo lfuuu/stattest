@@ -11,38 +11,6 @@
         line-height: 25px;
     }
 
-    .i-manager{
-        color: #43657d;
-    }
-
-    .i-accmanager{
-        color: #7b217d;
-    }
-
-    i.check{
-        color:green;
-        font-size:16px;
-        font-style: normal;
-    }
-
-    i.check:before{
-        content: '✓';
-    }
-
-    i.uncheck{
-        color:red;
-        font-size:16px;
-        font-style: normal;
-    }
-
-    i.uncheck:before{
-        content: '✕';
-    }
-
-    html{
-        background: white;
-    }
-
     .data-block .head3{
         background: #e6e6e6;
         text-align: center;
@@ -78,8 +46,12 @@
         background: #f7f7f7;
     }
 
+    .active-contragent{
+        background: #EEF9FF;
+    }
+
     .active-client{
-        background: #cbeeff;
+        background: #D5F1FF;
     }
 
     td,th{
