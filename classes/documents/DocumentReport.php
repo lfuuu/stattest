@@ -55,6 +55,15 @@ abstract class DocumentReport extends Object
         return Company::setResidents($this->bill->clientAccount->firma, $this->bill->bill_date);
     }
 
+    public function getPayer()
+    {
+        return
+            $this->bill->clientAccount->dao()->getAccountPropertyOnDate(
+                $this->bill->clientAccount->id,
+                $this->bill->bill_date
+            );
+    }
+
     /**
      * @return string
      */

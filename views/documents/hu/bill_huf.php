@@ -10,6 +10,8 @@ $hasDiscount = $document->sum_discount > 0;
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
 $company = $document->getCompany();
+
+$payer_company = $document->getPayer();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -72,7 +74,7 @@ $company = $document->getCompany();
         <hr />
         <br />
         <p>
-            <b>Vevő: <?= ($document->bill->clientAccount->head_company ? $document->bill->clientAccount->head_company . ', ' : '') . $document->bill->clientAccount->company_full; ?></b>
+            <b>Vevő: <?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></b>
         </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">

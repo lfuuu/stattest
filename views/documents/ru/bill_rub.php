@@ -13,6 +13,8 @@ $currency_w_o_value = Utils::money('', $document->getCurrency());
 $company = $document->getCompany();
 
 $residents = $document->getCompanyResidents();
+
+$payer_company = $document->getPayer();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -92,7 +94,7 @@ $residents = $document->getCompanyResidents();
         <hr />
         <br />
         <p>
-            <b>Плательщик: <?= ($document->bill->clientAccount->head_company ? $document->bill->clientAccount->head_company . ', ' : '') . $document->bill->clientAccount->company_full; ?></b>
+            <b>Плательщик: <?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></b>
         </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
