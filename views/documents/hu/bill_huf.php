@@ -10,6 +10,8 @@ $hasDiscount = $document->sum_discount > 0;
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
 $company = $document->getCompany();
+
+$payer_company = $document->getPayer();
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -51,7 +53,7 @@ $company = $document->getCompany();
                             <td colspan="2" align="center">
                                 <?php
                                 if ($inline_img):
-                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode());
+                                    echo Html::inlineImg(Yii::$app->request->hostInfo . '/utils/qr-code/get?data=' . $document->getQrCode(), [], 'image/gif');
                                 else: ?>
                                     <img src="/utils/qr-code/get?data=<?= $document->getQrCode(); ?>" border="0" />
                                 <?php endif; ?>
@@ -72,7 +74,7 @@ $company = $document->getCompany();
         <hr />
         <br />
         <p>
-            <b>Vevő: <?= ($document->bill->clientAccount->head_company ? $document->bill->clientAccount->head_company . ', ' : '') . $document->bill->clientAccount->company_full; ?></b>
+            <b>Vevő: <?= ($payer_company['head_company'] ? $payer_company['head_company'] . ', ' : '') . $payer_company['company_full']; ?></b>
         </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
@@ -80,10 +82,10 @@ $company = $document->getCompany();
                 <tr>
                     <td align="center"><b>No</b></td>
                     <td align="center"><b>Megnevezés</b></td>
-                    <td align="center"><b>Me</b></td>
+                    <td align="center"><b>Tört havidíj szorzója</b></td>
                     <td align="center"><b>Nettó egységár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Nettó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Áfa értéke, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td align="center"><b>Áfa, &nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Bruttó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php if ($hasDiscount): ?>
                         <td align="center"><b>Áfa érték</b></td>
@@ -135,7 +137,7 @@ $company = $document->getCompany();
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>
                 <tr>
-                    <td>Vezérigazgatója</td>
+                    <td>Vezérigazgató</td>
                     <?php if ($document->sendEmail): ?>
                         <td>
                             <?php
@@ -170,44 +172,6 @@ $company = $document->getCompany();
                         </td>
                     <?php endif; ?>
                     <td>/ Melnikov A.K. /</td>
-                </tr>
-                <tr>
-                    <td>Főkönyvelő</td>
-                    <?php if ($document->sendEmail) :?>
-                        <td>
-                            <?php if (isset($residents['firm_buh']['sign'])):
-                                $image_options = [
-                                    'width' => 115,
-                                    'border' => '0',
-                                    'align' => 'top',
-                                ];
-
-                                if ($residents['firm_buh']['sign']['width']) {
-                                    $image_options['width'] = $residents['firm_buh']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_buh']['sign']['height'];
-                                }
-
-                                if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
-                                else:
-                                    array_walk($image_options, function(&$item, $key) {
-                                        $item = $key . '="' . $item . '"';
-                                    });
-                                    ?>
-                                    <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
-                                <?php endif; ?>
-                            else: ?>
-                                _________________________________
-                            <?php endif; ?>
-                        </td>
-                    <?php else: ?>
-                        <td>
-                            <br /><br />_________________________________<br /><br />
-                        </td>
-                    <?php endif; ?>
-                    <td>
-                        / Melnikov A.K. /
-                    </td>
                 </tr>
                 <?php if ($document->sendEmail): ?>
                     <tr>

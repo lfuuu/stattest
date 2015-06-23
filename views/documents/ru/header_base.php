@@ -4,11 +4,14 @@ use app\models\ClientContact;
 /** @var $document app\classes\documents\DocumentReport */
 
 $contact = ClientContact::dao()->GetContact($document->bill->clientAccount->id, true);
+
 $company = $document->getCompany();
+
+$payer_company = $document->getPayer();
 ?>
 
 <p>
-Адрес доставки счета: <?= $document->bill->clientAccount->address_post; ?><br />
+Адрес доставки счета: <?= $payer_company['address_post']; ?><br />
 Факс для отправки счета:
 <?php foreach ($contact['fax'] as $position => $item ): ?>
     <?php if ($position > 0): ?>; <?php endif; ?>
