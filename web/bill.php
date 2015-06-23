@@ -29,8 +29,7 @@ use app\classes\documents\DocumentReport;
     ) {
         $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
-        $sendEmail = Yii::$app->request->get('emailed') == 1;
-        $report = DocumentReportFactory::me()->getReport($bill, (!isset($R['doc_type']) ? DocumentReport::BILL_DOC_TYPE : $R['doc_type']), $sendEmail);
+        $report = DocumentReportFactory::me()->getReport($bill, (!isset($R['doc_type']) ? DocumentReport::BILL_DOC_TYPE : $R['doc_type']), get_param_raw('emailed', 1));
         echo $report->render();
     }
     else {
