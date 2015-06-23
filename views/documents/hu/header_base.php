@@ -14,5 +14,5 @@ $company = $document->getCompany();
     Fax: <?= $company['fax']; ?><br />
     Postázási cím: <?= $company['post_address']; ?><br />
     Cégjegyzékszám: <?= $company['reg_no']; ?><br />
-    Cég email cím: <?= $company['email']; ?>
+    Email cím: <?= $company['email']; ?>
 </p>

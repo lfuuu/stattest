@@ -82,10 +82,10 @@ $payer_company = $document->getPayer();
                 <tr>
                     <td align="center"><b>No</b></td>
                     <td align="center"><b>Megnevezés</b></td>
-                    <td align="center"><b>Me</b></td>
+                    <td align="center"><b>Tört havidíj szorzója</b></td>
                     <td align="center"><b>Nettó egységár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Nettó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
-                    <td align="center"><b>Áfa értéke, &nbsp;<?= $currency_w_o_value; ?></b></td>
+                    <td align="center"><b>Áfa, &nbsp;<?= $currency_w_o_value; ?></b></td>
                     <td align="center"><b>Bruttó ár,&nbsp;<?= $currency_w_o_value; ?></b></td>
                     <?php if ($hasDiscount): ?>
                         <td align="center"><b>Áfa érték</b></td>
@@ -137,7 +137,7 @@ $payer_company = $document->getPayer();
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>
                 <tr>
-                    <td>Vezérigazgatója</td>
+                    <td>Vezérigazgató</td>
                     <?php if ($document->sendEmail): ?>
                         <td>
                             <?php
@@ -172,44 +172,6 @@ $payer_company = $document->getPayer();
                         </td>
                     <?php endif; ?>
                     <td>/ Melnikov A.K. /</td>
-                </tr>
-                <tr>
-                    <td>Főkönyvelő</td>
-                    <?php if ($document->sendEmail) :?>
-                        <td>
-                            <?php if (isset($residents['firm_buh']['sign'])):
-                                $image_options = [
-                                    'width' => 115,
-                                    'border' => '0',
-                                    'align' => 'top',
-                                ];
-
-                                if ($residents['firm_buh']['sign']['width']) {
-                                    $image_options['width'] = $residents['firm_buh']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_buh']['sign']['height'];
-                                }
-
-                                if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
-                                else:
-                                    array_walk($image_options, function(&$item, $key) {
-                                        $item = $key . '="' . $item . '"';
-                                    });
-                                    ?>
-                                    <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
-                                <?php endif; ?>
-                            else: ?>
-                                _________________________________
-                            <?php endif; ?>
-                        </td>
-                    <?php else: ?>
-                        <td>
-                            <br /><br />_________________________________<br /><br />
-                        </td>
-                    <?php endif; ?>
-                    <td>
-                        / Melnikov A.K. /
-                    </td>
                 </tr>
                 <?php if ($document->sendEmail): ?>
                     <tr>
