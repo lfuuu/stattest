@@ -103,7 +103,7 @@ if ($action=='add_client') {
         $troubleId = StatModule::tt()->createTrouble($R, "system");
         LkWizardState::create($O->id, $troubleId);
 
-        if ($vatsTarifId = get_param_raw("vats_tarifid", 0)) // заявка с ВАТС
+        if ($vatsTarifId = get_param_integer("vats_tariff_id", 0)) // заявка с ВАТС
         {
             $client = ClientAccount::findOne(["id" => $O->id]);
             $tarif = TariffVirtpbx::find()->where(["and", ["id" => $vatsTarifId], ["!=", "status", "archive"]])->one();
