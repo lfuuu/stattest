@@ -853,7 +853,21 @@ var optools = {
 					}
 				})
 			}
-		}
+		},
+        checkSubmitSetSaldo:function() {
+            var valObj = $("input[name=saldo]");
+            valObj.val(valObj.val().replace(",","."));
+            var val = valObj.val();
+
+            if (val == "" || !parseFloat(val))
+            {
+                alert("Сальдо установлено неверно");
+                valObj.focus();
+                return false;
+            }
+
+            return confirm("Вы хотите установить входящее сальдо "+val+" на "+$("input[name=date]").val());
+        }
 	},
     client:{
         clientId: null,
