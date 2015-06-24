@@ -4041,8 +4041,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
         FROM 
           usage_voip u 
         WHERE 
-          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-          u.actual_from <=CAST("'.$to_date.'"   AS DATE) AND
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to  AND
           E164 NOT LIKE "7800%" AND 
           LENGTH(E164) > 4 
         GROUP BY 
@@ -4055,8 +4054,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	LEFT JOIN 
 		clients as c ON c.client = u.client 
 	WHERE 
-                u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-                u.actual_from <=CAST("'.$to_date.'"   AS DATE)
+        CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
 	GROUP BY
 		c.region
 	', 'region', 'count_vpbx'
@@ -4070,8 +4068,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           u.E164 LIKE "7800%" AND 
-          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
         group by 
           u.region', 'region');
     $curr_no_nums = $db->AllRecords('
@@ -4083,8 +4080,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
           usage_voip u 
         where 
           LENGTH(u.E164) < 5 AND 
-          u.actual_from >=CAST("'.$from_date.'" AS DATE) AND
-          u.actual_from <=CAST("'.$to_date.'"   AS DATE)
+          CAST(NOW() as DATE)  BETWEEN u.actual_from AND u.actual_to
         group by 
           u.region', 'region');
     $region_clients_count = $db->AllRecordsAssoc("
