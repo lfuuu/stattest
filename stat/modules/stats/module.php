@@ -1,5 +1,7 @@
 <?php
 use app\classes\StatModule;
+use app\models\Param;
+use app\models\StatVoipFreeCache;
 
 class m_stats extends IModule{
 
@@ -567,6 +569,9 @@ class m_stats extends IModule{
 
             $fromTime = strtotime("first day of -3 month, midnight");
 
+            $months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+            $this->getUnUsageCalls($fromTime);
+
             foreach($ns as &$n)
             {
                 if ($n["site_publish"] == "Y" && $n["status"] != "stop")
@@ -577,21 +582,13 @@ class m_stats extends IModule{
 
                 if($n["status"] == "stop")
                 {
-                    foreach($pg_db->AllRecords("
-                    select to_char(time, 'Mon') as mnth_s, to_char(time, 'MM') as mnth, 
-                        sum(1) as count_calls,
-                        sum(case when time between now() - interval '3 month' and now() then 1 else 0 end) count_3m
-                    from calls.calls_".$n['region']."
-                    where time > '".date("Y-m-d H:i:s", $fromTime)."'
-                    and usage_id is null 
-                    and region=".$n['region']." 
-                    and usage_num = '".$n["number"]."'
-                    group by mnth, mnth_s
-                    order by mnth
-                    ") as $c)
+                    if ($cc = StatVoipFreeCache::findAll(["number" => $n["number"]]))
                     {
-                        $n["calls"] .= ($n["calls"] ? ", " : "").$c["mnth_s"].": ".$c["count_calls"];
-                        $n["count_3m"] += $c["count_3m"];
+                        foreach($cc as $c)
+                        {
+                            $n["calls"] .= ($n["calls"] ? ", " : "").$months[$c->month-1].": ".$c->calls;
+                            $n["count_3m"] += $c->calls;
+                        }
                     }
                 }
 
@@ -612,6 +609,80 @@ class m_stats extends IModule{
         $design->AddMain("stats/voip_free_stat.htm");
 
     }
+
+    function getUnUsageCalls()
+    {
+        $param = null;
+
+        if ($param = Param::findOne(["param" => "stat_voip_free__last_make"]))
+        {
+            if ($param && $param->value && strtotime($param->value) > strtotime("midnight"))
+            {
+                return true;
+            }
+        }
+
+        $res = $this->makeUnUsageCalls();
+
+        if (!$param)
+        {
+            $param = new Param;
+            $param->param = "stat_voip_free__last_make";
+        }
+        $param->value = date("Y-m-d H:i:s");
+        $param->save();
+
+
+        return true;
+    }
+
+    function makeUnUsageCalls()
+    {
+        ini_set('max_execution_time', 3000);
+
+        global $pg_db;
+
+        $fromTime = strtotime("first day of -3 month, midnight");
+
+        $data = $pg_db->AllRecords("
+        select 
+            dst_number,
+            to_char(connect_time, 'MM') as mnth,
+            sum(1) as count_calls
+            from 
+            \"calls_raw\".\"calls_raw\"
+            where 
+            connect_time > '".date("Y-m-d H:i:s", $fromTime)."' 
+            and number_service_id is null 
+            and orig = true
+            group by dst_number, mnth
+            order by dst_number, mnth
+            ");
+
+
+        StatVoipFreeCache::getDb()->createCommand()->truncateTable("stat_voip_free_cache")->execute();
+
+        $count = 0;
+        $b = [];
+        foreach($data as $line)
+        {
+            $b[] = [$line["dst_number"], $line["mnth"], $line["count_calls"]];
+
+            if (0 == ($count++ % 10000))
+            {
+                StatVoipFreeCache::getDb()->createCommand()->batchInsert("stat_voip_free_cache", ["number", "month", "calls"], $b)->execute();
+                $b = [];
+            }
+        }
+
+        if ($b)
+        {
+            StatVoipFreeCache::getDb()->createCommand()->batchInsert("stat_voip_free_cache", ["number", "month", "calls"], $b)->execute();
+        }
+
+        return true;
+    }
+
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error2('Выберите клиента');return;}
