@@ -320,7 +320,7 @@ class m_stats extends IModule{
 
         if (!count($data)) return $data;
         $Res = array();
-        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0);
+        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
 
         switch ($detality) {
             case 'dest':
@@ -412,7 +412,9 @@ class m_stats extends IModule{
                 $rt['tsf1']='Итого';
                 if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
                 $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-               $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price']=number_format($rt['price'], 2, '.','') .' (<b>'.number_format($rt['price']*1.18, 2, '.','').' - Сумма с НДС</b>)';
+                $rt['price_without_tax']=number_format($rt['price'], 2, '.','');
+                $rt['price_with_tax']=number_format($rt['price']*1.18, 2, '.','');
             break;
         }
 
