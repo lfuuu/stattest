@@ -1363,7 +1363,7 @@ class m_newaccounts extends IModule
 
         $design->ProcessEx();
 
-        $c= ClientAccount()::findOne($bill->Client('id'));
+        $c= ClientAccount::findOne($bill->Client('id'));
         $contact = $c->officialContact;
         $this->_bill_email_ShowMessageForm('с печатью',$contact['email'],"Счет за телекоммуникационные услуги",$template[0]);
         $this->_bill_email_ShowMessageForm('без печати',$contact['email'],"Счет за телекоммуникационные услуги",$template[1]);

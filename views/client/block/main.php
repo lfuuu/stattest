@@ -36,10 +36,16 @@ use \app\models\ClientContract;
                         <?php $contracts = $contragent->contracts;
                         foreach ($contracts as $contract): ?>
                             <div class="row" style="margin-left: 0px;">
-                                <div class="col-sm-5">
+                                <div class="col-sm-3">
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $activeClient->id]) ?>">
                                         <span class="c-blue-color">Договор № <?= $contract->number ?> (<?= $contract->organizationName ?>)</span>
                                     </a>
+                                </div>
+                                <div class="col-sm-5">
+                                    <?php $bps = $contract->businessProcessStatus;?>
+                                    <span><?= $contract->contractType ?></span>&nbsp;
+                                    /&nbsp;<?= $contract->businessProcess ?></span>&nbsp;
+                                    /&nbsp;<b style="background:<?= $bps['color'] ?>;"><?= $bps['name'] ?></b>
                                 </div>
                                 <div class="col-sm-1" style="padding:0;">
                     <span>
@@ -48,21 +54,16 @@ use \app\models\ClientContract;
                         echo $states[$contract->state]; ?>
                     </span>
                                 </div>
-                                <div class="col-sm-3">
-                                    <?php $bps = $contract->businessProcessStatus; ?>
-                                    <span><?= $contract->businessProcess ?></span>&nbsp;/&nbsp;<b
-                                        style="background:<?= $bps['color'] ?>;"><?= $bps['name'] ?></b>
-                                </div>
                                 <div class="col-sm-3" style="text-align: right;">
                                     <?php if ($contract->managerName) : ?>
-                                        <span style="background: <?= $contract->managerColor ?>">
-                            <i class="glyphicon glyphicon-user i-manager"></i> <?= $contract->managerName ?>
+                                        <span style="background: <?= $contract->managerColor ?>;">
+                            Мжр: <?= $contract->managerName ?>
                         </span>
                                     <?php endif; ?>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
                                     <?php if ($contract->accountManagerName) : ?>
-                                        <span style="background: <?= $contract->accountManagerColor ?>">
-                            <i class="glyphicon glyphicon-user i-accmanager"></i> <?= $contract->accountManagerName ?>
+                                        <span style="background: <?= $contract->accountManagerColor ?>;">
+                            Ак.М: <?= $contract->accountManagerName ?>
                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -77,7 +78,7 @@ use \app\models\ClientContract;
                                 <div class="col-sm-12">
                                     <?php $clients = $contract->clients;
                                     foreach ($clients as $client): ?>
-                                        <div style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin-left: 30px; cursor: pointer;"
+                                        <div style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin-left: 30px;   margin-right: 0px; cursor: pointer;"
                                              onclick="location.href='/client/view?id=<?= $client->id ?>'"
                                              class="row  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
                         <span class="col-sm-2"

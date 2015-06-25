@@ -70,5 +70,9 @@
     .tt-troubles th {
         text-align: center;
     }
+
+    .contragent-wrap:last-child{
+        border-bottom: solid #43657d 1px;
+    }
 </style>
 

@@ -2,14 +2,12 @@
 namespace app\controllers;
 
 use app\models\Bill;
-use app\models\Client;
 use app\models\ClientAccount;
-use app\models\HistoryChanges;
 use app\models\Trouble;
 use Yii;
 use app\classes\BaseController;
-use yii\base\Exception;
 use yii\helpers\Url;
+use yii\web\Response;
 
 class SearchController extends BaseController
 {
@@ -37,21 +35,48 @@ class SearchController extends BaseController
                 $params['contractNo'] = trim($search);
                 break;
             case 'bills':
-                if (null !== $model = Bill::find()->where(['bill_no' => trim($search)])->one()) {
+                if (null !== $model = Bill::find(['bill_no' => trim($search)])->one()) {
                     $client = ClientAccount::findOne($model->client_id)->client;
-                    return $this->redirect('/index.php?module=newaccounts&action=bill_list&clients_client=' . $client);
+                    if(Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => '/index.php?module=newaccounts&action=bill_list&clients_client=' . $client, 'value' => $model->bill_no]];
+                    }
+                    else
+                        return $this->redirect('/index.php?module=newaccounts&action=bill_list&clients_client=' . $client);
                 } else {
                     return $this->render('result', ['message' => 'Счет № '.$search.' не найден']);
                 }
             case 'troubles':
                 if (null !== $model = Trouble::findOne($search)) {
-                    return $this->redirect('index.php?module=tt&action=view&id=' . $model->id);
+                    if(Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => 'index.php?module=tt&action=view&id='.$model->id, 'value' => $model->id]];
+                    }
+                    else
+                        return $this->redirect('index.php?module=tt&action=view&id=' . $model->id);
                 } else {
                     return $this->render('result', ['message' => 'Заявка № '.$search.' не найдена']);
                 }
+            case 'ip':
+                $params['ip'] = trim($search);
+                break;
+            case 'domain':
+                $params['domain'] = trim($search);
+                break;
+            case 'address':
+                $params['address'] = trim($search);
+                break;
+            case 'adsl':
+                $params['adsl'] = trim($search);
+                break;
             default:
                 return $this->render('result', ['message' => 'Ничего не найдено']);
         }
-        return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params));
+        if(Yii::$app->request->isAjax){
+            Yii::$app->request->setQueryParams($params);
+            return Yii::$app->runAction($controller . '/' . $action);
+        }
+        else
+            return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params + ['search' => $search, 'searchType' => $searchType]));
     }
 }

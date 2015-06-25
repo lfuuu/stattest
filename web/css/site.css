@@ -76,14 +76,14 @@ a.nohover:hover { color: #000; }
         overflow-y: auto;
         position: fixed;
         left: 0;
-        top: 110px;
+        top: 100px;
         bottom: 0;
     }
 
     .layout_main {
         overflow-y: auto;
         font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-        top:110px;
+        top:100px;
     }
 
     .layout_left .menupanel {

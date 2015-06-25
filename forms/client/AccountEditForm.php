@@ -150,6 +150,7 @@ class AccountEditForm extends Form
             throw new Exception('You must send id or contract_id');
 
         $this->credit_size = ($this->credit < 1) ? 0 : $this->credit;
+        $this->sale_channel = ($this->sale_channel < 1) ? 0 : $this->sale_channel;
         $this->credit = ($this->credit < 1) ? 0 : 1;
         $this->mail_print = ($this->mail_print == 'yes') ? 1 : 0;
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;

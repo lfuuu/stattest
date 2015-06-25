@@ -4,48 +4,32 @@ use yii\helpers\Url;
 ?>
 <div id="rightmenu">
     <ul>
-        <li>
-            <a href="/account/create?parentId=<?= $client->contract_id ?>" title="Создать доп. лицевой счет">
-                <img class="icon" src="/images/icons/edit.gif">Создать доп. ЛС
-            </a>
+        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
+            <a href="/account/create?parentId=<?= $client->contract_id ?>">Создать доп. ЛС</a>
         </li>
     </ul>
 
     <ul>
-        <li>
-            <a href="/account/edit?id=<?= $client->id ?>" title="Редактировать лицевой счет">
-                <img class="icon" src="/images/icons/edit.gif">Редактировать ЛС
-            </a>
+        <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
+            <a href="/account/edit?id=<?= $client->id ?>">Редактировать ЛС</a>
         </li>
-        <li>
-            <a href="/client/view?id=<?= $client->id ?>&action=print&data=envelope" target="_blank">
-                <img class="icon" src="/images/icons/envelope.gif">Напечатать конверт
-            </a>
+        <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
+            <a href="/client/view?id=<?= $client->id ?>&action=print&data=envelope" target="_blank">Напечатать конверт</a>
         </li>
-        <li>
-            <a href="/file/list?userId=<?= $client->id ?>">
-                <img class="icon" src="/images/icons/contract.gif">Файлы
-            </a>
+        <li style="background: url('/images/icons/contract.gif') no-repeat 0px 6px;">
+            <a href="/file/list?userId=<?= $client->id ?>">Файлы</a>
         </li>
-        <li>
-            <a href="?module=newaccounts&action=make_1c_bill&tty=mounting_orders">
-                <img src="./images/icons/printer.gif" border="0">
-                Создать заказ на Установку/Монтаж
-            </a>
+        <li style="background: url('/images/icons/printer.gif') no-repeat 0px 6px;">
+            <a href="?module=newaccounts&action=make_1c_bill&tty=mounting_orders">Заказ на Установку/Монтаж</a>
         </li>
-        <li>
-            <a href="?module=newaccounts&action=make_1c_bill&tty=shop_orders"><img src="./images/icons/add.gif"
-                                                                                   border="0">Создать заказ из Магазина</a>
+        <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
+            <a href="?module=newaccounts&action=make_1c_bill&tty=shop_orders">Создать заказ из Магазина</a>
         </li>
-        <li>
-            <a href="?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1">
-                <img src="./images/icons/disable.gif" border="0"> Возврат товара
-            </a>
+        <li style="background: url('/images/icons/disable.gif') no-repeat 0px 6px;">
+            <a href="?module=newaccounts&action=make_1c_bill&tty=shop_orders&is_rollback=1">Возврат товара</a>
         </li>
-        <li>
-            <a href="?module=incomegoods&action=order_edit&id=">
-                <img src="./images/icons/add.gif" border="0">Создать заказ Поставщику
-            </a>
+        <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
+            <a href="?module=incomegoods&action=order_edit&id=">Создать заказ Поставщику</a>
         </li>
     </ul>
 
@@ -64,6 +48,7 @@ use yii\helpers\Url;
         </li>
     </ul>
 
+    <?php/*
     <ul style="width: 100%;">
         <li style="text-align: right;">
             <span style="float: left;">Контрагент</span>
@@ -86,6 +71,7 @@ use yii\helpers\Url;
             <a href="#" onclick="return showVersion({ClientAccount:<?= $client->id ?>}, true);">Версии</a>
         </li>
     </ul>
+    */?>
 </div>
 
 <style>
@@ -101,6 +87,8 @@ use yii\helpers\Url;
         background-color: rgb(247, 247, 247);
         border-radius: 4px;
         border: 1px solid rgb(146, 146, 146);
+        right: 0;
+        left: 10px;
         /*
         border-left: 1px solid black;
         background: #eeeeee;
@@ -110,10 +98,10 @@ use yii\helpers\Url;
 
     #rightmenu ul{
         list-style: none;
-        padding-left: 5px;
+        padding-left: 0px;
     }
 
     #rightmenu ul li{
-        padding: 5px 0;
+        padding: 5px 0 5px 20px;
     }
 </style>

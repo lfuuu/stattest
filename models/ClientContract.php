@@ -44,8 +44,7 @@ class ClientContract extends ActiveRecord
     {
         if ($this->isNewRecord) {
             return parent::save($runValidation = true, $attributeNames = null);
-        }
-        else {
+        } else {
             if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
                 return parent::save($runValidation = true, $attributeNames = null);
             } else {
@@ -99,6 +98,12 @@ class ClientContract extends ActiveRecord
         return ($m) ? $m->name : $this->business_process_id;
     }
 
+    public function getContractType()
+    {
+        $m = ClientContractType::findOne($this->contract_type_id);
+        return $m ? $m->name : $this->contract_type_id;
+    }
+
     public function getBusinessProcessStatus()
     {
         $m = $this->hasOne(ClientGridSettings::className(), ['id' => 'business_process_status_id'])->one();
@@ -129,7 +134,7 @@ class ClientContract extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if($insert){
+        if ($insert) {
             $client = new AccountEditForm(['contract_id' => $this->id]);
             $client->save();
             $this->number = $client->id;

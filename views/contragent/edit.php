@@ -26,11 +26,12 @@ use kartik\builder\Form;
         <?= Html::activeHiddenInput($model, 'super_id') ?>
         <div id="fs-tabs" class="row" style="width: 1100px;">
                 <?php
-                echo '<div id="legal" class="tab-pane">';
+                echo '<div id="legal" class="tab-pane col-sm-12">';
                 echo Form::widget([
                     'model' => $model,
                     'form' => $f,
                     'columns' => 2,
+                    'options'=> ['style'=>'width:100%;'],
                     'columnOptions' => ['class' => 'col-sm-6'],
                     'attributeDefaults' => [
                         'container' => ['class' => 'col-sm-12'],
@@ -82,7 +83,7 @@ use kartik\builder\Form;
 
                 echo '</div>';
 
-                echo '<div id="ip" class="tab-pane">';
+                echo '<div id="ip" class="tab-pane col-sm-12">';
                 echo Form::widget([
                     'model' => $model,
                     'form' => $f,
@@ -150,7 +151,7 @@ use kartik\builder\Form;
 
                 echo '</div>';
 
-                echo '<div id="person" class="tab-pane">';
+                echo '<div id="person" class="tab-pane col-sm-12">';
                 echo Form::widget([
                     'model' => $model,
                     'form' => $f,

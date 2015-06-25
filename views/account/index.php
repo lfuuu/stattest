@@ -1,6 +1,5 @@
 <?php
 use \kartik\grid\GridView;
-
 ?>
 
 <div class="row">
@@ -14,9 +13,17 @@ use \kartik\grid\GridView;
                     'format' => 'raw',
                     'value' => function ($data) {
                         return '<a href="/client/view?id=' . $data->id . '">' . $data->id . '</a>';
-                    }
+                    },
                 ],
                 'contractNo',
+                'status' => [
+                    'label' => (new $dataProvider->query->modelClass)->attributeLabels()['status'],
+                    'format' => 'raw',
+                    'value' => function ($data) {
+                        return '<b style="background:' . $data->contract->getBusinessProcessStatus()['color'] . ';">' . $data->contract->getBusinessProcessStatus()['name'] . '</b>';
+                    },
+                    'contentOptions' => function($data){ return ['style' => 'background:' . $data->contract->getBusinessProcessStatus()['color']];}
+                ],
                 'companyName',
                 'inn',
                 'managerName',
@@ -31,17 +38,21 @@ use \kartik\grid\GridView;
             });
 
             $('body').on('mouseover', '.grid-view tbody tr', function () {
-                $(this).css('background', '#CCC');
+                $(this).addClass('tr-mouseover');
             });
 
             $('body').on('mouseout', '.grid-view tbody tr', function () {
-                $(this).css('background', '');
+                $(this).removeClass('tr-mouseover');
             });
         </script>
 
         <style>
             .grid-view tbody tr {
                 cursor: pointer;
+            }
+
+            .tr-mouseover{
+                background: #CCC !important;
             }
         </style>
     </div>

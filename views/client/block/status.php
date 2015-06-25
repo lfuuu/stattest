@@ -86,6 +86,21 @@ use \yii\helpers\Url;
                 'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->contractTypes],
                 'business_process_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessesList],
                 'business_process_status_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessStatusesList],
+            ],
+        ]);
+        ?>
+        <?php
+        echo Form::widget([
+            'model' => $contractForm,
+            'form' => $f,
+            'attributeDefaults' => [
+                'container' => ['class' => 'col-sm-6 statuses'],
+                'type' => Form::INPUT_TEXT
+            ],
+            'options' => [
+                'class' => 'col-sm-6'
+            ],
+            'attributes' => [
                 'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['style' => 'height:108px;'], 'container' => ['class' => 'col-sm-12']],
             ],
         ]);
@@ -94,7 +109,7 @@ use \yii\helpers\Url;
 
         <div class="col-sm-12">
             <div class="col-sm-12 form-group">
-                <?= Html::submitButton('Изменить', ['class' => 'btn btn-default', 'id' => 'buttonSave',]); ?>
+                <?= Html::submitButton('Изменить', ['class' => 'btn btn-default', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
             </div>
         </div>
 

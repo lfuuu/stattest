@@ -49,10 +49,10 @@ class ContragentEditForm extends Form
                 'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
             ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
             ['tax_regime', 'in', 'range' => ['simplified', 'full']],
-            ['super_id, country_id', 'integer'],
             [['legal_type', 'super_id'], 'required'],
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'string'],
+            [['super_id', 'country_id'], 'integer'],
         ];
         return $rules;
     }

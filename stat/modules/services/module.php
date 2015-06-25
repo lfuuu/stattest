@@ -2608,6 +2608,7 @@ class m_services extends IModule{
     }
     function get_ports($client,$C,$wh='',$select = '',$join = '',$order = 'usage_ip_ports.id ASC'){
         global $db;
+        $cidT = is_numeric($client) ? 'c.id':'c.client';
         $db->Query($q='
             SELECT
                 usage_ip_ports.*,
@@ -2630,7 +2631,7 @@ class m_services extends IModule{
                 (usage_ip_ports.id=usage_ip_routes.port_id)
             '.$join.'
             WHERE
-                '.($wh?$wh:'(usage_ip_ports.client="'.$client.'")').'
+                '.($wh?$wh:'('.$cidT.'="'.$client.'")').'
             GROUP BY
                 usage_ip_ports.id
             ORDER BY '.$order

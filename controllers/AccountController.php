@@ -11,6 +11,7 @@ use app\classes\BaseController;
 use app\classes\Assert;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
+use yii\helpers\Url;
 use yii\web\Response;
 use app\models\ClientAccount;
 
@@ -20,27 +21,27 @@ class AccountController extends BaseController
     public function behaviors()
     {
         return [
-        'access' => [
-            'class' => AccessControl::className(),
-            'rules' => [
-                [
-                    'allow' => true,
-                    'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
-                    'roles' => ['clients.read'],
-                ],
-                [
-                    'allow' => true,
-                    'actions' => ['edit', 'create', 'change-wizard-state'],
-                    'roles' => ['clients.edit'],
-                ],
-                [
-                    'allow' => true,
-                    'actions' => ['set-block', 'set-voip-disable'],
-                    'roles' => ['clients.restatus'],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
+                        'roles' => ['clients.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['edit', 'create', 'change-wizard-state'],
+                        'roles' => ['clients.edit'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['set-block', 'set-voip-disable'],
+                        'roles' => ['clients.restatus'],
+                    ],
                 ],
             ],
-        ],
-    ];
+        ];
     }
 
     public function actionChangeWizardState($id, $state)
@@ -123,13 +124,21 @@ class AccountController extends BaseController
         $searchModel = new ClientSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        if ($dataProvider->query->count() == 1)
-            return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
-
-        return $this->render('index', [
-//          'searchModel' => $dataProvider,
-            'dataProvider' => $dataProvider,
-        ]);
+        if (Yii::$app->request->isAjax) {
+            $res = [];
+            foreach ($dataProvider->models as $model)
+                $res[] = ['url' => Url::toRoute(['client/view', 'id' => $model->id]), 'value' => $model->contract->contragent->name_full];
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return $res;
+        } else {
+            if ($dataProvider->query->count() == 1)
+                return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
+            else
+                return $this->render('index', [
+//              'searchModel' => $dataProvider,
+                    'dataProvider' => $dataProvider,
+                ]);
+        }
     }
 
     public function actionUnfix()
@@ -176,4 +185,9 @@ class AccountController extends BaseController
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
     }
+    /*
+        public function actionAutocomplete($q)
+        {
+            ClientSearch::find
+        }*/
 }

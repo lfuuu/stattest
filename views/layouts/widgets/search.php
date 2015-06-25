@@ -1,11 +1,14 @@
 <?php
 use yii\helpers\Url;
 
+
+kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
 ?>
-<div class="row">
+<div>
     <form action="<?= Url::toRoute(['search/index', 'search' => Yii::$app->request->get()['search']]) ?>"
           id="search-form">
-        <input type="hidden" name="searchType" value="<?= Yii::$app->request->get()['searchType'] ?>" id="search-type">
+        <input type="hidden" name="searchType" value="<?= Yii::$app->request->get()['searchType'] ?>"
+               id="search-type">
 
         <div class="col-sm-4">
             <div class="input-group">
@@ -40,6 +43,18 @@ use yii\helpers\Url;
                 <button type="submit" class="btn btn-default" style="display: none;" data-search="bills"
                         data-placeholder="№ счёта">Счетам
                 </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="ip"
+                        data-placeholder="IP адресу">IP
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="address"
+                        data-placeholder="адресу">Адресу
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="domain"
+                        data-placeholder="домену">Домену
+                </button>
+                <button type="submit" class="btn btn-default" style="display: none;" data-search="adsl"
+                        data-placeholder="ADSL">ADSL
+                </button>
             </div>
         </div>
     </form>
@@ -57,6 +72,40 @@ use yii\helpers\Url;
                 $('#btn-options .btn-link').click();
             }
             setInput();
+
+            var serchs = true;
+
+            var substringMatcher = function () {
+                return function findMatches(q, cb) {
+                    var matches, substringRegex;
+                    matches = [];
+                    substrRegex = new RegExp(q, 'i');
+                    searchs = false;
+                    if (serchs)
+                    {
+                        $.getJSON('search/index', {
+                            search: $("#search").val(),
+                            searchType: $("#search-type").val()
+                        }, function (matches) {
+                            searchs = true;
+                            cb(matches);
+                        });
+                    }
+                };
+            };
+
+            $('#search').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 3,
+                    async: true
+                },
+                {
+                    name: 'states',
+                    source: substringMatcher()
+                }).bind('typeahead:selected', function(obj, selected, name) {
+                    location.href = selected['url'];
+                }).off('blur');
         });
 
         $('#btn-options .btn-link').on('click', function (e) {

@@ -33,11 +33,12 @@ use \app\models\ClientContract;
         <?= Html::activeHiddenInput($contragent, 'super_id') ?>
         <div id="fs-tabs" class="row" style="width: 1100px;">
             <?php
-            echo '<div id="legal" class="tab-pane">';
+            echo '<div id="legal" class="tab-pane col-sm-12">';
             echo Form::widget([
                 'model' => $contragent,
                 'form' => $f,
                 'columns' => 2,
+                'options'=> ['style'=>'width:100%;'],
                 'columnOptions' => ['class' => 'col-sm-6'],
                 'attributeDefaults' => [
                     'container' => ['class' => 'col-sm-12'],
@@ -89,7 +90,7 @@ use \app\models\ClientContract;
 
             echo '</div>';
 
-            echo '<div id="ip" class="tab-pane">';
+            echo '<div id="ip" class="tab-pane col-sm-12">';
             echo Form::widget([
                 'model' => $contragent,
                 'form' => $f,
@@ -157,7 +158,7 @@ use \app\models\ClientContract;
 
             echo '</div>';
 
-            echo '<div id="person" class="tab-pane">';
+            echo '<div id="person" class="tab-pane col-sm-12">';
             echo Form::widget([
                 'model' => $contragent,
                 'form' => $f,
@@ -375,7 +376,6 @@ use \app\models\ClientContract;
                     'address_connect' => ['columnOptions' => ['colspan' => 2],],
                     'phone_connect' => ['columnOptions' => ['colspan' => 2],],
                     'bill_rename1' => ['type' => Form::INPUT_RADIO_LIST, "items" => ['yes' => 'Абонентская плата по Договору', 'no' => 'Оказанные услуги по Договору'], 'columnOptions' => ['colspan' => 2],],
-                    'id_all4net' => [],
                     'is_agent' => ['type' => Form::INPUT_CHECKBOX],
                 ],
             ]);
