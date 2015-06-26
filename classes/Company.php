@@ -7,6 +7,27 @@ class Company
         $billDate = self::_resolveDate($time);
         $firma = $firma ? $firma : "mcn";
         $firms = array(
+            "mcm_telekom" => array(
+                "name_full" => "Общество с ограниченной ответственностью &laquo;МСМ Телеком&raquo;",
+                "name" => "ООО &laquo;МСМ Телеком&raquo;",
+                "address" => "117574, г. Москва, Одоевского проезд, д. 3, корп. 7",
+                "post_address" => "115162, г. Москва, а/я &#8470;21",
+                "inn" => "7728226648",
+                "kpp" => "772801001",
+                "acc" => "40702810038000034045",
+                "bank" => "ОАО &laquo;Сбербанк России&raquo;, г. Москва",
+                "kor_acc" => "30101810400000000225",
+                "bik" => "044525225",
+                "phone" => "(495) 105-99-99",
+                "fax" => "(495) 105-99-96",
+                "email" => "info@mcn.ru",
+                "director" => "Бирюкова Н. В.",
+                "director_" => "Бирюковой Н. В.",
+                "director_post" => "Генеральный директор",
+                "director_post_" => "Генерального директора",
+                "logo" => "mcntelecom-logo.png",
+                "site" => "www.mcntelecom.ru",
+            ),
             "mcn_telekom" => array(
                 "name_full" => "Общество с ограниченной ответственностью &laquo;МСН Телеком&raquo;",
                 "name" => "ООО &laquo;МСН Телеком&raquo;",
@@ -374,6 +395,10 @@ class Company
         }elseif ($firma == "ooocmc" && $billDate >= strtotime("2012-01-01") && $billDate < strtotime("2013-03-01"))
         {
             $d = "nat";
+        }elseif ($firma == "mcm_telekom")
+        {
+            $b = $d = "bnv";
+            $isGenDir = true;
         }else{
             $d = "mak";
         }
@@ -490,6 +515,12 @@ class Company
                 "style" => "position:relative;left:40;top:-200;z-index:-10; margin-bottom:-170px;",
                 "name" => "ООО &laquo;МСН Телеком&raquo;",
                 "width"=>251*0.8, "height"=>256*0.8
+            ),
+            "mcm_telekom" => array(
+                "src" => false,//"stamp_mcm_telekom.png",
+                "style" => "position:relative;left:40;top:-200;z-index:-10; margin-bottom:-170px;",
+                "name" => "",//"ООО &laquo;МСМ Телеком&raquo;",
+                "width"=> false,//251*0.8, "height"=>256*0.8
             ),
             "ooocmc" => array(
                 "src" => "stamp_si_em_si.png",
