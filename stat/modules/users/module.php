@@ -86,6 +86,7 @@ class m_users {
 		                'all4net'=>'ООО &laquo;ОЛФОНЕТ&raquo;',
 		                'ooocmc'=>'ООО &laquo;Си Эм Си&raquo;',
 		                'mcm'=>'ООО &laquo;МСМ&raquo;',
+		                'mcm_telekom'=>'ООО &laquo;МСМ Телеком&raquo;',
 		                'all4geo'=>'ООО &laquo;Олфогео&raquo;',
 		                'wellstart'=>'ООО &laquo;Веллстарт&raquo;'
 		);
