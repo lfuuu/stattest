@@ -101,6 +101,7 @@ class BaseController extends Controller
             'firma:all4net' => 'ООО "ОЛФОНЕТ"',
             'firma:ooocmc' => 'ООО "Си Эм Си"',
             'firma:mcm' => 'ООО "МСМ"',
+            'firma:mcm_telekom' => 'ООО "МСМ Телеком"',
             'firma:all4geo' => 'ООО "Олфогео"',
             'firma:wellstart' => 'ООО "Веллстарт"',
         ];

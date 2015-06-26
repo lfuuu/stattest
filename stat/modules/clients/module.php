@@ -270,7 +270,7 @@ class m_clients {
 		$L['!'] = 'Клиенты ItPark';
 		$L['+'] = 'Тип: Дистрибютор';
 		$L['-'] = 'Тип: Оператор';
-		if (isset($user->_Priveleges['firms']) && count($user->_Priveleges['firms']) > 0) {
+        if (isset($user->_Priveleges['firms']) && count($user->_Priveleges['firms']) > 0) {
 			foreach ($user->_Priveleges['firms'] as $firm=>$v) {
 				switch ($firm) {
 					case 'mcn_telekom':
@@ -287,6 +287,9 @@ class m_clients {
 					break;
 					case 'ooomcn':
 					    $L['firma:ooomcn'] = 'ООО "МСН"';
+					break;
+					case 'mcm_telekom':
+					    $L['firma:mcn_telekom'] = 'ООО "МСМ Телеком"';
 					break;
 					case 'all4net':
 					    $L['firma:all4net'] = 'ООО "ОЛФОНЕТ"';
@@ -315,9 +318,11 @@ class m_clients {
             $L['firma:all4net'] = 'ООО "ОЛФОНЕТ"';
             $L['firma:ooocmc'] = 'ООО "Си Эм Си"';
             $L['firma:mcm'] = 'ООО "МСМ"';
+            $L['firma:mcm_telekom'] = 'ООО "МСМ Телеком"';
             $L['firma:all4geo'] = 'ООО "Олфогео"';
             $L['firma:wellstart'] = 'ООО "Веллстарт"';
-		}
+        }
+
       foreach($db->AllRecords("select id, name from regions order by if(id = 99, '!!!', name)", "id") as $r => $n)
         $LR[$r] = $n["name"];
 
