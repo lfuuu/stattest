@@ -517,10 +517,10 @@ class Company
                 "width"=>251*0.8, "height"=>256*0.8
             ),
             "mcm_telekom" => array(
-                "src" => false,//"stamp_mcm_telekom.png",
-                "style" => "position:relative;left:40;top:-200;z-index:-10; margin-bottom:-170px;",
-                "name" => "",//"ООО &laquo;МСМ Телеком&raquo;",
-                "width"=> false,//251*0.8, "height"=>256*0.8
+                "src" => "stamp_mcm_telekom.png",
+                "style" => "position:relative;left:40;top:-230;z-index:-10; margin-bottom:-170px;",
+                "name" => "ООО &laquo;МСМ Телеком&raquo;",
+                "width"=> 250*0.8, "height"=>250*0.8
             ),
             "ooocmc" => array(
                 "src" => "stamp_si_em_si.png",
