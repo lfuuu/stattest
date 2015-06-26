@@ -1325,10 +1325,6 @@ class m_services extends IModule{
 
     function services_vo_add($fixclient){
         global $design,$db;
-
-        trigger_error2("<h2>Идет обновление системы! Добавление услуг не доступно</h2>");
-        return;
-
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormUsageVoip();
@@ -1342,10 +1338,6 @@ class m_services extends IModule{
     }
     function services_vo_apply($fixclient){
         global $design,$db;
-
-        trigger_error2("<h2>Идет обновление системы! Добавление услуг не доступно</h2>");
-        return;
-
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageVoip();
         $id=get_param_integer('id','');
@@ -1983,8 +1975,6 @@ class m_services extends IModule{
         return $R;
     }
     function services_virtpbx_add($fixclient){
-        trigger_error2("<h2>Идет обновление системы! Добавление услуг не доступно</h2>");
-        return;
         global $design,$db;
         if(!$this->fetch_client($fixclient)){
             trigger_error2('Не выбран клиент');
@@ -1997,8 +1987,6 @@ class m_services extends IModule{
         $dbf->Display(array('module'=>'services','action'=>'virtpbx_apply'),'Услуги','Новая услуга Виртальная АТС');
     }
     function services_virtpbx_apply($fixclient){
-        trigger_error2("<h2>Идет обновление системы! Добавление услуг не доступно</h2>");
-        return;
         global $design,$db;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageVirtpbx();
@@ -2186,8 +2174,6 @@ class m_services extends IModule{
 
     function services_welltime_add($fixclient){
         global $design,$db;
-        trigger_error2("<h2>Идет обновление системы! Добавление услуг не доступно</h2>");
-        return;
         if(!$this->fetch_client($fixclient)){
             trigger_error2('Не выбран клиент');
             return;
@@ -2200,8 +2186,6 @@ class m_services extends IModule{
     }
     function services_welltime_apply($fixclient){
         global $design,$db;
-        trigger_error2("<h2>Идет обновление системы! Добавление услуг не доступно</h2>");
-        return;
         if (!$this->fetch_client($fixclient)) {trigger_error2('Не выбран клиент'); return;}
         $dbf = new DbFormUsageWelltime();
         $id=get_param_integer('id','');
