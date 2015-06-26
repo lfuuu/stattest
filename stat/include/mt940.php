@@ -9,7 +9,8 @@ class banks{
             "40702810500540000002" => array("ural_all4net", "ural"),
             "40702810800540001507" => array("ural_cmc", "ural"),
             "40702810700320000882" => array("mos_mcn", "mos"),
-            "40702810038110015462" => array("sber_telekom", "sber")
+            "40702810038110015462" => array("sber_telekom", "sber"),
+            "40702810038000034045" => array("sber_mcm", "sber")
             );
 
     function detect($h)
@@ -78,7 +79,7 @@ class cbe_list_manager
 	function parseAndSave($c, $fName)
 	{
 		$c = iconv("cp1251", "utf-8//TRANSLIT", $c);
-		$lists = explode("\r\nСекцияДокумент=Платежное поручение\r\n", $c);
+        $lists = explode("\r\nСекцияДокумент=Платежное поручение\r\n", $c);
 
         if (count($lists) > 1)
         {

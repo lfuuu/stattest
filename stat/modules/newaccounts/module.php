@@ -2544,7 +2544,8 @@ class m_newaccounts extends IModule
                     "mcn" => array("title" => "Эм Си Эн", "colspan" => 2),
                     "all4net" => array("title" => "All4Net", "colspan" => 3),
                     "cmc" => array( "title" => "Си Эм Си", "colspan" => 1),
-                    "telekom" => array( "title" => "МСН Телеком", "colspan" => 1)
+                    "telekom" => array( "title" => "МС( Н )Телеком", "colspan" => 1),
+                    "mcm_telekom" => array( "title" => "МС(_М_) Телеком", "colspan" => 1)
                     )
                 );
 
@@ -2559,6 +2560,9 @@ class m_newaccounts extends IModule
                         "acc" => array("ural")
                         ),
                     "telekom" => array(
+                        "acc" => array("sber")
+                        ),
+                    "mcm" => array(
                         "acc" => array("sber")
                         )
                     )
