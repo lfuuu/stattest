@@ -312,6 +312,7 @@ $(function(){
                 <option value="all4net"{if $client.firma=='all4net'} selected{/if}>ООО &laquo;ОЛФОНЕТ&raquo;</option>
                 <option value="ooocmc"{if $client.firma=='ooocmc'} selected{/if}>ООО &laquo;Си Эм Си&raquo;</option>
                 <option value="mcm"{if $client.firma=='mcm'} selected{/if}>ООО &laquo;МСМ&raquo;</option>
+                <option value="mcm_telekom"{if $client.firma=='mcm_telekom'} selected{/if}>ООО &laquo;МСМ Teлеком&raquo;</option>
                 <option value="all4geo"{if $client.firma=='all4geo'} selected{/if}>ООО &laquo;Олфогео&raquo;</option>
                 <option value="wellstart"{if $client.firma=='wellstart'} selected{/if}>ООО &laquo;Веллстарт&raquo;</option>
                 <option value="mcn_telekom_hungary"{if $client.firma=='mcn_telekom_hungary'} selected{/if}>MCN Telecom Kft. (Венгрия)</option>
