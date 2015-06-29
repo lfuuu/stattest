@@ -18,7 +18,7 @@ class ApiPhone
     {
         $data = [];
         try {
-            foreach(self::exec("multitrunks") as $d) {
+            foreach(self::exec("multitrunks", null) as $d) {
                 $data[$d["id"]] = $d["name"];
             }
         }catch(\Exception $e) {
@@ -38,7 +38,7 @@ class ApiPhone
 
         $result = JSONQuery::exec(self::getApiUrl() . $action, $data);
 
-        if (isset($result["errors"]) && $result["errors"]) {
+        if (isset($result["errors"][0]["message"])) {
             $msg = !isset($result['errors'][0]["message"]) && isset($result['errors'][0])
                 ? "Текст ошибки не найден! <br>\n" . var_export($result['errors'][0], true)
                 : '';

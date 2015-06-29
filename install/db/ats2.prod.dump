@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mysqldump -h stat.mcn.ru -u ievg -pterem0k@@ \
+mysqldump -h stat.mcn.ru -u user -ppassword \
 --single-transaction \
 --routines \
 ats2 \
