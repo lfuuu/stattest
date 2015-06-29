@@ -88,6 +88,8 @@ class HistoryVersion extends ActiveRecord
             ->orderBy('date DESC')->one();
 
         $currentModel->setAttributes(json_decode($historyModel['data_json'], true), false);
+        $currentModel->historyVersionDate = $date;
+
         return $currentModel;
     }
 }

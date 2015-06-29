@@ -129,7 +129,7 @@ class ContractEditForm extends Form
         $attributes = $this->getAttributes();
         unset($attributes['public_comment'], $attributes['comment']);
 
-        $contract->setAttributes(array_filter($this->getAttributes()), false);
+        $contract->setAttributes(array_filter($attributes), false);
 
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);
@@ -147,6 +147,13 @@ class ContractEditForm extends Form
             $this->addErrors($contract->getErrors());
 
         return false;
+    }
+
+    public function getContragentListBySuperId()
+    {
+        $superId = $this->super_id;
+        $models = ClientContragent::find()->andWhere(['super_id' => $superId])->all();
+        return ArrayHelper::map($models, 'id', 'name');
     }
 
     public function validate($attributeNames = null, $clearErrors = false)

@@ -7,7 +7,7 @@ use \app\models\ClientContract;
 
     <div class="row">
         <div class="col-sm-10">
-            <h2 class="c-blue-color" style="margin:0;"><a href="#"><?= $sClient->name ?></a></h2>
+            <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $sClient->id ?>&childId=<?=$activeClient->id?>"><?= $sClient->name ?></a></h2>
         </div>
         <div class="col-sm-2" class="c-blue-color">
             <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $sClient->id, 'childId' => $activeClient->id]) ?>">

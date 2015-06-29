@@ -24,6 +24,7 @@ class ClientAccount extends ActiveRecord
 {
     public $client_orig = '';
     public $sale_channel=0;
+    public $historyVersionDate = null;
 
     public static $statuses = array(
         'negotiations' => array('name' => 'в стадии переговоров', 'color' => '#C4DF9B'),
@@ -295,7 +296,10 @@ class ClientAccount extends ActiveRecord
 
     public function getContract()
     {
-        return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContract::className(), $this->contract_id, $date);
     }
 
     public function getContractType()
@@ -340,7 +344,10 @@ class ClientAccount extends ActiveRecord
 
     public function getContragent()
     {
-        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->getContract()->contragent_id, $date);
     }
 
     public function getFiles()

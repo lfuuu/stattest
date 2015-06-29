@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\forms\client\AccountEditForm;
+use app\forms\client\SuperClientEditForm;
 use app\models\ClientBP;
 use app\models\ClientGridSettings;
 use app\models\ClientSearch;
@@ -31,7 +32,7 @@ class AccountController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['edit', 'create', 'change-wizard-state'],
+                        'actions' => ['edit', 'create', 'change-wizard-state', 'super-client-edit'],
                         'roles' => ['clients.edit'],
                     ],
                     [
@@ -116,7 +117,27 @@ class AccountController extends BaseController
         return $this->render("edit", [
             'model' => $model
         ]);
+    }
 
+    public function actionSuperClientEdit($id, $childId)
+    {
+        $model = new SuperClientEditForm(['id' => $id]);
+
+        if($childId===null) {
+            parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
+            $params = Yii::$app->request->getQueryParams();
+            $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
+            Yii::$app->request->setQueryParams($params);
+            Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
+        }
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $this->redirect(['client/view', 'id' => $childId]);
+        }
+
+        return $this->render("superClientEdit", [
+            'model' => $model
+        ]);
     }
 
     public function actionIndex()

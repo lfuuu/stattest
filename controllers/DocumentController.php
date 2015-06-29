@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\models\ClientAccount;
 use app\models\ClientDocument;
 use Yii;
 use app\classes\BaseController;
@@ -24,17 +25,16 @@ class DocumentController extends BaseController
         ];
     }
 
-    public function actionDelete($id)
+    public function actionActivate($id)
     {
         $model = ClientDocument::findOne($id);
         if (!$model)
             throw new Exception('Document not found');
 
-        $model->is_active = 0;
+        $model->is_active = !$model->is_active;
         $model->save();
         $this->redirect(Yii::$app->request->referrer);
     }
-
 
     public function actionCreate($id)
     {
@@ -58,38 +58,42 @@ class DocumentController extends BaseController
             $comment
         );
 
-
+        if ($contractId && $contractType == 'contract') {
+            $model = ClientAccount::findOne($id)->getContract();
+            $model->number = $contractNo;
+            $model->save();
+        }
 
         $this->redirect(['client/view', 'id' => $id]);
     }
 
-/*
-    public function actionEdit($id)
-    {
-        $model = ClientDocument::findOne($id);
-        if(null === $model)
-            throw new Exception('Документ не найден');
+    /*
+        public function actionEdit($id)
+        {
+            $model = ClientDocument::findOne($id);
+            if(null === $model)
+                throw new Exception('Документ не найден');
 
-        $request = Yii::$app->request->post();
+            $request = Yii::$app->request->post();
 
-        if (isset($request)) {
-            ClientDocument::dao()->addContract(
-                $model->client_id,
-                $model->type,
-                $request['contract_template_group'],
-                $request['contract_template'],
-                $request['contract_no'],
-                $request['contract_date'],
-                $request['contract_content'],
-                $request['comment']
-            );
+            if (isset($request)) {
+                ClientDocument::dao()->addContract(
+                    $model->client_id,
+                    $model->type,
+                    $request['contract_template_group'],
+                    $request['contract_template'],
+                    $request['contract_no'],
+                    $request['contract_date'],
+                    $request['contract_content'],
+                    $request['comment']
+                );
 
-            return $this->redirect(Url::toRoute(['client/view', ['id' => $id]]));
+                return $this->redirect(Url::toRoute(['client/view', ['id' => $id]]));
 
-        } else {
-            $content = ClientDocument::dao()->getTemplate($model->client_id . '-' . $model->id);
-            return $this->render('edit', ['model'=>$model, 'content' => $content]);
+            } else {
+                $content = ClientDocument::dao()->getTemplate($model->client_id . '-' . $model->id);
+                return $this->render('edit', ['model'=>$model, 'content' => $content]);
+            }
         }
-    }
-*/
+    */
 }

@@ -25,6 +25,18 @@ use kartik\widgets\DatePicker;
             echo Form::widget([
                 'model' => $model,
                 'form' => $f,
+                'columns' => 1,
+                'attributeDefaults' => [
+                    'container' => ['class' => 'col-sm-12'],
+                    'type' => Form::INPUT_TEXT
+                ],
+                'attributes' => [
+                    'contragent_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $model->getContragentListBySuperId()],
+                ],
+            ]);
+            echo Form::widget([
+                'model' => $model,
+                'form' => $f,
                 'columns' => 3,
                 'attributeDefaults' => [
                     'container' => ['class' => 'col-sm-12'],

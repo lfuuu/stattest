@@ -7,6 +7,7 @@ use yii\db\ActiveRecord;
 class ClientContragent extends ActiveRecord
 {
     public $cPerson = null;
+    public $historyVersionDate = null;
 
     public static function tableName()
     {
@@ -46,12 +47,19 @@ class ClientContragent extends ActiveRecord
 
     public function getAccounts()
     {
-        return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
+        $result = [];
+        foreach($this->getContracts() as $contract){
+            $result[] = array_merge($result,$contract->accounts);
+        }
+        return $result;
     }
 
     public function getPerson()
     {
-        return $this->hasOne(ClientContragentPerson::className(), ['contragent_id' => 'id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContragentPerson::className(), $this->contragent_id, $date);
     }
 
     public function getContracts()

@@ -15,14 +15,17 @@ class ClientSuper extends ActiveRecord
         return 'client_super';
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'name' => 'Название',
+            'financial_manager_id' => 'Финаносвый менеджер'
+        ];
+    }
+
     public function getContragents()
     {
        return $this->hasMany(ClientContragent::className(), ['super_id' => 'id']);
-    }
-
-    public function getAccountManager()
-    {
-        return $this->hasOne(User::className(), ['user' => 'account_manager']);
     }
 
 }

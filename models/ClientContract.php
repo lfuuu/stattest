@@ -7,6 +7,7 @@ use yii\db\ActiveRecord;
 class ClientContract extends ActiveRecord
 {
     public $newClient = null;
+    public $historyVersionDate = null;
 
     public static $states = [
         'unchecked' => 'Не проверено',
@@ -30,6 +31,7 @@ class ClientContract extends ActiveRecord
             'business_process_status_id' => 'Статус бизнес процесса',
             'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
+            'contragent_id' => 'Контрагент',
         ];
     }
 
@@ -127,7 +129,24 @@ class ClientContract extends ActiveRecord
 
     public function getContragent()
     {
-        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->contragent_id, $date);
+    }
+
+    public function getAccounts()
+    {
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+
+        $models = $this->hasMany(ClientAccount::className(), ['contract_id' => 'id']);
+        foreach($models as &$model)
+        {
+            $model = HistoryVersion::getVersionOnDate(ClientAccount::className(), $model->id, $date);
+        }
+        return $models;
     }
 
     public function afterSave($insert, $changedAttributes)
