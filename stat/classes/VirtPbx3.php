@@ -102,7 +102,13 @@ class VirtPbx3
     public static function getNumberTypes($clientId)
     {
         if (ApiPhone::isAvailable()) {
-            return ApiPhone::exec('numbers_state', ['account_id' => $clientId]);
+            try {
+                return ApiPhone::exec('numbers_state', ['account_id' => $clientId]);
+            }catch(Exception $e)
+            {
+                trigger_error2($e->getMessage());
+                return [];
+            }
         } else {
             return [];
         }
