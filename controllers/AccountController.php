@@ -26,7 +26,7 @@ class AccountController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
+                        'actions' => ['index', 'load-bp-statuses', 'unfix'],
                         'roles' => ['clients.read'],
                     ],
                     [

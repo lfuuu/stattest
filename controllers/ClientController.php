@@ -32,8 +32,12 @@ class ClientController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['create'],
-                        'roles' => ['clients.new'],
+                        'roles' => ['clients.edit'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['view'],
+                        'roles' => ['clients.read'],
                     ],
                 ],
             ],
