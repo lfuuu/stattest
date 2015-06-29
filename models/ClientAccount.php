@@ -9,6 +9,7 @@ use app\classes\behaviors\LogClientContractTypeChange;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\behaviors\LkWizardClean;
 use app\classes\FileManager;
+use app\models\ClientContact;
 
 /**
  * @property int $id
@@ -123,6 +124,11 @@ class ClientAccount extends ActiveRecord
     public function getContragent()
     {
         return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+    }
+
+    public function getContacts()
+    {
+        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
     }
 
     public function getFiles()
