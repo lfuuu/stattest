@@ -98,7 +98,7 @@ class ClientController extends BaseController
                 if ($contragent->load($request) && $contragent->validate() && $contragent->save()) {
                     $contract = new ContractEditForm(['contragent_id' => $contragent->id]);
                     if ($contract->load($request) && $contract->validate() && $contract->save()) {
-                        $client = new AccountEditForm(['id' => $contract->id]);
+                        $client = new AccountEditForm(['id' => $contract->newClient->id]);
                         if ($client->load($request) && $client->validate() && $client->save())
                             $commit = true;
                     }

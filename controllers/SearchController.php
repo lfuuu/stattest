@@ -53,7 +53,7 @@ class SearchController extends BaseController
                         return [['url' => 'index.php?module=tt&action=view&id='.$model->id, 'value' => $model->id]];
                     }
                     else
-                        return $this->redirect('index.php?module=tt&action=view&id=' . $model->id);
+                        return $this->redirect('/index.php?module=tt&action=view&id=' . $model->id);
                 } else {
                     return $this->render('result', ['message' => 'Заявка № '.$search.' не найдена']);
                 }

@@ -31,10 +31,20 @@ use kartik\widgets\DatePicker;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states, 'columnOptions' => ['class' => 'col-sm-offset-9 col-md-pull-9']],
-                    'empty' => [
+                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ClientContractType::getList()],
+                    //'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states],
+                    'state' => [
                         'type' => Form::INPUT_RAW,
-                        'value' => ''
+                        'value' => function() use ($f, $model){
+                            $res = '<div class="col-sm-12">';
+                            $res .= $f->field($model, 'state')->begin();
+                            $res .= Html::activeLabel($model,'state', ['class' => 'control-label']); //label
+                            $res .= Html::activeDropDownList($model, 'state', ClientContract::$states, ['class' => 'form-control '.$model->state]); //Field
+                            $res .= Html::error($model,'state', ['class' => 'help-block', 'encode' => false]); //error
+                            $res .= $f->field($model, 'state')->end();
+                            $res .= '</div>';
+                            return $res;
+                        },
                     ],
                     'empty2' => [
                         'type' => Form::INPUT_RAW,

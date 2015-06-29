@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\validators\InnKppValidator;
 use yii\db\ActiveRecord;
 
 class ClientContragent extends ActiveRecord
@@ -31,7 +32,16 @@ class ClientContragent extends ActiveRecord
             "opf" => "Код ОПФ",
             "okpo" => "Код ОКПО",
             "okvd" => "Код ОКВЭД",
+            'country_id' => 'Страна',
         ];
+    }
+
+    public function rules()
+    {
+        $rules = [
+            [['inn', 'kpp'],  ['class' => InnKppValidator::className()], 'on' =>'checked'],
+        ];
+        return $rules;
     }
 
     public function getAccounts()
@@ -80,11 +90,32 @@ class ClientContragent extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if ($this->name) {
-            $super = ClientSuper::findOne($this->super_id);
-            $super->setAttribute('name', $this->name);
-            $super->save();
+
+        $super = ClientSuper::findOne($this->super_id);
+        $super->setAttribute('name', $this->name);
+        $super->save();
+
+    }
+
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert))
+            return false;
+
+        if(!$this->name && !$this->name_full)
+            $this->name = $this->name_full = 'Новый контрагент ';
+        return true;
+    }
+
+    public function beforeValidate()
+    {
+        if(!$this->isNewRecord) {
+            $models = ClientContract::find()->andWhere(['!=', 'state', 'unchecked'])->andWhere(['contragent_id' => $this->id])->all();
+            if($models)
+                $this->setScenario('checked');
         }
+
+        return parent::beforeValidate();
     }
 
     public function getCountry()

@@ -83,7 +83,9 @@ a.nohover:hover { color: #000; }
     .layout_main {
         overflow-y: auto;
         font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-        top:100px;
+        position: fixed;
+        top: 100px;
+        bottom: 0;
     }
 
     .layout_left .menupanel {
@@ -136,6 +138,48 @@ a.nohover:hover { color: #000; }
 
     .publish_comment_over {
         opacity:1;
+    }
+
+    .user-menu{
+        position: absolute;
+        background: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        padding: 0;
+        border-radius: 4px;
+        margin: 0;
+        left: 15px;
+        right: 15px;
+        list-style: none;
+        overflow: hidden;
+        top:10px;
+    }
+
+    .user-menu li{
+        padding: 5px 0;
+    }
+
+    .user-menu li:hover{
+        background: rgb(102, 192, 255);
+    }
+
+    .user-menu li:first-child{
+        border-bottom: rgb(102, 192, 255) 1px solid;
+    }
+
+    .user-menu li:last-child{
+        border-top: rgb(102, 192, 255) 1px solid;
+    }
+
+    .active-link-client{
+        border: 1px rgb(143, 206, 250) solid;
+        border-radius: 4px;
+    }
+
+    .tt-suggestion > div {
+        white-space: nowrap !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: auto;
     }
 }
 

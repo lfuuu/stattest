@@ -55,7 +55,7 @@ use \yii\helpers\Url;
                         <div class="col-sm-2">
                             <input type="hidden" name="contract_type" value="contract">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>-<?= date('y') ?>">
+                                   value="<?= $client->contract->id ?>">
                         </div>
                         <div class="col-sm-2">
                             <input class="text contract_datepicker" type="text"
@@ -85,7 +85,7 @@ use \yii\helpers\Url;
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <input class="button" type="submit" value="зарегистрировать">
+                            <input class="button" type="submit" value="Загрузить">
                         </div>
                     </form>
                 </div>
@@ -118,6 +118,7 @@ use \yii\helpers\Url;
                     <div class="col-sm-2"></div>
                 </div>
                 <?php foreach ($docs as $doc) if ($doc->type == 'blank' && $doc->is_active): ?>
+                    <?php $blnk = $doc->contract_no; ?>
                     <div class="col-sm-12">
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
@@ -142,7 +143,7 @@ use \yii\helpers\Url;
                     <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="blank">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>-<?= date('y') ?>"></div>
+                                   value="<?= $blnk ? $doc->contract_no + 1 : 1 ?>"></div>
                         <div class="col-sm-2"><input class="text contract_datepicker" type="text" name="contract_date">
                         </div>
                         <div class="col-sm-2"><input class="text" type="text" name="comment"></div>
@@ -163,7 +164,7 @@ use \yii\helpers\Url;
                                 <option value="Dog_UslugiSvayzi">Dog_UslugiSvayzi</option>
                             </select>
                         </div>
-                        <div class="col-sm-2"><input class="button" type="submit" value="зарегистрировать"></div>
+                        <div class="col-sm-2"><input class="button" type="submit" value="Загрузить"></div>
                     </form>
                 </div>
             </div>
@@ -195,6 +196,7 @@ use \yii\helpers\Url;
                     <div class="col-sm-2"></div>
                 </div>
                 <?php foreach ($docs as $doc) if ($doc->type == 'agreement' && $doc->is_active): ?>
+                    <?php $armnt = $doc->contract_no; ?>
                     <div class="col-sm-12">
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
@@ -220,7 +222,7 @@ use \yii\helpers\Url;
                     <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="agreement">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>-<?= date('y') ?>"></div>
+                                   value="<?= $armnt ? $armnt + 1 : 1 ?>"></div>
                         <div class="col-sm-2"><input class="text contract_datepicker" type="text" name="contract_date">
                         </div>
                         <div class="col-sm-2"><input class="text" type="text" name="comment"></div>
@@ -253,7 +255,7 @@ use \yii\helpers\Url;
                                 <option value="Dop_8800">Dop_8800</option>
                             </select>
                         </div>
-                        <div class="col-sm-2"><input class="button" type="submit" value="зарегистрировать"></div>
+                        <div class="col-sm-2"><input class="button" type="submit" value="Загрузить"></div>
                     </form>
                 </div>
             </div>

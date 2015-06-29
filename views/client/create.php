@@ -41,7 +41,6 @@ use \app\models\ClientContract;
                 'options'=> ['style'=>'width:100%;'],
                 'columnOptions' => ['class' => 'col-sm-6'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -57,7 +56,6 @@ use \app\models\ClientContract;
                 'columnOptions' => ['class' => 'col-sm-6'],
                 'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -75,13 +73,12 @@ use \app\models\ClientContract;
                 'columns' => 1,
                 'options' => ['style' => 'width:50%; padding-left: 15px; '],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
                     'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST,
                         'items' => $taxRegtimeItems,
-                        'container' => ['class' => 'col-sm-6']
+                        'container' => ['style' => 'width:50%;']
                     ],
                     'position' => [],
                     'fio' => [],
@@ -97,7 +94,6 @@ use \app\models\ClientContract;
                 'columns' => 1,
                 'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -113,7 +109,6 @@ use \app\models\ClientContract;
                 'columnOptions' => ['class' => 'col-sm-12'],
                 'options' => ['style' => 'width:50%; padding-left: 15px;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -128,11 +123,10 @@ use \app\models\ClientContract;
                 'columnOptions' => ['class' => 'col-sm-12'],
                 'options' => ['style' => 'width:50%; padding-left: 15px;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-6'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $taxRegtimeItems],
+                    'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $taxRegtimeItems, 'container' => ['style' => 'width:50%;']],
                 ],
             ]);
 
@@ -144,7 +138,6 @@ use \app\models\ClientContract;
                 'columnOptions' => ['class' => 'col-sm-6'],
                 'attributeDefaults' => [
                     'container' => [
-                        'class' => 'col-sm-12',
                         'type' => Form::INPUT_TEXT
                     ],
                 ],
@@ -165,7 +158,6 @@ use \app\models\ClientContract;
                 'columns' => 1,
                 'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -181,7 +173,6 @@ use \app\models\ClientContract;
                 'columnOptions' => ['class' => 'col-sm-6'],
                 'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -196,7 +187,6 @@ use \app\models\ClientContract;
                 'columnOptions' => ['class' => 'col-sm-12'],
                 'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
                 'attributeDefaults' => [
-                    'container' => ['class' => 'col-sm-12'],
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
@@ -220,6 +210,32 @@ use \app\models\ClientContract;
             ]);
 
             echo '</div>';
+
+
+            echo '<div class="col-sm-12">';
+            echo Form::widget([
+                'model' => $contragent,
+                'form' => $f,
+                'columns' => 1,
+                'columnOptions' => ['class' => 'col-sm-12'],
+                'options' => ['style' => 'width:50%; padding-right: 15px;'],
+                'attributeDefaults' => [
+                    'type' => Form::INPUT_TEXT
+                ],
+                'attributes' => [
+                    'country_id' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'widgetClass' => '\kartik\widgets\Select2',
+                        'container' => [
+                            'style' => 'width:50%; padding-right: 15px;'
+                        ],
+                        'items' => \app\models\Country::getList()
+                    ],
+                ],
+            ]);
+
+            echo '</div>';
+
             ?>
         </div>
 
@@ -236,7 +252,7 @@ use \app\models\ClientContract;
                     'type' => Form::INPUT_TEXT
                 ],
                 'attributes' => [
-                    'state' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => ClientContract::$states, 'columnOptions' => ['class' => 'col-sm-offset-9 col-md-pull-9']],
+                    'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\ClientContractType::getList(), 'columnOptions' => ['class' => 'col-sm-offset-9 col-md-pull-9']],
                     'empty' => [
                         'type' => Form::INPUT_RAW,
                         'value' => ''

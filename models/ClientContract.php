@@ -6,6 +6,8 @@ use yii\db\ActiveRecord;
 
 class ClientContract extends ActiveRecord
 {
+    public $newClient = null;
+
     public static $states = [
         'unchecked' => 'Не проверено',
         'checked_original' => 'Оригинал',
@@ -26,7 +28,7 @@ class ClientContract extends ActiveRecord
             'account_manager' => 'Аккаунт менеджер',
             'business_process_id' => 'Бизнес процесс',
             'business_process_status_id' => 'Статус бизнес процесса',
-            'contract_type_id' => 'Тип',
+            'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
         ];
     }
@@ -66,14 +68,12 @@ class ClientContract extends ActiveRecord
 
     public function getManagerName()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'manager']);
         $m = User::findByUsername($this->manager);
         return ($m) ? $m->name : $this->manager;
     }
 
     public function getAccountManagerName()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'account_manager']);
         $m = User::findByUsername($this->account_manager);
         return ($m) ? $m->name : $this->account_manager;
     }
@@ -87,7 +87,6 @@ class ClientContract extends ActiveRecord
 
     public function getAccountManagerColor()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'account_manager']);
         $m = User::findByUsername($this->account_manager);
         return ($m) ? $m->color : $this->account_manager;
     }
@@ -136,8 +135,11 @@ class ClientContract extends ActiveRecord
         parent::afterSave($insert, $changedAttributes);
         if ($insert) {
             $client = new AccountEditForm(['contract_id' => $this->id]);
+            $client->contract_id = $this->id;
             $client->save();
+            $this->newClient = $client;
             $this->number = $client->id;
+            $this->save();
             /*
             if($client->id > $this->id){
                 $this->id = $client->id;

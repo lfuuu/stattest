@@ -19,8 +19,7 @@ class FileController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['*'],
-                        'roles' => ['clients.file'],
+                        'roles' => ['clients.edit'],
                     ],
                 ],
             ],

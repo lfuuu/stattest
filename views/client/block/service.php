@@ -24,6 +24,15 @@ $ipstat = function ($data) {
     '<a href="?module=monitoring&ip=' . $R[0] . '">' . $ip . '</a>' .
     (isset($R[1]) ? '/<a href="?module=monitoring&ip=' . $R[1] . '">' . $m[6] . '</a>' : '') . ' </td></tr></table>';
 };
+
+$has = false;
+foreach($services as $service){
+    if($service) {
+        $has = true;
+        break;
+    }
+}
+if($has) :
 ?>
 <div class="service">
     <div class="row" style="padding-left: 15px;">
@@ -411,3 +420,4 @@ $ipstat = function ($data) {
 
     </div>
 </div>
+<?php endif; ?>

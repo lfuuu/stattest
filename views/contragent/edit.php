@@ -34,7 +34,6 @@ use kartik\builder\Form;
                     'options'=> ['style'=>'width:100%;'],
                     'columnOptions' => ['class' => 'col-sm-6'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -50,7 +49,6 @@ use kartik\builder\Form;
                     'columnOptions' => ['class' => 'col-sm-6'],
                     'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -68,13 +66,13 @@ use kartik\builder\Form;
                     'columns' => 1,
                     'options' => ['style' => 'width:50%; padding-left: 15px; '],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
-                        'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST,
+                        'tax_regime' => [
+                            'type' => Form::INPUT_DROPDOWN_LIST,
                             'items' => $taxRegtimeItems,
-                            'container' => ['class' => 'col-sm-6']
+                            'container' => ['style' => 'width:50%;']
                         ],
                         'position' => [],
                         'fio' => [],
@@ -90,7 +88,6 @@ use kartik\builder\Form;
                     'columns' => 1,
                     'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -106,7 +103,6 @@ use kartik\builder\Form;
                     'columnOptions' => ['class' => 'col-sm-12'],
                     'options' => ['style' => 'width:50%; padding-left: 15px;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -121,11 +117,10 @@ use kartik\builder\Form;
                     'columnOptions' => ['class' => 'col-sm-12'],
                     'options' => ['style' => 'width:50%; padding-left: 15px;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-6'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
-                        'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $taxRegtimeItems],
+                        'tax_regime' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $taxRegtimeItems, 'container' => ['style' => 'width:50%;']],
                     ],
                 ]);
 
@@ -137,7 +132,6 @@ use kartik\builder\Form;
                     'columnOptions' => ['class' => 'col-sm-6'],
                     'attributeDefaults' => [
                         'container' => [
-                            'class' => 'col-sm-12',
                             'type' => Form::INPUT_TEXT
                         ],
                     ],
@@ -158,7 +152,6 @@ use kartik\builder\Form;
                     'columns' => 1,
                     'options' => ['style' => 'width:50%; padding-right: 15px; float: left;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -174,7 +167,6 @@ use kartik\builder\Form;
                     'columnOptions' => ['class' => 'col-sm-6'],
                     'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -189,7 +181,6 @@ use kartik\builder\Form;
                     'columnOptions' => ['class' => 'col-sm-12'],
                     'options' => ['style' => 'width:50%; padding-left: 15px; padding-right: 15px;'],
                     'attributeDefaults' => [
-                        'container' => ['class' => 'col-sm-12'],
                         'type' => Form::INPUT_TEXT
                     ],
                     'attributes' => [
@@ -213,12 +204,37 @@ use kartik\builder\Form;
                 ]);
 
                 echo '</div>';
+
+                echo '<div class="col-sm-12">';
+                echo Form::widget([
+                    'model' => $model,
+                    'form' => $f,
+                    'columns' => 1,
+                    'columnOptions' => ['class' => 'col-sm-12'],
+                    'options' => ['style' => 'width:50%; padding-right: 15px;'],
+                    'attributeDefaults' => [
+                        'type' => Form::INPUT_TEXT
+                    ],
+                    'attributes' => [
+                        'country_id' => [
+                            'type' => Form::INPUT_DROPDOWN_LIST,
+                            'widgetClass' => '\kartik\widgets\Select2',
+                            'container' => [
+                                'style' => 'width:50%; padding-right: 15px;'
+                            ],
+                            'items' => \app\models\Country::getList()
+                        ],
+                    ],
+                ]);
+
+                echo '</div>';
                 ?>
 
-                <div style="width:50%; padding-right: 15px;">
+
+                <div class="col-sm-6">
                     <div class="row">
                         <div class="col-sm-6">
-                            <div class="col-sm-12" type="textInput">
+                            <div type="textInput">
                                 <label class="control-label" for="deferred-date">Сохранить на</label>
                                 <?php $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сенября', 'октября', 'ноября', 'декабря']; ?>
                                 <?= Html::dropDownList('deferred-date', null,
@@ -234,7 +250,7 @@ use kartik\builder\Form;
                             </div>
                         </div>
                         <div class="col-sm-6">
-                            <div class="col-sm-12" type="textInput">
+                            <div type="textInput">
                                 <label class="control-label" for="deferred-date-input">Выберите дату</label>
                                 <?= DatePicker::widget(
                                     [

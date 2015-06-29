@@ -81,11 +81,18 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
                 <div style="padding-top: 15px; text-align: center;">
                     <?php if ($myTroublesCount > 0): ?>
                         <div class="menupanel" style="text-align: center">
-                            <a><?= $user->name ?></a><br>
-                            <a href="/site/logout">Выйти</a><br>
-                            <a href="/?module=tt&action=list2&mode=2"
-                               style="font-weight: bold; color: #a00000; font-size: 12px;">Поручено <?= $myTroublesCount ?>
-                                заявок</a>
+                            <a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a>
+                            <ul class="user-menu" style="display: none;">
+                                <li><a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a></li>
+                                <li><a href="/?module=usercontrol&action=edit">Изменить профайл</a></li>
+                                <li><a href="/?module=usercontrol&amp;action=edit_pass">Изменить пароль</a></li>
+                                <li><a href="/site/logout">Выход</a></li>
+                            </ul>
+                            <br>
+                            <br>
+                            <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
+                                Поручено <?= $myTroublesCount ?> заявок
+                            </a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -97,14 +104,17 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
                     <?= $this->render('widgets/search') ?>
                     <?php if ($activeClient): ?>
                         <div class="col-sm-12">
-                            <h2 style=" display: inline-block; margin: 0; font-weight: normal; margin-top: 8px;" class="c-blue-color">
-                                <a href="/client/view?id=<?= $activeClient->id ?>">
-                                    <?= $activeClient->contract->contragent->name_full ?> / Договор
-                                    № <?= $activeClient->contract->number ?> / ЛС № <?= $activeClient->id ?>
-                                </a>
+                            <?php
+                            $str = htmlspecialchars($activeClient->contract->contragent->name_full .' / Договор
+                            № '. $activeClient->contract->number .' / ЛС № '. $activeClient->id);
+                            ?>
+                            <h2 style="display: inline-block; margin: 0; font-weight: normal; margin-top: 8px;
+                                    max-width: 90%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
+                            " class="c-blue-color"
+                                title="<?=$str?>">
+                                <a href="/client/view?id=<?= $activeClient->id ?>"><?=$str?></a>
                             </h2>
-                            &nbsp;
-                            <a href="/account/unfix" title="Снять"><i class="uncheck"></i> </a>
+                            <a href="/account/unfix" title="Снять" style="vertical-align: text-bottom;"><i class="uncheck"></i> </a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -165,6 +175,8 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
         $('.select2').select2();
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
+
+        $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
     });
 </script>
 
