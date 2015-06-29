@@ -17,7 +17,6 @@ class ContractController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['edit', 'create'],
                         'roles' => ['clients.edit'],
                     ],
                 ],
@@ -52,7 +51,7 @@ class ContractController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['client/view','id'=>$childId]);
+            return $this->redirect(['client/view','id'=>$childId]);
         }
 
         return $this->render("edit", [

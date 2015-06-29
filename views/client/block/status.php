@@ -13,7 +13,7 @@ use \yii\helpers\Url;
     <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus->color ?>;">
         <div class="col-sm-3">
             Статус: <b><?= $contractForm->currentBusinessProcessStatus->name ?></b>
-            <a href="#" onclick="$('#statuses').toggle(); $('#w1 .row').slice(0,2).toggle(); return false;">
+            <a href="#" class="status-block-toggle">
                 <img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть">
             </a>
         </div>
@@ -59,7 +59,7 @@ use \yii\helpers\Url;
 
         </div>
     </div>
-    <div class="row" id="statuses" <?=$_COOKIE['openedBlock']!='statuses'?'style="display: none;"':''?>>
+    <div class="row" id="statuses">
         <div class="col-sm-12">
             <?php foreach ($client->contract->comments as $comment): ?>
                 <div class="col-sm-12">
@@ -118,9 +118,15 @@ use \yii\helpers\Url;
     <?php ActiveForm::end(); ?>
 </div>
 <script>
+    $('.status-block-toggle').on('click', function(){
+        $('#statuses').toggle(); $('#w1 .row').slice(0,2).toggle(); return false;
+    })
+
     $(function () {
         document.cookie = "openedBlock=;";
-        $('#w1 .row').slice(0,2).toggle();
+        <?php if($_COOKIE['openedBlock']!='statuses'):?>
+            $('.status-block-toggle').click();
+        <?php endif; ?>
 
         var statuses = <?= json_encode($client->getBpStatuses()) ?>;
         var s1 = $('#contracteditform-contract_type_id');

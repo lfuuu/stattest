@@ -1937,7 +1937,7 @@ class ApiLk
         if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
             return false;
 
-        $contactId = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$db->escape($clientId)."' AND id = '".$db->escape($id)."'");
+        $contactId = \app\models\ClientContact::findOne(['client_id' => $clientId, 'id' => $id]);
         if (!$contactId)
             return false;
 
@@ -2096,26 +2096,14 @@ class ApiLk
 
     public static function checkVoipNumber($number)
     {
-        global $db;
-        $options = array();
-
-        try{
             if (strpos($number, '7800') === 0)
             {
-                $options['conditions'] = array('E164 = ? AND CAST(NOW() as DATE) BETWEEN actual_from AND actual_to', $number);
-                $check = UsageVoip::first($options);
+                $check = \app\models\UsageVoip::find()->where("CAST(NOW() as DATE) BETWEEN actual_from AND actual_to")->andWhere(["E164" => $number])->one();
             } else {
-                $check = VoipNumbers::first($number);
-            }
-        }catch(ActiveRecord\RecordNotFound $r)
-            {
-                return false;
-            }catch(Exception $e)
-            {
-                throw $e;
+                $check = \app\models\VoipNumber::findOne(["number" => $number]);
             }
 
-        return true;
+            return (bool)$check;
     }
 
     public static function getPayPalToken($accountId, $sum)

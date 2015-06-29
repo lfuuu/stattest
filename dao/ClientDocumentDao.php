@@ -32,7 +32,8 @@ class ClientDocumentDao extends Singleton
 
         $lastContract = BillContract::getLastContract($accountId, time());
 
-        $contractNo = $lastContract["no"];
+        //$contractNo = $lastContract["no"];
+        $contractNo = $_contractNo;
         $contractDate = date("d.m.Y", $lastContract["date"]);
         $contractDopDate = "01.01.2012";
         $contractDopNo = "0";
@@ -40,7 +41,7 @@ class ClientDocumentDao extends Singleton
         if ($contractType == "contract")
         {
             $contractDate = $_contractDate;
-            $contractNo = $_contractNo;
+            //$contractNo = $_contractNo;
         } else {
 
             if ($contractType == "agreement")
@@ -50,7 +51,7 @@ class ClientDocumentDao extends Singleton
 
                 $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
 
-                $contractNo = $lastContract["no"];
+                //$contractNo = $lastContract["no"];
                 $contractDate = date("d.m.Y", $lastContract["date"]);
             } else { //blank
                 $contractDopDate = date("d.m.Y");
@@ -89,8 +90,8 @@ class ClientDocumentDao extends Singleton
         $userId = null
     )
     {
-        if(!$no)
-            $no = $accountId.'-'.date('y');
+        /*if(!$no)
+            $no = $accountId.'-'.date('y');*/
 
         //save in DB
         $c = new ClientDocument;

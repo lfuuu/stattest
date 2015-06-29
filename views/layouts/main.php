@@ -79,7 +79,6 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
             </div>
             <div class="col-sm-6">
                 <div style="padding-top: 15px; text-align: center;">
-                    <?php if ($myTroublesCount > 0): ?>
                         <div class="menupanel" style="text-align: center">
                             <a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a>
                             <ul class="user-menu" style="display: none;">
@@ -88,13 +87,14 @@ $activeClient = \app\models\ClientAccount::findOne($fixclient_data['id']);
                                 <li><a href="/?module=usercontrol&amp;action=edit_pass">Изменить пароль</a></li>
                                 <li><a href="/site/logout">Выход</a></li>
                             </ul>
-                            <br>
-                            <br>
-                            <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
-                                Поручено <?= $myTroublesCount ?> заявок
-                            </a>
+                            <?php if ($myTroublesCount > 0): ?>
+                                <br>
+                                <br>
+                                <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
+                                    Поручено <?= $myTroublesCount ?> заявок
+                                </a>
+                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>

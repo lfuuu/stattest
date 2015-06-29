@@ -18,6 +18,7 @@ class ContactController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['*'],
                         'roles' => ['clients.edit'],
                     ],
                 ],

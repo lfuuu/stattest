@@ -6,7 +6,6 @@ use yii\db\ActiveRecord;
 use app\dao\ClientAccountDao;
 use app\queries\ClientAccountQuery;
 use app\classes\FileManager;
-use yii\web\User;
 
 /**
  * @property int $id
@@ -24,6 +23,7 @@ use yii\web\User;
 class ClientAccount extends ActiveRecord
 {
     public $client_orig = '';
+    public $sale_channel=0;
 
     public static $statuses = array(
         'negotiations' => array('name' => 'в стадии переговоров', 'color' => '#C4DF9B'),
@@ -132,12 +132,12 @@ class ClientAccount extends ActiveRecord
 
     public function getSigner_name()
     {
-        return $this->contract->contragent->name;
+        return $this->contract->contragent->fio;
     }
 
     public function getSigner_nameV()
     {
-        return $this->contract->contragent->nameV;
+        return $this->contract->contragent->fioV;
     }
 
     public function getNds_zero()
@@ -412,7 +412,7 @@ class ClientAccount extends ActiveRecord
     public function getOfficialContact()
     {
         $res = [];
-        $contacts = ClientContact::find(['client_id' => $this->id, 'is_official'=>1])->all;
+        $contacts = ClientContact::find(['client_id' => $this->id, 'is_official'=>1])->all();
         foreach($contacts as $contact){
             $res[$contact->type] = $contact;
         }

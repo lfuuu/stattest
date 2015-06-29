@@ -26,7 +26,7 @@ class AccountController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'load-bp-statuses', 'unfix'],
+                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
                         'roles' => ['clients.read'],
                     ],
                     [
@@ -127,7 +127,12 @@ class AccountController extends BaseController
         if (Yii::$app->request->isAjax) {
             $res = [];
             foreach ($dataProvider->models as $model)
-                $res[] = ['url' => Url::toRoute(['client/view', 'id' => $model->id]), 'value' => $model->contract->contragent->name_full];
+                $res[] = [
+                    'url' => Url::toRoute(['client/view', 'id' => $model->id]),
+                    'value' => $model->contract->contragent->name_full,
+                    'color' => $model->contract->getBusinessProcessStatus()['color'],
+                    'id' => $model->id,
+                ];
             Yii::$app->response->format = Response::FORMAT_JSON;
             return $res;
         } else {

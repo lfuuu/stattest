@@ -167,7 +167,7 @@ class AccountEditForm extends Form
         $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
         $this->mail_print = ($this->mail_print) ? 'yes' : 'no';
 
-        $client->setAttributes($this->getAttributes(), false);
+        $client->setAttributes(array_filter($this->getAttributes()), false);
 
         if ($client->save()) {
             if (!$client->client) {
@@ -177,6 +177,9 @@ class AccountEditForm extends Form
             $this->setAttributes($client->getAttributes(), false);
             return true;
         }
+        else
+            $this->addErrors($client->getErrors());
+
         return false;
     }
 

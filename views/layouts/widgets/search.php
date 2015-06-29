@@ -4,6 +4,12 @@ use yii\helpers\Url;
 
 kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
 ?>
+<style>
+    .tt-dropdown-menu{
+        max-width: 700px;
+        width: auto;
+    }
+</style>
 <div>
     <form action="<?= Url::toRoute(['search/index', 'search' => Yii::$app->request->get()['search']]) ?>"
           id="search-form">
@@ -77,9 +83,6 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
 
             var substringMatcher = function () {
                 return function findMatches(q, cb) {
-                    var matches, substringRegex;
-                    matches = [];
-                    substrRegex = new RegExp(q, 'i');
                     searchs = false;
                     if (serchs)
                     {
@@ -89,6 +92,7 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
                         }, function (matches) {
                             searchs = true;
                             cb(matches);
+                            //$('.tt-dropdown-menu').width($(window).width() - $('#search').offset()['left'] - 50);
                         });
                     }
                 };
@@ -98,19 +102,28 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
                     hint: true,
                     highlight: true,
                     minLength: 3,
-                    async: true
+                    async: true,
                 },
                 {
                     name: 'states',
-                    source: substringMatcher()
-                }).bind('typeahead:selected', function(obj, selected, name) {
-                    location.href = selected['url'];
-                }).off('blur');
+                    source: substringMatcher(),
+                    templates: {
+                        suggestion: function(obj){
+                            return '<div>'
+                                + '<a href="' + obj['url'] + '">'
+                                + '<div style="background:'+obj['color']+'; width: 16px;height: 16px;display: inline-block;"></div>'
+                                + ' ЛС № ' + obj['id']
+                                + ' ' + obj['value']
+                                + '</a>';
+                        }
+                    }
+                });
         });
 
         $('#btn-options .btn-link').on('click', function (e) {
             e.preventDefault();
             $(this).parent().children(':not(.btn-link)').toggle();
+            $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
         });
 
         $('#btn-options .btn:not(.btn-link)').on('click', function (e) {

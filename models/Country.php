@@ -25,6 +25,8 @@ class Country extends ActiveRecord
 
     public static function getList()
     {
-        return ArrayHelper::map(self::find()->all(), 'code', 'name');
+        $arr = self::find()->all();
+        return ArrayHelper::map($arr, 'code', 'name');
     }
+
 }

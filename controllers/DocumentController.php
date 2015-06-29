@@ -58,6 +58,8 @@ class DocumentController extends BaseController
             $comment
         );
 
+
+
         $this->redirect(['client/view', 'id' => $id]);
     }
 
