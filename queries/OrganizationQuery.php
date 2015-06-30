@@ -22,8 +22,8 @@ class OrganizationQuery extends ActiveQuery
             $this
                 ->select('organization.*')
                 ->leftJoin('organization o2', 'organization.`id` = o2.`id`')
-                ->where('organization.`actual_from` < CAST(:date AS date)', [':date' => $this->getFilterDate()])
-                ->andWhere('o2.`actual_to` > CAST(:date AS date)', [':date' => $this->getFilterDate()])
+                ->where('organization.`actual_from` <= CAST(:date AS date)', [':date' => $this->getFilterDate()])
+                ->andWhere('o2.`actual_to` >= CAST(:date AS date)', [':date' => $this->getFilterDate()])
                 ->orderBy('organization.`actual_from` DESC');
     }
 

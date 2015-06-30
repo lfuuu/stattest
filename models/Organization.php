@@ -3,6 +3,7 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 use app\queries\OrganizationQuery;
+use app\dao\OrganizationDao;
 
 /**
  * @property int $id
@@ -47,7 +48,40 @@ class Organization extends ActiveRecord
         $this->logo_file_name = basename($this->logo_file_name);
         $this->stamp_file_name = basename($this->stamp_file_name);
 
+        $this->getDb()
+            ->createCommand(
+                "
+                UPDATE `organization` SET
+                    `actual_to` = :actual_to
+                WHERE
+                    `id` = :id AND
+                    `actual_from` < :date
+                ORDER BY `actual_from` DESC
+                LIMIT 1
+                ", [
+                    ':id' => $this->id,
+                    ':date' => $this->actual_from,
+                    ':actual_to' => (new \DateTime($this->actual_from))->modify('-1 day')->format('Y-m-d')
+                ]
+            )
+                ->execute();
+
+        $next_record = $this
+            ->find()
+            ->where(['id' => $this->id])
+            ->andWhere(['>', 'actual_from', $this->actual_from])
+            ->orderBy('actual_from asc')
+            ->one();
+        if ($next_record instanceof Organization) {
+            $this->actual_to = (new \DateTime($next_record->actual_from))->modify('-1 day')->format('Y-m-d');
+        }
+
         return parent::beforeSave($query);
+    }
+
+    public static function dao()
+    {
+        return OrganizationDao::me();
     }
 
     public static function find()

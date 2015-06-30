@@ -16,7 +16,7 @@ $history = Organization::find()
     ->all();
 
 foreach ($history as $record):
-    if ($record->id == $model->id):
+    if ($record->id == $model->id && $record->actual_from == $model->actual_from):
         $items[] = [
             'label'     => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
             'active'    => true,
@@ -25,7 +25,7 @@ foreach ($history as $record):
     else:
         $items[] = [
             'label' => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
-            'url'   => '/organization/edit/?id=' . $record->id,
+            'url'   => '/organization/edit/?id=' . $record->id . '&date=' . $record->actual_from,
         ];
     endif;
 endforeach;

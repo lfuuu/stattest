@@ -7,7 +7,6 @@ use app\classes\Assert;
 use app\classes\BaseController;
 use app\models\Organization;
 use app\forms\organization\OrganizationForm;
-use yii\helpers\ArrayHelper;
 
 class OrganizationController extends BaseController
 {
@@ -38,7 +37,7 @@ class OrganizationController extends BaseController
     public function actionIndex()
     {
         return $this->render('list', [
-            'records' => Organization::find()->actual()->all()
+            'records' => Organization::dao()->getCompleteList()
         ]);
     }
 
@@ -46,7 +45,7 @@ class OrganizationController extends BaseController
     {
         $model = new OrganizationForm;
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect(['edit', 'id' => $model->id]);
+            $this->redirect(['edit', 'id' => $model->id, 'date' => $model->actual_from]);
         }
 
         return $this->render('form', [
@@ -55,15 +54,15 @@ class OrganizationController extends BaseController
         ]);
     }
 
-    public function actionEdit($id)
+    public function actionEdit($id, $date)
     {
-        $record = Organization::findOne($id);
+        $record = Organization::findOne(['id' => $id, 'actual_from' => $date]);
 
         Assert::isObject($record);
 
         $model = new OrganizationForm;
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($record)) {
-            $this->redirect(['edit', 'id' => $model->id]);
+            $this->redirect(['edit', 'id' => $model->id, 'date' => $model->actual_from]);
         }
 
         $model->setAttributes($record->getAttributes(), false);
@@ -74,8 +73,15 @@ class OrganizationController extends BaseController
 
     public function actionDuplicate($firma)
     {
+        $organization = Organization::find()->actual()->byFirma($firma)->one();
+
+        if (!$organization instanceof Organization)
+            $organization = Organization::find()->byFirma($firma)->orderBy('actual_from DESC')->one();
+
+        Assert::isObject($organization);
+
         $model = new OrganizationForm;
-        $model->duplicate(Organization::find()->where(['firma' => $firma])->actual()->one());
+        $model->duplicate($organization);
 
         return $this->render('form', [
             'model' => $model,

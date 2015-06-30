@@ -11,7 +11,6 @@ use app\models\Country;
 use app\models\Person;
 
 /** @var $model OrganizationForm */
-
 ?>
 
 <?php if (!empty($frm_header)): ?>
@@ -23,7 +22,8 @@ use app\models\Person;
 <div class="container" style="width: 100%; padding-top: 20px;">
     <?php
     $form_options = [
-        'type' => ActiveForm::TYPE_VERTICAL
+        'type' => ActiveForm::TYPE_VERTICAL,
+        'id' => 'OrganizationFrm',
     ];
     if ($mode == 'duplicate')
         $form_options['action'] = '/organization/add';
@@ -137,7 +137,9 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'director_id')
                         ->dropDownList(
-                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominativus')
+                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominativus'),[
+                                'prompt' => 'Выберите директора',
+                            ]
                         )
                         ->label('Директор');
                     ?>
@@ -148,7 +150,9 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'accountant_id')
                         ->dropDownList(
-                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominativus')
+                            ArrayHelper::map(Person::find()->all(), 'id', 'name_nominativus'), [
+                                'prompt' => 'Выберите бухгалтера',
+                            ]
                         )
                         ->label('Главный бухгалтер');
                     ?>
@@ -222,7 +226,11 @@ use app\models\Person;
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'bank_bik')->label('БИК');
+                    echo $form->field($model, 'bank_bik')->textInput([
+                        'class' => 'search-info',
+                        'data-type' => 'rpc-find-bank-1c',
+                        'data-param' => 'findBik',
+                    ])->label('БИК');
                     ?>
                 </div>
             </div>
@@ -239,7 +247,7 @@ use app\models\Person;
             <div class="col-sm-12">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'bank_name')->textInput(['readonly' => true])->label('Название банка');
+                    echo $form->field($model, 'bank_name')->label('Название банка');
                     ?>
                 </div>
             </div>
@@ -248,7 +256,7 @@ use app\models\Person;
             <div class="col-sm-12">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'bank_correspondent_account')->textInput(['readonly' => true])->label('Кор. счет');
+                    echo $form->field($model, 'bank_correspondent_account')->label('Кор. счет');
                     ?>
                 </div>
             </div>
@@ -368,9 +376,23 @@ use app\models\Person;
     ?>
 </div>
 
-
-
 <script type="text/javascript">
+var frm = 'OrganizationFrm',
+    search_result = {
+        'findBik': function(data) {
+            var fields = {
+                'corr_acc' : 'bank_correspondent_account',
+                'bank_name' : 'bank_name'
+            };
+
+            for (var key in data) {
+                if (data.hasOwnProperty(key) && fields[key]) {
+                    $('#' + frm).find('input[name*="' + fields[key] + '"]').val(data[key]);
+                }
+            }
+        }
+    };
+
 jQuery(function() {
     $('.image_preview_select')
         .change(function() {
@@ -383,8 +405,21 @@ jQuery(function() {
         })
         .trigger('change');
 
-    $('input[name="OrganizationForm[bank_bik]"]').keyup(function(e) {
-        //statlib.modules.clients.create.findByBik(e);
+    $('input.search-info').bind('keyup change', function() {
+        var that = $(this);
+
+        $.ajax({
+            url: '/data/' + that.data('type') + '/?value=' + that.val(),
+            dataType: 'json',
+            beforeSend: function() {
+                that.addClass('ui-autocomplete-loading');
+            },
+            success: function(result) {
+                if ($.isFunction(search_result[ that.data('param') ]))
+                    search_result[ that.data('param') ]($.parseJSON(result));
+                that.removeClass('ui-autocomplete-loading');
+            }
+        });
     });
 });
 </script>
@@ -409,4 +444,7 @@ jQuery(function() {
         left: -200px;
         right: -200px;
     }
+.ui-autocomplete-loading {
+    background: white url('images/ajax-loader-small.gif') 98% center no-repeat;
+}
 </style>

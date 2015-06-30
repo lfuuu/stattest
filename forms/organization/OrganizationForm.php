@@ -96,7 +96,6 @@ class OrganizationForm extends Form
     public function duplicate(Organization $organization)
     {
         $record = clone $organization;
-        unset($record->id);
         unset($record->actual_from);
         $this->setAttributes($record->getAttributes());
 
