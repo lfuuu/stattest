@@ -374,6 +374,7 @@ $(function(){
         <td><select name=type class=text>
                 <option id="cl_type_org" value='org'{if $client.type=='org'} selected{/if}>Юр.лицо</option>
                 <option id="cl_type_priv" value='priv'{if $client.type=='priv'} selected{/if}>Физ.лицо</option>
+                <option id="cl_type_ip"   value='ip'{if $client.type=='ip'} selected{/if}>ИП</option>
                 <option id="cl_type_org" value='office'{if $client.type=='office'} selected{/if}>Офис</option>
                 <option id="cl_type_org" value='multi'{if $client.type=='multi'} selected{/if}>Магазин</option>
                 <option id="cl_type_org" value='distr'{if $client.type=='distr'} selected{/if}>Дистрибьютор</option>
