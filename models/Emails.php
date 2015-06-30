@@ -5,6 +5,7 @@ use app\classes\bill\EmailBiller;
 use app\classes\transfer\EmailServiceTransfer;
 use app\dao\services\EmailsServiceDao;
 use yii\db\ActiveRecord;
+use app\queries\UsageQuery;
 use DateTime;
 
 /**
@@ -16,6 +17,11 @@ class Emails extends ActiveRecord implements Usage
     public static function tableName()
     {
         return 'emails';
+    }
+
+    public static function find()
+    {
+        return new UsageQuery(get_called_class());
     }
 
     public static function dao()

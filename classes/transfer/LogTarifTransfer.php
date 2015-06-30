@@ -41,7 +41,7 @@ abstract class LogTarifTransfer
             $targetLogTariff = new $logTariff;
             $targetLogTariff->setAttributes($logTariff->getAttributes(), false);
             unset($targetLogTariff->id);
-            $targetLogTariff->date_activation = $serviceTransfer->getActualDate();
+            //$targetLogTariff->date_activation = $serviceTransfer->getActualDate(); // переносим дату активации как есть
             $targetLogTariff->ts = $serviceTransfer->getActivationDatetime();
             $targetLogTariff->id_service = $targetServiceId;
 

@@ -16,8 +16,8 @@ class IpPortsServiceDao extends Singleton implements ServiceDao
 
         return
             UsageIpPorts::find()
-                ->andWhere(['client' => $client->client])
-                ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
+                ->client($client->client)
+                ->actual()
                 ->andWhere(['next_usage_id' => 0])
                 ->all();
     }
