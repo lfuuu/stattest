@@ -64,11 +64,9 @@ class PersonController extends BaseController
         $model = new PersonForm;
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['success' => 1];
+            $this->redirect('/person');
         }
 
-        $this->layout = 'minimal';
         return $this->render('edit', [
             'model' => $model
         ]);
@@ -82,12 +80,10 @@ class PersonController extends BaseController
 
         $model = new PersonForm;
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save($person)) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['success' => 1];
+            $this->redirect('/person');
         }
 
         $model->setAttributes($person->getAttributes(), false);
-        $this->layout = 'minimal';
         return $this->render('edit', [
             'model' => $model,
             'person' => $person,

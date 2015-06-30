@@ -61,6 +61,9 @@ $form = ActiveForm::begin([
                             FileHelper::findByPattern('SIGNATURE_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
                                 'prompt' => 'Выбрать подпись',
+                                'data-source' => Yii::$app->params['SIGNATURE_DIR'],
+                                'data-target' => '#full_signature_file_name',
+                                'class' => 'image_preview_select',
                             ]
                         )
                         ->label('Подпись');
@@ -93,7 +96,7 @@ $form = ActiveForm::begin([
                         Html::button('Отменить', [
                             'class' => 'btn btn-link modal-form-close',
                             'style' => 'margin-right: 15px;',
-                            'id' => 'dialog-close',
+                            'onClick' => 'self.location = "/person";',
                         ]) .
                         Html::submitButton('Сохранить', ['class' => 'btn btn-primary']) .
                     '</div>'
@@ -106,36 +109,16 @@ $form = ActiveForm::begin([
 
 <script type="text/javascript">
 jQuery(document).ready(function() {
-    $('select[name="PersonForm[signature_file_name]"')
+    $('.image_preview_select')
         .change(function() {
-            var $value = $(this).find('option:selected').val(),
-                $image = $('<img />').attr('src', $value);
+            var $source = $(this).data('source'),
+                $value = $(this).find('option:selected').val(),
+                $image = ($value != '' ? $('<img />').attr('src', $source + $value) : false);
 
-            $('#full_signature_file_name').html($value !== '' ? $image : '');
+            if ($(this).data('target'))
+                $($(this).data('target')).html($value ? $image : '');
         })
         .trigger('change');
-
-    $('form:eq(0)').submit(function(e){
-        $.ajax({
-            url: $(this).attr('action'),
-            type: $(this).attr('method'),
-            data: $(this).serialize(),
-            dataType: 'json',
-            async: false,
-            success: function() {
-                $('#dialog-close').trigger('click');
-            }
-        });
-        return false;
-    });
-
-    $('#dialog-close').click(function() {
-        window.parent.$dialog.dialog('close');
-    });
-
-    window.parent.$dialog.on('dialogclose', function(event, ui) {
-        window.parent.$.pjax.reload({container: '#PersonList'});
-    });
 });
 </script>
 
