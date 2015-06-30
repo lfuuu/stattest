@@ -11,6 +11,7 @@ use app\models\Payment;
 use app\models\BillDocument;
 use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
+use app\classes\bill\ClientAccountBiller;
 
 class m_newaccounts extends IModule
 {
@@ -997,54 +998,65 @@ class m_newaccounts extends IModule
                 ));
         $err=0;
         if ($obj=='connecting' || $obj=='connecting_ab') {
-            $services = get_all_services($fixclient,$fixclient_data['id'],1);
-            foreach ($services as $service) {
-                $s=ServiceFactory::Get($service,$bill);
-                $s->SetMonth(strtotime($s->service['actual_from']));
-                if ($obj=='connecting') {
-                    $R=$s->GetLinesConnect();
-                    if (!$bill->AddLines($R)) $err=1;
-                }
-                $R=$s->GetLinesMonth();
-                if (!$bill->AddLines($R)) $err=1;
-                $db->Query("update ".$service['service']." set status='working' where id='".$service['id']."'");
-            }
-        } elseif ($obj=='regular') {
-            ClientCS::getClientClient($fixclient);
-            $services = get_all_services($fixclient,$fixclient_data['id']);
-            $time = $bill->GetTs(); //берем дату счета, а не дату нажатия кнопки
+            $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-            $client = ClientCard::first($fixclient_data['id']);
+            $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
+
+            $connectingTransactions =
+                ClientAccountBiller::create($clientAccount, $periodicalDate, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
+                    ->createTransactions()
+                    ->getTransactions();
+
+            $connectingServices = [];
+
+            foreach ($connectingTransactions as $transaction) {
+                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $transaction->period_from, $transaction->period_to);
+                if ($obj == 'connecting') {
+                    $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
+                }
+            }
+
+            $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+            $b->dao()->recalcBill($b);
+            BillDocument::dao()->updateByBillNo($bill->GetNo());
+
+            foreach ($connectingServices as $connectingService) {
+                $db->Query("update ". $connectingService['type'] ." set status='working' where id='".$connectingService['id']."'");
+            }
+
+        } elseif ($obj=='regular') {
+
+/*
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
                 ClientAccount::dao()->updateBalance($fixclient_data['id']);
-                $client = ClientCard::first($fixclient_data['id']);
+            }
+*/
+
+            $clientAccount = ClientAccount::findOne($fixclient_data['id']);
+
+            $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
+            $resourceDate = new DateTime(\app\classes\Utils::dateEndOfPreviousMonth($bill->Get('bill_date')), $clientAccount->timezone);
+
+            $periodicalTransactions =
+                ClientAccountBiller::create($clientAccount, $periodicalDate, $connecting = $obj=='connecting', $periodical = true, $resource = false)
+                    ->createTransactions()
+                    ->getTransactions();
+
+            $resourceTransactions =
+                ClientAccountBiller::create($clientAccount, $resourceDate, $connecting = false, $periodical = false, $resource = true)
+                    ->createTransactions()
+                    ->getTransactions();
+
+            foreach ($periodicalTransactions as $transaction) {
+                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $transaction->period_from, $transaction->period_to);
             }
 
-            $_R = [];
-            foreach ($services as $service){
-                // если у нас телефония, или интернет, и канал уже закрыт прошлым числом - все равно надо предъявлять превышение лимита
-                if(!in_array($service['service'],array('usage_voip','usage_ip_ports', 'usage_virtpbx')) && (unix_timestamp($service['actual_from']) > $time || unix_timestamp($service['actual_to']) < $time))
-                    continue;
-                $s=ServiceFactory::Get($service,$bill);
-                $s->SetMonth($bill->GetTs());
-                $R_line=$s->GetLinesMonth();
-                if(empty($R_line[0][0]))
-                    continue;
-
-                $_R[] = $R_line;
+            foreach ($resourceTransactions as $transaction) {
+                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $transaction->period_from, $transaction->period_to);
             }
 
-            if ($_R)
-            {
-                $RS = $bill->CombineRows($_R);
-                foreach($RS as $R)
-                {
-                    if(!$bill->AddLines($R))
-                        $err=1;
-                }
-            }
-
+/*
             if ($client->status == "operator")
             {
                 if ($client->is_bill_only_contract && get_param_raw('unite', 'Y') == 'Y')
@@ -1056,6 +1068,10 @@ class m_newaccounts extends IModule
                     $bill->applyRefundOverpay($client->balance);
                 }
             }
+*/
+            $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+            $b->dao()->recalcBill($b);
+
         } elseif ($obj=='template') {
             $tbill=get_param_protected("tbill");
             foreach ($db->AllRecords('select * from newbill_lines where bill_no="'.$tbill.'" order by sort') as $r) {
@@ -1145,67 +1161,6 @@ class m_newaccounts extends IModule
                 echo "<b>Всего {$totalErrorsCount} ошибок!</b><br/>";
             }
             exit;
-
-
-            $p='<span style="display:none">';
-            for ($i=0;$i<200;$i++) $p.='                                                     ';
-            $p.='</span>';
-
-            $res = mysql_query('select * from clients where status NOT IN ("closed","deny","tech_deny", "trash") order by id');
-            while($c=mysql_fetch_assoc($res)){
-                $bill = new Bill(null,$c,time(), 1, null, false);
-                $bill2 = null;
-                $services = get_all_services($c['client'],$c['id']);
-                $client = null;
-                if ($c['status'] == "operator" && $c['is_bill_with_refund'])
-                {
-                    ClientAccount::dao()->updateBalance($c['id']);
-                    $client = ClientCard::first($c['id']);
-                }
-
-                $RS = [];
-                foreach($services as $service){
-                    $s=ServiceFactory::Get($service,$bill);
-                    $s->SetMonth(time());
-                    $RS[]=$s->GetLinesMonth();
-                }
-
-                $RS = $bill->CombineRows($RS);
-                foreach($RS as $R) {
-                    if(!$bill->AddLines($R)){    //1 - не все строки добавлены из-за расхождения валют
-                        if(!$bill2)
-                            $bill2 = new Bill(null,$c,time(),1, ($c['currency']=='RUB'?'USD':'RUB'), false);
-                        $bill2->AddLines($R);
-                    }
-                }
-                if($bill2){
-                    $no=$bill2->GetNo();
-                    $v=$bill2->Save(1);
-                    if($v)
-                        echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен<br>");
-                    unset($bill2);
-                }
-                $no=$bill->GetNo();
-                $v=$bill->Save(1);
-                if ($c['status'] == "operator")
-                {
-                	if ($c['is_bill_only_contract'])
-                	{
-                		$bill->changeToOnlyContract();
-                	}
-                	if ($c['is_bill_with_refund'] && !is_null($client) && $client->balance > 0)
-                	{
-                		$bill->applyRefundOverpay($client->balance);
-                	}
-                }
-                unset($bill);
-                if($v==1){
-                    echo("&nbsp; Счёт <a href='?module=newaccounts&action=bill_view&bill={$no}'>{$no}</a> для клиента <a href='?module=clients&id={$c['client']}'>{$c['client']}</a> выставлен".$p."<br>");
-                    flush();
-                }
-            }
-            $design->ProcessEx();
-            return;
         }
         elseif ($obj=='print') {
             $do_bill=get_param_raw('do_bill');
