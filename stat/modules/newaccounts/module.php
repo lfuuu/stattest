@@ -1003,17 +1003,21 @@ class m_newaccounts extends IModule
             $periodicalDate = new DateTime(\app\classes\Utils::dateBeginOfMonth($bill->Get('bill_date')), $clientAccount->timezone);
 
             $connectingTransactions =
-                ClientAccountBiller::create($clientAccount, $periodicalDate, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
+                ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = true, $connecting = $obj == 'connecting', $periodical = true, $resource = false)
                     ->createTransactions()
                     ->getTransactions();
 
             $connectingServices = [];
 
             foreach ($connectingTransactions as $transaction) {
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $transaction->period_from, $transaction->period_to);
-                if ($obj == 'connecting') {
-                    $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
-                }
+                $year = substr($transaction->billing_period, 0, 4);
+                $month = substr($transaction->billing_period, 5, 2);
+
+                $period_from = $year . '-' . $month . '-01';
+                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
+                $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
             }
 
             $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
@@ -1025,7 +1029,6 @@ class m_newaccounts extends IModule
             }
 
         } elseif ($obj=='regular') {
-
 /*
             if ($client->status == "operator" && $client->is_bill_with_refund)
             {
@@ -1039,21 +1042,34 @@ class m_newaccounts extends IModule
             $resourceDate = new DateTime(\app\classes\Utils::dateEndOfPreviousMonth($bill->Get('bill_date')), $clientAccount->timezone);
 
             $periodicalTransactions =
-                ClientAccountBiller::create($clientAccount, $periodicalDate, $connecting = $obj=='connecting', $periodical = true, $resource = false)
+                ClientAccountBiller::create($clientAccount, $periodicalDate, $onlyConnecting = false, $connecting = false, $periodical = true, $resource = false)
                     ->createTransactions()
                     ->getTransactions();
 
             $resourceTransactions =
-                ClientAccountBiller::create($clientAccount, $resourceDate, $connecting = false, $periodical = false, $resource = true)
+                ClientAccountBiller::create($clientAccount, $resourceDate, $onlyConnecting = false, $connecting = false, $periodical = false, $resource = true)
                     ->createTransactions()
                     ->getTransactions();
 
+
             foreach ($periodicalTransactions as $transaction) {
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $transaction->period_from, $transaction->period_to);
+                $year = substr($transaction->billing_period, 0, 4);
+                $month = substr($transaction->billing_period, 5, 2);
+
+                $period_from = $year . '-' . $month . '-01';
+                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
             }
 
             foreach ($resourceTransactions as $transaction) {
-                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $transaction->period_from, $transaction->period_to);
+                $year = substr($transaction->billing_period, 0, 4);
+                $month = substr($transaction->billing_period, 5, 2);
+
+                $period_from = $year . '-' . $month . '-01';
+                $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+                $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service', $transaction->service_type, $transaction->service_id, $period_from, $period_to);
             }
 
 /*
