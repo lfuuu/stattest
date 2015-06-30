@@ -185,11 +185,10 @@ $possibleServices = $model->getPossibleServices($client);
                                 Другая дата
                             </label>
                         </div>
-
                         <?php
                         echo DatePicker::widget([
                             'type' => DatePicker::TYPE_INPUT,
-                            'value' => $model->actual_custom,
+                            'value' => (new DateTime($model->actual_custom?:"now"))->format("d.m.Y"),
                             'name' => 'actual_from_datepicker',
                             'language' => 'ru',
                             'options' => [
@@ -208,7 +207,7 @@ $possibleServices = $model->getPossibleServices($client);
                             ]
                         ]);
                         ?>
-                        <input type="hidden" name="transfer[actual_custom]" value="0" />
+                        <input type="hidden" name="transfer[actual_custom]" value="<?=$model->actual_custom?>" />
 
                     </td>
                 </tr>
