@@ -50,8 +50,8 @@ class WelltimeServiceDao extends Singleton implements ServiceDao
 
         return
             UsageWelltime::find()
-                ->andWhere(['client' => $client->client])
-                ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
+                ->client($client->client)
+                ->actual()
                 ->andWhere(['next_usage_id' => 0])
                 ->all();
     }
