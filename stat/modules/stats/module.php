@@ -4193,7 +4193,7 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
 			b.region > 0 AND 
 			b.status IN ('testing', 'conecting', 'work') AND 
-			b.type IN ('org', 'priv') AND 
+			b.type IN ('org', 'priv','ip') AND 
 			sum > 0 
 		GROUP BY
 			b.region

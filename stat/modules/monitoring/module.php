@@ -508,7 +508,7 @@ class m_monitoring {
 		$options['conditions'] = array(
 			'C.region > 0 AND C.status = ? AND C.type IN (?) AND B.bill_date >= ? AND B.bill_date <= ? AND B.currency = ? AND B.sum > ?',
 			'work',
-			array('org', 'priv'),
+			array('org', 'priv', 'ip'),
 			date('Y-m-d', $from),
 			date('Y-m-d', $to),
 			'RUB',

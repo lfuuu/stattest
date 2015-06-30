@@ -4010,7 +4010,7 @@ class m_newaccounts extends IModule
         if($paymethod) $W[] = 'C.nal="'.$paymethod.'"';
         if($firma)     $W[] = 'C.firma="'.$firma.'"';
 
-        $W[] = "C.type in ('org', 'priv')";
+        $W[] = "C.type in ('org', 'priv', 'ip')";
 
         $W_gds = $W;
         
