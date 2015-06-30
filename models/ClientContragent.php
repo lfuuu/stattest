@@ -100,9 +100,10 @@ class ClientContragent extends ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         $super = ClientSuper::findOne($this->super_id);
-        $super->setAttribute('name', $this->name);
-        $super->save();
-
+        if($this->getOldAttribute('name') == $super->name) {
+            $super->setAttribute('name', $this->name);
+            $super->save();
+        }
     }
 
     public function beforeSave($insert)

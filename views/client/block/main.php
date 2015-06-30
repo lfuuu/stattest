@@ -84,9 +84,9 @@ use \app\models\ClientContract;
                                     <?php $clients = $contract->clients;
                                     foreach ($clients as $ck => $client): ?>
                                         <div
-                                            style="border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin-left: 30px;   margin-right: 0px; cursor: pointer; <?= ($ck) ? 'margin-top: 10px;' : '' ?>"
+                                            style="<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
                                             onclick="location.href='/client/view?id=<?= $client->id ?>'"
-                                            class="row  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
+                                            class="row row-ls  <?= (isset($activeClient) && $activeClient->id == $client->id) ? 'active-client' : ''; ?>">
                         <span class="col-sm-2"
                               style="font-weight: bold; color:<?= ($client->is_active) ? 'green' : 'black' ?>;">
                             ЛС № <?= $client->id ?>

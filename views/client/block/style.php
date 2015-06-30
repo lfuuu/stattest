@@ -74,5 +74,13 @@
     .contragent-wrap:last-child{
         border-bottom: solid #43657d 1px;
     }
+
+    .row-ls{
+        border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin-left: 30px;   margin-right: 0px; cursor: pointer;
+    }
+
+    .row-ls:hover{
+        background: rgb(213, 241, 255);
+    }
 </style>
 
