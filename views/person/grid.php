@@ -9,28 +9,17 @@ use app\classes\Html;
 /** @var $model PersonForm */
 
 $recordBtns = [
-    'update' => function($url, $model, $key) {
-        return Html::a(
-            '<span class="glyphicon glyphicon-pencil"></span>',
-            '/person/edit/?id=' . $model->id,
-            [
-                'title' => Yii::t('kvgrid', 'Update'),
-                'data-pjax' => 0,
-                'data-height' => 650,
-                'onClick' => 'return showIframePopup(this);',
-            ]
-        );
-    },
     'delete' => function($url, $model, $key) {
         if ($model->canDelete !== true)
             return Html::tag('span', '', [
                 'title' => 'Данная персона указана в организациях',
                 'class' => 'glyphicon glyphicon-trash',
                 'style' => 'opacity: 0.5;'
-            ]);
+            ]) .
+            Html::tag('span', 'Удаление', ['style' => 'margin-left: 4px;']);
 
         return Html::a(
-            '<span class="glyphicon glyphicon-trash"></span>',
+            '<span class="glyphicon glyphicon-trash"></span> Удаление',
             '/person/delete/?id=' . $model->id,
             [
                 'title' => Yii::t('kvgrid', 'Delete'),
@@ -66,7 +55,7 @@ echo GridView::widget([
         ],
         'actions' => [
             'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{update} {delete}</div>',
+            'template' => '<div style="text-align: center;">{delete}</div>',
             'buttons' => $recordBtns,
             'hAlign' => 'left',
         ]
@@ -81,8 +70,6 @@ echo GridView::widget([
                     [
                         'data-pjax' => 0,
                         'class' => 'btn btn-success btn-sm form-lnk',
-                        'data-height' => 650,
-                        'onClick' => 'return showIframePopup(this);',
                     ]
                 ),
         ]

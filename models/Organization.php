@@ -42,6 +42,14 @@ class Organization extends ActiveRecord
         return 'organization';
     }
 
+    public function beforeSave($query)
+    {
+        $this->logo_file_name = basename($this->logo_file_name);
+        $this->stamp_file_name = basename($this->stamp_file_name);
+
+        return parent::beforeSave($query);
+    }
+
     public static function find()
     {
         return new OrganizationQuery(get_called_class());

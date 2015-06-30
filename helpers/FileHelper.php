@@ -25,7 +25,8 @@ class FileHelper extends \yii\helpers\FileHelper
         if ($mode == 'assoc') {
             $result = [];
             for ($i = 0, $s = sizeof($files); $i < $s; $i++) {
-                $result[ str_replace($local_part, '', $files[$i]) ] = basename($files[$i]);
+                $file_name = basename($files[$i]);
+                $result[$file_name] = $file_name;
             }
             $files = $result;
         }

@@ -306,6 +306,9 @@ use app\models\Person;
                             FileHelper::findByPattern('ORGANIZATION_LOGO_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
                                 'prompt' => 'Выбрать логотип',
+                                'data-source' => Yii::$app->params['ORGANIZATION_LOGO_DIR'],
+                                'data-target' => '#full_frm_logo_file_name',
+                                'class' => 'image_preview_select',
                             ]
                         )
                         ->label('Логотип компании');
@@ -320,7 +323,10 @@ use app\models\Person;
                         ->dropDownList(
                             FileHelper::findByPattern('STAMP_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
-                                'prompt' => 'Выбрать печать'
+                                'prompt' => 'Выбрать печать',
+                                'data-source' => Yii::$app->params['STAMP_DIR'],
+                                'data-target' => '#full_frm_stamp_file_name',
+                                'class' => 'image_preview_select',
                             ]
                         )
                         ->label('Печать компании');
@@ -366,21 +372,14 @@ use app\models\Person;
 
 <script type="text/javascript">
 jQuery(function() {
-    $('select[name="OrganizationForm[logo_file_name]"]')
+    $('.image_preview_select')
         .change(function() {
-            var $value = $(this).find('option:selected').val(),
-                $image = $('<img />').attr('src', $value);
+            var $source = $(this).data('source'),
+                $value = $(this).find('option:selected').val(),
+                $image = ($value != '' ? $('<img />').attr('src', $source + $value) : false);
 
-            $('#full_frm_logo_file_name').html($value !== '' ? $image : '');
-        })
-        .trigger('change');
-
-    $('select[name="OrganizationForm[stamp_file_name]"]')
-        .change(function() {
-            var $value = $(this).find('option:selected').val(),
-                $image = $('<img />').attr('src', $value);
-
-            $('#full_frm_stamp_file_name').html($value !== '' ? $image : '');
+            if ($(this).data('target'))
+                $($(this).data('target')).html($value ? $image : '');
         })
         .trigger('change');
 
