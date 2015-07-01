@@ -6,6 +6,7 @@ use app\dao\services\SmsServiceDao;
 use app\dao\services\WelltimeServiceDao;
 use app\dao\services\EmailsServiceDao;
 use app\dao\services\ExtraServiceDao;
+use app\models\Organization;
 
 class m_services extends IModule{
     function GetMain($action,$fixclient){
@@ -425,8 +426,6 @@ class m_services extends IModule{
         global $design,$db;
         $id=get_param_protected('id');
         if ($id=='') return;
-        
-        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
 
         $conn=$db->GetRow("select * from usage_ip_ports where id='".$id."'");
         $routes=array(); $db->Query('select * from usage_ip_routes where (port_id="'.$id.'") and (actual_from<=NOW()) and (actual_to>=NOW()) order by id');
@@ -444,6 +443,16 @@ class m_services extends IModule{
         $design->assign('routes',$routes);
         $design->assign('cpe',get_cpe_history("usage_ip_ports",$id));
         ClientCS::Fetch($conn['client']);
+
+        //** Выпилить */
+        //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+
+        $client = $design->get_template_vars('client');
+        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        //** /Выпилить */
+
         $design->assign('ppp',$db->AllRecords('select * FROM usage_ip_ppp where client="'.$conn['client'].'"'));
         $design->assign('internet_suffix',$suffix);
         $sendmail = get_param_raw('sendmail',0);
@@ -468,9 +477,7 @@ class m_services extends IModule{
         global $design,$db;
         $id=get_param_protected('id');
         if ($id=='') return;
-    
-        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
-    
+
         $conn=$db->GetRow("select * from usage_ip_ports where id='".$id."'");
         $routes=array(); $db->Query('select * from usage_ip_routes where (port_id="'.$id.'") and (actual_from<=NOW()) and (actual_to>=NOW()) order by id');
         while ($r=$db->NextRecord()) {
@@ -487,6 +494,16 @@ class m_services extends IModule{
         $design->assign('routes',$routes);
         $design->assign('cpe',get_cpe_history("usage_ip_ports",$id));
         ClientCS::Fetch($conn['client']);
+
+        //** Выпилить */
+        //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+
+        $client = $design->get_template_vars('client');
+        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        //** /Выпилить */
+
         $design->assign('ppp',$db->AllRecords('select * FROM usage_ip_ppp where client="'.$conn['client'].'"'));
         $design->assign('internet_suffix',$suffix);
         $sendmail = get_param_raw('sendmail',0);
@@ -1247,7 +1264,15 @@ class m_services extends IModule{
         $design->assign('voip_devices',$R);
         ClientCS::Fetch($fixclient);
         ClientCS::FetchMain($fixclient);
-        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+
+        //** Выпилить */
+        //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+
+        $client = $design->get_template_vars('client');
+        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        //** /Выпилить */
 
         $sendmail = get_param_raw('sendmail',0);
         if($sendmail){
@@ -1276,8 +1301,15 @@ class m_services extends IModule{
     
         ClientCS::Fetch($fixclient);
         ClientCS::FetchMain($fixclient);
-        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
-    
+        //** Выпилить */
+        //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+
+        $client = $design->get_template_vars('client');
+        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        //** /Выпилить */
+
         $design->ProcessEx('../store/acts/voip_act_trunk.tpl');
     }
     
@@ -2024,7 +2056,14 @@ class m_services extends IModule{
             $r["password"] = $o[0][count($o[0])-1];
         }
 
-        Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+        //** Выпилить */
+        //Company::setResidents($db->GetValue("select firma from clients where client = '".$fixclient."'"));
+
+        $client = $design->get_template_vars('client');
+        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        //** /Выпилить */
 
         $design->assign('d',$r);
 

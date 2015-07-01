@@ -12,6 +12,7 @@ use app\models\BillDocument;
 use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\bill\ClientAccountBiller;
+use app\models\Organization;
 
 class m_newaccounts extends IModule
 {
@@ -2439,11 +2440,19 @@ class m_newaccounts extends IModule
             $design->assign('total_amount',$total_amount);
 
             $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
-
-            Company::setResidents($r["firma"], $docDate);
-            $design->assign("firm", Company::getProperty($r["firma"], $docDate));
-
             ClientCS::Fetch($r);
+
+            //** Выпилить */
+            //Company::setResidents($r["firma"], $docDate);
+            //$design->assign("firm", Company::getProperty($r["firma"], $docDate));
+
+            $client = $design->get_template_vars('client');
+            $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+            $design->assign('firma', $organization->getOldModeInfo());
+            $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+            $design->assign('firm_buh', $organization->getAccountant()->one()->getOldModeInfo());
+            //** /Выпилить */
+
             $r["manager_name"] = ClientCS::getManagerName($r["manager"]);
             $design->assign('bill_client',$r);
             return true;
@@ -3755,7 +3764,15 @@ class m_newaccounts extends IModule
         $date_to=$dateTo->getDay();
        
         $c = ClientCS::getOnDate($fixclient_data['id'], $date_from);
-        Company::setResidents($c["firma"], $date_to);
+
+        //** Выпилить */
+        //Company::setResidents($c["firma"], $date_to);
+
+        $organization = Organization::find()->byId($c['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        $design->assign('firm_buh', $organization->getAccountant()->one()->getOldModeInfo());
+        //** /Выпилить */
 
         $saldo=$db->GetRow('select * from newsaldo where client_id="'.$fixclient_data['id'].'" and newsaldo.is_history=0 order by id');
         $design->assign('saldo', $startsaldo=floatval(get_param_protected('saldo',0)));

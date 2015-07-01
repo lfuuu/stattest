@@ -10,6 +10,7 @@ use app\models\Contract;
 use app\models\ClientDocument;
 use app\models\ClientAccount;
 use app\models\ClientContact;
+use app\models\Organization;
 
 class ClientDocumentDao extends Singleton
 {
@@ -232,7 +233,15 @@ class ClientDocumentDao extends Singleton
 
 
 		$content = $this->contract_fix_static_parts_of_template(file_get_contents(Yii::$app->params['STORE_PATH'].$file), $clientId);
-		$this->contract_apply_firma($r["firma"], $contractDate);
+
+        //** Выпилить */
+        //$this->contract_apply_firma($r["firma"], $contractDate);
+
+        $organization = Organization::find()->byId($r['organization_id'])->actual()->one();
+        $this->design->assign('firm', $organization->getOldModeInfo());
+        $this->design->assign('firm_detail', $organization->getOldModeDetail());
+        //** /Выпилить */
+
         $this->contract_apply_support_phone($r["region"]);
 
         file_put_contents(Yii::$app->params['STORE_PATH'].$file, $content);//шаманство...

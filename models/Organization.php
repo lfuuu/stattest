@@ -101,4 +101,45 @@ class Organization extends ActiveRecord
         return $this->hasOne(Person::className(), ['id' => 'accountant_id']);
     }
 
+    public function getOldModeInfo()
+    {
+        $director = $this->getDirector()->one();
+
+        return [
+            'name'              => $this->name,
+            'name_full'         => $this->full_name,
+            'address'           => $this->legal_address,
+            'post_address'      => $this->post_address,
+            'inn'               => $this->tax_registration_id,
+            'kpp'               => $this->tax_registration_reason,
+            'acc'               => $this->bank_account,
+            'bank'              => $this->bank_name,
+            'kor_acc'           => $this->bank_correspondent_account,
+            'bik'               => $this->bank_bik,
+            'phone'             => $this->contact_phone,
+            'fax'               => $this->contact_fax,
+            'email'             => $this->contact_email,
+            'director'          => $director->name_nominativus,
+            'director_'         => $director->name_genitivus,
+            'director_post'     => $director->post_nominativus,
+            'director_post_'    => $director->post_genitivus,
+            'logo'              => \Yii::$app->params['ORGANIZATION_LOGO_DIR'] . $this->logo_file_name,
+            'site'              => $this->contact_site,
+        ];
+    }
+
+    public function getOldModeDetail()
+    {
+        return
+            $this->name . "<br /> Юридический адрес: " . $this->legal_address .
+            (isset($this->post_address) ? "<br /> Почтовый адрес: " . $this->post_address : "") .
+            "<br /> ИНН " . $this->tax_registration_id . ", КПП " . $this->tax_registration_reason .
+            "<br /> Банковские реквизиты:<br /> р/с:&nbsp;" . $this->bank_account . " в " . $this->bank_name .
+            "<br /> к/с:&nbsp;" . $this->bank_correspondent_account . "<br /> БИК:&nbsp;" . $this->bank_bik .
+            "<br /> телефон: " . $this->contact_phone .
+            (isset($this->contact_fax) && $this->contact_fax ? "<br /> факс: " . $this->contact_fax : "") .
+            "<br /> е-mail: " . $this->contact_email;
+
+    }
+
 }

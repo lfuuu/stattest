@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Company;
+use app\models\Organization;
 
 class m_routers {
     var $actions=array(
@@ -517,7 +518,14 @@ class m_routers {
         $t = $t->GetContracts();
         $design->assign('contract',$t[count($t)-1]);
 
-        Company::setResidents($db->GetValue("select firma from clients where client = '".$cpe["client"]."'"));
+        //** Выпилить */
+        //Company::setResidents($db->GetValue("select firma from clients where client = '".$cpe["client"]."'"));
+
+        $client = $design->get_template_vars('client');
+        $organization = Organization::find()->byId($client['organization_id'])->actual()->one();
+        $design->assign('firma', $organization->getOldModeInfo());
+        $design->assign('firm_director', $organization->getDirector()->one()->getOldModeInfo());
+        //** /Выпилить */
 
         $act=get_param_integer('act');
         if ($act=='1') {
