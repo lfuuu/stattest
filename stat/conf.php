@@ -203,5 +203,10 @@ ActiveRecord\Config::initialize(function($cfg) {
 });
 
 function trigger_error2($string) {
-    Yii::$app->session->addFlash('error', $string);
+    if (Yii::$app instanceof \app\classes\WebApplication)                                                                        │
+    {                                                                                                                            │Did you mean one of these?
+       Yii::$app->session->addFlash('error', $string);                                                                      │        reset
+    } else {                                                                                                                     │        stage
+       echo $string."\n";                                                                                                   │        stash
+    } 
 }
