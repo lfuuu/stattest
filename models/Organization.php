@@ -76,11 +76,17 @@ class Organization extends ActiveRecord
         return parent::beforeSave($query);
     }
 
+    /**
+     * @return OrganizationDao
+     */
     public static function dao()
     {
         return OrganizationDao::me();
     }
 
+    /**
+     * @return OrganizationQuery
+     */
     public static function find()
     {
         return new OrganizationQuery(get_called_class());

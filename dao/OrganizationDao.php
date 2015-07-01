@@ -7,6 +7,9 @@ use app\models\Organization;
 class OrganizationDao extends Singleton
 {
 
+    /**
+     * @return array
+     */
     public function getCompleteList()
     {
         $result = [];
