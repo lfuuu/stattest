@@ -41,12 +41,4 @@ class ClientContact extends ActiveRecord
 
         return true;
     }
-
-    public function getTags()
-    {
-        return TagToModel::find()
-            ->andWhere(['model' => TagToModel::getFormattedClassName(self::className())])
-            ->andWhere(['model_id' => $this->id])
-            ->all();
-    }
 }

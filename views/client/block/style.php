@@ -11,12 +11,6 @@
         line-height: 25px;
     }
 
-    .data-block .head3{
-        background: #e6e6e6;
-        text-align: center;
-        font-size: 14px;
-    }
-
     .data-block{
         margin: 10px 0;
     }
@@ -25,6 +19,10 @@
         padding: 5px;
         border-top: 1px solid rgb(82, 164, 203);
         background: #f7f7f7;
+    }
+
+    .data-block .row:nth-of-type(2){
+        background: #dcdcdc;
     }
 
     .data-block .row .row{
@@ -37,9 +35,12 @@
         border-top: none;
     }
 
-    .data-block .row:nth-of-type(2){
-        background: #dcdcdc;
+    .data-block .head3{
+        background: #e6e6e6 !important;
+        text-align: center;
+        font-size: 14px;
     }
+
     .status-block>form>.row{
         padding: 5px;
         border-top: 1px solid #929292;

@@ -6,7 +6,7 @@ class GoodsIncomeOrder extends ActiveRecord\Model
 		array('organization', 'class_name' => 'Organization'),
 		array('store', 'class_name' => 'Store', 'foreign_key' => 'store_id'),
         array('manager', 'class_name' => 'User', 'foreign_key' => 'manager_id'),
-        array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_id')
+        array('trouble', 'class_name' => 'Trouble', 'foreign_key' => 'bill_id'),
 	);
 	static $has_many = array(
 		array('lines', 'class_name' => 'GoodsIncomeOrderLine', 'foreign_key' => 'order_id'),
@@ -191,6 +191,11 @@ class GoodsIncomeOrder extends ActiveRecord\Model
     public function isEntering()
     {
         return $this->trouble->current_stage->state->name == GoodsIncomeOrder::STATUS_STAT_ENTERING;
+    }
+
+    public function get_client_card()
+    {
+        return \app\models\ClientAccount::findOne($this->client_card_id);
     }
 
 

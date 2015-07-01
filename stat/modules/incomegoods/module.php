@@ -122,7 +122,7 @@ class m_incomegoods extends IModule{
 
         if($order)
         {
-            $trouble  = Trouble::find_by_bill_id($order->id);
+            $trouble = \app\models\Trouble::findOne(['bill_id' => $order->id]);
             if($trouble){
                 StatModule::tt()->dont_filters = true;
                 #StatModule::tt()->showTroubleList(0,'top',$fixclient,null,null,$tt['id']);

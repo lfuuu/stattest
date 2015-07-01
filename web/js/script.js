@@ -54,10 +54,21 @@ function closeNavigationBlock(id){
     localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
 
+function openAllNavigationBlocks()
+{
+    $('.layout_left .menupanel').each(function(){
+        openNavigationBlock($(this).attr('id'));
+    });
+}
+
 function toggleNavigationBlock(id){
     if ($('#' + id).hasClass('opened')) {
         closeNavigationBlock(id);
     } else {
+        var blocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
+        $.map(blocks, function(v,k){
+            closeNavigationBlock(k);
+        });
         openNavigationBlock(id);
     }
 }

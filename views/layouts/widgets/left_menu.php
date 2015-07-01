@@ -5,6 +5,10 @@ global $module;
 $blocks = $this->context->getNavigationBlocks();
 ?>
 
+<div>
+    <a href="#" onclick="openAllNavigationBlocks(); return false;">Открыть все блоки</a>
+</div>
+
 <?php foreach ($blocks as $block): ?>
     <div id="navigation-block-<?=$block->id?>" class="menupanel">
         <div class="title" onclick="toggleNavigationBlock('navigation-block-<?=$block->id?>')">

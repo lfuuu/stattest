@@ -14,7 +14,6 @@ class m150629_195019_tags extends \app\classes\Migration
             )
             COLLATE='utf8_general_ci'
             ENGINE=InnoDB
-            AUTO_INCREMENT=6
             ;
 
 
@@ -22,12 +21,10 @@ class m150629_195019_tags extends \app\classes\Migration
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(50) NOT NULL,
                 `description` TEXT NOT NULL,
-                PRIMARY KEY (`id`),
-                INDEX `model` (`model`)
+                PRIMARY KEY (`id`)
             )
             COLLATE='utf8_general_ci'
             ENGINE=InnoDB
-            AUTO_INCREMENT=2
             ;
 
 

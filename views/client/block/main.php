@@ -6,8 +6,13 @@ use \app\models\ClientContract;
 <div class="main-client">
 
     <div class="row">
-        <div class="col-sm-10">
+        <div class="col-sm-8">
             <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $sClient->id ?>&childId=<?=$activeClient->id?>"><?= $sClient->name ?></a></h2>
+        </div>
+        <div class="col-sm-2" class="c-blue-color">
+            <a href="https://lk.mcn.ru/core/support/login_under_core_admin?stat_client_id=<?= $sClient->id ?>">
+                Переход в ЛК
+            </a>
         </div>
         <div class="col-sm-2" class="c-blue-color">
             <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $sClient->id, 'childId' => $activeClient->id]) ?>">

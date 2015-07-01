@@ -6,6 +6,7 @@
                 <?= $this->render('block/status', ['client' => $activeClient, 'contractForm' => $contractForm]); ?>
                 <?= $this->render('block/contact', ['client' => $activeClient]); ?>
                 <?= $this->render('block/document', ['client' => $activeClient]); ?>
+                <?= $this->render('block/file', ['client' => $activeClient]); ?>
             </div>
             <div class="col-sm-2">
                 <?= $this->render('block/rightmenu', ['client' => $activeClient]); ?>
@@ -22,7 +23,7 @@
     <script>
         d = false;
         $('.showFullTable').on('click', function () {
-            $(this).next().find('.fullTable').toggle();
+            $(this).parent().find('.fullTable').toggle();
         });
         var datepicker_ru = {
             closeText: 'Закрыть',
