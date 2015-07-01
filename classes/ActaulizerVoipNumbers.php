@@ -240,14 +240,14 @@ class ActaulizerVoipNumbers
                 throw new \Exception("Usage line not set");
             }
 
-            $usage_line  = UsageVoip::findOne($data["line7800_id"]);
+            $usage_line  = ActualNumber::findOne($data["line7800_id"]);
             if (!$usage_line)
             {
                 print_r($data);
                 throw new \Exception("Usage line not found");
             }
 
-            $s["nonumber_phone"] = $usage_line->E164;
+            $s["nonumber_phone"] = $usage_line->number;
         }
 
         if ($s["type"] == "multi")
@@ -294,7 +294,7 @@ class ActaulizerVoipNumbers
                 $structClientChange = [
                     "old_client_id" => (int)$old["client_id"],
                     "did" => $number,
-                    "client_id" => (int)$new["client_id"]
+                    "new_client_id" => (int)$new["client_id"]
                     ];
 
                 $this->execQuery("edit_client_id", $structClientChange);
@@ -350,11 +350,11 @@ class ActaulizerVoipNumbers
 
             if (isset($changedFields["line7800_id"]))
             {
-                $usage_line  = UsageVoip::findOne($changedFields["line7800_id"]);
+                $usage_line  = ActualNumber::findOne($changedFields["line7800_id"]);
                 if (!$usage_line)
                     throw new \Exception("Usage line not found");
 
-                $structChange["nonumber_phone"] = $usage_line->E164;
+                $structChange["nonumber_phone"] = $usage_line->number;
             }
 
             $this->execQuery("edit_did", $structChange);
