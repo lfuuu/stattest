@@ -11,4 +11,7 @@ return [
     'voip_package_monfly_fee' => '{service} előfizetői csomagdíj{date_range}',
 
     'voip_sip_trunk_monfly_fee' => '{tariff} SIP trunk előfizetési díja{date_range}',
+
+    'voip_group_calls_payment' => 'Távközlési előfizetési díj {service} telefonszámra{date_range}',
+    'voip_group_calls_payment_custom' => 'Távközlési előfizetési díj {service} telefonszámra{date_range}',
 ];
