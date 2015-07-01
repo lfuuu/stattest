@@ -59,7 +59,7 @@ if ($_SERVER["argv"][1] == "yesterday")
 }
 
 
-foreach ($db->AllRecords("SELECT client_id, usage_id FROM `actual_virtpbx` where is_started = 'yes'") as $vats)
+foreach ($db->AllRecords("SELECT client_id, usage_id FROM `actual_virtpbx`/* where is_started = 'yes'*/") as $vats)
 {
     $clientId = $vats["client_id"];
     $usageId = $vats["usage_id"];
