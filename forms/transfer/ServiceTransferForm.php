@@ -60,7 +60,7 @@ class ServiceTransferForm extends Form
             ['target_account_id_custom', 'required', 'when' => function ($model) { return !(int)$model->target_account_id; }, 'message' => 'Необходимо заполнить'],
             ['actual_from', 'required', 'when' => function ($model) { return $model->actual_from != 'custom'; }, 'message' => 'Необходимо заполнить'],
             ['actual_custom', 'required', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Необходимо заполнить'],
-            ['actual_custom', 'date', 'format' => 'php:d.m.Y', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Неверный формат даты переноса'],
+            ['actual_custom', 'date', 'format' => 'php:Y-m-d', 'when' => function ($model) { return $model->actual_from == 'custom'; }, 'message' => 'Неверный формат даты переноса'],
             ['target_account_id', 'validateTargetAccountId']
         ];
     }
