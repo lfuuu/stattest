@@ -148,7 +148,7 @@ $payer_company = $document->getPayer();
                             <?php
                             if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 140,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
@@ -181,7 +181,7 @@ $payer_company = $document->getPayer();
                                 $image_options = [
                                     'width' => 200,
                                     'border' => 0,
-                                    'style' => 'position:relative; left:40; top:-200; z-index:-10; margin-bottom:-170px;',
+                                    'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
                                 ];
 
                                 if ($inline_img):

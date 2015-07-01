@@ -171,6 +171,9 @@ $payer_company = $document->getPayer();
         <p><i>Сумма прописью: <?= Wordifier::Make($document->sum - $document->sum_discount, $document->getCurrency()); ?></i></p>
 
         <table border="0" align=center cellspacing="1" cellpadding="0">
+            <col width="*" />
+            <col width="250" />
+            <col width="*" />
             <tbody>
                 <tr>
                     <td><?= $director->post_nominativus; ?></td>
@@ -178,7 +181,7 @@ $payer_company = $document->getPayer();
                         <td>
                             <?php if(MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 140,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
@@ -209,7 +212,7 @@ $payer_company = $document->getPayer();
                         <td>
                             <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $accountant->signature_file_name)):
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 140,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
@@ -241,11 +244,10 @@ $payer_company = $document->getPayer();
                         <td>&nbsp;</td>
                         <td align=left>
                             <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
-                                //$organization->stamp_file_name = 'stampnew.gif';
                                 $image_options = [
                                     'width' => 200,
                                     'border' => 0,
-                                    'style' => 'position:relative; left:40; top:-200; z-index:-10; margin-bottom:-170px;',
+                                    'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
                                 ];
 
                                 if ($inline_img):

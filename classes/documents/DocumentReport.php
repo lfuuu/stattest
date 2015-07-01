@@ -2,10 +2,9 @@
 
 namespace app\classes\documents;
 
-use app\models\Organization;
 use Yii;
 use yii\base\Object;
-use app\classes\Company;
+use yii\db\ActiveRecord;
 use app\classes\BillQRCode;
 use app\classes\Html2Mhtml;
 use app\models\Bill;
@@ -33,7 +32,7 @@ abstract class DocumentReport extends Object
     protected $optionsPDF = ' --quiet -L 10 -R 10 -T 10 -B 10';
 
     /**
-     * @return mixed
+     * @return ActiveRecord
      */
     public function getOrganization()
     {
@@ -44,6 +43,9 @@ abstract class DocumentReport extends Object
                 ->one();
     }
 
+    /**
+     * @return array
+     */
     public function getPayer()
     {
         return
