@@ -138,6 +138,7 @@ class VpbxStatisticProcessor
 
             $record->date = $this->day;
             $record->client_id = $this->clientId;
+            $record->usage_id = $this->usageId;
 
             if ($stat["space"])
                 $record->use_space = $stat["space"];
