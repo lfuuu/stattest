@@ -4,7 +4,7 @@ use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
 use yii\helpers\ArrayHelper;
-use app\helpers\FileHelper;
+use app\helpers\MediaFileHelper;
 use app\classes\Html;
 use app\forms\organization\OrganizationForm;
 use app\models\Country;
@@ -311,7 +311,7 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'logo_file_name')
                         ->dropDownList(
-                            FileHelper::findByPattern('ORGANIZATION_LOGO_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
+                            MediaFileHelper::findByPattern('ORGANIZATION_LOGO_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
                                 'prompt' => 'Выбрать логотип',
                                 'data-source' => Yii::$app->params['ORGANIZATION_LOGO_DIR'],
@@ -329,7 +329,7 @@ use app\models\Person;
                     <?php
                     echo $form->field($model, 'stamp_file_name')
                         ->dropDownList(
-                            FileHelper::findByPattern('STAMP_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
+                            MediaFileHelper::findByPattern('STAMP_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
                                 'prompt' => 'Выбрать печать',
                                 'data-source' => Yii::$app->params['STAMP_DIR'],

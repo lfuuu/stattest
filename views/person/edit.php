@@ -1,7 +1,7 @@
 <?php
 
 use yii\helpers\Html;
-use app\helpers\FileHelper;
+use app\helpers\MediaFileHelper;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\forms\person\PersonForm;
@@ -58,7 +58,7 @@ $form = ActiveForm::begin([
                     <?php
                     echo $form->field($model, 'signature_file_name')
                         ->dropDownList(
-                            FileHelper::findByPattern('SIGNATURE_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
+                            MediaFileHelper::findByPattern('SIGNATURE_DIR', '*.{gif,png,jpg,jpeg}', 'assoc'),
                             [
                                 'prompt' => 'Выбрать подпись',
                                 'data-source' => Yii::$app->params['SIGNATURE_DIR'],

@@ -4,7 +4,7 @@ namespace app\classes\grid\column;
 
 use Yii;
 use yii\helpers\Html;
-use app\helpers\FileHelper;
+use app\helpers\MediaFileHelper;
 
 class SignatureColumn extends DataColumn
 {
@@ -15,7 +15,7 @@ class SignatureColumn extends DataColumn
     {
         $value = parent::getDataCellValue($model, $key, $index);
 
-        $file_exists = FileHelper::checkExists('SIGNATURE_DIR', $value);
+        $file_exists = MediaFileHelper::checkExists('SIGNATURE_DIR', $value);
 
         return Html::tag(
             'div',

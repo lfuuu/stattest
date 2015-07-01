@@ -5,7 +5,7 @@ use app\models\ClientContact;
 
 $contact = ClientContact::dao()->GetContact($document->bill->clientAccount->id, true);
 
-$company = $document->getCompany();
+$organization = $document->getOrganization();
 
 $payer_company = $document->getPayer();
 ?>
@@ -20,12 +20,12 @@ $payer_company = $document->getPayer();
 </p>
 
 <p>
-    <b>Поставщик: <?= $company['name']; ?></b><br />
-    ИНН: <?= $company['inn']; ?>;  КПП: <?= $company['kpp']; ?><br />
-    Адрес: <?= $company['address']; ?><br />
-    Телефон: <?= $company['phone']; ?><br />
-    Факс: <?= $company['fax']; ?><br />
-    р/с: <?= $company['acc']; ?> в <?= $company['bank']; ?><br />
-    к/с: <?= $company['kor_acc']; ?><br />
-    БИК: <?= $company['bik']; ?>
+    <b>Поставщик: <?= $organization->name; ?></b><br />
+    ИНН: <?= $organization->tax_registration_id; ?>;  КПП: <?= $organization->tax_registration_reason; ?><br />
+    Адрес: <?= $organization->legal_address; ?><br />
+    Телефон: <?= $organization->contact_phone; ?><br />
+    Факс: <?= $organization->contact_fax; ?><br />
+    р/с: <?= $organization->bank_account; ?> в <?= $organization->bank_name; ?><br />
+    к/с: <?= $organization->bank_correspondent_account; ?><br />
+    БИК: <?= $organization->bank_bik; ?>
 </p>

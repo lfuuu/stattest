@@ -13,10 +13,10 @@ class PersonOrganizationColumn extends DataColumn
     protected function renderDataCellContent($model, $key, $index)
     {
         $result = [];
-        $organizations = Organization::find()->actual()->byPerson($model->id)->all();
+        $organizations = Organization::find()->byPerson($model->id)->actual()->all();
 
         foreach ($organizations as $organization) {
-            $result[] = Html::a($organization->name, '/organization/edit?id=' . $organization->id);
+            $result[] = Html::a($organization->name, '/organization/edit?id=' . $organization->id . '&date='  .$organization->actual_from);
         }
 
         if (sizeof($result))

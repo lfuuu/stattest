@@ -5,7 +5,7 @@ namespace app\helpers;
 use Yii;
 use app\classes\Assert;
 
-class FileHelper extends \yii\helpers\FileHelper
+class MediaFileHelper extends \yii\helpers\FileHelper
 {
 
     public static function getLocalPath()
@@ -38,6 +38,12 @@ class FileHelper extends \yii\helpers\FileHelper
     {
         Assert::isIndexExists(Yii::$app->params, $path);
         return is_file(self::getLocalPath() . Yii::$app->params[$path] . $file_name);
+    }
+
+    public static function getFile($path, $file_name)
+    {
+        self::checkExists($path, $file_name);
+        return Yii::$app->params[$path] . $file_name;
     }
 
 }

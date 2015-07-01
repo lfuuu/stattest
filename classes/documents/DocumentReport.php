@@ -2,6 +2,7 @@
 
 namespace app\classes\documents;
 
+use app\models\Organization;
 use Yii;
 use yii\base\Object;
 use app\classes\Company;
@@ -34,25 +35,13 @@ abstract class DocumentReport extends Object
     /**
      * @return mixed
      */
-    public function getCompany()
+    public function getOrganization()
     {
-        return Company::getProperty($this->bill->clientAccount->firma, $this->bill->bill_date);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCompanyDetails()
-    {
-        return Company::getDetail($this->bill->clientAccount->firma, $this->bill->bill_date);
-    }
-
-    /**
-     * @return array
-     */
-    public function getCompanyResidents()
-    {
-        return Company::setResidents($this->bill->clientAccount->firma, $this->bill->bill_date);
+        return $this->bill->clientAccount
+            ->getOrganization()
+                ->setFilterDate($this->bill->bill_date)
+                ->actual()
+                ->one();
     }
 
     public function getPayer()

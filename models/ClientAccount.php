@@ -136,6 +136,11 @@ class ClientAccount extends ActiveRecord
         return $this->hasMany(ClientFile::className(), ['client_id' => 'id'])->orderBy("ts");
     }
 
+    public function getOrganization()
+    {
+        return Organization::find()->byId($this->organization_id);
+    }
+
     public function getFileManager()
     {
         return FileManager::create($this->id);

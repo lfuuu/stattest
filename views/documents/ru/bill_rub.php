@@ -3,6 +3,7 @@
 use app\classes\Utils;
 use app\classes\Wordifier;
 use app\classes\Html;
+use app\helpers\MediaFileHelper;
 
 /** @var $document app\classes\documents\DocumentReport */
 
@@ -10,9 +11,10 @@ $hasDiscount = $document->sum_discount > 0;
 
 $currency_w_o_value = Utils::money('', $document->getCurrency());
 
-$company = $document->getCompany();
+$organization = $document->getOrganization();
 
-$residents = $document->getCompanyResidents();
+$director = $organization->getDirector()->one();
+$accountant = $organization->getAccountant()->one();
 
 $payer_company = $document->getPayer();
 ?>
@@ -39,12 +41,12 @@ $payer_company = $document->getPayer();
                 </td>
                 <td align="right">
                     <div style="width: 110px;  text-align: center;padding-right: 10px;">
-                        <?php if (isset($company['logo']) && !empty($company['logo'])): ?>
+                        <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
                             <?php
                             if ($inline_img):
-                                echo Html::inlineImg('/images/'. $company['logo'], ['width' => 115, 'border' => 0]);
-                            else: ?>
-                                <img src="/images/<?= $company['logo']; ?>" width="115" border="0" />
+                                echo Html::inlineImg(MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name), ['width' => 115, 'border' => 0]);
+                                    else: ?>
+                                <img src="<?= MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name); ?>" width="115" border="0" />
                             <?php endif; ?>
                         <?php endif; ?>
 
@@ -171,29 +173,24 @@ $payer_company = $document->getPayer();
         <table border="0" align=center cellspacing="1" cellpadding="0">
             <tbody>
                 <tr>
-                    <td><?= $residents['firm_director']['position']; ?></td>
+                    <td><?= $director->post_nominativus; ?></td>
                     <?php if ($document->sendEmail): ?>
                         <td>
-                            <?php if(isset($residents['firm_director']['sign'])):
+                            <?php if(MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
                                 $image_options = [
                                     'width' => 115,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
 
-                                if ($residents['firm_director']['sign']['width']):
-                                    $image_options['width'] = $residents['firm_director']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_director']['sign']['height'];
-                                endif;
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_director']['sign']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/image/<?= $residents['firm_director']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php else: ?>
                                 _________________________________
@@ -204,32 +201,27 @@ $payer_company = $document->getPayer();
                             <br /><br />_________________________________<br /><br />
                         </td>
                     <?php endif; ?>
-                    <td>/ <?= $residents['firm_director']['name']; ?> /</td>
+                    <td>/ <?= $director->name_nominativus; ?> /</td>
                 </tr>
                 <tr>
                     <td>Главный бухгалтер</td>
                     <?php if ($document->sendEmail) :?>
                         <td>
-                            <?php if (isset($residents['firm_buh']['sign'])):
+                            <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $accountant->signature_file_name)):
                                 $image_options = [
                                     'width' => 115,
                                     'border' => 0,
                                     'align' => 'top',
                                 ];
 
-                                if ($residents['firm_buh']['sign']['width']) {
-                                    $image_options['width'] = $residents['firm_buh']['sign']['width'];
-                                    $image_options['height'] = $residents['firm_buh']['sign']['height'];
-                                }
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firm_buh']['sign']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/images/<?= $residents['firm_buh']['sign']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $accountant->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php else: ?>
                                 _________________________________
@@ -241,33 +233,29 @@ $payer_company = $document->getPayer();
                         </td>
                     <?php endif; ?>
                     <td>
-                        / <?= $residents['firm_buh']['name']; ?> /
+                        / <?= $accountant->name_nominativus; ?> /
                     </td>
                 </tr>
                 <?php if ($document->sendEmail): ?>
                     <tr>
                         <td>&nbsp;</td>
                         <td align=left>
-                            <?php if (isset($residents['firma'])):
+                            <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
+                                //$organization->stamp_file_name = 'stampnew.gif';
                                 $image_options = [
-                                    'width' => 115,
+                                    'width' => 200,
                                     'border' => 0,
-                                    'style' => $residents['firma']['style'],
+                                    'style' => 'position:relative; left:40; top:-200; z-index:-10; margin-bottom:-170px;',
                                 ];
 
-                                if ($residents['firma']['width']) {
-                                    $image_options['width'] = $residents['firma']['width'];
-                                    $image_options['height'] = $residents['firma']['height'];
-                                }
-
                                 if ($inline_img):
-                                    echo Html::inlineImg('/images/'. $residents['firma']['src'], $image_options);
+                                    echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
                                 else:
                                     array_walk($image_options, function(&$item, $key) {
                                         $item = $key . '="' . $item . '"';
                                     });
                                     ?>
-                                    <img src="/images/<?= $residents['firma']['src']; ?>"<?= implode(' ', $image_options); ?> />
+                                    <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>
