@@ -94,7 +94,7 @@ class m_incomegoods extends IModule{
             limit 100
             ", $whereData);
 
-        $organizations = Organization::all(['order' => 'name']);
+        $organizations = GoodsOrganization::all(['order' => 'name']);
 
         $design->assign('list', $list);
         $design->assign('statesCounter', $statesCounter);
@@ -147,7 +147,7 @@ class m_incomegoods extends IModule{
             $order->active = true;
             $order->currency = \app\models\Currency::RUB;
             $order->client_card_id = $fixclient_data['id'];
-            $order->organization_id = Organization::DEFAULT_FOR_INCOMES;
+            $order->organization_id = GoodsOrganization::DEFAULT_FOR_INCOMES;
             $order->store_id = Store::MAIN_STORE;
             $order->status = GoodsIncomeOrder::STATUS_AGREED;
             $order->price_includes_nds = true;
@@ -159,7 +159,7 @@ class m_incomegoods extends IModule{
 
         $design->assign('order', $order);
         $design->assign('statuses', GoodsIncomeOrder::$statuses);
-        $design->assign('organizations', Organization::find('all', array('order' => 'name')));
+        $design->assign('organizations', GoodsOrganization::find('all', array('order' => 'name')));
         $design->assign('users', User::find('all', array('order' => 'name', 'conditions' => array("enabled='yes'"))));
         $design->assign('stores', Store::find('all', array('order' => 'name')));
         $design->assign('currencies', Currency::find('all'));
