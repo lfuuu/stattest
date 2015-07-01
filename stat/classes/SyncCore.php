@@ -42,7 +42,7 @@ class SyncCore
 
     public static function addAccount($clientId, $isResetProductState = false)
     {
-        $cl = ClientCard::find('first', array("id" => $clientId));
+        $cl = \app\models\ClientAccount::findOne($clientId);
 
         if (!$cl)
             throw new Exception("Клиент не найден");
@@ -126,7 +126,7 @@ class SyncCore
 
         if ($email->is_official)
         {
-            $client = ClientCard::find("first", array("id" => $param["client_id"]))->getClient();
+            $client = \app\models\ClientAccount::findOne($param["client_id"]);
             $struct = SyncCoreHelper::getEmailStruct($email->data, $client->password);
         }
 
@@ -142,7 +142,7 @@ class SyncCore
     {
         $struct = false;
         $action = "sync_user_password_from_stat";
-        $cl = ClientCard::find('first', array("id" => $clientId));
+        $cl = \app\models\ClientAccount::findOne($clientId);
 
         if ($cl)
         {
@@ -165,7 +165,7 @@ class SyncCore
 
         list($usageId, $client) = $param;
 
-        $client = ClientCard::find("first", array("client" => $client));
+        $client = \app\models\ClientAccount::findOne(['client' => $client]);
 
         if (!$client) return false;
 
@@ -200,7 +200,7 @@ class SyncCore
     {
         $action = "update_admin_from_stat";
 
-        $client = ClientCard::find("first", array("id" => $clientId));
+        $client = \app\models\ClientAccount::findOne($clientId);
 
         if (strpos($client->client, "/") !== false) {
             echo "\n not main card";

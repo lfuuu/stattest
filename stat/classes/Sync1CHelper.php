@@ -4,27 +4,23 @@ class Sync1CHelper
 {
     public function getClientCardData($cardId)
     {
-        $clientCard = ClientCard::find($cardId);
-        if (!$clientCard)
-            throw new Exception('Client card not found');
-
-        $client = $clientCard->getClient();
+        $client = \app\models\ClientAccount::findOne($cardId);
         if (!$client)
             throw new Exception('Client not found');
 
         $clientCardData = array(
             'ИдКлиентаСтат' => $client->client,
-            'ИдКарточкиКлиентаСтат' => $clientCard->client,
+            'ИдКарточкиКлиентаСтат' => $client->client,
             'КодКлиентаСтат' => $client->id,
-            'КодКарточкиКлиентаСтат' => $clientCard->id,
-            'НаименованиеКомпании' => $clientCard->company,
-            'ПолноеНаименованиеКомпании' => $clientCard->company_full,
-            'ИНН' => $clientCard->inn,
-            'КПП' => $clientCard->kpp,
-            'ПравоваяФорма' => $clientCard->type == 'org' ? 'ЮрЛицо' : 'ФизЛицо',
-            'Организация' => $clientCard->firma,
-            'ВалютаРасчетов' => $clientCard->currency,
-            'ВидЦен' => $clientCard->price_type ? $clientCard->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
+            'КодКарточкиКлиентаСтат' => $client->id,
+            'НаименованиеКомпании' => $client->contract->contragent->name,
+            'ПолноеНаименованиеКомпании' => $client->contract->contragent->name_full,
+            'ИНН' => $client->contract->contragent->inn,
+            'КПП' => $client->contract->contragent->kpp,
+            'ПравоваяФорма' => in_array($client->contract->contragent->legal_type, ['legal', 'ip']) ? 'ЮрЛицо' : 'ФизЛицо',
+            'Организация' => $client->contract->organization,
+            'ВалютаРасчетов' => $client->currency,
+            'ВидЦен' => $client->price_type ? $client->price_type: '739a53ba-8389-11df-9af5-001517456eb1'
         );
 
         return $clientCardData;

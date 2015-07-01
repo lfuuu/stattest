@@ -1,5 +1,5 @@
 <?php
-namespace app\forms\contragent;
+namespace app\forms\client;
 
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
@@ -30,6 +30,7 @@ class ContragentEditForm extends Form
         $okpo = '',
         $okvd = '',
         $ogrn = '',
+        $country_id = 643,
 
         $contragent_id = '',
         $first_name = '',
@@ -48,10 +49,10 @@ class ContragentEditForm extends Form
                 'kpp', 'position', 'fio', 'tax_regime', 'opf', 'okpo', 'okvd', 'ogrn'], 'string'],
             ['legal_type', 'in', 'range' => ['person', 'ip', 'legal']],
             ['tax_regime', 'in', 'range' => ['simplified', 'full']],
-            ['super_id', 'integer'],
             [['legal_type', 'super_id'], 'required'],
             [['first_name', 'last_name', 'middle_name', 'passport_date_issued', 'passport_serial',
                 'passport_number', 'passport_issued', 'registration_address'], 'string'],
+            [['super_id', 'country_id'], 'integer'],
         ];
         return $rules;
     }
@@ -101,6 +102,7 @@ class ContragentEditForm extends Form
         $contragent->okpo = $this->okpo;
         $contragent->okvd = $this->okvd;
         $contragent->ogrn = $this->ogrn;
+        $contragent->country_id = $this->country_id;
 
         if ($contragent->save()) {
             $this->setAttributes($contragent->getAttributes(), false);
@@ -121,15 +123,56 @@ class ContragentEditForm extends Form
                     $contragent->refresh();
                     return true;
                 } else {
+                    $this->addErrors($person->getErrors());
                     $contragent->delete();
                 }
             }
             return true;
-        }
+        } else
+            $this->addErrors($contragent->getErrors());
+
         return false;
     }
 
-    function beforeValidate()
+    public function validate($attributeNames = null, $clearErrors = false)
+    {
+        $contragent = $this->contragent;
+        $person = $this->person;
+
+        $contragent->super_id = $this->super_id;
+        $contragent->legal_type = $this->legal_type;
+        $contragent->name = $this->name;
+        $contragent->name_full = $this->name_full;
+        $contragent->address_jur = $this->address_jur;
+        $contragent->inn = $this->inn;
+        $contragent->kpp = $this->kpp;
+        $contragent->position = $this->position;
+        $contragent->fio = $this->fio;
+        $contragent->tax_regime = $this->tax_regime;
+        $contragent->opf = $this->opf;
+        $contragent->okpo = $this->okpo;
+        $contragent->okvd = $this->okvd;
+        $contragent->ogrn = $this->ogrn;
+        $contragent->country_id = $this->country_id;
+        $contragent->validate() || $this->addErrors($contragent->getErrors());
+
+        if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
+            $person->first_name = $this->first_name;
+            $person->last_name = $this->last_name;
+            $person->middle_name = $this->middle_name;
+            $person->passport_date_issued = $this->passport_date_issued;
+            $person->passport_serial = $this->passport_serial;
+            $person->passport_number = $this->passport_number;
+            $person->passport_issued = $this->passport_issued;
+            $person->registration_address = $this->registration_address;
+
+            $person->validate() || $person->getErrors();
+        }
+
+        return parent::validate($attributeNames, $clearErrors);
+    }
+
+    public function beforeValidate()
     {
         if (!parent::beforeValidate())
             return false;

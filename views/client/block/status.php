@@ -13,13 +13,53 @@ use \yii\helpers\Url;
     <div class="row" style="background: <?= $contractForm->currentBusinessProcessStatus->color ?>;">
         <div class="col-sm-3">
             Статус: <b><?= $contractForm->currentBusinessProcessStatus->name ?></b>
-            <a href="#" onclick="$('#statuses').toggle(); return false;"><img class="icon"
-                                                                              src="/images/icons/monitoring.gif"
-                                                                              alt="Посмотреть"></a>
+            <a href="#" class="status-block-toggle">
+                <img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть">
+            </a>
         </div>
-        <div class="col-sm-9">Wizard</div>
+        <div class="col-sm-9">
+
+            <?php if($client->lkWizardState) :?>
+            <b style="color: green;"> Wizard включен</b>, шаг: <?= $client->lkWizardState->step ?> (<?= $client->lkWizardState->stepName ?>)
+            <small>
+                [
+                <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=off">выключить</a>
+
+                <?php if($client->lkWizardState->step == 4): ?>
+
+                    <?if($client->lkWizardState->step!='rejected'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=rejected">отклонить</a>
+                    <?php endif; ?>
+
+                    <?if($client->lkWizardState->step!='approve'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=approve">одобрить</a>
+                    <?php endif; ?>
+
+                    <?if($client->lkWizardState->step!='review'):?>
+                        | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=review">рассмотрение</a>
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
+                <?if($client->lkWizardState->step!=1):?>
+                    | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=first">*первый шаг*</a>
+                <?php endif; ?>
+
+                <?if($client->lkWizardState->step!=4):?>
+                    | <a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=next">*след шаг*</a>
+                <?php endif; ?>
+
+                ]</small>
+            <?php else: ?>
+                <?php  if(\app\models\LkWizardState::isBPStatusAllow($client->contract->business_process_status_id, $client->contract->id)): ?>
+                    <b style="color: gray;"> Wizard выключен</b>
+                    [<a href="/account/change-wizard-state/?id=<?= $client->id ?>&state=on">включить</a>]
+                <?php endif; ?>
+            <?php endif; ?>
+
+        </div>
     </div>
-    <div class="row" id="statuses" style="display: none;">
+    <div class="row" id="statuses">
         <div class="col-sm-12">
             <?php foreach ($client->contract->comments as $comment): ?>
                 <div class="col-sm-12">
@@ -43,68 +83,50 @@ use \yii\helpers\Url;
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contractForm->contractTypes],
-                'business_process_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contractForm->businessProcessesList],
-                'business_process_status_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => $contractForm->businessProcessStatusesList],
+                'contract_type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->contractTypes],
+                'business_process_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessesList],
+                'business_process_status_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $contractForm->businessProcessStatusesList],
             ],
         ]);
         ?>
-
         <?php
         echo Form::widget([
             'model' => $contractForm,
             'form' => $f,
             'attributeDefaults' => [
-                'container' => ['class' => 'col-sm-12'],
+                'container' => ['class' => 'col-sm-6 statuses'],
+                'type' => Form::INPUT_TEXT
             ],
             'options' => [
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'block' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => '<div class="col-sm-6">
-                                    <div class="form-group field-contracteditform-status">
-                                        <label class="control-label">Блокировка</label>
-                                        <div class="btn-group" role="group" aria-label="..." data-account-id="' . $client->id . '">
-                                            <button id="block-btn-work" type="button" class="btn btn-default btn-sm ' . ($client->is_blocked ? '' : 'btn-success') . '" style="width: 120px;">Работает</button>
-                                            <button id="block-btn-block" type="button" class="btn btn-default btn-sm ' . ($client->is_blocked ? 'btn-danger' : '') . '" style="width: 120px;">Заблокирован</button>
-                                        </div>
-                                    </div>
-                                </div>'
-                ],
-                'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['style' => 'height:108px;']]
+                'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['style' => 'height:108px;'], 'container' => ['class' => 'col-sm-12']],
             ],
         ]);
         ?>
 
 
-        <div class="row" style="clear: both;">
-            <div class="col-sm-12">
-                <div class="col-sm-12 form-group" style="text-align: center;">
-                    <?= Html::submitButton('Сохранить', ['class' => 'btn btn-default', 'id' => 'buttonSave',]); ?>
-                </div>
+        <div class="col-sm-12">
+            <div class="col-sm-12 form-group">
+                <?= Html::submitButton('Изменить', ['class' => 'btn btn-default', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
             </div>
         </div>
+
 
     </div>
     <?php ActiveForm::end(); ?>
 </div>
 <script>
+    $('.status-block-toggle').on('click', function(){
+        $('#statuses').toggle(); $('#w1 .row').slice(0,2).toggle(); return false;
+    })
+
     $(function () {
-        $('.field-contracteditform-status .btn-group button').on('click', function () {
-            var b = $('#block-btn-block'),
-                w = $('#block-btn-work'),
-                acId = $(this).parent().data('account-id');
-            if ($(this).attr('id') == 'block-btn-work') {
-                $(this).addClass('btn-success');
-                b.removeClass('btn-danger');
-            } else {
-                $(this).addClass('btn-danger');
-                w.removeClass('btn-success');
-            }
-            $.get('/client/set-block?id=' + acId);
-        });
+        document.cookie = "openedBlock=;";
+        <?php if($_COOKIE['openedBlock']!='statuses'):?>
+            $('.status-block-toggle').click();
+        <?php endif; ?>
 
         var statuses = <?= json_encode($client->getBpStatuses()) ?>;
         var s1 = $('#contracteditform-contract_type_id');
@@ -143,6 +165,11 @@ use \yii\helpers\Url;
                         s3.append('<option value="' + v['id'] + '">' + v['name'] + '</option>');
                 });
             }
+        });
+
+        $('#buttonSave').closest('form').on('submit', function(){
+            document.cookie = "openedBlock=statuses";
+            return true;
         });
 
 

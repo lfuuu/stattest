@@ -72,11 +72,13 @@ class HistoryVersion extends ActiveRecord
 
         $currentModel = $modelClass::findOne($modelId);
 
-        if(mull===$date && null!==$currentModel)
+        if(null===$date && null!==$currentModel)
             return $currentModel;
-        elseif(null === $date)
+
+        if(null === $date)
             $date = date('Y-m-d');
-        elseif(null ===  $currentModel)
+
+        if(null ===  $currentModel)
             $currentModel = new $modelClass();
 
         $historyModel = static::find()
@@ -86,6 +88,8 @@ class HistoryVersion extends ActiveRecord
             ->orderBy('date DESC')->one();
 
         $currentModel->setAttributes(json_decode($historyModel['data_json'], true), false);
+        $currentModel->historyVersionDate = $date;
+
         return $currentModel;
     }
 }

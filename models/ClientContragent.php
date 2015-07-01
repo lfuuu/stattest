@@ -1,11 +1,13 @@
 <?php
 namespace app\models;
 
+use app\classes\validators\InnKppValidator;
 use yii\db\ActiveRecord;
 
 class ClientContragent extends ActiveRecord
 {
     public $cPerson = null;
+    public $historyVersionDate = null;
 
     public static function tableName()
     {
@@ -31,17 +33,33 @@ class ClientContragent extends ActiveRecord
             "opf" => "Код ОПФ",
             "okpo" => "Код ОКПО",
             "okvd" => "Код ОКВЭД",
+            'country_id' => 'Страна',
         ];
+    }
+
+    public function rules()
+    {
+        $rules = [
+            [['inn', 'kpp'],  ['class' => InnKppValidator::className()], 'on' =>'checked'],
+        ];
+        return $rules;
     }
 
     public function getAccounts()
     {
-        return $this->hasMany(ClientAccount::className(), ['contragent_id' => 'id']);
+        $result = [];
+        foreach($this->getContracts() as $contract){
+            $result[] = array_merge($result,$contract->accounts);
+        }
+        return $result;
     }
 
     public function getPerson()
     {
-        return $this->hasOne(ClientContragentPerson::className(), ['contragent_id' => 'id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContragentPerson::className(), $this->contragent_id, $date);
     }
 
     public function getContracts()
@@ -55,7 +73,7 @@ class ClientContragent extends ActiveRecord
             return parent::save($runValidation = true, $attributeNames = null);
         }
         else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
                 return parent::save($runValidation = true, $attributeNames = null);
             } else {
                 $behaviors = $this->behaviors;
@@ -80,11 +98,33 @@ class ClientContragent extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if ($this->name) {
-            $super = ClientSuper::findOne($this->super_id);
+
+        $super = ClientSuper::findOne($this->super_id);
+        if($this->getOldAttribute('name') == $super->name) {
             $super->setAttribute('name', $this->name);
             $super->save();
         }
+    }
+
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert))
+            return false;
+
+        if(!$this->name && !$this->name_full)
+            $this->name = $this->name_full = 'Новый контрагент ';
+        return true;
+    }
+
+    public function beforeValidate()
+    {
+        if(!$this->isNewRecord) {
+            $models = ClientContract::find()->andWhere(['!=', 'state', 'unchecked'])->andWhere(['contragent_id' => $this->id])->all();
+            if($models)
+                $this->setScenario('checked');
+        }
+
+        return parent::beforeValidate();
     }
 
     public function getCountry()

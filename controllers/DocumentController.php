@@ -1,26 +1,40 @@
 <?php
 namespace app\controllers;
 
+use app\models\ClientAccount;
 use app\models\ClientDocument;
-use app\models\HistoryVersion;
 use Yii;
 use app\classes\BaseController;
 use yii\base\Exception;
-use yii\helpers\Url;
+use yii\filters\AccessControl;
 
 class DocumentController extends BaseController
 {
-    public function actionDelete($id)
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['clients.edit'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function actionActivate($id)
     {
         $model = ClientDocument::findOne($id);
         if (!$model)
             throw new Exception('Document not found');
 
-        $model->is_active = 0;
+        $model->is_active = !$model->is_active;
         $model->save();
         $this->redirect(Yii::$app->request->referrer);
     }
-
 
     public function actionCreate($id)
     {
@@ -44,35 +58,42 @@ class DocumentController extends BaseController
             $comment
         );
 
-        $this->redirect(Url::toRoute(['client/view', 'id' => $id]));
-    }
-/*
-    public function actionEdit($id)
-    {
-        $model = ClientDocument::findOne($id);
-        if(null === $model)
-            throw new Exception('Документ не найден');
-
-        $request = Yii::$app->request->post();
-
-        if (isset($request)) {
-            ClientDocument::dao()->addContract(
-                $model->client_id,
-                $model->type,
-                $request['contract_template_group'],
-                $request['contract_template'],
-                $request['contract_no'],
-                $request['contract_date'],
-                $request['contract_content'],
-                $request['comment']
-            );
-
-            return $this->redirect(Url::toRoute(['client/view', ['id' => $id]]));
-
-        } else {
-            $content = ClientDocument::dao()->getTemplate($model->client_id . '-' . $model->id);
-            return $this->render('edit', ['model'=>$model, 'content' => $content]);
+        if ($contractId && $contractType == 'contract') {
+            $model = ClientAccount::findOne($id)->getContract();
+            $model->number = $contractNo;
+            $model->save();
         }
+
+        $this->redirect(['client/view', 'id' => $id]);
     }
-*/
+
+    /*
+        public function actionEdit($id)
+        {
+            $model = ClientDocument::findOne($id);
+            if(null === $model)
+                throw new Exception('Документ не найден');
+
+            $request = Yii::$app->request->post();
+
+            if (isset($request)) {
+                ClientDocument::dao()->addContract(
+                    $model->client_id,
+                    $model->type,
+                    $request['contract_template_group'],
+                    $request['contract_template'],
+                    $request['contract_no'],
+                    $request['contract_date'],
+                    $request['contract_content'],
+                    $request['comment']
+                );
+
+                return $this->redirect(Url::toRoute(['client/view', ['id' => $id]]));
+
+            } else {
+                $content = ClientDocument::dao()->getTemplate($model->client_id . '-' . $model->id);
+                return $this->render('edit', ['model'=>$model, 'content' => $content]);
+            }
+        }
+    */
 }

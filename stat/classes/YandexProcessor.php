@@ -164,7 +164,7 @@ class YandexProcessor
 
     public function getClientByCustomerNumber($customerNumber)
     {
-        $c = ClientCard::find_by_id($customerNumber);
+        $c = \app\models\ClientAccount::findOne($customerNumber);
 
         if (!$c)
         {
@@ -183,7 +183,7 @@ class YandexProcessor
 
             if ($usage)
             {
-                $c = ClientCard::find_by_client($usage->client);
+                $c = \app\models\ClientAccount::findOne(['client' => $usage->client]);
             }
         }
 

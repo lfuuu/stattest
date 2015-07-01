@@ -1,6 +1,7 @@
 <?php
-namespace app\forms\contract;
+namespace app\forms\client;
 
+use app\classes\validators\InnValidator;
 use app\models\ClientContractComment;
 use app\models\ClientContractType;
 use app\models\ClientContragent;
@@ -18,7 +19,10 @@ use yii\helpers\ArrayHelper;
 
 class ContractEditForm extends Form
 {
-    public $id,
+    public
+        $newClient = null,
+
+        $id,
         $super_id,
         $contragent_id,
         $number = '',
@@ -27,9 +31,9 @@ class ContractEditForm extends Form
         $manager,
         $comment,
         $account_manager,
-        $business_process_id = 1,
-        $business_process_status_id = 1,
-        $contract_type_id = 2,
+        $business_process_id,
+        $business_process_status_id,
+        $contract_type_id,
         $state,
 
         $public_comment = [];
@@ -125,30 +129,54 @@ class ContractEditForm extends Form
         $attributes = $this->getAttributes();
         unset($attributes['public_comment'], $attributes['comment']);
 
-        $contract->setAttributes($this->getAttributes(), false);
+        $contract->setAttributes(array_filter($attributes), false);
 
         if ($contract->save()) {
             $this->setAttributes($contract->getAttributes(), false);
-
+            $this->newClient = $contract->newClient;
             ///////////////////
             $eq = new EventQueue();
             $eq->event = 'client_set_status';
             $eq->param = $contract->id;
-            $eq->code = md5('client_set_status'.'|||'.$contract->id);
+            $eq->code = md5('client_set_status' . '|||' . $contract->id);
 
             $eq->save();
             /*\voipNumbers::check();*/
             return true;
-        }
+        } else
+            $this->addErrors($contract->getErrors());
+
         return false;
+    }
+
+    public function getContragentListBySuperId()
+    {
+        $superId = $this->super_id;
+        $models = ClientContragent::find()->andWhere(['super_id' => $superId])->all();
+        return ArrayHelper::map($models, 'id', 'name');
+    }
+
+    public function validate($attributeNames = null, $clearErrors = false)
+    {
+        if ($this->contract->attributes['state'] !== $this->state && $this->state != 'unchecked') {
+            $contragent = ClientContragent::findOne($this->contragent_id);
+            $contragent->setScenario('checked');
+            if (!$contragent->validate()) {
+                if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp']))
+                    $this->addError('state', 'Введите корректныйе ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                elseif (isset($contragent->errors['inn']))
+                    $this->addError('state', 'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+                elseif (isset($contragent->errors['kpp']))
+                    $this->addError('state', 'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
+            }
+        }
+        return parent::validate($attributeNames, $clearErrors);
     }
 
     public function beforeValidate()
     {
-        if(!parent::beforeValidate())
-            return false;
-
-        return true;
+        $this->number .= '';
+        return parent::beforeValidate();
     }
 
     public function getIsNewRecord()

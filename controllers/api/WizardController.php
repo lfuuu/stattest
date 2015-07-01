@@ -17,7 +17,7 @@ use app\models\TroubleState;
 use app\models\User;
 use app\models\UsageVoip;
 use app\models\UsageVirtpbx;
-use app\forms\contragent\ContragentEditForm;
+use app\forms\client\ContragentEditForm;
 use app\forms\lk_wizard\ContactForm;
 
 
@@ -67,9 +67,9 @@ class WizardController extends /*BaseController*/ApiController
 
     private function _checkClean($account)
     {
-        if ($account->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
+        if ($account->contract->business_process_status_id != ClientBPStatuses::TELEKOM__SUPPORT__ORDER_OF_SERVICES) //Клиента включили
         {
-            $wizard = LkWizardState::findOne($account->id);
+            $wizard = LkWizardState::findOne($account->contract->id);
             if ($wizard)
             {
                 if ($wizard->step < 4 || ($wizard->step == 4 && $wizard->state == "review"))
@@ -322,7 +322,7 @@ class WizardController extends /*BaseController*/ApiController
 
     private function getOrganizationInformation()
     {
-        $c = $this->account->contragent;
+        $c = $this->account->contract->contragent;
         $d = [
             "name" =>  $c->name,
             "legal_type" =>  $c->legal_type,
@@ -462,7 +462,7 @@ class WizardController extends /*BaseController*/ApiController
             }
             return ["errors" => $errors];
         } else {
-            return $form->saveInContragent($this->account->contragent);
+            return $form->saveInContragent($this->account->contract->contragent);
         }
     }
 

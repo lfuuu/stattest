@@ -1,5 +1,6 @@
 <?php
 use app\classes\StatModule;
+use \app\models\ClientAccount;
 
 class m_stats extends IModule{
 
@@ -24,6 +25,8 @@ class m_stats extends IModule{
     }
 
 	function stats_default($fixclient){
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$this->stats_voip($fixclient);
 	}
 
@@ -33,6 +36,8 @@ class m_stats extends IModule{
 			trigger_error2('Выберите клиента');
 			return;
 		}
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		
 		$route=get_param_raw('route','');
 		
@@ -91,6 +96,8 @@ class m_stats extends IModule{
 	function stats_vpn($fixclient) {
 		global $db,$design;
 		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$ip=get_param_raw('ip','');
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
@@ -156,6 +163,8 @@ class m_stats extends IModule{
 
 		$login=get_param_integer('login',0);
 		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
 		if ($login){
 			$db->Query('select * from usage_ip_ppp where (client="'.$fixclient.'") and (id="'.$login.'")');
@@ -209,6 +218,8 @@ class m_stats extends IModule{
             trigger_error2('Клиент не выбран');
             return;
         }
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
         $client = $db->GetRow("select * from clients where '".addslashes($fixclient)."' in (id, client)");
 
@@ -496,7 +507,7 @@ class m_stats extends IModule{
 
             $ns = $db->AllRecords($q = "
                         SELECT 
-                            a.*, c.company, c.client,
+                            a.*, cg.name AS company, c.client,
                             IF(client_id IN ('9130', '764'), 'our', 
                                 IF(date_reserved IS NOT NULL, 'reserv', 
                                     IF(active_usage_id IS NOT NULL, 'used', 
@@ -561,6 +572,8 @@ class m_stats extends IModule{
                                 number BETWEEN '".$rangeFrom."' AND '".$rangeTo."' 
                         )a 
                         LEFT JOIN clients c ON (c.id = a.client_id)
+                        LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                        LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                         WHERE beauty_level IN ('".implode("','", $beauty)."')
                         HAVING status IN ('".implode("','", $group)."')
                     ");
@@ -615,6 +628,8 @@ class m_stats extends IModule{
 	function stats_callback($fixclient){
 		global $db,$design,$fixclient_data;
 		if (!$fixclient) {trigger_error2('Выберите клиента');return;}
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
@@ -1331,6 +1346,8 @@ class m_stats extends IModule{
 
 	function stats_send_add($fixclient){
 		global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$clients=get_param_raw('clients');
 		$year = get_param_integer('year');
 		$month = get_param_integer('month');
@@ -1347,6 +1364,8 @@ class m_stats extends IModule{
 
 	function stats_send_process($fixclient){
 		global $design,$db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$is_test=get_param_integer('test',1);
 		$cont=get_param_integer('cont',0);
 		$db->Query('select client from stats_send where (!last_send || (last_send+INTERVAL 1 DAY < NOW())) AND (state!="sent") group by client order by state,last_send desc,client LIMIT 5');
@@ -1356,7 +1375,9 @@ class m_stats extends IModule{
 		}
 
 		if (count($C)) $q='IF (client IN ("'.implode('","',$C).'"),1,0)'; else $q='0';
-		$db->Query('select *,'.$q.' as cur_sent from stats_send order by cur_sent desc,state,last_send desc,client');
+		$db->Query('select stats_send.*, c.id AS clientid,'.$q.' as cur_sent from stats_send
+		inner join clients c ON c.client = stats_send.client
+		order by cur_sent desc,state,last_send desc,client');
 		$R=array(); while ($r=$db->NextRecord()) {
 			$r['cur_sent']=(isset($C[$r['client']]))?1:0;
 			if (isset($R[$r['client']])){
@@ -1373,6 +1394,8 @@ class m_stats extends IModule{
 	}
 	function stats_send_view($fixclient){
 		global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$db->Query('select * from stats_send order by state,last_send desc,client');
 		$R=array(); while ($r=$db->NextRecord()) {
 			if (isset($R[$r['client']])){
@@ -1454,7 +1477,8 @@ class m_stats extends IModule{
 					ti.name tarif_name,
 					ti.mb_month,
 					ti.pay_month,
-					ti.pay_mb
+					ti.pay_mb,
+					c.id AS clientid
 				FROM
 					usage_ip_ports uip
 				INNER JOIN
@@ -1687,6 +1711,7 @@ class m_stats extends IModule{
 				SELECT
 					uip.id,
 					uip.client,
+					c.id AS clientid,
 					sum(tfr.in_bytes) in_bytes,
 					sum(tfr.out_bytes) out_bytes,
 					ti.name tarif_name,
@@ -1714,6 +1739,7 @@ class m_stats extends IModule{
 					usage_ip_ports as uip
 				ON
 					uip.id=tfr.id_port
+				INNER JOIN clients c ON c.client = uip.client
 				LEFT JOIN
 					log_tarif lt
 				ON
@@ -2301,63 +2327,6 @@ class m_stats extends IModule{
 		$design->AddMain('stats/report_services.html');
 	}
 
-    function stats_report_inn()
-    {
-        global $design;
-
-        $managers = array();
-        $all = $this->_stat_report_inn();
-
-        $statuses = ClientCS::$statuses;
-        foreach($all as &$l)
-        {
-            $l["client_color"] = isset($statuses[$l["status"]]) ? $statuses[$l["status"]]["color"] : false;
-            $managers[$l["manager"]] = $l["manager"];
-        }
-        sort($managers);
-
-        $manager = get_param_raw("manager", false);
-
-        if($manager === false)
-        {
-            $R = array();
-        }elseif($manager == ""){
-            $R = $all;
-        }else{
-            $R = array();
-            foreach($all as $l)
-            {
-                if($l["manager"] == $manager)
-                {
-                    $R[] = $l;
-                }
-            }
-        }
-
-        $design->assign("inns", $R);
-        $design->assign("managers", $managers);
-        $design->assign("manager", $manager);
-
-        $design->AddMain("stats/report_inn.html");
-    }
-
-    function _stat_report_inn($manager = false)
-    {
-        global $db;
-
-        $R = $db->AllRecords(
-            "SELECT c.client, c.company, c.status, c.manager, unix_timestamp(l.ts) ts, f.*
-             FROM clients c, `log_client` l, log_client_fields f where c.id = l.client_id and f.ver_id = l.id
-             and ts >= '2012-04-01 00:00:00'
-             and field = 'inn'
-             and value_from != ''
-             ".($manager ? "and c.manager = '".$manager."'" : "")."
-             order by c.client, ts
-             limit 1000");
-
-        return $R;
-    }
-
     function stats_report_agent()
     {
         include_once 'AgentReport.php';
@@ -2368,6 +2337,8 @@ class m_stats extends IModule{
     {
         global $db,$design,$user;
 
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $date_begin = get_param_raw('date_from', date('Y-m-d'));
         $date_end = get_param_raw('date_to',  date('Y-m-d'));
         $design->assign(array('date_begin'=>$date_begin, 'date_end'=>$date_end));
@@ -2558,6 +2529,8 @@ class m_stats extends IModule{
 		trigger_error2('Выберите клиента');
 		return;
 	}
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 	global $design,$fixclient_data,$db;
 	
 	if ($fixclient_data['is_agent'] != "Y")
@@ -2611,6 +2584,8 @@ class m_stats extends IModule{
 		header('Location: ?module=stats&action=agent_settings');
         exit;
 	}
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 	global $fixclient_data;
 	
 	if ($fixclient_data['is_agent'] != "Y")
@@ -2742,6 +2717,8 @@ function make_sum(&$dd)
 function stats_report_wimax($fixclient, $genReport = false){
     global $db,$design;
 
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     if($genReport)
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
@@ -2807,6 +2784,8 @@ function stats_report_wimax($fixclient, $genReport = false){
 function stats_courier_sms($fixclient, $genReport = false){
     global $db,$design;
 
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     if($genReport)
     {
 	$dateFrom = new DatePickerValues('dateNoRequest', '-1 day');
@@ -2850,6 +2829,8 @@ function stats_support_efficiency($fixclient)
 {
     global $db,$design;
 
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $m = array();
     $total = array(
         "monitoring"   => 0, 
@@ -3219,23 +3200,33 @@ function stats_support_efficiency__basisOnCompleted(&$dateFrom, &$dateTo, &$usag
 }
 
 function stats_report_netbynet($fixclient, $genReport = false, $viewLink = true){
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'nbn', $genReport, $viewLink);
 }
 
 function stats_report_onlime($fixclient, $genReport = false, $viewLink = true){
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'onlime', $genReport, $viewLink);
 }
 
 function stats_report_onlime2($fixclient, $genReport = false, $viewLink = true){
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'onlime2', $genReport, $viewLink);
 }
 
 function stats_report_onlime_all($fixclient, $genReport = false, $viewLink = true){
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $this->stats_report_plusopers($fixclient, 'onlime_all', $genReport, $viewLink);
 }
 
 function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLink = true){
     global $db,$design;
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
     $viewLink = $viewLink && !defined("no_link");
 
@@ -3499,6 +3490,8 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 function stats_onlime_details($fixclient)
 {
     global $design;
+    if(is_numeric($fixclient))
+        $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
     $order_id = get_param_integer('order_id', '');
     $data = array();
     if ($order_id && OnlimeOrder::exists($order_id))
@@ -4119,12 +4112,16 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 			newbills as a
 		LEFT JOIN
 			clients as b ON a.client_id = b.id
+		LEFT JOIN
+			client_contract as c ON c.id = b.contract_id
+		LEFT JOIN
+			client_contragent as d ON c.contragent_id = d.id
 		WHERE 
 			a.bill_date >= CAST('".$tmp_date_from."' AS DATE) AND
 			a.bill_date <= CAST('".$tmp_date_to."' AS DATE) AND
 			b.region > 0 AND 
 			b.status IN ('testing', 'conecting', 'work') AND 
-			b.type IN ('org', 'priv') AND 
+			d.legal_type IN ('legal', 'ip') AND
 			sum > 0 
 		GROUP BY
 			b.region
@@ -4549,7 +4546,9 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	function stats_report_vpbx_stat_space($fixclient)
 	{
 		global $db, $design,$fixclient_data;
-		
+
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$dateFrom = new DatePickerValues('date_from', 'first');
 		$dateTo = new DatePickerValues('date_to', 'last');
 		$from = $dateFrom->getSqlDay();
@@ -4637,6 +4636,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	function getReportVpbxStatSpace($fixclient, $client_id, $vpbx_id, $from, $to) 
 	{
 		global $db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		$stat_detailed = array();
 		$options = array();
 		$options['select'] = '
@@ -4761,12 +4762,16 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 
 	function stats_phone_sales_details($fixclient)
 	{
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 		include_once 'PhoneSalesDetails.php';
 		PhoneSalesDetails::getDetails();
 	}
 
 	function stats_report_agent_details($fixclient)
     {
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         include_once 'AgentReport.php';
         AgentReport::getDetails();
     }
@@ -4774,6 +4779,8 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 	function stats_report_reserve($fixclient)
     {
         global $design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $options = array();
         $options['select'] = '
             UNIX_TIMESTAMP(MAX(LT.ts)) as max_ts, 

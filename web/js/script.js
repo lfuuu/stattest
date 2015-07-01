@@ -316,8 +316,8 @@ function showHistory(obj, popup) {
     var loading = false;
     if(loading == false) {
         if(popup === true){
-            if(!$('#history-dialog'))
-                $('#layout-main').append('<div id="history-dialog"></div>');
+            if(!$('#history-dialog').length)
+                $('<div id="history-dialog">').appendTo('.layout_main');
             var dialog = $('#history-dialog');
             dialog.dialog({
                 width:'80%',
@@ -356,8 +356,8 @@ function showVersion(obj, popup) {
     var loading = false;
     if(loading == false) {
         if(popup === true){
-            if(!$('#history-dialog'))
-                $('#layout-main').append('<div id="history-dialog"></div>');
+            if(!$('#history-dialog').length)
+                $('<div id="history-dialog">').appendTo('.layout_main');
             var dialog = $('#history-dialog');
             dialog.dialog({
                 width:800,

@@ -431,7 +431,7 @@ class CyberplatFieldCheck
         if(!$data["number"] || !preg_match("/^\d{1,6}$/", $data["number"]))
             throw new Answer_ERR_CLIENT_NOT_FOUND();
 
-        $c = ClientCard::find_by_id($data["number"]);
+        $c = \app\models\ClientAccount::findOne([is_numeric($data["number"]) ? 'id' : 'client' => ($data["number"])]);
         if ($c && in_array($c->status, array("work", "connecting", "testing", "debt")))
         {
             // Абонент найден

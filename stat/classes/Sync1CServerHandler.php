@@ -17,21 +17,31 @@ class Sync1CServerHandler
     {
         $data = $data->clientInfo;
 
-        $clientCard = new ClientCard();
-        $clientCard->company = $data->Наименование;
-        $clientCard->company_full = $data->Наименование;
-        $clientCard->inn = $data->ИНН;
-        $clientCard->type = $data->ЮрЛицо ? 'org' : 'priv';
-        $clientCard->contract_type_id = 5; //Интернет-магазин
-        $clientCard->business_process_id = 3; //Интернет-магазин
-        $clientCard->business_process_status_id = 33; //Интернет-магазин
-        $clientCard->status = "once";
-        $clientCard->save();
+        $super = new ClientSuper();
+        $super->setAttribute('name', 'autocreate');
+        $super->save();
+
+        $cg = new \app\forms\client\ContragentEditForm(['super_id' => $super->id]);
+        $cg->name = $data->Наименование;
+        $cg->name_full = $data->Наименование;
+        $cg->inn = $data->ИНН;
+        $cg->legal_type = $data->ЮрЛицо ? 'legal' : 'person';
+        $cg->save();
+
+        $cr = new \app\forms\client\ContractEditForm(['contragent_id' => $cg->id]);
+        $cr->contract_type_id = 5; //Интернет-магазин
+        $cr->business_process_id = 3; //Интернет-магазин
+        $cr->business_process_status_id = 33; //Интернет-магазин
+        $cr->save();
+
+        $client = new \app\forms\client\AccountEditForm(['id' => $cr->id]);
+        $client->status = "once";
+        $client->save();
 
         if ($data->ЭлектроннаяПочта) {
-            $contactEmail = new ClientContact();
+            $contactEmail = new \app\models\ClientContact();
             $contactEmail->type = 'email';
-            $contactEmail->client_id = $clientCard->id;
+            $contactEmail->client_id = $client->id;
             $contactEmail->data = $data->ЭлектроннаяПочта;
             $contactEmail->is_active = 1;
             $contactEmail->is_official = 1;
@@ -39,16 +49,16 @@ class Sync1CServerHandler
         }
 
         if ($data->ТелефонОрганизации) {
-            $contactPhone = new ClientContact();
+            $contactPhone = new \app\models\ClientContact();
             $contactPhone->type = 'phone';
-            $contactPhone->client_id = $clientCard->id;
+            $contactPhone->client_id = $client->id;
             $contactPhone->data = $data->ТелефонОрганизации;
             $contactPhone->is_active = 1;
             $contactPhone->is_official = 1;
             $contactPhone->save();
         }
 
-        $clientCardData = $this->helper->getClientCardData($clientCard->id);
+        $clientCardData = $this->helper->getClientCardData($client->id);
         return array('return' => $clientCardData);
     }
 
@@ -186,8 +196,7 @@ class Sync1CServerHandler
             $trouble->bill_no = $order->number;
             $trouble->bill_id = $order->id;
 
-            $client = clientCard::find($order->client_card_id);
-            $trouble->client = $client->client;
+            $trouble->client = \app\models\ClientAccount::findOne($order->client_card_id)->client;
 
             $trouble->trouble_type = "incomegoods";
             $trouble->trouble_subtype = "incomegoods";

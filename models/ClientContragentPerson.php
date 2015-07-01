@@ -5,6 +5,8 @@ use yii\db\ActiveRecord;
 
 class ClientContragentPerson extends ActiveRecord
 {
+    public $historyVersionDate = null;
+
     public static function tableName()
     {
         return 'client_contragent_person';
@@ -38,7 +40,7 @@ class ClientContragentPerson extends ActiveRecord
             return parent::save($runValidation = true, $attributeNames = null);
         }
         else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
                 return parent::save($runValidation = true, $attributeNames = null);
             } else {
                 $behaviors = $this->behaviors;

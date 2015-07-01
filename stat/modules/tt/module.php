@@ -53,7 +53,8 @@ class m_tt extends IModule{
         global $db,$design,$user;
         $this->curclient = $fixclient;
         $f = $user->Flag('tt_tasks');
-
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if($f<2 || $f>4)
             $f = 2;
         $mode = get_param_integer('mode',$f);
@@ -400,7 +401,8 @@ class m_tt extends IModule{
     }
     function tt_view_type($fixclient){
         global $db, $design, $user;
-
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if(isset($_REQUEST['type_pk'])){
             $type = $db->GetRow('select * from tt_types where pk='.(int)$_REQUEST['type_pk']);
         }elseif(isset($_REQUEST['type'])){
@@ -457,6 +459,8 @@ class m_tt extends IModule{
 
     function tt_report($fixclient){
         global $db,$design,$user;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
         $from=getdate();
         $from['mday']=1;
@@ -510,6 +514,8 @@ class m_tt extends IModule{
     //всякие функции
     function tt_view($fixclient){
         global $db,$design,$user;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
 
         if(!$this->cur_trouble_id){
@@ -545,7 +551,7 @@ class m_tt extends IModule{
         $design->assign(
             'tt_client',
             $db->GetRow('
-SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
+SELECT cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firma,
 cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
 FROM `clients` c
 INNER JOIN `client_contract` cr ON cr.id=c.contract_id
@@ -753,6 +759,8 @@ where c.client="'.$trouble['client_orig'].'"')
     }
     function tt_timetable($fixclient) {
         global $db,$design,$user;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
         $this->showTimeTable(true);
     }
@@ -1094,10 +1102,6 @@ where c.client="'.$trouble['client_orig'].'"')
             $W[] = 'user_author="'.addslashes($user->Get('user')).'"';
         if($mode==4){
             $W[] = 'cr.manager="'.addslashes($user->Get('user')).'"';
-            $join.= '
-INNER JOIN clients c ON (clients.client=T.client)
-INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-';
         }if($mode==5){
             $W[] = "T.id IN (SELECT `tt`.`id` FROM `tt_troubles` `tt` INNER JOIN `tt_stages` `ts` ON `ts`.`trouble_id`=`tt`.`id` AND `ts`.`user_edit`='".addslashes($user->Get('user'))."' INNER JOIN `tt_stages` `ts1` ON `ts1`.`stage_id`=`tt`.`cur_stage_id` AND `ts1`.`state_id`<>2)";
         }
@@ -1130,6 +1134,7 @@ INNER JOIN `client_contract` cr ON cr.id=c.contract_id
                 T.*,
                 S.*,
                 T.client as client_orig,
+                cl.id as clientid,
                 (select count(1) from  newbill_sms bs where  T.bill_no = bs.bill_no) is_sms_send,
                 T.client as trouble_original_client,
 if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, ttsrb.name) as state_name,
@@ -1151,7 +1156,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 is_payed,
                 is_rollback,
                 tt.name as trouble_name,
-                cr.manager, cg.name
+                cr.manager,
+                cg.name AS company
             FROM
                 tt_troubles as T
             '.$join.'
@@ -1162,8 +1168,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             LEFT JOIN newbills n  ON n.bill_no = T.bill_no
             LEFT JOIN tt_types tt ON tt.code = T.trouble_type
             LEFT JOIN clients cl  ON T.client=cl.client
-            INNER JOIN `client_contract` cr ON cr.id=cl.contract_id
-            INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+            LEFT JOIN `client_contract` cr ON cr.id=cl.contract_id
+            LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
             WHERE '.MySQLDatabase::Generate($W).'
             GROUP BY T.id
             ORDER BY T.id
@@ -1388,11 +1394,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             return 0;
         global $db,$design,$user;
 
-        if ($fixclient)
-        {
-            if((trim($fixclient) != intval($fixclient)))
-                $fixclient = ClientAccount::findOne($fixclient)->client;
-        }
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
         if($this->dont_filters || $tt_design != "full")// || isset($_REQUEST['filters_flag']))
             $R=$this->makeTroubleList($mode,$tt_design,5,$fixclient,$service,$service_id,$t_id, $server_ids);
@@ -1759,6 +1762,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     function tt_sapply($fixclient){
         global $design,$db;
         $this->InitDbMap();
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $row=get_param_raw('row',array());
         if (($this->dbmap->ApplyChanges('tt_states')!="ok") && (get_param_protected('dbaction','')!='delete')) {
             $row=get_param_raw('row',array());
@@ -2003,6 +2008,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     function tt_doers_list($fixclient){
         global $db,$design;
 
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $dateFrom = new DatePickerValues('date_from', 'today');
         $dateTo = new DatePickerValues('date_to', 'today');
         $dateFrom->format = 'Y-m-d 00:00:00';$dateTo->format = 'Y-m-d 23:59:59';
@@ -2475,6 +2482,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
     }
     function tt_refix_doers($fixclient){
         if(count($_POST)>0){
+            if(is_numeric($fixclient))
+                $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
             global $db,$design;
             $trouble_id = (int)$_POST['id'];
 
@@ -2636,6 +2645,8 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function tt_doers($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->curclient = $fixclient;
         if((isset($_POST['change']) && $_POST['change']) || (isset($_POST['append'])) || isset($_GET['drop'])){
             if(isset($_GET['drop']) && is_numeric($_GET['drop']) && $_GET['drop']){

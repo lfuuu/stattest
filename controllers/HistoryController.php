@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\models\ClientContragent;
 use app\models\HistoryChanges;
 use Yii;
 use app\classes\BaseController;
@@ -15,7 +16,7 @@ class HistoryController extends BaseController
             [
                 'allow' => true,
                 'actions' => ['show'],
-                'roles' => ['@'],
+                'roles' => ['clients.read'],
             ],
         ];
         return $behaviors;
@@ -41,6 +42,17 @@ class HistoryController extends BaseController
         }
 
         $changes = $changes->orderBy('created_at desc')->all();
+
+        foreach($changes as &$change){
+            if(false !== strpos($change->data_json, 'contragent_id')){
+                $data = json_decode($change->data_json, true);
+                $dataPrev = json_decode($change->prev_data_json, true);
+                $data['contragent_id'] = ClientContragent::findOne($data['contragent_id'])->name;
+                $dataPrev['contragent_id'] = ClientContragent::findOne($dataPrev['contragent_id'])->name;
+                $change->data_json = json_encode($data, JSON_FORCE_OBJECT);
+                $change->prev_data_json = json_encode($dataPrev, JSON_FORCE_OBJECT);
+            }
+        }
 
         $this->layout = 'minimal';
 

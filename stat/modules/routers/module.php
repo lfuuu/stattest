@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Company;
+use \app\models\ClientAccount;
 
 class m_routers {
     var $actions=array(
@@ -66,6 +67,8 @@ class m_routers {
 
     function load_routers($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if (is_array($this->routers)) return;
         $add=$fixclient?' where (usage_ip_ports.client="'.$fixclient.'")':'';
 //TODO9
@@ -99,8 +102,10 @@ class m_routers {
             $lim = ' limit '.$offset.', '.$limit;
         else
             $lim = '';
+
+        $addJ.=' LEFT JOIN clients ON clients.client=tech_cpe.client';
         $db->Query($q='select sql_calc_found_rows tech_cpe.*,tech_cpe_models.vendor,'.$selJ.
-                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual'.
+                        'tech_cpe_models.model,IF((tech_cpe.actual_from<=NOW()) and (tech_cpe.actual_to>NOW()),1,0) as actual, clients.id as clientid'.
                         ' from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model '.
                         $addJ.$add.
                         ' order by actual desc,tech_cpe.id asc'.$lim);
@@ -120,6 +125,8 @@ class m_routers {
         if (!isset($this->actions[$action])) return;
         $act=$this->actions[$action];
         if (!access($act[0],$act[1])) return;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
 
         require_once INCLUDE_PATH.'db_map.php';
         $this->dbmap=new Db_map_nispd();
@@ -156,6 +163,8 @@ class m_routers {
     }
 
     function routers_default($fixclient){
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if (access('routers_routers','r')) {$this->routers_r_list($fixclient); return;}
         if (access('routers_devices','r')) {$this->routers_d_list($fixclient); return;}
         if (access('routers_modems','r'))  {$this->routers_modem_list($fixclient); return;}
@@ -188,6 +197,8 @@ class m_routers {
     }
     function routers_ports_nodes($fixclient){
         if(access('routers_devices','add') && access('routers_devices','delete')){
+            if(is_numeric($fixclient))
+                $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
             global $db,$design;
             $mode = get_param_protected("mode",'view');
             $type = get_param_protected("port_type",null);
@@ -249,6 +260,8 @@ class m_routers {
     }
     function routers_ports_names($fixclient){
         if(access('routers_devices','add') && access('routers_devices','delete')){
+            if(is_numeric($fixclient))
+                $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
             global $db,$design;
             $mode = get_param_protected("mode",'view');
             $node = addcslashes(get_param_protected("node",null),"'\\");
@@ -330,6 +343,8 @@ class m_routers {
 
     function routers_r_list($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $id = get_param_protected('id' , '');
         if ($id) return $this->routers_r_view($fixclient);
         $this->load_routers($fixclient);
@@ -337,6 +352,8 @@ class m_routers {
     }
     function routers_r_view($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->load_routers($fixclient);
         $id = get_param_protected('id' , '');
         if (!isset($this->routers[$id])) {trigger_error2('Такого роутера не существует'); return; }
@@ -350,12 +367,17 @@ class m_routers {
             default: $order='client '.$order; break;    //=1
         }
 
-        $db->Query('select usage_ip_ports.*,tech_ports.port_name as port,tech_ports.node,clients.company as client_company from usage_ip_ports '.
-                        'left join clients on usage_ip_ports.client=clients.client '.
+        $db->Query('select usage_ip_ports.*,tech_ports.port_name as port,tech_ports.node,cc.name as client_company, c.id as clientid from usage_ip_ports '.
+                        'left join clients c on usage_ip_ports.client=c.client '.
+            "
+                        LEFT JOIN `client_contract` `ccc` ON `ccc`.`id` = c.`contract_id`
+                        LEFT JOIN `client_contragent` `cc` ON `cc`.id = `ccc`.contragent_id
+            ".
                         'left join tech_ports on tech_ports.id=usage_ip_ports.port_id '.
                         'where (tech_ports.node="'.$id.'")'.($fixclient?' and (usage_ip_ports.client="'.$fixclient.'")':'').' order by '.$order);
         $i=0;
         $R=array(); while ($r=$db->NextRecord()) $R[$r['id']]=$r;
+
         foreach ($R as $i=>$v){
             $R[$i]['ip_ppp']=$this->GetIP_PPP($i);
             $R[$i]['ip_routes']=$this->GetIP_Router($i);
@@ -366,7 +388,13 @@ class m_routers {
         $design->assign('router_clients',$R);
 
         $R = array();
-        $db->Query('select R.net,P.client,P.id,IF (R.actual_from<NOW() and R.actual_to>NOW() and P.actual_from<NOW() and P.actual_to>NOW(),1,0) as active from usage_ip_routes as R inner join usage_ip_ports as P ON P.id=R.port_id INNER JOIN tech_ports as TP ON TP.id=P.port_id WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
+        $db->Query('
+select R.net,P.client,P.id, c.id AS clientid,IF (R.actual_from<NOW() and R.actual_to>NOW() and P.actual_from<NOW() and P.actual_to>NOW(),1,0) as active
+from usage_ip_routes as R
+inner join usage_ip_ports as P ON P.id=R.port_id
+INNER JOIN clients c ON c.client = P.client
+INNER JOIN tech_ports as TP ON TP.id=P.port_id
+WHERE TP.node="'.$this->routers[$id]['router'].'" ORDER BY R.actual_to DESC');
         while ($r=$db->NextRecord()) {
             $b=1;
             if ($b && isset($R[$r['net']])) $b=0;
@@ -381,6 +409,8 @@ class m_routers {
     }
     function routers_r_edit($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->load_routers($fixclient);
         $router = get_param_protected('router' , '');
         $this->dbmap->ApplyChanges('tech_routers');
@@ -390,11 +420,15 @@ class m_routers {
     }
     function routers_r_add($fixclient){
         global $design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->dbmap->ShowEditForm('tech_routers','',array('actual_from'=>'4000-01-01','actual_to'=>'4000-01-01'),1);
         $design->AddMain('routers/db_r_add.tpl');
     }
     function routers_r_apply($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if (($this->dbmap->ApplyChanges('tech_routers')!="ok") && (get_param_protected('dbaction','')!='delete')) {
             $this->dbmap->ShowEditForm('tech_routers','',get_param_raw('row',array()));
             $design->AddMain('routers/db_r_add.tpl');
@@ -405,6 +439,8 @@ class m_routers {
 
     function routers_d_list($fixclient,$hide_linked = 0){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $page_count = 50;
         $search=get_param_protected('search' , '');
         $design->assign('search',$search);
@@ -421,18 +457,23 @@ class m_routers {
     }
     function routers_d_snmp($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $this->load_devices($fixclient,'',0,1);
         $design->AddMain('routers/snmp_devices.tpl');
     }
     function routers_d_add($fixclient){
         global $design,$db;
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $dbf = new DbFormTechCPE();
         $dbf->SetDefault('client',$fixclient);
         $dbf->Display(array('module'=>'routers','action'=>'d_apply'),'Клиентские устройства','Новое устройство');
     }
     function routers_d_edit($fixclient){
         global $design,$db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $id=get_param_integer('id','');
         $dbf = new DbFormTechCPE();
@@ -443,6 +484,8 @@ class m_routers {
     }
     function routers_d_apply($fixclient){
         global $design,$db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $dbf = new DbFormTechCPE();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -456,6 +499,8 @@ class m_routers {
     }
     function routers_d_async($fixclient) {
         global $db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $id_model=get_param_integer('id_model',0);
         $res=get_param_protected('res');
         $client=get_param_raw('client','');
@@ -498,6 +543,8 @@ class m_routers {
 
     function routers_d_act($fixclient)    {
         global $design, $db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         if (!($id=get_param_integer('id'))) return;
         $cpe = $db->GetRow('select tech_cpe.*,model,vendor,type from tech_cpe INNER JOIN tech_cpe_models ON tech_cpe_models.id=tech_cpe.id_model WHERE tech_cpe.id='.$id);
         if (!$cpe) return;
@@ -562,6 +609,8 @@ select firma from clients where client = '".$cpe["client"]."'"));
 */
     function routers_m_list($fixclient){
         global $db,$design;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $search=get_param_protected('search' , '');
         $design->assign('search',$search);
         $design->assign('models',$db->AllRecords('select * from tech_cpe_models'));
@@ -569,12 +618,16 @@ select firma from clients where client = '".$cpe["client"]."'"));
     }
     function routers_m_add($fixclient){
         global $design,$db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormTechCPEModels();
         $dbf->Display(array('module'=>'routers','action'=>'m_apply'),'Модели клиентских устройств','Новое устройство');
     }
     function routers_m_apply($fixclient){
         global $design,$db;
+        if(is_numeric($fixclient))
+            $fixclient = ClientAccount::findOne(['id' => $fixclient])->client;
         $dbf = new DbFormTechCPEModels();
         $id=get_param_integer('id','');
         if ($id) $dbf->Load($id);
@@ -704,7 +757,6 @@ select firma from clients where client = '".$cpe["client"]."'"));
     function routers_server_pbx_add($fixclient){
         global $design, $db;
 
-        $db->Query('select * from clients where client="'.$fixclient.'"'); $r=$db->NextRecord();
         $dbf = new DbFormServerPbx();
         $dbf->Display(array('module'=>'routers','action'=>'server_pbx_apply'),'Сервера АТС','Добавление');
     }

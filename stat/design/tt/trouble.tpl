@@ -18,7 +18,7 @@
     {if $tt_client}
         <tr>
             <td align="right">Клиент:</td>
-            <td><a href='/clients/view?id={$tt_client.client}'>{$tt_client.name}</a> ({$tt_client.client})</td>
+            <td><a href='/client/view?id={$tt_client.client}'>{$tt_client.name}</a> ({$tt_client.client})</td>
         </tr>
     {/if}
     {if $tt_trouble.service}

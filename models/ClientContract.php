@@ -1,11 +1,14 @@
 <?php
 namespace app\models;
 
-use app\forms\client\ClientEditForm;
+use app\forms\client\AccountEditForm;
 use yii\db\ActiveRecord;
 
 class ClientContract extends ActiveRecord
 {
+    public $newClient = null;
+    public $historyVersionDate = null;
+
     public static $states = [
         'unchecked' => 'Не проверено',
         'checked_original' => 'Оригинал',
@@ -26,8 +29,9 @@ class ClientContract extends ActiveRecord
             'account_manager' => 'Аккаунт менеджер',
             'business_process_id' => 'Бизнес процесс',
             'business_process_status_id' => 'Статус бизнес процесса',
-            'contract_type_id' => 'Тип',
+            'contract_type_id' => 'Тип договора',
             'state' => 'Статус договора',
+            'contragent_id' => 'Контрагент',
         ];
     }
 
@@ -36,6 +40,7 @@ class ClientContract extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
         ];
     }
 
@@ -43,9 +48,8 @@ class ClientContract extends ActiveRecord
     {
         if ($this->isNewRecord) {
             return parent::save($runValidation = true, $attributeNames = null);
-        }
-        else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+        } else {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
                 return parent::save($runValidation = true, $attributeNames = null);
             } else {
                 $behaviors = $this->behaviors;
@@ -66,14 +70,12 @@ class ClientContract extends ActiveRecord
 
     public function getManagerName()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'manager']);
         $m = User::findByUsername($this->manager);
         return ($m) ? $m->name : $this->manager;
     }
 
     public function getAccountManagerName()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'account_manager']);
         $m = User::findByUsername($this->account_manager);
         return ($m) ? $m->name : $this->account_manager;
     }
@@ -87,7 +89,6 @@ class ClientContract extends ActiveRecord
 
     public function getAccountManagerColor()
     {
-        //$m = $this->hasOne(User::className(), ['user' => 'account_manager']);
         $m = User::findByUsername($this->account_manager);
         return ($m) ? $m->color : $this->account_manager;
     }
@@ -96,6 +97,12 @@ class ClientContract extends ActiveRecord
     {
         $m = $this->hasOne(ClientGridBussinesProcess::className(), ['id' => 'business_process_id'])->one();
         return ($m) ? $m->name : $this->business_process_id;
+    }
+
+    public function getContractType()
+    {
+        $m = ClientContractType::findOne($this->contract_type_id);
+        return $m ? $m->name : $this->contract_type_id;
     }
 
     public function getBusinessProcessStatus()
@@ -122,16 +129,36 @@ class ClientContract extends ActiveRecord
 
     public function getContragent()
     {
-        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->contragent_id, $date);
+    }
+
+    public function getAccounts()
+    {
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+
+        $models = $this->hasMany(ClientAccount::className(), ['contract_id' => 'id']);
+        foreach($models as &$model)
+        {
+            $model = HistoryVersion::getVersionOnDate(ClientAccount::className(), $model->id, $date);
+        }
+        return $models;
     }
 
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        if($insert){
-            $client = new ClientEditForm(['contract_id' => $this->id]);
+        if ($insert) {
+            $client = new AccountEditForm(['contract_id' => $this->id]);
+            $client->contract_id = $this->id;
             $client->save();
+            $this->newClient = $client;
             $this->number = $client->id;
+            $this->save();
             /*
             if($client->id > $this->id){
                 $this->id = $client->id;

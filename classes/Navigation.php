@@ -17,7 +17,7 @@ class Navigation
             NavigationBlock::create()
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
-                ->addItem('Новый клиент',Url::toRoute(['account/create']), 'clients.read')
+                ->addItem('Новый клиент',Url::toRoute(['client/create']), 'clients.read')
                 ->addItem('Каналы продаж', '/?module=clients&action=sc', 'clients.sale_channels')
                 ->addItem('Отчет по файлам', '/?module=clients&action=files_report', 'clients.file')
         );

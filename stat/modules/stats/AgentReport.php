@@ -214,10 +214,12 @@ class AgentReport
         $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
         $R = $db->AllRecords($q = "
                 SELECT " . $fields . " 
-                    c.id, c.client, c.company, 
+                    c.id, c.client, cg.name AS company,
                     sum(l.sum) as bills
                 FROM
                     clients c
+                LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                 LEFT JOIN newbills b ON (b.client_id = c.id)
                 LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
                 WHERE
@@ -291,7 +293,7 @@ class AgentReport
         $total = array('psum'=>0, 'fsum'=>0, 'nds'=>0);
         $R = $db->AllRecords($q = "
                 SELECT " . $fields . " 
-                    c.id, c.client, c.company, 
+                    c.id, c.client, cg.name AS company,
                     sum(l.sum) as bills,
                     sum( IF(
                             l.service = 'usage_voip' OR l.service = 'usage_virtpbx',
@@ -311,6 +313,8 @@ class AgentReport
                     ) as prebills 
                 FROM
                     clients c
+                LEFT JOIN client_contract cr ON (cr.id = c.contract_id)
+                LEFT JOIN client_contragent cg ON (cg.id = cr.contragent_id)
                 LEFT JOIN newbills b ON (b.client_id = c.id)
                 LEFT JOIN newbill_lines l ON (b.bill_no = l.bill_no)
                 WHERE
@@ -442,7 +446,7 @@ class AgentReport
         
         $title = array();
         $title['period'] = ' в период с 1 по ' . mdate('d месяца Y ',$to);
-        $title['title'] = ClientCard::first($client_id)->company;
+        $title['title'] = \app\models\ClientAccount::findOne($client_id)->contract->contragent->name;
         $title['client_id'] = $client_id;
         
         $from = date('Y-m-d', $from);
@@ -531,7 +535,7 @@ class AgentReport
         
         $title = array();
         $title['period'] = ' в период с 1 по ' . mdate('d месяца Y ',$to);
-        $title['title'] = ClientCard::first($client_id)->company;
+        $title['title'] = \app\models\ClientAccount::findOne($client_id)->contract->contragent->name;
         $title['client_id'] = $client_id;
         
         $from = date('Y-m-d', $from);
@@ -591,100 +595,6 @@ class AgentReport
         $design->ProcessEx('errors.tpl');
         $design->ProcessEx('stats/agent_details_bills.tpl');
     }
-    
-    /** 
-     * Получение детализации о полученных платежах 
-     * @param int $client_id ID клиента по которому идет детализация
-     * @param int $month месяц по которому идет детализация
-     * @param int $year год по которому идет детализация
-     */
-    private static function old_getBillsDetails($client_id, $month, $year)
-    {
-        global $db,$design;
-        $from = mktime(0,0,0,$month,1,$year);
-        $to = strtotime('last day of this month', $from);
-        
-        $title = array();
-        $title['period'] = ' в период с 1 по ' . mdate('d месяца Y ',$to);
-        $title['title'] = ClientCard::first($client_id)->company;
-        $title['client_id'] = $client_id;
-        
-        $from = date('Y-m-d', $from);
-        $to = date('Y-m-d', $to);
-        
-        $data = $db->AllRecords($q = "
-            SELECT 
-                p.id, 
-                UNIX_TIMESTAMP(p.payment_date) as ts,
-                p.bill_no as p_bill,
-                p.sum,
-                nl.bill_no, 
-                nl.sum, 
-                nl.item,
-                IF(nl.item like '%номер%' OR nl.item like '%ВАТС%',1,0) as is_tel
-            FROM 
-                newbill_lines as nl 
-            LEFT JOIN
-                newpayments_orders as no ON nl.bill_no = no.bill_no
-            LEFT JOIN
-                newpayments as p ON p.id = no.payment_id 
-            WHERE 
-                    no.client_id = ".$client_id." 
-                AND 
-                    payment_date >= '".$from."' 
-                AND 
-                    payment_date <= '".$to."'
-            ORDER BY 
-                p.id, nl.bill_no, nl.sort
-        ");
-        
-        $totals = $db->GetRow($q = "
-            SELECT 
-                sum(p.sum) as bills_all,
-                (
-                    SELECT
-                        SUM(l.sum)
-                    FROM 
-                        newbill_lines as l
-                    WHERE 
-                            l.bill_no IN (
-                                SELECT 
-                                    o.bill_no 
-                                FROM 
-                                    newpayments_orders as o 
-                                LEFT JOIN 
-                                    newpayments as np ON o.payment_id = np.id 
-                                WHERE 
-                                        o.client_id = ".$client_id." 
-                                    AND 
-                                        payment_date >= '".$from."' 
-                                    AND
-                                        payment_date <= '".$to."' 
-                            )
-                        AND 
-                            l.item NOT LIKE '%номер%' 
-                        AND 
-                            l.item NOT LIKE '%ВАТС%'
-                ) as no_tel_sum
-            FROM
-                newpayments p
-            WHERE
-                    p.client_id = ".$client_id."
-                AND
-                    p.payment_date >= '".$from."' 
-                AND
-                    p.payment_date <= '".$to."' 
-                AND 
-                    p.bill_no NOT LIKE '%/%'
-        ");
-        
-        $design->assign('totals', $totals);
-        $design->assign('title', $title);
-        $design->assign('data', $data);
-        $design->ProcessEx('errors.tpl');
-        $design->ProcessEx('stats/agent_details_bills.tpl');
-    }
-    
 }
     
 ?>

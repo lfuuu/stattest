@@ -8,6 +8,19 @@ use yii\base\Exception;
 
 class VersionController extends BaseController
 {
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['access']['rules'] = [
+            [
+                'allow' => true,
+                'actions' => ['show'],
+                'roles' => ['clients.read'],
+            ],
+        ];
+        return $behaviors;
+    }
+
     public function actionShow()
     {
         $getRequest = Yii::$app->request->get();

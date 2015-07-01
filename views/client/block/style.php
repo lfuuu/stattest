@@ -11,38 +11,6 @@
         line-height: 25px;
     }
 
-    .i-manager{
-        color: #43657d;
-    }
-
-    .i-accmanager{
-        color: #7b217d;
-    }
-
-    i.check{
-        color:green;
-        font-size:16px;
-        font-style: normal;
-    }
-
-    i.check:before{
-        content: '✓';
-    }
-
-    i.uncheck{
-        color:red;
-        font-size:16px;
-        font-style: normal;
-    }
-
-    i.uncheck:before{
-        content: '✕';
-    }
-
-    html{
-        background: white;
-    }
-
     .data-block .head3{
         background: #e6e6e6;
         text-align: center;
@@ -78,8 +46,12 @@
         background: #f7f7f7;
     }
 
+    .active-contragent{
+        background: #EEF9FF;
+    }
+
     .active-client{
-        background: #cbeeff;
+        background: #D5F1FF;
     }
 
     td,th{
@@ -99,25 +71,16 @@
         text-align: center;
     }
 
-    #rightmenu{
-        padding: 10px;
-        position: fixed;
-        right: 20px;
-        top: 0;
-        border-left: 1px solid black;
-        width: 14%;
-        height: 100%;
-        background: #eeeeee;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    .contragent-wrap:last-child{
+        border-bottom: solid #43657d 1px;
     }
 
-    #rightmenu ul{
-        list-style: none;
-        padding-left: 5px;
+    .row-ls{
+        border: solid rgb(82, 164, 203) 1px; border-radius: 5px; margin-left: 30px;   margin-right: 0px; cursor: pointer;
     }
 
-    #rightmenu ul li{
-        padding: 5px 0;
+    .row-ls:hover{
+        background: rgb(213, 241, 255);
     }
 </style>
 

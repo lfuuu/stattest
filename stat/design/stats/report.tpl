@@ -30,7 +30,7 @@
          <span style="background-color:magenta;  display:inline; padding: 3px;">&nbsp;</span>
 {/if}
         </TD>
-		<TD><a href='{$LINK_START}module=clients&id={$item.client}'>{$item.client}</a></TD>
+		<TD><a href='client/view?id={$item.clientid}'>{$item.client}</a></TD>
 		<TD><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_ip_ports&id={$item.id}" target="_blank">{$item.id}</a></TD>
 		<TD>
 {if isset($item.tarif.name)}

@@ -28,8 +28,8 @@ use \yii\helpers\Url;
                     <div class="col-sm-2">Когда</div>
                     <div class="col-sm-2"></div>
                 </div>
-                <?php foreach ($docs as $doc) if ($doc->type == 'contract' && $doc->is_active): ?>
-                    <div class="col-sm-12">
+                <?php foreach ($docs as $doc) if ($doc->type == 'contract'): ?>
+                    <div class="col-sm-12" style="<?= !$doc->is_active ?'color:#CCC;':'' ?>">
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
                         <div class="col-sm-2"><?= $doc->comment ?></div>
@@ -43,9 +43,15 @@ use \yii\helpers\Url;
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
                             <a href="index.php?module=clients&id=<?= $doc->id ?>&action=send&data=contract"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
-                            <a href="<?=Url::toRoute(['document/delete', 'id'=>$doc->id])?>">
-                                <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif"
-                                    alt="Активность"></a>
+                            <?php if($doc->is_active) : ?>
+                                <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
+                                </a>
+                            <?php else : ?>
+                                <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
+                                </a>
+                            <? endif; ?>
                             <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
@@ -55,7 +61,7 @@ use \yii\helpers\Url;
                         <div class="col-sm-2">
                             <input type="hidden" name="contract_type" value="contract">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>-<?= date('y') ?>">
+                                   value="<?= $client->contract->id ?>">
                         </div>
                         <div class="col-sm-2">
                             <input class="text contract_datepicker" type="text"
@@ -85,7 +91,7 @@ use \yii\helpers\Url;
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <input class="button" type="submit" value="зарегистрировать">
+                            <input class="button" type="submit" value="Загрузить">
                         </div>
                     </form>
                 </div>
@@ -117,8 +123,9 @@ use \yii\helpers\Url;
                     <div class="col-sm-2">Когда</div>
                     <div class="col-sm-2"></div>
                 </div>
-                <?php foreach ($docs as $doc) if ($doc->type == 'blank' && $doc->is_active): ?>
-                    <div class="col-sm-12">
+                <?php foreach ($docs as $doc) if ($doc->type == 'blank'): ?>
+                    <?php $blnk = $doc->contract_no; ?>
+                    <div class="col-sm-12" style="<?= !$doc->is_active ?'color:#CCC;':'' ?>">
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
                         <div class="col-sm-2"><?= $doc->comment ?></div>
@@ -132,8 +139,15 @@ use \yii\helpers\Url;
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
                             <a href="index.php?module=clients&id=<?= $doc->id ?>&action=send&data=contract"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
-                            <a href="<?=Url::toRoute(['document/delete', 'id'=>$doc->id])?>"><img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif"
-                                    alt="Активность"></a>
+                            <?php if($doc->is_active) : ?>
+                                <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
+                                </a>
+                            <?php else : ?>
+                                <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
+                                </a>
+                            <? endif; ?>
                             <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
@@ -142,7 +156,7 @@ use \yii\helpers\Url;
                     <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="blank">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>-<?= date('y') ?>"></div>
+                                   value="<?= $blnk ? $doc->contract_no + 1 : 1 ?>"></div>
                         <div class="col-sm-2"><input class="text contract_datepicker" type="text" name="contract_date">
                         </div>
                         <div class="col-sm-2"><input class="text" type="text" name="comment"></div>
@@ -163,7 +177,7 @@ use \yii\helpers\Url;
                                 <option value="Dog_UslugiSvayzi">Dog_UslugiSvayzi</option>
                             </select>
                         </div>
-                        <div class="col-sm-2"><input class="button" type="submit" value="зарегистрировать"></div>
+                        <div class="col-sm-2"><input class="button" type="submit" value="Загрузить"></div>
                     </form>
                 </div>
             </div>
@@ -194,8 +208,9 @@ use \yii\helpers\Url;
                     <div class="col-sm-2">Когда</div>
                     <div class="col-sm-2"></div>
                 </div>
-                <?php foreach ($docs as $doc) if ($doc->type == 'agreement' && $doc->is_active): ?>
-                    <div class="col-sm-12">
+                <?php foreach ($docs as $doc) if ($doc->type == 'agreement'): ?>
+                    <?php $armnt = $doc->contract_no; ?>
+                    <div class="col-sm-12" style="<?= !$doc->is_active ?'color:#CCC;':'' ?>">
                         <div class="col-sm-2"><?= $doc->contract_no ?></div>
                         <div class="col-sm-2"><?= $doc->contract_date ?></div>
                         <div class="col-sm-2"><?= $doc->comment ?></div>
@@ -209,9 +224,15 @@ use \yii\helpers\Url;
                                target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
                             <a href="index.php?module=clients&id=<?= $doc->id ?>&action=send&data=contract"
                                target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
-                            <a href="<?=Url::toRoute(['document/delete', 'id'=>$doc->id])?>">
-                                <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif"
-                                    alt="Активность"></a>
+                            <?php if($doc->is_active) : ?>
+                                <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
+                                </a>
+                            <?php else : ?>
+                                <a href="<?=Url::toRoute(['document/activate', 'id'=>$doc->id])?>">
+                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
+                                </a>
+                            <? endif; ?>
                             <a href="https://stat.mcn.ru/view.php?code=<?= $doc->link ?>" target="_blank">ссылка</a>
                         </div>
                     </div>
@@ -220,7 +241,7 @@ use \yii\helpers\Url;
                     <form action="/document/create?id=<?= $client->id ?>" method="post">
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="agreement">
                             <input class="text" type="text" name="contract_no"
-                                   value="<?= $client->contract->id ?>-<?= date('y') ?>"></div>
+                                   value="<?= $armnt ? $armnt + 1 : 1 ?>"></div>
                         <div class="col-sm-2"><input class="text contract_datepicker" type="text" name="contract_date">
                         </div>
                         <div class="col-sm-2"><input class="text" type="text" name="comment"></div>
@@ -253,7 +274,7 @@ use \yii\helpers\Url;
                                 <option value="Dop_8800">Dop_8800</option>
                             </select>
                         </div>
-                        <div class="col-sm-2"><input class="button" type="submit" value="зарегистрировать"></div>
+                        <div class="col-sm-2"><input class="button" type="submit" value="Загрузить"></div>
                     </form>
                 </div>
             </div>

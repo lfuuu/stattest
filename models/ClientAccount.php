@@ -22,6 +22,10 @@ use app\classes\FileManager;
  */
 class ClientAccount extends ActiveRecord
 {
+    public $client_orig = '';
+    public $sale_channel=0;
+    public $historyVersionDate = null;
+
     public static $statuses = array(
         'negotiations' => array('name' => 'в стадии переговоров', 'color' => '#C4DF9B'),
         'testing' => array('name' => 'тестируемый', 'color' => '#6DCFF6'),
@@ -46,7 +50,122 @@ class ClientAccount extends ActiveRecord
     );
 
     private $_lastComment = false;
+/*For old stat*/
+    public function getType()
+    {
+        return $this->contract->contragent->legal_type;
+    }
 
+    public function getFirma()
+    {
+        return $this->contract->organization;
+    }
+
+    public function getManager()
+    {
+        return $this->contract->manager;
+    }
+
+    public function getManager_name()
+    {
+        return \app\models\User::find()->where(['user' => $this->contract->manager])->one()->name;;
+    }
+
+    public function getNumber()
+    {
+        return $this->contract->number;
+    }
+
+    public function getBusiness_process_id()
+    {
+        return $this->contract->business_process_id;
+    }
+
+    public function getBusiness_process_status_id()
+    {
+        return $this->contract->business_process_status_id;
+    }
+
+    public function getContract_type_id()
+    {
+        return $this->contract->contract_type_id;
+    }
+
+    public function getAccount_manager()
+    {
+        return $this->contract->account_manager;
+    }
+
+    public function getCompany()
+    {
+        return $this->contract->contragent->name;
+    }
+
+    public function getCompany_full()
+    {
+        return $this->contract->contragent->name_full;
+    }
+
+    public function getAddress_jur()
+    {
+        return $this->contract->contragent->address_jur;
+    }
+
+    public function getInn()
+    {
+        return $this->contract->contragent->inn;
+    }
+
+    public function getKpp()
+    {
+        return $this->contract->contragent->kpp;
+    }
+
+    public function getSigner_position()
+    {
+        return $this->contract->contragent->position;
+    }
+
+    public function getSigner_positionV()
+    {
+        return $this->contract->contragent->positionV;
+    }
+
+    public function getSigner_name()
+    {
+        return $this->contract->contragent->fio;
+    }
+
+    public function getSigner_nameV()
+    {
+        return $this->contract->contragent->fioV;
+    }
+
+    public function getNds_zero()
+    {
+        return $this->contract->contragent->tax_regime == 'full' ? 0: 1;
+    }
+
+    public function getOgrn()
+    {
+        return $this->contract->contragent->ogrn;
+    }
+
+    public function getOkpo()
+    {
+        return $this->contract->contragent->Okpo;
+    }
+
+    public function getOpf()
+    {
+        return $this->contract->contragent->opf;
+    }
+
+    public function getOkvd()
+    {
+        return $this->contract->contragent->okvd;
+    }
+/**************/
     public static function tableName()
     {
         return 'clients';
@@ -68,7 +187,7 @@ class ClientAccount extends ActiveRecord
             return parent::save($runValidation = true, $attributeNames = null);
         }
         else {
-            if (substr(php_sapi_name(), 0, 3) == 'cli' || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
+            if (substr(php_sapi_name(), 0, 3) == 'cli' || !\Yii::$app->request->post('deferred-date') || \Yii::$app->request->post('deferred-date') === date('Y-m-d')) {
                 return parent::save($runValidation = true, $attributeNames = null);
             } else {
                 $behaviors = $this->behaviors;
@@ -87,7 +206,6 @@ class ClientAccount extends ActiveRecord
         return [
             'HistoryVersion' => \app\classes\behaviors\HistoryVersion::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
         ];
     }
 
@@ -112,9 +230,6 @@ class ClientAccount extends ActiveRecord
             'sale_channel' => 'Канал продаж',
             //'uid' => '',
             //'site_req_no' => '',
-            //'hid_rtsaldo_date' => '',
-            //'hid_rtsaldo_RUB' => '',
-            //'hid_rtsaldo_USD' => '',
             //'credit_USD' => '',
             //'credit_RUB' => '',
             //'credit' => '',
@@ -181,7 +296,10 @@ class ClientAccount extends ActiveRecord
 
     public function getContract()
     {
-        return $this->hasOne(ClientContract::className(), ['id' => 'contract_id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContract::className(), $this->contract_id, $date);
     }
 
     public function getContractType()
@@ -206,17 +324,17 @@ class ClientAccount extends ActiveRecord
 
     public function getUserManager()
     {
-        return $this->hasOne(User::className(), ["user" => "manager"]);
+        return \app\models\User::findOne(['user' => $this->contract->manager]);
     }
 
     public function getUserAccountManager()
     {
-        return $this->hasOne(User::className(), ["user" => "account_manager"]);
+        return \app\models\User::findOne(['user' => $this->contract->account_manager]);
     }
 
     public function getLkWizardState()
     {
-        return $this->hasOne(LkWizardState::className(), ["contract_id" => "id"]);
+        return LkWizardState::findOne($this->contract->id);
     }
 
     public function getStatusBP()
@@ -226,7 +344,10 @@ class ClientAccount extends ActiveRecord
 
     public function getContragent()
     {
-        return $this->hasOne(ClientContragent::className(), ['id' => 'contragent_id']);
+        $date = null;
+        if(isset($this->historyVersionDate))
+            $date = $this->historyVersionDate;
+        return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->getContract()->contragent_id, $date);
     }
 
     public function getFiles()
@@ -287,13 +408,22 @@ class ClientAccount extends ActiveRecord
 
     public function getAllDocuments()
     {
-        $this->hasMany(ClientDocument::className(), ['client_id' => 'id'])->all();
         return $this->hasMany(ClientDocument::className(), ['client_id' => 'id']);
     }
 
     public function getAllContacts()
     {
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
+    }
+
+    public function getOfficialContact()
+    {
+        $res = [];
+        $contacts = ClientContact::find(['client_id' => $this->id, 'is_official'=>1])->all();
+        foreach($contacts as $contact){
+            $res[$contact->type] = $contact;
+        }
+        return $res;
     }
 
     public function getBpStatuses()

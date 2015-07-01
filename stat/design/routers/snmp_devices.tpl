@@ -12,7 +12,7 @@
 		</TR>
 {foreach from=$devices item=item name=outer}
 <TR bgcolor="{if $item.actual}#EEDCA9{else}#fffff5{/if}">
-          <TD><a href="{$LINK_START}module=clients&id={$item.client}">{$item.client}</a></TD>
+          <TD><a href="/client/view?id={$item.clientid}">{$item.client}</a></TD>
           <TD><a href="pop_services.php?id={$item.id_service}&table=usage_ip_ports">{$item.id_service}</a></TD>
           <TD>{$item.node}::{$item.port_name}</TD>
           <TD>{$item.address}</TD>

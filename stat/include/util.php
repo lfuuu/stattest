@@ -634,35 +634,9 @@ class ClientCS {
     public $P;
     public $F = array();
     public $D;
-    public static $statuses = array(
-                'negotiations'        => array('name'=>'в стадии переговоров','color'=>'#C4DF9B'),
-                'testing'             => array('name'=>'тестируемый','color'=>'#6DCFF6'),
-                'connecting'          => array('name'=>'подключаемый','color'=>'#F49AC1'),
-                'work'                => array('name'=>'включенный','color'=>''),
-                'closed'              => array('name'=>'отключенный','color'=>'#FFFFCC'),
-                'tech_deny'           => array('name'=>'тех. отказ','color'=>'#996666'),
-                'telemarketing'       => array('name'=>'телемаркетинг','color'=>'#A0FFA0'),
-                'income'              => array('name'=>'входящие','color'=>'#CCFFFF'),
-                'deny'                => array('name'=>'отказ','color'=>'#A0A0A0'),
-                'debt'                => array('name'=>'отключен за долги','color'=>'#C00000'),
-                'double'              => array('name'=>'дубликат','color'=>'#60a0e0'),
-                'trash'               => array('name'=>'мусор','color'=>'#a5e934'),
-                'move'                => array('name'=>'переезд','color'=>'#f590f3'),
-                'suspended'           => array('name'=>'приостановленные','color'=>'#C4a3C0'),
-                'denial'              => array('name'=>'отказ/задаток','color'=>'#00C0C0'),
-                'once'                => array('name'=>'Интернет Магазин','color'=>'silver'),
-                'reserved'            => array('name'=>'резервирование канала','color'=>'silver'),
-                'blocked'             => array('name'=>'временно заблокирован','color'=>'silver'),
-                'distr'               => array('name'=>'Поставщик','color'=>'yellow'),
-                'operator'            => array('name'=>'Оператор','color'=>'lightblue')
-            );
-    //вернёт название статуса
-    public static function translate($status_code){
-        if (!isset(self::$statuses[$status_code])) return $status_code;
-        return self::$statuses[$status_code]['name'];
-    }
 
     function ClientCS ($id = null, $get_params = false) {
+        $id = 9130;
         if ($id) $this->F['id']=$id;
         if ($get_params) {
             if (is_array($get_params)) {
@@ -685,14 +659,6 @@ class ClientCS {
             if($this->F["mail_print"] != "yes") $this->F["mail_print"] = "no";
             if($this->F["bill_rename1"] != "yes") $this->F["bill_rename1"] = "no";
         }
-    }
-    public function GetContacts($type = null,$onlyActive = false,$onlyOfficial = false) {
-        return app\models\ClientContact::dao()->GetContacts($this->id, $type, $onlyActive, $onlyOfficial);
-    }
-
-
-    public function GetContact($onlyOfficial = true) {
-        return app\models\ClientContact::dao()->GetContact($this->id, $onlyOfficial);
     }
 
     public function GetContactsFromLK($type = null) {
@@ -730,31 +696,25 @@ class ClientCS {
         if (is_array($client)) {
             $D = $client;
         } else {
-            $f = (is_numeric($client)?'id':'client');
-            $D = $db->GetRow("
-select cr.*, cg.*, c.*, c.client as client_orig, cg.name AS company, cg.name_full AS company_full, cg.legal_type AS type, cr.organization AS firm,
-cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_positionV, cg.fioV AS signer_fioV, cg.legal_type AS type
-from clients c
-INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-where ".$f."='".addslashes($client)."'");
+            if($client instanceof \app\models\ClientAccount)
+                return $client;
+
+            $D = is_numeric($client) ? \app\models\ClientAccount::findOne($client) : \app\models\ClientAccount::find()->where(['client' => $client])->one();
 
         }
         return $D;
     }
 
-    public static function Fetch($client,$ContractData=null) {
+    public static function Fetch($client) {
         global $db,$design;
-        $D = self::FetchClient($client);
-        $O = new self($D['id']);
-        $design->assign('contacts',$O->GetContacts());
-        $design->assign('contact',$O->GetContact());
-        $contracts = $O->GetContracts();
-        if ($ContractData===null) {
-            if (count($contracts)) $design->assign('contract',$contracts[count($contracts)-1]);
-        } else $design->assign('contract',$ContractData);
+        $c = self::FetchClient($client);
+        $design->assign('contacts',$c->allContacts);
+        $design->assign('contact',$c->officialContact);
+        $contracts = $c->allDocuments;
+        if (count($contracts))
+            $design->assign('contract',$contracts[count($contracts)-1]);
         $design->assign('contracts',$contracts);
-        $design->assign('client',$D);
+        $design->assign('client',$c);
     }
 
     public static function FetchMain($client) {
@@ -764,94 +724,6 @@ where ".$f."='".addslashes($client)."'");
             $D = self::FetchClient($main_client);
             $design->assign('main_client',$D);
         } else $design->assign('main_client',false);
-    }
-    
-    public function AddContact($type,$value,$comment,$is_official) {
-        global $db,$user;
-        $V = array('type'=>$type,'data'=>$value,'ts'=>array('NOW()'),'client_id'=>$this->id,'comment'=>$comment,'is_official'=>$is_official,'user_id'=>$user->Get('id'),'is_active'=>1);
-        $id = $db->QueryInsert('client_contacts',$V);
-        if ($cid=self::findClient($this->id)) {
-            self::updateProperty($cid,$type=='email'?'mail':$type,$value,$id);
-        }
-        return $id;
-    }
-    public function ActivateContact($id,$active) {
-        global $db,$user;
-        $db->Query('update client_contacts set is_active="'.$active.'",ts=NOW(),user_id="'.$user->Get('id').'" where client_id="'.$this->id.'" and id="'.$id.'"');
-        if ($cid=self::findClient($this->id)) {
-            $d = $db->getRow('select type,data from client_contacts where id = '.$id);
-            self::updateProperty($cid,$d['type']=='email'?'mail':$d['type'],$active?$d['data']:null,$id);
-        }
-    }
-    public function ActivateContactLK($id,$active) {
-        global $db;
-        $db->Query('update lk_notice_settings set status="'.$active.'" where client_id="'.$this->id.'" and client_contact_id="'.$id.'"');
-    }
-
-
-    public static function getClientClient(&$mix)
-    {
-        global $db;
-        $c = $db->GetRow("select id,client from clients where '".$mix."' in (client, id) limit 1");
-        if($c)
-            $mix = $c["client"];
-        return $mix;
-    }
-
-
-/*
-    function Create($uid = null){
-
-        $defaultFields = array(
-            "status" => "income", 
-            "firma" => "mcn_telekom", 
-            "password" => password_gen(8, false), 
-            "contract_type_id" => 2, // Телеком-клиент
-            "business_process_id" => 1, //Сопровождение
-            "business_process_status_id" => 1, //Входящие
-            "voip_credit_limit_day" => 1000,
-            "voip_is_day_calc" => 1,
-            "credit" => 0,
-            "timezone_name" => 'Europe/Moscow',
-        );
-        foreach ($defaultFields as $field => $defaultValue)
-            if (!isset($this->F[$field]) || !$this->F[$field])
-                $this->F[$field] = $defaultValue;
-
-        global $db;
-        if($this->client!=""){
-            if($this->GetDB('client') || $db->GetRow("select * from user_users where user='".$db->escape($this->F['client'])."'"))
-                return false;    //дубликат
-        }
-        $q1 = '';
-        $q2 = '';
-        foreach($this->F as $k=>$v)
-            if($k!='id' && $k!='client'){
-                if($q1){
-                    $q1.=',';
-                    $q2.=',';
-                }
-                $q1.=$k;
-                $q2.='"'.addslashes($v).'"';
-            }
-
-        $db->Query('insert into clients ('.$q1.') values ('.$q2.')');
-        $this->F = array('id'=>$db->GetInsertId(), "client" => $this->client);
-        return $this->post_apply($uid,true);
-    }*/
-    function Apply($uid = null) {
-        global $db;
-        if(!$this->GetDB('id'))
-            return false;
-        if($this->D['client']!=""){
-            if($this->client!="" && $this->client!=$this->D['client'])
-                return false;
-            unset($this->F['client']);
-        }elseif($this->client!=""){
-            if($this->GetDB('client'))
-                return false;
-        }
-        return $this->post_apply($uid);
     }
 
     private static $db2 = null;
@@ -914,148 +786,6 @@ where ".$f."='".addslashes($client)."'");
         //self::updateProperty($cid,'telemarketing',$this->telemarketing,-$this->id,true);
         return true;
     }
-    private function post_apply($uid = null,$create = false) {
-        global $db,$user;
-
-        if (isset($this->F["client"]) && $this->F["client"]=='idNNNN')
-            $this->F["client"] = 'id'.$this->id;
-
-        if ($create)
-            $this->exportFull();
-
-        $s = array();
-        $applyTS = "0000-00-00";
-        $inFuture = false;
-        $company = false;
-
-        $deffers = array(
-                        "0" => array("d" => strtotime("-3 month", strtotime(date("Y-m-01"))), "v" => 0),
-                        "1" => array("d" => strtotime("-2 month", strtotime(date("Y-m-01"))), "v" => 0),
-                        "2" => array("d" => strtotime("-1 month", strtotime(date("Y-m-01"))), "v" => 0),
-                        "3" => array("d" => strtotime(date("Y-m-01")),                        "v" => 0),
-                        "4" => array("d" => strtotime("+1 month", strtotime(date("Y-m-01"))), "v" => 0)
-                        );
-
-
-        if(get_param_raw("deferred", "")) // берем клиента без изменений с начала периода
-        {
-            $dd = get_param_raw("deferred_date", "");
-            $applyTS = date("Y-m-01", $deffers[$dd]["d"]);
-
-            if($dd < 4)
-            {
-                $this->D = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $this->id, $applyTS);
-            }
-        }
-
-        if (count($this->F)>1) {
-
-            if(isset($this->F["voip_disabled"]) && $this->F["voip_disabled"] == "") $this->F["voip_disabled"] = 0;
-            if(isset($this->F["nds_zero"]) && $this->F["nds_zero"] == "") $this->F["nds_zero"] = 0;
-
-            $q='';
-            $s = array();
-            foreach ($this->F as $k=>$v) if ($k!='id') {
-                if ($q) $q.=',';
-                $q.=$k.'="'.addslashes($v).'"';
-
-                if (!isset($this->D[$k]) || !$this->_lf_diff($this->D[$k], $v))
-                    $s[$k] = array("from" => $this->D[$k], "to" => $v);
-            }
-
-            if(
-                (isset($this->F["company"]) && isset($this->D["company"]) && $this->F["company"] != $this->D["company"]) ||
-                (isset($this->F["company_full"]) && isset($this->D["company_full"]) && $this->F["company_full"] != $this->D["company_full"])
-                )
-            {
-
-                $company = array(
-                    "company" => array("from" => $this->D["company"], "to" => $this->F["company"]),
-                    "company_full" => array("from" => $this->D["company_full"], "to" => $this->F["company_full"])
-                    );
-            }
-
-            if($s)
-            {
-                if(get_param_raw("deferred", ""))
-                {
-                    $dd = get_param_raw("deferred_date", "");
-
-                    if($dd == "0" || $dd == "1" || $dd == "2" || $dd == "3" || $dd == "4")
-                    {
-                        if($dd == 4)
-                        {
-                            $inFuture = true;
-                        }
-
-                        // помечаем изменения, как перезаписанные
-                        /*
-                        $db->Query($sql ="update log_client
-                                    set is_overwrited = 'yes'
-                                    where client_id='".$this->id."'
-                                            and type='fields'
-                                            and ((ts > '".$applyTS."' and apply_ts = '0000-00-00') or apply_ts = '".$applyTS."')");
-                                            */
-
-                        if($dd < 4) //изменения применям сейчас (для установок в предыдущее время)
-                        {
-                            $db->Query($qq='update clients set '.$q.' where id="'.$this->id.'"');
-                            $this->exportClient(self::findClient($this->id));
-                        }
-                    }
-                }else{
-                    $db->Query($qq='update clients set '.$q.' where id="'.$this->id.'"');
-                    $this->exportClient(self::findClient($this->id));
-                }
-            }
-        }
-
-
-
-        if ($uid===null) $uid = $user->Get('id');
-
-        if($s)
-        {
-            $a = array(
-                     "client_id" => $this->id,
-                     "user_id" => $uid,
-                     "ts" => array('NOW()'),
-                     "comment" => implode(',', array_keys($s)),
-                     "type" => "fields",
-                    "apply_ts" => $applyTS
-                     );
-
-            if($inFuture)
-                $a["is_apply_set"] = "no";
-
-            $verId = $db->QueryInsert("log_client", $a);
-
-            foreach($s as $k => $v)
-            {
-                $db->QueryInsert("log_client_fields", array(
-                            "ver_id" => $verId,
-                            "field" => $k,
-                            "value_from" => $v["from"],
-                            "value_to" => $v["to"]
-                            )
-                        );
-            }
-        }
-
-        if($company)
-            $db->QueryInsert("log_client",
-                    array(
-                        "client_id" => $this->id,
-                        "user_id" => $uid,
-                        "ts" => array('NOW()'),
-                        "comment" => serialize($company),
-                        "type" => "company_name"
-                        )
-            );
-
-
-        return $this->id;
-    }
 
     function _lf_diff($a, $b)
     {
@@ -1074,89 +804,11 @@ where ".$f."='".addslashes($client)."'");
     function __isset($k) { return isset($this->F[$k]); }
     function __unset($k) { unset($this->F[$k]); }
 
-
-    function Add($comment) {        //добавляет коментарий
-        global $db,$user;
-
-        $comment = trim($comment);
-
-        if ($comment)
-        {
-            $db->QueryInsert("client_statuses", array(
-                "ts" => array('NOW()'),
-                "id_client" => $this->id,
-                "user" => $user->Get('user'),
-                "status" => "",
-                "comment" => $comment)
-            );
-        }
-    }
-
-    public static function getClientLog($id, $types = array('msg','fields'))
-    {
-        global $db;
-
-        $log = array();
-        foreach($db->AllRecords($q = '
-                    select
-                        L.*,
-                        U.user
-                    from
-                        log_client as L
-                    left join
-                        user_users as U
-                    ON
-                        U.id=L.user_id
-                    where
-                        L.client_id = '.$id.'
-                        and L.type in ("'.implode('","', $types).'")
-                    order by
-                        ts desc
-                ') as $l)
-        {
-            if($l["type"] == "msg")
-            {
-                //nothing :)
-            }elseif($l["type"] == "fields")
-            {
-                $l["comment"] = "Изменены поля: ".self::_resolveFields($l["comment"]);
-            }elseif($l["type"] == "company_name")
-            {
-                $l["company"] = unserialize($l["comment"]);
-                $l["comment"] = "";
-            }
-
-            $log[] = $l;
-        }
-
-        return $log;
-    }
-
-    private static function _resolveFields($f)
-    {
-        return str_replace(",", ", ",$f);
-    }
-
-    public static function getOnDate($clientId, $date)
-    {
-        return app\models\ClientAccount::dao()->getAccountPropertyOnDate($clientId, $date);
-    }
-
-    public static function getManagerName($manager)
-    {
-        global $db;
-
-        if(!($n = $db->GetValue("select name from user_users where user = '".$manager."'")))
-            $n = $manager;
-
-        return $n;
-        
-    }
-
     private static function sendBillingCountersNotification($clientId)
     {
         $subj = '[stat/include/util] База биллинга телефонии не доступна';
-        $body = 'Клиент ' . ClientCard::find($clientId)->client . ' не получил информацию по биллингу';
+        $c = \app\models\ClientAccount::findOne([is_numeric($clientId) ? 'id' : 'client' => ($clientId)]);
+        $body = 'Клиент ' . $c->client . ' не получил информацию по биллингу';
         //mail(ADMIN_EMAIL, $subj, $body);
     }
     public static function getBillingCounters($clientId, $silent_mode = false)

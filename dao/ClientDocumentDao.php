@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\HistoryVersion;
 use Yii;
 use app\classes\Assert;
 use app\classes\Company;
@@ -31,7 +32,8 @@ class ClientDocumentDao extends Singleton
 
         $lastContract = BillContract::getLastContract($accountId, time());
 
-        $contractNo = $lastContract["no"];
+        //$contractNo = $lastContract["no"];
+        $contractNo = $_contractNo;
         $contractDate = date("d.m.Y", $lastContract["date"]);
         $contractDopDate = "01.01.2012";
         $contractDopNo = "0";
@@ -39,7 +41,7 @@ class ClientDocumentDao extends Singleton
         if ($contractType == "contract")
         {
             $contractDate = $_contractDate;
-            $contractNo = $_contractNo;
+            //$contractNo = $_contractNo;
         } else {
 
             if ($contractType == "agreement")
@@ -49,7 +51,7 @@ class ClientDocumentDao extends Singleton
 
                 $lastContract = BillContract::getLastContract($accountId, (strtotime($contractDopDate) ?: time()));
 
-                $contractNo = $lastContract["no"];
+                //$contractNo = $lastContract["no"];
                 $contractDate = date("d.m.Y", $lastContract["date"]);
             } else { //blank
                 $contractDopDate = date("d.m.Y");
@@ -88,8 +90,8 @@ class ClientDocumentDao extends Singleton
         $userId = null
     )
     {
-        if(!$no)
-            $no = $accountId.'-'.date('y');
+        /*if(!$no)
+            $no = $accountId.'-'.date('y');*/
 
         //save in DB
         $c = new ClientDocument;
@@ -211,12 +213,13 @@ class ClientDocumentDao extends Singleton
 			return;
         }
 
-        $r = ClientAccount::dao()->getAccountPropertyOnDate($clientId, $c["contract_date"]);
-		
+        $r = HistoryVersion::getVersionOnDate(ClientAccount::className(), $clientId, $c["contract_date"]);
+
         if (!$r) {
 			trigger_error2('Такого клиента не существует');
 			return;
         }
+        $r = $r->toArray();
 
         $c["contract_dop_date"] = strtotime($c["contract_dop_date"]);
         $c["contract_date"] = strtotime($c["contract_date"]);

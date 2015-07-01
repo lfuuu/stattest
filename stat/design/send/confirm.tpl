@@ -15,7 +15,7 @@
   </TR>
 {foreach from=$send_confirms item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
-	<TD><input type=hidden value='{$item.client}' name='bill_client[{$smarty.foreach.outer.iteration}]'><a href='{$LINK_START}module=clients&id={$item.client}'>{$item.client}</a></TD>
+	<TD><input type=hidden value='{$item.client}' name='bill_client[{$smarty.foreach.outer.iteration}]'><a href='/client/view?id={$item.clientid}'>{$item.client}</a></TD>
 	<TD>{$item.manager}</TD>
 	<TD><input type=hidden value='{$item.bill_no}' name='bill_no[{$smarty.foreach.outer.iteration}]'><a href='modules/accounts/view.php?bill_no={$item.bill_no}&client={$item.client}'>{$item.bill_no}</a></TD>
 	<TD>{$item.bill_date}</TD>

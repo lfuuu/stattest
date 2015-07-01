@@ -89,4 +89,10 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         $arr = self::find()->where(['usergroup' => 'manager', 'enabled' => 'yes'])->all();
         return ArrayHelper::map($arr, 'user', 'name');
     }
+
+    public static function getUserListByDepart($id)
+    {
+        $models = self::find()->andWhere(['depart_id' => $id])->all();
+        return ArrayHelper::map($models, 'id', 'name');
+    }
 }

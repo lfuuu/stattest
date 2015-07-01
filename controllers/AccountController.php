@@ -2,17 +2,19 @@
 
 namespace app\controllers;
 
-use app\forms\client\ClientEditForm;
-use app\forms\contract\ContractEditForm;
-use app\forms\contragent\ContragentEditForm;
-use app\models\ClientSuper;
+use app\forms\client\AccountEditForm;
+use app\forms\client\SuperClientEditForm;
+use app\models\ClientBP;
+use app\models\ClientGridSettings;
+use app\models\ClientSearch;
 use Yii;
 use app\classes\BaseController;
 use app\classes\Assert;
 use yii\filters\AccessControl;
 use app\models\LkWizardState;
-use app\models\ClientAccount;
 use yii\helpers\Url;
+use yii\web\Response;
+use app\models\ClientAccount;
 
 
 class AccountController extends BaseController
@@ -25,8 +27,19 @@ class AccountController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
-                    ]
+                        'actions' => ['view', 'index', 'load-bp-statuses', 'unfix'],
+                        'roles' => ['clients.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['edit', 'create', 'change-wizard-state', 'super-client-edit'],
+                        'roles' => ['clients.edit'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['set-block', 'set-voip-disable'],
+                        'roles' => ['clients.restatus'],
+                    ],
                 ],
             ],
         ];
@@ -38,16 +51,16 @@ class AccountController extends BaseController
 
         $account = ClientAccount::findOne($accountId);
 
-        if (!$account || !LkWizardState::isBPStatusAllow($account->business_process_status_id, $account->id))
+        if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id, $account->contract->id))
             throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
 
-        $wizard = LkWizardState::findOne($accountId);
+        $wizard = LkWizardState::findOne($account->contract->id);
 
         if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next'])) {
 
             if ($state == "on" && !$wizard) {
                 $wizard = new LkWizardState;
-                $wizard->contract_id = $accountId;
+                $wizard->contract_id = $account->contract->id;
                 $wizard->step = 1;
                 $wizard->state = "process";
                 $wizard->save();
@@ -77,40 +90,130 @@ class AccountController extends BaseController
             }
         }
 
-        $this->redirect(Url::toRoute(['client/view', 'id' => $id]));
+        $this->redirect(['client/view', 'id' => $id]);
     }
 
-    public function actionCreate()
+    public function actionCreate($parentId)
     {
-        $request = Yii::$app->request->post();
-        $contragent = new ContragentEditForm(['super_id' => 1]);
-        $contract = new ContractEditForm(['contragent_id' => 1, 'super_id' => 1]);
-        $client = new ClientEditForm(['contract_id' => 1, 'contragent_id' => 1, 'super_id' => 1]);
-        if ($request) {
-            $transaction = Yii::$app->db->beginTransaction();
-            $commit = false;
-            $super = new ClientSuper();
-            $super->setAttribute('name', 'autocreate');
-            if ($super->save()) {
-                unset($request['ContragentEditForm']['super_id']);
-                $contragent = new ContragentEditForm(['super_id' => $super->id]);
-                if ($contragent->load($request) && $contragent->validate() && $contragent->save()) {
-                    $contract = new ContractEditForm(['contragent_id' => $contragent->id]);
-                    if ($contract->load($request) && $contract->validate() && $contract->save()) {
-                        $client = new ClientEditForm(['id' => $contract->id]);
-                        if ($client->load($request) && $client->validate() && $client->save())
-                            $commit = true;
-                    }
-                }
-            }
-            if ($commit) {
-                $transaction->commit();
-                return $this->redirect(Url::toRoute(['client/view', 'id' => $client->id]));
-            } else {
-                $transaction->rollback();
-            }
+        $model = new AccountEditForm(['contract_id' => $parentId]);
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $this->redirect(['client/view', 'id' => $model->id]);
         }
 
-        return $this->render('create', ['contragent' => $contragent, 'client' => $client, 'contract' => $contract]);
+        return $this->render("edit", [
+            'model' => $model
+        ]);
     }
+
+    public function actionEdit($id, $date = null)
+    {
+        $model = new AccountEditForm(['id' => $id, 'ddate' => $date]);
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $this->redirect(['client/view', 'id' => $id]);
+        }
+
+        return $this->render("edit", [
+            'model' => $model
+        ]);
+    }
+
+    public function actionSuperClientEdit($id, $childId)
+    {
+        $model = new SuperClientEditForm(['id' => $id]);
+
+        if($childId===null) {
+            parse_str(parse_url(Yii::$app->request->referrer, PHP_URL_QUERY), $get);
+            $params = Yii::$app->request->getQueryParams();
+            $childId = $params['childId'] = ($get['childId']) ? $get['childId'] : $get['id'];
+            Yii::$app->request->setQueryParams($params);
+            Yii::$app->request->setUrl(Yii::$app->request->getUrl().'&childId='.$childId);
+        }
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+            $this->redirect(['client/view', 'id' => $childId]);
+        }
+
+        return $this->render("superClientEdit", [
+            'model' => $model
+        ]);
+    }
+
+    public function actionIndex()
+    {
+        $searchModel = new ClientSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        if (Yii::$app->request->isAjax) {
+            $res = [];
+            foreach ($dataProvider->models as $model)
+                $res[] = [
+                    'url' => Url::toRoute(['client/view', 'id' => $model->id]),
+                    'value' => $model->contract->contragent->name_full,
+                    'color' => $model->contract->getBusinessProcessStatus()['color'],
+                    'id' => $model->id,
+                ];
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return $res;
+        } else {
+            if ($dataProvider->query->count() == 1)
+                return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
+            else
+                return $this->render('index', [
+//              'searchModel' => $dataProvider,
+                    'dataProvider' => $dataProvider,
+                ]);
+        }
+    }
+
+    public function actionUnfix()
+    {
+        //Для старого стата, для старых модулей
+        Yii::$app->session->set('clients_client', '');
+        return $this->goHome();
+    }
+
+    public function actionSetBlock($id)
+    {
+        $model = ClientAccount::findOne($id);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $model->is_blocked = !$model->is_blocked;
+        $model->save();
+        return $this->redirect(['client/view', 'id' => $id]);
+    }
+
+    public function actionSetVoipDisable($id)
+    {
+        $model = ClientAccount::findOne($id);
+        if (!$model)
+            throw new Exception('ЛС не найден');
+        $model->voip_disabled = !$model->voip_disabled;
+        $model->save();
+        return $this->redirect(['client/view', 'id' => $id]);
+    }
+
+    public function actionLoadBpStatuses()
+    {
+        $processes = [];
+        foreach (ClientBP::find()->orderBy("sort")->all() as $b) {
+            $processes[] = ["id" => $b->id, "up_id" => $b->client_contract_id, "name" => $b->name];
+        }
+
+        $statuses = [];
+        foreach (ClientGridSettings::find()->select(["id", "name", "grid_business_process_id"])->where(["show_as_status" => 1])->orderBy("sort")->all() as $s) {
+            $statuses[] = ["id" => $s->id, "name" => $s->name, "up_id" => $s->grid_business_process_id];
+        }
+
+        $res = ["processes" => $processes, "statuses" => $statuses];
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return $res;
+    }
+    /*
+        public function actionAutocomplete($q)
+        {
+            ClientSearch::find
+        }*/
 }

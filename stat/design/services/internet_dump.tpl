@@ -18,7 +18,7 @@
 <TR><TR><TD colspan="4"></TD></TR>
 <TR bgcolor="{if $conn.data.status=='working'}{if $conn.data.actual}#EEDCA9{else}#fffff5{/if}{else}#ffe0e0{/if}">
 {if isset($show_client)}
-	<TD>Клиент <b><a href='{$LINK_START}module=clients&id={$conn.data.client}'>{$conn.data.client}</a></b></td>
+	<TD>Клиент <b><a href='/client/view?id={$conn.data.clientid}'>{$conn.data.client}</a></b></td>
 {/if}
 	<TD width="1%" nowrap><a href="{$PATH_TO_ROOT}pop_services.php?table=usage_ip_ports&id={$conn.data.id}" target="_blank"><b>{$conn.data.id}</b></a>
 						<a href='{$LINK_START}module=stats&action=internet'><img class=icon src='{$IMAGES_PATH}icons/stats.gif' alt='Статистика'></a>

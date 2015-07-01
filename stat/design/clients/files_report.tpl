@@ -15,7 +15,7 @@
 {foreach from=$files item=item name=outer}
     <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
 	<td style='font-size:85%'>{$item.no}</td>
-	<td><a href='{$LINK_START}module=clients&id={$item.client_id}'>{$item.client_client}</a></td>
+	<td><a href='/client/view?id={$item.client_id}'>{$item.client_client}</a></td>
 	<td style='font-size:85%'>{$item.client_company}</td>
 	<td>
             <a href='{$LINK_START}module=clients&id={$item.id}&action=file_get&cid={$item.client_id}' {if $item.name|strlen >= 25}title="{$item.name}"{/if}>
