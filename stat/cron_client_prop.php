@@ -5,10 +5,9 @@
 	include PATH_TO_ROOT."conf_yii.php";
 	include MODULES_PATH.'clients/module.php';
 
-    //echo $db->GetValue("select database()");
+    echo "\n".date("r");
 
     $data = date("Y-m-d");
-    //$data = "2012-04-01";
 
     foreach($db->AllRecords(
                 "select id, client_id
@@ -18,7 +17,8 @@
                     and is_apply_set ='no' 
                     and is_overwrited = 'no'
                 order by id") as $l)
-{
+    {
+        echo "\n\nclient_id: ".$l["client_id"];
     $ff = array("id" => $l["client_id"]);
     foreach($db->AllRecords(
                 "select * 
@@ -28,6 +28,8 @@
     {
         $ff[$f["field"]] = $f["value_to"];        
     }
+    echo "\n";
+    print_r($ff);
 
     $db->QueryUpdate("clients", "id", $ff);
     $db->QueryUpdate("log_client", "id", array(
