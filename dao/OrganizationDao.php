@@ -12,12 +12,12 @@ class OrganizationDao extends Singleton
         $result = [];
 
         $records = Organization::find()
-            ->groupBy('firma')
+            ->groupBy('id')
             ->orderBy('actual_from ASC')
             ->all();
 
         foreach ($records as $record) {
-            $actual = Organization::find()->actual()->byFirma($record->firma)->one();
+            $actual = Organization::find()->byId($record->id)->actual()->one();
             if ($actual instanceof Organization) {
                 $result[] = $actual;
             }

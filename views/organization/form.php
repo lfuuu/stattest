@@ -353,6 +353,7 @@ use app\models\Person;
                 'form' => $form,
                 'attributes' => [
                     'id' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'id')],
+                    'date' => ['type' => Form::INPUT_RAW, 'value' => Html::activeHiddenInput($model, 'actual_from')],
                     'actions' => [
                         'type' => Form::INPUT_RAW,
                         'value' =>
