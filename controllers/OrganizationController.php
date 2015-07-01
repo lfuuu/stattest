@@ -71,12 +71,16 @@ class OrganizationController extends BaseController
         ]);
     }
 
-    public function actionDuplicate($firma)
+    public function actionDuplicate($id, $date)
     {
-        $organization = Organization::find()->actual()->byFirma($firma)->one();
+        $organization = Organization::find()
+            ->byId($id)
+            ->setFilterDate($date)
+            ->actual()
+            ->one();
 
         if (!$organization instanceof Organization)
-            $organization = Organization::find()->byFirma($firma)->orderBy('actual_from DESC')->one();
+            $organization = Organization::find()->byId($id)->orderBy('actual_from DESC')->one();
 
         Assert::isObject($organization);
 

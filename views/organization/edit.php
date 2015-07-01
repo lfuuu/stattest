@@ -9,9 +9,7 @@ use app\forms\organization\OrganizationForm;
 
 $items = [];
 $history = Organization::find()
-    ->where([
-        'firma' => $model->firma
-    ])
+    ->byId($model->id)
     ->orderBy('actual_from asc')
     ->all();
 
@@ -20,7 +18,7 @@ foreach ($history as $record):
         $items[] = [
             'label'     => Yii::$app->formatter->asDate($record->actual_from, 'd MMM Y'),
             'active'    => true,
-            'content'   => $this->render('form', ['model' => $model]),
+            'content'   => $this->render('form', ['model' => $model, 'mode' => 'edit']),
         ];
     else:
         $items[] = [
@@ -35,7 +33,7 @@ endforeach;
 <div style="float: right;">
     <?= Html::a(
         '<i class="glyphicon glyphicon-plus"></i> Добавить',
-        ['duplicate', 'firma' => $model->firma],
+        ['duplicate', 'id' => $model->id, 'date' => $model->actual_from],
         [
             'data-pjax' => 0,
             'class' => 'btn btn-success btn-sm form-lnk',
