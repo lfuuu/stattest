@@ -45,9 +45,6 @@ class Organization extends ActiveRecord
 
     public function beforeSave($query)
     {
-        $this->logo_file_name = basename($this->logo_file_name);
-        $this->stamp_file_name = basename($this->stamp_file_name);
-
         $this->getDb()
             ->createCommand(
                 "

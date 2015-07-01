@@ -15,12 +15,6 @@ class Person extends ActiveRecord
 {
     public $canDelete = true;
 
-    public function beforeSave($query)
-    {
-        $this->signature_file_name = basename($this->signature_file_name);
-        return parent::beforeSave($query);
-    }
-
     public static function tableName()
     {
         return 'person';

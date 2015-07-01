@@ -8,3 +8,4 @@ UPDATE clients SET organization_id=7 WHERE firma='all4net';
 UPDATE clients SET organization_id=8 WHERE firma='wellstart';
 UPDATE clients SET organization_id=9 WHERE firma='mcn_telekom_hungary';
 UPDATE clients SET organization_id=10 WHERE firma='tel2tel_hungary';
+UPDATE clients SET organization_id=11 WHERE firma='mcm_telekom';
