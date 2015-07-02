@@ -9,52 +9,52 @@ use app\models\BillDocument;
 use app\classes\BillContract;
 
 class Bill {
-	private $client_id;
-	private $client_data = null;
-	private $bill_no;
-	private $bill_ts;
-	private $bill;
-	private $changed ;
-	private $max_sort;
-	private $_comment = null;
+    public $client_id;
+    private $client_data = null;
+    private $bill_no;
+    private $bill_ts;
+    private $bill;
+    private $changed ;
+    private $max_sort;
+    private $_comment = null;
     private $bill_courier;
-	public $negative_balance=false; //для 4й счет-фактуры - если недостаточно средств для проведения авансовых платежей
+    public $negative_balance=false; //для 4й счет-фактуры - если недостаточно средств для проведения авансовых платежей
 
-	public function SetComment($s) {
-		$this->_comment=$s;
-	}
+    public function SetComment($s) {
+        $this->_comment=$s;
+    }
 
-	public function Client($v = '') {
-		global $db;
-		if (!$this->client_data)
+    public function Client($v = '') {
+        global $db;
+        if (!$this->client_data)
         {
             $this->client_data = ClientCS::getOnDate($this->client_id, $this->bill["bill_date"]);
         }
 
-		return ($v?($this->client_data[$v]):($this->client_data));
-	}
+        return ($v?($this->client_data[$v]):($this->client_data));
+    }
 
     public function SetClientDate($date)
     {
            $this->client_data = ClientCS::getOnDate($this->client_id, $date);
     }
 
-	public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true, $isUserPrepay=false) {
-		global $db;
-		if ($bill_no){
-			$this->bill_no=$bill_no;
-			$r=$db->GetRow("
+    public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true, $isUserPrepay=false) {
+        global $db;
+        if ($bill_no){
+            $this->bill_no=$bill_no;
+            $r=$db->GetRow("
 				select
 					max(sort) as V
 				from
 					newbill_lines
 				where
 					bill_no='".$bill_no."'
-			");
-			$this->max_sort=($r?$r['V']:0);
-		} else {
-			$prefix=date("Ym",$bill_date);
-			if ($r=$db->GetRow($q = "
+            ");
+            $this->max_sort=($r?$r['V']:0);
+        } else {
+            $prefix=date("Ym",$bill_date);
+            if ($r=$db->GetRow($q = "
 				SELECT
 					bill_no as suffix
 				FROM
@@ -64,28 +64,28 @@ class Bill {
 				ORDER BY
 					bill_no DESC
 				LIMIT 1
-			"))
-				$suffix=1+intval(substr($r['suffix'],7));
-			else
-				$suffix=1;
+            "))
+                $suffix=1+intval(substr($r['suffix'],7));
+            else
+                $suffix=1;
 
-		    $this->bill_no=sprintf("%s-%04d",$prefix,$suffix);
+            $this->bill_no=sprintf("%s-%04d",$prefix,$suffix);
 
-		    if (is_array($client_id)) {
-		    	$this->client_data=$client_id;
-		    	$client_id=$client_id['id'];
-		    	if (!$currency) $currency=$this->client_data['currency'];
-		    } else if (!$currency) {
-				$this->client_data=$db->GetRow("
+            if (is_array($client_id)) {
+                $this->client_data=$client_id;
+                $client_id=$client_id['id'];
+                if (!$currency) $currency=$this->client_data['currency'];
+            } else if (!$currency) {
+                $this->client_data=$db->GetRow("
 					select
 						*
 					from
 						clients
 					where
 						id='".$client_id."'
-				");
-				$currency=$this->client_data['currency'];
-		    }
+                ");
+                $currency=$this->client_data['currency'];
+            }
             $bill = new \app\models\Bill();
             $bill->client_id = $client_id;
             $bill->currency = $currency;
@@ -97,9 +97,9 @@ class Bill {
             $bill->is_approved = 1;
             $bill->is_use_tax = $this->client_data['nds_zero'] > 0 ? 0 : 1;
             $bill->save();
-		}
+        }
 
-		$this->bill = $db->GetRow("
+        $this->bill = $db->GetRow("
 			select
 				*,
 				UNIX_TIMESTAMP(bill_date) as ts,
@@ -109,7 +109,7 @@ class Bill {
 				newbills
 			where
 				bill_no='".$this->bill_no."'
-		");
+        ");
 
         // rename if rollback
         if($this->bill["is_rollback"]){
@@ -118,12 +118,12 @@ class Bill {
                 case 'Отгружен': $this->bill["state_1c"] = "Принят"; break;
             }
         }
-		$this->bill_ts=$this->bill['ts'];
-		unset($this->bill['ts']);
-		$this->client_id=$this->bill['client_id'];
+        $this->bill_ts=$this->bill['ts'];
+        unset($this->bill['ts']);
+        $this->client_id=$this->bill['client_id'];
         $this->bill_courier = Courier::dao()->getNameById($this->bill["courier_id"]);
-		$this->changed=0;
-	}
+        $this->changed=0;
+    }
 
     public function AddLine($title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to='')
     {
@@ -140,7 +140,7 @@ class Bill {
             }
         }
 
-        $taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
+        $taxTypeId = $this->bill['is_use_tax'] ? ClientAccount::findOne($this->client_id)->getTaxRate($original = true) : 0;
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;
@@ -203,7 +203,7 @@ class Bill {
 
         $this->changed = 1;
 
-        $taxTypeId = $this->bill['is_use_tax'] ? 18 : 0;
+        $taxTypeId = $this->bill['is_use_tax'] ? ClientAccount::findOne($this->client_id)->getTaxRate($original = true) : 0;
 
         /** @var BillLine $line */
         $line = BillLine::find()->where(['bill_no' => $this->bill_no, 'sort' => $sort])->limit(1)->one();
@@ -377,8 +377,10 @@ class Bill {
 		$db->Query($query);
 		$pay = $db->NextRecord(MYSQL_ASSOC);
 		if($pay['type'] == 'PAY'){
+            $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate();
+
 			$ret_x['sum'] = $pay['sum'];
-			$ret_x['sum_tax'] = $pay['sum']/1.18*0.18;
+			$ret_x['sum_tax'] = $pay['sum'] / (1 + $tax_rate) * $tax_rate;
 		}
 
 		foreach($ret as $key=>&$item){
@@ -450,6 +452,9 @@ class Bill {
 
 	public function GetLines($mode=false){
 		global $db;
+
+        $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate();
+
 		$ret =
 			$db->AllRecords($q='
 				select
@@ -458,7 +463,7 @@ class Bill {
 					sort as id,
 					UNIX_TIMESTAMP(date_from) as ts_from,
 					UNIX_TIMESTAMP(date_to) as ts_to,
-					if(g.nds is null, 18, g.nds) as line_nds,
+					if(g.nds is null, ' . $tax_rate . ', g.nds) as line_nds,
 					g.num_id,
 					store,
 					service, 
@@ -626,7 +631,8 @@ class Bill {
 
         $time_from = strtotime('first day of next month 00:00:00');
         $time_to = strtotime('last day of next month 23:59:59');
-        $nds = $client_data['nds_zero'] > 0 ? 1 : 1.18;
+        $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
+        $nds = $client_data['nds_zero'] > 0 ? 1 : (1 + $tax_rate);
         $R = 0;
         foreach ($services as $service){
             if((unix_timestamp($service['actual_from']) > $time_to || unix_timestamp($service['actual_to']) < $time_from))
@@ -697,7 +703,8 @@ class Bill {
         $lines_info = BillLines::first(array('select' => 'MAX(sort) as max_sort, SUM(sum) as sum', 'conditions' => array('bill_no = ?', $this->bill_no)));
         if ($lines_info->sum)
         {
-            $taxTypeId = $this->bill["is_use_tax"] > 0 ? 18 : 0;
+            $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate($original = true);
+            $taxTypeId = $this->bill["is_use_tax"] > 0 ? $tax_rate : 0;
 
             $balance = min($lines_info->sum, $balance);
 

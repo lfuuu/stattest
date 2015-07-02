@@ -1944,9 +1944,10 @@ class m_newaccounts extends IModule
 
         if($clientId && $sum)
         {
+            $tax_rate = ClientAccount::findOne($clientId)->getTaxRate();
             list($rub, $kop) = explode(".", sprintf("%.2f", $sum));
 
-            $sumNds = (($sum/118)*18);
+            $sumNds = (($sum / (1 + $tax_rate)) * $tax_rate);
             list($ndsRub, $ndsKop) = explode(".", sprintf("%.2f", $sumNds));
 
             $sSum = array(
@@ -2360,7 +2361,7 @@ class m_newaccounts extends IModule
 
         if(in_array($obj, array("invoice","upd")))
         {
-            $this->checkSF_discount($L_prev);
+            $this->checkSF_discount($L_prev, $tax_rate = ClientAccount::findOne($bill->client_id)->getTaxRate());
         }
 
 
@@ -2463,13 +2464,13 @@ class m_newaccounts extends IModule
         }
     }
 
-    function checkSF_discount(&$L)
+    function checkSF_discount(&$L, $tax_rate)
     {
         foreach($L as &$l)
         {
             if($l["discount_set"] || $l["discount_auto"])
             {
-                $discount = ($l["discount_set"] + $l["discount_auto"])/1.18;
+                $discount = ($l["discount_set"] + $l["discount_auto"]) / (1 + $tax_rate);
 
                 $l["sum_without_tax"] -= $discount;
 

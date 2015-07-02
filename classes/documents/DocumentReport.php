@@ -36,11 +36,7 @@ abstract class DocumentReport extends Object
      */
     public function getOrganization()
     {
-        return $this->bill->clientAccount
-            ->getOrganization()
-                ->setFilterDate($this->bill->bill_date)
-                ->actual()
-                ->one();
+        return $this->bill->clientAccount->getOrganization($this->bill->bill_date);
     }
 
     /**
@@ -188,37 +184,41 @@ abstract class DocumentReport extends Object
      */
     protected function fetchLines()
     {
+        $tax_rate = $this->bill->clientAccount->getTaxRate();
+
         $this->lines =
             Yii::$app->db->createCommand('
                 select
-					l.*,
-					if(g.nds is null, 18, g.nds) as nds,
-					g.art as art,
-					g.num_id as num_id,
-					g.store as in_store,
+                    l.*,
+                    if(g.nds is null, ' . $tax_rate . ', g.nds) as nds,
+                    g.art as art,
+                    g.num_id as num_id,
+                    g.store as in_store,
                     if(l.service="usage_extra",
-						(select
-							okvd_code
-						from
-							usage_extra u, tarifs_extra t
-						where
-							u.id = l.id_service and
-							t.id = tarif_id
-						),
-						if (l.type = "good",
-							(select
-								okei
-							FROM
-								g_unit
-							WHERE
-								id = g.unit_id
-							), "")
-					) okvd_code
-				from newbill_lines l
-				left join g_goods g on (l.item_id = g.id)
-				left join g_unit as gu ON g.unit_id = gu.id
-				where l.bill_no=:billNo
-				order by sort
+                      (
+                        select
+                          okvd_code
+                        from
+                          usage_extra u, tarifs_extra t
+                        where
+                            u.id = l.id_service and
+                            t.id = tarif_id
+                      ),
+                      if (l.type = "good",
+                        (
+                          select
+                            okei
+                          from
+                            g_unit
+                          where
+                            id = g.unit_id
+                        ), "")
+                    ) okvd_code
+                from newbill_lines l
+                        left join g_goods g on (l.item_id = g.id)
+                            left join g_unit as gu ON g.unit_id = gu.id
+                where l.bill_no=:billNo
+                order by sort
             ', [
                 ':billNo' => $this->bill->bill_no,
             ])->queryAll();

@@ -34,10 +34,10 @@ use app\dao\OrganizationDao;
  * @property string stamp_file_name             Название файла с печатью
  * @property int director_id                    ID записи персон на должность директора
  * @property int accountant_id                  ID записи персон на должность бухгалтера
-
  */
 class Organization extends ActiveRecord
 {
+
     public static function tableName()
     {
         return 'organization';

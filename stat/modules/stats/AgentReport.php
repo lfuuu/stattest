@@ -86,7 +86,7 @@ class AgentReport
             echo "\n";
             echo ';;;;;;';
             echo "\n";
-            $str = ($interest_type == 'bills')? 'Сумма полученных платежей' : 'Абон плата, с учетом НДС;Сумма оплаченных счетов';
+            $str = ($interest_type == 'bills')? 'Сумма полученных платежей' : 'Абон плата;Сумма оплаченных счетов';
             echo ('Компания;'.$str.';Тип вознаграждения;%;Сумма вознаграждения;');
             echo "\n";
             foreach ($R as $r) {
@@ -395,7 +395,7 @@ class AgentReport
      */
     private static function prepareTotals($total)
     {
-        $total['nds'] = round($total['fsum']*(18/118), 2);
+        //$total['nds'] = round($total['fsum']*(18/118), 2);
         $total['fsum_str'] = floor($total['fsum']) . ' руб. ' . floor(round(100*($total['fsum'] - floor($total['fsum'])), 5)) . ' коп.';
         $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(round(100*($total['nds'] - floor($total['nds'])), 5)) . ' коп.';
         return $total;
