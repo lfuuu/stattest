@@ -41,12 +41,6 @@ class OrganizationForm extends Form
     const NEW_TITLE = 'Новая организация';
     const EDIT_TITLE = 'Обновление данных организации';
 
-    // Система налогообложения
-    public $tax_system_variants = [
-        'ОСНО' => 'ОСНО',
-        'УСН' => 'УСН',
-    ];
-
     public function rules()
     {
         return [

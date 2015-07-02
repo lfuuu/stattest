@@ -19,6 +19,8 @@ use app\models\Person;
 </h2>
 <?php endif; ?>
 
+<script type="text/javascript" src="/js/behaviors/organization.js"></script>
+
 <div class="container" style="width: 100%; padding-top: 20px;">
     <?php
     $form_options = [
@@ -48,7 +50,10 @@ use app\models\Person;
                     $field = $form->field($model, 'country_id')
                         ->dropDownList(
                             ArrayHelper::map(Country::find()->where(['in_use' => 1])->orderBy('code desc')->all(), 'code', 'name'),
-                            ['readonly' => $mode == 'duplicate' ? true : false]
+                            [
+                                'data-action' => 'applyCountry',
+                                'readonly' => $mode == 'duplicate' ? true : false
+                            ]
                         );
                     echo $field->label('Страна');
                     ?>
@@ -169,7 +174,11 @@ use app\models\Person;
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'tax_system')->dropDownList($model->tax_system_variants)->label('Система налогообложения');
+                    echo $form->field($model, 'tax_system')
+                        ->dropDownList([], [
+                            'data-action' => 'applyTaxSystem'
+                        ])
+                        ->label('Система налогообложения');
                     ?>
                 </div>
             </div>
@@ -177,7 +186,11 @@ use app\models\Person;
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <?php
-                    echo $form->field($model, 'vat_rate')->label('Ставка НДС');
+                    echo $form->field($model, 'vat_rate')
+                        ->textInput([
+                            'data-value' => 'vatRate'
+                        ])
+                        ->label('Ставка НДС');
                     ?>
                 </div>
             </div>
@@ -395,6 +408,14 @@ var frm = 'OrganizationFrm',
     };
 
 jQuery(function() {
+    /*
+    $('#country-select')
+        .change(function() {
+            console.log();
+        })
+        .trigger('change');
+    */
+
     $('.image_preview_select')
         .change(function() {
             var $source = $(this).data('source'),
