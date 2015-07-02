@@ -13,14 +13,25 @@ class ActualNumberDao extends Singleton
     public function collectFromUsages($number = null)
     {
         $data = ActualNumber::getDb()->createCommand("
+
+            SELECT 
+                client_id, number, region, call_count, 
+                number_type, direction, number7800,
+                is_blocked, is_disabled 
+            FROM
+            ( SELECT 
+                a.*, 
+                IF (number_type = 'nonumber', IFNULL((SELECT e164 FROM usage_voip u WHERE line7800_id = usage_id AND CAST(NOW() AS  DATE) BETWEEN actual_from AND actual_to), '') , '') AS number7800
+            FROM (
                 SELECT 
                     client_id, 
                     e164 AS number, 
                     region, 
+                    usage_id,
                     no_of_lines AS call_count, 
                     IF(is_virtual, 'vnumber', IF(LENGTH(e164) > 5,'number','nonumber')) AS number_type,
                     allowed_direction AS direction, 
-                    line7800_id,
+                    #line7800_id,
                     is_blocked, 
                     voip_disabled AS is_disabled
 
@@ -30,7 +41,8 @@ class ActualNumberDao extends Singleton
                             TRIM(e164) AS e164,
                             u.no_of_lines,
                             u.region,
-                            IFNULL((SELECT an.id FROM usage_voip u7800, actual_number an WHERE u7800.id = u.line7800_id and an.number = u7800.e164), 0) AS line7800_id,
+                            u.id as usage_id,
+                            #IFNULL((SELECT an.id FROM usage_voip u7800, actual_number an WHERE u7800.id = u.line7800_id and an.number = u7800.e164), 0) AS line7800_id,
                             IFNULL((SELECT block FROM log_block WHERE id= (SELECT MAX(id) FROM log_block WHERE service='usage_voip' AND id_service=u.id)), 0) AS is_blocked,
                             IFNULL((
                                 SELECT 
@@ -55,6 +67,9 @@ class ActualNumberDao extends Singleton
                             ".($number ? "and e164 = :number" : "")."
                         ORDER BY u.id
                     )a
+                WHERE e164 NOT LIKE '7800%'
+                )a
+            )a
                     ", ($number ? [":number" => $number] : []))->queryAll();
 
         $d = array();
@@ -69,18 +84,13 @@ class ActualNumberDao extends Singleton
     {
         $data = ActualNumber::getDb()->createCommand("
                 SELECT 
-                    client_id, 
-                    number, 
-                    region, 
-                    call_count, 
-                    number_type, 
-                    direction, 
-                    line7800_id,
-                    is_blocked, 
-                    is_disabled 
+                    client_id, number, region, call_count, 
+                    number_type, direction, number7800,
+                    is_blocked, is_disabled 
                 FROM 
                     actual_number a
-                ".($number ? "WHERE number = :number" : "")."
+                WHERE number not like '7800%'
+                ".($number ? "and number = :number" : "")."
                 ORDER BY id", [":number" => $number])->queryAll();
 
         $d = array();
