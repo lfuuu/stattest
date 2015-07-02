@@ -8,22 +8,19 @@ use yii\db\ActiveQuery;
 class OrganizationQuery extends ActiveQuery
 {
 
-    protected $filter_date = '';
-
-    public function setFilterDate($date)
+    public function actual($date = '')
     {
-        $this->filter_date = $date;
-        return $this;
-    }
+        $filter_date =
+            (new DateTime($date))
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->format('Y-m-d');
 
-    public function actual()
-    {
         return
             $this
                 ->select('organization.*')
                 ->leftJoin('organization o2', 'organization.`id` = o2.`id` and organization.`actual_from` = o2.`actual_from`')
-                ->andWhere('organization.`actual_from` <= CAST(:date AS date)', [':date' => $this->getFilterDate()])
-                ->andWhere('o2.`actual_to` >= CAST(:date AS date)', [':date' => $this->getFilterDate()])
+                ->andWhere('organization.`actual_from` <= CAST(:date AS date)', [':date' => $filter_date])
+                ->andWhere('o2.`actual_to` >= CAST(:date AS date)', [':date' => $filter_date])
                 ->orderBy('organization.`actual_from` DESC');
     }
 
@@ -50,11 +47,4 @@ class OrganizationQuery extends ActiveQuery
                 ]);
     }
 
-    private function getFilterDate()
-    {
-        return
-            (new DateTime($this->filter_date))
-                ->setTimezone(new DateTimeZone('UTC'))
-                ->format('Y-m-d');
-    }
 }
