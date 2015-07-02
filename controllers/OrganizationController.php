@@ -75,8 +75,7 @@ class OrganizationController extends BaseController
     {
         $organization = Organization::find()
             ->byId($id)
-            ->setFilterDate($date)
-            ->actual()
+            ->actual($date)
             ->one();
 
         if (!$organization instanceof Organization)
