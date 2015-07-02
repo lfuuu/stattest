@@ -94,12 +94,6 @@ function do_func($function)
 		case 'getStatisticsInternetData': return ApiLk::getStatisticsInternetData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
 		case 'getStatisticsCollocationData': return ApiLk::getStatisticsCollocationData(get_param_raw("client_id"), get_param_raw("from"), get_param_raw("to"), get_param_raw("detality"), get_param_raw("route")); break;
 
-        //vpbx
-        case 'getClientPhoneNumbers': return ApiVpbx::getClientPhoneNumbers(get_param_raw("client_id")); break;
-        case 'setClientVatsPhoneNumbers': return ApiVpbx::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
-        case 'vpbx_addDid': return ApiVpbx::addDid(get_param_raw("client_id"), get_param_raw("stat_product_id"), get_param_raw("phone")); break;
-        case 'vpbx_delDid': return ApiVpbx::delDid(get_param_raw("client_id"), get_param_raw("stat_product_id"), get_param_raw("phone")); break;
-
         case 'getClientPhoneNumbers': return Api::getClientPhoneNumbers(get_param_raw("client_id")); break;
         case 'setClientVatsPhoneNumbers': return Api::setClientVatsPhoneNumbers(get_param_raw("client_id"), get_param_raw("phones")); break;
 
