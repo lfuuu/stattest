@@ -1,4 +1,5 @@
 <?php
+
 namespace _1c;
 
 use app\models\Bill;
