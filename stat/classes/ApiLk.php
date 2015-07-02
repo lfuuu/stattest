@@ -321,8 +321,6 @@ class ApiLk
         if (!$card)
             return $ret;
 
-        $isDBAtsInited = $db_ats && $db != $db_ats;
-    
         foreach(NewBill::find_by_sql(
                 '
                     SELECT
@@ -366,12 +364,9 @@ class ApiLk
             $line["tarif_name"] = $usage->currentTariff->name;
             $line["per_month"] = number_format($usage->getAbonPerMonth(), 2);
 
-            if ($isDBAtsInited)
-            {
-                $line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
-            } else {
-                $line["vpbx"] = 0;
-            }
+            //$line["vpbx"] = virtPbx::number_isOnVpbx($clientId, $line["number"]) ? 1 : 0;
+            $line["vpbx"] = 0;
+
             $ret[] = $isSimple ? $line["number"] : $line;
         }
     

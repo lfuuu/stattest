@@ -3214,7 +3214,7 @@ class voipRegion
                 "89" => "176.227.177.6"
                 );
 
-        $numberId = ats2Numbers::getNumberId($number, $clientId);
+        $numberId = false;//ats2Numbers::getNumberId($number, $clientId);
 
         $msg = "";
 

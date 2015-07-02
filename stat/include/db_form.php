@@ -302,7 +302,6 @@ class HelpDbForm {
             'E164'=>'номер телефона',
             'status'=>'состояние',
             'is_trunk'=>'Транк',
-            'one_sip'=>'Одна SIP-учетка',
             'param_value'=>'param_value',
             'comment'=>'комментарий',
             'ip'=>'ip',
@@ -465,7 +464,6 @@ class DbFormUsageVoip extends DbForm {
         $this->fields['allowed_direction']=array('assoc_enum' => UsageVoip::$allowedDirection, 'default'=>'full');
         $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
         $this->fields['is_trunk']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
-        $this->fields['one_sip']=array("assoc_enum" => array("0"=>"Нет","1"=>"Да"));
         $this->fields['address']=array();
         $this->fields['edit_user_id']=array('type'=>'hidden');
         $this->fields['is_moved']=array("type" => 'checkbox', 'visible' => false);
@@ -651,31 +649,6 @@ class DbFormUsageVoip extends DbForm {
                             $this->dbform['t_dest_group'],$this->dbform['t_minpayment_group'],
                             $this->dbform['t_minpayment_local_mob'],$this->dbform['t_minpayment_russia'],$this->dbform['t_minpayment_intern']
                         );
-                }
-
-                if (defined("AUTOCREATE_SIP_ACCOUNT") && AUTOCREATE_SIP_ACCOUNT && !$this->dbform["is_trunk"]) {
-                    
-                    $toAutoCreate = false;
-
-                    if ($v == "add")
-                    {
-                        $toAutoCreate = true;
-                    } elseif ($v == "edit")
-                    {
-                        foreach(array("actual_from", "actual_to", "one_sip", "no_of_lines", ) as $field)
-                        {
-                            if ($this->dbform[$field] != $current[$field])
-                            {
-                                $toAutoCreate = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($toAutoCreate)
-                    {
-                        event::go("autocreate_accounts", $this->data["id"]."|".$this->data["one_sip"]);
-                    }
                 }
 
             }else{
@@ -1914,7 +1887,6 @@ $GLOBALS['translate_arr']=array(
     '*.date_last_writeoff'    => 'дата последнего списания',
     '*.status'                => 'состояние',
     'usage_voip.is_trunk'              => 'Оператор',
-    'usage_voip.one_sip'              => 'Одна SIP-учетка',
     'usage_voip.allowed_direction'      => 'Разрешенные направления',
         
     'emails.local_part'        => 'почтовый ящик',

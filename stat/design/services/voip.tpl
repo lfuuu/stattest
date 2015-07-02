@@ -101,7 +101,7 @@
         {/foreach}
     </table>
 
-    {if $is_vo_view && access("services_voip", "send_settings")}
+    {if $is_vo_view && access("services_voip", "send_settings") && false}
         <div align=right style="padding-right: 55px; font: normal 8pt sans-serif; ">
             <a href="./?module=services&action=vo_settings_send">Выслать настройки</a>
         </div>

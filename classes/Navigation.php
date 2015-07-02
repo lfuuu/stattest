@@ -41,7 +41,6 @@ class Navigation
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
         $this->addBlockForStatModule('incomegoods');
-        $this->addBlockForStatModule('ats2');
         $this->addBlockForStatModule('logs');
     }
 

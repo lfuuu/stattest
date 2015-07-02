@@ -7,12 +7,6 @@ return [
             'support'   =>  'ограниченный доступ',
         ],
     ],
-    'ats2' => [
-        'name' => 'Учетные записи SIP',
-        'permissions' => [
-            'access'    =>  'доступ',
-        ],
-    ],
     'clients' => [
         'name' => 'Работа с клиентами',
         'permissions' => [

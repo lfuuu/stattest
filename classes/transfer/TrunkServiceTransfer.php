@@ -24,8 +24,6 @@ class TrunkServiceTransfer extends ServiceTransfer
 
         $this->processSettings($targetService);
 
-        Event::go('ats2_numbers_check');
-
         return $targetService;
     }
 

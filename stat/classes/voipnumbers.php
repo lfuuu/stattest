@@ -134,9 +134,6 @@ class voipNumbers
     {
         l::ll(__CLASS__,__FUNCTION__);
         voipNumbersChecker::check();
-
-        //define("voip_debug", 1);
-        //ats2Numbers::check();
     }
 
     public static function getNumberId($l)
