@@ -2,6 +2,7 @@
 
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
+use app\classes\api\ApiVpbx;
 
 class VirtPbx3Checker
 {
@@ -212,7 +213,7 @@ class VirtPbx3Action
         $exceptionVpbx = null;
         try {
 
-            SyncVirtPbx::create($l["client_id"], $l["usage_id"]);
+            ApiVpbx::create($l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             $exceptionVpbx = $e;
@@ -267,7 +268,7 @@ class VirtPbx3Action
 
         try {
 
-            SyncVirtPbx::changeTarif($l["client_id"], $l["usage_id"]);
+            ApiVpbx::updateTariff($l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             throw $e;
