@@ -243,7 +243,7 @@ abstract class DocumentReport extends Object
         $filtered_lines = [];
 
         foreach ($this->lines as $line) {
-            if (!(int) $line['sum']) continue;
+            if (!$line['sum']) continue;
 
             $filtered_lines[] = $line;
         }
