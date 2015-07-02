@@ -84,8 +84,6 @@ function getPass(len)
             <input type="button" style="width:80px; font: normal 6pt sans-serif; height:25px;" value="Сгенерировать" onclick="genPass();">
 	    {elseif $item.type == "password_ats"}
             {include file="ats/FormConctructor_password_ats.htm"}
-	    {elseif $item.type == "password_ats2"}
-            {include file="ats2/FormConctructor_password_ats.htm"}
 	    {elseif $item.type == "text"}
             <INPUT type="text" name="{$name}" value="{$data[$name]}" {if isset($item.id)} id="{$item.id}"{/if} {if isset($item.check_change)} onChange="_check()"{/if} alt="{$item.mask}">
 	        

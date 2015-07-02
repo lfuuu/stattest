@@ -296,7 +296,7 @@ class virtPbx
             throw new Exception("VPBX у клиента не нейдана");
         }
 
-        $numberId = ats2Numbers::getNumberId(array("client_id" => $clientId, "e164" => $number));
+        $numberId = false;//ats2Numbers::getNumberId(array("client_id" => $clientId, "e164" => $number));
 
         if (!$numberId)
         {
@@ -321,7 +321,7 @@ class virtPbx
             throw new Exception("VPBX у клиента не нейдана");
         }
 
-        $numberId = ats2Numbers::getNumberId(array("client_id" => $clientId, "e164" => $number));
+        $numberId = false;//ats2Numbers::getNumberId(array("client_id" => $clientId, "e164" => $number));
 
         if (!$numberId)
         {

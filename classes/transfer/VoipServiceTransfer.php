@@ -23,8 +23,6 @@ class VoipServiceTransfer extends ServiceTransfer
 
         LogTarifTransfer::process($this, $targetService->id);
 
-        Event::go('ats2_numbers_check');
-
         return $targetService;
     }
 

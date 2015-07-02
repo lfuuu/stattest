@@ -60,20 +60,12 @@ function do_events()
             {
                 case 'company_changed':     EventHandler::companyChanged($param); break;
 
-                case 'client_set_status':
-                case 'usage_voip__insert':
-                case 'usage_voip__update':
-                case 'usage_voip__delete':  ats2Numbers::check();
-                                            break;
-
                 case 'add_payment':    EventHandler::updateBalance($param[1]);
                                        LkNotificationContact::createBalanceNotifacation($param[1], $param[0]); 
                                        break;
                 case 'update_balance': EventHandler::updateBalance($param); break;
 
                 case 'midnight': voipNumbers::check();echo "...voipNumbers::check()"; /* проверка необходимости включить или выключить услугу */
-                                 ats2Numbers::check();echo "...ats2Numbers::check()";
-                                 virtPbx::check();echo "...virtPbx::check()";
                                  VirtPbx3::check();echo "...VirtPbx3::check()";
                                  if(WorkDays::isWorkDayFromMonthStart(time(), 2)) { //каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                                      NewBill::setLkShowForAll();
@@ -86,10 +78,6 @@ function do_events()
                                  Bill::cleanOldPrePayedBills(); echo "... clear prebilled bills";
                                  EventQueue::clean();echo "...EventQueue::clean()";
                                  break;
-
-                case 'autocreate_accounts':
-                    ats2Numbers::autocreateAccounts($param[0], (bool)$param[1], true);
-                    break;
             }
 
             if (defined("CORE_SERVER") && CORE_SERVER)
@@ -108,11 +96,9 @@ function do_events()
                     case 'usage_virtpbx__insert':
                     case 'usage_virtpbx__update':
                     case 'usage_virtpbx__delete':
-                                                  virtPbx::check();
                                                   VirtPbx3::check($param[0]);
                     break;
                     case 'client_set_status':
-                                                  virtPbx::check();
                                                   VirtPbx3::check();
                                                   break; 
 
