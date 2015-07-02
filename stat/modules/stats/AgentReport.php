@@ -384,7 +384,7 @@ class AgentReport
                         $total['fsum'] += $ret[$r['id']]['fsum'];
             }
         }
-        $total = AgentReport::prepareTotals($total);
+        //$total = AgentReport::prepareTotals($total);
         return array($ret, $total);
     }
     
@@ -393,13 +393,15 @@ class AgentReport
      * Подговка массива для вывода текстовых значений вознагрождений
      * @param array $total массив с данными
      */
+    /*
     private static function prepareTotals($total)
     {
-        //$total['nds'] = round($total['fsum']*(18/118), 2);
+        $total['nds'] = round($total['fsum']*(18/118), 2);
         $total['fsum_str'] = floor($total['fsum']) . ' руб. ' . floor(round(100*($total['fsum'] - floor($total['fsum'])), 5)) . ' коп.';
         $total['nds_str'] = floor($total['nds']) . ' руб. ' . floor(round(100*($total['nds'] - floor($total['nds'])), 5)) . ' коп.';
         return $total;
     }
+    */
     
     /** 
      * Обработка параметров запроса и вызов соответствующей функии для детализации
