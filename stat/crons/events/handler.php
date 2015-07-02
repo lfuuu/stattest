@@ -21,6 +21,8 @@ runChecker::run();
 
 $counter = 2;
 
+EventQueue::table()->conn->query("SET @@session.time_zone = '+00:00'");
+
 do{
     do_events();
     sleep($sleepTime);
@@ -123,11 +125,14 @@ function do_events()
 
                 if (defined("use_ats3"))
                 {
+                    $number = false;
                     switch($event->event)
                     {
+                        case 'actualize_number': $number = $param["number"];
                         case 'usage_voip__insert':
                         case 'usage_voip__update':
-                        case 'usage_voip__delete': ActaulizerVoipNumbers::me()->actualizeByNumber($param[2]); break;
+                        case 'usage_voip__delete': $number = $number ?: $param[2];
+                                                    ActaulizerVoipNumbers::me()->actualizeByNumber($number); break;
 
                         case 'midnight': 
                         case 'client_set_status': ActaulizerVoipNumbers::me()->actualizeAll(); break;

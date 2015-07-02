@@ -21,6 +21,11 @@ class ActaulizerVoipNumbers
 
     public function actualizeByNumber($number)
     {
+        if ($this->check7800($number))
+        {
+            return true;
+        }
+
         $this->checkSync($number);
     }
 
@@ -72,6 +77,26 @@ class ActaulizerVoipNumbers
         }
     }
 
+    private function check7800($number)
+    {
+        //вместо номера 7800 мы синхронизируем ассоциированную линию
+        if ($this->is7800($number))
+        {
+            $n = UsageVoip::find()->phone($number)->actual()->one();
+            if ($n && $n->line7800_id)
+            {
+                $line = UsageVoip::findOne(["id" => $n->line7800_id]);
+
+                if ($line)
+                {
+                    $this->event_go("actualize_number", ["number" => $line->E164]);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private function checkDiff($saved, $actual)
     {
         \l::ll(__CLASS__,__FUNCTION__,/*$saved, $actual,*/ "...","...");
@@ -87,7 +112,7 @@ class ActaulizerVoipNumbers
             $d[$l] = ["action" => "add"] + $actual[$l];
 
 
-        foreach(["client_id", "region", "call_count", "number_type", "direction", "line7800_id", "is_blocked", "is_disabled"] as $field)
+        foreach(["client_id", "region", "call_count", "number_type", "direction", "number7800", "is_blocked", "is_disabled"] as $field)
         {
             foreach($actual as $number => $l)
             {
@@ -128,7 +153,7 @@ class ActaulizerVoipNumbers
             $d["added"][$l] = $actual[$l];
 
 
-        foreach(["client_id", "region", "call_count", "number_type", "direction", "line7800_id", "is_blocked", "is_disabled"] as $field)
+        foreach(["client_id", "region", "call_count", "number_type", "direction", "number7800", "is_blocked", "is_disabled"] as $field)
         {
             foreach($actual as $number => $l)
             {
@@ -232,22 +257,9 @@ class ActaulizerVoipNumbers
             "nonumber"     => (bool)$this->isNonumber($data["number"])
             ];
 
-        if ($s["nonumber"] && $this->is7800($s["did"]))
+        if ($s["nonumber"] && $data["number7800"])
         {
-            if (!$data["line7800_id"])
-            {
-                print_r($data);
-                throw new \Exception("Usage line not set");
-            }
-
-            $usage_line  = ActualNumber::findOne($data["line7800_id"]);
-            if (!$usage_line)
-            {
-                print_r($data);
-                throw new \Exception("Usage line not found");
-            }
-
-            $s["nonumber_phone"] = $usage_line->number;
+            $s["nonumber_phone"] = $data["number7800"];
         }
 
         if ($s["type"] == "multi")
@@ -348,13 +360,9 @@ class ActaulizerVoipNumbers
                 $structChange["timezone"] = $this->getTimezoneByRegion($changedFields["region"]);
             }
 
-            if (isset($changedFields["line7800_id"]))
+            if (isset($changedFields["number7800"]))
             {
-                $usage_line  = ActualNumber::findOne($changedFields["line7800_id"]);
-                if (!$usage_line)
-                    throw new \Exception("Usage line not found");
-
-                $structChange["nonumber_phone"] = $usage_line->number;
+                $structChange["nonumber_phone"] = $changedFields["number7800"];
             }
 
             $this->execQuery("edit_did", $structChange);
@@ -363,7 +371,7 @@ class ActaulizerVoipNumbers
 
     private function isNonumber($number)
     {
-        return (strlen($number) < 6) || $this->is7800($number);
+        return (strlen($number) < 6);
     }
 
     private function is7800($number)
