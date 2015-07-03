@@ -40,9 +40,6 @@ use yii\helpers\Url;
         <li>
             <a href="index.php?module=clients&action=print_yota_contract" target="_blank">Печатать договор Yota</a>
         </li>
-        <li>
-            <a href="/?module=clients&id=<?= $account->id ?>&sync=true">Синхронизовать с ЛК</a>
-        </li>
     </ul>
 </div>
 

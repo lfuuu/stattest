@@ -287,12 +287,12 @@ class ClientAccount extends ActiveRecord
     }
 
 
+    /**
+     * @return ClientContract
+     */
     public function getContract()
     {
-        $date = null;
-        if(isset($this->historyVersionDate))
-            $date = $this->historyVersionDate;
-        return HistoryVersion::getVersionOnDate(ClientContract::className(), $this->contract_id, $date);
+        return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->historyVersionDate);
     }
 
     public function getContractType()
@@ -335,12 +335,12 @@ class ClientAccount extends ActiveRecord
         return $this->hasOne(ClientGridSettings::className(), ["id" => "business_process_status_id"]);
     }
 
+    /**
+     * @return ClientContragent
+     */
     public function getContragent()
     {
-        $date = null;
-        if(isset($this->historyVersionDate))
-            $date = $this->historyVersionDate;
-        return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->getContract()->contragent_id, $date);
+        return $this->getContract()->getContragent()->loadVersionOnDate($this->historyVersionDate);
     }
 
     public function getStatusName()
@@ -402,7 +402,7 @@ class ClientAccount extends ActiveRecord
     public function getOfficialContact()
     {
         $res = [];
-        $contacts = ClientContact::find(['client_id' => $this->id, 'is_official'=>1])->all();
+        $contacts = ClientContact::find()->andWhere(['client_id' => $this->id, 'is_official'=>1])->all();
         foreach($contacts as $contact){
             $res[$contact->type] = $contact;
         }
@@ -422,5 +422,13 @@ class ClientAccount extends ActiveRecord
         }
 
         return ["processes" => $processes, "statuses" => $statuses];
+    }
+
+    /**
+     * @return $this
+     */
+    public function loadVersionOnDate($date)
+    {
+        return HistoryVersion::loadVersionOnDate($this, $date);
     }
 }

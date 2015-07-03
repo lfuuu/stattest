@@ -56,28 +56,6 @@ class ClientContragent extends ActiveRecord
         return $rules;
     }
 
-    public function getAccounts()
-    {
-        $result = [];
-        foreach($this->getContracts() as $contract){
-            $result[] = array_merge($result,$contract->accounts);
-        }
-        return $result;
-    }
-
-    public function getPerson()
-    {
-        $date = null;
-        if(isset($this->historyVersionDate))
-            $date = $this->historyVersionDate;
-        return HistoryVersion::getVersionOnDate(ClientContragentPerson::className(), $this->contragent_id, $date);
-    }
-
-    public function getContracts()
-    {
-        return $this->hasMany(ClientContract::className(), ['contragent_id' => 'id']);
-    }
-
     public function save($runValidation = true, $attributeNames = null)
     {
         if ($this->isNewRecord) {
@@ -138,8 +116,51 @@ class ClientContragent extends ActiveRecord
         return parent::beforeValidate();
     }
 
+    /**
+     * @return array|ClientAccount[]
+     */
+    public function getAccounts()
+    {
+        $result = [];
+        foreach($this->getContracts() as $contract){
+            $result[] = array_merge($result,$contract->getAccounts());
+        }
+        return $result;
+    }
+
+    /**
+     * @return ClientContragentPerson
+     */
+    public function getPerson()
+    {
+        return ClientContragentPerson::findOne($this->contragent_id)->loadVersionOnDate($this->historyVersionDate);
+    }
+
+    /**
+     * @return array|ClientContract[]
+     */
+    public function getContracts()
+    {
+        $models = ClientContract::findAll(['contragent_id' => $this->id]);
+        foreach($models as &$model){
+            $model = $model->loadVersionOnDate($this->historyVersionDate);
+        }
+        return $models;
+    }
+
+    /**
+     * @return Country
+     */
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
+
+    /**
+     * @return $this
+     */
+    public function loadVersionOnDate($date)
+    {
+        return HistoryVersion::loadVersionOnDate($this, $date);
     }
 }

@@ -65,9 +65,7 @@ class ClientSearch extends ClientAccount
         ]);
 
         $this->setAttributes($params);
-        if (!$this->validate()) {
-            return $dataProvider;
-        }
+
         $query->innerJoin(ClientContract::tableName(), ClientContract::tableName() . '.id=' . ClientAccount::tableName() . '.contract_id');
         $query->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id=' . ClientAccount::tableName() . '.contragent_id');
 

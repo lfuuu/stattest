@@ -11,8 +11,7 @@ use \yii\helpers\Url;
         </div>
         <div class="col-sm-10">
             <div class="row">
-                <div class="col-sm-1">Файлы</div>
-                <div class="col-sm-11">
+                <div class="col-sm-12">
                     <?php foreach ($files as $file) : ?>
                         <a href="/file/download?id=<?= $file->id ?>" target="_blank">
                             <?= $file->name ?>

@@ -1154,7 +1154,7 @@ class m_newaccounts extends IModule
             for ($i=0;$i<200;$i++) $p.='                                                     ';
             $p.='</span>';
 
-            $clients = ClientAccount::find([['not in','status',["closed","deny","tech_deny", "trash"]]])->all();
+            $clients = ClientAccount::findAll([['not in','status',["closed","deny","tech_deny", "trash"]]]);
             foreach($clients as $c){
                 $bill = new Bill(null,$c,time(), 1, null, false);
                 $bill2 = null;
@@ -2704,14 +2704,17 @@ class m_newaccounts extends IModule
 
         if($inn){
             $q = $fromAdd ?
-                "select client_id as id from client_inn p, clients c where p.inn = '".$inn."' and p.client_id = c.id and p.is_active"
+                "select client_id as id from client_inn p, clients c
+INNER JOIN `client_contract` cr ON cr.id=c.contract_id
+INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
+where p.inn = '".$inn."' and p.client_id = c.id and p.is_active"
                 :
-                "select id from clients c
+                "select c.id from clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where cg.inn = '".$inn."'";
 
-            foreach($db->AllRecords($qq = $q." and firma in ('".implode("','", $firms)."')") as $c)
+            foreach($db->AllRecords($qq = $q." and cr.organization in ('".implode("','", $firms)."')") as $c)
                 $v[] = $c["id"];
 
         }
@@ -3031,7 +3034,7 @@ where cg.inn = '".$inn."'";
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where p.pay_acc = '".$acc."' and p.client_id = c.id"
                 :
-                "select id from clients c
+                "select c.id from clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
  INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
 where c.pay_acc = '".$acc."'";
@@ -3399,8 +3402,8 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
             c.client,
             cg.name AS company,
             cr.organization AS firma,
-            if(clients.currency = newbills.currency, 1,0) as f_currency,
-                    r.manager as client_manager,
+            if(c.currency = newbills.currency, 1,0) as f_currency,
+                    cr.manager as client_manager,
                     (select user from user_users where id=nbo.owner_id) as bill_manager'.($b_show_bonus ? ',
 
                     (SELECT group_concat(concat("#",code_1c, " ",bl.type, if(b.type is null, " -- ", concat(": (", `value`, b.type,") ", bl.sum, " => ", round(if(b.type = "%",bl.sum*0.01*`value`, `value`*amount),2)))) ORDER BY bl.`code_1c` separator "|\n")  FROM newbill_lines bl
@@ -3419,12 +3422,12 @@ inner join client_inn on client_inn.client_id=clients.id and client_inn.is_activ
 
                         left join newbill_owner nbo on (nbo.bill_no = newbills.bill_no)
                         '.$newpayments_join.'
-                        LEFT JOIN clients c ON clients.id = newbills.client_id
+                        LEFT JOIN clients c ON c.id = newbills.client_id
                          LEFT JOIN `client_contract` cr ON cr.id=c.contract_id
                          LEFT JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-                        LEFT JOIN newsaldo ON newsaldo.client_id = clients.id
+                        LEFT JOIN newsaldo ON newsaldo.client_id = c.id
                         and newsaldo.is_history = 0
-                        and newsaldo.currency = clients.currency
+                        and newsaldo.currency = c.currency
                         where '.MySQLDatabase::Generate($W1).'
 
                         ';

@@ -41,8 +41,7 @@ if ($action=='add_client') {
         echo "error:";
         exit();
     }
-///////////////Создание клиента из модели , удаление Apply... удаление log_client
-    $c = \app\models\ClientContact::find(['data' => $P['email'], 'type' => 'email'])->one();
+    $c = \app\models\ClientContact::findOne(['data' => $P['email'], 'type' => 'email']);
 
 	if($c)
 	{

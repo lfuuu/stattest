@@ -61,7 +61,7 @@ class ContractEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->contract = HistoryVersion::getVersionOnDate('ClientContract', $this->id, $this->ddate);
+            $this->contract = ClientContract::findOne($this->id)->loadVersionOnDate($this->ddate);
             if ($this->contract === null) {
                 throw new Exception('Contract not found');
             }

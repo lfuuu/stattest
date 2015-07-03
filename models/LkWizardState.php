@@ -71,7 +71,7 @@ class LkWizardState extends ActiveRecord
 
     public function add100Rub()
     {
-        $accounts = ClientAccount::find(['contract_id' => $this->contract_id]);
+        $accounts = ClientAccount::findAll(['contract_id' => $this->contract_id]);
         foreach ($accounts as $clientAccount) {
             $sum = -100;
 

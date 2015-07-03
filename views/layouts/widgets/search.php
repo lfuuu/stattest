@@ -109,12 +109,20 @@ kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView())
                     source: substringMatcher(),
                     templates: {
                         suggestion: function(obj){
-                            return '<div>'
-                                + '<a href="' + obj['url'] + '">'
-                                + '<div style="background:'+obj['color']+'; width: 16px;height: 16px;display: inline-block;"></div>'
-                                + ' ЛС № ' + obj['id']
-                                + ' ' + obj['value']
-                                + '</a>';
+                            if(obj['type'] == 'bill'){
+                                return '<div>'
+                                    + '<a href="' + obj['url'] + '">'
+                                    + ' Счет № ' + obj['value']
+                                    + '</a></div>';
+                            }
+                            else {
+                                return '<div>'
+                                    + '<a href="' + obj['url'] + '">'
+                                    + '<div style="background:' + obj['color'] + '; width: 16px;height: 16px;display: inline-block;"></div>'
+                                    + ' ЛС № ' + obj['id']
+                                    + ' ' + obj['value']
+                                    + '</a></div>';
+                            }
                         }
                     }
                 });

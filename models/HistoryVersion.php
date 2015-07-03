@@ -94,4 +94,23 @@ class HistoryVersion extends ActiveRecord
 
         return $currentModel;
     }
+
+    public static function loadVersionOnDate(ActiveRecord $model, $date = null)
+    {
+        $modelName = substr($model->className(), strlen('app\\models\\'));
+
+        if(null===$date && null!==$model)
+            return $model;
+
+        $historyModel = static::find()
+            ->andWhere(['model' => $modelName])
+            ->andWhere(['model_id' => $model->primaryKey])
+            ->andWhere(['<=','date',$date])
+            ->orderBy('date DESC')->one();
+
+        $model->setAttributes(json_decode($historyModel['data_json'], true), false);
+        $model->historyVersionDate = $date;
+
+        return $model;
+    }
 }

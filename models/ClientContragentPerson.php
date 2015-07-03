@@ -53,4 +53,12 @@ class ClientContragentPerson extends ActiveRecord
             return true;
         }
     }
+
+    /**
+     * @return $this
+     */
+    public function loadVersionOnDate($date)
+    {
+        return HistoryVersion::loadVersionOnDate($this, $date);
+    }
 }

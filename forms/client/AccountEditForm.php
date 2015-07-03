@@ -108,7 +108,7 @@ class AccountEditForm extends Form
     public function init()
     {
         if ($this->id) {
-            $this->clientM = HistoryVersion::getVersionOnDate('ClientAccount', $this->id, $this->ddate);
+            $this->clientM =  ClientAccount::findOne($this->id)->loadVersionOnDate($this->ddate);
             if ($this->clientM === null) {
                 throw new Exception('Contract not found');
             }

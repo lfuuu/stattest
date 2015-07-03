@@ -1,5 +1,6 @@
 <?php
 use \yii\helpers\Url;
+use \kartik\widgets\DatePicker;
 ?>
 <?php $docs = $account->allDocuments; ?>
 
@@ -107,8 +108,17 @@ use \yii\helpers\Url;
                                    value="<?= $account->contract->id ?>">
                         </div>
                         <div class="col-sm-2">
-                            <input class="form-control contract_datepicker" type="text"
-                                   name="contract_date">
+                            <?= DatePicker::widget(
+                                [
+                                    'name' => 'contract_date',
+                                    'value' => date('Y-m-d'),
+                                    'removeButton' => false,
+                                    'pluginOptions' => [
+                                        'autoclose' => true,
+                                        'format' => 'yyyy-mm-dd',
+                                    ],
+                                ]
+                            ); ?>
                         </div>
                         <div class="col-sm-2">
                             <input class="form-control" type="text" name="comment">
@@ -134,7 +144,7 @@ use \yii\helpers\Url;
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <button type="submit" class="btn btn-default col-sm-12">Загрузить</button>
+                            <button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button>
                         </div>
                     </form>
                 </div>
@@ -186,7 +196,18 @@ use \yii\helpers\Url;
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="blank">
                             <input class="form-control" type="text" name="contract_no"
                                    value="<?= $blnk ? $doc->contract_no + 1 : 1 ?>"></div>
-                        <div class="col-sm-2"><input class="form-control contract_datepicker" type="text" name="contract_date">
+                        <div class="col-sm-2">
+                            <?= DatePicker::widget(
+                                [
+                                    'name' => 'contract_date',
+                                    'value' => date('Y-m-d'),
+                                    'removeButton' => false,
+                                    'pluginOptions' => [
+                                        'autoclose' => true,
+                                        'format' => 'yyyy-mm-dd',
+                                    ],
+                                ]
+                            ); ?>
                         </div>
                         <div class="col-sm-2"><input class="form-control" type="text" name="comment"></div>
                         <div class="col-sm-2">
@@ -206,7 +227,7 @@ use \yii\helpers\Url;
                                 <option value="Dog_UslugiSvayzi">Dog_UslugiSvayzi</option>
                             </select>
                         </div>
-                        <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Загрузить</button></div>
+                        <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button></div>
                     </form>
                 </div>
         </div>
@@ -257,7 +278,18 @@ use \yii\helpers\Url;
                         <div class="col-sm-2"><input type="hidden" name="contract_type" value="agreement">
                             <input class="form-control" type="text" name="contract_no"
                                    value="<?= $armnt ? $armnt + 1 : 1 ?>"></div>
-                        <div class="col-sm-2"><input class="form-control contract_datepicker" type="text" name="contract_date">
+                        <div class="col-sm-2">
+                            <?= DatePicker::widget(
+                                [
+                                    'name' => 'contract_date',
+                                    'value' => date('Y-m-d'),
+                                    'removeButton' => false,
+                                    'pluginOptions' => [
+                                        'autoclose' => true,
+                                        'format' => 'yyyy-mm-dd',
+                                    ],
+                                ]
+                            ); ?>
                         </div>
                         <div class="col-sm-2"><input class="form-control" type="text" name="comment"></div>
                         <div class="col-sm-2">
@@ -289,7 +321,7 @@ use \yii\helpers\Url;
                                 <option value="Dop_8800">Dop_8800</option>
                             </select>
                         </div>
-                        <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Загрузить</button></div>
+                        <div class="col-sm-2"><button type="submit" class="btn btn-default col-sm-12">Зарегистрировать</button></div>
                     </form>
                 </div>
         </div>

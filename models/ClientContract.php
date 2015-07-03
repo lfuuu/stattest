@@ -112,44 +112,54 @@ class ClientContract extends ActiveRecord
         return ($m) ? $m->name : $this->organization;
     }
 
+    /**
+     * @return array|ClientContractComment[]
+     */
     public function getComments()
     {
         return $this->hasMany(ClientContractComment::className(), ['contract_id' => 'id']);
     }
 
+    /**
+     * @return ClientSuper
+     */
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
+    /**
+     * @return ClientContragent
+     */
     public function getContragent()
     {
-        $date = null;
-        if(isset($this->historyVersionDate))
-            $date = $this->historyVersionDate;
-        return HistoryVersion::getVersionOnDate(ClientContragent::className(), $this->contragent_id, $date);
+        return ClientContragent::findOne($this->contragent_id)->loadVersionOnDate($this->historyVersionDate);
     }
 
+    /**
+     * @return array|ClientAccount[]
+     */
     public function getAccounts()
     {
-        $date = null;
-        if(isset($this->historyVersionDate))
-            $date = $this->historyVersionDate;
-
         $models = $this->hasMany(ClientAccount::className(), ['contract_id' => 'id'])->all();
         foreach($models as &$model)
         {
-            $model = HistoryVersion::getVersionOnDate(ClientAccount::className(), $model->id, $date);
+            $model = $model->loadVersionOnDate($this->historyVersionDate);
         }
-
         return $models;
     }
 
+    /**
+     * @return array|ClientFile[]
+     */
     public function getAllFiles()
     {
         return $this->hasMany(ClientFile::className(), ['contract_id' => 'id']);
     }
 
+    /**
+     * @return FileManager
+     */
     public function getFileManager()
     {
         return FileManager::create($this->id);
@@ -167,21 +177,14 @@ class ClientContract extends ActiveRecord
             $this->newClient = $client;
             $this->number = $client->id;
             $this->save();
-            /*
-            if($client->id > $this->id){
-                $this->id = $client->id;
-                $this->number = $this->id.'-'.date('y');
-                $this->save();
-                $client->contract_id = $this->id;
-                $client->save();
-            }
-            else{
-                $this->number = $this->id.'-'.date('y');
-                $this->save();
-                $client->id = $this->id;
-                $client->save();
-            }
-            */
         }
+    }
+
+    /**
+     * @return $this
+     */
+    public function loadVersionOnDate($date)
+    {
+        return HistoryVersion::loadVersionOnDate($this, $date);
     }
 }

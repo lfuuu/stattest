@@ -18,6 +18,18 @@ class SearchController extends BaseController
         $params = [];
         switch ($searchType) {
             case 'clients':
+                /////////////////////////////////////
+                //Дополнительный поиск по счетам...//
+                /////////////////////////////////////
+                if (null !== $model = Bill::findOne(['bill_no' => trim($search)])) {
+                    if(Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search), 'value' => $model->bill_no, 'type' => 'bill']];
+                    }
+                    else
+                        return $this->redirect('/index.php?module=newaccounts&action=bill_view&bill=' . trim($search));
+                }
+                /////////////////////////////////////
                 if (trim($search) == intval($search))
                     $params['id'] = intval($search);
                 $params['companyName'] = $search;
@@ -35,14 +47,13 @@ class SearchController extends BaseController
                 $params['contractNo'] = trim($search);
                 break;
             case 'bills':
-                if (null !== $model = Bill::find(['bill_no' => trim($search)])->one()) {
-                    $client = ClientAccount::findOne($model->client_id)->client;
+                if (null !== $model = Bill::findOne(['bill_no' => trim($search)])) {
                     if(Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => '/index.php?module=newaccounts&action=bill_list&clients_client=' . $client, 'value' => $model->bill_no]];
+                        return [['url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search), 'value' => $model->bill_no, 'type' => 'bill']];
                     }
                     else
-                        return $this->redirect('/index.php?module=newaccounts&action=bill_list&clients_client=' . $client);
+                        return $this->redirect('/index.php?module=newaccounts&action=bill_view&bill=' . trim($search));
                 } else {
                     return $this->render('result', ['message' => 'Счет № '.$search.' не найден']);
                 }

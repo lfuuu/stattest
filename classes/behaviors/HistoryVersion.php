@@ -44,7 +44,8 @@ class HistoryVersion extends Behavior
 
     private function checkDiff($queryData)
     {
-        $model = \app\models\HistoryVersion::find([
+        $model = \app\models\HistoryVersion::find()
+                ->andWhere([
                     'model' => $queryData['model'],
                     'model_id' => $queryData['model_id'],
                 ])
